@@ -1,6 +1,7 @@
 /**
- * The score panel's side of the last-session Review: whether it shows, what the lazily loaded
- * `ReviewPanel` is given (the session's phrases and instrument, the workspace staff's viewport and
+ * The score panel's side of the Review: whether it shows, what the lazily loaded `ReviewPanel` is
+ * given (the session's phrases, start and instrument as the session holds them, how it is kept and
+ * whether it is the most recent session, the workspace staff's viewport and
  * no-room state, the generated-notes export's format, backing track and file action, whether the
  * session holds a played note, the played-notes export and the Played notes switch's state), and
  * the warm-up of the panel's chunk when a session starts, so the Review opening at its end does
@@ -15,10 +16,9 @@ import { loadReviewPanel } from '@/components/review/load-review-panel'
 import type { ExportRequest, GeneratedNotesFormat } from '@/components/review/review-types'
 import type { GenerationSessionState } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
-import { getInstrumentProfile } from '@/domain/generation/generation-intent'
 import type { StaffViewport } from '@/notation/notation-layout-policy'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
-import type { SessionHistory, SessionHistoryRecord } from '@/session/session-history'
+import type { ReviewedPhrase } from '@/session/session-history'
 import type { ReviewPreferences } from '@/storage/records/setting-defaults'
 import type { SaveSettings } from '@/storage/settings-saver'
 import {
@@ -27,7 +27,12 @@ import {
   historyHoldsPlayedNote,
   type ReviewExportPorts,
 } from './review-export'
-import type { SessionController } from './workspace-session-controller-types'
+import type {
+  ReviewedHistory,
+  SessionController,
+  SessionKeeping,
+  SessionReview,
+} from './workspace-session-controller-types'
 
 /**
  * What the Review host reads: the session controller, the Idle state, the export's ports, the
@@ -54,9 +59,22 @@ export interface ReviewHost {
   /** The Review shows, in place of the staff area. */
   readonly showing: ComputedRef<boolean>
   /** The showing Review's phrases, in the order they started sounding; empty while none shows. */
-  readonly records: ComputedRef<readonly SessionHistoryRecord[]>
-  /** The showing Review's instrument profile, as the instrument-profile control names it. */
+  readonly records: ComputedRef<readonly ReviewedPhrase[]>
+  /**
+   * The showing Review's instrument, by the name the session holds (never looked up by id); empty
+   * while none shows.
+   */
+  // @spec-link [[req_kept_session_review]]
   readonly instrumentName: ComputedRef<string>
+  /** The showing Review's session start, epoch milliseconds; null while none shows. */
+  // @spec-link [[req_kept_session_review]]
+  readonly startedAt: ComputedRef<number | null>
+  /** How the showing Review's session is kept; null while none shows. */
+  // @spec-link [[module_kept_session_save]]
+  readonly keeping: ComputedRef<SessionKeeping | null>
+  /** The showing Review draws the most recent session. */
+  // @spec-link [[req_kept_session_review]]
+  readonly mostRecent: ComputedRef<boolean>
   /** The workspace staff's latest viewport; null before the staff has reported one. */
   readonly viewport: Readonly<Ref<StaffViewport | null>>
   /** The workspace staff has no room (the no-room cause only), live. */
@@ -112,16 +130,25 @@ function warmReviewPanel(): void {
 // @spec-link [[rule_session_data_never_sent_or_stored]]
 // @spec-link [[rule_settings_saved_on_change]]
 export function useReviewHost(deps: ReviewHostDependencies): ReviewHost {
-  /** Intent: the Review's history while it shows; null otherwise. */
-  const shownHistory = computed((): SessionHistory | null => {
+  /** Intent: the Review while it shows; null otherwise. */
+  const shownReview = computed((): SessionReview | null => {
     const review = deps.controller()?.state.review ?? null
-    return review !== null && review.showing ? review.history : null
+    return review !== null && review.showing ? review : null
   })
+  /** Intent: the Review's history while it shows; null otherwise. */
+  const shownHistory = computed((): ReviewedHistory | null => shownReview.value?.history ?? null)
   const showing = computed(() => shownHistory.value !== null)
   const records = computed(() => shownHistory.value?.phrases() ?? [])
-  const instrumentName = computed(() => {
+  // @spec-link [[req_last_session_review]]
+  // @spec-link [[req_kept_session_review]]
+  const instrumentName = computed(() => shownReview.value?.instrumentName ?? '')
+  const startedAt = computed(() => shownHistory.value?.startedAt ?? null)
+  const keeping = computed(() => shownReview.value?.keeping ?? null)
+  /** Intent: whether the showing Review draws the most recent session (titled "Last session"). */
+  const mostRecent = computed(() => {
+    const recent = deps.controller()?.state.mostRecent ?? null
     const history = shownHistory.value
-    return history === null ? '' : getInstrumentProfile(history.instrumentProfileId).displayName
+    return history !== null && recent?.kind === 'held' && recent.session.history === history
   })
   const viewport = shallowRef<StaffViewport | null>(null)
   const noRoom = computed(() => deps.idle().roomNotice === 'no_room')
@@ -136,7 +163,7 @@ export function useReviewHost(deps: ReviewHostDependencies): ReviewHost {
    * Intent: run `run` on the showing Review's history; an export asked for with none showing is a
    * defect, refused as a rejection.
    */
-  function withShownHistory(run: (history: SessionHistory) => Promise<void>): Promise<void> {
+  function withShownHistory(run: (history: ReviewedHistory) => Promise<void>): Promise<void> {
     const history = shownHistory.value
     if (history === null) {
       return Promise.reject(
@@ -188,6 +215,9 @@ export function useReviewHost(deps: ReviewHostDependencies): ReviewHost {
     showing,
     records,
     instrumentName,
+    startedAt,
+    keeping,
+    mostRecent,
     viewport,
     noRoom,
     format: readonly(format),

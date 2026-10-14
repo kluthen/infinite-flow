@@ -23,6 +23,7 @@ import type { IdleLayoutPort } from './idle-layout-gate'
 import type { SessionOptionChoices } from '@/storage/records/setting-defaults'
 import type { WorkspacePregenerationFactory } from './workspace-pregeneration'
 import type { SessionSaveHold } from '@/storage/settings-saver'
+import type { KeptSessionsSeam } from './workspace-kept-sessions-seam'
 
 /**
  * The display's frame loop: `request` runs `callback` once, at the next frame (the browser's
@@ -114,4 +115,6 @@ export interface SessionControllerDependencies {
    * end, or a start undone part-way), so a change made during a session is written when it ends.
    */
   readonly saveHold: SessionSaveHold
+  /** The kept sessions as the controller reaches them, for the most recent session. */
+  readonly keptSessions: KeptSessionsSeam
 }

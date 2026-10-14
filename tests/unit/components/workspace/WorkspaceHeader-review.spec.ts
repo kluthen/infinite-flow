@@ -13,6 +13,7 @@ import type { GenerationSession } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import {
   createFakeSessionController,
+  fakeReview,
   fakeReviewHistory,
   type FakeSessionController,
 } from './fake-session-controller'
@@ -34,7 +35,7 @@ function showingReview(): FakeSessionController {
   return createFakeSessionController({
     canStart: false,
     startBlocker: 'review_showing',
-    review: { history: fakeReviewHistory(), showing: true, tempoReached: 90 },
+    review: fakeReview(fakeReviewHistory(), true),
   })
 }
 
@@ -139,7 +140,7 @@ describe('WorkspaceHeader while the Review shows', () => {
     }
     expect([exposed.sessionActionEnabled, exposed.phraseActionEnabled]).toEqual([true, false])
 
-    fake.state.review = { history: fakeReviewHistory(), showing: false, tempoReached: 90 }
+    fake.state.review = fakeReview(fakeReviewHistory(), false)
     fake.state.canStart = false
     fake.state.startBlocker = 'room_notice'
     await nextTick()

@@ -4,7 +4,7 @@
 **Ref:** `ISS-012`
 **Date:** 2026-10-14
 **Severity:** Medium
-**Status:** Open
+**Status:** Resolved
 **Component:** `src/components/workspace/use-review-host.ts`
 **Affects:** the review of a session played with my instrument (its title's instrument name); v3.0 build plan chunks 10 (fix) and 17 (makes such a session playable)
 
@@ -97,3 +97,14 @@ Found during the v3.0 wave 3 (chunk 9 review), confirmed by reading the code on 
 - `src/domain/generation/generation-intent.ts`
 - `src/storage/records/kept-session-summary.ts` (`KeptSessionInstrument`)
 - `specs/versions/v3/build-plan.md` (chunk 10, chunk 17)
+
+---
+
+## Change Log
+
+- **2026-10-14**: Resolved in v3.0 chunk 10b. The review host no longer looks the name up:
+  `endedSession` (`src/components/workspace/session-review-state.ts`) names the ended session's
+  instrument from phrase 1's own intent profile, and a kept session read back
+  (`src/components/workspace/workspace-kept-session-read.ts`) from its summary's
+  `instrument.displayName`; `use-review-host.ts` reads the Review's `instrumentName`. Unit tests
+  with a my-instrument history: `session-review-state.spec.ts` and `use-review-host.spec.ts`.

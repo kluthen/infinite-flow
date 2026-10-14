@@ -9,8 +9,9 @@
  *   load (the spec reloads the page); `records` reads a store back;
  * - `seedTimingSessions` writes sized kept-session records for the start-up read measurement (M2);
  * - `keyedRecords` reads a store back with each record's key; `pinKeptSession` pins a kept session
- *   the app saved, as the review's pin will, and `seedUnreadableKeptSession` writes a kept session
- *   whose session-wide record the codec cannot read;
+ *   the app saved, as the review's pin will, `seedUnreadableKeptSession` writes a kept session
+ *   whose session-wide record the codec cannot read, and `deleteKeptSession` deletes one, as a
+ *   deletion made elsewhere would;
  * - `settingsNotReadBack` names each stored settings record the settings codec does not read back
  *   as the value it holds, read as a load reads them all (with the mix design of the page's tokens,
  *   and my instrument not loaded);
@@ -317,6 +318,14 @@ export function createHarnessStorage(
       seedTimingSessions,
       pinKeptSession,
       seedUnreadableKeptSession,
+      deleteKeptSession: (key) =>
+        openedPort().apply(
+          (['sessionSummaries', 'sessionBodies', 'playedNotes'] as const).map((store) => ({
+            kind: 'delete',
+            store,
+            key,
+          })),
+        ),
       records: async (store) => [...(await openedPort().readAll(store))],
       keyedRecords: async (store) => [...(await openedPort().readKeyed(store))],
       settingsNotReadBack: async () => notReadBack(await openedPort().readAll('settings')),

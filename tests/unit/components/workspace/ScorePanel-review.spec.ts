@@ -24,7 +24,9 @@ import { transportRig } from '../../audio/transport-rig'
 import { recordedRecords } from '../review/review-fixtures'
 import {
   createFakeSessionController,
+  fakeReview,
   fakeReviewHistory,
+  showingWith,
   type FakeSessionController,
 } from './fake-session-controller'
 import { fakeGenerationSession, readyState } from './fake-generation-session'
@@ -92,11 +94,7 @@ function showingReview(): FakeSessionController {
   return createFakeSessionController({
     canStart: false,
     startBlocker: 'review_showing',
-    review: {
-      history: fakeReviewHistory(recordedRecords(), 'eb-alto'),
-      showing: true,
-      tempoReached: 90,
-    },
+    ...showingWith(fakeReview(fakeReviewHistory(recordedRecords(), 'eb-alto'), true)),
   })
 }
 
@@ -295,11 +293,7 @@ describe('ScorePanel while the Review shows', () => {
       notation: 'Notation error. Try again.',
     })
 
-    fake.state.review = {
-      history: fakeReviewHistory(recordedRecords()),
-      showing: true,
-      tempoReached: 90,
-    }
+    Object.assign(fake.state, showingWith(fakeReview(fakeReviewHistory(recordedRecords()), true)))
     await nextTick()
     expect(liveRegions(wrapper)).toEqual({ generation: '', notation: '' })
 

@@ -114,6 +114,13 @@ const review = useReviewHost({
   saveSettings: injectSaveSettings(),
 })
 const reviewShowing = review.showing
+/** Intent: the showing Review's session start and keeping, for its panel; null while none shows. */
+// @spec-link [[req_last_session_review]]
+const reviewSession = computed(() => {
+  const startedAt = review.startedAt.value
+  const keeping = review.keeping.value
+  return startedAt === null || keeping === null ? null : { startedAt, keeping }
+})
 const {
   format: reviewFormat,
   backingTrack: reviewBackingTrack,
@@ -375,10 +382,13 @@ const generationErrorAlertText = computed(() =>
       </p>
     </div>
     <ReviewPanel
-      v-if="reviewShowing"
+      v-if="reviewShowing && reviewSession !== null"
       ref="reviewPanel"
       :records="review.records.value"
       :instrument-name="review.instrumentName.value"
+      :started-at="reviewSession.startedAt"
+      :most-recent="review.mostRecent.value"
+      :keeping="reviewSession.keeping"
       :viewport="review.viewport.value"
       :system-position-units="systemPositionUnits"
       :no-room="review.noRoom.value"

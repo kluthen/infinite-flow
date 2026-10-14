@@ -71,6 +71,8 @@ type WritableStateKey =
   | 'lastEnd'
   | 'lastHistory'
   | 'review'
+  | 'mostRecent'
+  | 'readingMostRecent'
   | 'sessionStaff'
   | 'latestReady'
   | 'shownSettings'

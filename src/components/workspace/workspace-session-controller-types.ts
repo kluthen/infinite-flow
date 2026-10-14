@@ -6,6 +6,7 @@
  */
 import type { ExpectedNoteIdentity } from '@/domain/acknowledgement/expected-note'
 import type { CountInDisplay } from '@/session/count-in-display'
+import type { ExportableHistory } from '@/export/export-file'
 import type { SessionHistory } from '@/session/session-history'
 import type { SessionTransportEvent } from '@/session/session-runner'
 import type { SessionStartBlocker } from '@/session/session-start-conditions'
@@ -15,6 +16,7 @@ import type { StaffLayout } from '@/notation/notation-layout-policy'
 import type { SessionStaff } from '@/components/notation/session-staff'
 import type { ControllerLostCountdown } from './workspace-session-midi'
 
+export type { KeptSessionsSeam } from './workspace-kept-sessions-seam'
 export type {
   FramePort,
   SessionControllerClock,
@@ -43,19 +45,61 @@ export interface SessionEndSummary {
 }
 
 /**
- * The last session's Review: its closed history, whether the player is in it, and the tempo the
- * session reached. It exists from a session end once phrase 1 has sounded until the next session
- * starts; each change replaces the frozen object, never mutates it.
+ * What a Review draws a session from, read from the session's own data: its phrases in the order
+ * they started sounding, how many, and its start (epoch milliseconds). The session that just ended
+ * gives its closed history; a kept session read back from the device gives its decoded phrases.
+ */
+// @spec-link [[req_last_session_review]]
+// @spec-link [[req_kept_session_review]]
+export interface ReviewedHistory extends ExportableHistory {
+  readonly phraseCount: number
+}
+
+/**
+ * How a reviewed session is kept on the device: pinned; not pinned, so deleted when the next
+ * session is saved; or not saved (its save failed, or saving is off), held in memory only.
+ */
+// @spec-link [[module_kept_session_save]]
+export type SessionKeeping = 'pinned' | 'not-pinned' | 'not-saved'
+
+/**
+ * A session as a Review draws it: its history, its instrument's name as the session holds it (never
+ * looked up by id), the tempo it reached (its last sounded phrase's) and how it is kept. Frozen;
+ * each change replaces it.
+ */
+// @spec-link [[req_last_session_review]]
+// @spec-link [[req_kept_session_review]]
+// @spec-link [[module_kept_session_save]]
+export interface ReviewedSession {
+  readonly history: ReviewedHistory
+  readonly instrumentName: string
+  /** The last sounded phrase's tempo, in BPM: the highest the session reached. */
+  readonly tempoReached: number
+  readonly keeping: SessionKeeping
+}
+
+/**
+ * The Review: the session it draws and whether the player is in it. It exists from a session end
+ * once phrase 1 has sounded, or from `Review last session`, until the next session starts; each
+ * change replaces the frozen object, never mutates it.
  */
 // @spec-link [[req_last_session_review]]
 // @spec-link [[rule_new_session_discards_review]]
-export interface SessionReview {
-  readonly history: SessionHistory
+export interface SessionReview extends ReviewedSession {
   /** The Review shows, in place of the staff; false once closed, while it is kept. */
   readonly showing: boolean
-  /** The last sounded phrase's tempo, in BPM: the highest the session reached. */
-  readonly tempoReached: number
 }
+
+/**
+ * The most recent session: held in memory (the last session of the visit that ended with a review,
+ * saved or not, or a kept one once read back), or kept on the device and not read yet (after a
+ * reload: the readable kept session with the latest start, under its key).
+ */
+// @spec-link [[module_kept_session_save]]
+// @spec-link [[rule_most_recent_session_kept]]
+export type MostRecentSession =
+  | { readonly kind: 'held'; readonly session: ReviewedSession }
+  | { readonly kind: 'kept'; readonly key: string }
 
 /** What the screen reads from the controller; every field is reactive. */
 // @spec-link [[service_session_controller]]
@@ -79,8 +123,18 @@ export interface SessionControllerState {
   readonly lastEnd: SessionEndSummary | null
   /** The closed history of the last session that ended. */
   readonly lastHistory: SessionHistory | null
-  /** The last session's Review, showing or kept; null when none exists. */
+  /** The Review, showing or kept until the next start; null when none exists. */
   readonly review: SessionReview | null
+  /**
+   * The most recent session, which `Review last session` opens; a start leaves it in place, and
+   * only the next session that ends with a review replaces it. Null when there is none.
+   */
+  // @spec-link [[module_kept_session_save]]
+  // @spec-link [[rule_most_recent_session_kept]]
+  readonly mostRecent: MostRecentSession | null
+  /** The most recent session is being read from the device for `Review last session`. */
+  // @spec-link [[req_kept_session_review]]
+  readonly readingMostRecent: boolean
   /**
    * What the staff shows while a session runs, from its start (phrase 1, the very phrase Idle
    * shows, in the held layout) to its end; null with no session, so the staff shows Idle.
@@ -158,10 +212,12 @@ export interface SessionController {
   /** Stop showing the Review (`Close review`), keeping it. Throws unless the Review shows. */
   readonly closeReview: () => void
   /**
-   * Show the kept Review again (`Review last session`). Throws unless a Review exists, does not
-   * show, and no session runs.
+   * Show the most recent session's Review (`Review last session`): at once when it is held in
+   * memory, after reading it from the device when it is kept. Resolves true once it shows, false
+   * when it could not be read or a session started meanwhile. Throws unless a most recent session
+   * exists, no Review shows, no session runs and no read is under way.
    */
-  readonly showReview: () => void
+  readonly showReview: () => Promise<boolean>
   /**
    * Turn the page's adaptive-tempo flag on or off, at Idle only: throws during the count-in or a
    * running session, and when turning it on with no controller attached.

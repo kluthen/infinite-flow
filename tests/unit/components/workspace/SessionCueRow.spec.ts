@@ -8,7 +8,13 @@ import type { SessionController } from '@/components/workspace/workspace-session
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
 import type { StartingNote } from '@/session/starting-note'
 import { transportRig } from '../../audio/transport-rig'
-import { createFakeSessionController, fakeReviewHistory } from './fake-session-controller'
+import {
+  createFakeSessionController,
+  fakeReview,
+  fakeReviewHistory,
+  heldSessionOf,
+} from './fake-session-controller'
+import type { MostRecentSession } from '@/components/workspace/workspace-session-controller-types'
 import { provideSaveSettings } from './recording-save-settings'
 
 const STRUGGLING = 'The generator is struggling with these settings.'
@@ -279,26 +285,62 @@ describe('SessionCueRow starting-note line', () => {
 })
 
 /** A Review kept, not showing: after `Close review`. */
-const KEPT_REVIEW = { history: fakeReviewHistory(), showing: false, tempoReached: 90 } as const
+const KEPT_REVIEW = fakeReview(fakeReviewHistory(), false)
+
+/** Its session, the most recent one, held in memory. */
+const HELD = heldSessionOf(KEPT_REVIEW)
+
+/** The most recent session after a reload: kept on the device, not read yet. */
+const KEPT: MostRecentSession = Object.freeze({ kind: 'kept', key: 'session-1-2' })
 
 // @test-link [[req_last_session_review]]
-// @test-link [[rule_new_session_discards_review]]
+// @test-link [[rule_most_recent_session_kept]]
 describe('SessionCueRow review-link', () => {
   // @test-link [[req_last_session_review]]
   it("offers Review last session, alone, at the row's trailing end while a Review is kept", () => {
-    const wrapper = mountRow(createFakeSessionController({ review: KEPT_REVIEW }).controller)
+    const wrapper = mountRow(
+      createFakeSessionController({ review: KEPT_REVIEW, mostRecent: HELD }).controller,
+    )
 
     const link = wrapper.get('.session-cue-row > button.btn.review-link')
-    expect(link.text()).toBe('Review last session')
+    expect(link.get('.cue-label-wide').text()).toBe('Review last session')
+    expect(link.get('.cue-label-narrow').text()).toBe('Last session')
     expect(link.attributes('type')).toBe('button')
+    expect(link.attributes('disabled')).toBeUndefined()
     expect(link.classes()).toEqual(['btn', 'review-link'])
     expect(wrapper.get('.session-cue-row').element.lastElementChild).toBe(link.element)
+  })
+
+  // @test-link [[rule_most_recent_session_kept]]
+  // @test-link [[rule_new_session_discards_review]]
+  it('is offered for the most recent session with no Review: after a count-in end, and after a reload', () => {
+    for (const mostRecent of [HELD, KEPT]) {
+      const wrapper = mountRow(createFakeSessionController({ mostRecent }).controller)
+      expect(wrapper.find('.review-link').exists()).toBe(true)
+    }
+  })
+
+  // @test-link [[req_last_session_review]]
+  it('waits, loading and disabled, while the kept session is read', async () => {
+    const fake = createFakeSessionController({ mostRecent: KEPT })
+    const wrapper = mountRow(fake.controller)
+
+    fake.state.readingMostRecent = true
+    await nextTick()
+
+    const link = wrapper.get('.review-link')
+    expect(link.classes()).toEqual(['btn', 'review-link', 'is-loading'])
+    expect(link.attributes('disabled')).toBeDefined()
   })
 
   // @test-link [[req_last_session_review]]
   it('sits after the starting-note line', () => {
     const wrapper = mountRow(
-      createFakeSessionController({ review: KEPT_REVIEW, startingNote: STARTING_NOTE }).controller,
+      createFakeSessionController({
+        review: KEPT_REVIEW,
+        mostRecent: HELD,
+        startingNote: STARTING_NOTE,
+      }).controller,
     )
 
     const children = [...wrapper.get('.session-cue-row').element.children]
@@ -307,7 +349,7 @@ describe('SessionCueRow review-link', () => {
 
   // @test-link [[req_last_session_review]]
   it('asks for the Review on a click', async () => {
-    const wrapper = mountRow(createFakeSessionController({ review: KEPT_REVIEW }).controller)
+    const wrapper = mountRow(createFakeSessionController({ mostRecent: HELD }).controller)
 
     await wrapper.get('.review-link').trigger('click')
 
@@ -315,12 +357,18 @@ describe('SessionCueRow review-link', () => {
   })
 
   // @test-link [[req_last_session_review]]
-  it('is absent with no Review, while the Review shows, and before the controller loads', () => {
+  it('is absent with no most recent session, while the Review shows, and before the controller loads', () => {
     expect(mountRow(createFakeSessionController().controller).find('.review-link').exists()).toBe(
       false,
     )
+    expect(
+      mountRow(createFakeSessionController({ review: KEPT_REVIEW }).controller)
+        .find('.review-link')
+        .exists(),
+    ).toBe(false)
     const showing = createFakeSessionController({
-      review: { history: fakeReviewHistory(), showing: true, tempoReached: 90 },
+      review: fakeReview(fakeReviewHistory(), true),
+      mostRecent: HELD,
     })
     expect(mountRow(showing.controller).find('.review-link').exists()).toBe(false)
     expect(mountRow(null).find('.review-link').exists()).toBe(false)
@@ -328,7 +376,7 @@ describe('SessionCueRow review-link', () => {
 
   // @test-link [[rule_new_session_discards_review]]
   it('goes when a session starts', async () => {
-    const fake = createFakeSessionController({ review: KEPT_REVIEW })
+    const fake = createFakeSessionController({ review: KEPT_REVIEW, mostRecent: HELD })
     const wrapper = mountRow(fake.controller)
 
     fake.start()
@@ -338,9 +386,10 @@ describe('SessionCueRow review-link', () => {
   })
 
   // @test-link [[req_last_session_review]]
-  it('is never offered during a session, even with a Review kept', () => {
+  it('is never offered during a session, even with a most recent session', () => {
     const wrapper = mountRow(
-      createFakeSessionController({ phase: 'running', review: KEPT_REVIEW }).controller,
+      createFakeSessionController({ phase: 'running', review: KEPT_REVIEW, mostRecent: HELD })
+        .controller,
     )
 
     expect(wrapper.find('.review-link').exists()).toBe(false)

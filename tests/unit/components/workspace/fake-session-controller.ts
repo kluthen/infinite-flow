@@ -2,18 +2,24 @@
  * A hand-driven session controller for the workspace component specs: its state is a reactive
  * object a test edits directly, and `start`/`stop`/`dispose` are spies that move the phase the
  * way the real controller does (the real one is covered by workspace-session-controller*.spec.ts).
- * As the real one, `start` discards the Review and `stop` opens one, showing, once phrase 1 has
- * sounded (over `fakeReviewHistory`); `closeReview`/`showReview` are spies that flip its `showing`.
- * `isPhraseOnScreen` answers from the session staff the test sets.
+ * As the real one, `start` hides the Review and keeps the most recent session, and `stop` opens a
+ * Review, showing, once phrase 1 has sounded (over `fakeReviewHistory`), its session becoming the
+ * most recent one; `closeReview` is a spy that flips its `showing`, and `showReview` one that shows
+ * the most recent session held in memory (a kept one stays for the test to read, the spy resolving
+ * false). `isPhraseOnScreen` answers from the session staff the test sets.
  */
 import { shallowReactive } from 'vue'
 import { vi, type Mock } from 'vitest'
 
 import type {
+  MostRecentSession,
+  ReviewedHistory,
   SessionController,
   SessionControllerState,
+  SessionKeeping,
   SessionReview,
 } from '@/components/workspace/workspace-session-controller-types'
+import { getInstrumentProfile } from '@/domain/generation/generation-intent'
 import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import type { SessionHistory, SessionHistoryRecord } from '@/session/session-history'
 import { DEFAULT_SESSION_SEED, SESSION_START_EPOCH_MS } from '../../session/session-harness'
@@ -31,7 +37,7 @@ export interface FakeSessionController {
   readonly stop: Mock<() => void>
   readonly dispose: Mock<() => void>
   readonly closeReview: Mock<() => void>
-  readonly showReview: Mock<() => void>
+  readonly showReview: Mock<() => Promise<boolean>>
   readonly setAdaptiveTempo: Mock<(on: boolean) => void>
   readonly setVarySettings: Mock<(on: boolean) => void>
   readonly setTensionAcrossPhrases: Mock<(on: boolean) => void>
@@ -71,6 +77,42 @@ export function fakeReviewHistory(
   }
 }
 
+/**
+ * Intent: a frozen Review of `history`, showing or kept, its instrument named after the built-in
+ * profile of the history's id, at tempo 90, not pinned unless `keeping` says otherwise.
+ */
+// @test-link [[req_last_session_review]]
+export function fakeReview(
+  history: SessionHistory,
+  showing: boolean,
+  keeping: SessionKeeping = 'not-pinned',
+): SessionReview {
+  return Object.freeze({
+    history: history as ReviewedHistory,
+    instrumentName: getInstrumentProfile(history.instrumentProfileId).displayName,
+    tempoReached: 90,
+    keeping,
+    showing,
+  })
+}
+
+/** Intent: the most recent session `review` draws, held in memory. */
+// @test-link [[rule_most_recent_session_kept]]
+export function heldSessionOf(review: SessionReview): MostRecentSession {
+  const { history, instrumentName, tempoReached, keeping } = review
+  return Object.freeze({
+    kind: 'held',
+    session: Object.freeze({ history, instrumentName, tempoReached, keeping }),
+  })
+}
+
+/** Intent: the state fields of `review` showing: the Review, and its session the most recent one. */
+export function showingWith(
+  review: SessionReview,
+): Pick<FakeSessionControllerState, 'review' | 'mostRecent'> {
+  return { review, mostRecent: heldSessionOf(review) }
+}
+
 /** The four count-in beats, all muted: the count-in row before its first click. */
 export const COUNT_IN_MUTED = {
   over: false,
@@ -98,6 +140,8 @@ export function createFakeSessionController(
     lastEnd: null,
     lastHistory: null,
     review: null,
+    mostRecent: null,
+    readingMostRecent: false,
     sessionStaff: null,
     latestReady: null,
     startingNote: null,
@@ -117,6 +161,11 @@ export function createFakeSessionController(
     state.review = review
     state.canStart = false
     state.startBlocker = 'review_showing'
+  }
+  /** Intent: open `review` at a session end: showing, its session the most recent one. */
+  function opened(review: SessionReview): void {
+    state.mostRecent = heldSessionOf(review)
+    showing(review)
   }
   const start = vi.fn((): void => {
     state.review = null
@@ -139,8 +188,7 @@ export function createFakeSessionController(
     state.canStart = true
     state.startBlocker = null
     state.lastEnd = { cause: 'stop', phase, soundedPhraseCount: phase === 'running' ? 1 : 0 }
-    if (phase === 'running')
-      showing({ history: fakeReviewHistory(), showing: true, tempoReached: 90 })
+    if (phase === 'running') opened(fakeReview(fakeReviewHistory(), true))
   })
   const dispose = vi.fn((): void => {})
   const closeReview = vi.fn((): void => {
@@ -151,9 +199,12 @@ export function createFakeSessionController(
       state.startBlocker = null
     }
   })
-  const showReview = vi.fn((): void => {
-    if (state.review === null) throw new Error('fake controller: no Review exists')
-    showing({ ...state.review, showing: true })
+  const showReview = vi.fn((): Promise<boolean> => {
+    const recent = state.mostRecent
+    if (recent === null) throw new Error('fake controller: no Review exists')
+    if (recent.kind === 'kept') return Promise.resolve(false)
+    showing(Object.freeze({ ...recent.session, showing: true }))
+    return Promise.resolve(true)
   })
   const isPhraseOnScreen = (phraseNumber: number): boolean => staffShows(state, phraseNumber)
   const setAdaptiveTempo = vi.fn((on: boolean): void => {

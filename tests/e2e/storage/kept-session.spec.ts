@@ -13,20 +13,31 @@
  * - with saving off (an outdated tab, a visit started from the defaults) the end writes and deletes
  *   nothing, and every kept session is still there after a reload.
  *
+ * From chunk 10b, the reach: the Review's keep line says how the session is kept (not pinned once
+ * saved; not saved after a refusal or with saving off, the Review working in full); a session
+ * ended in its count-in brings `review-link` back to the most recent session, saved or held in
+ * memory; after a reload `review-link` opens the readable kept session with the latest start.
+ *
  * A pinned session and an unreadable one are seeded through the harness's storage seam.
  */
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
 import { watchPageErrors } from '../controller/controller-helpers'
 import {
+  collectDownloads,
   expectIdleReady,
   expectReviewShowing,
+  exportOnce,
   playUntilPhrase,
+  reviewLink,
+  reviewPanel,
+  reviewTitle,
   sessionEndedAfter,
 } from '../review/review-helpers'
 import {
   readyToStart,
   sessionAction,
+  sessionState,
   startSession,
   toCountInMiddle,
   toRunning,
@@ -127,6 +138,16 @@ function portChanges(page: Page): Promise<number> {
   return page.evaluate(() => window.__workspaceHarness.storage.portChanges())
 }
 
+/** The keep line's three wordings. */
+const NOT_PINNED = 'Not pinned: deleted when your next session is saved.'
+const PINNED = 'Pinned: kept until you unpin or delete it.'
+const NOT_SAVED = 'Not saved on this device: export it to keep it.'
+
+/** Intent: the Review's keep line. */
+function keepLine(page: Page): Locator {
+  return reviewPanel(page).locator('.review-keep-line')
+}
+
 /** Intent: the notice row's notices. */
 function notices(page: Page): Locator {
   return page.locator('.layout-workspace > .app-notice-row > .app-notice')
@@ -138,14 +159,26 @@ async function untilKept(page: Page, count: number): Promise<string[]> {
   return keptKeys(page)
 }
 
-/** Intent: close the Review shown, then play a session until phrase 1 sounds and Stop it. */
-async function nextSessionEnded(page: Page): Promise<void> {
+/**
+ * Intent: close the Review shown, then play a session until phrase `phrases` sounds and Stop it.
+ */
+async function nextSessionEnded(page: Page, phrases = 1): Promise<void> {
   await expectIdleReady(page)
   await sessionAction(page).click()
   await startSession(page)
-  await playUntilPhrase(page, 1)
+  await playUntilPhrase(page, phrases)
   await sessionAction(page).click()
-  await expectReviewShowing(page, 1)
+  await expectReviewShowing(page, phrases)
+}
+
+/** Intent: close the Review shown, then start a session and Stop it during its count-in. */
+async function countInEnded(page: Page): Promise<void> {
+  await expectIdleReady(page)
+  await sessionAction(page).click()
+  await startSession(page)
+  await toCountInMiddle(page)
+  await sessionAction(page).click()
+  await expect(sessionAction(page)).toHaveText('Start session')
 }
 
 /** Intent: the stored kept sessions, each as its key and whether it is pinned. */
@@ -205,6 +238,7 @@ test('each save keeps one unpinned session under its key; pinned and unreadable 
   await sessionEndedAfter(page, 1)
   const [first] = await untilKept(page, 1)
   if (first === undefined) throw new Error('the first session was not kept')
+  await expect(keepLine(page)).toHaveText(NOT_PINNED)
   await page.evaluate((key) => window.__workspaceHarness.storage.pinKeptSession(key), first)
   await page.evaluate(
     (key) => window.__workspaceHarness.storage.seedUnreadableKeptSession(key),
@@ -254,6 +288,11 @@ test('a session ended in its count-in changes nothing kept', async ({ page }) =>
   expect(await transactionsIn(page, 'count-in')).toEqual([])
   await setPhase(page, 'check')
   expect(await keyedRecords(page, 'sessionSummaries')).toEqual(kept)
+  // review-link returns to the most recent session, saved.
+  await reviewLink(page).click()
+  await expect(reviewTitle(page)).toBeFocused()
+  await expect(keepLine(page)).toHaveText(NOT_PINNED)
+  expect((await sessionState(page)).review).toEqual({ showing: true, phraseCount: 1 })
 })
 
 // @test-link [[module_kept_session_save]]
@@ -283,7 +322,22 @@ test.describe("a refusal of the session's save", () => {
         await expect(page.locator('.app-notice-row')).toHaveCount(0)
       }
       await expectReviewShowing(page, 1)
+      await expect(keepLine(page)).toHaveText(NOT_SAVED)
       expect(await keptKeys(page)).toEqual([])
+      // The Review works in full, in memory.
+      const file = await exportOnce(page, collectDownloads(page))
+      expect(file.bytes.length).toBeGreaterThan(0)
+
+      // Held in memory only, it stays the most recent session across a count-in end.
+      await countInEnded(page)
+      await reviewLink(page).click()
+      await expect(reviewTitle(page)).toBeFocused()
+      await expect(keepLine(page)).toHaveText(NOT_SAVED)
+      expect((await sessionState(page)).mostRecent).toEqual({
+        kind: 'held',
+        phraseCount: 1,
+        keeping: 'not-saved',
+      })
     })
   }
 })
@@ -311,11 +365,50 @@ test.describe('with saving off', () => {
       )
 
       await sessionEndedAfter(page, 1)
+      await expect(keepLine(page)).toHaveText(NOT_SAVED)
       await page.waitForTimeout(SETTLE_MS)
 
       expect(await portChanges(page)).toBe(0)
+      await expect(keepLine(page)).toHaveText(NOT_SAVED)
       await reloadHarness(page)
       expect(await keptKeys(page)).toEqual(kept)
     })
   }
+})
+
+// @test-link [[module_kept_session_save]]
+// @test-link [[rule_most_recent_session_kept]]
+// @test-link [[req_kept_session_review]]
+test('after a reload, review-link opens the readable kept session with the latest start', async ({
+  page,
+}) => {
+  test.setTimeout(180_000)
+  await gotoStorageHarness(page)
+  // Three sessions: two pinned (one phrase, then two), then an unpinned one, deleted elsewhere.
+  await sessionEndedAfter(page, 1)
+  const [first] = await untilKept(page, 1)
+  await page.evaluate((key) => window.__workspaceHarness.storage.pinKeptSession(key), first ?? '')
+  await nextSessionEnded(page, 2)
+  const second = (await untilKept(page, 2)).find((key) => key !== first)
+  await page.evaluate((key) => window.__workspaceHarness.storage.pinKeptSession(key), second ?? '')
+  await nextSessionEnded(page, 1)
+  const third = (await untilKept(page, 3)).find((key) => key !== first && key !== second)
+  await page.evaluate(
+    (key) => window.__workspaceHarness.storage.deleteKeptSession(key),
+    third ?? '',
+  )
+  await page.evaluate(
+    (key) => window.__workspaceHarness.storage.seedUnreadableKeptSession(key),
+    'session-9999999999999-1',
+  )
+
+  await reloadHarness(page)
+
+  expect((await sessionState(page)).mostRecent).toEqual({ kind: 'kept', key: second })
+  await expect(reviewLink(page)).toBeVisible()
+  await reviewLink(page).click()
+  await expect(reviewTitle(page)).toBeFocused()
+  await expect(reviewTitle(page)).toHaveText('Last session')
+  await expect(keepLine(page)).toHaveText(PINNED)
+  expect((await sessionState(page)).review).toEqual({ showing: true, phraseCount: 2 })
 })

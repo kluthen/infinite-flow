@@ -22,6 +22,7 @@ import type { WorkspaceSessionRunnerInput } from '@/components/workspace/create-
 import { startWorkspaceSessionRunner } from '@/components/workspace/workspace-session-runner'
 import { createSessionController } from '@/components/workspace/workspace-session-controller'
 import type {
+  KeptSessionsSeam,
   SessionController,
   SessionControllerPhase,
   SessionReview,
@@ -37,7 +38,7 @@ import type { StaffFixedParts, StaffLayoutInputs } from '@/notation/staff-fit-ty
 import type { MutableGenerationSessionState } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
-import type { SessionChanges } from '@/storage/save-policy'
+import type { SessionChanges, SessionSaveOutcome } from '@/storage/save-policy'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
 import { makeSeed } from '@/domain/random/seed'
 import {
@@ -99,6 +100,13 @@ export interface ControllerRigOptions {
   readonly pregeneration?: WorkspacePregenerationFactory
   /** The saved "During a session" choices; a first visit's (all off) by default. */
   readonly savedSessionOptions?: SessionOptionChoices
+  /** What each session save resolves; `saved` at once by default. */
+  readonly sessionSaveOutcome?: () => Promise<SessionSaveOutcome>
+  /**
+   * The kept sessions the controller reaches: by default none loaded, a read that throws (none is
+   * ever asked for) and saving on.
+   */
+  readonly keptSessions?: Partial<KeptSessionsSeam>
 }
 
 /** Intent: a pre-generation builder under the disabled policy: no background attempt, ever. */
@@ -381,8 +389,16 @@ export function controllerRig(
       saveSession: (changes) => {
         logSaveHold('saveSession')
         sessionSaves.push(changes)
-        return Promise.resolve({ status: 'saved' })
+        return options.sessionSaveOutcome?.() ?? Promise.resolve({ status: 'saved' })
       },
+    },
+    keptSessions: {
+      summaries: [],
+      read: (key) => {
+        throw new Error(`rig: no kept session "${key}" can be read`)
+      },
+      savingOff: () => false,
+      ...options.keptSessions,
     },
   })
   built = controller
