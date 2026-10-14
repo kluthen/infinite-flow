@@ -10,7 +10,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { composeWorkspaceSession } from '@/components/workspace/create-workspace-session'
 import { NotationError } from '@/notation/notation-error'
 import { resetFakeEngraver } from '../../notation/fake-vexflow-engraver-loader'
-import { fakeDependencies, generateAndEngrave } from './fake-workspace-dependencies'
+import {
+  CHEAP_CONTROLS,
+  fakeDependencies,
+  fakeSavedData,
+  generateAndEngrave,
+} from './fake-workspace-dependencies'
 
 vi.mock('@/generation-worker/browser-generation-worker', () => ({
   createBrowserGenerationWorker: vi.fn(() => ({
@@ -161,5 +166,37 @@ describe('composeWorkspaceSession', () => {
     workspace.dispose()
 
     expect(deps.viewport.listenerCount()).toBe(0)
+  })
+})
+
+// @test-link [[rule_first_phrase_waits_for_saved_settings]]
+// @test-link [[service_workspace_session_flow]]
+describe('composeWorkspaceSession: the saved data', () => {
+  // @test-link [[rule_first_phrase_waits_for_saved_settings]]
+  // @test-link [[service_session_controller]]
+  it('starts Idle and the session controller from the loaded settings, and exposes the load', async () => {
+    const savedData = fakeSavedData({
+      controls: CHEAP_CONTROLS,
+      profileSelection: { musicalProfile: 'Neutral', isCustom: true },
+      theme: 'Light',
+      sessionOptions: { varySettings: true, tensionAcrossPhrases: true, risingTempo: true },
+    })
+    const workspace = composeWorkspaceSession({ ...fakeDependencies(), savedData })
+
+    expect(workspace.savedData).toBe(savedData)
+    expect(workspace.session.state.controls).toEqual(CHEAP_CONTROLS)
+    expect(workspace.session.state.profileSelection).toEqual({
+      musicalProfile: 'Neutral',
+      isCustom: true,
+    })
+    expect(workspace.session.state.presentation.theme).toBe('Light')
+
+    const controller = await workspace.createSessionController()
+    expect(controller.state.varySettings).toBe(true)
+    expect(controller.state.tensionAcrossPhrases).toBe(true)
+    expect(controller.state.adaptiveTempo).toBe(true)
+    expect(controller.state.adaptiveTempoAvailable).toBe(false)
+    controller.dispose()
+    workspace.dispose()
   })
 })

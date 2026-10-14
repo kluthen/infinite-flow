@@ -1,7 +1,8 @@
 /**
  * The workspace session a screen binds to: the Idle generation session, the staff's report
  * handlers, the session runner loader, the audio transport, the MIDI controller, the connection
- * sheet flag, the session browser ports and the session controller builder.
+ * sheet flag, the session browser ports, the session controller builder and the saved data the
+ * workspace started from.
  * `composeWorkspaceSession` (`create-workspace-session.ts`) builds one and re-exports this type.
  */
 import type { Ref, ShallowRef } from 'vue'
@@ -14,6 +15,7 @@ import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { SessionBrowserPorts } from '@/session/session-browser-ports'
 import type { AudioTransport } from '@/audio/audio-transport'
 import type { MidiController } from '@/midi/midi-controller'
+import type { SavedDataLoad } from '@/storage-bootstrap'
 import type { WorkspaceSessionRunnerStarter } from './workspace-session-dependencies'
 import type { SessionController } from './workspace-session-controller-types'
 
@@ -87,5 +89,11 @@ export interface WorkspaceSession {
   // @spec-link [[service_workspace_session_flow]]
   // @spec-link [[rule_session_layout_fixed_at_start]]
   readonly createSessionController: () => Promise<SessionController>
+  /**
+   * The saved data the app loaded before its first draw, as it was given: the settings the
+   * workspace started from, the load's outcome and the visit's save policy.
+   */
+  // @spec-link [[rule_first_phrase_waits_for_saved_settings]]
+  readonly savedData: SavedDataLoad
   readonly dispose: () => void
 }

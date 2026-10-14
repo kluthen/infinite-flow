@@ -3,7 +3,8 @@
  * on their own. A reported
  * change shows when a generated phrase it applies to starts sounding; a repeat shows nothing new,
  * so a change landing on a repeat first shows with the next generated phrase; when several are
- * due, the latest reported wins. Each flag starts off and changes only at Idle.
+ * due, the latest reported wins. Each flag starts from the value it is given (the player's saved
+ * choice, off on a first visit) and changes only at Idle.
  */
 import { describe, expect, it } from 'vitest'
 
@@ -81,7 +82,7 @@ describe('the Vary settings flag', () => {
   // @test-link [[rule_session_settings_locked]]
   it('starts off and changes at Idle only', () => {
     let phase: SessionControllerPhase = 'idle'
-    const flag = createVarySettingsFlag(() => phase)
+    const flag = createVarySettingsFlag(() => phase, false)
     expect(flag.on()).toBe(false)
     flag.set(true)
     expect(flag.on()).toBe(true)
@@ -90,6 +91,17 @@ describe('the Vary settings flag', () => {
       expect(() => flag.set(false)).toThrow(SessionControllerError)
     }
     expect(flag.on()).toBe(true)
+    phase = 'idle'
+    flag.set(false)
+    expect(flag.on()).toBe(false)
+  })
+
+  // @test-link [[rule_first_phrase_waits_for_saved_settings]]
+  it('starts on when loaded on, and still changes at Idle only', () => {
+    let phase: SessionControllerPhase = 'running'
+    const flag = createVarySettingsFlag(() => phase, true)
+    expect(flag.on()).toBe(true)
+    expect(() => flag.set(false)).toThrow(SessionControllerError)
     phase = 'idle'
     flag.set(false)
     expect(flag.on()).toBe(false)
@@ -103,7 +115,7 @@ describe('the Tension across phrases flag', () => {
   // @test-link [[rule_session_settings_locked]]
   it('starts off and changes at Idle only', () => {
     let phase: SessionControllerPhase = 'idle'
-    const flag = createTensionAcrossPhrasesFlag(() => phase)
+    const flag = createTensionAcrossPhrasesFlag(() => phase, false)
     expect(flag.on()).toBe(false)
     flag.set(true)
     expect(flag.on()).toBe(true)
@@ -112,6 +124,17 @@ describe('the Tension across phrases flag', () => {
       expect(() => flag.set(false)).toThrow(SessionControllerError)
     }
     expect(flag.on()).toBe(true)
+    phase = 'idle'
+    flag.set(false)
+    expect(flag.on()).toBe(false)
+  })
+
+  // @test-link [[rule_first_phrase_waits_for_saved_settings]]
+  it('starts on when loaded on, and still changes at Idle only', () => {
+    let phase: SessionControllerPhase = 'count-in'
+    const flag = createTensionAcrossPhrasesFlag(() => phase, true)
+    expect(flag.on()).toBe(true)
+    expect(() => flag.set(false)).toThrow(SessionControllerError)
     phase = 'idle'
     flag.set(false)
     expect(flag.on()).toBe(false)

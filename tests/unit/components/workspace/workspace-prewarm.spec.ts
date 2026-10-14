@@ -41,6 +41,7 @@ import { createMidiController } from '@/midi/midi-controller'
 import { createFakeSessionBrowser } from '../../session/fake-session-browser'
 import { fixedWallClock } from '../../session/session-harness'
 import { createFakeFrames } from './fake-frames'
+import { fakeSavedData } from './fake-workspace-dependencies'
 
 // The fit and room checks plan through the lazy engraver loader; a fake planner answers here.
 vi.mock(
@@ -116,6 +117,7 @@ function prewarmRig(
     prewarm: (intent) => prewarms.push(intent),
     ...fakeAudioAndMidi(),
     logPhraseReplayKey: vi.fn(),
+    savedData: fakeSavedData(),
     dispose: () => undefined,
   })
   return { workspace, viewport, prewarms, generated }
@@ -351,6 +353,7 @@ function workerRig(policy: WorkspacePrewarmPolicy): WorkerRig {
     prewarm: client.prewarm,
     ...fakeAudioAndMidi(),
     logPhraseReplayKey: vi.fn(),
+    savedData: fakeSavedData(),
     dispose: client.dispose,
   })
   return { workspace, port }

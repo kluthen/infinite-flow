@@ -57,20 +57,25 @@ export function isControllerAttached(state: MidiControllerState): boolean {
 }
 
 /**
- * Intent: build the page's flag, off, over the MIDI controller's state and the session's phase,
- * both read reactively. It changes only at Idle (a session's settings are locked
- * from its count-in to its end): any change while a session runs throws. Turning it on throws
- * while no controller is attached; turning it off is always allowed at Idle. It stays on when the
- * controller then goes away: it is only unavailable until a controller is attached again.
+ * Intent: build the page's flag over the MIDI controller's state and the session's phase, both
+ * read reactively, starting from `initialOn`: the player's saved choice, loaded before the first
+ * draw (off on a first visit). A loaded on is kept with no controller attached, as the player's
+ * choice: it is only unavailable until a controller is attached. It changes only at Idle (a
+ * session's settings are locked from its count-in to its end): any change while a session runs
+ * throws. Turning it on throws while no controller is attached; turning it off is always allowed
+ * at Idle. It stays on when the controller then goes away: it is only unavailable until a
+ * controller is attached again.
  */
 // @spec-link [[req_adaptive_tempo]]
 // @spec-link [[rule_ephemeral_session_state]]
+// @spec-link [[rule_saved_setting_is_players_choice]]
 // @spec-link [[module_session_adaptive_tempo_control]]
 export function createAdaptiveTempoFlag(
   controllerState: () => MidiControllerState,
   phase: () => SessionControllerPhase,
+  initialOn: boolean,
 ): AdaptiveTempoFlag {
-  const on = shallowRef(false)
+  const on = shallowRef(initialOn)
   const available = (): boolean => isControllerAttached(controllerState())
   /** Whether the session started last runs adaptive tempo; null before the first start. */
   let lastSessionRuns: boolean | null = null

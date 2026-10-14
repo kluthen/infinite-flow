@@ -96,6 +96,7 @@ runs it.
 | `measure:latency:browser` | `playwright test tests/e2e/workspace/generation-latency.spec.ts`               | Cold and warm click-to-"Phrase ready" time in Chromium on the production preview, for the worst-case, Sixteenth / Heavily varied / Sparse / Straight / Edge and default settings, and the theme control's response time during the worst-case cold run. `LATENCY_PREWARM` picks the pre-warm mode: `off`, `on` (the default) or `settled`. Writes full JSON to `LATENCY_BROWSER_OUT` when set. |
 | `measure:engraving`       | `playwright test tests/e2e/workspace/engraving-main-thread.spec.ts`            | The longest main-thread task while a phrase is engraved in Chromium.                                                                                                                                                                                                                                                                                                                           |
 | `measure:rolling`         | `playwright test tests/e2e/session/rolling-display-timing.spec.ts --workers=1` | The rolling display's timing in Chromium on real audio: how far the playhead band lags each heard barline over five minutes at 120 BPM, and the longest main-thread task over a minute of the densest session at 240 BPM. Writes full JSON to `ROLLING_OUT` when set.                                                                                                                          |
+| `measure:startup-read`    | `playwright test tests/e2e/storage/startup-read-timing.spec.ts --workers=1`    | Measurement M2: the saved data's load before the first draw, on the workspace harness in Chromium, with 0, 10, 100 and 500 kept sessions, cold (first load after a browser start) and warm (five reloads). Prints the figures.                                                                                                                                                                 |
 | `verify:boundaries`       | `node scripts/verify-boundaries.mjs`                                           | Rejects forbidden browser APIs in `src/`, among them the sampled-audio calls (`decodeAudioData`, `createBufferSource`, `createMediaElementSource`, `new AudioBuffer`) anywhere; rejects any audio or sample file (`.wav`, `.mp3`, `.ogg`, `.mid`, `.sf2` and the like) in `dist/`; checks the PWA precache and the per-chunk size budgets. Needs a fresh `dist/`.                              |
 | `format:check`            | `prettier --check` over the authored files                                     | Formatting. `docs/` is checked only under `docs/release/`.                                                                                                                                                                                                                                                                                                                                     |
 | `lint`                    | `eslint .`                                                                     | ESLint, including the forbidden-API rules and the ban on `src/session/` and `src/export/` importing `src/storage/`.                                                                                                                                                                                                                                                                            |
@@ -139,7 +140,8 @@ ports makes the run fail.
 `tests/e2e/workspace-harness/session-browser-seams.ts`, the session controller seam
 `tests/e2e/workspace-harness/session-controller-seams.ts`, the session runner seam
 `tests/e2e/workspace-harness/session-runner-seam.ts`, the export seam
-`tests/e2e/workspace-harness/export-loader-seam.ts`, the typed API
+`tests/e2e/workspace-harness/export-loader-seam.ts`, the saved-data seams
+`tests/e2e/workspace-harness/storage-seams.ts`, the typed API
 `tests/e2e/workspace-harness-window.d.ts`, and the build config `vite.workspace-harness.config.ts`.
 It is served on port 4175 and has no PWA plugin and no service worker.
 
@@ -415,6 +417,31 @@ A new seam is added to `main.ts` (or a module it wires, like `audio-seams.ts`), 
 `workspace-harness-window.d.ts`, wrapped in `harness-helpers.ts` (or, for the audio seams,
 `audio-harness-helpers.ts`, for the MIDI seams, `midi-harness-helpers.ts`, and for the Review's,
 `review-helpers.ts`), and listed in the table above.
+
+### Saved data in the harness
+
+The harness loads the saved data with the app's own loader (`loadSavedData` in
+`src/storage-bootstrap.ts`) over the browser's real IndexedDB, before it mounts the app, as
+`src/main.ts` does; `window.__workspaceHarness` is published once the app has mounted, so a spec
+that waits for it also waits for the load. The seams (`storage-seams.ts`) keep the port the load
+opened and work through it, never through the save policy:
+
+| Seam                         | Signature                                                  | Behaviour                                                                                                                                                                                                                                                                                  |
+| ---------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `storage.seedSettings`       | `(values: Record<string, unknown>) => Promise<void>`       | Writes one settings record per entry, under the setting's record key (`theme`, `controls.tempo`, `mix.clickOn`, …), encoded by the settings codec at the running app's version. The value is not checked, so a spec can seed one the load must refuse; a key that names no setting throws. |
+| `storage.seedTimingSessions` | `(count: number, bodyBytes: number) => Promise<void>`      | Writes `count` sized kept sessions (a session-wide record with a 500-character comment, and a body of about `bodyBytes`), for the start-up read measurement only: their content is sized, not a real session's.                                                                            |
+| `storage.records`            | `(store) => Promise<unknown[]>`                            | Every raw record a store holds now.                                                                                                                                                                                                                                                        |
+| `storage.loadOutcome`        | `() => 'saved-data-read' \| 'started-from-defaults'`       | The load's outcome.                                                                                                                                                                                                                                                                        |
+| `storage.savingState`        | `() => 'on' \| 'off-outdated' \| 'off-unreadable' \| null` | The save policy's saving state; `null` until the policy exists (a port that opens after the start-up wait).                                                                                                                                                                                |
+| `storage.loadMs`             | `() => number`                                             | How long the load took, from its start to the settings decoded, in milliseconds.                                                                                                                                                                                                           |
+
+A spec that needs saved data opens the harness (its browser context starts empty), seeds through
+`storage.seedSettings`, then reloads the page, so the next load reads what was seeded. With
+`?storageLoad=held` the load does not start until `window.__workspaceHarnessHeldLoad.release()`,
+which the page publishes at once: until then the page shows only its background. The specs are in
+`tests/e2e/storage/`; their shared helpers (`storage-helpers.ts`) also record the controls at the
+workspace's first draw, before the browser paints it, through a `MutationObserver` an init script
+installs.
 
 ### The session screen specs
 

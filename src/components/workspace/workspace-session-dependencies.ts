@@ -18,6 +18,7 @@ import type { MidiController } from '@/midi/midi-controller'
 import type { WorkspacePregenerationPolicy, WorkspacePrewarmPolicy } from './prewarm-policy'
 import type { WorkspaceSessionStart } from '@/components/workspace/workspace-session-runner'
 import type { SessionControllerClock } from './workspace-session-controller-seams'
+import type { SavedDataLoad } from '@/storage-bootstrap'
 
 /**
  * What a caller supplies to start a session runner from the workspace: the session's start, its
@@ -45,7 +46,8 @@ export type WorkspaceSessionRunnerStarter = (input: WorkspaceSessionRunnerInput)
  * The explicit dependency surface `composeWorkspaceSession` needs: identity/seed providers, the
  * session-seed provider, the window-width provider, the raw orchestration-outcome `generate` seam
  * (plus its teardown), the prewarm policy and seam, the pre-generation policy, the audio transport, the MIDI controller, the
- * session browser ports and the session controller's clock. Production supplies the cryptographic
+ * session browser ports, the session controller's clock and the saved data loaded before the
+ * first draw. Production supplies the cryptographic
  * seed provider, the `matchMedia` width provider, the real worker client, the Web Audio transport,
  * the Web MIDI controller and the browser adapters; a harness supplies deterministic, gated, or
  * failure-injecting equivalents that still call through to the real worker, a transport on a fake
@@ -106,5 +108,12 @@ export interface WorkspaceSessionDependencies {
    */
   // @spec-link [[module_phrase_replay_key]]
   readonly logPhraseReplayKey: (line: string) => void
+  /**
+   * The saved data the app loaded before its first draw: Idle starts from its controls, profile
+   * selection and theme, the session controller's flags from its "During a session" choices; it
+   * is passed through unchanged as `WorkspaceSession.savedData`.
+   */
+  // @spec-link [[service_workspace_session_flow]]
+  readonly savedData: SavedDataLoad
   readonly dispose: () => void
 }

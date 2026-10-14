@@ -20,6 +20,7 @@ import { createFakeMidiAccess } from '../../midi/fake-midi-access'
 import { createFakeSessionBrowser } from '../../session/fake-session-browser'
 import { fixedWallClock } from '../../session/session-harness'
 import { createFakeFrames } from './fake-frames'
+import { fakeSavedData } from './fake-workspace-dependencies'
 
 vi.mock('@/generation-worker/browser-generation-worker', () => ({
   createBrowserGenerationWorker: vi.fn(() => ({
@@ -94,6 +95,7 @@ describe('composeWorkspaceSession: the session browser ports', () => {
         frames: createFakeFrames().port,
       },
       logPhraseReplayKey: vi.fn(),
+      savedData: fakeSavedData(),
       dispose: () => undefined,
     })
 
@@ -123,6 +125,7 @@ describe('createWorkspaceSession: the browser adapters', () => {
     const workspace = createWorkspaceSession({
       prewarmPolicy: 'disabled',
       pregenerationPolicy: 'disabled',
+      savedData: fakeSavedData(),
     })
     expect(browser.requests).toEqual([])
 
@@ -140,6 +143,7 @@ describe('createWorkspaceSession: the browser adapters', () => {
     const workspace = createWorkspaceSession({
       prewarmPolicy: 'disabled',
       pregenerationPolicy: 'disabled',
+      savedData: fakeSavedData(),
     })
 
     await workspace.browser.wakeLock.request()
@@ -159,6 +163,7 @@ describe('createWorkspaceSession: the browser adapters', () => {
     const workspace = createWorkspaceSession({
       prewarmPolicy: 'disabled',
       pregenerationPolicy: 'disabled',
+      savedData: fakeSavedData(),
     })
 
     expect(await workspace.browser.wakeLock.request()).toEqual({ kind: 'unsupported' })
@@ -172,6 +177,7 @@ describe('createWorkspaceSession: the browser adapters', () => {
     const workspace = createWorkspaceSession({
       prewarmPolicy: 'disabled',
       pregenerationPolicy: 'disabled',
+      savedData: fakeSavedData(),
     })
     let hidden = 0
     workspace.browser.pageVisibility.onHidden(() => {
@@ -191,6 +197,7 @@ describe('createWorkspaceSession: the browser adapters', () => {
     const workspace = createWorkspaceSession({
       prewarmPolicy: 'disabled',
       pregenerationPolicy: 'disabled',
+      savedData: fakeSavedData(),
     })
     expect(document.body.children).toHaveLength(0)
 

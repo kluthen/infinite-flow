@@ -4,9 +4,10 @@
  * no-room state, the generated-notes export's format, backing track and file action, whether the
  * session holds a played note, the played-notes export and the Played notes switch's state), and
  * the warm-up of the panel's chunk when a session starts, so the Review opening at its end does
- * not wait on a fetch. The export's format and backing track and the Played notes switch are
- * page-session state: held here, in memory, for as long as the page lives, kept across Reviews and
- * sessions, never stored, gone on reload.
+ * not wait on a fetch. The export's format and backing track and the Played notes switch start
+ * from the player's saved review preferences, loaded before the first draw, and are then held
+ * here, in memory, for as long as the page lives, kept across Reviews and sessions; saving them
+ * as they change comes later.
  */
 import { computed, ref, shallowRef, watch, type ComputedRef, type Ref } from 'vue'
 
@@ -18,6 +19,7 @@ import { getInstrumentProfile } from '@/domain/generation/generation-intent'
 import type { StaffViewport } from '@/notation/notation-layout-policy'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { SessionHistory, SessionHistoryRecord } from '@/session/session-history'
+import type { ReviewPreferences } from '@/storage/records/setting-defaults'
 import {
   exportGeneratedNotes,
   exportPlayedNotes,
@@ -26,12 +28,18 @@ import {
 } from './review-export'
 import type { SessionController } from './workspace-session-controller-types'
 
-/** What the Review host reads: the session controller, the Idle state, and the export's ports. */
+/**
+ * What the Review host reads: the session controller, the Idle state, the export's ports, and the
+ * saved review preferences its export choices and Played notes switch start from.
+ */
 // @spec-link [[req_last_session_review]]
 export interface ReviewHostDependencies {
   readonly controller: () => SessionController | null
   readonly idle: () => Readonly<GenerationSessionState<WorkspaceSessionResult>>
   readonly exportPorts: () => ReviewExportPorts
+  // @spec-link [[rule_first_phrase_waits_for_saved_settings]]
+  // @spec-link [[module_review_played_notes_lane]]
+  readonly initialPreferences: ReviewPreferences
 }
 
 /** What the score panel binds the Review with. */
@@ -58,7 +66,7 @@ export interface ReviewHost {
   /** Build the showing Review's played-notes file and download it; rejects on failure. */
   // @spec-link [[req_played_notes_export]]
   readonly exportPlayedNotes: () => Promise<void>
-  /** The Review's Played notes switch is on; off at first, held for the page session. */
+  /** The Review's Played notes switch is on; from the saved preference, held for the page. */
   // @spec-link [[module_review_played_notes_lane]]
   readonly playedNotesShown: Ref<boolean>
   /** Keep the viewport of a layout report the staff made. */
@@ -76,9 +84,11 @@ function warmReviewPanel(): void {
 
 /**
  * Intent: the Review host of one score panel: from it the panel learns when the Review shows and
- * what to give it; a session's start warms the panel's chunk.
+ * what to give it, its export choices and Played notes switch starting from the saved
+ * preferences; a session's start warms the panel's chunk.
  */
 // @spec-link [[req_last_session_review]]
+// @spec-link [[rule_first_phrase_waits_for_saved_settings]]
 // @spec-link [[req_session_export]]
 // @spec-link [[rule_session_data_never_sent_or_stored]]
 export function useReviewHost(deps: ReviewHostDependencies): ReviewHost {
@@ -95,10 +105,10 @@ export function useReviewHost(deps: ReviewHostDependencies): ReviewHost {
   })
   const viewport = shallowRef<StaffViewport | null>(null)
   const noRoom = computed(() => deps.idle().roomNotice === 'no_room')
-  const format = ref<GeneratedNotesFormat>('musicxml')
-  const backingTrack = ref(false)
+  const format = ref<GeneratedNotesFormat>(deps.initialPreferences.format)
+  const backingTrack = ref(deps.initialPreferences.backingTrack)
   // @spec-link [[module_review_played_notes_lane]]
-  const playedNotesShown = ref(false)
+  const playedNotesShown = ref(deps.initialPreferences.playedNotesShown)
   // @spec-link [[req_played_notes_export]]
   const holdsPlayedNote = computed(() => historyHoldsPlayedNote(records.value))
 

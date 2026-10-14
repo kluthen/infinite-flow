@@ -14,6 +14,7 @@ import {
   createFakeWebMidiNavigator,
   createFakeWebMidiPort,
 } from '../../midi/fake-web-midi'
+import { fakeSavedData } from './fake-workspace-dependencies'
 
 vi.mock('@/generation-worker/browser-generation-worker', () => ({
   createBrowserGenerationWorker: vi.fn(() => ({
@@ -64,6 +65,7 @@ describe('createWorkspaceSession: the MIDI controller', () => {
     const workspace = createWorkspaceSession({
       prewarmPolicy: 'disabled',
       pregenerationPolicy: 'disabled',
+      savedData: fakeSavedData(),
     })
 
     expect(workspace.midi.state()).toEqual({ kind: 'not-requested' })
@@ -81,6 +83,7 @@ describe('createWorkspaceSession: the MIDI controller', () => {
     const workspace = createWorkspaceSession({
       prewarmPolicy: 'disabled',
       pregenerationPolicy: 'disabled',
+      savedData: fakeSavedData(),
     })
 
     expect(workspace.midi.state()).toEqual({ kind: 'unsupported' })
@@ -100,6 +103,7 @@ describe('createWorkspaceSession: the MIDI controller', () => {
     const workspace = createWorkspaceSession({
       prewarmPolicy: 'disabled',
       pregenerationPolicy: 'disabled',
+      savedData: fakeSavedData(),
     })
     const anchor = vi
       .spyOn(workspace.audio, 'clockAnchor')
