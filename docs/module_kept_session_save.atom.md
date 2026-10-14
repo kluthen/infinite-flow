@@ -1,6 +1,6 @@
 ---
 id: module_kept_session_save
-status: DRAFT
+status: REVIEW
 dependents: []
 type: MODULE
 layer: ARCHITECTURE

@@ -13,7 +13,7 @@ dependents:
   - [[rule_session_history_records_played_notes]]
   - [[service_session_history]]
 type: RULE
-version: 0.1
+version: 0.2
 human_name: Session History Keeps Timeline and Reproduction Inputs
 tags: [v2, release-v2.0, session, history, determinism, changes-in-v3.0]
 ---
@@ -29,7 +29,7 @@ For every phrase that actually started sounding during the session (a look-ahead
 - the exact generated timeline as it was shown, so the review and export can never disagree with what actually played, even if a later version of the generator would produce something different from the same inputs;
 - the original reproduction inputs: the resolved request, the seed and the carry-in, so that every phrase of the session is exactly reproducible from its stored inputs.
 
-The resolved request holds the settings the phrase was actually generated with, note density included: Eighth rather than a chosen Sixteenth for every phrase generated with Eighth under the window-width rule, whether the window was below the tablet-landscape layout's width or the session had already stepped down. The history exists in memory only.
+The resolved request holds the settings the phrase was actually generated with, note density included: Eighth rather than a chosen Sixteenth for every phrase generated with Eighth under the window-width rule, whether the window was below the tablet-landscape layout's width or the session had already stepped down. The history itself exists in memory only; once the session has ended with its review, what a kept session holds of it is saved on the device by the app's storage code, never by the history.
 
 ## TECHNICAL INTERFACE
 Each history entry pairs a phrase's shown timeline with its resolved request, seed and carry-in.
