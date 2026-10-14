@@ -1,8 +1,8 @@
 /**
- * A save policy double recording the saves, holds and releases that reach it, in order; every
- * other member throws, as the callers under test must never use it.
+ * A save policy double recording the saves, holds, releases and session saves that reach it, in
+ * order; every other member throws, as the callers under test must never use it.
  */
-import type { SavePolicy } from '@/storage/save-policy'
+import type { SavePolicy, SessionChanges } from '@/storage/save-policy'
 import type { StorageChange } from '@/storage/storage-port'
 
 /** One call that reached the fake policy. */
@@ -10,6 +10,7 @@ export type PolicyCall =
   | { readonly method: 'save'; readonly changes: readonly StorageChange[] }
   | { readonly method: 'hold' }
   | { readonly method: 'release' }
+  | { readonly method: 'saveSession'; readonly changes: SessionChanges }
 
 /** Intent: a member of the fake policy the saver must never call. */
 export function notUsed(name: string): () => never {
@@ -18,7 +19,7 @@ export function notUsed(name: string): () => never {
   }
 }
 
-/** Intent: a save policy recording the saves, holds and releases that reach it, in order. */
+/** Intent: a save policy recording the saves, holds, releases and session saves, in order. */
 export function recordingPolicy(): { readonly policy: SavePolicy; readonly calls: PolicyCall[] } {
   const calls: PolicyCall[] = []
   const policy: SavePolicy = {
@@ -37,6 +38,10 @@ export function recordingPolicy(): { readonly policy: SavePolicy; readonly calls
     release: () => {
       calls.push({ method: 'release' })
       return Promise.resolve('saved')
+    },
+    saveSession: (changes) => {
+      calls.push({ method: 'saveSession', changes })
+      return Promise.resolve({ status: 'refused', kind: 'quota' })
     },
     onFailure: notUsed('onFailure'),
     requestProtection: notUsed('requestProtection'),

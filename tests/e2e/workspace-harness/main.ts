@@ -75,7 +75,9 @@
  *   seeds settings for the next load, and `?storageLoad=held` holds the load until
  *   `window.__workspaceHarnessHeldLoad.release()`; `?storageRead=fail|slow` fails or delays the
  *   app's reads, `storage.refuseSaves` refuses its saves, `storage.portChanges` counts them and
- *   `storage.openNewerVersion` outdates the tab as a newer version would.
+ *   `storage.openNewerVersion` outdates the tab as a newer version would; `storage.keyedRecords`
+ *   reads a store with its keys, `storage.pinKeptSession` pins a saved session and
+ *   `storage.seedUnreadableKeptSession` seeds one no codec reads.
  *
  * The lazy VexFlow engraver, the real generation Worker, real notation, the real `matchMedia`
  * window-width provider and the real window-shape probe all run for real (a spec moves the window

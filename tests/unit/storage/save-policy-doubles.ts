@@ -81,7 +81,7 @@ export async function raiseMeta(factory: IDBFactory): Promise<void> {
 
 /** Calls counted on a port's data methods and on the database's transactions. */
 export interface CallCounter {
-  /** Calls made to the port's read, readAll, write, delete, apply and deleteEverything. */
+  /** Calls made to the port's reads, write, delete, apply and deleteEverything. */
   readonly portCalls: () => number
   /** Transactions opened on any database connection. */
   readonly transactions: () => number
@@ -97,6 +97,7 @@ export function countCalls(port: StoragePort): CallCounter {
   const spies = [
     vi.spyOn(port, 'read'),
     vi.spyOn(port, 'readAll'),
+    vi.spyOn(port, 'readKeyed'),
     vi.spyOn(port, 'write'),
     vi.spyOn(port, 'delete'),
     vi.spyOn(port, 'apply'),

@@ -11,7 +11,7 @@
  *   the stored settings are exactly the player's choices: nothing the app set during the session,
  *   nor the end-of-session restore, was written, and a reload shows the player's own values;
  * - a write spy on IndexedDB sees no write from Start to the session's end, then exactly the theme
- *   and mix changes the player made during it.
+ *   and mix changes the player made during it, and the session itself (chunk 10a).
  *
  * A save is asynchronous, so before reading what a session's end wrote, a test makes one more
  * change (the theme) and waits until it is stored: saves are written in order, so every write
@@ -259,17 +259,23 @@ function setPhase(page: Page, phase: string): Promise<void> {
   }, phase)
 }
 
-/** Intent: the writes the spy saw in `phase`, ordered by store and key. */
+/**
+ * Intent: the writes the spy saw in `phase`, ordered by store and key, a kept session's key
+ * written as its form, `session-{startedAt}-{sessionSeed}`.
+ */
 async function writesIn(page: Page, phase: string): Promise<string[]> {
   const writes = await page.evaluate(() => window.__writes ?? [])
   return writes
     .filter((write) => write.phase === phase)
-    .map((write) => `${write.method} ${write.store} ${write.key}`)
+    .map((write) => {
+      const key = write.key.replace(/^session-\d+-\d+$/, 'session-{startedAt}-{sessionSeed}')
+      return `${write.method} ${write.store} ${key}`
+    })
     .sort()
 }
 
 // @test-link [[rule_no_save_during_session]]
-test("a write spy on IndexedDB sees no write from Start to the session's end, then the theme and mix changes made during it", async ({
+test("a write spy on IndexedDB sees no write from Start to the session's end, then the theme and mix changes made during it and the session", async ({
   page,
 }) => {
   test.setTimeout(90_000)
@@ -294,7 +300,12 @@ test("a write spy on IndexedDB sees no write from Start to the session's end, th
   await sessionAction(page).click()
   await expect
     .poll(() => writesIn(page, 'ended'))
-    .toEqual(['put settings mix.clickOn', 'put settings theme'])
+    .toEqual([
+      'put sessionBodies session-{startedAt}-{sessionSeed}',
+      'put sessionSummaries session-{startedAt}-{sessionSeed}',
+      'put settings mix.clickOn',
+      'put settings theme',
+    ])
   await untilStored(page, { theme: 'Dark', 'mix.clickOn': false })
   expect(await writesIn(page, 'session')).toEqual([])
 })

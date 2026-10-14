@@ -17,10 +17,12 @@
  *   write, no `document.cookie` setter, no `cookieStore` write, no origin-private file system and
  *   no `navigator.storage.persist`. The end state catches whatever the wrappers cannot see (a
  *   Worker, a property assignment, a write through the opened database): the only IndexedDB
- *   database is the app's (`infinite-flow`), its `sessionSummaries`, `sessionBodies` and
- *   `playedNotes` stores are empty and every `settings` record is one the settings codec reads
- *   back, so no session, phrase, review or played-notes data is stored; both Storage areas, Cache
- *   Storage and cookies are empty, and no service worker is registered.
+ *   database is the app's (`infinite-flow`); since chunk 10 it keeps the session that ended last,
+ *   one session-wide record and one body under the same key, with its played notes not kept (the
+ *   record says so, the body holds none and the `playedNotes` store is empty), and every
+ *   `settings` record is one the settings codec reads back, so nothing else of the session, and no
+ *   played note, is stored; both Storage areas, Cache Storage and cookies are empty, and no
+ *   service worker is registered.
  * - **Played notes** (rule_optional_midi_privacy). They were recorded (the history holds three),
  *   shown and hidden with the Review's `Played notes` switch, yet none is sent or stored, and the
  *   only files that leave the machine are the downloads the player triggered, one per export
@@ -282,23 +284,39 @@ async function expectNothingSentOrStored(page: Page): Promise<void> {
 }
 
 /**
- * Intent: the app's database holds no session, phrase, review or played-notes data: its kept
- * session stores and played notes are empty, and every settings record is one the settings codec
- * reads back. Read through the harness's storage seam.
+ * Intent: the app's database holds the session that ended last and the settings, and nothing
+ * else: one session-wide record and one body under the same key, the record saying its played
+ * notes are not kept and the body holding none, no played notes record, and every settings record
+ * one the settings codec reads back. Read through the harness's storage seam, once the session's
+ * save has landed.
  */
-async function expectOnlySettingsStored(page: Page): Promise<void> {
-  const stored = await page.evaluate(async () => {
-    const { storage } = window.__workspaceHarness
-    return {
-      sessionSummaries: (await storage.records('sessionSummaries')).length,
-      sessionBodies: (await storage.records('sessionBodies')).length,
-      playedNotes: (await storage.records('playedNotes')).length,
-      settingsNotReadBack: await storage.settingsNotReadBack(),
-    }
-  })
+async function expectOnlyKeptSessionAndSettingsStored(page: Page): Promise<void> {
+  /** Intent: what the kept-session stores and the settings hold now. */
+  const read = () =>
+    page.evaluate(async () => {
+      const { storage } = window.__workspaceHarness
+      const summaries = await storage.keyedRecords('sessionSummaries')
+      const bodies = await storage.keyedRecords('sessionBodies')
+      return {
+        summaryKeys: summaries.map(({ key }) => key),
+        bodyKeys: bodies.map(({ key }) => key),
+        playedNotesKept: summaries.map(
+          ({ value }) => (value as { playedNotesKept?: unknown }).playedNotesKept,
+        ),
+        bodyHoldsPlayedNotes: bodies.some(({ value }) =>
+          JSON.stringify(value).includes('"playedNotes"'),
+        ),
+        playedNotes: (await storage.records('playedNotes')).length,
+        settingsNotReadBack: await storage.settingsNotReadBack(),
+      }
+    })
+  await expect.poll(async () => (await read()).summaryKeys.length).toBe(1)
+  const stored = await read()
   expect(stored).toEqual({
-    sessionSummaries: 0,
-    sessionBodies: 0,
+    summaryKeys: [expect.stringMatching(/^session-\d+-\d+$/)],
+    bodyKeys: stored.summaryKeys,
+    playedNotesKept: [false],
+    bodyHoldsPlayedNotes: false,
     playedNotes: 0,
     settingsNotReadBack: [],
   })
@@ -309,7 +327,7 @@ async function expectOnlySettingsStored(page: Page): Promise<void> {
 test.describe('a session under a network and storage spy', () => {
   // @test-link [[rule_session_data_never_sent_or_stored]]
   // @test-link [[rule_optional_midi_privacy]]
-  test('a MIDI session with played notes, its Review and every export send nothing and store nothing', async ({
+  test('a MIDI session with played notes, its Review and every export send nothing and store only the kept session, without its played notes', async ({
     context,
     page,
   }) => {
@@ -334,7 +352,7 @@ test.describe('a session under a network and storage spy', () => {
       await expect(playedNotesToggle(page)).toHaveAttribute('aria-pressed', pressed)
     }
     await expectNothingSentOrStored(page)
-    await expectOnlySettingsStored(page)
+    await expectOnlyKeptSessionAndSettingsStored(page)
     expect(
       (await sessionState(page)).lastHistoryPhrases?.flatMap((p) => p.playedNotes),
     ).toHaveLength(3)
@@ -356,7 +374,7 @@ test.describe('a session under a network and storage spy', () => {
     expect(network.requests.length).toBeGreaterThan(0)
     expect(offendingRequests(network.requests, origin)).toEqual([])
     expect(network.webSockets).toEqual([])
-    await expectOnlySettingsStored(page)
+    await expectOnlyKeptSessionAndSettingsStored(page)
     expect(await readStoredState(page)).toEqual({
       localStorageLength: 0,
       sessionStorageLength: 0,
