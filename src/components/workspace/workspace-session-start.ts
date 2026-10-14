@@ -1,9 +1,9 @@
 /**
  * The in-click part of a session controller's start: refused, touching nothing, while a start
- * condition does not hold; otherwise it discards the kept Review, unlocks the audio, asks for both
- * screen locks, starts the transport with phrase 1's backing queued, builds the session's record,
- * its history holding the Idle result's session seed, takes the pre-generated phrases ready, and
- * hands it to the rest of the start
+ * condition does not hold; otherwise it discards the kept Review, unlocks the audio, holds the
+ * player's saves until the session ends, asks for both screen locks, starts the transport with
+ * phrase 1's backing queued, builds the session's record, its history holding the Idle result's
+ * session seed, takes the pre-generated phrases ready, and hands it to the rest of the start
  * (./workspace-session-begin.ts). Once the locks are asked for, a start is all or nothing: any
  * later throw undoes it (./workspace-session-ends.ts).
  */
@@ -39,15 +39,16 @@ export function createSessionStart(
   /**
    * Intent: start a session from the Idle phrase, synchronously, inside the player's Start click
    * (or the starting note's MIDI callback, once a Connect-controller click has unlocked the audio):
-   * unlock the audio, ask for the wake lock and the landscape lock (a refusal changes nothing, so
-   * their outcomes are ignored), start the transport and queue phrase 1's backing; then lock the
-   * current settings, hold the staff layout the window's width selects, take the phrases the Idle
-   * pre-generation queue has ready that fit it (aborting its attempt in flight, never waiting for
-   * it), open the history with the session seed the Idle result carries and start the runner, the
-   * count-in display, the wake-ups and the end watchers. Throws, touching nothing, while a start condition does not hold. An
-   * accepted start first discards the kept Review, before anything else changes. Once the locks are
-   * asked for, it is all or nothing: a throw from any later step undoes what was set up and throws
-   * on (`abandonStart`).
+   * unlock the audio, hold the player's saves until the session ends, ask for the wake lock and the
+   * landscape lock (a refusal changes nothing, so their outcomes are ignored), start the transport
+   * and queue phrase 1's backing; then lock the current settings, hold the staff layout the
+   * window's width selects, take the phrases the Idle pre-generation queue has ready that fit it
+   * (aborting its attempt in flight, never waiting for it), open the history with the session seed
+   * the Idle result carries and start the runner, the count-in display, the wake-ups and the end
+   * watchers. Throws, touching nothing, while a start condition does not hold. An accepted start
+   * first discards the kept Review, before anything else changes. Once the saves are held, it is
+   * all or nothing: a throw from any later step undoes what was set up, releasing the saves, and
+   * throws on (`abandonStart`).
    */
   // @spec-link [[rule_new_session_discards_review]]
   // @spec-link [[rule_audio_unlocked_by_player_click]]
@@ -58,6 +59,7 @@ export function createSessionStart(
   // @spec-link [[rule_session_layout_fixed_at_start]]
   // @spec-link [[module_session_seed_plan]]
   // @spec-link [[rule_start_never_waits_for_pregeneration]]
+  // @spec-link [[rule_no_save_during_session]]
   function start(): void {
     if (core.disposed) throw new SessionControllerError('session controller: disposed')
     const blocker = startBlocker()
@@ -79,6 +81,7 @@ export function createSessionStart(
     audio.unlock()
     ends.hearInterruptions()
     let session: ActiveSession | null = null
+    deps.saveHold.hold()
     try {
       void browser.wakeLock.request()
       void browser.orientationLock.lock()

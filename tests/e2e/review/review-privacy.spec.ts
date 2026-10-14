@@ -9,12 +9,18 @@
  *   styles, fonts), never with a query string; no WebSocket is opened. In the page, no network API
  *   is called at all: `fetch`, `XMLHttpRequest`, `navigator.sendBeacon`, `WebSocket`,
  *   `EventSource`, `RTCPeerConnection`.
- * - **Storage.** In the page, no storage API is called: `Storage` writes (localStorage and
- *   sessionStorage), `indexedDB.open`/`deleteDatabase`, `caches.open`/`delete` and any `Cache`
- *   write, the `document.cookie` setter, `cookieStore` writes, the origin-private file system and
- *   `navigator.storage.persist`. Whatever wrote outside the page's own script (a Worker, a
- *   property assignment the wrappers cannot see) is caught by the end state: both Storage areas
- *   empty, no IndexedDB database, no Cache Storage cache, no cookie, no service worker.
+ * - **Storage** (the v3.0 interim guarantee of chunk 7b, widened by chunk 10 to the kept session
+ *   and rewritten by chunk 11). Since v3.0 the app opens its one IndexedDB database at every load
+ *   and saves the player's settings there, the review's preferences changed here among them. In
+ *   the page, the only storage API called is `indexedDB.open`: no `Storage` write (localStorage
+ *   and sessionStorage), no `indexedDB.deleteDatabase`, no `caches.open`/`delete` nor any `Cache`
+ *   write, no `document.cookie` setter, no `cookieStore` write, no origin-private file system and
+ *   no `navigator.storage.persist`. The end state catches whatever the wrappers cannot see (a
+ *   Worker, a property assignment, a write through the opened database): the only IndexedDB
+ *   database is the app's (`infinite-flow`), its `sessionSummaries`, `sessionBodies` and
+ *   `playedNotes` stores are empty and every `settings` record is one the settings codec reads
+ *   back, so no session, phrase, review or played-notes data is stored; both Storage areas, Cache
+ *   Storage and cookies are empty, and no service worker is registered.
  * - **Played notes** (rule_optional_midi_privacy). They were recorded (the history holds three),
  *   shown and hidden with the Review's `Played notes` switch, yet none is sent or stored, and the
  *   only files that leave the machine are the downloads the player triggered, one per export
@@ -26,12 +32,15 @@ import { expect, test, type BrowserContext, type Page, type Request } from '@pla
 
 import { watchPageErrors } from '../controller/controller-helpers'
 import { sessionState } from '../session/session-helpers'
+import { untilStored } from '../storage/storage-helpers'
 import {
   STEM,
+  backingTrackToggle,
   collectDownloads,
   exportEach,
   exportOnce,
   exportPlayedButton,
+  pickFormat,
   playedNotesToggle,
   reviewItems,
   reviewOfSession,
@@ -249,11 +258,50 @@ function readStoredState(page: Page): Promise<StoredState> {
   }))
 }
 
-/** Intent: the in-page spy is armed and saw no storage write and no network call. */
+/** The wrapped network APIs; every other wrapped API is a storage one. */
+const NETWORK_APIS = new Set([
+  'fetch',
+  'XMLHttpRequest.open',
+  'XMLHttpRequest.send',
+  'navigator.sendBeacon',
+  'WebSocket',
+  'EventSource',
+  'RTCPeerConnection',
+])
+
+/**
+ * Intent: the in-page spy is armed and saw no network call, and no storage call but the app's
+ * opening of its database (`indexedDB.open`, at least once).
+ */
 async function expectNothingSentOrStored(page: Page): Promise<void> {
   const spy = await readPrivacySpy(page)
   expect(spy.installed).toEqual(expect.arrayContaining(SPIED_APIS))
-  expect(spy.calls).toEqual([])
+  expect(spy.calls.filter((call) => NETWORK_APIS.has(call))).toEqual([])
+  const storageCalls = spy.calls.filter((call) => !NETWORK_APIS.has(call))
+  expect([...new Set(storageCalls)]).toEqual(['indexedDB.open'])
+}
+
+/**
+ * Intent: the app's database holds no session, phrase, review or played-notes data: its kept
+ * session stores and played notes are empty, and every settings record is one the settings codec
+ * reads back. Read through the harness's storage seam.
+ */
+async function expectOnlySettingsStored(page: Page): Promise<void> {
+  const stored = await page.evaluate(async () => {
+    const { storage } = window.__workspaceHarness
+    return {
+      sessionSummaries: (await storage.records('sessionSummaries')).length,
+      sessionBodies: (await storage.records('sessionBodies')).length,
+      playedNotes: (await storage.records('playedNotes')).length,
+      settingsNotReadBack: await storage.settingsNotReadBack(),
+    }
+  })
+  expect(stored).toEqual({
+    sessionSummaries: 0,
+    sessionBodies: 0,
+    playedNotes: 0,
+    settingsNotReadBack: [],
+  })
 }
 
 // @test-link [[rule_session_data_never_sent_or_stored]]
@@ -286,9 +334,15 @@ test.describe('a session under a network and storage spy', () => {
       await expect(playedNotesToggle(page)).toHaveAttribute('aria-pressed', pressed)
     }
     await expectNothingSentOrStored(page)
+    await expectOnlySettingsStored(page)
     expect(
       (await sessionState(page)).lastHistoryPhrases?.flatMap((p) => p.playedNotes),
     ).toHaveLength(3)
+    // The export's choices are saved preferences: put them back to their first-load values, and
+    // wait until they are stored, so the silent session's Review starts from them as this one did.
+    await backingTrackToggle(page).click()
+    await pickFormat(page, 'MusicXML')
+    await untilStored(page, { 'review.format': 'musicxml', 'review.backingTrack': false })
 
     // The same session played silently, on a fresh page under the same spies.
     const silentDownloads = collectDownloads(page)
@@ -302,10 +356,11 @@ test.describe('a session under a network and storage spy', () => {
     expect(network.requests.length).toBeGreaterThan(0)
     expect(offendingRequests(network.requests, origin)).toEqual([])
     expect(network.webSockets).toEqual([])
+    await expectOnlySettingsStored(page)
     expect(await readStoredState(page)).toEqual({
       localStorageLength: 0,
       sessionStorageLength: 0,
-      indexedDbNames: [],
+      indexedDbNames: ['infinite-flow'],
       cacheNames: [],
       documentCookie: '',
       serviceWorkers: 0,

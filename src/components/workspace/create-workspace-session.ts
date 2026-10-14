@@ -35,6 +35,8 @@ import { createBrowserGenerationWorker } from '@/generation-worker/browser-gener
 import { createGenerationWorkerClient } from '@/generation-worker/generation-worker-client'
 import { createBrowserAudioTransport } from '@/audio/browser-audio-transport'
 import type { SavedDataLoad } from '@/storage-bootstrap'
+import { APP_VERSION } from '@/storage/app-version'
+import { createVisitSaves } from '@/storage/settings-saver'
 import { createMidiController } from '@/midi/midi-controller'
 import { createWebMidiAccessProvider } from '@/midi/web-midi-access'
 import { createBrowserWakeTimerWorker, createWorkerWakeTimer } from '@/audio/worker-wake-timer'
@@ -85,7 +87,9 @@ export const WORKSPACE_SESSION_FACTORY: InjectionKey<
  * attempts on that same seam, after the prewarm, through the Idle background slot, which every
  * Idle request yields to first. Idle starts from the loaded settings' controls, profile selection
  * and theme, and each session controller's flags from its "During a session" choices, so the
- * workspace is first drawn with them; the load itself is exposed unchanged.
+ * workspace is first drawn with them; the load itself is exposed unchanged. The visit's saves go
+ * through the loaded save policy: Idle's control actions and the screen's change handlers save the
+ * player's changes through them, and each session controller holds them while a session runs.
  */
 // @spec-link [[service_workspace_session_flow]]
 // @spec-link [[service_session_runner]]
@@ -115,6 +119,7 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
   const connectionSheetOpen = shallowRef(false)
   const slot = createPregenerationSlot()
   const { controls, profileSelection, theme, sessionOptions } = deps.savedData.settings
+  const saves = createVisitSaves(deps.savedData.savePolicy, APP_VERSION)
   const created = createGenerationSession<WorkspaceSessionResult, WorkspaceGeneratedPhrase>({
     providers: deps.providers,
     nextSessionSeed: deps.nextSessionSeed,
@@ -129,6 +134,7 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
     ...(deps.prewarmPolicy === 'enabled' ? { prewarm: deps.prewarm } : {}),
     onPhraseAccepted: announcer.announceWorkspacePhrase,
     initialSettings: { controls, profileSelection, theme },
+    saveSettings: saves.saveSettings,
   })
   session = created
   const staffReports = createIdleLayoutGate({
@@ -217,9 +223,11 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
             policy: deps.pregenerationPolicy,
           }),
         savedSessionOptions: sessionOptions,
+        saveHold: { hold: saves.hold, release: saves.release },
       })
     },
     savedData: deps.savedData,
+    saveSettings: saves.saveSettings,
     dispose: () => {
       created.dispose()
       deps.dispose()

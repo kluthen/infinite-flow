@@ -6,7 +6,7 @@
  * session spends the ready phrases instead of requesting them, a player request or Start cancels
  * a held attempt and never waits for it, a change of the queue's key discards the ready phrases
  * (a tempo change keeps them), a window crossing that steps the density down discards the
- * phrases made at the wider density, nothing runs while a review shows, and nothing is stored.
+ * phrases made at the wider density, nothing runs while a review shows, and no record is stored.
  */
 import { expect, test, type Page } from '@playwright/test'
 
@@ -20,6 +20,7 @@ import {
   startSession,
   toRunning,
 } from '../session/session-helpers'
+import { databaseRecords } from '../storage/storage-helpers'
 import { radio } from './helpers'
 import {
   QUEUE_SIZE,
@@ -84,12 +85,11 @@ async function untilNewPhraseOne(page: Page, timeline: string | null): Promise<v
   await expect(sessionAction(page)).toBeEnabled()
 }
 
-/** Intent: the page's storage now: both Storage areas, IndexedDB, Cache Storage and cookies. */
-function storageNow(page: Page) {
+/** Intent: the page's other storage areas now: both Storage areas, Cache Storage and cookies. */
+function otherStorageNow(page: Page) {
   return page.evaluate(async () => ({
     localStorage: Object.keys(localStorage),
     sessionStorage: Object.keys(sessionStorage),
-    indexedDB: ((await indexedDB.databases?.()) ?? []).map((database) => database.name),
     caches: await caches.keys(),
     cookie: document.cookie,
   }))
@@ -320,17 +320,16 @@ test('pre-generation writes nothing to storage', async ({ page }) => {
   await holdBackground(page)
   await readyWithSessionSeed(page, SESSION_SEED)
   await untilBackgroundHeld(page)
-  const before = await storageNow(page)
+  const recordsBefore = await databaseRecords(page)
+  const otherBefore = await otherStorageNow(page)
 
   await releaseBackground(page)
   await untilQueueFull(page)
 
-  expect(await storageNow(page)).toEqual(before)
-  expect(before).toEqual({
-    localStorage: [],
-    sessionStorage: [],
-    indexedDB: [],
-    caches: [],
-    cookie: '',
-  })
+  // The app's database may exist (it is opened at every load); the queue filling changes no
+  // record in any of its stores, and the other storage areas stay empty.
+  expect(Object.keys(recordsBefore)).toHaveLength(7)
+  expect(await databaseRecords(page)).toEqual(recordsBefore)
+  expect(await otherStorageNow(page)).toEqual(otherBefore)
+  expect(otherBefore).toEqual({ localStorage: [], sessionStorage: [], caches: [], cookie: '' })
 })

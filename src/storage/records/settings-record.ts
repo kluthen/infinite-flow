@@ -43,7 +43,7 @@ import {
   type GenerationControls,
   type MusicalProfile,
 } from '@/domain/controls/generation-controls'
-import type { ProfileSelection } from '@/domain/controls/profile-selection'
+import { PROFILE_BUNDLES, type ProfileSelection } from '@/domain/controls/profile-selection'
 import { deepFreeze } from '@/domain/events/deep-freeze'
 import { MY_INSTRUMENT_ID } from '@/domain/profile/instrument-profiles'
 import { readEnvelope, type RecordVersions } from '@/storage/record-envelope'
@@ -349,10 +349,31 @@ function decodeGroup<G extends SettingGroup>(
 }
 
 /**
+ * Intent: the profile selection a load gives, read against the loaded controls. A preset picked
+ * and not customized whose seven profile-controlled values are not all that preset's own (one of
+ * them fell back to its default, or the selection itself did) loads customized, that preset's
+ * grammar kept: the state a manual edit of one of them leaves. Silent, like every fallback here.
+ */
+// @spec-link [[rule_saved_settings_load_tolerantly]]
+// @spec-link [[rule_profile_control_customization]]
+function loadedProfileSelection(
+  selection: ProfileSelection,
+  controls: GenerationControls,
+): ProfileSelection {
+  if (selection.isCustom) return selection
+  const bundle = PROFILE_BUNDLES[selection.musicalProfile]
+  const keptPreset = (Object.keys(bundle) as (keyof typeof bundle)[]).every(
+    (field) => controls[field] === bundle[field],
+  )
+  return keptPreset ? selection : { musicalProfile: selection.musicalProfile, isCustom: true }
+}
+
+/**
  * Intent: every saved setting from the stored records, each read on its own: a missing,
  * damaged, newer or invalid record gives that setting its default, silently, and never disturbs
  * another setting. Never throws for what was stored. The decoded controls are rebuilt by the
- * strict control builder, so what the app runs is still guarded by it.
+ * strict control builder, so what the app runs is still guarded by it, and the profile selection
+ * is then read against them: a preset whose controlled values did not all load loads customized.
  */
 // @spec-link [[rule_saved_settings_load_tolerantly]]
 // @spec-link [[rule_outdated_tab_reads_what_it_can]]
@@ -371,11 +392,15 @@ export function decodeSettings(
     const parsed = stored === UNREADABLE ? UNREADABLE : parse(stored, context)
     return parsed === UNREADABLE ? fallback : parsed
   }
+  const controls = makeGenerationControls(
+    decodeGroup('controls', CONTROL_PARSERS, defaults.controls, read),
+  )
   return deepFreeze({
-    controls: makeGenerationControls(
-      decodeGroup('controls', CONTROL_PARSERS, defaults.controls, read),
+    controls,
+    profileSelection: loadedProfileSelection(
+      read('profileSelection', readProfileSelection, defaults.profileSelection),
+      controls,
     ),
-    profileSelection: read('profileSelection', readProfileSelection, defaults.profileSelection),
     theme: read('theme', oneOf(THEME_PREFERENCES), defaults.theme),
     mix: decodeGroup('mix', MIX_PARSERS, defaults.mix, read),
     sessionOptions: decodeGroup(

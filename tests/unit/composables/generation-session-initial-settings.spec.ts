@@ -40,6 +40,7 @@ function session(
 ) {
   let counter = 0
   return createGenerationSession({
+    saveSettings: () => undefined,
     ...alwaysFitsStaff(),
     viewport: createFakeViewportWidth(),
     providers: {

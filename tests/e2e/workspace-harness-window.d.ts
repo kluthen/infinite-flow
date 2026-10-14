@@ -689,6 +689,12 @@ interface WorkspaceHarnessStorageApi {
   seedTimingSessions: (count: number, bodyBytes: number) => Promise<void>
   /** Every raw record a store holds now, read through the app's port. */
   records: (store: WorkspaceHarnessStoreName) => Promise<unknown[]>
+  /**
+   * The key of each stored settings record the settings codec does not read back as the value it
+   * holds, all records decoded together as a load decodes them (the page's mix design, my
+   * instrument not loaded); empty when every record reads back.
+   */
+  settingsNotReadBack: () => Promise<string[]>
   /** The load's outcome. */
   loadOutcome: () => WorkspaceHarnessLoadOutcome
   /** The save policy's saving state; null until the policy exists (a port opening late). */

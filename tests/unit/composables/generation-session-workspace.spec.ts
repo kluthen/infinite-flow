@@ -48,6 +48,7 @@ describe('generation session workspace flow', () => {
       const { providers } = trackedProviders()
       const operations: SessionOperation[] = []
       const session = createGenerationSession<StubResult>({
+        saveSettings: () => undefined,
         ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
@@ -76,6 +77,7 @@ describe('generation session workspace flow', () => {
       const { providers } = trackedProviders()
       let notateAttempts = 0
       const session = createGenerationSession<StubResult>({
+        saveSettings: () => undefined,
         ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
@@ -101,6 +103,7 @@ describe('generation session workspace flow', () => {
       const { providers } = trackedProviders()
       let call = 0
       const session = createGenerationSession<StubResult>({
+        saveSettings: () => undefined,
         ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
@@ -131,6 +134,7 @@ describe('generation session workspace flow', () => {
       const tracked = trackedProviders()
       let generateCalls = 0
       const session = createGenerationSession<StubResult>({
+        saveSettings: () => undefined,
         ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers: tracked.providers,
@@ -167,6 +171,7 @@ describe('generation session workspace flow', () => {
       const { providers } = trackedProviders()
       const deferred = createDeferred<StubResult>()
       const session = createGenerationSession<StubResult>({
+        saveSettings: () => undefined,
         ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
@@ -187,6 +192,7 @@ describe('generation session workspace flow', () => {
     it('resolves unchanged and touches nothing for a reselection of the current profile', async () => {
       const { providers } = trackedProviders()
       const session = createGenerationSession<StubResult>({
+        saveSettings: () => undefined,
         ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
@@ -204,6 +210,7 @@ describe('generation session workspace flow', () => {
     it('applies the control alone when there is no prior result', async () => {
       const { providers } = trackedProviders()
       const session = createGenerationSession<StubResult>({
+        saveSettings: () => undefined,
         ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
@@ -227,6 +234,7 @@ describe('generation session workspace flow', () => {
         readonly tempo: number
       }[] = []
       const session = createGenerationSession<StubResult>({
+        saveSettings: () => undefined,
         ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers: tracked.providers,
@@ -265,6 +273,7 @@ describe('generation session workspace flow', () => {
       const { providers } = trackedProviders()
       let call = 0
       const session = createGenerationSession<StubResult>({
+        saveSettings: () => undefined,
         ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
@@ -291,6 +300,7 @@ describe('generation session workspace flow', () => {
       const { providers } = trackedProviders()
       let generateCalls = 0
       const session = createGenerationSession<StubResult>({
+        saveSettings: () => undefined,
         ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
@@ -353,6 +363,7 @@ describe('generation session workspace flow', () => {
         const tracked = trackedProviders()
         const intents: { readonly seed: number; readonly tonalCenter: string }[] = []
         const session = createGenerationSession<StubResult>({
+          saveSettings: () => undefined,
           ...alwaysFitsStaff(),
           viewport: createFakeViewportWidth(),
           providers: tracked.providers,
@@ -392,6 +403,7 @@ describe('generation session workspace flow', () => {
     it('throws a typed SessionUsageError for instrumentProfileId, directing callers to selectInstrumentProfile', () => {
       const { providers } = trackedProviders()
       const session = createGenerationSession<StubResult>({
+        saveSettings: () => undefined,
         ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,
@@ -414,6 +426,7 @@ describe('generation session workspace flow', () => {
       const { providers } = trackedProviders()
       const deferred = createDeferred<StubResult>()
       const session = createGenerationSession<StubResult>({
+        saveSettings: () => undefined,
         ...alwaysFitsStaff(),
         viewport: createFakeViewportWidth(),
         providers,

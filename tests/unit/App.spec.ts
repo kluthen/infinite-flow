@@ -11,9 +11,13 @@ import type {
   ThemePreference,
 } from '../../src/composables/use-generation-session'
 import type { SavedDataLoad } from '../../src/storage-bootstrap'
+import type { SettingChanges } from '../../src/storage/settings-saver'
 import { fakeSavedData } from './components/workspace/fake-workspace-dependencies'
 
 let lastGenerate: ReturnType<typeof vi.fn> | null = null
+
+/** Every batch the latest fake workspace's saver was given, in order. */
+let lastSaves: SettingChanges[] = []
 
 /** The fake session controller the next fake workspace's `createSessionController` resolves with. */
 let nextController: FakeSessionController | null = null
@@ -27,10 +31,13 @@ let controllerLoad: { promise: Promise<void>; resolve: () => void } | null = nul
  * and unwanted in jsdom. It starts from the given saved data's controls, profile selection and
  * theme, as the real one does. `setTheme` genuinely mutates its own reactive presentation state,
  * so a test can assert App.vue's DOM theme-application watcher reacts to a real state change.
+ * Its saver records every batch in `lastSaves`.
  */
 function fakeWorkspaceSession(savedData: SavedDataLoad = fakeSavedData()) {
   const generate = vi.fn(async () => false)
   lastGenerate = generate
+  const saves: SettingChanges[] = []
+  lastSaves = saves
   const state = reactive({
     controls: savedData.settings.controls,
     profileSelection: savedData.settings.profileSelection,
@@ -84,6 +91,7 @@ function fakeWorkspaceSession(savedData: SavedDataLoad = fakeSavedData()) {
       return nextController.controller
     },
     savedData,
+    saveSettings: (changes: SettingChanges) => void saves.push(changes),
     dispose: () => {},
   }
 }
@@ -169,6 +177,19 @@ describe('App', () => {
 
     expect(injectedFactory).toHaveBeenCalledExactlyOnceWith(savedData)
     expect(wrapper.get('h1').text()).toBe('Infinite Flow')
+  })
+
+  // @test-link [[rule_settings_saved_on_change]]
+  it("provides the workspace's saver to the components whose handlers save", async () => {
+    const wrapper = mount(App, { props: { savedData: fakeSavedData() }, global: { stubs: STUBS } })
+
+    const click = wrapper
+      .findAll('.mix-controls .toggle-button')
+      .find((button) => button.text().startsWith('Click'))
+    if (click === undefined) throw new Error('no Click toggle')
+    await click.trigger('click')
+
+    expect(lastSaves).toEqual([{ 'mix.clickOn': false }])
   })
 })
 

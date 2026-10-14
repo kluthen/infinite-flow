@@ -13,6 +13,7 @@ import type {
 } from '@/domain/generation/generation-intent'
 import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import type { Seed } from '@/domain/random/seed'
+import type { SaveSettings } from '@/storage/settings-saver'
 import type {
   StaffFitVerdict,
   StaffKeySignature,
@@ -164,6 +165,14 @@ export interface CreateGenerationSessionOptions<TResult, TGenerated = TResult> {
    */
   // @spec-link [[rule_first_phrase_waits_for_saved_settings]]
   readonly initialSettings?: InitialGenerationSettings
+  /**
+   * Where the player's changes to the controls, the profile selection and the theme are saved:
+   * each control action that applies saves exactly the settings it changed. The actions are called
+   * from the player's change handlers only, so what the app changes by itself is never saved.
+   */
+  // @spec-link [[rule_settings_saved_on_change]]
+  // @spec-link [[rule_saved_setting_is_players_choice]]
+  readonly saveSettings: SaveSettings
 }
 
 /** A programming-usage error: a caller used a session action against its documented contract. */

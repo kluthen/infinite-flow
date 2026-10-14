@@ -1,13 +1,14 @@
 /**
  * The "During a session" options of the workspace shell's controls: the page's `Vary settings`,
  * `Tension across phrases` and `Rising tempo` choices, read from the session controller, which
- * holds them, whether they are read-only, and the player's changes forwarded to it. While the
- * controller still loads, the first two show the player's saved choices, which the controller
- * starts from, so neither changes value when it arrives.
+ * holds them, whether they are read-only, and the player's changes forwarded to it and, once it
+ * accepted them, saved. While the controller still loads, the first two show the player's saved
+ * choices, which the controller starts from, so neither changes value when it arrives.
  */
 import { computed, type ComputedRef } from 'vue'
 
 import type { SessionOptionChoices } from '@/storage/records/setting-defaults'
+import type { SaveSettings } from '@/storage/settings-saver'
 import type { SessionController } from './workspace-session-controller-types'
 import { useRisingTempoControl, type RisingTempoControl } from './use-rising-tempo-control'
 
@@ -23,6 +24,9 @@ export interface SessionOptionsDeps {
   /** The player's saved choices, loaded before the first draw, which the controller starts from. */
   // @spec-link [[rule_first_phrase_waits_for_saved_settings]]
   readonly savedSessionOptions: () => SessionOptionChoices
+  /** Save the settings a player's change changed. */
+  // @spec-link [[rule_settings_saved_on_change]]
+  readonly saveSettings: SaveSettings
 }
 
 /** The options' readings, all reactive, and the player's changes to them. */
@@ -85,24 +89,37 @@ export function useSessionOptions(deps: SessionOptionsDeps): SessionOptions {
   // @spec-link [[req_adaptive_tempo]]
   const risingTempo = useRisingTempoControl(deps.controller)
 
-  /** Intent: forward the player's `Rising tempo` choice to the controller, which holds it. */
+  /**
+   * Intent: forward the player's `Rising tempo` choice to the controller, which holds it, and save
+   * it once accepted; a change the controller refuses throws there and saves nothing.
+   */
   // @spec-link [[req_adaptive_tempo]]
+  // @spec-link [[rule_settings_saved_on_change]]
   function setRisingTempo(on: boolean): void {
     deps.requireController().setAdaptiveTempo(on)
+    deps.saveSettings({ 'sessionOptions.risingTempo': on })
   }
 
   /**
-   * Intent: forward the player's `Tension across phrases` choice to the controller, which holds it.
+   * Intent: forward the player's `Tension across phrases` choice to the controller, which holds it,
+   * and save it once accepted; a change the controller refuses throws there and saves nothing.
    */
   // @spec-link [[req_multi_phrase_tension_arc]]
+  // @spec-link [[rule_settings_saved_on_change]]
   function setTensionAcrossPhrases(on: boolean): void {
     deps.requireController().setTensionAcrossPhrases(on)
+    deps.saveSettings({ 'sessionOptions.tensionAcrossPhrases': on })
   }
 
-  /** Intent: forward the player's `Vary settings` choice to the controller, which holds it. */
+  /**
+   * Intent: forward the player's `Vary settings` choice to the controller, which holds it, and save
+   * it once accepted; a change the controller refuses throws there and saves nothing.
+   */
   // @spec-link [[req_settings_mutation_flag]]
+  // @spec-link [[rule_settings_saved_on_change]]
   function setVarySettings(on: boolean): void {
     deps.requireController().setVarySettings(on)
+    deps.saveSettings({ 'sessionOptions.varySettings': on })
   }
 
   return {

@@ -185,7 +185,8 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   its stored records and back), and the save policy that decides when a write reaches
   the port (`save-policy.ts`, `save-policy-requests.ts`). The rest of the app reaches it only
   through an injected port. `src/storage-bootstrap.ts`, beside `main.ts`, loads the saved
-  settings through it before the app is mounted, under the start-up wait; nothing saves yet. See
+  settings through it before the app is mounted, under the start-up wait; the player's settings
+  are saved through the policy as they change (`src/storage/settings-saver.ts`). See
   [`docs/storage.md`](docs/storage.md#the-load-before-the-first-draw).
 - `scripts/` — `verify-boundaries.mjs`, the deterministic boundary/precache verifier;
   `replay-phrase.mjs`, the headless phrase replay behind `npm run replay:phrase` (see

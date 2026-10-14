@@ -1,10 +1,11 @@
 /**
  * Shared helpers for the saved-data specs on the workspace harness (port 4175): seeding settings
- * through the harness's storage seam, reloading so the next load reads them, and recording the
- * controls as the workspace is first drawn, before the browser paints, to compare with what they
- * show later.
+ * through the harness's storage seam, reading the settings stored (through the seam, or straight
+ * from IndexedDB on the production build) and waiting until a change is, reloading so the next
+ * load reads them, and recording the controls as the workspace is first drawn, before the browser
+ * paints, to compare with what they show later.
  */
-import type { Page } from '@playwright/test'
+import { expect, type Page } from '@playwright/test'
 
 import { WORKSPACE_HARNESS_URL } from '../release/harness-helpers'
 
@@ -104,4 +105,71 @@ export function seedSettings(page: Page, values: Readonly<Record<string, unknown
 export async function reloadHarness(page: Page): Promise<void> {
   await page.reload()
   await harnessReady(page)
+}
+
+/** Intent: every stored settings record's value, by its record key, read through the seam. */
+export async function storedSettings(page: Page): Promise<Record<string, unknown>> {
+  const records = await page.evaluate(() => window.__workspaceHarness.storage.records('settings'))
+  return Object.fromEntries(
+    records.map((record) => {
+      const { key, value } = record as { key: string; value: unknown }
+      return [key, value]
+    }),
+  )
+}
+
+/**
+ * Intent: wait until the settings store holds each of `expected`'s values under its key, so a
+ * reload made next reads the saved change rather than racing its write.
+ */
+export async function untilStored(
+  page: Page,
+  expected: Readonly<Record<string, unknown>>,
+): Promise<void> {
+  await expect.poll(() => storedSettings(page)).toMatchObject(expected)
+}
+
+/**
+ * Intent: every record of every store of the app's database (its six data stores and `meta`), by
+ * store name, read in the page straight from IndexedDB.
+ */
+export function databaseRecords(page: Page): Promise<Record<string, unknown[]>> {
+  return page.evaluate(async () => {
+    const database = await new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open('infinite-flow')
+      request.onsuccess = () => resolve(request.result)
+      request.onerror = () => reject(request.error ?? new Error('open failed'))
+    })
+    try {
+      const stores = [...database.objectStoreNames]
+      const transaction = database.transaction(stores)
+      const entries = await Promise.all(
+        stores.map(
+          (store) =>
+            new Promise<[string, unknown[]]>((resolve, reject) => {
+              const request = transaction.objectStore(store).getAll()
+              request.onsuccess = () => resolve([store, request.result as unknown[]])
+              request.onerror = () => reject(request.error ?? new Error('read failed'))
+            }),
+        ),
+      )
+      return Object.fromEntries(entries)
+    } finally {
+      database.close()
+    }
+  })
+}
+
+/**
+ * Intent: the settings stored in the app's database, by record key, read in the page straight
+ * from IndexedDB: for the production build (port 4173), which has no harness seam.
+ */
+export async function databaseSettings(page: Page): Promise<Record<string, unknown>> {
+  const { settings = [] } = await databaseRecords(page)
+  return Object.fromEntries(
+    settings.map((record) => {
+      const { key, value } = record as { key: string; value: unknown }
+      return [key, value]
+    }),
+  )
 }

@@ -3,23 +3,23 @@
  * The phrase-workspace layout root: composes the header, the score panel, the below-score control
  * sheet, and the portrait guard around one already-constructed session. Owns no session state
  * itself -- it only forwards `ControlPanel`'s typed events onto the session's own actions, exactly
- * as the parallel controls-work contract defines them. It also builds the one volume popover of
- * the audio mix, which the toolbar's and the phone's compact `Volume` share and a session's start
- * and end close. It runs the screen's side of a practice session over the session controller:
- * the Start click (popover closed, session started, the one jump), Stop, the musical controls
- * locked while a session runs, and where focus goes when it ends. It also hosts the controller
- * connection: the header `controller-status` it feeds, the click that opens the lazily loaded
- * connection sheet, whether the sheet is open (reported to the workspace as it changes), and where
- * focus goes when the sheet closes. It also runs the last session's Review from the screen: `Close
- * review` and `Review last session`, each scrolling the page to its top and moving focus. While a
- * session runs, the read-only controls show what the controller says the phrase now sounding was
- * generated with, and the preset status announces nothing; at the end they show the player's own
- * choices again, and the status announces again once those have rendered. The page's `Vary
- * settings`, `Tension across phrases` and `Rising tempo` choices go to the controller; the Tension
- * control never shows a phrase's step across phrases. During a session the tempo control
- * shows the exact tempo in effect, and the tempo field notes the tempo a rising-tempo session
- * reached (./use-rising-tempo-control.ts). It sets the staff's one shared system-position size
- * from the saved my instrument's written range, for the staff and the Review alike. The saved
+ * as the parallel controls-work contract defines them. It also builds the one volume popover of the
+ * audio mix, which the toolbar's and the phone's compact `Volume` share and a session's start and
+ * end close. It runs the screen's side of a practice session over the session controller: the Start
+ * click (popover closed, session started, the one jump), Stop, the musical controls locked while a
+ * session runs, and where focus goes when it ends. It also hosts the controller connection: the
+ * header `controller-status` it feeds, the click that opens the lazily loaded connection sheet,
+ * whether the sheet is open (reported to the workspace as it changes), and where focus goes when
+ * the sheet closes. It also runs the last session's Review from the screen: `Close review` and
+ * `Review last session`, each scrolling the page to its top and moving focus. While a session runs,
+ * the read-only controls show what the controller says the phrase now sounding was generated with,
+ * and the preset status announces nothing; at the end they show the player's own choices again, and
+ * the status announces again once those have rendered. The page's `Vary settings`, `Tension across
+ * phrases` and `Rising tempo` choices go to the controller and, once it accepts them, are saved;
+ * the Tension control never shows a phrase's step across phrases. During a session the tempo
+ * control shows the exact tempo in effect, and the tempo field notes the tempo a rising-tempo
+ * session reached (./use-rising-tempo-control.ts). It sets the staff's one shared system-position
+ * size from the saved my instrument's written range, for the staff and the Review alike. The saved
  * review preferences and "During a session" choices it is given are where the Review's export
  * choices and the options (while the controller loads) start from.
  */
@@ -54,6 +54,7 @@ import type { SessionController } from './workspace-session-controller-types'
 import { useControllerConnection } from './use-controller-connection'
 import { useReviewNavigation } from './use-review-navigation'
 import { useSessionOptions } from './use-session-options'
+import { injectSaveSettings } from './save-settings-injection'
 import { useShownSettings } from './use-shown-settings'
 import { useWorkspaceFocus } from './use-workspace-focus'
 
@@ -163,6 +164,7 @@ const {
   requireController,
   controlsReadonly: () => controlsReadonly.value,
   savedSessionOptions: () => props.savedSessionOptions,
+  saveSettings: injectSaveSettings(),
 })
 
 const emit = defineEmits<{

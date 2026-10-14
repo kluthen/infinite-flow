@@ -2,7 +2,7 @@
  * A real, worker-free workspace runtime for Step 9 component tests: the actual session composable
  * and the actual notation coordinator, wired together exactly as `create-workspace-session.ts`
  * wires them for production, but with an injectable `generate` seam so a spec never touches a
- * real generation worker.
+ * real generation worker. Its saver records every batch the session or a component saves.
  */
 import {
   createGenerationSession,
@@ -28,6 +28,8 @@ import {
   type FakeViewportWidth,
 } from '../../composables/fake-viewport-width'
 import { transportRig } from '../../audio/transport-rig'
+import type { SaveSettings, SettingChanges } from '@/storage/settings-saver'
+import { recordingSaveSettings } from './recording-save-settings'
 
 export interface TestWorkspace {
   readonly session: GenerationSession<WorkspaceSessionResult>
@@ -46,6 +48,10 @@ export interface TestWorkspace {
   readonly viewport: FakeViewportWidth
   /** A real audio transport on the fake audio clock, its mix read from the stylesheet's tokens. */
   readonly audio: AudioTransport
+  /** The saver the session saves through, and a mounted component when a spec provides it. */
+  readonly saveSettings: SaveSettings
+  /** Every batch `saveSettings` was given, in order. */
+  readonly saves: SettingChanges[]
 }
 
 /** Intent: the default fake generate seam -- always the same cheap, real generation result. */
@@ -68,6 +74,7 @@ export function createTestWorkspace(
   const layoutReports: StaffLayoutInputs[] = []
   const sessionStaffFailures: NotationError[] = []
   const viewport = createFakeViewportWidth()
+  const { saveSettings, saves } = recordingSaveSettings()
   const coordinator = createNotationCoordinator({
     reportNotationFailure: (error) => session.actions.reportNotationFailure(error),
     reportNotationRecovered: () => session.actions.reportNotationRecovered(),
@@ -86,6 +93,7 @@ export function createTestWorkspace(
     generate,
     notate: coordinator.notate,
     clearPresentedPhrase: coordinator.clearPresentedPhrase,
+    saveSettings,
   })
 
   return {
@@ -104,6 +112,8 @@ export function createTestWorkspace(
     staff,
     viewport,
     audio: transportRig().transport,
+    saveSettings,
+    saves,
   }
 }
 

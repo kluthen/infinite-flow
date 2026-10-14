@@ -46,6 +46,7 @@ import { useScoreOverlays } from './use-score-overlays'
 import type { MixVolumePopover } from './mix-volume-popover'
 import { browserReviewExportPorts, type ReviewExportPorts } from './review-export'
 import { useReviewHost } from './use-review-host'
+import { injectSaveSettings } from './save-settings-injection'
 import type { SessionController } from './workspace-session-controller-types'
 
 // The Review and its engraving code load as their own chunk (see load-review-panel.ts).
@@ -110,6 +111,7 @@ const review = useReviewHost({
   idle: () => props.session.state,
   exportPorts: () => props.reviewExportPorts,
   initialPreferences: props.savedReviewPreferences,
+  saveSettings: injectSaveSettings(),
 })
 const reviewShowing = review.showing
 const {
@@ -386,9 +388,9 @@ const generationErrorAlertText = computed(() =>
       :holds-played-note="review.holdsPlayedNote.value"
       :played-notes-shown="reviewPlayedNotesShown"
       :export-played-notes="review.exportPlayedNotes"
-      @update:format="reviewFormat = $event"
-      @update:backing-track="reviewBackingTrack = $event"
-      @update:played-notes-shown="reviewPlayedNotesShown = $event"
+      @update:format="review.setFormat"
+      @update:backing-track="review.setBackingTrack"
+      @update:played-notes-shown="review.setPlayedNotesShown"
     />
     <p
       v-if="generationErrorAlertText !== null"

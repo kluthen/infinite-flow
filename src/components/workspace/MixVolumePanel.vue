@@ -1,10 +1,10 @@
 <script setup lang="ts">
 /**
  * The one volume popover of the audio mix: the `Backing volume` and `Click volume` sliders, which
- * set the audio transport's mix. Rendered by the `Volume` button that holds it (see
- * `MixVolumeButton`), hidden while closed. It opens and closes instantly, with no animation;
- * opening focuses the first slider, and Escape, a pointer press outside, and Tab out of it close
- * it through the shared `popover` controller.
+ * set the audio transport's mix live as they move and save the level once released. Rendered by the
+ * `Volume` button that holds it (see `MixVolumeButton`), hidden while closed. It opens and closes
+ * instantly, with no animation; opening focuses the first slider, and Escape, a pointer press
+ * outside, and Tab out of it close it through the shared `popover` controller.
  */
 import { nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
 
@@ -16,6 +16,7 @@ import {
 } from '@/audio/audio-mix'
 import type { AudioTransport } from '@/audio/audio-transport'
 import type { MixVolumePopover } from './mix-volume-popover'
+import { injectSaveSettings } from './save-settings-injection'
 
 const props = withDefaults(
   defineProps<{
@@ -38,6 +39,7 @@ interface SliderRange {
 }
 
 const mix = ref<AudioMix>(props.audio.mix())
+const saveSettings = injectSaveSettings()
 const panel = ref<HTMLElement | null>(null)
 const firstSlider = ref<HTMLInputElement | null>(null)
 /** The sliders' ranges, read from the tokens the first time the popover opens. */
@@ -80,6 +82,21 @@ function setBackingVolume(event: Event): void {
 function setClickVolume(event: Event): void {
   props.audio.setClickVolume(sliderLevel(event))
   mix.value = props.audio.mix()
+}
+
+/**
+ * Intent: save the backing volume the transport holds once its slider is released; the moves
+ * before it set the level only, so one drag saves once.
+ */
+// @spec-link [[rule_settings_saved_on_change]]
+function saveBackingVolume(): void {
+  saveSettings({ 'mix.backingVolume': props.audio.mix().backingVolume })
+}
+
+/** Intent: save the click volume the transport holds once its slider is released. */
+// @spec-link [[rule_settings_saved_on_change]]
+function saveClickVolume(): void {
+  saveSettings({ 'mix.clickVolume': props.audio.mix().clickVolume })
 }
 
 /** Intent: Escape inside the popover closes it and returns focus to its `Volume`. */
@@ -160,6 +177,7 @@ onBeforeUnmount(() => {
           :step="sliders.backing.step"
           :value="mix.backingVolume"
           @input="setBackingVolume"
+          @change="saveBackingVolume"
         />
       </div>
       <div class="field-group">
@@ -173,6 +191,7 @@ onBeforeUnmount(() => {
           :step="sliders.click.step"
           :value="mix.clickVolume"
           @input="setClickVolume"
+          @change="saveClickVolume"
         />
       </div>
     </template>

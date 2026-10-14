@@ -33,6 +33,7 @@ describe('createGenerationSession: resultEngraved (D34)', () => {
     const tracked = trackedProviders()
     let notateAttempts = 0
     const session = createGenerationSession({
+      saveSettings: () => undefined,
       ...alwaysFitsStaff(),
       viewport: createFakeViewportWidth(),
       providers: tracked.providers,
@@ -66,6 +67,7 @@ describe('createGenerationSession: resultEngraved (D34)', () => {
     const notation = createDeferred<void>()
     const notateCalled = createDeferred<void>()
     const session = createGenerationSession({
+      saveSettings: () => undefined,
       ...alwaysFitsStaff(),
       viewport: createFakeViewportWidth(),
       providers: tracked.providers,
@@ -97,6 +99,7 @@ describe('createGenerationSession: resultEngraved (D34)', () => {
     const generation = createDeferred<string>()
     let call = 0
     const session = createGenerationSession({
+      saveSettings: () => undefined,
       ...alwaysFitsStaff(),
       viewport: createFakeViewportWidth(),
       providers: tracked.providers,
@@ -128,6 +131,7 @@ describe('createGenerationSession: resultEngraved (D34)', () => {
     const tracked = trackedProviders()
     let call = 0
     const session = createGenerationSession({
+      saveSettings: () => undefined,
       ...alwaysFitsStaff(),
       viewport: createFakeViewportWidth(),
       providers: tracked.providers,

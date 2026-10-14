@@ -5,12 +5,14 @@
  * staff-fit seams, and a `generate` seam that returns the intent it was given (so each result
  * carries its own seed) unless the test takes over a call.
  * Every seam call lands in one ordered log, so a test can assert what happened in which order,
- * and every intent the fit run reports accepted lands in `accepted`.
+ * every intent the fit run reports accepted lands in `accepted`, and every batch of settings the
+ * session saves lands in `saves`.
  */
 import { createGenerationSession } from '@/composables/use-generation-session'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { makeRequestId } from '@/domain/generation/generation-request'
 import { makeSeed, type Seed } from '@/domain/random/seed'
+import type { SettingChanges } from '@/storage/settings-saver'
 import type {
   StaffFitVerdict,
   StaffKeySignature,
@@ -48,6 +50,8 @@ export interface FitSessionOptions {
   readonly checkRoom?: (signature: StaffKeySignature) => Promise<StaffRoomVerdict> | undefined
   /** Settle one notate call instead of succeeding; return undefined to succeed. */
   readonly notate?: (result: GenerationIntent) => Promise<void> | undefined
+  /** Be told each batch of settings the session saves, as it saves it, besides `saves`. */
+  readonly onSave?: (changes: SettingChanges) => void
 }
 
 /** Intent: build one fit session and the fakes and log that observe it. */
@@ -61,6 +65,7 @@ export function createFitSession(options: FitSessionOptions = {}) {
   const accepted: GenerationIntent[] = []
   const sessionSeeds: Seed[] = []
   const seeded: { readonly result: GenerationIntent; readonly sessionSeed: Seed }[] = []
+  const saves: SettingChanges[] = []
   const session = createGenerationSession<GenerationIntent>({
     providers: {
       nextRequestId: () => makeRequestId(`fit-${++counts.id}`),
@@ -98,6 +103,10 @@ export function createFitSession(options: FitSessionOptions = {}) {
     onPhraseAccepted: (intent) => {
       accepted.push(intent)
     },
+    saveSettings: (changes) => {
+      saves.push(changes)
+      options.onSave?.(changes)
+    },
   })
   return {
     session,
@@ -110,6 +119,7 @@ export function createFitSession(options: FitSessionOptions = {}) {
     accepted,
     sessionSeeds,
     seeded,
+    saves,
   }
 }
 
