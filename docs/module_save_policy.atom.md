@@ -4,7 +4,7 @@ status: REVIEW
 priority: 1
 dependents: []
 type: MODULE
-version: 0.1
+version: 0.2
 tags: [v3, release-v3.0, storage]
 parents:
   - [[module_on_device_database]]
@@ -34,7 +34,7 @@ Saving. While saving is on and no session holds the saves, a write, a delete or 
 
 The session hold. At a session's start the saves are held, and at its end they are released. Between the two nothing touches the database: each change is queued, coalesced per store and key so that only the latest change to each record is kept, and at the release every held change is flushed in one batch, applied in one transaction, all or none. If saving turns off while the saves are held, the held changes are dropped and the release flushes nothing.
 
-Failures. A save the port refuses never rejects: it resolves as failed. A refusal as outdated resolves as skipped instead, and turns saving off-outdated. A refusal for lack of space, or for any other reason, is reported with its kind, quota or other, to the one failure listener. A run of refusals with no successful save between them is reported once; the first refusal after a success starts a new run.
+Failures. A save the port refuses never rejects: it resolves as failed. A refusal as outdated resolves as skipped instead, and turns saving off-outdated. A refusal for lack of space, or for any other reason, is reported with its kind, quota or other, to the one failure listener. A run of refusals with no successful save between them is reported at its first refusal, and again each time a refusal's kind differs from the last one reported in that run (quota after other, or the reverse); a refusal of the same kind as the last one reported in the run is not reported again. The first refusal after a success starts a new run.
 
 Persistent storage. The request for persistent storage is made of the browser at most once per visit, never while saving is off, where an attempt does not use up the visit's request, and never when the storage already is persistent. Made during a session, it waits for the release and runs right after the held changes are flushed. A refusal of the browser's storage manager resolves as failed and is not reported as a failed save.
 
@@ -48,7 +48,7 @@ src/storage/save-policy.ts exports createSavePolicy(port), which gives a SavePol
 - While saving is off no write or delete reaches the port, and nothing skipped or held is applied later.
 - Saving that turns off while the saves are held drops them, and the release flushes nothing.
 - Off-outdated is never left, and data written by a newer version turns off-unreadable into off-outdated.
-- A quota or other refusal resolves as failed and is reported with its kind; a second refusal in a row is not reported again; one after a success is.
+- A quota or other refusal resolves as failed and is reported with its kind; a second refusal in a row of the same kind is not reported again, one of the other kind is, and one after a success is.
 - A refusal as outdated resolves as skipped and turns saving off-outdated.
 - Persistent storage is asked for at most once per visit, never while saving is off, never when already persistent, and during a session only after the release.
 - Delete everything runs when saving is on or off-unreadable, and is refused as outdated in an outdated tab.
