@@ -2369,6 +2369,19 @@ built-in instruments", 17b).
 
 **Verification:** the chunk checks.
 
+**Record 17a (2026-10-14).** Merged into `v3.0-w5` (7555ce8, chunk commit 1ba2125); no spec or
+design deviation; the `ifk1.` corpus passes (87 cases). The worker accepts my instrument's profile
+as data (`parseMyInstrumentProfile` re-derives it with `makeMyInstrument` and compares; a malformed
+one is a `GenerationWorkerProtocolError`); `SessionSettings.instrumentProfile` exists exactly when
+the controls name `my-instrument`; at Start the settings come from phrase 1's intent
+(`sessionSettingsAtStart`), and every attempt, carry-in and settings change carries the profile.
+Outside the 17a list: `src/session/settings-mutation-scales.ts`, whose rebuilt settings would have
+dropped the profile at every Vary-settings change. For chunk 20 (to add to its Files):
+`workspace-pregeneration.ts` `startOf` builds Idle pre-generation settings without the profile and
+must use `sessionSettingsAtStart` as Start does. Until 17b, ending a live my-instrument session
+would fail at the save (`kept-session-body.ts` still refuses it); no app path can start one before
+chunk 20.
+
 ### Chunk 18 — Replay key `ifk2.`
 
 **Architecture capture:** the `ifk2.` format (revision of `module_phrase_replay_key`).
