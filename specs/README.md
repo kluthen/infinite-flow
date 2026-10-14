@@ -106,6 +106,11 @@ Status: draft v0.61
   newer version's wording, with no cause added to the port. `module_save_policy` 0.2 awaits the
   owner's sign-off. O190 opened: a newer version's database whose read-only reopening fails
   gives an unavailable port, where the design wants an outdated tab.
+- **v3.0 build, after chunk 7a** (2026-10-14, D301, D302): build plan v12. `review-privacy`'s
+  storage half is narrowed in steps (7b: the database and settings only; 10: the kept session
+  too; 11: the final rewrite); 7b also fixes `pregeneration`'s storage test and an
+  `offline-and-fonts` race with the start-up wait. A saved preset whose values are not all its
+  own loads as custom with its grammar (7b). Chunk 20's start-up read sets `myInstrumentLoaded`.
 - **Open:** 11 questions, none blocking work under way: O48 and O49 (later and governance),
   O100–O102 (v4 rhythm), O115 and O116 (v3.x learning), O176 (style packs and the chord level),
   O180 (octave signs, later), O183 (pre-generation's cancellation cost) and O190 (a newer
@@ -130,7 +135,7 @@ Status: draft v0.61
 - [Versions](versions/README.md): one folder per version (v1, v2, v3, v4, v5+) holding its scope,
   dependencies and version-specific open questions. Also holds the cross-version
   [prerequisites](versions/prerequisites.md). v3's build plans: [v3.0](versions/v3/build-plan.md) (approved; v2 moves the workflow to wave
-  level, D252; v3 writes in D253–D256; v4 writes in D257 and D258; v5 a wording fix in chunk 23; v6 writes in D290–D292 and moves chunk 18 to wave 6; v7 adds chunk 19b for D293; v8 writes in D294–D296 and adds chunk 20c; v9 writes in D297 and adds chunk 24b; v10 records wave 3 and writes in D299; v11 writes in the wave-4 preflight's corrections and D300), [v3.1](versions/v3/build-plan-v3.1.md) (draft v2, not approved),
+  level, D252; v3 writes in D253–D256; v4 writes in D257 and D258; v5 a wording fix in chunk 23; v6 writes in D290–D292 and moves chunk 18 to wave 6; v7 adds chunk 19b for D293; v8 writes in D294–D296 and adds chunk 20c; v9 writes in D297 and adds chunk 24b; v10 records wave 3 and writes in D299; v11 writes in the wave-4 preflight's corrections and D300; v12 writes in D301 and D302 after chunk 7a), [v3.1](versions/v3/build-plan-v3.1.md) (draft v2, not approved),
   [v3.2](versions/v3/build-plan-v3.2.md) (draft v2, not approved) and
   [v3.3](versions/v3/build-plan-v3.3.md) (draft v2, not approved; depends on owner approval of
   Part D). Every build plan runs wave by

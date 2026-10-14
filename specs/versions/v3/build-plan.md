@@ -1,10 +1,11 @@
 # Infinite Flow v3.0 — Build Plan
 
-Status: v11 (2026-10-14): the wave-4 preflight's corrections to chunks 7 and 8 and the
-outdated-tab cause ruling (spec D300; [Wave records](#wave-4-preflight-2026-10-14)). Approved by
+Status: v12 (2026-10-14): after chunk 7a, the storage tests that opening the database at every
+load breaks, the loaded profile selection and the my-instrument start-up read (spec D301, D302;
+[Wave records](#wave-4-preflight-2026-10-14)). Approved by
 the product owner on 2026-10-07 (v1), with Gate A and the token-source pass (Q66) confirmed the
 same day; every later revision writes in rulings from [the decisions log](../../decisions.md)
-(spec D252–D300), and earlier wordings are in git.
+(spec D252–D302), and earlier wordings are in git.
 
 Build plan for v3.0, Storage, written from [master spec v1.3](master-spec.md) (now Part A v1.14) and the v3.0 design
 in [`ui_ux/versions/v3.0/`](../../../ui_ux/versions/v3.0/README.md), the copy frozen when the
@@ -685,12 +686,28 @@ Plan corrections the preflight found, applied in v11 (spec D300):
 **Owner sign-off (2026-10-14).** The owner signed `module_save_policy` 0.2 ("ok for
 module_save_policy 0.2"); `documentalist` applied it on `v3.0-w4` (2509b01) before chunk 8's code.
 
+Plan corrections after chunk 7a, applied in v12 (spec D301, D302). Run on `v3.0-w4` at 5ae353d,
+the full e2e suite fails four tests, three of them on "no IndexedDB database":
+
+- **Chunk 7b takes the tests that assumed no database.** `persistence-absence`'s first test was
+  already 7b's. `review-privacy`'s storage half gets an interim narrowing in 7b, widened by chunk
+  10 and rewritten by chunk 11, so the wave-4 and wave-5 gates stay green on a real guarantee.
+  `pregeneration`'s storage test (from chunk 24, missed by §2) and `offline-and-fonts`' second
+  test, which races the start-up wait after its reload (passes alone, fails under load), are
+  fixed in 7b too.
+- **Chunk 7b, the loaded profile selection.** A preset, not custom, loads as custom with its
+  grammar when its seven values are not all its own (spec D302); the atom
+  `rule_profile_control_customization` is added, so 7b needs a peek before it starts.
+- **Chunk 20, the start-up read.** The bootstrap reads the `instrument` store and sets
+  `myInstrumentLoaded`; `src/storage-bootstrap.ts` joins its files.
+
 ## 2. Read first: what v3.0 undoes in v2
 
 v2 promised that nothing survives a reload and enforced it three ways: two code gates, about ten
 tests and three contract guarantees. v3.0 reverses the promise on purpose
 ([master spec §10](master-spec.md#10-what-v30-changes-in-v2s-guarantees)). Each enforcement point
-changes in exactly one chunk, never "along the way":
+changes in exactly one chunk, never "along the way" (one exception, `review-privacy`'s storage
+half, narrowed in steps; spec D301):
 
 | What says "nothing is saved" today | Changed in | Becomes |
 | --- | --- | --- |
@@ -699,7 +716,8 @@ changes in exactly one chunk, never "along the way":
 | same file › 'a retryable generation failure does not survive a reload' | [7](#chunk-7--saved-settings) | Same behaviour; its storage-length checks become "no failure record in the database". |
 | `tests/e2e/workspace/theme.spec.ts` › 'nothing about the theme choice persists across a reload' | [7](#chunk-7--saved-settings) | The theme comes back. |
 | `tests/e2e/review/review-navigation.spec.ts` › reloading discards the Review | [10](#chunk-10--most-recent-session-kept) | After a reload, `Review last session` opens the kept session. |
-| `tests/e2e/review/review-privacy.spec.ts`, storage half | [11](#chunk-11--played-notes-opt-in-and-deletion) | Only allowed data is written; played notes only after the opt-in. The network half stays as it is. |
+| `tests/e2e/review/review-privacy.spec.ts`, storage half | [7](#chunk-7--saved-settings) (7b, interim), [10](#chunk-10--most-recent-session-kept), [11](#chunk-11--played-notes-opt-in-and-deletion) | In steps, since chunk 7a opens the database at every load (spec D301). 7b: the app's database and its settings records only; no session, phrase, review or played-notes data. 10: the kept session too, still no played note. 11: only allowed data is written; played notes only after the opt-in. The network half stays as it is. |
+| `tests/e2e/workspace/pregeneration.spec.ts` › 'pre-generation writes nothing to storage' | [7](#chunk-7--saved-settings) (7b) | Pre-generation writes no record; the app's database may exist (spec D301). |
 | `tests/e2e/review/review-opens.spec.ts` › 'the Review has no favorites…' | [12](#chunk-12--favorites-pin-and-comment-in-the-review) | Favorites exist; still no grading wording anywhere. |
 | `tests/e2e/controller/controller-status.spec.ts` › 'after a page reload no controller is remembered…' | [22](#chunk-22--remembered-controller) | The remembered controller is reattached when access is already allowed; after `Disconnect`, nothing is. |
 | Reload-based determinism tests in `audio-transport-mix.spec.ts`, `midi/midi-input.spec.ts`, `release/deterministic-replay.spec.ts` | [7](#chunk-7--saved-settings) re-checks them | They must not depend on a reload returning to defaults; each is fixed or proved unaffected. |
@@ -1305,6 +1323,24 @@ player changes it.
   theme and mix changes made during a session are saved then.
 - **Harness seam:** `window.__workspaceHarness.storage` to seed records before load and read
   what was written, documented in `docs/testing.md`.
+- **The loaded profile selection (7b, spec D302).** The settings codec decodes the musical
+  profile selection and the seven profile-controlled values each on its own, so a saved preset,
+  not custom, can load with a value that is not the preset's (one value, or the selection itself,
+  fell back to its default). After decoding, such a selection loads as custom with that preset's
+  grammar, the state a manual edit leaves; a preset whose seven values are all its own stays
+  checked. Silent, as every fallback (master spec §4.4).
+- **Tests that assumed no database (7b, spec D301).** 7a opens IndexedDB at every load. Beside
+  the rewrites of [§2](#2-read-first-what-v30-undoes-in-v2), three tests change here.
+  `review-privacy`'s storage half takes an interim narrowing that stays a real guarantee until
+  chunk 10 widens it and chunk 11 rewrites it: the spy allows `indexedDB.open` and nothing else
+  (`indexedDB.deleteDatabase` and every other storage API still banned); the end state allows
+  the app's one database and, read through the harness's `storage.records()`, settings records
+  only, so no session, phrase, review or played-notes data reaches any storage; its network half
+  is unchanged. `pregeneration`'s 'pre-generation writes nothing to storage' checks that
+  pre-generation writes no record, every store the same before and after, instead of "no
+  database". `offline-and-fonts`' 'offline after the first load…' waits for the workspace to be
+  drawn after its reload, as `gotoWorkspace` does, before generating: the start-up wait delays
+  the first draw, and the test raced it under the full suite's load.
 - **Docs:** `docs/storage.md` records M2 and the start-up wait, the load outcome and the hold, and
   its "Not here yet" loses what this chunk wires.
 
@@ -1322,7 +1358,11 @@ loaded values; the hold and release), `src/components/workspace/use-session-opti
 `src/components/workspace/use-review-host.ts`, `tests/e2e/workspace-harness/main.ts` (the seam);
 docs: `docs/storage.md`, `docs/testing.md`; tests: `tests/unit/storage/storage-bootstrap.spec.ts`
 (new), `tests/e2e/storage/saved-settings.spec.ts` (new), the rewritten tests of
-[§2](#2-read-first-what-v30-undoes-in-v2). There is no theme composable: the theme is state of
+[§2](#2-read-first-what-v30-undoes-in-v2), `tests/e2e/review/review-privacy.spec.ts` (storage
+half, interim), `tests/e2e/workspace/pregeneration.spec.ts` (its storage test),
+`tests/e2e/release/offline-and-fonts.spec.ts` (the wait after the reload); the loaded profile
+selection: `src/storage/records/settings-record.ts` with `tests/unit/storage/settings-record.spec.ts`.
+There is no theme composable: the theme is state of
 the generation session, shown by `ThemeControl.vue` and applied by `App.vue`.
 
 **Spec sections:** [§4.2](master-spec.md#42-what-is-saved-automatically), [§4.4](master-spec.md#44-loading-saved-settings).
@@ -1336,7 +1376,8 @@ Is Saved, Load), [`flows/generate-phrase/handoff.md`](../../../ui_ux/versions/v3
 `rule_saved_settings_load_tolerantly`, `rule_first_phrase_waits_for_saved_settings` (the
 start-up wait, the defaults, saving off), `rule_no_save_during_session`, `req_on_device_storage`,
 `module_save_policy` (REVIEW, kept true); (v2) `rule_mutation_reverts_at_session_end`,
-`rule_adaptive_tempo_resets_after_session`.
+`rule_adaptive_tempo_resets_after_session`; (7b, spec D302) `rule_profile_control_customization`
+(REVIEW), whose custom state a loaded selection may now take.
 **Part D:** `rule_ephemeral_session_state`, `specification_ephemeral_state_verification`,
 `req_adaptive_tempo`, `module_session_adaptive_tempo_control` (its flag "off at load"),
 `rule_sixteenth_unavailable_below_tablet_width`, `req_settings_mutation_flag`,
@@ -1373,7 +1414,20 @@ read before the first draw, the hold and release, and the load outcome chunk 8 r
   end-of-session restore, was written.
 - [7b] A write spy on IndexedDB sees no write from Start to the session's end, then the theme or
   mix change made during it.
-- [7b] The rewritten `persistence-absence`, `theme` and reload-based determinism tests pass.
+- [7b] The rewritten `persistence-absence`, `theme` and reload-based determinism tests pass;
+  `persistence-absence`'s first test, failing since 7a on its "no database" check, among them.
+- [7b] `review-privacy`, its storage half narrowed: the spy, still armed for every API it wraps,
+  records no storage call but `indexedDB.open`; at the end the only IndexedDB database is
+  `infinite-flow`, its `sessionSummaries`, `sessionBodies` and `playedNotes` stores are empty,
+  every `settings` record is one the settings codec reads back, and Storage, Cache Storage,
+  cookies and service workers are empty. Its network half and its export checks are unchanged.
+- [7b] `pregeneration`'s storage test: the queue filling changes no record in any store, and the
+  other storage areas stay empty. `offline-and-fonts` passes under the full e2e suite.
+- [7b] A saved `Jazz`, not custom, whose `Register` record is invalid loads as custom with the
+  Jazz grammar ("Custom configuration - Jazz grammar retained"), `Register` at its default and
+  the other values kept; a saved `Jazz` with its seven values all valid loads with `Jazz` checked;
+  an unreadable selection with Jazz's seven values loads as custom with the Neutral grammar (unit
+  tests on the codec).
 
 **Items covered:** 1 (but my instrument and the controller), 2, 3, 7.
 
@@ -1394,7 +1448,8 @@ two halves, in order, each its own commit that leaves the app working:
 - **7b, save on change:** `generation-session-control-actions.ts` (or its callers in
   `WorkspaceShell.vue` and `ThemeControl.vue`), `MixControls.vue`, `MixVolumePanel.vue`,
   `use-session-options.ts`, `use-review-host.ts` (the saves), and the hold and release in the
-  session controller, with `saved-settings.spec.ts`, the rewritten tests of §2, and
+  session controller, with `saved-settings.spec.ts`, the rewritten tests of §2, the three tests
+  that assumed no database, the loaded profile selection in `settings-record.ts`, and
   `docs/storage.md` ("Not here yet" loses the hold and release). It owns the lines marked [7b].
 
 **Record 7a (2026-10-14).** Merged into `v3.0-w4` (5259cd5, chunk commit 3ec46c3). The load outcome
@@ -1606,7 +1661,8 @@ never from a lookup by id: the kept summary's `instrument.displayName` for a kep
 phrase intent's own profile for the session that just ended. Today `use-review-host.ts` looks the
 name up with `getInstrumentProfile(id)`, which throws for `my-instrument`, so the review of a
 my-instrument session would crash once chunk 17 makes one playable (ISS-012). `review-keep-line` in its three wordings (only "Not saved" on the
-phone).
+phone). `review-privacy`'s storage half, as chunk 7b narrowed it, is widened to the kept session
+(spec D301): its summary and body may be written; still no played note in any record.
 
 **Files:** `src/components/workspace/workspace-session-ends.ts` (save at end),
 `src/components/workspace/session-review-state.ts`, `src/components/workspace/use-review-navigation.ts`,
@@ -1614,7 +1670,7 @@ phone).
 (the instrument name, ISS-012),
 `src/components/review/ReviewPanel.vue` (keep line, title), `src/components/workspace/SessionCueRow.vue`
 (`review-link` rule), tests `tests/e2e/storage/kept-session.spec.ts`, the rewritten
-`review-navigation` reload test.
+`review-navigation` reload test, `tests/e2e/review/review-privacy.spec.ts` (storage half widened).
 
 **Spec sections:** [§5.1](master-spec.md#51-which-sessions-are-kept), [§5.4](master-spec.md#54-reaching-earlier-sessions).
 
@@ -1646,6 +1702,9 @@ the Session), [`screens/last-session-review/handoff.md`](../../../ui_ux/versions
   with a history whose instrument is `my-instrument` (profile as data) gives that profile's
   display name and does not throw, and a kept session's review shows the summary's display name
   (ISS-012).
+- `review-privacy` passes with its storage half widened: the kept session's summary and body
+  allowed, the `playedNotes` store empty and the summary's `playedNotesKept` false; everything
+  else as chunk 7b left it.
 
 **Items covered:** 6, 7, 15.
 
@@ -1666,9 +1725,11 @@ the played-notes export leave that review at once. A kept session without played
 lane. Played notes are kept all or nothing, with the summary's `playedNotesKept` saying which:
 keeping or deleting a session's played notes writes or deletes its `playedNotes` record and
 updates its summary in one port `apply` batch, so the two never disagree. The review privacy spy
-rewritten: the network half unchanged; the storage half now checks
+rewritten: the network half unchanged; the storage half, starting from the version chunk 10 leaves
+(chunk 7b's interim narrowing, widened to the kept session; spec D301), now checks
 that only the allowed stores are written and that no played note reaches storage while the switch
-is off.
+is off. The allowed stores include `instrument` and `controller`, which chunks 20 and 22 write
+(chunk 22 follows in this wave, and the spied session attaches a controller).
 
 **Files:** `src/components/review/ReviewPanel.vue` (or a new `ReviewView.vue` part),
 `src/components/workspace/use-review-host.ts`, `src/storage/records/kept-session-record.ts`
@@ -2232,13 +2293,16 @@ two-octave rule (a chunk-16 file, after chunk 19b's clef) and refused live in th
 **Clef design** gate's wording in note names, checked again when the clef changes. The bound
 needs the clef, so it is checked where my instrument's domain value is built with its clef, never
 in the generator-facing profile the worker validates (chunk 17), which carries no clef; deleting
-returns to its template only when it was selected. **Not in this chunk:** deleting my instrument
+returns to its template only when it was selected. The start-up read (`src/storage-bootstrap.ts`,
+chunk 7a) also reads the `instrument` store before the first draw, and the settings decode takes
+`myInstrumentLoaded` from that record (chunk 7a passes `false`, so until this chunk a saved
+selection of my instrument falls back). **Not in this chunk:** deleting my instrument
 and saving a range or transposition change leave its kept sessions untouched until chunk 20c,
 which adds the erasing and its warnings; until then the delete confirmation keeps the current
 design's words.
 
-**Files:** `src/storage/records/my-instrument-record.ts` (new), `src/domain/profile/my-instrument.ts`
-(the bound), `src/components/controls/FoundationControls.vue`
+**Files:** `src/storage/records/my-instrument-record.ts` (new), `src/storage-bootstrap.ts` (the
+start-up read), `src/domain/profile/my-instrument.ts` (the bound), `src/components/controls/FoundationControls.vue`
 (the fourth segment and the button), `src/components/workspace/MyInstrumentSheet.vue` (new),
 `src/components/workspace/use-my-instrument.ts` (new), `src/composables/generation-session-profile-switch.ts`;
 tests `tests/e2e/storage/my-instrument.spec.ts`, unit tests for the sheet's model. If the brief

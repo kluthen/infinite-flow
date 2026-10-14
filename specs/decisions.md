@@ -14,10 +14,11 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D301**. D259–D260 are
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D303**. D259–D260 are
 on branch `v4-accompaniment-research`, not merged yet. D263–D288 are v3.3's richer chords (merged
 from `main`); D289 is unused. D290–D299 were reserved for v3.0 wave 2; wave 2 used D290–D298, and
-D299 records wave 3. D300 records the wave-4 preflight.
+D299 records wave 3. D300 records the wave-4 preflight; D301 and D302 the plan revision after
+chunk 7a.
 
 ## Decision Log
 
@@ -1340,3 +1341,46 @@ D299 records wave 3. D300 records the wave-4 preflight.
   sign-off. While checking the corrections, `spec-writer` found that the design's "read-only
   reopening fails" case is not what chunk 4's port does, opened as
   [O190](open-questions.md#v30-wave-4-o190).
+
+- **D301 (2026-10-14): `review-privacy`'s storage half is narrowed in steps, not left red until
+  chunk 11: chunk 7b allows the app's database and its settings records only, chunk 10 adds the
+  kept session, chunk 11 makes the final rewrite; the other tests that assumed no database are
+  fixed in 7b.** Chunk 7a opens IndexedDB at every load, so the test's spy (which bans
+  `indexedDB.open`) and its end state ("no IndexedDB database") fail from wave 4, while
+  [build plan §2](versions/v3/build-plan.md#2-read-first-what-v30-undoes-in-v2) gave the storage
+  half to chunk 11, in wave 6: the wave-4 and wave-5 gates would run `npm run quality` red.
+  Recommended by the wave driver and adopted by `spec-writer` under the owner's delegation of
+  minor calls. Chunk 7b's interim keeps a real guarantee: the spy allows `indexedDB.open` and no
+  other storage call, and at the end the only database is the app's, the session, body and
+  played-notes stores are empty and every settings record is one the settings codec reads back,
+  so no session, phrase, review or played-notes data reaches storage; the network half is
+  unchanged. Chunk 10, whose kept session would break that interim, widens it to the kept
+  session's summary and body, still with no played note. Chunk 11's rewrite starts from there
+  and allows the `instrument` and `controller` stores that chunks 20 and 22 write. Why in steps:
+  dropping the storage half until chunk 11 would leave two waves with no storage privacy check
+  while the app starts writing. Found with it, by a full e2e run on `v3.0-w4` (5ae353d) and a
+  search of `tests/`: `pregeneration`'s 'pre-generation writes nothing to storage' (chunk 24's)
+  fails on "no database" too, and becomes "pre-generation writes no record"; `offline-and-fonts`'
+  'offline after the first load…' races the start-up wait after its reload (passes alone, fails
+  under the full suite) and waits for the first draw. Both go to chunk 7b. No other test asserts
+  "no storage" in a way 7a or 7b breaks: `session-history-export`'s storage trap covers the
+  history and export modules, which stay storage-free; `review-navigation` (chunk 10),
+  `controller-status` (chunk 22) and `theme` (chunk 7) check only what their own chunks change.
+  Build plan v12.
+
+- **D302 (2026-10-14): a saved preset selection, not custom, whose seven profile-controlled values
+  are not all that preset's after loading, loads as custom with that preset's grammar.** Chunk 6's
+  settings codec decodes the selection and the seven values each on its own (master spec §4.4),
+  so a saved "Jazz, not custom" whose `Register` record is invalid loads `Register` at its
+  default, Neutral's `Middle`, with `Jazz` still checked: a state no player action reaches, since
+  choosing a preset applies its whole bundle and any change to one of its values makes it custom
+  (phrase-workspace design, preset customization). Decided by `spec-writer` under the owner's
+  delegation of minor design calls, with no design answer needed: the load takes the state the
+  design already defines for a changed value ("Custom configuration - Jazz grammar retained"),
+  silently, as §4.4 wants every fallback; every value keeps what §4.4 gives it, and only the
+  derived "not custom" mark yields. The test is equality with the preset's bundle, so it also
+  covers an unreadable selection (it falls back to Neutral, not custom, and Jazz's values then
+  make it custom with the Neutral grammar). Built in chunk 7b, in the codec, with unit tests.
+  Rejected: accepting the incoherent state (the preset status would name a preset the values do
+  not match), and re-applying the preset's bundle (it would replace the fallen-back value by the
+  preset's, against §4.4's "falls back to that setting's default"). Build plan v12.
