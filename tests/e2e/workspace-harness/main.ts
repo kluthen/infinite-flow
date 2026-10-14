@@ -69,6 +69,14 @@
  *   `?pregeneration=on`; any value given is read by production's parser (`off`, `on`, a mistyped
  *   value throws).
  *
+ * - the saved data (storage-seams.ts): the app's own loader over the browser's real IndexedDB,
+ *   run before the app mounts, as src/main.ts runs it; `window.__workspaceHarness` is published
+ *   once the app has mounted, so waiting for it also waits for the load. `storage.seedSettings`
+ *   seeds settings for the next load, and `?storageLoad=held` holds the load until
+ *   `window.__workspaceHarnessHeldLoad.release()`; `?storageRead=fail|slow` fails or delays the
+ *   app's reads, `storage.refuseSaves` refuses its saves, `storage.portChanges` counts them and
+ *   `storage.openNewerVersion` outdates the tab as a newer version would.
+ *
  * The lazy VexFlow engraver, the real generation Worker, real notation, the real `matchMedia`
  * window-width provider and the real window-shape probe all run for real (a spec moves the window
  * across `bp-tablet-landscape`, or changes its shape, with `page.setViewportSize`); only
@@ -77,6 +85,7 @@
 import { createApp } from 'vue'
 
 import App from '../../../src/App.vue'
+import type { SavedDataLoad } from '../../../src/storage-bootstrap'
 import '../../../src/styles/index.css'
 import {
   WORKSPACE_SESSION_FACTORY,
@@ -108,6 +117,11 @@ import { bindHarnessAudioStart, createHarnessAudio, harnessAudioMode } from './a
 import { createHarnessMidi, harnessMidiMode } from './midi-seams'
 import { createHarnessSessionBrowser } from './session-browser-seams'
 import { createHarnessSessionController } from './session-controller-seams'
+import {
+  createHarnessStorage,
+  harnessStorageLoadMode,
+  harnessStorageReadMode,
+} from './storage-seams'
 import { armNextExportFailure, exportsBuilt } from './export-loader-seam'
 import {
   armNextNotationFailure,
@@ -262,7 +276,25 @@ const generatedTimelines: string[] = []
 /** The record of every `generate` call, in call order. */
 const generationRequests: GenerationRecord[] = []
 
-const harnessAudio = createHarnessAudio(harnessAudioMode(window.location.search), shownHarmony)
+const harnessStorage = createHarnessStorage(
+  harnessStorageLoadMode(window.location.search),
+  harnessStorageReadMode(window.location.search),
+)
+/** What the saved-data load gave; null until it has ended. */
+let savedData: SavedDataLoad | null = null
+
+/** Intent: the audio mix the load gave, for the transport's first use; throws before it ended. */
+function loadedMix(): SavedDataLoad['settings']['mix'] {
+  if (savedData === null)
+    throw new Error('Workspace harness: the audio mix was read before the load')
+  return savedData.settings.mix
+}
+
+const harnessAudio = createHarnessAudio(
+  harnessAudioMode(window.location.search),
+  shownHarmony,
+  loadedMix,
+)
 bindHarnessAudioStart(document, harnessAudio.startFromClick)
 const harnessMidi = createHarnessMidi(harnessMidiMode(window.location.search), harnessAudio)
 const harnessBrowser = createHarnessSessionBrowser()
@@ -447,7 +479,7 @@ function shownHarmony(): readonly HarmonyEvent[] {
   return result.outcome.provenance.harmony.events
 }
 
-window.__workspaceHarness = {
+const harnessApi: WorkspaceHarnessApi = {
   queueSeeds: (seeds) => seedProvider.queueSeeds(seeds),
   holdGeneration: () => gate.hold(),
   releaseGeneration: () => gate.release(),
@@ -480,10 +512,23 @@ window.__workspaceHarness = {
   page: harnessBrowser.page,
   windowShape: harnessBrowser.windowShape,
   session: harnessSessionController.api,
+  storage: harnessStorage.api,
 }
 
-const app = createApp(App)
-app.provide(WORKSPACE_SESSION_FACTORY, () => {
+/**
+ * Intent: mount the app with what the load gave, its workspace session composed on the harness's
+ * seams, then publish the harness API.
+ */
+function mountHarness(loaded: SavedDataLoad): void {
+  savedData = loaded
+  const app = createApp(App, { savedData: loaded })
+  app.provide(WORKSPACE_SESSION_FACTORY, (saved) => composeHarnessWorkspace(saved))
+  app.mount('#app')
+  window.__workspaceHarness = harnessApi
+}
+
+/** Intent: the workspace session on the harness's seams, from the loaded saved data. */
+function composeHarnessWorkspace(saved: SavedDataLoad): WorkspaceSession {
   const composed = composeWorkspaceSession({
     providers: { nextRequestId: requestIdProvider, nextSeed: seedProvider.nextSeed },
     nextSessionSeed: sessionSeedProvider.nextSeed,
@@ -507,11 +552,14 @@ app.provide(WORKSPACE_SESSION_FACTORY, () => {
     // The same sink as production: each accepted phrase's replay-key line goes to console.info.
     logPhraseReplayKey: (line) => console.info(line),
     dispose: client.dispose,
+    savedData: saved,
   })
   workspace = {
     ...composed,
     createSessionController: harnessSessionController.wrap(composed.createSessionController),
   }
   return workspace
-})
-app.mount('#app')
+}
+
+// A rejected load is a defect and stays unhandled, as in the app.
+void harnessStorage.load().then(mountHarness)

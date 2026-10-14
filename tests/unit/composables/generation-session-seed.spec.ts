@@ -39,6 +39,7 @@ function seededSession() {
   let phraseSeed = 0
   let requestId = 0
   const session = createGenerationSession<SeededIntent, GenerationIntent>({
+    saveSettings: () => undefined,
     providers: {
       nextRequestId: () => makeRequestId(`seeded-${++requestId}`),
       nextSeed: () => makeSeed(++phraseSeed),

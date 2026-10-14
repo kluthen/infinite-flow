@@ -249,8 +249,10 @@ clicks into the click route or the count-in route, the backing voices into the b
 - **The player sets it in the score toolbar.** `MixControls` (`src/components/workspace/`) holds
   the `Backing` and `Click` toggles and the `Volume` popover's two sliders, whose step is the
   `--mix-volume-step` token (`readMixVolumeStep`, which throws on a missing or non-positive step).
-  They call the transport's setters at Idle and during a session alike, and the levels live in the
-  transport, so they hold for the page and reset on reload (see
+  They call the transport's setters at Idle and during a session alike; the levels live in the
+  transport, which starts from the saved mix, and each change is saved (each volume on its
+  slider's release; during a session, at its end; see
+  [Saving the player's settings](storage.md#saving-the-players-settings) and
   [The audio mix](phrase-workspace.md#the-audio-mix)).
 
 ## Stop

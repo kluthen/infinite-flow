@@ -36,6 +36,7 @@ import {
 } from '../../session/fake-session-browser'
 import { fixedWallClock } from '../../session/session-harness'
 import { createFakeFrames } from './fake-frames'
+import { fakeSavedData } from './fake-workspace-dependencies'
 import { useCheapControls } from './test-workspace'
 
 vi.mock('@/generation-worker/browser-generation-worker', () => ({
@@ -116,6 +117,7 @@ async function readyRig(): Promise<Rig> {
       frames: createFakeFrames().port,
     },
     logPhraseReplayKey: vi.fn(),
+    savedData: fakeSavedData(),
     dispose: () => undefined,
   })
   useCheapControls(workspace.session)

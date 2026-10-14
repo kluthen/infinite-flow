@@ -3,23 +3,27 @@
  * The phrase-workspace layout root: composes the header, the score panel, the below-score control
  * sheet, and the portrait guard around one already-constructed session. Owns no session state
  * itself -- it only forwards `ControlPanel`'s typed events onto the session's own actions, exactly
- * as the parallel controls-work contract defines them. It also builds the one volume popover of
- * the audio mix, which the toolbar's and the phone's compact `Volume` share and a session's start
- * and end close. It runs the screen's side of a practice session over the session controller:
- * the Start click (popover closed, session started, the one jump), Stop, the musical controls
- * locked while a session runs, and where focus goes when it ends. It also hosts the controller
- * connection: the header `controller-status` it feeds, the click that opens the lazily loaded
- * connection sheet, whether the sheet is open (reported to the workspace as it changes), and where
- * focus goes when the sheet closes. It also runs the last session's Review from the screen: `Close
- * review` and `Review last session`, each scrolling the page to its top and moving focus. While a
- * session runs, the read-only controls show what the controller says the phrase now sounding was
- * generated with, and the preset status announces nothing; at the end they show the player's own
- * choices again, and the status announces again once those have rendered. The page's `Vary
- * settings`, `Tension across phrases` and `Rising tempo` choices go to the controller; the Tension
- * control never shows a phrase's step across phrases. During a session the tempo control
- * shows the exact tempo in effect, and the tempo field notes the tempo a rising-tempo session
- * reached (./use-rising-tempo-control.ts). It sets the staff's one shared system-position size
- * from the saved my instrument's written range, for the staff and the Review alike.
+ * as the parallel controls-work contract defines them. It also builds the one volume popover of the
+ * audio mix, which the toolbar's and the phone's compact `Volume` share and a session's start and
+ * end close. It runs the screen's side of a practice session over the session controller: the Start
+ * click (popover closed, session started, the one jump), Stop, the musical controls locked while a
+ * session runs, and where focus goes when it ends. It also hosts the controller connection: the
+ * header `controller-status` it feeds, the click that opens the lazily loaded connection sheet,
+ * whether the sheet is open (reported to the workspace as it changes), and where focus goes when
+ * the sheet closes. It also runs the last session's Review from the screen: `Close review` and
+ * `Review last session`, each scrolling the page to its top and moving focus. While a session runs,
+ * the read-only controls show what the controller says the phrase now sounding was generated with,
+ * and the preset status announces nothing; at the end they show the player's own choices again, and
+ * the status announces again once those have rendered. The page's `Vary settings`, `Tension across
+ * phrases` and `Rising tempo` choices go to the controller and, once it accepts them, are saved;
+ * the Tension control never shows a phrase's step across phrases. During a session the tempo
+ * control shows the exact tempo in effect, and the tempo field notes the tempo a rising-tempo
+ * session reached (./use-rising-tempo-control.ts). It sets the staff's one shared system-position
+ * size from the saved my instrument's written range, for the staff and the Review alike. The saved
+ * review preferences and "During a session" choices it is given are where the Review's export
+ * choices and the options (while the controller loads) start from. It shows the notice row over the
+ * load's outcome and save policy (./use-app-notices.ts): `Dismiss` sends focus to the first enabled
+ * of the session action, the phrase action and `controller-status`; `Reload` reloads the page.
  */
 import { computed, onMounted, ref, watch } from 'vue'
 
@@ -32,10 +36,18 @@ import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { NotationError } from '@/notation/notation-error'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { AudioTransport } from '@/audio/audio-transport'
+import type { SavedDataLoad } from '@/storage-bootstrap'
 import { getInstrumentProfile } from '@/domain/generation/generation-intent'
 import type { MidiController } from '@/midi/midi-controller-state'
 import { planSystemPositionUnits, type WrittenRangeInClef } from '@/notation/notation-layout-policy'
 import { loadVexflowEngraver } from '@/notation/vexflow-engraver-loader'
+import {
+  DEFAULT_REVIEW_PREFERENCES,
+  DEFAULT_SESSION_OPTIONS,
+  type ReviewPreferences,
+  type SessionOptionChoices,
+} from '@/storage/records/setting-defaults'
+import AppNoticeRow from './AppNoticeRow.vue'
 import WorkspaceHeader from './WorkspaceHeader.vue'
 import ScorePanel from './ScorePanel.vue'
 import OrientationNotice from './OrientationNotice.vue'
@@ -46,6 +58,8 @@ import type { SessionController } from './workspace-session-controller-types'
 import { useControllerConnection } from './use-controller-connection'
 import { useReviewNavigation } from './use-review-navigation'
 import { useSessionOptions } from './use-session-options'
+import { injectSaveSettings } from './save-settings-injection'
+import { useAppNotices } from './use-app-notices'
 import { useShownSettings } from './use-shown-settings'
 import { useWorkspaceFocus } from './use-workspace-focus'
 
@@ -63,6 +77,10 @@ const props = withDefaults(
     midi: MidiController
     /** The session controller; null while its lazy chunk loads (no session can start then). */
     controller: SessionController | null
+    /** The load's outcome and the visit's save policy, which the notice row reads. */
+    savedData: Pick<SavedDataLoad, 'outcome' | 'savePolicy'>
+    /** Reload the page (a notice's `Reload`); the window's own by default. */
+    reloadPage?: () => void
     /** How the start's jump scrolls and measures the window; the window itself by default. */
     jumpView?: SessionJumpView
     /** Scroll the page instantly to its top (leaving or reopening the Review); the window's own by default. */
@@ -72,6 +90,16 @@ const props = withDefaults(
      * default. Nothing saves one yet: chunk 20's my-instrument record feeds it.
      */
     savedMyInstrumentRangeInClef?: WrittenRangeInClef | null
+    /**
+     * The saved review preferences, loaded before the first draw, which the Review's export
+     * choices and Played notes switch start from; a first visit's by default.
+     */
+    savedReviewPreferences?: ReviewPreferences
+    /**
+     * The saved "During a session" choices, loaded before the first draw, which the options show
+     * while the session controller loads (it starts from the same); a first visit's by default.
+     */
+    savedSessionOptions?: SessionOptionChoices
   }>(),
   {
     // Default: the window's own instant scroll, measured against the layout viewport's height.
@@ -81,7 +109,11 @@ const props = withDefaults(
     }),
     // Default: the window's own instant scroll to its top (a function prop's default is itself).
     scrollToPageTop: () => window.scrollTo({ top: 0, behavior: 'instant' }),
+    // Default: the window's own reload (a function prop's default is itself).
+    reloadPage: () => window.location.reload(),
     savedMyInstrumentRangeInClef: null,
+    savedReviewPreferences: () => DEFAULT_REVIEW_PREFERENCES,
+    savedSessionOptions: () => DEFAULT_SESSION_OPTIONS,
   },
 )
 
@@ -129,6 +161,13 @@ const { controlsReadonly, shownSettings, presetStatusLive } = useShownSettings({
   sessionActive: () => sessionActive.value,
 })
 
+// The notice row's notice, held still while a session runs.
+const {
+  notice: appNotice,
+  actionsDisabled: appNoticeActionsDisabled,
+  dismiss: dismissAppNotice,
+} = useAppNotices({ source: props.savedData, sessionActive: () => sessionActive.value })
+
 // The "During a session" options and the player's changes to them.
 const {
   sessionOptionsReadonly,
@@ -142,6 +181,8 @@ const {
   controller: () => props.controller,
   requireController,
   controlsReadonly: () => controlsReadonly.value,
+  savedSessionOptions: () => props.savedSessionOptions,
+  saveSettings: injectSaveSettings(),
 })
 
 const emit = defineEmits<{
@@ -267,6 +308,19 @@ const reviewNavigation = useReviewNavigation({
   focusTarget,
 })
 
+/**
+ * Intent: `Dismiss`: remove the notice, and move focus to the first enabled of the session action,
+ * the phrase action and `controller-status` (the workspace's fallback order).
+ */
+// @spec-link [[rule_failed_save_never_disturbs_session]]
+function handleDismissAppNotice(): void {
+  dismissAppNotice()
+  const { header: shown } = focusParts()
+  if (shown.sessionActionEnabled) focusTarget('session-action')
+  else if (shown.phraseActionEnabled) focusTarget('phrase-action')
+  else focusTarget('controller-status')
+}
+
 /** Intent: an Idle operation starting settles the end's landing: no late notice takes focus. */
 watch(
   () => state.value.operation,
@@ -307,6 +361,13 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
       @open-connection-sheet="openConnectionSheet"
     />
     <div class="layout-workspace">
+      <AppNoticeRow
+        v-if="appNotice !== null"
+        :notice="appNotice"
+        :disabled="appNoticeActionsDisabled"
+        @dismiss="handleDismissAppNotice"
+        @reload="reloadPage"
+      />
       <ScorePanel
         ref="scorePanel"
         :session="session"
@@ -319,6 +380,7 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
         :mix-popover="mixPopover"
         :controller="controller"
         :system-position-units="systemPositionUnits"
+        :saved-review-preferences="savedReviewPreferences"
         @stop-session="handleStopSession"
         @show-review="reviewNavigation.showReview"
       />

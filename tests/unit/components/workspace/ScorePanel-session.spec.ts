@@ -13,6 +13,7 @@ import type { StartingNote } from '@/session/starting-note'
 import { createFakeSessionController } from './fake-session-controller'
 import { reachTooManyNotesNotice } from './score-panel-harness'
 import { createTestWorkspace, PHRASE_SCORE_STUB, type TestWorkspace } from './test-workspace'
+import { provideSaveSettings } from './recording-save-settings'
 
 /** Intent: mount the panel on `workspace` over `controller`, attached so focus can move. */
 function mountPanel(workspace: TestWorkspace, controller: SessionController | null) {
@@ -29,7 +30,7 @@ function mountPanel(workspace: TestWorkspace, controller: SessionController | nu
       controller,
       matchesPhoneLayout: () => false,
     },
-    global: { stubs: { PhraseScore: PHRASE_SCORE_STUB } },
+    global: { stubs: { PhraseScore: PHRASE_SCORE_STUB }, provide: provideSaveSettings() },
     attachTo: document.body,
   })
 }

@@ -5,7 +5,7 @@
  * audio time and reads no clock; the look-ahead scheduler asks it for one window's clicks at a time.
  */
 
-import { FOUR_FOUR_METER } from '../domain/generation/generation-request'
+import { FOUR_FOUR_METER } from '../domain/generation/generation-request-envelope'
 import { COUNT_IN_MEASURES } from '../session/session-timing'
 import type { AudioTime, ScheduledClick } from './audio-ports'
 

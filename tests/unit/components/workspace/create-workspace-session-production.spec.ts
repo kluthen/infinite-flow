@@ -2,14 +2,17 @@
  * The production workspace session: `createWorkspaceSession` builds a session without calling
  * `crypto.getRandomValues` eagerly, with a locked audio transport that never constructs an
  * `AudioContext`, reading the window's width through `matchMedia` (a jsdom stand-in here), and
- * posting a prewarm to its generation worker only when prewarm is enabled. No real browser `Worker`
- * is ever constructed.
+ * posting a prewarm to its generation worker only when prewarm is enabled; the worker is created
+ * once the client's module, loaded on demand, has loaded. No real browser `Worker` is ever
+ * constructed.
  */
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { createWorkspaceSession } from '@/components/workspace/create-workspace-session'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import { createBrowserGenerationWorker } from '@/generation-worker/browser-generation-worker'
+import { themeMixTokens } from '../../audio/transport-rig'
+import { fakeSavedData } from './fake-workspace-dependencies'
 
 vi.mock('@/generation-worker/browser-generation-worker', () => ({
   createBrowserGenerationWorker: vi.fn(() => ({
@@ -18,6 +21,22 @@ vi.mock('@/generation-worker/browser-generation-worker', () => ({
     terminate: vi.fn(),
   })),
 }))
+
+/** A port of the stand-in generation worker. */
+interface FakeWorkerPort {
+  readonly postMessage: ReturnType<typeof vi.fn>
+}
+
+/**
+ * Intent: the port of the next generation worker created after `created` workers, once the
+ * session's client, loaded on demand, has created it and handed it the calls made meanwhile.
+ */
+async function nextWorkerPort(created: number): Promise<FakeWorkerPort> {
+  const results = vi.mocked(createBrowserGenerationWorker).mock.results
+  // Checked on a timer, so the calls queued for the client have reached it by then.
+  await vi.waitFor(() => expect(results.length).toBeGreaterThan(created))
+  return results[created]!.value as FakeWorkerPort
+}
 
 /** Intent: a jsdom stand-in for `window.matchMedia`, recording the query and its listeners. */
 function stubMatchMedia(matches: boolean) {
@@ -33,6 +52,12 @@ function stubMatchMedia(matches: boolean) {
 }
 
 describe('createWorkspaceSession', () => {
+  // Loaded once ahead, so each session's client is created within its own test, as every session's
+  // is in the app once the module has loaded.
+  beforeAll(async () => {
+    await import('@/generation-worker/generation-worker-client')
+  })
+
   afterEach(() => {
     vi.unstubAllGlobals()
   })
@@ -42,6 +67,7 @@ describe('createWorkspaceSession', () => {
     const workspace = createWorkspaceSession({
       prewarmPolicy: 'disabled',
       pregenerationPolicy: 'disabled',
+      savedData: fakeSavedData(),
     })
 
     expect(workspace.session.state.operation).toBe('idle')
@@ -65,6 +91,7 @@ describe('createWorkspaceSession', () => {
     const workspace = createWorkspaceSession({
       prewarmPolicy: 'disabled',
       pregenerationPolicy: 'disabled',
+      savedData: fakeSavedData(),
     })
 
     expect(workspace.audio.isUnlocked()).toBe(false)
@@ -75,12 +102,31 @@ describe('createWorkspaceSession', () => {
     expect(constructions).not.toHaveBeenCalled()
   })
 
+  // @test-link [[rule_first_phrase_waits_for_saved_settings]]
+  // @test-link [[req_session_audio_mix]]
+  it('starts its audio transport from the loaded mix, and Idle from the loaded controls', () => {
+    stubMatchMedia(false)
+    vi.stubGlobal('getComputedStyle', () => themeMixTokens())
+    const mix = { clickOn: false, clickVolume: 0.4, backingOn: true, backingVolume: 0.3 }
+    const controls = { ...DEFAULT_GENERATION_CONTROLS, tempo: 140 }
+    const workspace = createWorkspaceSession({
+      prewarmPolicy: 'disabled',
+      pregenerationPolicy: 'disabled',
+      savedData: fakeSavedData({ mix, controls }),
+    })
+
+    expect(workspace.audio.mix()).toEqual(mix)
+    expect(workspace.session.state.controls).toEqual(controls)
+    workspace.dispose()
+  })
+
   // @test-link [[rule_generated_density_follows_window_width]]
   it("reads the window's width against bp-tablet-landscape through matchMedia", () => {
     const { matchMedia, listeners } = stubMatchMedia(true)
     const workspace = createWorkspaceSession({
       prewarmPolicy: 'disabled',
       pregenerationPolicy: 'disabled',
+      savedData: fakeSavedData(),
     })
 
     expect(matchMedia).toHaveBeenCalledWith('(max-width: 63.9375rem)')
@@ -92,16 +138,16 @@ describe('createWorkspaceSession', () => {
   })
 
   // @test-link [[service_workspace_session_flow]]
-  it('posts one prewarm for the default controls to the new worker with prewarm enabled', () => {
+  it('posts one prewarm for the default controls to the new worker with prewarm enabled', async () => {
     stubMatchMedia(false)
+    const created = vi.mocked(createBrowserGenerationWorker).mock.results.length
     const workspace = createWorkspaceSession({
       prewarmPolicy: 'enabled',
       pregenerationPolicy: 'disabled',
+      savedData: fakeSavedData(),
     })
 
-    const port = vi.mocked(createBrowserGenerationWorker).mock.results.at(-1)!.value as {
-      postMessage: ReturnType<typeof vi.fn>
-    }
+    const port = await nextWorkerPort(created)
     expect(port.postMessage).toHaveBeenCalledTimes(1)
     expect(port.postMessage.mock.calls[0]![0]).toMatchObject({
       type: 'prewarm',
@@ -112,17 +158,17 @@ describe('createWorkspaceSession', () => {
   })
 
   // @test-link [[service_workspace_session_flow]]
-  it('posts nothing to the new worker with prewarm disabled', () => {
+  it('posts nothing to the new worker with prewarm disabled', async () => {
     stubMatchMedia(false)
+    const created = vi.mocked(createBrowserGenerationWorker).mock.results.length
     const workspace = createWorkspaceSession({
       prewarmPolicy: 'disabled',
       pregenerationPolicy: 'disabled',
+      savedData: fakeSavedData(),
     })
     workspace.session.actions.setControl('syncopation', 'Active displacement')
 
-    const port = vi.mocked(createBrowserGenerationWorker).mock.results.at(-1)!.value as {
-      postMessage: ReturnType<typeof vi.fn>
-    }
+    const port = await nextWorkerPort(created)
     expect(port.postMessage).not.toHaveBeenCalled()
 
     workspace.dispose()

@@ -654,8 +654,76 @@ interface WorkspaceHarnessApi {
   windowShape: () => WorkspaceHarnessWindowShape
   /** The session controller's state (see `WorkspaceHarnessSessionApi`). */
   session: WorkspaceHarnessSessionApi
+  /** The saved data's load and the database behind it (see `WorkspaceHarnessStorageApi`). */
+  storage: WorkspaceHarnessStorageApi
+}
+
+/** Where the visit's settings came from, as the load reports it. */
+type WorkspaceHarnessLoadOutcome = 'saved-data-read' | 'started-from-defaults'
+
+/** Whether the visit saves, as the save policy reports it. */
+type WorkspaceHarnessSavingState = 'on' | 'off-outdated' | 'off-unreadable'
+
+/** The stores of the app's database. */
+type WorkspaceHarnessStoreName =
+  'settings' | 'instrument' | 'controller' | 'sessionSummaries' | 'sessionBodies' | 'playedNotes'
+
+/**
+ * The saved data's seams. The page loads the saved data before it mounts the app, as the app
+ * does; a spec seeds records, then reloads the page to load them. Seeds go through the app's own
+ * storage port (never the save policy) and the settings codec, at the running app's version.
+ */
+interface WorkspaceHarnessStorageApi {
+  /**
+   * Write one settings record per entry, under the setting's record key (`theme`,
+   * `controls.tempo`, `mix.clickOn`, `sessionOptions.risingTempo`, `review.format`, ...), each
+   * encoded by the settings codec. A value need not be valid, so a spec can seed one the load
+   * must refuse; a key that names no setting throws.
+   */
+  seedSettings: (values: Readonly<Record<string, unknown>>) => Promise<void>
+  /**
+   * Write `count` kept sessions, each a session-wide record (a 500-character comment, the
+   * longest allowed) and a body of about `bodyBytes` bytes, for the start-up read measurement
+   * (M2) only: their content is sized, not a real session's.
+   */
+  seedTimingSessions: (count: number, bodyBytes: number) => Promise<void>
+  /** Every raw record a store holds now, read through the app's port. */
+  records: (store: WorkspaceHarnessStoreName) => Promise<unknown[]>
+  /**
+   * The key of each stored settings record the settings codec does not read back as the value it
+   * holds, all records decoded together as a load decodes them (the page's mix design, my
+   * instrument not loaded); empty when every record reads back.
+   */
+  settingsNotReadBack: () => Promise<string[]>
+  /**
+   * Make the app's port refuse every write, delete and batch from now on, as `quota` (no room
+   * left) or `other`; null to let them through again. Seeds are never refused.
+   */
+  refuseSaves: (kind: 'quota' | 'other' | null) => void
+  /** How many writes, deletes and batches reached the app's port since the load, refused or not. */
+  portChanges: () => number
+  /**
+   * Open the database as a newer version of the app would, one data version up, and keep it open:
+   * this tab is outdated at once, and the next load finds data written by a newer version.
+   */
+  openNewerVersion: () => Promise<void>
+  /** The load's outcome. */
+  loadOutcome: () => WorkspaceHarnessLoadOutcome
+  /** The save policy's saving state; null until the policy exists (a port opening late). */
+  savingState: () => WorkspaceHarnessSavingState | null
+  /** How long the load took, from its start to the settings decoded, in milliseconds. */
+  loadMs: () => number
+}
+
+/**
+ * Published before the load only with `?storageLoad=held`: the load does not start, so the page
+ * shows only its background, until `release()`.
+ */
+interface WorkspaceHarnessHeldLoad {
+  release: () => void
 }
 
 interface Window {
   __workspaceHarness: WorkspaceHarnessApi
+  __workspaceHarnessHeldLoad?: WorkspaceHarnessHeldLoad
 }

@@ -22,7 +22,8 @@
  * screen. At Idle, while every start condition holds, its pre-generation queue
  * (./workspace-pregeneration.ts) makes the phrases after phrase 1 in the background, and each
  * start takes those ready. The parts share one core (./workspace-session-active.ts). The player's
- * own controls are never written, so every end shows them again.
+ * own controls are never written, so every end shows them again. The player's saves are held from
+ * an accepted start to its end, so a change made during a session is written when it ends.
  */
 import { computed, shallowReactive, shallowReadonly, shallowRef } from 'vue'
 
@@ -120,11 +121,13 @@ function createIdlePregeneration(
 
 /**
  * Intent: build the session controller over the workspace's Idle state, audio transport, browser
- * ports and runner factory. It reads the window's shape from creation (for the rotate-device start
- * condition) and listens to the MIDI controller (for the starting note) until `dispose`; it asks
- * for no lock and opens no audio until a start.
+ * ports and runner factory, its three "During a session" flags starting from the player's saved
+ * choices. It reads the window's shape from creation (for the rotate-device start condition) and
+ * listens to the MIDI controller (for the starting note) until `dispose`; it asks for no lock and
+ * opens no audio until a start.
  */
 // @spec-link [[service_session_controller]]
+// @spec-link [[rule_first_phrase_waits_for_saved_settings]]
 // @spec-link [[rule_session_start_conditions]]
 // @spec-link [[rule_midi_never_blocks_session]]
 // @spec-link [[rule_phrase_one_is_idle_phrase]]
@@ -203,9 +206,17 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     idlePhrase: deps.idlePhrase,
     start: () => start(),
   })
-  const adaptiveTempo = createAdaptiveTempoFlag(sessionMidi.controllerState, () => state.phase)
-  const varySettings = createVarySettingsFlag(() => state.phase)
-  const tensionAcrossPhrases = createTensionAcrossPhrasesFlag(() => state.phase)
+  const saved = deps.savedSessionOptions
+  const adaptiveTempo = createAdaptiveTempoFlag(
+    sessionMidi.controllerState,
+    () => state.phase,
+    saved.risingTempo,
+  )
+  const varySettings = createVarySettingsFlag(() => state.phase, saved.varySettings)
+  const tensionAcrossPhrases = createTensionAcrossPhrasesFlag(
+    () => state.phase,
+    saved.tensionAcrossPhrases,
+  )
   const pregeneration = createIdlePregeneration(deps, () => startBlocker.value, {
     varySettings,
     tensionAcrossPhrases,

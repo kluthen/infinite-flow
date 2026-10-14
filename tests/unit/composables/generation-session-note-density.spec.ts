@@ -28,6 +28,7 @@ function densitySession(initiallyBelowTabletLandscape: boolean) {
   const intents: GenerationIntent[] = []
   let counter = 0
   const session = createGenerationSession<GenerationIntent>({
+    saveSettings: () => undefined,
     ...alwaysFitsStaff(),
     providers: {
       nextRequestId: () => makeRequestId(`density-${++counter}`),
@@ -92,6 +93,7 @@ describe('generation session: the density a phrase is generated with', () => {
     const intents: GenerationIntent[] = []
     let counter = 0
     const session = createGenerationSession<GenerationIntent>({
+      saveSettings: () => undefined,
       ...alwaysFitsStaff(),
       providers: {
         nextRequestId: () => makeRequestId(`retry-${++counter}`),

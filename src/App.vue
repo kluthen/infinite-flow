@@ -1,15 +1,20 @@
 <script setup lang="ts">
 /**
- * The application root: builds the one workspace session for this browser tab's lifetime and
- * tears down its worker on unmount. Construction is delegated to an injected factory (falling
- * back to the production `createWorkspaceSession`) so a test or an e2e harness's `main.ts` can
+ * The application root: builds the one workspace session for this browser tab's lifetime, from
+ * the saved data `main.ts` loaded before mounting it, and tears down its worker on unmount. The
+ * workspace is first drawn with the loaded values: Idle's controls, profile selection and theme
+ * (applied to the page at once, from the session's state), the audio mix, the Review's
+ * preferences and the "During a session" choices; no control changes value after that first draw.
+ * Construction is delegated to an injected factory, given the loaded saved data (falling back to
+ * the production `createWorkspaceSession`), so a test or an e2e harness's `main.ts` can
  * `provide(WORKSPACE_SESSION_FACTORY, ...)` a deterministic/gated/failure-injecting session
  * without ever branching this file on being under test. It also builds the workspace's one
  * session controller, whose module loads as its own chunk: until it has loaded, `Start session`
  * stays disabled. A load failure is not caught: it surfaces as the unhandled error it is. It
- * keeps the workspace's connection-sheet flag in step with the shell's sheet.
+ * keeps the workspace's connection-sheet flag in step with the shell's sheet, and provides the
+ * workspace's saver of the player's changes to the components whose change handlers save.
  */
-import { inject, onUnmounted, shallowRef, watch } from 'vue'
+import { inject, onUnmounted, provide, shallowRef, watch } from 'vue'
 
 import { applyThemePreference } from './components/workspace/apply-theme-preference'
 import {
@@ -20,21 +25,35 @@ import {
   pregenerationPolicyFromSearch,
   prewarmPolicyFromSearch,
 } from './components/workspace/prewarm-policy'
+import { SAVE_SETTINGS } from './components/workspace/save-settings-injection'
 import WorkspaceShell from './components/workspace/WorkspaceShell.vue'
 import type { SessionController } from './components/workspace/workspace-session-controller-types'
+import type { SavedDataLoad } from './storage-bootstrap'
+
+const props = defineProps<{
+  /** The saved data loaded before the mount: every setting the workspace is first drawn with. */
+  savedData: SavedDataLoad
+}>()
 
 // The production fallback reads the prewarm and pre-generation policies once from the page URL:
 // `?prewarm=off` is the latency measurement seam, loading the real app with cold generation, and
 // `?pregeneration=off` runs no background pre-generation at Idle; both are on otherwise.
-const buildWorkspaceSession = inject(WORKSPACE_SESSION_FACTORY, () =>
+const buildWorkspaceSession = inject(WORKSPACE_SESSION_FACTORY, (savedData: SavedDataLoad) =>
   createWorkspaceSession({
     prewarmPolicy: prewarmPolicyFromSearch(window.location.search),
     pregenerationPolicy: pregenerationPolicyFromSearch(window.location.search),
+    savedData,
   }),
 )
-const workspace = buildWorkspaceSession()
+// @spec-link [[rule_first_phrase_waits_for_saved_settings]]
+const workspace = buildWorkspaceSession(props.savedData)
 
 watch(() => workspace.session.state.presentation.theme, applyThemePreference, { immediate: true })
+
+// The components whose change handlers save the player's changes (the audio mix, the "During a
+// session" options, the Review's choices) inject the workspace's saver at their setup.
+// @spec-link [[rule_settings_saved_on_change]]
+provide(SAVE_SETTINGS, workspace.saveSettings)
 
 const sessionController = shallowRef<SessionController | null>(null)
 let unmounted = false
@@ -80,7 +99,10 @@ onUnmounted(() => {
     :audio="workspace.audio"
     :midi="workspace.midi"
     :controller="sessionController"
+    :saved-data="savedData"
     :saved-my-instrument-range-in-clef="null"
+    :saved-review-preferences="savedData.settings.review"
+    :saved-session-options="savedData.settings.sessionOptions"
     @connection-sheet-open-change="handleConnectionSheetOpenChange"
   />
 </template>

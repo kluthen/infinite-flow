@@ -1,6 +1,6 @@
 ---
 id: rule_no_save_during_session
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 version: 0.2
@@ -11,6 +11,7 @@ parents:
 human_name: No Saving During a Session
 dependents:
   - [[module_save_policy]]
+  - [[module_saved_data_loader]]
 ---
 
 # No Saving During a Session

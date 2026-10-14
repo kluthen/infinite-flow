@@ -5,7 +5,7 @@
 import { computed, type ComputedRef } from 'vue'
 
 import { noteIdentityKey } from '@/notation/note-identity'
-import { NO_SCORE_OVERLAYS, type ScoreOverlays } from '@/notation/score-overlays'
+import { NO_SCORE_OVERLAYS, type ScoreOverlays } from '@/notation/score-overlay-state'
 import type { SessionController } from './workspace-session-controller-types'
 
 /**

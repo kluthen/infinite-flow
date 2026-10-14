@@ -16,6 +16,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
 import { gotoSessionHarness, sessionAction, sessionState } from '../session/session-helpers'
+import { untilStored } from '../storage/storage-helpers'
 import {
   STEM,
   backingTrackToggle,
@@ -89,11 +90,16 @@ test.describe('exporting the generated notes', () => {
     expect(played.midiWithBacking.subarray(0, 4).toString('latin1')).toBe('MThd')
     expect(played.midiWithBacking.length).toBeGreaterThan(played.midi.length)
 
-    // The format and the backing track hold for the page session, across leaving the Review.
+    // The format and the backing track hold across leaving the Review.
     await sessionAction(page).click()
     await reviewLink(page).click()
     await expect(formatOption(page, 'MIDI')).toHaveAttribute('aria-checked', 'true')
     await expect(backingTrackToggle(page)).toHaveAttribute('aria-pressed', 'true')
+    // Since v3.0 they are saved preferences: put them back to their first-load values, and wait
+    // until they are stored, so the silent session's Review starts from them as this one did.
+    await backingTrackToggle(page).click()
+    await pickFormat(page, 'MusicXML')
+    await untilStored(page, { 'review.format': 'musicxml', 'review.backingTrack': false })
 
     // The same session played silently exports the very same bytes: no played note is in them.
     const silentDownloads = collectDownloads(page)

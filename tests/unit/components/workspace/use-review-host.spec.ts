@@ -1,33 +1,47 @@
 /**
  * The score panel's Review host on its own: nothing shows and nothing is given while no Review
- * shows, an export of either content asked for then is refused as the defect it is, the
- * page-session export choices start at MusicXML with the backing track off, whether the session
- * holds a played note, the played-notes export, and the Played notes switch held for the page
- * session.
+ * shows, an export of either content asked for then is refused as the defect it is, the export
+ * choices and the Played notes switch start from the saved review preferences (MusicXML, backing
+ * track off, switch off on a first visit), whether the session holds a played note, the
+ * played-notes export, and the Played notes switch held for the page session.
  */
 import { describe, expect, it, vi } from 'vitest'
 import { effectScope } from 'vue'
 
 import { useReviewHost } from '@/components/workspace/use-review-host'
 import type { ExportFile } from '@/export/load-generated-notes-export'
+import {
+  DEFAULT_REVIEW_PREFERENCES,
+  type ReviewPreferences,
+} from '@/storage/records/setting-defaults'
 import { recordedRecords } from '../review/review-fixtures'
 import { createFakeSessionController, fakeReviewHistory } from './fake-session-controller'
 import { fakeGenerationSession } from './fake-generation-session'
+import { recordingSaveSettings } from './recording-save-settings'
 
-/** Intent: a host over `fake`'s controller and an Idle double, inside its own effect scope. */
-function host(fake = createFakeSessionController()) {
+/**
+ * Intent: a host over `fake`'s controller and an Idle double, starting from `preferences`, inside
+ * its own effect scope.
+ */
+function host(
+  fake = createFakeSessionController(),
+  preferences: ReviewPreferences = DEFAULT_REVIEW_PREFERENCES,
+) {
   const { session } = fakeGenerationSession()
   const ports = { load: vi.fn(), download: vi.fn() }
+  const { saveSettings, saves } = recordingSaveSettings()
   const scope = effectScope()
   const built = scope.run(() =>
     useReviewHost({
       controller: () => fake.controller,
       idle: () => session.state,
       exportPorts: () => ports,
+      initialPreferences: preferences,
+      saveSettings,
     }),
   )
   if (built === undefined) throw new Error('the effect scope did not run')
-  return { built, ports, fake, stop: () => scope.stop() }
+  return { built, ports, fake, saves, stop: () => scope.stop() }
 }
 
 // @test-link [[req_last_session_review]]
@@ -46,6 +60,21 @@ describe('useReviewHost', () => {
       'review host: an export was asked for with no Review showing',
     )
     expect(ports.load).not.toHaveBeenCalled()
+    stop()
+  })
+
+  // @test-link [[rule_first_phrase_waits_for_saved_settings]]
+  // @test-link [[module_review_played_notes_lane]]
+  it('starts the export choices and the Played notes switch from the saved preferences', () => {
+    const { built, stop } = host(createFakeSessionController(), {
+      format: 'midi',
+      backingTrack: true,
+      playedNotesShown: true,
+    })
+
+    expect(built.format.value).toBe('midi')
+    expect(built.backingTrack.value).toBe(true)
+    expect(built.playedNotesShown.value).toBe(true)
     stop()
   })
 
@@ -97,7 +126,7 @@ describe('useReviewHost', () => {
     })
     const { built, stop } = host(fake)
 
-    built.playedNotesShown.value = true
+    built.setPlayedNotesShown(true)
     fake.controller.closeReview()
     expect(built.playedNotesShown.value).toBe(true)
     fake.controller.showReview()
@@ -134,6 +163,28 @@ describe('useReviewHost', () => {
 
     expect(built.showing.value).toBe(false)
     expect(built.records.value).toEqual([])
+    stop()
+  })
+})
+
+// @test-link [[rule_settings_saved_on_change]]
+// @test-link [[rule_saved_setting_is_players_choice]]
+describe("useReviewHost: saving the player's choices", () => {
+  it('sets and saves the export format, the backing track and the Played notes switch', () => {
+    const { built, saves, stop } = host()
+
+    built.setFormat('midi')
+    built.setBackingTrack(true)
+    built.setPlayedNotesShown(true)
+
+    expect(built.format.value).toBe('midi')
+    expect(built.backingTrack.value).toBe(true)
+    expect(built.playedNotesShown.value).toBe(true)
+    expect(saves).toEqual([
+      { 'review.format': 'midi' },
+      { 'review.backingTrack': true },
+      { 'review.playedNotesShown': true },
+    ])
     stop()
   })
 })

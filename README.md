@@ -53,14 +53,15 @@ npm run test:notation              # Playwright: notation engraving, layout, and
 npm run measure:latency:browser    # Playwright: cold/warm generation latency measured in Chromium
 npm run measure:engraving          # Playwright: longest main-thread task while engraving, in Chromium
 npm run measure:rolling            # Playwright: rolling display's playhead and main thread on real audio, in Chromium (not in quality)
+npm run measure:startup-read       # Playwright: the saved data's load before the first draw (M2), in Chromium (not in quality)
 npm run replay:phrase -- <key>     # Replay one phrase from its console replay key and print it as JSON
 npm run atd:lint                   # Validate ATD atom structure
 npm run atd:check                  # Check ATD source/test link coverage for the current diff
 npm run quality                    # The complete first-release quality gate (see the matrix below)
 ```
 
-`test:e2e`, `test:a11y`, `test:notation`, `measure:latency:browser`, `measure:engraving` and
-`measure:rolling` are Playwright suites. `playwright.config.ts` declares three `webServer` entries: port 4173 runs
+`test:e2e`, `test:a11y`, `test:notation`, `measure:latency:browser`, `measure:engraving`,
+`measure:rolling` and `measure:startup-read` are Playwright suites. `playwright.config.ts` declares three `webServer` entries: port 4173 runs
 `npm run preview` against the already-built `dist/`, so **run `npm run build` first** when
 invoking any of these test commands on their own; ports 4174 (`build:notation-harness`) and 4175
 (`build:workspace-harness`) build and serve themselves as part of starting the server, so they need
@@ -183,8 +184,10 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   (`records/`: the settings codec, and the kept-session codec that turns a finished session into
   its stored records and back), and the save policy that decides when a write reaches
   the port (`save-policy.ts`, `save-policy-requests.ts`). The rest of the app reaches it only
-  through an injected port; nothing imports the port or the policy yet. See
-  [`docs/storage.md`](docs/storage.md).
+  through an injected port. `src/storage-bootstrap.ts`, beside `main.ts`, loads the saved
+  settings through it before the app is mounted, under the start-up wait; the player's settings
+  are saved through the policy as they change (`src/storage/settings-saver.ts`). See
+  [`docs/storage.md`](docs/storage.md#the-load-before-the-first-draw).
 - `scripts/` — `verify-boundaries.mjs`, the deterministic boundary/precache verifier;
   `replay-phrase.mjs`, the headless phrase replay behind `npm run replay:phrase` (see
   [Phrase replay key](docs/phrase-workspace.md#phrase-replay-key)); and `app-version-define.mjs`,

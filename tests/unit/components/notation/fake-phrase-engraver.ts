@@ -5,9 +5,12 @@
  * VexFlow they draw a bare `svg.staff-svg` per system with one `g.measure-slot` per measure (its
  * band rectangle recorded) holding one tagged notehead, enough for the score overlays to draw on.
  * A whole phrase's engraving also reports measure anchors laid out by `fakeMeasureAnchors`.
+ * `loadStaffDrawing` loads the staff drawing code PhraseScore loads with the engraver, for a spec
+ * to call before mounting it.
  */
 import { vi } from 'vitest'
 
+import { createLoadingStaffDrawing } from '@/components/notation/load-staff-drawing'
 import type { MeasureIndex } from '@/domain/events/measure'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { MeasureAnchors } from '@/notation/engraving-anchors'
@@ -141,3 +144,29 @@ export function resetFakePhraseEngraver(): void {
 }
 
 resetFakePhraseEngraver()
+
+/**
+ * Intent: load the staff drawing code PhraseScore loads with the engraver
+ * (`@/components/notation/load-staff-drawing`), through a keeper no score uses, so every score
+ * mounted afterwards finds it loaded, as each one after the app's first engraving does, and
+ * engraves within the promises this stand-in settles.
+ */
+export async function loadStaffDrawing(): Promise<void> {
+  /** Intent: refuse a call no keeper that only loads the code may receive. */
+  const unused = (): never => {
+    throw new Error('The keeper that loads the staff drawing code draws nothing.')
+  }
+  await createLoadingStaffDrawing(
+    {
+      hosts: () => null,
+      inputs: () => null,
+      engraver: unused,
+      acknowledged: () => [],
+      descriptionId: 'unused',
+      describe: unused,
+      shown: unused,
+      failed: unused,
+    },
+    () => null,
+  ).ready()
+}

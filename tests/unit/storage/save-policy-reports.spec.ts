@@ -74,21 +74,67 @@ describe('reporting a failed save', () => {
   })
 
   // @test-link [[rule_failed_save_never_disturbs_session]]
-  it('reports a run of refusals once, and the first refusal after a success again', async () => {
+  it('reports a refusal of the same kind as the last one reported in its run once', async () => {
+    const { refuse, policy, failures } = await refusablePolicy()
+
+    refuse('quota')
+    await policy.write('settings', 'theme', sampleRecord('Light'))
+    await policy.delete('playedNotes', 's1')
+    await policy.save([{ kind: 'delete', store: 'playedNotes', key: 's1' }])
+
+    expect(failures).toEqual<SaveFailureKind[]>(['quota'])
+  })
+
+  // @test-link [[rule_failed_save_never_disturbs_session]]
+  it('reports a refusal again each time its kind differs from the last one reported', async () => {
     const { refuse, policy, failures } = await refusablePolicy()
 
     refuse('quota')
     await policy.write('settings', 'theme', sampleRecord('Light'))
     refuse('other')
     await policy.delete('playedNotes', 's1')
-    await policy.save([{ kind: 'delete', store: 'playedNotes', key: 's1' }])
-    expect(failures).toEqual<SaveFailureKind[]>(['quota'])
+    await policy.delete('playedNotes', 's2')
+    refuse('quota')
+    await policy.write('settings', 'theme', sampleRecord('Sepia'))
 
+    expect(failures).toEqual<SaveFailureKind[]>(['quota', 'other', 'quota'])
+  })
+
+  // @test-link [[rule_failed_save_never_disturbs_session]]
+  it('starts a new run at the first refusal after a success, of either kind', async () => {
+    const { refuse, policy, failures } = await refusablePolicy()
+
+    refuse('other')
+    await policy.write('settings', 'theme', sampleRecord('Light'))
     refuse(null)
     expect(await policy.write('settings', 'theme', sampleRecord('Sepia'))).toBe('saved')
     refuse('other')
     expect(await policy.delete('playedNotes', 's1')).toBe('failed')
-    expect(failures).toEqual<SaveFailureKind[]>(['quota', 'other'])
+
+    expect(failures).toEqual<SaveFailureKind[]>(['other', 'other'])
+  })
+
+  // @test-link [[rule_failed_save_never_disturbs_session]]
+  it('tells the listener whether a report starts a run or changes its kind', async () => {
+    const { port, refuse } = refusingPort(await filledPort(freshFactory()))
+    const policy = createSavePolicy(port)
+    const reports: [SaveFailureKind, boolean][] = []
+    policy.onFailure((kind, startsRun) => reports.push([kind, startsRun]))
+
+    refuse('quota')
+    await policy.write('settings', 'theme', sampleRecord('Light'))
+    refuse('other')
+    await policy.write('settings', 'theme', sampleRecord('Sepia'))
+    refuse(null)
+    await policy.write('settings', 'theme', sampleRecord('Dark'))
+    refuse('other')
+    await policy.write('settings', 'theme', sampleRecord('Light'))
+
+    expect(reports).toEqual([
+      ['quota', true],
+      ['other', false],
+      ['other', true],
+    ])
   })
 
   // @test-link [[rule_failed_save_never_disturbs_session]]

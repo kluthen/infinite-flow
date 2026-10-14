@@ -1,6 +1,7 @@
 /**
  * Fake dependencies for the `composeWorkspaceSession` specs: a fully fake dependency bundle (never a
- * real Worker or `crypto`) whose generate seam answers with a real, cheap `generatePhrase()` result,
+ * real Worker or `crypto`) whose generate seam answers with a real, cheap `generatePhrase()` result
+ * and whose saved data is a first visit's (every default, read from the stylesheet's mix design),
  * plus the steps a spec without a mounted component tree takes to get a phrase drawn: report the
  * staff's layout inputs, generate, settle the engraving, and choose the cheap controls. A spec using
  * `generateAndEngrave` must mock `@/notation/vexflow-engraver-loader` with the fake engraver loader,
@@ -31,8 +32,10 @@ import type { GenerationOutcome } from '@/domain/generation/orchestration/orches
 import { makeSeed } from '@/domain/random/seed'
 import { createMidiController } from '@/midi/midi-controller'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
+import type { SavedDataLoad } from '@/storage-bootstrap'
+import { defaultSettings, type SavedSettings } from '@/storage/records/setting-defaults'
 import type { FakeWakeTimer } from '../../audio/fake-audio'
-import { transportRig } from '../../audio/transport-rig'
+import { themeDesign, transportRig } from '../../audio/transport-rig'
 import {
   createFakeViewportWidth,
   type FakeViewportWidth,
@@ -60,6 +63,21 @@ export const CHEAP_CONTROLS = {
   harmonicMotion: 'Gentle diatonic',
   tension: 'Settled',
 } as const
+
+/**
+ * Intent: a load that read the saved data: the defaults (the mix's from the stylesheet's design)
+ * with `settings` over them, nothing kept, and a save policy that never settles, as no spec here
+ * saves.
+ */
+export function fakeSavedData(settings: Partial<SavedSettings> = {}): SavedDataLoad {
+  return {
+    outcome: 'saved-data-read',
+    settings: { ...defaultSettings(themeDesign().defaults), ...settings },
+    keptSessionSummaries: [],
+    rememberedController: [],
+    savePolicy: new Promise(() => {}),
+  }
+}
 
 /** Intent: run one real, cheap generation for the given intent's own identity and seed. */
 function cheapOutcome(requestId: string, seed: number): GenerationOutcome {
@@ -137,6 +155,7 @@ export function fakeDependencies(
     logPhraseReplayKey: (line) => {
       replayKeyLines.push(line)
     },
+    savedData: fakeSavedData(),
     replayKeyLines,
     dispose: disposeMock,
     generateMock,

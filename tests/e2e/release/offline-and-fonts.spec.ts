@@ -55,6 +55,8 @@ test('offline after the first load, a session runs until phrase 2 sounds with no
   await waitForServiceWorkerReady(page)
   await context.setOffline(true)
   await page.reload()
+  // The app mounts only once its saved data has loaded: wait for the workspace to be drawn.
+  await page.locator('.generation-status').waitFor({ state: 'attached' })
   await generateAndAwaitReady(page)
 
   await page.getByRole('button', { name: 'Start session' }).click()

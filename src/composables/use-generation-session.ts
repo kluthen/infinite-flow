@@ -27,6 +27,7 @@ import {
   type CreateGenerationSessionOptions,
   type GenerationSession,
   type GenerationSessionState,
+  type InitialGenerationSettings,
   type MutableGenerationSessionState,
 } from './generation-session-types'
 
@@ -38,6 +39,7 @@ export type {
   GenerationSession,
   GenerationSessionActions,
   GenerationSessionState,
+  InitialGenerationSettings,
   MutableGenerationSessionState,
   PresentationSettings,
   SessionOperation,
@@ -45,21 +47,32 @@ export type {
 } from './generation-session-types'
 export { SessionUsageError } from './generation-session-types'
 
+/** The settings a session given none starts from: the first-load values. */
+const FIRST_LOAD_SETTINGS: InitialGenerationSettings = {
+  controls: DEFAULT_GENERATION_CONTROLS,
+  profileSelection: DEFAULT_PROFILE_SELECTION,
+  theme: 'System',
+}
+
 /**
  * Root composition boundary: call once from application bootstrap and pass the returned readonly
  * state/actions to components. This owns no hidden singleton, storage, browser, or engraving state.
  * Each phrase 1 a fit run publishes is the generated phrase joined with the session seed drawn
- * for it.
+ * for it. Its state starts from the given initial settings (the saved ones the app loaded before
+ * its first draw), or from the first-load values when none are given. The player's changes to the
+ * controls, the profile selection and the theme are saved through `saveSettings` as they apply.
  */
 // @spec-link [[service_idle_generation_session]]
 // @spec-link [[module_session_seed_plan]]
+// @spec-link [[rule_first_phrase_waits_for_saved_settings]]
 export function createGenerationSession<TResult, TGenerated = TResult>(
   options: CreateGenerationSessionOptions<TResult, TGenerated>,
 ): GenerationSession<TResult> {
+  const initial = options.initialSettings ?? FIRST_LOAD_SETTINGS
   const state = shallowReactive<MutableGenerationSessionState<TResult>>({
-    controls: DEFAULT_GENERATION_CONTROLS,
-    profileSelection: DEFAULT_PROFILE_SELECTION,
-    presentation: { theme: 'System' },
+    controls: initial.controls,
+    profileSelection: initial.profileSelection,
+    presentation: { theme: initial.theme },
     latestIntent: null,
     result: null,
     operation: 'idle',
@@ -125,6 +138,7 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
       readNoteDensityContext,
       prewarmCurrentRhythmSetting,
       afterGenerationSettingChange: () => roomNotice.afterGenerationSettingChange(),
+      saveSettings: options.saveSettings,
     })
 
   const { retryNotation, reportNotationFailure, reportNotationRecovered, clearPhrase } =
@@ -241,6 +255,7 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
     isBlocked: isBlockedByUnsupportedRhythm,
     runFitRun: () => fitRunner.run('keep_screen'),
     clearPhrase,
+    saveSettings: options.saveSettings,
   })
 
   const stopListeningForCrossings = options.viewport.subscribe(handleWidthCrossing)

@@ -6,7 +6,10 @@
  * is plain arithmetic on audio time, with no clock read.
  */
 
-import { FOUR_FOUR_METER, PHRASE_MEASURE_COUNT } from '../domain/generation/generation-request'
+import {
+  FOUR_FOUR_METER,
+  PHRASE_MEASURE_COUNT,
+} from '../domain/generation/generation-request-envelope'
 import type { AudioTime } from './session-types'
 
 /** The count-in lasts one measure; phrase 1 starts sounding when it is over. */

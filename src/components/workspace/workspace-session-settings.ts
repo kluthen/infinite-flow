@@ -13,7 +13,6 @@
 import { shallowRef } from 'vue'
 
 import type { SessionPhrase, SessionSettings, SettingsChangedOutput } from '@/session/session-types'
-import { SETTINGS_MUTATION_DEFAULT } from '@/session/settings-mutation'
 import {
   SessionControllerError,
   type SessionControllerPhase,
@@ -90,18 +89,23 @@ export interface TensionAcrossPhrasesFlag {
 }
 
 /**
- * Intent: build the page's `Vary settings` flag, at the engine's default (off, spec D176), over
- * the session's phase, read reactively. It is held in memory for the controller's life, the
- * page's: no session's start or end resets it, and the restore at a session's end never touches
- * it. It changes only outside a session (at Idle or while the Review shows); any change during
- * the count-in or a running session throws.
+ * Intent: build the page's `Vary settings` flag over the session's phase, read reactively,
+ * starting from `initialOn`: the player's saved choice, loaded before the first draw (the
+ * engine's default, off, spec D176, on a first visit). It is held in memory for the controller's
+ * life, the page's: no session's start or end resets it, and the restore at a session's end never
+ * touches it. It changes only outside a session (at Idle or while the Review shows); any change
+ * during the count-in or a running session throws.
  */
 // @spec-link [[req_settings_mutation_flag]]
 // @spec-link [[rule_session_settings_locked]]
 // @spec-link [[rule_ephemeral_session_state]]
+// @spec-link [[rule_first_phrase_waits_for_saved_settings]]
 // @spec-link [[module_session_vary_settings_flag]]
-export function createVarySettingsFlag(phase: () => SessionControllerPhase): VarySettingsFlag {
-  const on = shallowRef(SETTINGS_MUTATION_DEFAULT.kind === 'on')
+export function createVarySettingsFlag(
+  phase: () => SessionControllerPhase,
+  initialOn: boolean,
+): VarySettingsFlag {
+  const on = shallowRef(initialOn)
   return {
     on: () => on.value,
     set: (next) => {
@@ -113,21 +117,25 @@ export function createVarySettingsFlag(phase: () => SessionControllerPhase): Var
 }
 
 /**
- * Intent: build the page's `Tension across phrases` flag, off (spec D178), over the session's
- * phase, read reactively. Like `Vary settings` it is held in memory for the controller's life, the
- * page's, never reset by a session's start or end, and changes only outside a session; any change
- * during the count-in or a running session throws. A session's start carries it as the engine's
- * multi-phrase tension arc flag. Nothing here shows the step it gives a phrase: the engine never
- * reports one as a settings change, so the Tension control keeps showing the tension in effect.
+ * Intent: build the page's `Tension across phrases` flag over the session's phase, read
+ * reactively, starting from `initialOn`: the player's saved choice, loaded before the first draw
+ * (off, spec D178, on a first visit). Like `Vary settings` it is held in memory for the
+ * controller's life, the page's, never reset by a session's start or end, and changes only outside
+ * a session; any change during the count-in or a running session throws. A session's start
+ * carries it as the engine's multi-phrase tension arc flag. Nothing here shows the step it gives a
+ * phrase: the engine never reports one as a settings change, so the Tension control keeps showing
+ * the tension in effect.
  */
 // @spec-link [[req_multi_phrase_tension_arc]]
 // @spec-link [[rule_session_settings_locked]]
 // @spec-link [[rule_ephemeral_session_state]]
+// @spec-link [[rule_first_phrase_waits_for_saved_settings]]
 // @spec-link [[module_session_tension_across_phrases_flag]]
 export function createTensionAcrossPhrasesFlag(
   phase: () => SessionControllerPhase,
+  initialOn: boolean,
 ): TensionAcrossPhrasesFlag {
-  const on = shallowRef(false)
+  const on = shallowRef(initialOn)
   return {
     on: () => on.value,
     set: (next) => {

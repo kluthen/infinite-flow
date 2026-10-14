@@ -1,12 +1,13 @@
 ---
 id: rule_saved_setting_is_players_choice
-status: DRAFT
+status: REVIEW
 tags: [v3, release-v3.0, storage, player-controls]
 type: RULE
 layer: BUSINESS
 parents:
   - [[rule_settings_saved_on_change]]
-dependents: []
+dependents:
+  - [[module_saved_data_loader]]
 version: 0.1
 priority: 1
 human_name: Saved Setting Is the Player's Choice

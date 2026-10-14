@@ -4,17 +4,20 @@ import { reactive, ref, shallowRef } from 'vue'
 
 import type { GenerationSession } from '../../src/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '../../src/composables/workspace-session-result'
-import {
-  DEFAULT_GENERATION_CONTROLS,
-  DEFAULT_PROFILE_SELECTION,
-} from '../../src/domain/controls/profile-selection'
+import { DEFAULT_GENERATION_CONTROLS } from '../../src/domain/controls/profile-selection'
 import type { WrittenPhrase } from '../../src/domain/notation/written-phrase-types'
 import type {
   SessionOperation,
   ThemePreference,
 } from '../../src/composables/use-generation-session'
+import type { SavedDataLoad } from '../../src/storage-bootstrap'
+import type { SettingChanges } from '../../src/storage/settings-saver'
+import { fakeSavedData } from './components/workspace/fake-workspace-dependencies'
 
 let lastGenerate: ReturnType<typeof vi.fn> | null = null
+
+/** Every batch the latest fake workspace's saver was given, in order. */
+let lastSaves: SettingChanges[] = []
 
 /** The fake session controller the next fake workspace's `createSessionController` resolves with. */
 let nextController: FakeSessionController | null = null
@@ -25,16 +28,20 @@ let controllerLoad: { promise: Promise<void>; resolve: () => void } | null = nul
 /**
  * Intent: a minimal idle-state session double so App.spec.ts never constructs the real
  * `createWorkspaceSession` factory, which would spin up a real browser `Worker` -- unavailable
- * and unwanted in jsdom. `setTheme` genuinely mutates its own reactive presentation state, so a
- * test can assert App.vue's DOM theme-application watcher reacts to a real state change.
+ * and unwanted in jsdom. It starts from the given saved data's controls, profile selection and
+ * theme, as the real one does. `setTheme` genuinely mutates its own reactive presentation state,
+ * so a test can assert App.vue's DOM theme-application watcher reacts to a real state change.
+ * Its saver records every batch in `lastSaves`.
  */
-function fakeWorkspaceSession() {
+function fakeWorkspaceSession(savedData: SavedDataLoad = fakeSavedData()) {
   const generate = vi.fn(async () => false)
   lastGenerate = generate
+  const saves: SettingChanges[] = []
+  lastSaves = saves
   const state = reactive({
-    controls: DEFAULT_GENERATION_CONTROLS,
-    profileSelection: DEFAULT_PROFILE_SELECTION,
-    presentation: { theme: 'System' } as {
+    controls: savedData.settings.controls,
+    profileSelection: savedData.settings.profileSelection,
+    presentation: { theme: savedData.settings.theme } as {
       theme: ThemePreference
     },
     latestIntent: null,
@@ -83,6 +90,8 @@ function fakeWorkspaceSession() {
       nextController ??= createFakeSessionController()
       return nextController.controller
     },
+    savedData,
+    saveSettings: (changes: SettingChanges) => void saves.push(changes),
     dispose: () => {},
   }
 }
@@ -102,7 +111,8 @@ const { workspaceSessionFactoryKey } = vi.hoisted(() => ({
 }))
 
 vi.mock('../../src/components/workspace/create-workspace-session', () => ({
-  createWorkspaceSession: fakeWorkspaceSession,
+  createWorkspaceSession: (options: { readonly savedData: SavedDataLoad }) =>
+    fakeWorkspaceSession(options.savedData),
   WORKSPACE_SESSION_FACTORY: workspaceSessionFactoryKey,
 }))
 
@@ -131,21 +141,21 @@ afterEach(() => {
 
 describe('App', () => {
   it('mounts the client shell', () => {
-    const wrapper = mount(App, { global: { stubs: STUBS } })
+    const wrapper = mount(App, { props: { savedData: fakeSavedData() }, global: { stubs: STUBS } })
 
     expect(wrapper.get('h1').text()).toBe('Infinite Flow')
   })
 
   // @test-link [[rule_presentation_preference_preserves_phrase]]
   it('leaves no data-theme override on mount while the preference is System', () => {
-    mount(App, { global: { stubs: STUBS } })
+    mount(App, { props: { savedData: fakeSavedData() }, global: { stubs: STUBS } })
 
     expect(document.documentElement.hasAttribute('data-theme')).toBe(false)
   })
 
   // @test-link [[rule_presentation_preference_preserves_phrase]]
   it('applies data-theme on a theme selection without calling generate', async () => {
-    const wrapper = mount(App, { global: { stubs: STUBS } })
+    const wrapper = mount(App, { props: { savedData: fakeSavedData() }, global: { stubs: STUBS } })
 
     const themeGroup = wrapper.get('[aria-label="Presentation theme"]')
     await themeGroup.findAll('button')[2]!.trigger('click')
@@ -156,15 +166,77 @@ describe('App', () => {
 
   // @test-link [[service_workspace_session_flow]]
   it('uses an injected WORKSPACE_SESSION_FACTORY instead of the default createWorkspaceSession', () => {
-    const injected = fakeWorkspaceSession()
-    const injectedFactory = vi.fn(() => injected)
+    const savedData = fakeSavedData()
+    const injected = fakeWorkspaceSession(savedData)
+    const injectedFactory = vi.fn<(savedData: SavedDataLoad) => typeof injected>(() => injected)
 
     const wrapper = mount(App, {
+      props: { savedData },
       global: { stubs: STUBS, provide: { [workspaceSessionFactoryKey]: injectedFactory } },
     })
 
-    expect(injectedFactory).toHaveBeenCalledTimes(1)
+    expect(injectedFactory).toHaveBeenCalledExactlyOnceWith(savedData)
     expect(wrapper.get('h1').text()).toBe('Infinite Flow')
+  })
+
+  // @test-link [[rule_settings_saved_on_change]]
+  it("provides the workspace's saver to the components whose handlers save", async () => {
+    const wrapper = mount(App, { props: { savedData: fakeSavedData() }, global: { stubs: STUBS } })
+
+    const click = wrapper
+      .findAll('.mix-controls .toggle-button')
+      .find((button) => button.text().startsWith('Click'))
+    if (click === undefined) throw new Error('no Click toggle')
+    await click.trigger('click')
+
+    expect(lastSaves).toEqual([{ 'mix.clickOn': false }])
+  })
+})
+
+/** Intent: the checked segment's label in the radiogroup named `name`, or null. */
+function checkedSegment(wrapper: ReturnType<typeof mount>, name: string): string | null {
+  const segment = wrapper
+    .get(`[role="radiogroup"][aria-label="${name}"]`)
+    .findAll('[role="radio"]')
+    .find((radio) => radio.attributes('aria-checked') === 'true')
+  return segment === undefined ? null : segment.text()
+}
+
+// @test-link [[rule_first_phrase_waits_for_saved_settings]]
+describe('App: the saved data it is mounted with', () => {
+  // @test-link [[rule_first_phrase_waits_for_saved_settings]]
+  // @test-link [[rule_settings_saved_on_change]]
+  it('applies the loaded theme and shows the loaded controls at mount', () => {
+    const wrapper = mount(App, {
+      props: {
+        savedData: fakeSavedData({
+          theme: 'Dark',
+          controls: { ...DEFAULT_GENERATION_CONTROLS, tension: 'Edge' },
+        }),
+      },
+      global: { stubs: STUBS },
+    })
+
+    expect(document.documentElement.dataset.theme).toBe('dark')
+    expect(checkedSegment(wrapper, 'Tension')).toBe('Edge')
+  })
+
+  // @test-link [[rule_first_phrase_waits_for_saved_settings]]
+  // @test-link [[req_settings_mutation_flag]]
+  it('shows the saved session options while the session controller loads', async () => {
+    holdControllerLoad()
+    const wrapper = mount(App, {
+      props: {
+        savedData: fakeSavedData({
+          sessionOptions: { varySettings: true, tensionAcrossPhrases: true, risingTempo: false },
+        }),
+      },
+      global: { stubs: STUBS },
+    })
+    await flushPromises()
+
+    expect(checkedSegment(wrapper, 'Vary settings')).toBe('On')
+    expect(checkedSegment(wrapper, 'Tension across phrases')).toBe('On')
   })
 })
 
@@ -173,7 +245,7 @@ describe('App', () => {
 describe('App session controller', () => {
   it('keeps Start session disabled until the session controller has loaded', async () => {
     const release = holdControllerLoad()
-    const wrapper = mount(App, { global: { stubs: STUBS } })
+    const wrapper = mount(App, { props: { savedData: fakeSavedData() }, global: { stubs: STUBS } })
     await flushPromises()
 
     expect(wrapper.get('button.session-action').attributes('disabled')).toBeDefined()
@@ -186,7 +258,7 @@ describe('App session controller', () => {
   it('builds the controller once and disposes of it on unmount', async () => {
     const fake = createFakeSessionController()
     nextController = fake
-    const wrapper = mount(App, { global: { stubs: STUBS } })
+    const wrapper = mount(App, { props: { savedData: fakeSavedData() }, global: { stubs: STUBS } })
     await flushPromises()
 
     wrapper.unmount()
@@ -198,7 +270,7 @@ describe('App session controller', () => {
     const fake = createFakeSessionController()
     nextController = fake
     const release = holdControllerLoad()
-    const wrapper = mount(App, { global: { stubs: STUBS } })
+    const wrapper = mount(App, { props: { savedData: fakeSavedData() }, global: { stubs: STUBS } })
     wrapper.unmount()
 
     release()
@@ -214,6 +286,7 @@ describe('App connection sheet flag', () => {
   it("sets the workspace's flag inside the controller-status click, before the sheet loads", async () => {
     const injected = fakeWorkspaceSession()
     const wrapper = mount(App, {
+      props: { savedData: fakeSavedData() },
       global: { stubs: STUBS, provide: { [workspaceSessionFactoryKey]: () => injected } },
     })
     expect(injected.connectionSheetOpen.value).toBe(false)

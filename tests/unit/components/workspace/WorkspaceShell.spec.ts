@@ -17,11 +17,15 @@ import { createFakeSessionController } from './fake-session-controller'
 import { buildWorkspaceSessionResult } from '../../workspace-test-fixtures'
 import { themeMixTokens, transportRig } from '../../audio/transport-rig'
 import { createControllerRig } from '../../midi/midi-controller-rig'
+import { provideSaveSettings } from './recording-save-settings'
+import { quietSavedData } from './quiet-saved-data'
 
 // A session end once phrase 1 has sounded opens the Review: its lazy panel is swapped for a stand-in.
 vi.mock('@/components/review/ReviewPanel.vue', () => import('./review-panel-stub'))
 
-const MOUNT_OPTIONS = { global: { stubs: { PhraseScore: PHRASE_SCORE_STUB } } }
+const MOUNT_OPTIONS = {
+  global: { stubs: { PhraseScore: PHRASE_SCORE_STUB }, provide: provideSaveSettings() },
+}
 
 /** Intent: build a fake session double whose state/actions a test can override piecemeal. */
 function fakeSession(overrides: Partial<GenerationSession<WorkspaceSessionResult>['state']> = {}): {
@@ -72,6 +76,7 @@ function mountShell(
 ) {
   return mount(WorkspaceShell, {
     props: {
+      savedData: quietSavedData(),
       session,
       pendingPhrase: null,
       handleEngraved: () => {},
@@ -221,6 +226,7 @@ describe('WorkspaceShell', () => {
     const workspace = createTestWorkspace()
     const wrapper = mount(WorkspaceShell, {
       props: {
+        savedData: quietSavedData(),
         session: workspace.session,
         pendingPhrase: workspace.pendingPhrase.value,
         handleEngraved: workspace.handleEngraved,

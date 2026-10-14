@@ -118,6 +118,20 @@ runner (the engine and its failure ladder) now loads with the session controller
 210.7 kB (see
 [The runner and the one-Worker wiring](session-engine.md#the-runner-and-the-one-worker-wiring)).
 
+v3.0's wave 4 took the entry chunk from 227,629 to 247,690 bytes: the saved data loaded before
+the first draw (chunk 7a, 14,216 bytes: the storage port, the database, the settings codec, the
+save policy), the saves on change (7b, 2,538) and the notice row (8, 3,307). Three more parts that are not needed before the first draw now load on demand,
+with no change of behaviour, and the entry chunk is 218,663 bytes:
+
+- **The generation worker client**, its protocol and its response parsers, loaded as the workspace
+  session is created; `generate`, `prewarm` and `dispose` calls made meanwhile wait for it, in
+  order (see [Session wiring](phrase-workspace.md#session-wiring)).
+- **The staff's drawing code**, the positions' keeper and the overlays' drawing, loaded with the
+  engraver through `load-staff-drawing.ts` (see [Overlay State](notation-engraving.md#overlay-state)).
+- **The request parser and the carry-in's**: the entry needs only the request envelope's basics
+  (`RequestId`, `makeRequestId`, the 4/4 meter and the phrase length), which now live in
+  `generation-request-envelope.ts`, re-exported by `generation-request.ts`.
+
 ## The header: `controller-status`
 
 ### Facts and forms

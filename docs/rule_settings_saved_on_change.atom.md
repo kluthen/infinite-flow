@@ -1,12 +1,13 @@
 ---
 id: rule_settings_saved_on_change
-status: DRAFT
+status: REVIEW
 human_name: Settings Saved When the Player Changes Them
 tags: [v3, release-v3.0, storage, player-controls, changes-in-v3.1, changes-in-v3.2]
 parents:
   - [[req_on_device_storage]]
 dependents:
   - [[module_save_policy]]
+  - [[module_saved_data_loader]]
   - [[rule_first_phrase_waits_for_saved_settings]]
   - [[rule_saved_setting_is_players_choice]]
   - [[rule_saved_settings_load_tolerantly]]

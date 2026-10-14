@@ -17,7 +17,8 @@
  * place after the toolbar: the banner, the cue row and the score title are hidden, and the staff
  * viewport stays laid out, out of sight and inert, so the Idle rules keep engraving and measuring
  * under it; both live regions stay silent then, and say nothing as it closes. The staff and the
- * Review both draw at the one shared system-position size the workspace gives it.
+ * Review both draw at the one shared system-position size the workspace gives it. The Review's
+ * export choices and Played notes switch start from the saved review preferences it is given.
  */
 import { computed, defineAsyncComponent, nextTick, ref, watch } from 'vue'
 
@@ -35,12 +36,17 @@ import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { AudioTransport } from '@/audio/audio-transport'
 import { loadReviewPanel } from '@/components/review/load-review-panel'
 import { ROOM_NOTICE_NARROW, ROOM_NOTICE_WIDE } from '@/components/notation/room-notice-copy'
+import {
+  DEFAULT_REVIEW_PREFERENCES,
+  type ReviewPreferences,
+} from '@/storage/records/setting-defaults'
 import MixControls from './MixControls.vue'
 import SessionCueRow from './SessionCueRow.vue'
 import { useScoreOverlays } from './use-score-overlays'
 import type { MixVolumePopover } from './mix-volume-popover'
 import { browserReviewExportPorts, type ReviewExportPorts } from './review-export'
 import { useReviewHost } from './use-review-host'
+import { injectSaveSettings } from './save-settings-injection'
 import type { SessionController } from './workspace-session-controller-types'
 
 // The Review and its engraving code load as their own chunk (see load-review-panel.ts).
@@ -74,6 +80,11 @@ const props = withDefaults(
      * at; the workspace always passes it (`planSystemPositionUnits`), the built-in size by default.
      */
     systemPositionUnits?: number
+    /**
+     * The saved review preferences the Review's export choices and Played notes switch start
+     * from, loaded before the first draw; a first visit's by default.
+     */
+    savedReviewPreferences?: ReviewPreferences
   }>(),
   {
     // Default: the notation layout's own width query (the split layout's), read from the window now.
@@ -81,6 +92,7 @@ const props = withDefaults(
     // Default: the lazy export code, downloading through this page's document.
     reviewExportPorts: () => browserReviewExportPorts(document),
     systemPositionUnits: NOTATION_SYSTEM_POSITION_UNITS,
+    savedReviewPreferences: () => DEFAULT_REVIEW_PREFERENCES,
   },
 )
 
@@ -98,6 +110,8 @@ const review = useReviewHost({
   controller: () => props.controller,
   idle: () => props.session.state,
   exportPorts: () => props.reviewExportPorts,
+  initialPreferences: props.savedReviewPreferences,
+  saveSettings: injectSaveSettings(),
 })
 const reviewShowing = review.showing
 const {
@@ -374,9 +388,9 @@ const generationErrorAlertText = computed(() =>
       :holds-played-note="review.holdsPlayedNote.value"
       :played-notes-shown="reviewPlayedNotesShown"
       :export-played-notes="review.exportPlayedNotes"
-      @update:format="reviewFormat = $event"
-      @update:backing-track="reviewBackingTrack = $event"
-      @update:played-notes-shown="reviewPlayedNotesShown = $event"
+      @update:format="review.setFormat"
+      @update:backing-track="review.setBackingTrack"
+      @update:played-notes-shown="review.setPlayedNotesShown"
     />
     <p
       v-if="generationErrorAlertText !== null"

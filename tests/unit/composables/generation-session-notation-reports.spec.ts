@@ -37,6 +37,7 @@ describe('generation session workspace flow: reportNotationFailure / reportNotat
   it('refuse when idle with no result yet', () => {
     const { providers } = trackedProviders()
     const session = createGenerationSession<StubResult>({
+      saveSettings: () => undefined,
       ...alwaysFitsStaff(),
       viewport: createFakeViewportWidth(),
       providers,
@@ -54,6 +55,7 @@ describe('generation session workspace flow: reportNotationFailure / reportNotat
     const { providers } = trackedProviders()
     const deferred = createDeferred<StubResult>()
     const session = createGenerationSession<StubResult>({
+      saveSettings: () => undefined,
       ...alwaysFitsStaff(),
       viewport: createFakeViewportWidth(),
       providers,
@@ -73,6 +75,7 @@ describe('generation session workspace flow: reportNotationFailure / reportNotat
   it('sets notationError and clears resultEngraved on failure, then clears notationError and restores resultEngraved on recovery (D34)', async () => {
     const { providers } = trackedProviders()
     const session = createGenerationSession<StubResult>({
+      saveSettings: () => undefined,
       ...alwaysFitsStaff(),
       viewport: createFakeViewportWidth(),
       providers,
@@ -97,6 +100,7 @@ describe('generation session workspace flow: reportNotationFailure / reportNotat
   it('replaces the notation error message on each repeated out-of-band failure', async () => {
     const { providers } = trackedProviders()
     const session = createGenerationSession<StubResult>({
+      saveSettings: () => undefined,
       ...alwaysFitsStaff(),
       viewport: createFakeViewportWidth(),
       providers,

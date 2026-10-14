@@ -7,7 +7,7 @@
  * scale: 160 units give 192 px, 170 give 204.
  */
 import { flushPromises, mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, shallowRef } from 'vue'
 
 import PhraseScore from '@/components/notation/PhraseScore.vue'
@@ -16,7 +16,11 @@ import { notationInputFromOutcome } from '@/domain/notation/notation-input'
 import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import { buildWorkspaceSessionResult } from '../../workspace-test-fixtures'
-import { fakePhraseEngraver, resetFakePhraseEngraver } from './fake-phrase-engraver'
+import {
+  fakePhraseEngraver,
+  loadStaffDrawing,
+  resetFakePhraseEngraver,
+} from './fake-phrase-engraver'
 
 vi.mock('@/notation/vexflow-engraver-loader', () => import('./fake-phrase-engraver'))
 
@@ -85,6 +89,8 @@ async function mountScore(initialUnits: number | undefined) {
     )
   return { score, units, session, blockSizes }
 }
+
+beforeAll(loadStaffDrawing)
 
 beforeEach(() => {
   resetFakePhraseEngraver()

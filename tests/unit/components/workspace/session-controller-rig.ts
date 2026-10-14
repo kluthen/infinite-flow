@@ -14,6 +14,7 @@
  * connection sheet's open flag is the test's to set. The Idle side's fresh-phrase action only logs
  * what the controller showed when it was asked: the Idle state stays as the test left it. A test
  * can send the latest runner an automatic settings change, which no part of the app sends yet.
+ * The hold of the player's saves logs each hold and release with what the controller showed then.
  */
 import { shallowReactive, shallowRef, type ShallowRef } from 'vue'
 
@@ -38,6 +39,10 @@ import type { WorkspaceSessionResult } from '@/composables/workspace-session-res
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
 import { makeSeed } from '@/domain/random/seed'
+import {
+  DEFAULT_SESSION_OPTIONS,
+  type SessionOptionChoices,
+} from '@/storage/records/setting-defaults'
 import type {
   SessionRunner,
   SessionRunnerEvent,
@@ -83,11 +88,16 @@ export const RIG_TEMPO = 240
 /** The session seed the rig's Idle phrase 1 was published with. */
 export const RIG_SESSION_SEED = makeSeed(0x0c0ffee0)
 
-/** A rig's session options: its starting tempo and its pre-generation queue's builder. */
+/**
+ * A rig's session options: its starting tempo, its pre-generation queue's builder and the saved
+ * "During a session" choices the controller starts from.
+ */
 export interface ControllerRigOptions {
   readonly tempo?: number
   /** The pre-generation queue's builder; by default a disabled one, which never runs. */
   readonly pregeneration?: WorkspacePregenerationFactory
+  /** The saved "During a session" choices; a first visit's (all off) by default. */
+  readonly savedSessionOptions?: SessionOptionChoices
 }
 
 /** Intent: a pre-generation builder under the disabled policy: no background attempt, ever. */
@@ -143,6 +153,14 @@ export interface FreshPhraseRequest {
   readonly shownSettings: SessionSettings | null
 }
 
+/** One call the controller made to the hold of the player's saves, and what it showed then. */
+export interface SaveHoldCall {
+  readonly call: 'hold' | 'release'
+  readonly phase: SessionControllerPhase
+  /** Whether the audio transport was running then. */
+  readonly audioRunning: boolean
+}
+
 /** A controller and every seam around it, in the test's hand. */
 export interface ControllerRig {
   readonly controller: SessionController
@@ -188,6 +206,8 @@ export interface ControllerRig {
   readonly injectOutput: (output: SessionOutput) => void
   /** Send the latest runner an automatic settings change at the audio clock's time now. */
   readonly changeSettings: (settings: SessionSettings) => void
+  /** Every hold and release of the player's saves the controller made, in order. */
+  readonly saveHolds: SaveHoldCall[]
 }
 
 /** Intent: let every pending promise (generation answers, fit checks, lock outcomes) settle. */
@@ -273,6 +293,13 @@ export function controllerRig(
   const freshPhraseRequests: FreshPhraseRequest[] = []
   let built: SessionController | null = null
   const runners: SessionRunner[] = []
+  const saveHolds: SaveHoldCall[] = []
+
+  /** Intent: log a hold or release of the player's saves with what the controller showed then. */
+  function logSaveHold(call: SaveHoldCall['call']): void {
+    if (built === null) throw new Error(`rig: a save ${call} came before the controller`)
+    saveHolds.push({ call, phase: built.state.phase, audioRunning: transport.isRunning() })
+  }
 
   /** Intent: log what the controller shows when it asks for a fresh phrase; Idle stays as it is. */
   function startFreshPhrase(): Promise<boolean> {
@@ -343,6 +370,8 @@ export function controllerRig(
     midi,
     connectionSheetOpen: () => sheetOpen.value,
     pregeneration: options.pregeneration ?? disabledPregeneration,
+    savedSessionOptions: options.savedSessionOptions ?? DEFAULT_SESSION_OPTIONS,
+    saveHold: { hold: () => logSaveHold('hold'), release: () => logSaveHold('release') },
   })
   built = controller
   return {
@@ -383,6 +412,7 @@ export function controllerRig(
       if (runner === undefined) throw new Error('rig: no runner to send a settings change to')
       runner.dispatch({ kind: 'settings-change', at: audioRig.now(), settings })
     },
+    saveHolds,
   }
 }
 

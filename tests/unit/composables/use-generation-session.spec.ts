@@ -37,6 +37,7 @@ describe('createGenerationSession', () => {
     let calls = 0
     const { providers } = trackedProviders()
     const session = createGenerationSession({
+      saveSettings: () => undefined,
       ...alwaysFitsStaff(),
       viewport: createFakeViewportWidth(),
       providers,
@@ -56,6 +57,7 @@ describe('createGenerationSession', () => {
     const deferred = createDeferred<string>()
     const tracked = trackedProviders()
     const session = createGenerationSession({
+      saveSettings: () => undefined,
       ...alwaysFitsStaff(),
       viewport: createFakeViewportWidth(),
       providers: tracked.providers,
@@ -88,6 +90,7 @@ describe('createGenerationSession', () => {
     const intents: { readonly id: string; readonly seed: number }[] = []
     let attempts = 0
     const session = createGenerationSession({
+      saveSettings: () => undefined,
       ...alwaysFitsStaff(),
       viewport: createFakeViewportWidth(),
       providers: tracked.providers,
@@ -120,6 +123,7 @@ describe('createGenerationSession', () => {
     const intents: { readonly tempo: number }[] = []
     let attempts = 0
     const session = createGenerationSession({
+      saveSettings: () => undefined,
       ...alwaysFitsStaff(),
       viewport: createFakeViewportWidth(),
       providers: tracked.providers,
@@ -147,6 +151,7 @@ describe('createGenerationSession', () => {
   it('marks the applied preset custom after a manual rhythmic-variety edit, the same as any other preset field', () => {
     const tracked = trackedProviders()
     const session = createGenerationSession({
+      saveSettings: () => undefined,
       ...alwaysFitsStaff(),
       viewport: createFakeViewportWidth(),
       providers: tracked.providers,
@@ -170,6 +175,7 @@ describe('createGenerationSession', () => {
     const tracked = trackedProviders()
     let attempts = 0
     const session = createGenerationSession({
+      saveSettings: () => undefined,
       ...alwaysFitsStaff(),
       viewport: createFakeViewportWidth(),
       providers: tracked.providers,
@@ -199,6 +205,7 @@ describe('createGenerationSession', () => {
     const tracked = trackedProviders()
     let attempts = 0
     const session = createGenerationSession({
+      saveSettings: () => undefined,
       ...alwaysFitsStaff(),
       viewport: createFakeViewportWidth(),
       providers: tracked.providers,
@@ -238,6 +245,7 @@ describe('createGenerationSession', () => {
       readonly custom: boolean
     }[] = []
     const session = createGenerationSession({
+      saveSettings: () => undefined,
       ...alwaysFitsStaff(),
       viewport: createFakeViewportWidth(),
       providers: tracked.providers,
@@ -275,6 +283,7 @@ describe('createGenerationSession', () => {
     const notationCalls: { readonly result: string }[] = []
     let notationAttempts = 0
     const session = createGenerationSession({
+      saveSettings: () => undefined,
       ...alwaysFitsStaff(),
       viewport: createFakeViewportWidth(),
       providers: tracked.providers,
@@ -307,6 +316,7 @@ describe('createGenerationSession', () => {
     const notateCalls: { readonly result: unknown }[] = []
     let notationAttempts = 0
     const session = createGenerationSession({
+      saveSettings: () => undefined,
       ...alwaysFitsStaff(),
       viewport: createFakeViewportWidth(),
       providers: tracked.providers,
@@ -337,6 +347,7 @@ describe('createGenerationSession', () => {
     const tracked = trackedProviders()
     let notateCallIndex = 0
     const session = createGenerationSession({
+      saveSettings: () => undefined,
       ...alwaysFitsStaff(),
       viewport: createFakeViewportWidth(),
       providers: tracked.providers,

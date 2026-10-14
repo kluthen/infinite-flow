@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.59
+Status: draft v0.60
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -14,10 +14,11 @@ closed during v2 (O24, O50–O99 and O104–O106, apart from O86) are archived v
 [archive/v2/open-questions-history.md](archive/v2/open-questions-history.md), and the
 [v2 archive index](archive/v2/README.md) says where each answer now lives.
 
-Open on 2026-10-13: O48 and O49 (later and governance), O100–O102 (v4 rhythm ratios and editor),
+Open on 2026-10-14: O48 and O49 (later and governance), O100–O102 (v4 rhythm ratios and editor),
 O115 and O116 (v3.x learning), O176 (style packs and the chord level, below), O180 (v3.0
-wave 2: octave signs, later) and O183 (v3.0 wave 2: the warm worker lost when pre-generation is
-cancelled, opened with D298). The owner closed O182 (what Regenerate does in the stale-phrase
+wave 2: octave signs, later), O183 (v3.0 wave 2: the warm worker lost when pre-generation is
+cancelled, opened with D298) and O190 (v3.0 wave 4: a newer version's database whose read-only
+reopening fails, opened with D300). The owner closed O182 (what Regenerate does in the stale-phrase
 prompt) on 2026-10-13, the day it was opened (D297's ruling note). D295 and D296 closed O181 the day it was opened. D228–D234 closed O10 (for v3.2), O103, O114, O126 and every
 question the v3.1 and v3.2 drafts opened (O127–O157, O160–O162); D257 and D258 closed O163 and
 O164 the day they were opened. None blocks the v3.0 build.
@@ -161,3 +162,27 @@ git.
   it first (Regenerate twice in quick succession, pre-generation on and off, on the reference
   machine and the tablet), then put the figure to the owner. It blocks no wave-2 chunk; the code
   as built matches §8 and D290.
+
+## v3.0 wave 4 (O190+)
+
+Opened 2026-10-14 by `spec-writer` while writing the wave-4 preflight's corrections into build
+plan v11 (D300). O190–O199 are reserved for v3.0 wave 4. O190 blocks no wave-4 chunk.
+
+- **O190 - A newer version's database whose read-only reopening fails** _(D300; saved-data design,
+  Load; `module_on_device_database`)_: the saved-data design (`flows/saved-data/handoff.md`,
+  "Newer data with a failed read at load") says a read can fail and still make a newer version
+  known, "for example when the read-only reopening above then fails": the visit starts from the
+  defaults and is an outdated tab from its first frame, with no deletion anywhere and the
+  outdated-tab notice in its defaults wording. Chunk 4's port does otherwise. When opening finds
+  the database upgraded by a newer version, `openDatabase` (`src/storage/database.ts`) reopens it
+  without a version for reading; if that reopening fails, the error leaves `openDatabase` and
+  `openStoragePort` gives an `unavailable` port, so the save policy starts `off-unreadable`: the
+  unusable-data notice shows and `Delete everything` stays offered, where the design offers no
+  deletion. `module_on_device_database` (REVIEW) says a database a newer app wrote gives an
+  outdated port, which fits the design better than the code. It cannot happen in v3.0 itself,
+  since only a later version with data version 2 can upgrade the database. Open: should the port
+  be outdated whenever opening met a newer version, its reads then reopening on demand, or is the
+  unusable-data notice acceptable there? Proposed: make the port outdated (a small change in
+  `src/storage/database.ts` and `src/storage/storage-port.ts`, with a unit test), in a chunk of the
+  wave driver's choosing before the v3.0 gate; chunk 8 needs nothing more, since it shows the
+  notice from the saving state and the load outcome.

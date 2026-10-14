@@ -329,6 +329,24 @@ be validated at a later date and do not block the v2.0 tag (O105).
 Build plan [§5](specs/versions/v3/build-plan.md#5-hand-checks): each check is written here by the
 chunk that needs it, and run at that chunk or at the v3.0 gate.
 
+## H2. Start-up wait (chunk 7; about 10 min)
+
+Measurement M2 on the reference machine, then the Chromium tablet if at hand. The start-up wait is
+how long the first draw waits for the saved data before starting from the defaults; it is set at
+2 s (`STARTUP_WAIT_MS` in `src/storage-bootstrap.ts`) and must stay well above the slowest read.
+
+- [ ] On the reference machine, idle (no `atd audit`, no other test run): `npm run
+      measure:startup-read`. It times the load cold (first load after a browser start) and warm,
+      with 0, 10, 100 and 500 kept sessions, and prints a table.
+- [ ] Copy the table, with the machine and the date, into
+      [`docs/storage.md`](docs/storage.md#the-start-up-wait-m2). If the slowest figure is above
+      about a quarter of the wait (500 ms), tell the wave driver: the wait may need raising, up to
+      2 s at most.
+- [ ] Tablet, if at hand: open the app (`npm run dev -- --host`, or the deployed app), change a
+      few settings in an earlier visit once saving exists (chunk 7b), then close the browser
+      fully and reopen the app: the workspace appears once, already in the saved theme and
+      values, with no flash of the defaults. Note how long the page showed only its background.
+
 ## H6. Pre-generation at 240 BPM (chunk 24; about 10 min)
 
 On the reference machine, then the tablet on battery if at hand. Production build or `npm run dev`;

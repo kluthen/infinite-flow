@@ -10,6 +10,7 @@ import {
 } from '@/components/workspace/mix-volume-popover'
 import type { AudioTransport } from '@/audio/audio-transport'
 import { themeDesign, themeMixTokens, transportRig } from '../../audio/transport-rig'
+import { provideSaveSettings, recordingSaveSettings } from './recording-save-settings'
 
 /** The toolbar's mix controls beside a compact Volume, as the phone's session cue row has it. */
 const MixHarness = defineComponent({
@@ -38,15 +39,20 @@ const MixHarness = defineComponent({
   },
 })
 
-/** Intent: mount the harness in the document, on a fresh transport and popover. */
+/**
+ * Intent: mount the harness in the document, on a fresh transport and popover, with a saver that
+ * records what the mix saves.
+ */
 function mountMix() {
   const { transport } = transportRig()
   const popover = createMixVolumePopover('mix-volume-popover')
+  const { saveSettings, saves } = recordingSaveSettings()
   const wrapper = mount(MixHarness, {
     props: { audio: transport, popover },
     attachTo: document.body,
+    global: { provide: provideSaveSettings(saveSettings) },
   })
-  return { wrapper, transport, popover }
+  return { wrapper, transport, popover, saves }
 }
 
 /** Intent: the toolbar's toggle button named `name`. */
@@ -79,6 +85,15 @@ function slider(wrapper: VueWrapper, label: 'Backing volume' | 'Click volume') {
   const labelElement = wrapper.findAll('label.field-label').find((found) => found.text() === label)
   if (labelElement === undefined) throw new Error(`no ${label} label`)
   return wrapper.get<HTMLInputElement>(`#${labelElement.attributes('for')}`)
+}
+
+/**
+ * Intent: move a slider to `value` as a drag does, with an input event and no change event (test
+ * utils' `setValue` fires both, as a release would).
+ */
+async function moveSlider(input: ReturnType<typeof slider>, value: string): Promise<void> {
+  input.element.value = value
+  await input.trigger('input')
 }
 
 afterEach(() => {
@@ -114,6 +129,47 @@ describe('MixControls toggles', () => {
     await toggle(wrapper, 'Backing').trigger('click')
     expect(transport.mix().backingOn).toBe(true)
     expect(toggle(wrapper, 'Backing').attributes('aria-pressed')).toBe('true')
+  })
+})
+
+// @test-link [[rule_settings_saved_on_change]]
+// @test-link [[rule_saved_setting_is_players_choice]]
+describe("MixControls: saving the player's mix", () => {
+  it('saves each toggle with the value the transport now holds', async () => {
+    const { wrapper, saves } = mountMix()
+
+    await toggle(wrapper, 'Backing').trigger('click')
+    await toggle(wrapper, 'Click').trigger('click')
+    await toggle(wrapper, 'Backing').trigger('click')
+
+    expect(saves).toEqual([
+      { 'mix.backingOn': false },
+      { 'mix.clickOn': false },
+      { 'mix.backingOn': true },
+    ])
+  })
+
+  it('saves a volume when its slider is released, never while it moves', async () => {
+    const { wrapper, transport, saves } = mountMix()
+    const { range } = themeDesign()
+    await openFromToolbar(wrapper)
+
+    const backing = slider(wrapper, 'Backing volume')
+    await moveSlider(backing, '0.4')
+    await moveSlider(backing, '0.5')
+    expect(transport.mix().backingVolume).toBe(0.5)
+    expect(saves).toEqual([])
+    await backing.trigger('change')
+    expect(saves).toEqual([{ 'mix.backingVolume': 0.5 }])
+
+    const click = slider(wrapper, 'Click volume')
+    await moveSlider(click, String(range.clickVolumeMin))
+    expect(saves).toHaveLength(1)
+    await click.trigger('change')
+    expect(saves).toEqual([
+      { 'mix.backingVolume': 0.5 },
+      { 'mix.clickVolume': range.clickVolumeMin },
+    ])
   })
 })
 

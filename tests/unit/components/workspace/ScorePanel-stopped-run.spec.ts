@@ -11,6 +11,7 @@ import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { buildWorkspaceSessionResult } from '../../workspace-test-fixtures'
 import { TOO_WIDE } from '../../composables/fake-staff-fit'
 import { createTestWorkspace, PHRASE_SCORE_STUB, type TestWorkspace } from './test-workspace'
+import { provideSaveSettings } from './recording-save-settings'
 
 /** A Sixteenth combination blocked from `bp-tablet-landscape` up and allowed below it. */
 const SIXTEENTH_ONLY_BLOCKED = {
@@ -57,7 +58,7 @@ function mountPanel(workspace: TestWorkspace) {
       controller: null,
       matchesPhoneLayout: () => false,
     },
-    global: { stubs: { PhraseScore: PHRASE_SCORE_STUB } },
+    global: { stubs: { PhraseScore: PHRASE_SCORE_STUB }, provide: provideSaveSettings() },
   })
 }
 
