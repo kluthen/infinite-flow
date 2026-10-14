@@ -797,6 +797,16 @@ Plan corrections the preflight found, applied in v13 (spec D303–D305):
   connection sheet's profile (`WorkspaceShell.vue`), beside `FoundationControls.vue`; a "Done
   when" line for a session played with my instrument end to end.
 
+**Chunk 10's capture (2026-10-14).** `documentalist` recorded it before code (77dad3a):
+`module_on_device_database` 0.3 (the keyed read), `module_saved_data_loader` 0.2 (keyed summaries),
+`entity_kept_session_record` 0.3 (the key's form), and a new `module_kept_session_save` (DRAFT 0.1:
+the session's save, its order and special cases, and the most recent session). The session's own
+save is marked by its result: the policy call that saves the session returns that save's outcome to
+its caller, apart from `onFailure` (the wave driver's call under the owner's delegation; the
+signature is the builder's). Known until the sync: `rule_new_session_discards_review` (REVIEW, "until
+the next session starts") and `module_save_policy` (the new call) wait for their revisions; O200's
+default is built.
+
 ## 2. Read first: what v3.0 undoes in v2
 
 v2 promised that nothing survives a reload and enforced it three ways: two code gates, about ten
