@@ -5,7 +5,7 @@
  * played-notes files sort side by side. Pure: no DOM, no clock read, no storage, no network.
  */
 
-import type { SessionHistory } from '../session/session-history'
+import type { ReviewedPhrase } from '../session/session-history'
 
 /** One file ready to hand to the browser: its name, its MIME type and its bytes. */
 // @spec-link [[req_session_export]]
@@ -17,7 +17,10 @@ export interface ExportFile {
 
 /** The session history as the export reads it: its phrases and its start time. */
 // @spec-link [[req_session_export]]
-export type ExportableHistory = Pick<SessionHistory, 'phrases' | 'startedAt'>
+export interface ExportableHistory {
+  phrases(): readonly ReviewedPhrase[]
+  readonly startedAt: number
+}
 
 /** Typed failure for an export request or start time no file can be made from; never repaired. */
 // @spec-link [[req_session_export]]

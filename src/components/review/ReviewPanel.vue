@@ -24,7 +24,7 @@ import {
   type StaffViewport,
 } from '@/notation/notation-layout-policy'
 import { loadVexflowEngraver } from '@/notation/vexflow-engraver-loader'
-import type { SessionHistoryRecord } from '@/session/session-history'
+import type { ReviewedPhrase } from '@/session/session-history'
 import ReviewPhrase from './ReviewPhrase.vue'
 import { playedNotesPitchScale } from './played-notes-lane-geometry'
 import {
@@ -46,7 +46,7 @@ import type {
 const props = withDefaults(
   defineProps<{
     /** The session's phrases in the order they started sounding; at least one. */
-    records: readonly SessionHistoryRecord[]
+    records: readonly ReviewedPhrase[]
     /** The session's instrument profile, as the instrument-profile control names it. */
     instrumentName: string
     /** The workspace staff's current viewport; null while unknown, and nothing engraves. */
@@ -259,7 +259,7 @@ let stopObserving: (() => void) | null = null
 /** The list and records the running scheduler serves. */
 let served: {
   readonly list: HTMLOListElement
-  readonly records: readonly SessionHistoryRecord[]
+  readonly records: readonly ReviewedPhrase[]
 } | null = null
 
 /** Intent: stop the list's observers and scheduler, if any. */

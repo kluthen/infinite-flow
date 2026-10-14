@@ -9,7 +9,7 @@
  * only its inline start, inline size and pitch fraction: nothing tells one note from another.
  */
 
-import type { SessionHistoryRecord } from '@/session/session-history'
+import type { ReviewedPhrase } from '@/session/session-history'
 
 const BEATS_PER_MEASURE = 4
 const TICKS_PER_BEAT = 4
@@ -47,10 +47,7 @@ export interface PlayedNotesLanePhrase {
 
 /** What the lane reads of a session history record. */
 // @spec-link [[module_review_played_notes_lane]]
-export type PlayedNotesLaneRecord = Pick<
-  SessionHistoryRecord,
-  'startedAt' | 'tempo' | 'playedNotes'
->
+export type PlayedNotesLaneRecord = Pick<ReviewedPhrase, 'startedAt' | 'tempo' | 'playedNotes'>
 
 /** The session-wide pitch scale, in MIDI numbers: `high - low` is at least 12. */
 // @spec-link [[module_review_played_notes_lane]]
@@ -115,7 +112,7 @@ interface LaneAxis {
  */
 // @spec-link [[module_review_played_notes_lane]]
 export function playedNotesPitchScale(
-  records: readonly Pick<SessionHistoryRecord, 'playedNotes'>[],
+  records: readonly Pick<ReviewedPhrase, 'playedNotes'>[],
 ): PlayedNotesPitchScale | null {
   let low = Number.POSITIVE_INFINITY
   let high = Number.NEGATIVE_INFINITY
@@ -138,7 +135,7 @@ export function playedNotesPitchScale(
  */
 // @spec-link [[module_review_played_notes_lane]]
 export function playedNoteBeat(
-  record: Pick<SessionHistoryRecord, 'startedAt' | 'tempo'>,
+  record: Pick<ReviewedPhrase, 'startedAt' | 'tempo'>,
   time: number,
 ): number {
   return ((time - record.startedAt) * record.tempo) / SECONDS_PER_MINUTE
