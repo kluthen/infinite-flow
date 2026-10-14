@@ -682,6 +682,9 @@ Plan corrections the preflight found, applied in v11 (spec D300):
   `Delete everything` the notice shows the newer version's wording, the design's fallback; no cause
   is added to the port (spec D300, the wave driver's call under the owner's delegation).
 
+**Owner sign-off (2026-10-14).** The owner signed `module_save_policy` 0.2 ("ok for
+module_save_policy 0.2"); `documentalist` applied it on `v3.0-w4` (2509b01) before chunk 8's code.
+
 ## 2. Read first: what v3.0 undoes in v2
 
 v2 promised that nothing survives a reload and enforced it three ways: two code gates, about ten
@@ -1443,10 +1446,9 @@ the failure report", to which the load outcome is added, and loses them once bui
 `module_save_policy` (REVIEW) and `module_on_device_database` (REVIEW, the port's outdated
 report).
 
-**Revisions:** at the wave sync, `module_save_policy` 0.1 → 0.2, staying REVIEW: a refusal is
-reported again each time its kind differs from the last one reported in the run. **Pending the
-owner's sign-off**, which the wave driver is asking for; not authorized by the plan until he
-gives it.
+**Revisions:** `module_save_policy` 0.1 → 0.2, staying REVIEW: a refusal is reported again each
+time its kind differs from the last one reported in the run. **Done 2026-10-14:** signed by the
+owner and applied before the chunk's code (2509b01); the chunk builds it.
 
 **Depends on:** chunks 1 and 5, and chunk 7 for the load notices and the load outcome, read from
 its merged code.
