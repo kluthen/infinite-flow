@@ -2,7 +2,7 @@
 
 Status: this file holds four parts.
 
-- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.13 (2026-10-13), approved by the
+- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.14 (2026-10-14), approved by the
   product owner, and being built. Its section numbers (§1 to §15) are unchanged; v1.5 and v1.6
   write in the owner's rulings after the build's first intent preflight; v1.7 is a wording fix;
   v1.8 writes in the owner's rulings after the build's second intent preflight; v1.9 adds a bass
@@ -11,7 +11,8 @@ Status: this file holds four parts.
   owner's rulings later that day; v1.11 adds §16, asking before Start when the phrase on screen
   is stale (ISS-011), the owner's ruling of 2026-10-13; v1.12 writes in his rulings the same day
   on what Regenerate does there and on the starting note's contract wording (CONTRACT 5.0);
-  v1.13 is a wording clarification (§8), no behaviour changed.
+  v1.13 is a wording clarification (§8), no behaviour changed; v1.14 replaces the kept-session
+  size estimate with the build's measurement (§5.2), no behaviour changed.
   No contract wording it needs waits for the owner any more (§10).
 - **[Part B — v3.1](#part-b--v31), embellishment figures and presets:** master spec v1.0
   (2026-10-08), consolidated from the v3.1 drafts the owner approved; approved by the product
@@ -28,7 +29,7 @@ Status: this file holds four parts.
 
 Part A's history follows.
 
-Part A status: master spec v1.13 (2026-10-13), approved by the product owner. Change in v1.1: the player's Disconnect also forgets the
+Part A status: master spec v1.14 (2026-10-14), approved by the product owner. Change in v1.1: the player's Disconnect also forgets the
 remembered controller (§7.3). Change in v1.2: behaviours the v3.0 design settled, written in:
 when settings are read and saved, what Delete everything leaves, which sessions a save deletes,
 favorites and unpinning, the played-notes switch on the session that just ended, my instrument's
@@ -95,6 +96,10 @@ change (CONTRACT 4.0 to 5.0) (§10, item 23, item 24, §14, §16). Change in v1.
 clarification at the v3.0 wave-2 intent sync, no behaviour changed (spec D298): "Pre-generation
 runs after v2's prewarm" means its requests are posted after the prewarm, to the same worker,
 which serves them between the prewarm's slices; it does not wait for the prewarm to finish (§8).
+Change in v1.14, at the v3.0 wave-3 gate, no behaviour changed (spec D299): the kept-session size
+is the build's measurement, about 4.1 MB for a 30-minute session at 240 BPM in Jazz with
+`Sixteenth` density plus about 1.5 MB of played notes when kept, instead of the earlier estimate
+of 0.8 to 3.4 MB (§5.2).
 Consolidated from the approved v3.0 drafts for handoff to
 `documentalist`, `ux-writer` and, after a build plan, `coding-leader`. Part A covers **v3.0
 only**; Part B, consolidated from the approved v3.1 drafts for the same handoffs, covers v3.1. The
@@ -324,8 +329,10 @@ own facts:
 - **For each phrase:** the generated timeline, the chord symbols, and the reproduction inputs (the
   seed, the controls, the profile, the instrument with my instrument's clef (§7.1), the join from
   the previous phrase), the tempo,
-  and whether the phrase was a repeat. About 3 to 8 KB per phrase: a 30-minute session is about
-  0.8 to 3.4 MB.
+  and whether the phrase was a repeat. Measured at the build: a 30-minute session at 240 BPM in
+  Jazz with `Sixteenth` density, the largest case, keeps about 4.1 MB for its session-wide record
+  and its phrases; its played notes, when kept, add about 1.5 MB at one played note per shown
+  note.
 - **Not kept:** the generator's internal working records (rhythm and tension provenance,
   diagnostics: 20 to 186 KB per phrase that nothing downstream reads), and which expected notes
   were acknowledged. Keeping acknowledgements would make it possible to count hits, which the

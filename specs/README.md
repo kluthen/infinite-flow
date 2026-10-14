@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.59
+Status: draft v0.60
 
 ## Status Snapshot
 
@@ -95,6 +95,11 @@ Status: draft v0.59
   prewarm" means after the prewarm is posted, as chunk 24 built it (Part A v1.13, a wording
   clarification). O183 opened: a player request that cancels a background attempt replaces the
   worker and loses its warm rhythm-domain memo; to measure, then put to the owner.
+- **v3.0 build, wave 3 done** (2026-10-14, D299): chunks 5 (save policy) and 9 (kept-session
+  record) merged, the gate green. A 30-minute 240 BPM Jazz `Sixteenth` session measures about
+  4.1 MB kept, plus about 1.5 MB of played notes when kept; the measurement replaces the estimate
+  (Part A v1.14 §5.2), with no compact encoding. Build plan v10 writes the preflight's
+  corrections and what the two chunks leave to chunks 8, 10, 11, 17 and 24b; ISS-012 filed.
 - **Open:** 10 questions, none blocking work under way: O48 and O49 (later and governance),
   O100–O102 (v4 rhythm), O115 and O116 (v3.x learning), O176 (style packs and the chord level),
   O180 (octave signs, later) and O183 (pre-generation's cancellation cost). D295 and D296 closed
@@ -118,7 +123,7 @@ Status: draft v0.59
 - [Versions](versions/README.md): one folder per version (v1, v2, v3, v4, v5+) holding its scope,
   dependencies and version-specific open questions. Also holds the cross-version
   [prerequisites](versions/prerequisites.md). v3's build plans: [v3.0](versions/v3/build-plan.md) (approved; v2 moves the workflow to wave
-  level, D252; v3 writes in D253–D256; v4 writes in D257 and D258; v5 a wording fix in chunk 23; v6 writes in D290–D292 and moves chunk 18 to wave 6; v7 adds chunk 19b for D293; v8 writes in D294–D296 and adds chunk 20c; v9 writes in D297 and adds chunk 24b), [v3.1](versions/v3/build-plan-v3.1.md) (draft v2, not approved),
+  level, D252; v3 writes in D253–D256; v4 writes in D257 and D258; v5 a wording fix in chunk 23; v6 writes in D290–D292 and moves chunk 18 to wave 6; v7 adds chunk 19b for D293; v8 writes in D294–D296 and adds chunk 20c; v9 writes in D297 and adds chunk 24b; v10 records wave 3 and writes in D299), [v3.1](versions/v3/build-plan-v3.1.md) (draft v2, not approved),
   [v3.2](versions/v3/build-plan-v3.2.md) (draft v2, not approved) and
   [v3.3](versions/v3/build-plan-v3.3.md) (draft v2, not approved; depends on owner approval of
   Part D). Every build plan runs wave by

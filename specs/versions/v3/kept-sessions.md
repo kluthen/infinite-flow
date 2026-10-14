@@ -1,7 +1,7 @@
 # v3.0 — Kept Sessions, Review of Earlier Sessions and Favorites
 
-Status: draft v2 (2026-10-07). spec-writer's recommendations, approved by the owner at the
-overall review (D216).
+Status: draft v3 (2026-10-14). spec-writer's recommendations, approved by the owner at the
+overall review (D216); v3 replaces the size estimate with the build's measurement (D299).
 
 Serves P3, the Fledgling Composer: C1 "review a session" and C2 "take it out"
 ([personas](../../personas.md#p3--the-fledgling-composer-secondary-d61)). Built on v2's
@@ -29,7 +29,9 @@ Only what the review and the exports read, plus what identifies the session:
 
 - **Per phrase:** the generated timeline, the chord symbols (harmony) and the reproduction inputs
   (the generation intent: seed, controls, profile, instrument, carry-in), the tempo, and whether
-  it was a repeat. About 3–8 KB per phrase, so a 30-minute session is about 0.8–3.4 MB.
+  it was a repeat. Measured at the build (spec D299): a 30-minute session at 240 BPM in Jazz
+  with `Sixteenth` density, the largest case, keeps about 4.1 MB for its summary and phrases;
+  played notes, when kept, add about 1.5 MB at one played note per shown note.
 - **Not kept:** the generator's provenance and diagnostics (20–186 KB per phrase that nothing
   downstream reads), and the acknowledgement records (which expected notes lit up). Keeping
   those would let a later view count hits, which the permanent "no grading or scoring" constraint
