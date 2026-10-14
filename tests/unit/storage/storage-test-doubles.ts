@@ -103,13 +103,17 @@ export type PutFailurePath = 'request' | 'transaction'
 
 /**
  * Intent: make every `put` of one transaction fail with `failure`, the way a browser out of space
- * does: thrown at the call, or by aborting the transaction with that error.
+ * does: thrown at the call, or by aborting the transaction with that error. The transaction hands
+ * out one handle per store, so each is made to fail once.
  */
 function failPuts(transaction: IDBTransaction, failure: DOMException, path: PutFailurePath): void {
   const objectStore = transaction.objectStore.bind(transaction)
+  const failing = new Set<IDBObjectStore>()
   Object.defineProperty(transaction, 'objectStore', {
     value: (name: string) => {
       const store = objectStore(name)
+      if (failing.has(store)) return store
+      failing.add(store)
       const put = store.put.bind(store)
       Object.defineProperty(store, 'put', {
         value: (value: unknown, key?: IDBValidKey) => {
@@ -126,14 +130,15 @@ function failPuts(transaction: IDBTransaction, failure: DOMException, path: PutF
 }
 
 /**
- * Intent: a factory over a fresh in-memory IndexedDB whose connections' `put` always fails with
- * the error `makeFailure` gives, through `path`. Everything else is the real fake database.
+ * Intent: a factory over an in-memory IndexedDB (a fresh one unless `real` is given, so a test can
+ * fill it first) whose connections' `put` always fails with the error `makeFailure` gives, through
+ * `path`. Everything else is the real fake database.
  */
 export function failingPutFactory(
   makeFailure: () => DOMException,
   path: PutFailurePath,
+  real: IDBFactory = freshFactory(),
 ): IDBFactory {
-  const real = freshFactory()
   return {
     open: (name: string, version?: number) => {
       const request = version === undefined ? real.open(name) : real.open(name, version)

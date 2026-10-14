@@ -180,8 +180,10 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   `infinite-flow` database with its seven stores and migration steps over raw IndexedDB
   (`database.ts`), the record envelope every record's versions are read and checked through
   (`record-envelope.ts`), the app version records carry (`app-version.ts`), and the record codecs
-  (`records/`, the settings codec so far). The rest of the app reaches it only through an injected
-  port; nothing imports the port yet. See [`docs/storage.md`](docs/storage.md).
+  (`records/`, the settings codec so far), and the save policy that decides when a write reaches
+  the port (`save-policy.ts`, `save-policy-requests.ts`). The rest of the app reaches it only
+  through an injected port; nothing imports the port or the policy yet. See
+  [`docs/storage.md`](docs/storage.md).
 - `scripts/` — `verify-boundaries.mjs`, the deterministic boundary/precache verifier;
   `replay-phrase.mjs`, the headless phrase replay behind `npm run replay:phrase` (see
   [Phrase replay key](docs/phrase-workspace.md#phrase-replay-key)); and `app-version-define.mjs`,
