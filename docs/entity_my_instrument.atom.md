@@ -4,6 +4,7 @@ status: REVIEW
 priority: 1
 dependents:
   - [[module_generation_worker_protocol]]
+  - [[module_phrase_replay_key]]
 type: ENTITY
 layer: ARCHITECTURE
 version: 0.4
