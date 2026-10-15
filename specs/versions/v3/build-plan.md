@@ -908,10 +908,35 @@ and 7 and moved `module_kept_session_save` DRAFT → REVIEW (part M3) in d740e7f
 wait for the owner's sign-off on their rewritten wording and are applied at chunk 28's sync.
 Known drift until later chunks: `req_rolling_practice_session` says a session cut short by the
 page going away is lost (chunk 27 builds it); `rule_most_recent_session_kept`'s deletion sentence
-is wider than the built save (5(b), chunk 28). For `spec-writer` at the next revision: the
-wave-5 sync paragraph above still calls part M2 pending, and its heading anchor
-`#m2-owner-wordings-not-applied` can be renamed once that link is updated. The owner asked for
-the merge; the wave merges into `main` with entry chunk 221,195 B.
+is wider than the built save (5(b), chunk 28). The wave-5 sync paragraph above was brought up to
+date in v16. The owner asked for the merge; the wave merges into `main` with entry chunk
+221,195 B.
+
+#### Wave 6 preflight (2026-10-15)
+
+`documentalist` ran the full pass and the file pass for chunks 11, 12, 18, 22 and 25 on `v3.0-w6`
+(made from `main` 5a3bcdf), without an LLM, and captured chunk 18's key format before code:
+`module_phrase_replay_key` 0.3 (62d3eb5; `ifk2.` is an 8-tuple that adds my instrument's name,
+concert range and transposition, never its clef). Gate A was found already applied (2026-10-07,
+CONTRACT now 5.0); the gates table still showed it pending.
+
+| Chunk | Verdict                          | Open before code                                                                                                                                                                                                                                                                                                                 |
+| ----- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 11    | PROCEED, with notes              | Shares review and save files with 12 and 25; no capture for how a kept session changes after its save.                                                                                                                                                                                                                           |
+| 12    | PROCEED, with notes              | The same shared files; two atoms and two drift checks missing from its lines.                                                                                                                                                                                                                                                    |
+| 18    | PROCEED                          | Captured (62d3eb5).                                                                                                                                                                                                                                                                                                              |
+| 22    | HALT on the contract             | Two STABLE contract atoms, `specification_browser_only_operation_verification` and `rule_midi_starting_note`, still state v2's behaviour: no MIDI access before a click, and the starting note always starting the count-in. Narrowing them is a MAJOR bump the owner confirms; the chunk may be built, not merged, before that. |
+| 25    | PROCEED on intent; blocked on H1 | No recordings in the repo yet; an edge case for a session whose played notes are all very short.                                                                                                                                                                                                                                 |
+
+Placed in v16 (401e7a6, spec D312–D315): wave 6 keeps its five chunks in the order 11 → 12 → 18 →
+22 → 25 with a named owner order for each shared file (D312, the section "Wave 6: shared files, in
+order"), chunk 12 now depends on chunk 11, and chunks 11, 12, 22 and 25 each get a split rule;
+chunk 11 gets an **Architecture capture** for how a kept session changes after its save (D313);
+chunk 22 gets a capture for the controller record and a new owner gate, **Remembered-controller
+wording**, CONTRACT 5.0 → 6.0, with master spec Part A v1.16 correcting §10 (D314); chunk 25's
+lane scale leaves out very short notes, and the all-very-short edge case goes to `ux-writer` as
+[spec O210](../../open-questions.md#v30-wave-6-o210), a gate before chunk 25 (D315). Chunk 18 went ahead of 11
+and 12 while the plan was revised: its files were untouched by the corrections.
 
 ## 2. Read first: what v3.0 undoes in v2
 
@@ -2639,6 +2664,19 @@ inbound parser, which accepts `my-instrument`. It runs in wave 6 and does not ne
 **Items covered:** 19.
 
 **Verification:** the chunk checks; `npm run replay:phrase -- <ifk2 key>` by hand.
+
+**Record (2026-10-15).** Merged into `v3.0-w6` (63aa997, chunk commit e82b7af); no spec or design
+deviation. The decoder rebuilds my instrument through the inbound parser's derivation, now the
+exported `deriveMyInstrumentProfile` in `generation-worker-inbound.ts` (a file the Files line did
+not list; the capture requires the sharing; behaviour unchanged). Three tests that refused
+`ifk2.` now refuse `ifk3.`; `scripts/replay-phrase.mjs` needed no change. A key holding a profile
+no my instrument can have throws the domain's own typed error, as the atom says. Done when
+checked by unit tests (round trips over two instruments and four seeds, the chunk 2 corpus
+unchanged, 12 malformed keys, the same key in treble and bass clef) and a hand replay of an
+`ifk2.` key. For the wave gate: the encoder now imports `MY_INSTRUMENT_ID` (entry chunk to
+check). Left open: no frozen `ifk2.` fixture pins the format the way chunk 2's corpus pins
+`ifk1.`; and the key holds the name, so a renamed my instrument gives a new key for the same
+phrase.
 
 ### Chunk 19 — My instrument on the staff
 
