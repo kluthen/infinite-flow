@@ -1,9 +1,9 @@
 # Infinite Flow v3.0 — Build Plan
 
-Status: v20 (2026-10-15): M1's description follows what chunk 25 measured: no gap between stray and intended notes, a 38 ms length rule that leaves out most stray notes, not all; spec O211 for the owner at hand check H5 (spec D321). Approved by
+Status: v21 (2026-10-15): the owner kept the 38 ms threshold (spec O211 closed, D322), so the release gate waits for hand check H5 only; Part B2 carries a clause that a controller reselected at load is not checked again (spec D323). Approved by
 the product owner on 2026-10-07 (v1), with Gate A and the token-source pass (Q66) confirmed the
 same day; every later revision writes in rulings from [the decisions log](../../decisions.md)
-(spec D252–D321), and earlier wordings are in git.
+(spec D252–D323), and earlier wordings are in git.
 
 Build plan for v3.0, Storage, written from [master spec v1.3](master-spec.md) (now Part A v1.15) and the v3.0 design
 in [`ui_ux/versions/v3.0/`](../../../ui_ux/versions/v3.0/README.md), the copy frozen when the
@@ -55,14 +55,14 @@ Some steps are not code and need the owner. They are part of the sequence:
 | **O182** | **Done 2026-10-13:** Regenerate runs the usual Idle Regenerate and the app stays at Idle with the new phrase on screen; the player presses Start again ([spec O182](../../open-questions.md#v30-wave-2-o180) closed, master spec §16). | Done. | Nothing. |
 | **Stale phrase design** | `ux-writer` designs the stale-phrase prompt (master spec §16 and §14): its wording in plain words for a beginner, the labels of its two choices (the owner's words are Regenerate and Use it; Part C's key and mode suggestion already has a Use it), how it is dismissed, whether it names the settings that changed, whether other controls can be used while it shows (proposed: no), and how it reads when the starting note opened it. | Now (O182 is settled); before chunk 24b-2. | Chunk 24b-2. |
 | **Part B1** | The owner confirms the revised `rule_instrument_profile_range` (change set part B, a MINOR contract bump), which now also states my instrument's written-range bound per clef (spec D294). | After chunk 20's wave gate (its post-task sync revises the atom). | Nothing; the gate checks it is done. |
-| **Part B2** | The owner confirms the revised `rule_controller_transposition_check` (part B, MINOR), which now also states that "use this for my instrument" first warns when it would erase my instrument's kept sessions (spec D295). | After chunk 20c's wave gate (its post-task sync revises the atom, once the warning is built). | Nothing; the gate checks it is done. |
+| **Part B2** | The owner confirms the revised `rule_controller_transposition_check` (part B, MINOR), which now also states that "use this for my instrument" first warns when it would erase my instrument's kept sessions (spec D295), and that a controller reattached by itself, the remembered controller reselected at load included, is not checked again, the check staying available between sessions (spec D323; a clarification that adds no case, wording `documentalist`'s). | After chunk 20c's wave gate (its post-task sync revises the atom, once the warning is built). | Nothing; the gate checks it is done. |
 | **Part C** | The owner confirms the VISION 0.7 → 0.8 text and the retirement of the four chord-fit atoms (part C). | In chunk 26. | The gate. |
 | **O200** | **Closed 2026-10-14 (spec D310):** a kept session the app cannot read correctly is deleted, with an apology, at load, at the next save or when opened, while the visit saves; a read the device refuses deletes nothing ([spec O200](../../open-questions.md#v30-wave-5-o200), master spec §5.1). | Done. | Nothing. [Chunk 28](#chunk-28--a-damaged-kept-session-deleted-with-an-apology) builds it. |
 | **O201** | **Closed 2026-10-14 (spec D309):** a session cut short by reloading or closing the page is never saved, §5.1 kept ([spec O201](../../open-questions.md#v30-wave-5-o200)). | Done. | Nothing. [Chunk 27](#chunk-27--a-session-cut-short-by-the-page-going-away) builds it. |
 | **Damaged session design** | **Done 2026-10-15 (ux D309–D314, ux commit 81037c2):** `ux-writer` designed, for spec D310, the apology notice "Damaged sessions deleted" (one wording for one session and one for several, `Dismiss` only, until dismissed or the page closes, its place among the notices), the save-problem notice's "Damaged session not deleted" for a refused deletion, where the player lands from `review-link` or a list row, and the session list aligned (a damaged summary has no row; counts follow the rows); `ux-critic` passed it. Plan v18 (spec D319) brought chunks 15 and 28 to it. | Done. | Nothing. [Chunk 28](#chunk-28--a-damaged-kept-session-deleted-with-an-apology) builds it. |
 | **Remembered-controller wording** | **Done 2026-10-15:** the owner confirmed the MAJOR contract change for the remembered controller ("confirmed for chunk 22"), in the words of [master spec §10](master-spec.md#10-what-v30-changes-in-v2s-guarantees) (its seventh change; spec D314, D320); `documentalist` applied it on `v3.0-w6` (5dd9fb1): CONTRACT 6.0, `specification_browser_only_operation_verification` 0.3 and `rule_midi_starting_note` 0.6, the confirmation recorded in [change set part N1](../../../docs/release/v3.0-intent-change-set.md). | Done. | Nothing. [Chunk 22](#chunk-22--remembered-controller) may merge. |
 | **O210** | **Closed 2026-10-15 (ux D308, ux commit 81037c2):** when the file would hold no note under the current scope and `Include very short notes`, `Export played notes` is disabled with its reason ("Every note you played is very short. Turn on Include very short notes to export them."); the lane shows no bar ([spec O210](../../open-questions.md#v30-wave-6-o210)). Plan v18 (spec D319) brought chunks 13 and 25 to it. | Done. | Nothing. [Chunk 25](#chunk-25--stray-note-filter) builds it (it still waits for H1). |
-| **O211** | At hand check H5, the owner says whether the stray notes the 38 ms threshold leaves in the lane and the default export bother them ([spec O211](../../open-questions.md#v30-wave-6-o210); measurement M1 found 11 of 77 left). | At H5, any time now that chunk 25 has merged. | Nothing before the release gate ([chunk 26](#chunk-26--v30-release-gate)), which needs the answer. |
+| **O211** | **Closed 2026-10-15 (spec D322):** the owner kept the 38 ms threshold ("O211: ok"), a length rule only, accepting the stray notes it leaves in the lane and the default export ([spec O211](../../open-questions.md#v30-wave-6-o210); measurement M1 found 11 of 77 left). | Done. | Nothing. Hand check H5 is still the owner's to run before the release gate ([chunk 26](#chunk-26--v30-release-gate)). |
 
 ### Waves
 
@@ -1179,8 +1179,8 @@ recorded. The gate copies each into the release notes.
   a held note the controller cut in two, 9 intended notes and 13 unclear; in-between and intended
   notes overlap from 41 to 97 ms. The shortest intended note is 45.8 ms, and lengths step by about
   5 ms. At 38 ms the filter leaves out 66 of the 77 in-between notes, 16 split halves and 4 unclear
-  notes, and no intended note; 11 in-between notes still show. Whether that is enough is
-  [spec O211](../../open-questions.md#v30-wave-6-o210), for the owner at hand check H5. The fast scales were one note per beat
+  notes, and no intended note; 11 in-between notes still show. The owner kept 38 ms
+  ([spec O211](../../open-questions.md#v30-wave-6-o210) closed, spec D322). The fast scales were one note per beat
   (250 ms), so the recordings hold no intended note near a 240 BPM sixteenth (62.5 ms).
 - **Recorded:** a new section of [`docs/midi-tuning.md`](../../../docs/midi-tuning.md), with the
   files kept under `tests/fixtures/stray-notes/` so the filter's tests replay real data.
@@ -1251,7 +1251,7 @@ or at the gate.
 | H2 Start-up wait | 7 | M2 on the reference machine, and the tablet if at hand. |
 | H3 Use this for my instrument | 21 | Set the Travel Sax's transpose to a value that does not match the selected profile, run the check, use the result, confirm the written part now matches, reload, confirm it stayed. |
 | H4 Remembered controller | 22 | Connect the Travel Sax, reload: it reattaches with no prompt; the starting note waits for one click; unplug and replug; `Disconnect`, reload: nothing reattaches. |
-| H5 Stray notes in real playing | 25 | Play a fast passage, open the review: the lane leaves out most stray notes and none of the notes you meant; say whether the stray notes that remain bother you ([spec O211](../../open-questions.md#v30-wave-6-o210)); the played-notes export leaves very short notes out by default and keeps them with `Include very short notes`. |
+| H5 Stray notes in real playing | 25 | Play a fast passage, open the review: the lane leaves out most stray notes and none of the notes you meant (a few stray notes may remain, as the owner accepted: spec D322); the played-notes export leaves very short notes out by default and keeps them with `Include very short notes`. |
 | H6 Pre-generation at 240 BPM | 24 | Start several 240 BPM sessions right after phrase 1 appears and after waiting a few seconds; note the tablet's battery cost (M4, for information). |
 | H7 Persistent storage in real Chrome | 26 | Pin a session in the installed app and in a plain tab; read Your data's Protection line. For information: Chrome decides silently. |
 | H8 Favorites-only files in real programs | 26 | Open a favorites-only MusicXML in MuseScore and both MIDI files in a MIDI tool; phrase numbers and markers match the session. May follow the tag as a v3.0.x note, as in v2. |

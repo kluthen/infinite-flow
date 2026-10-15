@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.96
+Status: draft v2.97
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,13 +14,13 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D322**. D259–D260 are
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D324**. D259–D260 are
 on branch `v4-accompaniment-research`, not merged yet. D263–D288 are v3.3's richer chords (merged
 from `main`); D289 is unused. D290–D299 were reserved for v3.0 wave 2; wave 2 used D290–D298, and
 D299 records wave 3. D300 records the wave-4 preflight; D301 and D302 the plan revision after
 chunk 7a; D303–D305 the wave-5 preflight (D303 the owner's ruling on the session key); D306–D308 the
 wave-5 sync; D309–D311 the owner's rulings on O201 and O200 and the plan revision they bring;
-D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan following the wave-6 design gates; D320 the owner's confirmation of the seventh contract change; D321 measurement M1's findings.
+D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan following the wave-6 design gates; D320 the owner's confirmation of the seventh contract change; D321 measurement M1's findings; D322 and D323 the owner's rulings on O211 and on a controller reselected at load.
 
 ## Decision Log
 
@@ -1791,3 +1791,48 @@ D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan
   them would be a new reading rule, so it is a note for later in §14, to weigh when Jam reads
   played notes as a doodle (Part C), where a split note would count twice; no question is opened,
   since no v3.0 behaviour depends on it. Build plan v20.
+
+- **D322 (2026-10-15): the owner keeps the 38 ms threshold; O211 closed.** The owner's words:
+  "O211: ok", to O211's proposal, option (a). Very short notes stay a length rule only, with the
+  constant chunk 25 set, 38 ms: it never leaves out a note the player meant, and the lane is a
+  record of what was played, not a score, so the stray notes it leaves (11 of the 77 in the H1
+  recordings) showing in the lane and the default export is accepted. Not taken: (b) raising the
+  threshold toward 60 ms, which would hide the 45.8 ms meant note and come close to a 240 BPM
+  sixteenth; (c) a rule that also reads the notes around a short one, which would be a new spec
+  rule for a later version; it is not registered, since no version asks for it. Hand check H5 is
+  still the owner's to run, later: it checks the lane and the export on real playing and no
+  longer asks the O211 question. The release gate (chunk 26) waits for H5 as before, and for no
+  answer any more. No behaviour and no code change. Master spec Part A v1.20 (§9, §14); build plan
+  v21 (the O211 row of the owner steps closed, M1, H5). The three stray-note atoms' DRAFT → REVIEW
+  advance waits for H5 alone, as change set part O3 already says.
+
+- **D323 (2026-10-15): a controller reselected at load counts as the same controller coming back,
+  so it is not checked again.** `documentalist` asked after the wave-6 sync (8fe9edb):
+  `rule_controller_transposition_check` (STABLE, on the contract) makes the check "part of
+  connecting a controller", while chunk 22's remembered controller connects at load, and through
+  the connection step straight from Requesting access, with no check. Asked "does reconnecting
+  your controller at load count as the same controller came back, so it skips the transposition
+  check?", the owner said: "Reconnecting at load: yes." So the reselection at load is a reattach,
+  as `rule_same_controller_reattaches` (STABLE) treats a device that comes back within a page: no
+  connection step, no pick, no transposition check. Read by `spec-writer` as covering both ways
+  the load's reselection reaches the player, since both are the one reselection the load starts:
+  by itself, and through the connection step, whose Connect controller takes up the load's MIDI
+  access request and connects the remembered controller once present, with no pick and no check
+  (chunk 22, as `entity_remembered_controller_record` and `rule_controller_connects_between_sessions`
+  already say). The check stays available between sessions after such a reattach (chunk 22 fixed
+  the check run from the connected badge after a reattach at load). Contract: no guarantee is
+  weakened, so nothing goes to the owner as a contract change. A reattach is not a connection, so
+  the check atom's "as part of connecting a controller" stays true; the one case in which a reload
+  used to lead to the check, v2's "after a reload the player goes through the connection step
+  again", left `rule_same_controller_reattaches` with CONTRACT 2.0, which the owner confirmed
+  (change set A3). But neither STABLE atom says it: the check atom is silent on a reattach, and
+  the reattach atom names only losses within a page. So `spec-writer` proposes a clarifying
+  clause, adding no case, in `rule_controller_transposition_check`'s revision already pending as
+  change set part B2 (a MINOR bump the owner confirms after chunk 20c), along the lines of: "A
+  controller reattached by itself, the same device coming back within a page or the remembered
+  controller reselected at load, is not checked again (`rule_same_controller_reattaches`); the
+  player can run the check again between sessions." `rule_same_controller_reattaches` needs no
+  change: the load case lives in `rule_last_controller_remembered` (DRAFT), which already
+  reselects "the same way it recognises a controller that comes back within a page". The wording
+  is `documentalist`'s; the owner sees it with B2. Master spec Part A v1.20 (§7.3) states it; build
+  plan v21's Part B2 row carries the clause.

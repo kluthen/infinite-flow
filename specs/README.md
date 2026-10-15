@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.68
+Status: draft v0.69
 
 ## Status Snapshot
 
@@ -152,11 +152,15 @@ Status: draft v0.68
   overlap in length, so it leaves out most stray notes, not all (66 of 77 in the recordings).
   Master spec Part A v1.19 (§9, §14), build plan v20 (M1, H5). O211 opened, for the owner at
   hand check H5. A held note the controller cuts in two is noted for later (§14).
-- **Open:** 12 questions: O48 and O49 (later and governance),
+- **v3.0 owner rulings after the wave-6 sync** (2026-10-15, D322, D323): master spec Part A
+  v1.20, build plan v21. The owner kept the 38 ms threshold, a length rule only (O211 closed;
+  hand check H5 still his to run). A controller reselected at load counts as the same controller
+  coming back, so it is not checked again (§7.3); no contract change, a clarifying clause proposed
+  for `rule_controller_transposition_check` in change set part B2.
+- **Open:** 11 questions: O48 and O49 (later and governance),
   O100–O102 (v4 rhythm), O115 and O116 (v3.x learning), O176 (style packs and the chord level),
   O180 (octave signs, later), O183 (pre-generation's cancellation cost), O190 (a newer
-  version's database whose read-only reopening fails) and O211 (the stray notes a 38 ms threshold
-  leaves, for the owner at H5). ux D308 closed O210. D309 and D310 closed O201 and O200; D295
+  version's database whose read-only reopening fails). D322 closed O211; ux D308 closed O210. D309 and D310 closed O201 and O200; D295
   and D296 closed O181; the owner's ruling in D297 closed O182.
   O163 and O164 closed by D257 and D258; D262 closed O174; D264–D273 settled O165–O173 and O175
   in Part D, pending the owner's approval.

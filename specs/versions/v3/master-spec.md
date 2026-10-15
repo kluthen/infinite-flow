@@ -2,7 +2,7 @@
 
 Status: this file holds four parts.
 
-- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.19 (2026-10-15), approved by the
+- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.20 (2026-10-15), approved by the
   product owner, and being built. Its section numbers (§1 to §15) are unchanged; v1.5 and v1.6
   write in the owner's rulings after the build's first intent preflight; v1.7 is a wording fix;
   v1.8 writes in the owner's rulings after the build's second intent preflight; v1.9 adds a bass
@@ -20,7 +20,9 @@ Status: this file holds four parts.
   nothing neither remembers nor forgets it (§7.3, item 18; spec D318); v1.18 records the owner's
   confirmation of that seventh contract change on 2026-10-15 (CONTRACT 6.0), no behaviour changed;
   v1.19 writes in what measurement M1 found about stray notes (§9, §14; spec D321), no behaviour
-  changed. No contract wording it needs waits for the owner any more (§10).
+  changed; v1.20 writes in the owner's two rulings of 2026-10-15: the 38 ms threshold is kept
+  (§9, §14; spec D322), and a controller reselected at load counts as the same controller coming
+  back, with no transposition check (§7.3; spec D323), no behaviour changed. No contract wording it needs waits for the owner any more (§10).
 - **[Part B — v3.1](#part-b--v31), embellishment figures and presets:** master spec v1.0
   (2026-10-08), consolidated from the v3.1 drafts the owner approved; approved by the product
   owner (2026-10-08). The owner confirmed the exact wording of the contract
@@ -615,7 +617,11 @@ a constant offset: a match, whole octaves, or a number of semitones.
 The app remembers the last controller the player chose and reselects it when the app loads, as
 soon as that controller is connected, matching it the way v2 already recognises a controller that
 comes back within a page. It does so only when the browser already allows MIDI access, never with
-a permission prompt; otherwise the player connects as in v2. After a load, the starting note
+a permission prompt; otherwise the player connects as in v2. A controller reselected at load
+counts as that controller coming back: it is reattached with no connection step, no pick and no
+transposition check, and the player can still run the check between sessions. Going through the
+connection step while a controller is remembered is the same: the step connects that controller
+as soon as it is present, with no pick and no check. After a load, the starting note
 starts nothing until the page's first click, tap or key press, because browsers do not let a page
 play sound before one. This widens v2's audio-unlock rule, where only a Start or Connect
 controller click unlocked sound and a starting note worked only after Connect controller: with a
@@ -703,8 +709,9 @@ velocity. This is treated as a general controller matter; nothing is built for o
   45.8 ms, so no length separates the two. The threshold sits one step of the controller's timing
   (about 5 ms) below that note, so it never leaves out a note the player meant; in the recordings
   it leaves out 66 of the 77 stray notes found, and the other 11 still show in the lane and in the
-  default export. Whether that is enough is the owner's call at hand check H5 (open question
-  O211).
+  default export. The owner kept 38 ms (2026-10-15): a length rule never leaves out a note the
+  player meant, and the lane is a record of what was played, not a score, so a few stray notes
+  showing in it is accepted.
 - **Where it applies:** the review's `Played notes` lane and the played-notes export (and, from
   v3.2, the motif Jam reads).
 - **Never in acknowledgement.** An expected note lights only for a played note with exactly its
@@ -1016,8 +1023,9 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
   with the new phrase, the player pressing Start again (O182 closed); the starting note asks
   first, a major contract change (CONTRACT 5.0, §10).
 - **Measured, for information:** the battery cost of pre-generation at Idle on a tablet (§8).
-- **Measured (2026-10-15): the stray-note threshold, 38 ms** (§9). Whether the stray notes it
-  leaves in the lane are acceptable is open question O211, for the owner at hand check H5.
+- **Measured and kept (2026-10-15): the stray-note threshold, 38 ms** (§9). It leaves a few stray
+  notes in the lane and the default export; the owner accepted that and kept a length rule only.
+  Hand check H5 still checks it on real playing.
 - **Noted for later: a held note the controller cuts in two.** M1 also found the reference
   controller splitting one held note into two notes of the same pitch, up to 60 ms apart, usually a
   loud short part and then a soft long one (68 of the 167 notes under 130 ms). v3.0 adds nothing
