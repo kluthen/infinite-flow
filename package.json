@@ -68,5 +68,8 @@
     "typescript-eslint": "latest",
     "vitest": "latest",
     "vue-tsc": "latest"
+  },
+  "overrides": {
+    "glob": "^13.0.6"
   }
 }
