@@ -10,6 +10,7 @@
  * most recent one, kept as its save's outcome says once it is known, or not saved at once while
  * saving is off.
  */
+import type { SessionHistory } from '@/session/session-history'
 import type { SessionEndCause } from '@/session/session-types'
 import { endedSession, openedReview, settledKeeping } from './session-review-state'
 import { endedSessionSave, saveEndedSession } from './workspace-session-save'
@@ -78,14 +79,16 @@ function tearDown(core: SessionControllerCore, session: ActiveSession | null): v
 
 /**
  * Intent: build the ends of one controller's sessions over its core; an end once phrase 1 has
- * sounded hands the tempo reached to the adaptive-tempo flag, and its save keeps the played notes
- * as `Keep my played notes` says then. Interruptions are heard from the first start on.
+ * sounded hands the tempo reached to the adaptive-tempo flag, its save keeps the played notes as
+ * `Keep my played notes` says then, and a save the device refused hands its session's history on
+ * for the retry. Interruptions are heard from the first start on.
  */
 // @spec-link [[rule_stop_ends_session]]
 export function createSessionEnds(
   core: SessionControllerCore,
   adaptiveTempo: Pick<AdaptiveTempoFlag, 'sessionEnded'>,
   keepPlayedNotes: () => boolean,
+  saveRefused: (key: string, history: SessionHistory) => void,
 ): SessionEnds {
   const { audio, idle } = core.deps
   const { state } = core
@@ -134,7 +137,12 @@ export function createSessionEnds(
     state.review = openedReview(reviewed)
     state.mostRecent = Object.freeze({ kind: 'held', session: reviewed })
     const saving = saveEndedSession(core.deps.saveHold, session.history, save)
-    if (!savingOff) void saving.then((outcome) => settleKeeping(reviewed, outcome))
+    if (!savingOff) {
+      void saving.then((outcome) => {
+        settleKeeping(reviewed, outcome)
+        if (outcome.status === 'refused') saveRefused(reviewed.key, session.history)
+      })
+    }
     adaptiveTempo.sessionEnded(reviewed.tempoReached)
     void idle.actions.startFreshPhrase()
   }

@@ -27,7 +27,10 @@
  * own controls are never written, so every end shows them again. The player's saves are held from
  * an accepted start to its end, so a change made during a session is written when it ends. Its
  * `Keep my played notes` side (./workspace-kept-played-notes.ts) holds that setting, which each
- * end's save reads, and keeps or deletes a kept session's played notes after its save.
+ * end's save reads, and keeps or deletes a kept session's played notes after its save. Its side
+ * of the Review's other changes (./workspace-kept-session-edits.ts) marks favorites, pins, sets
+ * the comment and deletes the session, each at once in memory and saved when made, a session whose
+ * own save failed by a retry of that save.
  */
 import { computed, shallowReactive, shallowReadonly, shallowRef } from 'vue'
 
@@ -51,6 +54,7 @@ import { assertReviewMayShow, closedReview, shownReview } from './session-review
 import { mostRecentKept, readKeptReviewedSession } from './workspace-kept-session-read'
 import { createAdaptiveTempoFlag } from './workspace-adaptive-tempo'
 import { createKeptPlayedNotes } from './workspace-kept-played-notes'
+import { createKeptSessionEdits } from './workspace-kept-session-edits'
 import type { SessionControllerCore, SessionControllerSides } from './workspace-session-active'
 import { createSessionEnds } from './workspace-session-ends'
 import {
@@ -237,7 +241,8 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     tensionAcrossPhrases,
   })
   const keptPlayedNotes = createKeptPlayedNotes(core, deps.savedKeepPlayedNotes)
-  const ends = createSessionEnds(core, adaptiveTempo, keptPlayedNotes.on)
+  const edits = createKeptSessionEdits(core)
+  const ends = createSessionEnds(core, adaptiveTempo, keptPlayedNotes.on, edits.saveRefused)
   const start = createSessionStart(
     core,
     { sessionMidi, adaptiveTempo, varySettings, tensionAcrossPhrases, pregeneration },
@@ -306,6 +311,10 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     setKeepPlayedNotes: keptPlayedNotes.set,
     deletePlayedNotes: keptPlayedNotes.deleteShown,
     deleteEveryKeptPlayedNote: keptPlayedNotes.deleteEvery,
+    setFavorite: edits.setFavorite,
+    setPinned: edits.setPinned,
+    setComment: edits.setComment,
+    deleteSession: edits.deleteSession,
     setAdaptiveTempo: adaptiveTempo.set,
     setVarySettings: varySettings.set,
     setTensionAcrossPhrases: tensionAcrossPhrases.set,

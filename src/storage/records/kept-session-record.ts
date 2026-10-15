@@ -30,6 +30,7 @@ import { KeptRecordError } from './kept-record-shape'
 import {
   keptSessionBodyRecord,
   parseKeptSessionBody,
+  rewrittenKeptBodyRecord,
   type KeptSessionBodyRecord,
   type ParsedKeptPhrase,
 } from './kept-session-body'
@@ -201,6 +202,45 @@ export function encodeKeptPlayedNotes(
   if (first === undefined)
     throw new Error('kept session record: a session with no phrase has no played notes to keep')
   return keptPlayedNotesRecord(records, first.startedAt, appVersion)
+}
+
+/**
+ * A kept session's body encoded again with one phrase's favorite mark changed, and the number of
+ * favorite phrases it then holds, which its session-wide record states.
+ */
+// @spec-link [[entity_kept_session_record]]
+// @spec-link [[module_kept_session_changes]]
+export interface RewrittenKeptBody {
+  readonly body: KeptSessionBodyRecord
+  readonly favoritesCount: number
+}
+
+/**
+ * Intent: a stored body encoded again after the session's save with phrase `phraseNumber` marked
+ * a favorite or not, as `favorite` says, every other mark and field as stored, written by
+ * `appVersion`; with the number of favorites it then holds. Nothing when no body is stored, or it
+ * cannot be read, or a newer app wrote it. Throws, as a caller defect, on a phrase the body does
+ * not hold or an empty app version.
+ */
+// @spec-link [[module_kept_session_changes]]
+// @spec-link [[req_favorite_phrases]]
+export function rewriteKeptBodyFavorite(
+  stored: unknown,
+  phraseNumber: number,
+  favorite: boolean,
+  appVersion: string,
+): RewrittenKeptBody | null {
+  if (stored === undefined) return null
+  const reading = readKept([stored], () => parseKeptSessionBody(stored))
+  if (reading.reading !== 'current') return null
+  const phrases = reading.value
+  if (!phrases.some((phrase) => phrase.phraseNumber === phraseNumber))
+    throw new Error(`kept session record: the body holds no phrase ${phraseNumber}`)
+  const marked = new Set(phrases.filter((phrase) => phrase.favorite).map((p) => p.phraseNumber))
+  if (favorite) marked.add(phraseNumber)
+  else marked.delete(phraseNumber)
+  const body = rewrittenKeptBodyRecord(phrases, (number) => marked.has(number), appVersion)
+  return { body, favoritesCount: marked.size }
 }
 
 /**

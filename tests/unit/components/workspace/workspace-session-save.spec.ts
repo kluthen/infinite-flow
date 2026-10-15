@@ -154,3 +154,42 @@ describe('saving the session that ended', () => {
     )
   })
 })
+
+// @test-link [[module_kept_session_save]]
+// @test-link [[rule_failed_save_never_disturbs_session]]
+describe("the retry of a refused session's save", () => {
+  it('is the same batch under the same key, with the facts held in memory then', () => {
+    const history = recordedKeptSession('bb-tenor', 3)
+    const saving = endedSessionSave(history, false)
+    const held = { pinned: true, favorites: [1, 3], comment: 'Steady.' }
+
+    const changes = keptSessionChanges(codec, history, saving, [], APP_VERSION, held)
+
+    const expected = codec.encodeKeptSession(history, { ...FRESH, ...held }, APP_VERSION)
+    expect(changes).toEqual([
+      { kind: 'write', store: 'sessionSummaries', key: saving.key, record: expected.summary },
+      { kind: 'write', store: 'sessionBodies', key: saving.key, record: expected.body },
+    ])
+  })
+
+  it("reads the sessions to delete at the retry, through the visit's saves", async () => {
+    const history = recordedKeptSession('bb-tenor', 2)
+    const saving = endedSessionSave(history, false)
+    const held = { pinned: false, favorites: [], comment: 'Again.' }
+    const asked: SessionChanges[] = []
+    const saves = {
+      /** Intent: record the changes asked for, and resolve as saved. */
+      saveSession: (changes: SessionChanges) => {
+        asked.push(changes)
+        return Promise.resolve({ status: 'saved' } as const)
+      },
+    }
+
+    expect(await saveEndedSession(saves, history, saving, held)).toEqual({ status: 'saved' })
+    const kept = [keptSummary(recordedKeptSession('eb-alto', 2), 'session-1-1', false)]
+    expect(asked[0]?.(kept)).toEqual(
+      keptSessionChanges(codec, history, saving, kept, APP_VERSION, held),
+    )
+    expect(described(asked[0]!(kept))[0]).toBe('delete sessionSummaries session-1-1')
+  })
+})

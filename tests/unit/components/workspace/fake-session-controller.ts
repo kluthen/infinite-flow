@@ -18,6 +18,7 @@ import type {
   KeepPlayedNotesSwitch,
   MostRecentSession,
   PlayedNotesDeletion,
+  SessionDeletion,
   ReviewedHistory,
   SessionController,
   SessionControllerState,
@@ -49,6 +50,10 @@ export interface FakeSessionController {
   readonly setKeepPlayedNotes: Mock<(on: boolean) => Promise<KeepPlayedNotesSwitch>>
   readonly deletePlayedNotes: Mock<() => Promise<PlayedNotesDeletion>>
   readonly deleteEveryKeptPlayedNote: Mock<() => Promise<PlayedNotesDeletion>>
+  readonly setFavorite: Mock<SessionController['setFavorite']>
+  readonly setPinned: Mock<SessionController['setPinned']>
+  readonly setComment: Mock<SessionController['setComment']>
+  readonly deleteSession: Mock<SessionController['deleteSession']>
 }
 
 /** The key the fake's Reviews are kept under: the fixed test start and session seed. */
@@ -107,6 +112,9 @@ export function fakeReview(
     keeping,
     key: FAKE_REVIEW_KEY,
     playedNotesKept,
+    pinned: keeping === 'pinned',
+    favorites: Object.freeze([]),
+    comment: '',
     showing,
   })
 }
@@ -115,6 +123,7 @@ export function fakeReview(
 // @test-link [[rule_most_recent_session_kept]]
 export function heldSessionOf(review: SessionReview): MostRecentSession {
   const { history, instrumentName, tempoReached, keeping, key, playedNotesKept } = review
+  const { pinned, favorites, comment } = review
   return Object.freeze({
     kind: 'held',
     session: Object.freeze({
@@ -124,6 +133,9 @@ export function heldSessionOf(review: SessionReview): MostRecentSession {
       keeping,
       key,
       playedNotesKept,
+      pinned,
+      favorites,
+      comment,
     }),
   })
 }
@@ -259,6 +271,37 @@ export function createFakeSessionController(
   }
   const deletePlayedNotes = vi.fn(deleted)
   const deleteEveryKeptPlayedNote = vi.fn(deleted)
+  /** Intent: apply `change` to the Review's session, as the controller does in memory. */
+  const changed = (change: (review: SessionReview) => SessionReview): Promise<void> => {
+    const review = state.review
+    if (review !== null) state.review = Object.freeze(change(review))
+    return Promise.resolve()
+  }
+  const setFavorite = vi.fn((_key: string, phraseNumber: number, favorite: boolean) =>
+    changed((review) => {
+      const others = review.favorites.filter((number) => number !== phraseNumber)
+      const favorites = favorite ? [...others, phraseNumber].sort((a, b) => a - b) : others
+      const pinned = review.pinned || favorite
+      const keeping =
+        review.keeping === 'not-saved' ? review.keeping : pinned ? 'pinned' : 'not-pinned'
+      return { ...review, favorites, pinned, keeping }
+    }),
+  )
+  const setPinned = vi.fn((_key: string, pinned: boolean) =>
+    changed((review) => {
+      const keeping =
+        review.keeping === 'not-saved' ? review.keeping : pinned ? 'pinned' : 'not-pinned'
+      return { ...review, pinned, keeping }
+    }),
+  )
+  const setComment = vi.fn((_key: string, comment: string) =>
+    changed((review) => ({ ...review, comment: comment.trim() })),
+  )
+  const deleteSession = vi.fn((): Promise<SessionDeletion> => {
+    state.review = null
+    state.mostRecent = null
+    return Promise.resolve('deleted')
+  })
   return {
     controller: {
       state,
@@ -274,6 +317,10 @@ export function createFakeSessionController(
       setKeepPlayedNotes,
       deletePlayedNotes,
       deleteEveryKeptPlayedNote,
+      setFavorite,
+      setPinned,
+      setComment,
+      deleteSession,
     },
     state,
     start,
@@ -287,5 +334,9 @@ export function createFakeSessionController(
     setKeepPlayedNotes,
     deletePlayedNotes,
     deleteEveryKeptPlayedNote,
+    setFavorite,
+    setPinned,
+    setComment,
+    deleteSession,
   }
 }

@@ -75,6 +75,9 @@ describe('the Review transitions', () => {
       keeping: 'not-pinned',
       key: 'session-1-1',
       playedNotesKept: false,
+      pinned: false,
+      favorites: [],
+      comment: '',
     }
     expect(session).toEqual(drawn)
     expect([opened, closed, shown]).toEqual([

@@ -22,8 +22,8 @@ import {
  * Intent: the session a session end gives its Review: its closed history, the instrument's name
  * from phrase 1's own intent (the profile the session was played with, my instrument's included,
  * never looked up by id), the tempo it reached (its last sounded phrase's), how it is kept, and
- * the key and played-notes fact its save was asked for with; a history in which no phrase sounded
- * gives none and throws.
+ * the key and played-notes fact its save was asked for with, nothing pinned, chosen or commented
+ * yet; a history in which no phrase sounded gives none and throws.
  */
 // @spec-link [[req_last_session_review]]
 // @spec-link [[rule_adaptive_tempo_resets_after_session]]
@@ -40,7 +40,17 @@ export function endedSession(
   }
   const instrumentName = first.intent.instrumentProfile.displayName
   const { key, playedNotesKept } = saving
-  return Object.freeze({ history, instrumentName, tempoReached, keeping, key, playedNotesKept })
+  return Object.freeze({
+    history,
+    instrumentName,
+    tempoReached,
+    keeping,
+    key,
+    playedNotesKept,
+    pinned: false,
+    favorites: Object.freeze([]),
+    comment: '',
+  })
 }
 
 /** Intent: whether a session's history holds a played note in a phrase. */
