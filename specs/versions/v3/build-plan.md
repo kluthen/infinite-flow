@@ -1,11 +1,11 @@
 # Infinite Flow v3.0 — Build Plan
 
-Status: v21 (2026-10-15): the owner kept the 38 ms threshold (spec O211 closed, D322), so the release gate waits for hand check H5 only; Part B2 carries a clause that a controller reselected at load is not checked again (spec D323). Approved by
+Status: v22 (2026-10-15): the wave-7 preflight's corrections, placed before wave 7 starts (spec D324, D325): chunks 13, 14 and 20 split in halves, chunks 14 and 20 carry an architecture capture, chunk 27's page-leaving signal reaches the save policy with the session's save, wave 7's shared files are named, and a favorites-only file starts at time zero. Approved by
 the product owner on 2026-10-07 (v1), with Gate A and the token-source pass (Q66) confirmed the
 same day; every later revision writes in rulings from [the decisions log](../../decisions.md)
-(spec D252–D323), and earlier wordings are in git.
+(spec D252–D325), and earlier wordings are in git.
 
-Build plan for v3.0, Storage, written from [master spec v1.3](master-spec.md) (now Part A v1.15) and the v3.0 design
+Build plan for v3.0, Storage, written from [master spec v1.3](master-spec.md) (now Part A v1.21) and the v3.0 design
 in [`ui_ux/versions/v3.0/`](../../../ui_ux/versions/v3.0/README.md), the copy frozen when the
 v3.1 and v3.2 design started at the `ui_ux/` root (its links were repointed there on
 2026-10-08). Approved for execution. It adds no behaviour:
@@ -70,9 +70,10 @@ Waves run one after another. Inside a wave, chunks run one at a time in number o
 rule is **one coding chunk in flight at a time**. Each wave starts with one intent preflight, ends
 with one wave gate (the full test pass, the bundle and the post-task sync), and reaches `main` as
 one merge ([§3](#3-workflow-waves-and-chunks)). The chunks in a wave are independent of each other
-and touch different source files, so one preflight can cover them all; wave 6 is the one
-exception, sharing some files in a stated order ([Wave 6: shared files, in
-order](#wave-6-shared-files-in-order)). A chunk still blocked
+and touch different source files, so one preflight can cover them all; waves 6 and 7 are the
+exceptions, sharing some files in a stated order ([Wave 6: shared files, in
+order](#wave-6-shared-files-in-order), [Wave 7: shared files, in
+order](#wave-7-shared-files-in-order)). A chunk still blocked
 when the rest of its wave is done (waiting for the owner, a design answer or a measurement) moves to the
 next wave.
 
@@ -90,7 +91,7 @@ wave-0 gate covers chunks 1 and 2.
 | 4 | 7 Saved settings · 8 Notice row | Chunks 5, 6; chunk 1 for 8 |
 | 5 | 10 Most recent session kept (10a, 10b if split) · 17a My instrument through the worker and the session · 17b The clef through the history and the review | Chunks 7, 8, 9 (10); 9, 16, 19b (17) |
 | 6 | 11 Played-notes opt-in · 12 Favorites, pin, comment · 18 Replay key `ifk2.` · 22 Remembered controller · 25 Stray-note filter, in that order | Chunk 10 (11); chunk 11's change path (12, an in-wave edge fixed by 11's capture; spec D312, D313); chunk 17 (18); chunk 7 (22); H1 and chunk 1 (25; O210 answered by ux D308). Gate A, Review reachability and the Remembered-controller wording are done. |
-| 7 | 13 Favorites-only export · 14 Session list · 20 My instrument sheet · 27 A session cut short by the page going away | Chunk 12 (13, 14); chunks 7, 17, 19b, 24, the clef design and ux Q76 (20); chunk 10 (27, after wave 6's chunk 11, which may touch the session's save) |
+| 7 | 13 Favorites-only export (13a, 13b) · 14 Session list (14a, 14b) · 20 My instrument sheet (20a, 20b) · 27 A session cut short by the page going away, in that order | Chunk 12 (13, 14); chunks 7, 17, 19b and 24 (20; the Clef design is done and ux Q76 closed, ux D285); chunk 10 (27, after wave 6's chunk 11, which may touch the session's save) |
 | 8 | 15 Your data · 21 The check feeds my instrument · 28 A damaged kept session deleted, with an apology | Chunks 11, 14 (15); 20 (21); 14, 27 and the Damaged session design gate (28; 28a may start before the gate) |
 | 9 | 20c My instrument's sessions · 24b Stale phrase at Start | Chunks 14, 20 and 21 and the Sessions design gate (20c); chunk 24 and the Stale phrase design gate (24b) |
 | 10 | 26 v3.0 release gate | Every other chunk |
@@ -100,12 +101,14 @@ waits for chunks 14, 20 and 21, adds wave 9 before the gate. My instrument (16�
 pre-generation (23–24) are side branches; their chunks share waves with the critical path's.
 Since v9, chunk 24b (a stale phrase at Start, ISS-011) joins wave 9 beside chunk 20c, as the owner
 asked for the end of v3.0; the two touch different files. Since v14, chunk 27 (a session cut
-short by the page going away, spec O201) joins wave 7; no wave-7 chunk touches its files. Since
+short by the page going away, spec O201) joins wave 7; since v22 it shares one file with chunk 20,
+after it (see below). Since
 v15, chunk 28 (a damaged kept session deleted with an apology, spec D310) joins wave 8: it
 changes files chunks 14 and 27 own in wave 7, after them, and none of chunk 15's or 21's; wave
 8's file pass checks `use-kept-sessions.ts` against chunk 15's Delete every session. Since v16,
 wave 6's chunks 11, 12 and 25 share files, and chunk 12 builds on chunk 11 (spec D312): see
-below.
+below. Since v22, wave 7's chunks 13 and 14 share the review area's files, and chunks 20 and 27
+the visit's saves: see below.
 
 ```mermaid
 flowchart LR
@@ -208,6 +211,28 @@ merged; a change it would need there is reported, as any drift, never made in pa
 dependence on chunk 11 is the one in-wave edge: chunk 11's architecture capture fixes the change
 path chunk 12 calls. If chunk 25 leaves the wave still blocked, its edits of these files are made
 on the next wave's branch, after wave 6 merged.
+
+#### Wave 7: shared files, in order
+
+Settled in spec D325, from the wave-7 preflight. Wave 7 runs as wave 6 did: one chunk at a time
+(κ=1), in number order, 13a → 13b → 14a → 14b → 20a → 20b → 27, each branch cut from the wave
+branch after the previous chunk merged. Wave 6 moved the Review's export wiring and its
+confirmations into the lazy review area (8a4fe35), so chunks 13 and 14 both need it:
+
+| File | Order and what each chunk adds |
+| --- | --- |
+| `src/components/workspace/ReviewArea.vue` | 13b (the scope reaching the exports, if its wiring passes through the area), then 14b (the list's place beside the Review, `Delete` from the list in the shared confirmation sheet, the focus after a deletion; ux D316) |
+| `src/components/workspace/use-review-area.ts` | 13b (the export requests with the scope; the played-notes export's disabled reasons), then 14b only if `All sessions` or the deletion's landing needs it |
+| `src/components/review/ReviewPanel.vue` | 13b (`review-scope` and the played-notes export's reason), then 14b (`All sessions`, if it sits in the panel rather than in `ReviewSessionTools.vue`) |
+| `src/storage/settings-saver.ts` | 20 (my instrument's saves on the visit's saves, as chunk 22 added the controller's), then 27 (only the session's save carrying the page-leaving signal, if its type is declared there) |
+
+A later chunk adds its part and leaves an earlier chunk's part as it merged; a change it would need
+there is reported, as any drift, never made in passing. Another file two wave-7 chunks turn out
+to need (`WorkspaceShell.vue`, say, chunk 20's, if 14b's `sessions-link` needs the load's
+summaries passed through it) is shared the same way and named in the later chunk's record.
+`src/storage-bootstrap.ts` is chunk 20's alone: chunk 27's signal never goes through the policy's
+construction. The in-wave edges are the split halves (13a → 13b, 14a → 14b, 20a → 20b), each fixed by its first half; chunk 14a's and
+chunk 20a's captures fix the interfaces their second halves call.
 
 ### Wave records
 
@@ -2404,18 +2429,47 @@ unpin sheet stays open when the tab turns outdated, since it deletes nothing.
 generated notes (MusicXML or MIDI) and the played notes (MIDI).
 
 **Scope.** A pure selection in `src/export/` that takes the review input and a set of phrase
-numbers: phrases in session order, each keeping its session phrase number (markers, measure
-numbers); a played note held past the end of a favorite phrase stops there when the next phrase
-is not exported. `review-scope` (`Whole session` / `Favorites only`, never saved, disabled with
-no favorite, and says why); `Export played notes` disabled, with its reason, whenever its file
-would hold no note under the scope and `Include very short notes`, by ux D308's precedence ("No
-played notes in your favorites." first, then the favorites' very-short reason once chunk 25's
-filter exists); file names gain `-favorites`. The comment never enters a file.
+numbers: phrases in session order, each keeping its session phrase number (markers, rehearsal
+marks, MusicXML measure numbers); laid out as a whole session of those phrases alone, the first at
+time zero and each next one right after the one before, with no gap for a phrase left out, each at
+its own tempo (master spec §6, spec D324); a played note held past the end of a favorite phrase
+stops there when the next phrase is not exported. Both files of one scope use the one selection,
+so they still line up. The played-notes encoder's check that phrases follow each other on the
+audio clock stays as it is for a whole session; the selection hands it phrases that do (a note's
+membership and its times still read from its own phrase's start on the session's clock).
+`review-scope` (`Whole session` / `Favorites only`, never saved, disabled with no favorite, and
+says why); `Export played notes` disabled, with its reason, whenever its file would hold no note
+under the scope and `Include very short notes`, by ux D308's precedence: under `Favorites only`,
+"No played notes in your favorites." first, then the favorites' very-short reason ("Every note
+you played in your favorites is very short. …"); under `Whole session`, the very-short reason
+chunk 25 built. Chunk 25's filter is merged, so both reasons are built here. File names gain
+`-favorites`. The comment never enters a file.
 
-**Files:** `src/export/favorites-selection.ts` (new), `src/export/generated-notes-file.ts`,
-`src/export/played-notes-file.ts`, `src/export/export-file.ts` (names),
-`src/components/review/ReviewPanel.vue` (scope); tests under `tests/unit/export/` and
-`tests/e2e/review/review-export-favorites.spec.ts`.
+**Split** (spec D325), in order, each its own commit that leaves the app working:
+
+- **13a, the selection and the files:** `src/export/favorites-selection.ts` (new),
+  `src/export/generated-notes-file.ts`, `src/export/played-notes-file.ts`,
+  `src/export/export-file.ts` (names), with the unit tests under `tests/unit/export/`. It owns the
+  first two "Done when" lines, the byte-identical whole session and the comment's absence.
+- **13b, the scope in the Review:** `src/components/review/review-types.ts` (`ExportRequest`
+  gains the scope), `src/components/workspace/review-export.ts` (`exportGeneratedNotes`,
+  `exportPlayedNotes` and `playedNotesFileHoldsNote` take the scope; the disabled reasons under
+  `Favorites only`), `src/components/workspace/use-review-area.ts` (runs the exports for the shown
+  Review and builds the requests), `src/components/review/ReviewPanel.vue` (`review-scope`, the
+  reason) and, if the wiring passes through it, `src/components/workspace/ReviewArea.vue`; tests
+  `tests/unit/components/workspace/use-review-area.spec.ts`, `review-export.spec.ts` and
+  `tests/e2e/review/review-export-favorites.spec.ts`. It owns the scope's and the reasons' lines.
+
+**Files:** as the split names them (wave 6 moved the export wiring into the lazy review area,
+8a4fe35; `ReviewArea.vue`, `use-review-area.ts` and `ReviewPanel.vue` are shared with chunk 14,
+after it: [Wave 7: shared files, in order](#wave-7-shared-files-in-order)). Docs it brings up to
+date: `docs/export.md` (the favorites scope and its layout; around line 434, the export choices
+are said to be stored nowhere, while the format and `Backing track` are saved settings since
+v3.0), `docs/testing.md` (around lines 746–747, the rows for `use-review-host.spec.ts` and
+`ScorePanel-review.spec.ts`: the refused export with no Review now lives in
+`use-review-area.spec.ts`), and the header comment of `src/domain/played-notes/stray-notes.ts`,
+which still treats "very short" and "in-between" as one (master spec §9: a very short note is
+caught by length; not every in-between note is very short), comment only.
 
 **Spec sections:** [§6](master-spec.md#6-favorites), [§5.5](master-spec.md#55-a-comment-on-a-session).
 
@@ -2423,9 +2477,14 @@ filter exists); file names gain `-favorites`. The comment never enters a file.
 (Export), [`screens/last-session-review/handoff.md`](../../../ui_ux/versions/v3.0/screens/last-session-review/handoff.md)
 (`review-scope`).
 
-**Atoms:** `rule_favorites_only_export`; (v2) `rule_generated_notes_musicxml_export`,
-`rule_generated_notes_midi_export`. **Part D:** `req_session_export`, `req_played_notes_export`
-(the scope half), `module_review_export_pipeline`.
+**Atoms:** `rule_favorites_only_export`, `req_favorite_phrases`, `rule_session_comment` (the
+comment absent from every file), `rule_played_notes_export_aligns_with_generated_midi`; (v2)
+`rule_generated_notes_musicxml_export`, `rule_generated_notes_midi_export`. **Part D:**
+`req_session_export`, `req_played_notes_export` (the scope half), `module_review_export_pipeline`.
+
+**Revisions:** at the wave sync, `rule_favorites_only_export` states the layout in time (spec
+D324), and `rule_played_notes_export_aligns_with_generated_midi`'s "phrase 1 at time zero in
+both" reads "the first exported phrase at time zero in both"; wordings `documentalist`'s.
 
 **Depends on:** chunk 12.
 
@@ -2433,10 +2492,18 @@ filter exists); file names gain `-favorites`. The comment never enters a file.
 
 - For favorites {2, 5, 6} of a seven-phrase session, each of the three file kinds holds exactly
   those phrases, in order, numbered 2, 5, 6 (unit tests on the encoders' input and output).
+- In each favorites-only file of {2, 5, 6}, phrase 2 starts at time zero, phrase 5 right where
+  phrase 2 ends and phrase 6 where phrase 5 ends, each at its own tempo; the MusicXML measures
+  are numbered 5–8, 17–20 and 21–24; the played-notes and generated-notes MIDI files share the
+  tempo map and the markers.
 - A played note held from phrase 2 into phrase 3 stops at phrase 2's end when 3 is not exported,
   and is kept whole when 3 is.
 - A comment with a distinctive string is absent from every exported file's bytes.
 - The scope is disabled, with its reason, when the session has no favorite.
+- Under `Favorites only`, `Export played notes` is disabled with "No played notes in your
+  favorites." when no favorite phrase holds a played note, and with the favorites' very-short
+  reason when every played note in them is very short and `Include very short notes` is off;
+  turning the option on, or changing the scope, updates the button and its reason at once.
 - `Whole session` exports are byte-identical to v2's.
 
 **Items covered:** 10 (the export), 11 (the comment absent from every file).
@@ -2446,6 +2513,26 @@ filter exists); file names gain `-favorites`. The comment never enters a file.
 ### Chunk 14 — Session list
 
 **Goal.** List every kept session, newest first, and open, pin, unpin and delete from it.
+
+**Architecture capture** (before code; spec D325): the session controller's reach into kept
+sessions, as a revision of `service_session_controller` and of `module_kept_session_save` /
+`module_kept_session_changes` (or new ARCHITECTURE atoms; `documentalist`'s choice).
+
+- **Opening any kept session by its key.** Today `showReview()` opens only the most recent
+  session. The controller gains an opening by key, at Idle only: its body read through the kept
+  sessions' read (`is-loading` meanwhile), the latest press winning, `Close review` cancelling; a
+  read the device refuses shows the row's note, as D307's path does for `review-link`; once read
+  the session is held in memory and its Review shows, as the most recent one's does.
+- **Pin, unpin and delete of a session not held in memory.** `setPinned` and `deleteSession`
+  throw today unless the session is held (`heldAtIdle`, `workspace-kept-session-edits.ts`). A
+  row's `Pin`, `Unpin` and `Delete` go through the change path chunk 11 captured (read at the
+  change, one batch through the save policy; spec D313, D316), keyed by the row, with no body
+  read; `Unpin` with favorites asks first, from the list too (`rule_favorite_pins_session`,
+  which reads the favorite count from the summary).
+- **The row summaries in memory.** Read at load with the settings (the load already hands the
+  kept summaries to the controller's seam), held for the visit and kept current by every save,
+  change and deletion of the visit, so the list shows at once without a read; a summary the app
+  cannot read has no row and no count.
 
 **Scope.** `sessions-panel` in the review mode (the same place and rules as `review-panel`), its
 title, intro, rows (session date, " · Last session" on the most recent, the detail line, the
@@ -2466,14 +2553,30 @@ read at load and kept current, so the list shows at once. The list ships with th
 loaded on demand. No row or count shows how well the player played. `Your data` in the header is
 added by chunk 15.
 
-**Files:** `src/components/review/SessionList.vue` (new), `src/components/review/SessionRow.vue`
-(new), `src/components/workspace/use-kept-sessions.ts` (new: summaries in memory),
-`src/components/workspace/SessionCueRow.vue`, `src/components/review/load-review-panel.ts`,
-`src/components/workspace/use-review-navigation.ts` (`review-link`'s failed read opens the list;
-spec D307); tests `tests/e2e/review/session-list.spec.ts`, `tests/unit/...session-row-text.spec.ts`.
-If the brief exceeds about five source files, split it: 14a, the list, its rows and the summaries
-in memory; 14b, the cue row's `sessions-link`, `All sessions` in a review and `review-link`'s
-failed read.
+**Split** (spec D325), in order, each its own commit that leaves the app working:
+
+- **14a, the controller's reach:** the capture above, with no interface yet:
+  `src/components/workspace/workspace-session-controller.ts` and
+  `workspace-session-controller-types.ts` (opening by key; pin, unpin, delete of an unheld
+  session), `workspace-kept-session-edits.ts` and `kept-session-review-changes.ts` (the changes
+  keyed by a row), `src/components/workspace/use-kept-sessions.ts` (new: the summaries in memory,
+  kept current); unit tests beside each.
+- **14b, the list and its ways in:** `src/components/review/SessionList.vue` (new),
+  `src/components/review/SessionRow.vue` (new), `src/components/review/load-review-panel.ts` (the
+  list ships with the review's code), `src/components/workspace/ReviewArea.vue` (the list in the
+  review area's place, or `ScorePanel.vue` where the area mounts; the shared confirmation sheet
+  for a row's `Delete` and `Unpin`; the focus after a deletion), `All sessions` in a review
+  (`ReviewPanel.vue` or `ReviewSessionTools.vue`), `src/components/workspace/SessionCueRow.vue`
+  (`sessions-link`), `src/components/workspace/use-review-navigation.ts` (`review-link`'s failed
+  read opens the list; spec D307); tests `tests/e2e/review/session-list.spec.ts`,
+  `tests/unit/...session-row-text.spec.ts`, a `ReviewArea` unit test for the focus.
+
+**Files:** as the split names them. `ReviewArea.vue`, `use-review-area.ts` and `ReviewPanel.vue`
+are shared with chunk 13, before it ([Wave 7: shared files, in
+order](#wave-7-shared-files-in-order)). Docs it brings up to date: `docs/phrase-workspace.md`
+(around line 1122, "`ScorePanel` renders `ReviewPanel`": the lazy `ReviewArea` does, since wave
+6) and `docs/storage.md` (around line 727, "beside the Review host": the review area's own side,
+`use-review-area.ts`), with the list itself.
 
 **Spec sections:** [§5.4](master-spec.md#54-reaching-earlier-sessions).
 
@@ -2482,7 +2585,11 @@ failed read.
 [`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.0/screens/phrase-workspace/handoff.md) (the
 cue row).
 
-**Atoms:** `req_kept_session_list`, `req_kept_session_review`, `rule_pinned_session_kept`.
+**Atoms:** `req_kept_session_list`, `req_kept_session_review`, `rule_pinned_session_kept`,
+`rule_favorite_pins_session` (`Unpin` with favorites asks first, from the list too),
+`rule_session_comment` (the comment's first line on its row), `req_favorite_phrases` (the
+favorite count), `rule_outdated_tab_reads_what_it_can` (the row saved by a newer version).
+**Part D:** whatever of the capture `documentalist` records as a revision rather than a new atom.
 
 **Depends on:** chunk 12 (its confirmation sheet and pin rules).
 
@@ -2494,7 +2601,15 @@ cue row).
 - A text scan of the list finds no number other than date, time, length, phrase count and
   favorite count, and no wording of hits, misses, score or accuracy.
 - Each row opens its review; `All sessions` returns to that row; pin, unpin and delete behave as
-  in the review; deleting the last row shows the empty state, focus on the title.
+  in the review, for a session not held in memory too (unpinning one with favorites asks first);
+  deleting the last row shows the empty state, focus on the title.
+- After `Delete session` in a Review, confirmed, the list shows (its empty state included), focus
+  on its title.
+- A deletion whose confirmation sheet the player closed while it ran (ux D316) finishes, and
+  focus moves only if it sat on a control the deletion removed, by that deletion's own rule;
+  focus anywhere else stays, and a refusal moves nothing. Today `ReviewArea.vue`'s
+  `confirmReviewConfirmation` sends a `'closed'` outcome, a refusal included, to `focusTitle()`;
+  a unit test closes the sheet mid-deletion, for a deletion and for a refusal.
 - A row whose body read the device refuses (injected) shows its note and keeps focus.
 - After a reload, `Review last session` whose body read the device refuses (injected) shows the
   list, that session's row with its failed-to-open note, focus on the list's title (spec D307).
@@ -2956,13 +3071,31 @@ staff spaces; if it does not, the figure goes back to the owner before chunk 20.
 **Goal.** Let the player make, select, change and delete their instrument, and keep it across
 reloads.
 
+**Architecture capture** (before code; spec D325): the stored my-instrument record, as chunks 9
+and 22 had for theirs (a new ARCHITECTURE atom or a revision of `entity_my_instrument` and
+`module_saved_data_loader`; `documentalist`'s choice).
+
+- One record in the `instrument` store (`src/storage/database.ts` already declares it), under
+  one fixed key, in the usual envelope; it holds what `makeMyInstrument` is built from (the
+  template, the display name, the clef, the written range, the transposition; the id
+  `my-instrument` is fixed, spec D254) and loads whole or not at all: a record `makeMyInstrument`
+  refuses loads as absent.
+- The start-up read (`src/storage-bootstrap.ts`) reads it before the first draw with the
+  settings, and passes `myInstrumentLoaded` to the settings decode (today `false`), so a saved
+  selection of my instrument falls back only when no valid record loaded.
+- Saved through the save policy, as every write is (held during a session, refused in an
+  outdated tab, nothing written in a visit that saves nothing), by the visit's saves
+  (`src/storage/settings-saver.ts`, as chunk 22 added the controller's); deleted by deleting my
+  instrument; gone with Delete everything. The first save asks for persistent storage through
+  the policy's `requestProtection()`.
+
 **Scope.** The my-instrument record in `src/storage/records/` (one value: it loads whole or not at
 all, then the saved selection falls back); the instrument control's fourth segment, labelled with
 the name, present only while my instrument exists; `instrument-actions` (`Create my instrument` /
 `Edit my instrument`); the sheet (template, name, range steppers, the live refusal, the windows,
 the staff-reach note, the transposition on the design's one stepper counting semitones across
 octaves, one direction for the whole, with its derived interval name shown beside it (master spec
-§7.1, spec D253, D257; the display as `ux-writer` settles it under ux Q76), the clef, treble or
+§7.1, spec D253, D257; the display as ux D285 settles it, its example note corrected by ux D294), the clef, treble or
 bass (spec D293; the control, its wording and its default as the **Clef design** gate settles
 them), delete with confirmation), loaded on demand; the record holds the clef with the rest of
 my instrument, and the shared size reads it with the written range (chunk 19b's seam); the record keeps the fixed id `my-instrument` and the display
@@ -2990,7 +3123,13 @@ my instrument's profile; and Idle's written phrase carries my instrument's clef
 (`src/composables/use-notation-coordinator.ts`, `writtenPhraseOf`, today
 `BUILT_IN_INSTRUMENT_CLEF`), which Start then records in the history unchanged (chunk 17b), as do
 the session staff's two built-in clef stand-ins (`src/components/workspace/session-staff-fixed-parts.ts`
-and `held-layout-fit.ts`), so the running session's staff is drawn and fitted in that clef. The start-up read (`src/storage-bootstrap.ts`,
+and `held-layout-fit.ts`), so the running session's staff is drawn and fitted in that clef. Three
+more built-in clef stand-ins read my instrument's clef from here: the shared size's input
+(`src/App.vue`, around line 91, `savedMyInstrumentRangeInClef`, null until this chunk feeds it from
+the record), the check note's staff (`src/components/controller-connection/CheckNote.vue`, its
+`clef` prop, which its caller `SheetStateBody.vue` must pass) and the staff-room verdict's
+leading width (`src/notation/vexflow-engraver.ts`, around line 603, measured in
+`BUILT_IN_INSTRUMENT_CLEF` today). The start-up read (`src/storage-bootstrap.ts`,
 chunk 7a) also reads the `instrument` store before the first draw, and the settings decode takes
 `myInstrumentLoaded` from that record (chunk 7a passes `false`, so until this chunk a saved
 selection of my instrument falls back). **Not in this chunk:** deleting my instrument
@@ -2998,8 +3137,22 @@ and saving a range or transposition change leave its kept sessions untouched unt
 which adds the erasing and its warnings; until then the delete confirmation keeps the current
 design's words.
 
+**Split** (spec D325), in order, each its own commit that leaves the app working:
+
+- **20a, my instrument read everywhere (from a seeded record):** the record, the start-up read,
+  `App.vue`, the instrument control's fourth segment, the Idle side's paths, and the clef
+  stand-ins (the notation coordinator, the session staff's two, the check note and its caller,
+  the engraver's staff-room verdict). Most of these files only take a passed value in place of a
+  lookup by id or of `BUILT_IN_INSTRUMENT_CLEF`, as chunk 7a's took initial values. It owns the
+  "Done when" lines on the seeded record, the Idle side, pre-generation's settings and bass clef.
+- **20b, making and changing it:** the sheet and `use-my-instrument.ts`, `instrument-actions`,
+  the saves (`settings-saver.ts`, the profile switch, the re-check, the persist request), the
+  bound in `my-instrument.ts` and the worker's derivation, kept free of it. It owns the rest.
+
 **Files:** `src/storage/records/my-instrument-record.ts` (new), `src/storage-bootstrap.ts` (the
-start-up read), `src/domain/profile/my-instrument.ts` (the bound), `src/components/controls/FoundationControls.vue`
+start-up read), `src/App.vue` (`savedMyInstrumentRangeInClef`), `src/storage/settings-saver.ts`
+(my instrument's saves, likely; shared with chunk 27, before it: [Wave 7: shared files, in
+order](#wave-7-shared-files-in-order)), `src/domain/profile/my-instrument.ts` (the bound), `src/components/controls/FoundationControls.vue`
 (the fourth segment and the button), `src/components/workspace/MyInstrumentSheet.vue` (new),
 `src/components/workspace/use-my-instrument.ts` (new), `src/composables/generation-session-profile-switch.ts`;
 the Idle side's my-instrument paths (spec D305), which look the profile up by id and throw for
@@ -3011,12 +3164,11 @@ instrument control's (`FoundationControls.vue`, above); Idle pre-generation's se
 (`src/components/workspace/workspace-pregeneration.ts`, `startOf`) and the clef of Idle's and the
 session's written phrases (`src/composables/use-notation-coordinator.ts`,
 `src/components/workspace/session-staff-fixed-parts.ts`, `src/components/workspace/held-layout-fit.ts`;
-spec D306); the worker's derivation (`src/generation-worker/generation-worker-inbound.ts`,
+spec D306), the check note's clef (`src/components/controller-connection/CheckNote.vue` and its
+caller `SheetStateBody.vue`) and the staff-room verdict (`src/notation/vexflow-engraver.ts`); the worker's derivation (`src/generation-worker/generation-worker-inbound.ts`,
 `derivedMyInstrumentProfile`, kept free of the clef bound; spec D306); tests
 `tests/e2e/storage/my-instrument.spec.ts`, unit tests for the sheet's model, the worker's tests
-under `tests/unit/generation-worker/`. If the brief exceeds about five source files, split the
-sheet (20b) from the record, the control and the Idle side (20a); the worker's derivation goes in
-the same half as the bound.
+under `tests/unit/generation-worker/`.
 
 **Spec sections:** [§7.1](master-spec.md#71-what-it-is), [§4.2](master-spec.md#42-what-is-saved-automatically), [§4.5](master-spec.md#45-keeping-the-data-safe-from-the-browser).
 
@@ -3026,14 +3178,17 @@ the same half as the bound.
 instrument control).
 
 **Atoms:** `req_my_instrument`, `rule_my_instrument_range_limits`, `rule_settings_saved_on_change`,
-`rule_persistent_storage_requested`, `rule_saved_settings_load_tolerantly`. **Part D / drift
-check** (spec D306): `entity_my_instrument` (its TECHNICAL INTERFACE: "the Idle side still refuses
-it" goes), `module_generation_worker_protocol` (the worker's derivation applies no clef bound).
-**Part B1** follows the merge.
+`rule_persistent_storage_requested`, `rule_saved_settings_load_tolerantly`,
+`rule_my_instrument_transposition_named_interval`, `rule_pregeneration_discarded_on_change` (the
+re-check after a clef change), `rule_profile_switch_validates_phrase` (a save replaces the phrase
+as a switch does). **Part D / drift check** (spec D306): `entity_my_instrument` (its TECHNICAL
+INTERFACE: "the Idle side still refuses it" goes), `module_generation_worker_protocol` (the
+worker's derivation applies no clef bound), `module_idle_pregeneration_queue` (its `recheck()`,
+"called by nothing yet", is called by the save), `module_saved_data_loader` (the record read at
+start-up), each as far as the capture does not already record it. **Part B1** follows the merge.
 
-**Depends on:** chunks 1, 7, 17, 19, 19b and 24 (its re-check), the **Clef design** gate and
-`ux-writer`'s answer to ux Q76. The range ruling (spec D294) and spec O181 (D295, D296) are
-settled.
+**Depends on:** chunks 1, 7, 17, 19, 19b and 24 (its re-check). The **Clef design** gate is done
+and ux Q76 closed (ux D285); the range ruling (spec D294) and spec O181 (D295, D296) are settled.
 
 **Done when:**
 
@@ -3069,7 +3224,9 @@ settled.
   carry its profile (`sessionSettingsAtStart`), and a pre-generated phrase taken at Start lies in
   its concert range (held-generation harness).
 - With my instrument in bass clef: Idle's phrase, the running session's staff and the history's
-  records are all in bass clef, and the review draws it, Start changing no clef on the way.
+  records are all in bass clef, and the review draws it, Start changing no clef on the way; the
+  check note is drawn in bass clef, and the staff-room verdict and the shared size read its range
+  in bass clef (no built-in clef stand-in left on these paths).
 - A bass-clef my instrument written below C2 (e.g. E1–E3) crosses the worker and generates; the
   worker's check refuses a malformed profile as before and applies no clef bound (unit test
   beside chunk 17a's).
@@ -3572,7 +3729,10 @@ the prompt, each revised or written by `documentalist` before code; (STABLE, con
 `rule_setting_change_rechecks_pitch_carry_in`, `rule_key_change_drops_harmonic_carry_in`,
 `rule_harmony_change_drops_unfit_harmonic_carry_in`, `rule_join_carry_in_limited`,
 `rule_count_in_shown_on_screen`, `rule_tempo_never_affects_generation` (STABLE);
-`rule_register_change_replaces_carried_window` (REVIEW).
+`rule_register_change_replaces_carried_window` (REVIEW). Left over from wave 6's sync (spec
+D325): `service_session_midi` has no `@spec-link` in code; 24b-2, which changes
+`workspace-session-midi.ts`, places one, splitting the file or linking it from another of the
+service's files, since that file already carries ten atom ids.
 
 **Depends on:** chunk 24; the **Stale phrase design** gate (24b-2 only). O182 and
 **Starting-note wording** are settled (2026-10-13); the atom revision is `documentalist`'s,
@@ -3726,12 +3886,18 @@ reload or close never starts its save's first transaction; on a page already hid
 ended by a tab switch, then the tab closed), a save still running stops at its next step. A page
 the browser brings back from the back-forward cache shows that review as not saved. A tab or app
 switch never fires `pagehide`, so it still ends the session, opens its review and saves it. The
-settings flush at the end is unchanged.
+settings flush at the end is unchanged. `src/storage/` reads no browser event: the signal reaches
+the save policy with the session's own save, as part of what the workspace hands to
+`SavePolicy.saveSession` (through `SessionSaveHold.saveSession`, `src/storage/settings-saver.ts`),
+which reads it before each of its transactions; never through the policy's construction in
+`src/storage-bootstrap.ts`, which stays chunk 20's (spec D325).
 
 **Files:** `src/session/session-browser-ports.ts` (the page-leaving port),
 `src/components/workspace/browser-page-visibility.ts` (its browser adapter beside the visibility
 one), `src/components/workspace/workspace-session-save.ts` and `src/storage/save-policy.ts` (the
-check before each step, the abandoned outcome), `src/components/workspace/workspace-session-ends.ts`
+check before each step, the abandoned outcome), `src/storage/settings-saver.ts` (only if the
+session save's type is declared there; shared with chunk 20, after it: [Wave 7: shared files, in
+order](#wave-7-shared-files-in-order)), `src/components/workspace/workspace-session-ends.ts`
 (settling it as not saved), `create-workspace-session.ts` (wiring); tests under
 `tests/unit/storage/` and `tests/unit/components/workspace/`, `tests/e2e/storage/kept-session.spec.ts`.
 

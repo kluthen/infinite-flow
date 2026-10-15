@@ -157,6 +157,12 @@ Status: draft v0.69
   hand check H5 still his to run). A controller reselected at load counts as the same controller
   coming back, so it is not checked again (§7.3); no contract change, a clarifying clause proposed
   for `rule_controller_transposition_check` in change set part B2.
+- **v3.0 build, wave 7 preflight** (2026-10-15, D324, D325): master spec Part A v1.21, build plan
+  v22. A favorites-only file lays its phrases end to end from time zero, each keeping its session
+  phrase number (D324, §6). Chunks 13, 14 and 20 split in halves; chunks 14 (the session
+  controller's reach into kept sessions) and 20 (the stored my-instrument record) carry an
+  architecture capture; chunk 27's page-leaving signal travels with the session's save; wave 7
+  shares four files in number order (D325).
 - **Open:** 11 questions: O48 and O49 (later and governance),
   O100–O102 (v4 rhythm), O115 and O116 (v3.x learning), O176 (style packs and the chord level),
   O180 (octave signs, later), O183 (pre-generation's cancellation cost), O190 (a newer

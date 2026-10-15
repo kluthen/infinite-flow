@@ -1836,3 +1836,47 @@ D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan
   reselects "the same way it recognises a controller that comes back within a page". The wording
   is `documentalist`'s; the owner sees it with B2. Master spec Part A v1.20 (§7.3) states it; build
   plan v21's Part B2 row carries the clause.
+
+- **D324 (2026-10-15): in a favorites-only file the favorite phrases follow each other from time
+  zero.** Settled by `spec-writer` under the owner's delegation of minor calls, from the wave-7
+  preflight (`documentalist`), which found that nothing says where the favorite phrases sit in
+  time in a favorites-only file. Master spec §6 already implies it: a played note held past a
+  favorite phrase's end stops there when the next phrase is not exported, a rule needed only
+  because the next exported phrase follows straight on. So a favorites-only file is laid out as a
+  whole-session file of those phrases alone: the first favorite at time zero, each next one right
+  after the one before, with no gap or empty measure for a phrase left out, each at its own
+  tempo (a tempo change where an exported phrase's tempo differs from the exported phrase
+  before it). Each phrase keeps its session phrase number in its marker and rehearsal mark, and
+  in MusicXML its session measure numbers (phrase _n_ in measures 4_n_ − 3 to 4_n_), so the
+  numbers skip where phrases were left out. The generated-notes and played-notes files of one
+  scope use the same selection and the same layout, so they still line up phrase by phrase
+  (`rule_played_notes_export_aligns_with_generated_midi`: "phrase 1 at time zero" reads "the
+  first exported phrase at time zero"). Rejected: keeping each phrase at its session time with
+  silence where the others were, which gives a file of mostly empty measures and makes the
+  held-note rule pointless. No interface change; nothing for `ux-writer`. Master spec Part A
+  v1.21 (§6); build plan v22 (chunk 13).
+
+- **D325 (2026-10-15): build plan v22 places the wave-7 preflight's corrections.** Settled by
+  `spec-writer` under the owner's delegation of minor technical calls, from the preflight's notes
+  (all four chunks PROCEED) checked against the code on `v3.0-w7` (215fc18). Chunks 13, 14 and 20
+  each pass about five source files once their real files are named, so each splits into halves,
+  in order: 13a the selection and the files (`src/export/`), 13b the Review's scope and its
+  disabled reasons (`review-export.ts`, `use-review-area.ts`, `review-types.ts`, `ReviewArea.vue`,
+  `ReviewPanel.vue`, where wave 6 moved the export wiring); 14a the session controller's reach
+  (opening any kept session by its key; pin, unpin and delete of a session not held in memory,
+  where `setPinned` and `deleteSession` throw today; the row summaries held in memory and kept
+  current), 14b the list, its links and `ReviewArea.vue`'s confirmation and focus; 20a the record,
+  the load, the instrument control's segment, the Idle side and my instrument's clef everywhere a
+  built-in stand-in sits (`App.vue`, `CheckNote.vue` and its caller `SheetStateBody.vue`, the
+  engraver's staff-room verdict), all read side, tested from a seeded record; 20b the sheet, its
+  saves, the bound and the worker's derivation. Chunks 14 and 20 carry an architecture
+  capture (the session controller's reach and the summaries in memory; the stored my-instrument
+  record), which `documentalist` records before each, κ=1. Chunk 14 owns ux D316's focus rule,
+  since `ReviewArea.vue` is its file. Chunk 27's page-leaving signal reaches the save policy with
+  the session's own save (`SavePolicy.saveSession`, through `SessionSaveHold.saveSession`), never
+  through the policy's construction, so `src/storage-bootstrap.ts` stays chunk 20's alone; wave 7
+  shares `ReviewArea.vue`, `use-review-area.ts` and `ReviewPanel.vue` between chunks 13 and 14,
+  and `src/storage/settings-saver.ts` between chunks 20 and 27, in number order, as wave 6 did
+  (D312). The four stale docs go to the chunks that own their subjects; the `stray-notes.ts`
+  header to chunk 13; the missing `@spec-link` for `service_session_midi` to chunk 24b-2, which
+  changes `workspace-session-midi.ts`. ux Q76 is shown closed (ux D285, corrected by ux D294).

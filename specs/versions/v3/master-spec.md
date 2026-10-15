@@ -2,7 +2,7 @@
 
 Status: this file holds four parts.
 
-- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.20 (2026-10-15), approved by the
+- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.21 (2026-10-15), approved by the
   product owner, and being built. Its section numbers (§1 to §15) are unchanged; v1.5 and v1.6
   write in the owner's rulings after the build's first intent preflight; v1.7 is a wording fix;
   v1.8 writes in the owner's rulings after the build's second intent preflight; v1.9 adds a bass
@@ -22,7 +22,9 @@ Status: this file holds four parts.
   v1.19 writes in what measurement M1 found about stray notes (§9, §14; spec D321), no behaviour
   changed; v1.20 writes in the owner's two rulings of 2026-10-15: the 38 ms threshold is kept
   (§9, §14; spec D322), and a controller reselected at load counts as the same controller coming
-  back, with no transposition check (§7.3; spec D323), no behaviour changed. No contract wording it needs waits for the owner any more (§10).
+  back, with no transposition check (§7.3; spec D323), no behaviour changed; v1.21 states where
+  favorite phrases sit in time in a favorites-only file (§6; spec D324), which §6 already
+  implied. No contract wording it needs waits for the owner any more (§10).
 - **[Part B — v3.1](#part-b--v31), embellishment figures and presets:** master spec v1.0
   (2026-10-08), consolidated from the v3.1 drafts the owner approved; approved by the product
   owner (2026-10-08). The owner confirmed the exact wording of the contract
@@ -420,8 +422,9 @@ in the session list. It is never written into the MusicXML or MIDI exports.
   it; the player unpins it explicitly.
 - **Exporting favorites only.** Next to "whole session", the exports offer a favorites-only scope,
   for the generated notes (MusicXML or MIDI) and for the played notes (MIDI). The exported phrases
-  come in session order, each keeping its session phrase number. A played note held past the end
-  of a favorite phrase stops at that end when the next phrase is not exported.
+  come in session order, each keeping its session phrase number. They follow each other from time
+  zero, as a whole session's phrases do, with no gap where a phrase was left out. A played note
+  held past the end of a favorite phrase stops at that end when the next phrase is not exported.
 - **Starting a new session never asks for confirmation.** Favorites live in a pinned session, so
   nothing is lost; there is no "unexported favorites" warning. A favorite goes only with its
   session: when the player deletes it, or deletes my instrument it was played with or changes
