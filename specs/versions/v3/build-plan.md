@@ -1054,6 +1054,19 @@ over sessions not held; the stored my-instrument record); ux D316's focus rule a
 missing link to chunk 24b-2. D324 settles where favorite phrases sit in a favorites-only file:
 back to back from time zero, each keeping its session phrase number (master spec Part A v1.21).
 
+**Captures and rulings before chunk 14 (2026-10-15).** `documentalist` recorded both captures at
+DRAFT in abddba4: `module_kept_session_reach` 0.1 for chunk 14 (rows held in memory and kept
+current, opening by key at Idle, pin, unpin and delete of a session not held through
+`module_kept_session_changes`, which goes to 0.4 and back to DRAFT; ux D316's focus rule) and
+`entity_my_instrument_record` 0.1 for chunk 20 (the `instrument` store's record, read at start-up,
+saved through the visit's saves). Two points it raised were settled: ux D317 (953f79b) keeps the
+design's two readings apart, the player's own deletion of the most recent session leaving none
+for the visit, a damaged session's deletion promoting the readable kept session that started last
+at once (chunk 28); spec D326 (plan v23, 8220819) makes chunk 20c's erasing of my instrument's
+sessions one batch with the record's change, all or none, a refusal told only by the open
+warning, and D327 rewords D310's justification for chunk 28. `documentalist` adds D326 to
+`entity_my_instrument_record` at chunk 20c's preflight. Nothing built or captured changes.
+
 ## 2. Read first: what v3.0 undoes in v2
 
 v2 promised that nothing survives a reload and enforced it three ways: two code gates, about ten
