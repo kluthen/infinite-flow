@@ -1,9 +1,9 @@
 # Infinite Flow v3.0 — Build Plan
 
-Status: v22 (2026-10-15): the wave-7 preflight's corrections, placed before wave 7 starts (spec D324, D325): chunks 13, 14 and 20 split in halves, chunks 14 and 20 carry an architecture capture, chunk 27's page-leaving signal reaches the save policy with the session's save, wave 7's shared files are named, and a favorites-only file starts at time zero. Approved by
+Status: v23 (2026-10-15): chunk 20c's record change and erasing of my instrument's sessions are one batch, a refusal changing nothing (spec D326); chunk 28's successor after a damaged deletion is justified by the load's rule, not the player's deletion (spec D327). v22 placed the wave-7 preflight's corrections (spec D324, D325). Approved by
 the product owner on 2026-10-07 (v1), with Gate A and the token-source pass (Q66) confirmed the
 same day; every later revision writes in rulings from [the decisions log](../../decisions.md)
-(spec D252–D325), and earlier wordings are in git.
+(spec D252–D327), and earlier wordings are in git.
 
 Build plan for v3.0, Storage, written from [master spec v1.3](master-spec.md) (now Part A v1.21) and the v3.0 design
 in [`ui_ux/versions/v3.0/`](../../../ui_ux/versions/v3.0/README.md), the copy frozen when the
@@ -3314,18 +3314,27 @@ them after a warning (spec D295, D296; master spec §5.1, §7.1, §7.2).
   (chunk 9's summary holds the instrument id), counted from chunk 14's summaries in memory, the
   session that just ended included.
 - **Deleting my instrument:** its confirmation names the sessions that go, with their number,
-  in the words the **Sessions design** gate settles; on confirmation, one transaction deletes the
+  in the words the **Sessions design** gate settles; on confirmation, one batch deletes the
   my-instrument record and every session of my instrument (summary, body, played notes; their
   favorites and comments go with them). Chunk 14's summaries follow. When the session that just
   ended is one of them, it leaves memory, its review closes as on `Delete session` (chunk 12),
   and `Review last session` goes.
 - **Saving a range or transposition change while my instrument has kept sessions:** `Save` opens
-  the warning with their number; confirming saves the change and erases them in one
-  transaction; cancelling returns to the sheet with the edit unsaved. With no kept session of my
+  the warning with their number; confirming writes the changed record and erases them in one
+  batch; cancelling returns to the sheet with the edit unsaved. With no kept session of my
   instrument, `Save` saves as in chunk 20, with no warning. A name or clef change never warns and
   keeps every session.
 - **The check:** chunk 21's **Use for my instrument** confirmation, when my instrument exists and
-  has kept sessions, carries the same warning; confirming erases them.
+  has kept sessions, carries the same warning; confirming erases them in the same batch.
+- **The batch** (spec D326): the record's delete or whole write and the counted sessions'
+  deletes, in one transaction through the save policy's kept-change line (`changeKept`, refusal
+  `caller`), never chunk 20's plain write or delete; deleting my instrument takes it whatever the
+  number of sessions. It names exactly the sessions the warning counted, by their keys, after
+  every session save asked for before it. Only once it is saved does anything change in memory
+  (my instrument, its sessions, the selection, the phrase). Refused, nothing changes on the
+  device or in memory, the warning or confirmation keeps its error line and its action tries
+  again, and the notice row tells nothing; resolved saving off, the sheet returns to the form as
+  the design's outdated-tab state says.
 - **Saving off.** An outdated tab, while my instrument has kept sessions, offers neither deleting
   it nor saving a range or transposition change, in the form the design gate settles, and its
   notice asks for a reload. A visit whose saved data could not be read erases nothing: it read
@@ -3334,12 +3343,12 @@ them after a warning (spec D295, D296; master spec §5.1, §7.1, §7.2).
   shared height (one played in a clef my instrument no longer has) gets the room the design
   gives it (proposed: the larger of the shared height and its own), measured by chunk 19b's
   planner from the session's own instrument and clef.
-- A failed deletion keeps its confirmation with the error line, as in chunks 12 and 15, and
-  deletes nothing.
+- A failed deletion or save-and-erase keeps its confirmation or warning with the error line, as
+  in chunks 12 and 15, and changes nothing.
 
 **Files:** `src/components/workspace/use-my-instrument.ts`, `src/components/workspace/MyInstrumentSheet.vue`,
-`src/components/workspace/use-kept-sessions.ts`, the deletion by instrument id in
-`src/storage/records/`, `src/components/controller-connection/SheetStateBody.vue` (the warning),
+`src/components/workspace/use-kept-sessions.ts`, the batch by the counted sessions' keys beside
+`src/components/workspace/kept-session-review-changes.ts`, `src/components/controller-connection/SheetStateBody.vue` (the warning),
 `src/components/workspace/use-review-host.ts` (closing the review), the review's staff size in
 `src/components/review/`; tests `tests/e2e/storage/my-instrument-sessions.spec.ts`, unit tests
 beside each module. If the brief exceeds about five source files, split the review's room for
@@ -3359,7 +3368,8 @@ as the **Sessions design** gate revises them.
 **Atoms:** `req_my_instrument`, `entity_my_instrument`, `req_kept_sessions`,
 `rule_most_recent_session_kept`, `rule_pinned_session_kept`, `rule_favorite_pins_session`,
 `req_kept_session_list`, `req_kept_session_review`, `rule_outdated_tab_stops_saving`,
-`rule_transposition_check_sets_my_instrument`, `module_notation_layout_preflight`; (v2, STABLE)
+`rule_transposition_check_sets_my_instrument`, `module_notation_layout_preflight`,
+`entity_my_instrument_record` and `module_save_policy` (the one batch, spec D326); (v2, STABLE)
 `req_last_session_review` (after **Review reachability**), `rule_controller_transposition_check`
 (Part B2 follows the merge). Each is revised by `documentalist` before code.
 
@@ -3384,6 +3394,9 @@ before it merges.
 - An outdated tab (stubbed newer version) with sessions of my instrument offers neither action
   and deletes nothing.
 - An injected deletion failure keeps the confirmation with its error line; nothing is deleted.
+- An injected refusal of a confirmed range change keeps the warning with its error line; my
+  instrument keeps its old range in the sheet and after a reload, the three sessions stay listed,
+  and the notice row shows nothing.
 - A kept session played in treble clef with written C2–C4 (19 staff spaces), reviewed after my
   instrument is switched to bass clef (shared height 16): every phrase is drawn whole (notation
   harness).
@@ -3978,8 +3991,10 @@ apology; a session the device only failed or refused to read is never deleted (�
   (chunk 10 leaves them); a summary a newer version wrote stays; a refused read still deletes
   nothing (spec D304).
 - **At an opening** (`review-link` after a reload, a list row): a damaged body deletes that
-  session at once, in one batch; the most recent session then becomes the readable kept session
-  that started last, as after the player's own deletion (spec D304). A refusal by the device, or
+  session at once, in one batch; the most recent session then becomes, at once, the readable kept
+  session that started last, as the load would have chosen had it found the damage (spec D304's
+  rule after a reload, D327); unlike the player's own deletion, which leaves none in that visit
+  (ux D317). A refusal by the device, or
   a session whose records are all absent, keeps chunk 14's failed-open path.
 - **Saving off** (an outdated tab, a visit from the defaults): nothing is deleted; in an outdated
   tab a damaged body read keeps the failed-open row ("This session couldn't be opened. Try

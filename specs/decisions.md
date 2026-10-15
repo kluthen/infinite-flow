@@ -14,13 +14,13 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D324**. D259–D260 are
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D328**. D259–D260 are
 on branch `v4-accompaniment-research`, not merged yet. D263–D288 are v3.3's richer chords (merged
 from `main`); D289 is unused. D290–D299 were reserved for v3.0 wave 2; wave 2 used D290–D298, and
 D299 records wave 3. D300 records the wave-4 preflight; D301 and D302 the plan revision after
 chunk 7a; D303–D305 the wave-5 preflight (D303 the owner's ruling on the session key); D306–D308 the
 wave-5 sync; D309–D311 the owner's rulings on O201 and O200 and the plan revision they bring;
-D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan following the wave-6 design gates; D320 the owner's confirmation of the seventh contract change; D321 measurement M1's findings; D322 and D323 the owner's rulings on O211 and on a controller reselected at load.
+D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan following the wave-6 design gates; D320 the owner's confirmation of the seventh contract change; D321 measurement M1's findings; D322 and D323 the owner's rulings on O211 and on a controller reselected at load; D324 and D325 the wave-7 preflight; D326 the erasing of my instrument's sessions in one batch; D327 a wording correction to D310.
 
 ## Decision Log
 
@@ -1880,3 +1880,73 @@ D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan
   (D312). The four stale docs go to the chunks that own their subjects; the `stray-notes.ts`
   header to chunk 13; the missing `@spec-link` for `service_session_midi` to chunk 24b-2, which
   changes `workspace-session-midi.ts`. ux Q76 is shown closed (ux D285, corrected by ux D294).
+
+- **D326 (2026-10-15): my instrument's change and the erasing of its sessions are one batch; a
+  refusal changes nothing and is told in the open warning or confirmation.** Settled by
+  `spec-writer`, from the point `documentalist` left open in its capture of
+  `entity_my_instrument_record` (abddba4, wave 7). Not the owner's: the visible behaviour is
+  already settled. D295 says a confirmed range or transposition change "saves and erases them"
+  and a cancel changes nothing, and the **Sessions design** gate (ux D286–D290) says the save and
+  the erasing "happen together or not at all", a failure keeping the erase warning, the delete
+  confirmation or the check's `Use and erase` open with its error line. This writes the storage
+  side under it.
+  1. **One batch.** Deleting my instrument, whatever the number of its sessions, and saving a
+     range or transposition change while my instrument has kept sessions (from its sheet's erase
+     warning or the check's `Use and erase`), apply in one batch through the save policy, in one
+     transaction, all or none: the my-instrument record's delete, or its whole write, and the
+     deletes of the summary, the body and the played notes of each session of my instrument. The
+     batch goes through the kept-change line (`changeKept`, its refusal the caller's), never the
+     plain write or delete, and never as a record write followed by separate deletions. A save
+     that erases nothing (a name or clef change, or a range or transposition change while my
+     instrument has no kept session) stays the plain write of chunk 20, its refusal told by the
+     notice row while my instrument applies for the visit.
+  2. **Which sessions.** Exactly the sessions the warning or confirmation counted, named by their
+     keys, never by a key rebuilt from their facts: the rows of the session list in memory, and
+     the session that just ended when played with my instrument. The batch runs in the line after
+     every session save asked for before it, so the session that just ended is saved first and
+     erased by the key its save minted; one held in memory only because its save failed leaves
+     memory alone. A named session already gone from the device (another tab deleted it) is a
+     delete that changes nothing. A session of my instrument that another tab kept after this
+     tab read the summaries is not in the batch: nothing goes that the player was not told
+     about. It stays, listed under my instrument, until a later change or deletion of my
+     instrument erases it; this happens only with two tabs open, and is accepted.
+  3. **Saved.** Only then does anything change in memory: my instrument is changed or deleted,
+     its sessions go as the design's Sessions erased says, the selection returns to the template
+     when a deleted my instrument was selected (that selection saved after the batch, through the
+     visit's saves), the phrase is replaced as on an instrument switch where the design says so,
+     and a save asks for persistent storage as every save of my instrument does.
+  4. **Refused** (for lack of space or another reason, the read under the batch included):
+     nothing changes, on the device or in memory. My instrument stays as it was, every session
+     stays, and a review on screen stays open. The warning or confirmation stays open with the
+     design's error line, and its action tries again. The refusal is told there alone, never by
+     the notice row. This differs on purpose from a save that erases nothing: applying the change
+     in memory without the erasing would leave the visit's my instrument and its kept sessions
+     disagreeing (master spec §5.1: every kept session of my instrument was played with the range
+     and transposition my instrument has now), and a reload would bring back the old my
+     instrument with those sessions.
+  5. **Saving off.** With sessions to erase, saving off only arises when the tab turns outdated
+     while the warning or confirmation is open, or the batch is refused as outdated: nothing
+     changes, and the sheet returns to the form erasing and deleting nothing, range and
+     transposition back to their saved values, as the design's outdated-tab state says. With no
+     session to erase, a deletion while saving is off applies for the visit only, as every change
+     then does (master spec §4.3, §4.4).
+
+  No interface change; nothing for `ux-writer`. Build plan v23 (chunk 20c). `documentalist`
+  revises `entity_my_instrument_record` (and `module_save_policy`'s list of kept changes) at
+  chunk 20c's preflight.
+
+- **D327 (2026-10-15): the successor after a damaged session's deletion is the load's rule, not
+  the player's deletion (a wording correction to D310).** Settled by `spec-writer`, from ux D317
+  (953f79b), found by `documentalist` while capturing `module_kept_session_reach`. D310 says
+  that after a damaged body is deleted at an opening, the most recent session "becomes the
+  readable kept session that started last, as after the player's own deletion (D304)". The
+  outcome stands; the clause justifying it is loose. D304 leaves no most recent session after the
+  player's own deletion for the rest of that visit, and picks the readable kept session with the
+  latest start only after a reload. The damaged deletion takes that after-reload rule at once:
+  a session whose body reads as damaged never was one the app could open, and had the load found
+  the damage the next session would have been the most recent one from the start. So any
+  deletion the player makes (one session, every session, my instrument's) leaves no most recent
+  session in that visit until the next session ends with a review; a damaged session's deletion
+  hands it at once to the readable kept session that started last. D310's text stays as it was;
+  read its clause through this entry. No behaviour change; nothing to build differently. Build
+  plan v23 (chunk 28's scope reworded).
