@@ -138,7 +138,7 @@ tab is not the player's fault and needs no alarm, and never announced or given f
 appear after something the player did, beside what they were doing, and must not pull them away
 from it.
 
-Four notices, each saying what happened, what it means, and the one thing the player can do:
+Five notices, each saying what happened, what it means, and the one thing the player can do:
 
 - **A save that failed.** The app still works, but the change may be lost when the page closes.
   The player can only take note, so the notice can be dismissed.
@@ -159,12 +159,25 @@ Four notices, each saying what happened, what it means, and the one thing the pl
   offers: the review of the session held in memory has no deletion, as in an outdated tab, so no
   deletion looks permanent while nothing is kept. If a newer version turns out to have saved
   data, the notice gives way to the outdated tab's, worded for a visit on the defaults.
+- **Damaged sessions deleted.** A kept session the app cannot read correctly can never be opened
+  or exported, and the owner ruled that it is deleted, with an apology (master spec §5.1). The
+  notice says sorry, says the session was damaged and couldn't be read, and how many went, with
+  no date, since a damaged summary may have none. It is calm like the others, never error-toned:
+  the player did nothing wrong and can do nothing about it, so it only takes `Dismiss`. It does
+  not blame the device either, since the fault may be the app's own. Several sessions found at
+  once are one event and one notice.
 
 The row holds one notice at a time. The two that stay are the more serious and already imply that
 nothing is being saved, so they replace a save-failure notice rather than sit beside it. Repeated
 failures never stack: the save-failure notice is one notice whose wording follows the latest
 cause, and once dismissed it comes back only if saving fails again after a save has succeeded, so
-a browser that refuses every save does not bring it back at each click.
+a browser that refuses every save does not bring it back at each click. The apology and the
+save-failure notice are the two that can be dismissed: whichever happened last shows, in place.
+The apology never stands beside a refusal of the same deletion: a deletion the device refuses
+removes nothing, so it is told as the failed save it is, never as an apology for something that
+did not happen, in a wording of its own: the session couldn't be read, the device refused to
+delete it, and it stays hidden until a reload, since the generic "this change may be lost"
+would describe a change the player never made.
 
 A session whose own save failed is the one exception: the player is already looking at its review,
 and the review's line about how the session is kept says it was not saved and is best exported.

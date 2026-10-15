@@ -272,20 +272,33 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
   `-played-favorites.mid`). Activation builds exactly one file and starts a browser download,
   with the same `is-loading`, focus, code-loading and no-message-on-success behaviour as
   `Export generated notes`. The two buttons are independent: either may be used while the other
-  is building. Under `Favorites only`, when no favorite phrase holds a played note, it is
-  disabled and named by `aria-describedby` to a `field-note` "No played notes in your
-  favorites."
+  is building. It is disabled whenever its file would hold no note under the current scope and
+  `Include very short notes`, and named by `aria-describedby` to a `field-note` giving the first
+  reason that applies: under `Favorites only`, when no favorite phrase holds a played note, "No
+  played notes in your favorites."; otherwise, while `Include very short notes` is off and every
+  played note the scope selects is very short, "Every note you played is very short. Turn on
+  Include very short notes to export them." under `Whole session`, and "Every note you played in
+  your favorites is very short. Turn on Include very short notes to export them." under
+  `Favorites only`. Turning the option on or off, or changing the scope, updates the button and
+  its note at once; focus stays on the control the player changed. A change made while the file
+  builds leaves that build as it started; the button then takes the state the current choices
+  give. So it never reaches `review-export-error` for want of a note.
 - **[v3.2 changed]** **In a Jam, the raw doodle notes count as played notes.** "Holds a played
   note" also counts a note whose onset falls in the doodle's measures, so a Jam in which only the
   doodle was played still has `review-export-played` and `review-view`. Under `Favorites only`,
   `Export played notes` is disabled only when neither a favorite phrase nor the doodle holds a
   played note. A Jam on a held doodle holds none of the doodle's raw notes: they belong to the
-  session it was first played in.
+  session it was first played in. With `Include very short notes` off, the doodle's raw notes
+  count with the phrases' toward the file holding a note, in both scopes. Under `Favorites only`
+  in a Jam, the very-short reason reads "Every note you played in your favorites and the doodle
+  is very short. Turn on Include very short notes to export them."; the other reasons keep their
+  wording.
 - **[v3 new]** **Include very short notes**: `btn toggle-button` reading "Include very short
   notes" with `toggle-button-state` "on"/"off" (`aria-pressed`; the accessible name is the label
   alone), before `Export played notes`. Off at first; holds while the page is open, across
   Reviews; never saved. It changes the played-notes file only, never the lane or the
-  generated-notes file. It stays live while `Export played notes` is disabled or building.
+  generated-notes file. It stays live while `Export played notes` is disabled or building: when
+  every played note the scope selects is very short, it is what enables the export.
 - `review-export-error`: `inline-alert alert-error` reading "The file couldn't be made. Try
   again." It appears under `review-actions` after any failure to build or hand over a file, of
   either content (a failed load of the export code included), is not a live region, moves no
@@ -657,8 +670,11 @@ doodle`, or the suggestion's buttons leaving after a key or mode change), focus 
 - **Played notes on / off:** lanes shown under every system position, or none; see
   Components and Content.
 - **[v3 new]** **Favorites only unavailable:** no favorite: the segment disabled with its
-  `field-note`. **Played notes export unavailable:** under `Favorites only` with no played note in
-  a favorite phrase: `Export played notes` disabled with its `field-note`.
+  `field-note`. **Played notes export unavailable:** its file would hold no note, under
+  `Favorites only` with no played note in a favorite phrase, or with `Include very short notes`
+  off and every played note the scope selects very short: `Export played notes` disabled with its
+  `field-note` (Components and Content). In the second case, with `Played notes` on, the lanes
+  show no bar.
 - **[v3 new]** **Comment:** collapsed-empty, collapsed-filled, editing (see Components and
   Content).
 - **[v3 new]** **A confirmation open:** the Review stays under the sheet's backdrop, unchanged.

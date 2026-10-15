@@ -1268,3 +1268,125 @@ gate's.
   regenerated after a window change asks nothing; and after a full end the next start asks nothing
   unless a setting changes again meanwhile (both trees: play-session's bullet, the workspace's two
   end states). The by-value check stays the rule; these lines only describe it.
+
+## v3.0 wave 6: very short notes and damaged sessions, 2026-10-15
+
+Inputs: master spec Part A v1.15 (§5.1, §9), spec D310, D311, D315 and spec O210, build plan v16 §1
+(the **O210** gate before chunk 25, the **Damaged session design** gate before chunk 28b). The
+owner's standing delegation applies (D119, D135, archived): minor design issues settled here,
+phones low priority, no question to the owner. Nothing in `src/` is edited.
+
+- **D307 — Where the two gates are written (2026-10-15).** As D280 and D296: chunks 25 and 28 are
+  v3.0's and are built from `versions/v3.0/`, so both designs are written there as a recorded
+  correction to match what v3.0 ships, and the same text at the root, with v3.0's own marks in
+  both trees (inside paragraphs already tagged `[v3 new]` / `[v3 changed]`, or a new tagged
+  paragraph; documents new in v3 take no inline tag). The root alone adds that a Jam's raw doodle
+  notes count toward "the file would hold no note" (its v3.2 paragraphs). Files, both trees:
+  `flows/review-and-export/` and `screens/last-session-review/` (O210); `flows/saved-data/`,
+  `flows/kept-sessions/`, `screens/session-list/`, `screens/your-data/handoff.md`,
+  `screens/phrase-workspace/handoff.md` (the notice row, `sessions-link`) and `strategy.md` (the
+  damaged sessions); `versions/v3.0/README.md` (status, decisions worth keeping).
+- **D308 — Spec O210 closed: `Export played notes` is disabled whenever its file would hold no
+  note (2026-10-15; spec D315, master spec §9).** spec-writer's proposal, generalised: under the
+  current scope and `Include very short notes`, a file that would hold no note is never offered;
+  the button is disabled and named by `aria-describedby` to its `field-note`, so the export error
+  is never reached that way. The reason, by precedence: (a) under `Favorites only` with no played
+  note at all in a favorite phrase, the existing "No played notes in your favorites." (turning the
+  option on would not help, so it is not suggested); (b) otherwise, with the option off and every
+  played note the scope selects very short, "Every note you played is very short. Turn on Include
+  very short notes to export them." under `Whole session`, and "Every note you played in your
+  favorites is very short. Turn on Include very short notes to export them." under
+  `Favorites only`. The proposal's "include very short notes to export them" is reworded to name
+  the toggle as it reads, so the player finds it just above. The toggle stays live (it already
+  did); turning it on enables the button at once and the note leaves, focus staying on the
+  toggle; turning it off disables it again. A change of scope or option while the file builds
+  does not touch that build; when it ends the button takes the state the current choices give,
+  and focus, which is on the control the player changed, does not move. The lane needs nothing
+  more: its lanes show no bar, as under a phrase in which nothing was played, and the `Played
+  notes` and `Keep my played notes` switches stay. Rejected: hiding the played-notes group (it
+  holds the option that is the cure); turning the option on by itself (it would change the file
+  without asking); exporting an empty file (it gives nothing, and the encoder refuses it); a
+  line in the lane (§9 gives the lane no switch, and the export's reason already says it). Root,
+  v3.2: in a Jam the doodle's raw notes count with the phrases' in both scopes, with no wording of
+  their own.
+- **D309 — The apology for damaged sessions (2026-10-15; spec D310, master spec §5.1).** A fourth
+  notice in the notice row, "Damaged sessions deleted": "Sorry: a kept session was damaged and
+  couldn't be read, so it was deleted." for one; "Sorry: {n} kept sessions were damaged and
+  couldn't be read, so they were deleted." for several, {n} in figures. Calm, as every notice
+  (`alert-notice`, never error-toned, no focus, no announcement); no session date, since a
+  damaged summary may have none; no "on this device", which would blame the device for what may
+  be the app's own fault. Action: `Dismiss` only; nothing can be done about it. Shown once the
+  deletion has committed, outside a running session (held during one, as every notice). Lifetime:
+  until dismissed or the page closes; while it shows, a further deletion of damaged sessions adds
+  its count in place (one becomes several); after `Dismiss` it comes back only with a new
+  deletion, counting that one alone. **Its place in "one notice at a time":** the two persistent
+  notices (Outdated tab, Unusable data) replace it and are never replaced by it; it and the
+  save-problem notice (Save failed, Storage full) are the dismissible ones, and the latest
+  replaces the other in place, since both say something just happened. In practice they rarely
+  meet: the deletion is one batch, so a refused one shows the save-problem notice and no
+  apology. An apology whose deletion commits after the tab became outdated is not shown (the
+  reload comes first, and the session is already gone from the list). Rejected: one notice per
+  session (several damaged sessions are one event); a confirmation before deleting (the owner's
+  ruling deletes; there is nothing to choose); naming the sessions (the summary may be the
+  damaged part).
+- **D310 — Where the player lands (2026-10-15; spec D310, D311).** As the build plan proposed.
+  **`review-link`** whose kept session reads as damaged: the link keeps `is-loading` until the
+  deletion settles, then the review mode shows the list without that session (its empty state
+  when none is left), focus on the list's title, and the apology shows; it never shows the
+  failed-open row. **A list row** whose session reads as damaged: `session-row-open` keeps
+  `is-loading` until the deletion settles, then the row leaves and focus moves as after that
+  row's deletion (the next row's `session-row-open`, else the previous row's, else the list's
+  title over `sessions-empty`), and the apology shows. The list and the notice change together,
+  once, rather than the list first and the notice a moment later. **After it,** the most recent
+  session is the readable kept session that started last: its row takes " · Last session", and
+  `review-link` follows its rule at `Close review` (absent when none is left). **A refused
+  deletion** lands the same way (the session stays unlisted for the visit) but shows the
+  save-problem notice instead of the apology. No line in the list explains it: the notice sits
+  first in the reading order, above the list, as every notice does, and moving focus to it would
+  break the rule that notices never take focus. **While saving is off** nothing is deleted: in an
+  outdated tab a damaged body keeps the failed-open row ("This session couldn't be opened. Try
+  again."), as spec D310 says; a visit started from the defaults lists no row and has no
+  `review-link` to a kept session.
+- **D311 — The session list aligned (2026-10-15; spec D310, D311).** A kept session whose summary
+  cannot be read has no row, saving on or off (with saving on it is deleted at load anyway, with
+  the apology; a refused clean-up leaves it unlisted until the next load). A row saved by a newer
+  version keeps its row and note: that is not damage (§4.3). `sessions-link` shows while the list
+  has at least one row (it counted kept sessions "readable or not"); `Your data` counts the same
+  sessions the list shows. The failed-open note ("This session couldn't be opened. Try again, or
+  delete it.", unchanged) now means the device refused or failed the read, or the session was
+  deleted meanwhile by another tab, never damage, except in an outdated tab. `Delete every
+  session` removes every kept session, an unlisted one included.
+- **D312 — The policy lines the gates revise (2026-10-15).** `strategy.md`, both trees: the
+  "Saving shows nothing; its problems are told outside a session" edge case gains the apology,
+  and "Kept sessions at the edges" gains the damaged session (deleted, with the apology) beside
+  the one only failed to read (never deleted; its row says it couldn't be opened); the played
+  notes' edge case gains the disabled export with its reason. `versions/v3.0/README.md`: status,
+  and two decisions worth keeping (the export never offers an empty file; a damaged session is
+  deleted with an apology).
+- **D313 — `ux-critic`'s pass on the two gates: DRIFT, four findings, all fixed (2026-10-15).** No
+  contradiction of spec D310, D311, D315 or master spec §5.1, §9, and no business rule invented;
+  the two trees agree. (1) **A refused deletion of damaged sessions** showed the Save failed copy
+  ("this change may be lost when the page closes"), wrong at load (no change made) and at an
+  opening (nothing says the session couldn't be opened): the save-problem notice gains a wording
+  of its own, "Damaged session not deleted", under the same rules (as v3.1's Preset not saved):
+  "A kept session was damaged and couldn't be read, and this device refused to delete it. It
+  stays hidden until the page is reloaded." / "{n} kept sessions were damaged and couldn't be
+  read, and this device refused to delete them. They stay hidden until the page is reloaded."
+  No "Sorry": spec D310 says a refused deletion shows no apology, and nothing was deleted. Storage
+  full keeps its own wording; at a session's save the keep line tells it, as any failed session
+  save. (2) **Counts follow the rows**: Your data and the list's rows leave out a session left
+  unlisted after a refused deletion too, not only one whose summary is damaged; `Delete every
+  session` still deletes it, though its {n} does not count it (rare; the next load cleans up).
+  (3) **"Damaged" defined as spec D310's codec verdict** (an unreadable record, refused content,
+  records that disagree, a missing body or kept played notes). (4) **Root, v3.2:** under
+  `Favorites only` in a Jam, the very-short reason reads "Every note you played in your favorites
+  and the doodle is very short. Turn on Include very short notes to export them."
+- **D314 — `ux-critic`'s recheck: DRIFT, two leftovers and a note, all fixed (2026-10-15).** The
+  four D313 fixes were confirmed in both trees. Leftovers: (1) root, Preset not saved is now "a
+  further wording" of the save-problem notice (it had become the fourth); (2) Your data's layout
+  tree shows `Delete every session` "only when {n}, the sessions the list shows, is at least 1",
+  as its Sessions bullet says. The note, an older rule meeting the new wording: the save-problem
+  notice's after-`Dismiss` suppression would have hidden the only explanation for a row that left
+  the list after a refused deletion, so the Damaged session not deleted wording is exempt from it
+  and shows at every refusal (both trees, saved-data handoff, After `Dismiss`). Validation of the
+  two gates is complete.

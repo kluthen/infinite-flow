@@ -81,7 +81,10 @@ layout-workspace
 - `session-row-note`: "This session was saved by a newer version of the app. Reload the page to
   open it." on a row saved by a newer version; "This session couldn't be opened. Try again, or
   delete it." on a row whose opening failed, until it opens ("This session couldn't be opened.
-  Try again." in an outdated tab, which offers no deletion).
+  Try again." in an outdated tab, which offers no deletion). A failed opening means the device
+  refused or failed the read, or the session was deleted meanwhile in another tab; a damaged
+  session leaves the list instead (States), except in an outdated tab, which deletes nothing and
+  shows this note for it too.
 - **`Pin` / `Unpin`.** A plain `btn` reading "Pin" on an unpinned row, "Unpin" on a pinned one;
   accessible name "Pin session {session date}" or "Unpin session {session date}" (the visible
   word first). Behaviour and confirmation: `flows/kept-sessions/handoff.md`, Pin and Unpin.
@@ -125,7 +128,11 @@ layout-workspace
 ## States
 
 - **Absent:** the list is not showing (idle, a session, a review showing).
-- **Showing, with rows:** `session-list` with one `session-row` per kept session, newest first.
+- **Showing, with rows:** `session-list` with one `session-row` per kept session whose summary can
+  be read (a session saved by a newer version included), newest first. A session whose summary is
+  damaged has no row, saving on or off, nor has a damaged one left unlisted for the visit after the
+  device refused to delete it; `sessions-link` shows only while there is at least one
+  row.
 - **Empty:** `sessions-empty` in place of `session-list`; `sessions-header` and `sessions-intro`
   stay.
 - **Loading:** none for the list: what the rows show is read with the saved settings at load and
@@ -136,6 +143,13 @@ layout-workspace
   pins and deletes nothing of it; the detail and status lines show what can be read and are
   omitted otherwise, the title falling back to "Saved by a newer version" when the date cannot be
   read); a row whose opening failed (`session-row-note`, the title enabled).
+- **A damaged session opened from its row** (saving on): `session-row-open` keeps `is-loading`
+  until the session's deletion settles; then the row leaves, focus moves as after that row's
+  deletion (the next row's `session-row-open`, else the previous row's, else the list's title
+  over `sessions-empty`), and the notice row shows the apology, or the save-problem notice if the
+  device refused the deletion (`flows/kept-sessions/handoff.md`, A Damaged Session). When it was
+  the most recent session, " · Last session" moves to the readable kept session that started
+  last. The list shows no line of its own about it.
 - **Outdated tab:** every row without `Delete`, from the moment the tab is outdated; the rest of
   each row as in its own state. Focus on a `Delete` that leaves, or in its open confirmation, goes
   to the list's title (`flows/kept-sessions/handoff.md`, While Saving Is Off).

@@ -31,6 +31,27 @@
 
 ## In Progress
 
+**v3.0 wave 6: the O210 and Damaged session design gates** (build plan v16 §1), from spec
+D310, D311, D315 and spec O210 (master spec Part A v1.15 §5.1, §9), on branch `v3.0-w6`. Started
+2026-10-15. Written into `versions/v3.0/` as a recorded correction and at the root (ux D307).
+Settled: ux D307-D314; no question for the owner.
+
+- **O210 gate** (before chunk 25): `Export played notes` disabled whenever its file would hold no
+  note, its reason naming `Include very short notes` when every played note in the scope is very
+  short (ux D308). Files: `flows/review-and-export/`, `screens/last-session-review/`,
+  `strategy.md`. Written 2026-10-15.
+- **Damaged session design gate** (before chunk 28b): the apology notice, where the player lands
+  from `review-link` and from a row, the list aligned (no row for a damaged summary,
+  `sessions-link` counting rows, the failed-open note meaning a refusal) (ux D309-D312). Files:
+  `flows/saved-data/`, `flows/kept-sessions/` (new section A Damaged Session),
+  `screens/session-list/`, `screens/your-data/handoff.md`, `screens/phrase-workspace/handoff.md`,
+  `strategy.md`, `versions/v3.0/README.md`. Written 2026-10-15.
+- **Validation:** `ux-critic` on both gates: DRIFT, four findings, all fixed (ux D313); recheck:
+  two leftovers and a note, fixed (ux D314). Both gates are passed from the design side.
+- **For `spec-writer`:** build plan chunk 25's scope says `Include very short notes` is "off at
+  every review opening"; the design (ux D193) holds it for the page visit, across reviews, never
+  saved. The plan's wording should follow the design, or the question comes back here.
+
 **v3.0 wave 2: the Clef design and Sessions design gates** (build plan v8 §1), from spec
 D293-D296 (master spec Part A v1.10), on branch `v3.0-w2`. Started 2026-10-12. Written into
 `versions/v3.0/` as a recorded correction and at the root (ux D280). Settled: ux D280-D293; Q76
@@ -180,6 +201,9 @@ Dropped (ux D207): the end-of-measure chord-fit presentation (old unit 9), since
 drops the check.
 
 ## Next Unit
+
+v3.0 wave 6: the O210 and Damaged session gates are passed (ux D307-D314); chunk 25 still waits
+for H1, chunk 28b may start. The chunk-25 wording note above waits for `spec-writer`.
 
 v3.0 wave 2: the Clef and Sessions gates are passed (ux D280-D295); Q80 waits for `spec-writer`.
 The Stale phrase design gate is written (ux D296-D304); for `spec-writer`: the lexicon's

@@ -25,7 +25,7 @@ sheet-backdrop
           h3, p, p sheet-hint (only when one is remembered)
         sheet-section (Sessions)
           h3, p, p sheet-hint
-          btn (Delete every session; only when at least one session is kept)
+          btn (Delete every session; only when {n}, the sessions the list shows, is at least 1)
         sheet-section (Played notes)
           h3
           btn toggle-button (Keep my played notes; aria-pressed)
@@ -75,7 +75,10 @@ sheet-backdrop
   favorite phrases" for zero), or "No sessions kept yet." `sheet-hint`: "Your most recent session
   is kept until the next one is saved. Pinned sessions stay until you unpin or delete them."
   Then `Delete every session` (plain `btn`) when {n} is at least 1. Sessions this version cannot
-  open (saved by a newer version) are counted.
+  open (saved by a newer version) are counted. A session the session list does not show is not:
+  one whose summary is damaged, or one left unlisted for the visit after the device refused to
+  delete it (`flows/kept-sessions/handoff.md`, A Damaged Session). `Delete every session` deletes
+  it with the others, though {n} does not count it.
 - **Played notes.** `btn toggle-button` "Keep my played notes" with `toggle-button-state` "on" /
   "off" (accessible name "Keep my played notes", `aria-pressed`). `sheet-hint`: "When this is on,
   the notes you play are kept with each session. When it's off, they're shown in the review of the

@@ -193,8 +193,21 @@ session written by a newer version of the app is listed and cannot be opened, as
   comment still respond, in memory only for this visit, as the notice says.
 - **A session whose save failed.** It stays in memory, reachable from `Review last session`, and
   its review says it is not saved. It is not in the list, which shows what the device keeps.
-- **A session that fails to open.** Its row says so in one line, and the title stays available to
-  try again; nothing else on the page changes.
+- **A session that fails to open,** because the device refused or failed the read. Its row says
+  so in one line, and the title stays available to try again; nothing else on the page changes.
+  Nothing is deleted: a refusal says nothing about the session, which may be fine, and deleting
+  on it would break the rule that a failed read never destroys what is kept.
+- **A damaged session,** one the app cannot read correctly, so it could never be opened or
+  exported. The owner's ruling: it is deleted, pinned or not, with everything it holds, as soon
+  as the app finds it (at load, at the next save, or when the player opens it), and the app
+  apologises, in one calm notice above the workspace saying how many went. Nothing is asked,
+  since there is nothing to choose and keeping a session that can never open would only promise
+  something the app cannot give. Opened from `Review last session`, it leads to the list without
+  it, as after the player's own deletion of the session they were looking for; opened from a
+  row, the row leaves and focus moves on as after a deletion. The list and the notice change
+  together, once. Only a visit that saves deletes: an outdated tab leaves it, its row saying it
+  couldn't be opened. A session whose summary is damaged has no row at all, since the list could
+  show nothing true about it.
 - **Saved data that cannot be used this visit.** Nothing kept can be shown, so the link to the
   list is not shown, and the list, if reached from a review, says the kept sessions cannot be
   read in this visit rather than claiming there are none. Such a visit saves nothing, and, like

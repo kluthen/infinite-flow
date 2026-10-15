@@ -310,7 +310,12 @@ flowchart TD
 - **[v3 new]** **Very short notes.** `Include very short notes`, in `review-export-played` before
   `Export played notes`, off by default, held for the page visit and never saved: off, the
   played-notes file leaves out notes shorter than the very-short-note threshold (master spec §9);
-  on, it holds every note as received. The generated-notes file is unaffected.
+  on, it holds every note as received. The generated-notes file is unaffected. While it is off
+  and every played note the scope selects is very short, the file would hold no note:
+  `Export played notes` is then disabled with its reason, and turning the option on enables it.
+  So `Export played notes` is disabled whenever its file would hold no note under the current
+  scope and option, and never reaches `review-export-error` that way
+  (`screens/last-session-review/handoff.md`, Components and Content).
 - **[v3 changed]** **Saved choices.** Format and `Backing track` are saved when changed and return
   after a reload (master spec §4.2).
 - **[v3.2 new]** **A Jam's exports open with the doodle**, in both scopes (`Whole session` and
@@ -329,6 +334,9 @@ flowchart TD
 - **[v3.2 changed]** In a Jam, `Export played notes` and `review-view` are rendered when the
   session holds a played note in a phrase or in its doodle. Under `Favorites only`,
   `Export played notes` is disabled only when neither a favorite phrase nor the doodle holds one.
+  With `Include very short notes` off, the doodle's raw notes count with the phrases' toward the
+  file holding a note, in both scopes; under `Favorites only` the very-short reason names "your
+  favorites and the doodle" (`screens/last-session-review/handoff.md`).
 
 ## Played Notes
 
@@ -337,7 +345,9 @@ flowchart TD
   the player played there, unquantized; nothing is ever coloured or marked, matched or not, and
   the generated staff never changes. Details in `screens/last-session-review/handoff.md`.
 - **[v3 changed]** The `Played notes` switch is saved when changed and returns after a reload. The
-  lane always leaves out very short notes, with no switch of its own.
+  lane always leaves out very short notes, with no switch of its own. A session whose every played
+  note is very short keeps the switch, `review-view` and the played-notes export ("holds a played
+  note" counts very short ones); its lanes show no bar.
 - **[v3 new]** A kept session holds played notes only if they were kept; one with none (after a
   reload, their keeping off) has no lane, no `review-view` and no played-notes export, as a
   session without a controller.
