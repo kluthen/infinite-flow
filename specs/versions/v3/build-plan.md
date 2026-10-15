@@ -959,6 +959,37 @@ with the wave (5dd9fb1: CONTRACT 6.0, change set part N); `spec-writer` marked i
 Part A v1.18 and plan v19 (415dc57, spec D320). Chunk 22 no longer waits on the owner. Chunk 25
 stays in the wave until the rest is done, then moves to wave 7 if H1 has not come.
 
+#### Wave 6 gate (2026-10-15)
+
+The five chunks merged into `v3.0-w6` in order: 18 (63aa997), 11 (d212367, 2a80d90), 12 (5c06943,
+926d516), 22 (e0b22d6) and 25 (1dcf590), after the owner's H1 recordings; their records are under
+each chunk. `main` (7966836) was merged in at 6429b9c. The gate ran on the Linux dev machine (AMD
+Ryzen 5 PRO 8640HS laptop, bare metal). Fixes, each its own commit: da0890f splits
+`review-favorites.spec.ts` (11 atom ids, over `lint:health`'s 10); 485d4c4 adds 12 axe scans of
+the Review's new tools; d1c277b loads the Review's confirmation sheet on demand. The entry chunk
+was still 232,856 B, over the 229,376 B budget (mostly chunks 11 and 12, about 10 kB, and chunk
+22, about 3.8 kB); the owner chose to load the review area on demand rather than raise the budget,
+built in b3859e1 (merge 8a4fe35: `ReviewArea.vue`, `use-review-area.ts`, `loadReviewArea()`).
+At 8a4fe35 `npm run quality` is green (unit 6,269, e2e 378, a11y 57, notation 106 with 4 skipped;
+`verify:boundaries`, `lint:links`, `atd:lint` and `atd:check` pass). **Entry chunk 225,052 B,
++3,857 B since wave 5, 4,324 B of headroom.** The JavaScript `index.html` loads at start is
+236,037 B.
+
+**Wave 6 sync and report (2026-10-15).** `documentalist`'s sync is 8fe9edb: the chunks' Part D
+revisions and captures brought to the merged code, D321's "very short" wording, and
+`module_session_starting_note` 0.2 to the confirmed `rule_midi_starting_note` 0.6; no STABLE atom,
+CONTRACT or VISION touched ([change set part O1](../../../docs/release/v3.0-intent-change-set.md#o1-applied-atoms-brought-to-the-merged-code)).
+Put to the owner with the report: two wordings that fix drift (part O2: `module_phrase_replay_key`
+0.4, every v2.0 `ifk1.` key replays byte for byte; `rule_last_controller_remembered` 0.3, D318's
+clause); the status advances of part O3 (five DRAFT → REVIEW now, one after H4, three after H5,
+and `rule_saved_settings_load_tolerantly` still pending); [spec O211](../../open-questions.md#v30-wave-6-o210)
+(keep 38 ms?) at H5, answered by the release gate; and hand checks H4 and H5. Left open by
+the sync: whether a reselection at load counts as a reattach for
+`rule_controller_transposition_check` (STABLE), for `spec-writer`; closing a confirmation sheet
+while its deletion runs, for `ux-writer`; five stale non-atom docs (`phrase-workspace.md`,
+`storage.md`, `export.md`, `testing.md`, the `stray-notes.ts` header) and the missing `@spec-link`
+for `service_session_midi`, for a later chunk's owner.
+
 ## 2. Read first: what v3.0 undoes in v2
 
 v2 promised that nothing survives a reload and enforced it three ways: two code gates, about ten
