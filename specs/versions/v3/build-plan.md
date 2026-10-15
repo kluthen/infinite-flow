@@ -2228,6 +2228,25 @@ read.
 
 **Verification:** the chunk checks.
 
+**Record (2026-10-15).** Merged into `v3.0-w6` in two halves: 11a (d212367, chunk commit
+fd20ea2: the session's own save keeps played notes when the switch is on, the change path
+through the new save-policy calls `changeKept` and `readKept` in
+`save-policy-kept-changes.ts`, a keys-only port read `readKeys`, `rewriteKeptSummary` in the
+codec) and 11b (2a80d90, chunk commit 064770f: the review's played-notes controls, the shared
+`ConfirmationSheet.vue`, the privacy spy rewritten to "played notes only after the opt-in", the
+new `tests/e2e/storage/played-notes-opt-in.spec.ts`). No spec or design deviation. Every Done
+when item is covered by an end-to-end test, the read at the change (D316) included. Calls made
+inside the chunk, for the sync: a refused deletion is told only by its sheet ("That couldn't
+be deleted. Try again."), while a refused keep goes to the notice row; a refused count read at
+the switch opens nothing and is told as a refused change; notes are kept only for a session that
+holds one; turning the switch on keeps the most recent session's notes, not only the one on
+screen; the controller's debug history (`state.lastHistory`) still holds deleted notes in memory,
+unseen by the player; the privacy spy counts writes, not deletes. For the wave gate: the entry
+chunk probably grows (`ScorePanel.vue` imports the sheet and the review's played-notes code; the
+save policy gains its change module); the new sheet and two buttons for the a11y scans. Left
+open: cancelling a sheet while its deletion runs lets the deletion finish; five files chunk 12
+also touches are at the 10-atom link limit.
+
 ### Chunk 12 — Favorites, pin and comment in the review
 
 Gate A, applied 2026-10-07, narrowed the "the review has no favorites" guarantee this chunk breaks,
