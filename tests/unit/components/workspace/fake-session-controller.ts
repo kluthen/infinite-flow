@@ -6,13 +6,18 @@
  * Review, showing, once phrase 1 has sounded (over `fakeReviewHistory`), its session becoming the
  * most recent one; `closeReview` is a spy that flips its `showing`, and `showReview` one that shows
  * the most recent session held in memory (a kept one stays for the test to read, the spy resolving
- * false). `isPhraseOnScreen` answers from the session staff the test sets.
+ * false). `isPhraseOnScreen` answers from the session staff the test sets. `setKeepPlayedNotes`
+ * sets the setting and resolves nothing to confirm unless the test mocks it; the two deletions
+ * resolve deleted, the Review's session losing its played notes as the real one does.
  */
 import { shallowReactive } from 'vue'
 import { vi, type Mock } from 'vitest'
 
+import { withoutPlayedNotes } from '@/components/workspace/session-review-state'
 import type {
+  KeepPlayedNotesSwitch,
   MostRecentSession,
+  PlayedNotesDeletion,
   ReviewedHistory,
   SessionController,
   SessionControllerState,
@@ -41,7 +46,13 @@ export interface FakeSessionController {
   readonly setAdaptiveTempo: Mock<(on: boolean) => void>
   readonly setVarySettings: Mock<(on: boolean) => void>
   readonly setTensionAcrossPhrases: Mock<(on: boolean) => void>
+  readonly setKeepPlayedNotes: Mock<(on: boolean) => Promise<KeepPlayedNotesSwitch>>
+  readonly deletePlayedNotes: Mock<() => Promise<PlayedNotesDeletion>>
+  readonly deleteEveryKeptPlayedNote: Mock<() => Promise<PlayedNotesDeletion>>
 }
+
+/** The key the fake's Reviews are kept under: the fixed test start and session seed. */
+export const FAKE_REVIEW_KEY = `session-${SESSION_START_EPOCH_MS}-${DEFAULT_SESSION_SEED}`
 
 /** Intent: whether the fake's session staff shows any part of phrase `phraseNumber`. */
 function staffShows(state: FakeSessionControllerState, phraseNumber: number): boolean {
@@ -79,19 +90,23 @@ export function fakeReviewHistory(
 
 /**
  * Intent: a frozen Review of `history`, showing or kept, its instrument named after the built-in
- * profile of the history's id, at tempo 90, not pinned unless `keeping` says otherwise.
+ * profile of the history's id, at tempo 90, not pinned unless `keeping` says otherwise, under the
+ * fake key, its played notes not kept unless `playedNotesKept` says so.
  */
 // @test-link [[req_last_session_review]]
 export function fakeReview(
   history: SessionHistory,
   showing: boolean,
   keeping: SessionKeeping = 'not-pinned',
+  playedNotesKept = false,
 ): SessionReview {
   return Object.freeze({
     history: history as ReviewedHistory,
     instrumentName: getInstrumentProfile(history.instrumentProfileId).displayName,
     tempoReached: 90,
     keeping,
+    key: FAKE_REVIEW_KEY,
+    playedNotesKept,
     showing,
   })
 }
@@ -99,10 +114,17 @@ export function fakeReview(
 /** Intent: the most recent session `review` draws, held in memory. */
 // @test-link [[rule_most_recent_session_kept]]
 export function heldSessionOf(review: SessionReview): MostRecentSession {
-  const { history, instrumentName, tempoReached, keeping } = review
+  const { history, instrumentName, tempoReached, keeping, key, playedNotesKept } = review
   return Object.freeze({
     kind: 'held',
-    session: Object.freeze({ history, instrumentName, tempoReached, keeping }),
+    session: Object.freeze({
+      history,
+      instrumentName,
+      tempoReached,
+      keeping,
+      key,
+      playedNotesKept,
+    }),
   })
 }
 
@@ -154,6 +176,8 @@ export function createFakeSessionController(
     varySettings: false,
     tensionAcrossPhrases: false,
     shownSettings: null,
+    keepPlayedNotes: false,
+    savingOff: false,
     ...overrides,
   })
   /** Intent: show `review`, which blocks a start, as the real start conditions do. */
@@ -221,6 +245,20 @@ export function createFakeSessionController(
       throw new Error('fake controller: tension across phrases during a session')
     state.tensionAcrossPhrases = on
   })
+  const setKeepPlayedNotes = vi.fn((on: boolean): Promise<KeepPlayedNotesSwitch> => {
+    state.keepPlayedNotes = on
+    return Promise.resolve({ kind: 'done' })
+  })
+  /** Intent: the Review's session without its played notes, as after a deletion. */
+  const deleted = (): Promise<PlayedNotesDeletion> => {
+    const review = state.review
+    if (review !== null) {
+      state.review = Object.freeze({ ...withoutPlayedNotes(review), showing: review.showing })
+    }
+    return Promise.resolve('deleted')
+  }
+  const deletePlayedNotes = vi.fn(deleted)
+  const deleteEveryKeptPlayedNote = vi.fn(deleted)
   return {
     controller: {
       state,
@@ -233,6 +271,9 @@ export function createFakeSessionController(
       setAdaptiveTempo,
       setVarySettings,
       setTensionAcrossPhrases,
+      setKeepPlayedNotes,
+      deletePlayedNotes,
+      deleteEveryKeptPlayedNote,
     },
     state,
     start,
@@ -243,5 +284,8 @@ export function createFakeSessionController(
     setAdaptiveTempo,
     setVarySettings,
     setTensionAcrossPhrases,
+    setKeepPlayedNotes,
+    deletePlayedNotes,
+    deleteEveryKeptPlayedNote,
   }
 }

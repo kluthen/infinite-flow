@@ -1,7 +1,9 @@
 /**
  * The session's own save, at a session's end with a review, beside the session's ends: the
- * session that ended is kept under a key minted here, and every older kept session that is not
- * pinned goes in the same batch. The visit's saves run it after the release of the settings held
+ * session that ended is kept under a key minted here, with its played notes when `Keep my played
+ * notes` is on at its end and it holds one, and every older kept session that is not pinned goes
+ * in the same batch. The changes made to a kept session after this save are beside it, in
+ * ./kept-session-changes.ts. The visit's saves run it after the release of the settings held
  * during the session; the save policy reads the kept summaries at the save and applies the batch
  * in one transaction, then resolves what became of it. The kept-session codec is loaded on
  * demand, as the first draw never needs it.
@@ -35,17 +37,45 @@ export function keptSessionKey(history: Pick<SessionHistory, 'startedAt' | 'sess
 }
 
 /**
+ * How the session that ended is saved: under the key minted for it once, and whether its played
+ * notes go with it.
+ */
+// @spec-link [[module_kept_session_save]]
+// @spec-link [[rule_played_notes_kept_only_after_opt_in]]
+export interface EndedSessionSave {
+  readonly key: string
+  readonly playedNotesKept: boolean
+}
+
+/**
+ * Intent: how the session that ended is saved: its key minted once, and its played notes kept
+ * exactly when `Keep my played notes` is on at its end and it holds a played note in a phrase (a
+ * session without one has none to keep).
+ */
+// @spec-link [[module_kept_session_save]]
+// @spec-link [[rule_played_notes_kept_only_after_opt_in]]
+export function endedSessionSave(
+  history: Pick<SessionHistory, 'startedAt' | 'sessionSeed' | 'phrases'>,
+  keepPlayedNotes: boolean,
+): EndedSessionSave {
+  const holdsPlayedNote = history.phrases().some((phrase) => phrase.playedNotes.length > 0)
+  return { key: keptSessionKey(history), playedNotesKept: keepPlayedNotes && holdsPlayedNote }
+}
+
+/**
  * Intent: the one batch of the session's save, from the kept summaries read at the save: first
  * the deletion of the summary, body and played notes of every readable kept session that is not
  * pinned (a summary that does not decode, or that a newer app wrote, stays with its records), then
  * the new session's records under its key, nothing pinned, chosen or commented yet, and its played
- * notes not kept.
+ * notes only when they are kept.
  */
 // @spec-link [[module_kept_session_save]]
 // @spec-link [[rule_most_recent_session_kept]]
+// @spec-link [[rule_played_notes_kept_only_after_opt_in]]
 export function keptSessionChanges(
   codec: KeptSessionCodec,
   history: SessionHistory,
+  saving: EndedSessionSave,
   keptSummaries: readonly StoredEntry[],
   appVersion: string,
 ): StorageChange[] {
@@ -54,9 +84,14 @@ export function keptSessionChanges(
     if (reading.reading !== 'current' || reading.value.pinned) return []
     return KEPT_SESSION_STORES.map((store): StorageChange => ({ kind: 'delete', store, key }))
   })
-  const facts = { pinned: false, favorites: [], comment: '', playedNotesKept: false }
+  const facts = {
+    pinned: false,
+    favorites: [],
+    comment: '',
+    playedNotesKept: saving.playedNotesKept,
+  }
   const records = codec.encodeKeptSession(history, facts, appVersion)
-  const key = keptSessionKey(history)
+  const { key } = saving
   const writes: StorageChange[] = [
     { kind: 'write', store: 'sessionSummaries', key, record: records.summary },
     { kind: 'write', store: 'sessionBodies', key, record: records.body },
@@ -69,18 +104,19 @@ export function keptSessionChanges(
 
 /**
  * Intent: save the session that ended with a review through the visit's saves, which run it after
- * the release: the codec loaded, the batch built from the summaries read at the save. Resolves
- * what became of that save; while saving is off, nothing is read, saved or deleted.
+ * the release, as `saving` says: the codec loaded, the batch built from the summaries read at the
+ * save. Resolves what became of that save; while saving is off, nothing is read, saved or deleted.
  */
 // @spec-link [[module_kept_session_save]]
 // @spec-link [[rule_failed_save_never_disturbs_session]]
 export async function saveEndedSession(
   saves: Pick<SessionSaveHold, 'saveSession'>,
   history: SessionHistory,
+  saving: EndedSessionSave,
 ): Promise<SessionSaveOutcome> {
   const codec: KeptSessionCodec = await import('@/storage/records/kept-session-record')
   /** Intent: the save's batch, from the kept summaries read at the save. */
   const changes: SessionChanges = (keptSummaries) =>
-    keptSessionChanges(codec, history, keptSummaries, APP_VERSION)
+    keptSessionChanges(codec, history, saving, keptSummaries, APP_VERSION)
   return saves.saveSession(changes)
 }

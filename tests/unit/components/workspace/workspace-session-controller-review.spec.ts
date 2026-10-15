@@ -11,6 +11,8 @@
  */
 import { describe, expect, it, vi } from 'vitest'
 
+import { keptSessionKey } from '@/components/workspace/workspace-session-save'
+
 import type { ReviewedHistory } from '@/components/workspace/workspace-session-controller-types'
 import { controllerRig, playTo, RIG_TEMPO, type ControllerRig } from './session-controller-rig'
 import { connectKeys, lift, press, rigStartingNote } from './session-controller-midi'
@@ -64,6 +66,8 @@ describe('session controller: the Review opens at a session end', () => {
       instrumentName: nameOf(lastHistory),
       tempoReached: RIG_TEMPO,
       keeping: 'not-pinned',
+      key: keptSessionKey(lastHistory!),
+      playedNotesKept: false,
       showing: true,
     })
     expect(review?.history.phrases().map((record) => record.phraseNumber)).toEqual([1, 2, 3])
@@ -75,6 +79,8 @@ describe('session controller: the Review opens at a session end', () => {
         instrumentName: nameOf(lastHistory),
         tempoReached: RIG_TEMPO,
         keeping: 'not-pinned',
+        key: keptSessionKey(lastHistory!),
+        playedNotesKept: false,
       },
     })
   })
@@ -197,6 +203,8 @@ describe('session controller: closing and showing the Review again', () => {
       instrumentName: nameOf(history),
       tempoReached: RIG_TEMPO,
       keeping: 'not-pinned',
+      key: keptSessionKey(history!),
+      playedNotesKept: false,
     }
     const kept = rig.controller.state.review
     expect(kept).toEqual({ ...drawn, showing: false })

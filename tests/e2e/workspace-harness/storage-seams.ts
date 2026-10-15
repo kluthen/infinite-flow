@@ -110,6 +110,7 @@ function injectedPort(real: StoragePort, injections: PortInjections): StoragePor
     read: (store, key) => read(() => real.read(store, key)),
     readAll: (store) => read(() => real.readAll(store)),
     readKeyed: (store) => read(() => real.readKeyed(store)),
+    readKeys: (store) => read(() => real.readKeys(store)),
     write: (store, key, record) => change(() => real.write(store, key, record)),
     delete: (store, key) => change(() => real.delete(store, key)),
     apply: (changes) => change(() => real.apply(changes)),

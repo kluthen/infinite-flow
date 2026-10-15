@@ -110,11 +110,17 @@ export interface SessionControllerDependencies {
    */
   // @spec-link [[rule_first_phrase_waits_for_saved_settings]]
   readonly savedSessionOptions: SessionOptionChoices
+  /** The player's saved `Keep my played notes`, loaded before the first draw. */
+  // @spec-link [[rule_first_phrase_waits_for_saved_settings]]
+  readonly savedKeepPlayedNotes: boolean
   /**
    * The hold of the player's saves: held at each accepted start, released once at its end (any
    * end, or a start undone part-way), so a change made during a session is written when it ends.
    */
   readonly saveHold: SessionSaveHold
-  /** The kept sessions as the controller reaches them, for the most recent session. */
+  /**
+   * The kept sessions as the controller reaches them, for the most recent session and the
+   * changes made to a kept session after its save.
+   */
   readonly keptSessions: KeptSessionsSeam
 }

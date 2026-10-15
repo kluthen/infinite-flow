@@ -25,7 +25,9 @@
  * (./workspace-pregeneration.ts) makes the phrases after phrase 1 in the background, and each
  * start takes those ready. The parts share one core (./workspace-session-active.ts). The player's
  * own controls are never written, so every end shows them again. The player's saves are held from
- * an accepted start to its end, so a change made during a session is written when it ends.
+ * an accepted start to its end, so a change made during a session is written when it ends. Its
+ * `Keep my played notes` side (./workspace-kept-played-notes.ts) holds that setting, which each
+ * end's save reads, and keeps or deletes a kept session's played notes after its save.
  */
 import { computed, shallowReactive, shallowReadonly, shallowRef } from 'vue'
 
@@ -48,6 +50,7 @@ import type { ExpectedNoteIdentity } from '@/domain/acknowledgement/expected-not
 import { assertReviewMayShow, closedReview, shownReview } from './session-review-state'
 import { mostRecentKept, readKeptReviewedSession } from './workspace-kept-session-read'
 import { createAdaptiveTempoFlag } from './workspace-adaptive-tempo'
+import { createKeptPlayedNotes } from './workspace-kept-played-notes'
 import type { SessionControllerCore, SessionControllerSides } from './workspace-session-active'
 import { createSessionEnds } from './workspace-session-ends'
 import {
@@ -189,6 +192,12 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     get tensionAcrossPhrases(): boolean {
       return tensionAcrossPhrases.on()
     },
+    get keepPlayedNotes(): boolean {
+      return keptPlayedNotes.on()
+    },
+    get savingOff(): boolean {
+      return deps.keptSessions.savingOff()
+    },
   })
   const core: SessionControllerCore = {
     deps,
@@ -227,7 +236,8 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     varySettings,
     tensionAcrossPhrases,
   })
-  const ends = createSessionEnds(core, adaptiveTempo)
+  const keptPlayedNotes = createKeptPlayedNotes(core, deps.savedKeepPlayedNotes)
+  const ends = createSessionEnds(core, adaptiveTempo, keptPlayedNotes.on)
   const start = createSessionStart(
     core,
     { sessionMidi, adaptiveTempo, varySettings, tensionAcrossPhrases, pregeneration },
@@ -293,6 +303,9 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     },
     closeReview,
     showReview,
+    setKeepPlayedNotes: keptPlayedNotes.set,
+    deletePlayedNotes: keptPlayedNotes.deleteShown,
+    deleteEveryKeptPlayedNote: keptPlayedNotes.deleteEvery,
     setAdaptiveTempo: adaptiveTempo.set,
     setVarySettings: varySettings.set,
     setTensionAcrossPhrases: tensionAcrossPhrases.set,

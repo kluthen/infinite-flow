@@ -10,13 +10,23 @@
  * review, is a call of its own that resolves its outcome to its caller: it reads the kept
  * sessions' summaries at the save and applies the caller's changes in one transaction, after the
  * held settings are flushed; only its refusal for lack of space is also told to the failure
- * listener. The requests beyond saving (persistent storage, Your data, Delete everything) are
- * built in save-policy-requests.ts and defer to this policy's state.
+ * listener. A change to a kept session after its own save, and a read of the kept sessions at such
+ * a change, run in the same line as the session saves (built in save-policy-kept-changes.ts). The
+ * requests beyond saving (persistent storage, Your data, Delete everything) are built in
+ * save-policy-requests.ts and defer to this policy's state.
  *
  * The policy is pure: the port is injected, and it keeps no clock.
  */
 
 import type { RecordVersions } from './record-envelope'
+import {
+  createKeptChangeRunner,
+  type KeptChangeOutcome,
+  type KeptChanges,
+  type KeptRead,
+  type KeptReadOutcome,
+  type KeptRefusal,
+} from './save-policy-kept-changes'
 import { createVisitRequests, type VisitRequests } from './save-policy-requests'
 import {
   StorageError,
@@ -52,6 +62,15 @@ export type SaveOutcome = 'saved' | 'held' | 'skipped' | 'failed'
 export type SaveFailureKind = Exclude<StorageErrorKind, 'outdated'>
 
 export type { ProtectionOutcome, VisitRequests } from './save-policy-requests'
+export type {
+  KeptChangeOutcome,
+  KeptChanges,
+  KeptRead,
+  KeptReadOutcome,
+  KeptRecordsReader,
+  KeptRefusal,
+  KeptRefusalKind,
+} from './save-policy-kept-changes'
 
 /**
  * What became of the session's own save: saved; refused by the port, with the refusal's kind; or
@@ -107,6 +126,18 @@ export interface SavePolicy extends VisitRequests {
    * and applies nothing. Changes holding no change are a defect.
    */
   saveSession(changes: SessionChanges): Promise<SessionSaveOutcome>
+  /**
+   * A change to kept sessions after their own save, in the same line as the session saves (so a
+   * change made while a session's own save runs applies after it): once no session holds the
+   * saves and the held ones are flushed, `changes` reads what it rewrites, then its batch is
+   * applied in one transaction; an empty batch writes nothing. A session started while it read
+   * makes it read again after that session. Never rejects for a refusal, of its read or its
+   * batch: the refusal resolves, and is also told to the failure listener under `notice`. While
+   * saving is off it reads and applies nothing.
+   */
+  changeKept(changes: KeptChanges, refusal: KeptRefusal): Promise<KeptChangeOutcome>
+  /** A read of the kept sessions at a change, in the same line and on the same terms. */
+  readKept<T>(read: KeptRead<T>, refusal: KeptRefusal): Promise<KeptReadOutcome<T>>
   /**
    * Be told of failed saves. A run of refusals with no success between them is told at its first
    * refusal (`startsRun` true), and again each time a refusal's kind differs from the last one told
@@ -307,6 +338,28 @@ export function createSavePolicy(port: StoragePort): SavePolicy {
     }
   }
 
+  const keptChanges = createKeptChangeRunner({
+    port,
+    isOn: () => saving === 'on',
+    isHeld: hold.isHeld,
+    whenNotHeld: hold.whenNotHeld,
+    releasing: () => releasing,
+    refused: (kind, tell) => {
+      if (kind === 'outdated' || tell) refused(kind)
+    },
+    succeeded: () => {
+      lastReportedInRun = null
+    },
+  })
+
+  /** Intent: run `task` in the line of the session saves, after every one asked for before it. */
+  const inLine = <T>(task: () => Promise<T>): Promise<T> => {
+    // A defect of one rejects every later one too: it surfaces, never swallowed.
+    const queued = sessionSaves.then(task)
+    sessionSaves = queued
+    return queued
+  }
+
   const requests = createVisitRequests(port, {
     isOn: () => saving === 'on',
     isOutdated: () => saving === 'off-outdated',
@@ -354,12 +407,12 @@ export function createSavePolicy(port: StoragePort): SavePolicy {
     // @spec-link [[module_kept_session_save]]
     // @spec-link [[rule_failed_save_never_disturbs_session]]
     // @spec-link [[module_save_policy]]
-    saveSession: (changes) => {
-      // A defect of one session save rejects every later one too: it surfaces, never swallowed.
-      const saved = sessionSaves.then(() => runSessionSave(changes))
-      sessionSaves = saved
-      return saved
-    },
+    saveSession: (changes) => inLine(() => runSessionSave(changes)),
+    // @spec-link [[module_kept_session_changes]]
+    // @spec-link [[module_save_policy]]
+    changeKept: (changes, refusal) => inLine(() => keptChanges.change(changes, refusal)),
+    // @spec-link [[module_kept_session_changes]]
+    readKept: (read, refusal) => inLine(() => keptChanges.read(read, refusal)),
     onFailure: (listener) => {
       if (failureListener !== null) throw new Error('save policy: a failure listener is set')
       failureListener = listener
