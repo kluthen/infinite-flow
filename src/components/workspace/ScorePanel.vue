@@ -13,20 +13,17 @@
  * While a practice session runs, `PhraseScore` shows the controller's session staff instead of the
  * Idle phrase, and its failure to show it is forwarded to the session, never to Idle. It hands
  * `PhraseScore` the controller's marks: the start marker at Idle, the acknowledged notes in a session.
- * While the last session's Review shows, the lazily loaded `ReviewPanel` takes the staff area's
- * place after the toolbar: the banner, the cue row and the score title are hidden, and the staff
- * viewport stays laid out, out of sight and inert, so the Idle rules keep engraving and measuring
- * under it; both live regions stay silent then, and say nothing as it closes. The staff and the
- * Review both draw at the one shared system-position size the workspace gives it. The Review's
- * export choices and Played notes switch start from the saved review preferences it is given. A
- * confirmation the Review opens (deleting played notes, unpinning a session with favorites,
- * `Delete session`) shows in the shared confirmation sheet over the page; once it closes, focus
- * returns to the button that opened it on the way back, after an unpin goes to the pin button,
- * and after a deletion goes to `Keep my played notes` while the Review still shows its played
- * notes, else to `review-title`. The sheet and its words load on demand with the Review's code,
- * warmed as the Review shows.
+ * While the last session's Review shows, the lazily loaded review area (./ReviewArea.vue), which
+ * holds the Review's panel and the confirmations it opens, takes the staff area's place after the
+ * toolbar: the banner, the cue row and the score title are hidden, and the staff viewport stays
+ * laid out, out of sight and inert, so the Idle rules keep engraving and measuring under it; both
+ * live regions stay silent then, and say nothing as it closes. The staff and the Review both draw
+ * at the one shared system-position size the workspace gives it. What the page keeps of the
+ * Review lives here, in its Review host (./use-review-host.ts), and outlives the area as the
+ * Review closes and opens again: the staff's viewport, and the export choices and Played notes
+ * switch, which start from the saved review preferences it is given.
  */
-import { computed, defineAsyncComponent, nextTick, ref, shallowRef, watch } from 'vue'
+import { computed, defineAsyncComponent, nextTick, ref, watch } from 'vue'
 
 import type { GenerationSession } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
@@ -40,11 +37,7 @@ import {
 import type { NotationError } from '@/notation/notation-error'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { AudioTransport } from '@/audio/audio-transport'
-import {
-  loadReviewConfirmationSheet,
-  loadReviewPanel,
-  type ReviewConfirmationSheetComponent,
-} from '@/components/review/load-review-panel'
+import { loadReviewArea } from '@/components/review/load-review-panel'
 import { ROOM_NOTICE_NARROW, ROOM_NOTICE_WIDE } from '@/components/notation/room-notice-copy'
 import {
   DEFAULT_REVIEW_PREFERENCES,
@@ -54,13 +47,14 @@ import MixControls from './MixControls.vue'
 import SessionCueRow from './SessionCueRow.vue'
 import { useScoreOverlays } from './use-score-overlays'
 import type { MixVolumePopover } from './mix-volume-popover'
-import { browserReviewExportPorts, type ReviewExportPorts } from './review-export'
+import type { ReviewExportPorts } from './review-export'
 import { useReviewHost } from './use-review-host'
 import { injectSaveSettings } from './save-settings-injection'
 import type { SessionController } from './workspace-session-controller-types'
 
-// The Review and its engraving code load as their own chunk (see load-review-panel.ts).
-const ReviewPanel = defineAsyncComponent(loadReviewPanel)
+// The Review's area, with its exports, tools and confirmations, loads as its own chunk (see
+// load-review-panel.ts), as does the panel it holds.
+const ReviewArea = defineAsyncComponent(loadReviewArea)
 
 // @spec-link [[module_idle_fit_round]]
 const props = withDefaults(
@@ -83,8 +77,11 @@ const props = withDefaults(
      * stylesheet shows `room-notice-narrow` by; the window's own `matchMedia` by default.
      */
     matchesPhoneLayout?: () => boolean
-    /** How the Review's export loads its code and downloads; the page's own by default. */
-    reviewExportPorts?: ReviewExportPorts
+    /**
+     * How the Review's export loads its code and downloads; null (the default) for the page's own,
+     * which the review area builds.
+     */
+    reviewExportPorts?: ReviewExportPorts | null
     /**
      * The shared system-position size, in engraving units, which the staff and the Review draw
      * at; the workspace always passes it (`planSystemPositionUnits`), the built-in size by default.
@@ -99,8 +96,7 @@ const props = withDefaults(
   {
     // Default: the notation layout's own width query (the split layout's), read from the window now.
     matchesPhoneLayout: () => window.matchMedia(NOTATION_PHONE_LAYOUT_MEDIA_QUERY).matches,
-    // Default: the lazy export code, downloading through this page's document.
-    reviewExportPorts: () => browserReviewExportPorts(document),
+    reviewExportPorts: null,
     systemPositionUnits: NOTATION_SYSTEM_POSITION_UNITS,
     savedReviewPreferences: () => DEFAULT_REVIEW_PREFERENCES,
   },
@@ -118,24 +114,10 @@ const state = computed(() => props.session.state)
 // @spec-link [[req_last_session_review]]
 const review = useReviewHost({
   controller: () => props.controller,
-  idle: () => props.session.state,
-  exportPorts: () => props.reviewExportPorts,
   initialPreferences: props.savedReviewPreferences,
   saveSettings: injectSaveSettings(),
 })
 const reviewShowing = review.showing
-/** Intent: the showing Review's session start and keeping, for its panel; null while none shows. */
-// @spec-link [[req_last_session_review]]
-const reviewSession = computed(() => {
-  const startedAt = review.startedAt.value
-  const keeping = review.keeping.value
-  return startedAt === null || keeping === null ? null : { startedAt, keeping }
-})
-const {
-  format: reviewFormat,
-  backingTrack: reviewBackingTrack,
-  playedNotesShown: reviewPlayedNotesShown,
-} = review
 
 const roomNoticeElement = ref<HTMLElement | null>(null)
 
@@ -149,27 +131,21 @@ function focusRoomNotice(): void {
   roomNoticeElement.value.focus()
 }
 
-/** The mounted Review panel's exposed API; null until its lazy chunk has loaded and mounted. */
-const reviewPanel = ref<{
-  readonly focusTitle: () => void
-  readonly focusKeepPlayedNotes: () => void
-  readonly focusDeletePlayedNotes: () => void
-  readonly focusPin: () => void
-  readonly focusDeleteSession: () => void
-} | null>(null)
-/** A `review-title` focus asked for before the panel had mounted. */
+/** The mounted review area's exposed API; null until its lazy chunk has loaded and mounted. */
+const reviewArea = ref<{ readonly focusReviewTitle: () => void } | null>(null)
+/** A `review-title` focus asked for before the area had mounted. */
 let reviewTitleFocusPending = false
 
-/** Intent: focus `review-title` now if the panel is mounted, else once it mounts. */
+/** Intent: hand the `review-title` focus to the area now if it is mounted, else once it mounts. */
 function focusPendingReviewTitle(): void {
-  if (!reviewTitleFocusPending || reviewPanel.value === null) return
+  if (!reviewTitleFocusPending || reviewArea.value === null) return
   reviewTitleFocusPending = false
-  reviewPanel.value.focusTitle()
+  reviewArea.value.focusReviewTitle()
 }
 
 /**
- * Intent: move focus to `review-title` (Review last session), at once if the panel is mounted,
- * else as soon as its lazy chunk has loaded and it has mounted; a Review closed meanwhile drops it.
+ * Intent: move focus to `review-title` (Review last session), as soon as the area's and the
+ * panel's lazy chunks have loaded and they have mounted; a Review closed meanwhile drops it.
  */
 // @spec-link [[req_last_session_review]]
 function focusReviewTitle(): void {
@@ -177,95 +153,7 @@ function focusReviewTitle(): void {
   focusPendingReviewTitle()
 }
 
-watch(reviewPanel, focusPendingReviewTitle, { flush: 'post' })
-
-/** The Review's confirmation sheet, with its words; null until its lazy chunk has loaded. */
-const confirmationSheet = shallowRef<ReviewConfirmationSheetComponent | null>(null)
-
-/** Intent: load the confirmation sheet's chunk (memoized), keeping the component once loaded. */
-function loadConfirmationSheet(): Promise<void> {
-  return loadReviewConfirmationSheet().then((component) => {
-    confirmationSheet.value = component
-  })
-}
-
-/**
- * Intent: as the Review shows, warm the confirmation sheet's chunk without waiting on it, so a
- * confirmation opens on its click. A failure here is not reported: the loader forgets it, and the
- * confirmation's opening loads it again, where a failure then surfaces.
- */
-// @spec-link [[req_last_session_review]]
-watch(
-  reviewShowing,
-  (showing) => {
-    if (showing && confirmationSheet.value === null) void loadConfirmationSheet().catch(() => {})
-  },
-  { immediate: true },
-)
-/** The player closed the confirmation (confirmed or went back), so its focus is already set. */
-let confirmationClosedByPlayer = false
-
-/**
- * Intent: confirm the open confirmation; once it closes, focus goes to the pin button after an
- * unpin, to `Keep my played notes` while the Review still shows played notes, else to
- * `review-title`; after `Delete session` the Review is gone. A refusal keeps the sheet.
- */
-// @spec-link [[req_last_session_review]]
-async function confirmReviewConfirmation(): Promise<void> {
-  const kind = review.confirmation.value?.kind
-  confirmationClosedByPlayer = true
-  const outcome = await review.confirm()
-  if (outcome === 'failed') {
-    confirmationClosedByPlayer = false
-    return
-  }
-  await nextTick()
-  if (kind === 'unpin') reviewPanel.value?.focusPin()
-  else if (outcome === 'deleted' && review.holdsPlayedNote.value) {
-    reviewPanel.value?.focusKeepPlayedNotes()
-  } else {
-    reviewPanel.value?.focusTitle()
-  }
-}
-
-/** Intent: the way back: close the confirmation, focus back on the button that opened it. */
-// @spec-link [[req_last_session_review]]
-function cancelReviewConfirmation(): void {
-  const open = review.confirmation.value
-  confirmationClosedByPlayer = true
-  review.cancel()
-  if (open?.kind === 'session-played-notes') reviewPanel.value?.focusDeletePlayedNotes()
-  else if (open?.kind === 'unpin') reviewPanel.value?.focusPin()
-  else if (open?.kind === 'delete-session') reviewPanel.value?.focusDeleteSession()
-  else reviewPanel.value?.focusKeepPlayedNotes()
-}
-
-/**
- * Intent: a confirmation opened before the sheet's chunk has loaded shows once it loads; a failed
- * load closes it the way back does, focus on the button that opened it, and propagates.
- */
-// @spec-link [[req_last_session_review]]
-function showConfirmationSheet(): void {
-  if (confirmationSheet.value !== null) return
-  void loadConfirmationSheet().catch((cause: unknown) => {
-    if (review.confirmation.value !== null) cancelReviewConfirmation()
-    throw cause
-  })
-}
-
-// A confirmation closed by the page (saving turned off) leaves focus on `review-title`.
-watch(
-  () => review.confirmation.value === null,
-  (closed) => {
-    if (!closed) {
-      confirmationClosedByPlayer = false
-      showConfirmationSheet()
-      return
-    }
-    if (!confirmationClosedByPlayer && reviewShowing.value) reviewPanel.value?.focusTitle()
-  },
-  { flush: 'post' },
-)
+watch(reviewArea, focusPendingReviewTitle, { flush: 'post' })
 
 defineExpose({ focusRoomNotice, focusReviewTitle })
 
@@ -485,49 +373,14 @@ const generationErrorAlertText = computed(() =>
         {{ notationStatusText }}
       </p>
     </div>
-    <ReviewPanel
-      v-if="reviewShowing && reviewSession !== null"
-      ref="reviewPanel"
-      :records="review.records.value"
-      :instrument-name="review.instrumentName.value"
-      :started-at="reviewSession.startedAt"
-      :most-recent="review.mostRecent.value"
-      :keeping="reviewSession.keeping"
-      :viewport="review.viewport.value"
+    <ReviewArea
+      v-if="reviewShowing"
+      ref="reviewArea"
+      :host="review"
+      :controller="controller"
+      :no-room="state.roomNotice === 'no_room'"
       :system-position-units="systemPositionUnits"
-      :no-room="review.noRoom.value"
-      :format="reviewFormat"
-      :backing-track="reviewBackingTrack"
-      :export-file="review.exportFile"
-      :holds-played-note="review.holdsPlayedNote.value"
-      :played-notes-shown="reviewPlayedNotesShown"
-      :export-played-notes="review.exportPlayedNotes"
-      :keep-played-notes="review.keepPlayedNotes.value"
-      :can-delete-played-notes="review.canDeletePlayedNotes.value"
-      :include-very-short-notes="review.includeVeryShortNotes.value"
-      :played-notes-file-holds-note="review.playedNotesFileHoldsNote.value"
-      :session-key="review.sessionKey.value ?? ''"
-      :pinned="review.pinned.value"
-      :favorites="review.favorites.value"
-      :comment="review.comment.value"
-      :can-delete-session="review.canDeleteSession.value"
-      @update:format="review.setFormat"
-      @update:backing-track="review.setBackingTrack"
-      @update:played-notes-shown="review.setPlayedNotesShown"
-      @update:keep-played-notes="review.setKeepPlayedNotes"
-      @update:include-very-short-notes="review.setIncludeVeryShortNotes"
-      @delete-played-notes="review.askDeletePlayedNotes"
-      @toggle-favorite="review.toggleFavorite"
-      @toggle-pin="review.togglePin"
-      @delete-session="review.askDeleteSession"
-      @save-comment="review.saveComment"
-    />
-    <component
-      :is="confirmationSheet"
-      v-if="review.confirmation.value !== null && confirmationSheet !== null"
-      :confirmation="review.confirmation.value"
-      @confirm="confirmReviewConfirmation"
-      @cancel="cancelReviewConfirmation"
+      :export-ports="reviewExportPorts"
     />
     <p
       v-if="generationErrorAlertText !== null"

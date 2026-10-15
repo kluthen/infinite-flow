@@ -7,7 +7,7 @@
  * after the player's values have rendered back.
  */
 import { flushPromises, mount } from '@vue/test-utils'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { nextTick, watch } from 'vue'
 
 import WorkspaceShell from '@/components/workspace/WorkspaceShell.vue'
@@ -25,6 +25,12 @@ import { provideSaveSettings } from './recording-save-settings'
 import { noRememberedController, quietSavedData } from './quiet-saved-data'
 
 vi.mock('@/components/review/ReviewPanel.vue', () => import('./review-panel-stub'))
+
+// A session's start warms the Review's lazy area; loaded once ahead, so that warm-up settles within
+// the test that starts it, as it does in the app once the chunk has loaded, not as the file ends.
+beforeAll(async () => {
+  await import('@/components/workspace/ReviewArea.vue')
+})
 
 afterEach(() => {
   document.body.innerHTML = ''

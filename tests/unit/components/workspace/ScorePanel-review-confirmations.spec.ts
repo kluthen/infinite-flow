@@ -25,18 +25,29 @@ import { fakeGenerationSession, readyState } from './fake-generation-session'
 import { PHRASE_SCORE_STUB } from './test-workspace'
 import { provideSaveSettings, recordingSaveSettings } from './recording-save-settings'
 
-const loader = vi.hoisted(() => ({ load: vi.fn<() => Promise<Component>>() }))
+const loader = vi.hoisted(() => ({
+  load: vi.fn<() => Promise<Component>>(),
+  loadArea: vi.fn<() => Promise<Component>>(),
+}))
 
-// The confirmation sheet's real component, settling within one flush, as a warmed chunk does.
+// The confirmation sheet's real component, settling within one flush, as a warmed chunk does; the
+// review area's real component the same way (imported below, once this mock is in place).
 vi.mock('@/components/review/load-review-panel', async () => {
   const { default: sheet } = await import('@/components/workspace/ReviewConfirmationSheet.vue')
-  return { loadReviewPanel: loader.load, loadReviewConfirmationSheet: () => Promise.resolve(sheet) }
+  return {
+    loadReviewPanel: loader.load,
+    loadReviewConfirmationSheet: () => Promise.resolve(sheet),
+    loadReviewArea: loader.loadArea,
+  }
 })
 
 beforeEach(async () => {
   const { default: stub } = await import('./review-panel-stub')
+  const { default: area } = await import('@/components/workspace/ReviewArea.vue')
   loader.load.mockReset()
   loader.load.mockImplementation(() => Promise.resolve(stub))
+  loader.loadArea.mockReset()
+  loader.loadArea.mockImplementation(() => Promise.resolve(area))
 })
 
 afterEach(() => {

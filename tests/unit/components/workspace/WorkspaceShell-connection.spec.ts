@@ -5,7 +5,7 @@
  * and the session-end focus that lands on `controller-status` while phrase 1 regenerates.
  */
 import { flushPromises, mount } from '@vue/test-utils'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { nextTick, reactive, toRaw } from 'vue'
 
 import ConnectionSheet from '@/components/controller-connection/ConnectionSheet.vue'
@@ -24,6 +24,12 @@ vi.mock(
   '@/notation/vexflow-engraver-loader',
   () => import('../controller-connection/fake-check-note-engraver'),
 )
+
+// A session's start warms the Review's lazy area; loaded once ahead, so that warm-up settles within
+// the test that starts it, as it does in the app once the chunk has loaded, not as the file ends.
+beforeAll(async () => {
+  await import('@/components/workspace/ReviewArea.vue')
+})
 
 /** Intent: a real workspace whose Idle state a test can edit after mounting. */
 function liveWorkspace() {
