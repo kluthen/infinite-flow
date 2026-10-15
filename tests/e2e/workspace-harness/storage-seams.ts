@@ -10,8 +10,9 @@
  * - `seedTimingSessions` writes sized kept-session records for the start-up read measurement (M2);
  * - `keyedRecords` reads a store back with each record's key; `pinKeptSession` pins a kept session
  *   the app saved, as the review's pin will, `seedUnreadableKeptSession` writes a kept session
- *   whose session-wide record the codec cannot read, and `deleteKeptSession` deletes one, as a
- *   deletion made elsewhere would;
+ *   whose session-wide record the codec cannot read, `seedPlayedNotes` keeps a session's played
+ *   notes as another tab would, and `deleteKeptSession` deletes one, as a deletion made elsewhere
+ *   would;
  * - `settingsNotReadBack` names each stored settings record the settings codec does not read back
  *   as the value it holds, read as a load reads them all (with the mix design of the page's tokens,
  *   and my instrument not loaded);
@@ -312,6 +313,34 @@ export function createHarnessStorage(
     ])
   }
 
+  /**
+   * Intent: a played-notes record of one note under `key`, and the session-wide record stored
+   * there, if it has a `playedNotesKept` field, saying they are kept; in one batch.
+   */
+  async function seedPlayedNotes(key: string): Promise<void> {
+    const target = openedPort()
+    const versions = { dataVersion: KEPT_SESSION_DATA_VERSION, appVersion: APP_VERSION }
+    const note = { pitch: 60, velocity: 64, onset: 0.5, release: 0.8 }
+    const playedNotes: RecordVersions & { readonly notes: readonly unknown[] } = {
+      ...versions,
+      notes: [note],
+    }
+    const changes: StorageChange[] = [
+      { kind: 'write', store: 'playedNotes', key, record: playedNotes },
+    ]
+    const summary: unknown = await target.read('sessionSummaries', key)
+    if (typeof summary === 'object' && summary !== null && 'playedNotesKept' in summary) {
+      // A seed at the running app's version, over the summary as stored.
+      const kept: RecordVersions & { readonly playedNotesKept: true } = {
+        ...summary,
+        ...versions,
+        playedNotesKept: true,
+      }
+      changes.push({ kind: 'write', store: 'sessionSummaries', key, record: kept })
+    }
+    await target.apply(changes)
+  }
+
   return {
     load,
     api: {
@@ -319,6 +348,7 @@ export function createHarnessStorage(
       seedTimingSessions,
       pinKeptSession,
       seedUnreadableKeptSession,
+      seedPlayedNotes,
       deleteKeptSession: (key) =>
         openedPort().apply(
           (['sessionSummaries', 'sessionBodies', 'playedNotes'] as const).map((store) => ({

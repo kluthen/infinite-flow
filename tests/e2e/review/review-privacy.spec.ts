@@ -9,16 +9,21 @@
  *   styles, fonts), never with a query string; no WebSocket is opened. In the page, no network API
  *   is called at all: `fetch`, `XMLHttpRequest`, `navigator.sendBeacon`, `WebSocket`,
  *   `EventSource`, `RTCPeerConnection`.
- * - **Storage** (the v3.0 interim guarantee of chunk 7b, widened by chunk 10 to the kept session
- *   and rewritten by chunk 11). Since v3.0 the app opens its one IndexedDB database at every load
- *   and saves the player's settings there, the review's preferences changed here among them. In
- *   the page, the only storage API called is `indexedDB.open`: no `Storage` write (localStorage
- *   and sessionStorage), no `indexedDB.deleteDatabase`, no `caches.open`/`delete` nor any `Cache`
- *   write, no `document.cookie` setter, no `cookieStore` write, no origin-private file system and
- *   no `navigator.storage.persist`. The end state catches whatever the wrappers cannot see (a
- *   Worker, a property assignment, a write through the opened database): the only IndexedDB
- *   database is the app's (`infinite-flow`); since chunk 10 it keeps the session that ended last,
- *   one session-wide record and one body under the same key, with its played notes not kept (the
+ * - **Storage** (rewritten by v3.0 chunk 11, from chunk 7b's interim guarantee widened by chunk 10
+ *   to the kept session). Since v3.0 the app opens its one IndexedDB database at every load and
+ *   saves there what the player keeps: the settings (the review's preferences changed here among
+ *   them), my instrument, the remembered controller, and the session that ended last; played notes
+ *   only once the player opts in with `Keep my played notes`, off here. In the page, the only
+ *   storage API called is `indexedDB.open`: no `Storage` write (localStorage and sessionStorage),
+ *   no `indexedDB.deleteDatabase`, no `caches.open`/`delete` nor any `Cache` write, no
+ *   `document.cookie` setter, no `cookieStore` write, no origin-private file system and no
+ *   `navigator.storage.persist`. Every record written through the opened database lands in an
+ *   allowed store (`meta` at the database's creation, `settings`, `instrument`, `controller`,
+ *   `sessionSummaries`, `sessionBodies`), never in `playedNotes` while the switch is off (a
+ *   session's save still deletes an older unpinned session's played notes, if any). The end
+ *   state catches whatever the wrappers cannot see (a Worker, a property assignment): the only
+ *   IndexedDB database is the app's (`infinite-flow`); it keeps the session that ended last, one
+ *   session-wide record and one body under the same key, with its played notes not kept (the
  *   record says so, the body holds none and the `playedNotes` store is empty), and every
  *   `settings` record is one the settings codec reads back, so nothing else of the session, and no
  *   played note, is stored; both Storage areas, Cache Storage and cookies are empty, and no
@@ -42,6 +47,7 @@ import {
   exportEach,
   exportOnce,
   exportPlayedButton,
+  keepPlayedNotesToggle,
   pickFormat,
   playedNotesToggle,
   reviewItems,
@@ -60,10 +66,14 @@ test.beforeEach(({ page }) => {
 
 test.afterEach(() => expectNoPageErrors())
 
-/** The in-page spy: each wrapper it put in place, and each wrapped call the page made. */
+/**
+ * The in-page spy: each wrapper it put in place, each wrapped call the page made, and the store
+ * of each record written (`put`, `add`) through an opened IndexedDB database.
+ */
 interface PrivacySpy {
   readonly installed: string[]
   readonly calls: string[]
+  readonly storeWrites: string[]
 }
 
 type PrivacySpyWindow = Window & { __privacySpy: PrivacySpy }
@@ -84,6 +94,8 @@ const SPIED_APIS = [
   'document.cookie=',
   'navigator.storage.getDirectory',
   'navigator.storage.persist',
+  'IDBObjectStore.put',
+  'IDBObjectStore.add',
   'fetch',
   'XMLHttpRequest.open',
   'XMLHttpRequest.send',
@@ -95,12 +107,13 @@ const SPIED_APIS = [
 
 /**
  * Intent: before any page script runs, wrap every browser storage write and every network API the
- * page could call, so each call is recorded in `window.__privacySpy.calls`; `installed` names each
- * wrapper put in place, so a test can prove the spy was armed.
+ * page could call, so each call is recorded in `window.__privacySpy.calls`, and every record
+ * written through an opened IndexedDB database, so its store is recorded in `storeWrites`;
+ * `installed` names each wrapper put in place, so a test can prove the spy was armed.
  */
 async function installPrivacySpy(page: Page): Promise<void> {
   await page.addInitScript(() => {
-    const spy = { installed: [] as string[], calls: [] as string[] }
+    const spy = { installed: [] as string[], calls: [] as string[], storeWrites: [] as string[] }
     Object.defineProperty(window, '__privacySpy', { value: spy })
 
     /** Record each call of `owner[key]`, then make it. */
@@ -163,6 +176,19 @@ async function installPrivacySpy(page: Page): Promise<void> {
     }
     for (const key of ['getDirectory', 'persist']) {
       wrapMethod(StorageManager.prototype, key, `navigator.storage.${key}`)
+    }
+    for (const key of ['put', 'add']) {
+      const original: unknown = Reflect.get(IDBObjectStore.prototype, key)
+      if (typeof original !== 'function') continue
+      Reflect.set(
+        IDBObjectStore.prototype,
+        key,
+        function (this: IDBObjectStore, ...args: unknown[]) {
+          spy.storeWrites.push(this.name)
+          return Reflect.apply(original, this, args) as unknown
+        },
+      )
+      spy.installed.push(`IDBObjectStore.${key}`)
     }
 
     wrapMethod(window, 'fetch', 'fetch')
@@ -272,8 +298,23 @@ const NETWORK_APIS = new Set([
 ])
 
 /**
- * Intent: the in-page spy is armed and saw no network call, and no storage call but the app's
- * opening of its database (`indexedDB.open`, at least once).
+ * The stores the app may write to with `Keep my played notes` off: `meta` at the database's
+ * creation, then what the player keeps (my instrument and the remembered controller included),
+ * never `playedNotes`.
+ */
+const ALLOWED_STORES = new Set([
+  'meta',
+  'settings',
+  'instrument',
+  'controller',
+  'sessionSummaries',
+  'sessionBodies',
+])
+
+/**
+ * Intent: the in-page spy is armed and saw no network call, no storage call but the app's
+ * opening of its database (`indexedDB.open`, at least once), and records written in the allowed
+ * stores only: no played note reaches storage while `Keep my played notes` is off.
  */
 async function expectNothingSentOrStored(page: Page): Promise<void> {
   const spy = await readPrivacySpy(page)
@@ -281,6 +322,8 @@ async function expectNothingSentOrStored(page: Page): Promise<void> {
   expect(spy.calls.filter((call) => NETWORK_APIS.has(call))).toEqual([])
   const storageCalls = spy.calls.filter((call) => !NETWORK_APIS.has(call))
   expect([...new Set(storageCalls)]).toEqual(['indexedDB.open'])
+  expect(spy.storeWrites.length).toBeGreaterThan(0)
+  expect([...new Set(spy.storeWrites)].filter((store) => !ALLOWED_STORES.has(store))).toEqual([])
 }
 
 /**
@@ -324,10 +367,12 @@ async function expectOnlyKeptSessionAndSettingsStored(page: Page): Promise<void>
 
 // @test-link [[rule_session_data_never_sent_or_stored]]
 // @test-link [[rule_optional_midi_privacy]]
+// @test-link [[rule_played_notes_kept_only_after_opt_in]]
 test.describe('a session under a network and storage spy', () => {
   // @test-link [[rule_session_data_never_sent_or_stored]]
   // @test-link [[rule_optional_midi_privacy]]
-  test('a MIDI session with played notes, its Review and every export send nothing and store only the kept session, without its played notes', async ({
+  // @test-link [[rule_played_notes_kept_only_after_opt_in]]
+  test('a MIDI session with played notes, its Review and every export send nothing and store only allowed data, no played note while Keep my played notes is off', async ({
     context,
     page,
   }) => {
@@ -342,6 +387,8 @@ test.describe('a session under a network and storage spy', () => {
     await expect(reviewItems(page).first().locator('.review-staff svg').first()).toBeAttached({
       timeout: 30_000,
     })
+    // Keep my played notes is off, as at a first visit.
+    await expect(keepPlayedNotesToggle(page)).toHaveAttribute('aria-pressed', 'false')
     // Every export: MusicXML, MIDI and MIDI with the backing track, each twice, then the played
     // notes once; and the Played notes switch on, then off.
     const played = await exportEach(page, downloads)

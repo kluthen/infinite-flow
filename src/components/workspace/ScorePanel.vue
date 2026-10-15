@@ -18,7 +18,11 @@
  * viewport stays laid out, out of sight and inert, so the Idle rules keep engraving and measuring
  * under it; both live regions stay silent then, and say nothing as it closes. The staff and the
  * Review both draw at the one shared system-position size the workspace gives it. The Review's
- * export choices and Played notes switch start from the saved review preferences it is given.
+ * export choices and Played notes switch start from the saved review preferences it is given. A
+ * confirmation the Review opens (deleting played notes) shows in the shared confirmation sheet
+ * over the page; once it closes, focus returns to the button that opened it on the way back, and
+ * after a deletion goes to `Keep my played notes` while the Review still shows its played notes,
+ * else to `review-title`.
  */
 import { computed, defineAsyncComponent, nextTick, ref, watch } from 'vue'
 
@@ -40,11 +44,13 @@ import {
   DEFAULT_REVIEW_PREFERENCES,
   type ReviewPreferences,
 } from '@/storage/records/setting-defaults'
+import ConfirmationSheet from './ConfirmationSheet.vue'
 import MixControls from './MixControls.vue'
 import SessionCueRow from './SessionCueRow.vue'
 import { useScoreOverlays } from './use-score-overlays'
 import type { MixVolumePopover } from './mix-volume-popover'
 import { browserReviewExportPorts, type ReviewExportPorts } from './review-export'
+import { reviewConfirmationCopy } from './review-confirmation-copy'
 import { useReviewHost } from './use-review-host'
 import { injectSaveSettings } from './save-settings-injection'
 import type { SessionController } from './workspace-session-controller-types'
@@ -140,7 +146,11 @@ function focusRoomNotice(): void {
 }
 
 /** The mounted Review panel's exposed API; null until its lazy chunk has loaded and mounted. */
-const reviewPanel = ref<{ readonly focusTitle: () => void } | null>(null)
+const reviewPanel = ref<{
+  readonly focusTitle: () => void
+  readonly focusKeepPlayedNotes: () => void
+  readonly focusDeletePlayedNotes: () => void
+} | null>(null)
 /** A `review-title` focus asked for before the panel had mounted. */
 let reviewTitleFocusPending = false
 
@@ -162,6 +172,57 @@ function focusReviewTitle(): void {
 }
 
 watch(reviewPanel, focusPendingReviewTitle, { flush: 'post' })
+
+/** Intent: the words of the confirmation open over the Review; null when none is. */
+const confirmationCopy = computed(() => {
+  const open = review.confirmation.value
+  return open === null ? null : reviewConfirmationCopy(open)
+})
+/** The player closed the confirmation (confirmed or went back), so its focus is already set. */
+let confirmationClosedByPlayer = false
+
+/**
+ * Intent: confirm the open confirmation; once it closes, focus goes to `Keep my played notes`
+ * while the Review still shows played notes, else to `review-title`. A refusal keeps the sheet.
+ */
+// @spec-link [[req_last_session_review]]
+async function confirmReviewConfirmation(): Promise<void> {
+  confirmationClosedByPlayer = true
+  const outcome = await review.confirm()
+  if (outcome === 'failed') {
+    confirmationClosedByPlayer = false
+    return
+  }
+  await nextTick()
+  if (outcome === 'deleted' && review.holdsPlayedNote.value) {
+    reviewPanel.value?.focusKeepPlayedNotes()
+  } else {
+    reviewPanel.value?.focusTitle()
+  }
+}
+
+/** Intent: the way back: close the confirmation, focus back on the button that opened it. */
+// @spec-link [[req_last_session_review]]
+function cancelReviewConfirmation(): void {
+  const open = review.confirmation.value
+  confirmationClosedByPlayer = true
+  review.cancel()
+  if (open?.kind === 'session-played-notes') reviewPanel.value?.focusDeletePlayedNotes()
+  else reviewPanel.value?.focusKeepPlayedNotes()
+}
+
+// A confirmation closed by the page (saving turned off) leaves focus on `review-title`.
+watch(
+  () => review.confirmation.value === null,
+  (closed) => {
+    if (!closed) {
+      confirmationClosedByPlayer = false
+      return
+    }
+    if (!confirmationClosedByPlayer && reviewShowing.value) reviewPanel.value?.focusTitle()
+  },
+  { flush: 'post' },
+)
 
 defineExpose({ focusRoomNotice, focusReviewTitle })
 
@@ -398,9 +459,20 @@ const generationErrorAlertText = computed(() =>
       :holds-played-note="review.holdsPlayedNote.value"
       :played-notes-shown="reviewPlayedNotesShown"
       :export-played-notes="review.exportPlayedNotes"
+      :keep-played-notes="review.keepPlayedNotes.value"
+      :can-delete-played-notes="review.canDeletePlayedNotes.value"
       @update:format="review.setFormat"
       @update:backing-track="review.setBackingTrack"
       @update:played-notes-shown="review.setPlayedNotesShown"
+      @update:keep-played-notes="review.setKeepPlayedNotes"
+      @delete-played-notes="review.askDeletePlayedNotes"
+    />
+    <ConfirmationSheet
+      v-if="confirmationCopy !== null"
+      v-bind="confirmationCopy"
+      :busy="review.confirmation.value?.busy === true"
+      @confirm="confirmReviewConfirmation"
+      @cancel="cancelReviewConfirmation"
     />
     <p
       v-if="generationErrorAlertText !== null"

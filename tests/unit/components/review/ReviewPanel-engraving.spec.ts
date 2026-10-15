@@ -63,6 +63,8 @@ function mountPanel(
       holdsPlayedNote: records.some((record) => record.playedNotes.length > 0),
       playedNotesShown,
       exportPlayedNotes: () => Promise.resolve(),
+      keepPlayedNotes: false,
+      canDeletePlayedNotes: false,
     },
     attachTo: document.body,
   })

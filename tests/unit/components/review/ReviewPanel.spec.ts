@@ -60,6 +60,8 @@ function mountPanel(options: PanelOptions = {}) {
       holdsPlayedNote: false,
       playedNotesShown: false,
       exportPlayedNotes: () => Promise.resolve(),
+      keepPlayedNotes: false,
+      canDeletePlayedNotes: false,
     },
     attachTo: document.body,
   })

@@ -8,7 +8,9 @@
  * not wait on a fetch. The export's format and backing track and the Played notes switch start
  * from the player's saved review preferences, loaded before the first draw, and are then held
  * here for as long as the page lives, kept across Reviews and sessions; each change of the
- * player's goes through this host's setters, which save it as it changes.
+ * player's goes through this host's setters, which save it as it changes. Its played-notes side
+ * (./use-review-played-notes.ts) gives `Keep my played notes`, `Delete played notes` and the
+ * confirmation open over the Review.
  */
 import { computed, readonly, ref, shallowRef, watch, type ComputedRef, type Ref } from 'vue'
 
@@ -21,6 +23,7 @@ import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { ReviewedPhrase } from '@/session/session-history'
 import type { ReviewPreferences } from '@/storage/records/setting-defaults'
 import type { SaveSettings } from '@/storage/settings-saver'
+import { useReviewPlayedNotes, type ReviewPlayedNotes } from './use-review-played-notes'
 import {
   exportGeneratedNotes,
   exportPlayedNotes,
@@ -55,7 +58,7 @@ export interface ReviewHostDependencies {
 /** What the score panel binds the Review with. */
 // @spec-link [[req_last_session_review]]
 // @spec-link [[req_session_export]]
-export interface ReviewHost {
+export interface ReviewHost extends ReviewPlayedNotes {
   /** The Review shows, in place of the staff area. */
   readonly showing: ComputedRef<boolean>
   /** The showing Review's phrases, in the order they started sounding; empty while none shows. */
@@ -203,6 +206,12 @@ export function useReviewHost(deps: ReviewHostDependencies): ReviewHost {
     deps.saveSettings({ 'review.playedNotesShown': on })
   }
 
+  const playedNotes = useReviewPlayedNotes({
+    controller: deps.controller,
+    shownReview: () => shownReview.value,
+    saveSettings: deps.saveSettings,
+  })
+
   const sessionActive = computed(() => {
     const controller = deps.controller()
     return controller !== null && controller.state.phase !== 'idle'
@@ -229,6 +238,7 @@ export function useReviewHost(deps: ReviewHostDependencies): ReviewHost {
     exportPlayedNotes: exportPlayed,
     playedNotesShown: readonly(playedNotesShown),
     setPlayedNotesShown,
+    ...playedNotes,
     noteLayoutInputs: (inputs) => {
       viewport.value = inputs.viewport
     },
