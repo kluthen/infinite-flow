@@ -86,6 +86,7 @@ describe('composeWorkspaceSession fit and room checks', () => {
     await vi.waitFor(() => expect(fakeEngraver.planStaffRoomForKey).toHaveBeenCalledTimes(1))
 
     expect(fakeEngraver.planStaffRoomForKey).toHaveBeenCalledWith(
+      'treble',
       expect.objectContaining({ count: expect.any(Number) }),
       narrower.containerWidthPx,
       narrower.viewport,

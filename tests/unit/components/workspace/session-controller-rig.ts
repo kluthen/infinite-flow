@@ -271,6 +271,7 @@ export function controllerRig(
     controls: settings.controls,
     profileSelection: settings.musicalProfile,
     presentation: { theme: 'System' },
+    myInstrument: null,
     latestIntent: phraseOne.intent,
     result: phraseOne,
     operation: 'idle',

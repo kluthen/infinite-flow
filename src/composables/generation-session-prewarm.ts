@@ -12,6 +12,7 @@ import {
   type GenerationIntent,
 } from '@/domain/generation/generation-intent'
 import { makeRequestId } from '@/domain/generation/generation-request-envelope'
+import type { InstrumentProfile } from '@/domain/profile/instrument-profile'
 import { makeSeed } from '@/domain/random/seed'
 
 /**
@@ -29,11 +30,13 @@ export type PostPrewarm = (intent: GenerationIntent) => void
 
 /**
  * Called with the controls a phrase would be generated with right now (note density already
- * resolved against the window's width) and the current profile selection.
+ * resolved against the window's width), the current profile selection, and my instrument's
+ * profile as data when the controls name it (undefined for a built-in, which resolves by id).
  */
 export type RhythmPrewarmTrigger = (
   generatedControls: GenerationControls,
   musicalProfile: ProfileSelection,
+  instrumentProfile: InstrumentProfile | undefined,
 ) => void
 
 /**
@@ -57,16 +60,19 @@ export function rhythmSettingKeyOf(intent: GenerationIntent): string {
  * Intent: build a trigger that posts one prewarm whenever the rhythm setting it is given differs
  * from the last one it posted (the first call always posts), so a non-rhythm edit (tonal center,
  * tempo, contour...) and a width crossing that leaves the generated density unchanged post nothing.
+ * My instrument's profile goes into the intent as data, never looked up by its id.
  */
 // @spec-link [[module_generation_prewarm]]
+// @spec-link [[entity_my_instrument]]
 export function createRhythmPrewarmTrigger(post: PostPrewarm): RhythmPrewarmTrigger {
   let lastPostedKey: string | undefined
-  return (generatedControls, musicalProfile) => {
+  return (generatedControls, musicalProfile, instrumentProfile) => {
     const intent = createGenerationIntent({
       requestId: PREWARM_REQUEST_ID,
       seed: PREWARM_SEED,
       controls: generatedControls,
       musicalProfile,
+      ...(instrumentProfile === undefined ? {} : { instrumentProfile }),
     })
     const key = rhythmSettingKeyOf(intent)
     if (key === lastPostedKey) return

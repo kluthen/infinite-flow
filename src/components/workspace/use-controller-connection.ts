@@ -5,6 +5,7 @@
  * reselected at setup from what the load read, then saved whenever it changes. Where focus goes
  * once the sheet closes is the shell's (./use-workspace-focus.ts).
  */
+import type { InstrumentClef } from '@/domain/profile/instrument-clef'
 import { onMounted, onScopeDispose, watch } from 'vue'
 
 import type { AudioTransport } from '@/audio/audio-transport'
@@ -36,6 +37,8 @@ export interface ControllerConnectionDeps {
   readonly audio: AudioTransport
   /** The current instrument profile, which the sheet's transposition check reads in. */
   readonly profile: () => InstrumentProfile
+  /** The current instrument's clef, the staff the check's note is drawn on. */
+  readonly clef: () => InstrumentClef
   /** True while a session runs, count-in included. */
   readonly sessionActive: () => boolean
   /** True while a running session's controller is lost (its countdown runs). */
@@ -111,6 +114,7 @@ export function useControllerConnection(deps: ControllerConnectionDeps): Control
     audio: deps.audio,
     status: controllerStatus,
     profile: deps.profile,
+    clef: deps.clef,
     sessionActive: deps.sessionActive,
   })
 

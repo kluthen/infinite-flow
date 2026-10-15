@@ -31,6 +31,8 @@ export type NotationActions = Pick<
 > & {
   /** Show no phrase: the phrase, the room notice and every field tied to them go. */
   readonly clearPhrase: () => void
+  /** Draw the phrase on screen again, as it is, in its instrument's clef now. */
+  readonly redrawPhrase: () => Promise<boolean>
 }
 
 /**
@@ -71,6 +73,16 @@ export function createNotationActions<TResult>(
     if (state.operation !== 'idle' || state.result === null || state.notationError === null) {
       return Promise.resolve(false)
     }
+    return runNotation(state.result)
+  }
+
+  /**
+   * Intent: draw the phrase on screen again, as it is, in the clef its instrument has now (a clef
+   * changed alone keeps the phrase): no new phrase, no new seed. Only at idle with a phrase shown.
+   */
+  // @spec-link [[req_my_instrument]]
+  function redrawPhrase(): Promise<boolean> {
+    if (state.operation !== 'idle' || state.result === null) return Promise.resolve(false)
     return runNotation(state.result)
   }
 
@@ -120,5 +132,11 @@ export function createNotationActions<TResult>(
     deps.clearPresentedPhrase()
   }
 
-  return { retryNotation, reportNotationFailure, reportNotationRecovered, clearPhrase }
+  return {
+    retryNotation,
+    reportNotationFailure,
+    reportNotationRecovered,
+    clearPhrase,
+    redrawPhrase,
+  }
 }

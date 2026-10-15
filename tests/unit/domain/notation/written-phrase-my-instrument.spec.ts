@@ -40,7 +40,7 @@ import type {
 import { makeRational } from '@/domain/time/rational'
 
 /** A written range every transposition below can sound inside MIDI 0 to 127: C3 to C6. */
-const WRITTEN_RANGE = { minMidi: 48, maxMidi: 84 } as const
+const WRITTEN_RANGE = { minMidi: 48, maxMidi: 76 } as const
 
 /** Intent: build my instrument on the C MIDI keyboard template with one transposition and clef. */
 function myInstrumentWith(

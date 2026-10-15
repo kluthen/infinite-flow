@@ -22,8 +22,8 @@ afterEach(() => {
 
 // @test-link [[rule_notation_display_preserves_phrase]]
 describe("CheckNote: the check note on the instrument's clef", () => {
-  it('draws the written check note in treble clef when no clef is given', async () => {
-    const wrapper = mount(CheckNote, { props: { profile: BB_TENOR_PROFILE } })
+  it('draws the written check note in treble clef when given the treble clef', async () => {
+    const wrapper = mount(CheckNote, { props: { profile: BB_TENOR_PROFILE, clef: 'treble' } })
     await flushPromises()
 
     expect(fakeCheckNoteEngraver.engraveCheckNote).toHaveBeenCalledExactlyOnceWith(

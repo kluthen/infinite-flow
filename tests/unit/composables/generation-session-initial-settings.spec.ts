@@ -67,6 +67,7 @@ describe('createGenerationSession: the settings it starts from', () => {
       controls: LOADED_CONTROLS,
       profileSelection: LOADED_PROFILE,
       theme: 'Dark',
+      myInstrument: null,
     })
 
     expect(created.state.controls).toEqual(LOADED_CONTROLS)
@@ -87,6 +88,7 @@ describe('createGenerationSession: the settings it starts from', () => {
     expect(created.state.controls).toEqual(DEFAULT_GENERATION_CONTROLS)
     expect(created.state.profileSelection).toEqual(DEFAULT_PROFILE_SELECTION)
     expect(created.state.presentation).toEqual({ theme: 'System' })
+    expect(created.state.myInstrument).toBeNull()
     expect(prewarm.mock.calls[0]?.[0].controls).toMatchObject({ noteDensity: 'Quarter', tempo: 90 })
     created.dispose()
   })

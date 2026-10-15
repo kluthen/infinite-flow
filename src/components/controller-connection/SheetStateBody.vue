@@ -11,6 +11,7 @@ import {
   transpositionCheckCopy,
   type TranspositionCheckCopy,
 } from '@/domain/controller-check/transposition-check-copy'
+import type { InstrumentClef } from '@/domain/profile/instrument-clef'
 import type { InstrumentProfile } from '@/domain/profile/instrument-profile'
 import CheckNote from './CheckNote.vue'
 import DevicePicker from './DevicePicker.vue'
@@ -20,6 +21,8 @@ const props = defineProps<{
   model: SheetModel
   /** The current instrument profile, which the transposition check reads in. */
   profile: InstrumentProfile
+  /** The current instrument's clef, the staff the check's note is drawn on. */
+  clef: InstrumentClef
   /** The instrument profiles the check may suggest instead of the current one. */
   profiles: readonly InstrumentProfile[]
 }>()
@@ -106,7 +109,7 @@ const checkCopy = computed<TranspositionCheckCopy | null>(() => {
       />
     </template>
     <template v-else-if="stage.kind === 'check'">
-      <CheckNote :profile="profile" />
+      <CheckNote :profile="profile" :clef="clef" />
       <div v-if="checkCopy !== null" class="inline-alert alert-notice">
         <p>{{ checkCopy.result }}</p>
         <p>{{ checkCopy.suggestion }}</p>

@@ -44,6 +44,7 @@ function fakeWorkspaceSession(savedData: SavedDataLoad = fakeSavedData()) {
     presentation: { theme: savedData.settings.theme } as {
       theme: ThemePreference
     },
+    myInstrument: savedData.myInstrument,
     latestIntent: null,
     result: null,
     operation: 'idle' as SessionOperation,
@@ -61,6 +62,8 @@ function fakeWorkspaceSession(savedData: SavedDataLoad = fakeSavedData()) {
       setControl: () => false,
       selectMusicalProfile: () => false,
       selectInstrumentProfile: async () => 'rejected',
+      saveMyInstrument: async () => 'rejected',
+      deleteMyInstrument: async () => 'rejected',
       setTheme: (theme: ThemePreference) => {
         state.presentation = { ...state.presentation, theme }
         return true

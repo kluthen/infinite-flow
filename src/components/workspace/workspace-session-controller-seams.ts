@@ -4,6 +4,7 @@
  * controller. The workspace supplies them; `workspace-session-controller-types.ts` re-exports them
  * beside the controller's state and actions.
  */
+import type { InstrumentClef } from '@/domain/profile/instrument-clef'
 import type {
   GenerationSessionActions,
   GenerationSessionState,
@@ -91,7 +92,11 @@ export interface SessionControllerDependencies {
   readonly createSessionRunner: (input: WorkspaceSessionRunnerInput) => SessionRunner
   readonly clock: SessionControllerClock
   readonly idleLayout: IdleLayoutPort
-  readonly staffFixedParts: (phrase: WorkspaceSessionResult) => Promise<StaffFixedParts>
+  /** Measure phrase 1's staff fixed parts in the session's clef, the clef Idle drew it in. */
+  readonly staffFixedParts: (
+    phrase: WorkspaceSessionResult,
+    clef: InstrumentClef,
+  ) => Promise<StaffFixedParts>
   /** The staff planner, once the engraver and its fonts are ready; a load failure rejects. */
   readonly staffFitPlanner: () => Promise<StaffFitPlanner>
   /** The app's one MIDI controller; the controller listens to it from its creation to `dispose`. */

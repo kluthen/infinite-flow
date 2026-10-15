@@ -138,7 +138,13 @@ watch(
           Close
         </button>
       </div>
-      <SheetStateBody :model="model" :profile="profile" :profiles="profiles" @choose="choose" />
+      <SheetStateBody
+        :model="model"
+        :profile="profile"
+        :clef="clef"
+        :profiles="profiles"
+        @choose="choose"
+      />
       <div v-if="actions.length > 0" class="sheet-actions">
         <button
           v-for="button in actions"

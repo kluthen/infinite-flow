@@ -7,6 +7,8 @@
  *   spec can see the page before the load ends: only its background;
  * - `seedSettings` writes settings records through the settings codec, valid or not, for the next
  *   load (the spec reloads the page); `records` reads a store back;
+ * - `seedMyInstrument` writes the my-instrument record through its codec, valid or not, for the
+ *   next load;
  * - `seedTimingSessions` writes sized kept-session records for the start-up read measurement (M2);
  * - `keyedRecords` reads a store back with each record's key; `pinKeptSession` pins a kept session
  *   the app saved, as the review's pin will, `seedUnreadableKeptSession` writes a kept session
@@ -48,6 +50,10 @@ import {
   type SettingKey,
   type SettingValue,
 } from '../../../src/storage/records/settings-record'
+import {
+  encodeMyInstrumentRecord,
+  MY_INSTRUMENT_RECORD_KEY,
+} from '../../../src/storage/records/my-instrument-record'
 import type { RecordVersions } from '../../../src/storage/record-envelope'
 import type { SavingState } from '../../../src/storage/save-policy'
 import {
@@ -309,6 +315,15 @@ export function createHarnessStorage(
     }
   }
 
+  /**
+   * Intent: write the my-instrument record built from `input` through its codec, valid or not:
+   * the codec takes the fields unchecked, so a spec can seed one the load must refuse.
+   */
+  async function seedMyInstrument(input: WorkspaceHarnessMyInstrumentInput): Promise<void> {
+    const record = encodeMyInstrumentRecord(input, APP_VERSION)
+    await openedPort().write('instrument', MY_INSTRUMENT_RECORD_KEY, record)
+  }
+
   /** Intent: write `count` sized kept sessions, in batches. */
   async function seedTimingSessions(count: number, bodyBytes: number): Promise<void> {
     if (!Number.isInteger(count) || count < 0 || !Number.isInteger(bodyBytes) || bodyBytes < 0) {
@@ -428,6 +443,7 @@ export function createHarnessStorage(
     load,
     api: {
       seedSettings,
+      seedMyInstrument,
       seedTimingSessions,
       pinKeptSession,
       seedUnreadableKeptSession,
