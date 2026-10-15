@@ -49,8 +49,11 @@ flowchart TD
 - **Kept session:** a session saved on this device, pinned or not.
 - **The most recent session:** the last session that ended with a review, while it still exists:
   in memory during the visit it ended in (kept, or held in memory only because its save failed),
-  or, after a reload, the session that was saved last. Deleting it leaves no most recent session
-  until the next session ends with a review. A session ended during its count-in changes nothing.
+  or, after a reload, the session that was saved last. Deleting it, whichever way the player
+  deletes it, leaves no most recent session in that visit until the next session ends with a
+  review. The one exception is a damaged session's deletion: the most recent session then becomes
+  at once the readable kept session that started last ([A Damaged Session](#a-damaged-session)).
+  A session ended during its count-in changes nothing.
 - **Can be opened:** held in memory, or kept and readable by this version of the app.
 - **Damaged:** a kept session whose records, as the device returned them, the app cannot read
   correctly: a record that cannot be read at all, content this version's rules refuse, records of
@@ -144,9 +147,11 @@ saves (master spec §5.1). Nothing is asked: the player has nothing to choose.
   the deletion settles; then the row leaves, focus moves as after that row's deletion (the next
   row's `session-row-open`, else the previous row's, else the list's title over
   `sessions-empty`), and the notice shows at the same moment.
-- **The most recent session afterwards** is the readable kept session that started last, as after
-  the player's own deletion: its row takes " · Last session", and `review-link` follows its rule
-  when the mode is left (absent when no session can be opened). `sessions-link` follows the rows.
+- **The most recent session afterwards** is, at once, the readable kept session that started
+  last, as it would have been at load had the damage been found there; unlike the player's own
+  deletion, which leaves none in that visit (Terms). Its row takes " · Last session", and
+  `review-link` follows its rule when the mode is left (absent when no session can be opened).
+  `sessions-link` follows the rows.
 - **A deletion the device refuses** lands the same way, the session staying unlisted for the
   visit, but shows the save-problem notice in its Damaged session not deleted wording ("A kept
   session was damaged and couldn't be read, and this device refused to delete it. It stays hidden
