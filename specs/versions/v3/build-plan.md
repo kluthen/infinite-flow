@@ -1,9 +1,9 @@
 # Infinite Flow v3.0 — Build Plan
 
-Status: v15 (2026-10-14): the owner's rulings on O201 and O200 written in: chunk 27 no longer waits; chunk 28 inserted in wave 8 to delete a damaged kept session with an apology; chunk 14's failed reads are the device's refusals; a Damaged session design gate (spec D309–D311). Approved by
+Status: v16 (2026-10-15): the wave-6 preflight's corrections written in: Gate A shown done; chunks 11, 12 and 25 share review files in a stated order; chunk 11 captures how a kept session changes after its save; chunk 22 waits for a new owner gate on two contract wordings (CONTRACT 6.0); chunk 25 waits for spec O210 (spec D312–D315). Approved by
 the product owner on 2026-10-07 (v1), with Gate A and the token-source pass (Q66) confirmed the
 same day; every later revision writes in rulings from [the decisions log](../../decisions.md)
-(spec D252–D311), and earlier wordings are in git.
+(spec D252–D315), and earlier wordings are in git.
 
 Build plan for v3.0, Storage, written from [master spec v1.3](master-spec.md) (now Part A v1.15) and the v3.0 design
 in [`ui_ux/versions/v3.0/`](../../../ui_ux/versions/v3.0/README.md), the copy frozen when the
@@ -44,7 +44,7 @@ Some steps are not code and need the owner. They are part of the sequence:
 | Step | What | When | Blocks |
 | --- | --- | --- | --- |
 | **Q66** | The owner allows one `ux-writer` pass on `src/styles/theme.css` and `components.css` ([ux Q66](../../../ui_ux/open-questions.md)). | Now. | [Chunk 1](#chunk-1--token-source-pass-pending-owner-approval), so every interface chunk (8, 10–15, 20–22, 20c, 25). |
-| **Gate A** | The owner confirms the contract change set, part A, in the words of [`v3.0-intent-change-set.md`](../../../docs/release/v3.0-intent-change-set.md#a-contract-18--20-major-three-narrowed-guarantees); `documentalist` applies A1–A4 (CONTRACT 1.8 → 2.0) in its own commit on `main`. | As soon as the owner confirms: the narrowed wording still holds for v2.0, so it can land before any v3.0 code. | Chunks 11, 12 and 22 may not **merge** before it (each breaks one of the three old guarantees); chunk 14 follows from 12. |
+| **Gate A** | **Done 2026-10-07:** the owner confirmed the contract change set, part A, in the words of [`v3.0-intent-change-set.md`](../../../docs/release/v3.0-intent-change-set.md#a-contract-18--20-major-three-narrowed-guarantees); `documentalist` applied A1–A4 (CONTRACT 1.8 → 2.0) in its own commit on `main` (54025fa). The contract is at 5.0 since (Review reachability, Starting-note wording). | Done. | Nothing. Chunks 11 and 12 no longer wait for it; chunk 22 waits for the Remembered-controller wording below. |
 | **H1** | The owner records stray notes on the Travel Sax breath controller with v2.0's played-notes export ([measurement M1](#m1--the-stray-note-threshold)). | Any time; v2.0 already exports raw played notes. | Chunk 25's threshold. |
 | **Range ruling** | **Settled 2026-10-12 (spec D294):** written C2–C7 in treble clef, E0–E5 in bass clef ([master spec §7.1](master-spec.md#71-what-it-is)), from measurement M3 ([chunk 16](#chunk-16--my-instrument-in-the-domain), [chunk 19](#chunk-19--my-instrument-on-the-staff) and [chunk 19b](#chunk-19b--bass-clef-for-my-instrument)). Chunk 19b confirms by measurement that the bass-clef bound keeps the shared height at most 24 staff spaces; if not, the figure goes back to the owner. | Done. | Nothing. Chunk 20 enforces it. |
 | **Clef design** | `ux-writer` designs the clef control in my instrument's sheet, its wording and its default (proposed: treble clef), the staff-reach note read in the chosen clef, and the refusal of a range outside its clef's bound, in note names (spec D294) (ux D280+ and ux Q80+). | Now; before chunk 20. | Chunk 20. Chunk 19b may start before it: its only words are the score description's clef name, "bass clef" in the existing pattern, revised if `ux-writer` says otherwise. |
@@ -60,6 +60,8 @@ Some steps are not code and need the owner. They are part of the sequence:
 | **O200** | **Closed 2026-10-14 (spec D310):** a kept session the app cannot read correctly is deleted, with an apology, at load, at the next save or when opened, while the visit saves; a read the device refuses deletes nothing ([spec O200](../../open-questions.md#v30-wave-5-o200), master spec §5.1). | Done. | Nothing. [Chunk 28](#chunk-28--a-damaged-kept-session-deleted-with-an-apology) builds it. |
 | **O201** | **Closed 2026-10-14 (spec D309):** a session cut short by reloading or closing the page is never saved, §5.1 kept ([spec O201](../../open-questions.md#v30-wave-5-o200)). | Done. | Nothing. [Chunk 27](#chunk-27--a-session-cut-short-by-the-page-going-away) builds it. |
 | **Damaged session design** | `ux-writer` designs, for spec D310: the apology notice (its wording for one and for several sessions, `Dismiss`, its lifetime and its place in "one notice at a time"); where the player lands when `review-link` or a list row finds its session damaged (proposed: the list without that row; after `review-link`, focus on the list's title; from a row, focus as after that row's deletion); and aligns the session list (a session whose summary cannot be read has no row; `sessions-link` counts rows; the failed-open note now means a refusal by the device). | Now; before chunk 28b. | [Chunk 28](#chunk-28--a-damaged-kept-session-deleted-with-an-apology) (28b; 28a may start before it). |
+| **Remembered-controller wording** | The owner confirms a MAJOR contract change, CONTRACT 5.0 → 6.0, in the words of [master spec §10](master-spec.md#10-what-v30-changes-in-v2s-guarantees) (its seventh change; spec D314). Two STABLE atoms still state what chunk 22 changes: `specification_browser_only_operation_verification` rejects a release that requests MIDI access before a Start or `Connect controller` click, and `rule_midi_starting_note` says the starting note, with a controller attached at Idle, starts the count-in. The new wordings allow the one request at load that reselects a remembered controller, made only when the browser already allows MIDI access, and say that after a load the starting note starts nothing before the page's first click, tap or key press. Both hold for v2.0. `documentalist` applies them in a commit of its own, on `main` or on the wave branch (the wave driver's call; on `main`, merged into the wave branch before chunk 22 merges). | Now. | [Chunk 22](#chunk-22--remembered-controller) may not **merge** before it. |
+| **O210** | `ux-writer` settles what the review offers when every played note of a session is very short ([spec O210](../../open-questions.md#v30-wave-6-o210)): "holds a played note" counts very short ones (ux D210), so `review-view` and `Export played notes` show, but with `Include very short notes` off the file would hold no note, which the encoder refuses today. | Now; before chunk 25. | [Chunk 25](#chunk-25--stray-note-filter) (which also waits for H1). |
 
 ### Waves
 
@@ -67,7 +69,9 @@ Waves run one after another. Inside a wave, chunks run one at a time in number o
 rule is **one coding chunk in flight at a time**. Each wave starts with one intent preflight, ends
 with one wave gate (the full test pass, the bundle and the post-task sync), and reaches `main` as
 one merge ([§3](#3-workflow-waves-and-chunks)). The chunks in a wave are independent of each other
-and touch different source files, so one preflight can cover them all. A chunk still blocked
+and touch different source files, so one preflight can cover them all; wave 6 is the one
+exception, sharing some files in a stated order ([Wave 6: shared files, in
+order](#wave-6-shared-files-in-order)). A chunk still blocked
 when the rest of its wave is done (waiting for the owner, a design answer or a measurement) moves to the
 next wave.
 
@@ -84,7 +88,7 @@ wave-0 gate covers chunks 1 and 2.
 | 3 | 5 Save policy · 9 Kept-session record | Chunk 4; chunk 23 (9) |
 | 4 | 7 Saved settings · 8 Notice row | Chunks 5, 6; chunk 1 for 8 |
 | 5 | 10 Most recent session kept (10a, 10b if split) · 17a My instrument through the worker and the session · 17b The clef through the history and the review | Chunks 7, 8, 9 (10); 9, 16, 19b (17) |
-| 6 | **Gate A**, then 11 Played-notes opt-in · 12 Favorites, pin, comment · 18 Replay key `ifk2.` · 22 Remembered controller · 25 Stray-note filter | Chunk 10 and Gate A (11, 12; and Review reachability before 12 merges); chunk 17 (18, not Gate A); chunk 7 and Gate A (22); H1 and chunk 1 (25) |
+| 6 | 11 Played-notes opt-in · 12 Favorites, pin, comment · 18 Replay key `ifk2.` · 22 Remembered controller · 25 Stray-note filter, in that order | Chunk 10 (11); chunk 11's change path (12, an in-wave edge fixed by 11's capture; spec D312, D313); chunk 17 (18); chunk 7 (22), and the Remembered-controller wording before 22 merges; H1, chunk 1 and O210 (25). Gate A and Review reachability are done. |
 | 7 | 13 Favorites-only export · 14 Session list · 20 My instrument sheet · 27 A session cut short by the page going away | Chunk 12 (13, 14); chunks 7, 17, 19b, 24, the clef design and ux Q76 (20); chunk 10 (27, after wave 6's chunk 11, which may touch the session's save) |
 | 8 | 15 Your data · 21 The check feeds my instrument · 28 A damaged kept session deleted, with an apology | Chunks 11, 14 (15); 20 (21); 14, 27 and the Damaged session design gate (28; 28a may start before the gate) |
 | 9 | 20c My instrument's sessions · 24b Stale phrase at Start | Chunks 14, 20 and 21 and the Sessions design gate (20c); chunk 24 and the Stale phrase design gate (24b) |
@@ -98,7 +102,9 @@ asked for the end of v3.0; the two touch different files. Since v14, chunk 27 (a
 short by the page going away, spec O201) joins wave 7; no wave-7 chunk touches its files. Since
 v15, chunk 28 (a damaged kept session deleted with an apology, spec D310) joins wave 8: it
 changes files chunks 14 and 27 own in wave 7, after them, and none of chunk 15's or 21's; wave
-8's file pass checks `use-kept-sessions.ts` against chunk 15's Delete every session.
+8's file pass checks `use-kept-sessions.ts` against chunk 15's Delete every session. Since v16,
+wave 6's chunks 11, 12 and 25 share files, and chunk 12 builds on chunk 11 (spec D312): see
+below.
 
 ```mermaid
 flowchart LR
@@ -123,8 +129,10 @@ flowchart LR
   GA{{Gate A: contract 2.0}} --> C11
   GA --> C12
   GA --> C22
+  RC{{Remembered-controller wording: contract 6.0}} --> C22
   C10 --> C11[11 Played-notes opt-in]
   C10 --> C12[12 Favorites, pin, comment]
+  C11 --> C12
   C12 --> C13[13 Favorites-only export]
   C12 --> C14[14 Session list]
   C11 --> C15[15 Your data]
@@ -151,6 +159,7 @@ flowchart LR
   C7 --> C22[22 Remembered controller]
   C23 --> C24[24 Pre-generation]
   H1{{H1 recordings}} --> C25[25 Stray-note filter]
+  VS{{O210 very short notes}} --> C25
   C15 --> C26[26 v3.0 gate]
   C13 --> C26
   C18 --> C26
@@ -169,6 +178,34 @@ flowchart LR
   DS{{Damaged session design}} --> C28
   C28 --> C26
 ```
+
+#### Wave 6: shared files, in order
+
+Settled in spec D312. Chunks 11, 12 and 25 each need the review's host, panel and score panel, and
+chunks 11 and 12 also the session's save and the controller's state; no owner per file keeps
+their slices whole, and moving chunk 12 out would put chunks 13, 14, 15 and 28 a wave later on
+the critical path. Wave 6 runs one chunk at a time (κ=1), in number order, 11 → 12 → 18 → 22 →
+25, and each chunk's branch is cut from the wave branch after the previous chunk merged, so a
+later chunk reads the earlier one's merged edit. The files are shared in that order:
+
+| File | Order and what each chunk adds |
+| --- | --- |
+| `src/components/workspace/use-review-host.ts` | 11 (`Keep my played notes`, `Delete played notes`), then 12 (favorites, pin, comment, `Delete session`, the retry), then 25 (the lane's notes filtered; `Include very short notes` reaching `exportPlayedNotes`) |
+| `src/components/review/ReviewPanel.vue` | 11 (`review-view`'s new controls), then 12 (mounts `ReviewSessionTools` and `ReviewComment`), then 25 (the export block's option; the lane and its session-wide pitch scale `playedNotesPitchScale` from the filtered notes) |
+| `src/components/workspace/ScorePanel.vue` | 11, then 12, then 25: each passes its own new props and events from the review host to `ReviewPanel` |
+| `src/components/workspace/workspace-session-save.ts` | 11 (`Keep my played notes` read at the session's save, where `playedNotesKept: false` is hardcoded today; the change path beside it), then 12 (the facts held in memory at a retry; the retry) |
+| `src/components/workspace/workspace-session-controller-types.ts`, `workspace-session-controller.ts` | 11 (the played-notes-kept fact on `ReviewedSession` and the most recent session, the setting, both deletions), then 12 (favorites, pinned and comment there, `Delete session`, the retry) |
+| `src/storage/records/kept-session-record.ts` | 11 (a kept session's facts encoded again after its save), then 12 (the favorite marks) |
+| The shared confirmation sheet in `src/components/workspace/` (new) | 11 builds it (its two confirmations), 12 reuses it, as chunks 14, 15 and 20 will |
+| `src/components/workspace/create-workspace-session.ts` | 11 (the saved `Keep my played notes` into the session controller), then 22 (the remembered controller's saver), if 22's wiring goes through it |
+| `src/components/workspace/review-export.ts` | 25 only |
+| `src/components/workspace/WorkspaceShell.vue` | 22 only in wave 6; chunk 20 has it in wave 7 |
+
+Chunk 18's files are its own. A later chunk adds its part and leaves an earlier chunk's part as it
+merged; a change it would need there is reported, as any drift, never made in passing. Chunk 12's
+dependence on chunk 11 is the one in-wave edge: chunk 11's architecture capture fixes the change
+path chunk 12 calls. If chunk 25 leaves the wave still blocked, its edits of these files are made
+on the next wave's branch, after wave 6 merged.
 
 ### Wave records
 
@@ -832,8 +869,9 @@ atoms brought to the merged code, among them `module_save_policy` 0.3 (the sessi
 its outcome) and `module_kept_session_save` 0.2 (the save as built), with no STABLE atom, CONTRACT
 or VISION touched ([change set part M1](../../../docs/release/v3.0-intent-change-set.md#m1-applied-atoms-brought-to-the-merged-code)).
 Put to the owner with the report: the seven business wordings of
-[part M2](../../../docs/release/v3.0-intent-change-set.md#m2-owner-wordings-not-applied), of which
-item 5(b) and item 6 wait for [spec O200](../../open-questions.md#v30-wave-5-o200);
+part M2 of the [change set](../../../docs/release/v3.0-intent-change-set.md) (items 1–4, 5(a) and
+7 since applied; items 5(b) and 6 rewritten to the owner's ruling on
+[spec O200](../../open-questions.md#v30-wave-5-o200) and applied at chunk 28's sync);
 `module_kept_session_save` DRAFT → REVIEW (part M3); and a new question,
 [spec O201](../../open-questions.md#v30-wave-5-o200): a session cut short by reloading or closing
 the page may be saved today, against §5.1's "lost" (the sync's drift; its answer may change part
@@ -899,6 +937,7 @@ half, narrowed in steps; spec D301):
 | Contract guarantees in `req_last_session_review`, `rule_optional_midi_privacy`, `rule_same_controller_reattaches` | **Gate A** | Narrowed to what holds in both v2.0 and v3.0 (CONTRACT 2.0). |
 | `req_last_session_review`: the review "stays reachable until the next session starts" | **Review reachability** (done 2026-10-12) | "or until the player deletes its session" (spec D295), confirmed MAJOR (CONTRACT 4.0). |
 | `rule_midi_starting_note`: playing the starting note "starts the count-in" | **Starting-note wording** (done 2026-10-13) | With a stale phrase 1, the note first asks, as Start does (spec D297), confirmed MAJOR (CONTRACT 5.0). |
+| `specification_browser_only_operation_verification`: no MIDI access before a Start or `Connect controller` click, no audio before one; `rule_midi_starting_note`: with a controller attached at Idle, the starting note starts the count-in | **Remembered-controller wording** (waits for the owner) | One request at load reselects a remembered controller, only when MIDI access is already allowed; after a load, the starting note starts nothing before the page's first click, tap or key press (spec D314), MAJOR (CONTRACT 6.0). Chunk 22 does not merge before it. |
 
 Every replaced test gets its v3.0 counterpart in the same chunk, and the gate lists each pair
 (item 22).
@@ -1751,12 +1790,13 @@ a late-opening port's policy is arriving) is not shown, though it counts toward 
 
 ### Gate A — Contract 2.0
 
-Not a chunk: an owner step with a commit of its own, made by `documentalist` on `main`. The owner
-confirms part A of the change set in its own words; `documentalist` applies A1
-(`req_last_session_review` 0.5), A2 (`rule_optional_midi_privacy` 0.3), A3
-(`rule_same_controller_reattaches` 0.2) and A4 (`contract_infinite_flow_first_release` 2.0, with
-the date and the confirmation in its notes). **Chunks 11, 12 and 22 may not merge before it.**
-The confirmation is item 23's evidence.
+**Applied 2026-10-07** (54025fa). Not a chunk: an owner step with a commit of its own, made by
+`documentalist` on `main`. The owner confirmed part A of the change set in its own words;
+`documentalist` applied A1 (`req_last_session_review` 0.5), A2 (`rule_optional_midi_privacy`
+0.3), A3 (`rule_same_controller_reattaches` 0.2) and A4 (`contract_infinite_flow_first_release`
+2.0, with the date and the confirmation in its notes). Chunks 11, 12 and 22 no longer wait for it;
+chunk 22 waits for the [Remembered-controller wording](#remembered-controller-wording--contract-60)
+instead. The confirmation is item 23's evidence.
 
 ### Chunk 9 — Kept-session record
 
@@ -2014,8 +2054,38 @@ the line stays "Not pinned".
 
 ### Chunk 11 — Played-notes opt-in and deletion
 
-**Gate A must be applied before this chunk merges** (it breaks the old `rule_optional_midi_privacy`
-guarantee).
+Gate A, applied 2026-10-07, narrowed the `rule_optional_midi_privacy` guarantee this chunk breaks;
+nothing else holds its merge. It shares files with chunks 12 and 25 and comes first
+([Wave 6: shared files, in order](#wave-6-shared-files-in-order)).
+
+**Architecture capture** (before code; spec D313): how a kept session changes after its save, as
+an ARCHITECTURE atom `documentalist` names (or a revision of `module_kept_session_save`, its
+choice). Chunk 11 builds it; chunk 12 reuses it.
+
+- Every change after the session's own save is one port `apply` batch through the save policy, so
+  it is held while a session runs, refused in an outdated tab and checked against `meta` like any
+  write: here, keeping or deleting one session's played notes and deleting every kept played note;
+  in chunk 12, a favorite, a pin or unpin, the comment and `Delete session`.
+- What each change rewrites: the session's summary always (`playedNotesKept`, `pinned`,
+  `favoritesCount`, `comment`); its `playedNotes` record written or deleted in the same batch; its
+  body only for a favorite mark (chunk 12); `Delete session` deletes all three. Deleting every kept
+  played note deletes every `playedNotes` record and rewrites every readable summary that said
+  they were kept, in one batch; a summary that cannot be read is left (chunk 28's).
+- The session is named by its key (spec D303): the one its save minted. A change made while the
+  session's own save is still running waits for it and applies to what it saved.
+- With saving off (an outdated tab, a visit started from the defaults), a change holds for the
+  visit only: nothing is read, written or deleted, no deletion is offered, and turning
+  `Keep my played notes` off asks nothing (kept-sessions design, While Saving Is Off).
+- A refused change stays in memory for the visit, and the notice row tells it once the player is
+  back at Idle (review-and-export design, Saving the Session), unlike the session's own save, whose
+  refusal only the keep line tells.
+- A session whose own save failed, held in memory, is not changed through this path: in chunk 12,
+  its next favorite, pin, unpin or comment retries the session's own save with the facts as they
+  are then (the same batch as at the end, its deletions read at the retry, the same key), and on
+  success the keep line takes its pinned or not-pinned wording; a failed retry changes nothing
+  shown.
+
+Signatures are the leader's.
 
 **Goal.** Keep the player's played notes only after they opt in, and let them delete them.
 
@@ -2033,10 +2103,21 @@ that only the allowed stores are written and that no played note reaches storage
 is off. The allowed stores include `instrument` and `controller`, which chunks 20 and 22 write
 (chunk 22 follows in this wave, and the spied session attaches a controller).
 
-**Files:** `src/components/review/ReviewPanel.vue` (or a new `ReviewView.vue` part),
-`src/components/workspace/use-review-host.ts`, `src/storage/records/kept-session-record.ts`
-(played-notes record), tests `tests/e2e/review/review-privacy.spec.ts` (rewritten),
-`tests/e2e/storage/played-notes-opt-in.spec.ts`.
+**Files:** 11a, the save and the change path: `src/components/workspace/workspace-session-save.ts`
+(`Keep my played notes` read at the session's save, where line ~57 hardcodes `playedNotesKept:
+false` today; the change path beside it, in a new module if it outgrows the file),
+`src/storage/records/kept-session-record.ts` (a kept session's facts encoded again after its save;
+`kept-session-summary.ts` too if the summary is encoded again from its decoded form),
+`src/components/workspace/workspace-session-controller-types.ts` and
+`workspace-session-controller.ts` (the played-notes-kept fact on `ReviewedSession` and the most
+recent session, the setting, both deletions), `src/components/workspace/create-workspace-session.ts`
+(the saved setting into the session controller, from `savedData.settings`); 11b, the review:
+`src/components/workspace/use-review-host.ts`, `src/components/review/ReviewPanel.vue` (or a new
+`ReviewView.vue` part), `src/components/workspace/ScorePanel.vue` (the new props and events), the
+shared confirmation sheet in `src/components/workspace/` (new; reused by chunks 12, 14, 15 and
+20); tests: unit tests of the change path under `tests/unit/`,
+`tests/e2e/review/review-privacy.spec.ts` (rewritten), `tests/e2e/storage/played-notes-opt-in.spec.ts`.
+If the brief exceeds about five source files, split it there: 11a, then 11b.
 
 **Spec sections:** [§5.3](master-spec.md#53-played-notes-opt-in-and-deletion), [§10](master-spec.md#10-what-v30-changes-in-v2s-guarantees).
 
@@ -2044,9 +2125,12 @@ is off. The allowed stores include `instrument` and `controller`, which chunks 2
 (Played Notes, Privacy), [`screens/last-session-review/handoff.md`](../../../ui_ux/versions/v3.0/screens/last-session-review/handoff.md).
 
 **Atoms:** `rule_played_notes_kept_only_after_opt_in`, `rule_kept_played_notes_deletable`; (v2,
-STABLE after Gate A) `rule_optional_midi_privacy`, `rule_review_played_notes_toggle`.
+STABLE, `rule_optional_midi_privacy` narrowed by Gate A) `rule_optional_midi_privacy`,
+`rule_review_played_notes_toggle`. **Part D / drift check:**
+`specification_ephemeral_state_verification` (it says the state reaches the database only at the
+session's own save; chunks 11 and 12 write after it).
 
-**Depends on:** chunk 10 and Gate A.
+**Depends on:** chunk 10.
 
 **Done when:**
 
@@ -2058,6 +2142,15 @@ STABLE after Gate A) `rule_optional_midi_privacy`, `rule_review_played_notes_tog
 - Per-session deletion removes that session's played notes and nothing else (body, favorites,
   comment unchanged; the summary's `playedNotesKept` turns false in the same batch); an injected
   failure of that batch leaves both as they were.
+- Switched off while played notes are kept with any session: "Delete the played notes already
+  kept?" opens. `Delete them` deletes every kept played note, across sessions, in one batch, and
+  nothing else (bodies, favorites, comments, pins and settings unchanged; every summary's
+  `playedNotesKept` false); `Keep them` keeps them; the switch is off either way
+  (`rule_kept_played_notes_deletable`). With none kept, nothing opens.
+- With saving off, the switch changes for the visit only: nothing is written (write spy), no
+  confirmation opens and `Delete played notes` is absent.
+- A change after the session's save is one batch through the save policy (write spy); an injected
+  refusal leaves the change in memory and raises the notice row once back at Idle.
 - The network half of the privacy spy still sees no request carrying player data, with storage
   in use.
 
@@ -2067,8 +2160,10 @@ STABLE after Gate A) `rule_optional_midi_privacy`, `rule_review_played_notes_tog
 
 ### Chunk 12 — Favorites, pin and comment in the review
 
-**Gate A must be applied before this chunk merges** (it breaks the old "the review has no
-favorites" guarantee).
+Gate A, applied 2026-10-07, narrowed the "the review has no favorites" guarantee this chunk breaks,
+and Review reachability (CONTRACT 4.0) covers its `Delete session`; nothing else holds its merge.
+It reuses chunk 11's change path, as chunk 11's capture fixes it, and shares files with chunks 11
+and 25, after 11 ([Wave 6: shared files, in order](#wave-6-shared-files-in-order)).
 
 **Goal.** Mark whole phrases as favorites, pin and unpin, delete, and comment, from any review.
 
@@ -2081,11 +2176,18 @@ change is saved when made; a session whose save had failed is retried on the nex
 session's Start never asks anything. The "no favorites" test is replaced by a test that the review
 still holds no grading or scoring wording.
 
-**Files:** `src/components/review/ReviewPhrase.vue` (favorite), `src/components/review/ReviewSessionTools.vue`
-(new), `src/components/review/ReviewComment.vue` (new), a shared confirmation sheet component in
-`src/components/workspace/` (reused by 14, 15, 20), `src/components/workspace/use-review-host.ts`;
-tests `tests/e2e/review/review-favorites.spec.ts`, `review-comment.spec.ts`, the rewritten
-`review-opens` check.
+**Files:** 12a, the changes: `src/components/workspace/workspace-session-save.ts` (the facts held
+in memory at a retry; the retry), `src/components/workspace/workspace-session-controller-types.ts`
+and `workspace-session-controller.ts` (favorites, pinned and comment on `ReviewedSession` and the
+most recent session; `Delete session`; the retry), `src/storage/records/kept-session-record.ts`
+(the favorite marks, through chunk 11's encoding after the save); 12b, the review:
+`src/components/review/ReviewPhrase.vue` (favorite), `src/components/review/ReviewSessionTools.vue`
+(new), `src/components/review/ReviewComment.vue` (new), `src/components/review/ReviewPanel.vue`
+(mounts both), `src/components/workspace/use-review-host.ts`,
+`src/components/workspace/ScorePanel.vue` (the new props and events), and the shared confirmation
+sheet chunk 11 built; tests `tests/e2e/review/review-favorites.spec.ts`,
+`review-comment.spec.ts`, the rewritten `review-opens` check. If the brief exceeds about five
+source files, split it there: 12a, then 12b.
 
 **Spec sections:** [§5.1](master-spec.md#51-which-sessions-are-kept), [§5.5](master-spec.md#55-a-comment-on-a-session), [§6](master-spec.md#6-favorites), [§4.5](master-spec.md#45-keeping-the-data-safe-from-the-browser).
 
@@ -2096,9 +2198,15 @@ tests `tests/e2e/review/review-favorites.spec.ts`, `review-comment.spec.ts`, the
 
 **Atoms:** `req_favorite_phrases`, `rule_favorite_pins_session`, `rule_pinned_session_kept`,
 `rule_session_comment`, `rule_persistent_storage_requested`,
-`rule_new_session_never_asks_about_favorites`; (v2, STABLE after Gate A) `req_last_session_review`.
+`rule_new_session_never_asks_about_favorites`, `req_kept_session_list` (delete from the review,
+with a confirmation), `rule_failed_save_never_disturbs_session` (the retry on the next change);
+(v2, STABLE, narrowed by Gate A and Review reachability) `req_last_session_review`. **Part D /
+drift check:** `module_kept_session_save` (the changes after the save, the retry),
+`specification_ephemeral_state_verification` (the state reaches the database after the session's
+own save too).
 
-**Depends on:** chunk 10 and Gate A.
+**Depends on:** chunk 10; chunk 11 (its change path and confirmation sheet, in the same wave, fixed
+by its capture; spec D312).
 
 **Done when:**
 
@@ -2109,6 +2217,12 @@ tests `tests/e2e/review/review-favorites.spec.ts`, `review-comment.spec.ts`, the
 - A persist spy sees one `navigator.storage.persist()` call at the first pin or favorite of a
   visit, none after.
 - Starting a session from a review with favorites asks nothing.
+- `Delete session`, after its confirmation, deletes the session's summary, body and played notes
+  in one batch; deleting the session that just ended also removes it from memory, and
+  `review-link` with it. Absent while saving is off.
+- In a session whose save failed (injected), a favorite, pin, unpin or comment retries the
+  session's own save; on success the keep line takes its pinned or not-pinned wording; a failed
+  retry changes nothing shown.
 - Phone: every new control present (the star without its word).
 
 **Items covered:** 10 (marking, pinning, confirmation, no question at Start), 11 (the comment's
@@ -2266,7 +2380,8 @@ Data), [`screens/your-data/handoff.md`](../../../ui_ux/versions/v3.0/screens/you
   the controller stay.
 - Delete all played notes removes every played-notes record and nothing else.
 - Delete everything: after the reload, the database holds nothing (no store, no record), the
-  workspace is in its first-visit state, and Your data shows the empty overview.
+  workspace is in its first-visit state, and Your data shows the empty overview; with fake MIDI
+  access granted and a controller remembered before, nothing reattaches (item 12, from chunk 22).
 - An injected deletion failure keeps the confirmation with its error line.
 - Openers disabled during a session; no MIDI note starts a session while the sheet is open.
 - An injected failed or slow read: Your data offers Delete everything and no other deletion; once
@@ -2911,10 +3026,49 @@ warning, the cosmetic changes, the review's room), 17 (the check's warning).
 
 **Verification:** the chunk checks; then Part B2 with the owner.
 
+### Remembered-controller wording — Contract 6.0
+
+Not a chunk: an owner step with a commit of its own, made by `documentalist` (spec D314). Chunk 22
+changes what two STABLE atoms on the contract say. `specification_browser_only_operation_verification`
+rejects a release that requests MIDI access or starts audio before a Start or `Connect controller`
+click, while chunk 22 requests access at load to reselect the remembered controller, and lets a
+starting note played after any first click, tap or key press start the sound.
+`rule_midi_starting_note` says that with a controller attached at Idle the starting note starts the
+count-in, while after a load it starts nothing before the page's first click, tap or key press.
+Both lose cases, so by the contract's rule the change is MAJOR, CONTRACT 5.0 → 6.0. The wordings
+are in [master spec §10](master-spec.md#10-what-v30-changes-in-v2s-guarantees) (the seventh
+change); both hold for v2.0, which attaches a controller only after a `Connect controller` click
+and requests nothing at load. The owner confirms them in their own words; `documentalist` writes the
+change-set part and applies both atoms and the contract bump, with the date and the confirmation in
+the contract's notes, on `main` or on the wave branch (the wave driver's call; on `main`, merged
+into the wave branch before chunk 22 merges). **Chunk 22 may not merge before it.** The
+confirmation is item 23's evidence.
+
 ### Chunk 22 — Remembered controller
 
-**Gate A must be applied before this chunk merges** (it breaks the old "forgotten on reload"
-guarantee).
+**The [Remembered-controller wording](#remembered-controller-wording--contract-60) must be applied
+before this chunk merges.** Gate A, applied 2026-10-07, already narrowed the "forgotten on reload"
+guarantee of `rule_same_controller_reattaches`.
+
+**Architecture capture** (before code; spec D314): the remembered controller.
+
+- The record, one in the `controller` store, in the usual envelope: the input port's `id`, the one
+  identity v2 matches a returning device on within a page (`src/midi/midi-controller.ts`), and its
+  `name` and `manufacturer` for display only, never matched (two identical devices share them).
+  Written when a device counts as connected; cleared by `Disconnect`; untouched by an unplug or by
+  deleting my instrument; gone with Delete everything.
+- At load, read from the `rememberedController` records the loader already gives; only when a
+  controller is remembered and the permission query says MIDI access is granted, one access
+  request, which cannot prompt; the input whose `id` equals the record's is attached, now or when it
+  appears, as a device that comes back within a page.
+- Sound after a load: the page's first click, tap or key press creates no audio context by itself;
+  it is only noted (Chromium's sticky user activation, `navigator.userActivation.hasBeenActive`, is
+  one way), and the audio context is made when the starting note starts the count-in, which
+  Chromium allows once the page has had that gesture. If Chromium refuses it, the chunk stops and
+  reports; the contract wording would then change.
+- Whether Chromium keeps a device's `id` across a reload is what hand check H4 confirms on the Travel
+  Sax. If it does not, nothing is reselected and the finding goes to the owner as a spec question,
+  never a silent match by name.
 
 **Goal.** Remember the last controller the player chose and reattach it at load, without a
 prompt, until the player disconnects it.
@@ -2926,12 +3080,26 @@ remembered, request access (which cannot prompt) and attach it when present, the
 badge otherwise; through the sheet, **Requesting access** chooses it directly; after a load the
 starting note starts nothing until the page's first click, tap or key press, and the
 starting-note line says so. The remembered controller's identity matches the way v2 recognises a
-device that comes back within a page.
+device that comes back within a page. The first click, tap or key press makes no sound and creates
+no audio context; the starting note after it does (the capture above).
 
 **Files:** `src/midi/web-midi-access.ts`, `src/midi/midi-controller.ts` (load path),
 `src/storage/records/controller-record.ts` (new), `src/components/workspace/use-controller-connection.ts`,
-`src/components/workspace/SessionCueRow.vue` (the line); tests: the rewritten
-`controller-status` reload test, `tests/e2e/controller/controller-remembered.spec.ts`.
+`src/components/workspace/SessionCueRow.vue` (the line); the wiring that gives
+`useControllerConnection` the loaded `rememberedController` and a saver of the controller record:
+`src/components/workspace/WorkspaceShell.vue` (its `useControllerConnection` call; the shell already
+receives `savedData`) and the saver, built from the visit's saves in
+`src/components/workspace/create-workspace-session.ts` (after chunk 11's edit there) and passed
+through `src/App.vue` if the shell takes it as a prop, or another path the leader chooses that keeps
+writes behind the save policy; the starting note's wait for the page's first gesture
+(`src/components/workspace/workspace-session-midi.ts`, where the starting note is matched; the
+start path, `workspace-session-start.ts`, already unlocks the audio inside the starting note's
+callback and is not changed); tests: the rewritten `controller-status` reload test,
+`tests/e2e/controller/controller-remembered.spec.ts`. `WorkspaceShell.vue` is chunk 20's in wave
+7: chunk 22 adds only its own arguments to the `useControllerConnection` call, and chunk 20,
+branched after wave 6 merged, changes only the `profile` getter there; neither reshapes the
+other's. If the brief exceeds about five source files, split it: 22a, the record, the load path
+and its wiring; then 22b, the starting note's wait and the starting-note line.
 
 **Spec sections:** [§7.3](master-spec.md#73-remembering-the-controller).
 
@@ -2940,10 +3108,18 @@ device that comes back within a page.
 [`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.0/screens/phrase-workspace/handoff.md) (the
 header at load, the starting-note line).
 
-**Atoms:** `rule_last_controller_remembered`, `rule_delete_everything`; (v2, STABLE after Gate A)
-`rule_same_controller_reattaches`, `rule_audio_unlocked_by_player_click`.
+**Atoms:** `rule_last_controller_remembered`, `rule_delete_everything`,
+`rule_starting_note_waits_for_first_gesture` (DRAFT), `rule_disconnect_forgets_controller`
+(REVIEW); (v2, STABLE) `rule_same_controller_reattaches` (narrowed by Gate A),
+`rule_midi_starting_note` and `specification_browser_only_operation_verification` (revised by the
+Remembered-controller wording). **Part D:** `rule_audio_unlocked_by_player_click` (REVIEW, tagged
+`changes-in-v3.0`: "a MIDI note can start a session only after a `Connect controller` click" stops
+holding), `rule_controller_connects_between_sessions` (REVIEW: a reselection at load connects
+without the step; the e2e test 'the production app asks for no MIDI access at startup' links to
+it).
 
-**Depends on:** chunk 7 and Gate A (and 15 for the Delete everything test).
+**Depends on:** chunk 7; the Remembered-controller wording before it merges. Delete everything's
+half of the reload test is chunk 15's (wave 8).
 
 **Done when:**
 
@@ -2951,9 +3127,13 @@ header at load, the starting-note line).
   `requestMIDIAccess` prompt path taken and no sheet; with permission `prompt`, nothing is
   requested and `Connect controller` shows.
 - The starting note after a load starts nothing before a click; after one click it starts a
-  session.
-- `Disconnect`, reload: nothing reattaches. Delete everything, reload: nothing reattaches.
+  session, with sound.
+- `Disconnect`, reload: nothing reattaches.
 - A different device plugged in is not picked up.
+- 'the production app asks for no MIDI access at startup' (`midi-input.spec.ts`) and
+  `optional-scope-absence`'s 'no audio context, MIDI access or microphone request happens across
+  every current interaction' stay green unchanged: with nothing remembered no request is made, and
+  no click, tap or key press creates an audio context by itself.
 
 **Items covered:** 18, 12 (the controller included), 1 (the controller).
 
@@ -3217,12 +3397,24 @@ played-notes export, while storing every note as received.
 `docs/midi-tuning.md`; one pure filter (`src/session/` or `src/domain/`, not `src/midi/`, since
 it reads recorded notes) applied on reading: the lane, and the played-notes export unless
 `Include very short notes` (never saved, off at every review opening) is on. Acknowledgement and
-storage untouched. M1's duration script (tooling).
+storage untouched. M1's duration script (tooling). The lane's session-wide pitch scale
+(`playedNotesPitchScale`) is computed from the notes the lane shows, so a very short note never
+widens it (spec D315). "Holds a played note" still counts very short ones (ux D210): a session
+whose every played note is very short keeps `review-view` and `Export played notes`, its lane shows
+no bar, and what `Export played notes` does there with the option off is
+[spec O210](../../open-questions.md#v30-wave-6-o210)'s answer; the filter never lets the export
+reach the encoder's "no played note" error.
 
-**Files:** `src/domain/played-notes/stray-notes.ts` (new), `src/components/review/played-notes-lane-view.ts`,
-`src/export/played-notes-file.ts`, the review's export block for the option, `scripts/` (the
-duration script); tests under `tests/unit/` with the M1 fixtures, `tests/e2e/review/review-played-notes.spec.ts`
-(extended).
+**Files:** 25a, the filter and the lane: `src/domain/played-notes/stray-notes.ts` (new),
+`src/components/review/played-notes-lane-view.ts`, `src/components/review/ReviewPanel.vue` (the
+lane's notes and its pitch scale), `scripts/` (the duration script); 25b, the export:
+`src/export/played-notes-file.ts`, `src/components/workspace/review-export.ts` (the option reaching
+`exportPlayedNotes`), `src/components/workspace/use-review-host.ts` (the option's state),
+`ReviewPanel.vue` (the export block's option), `src/components/workspace/ScorePanel.vue` (the new
+prop and event); tests under `tests/unit/` with the M1 fixtures,
+`tests/e2e/review/review-played-notes.spec.ts` (extended). It shares the review files with chunks
+11 and 12 and comes after them ([Wave 6: shared files, in order](#wave-6-shared-files-in-order)).
+If the brief exceeds about five source files, split it there: 25a, then 25b.
 
 **Spec sections:** [§9](master-spec.md#9-stray-notes).
 
@@ -3232,10 +3424,12 @@ duration script); tests under `tests/unit/` with the M1 fixtures, `tests/e2e/rev
 **Atoms:** `rule_stray_note_definition`, `rule_stray_notes_filtered_on_reading`,
 `rule_played_notes_export_omits_stray_notes`; (v2) `rule_acknowledgement_exact_pitch`,
 `rule_review_played_notes_toggle`. **Part D:** `req_played_notes_export`,
-`module_review_played_notes_lane`.
+`module_review_played_notes_lane`, `module_review_export_pipeline` ("`Export played notes` shows
+only when the history holds at least one played note" still counts very short ones; the file
+leaves them out by default).
 
-**Depends on:** H1 (the recordings), chunk 1. Independent of the storage chunks; if chunk 11 has
-merged, a kept session's played notes are filtered the same way.
+**Depends on:** H1 (the recordings), chunk 1, O210. Chunks 11 and 12 come before it in wave 6
+(shared files); a kept session's played notes are filtered the same way.
 
 **Done when:**
 
@@ -3243,6 +3437,11 @@ merged, a kept session's played notes are filtered the same way.
 - On the M1 fixtures, the lane holds none of the notes under the threshold; the default export
   holds none; with the option, the export holds every note as received.
 - A stored session's played notes include the very short ones.
+- The lane's pitch scale leaves out very short notes: a session whose highest played note is very
+  short scales its lane as without it.
+- A session whose every played note is very short: `review-view` and `Export played notes` show,
+  the lane shows no bar, and `Export played notes` behaves as O210 settles, never with the export
+  error.
 - Acknowledgement tests are unchanged.
 
 **Items covered:** 21.
@@ -3419,7 +3618,8 @@ check, close the intent record, and get the owner's go for the `3.0.0` tag.
 - The privacy spy (network half) re-run with a database full of every kind of record (item 5).
 - `npm run verify:boundaries` with the 224 kB entry budget unchanged (M5).
 - Hand checks H3–H9 done or, for H8, written down as a v3.0.x note.
-- Part B1 and B2 confirmed, **Review reachability** and **Starting-note wording** applied; **Part C** put to the owner and applied by `documentalist`;
+- Part B1 and B2 confirmed, **Review reachability**, **Starting-note wording** and
+  **Remembered-controller wording** applied; **Part C** put to the owner and applied by `documentalist`;
   `documentalist`'s post-task sync over every `release-v3.0` atom, promoting those the owner
   agrees to.
 - `package.json` version `3.0.0`; the tag only when the owner asks.
@@ -3428,8 +3628,8 @@ check, close the intent record, and get the owner's go for the `3.0.0` tag.
 `vision_infinite_flow_first_release`, `specification_behavioral_quality_gates`,
 `specification_ephemeral_state_verification`; the four chord-fit atoms (retired).
 
-**Depends on:** every other chunk, Gate A, Review reachability, Starting-note wording, Parts B1
-and B2.
+**Depends on:** every other chunk, Gate A, Review reachability, Starting-note wording,
+Remembered-controller wording, Parts B1 and B2.
 
 **Done when:** every item of §13 has a row with evidence; every measurement has its figure; the
 owner says go.
@@ -3469,7 +3669,7 @@ verification. The gate copies this into the release notes with the final test na
 | 20 Pre-generation | 23, 24 | identity on the fake clock; cancellation, Start, discard tests; M4 recorded; H6 |
 | 21 Stray notes | 25 (M1 from H1) | filter tests on real recordings; H5 |
 | 22 v2 behaviour otherwise unchanged | every wave gate | `npm run quality`; the replaced-tests table of [§2](#2-read-first-what-v30-undoes-in-v2) |
-| 23 Contract | Gate A, Review reachability, Starting-note wording, 26 | the confirmation recorded in the CONTRACT atom's notes |
+| 23 Contract | Gate A, Review reachability, Starting-note wording, Remembered-controller wording, 26 | the confirmation recorded in the CONTRACT atom's notes |
 | 24 Stale phrase at Start | 24b | engine tests per Written key, Collection, Harmonic motion and Register change, 60–240 BPM; stale-check unit tests; pre-generation identity with a stale phrase 1; e2e prompt; fake-MIDI starting note; H9 |
 
 ## 8. Open points for spec-writer
@@ -3554,3 +3754,13 @@ saves; a refusal by the device deletes nothing (§5.1, item 6). New chunk 28 in 
 after the **Damaged session design** gate. It also aligns §4.4 with §5.1 (spec D304); no chunk
 changes for that. The owner's ruling on [spec O201](../../open-questions.md#v30-wave-5-o200)
 (spec D309) keeps §5.1 as written; chunk 27 builds it.
+
+Master spec v1.16 (2026-10-15, spec D314) corrects §10, which called the audio-unlock widening
+"not a contract guarantee": `rule_audio_unlocked_by_player_click` is not on the contract, but two
+STABLE atoms that are restate it, `specification_browser_only_operation_verification` (no MIDI
+access and no audio before a Start or `Connect controller` click) and `rule_midi_starting_note`
+(the starting note starts the count-in). Remembering the controller is now §10's seventh contract
+change, MAJOR (CONTRACT 6.0), waiting for the owner: the **Remembered-controller wording**, before
+chunk 22 merges. The wave-6 preflight also brought spec D312 (wave 6's shared files, in order),
+D313 (chunk 11's capture of the changes after a session's save) and D315 (chunk 25's pitch scale;
+[spec O210](../../open-questions.md#v30-wave-6-o210), for `ux-writer`, before chunk 25).

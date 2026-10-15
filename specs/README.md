@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.63
+Status: draft v0.64
 
 ## Status Snapshot
 
@@ -132,10 +132,17 @@ Status: draft v0.63
   refusal by the device deletes nothing (§5.1, item 6). New chunk 28 in wave 8 builds it, after a
   Damaged session design gate for `ux-writer`; chunk 14's failed reads are the device's refusals.
   Part M2's items 5(b) and 6 are rewritten for the owner.
-- **Open:** 11 questions, none blocking work under way: O48 and O49 (later and governance),
+- **v3.0 build, wave 6 preflight** (2026-10-15, D312–D315): build plan v16, master spec Part A
+  v1.16. Chunks 11, 12 and 25 stay in wave 6 and share the review's files in number order, chunk
+  12 building on chunk 11 (D312). Chunk 11 captures how a kept session changes after its save,
+  which chunk 12 reuses (D313). Remembering the controller changes two STABLE contract wordings:
+  §10's seventh change, major (CONTRACT 6.0), waits for the owner before chunk 22 merges (D314).
+  Chunk 25's lane scale leaves out very short notes; O210 opened (D315). Gate A shown done.
+- **Open:** 12 questions: O48 and O49 (later and governance),
   O100–O102 (v4 rhythm), O115 and O116 (v3.x learning), O176 (style packs and the chord level),
-  O180 (octave signs, later), O183 (pre-generation's cancellation cost) and O190 (a newer
-  version's database whose read-only reopening fails). D309 and D310 closed O201 and O200; D295
+  O180 (octave signs, later), O183 (pre-generation's cancellation cost), O190 (a newer
+  version's database whose read-only reopening fails) and O210 (a session whose every played
+  note is very short, for `ux-writer`; it blocks chunk 25 only). D309 and D310 closed O201 and O200; D295
   and D296 closed O181; the owner's ruling in D297 closed O182.
   O163 and O164 closed by D257 and D258; D262 closed O174; D264–D273 settled O165–O173 and O175
   in Part D, pending the owner's approval.

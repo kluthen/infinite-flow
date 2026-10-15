@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.91
+Status: draft v2.92
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,12 +14,13 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D312**. D259–D260 are
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D316**. D259–D260 are
 on branch `v4-accompaniment-research`, not merged yet. D263–D288 are v3.3's richer chords (merged
 from `main`); D289 is unused. D290–D299 were reserved for v3.0 wave 2; wave 2 used D290–D298, and
 D299 records wave 3. D300 records the wave-4 preflight; D301 and D302 the plan revision after
 chunk 7a; D303–D305 the wave-5 preflight (D303 the owner's ruling on the session key); D306–D308 the
-wave-5 sync; D309–D311 the owner's rulings on O201 and O200 and the plan revision they bring.
+wave-5 sync; D309–D311 the owner's rulings on O201 and O200 and the plan revision they bring;
+D312–D315 the wave-6 preflight.
 
 ## Decision Log
 
@@ -1602,3 +1603,96 @@ wave-5 sync; D309–D311 the owner's rulings on O201 and O200 and the plan revis
   rather than damaged records, and lists no row for a session whose summary cannot be read. The
   apology and the landings are a new **Damaged session design** gate for `ux-writer`, before
   28b. Build plan v15.
+
+- **D312 (2026-10-15): wave 6 keeps chunks 11, 12 and 25 and shares their files in a stated
+  order; Gate A is shown done.** Settled by `spec-writer` under the owner's delegation of minor
+  technical calls, from the wave-6 preflight (`documentalist`, 62d3eb5 on `v3.0-w6`) and the code
+  on that branch. The preflight found chunks 11, 12 and 25 not file-independent: all three need
+  `use-review-host.ts`, `ReviewPanel.vue` and `ScorePanel.vue` (which passes the review host's state
+  to the panel), and chunks 11 and 12 also `workspace-session-save.ts` (which hardcodes
+  `playedNotesKept: false` and an empty pin, favorites and comment) and the session controller's
+  types and module (`ReviewedSession` and the most recent session hold no favorites, comment,
+  played-notes flag or delete path). Giving each file to one chunk, as D305 did, would make one
+  chunk build another's slice; moving chunk 12 out would put chunks 13, 14, 15 and 28 a wave later
+  on the critical path; moving 25 out changes nothing, since its review edit meets 11's and 12's
+  in the next wave too (it may still leave at the wave's end if H1 has not come). Since wave 6
+  runs one chunk at a time (κ=1), each chunk's branch cut from the wave branch after the previous
+  chunk merged, sharing in sequence brings no conflicting edits: the chunks run 11 → 12 → 18 → 22 →
+  25, the plan names per shared file the order and what each adds, and a later chunk adds its part
+  without reshaping an earlier one's. Chunk 12 depends on chunk 11's change path (D313), the one
+  in-wave edge, fixed by chunk 11's capture and two chunks long, as the build-plan model allows.
+  Chunk 11 builds the shared confirmation sheet (it needs two confirmations first; 12, 14, 15 and
+  20 reuse it). Chunks 11, 12, 22 and 25 gain split rules at about five source files.
+  Gate A was applied on 2026-10-07 (54025fa; CONTRACT 2.0, now 5.0) and is shown done. Build plan
+  v16.
+
+- **D313 (2026-10-15): how a kept session changes after its save, chunk 11's architecture
+  capture.** Settled by `spec-writer` from master spec §5.1, §5.3, §4.3 and §4.4, the review-and-
+  export and kept-sessions designs (Saving the Session, Played Notes, While Saving Is Off) and
+  D303–D304. `module_kept_session_save` covers only the save at the session's end; chunk 11 builds
+  the changes after it (played notes kept or deleted for one session, every kept played note
+  deleted) and chunk 12 reuses them (favorite, pin, unpin, comment, Delete session, the retry of a
+  failed save), so `documentalist` records them before chunk 11's code. Every such change is one
+  port `apply` batch through the save policy (held during a session, refused in an outdated tab,
+  checked against `meta`). The summary is always rewritten; the `playedNotes` record is written or
+  deleted in the same batch; the body only for a favorite mark; Delete session deletes all three;
+  deleting every kept played note is one batch over every readable summary that said they were
+  kept, an unreadable one left to chunk 28. The session is named by the key its save minted; a
+  change made while that save runs waits for it. With saving off a change holds for the visit and
+  nothing is read, written or deleted. A refused change stays in memory and the notice row tells it
+  at Idle, unlike the session's own save. A session whose own save failed is changed only by
+  chunk 12's retry: its next favorite, pin, unpin or comment runs the session's own save again with
+  the facts as they are then, the same batch, its deletions read at the retry. Chunk 11's Done when
+  gains the design's `Delete them` path (`rule_kept_played_notes_deletable`) and the saving-off
+  switch; chunk 11's drift check adds `specification_ephemeral_state_verification`; chunk 12's
+  Atoms add `req_kept_session_list` and `rule_failed_save_never_disturbs_session`, its Part D
+  `module_kept_session_save` and `specification_ephemeral_state_verification`. Build plan v16.
+
+- **D314 (2026-10-15): remembering the controller is a seventh contract change, major, for the
+  owner; chunk 22 waits for it.** Found by the wave-6 preflight; the wording checked and the
+  consequences settled by `spec-writer`. Two STABLE contract atoms still state v2's behaviour:
+  `specification_browser_only_operation_verification` rejects a release that "starts audio or
+  requests MIDI access before the player clicks Start or "Connect controller"", and
+  `rule_midi_starting_note` says the starting note, with a controller attached at Idle, starts the
+  count-in. Chunk 22 requests access at load to reselect the remembered controller (only when the
+  browser already allows it, master spec §7.3), and after a load the starting note starts nothing
+  before the page's first click, tap or key press. Master spec §10 called the audio-unlock
+  widening "not a contract guarantee", true of `rule_audio_unlocked_by_player_click` (REVIEW) but
+  not of these two; Part A v1.16 corrects it and states the change as §10's seventh, with the
+  proposed wordings. They differ from the preflight's proposal in three points: the audio clause
+  reads "before the player has either clicked Start or "Connect controller" or played the starting
+  note after the page's first click, tap or key press", since "or plays the starting note after a
+  first click" in the list of rejections read as rejecting that very case; the MIDI clause keeps
+  v2's "Start or "Connect controller"" and adds only the exception, so nothing but the exception
+  changes; and "(a note played on the controller does not count)" makes plain that a MIDI key is
+  not the key press meant. Both wordings hold for v2.0 (a controller attaches there only after a
+  Connect controller click; nothing is requested at load) and both lose cases, so the change is
+  major, CONTRACT 5.0 → 6.0: a new owner gate, the **Remembered-controller wording**, before chunk
+  22 merges; `documentalist` writes the change-set part and applies it once the owner confirms, as
+  for parts I1 and J1. For the tighter audio wording to hold, the page's first gesture creates no
+  audio context by itself: the starting note's callback, which already unlocks the audio
+  (`workspace-session-start.ts`), makes it, as Chromium allows after that gesture, so the v2 test
+  that no interaction other than Start and Connect controller creates an audio context stays
+  unchanged; if Chromium refuses, chunk 22 stops and reports. Chunk 22 gains an architecture
+  capture: the record holds the input port's `id`, the one identity v2 matches a returning device
+  on, with its name and manufacturer for display only; hand check H4 confirms the `id` survives a
+  reload, and if it does not the finding goes to the owner, never a silent match by name. Its
+  Atoms add `rule_starting_note_waits_for_first_gesture` and `rule_disconnect_forgets_controller`;
+  `rule_audio_unlocked_by_player_click` (REVIEW, `changes-in-v3.0`) and
+  `rule_controller_connects_between_sessions` move to its Part D; its Files add the wiring of the
+  loaded record and its saver (`WorkspaceShell.vue`, beside chunk 20's later `profile` change
+  there, and the visit's saves) and the starting note's wait. The Delete everything half of its
+  reload test is chunk 15's, since chunk 15 builds Delete everything in wave 8. Build plan v16.
+
+- **D315 (2026-10-15): chunk 25's lane scale leaves out very short notes; a session whose every
+  played note is very short goes to `ux-writer` (O210).** Settled by `spec-writer` from master spec
+  §9 (very short notes are filtered when read, for the lane and, by default, the played-notes
+  export) and ux D210 ("holds a played note" counts very short ones). The lane's session-wide pitch
+  scale (`playedNotesPitchScale`, computed in `ReviewPanel.vue`) is part of the lane, so it is
+  computed from the notes the lane shows: a very short note never widens it. When every played note
+  of a session is very short, `review-view` and `Export played notes` still show (ux D210) and the
+  lane shows no bar, but with `Include very short notes` off the played-notes file would hold no
+  note, which its encoder refuses with a typed error that would show the export error: what the
+  review offers there is a design matter, opened as O210 for `ux-writer` and a gate before chunk
+  25, which waits for H1 anyway. Chunk 25's Files add the review files it shares with chunks 11 and
+  12 (D312) and `review-export.ts`; its Part D adds `module_review_export_pipeline`. Build plan v16.
