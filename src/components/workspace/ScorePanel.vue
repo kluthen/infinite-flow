@@ -23,9 +23,10 @@
  * `Delete session`) shows in the shared confirmation sheet over the page; once it closes, focus
  * returns to the button that opened it on the way back, after an unpin goes to the pin button,
  * and after a deletion goes to `Keep my played notes` while the Review still shows its played
- * notes, else to `review-title`.
+ * notes, else to `review-title`. The sheet and its words load on demand with the Review's code,
+ * warmed as the Review shows.
  */
-import { computed, defineAsyncComponent, nextTick, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, nextTick, ref, shallowRef, watch } from 'vue'
 
 import type { GenerationSession } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
@@ -39,19 +40,21 @@ import {
 import type { NotationError } from '@/notation/notation-error'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { AudioTransport } from '@/audio/audio-transport'
-import { loadReviewPanel } from '@/components/review/load-review-panel'
+import {
+  loadReviewConfirmationSheet,
+  loadReviewPanel,
+  type ReviewConfirmationSheetComponent,
+} from '@/components/review/load-review-panel'
 import { ROOM_NOTICE_NARROW, ROOM_NOTICE_WIDE } from '@/components/notation/room-notice-copy'
 import {
   DEFAULT_REVIEW_PREFERENCES,
   type ReviewPreferences,
 } from '@/storage/records/setting-defaults'
-import ConfirmationSheet from './ConfirmationSheet.vue'
 import MixControls from './MixControls.vue'
 import SessionCueRow from './SessionCueRow.vue'
 import { useScoreOverlays } from './use-score-overlays'
 import type { MixVolumePopover } from './mix-volume-popover'
 import { browserReviewExportPorts, type ReviewExportPorts } from './review-export'
-import { reviewConfirmationCopy } from './review-confirmation-copy'
 import { useReviewHost } from './use-review-host'
 import { injectSaveSettings } from './save-settings-injection'
 import type { SessionController } from './workspace-session-controller-types'
@@ -176,11 +179,29 @@ function focusReviewTitle(): void {
 
 watch(reviewPanel, focusPendingReviewTitle, { flush: 'post' })
 
-/** Intent: the words of the confirmation open over the Review; null when none is. */
-const confirmationCopy = computed(() => {
-  const open = review.confirmation.value
-  return open === null ? null : reviewConfirmationCopy(open)
-})
+/** The Review's confirmation sheet, with its words; null until its lazy chunk has loaded. */
+const confirmationSheet = shallowRef<ReviewConfirmationSheetComponent | null>(null)
+
+/** Intent: load the confirmation sheet's chunk (memoized), keeping the component once loaded. */
+function loadConfirmationSheet(): Promise<void> {
+  return loadReviewConfirmationSheet().then((component) => {
+    confirmationSheet.value = component
+  })
+}
+
+/**
+ * Intent: as the Review shows, warm the confirmation sheet's chunk without waiting on it, so a
+ * confirmation opens on its click. A failure here is not reported: the loader forgets it, and the
+ * confirmation's opening loads it again, where a failure then surfaces.
+ */
+// @spec-link [[req_last_session_review]]
+watch(
+  reviewShowing,
+  (showing) => {
+    if (showing && confirmationSheet.value === null) void loadConfirmationSheet().catch(() => {})
+  },
+  { immediate: true },
+)
 /** The player closed the confirmation (confirmed or went back), so its focus is already set. */
 let confirmationClosedByPlayer = false
 
@@ -219,12 +240,26 @@ function cancelReviewConfirmation(): void {
   else reviewPanel.value?.focusKeepPlayedNotes()
 }
 
+/**
+ * Intent: a confirmation opened before the sheet's chunk has loaded shows once it loads; a failed
+ * load closes it the way back does, focus on the button that opened it, and propagates.
+ */
+// @spec-link [[req_last_session_review]]
+function showConfirmationSheet(): void {
+  if (confirmationSheet.value !== null) return
+  void loadConfirmationSheet().catch((cause: unknown) => {
+    if (review.confirmation.value !== null) cancelReviewConfirmation()
+    throw cause
+  })
+}
+
 // A confirmation closed by the page (saving turned off) leaves focus on `review-title`.
 watch(
   () => review.confirmation.value === null,
   (closed) => {
     if (!closed) {
       confirmationClosedByPlayer = false
+      showConfirmationSheet()
       return
     }
     if (!confirmationClosedByPlayer && reviewShowing.value) reviewPanel.value?.focusTitle()
@@ -487,10 +522,10 @@ const generationErrorAlertText = computed(() =>
       @delete-session="review.askDeleteSession"
       @save-comment="review.saveComment"
     />
-    <ConfirmationSheet
-      v-if="confirmationCopy !== null"
-      v-bind="confirmationCopy"
-      :busy="review.confirmation.value?.busy === true"
+    <component
+      :is="confirmationSheet"
+      v-if="review.confirmation.value !== null && confirmationSheet !== null"
+      :confirmation="review.confirmation.value"
       @confirm="confirmReviewConfirmation"
       @cancel="cancelReviewConfirmation"
     />

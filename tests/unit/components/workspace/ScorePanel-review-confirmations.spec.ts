@@ -27,7 +27,11 @@ import { provideSaveSettings, recordingSaveSettings } from './recording-save-set
 
 const loader = vi.hoisted(() => ({ load: vi.fn<() => Promise<Component>>() }))
 
-vi.mock('@/components/review/load-review-panel', () => ({ loadReviewPanel: loader.load }))
+// The confirmation sheet's real component, settling within one flush, as a warmed chunk does.
+vi.mock('@/components/review/load-review-panel', async () => {
+  const { default: sheet } = await import('@/components/workspace/ReviewConfirmationSheet.vue')
+  return { loadReviewPanel: loader.load, loadReviewConfirmationSheet: () => Promise.resolve(sheet) }
+})
 
 beforeEach(async () => {
   const { default: stub } = await import('./review-panel-stub')
