@@ -29,7 +29,10 @@ beforeEach(() => {
 function buildCoordinator() {
   const reportNotationFailure = vi.fn(() => true)
   const reportNotationRecovered = vi.fn(() => true)
-  const coordinator = createNotationCoordinator({ reportNotationFailure, reportNotationRecovered })
+  const coordinator = createNotationCoordinator(
+    { reportNotationFailure, reportNotationRecovered },
+    { of: () => 'treble', selected: () => 'treble' },
+  )
   return { coordinator, reportNotationFailure, reportNotationRecovered }
 }
 
@@ -290,6 +293,7 @@ describe('createNotationCoordinator staff layout reports and fit checks', () => 
     })
 
     expect(fakeEngraver.planStaffRoomForKey).toHaveBeenCalledExactlyOnceWith(
+      'treble',
       signature,
       PHONE_INPUTS.containerWidthPx,
       PHONE_INPUTS.viewport,

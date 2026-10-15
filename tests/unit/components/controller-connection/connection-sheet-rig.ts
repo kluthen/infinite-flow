@@ -7,6 +7,7 @@ import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 
 import ConnectionSheet from '@/components/controller-connection/ConnectionSheet.vue'
 import type { SheetOpenAt } from '@/components/controller-connection/connection-sheet-contract'
+import type { InstrumentClef } from '@/domain/profile/instrument-clef'
 import type { InstrumentProfile } from '@/domain/profile/instrument-profile'
 import {
   ADOPTED_INSTRUMENT_PROFILES,
@@ -18,6 +19,7 @@ import type { ControllerRig } from '../../midi/midi-controller-rig'
 export interface OpenSheetOptions {
   readonly openAt?: SheetOpenAt
   readonly profile?: InstrumentProfile
+  readonly clef?: InstrumentClef
   readonly seenDeviceCount?: number
 }
 
@@ -44,6 +46,7 @@ export async function openSheet(
       openAt,
       connecting,
       profile: options.profile ?? C_KEYBOARD_PROFILE,
+      clef: options.clef ?? 'treble',
       profiles: ADOPTED_INSTRUMENT_PROFILES,
       seenDeviceCount: options.seenDeviceCount ?? 1,
     },

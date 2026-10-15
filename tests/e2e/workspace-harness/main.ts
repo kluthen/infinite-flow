@@ -48,9 +48,10 @@
  *   `@/components/workspace/workspace-session-runner` alias): the real runner, the latest kept so
  *   `session.changeSettings()` can send it an automatic settings change;
  * - every `generate` call's settings (`generationRequests`), in call order, so a spec can tell
- *   which settings a phrase was generated with, each with its seed and request id, whether it
- *   carried an abort signal, whether it was a background attempt, how it has settled so far
- *   (pending, answered, cancelled or rejected) and the concert timeline of a successful answer;
+ *   which settings a phrase was generated with (the instrument profile its intent carries
+ *   included), each with its seed and request id, whether it carried an abort signal, whether it
+ *   was a background attempt, how it has settled so far (pending, answered, cancelled or
+ *   rejected) and the concert timeline of a successful answer;
  * - the session clock: the session controller's wake-up timer on the audio seams' clock (stepped
  *   by `audio.advance` right after the transport's on the fake rig, a real wake-up Worker with
  *   `?audio=real`), and the real wall clock for session histories unless a spec fixes it with
@@ -63,7 +64,8 @@
  *   the app shows hold any number of phrases, for the long-Review specs;
  * - the prewarm policy, read from the page URL exactly as production reads it (`?prewarm=off`
  *   disables it, on by default), with every prewarm forwarded to the real worker client and
- *   counted for `prewarmCount()`;
+ *   counted for `prewarmCount()`, the instrument profile each carried kept for
+ *   `prewarmInstrumentProfiles()`;
  * - the Idle pre-generation policy, read from the page URL with the harness's own default: off,
  *   unlike production, so no spec meets background attempts unless it asks for them with
  *   `?pregeneration=on`; any value given is read by production's parser (`off`, `on`, a mistyped
@@ -72,12 +74,13 @@
  * - the saved data (storage-seams.ts): the app's own loader over the browser's real IndexedDB,
  *   run before the app mounts, as src/main.ts runs it; `window.__workspaceHarness` is published
  *   once the app has mounted, so waiting for it also waits for the load. `storage.seedSettings`
- *   seeds settings for the next load, and `?storageLoad=held` holds the load until
- *   `window.__workspaceHarnessHeldLoad.release()`; `?storageRead=fail|slow` fails or delays the
- *   app's reads, `storage.refuseSaves` refuses its saves, `storage.portChanges` counts them and
- *   `storage.openNewerVersion` outdates the tab as a newer version would; `storage.keyedRecords`
- *   reads a store with its keys, `storage.pinKeptSession` pins a saved session and
- *   `storage.seedUnreadableKeptSession` seeds one no codec reads.
+ *   seeds settings for the next load, `storage.seedMyInstrument` my instrument, and
+ *   `?storageLoad=held` holds the load until `window.__workspaceHarnessHeldLoad.release()`;
+ *   `?storageRead=fail|slow` fails or delays the app's reads, `storage.refuseSaves` refuses its
+ *   saves, `storage.portChanges` counts them and `storage.openNewerVersion` outdates the tab as a
+ *   newer version would; `storage.keyedRecords` reads a store with its keys,
+ *   `storage.pinKeptSession` pins a saved session and `storage.seedUnreadableKeptSession` seeds
+ *   one no codec reads.
  *
  * The lazy VexFlow engraver, the real generation Worker, real notation, the real `matchMedia`
  * window-width provider and the real window-shape probe all run for real (a spec moves the window
@@ -308,6 +311,16 @@ const client = createGenerationWorkerClient(createBrowserGenerationWorker, {
   prewarmEnabled: harnessPrewarmPolicy === 'enabled',
 })
 
+/** Intent: the instrument profile `intent` carries, as plain JSON: id, name and concert range. */
+function instrumentProfileOf(intent: GenerationIntent): WorkspaceHarnessInstrumentProfile {
+  const { id, displayName, concertRange } = intent.instrumentProfile
+  return {
+    id,
+    displayName,
+    concertRange: { minMidi: concertRange.minMidi, maxMidi: concertRange.maxMidi },
+  }
+}
+
 /**
  * Intent: record the call, then pass it through the gates and the armed failures to the real
  * worker client; settle its record as the call settles. A background attempt is a call carrying
@@ -321,6 +334,7 @@ async function harnessGenerate(
     writtenTonalCenter: intent.writtenTonalCenter,
     controls: { ...intent.controls },
     musicalProfile: { ...intent.musicalProfile },
+    instrumentProfile: instrumentProfileOf(intent),
     carryIn: intent.carryIn !== undefined,
     seed: intent.seed,
     requestId: intent.requestId,
@@ -417,6 +431,8 @@ function armGenerationFailures(
 }
 
 let prewarmsPosted = 0
+/** The instrument profile each prewarm carried, in post order. */
+const prewarmInstrumentProfiles: WorkspaceHarnessInstrumentProfile[] = []
 /** The wall clock a spec fixed, as epoch milliseconds; null reads the real one. */
 let fixedWallClock: number | null = null
 
@@ -432,6 +448,7 @@ function setWallClock(epochMs: number | null): void {
 // @test-link [[module_generation_prewarm]]
 function harnessPrewarm(intent: GenerationIntent): void {
   prewarmsPosted += 1
+  prewarmInstrumentProfiles.push(instrumentProfileOf(intent))
   client.prewarm(intent)
 }
 
@@ -508,6 +525,7 @@ const harnessApi: WorkspaceHarnessApi = {
   exportsBuilt,
   snapshot,
   prewarmCount: () => prewarmsPosted,
+  prewarmInstrumentProfiles: () => prewarmInstrumentProfiles.map((profile) => ({ ...profile })),
   audio: harnessAudio.api,
   midi: harnessMidi.api,
   screenLocks: harnessBrowser.screenLocks,

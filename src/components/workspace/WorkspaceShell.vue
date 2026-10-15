@@ -37,7 +37,8 @@ import type { NotationError } from '@/notation/notation-error'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { AudioTransport } from '@/audio/audio-transport'
 import type { SavedDataLoad } from '@/storage-bootstrap'
-import { getInstrumentProfile } from '@/domain/generation/generation-intent'
+import { selectedInstrumentProfile } from '@/domain/generation/generation-intent'
+import { instrumentClefOf } from '@/domain/profile/instrument-clef'
 import type { MidiController } from '@/midi/midi-controller-state'
 import { planSystemPositionUnits, type WrittenRangeInClef } from '@/notation/notation-layout-policy'
 import { loadVexflowEngraver } from '@/notation/vexflow-engraver-loader'
@@ -92,7 +93,7 @@ const props = withDefaults(
     scrollToPageTop?: () => void
     /**
      * The saved my instrument's written range in its clef, or null while none is saved; none by
-     * default. Nothing saves one yet: chunk 20's my-instrument record feeds it.
+     * default.
      */
     savedMyInstrumentRangeInClef?: WrittenRangeInClef | null
     /**
@@ -209,7 +210,9 @@ const {
 } = useControllerConnection({
   midi: props.midi,
   audio: props.audio,
-  profile: () => getInstrumentProfile(state.value.controls.instrumentProfileId),
+  profile: () =>
+    selectedInstrumentProfile(state.value.controls.instrumentProfileId, state.value.myInstrument),
+  clef: () => instrumentClefOf(state.value.controls.instrumentProfileId, state.value.myInstrument),
   sessionActive: () => sessionActive.value,
   controllerLost: () => props.controller !== null && props.controller.state.controllerLost !== null,
   onOpenChange: (open) => emit('connection-sheet-open-change', open),
@@ -405,6 +408,7 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
         :vary-settings="varySettings"
         :session-options-readonly="sessionOptionsReadonly"
         :preset-status-live="presetStatusLive"
+        :my-instrument="state.myInstrument"
         @set-control="handleSetControl"
         @select-instrument-profile="handleSelectInstrumentProfile"
         @select-musical-profile="handleSelectMusicalProfile"

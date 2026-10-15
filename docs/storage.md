@@ -488,11 +488,13 @@ player asks, as before. The workspace harness runs the same loader (see
 ### What the load reads
 
 `loadSavedData(dependencies)` opens the port, creates the visit's save policy over it, and reads,
-in parallel, every record of `settings` and `controller`, and every entry of `sessionSummaries`
-with its key (the keyed read). The settings go
+in parallel, every record of `settings`, `instrument` and `controller`, and every entry of
+`sessionSummaries` with its key (the keyed read). The settings go
 through the settings codec (`decodeSettings`), each checked on its own: an unknown or no longer
-valid value takes its setting's default, silently, and every other value is kept. My instrument is
-not stored yet, so a saved selection of it falls back to the default instrument. The summaries,
+valid value takes its setting's default, silently, and every other value is kept. My instrument's
+record is decoded by its own codec (see [My instrument](#my-instrument)), and whether it loaded is
+given to the settings codec, so a saved selection of my instrument holds only when my instrument
+loaded and falls back to the default instrument otherwise. The summaries,
 with their keys, and the controller's records are handed on raw, for the session list, the most
 recent session and the remembered controller to decode.
 
@@ -531,6 +533,7 @@ in the visit turns the policy `off-outdated` through `onOutdated`, whatever the 
 | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | `outcome`              | The load outcome, `LoadOutcome`: `'saved-data-read'` or `'started-from-defaults'`.                                                            |
 | `settings`             | Every setting the workspace is first drawn with (`SavedSettings`): saved, or its default.                                                     |
+| `myInstrument`         | My instrument (`MyInstrument`) when its record loaded; null otherwise, and when the visit started from the defaults.                          |
 | `keptSessionSummaries` | The kept sessions' summaries as `StoredEntry` values, key and raw value, in key order; empty when the visit started from the defaults.        |
 | `rememberedController` | The remembered controller's records, raw; empty when the visit started from the defaults.                                                     |
 | `savePolicy`           | `Promise<SavePolicy>`: settled before the first draw when the port opened within the wait; otherwise once the port opens, saving already off. |
@@ -548,6 +551,7 @@ Each place gains its initial value; the saves come from the player's change hand
 | Setting                                                   | Enters at                                                                                                                                              |
 | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | The 14 controls, the musical profile selection, the theme | The Idle generation session's first state (`initialSettings`); `App.vue` applies the theme from that state before the first draw.                      |
+| My instrument                                             | The Idle generation session's first state (`initialSettings.myInstrument`), from which `App.vue` sizes the staff and the screen reads its profile.     |
 | The audio mix                                             | The audio transport's `loadedMix`, read on its first use, its volumes checked against the design's range.                                              |
 | The three "During a session" options                      | The session controller's creation (`savedSessionOptions`), never through its actions; until its chunk has loaded, the controls show the loaded values. |
 | The review's preferences                                  | The review host's first values (`WorkspaceShell` and `ScorePanel`'s `savedReviewPreferences`).                                                         |
@@ -824,6 +828,30 @@ display only, since two identical devices share them.
   `Disconnect` forgets it for that visit only; the next load that reads the saved data reselects
   the controller remembered before (spec D318).
 
+## My instrument
+
+The `instrument` store holds at most one record, under the key `my-instrument`
+(`src/storage/records/my-instrument-record.ts`): the record envelope (data version 1) and what my
+instrument is built from, never what is derived from it: the id `my-instrument`, the template, the
+display name, the clef, the written range (`minMidi`, `maxMidi`), the transposition (`octaves`,
+`semitones`, `direction`) and the input kind, `midi-controller`. The concert range, the interval
+and the generator-facing profile are derived again at each load.
+
+- **Read whole or not at all.** `decodeMyInstrument` builds my instrument with `makeMyInstrument`
+  from the first current record whose fields read; a record of another shape, one whose id or
+  input kind is not the one there is, one a newer version wrote, and one `makeMyInstrument`
+  refuses all load as absent, with no error, no notice and nothing repaired. Then a saved selection
+  of `my-instrument` falls back to the default instrument.
+- **Loaded on demand.** The codec's shape check and encoder are small and in the entry chunk, for
+  the visit's saves; `makeMyInstrument`, with the interval table, is imported by the decoder only
+  when a record reads, within the start-up wait, so a load without my instrument never fetches it.
+- **Where it goes.** The Idle generation session holds it (`state.myInstrument`): every Idle
+  intent and the rhythm prewarm carry its profile as data while the controls name it, the
+  instrument control shows it as a fourth segment labelled with its name, the connection sheet's
+  check reads its profile and draws its note in its clef, and each phrase of it is written in its
+  clef (`instrumentClefOf`). `App.vue` sizes the staff's shared system positions from its written
+  range in its clef.
+
 ## The notices
 
 The notice row at the top of the workspace (`AppNoticeRow.vue`) shows one notice at a time, chosen
@@ -928,5 +956,6 @@ the session's save at its end, and the most recent session with its keep line. T
   failed to open (chunk 14).
 
 The loader imports the port, the policy and the settings codec, so they are in the entry chunk;
-the kept-session codec is loaded on demand, by the session's save and by the read of a kept
+building my instrument is loaded on demand, only when its record reads; the kept-session
+codec is loaded on demand, by the session's save and by the read of a kept
 session; the summaries are decoded in the session controller's chunk.

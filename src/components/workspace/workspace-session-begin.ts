@@ -164,7 +164,7 @@ export function beginSession(
     browser,
     idleLayout: deps.idleLayout,
     heldLayout,
-    fixedParts: deps.staffFixedParts(phraseOne),
+    fixedParts: deps.staffFixedParts(phraseOne, idleWritten.clef),
     materialFits: display.materialFits,
     end: (cause) => ends.endIfRunning(session, cause),
     fail: (error) => ends.failLoudly(session, error),

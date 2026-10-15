@@ -30,10 +30,10 @@ beforeEach(() => {
 
 /** Intent: a coordinator whose reporter callbacks do nothing. */
 function buildCoordinator() {
-  return createNotationCoordinator({
-    reportNotationFailure: () => true,
-    reportNotationRecovered: () => true,
-  })
+  return createNotationCoordinator(
+    { reportNotationFailure: () => true, reportNotationRecovered: () => true },
+    { of: () => BUILT_IN_INSTRUMENT_CLEF, selected: () => BUILT_IN_INSTRUMENT_CLEF },
+  )
 }
 
 // @test-link [[module_idle_fit_round]]
@@ -67,6 +67,7 @@ describe('the coordinator checks in the shared system-position size', () => {
     await coordinator.checkRoom(signature)
 
     expect(fakeEngraver.planStaffRoomForKey).toHaveBeenCalledExactlyOnceWith(
+      BUILT_IN_INSTRUMENT_CLEF,
       signature,
       900,
       GROWN_INPUTS.viewport,

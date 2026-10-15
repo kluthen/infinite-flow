@@ -4,6 +4,7 @@
  * wires them for production, but with an injectable `generate` seam so a spec never touches a
  * real generation worker. Its saver records every batch the session or a component saves.
  */
+import { instrumentClefOf } from '@/domain/profile/instrument-clef'
 import {
   createGenerationSession,
   type GenerationSession,
@@ -75,10 +76,17 @@ export function createTestWorkspace(
   const sessionStaffFailures: NotationError[] = []
   const viewport = createFakeViewportWidth()
   const { saveSettings, saves } = recordingSaveSettings()
-  const coordinator = createNotationCoordinator({
-    reportNotationFailure: (error) => session.actions.reportNotationFailure(error),
-    reportNotationRecovered: () => session.actions.reportNotationRecovered(),
-  })
+  const coordinator = createNotationCoordinator(
+    {
+      reportNotationFailure: (error) => session.actions.reportNotationFailure(error),
+      reportNotationRecovered: () => session.actions.reportNotationRecovered(),
+    },
+    {
+      of: (id) => instrumentClefOf(id, session.state.myInstrument),
+      selected: () =>
+        instrumentClefOf(session.state.controls.instrumentProfileId, session.state.myInstrument),
+    },
+  )
   session = createGenerationSession<WorkspaceSessionResult, WorkspaceGeneratedPhrase>({
     checkFit: staff.checkFit,
     checkRoom: staff.checkRoom,

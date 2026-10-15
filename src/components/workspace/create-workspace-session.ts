@@ -9,6 +9,7 @@
  * `import()` calls, stay in this module beside the entry's own static imports: moved to a module
  * of their own, they made the bundler split shared modules out of the entry into an extra chunk.
  */
+import { instrumentClefOf } from '@/domain/profile/instrument-clef'
 import { shallowRef, type InjectionKey } from 'vue'
 
 import {
@@ -89,8 +90,9 @@ export const WORKSPACE_SESSION_FACTORY: InjectionKey<
  * pre-generation policy, the session controller's Idle pre-generation queue runs its background
  * attempts on that same seam, after the prewarm, through the Idle background slot, which every
  * Idle request yields to first. Idle starts from the loaded settings' controls, profile selection
- * and theme, and each session controller's flags from its "During a session" choices, so the
- * workspace is first drawn with them; the load itself is exposed unchanged. The visit's saves go
+ * and theme, and my instrument when it loaded (each phrase drawn in its instrument's clef), and
+ * each session controller's flags from its "During a session" choices, so the workspace is first
+ * drawn with them; the load itself is exposed unchanged. The visit's saves go
  * through the loaded save policy: Idle's control actions and the screen's change handlers save the
  * player's changes through them, and each session controller holds them while a session runs. The
  * controller remembered from an earlier visit is decoded from the load and saved through them too.
@@ -115,10 +117,19 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
     return session
   }
 
-  const coordinator: NotationCoordinator = createNotationCoordinator({
-    reportNotationFailure: (error) => requireSession().actions.reportNotationFailure(error),
-    reportNotationRecovered: () => requireSession().actions.reportNotationRecovered(),
-  })
+  const coordinator: NotationCoordinator = createNotationCoordinator(
+    {
+      reportNotationFailure: (error) => requireSession().actions.reportNotationFailure(error),
+      reportNotationRecovered: () => requireSession().actions.reportNotationRecovered(),
+    },
+    {
+      of: (id) => instrumentClefOf(id, requireSession().state.myInstrument),
+      selected: () => {
+        const { controls, myInstrument } = requireSession().state
+        return instrumentClefOf(controls.instrumentProfileId, myInstrument)
+      },
+    },
+  )
 
   const connectionSheetOpen = shallowRef(false)
   const slot = createPregenerationSlot()
@@ -137,7 +148,12 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
     clearPresentedPhrase: coordinator.clearPresentedPhrase,
     ...(deps.prewarmPolicy === 'enabled' ? { prewarm: deps.prewarm } : {}),
     onPhraseAccepted: announcer.announceWorkspacePhrase,
-    initialSettings: { controls, profileSelection, theme },
+    initialSettings: {
+      controls,
+      profileSelection,
+      theme,
+      myInstrument: deps.savedData.myInstrument,
+    },
     saveSettings: saves.saveSettings,
   })
   session = created

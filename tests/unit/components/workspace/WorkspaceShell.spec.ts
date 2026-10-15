@@ -56,6 +56,7 @@ function fakeSession(overrides: Partial<GenerationSession<WorkspaceSessionResult
       controls: DEFAULT_GENERATION_CONTROLS,
       profileSelection: DEFAULT_PROFILE_SELECTION,
       presentation: { theme: 'System' },
+      myInstrument: null,
       latestIntent: null,
       result: null,
       operation: 'idle',

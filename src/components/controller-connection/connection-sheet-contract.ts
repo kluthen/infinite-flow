@@ -3,6 +3,7 @@
  * `controller-status` click, and ConnectionSheet.vue, loaded lazily as its own chunk. Types only:
  * nothing here reaches the entry chunk.
  */
+import type { InstrumentClef } from '@/domain/profile/instrument-clef'
 import type { MidiController } from '@/midi/midi-controller-state'
 import type { MidiPermissionState } from '@/midi/midi-access-port'
 import type { InstrumentProfile } from '@/domain/profile/instrument-profile'
@@ -25,6 +26,8 @@ export interface ConnectionSheetProps {
   readonly openAt: SheetOpenAt
   readonly connecting: SheetConnecting | null
   readonly profile: InstrumentProfile
+  /** The current instrument's clef, the staff the check's note is drawn on. */
+  readonly clef: InstrumentClef
   /** The instrument profiles a check may suggest; passed by the host so the lazy chunk imports no profile table. */
   readonly profiles: readonly InstrumentProfile[]
   readonly seenDeviceCount: number

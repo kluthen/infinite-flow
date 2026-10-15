@@ -8,21 +8,22 @@
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
-import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
+import type { InstrumentClef } from '@/domain/profile/instrument-clef'
 import type { StaffFixedParts } from '@/notation/staff-fit-types'
 import { loadVexflowEngraver } from '@/notation/vexflow-engraver-loader'
 import type { StaffFitPlanner } from './workspace-session-controller-types'
 
 /**
- * Intent: measure the staff's fixed parts for the key signature `phrase` is written in, once the
- * engraver and its fonts are ready. A load or font failure is the loader's own NotationError.
+ * Intent: measure the staff's fixed parts for the key signature `phrase` is written in, in `clef`,
+ * the session instrument's, once the engraver and its fonts are ready. A load or font failure is
+ * the loader's own NotationError.
  */
 // @spec-link [[rule_session_ends_when_staff_too_small]]
+// @spec-link [[entity_my_instrument]]
 export async function measureSessionStaffFixedParts(
   phrase: WorkspaceSessionResult,
+  clef: InstrumentClef,
 ): Promise<StaffFixedParts> {
-  // The session instrument's clef: my instrument's reaches here with chunks 17 and 20.
-  const clef = BUILT_IN_INSTRUMENT_CLEF
   const written = transformToWrittenPhrase(
     notationInputFromOutcome(phrase.outcome, phrase.intent, clef),
   )

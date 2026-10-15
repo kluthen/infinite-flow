@@ -21,7 +21,7 @@ import {
 } from '@/domain/controls/generation-controls'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import type { ProfileSelection } from '@/domain/controls/profile-selection'
-import { ADOPTED_INSTRUMENT_PROFILES } from '@/domain/profile/instrument-profiles'
+import { ADOPTED_INSTRUMENT_PROFILES, MY_INSTRUMENT_ID } from '@/domain/profile/instrument-profiles'
 import type { SegmentedControlOption } from './segmented-control-option'
 
 /** Intent: build the twelve tonal-center options with their sharp/flat enharmonic labels. */
@@ -63,6 +63,19 @@ export function instrumentProfileOptions(): readonly SegmentedControlOption[] {
     value: profile.id,
     label: profile.displayName,
   }))
+}
+
+/**
+ * Intent: the instrument control's options: the three built-in profiles, then, while my
+ * instrument exists, a fourth labelled with its name, its value the fixed `my-instrument` id.
+ */
+// @spec-link [[req_my_instrument]]
+export function instrumentChoiceOptions(
+  myInstrumentName: string | null,
+): readonly SegmentedControlOption[] {
+  const builtIns = instrumentProfileOptions()
+  if (myInstrumentName === null) return builtIns
+  return [...builtIns, { value: MY_INSTRUMENT_ID, label: myInstrumentName }]
 }
 
 /** Intent: build the Neutral/Jazz musical-profile-preset options. */

@@ -11,6 +11,7 @@ import { computed } from 'vue'
 import type { NoteDensityContext } from '@/domain/controls/generated-note-density'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import type { ProfileSelection } from '@/domain/controls/profile-selection'
+import type { MyInstrument } from '@/domain/profile/my-instrument'
 import FoundationControls from './FoundationControls.vue'
 import RhythmControls from './RhythmControls.vue'
 import MelodicShapeControls from './MelodicShapeControls.vue'
@@ -38,6 +39,8 @@ const props = defineProps<{
   sessionOptionsReadonly: boolean
   /** The preset status's live announcement: `polite`, or `off` while a session runs. */
   presetStatusLive: 'polite' | 'off'
+  /** The player's own instrument, while it exists: the instrument control's fourth choice. */
+  myInstrument: MyInstrument | null
 }>()
 
 const emit = defineEmits<{
@@ -102,6 +105,7 @@ const controlSummary = computed(() => controlSummaryText(props.controls, props.p
         :readonly="readonly"
         :preset-status-live="presetStatusLive"
         :last-session-reached-tempo="lastSessionReachedTempo"
+        :my-instrument="myInstrument"
         @set-control="forwardSetControl"
         @select-instrument-profile="forwardInstrumentProfile"
         @select-musical-profile="forwardMusicalProfile"

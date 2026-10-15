@@ -44,6 +44,7 @@ function fakeWorkspaceSession(savedData: SavedDataLoad = fakeSavedData()) {
     presentation: { theme: savedData.settings.theme } as {
       theme: ThemePreference
     },
+    myInstrument: savedData.myInstrument,
     latestIntent: null,
     result: null,
     operation: 'idle' as SessionOperation,

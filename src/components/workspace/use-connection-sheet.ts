@@ -4,6 +4,7 @@
  * request), which sheet state it opens at, and the lazily loaded sheet component and props the
  * shell renders. The shell moves focus once the sheet closes.
  */
+import type { InstrumentClef } from '@/domain/profile/instrument-clef'
 import { computed, shallowRef, type Component, type ComputedRef, type ShallowRef } from 'vue'
 
 import type { AudioTransport } from '@/audio/audio-transport'
@@ -26,6 +27,8 @@ export interface ConnectionSheetDeps {
   readonly status: ControllerStatusView
   /** The current instrument profile, which the sheet's transposition check reads in. */
   readonly profile: () => InstrumentProfile
+  /** The current instrument's clef, the staff the check's note is drawn on. */
+  readonly clef: () => InstrumentClef
   readonly sessionActive: () => boolean
 }
 
@@ -115,6 +118,7 @@ export function useConnectionSheet(deps: ConnectionSheetDeps): ConnectionSheetHo
       openAt: sheet.openAt,
       connecting: sheet.connecting,
       profile: deps.profile(),
+      clef: deps.clef(),
       profiles: ADOPTED_INSTRUMENT_PROFILES,
       seenDeviceCount: deps.status.seenDeviceCount.value,
     }

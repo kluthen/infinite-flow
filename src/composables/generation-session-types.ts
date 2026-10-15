@@ -12,6 +12,7 @@ import type {
   GenerationIntentProviders,
 } from '@/domain/generation/generation-intent'
 import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
+import type { MyInstrument } from '@/domain/profile/my-instrument'
 import type { Seed } from '@/domain/random/seed'
 import type { SaveSettings } from '@/storage/settings-saver'
 import type {
@@ -36,6 +37,11 @@ export interface GenerationSessionState<TResult> {
   readonly controls: GenerationControls
   readonly profileSelection: ProfileSelection
   readonly presentation: PresentationSettings
+  /**
+   * The player's own instrument, while it exists: its profile is what every intent built while the
+   * controls name `my-instrument` carries as data, and its clef the one its phrases are drawn in.
+   */
+  readonly myInstrument: MyInstrument | null
   readonly latestIntent: GenerationIntent | null
   readonly result: TResult | null
   readonly operation: SessionOperation
@@ -101,14 +107,17 @@ export interface GenerationSession<TResult> {
 
 /**
  * The settings the Idle session starts from: the player's saved controls, musical profile
- * selection and theme, loaded before the workspace is first drawn.
+ * selection and theme, and my instrument when it loaded, loaded before the workspace is first
+ * drawn. Controls naming `my-instrument` come only with my instrument.
  */
 // @spec-link [[rule_first_phrase_waits_for_saved_settings]]
 // @spec-link [[rule_settings_saved_on_change]]
+// @spec-link [[entity_my_instrument_record]]
 export interface InitialGenerationSettings {
   readonly controls: GenerationControls
   readonly profileSelection: ProfileSelection
   readonly theme: ThemePreference
+  readonly myInstrument: MyInstrument | null
 }
 
 /**
