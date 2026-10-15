@@ -96,6 +96,24 @@ describe('the My instrument sheet', () => {
   })
 
   // @test-link [[req_my_instrument]]
+  it('takes no name text while an input method is composing, and takes it when composition ends', async () => {
+    const wrapper = mountSheet({ mode: 'editing', saved: SAVED })
+    const input = wrapper.get('input').element as HTMLInputElement
+
+    input.value = 'Tenor t'
+    input.dispatchEvent(new InputEvent('input', { isComposing: true }))
+    await button(wrapper, 'Save').trigger('click')
+    expect(wrapper.emitted('close')).toHaveLength(1)
+    expect(wrapper.emitted('save')).toBeUndefined()
+
+    input.value = 'Tenor two'
+    input.dispatchEvent(new CompositionEvent('compositionend', { data: 'two' }))
+    await button(wrapper, 'Save').trigger('click')
+    expect((wrapper.emitted('save') as [[{ name: string }]])[0]![0].name).toBe('Tenor two')
+    wrapper.unmount()
+  })
+
+  // @test-link [[req_my_instrument]]
   it('asks once before deleting, and its way back returns to the form', async () => {
     const wrapper = mountSheet({ mode: 'editing', saved: SAVED }, true)
     await button(wrapper, 'Delete my instrument').trigger('click')
