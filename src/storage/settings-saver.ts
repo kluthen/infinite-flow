@@ -1,6 +1,6 @@
 /**
- * What the app saves the player's changes and holds a session's saves through, over the visit's
- * save policy. The loader hands the policy over as a promise; calls made before it settles wait,
+ * What the app saves the player's changes and the remembered controller, and holds a session's
+ * saves, through, over the visit's save policy. The loader hands the policy over as a promise; calls made before it settles wait,
  * in order, and every call reaches the policy in the order it was made. Once the policy has
  * loaded, calls reach it at once, so a hold made when a session starts takes effect right there.
  *
@@ -14,6 +14,11 @@
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import type { ProfileSelection } from '@/domain/controls/profile-selection'
 
+import {
+  CONTROLLER_RECORD_KEY,
+  encodeControllerRecord,
+  type RememberedControllerDevice,
+} from './records/controller-record'
 import {
   encodeSettingRecord,
   SETTING_KEYS,
@@ -77,10 +82,24 @@ export interface KeptSessionChanges {
 }
 
 /**
- * The visit's saves of the player's settings, the hold of a session's saves, and the changes to
- * kept sessions after their save.
+ * The saves of the remembered controller: its one record written when a different device counts as
+ * connected, deleted by the player's Disconnect. Skipped by the policy in a visit that saves nothing.
  */
-export interface VisitSaves extends SessionSaveHold, KeptSessionChanges {
+// @spec-link [[entity_remembered_controller_record]]
+// @spec-link [[rule_last_controller_remembered]]
+// @spec-link [[rule_disconnect_forgets_controller]]
+export interface ControllerSaves {
+  /** Write the remembered controller's record for `device`, replacing any earlier one. */
+  readonly rememberController: (device: RememberedControllerDevice) => void
+  /** Delete the remembered controller's record. */
+  readonly forgetController: () => void
+}
+
+/**
+ * The visit's saves of the player's settings, the hold of a session's saves, the changes to kept
+ * sessions after their save, and the saves of the remembered controller.
+ */
+export interface VisitSaves extends SessionSaveHold, KeptSessionChanges, ControllerSaves {
   readonly saveSettings: SaveSettings
 }
 
@@ -157,6 +176,26 @@ export function createVisitSaves(policy: Promise<SavePolicy>, appVersion: string
     saveSession: (changes) => resolved((target) => target.saveSession(changes)),
     changeKept: (changes, refusal) => resolved((target) => target.changeKept(changes, refusal)),
     readKept: (read, refusal) => resolved((target) => target.readKept(read, refusal)),
+    // @spec-link [[rule_last_controller_remembered]]
+    rememberController: (device) => {
+      const record = encodeControllerRecord(device, appVersion)
+      const change: StorageChange = {
+        kind: 'write',
+        store: 'controller',
+        key: CONTROLLER_RECORD_KEY,
+        record,
+      }
+      submit((target) => void target.save([change]))
+    },
+    // @spec-link [[rule_disconnect_forgets_controller]]
+    forgetController: () => {
+      const change: StorageChange = {
+        kind: 'delete',
+        store: 'controller',
+        key: CONTROLLER_RECORD_KEY,
+      }
+      submit((target) => void target.save([change]))
+    },
   }
 }
 

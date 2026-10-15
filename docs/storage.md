@@ -762,6 +762,34 @@ session with the latest start. A session ended in its count-in leaves it as it w
   "Last session" for the most recent session and the session date otherwise; the summary starts
   with the session date (`session-date.ts`) when the title does not hold it.
 
+## The remembered controller
+
+The `controller` store holds at most one record, under the key `remembered`
+(`src/storage/records/controller-record.ts`): the record envelope (data version 1) and the input
+port's `id`, `name` and `manufacturer`. The `id` is the one identity matched at load, the one a
+device that comes back within a page is recognised by; the name and the manufacturer are for
+display only, since two identical devices share them.
+
+- **Read.** The load hands the store's records on raw (`rememberedController`);
+  `composeWorkspaceSession` decodes them with `decodeRememberedController`, tolerantly: a record
+  this version cannot read, or one a newer version wrote, gives no remembered controller. The
+  workspace session hands it to the shell as `rememberedController`, with its saves.
+- **At load** (`useControllerConnection`, at the shell's setup), the MIDI controller's `reselect`
+  makes it the remembered controller; only when the permission query reads `granted` is MIDI
+  access requested, one request that cannot prompt. The input whose `id` equals the record's is
+  selected at once, or stays `away` until it appears and is then attached as a device that comes
+  back within a page. With nothing remembered, no permission is read and nothing is requested.
+- **Saved** when it changes: the MIDI controller reports the remembered controller in every change
+  (the one loaded, then the last device that counted as connected, none after `Disconnect`), and
+  the shell's side writes the record (`rememberController`) or deletes it (`forgetController`)
+  through the visit's saves, so through the save policy. An unplug, or the same device
+  reattaching, saves nothing; deleting my instrument leaves it; Delete everything removes it with
+  the database.
+- **A visit that saves nothing** (an outdated tab, a visit started from the defaults): the policy
+  skips the write and the delete, so a controller connected there is not remembered and its
+  `Disconnect` forgets it for that visit only; the next load that reads the saved data reselects
+  the controller remembered before (spec D318).
+
 ## The notices
 
 The notice row at the top of the workspace (`AppNoticeRow.vue`) shows one notice at a time, chosen

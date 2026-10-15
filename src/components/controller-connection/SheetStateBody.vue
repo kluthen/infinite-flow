@@ -122,6 +122,10 @@ const checkCopy = computed<TranspositionCheckCopy | null>(() => {
         <span class="status-dot is-success" aria-hidden="true"></span>
         {{ stage.device.name }} is connected.
       </p>
+      <p v-if="stage.rememberedLine === true" class="sheet-hint">
+        This is the controller you chose last time. Run the check again if you have changed its
+        settings.
+      </p>
     </template>
   </div>
 </template>

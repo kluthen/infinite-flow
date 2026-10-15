@@ -7,12 +7,16 @@
 
 import type { MidiControllerChange, MidiControllerState, MidiDevice } from './midi-controller-state'
 
-/** What the header remembers from the controller's changes this page session. */
+/**
+ * What the header remembers from the controller's changes this page session. `reselectedAtLoad`
+ * is the latest change's: the remembered controller is being reselected at load, or was.
+ */
 // @spec-link [[rule_controller_attached_definition]]
 export interface ControllerStatusFacts {
   readonly state: MidiControllerState
   readonly everConnected: boolean
   readonly blocked: boolean
+  readonly reselectedAtLoad: boolean
   readonly seenDeviceIds: readonly string[]
 }
 
@@ -32,6 +36,7 @@ export function initialControllerStatusFacts(state: MidiControllerState): Contro
     state,
     everConnected: state.kind === 'connected',
     blocked: state.kind === 'denied',
+    reselectedAtLoad: false,
     seenDeviceIds: Object.freeze([]),
   })
 }
@@ -56,6 +61,7 @@ export function foldControllerStatus(
     state: change.state,
     everConnected: facts.everConnected || kind === 'connected',
     blocked: kind === 'denied' ? true : GRANTED_KINDS.has(kind) ? false : facts.blocked,
+    reselectedAtLoad: change.reselectedAtLoad,
     seenDeviceIds:
       newIds.length === 0
         ? facts.seenDeviceIds
@@ -76,12 +82,15 @@ export type ControllerStatusForm =
  * Intent: the one form the header shows. A controller lost in a running session shows
  * disconnected before all else; then a connected state (the same device reattached by itself
  * included) shows the connected badge; a refused latest request shows MIDI blocked; a controller
- * that connected earlier this page session shows no-controller; otherwise Connect controller.
+ * that connected earlier this page session shows no-controller, and so does the remembered
+ * controller reselected at load while it is not attached (as though it had connected earlier);
+ * otherwise Connect controller.
  * `opening` and `away` are not connected. No form ever blocks a session.
  */
 // @spec-link [[rule_controller_attached_definition]]
 // @spec-link [[rule_same_controller_reattaches]]
 // @spec-link [[rule_midi_never_blocks_session]]
+// @spec-link [[rule_last_controller_remembered]]
 export function controllerStatusForm(
   facts: ControllerStatusFacts,
   options: { readonly lostInSession: boolean },
@@ -91,6 +100,6 @@ export function controllerStatusForm(
     return Object.freeze({ kind: 'connected', device: facts.state.device })
   }
   if (facts.blocked) return Object.freeze({ kind: 'blocked' })
-  if (facts.everConnected) return Object.freeze({ kind: 'no-controller' })
+  if (facts.everConnected || facts.reselectedAtLoad) return Object.freeze({ kind: 'no-controller' })
   return Object.freeze({ kind: 'connect' })
 }

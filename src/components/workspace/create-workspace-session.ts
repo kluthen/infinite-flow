@@ -36,6 +36,7 @@ import type { GenerationWorkerClient } from '@/generation-worker/generation-work
 import { createBrowserAudioTransport } from '@/audio/browser-audio-transport'
 import type { SavedDataLoad } from '@/storage-bootstrap'
 import { APP_VERSION } from '@/storage/app-version'
+import { decodeRememberedController } from '@/storage/records/controller-record'
 import { createVisitSaves } from '@/storage/settings-saver'
 import { createMidiController } from '@/midi/midi-controller'
 import { createWebMidiAccessProvider } from '@/midi/web-midi-access'
@@ -90,7 +91,8 @@ export const WORKSPACE_SESSION_FACTORY: InjectionKey<
  * and theme, and each session controller's flags from its "During a session" choices, so the
  * workspace is first drawn with them; the load itself is exposed unchanged. The visit's saves go
  * through the loaded save policy: Idle's control actions and the screen's change handlers save the
- * player's changes through them, and each session controller holds them while a session runs.
+ * player's changes through them, and each session controller holds them while a session runs. The
+ * controller remembered from an earlier visit is decoded from the load and saved through them too.
  */
 // @spec-link [[service_workspace_session_flow]]
 // @spec-link [[service_session_runner]]
@@ -234,6 +236,11 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
     },
     savedData: deps.savedData,
     saveSettings: saves.saveSettings,
+    rememberedController: {
+      loaded: decodeRememberedController(deps.savedData.rememberedController),
+      remember: saves.rememberController,
+      forget: saves.forgetController,
+    },
     dispose: () => {
       created.dispose()
       deps.dispose()

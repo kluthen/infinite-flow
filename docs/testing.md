@@ -295,7 +295,11 @@ transport's `clockAnchor()`, with every state change and note it reports recorde
   [Fake MIDI access](#fake-midi-access)), with no device plugged in. A spec plugs devices and
   plays notes through the `midi` seams. Each message is stamped at the audio time the spec gives,
   through the fake audio clock's `performanceTimeAt`, so these controls need the fake audio clock
-  too and throw with `?audio=real`.
+  too and throw with `?audio=real`. The fake browser's state at load comes from the URL, so a
+  reload keeps it as a browser does: `?midiPermission=granted|prompt|denied` sets the permission
+  it reports, and `?midiDevices=` (a JSON array of `{ id, name, manufacturer }`) plugs those
+  devices in before the app loads. The remembered-controller specs use them
+  (`gotoControllerHarness`'s `atLoad`).
 - **Unsupported** (`?midi=unsupported`): the same fake, built as a browser without Web MIDI. The
   controller starts `unsupported` and asks for nothing.
 - **Real** (`?midi=real`): the controller runs on `createWebMidiAccessProvider(navigator)`, the

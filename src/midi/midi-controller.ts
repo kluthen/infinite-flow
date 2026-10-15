@@ -1,12 +1,18 @@
 /**
  * The MIDI controller: the one MIDI input the app reads, from asking for MIDI access to the notes
- * played on it. Access is only requested when the player connects a controller. Exactly one input
+ * played on it. Access is only requested when the player connects a controller, or once at load to
+ * reselect the controller remembered from an earlier visit, only when the browser already allows
+ * MIDI access (a request that cannot prompt). Exactly one input
  * is read at a time: the player's pick, or the only device present; several inputs are never
  * merged, and every other port is never opened nor listened to. Its state is derived, on every
  * input change, from permission, selection and the selected port's own state; every state is a
  * normal, non-blocking one. The selection lives in memory only and survives an unplug: the same
  * port coming back is reattached by itself (unless that is held back for a session started without
- * it), and a different device is never picked up that way; only the player's Disconnect clears it. Notes are read on every channel, mapped onto the audio clock through a fresh clock anchor per
+ * it), and a different device is never picked up that way; only the player's Disconnect clears it.
+ * The remembered controller reselected at load is selected the same way, by its port id only, at
+ * once or when it appears; until then it is `away`. The remembered controller is the one given at
+ * load, then the last device that counted as connected, and the player's Disconnect forgets it.
+ * Notes are read on every channel, mapped onto the audio clock through a fresh clock anchor per
  * message, kept in the port's message order, and tracked into played and ended notes.
  */
 
@@ -83,6 +89,14 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
   let connectAbandoned = false
   let connectInFlight: Promise<void> | undefined
   let reattachmentHeld = false
+  // The remembered controller reselected at load and selected while its port is not present yet.
+  let awaited: MidiDevice | undefined
+  // The controller remembered for this page; see MidiControllerChange.
+  let remembered: MidiDevice | undefined
+  let reselectStarted = false
+  let reselectedAtLoad = false
+  // While the load's request is in flight, a connect() adopts it rather than asking again.
+  let loadRequestAdoptable = false
   let lastMappedAt: AudioTime | undefined
   let lastReported = changeKey(snapshot())
 
@@ -95,6 +109,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
   function state(): MidiControllerState {
     if (phase !== 'granted') return Object.freeze({ kind: phase })
     if (selected === undefined) {
+      if (awaited !== undefined) return Object.freeze({ kind: 'away', device: awaited })
       return Object.freeze({ kind: devices().length === 0 ? 'no-device' : 'choosing' })
     }
     const device = toDevice(selected)
@@ -112,9 +127,20 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
     return Object.freeze(access.inputs().map(toDevice))
   }
 
-  /** Intent: the current state and devices, as subscribers are told them. */
+  /**
+   * Intent: the current state, devices and remembered controller, as subscribers are told them. A
+   * connected device becomes the remembered controller here, as every change is read through it.
+   */
+  // @spec-link [[rule_last_controller_remembered]]
   function snapshot(): MidiControllerChange {
-    return Object.freeze({ state: state(), devices: devices() })
+    const current = state()
+    if (current.kind === 'connected') remembered = current.device
+    return Object.freeze({
+      state: current,
+      devices: devices(),
+      remembered: remembered ?? null,
+      reselectedAtLoad,
+    })
   }
 
   /** Intent: tell subscribers the current snapshot, only when it differs from the last one told. */
@@ -165,8 +191,10 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
    */
   // @spec-link [[rule_controller_connects_between_sessions]]
   function connect(): Promise<void> {
-    if (phase === 'requesting' && connectAbandoned && connectInFlight !== undefined) {
+    const adoptable = connectAbandoned || loadRequestAdoptable
+    if (phase === 'requesting' && adoptable && connectInFlight !== undefined) {
       connectAbandoned = false
+      loadRequestAdoptable = false
       return connectInFlight
     }
     if (phase === 'unsupported' || phase === 'requesting') {
@@ -198,7 +226,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
         return
       }
     }
-    await selectTheOnlyDevice()
+    await selectRememberedOrOnly()
   }
 
   /**
@@ -233,15 +261,97 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
     }
   }
 
-  /** Intent: with nothing selected and exactly one input present, select it; else just report. */
-  async function selectTheOnlyDevice(): Promise<void> {
-    const inputs = grantedAccess('pick the only device').inputs()
-    const only = inputs[0]
-    if (selected === undefined && inputs.length === 1 && only !== undefined) {
-      await select(only.id)
-      return
+  /**
+   * Intent: with nothing selected, select the remembered controller when it is among the inputs,
+   * however many there are, else the only input present; otherwise just report.
+   */
+  // @spec-link [[rule_last_controller_remembered]]
+  async function selectRememberedOrOnly(): Promise<void> {
+    const inputs = grantedAccess('pick a device').inputs()
+    if (selected === undefined && awaited === undefined) {
+      const known = remembered
+      const pick =
+        inputs.find((input) => known !== undefined && input.id === known.id) ??
+        (inputs.length === 1 ? inputs[0] : undefined)
+      if (pick !== undefined) {
+        await select(pick.id)
+        return
+      }
     }
     report()
+  }
+
+  /**
+   * Intent: the load's reselection (see MidiController.reselect). Whatever the permission says,
+   * `device` becomes the remembered controller; the request is made only when the permission reads
+   * `granted` and nothing was requested meanwhile.
+   */
+  // @spec-link [[rule_last_controller_remembered]]
+  function reselect(device: MidiDevice): Promise<void> {
+    if (reselectStarted || phase !== 'not-requested' || remembered !== undefined) {
+      return Promise.reject(
+        new MidiControllerError(
+          `Cannot reselect a remembered controller once MIDI access is ${phase}.`,
+        ),
+      )
+    }
+    reselectStarted = true
+    remembered = Object.freeze({
+      id: device.id,
+      name: device.name,
+      manufacturer: device.manufacturer,
+    })
+    report()
+    return reselectWhenAllowed(remembered)
+  }
+
+  /** Intent: request access for the reselection only when the browser already allows it. */
+  async function reselectWhenAllowed(device: MidiDevice): Promise<void> {
+    if ((await provider.permission()) !== 'granted' || phase !== 'not-requested') return
+    reselectedAtLoad = true
+    loadRequestAdoptable = true
+    connectInFlight = requestRemembered(device)
+    return connectInFlight
+  }
+
+  /**
+   * Intent: the load's one request, which cannot prompt, then the remembered port selected if
+   * present, else awaited (away) until it appears. A refused request leaves the player to connect
+   * (not-requested, or unsupported when the browser says so); a broken one goes back to
+   * not-requested and propagates. Neither keeps the reselection.
+   */
+  // @spec-link [[rule_last_controller_remembered]]
+  async function requestRemembered(device: MidiDevice): Promise<void> {
+    phase = 'requesting'
+    connectAbandoned = false
+    report()
+    let result: MidiAccessRequest
+    try {
+      result = await provider.request()
+    } catch (error) {
+      phase = 'not-requested'
+      reselectedAtLoad = false
+      loadRequestAdoptable = false
+      report()
+      throw error
+    }
+    loadRequestAdoptable = false
+    if (result.kind !== 'granted') {
+      phase = result.kind === 'unsupported' ? 'unsupported' : 'not-requested'
+      reselectedAtLoad = false
+      report()
+      return
+    }
+    access = result.access
+    phase = 'granted'
+    access.onInputStateChange(onInputStateChange)
+    const port = access.inputs().find((input) => input.id === device.id)
+    if (port === undefined) {
+      awaited = device
+      report()
+      return
+    }
+    await select(port.id)
   }
 
   /**
@@ -264,6 +374,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
       releaseHeld(clock.anchor().audioTime)
     }
     if (selected?.id !== port.id) lastMappedAt = undefined
+    awaited = undefined
     selected = port
     listenTo(port)
     await openSelected(port)
@@ -280,11 +391,13 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
   // @spec-link [[rule_controller_attached_definition]]
   // @spec-link [[rule_disconnect_forgets_controller]]
   function disconnect(): void {
-    if (selected === undefined) {
+    if (selected === undefined && awaited === undefined) {
       throw new MidiControllerError('Cannot disconnect: no controller is selected.')
     }
     if (tracker.held().length > 0) releaseHeld(clock.anchor().audioTime)
     selected = undefined
+    awaited = undefined
+    remembered = undefined
     reattachmentHeld = false
     lastMappedAt = undefined
     openToken += 1
@@ -316,11 +429,12 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
   // @spec-link [[rule_start_while_controller_away]]
   // @spec-link [[rule_same_controller_reattaches]]
   function releaseReattachment(): void {
-    if (!reattachmentHeld || selected === undefined) {
+    if (!reattachmentHeld || (selected === undefined && awaited === undefined)) {
       throw new MidiControllerError('Cannot release the reattachment: it is not held.')
     }
     reattachmentHeld = false
-    reopenIfBack(selected)
+    if (selected !== undefined) reopenIfBack(selected)
+    else attachAwaitedIfPresent()
     report()
   }
 
@@ -366,7 +480,9 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
    */
   // @spec-link [[rule_same_controller_reattaches]]
   function onInputStateChange(port: MidiInputPort, timestampMs: number): void {
-    if (selected !== undefined && port.id === selected.id) {
+    if (awaited !== undefined && port.id === awaited.id) {
+      if (!reattachmentHeld) attachAwaitedIfPresent()
+    } else if (selected !== undefined && port.id === selected.id) {
       selected = port
       listenTo(port)
       if (port.state() === 'disconnected' && tracker.held().length > 0) {
@@ -375,6 +491,25 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
       if (!reattachmentHeld) reopenIfBack(port)
     }
     report()
+  }
+
+  /**
+   * Intent: attach the awaited remembered controller when its port is present, as a device that
+   * comes back within a page: selected, listened to and opened, with no player action (a failing
+   * open leaves it `away` and rejects unhandled, as a reopen does).
+   */
+  // @spec-link [[rule_last_controller_remembered]]
+  // @spec-link [[rule_same_controller_reattaches]]
+  function attachAwaitedIfPresent(): void {
+    const device = awaited
+    if (device === undefined || access === undefined) return
+    const port = access.inputs().find((input) => input.id === device.id)
+    if (port === undefined || port.state() !== 'connected') return
+    awaited = undefined
+    selected = port
+    lastMappedAt = undefined
+    listenTo(port)
+    void openSelected(port)
   }
 
   /**
@@ -421,6 +556,8 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
   return {
     state,
     devices,
+    change: snapshot,
+    reselect,
     permission,
     connect,
     abandonConnect,

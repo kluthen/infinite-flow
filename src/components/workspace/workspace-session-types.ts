@@ -17,6 +17,7 @@ import type { AudioTransport } from '@/audio/audio-transport'
 import type { MidiController } from '@/midi/midi-controller'
 import type { SavedDataLoad } from '@/storage-bootstrap'
 import type { SaveSettings } from '@/storage/settings-saver'
+import type { RememberedControllerStore } from './use-controller-connection'
 import type { WorkspaceSessionRunnerStarter } from './workspace-session-dependencies'
 import type { SessionController } from './workspace-session-controller-types'
 
@@ -103,5 +104,10 @@ export interface WorkspaceSession {
    * actions save through the same saver. Never called by a watcher of setting values.
    */
   readonly saveSettings: SaveSettings
+  /**
+   * The controller remembered from an earlier visit, as the load read it, and its saves through
+   * the visit's save policy; the shell hands it to the controller's side, which reselects it.
+   */
+  readonly rememberedController: RememberedControllerStore
   readonly dispose: () => void
 }

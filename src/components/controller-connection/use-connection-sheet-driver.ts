@@ -43,9 +43,9 @@ export function useConnectionSheetDriver(
   const midi = props.midi
   let mounted = true
 
-  /** Intent: the controller's current state and devices, as the reducer takes them. */
+  /** Intent: the controller's current state, devices and remembered controller, for the reducer. */
   function snapshot(): MidiControllerChange {
-    return { state: midi.state(), devices: midi.devices() }
+    return midi.change()
   }
 
   const model = shallowRef<SheetModel>(

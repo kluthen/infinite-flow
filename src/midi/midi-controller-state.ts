@@ -43,11 +43,20 @@ export type MidiControllerState =
   | { readonly kind: 'connected'; readonly device: MidiDevice }
   | { readonly kind: 'away'; readonly device: MidiDevice }
 
-/** What subscribers are told whenever the state or the list of present devices changes. */
+/**
+ * What subscribers are told whenever the state, the list of present devices or the remembered
+ * controller changes. `remembered`: the controller remembered for this page, given at load from an
+ * earlier visit, then the last device that counted as connected; none after the player's
+ * Disconnect. `reselectedAtLoad`: MIDI access was requested at load to reselect it, because the
+ * browser already allowed MIDI access, and that request has not failed.
+ */
 // @spec-link [[rule_controller_attached_definition]]
+// @spec-link [[rule_last_controller_remembered]]
 export interface MidiControllerChange {
   readonly state: MidiControllerState
   readonly devices: readonly MidiDevice[]
+  readonly remembered: MidiDevice | null
+  readonly reselectedAtLoad: boolean
 }
 
 /** The MIDI controller's operations; see createMidiController. */
@@ -55,6 +64,18 @@ export interface MidiControllerChange {
 export interface MidiController {
   readonly state: () => MidiControllerState
   readonly devices: () => readonly MidiDevice[]
+  /** The current state, devices and remembered controller, as subscribers are told them. */
+  readonly change: () => MidiControllerChange
+  /**
+   * The load's reselection of the controller remembered from an earlier visit (only before any
+   * request, once, else rejects with a MidiControllerError): it becomes the remembered controller,
+   * and only when the permission reads `granted` is access requested, a request that cannot
+   * prompt; then the input whose id equals `remembered.id` is selected, at once or when it appears.
+   * Resolves once that is settled; a broken request rejects, the controller back to not-requested.
+   */
+  // @spec-link [[rule_last_controller_remembered]]
+  // @spec-link [[entity_remembered_controller_record]]
+  readonly reselect: (remembered: MidiDevice) => Promise<void>
   /** The browser's MIDI permission, read through the provider; never prompts, in any state. */
   // @spec-link [[rule_controller_connects_between_sessions]]
   readonly permission: () => Promise<MidiPermissionState>
