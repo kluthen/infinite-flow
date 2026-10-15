@@ -2319,6 +2319,28 @@ limit and keeping), 13 (the request), 6 (pinned sessions kept).
 
 **Verification:** the chunk checks.
 
+**Record (2026-10-15).** Merged into `v3.0-w6` in two halves: 12a (5c06943, chunk commit
+a1f0081: the change builders in `kept-session-review-changes.ts` on chunk 11's path, a favorite's
+body rewrite `rewriteKeptBodyFavorite`, the retry of a failed save with the facts held then, the
+controller side `workspace-kept-session-edits.ts`) and 12b (926d516, chunk commit b727bb4:
+`ReviewSessionTools.vue`, `ReviewComment.vue`, the star in `ReviewPhrase.vue`, the unpin and
+delete sheets, `review-favorites.spec.ts` and `review-comment.spec.ts`). No spec or design
+deviation; every Done when item has an end-to-end test, the phone layout at 740×360 included.
+Files outside the Files line: `workspace-session-ends.ts` (a `saveRefused` callback, the only
+place the session's history is at hand for the retry), `workspace-kept-sessions-seam.ts`
+(`requestProtection`), `session-review-state.ts` and `workspace-kept-session-read.ts` (the new
+facts), chunk 11's `use-review-played-notes.ts` (additions only), and `ReviewPanel.vue`'s rows put
+in the design's order. Calls made inside the chunk, for the sync: a retry keeps played notes as
+the held session says, and the switch turned on after a failed save does not add them; Delete
+session on a summary damaged since the read writes nothing (left for chunk 28) and the session
+still leaves memory; the persistent-storage request is made at each favorite and pin, the policy
+asking the browser once per visit; a change made while the session's save is pending queues
+after it. For the wave gate: the entry chunk probably grows (the confirmation copy and the
+session tools' host); the a11y scans cover the stars, the comment and the two sheets. Left open:
+focus after Delete session stays on the page body until chunk 14's list title exists; the star's
+outline uses the SVG default stroke width (no token sets one; for `ux-writer` if wanted); the
+unpin sheet stays open when the tab turns outdated, since it deletes nothing.
+
 ### Chunk 13 — Favorites-only export
 
 **Goal.** Export only the favorite phrases, in session order with their phrase numbers, for the
