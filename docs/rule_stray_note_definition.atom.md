@@ -4,7 +4,7 @@ status: DRAFT
 dependents:
   - [[rule_stray_notes_filtered_on_reading]]
 layer: BUSINESS
-version: 0.1
+version: 0.2
 human_name: What a Very Short Note Is
 parents:
   - [[req_midi_controller_input]]
@@ -16,14 +16,14 @@ tags: [v3, release-v3.0, midi]
 # What a Very Short Note Is
 
 ## INTENT
-Define which played notes count as stray in-between notes a controller sends.
+Define which played notes count as very short: a length rule meant to catch the stray in-between notes a controller sends.
 
 ## THE RULE / LOGIC
-Some controllers send very short notes while the fingers change position: in-between notes a real instrument would swallow. From v3.0, a very short note is a played note whose length, from note-on to note-off, is under a fixed threshold. The threshold is a constant, not a player setting, the same for every controller; it is set from recordings of the reference controller and stays well under the shortest note the app writes at its fastest tempo, a sixteenth note at 240 BPM, which lasts 62.5 ms.
+Some controllers send stray notes while the fingers change position: in-between notes a real instrument would swallow. From v3.0, a very short note is a played note whose length, from note-on to note-off, is under a fixed threshold. The threshold is a constant, not a player setting, the same for every controller; it is set from recordings of the reference controller and stays well under the shortest note the app writes at its fastest tempo, a sixteenth note at 240 BPM, which lasts 62.5 ms. It is 38 ms, one step of the reference controller's timing below the shortest note the player meant in those recordings, so it leaves out no note the player meant there. A length catches most stray notes, not all: on the reference controller, stray notes and the notes the player meant overlap in length, so a stray note as long as a meant one is not very short.
 
 ## TECHNICAL INTERFACE
 One constant duration threshold classifies a played note as very short.
 
 ## EXPECTATION
-- The threshold is a constant well under 62.5 ms, with no player setting.
-- A played note shorter than the threshold, note-on to note-off, is very short; any other is not.
+- The threshold is a constant 38 ms, well under 62.5 ms, with no player setting.
+- A played note shorter than the threshold, note-on to note-off, is very short; any other is not, a longer stray note included.
