@@ -3,7 +3,7 @@ id: module_kept_session_changes
 status: DRAFT
 type: MODULE
 layer: ARCHITECTURE
-version: 0.4
+version: 0.5
 human_name: Kept Session Changes After Its Save
 tags: [v3, release-v3.0, storage, review, session]
 parents:
@@ -53,6 +53,8 @@ Memory. A change also changes the session list's rows held in memory, as module_
 
 A session whose own save failed. A session held in memory because its own save was refused is never changed through this path. Its next favorite, pin, unpin or comment instead runs the session's own save again, with the session's facts as they are at that moment, as the same batch the session's end would have built, under the same key, and with the unpinned kept sessions to delete read at the retry. When the retry succeeds, the keep line takes its pinned or not-pinned wording; a failed retry changes nothing shown.
 
+A session whose own save was abandoned. A session whose own save the page's going away abandoned (module_kept_session_save) is never changed through this path and never saved again, not even when the browser brings the page back: its favorite, pin, unpin and comment hold in memory for the visit only.
+
 ## TECHNICAL INTERFACE
 The change path is in src/components/workspace/kept-session-changes.ts (keeping or deleting one session's played notes, deleting every kept played note, and the count read at the switch) and src/components/workspace/kept-session-review-changes.ts (a favorite mark, a pin or an unpin, the comment and Delete session). Each change is a KeptChanges, a function from a KeptRecordsReader (read(store, key), readKeyed(store), readKeys(store)) to the StorageChange list to apply, run through the visit's saves (src/storage/settings-saver.ts), which reach the save policy's changeKept(changes, refusal) and readKept(read, refusal) (src/storage/save-policy-kept-changes.ts, through src/storage/save-policy.ts; module_save_policy); the plain save(changes), which reads nothing, is not used for these changes. The refusal is 'notice', told to the failure listener, or 'caller', resolved to the caller alone, which the deletions use. A change resolves a KeptChangeOutcome: saved; unchanged, when what it would change is no longer stored or cannot be read; refused, with its kind; or saving off. The port's keys-only read, readKeys(store) (module_on_device_database), lists the stored played-notes records, so deleting every played note never reads one. A kept session's records are encoded again after its save by rewriteKeptSummary (src/storage/records/kept-session-summary.ts) and rewriteKeptBodyFavorite (src/storage/records/kept-session-record.ts) (entity_kept_session_record), the codec loaded on demand. The session controller holds each session's facts in memory and calls the change path, at Idle only, for a session held in memory or, for a pin, an unpin and Delete session, for any listed kept session (module_kept_session_reach), through createKeptPlayedNotes (src/components/workspace/workspace-kept-played-notes.ts) and createKeptSessionEdits (src/components/workspace/workspace-kept-session-edits.ts). The latter retries a refused own save through saveEndedSession (src/components/workspace/workspace-session-save.ts), told of the refusal by the session's end through saveRefused (src/components/workspace/workspace-session-ends.ts), and asks for persistent storage through requestProtection on the kept-sessions seam (src/components/workspace/workspace-kept-sessions-seam.ts).
 
@@ -71,3 +73,4 @@ The change path is in src/components/workspace/kept-session-changes.ts (keeping 
 - While saving is off, a change holds for the visit: nothing is read, written or deleted, no deletion is offered, and turning Keep my played notes off asks nothing.
 - In a session whose own save failed, a favorite, pin, unpin or comment runs the session's own save again with the facts as they are then; on success the keep line takes its pinned or not-pinned wording, and a failed retry changes nothing shown.
 - A pin, an unpin and Delete session made from the session list to a kept session not held in memory take this path, keyed by the row, and never read the session's body.
+- A change to a session whose own save was abandoned as the page went away holds in memory only: nothing is read, written or retried.
