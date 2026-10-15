@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.92
+Status: draft v2.93
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,13 +14,13 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D316**. D259–D260 are
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D319**. D259–D260 are
 on branch `v4-accompaniment-research`, not merged yet. D263–D288 are v3.3's richer chords (merged
 from `main`); D289 is unused. D290–D299 were reserved for v3.0 wave 2; wave 2 used D290–D298, and
 D299 records wave 3. D300 records the wave-4 preflight; D301 and D302 the plan revision after
 chunk 7a; D303–D305 the wave-5 preflight (D303 the owner's ruling on the session key); D306–D308 the
 wave-5 sync; D309–D311 the owner's rulings on O201 and O200 and the plan revision they bring;
-D312–D315 the wave-6 preflight.
+D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures.
 
 ## Decision Log
 
@@ -1696,3 +1696,53 @@ D312–D315 the wave-6 preflight.
   review offers there is a design matter, opened as O210 for `ux-writer` and a gate before chunk
   25, which waits for H1 anyway. Chunk 25's Files add the review files it shares with chunks 11 and
   12 (D312) and `review-export.ts`; its Part D adds `module_review_export_pipeline`. Build plan v16.
+
+- **D316 (2026-10-15): a change to a kept session after its save reads what is stored at the
+  change.** Settled by `spec-writer` under the owner's delegation of minor technical calls, from
+  `documentalist`'s capture `module_kept_session_changes` (384cecf), which was silent on it, and the
+  save policy on `v3.0-w6`: its plain `save(changes)` reads nothing, and only `saveSession` reads
+  the kept summaries, at the save. Built from the summaries read at load and the visit's own
+  sessions, a change would miss played notes another tab kept since the load (short of
+  `rule_kept_played_notes_deletable`'s "every session's") and could rewrite a summary from stale
+  facts, for example unpinning a session another tab pinned, which the next save then deletes
+  (against `rule_pinned_session_kept`). So, as the session's own save does (D304), each change reads
+  what it rewrites at the change, through the save policy, once no session holds the saves and no
+  flush runs, queued with the session saves: the session's summary by its key, and its body for a
+  favorite mark; for deleting every kept played note, the keys of every stored `playedNotes`
+  record and every summary with its key. The batch applies only the player's change to what was
+  read, never facts held in memory. A change whose summary is gone (another tab deleted the
+  session) or cannot be read writes nothing and recreates nothing, the change holding in memory for
+  the visit; a refused read applies nothing and is told as a refused change. Whether there are
+  played notes to delete, which decides whether turning `Keep my played notes` off opens its
+  confirmation, is read at the switch the same way. The read and the batch are separate
+  transactions, the same narrow window the session's own save accepts. Chunk 11's Files gain
+  `src/storage/save-policy.ts` (and, if needed, `save-policy-requests.ts` and a keys-only read in
+  `storage-port.ts` and `database.ts`, so that deleting every played note never reads them all),
+  chunk 11 alone in wave 6; its Part D gains `module_save_policy` (and `module_on_device_database`
+  with a keys-only read). Build plan v17.
+
+- **D317 (2026-10-15): deleting every kept played note deletes every stored played-notes record,
+  an unreadable session's included.** Corrects D313's "one batch over every readable summary that
+  said they were kept", which would have left the played notes of a session whose summary cannot be
+  read. The player asked to delete every kept played note, and §5.3 and
+  `rule_kept_played_notes_deletable` say every session's; played notes are the most private data
+  the app keeps, so the wider reading wins. The batch deletes every `playedNotes` record read at the
+  change and rewrites every readable summary that said they were kept; an unreadable summary and
+  its body are left as they are, for chunk 28's deletion of damaged sessions. `documentalist`'s
+  capture records this; its sentence that an unreadable session's "played notes" are left as they
+  are contradicts it and goes. Build plan v17.
+
+- **D318 (2026-10-15): a visit that saves nothing neither remembers nor forgets the controller.**
+  Settled by `spec-writer` from master spec §4.3 and §4.4: an outdated tab "saves and deletes
+  nothing", and a visit started from the defaults "saves nothing for the rest of that visit, so a
+  failed read never overwrites what is kept". Clearing the remembered-controller record at
+  `Disconnect` is a deletion such a visit may not make, and §4.4's reason applies directly: a visit
+  started from the defaults has not even read the record. So in such a visit, connecting a
+  controller does not remember it, and `Disconnect` forgets the controller for that visit only; the
+  next load that reads the saved data reselects the controller remembered before. This is an
+  exception to `rule_last_controller_remembered`'s "after the player's Disconnect, a reload
+  reselects nothing", worded into §7.3 and item 18 (master spec Part A v1.17). Not a design
+  question: the visit already tells the player that it saves nothing and asks for a reload, and no
+  screen changes. No contract wording changes: neither atom is on the contract, and the
+  Remembered-controller wording (D314) says nothing of Disconnect. Chunk 22's capture and Done when
+  carry it. Build plan v17.

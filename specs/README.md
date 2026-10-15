@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.64
+Status: draft v0.65
 
 ## Status Snapshot
 
@@ -138,6 +138,11 @@ Status: draft v0.64
   which chunk 12 reuses (D313). Remembering the controller changes two STABLE contract wordings:
   §10's seventh change, major (CONTRACT 6.0), waits for the owner before chunk 22 merges (D314).
   Chunk 25's lane scale leaves out very short notes; O210 opened (D315). Gate A shown done.
+- **v3.0 build, wave 6 captures** (2026-10-15, D316–D318): build plan v17, master spec Part A
+  v1.17. A change to a kept session reads what is stored at the change, as the session's own save
+  does (D316); deleting every kept played note deletes every played-notes record, an unreadable
+  session's included (D317, correcting D313); a visit that saves nothing neither remembers nor
+  forgets the controller (D318, §7.3).
 - **Open:** 12 questions: O48 and O49 (later and governance),
   O100–O102 (v4 rhythm), O115 and O116 (v3.x learning), O176 (style packs and the chord level),
   O180 (octave signs, later), O183 (pre-generation's cancellation cost), O190 (a newer

@@ -2,7 +2,7 @@
 
 Status: this file holds four parts.
 
-- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.16 (2026-10-15), approved by the
+- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.17 (2026-10-15), approved by the
   product owner, and being built. Its section numbers (§1 to §15) are unchanged; v1.5 and v1.6
   write in the owner's rulings after the build's first intent preflight; v1.7 is a wording fix;
   v1.8 writes in the owner's rulings after the build's second intent preflight; v1.9 adds a bass
@@ -15,7 +15,9 @@ Status: this file holds four parts.
   size estimate with the build's measurement (§5.2), no behaviour changed; v1.15 writes in the
   owner's ruling that a damaged kept session is deleted, with an apology (§5.1, item 6);
   v1.16 corrects §10: remembering the controller changes two contract wordings, a seventh
-  contract change that waits for the owner's confirmation (spec D314), no behaviour changed.
+  contract change that waits for the owner's confirmation (spec D314), no behaviour changed;
+  v1.17 states what follows from §4.3 and §4.4 for the remembered controller: a visit that saves
+  nothing neither remembers nor forgets it (§7.3, item 18; spec D318).
 - **[Part B — v3.1](#part-b--v31), embellishment figures and presets:** master spec v1.0
   (2026-10-08), consolidated from the v3.1 drafts the owner approved; approved by the product
   owner (2026-10-08). The owner confirmed the exact wording of the contract
@@ -617,7 +619,11 @@ controller click unlocked sound and a starting note worked only after Connect co
 remembered controller there is no Connect click, so any first click, tap or key press on the page
 unlocks sound, and a Start click still does. v2 forgot the choice on reload; v3.0 deliberately keeps it. The
 player's **Disconnect** action, which in v2 forgets the controller for the page, also forgets the
-remembered one, so a reload never reconnects a controller the player chose to disconnect.
+remembered one, so a reload never reconnects a controller the player chose to disconnect. A visit
+that saves nothing (an outdated tab, §4.3, or a visit started from the defaults, §4.4) neither
+remembers nor forgets: a controller connected there is not remembered, and its Disconnect forgets
+the controller for that visit only, so the next load that reads the saved data reselects the
+controller remembered before.
 Deleting "my instrument" does not forget the controller; Delete everything does.
 
 ### 7.4 Phrase replay key
@@ -945,8 +951,9 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
     when my instrument has kept sessions, that confirmation warns that they will be erased, and
     confirming erases them. Played notes are still compared at the pitch received.
 18. **The controller is remembered** and reselected at load when connected and MIDI access is
-    already allowed, with no prompt; after the player's Disconnect, a reload reselects nothing; the
-    starting note starts nothing before the page's first click, tap or key press.
+    already allowed, with no prompt; after the player's Disconnect in a visit that saves, a reload
+    reselects nothing; the starting note starts nothing before the page's first click, tap or key
+    press.
 19. **Replay keys.** An `ifk2.` key reproduces a phrase made with "my instrument"; every `ifk1.`
     key still decodes to the same phrase as in v2.
 20. **Pre-generation.** Each pre-generated phrase is identical to the phrase the session produces

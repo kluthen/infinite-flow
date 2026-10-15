@@ -1,9 +1,9 @@
 # Infinite Flow v3.0 — Build Plan
 
-Status: v16 (2026-10-15): the wave-6 preflight's corrections written in: Gate A shown done; chunks 11, 12 and 25 share review files in a stated order; chunk 11 captures how a kept session changes after its save; chunk 22 waits for a new owner gate on two contract wordings (CONTRACT 6.0); chunk 25 waits for spec O210 (spec D312–D315). Approved by
+Status: v17 (2026-10-15): the wave-6 captures' three points written in: a change to a kept session reads what is stored at the change; deleting every kept played note deletes every played-notes record; Disconnect in a visit that saves nothing forgets the controller for that visit only (spec D316–D318). Approved by
 the product owner on 2026-10-07 (v1), with Gate A and the token-source pass (Q66) confirmed the
 same day; every later revision writes in rulings from [the decisions log](../../decisions.md)
-(spec D252–D315), and earlier wordings are in git.
+(spec D252–D318), and earlier wordings are in git.
 
 Build plan for v3.0, Storage, written from [master spec v1.3](master-spec.md) (now Part A v1.15) and the v3.0 design
 in [`ui_ux/versions/v3.0/`](../../../ui_ux/versions/v3.0/README.md), the copy frozen when the
@@ -196,6 +196,7 @@ later chunk reads the earlier one's merged edit. The files are shared in that or
 | `src/components/workspace/workspace-session-save.ts` | 11 (`Keep my played notes` read at the session's save, where `playedNotesKept: false` is hardcoded today; the change path beside it), then 12 (the facts held in memory at a retry; the retry) |
 | `src/components/workspace/workspace-session-controller-types.ts`, `workspace-session-controller.ts` | 11 (the played-notes-kept fact on `ReviewedSession` and the most recent session, the setting, both deletions), then 12 (favorites, pinned and comment there, `Delete session`, the retry) |
 | `src/storage/records/kept-session-record.ts` | 11 (a kept session's facts encoded again after its save), then 12 (the favorite marks) |
+| `src/storage/save-policy.ts` (and `save-policy-requests.ts`, `storage-port.ts`, `database.ts` if the change's read needs them) | 11 only (the change's read at the change and its batch; spec D316); 12 calls it as 11 built it |
 | The shared confirmation sheet in `src/components/workspace/` (new) | 11 builds it (its two confirmations), 12 reuses it, as chunks 14, 15 and 20 will |
 | `src/components/workspace/create-workspace-session.ts` | 11 (the saved `Keep my played notes` into the session controller), then 22 (the remembered controller's saver), if 22's wiring goes through it |
 | `src/components/workspace/review-export.ts` | 25 only |
@@ -2088,16 +2089,30 @@ an ARCHITECTURE atom `documentalist` names (or a revision of `module_kept_sessio
 choice). Chunk 11 builds it; chunk 12 reuses it.
 
 - Every change after the session's own save is one port `apply` batch through the save policy, so
-  it is held while a session runs, refused in an outdated tab and checked against `meta` like any
-  write: here, keeping or deleting one session's played notes and deleting every kept played note;
-  in chunk 12, a favorite, a pin or unpin, the comment and `Delete session`.
+  it waits while a session runs, is refused in an outdated tab and is checked against `meta` like
+  any write: here, keeping or deleting one session's played notes and deleting every kept played
+  note; in chunk 12, a favorite, a pin or unpin, the comment and `Delete session`.
+- **Read at the change** (spec D316). As the session's own save reads the summaries at the save,
+  a change reads what it rewrites at the change, through the save policy, once no session holds
+  the saves and no flush runs, queued with the session saves: the session's summary by its key,
+  and its body for a favorite mark; for deleting every kept played note, the key of every stored
+  `playedNotes` record and every summary with its key. The batch applies only the player's change
+  to what was read, never facts held in memory, so a fact another tab changed since the load stays
+  (a session pinned there stays pinned). A change whose summary is no longer stored (another tab
+  deleted the session) or cannot be read writes nothing and recreates nothing; the change holds in
+  memory for the visit. A read the device refuses applies nothing and is told as a refused change.
+  The plain `save(changes)`, which reads nothing, is not used for these changes.
 - What each change rewrites: the session's summary always (`playedNotesKept`, `pinned`,
   `favoritesCount`, `comment`); its `playedNotes` record written or deleted in the same batch; its
   body only for a favorite mark (chunk 12); `Delete session` deletes all three. Deleting every kept
-  played note deletes every `playedNotes` record and rewrites every readable summary that said
-  they were kept, in one batch; a summary that cannot be read is left (chunk 28's).
+  played note (spec D317) deletes every stored `playedNotes` record, an unreadable session's
+  included, and rewrites every readable summary that said they were kept, in one batch; a summary
+  that cannot be read, and its body, are left as they are (chunk 28's). Whether there are played
+  notes to delete, which decides whether turning `Keep my played notes` off opens its
+  confirmation, is read at the switch the same way.
 - The session is named by its key (spec D303): the one its save minted. A change made while the
-  session's own save is still running waits for it and applies to what it saved.
+  session's own save is still running waits for it, through the same queue, and applies to what it
+  saved.
 - With saving off (an outdated tab, a visit started from the defaults), a change holds for the
   visit only: nothing is read, written or deleted, no deletion is offered, and turning
   `Keep my played notes` off asks nothing (kept-sessions design, While Saving Is Off).
@@ -2136,7 +2151,11 @@ false` today; the change path beside it, in a new module if it outgrows the file
 `src/components/workspace/workspace-session-controller-types.ts` and
 `workspace-session-controller.ts` (the played-notes-kept fact on `ReviewedSession` and the most
 recent session, the setting, both deletions), `src/components/workspace/create-workspace-session.ts`
-(the saved setting into the session controller, from `savedData.settings`); 11b, the review:
+(the saved setting into the session controller, from `savedData.settings`), `src/storage/save-policy.ts`
+(the change's read at the change and its batch, queued with the session saves; spec D316), and, if
+that read needs them, `save-policy-requests.ts` and a keys-only read of a store in
+`src/storage/storage-port.ts` and `database.ts` (so deleting every played note never reads every
+played note); 11b, the review:
 `src/components/workspace/use-review-host.ts`, `src/components/review/ReviewPanel.vue` (or a new
 `ReviewView.vue` part), `src/components/workspace/ScorePanel.vue` (the new props and events), the
 shared confirmation sheet in `src/components/workspace/` (new; reused by chunks 12, 14, 15 and
@@ -2153,7 +2172,9 @@ If the brief exceeds about five source files, split it there: 11a, then 11b.
 STABLE, `rule_optional_midi_privacy` narrowed by Gate A) `rule_optional_midi_privacy`,
 `rule_review_played_notes_toggle`. **Part D / drift check:**
 `specification_ephemeral_state_verification` (it says the state reaches the database only at the
-session's own save; chunks 11 and 12 write after it).
+session's own save; chunks 11 and 12 write after it), `module_save_policy` (the change's read at
+the change, beside `saveSession`), and `module_on_device_database` if the port gains a keys-only
+read.
 
 **Depends on:** chunk 10.
 
@@ -2169,13 +2190,18 @@ session's own save; chunks 11 and 12 write after it).
   failure of that batch leaves both as they were.
 - Switched off while played notes are kept with any session: "Delete the played notes already
   kept?" opens. `Delete them` deletes every kept played note, across sessions, in one batch, and
-  nothing else (bodies, favorites, comments, pins and settings unchanged; every summary's
-  `playedNotesKept` false); `Keep them` keeps them; the switch is off either way
+  nothing else (bodies, favorites, comments, pins and settings unchanged; every readable
+  summary's `playedNotesKept` false); `Keep them` keeps them; the switch is off either way
   (`rule_kept_played_notes_deletable`). With none kept, nothing opens.
 - With saving off, the switch changes for the visit only: nothing is written (write spy), no
   confirmation opens and `Delete played notes` is absent.
 - A change after the session's save is one batch through the save policy (write spy); an injected
   refusal leaves the change in memory and raises the notice row once back at Idle.
+- A change reads at the change (spec D316): with a kept session's summary changed in the database
+  after the load (seeded, as another tab would), deleting its played notes keeps that change
+  (a session pinned meanwhile stays pinned); `Delete them` also deletes played notes stored after
+  the load and the played notes of a seeded unreadable session, whose summary and body stay; a
+  change to a session deleted meanwhile writes nothing and recreates nothing.
 - The network half of the privacy spy still sees no request carrying player data, with storage
   in use.
 
@@ -3095,6 +3121,10 @@ guarantee of `rule_same_controller_reattaches`.
   `name` and `manufacturer` for display only, never matched (two identical devices share them).
   Written when a device counts as connected; cleared by `Disconnect`; untouched by an unplug or by
   deleting my instrument; gone with Delete everything.
+- In a visit that saves nothing (an outdated tab, a visit started from the defaults; master spec
+  §4.3, §4.4), the record is neither written nor cleared (spec D318): a controller connected there
+  is not remembered, and `Disconnect` forgets the controller for that visit only, so a later load
+  that saves reselects the controller remembered before.
 - At load, read from the `rememberedController` records the loader already gives; only when a
   controller is remembered and the permission query says MIDI access is granted, one access
   request, which cannot prompt; the input whose `id` equals the record's is attached, now or when it
@@ -3167,6 +3197,9 @@ half of the reload test is chunk 15's (wave 8).
 - The starting note after a load starts nothing before a click; after one click it starts a
   session, with sound.
 - `Disconnect`, reload: nothing reattaches.
+- In an outdated tab and in a visit started from the defaults: connecting and `Disconnect` write
+  and delete nothing (write spy); after a reload that reads the saved data, the controller
+  remembered before is reselected (spec D318).
 - A different device plugged in is not picked up.
 - 'the production app asks for no MIDI access at startup' (`midi-input.spec.ts`) and
   `optional-scope-absence`'s 'no audio context, MIDI access or microphone request happens across
@@ -3802,3 +3835,9 @@ change, MAJOR (CONTRACT 6.0), waiting for the owner: the **Remembered-controller
 chunk 22 merges. The wave-6 preflight also brought spec D312 (wave 6's shared files, in order),
 D313 (chunk 11's capture of the changes after a session's save) and D315 (chunk 25's pitch scale;
 [spec O210](../../open-questions.md#v30-wave-6-o210), for `ux-writer`, before chunk 25).
+
+Master spec v1.17 (2026-10-15, spec D318) states what §4.3 and §4.4 imply for the remembered
+controller: a visit that saves nothing neither remembers nor forgets it (§7.3, item 18). Chunk
+22 builds it. Spec D316 and D317 change no spec text: a change to a kept session reads what is
+stored at the change, and deleting every kept played note deletes every played-notes record
+(chunk 11).
