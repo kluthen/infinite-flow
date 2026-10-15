@@ -1,12 +1,15 @@
 /**
  * The browser adapter of the page-visibility port, on a hand-rolled stand-in of `document`: a
  * `visibilitychange` to hidden reaches the listener, one back to visible does not, and the
- * returned function stops listening.
+ * returned function stops listening. The page-leaving adapter beside it, on an `EventTarget`
+ * standing in for `window`: `pagehide` marks the page as going away for good, and a `pageshow`
+ * (the page brought back from the back-forward cache) or a change of visibility never unmarks it.
  */
 import { describe, expect, it } from 'vitest'
 
 import {
   createDocumentPageVisibility,
+  createWindowPageLeaving,
   type VisibilityDocumentLike,
 } from '@/components/workspace/browser-page-visibility'
 
@@ -65,5 +68,21 @@ describe('createDocumentPageVisibility', () => {
     doc.setVisibility('hidden')
     expect(hidden).toBe(0)
     expect(doc.listenerCount()).toBe(0)
+  })
+})
+
+// @test-link [[req_rolling_practice_session]]
+describe('createWindowPageLeaving', () => {
+  it('is not going away until pagehide, then is for good, a pageshow from the cache included', () => {
+    const target = new EventTarget()
+    const leaving = createWindowPageLeaving(target)
+    expect(leaving.isGoingAway()).toBe(false)
+    target.dispatchEvent(new Event('visibilitychange'))
+    expect(leaving.isGoingAway()).toBe(false)
+
+    target.dispatchEvent(new Event('pagehide'))
+    expect(leaving.isGoingAway()).toBe(true)
+    target.dispatchEvent(new Event('pageshow'))
+    expect(leaving.isGoingAway()).toBe(true)
   })
 })

@@ -9,10 +9,11 @@ import { describe, expect, it, vi } from 'vitest'
 import { keptSessionRow, useKeptSessions } from '@/components/workspace/use-kept-sessions'
 import type { ReviewedSession } from '@/components/workspace/workspace-session-controller-types'
 import { encodeKeptSession, type KeptSessionFacts } from '@/storage/records/kept-session-record'
-import type { SessionChanges, SessionSaveOutcome } from '@/storage/save-policy'
+import type { PageGoingAway, SessionChanges, SessionSaveOutcome } from '@/storage/save-policy'
 import type { StorageChange, StoredEntry } from '@/storage/storage-port'
 
 import { APP_VERSION, recordedKeptSession } from '../../storage/kept-session-fixtures'
+import { PAGE_STAYS } from '../../storage/recording-save-policy'
 
 const history = recordedKeptSession('bb-tenor', 2)
 
@@ -162,7 +163,8 @@ describe("the rows after a session's own save", () => {
   /** Intent: saves that build the batch from `summaries` and resolve `outcome`. */
   function savesResolving(summaries: readonly StoredEntry[], outcome: SessionSaveOutcome) {
     return {
-      saveSession: vi.fn((changes: SessionChanges) => {
+      saveSession: vi.fn((changes: SessionChanges, pageGoingAway: PageGoingAway) => {
+        expect(pageGoingAway).toBe(PAGE_STAYS)
         changes(summaries)
         return Promise.resolve(outcome)
       }),
@@ -192,7 +194,7 @@ describe("the rows after a session's own save", () => {
       playedNotesKept: false,
     }))
 
-    expect(await saves.saveSession(batch)).toEqual({ status: 'saved' })
+    expect(await saves.saveSession(batch, PAGE_STAYS)).toEqual({ status: 'saved' })
 
     expect(keysOf(rows.rows())).toEqual(['fresh', 'kept'])
     expect(rows.row('fresh')).toEqual(
@@ -206,15 +208,16 @@ describe("the rows after a session's own save", () => {
     { status: 'refused', kind: 'other' },
     { status: 'refused', kind: 'quota' },
     { status: 'saving-off' },
+    { status: 'abandoned' },
   ] as const) {
     // @test-link [[module_kept_session_reach]]
     // @test-link [[rule_failed_save_never_disturbs_session]]
-    it(`add and remove no row when the save ends ${outcome.status === 'refused' ? `refused as ${outcome.kind}` : 'with saving off'}`, async () => {
+    it(`add and remove no row when the save ends ${outcome.status === 'refused' ? `refused as ${outcome.kind}` : outcome.status}`, async () => {
       const loaded: StoredEntry[] = [{ key: 'old', value: summaryAt(1_000) as never }]
       const rows = useKeptSessions(loaded)
       const saves = rows.savingThrough(savesResolving(loaded, outcome), () => null)
 
-      expect(await saves.saveSession(batch)).toEqual(outcome)
+      expect(await saves.saveSession(batch, PAGE_STAYS)).toEqual(outcome)
 
       expect(keysOf(rows.rows())).toEqual(['old'])
     })

@@ -194,13 +194,13 @@ export function useKeptSessions(summaries: readonly StoredEntry[]): KeptSessionR
       )
     },
     savingThrough: (saves, session) => ({
-      saveSession: async (changes) => {
+      saveSession: async (changes, pageGoingAway) => {
         let batch: readonly StorageChange[] = []
         const outcome = await saves.saveSession((keptSummaries) => {
           const built = changes(keptSummaries)
           batch = built
           return built
-        })
+        }, pageGoingAway)
         if (outcome.status === 'saved') applySaved(batch, session())
         return outcome
       },

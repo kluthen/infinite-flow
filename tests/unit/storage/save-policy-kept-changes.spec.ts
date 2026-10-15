@@ -14,6 +14,7 @@ import {
   refusingPort,
   settled,
 } from './save-policy-doubles'
+import { PAGE_STAYS } from './recording-save-policy'
 import { freshFactory, sampleRecord } from './storage-test-doubles'
 
 /** The key of the kept session the changes name. */
@@ -140,10 +141,13 @@ describe('a change to a kept session after its save', () => {
     const policy = createSavePolicy(port)
     const { change, seen } = recordingChange()
 
-    const saved = policy.saveSession(() => [
-      { kind: 'write', store: 'sessionSummaries', key: KEY, record: sampleRecord('kept') },
-      { kind: 'write', store: 'playedNotes', key: KEY, record: sampleRecord([60]) },
-    ])
+    const saved = policy.saveSession(
+      () => [
+        { kind: 'write', store: 'sessionSummaries', key: KEY, record: sampleRecord('kept') },
+        { kind: 'write', store: 'playedNotes', key: KEY, record: sampleRecord([60]) },
+      ],
+      PAGE_STAYS,
+    )
     const changed = policy.changeKept(change, 'notice')
 
     expect(await saved).toEqual({ status: 'saved' })
@@ -280,9 +284,10 @@ describe('a read of the kept sessions at a change', () => {
     const port = await readyPort(freshFactory())
     const policy = createSavePolicy(port)
 
-    const saved = policy.saveSession(() => [
-      { kind: 'write', store: 'playedNotes', key: KEY, record: sampleRecord([60]) },
-    ])
+    const saved = policy.saveSession(
+      () => [{ kind: 'write', store: 'playedNotes', key: KEY, record: sampleRecord([60]) }],
+      PAGE_STAYS,
+    )
     const read = policy.readKept((reader) => reader.readKeys('playedNotes'), 'notice')
 
     expect(await saved).toEqual({ status: 'saved' })

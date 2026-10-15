@@ -166,6 +166,7 @@ export function createKeptSessionEdits(
     const saves = rows.savingThrough(core.deps.saveHold, () => findHeld(key))
     const outcome = await saveEndedSession(
       saves,
+      core.deps.browser.pageLeaving,
       pending.history,
       { key, playedNotesKept },
       { pinned, favorites, comment },

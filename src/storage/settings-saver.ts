@@ -32,6 +32,7 @@ import type {
   KeptRead,
   KeptReadOutcome,
   KeptRefusal,
+  PageGoingAway,
   SavePolicy,
   SessionChanges,
   SessionSaveOutcome,
@@ -68,8 +69,14 @@ export interface SessionSaveHold {
   readonly hold: () => void
   /** The session ended: flush what was held. */
   readonly release: () => void
-  /** Save the session that ended, after the release; resolves what became of that save. */
-  readonly saveSession: (changes: SessionChanges) => Promise<SessionSaveOutcome>
+  /**
+   * Save the session that ended, after the release, unless the page goes away first (checked
+   * before each of the save's transactions); resolves what became of that save.
+   */
+  readonly saveSession: (
+    changes: SessionChanges,
+    pageGoingAway: PageGoingAway,
+  ) => Promise<SessionSaveOutcome>
 }
 
 /**
@@ -177,7 +184,8 @@ export function createVisitSaves(policy: Promise<SavePolicy>, appVersion: string
     },
     hold: () => submit((target) => target.hold()),
     release: () => submit((target) => void target.release()),
-    saveSession: (changes) => resolved((target) => target.saveSession(changes)),
+    saveSession: (changes, pageGoingAway) =>
+      resolved((target) => target.saveSession(changes, pageGoingAway)),
     changeKept: (changes, refusal) => resolved((target) => target.changeKept(changes, refusal)),
     readKept: (read, refusal) => resolved((target) => target.readKept(read, refusal)),
     ...createMyInstrumentSaves(submit, appVersion),

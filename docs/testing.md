@@ -156,8 +156,10 @@ output with `?audio=real` (see [Audio modes](#audio-modes)). The MIDI controller
 `createMidiController`, on the fake MIDI access by default or on the browser's own Web MIDI with
 `?midi=real` (see [MIDI modes](#midi-modes)). The window shape the session judges is the real
 probe adapter, moved with `page.setViewportSize`, and so is the page activation, which a spec's
-real click, tap or key press makes (a script's `click()` fires no input event and does not); the
-wake lock, the orientation lock and the page visibility are fakes (see
+real click, tap or key press makes (a script's `click()` fires no input event and does not), and
+the page leaving, which a real reload or a dispatched `pagehide` marks; the wake lock, the
+orientation lock and the page visibility are fakes (the fake page does not hide on a real
+`pagehide`, so a spec that cuts a session short hides it from a `pagehide` listener of its own; see
 [Fake session browser ports](#fake-session-browser-ports)). Only
 randomness, timing and fault injection are replaced, plus the length of the history the Review
 reads, for the long-Review specs. Nothing in `src/` knows the harness exists: the seams are injected
@@ -1164,16 +1166,18 @@ Every `createGenerationSession` and `composeWorkspaceSession` call in a unit tes
 
 ## Fake session browser ports
 
-A session uses five browser capabilities through injected ports
+A session uses six browser capabilities through injected ports
 (`src/session/session-browser-ports.ts`), carried as `WorkspaceSession.browser`: the screen wake
-lock, the landscape orientation lock, the page becoming hidden, the window's shape, and the page's
-first click, tap or key press (which the starting note waits for after a load). Production builds
-the adapters in `src/components/workspace/browser-screen-locks.ts`, `browser-page-visibility.ts`,
+lock, the landscape orientation lock, the page becoming hidden, the page going away (`pagehide`,
+which stops the save of a session cut short by a reload or close), the window's shape, and the
+page's first click, tap or key press (which the starting note waits for after a load). Production
+builds the adapters in `src/components/workspace/browser-screen-locks.ts`,
+`browser-page-visibility.ts` (the page leaving's too),
 `browser-window-shape.ts` and `browser-page-activation.ts`; their unit specs drive them through
 hand-made stand-ins of `navigator.wakeLock`, `screen.orientation`, `document`, `window` and
 `navigator.userActivation` (an `EventTarget` for the window). Unit tests and the harness replace
 the ports with the fakes of `tests/unit/session/fake-session-browser.ts`
-(`createFakeSessionBrowser()` builds all five):
+(`createFakeSessionBrowser()` builds all six):
 
 - `createFakeScreenWakeLock()` and `createFakeOrientationLock()` answer as `setBehaviour` says
   (`grant` by default, `refuse`, `unsupported`), settle at once, throw on a second request before a
@@ -1181,6 +1185,8 @@ the ports with the fakes of `tests/unit/session/fake-session-browser.ts`
   the browser dropping a held lock on its own;
 - `createFakePageVisibility()` tells its `onHidden` listeners of each change to hidden made with
   `setHidden(true)`, never of a change back to visible;
+- `createFakePageLeaving()` is not going away until `leave()`, the browser's `pagehide`, after
+  which `isGoingAway()` is true for good;
 - `createFakeWindowShape(reading?)` reads a 1280 × 800 px window at a 16 px rem until `resize`
   gives it a new shape and tells its subscribers;
 - `createFakePageActivation()` is not active until `activate()`, the page's first click, tap or
@@ -1189,7 +1195,8 @@ the ports with the fakes of `tests/unit/session/fake-session-browser.ts`
 Every `composeWorkspaceSession` call in a unit test passes one set as `browser`, and a
 `sessionClock` whose `createWakeTimer` is the transport rig's `createExtraWakeTimer` and whose
 `frames` is a hand-stepped fake frame port (`createFakeFrames()`). The workspace harness uses the
-fake locks and page visibility, the real window shape and page activation (see above) and the
+fake locks and page visibility, the real window shape, page activation and page leaving (see
+above) and the
 browser's own animation frames, so its playhead is read once a frame on the harness's audio clock.
 
 The session controller's specs (`tests/unit/components/workspace/session-controller-rig.ts`) build
