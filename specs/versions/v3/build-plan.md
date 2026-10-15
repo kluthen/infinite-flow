@@ -1067,6 +1067,41 @@ sessions one batch with the record's change, all or none, a refusal told only by
 warning, and D327 rewords D310's justification for chunk 28. `documentalist` adds D326 to
 `entity_my_instrument_record` at chunk 20c's preflight. Nothing built or captured changes.
 
+#### Wave 7 gate (2026-10-15)
+
+The four chunks merged into `v3.0-w7` in order: 13 (f6ebb88), 14 (b3feaa7), 20 (08e9bd9) and 27
+(4efb656); their records are under each chunk. The wave driver measured the entry chunk after each
+merge: 225,052 B after chunk 13, 225,952 B after chunk 14 and 234,924 B after chunk 20, over the
+229,376 B budget. Settled during the wave: spec D328 (187a0ab, plan v24): a page the back-forward
+cache brings back saves its later sessions, while the save a `pagehide` reached stays abandoned for
+good. The gate ran on the Linux dev machine (AMD Ryzen 5 PRO 8640HS laptop, bare metal), with two
+fixes, each its own commit. 7d13f83 (merge bc936f8) brings the entry chunk under budget: the
+my-instrument record's read side loads only when the store holds a record
+(`my-instrument-record-read.ts`), the session's my-instrument actions and the sheet's opening load
+on demand, the Name field no longer pulls Vue's `vModelText` into the entry, and Vue's Options API
+is turned off in `vite.config.ts` (−4.5 kB; every component is `<script setup>`; without it the
+entry would be about 231.6 kB; for the owner to keep or revert). ce2b7fe builds D328 in chunk 27's
+code (`PageLeaving.watch()`, one watch per save). At ce2b7fe `npm run quality` is green (unit
+6,473, e2e 415, a11y 57, notation 106 with 4 skipped; `verify:boundaries`, `lint:links`,
+`atd:lint` and `atd:check` pass). **Entry chunk 227,170 B, +2,118 B since wave 6, 2,206 B of
+headroom.** The JavaScript `index.html` loads at start is 238,162 B. Measured, not done, for later
+headroom: the screen locks on demand (about −1,367 B) and the record's encoder and saves (about
+−628 B, which changes `VisitSaves`).
+
+**Wave 7 sync and report (2026-10-15).** `documentalist`'s sync is bffe3bb: the chunks' Revisions
+and Part D (D324's layout in `rule_favorites_only_export`; `req_session_export`, `entity_my_instrument`,
+`module_idle_pregeneration_queue`, `module_saved_data_loader` and more) and the captures brought to
+the built code (`module_kept_session_reach` 0.2, `entity_my_instrument_record` 0.2, D328 in
+`module_kept_session_save` and `module_save_policy`); no STABLE atom, CONTRACT or VISION touched
+([change set part P](../../../docs/release/v3.0-intent-change-set.md)). Put to the owner with the
+report: three wordings (part P2: `req_kept_session_list`, `rule_most_recent_session_kept` with
+D328's clause, `req_rolling_practice_session`), and the wave-6 `rule_last_controller_remembered`
+tightening for the H4 round; nine DRAFT → REVIEW advances (part P3); Part B1
+(`rule_instrument_profile_range`, MINOR, now that chunk 20 is built); the Options API setting;
+hand check H8. Left for `ux-writer`, cosmetic: at 844 px the wide My instrument sheet stops at
+36rem. `recheck()` in `workspace-pregeneration.ts` is called by nothing (code health, for that
+file's next owner).
+
 ## 2. Read first: what v3.0 undoes in v2
 
 v2 promised that nothing survives a reload and enforced it three ways: two code gates, about ten
