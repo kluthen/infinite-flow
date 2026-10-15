@@ -1030,6 +1030,30 @@ on a removed control. The gates table now marks the Clef, Sessions and Stale phr
 (passed 2026-10-12 and 2026-10-13). The owner asked for the merge; the wave merges into `main`
 with entry chunk 225,052 B.
 
+#### Wave 7 preflight (2026-10-15)
+
+`documentalist` ran the full pass and the file pass for chunks 13, 14, 20 and 27 on `v3.0-w7`
+(made from `main` 215fc18, wave 6 merged), without an LLM. Every chunk PROCEEDs with notes; no
+CONTRACT or VISION change; none of the four had an Architecture capture line, so nothing was
+recorded and no commit made. Its notes: files the chunks' lines missed (wave 6 moved the Review's
+export and deletion wiring to `ReviewArea.vue` and `use-review-area.ts`; chunk 14 needs new
+controller paths for sessions not held in memory; chunk 20 needs `App.vue`, `CheckNote.vue` and
+the engraver's staff-room verdict; chunk 27's page-leaving path was unnamed), missing atoms,
+captures recommended for chunks 14 and 20, ux Q76 shown open though closed, and the places of the
+wave-6 follow-ups (ux D316's focus rule, the stale docs). ux Q80 blocks no wave-7 chunk. For the
+owner at the wave-7 sync: `req_kept_session_list` "a kept session the app cannot read has no
+row", `rule_most_recent_session_kept` "a session cut short by closing or reloading the page is
+not saved" (with change set M2 items 6 and 5(b)); Part B1 after the wave gate, as planned.
+
+Placed in v22 (8d58c4b, spec D324, D325): chunks 13, 14 and 20 split, so the wave runs 13a → 13b →
+14a → 14b → 20a → 20b → 27, κ=1, with shared files in the order of the section "Wave 7: shared
+files, in order"; chunks 14 and 20 gain Architecture capture lines (the session controller's reach
+over sessions not held; the stored my-instrument record); ux D316's focus rule and the focus after
+`Delete session` go to chunk 14; the stale docs go to chunks 13 (`export.md`, `testing.md`, the
+`stray-notes.ts` header) and 14 (`phrase-workspace.md`, `storage.md`); `service_session_midi`'s
+missing link to chunk 24b-2. D324 settles where favorite phrases sit in a favorites-only file:
+back to back from time zero, each keeping its session phrase number (master spec Part A v1.21).
+
 ## 2. Read first: what v3.0 undoes in v2
 
 v2 promised that nothing survives a reload and enforced it three ways: two code gates, about ten
