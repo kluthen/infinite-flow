@@ -303,8 +303,10 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
 
     A note held when the session ended stops at the session's end. A bar is cut at its phrase's
     end; in the split layout a bar that crosses from bar 2 into bar 3 is drawn in both lanes, cut
-    at the break. A bar is never narrower than `--played-note-min-inline-size`, so a very short
-    note stays visible.
+    at the break.
+
+    **[v3 changed]** A bar is never narrower than `--played-note-min-inline-size`, so a brief note
+    the lane shows, one at or just above the very-short-note threshold, still gets a visible bar.
   - **Pitch (block axis).** Higher notes higher. The scale runs from the lowest to the highest
     played note of the whole session (not of the phrase), widened equally on both sides to at
     least an octave (12 half steps) when the session's span is smaller, so every lane of the

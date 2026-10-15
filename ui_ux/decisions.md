@@ -1390,3 +1390,13 @@ phones low priority, no question to the owner. Nothing in `src/` is edited.
   the list after a refused deletion, so the Damaged session not deleted wording is exempt from it
   and shows at every refusal (both trees, saved-data handoff, After `Dismiss`). Validation of the
   two gates is complete.
+- **D315 — The lane's minimum bar width, reworded (2026-10-15; master spec §9, D193, D308).**
+  Found while building chunk 25. `screens/last-session-review/handoff.md`, both trees (a recorded
+  correction to `versions/v3.0/`, as D307), Played-notes lane, Time: "a bar is never narrower than
+  `--played-note-min-inline-size`, so a very short note stays visible" was v2 wording and now read
+  as contradicting the lane's rule, since "very short note" is the defined term for a note under
+  the stray-note threshold, which the lane leaves out. It now says the minimum width gives a
+  visible bar to a brief note the lane shows, one at or just above the very-short-note threshold,
+  and the sentence takes its own `[v3 changed]` paragraph. Wording only: no behaviour, token or
+  threshold changes; the threshold's value stays out of the design set (it is chunk 25's tuning,
+  `docs/midi-tuning.md`). `versions/v2/` keeps the old wording, true of v2.
