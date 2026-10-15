@@ -225,8 +225,8 @@ describe('phrase replay key decoding rejects malformed keys', () => {
   })
 
   it('rejects an unsupported key version by name', () => {
-    const key = rawKey(validTuple()).replace(/^ifk1\./u, 'ifk2.')
-    expect(() => decodePhraseReplayKey(key)).toThrow(/unsupported key version "ifk2"/u)
+    const key = rawKey(validTuple()).replace(/^ifk1\./u, 'ifk3.')
+    expect(() => decodePhraseReplayKey(key)).toThrow(/unsupported key version "ifk3"/u)
     expect(() => decodePhraseReplayKey(key)).toThrow(PhraseReplayKeyError)
   })
 

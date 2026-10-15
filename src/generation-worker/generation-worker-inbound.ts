@@ -22,6 +22,7 @@ import { makeRequestId } from '../domain/generation/generation-request'
 import {
   parseInstrumentProfile,
   type InstrumentProfile,
+  type InstrumentTransposition,
 } from '../domain/profile/instrument-profile'
 import { C_KEYBOARD_PROFILE, MY_INSTRUMENT_ID } from '../domain/profile/instrument-profiles'
 import { makeMyInstrument } from '../domain/profile/my-instrument'
@@ -68,24 +69,36 @@ const MY_INSTRUMENT_PROFILE_ALLOWED_KEYS = new Set([
 ])
 const CONCERT_RANGE_ALLOWED_KEYS = new Set(['kind', 'minMidi', 'maxMidi'])
 
+/** My instrument's owning profile fields, from which its whole generator-facing profile derives. */
+// @spec-link [[entity_my_instrument]]
+export interface MyInstrumentProfileFields {
+  readonly displayName: string
+  readonly concertRange: { readonly minMidi: number; readonly maxMidi: number }
+  readonly transposition: InstrumentTransposition
+}
+
 /**
- * Intent: the profile my instrument derives from the parsed profile's own written range (its
- * concert range moved by the chromatic count) and transposition, built by `makeMyInstrument`, so
- * every rule my instrument obeys applies: a span of two octaves, both ends sounding inside MIDI,
- * letter steps from the interval table, the built-in window policy. The template and the clef
- * feed no part of the profile; the C keyboard stands in for the template.
+ * Intent: the profile my instrument derives from its display name, its written range (the concert
+ * range moved by the chromatic count) and its transposition, built by `makeMyInstrument`, so every
+ * rule my instrument obeys applies: a span of two octaves, both ends sounding inside MIDI, letter
+ * steps from the interval table, the built-in window policy. It takes no clef and no template:
+ * neither feeds any part of the profile; the C keyboard stands in for the template. Refusals are
+ * the domain's own typed errors. Shared by the inbound profile check and the phrase replay key
+ * decoder, which rebuilds an `ifk2.` key's profile through it.
  */
-function derivedMyInstrumentProfile(parsed: InstrumentProfile): InstrumentProfile {
-  const { chromatic } = parsed.transposition
+// @spec-link [[entity_my_instrument]]
+// @spec-link [[module_phrase_replay_key]]
+export function deriveMyInstrumentProfile(fields: MyInstrumentProfileFields): InstrumentProfile {
+  const { chromatic } = fields.transposition
   return makeMyInstrument({
     template: C_KEYBOARD_PROFILE.id,
-    name: parsed.displayName,
+    name: fields.displayName,
     clef: 'treble',
     writtenRange: {
-      minMidi: parsed.concertRange.minMidi + chromatic,
-      maxMidi: parsed.concertRange.maxMidi + chromatic,
+      minMidi: fields.concertRange.minMidi + chromatic,
+      maxMidi: fields.concertRange.maxMidi + chromatic,
     },
-    transposition: transpositionFromInstrumentTransposition(parsed.transposition),
+    transposition: transpositionFromInstrumentTransposition(fields.transposition),
   }).profile
 }
 
@@ -131,7 +144,7 @@ function parseMyInstrumentProfile(input: unknown): InstrumentProfile {
   let derived: InstrumentProfile
   try {
     parsed = parseTaggedProfile(input)
-    derived = derivedMyInstrumentProfile(parsed)
+    derived = deriveMyInstrumentProfile(parsed)
   } catch (error) {
     throw new GenerationWorkerProtocolError(
       `${MY_INSTRUMENT_PROFILE_CONTEXT} is not a valid my-instrument profile: ${(error as Error).message}`,
