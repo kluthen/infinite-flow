@@ -5,7 +5,8 @@
  * first draw. It mounts the lazily loaded `ReviewPanel` and binds it: what the page keeps of the
  * Review comes from the Review host it is given (./use-review-host.ts: the staff's viewport, the
  * export choices, `Include very short notes` and the Played notes switch, which outlive this area
- * as the Review closes and opens again), the rest from its own side (./use-review-area.ts). A
+ * as the Review closes and opens again), the rest from its own side (./use-review-area.ts),
+ * the export scope among it, which starts at `Whole session` with every Review. A
  * confirmation the Review opens (deleting played notes, unpinning a session with favorites,
  * `Delete session`) shows in the shared confirmation sheet over the page; once it closes, focus
  * returns to the button that opened it on the way back, after an unpin goes to the pin button,
@@ -187,6 +188,7 @@ defineExpose({ focusReviewTitle })
     :no-room="noRoom"
     :format="host.format.value"
     :backing-track="host.backingTrack.value"
+    :scope="review.scope.value"
     :export-file="review.exportFile"
     :holds-played-note="review.holdsPlayedNote.value"
     :played-notes-shown="host.playedNotesShown.value"
@@ -194,13 +196,14 @@ defineExpose({ focusReviewTitle })
     :keep-played-notes="review.keepPlayedNotes.value"
     :can-delete-played-notes="review.canDeletePlayedNotes.value"
     :include-very-short-notes="host.includeVeryShortNotes.value"
-    :played-notes-file-holds-note="review.playedNotesFileHoldsNote.value"
+    :played-notes-unavailable="review.playedNotesUnavailable.value"
     :session-key="review.sessionKey.value ?? ''"
     :pinned="review.pinned.value"
     :favorites="review.favorites.value"
     :comment="review.comment.value"
     :can-delete-session="review.canDeleteSession.value"
     @update:format="host.setFormat"
+    @update:scope="review.setScope"
     @update:backing-track="host.setBackingTrack"
     @update:played-notes-shown="host.setPlayedNotesShown"
     @update:keep-played-notes="review.setKeepPlayedNotes"

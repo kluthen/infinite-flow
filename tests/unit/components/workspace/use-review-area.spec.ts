@@ -2,12 +2,19 @@
  * The review area's side of the Review, over the page's Review host: nothing is given while no
  * Review shows, and an export of either content asked for then is refused as the defect it is;
  * the showing Review's phrases, instrument, start, keeping and whether it is the most recent
- * session; whether the session holds a played note, and the played-notes export.
+ * session; whether the session holds a played note, and the played-notes export; and the export
+ * scope, `Whole session` at every Review and back to it when the last favorite goes, which both
+ * exports read, the played-notes export saying why it would hold no note under it, and no comment
+ * in any file.
  */
 import { describe, expect, it, vi } from 'vitest'
 
 import { endedSession, openedReview } from '@/components/workspace/session-review-state'
-import type { ExportFile } from '@/export/load-generated-notes-export'
+import type { SessionReview } from '@/components/workspace/workspace-session-controller-types'
+import { WHOLE_SESSION } from '@/export/export-file'
+import { loadGeneratedNotesExport, type ExportFile } from '@/export/load-generated-notes-export'
+import type { SessionHistoryRecord } from '@/session/session-history'
+import { DISTINCTIVE_COMMENT, sevenPhraseRecords } from '../../export/favorites-fixtures'
 import { recordedRecords } from '../review/review-fixtures'
 import {
   createFakeSessionController,
@@ -30,7 +37,8 @@ describe('useReviewArea', () => {
     expect(area.instrumentName.value).toBe('')
     expect(host.format.value).toBe('musicxml')
     expect(host.backingTrack.value).toBe(false)
-    await expect(area.exportFile({ format: 'musicxml', backingTrack: false })).rejects.toThrow(
+    const request = { format: 'musicxml', backingTrack: false, scope: 'wholeSession' } as const
+    await expect(area.exportFile(request)).rejects.toThrow(
       'review host: an export was asked for with no Review showing',
     )
     expect(ports.load).not.toHaveBeenCalled()
@@ -67,9 +75,11 @@ describe('useReviewArea', () => {
 
     expect(area.holdsPlayedNote.value).toBe(true)
     await area.exportPlayedNotes()
-    expect(buildPlayedNotesFile).toHaveBeenCalledExactlyOnceWith(fake.state.review?.history, {
-      includeVeryShortNotes: false,
-    })
+    expect(buildPlayedNotesFile).toHaveBeenCalledExactlyOnceWith(
+      fake.state.review?.history,
+      { includeVeryShortNotes: false },
+      WHOLE_SESSION,
+    )
     expect(ports.download).toHaveBeenCalledExactlyOnceWith(file)
 
     // A session without a controller records no played note.
@@ -127,6 +137,142 @@ describe('useReviewArea', () => {
     expect(area.mostRecent.value).toBe(false)
     fake.controller.closeReview()
     expect([area.startedAt.value, area.keeping.value]).toEqual([null, null])
+    stop()
+  })
+})
+
+/**
+ * Intent: a showing, kept Review of `records` with the given favorites and the distinctive comment,
+ * over a fake controller, and the area over it.
+ */
+function scopeRig(records: readonly SessionHistoryRecord[], favorites: readonly number[] = []) {
+  const review: SessionReview = Object.freeze({
+    ...fakeReview(fakeReviewHistory(records), true),
+    favorites: Object.freeze([...favorites]),
+    comment: DISTINCTIVE_COMMENT,
+  })
+  return reviewAreaRig(createFakeSessionController({ review }))
+}
+
+/** The seven-phrase session with a played note only in phrase 1 and a very short one in 3. */
+function notesInPhrasesOneAndThree(): SessionHistoryRecord[] {
+  return sevenPhraseRecords([[[60, 1, 1.25]], [], [[62, 1, 1.01]]])
+}
+
+// @test-link [[rule_favorites_only_export]]
+describe('useReviewArea: the export scope', () => {
+  // @test-link [[rule_favorites_only_export]]
+  it('starts at Whole session, and refuses Favorites only while the session has no favorite', () => {
+    const { area, stop } = scopeRig(sevenPhraseRecords())
+
+    expect(area.scope.value).toBe('wholeSession')
+    expect(() => area.setScope('favoritesOnly')).toThrow('no favorite')
+    expect(area.scope.value).toBe('wholeSession')
+    stop()
+  })
+
+  // @test-link [[rule_favorites_only_export]]
+  it('goes back to Whole session when the last favorite is removed, and stays there', async () => {
+    const { area, stop } = scopeRig(sevenPhraseRecords(), [2])
+
+    area.setScope('favoritesOnly')
+    expect(area.scope.value).toBe('favoritesOnly')
+    area.toggleFavorite(2)
+    await Promise.resolve()
+
+    expect(area.favorites.value).toEqual([])
+    expect(area.scope.value).toBe('wholeSession')
+    area.toggleFavorite(5)
+    await Promise.resolve()
+    expect(area.scope.value).toBe('wholeSession')
+    stop()
+  })
+
+  // @test-link [[rule_favorites_only_export]]
+  it('starts again at Whole session when another Review shows', () => {
+    const { area, fake, stop } = scopeRig(sevenPhraseRecords(), [2])
+
+    area.setScope('favoritesOnly')
+    fake.state.review = Object.freeze({
+      ...fakeReview(fakeReviewHistory(sevenPhraseRecords()), true),
+      favorites: Object.freeze([3]),
+    })
+
+    expect(area.scope.value).toBe('wholeSession')
+    stop()
+  })
+
+  // @test-link [[rule_favorites_only_export]]
+  // @test-link [[req_session_export]]
+  it("hands both exports the favorites-only scope with the showing Review's favorites", async () => {
+    const file: ExportFile = { fileName: 'f.mid', mimeType: 'audio/midi', bytes: new Uint8Array() }
+    const { area, ports, fake, stop } = scopeRig(sevenPhraseRecords(), [2, 5, 6])
+    const buildGeneratedNotesFile = vi.fn(() => file)
+    const buildPlayedNotesFile = vi.fn(() => file)
+    ports.load.mockResolvedValue({ buildGeneratedNotesFile, buildPlayedNotesFile })
+    const history = fake.state.review!.history
+    const favorites = { kind: 'favoritesOnly', favorites: [2, 5, 6] }
+
+    area.setScope('favoritesOnly')
+    await area.exportFile({ format: 'midi', backingTrack: true, scope: 'favoritesOnly' })
+    await area.exportPlayedNotes()
+    await area.exportFile({ format: 'musicxml', backingTrack: false, scope: 'wholeSession' })
+
+    expect(buildGeneratedNotesFile.mock.calls).toEqual([
+      [history, { format: 'midi', backingTrack: true }, favorites],
+      [history, { format: 'musicxml', backingTrack: false }, WHOLE_SESSION],
+    ])
+    expect(buildPlayedNotesFile).toHaveBeenCalledExactlyOnceWith(
+      history,
+      { includeVeryShortNotes: false },
+      favorites,
+    )
+    stop()
+  })
+
+  // @test-link [[rule_favorites_only_export]]
+  // @test-link [[rule_played_notes_export_omits_stray_notes]]
+  it('says why the played-notes export is off, updated at once by the option and the scope', () => {
+    const { area, host, stop } = scopeRig(notesInPhrasesOneAndThree(), [2])
+
+    expect(area.playedNotesUnavailable.value).toBeNull()
+    area.setScope('favoritesOnly')
+    expect(area.playedNotesUnavailable.value).toBe('noPlayedNoteInFavorites')
+    host.setIncludeVeryShortNotes(true)
+    expect(area.playedNotesUnavailable.value).toBe('noPlayedNoteInFavorites')
+
+    area.toggleFavorite(3)
+    area.toggleFavorite(2)
+    expect(area.playedNotesUnavailable.value).toBeNull()
+    host.setIncludeVeryShortNotes(false)
+    expect(area.playedNotesUnavailable.value).toBe('everyFavoriteNoteVeryShort')
+    area.setScope('wholeSession')
+    expect(area.playedNotesUnavailable.value).toBeNull()
+    stop()
+  })
+})
+
+// @test-link [[rule_session_comment]]
+describe('useReviewArea: the comment in the exports', () => {
+  // @test-link [[rule_session_comment]]
+  it('is in no file the Review exports, of either content and either scope', async () => {
+    const { area, host, ports, stop } = scopeRig(sevenPhraseRecords(), [2, 5])
+    ports.load.mockImplementation(loadGeneratedNotesExport)
+    host.setIncludeVeryShortNotes(true)
+
+    for (const scope of ['wholeSession', 'favoritesOnly'] as const) {
+      area.setScope(scope)
+      for (const format of ['musicxml', 'midi'] as const) {
+        await area.exportFile({ format, backingTrack: format === 'midi', scope })
+      }
+      await area.exportPlayedNotes()
+    }
+
+    const files = ports.download.mock.calls.map(([file]) => file as ExportFile)
+    expect(files).toHaveLength(6)
+    for (const file of files) {
+      expect(new TextDecoder('latin1').decode(file.bytes)).not.toContain('Zyxquorp')
+    }
     stop()
   })
 })

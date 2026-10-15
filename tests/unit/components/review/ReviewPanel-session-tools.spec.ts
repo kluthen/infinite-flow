@@ -41,7 +41,6 @@ function mountPanel(options: ToolOptions = {}) {
       keepPlayedNotes: false,
       canDeletePlayedNotes: false,
       includeVeryShortNotes: false,
-      playedNotesFileHoldsNote: true,
       ...SESSION_TOOL_PROPS,
       ...options,
     },

@@ -8,6 +8,7 @@
 import { vi } from 'vitest'
 
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
+import type { PlayedNotesUnavailable, ReviewExportScope } from '@/components/review/review-types'
 import { createSessionHistory, type SessionHistoryRecord } from '@/session/session-history'
 import {
   DEFAULT_SESSION_SEED,
@@ -241,8 +242,9 @@ export function stubReviewBrowser(): void {
 }
 
 /**
- * The session tools' props a Review panel spec gives when it does not look at them: an unpinned
- * session under the test key, with no favorite and no comment, `Delete session` offered.
+ * The session tools' and export scope's props a Review panel spec gives when it does not look at
+ * them: an unpinned session under the test key, with no favorite and no comment, `Delete session`
+ * offered, the export scope at `Whole session` and the played-notes file holding a note.
  */
 export const SESSION_TOOL_PROPS: {
   readonly sessionKey: string
@@ -250,10 +252,14 @@ export const SESSION_TOOL_PROPS: {
   readonly favorites: readonly number[]
   readonly comment: string
   readonly canDeleteSession: boolean
+  readonly scope: ReviewExportScope
+  readonly playedNotesUnavailable: PlayedNotesUnavailable | null
 } = Object.freeze({
   sessionKey: 'session-1-1',
   pinned: false,
   favorites: Object.freeze([]),
   comment: '',
   canDeleteSession: true,
+  scope: 'wholeSession',
+  playedNotesUnavailable: null,
 })

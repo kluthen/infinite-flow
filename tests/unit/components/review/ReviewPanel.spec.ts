@@ -68,7 +68,6 @@ function mountPanel(options: PanelOptions = {}) {
       keepPlayedNotes: false,
       canDeletePlayedNotes: false,
       includeVeryShortNotes: false,
-      playedNotesFileHoldsNote: true,
       ...SESSION_TOOL_PROPS,
     },
     attachTo: document.body,
@@ -270,7 +269,7 @@ describe('the review export controls', () => {
   // @test-link [[req_session_export]]
   it('asks for the other format when one is picked', async () => {
     const wrapper = mountPanel()
-    await wrapper.findAll('[role="radio"]')[1]!.trigger('click')
+    await wrapper.findAll('.review-export [role="radio"]')[1]!.trigger('click')
     expect(wrapper.emitted('update:format')).toEqual([['midi']])
   })
 
@@ -306,8 +305,8 @@ describe('the review export controls', () => {
     await flushPromises()
 
     expect(exportFile.mock.calls).toEqual([
-      [{ format: 'midi', backingTrack: true }],
-      [{ format: 'musicxml', backingTrack: false }],
+      [{ format: 'midi', backingTrack: true, scope: 'wholeSession' }],
+      [{ format: 'musicxml', backingTrack: false, scope: 'wholeSession' }],
     ])
   })
 
@@ -320,7 +319,7 @@ describe('the review export controls', () => {
     const button = wrapper.get('.review-export-action')
     expect(button.classes()).toContain('is-loading')
     expect(button.attributes('disabled')).toBeDefined()
-    await wrapper.findAll('[role="radio"]')[1]!.trigger('click')
+    await wrapper.findAll('.review-export [role="radio"]')[1]!.trigger('click')
     expect(wrapper.emitted('update:format')).toEqual([['midi']])
 
     build.resolve()
@@ -378,7 +377,7 @@ describe('the review export controls', () => {
     const wrapper = mountPanel({ exportFile: () => build.promise })
     exportButton(wrapper).focus()
     await wrapper.get('.review-export-action').trigger('click')
-    const midi = wrapper.findAll<HTMLButtonElement>('[role="radio"]')[1]!.element
+    const midi = wrapper.findAll<HTMLButtonElement>('.review-export [role="radio"]')[1]!.element
     midi.focus()
 
     build.resolve()

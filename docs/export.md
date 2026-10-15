@@ -481,6 +481,23 @@ session ends after phrase 1 has sounded and stays reachable until the next sessi
 Review builds the file from that session's history (see
 [Session history](session-engine.md#session-history)) and hands it to the browser.
 
+### The scope
+
+`review-scope` opens the export row: a field group labelled "Export" with a segmented control,
+`Whole session` then `Favorites only`, which governs both exports (see
+[Favorites only](#favorites-only)). `Whole session` is checked at every Review opening and the
+choice is never saved: `useReviewArea` (`src/components/workspace/use-review-area.ts`) holds it
+for the Review it serves and starts again at `Whole session` when another Review shows. With no
+favorite in the session, `Favorites only` is disabled and named by `aria-describedby` to the
+`field-note` "No favorites in this session yet."; removing the last favorite while
+`Favorites only` is checked checks `Whole session` again, and marking a favorite later does not
+bring `Favorites only` back by itself.
+
+The panel's request names the scope (`ExportRequest.scope`, `'wholeSession'` or
+`'favoritesOnly'`); `useReviewArea` turns it into the `ExportScope` the file builders take,
+reading the Review's favorite phrases when the export starts, so a build keeps the favorites it
+started with.
+
 ### The action
 
 `review-export`, in the Review's header, is one group named "Export generated notes":
@@ -491,10 +508,11 @@ Review builds the file from that session's history (see
 - **Export generated notes**: builds exactly one file and starts its download. One activation,
   one file, one download.
 
-Both choices hold for the page session: `useReviewHost`
-(`src/components/workspace/use-review-host.ts`) keeps them in memory, across Reviews and
-sessions, and stores them nowhere, so a reload brings back MusicXML with the backing off. While
-the file is built, the button takes `is-loading` and is disabled; Format and Backing track stay
+Both choices are saved settings since v3.0: `useReviewHost`
+(`src/components/workspace/use-review-host.ts`) starts them from the player's saved review
+preferences and saves each one when it changes, so they hold across Reviews, sessions and
+reloads (see [storage](storage.md)). The scope is the one export choice never saved. While the
+file is built, the button takes `is-loading` and is disabled; Format and Backing track stay
 live and apply to the next export. Success shows and announces nothing: the browser's download is
 the confirmation. Focus returns to the button.
 
@@ -511,26 +529,37 @@ follows, one group named "Export played notes":
 
 - **Include very short notes**: a toggle button, off at first. `useReviewHost` holds it for the
   page visit, across Reviews and sessions, and saves it nowhere: a reload turns it off.
-- **Export played notes**: builds the played-notes MIDI file and starts its download, with the
-  same loading, focus and error behaviour as `Export generated notes`. It is disabled whenever its
-  file would hold no note: while the option is off and every played note is very short, its
-  `field-note` says so ("Every note you played is very short. Turn on Include very short notes to
-  export them."), named by `aria-describedby`, and turning the option on enables it at once. So
-  it never reaches the export error for want of a note.
+- **Export played notes**: builds the played-notes MIDI file of the scope and starts its
+  download, with the same loading, focus and error behaviour as `Export generated notes`. It is
+  disabled whenever its file would hold no note under the scope and the option, its `field-note`
+  giving the first reason that applies, named by `aria-describedby`:
+  - under `Favorites only`, when no favorite phrase holds a played note (very short ones
+    counted): "No played notes in your favorites.";
+  - else, while the option is off and every played note the scope selects is very short: "Every
+    note you played is very short. Turn on Include very short notes to export them." under
+    `Whole session`, and "Every note you played in your favorites is very short. Turn on Include
+    very short notes to export them." under `Favorites only`.
 
-`exportPlayedNotes(history, request, ports)` sends the option as it is when the export starts, and
-`buildPlayedNotesFile(history, options)` (in `src/export/played-notes-file.ts`) leaves out every
-very short note unless `options.includeVeryShortNotes`: a note under 38 ms, note-on to
+  Turning the option on or off, or changing the scope, updates the button and its note at once.
+  So it never reaches the export error for want of a note.
+
+`exportPlayedNotes(history, request, ports)` sends the option and the scope as they are when the
+export starts, and `buildPlayedNotesFile(history, options, scope)` (in
+`src/export/played-notes-file.ts`) leaves out every very short note unless
+`options.includeVeryShortNotes`: a note under 38 ms, note-on to
 note-off, from `src/domain/played-notes/stray-notes.ts` (see
 [Very short notes (M1)](midi-tuning.md#very-short-notes-m1)). Without options, the file leaves
 them out. `playedNotesFileHoldsNote(records, request)` tells the Review, without loading the
-export code, whether the file would hold a note. The stored played notes keep every note as
-received.
+export code, whether the file would hold a note, and `playedNotesUnavailable(records, request)`
+which reason it shows when it would not (`noPlayedNoteInFavorites`, `everyFavoriteNoteVeryShort`
+or `everyNoteVeryShort`); both read the scope through the files' own selection,
+`phrasesInScope`. The stored played notes keep every note as received.
 
 ### The file
 
-`buildGeneratedNotesFile(history, request)` builds the one file asked for. The request holds the
-format and `backingTrack`, which the Review sends as true only for MIDI with the toggle on.
+`buildGeneratedNotesFile(history, request, scope)` builds the one file asked for, from the
+phrases `scope` picks (the whole session when it is left out). The request holds the format and
+`backingTrack`, which the Review sends as true only for MIDI with the toggle on.
 
 - **MusicXML**: `musicXmlInputFromHistory` then `encodeGeneratedNotesMusicXml`, as UTF-8 bytes,
   with the MIME type `application/vnd.recordare.musicxml+xml`, in the session instrument
@@ -548,9 +577,10 @@ field for them, so no played note reaches either file.
   (`generatedNotesFileName`), from the session's start in the player's local time: the history's
   `startedAt`, the wall clock read once when the Start click or the starting note started the
   session, never the time of the export. For example, a session started at 14:30:05 on
-  2 October 2026 exports `infinite-flow-2026-10-02-143005-generated.mid`. The played-notes file,
-  whose download chunk 23 adds, is to take the same stem with `-played.mid`, so a session's files
-  sort together.
+  2 October 2026 exports `infinite-flow-2026-10-02-143005-generated.mid`. The played-notes file
+  takes the same stem with `-played.mid`, so a session's files sort together. Under
+  `Favorites only` each name adds `-favorites` after its last word (`-generated-favorites.mid`,
+  `-played-favorites.mid`); `Include very short notes` never changes a name.
 - **The same bytes every time.** The same history and request always give the same bytes:
   neither encoder writes a date or any other varying value, and the name comes from the recorded
   start. Exporting twice downloads two identical files (the browser may add a number to the
@@ -616,6 +646,10 @@ The unit specs:
   a rejection with nothing downloaded when the code fails to load or the file fails to build, a
   rejection when the browser can't take the download, and the file handed to the given document
   only.
+- `tests/unit/components/workspace/use-review-area.spec.ts` and
+  `tests/unit/components/review/ReviewPanel-scope.spec.ts`: the export scope in the Review, its
+  requests and the played-notes export's reasons (see [The scope](#the-scope)); the browser-level
+  check is `tests/e2e/review/review-export-favorites.spec.ts`.
 - `tests/unit/export/export-hand-check-files.spec.ts`: the hand-check files below, rebuilt and
   compared byte for byte, and the MusicXML ones validated against the MusicXML 4.0 schema.
 
