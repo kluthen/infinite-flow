@@ -18,6 +18,7 @@ parents:
   - [[rule_saved_data_belongs_to_browser_profile]]
 dependents:
   - [[entity_remembered_controller_record]]
+  - [[module_kept_session_changes]]
   - [[module_save_policy]]
 ---
 
