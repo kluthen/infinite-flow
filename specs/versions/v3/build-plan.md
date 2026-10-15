@@ -59,9 +59,9 @@ Some steps are not code and need the owner. They are part of the sequence:
 | **Part C** | The owner confirms the VISION 0.7 → 0.8 text and the retirement of the four chord-fit atoms (part C). | In chunk 26. | The gate. |
 | **O200** | **Closed 2026-10-14 (spec D310):** a kept session the app cannot read correctly is deleted, with an apology, at load, at the next save or when opened, while the visit saves; a read the device refuses deletes nothing ([spec O200](../../open-questions.md#v30-wave-5-o200), master spec §5.1). | Done. | Nothing. [Chunk 28](#chunk-28--a-damaged-kept-session-deleted-with-an-apology) builds it. |
 | **O201** | **Closed 2026-10-14 (spec D309):** a session cut short by reloading or closing the page is never saved, §5.1 kept ([spec O201](../../open-questions.md#v30-wave-5-o200)). | Done. | Nothing. [Chunk 27](#chunk-27--a-session-cut-short-by-the-page-going-away) builds it. |
-| **Damaged session design** | `ux-writer` designs, for spec D310: the apology notice (its wording for one and for several sessions, `Dismiss`, its lifetime and its place in "one notice at a time"); where the player lands when `review-link` or a list row finds its session damaged (proposed: the list without that row; after `review-link`, focus on the list's title; from a row, focus as after that row's deletion); and aligns the session list (a session whose summary cannot be read has no row; `sessions-link` counts rows; the failed-open note now means a refusal by the device). | Now; before chunk 28b. | [Chunk 28](#chunk-28--a-damaged-kept-session-deleted-with-an-apology) (28b; 28a may start before it). |
+| **Damaged session design** | **Done 2026-10-15 (ux D309–D314, ux commit 81037c2):** `ux-writer` designed, for spec D310, the apology notice "Damaged sessions deleted" (one wording for one session and one for several, `Dismiss` only, until dismissed or the page closes, its place among the notices), the save-problem notice's "Damaged session not deleted" for a refused deletion, where the player lands from `review-link` or a list row, and the session list aligned (a damaged summary has no row; counts follow the rows); `ux-critic` passed it. Plan v18 (spec D319) brought chunks 15 and 28 to it. | Done. | Nothing. [Chunk 28](#chunk-28--a-damaged-kept-session-deleted-with-an-apology) builds it. |
 | **Remembered-controller wording** | The owner confirms a MAJOR contract change, CONTRACT 5.0 → 6.0, in the words of [master spec §10](master-spec.md#10-what-v30-changes-in-v2s-guarantees) (its seventh change; spec D314). Two STABLE atoms still state what chunk 22 changes: `specification_browser_only_operation_verification` rejects a release that requests MIDI access before a Start or `Connect controller` click, and `rule_midi_starting_note` says the starting note, with a controller attached at Idle, starts the count-in. The new wordings allow the one request at load that reselects a remembered controller, made only when the browser already allows MIDI access, and say that after a load the starting note starts nothing before the page's first click, tap or key press. Both hold for v2.0. `documentalist` applies them in a commit of its own, on `main` or on the wave branch (the wave driver's call; on `main`, merged into the wave branch before chunk 22 merges). | Now. | [Chunk 22](#chunk-22--remembered-controller) may not **merge** before it. |
-| **O210** | `ux-writer` settles what the review offers when every played note of a session is very short ([spec O210](../../open-questions.md#v30-wave-6-o210)): "holds a played note" counts very short ones (ux D210), so `review-view` and `Export played notes` show, but with `Include very short notes` off the file would hold no note, which the encoder refuses today. | Now; before chunk 25. | [Chunk 25](#chunk-25--stray-note-filter) (which also waits for H1). |
+| **O210** | **Closed 2026-10-15 (ux D308, ux commit 81037c2):** when the file would hold no note under the current scope and `Include very short notes`, `Export played notes` is disabled with its reason ("Every note you played is very short. Turn on Include very short notes to export them."); the lane shows no bar ([spec O210](../../open-questions.md#v30-wave-6-o210)). Plan v18 (spec D319) brought chunks 13 and 25 to it. | Done. | Nothing. [Chunk 25](#chunk-25--stray-note-filter) builds it (it still waits for H1). |
 
 ### Waves
 
@@ -938,6 +938,18 @@ wording**, CONTRACT 5.0 → 6.0, with master spec Part A v1.16 correcting §10 (
 lane scale leaves out very short notes, and the all-very-short edge case goes to `ux-writer` as
 [spec O210](../../open-questions.md#v30-wave-6-o210), a gate before chunk 25 (D315). Chunk 18 went ahead of 11
 and 12 while the plan was revised: its files were untouched by the corrections.
+
+**Plan revisions and designs during wave 6 (2026-10-15).** Writing chunks 11's and 22's captures
+(`module_kept_session_changes` and `entity_remembered_controller_record`, DRAFT 0.1, 384cecf)
+raised three points, settled in plan v17 (f2d568a, spec D316–D318): a change to a kept session
+reads what is stored at the change, through the save policy, so another tab's facts survive
+(chunk 11 gains `save-policy.ts`, its own in the wave); "delete every kept played note" deletes
+every stored played-notes record, a damaged session's included; a visit that saves nothing
+neither remembers nor forgets the controller (master spec Part A v1.17, §7.3 and item 18).
+`documentalist` added them to both captures (0.2, 967eeda). `ux-writer` then designed O210 (ux
+D308) and the Damaged session design (ux D309–D314) in 81037c2, both passed by `ux-critic`; plan
+v18 (26fd4ba, spec D319) brought chunks 13, 15, 25 and 28 to them and made `Include very short
+notes` last the page visit, as ux D193 says. Both gates are done. Chunk 11 started after 967eeda.
 
 ## 2. Read first: what v3.0 undoes in v2
 
