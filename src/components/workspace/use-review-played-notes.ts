@@ -5,11 +5,16 @@
  * whose played notes are kept while saving is on; and the one confirmation that may be open, with
  * its way through: confirmed (closed once deleted, kept open with its error after a refusal, the
  * confirming action trying again), cancelled, or closed deleting nothing when saving turns off or
- * the Review stops showing.
+ * the Review stops showing. The session tools' confirmations (unpinning a session with favorites,
+ * `Delete session`) open here too, as the one open confirmation, and run through the session tools.
  */
 import { computed, shallowRef, watch, type ComputedRef, type ShallowRef } from 'vue'
 
 import type { SaveSettings } from '@/storage/settings-saver'
+import {
+  runSessionToolConfirmation,
+  type SessionToolConfirmation,
+} from './use-review-session-tools'
 import type {
   PlayedNotesDeletion,
   SessionController,
@@ -18,8 +23,8 @@ import type {
 
 /**
  * The confirmation open over the Review: deleting the played notes already kept (`Keep my played
- * notes` turned off while `sessionCount` sessions keep some), or this session's; whether its
- * deletion was refused, and whether one is running.
+ * notes` turned off while `sessionCount` sessions keep some), or this session's, or one of the
+ * session tools'; whether its deletion was refused, and whether one is running.
  */
 // @spec-link [[rule_kept_played_notes_deletable]]
 export type ReviewConfirmation =
@@ -30,6 +35,7 @@ export type ReviewConfirmation =
       readonly busy: boolean
     }
   | { readonly kind: 'session-played-notes'; readonly failed: boolean; readonly busy: boolean }
+  | SessionToolConfirmation
 
 /** What became of a confirmed deletion: deleted, refused (the sheet stays), or closed with saving off. */
 export type ConfirmedDeletion = 'deleted' | 'failed' | 'closed'
@@ -57,6 +63,8 @@ export interface ReviewPlayedNotes {
   readonly confirm: () => Promise<ConfirmedDeletion>
   /** The way back: close the open confirmation, deleting nothing. */
   readonly cancel: () => void
+  /** Open a confirmation of the session tools (./use-review-session-tools.ts) over the Review. */
+  readonly openConfirmation: (confirmation: SessionToolConfirmation) => void
 }
 
 /** Intent: the controller, which must exist while a Review shows. */
@@ -101,6 +109,8 @@ export function useReviewPlayedNotes(deps: ReviewPlayedNotesDependencies): Revie
   /** Intent: run the open confirmation's deletion through the controller. */
   function deletion(open: ReviewConfirmation): Promise<PlayedNotesDeletion> {
     const controller = requireController(deps)
+    if (open.kind === 'unpin' || open.kind === 'delete-session')
+      return runSessionToolConfirmation(controller, open)
     return open.kind === 'session-played-notes'
       ? controller.deletePlayedNotes()
       : controller.deleteEveryKeptPlayedNote()
@@ -122,9 +132,10 @@ export function useReviewPlayedNotes(deps: ReviewPlayedNotesDependencies): Revie
     return outcome === 'deleted' ? 'deleted' : 'closed'
   }
 
-  // A deletion confirmation open when saving turns off, or the Review stops showing, closes.
+  // A deletion confirmation open when saving turns off, or any once the Review stops showing,
+  // closes; the unpin's, which deletes nothing, stays open while saving turns off.
   watch([savingOff, () => deps.shownReview() === null], ([off, gone]) => {
-    if (off || gone) confirmation.value = null
+    if (gone || (off && confirmation.value?.kind !== 'unpin')) confirmation.value = null
   })
 
   return {
@@ -139,6 +150,9 @@ export function useReviewPlayedNotes(deps: ReviewPlayedNotesDependencies): Revie
     confirm,
     cancel: () => {
       confirmation.value = null
+    },
+    openConfirmation: (opened) => {
+      confirmation.value = opened
     },
   }
 }

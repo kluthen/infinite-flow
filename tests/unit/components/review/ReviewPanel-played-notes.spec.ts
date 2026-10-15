@@ -11,7 +11,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import ReviewPanel from '@/components/review/ReviewPanel.vue'
 import type { ExportRequest } from '@/components/review/review-types'
 import { resetFakePhraseEngraver } from '../notation/fake-phrase-engraver'
-import { recordedRecords, stubReviewBrowser } from './review-fixtures'
+import { recordedRecords, stubReviewBrowser, SESSION_TOOL_PROPS } from './review-fixtures'
 
 vi.mock('@/notation/vexflow-engraver-loader', () => import('../notation/fake-phrase-engraver'))
 
@@ -45,6 +45,7 @@ function mountPanel(options: PanelOptions = {}) {
       exportPlayedNotes: options.exportPlayedNotes ?? (() => Promise.resolve()),
       keepPlayedNotes: false,
       canDeletePlayedNotes: false,
+      ...SESSION_TOOL_PROPS,
     },
     attachTo: document.body,
   })
@@ -201,7 +202,7 @@ describe('the played-notes export', () => {
     expect(wrapper.find('.review-export-error').exists()).toBe(false)
     played.reject(new Error('the played-notes encoder failed'))
     await flushPromises()
-    const error = wrapper.get('.review-header > p.inline-alert.alert-error.review-export-error')
+    const error = wrapper.get('.review-panel > p.inline-alert.alert-error.review-export-error')
     expect(error.text()).toBe("The file couldn't be made. Try again.")
     expect(document.activeElement).not.toBe(error.element)
 
@@ -221,12 +222,14 @@ describe('the Played notes switch', () => {
     await playedButton(wrapper).trigger('click')
     await flushPromises()
 
-    const header = wrapper.get('.review-header').element.children
-    expect([...header].map((child) => child.className)).toEqual([
-      'review-heading',
+    const rows = wrapper.get('.review-panel').element.children
+    expect([...rows].map((child) => child.className)).toEqual([
+      'review-header',
+      'review-comment',
       'review-actions',
       'inline-alert alert-error review-export-error',
       'review-view',
+      'review-list',
     ])
     const toggle = playedNotesSwitch(wrapper)
     expect(toggle.attributes('type')).toBe('button')

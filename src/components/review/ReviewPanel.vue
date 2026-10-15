@@ -9,7 +9,10 @@
  * state held by the page; while on, each phrase draws its played-notes lanes on one session-wide
  * pitch scale), `Keep my played notes` (the page's setting) and, only when this session's played
  * notes are kept and may be deleted, `Delete played notes`, which asks the page for its
- * confirmation; then the list of the session's phrases in order, each engraved lazily as it comes
+ * confirmation. Its heading row ends with the session tools (./ReviewSessionTools.vue: `Pin` /
+ * `Unpin`, `Delete session`), and its comment (./ReviewComment.vue) takes a row of its own before
+ * the exports; each asks the page, as each phrase's favorite star does. Then the list of the
+ * session's phrases in order, each engraved lazily as it comes
  * near the visible area (see ./review-engraving-window.ts) in positions reserved at the workspace
  * staff's size (its viewport and shared system-position size), so a review of any length stays
  * responsive and never moves the page as phrases are drawn. While the workspace staff has no room,
@@ -31,7 +34,9 @@ import {
 import { loadVexflowEngraver } from '@/notation/vexflow-engraver-loader'
 import type { ReviewedPhrase } from '@/session/session-history'
 import type { SessionKeeping } from '@/components/workspace/workspace-session-controller-types'
+import ReviewComment from './ReviewComment.vue'
 import ReviewPhrase from './ReviewPhrase.vue'
+import ReviewSessionTools from './ReviewSessionTools.vue'
 import { playedNotesPitchScale } from './played-notes-lane-geometry'
 import { sessionDate } from './session-date'
 import {
@@ -82,6 +87,16 @@ const props = withDefaults(
     keepPlayedNotes: boolean
     /** This session's played notes are kept and may be deleted: `Delete played notes` shows. */
     canDeletePlayedNotes: boolean
+    /** The key the session is held under, which its comment is saved for. */
+    sessionKey: string
+    /** The session is pinned: the pin button reads `Unpin`. */
+    pinned: boolean
+    /** The numbers of the session's favorite phrases. */
+    favorites: readonly number[]
+    /** The session's comment; empty when it has none. */
+    comment: string
+    /** `Delete session` is offered (saving is on). */
+    canDeleteSession: boolean
     /**
      * The workspace staff's shared system-position size, in engraving units
      * (`planSystemPositionUnits`); the workspace always passes it, the built-in size by default.
@@ -97,6 +112,10 @@ const emit = defineEmits<{
   'update:playedNotesShown': [on: boolean]
   'update:keepPlayedNotes': [on: boolean]
   'delete-played-notes': []
+  'toggle-favorite': [phraseNumber: number]
+  'toggle-pin': []
+  'delete-session': []
+  'save-comment': [key: string, text: string]
 }>()
 
 const titleId = useId()
@@ -130,7 +149,45 @@ function focusDeletePlayedNotes(): void {
   focusRendered(deletePlayedNotesEl.value, 'Delete played notes')
 }
 
-defineExpose({ focusTitle, focusKeepPlayedNotes, focusDeletePlayedNotes })
+const sessionToolsEl = ref<InstanceType<typeof ReviewSessionTools> | null>(null)
+
+/** Intent: move focus to `Pin` / `Unpin` (after the unpin's confirmation, or on its way back). */
+function focusPin(): void {
+  if (sessionToolsEl.value === null)
+    throw new Error('review panel: the session tools are not mounted')
+  sessionToolsEl.value.focusPin()
+}
+
+/** Intent: move focus back to `Delete session`, on its confirmation's way back. */
+function focusDeleteSession(): void {
+  if (sessionToolsEl.value === null)
+    throw new Error('review panel: the session tools are not mounted')
+  sessionToolsEl.value.focusDelete()
+}
+
+defineExpose({
+  focusTitle,
+  focusKeepPlayedNotes,
+  focusDeletePlayedNotes,
+  focusPin,
+  focusDeleteSession,
+})
+
+/**
+ * Intent: `Delete session` leaving while it holds focus (saving turned off) hands focus to the
+ * title; read before the button leaves the page, moved once it has.
+ */
+watch(
+  () => props.canDeleteSession,
+  (offered) => {
+    if (offered || sessionToolsEl.value?.deleteFocused() !== true) return
+    void nextTick(focusTitle)
+  },
+  { flush: 'pre' },
+)
+
+/** Intent: the session's favorite phrases, by number, for each phrase's star. */
+const favoriteSet = computed(() => new Set(props.favorites))
 
 /**
  * Intent: `Delete played notes` leaving while it holds focus (saving turned off) hands focus to
@@ -157,8 +214,9 @@ const date = computed(() => sessionDate(props.startedAt))
 const title = computed(() => (props.mostRecent ? 'Last session' : date.value))
 
 /**
- * Intent: "{session date} · {n} phrases · {instrument}", the date left out when it is the title,
- * "1 phrase" for one; a review is never empty.
+ * Intent: "{session date} · {n} phrases · {instrument} · {favorites}", the date left out when it
+ * is the title, "1 phrase" for one, the favorites as "No favorites", "1 favorite" or "{k}
+ * favorites", changing in place as a star is pressed; a review is never empty.
  */
 // @spec-link [[req_last_session_review]]
 // @spec-link [[req_kept_session_review]]
@@ -166,7 +224,10 @@ const summary = computed(() => {
   const count = props.records.length
   if (count === 0) throw new Error('A review holds at least one phrase.')
   const phrases = count === 1 ? '1 phrase' : `${count} phrases`
-  const parts = [phrases, props.instrumentName]
+  const marked = props.favorites.length
+  const favorites =
+    marked === 0 ? 'No favorites' : marked === 1 ? '1 favorite' : `${marked} favorites`
+  const parts = [phrases, props.instrumentName, favorites]
   return (props.mostRecent ? [date.value, ...parts] : parts).join(' · ')
 })
 
@@ -423,90 +484,103 @@ onBeforeUnmount(stopEngraving)
         <p class="review-summary">{{ summary }}</p>
         <p v-if="keepLine !== null" class="review-keep-line">{{ keepLine }}</p>
       </div>
-      <div class="review-actions">
-        <div class="review-export" role="group" aria-label="Export generated notes">
-          <div class="field-group">
-            <span class="field-label">Format</span>
-            <SegmentedControl
-              label="Format"
-              :options="FORMAT_OPTIONS"
-              :model-value="format"
-              :readonly="false"
-              @update:model-value="selectFormat"
-            />
-          </div>
-          <button
-            v-if="format === 'midi'"
-            type="button"
-            class="btn toggle-button"
-            :aria-pressed="backingTrack ? 'true' : 'false'"
-            @click="toggleBackingTrack"
-          >
-            Backing track
-            <span class="toggle-button-state" aria-hidden="true">{{
-              backingTrack ? 'on' : 'off'
-            }}</span>
-          </button>
-          <button
-            ref="exportButtonEl"
-            type="button"
-            class="btn review-export-action"
-            :class="{ 'is-loading': exporting }"
-            :disabled="exporting"
-            @click="startExport"
-          >
-            Export generated notes
-          </button>
+      <ReviewSessionTools
+        ref="sessionToolsEl"
+        :pinned="pinned"
+        :can-delete="canDeleteSession"
+        @toggle-pin="emit('toggle-pin')"
+        @delete-session="emit('delete-session')"
+      />
+    </div>
+    <ReviewComment
+      :key="sessionKey"
+      :comment="comment"
+      :session-key="sessionKey"
+      @save="(key, text) => emit('save-comment', key, text)"
+    />
+    <div class="review-actions">
+      <div class="review-export" role="group" aria-label="Export generated notes">
+        <div class="field-group">
+          <span class="field-label">Format</span>
+          <SegmentedControl
+            label="Format"
+            :options="FORMAT_OPTIONS"
+            :model-value="format"
+            :readonly="false"
+            @update:model-value="selectFormat"
+          />
         </div>
         <button
-          v-if="holdsPlayedNote"
-          ref="playedExportButtonEl"
+          v-if="format === 'midi'"
+          type="button"
+          class="btn toggle-button"
+          :aria-pressed="backingTrack ? 'true' : 'false'"
+          @click="toggleBackingTrack"
+        >
+          Backing track
+          <span class="toggle-button-state" aria-hidden="true">{{
+            backingTrack ? 'on' : 'off'
+          }}</span>
+        </button>
+        <button
+          ref="exportButtonEl"
           type="button"
           class="btn review-export-action"
-          :class="{ 'is-loading': exportingPlayed }"
-          :disabled="exportingPlayed"
-          @click="startPlayedExport"
+          :class="{ 'is-loading': exporting }"
+          :disabled="exporting"
+          @click="startExport"
         >
-          Export played notes
+          Export generated notes
         </button>
       </div>
-      <p v-if="exportFailed" class="inline-alert alert-error review-export-error">
-        The file couldn't be made. Try again.
-      </p>
-      <div v-if="holdsPlayedNote" class="review-view">
-        <button
-          type="button"
-          class="btn toggle-button"
-          :aria-pressed="playedNotesShown ? 'true' : 'false'"
-          @click="togglePlayedNotes"
-        >
-          Played notes
-          <span class="toggle-button-state" aria-hidden="true">{{
-            playedNotesShown ? 'on' : 'off'
-          }}</span>
-        </button>
-        <button
-          ref="keepPlayedNotesEl"
-          type="button"
-          class="btn toggle-button"
-          :aria-pressed="keepPlayedNotes ? 'true' : 'false'"
-          @click="toggleKeepPlayedNotes"
-        >
-          Keep my played notes
-          <span class="toggle-button-state" aria-hidden="true">{{
-            keepPlayedNotes ? 'on' : 'off'
-          }}</span>
-        </button>
-        <button
-          v-if="canDeletePlayedNotes"
-          ref="deletePlayedNotesEl"
-          type="button"
-          class="btn"
-          @click="emit('delete-played-notes')"
-        >
-          Delete played notes
-        </button>
-      </div>
+      <button
+        v-if="holdsPlayedNote"
+        ref="playedExportButtonEl"
+        type="button"
+        class="btn review-export-action"
+        :class="{ 'is-loading': exportingPlayed }"
+        :disabled="exportingPlayed"
+        @click="startPlayedExport"
+      >
+        Export played notes
+      </button>
+    </div>
+    <p v-if="exportFailed" class="inline-alert alert-error review-export-error">
+      The file couldn't be made. Try again.
+    </p>
+    <div v-if="holdsPlayedNote" class="review-view">
+      <button
+        type="button"
+        class="btn toggle-button"
+        :aria-pressed="playedNotesShown ? 'true' : 'false'"
+        @click="togglePlayedNotes"
+      >
+        Played notes
+        <span class="toggle-button-state" aria-hidden="true">{{
+          playedNotesShown ? 'on' : 'off'
+        }}</span>
+      </button>
+      <button
+        ref="keepPlayedNotesEl"
+        type="button"
+        class="btn toggle-button"
+        :aria-pressed="keepPlayedNotes ? 'true' : 'false'"
+        @click="toggleKeepPlayedNotes"
+      >
+        Keep my played notes
+        <span class="toggle-button-state" aria-hidden="true">{{
+          keepPlayedNotes ? 'on' : 'off'
+        }}</span>
+      </button>
+      <button
+        v-if="canDeletePlayedNotes"
+        ref="deletePlayedNotesEl"
+        type="button"
+        class="btn"
+        @click="emit('delete-played-notes')"
+      >
+        Delete played notes
+      </button>
     </div>
     <ol v-if="!noRoom" ref="listEl" class="review-list">
       <ReviewPhrase
@@ -519,6 +593,8 @@ onBeforeUnmount(stopEngraving)
         :reservation="reservation"
         :played-notes-shown="lanesShown"
         :pitch-scale="pitchScale"
+        :favorite="favoriteSet.has(record.phraseNumber)"
+        @toggle-favorite="emit('toggle-favorite', record.phraseNumber)"
       />
     </ol>
     <!-- The stylesheet shows one no-room sentence by the notation layout's width query. -->

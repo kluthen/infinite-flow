@@ -10,7 +10,8 @@
  * here for as long as the page lives, kept across Reviews and sessions; each change of the
  * player's goes through this host's setters, which save it as it changes. Its played-notes side
  * (./use-review-played-notes.ts) gives `Keep my played notes`, `Delete played notes` and the
- * confirmation open over the Review.
+ * confirmation open over the Review; its session tools (./use-review-session-tools.ts) give each
+ * phrase's favorite star, `Pin` / `Unpin`, `Delete session` and the comment.
  */
 import { computed, readonly, ref, shallowRef, watch, type ComputedRef, type Ref } from 'vue'
 
@@ -24,6 +25,7 @@ import type { ReviewedPhrase } from '@/session/session-history'
 import type { ReviewPreferences } from '@/storage/records/setting-defaults'
 import type { SaveSettings } from '@/storage/settings-saver'
 import { useReviewPlayedNotes, type ReviewPlayedNotes } from './use-review-played-notes'
+import { useReviewSessionTools, type ReviewSessionTools } from './use-review-session-tools'
 import {
   exportGeneratedNotes,
   exportPlayedNotes,
@@ -58,7 +60,7 @@ export interface ReviewHostDependencies {
 /** What the score panel binds the Review with. */
 // @spec-link [[req_last_session_review]]
 // @spec-link [[req_session_export]]
-export interface ReviewHost extends ReviewPlayedNotes {
+export interface ReviewHost extends ReviewPlayedNotes, ReviewSessionTools {
   /** The Review shows, in place of the staff area. */
   readonly showing: ComputedRef<boolean>
   /** The showing Review's phrases, in the order they started sounding; empty while none shows. */
@@ -211,6 +213,12 @@ export function useReviewHost(deps: ReviewHostDependencies): ReviewHost {
     shownReview: () => shownReview.value,
     saveSettings: deps.saveSettings,
   })
+  const sessionTools = useReviewSessionTools({
+    controller: deps.controller,
+    shownReview: () => shownReview.value,
+    holdsPlayedNote: () => holdsPlayedNote.value,
+    openConfirmation: playedNotes.openConfirmation,
+  })
 
   const sessionActive = computed(() => {
     const controller = deps.controller()
@@ -239,6 +247,7 @@ export function useReviewHost(deps: ReviewHostDependencies): ReviewHost {
     playedNotesShown: readonly(playedNotesShown),
     setPlayedNotesShown,
     ...playedNotes,
+    ...sessionTools,
     noteLayoutInputs: (inputs) => {
       viewport.value = inputs.viewport
     },
