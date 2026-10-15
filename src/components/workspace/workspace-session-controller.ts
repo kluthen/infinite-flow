@@ -172,6 +172,9 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     get startingNote(): StartingNote | null {
       return sessionMidi.startingNote()
     },
+    get startingNoteAwaitsClick(): boolean {
+      return sessionMidi.startingNoteAwaitsClick()
+    },
     get controllerLost(): ControllerLostCountdown | null {
       return sessionMidi.controllerLost()
     },
@@ -219,6 +222,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
   const sessionMidi = createSessionMidi({
     midi: deps.midi,
     audio,
+    pageActivation: deps.browser.pageActivation,
     connectionSheetOpen: deps.connectionSheetOpen,
     canStart: () => startBlocker.value === null,
     idleResult: () => idle.state.result,

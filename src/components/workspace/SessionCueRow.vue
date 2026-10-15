@@ -4,7 +4,8 @@
  * staff, at one fixed block size, holding at most one cue by priority: the disconnect banner while
  * a lost controller's countdown runs (a count-in under it keeps running, and shows again if the
  * device reattaches before beat 4), then the count-in (its beats lit on the audio clock by the
- * session controller), then the struggling notice, then the starting-note line. Below
+ * session controller), then the struggling notice, then the starting-note line (asking first for
+ * the page's first click, tap or key press while the starting note waits for it). Below
  * bp-tablet-landscape, from a session's start to its end, `session-cue-actions` sits at its
  * trailing end: a compact `Stop` and the phone's `Volume`; the stylesheet shows them only there.
  * At Idle, while a most recent session exists and no Review shows (after `Close review`, after a
@@ -60,6 +61,14 @@ const strugglingNotice = computed(() => props.controller?.state.strugglingNotice
 const startingNote = computed(() => props.controller?.state.startingNote ?? null)
 
 /**
+ * Intent: whether the start line asks for the page's first click first (after a load, before any
+ * click, tap or key press): "Click the page once, then play this note to start", shorter on the
+ * phone.
+ */
+// @spec-link [[rule_midi_starting_note]]
+const awaitsClick = computed(() => props.controller?.state.startingNoteAwaitsClick === true)
+
+/**
  * Intent: whether `review-link` is offered: at Idle, while a most recent session exists and no
  * Review shows. A start removes it; the most recent session stays, so it returns at the end.
  */
@@ -102,6 +111,13 @@ const reviewLinkLoading = computed(() => props.controller?.state.readingMostRece
     </ol>
     <p v-else-if="strugglingNotice" class="inline-alert alert-notice session-alert">
       <span class="session-alert-text">The generator is struggling with these settings.</span>
+    </p>
+    <!-- Below bp-tablet-landscape the stylesheet drops the cue clauses: the phone's wording. -->
+    <p v-else-if="startingNote !== null && awaitsClick" class="start-note-line">
+      Click<span class="cue-clause"> the page</span> once, then play<span class="cue-clause">
+        this note</span
+      >
+      to start: <strong>{{ startingNote.label }}</strong>
     </p>
     <p v-else-if="startingNote !== null" class="start-note-line">
       Play this note to start: <strong>{{ startingNote.label }}</strong>

@@ -7,6 +7,7 @@ import {
   DEFAULT_GENERATION_CONTROLS,
   DEFAULT_PROFILE_SELECTION,
 } from '@/domain/controls/profile-selection'
+import { CONTROLLER_RECORD_KEY, encodeControllerRecord } from '@/storage/records/controller-record'
 import { SETTINGS_DATA_VERSION } from '@/storage/records/settings-record'
 import type { SavePolicy } from '@/storage/save-policy'
 import {
@@ -91,6 +92,53 @@ describe('saveSettings', () => {
 
     expect(() => saves.saveSettings(unknown as SettingChanges)).toThrow(/reachedTempo/)
     expect(calls).toEqual([])
+  })
+})
+
+// @test-link [[entity_remembered_controller_record]]
+describe('the remembered controller', () => {
+  // @test-link [[rule_last_controller_remembered]]
+  it('is written as its one controller record, in the order the calls were made', async () => {
+    const { policy, calls } = recordingPolicy()
+    const pending = pendingPolicy(policy)
+    const saves = createVisitSaves(pending.promise, APP_VERSION)
+
+    saves.saveSettings({ theme: 'Dark' })
+    saves.rememberController({ id: 'port-sax', name: 'Travel Sax', manufacturer: 'Odisei' })
+    pending.resolve()
+    await flushPromises()
+
+    expect(calls).toEqual([
+      { method: 'save', changes: [settingWrite('theme', 'Dark')] },
+      {
+        method: 'save',
+        changes: [
+          {
+            kind: 'write',
+            store: 'controller',
+            key: CONTROLLER_RECORD_KEY,
+            record: encodeControllerRecord(
+              { id: 'port-sax', name: 'Travel Sax', manufacturer: 'Odisei' },
+              APP_VERSION,
+            ),
+          },
+        ],
+      },
+    ])
+  })
+
+  // @test-link [[rule_disconnect_forgets_controller]]
+  it('is forgotten by deleting that record', async () => {
+    const { saves, calls } = await resolvedSaves()
+
+    saves.forgetController()
+
+    expect(calls).toEqual([
+      {
+        method: 'save',
+        changes: [{ kind: 'delete', store: 'controller', key: CONTROLLER_RECORD_KEY }],
+      },
+    ])
   })
 })
 

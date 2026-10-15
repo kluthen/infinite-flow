@@ -103,6 +103,7 @@ onUnmounted(() => {
     :saved-my-instrument-range-in-clef="null"
     :saved-review-preferences="savedData.settings.review"
     :saved-session-options="savedData.settings.sessionOptions"
+    :remembered-controller="workspace.rememberedController"
     @connection-sheet-open-change="handleConnectionSheetOpenChange"
   />
 </template>

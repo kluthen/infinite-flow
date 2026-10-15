@@ -105,6 +105,8 @@ describe('createWorkspaceSession: the MIDI controller', () => {
       pregenerationPolicy: 'disabled',
       savedData: fakeSavedData(),
     })
+    // The Connect controller click unlocked the audio: its clock runs.
+    vi.spyOn(workspace.audio, 'isUnlocked').mockReturnValue(true)
     const anchor = vi
       .spyOn(workspace.audio, 'clockAnchor')
       .mockReturnValue({ audioTime: 2, performanceTimeMs: 1000 })

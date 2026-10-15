@@ -254,6 +254,39 @@ describe('SessionCueRow starting-note line', () => {
     expect(line.attributes('role')).toBeUndefined()
   })
 
+  it("asks for the page's first click until it comes, the phone's wording without its clauses", () => {
+    const wrapper = mountRow(
+      createFakeSessionController({ startingNote: STARTING_NOTE, startingNoteAwaitsClick: true })
+        .controller,
+    )
+
+    const line = wrapper.get('.session-cue-row > p.start-note-line')
+    expect(line.text()).toBe('Click the page once, then play this note to start: B♭4')
+    expect(line.findAll('.cue-clause').map((clause) => clause.element.textContent)).toEqual([
+      ' the page',
+      ' this note',
+    ])
+    const phone = line.element.cloneNode(true) as HTMLElement
+    phone.querySelectorAll('.cue-clause').forEach((clause) => clause.remove())
+    expect(phone.textContent?.replace(/\s+/g, ' ').trim()).toBe(
+      'Click once, then play to start: B♭4',
+    )
+    expect(line.get('strong').text()).toBe('B♭4')
+  })
+
+  it('takes its usual wording at once when the first click lifts the wait', async () => {
+    const fake = createFakeSessionController({
+      startingNote: STARTING_NOTE,
+      startingNoteAwaitsClick: true,
+    })
+    const wrapper = mountRow(fake.controller)
+
+    fake.state.startingNoteAwaitsClick = false
+    await nextTick()
+
+    expect(wrapper.get('.start-note-line').text()).toBe('Play this note to start: B♭4')
+  })
+
   it('goes when no note could start a session, leaving the row empty', async () => {
     const fake = createFakeSessionController({ startingNote: STARTING_NOTE })
     const wrapper = mountRow(fake.controller)

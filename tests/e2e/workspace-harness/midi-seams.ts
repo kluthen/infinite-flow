@@ -4,9 +4,11 @@
  * MIDI (`?midi=fake`, the default) the spec plugs devices into and plays on, a fake browser with
  * no Web MIDI (`?midi=unsupported`), or the browser's own (`?midi=real`). In every mode the
  * controller is the production one, reading the harness audio transport's clock anchor, and every
- * state change and played or ended note it reports is recorded.
+ * state change and played or ended note it reports is recorded. The fake browser's MIDI state at
+ * load can be set from the URL, so it survives a reload as a browser's does: `?midiPermission=`
+ * `granted|prompt|denied` and `?midiDevices=` a JSON array of devices plugged in before the load.
  */
-import type { MidiAccessProvider } from '../../../src/midi/midi-access-port'
+import type { MidiAccessProvider, MidiPermissionState } from '../../../src/midi/midi-access-port'
 import { createMidiController, type MidiController } from '../../../src/midi/midi-controller'
 import type { MidiControllerState } from '../../../src/midi/midi-controller-state'
 import { createWebMidiAccessProvider } from '../../../src/midi/web-midi-access'
@@ -36,10 +38,49 @@ export function harnessMidiMode(search: string): WorkspaceHarnessMidiMode {
   )
 }
 
-/** Intent: the access provider of `mode`: a fake with or without Web MIDI, or the browser's. */
+/** What the fake browser holds before the load: its MIDI permission and the devices plugged in. */
+interface FakeMidiAtLoad {
+  readonly permission: MidiPermissionState | null
+  readonly devices: readonly WorkspaceHarnessMidiDevice[]
+}
+
+const PERMISSIONS: readonly MidiPermissionState[] = ['granted', 'prompt', 'denied']
+
+/**
+ * Intent: the fake browser's MIDI state at load from the URL (`?midiPermission=`, `?midiDevices=`
+ * as a JSON array of `{ id, name, manufacturer }`); none given leaves the fake as a fresh browser.
+ * A malformed value throws: a spec bug.
+ */
+export function fakeMidiAtLoad(search: string): FakeMidiAtLoad {
+  const params = new URLSearchParams(search)
+  const permission = params.get('midiPermission')
+  if (permission !== null && !(PERMISSIONS as readonly string[]).includes(permission)) {
+    throw new Error(`Workspace harness: ?midiPermission=${permission} is not granted|prompt|denied`)
+  }
+  const devices: unknown = JSON.parse(params.get('midiDevices') ?? '[]')
+  // Intent: whether a parsed value is a device: an id, a name and a manufacturer, all strings.
+  const valid = (device: unknown): device is WorkspaceHarnessMidiDevice =>
+    typeof device === 'object' &&
+    device !== null &&
+    ['id', 'name', 'manufacturer'].every(
+      (key) => typeof (device as Record<string, unknown>)[key] === 'string',
+    )
+  if (!Array.isArray(devices) || !devices.every(valid)) {
+    throw new Error('Workspace harness: ?midiDevices= must be a JSON array of devices')
+  }
+  return { permission: permission as MidiPermissionState | null, devices }
+}
+
+/**
+ * Intent: the access provider of `mode`: a fake with or without Web MIDI, set to the URL's state
+ * at load, or the browser's.
+ */
 function midiModeParts(mode: WorkspaceHarnessMidiMode): MidiModeParts {
   if (mode === 'real') return { provider: createWebMidiAccessProvider(navigator), fake: null }
   const fake = createFakeMidiAccess({ supported: mode === 'fake' })
+  const atLoad = fakeMidiAtLoad(window.location.search)
+  if (atLoad.permission !== null) fake.setPermission(atLoad.permission)
+  for (const device of atLoad.devices) fake.plug({ ...device })
   return { provider: fake, fake }
 }
 
@@ -69,7 +110,10 @@ export function createHarnessMidi(
   const { provider, fake } = midiModeParts(mode)
   const controller = createMidiController({
     provider,
-    clock: { anchor: () => audio.transport.clockAnchor() },
+    // As in the app: no audio clock until the audio is unlocked.
+    clock: {
+      anchor: () => (audio.transport.isUnlocked() ? audio.transport.clockAnchor() : null),
+    },
   })
   const played: WorkspaceHarnessPlayedNote[] = []
   const ended: WorkspaceHarnessEndedNote[] = []

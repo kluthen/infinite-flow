@@ -68,8 +68,9 @@ export type MidiPermissionState = 'granted' | 'prompt' | 'denied' | 'unknown'
 
 /**
  * Where MIDI access comes from. `isSupported` answers without asking the player anything;
- * `request` asks for MIDI permission, and is only called when the player connects a controller;
- * `permission` reads that permission and never prompts.
+ * `request` asks for MIDI permission, and is only called when the player connects a controller,
+ * or once at load to reselect the remembered controller when `permission` already reads
+ * `granted` (so it cannot prompt); `permission` reads that permission and never prompts.
  */
 // @spec-link [[rule_controller_connects_between_sessions]]
 // @spec-link [[rule_chromium_only_support]]

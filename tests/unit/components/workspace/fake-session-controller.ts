@@ -179,6 +179,7 @@ export function createFakeSessionController(
     sessionStaff: null,
     latestReady: null,
     startingNote: null,
+    startingNoteAwaitsClick: false,
     controllerLost: null,
     acknowledged: [],
     sessionHasController: null,

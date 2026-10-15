@@ -55,7 +55,10 @@ import { createMixVolumePopover } from './mix-volume-popover'
 import { jumpForSessionStart, type SessionJumpView } from './session-start-jump'
 import type { SessionEndFocusTarget } from './session-end-focus'
 import type { SessionController } from './workspace-session-controller-types'
-import { useControllerConnection } from './use-controller-connection'
+import {
+  useControllerConnection,
+  type RememberedControllerStore,
+} from './use-controller-connection'
 import { useReviewNavigation } from './use-review-navigation'
 import { useSessionOptions } from './use-session-options'
 import { injectSaveSettings } from './save-settings-injection'
@@ -79,6 +82,8 @@ const props = withDefaults(
     controller: SessionController | null
     /** The load's outcome and the visit's save policy, which the notice row reads. */
     savedData: Pick<SavedDataLoad, 'outcome' | 'savePolicy'>
+    /** The controller remembered from an earlier visit, and its saves; reselected at setup. */
+    rememberedController: RememberedControllerStore
     /** Reload the page (a notice's `Reload`); the window's own by default. */
     reloadPage?: () => void
     /** How the start's jump scrolls and measures the window; the window itself by default. */
@@ -208,6 +213,7 @@ const {
   sessionActive: () => sessionActive.value,
   controllerLost: () => props.controller !== null && props.controller.state.controllerLost !== null,
   onOpenChange: (open) => emit('connection-sheet-open-change', open),
+  rememberedController: props.rememberedController,
 })
 
 defineExpose({

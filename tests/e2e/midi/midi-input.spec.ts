@@ -322,10 +322,15 @@ async function scriptedRun(page: Page): Promise<{
 
 // @test-link [[req_midi_controller_input]]
 // @test-link [[rule_only_note_on_counts_as_played]]
-test('the same scripted run gives the same recordings every time', async ({ page }) => {
+test('the same scripted run gives the same recordings every time', async ({ page, browser }) => {
   const first = await scriptedRun(page)
-  await page.reload()
-  const second = await scriptedRun(page)
+  // The second run starts as the first did, in a fresh browser profile: from v3.0 a reload keeps
+  // the controller the first run chose (the remembered controller), which would skip its picker.
+  const context = await browser.newContext()
+  const fresh = await context.newPage()
+  fresh.on('pageerror', (error) => pageErrors.push(error.message))
+  const second = await scriptedRun(fresh)
+  await context.close()
 
   expect(first.played).toHaveLength(4)
   expect(first.ended).toHaveLength(4)

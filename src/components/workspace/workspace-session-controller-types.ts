@@ -194,6 +194,12 @@ export interface SessionControllerState {
    * Idle's phrase. The start line and the start marker are drawn from it.
    */
   readonly startingNote: StartingNote | null
+  /**
+   * Whether the named starting note waits for the page's first click, tap or key press (after a
+   * load, the audio still locked): it starts nothing until then, and the start line says so.
+   */
+  // @spec-link [[rule_midi_starting_note]]
+  readonly startingNoteAwaitsClick: boolean
   /** A lost controller's countdown while it runs, count-in included; null otherwise. */
   readonly controllerLost: ControllerLostCountdown | null
   /** The running session's acknowledged notes, in acknowledgement order; empty at Idle. */

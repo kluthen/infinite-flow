@@ -18,20 +18,27 @@ type MidiPermissionState = 'granted' | 'prompt' | 'denied' | 'unknown'
 
 /**
  * The sheet's state. `requesting.waiting`: the browser's own permission prompt is showing (Allow
- * MIDI access), else Checking (Connecting…). `check.played`: null in the Prompt sub-state, the
- * played pitch in the Result sub-state. `picker.fromConnected`: reached through Choose a different
- * device, so the device in use is marked.
+ * MIDI access), else Checking (Connecting…). `requesting.remembered`: the controller remembered
+ * when Requesting access began, which it goes straight to Connected for. `check.played`: null in
+ * the Prompt sub-state, the played pitch in the Result sub-state. `picker.fromConnected`: reached
+ * through Choose a different device, so the device in use is marked. `connected.rememberedLine`:
+ * reached straight from Requesting access for the remembered controller, so its line shows.
  */
 // @spec-link [[rule_controller_connects_between_sessions]]
 // @spec-link [[rule_controller_transposition_check]]
+// @spec-link [[rule_last_controller_remembered]]
 export type SheetStage =
-  | { readonly kind: 'requesting'; readonly waiting: boolean }
+  | {
+      readonly kind: 'requesting'
+      readonly waiting: boolean
+      readonly remembered?: MidiDevice
+    }
   | { readonly kind: 'unsupported' }
   | { readonly kind: 'denied' }
   | { readonly kind: 'no-device' }
   | { readonly kind: 'picker'; readonly fromConnected: boolean }
   | { readonly kind: 'check'; readonly device: MidiDevice; readonly played: number | null }
-  | { readonly kind: 'connected'; readonly device: MidiDevice }
+  | { readonly kind: 'connected'; readonly device: MidiDevice; readonly rememberedLine?: true }
   | { readonly kind: 'closed' }
 
 /**
@@ -122,7 +129,7 @@ export function reduceSheet(model: SheetModel, event: SheetEvent): SheetStep {
   switch (event.kind) {
     case 'open-requesting':
       requireStage(model, event.kind, 'closed')
-      return step(sheet(event.controller, { kind: 'requesting', waiting: false }))
+      return step(sheet(event.controller, requestingStage(event.controller)))
     case 'open-connected':
       requireStage(model, event.kind, 'closed')
       return step(sheet(event.controller, connectedStage(event.controller.state)))
@@ -156,6 +163,14 @@ function step(model: SheetModel, effects: readonly SheetEffect[] = []): SheetSte
   return Object.freeze({ model: Object.freeze(model), effects: Object.freeze(effects) })
 }
 
+/** Intent: Requesting access, Checking, keeping the controller remembered as it begins, if any. */
+function requestingStage(controller: MidiControllerChange): SheetStage {
+  const remembered = controller.remembered
+  return remembered === null
+    ? { kind: 'requesting', waiting: false }
+    : { kind: 'requesting', waiting: false, remembered }
+}
+
 /** Intent: Connected for the controller's connected device; any other state is a caller bug. */
 function connectedStage(state: MidiControllerState): SheetStage {
   if (state.kind !== 'connected') {
@@ -185,7 +200,7 @@ function selectedOpenId(state: MidiControllerState): string | null {
 /** Intent: Waiting for your browser once the permission is known to be `prompt`, while requesting. */
 function onPermission(model: SheetModel, permission: MidiPermissionState): SheetStep {
   if (model.stage.kind !== 'requesting' || permission !== 'prompt') return step(model)
-  return step({ ...model, stage: { kind: 'requesting', waiting: true } })
+  return step({ ...model, stage: { ...model.stage, waiting: true } })
 }
 
 /**
@@ -195,12 +210,19 @@ function onPermission(model: SheetModel, permission: MidiPermissionState): Sheet
  */
 function onConnectSettled(model: SheetModel, controller: MidiControllerChange): SheetStep {
   const stored = { ...model, controller }
-  if (model.stage.kind !== 'requesting') return step(stored)
+  const stage = model.stage
+  if (stage.kind !== 'requesting') return step(stored)
   const kind = controller.state.kind
   if (kind === 'requesting' || kind === 'not-requested') {
     throw new ConnectionSheetError(`connect() settled with the controller still ${kind}.`)
   }
   if (kind === 'unsupported' || kind === 'denied') return step(sheet(controller, { kind }))
+  const remembered = stage.remembered
+  if (remembered !== undefined && selectedOpenId(controller.state) === remembered.id) {
+    // The remembered controller, among however many inputs: Connected at once, no check.
+    const device = (controller.state as Extract<MidiControllerState, { device: MidiDevice }>).device
+    return step(sheet(controller, { kind: 'connected', device, rememberedLine: true }))
+  }
   return resolveDevices(stored)
 }
 
@@ -256,7 +278,7 @@ function onAction(model: SheetModel, action: SheetAction): SheetStep {
     case 'check-again':
     case 'try-again':
       requireStage(model, action, action === 'check-again' ? 'denied' : 'no-device')
-      return step(sheet(controller, { kind: 'requesting', waiting: false }), [{ kind: 'connect' }])
+      return step(sheet(controller, requestingStage(controller)), [{ kind: 'connect' }])
     case 'continue':
       return step(sheet(controller, { kind: 'connected', device: checkResult(model, action) }))
     case 'run-check-again': {
