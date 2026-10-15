@@ -35,16 +35,27 @@ import {
 import { connectDevice, unplugNow } from './session/session-midi-helpers'
 import {
   backingTrackToggle,
+  deletePlayedNotesButton,
   exportButton,
   exportError,
   exportPlayedButton,
+  includeVeryShortNotesToggle,
+  keepPlayedNotesToggle,
   pickFormat,
   playedNotesToggle,
   reviewItems,
   reviewLink,
   reviewOfSession,
+  reviewPanel,
   sessionEndedAfter,
 } from './review/review-helpers'
+import {
+  deleteSessionButton,
+  keyedRecords,
+  pinButton,
+  star,
+  untilKept,
+} from './review/review-tools-helpers'
 
 /** A tablet in landscape, at bp-tablet-landscape (64rem = 1024 px): the one-system layout. */
 const TABLET = { width: 1024, height: 768 } as const
@@ -437,4 +448,113 @@ for (const theme of ['Light', 'Dark'] as const) {
     const results = await new AxeBuilder({ page }).analyze()
     expect(results.violations, describeViolations(results.violations)).toEqual([])
   })
+}
+
+// The Review's v3.0 tools (wave 6, chunks 11, 12 and 25), in both themes: a favorite marked with
+// the comment's editor open; the Unpin and `Delete session` sheets; the played-notes sheets; and,
+// in a session whose every played note is very short, `Include very short notes` with the note
+// that tells why `Export played notes` is disabled.
+
+/** One Review-tools state to scan: the session played (no notes, held notes, taps), its reach. */
+interface ReviewToolsScan {
+  readonly name: string
+  readonly played: 'none' | 'held' | 'taps'
+  readonly reach: (page: Page) => Promise<void>
+}
+
+/** Intent: turn `Keep my played notes` on and wait until the session's played notes are kept. */
+async function keepPlayedNotes(page: Page): Promise<void> {
+  await keepPlayedNotesToggle(page).click()
+  await expect(keepPlayedNotesToggle(page)).toHaveAttribute('aria-pressed', 'true')
+  await expect.poll(async () => (await keyedRecords(page, 'playedNotes')).length).toBe(1)
+}
+
+const REVIEW_TOOLS_SCANS: readonly ReviewToolsScan[] = [
+  {
+    name: 'a favorite marked and the comment editor open',
+    played: 'none',
+    reach: async (page) => {
+      await star(page, 1).click()
+      await expect(star(page, 1)).toHaveAttribute('aria-pressed', 'true')
+      await reviewPanel(page).getByRole('button', { name: 'Add a comment', exact: true }).click()
+      await reviewPanel(page)
+        .getByRole('textbox', { name: 'Comment', exact: true })
+        .fill('Slower next time.')
+    },
+  },
+  {
+    name: 'the Unpin sheet',
+    played: 'none',
+    reach: async (page) => {
+      await star(page, 1).click()
+      await expect(pinButton(page)).toHaveText('Unpin')
+      await pinButton(page).click()
+      await expect(sheet(page)).toHaveAccessibleName('Unpin this session?')
+    },
+  },
+  {
+    name: 'the Delete session sheet',
+    played: 'none',
+    reach: async (page) => {
+      await untilKept(page, 1)
+      await deleteSessionButton(page).click()
+      await expect(sheet(page)).toHaveAccessibleName('Delete this session?')
+    },
+  },
+  {
+    name: 'the Delete played notes sheet',
+    played: 'held',
+    reach: async (page) => {
+      await keepPlayedNotes(page)
+      await deletePlayedNotesButton(page).click()
+      await expect(sheet(page)).toHaveAccessibleName("Delete this session's played notes?")
+    },
+  },
+  {
+    name: 'the sheet for the played notes already kept',
+    played: 'held',
+    reach: async (page) => {
+      await keepPlayedNotes(page)
+      await keepPlayedNotesToggle(page).click()
+      await expect(sheet(page)).toHaveAccessibleName('Delete the played notes already kept?')
+    },
+  },
+  {
+    name: 'every played note very short, its export disabled with its note',
+    played: 'taps',
+    reach: async (page) => {
+      await expect(exportPlayedButton(page)).toBeDisabled()
+      await expect(includeVeryShortNotesToggle(page)).toHaveAttribute('aria-pressed', 'false')
+      await expect(reviewPanel(page).locator('.review-export-played .field-note')).toBeVisible()
+    },
+  },
+]
+
+for (const scan of REVIEW_TOOLS_SCANS) {
+  for (const theme of ['Light', 'Dark'] as const) {
+    // @test-link [[req_last_session_review]]
+    test(`has no detectable axe violations with the Review's tools: ${scan.name}, ${theme} theme`, async ({
+      page,
+    }) => {
+      test.setTimeout(120_000)
+      await reviewOfSession(
+        page,
+        scan.played !== 'none',
+        undefined,
+        scan.played === 'taps' ? 0 : undefined,
+      )
+      await radio(page, 'Presentation theme', theme).click()
+      await expect(reviewItems(page).first().locator('.review-staff svg').first()).toBeAttached({
+        timeout: 30_000,
+      })
+
+      await scan.reach(page)
+      await page.waitForFunction(() =>
+        document.getAnimations().every((animation) => !(animation instanceof CSSTransition)),
+      )
+
+      const results = await new AxeBuilder({ page }).analyze()
+      expect(results.violations, describeViolations(results.violations)).toEqual([])
+    })
+  }
 }
