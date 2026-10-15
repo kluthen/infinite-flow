@@ -1,7 +1,8 @@
 /**
  * The Idle session's actions on my instrument: saving it (made or changed) and deleting it, with
  * what each does to the selection and the phrase. Split out of use-generation-session.ts; it owns
- * no state of its own and reads and writes the shared session state.
+ * no state of its own and reads and writes the shared session state. Loaded on demand, through
+ * ./load-my-instrument-actions.ts only.
  *
  * Every save writes my instrument's record at once, through the visit's saves (the save policy
  * holds, refuses or skips it); its effect on the selection and the phrase waits for a generation

@@ -8,11 +8,11 @@ import { describe, expect, it } from 'vitest'
 
 import { makeMyInstrument, type MyInstrumentInput } from '@/domain/profile/my-instrument'
 import {
-  decodeMyInstrument,
   encodeMyInstrumentRecord,
   MY_INSTRUMENT_DATA_VERSION,
   MY_INSTRUMENT_RECORD_KEY,
 } from '@/storage/records/my-instrument-record'
+import { decodeMyInstrument } from '@/storage/records/my-instrument-record-read'
 
 const APP_VERSION = '3.0.0-test'
 
@@ -55,15 +55,15 @@ describe('the my-instrument record', () => {
 
   // @test-link [[entity_my_instrument_record]]
   // @test-link [[rule_saved_settings_load_tolerantly]]
-  it('loads back the very my instrument it was encoded from', async () => {
-    const loaded = await decodeMyInstrument([stored()])
+  it('loads back the very my instrument it was encoded from', () => {
+    const loaded = decodeMyInstrument([stored()])
     expect(loaded).toEqual(makeMyInstrument(TENOR_IN_BASS))
     expect(Object.isFrozen(loaded)).toBe(true)
   })
 
   // @test-link [[entity_my_instrument_record]]
-  it('gives no my instrument when the store holds none', async () => {
-    expect(await decodeMyInstrument([])).toBeNull()
+  it('gives no my instrument when the store holds none', () => {
+    expect(decodeMyInstrument([])).toBeNull()
   })
 
   // @test-link [[entity_my_instrument_record]]
@@ -92,7 +92,7 @@ describe('the my-instrument record', () => {
       'a direction inconsistent with the size',
       stored({ ...TENOR_IN_BASS, transposition: { octaves: 0, semitones: 0, direction: 'lower' } }),
     ],
-  ])('loads as absent, with no error, a record with %s', async (_case, record) => {
-    expect(await decodeMyInstrument([record])).toBeNull()
+  ])('loads as absent, with no error, a record with %s', (_case, record) => {
+    expect(decodeMyInstrument([record])).toBeNull()
   })
 })

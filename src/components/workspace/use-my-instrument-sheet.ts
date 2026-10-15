@@ -1,9 +1,11 @@
 /**
  * The workspace's side of the My instrument sheet: `instrument-actions` opens it, loaded on demand
- * (`load-my-instrument-sheet.ts`), creating from the selected built-in profile or editing the saved
- * my instrument; what the sheet reports is applied through the Idle session's actions, and when it
- * closes focus goes to `instrument-actions`, always there between sessions. While it is open no
- * MIDI note starts a session.
+ * (`load-my-instrument-sheet.ts`) with how it opens (`my-instrument-sheet-opening.ts`): creating
+ * from the selected built-in profile or editing the saved my instrument. The load warms the
+ * session's actions on my instrument, so a save never waits on a fetch. What the sheet reports is
+ * applied through the Idle session's actions, and when it closes focus goes to
+ * `instrument-actions`, always there between sessions. While it is open no MIDI note starts a
+ * session.
  */
 import {
   computed,
@@ -16,19 +18,11 @@ import {
 
 import type { GenerationSession } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
-import {
-  isBuiltInInstrumentProfileId,
-  MY_INSTRUMENT_ID,
-} from '@/domain/profile/instrument-profiles'
 import type { MyInstrument } from '@/domain/profile/my-instrument'
 import { loadMyInstrumentSheet } from './load-my-instrument-sheet'
-import type { MyInstrumentFormStart } from './use-my-instrument'
+import type { MyInstrumentSheetProps } from './my-instrument-sheet-opening'
 
-/** The sheet's props while it is open. */
-export interface MyInstrumentSheetProps {
-  readonly start: MyInstrumentFormStart
-  readonly selected: boolean
-}
+export type { MyInstrumentSheetProps } from './my-instrument-sheet-opening'
 
 /** What the host needs. */
 export interface MyInstrumentSheetDeps {
@@ -50,23 +44,13 @@ export interface MyInstrumentSheetHost {
 
 /**
  * Intent: host the sheet over the Idle session. Opening while a session runs is a defect: the
- * button is disabled then.
+ * button is disabled then. Opening loads the sheet, then shows it with the props the session's
+ * state gives at that moment.
  */
 // @spec-link [[req_my_instrument]]
 export function useMyInstrumentSheet(deps: MyInstrumentSheetDeps): MyInstrumentSheetHost {
   const sheetComponent = shallowRef<Component | null>(null)
   const sheetProps = shallowRef<MyInstrumentSheetProps | null>(null)
-
-  /** Intent: how the sheet opens now: editing the saved my instrument, or creating from the selected built-in. */
-  function startNow(): MyInstrumentFormStart {
-    const { myInstrument, controls } = deps.session.state
-    if (myInstrument !== null) return { mode: 'editing', saved: myInstrument }
-    const selected = controls.instrumentProfileId
-    if (!isBuiltInInstrumentProfileId(selected)) {
-      throw new Error('my instrument sheet: creating needs a built-in profile selected')
-    }
-    return { mode: 'creating', template: selected }
-  }
 
   /** Intent: close the sheet and put focus on `instrument-actions` once it has left. */
   function close(): void {
@@ -79,12 +63,9 @@ export function useMyInstrumentSheet(deps: MyInstrumentSheetDeps): MyInstrumentS
     sheetProps,
     sheetOpen: computed(() => sheetProps.value !== null),
     open: async () => {
-      const component = await loadMyInstrumentSheet()
-      sheetComponent.value = component
-      sheetProps.value = {
-        start: startNow(),
-        selected: deps.session.state.controls.instrumentProfileId === MY_INSTRUMENT_ID,
-      }
+      const opening = await loadMyInstrumentSheet()
+      sheetComponent.value = opening.MyInstrumentSheet
+      sheetProps.value = opening.sheetPropsNow(deps.session.state)
     },
     save: (instrument) => {
       void deps.session.actions.saveMyInstrument(instrument)

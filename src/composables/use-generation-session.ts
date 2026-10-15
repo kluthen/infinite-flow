@@ -16,19 +16,24 @@ import {
 import type { PitchClassNumber } from '@/domain/harmony/harmony-types'
 import type { InstrumentProfile } from '@/domain/profile/instrument-profile'
 import { MY_INSTRUMENT_ID } from '@/domain/profile/instrument-profiles'
+import type { MyInstrument } from '@/domain/profile/my-instrument'
 import { spellWrittenKey } from '@/domain/notation/pitch-spelling'
 import type { MyInstrumentSaves } from '@/storage/settings-saver'
 import type { StaffKeySignature } from '@/notation/staff-fit-types'
 import { createControlActions } from './generation-session-control-actions'
 import { createFitRunner } from './generation-session-fit-round'
 import { createNotationActions } from './generation-session-notation'
-import { createMyInstrumentActions } from './generation-session-my-instrument'
 import {
   createReplacePhraseAction,
   createSelectInstrumentProfileAction,
 } from './generation-session-profile-switch'
 import { createRhythmPrewarmTrigger } from './generation-session-prewarm'
 import { createRoomNoticeReactions } from './generation-session-room-notice'
+import type {
+  MyInstrumentActions,
+  MyInstrumentChangeOutcome,
+} from './generation-session-my-instrument'
+import { loadMyInstrumentActions } from './load-my-instrument-actions'
 import {
   SessionUsageError,
   type CreateGenerationSessionOptions,
@@ -82,6 +87,8 @@ const FIRST_LOAD_SETTINGS: InitialGenerationSettings = {
  * controls, the profile selection and the theme are saved through `saveSettings` as they apply.
  * While the controls name my instrument, every intent it builds carries my instrument's profile as
  * data; starting with them naming it and no my instrument given is a caller defect and throws.
+ * Saving and deleting my instrument load their actions on demand, at first use; the My instrument
+ * sheet's load warms them.
  */
 // @spec-link [[service_idle_generation_session]]
 // @spec-link [[module_session_seed_plan]]
@@ -308,13 +315,38 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
     saveSettings: options.saveSettings,
   }
   const selectInstrumentProfile = createSelectInstrumentProfileAction<TResult>(profileSwitch)
-  const { saveMyInstrument, deleteMyInstrument } = createMyInstrumentActions<TResult>({
-    state,
-    saves: options.myInstrumentSaves ?? NO_MY_INSTRUMENT_SAVES,
-    selectInstrumentProfile,
-    replacePhrase: createReplacePhraseAction<TResult>(profileSwitch),
-    redrawPhrase,
-  })
+  let myInstrumentActions: MyInstrumentActions | null = null
+
+  /**
+   * Intent: the session's actions on my instrument, loaded on demand and created once, at their
+   * first use (the My instrument sheet's load warms them, so a save never waits on a fetch). They
+   * are created synchronously right after the load, so two calls never create them twice. A load
+   * failure is not caught: the action rejects with it.
+   */
+  // @spec-link [[req_my_instrument]]
+  async function loadedMyInstrumentActions(): Promise<MyInstrumentActions> {
+    const { createMyInstrumentActions } = await loadMyInstrumentActions()
+    myInstrumentActions ??= createMyInstrumentActions<TResult>({
+      state,
+      saves: options.myInstrumentSaves ?? NO_MY_INSTRUMENT_SAVES,
+      selectInstrumentProfile,
+      replacePhrase: createReplacePhraseAction<TResult>(profileSwitch),
+      redrawPhrase,
+    })
+    return myInstrumentActions
+  }
+
+  /** Intent: save my instrument (made or changed) through its actions, loaded on demand. */
+  // @spec-link [[req_my_instrument]]
+  async function saveMyInstrument(instrument: MyInstrument): Promise<MyInstrumentChangeOutcome> {
+    return (await loadedMyInstrumentActions()).saveMyInstrument(instrument)
+  }
+
+  /** Intent: delete my instrument through its actions, loaded on demand. */
+  // @spec-link [[req_my_instrument]]
+  async function deleteMyInstrument(): Promise<MyInstrumentChangeOutcome> {
+    return (await loadedMyInstrumentActions()).deleteMyInstrument()
+  }
 
   const stopListeningForCrossings = options.viewport.subscribe(handleWidthCrossing)
   prewarmCurrentRhythmSetting()

@@ -142,6 +142,15 @@ function handleBackdropClick(event: MouseEvent): void {
   if (event.target === event.currentTarget) wayBack()
 }
 
+/**
+ * Intent: the name field's text goes into the form as `v-model` would put it: at every input,
+ * except while an input method is composing, whose text lands once the composition ends.
+ */
+function handleNameText(event: Event): void {
+  if (event.type === 'input' && (event as InputEvent).isComposing) return
+  form.name.value = (event.target as HTMLInputElement).value
+}
+
 /** Intent: Enter in the name field does what `Save` does when it is enabled. */
 function handleNameEnter(event: KeyboardEvent): void {
   event.preventDefault()
@@ -230,10 +239,12 @@ onBeforeUnmount(() => {
           <input
             :id="nameId"
             ref="nameInput"
-            v-model="form.name.value"
+            :value="form.name.value"
             class="text-input"
             type="text"
             maxlength="30"
+            @input="handleNameText"
+            @compositionend="handleNameText"
             @keydown.enter="handleNameEnter"
           />
           <p class="field-note">Left empty, it is called My instrument.</p>

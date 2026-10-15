@@ -10,9 +10,11 @@
  * that finishes later is ignored. A port that opens only after the wait gets its policy then, and
  * `stopSavingUnreadable()` at once; one that opened outdated keeps its policy `off-outdated`.
  *
- * My instrument's record is decoded by its own codec, within the wait; building my instrument is
- * loaded on demand, only when a record reads, so it stays out of the first load. A saved selection
- * of my instrument is kept only when my instrument itself loaded.
+ * My instrument's record is decoded by its own codec, within the wait. That codec's read side
+ * (./storage/records/my-instrument-record-read.ts), with building my instrument, is loaded on
+ * demand, only when the `instrument` store holds a record, so it stays out of the first load; an
+ * empty store gives no my instrument without loading anything. A saved selection of my instrument
+ * is kept only when my instrument itself loaded.
  *
  * The load outcome says which of the two the visit started from, which the saving state alone
  * cannot tell: `off-outdated` comes both with the saved data read and with the defaults on screen.
@@ -21,7 +23,6 @@
 import { readAudioMixDesign, type AudioMixDesign } from '@/audio/audio-mix'
 import type { MyInstrument } from '@/domain/profile/my-instrument'
 import { APP_VERSION } from '@/storage/app-version'
-import { decodeMyInstrument } from '@/storage/records/my-instrument-record'
 import { defaultSettings, type SavedSettings } from '@/storage/records/setting-defaults'
 import { decodeSettings } from '@/storage/records/settings-record'
 import { createSavePolicy, type SavePolicy } from '@/storage/save-policy'
@@ -94,6 +95,18 @@ interface SavedRecords {
   readonly rememberedController: readonly unknown[]
 }
 
+/**
+ * Intent: my instrument from the `instrument` store's records: none, loading nothing, when the
+ * store is empty; otherwise decoded by the record's read side, loaded on demand. Its load failure
+ * is not caught: it rejects as the defect it is.
+ */
+// @spec-link [[entity_my_instrument_record]]
+async function loadMyInstrument(records: readonly unknown[]): Promise<MyInstrument | null> {
+  if (records.length === 0) return null
+  const { decodeMyInstrument } = await import('@/storage/records/my-instrument-record-read')
+  return decodeMyInstrument(records)
+}
+
 /** What a race against the start-up wait gives when the wait ended first. */
 const WAIT_ENDED: unique symbol = Symbol('the start-up wait ended')
 
@@ -108,7 +121,7 @@ async function readSavedRecords(port: StoragePort): Promise<SavedRecords | typeo
   try {
     const [settings, myInstrument, keptSessionSummaries, rememberedController] = await Promise.all([
       port.readAll('settings'),
-      port.readAll('instrument').then(decodeMyInstrument),
+      port.readAll('instrument').then(loadMyInstrument),
       port.readKeyed('sessionSummaries'),
       port.readAll('controller'),
     ])
