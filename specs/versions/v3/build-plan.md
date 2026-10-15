@@ -2683,6 +2683,33 @@ favorite count), `rule_outdated_tab_reads_what_it_can` (the row saved by a newer
 
 **Verification:** the chunk checks; the bundle at the wave gate (unchanged: the list is lazy).
 
+**Record (2026-10-15).** Merged into `v3.0-w7` in two halves: 14a (chunk commit 456d463: the
+controller's reach, `use-kept-sessions.ts` for the rows, `workspace-kept-session-opening.ts` for
+the review mode with `openSession(key)`, `showList()`, `showReview()` (now resolving `'shown'`,
+`'failed'` or `'superseded'`) and `closeReview()`, pin, unpin and delete by row in
+`workspace-kept-session-edits.ts`, `readNewerKeptSummary`) and 14b (chunk commit 3a05844:
+`SessionList.vue`, `SessionRow.vue`, `session-row-text.ts`, all in the lazy review area chunk;
+`sessions-link`, `All sessions`, the focus rules in `review-area-focus.ts`, ux D316 in
+`ReviewArea.vue`, D307 in `use-review-navigation.ts`); merge b3feaa7. No spec or design
+deviation (the list header's `Your data` button is chunk 15's). Every Done when item has an
+end-to-end test in `session-list.spec.ts` (12 tests, also stable at three repeats), ux D316's
+three cases a unit test in `ReviewArea-focus.spec.ts`. 14a's unit tests were written just after
+its code, not seen red first. Calls made: a session's save and its retry go through
+`rows.savingThrough`, which keeps the batch the policy built; a deletion that finishes after its
+sheet closed reports `deleted-after-close`, and confirmations close only when the review mode is
+left; opening a row lays the row's pin and comment over the record read back, so a refused pin or
+comment stays as the player made it for the visit; the seam's new `startedFromDefaults` gives
+"Kept sessions can't be read in this visit."; a test seam `seedKeptSessionCopy(…, { newer: true
+})` writes to IndexedDB directly, since the port refuses newer records. Files outside the Files
+line: `WorkspaceHeader.vue`, `ScorePanel.vue`, `WorkspaceShell.vue`, `use-review-host.ts`,
+`use-review-played-notes.ts`, `workspace-session-ends.ts`, `workspace-kept-played-notes.ts`,
+`workspace-session-active.ts`, `workspace-kept-sessions-seam.ts`, `control-options.ts`
+(`profileSelectionLabel`). `ReviewPanel.vue` gained only the nav row (432 lines, a warning).
+Docs: `phrase-workspace.md`, `storage.md` (both stale lines fixed), `session-engine.md`,
+`testing.md`. For the sync: `service_session_controller` and `service_session_end` still say
+`showReview` resolves true or false and `closeReview` is Review-only;
+`module_kept_session_reach`'s interface still says "not built yet".
+
 ### Chunk 15 — Your data
 
 **Goal.** One sheet that shows what is kept, the space it uses and whether the browser protects
