@@ -208,6 +208,16 @@ way back. Focus is trapped in the sheet while it is open. No MIDI note starts a 
 is open (none could anyway: the review mode shows). It opens and closes with the sheet's own
 opacity transition (`motion.md`).
 
+While a confirmed deletion runs, its confirming action takes `is-loading` and is disabled; the way
+back stays live. Taken then, it closes the sheet as the way back does, focus returning to the
+button that opened it, but it no longer cancels: the deletion already under way finishes, wherever
+the player has gone meanwhile. When it does, the page changes as after that deletion confirmed
+with its sheet open (the row leaves, the list replaces the review, or the played notes leave the
+review), with no message: the change is what tells it. Focus still on a control that change
+removes moves by that deletion's own rule; focus anywhere else stays where the player put it. A
+deletion refused after its sheet closed changes nothing, and nothing tells it, since only its
+sheet tells a refusal: what was to go still shows, with the action that deletes it, to try again.
+
 ## Keeping at a Session's End
 
 - A session that ends once phrase 1 has sounded is saved once, as its review opens; nothing is

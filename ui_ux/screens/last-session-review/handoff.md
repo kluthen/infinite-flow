@@ -351,6 +351,12 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
     doodle is kept (master spec §C5.14); the rest as above.
   - A deletion that fails keeps its sheet open with `inline-alert alert-error` "That couldn't be
     deleted. Try again." under its paragraphs; the confirming action tries again.
+  - While a deletion runs, its confirming action takes `is-loading`; the way back stays live and
+    closes the sheet without stopping it: the deletion finishes (`flows/kept-sessions/handoff.md`,
+    The Confirmation Pattern). Its result then shows as on confirmation, with no message. A
+    refusal after the sheet closed shows nothing: the played notes or the session are still
+    there, and `Delete played notes` or `Delete session` tries again (the played notes already
+    kept, through `Your data`'s `Delete all played notes`).
 - **Played-notes lane**: while `Played notes` is on, each system position in `review-staff`
   is followed by one `played-notes-lane`, a block of the full content inline size and the block
   size `--played-notes-lane-block-size`, separated from the system above by `--spacing-2`, holding
@@ -562,7 +568,11 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
   the way back, focus returns to the button that opened it. After `Delete played notes` or
   `Delete them` removes `review-view`, focus moves to `review-title`; after `Delete them` with
   `review-view` still shown, to `Keep my played notes`. After `Unpin`, to the button, now `Pin`.
-  After `Delete session`, as `flows/kept-sessions/handoff.md` sets (the list's title).
+  After `Delete session`, as `flows/kept-sessions/handoff.md` sets (the list's title). A sheet
+  closed while its deletion runs returns focus as the way back does; when the deletion then
+  ends, focus still on a button it removed (`Delete played notes`, or `Keep my played notes` with
+  `review-view`, or `Delete session` with the Review) moves as after that confirmation, and focus
+  anywhere else stays.
 - **[v3 changed]** A session end moves focus to `Close review`. `Close review`, `Review last session`,
   `All sessions` and a list row move focus as `flows/review-and-export/handoff.md` and
   `flows/kept-sessions/handoff.md` set. Keyboard route from a session end: Space closes the

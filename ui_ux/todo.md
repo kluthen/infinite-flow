@@ -48,6 +48,10 @@ Settled: ux D307-D314; no question for the owner.
   `strategy.md`, `versions/v3.0/README.md`. Written 2026-10-15.
 - **Validation:** `ux-critic` on both gates: DRIFT, four findings, all fixed (ux D313); recheck:
   two leftovers and a note, fixed (ux D314). Both gates are passed from the design side.
+- **Found while building and in the sync:** the lane's minimum bar width reworded (ux D315); a
+  Review deletion whose sheet is closed while it runs finishes, as the owner ruled 2026-10-15,
+  with its result shown as on confirmation and focus moved only off a removed control (ux D316,
+  both trees). Built focus differs in a refusal after close: reported as a build follow-up.
 - **For `spec-writer`:** build plan chunk 25's scope says `Include very short notes` is "off at
   every review opening"; the design (ux D193) holds it for the page visit, across reviews, never
   saved. The plan's wording should follow the design, or the question comes back here.

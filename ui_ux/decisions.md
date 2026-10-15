@@ -1400,3 +1400,29 @@ phones low priority, no question to the owner. Nothing in `src/` is edited.
   and the sentence takes its own `[v3 changed]` paragraph. Wording only: no behaviour, token or
   threshold changes; the threshold's value stays out of the design set (it is chunk 25's tuning,
   `docs/midi-tuning.md`). `versions/v2/` keeps the old wording, true of v2.
+- **D316 — A deletion under way finishes when its sheet is closed (2026-10-15; owner's ruling).**
+  Found by documentalist's wave-6 sync: the design said nothing about closing a Review
+  confirmation (Delete session, this session's played notes, the played notes already kept) while
+  its deletion runs; as built in wave 6 the deletion finishes anyway. Asked, the owner ruled on
+  2026-10-15: "Let the delete finish." Written in both trees (a recorded correction to
+  `versions/v3.0/`, as D307), in documents new in v3 or inside paragraphs already tagged
+  `[v3 new]`, so no new mark: `flows/kept-sessions/handoff.md`, The Confirmation Pattern (so a
+  row's `Delete` in the list follows the same rule once built), and
+  `screens/last-session-review/handoff.md`, Confirmations and Focus and Keyboard. As built: while
+  it runs the confirming action takes `is-loading` and is disabled, and the way back (the way-back
+  action, `Close`, Escape, the backdrop) stays live; taken then, it closes the sheet as the way
+  back does, focus returning to the opening button, but no longer cancels. **What the player sees
+  afterwards:** the page changes as after the same deletion confirmed with its sheet open, with no
+  message (the Review announces no change it makes; the change is what tells it). A deletion
+  refused after its sheet closed changes nothing and nothing tells it: spec and module intent say
+  only its sheet tells a refusal, never the notice row, and the undeleted session or played notes
+  still show, with the button that tries again. Not settled here as new behaviour: no "Deleting…"
+  notice, no undo, no stop. **Focus** (settled here, minor): focus still on a control the change
+  removes moves by that deletion's own rule (`review-title`, the list's title after
+  `Delete session`); focus anywhere else stays. What is built moves focus to `review-title` in
+  every case once such a deletion ends (a refusal included, or when the player has moved focus
+  meanwhile); the two differ only in those cases, inside a window as long as the device's write.
+  Reported to the wave driver as a small build follow-up, not an owner question. Unchanged:
+  `Your data`'s confirmations, whose way back is disabled while a deletion runs
+  (`screens/your-data/handoff.md`), a different sheet with a deletion of every session in it;
+  the owner's ruling was about the Review's.
