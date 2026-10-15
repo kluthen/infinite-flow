@@ -1,6 +1,6 @@
 ---
 id: rule_saved_settings_load_tolerantly
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 priority: 1
 human_name: Saved Settings Load One by One

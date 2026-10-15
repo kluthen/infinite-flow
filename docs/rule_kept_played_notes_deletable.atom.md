@@ -1,6 +1,6 @@
 ---
 id: rule_kept_played_notes_deletable
-status: DRAFT
+status: REVIEW
 priority: 1
 human_name: Kept Played Notes Can Be Deleted
 type: RULE

@@ -1,6 +1,6 @@
 ---
 id: rule_new_session_never_asks_about_favorites
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 priority: 1
