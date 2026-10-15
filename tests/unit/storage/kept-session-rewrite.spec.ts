@@ -1,7 +1,7 @@
 /**
  * A kept session's facts encoded again after its save: the session-wide record rewritten from its
- * stored form with only the player's change applied, and the played-notes record of a session
- * whose notes are kept after its save.
+ * stored form with only the player's change applied, the body rewritten with one phrase's
+ * favorite mark, and the played-notes record of a session whose notes are kept after its save.
  */
 import { beforeAll, describe, expect, it } from 'vitest'
 
@@ -11,6 +11,7 @@ import {
   decodeKeptSessionSummary,
   encodeKeptPlayedNotes,
   encodeKeptSession,
+  rewriteKeptBodyFavorite,
   rewriteKeptSummary,
   type KeptSessionFacts,
   type KeptSessionRecords,
@@ -124,5 +125,67 @@ describe("a session's played notes kept after its save", () => {
 
   it('throws for a session with no phrase, as a caller defect', () => {
     expect(() => encodeKeptPlayedNotes({ phrases: () => [] }, APP_VERSION)).toThrow(/no phrase/)
+  })
+})
+
+// @test-link [[entity_kept_session_record]]
+// @test-link [[req_favorite_phrases]]
+describe("a kept session's body rewritten with a favorite mark after its save", () => {
+  let history: SessionHistory
+  let saved: KeptSessionRecords
+
+  beforeAll(() => {
+    history = recordedKeptSession('bb-tenor', 3)
+    saved = encodeKeptSession(history, { ...FRESH, favorites: [3] }, APP_VERSION)
+  })
+
+  it('is the body its save would have written with that mark, every other field as stored', () => {
+    const rewritten = rewriteKeptBodyFavorite(structuredClone(saved.body), 2, true, LATER_VERSION)
+
+    const marked = encodeKeptSession(history, { ...FRESH, favorites: [2, 3] }, LATER_VERSION)
+    expect(rewritten).toEqual({ body: marked.body, favoritesCount: 2 })
+  })
+
+  it('removes a mark the same way, the count following what the body then holds', () => {
+    const rewritten = rewriteKeptBodyFavorite(structuredClone(saved.body), 3, false, APP_VERSION)
+
+    expect(rewritten).toEqual({
+      body: encodeKeptSession(history, FRESH, APP_VERSION).body,
+      favoritesCount: 0,
+    })
+  })
+
+  it('reads back through the codec with a summary stating its count', () => {
+    const rewritten = rewriteKeptBodyFavorite(structuredClone(saved.body), 1, true, APP_VERSION)
+    if (rewritten === null) throw new Error('the body was not rewritten')
+    const summary = rewriteKeptSummary(
+      structuredClone(saved.summary),
+      { favoritesCount: rewritten.favoritesCount },
+      APP_VERSION,
+    )
+
+    const reading = decodeKeptSession({
+      summary: structuredClone(summary),
+      body: structuredClone(rewritten.body),
+      playedNotes: undefined,
+    })
+
+    if (reading.reading !== 'current') throw new Error(`read ${reading.reading}`)
+    expect(reading.value.phrases.map((phrase) => phrase.favorite)).toEqual([true, false, true])
+  })
+
+  // @test-link [[module_kept_session_changes]]
+  it('gives nothing for a body that is not stored, cannot be read, or a newer app wrote', () => {
+    expect(rewriteKeptBodyFavorite(undefined, 1, true, APP_VERSION)).toBeNull()
+    const unreadable = edited(structuredClone(saved.body), ['phrases'], [])
+    expect(rewriteKeptBodyFavorite(unreadable, 1, true, APP_VERSION)).toBeNull()
+    const newer = edited(structuredClone(saved.body), ['dataVersion'], 99)
+    expect(rewriteKeptBodyFavorite(newer, 1, true, APP_VERSION)).toBeNull()
+  })
+
+  it('throws on a phrase the body does not hold, as a caller defect', () => {
+    expect(() =>
+      rewriteKeptBodyFavorite(structuredClone(saved.body), 4, true, APP_VERSION),
+    ).toThrow(/phrase 4/)
   })
 })

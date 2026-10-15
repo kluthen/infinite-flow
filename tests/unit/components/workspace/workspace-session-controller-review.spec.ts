@@ -68,6 +68,9 @@ describe('session controller: the Review opens at a session end', () => {
       keeping: 'not-pinned',
       key: keptSessionKey(lastHistory!),
       playedNotesKept: false,
+      pinned: false,
+      favorites: [],
+      comment: '',
       showing: true,
     })
     expect(review?.history.phrases().map((record) => record.phraseNumber)).toEqual([1, 2, 3])
@@ -81,6 +84,9 @@ describe('session controller: the Review opens at a session end', () => {
         keeping: 'not-pinned',
         key: keptSessionKey(lastHistory!),
         playedNotesKept: false,
+        pinned: false,
+        favorites: [],
+        comment: '',
       },
     })
   })
@@ -205,6 +211,9 @@ describe('session controller: closing and showing the Review again', () => {
       keeping: 'not-pinned',
       key: keptSessionKey(history!),
       playedNotesKept: false,
+      pinned: false,
+      favorites: [],
+      comment: '',
     }
     const kept = rig.controller.state.review
     expect(kept).toEqual({ ...drawn, showing: false })

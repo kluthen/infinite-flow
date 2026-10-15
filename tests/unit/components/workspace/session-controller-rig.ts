@@ -414,6 +414,7 @@ export function controllerRig(
           throw new Error('rig: no read at a change is asked for')
         },
       },
+      requestProtection: () => {},
       ...options.keptSessions,
     },
   })

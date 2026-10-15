@@ -37,6 +37,11 @@ export interface KeptSessionsSeam {
   /** The changes to kept sessions after their save, and the reads made at them. */
   // @spec-link [[module_kept_session_changes]]
   readonly changes: KeptSessionChanges
+  /**
+   * Ask the browser for persistent storage, without waiting: the save policy asks at most once
+   * per visit, never while saving is off, and not when the storage already is persistent.
+   */
+  readonly requestProtection: () => void
 }
 
 /**
@@ -44,7 +49,8 @@ export interface KeptSessionsSeam {
  * gave and the visit's saves: the summaries it read, a session's records read by its key through
  * the visit's save policy, whether saving is off now, known without waiting on a policy that may
  * never settle (a visit started from the defaults, whose port opens late or never, saves nothing)
- * and followed as the policy's state changes, and the changes after a save through the saves.
+ * and followed as the policy's state changes, the changes after a save through the saves, and the
+ * request for persistent storage through the policy.
  */
 // @spec-link [[module_kept_session_save]]
 // @spec-link [[module_saved_data_loader]]
@@ -67,5 +73,8 @@ export function keptSessionsOf(
       savedData.outcome === 'started-from-defaults' ||
       (saving.value !== null && saving.value !== 'on'),
     changes,
+    requestProtection: () => {
+      void savedData.savePolicy.then((loaded) => loaded.requestProtection())
+    },
   }
 }
