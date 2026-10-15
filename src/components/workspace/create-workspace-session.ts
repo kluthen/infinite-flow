@@ -44,7 +44,7 @@ import { createWebMidiAccessProvider } from '@/midi/web-midi-access'
 import { createBrowserWakeTimerWorker, createWorkerWakeTimer } from '@/audio/worker-wake-timer'
 import { createBrowserViewportWidth } from './browser-viewport-width'
 import { createBrowserPageActivation } from './browser-page-activation'
-import { createBrowserPageVisibility } from './browser-page-visibility'
+import { createBrowserPageLeaving, createBrowserPageVisibility } from './browser-page-visibility'
 import { createBrowserOrientationLock, createBrowserScreenWakeLock } from './browser-screen-locks'
 import { createBrowserWindowShape } from './browser-window-shape'
 import { createIdleLayoutGate } from './idle-layout-gate'
@@ -375,6 +375,7 @@ export function createWorkspaceSession(
       wakeLock: createBrowserScreenWakeLock(),
       orientationLock: createBrowserOrientationLock(),
       pageVisibility: createBrowserPageVisibility(),
+      pageLeaving: createBrowserPageLeaving(),
       windowShape: createBrowserWindowShape(),
       pageActivation: createBrowserPageActivation(),
     },

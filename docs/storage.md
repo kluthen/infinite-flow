@@ -611,8 +611,10 @@ older kept session that is not pinned is deleted in the same save. A session end
 and a start undone part-way save, read and delete nothing.
 
 `src/components/workspace/workspace-session-save.ts`, beside the session's ends, builds it:
-`saveEndedSession(saves, history, saving)` loads the kept-session codec on demand (a lazy chunk: the first
-draw never needs it) and hands the visit's saves a `SessionChanges` function. The end calls it
+`saveEndedSession(saves, page, history, saving)` loads the kept-session codec on demand (a lazy
+chunk: the first draw never needs it) and hands the visit's saves a `SessionChanges` function with
+the page-leaving signal (`page.isGoingAway`, see
+[A session cut short by the page going away](#a-session-cut-short-by-the-page-going-away)). The end calls it
 without waiting (`workspace-session-ends.ts`), so a slow or refused save never delays the end or
 the review. It runs in this order:
 
@@ -630,7 +632,7 @@ the review. It runs in this order:
    proposed default). The deletions come first, so a kept session under the very same key is
    replaced, never deleted after the write.
 
-The policy's `saveSession(changes)` runs steps 2 and 3, once no session holds the saves and the
+The policy's `saveSession(changes, pageGoingAway)` runs steps 2 and 3, once no session holds the saves and the
 release's flush has been applied; session saves run one after the other. If a new session starts
 before the save has read, it waits for that session's end, then reads again. It resolves a
 `SessionSaveOutcome` to its caller, apart from the failure listener:
@@ -640,12 +642,40 @@ before the save has read, it waits for that session's end, then reads again. It 
 | `{ status: 'saved' }`         | The batch was applied. It ends a run of refusals, as any successful save does.           |
 | `{ status: 'refused', kind }` | The port refused the batch, `quota` or `other`: nothing was written or deleted.          |
 | `{ status: 'saving-off' }`    | Saving is off for the visit, or the batch was refused as `outdated`, which turns it off. |
+| `{ status: 'abandoned' }`     | The page was going away before the read or before the batch: nothing more was done.      |
 
 Only a `quota` refusal of the session's save is also told to the failure listener, so the notice
 row raises Storage full; an `other` refusal is the caller's alone and raises no notice (Save
 failed is for saves other than the session's own), and it leaves the run of refusals as it was.
 While saving is off (an outdated tab, or a visit started from the defaults), the session's save
 reads, writes and deletes nothing, and every kept session stays.
+
+### A session cut short by the page going away
+
+A session cut short by reloading or closing the page is lost, never saved, and the kept sessions
+stay exactly as they were (master spec §5.1, spec D309). The page-leaving port
+(`PageLeaving` in `src/session/session-browser-ports.ts`, its adapter
+`createBrowserPageLeaving` in `src/components/workspace/browser-page-visibility.ts`) listens from
+the load for the window's `pagehide`, which marks the page as going away for the rest of its
+life. `src/storage/` reads no browser event: the signal reaches the policy with the session's own
+save, as `saveSession`'s `pageGoingAway` argument (through `SessionSaveHold.saveSession`), never
+through the policy's construction.
+
+The save checks it after loading the codec, and the policy before each of its transactions (the
+keyed read, the batch). Once it is set the save stops there and resolves `abandoned`: nothing more
+is read or written, the failure listener hears nothing, and the end holds the session in memory
+as not saved (the keep line reads "Not saved on this device: export it to keep it."); no row is
+added to the session list. The settings flush at the end is unchanged.
+
+- **A reload or close of a visible page** fires `pagehide`, then `visibilitychange` to hidden in
+  the same task; the hidden page ends the session, and its save never starts its first
+  transaction.
+- **A page already hidden** (a tab switch ended the session, then the tab closed): a save still
+  running stops at its next step.
+- **A page the back-forward cache brings back** stays marked: the review of the session it cut
+  short reads not saved, and no later session of that page is saved either.
+- **A tab or app switch** never fires `pagehide`: it still ends the session, opens its review and
+  saves it.
 
 ## Changes after the session's save
 
@@ -800,7 +830,6 @@ The session controller reaches every kept session, not only those it holds in me
   change path keyed by the row (`changeKeptPinned`, `deleteKeptSession` in
   `kept-session-review-changes.ts`), which reads the session-wide record only, never the body.
   Deleting the most recent session leaves none for the visit.
-
 
 The `controller` store holds at most one record, under the key `remembered`
 (`src/storage/records/controller-record.ts`): the record envelope (data version 1) and the input

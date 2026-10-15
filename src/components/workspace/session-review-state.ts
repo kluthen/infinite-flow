@@ -142,7 +142,8 @@ export function shownReview(session: ReviewedSession): SessionReview {
 
 /**
  * Intent: how the session is kept once its own save's outcome is known: still not pinned once
- * saved (the same value), not saved once the save was refused or skipped with saving off.
+ * saved (the same value), not saved once the save was refused, skipped with saving off or
+ * abandoned as the page went away.
  */
 // @spec-link [[module_kept_session_save]]
 // @spec-link [[rule_failed_save_never_disturbs_session]]

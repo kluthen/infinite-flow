@@ -10,7 +10,8 @@
  * review, is a call of its own that resolves its outcome to its caller: it reads the kept
  * sessions' summaries at the save and applies the caller's changes in one transaction, after the
  * held settings are flushed; only its refusal for lack of space is also told to the failure
- * listener. A change to a kept session after its own save, and a read of the kept sessions at such
+ * listener. It carries the page-leaving signal the caller hands it, and stops before its next
+ * transaction once the page is going away (a session cut short by a reload or close is lost). A change to a kept session after its own save, and a read of the kept sessions at such
  * a change, run in the same line as the session saves (built in save-policy-kept-changes.ts). The
  * requests beyond saving (persistent storage, Your data, Delete everything) are built in
  * save-policy-requests.ts and defer to this policy's state.
@@ -73,9 +74,10 @@ export type {
 } from './save-policy-kept-changes'
 
 /**
- * What became of the session's own save: saved; refused by the port, with the refusal's kind; or
- * not attempted because saving is off for the visit (a refusal as outdated, which turns it off,
- * included). Resolved to the caller, apart from the failure listener.
+ * What became of the session's own save: saved; refused by the port, with the refusal's kind; not
+ * attempted because saving is off for the visit (a refusal as outdated, which turns it off,
+ * included); or abandoned because the page is going away, with nothing more read or written.
+ * Resolved to the caller, apart from the failure listener, which hears of no abandoned save.
  */
 // @spec-link [[module_kept_session_save]]
 // @spec-link [[rule_failed_save_never_disturbs_session]]
@@ -84,6 +86,16 @@ export type SessionSaveOutcome =
   | { readonly status: 'saved' }
   | { readonly status: 'refused'; readonly kind: SaveFailureKind }
   | { readonly status: 'saving-off' }
+  | { readonly status: 'abandoned' }
+
+/**
+ * Whether the page is going away (reloaded or closed), as the session's own save carries it from
+ * the workspace: once true, the save runs no further transaction. The policy reads no browser
+ * event.
+ */
+// @spec-link [[module_kept_session_save]]
+// @spec-link [[rule_most_recent_session_kept]]
+export type PageGoingAway = () => boolean
 
 /**
  * The changes of the session's own save, from the kept sessions' summaries read at the save, each
@@ -123,9 +135,11 @@ export interface SavePolicy extends VisitRequests {
    * read gives none, so nothing is deleted), then applies `changes` of them in one transaction.
    * Session saves run one after the other. Never rejects for a refusal: a refusal for lack of
    * space is also told to the failure listener, any other is not. While saving is off it reads
-   * and applies nothing. Changes holding no change are a defect.
+   * and applies nothing. `pageGoingAway` is checked before the read and before the batch: once
+   * it is true the save stops there and resolves `abandoned`, telling nothing to the failure
+   * listener. Changes holding no change are a defect.
    */
-  saveSession(changes: SessionChanges): Promise<SessionSaveOutcome>
+  saveSession(changes: SessionChanges, pageGoingAway: PageGoingAway): Promise<SessionSaveOutcome>
   /**
    * A change to kept sessions after their own save, in the same line as the session saves (so a
    * change made while a session's own save runs applies after it): once no session holds the
@@ -163,6 +177,7 @@ function initialState(status: StoragePortStatus): SavingState {
 
 const SESSION_SAVED: SessionSaveOutcome = Object.freeze({ status: 'saved' })
 const SESSION_SAVING_OFF: SessionSaveOutcome = Object.freeze({ status: 'saving-off' })
+const SESSION_ABANDONED: SessionSaveOutcome = Object.freeze({ status: 'abandoned' })
 
 /** Intent: the key a held change is coalesced under: its store and its record's key. */
 function recordKey(change: StorageChange): string {
@@ -319,20 +334,27 @@ export function createSavePolicy(port: StoragePort): SavePolicy {
   /**
    * Intent: the session's save, once no session holds the saves and no flush is being applied:
    * the summaries read, then the changes applied. A session started meanwhile makes it wait for
-   * that session's end and read again; saving off makes it read and apply nothing.
+   * that session's end and read again; saving off makes it read and apply nothing; the page going
+   * away, checked before each of its transactions, stops it there, abandoned.
    */
   // @spec-link [[module_kept_session_save]]
   // @spec-link [[rule_no_save_during_session]]
-  const runSessionSave = async (changes: SessionChanges): Promise<SessionSaveOutcome> => {
+  // @spec-link [[rule_most_recent_session_kept]]
+  const runSessionSave = async (
+    changes: SessionChanges,
+    pageGoingAway: PageGoingAway,
+  ): Promise<SessionSaveOutcome> => {
     for (;;) {
       await hold.whenNotHeld()
       if (releasing !== null) {
         await releasing
         continue
       }
+      if (pageGoingAway()) return SESSION_ABANDONED
       if (saving !== 'on') return SESSION_SAVING_OFF
       const kept = await keptSummaries()
       if (hold.isHeld() || releasing !== null) continue
+      if (pageGoingAway()) return SESSION_ABANDONED
       if (saving !== 'on') return SESSION_SAVING_OFF
       return applySession(changes(kept))
     }
@@ -407,7 +429,7 @@ export function createSavePolicy(port: StoragePort): SavePolicy {
     // @spec-link [[module_kept_session_save]]
     // @spec-link [[rule_failed_save_never_disturbs_session]]
     // @spec-link [[module_save_policy]]
-    saveSession: (changes) => inLine(() => runSessionSave(changes)),
+    saveSession: (changes, pageGoingAway) => inLine(() => runSessionSave(changes, pageGoingAway)),
     // @spec-link [[module_kept_session_changes]]
     // @spec-link [[module_save_policy]]
     changeKept: (changes, refusal) => inLine(() => keptChanges.change(changes, refusal)),

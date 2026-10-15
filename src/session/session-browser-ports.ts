@@ -1,7 +1,7 @@
 /**
  * The browser capabilities a session uses around its run, as injected ports: the screen wake lock
  * and the landscape orientation lock held from Start to the end, the page becoming hidden (which
- * ends a session), and the window's shape (which a session judges on every change). Production
+ * ends a session), the page going away (which stops that session's save), and the window's shape (which a session judges on every change). Production
  * supplies browser adapters (`src/components/workspace/browser-*.ts`); unit tests and the
  * workspace harness supply fakes (`tests/unit/session/fake-session-browser.ts`). No method here
  * shows anything to the player: a refused or unsupported lock is an outcome value, never an error.
@@ -60,6 +60,20 @@ export interface PageVisibility {
 }
 
 /**
+ * The page going away: reloaded, closed or left (the browser's `pagehide`). A session cut short
+ * that way is lost: its save checks this before each of its steps and stops with nothing written.
+ * A tab or app switch never counts.
+ */
+// @spec-link [[req_rolling_practice_session]]
+export interface PageLeaving {
+  /**
+   * Whether the page has begun going away. Once true it stays true for the rest of the page's
+   * life, a page brought back from the back-forward cache included.
+   */
+  readonly isGoingAway: () => boolean
+}
+
+/**
  * The window's shape, in CSS px, as the session window rule (`src/session/session-window.ts`)
  * judges it. `smallHeightPx` is the small viewport height (100svh, browser toolbars showing), so a
  * toolbar showing or hiding never changes it; `remPx` is the browser's initial font size, the rem
@@ -107,6 +121,7 @@ export interface SessionBrowserPorts {
   readonly wakeLock: ScreenWakeLock
   readonly orientationLock: OrientationLock
   readonly pageVisibility: PageVisibility
+  readonly pageLeaving: PageLeaving
   readonly windowShape: WindowShape
   readonly pageActivation: PageActivation
 }

@@ -7,8 +7,8 @@
  * part-way, and a programming error ends the session it hit before it propagates. The audio
  * interrupted ends whichever session runs, like Stop. An end with a review then saves the session,
  * after the release, without waiting for it (workspace-session-save.ts); that session becomes the
- * most recent one, kept as its save's outcome says once it is known, or not saved at once while
- * saving is off.
+ * most recent one, kept as its save's outcome says once it is known (not saved when the page went
+ * away before the save finished: a reload or close), or not saved at once while saving is off.
  */
 import type { SessionHistory } from '@/session/session-history'
 import type { SessionEndCause } from '@/session/session-types'
@@ -141,7 +141,7 @@ export function createSessionEnds(
     state.review = openedReview(reviewed)
     state.mostRecent = Object.freeze({ kind: 'held', session: reviewed })
     const saves = rows.savingThrough(core.deps.saveHold, () => findHeldSession(state, reviewed.key))
-    const saving = saveEndedSession(saves, session.history, save)
+    const saving = saveEndedSession(saves, core.deps.browser.pageLeaving, session.history, save)
     if (!savingOff) {
       void saving.then((outcome) => {
         settleKeeping(reviewed, outcome)

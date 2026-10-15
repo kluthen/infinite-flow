@@ -18,6 +18,13 @@
  * ended in its count-in brings `review-link` back to the most recent session, saved or held in
  * memory; after a reload `review-link` opens the readable kept session with the latest start.
  *
+ * From chunk 27, a session cut short by the page going away (spec D309): reloaded after phrase 1
+ * has sounded, it is never saved and the kept session stays; and after a `pagehide` that left the
+ * page alive (as one the back-forward cache brings back), its Review reads not saved and nothing
+ * is written. The harness's page visibility is a fake that does not follow the browser's, so a
+ * spec hides it from a `pagehide` listener added after the app's, as the browser hides the page
+ * right after `pagehide`, in the same task.
+ *
  * A pinned session and an unreadable one are seeded through the harness's storage seam.
  */
 import { expect, test, type Locator, type Page } from '@playwright/test'
@@ -157,6 +164,24 @@ function notices(page: Page): Locator {
 async function untilKept(page: Page, count: number): Promise<string[]> {
   await expect.poll(async () => (await keptKeys(page)).length).toBe(count)
   return keptKeys(page)
+}
+
+/**
+ * Intent: from now on, hide the harness's fake page right after each `pagehide` the app hears, as
+ * the browser fires `visibilitychange` to hidden right after it.
+ */
+function hideOnPageHide(page: Page): Promise<void> {
+  return page.evaluate(() => {
+    window.addEventListener('pagehide', () => window.__workspaceHarness.page.setHidden(true))
+  })
+}
+
+/** Intent: close the Review shown, then start a session and play until phrase 1 has sounded. */
+async function nextSessionSounded(page: Page): Promise<void> {
+  await expectIdleReady(page)
+  await sessionAction(page).click()
+  await startSession(page)
+  await playUntilPhrase(page, 1)
 }
 
 /**
@@ -411,4 +436,54 @@ test('after a reload, review-link opens the readable kept session with the lates
   await expect(reviewTitle(page)).toHaveText('Last session')
   await expect(keepLine(page)).toHaveText(PINNED)
   expect((await sessionState(page)).review).toEqual({ showing: true, phraseCount: 2 })
+})
+
+// @test-link [[module_kept_session_save]]
+// @test-link [[rule_most_recent_session_kept]]
+// @test-link [[req_rolling_practice_session]]
+test.describe('a session cut short by the page going away', () => {
+  test('reloaded after phrase 1 has sounded: no new kept session, the kept one stays and opens', async ({
+    page,
+  }) => {
+    test.setTimeout(120_000)
+    await gotoStorageHarness(page)
+    await sessionEndedAfter(page, 1)
+    const kept = await untilKept(page, 1)
+    const summaries = await keyedRecords(page, 'sessionSummaries')
+    await nextSessionSounded(page)
+    await hideOnPageHide(page)
+
+    await reloadHarness(page)
+
+    expect(await keyedRecords(page, 'sessionSummaries')).toEqual(summaries)
+    expect((await keyedRecords(page, 'sessionBodies')).map(({ key }) => key)).toEqual(kept)
+    expect((await sessionState(page)).mostRecent).toEqual({ kind: 'kept', key: kept[0] })
+    await reviewLink(page).click()
+    await expect(reviewTitle(page)).toBeFocused()
+    await expect(keepLine(page)).toHaveText(NOT_PINNED)
+    expect((await sessionState(page)).review).toEqual({ showing: true, phraseCount: 1 })
+  })
+
+  test('a pagehide that leaves the page alive: the Review reads not saved and nothing is written', async ({
+    page,
+  }) => {
+    test.setTimeout(120_000)
+    await installTransactionSpy(page)
+    await gotoStorageHarness(page)
+    await sessionEndedAfter(page, 1)
+    const kept = await untilKept(page, 1)
+    await nextSessionSounded(page)
+    await hideOnPageHide(page)
+
+    await setPhase(page, 'leaving')
+    await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent('pagehide')))
+    await expectReviewShowing(page, 1)
+    await expect(keepLine(page)).toHaveText(NOT_SAVED)
+    await page.waitForTimeout(SETTLE_MS)
+
+    expect(await transactionsIn(page, 'leaving')).toEqual([])
+    await expect(page.locator('.app-notice-row')).toHaveCount(0)
+    await expect(keepLine(page)).toHaveText(NOT_SAVED)
+    expect(await keptKeys(page)).toEqual(kept)
+  })
 })
