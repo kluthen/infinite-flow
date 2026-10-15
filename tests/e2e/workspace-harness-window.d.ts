@@ -723,6 +723,18 @@ interface WorkspaceHarnessStorageApi {
    */
   seedPlayedNotes: (key: string) => Promise<void>
   /**
+   * Copy the kept session stored under `from` (its session-wide record and body) under `key`, its
+   * start set to `startedAt`. With `newer`, the copy is as a newer version of the app would have
+   * written it: one data version up, with a field this version does not know, written straight to
+   * IndexedDB (the port refuses it) without upgrading the database, so this tab stays current.
+   * Throws when no kept session is stored under `from`.
+   */
+  seedKeptSessionCopy: (
+    from: string,
+    key: string,
+    copy: { readonly startedAt: number; readonly newer: boolean },
+  ) => Promise<void>
+  /**
    * Delete the kept session under `key` (its session-wide record, body and played notes), as a
    * deletion made elsewhere would, in one batch.
    */
@@ -738,6 +750,12 @@ interface WorkspaceHarnessStorageApi {
    * left) or `other`; null to let them through again. Seeds are never refused.
    */
   refuseSaves: (kind: 'quota' | 'other' | null) => void
+  /**
+   * Make the app's port refuse, as `other`, each read of a kept session's body from now on (the
+   * read opening a kept session makes), while `on`; the load's reads never read a body. Seeds and
+   * `records` / `keyedRecords` are never refused.
+   */
+  refuseKeptSessionReads: (on: boolean) => void
   /** How many writes, deletes and batches reached the app's port since the load, refused or not. */
   portChanges: () => number
   /**

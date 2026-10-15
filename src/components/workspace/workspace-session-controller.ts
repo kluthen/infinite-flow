@@ -215,6 +215,9 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     get keptRows(): readonly KeptSessionRow[] {
       return rows.rows()
     },
+    get keptSessionsUnreadable(): boolean {
+      return deps.keptSessions.startedFromDefaults
+    },
   })
   const core: SessionControllerCore = {
     deps,

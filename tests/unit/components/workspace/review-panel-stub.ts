@@ -1,9 +1,9 @@
 /**
  * A stand-in for the lazily loaded Review panel in the workspace specs, so they never need the
  * panel's observers or engraver (ReviewPanel*.spec.ts cover the real one): it takes the real
- * panel's props and events, renders its title, and, when the session holds a played note,
- * `Keep my played notes` and (when deletable) `Delete played notes`, emitting as the real ones do,
- * and exposes the same focus functions. A spec swaps it
+ * panel's props and events, renders `All sessions`, its title, `Delete session` (when offered)
+ * and, when the session holds a played note, `Keep my played notes` and (when deletable) `Delete
+ * played notes`, emitting as the real ones do, and exposes the same focus functions. A spec swaps it
  * in with `vi.mock('@/components/review/ReviewPanel.vue', () => import('./review-panel-stub'))`.
  */
 import { defineComponent, h, ref, type PropType } from 'vue'
@@ -43,6 +43,7 @@ const ReviewPanelStub = defineComponent({
       default: null,
     },
     scope: { type: String as PropType<ReviewExportScope>, required: true },
+    canDeleteSession: { type: Boolean, default: false },
   },
   emits: [
     'update:format',
@@ -52,11 +53,14 @@ const ReviewPanelStub = defineComponent({
     'update:includeVeryShortNotes',
     'update:scope',
     'delete-played-notes',
+    'delete-session',
+    'all-sessions',
   ],
   setup(props, { expose, emit }) {
     const title = ref<HTMLElement | null>(null)
     const keep = ref<HTMLElement | null>(null)
     const remove = ref<HTMLElement | null>(null)
+    const removeSession = ref<HTMLElement | null>(null)
     /** Intent: focus `target`, which must be rendered. */
     const focus = (target: HTMLElement | null, name: string): void => {
       if (target === null) throw new Error(`review panel stub: no ${name}`)
@@ -66,10 +70,19 @@ const ReviewPanelStub = defineComponent({
       focusTitle: () => focus(title.value, 'title'),
       focusKeepPlayedNotes: () => focus(keep.value, 'Keep my played notes'),
       focusDeletePlayedNotes: () => focus(remove.value, 'Delete played notes'),
+      focusDeleteSession: () => focus(removeSession.value, 'Delete session'),
     })
     return () =>
       h('section', { class: 'review-panel' }, [
+        h('button', { onClick: () => emit('all-sessions') }, 'All sessions'),
         h('h2', { ref: title, class: 'review-title', tabindex: '-1' }, 'Last session'),
+        props.canDeleteSession
+          ? h(
+              'button',
+              { ref: removeSession, onClick: () => emit('delete-session') },
+              'Delete session',
+            )
+          : null,
         props.holdsPlayedNote
           ? h('div', { class: 'review-view' }, [
               h(

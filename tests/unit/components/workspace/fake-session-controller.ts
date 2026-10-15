@@ -181,6 +181,7 @@ export function createFakeSessionController(
     readingMostRecent: false,
     keptRows: [],
     listShowing: false,
+    keptSessionsUnreadable: false,
     openingKey: null,
     sessionStaff: null,
     latestReady: null,
@@ -235,6 +236,14 @@ export function createFakeSessionController(
   })
   const dispose = vi.fn((): void => {})
   const closeReview = vi.fn((): void => {
+    if (state.listShowing) {
+      state.listShowing = false
+      if (state.startBlocker === 'review_showing') {
+        state.canStart = true
+        state.startBlocker = null
+      }
+      return
+    }
     if (state.review?.showing !== true) throw new Error('fake controller: no Review shows')
     state.review = { ...state.review, showing: false }
     if (state.startBlocker === 'review_showing') {
@@ -317,6 +326,7 @@ export function createFakeSessionController(
     changed((review) => ({ ...review, comment: comment.trim() })),
   )
   const deleteSession = vi.fn((): Promise<SessionDeletion> => {
+    if (state.review?.showing === true) state.listShowing = true
     state.review = null
     state.mostRecent = null
     return Promise.resolve('deleted')

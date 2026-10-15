@@ -259,9 +259,15 @@ export function createKeptSessionEdits(
     return saved(key, () => changeKeptComment(kept.changes, key, comment))
   }
 
-  /** Intent: drop the session under `key` from memory: the Review, the most recent session. */
+  /**
+   * Intent: drop the session under `key` from memory: the Review, which the session list replaces
+   * when it showed, and the most recent session.
+   */
   const forget = (key: string): void => {
-    if (state.review?.key === key) state.review = null
+    if (state.review?.key === key) {
+      if (state.review.showing) state.listShowing = true
+      state.review = null
+    }
     const recent = state.mostRecent
     if (recent !== null && (recent.kind === 'held' ? recent.session.key : recent.key) === key)
       state.mostRecent = null

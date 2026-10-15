@@ -1,7 +1,8 @@
 /**
- * The workspace shell's moves in and out of the last session's Review: `Close review` and `Review
- * last session` (each scrolling the page instantly to its top, then moving focus), and the focus a
- * session start leaves behind when it removes a focused `review-link`. The shell owns the elements
+ * The workspace shell's moves in and out of the review mode: `Close review`, `Review last session`
+ * and the cue row's `All sessions` (each scrolling the page instantly to its top, then moving
+ * focus; a `Review last session` whose read fails shows the list instead, spec D307), and the focus
+ * a session start leaves behind when it removes a focused cue-row link. The shell owns the elements
  * focus lands on; this holds only the order of the steps and the choice of target.
  */
 import { nextTick, watch } from 'vue'
@@ -27,16 +28,20 @@ export interface ReviewNavigationDependencies {
   readonly sessionActive: () => boolean
   readonly header: () => ReviewNavigationHeader
   readonly scrollToPageTop: () => void
-  /** Focus `review-title`, at once if the panel is mounted, else once it mounts. */
+  /**
+   * Focus the title of the level that shows (`review-title` of the Review or of the list), at once
+   * if it is mounted, else once it mounts.
+   */
   readonly focusReviewTitle: () => void
   readonly focusTarget: (target: SessionEndFocusTarget) => void
 }
 
-/** The two moves the shell binds to `Close review` and `Review last session`. */
+/** The moves the shell binds to `Close review`, `Review last session` and `All sessions`. */
 // @spec-link [[req_last_session_review]]
 export interface ReviewNavigation {
   readonly closeReview: () => Promise<void>
   readonly showReview: () => Promise<void>
+  readonly showSessions: () => void
 }
 
 /**
@@ -70,21 +75,34 @@ export function useReviewNavigation(deps: ReviewNavigationDependencies): ReviewN
   /**
    * Intent: `Review last session`: the most recent session's Review shows (at once when held in
    * memory, once read when kept on the device), the page scrolls instantly to its top, then focus
-   * moves to `review-title` once the panel is mounted. When it cannot be read, or a session started
-   * meanwhile, nothing moves.
+   * moves to `review-title` once the panel is mounted. When its read fails, the session list shows
+   * instead, that session's row marked as failed to open, focus on the list's title (spec D307);
+   * when a session started meanwhile, nothing moves.
    */
   // @spec-link [[req_last_session_review]]
   // @spec-link [[req_kept_session_review]]
+  // @spec-link [[module_kept_session_reach]]
   async function showReview(): Promise<void> {
-    if ((await deps.controller().showReview()) !== 'shown') return
+    if ((await deps.controller().showReview()) === 'superseded') return
     deps.scrollToPageTop()
     deps.focusReviewTitle()
   }
 
   /**
-   * Intent: a session start removes `review-link`; if it had focus (the starting note started the
-   * session, with no click on the page), focus moves to the session action once it is rendered.
-   * Run before the render, while `review-link` is still there to hold focus.
+   * Intent: the cue row's `All sessions`: the session list shows in the review mode, the page
+   * scrolls instantly to its top, and focus moves to the list's title.
+   */
+  // @spec-link [[req_kept_session_list]]
+  function showSessions(): void {
+    deps.controller().showList()
+    deps.scrollToPageTop()
+    deps.focusReviewTitle()
+  }
+
+  /**
+   * Intent: a session start removes `review-link` and `sessions-link`; if one had focus (the
+   * starting note started the session, with no click on the page), focus moves to the session
+   * action once it is rendered. Run before the render, while the link is still there to hold focus.
    */
   // @spec-link [[rule_new_session_discards_review]]
   async function focusSessionActionWhenReviewLinkLeaves(
@@ -92,12 +110,14 @@ export function useReviewNavigation(deps: ReviewNavigationDependencies): ReviewN
     wasActive: boolean,
   ): Promise<void> {
     if (!active || wasActive) return
-    if (document.activeElement?.classList.contains('review-link') !== true) return
+    const focused = document.activeElement?.classList
+    if (focused?.contains('review-link') !== true && focused?.contains('sessions-link') !== true)
+      return
     await nextTick()
     deps.focusTarget('session-action')
   }
 
   watch(deps.sessionActive, focusSessionActionWhenReviewLinkLeaves)
 
-  return { closeReview, showReview }
+  return { closeReview, showReview, showSessions }
 }

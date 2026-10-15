@@ -357,7 +357,7 @@ describe('session controller: opening a kept session by its key', () => {
 
   // @test-link [[module_kept_session_reach]]
   // @test-link [[req_last_session_review]]
-  it("Review last session's refused read marks the most recent session's row as failed to open", async () => {
+  it("Review last session's refused read shows the list, the most recent session's row failed to open", async () => {
     const fake = fakeKept()
     const rig = reloaded(fake)
     const refused = deferred<StoredKeptSession>()
@@ -367,6 +367,8 @@ describe('session controller: opening a kept session by its key', () => {
     refused.fail(new StorageError('other', 'refused'))
 
     await expect(showing).resolves.toBe('failed')
+    expect(rig.controller.state.listShowing).toBe(true)
+    expect(rig.controller.state.review).toBeNull()
     expect(rig.controller.state.keptRows[0]).toEqual(
       expect.objectContaining({ key: 'newest', failedToOpen: true }),
     )
@@ -476,6 +478,20 @@ describe('session controller: a pin, an unpin and Delete session from a row, not
     await expect(rig.controller.deleteSession('middle')).resolves.toBe('refused')
 
     expect(rowKeys(rig)).toEqual(['newest', 'middle', 'pinned'])
+  })
+
+  // @test-link [[req_kept_session_list]]
+  it('Delete session of the showing Review shows the list in its place', async () => {
+    const fake = fakeKept()
+    const rig = reloaded(fake)
+    rig.controller.showList()
+    await rig.controller.openSession('middle')
+
+    await expect(rig.controller.deleteSession('middle')).resolves.toBe('deleted')
+
+    expect(rig.controller.state.review).toBeNull()
+    expect(rig.controller.state.listShowing).toBe(true)
+    expect(rowKeys(rig)).toEqual(['newest', 'pinned'])
   })
 
   // @test-link [[rule_most_recent_session_kept]]

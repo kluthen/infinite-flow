@@ -6,7 +6,9 @@
  * rejected import (a lazy chunk failing to fetch) clears the memo before rethrowing, so the next
  * caller tries again. The confirmation sheet a Review opens, with its words, loads the same way
  * through `loadReviewConfirmationSheet()`, in a chunk of its own, and so does the review area that
- * holds the panel and the sheet over the score panel, through `loadReviewArea()`.
+ * holds the panel and the sheet over the score panel, through `loadReviewArea()`. The session list
+ * (./SessionList.vue, ./SessionRow.vue), the review mode's other level, ships in the review area's
+ * chunk: only the area imports it, so it loads with the Review's code, on demand.
  */
 
 /** The Review panel component, typed by its module (a type-only reference, erased in the build). */
@@ -74,8 +76,8 @@ export type ReviewAreaComponent =
 let areaPromise: Promise<ReviewAreaComponent> | null = null
 
 /**
- * Intent: the review area component, with the Review's exports, played-notes side and session
- * tools, loaded once and shared by every caller. Safe to call speculatively (at a session's start)
+ * Intent: the review area component, with the Review's exports, played-notes side, session tools
+ * and the session list, loaded once and shared by every caller. Safe to call speculatively (at a session's start)
  * to absorb the fetch ahead of the Review opening. A rejected import clears the memo before
  * rethrowing.
  */

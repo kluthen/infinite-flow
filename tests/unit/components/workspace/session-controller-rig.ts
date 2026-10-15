@@ -407,6 +407,7 @@ export function controllerRig(
         throw new Error(`rig: no kept session "${key}" can be read`)
       },
       savingOff: () => false,
+      startedFromDefaults: false,
       changes: {
         changeKept: () => {
           throw new Error('rig: no change to a kept session is asked for')

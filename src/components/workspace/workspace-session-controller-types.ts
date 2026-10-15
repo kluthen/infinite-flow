@@ -191,6 +191,8 @@ export interface SessionControllerState {
   readonly keptRows: readonly KeptSessionRow[]
   /** The session list shows, in the review mode's place of a Review. */
   readonly listShowing: boolean
+  /** The kept sessions could not be read in this visit (it started from the defaults). */
+  readonly keptSessionsUnreadable: boolean
   /** The key of the kept session a row's opening is reading; null with none pending. */
   // @spec-link [[req_kept_session_review]]
   readonly openingKey: string | null
@@ -289,7 +291,7 @@ export interface SessionController {
   /**
    * Show the most recent session's Review (`Review last session`): at once when it is held in
    * memory, after reading it from the device when it is kept. Resolves what became of it; a read
-   * that does not give it marks its row as failed to open. Throws unless a most recent session
+   * that does not give it shows the list instead, its row marked as failed to open. Throws unless a most recent session
    * exists, neither the Review nor the list shows, no session runs and no read is under way.
    */
   readonly showReview: () => Promise<SessionOpening>
@@ -343,8 +345,9 @@ export interface SessionController {
    */
   readonly setComment: (key: string, comment: string) => Promise<void>
   /**
-   * Delete the session under `key`: from the device, then from memory (its row, the Review and,
-   * when it is the most recent session, that too, leaving none); one held in memory only because
+   * Delete the session under `key`: from the device, then from memory (its row, the Review, which
+   * the list replaces when it showed, and, when it is the most recent session, that too, leaving
+   * none); one held in memory only because
    * its save failed, from memory alone; one not held, through its row, without reading its body.
    * Throws unless at Idle with saving on and that session held or with a row this version reads.
    */

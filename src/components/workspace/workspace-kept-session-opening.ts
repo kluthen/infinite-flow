@@ -97,8 +97,8 @@ export function createReviewMode(
    * Intent: `Review last session`: the most recent session's Review shows, only at Idle; else
    * throws. One held in memory shows at once. A kept one is read first by its key, the read shown
    * as under way; once read it is held in memory and shows, unless a session started or the most
-   * recent session changed meanwhile ('superseded'); a read that does not give it shows nothing
-   * and marks its row as failed to open ('failed').
+   * recent session changed meanwhile ('superseded'); a read that does not give it shows the list
+   * instead, its row marked as failed to open ('failed').
    */
   // @spec-link [[req_last_session_review]]
   // @spec-link [[req_kept_session_review]]
@@ -129,7 +129,11 @@ export function createReviewMode(
     } finally {
       state.readingMostRecent = false
     }
-    if (read === null) return 'failed' as const
+    if (read === null) {
+      // The list shows instead, that session's row marked as failed to open (spec D307).
+      if (state.phase === 'idle' && state.review?.showing !== true) state.listShowing = true
+      return 'failed' as const
+    }
     if (state.mostRecent !== recent || state.phase !== 'idle') return 'superseded' as const
     state.mostRecent = Object.freeze({ kind: 'held', session: read })
     show(read)

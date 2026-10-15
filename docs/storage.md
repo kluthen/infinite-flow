@@ -724,12 +724,14 @@ phraseNumber, favorite, appVersion)` rewrites the body with that one mark, every
 - **Persistent storage.** A favorite marked and a pin each ask the policy's `requestProtection()`,
   which asks the browser at most once per visit (see [Persistent storage](#persistent-storage)).
 
-In the Review (`use-review-played-notes.ts`, beside the Review host), `Keep my played notes` and
+In the Review (`use-review-played-notes.ts`, the review area's side in `use-review-area.ts`, loaded
+on demand with the Review's code), `Keep my played notes` and
 `Delete played notes` sit in `review-view` after `Played notes`. Turning the switch saves the
 `keepPlayedNotes` setting through the visit's saves, then hands it to the controller; a deletion
 the controller asks for, or `Delete played notes`, opens the shared confirmation sheet
 (`ConfirmationSheet.vue`, its words in `review-confirmation-copy.ts`), which a refused deletion
-keeps open with its error and which closes, deleting nothing, when saving turns off.
+keeps open with its error and which closes, deleting nothing, when saving turns off. A deletion
+under way when the player closes its sheet finishes all the same (ux D316).
 
 ## The most recent session
 

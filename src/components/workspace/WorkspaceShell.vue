@@ -303,7 +303,8 @@ const workspaceFocus = useWorkspaceFocus({
   focusAfterConnectionSheet: () => focusParts().header.focusAfterConnectionSheet(),
 })
 
-// The Review's moves: `Close review`, `Review last session`, and a start from a focused review-link.
+// The review mode's moves: `Close review`, `Review last session`, `All sessions` from the cue row,
+// and a start from a focused cue-row link.
 const reviewNavigation = useReviewNavigation({
   controller: requireController,
   idle: () => state.value,
@@ -389,6 +390,8 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
         :saved-review-preferences="savedReviewPreferences"
         @stop-session="handleStopSession"
         @show-review="reviewNavigation.showReview"
+        @show-sessions="reviewNavigation.showSessions"
+        @scroll-to-top="props.scrollToPageTop()"
       />
       <ControlPanel
         :controls="shownSettings.controls"
