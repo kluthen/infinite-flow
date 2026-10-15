@@ -3,11 +3,15 @@
  * whose browser state (MIDI permission, devices plugged in) is set in the URL so a reload keeps it
  * as a browser does. The last controller the player chose is reattached at load with no prompt and
  * no sheet, only when MIDI access is already allowed, matched on its port id; `Disconnect` forgets
- * it; a visit that saves nothing neither remembers nor forgets (spec D318).
+ * it; a visit that saves nothing neither remembers nor forgets (spec D318); and after a load its
+ * starting note waits for the page's first click, tap or key press.
  */
 import { expect, test, type Page } from '@playwright/test'
 
+import { sessionAction, sessionState } from '../session/session-helpers'
 import {
+  audioUnlocked,
+  CHECK,
   clickControllerStatus,
   connectThroughSheet,
   controllerStatus,
@@ -17,6 +21,7 @@ import {
   KEYS,
   midiState,
   PAD,
+  play,
   plug,
   requestCount,
   sheet,
@@ -137,6 +142,28 @@ test.describe('the remembered controller at load', () => {
     await expect.poll(() => statusForm(page)).toEqual(FORM.connect)
   })
 
+  // @test-link [[rule_controller_transposition_check]]
+  test('reattached at load, its check hears the controller though no click unlocked the audio', async ({
+    page,
+  }) => {
+    const expectNoPageErrors = watchPageErrors(page)
+    await rememberKeys(page)
+    await page.reload()
+    await page.waitForFunction(() => window.__workspaceHarness?.session.loaded() === true)
+    await expect.poll(() => statusForm(page)).toEqual(FORM.connected(KEYS.name))
+
+    await clickControllerStatus(page)
+    await expect(sheet(page).locator('#sheet-title')).toHaveText('Controller connected')
+    await sheetAction(page, 'Run check again').click()
+    await expect(sheet(page).locator('#sheet-title')).toHaveText('Check your controller')
+    await play(page, KEYS, CHECK.tenor.concert)
+    await sheetAction(page, 'Continue').click()
+
+    await expect(sheet(page).locator('#sheet-title')).toHaveText('Controller connected')
+    expect(await audioUnlocked(page)).toBe(false)
+    expectNoPageErrors()
+  })
+
   test('chosen through the sheet goes straight to Connected among several inputs', async ({
     page,
   }) => {
@@ -208,5 +235,51 @@ test.describe('a visit that saves nothing neither remembers nor forgets (spec D3
     await page.waitForFunction(() => window.__workspaceHarness?.session.loaded() === true)
     await expect.poll(() => midiState(page)).toEqual({ kind: 'connected', device: KEYS })
     await expect(controllerStatus(page)).toBeVisible()
+  })
+})
+
+// @test-link [[rule_starting_note_waits_for_first_gesture]]
+// @test-link [[rule_midi_starting_note]]
+test.describe('the starting note after a load', () => {
+  test("starts nothing before the page's first click; after one, it starts a session, with sound", async ({
+    page,
+  }) => {
+    const expectNoPageErrors = watchPageErrors(page)
+    await rememberKeys(page)
+    await page.reload()
+    await page.waitForFunction(() => window.__workspaceHarness?.session.loaded() === true)
+    await expect.poll(() => midiState(page)).toEqual({ kind: 'connected', device: KEYS })
+
+    // Reach Ready with no click, tap or key press: a script's click() fires no input event, so the
+    // page has had no first click (in practice the player's Generate phrase click is one).
+    await page.evaluate(() => {
+      const generate = Array.from(document.querySelectorAll('.layout-header button')).find(
+        (button) => button.textContent?.trim() === 'Generate phrase',
+      )
+      if (!(generate instanceof HTMLButtonElement)) throw new Error('no Generate phrase button')
+      generate.click()
+    })
+    const line = page.locator('.session-cue-row p.start-note-line')
+    await expect(line).toHaveText(/^\s*Click the page once, then play this note to start: \S+\s*$/)
+    const starting = (await sessionState(page)).startingNote
+    if (starting === null) throw new Error('no starting note is named')
+
+    await play(page, KEYS, starting.concertPitch)
+    expect((await sessionState(page)).phase).toBe('idle')
+    expect(await audioUnlocked(page)).toBe(false)
+    await expect(line).toHaveText(/^\s*Click the page once/)
+
+    // The first click, on the line itself: it makes no sound and creates no audio context.
+    await line.click()
+    await expect(line).toHaveText(/^\s*Play this note to start: \S+\s*$/)
+    expect(await audioUnlocked(page)).toBe(false)
+
+    await play(page, KEYS, starting.concertPitch)
+    await expect(sessionAction(page)).toHaveText('Stop')
+    expect((await sessionState(page)).phase).toBe('count-in')
+    expect(await audioUnlocked(page)).toBe(true)
+    expect(await page.evaluate(() => window.__workspaceHarness.audio.isRunning())).toBe(true)
+    await sessionAction(page).click()
+    expectNoPageErrors()
   })
 })

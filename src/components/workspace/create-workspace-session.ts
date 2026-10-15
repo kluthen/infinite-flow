@@ -42,6 +42,7 @@ import { createMidiController } from '@/midi/midi-controller'
 import { createWebMidiAccessProvider } from '@/midi/web-midi-access'
 import { createBrowserWakeTimerWorker, createWorkerWakeTimer } from '@/audio/worker-wake-timer'
 import { createBrowserViewportWidth } from './browser-viewport-width'
+import { createBrowserPageActivation } from './browser-page-activation'
 import { createBrowserPageVisibility } from './browser-page-visibility'
 import { createBrowserOrientationLock, createBrowserScreenWakeLock } from './browser-screen-locks'
 import { createBrowserWindowShape } from './browser-window-shape'
@@ -337,7 +338,8 @@ export function createWorkspaceSession(
   const audio = createBrowserAudioTransport({ loadedMix: () => options.savedData.settings.mix })
   const midi = createMidiController({
     provider: createWebMidiAccessProvider(navigator),
-    clock: { anchor: () => audio.clockAnchor() },
+    // No audio clock until the audio is unlocked: a note then waits for the starting note's unlock.
+    clock: { anchor: () => (audio.isUnlocked() ? audio.clockAnchor() : null) },
   })
   return composeWorkspaceSession({
     providers: {
@@ -357,6 +359,7 @@ export function createWorkspaceSession(
       orientationLock: createBrowserOrientationLock(),
       pageVisibility: createBrowserPageVisibility(),
       windowShape: createBrowserWindowShape(),
+      pageActivation: createBrowserPageActivation(),
     },
     sessionClock: {
       createWakeTimer: () => createWorkerWakeTimer(createBrowserWakeTimerWorker()),

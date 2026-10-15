@@ -106,12 +106,19 @@ export function useConnectionSheetDriver(
   const unsubscribeNotes = midi.onPlayedNote((event) => {
     if (event.kind === 'played') dispatch({ kind: 'note-played', pitch: event.note.pitch })
   })
+  // A controller reattached at load plays with the audio still locked: its notes have no time on
+  // the audio clock, but the check needs only their pitch, so it hears those too.
+  // @spec-link [[rule_controller_transposition_check]]
+  const unsubscribeUnclockedNotes = midi.onUnclockedNoteOn((pitch) => {
+    dispatch({ kind: 'note-played', pitch })
+  })
 
   /** Intent: stop listening to the controller and ignore late outcomes once the sheet is gone. */
   onBeforeUnmount(() => {
     mounted = false
     unsubscribeChanges()
     unsubscribeNotes()
+    unsubscribeUnclockedNotes()
   })
 
   return { model, dispatch }

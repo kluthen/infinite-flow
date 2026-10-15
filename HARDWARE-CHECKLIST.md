@@ -347,6 +347,28 @@ how long the first draw waits for the saved data before starting from the defaul
       fully and reopen the app: the workspace appears once, already in the saved theme and
       values, with no flash of the defaults. Note how long the page showed only its background.
 
+## H4. Remembered controller (chunk 22; about 10 min)
+
+The Travel Sax over USB, the reference machine, Chromium, a production build or `npm run dev`. The
+app reattaches the last controller you chose at load, without asking, only when Chromium already
+allows MIDI access for the page; it matches it on the port id Chromium gives it, never by its
+name.
+
+- [ ] Connect the Travel Sax through `Connect controller` (allow MIDI access if Chromium asks),
+      close the sheet, then reload the page: the header shows the Travel Sax's badge with no
+      prompt and no sheet. If it shows `Connect controller` or `No controller` while the Travel
+      Sax is plugged in, Chromium did not keep the port's id across the reload: note it for the
+      owner (a spec question; the app never matches by name instead).
+- [ ] Right after the reload, before any click or key press, play a few notes on the Travel Sax:
+      nothing happens and nothing sounds. Click `Generate phrase` (the page's first click), then
+      play the starting note: a session starts, the count-in's clicks audible. Chromium made the
+      sound from the note itself, after that click; if the count-in is silent or nothing starts,
+      note it for the owner.
+- [ ] Unplug the Travel Sax: the badge reads `No controller`; plug it back in: its badge returns,
+      no sheet.
+- [ ] Open the sheet from the badge, `Disconnect`, reload: the header shows `Connect controller`
+      and nothing reattaches.
+
 ## H6. Pre-generation at 240 BPM (chunk 24; about 10 min)
 
 On the reference machine, then the tablet on battery if at hand. Production build or `npm run dev`;

@@ -110,7 +110,10 @@ export function createHarnessMidi(
   const { provider, fake } = midiModeParts(mode)
   const controller = createMidiController({
     provider,
-    clock: { anchor: () => audio.transport.clockAnchor() },
+    // As in the app: no audio clock until the audio is unlocked.
+    clock: {
+      anchor: () => (audio.transport.isUnlocked() ? audio.transport.clockAnchor() : null),
+    },
   })
   const played: WorkspaceHarnessPlayedNote[] = []
   const ended: WorkspaceHarnessEndedNote[] = []

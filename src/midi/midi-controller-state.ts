@@ -4,6 +4,7 @@
  * none of them blocks a session.
  */
 
+import type { ConcertPitch } from '../domain/events/concert-pitch'
 import type { AudioTime } from '../session/session-types'
 import type { MidiPermissionState } from './midi-access-port'
 import type { PlayedNoteEvent, PlayedNoteEvents } from './played-note-tracker'
@@ -112,6 +113,14 @@ export interface MidiController {
   readonly releaseReattachment: () => void
   readonly subscribe: (listener: (change: MidiControllerChange) => void) => () => void
   readonly onPlayedNote: (listener: (event: PlayedNoteEvent) => void) => () => void
+  /**
+   * Hear each note-on from the connected controller that comes while the audio clock is not
+   * running, before it is dropped: a listener may start the clock (the starting note after the
+   * page's first click), and the note is then read as usual, or use only its pitch (the
+   * connection sheet's transposition check). Returns its removal.
+   */
+  // @spec-link [[req_midi_controller_input]]
+  readonly onUnclockedNoteOn: (listener: (pitch: ConcertPitch) => void) => () => void
   /**
    * End every held note and return the ended notes (also told to the note listeners). They end at
    * `at`, or at the last time mapped from the current selection's messages when that is later:

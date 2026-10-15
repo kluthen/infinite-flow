@@ -17,6 +17,7 @@
  */
 
 import type { ClockAnchor } from '../audio/audio-ports'
+import type { ConcertPitch } from '../domain/events/concert-pitch'
 import type { AudioTime } from '../session/session-types'
 import type {
   MidiAccessPort,
@@ -42,11 +43,14 @@ import {
 
 export type { MidiController }
 
-/** What the controller needs: where MIDI access comes from, and the audio clock's anchor. */
+/**
+ * What the controller needs: where MIDI access comes from, and the audio clock's anchor, null
+ * while the audio clock is not running (the page's audio not unlocked yet).
+ */
 // @spec-link [[req_midi_controller_input]]
 export interface MidiControllerDeps {
   readonly provider: MidiAccessProvider
-  readonly clock: { readonly anchor: () => ClockAnchor }
+  readonly clock: { readonly anchor: () => ClockAnchor | null }
 }
 
 /** Where the MIDI access request stands; once `granted`, the selection decides the state. */
@@ -80,6 +84,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
   const tracker = createPlayedNoteTracker()
   const changeListeners = createListeners<MidiControllerChange>()
   const noteListeners = createListeners<PlayedNoteEvent>()
+  const unclockedListeners = createListeners<ConcertPitch>()
   const listened = new WeakSet<MidiInputPort>()
   let phase: AccessPhase = provider.isSupported() ? 'not-requested' : 'unsupported'
   let access: MidiAccessPort | undefined
@@ -97,6 +102,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
   let reselectedAtLoad = false
   // While the load's request is in flight, a connect() adopts it rather than asking again.
   let loadRequestAdoptable = false
+  let loadRequestAdopted = false
   let lastMappedAt: AudioTime | undefined
   let lastReported = changeKey(snapshot())
 
@@ -194,6 +200,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
     const adoptable = connectAbandoned || loadRequestAdoptable
     if (phase === 'requesting' && adoptable && connectInFlight !== undefined) {
       connectAbandoned = false
+      if (loadRequestAdoptable) loadRequestAdopted = true
       loadRequestAdoptable = false
       return connectInFlight
     }
@@ -288,6 +295,11 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
    */
   // @spec-link [[rule_last_controller_remembered]]
   function reselect(device: MidiDevice): Promise<void> {
+    // Without Web MIDI there is nothing to reselect: Connect controller shows, nothing is asked.
+    if (phase === 'unsupported' && !reselectStarted) {
+      reselectStarted = true
+      return Promise.resolve()
+    }
     if (reselectStarted || phase !== 'not-requested' || remembered !== undefined) {
       return Promise.reject(
         new MidiControllerError(
@@ -317,7 +329,8 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
   /**
    * Intent: the load's one request, which cannot prompt, then the remembered port selected if
    * present, else awaited (away) until it appears. A refused request leaves the player to connect
-   * (not-requested, or unsupported when the browser says so); a broken one goes back to
+   * (not-requested, or unsupported when the browser says so), unless a Connect controller click
+   * adopted it, which then sees the refusal as its own (denied); a broken one goes back to
    * not-requested and propagates. Neither keeps the reselection.
    */
   // @spec-link [[rule_last_controller_remembered]]
@@ -337,7 +350,8 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
     }
     loadRequestAdoptable = false
     if (result.kind !== 'granted') {
-      phase = result.kind === 'unsupported' ? 'unsupported' : 'not-requested'
+      const refusal = loadRequestAdopted ? 'denied' : 'not-requested'
+      phase = result.kind === 'unsupported' ? 'unsupported' : refusal
       reselectedAtLoad = false
       report()
       return
@@ -371,7 +385,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
       throw new MidiControllerError(`Cannot select "${deviceId}": no such input is present.`)
     }
     if (selected !== undefined && selected.id !== port.id && tracker.held().length > 0) {
-      releaseHeld(clock.anchor().audioTime)
+      releaseHeld(runningAnchor().audioTime)
     }
     if (selected?.id !== port.id) lastMappedAt = undefined
     awaited = undefined
@@ -394,7 +408,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
     if (selected === undefined && awaited === undefined) {
       throw new MidiControllerError('Cannot disconnect: no controller is selected.')
     }
-    if (tracker.held().length > 0) releaseHeld(clock.anchor().audioTime)
+    if (tracker.held().length > 0) releaseHeld(runningAnchor().audioTime)
     selected = undefined
     awaited = undefined
     remembered = undefined
@@ -533,11 +547,37 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
    * before its onset. The selection changing starts the order afresh.
    */
   // @spec-link [[rule_only_note_on_counts_as_played]]
-  function inMessageOrder(timestampMs: number): AudioTime {
-    const mapped = midiTimestampToAudioTime(timestampMs, clock.anchor())
+  function inMessageOrder(timestampMs: number, anchor: ClockAnchor = runningAnchor()): AudioTime {
+    const mapped = midiTimestampToAudioTime(timestampMs, anchor)
     const at = lastMappedAt === undefined ? mapped : Math.max(mapped, lastMappedAt)
     lastMappedAt = at
     return at
+  }
+
+  /**
+   * Intent: the audio clock's anchor; a defect when it is not running, which only a note read
+   * while it runs (one that can be held) ever needs.
+   */
+  function runningAnchor(): ClockAnchor {
+    const anchor = clock.anchor()
+    if (anchor === null) {
+      throw new MidiControllerError('The audio clock is not running: no note time can be mapped.')
+    }
+    return anchor
+  }
+
+  /**
+   * Intent: one fresh anchor of the audio clock for this message, or null when it does not run.
+   * While it does not, a note-on is first told to the unclocked-note listeners, which may start it
+   * (the starting note after the page's first click); a message it still cannot be placed for is
+   * not read at all.
+   */
+  // @spec-link [[req_midi_controller_input]]
+  function anchorFor(message: ReturnType<typeof parseMidiMessage>): ClockAnchor | null {
+    const anchor = clock.anchor()
+    if (anchor !== null || message.kind !== 'note-on') return anchor
+    unclockedListeners.emit(message.pitch)
+    return clock.anchor()
   }
 
   /** Intent: read a message from the selected, connected port into played and ended notes. */
@@ -545,7 +585,9 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
     if (selected?.id !== port.id || state().kind !== 'connected') return
     const message = parseMidiMessage(data)
     if (message.kind === 'ignored') return
-    const at = inMessageOrder(timestampMs)
+    const anchor = anchorFor(message)
+    if (anchor === null) return
+    const at = inMessageOrder(timestampMs, anchor)
     emitNotes(
       message.kind === 'note-on'
         ? tracker.noteOn(message.pitch, message.velocity, at)
@@ -567,6 +609,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
     releaseReattachment,
     subscribe: changeListeners.add,
     onPlayedNote: noteListeners.add,
+    onUnclockedNoteOn: unclockedListeners.add,
     releaseHeld,
   }
 }

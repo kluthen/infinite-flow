@@ -109,6 +109,28 @@ describe('MidiController: reselect() at load', () => {
   })
 
   // @test-link [[rule_controller_connects_between_sessions]]
+  it('a refusal of the load request a Connect controller click adopted is a refusal for the click', async () => {
+    const { midi, controller } = createControllerRig({ devices: [KEYS_A] })
+    midi.setPermission('granted')
+    midi.holdNextRequest()
+    midi.denyNextRequest()
+    const loading = controller.reselect(KEYS_A)
+    await flush()
+    const connecting = controller.connect()
+    midi.releaseHeldRequest()
+    await Promise.all([loading, connecting])
+
+    expect(controller.state()).toEqual({ kind: 'denied' })
+  })
+
+  it('in a browser without Web MIDI, requests nothing and stays unsupported', async () => {
+    const { midi, controller } = createControllerRig({ supported: false })
+    await controller.reselect(KEYS_A)
+    expect(midi.requestCount()).toBe(0)
+    expect(controller.state()).toEqual({ kind: 'unsupported' })
+  })
+
+  // @test-link [[rule_controller_connects_between_sessions]]
   it('a Connect controller click while the load request is in flight adopts it: one request', async () => {
     const { midi, controller } = createControllerRig({ devices: [KEYS_A] })
     midi.setPermission('granted')

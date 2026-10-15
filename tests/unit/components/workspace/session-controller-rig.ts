@@ -303,7 +303,8 @@ export function controllerRig(
   })
   const midi = createMidiController({
     provider: midiAccess,
-    clock: { anchor: () => audioRig.output.anchor() },
+    // As in the app: no audio clock until the audio is unlocked.
+    clock: { anchor: () => (transport.isUnlocked() ? audioRig.output.anchor() : null) },
   })
   const sheetOpen = shallowRef(false)
   const freshPhraseRequests: FreshPhraseRequest[] = []

@@ -1,7 +1,10 @@
 /**
  * The session controller's MIDI side: from the controller's creation to its disposal it follows
  * the MIDI controller's state and every played note. At Idle the one starting note starts a
- * session, through the controller's own start. A session reads the controller only if it was
+ * session, through the controller's own start, but only once the audio can sound: unlocked
+ * already (a Start or Connect controller click), or, after the page's first click, tap or key
+ * press, made by the starting note itself; before that click it starts nothing, and the
+ * starting-note line asks for it. A session reads the controller only if it was
  * connected at the start: its played notes are acknowledged and recorded in the history, once one
  * is played more than 30 s without another ends it, and losing the controller shows a 30-second
  * countdown that ends it unless the same device comes back (the silence count, if it had begun,
@@ -14,6 +17,7 @@ import { computed, shallowRef } from 'vue'
 import type { AudioTransport } from '@/audio/audio-transport'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import type { ExpectedNoteIdentity } from '@/domain/acknowledgement/expected-note'
+import type { ConcertPitch } from '@/domain/events/concert-pitch'
 import { latencyCorrectionFor } from '@/domain/acknowledgement/played-onset-latency'
 import type { ConcertEventTimeline } from '@/domain/events/timeline'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
@@ -33,6 +37,7 @@ import {
   silenceDeadline,
   silenceExpired,
 } from '@/session/session-midi-timers'
+import type { PageActivation } from '@/session/session-browser-ports'
 import type { AudioTime, SessionEndCause } from '@/session/session-types'
 import { isStartingNote, startingNoteOf, type StartingNote } from '@/session/starting-note'
 
@@ -44,14 +49,16 @@ export interface ControllerLostCountdown {
 }
 
 /**
- * What the MIDI side reads from the controller: the MIDI controller and the audio transport, whether
- * the connection sheet is open and whether Start may be clicked (both reactive), the Idle result and
- * the written phrase the staff shows, and the controller's own start.
+ * What the MIDI side reads from the controller: the MIDI controller and the audio transport, the
+ * page's first click, tap or key press, whether the connection sheet is open and whether Start may
+ * be clicked (both reactive), the Idle result and the written phrase the staff shows, and the
+ * controller's own start.
  */
 // @spec-link [[rule_midi_starting_note]]
 export interface SessionMidiDependencies {
   readonly midi: MidiController
   readonly audio: AudioTransport
+  readonly pageActivation: PageActivation
   readonly connectionSheetOpen: () => boolean
   readonly canStart: () => boolean
   readonly idleResult: () => WorkspaceSessionResult | null
@@ -99,6 +106,12 @@ export interface SessionMidi {
   /** The MIDI controller's state now. */
   readonly controllerState: () => MidiControllerState
   readonly startingNote: () => StartingNote | null
+  /**
+   * Whether the named starting note waits for the page's first click, tap or key press: true from
+   * the load until then, while the audio is still locked; false while no note is named.
+   */
+  // @spec-link [[rule_midi_starting_note]]
+  readonly startingNoteAwaitsClick: () => boolean
   readonly controllerLost: () => ControllerLostCountdown | null
   readonly acknowledged: () => readonly ExpectedNoteIdentity[]
   readonly sessionHasController: () => boolean | null
@@ -148,6 +161,34 @@ export function createSessionMidi(deps: SessionMidiDependencies): SessionMidi {
     return startingNoteOf(result.outcome.result.timeline, written)
   })
 
+  const pageActivated = shallowRef(deps.pageActivation.hasBeenActive())
+  const stopWaitingForActivation = deps.pageActivation.onFirstActivation(() => {
+    pageActivated.value = true
+  })
+
+  /**
+   * Intent: whether the named starting note waits for the page's first click: the audio is still
+   * locked and the page has had none (any click that unlocks the audio is one).
+   */
+  // @spec-link [[rule_midi_starting_note]]
+  const startingNoteAwaitsClick = computed(
+    () => startingNote.value !== null && !pageActivated.value && !audio.isUnlocked(),
+  )
+
+  /**
+   * Intent: at Idle, the starting note played while the audio is still locked: after the page's
+   * first click it makes the audio context (Chromium allows it once the page has had that click),
+   * so the note is then read and starts the session; before that click, and for any other note,
+   * nothing is made and the note is dropped.
+   */
+  // @spec-link [[rule_midi_starting_note]]
+  function onUnclockedNote(pitch: ConcertPitch): void {
+    if (listeners !== null || !pageActivated.value) return
+    const starting = startingNote.value
+    if (starting === null || !isStartingNote({ pitch }, starting)) return
+    audio.unlock()
+  }
+
   /** Intent: at Idle, start the session from the starting note, exactly as Start does. */
   // @spec-link [[rule_starting_note_only_starts_count_in]]
   function onIdleNote(event: PlayedNoteEvent): void {
@@ -162,6 +203,7 @@ export function createSessionMidi(deps: SessionMidiDependencies): SessionMidi {
     }
   }
 
+  const stopHearingUnclockedNotes = midi.onUnclockedNoteOn(onUnclockedNote)
   const stopHearingNotes = midi.onPlayedNote((event) => {
     if (listeners === null) onIdleNote(event)
     else listeners.note(event)
@@ -197,6 +239,7 @@ export function createSessionMidi(deps: SessionMidiDependencies): SessionMidi {
   return {
     controllerState: () => midiState.value,
     startingNote: () => startingNote.value,
+    startingNoteAwaitsClick: () => startingNoteAwaitsClick.value,
     controllerLost: () => controllerLost.value,
     acknowledged: () => acknowledged.value,
     sessionHasController: () => sessionHasController.value,
@@ -221,8 +264,10 @@ export function createSessionMidi(deps: SessionMidiDependencies): SessionMidi {
       }
     },
     dispose: () => {
+      stopHearingUnclockedNotes()
       stopHearingNotes()
       stopFollowingState()
+      stopWaitingForActivation()
     },
   }
 }
