@@ -5,7 +5,7 @@
  * whose played notes are kept while saving is on; and the one confirmation that may be open, with
  * its way through: confirmed (closed once deleted, kept open with its error after a refusal, the
  * confirming action trying again), cancelled, or closed deleting nothing when saving turns off or
- * the Review stops showing. The session tools' confirmations (unpinning a session with favorites,
+ * the review mode is left; a deletion under way when its sheet closes finishes all the same. The session tools' confirmations (unpinning a session with favorites,
  * `Delete session`) open here too, as the one open confirmation, and run through the session tools.
  */
 import { computed, shallowRef, watch, type ComputedRef, type ShallowRef } from 'vue'
@@ -37,8 +37,12 @@ export type ReviewConfirmation =
   | { readonly kind: 'session-played-notes'; readonly failed: boolean; readonly busy: boolean }
   | SessionToolConfirmation
 
-/** What became of a confirmed deletion: deleted, refused (the sheet stays), or closed with saving off. */
-export type ConfirmedDeletion = 'deleted' | 'failed' | 'closed'
+/**
+ * What became of a confirmed deletion: deleted, refused (the sheet stays), or closed with saving
+ * off; once the sheet closed while it ran (the way back, or saving turning off), deleted all the
+ * same (`deleted-after-close`) or not (`closed`).
+ */
+export type ConfirmedDeletion = 'deleted' | 'failed' | 'closed' | 'deleted-after-close'
 
 /** What the played-notes side reads: the controller, the showing Review and the saver. */
 export interface ReviewPlayedNotesDependencies {
@@ -123,7 +127,8 @@ export function useReviewPlayedNotes(deps: ReviewPlayedNotesDependencies): Revie
     if (open === null || open.busy) throw new Error('review host: no confirmation to confirm')
     confirmation.value = { ...open, busy: true }
     const outcome = await deletion(open)
-    if (confirmation.value === null) return 'closed'
+    // A deletion under way finishes even once its sheet is closed (ux D316).
+    if (confirmation.value === null) return outcome === 'deleted' ? 'deleted-after-close' : 'closed'
     if (outcome === 'refused') {
       confirmation.value = { ...open, failed: true, busy: false }
       return 'failed'
@@ -132,9 +137,12 @@ export function useReviewPlayedNotes(deps: ReviewPlayedNotesDependencies): Revie
     return outcome === 'deleted' ? 'deleted' : 'closed'
   }
 
-  // A deletion confirmation open when saving turns off, or any once the Review stops showing,
-  // closes; the unpin's, which deletes nothing, stays open while saving turns off.
-  watch([savingOff, () => deps.shownReview() === null], ([off, gone]) => {
+  // A deletion confirmation open when saving turns off, or any once the review mode is left (no
+  // Review and no session list shows), closes; the unpin's, which deletes nothing, stays open
+  // while saving turns off.
+  const modeLeft = () =>
+    deps.shownReview() === null && deps.controller()?.state.listShowing !== true
+  watch([savingOff, modeLeft], ([off, gone]) => {
     if (gone || (off && confirmation.value?.kind !== 'unpin')) confirmation.value = null
   })
 

@@ -11,6 +11,7 @@ parents:
 priority: 1
 dependents:
   - [[module_kept_session_changes]]
+  - [[module_kept_session_reach]]
   - [[rule_favorite_pins_session]]
 ---
 

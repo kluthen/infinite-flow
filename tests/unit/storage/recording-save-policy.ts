@@ -1,25 +1,35 @@
 /**
- * A save policy double recording the saves, holds, releases, session saves and changes to kept
- * sessions that reach it, in order; its saving state stays on; every other member throws, as the
+ * A save policy double recording the saves, holds, releases, session saves, changes to kept
+ * sessions and persistent-storage requests that reach it, in order (and the signal of a page that
+ * stays, for the session saves the callers hand it); its saving state stays on; every other member throws, as the
  * callers under test must never use it.
  */
 import type {
   KeptChanges,
   KeptRead,
   KeptRefusal,
+  PageGoingAway,
   SavePolicy,
   SessionChanges,
 } from '@/storage/save-policy'
 import type { StorageChange } from '@/storage/storage-port'
+
+/** The page-leaving signal of a page that stays: a session's own save is never abandoned. */
+export const PAGE_STAYS: PageGoingAway = () => false
 
 /** One call that reached the fake policy. */
 export type PolicyCall =
   | { readonly method: 'save'; readonly changes: readonly StorageChange[] }
   | { readonly method: 'hold' }
   | { readonly method: 'release' }
-  | { readonly method: 'saveSession'; readonly changes: SessionChanges }
+  | {
+      readonly method: 'saveSession'
+      readonly changes: SessionChanges
+      readonly pageGoingAway: PageGoingAway
+    }
   | { readonly method: 'changeKept'; readonly changes: KeptChanges; readonly refusal: KeptRefusal }
   | { readonly method: 'readKept'; readonly read: KeptRead<unknown>; readonly refusal: KeptRefusal }
+  | { readonly method: 'requestProtection' }
 
 /** Intent: a member of the fake policy the saver must never call. */
 export function notUsed(name: string): () => never {
@@ -49,8 +59,8 @@ export function recordingPolicy(): { readonly policy: SavePolicy; readonly calls
       calls.push({ method: 'release' })
       return Promise.resolve('saved')
     },
-    saveSession: (changes) => {
-      calls.push({ method: 'saveSession', changes })
+    saveSession: (changes, pageGoingAway) => {
+      calls.push({ method: 'saveSession', changes, pageGoingAway })
       return Promise.resolve({ status: 'refused', kind: 'quota' })
     },
     changeKept: (changes, refusal) => {
@@ -62,7 +72,10 @@ export function recordingPolicy(): { readonly policy: SavePolicy; readonly calls
       return Promise.resolve({ status: 'saving-off' })
     },
     onFailure: notUsed('onFailure'),
-    requestProtection: notUsed('requestProtection'),
+    requestProtection: () => {
+      calls.push({ method: 'requestProtection' })
+      return Promise.resolve('not-asked')
+    },
     estimate: notUsed('estimate'),
     persisted: notUsed('persisted'),
     deleteEverything: notUsed('deleteEverything'),

@@ -10,6 +10,7 @@ human_name: Delete Everything
 parents:
   - [[req_your_data]]
 dependents:
+  - [[entity_my_instrument_record]]
   - [[entity_remembered_controller_record]]
   - [[module_on_device_database]]
   - [[module_save_policy]]

@@ -133,10 +133,12 @@ describe('the review area: Delete session', () => {
       error: null,
     })
 
-    // The deletion takes the Review away, and its sheet with it.
-    expect(await built.confirm()).toBe('closed')
+    // The deletion takes the Review away, the session list in its place; its sheet closes.
+    expect(await built.confirm()).toBe('deleted')
     expect(fake.deleteSession).toHaveBeenCalledWith(FAKE_REVIEW_KEY)
-    expect(built.showing.value).toBe(false)
+    expect(fake.state.review).toBeNull()
+    expect(fake.state.listShowing).toBe(true)
+    expect(built.showing.value).toBe(true)
     expect(built.confirmation.value).toBeNull()
   })
 

@@ -611,7 +611,10 @@ session is running. `isPhraseOnScreen(n)` says whether any part of phrase `n` is
 now (`false` with no session); a phrase number that is not a positive integer throws.
 `closeReview()` (`Close review`) and `showReview()` (`Review last session`) move the Review
 between showing and kept, and throw when asked out of turn (see
-[The end once phrase 1 has sounded](#the-end-once-phrase-1-has-sounded)). `dispose()`
+[The end once phrase 1 has sounded](#the-end-once-phrase-1-has-sounded)). `showList()` shows the
+session list, the review mode's other level, and `openSession(key)` opens any kept session from
+its row; both, and the rows the list shows, are described in
+[`storage.md`](storage.md#the-kept-sessions-rows-and-their-openings). `dispose()`
 ends a running session with the `stop` cause, stops reading the window and listening to the MIDI
 controller, and frees the wake-up timer; `App.vue` calls it when it unmounts.
 
@@ -1037,8 +1040,11 @@ rules underneath (the fresh phrase is engraved, the room and fit checks keep mea
 leaving the Review finds the workspace in the Idle state those rules reached.
 
 **Leaving and coming back.** `closeReview()` (`Close review`) keeps the Review with
-`showing: false`; it throws unless the Review shows. `showReview()` (`Review last session`) shows
-it again; it throws when no Review exists, when it already shows, or during a session. Each
+`showing: false`, or leaves the session list; it throws unless one of them shows. `showReview()`
+(`Review last session`) shows it again and resolves a `SessionOpening`: `shown`, `failed` (a kept
+session's read did not give it) or `superseded` (a session started, or the most recent session
+changed, meanwhile); it throws when no Review exists, when it or the list already shows, or during
+a session. Each
 change replaces the frozen `SessionReview` object (`session-review-state.ts`), never mutates it.
 
 **Discarded by the next start or a reload.** A session start, by the Start click or the starting

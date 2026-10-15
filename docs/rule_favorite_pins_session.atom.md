@@ -6,6 +6,7 @@ layer: BUSINESS
 tags: [v3, release-v3.0, storage, favorites]
 dependents:
   - [[module_kept_session_changes]]
+  - [[module_kept_session_reach]]
   - [[rule_new_session_never_asks_about_favorites]]
 version: 0.3
 priority: 1

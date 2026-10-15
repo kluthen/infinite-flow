@@ -4,6 +4,9 @@
  * parallel edit here. Most catalog values double as their own display label; a handful of values
  * carry a friendlier or enharmonic label instead, listed in the small override maps below.
  */
+import type { InstrumentProfile } from '@/domain/profile/instrument-profile'
+import type { RegisterId } from '@/domain/profile/register-id'
+import { deriveRegisterWindowCandidates } from '@/domain/profile/register-window-derivation'
 import {
   ARPEGGIO_CHAOS_VALUES,
   COLLECTIONS,
@@ -21,7 +24,7 @@ import {
 } from '@/domain/controls/generation-controls'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import type { ProfileSelection } from '@/domain/controls/profile-selection'
-import { ADOPTED_INSTRUMENT_PROFILES } from '@/domain/profile/instrument-profiles'
+import { ADOPTED_INSTRUMENT_PROFILES, MY_INSTRUMENT_ID } from '@/domain/profile/instrument-profiles'
 import type { SegmentedControlOption } from './segmented-control-option'
 
 /** Intent: build the twelve tonal-center options with their sharp/flat enharmonic labels. */
@@ -63,6 +66,35 @@ export function instrumentProfileOptions(): readonly SegmentedControlOption[] {
     value: profile.id,
     label: profile.displayName,
   }))
+}
+
+/**
+ * Intent: the instrument control's options: the three built-in profiles, then, while my
+ * instrument exists, a fourth labelled with its name, its value the fixed `my-instrument` id.
+ */
+// @spec-link [[req_my_instrument]]
+export function instrumentChoiceOptions(
+  myInstrumentName: string | null,
+): readonly SegmentedControlOption[] {
+  const builtIns = instrumentProfileOptions()
+  if (myInstrumentName === null) return builtIns
+  return [...builtIns, { value: MY_INSTRUMENT_ID, label: myInstrumentName }]
+}
+
+/**
+ * Intent: a profile's range summary, as the instrument control and the My instrument sheet show
+ * it: its active concert range and its Low, Middle and High whole-phrase windows, derived from it.
+ */
+// @spec-link [[req_my_instrument]]
+export function profileRangeSummaryText(profile: InstrumentProfile): string {
+  const candidates = deriveRegisterWindowCandidates(profile.concertRange, profile.registerWindows)
+  const windowOf = (id: RegisterId): string => {
+    const found = candidates.find((candidate) => candidate.id === id)
+    if (found === undefined) throw new Error(`No "${id}" register window was derived.`)
+    return `${found.window.minMidi}-${found.window.maxMidi}`
+  }
+  const range = profile.concertRange
+  return `Active range ${range.minMidi}-${range.maxMidi}. Whole-phrase windows: Low ${windowOf('Low')}, Middle ${windowOf('Middle')}, High ${windowOf('High')}.`
 }
 
 /** Intent: build the Neutral/Jazz musical-profile-preset options. */
@@ -151,6 +183,17 @@ function labelFor(options: readonly SegmentedControlOption[], value: string): st
 }
 
 /**
+ * Intent: the musical-profile state as `control-summary` writes it: the preset name, or
+ * `Custom ({grammar} grammar)` during a custom edit.
+ */
+// @spec-link [[module_generation_control_catalog]]
+export function profileSelectionLabel(profileSelection: ProfileSelection): string {
+  return profileSelection.isCustom
+    ? `Custom (${profileSelection.musicalProfile} grammar)`
+    : profileSelection.musicalProfile
+}
+
+/**
  * Intent: the muted `control-summary` copy per D25 -- tonal center and collection labels
  * separated by a plain space, then the musical-profile state (preset name, or `Custom ({grammar}
  * grammar)` during a custom edit), tension arc, and leapiness, each segment separated by ` · `.
@@ -164,8 +207,6 @@ export function controlSummaryText(
   const collectionLabel = labelFor(collectionOptions(), controls.collection)
   const tensionLabel = labelFor(tensionOptions(), controls.tension)
   const leapinessLabel = labelFor(leapinessOptions(), controls.leapiness)
-  const profileLabel = profileSelection.isCustom
-    ? `Custom (${profileSelection.musicalProfile} grammar)`
-    : profileSelection.musicalProfile
+  const profileLabel = profileSelectionLabel(profileSelection)
   return `${tonalCenterLabel} ${collectionLabel} · ${profileLabel} · ${tensionLabel} · ${leapinessLabel}`
 }

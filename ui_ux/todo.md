@@ -31,6 +31,15 @@
 
 ## In Progress
 
+**v3.0 wave 7: before chunk 14** (on branch `v3.0-w7`). Started 2026-10-15.
+
+- **The most recent session after a deletion** (found by documentalist capturing
+  `module_kept_session_reach`): the player's own deletion leaves none in that visit; a damaged
+  session's deletion hands it at once to the readable kept session that started last, as spec
+  D310 says (ux D317, both trees). No build or capture change; spec D310 and chunk 28's scope
+  carry the loose clause "as after the player's own deletion", reported to `spec-writer` as
+  wording only. Done 2026-10-15.
+
 **v3.0 wave 6: the O210 and Damaged session design gates** (build plan v16 §1), from spec
 D310, D311, D315 and spec O210 (master spec Part A v1.15 §5.1, §9), on branch `v3.0-w6`. Started
 2026-10-15. Written into `versions/v3.0/` as a recorded correction and at the root (ux D307).

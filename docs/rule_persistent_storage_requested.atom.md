@@ -4,6 +4,8 @@ status: DRAFT
 parents:
   - [[req_on_device_storage]]
 dependents:
+  - [[entity_my_instrument_record]]
+  - [[module_kept_session_reach]]
   - [[module_on_device_database]]
   - [[module_save_policy]]
 layer: BUSINESS

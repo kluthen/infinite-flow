@@ -1,9 +1,11 @@
 /**
  * The tracks of the exported MIDI files, as timed events. The first track, the conductor track,
  * holds what every MIDI file of a session shares: the 4/4 time signature, the full tempo map and
- * one marker per phrase, with phrase 1 at time zero and the phrases back to back. The note tracks
- * hold sounding notes: the generated line, read from each phrase's concert timeline, and the
- * backing, read from the backing notes. Phrase n starts at (n − 1) × 15360 MIDI ticks.
+ * one marker per phrase, with the file's first phrase at time zero and the phrases back to back.
+ * The note tracks hold sounding notes: the generated line, read from each phrase's concert
+ * timeline, and the backing, read from the backing notes. The phrase at zero-based position p of
+ * the file starts at p × 15360 MIDI ticks, whatever its session number: a whole session's phrase n
+ * at (n − 1) × 15360, a favorites-only file's phrases one after the other from zero.
  */
 import type { ConcertEventTimeline } from '@/domain/events/timeline'
 import { MidiExportError, type MidiBackingPhrase } from './midi-export-input'
@@ -22,7 +24,7 @@ import {
   type TimedMidiEvent,
 } from './smf-writer'
 
-/** A phrase as the conductor track needs it: its session number and tempo in BPM. */
+/** A phrase as the conductor track needs it: its session number, for its marker, and its tempo. */
 export interface ConductorPhrase {
   readonly number: number
   readonly tempo: number
@@ -49,17 +51,21 @@ export interface VoicedNote extends SoundingNote {
 // @spec-link [[rule_played_notes_export_aligns_with_generated_midi]]
 export const MIDI_FILE_NAME = 'Infinite Flow'
 
-/** Intent: the MIDI tick at which a phrase starts: phrase 1 at zero, phrases back to back. */
+/**
+ * Intent: the MIDI tick at which the phrase at zero-based `position` of the file starts: the first
+ * at zero, the phrases back to back. `phraseStartTick(count)` is where the file's last phrase ends.
+ */
 // @spec-link [[rule_generated_notes_midi_export]]
 // @spec-link [[rule_played_notes_export_aligns_with_generated_midi]]
-export function phraseStartTick(phraseNumber: number): number {
-  return (phraseNumber - 1) * MIDI_TICKS_PER_PHRASE
+// @spec-link [[rule_favorites_only_export]]
+export function phraseStartTick(position: number): number {
+  return position * MIDI_TICKS_PER_PHRASE
 }
 
 /**
  * Intent: the conductor track's events: the file's name and the 4/4 time signature at time zero,
  * then, at each phrase's start, a tempo event when the tempo is the first or differs from the
- * phrase before, and a marker "Phrase n". The played-notes file of the same session is built from
+ * phrase before, and a marker "Phrase n" with its session number. The played-notes file of the same session is built from
  * the same events, so the two files share their tempo map and markers exactly.
  */
 // @spec-link [[rule_generated_notes_midi_export]]
@@ -74,7 +80,7 @@ export function conductorTrackEvents(
     { tick: 0, bytes: fourFourTimeSignatureEvent() },
   ]
   phrases.forEach((phrase, position) => {
-    const tick = phraseStartTick(phrase.number)
+    const tick = phraseStartTick(position)
     if (position === 0 || phrases[position - 1]!.tempo !== phrase.tempo) {
       events.push({ tick, bytes: tempoEvent(microsecondsPerQuarterNote(phrase.tempo)) })
     }
@@ -84,7 +90,8 @@ export function conductorTrackEvents(
 }
 
 /**
- * Intent: a phrase's concert timeline as sounding notes, shifted to the phrase's start. A fresh
+ * Intent: a phrase's concert timeline as sounding notes, shifted to the start of the phrase at
+ * zero-based `position` of the file; `phraseNumber` names it in a failure. A fresh
  * note opens a note; a tie continuation lengthens the open note, which must be of the same pitch
  * and end right where the continuation starts; a rest closes the open note. Crashes when a tie
  * continuation has nothing to continue, or when the timeline does not fill exactly four measures.
@@ -93,11 +100,12 @@ export function conductorTrackEvents(
 export function generatedLineNotes(
   timeline: ConcertEventTimeline,
   phraseNumber: number,
+  position: number,
 ): SoundingNote[] {
-  const offset = phraseStartTick(phraseNumber)
+  const offset = phraseStartTick(position)
   const notes: SoundingNote[] = []
   let holding = false
-  let position = offset
+  let tick = offset
   for (const event of timeline.measures.flatMap((measure) => measure.events)) {
     const length = midiTicksOfWholeNotes(event.duration)
     const last = notes[notes.length - 1]
@@ -107,23 +115,26 @@ export function generatedLineNotes(
           `Phrase ${phraseNumber} has a tie continuation with no note to hold.`,
         )
       }
-      notes[notes.length - 1] = { ...last, endTick: position + length }
+      notes[notes.length - 1] = { ...last, endTick: tick + length }
     } else if (event.kind === 'note') {
-      notes.push({ pitch: event.pitch, startTick: position, endTick: position + length })
+      notes.push({ pitch: event.pitch, startTick: tick, endTick: tick + length })
     }
     holding = event.kind === 'note'
-    position += length
+    tick += length
   }
-  if (position !== offset + MIDI_TICKS_PER_PHRASE) {
+  if (tick !== offset + MIDI_TICKS_PER_PHRASE) {
     throw new MidiExportError(`Phrase ${phraseNumber} does not fill exactly four 4/4 measures.`)
   }
   return notes
 }
 
-/** Intent: one phrase's backing notes as sounding notes, shifted to the phrase's start. */
+/**
+ * Intent: one phrase's backing notes as sounding notes, shifted to the start of the phrase at
+ * zero-based `position` of the file.
+ */
 // @spec-link [[rule_generated_notes_midi_export]]
-export function backingNotes(phrase: MidiBackingPhrase): SoundingNote[] {
-  const offset = phraseStartTick(phrase.number)
+export function backingNotes(phrase: MidiBackingPhrase, position: number): SoundingNote[] {
+  const offset = phraseStartTick(position)
   return phrase.notes.map((note) => {
     const startTick = offset + midiTicksOfWholeNotes(note.start)
     return {

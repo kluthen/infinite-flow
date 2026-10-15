@@ -7,6 +7,7 @@
 import { describe, expect, it, vi } from 'vitest'
 
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
+import { WHOLE_SESSION } from '@/export/export-file'
 import type { ExportFile } from '@/export/load-generated-notes-export'
 import type { SessionHistoryRecord } from '@/session/session-history'
 import { recordedRecords } from '../review/review-fixtures'
@@ -82,8 +83,8 @@ describe('the Review host and area: very short notes', () => {
     await building
 
     expect(buildPlayedNotesFile.mock.calls).toEqual([
-      [history, { includeVeryShortNotes: false }],
-      [history, { includeVeryShortNotes: true }],
+      [history, { includeVeryShortNotes: false }, WHOLE_SESSION],
+      [history, { includeVeryShortNotes: true }, WHOLE_SESSION],
     ])
     stop()
   })

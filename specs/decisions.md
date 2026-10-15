@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.97
+Status: draft v2.98
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,13 +14,13 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D324**. D259–D260 are
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D329**. D259–D260 are
 on branch `v4-accompaniment-research`, not merged yet. D263–D288 are v3.3's richer chords (merged
 from `main`); D289 is unused. D290–D299 were reserved for v3.0 wave 2; wave 2 used D290–D298, and
 D299 records wave 3. D300 records the wave-4 preflight; D301 and D302 the plan revision after
 chunk 7a; D303–D305 the wave-5 preflight (D303 the owner's ruling on the session key); D306–D308 the
 wave-5 sync; D309–D311 the owner's rulings on O201 and O200 and the plan revision they bring;
-D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan following the wave-6 design gates; D320 the owner's confirmation of the seventh contract change; D321 measurement M1's findings; D322 and D323 the owner's rulings on O211 and on a controller reselected at load.
+D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan following the wave-6 design gates; D320 the owner's confirmation of the seventh contract change; D321 measurement M1's findings; D322 and D323 the owner's rulings on O211 and on a controller reselected at load; D324 and D325 the wave-7 preflight; D326 the erasing of my instrument's sessions in one batch; D327 a wording correction to D310; D328 a page the back-forward cache brings back.
 
 ## Decision Log
 
@@ -1836,3 +1836,160 @@ D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan
   reselects "the same way it recognises a controller that comes back within a page". The wording
   is `documentalist`'s; the owner sees it with B2. Master spec Part A v1.20 (§7.3) states it; build
   plan v21's Part B2 row carries the clause.
+
+- **D324 (2026-10-15): in a favorites-only file the favorite phrases follow each other from time
+  zero.** Settled by `spec-writer` under the owner's delegation of minor calls, from the wave-7
+  preflight (`documentalist`), which found that nothing says where the favorite phrases sit in
+  time in a favorites-only file. Master spec §6 already implies it: a played note held past a
+  favorite phrase's end stops there when the next phrase is not exported, a rule needed only
+  because the next exported phrase follows straight on. So a favorites-only file is laid out as a
+  whole-session file of those phrases alone: the first favorite at time zero, each next one right
+  after the one before, with no gap or empty measure for a phrase left out, each at its own
+  tempo (a tempo change where an exported phrase's tempo differs from the exported phrase
+  before it). Each phrase keeps its session phrase number in its marker and rehearsal mark, and
+  in MusicXML its session measure numbers (phrase _n_ in measures 4_n_ − 3 to 4_n_), so the
+  numbers skip where phrases were left out. The generated-notes and played-notes files of one
+  scope use the same selection and the same layout, so they still line up phrase by phrase
+  (`rule_played_notes_export_aligns_with_generated_midi`: "phrase 1 at time zero" reads "the
+  first exported phrase at time zero"). Rejected: keeping each phrase at its session time with
+  silence where the others were, which gives a file of mostly empty measures and makes the
+  held-note rule pointless. No interface change; nothing for `ux-writer`. Master spec Part A
+  v1.21 (§6); build plan v22 (chunk 13).
+
+- **D325 (2026-10-15): build plan v22 places the wave-7 preflight's corrections.** Settled by
+  `spec-writer` under the owner's delegation of minor technical calls, from the preflight's notes
+  (all four chunks PROCEED) checked against the code on `v3.0-w7` (215fc18). Chunks 13, 14 and 20
+  each pass about five source files once their real files are named, so each splits into halves,
+  in order: 13a the selection and the files (`src/export/`), 13b the Review's scope and its
+  disabled reasons (`review-export.ts`, `use-review-area.ts`, `review-types.ts`, `ReviewArea.vue`,
+  `ReviewPanel.vue`, where wave 6 moved the export wiring); 14a the session controller's reach
+  (opening any kept session by its key; pin, unpin and delete of a session not held in memory,
+  where `setPinned` and `deleteSession` throw today; the row summaries held in memory and kept
+  current), 14b the list, its links and `ReviewArea.vue`'s confirmation and focus; 20a the record,
+  the load, the instrument control's segment, the Idle side and my instrument's clef everywhere a
+  built-in stand-in sits (`App.vue`, `CheckNote.vue` and its caller `SheetStateBody.vue`, the
+  engraver's staff-room verdict), all read side, tested from a seeded record; 20b the sheet, its
+  saves, the bound and the worker's derivation. Chunks 14 and 20 carry an architecture
+  capture (the session controller's reach and the summaries in memory; the stored my-instrument
+  record), which `documentalist` records before each, κ=1. Chunk 14 owns ux D316's focus rule,
+  since `ReviewArea.vue` is its file. Chunk 27's page-leaving signal reaches the save policy with
+  the session's own save (`SavePolicy.saveSession`, through `SessionSaveHold.saveSession`), never
+  through the policy's construction, so `src/storage-bootstrap.ts` stays chunk 20's alone; wave 7
+  shares `ReviewArea.vue`, `use-review-area.ts` and `ReviewPanel.vue` between chunks 13 and 14,
+  and `src/storage/settings-saver.ts` between chunks 20 and 27, in number order, as wave 6 did
+  (D312). The four stale docs go to the chunks that own their subjects; the `stray-notes.ts`
+  header to chunk 13; the missing `@spec-link` for `service_session_midi` to chunk 24b-2, which
+  changes `workspace-session-midi.ts`. ux Q76 is shown closed (ux D285, corrected by ux D294).
+
+- **D326 (2026-10-15): my instrument's change and the erasing of its sessions are one batch; a
+  refusal changes nothing and is told in the open warning or confirmation.** Settled by
+  `spec-writer`, from the point `documentalist` left open in its capture of
+  `entity_my_instrument_record` (abddba4, wave 7). Not the owner's: the visible behaviour is
+  already settled. D295 says a confirmed range or transposition change "saves and erases them"
+  and a cancel changes nothing, and the **Sessions design** gate (ux D286–D290) says the save and
+  the erasing "happen together or not at all", a failure keeping the erase warning, the delete
+  confirmation or the check's `Use and erase` open with its error line. This writes the storage
+  side under it.
+  1. **One batch.** Deleting my instrument, whatever the number of its sessions, and saving a
+     range or transposition change while my instrument has kept sessions (from its sheet's erase
+     warning or the check's `Use and erase`), apply in one batch through the save policy, in one
+     transaction, all or none: the my-instrument record's delete, or its whole write, and the
+     deletes of the summary, the body and the played notes of each session of my instrument. The
+     batch goes through the kept-change line (`changeKept`, its refusal the caller's), never the
+     plain write or delete, and never as a record write followed by separate deletions. A save
+     that erases nothing (a name or clef change, or a range or transposition change while my
+     instrument has no kept session) stays the plain write of chunk 20, its refusal told by the
+     notice row while my instrument applies for the visit.
+  2. **Which sessions.** Exactly the sessions the warning or confirmation counted, named by their
+     keys, never by a key rebuilt from their facts: the rows of the session list in memory, and
+     the session that just ended when played with my instrument. The batch runs in the line after
+     every session save asked for before it, so the session that just ended is saved first and
+     erased by the key its save minted; one held in memory only because its save failed leaves
+     memory alone. A named session already gone from the device (another tab deleted it) is a
+     delete that changes nothing. A session of my instrument that another tab kept after this
+     tab read the summaries is not in the batch: nothing goes that the player was not told
+     about. It stays, listed under my instrument, until a later change or deletion of my
+     instrument erases it; this happens only with two tabs open, and is accepted.
+  3. **Saved.** Only then does anything change in memory: my instrument is changed or deleted,
+     its sessions go as the design's Sessions erased says, the selection returns to the template
+     when a deleted my instrument was selected (that selection saved after the batch, through the
+     visit's saves), the phrase is replaced as on an instrument switch where the design says so,
+     and a save asks for persistent storage as every save of my instrument does.
+  4. **Refused** (for lack of space or another reason, the read under the batch included):
+     nothing changes, on the device or in memory. My instrument stays as it was, every session
+     stays, and a review on screen stays open. The warning or confirmation stays open with the
+     design's error line, and its action tries again. The refusal is told there alone, never by
+     the notice row. This differs on purpose from a save that erases nothing: applying the change
+     in memory without the erasing would leave the visit's my instrument and its kept sessions
+     disagreeing (master spec §5.1: every kept session of my instrument was played with the range
+     and transposition my instrument has now), and a reload would bring back the old my
+     instrument with those sessions.
+  5. **Saving off.** With sessions to erase, saving off only arises when the tab turns outdated
+     while the warning or confirmation is open, or the batch is refused as outdated: nothing
+     changes, and the sheet returns to the form erasing and deleting nothing, range and
+     transposition back to their saved values, as the design's outdated-tab state says. With no
+     session to erase, a deletion while saving is off applies for the visit only, as every change
+     then does (master spec §4.3, §4.4).
+
+  No interface change; nothing for `ux-writer`. Build plan v23 (chunk 20c). `documentalist`
+  revises `entity_my_instrument_record` (and `module_save_policy`'s list of kept changes) at
+  chunk 20c's preflight.
+
+- **D327 (2026-10-15): the successor after a damaged session's deletion is the load's rule, not
+  the player's deletion (a wording correction to D310).** Settled by `spec-writer`, from ux D317
+  (953f79b), found by `documentalist` while capturing `module_kept_session_reach`. D310 says
+  that after a damaged body is deleted at an opening, the most recent session "becomes the
+  readable kept session that started last, as after the player's own deletion (D304)". The
+  outcome stands; the clause justifying it is loose. D304 leaves no most recent session after the
+  player's own deletion for the rest of that visit, and picks the readable kept session with the
+  latest start only after a reload. The damaged deletion takes that after-reload rule at once:
+  a session whose body reads as damaged never was one the app could open, and had the load found
+  the damage the next session would have been the most recent one from the start. So any
+  deletion the player makes (one session, every session, my instrument's) leaves no most recent
+  session in that visit until the next session ends with a review; a damaged session's deletion
+  hands it at once to the readable kept session that started last. D310's text stays as it was;
+  read its clause through this entry. No behaviour change; nothing to build differently. Build
+  plan v23 (chunk 28's scope reworded).
+
+- **D328 (2026-10-15): a page the back-forward cache brings back saves its later sessions; the
+  session the page's leaving cut short stays not saved.** Settled by `spec-writer` under the
+  owner's standing delegation, from chunk 27's open point (record in build plan §"Chunk 27",
+  471aa0f; code on `v3.0-w7`, 4efb656). Chunk 27's adapter marks the page as going away at the
+  first `pagehide` and never clears the mark. A page can outlive `pagehide`: leaving it for
+  another address (a link, or the address bar) fires `pagehide`, and when the player presses Back
+  the browser's back-forward cache may restore it alive, firing `pageshow` with `persisted` true.
+  As built, every later session on that page then ends with "Not saved on this device: export it
+  to keep it." and is never saved, with nothing to say why. That is a consequence nobody chose:
+  §5.1 keeps the most recent session automatically, and D309's ruling ("option A") is about the
+  session the page's leaving cut short, not about sessions played after the player came back. The
+  owner's stake is that the sessions they play are kept, so this is a team call, taken in the
+  direction that keeps them:
+
+  1. **Leaving counts as closing.** Leaving the page for another address is closing it in §5.1's
+     sense (the same `pagehide`; the only kind of leaving the back-forward cache can undo). A
+     session it cuts short is lost, as D309 says.
+  2. **The session it cut short stays not saved, every time.** A save that a `pagehide` has
+     reached, at its start or at any point while it runs, is abandoned for good: it is never
+     resumed, retried or saved when the page comes back. Its review keeps "Not saved on this
+     device: export it to keep it.", the kept sessions stay as they were, no notice shows, and no
+     row is added. Why not save it on the return: whether the browser keeps a page in the cache
+     is its own choice, unseen by the player and often refused, so saving on return would keep the
+     session sometimes and lose it other times for the same action; and a save frozen part-way
+     (the codec still loading, the read done but not the batch) would complete or not by timing.
+     "Leaving the page loses the session that was running; export it if you want it" holds every
+     time, and the review on screen says so.
+  3. **Later sessions save again.** Once the page is shown again from the cache, it is no longer
+     going away: a session that starts after the return and ends with a review is saved as §5.1
+     says (deleting the older unpinned kept sessions), and its keep line reads as any saved
+     session's. A refused save's retry run after the return saves too; one a `pagehide` reaches
+     while it runs is abandoned, as in 2. A `pageshow` that is not from the cache (the first
+     load) changes nothing.
+  4. **A tab or app switch** still never fires `pagehide`, and is unchanged.
+
+  The mark must therefore be per save, not one page-wide flag that `pageshow` clears: a page-wide
+  flag cleared on return would let a save frozen in the cache resume after the return, read "not
+  going away", and save the very session 2 says is lost. No master spec change: §5.1 already keeps
+  the most recent session, and "closing or reloading the page" now reads with 1. No interface
+  change; nothing for `ux-writer`. Build plan v24 revises chunk 27's scope and Done when; the
+  follow-up fix goes on `v3.0-w7`. `documentalist` records it at the wave-7 sync in
+  `req_rolling_practice_session`, `module_kept_session_save` and `module_save_policy`.

@@ -1,6 +1,6 @@
 ---
 id: rule_session_comment
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 priority: 1
 parents:

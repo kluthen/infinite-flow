@@ -37,7 +37,8 @@ import type { NotationError } from '@/notation/notation-error'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { AudioTransport } from '@/audio/audio-transport'
 import type { SavedDataLoad } from '@/storage-bootstrap'
-import { getInstrumentProfile } from '@/domain/generation/generation-intent'
+import { selectedInstrumentProfile } from '@/domain/generation/generation-intent'
+import { instrumentClefOf } from '@/domain/profile/instrument-clef'
 import type { MidiController } from '@/midi/midi-controller-state'
 import { planSystemPositionUnits, type WrittenRangeInClef } from '@/notation/notation-layout-policy'
 import { loadVexflowEngraver } from '@/notation/vexflow-engraver-loader'
@@ -65,6 +66,7 @@ import { injectSaveSettings } from './save-settings-injection'
 import { useAppNotices } from './use-app-notices'
 import { useShownSettings } from './use-shown-settings'
 import { useWorkspaceFocus } from './use-workspace-focus'
+import { useMyInstrumentSheet } from './use-my-instrument-sheet'
 
 const props = withDefaults(
   defineProps<{
@@ -92,7 +94,7 @@ const props = withDefaults(
     scrollToPageTop?: () => void
     /**
      * The saved my instrument's written range in its clef, or null while none is saved; none by
-     * default. Nothing saves one yet: chunk 20's my-instrument record feeds it.
+     * default.
      */
     savedMyInstrumentRangeInClef?: WrittenRangeInClef | null
     /**
@@ -192,11 +194,26 @@ const {
 
 const emit = defineEmits<{
   /**
-   * The connection sheet opened or closed (also once at setup, closed), emitted synchronously
-   * inside the change, so the workspace's flag never lags the sheet, its load included.
+   * The connection sheet or the My instrument sheet opened or closed (also once at setup,
+   * closed): whether either is open, emitted synchronously inside the change, so the workspace's
+   * flag, which keeps a MIDI note from starting a session, never lags the sheets.
    */
   'connection-sheet-open-change': [open: boolean]
 }>()
+
+// The My instrument sheet, opened by `instrument-actions`; focus returns to that button.
+// @spec-link [[req_my_instrument]]
+const myInstrumentSheet = useMyInstrumentSheet({
+  session: props.session,
+  focusInstrumentActions: () => {
+    const button = workspacePart('.instrument-actions button')
+    if (button instanceof HTMLElement) button.focus()
+  },
+})
+let connectionSheetShown = false
+watch(myInstrumentSheet.sheetOpen, (open) =>
+  emit('connection-sheet-open-change', connectionSheetShown || open),
+)
 
 // The header's `controller-status` and the connection sheet it opens.
 const {
@@ -209,10 +226,15 @@ const {
 } = useControllerConnection({
   midi: props.midi,
   audio: props.audio,
-  profile: () => getInstrumentProfile(state.value.controls.instrumentProfileId),
+  profile: () =>
+    selectedInstrumentProfile(state.value.controls.instrumentProfileId, state.value.myInstrument),
+  clef: () => instrumentClefOf(state.value.controls.instrumentProfileId, state.value.myInstrument),
   sessionActive: () => sessionActive.value,
   controllerLost: () => props.controller !== null && props.controller.state.controllerLost !== null,
-  onOpenChange: (open) => emit('connection-sheet-open-change', open),
+  onOpenChange: (open) => {
+    connectionSheetShown = open
+    emit('connection-sheet-open-change', open || myInstrumentSheet.sheetOpen.value)
+  },
   rememberedController: props.rememberedController,
 })
 
@@ -303,7 +325,8 @@ const workspaceFocus = useWorkspaceFocus({
   focusAfterConnectionSheet: () => focusParts().header.focusAfterConnectionSheet(),
 })
 
-// The Review's moves: `Close review`, `Review last session`, and a start from a focused review-link.
+// The review mode's moves: `Close review`, `Review last session`, `All sessions` from the cue row,
+// and a start from a focused cue-row link.
 const reviewNavigation = useReviewNavigation({
   controller: requireController,
   idle: () => state.value,
@@ -389,6 +412,8 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
         :saved-review-preferences="savedReviewPreferences"
         @stop-session="handleStopSession"
         @show-review="reviewNavigation.showReview"
+        @show-sessions="reviewNavigation.showSessions"
+        @scroll-to-top="props.scrollToPageTop()"
       />
       <ControlPanel
         :controls="shownSettings.controls"
@@ -402,6 +427,9 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
         :vary-settings="varySettings"
         :session-options-readonly="sessionOptionsReadonly"
         :preset-status-live="presetStatusLive"
+        :my-instrument="state.myInstrument"
+        :instrument-actions-disabled="controlsReadonly || state.operation !== 'idle'"
+        @open-my-instrument="myInstrumentSheet.open"
         @set-control="handleSetControl"
         @select-instrument-profile="handleSelectInstrumentProfile"
         @select-musical-profile="handleSelectMusicalProfile"
@@ -416,6 +444,16 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
     v-if="sheetComponent !== null && sheetProps !== null"
     v-bind="sheetProps"
     @close="closeConnectionSheet"
+  />
+  <component
+    :is="myInstrumentSheet.sheetComponent.value"
+    v-if="
+      myInstrumentSheet.sheetComponent.value !== null && myInstrumentSheet.sheetProps.value !== null
+    "
+    v-bind="myInstrumentSheet.sheetProps.value"
+    @save="myInstrumentSheet.save"
+    @delete="myInstrumentSheet.remove"
+    @close="myInstrumentSheet.close"
   />
   <OrientationNotice />
 </template>

@@ -5,6 +5,7 @@ type: RULE
 version: 0.2
 parents:
   - [[req_my_instrument]]
+  - [[rule_instrument_profile_range]]
 dependents:
   - [[entity_my_instrument]]
 layer: BUSINESS

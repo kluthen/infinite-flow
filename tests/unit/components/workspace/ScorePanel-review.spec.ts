@@ -14,6 +14,7 @@ import { nextTick, type Component } from 'vue'
 
 import ScorePanel from '@/components/workspace/ScorePanel.vue'
 import { createMixVolumePopover } from '@/components/workspace/mix-volume-popover'
+import type { ExportRequest } from '@/components/review/review-types'
 import type { ReviewExportPorts } from '@/components/workspace/review-export'
 import type { ExportFile } from '@/export/generated-notes-file'
 import { loadGeneratedNotesExport } from '@/export/load-generated-notes-export'
@@ -268,7 +269,7 @@ describe('ScorePanel while the Review shows', () => {
     await flushPromises()
     expect(reviewPanel(wrapper).props()).toMatchObject({
       includeVeryShortNotes: false,
-      playedNotesFileHoldsNote: true,
+      playedNotesUnavailable: null,
     })
 
     reviewPanel(wrapper).vm.$emit('update:includeVeryShortNotes', true)
@@ -280,7 +281,7 @@ describe('ScorePanel while the Review shows', () => {
 
     expect(reviewPanel(wrapper).props()).toMatchObject({
       includeVeryShortNotes: true,
-      playedNotesFileHoldsNote: true,
+      playedNotesUnavailable: null,
     })
   })
 
@@ -289,13 +290,12 @@ describe('ScorePanel while the Review shows', () => {
     const { ports, downloads } = recordingPorts()
     const wrapper = mountPanel(fakeGenerationSession(readyState()).session, showingReview(), ports)
     await flushPromises()
-    const exportFile = reviewPanel(wrapper).props('exportFile') as (request: {
-      format: 'musicxml' | 'midi'
-      backingTrack: boolean
-    }) => Promise<void>
+    const exportFile = reviewPanel(wrapper).props('exportFile') as (
+      request: ExportRequest,
+    ) => Promise<void>
 
-    await exportFile({ format: 'midi', backingTrack: true })
-    await exportFile({ format: 'midi', backingTrack: true })
+    await exportFile({ format: 'midi', backingTrack: true, scope: 'wholeSession' })
+    await exportFile({ format: 'midi', backingTrack: true, scope: 'wholeSession' })
 
     expect(downloads).toHaveLength(2)
     expect(downloads[0]?.fileName).toMatch(/^infinite-flow-\d{4}-\d{2}-\d{2}-\d{6}-generated\.mid$/)
@@ -311,12 +311,12 @@ describe('ScorePanel while the Review shows', () => {
     }
     const wrapper = mountPanel(fakeGenerationSession(readyState()).session, showingReview(), ports)
     await flushPromises()
-    const exportFile = reviewPanel(wrapper).props('exportFile') as (request: {
-      format: 'musicxml'
-      backingTrack: false
-    }) => Promise<void>
+    const exportFile = reviewPanel(wrapper).props('exportFile') as (
+      request: ExportRequest,
+    ) => Promise<void>
 
-    await expect(exportFile({ format: 'musicxml', backingTrack: false })).rejects.toBe(failure)
+    const request = { format: 'musicxml', backingTrack: false, scope: 'wholeSession' } as const
+    await expect(exportFile(request)).rejects.toBe(failure)
     expect(ports.download).not.toHaveBeenCalled()
   })
 

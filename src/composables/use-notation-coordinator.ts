@@ -16,7 +16,8 @@ import { ref, type Ref } from 'vue'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
-import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
+import type { InstrumentClef } from '@/domain/profile/instrument-clef'
+import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import { NotationError } from '@/notation/notation-error'
 import type {
   StaffFitVerdict,
@@ -41,6 +42,18 @@ export class NotationCoordinatorUsageError extends Error {
 export interface NotationCoordinatorSessionReporter {
   readonly reportNotationFailure: (error: Error) => boolean
   readonly reportNotationRecovered: () => boolean
+}
+
+/**
+ * Where the coordinator reads the clefs it draws and plans in: an instrument's, by its id (my
+ * instrument's own, treble for a built-in), and the selected instrument's.
+ */
+// @spec-link [[entity_my_instrument]]
+export interface NotationCoordinatorClefs {
+  /** The clef the phrases of the instrument `id` names are drawn in. */
+  readonly of: (id: InstrumentProfileId) => InstrumentClef
+  /** The selected instrument's clef, which the staff's room is checked in. */
+  readonly selected: () => InstrumentClef
 }
 
 export interface NotationCoordinator {
@@ -83,18 +96,22 @@ function sizeArgument(inputs: StaffLayoutInputs): [] | [number] {
   return inputs.systemPositionUnits === undefined ? [] : [inputs.systemPositionUnits]
 }
 
-/** Intent: the written phrase a result is drawn as: the active profile's own written pitch. */
-// @spec-link [[module_idle_fit_round]]
-function writtenPhraseOf(result: WorkspaceGeneratedPhrase): WrittenPhrase {
-  // The selected instrument's clef: my instrument's reaches here with chunks 17 and 20.
-  const clef = BUILT_IN_INSTRUMENT_CLEF
-  return transformToWrittenPhrase(notationInputFromOutcome(result.outcome, result.intent, clef))
-}
-
 /** Intent: build one coordinator instance for one workspace session's PhraseScore lifetime. */
 export function createNotationCoordinator(
   reporter: NotationCoordinatorSessionReporter,
+  clefs: NotationCoordinatorClefs,
 ): NotationCoordinator {
+  /**
+   * Intent: the written phrase a result is drawn as: its profile's own written pitch, in the clef
+   * of the instrument its intent names, which the written phrase carries.
+   */
+  // @spec-link [[module_idle_fit_round]]
+  // @spec-link [[entity_my_instrument]]
+  function writtenPhraseOf(result: WorkspaceGeneratedPhrase): WrittenPhrase {
+    const clef = clefs.of(result.intent.controls.instrumentProfileId)
+    return transformToWrittenPhrase(notationInputFromOutcome(result.outcome, result.intent, clef))
+  }
+
   const pendingPhrase = ref<WrittenPhrase | null>(null) as Ref<WrittenPhrase | null>
   /**
    * Whether `pendingPhrase` currently reflects a phrase a mounted PhraseScore has rendered or
@@ -235,8 +252,8 @@ export function createNotationCoordinator(
   }
 
   /**
-   * Intent: check, whatever the notes, whether the staff has room with this key signature at the
-   * layout inputs current once the engraver is ready.
+   * Intent: check, whatever the notes, whether the staff has room with this key signature, in the
+   * selected instrument's clef, at the layout inputs current once the engraver is ready.
    */
   // @spec-link [[module_idle_fit_round]]
   // @spec-link [[rule_staff_needs_room_notice]]
@@ -245,6 +262,7 @@ export function createNotationCoordinator(
     const engraver = await planningModule()
     const inputs = requireLayoutInputs()
     return engraver.planStaffRoomForKey(
+      clefs.selected(),
       signature,
       inputs.containerWidthPx,
       inputs.viewport,

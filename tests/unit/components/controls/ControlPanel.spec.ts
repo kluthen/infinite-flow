@@ -31,6 +31,8 @@ function mountPanel(
       tensionAcrossPhrases: false,
       sessionOptionsReadonly: readonly,
       presetStatusLive: 'polite',
+      myInstrument: null,
+      instrumentActionsDisabled: false,
     },
   })
 }
@@ -239,6 +241,8 @@ describe('ControlPanel', () => {
         tensionAcrossPhrases: false,
         sessionOptionsReadonly: true,
         presetStatusLive: 'off',
+        myInstrument: null,
+        instrumentActionsDisabled: false,
       },
     })
     expect(quiet.get('.preset-status').attributes('aria-live')).toBe('off')

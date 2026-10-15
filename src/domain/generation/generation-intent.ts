@@ -122,6 +122,19 @@ export function resolveInstrumentProfile(
   return getInstrumentProfile(id)
 }
 
+/**
+ * Intent: the profile of the instrument `id` names, as the screen shows and checks it: my
+ * instrument's own, given as data, or a built-in's from the table. Naming my instrument while none
+ * exists is a caller defect and throws a GenerationIntentError, as resolving its intent would.
+ */
+// @spec-link [[entity_my_instrument]]
+export function selectedInstrumentProfile(
+  id: GenerationControls['instrumentProfileId'],
+  myInstrument: { readonly profile: InstrumentProfile } | null,
+): InstrumentProfile {
+  return resolveInstrumentProfile(id, id === MY_INSTRUMENT_ID ? myInstrument?.profile : undefined)
+}
+
 /** Intent: reduce an integer pitch-class arithmetic result into the closed 0..11 index range. */
 function pcIndexMod12(value: number): number {
   return ((value % 12) + 12) % 12

@@ -69,15 +69,43 @@ export function createSelectInstrumentProfileAction<TResult>(
     state.controls = controls
     state.profileSelection = profileSelection
     deps.saveSettings({ 'controls.instrumentProfileId': id })
+    return phraseAfterSwitch(deps)
+  }
+}
 
-    if (state.roomNotice === 'no_room') return 'applied'
-    if (state.roomNotice === null && state.result === null) return 'applied'
+/**
+ * Intent: what an applied switch does to the phrase, the selection already changed: nothing under
+ * the no-room notice or with no phrase shown; otherwise the phrase is cleared under a rhythm
+ * combination that blocks generation, or regenerated with a fresh seed through the fit run.
+ */
+// @spec-link [[rule_profile_switch_validates_phrase]]
+async function phraseAfterSwitch<TResult>(
+  deps: ProfileSwitchDependencies<TResult>,
+): Promise<ProfileSelectionOutcome> {
+  const { state } = deps
+  if (state.roomNotice === 'no_room') return 'applied'
+  if (state.roomNotice === null && state.result === null) return 'applied'
 
-    if (deps.isBlocked()) {
-      deps.clearPhrase()
-      return 'cleared_unsupported_rhythm'
-    }
-    const succeeded = await deps.runFitRun()
-    return succeeded ? 'regenerated' : 'regeneration_failed'
+  if (deps.isBlocked()) {
+    deps.clearPhrase()
+    return 'cleared_unsupported_rhythm'
+  }
+  const succeeded = await deps.runFitRun()
+  return succeeded ? 'regenerated' : 'regeneration_failed'
+}
+
+/**
+ * Intent: build the action that replaces the phrase as an instrument switch does, the selection
+ * unchanged: what saving a change to the selected my instrument's range or transposition does.
+ * Rejected outside idle.
+ */
+// @spec-link [[rule_profile_switch_validates_phrase]]
+// @spec-link [[req_my_instrument]]
+export function createReplacePhraseAction<TResult>(
+  deps: ProfileSwitchDependencies<TResult>,
+): () => Promise<ProfileSelectionOutcome> {
+  return async function replacePhrase(): Promise<ProfileSelectionOutcome> {
+    if (deps.state.operation !== 'idle') return 'rejected'
+    return phraseAfterSwitch(deps)
   }
 }

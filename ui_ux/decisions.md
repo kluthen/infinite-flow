@@ -1426,3 +1426,32 @@ phones low priority, no question to the owner. Nothing in `src/` is edited.
   `Your data`'s confirmations, whose way back is disabled while a deletion runs
   (`screens/your-data/handoff.md`), a different sheet with a deletion of every session in it;
   the owner's ruling was about the Review's.
+- **D317 — The most recent session after a deletion: the player's leaves none, a damaged
+  session's passes it on at once (2026-10-15; spec D304, D310; found by documentalist).** While
+  capturing `module_kept_session_reach` (abddba4) documentalist found the kept-sessions handoff
+  saying two things: Terms, "Deleting it leaves no most recent session until the next session
+  ends with a review", unqualified; A Damaged Session (ux D310) and the session list's States, the
+  readable kept session that started last "as after the player's own deletion". Settled from the
+  spec, not chosen: master spec Part A is silent on the successor after a damaged deletion (§5.1
+  only says, for my instrument's deletions, that `Review last session` goes); spec D304 settles
+  the player's own deletion (none in that visit; after a reload, the readable kept session with
+  the latest start) and spec D310 settles the damaged one explicitly (the most recent session
+  "then becomes the readable kept session that started last"), as build plan chunk 28's scope
+  repeats. Both stand, and they agree once read together: D304's after-reload rule picks the
+  latest-started *readable* session, and a session whose body reads as damaged never was one, as
+  the load already decides without damaged summaries (`flows/saved-data/handoff.md`). So:
+  **any deletion the player makes** (one session, every session, my instrument's) leaves no most
+  recent session in that visit until the next session ends with a review; **a damaged session's
+  deletion** hands it at once to the readable kept session that started last. The only wrong
+  words were "as after the player's own deletion", true only after a reload; spec D310 and chunk
+  28's scope use the same loose clause, reported to `spec-writer` as wording only. Written in
+  both trees (a recorded correction to `versions/v3.0/`, as D307 and D316), in documents new in
+  v3, so no new mark: `flows/kept-sessions/handoff.md` (Terms names the exception; A Damaged
+  Session's "most recent session afterwards" loses the loose clause),
+  `flows/kept-sessions/intent.md` (why the two differ: the player chose the deletion and the link going confirms it; a damaged
+  session was never one the app could open, and had its damage been found at load the next one
+  would have been the last from the start), `screens/session-list/handoff.md` (States). No
+  change to what is built or captured: the player's deletion already leaves none (chunk 10b,
+  `module_kept_session_reach`), and the damaged deletion is chunk 28's, whose scope already says
+  the started-last session; chunk 14's " · Last session" follows the controller's most recent
+  session either way. When chunk 28 is captured, its atom states the successor.

@@ -8,6 +8,10 @@
  * facts as they are then, and a change made while a retry runs waits for it; while saving is off a
  * change holds for the visit only. The first pin or favorite of a visit also asks the browser for
  * persistent storage. `Delete session` removes the session from the device, then from memory.
+ * Each change also changes the session's row in the session list (./use-kept-sessions.ts) at
+ * once, a deletion once the device has made it. A pin, an unpin and `Delete session` also reach a
+ * kept session not held in memory, by its row's key, through the same change path, never reading
+ * its body.
  */
 import type { SessionHistory } from '@/session/session-history'
 import { KEPT_SESSION_COMMENT_MAX_LENGTH } from '@/storage/records/kept-session-summary'
@@ -18,6 +22,7 @@ import {
   changeKeptPinned,
   deleteKeptSession,
 } from './kept-session-review-changes'
+import type { KeptSessionRow, KeptSessionRows } from './use-kept-sessions'
 import type { SessionControllerCore } from './workspace-session-active'
 import {
   SessionControllerError,
@@ -74,14 +79,16 @@ function withPinned(session: ReviewedSession, pinned: boolean): ReviewedSession 
 }
 
 /**
- * Intent: build the Review's changes over the controller's core: each at Idle only, applied in
- * memory at once, then saved when made.
+ * Intent: build the Review's changes over the controller's core and the list's rows: each at Idle
+ * only, applied in memory at once, then saved when made.
  */
 // @spec-link [[module_kept_session_changes]]
 // @spec-link [[rule_failed_save_never_disturbs_session]]
 // @spec-link [[rule_persistent_storage_requested]]
+// @spec-link [[module_kept_session_reach]]
 export function createKeptSessionEdits(
   core: Pick<SessionControllerCore, 'state' | 'deps'>,
+  rows: KeptSessionRows,
 ): KeptSessionEdits {
   const { state } = core
   const kept = core.deps.keptSessions
@@ -97,14 +104,34 @@ export function createKeptSessionEdits(
     return recent?.kind === 'held' && recent.session.key === key ? recent.session : null
   }
 
-  /** Intent: the session held under `key`, at Idle; throws out of turn or with none held. */
-  const heldAtIdle = (key: string, action: string): ReviewedSession => {
+  /** Intent: throw unless at Idle, where every change is made. */
+  const assertIdle = (action: string): void => {
     if (state.phase !== 'idle')
       throw new SessionControllerError(`session controller: ${action} during a session`)
+  }
+
+  /** Intent: the session held under `key`, at Idle; throws out of turn or with none held. */
+  const heldAtIdle = (key: string, action: string): ReviewedSession => {
+    assertIdle(action)
     const session = findHeld(key)
     if (session === null)
       throw new SessionControllerError(`session controller: ${action} of no held session`)
     return session
+  }
+
+  /**
+   * Intent: the row this version reads of the kept session under `key`, not held in memory;
+   * throws when there is none (none at all, or one a newer version wrote).
+   */
+  // @spec-link [[module_kept_session_reach]]
+  const currentRow = (
+    key: string,
+    action: string,
+  ): Extract<KeptSessionRow, { kind: 'current' }> => {
+    const row = rows.row(key)
+    if (row?.kind !== 'current')
+      throw new SessionControllerError(`session controller: ${action} of no listed kept session`)
+    return row
   }
 
   /**
@@ -118,6 +145,11 @@ export function createKeptSessionEdits(
     }
     const review = state.review
     if (review?.key === next.key) state.review = Object.freeze({ ...next, showing: review.showing })
+    rows.edited(next.key, {
+      pinned: next.pinned,
+      favoritesCount: next.favorites.length,
+      comment: next.comment,
+    })
   }
 
   /**
@@ -131,8 +163,10 @@ export function createKeptSessionEdits(
     const pending = unsaved
     if (pending === null || pending.key !== session.key) return
     const { key, playedNotesKept, pinned, favorites, comment } = session
+    const saves = rows.savingThrough(core.deps.saveHold, () => findHeld(key))
     const outcome = await saveEndedSession(
-      core.deps.saveHold,
+      saves,
+      core.deps.browser.pageLeaving,
       pending.history,
       { key, playedNotesKept },
       { pinned, favorites, comment },
@@ -182,10 +216,29 @@ export function createKeptSessionEdits(
     return saved(key, () => changeKeptFavorite(kept.changes, key, phraseNumber, favorite))
   }
 
+  /**
+   * Intent: pin or unpin a kept session not held in memory, by its row: the row at once, then
+   * saved through the change path, which reads its session-wide record only; nothing is saved
+   * while saving is off, and a refusal is told by the notice row, the row staying as changed.
+   */
+  // @spec-link [[module_kept_session_reach]]
+  // @spec-link [[rule_pinned_session_kept]]
+  const setRowPinned = (key: string, pinned: boolean): Promise<void> => {
+    const row = currentRow(key, 'a pin changed')
+    if (row.summary.pinned === pinned) return Promise.resolve()
+    rows.edited(key, { pinned })
+    if (pinned) kept.requestProtection()
+    if (kept.savingOff()) return Promise.resolve()
+    // A refusal is told by the notice row; the change holds on the row for the visit.
+    return changeKeptPinned(kept.changes, key, pinned).then(() => undefined)
+  }
+
   /** Intent: pin or unpin, at once in memory, then save it. */
   // @spec-link [[rule_pinned_session_kept]]
   // @spec-link [[rule_persistent_storage_requested]]
   const setPinned = (key: string, pinned: boolean): Promise<void> => {
+    assertIdle('a pin changed')
+    if (findHeld(key) === null) return setRowPinned(key, pinned)
     const session = heldAtIdle(key, 'a pin changed')
     if (session.pinned === pinned) return Promise.resolve()
     replaceHeld(withPinned(session, pinned))
@@ -207,9 +260,15 @@ export function createKeptSessionEdits(
     return saved(key, () => changeKeptComment(kept.changes, key, comment))
   }
 
-  /** Intent: drop the session under `key` from memory: the Review, the most recent session. */
+  /**
+   * Intent: drop the session under `key` from memory: the Review, which the session list replaces
+   * when it showed, and the most recent session.
+   */
   const forget = (key: string): void => {
-    if (state.review?.key === key) state.review = null
+    if (state.review?.key === key) {
+      if (state.review.showing) state.listShowing = true
+      state.review = null
+    }
     const recent = state.mostRecent
     if (recent !== null && (recent.kind === 'held' ? recent.session.key : recent.key) === key)
       state.mostRecent = null
@@ -217,23 +276,26 @@ export function createKeptSessionEdits(
   }
 
   /**
-   * Intent: `Delete session`: from the device (one batch), then from memory; a session held in
-   * memory only because its save failed, from memory alone. A refusal, or saving turned off
-   * meanwhile, leaves it as it was.
+   * Intent: `Delete session`: from the device (one batch), then from memory and its row; a
+   * session held in memory only because its save failed, from memory alone; one not held, by its
+   * row, its body never read. A refusal, or saving turned off meanwhile, leaves it as it was.
    */
   // @spec-link [[req_kept_session_list]]
+  // @spec-link [[module_kept_session_reach]]
   // @spec-link [[module_kept_session_changes]]
   const deleteSession = async (key: string): Promise<SessionDeletion> => {
-    heldAtIdle(key, 'Delete session')
+    assertIdle('Delete session')
+    if (findHeld(key) === null) currentRow(key, 'Delete session')
     if (kept.savingOff())
       throw new SessionControllerError('session controller: Delete session while saving is off')
     if (retrying !== null) await retrying
     const session = findHeld(key)
-    if (session !== null && session.keeping !== 'not-saved') {
+    if (session === null || session.keeping !== 'not-saved') {
       const outcome = await deleteKeptSession(kept.changes, key)
       if (outcome.status === 'refused') return 'refused'
       if (outcome.status === 'saving-off') return 'saving-off'
     }
+    rows.removed([key])
     forget(key)
     return 'deleted'
   }

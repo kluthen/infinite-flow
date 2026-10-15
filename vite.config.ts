@@ -18,7 +18,9 @@ export default defineConfig({
     chunkSizeWarningLimit: 800,
   },
   plugins: [
-    vue(),
+    // Every component is `<script setup>`, none uses the Options API: turning it off drops Vue's
+    // Options API code from the bundle (about 4.5 kB of the entry chunk).
+    vue({ features: { optionsAPI: false } }),
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',

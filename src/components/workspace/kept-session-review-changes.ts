@@ -7,8 +7,10 @@
  * marks live, and the session-wide record with the favorites count the body then holds (marking
  * also pins); a pin and the comment rewrite the session-wide record only; Delete session deletes
  * the session-wide record, the body and the played notes together. A change to a session no longer
- * stored, or whose records cannot be read, writes nothing and recreates nothing. The codec is
- * loaded on demand, as the session's save loads it.
+ * stored, or whose records cannot be read, writes nothing and recreates nothing. A pin, an unpin
+ * and Delete session also come from a session list row, for a kept session not held in memory,
+ * keyed by the row: neither reads the session's body. The codec is loaded on demand, as the
+ * session's save loads it.
  */
 import { APP_VERSION } from '@/storage/app-version'
 import type { KeptChangeOutcome, KeptChanges, KeptRefusal } from '@/storage/save-policy'
@@ -65,11 +67,12 @@ export function favoriteChanges(
 }
 
 /**
- * Intent: the change that pins or unpins the session under `key`: its session-wide record
- * rewritten saying so, and nothing else.
+ * Intent: the change that pins or unpins the session under `key`, from its Review or its list row:
+ * its session-wide record read and rewritten saying so, and nothing else read or written.
  */
 // @spec-link [[module_kept_session_changes]]
 // @spec-link [[rule_pinned_session_kept]]
+// @spec-link [[module_kept_session_reach]]
 export function pinnedChanges(
   codec: KeptReviewCodec,
   key: string,
@@ -98,11 +101,13 @@ export function commentChanges(
 const KEPT_SESSION_STORES = ['sessionSummaries', 'sessionBodies', 'playedNotes'] as const
 
 /**
- * Intent: the change that deletes the session under `key`: its session-wide record, its body and
- * its played notes in one batch, when its session-wide record is stored and readable; nothing
- * otherwise (gone already, or left as it is for the deletion of damaged sessions).
+ * Intent: the change that deletes the session under `key`, from its Review or its list row: its
+ * session-wide record, its body and its played notes in one batch, when its session-wide record
+ * is stored and readable (the only record read); nothing otherwise (gone already, or left as it
+ * is for the deletion of damaged sessions).
  */
 // @spec-link [[module_kept_session_changes]]
+// @spec-link [[module_kept_session_reach]]
 // @spec-link [[req_kept_session_list]]
 export function deleteSessionChanges(codec: KeptReviewCodec, key: string): KeptChanges {
   return async (reader) => {

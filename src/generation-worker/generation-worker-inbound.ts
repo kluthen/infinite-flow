@@ -25,7 +25,7 @@ import {
   type InstrumentTransposition,
 } from '../domain/profile/instrument-profile'
 import { C_KEYBOARD_PROFILE, MY_INSTRUMENT_ID } from '../domain/profile/instrument-profiles'
-import { makeMyInstrument } from '../domain/profile/my-instrument'
+import { makeMyInstrumentProfile } from '../domain/profile/my-instrument'
 import { transpositionFromInstrumentTransposition } from '../domain/profile/transposition-interval'
 import { makeSeed } from '../domain/random/seed'
 import {
@@ -79,10 +79,12 @@ export interface MyInstrumentProfileFields {
 
 /**
  * Intent: the profile my instrument derives from its display name, its written range (the concert
- * range moved by the chromatic count) and its transposition, built by `makeMyInstrument`, so every
- * rule my instrument obeys applies: a span of two octaves, both ends sounding inside MIDI, letter
- * steps from the interval table, the built-in window policy. It takes no clef and no template:
- * neither feeds any part of the profile; the C keyboard stands in for the template. Refusals are
+ * range moved by the chromatic count) and its transposition, built by `makeMyInstrumentProfile`,
+ * so every rule of the profile applies: a span of two octaves, both ends sounding inside MIDI,
+ * letter steps from the interval table, the built-in window policy. It takes no clef and no
+ * template: neither feeds any part of the profile; the C keyboard stands in for the template. The
+ * clef's bound on the written range, which needs the clef, is not checked here: a bass-clef my
+ * instrument written below C2 crosses the worker. Refusals are
  * the domain's own typed errors. Shared by the inbound profile check and the phrase replay key
  * decoder, which rebuilds an `ifk2.` key's profile through it.
  */
@@ -90,16 +92,15 @@ export interface MyInstrumentProfileFields {
 // @spec-link [[module_phrase_replay_key]]
 export function deriveMyInstrumentProfile(fields: MyInstrumentProfileFields): InstrumentProfile {
   const { chromatic } = fields.transposition
-  return makeMyInstrument({
+  return makeMyInstrumentProfile({
     template: C_KEYBOARD_PROFILE.id,
     name: fields.displayName,
-    clef: 'treble',
     writtenRange: {
       minMidi: fields.concertRange.minMidi + chromatic,
       maxMidi: fields.concertRange.maxMidi + chromatic,
     },
     transposition: transpositionFromInstrumentTransposition(fields.transposition),
-  }).profile
+  })
 }
 
 /** Intent: the untrusted profile record parsed by the domain's profile parser, its tags checked. */

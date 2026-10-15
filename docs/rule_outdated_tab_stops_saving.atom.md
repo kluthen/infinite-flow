@@ -5,7 +5,9 @@ tags: [v3, release-v3.0, storage]
 parents:
   - [[req_on_device_storage]]
 dependents:
+  - [[entity_my_instrument_record]]
   - [[module_kept_session_changes]]
+  - [[module_kept_session_reach]]
   - [[module_kept_session_save]]
   - [[module_on_device_database]]
   - [[module_save_policy]]

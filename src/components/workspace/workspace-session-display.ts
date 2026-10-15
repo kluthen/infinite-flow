@@ -42,7 +42,10 @@ export interface SessionDisplayDependencies {
   /** The session's starting tempo, phrase 1's, in BPM. */
   readonly startingTempo: number
   readonly heldLayout: StaffLayout
-  /** The written phrase Idle shows, phrase 1, kept as the very same object. */
+  /**
+   * The written phrase Idle shows, phrase 1, kept as the very same object; its clef is the
+   * session's, every later phrase's.
+   */
   readonly phraseOne: WrittenPhrase
   /** The staff's latest layout inputs; null before it reported any. */
   readonly latestInputs: () => StaffLayoutInputs | null
@@ -184,7 +187,7 @@ export function createSessionDisplay(deps: SessionDisplayDependencies): SessionD
   // @spec-link [[rule_look_ahead_phrase_must_fit_staff]]
   async function checkFit(candidate: FitCandidate): Promise<boolean> {
     requireInputs()
-    const phrase = writtenPhraseOf(candidate)
+    const phrase = writtenPhraseOf(candidate, deps.phraseOne.clef)
     const plan = await deps.loadPlanner()
     return fits(plan, phrase, requireInputs())
   }
@@ -209,7 +212,7 @@ export function createSessionDisplay(deps: SessionDisplayDependencies): SessionD
         `session display: phrase ${latestReady + 1} must be readied next, got ${phrase.phraseNumber}`,
       )
     }
-    readied.set(phrase.phraseNumber, writtenPhraseOf(phrase))
+    readied.set(phrase.phraseNumber, writtenPhraseOf(phrase, deps.phraseOne.clef))
     latestReady = phrase.phraseNumber
     publish()
   }

@@ -73,6 +73,8 @@ type WritableStateKey =
   | 'review'
   | 'mostRecent'
   | 'readingMostRecent'
+  | 'listShowing'
+  | 'openingKey'
   | 'sessionStaff'
   | 'latestReady'
   | 'shownSettings'

@@ -14,14 +14,26 @@ import {
   createGenerationIntent,
 } from '@/domain/generation/generation-intent'
 import type { PitchClassNumber } from '@/domain/harmony/harmony-types'
+import type { InstrumentProfile } from '@/domain/profile/instrument-profile'
+import { MY_INSTRUMENT_ID } from '@/domain/profile/instrument-profiles'
+import type { MyInstrument } from '@/domain/profile/my-instrument'
 import { spellWrittenKey } from '@/domain/notation/pitch-spelling'
+import type { MyInstrumentSaves } from '@/storage/settings-saver'
 import type { StaffKeySignature } from '@/notation/staff-fit-types'
 import { createControlActions } from './generation-session-control-actions'
 import { createFitRunner } from './generation-session-fit-round'
 import { createNotationActions } from './generation-session-notation'
-import { createSelectInstrumentProfileAction } from './generation-session-profile-switch'
+import {
+  createReplacePhraseAction,
+  createSelectInstrumentProfileAction,
+} from './generation-session-profile-switch'
 import { createRhythmPrewarmTrigger } from './generation-session-prewarm'
 import { createRoomNoticeReactions } from './generation-session-room-notice'
+import type {
+  MyInstrumentActions,
+  MyInstrumentChangeOutcome,
+} from './generation-session-my-instrument'
+import { loadMyInstrumentActions } from './load-my-instrument-actions'
 import {
   SessionUsageError,
   type CreateGenerationSessionOptions,
@@ -32,6 +44,7 @@ import {
 } from './generation-session-types'
 
 export type { ProfileSelectionOutcome } from './generation-session-profile-switch'
+export type { MyInstrumentChangeOutcome } from './generation-session-my-instrument'
 export type { RoomNoticeCause } from './generation-session-fit-round'
 export type { StaffLayoutReports } from './generation-session-room-notice'
 export type {
@@ -47,11 +60,22 @@ export type {
 } from './generation-session-types'
 export { SessionUsageError } from './generation-session-types'
 
+/** The saves of a session given none: saving or deleting my instrument is then a defect. */
+const NO_MY_INSTRUMENT_SAVES: MyInstrumentSaves = {
+  saveMyInstrument: () => {
+    throw new SessionUsageError('This session was given no saves of my instrument.')
+  },
+  deleteMyInstrument: () => {
+    throw new SessionUsageError('This session was given no saves of my instrument.')
+  },
+}
+
 /** The settings a session given none starts from: the first-load values. */
 const FIRST_LOAD_SETTINGS: InitialGenerationSettings = {
   controls: DEFAULT_GENERATION_CONTROLS,
   profileSelection: DEFAULT_PROFILE_SELECTION,
   theme: 'System',
+  myInstrument: null,
 }
 
 /**
@@ -61,18 +85,27 @@ const FIRST_LOAD_SETTINGS: InitialGenerationSettings = {
  * for it. Its state starts from the given initial settings (the saved ones the app loaded before
  * its first draw), or from the first-load values when none are given. The player's changes to the
  * controls, the profile selection and the theme are saved through `saveSettings` as they apply.
+ * While the controls name my instrument, every intent it builds carries my instrument's profile as
+ * data; starting with them naming it and no my instrument given is a caller defect and throws.
+ * Saving and deleting my instrument load their actions on demand, at first use; the My instrument
+ * sheet's load warms them.
  */
 // @spec-link [[service_idle_generation_session]]
 // @spec-link [[module_session_seed_plan]]
 // @spec-link [[rule_first_phrase_waits_for_saved_settings]]
+// @spec-link [[entity_my_instrument]]
 export function createGenerationSession<TResult, TGenerated = TResult>(
   options: CreateGenerationSessionOptions<TResult, TGenerated>,
 ): GenerationSession<TResult> {
   const initial = options.initialSettings ?? FIRST_LOAD_SETTINGS
+  if (initial.controls.instrumentProfileId === MY_INSTRUMENT_ID && initial.myInstrument === null) {
+    throw new SessionUsageError('The controls name my instrument, but no my instrument was given.')
+  }
   const state = shallowReactive<MutableGenerationSessionState<TResult>>({
     controls: initial.controls,
     profileSelection: initial.profileSelection,
     presentation: { theme: initial.theme },
+    myInstrument: initial.myInstrument,
     latestIntent: null,
     result: null,
     operation: 'idle',
@@ -107,6 +140,20 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
     options.prewarm === undefined ? undefined : createRhythmPrewarmTrigger(options.prewarm)
 
   /**
+   * Intent: the profile an intent built now is given as data: my instrument's while the controls
+   * name it, none for a built-in, which resolves by its id. My instrument named and absent is a
+   * defect: the selection never outlives it.
+   */
+  // @spec-link [[entity_my_instrument]]
+  function suppliedInstrumentProfile(): InstrumentProfile | undefined {
+    if (state.controls.instrumentProfileId !== MY_INSTRUMENT_ID) return undefined
+    if (state.myInstrument === null) {
+      throw new SessionUsageError('The controls name my instrument, but it does not exist.')
+    }
+    return state.myInstrument.profile
+  }
+
+  /**
    * Post a prewarm for the controls a phrase would be generated with now, at the window's current
    * width, when that rhythm setting differs from the last one posted (the trigger dedupes). Never
    * draws a seed or request id, and changes no session state beyond the width read.
@@ -117,6 +164,7 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
     rhythmPrewarm(
       resolveGeneratedControls(state.controls, readNoteDensityContext()),
       state.profileSelection,
+      suppliedInstrumentProfile(),
     )
   }
 
@@ -141,27 +189,36 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
       saveSettings: options.saveSettings,
     })
 
-  const { retryNotation, reportNotationFailure, reportNotationRecovered, clearPhrase } =
-    createNotationActions<TResult>({
-      state,
-      notate: options.notate,
-      clearPresentedPhrase: options.clearPresentedPhrase,
-      routeLayoutFailure: (error) => roomNotice.routeLayoutFailure(error),
-    })
+  const {
+    retryNotation,
+    reportNotationFailure,
+    reportNotationRecovered,
+    clearPhrase,
+    redrawPhrase,
+  } = createNotationActions<TResult>({
+    state,
+    notate: options.notate,
+    clearPresentedPhrase: options.clearPresentedPhrase,
+    routeLayoutFailure: (error) => roomNotice.routeLayoutFailure(error),
+  })
 
   /**
    * Build a fresh, freshly identified/seeded intent from the current controls and profile
    * selection, with the note density the window's width gives now: the intent carries that plain
-   * density, never the width itself, while `state.controls` keeps the chosen value.
+   * density, never the width itself, while `state.controls` keeps the chosen value. My instrument's
+   * profile goes in as data while the controls name it.
    */
   // @spec-link [[rule_generated_density_follows_window_width]]
   // @spec-link [[service_idle_generation_session]]
+  // @spec-link [[entity_my_instrument]]
   function freshIntentFromControls(): GenerationIntent {
+    const instrumentProfile = suppliedInstrumentProfile()
     return createGenerationIntent({
       requestId: options.providers.nextRequestId(),
       seed: options.providers.nextSeed(),
       controls: resolveGeneratedControls(state.controls, readNoteDensityContext()),
       musicalProfile: state.profileSelection,
+      ...(instrumentProfile === undefined ? {} : { instrumentProfile }),
     })
   }
 
@@ -250,13 +307,46 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
     showEmpty: clearPhrase,
   })
 
-  const selectInstrumentProfile = createSelectInstrumentProfileAction<TResult>({
+  const profileSwitch = {
     state,
     isBlocked: isBlockedByUnsupportedRhythm,
     runFitRun: () => fitRunner.run('keep_screen'),
     clearPhrase,
     saveSettings: options.saveSettings,
-  })
+  }
+  const selectInstrumentProfile = createSelectInstrumentProfileAction<TResult>(profileSwitch)
+  let myInstrumentActions: MyInstrumentActions | null = null
+
+  /**
+   * Intent: the session's actions on my instrument, loaded on demand and created once, at their
+   * first use (the My instrument sheet's load warms them, so a save never waits on a fetch). They
+   * are created synchronously right after the load, so two calls never create them twice. A load
+   * failure is not caught: the action rejects with it.
+   */
+  // @spec-link [[req_my_instrument]]
+  async function loadedMyInstrumentActions(): Promise<MyInstrumentActions> {
+    const { createMyInstrumentActions } = await loadMyInstrumentActions()
+    myInstrumentActions ??= createMyInstrumentActions<TResult>({
+      state,
+      saves: options.myInstrumentSaves ?? NO_MY_INSTRUMENT_SAVES,
+      selectInstrumentProfile,
+      replacePhrase: createReplacePhraseAction<TResult>(profileSwitch),
+      redrawPhrase,
+    })
+    return myInstrumentActions
+  }
+
+  /** Intent: save my instrument (made or changed) through its actions, loaded on demand. */
+  // @spec-link [[req_my_instrument]]
+  async function saveMyInstrument(instrument: MyInstrument): Promise<MyInstrumentChangeOutcome> {
+    return (await loadedMyInstrumentActions()).saveMyInstrument(instrument)
+  }
+
+  /** Intent: delete my instrument through its actions, loaded on demand. */
+  // @spec-link [[req_my_instrument]]
+  async function deleteMyInstrument(): Promise<MyInstrumentChangeOutcome> {
+    return (await loadedMyInstrumentActions()).deleteMyInstrument()
+  }
 
   const stopListeningForCrossings = options.viewport.subscribe(handleWidthCrossing)
   prewarmCurrentRhythmSetting()
@@ -267,6 +357,8 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
       setControl,
       selectMusicalProfile,
       selectInstrumentProfile,
+      saveMyInstrument,
+      deleteMyInstrument,
       setTheme,
       generate,
       regenerate,

@@ -7,7 +7,10 @@
  * preset status holds both of its texts, the one in use and the other one invisible, so a change
  * between them never moves the fields below; whether it announces is the parent's to say (off for
  * the whole of a session). Under the tempo stepper, after a session that ran rising tempo, a
- * quiet note states the tempo that session reached.
+ * quiet note states the tempo that session reached. While my instrument exists, the instrument
+ * control offers it as a fourth choice, labelled with its name, and states its range and windows,
+ * from its profile given as data, as for a built-in profile. `instrument-actions` under it reads
+ * `Create my instrument` or `Edit my instrument` and asks for the My instrument sheet.
  */
 import { computed } from 'vue'
 
@@ -24,17 +27,18 @@ import {
   type GenerationControls,
 } from '@/domain/controls/generation-controls'
 import type { ProfileSelection } from '@/domain/controls/profile-selection'
-import { getInstrumentProfile } from '@/domain/generation/generation-intent'
-import { buildRegisterIntent } from '@/domain/profile/register-intent'
-import type { RegisterId } from '@/domain/profile/register-id'
+import { selectedInstrumentProfile } from '@/domain/generation/generation-intent'
+import { MY_INSTRUMENT_ID, type InstrumentProfileId } from '@/domain/profile/instrument-profiles'
+import type { MyInstrument } from '@/domain/profile/my-instrument'
 import SegmentedControl from './SegmentedControl.vue'
 import TempoStepper from './TempoStepper.vue'
 import type { SetControlPayload } from './set-control-event'
 import {
   collectionOptions,
   harmonicMotionOptions,
-  instrumentProfileOptions,
+  instrumentChoiceOptions,
   musicalProfileOptions,
+  profileRangeSummaryText,
   tensionOptions,
   tonalCenterOptions,
 } from './control-options'
@@ -47,12 +51,18 @@ const props = defineProps<{
   presetStatusLive: 'polite' | 'off'
   /** The tempo the last session that ran rising tempo reached, in BPM; null shows no note. */
   lastSessionReachedTempo: number | null
+  /** The player's own instrument, while it exists: the instrument control's fourth choice. */
+  myInstrument: MyInstrument | null
+  /** Whether `instrument-actions` is disabled: during a session and during Loading. */
+  instrumentActionsDisabled: boolean
 }>()
 
 const emit = defineEmits<{
   'set-control': [payload: SetControlPayload]
   'select-instrument-profile': [id: GenerationControls['instrumentProfileId']]
   'select-musical-profile': [profile: (typeof MUSICAL_PROFILES)[number]]
+  /** `instrument-actions` was pressed: open the My instrument sheet. */
+  'open-my-instrument': []
 }>()
 
 /**
@@ -104,11 +114,23 @@ function handleTension(value: string): void {
   })
 }
 
+/** The instrument control's choices: the built-in profiles, then my instrument while it exists. */
+// @spec-link [[req_my_instrument]]
+const instrumentOptions = computed(() => instrumentChoiceOptions(props.myInstrument?.name ?? null))
+
+/** Every instrument id the control offers now. */
+const offeredInstrumentIds = computed<readonly InstrumentProfileId[]>(() =>
+  props.myInstrument === null
+    ? INSTRUMENT_PROFILE_IDS
+    : [...INSTRUMENT_PROFILE_IDS, MY_INSTRUMENT_ID],
+)
+
 /** Intent: report an instrument-profile switch by its validated stable identity, never a control value. */
+// @spec-link [[req_my_instrument]]
 function handleInstrumentProfile(value: string): void {
   emit(
     'select-instrument-profile',
-    validateControlValue(INSTRUMENT_PROFILE_IDS, value, 'Instrument profile'),
+    validateControlValue(offeredInstrumentIds.value, value, 'Instrument profile'),
   )
 }
 
@@ -153,30 +175,13 @@ const presetStatusTexts = computed(() => {
   return isCustom ? { inUse: custom, reserve: preset } : { inUse: preset, reserve: custom }
 })
 
+/** Intent: the selected instrument's profile: my instrument's own, given as data, or a built-in's. */
+// @spec-link [[req_my_instrument]]
 const activeInstrumentProfile = computed(() =>
-  getInstrumentProfile(props.controls.instrumentProfileId),
+  selectedInstrumentProfile(props.controls.instrumentProfileId, props.myInstrument),
 )
-const registerCandidates = computed(
-  () => buildRegisterIntent(activeInstrumentProfile.value, props.controls.register).candidates,
-)
-
-/** Intent: resolve one canonical register-window candidate by identity, crashing if it is absent. */
-function candidateWindow(id: RegisterId): { readonly minMidi: number; readonly maxMidi: number } {
-  const found = registerCandidates.value.find((candidate) => candidate.id === id)
-  if (!found) {
-    throw new Error(`No "${id}" register-window candidate was derived for the active profile.`)
-  }
-  return found.window
-}
-
 /** Intent: the selected profile's active range plus its Low/Middle/High whole-phrase windows. */
-const profileRangeSummaryText = computed(() => {
-  const range = activeInstrumentProfile.value.concertRange
-  const low = candidateWindow('Low')
-  const middle = candidateWindow('Middle')
-  const high = candidateWindow('High')
-  return `Active range ${range.minMidi}-${range.maxMidi}. Whole-phrase windows: Low ${low.minMidi}-${low.maxMidi}, Middle ${middle.minMidi}-${middle.maxMidi}, High ${high.minMidi}-${high.maxMidi}.`
-})
+const profileRangeSummary = computed(() => profileRangeSummaryText(activeInstrumentProfile.value))
 </script>
 
 <template>
@@ -216,12 +221,22 @@ const profileRangeSummaryText = computed(() => {
       <span class="field-label">Instrument profile</span>
       <SegmentedControl
         label="Instrument profile"
-        :options="instrumentProfileOptions()"
+        :options="instrumentOptions"
         :model-value="controls.instrumentProfileId"
         :readonly="readonly"
         @update:model-value="handleInstrumentProfile"
       />
-      <p class="profile-range-summary">{{ profileRangeSummaryText }}</p>
+      <p class="profile-range-summary">{{ profileRangeSummary }}</p>
+      <div class="instrument-actions">
+        <button
+          class="btn"
+          type="button"
+          :disabled="instrumentActionsDisabled"
+          @click="emit('open-my-instrument')"
+        >
+          {{ myInstrument === null ? 'Create my instrument' : 'Edit my instrument' }}
+        </button>
+      </div>
     </div>
     <div class="field-group" :class="{ 'is-readonly': readonly }">
       <span class="field-label">Musical profile preset</span>

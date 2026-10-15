@@ -1,8 +1,10 @@
 ---
 id: rule_outdated_tab_reads_what_it_can
-status: DRAFT
+status: REVIEW
 dependents:
+  - [[entity_my_instrument_record]]
   - [[module_kept_session_codec]]
+  - [[module_kept_session_reach]]
   - [[module_on_device_database]]
 type: RULE
 version: 0.1

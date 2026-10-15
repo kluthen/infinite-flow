@@ -73,6 +73,7 @@ export function fakeSavedData(settings: Partial<SavedSettings> = {}): SavedDataL
   return {
     outcome: 'saved-data-read',
     settings: { ...defaultSettings(themeDesign().defaults), ...settings },
+    myInstrument: null,
     keptSessionSummaries: [],
     rememberedController: [],
     savePolicy: new Promise(() => {}),

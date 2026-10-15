@@ -4,7 +4,8 @@
  * each under its own abort signal held in the Idle background slot, checks each success's fit in
  * the layout a session would hold now, and keeps the phrases that fit (phrases 2 to 5) in memory
  * only. It watches the queue's key and discards on any change of it, re-checks the queue on every
- * staff layout report and window-width crossing, and hands the queue to Start. A background attempt
+ * staff layout report, window-width crossing and saved change to my instrument, and hands the
+ * queue to Start. A background attempt
  * is never an Idle operation: it changes no Idle state. Loaded with the session controller, outside
  * the entry chunk.
  */
@@ -16,6 +17,7 @@ import type { WorkspaceSessionResult } from '@/composables/workspace-session-res
 import { CarryInError } from '@/domain/generation/carry-in/carry-in'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
+import { instrumentClefOf, type InstrumentClef } from '@/domain/profile/instrument-clef'
 import {
   GenerationWorkerCrashError,
   GenerationWorkerTransportError,
@@ -32,6 +34,7 @@ import {
   type PregenerationSeams,
   type PregenerationStart,
 } from '@/session/session-pregeneration'
+import { sessionSettingsAtStart } from '@/session/session-intents'
 import type { ReadyPhrase } from '@/session/session-ready-phrases'
 import type { SessionStartBlocker } from '@/session/session-start-conditions'
 import { sessionLayoutAtStart } from '@/session/session-window'
@@ -173,15 +176,27 @@ export function createWorkspacePregeneration(
   let stalled = false
   let disposed = false
 
-  /** Intent: the plan's start from phrase 1 and the Idle choices as a session would take them. */
+  /**
+   * Intent: the plan's start from phrase 1 and the Idle choices as a session would take them, my
+   * instrument's profile taken from phrase 1's intent, as Start takes it.
+   */
+  // @spec-link [[entity_my_instrument]]
   function startOf(phraseOne: WorkspaceSessionResult): PregenerationStart {
     return {
-      settings: { controls: idle.controls, musicalProfile: idle.profileSelection },
+      settings: sessionSettingsAtStart(
+        { controls: idle.controls, musicalProfile: idle.profileSelection },
+        phraseOne.intent,
+      ),
       phraseOne: { intent: phraseOne.intent, outcome: phraseOne.outcome },
       sessionSeed: phraseOne.sessionSeed,
       mutation: mutationFlagFor(deps.varySettings(), phraseOne.sessionSeed),
       multiPhraseTensionArc: deps.tensionAcrossPhrases(),
     }
+  }
+
+  /** Intent: the clef a session would draw its phrases in: the selected instrument's. */
+  function sessionClef(): InstrumentClef {
+    return instrumentClefOf(idle.controls.instrumentProfileId, idle.myInstrument)
   }
 
   /** Intent: Idle's phrase 1; asking with none is a defect (the queue is emptied with it). */
@@ -214,7 +229,7 @@ export function createWorkspacePregeneration(
     const plan = planner
     const inputs = requireInputs()
     const first = list.findIndex(
-      (entry) => !fitsHeldLayout(plan, writtenPhraseOf(entry), heldLayout, inputs),
+      (entry) => !fitsHeldLayout(plan, writtenPhraseOf(entry, sessionClef()), heldLayout, inputs),
     )
     return first === -1 ? list : list.slice(0, first)
   }
@@ -290,7 +305,7 @@ export function createWorkspacePregeneration(
       return { kind: 'generation-failure', code: outcome.code }
     const plan = planner ?? (planner = await deps.loadPlanner())
     if (signal.aborted) return undefined
-    const written = writtenPhraseOf({ intent: attempt.intent, outcome })
+    const written = writtenPhraseOf({ intent: attempt.intent, outcome }, sessionClef())
     const fits = fitsHeldLayout(plan, written, layoutNow(), requireInputs())
     return fits ? { kind: 'fits', outcome } : { kind: 'not-fitting' }
   }
@@ -375,6 +390,13 @@ export function createWorkspacePregeneration(
       () => guarded(() => reconsider(true)),
     ),
     deps.idleLayout.observeInputs(() => guarded(() => reconsider(false))),
+    // A saved change to my instrument may change the staff's shared size or the clef a session
+    // draws in, without changing phrase 1: the ready phrases are checked again, as at a window
+    // change (a change that replaces phrase 1 discards them through the key watcher).
+    watch(
+      () => idle.myInstrument,
+      () => guarded(() => reconsider(false)),
+    ),
   ]
   guarded(() => pump())
 

@@ -2,16 +2,23 @@
  * The review area's side of the Review (./ReviewArea.vue, loaded on demand with the Review's
  * code): what the lazily loaded `ReviewPanel` is given beyond what the page keeps in the Review
  * host (./use-review-host.ts). That is the session's phrases, start and instrument as the session
- * holds them, how it is kept and whether it is the most recent session; the generated-notes
- * export's file action; whether the session holds a played note, and the played-notes export as
- * the host's `Include very short notes` asks. Its played-notes side (./use-review-played-notes.ts)
+ * holds them, how it is kept and whether it is the most recent session; the export scope (`Whole
+ * session` at every Review, back to it when the last favorite goes, never saved), which both
+ * exports read; the generated-notes export's file action; whether the session holds a played note,
+ * and the played-notes export as the host's `Include very short notes` and the scope ask, with the
+ * reason it would hold no note. Its played-notes side (./use-review-played-notes.ts)
  * gives `Keep my played notes`, `Delete played notes` and the confirmation open over the Review;
  * its session tools (./use-review-session-tools.ts) give each phrase's favorite star, `Pin` /
  * `Unpin`, `Delete session` and the comment.
  */
-import { computed, type ComputedRef } from 'vue'
+import { computed, ref, watch, type ComputedRef } from 'vue'
 
-import type { ExportRequest } from '@/components/review/review-types'
+import type {
+  ExportRequest,
+  PlayedNotesUnavailable,
+  ReviewExportScope,
+} from '@/components/review/review-types'
+import { WHOLE_SESSION, type ExportScope } from '@/export/export-file'
 import type { ReviewedPhrase } from '@/session/session-history'
 import type { SaveSettings } from '@/storage/settings-saver'
 import {
@@ -19,6 +26,8 @@ import {
   exportPlayedNotes,
   historyHoldsPlayedNote,
   playedNotesFileHoldsNote,
+  playedNotesUnavailable,
+  type PlayedNotesExportRequest,
   type ReviewExportPorts,
 } from './review-export'
 import type { ReviewHost } from './use-review-host'
@@ -65,23 +74,38 @@ export interface ReviewArea extends ReviewPlayedNotes, ReviewSessionTools {
   /** The showing Review draws the most recent session. */
   // @spec-link [[req_kept_session_review]]
   readonly mostRecent: ComputedRef<boolean>
-  /** Build the asked file from the showing Review's history and download it; rejects on failure. */
+  /**
+   * The export scope both exports hold: `wholeSession` at every Review, and again as soon as the
+   * session has no favorite left.
+   */
+  // @spec-link [[rule_favorites_only_export]]
+  readonly scope: ComputedRef<ReviewExportScope>
+  /** The player picked a scope; `favoritesOnly` is refused while the session has no favorite. */
+  // @spec-link [[rule_favorites_only_export]]
+  readonly setScope: (scope: ReviewExportScope) => void
+  /**
+   * Build the asked file, under the scope it names, from the showing Review's history and download
+   * it; rejects on failure.
+   */
   readonly exportFile: (request: ExportRequest) => Promise<void>
   /** The showing Review's history holds a played note in a phrase; false while none shows. */
   // @spec-link [[req_played_notes_export]]
   readonly holdsPlayedNote: ComputedRef<boolean>
   /**
-   * Build the showing Review's played-notes file as `Include very short notes` asks when it starts,
-   * and download it; rejects on failure.
+   * Build the showing Review's played-notes file as `Include very short notes` and the scope ask
+   * when it starts, and download it; rejects on failure.
    */
   // @spec-link [[req_played_notes_export]]
   readonly exportPlayedNotes: () => Promise<void>
   /**
-   * The showing Review's played-notes file would hold a note under `Include very short notes`;
-   * false while none shows. `Export played notes` is disabled while it would not.
+   * The showing Review's played-notes file would hold a note under `Include very short notes` and
+   * the scope; false while none shows. `Export played notes` is disabled while it would not.
    */
   // @spec-link [[rule_played_notes_export_omits_stray_notes]]
   readonly playedNotesFileHoldsNote: ComputedRef<boolean>
+  /** Why that file would hold no note, the first reason that applies; null while it holds one. */
+  // @spec-link [[rule_favorites_only_export]]
+  readonly playedNotesUnavailable: ComputedRef<PlayedNotesUnavailable | null>
 }
 
 /**
@@ -112,12 +136,65 @@ export function useReviewArea(deps: ReviewAreaDependencies): ReviewArea {
   })
   // @spec-link [[req_played_notes_export]]
   const holdsPlayedNote = computed(() => historyHoldsPlayedNote(records.value))
+  /** The showing Review's favorite phrases, by number; none while no Review shows. */
+  const favorites = computed(() => host.shownReview.value?.favorites ?? [])
+  /** The scope the player picked for this Review. */
+  const picked = ref<ReviewExportScope>('wholeSession')
+  /** Intent: the scope in force: the player's, but the whole session while there is no favorite. */
+  // @spec-link [[rule_favorites_only_export]]
+  const scope = computed((): ReviewExportScope =>
+    favorites.value.length === 0 ? 'wholeSession' : picked.value,
+  )
+  // A Review of another session starts at the whole session, and so does the scope once the last
+  // favorite goes, so a favorite marked again later never brings `Favorites only` back by itself.
+  watch(
+    shownHistory,
+    () => {
+      picked.value = 'wholeSession'
+    },
+    { flush: 'sync' },
+  )
+  watch(
+    () => favorites.value.length === 0,
+    (none) => {
+      if (none) picked.value = 'wholeSession'
+    },
+    { flush: 'sync' },
+  )
+
+  /** Intent: the player picked `next`; favorites only is refused while there is no favorite. */
+  // @spec-link [[rule_favorites_only_export]]
+  function setScope(next: ReviewExportScope): void {
+    if (next === 'favoritesOnly' && favorites.value.length === 0) {
+      throw new Error('review area: favorites only was picked with no favorite in the session')
+    }
+    picked.value = next
+  }
+
+  /**
+   * Intent: the export scope `kind` names, favorites only with the showing Review's favorites read
+   * now, so a build keeps the favorites it started with.
+   */
+  // @spec-link [[rule_favorites_only_export]]
+  function exportScope(kind: ReviewExportScope): ExportScope {
+    if (kind === 'wholeSession') return WHOLE_SESSION
+    if (kind === 'favoritesOnly') return { kind, favorites: [...favorites.value] }
+    throw new Error(`review area: no export scope "${String(kind)}"`)
+  }
+
+  /** Intent: the played-notes request the current choices make. */
+  function playedRequest(): PlayedNotesExportRequest {
+    return {
+      includeVeryShortNotes: host.includeVeryShortNotes.value,
+      scope: exportScope(scope.value),
+    }
+  }
   // @spec-link [[rule_played_notes_export_omits_stray_notes]]
   const playedNotesFileHolds = computed(() =>
-    playedNotesFileHoldsNote(records.value, {
-      includeVeryShortNotes: host.includeVeryShortNotes.value,
-    }),
+    playedNotesFileHoldsNote(records.value, playedRequest()),
   )
+  // @spec-link [[rule_favorites_only_export]]
+  const playedNotesReason = computed(() => playedNotesUnavailable(records.value, playedRequest()))
 
   /**
    * Intent: run `run` on the showing Review's history; an export asked for with none showing is a
@@ -133,19 +210,28 @@ export function useReviewArea(deps: ReviewAreaDependencies): ReviewArea {
     return run(history)
   }
 
-  /** Intent: export the asked generated-notes file from the showing Review's history. */
+  /**
+   * Intent: export the asked generated-notes file, under the scope it names, from the showing
+   * Review's history.
+   */
+  // @spec-link [[rule_favorites_only_export]]
   function exportFile(request: ExportRequest): Promise<void> {
-    return withShownHistory((history) => exportGeneratedNotes(history, request, deps.exportPorts()))
+    return withShownHistory((history) => {
+      const { format, backingTrack } = request
+      const asked = { format, backingTrack, scope: exportScope(request.scope) }
+      return exportGeneratedNotes(history, asked, deps.exportPorts())
+    })
   }
 
   /**
    * Intent: export the played-notes file from the showing Review's history, very short notes in it
-   * only if `Include very short notes` is on now; a later change leaves this build as it started.
+   * only if `Include very short notes` is on now, under the scope in force now; a later change
+   * leaves this build as it started.
    */
   // @spec-link [[req_played_notes_export]]
   // @spec-link [[rule_played_notes_export_omits_stray_notes]]
   function exportPlayed(): Promise<void> {
-    const request = { includeVeryShortNotes: host.includeVeryShortNotes.value }
+    const request = playedRequest()
     return withShownHistory((history) => exportPlayedNotes(history, request, deps.exportPorts()))
   }
 
@@ -167,10 +253,13 @@ export function useReviewArea(deps: ReviewAreaDependencies): ReviewArea {
     startedAt,
     keeping,
     mostRecent,
+    scope,
+    setScope,
     exportFile,
     holdsPlayedNote,
     exportPlayedNotes: exportPlayed,
     playedNotesFileHoldsNote: playedNotesFileHolds,
+    playedNotesUnavailable: playedNotesReason,
     ...playedNotes,
     ...sessionTools,
   }

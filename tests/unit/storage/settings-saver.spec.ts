@@ -16,7 +16,7 @@ import {
   type SettingChanges,
 } from '@/storage/settings-saver'
 import type { StorageChange } from '@/storage/storage-port'
-import { notUsed, recordingPolicy } from './recording-save-policy'
+import { notUsed, PAGE_STAYS, recordingPolicy } from './recording-save-policy'
 
 const APP_VERSION = '3.0.0-test'
 
@@ -193,7 +193,7 @@ describe('the order calls reach the policy in', () => {
 
     saves.hold()
     saves.release()
-    const outcome = saves.saveSession(changes)
+    const outcome = saves.saveSession(changes, PAGE_STAYS)
     await flushPromises()
     expect(calls).toEqual([])
 
@@ -203,7 +203,7 @@ describe('the order calls reach the policy in', () => {
     expect(calls).toEqual([
       { method: 'hold' },
       { method: 'release' },
-      { method: 'saveSession', changes },
+      { method: 'saveSession', changes, pageGoingAway: PAGE_STAYS },
     ])
   })
 })
@@ -221,7 +221,7 @@ describe('the changes to kept sessions', () => {
     /** Intent: a read that reads nothing. */
     const read = () => Promise.resolve(0)
 
-    const saved = saves.saveSession(changes)
+    const saved = saves.saveSession(changes, PAGE_STAYS)
     const changed = saves.changeKept(change, 'caller')
     const counted = saves.readKept(read, 'notice')
     await flushPromises()
@@ -233,7 +233,7 @@ describe('the changes to kept sessions', () => {
     expect(await changed).toEqual({ status: 'unchanged' })
     expect(await counted).toEqual({ status: 'saving-off' })
     expect(calls).toEqual([
-      { method: 'saveSession', changes },
+      { method: 'saveSession', changes, pageGoingAway: PAGE_STAYS },
       { method: 'changeKept', changes: change, refusal: 'caller' },
       { method: 'readKept', read, refusal: 'notice' },
     ])

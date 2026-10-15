@@ -148,8 +148,10 @@ layout-workspace
   deletion (the next row's `session-row-open`, else the previous row's, else the list's title
   over `sessions-empty`), and the notice row shows the apology, or the save-problem notice if the
   device refused the deletion (`flows/kept-sessions/handoff.md`, A Damaged Session). When it was
-  the most recent session, " · Last session" moves to the readable kept session that started
-  last. The list shows no line of its own about it.
+  the most recent session, " · Last session" moves at once to the readable kept session that
+  started last (unlike the player's own deletion of the most recent session, after which no row
+  carries it until the next session ends with a review). The list shows no line of its own
+  about it.
 - **Outdated tab:** every row without `Delete`, from the moment the tab is outdated; the rest of
   each row as in its own state. Focus on a `Delete` that leaves, or in its open confirmation, goes
   to the list's title (`flows/kept-sessions/handoff.md`, While Saving Is Off).

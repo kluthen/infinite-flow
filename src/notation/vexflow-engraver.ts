@@ -17,7 +17,7 @@ import { Formatter, Stave, StaveNote, Voice, type Beam } from 'vexflow/bravura'
 
 import type { ExpectedNoteIdentity } from '../domain/acknowledgement/expected-note'
 import type { WrittenPhrase } from '../domain/notation/written-phrase-types'
-import { BUILT_IN_INSTRUMENT_CLEF, type InstrumentClef } from '../domain/profile/instrument-clef'
+import type { InstrumentClef } from '../domain/profile/instrument-clef'
 import { systemMeasureAnchors, type MeasureAnchors } from './engraving-anchors'
 import { NotationError } from './notation-error'
 import { resolveGlyphIdentities } from './note-identity'
@@ -582,9 +582,9 @@ export function measureStaffFixedParts(
 }
 
 /**
- * Check, whatever the notes, whether the window has room for the staff with this key signature:
- * the leading clef, key signature and 4/4 time signature measured exactly as the drawn staff
- * carries them, then the planner's phrase-independent room check (the height, for two positions
+ * Check, whatever the notes, whether the window has room for the staff with this key signature in
+ * `clef`, the selected instrument's: the leading clef, key signature and 4/4 time signature
+ * measured exactly as the drawn staff carries them, then the planner's phrase-independent room check (the height, for two positions
  * of the shared system-position size, the built-in one by default, then the fixed parts' width).
  * Returns `room` or `no_room` with its cause. An unusable width throws
  * `notation_container_unavailable`; any unexpected non-NotationError throw is wrapped as
@@ -592,6 +592,7 @@ export function measureStaffFixedParts(
  */
 // @spec-link [[module_idle_fit_round]]
 export function planStaffRoomForKey(
+  clef: InstrumentClef,
   signature: StaffKeySignature,
   containerWidthPx: number,
   viewport: StaffViewport,
@@ -600,8 +601,7 @@ export function planStaffRoomForKey(
   try {
     const outcome = planStaffRoom({
       containerWidthPx,
-      // The selected instrument's clef: my instrument's reaches here with chunk 20.
-      leadingWidth: measureLeadingWidth(BUILT_IN_INSTRUMENT_CLEF, signature),
+      leadingWidth: measureLeadingWidth(clef, signature),
       systemPadding: SYSTEM_PADDING_UNITS,
       viewport,
       systemPositionUnits,

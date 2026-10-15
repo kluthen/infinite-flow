@@ -149,6 +149,7 @@ export function pregenerationRig(options: PregenerationRigOptions = {}): Pregene
     controls: settings.controls,
     profileSelection: settings.musicalProfile,
     presentation: { theme: 'System' },
+    myInstrument: null,
     latestIntent: null,
     result: idlePhraseFor(settings.controls),
     operation: 'idle',

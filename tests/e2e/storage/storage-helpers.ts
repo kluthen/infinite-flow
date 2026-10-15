@@ -1,9 +1,9 @@
 /**
  * Shared helpers for the saved-data specs on the workspace harness (port 4175): seeding settings
- * through the harness's storage seam, reading the settings stored (through the seam, or straight
- * from IndexedDB on the production build) and waiting until a change is, reloading so the next
- * load reads them, and recording the controls as the workspace is first drawn, before the browser
- * paints, to compare with what they show later.
+ * and my instrument through the harness's storage seam, reading the settings stored (through the
+ * seam, or straight from IndexedDB on the production build) and waiting until a change is,
+ * reloading so the next load reads them, and recording the controls as the workspace is first
+ * drawn, before the browser paints, to compare with what they show later.
  */
 import { expect, type Page } from '@playwright/test'
 
@@ -99,6 +99,20 @@ export async function gotoStorageHarness(page: Page, search = ''): Promise<void>
 /** Intent: seed settings records for the next load, through the harness's storage seam. */
 export function seedSettings(page: Page, values: Readonly<Record<string, unknown>>): Promise<void> {
   return page.evaluate((seeded) => window.__workspaceHarness.storage.seedSettings(seeded), values)
+}
+
+/**
+ * Intent: seed the my-instrument record built from `input` for the next load, through the
+ * harness's storage seam and the record's codec; the input is not checked.
+ */
+export function seedMyInstrument(
+  page: Page,
+  input: WorkspaceHarnessMyInstrumentInput,
+): Promise<void> {
+  return page.evaluate(
+    (seeded) => window.__workspaceHarness.storage.seedMyInstrument(seeded),
+    input,
+  )
 }
 
 /** Intent: reload the page, so the load reads what is stored, and wait until it is ready. */

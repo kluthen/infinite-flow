@@ -17,7 +17,7 @@ import {
 import { makeSeed, type Seed } from '@/domain/random/seed'
 
 import type { RecordVersions } from '../record-envelope'
-import { parseKeptProfileSelection } from './kept-phrase-parsers'
+import { isKeptPhraseRefusal, parseKeptProfileSelection } from './kept-phrase-parsers'
 import {
   assertKeptAppVersion,
   KEPT_SESSION_DATA_VERSION,
@@ -257,4 +257,63 @@ export function parseKeptSessionSummary(value: unknown): KeptSessionSummary {
 // @spec-link [[rule_outdated_tab_reads_what_it_can]]
 export function decodeKeptSessionSummary(value: unknown): KeptReading<KeptSessionSummary> {
   return readKept([value], () => parseKeptSessionSummary(value))
+}
+
+/**
+ * What this version can read of a session-wide record a newer version wrote: each fact the session
+ * list shows, kept only when it reads exactly as this version writes it.
+ */
+// @spec-link [[rule_outdated_tab_reads_what_it_can]]
+// @spec-link [[module_kept_session_reach]]
+export type NewerKeptSummaryFacts = Partial<
+  Pick<
+    KeptSessionSummary,
+    | 'startedAt'
+    | 'lengthSeconds'
+    | 'phraseCount'
+    | 'musicalProfile'
+    | 'instrument'
+    | 'pinned'
+    | 'favoritesCount'
+    | 'comment'
+    | 'playedNotesKept'
+  >
+>
+
+/** The readers of each fact a newer record's row may show, by the field that holds it. */
+const NEWER_FACT_READERS: {
+  readonly [K in keyof NewerKeptSummaryFacts]-?: (value: unknown) => NewerKeptSummaryFacts[K]
+} = {
+  startedAt: (value) => finiteAtLeast(value, 0, 'Kept session.startedAt'),
+  lengthSeconds: (value) => positiveFinite(value, 'Kept session.lengthSeconds'),
+  phraseCount: (value) => integerIn(value, 1, Number.MAX_SAFE_INTEGER, 'Kept session.phraseCount'),
+  musicalProfile: (value) => parseKeptProfileSelection(value, 'Kept session.musicalProfile'),
+  instrument: parseInstrument,
+  pinned: (value) => booleanValue(value, 'Kept session.pinned'),
+  favoritesCount: (value) =>
+    integerIn(value, 0, Number.MAX_SAFE_INTEGER, 'Kept session.favoritesCount'),
+  comment: parseComment,
+  playedNotesKept: (value) => booleanValue(value, 'Kept session.playedNotesKept'),
+}
+
+/**
+ * Intent: read what this version can of a session-wide record a newer version wrote, for its row:
+ * each fact the list shows, field by field, a field this version refuses left out (this tolerant
+ * read is the outdated tab's, never a repair: the record is never written back). Returns a fresh
+ * deep-frozen value; a value that is not a record gives no fact.
+ */
+// @spec-link [[rule_outdated_tab_reads_what_it_can]]
+// @spec-link [[module_kept_session_reach]]
+export function readNewerKeptSummary(value: unknown): NewerKeptSummaryFacts {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return deepFreeze({})
+  const record = value as Readonly<Record<string, unknown>>
+  const facts: Record<string, unknown> = {}
+  for (const [field, read] of Object.entries(NEWER_FACT_READERS)) {
+    try {
+      facts[field] = (read as (value: unknown) => unknown)(record[field])
+    } catch (error) {
+      if (!isKeptPhraseRefusal(error)) throw error
+    }
+  }
+  return deepFreeze(facts as NewerKeptSummaryFacts)
 }

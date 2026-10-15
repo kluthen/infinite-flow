@@ -32,6 +32,7 @@ function hostOver(rig: ControllerRig, form: ControllerStatusForm = { kind: 'conn
     audio: transportRig().transport,
     status: { form: computed(() => form), seenDeviceCount: computed(() => 0) },
     profile: () => C_KEYBOARD_PROFILE,
+    clef: () => 'treble',
     sessionActive: () => false,
   })
 }

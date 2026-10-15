@@ -14,7 +14,7 @@
  * keeps the workspace's connection-sheet flag in step with the shell's sheet, and provides the
  * workspace's saver of the player's changes to the components whose change handlers save.
  */
-import { inject, onUnmounted, provide, shallowRef, watch } from 'vue'
+import { computed, inject, onUnmounted, provide, shallowRef, watch } from 'vue'
 
 import { applyThemePreference } from './components/workspace/apply-theme-preference'
 import {
@@ -28,6 +28,7 @@ import {
 import { SAVE_SETTINGS } from './components/workspace/save-settings-injection'
 import WorkspaceShell from './components/workspace/WorkspaceShell.vue'
 import type { SessionController } from './components/workspace/workspace-session-controller-types'
+import type { WrittenRangeInClef } from './notation/notation-layout-policy'
 import type { SavedDataLoad } from './storage-bootstrap'
 
 const props = defineProps<{
@@ -49,6 +50,17 @@ const buildWorkspaceSession = inject(WORKSPACE_SESSION_FACTORY, (savedData: Save
 const workspace = buildWorkspaceSession(props.savedData)
 
 watch(() => workspace.session.state.presentation.theme, applyThemePreference, { immediate: true })
+
+/**
+ * The saved my instrument's written range in its clef, which sizes the staff's shared system
+ * positions; null while no my instrument exists. It changes only when my instrument does.
+ */
+// @spec-link [[module_notation_layout_preflight]]
+// @spec-link [[entity_my_instrument_record]]
+const savedMyInstrumentRangeInClef = computed<WrittenRangeInClef | null>(() => {
+  const mine = workspace.session.state.myInstrument
+  return mine === null ? null : { writtenRange: mine.writtenRange, clef: mine.clef }
+})
 
 // The components whose change handlers save the player's changes (the audio mix, the "During a
 // session" options, the Review's choices) inject the workspace's saver at their setup.
@@ -88,7 +100,6 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <!-- No my instrument is saved yet, so its range in its clef is null; chunk 20 feeds it. -->
   <WorkspaceShell
     :session="workspace.session"
     :pending-phrase="workspace.pendingPhrase.value"
@@ -100,7 +111,7 @@ onUnmounted(() => {
     :midi="workspace.midi"
     :controller="sessionController"
     :saved-data="savedData"
-    :saved-my-instrument-range-in-clef="null"
+    :saved-my-instrument-range-in-clef="savedMyInstrumentRangeInClef"
     :saved-review-preferences="savedData.settings.review"
     :saved-session-options="savedData.settings.sessionOptions"
     :remembered-controller="workspace.rememberedController"

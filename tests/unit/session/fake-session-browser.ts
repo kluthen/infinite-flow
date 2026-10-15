@@ -2,7 +2,7 @@
  * Fakes of the session's browser ports (src/session/session-browser-ports.ts) for unit tests and
  * the workspace harness: two screen locks whose answer the test chooses (granted, refused or
  * unsupported), that count and log every request and release and say whether the lock is held; a
- * page whose visibility the test sets; a window whose shape the test resizes; and the page's first
+ * page whose visibility the test sets; a page the test makes go away, as `pagehide` does; a window whose shape the test resizes; and the page's first
  * click, tap or key press, which the test makes. They honour the
  * ports' contracts (a second request before a release throws) and settle at once, with no
  * browser. They import no Node module and no test framework, so the browser harness reuses them.
@@ -10,6 +10,7 @@
 import type {
   OrientationLock,
   PageActivation,
+  PageLeaving,
   PageVisibility,
   ScreenLockOutcome,
   ScreenWakeLock,
@@ -146,6 +147,39 @@ export function createFakePageVisibility(): FakePageVisibility {
   }
 }
 
+/** A fake page the test makes go away and come back. */
+export interface FakePageLeaving extends PageLeaving {
+  /** The page goes away, as the browser's `pagehide`. */
+  readonly leave: () => void
+  /** The page comes back, as a `pageshow` with `persisted` true (the back-forward cache). */
+  readonly comeBack: () => void
+}
+
+/**
+ * Intent: a fake page that stays until the test calls `leave`, then is going away until it calls
+ * `comeBack`; a watch reads set at once if the page is going away at the call, or else once
+ * `leave` is called after it, and then stays set, as the browser adapter's does.
+ */
+// @test-link [[req_rolling_practice_session]]
+export function createFakePageLeaving(): FakePageLeaving {
+  let away = false
+  let leaves = 0
+  return {
+    watch: () => {
+      if (away) return () => true
+      const at = leaves
+      return () => leaves !== at
+    },
+    leave: () => {
+      away = true
+      leaves += 1
+    },
+    comeBack: () => {
+      away = false
+    },
+  }
+}
+
 /** A fake window whose shape the test sets. */
 export interface FakeWindowShape extends WindowShape {
   /** Give the window a new shape and tell every subscriber, as `resize` does. */
@@ -189,12 +223,13 @@ export interface FakeSessionBrowser extends SessionBrowserPorts {
   readonly wakeLock: FakeScreenWakeLock
   readonly orientationLock: FakeOrientationLock
   readonly pageVisibility: FakePageVisibility
+  readonly pageLeaving: FakePageLeaving
   readonly windowShape: FakeWindowShape
   readonly pageActivation: FakePageActivation
 }
 
 /**
- * Intent: a full set of fake session browser ports: locks granted, page visible, desktop window,
+ * Intent: a full set of fake session browser ports: locks granted, page visible and staying, desktop window,
  * the page not yet activated.
  */
 // @test-link [[service_session_controller]]
@@ -203,6 +238,7 @@ export function createFakeSessionBrowser(): FakeSessionBrowser {
     wakeLock: createFakeScreenWakeLock(),
     orientationLock: createFakeOrientationLock(),
     pageVisibility: createFakePageVisibility(),
+    pageLeaving: createFakePageLeaving(),
     windowShape: createFakeWindowShape(),
     pageActivation: createFakePageActivation(),
   }

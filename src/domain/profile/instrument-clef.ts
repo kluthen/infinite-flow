@@ -4,6 +4,8 @@
  * generator-facing profile, the generation controls or the generation intent.
  */
 
+import { MY_INSTRUMENT_ID, type InstrumentProfileId } from './instrument-profiles'
+
 /** The clef an instrument's written part is drawn in; display only. */
 // @spec-link [[entity_my_instrument]]
 export type InstrumentClef = 'treble' | 'bass'
@@ -23,4 +25,21 @@ export const BUILT_IN_INSTRUMENT_CLEF: InstrumentClef = 'treble'
 // @spec-link [[entity_my_instrument]]
 export function isInstrumentClef(value: unknown): value is InstrumentClef {
   return INSTRUMENT_CLEFS.some((clef) => clef === value)
+}
+
+/**
+ * Intent: the clef the instrument `id` names is drawn in: my instrument's own clef when it names
+ * my instrument, treble for a built-in. Naming my instrument while none exists is a caller defect
+ * and throws: a selection of it never outlives it.
+ */
+// @spec-link [[entity_my_instrument]]
+export function instrumentClefOf(
+  id: InstrumentProfileId,
+  myInstrument: { readonly clef: InstrumentClef } | null,
+): InstrumentClef {
+  if (id !== MY_INSTRUMENT_ID) return BUILT_IN_INSTRUMENT_CLEF
+  if (myInstrument === null) {
+    throw new Error('instrument clef: my instrument is named, but it does not exist')
+  }
+  return myInstrument.clef
 }

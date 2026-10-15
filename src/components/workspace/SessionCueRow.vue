@@ -12,13 +12,16 @@
  * session ended during its count-in, after a reload), `review-link` sits at the trailing end
  * instead, beside the starting-note line or alone: "Review last session", "Last session" below
  * bp-tablet-landscape; it asks the shell to show that session's Review, and takes `is-loading`,
- * disabled, while a kept session is read from the device. It is not a live region and nothing in
- * it is announced; its content changes with no animation.
+ * disabled, while a kept session is read from the device. After it, `sessions-link` ("All
+ * sessions") while the session list has at least one row; it asks the shell to show the list. When
+ * each link shows is ./cue-row-links.ts. It is not a live region and nothing in it is announced;
+ * its content changes with no animation.
  */
 import { computed } from 'vue'
 
 import type { AudioTransport } from '@/audio/audio-transport'
 import MixVolumeButton from './MixVolumeButton.vue'
+import { reviewLinkShown, sessionsLinkShown } from './cue-row-links'
 import type { MixVolumePopover } from './mix-volume-popover'
 import type { SessionController } from './workspace-session-controller-types'
 
@@ -34,6 +37,8 @@ const emit = defineEmits<{
   stop: []
   /** `Review last session` was clicked; the shell shows the Review and moves focus. */
   'show-review': []
+  /** `All sessions` was clicked; the shell shows the session list and moves focus. */
+  'show-sessions': []
 }>()
 
 /** Intent: whether a session runs, count-in included. */
@@ -68,19 +73,14 @@ const startingNote = computed(() => props.controller?.state.startingNote ?? null
 // @spec-link [[rule_midi_starting_note]]
 const awaitsClick = computed(() => props.controller?.state.startingNoteAwaitsClick === true)
 
-/**
- * Intent: whether `review-link` is offered: at Idle, while a most recent session exists and no
- * Review shows. A start removes it; the most recent session stays, so it returns at the end.
- */
-// @spec-link [[req_last_session_review]]
-// @spec-link [[rule_new_session_discards_review]]
-// @spec-link [[rule_most_recent_session_kept]]
-const reviewLinkShown = computed(
-  () =>
-    !sessionActive.value &&
-    props.controller !== null &&
-    props.controller.state.mostRecent !== null &&
-    props.controller.state.review?.showing !== true,
+/** Intent: whether `review-link` is offered (./cue-row-links.ts). */
+const reviewLink = computed(
+  () => props.controller !== null && reviewLinkShown(props.controller.state),
+)
+
+/** Intent: whether `sessions-link` is offered (./cue-row-links.ts). */
+const sessionsLink = computed(
+  () => props.controller !== null && sessionsLinkShown(props.controller.state),
 )
 
 /** Intent: whether the most recent session is being read for `review-link`, which then waits. */
@@ -126,16 +126,26 @@ const reviewLinkLoading = computed(() => props.controller?.state.readingMostRece
       <button type="button" class="btn btn-primary" @click="emit('stop')">Stop</button>
       <MixVolumeButton :popover="mixPopover" opener="compact" :audio="audio" />
     </div>
-    <button
-      v-else-if="reviewLinkShown"
-      type="button"
-      class="btn review-link"
-      :class="{ 'is-loading': reviewLinkLoading }"
-      :disabled="reviewLinkLoading"
-      @click="emit('show-review')"
-    >
-      <span class="cue-label-wide">Review last session</span
-      ><span class="cue-label-narrow">Last session</span>
-    </button>
+    <template v-else>
+      <button
+        v-if="reviewLink"
+        type="button"
+        class="btn review-link"
+        :class="{ 'is-loading': reviewLinkLoading }"
+        :disabled="reviewLinkLoading"
+        @click="emit('show-review')"
+      >
+        <span class="cue-label-wide">Review last session</span
+        ><span class="cue-label-narrow">Last session</span>
+      </button>
+      <button
+        v-if="sessionsLink"
+        type="button"
+        class="btn sessions-link"
+        @click="emit('show-sessions')"
+      >
+        All sessions
+      </button>
+    </template>
   </div>
 </template>

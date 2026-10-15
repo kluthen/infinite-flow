@@ -6,6 +6,7 @@
  * session's played notes, or every kept one, after their save, from memory too once the device
  * has. Every change goes through the change path (./kept-session-changes.ts), naming a session by
  * its key; while saving is off the switch changes for the visit only and no deletion is made.
+ * Each change also changes the rows of the session list (./use-kept-sessions.ts) it concerns.
  */
 import { shallowRef } from 'vue'
 
@@ -16,6 +17,7 @@ import {
   keepSessionPlayedNotes,
 } from './kept-session-changes'
 import { mayKeepPlayedNotes, withoutPlayedNotes, withPlayedNotesKept } from './session-review-state'
+import type { KeptSessionRows } from './use-kept-sessions'
 import type { SessionControllerCore } from './workspace-session-active'
 import {
   SessionControllerError,
@@ -52,6 +54,7 @@ function deletionOf(outcome: KeptChangeOutcome): PlayedNotesDeletion {
 export function createKeptPlayedNotes(
   core: Pick<SessionControllerCore, 'state' | 'deps'>,
   saved: boolean,
+  rows: Pick<KeptSessionRows, 'edited' | 'playedNotesDeleted'>,
 ): KeptPlayedNotes {
   const { state } = core
   const kept = core.deps.keptSessions
@@ -79,7 +82,8 @@ export function createKeptPlayedNotes(
 
   /**
    * Intent: hold `next` in place of the session under its key, in the most recent session and in
-   * the Review (which keeps whether it shows), so both draw the very same history.
+   * the Review (which keeps whether it shows), so both draw the very same history; its row says
+   * whether its played notes are kept.
    */
   const replaceHeld = (next: ReviewedSession): void => {
     const recent = state.mostRecent
@@ -88,6 +92,7 @@ export function createKeptPlayedNotes(
     }
     const review = state.review
     if (review?.key === next.key) state.review = Object.freeze({ ...next, showing: review.showing })
+    rows.edited(next.key, { playedNotesKept: next.playedNotesKept })
   }
 
   /** Intent: keep the most recent session's played notes, still in memory, once it is kept. */
@@ -141,6 +146,7 @@ export function createKeptPlayedNotes(
     assertDeletable('Delete every kept played note')
     const deletion = deletionOf(await deleteEveryKeptPlayedNote(kept.changes))
     if (deletion !== 'deleted') return deletion
+    rows.playedNotesDeleted()
     const recent = state.mostRecent
     const held = [state.review, recent?.kind === 'held' ? recent.session : null]
     for (const session of held) {

@@ -204,7 +204,11 @@ export function cKeyboardPlainSession(tempos: readonly number[]): GeneratedNotes
  * C major): phrase 1 "rich", phrase 2 "plain", both at 90 BPM, drawn in the instrument's clef.
  */
 export function myTenorSession(clef: InstrumentClef): GeneratedNotesMusicXmlInput {
-  const draft = myInstrumentDraftFromTemplate('bb-tenor')
+  // Written E3 to E5, inside both clefs' bounds, so the same instrument holds in either clef.
+  const draft = {
+    ...myInstrumentDraftFromTemplate('bb-tenor'),
+    writtenRange: { minMidi: 52, maxMidi: 76 },
+  }
   const instrument = makeMyInstrument({ ...draft, name: 'My tenor', clef }).profile
   return {
     instrument,

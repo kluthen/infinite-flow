@@ -508,7 +508,8 @@ const notationChecks: NotationHarnessChecks = {
   },
   async planRoom(signature, containerWidthPx, viewport) {
     const engraver = await readyEngraver()
-    return engraver.planStaffRoomForKey(signature, containerWidthPx, viewport)
+    // The notation harness checks the built-in profiles' staff, in treble clef.
+    return engraver.planStaffRoomForKey('treble', signature, containerWidthPx, viewport)
   },
 }
 

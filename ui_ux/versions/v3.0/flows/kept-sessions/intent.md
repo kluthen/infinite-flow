@@ -177,9 +177,13 @@ it was played with, by the name it had then.
   something the app cannot give. Opened from `Review last session`, it leads to the list without
   it, as after the player's own deletion of the session they were looking for; opened from a
   row, the row leaves and focus moves on as after a deletion. The list and the notice change
-  together, once. Only a visit that saves deletes: an outdated tab leaves it, its row saying it
-  couldn't be opened. A session whose summary is damaged has no row at all, since the list could
-  show nothing true about it.
+  together, once. The "Last session" mark then passes at once to the readable session that
+  started last, where the player's own deletion leaves no last session until the next one ends:
+  the player chose that deletion, and the link going with it confirms it, but a damaged session
+  was never one the app could open, and had the damage been found at load the next session would
+  have been the last one from the start. Only a visit that saves deletes: an outdated tab leaves
+  it, its row saying it couldn't be opened. A session whose summary is damaged has no row at
+  all, since the list could show nothing true about it.
 - **Saved data that cannot be used this visit.** Nothing kept can be shown, so the link to the
   list is not shown, and the list, if reached from a review, says the kept sessions cannot be
   read in this visit rather than claiming there are none. Such a visit saves nothing, and, like

@@ -46,7 +46,6 @@ function mountPanel(options: PanelOptions = {}) {
       keepPlayedNotes: false,
       canDeletePlayedNotes: false,
       includeVeryShortNotes: false,
-      playedNotesFileHoldsNote: true,
       ...SESSION_TOOL_PROPS,
     },
     attachTo: document.body,
@@ -119,6 +118,7 @@ describe('the played-notes export', () => {
     const actions = wrapper.get('.review-actions').element.children
 
     expect([...actions].map((child) => child.className)).toEqual([
+      'field-group review-scope',
       'review-export',
       'review-export-played',
     ])
@@ -226,6 +226,7 @@ describe('the Played notes switch', () => {
 
     const rows = wrapper.get('.review-panel').element.children
     expect([...rows].map((child) => child.className)).toEqual([
+      'review-nav',
       'review-header',
       'review-comment',
       'review-actions',

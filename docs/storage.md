@@ -488,11 +488,13 @@ player asks, as before. The workspace harness runs the same loader (see
 ### What the load reads
 
 `loadSavedData(dependencies)` opens the port, creates the visit's save policy over it, and reads,
-in parallel, every record of `settings` and `controller`, and every entry of `sessionSummaries`
-with its key (the keyed read). The settings go
+in parallel, every record of `settings`, `instrument` and `controller`, and every entry of
+`sessionSummaries` with its key (the keyed read). The settings go
 through the settings codec (`decodeSettings`), each checked on its own: an unknown or no longer
-valid value takes its setting's default, silently, and every other value is kept. My instrument is
-not stored yet, so a saved selection of it falls back to the default instrument. The summaries,
+valid value takes its setting's default, silently, and every other value is kept. My instrument's
+record is decoded by its own codec (see [My instrument](#my-instrument)), and whether it loaded is
+given to the settings codec, so a saved selection of my instrument holds only when my instrument
+loaded and falls back to the default instrument otherwise. The summaries,
 with their keys, and the controller's records are handed on raw, for the session list, the most
 recent session and the remembered controller to decode.
 
@@ -531,6 +533,7 @@ in the visit turns the policy `off-outdated` through `onOutdated`, whatever the 
 | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | `outcome`              | The load outcome, `LoadOutcome`: `'saved-data-read'` or `'started-from-defaults'`.                                                            |
 | `settings`             | Every setting the workspace is first drawn with (`SavedSettings`): saved, or its default.                                                     |
+| `myInstrument`         | My instrument (`MyInstrument`) when its record loaded; null otherwise, and when the visit started from the defaults.                          |
 | `keptSessionSummaries` | The kept sessions' summaries as `StoredEntry` values, key and raw value, in key order; empty when the visit started from the defaults.        |
 | `rememberedController` | The remembered controller's records, raw; empty when the visit started from the defaults.                                                     |
 | `savePolicy`           | `Promise<SavePolicy>`: settled before the first draw when the port opened within the wait; otherwise once the port opens, saving already off. |
@@ -548,6 +551,7 @@ Each place gains its initial value; the saves come from the player's change hand
 | Setting                                                   | Enters at                                                                                                                                              |
 | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | The 14 controls, the musical profile selection, the theme | The Idle generation session's first state (`initialSettings`); `App.vue` applies the theme from that state before the first draw.                      |
+| My instrument                                             | The Idle generation session's first state (`initialSettings.myInstrument`), from which `App.vue` sizes the staff and the screen reads its profile.     |
 | The audio mix                                             | The audio transport's `loadedMix`, read on its first use, its volumes checked against the design's range.                                              |
 | The three "During a session" options                      | The session controller's creation (`savedSessionOptions`), never through its actions; until its chunk has loaded, the controls show the loaded values. |
 | The review's preferences                                  | The review host's first values (`WorkspaceShell` and `ScorePanel`'s `savedReviewPreferences`).                                                         |
@@ -607,8 +611,10 @@ older kept session that is not pinned is deleted in the same save. A session end
 and a start undone part-way save, read and delete nothing.
 
 `src/components/workspace/workspace-session-save.ts`, beside the session's ends, builds it:
-`saveEndedSession(saves, history, saving)` loads the kept-session codec on demand (a lazy chunk: the first
-draw never needs it) and hands the visit's saves a `SessionChanges` function. The end calls it
+`saveEndedSession(saves, page, history, saving)` loads the kept-session codec on demand (a lazy
+chunk: the first draw never needs it) and hands the visit's saves a `SessionChanges` function with
+the page-leaving signal (the watch `page.watch()` it took as it started, see
+[A session cut short by the page going away](#a-session-cut-short-by-the-page-going-away)). The end calls it
 without waiting (`workspace-session-ends.ts`), so a slow or refused save never delays the end or
 the review. It runs in this order:
 
@@ -626,7 +632,7 @@ the review. It runs in this order:
    proposed default). The deletions come first, so a kept session under the very same key is
    replaced, never deleted after the write.
 
-The policy's `saveSession(changes)` runs steps 2 and 3, once no session holds the saves and the
+The policy's `saveSession(changes, pageGoingAway)` runs steps 2 and 3, once no session holds the saves and the
 release's flush has been applied; session saves run one after the other. If a new session starts
 before the save has read, it waits for that session's end, then reads again. It resolves a
 `SessionSaveOutcome` to its caller, apart from the failure listener:
@@ -636,12 +642,48 @@ before the save has read, it waits for that session's end, then reads again. It 
 | `{ status: 'saved' }`         | The batch was applied. It ends a run of refusals, as any successful save does.           |
 | `{ status: 'refused', kind }` | The port refused the batch, `quota` or `other`: nothing was written or deleted.          |
 | `{ status: 'saving-off' }`    | Saving is off for the visit, or the batch was refused as `outdated`, which turns it off. |
+| `{ status: 'abandoned' }`     | Its page-leaving watch was set before the read or the batch: nothing more was done.      |
 
 Only a `quota` refusal of the session's save is also told to the failure listener, so the notice
 row raises Storage full; an `other` refusal is the caller's alone and raises no notice (Save
 failed is for saves other than the session's own), and it leaves the run of refusals as it was.
 While saving is off (an outdated tab, or a visit started from the defaults), the session's save
 reads, writes and deletes nothing, and every kept session stays.
+
+### A session cut short by the page going away
+
+A session cut short by reloading or closing the page is lost, never saved, and the kept sessions
+stay exactly as they were (master spec §5.1, spec D309). The page-leaving port
+(`PageLeaving` in `src/session/session-browser-ports.ts`, its adapter
+`createBrowserPageLeaving` in `src/components/workspace/browser-page-visibility.ts`) listens from
+the load for the window's `pagehide`, which marks the page as going away, and `pageshow`: one
+with `persisted` true (the back-forward cache bringing the page back) clears the mark, and one
+without it (the first load) changes nothing (spec D328). The mark is never read directly: each
+save takes its own watch, `page.watch()`, as it starts, before the codec loads (the retry of a
+refused save as the retry starts). The watch reads set at once if the page is going away then, or
+else once a `pagehide` fires after it, and once set it stays set, even after the page comes back,
+so a save the page's leaving reached, at its start or while it runs, is abandoned for good and
+never resumed. `src/storage/` reads no browser event: the watch reaches the policy with the
+session's own save, as `saveSession`'s `pageGoingAway` argument (through
+`SessionSaveHold.saveSession`), never through the policy's construction.
+
+The save checks its watch after loading the codec, and the policy before each of its transactions
+(the keyed read, the batch). Once it is set the save stops there and resolves `abandoned`: nothing more
+is read or written, the failure listener hears nothing, and the end holds the session in memory
+as not saved (the keep line reads "Not saved on this device: export it to keep it."); no row is
+added to the session list. The settings flush at the end is unchanged.
+
+- **A reload or close of a visible page** fires `pagehide`, then `visibilitychange` to hidden in
+  the same task; the hidden page ends the session, and its save never starts its first
+  transaction.
+- **A page already hidden** (a tab switch ended the session, then the tab closed): a save still
+  running stops at its next step.
+- **A page the back-forward cache brings back**: the session the `pagehide` cut short stays not
+  saved for good (its save is never resumed or retried, and its review keeps reading not saved),
+  and the later sessions of that page are saved as any session is, deleting the older kept
+  sessions that are not pinned. A save that a later `pagehide` reaches is abandoned in turn.
+- **A tab or app switch** never fires `pagehide`: it still ends the session, opens its review and
+  saves it.
 
 ## Changes after the session's save
 
@@ -724,12 +766,14 @@ phraseNumber, favorite, appVersion)` rewrites the body with that one mark, every
 - **Persistent storage.** A favorite marked and a pin each ask the policy's `requestProtection()`,
   which asks the browser at most once per visit (see [Persistent storage](#persistent-storage)).
 
-In the Review (`use-review-played-notes.ts`, beside the Review host), `Keep my played notes` and
+In the Review (`use-review-played-notes.ts`, the review area's side in `use-review-area.ts`, loaded
+on demand with the Review's code), `Keep my played notes` and
 `Delete played notes` sit in `review-view` after `Played notes`. Turning the switch saves the
 `keepPlayedNotes` setting through the visit's saves, then hands it to the controller; a deletion
 the controller asks for, or `Delete played notes`, opens the shared confirmation sheet
 (`ConfirmationSheet.vue`, its words in `review-confirmation-copy.ts`), which a refused deletion
-keeps open with its error and which closes, deleting nothing, when saving turns off.
+keeps open with its error and which closes, deleting nothing, when saving turns off. A deletion
+under way when the player closes its sheet finishes all the same (ux D316).
 
 ## The most recent session
 
@@ -755,14 +799,45 @@ session with the latest start. A session ended in its count-in leaves it as it w
   `is-loading` and `disabled`). The kept-session codec, loaded on demand, decodes it into the
   session the Review draws: its phrases and start, the summary's instrument name, its tempo reached
   and whether it is pinned. Once read it is held in memory, so showing it again reads nothing. A
-  refused read, records this version cannot read, or a session started meanwhile show nothing.
+  refused read, records this version cannot read, or a session started meanwhile show nothing; a
+  read that does not give the session also marks its row as failed to open (below).
 - **The keep line** (`ReviewPanel.vue`): "Pinned: kept until you unpin or delete it.", "Not
   pinned: deleted when your next session is saved." or "Not saved on this device: export it to keep
   it."; below `bp-tablet-landscape` (the workspace staff's split layout) only the last. The title is
   "Last session" for the most recent session and the session date otherwise; the summary starts
   with the session date (`session-date.ts`) when the title does not hold it.
 
-## The remembered controller
+## The kept sessions' rows and their openings
+
+The session controller reaches every kept session, not only those it holds in memory
+(`module_kept_session_reach`).
+
+- **The rows** (`use-kept-sessions.ts`, built by the controller in its own chunk) come from the
+  summaries the load read (`KeptSessionsSeam.summaries`), newest first, and are never read from the
+  device again. A summary this version reads gives a `current` row with its facts; one a newer
+  version wrote gives a `newer` row holding what `readNewerKeptSummary`
+  (`kept-session-summary.ts`) can read of it, field by field, and cannot be opened, pinned or
+  deleted; one that cannot be read gives no row. The controller exposes them as
+  `state.keptRows`.
+- **Kept current.** The session's own save and its retry reach the visit's saves through
+  `rows.savingThrough(saves, held)`, which keeps the batch the policy built: once it resolves
+  `saved`, the rows of the session-wide records it deleted leave and the saved session's row is
+  added with the facts held in memory then (a pin or a comment made while it ran). A refused save,
+  or one made while saving is off, changes no row. A pin, a favorite mark, the comment and the
+  played-notes changes edit their row at once, as they change the session held in memory, and the
+  row stays so for the visit when the device refuses them; a deletion removes its row once the
+  device has made it.
+- **Opening by key** (`workspace-kept-session-opening.ts`): `openSession(key)` shows a session
+  held in memory at once, else reads it by its key (`readKeptReviewedSession`), `openingKey`
+  naming it meanwhile; the latest opening wins, and `closeReview()` cancels a pending one (its read
+  then resolves `superseded` and shows nothing). A read that does not give the session resolves
+  `failed` and marks the row `failedToOpen` until the session next opens. Once read, the session is
+  the Review's, with its row's pin and comment, and the most recent session too when its key is
+  that one's.
+- **Pin, unpin and Delete session from a row** of a session not held in memory go through the
+  change path keyed by the row (`changeKeptPinned`, `deleteKeptSession` in
+  `kept-session-review-changes.ts`), which reads the session-wide record only, never the body.
+  Deleting the most recent session leaves none for the visit.
 
 The `controller` store holds at most one record, under the key `remembered`
 (`src/storage/records/controller-record.ts`): the record envelope (data version 1) and the input
@@ -789,6 +864,40 @@ display only, since two identical devices share them.
   skips the write and the delete, so a controller connected there is not remembered and its
   `Disconnect` forgets it for that visit only; the next load that reads the saved data reselects
   the controller remembered before (spec D318).
+
+## My instrument
+
+The `instrument` store holds at most one record, under the key `my-instrument`
+(`src/storage/records/my-instrument-record.ts`): the record envelope (data version 1) and what my
+instrument is built from, never what is derived from it: the id `my-instrument`, the template, the
+display name, the clef, the written range (`minMidi`, `maxMidi`), the transposition (`octaves`,
+`semitones`, `direction`) and the input kind, `midi-controller`. The concert range, the interval
+and the generator-facing profile are derived again at each load.
+
+- **Read whole or not at all.** `decodeMyInstrument` builds my instrument with `makeMyInstrument`
+  from the first current record whose fields read; a record of another shape, one whose id or
+  input kind is not the one there is, one a newer version wrote, and one `makeMyInstrument`
+  refuses all load as absent, with no error, no notice and nothing repaired. Then a saved selection
+  of `my-instrument` falls back to the default instrument.
+- **Loaded on demand.** The codec's shape check and encoder are small and in the entry chunk, for
+  the visit's saves; `makeMyInstrument`, with the interval table, is imported by the decoder only
+  when a record reads, within the start-up wait, so a load without my instrument never fetches it.
+- **Where it goes.** The Idle generation session holds it (`state.myInstrument`): every Idle
+  intent and the rhythm prewarm carry its profile as data while the controls name it, the
+  instrument control shows it as a fourth segment labelled with its name, the connection sheet's
+  check reads its profile and draws its note in its clef, and each phrase of it is written in its
+  clef (`instrumentClefOf`). `App.vue` sizes the staff's shared system positions from its written
+  range in its clef.
+- **Saved** by the player, from the My instrument sheet: `saveMyInstrument` writes the record
+  whole and `deleteMyInstrument` deletes it (`src/storage/my-instrument-saves.ts`, part of the
+  visit's saves), each one batch through the save policy, so held during a session, refused in an
+  outdated tab and skipped in a visit that saves nothing; my instrument still applies for the
+  visit. Each save also calls the policy's `requestProtection()`, which asks the browser at most
+  once per visit. The Idle session's `saveMyInstrument` and `deleteMyInstrument` actions call them
+  in the visit's order: a new my instrument's record before the selection that names it, and,
+  when the selected my instrument is deleted, its template's selection before the record's
+  deletion. A save that changes nothing writes nothing. Delete everything removes the record with
+  the database.
 
 ## The notices
 
@@ -894,5 +1003,6 @@ the session's save at its end, and the most recent session with its keep line. T
   failed to open (chunk 14).
 
 The loader imports the port, the policy and the settings codec, so they are in the entry chunk;
-the kept-session codec is loaded on demand, by the session's save and by the read of a kept
+building my instrument is loaded on demand, only when its record reads; the kept-session
+codec is loaded on demand, by the session's save and by the read of a kept
 session; the summaries are decoded in the session controller's chunk.

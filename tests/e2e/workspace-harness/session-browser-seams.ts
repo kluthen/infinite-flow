@@ -4,10 +4,13 @@
  * orientation lock and the page visibility are the unit fakes (tests/unit/session/
  * fake-session-browser.ts), so a spec chooses how the browser answers each lock and hides the page
  * at will; the window shape is the production adapter, so a spec moves it for real with
- * `page.setViewportSize`, and `windowShape()` reads it as a session would; and the page activation
- * is the production adapter too, so a spec's real click, tap or key press is the page's first.
+ * `page.setViewportSize`, and `windowShape()` reads it as a session would; the page activation
+ * is the production adapter too, so a spec's real click, tap or key press is the page's first; and
+ * so is the page leaving, so a real reload or close marks the page as going away (the fake page
+ * visibility does not follow it: a spec hides the page itself to end a session then).
  */
 import { createBrowserPageActivation } from '../../../src/components/workspace/browser-page-activation'
+import { createBrowserPageLeaving } from '../../../src/components/workspace/browser-page-visibility'
 import { createBrowserWindowShape } from '../../../src/components/workspace/browser-window-shape'
 import type { SessionBrowserPorts } from '../../../src/session/session-browser-ports'
 import {
@@ -39,7 +42,8 @@ function lockApi(lock: FakeScreenLockControls): WorkspaceHarnessScreenLockApi {
 
 /**
  * Intent: build the harness's session browser: fake locks (granting until told otherwise), a fake
- * page visibility, and the real window shape, with the APIs a spec drives them through.
+ * page visibility, and the real window shape, page activation and page leaving, with the APIs a
+ * spec drives them through.
  */
 // @test-link [[rule_screen_wake_lock_during_session]]
 // @test-link [[rule_landscape_lock_during_session]]
@@ -54,6 +58,7 @@ export function createHarnessSessionBrowser(): HarnessSessionBrowser {
       wakeLock,
       orientationLock,
       pageVisibility,
+      pageLeaving: createBrowserPageLeaving(),
       windowShape,
       pageActivation: createBrowserPageActivation(),
     },

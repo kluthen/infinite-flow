@@ -38,7 +38,7 @@ import type { StaffFixedParts, StaffLayoutInputs } from '@/notation/staff-fit-ty
 import type { MutableGenerationSessionState } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
-import type { SessionChanges, SessionSaveOutcome } from '@/storage/save-policy'
+import type { PageGoingAway, SessionChanges, SessionSaveOutcome } from '@/storage/save-policy'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
 import { makeSeed } from '@/domain/random/seed'
 import {
@@ -102,8 +102,14 @@ export interface ControllerRigOptions {
   readonly savedSessionOptions?: SessionOptionChoices
   /** The saved `Keep my played notes`; off, a first visit's, by default. */
   readonly savedKeepPlayedNotes?: boolean
-  /** What each session save resolves; `saved` at once by default. */
-  readonly sessionSaveOutcome?: () => Promise<SessionSaveOutcome>
+  /**
+   * What each session save resolves, given its changes and the page-leaving signal it carries;
+   * `saved` at once by default.
+   */
+  readonly sessionSaveOutcome?: (
+    changes: SessionChanges,
+    pageGoingAway: PageGoingAway,
+  ) => Promise<SessionSaveOutcome>
   /**
    * The kept sessions the controller reaches: by default none loaded, a read that throws (none is
    * ever asked for), saving on, and changes after a save that throw (none is ever asked for).
@@ -271,6 +277,7 @@ export function controllerRig(
     controls: settings.controls,
     profileSelection: settings.musicalProfile,
     presentation: { theme: 'System' },
+    myInstrument: null,
     latestIntent: phraseOne.intent,
     result: phraseOne,
     operation: 'idle',
@@ -395,10 +402,13 @@ export function controllerRig(
     saveHold: {
       hold: () => logSaveHold('hold'),
       release: () => logSaveHold('release'),
-      saveSession: (changes) => {
+      saveSession: (changes, pageGoingAway) => {
         logSaveHold('saveSession')
         sessionSaves.push(changes)
-        return options.sessionSaveOutcome?.() ?? Promise.resolve({ status: 'saved' })
+        return (
+          options.sessionSaveOutcome?.(changes, pageGoingAway) ??
+          Promise.resolve({ status: 'saved' })
+        )
       },
     },
     keptSessions: {
@@ -407,6 +417,7 @@ export function controllerRig(
         throw new Error(`rig: no kept session "${key}" can be read`)
       },
       savingOff: () => false,
+      startedFromDefaults: false,
       changes: {
         changeKept: () => {
           throw new Error('rig: no change to a kept session is asked for')

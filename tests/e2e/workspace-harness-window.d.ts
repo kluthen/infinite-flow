@@ -507,6 +507,13 @@ interface WorkspaceHarnessSettings {
   readonly musicalProfile: { readonly musicalProfile: string; readonly isCustom: boolean }
 }
 
+/** The instrument profile an intent carries, as plain JSON: its id, name and concert range. */
+interface WorkspaceHarnessInstrumentProfile {
+  readonly id: string
+  readonly displayName: string
+  readonly concertRange: { readonly minMidi: number; readonly maxMidi: number }
+}
+
 /** The settings one `generate` call was made with, as plain JSON. */
 interface WorkspaceHarnessGenerationRequest {
   /** The player's written tonal center the intent was built from. */
@@ -514,6 +521,8 @@ interface WorkspaceHarnessGenerationRequest {
   /** The intent's controls (its tonal center in concert pitch). */
   readonly controls: Readonly<Record<string, string | number>>
   readonly musicalProfile: { readonly musicalProfile: string; readonly isCustom: boolean }
+  /** The instrument profile the intent carries: a built-in's from its id, or my instrument's own. */
+  readonly instrumentProfile: WorkspaceHarnessInstrumentProfile
   /** Whether the request carried a carry-in (a session look-ahead joining the phrase before). */
   readonly carryIn: boolean
   /** The intent's seed. */
@@ -655,6 +664,11 @@ interface WorkspaceHarnessApi {
    * loaded; always 0 with `?prewarm=off`.
    */
   prewarmCount: () => number
+  /**
+   * The instrument profile each rhythm-domain prewarm posted since the page loaded carried, in
+   * post order; empty with `?prewarm=off`.
+   */
+  prewarmInstrumentProfiles: () => readonly WorkspaceHarnessInstrumentProfile[]
   /** The audio transport's seams (see `WorkspaceHarnessAudioApi`). */
   audio: WorkspaceHarnessAudioApi
   /** The MIDI controller's seams (see `WorkspaceHarnessMidiApi`). */
@@ -682,6 +696,22 @@ type WorkspaceHarnessStoreName =
   'settings' | 'instrument' | 'controller' | 'sessionSummaries' | 'sessionBodies' | 'playedNotes'
 
 /**
+ * What my instrument is built from (src/domain/profile/my-instrument.ts's `MyInstrumentInput`):
+ * its template, display name, clef, written range and transposition.
+ */
+interface WorkspaceHarnessMyInstrumentInput {
+  readonly template: string
+  readonly name: string
+  readonly clef: 'treble' | 'bass'
+  readonly writtenRange: { readonly minMidi: number; readonly maxMidi: number }
+  readonly transposition: {
+    readonly octaves: number
+    readonly semitones: number
+    readonly direction: 'lower' | 'same' | 'higher'
+  }
+}
+
+/**
  * The saved data's seams. The page loads the saved data before it mounts the app, as the app
  * does; a spec seeds records, then reloads the page to load them. Seeds go through the app's own
  * storage port (never the save policy) and the settings codec, at the running app's version.
@@ -694,6 +724,12 @@ interface WorkspaceHarnessStorageApi {
    * must refuse; a key that names no setting throws.
    */
   seedSettings: (values: Readonly<Record<string, unknown>>) => Promise<void>
+  /**
+   * Write the my-instrument record built from `input`, encoded by its codec, in the `instrument`
+   * store under its one key. The input is not checked, so a spec can seed one the load must
+   * refuse (a range under two octaves, a blank name, ...).
+   */
+  seedMyInstrument: (input: WorkspaceHarnessMyInstrumentInput) => Promise<void>
   /**
    * Write `count` kept sessions, each a session-wide record (a 500-character comment, the
    * longest allowed) and a body of about `bodyBytes` bytes, for the start-up read measurement
@@ -723,6 +759,18 @@ interface WorkspaceHarnessStorageApi {
    */
   seedPlayedNotes: (key: string) => Promise<void>
   /**
+   * Copy the kept session stored under `from` (its session-wide record and body) under `key`, its
+   * start set to `startedAt`. With `newer`, the copy is as a newer version of the app would have
+   * written it: one data version up, with a field this version does not know, written straight to
+   * IndexedDB (the port refuses it) without upgrading the database, so this tab stays current.
+   * Throws when no kept session is stored under `from`.
+   */
+  seedKeptSessionCopy: (
+    from: string,
+    key: string,
+    copy: { readonly startedAt: number; readonly newer: boolean },
+  ) => Promise<void>
+  /**
    * Delete the kept session under `key` (its session-wide record, body and played notes), as a
    * deletion made elsewhere would, in one batch.
    */
@@ -738,6 +786,12 @@ interface WorkspaceHarnessStorageApi {
    * left) or `other`; null to let them through again. Seeds are never refused.
    */
   refuseSaves: (kind: 'quota' | 'other' | null) => void
+  /**
+   * Make the app's port refuse, as `other`, each read of a kept session's body from now on (the
+   * read opening a kept session makes), while `on`; the load's reads never read a body. Seeds and
+   * `records` / `keyedRecords` are never refused.
+   */
+  refuseKeptSessionReads: (on: boolean) => void
   /** How many writes, deletes and batches reached the app's port since the load, refused or not. */
   portChanges: () => number
   /**

@@ -20,6 +20,7 @@ import {
   settled,
   unavailablePort,
 } from './save-policy-doubles'
+import { PAGE_STAYS } from './recording-save-policy'
 import { freshFactory, sampleRecord } from './storage-test-doubles'
 
 /** The new session's two records, under its key. */
@@ -69,7 +70,7 @@ describe("the session's own save", () => {
     const { changes, seen } = recordingChanges()
     const transactions = recordTransactions()
 
-    const outcome = await policy.saveSession(changes)
+    const outcome = await policy.saveSession(changes, PAGE_STAYS)
 
     expect(outcome).toEqual({ status: 'saved' })
     expect(seen).toEqual([[{ key: 'session-1-5', value: sampleRecord('kept') }]])
@@ -92,7 +93,7 @@ describe("the session's own save", () => {
     const transactions = recordTransactions()
 
     const released = policy.release()
-    const saved = policy.saveSession(recordingChanges().changes)
+    const saved = policy.saveSession(recordingChanges().changes, PAGE_STAYS)
 
     expect(await released).toBe('saved')
     expect(await saved).toEqual({ status: 'saved' })
@@ -110,7 +111,7 @@ describe("the session's own save", () => {
     policy.hold()
     const calls = countCalls(port)
 
-    const saved = policy.saveSession(recordingChanges().changes)
+    const saved = policy.saveSession(recordingChanges().changes, PAGE_STAYS)
     await new Promise((resolve) => setTimeout(resolve, 0))
     expect(calls.portCalls()).toBe(0)
 
@@ -126,8 +127,8 @@ describe("the session's own save", () => {
     const second = recordingChanges()
 
     const outcomes = await Promise.all([
-      policy.saveSession(first.changes),
-      policy.saveSession(second.changes),
+      policy.saveSession(first.changes, PAGE_STAYS),
+      policy.saveSession(second.changes, PAGE_STAYS),
     ])
 
     expect(outcomes).toEqual([{ status: 'saved' }, { status: 'saved' }])
@@ -143,7 +144,7 @@ describe("the session's own save", () => {
     const policy = createSavePolicy({ ...real, readKeyed: refused })
     const { changes, seen } = recordingChanges()
 
-    expect(await policy.saveSession(changes)).toEqual({ status: 'saved' })
+    expect(await policy.saveSession(changes, PAGE_STAYS)).toEqual({ status: 'saved' })
     expect(seen).toEqual([[]])
     expect((await real.readKeyed('sessionSummaries')).map((entry) => entry.key)).toEqual([
       'session-1-5',
@@ -162,7 +163,7 @@ describe("a refusal of the session's own save", () => {
     const failures = recordFailures(policy)
     refusing.refuse('other')
 
-    expect(await policy.saveSession(recordingChanges().changes)).toEqual({
+    expect(await policy.saveSession(recordingChanges().changes, PAGE_STAYS)).toEqual({
       status: 'refused',
       kind: 'other',
     })
@@ -180,7 +181,7 @@ describe("a refusal of the session's own save", () => {
     policy.onFailure((kind, startsRun) => told.push([kind, startsRun]))
     refusing.refuse('quota')
 
-    expect(await policy.saveSession(recordingChanges().changes)).toEqual({
+    expect(await policy.saveSession(recordingChanges().changes, PAGE_STAYS)).toEqual({
       status: 'refused',
       kind: 'quota',
     })
@@ -194,7 +195,9 @@ describe("a refusal of the session's own save", () => {
     const failures = recordFailures(policy)
     refusing.refuse('outdated')
 
-    expect(await policy.saveSession(recordingChanges().changes)).toEqual({ status: 'saving-off' })
+    expect(await policy.saveSession(recordingChanges().changes, PAGE_STAYS)).toEqual({
+      status: 'saving-off',
+    })
     expect(states).toEqual(['off-outdated'])
     expect(failures).toEqual([])
   })
@@ -207,7 +210,9 @@ describe("a refusal of the session's own save", () => {
     await policy.write('settings', 'theme', sampleRecord('Dark'))
     refusing.refuse(null)
 
-    expect(await policy.saveSession(recordingChanges().changes)).toEqual({ status: 'saved' })
+    expect(await policy.saveSession(recordingChanges().changes, PAGE_STAYS)).toEqual({
+      status: 'saved',
+    })
     refusing.refuse('quota')
     await policy.write('settings', 'theme', sampleRecord('Light'))
 
@@ -229,7 +234,7 @@ describe("the session's own save while saving is off", () => {
     const calls = countCalls(port)
     const { changes, seen } = recordingChanges()
 
-    expect(await policy.saveSession(changes)).toEqual({ status: 'saving-off' })
+    expect(await policy.saveSession(changes, PAGE_STAYS)).toEqual({ status: 'saving-off' })
     expect(seen).toEqual([])
     expect(calls.portCalls()).toBe(0)
   })
@@ -240,7 +245,9 @@ describe("the session's own save while saving is off", () => {
     policy.stopSavingUnreadable()
     const calls = countCalls(port)
 
-    expect(await policy.saveSession(recordingChanges().changes)).toEqual({ status: 'saving-off' })
+    expect(await policy.saveSession(recordingChanges().changes, PAGE_STAYS)).toEqual({
+      status: 'saving-off',
+    })
     expect(calls.portCalls()).toBe(0)
   })
 })
@@ -250,7 +257,7 @@ describe("the session's own save, misused", () => {
   it('throws for changes that hold no change, as a caller defect', async () => {
     const policy = createSavePolicy(await readyPort(freshFactory()))
 
-    const outcome = await settled(policy.saveSession(() => []))
+    const outcome = await settled(policy.saveSession(() => [], PAGE_STAYS))
 
     expect(outcome.error).toEqual(new Error('save policy: a session save must hold a change'))
   })
