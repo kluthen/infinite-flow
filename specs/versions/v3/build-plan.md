@@ -3320,6 +3320,39 @@ and ux Q76 closed (ux D285); the range ruling (spec D294) and spec O181 (D295, D
 
 **Verification:** the chunk checks; phone layout; then Part B1 with the owner.
 
+**Record (2026-10-15).** Merged into `v3.0-w7` in two halves: 20a (chunk commit 9ebab04: my
+instrument read everywhere from its saved record; the record and its tolerant read at start-up,
+the fourth segment, the Idle side, the check note's and the staff-room verdict's clef, no
+built-in clef stand-in left on those paths) and 20b (chunk commit af30179: the sheet, its saves in
+the new `src/storage/my-instrument-saves.ts` composed into `VisitSaves` (`settings-saver.ts` is at
+10 atom ids), the clef's range bound, the worker's derivation through `makeMyInstrumentProfile`
+with no clef bound); merge 08e9bd9. Every Done when item has an end-to-end test
+(`my-instrument.spec.ts`, `my-instrument-sheet.spec.ts`, `my-instrument-sheet-changes.spec.ts`,
+21 tests) and unit tests; the phone layout was checked at 844×390. No spec or design deviation;
+the sheet writes D♯0 as E♭0, as the design's one-spelling list does. Calls made: deleting without
+kept sessions is a plain deletion through the save policy, its refusal in the notice row (the
+confirmation's loading state and its error line come with chunk 20c's batch); deleting the
+selected my instrument saves the template's selection before deleting the record, so no saved
+selection names a missing record; a save during a generation writes the record at once and
+applies to the selection and the phrase when that generation ends, a deletion of the selected one
+waits whole; the sheet reports itself open on the existing `connection-sheet-open-change` flag,
+so a MIDI note starts no session under it; the pre-generation queue re-checks itself on a change
+of `idle.myInstrument`, and `recheck()` is still called by nothing. Earlier tests changed: chunk
+16's "no clef bound" case now asserts the bound, and six fixtures written above E5 in bass clef
+were brought inside it (no golden key among them). Files outside the Files line: the connection
+sheet's clef pass-through (`ConnectionSheet.vue`, `connection-sheet-contract.ts`,
+`use-connection-sheet.ts`, `use-controller-connection.ts`), `ControlPanel.vue`,
+`control-options.ts`, the session's creation, beginning, display and seams, the generation
+session's types, notation and prewarm, `instrument-clef.ts`, `generation-intent.ts`, new
+`NoteStepper.vue`, `my-instrument-copy.ts`, `use-my-instrument-sheet.ts`,
+`load-my-instrument-sheet.ts`, `generation-session-my-instrument.ts`; the harnesses. **Entry
+chunk 234,924 B after this chunk, over the 229,376 B budget** (measured by the wave driver: 225,052
+B after chunk 13, 225,952 B after chunk 14, so chunk 20 adds 8,972 B); left for the wave gate. For
+`ux-writer`, cosmetic: at 844 px the wide sheet stops at 36rem. For the sync: `entity_my_instrument`
+(the Idle side no longer refuses it; the clef bound ends the refusal order; new exports),
+`entity_my_instrument_record` (lazy decoder, the saves' module, the delete order),
+`module_generation_worker_protocol`, `module_idle_pregeneration_queue`, `module_saved_data_loader`.
+
 ### Chunk 21 — The check feeds my instrument
 
 **Goal.** Turn a transposition check result that is not a match into my instrument's
