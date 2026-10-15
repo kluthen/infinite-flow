@@ -43,7 +43,6 @@ function mountPanel(systemPositionUnits: number) {
       keepPlayedNotes: false,
       canDeletePlayedNotes: false,
       includeVeryShortNotes: false,
-      playedNotesFileHoldsNote: true,
       ...SESSION_TOOL_PROPS,
       systemPositionUnits,
     },

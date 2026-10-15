@@ -35,7 +35,10 @@ it is given.
 | `src/export/midi/played-notes-placement.ts`    | `playedTrackNotes`: each played note's phrase, its MIDI ticks and its channel.                                                                                                                                                                                                                                                                                           |
 | `src/export/midi/played-notes-midi-encoder.ts` | `encodePlayedNotesMidi`, the entry point: the header, the conductor track and the played track.                                                                                                                                                                                                                                                                          |
 | `src/export/midi/smf-writer.ts`                | The Standard MIDI File byte layer: variable-length quantities, header and track chunks, note and meta events.                                                                                                                                                                                                                                                            |
-| `src/export/generated-notes-file.ts`           | `buildGeneratedNotesFile`: the one file the player asked for (bytes, file name, MIME type), built from the session history; `generatedNotesFileName`; `backingForExport`, the backing track's notes.                                                                                                                                                                     |
+| `src/export/export-file.ts`                    | What every export file shares: `ExportFile`, `ExportableHistory`, the scope (`ExportScope`, `WHOLE_SESSION`), the session-stamped name stem (`exportFileStem`) and the scope's name suffix (`scopeNameSuffix`).                                                                                                                                                          |
+| `src/export/favorites-selection.ts`            | `phrasesInScope`: the phrases a scope exports, the favorites laid back to back (see [Favorites only](#favorites-only)), and its typed `FavoritesSelectionError`.                                                                                                                                                                                                         |
+| `src/export/generated-notes-file.ts`           | `buildGeneratedNotesFile`: the one file the player asked for (bytes, file name, MIME type), built from the phrases the scope picks from the session history; `generatedNotesFileName`; `backingForExport`, the backing track's notes.                                                                                                                                    |
+| `src/export/played-notes-file.ts`              | `buildPlayedNotesFile`: the played-notes file, built the same way; `playedNotesFileName`.                                                                                                                                                                                                                                                                                |
 | `src/export/load-generated-notes-export.ts`    | `loadGeneratedNotesExport`, the lazy-loading boundary of `generated-notes-file.ts`, and its typed `GeneratedNotesExportLoadError`.                                                                                                                                                                                                                                       |
 | `src/export/browser-download.ts`               | `downloadFile`: one export file handed to the browser as a download, and its typed `BrowserDownloadError`.                                                                                                                                                                                                                                                               |
 
@@ -50,7 +53,8 @@ The Review's side of the export is in `src/components/workspace/review-export.ts
 
 - `instrument`: the session's instrument profile. The encoder reads its display name (the part
   name) and its transposition.
-- `phrases`: every phrase that sounded, in session order. Each has exactly three fields:
+- `phrases`: the phrases the file holds, in session order: every phrase that sounded, or the
+  favorites only (see [Favorites only](#favorites-only)). Each has exactly three fields:
   - `number`: its session phrase number;
   - `writtenPhrase`: the `WrittenPhrase` the staff showed, from `transformToWrittenPhrase` in
     `src/domain/notation/`, the same model the VexFlow engraver draws;
@@ -64,7 +68,8 @@ played.
 The check also rejects, each with a `MusicXmlExportError`:
 
 - an empty session;
-- phrase numbers that don't run 1, 2, 3 … in order;
+- phrase numbers that aren't whole numbers from 1 up, each above the one before (1, 2, 3 … for a
+  whole session; 2, 5, 6, say, for favorites only);
 - a tempo that isn't a positive whole number;
 - a phrase whose written phrase belongs to another instrument's transposition;
 - a chord-symbol suffix with no MusicXML chord kind. The generator writes only triads today:
@@ -104,14 +109,16 @@ One score-partwise 4.0 document, UTF-8, with the MusicXML 4.0 partwise document 
   starts on. The root and any slash bass are the written spellings the staff shows. `<kind>` holds
   the MusicXML chord kind (`major`, `minor`, `diminished`). Its `text` attribute repeats the suffix
   the staff prints (empty, `m`, `dim`), so a notation program prints the same symbol.
-- **Phrases back to back.** Four measures per phrase, from phrase 1, with no gap. Measures are
-  numbered from 1 across the whole session, so phrase _n_ fills measures 4_n_ − 3 to 4_n_.
+- **Phrases back to back.** Four measures per phrase, from the file's first phrase, with no gap.
+  Phrase _n_ fills measures numbered 4_n_ − 3 to 4_n_, its numbers in the session: a whole
+  session's measures run from 1, and a favorites-only file of phrases 2, 5 and 6 numbers its
+  twelve measures 5–8, 17–20 and 21–24.
 - **Rehearsal marks.** The first measure of every phrase opens with a rehearsal mark holding its
   phrase number, above the staff.
 - **Double barlines and the final barline.** The last measure of every phrase ends with a double
   (light-light) barline, except the last phrase: its last measure ends with a final (light-heavy)
   barline, a thin line then a thick one, as printed music normally ends.
-- **Metronome marks.** The first phrase opens with a metronome mark (quarter note = tempo), with a
+- **Metronome marks.** The file's first phrase opens with a metronome mark (quarter note = tempo), with a
   `<sound tempo>` for playback. Any later phrase whose tempo differs from the phrase before
   gets another one. No other phrase has one.
 - **Key changes.** A phrase whose written key signature or collection differs from the phrase
@@ -157,7 +164,8 @@ on files exactly as the app downloads them: see [Hand check](#hand-check).
 
 `encodeGeneratedNotesMidi(input)` takes:
 
-- `phrases`: every phrase that sounded, in session order. Each has exactly three fields:
+- `phrases`: the phrases the file holds, in session order: every phrase that sounded, or the
+  favorites only (see [Favorites only](#favorites-only)). Each has exactly three fields:
   - `number`: its session phrase number;
   - `timeline`: its `ConcertEventTimeline`, the concert-pitch notes and rests exactly as generated;
   - `tempo`: its tempo in quarter notes per minute (BPM).
@@ -179,7 +187,7 @@ generated-notes file never holds played notes; they leave the app only through t
 The check also rejects, each with a `MidiExportError`:
 
 - an empty session;
-- phrase numbers that don't run 1, 2, 3 … in order;
+- phrase numbers that aren't whole numbers from 1 up, each above the one before;
 - a tempo that isn't a whole number from 60 to 240 BPM, the Tempo control's range, which
   adaptive tempo never leaves either;
 - a backing that doesn't hold exactly one entry per phrase, numbered like the phrases;
@@ -199,14 +207,16 @@ One Standard MIDI File, type 1 (several tracks played together), as a `Uint8Arra
 - **Time resolution.** 960 MIDI ticks per quarter note, fixed, for every MIDI file the app
   writes. A MIDI tick is the file's own time unit, not the app's sixteenth-note tick: a sixteenth
   note is 240 MIDI ticks, a measure 3840, a four-measure phrase 15360.
-- **Phrases back to back.** Phrase _n_ starts at (_n_ − 1) × 15360 MIDI ticks: phrase 1 at time
-  zero, with no gap. Every track ends where the last phrase ends, even on a rest.
+- **Phrases back to back.** The file's phrases follow each other from time zero, with no gap:
+  the one at place _p_ of the file (counted from 0) starts at _p_ × 15360 MIDI ticks, whatever its
+  number, so a whole session's phrase _n_ starts at (_n_ − 1) × 15360. Every track ends where the
+  last phrase ends, even on a rest.
 - **Track 1, the conductor track**, named "Infinite Flow":
   - the 4/4 time signature, once, at time zero;
   - the full tempo map: a tempo event at time zero, and another at the start of every phrase whose
     tempo differs from the phrase before. No other phrase has one;
-  - one marker per phrase, at its start, holding "Phrase" and its number: "Phrase 1",
-    "Phrase 2" … A digital audio workstation (DAW, a music production program) shows them on its
+  - one marker per phrase, at its start, holding "Phrase" and its session number: "Phrase 1",
+    "Phrase 2" …, or "Phrase 2", "Phrase 5" … in a favorites-only file. A digital audio workstation (DAW, a music production program) shows them on its
     timeline.
 - **Track 2, the generated line**, named "Generated notes", on MIDI channel 1: every note at
   concert pitch, as the concert timeline holds it. A tie joins two written notes into one sound,
@@ -275,8 +285,9 @@ its phrase's start, so the two files never drift apart from each other (see
 
 ### Input
 
-`encodePlayedNotesMidi(input)` takes `phrases`: every phrase that sounded, in session order. Each
-has exactly four fields:
+`encodePlayedNotesMidi(input)` takes `phrases`: the phrases the file holds, in session order,
+every phrase that sounded or the favorites only (see [Favorites only](#favorites-only)). Each has
+exactly four fields:
 
 - `number`: its session phrase number;
 - `tempo`: its tempo in quarter notes per minute (BPM);
@@ -296,7 +307,7 @@ There is no field for generated notes or the backing, and none can be added:
 a played note. The check also rejects, each with a `MidiExportError`:
 
 - an empty session;
-- phrase numbers that don't run 1, 2, 3 … in order;
+- phrase numbers that aren't whole numbers from 1 up, each above the one before;
 - a tempo that isn't a whole number from 60 to 240 BPM;
 - a phrase start that isn't a finite time, or phrases that aren't back to back on the audio clock
   within 1 ms: each phrase must start where the one before ends, 16 quarter notes at its tempo
@@ -369,6 +380,41 @@ Every played note is placed from its own phrase's start, never from the session'
   [The history](session-engine.md#the-history)). A late recorded start would shift every note of
   the phrase and break the 1 ms contiguity check.
 
+## Favorites only
+
+Next to the whole session, every export can hold only the session's favorite phrases
+([master spec §6](../specs/versions/v3/master-spec.md#6-favorites)). The files' builders take an
+`ExportScope` (`src/export/export-file.ts`): `WHOLE_SESSION`, the default, or
+`{ kind: 'favoritesOnly', favorites }`, the favorite phrases' session numbers. Both files of one
+scope are built from the one selection, `phrasesInScope(records, scope)` in
+`src/export/favorites-selection.ts`, so they still line up; the encoders don't know about the
+scope.
+
+- **The whole session** passes through untouched: its files are byte for byte the ones v2 made.
+- **Favorites only** keeps exactly the favorite phrases, in session order, each with its session
+  number, which names its marker and its rehearsal mark and numbers its measures.
+- **Laid out as a whole session of those phrases alone.** The first favorite starts at time zero,
+  each next one right where the one before ends, at its own tempo, with no gap where a phrase was
+  left out. Favorites 2, 5 and 6 of a session start at 0, 15360 and 30720 MIDI ticks, and the
+  tempo map changes at each of them.
+- **Runs move as one.** Phrases that followed each other in the session (favorites 5 and 6) keep
+  their own audio-clock times relative to each other, so their played notes stay exactly where
+  they were. The played-notes encoder's back-to-back check still holds: the selection moves each
+  run to start where the one before ends, and each played note with its phrase, so a note's
+  membership and its times are still read from its own phrase's start.
+- **Cut where the next phrase is left out.** A played note held past the end of a favorite
+  phrase stops at that end when the next phrase is not exported, and is kept whole when it is. A
+  note played after that end, in the up-to-1 ms gap before the next phrase, is left out. At the
+  session's last phrase, the encoder cuts as it does for a whole session.
+- **Very short notes** are judged by their length as played, before a held note is cut.
+- **Refused.** `phrasesInScope` throws a `FavoritesSelectionError` for a favorites-only scope with
+  no favorite, or with a number the session doesn't hold. The Review never asks for either.
+- **File names** add `-favorites` after their last word:
+  `infinite-flow-{date}-{time}-generated-favorites.musicxml` (or `.mid`) and
+  `infinite-flow-{date}-{time}-played-favorites.mid`.
+- **Never the comment.** The session's comment lives beside the history, never in it, so no file
+  of either scope holds it.
+
 ## Verifying the MIDI
 
 The unit specs are in `tests/unit/export/midi/`:
@@ -407,6 +453,21 @@ The unit specs are in `tests/unit/export/midi/`:
   and shares no code with the encoder; `smf-reader.spec.ts` checks it on a file assembled by hand.
   Its `rawChunks` splits a file into its raw chunks for the byte-for-byte track comparison.
 
+The favorites-only scope's specs are in `tests/unit/export/`, on a hand-laid seven-phrase session
+at seven tempos (`favorites-fixtures.ts`):
+
+- `favorites-selection.spec.ts` checks `phrasesInScope`: the whole session untouched, favorites
+  2, 5 and 6 in order with their numbers and tempos, laid back to back, played notes moved with
+  their phrase, a note held into phrase 3 stopped at phrase 2's end or kept whole when 3 is
+  exported, a note in the gap after a cut phrase left out, the favorites of every phrase laid out
+  as the whole session, and the two refusals.
+- `favorites-files.spec.ts` reads the three files of favorites 2, 5 and 6 back: the MusicXML
+  measures numbered 5–8, 17–20 and 21–24 with rehearsal marks 2, 5 and 6, each phrase's tempo and
+  barlines; the MIDI markers and tempo map from time zero, each phrase's line and backing moved to
+  its place; the played-notes file's conductor track byte for byte the generated-notes file's,
+  and its notes worked out by hand. It also checks the names, that a distinctive comment is in no
+  file's bytes, and that the whole session's files are the encoders' bytes for every phrase.
+
 [`docs/testing.md`](testing.md) lists the fixtures. Opening the files in a real MIDI tool, with the
 correct tempo map, is done by hand: see [Hand check](#hand-check). The hand check of a downloaded
 played-notes file, lined up with its generated-notes file in a DAW, belongs to chunk 23, which
@@ -420,6 +481,23 @@ session ends after phrase 1 has sounded and stays reachable until the next sessi
 Review builds the file from that session's history (see
 [Session history](session-engine.md#session-history)) and hands it to the browser.
 
+### The scope
+
+`review-scope` opens the export row: a field group labelled "Export" with a segmented control,
+`Whole session` then `Favorites only`, which governs both exports (see
+[Favorites only](#favorites-only)). `Whole session` is checked at every Review opening and the
+choice is never saved: `useReviewArea` (`src/components/workspace/use-review-area.ts`) holds it
+for the Review it serves and starts again at `Whole session` when another Review shows. With no
+favorite in the session, `Favorites only` is disabled and named by `aria-describedby` to the
+`field-note` "No favorites in this session yet."; removing the last favorite while
+`Favorites only` is checked checks `Whole session` again, and marking a favorite later does not
+bring `Favorites only` back by itself.
+
+The panel's request names the scope (`ExportRequest.scope`, `'wholeSession'` or
+`'favoritesOnly'`); `useReviewArea` turns it into the `ExportScope` the file builders take,
+reading the Review's favorite phrases when the export starts, so a build keeps the favorites it
+started with.
+
 ### The action
 
 `review-export`, in the Review's header, is one group named "Export generated notes":
@@ -430,10 +508,11 @@ Review builds the file from that session's history (see
 - **Export generated notes**: builds exactly one file and starts its download. One activation,
   one file, one download.
 
-Both choices hold for the page session: `useReviewHost`
-(`src/components/workspace/use-review-host.ts`) keeps them in memory, across Reviews and
-sessions, and stores them nowhere, so a reload brings back MusicXML with the backing off. While
-the file is built, the button takes `is-loading` and is disabled; Format and Backing track stay
+Both choices are saved settings since v3.0: `useReviewHost`
+(`src/components/workspace/use-review-host.ts`) starts them from the player's saved review
+preferences and saves each one when it changes, so they hold across Reviews, sessions and
+reloads (see [storage](storage.md)). The scope is the one export choice never saved. While the
+file is built, the button takes `is-loading` and is disabled; Format and Backing track stay
 live and apply to the next export. Success shows and announces nothing: the browser's download is
 the confirmation. Focus returns to the button.
 
@@ -450,26 +529,37 @@ follows, one group named "Export played notes":
 
 - **Include very short notes**: a toggle button, off at first. `useReviewHost` holds it for the
   page visit, across Reviews and sessions, and saves it nowhere: a reload turns it off.
-- **Export played notes**: builds the played-notes MIDI file and starts its download, with the
-  same loading, focus and error behaviour as `Export generated notes`. It is disabled whenever its
-  file would hold no note: while the option is off and every played note is very short, its
-  `field-note` says so ("Every note you played is very short. Turn on Include very short notes to
-  export them."), named by `aria-describedby`, and turning the option on enables it at once. So
-  it never reaches the export error for want of a note.
+- **Export played notes**: builds the played-notes MIDI file of the scope and starts its
+  download, with the same loading, focus and error behaviour as `Export generated notes`. It is
+  disabled whenever its file would hold no note under the scope and the option, its `field-note`
+  giving the first reason that applies, named by `aria-describedby`:
+  - under `Favorites only`, when no favorite phrase holds a played note (very short ones
+    counted): "No played notes in your favorites.";
+  - else, while the option is off and every played note the scope selects is very short: "Every
+    note you played is very short. Turn on Include very short notes to export them." under
+    `Whole session`, and "Every note you played in your favorites is very short. Turn on Include
+    very short notes to export them." under `Favorites only`.
 
-`exportPlayedNotes(history, request, ports)` sends the option as it is when the export starts, and
-`buildPlayedNotesFile(history, options)` (in `src/export/played-notes-file.ts`) leaves out every
-very short note unless `options.includeVeryShortNotes`: a note under 38 ms, note-on to
+  Turning the option on or off, or changing the scope, updates the button and its note at once.
+  So it never reaches the export error for want of a note.
+
+`exportPlayedNotes(history, request, ports)` sends the option and the scope as they are when the
+export starts, and `buildPlayedNotesFile(history, options, scope)` (in
+`src/export/played-notes-file.ts`) leaves out every very short note unless
+`options.includeVeryShortNotes`: a note under 38 ms, note-on to
 note-off, from `src/domain/played-notes/stray-notes.ts` (see
 [Very short notes (M1)](midi-tuning.md#very-short-notes-m1)). Without options, the file leaves
 them out. `playedNotesFileHoldsNote(records, request)` tells the Review, without loading the
-export code, whether the file would hold a note. The stored played notes keep every note as
-received.
+export code, whether the file would hold a note, and `playedNotesUnavailable(records, request)`
+which reason it shows when it would not (`noPlayedNoteInFavorites`, `everyFavoriteNoteVeryShort`
+or `everyNoteVeryShort`); both read the scope through the files' own selection,
+`phrasesInScope`. The stored played notes keep every note as received.
 
 ### The file
 
-`buildGeneratedNotesFile(history, request)` builds the one file asked for. The request holds the
-format and `backingTrack`, which the Review sends as true only for MIDI with the toggle on.
+`buildGeneratedNotesFile(history, request, scope)` builds the one file asked for, from the
+phrases `scope` picks (the whole session when it is left out). The request holds the format and
+`backingTrack`, which the Review sends as true only for MIDI with the toggle on.
 
 - **MusicXML**: `musicXmlInputFromHistory` then `encodeGeneratedNotesMusicXml`, as UTF-8 bytes,
   with the MIME type `application/vnd.recordare.musicxml+xml`, in the session instrument
@@ -487,9 +577,10 @@ field for them, so no played note reaches either file.
   (`generatedNotesFileName`), from the session's start in the player's local time: the history's
   `startedAt`, the wall clock read once when the Start click or the starting note started the
   session, never the time of the export. For example, a session started at 14:30:05 on
-  2 October 2026 exports `infinite-flow-2026-10-02-143005-generated.mid`. The played-notes file,
-  whose download chunk 23 adds, is to take the same stem with `-played.mid`, so a session's files
-  sort together.
+  2 October 2026 exports `infinite-flow-2026-10-02-143005-generated.mid`. The played-notes file
+  takes the same stem with `-played.mid`, so a session's files sort together. Under
+  `Favorites only` each name adds `-favorites` after its last word (`-generated-favorites.mid`,
+  `-played-favorites.mid`); `Include very short notes` never changes a name.
 - **The same bytes every time.** The same history and request always give the same bytes:
   neither encoder writes a date or any other varying value, and the name comes from the recorded
   start. Exporting twice downloads two identical files (the browser may add a number to the
@@ -555,6 +646,10 @@ The unit specs:
   a rejection with nothing downloaded when the code fails to load or the file fails to build, a
   rejection when the browser can't take the download, and the file handed to the given document
   only.
+- `tests/unit/components/workspace/use-review-area.spec.ts` and
+  `tests/unit/components/review/ReviewPanel-scope.spec.ts`: the export scope in the Review, its
+  requests and the played-notes export's reasons (see [The scope](#the-scope)); the browser-level
+  check is `tests/e2e/review/review-export-favorites.spec.ts`.
 - `tests/unit/export/export-hand-check-files.spec.ts`: the hand-check files below, rebuilt and
   compared byte for byte, and the MusicXML ones validated against the MusicXML 4.0 schema.
 

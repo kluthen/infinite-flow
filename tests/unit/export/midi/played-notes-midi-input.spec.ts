@@ -96,12 +96,26 @@ describe('validatePlayedNotesMidiInput: only played notes, nothing merged in', (
 // @test-link [[req_played_notes_export]]
 describe('validatePlayedNotesMidiInput: phrases', () => {
   // @test-link [[req_played_notes_export]]
-  it('refuses an empty session and phrases not numbered 1, 2, 3 … in order', () => {
+  it('refuses an empty session and phrases not numbered from 1 up, each above the one before', () => {
     expectRefused({ phrases: [] })
     expectRefused(withPhrase(0, (phrase) => ({ ...phrase, number: 0 })))
-    expectRefused(withPhrase(1, (phrase) => ({ ...phrase, number: 3 })))
+    expectRefused(withPhrase(1, (phrase) => ({ ...phrase, number: 1 })))
+    expectRefused(withPhrase(1, (phrase) => ({ ...phrase, number: 2.5 })))
     const [one, two] = validSession().phrases
     expectRefused({ phrases: [two, one] })
+  })
+
+  // @test-link [[rule_favorites_only_export]]
+  it('accepts the session numbers of a favorites-only file, with gaps', () => {
+    const [one, two] = validSession().phrases
+    expect(() =>
+      validatePlayedNotesMidiInput({
+        phrases: [
+          { ...one!, number: 2 },
+          { ...two!, number: 5 },
+        ],
+      }),
+    ).not.toThrow()
   })
 
   // @test-link [[req_played_notes_export]]

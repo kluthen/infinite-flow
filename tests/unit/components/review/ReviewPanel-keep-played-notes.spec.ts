@@ -43,7 +43,6 @@ function mountPanel(options: PanelOptions = {}) {
       keepPlayedNotes: options.keepPlayedNotes ?? false,
       canDeletePlayedNotes: options.canDeletePlayedNotes ?? false,
       includeVeryShortNotes: false,
-      playedNotesFileHoldsNote: true,
       ...SESSION_TOOL_PROPS,
     },
     attachTo: document.body,

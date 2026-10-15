@@ -13,9 +13,11 @@ import {
   exportPlayedNotes,
   historyHoldsPlayedNote,
   playedNotesFileHoldsNote,
+  playedNotesUnavailable,
   type ReviewExportPorts,
 } from '@/components/workspace/review-export'
 import { BrowserDownloadError } from '@/export/browser-download'
+import { WHOLE_SESSION, type ExportScope } from '@/export/export-file'
 import type { ExportFile } from '@/export/generated-notes-file'
 import {
   GeneratedNotesExportLoadError,
@@ -25,6 +27,7 @@ import {
 import { MidiExportError } from '@/export/midi/midi-export-input'
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
 import { recordedRecords } from '../review/review-fixtures'
+import { sevenPhraseHistory, sevenPhraseRecords } from '../../export/favorites-fixtures'
 import { SESSION_START_EPOCH_MS } from '../../session/session-harness'
 
 /** Intent: the recorded three-phrase session's history, started at the fixed test time. */
@@ -63,7 +66,7 @@ describe('the Review export', () => {
     async (format, backingTrack, extension, mimeType) => {
       const { ports, downloads } = recordingPorts()
 
-      await exportGeneratedNotes(history(), { format, backingTrack }, ports)
+      await exportGeneratedNotes(history(), { format, backingTrack, scope: WHOLE_SESSION }, ports)
 
       expect(downloads).toHaveLength(1)
       expect(downloads[0]).toMatchObject({
@@ -84,8 +87,8 @@ describe('the Review export', () => {
     async (format, backingTrack) => {
       const { ports, downloads } = recordingPorts()
 
-      await exportGeneratedNotes(history(), { format, backingTrack }, ports)
-      await exportGeneratedNotes(history(), { format, backingTrack }, ports)
+      await exportGeneratedNotes(history(), { format, backingTrack, scope: WHOLE_SESSION }, ports)
+      await exportGeneratedNotes(history(), { format, backingTrack, scope: WHOLE_SESSION }, ports)
 
       expect(downloads).toHaveLength(2)
       expect(downloads[1]?.fileName).toBe(downloads[0]?.fileName)
@@ -97,8 +100,16 @@ describe('the Review export', () => {
   it('holds the backing track in the MIDI file only when asked for', async () => {
     const { ports, downloads } = recordingPorts()
 
-    await exportGeneratedNotes(history(), { format: 'midi', backingTrack: false }, ports)
-    await exportGeneratedNotes(history(), { format: 'midi', backingTrack: true }, ports)
+    await exportGeneratedNotes(
+      history(),
+      { format: 'midi', backingTrack: false, scope: WHOLE_SESSION },
+      ports,
+    )
+    await exportGeneratedNotes(
+      history(),
+      { format: 'midi', backingTrack: true, scope: WHOLE_SESSION },
+      ports,
+    )
 
     expect(downloads[1]?.bytes.byteLength).toBeGreaterThan(downloads[0]?.bytes.byteLength ?? 0)
   })
@@ -109,7 +120,11 @@ describe('the Review export', () => {
     const { ports, downloads } = recordingPorts(() => Promise.reject(failure))
 
     await expect(
-      exportGeneratedNotes(history(), { format: 'musicxml', backingTrack: false }, ports),
+      exportGeneratedNotes(
+        history(),
+        { format: 'musicxml', backingTrack: false, scope: WHOLE_SESSION },
+        ports,
+      ),
     ).rejects.toBe(failure)
     expect(downloads).toEqual([])
   })
@@ -119,7 +134,11 @@ describe('the Review export', () => {
     const { ports, downloads } = recordingPorts()
 
     await expect(
-      exportGeneratedNotes(history(Number.NaN), { format: 'midi', backingTrack: false }, ports),
+      exportGeneratedNotes(
+        history(Number.NaN),
+        { format: 'midi', backingTrack: false, scope: WHOLE_SESSION },
+        ports,
+      ),
     ).rejects.toMatchObject({ kind: 'GeneratedNotesFileError' })
     expect(downloads).toEqual([])
   })
@@ -135,7 +154,11 @@ describe('the Review export', () => {
     }
 
     await expect(
-      exportGeneratedNotes(history(), { format: 'musicxml', backingTrack: false }, ports),
+      exportGeneratedNotes(
+        history(),
+        { format: 'musicxml', backingTrack: false, scope: WHOLE_SESSION },
+        ports,
+      ),
     ).rejects.toBe(failure)
     expect(ports.download).toHaveBeenCalledTimes(1)
   })
@@ -147,13 +170,17 @@ describe('the Review export', () => {
     const ports = browserReviewExportPorts(windowless)
 
     await expect(
-      exportGeneratedNotes(history(), { format: 'musicxml', backingTrack: false }, ports),
+      exportGeneratedNotes(
+        history(),
+        { format: 'musicxml', backingTrack: false, scope: WHOLE_SESSION },
+        ports,
+      ),
     ).rejects.toBeInstanceOf(BrowserDownloadError)
   })
 })
 
 /** The played-notes export as it starts: very short notes left out. */
-const DEFAULT_REQUEST = { includeVeryShortNotes: false } as const
+const DEFAULT_REQUEST = { includeVeryShortNotes: false, scope: WHOLE_SESSION } as const
 
 /** Intent: the recorded session's history with every played note taken out. */
 function silentHistory(): ExportableHistory {
@@ -258,7 +285,7 @@ describe('the Review played-notes export and very short notes', () => {
     const exportModule = await loadGeneratedNotesExport()
 
     await exportPlayedNotes(mixed, DEFAULT_REQUEST, ports)
-    await exportPlayedNotes(mixed, { includeVeryShortNotes: true }, ports)
+    await exportPlayedNotes(mixed, { includeVeryShortNotes: true, scope: WHOLE_SESSION }, ports)
 
     expect(downloads.map((file) => [...file.bytes])).toEqual([
       [...exportModule.buildPlayedNotesFile(mixed, DEFAULT_REQUEST).bytes],
@@ -273,10 +300,94 @@ describe('the Review played-notes export and very short notes', () => {
 
     expect(playedNotesFileHoldsNote(recordedRecords(), DEFAULT_REQUEST)).toBe(true)
     expect(playedNotesFileHoldsNote(veryShort, DEFAULT_REQUEST)).toBe(false)
-    expect(playedNotesFileHoldsNote(veryShort, { includeVeryShortNotes: true })).toBe(true)
+    expect(
+      playedNotesFileHoldsNote(veryShort, { includeVeryShortNotes: true, scope: WHOLE_SESSION }),
+    ).toBe(true)
     expect(historyHoldsPlayedNote(veryShort)).toBe(true)
     expect(
-      playedNotesFileHoldsNote(silentHistory().phrases(), { includeVeryShortNotes: true }),
+      playedNotesFileHoldsNote(silentHistory().phrases(), {
+        includeVeryShortNotes: true,
+        scope: WHOLE_SESSION,
+      }),
     ).toBe(false)
+  })
+})
+
+/** Intent: the favorites-only scope of the given phrase numbers. */
+function favoritesOnly(...favorites: number[]): ExportScope {
+  return { kind: 'favoritesOnly', favorites }
+}
+
+/**
+ * Intent: the seven-phrase session with a played note only in phrase 1 (a quarter second) and in
+ * phrase 3 (very short, 10 ms).
+ */
+function notesInPhrasesOneAndThree() {
+  return sevenPhraseRecords([[[60, 1, 1.25]], [], [[62, 1, 1.01]]])
+}
+
+// @test-link [[rule_favorites_only_export]]
+// @test-link [[module_review_export_pipeline]]
+describe('the Review exports under the favorites-only scope', () => {
+  // @test-link [[rule_favorites_only_export]]
+  it('builds and downloads the files of the scope the request names', async () => {
+    const favorites = sevenPhraseHistory()
+    const scope = favoritesOnly(2, 5, 6)
+    const { ports, downloads } = recordingPorts()
+    const exportModule = await loadGeneratedNotesExport()
+
+    await exportGeneratedNotes(favorites, { format: 'midi', backingTrack: true, scope }, ports)
+    await exportPlayedNotes(favorites, { includeVeryShortNotes: false, scope }, ports)
+
+    const generated = exportModule.buildGeneratedNotesFile(
+      favorites,
+      { format: 'midi', backingTrack: true },
+      scope,
+    )
+    const played = exportModule.buildPlayedNotesFile(
+      favorites,
+      { includeVeryShortNotes: false },
+      scope,
+    )
+    expect(downloads.map((file) => file.fileName)).toEqual([generated.fileName, played.fileName])
+    expect(downloads[0]!.fileName).toMatch(/-generated-favorites\.mid$/u)
+    expect([...downloads[0]!.bytes]).toEqual([...generated.bytes])
+    expect([...downloads[1]!.bytes]).toEqual([...played.bytes])
+  })
+
+  // @test-link [[rule_favorites_only_export]]
+  // @test-link [[rule_played_notes_export_omits_stray_notes]]
+  it('holds a played note only when a favorite phrase holds one, as the option reads it', () => {
+    const records = notesInPhrasesOneAndThree()
+    /** Intent: the request with the option off, then on, under `scope`. */
+    const off = (scope: ExportScope) => ({ includeVeryShortNotes: false, scope })
+    const on = (scope: ExportScope) => ({ includeVeryShortNotes: true, scope })
+
+    expect(playedNotesFileHoldsNote(records, off(favoritesOnly(1)))).toBe(true)
+    expect(playedNotesFileHoldsNote(records, on(favoritesOnly(2)))).toBe(false)
+    expect(playedNotesFileHoldsNote(records, off(favoritesOnly(3)))).toBe(false)
+    expect(playedNotesFileHoldsNote(records, on(favoritesOnly(3)))).toBe(true)
+    expect(playedNotesFileHoldsNote(records, off(WHOLE_SESSION))).toBe(true)
+  })
+
+  // @test-link [[rule_favorites_only_export]]
+  // @test-link [[rule_played_notes_export_omits_stray_notes]]
+  it('says why the played-notes file would hold no note, the favorites-only reasons first', () => {
+    const records = notesInPhrasesOneAndThree()
+    const veryShortOnly = sevenPhraseRecords([[], [], [[62, 1, 1.01]]])
+    /** Intent: the request with the option off, then on, under `scope`. */
+    const off = (scope: ExportScope) => ({ includeVeryShortNotes: false, scope })
+    const on = (scope: ExportScope) => ({ includeVeryShortNotes: true, scope })
+
+    expect(playedNotesUnavailable(records, off(favoritesOnly(2)))).toBe('noPlayedNoteInFavorites')
+    expect(playedNotesUnavailable(records, on(favoritesOnly(2, 4)))).toBe('noPlayedNoteInFavorites')
+    expect(playedNotesUnavailable(records, off(favoritesOnly(2, 3)))).toBe(
+      'everyFavoriteNoteVeryShort',
+    )
+    expect(playedNotesUnavailable(records, on(favoritesOnly(2, 3)))).toBeNull()
+    expect(playedNotesUnavailable(records, off(favoritesOnly(1, 3)))).toBeNull()
+    expect(playedNotesUnavailable(records, off(WHOLE_SESSION))).toBeNull()
+    expect(playedNotesUnavailable(veryShortOnly, off(WHOLE_SESSION))).toBe('everyNoteVeryShort')
+    expect(playedNotesUnavailable(veryShortOnly, on(WHOLE_SESSION))).toBeNull()
   })
 })

@@ -11,7 +11,15 @@
 
 import { recordsWithoutVeryShortNotes } from '../domain/played-notes/stray-notes'
 import { playedNotesMidiInputFromHistory } from '../session/session-history-export'
-import { exportFileStem, type ExportFile, type ExportableHistory } from './export-file'
+import {
+  WHOLE_SESSION,
+  exportFileStem,
+  scopeNameSuffix,
+  type ExportFile,
+  type ExportScope,
+  type ExportableHistory,
+} from './export-file'
+import { phrasesInScope } from './favorites-selection'
 import { encodePlayedNotesMidi } from './midi/played-notes-midi-encoder'
 
 const MIDI_MIME_TYPE = 'audio/midi'
@@ -29,34 +37,42 @@ const DEFAULT_OPTIONS: PlayedNotesFileOptions = { includeVeryShortNotes: false }
  * Intent: the file name of a session's played-notes file,
  * `infinite-flow-{YYYY-MM-DD}-{HHmmss}-played.mid`: the same session stem as the generated-notes
  * file, then its own suffix, so the two files of one session are told apart and never mistaken
- * for one. Reads no clock. Throws a
+ * for one; `-played-favorites.mid` under the favorites-only scope. Reads no clock. Throws a
  * GeneratedNotesFileError on a start time that is not finite epoch milliseconds.
  */
 // @spec-link [[req_played_notes_export]]
 // @spec-link [[rule_export_contents_never_merged]]
 // @spec-link [[module_review_export_pipeline]]
-export function playedNotesFileName(startedAtMs: number): string {
-  return `${exportFileStem(startedAtMs)}-played.mid`
+// @spec-link [[rule_favorites_only_export]]
+export function playedNotesFileName(
+  startedAtMs: number,
+  scope: ExportScope = WHOLE_SESSION,
+): string {
+  return `${exportFileStem(startedAtMs)}-played${scopeNameSuffix(scope)}.mid`
 }
 
 /**
- * Intent: the played-notes MIDI file of a session, built from its history: exactly the played-notes
- * encoder's bytes for the history's played-notes input, very short notes left out unless
+ * Intent: the played-notes MIDI file of a session, built from the phrases `scope` picks from its
+ * history (the whole session by default; ./favorites-selection.ts): exactly the played-notes
+ * encoder's bytes for their played-notes input, very short notes left out unless
  * `options.includeVeryShortNotes` (then every note as received), copied into an ArrayBuffer-backed
- * view, the kind a Blob is made from. The same history and options always give the same bytes. The
- * adapter's and encoder's typed errors (an empty history, a history with no played note to hold)
- * propagate unchanged.
+ * view, the kind a Blob is made from. A note is judged very short by its length as played, before
+ * the scope stops a held note at a favorite phrase's end. The same history, options and scope
+ * always give the same bytes. The selection's, adapter's and encoder's typed errors (an empty
+ * history, a scope with no favorite, a file with no played note to hold) propagate unchanged.
  */
 // @spec-link [[req_played_notes_export]]
 // @spec-link [[module_review_export_pipeline]]
 // @spec-link [[rule_played_notes_export_omits_stray_notes]]
+// @spec-link [[rule_favorites_only_export]]
 export function buildPlayedNotesFile(
   history: ExportableHistory,
   options: PlayedNotesFileOptions = DEFAULT_OPTIONS,
+  scope: ExportScope = WHOLE_SESSION,
 ): ExportFile {
-  const fileName = playedNotesFileName(history.startedAt)
+  const fileName = playedNotesFileName(history.startedAt, scope)
   const phrases = history.phrases()
   const read = options.includeVeryShortNotes ? phrases : recordsWithoutVeryShortNotes(phrases)
-  const bytes = encodePlayedNotesMidi(playedNotesMidiInputFromHistory(read))
+  const bytes = encodePlayedNotesMidi(playedNotesMidiInputFromHistory(phrasesInScope(read, scope)))
   return { fileName, mimeType: MIDI_MIME_TYPE, bytes: new Uint8Array(bytes) }
 }

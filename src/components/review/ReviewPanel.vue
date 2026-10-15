@@ -4,10 +4,13 @@
  * recent session, the session date for any other), its summary, the keep line saying how the
  * session is kept (only its "Not saved" form below bp-tablet-landscape, where the workspace staff
  * takes the split layout), the
- * generated-notes export (Format, Backing track for MIDI, and the export button), and, when the
- * session holds a played note, the played-notes export (`Include very short notes`, the page's
- * for the visit, and the export button, disabled with its reason while its file would hold no
- * note) and the Played notes switch (its
+ * export scope (./ReviewScope.vue, `review-scope`: `Whole session` or `Favorites only`, the page's
+ * for this Review, `Favorites only` disabled with its reason while the session has no favorite),
+ * which both
+ * exports hold, the generated-notes export (Format, Backing track for MIDI, and the export
+ * button), and, when the session holds a played note, the played-notes export (`Include very
+ * short notes`, the page's for the visit, and the export button, disabled with the page's reason
+ * while its file would hold no note) and the Played notes switch (its
  * state held by the page; while on, each phrase draws its played-notes lanes on one session-wide
  * pitch scale), `Keep my played notes` (the page's setting) and, only when this session's played
  * notes are kept and may be deleted, `Delete played notes`, which asks the page for its
@@ -39,6 +42,7 @@ import type { ReviewedPhrase } from '@/session/session-history'
 import type { SessionKeeping } from '@/components/workspace/workspace-session-controller-types'
 import ReviewComment from './ReviewComment.vue'
 import ReviewPhrase from './ReviewPhrase.vue'
+import ReviewScope from './ReviewScope.vue'
 import ReviewSessionTools from './ReviewSessionTools.vue'
 import { playedNotesPitchScale } from './played-notes-lane-geometry'
 import { sessionDate } from './session-date'
@@ -52,7 +56,9 @@ import { useReviewExportAction } from './use-review-export-action'
 import type {
   ExportRequest,
   GeneratedNotesFormat,
+  PlayedNotesUnavailable,
   ReviewEngraver,
+  ReviewExportScope,
   ReviewStaffReservation,
 } from './review-types'
 
@@ -78,6 +84,8 @@ const props = withDefaults(
     format: GeneratedNotesFormat
     /** Whether the MIDI export holds the backing track, held by the page for its session. */
     backingTrack: boolean
+    /** The export scope both exports hold, the page's for this Review. */
+    scope: ReviewExportScope
     /** Build one file from the session history and hand it to the browser; rejects on failure. */
     exportFile: (request: ExportRequest) => Promise<void>
     /** The session history holds a played note in a phrase: the played-notes tools show. */
@@ -92,8 +100,11 @@ const props = withDefaults(
     canDeletePlayedNotes: boolean
     /** `Include very short notes`, held by the page for its visit. */
     includeVeryShortNotes: boolean
-    /** The played-notes file would hold a note under the option: else its export is disabled. */
-    playedNotesFileHoldsNote: boolean
+    /**
+     * Why the played-notes file would hold no note under the option and the scope, its export
+     * disabled with it; null while it holds one.
+     */
+    playedNotesUnavailable: PlayedNotesUnavailable | null
     /** The key the session is held under, which its comment is saved for. */
     sessionKey: string
     /** The session is pinned: the pin button reads `Unpin`. */
@@ -115,6 +126,7 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   'update:format': [format: GeneratedNotesFormat]
+  'update:scope': [scope: ReviewExportScope]
   'update:backingTrack': [on: boolean]
   'update:playedNotesShown': [on: boolean]
   'update:keepPlayedNotes': [on: boolean]
@@ -295,9 +307,15 @@ const FORMAT_OPTIONS: readonly SegmentedControlOption[] = [
 const exportButtonEl = ref<HTMLButtonElement | null>(null)
 const playedExportButtonEl = ref<HTMLButtonElement | null>(null)
 const playedExportNoteId = useId()
-/** The reason `Export played notes` is disabled while its file would hold no note. */
-const EVERY_NOTE_VERY_SHORT =
-  'Every note you played is very short. Turn on Include very short notes to export them.'
+/** The words of each reason `Export played notes` is disabled while its file would hold no note. */
+const PLAYED_NOTES_UNAVAILABLE: Readonly<Record<PlayedNotesUnavailable, string>> = {
+  noPlayedNoteInFavorites: 'No played notes in your favorites.',
+  everyFavoriteNoteVeryShort:
+    'Every note you played in your favorites is very short. Turn on Include very short notes to ' +
+    'export them.',
+  everyNoteVeryShort:
+    'Every note you played is very short. Turn on Include very short notes to export them.',
+}
 /** The Review's one export error, after a failed export of either content. */
 const exportFailed = ref(false)
 
@@ -318,7 +336,7 @@ function toggleBackingTrack(): void {
 
 /**
  * Intent: build one generated-notes file in the chosen format (the backing track applying to MIDI
- * only), Format and Backing track staying live while it is built.
+ * only) under the scope, Format, Backing track and the scope staying live while it is built.
  */
 // @spec-link [[req_session_export]]
 const { running: exporting, start: startExport } = useReviewExportAction({
@@ -328,6 +346,7 @@ const { running: exporting, start: startExport } = useReviewExportAction({
     props.exportFile({
       format: props.format,
       backingTrack: props.format === 'midi' && props.backingTrack,
+      scope: props.scope,
     }),
 })
 
@@ -520,6 +539,11 @@ onBeforeUnmount(stopEngraving)
       @save="(key, text) => emit('save-comment', key, text)"
     />
     <div class="review-actions">
+      <ReviewScope
+        :scope="scope"
+        :has-favorite="favorites.length > 0"
+        @update:scope="(next) => emit('update:scope', next)"
+      />
       <div class="review-export" role="group" aria-label="Export generated notes">
         <div class="field-group">
           <span class="field-label">Format</span>
@@ -576,14 +600,14 @@ onBeforeUnmount(stopEngraving)
           type="button"
           class="btn review-export-action"
           :class="{ 'is-loading': exportingPlayed }"
-          :disabled="exportingPlayed || !playedNotesFileHoldsNote"
-          :aria-describedby="playedNotesFileHoldsNote ? undefined : playedExportNoteId"
+          :disabled="exportingPlayed || playedNotesUnavailable !== null"
+          :aria-describedby="playedNotesUnavailable === null ? undefined : playedExportNoteId"
           @click="startPlayedExport"
         >
           Export played notes
         </button>
-        <p v-if="!playedNotesFileHoldsNote" :id="playedExportNoteId" class="field-note">
-          {{ EVERY_NOTE_VERY_SHORT }}
+        <p v-if="playedNotesUnavailable !== null" :id="playedExportNoteId" class="field-note">
+          {{ PLAYED_NOTES_UNAVAILABLE[playedNotesUnavailable] }}
         </p>
       </div>
     </div>

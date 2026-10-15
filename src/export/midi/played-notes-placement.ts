@@ -24,28 +24,33 @@ const PERCUSSION_CHANNEL = 9
 const CHANNEL_COUNT = 16
 
 /**
- * Intent: an audio-clock time in MIDI ticks from the file's start, counted from the start of
- * `phrase`, at its tempo, rounded to the nearest tick.
+ * Intent: an audio-clock time in MIDI ticks from the file's start, counted from the start of the
+ * phrase at zero-based `position` of the file, at its tempo, rounded to the nearest tick.
  */
 // @spec-link [[rule_played_notes_export_unquantized_timing]]
-function tickInPhrase(phrase: PlayedNotesMidiPhrase, at: number): number {
-  return phraseStartTick(phrase.number) + midiTicksOfSeconds(at - phrase.startedAt, phrase.tempo)
+function tickInPhrase(
+  phrases: readonly PlayedNotesMidiPhrase[],
+  position: number,
+  at: number,
+): number {
+  const phrase = phrases[position]!
+  return phraseStartTick(position) + midiTicksOfSeconds(at - phrase.startedAt, phrase.tempo)
 }
 
 /**
- * Intent: the phrase whose span holds audio-clock time `at`, which is at or after the start of the
- * phrase at `from`: the last phrase that started at or before it, the last phrase taking every
- * later time.
+ * Intent: the position of the phrase whose span holds audio-clock time `at`, which is at or after
+ * the start of the phrase at `from`: the last phrase that started at or before it, the last phrase
+ * taking every later time.
  */
 // @spec-link [[rule_played_notes_export_unquantized_timing]]
-function phraseHolding(
+function positionHolding(
   phrases: readonly PlayedNotesMidiPhrase[],
   from: number,
   at: number,
-): PlayedNotesMidiPhrase {
+): number {
   let index = from
   while (index + 1 < phrases.length && phrases[index + 1]!.startedAt <= at) index += 1
-  return phrases[index]!
+  return index
 }
 
 /**
@@ -60,8 +65,9 @@ function placedNote(
   note: MidiPlayedNote,
   fileEnd: number,
 ): PlacedNote {
-  const startTick = tickInPhrase(phrases[position]!, note.onsetAt)
-  const releaseTick = tickInPhrase(phraseHolding(phrases, position, note.releaseAt), note.releaseAt)
+  const startTick = tickInPhrase(phrases, position, note.onsetAt)
+  const releasePosition = positionHolding(phrases, position, note.releaseAt)
+  const releaseTick = tickInPhrase(phrases, releasePosition, note.releaseAt)
   return {
     pitch: note.pitch,
     velocity: note.velocity,

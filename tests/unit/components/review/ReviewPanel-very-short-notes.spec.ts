@@ -11,6 +11,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import ReviewPanel from '@/components/review/ReviewPanel.vue'
 import ReviewPhrase from '@/components/review/ReviewPhrase.vue'
+import type { PlayedNotesUnavailable } from '@/components/review/review-types'
 import { playedNotesPitchScale } from '@/components/review/played-notes-lane-geometry'
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
 import type { RecordedPlayedNote, SessionHistoryRecord } from '@/session/session-history'
@@ -24,7 +25,7 @@ const mounted: VueWrapper[] = []
 /** The props a test may set beyond the records. */
 interface PanelOptions {
   readonly includeVeryShortNotes?: boolean
-  readonly playedNotesFileHoldsNote?: boolean
+  readonly playedNotesUnavailable?: PlayedNotesUnavailable | null
   readonly exportPlayedNotes?: () => Promise<void>
 }
 
@@ -48,8 +49,8 @@ function mountPanel(records: readonly SessionHistoryRecord[], options: PanelOpti
       keepPlayedNotes: false,
       canDeletePlayedNotes: false,
       includeVeryShortNotes: options.includeVeryShortNotes ?? false,
-      playedNotesFileHoldsNote: options.playedNotesFileHoldsNote ?? true,
       ...SESSION_TOOL_PROPS,
+      playedNotesUnavailable: options.playedNotesUnavailable ?? null,
     },
     attachTo: document.body,
   })
@@ -182,7 +183,7 @@ describe('Include very short notes and Export played notes', () => {
   it('disables Export played notes, with its reason, while its file would hold no note, and enables it at once when it would', async () => {
     const exportPlayedNotes = vi.fn(() => Promise.resolve())
     const wrapper = mountPanel(recordedRecords(), {
-      playedNotesFileHoldsNote: false,
+      playedNotesUnavailable: 'everyNoteVeryShort',
       exportPlayedNotes,
     })
     const { toggle, button, note, group } = playedExport(wrapper)
@@ -202,7 +203,7 @@ describe('Include very short notes and Export played notes', () => {
 
     toggle.element.focus()
     await toggle.trigger('click')
-    await wrapper.setProps({ includeVeryShortNotes: true, playedNotesFileHoldsNote: true })
+    await wrapper.setProps({ includeVeryShortNotes: true, playedNotesUnavailable: null })
     expect(button.attributes('disabled')).toBeUndefined()
     expect(button.attributes('aria-describedby')).toBeUndefined()
     expect(group.find('.field-note').exists()).toBe(false)

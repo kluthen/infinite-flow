@@ -3,8 +3,9 @@
  * Standard MIDI File, type 1, at 960 MIDI ticks per quarter note. Track 1 is the conductor track:
  * the 4/4 time signature, the full tempo map and one marker per phrase. Track 2 holds the
  * generated line at concert pitch. Track 3, only when the player asks for the backing, holds the
- * backing. The phrases sit back to back from phrase 1 at time zero, and every track ends where the
- * last phrase ends. The output depends only on the input, so the same session always gives the
+ * backing. The phrases the file holds (every phrase, or the favorites only, each with its session
+ * number) sit back to back from the first at time zero, and every track ends where the last phrase
+ * ends. The output depends only on the input, so the same session always gives the
  * same bytes.
  */
 import { validateMidiExportInput, type GeneratedNotesMidiInput } from './midi-export-input'
@@ -34,7 +35,8 @@ const GENERATED_VELOCITY = 96
 const BACKING_VELOCITY = 72
 
 /**
- * Intent: encode a whole session's generated notes as one type 1 Standard MIDI File. Validates the
+ * Intent: encode a session's generated notes (every phrase, or the favorites only) as one type 1
+ * Standard MIDI File. Validates the
  * input first and crashes with a MidiExportError on any breach; never takes or writes a played
  * note, and writes the backing track only when the input carries the backing.
  */
@@ -42,12 +44,14 @@ const BACKING_VELOCITY = 72
 // @spec-link [[req_session_export]]
 export function encodeGeneratedNotesMidi(input: GeneratedNotesMidiInput): Uint8Array {
   validateMidiExportInput(input)
-  const endTick = phraseStartTick(input.phrases.length + 1)
+  const endTick = phraseStartTick(input.phrases.length)
   const tracks = [
     conductorTrackEvents(input.phrases, MIDI_FILE_NAME),
     noteTrackEvents(
       GENERATED_TRACK_NAME,
-      input.phrases.flatMap((phrase) => generatedLineNotes(phrase.timeline, phrase.number)),
+      input.phrases.flatMap((phrase, position) =>
+        generatedLineNotes(phrase.timeline, phrase.number, position),
+      ),
       GENERATED_CHANNEL,
       GENERATED_VELOCITY,
     ),
@@ -56,7 +60,7 @@ export function encodeGeneratedNotesMidi(input: GeneratedNotesMidiInput): Uint8A
     tracks.push(
       noteTrackEvents(
         BACKING_TRACK_NAME,
-        input.backing.flatMap(backingNotes),
+        input.backing.flatMap((phrase, position) => backingNotes(phrase, position)),
         BACKING_CHANNEL,
         BACKING_VELOCITY,
       ),

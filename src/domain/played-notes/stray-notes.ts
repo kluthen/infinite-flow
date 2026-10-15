@@ -1,10 +1,12 @@
 /**
- * Very short notes: the in-between notes a controller sends for a few milliseconds while the
- * fingers move from one position to the next, which a real instrument would swallow. A played
- * note is very short when its length, note-on to note-off, is under one constant threshold, the
- * same for every controller and never a player setting. Played notes are stored as received; this
- * filter is applied only where they are read for the review's lane and the played-notes export,
- * so a later change of the threshold loses nothing. Pure: no clock, no storage.
+ * Very short notes. A played note is very short when its length, note-on to note-off, is under one
+ * constant threshold, the same for every controller and never a player setting. It is a length
+ * rule aimed at stray notes, the in-between notes a controller sends while the fingers move from
+ * one position to the next, which a real instrument would swallow: it catches most of them, not
+ * all, since some in-between notes last as long as notes the player meant and no length tells
+ * those apart. Played notes are stored as received; this filter is applied only where they are
+ * read for the review's lane and the played-notes export, so a later change of the threshold loses
+ * nothing. Pure: no clock, no storage.
  */
 
 /**

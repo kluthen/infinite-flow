@@ -25,8 +25,8 @@ export class MidiExportError extends Error {
 
 /**
  * One phrase of the session as the MIDI export sees it: its session phrase number (1 for the first
- * phrase that sounded), its concert timeline exactly as generated, and its tempo in quarter notes
- * per minute.
+ * phrase that sounded; a favorites-only file keeps each phrase's own), its concert timeline exactly
+ * as generated, and its tempo in quarter notes per minute.
  */
 // @spec-link [[rule_generated_notes_midi_export]]
 // @spec-link [[req_session_export]]
@@ -56,10 +56,10 @@ export interface MidiBackingPhrase {
 }
 
 /**
- * The whole encoder input: every phrase that sounded, in session order, and the backing: `null`
- * when the player left it off (the default), or one entry per phrase, in the same order and with
- * the same numbers, when they asked for it. It has no field for played notes, and the run-time
- * check rejects one.
+ * The whole encoder input: the phrases the file holds (every phrase that sounded, or the
+ * favorites only), in session order, and the backing: `null` when the player left it off (the
+ * default), or one entry per phrase, in the same order and with the same numbers, when they asked
+ * for it. It has no field for played notes, and the run-time check rejects one.
  */
 // @spec-link [[rule_generated_notes_midi_export]]
 // @spec-link [[req_session_export]]
@@ -98,18 +98,24 @@ export function assertExactKeys(value: object, expected: readonly string[], what
   }
 }
 
-/** Intent: crash early unless a list's session numbers run 1, 2, 3 … in order. */
+/**
+ * Intent: crash early unless a list's session numbers are whole numbers from 1 up, each greater
+ * than the one before, as phrases come in session order: 1, 2, 3 … for a whole session, the
+ * favorites' own numbers (2, 5, 6, say) for a favorites-only file.
+ */
 // @spec-link [[rule_generated_notes_midi_export]]
 // @spec-link [[req_played_notes_export]]
+// @spec-link [[rule_favorites_only_export]]
 export function assertNumberedInOrder(
   items: readonly { readonly number: number }[],
   what: string,
 ): void {
   items.forEach((item, position) => {
-    if (item.number !== position + 1) {
+    const floor = position === 0 ? 1 : items[position - 1]!.number + 1
+    if (!Number.isInteger(item.number) || item.number < floor) {
       throw new MidiExportError(
-        `${what} must be numbered 1, 2, 3 … in session order; position ${position} holds ` +
-          `number ${item.number}.`,
+        `${what} must be numbered from 1 up in session order, each above the one before; ` +
+          `position ${position} holds number ${item.number}.`,
       )
     }
   })
@@ -171,16 +177,24 @@ function assertNoSamePitchOverlap(notes: readonly MidiBackingNote[], phraseNumbe
 }
 
 /** Intent: crash early unless the backing holds one valid entry per phrase, numbered alike. */
-function assertBacking(backing: readonly MidiBackingPhrase[], phraseCount: number): void {
-  if (backing.length !== phraseCount) {
+function assertBacking(
+  backing: readonly MidiBackingPhrase[],
+  phrases: readonly MidiSessionPhrase[],
+): void {
+  if (backing.length !== phrases.length) {
     throw new MidiExportError(
-      `The backing must hold one entry per phrase (${phraseCount}); got ${backing.length}.`,
+      `The backing must hold one entry per phrase (${phrases.length}); got ${backing.length}.`,
     )
   }
-  backing.forEach((phrase, position) =>
-    assertExactKeys(phrase, BACKING_PHRASE_KEYS, `Backing entry at position ${position}`),
-  )
-  assertNumberedInOrder(backing, 'Backing entries')
+  backing.forEach((phrase, position) => {
+    assertExactKeys(phrase, BACKING_PHRASE_KEYS, `Backing entry at position ${position}`)
+    if (phrase.number !== phrases[position]!.number) {
+      throw new MidiExportError(
+        `Backing entry at position ${position} is numbered ${phrase.number}, not ` +
+          `${phrases[position]!.number} as its phrase.`,
+      )
+    }
+  })
   for (const phrase of backing) {
     phrase.notes.forEach((note) => assertBackingNote(note, phrase.number))
     assertNoSamePitchOverlap(phrase.notes, phrase.number)
@@ -189,8 +203,8 @@ function assertBacking(backing: readonly MidiBackingPhrase[], phraseCount: numbe
 
 /**
  * Intent: reject an encoder input that breaks the contract: an extra field anywhere (a
- * played-note list among them), an empty session, phrase numbers that do not run 1, 2, 3 … in
- * order, a tempo outside whole numbers from 60 to 240 BPM, or a backing that does not match the
+ * played-note list among them), an empty session, phrase numbers that are not whole numbers from 1
+ * up, each above the one before, a tempo outside whole numbers from 60 to 240 BPM, or a backing that does not match the
  * phrases or holds a note the file could not represent.
  */
 // @spec-link [[rule_generated_notes_midi_export]]
@@ -206,5 +220,5 @@ export function validateMidiExportInput(input: GeneratedNotesMidiInput): void {
   )
   assertNumberedInOrder(input.phrases, 'Phrases')
   input.phrases.forEach(assertTempo)
-  if (input.backing !== null) assertBacking(input.backing, input.phrases.length)
+  if (input.backing !== null) assertBacking(input.backing, input.phrases)
 }

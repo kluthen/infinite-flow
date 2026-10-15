@@ -8,7 +8,12 @@
  */
 import { defineComponent, h, ref, type PropType } from 'vue'
 
-import type { ExportRequest, GeneratedNotesFormat } from '@/components/review/review-types'
+import type {
+  ExportRequest,
+  GeneratedNotesFormat,
+  PlayedNotesUnavailable,
+  ReviewExportScope,
+} from '@/components/review/review-types'
 import type { StaffViewport } from '@/notation/notation-layout-policy'
 import type { SessionHistoryRecord } from '@/session/session-history'
 
@@ -33,7 +38,11 @@ const ReviewPanelStub = defineComponent({
     keepPlayedNotes: { type: Boolean, required: true },
     canDeletePlayedNotes: { type: Boolean, required: true },
     includeVeryShortNotes: { type: Boolean, required: true },
-    playedNotesFileHoldsNote: { type: Boolean, required: true },
+    playedNotesUnavailable: {
+      type: String as PropType<PlayedNotesUnavailable | null>,
+      default: null,
+    },
+    scope: { type: String as PropType<ReviewExportScope>, required: true },
   },
   emits: [
     'update:format',
@@ -41,6 +50,7 @@ const ReviewPanelStub = defineComponent({
     'update:playedNotesShown',
     'update:keepPlayedNotes',
     'update:includeVeryShortNotes',
+    'update:scope',
     'delete-played-notes',
   ],
   setup(props, { expose, emit }) {

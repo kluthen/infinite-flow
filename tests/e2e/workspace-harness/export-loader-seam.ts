@@ -53,14 +53,15 @@ function counted(build: () => ExportFile): ExportFile {
   return file
 }
 
-/** Intent: the real module, both its file builders counted and failing when armed. */
+/**
+ * Intent: the real module, both its file builders counted and failing when armed, each handed
+ * every argument it was given (the export scope among them).
+ */
 function wrapModule(real: GeneratedNotesExportModule): GeneratedNotesExportModule {
   return {
     ...real,
-    buildGeneratedNotesFile: (history, request) =>
-      counted(() => real.buildGeneratedNotesFile(history, request)),
-    buildPlayedNotesFile: (history, options) =>
-      counted(() => real.buildPlayedNotesFile(history, options)),
+    buildGeneratedNotesFile: (...args) => counted(() => real.buildGeneratedNotesFile(...args)),
+    buildPlayedNotesFile: (...args) => counted(() => real.buildPlayedNotesFile(...args)),
   }
 }
 

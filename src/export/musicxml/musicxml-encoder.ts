@@ -1,8 +1,10 @@
 /**
  * The generated-notes MusicXML encoder: a pure function from a session's phrases to one
  * score-partwise 4.0 document. One part, in the instrument's written pitch, with a transpose
- * element for a transposing instrument. The phrases sit back to back from phrase 1, four measures
- * each, measures numbered from 1 across the whole session. Every phrase opens with a rehearsal mark
+ * element for a transposing instrument. The phrases the file holds sit back to back, four measures
+ * each, the first one opening the score; phrase n's measures are numbered from (n − 1) × 4 + 1, so a
+ * whole session's run from 1 and a favorites-only file keeps each phrase's session measure numbers
+ * (phrases 2, 5 and 6: measures 5–8, 17–20 and 21–24). Every phrase opens with a rehearsal mark
  * holding its phrase number and closes with a double barline, except the last phrase, which closes
  * with a final (light-heavy) barline; a metronome mark opens the score and
  * every phrase whose tempo differs from the one before; a key signature is written again where a
@@ -38,7 +40,7 @@ const PROLOG: readonly string[] = [
 
 /**
  * Intent: the marks that open a phrase's first measure, in order: the attributes (the opening
- * ones for phrase 1, a key change for a later phrase in a new key), the rehearsal mark, and the
+ * ones for the file's first phrase, a key change for a later phrase in a new key), the rehearsal mark, and the
  * metronome mark when the tempo is new.
  */
 function phraseOpening(
@@ -60,9 +62,11 @@ function phraseOpening(
 }
 
 /**
- * Intent: the four measure elements of one phrase, numbered on from `firstMeasureNumber`, the last
- * closed by a final barline when the phrase is the session's last and by a double barline otherwise.
+ * Intent: the four measure elements of one phrase, numbered on from its session measure number,
+ * (n − 1) × 4 + 1 for phrase n, the last closed by a final barline when the phrase is the file's
+ * last and by a double barline otherwise.
  */
+// @spec-link [[rule_favorites_only_export]]
 function phraseMeasures(
   phrase: MusicXmlSessionPhrase,
   previous: MusicXmlSessionPhrase | null,
@@ -83,7 +87,8 @@ function phraseMeasures(
 }
 
 /**
- * Intent: encode a whole session's generated notes as one MusicXML (score-partwise 4.0) document.
+ * Intent: encode a session's generated notes (every phrase, or the favorites only) as one MusicXML
+ * (score-partwise 4.0) document.
  * Validates the input first and crashes with a MusicXmlExportError on any breach; never takes or
  * writes a played note.
  */

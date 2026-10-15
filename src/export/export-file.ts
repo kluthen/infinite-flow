@@ -1,8 +1,8 @@
 /**
  * What every export file of a finished session shares, whatever it holds: the shape of a file
  * ready for the browser, the history it is built from, the typed failure for one that cannot be
- * made, and the session-stamped stem its name starts with, so a session's generated-notes and
- * played-notes files sort side by side. Pure: no DOM, no clock read, no storage, no network.
+ * made, the session-stamped stem its name starts with, so a session's generated-notes and
+ * played-notes files sort side by side, and the scope that picks which phrases a file holds. Pure: no DOM, no clock read, no storage, no network.
  */
 
 import type { ReviewedPhrase } from '../session/session-history'
@@ -33,6 +33,20 @@ export class GeneratedNotesFileError extends Error {
   }
 }
 
+/**
+ * Which phrases an export file holds: the whole session, or only its favorite phrases, named by
+ * their session phrase numbers.
+ */
+// @spec-link [[req_session_export]]
+// @spec-link [[rule_favorites_only_export]]
+export type ExportScope =
+  | { readonly kind: 'wholeSession' }
+  | { readonly kind: 'favoritesOnly'; readonly favorites: readonly number[] }
+
+/** The whole-session scope: every phrase of the session, as v2 exported it. */
+// @spec-link [[req_session_export]]
+export const WHOLE_SESSION: ExportScope = { kind: 'wholeSession' }
+
 /** Intent: a whole number as text, zero-padded on the left to `width` digits. */
 function padded(value: number, width: number): string {
   return String(value).padStart(width, '0')
@@ -56,4 +70,13 @@ export function exportFileStem(startedAtMs: number): string {
   const date = `${padded(start.getFullYear(), 4)}-${padded(start.getMonth() + 1, 2)}-${padded(start.getDate(), 2)}`
   const time = `${padded(start.getHours(), 2)}${padded(start.getMinutes(), 2)}${padded(start.getSeconds(), 2)}`
   return `infinite-flow-${date}-${time}`
+}
+
+/**
+ * Intent: what a file name adds after its last word for `scope`: `-favorites` for favorites only,
+ * nothing for the whole session, whose names stay as they were.
+ */
+// @spec-link [[rule_favorites_only_export]]
+export function scopeNameSuffix(scope: ExportScope): string {
+  return scope.kind === 'favoritesOnly' ? '-favorites' : ''
 }

@@ -15,10 +15,14 @@ import { midiInputFromHistory, musicXmlInputFromHistory } from '../session/sessi
 import type { ReviewedPhrase } from '../session/session-history'
 import {
   GeneratedNotesFileError,
+  WHOLE_SESSION,
   exportFileStem,
+  scopeNameSuffix,
   type ExportFile,
+  type ExportScope,
   type ExportableHistory,
 } from './export-file'
+import { phrasesInScope } from './favorites-selection'
 import { encodeGeneratedNotesMidi } from './midi/midi-encoder'
 import type { MidiBackingPhrase } from './midi/midi-export-input'
 import { encodeGeneratedNotesMusicXml } from './musicxml/musicxml-encoder'
@@ -37,7 +41,14 @@ export interface GeneratedNotesRequest {
   readonly backingTrack: boolean
 }
 
-export { GeneratedNotesFileError, exportFileStem, type ExportFile, type ExportableHistory }
+export {
+  GeneratedNotesFileError,
+  WHOLE_SESSION,
+  exportFileStem,
+  type ExportFile,
+  type ExportScope,
+  type ExportableHistory,
+}
 
 /**
  * The played-notes file rides in this module's lazy chunk: re-exported here, so the one load
@@ -57,13 +68,19 @@ const FILE_EXTENSIONS: Readonly<Record<GeneratedNotesFormat, string>> = {
 /**
  * Intent: the file name of a session's generated-notes file,
  * `infinite-flow-{YYYY-MM-DD}-{HHmmss}-generated.musicxml` or `.mid`: the session's export stem
- * (its start in the player's local time), shared with the played-notes file. Reads no clock.
- * Throws a GeneratedNotesFileError on a start time that is not finite epoch milliseconds.
+ * (its start in the player's local time), shared with the played-notes file, with `-favorites`
+ * after `generated` under the favorites-only scope. Reads no clock. Throws a
+ * GeneratedNotesFileError on a start time that is not finite epoch milliseconds.
  */
 // @spec-link [[req_session_export]]
 // @spec-link [[module_review_export_pipeline]]
-export function generatedNotesFileName(startedAtMs: number, format: GeneratedNotesFormat): string {
-  return `${exportFileStem(startedAtMs)}-generated.${FILE_EXTENSIONS[format]}`
+// @spec-link [[rule_favorites_only_export]]
+export function generatedNotesFileName(
+  startedAtMs: number,
+  format: GeneratedNotesFormat,
+  scope: ExportScope = WHOLE_SESSION,
+): string {
+  return `${exportFileStem(startedAtMs)}-generated${scopeNameSuffix(scope)}.${FILE_EXTENSIONS[format]}`
 }
 
 /**
@@ -102,19 +119,22 @@ function midiBytes(
 }
 
 /**
- * Intent: the one generated-notes file the player asked for, built from the session history:
- * MusicXML in the session profile's written pitch, or MIDI at concert pitch with the backing track
- * only when asked for. Holds no played note, and the same history and request always give the same
- * bytes. The encoders' and adapters' typed errors propagate unchanged.
+ * Intent: the one generated-notes file the player asked for, built from the phrases `scope` picks
+ * from the session history (the whole session by default; ./favorites-selection.ts): MusicXML in
+ * the session profile's written pitch, or MIDI at concert pitch with the backing track only when
+ * asked for. Holds no played note, and the same history, request and scope always give the same
+ * bytes. The selection's, encoders' and adapters' typed errors propagate unchanged.
  */
 // @spec-link [[req_session_export]]
 // @spec-link [[module_review_export_pipeline]]
+// @spec-link [[rule_favorites_only_export]]
 export function buildGeneratedNotesFile(
   history: ExportableHistory,
   request: GeneratedNotesRequest,
+  scope: ExportScope = WHOLE_SESSION,
 ): ExportFile {
-  const records = history.phrases()
-  const fileName = generatedNotesFileName(history.startedAt, request.format)
+  const records = phrasesInScope(history.phrases(), scope)
+  const fileName = generatedNotesFileName(history.startedAt, request.format, scope)
   switch (request.format) {
     case 'musicxml':
       return { fileName, mimeType: MUSICXML_MIME_TYPE, bytes: musicXmlBytes(records) }

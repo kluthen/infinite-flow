@@ -46,7 +46,6 @@ function mountPanel(options: PanelOptions = {}) {
       keepPlayedNotes: false,
       canDeletePlayedNotes: false,
       includeVeryShortNotes: false,
-      playedNotesFileHoldsNote: true,
       ...SESSION_TOOL_PROPS,
     },
     attachTo: document.body,
@@ -119,6 +118,7 @@ describe('the played-notes export', () => {
     const actions = wrapper.get('.review-actions').element.children
 
     expect([...actions].map((child) => child.className)).toEqual([
+      'field-group review-scope',
       'review-export',
       'review-export-played',
     ])
