@@ -755,14 +755,46 @@ session with the latest start. A session ended in its count-in leaves it as it w
   `is-loading` and `disabled`). The kept-session codec, loaded on demand, decodes it into the
   session the Review draws: its phrases and start, the summary's instrument name, its tempo reached
   and whether it is pinned. Once read it is held in memory, so showing it again reads nothing. A
-  refused read, records this version cannot read, or a session started meanwhile show nothing.
+  refused read, records this version cannot read, or a session started meanwhile show nothing; a
+  read that does not give the session also marks its row as failed to open (below).
 - **The keep line** (`ReviewPanel.vue`): "Pinned: kept until you unpin or delete it.", "Not
   pinned: deleted when your next session is saved." or "Not saved on this device: export it to keep
   it."; below `bp-tablet-landscape` (the workspace staff's split layout) only the last. The title is
   "Last session" for the most recent session and the session date otherwise; the summary starts
   with the session date (`session-date.ts`) when the title does not hold it.
 
-## The remembered controller
+## The kept sessions' rows and their openings
+
+The session controller reaches every kept session, not only those it holds in memory
+(`module_kept_session_reach`).
+
+- **The rows** (`use-kept-sessions.ts`, built by the controller in its own chunk) come from the
+  summaries the load read (`KeptSessionsSeam.summaries`), newest first, and are never read from the
+  device again. A summary this version reads gives a `current` row with its facts; one a newer
+  version wrote gives a `newer` row holding what `readNewerKeptSummary`
+  (`kept-session-summary.ts`) can read of it, field by field, and cannot be opened, pinned or
+  deleted; one that cannot be read gives no row. The controller exposes them as
+  `state.keptRows`.
+- **Kept current.** The session's own save and its retry reach the visit's saves through
+  `rows.savingThrough(saves, held)`, which keeps the batch the policy built: once it resolves
+  `saved`, the rows of the session-wide records it deleted leave and the saved session's row is
+  added with the facts held in memory then (a pin or a comment made while it ran). A refused save,
+  or one made while saving is off, changes no row. A pin, a favorite mark, the comment and the
+  played-notes changes edit their row at once, as they change the session held in memory, and the
+  row stays so for the visit when the device refuses them; a deletion removes its row once the
+  device has made it.
+- **Opening by key** (`workspace-kept-session-opening.ts`): `openSession(key)` shows a session
+  held in memory at once, else reads it by its key (`readKeptReviewedSession`), `openingKey`
+  naming it meanwhile; the latest opening wins, and `closeReview()` cancels a pending one (its read
+  then resolves `superseded` and shows nothing). A read that does not give the session resolves
+  `failed` and marks the row `failedToOpen` until the session next opens. Once read, the session is
+  the Review's, with its row's pin and comment, and the most recent session too when its key is
+  that one's.
+- **Pin, unpin and Delete session from a row** of a session not held in memory go through the
+  change path keyed by the row (`changeKeptPinned`, `deleteKeptSession` in
+  `kept-session-review-changes.ts`), which reads the session-wide record only, never the body.
+  Deleting the most recent session leaves none for the visit.
+
 
 The `controller` store holds at most one record, under the key `remembered`
 (`src/storage/records/controller-record.ts`): the record envelope (data version 1) and the input

@@ -15,7 +15,10 @@
  * (./session-review-state.ts), makes that session the most recent one and asks Idle for the next
  * phrase; the next start hides the Review, and the most recent session stays until the next session
  * ends with a review. After a reload the most recent session is the latest readable kept one,
- * read from the device when it is shown (./workspace-kept-session-read.ts). Its MIDI side (./workspace-session-midi.ts) starts a session from the starting note and reads a
+ * read from the device when it is shown (./workspace-kept-session-read.ts). The kept sessions'
+ * rows are held for the visit and kept current (./use-kept-sessions.ts); the review mode's moves
+ * (./workspace-kept-session-opening.ts) show the session list and open any kept session by its
+ * key. Its MIDI side (./workspace-session-midi.ts) starts a session from the starting note and reads a
  * session's controller, whose presence its adaptive-tempo side (./workspace-adaptive-tempo.ts,
  * the page's flag) hands the engine. Its settings side (./workspace-session-settings.ts) holds the
  * page's `Vary settings` and `Tension across phrases` flags, which turn the engine's settings
@@ -50,8 +53,9 @@ import type { StaffLayout } from '@/notation/notation-layout-policy'
 import type { SessionStaff } from '@/components/notation/session-staff'
 import type { StartingNote } from '@/session/starting-note'
 import type { ExpectedNoteIdentity } from '@/domain/acknowledgement/expected-note'
-import { assertReviewMayShow, closedReview, shownReview } from './session-review-state'
-import { mostRecentKept, readKeptReviewedSession } from './workspace-kept-session-read'
+import { useKeptSessions, type KeptSessionRow } from './use-kept-sessions'
+import { createReviewMode } from './workspace-kept-session-opening'
+import { mostRecentKept } from './workspace-kept-session-read'
 import { createAdaptiveTempoFlag } from './workspace-adaptive-tempo'
 import { createKeptPlayedNotes } from './workspace-kept-played-notes'
 import { createKeptSessionEdits } from './workspace-kept-session-edits'
@@ -69,7 +73,6 @@ import {
   type RunningCountIn,
   type SessionController,
   type SessionControllerDependencies,
-  type MostRecentSession,
   type SessionControllerPhase,
   type SessionEndSummary,
   type SessionReview,
@@ -89,6 +92,7 @@ function startFactsOf(
   shape: WindowShapeReading,
   sessionActive: boolean,
   review: SessionReview | null,
+  listShowing: boolean,
 ): SessionStartFacts {
   return {
     phraseShown: idle.result !== null && idle.resultEngraved,
@@ -99,7 +103,7 @@ function startFactsOf(
     orientationNoticeShown: isPortraitBelowDesktop(shape),
     roomNoticeShown: idle.roomNotice !== null,
     sessionActive,
-    reviewShowing: review?.showing === true,
+    reviewShowing: review?.showing === true || listShowing,
   }
 }
 
@@ -149,6 +153,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     windowShape.value = browser.windowShape.read()
   })
 
+  const rows = useKeptSessions(deps.keptSessions.summaries)
   const state = shallowReactive({
     phase: 'idle' as SessionControllerPhase,
     countIn: null as RunningCountIn | null,
@@ -160,6 +165,8 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     review: null as SessionReview | null,
     mostRecent: mostRecentKept(deps.keptSessions.summaries),
     readingMostRecent: false,
+    listShowing: false,
+    openingKey: null as string | null,
     sessionStaff: null as SessionStaff | null,
     latestReady: null as number | null,
     shownSettings: null as SessionSettings | null,
@@ -205,6 +212,9 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     get savingOff(): boolean {
       return deps.keptSessions.savingOff()
     },
+    get keptRows(): readonly KeptSessionRow[] {
+      return rows.rows()
+    },
   })
   const core: SessionControllerCore = {
     deps,
@@ -216,7 +226,13 @@ export function createSessionController(deps: SessionControllerDependencies): Se
   }
   const startBlocker = computed(() =>
     sessionStartBlocker(
-      startFactsOf(idle.state, windowShape.value, state.phase !== 'idle', state.review),
+      startFactsOf(
+        idle.state,
+        windowShape.value,
+        state.phase !== 'idle',
+        state.review,
+        state.listShowing,
+      ),
     ),
   )
   const sessionMidi = createSessionMidi({
@@ -244,61 +260,16 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     varySettings,
     tensionAcrossPhrases,
   })
-  const keptPlayedNotes = createKeptPlayedNotes(core, deps.savedKeepPlayedNotes)
-  const edits = createKeptSessionEdits(core)
-  const ends = createSessionEnds(core, adaptiveTempo, keptPlayedNotes.on, edits.saveRefused)
+  const keptPlayedNotes = createKeptPlayedNotes(core, deps.savedKeepPlayedNotes, rows)
+  const edits = createKeptSessionEdits(core, rows)
+  const ends = createSessionEnds(core, adaptiveTempo, keptPlayedNotes.on, edits.saveRefused, rows)
+  const reviewMode = createReviewMode(core, rows)
   const start = createSessionStart(
     core,
     { sessionMidi, adaptiveTempo, varySettings, tensionAcrossPhrases, pregeneration },
     ends,
     () => startBlocker.value,
   )
-
-  /** Intent: `Close review`: the Review stops showing and is kept; throws unless it shows. */
-  // @spec-link [[req_last_session_review]]
-  function closeReview(): void {
-    state.review = closedReview(state.review)
-  }
-
-  /**
-   * Intent: `Review last session`: the most recent session's Review shows, only at Idle; else
-   * throws. One held in memory shows at once. A kept one is read first by its key, the read shown
-   * as under way; once read it is held in memory and shows, unless a session started or the most
-   * recent session changed meanwhile; a read the device refuses, or records this version cannot
-   * read, show nothing. Resolves whether the Review shows.
-   */
-  // @spec-link [[req_last_session_review]]
-  // @spec-link [[req_kept_session_review]]
-  // @spec-link [[module_kept_session_save]]
-  function showReview(): Promise<boolean> {
-    const recent = assertReviewMayShow(
-      state.mostRecent,
-      state.review,
-      state.phase,
-      state.readingMostRecent,
-    )
-    if (recent.kind === 'held') {
-      state.review = shownReview(recent.session)
-      return Promise.resolve(true)
-    }
-    return showKept(recent)
-  }
-
-  /** Intent: read the kept most recent session `recent`, then show it if still in turn. */
-  // @spec-link [[req_kept_session_review]]
-  async function showKept(recent: Extract<MostRecentSession, { kind: 'kept' }>): Promise<boolean> {
-    state.readingMostRecent = true
-    let read
-    try {
-      read = await readKeptReviewedSession(deps.keptSessions.read, recent.key)
-    } finally {
-      state.readingMostRecent = false
-    }
-    if (read === null || state.mostRecent !== recent || state.phase !== 'idle') return false
-    state.mostRecent = Object.freeze({ kind: 'held', session: read })
-    state.review = shownReview(read)
-    return true
-  }
 
   return {
     state: shallowReadonly(state),
@@ -310,8 +281,10 @@ export function createSessionController(deps: SessionControllerDependencies): Se
       }
       return core.active?.display?.isPhraseOnScreen(phraseNumber) ?? false
     },
-    closeReview,
-    showReview,
+    closeReview: reviewMode.closeReview,
+    showReview: reviewMode.showReview,
+    openSession: reviewMode.openSession,
+    showList: reviewMode.showList,
     setKeepPlayedNotes: keptPlayedNotes.set,
     deletePlayedNotes: keptPlayedNotes.deleteShown,
     deleteEveryKeptPlayedNote: keptPlayedNotes.deleteEvery,

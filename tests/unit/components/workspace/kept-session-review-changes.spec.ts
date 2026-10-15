@@ -220,6 +220,29 @@ describe('a pin or unpin after the save', () => {
   })
 })
 
+// @test-link [[module_kept_session_reach]]
+// @test-link [[module_kept_session_changes]]
+describe('a pin, an unpin and Delete session from a list row, keyed by the row', () => {
+  // @test-link [[module_kept_session_reach]]
+  it("each read only the session-wide record, never the session's body", async () => {
+    const history = recordedKeptSession('bb-tenor', 2)
+    const rig = await keptRig(history, { ...FRESH, favorites: [1] })
+    const read = vi.spyOn(rig.port, 'read')
+
+    expect(await changeKeptPinned(rig.saves, OTHER_KEY, true)).toEqual({ status: 'saved' })
+    expect(await changeKeptPinned(rig.saves, OTHER_KEY, false)).toEqual({ status: 'saved' })
+    expect(await deleteKeptSession(rig.saves, OTHER_KEY)).toEqual({ status: 'saved' })
+
+    expect(rig.batches()).toBe(3)
+    expect(read.mock.calls.map(([store]) => store)).toEqual([
+      'sessionSummaries',
+      'sessionSummaries',
+      'sessionSummaries',
+    ])
+    expect(await rig.port.readKeys('sessionSummaries')).toEqual([rig.key])
+  })
+})
+
 // @test-link [[module_kept_session_changes]]
 // @test-link [[rule_session_comment]]
 describe('the comment after the save', () => {

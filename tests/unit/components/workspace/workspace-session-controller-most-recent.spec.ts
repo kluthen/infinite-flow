@@ -177,7 +177,7 @@ describe('session controller: the most recent session after a reload', () => {
     expect(rig.controller.state.readingMostRecent).toBe(true)
     expect(() => rig.controller.showReview()).toThrow(/being read/)
 
-    await expect(showing).resolves.toBe(true)
+    await expect(showing).resolves.toBe('shown')
 
     expect(kept.read).toHaveBeenCalledExactlyOnceWith('session-new')
     expect(rig.controller.state.readingMostRecent).toBe(false)
@@ -197,7 +197,7 @@ describe('session controller: the most recent session after a reload', () => {
     await rig.controller.showReview()
     rig.controller.closeReview()
 
-    await expect(rig.controller.showReview()).resolves.toBe(true)
+    await expect(rig.controller.showReview()).resolves.toBe('shown')
 
     expect(kept.read).toHaveBeenCalledTimes(1)
     expect(rig.controller.state.mostRecent?.kind).toBe('held')
@@ -213,7 +213,7 @@ describe('session controller: the most recent session after a reload', () => {
       },
     })
 
-    await expect(rig.controller.showReview()).resolves.toBe(false)
+    await expect(rig.controller.showReview()).resolves.toBe('failed')
 
     expect(rig.controller.state.review).toBeNull()
     expect(rig.controller.state.readingMostRecent).toBe(false)
@@ -228,7 +228,7 @@ describe('session controller: the most recent session after a reload', () => {
     const showing = rig.controller.showReview()
     rig.controller.start()
 
-    await expect(showing).resolves.toBe(false)
+    await expect(showing).resolves.toBe('superseded')
     expect(rig.controller.state.review).toBeNull()
     expect(rig.controller.state.phase).toBe('count-in')
   })

@@ -19,6 +19,7 @@ import type {
   MostRecentSession,
   PlayedNotesDeletion,
   SessionDeletion,
+  SessionOpening,
   ReviewedHistory,
   SessionController,
   SessionControllerState,
@@ -43,7 +44,9 @@ export interface FakeSessionController {
   readonly stop: Mock<() => void>
   readonly dispose: Mock<() => void>
   readonly closeReview: Mock<() => void>
-  readonly showReview: Mock<() => Promise<boolean>>
+  readonly showReview: Mock<() => Promise<SessionOpening>>
+  readonly openSession: Mock<SessionController['openSession']>
+  readonly showList: Mock<() => void>
   readonly setAdaptiveTempo: Mock<(on: boolean) => void>
   readonly setVarySettings: Mock<(on: boolean) => void>
   readonly setTensionAcrossPhrases: Mock<(on: boolean) => void>
@@ -176,6 +179,9 @@ export function createFakeSessionController(
     review: null,
     mostRecent: null,
     readingMostRecent: false,
+    keptRows: [],
+    listShowing: false,
+    openingKey: null,
     sessionStaff: null,
     latestReady: null,
     startingNote: null,
@@ -236,12 +242,24 @@ export function createFakeSessionController(
       state.startBlocker = null
     }
   })
-  const showReview = vi.fn((): Promise<boolean> => {
+  const showReview = vi.fn((): Promise<SessionOpening> => {
     const recent = state.mostRecent
     if (recent === null) throw new Error('fake controller: no Review exists')
-    if (recent.kind === 'kept') return Promise.resolve(false)
+    if (recent.kind === 'kept') return Promise.resolve('failed')
     showing(Object.freeze({ ...recent.session, showing: true }))
-    return Promise.resolve(true)
+    return Promise.resolve('shown')
+  })
+  const showList = vi.fn((): void => {
+    if (state.listShowing) throw new Error('fake controller: the list already shows')
+    if (state.review?.showing === true) state.review = { ...state.review, showing: false }
+    state.listShowing = true
+  })
+  const openSession = vi.fn((key: string): Promise<SessionOpening> => {
+    const recent = state.mostRecent
+    if (recent?.kind !== 'held' || recent.session.key !== key) return Promise.resolve('failed')
+    state.listShowing = false
+    showing(Object.freeze({ ...recent.session, showing: true }))
+    return Promise.resolve('shown')
   })
   const isPhraseOnScreen = (phraseNumber: number): boolean => staffShows(state, phraseNumber)
   const setAdaptiveTempo = vi.fn((on: boolean): void => {
@@ -312,6 +330,8 @@ export function createFakeSessionController(
       dispose,
       closeReview,
       showReview,
+      openSession,
+      showList,
       setAdaptiveTempo,
       setVarySettings,
       setTensionAcrossPhrases,
@@ -329,6 +349,8 @@ export function createFakeSessionController(
     dispose,
     closeReview,
     showReview,
+    openSession,
+    showList,
     setAdaptiveTempo,
     setVarySettings,
     setTensionAcrossPhrases,

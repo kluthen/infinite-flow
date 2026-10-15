@@ -14,6 +14,7 @@ import type { StartingNote } from '@/session/starting-note'
 import type { SessionEndCause, SessionSettings } from '@/session/session-types'
 import type { StaffLayout } from '@/notation/notation-layout-policy'
 import type { SessionStaff } from '@/components/notation/session-staff'
+import type { KeptSessionRow } from './use-kept-sessions'
 import type { ControllerLostCountdown } from './workspace-session-midi'
 
 export type { KeptSessionsSeam } from './workspace-kept-sessions-seam'
@@ -118,6 +119,14 @@ export type PlayedNotesDeletion = 'deleted' | 'refused' | 'saving-off'
 export type SessionDeletion = 'deleted' | 'refused' | 'saving-off'
 
 /**
+ * What became of opening a session's Review, from `Review last session` or a list row: shown;
+ * failed, its read not giving the session (its row says so); or superseded by a later opening,
+ * the mode left or a session started meanwhile, so nothing shows.
+ */
+// @spec-link [[req_kept_session_review]]
+export type SessionOpening = 'shown' | 'failed' | 'superseded'
+
+/**
  * The Review: the session it draws and whether the player is in it. It exists from a session end
  * once phrase 1 has sounded, or from `Review last session`, until the next session starts; each
  * change replaces the frozen object, never mutates it.
@@ -174,6 +183,17 @@ export interface SessionControllerState {
   /** The most recent session is being read from the device for `Review last session`. */
   // @spec-link [[req_kept_session_review]]
   readonly readingMostRecent: boolean
+  /**
+   * The kept sessions' rows, newest first, from the summaries the load read and kept current by
+   * every save, change and deletion of the visit (use-kept-sessions.ts).
+   */
+  // @spec-link [[req_kept_session_review]]
+  readonly keptRows: readonly KeptSessionRow[]
+  /** The session list shows, in the review mode's place of a Review. */
+  readonly listShowing: boolean
+  /** The key of the kept session a row's opening is reading; null with none pending. */
+  // @spec-link [[req_kept_session_review]]
+  readonly openingKey: string | null
   /** `Keep my played notes`: from the player's saved choice, changed by `setKeepPlayedNotes`. */
   readonly keepPlayedNotes: boolean
   /**
@@ -261,15 +281,30 @@ export interface SessionController {
    * on a phrase number that is not a positive integer.
    */
   readonly isPhraseOnScreen: (phraseNumber: number) => boolean
-  /** Stop showing the Review (`Close review`), keeping it. Throws unless the Review shows. */
+  /**
+   * Leave the review mode (`Close review`) from either level: the Review kept without showing, the
+   * list gone, a pending opening cancelled. Throws unless the Review or the list shows.
+   */
   readonly closeReview: () => void
   /**
    * Show the most recent session's Review (`Review last session`): at once when it is held in
-   * memory, after reading it from the device when it is kept. Resolves true once it shows, false
-   * when it could not be read or a session started meanwhile. Throws unless a most recent session
-   * exists, no Review shows, no session runs and no read is under way.
+   * memory, after reading it from the device when it is kept. Resolves what became of it; a read
+   * that does not give it marks its row as failed to open. Throws unless a most recent session
+   * exists, neither the Review nor the list shows, no session runs and no read is under way.
    */
-  readonly showReview: () => Promise<boolean>
+  readonly showReview: () => Promise<SessionOpening>
+  /**
+   * Open the kept session under `key` from its row: at once when it is held in memory, else read
+   * by its key (`openingKey`), the latest opening winning and `closeReview` cancelling it; once
+   * read, held in memory and shown in the list's place. Throws during a session or when no row
+   * this version can open has that key.
+   */
+  readonly openSession: (key: string) => Promise<SessionOpening>
+  /**
+   * Show the session list, from idle or in a Review's place (the Review kept). Throws during a
+   * session or when the list already shows.
+   */
+  readonly showList: () => void
   /**
    * Turn `Keep my played notes` on or off, at Idle only (else throws); the caller saves the
    * setting. Turned on, it also keeps the played notes of the most recent session when they are
@@ -296,7 +331,11 @@ export interface SessionController {
    * in it.
    */
   readonly setFavorite: (key: string, phraseNumber: number, favorite: boolean) => Promise<void>
-  /** Pin or unpin the session held under `key`, as `setFavorite` saves a change. */
+  /**
+   * Pin or unpin the session under `key`, as `setFavorite` saves a change: held in memory, or any
+   * kept session with a row this version reads, changed through its row without reading its body.
+   * Throws during a session, or for a key neither held nor with such a row.
+   */
   readonly setPinned: (key: string, pinned: boolean) => Promise<void>
   /**
    * Set the comment of the session held under `key`, trimmed (empty: none), as `setFavorite`
@@ -304,9 +343,10 @@ export interface SessionController {
    */
   readonly setComment: (key: string, comment: string) => Promise<void>
   /**
-   * Delete the session held under `key`: from the device, then from memory (the Review and, when
-   * it is the most recent session, that too); one held in memory only because its save failed,
-   * from memory alone. Throws unless at Idle with saving on and that session held.
+   * Delete the session under `key`: from the device, then from memory (its row, the Review and,
+   * when it is the most recent session, that too, leaving none); one held in memory only because
+   * its save failed, from memory alone; one not held, through its row, without reading its body.
+   * Throws unless at Idle with saving on and that session held or with a row this version reads.
    */
   readonly deleteSession: (key: string) => Promise<SessionDeletion>
   /**

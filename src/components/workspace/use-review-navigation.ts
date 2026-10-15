@@ -76,7 +76,7 @@ export function useReviewNavigation(deps: ReviewNavigationDependencies): ReviewN
   // @spec-link [[req_last_session_review]]
   // @spec-link [[req_kept_session_review]]
   async function showReview(): Promise<void> {
-    if (!(await deps.controller().showReview())) return
+    if ((await deps.controller().showReview()) !== 'shown') return
     deps.scrollToPageTop()
     deps.focusReviewTitle()
   }
