@@ -2,7 +2,8 @@
  * v3.0 chunk 11, `Keep my played notes` and the deletion of kept played notes, on the workspace
  * harness (port 4175) with its fake audio clock and fake MIDI access, over the browser's real
  * IndexedDB; each test starts from an empty browser context and plays one session with the
- * keyboard, two notes in phrase 1, stopped once phrase 2 sounds:
+ * keyboard, two notes in phrase 1 (each held 100 ms, so neither is very short), stopped once
+ * phrase 2 sounds:
  *
  * - off (the first visit's), the session is kept without its played notes, and after a reload its
  *   Review has no lane; on, they are kept and come back after a reload, times from the session's
@@ -22,6 +23,7 @@ import { expect, test, type Locator, type Page } from '@playwright/test'
 
 import { watchPageErrors } from '../controller/controller-helpers'
 import {
+  HELD_NOTE_SECONDS,
   deletePlayedNotesButton,
   expectReviewShowing,
   exportPlayedButton,
@@ -40,8 +42,9 @@ import {
   connectDevice,
   expectedNotesOf,
   idleTimeline,
+  noteOff,
+  noteOn,
   phraseStartsAt,
-  tap,
 } from '../session/session-midi-helpers'
 import { gotoStorageHarness, reloadHarness, seedSettings, storedSettings } from './storage-helpers'
 
@@ -130,9 +133,16 @@ async function playedSession(page: Page, search = ''): Promise<PlayedSession> {
   const [first, second] = expectedNotesOf(phraseOne, 1, start)
   if (first === undefined || second === undefined) throw new Error('phrase 1 has two notes')
   await clockTo(page, first.onsetAt)
-  await tap(page, KEYS, first.pitch, first.onsetAt)
+  await noteOn(page, KEYS, first.pitch, { at: first.onsetAt })
+  await noteOff(
+    page,
+    KEYS,
+    first.pitch,
+    Math.min(first.onsetAt + HELD_NOTE_SECONDS, second.onsetAt),
+  )
   await clockTo(page, second.onsetAt)
-  await tap(page, KEYS, second.pitch, second.onsetAt)
+  await noteOn(page, KEYS, second.pitch, { at: second.onsetAt })
+  await noteOff(page, KEYS, second.pitch, second.onsetAt + HELD_NOTE_SECONDS)
   await playUntilPhrase(page, 2)
   await sessionAction(page).click()
   await expectReviewShowing(page, 2)

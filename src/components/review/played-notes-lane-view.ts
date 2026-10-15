@@ -1,11 +1,13 @@
 /**
  * What a Review phrase's played-notes lanes show, from its engraving and its record: one lane per
  * reserved system position, named for its phrase (and its bars in the split layout), holding a
- * divider at each barline between its measures and a bar per played note, both placed by
+ * divider at each barline between its measures and a bar per played note that is not very short
+ * (`@/domain/played-notes/stray-notes`), both placed by
  * ./played-notes-lane-geometry.ts and moved by the system's inline offset into the lane's frame.
  * A lane without an engraving to draw against is blank. Every bar carries the same three style
  * values and nothing else, so no note is ever told apart from another.
  */
+import { withoutVeryShortNotes } from '@/domain/played-notes/stray-notes'
 import {
   playedNotesLanes,
   type LaneMeasureAnchors,
@@ -40,7 +42,10 @@ export interface PlayedNotesLaneViewsInput {
   readonly positionCount: 1 | 2
   /** Null while the phrase is not engraved (or released, or replaced by its note): blank lanes. */
   readonly source: PlayedNotesLaneSource | null
-  /** The session-wide pitch scale; null only for a session without a played note. */
+  /**
+   * The session-wide pitch scale, from the notes the lanes show; null only for a session without
+   * a played note that is not very short.
+   */
   readonly scale: PlayedNotesPitchScale | null
 }
 
@@ -74,14 +79,20 @@ export function playedNotesLaneLabel(
 
 /**
  * Intent: one lane per reserved position, top first. Without a source every lane is blank; with
- * one, each lane gets its system's dividers and bars, shifted by that system's offset: a divider
- * sets its inline start only, a bar its inline start, inline size and `--played-note-pitch` only.
+ * one, each lane gets its system's dividers and a bar for each played note that is not very short,
+ * shifted by that system's offset: a divider sets its inline start only, a bar its inline start,
+ * inline size and `--played-note-pitch` only.
  */
 // @spec-link [[module_review_played_notes_lane]]
 // @spec-link [[rule_no_grading_or_mismatch_signal]]
+// @spec-link [[rule_stray_notes_filtered_on_reading]]
 export function playedNotesLaneViews(input: PlayedNotesLaneViewsInput): PlayedNotesLaneView[] {
   const { phraseNumber, record, positionCount, source, scale } = input
-  const drawings = source === null ? [] : laneDrawings(record, source, scale)
+  const shown = { ...record, playedNotes: withoutVeryShortNotes(record.playedNotes) }
+  const drawings =
+    source === null
+      ? []
+      : playedNotesLanes({ record: shown, phrase: source.phrase, anchors: source.anchors, scale })
   return Array.from({ length: positionCount }, (_, index) => {
     const label = playedNotesLaneLabel(phraseNumber, index, positionCount)
     const drawing = drawings.find((lane) => lane.systemIndex === index)
@@ -98,14 +109,4 @@ export function playedNotesLaneViews(input: PlayedNotesLaneViewsInput): PlayedNo
       })),
     }
   })
-}
-
-/** Intent: the geometry's lanes for an engraved phrase; a scale is required to draw any. */
-function laneDrawings(
-  record: PlayedNotesLaneRecord,
-  source: PlayedNotesLaneSource,
-  scale: PlayedNotesPitchScale | null,
-) {
-  if (scale === null) throw new Error('Played-notes lanes are drawn without a pitch scale.')
-  return playedNotesLanes({ record, phrase: source.phrase, anchors: source.anchors, scale })
 }

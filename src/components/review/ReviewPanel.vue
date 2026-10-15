@@ -25,6 +25,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId, watch } fro
 import SegmentedControl from '@/components/controls/SegmentedControl.vue'
 import type { SegmentedControlOption } from '@/components/controls/segmented-control-option'
 import { ROOM_NOTICE_NARROW, ROOM_NOTICE_WIDE } from '@/components/notation/room-notice-copy'
+import { recordsWithoutVeryShortNotes } from '@/domain/played-notes/stray-notes'
 import { NotationError } from '@/notation/notation-error'
 import {
   NOTATION_SYSTEM_POSITION_UNITS,
@@ -341,12 +342,15 @@ function toggleKeepPlayedNotes(): void {
 }
 
 /**
- * Intent: the lanes' one pitch scale for the whole session, from every phrase's played notes; and
- * whether the lanes show: only while the switch is on and shown, so a session without a played
+ * Intent: the lanes' one pitch scale for the whole session, from the played notes the lanes show
+ * (very short notes left out, so one never widens it; none when every played note is very short);
+ * and whether the lanes show: only while the switch is on and shown, so a session without a played
  * note shows none, whatever the page's switch state.
  */
 // @spec-link [[module_review_played_notes_lane]]
-const pitchScale = computed(() => playedNotesPitchScale(props.records))
+const pitchScale = computed(() =>
+  playedNotesPitchScale(recordsWithoutVeryShortNotes(props.records)),
+)
 const lanesShown = computed(() => props.holdsPlayedNote && props.playedNotesShown)
 
 // ---- Lazy engraving ----

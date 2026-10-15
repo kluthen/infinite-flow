@@ -76,10 +76,13 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   expected notes, their timing windows, latency-corrected played onsets and exact-pitch matching;
   see [`docs/midi-acknowledgement.md`](docs/midi-acknowledgement.md)), the backing renderer
   (`src/domain/backing/`: a phrase's harmony turned into bass and chord notes, shared by the audio
-  and the MIDI export; see [`docs/audio-transport.md`](docs/audio-transport.md#the-backing)), and
-  the controller transposition check (`src/domain/controller-check/`: the written note the check
+  and the MIDI export; see [`docs/audio-transport.md`](docs/audio-transport.md#the-backing)), the
+  controller transposition check (`src/domain/controller-check/`: the written note the check
   shows, the expected concert pitch and the verdict on the played note, with its wording; see
-  [`docs/controller-connection.md`](docs/controller-connection.md#the-transposition-check)).
+  [`docs/controller-connection.md`](docs/controller-connection.md#the-transposition-check)), and
+  the very-short-note filter (`src/domain/played-notes/`: the threshold under which a played note
+  is a stray in-between note, left out where played notes are read for the review's lane and the
+  played-notes export; see [`docs/midi-tuning.md`](docs/midi-tuning.md#very-short-notes-m1)).
 - `src/generation-worker/` — the typed request/response protocol and handler that run generation
   inside a dedicated module Web Worker, off the main thread.
 - `src/notation/` — the concert-to-written transformation types and the VexFlow engraving adapter,

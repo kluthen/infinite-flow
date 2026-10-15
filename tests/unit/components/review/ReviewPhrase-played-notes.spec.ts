@@ -188,7 +188,8 @@ describe('the played-notes lanes of a review phrase', () => {
       [0, 1, 55],
       [2.5, 3.25, 61],
       [3.5, 5.5, 67],
-      [9, 9, 64],
+      // A sixteenth note: short, and still drawn (a note under 38 ms never is).
+      [9, 9.25, 64],
     ])
     const scale = playedNotesPitchScale([record])!
     const wrapper = mountPhrase({ record, pitchScale: scale })
