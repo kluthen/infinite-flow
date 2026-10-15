@@ -3278,6 +3278,35 @@ half of the reload test is chunk 15's (wave 8).
 
 **Verification:** the chunk checks; hand check H4.
 
+**Record (2026-10-15).** Merged into `v3.0-w6` (e0b22d6) in two chunk commits: 22a (99c11f8:
+the record `controller-record.ts`, the reselection at load and its wiring, the saver's
+`rememberController`/`forgetController` behind the visit's saves) and 22b (c43f21f: the starting
+note's wait for the page's first gesture through a new `PageActivation` port and
+`browser-page-activation.ts`, which listens to real input events only, and the start line).
+No spec or design deviation; every Done when item has an end-to-end test, D318's outdated tab and
+defaults visit included; the two v2 tests pass with their files unedited. `reviewer` rejected once
+(the check from the connected badge heard no note after a reattach at load), passed after the fix
+and its regression test. Chromium makes a running audio context after the first gesture (headless
+probe), so the capture's stop condition did not occur. Calls made inside the chunk, for the sync:
+the controller's clock is `null` until the audio is unlocked, and a note-on then goes only to
+`onUnclockedNoteOn` listeners (the connection sheet's check, which needs only the pitch) before it
+is dropped, because the note is mapped onto the audio clock before the starting-note match;
+`Requesting access` goes straight to Connected for the remembered controller, with its hint; a
+Connect click adopts the load's request, and its refusal reads as denied; without Web MIDI the
+reselection does nothing. Files outside the Files line: `midi-controller-state.ts`,
+`controller-status.ts`, `midi-access-port.ts` (doc), `use-controller-status.ts`,
+`connection-sheet-model.ts`, `use-connection-sheet-driver.ts`, `SheetStateBody.vue`,
+`settings-saver.ts`, `workspace-session-types.ts`, `workspace-session-controller.ts` and
+`-controller-types.ts` (additions), `session-browser-ports.ts`; `docs/storage.md` (a "The
+remembered controller" section), `docs/testing.md`, `HARDWARE-CHECKLIST.md` (H4). One §2 test
+changed: `midi-input.spec.ts`'s "the same scripted run gives the same recordings every time" runs
+its second pass in a fresh browser context, since a reload now keeps the remembered controller.
+For the wave gate: the entry chunk grows (the page-activation adapter, the record codec); other
+e2e specs that navigate twice after connecting would now find the controller remembered (none
+found by grep); `lint:health` reports chunk 12's `review-favorites.spec.ts` at 11 atom ids. Left
+open: hand check H4 (does Chromium keep the Travel Sax's port `id` across a reload); a reload made
+right after `Disconnect` can abort the delete in flight, like any save.
+
 ### Chunk 23 — Session seed plan
 
 **Architecture capture:** the session's seeds and schedules fixed from phrase 1, before Start.
