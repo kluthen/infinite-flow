@@ -1,6 +1,6 @@
 ---
 id: module_kept_session_reach
-status: DRAFT
+status: REVIEW
 layer: ARCHITECTURE
 version: 0.2
 parents:

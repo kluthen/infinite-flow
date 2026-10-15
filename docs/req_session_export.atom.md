@@ -1,6 +1,6 @@
 ---
 id: req_session_export
-status: DRAFT
+status: REVIEW
 human_name: Session Export
 parents:
   - [[req_last_session_review]]

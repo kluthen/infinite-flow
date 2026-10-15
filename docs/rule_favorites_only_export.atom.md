@@ -1,6 +1,6 @@
 ---
 id: rule_favorites_only_export
-status: DRAFT
+status: REVIEW
 dependents:
   - [[module_review_export_pipeline]]
 tags: [v3, release-v3.0, export, favorites, changes-in-v3.2]

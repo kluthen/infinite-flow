@@ -1,6 +1,6 @@
 ---
 id: module_kept_session_changes
-status: DRAFT
+status: REVIEW
 type: MODULE
 layer: ARCHITECTURE
 version: 0.5
