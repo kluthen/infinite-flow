@@ -54,7 +54,7 @@ Some steps are not code and need the owner. They are part of the sequence:
 | **Starting-note wording** | **Done 2026-10-13:** the owner accepted the proposed wording of `rule_midi_starting_note` (STABLE): with a stale phrase 1, the starting note first asks, as the Start button does, and the count-in starts only if the player chooses Use it; ruled MAJOR, CONTRACT 4.0 → 5.0 ([master spec §10](master-spec.md#10-what-v30-changes-in-v2s-guarantees), spec D297's ruling note). `documentalist` applies the atom and the contract bump. | Done (the atom change is `documentalist`'s, before chunk 24b's code). | Nothing. |
 | **O182** | **Done 2026-10-13:** Regenerate runs the usual Idle Regenerate and the app stays at Idle with the new phrase on screen; the player presses Start again ([spec O182](../../open-questions.md#v30-wave-2-o180) closed, master spec §16). | Done. | Nothing. |
 | **Stale phrase design** | **Done 2026-10-13 (ux D296–D304, passed by `ux-critic` with D305–D306):** `ux-writer` designs the stale-phrase prompt (master spec §16 and §14): its wording in plain words for a beginner, the labels of its two choices (the owner's words are Regenerate and Use it; Part C's key and mode suggestion already has a Use it), how it is dismissed, whether it names the settings that changed, whether other controls can be used while it shows (proposed: no), and how it reads when the starting note opened it. | Now (O182 is settled); before chunk 24b-2. | Chunk 24b-2. |
-| **Part B1** | The owner confirms the revised `rule_instrument_profile_range` (change set part B, a MINOR contract bump), which now also states my instrument's written-range bound per clef (spec D294). | After chunk 20's wave gate (its post-task sync revises the atom). | Nothing; the gate checks it is done. |
+| **Part B1** | **Done 2026-10-15 (2b77f3d, CONTRACT 6.1):** the owner confirmed it after the wave-7 gate. The owner confirms the revised `rule_instrument_profile_range` (change set part B, a MINOR contract bump), which now also states my instrument's written-range bound per clef (spec D294). | After chunk 20's wave gate (its post-task sync revises the atom). | Nothing; the gate checks it is done. |
 | **Part B2** | The owner confirms the revised `rule_controller_transposition_check` (part B, MINOR), which now also states that "use this for my instrument" first warns when it would erase my instrument's kept sessions (spec D295), and that a controller reattached by itself, the remembered controller reselected at load included, is not checked again, the check staying available between sessions (spec D323; a clarification that adds no case, wording `documentalist`'s). | After chunk 20c's wave gate (its post-task sync revises the atom, once the warning is built). | Nothing; the gate checks it is done. |
 | **Part C** | The owner confirms the VISION 0.7 → 0.8 text and the retirement of the four chord-fit atoms (part C). | In chunk 26. | The gate. |
 | **O200** | **Closed 2026-10-14 (spec D310):** a kept session the app cannot read correctly is deleted, with an apology, at load, at the next save or when opened, while the visit saves; a read the device refuses deletes nothing ([spec O200](../../open-questions.md#v30-wave-5-o200), master spec §5.1). | Done. | Nothing. [Chunk 28](#chunk-28--a-damaged-kept-session-deleted-with-an-apology) builds it. |
@@ -1101,6 +1101,18 @@ tightening for the H4 round; nine DRAFT → REVIEW advances (part P3); Part B1
 hand check H8. Left for `ux-writer`, cosmetic: at 844 px the wide My instrument sheet stops at
 36rem. `recheck()` in `workspace-pregeneration.ts` is called by nothing (code health, for that
 file's next owner).
+
+**Sign-offs applied and merge (2026-10-15).** The owner answered "1 to 5 ok": the merge, Vue's
+Options API kept off, part P2's three wordings, part P3's nine advances and Part B1.
+`documentalist` applied them in 2b77f3d: `req_kept_session_list` 0.3, `rule_most_recent_session_kept`
+0.5 (with D328's clause; M2 5(b) still goes on top at chunk 28), `req_rolling_practice_session`
+0.6; nine atoms DRAFT → REVIEW; `rule_instrument_profile_range` 0.4, still STABLE, now covering a
+player-made instrument and its clef's bound, with CONTRACT 6.0 → 6.1 (MINOR), and
+`rule_my_instrument_range_limits` gaining it as a parent. Still pending: P2 item 4 and the H4 and
+H5 advances (the owner's hand checks), Part B2 after chunk 20c, D326 in
+`entity_my_instrument_record` at chunk 20c's preflight, hand check H8. The owner asked for the
+merge and the push of `main`, and asked not to start wave 8 yet; the wave merges into `main` with
+entry chunk 227,170 B.
 
 ## 2. Read first: what v3.0 undoes in v2
 
