@@ -42,7 +42,7 @@ export interface ReviewHostDependencies {
 // @spec-link [[req_last_session_review]]
 // @spec-link [[req_session_export]]
 export interface ReviewHost {
-  /** The Review shows, in place of the staff area. */
+  /** The review mode shows (a Review, or the session list), in place of the staff area. */
   readonly showing: ComputedRef<boolean>
   /** The Review while it shows; null otherwise. */
   readonly shownReview: ComputedRef<SessionReview | null>
@@ -112,7 +112,10 @@ export function useReviewHost(deps: ReviewHostDependencies): ReviewHost {
     const review = deps.controller()?.state.review ?? null
     return review !== null && review.showing ? review : null
   })
-  const showing = computed(() => shownReview.value !== null)
+  /** Intent: the review mode shows: a Review, or the session list in its place. */
+  const showing = computed(
+    () => shownReview.value !== null || deps.controller()?.state.listShowing === true,
+  )
   const viewport = shallowRef<StaffViewport | null>(null)
   const format = ref<GeneratedNotesFormat>(deps.initialPreferences.format)
   const backingTrack = ref(deps.initialPreferences.backingTrack)

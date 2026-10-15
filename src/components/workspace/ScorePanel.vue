@@ -107,6 +107,10 @@ const emit = defineEmits<{
   'stop-session': []
   /** The cue row's `Review last session` was clicked. */
   'show-review': []
+  /** The cue row's `All sessions` was clicked. */
+  'show-sessions': []
+  /** The review mode switched between a Review and the session list. */
+  'scroll-to-top': []
 }>()
 
 const state = computed(() => props.session.state)
@@ -381,6 +385,7 @@ const generationErrorAlertText = computed(() =>
       :no-room="state.roomNotice === 'no_room'"
       :system-position-units="systemPositionUnits"
       :export-ports="reviewExportPorts"
+      @scroll-to-top="emit('scroll-to-top')"
     />
     <p
       v-if="generationErrorAlertText !== null"
@@ -396,6 +401,7 @@ const generationErrorAlertText = computed(() =>
       :hidden="reviewShowing"
       @stop="emit('stop-session')"
       @show-review="emit('show-review')"
+      @show-sessions="emit('show-sessions')"
     />
     <!-- Out of sight, not hidden, under the Review: the staff keeps its geometry. `inert` is
          bound as present or absent, never "false", which a DOM without the property would keep. -->

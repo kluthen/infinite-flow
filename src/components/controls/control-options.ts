@@ -151,6 +151,17 @@ function labelFor(options: readonly SegmentedControlOption[], value: string): st
 }
 
 /**
+ * Intent: the musical-profile state as `control-summary` writes it: the preset name, or
+ * `Custom ({grammar} grammar)` during a custom edit.
+ */
+// @spec-link [[module_generation_control_catalog]]
+export function profileSelectionLabel(profileSelection: ProfileSelection): string {
+  return profileSelection.isCustom
+    ? `Custom (${profileSelection.musicalProfile} grammar)`
+    : profileSelection.musicalProfile
+}
+
+/**
  * Intent: the muted `control-summary` copy per D25 -- tonal center and collection labels
  * separated by a plain space, then the musical-profile state (preset name, or `Custom ({grammar}
  * grammar)` during a custom edit), tension arc, and leapiness, each segment separated by ` · `.
@@ -164,8 +175,6 @@ export function controlSummaryText(
   const collectionLabel = labelFor(collectionOptions(), controls.collection)
   const tensionLabel = labelFor(tensionOptions(), controls.tension)
   const leapinessLabel = labelFor(leapinessOptions(), controls.leapiness)
-  const profileLabel = profileSelection.isCustom
-    ? `Custom (${profileSelection.musicalProfile} grammar)`
-    : profileSelection.musicalProfile
+  const profileLabel = profileSelectionLabel(profileSelection)
   return `${tonalCenterLabel} ${collectionLabel} · ${profileLabel} · ${tensionLabel} · ${leapinessLabel}`
 }

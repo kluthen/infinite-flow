@@ -98,7 +98,12 @@ const sessionActive = computed(
 
 /** True while the last session's Review shows, in place of the staff. */
 // @spec-link [[req_last_session_review]]
-const reviewShowing = computed(() => props.controller?.state.review?.showing === true)
+/** Intent: the review mode shows: a Review, or the session list in its place. */
+const reviewShowing = computed(
+  () =>
+    props.controller?.state.review?.showing === true ||
+    props.controller?.state.listShowing === true,
+)
 
 /**
  * The phrase action is disabled while an operation runs, under an unsupported rhythm, in a

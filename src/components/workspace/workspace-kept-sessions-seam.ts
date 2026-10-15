@@ -34,6 +34,8 @@ export interface KeptSessionsSeam {
   // @spec-link [[rule_outdated_tab_stops_saving]]
   // @spec-link [[rule_first_phrase_waits_for_saved_settings]]
   readonly savingOff: () => boolean
+  /** The visit started from the defaults: the kept sessions could not be read in it. */
+  readonly startedFromDefaults: boolean
   /** The changes to kept sessions after their save, and the reads made at them. */
   // @spec-link [[module_kept_session_changes]]
   readonly changes: KeptSessionChanges
@@ -72,6 +74,7 @@ export function keptSessionsOf(
     savingOff: () =>
       savedData.outcome === 'started-from-defaults' ||
       (saving.value !== null && saving.value !== 'on'),
+    startedFromDefaults: savedData.outcome === 'started-from-defaults',
     changes,
     requestProtection: () => {
       void savedData.savePolicy.then((loaded) => loaded.requestProtection())

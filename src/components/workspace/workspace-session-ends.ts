@@ -14,7 +14,9 @@ import type { SessionHistory } from '@/session/session-history'
 import type { SessionEndCause } from '@/session/session-types'
 import { endedSession, openedReview, settledKeeping } from './session-review-state'
 import { endedSessionSave, saveEndedSession } from './workspace-session-save'
+import type { KeptSessionRows } from './use-kept-sessions'
 import type { AdaptiveTempoFlag } from './workspace-adaptive-tempo'
+import { findHeldSession } from './workspace-kept-session-opening'
 import {
   dispatchAt,
   type ActiveSession,
@@ -81,7 +83,8 @@ function tearDown(core: SessionControllerCore, session: ActiveSession | null): v
  * Intent: build the ends of one controller's sessions over its core; an end once phrase 1 has
  * sounded hands the tempo reached to the adaptive-tempo flag, its save keeps the played notes as
  * `Keep my played notes` says then, and a save the device refused hands its session's history on
- * for the retry. Interruptions are heard from the first start on.
+ * for the retry. A save that succeeds adds the session's row to `rows` and removes those of the
+ * sessions it deleted. Interruptions are heard from the first start on.
  */
 // @spec-link [[rule_stop_ends_session]]
 export function createSessionEnds(
@@ -89,6 +92,7 @@ export function createSessionEnds(
   adaptiveTempo: Pick<AdaptiveTempoFlag, 'sessionEnded'>,
   keepPlayedNotes: () => boolean,
   saveRefused: (key: string, history: SessionHistory) => void,
+  rows: Pick<KeptSessionRows, 'savingThrough'>,
 ): SessionEnds {
   const { audio, idle } = core.deps
   const { state } = core
@@ -136,7 +140,8 @@ export function createSessionEnds(
     const reviewed = endedSession(session.history, savingOff ? 'not-saved' : 'not-pinned', save)
     state.review = openedReview(reviewed)
     state.mostRecent = Object.freeze({ kind: 'held', session: reviewed })
-    const saving = saveEndedSession(core.deps.saveHold, session.history, save)
+    const saves = rows.savingThrough(core.deps.saveHold, () => findHeldSession(state, reviewed.key))
+    const saving = saveEndedSession(saves, session.history, save)
     if (!savingOff) {
       void saving.then((outcome) => {
         settleKeeping(reviewed, outcome)

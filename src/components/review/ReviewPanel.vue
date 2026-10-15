@@ -1,6 +1,7 @@
 <script setup lang="ts">
 /**
- * A session's Review, shown in the staff area's place: its title ("Last session" for the most
+ * A session's Review, shown in the staff area's place: first `All sessions` (`review-nav`), which
+ * asks the page for the session list in its place; then its title ("Last session" for the most
  * recent session, the session date for any other), its summary, the keep line saying how the
  * session is kept (only its "Not saved" form below bp-tablet-landscape, where the workspace staff
  * takes the split layout), the
@@ -136,6 +137,8 @@ const emit = defineEmits<{
   'toggle-pin': []
   'delete-session': []
   'save-comment': [key: string, text: string]
+  /** `All sessions` was pressed: the list replaces the Review. */
+  'all-sessions': []
 }>()
 
 const titleId = useId()
@@ -518,6 +521,9 @@ onBeforeUnmount(stopEngraving)
 
 <template>
   <section class="review-panel" :aria-labelledby="titleId">
+    <div class="review-nav">
+      <button type="button" class="btn" @click="emit('all-sessions')">All sessions</button>
+    </div>
     <div class="review-header">
       <div class="review-heading">
         <h2 :id="titleId" ref="titleEl" class="review-title" tabindex="-1">{{ title }}</h2>

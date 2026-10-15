@@ -347,7 +347,7 @@ describe('session controller: a kept session read back', () => {
       },
     })
 
-    expect(await rig.controller.showReview()).toBe(true)
+    expect(await rig.controller.showReview()).toBe('shown')
 
     expect(reviewed(rig).playedNotesKept).toBe(true)
     expect(reviewed(rig).key).toBe('session-5-5')

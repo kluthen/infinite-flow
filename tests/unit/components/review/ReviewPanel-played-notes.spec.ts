@@ -226,6 +226,7 @@ describe('the Played notes switch', () => {
 
     const rows = wrapper.get('.review-panel').element.children
     expect([...rows].map((child) => child.className)).toEqual([
+      'review-nav',
       'review-header',
       'review-comment',
       'review-actions',

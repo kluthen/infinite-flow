@@ -221,7 +221,7 @@ describe('session controller: closing and showing the Review again', () => {
     expect(Object.isFrozen(kept)).toBe(true)
     expect(shown?.showing).toBe(true)
 
-    await expect(rig.controller.showReview()).resolves.toBe(true)
+    await expect(rig.controller.showReview()).resolves.toBe('shown')
 
     expect(rig.controller.state.review).toEqual({ ...drawn, showing: true })
     expect(rig.controller.state.startBlocker).toBe('review_showing')
@@ -273,7 +273,7 @@ describe('session controller: the next session hides the Review, and the most re
     expect(rig.controller.state.review).toBeNull()
     expect(rig.controller.state.mostRecent).toBe(recent)
     expect(rig.controller.state.canStart).toBe(true)
-    await expect(rig.controller.showReview()).resolves.toBe(true)
+    await expect(rig.controller.showReview()).resolves.toBe('shown')
     expect(rig.controller.state.review?.history).toBe(history)
     expect(rig.controller.state.review?.showing).toBe(true)
   })

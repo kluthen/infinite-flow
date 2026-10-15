@@ -103,7 +103,7 @@ export interface ControllerRigOptions {
   /** The saved `Keep my played notes`; off, a first visit's, by default. */
   readonly savedKeepPlayedNotes?: boolean
   /** What each session save resolves; `saved` at once by default. */
-  readonly sessionSaveOutcome?: () => Promise<SessionSaveOutcome>
+  readonly sessionSaveOutcome?: (changes: SessionChanges) => Promise<SessionSaveOutcome>
   /**
    * The kept sessions the controller reaches: by default none loaded, a read that throws (none is
    * ever asked for), saving on, and changes after a save that throw (none is ever asked for).
@@ -398,7 +398,7 @@ export function controllerRig(
       saveSession: (changes) => {
         logSaveHold('saveSession')
         sessionSaves.push(changes)
-        return options.sessionSaveOutcome?.() ?? Promise.resolve({ status: 'saved' })
+        return options.sessionSaveOutcome?.(changes) ?? Promise.resolve({ status: 'saved' })
       },
     },
     keptSessions: {
@@ -407,6 +407,7 @@ export function controllerRig(
         throw new Error(`rig: no kept session "${key}" can be read`)
       },
       savingOff: () => false,
+      startedFromDefaults: false,
       changes: {
         changeKept: () => {
           throw new Error('rig: no change to a kept session is asked for')

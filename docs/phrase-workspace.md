@@ -1119,8 +1119,10 @@ components below show it. The design is in the
 
 ### While it shows
 
-`ScorePanel` renders `ReviewPanel` after `score-toolbar`, in the staff area's place, and hides the
-rest of that area without unmounting it:
+`ScorePanel` renders the lazily loaded review area (`ReviewArea.vue`, through `loadReviewArea()`)
+after `score-toolbar`, in the staff area's place, while the review mode shows; the area mounts
+`ReviewPanel`, or the session list in its place (see [The session list](#the-session-list)). It
+hides the rest of that area without unmounting it:
 
 - **Out of sight, not hidden (ux D149).** `staff-viewport` takes the class `is-out-of-sight` and
   the `inert` attribute, not `hidden`. The staff keeps running the Idle rules underneath: the
@@ -1164,10 +1166,40 @@ rest of that area without unmounting it:
   scrolled instantly to its top, then focus on `review-title`, at once if the panel is mounted,
   else as soon as its chunk has loaded and it has mounted (`ScorePanel.focusReviewTitle`). A
   Review closed meanwhile drops the pending focus.
-- **A start from a focused `review-link`.** The starting note can start a session while
-  `review-link` has focus, with no click on the page. The start removes the link, so focus would
-  fall to the page; a watcher sees the link focused as the session starts and, once the header
-  has rendered, moves focus to the session action, now `Stop`.
+- **A start from a focused cue-row link.** The starting note can start a session while
+  `review-link` or `sessions-link` has focus, with no click on the page. The start removes the
+  link, so focus would fall to the page; a watcher sees the link focused as the session starts
+  and, once the header has rendered, moves focus to the session action, now `Stop`.
+
+### The session list
+
+The review mode's second level (`flows/kept-sessions/`, `screens/session-list/`): the controller's
+`state.listShowing`, which the header (`Close review`), the cue row and the start conditions read
+as the review mode, as they read a showing Review.
+
+- **Ways in.** The cue row's `sessions-link` ("All sessions", after `review-link`; both decided by
+  `cue-row-links.ts`: at Idle, never while the review mode shows, `sessions-link` while the list
+  has a row) emits `show-sessions`; the shell's `showSessions()` (`use-review-navigation.ts`) calls
+  `controller.showList()`, scrolls the page to its top and focuses the list's title. A Review's
+  `All sessions` (`review-nav`) shows the list in its place, focus on that session's row title, or
+  the list's title when it has none. `Review last session` whose read fails lands on the list, that
+  session's row failed to open, focus on the list's title (spec D307). `Delete session` confirmed
+  in a Review lands on the list too, focus on its title.
+- **The list** (`SessionList.vue`, `SessionRow.vue`, their text in `session-row-text.ts`) ships in
+  the review area's chunk, so nothing of it reaches the entry chunk. Its rows are the controller's
+  `state.keptRows`, newest first (see
+  [The kept sessions' rows and their openings](storage.md#the-kept-sessions-rows-and-their-openings));
+  the most recent session's row says " · Last session". A row's title opens its session
+  (`openSession`, `is-loading` while read; the latest press wins; `Close review` cancels): once
+  read its Review replaces the list, focus on `review-title`; a failed read keeps focus on the
+  title button and shows the row's note. `Pin` / `Unpin` and `Delete` go through
+  `use-session-list.ts`; `Unpin` with favorites and `Delete` open the area's one confirmation
+  sheet, as the Review's do.
+- **Focus after a confirmation** (`review-area-focus.ts`): a row's deletion moves focus to the
+  next row's title, else the previous row's, else the list's title over `sessions-empty`; the way
+  back returns it to the button that opened the sheet. A deletion whose sheet the player closed
+  while it ran finishes; when it ends, focus moves by that deletion's rule only if it sat on a
+  control the deletion removed, and a refusal then moves nothing (ux D316).
 
 ### The panel
 

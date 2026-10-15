@@ -11,8 +11,9 @@
  * - `keyedRecords` reads a store back with each record's key; `pinKeptSession` pins a kept session
  *   the app saved, as the review's pin will, `seedUnreadableKeptSession` writes a kept session
  *   whose session-wide record the codec cannot read, `seedPlayedNotes` keeps a session's played
- *   notes as another tab would, and `deleteKeptSession` deletes one, as a deletion made elsewhere
- *   would;
+ *   notes as another tab would, `deleteKeptSession` deletes one, as a deletion made elsewhere
+ *   would, and `seedKeptSessionCopy` copies one under another key and start, as this version or a
+ *   newer one would have written it;
  * - `settingsNotReadBack` names each stored settings record the settings codec does not read back
  *   as the value it holds, read as a load reads them all (with the mix design of the page's tokens,
  *   and my instrument not loaded);
@@ -22,6 +23,8 @@
  * - `refuseSaves(kind)` makes the app's port refuse every write, delete and batch as `quota` or
  *   `other` (null to stop), and `portChanges()` counts the changes that reached the app's port,
  *   refused or not: the write spy;
+ * - `refuseKeptSessionReads(on)` makes the app's port refuse each read of a kept session's body as
+ *   `other`, so opening a kept session fails while the load's reads go through;
  * - `openNewerVersion()` opens the database as a newer version of the app would, one data version
  *   up: the open tab is outdated at once, and a reload finds data written by a newer version.
  *
@@ -34,7 +37,7 @@ import {
   STARTUP_WAIT_MS,
   type SavedDataLoad,
 } from '../../../src/storage-bootstrap'
-import { PRODUCTION_MIGRATIONS } from '../../../src/storage/database'
+import { DATABASE_NAME, PRODUCTION_MIGRATIONS } from '../../../src/storage/database'
 import { APP_VERSION } from '../../../src/storage/app-version'
 import { KEPT_SESSION_DATA_VERSION } from '../../../src/storage/records/kept-reading'
 import { readAudioMixDesign } from '../../../src/audio/audio-mix'
@@ -53,6 +56,7 @@ import {
   StorageError,
   type StorageChange,
   type StoragePort,
+  type StoreName,
 } from '../../../src/storage/storage-port'
 
 /** How the harness runs the load: at once, or held until the spec releases it. */
@@ -84,16 +88,22 @@ const SLOW_READ_PAST_WAIT_MS = 1000
 interface PortInjections {
   readonly readMode: HarnessStorageReadMode
   refusal: 'quota' | 'other' | null
+  /** Each read of a kept session's body is refused. */
+  keptReadsRefused: boolean
   changes: number
 }
 
 /**
- * Intent: the app's port over `real`: each read failed or delayed per the read mode, each change
- * counted, then refused when a refusal is set.
+ * Intent: the app's port over `real`: each read failed or delayed per the read mode, a kept
+ * session's body read refused while those reads are, each change counted, then refused when a
+ * refusal is set.
  */
 function injectedPort(real: StoragePort, injections: PortInjections): StoragePort {
-  const read = async <T>(operation: () => Promise<T>): Promise<T> => {
+  const read = async <T>(operation: () => Promise<T>, store?: StoreName): Promise<T> => {
     if (injections.readMode === 'fail') throw new StorageError('other', 'read failed (harness)')
+    if (injections.keptReadsRefused && store === 'sessionBodies') {
+      throw new StorageError('other', 'kept session read refused (harness)')
+    }
     if (injections.readMode === 'slow') {
       await new Promise((resolve) => setTimeout(resolve, STARTUP_WAIT_MS + SLOW_READ_PAST_WAIT_MS))
     }
@@ -108,7 +118,7 @@ function injectedPort(real: StoragePort, injections: PortInjections): StoragePor
   }
   return {
     ...real,
-    read: (store, key) => read(() => real.read(store, key)),
+    read: (store, key) => read(() => real.read(store, key), store),
     readAll: (store) => read(() => real.readAll(store)),
     readKeyed: (store) => read(() => real.readKeyed(store)),
     readKeys: (store) => read(() => real.readKeys(store)),
@@ -171,6 +181,34 @@ function sameValue(a: unknown, b: unknown): boolean {
   return JSON.stringify(canonical(a)) === JSON.stringify(canonical(b))
 }
 
+/**
+ * Intent: write `changes` straight to the app's IndexedDB database, opened at the version it has
+ * (no upgrade, so no tab turns outdated), in one transaction: for records the port refuses to
+ * write, a newer version's.
+ */
+async function writeRaw(
+  changes: readonly { readonly store: StoreName; readonly key: string; readonly record: unknown }[],
+): Promise<void> {
+  const database = await new Promise<IDBDatabase>((resolve, reject) => {
+    const request = indexedDB.open(DATABASE_NAME)
+    request.onsuccess = () => resolve(request.result)
+    request.onerror = () => reject(request.error ?? new Error('open failed'))
+  })
+  try {
+    const transaction = database.transaction(
+      [...new Set(changes.map((change) => change.store))],
+      'readwrite',
+    )
+    for (const { store, key, record } of changes) transaction.objectStore(store).put(record, key)
+    await new Promise<void>((resolve, reject) => {
+      transaction.oncomplete = () => resolve()
+      transaction.onerror = () => reject(transaction.error ?? new Error('write failed'))
+    })
+  } finally {
+    database.close()
+  }
+}
+
 /** Intent: the value a decoded set of settings holds at one record key. */
 function decodedAt(settings: object, key: string): unknown {
   return key.split('.').reduce<unknown>((value, name) => {
@@ -202,7 +240,12 @@ export function createHarnessStorage(
   readMode: HarnessStorageReadMode,
 ): HarnessStorage {
   const production = browserSavedDataLoad()
-  const injections: PortInjections = { readMode, refusal: null, changes: 0 }
+  const injections: PortInjections = {
+    readMode,
+    refusal: null,
+    keptReadsRefused: false,
+    changes: 0,
+  }
   // The newer app's port, kept open as a newer tab would keep it.
   let newerPort: StoragePort | null = null
   let port: StoragePort | null = null
@@ -341,6 +384,46 @@ export function createHarnessStorage(
     await target.apply(changes)
   }
 
+  /**
+   * Intent: copy the kept session stored under `from` (its session-wide record and body) under
+   * `key`, its start set to `startedAt`; with `newer`, as a newer version would have written it:
+   * one data version up, with a field this version does not know, written past the port.
+   */
+  async function seedKeptSessionCopy(
+    from: string,
+    key: string,
+    { startedAt, newer }: { readonly startedAt: number; readonly newer: boolean },
+  ): Promise<void> {
+    const target = openedPort()
+    const [summary, body]: unknown[] = await Promise.all([
+      target.read('sessionSummaries', from),
+      target.read('sessionBodies', from),
+    ])
+    if (
+      typeof summary !== 'object' ||
+      summary === null ||
+      typeof body !== 'object' ||
+      body === null
+    ) {
+      throw new Error(`Workspace harness: no kept session is stored under "${from}"`)
+    }
+    const version = newer ? { dataVersion: KEPT_SESSION_DATA_VERSION + 1 } : {}
+    const unknownField = newer ? { keptByNewerVersion: 'a field this version does not know' } : {}
+    const copiedSummary = { ...(summary as RecordVersions), ...version, ...unknownField, startedAt }
+    const copiedBody = { ...(body as RecordVersions), ...version }
+    if (newer) {
+      await writeRaw([
+        { store: 'sessionSummaries', key, record: copiedSummary },
+        { store: 'sessionBodies', key, record: copiedBody },
+      ])
+      return
+    }
+    await target.apply([
+      { kind: 'write', store: 'sessionSummaries', key, record: copiedSummary },
+      { kind: 'write', store: 'sessionBodies', key, record: copiedBody },
+    ])
+  }
+
   return {
     load,
     api: {
@@ -349,6 +432,7 @@ export function createHarnessStorage(
       pinKeptSession,
       seedUnreadableKeptSession,
       seedPlayedNotes,
+      seedKeptSessionCopy,
       deleteKeptSession: (key) =>
         openedPort().apply(
           (['sessionSummaries', 'sessionBodies', 'playedNotes'] as const).map((store) => ({
@@ -362,6 +446,9 @@ export function createHarnessStorage(
       settingsNotReadBack: async () => notReadBack(await openedPort().readAll('settings')),
       refuseSaves: (kind) => {
         injections.refusal = kind
+      },
+      refuseKeptSessionReads: (on) => {
+        injections.keptReadsRefused = on
       },
       portChanges: () => injections.changes,
       openNewerVersion: async () => {

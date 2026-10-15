@@ -1,29 +1,32 @@
 <script setup lang="ts">
 /**
- * The review area: the score panel's Review while it shows, loaded on demand with the Review's
- * code through `loadReviewArea()` in ../review/load-review-panel.ts, so none of it weighs on the
- * first draw. It mounts the lazily loaded `ReviewPanel` and binds it: what the page keeps of the
- * Review comes from the Review host it is given (./use-review-host.ts: the staff's viewport, the
- * export choices, `Include very short notes` and the Played notes switch, which outlive this area
- * as the Review closes and opens again), the rest from its own side (./use-review-area.ts),
- * the export scope among it, which starts at `Whole session` with every Review. A
- * confirmation the Review opens (deleting played notes, unpinning a session with favorites,
- * `Delete session`) shows in the shared confirmation sheet over the page; once it closes, focus
- * returns to the button that opened it on the way back, after an unpin goes to the pin button,
- * and after a deletion goes to `Keep my played notes` while the Review still shows its played
- * notes, else to `review-title`. The sheet and its words load on demand in a chunk of their own,
- * warmed as this area mounts.
+ * The review area: the score panel's review mode while it shows, loaded on demand with the
+ * Review's code through `loadReviewArea()` in ../review/load-review-panel.ts, so none of it weighs
+ * on the first draw. It shows one of the mode's two levels: the lazily loaded `ReviewPanel`, bound
+ * here, or the session list (`SessionList`, shipped in this chunk), whose rows open, pin, unpin and
+ * delete kept sessions (./use-session-list.ts). What the page keeps of the Review comes from the
+ * Review host it is given (./use-review-host.ts: the staff's viewport, the export choices,
+ * `Include very short notes` and the Played notes switch, which outlive this area as the Review
+ * closes and opens again), the rest from its own side (./use-review-area.ts), the export scope
+ * among it, which starts at `Whole session` with every Review. A confirmation the Review or a row
+ * opens (deleting played notes, unpinning a session with favorites, deleting a session) shows in
+ * the shared confirmation sheet over the page; focus then moves by ./review-area-focus.ts. The
+ * sheet and its words load on demand in a chunk of their own, warmed as this area mounts. Each
+ * switch between the levels asks the page to scroll to its top.
  */
-import { computed, defineAsyncComponent, nextTick, ref, shallowRef, watch } from 'vue'
+import { computed, defineAsyncComponent, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
 
 import {
   loadReviewConfirmationSheet,
   loadReviewPanel,
   type ReviewConfirmationSheetComponent,
 } from '@/components/review/load-review-panel'
+import SessionList from '@/components/review/SessionList.vue'
 import { browserReviewExportPorts, type ReviewExportPorts } from './review-export'
+import { useReviewAreaFocus, type ReviewAreaLevels } from './review-area-focus'
 import { injectSaveSettings } from './save-settings-injection'
 import { useReviewArea } from './use-review-area'
+import { useSessionList } from './use-session-list'
 import type { ReviewHost } from './use-review-host'
 import type { SessionController } from './workspace-session-controller-types'
 
@@ -44,6 +47,11 @@ const props = defineProps<{
   exportPorts: ReviewExportPorts | null
 }>()
 
+const emit = defineEmits<{
+  /** The mode switched between a Review and the list: the page scrolls instantly to its top. */
+  'scroll-to-top': []
+}>()
+
 const host = props.host
 /** The page's own export ports: the lazy export code, downloading through this page's document. */
 const pageExportPorts = browserReviewExportPorts(document)
@@ -61,35 +69,26 @@ const reviewSession = computed(() => {
   return startedAt === null || keeping === null ? null : { startedAt, keeping }
 })
 
+const list = useSessionList({
+  controller: () => props.controller,
+  openConfirmation: review.openConfirmation,
+})
+
 /** The mounted Review panel's exposed API; null until its lazy chunk has loaded and mounted. */
-const reviewPanel = ref<{
-  readonly focusTitle: () => void
-  readonly focusKeepPlayedNotes: () => void
-  readonly focusDeletePlayedNotes: () => void
-  readonly focusPin: () => void
-  readonly focusDeleteSession: () => void
-} | null>(null)
-/** A `review-title` focus asked for before the panel had mounted. */
-let reviewTitleFocusPending = false
+const reviewPanel = ref<ReviewAreaLevels['panel'] | null>(null)
+/** The mounted session list's exposed API; null while the list does not show. */
+const sessionList = ref<ReviewAreaLevels['list'] | null>(null)
 
-/** Intent: focus `review-title` now if the panel is mounted, else once it mounts. */
-function focusPendingReviewTitle(): void {
-  if (!reviewTitleFocusPending || reviewPanel.value === null) return
-  reviewTitleFocusPending = false
-  reviewPanel.value.focusTitle()
+/** The review mode's levels, as focus finds them. */
+const levels = {
+  panel: () => reviewPanel.value,
+  list: () => sessionList.value,
+  listShowing: () => list.showing.value,
+  rows: () => list.rows.value,
 }
-
-/**
- * Intent: move focus to `review-title`, at once if the panel is mounted, else as soon as its lazy
- * chunk has loaded and it has mounted; the Review closing meanwhile unmounts this area, and drops it.
- */
-// @spec-link [[req_last_session_review]]
-function focusReviewTitle(): void {
-  reviewTitleFocusPending = true
-  focusPendingReviewTitle()
-}
-
-watch(reviewPanel, focusPendingReviewTitle, { flush: 'post' })
+const focus = useReviewAreaFocus(levels)
+watch([reviewPanel, sessionList], focus.retryPending, { flush: 'post' })
+onBeforeUnmount(focus.dispose)
 
 /** The Review's confirmation sheet, with its words; null until its lazy chunk has loaded. */
 const confirmationSheet = shallowRef<ReviewConfirmationSheetComponent | null>(null)
@@ -108,28 +107,44 @@ void loadConfirmationSheet().catch(() => {})
 
 /** The player closed the confirmation (confirmed or went back), so its focus is already set. */
 let confirmationClosedByPlayer = false
+/** The key of the row whose `Unpin` or `Delete` opened the confirmation; null for the Review's. */
+let rowAsked: string | null = null
+/** The player took the way back while the confirmed deletion ran. */
+let closedWhileRunning = false
 
 /**
- * Intent: confirm the open confirmation; once it closes, focus goes to the pin button after an
- * unpin, to `Keep my played notes` while the Review still shows played notes, else to
- * `review-title`; after `Delete session` the Review is gone. A refusal keeps the sheet.
+ * Intent: confirm the open confirmation. A refusal keeps the sheet. Once it closes, focus moves by
+ * the confirmation's own rule; a deletion that finishes after the player closed its sheet moves
+ * focus only if it sat on a control the deletion removed, and a refusal then moves nothing (ux
+ * D316); a confirmation the page closed (saving turned off) leaves focus on the title.
  */
 // @spec-link [[req_last_session_review]]
+// @spec-link [[module_kept_session_reach]]
 async function confirmReviewConfirmation(): Promise<void> {
-  const kind = review.confirmation.value?.kind
+  const open = review.confirmation.value
+  if (open === null) return
+  const row = rowAsked
+  const rowsBefore = list.rows.value.map(({ key }) => key)
   confirmationClosedByPlayer = true
+  closedWhileRunning = false
+  focus.trackWhileRunning()
   const outcome = await review.confirm()
   if (outcome === 'failed') {
     confirmationClosedByPlayer = false
     return
   }
-  await nextTick()
-  if (kind === 'unpin') reviewPanel.value?.focusPin()
-  else if (outcome === 'deleted' && review.holdsPlayedNote.value) {
-    reviewPanel.value?.focusKeepPlayedNotes()
-  } else {
-    reviewPanel.value?.focusTitle()
-  }
+  const afterClose = outcome === 'closed' || outcome === 'deleted-after-close'
+  const byPlayer = closedWhileRunning
+  rowAsked = null
+  if (afterClose && !byPlayer) return focus.title()
+  if (outcome === 'closed') return
+  await focus.afterConfirmation({
+    kind: open.kind,
+    row,
+    rowsBefore,
+    holdsPlayedNote: () => review.holdsPlayedNote.value,
+    onlyIfRemoved: afterClose,
+  })
 }
 
 /** Intent: the way back: close the confirmation, focus back on the button that opened it. */
@@ -137,11 +152,11 @@ async function confirmReviewConfirmation(): Promise<void> {
 function cancelReviewConfirmation(): void {
   const open = review.confirmation.value
   confirmationClosedByPlayer = true
+  if (open?.busy === true) closedWhileRunning = true
   review.cancel()
-  if (open?.kind === 'session-played-notes') reviewPanel.value?.focusDeletePlayedNotes()
-  else if (open?.kind === 'unpin') reviewPanel.value?.focusPin()
-  else if (open?.kind === 'delete-session') reviewPanel.value?.focusDeleteSession()
-  else reviewPanel.value?.focusKeepPlayedNotes()
+  const row = rowAsked
+  rowAsked = null
+  if (open !== null) focus.opener(open.kind, row)
 }
 
 /**
@@ -157,7 +172,7 @@ function showConfirmationSheet(): void {
   })
 }
 
-// A confirmation closed by the page (saving turned off) leaves focus on `review-title`.
+// A confirmation closed by the page (saving turned off) leaves focus on the title.
 watch(
   () => review.confirmation.value === null,
   (closed) => {
@@ -166,17 +181,68 @@ watch(
       showConfirmationSheet()
       return
     }
-    if (!confirmationClosedByPlayer && host.showing.value) reviewPanel.value?.focusTitle()
+    if (!confirmationClosedByPlayer && (host.showing.value || list.showing.value)) focus.title()
   },
   { flush: 'post' },
 )
 
-defineExpose({ focusReviewTitle })
+/** Intent: a row's title pressed: once read, its Review shows; a failed read keeps focus there. */
+// @spec-link [[module_kept_session_reach]]
+async function openRow(key: string): Promise<void> {
+  const outcome = await list.open(key)
+  if (outcome === 'shown') {
+    emit('scroll-to-top')
+    focus.title()
+  } else if (outcome === 'failed') {
+    await focus.rowOpenWhenRendered(key)
+  }
+}
+
+/** Intent: a row's `Pin` / `Unpin` pressed: at once, or its confirmation from this row. */
+// @spec-link [[rule_favorite_pins_session]]
+function toggleRowPin(key: string): void {
+  if (list.togglePin(key)) rowAsked = key
+}
+
+/** Intent: a row's `Delete` pressed: its confirmation, from this row. */
+// @spec-link [[req_kept_session_list]]
+function askRowDelete(key: string): void {
+  rowAsked = key
+  list.askDelete(key)
+}
+
+/**
+ * Intent: `All sessions` in a Review: the list replaces it, the page scrolled to its top, focus on
+ * that session's row title, or the list's title when it has no row.
+ */
+// @spec-link [[req_kept_session_list]]
+function showAllSessions(): void {
+  const controller = props.controller
+  if (controller === null) throw new Error('review area: no session controller yet')
+  const key = review.sessionKey.value
+  controller.showList()
+  emit('scroll-to-top')
+  focus.rowOrTitle(key)
+}
+
+defineExpose({ focusReviewTitle: focus.title })
 </script>
 
 <template>
+  <SessionList
+    v-if="list.showing.value"
+    ref="sessionList"
+    :rows="list.rows.value"
+    :most-recent-key="list.mostRecentKey.value"
+    :opening-key="list.openingKey.value"
+    :saving-off="list.savingOff.value"
+    :unreadable="list.unreadable.value"
+    @open="openRow"
+    @toggle-pin="toggleRowPin"
+    @delete="askRowDelete"
+  />
   <ReviewPanel
-    v-if="reviewSession !== null"
+    v-else-if="reviewSession !== null"
     ref="reviewPanel"
     :records="review.records.value"
     :instrument-name="review.instrumentName.value"
@@ -213,6 +279,7 @@ defineExpose({ focusReviewTitle })
     @toggle-pin="review.togglePin"
     @delete-session="review.askDeleteSession"
     @save-comment="review.saveComment"
+    @all-sessions="showAllSessions"
   />
   <component
     :is="confirmationSheet"
