@@ -12,6 +12,7 @@ import {
   exportGeneratedNotes,
   exportPlayedNotes,
   historyHoldsPlayedNote,
+  playedNotesFileHoldsNote,
   type ReviewExportPorts,
 } from '@/components/workspace/review-export'
 import { BrowserDownloadError } from '@/export/browser-download'
@@ -22,6 +23,7 @@ import {
   type ExportableHistory,
 } from '@/export/load-generated-notes-export'
 import { MidiExportError } from '@/export/midi/midi-export-input'
+import { makeConcertPitch } from '@/domain/events/concert-pitch'
 import { recordedRecords } from '../review/review-fixtures'
 import { SESSION_START_EPOCH_MS } from '../../session/session-harness'
 
@@ -150,6 +152,9 @@ describe('the Review export', () => {
   })
 })
 
+/** The played-notes export as it starts: very short notes left out. */
+const DEFAULT_REQUEST = { includeVeryShortNotes: false } as const
+
 /** Intent: the recorded session's history with every played note taken out. */
 function silentHistory(): ExportableHistory {
   const records = recordedRecords().map((record) => ({ ...record, playedNotes: [] }))
@@ -164,7 +169,7 @@ describe('the Review played-notes export', () => {
   it('downloads exactly one MIDI file, named from the session start', async () => {
     const { ports, downloads } = recordingPorts()
 
-    await exportPlayedNotes(history(), ports)
+    await exportPlayedNotes(history(), DEFAULT_REQUEST, ports)
 
     expect(downloads).toHaveLength(1)
     expect(downloads[0]).toMatchObject({
@@ -178,8 +183,8 @@ describe('the Review played-notes export', () => {
   it('gives identical bytes when exported twice', async () => {
     const { ports, downloads } = recordingPorts()
 
-    await exportPlayedNotes(history(), ports)
-    await exportPlayedNotes(history(), ports)
+    await exportPlayedNotes(history(), DEFAULT_REQUEST, ports)
+    await exportPlayedNotes(history(), DEFAULT_REQUEST, ports)
 
     expect(downloads).toHaveLength(2)
     expect([...(downloads[1]?.bytes ?? [])]).toEqual([...(downloads[0]?.bytes ?? [])])
@@ -190,7 +195,7 @@ describe('the Review played-notes export', () => {
     const failure = new GeneratedNotesExportLoadError('chunk failed to fetch', new Error('offline'))
     const { ports, downloads } = recordingPorts(() => Promise.reject(failure))
 
-    await expect(exportPlayedNotes(history(), ports)).rejects.toBe(failure)
+    await expect(exportPlayedNotes(history(), DEFAULT_REQUEST, ports)).rejects.toBe(failure)
     expect(downloads).toEqual([])
   })
 
@@ -198,8 +203,12 @@ describe('the Review played-notes export', () => {
   it('rejects, downloading nothing, when the file cannot be built', async () => {
     const { ports, downloads } = recordingPorts()
 
-    await expect(exportPlayedNotes(silentHistory(), ports)).rejects.toBeInstanceOf(MidiExportError)
-    await expect(exportPlayedNotes(history(Number.NaN), ports)).rejects.toMatchObject({
+    await expect(exportPlayedNotes(silentHistory(), DEFAULT_REQUEST, ports)).rejects.toBeInstanceOf(
+      MidiExportError,
+    )
+    await expect(
+      exportPlayedNotes(history(Number.NaN), DEFAULT_REQUEST, ports),
+    ).rejects.toMatchObject({
       kind: 'GeneratedNotesFileError',
     })
     expect(downloads).toEqual([])
@@ -213,5 +222,61 @@ describe('the Review played-notes export', () => {
     expect(historyHoldsPlayedNote([...silentHistory().phrases(), recordedRecords().at(-1)!])).toBe(
       true,
     )
+  })
+})
+
+/** Intent: a history over `records`, started at the fixed test time. */
+function historyOver(records: ReturnType<ExportableHistory['phrases']>): ExportableHistory {
+  return { phrases: () => records, startedAt: SESSION_START_EPOCH_MS }
+}
+
+/**
+ * Intent: the recorded session's history with every played note replaced by a very short note
+ * (12 ms) of `pitch`, at the same onset.
+ */
+function veryShortHistory(pitch = 50): ExportableHistory {
+  const records = recordedRecords().map((record) => ({
+    ...record,
+    playedNotes: record.playedNotes.map((note) => ({
+      ...note,
+      pitch: makeConcertPitch(pitch),
+      releaseAt: note.onsetAt + 0.012,
+    })),
+  }))
+  return { phrases: () => records, startedAt: SESSION_START_EPOCH_MS }
+}
+
+// @test-link [[rule_played_notes_export_omits_stray_notes]]
+describe('the Review played-notes export and very short notes', () => {
+  // @test-link [[rule_played_notes_export_omits_stray_notes]]
+  it('builds the file the request asks for: very short notes left out, or every note', async () => {
+    const [first, second, third] = recordedRecords()
+    const records = [first!, veryShortHistory().phrases()[1]!, third!]
+    expect(second!.playedNotes).not.toEqual(records[1]!.playedNotes)
+    const mixed = historyOver(records)
+    const { ports, downloads } = recordingPorts()
+    const exportModule = await loadGeneratedNotesExport()
+
+    await exportPlayedNotes(mixed, DEFAULT_REQUEST, ports)
+    await exportPlayedNotes(mixed, { includeVeryShortNotes: true }, ports)
+
+    expect(downloads.map((file) => [...file.bytes])).toEqual([
+      [...exportModule.buildPlayedNotesFile(mixed, DEFAULT_REQUEST).bytes],
+      [...exportModule.buildPlayedNotesFile(mixed, { includeVeryShortNotes: true }).bytes],
+    ])
+    expect(downloads[0]!.bytes).not.toEqual(downloads[1]!.bytes)
+  })
+
+  // @test-link [[rule_played_notes_export_omits_stray_notes]]
+  it('holds a note to export only when one is not very short, or with the option', () => {
+    const veryShort = veryShortHistory().phrases()
+
+    expect(playedNotesFileHoldsNote(recordedRecords(), DEFAULT_REQUEST)).toBe(true)
+    expect(playedNotesFileHoldsNote(veryShort, DEFAULT_REQUEST)).toBe(false)
+    expect(playedNotesFileHoldsNote(veryShort, { includeVeryShortNotes: true })).toBe(true)
+    expect(historyHoldsPlayedNote(veryShort)).toBe(true)
+    expect(
+      playedNotesFileHoldsNote(silentHistory().phrases(), { includeVeryShortNotes: true }),
+    ).toBe(false)
   })
 })

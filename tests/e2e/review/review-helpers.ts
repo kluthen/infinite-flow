@@ -65,11 +65,18 @@ export function exportButton(page: Page): Locator {
 }
 
 /**
- * Intent: the Review's `Export played notes` button, after the generated-notes group (rendered
- * only when the session holds a played note).
+ * Intent: the Review's `Export played notes` button, in the played-notes group after the
+ * generated-notes group (rendered only when the session holds a played note).
  */
 export function exportPlayedButton(page: Page): Locator {
-  return reviewPanel(page).locator('.review-actions > button.review-export-action')
+  return reviewPanel(page).locator('.review-export-played > button.review-export-action')
+}
+
+/** Intent: the played-notes export's `Include very short notes` toggle. */
+export function includeVeryShortNotesToggle(page: Page): Locator {
+  return reviewPanel(page)
+    .locator('.review-export-played')
+    .getByRole('button', { name: 'Include very short notes', exact: true })
 }
 
 /** Intent: the Review's `Played notes` switch (rendered only with a played note in the session). */

@@ -3,12 +3,15 @@
  * given (the session's phrases, start and instrument as the session holds them, how it is kept and
  * whether it is the most recent session, the workspace staff's viewport and
  * no-room state, the generated-notes export's format, backing track and file action, whether the
- * session holds a played note, the played-notes export and the Played notes switch's state), and
+ * session holds a played note, the played-notes export with `Include very short notes` and the
+ * Played notes switch's state), and
  * the warm-up of the panel's chunk when a session starts, so the Review opening at its end does
  * not wait on a fetch. The export's format and backing track and the Played notes switch start
  * from the player's saved review preferences, loaded before the first draw, and are then held
  * here for as long as the page lives, kept across Reviews and sessions; each change of the
- * player's goes through this host's setters, which save it as it changes. Its played-notes side
+ * player's goes through this host's setters, which save it as it changes. `Include very short
+ * notes` starts off and is held the same way, for the page only: it is never saved. Its
+ * played-notes side
  * (./use-review-played-notes.ts) gives `Keep my played notes`, `Delete played notes` and the
  * confirmation open over the Review; its session tools (./use-review-session-tools.ts) give each
  * phrase's favorite star, `Pin` / `Unpin`, `Delete session` and the comment.
@@ -30,6 +33,7 @@ import {
   exportGeneratedNotes,
   exportPlayedNotes,
   historyHoldsPlayedNote,
+  playedNotesFileHoldsNote,
   type ReviewExportPorts,
 } from './review-export'
 import type {
@@ -99,9 +103,24 @@ export interface ReviewHost extends ReviewPlayedNotes, ReviewSessionTools {
   /** The showing Review's history holds a played note in a phrase; false while none shows. */
   // @spec-link [[req_played_notes_export]]
   readonly holdsPlayedNote: ComputedRef<boolean>
-  /** Build the showing Review's played-notes file and download it; rejects on failure. */
+  /**
+   * Build the showing Review's played-notes file as `Include very short notes` asks when it starts,
+   * and download it; rejects on failure.
+   */
   // @spec-link [[req_played_notes_export]]
   readonly exportPlayedNotes: () => Promise<void>
+  /** `Include very short notes`: off at first, held for the page, never saved. */
+  // @spec-link [[rule_played_notes_export_omits_stray_notes]]
+  readonly includeVeryShortNotes: Readonly<Ref<boolean>>
+  /** The player turned `Include very short notes`: set it, for the page only. */
+  // @spec-link [[rule_played_notes_export_omits_stray_notes]]
+  readonly setIncludeVeryShortNotes: (on: boolean) => void
+  /**
+   * The showing Review's played-notes file would hold a note under `Include very short notes`;
+   * false while none shows. `Export played notes` is disabled while it would not.
+   */
+  // @spec-link [[rule_played_notes_export_omits_stray_notes]]
+  readonly playedNotesFileHoldsNote: ComputedRef<boolean>
   /**
    * The Review's Played notes switch is on; from the saved preference, held for the page, changed
    * by `setPlayedNotesShown`.
@@ -163,6 +182,11 @@ export function useReviewHost(deps: ReviewHostDependencies): ReviewHost {
   const playedNotesShown = ref(deps.initialPreferences.playedNotesShown)
   // @spec-link [[req_played_notes_export]]
   const holdsPlayedNote = computed(() => historyHoldsPlayedNote(records.value))
+  // @spec-link [[rule_played_notes_export_omits_stray_notes]]
+  const includeVeryShortNotes = ref(false)
+  const playedNotesFileHolds = computed(() =>
+    playedNotesFileHoldsNote(records.value, { includeVeryShortNotes: includeVeryShortNotes.value }),
+  )
 
   /**
    * Intent: run `run` on the showing Review's history; an export asked for with none showing is a
@@ -183,10 +207,15 @@ export function useReviewHost(deps: ReviewHostDependencies): ReviewHost {
     return withShownHistory((history) => exportGeneratedNotes(history, request, deps.exportPorts()))
   }
 
-  /** Intent: export the played-notes file from the showing Review's history. */
+  /**
+   * Intent: export the played-notes file from the showing Review's history, very short notes in it
+   * only if `Include very short notes` is on now; a later change leaves this build as it started.
+   */
   // @spec-link [[req_played_notes_export]]
+  // @spec-link [[rule_played_notes_export_omits_stray_notes]]
   function exportPlayed(): Promise<void> {
-    return withShownHistory((history) => exportPlayedNotes(history, deps.exportPorts()))
+    const request = { includeVeryShortNotes: includeVeryShortNotes.value }
+    return withShownHistory((history) => exportPlayedNotes(history, request, deps.exportPorts()))
   }
 
   /** Intent: the player chose the export's format: set it and save it. */
@@ -199,6 +228,12 @@ export function useReviewHost(deps: ReviewHostDependencies): ReviewHost {
   function setBackingTrack(on: boolean): void {
     backingTrack.value = on
     deps.saveSettings({ 'review.backingTrack': on })
+  }
+
+  /** Intent: the player turned `Include very short notes`: set it for the page; nothing is saved. */
+  // @spec-link [[rule_played_notes_export_omits_stray_notes]]
+  function setIncludeVeryShortNotes(on: boolean): void {
+    includeVeryShortNotes.value = on
   }
 
   /** Intent: the player turned the Played notes switch: set it and save it. */
@@ -244,6 +279,9 @@ export function useReviewHost(deps: ReviewHostDependencies): ReviewHost {
     exportFile,
     holdsPlayedNote,
     exportPlayedNotes: exportPlayed,
+    includeVeryShortNotes: readonly(includeVeryShortNotes),
+    setIncludeVeryShortNotes,
+    playedNotesFileHoldsNote: playedNotesFileHolds,
     playedNotesShown: readonly(playedNotesShown),
     setPlayedNotesShown,
     ...playedNotes,

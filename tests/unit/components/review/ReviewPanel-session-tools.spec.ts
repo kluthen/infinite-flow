@@ -40,6 +40,8 @@ function mountPanel(options: ToolOptions = {}) {
       exportPlayedNotes: () => Promise.resolve(),
       keepPlayedNotes: false,
       canDeletePlayedNotes: false,
+      includeVeryShortNotes: false,
+      playedNotesFileHoldsNote: true,
       ...SESSION_TOOL_PROPS,
       ...options,
     },

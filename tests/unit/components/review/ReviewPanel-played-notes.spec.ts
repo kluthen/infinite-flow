@@ -1,6 +1,6 @@
 /**
- * The Review panel's played-notes tools (v2.1): the `Export played notes` button after the
- * generated-notes group and the `Played notes` switch on a row of its own, both rendered only when
+ * The Review panel's played-notes tools (v2.1): the `Export played notes` button in its group after
+ * the generated-notes group and the `Played notes` switch on a row of its own, both rendered only when
  * the session holds a played note; the played export's pending and focus behaviour, its
  * independence from the generated-notes export, the one export error both share, and the switch's
  * state, name and event. The lanes themselves are not drawn here.
@@ -45,6 +45,8 @@ function mountPanel(options: PanelOptions = {}) {
       exportPlayedNotes: options.exportPlayedNotes ?? (() => Promise.resolve()),
       keepPlayedNotes: false,
       canDeletePlayedNotes: false,
+      includeVeryShortNotes: false,
+      playedNotesFileHoldsNote: true,
       ...SESSION_TOOL_PROPS,
     },
     attachTo: document.body,
@@ -76,9 +78,9 @@ function generatedButton(wrapper: VueWrapper) {
   return wrapper.get<HTMLButtonElement>('.review-export > button.review-export-action')
 }
 
-/** Intent: the `Export played notes` button, outside the group. */
+/** Intent: the `Export played notes` button, in the played-notes group. */
 function playedButton(wrapper: VueWrapper) {
-  return wrapper.get<HTMLButtonElement>('.review-actions > button.review-export-action')
+  return wrapper.get<HTMLButtonElement>('.review-export-played > button.review-export-action')
 }
 
 /** Intent: the `Played notes` switch. */
@@ -112,13 +114,13 @@ describe('the played-notes export', () => {
   })
 
   // @test-link [[req_played_notes_export]]
-  it('is a secondary button after the generated-notes group, outside it', () => {
+  it('is a secondary button in a group of its own after the generated-notes group', () => {
     const wrapper = mountPanel()
     const actions = wrapper.get('.review-actions').element.children
 
     expect([...actions].map((child) => child.className)).toEqual([
       'review-export',
-      'btn review-export-action',
+      'review-export-played',
     ])
     const button = playedButton(wrapper)
     expect(button.text()).toBe('Export played notes')

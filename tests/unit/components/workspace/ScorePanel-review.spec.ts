@@ -244,6 +244,29 @@ describe('ScorePanel while the Review shows', () => {
     ])
   })
 
+  // @test-link [[rule_played_notes_export_omits_stray_notes]]
+  it('gives Include very short notes, held across a close and a reopening, and whether the file holds a note', async () => {
+    const fake = showingReview()
+    const wrapper = mountPanel(fakeGenerationSession(readyState()).session, fake)
+    await flushPromises()
+    expect(reviewPanel(wrapper).props()).toMatchObject({
+      includeVeryShortNotes: false,
+      playedNotesFileHoldsNote: true,
+    })
+
+    reviewPanel(wrapper).vm.$emit('update:includeVeryShortNotes', true)
+    await nextTick()
+    fake.controller.closeReview()
+    await nextTick()
+    fake.controller.showReview()
+    await flushPromises()
+
+    expect(reviewPanel(wrapper).props()).toMatchObject({
+      includeVeryShortNotes: true,
+      playedNotesFileHoldsNote: true,
+    })
+  })
+
   // @test-link [[req_session_export]]
   it("exports the showing Review's history: one download, the same bytes each time", async () => {
     const { ports, downloads } = recordingPorts()

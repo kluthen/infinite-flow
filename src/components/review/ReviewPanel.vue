@@ -5,7 +5,9 @@
  * session is kept (only its "Not saved" form below bp-tablet-landscape, where the workspace staff
  * takes the split layout), the
  * generated-notes export (Format, Backing track for MIDI, and the export button), and, when the
- * session holds a played note, the played-notes export button and the Played notes switch (its
+ * session holds a played note, the played-notes export (`Include very short notes`, the page's
+ * for the visit, and the export button, disabled with its reason while its file would hold no
+ * note) and the Played notes switch (its
  * state held by the page; while on, each phrase draws its played-notes lanes on one session-wide
  * pitch scale), `Keep my played notes` (the page's setting) and, only when this session's played
  * notes are kept and may be deleted, `Delete played notes`, which asks the page for its
@@ -88,6 +90,10 @@ const props = withDefaults(
     keepPlayedNotes: boolean
     /** This session's played notes are kept and may be deleted: `Delete played notes` shows. */
     canDeletePlayedNotes: boolean
+    /** `Include very short notes`, held by the page for its visit. */
+    includeVeryShortNotes: boolean
+    /** The played-notes file would hold a note under the option: else its export is disabled. */
+    playedNotesFileHoldsNote: boolean
     /** The key the session is held under, which its comment is saved for. */
     sessionKey: string
     /** The session is pinned: the pin button reads `Unpin`. */
@@ -112,6 +118,7 @@ const emit = defineEmits<{
   'update:backingTrack': [on: boolean]
   'update:playedNotesShown': [on: boolean]
   'update:keepPlayedNotes': [on: boolean]
+  'update:includeVeryShortNotes': [on: boolean]
   'delete-played-notes': []
   'toggle-favorite': [phraseNumber: number]
   'toggle-pin': []
@@ -287,6 +294,10 @@ const FORMAT_OPTIONS: readonly SegmentedControlOption[] = [
 
 const exportButtonEl = ref<HTMLButtonElement | null>(null)
 const playedExportButtonEl = ref<HTMLButtonElement | null>(null)
+const playedExportNoteId = useId()
+/** The reason `Export played notes` is disabled while its file would hold no note. */
+const EVERY_NOTE_VERY_SHORT =
+  'Every note you played is very short. Turn on Include very short notes to export them.'
 /** The Review's one export error, after a failed export of either content. */
 const exportFailed = ref(false)
 
@@ -327,6 +338,12 @@ const { running: exportingPlayed, start: startPlayedExport } = useReviewExportAc
   failed: exportFailed,
   build: () => props.exportPlayedNotes(),
 })
+
+/** Intent: ask the page to turn `Include very short notes`; focus stays on the toggle. */
+// @spec-link [[req_played_notes_export]]
+function toggleIncludeVeryShortNotes(): void {
+  emit('update:includeVeryShortNotes', !props.includeVeryShortNotes)
+}
 
 /** Intent: ask the page to switch the played-notes lanes on or off; focus stays on the switch. */
 // @spec-link [[rule_review_played_notes_toggle]]
@@ -537,17 +554,38 @@ onBeforeUnmount(stopEngraving)
           Export generated notes
         </button>
       </div>
-      <button
+      <div
         v-if="holdsPlayedNote"
-        ref="playedExportButtonEl"
-        type="button"
-        class="btn review-export-action"
-        :class="{ 'is-loading': exportingPlayed }"
-        :disabled="exportingPlayed"
-        @click="startPlayedExport"
+        class="review-export-played"
+        role="group"
+        aria-label="Export played notes"
       >
-        Export played notes
-      </button>
+        <button
+          type="button"
+          class="btn toggle-button"
+          :aria-pressed="includeVeryShortNotes ? 'true' : 'false'"
+          @click="toggleIncludeVeryShortNotes"
+        >
+          Include very short notes
+          <span class="toggle-button-state" aria-hidden="true">{{
+            includeVeryShortNotes ? 'on' : 'off'
+          }}</span>
+        </button>
+        <button
+          ref="playedExportButtonEl"
+          type="button"
+          class="btn review-export-action"
+          :class="{ 'is-loading': exportingPlayed }"
+          :disabled="exportingPlayed || !playedNotesFileHoldsNote"
+          :aria-describedby="playedNotesFileHoldsNote ? undefined : playedExportNoteId"
+          @click="startPlayedExport"
+        >
+          Export played notes
+        </button>
+        <p v-if="!playedNotesFileHoldsNote" :id="playedExportNoteId" class="field-note">
+          {{ EVERY_NOTE_VERY_SHORT }}
+        </p>
+      </div>
     </div>
     <p v-if="exportFailed" class="inline-alert alert-error review-export-error">
       The file couldn't be made. Try again.
