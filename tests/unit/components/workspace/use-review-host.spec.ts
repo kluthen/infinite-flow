@@ -168,7 +168,12 @@ describe('useReviewHost', () => {
   // @test-link [[req_last_session_review]]
   // @test-link [[req_kept_session_review]]
   it("names my instrument from the session's own profile, never by id, and does not throw", () => {
-    const review = openedReview(endedSession(myInstrumentHistory('My tenor'), 'not-pinned'))
+    const review = openedReview(
+      endedSession(myInstrumentHistory('My tenor'), 'not-pinned', {
+        key: 'session-1-1',
+        playedNotesKept: false,
+      }),
+    )
     const fake = createFakeSessionController({ review, mostRecent: heldSessionOf(review) })
     const { built, stop } = host(fake)
 

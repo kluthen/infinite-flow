@@ -40,7 +40,12 @@ import {
   type KeptSessionSummaryRecord,
 } from './kept-session-summary'
 
-export { decodeKeptSessionSummary, type KeptSessionSummary } from './kept-session-summary'
+export {
+  decodeKeptSessionSummary,
+  rewriteKeptSummary,
+  type KeptSessionSummary,
+  type KeptSummaryEdit,
+} from './kept-session-summary'
 export { KEPT_SESSION_DATA_VERSION, type KeptReading } from './kept-reading'
 export type { KeptSessionBodyRecord, KeptPhraseRecord } from './kept-session-body'
 export type { KeptPlayedNotesRecord, KeptPlayedNote } from './kept-played-notes'
@@ -177,6 +182,25 @@ export function encodeKeptSession(
       ? keptPlayedNotesRecord(records, first.startedAt, appVersion)
       : null,
   }
+}
+
+/**
+ * Intent: the played-notes record of a finished session whose notes are kept after its save, the
+ * very record its save writes when they are kept: every note placed in a phrase, times in seconds
+ * from phrase 1's scheduled start. Throws, as a caller defect, on a history with no phrase or an
+ * empty app version.
+ */
+// @spec-link [[module_kept_session_codec]]
+// @spec-link [[module_kept_session_changes]]
+export function encodeKeptPlayedNotes(
+  history: { phrases(): readonly ReviewedPhrase[] },
+  appVersion: string,
+): KeptPlayedNotesRecord {
+  const records = history.phrases()
+  const first = records[0]
+  if (first === undefined)
+    throw new Error('kept session record: a session with no phrase has no played notes to keep')
+  return keptPlayedNotesRecord(records, first.startedAt, appVersion)
 }
 
 /**

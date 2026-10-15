@@ -33,6 +33,9 @@ import {
 } from '../../session/tempo-session'
 import { myInstrumentHistory } from './my-instrument-history'
 
+/** How each ended session here is saved: under a fixed key, its played notes not kept. */
+const SAVE = { key: 'session-1-1', playedNotesKept: false } as const
+
 /** Intent: the closed history of a driven session, fed every output the driver logged. */
 function historyOf(driver: SessionDriver): SessionHistory {
   const history = createSessionHistory(
@@ -59,7 +62,7 @@ describe('the Review transitions', () => {
   // @test-link [[module_kept_session_save]]
   it('opens showing, closes kept, and shows again at Idle, each time a new frozen Review', () => {
     const held = history()
-    const session = endedSession(held, 'not-pinned')
+    const session = endedSession(held, 'not-pinned', SAVE)
 
     const opened = openedReview(session)
     const closed = closedReview(opened)
@@ -70,6 +73,8 @@ describe('the Review transitions', () => {
       instrumentName: 'C MIDI keyboard',
       tempoReached: 240,
       keeping: 'not-pinned',
+      key: 'session-1-1',
+      playedNotesKept: false,
     }
     expect(session).toEqual(drawn)
     expect([opened, closed, shown]).toEqual([
@@ -84,7 +89,7 @@ describe('the Review transitions', () => {
   // @test-link [[req_last_session_review]]
   // @test-link [[rule_new_session_discards_review]]
   it('throws on every request out of turn', () => {
-    const session = endedSession(history(), 'not-pinned')
+    const session = endedSession(history(), 'not-pinned', SAVE)
     const opened = openedReview(session)
     const kept = closedReview(opened)
     const recent: MostRecentSession = { kind: 'held', session }
@@ -110,7 +115,7 @@ describe('the Review transitions', () => {
       DEFAULT_SESSION_SEED,
       'treble',
     )
-    expect(() => endedSession(empty, 'not-pinned')).toThrow(/no phrase sounded/)
+    expect(() => endedSession(empty, 'not-pinned', SAVE)).toThrow(/no phrase sounded/)
   })
 })
 
@@ -118,7 +123,7 @@ describe('the Review transitions', () => {
 describe("the instrument's name in the Review", () => {
   // @test-link [[req_last_session_review]]
   it("reads my instrument's name from the phrases' own profile, never by id", () => {
-    const session = endedSession(myInstrumentHistory('Grandpa’s tenor'), 'not-saved')
+    const session = endedSession(myInstrumentHistory('Grandpa’s tenor'), 'not-saved', SAVE)
 
     expect(session.instrumentName).toBe('Grandpa’s tenor')
   })
@@ -129,7 +134,7 @@ describe("the instrument's name in the Review", () => {
 describe("how the session is kept, once its save's outcome is known", () => {
   // @test-link [[module_kept_session_save]]
   it('stays not pinned once saved, and becomes not saved once refused or skipped', () => {
-    const session = endedSession(history(), 'not-pinned')
+    const session = endedSession(history(), 'not-pinned', SAVE)
 
     expect(settledKeeping(session, { status: 'saved' })).toBe(session)
     for (const outcome of [
@@ -154,7 +159,7 @@ describe('the tempo reached in the Review', () => {
     const held = historyOf(driver)
     expect(tempoMap(driver, 5)).toEqual([90, 90, 95, 95, 100])
 
-    const session = endedSession(held, 'not-pinned')
+    const session = endedSession(held, 'not-pinned', SAVE)
     const opened = openedReview(session)
     closedReview(opened)
     const shown = shownReview(session)

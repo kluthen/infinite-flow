@@ -31,12 +31,12 @@ export function mostRecentKept(summaries: readonly StoredEntry[]): MostRecentSes
 
 /**
  * Intent: the session a decoded kept session's Review draws: its phrases and start, the
- * instrument's name its summary holds (never looked up by id), the tempo it reached, and whether
- * it is pinned.
+ * instrument's name its summary holds (never looked up by id), the tempo it reached, whether it
+ * is pinned, the key it was read by and whether its played notes are kept.
  */
 // @spec-link [[req_kept_session_review]]
 // @spec-link [[module_kept_session_codec]]
-function keptReviewedSession({ summary, phrases }: KeptSession): ReviewedSession {
+function keptReviewedSession({ summary, phrases }: KeptSession, key: string): ReviewedSession {
   const history = Object.freeze({
     phrases: () => phrases,
     phraseCount: phrases.length,
@@ -47,6 +47,8 @@ function keptReviewedSession({ summary, phrases }: KeptSession): ReviewedSession
     instrumentName: summary.instrument.displayName,
     tempoReached: summary.tempoReached,
     keeping: summary.pinned ? 'pinned' : 'not-pinned',
+    key,
+    playedNotesKept: summary.playedNotesKept,
   })
 }
 
@@ -71,5 +73,5 @@ export async function readKeptReviewedSession(
   ])
   if (stored === null) return null
   const reading = codec.decodeKeptSession(stored)
-  return reading.reading === 'current' ? keptReviewedSession(reading.value) : null
+  return reading.reading === 'current' ? keptReviewedSession(reading.value, key) : null
 }

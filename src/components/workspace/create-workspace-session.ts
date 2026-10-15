@@ -224,8 +224,12 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
             policy: deps.pregenerationPolicy,
           }),
         savedSessionOptions: sessionOptions,
+        savedKeepPlayedNotes: deps.savedData.settings.keepPlayedNotes,
         saveHold: { hold: saves.hold, release: saves.release, saveSession: saves.saveSession },
-        keptSessions: keptSessionsOf(deps.savedData),
+        keptSessions: keptSessionsOf(deps.savedData, {
+          changeKept: saves.changeKept,
+          readKept: saves.readKept,
+        }),
       })
     },
     savedData: deps.savedData,

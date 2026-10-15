@@ -253,6 +253,17 @@ export async function readKeyedValues(
 }
 
 /**
+ * Intent: the key of every record of a store, in key order, read in one read-only transaction
+ * without reading a value; a key that is not a string is left out.
+ */
+// @spec-link [[module_on_device_database]]
+export async function readKeys(connection: IDBDatabase, store: string): Promise<string[]> {
+  const objectStore = connection.transaction(store, 'readonly').objectStore(store)
+  const keys = await requestResult(objectStore.getAllKeys())
+  return keys.filter((key): key is string => typeof key === 'string')
+}
+
+/**
  * Intent: open the database for the port. A database a newer app upgraded is reopened without a
  * version, for reading; a `meta` data version above the code's also makes it outdated. A missing
  * or damaged `meta` rejects. Throws a `MigrationStepError` when a step throws.

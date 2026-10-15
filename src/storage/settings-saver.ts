@@ -20,7 +20,16 @@ import {
   type SettingKey,
   type SettingValue,
 } from './records/settings-record'
-import type { SavePolicy, SessionChanges, SessionSaveOutcome } from './save-policy'
+import type {
+  KeptChangeOutcome,
+  KeptChanges,
+  KeptRead,
+  KeptReadOutcome,
+  KeptRefusal,
+  SavePolicy,
+  SessionChanges,
+  SessionSaveOutcome,
+} from './save-policy'
 import type { StorageChange } from './storage-port'
 
 /**
@@ -55,8 +64,23 @@ export interface SessionSaveHold {
   readonly saveSession: (changes: SessionChanges) => Promise<SessionSaveOutcome>
 }
 
-/** The visit's saves of the player's settings, and the hold of a session's saves. */
-export interface VisitSaves extends SessionSaveHold {
+/**
+ * The changes to kept sessions after their own save, and the reads made at such a change, in the
+ * line of the session saves; each resolves what became of it.
+ */
+// @spec-link [[module_kept_session_changes]]
+export interface KeptSessionChanges {
+  /** Read at the change, then apply the batch built from it (SavePolicy.changeKept). */
+  readonly changeKept: (changes: KeptChanges, refusal: KeptRefusal) => Promise<KeptChangeOutcome>
+  /** Read the kept sessions at a change (SavePolicy.readKept). */
+  readonly readKept: <T>(read: KeptRead<T>, refusal: KeptRefusal) => Promise<KeptReadOutcome<T>>
+}
+
+/**
+ * The visit's saves of the player's settings, the hold of a session's saves, and the changes to
+ * kept sessions after their save.
+ */
+export interface VisitSaves extends SessionSaveHold, KeptSessionChanges {
   readonly saveSettings: SaveSettings
 }
 
@@ -114,6 +138,14 @@ export function createVisitSaves(policy: Promise<SavePolicy>, appVersion: string
     runPending(resolved)
   })
 
+  /** Intent: call the policy in line, resolving what its call resolves (a defect rejects). */
+  const resolved = <T>(call: (target: SavePolicy) => Promise<T>): Promise<T> =>
+    new Promise((resolve, reject) => {
+      submit((target) => {
+        call(target).then(resolve, reject)
+      })
+    })
+
   return {
     saveSettings: (changes) => {
       const writes = settingWrites(changes, appVersion)
@@ -122,12 +154,9 @@ export function createVisitSaves(policy: Promise<SavePolicy>, appVersion: string
     },
     hold: () => submit((target) => target.hold()),
     release: () => submit((target) => void target.release()),
-    saveSession: (changes) =>
-      new Promise((resolve, reject) => {
-        submit((target) => {
-          target.saveSession(changes).then(resolve, reject)
-        })
-      }),
+    saveSession: (changes) => resolved((target) => target.saveSession(changes)),
+    changeKept: (changes, refusal) => resolved((target) => target.changeKept(changes, refusal)),
+    readKept: (read, refusal) => resolved((target) => target.readKept(read, refusal)),
   }
 }
 

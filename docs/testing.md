@@ -1169,7 +1169,11 @@ real session's would.
 rig's pre-generation queue is `disabledPregeneration` unless a spec passes its own builder
 (`controllerRig(script, fixedParts, { pregeneration })`), so no older spec meets a background
 attempt; `workspace-session-controller-pregeneration.spec.ts` passes an enabled one over the
-pre-generation rig's gated generate seam.
+pre-generation rig's gated generate seam. The rig's wall clock reads a minute later at each
+session's start, as in a real visit, so each session's kept key differs. Its saved
+`Keep my played notes` is off unless a spec passes `savedKeepPlayedNotes: true`, and its kept
+sessions' `changes` (the changes after a session's save) throw unless a spec passes its own in
+`keptSessions` (`workspace-session-controller-played-notes.spec.ts` logs and resolves them).
 
 ## Fake staff fit
 
@@ -1278,7 +1282,8 @@ two ports, or a port and a raw connection, opened on the same factory.
 
 The saves of the player's settings have their own stand-ins: `recordingPolicy()`
 (`tests/unit/storage/recording-save-policy.ts`) is a `SavePolicy` that records the calls the
-settings saver makes (any other member throws "not used"), and `recordingSaveSettings()` with
+settings saver makes, the changes to kept sessions included (its saving state stays `on`; any
+other member throws "not used"), and `recordingSaveSettings()` with
 `provideSaveSettings()` (`tests/unit/components/workspace/recording-save-settings.ts`) records the
 saves a component makes and gives the `global.provide` entry for `SAVE_SETTINGS`, which every
 mount of `WorkspaceShell`, `ScorePanel`, `SessionCueRow`, `MixControls` and `MixVolumeButton`

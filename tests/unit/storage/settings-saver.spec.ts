@@ -160,6 +160,38 @@ describe('the order calls reach the policy in', () => {
   })
 })
 
+// @test-link [[module_kept_session_changes]]
+describe('the changes to kept sessions', () => {
+  it("queue in call order after the session's save and resolve the policy's outcomes", async () => {
+    const { policy, calls } = recordingPolicy()
+    const pending = pendingPolicy(policy)
+    const saves = createVisitSaves(pending.promise, APP_VERSION)
+    /** Intent: the session save's changes, whatever was read. */
+    const changes = () => [settingWrite('theme', 'Dark')]
+    /** Intent: a change that changes nothing. */
+    const change = () => Promise.resolve([])
+    /** Intent: a read that reads nothing. */
+    const read = () => Promise.resolve(0)
+
+    const saved = saves.saveSession(changes)
+    const changed = saves.changeKept(change, 'caller')
+    const counted = saves.readKept(read, 'notice')
+    await flushPromises()
+    expect(calls).toEqual([])
+
+    pending.resolve()
+
+    expect(await saved).toEqual({ status: 'refused', kind: 'quota' })
+    expect(await changed).toEqual({ status: 'unchanged' })
+    expect(await counted).toEqual({ status: 'saving-off' })
+    expect(calls).toEqual([
+      { method: 'saveSession', changes },
+      { method: 'changeKept', changes: change, refusal: 'caller' },
+      { method: 'readKept', read, refusal: 'notice' },
+    ])
+  })
+})
+
 // @test-link [[module_saved_data_loader]]
 describe('chosenControlChanges', () => {
   const before = {
