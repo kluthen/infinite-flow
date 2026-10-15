@@ -33,19 +33,31 @@ import { fakeGenerationSession, readyState } from './fake-generation-session'
 import { PHRASE_SCORE_STUB } from './test-workspace'
 import { provideSaveSettings } from './recording-save-settings'
 
-const loader = vi.hoisted(() => ({ load: vi.fn<() => Promise<Component>>() }))
+const loader = vi.hoisted(() => ({
+  load: vi.fn<() => Promise<Component>>(),
+  loadArea: vi.fn<() => Promise<Component>>(),
+}))
 
-// The confirmation sheet's real component, settling within one flush, as a warmed chunk does.
+// The confirmation sheet's real component, settling within one flush, as a warmed chunk does; the
+// review area's real component the same way (imported below, once this mock is in place).
 vi.mock('@/components/review/load-review-panel', async () => {
   const { default: sheet } = await import('@/components/workspace/ReviewConfirmationSheet.vue')
-  return { loadReviewPanel: loader.load, loadReviewConfirmationSheet: () => Promise.resolve(sheet) }
+  return {
+    loadReviewPanel: loader.load,
+    loadReviewConfirmationSheet: () => Promise.resolve(sheet),
+    loadReviewArea: loader.loadArea,
+  }
 })
 
 beforeEach(async () => {
-  // Imported up front, so the panel's load settles within one flush, as a warmed chunk does.
+  // Imported up front, so the panel's and the area's loads settle within one flush, as warmed
+  // chunks do.
   const { default: stub } = await import('./review-panel-stub')
+  const { default: area } = await import('@/components/workspace/ReviewArea.vue')
   loader.load.mockReset()
   loader.load.mockImplementation(() => Promise.resolve(stub))
+  loader.loadArea.mockReset()
+  loader.loadArea.mockImplementation(() => Promise.resolve(area))
 })
 
 afterEach(() => {
@@ -132,6 +144,7 @@ describe('ScorePanel while the Review shows', () => {
     expect(panelChildren(wrapper)).toEqual(['score-toolbar', 'session-cue-row', 'staff-viewport'])
     expect(wrapper.findComponent({ name: 'ReviewPanel' }).exists()).toBe(false)
     expect(loader.load).not.toHaveBeenCalled()
+    expect(loader.loadArea).not.toHaveBeenCalled()
   })
 
   // @test-link [[req_last_session_review]]
@@ -351,15 +364,32 @@ describe('ScorePanel while the Review shows', () => {
 
   // @test-link [[req_last_session_review]]
   // @test-link [[rule_session_start_conditions]]
-  it("warms the panel's chunk when a session starts, without waiting on it", async () => {
+  it("warms the area's and the panel's chunks when a session starts, without waiting on them", async () => {
     const fake = createFakeSessionController()
     mountPanel(fakeGenerationSession(readyState()).session, fake)
     await flushPromises()
     expect(loader.load).not.toHaveBeenCalled()
+    expect(loader.loadArea).not.toHaveBeenCalled()
 
     fake.controller.start()
     await nextTick()
 
+    expect(loader.load).toHaveBeenCalledTimes(1)
+    expect(loader.loadArea).toHaveBeenCalledTimes(1)
+  })
+
+  // @test-link [[req_last_session_review]]
+  it("fetches the panel's chunk as the Review shows, alongside the area's, not after it", async () => {
+    const fake = showingReview()
+    fake.controller.closeReview()
+    mountPanel(fakeGenerationSession(readyState()).session, fake)
+    await flushPromises()
+    loader.loadArea.mockImplementation(() => new Promise(() => {}))
+
+    fake.controller.showReview()
+    await nextTick()
+
+    expect(loader.loadArea).toHaveBeenCalledTimes(1)
     expect(loader.load).toHaveBeenCalledTimes(1)
   })
 

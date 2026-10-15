@@ -1,18 +1,16 @@
 /**
- * The Review host's session tools: a star marks or unmarks its phrase at once; `Pin` pins at once,
+ * The review area's session tools: a star marks or unmarks its phrase at once; `Pin` pins at once,
  * `Unpin` unpins at once without favorites and opens its confirmation with some; `Delete session`
  * opens its confirmation, naming what the session holds, offered only while saving is on; each
  * confirmation runs through the host's one open confirmation (confirmed, kept open after a refused
  * deletion, or cancelled), with its words; a comment saved for a session no longer held is dropped.
  */
-import { describe, expect, it, vi } from 'vitest'
-import { effectScope, nextTick } from 'vue'
+import { describe, expect, it } from 'vitest'
+import { nextTick } from 'vue'
 
 import { sessionDate } from '@/components/review/session-date'
 import { reviewConfirmationCopy } from '@/components/workspace/review-confirmation-copy'
-import { useReviewHost } from '@/components/workspace/use-review-host'
 import type { SessionReview } from '@/components/workspace/workspace-session-controller-types'
-import { DEFAULT_REVIEW_PREFERENCES } from '@/storage/records/setting-defaults'
 import { recordedRecords } from '../review/review-fixtures'
 import {
   createFakeSessionController,
@@ -22,8 +20,7 @@ import {
   heldSessionOf,
   type FakeSessionController,
 } from './fake-session-controller'
-import { fakeGenerationSession } from './fake-generation-session'
-import { recordingSaveSettings } from './recording-save-settings'
+import { reviewAreaRig } from './review-area-rig'
 
 /** Intent: a fake controller showing a Review with `facts` applied to its session. */
 function showing(facts: Partial<SessionReview> = {}, savingOff = false): FakeSessionController {
@@ -34,30 +31,18 @@ function showing(facts: Partial<SessionReview> = {}, savingOff = false): FakeSes
   return createFakeSessionController({ review, mostRecent: heldSessionOf(review), savingOff })
 }
 
-/** Intent: a host over `fake`'s controller inside its own effect scope. */
-function host(fake: FakeSessionController) {
-  const { session } = fakeGenerationSession()
-  const { saveSettings } = recordingSaveSettings()
-  const scope = effectScope()
-  const built = scope.run(() =>
-    useReviewHost({
-      controller: () => fake.controller,
-      idle: () => session.state,
-      exportPorts: () => ({ load: vi.fn(), download: vi.fn() }),
-      initialPreferences: DEFAULT_REVIEW_PREFERENCES,
-      saveSettings,
-    }),
-  )
-  if (built === undefined) throw new Error('the effect scope did not run')
-  return built
+/** Intent: the review area over `fake`'s controller, and its host, inside their own effect scope. */
+function areaOver(fake: FakeSessionController) {
+  const { host: reviewHost, area } = reviewAreaRig(fake)
+  return { ...area, showing: reviewHost.showing }
 }
 
 // @test-link [[req_favorite_phrases]]
 // @test-link [[rule_favorite_pins_session]]
-describe('the Review host: favorite stars', () => {
+describe('the review area: favorite stars', () => {
   it("mark and unmark a phrase of the showing session through the controller, by the session's key", () => {
     const fake = showing()
-    const built = host(fake)
+    const built = areaOver(fake)
 
     built.toggleFavorite(2)
     expect(fake.setFavorite).toHaveBeenLastCalledWith(FAKE_REVIEW_KEY, 2, true)
@@ -72,10 +57,10 @@ describe('the Review host: favorite stars', () => {
 
 // @test-link [[rule_pinned_session_kept]]
 // @test-link [[rule_favorite_pins_session]]
-describe('the Review host: Pin and Unpin', () => {
+describe('the review area: Pin and Unpin', () => {
   it('pins at once, and unpins at once a session without favorites', () => {
     const fake = showing()
-    const built = host(fake)
+    const built = areaOver(fake)
 
     built.togglePin()
     expect(fake.setPinned).toHaveBeenLastCalledWith(FAKE_REVIEW_KEY, true)
@@ -86,7 +71,7 @@ describe('the Review host: Pin and Unpin', () => {
 
   it('asks first for a session with favorites; Unpin unpins, Keep pinned changes nothing', async () => {
     const fake = showing({ pinned: true, keeping: 'pinned', favorites: [1, 3] })
-    const built = host(fake)
+    const built = areaOver(fake)
 
     built.togglePin()
     const open = built.confirmation.value
@@ -110,7 +95,7 @@ describe('the Review host: Pin and Unpin', () => {
 
   it('names one favorite as "its favorite", and stays open while saving turns off', async () => {
     const fake = showing({ pinned: true, keeping: 'pinned', favorites: [1] })
-    const built = host(fake)
+    const built = areaOver(fake)
 
     built.togglePin()
     expect(reviewConfirmationCopy(built.confirmation.value!).paragraphs).toEqual([
@@ -123,15 +108,15 @@ describe('the Review host: Pin and Unpin', () => {
 })
 
 // @test-link [[req_kept_session_list]]
-describe('the Review host: Delete session', () => {
+describe('the review area: Delete session', () => {
   it('is offered only while saving is on', () => {
-    expect(host(showing()).canDeleteSession.value).toBe(true)
-    expect(host(showing({}, true)).canDeleteSession.value).toBe(false)
+    expect(areaOver(showing()).canDeleteSession.value).toBe(true)
+    expect(areaOver(showing({}, true)).canDeleteSession.value).toBe(false)
   })
 
   it('asks first, naming the session by its date and what it holds, then deletes it', async () => {
     const fake = showing({ favorites: [1, 2], pinned: true, comment: 'Mine.' })
-    const built = host(fake)
+    const built = areaOver(fake)
 
     built.askDeleteSession()
     const copy = reviewConfirmationCopy(built.confirmation.value!)
@@ -157,7 +142,7 @@ describe('the Review host: Delete session', () => {
 
   it('words what the session holds in order, joined with commas and "and", or nothing', () => {
     const fake = showing()
-    const built = host(fake)
+    const built = areaOver(fake)
     built.askDeleteSession()
     const open = built.confirmation.value
     if (open?.kind !== 'delete-session') throw new Error('no deletion is asked')
@@ -177,7 +162,7 @@ describe('the Review host: Delete session', () => {
   it('refused, keeps its sheet open with its error; it closes, deleting nothing, when saving turns off', async () => {
     const fake = showing()
     fake.deleteSession.mockImplementationOnce(() => Promise.resolve('refused'))
-    const built = host(fake)
+    const built = areaOver(fake)
 
     built.askDeleteSession()
     expect(await built.confirm()).toBe('failed')
@@ -192,10 +177,10 @@ describe('the Review host: Delete session', () => {
 })
 
 // @test-link [[rule_session_comment]]
-describe('the Review host: the comment', () => {
+describe('the review area: the comment', () => {
   it('is saved for the showing session by its key, and dropped once that session is no longer held', () => {
     const fake = showing()
-    const built = host(fake)
+    const built = areaOver(fake)
 
     built.saveComment(FAKE_REVIEW_KEY, 'Mine.')
     expect(fake.setComment).toHaveBeenCalledWith(FAKE_REVIEW_KEY, 'Mine.')

@@ -5,7 +5,8 @@
  * promise, so the warm-up at a session's start and the Review's mount at its end share one fetch. A
  * rejected import (a lazy chunk failing to fetch) clears the memo before rethrowing, so the next
  * caller tries again. The confirmation sheet a Review opens, with its words, loads the same way
- * through `loadReviewConfirmationSheet()`, in a chunk of its own.
+ * through `loadReviewConfirmationSheet()`, in a chunk of its own, and so does the review area that
+ * holds the panel and the sheet over the score panel, through `loadReviewArea()`.
  */
 
 /** The Review panel component, typed by its module (a type-only reference, erased in the build). */
@@ -59,4 +60,35 @@ export function loadReviewConfirmationSheet(): Promise<ReviewConfirmationSheetCo
     )
   }
   return confirmationSheetPromise
+}
+
+/**
+ * The review area, which binds the panel and opens the confirmation sheet over the score panel,
+ * typed by its module (a type-only reference, erased in the build). Like the panel, nothing may
+ * import it statically outside this file.
+ */
+// @spec-link [[req_last_session_review]]
+export type ReviewAreaComponent =
+  (typeof import('@/components/workspace/ReviewArea.vue'))['default']
+
+let areaPromise: Promise<ReviewAreaComponent> | null = null
+
+/**
+ * Intent: the review area component, with the Review's exports, played-notes side and session
+ * tools, loaded once and shared by every caller. Safe to call speculatively (at a session's start)
+ * to absorb the fetch ahead of the Review opening. A rejected import clears the memo before
+ * rethrowing.
+ */
+// @spec-link [[req_last_session_review]]
+export function loadReviewArea(): Promise<ReviewAreaComponent> {
+  if (areaPromise === null) {
+    areaPromise = import('@/components/workspace/ReviewArea.vue').then(
+      (module) => module.default,
+      (cause: unknown) => {
+        areaPromise = null
+        throw cause
+      },
+    )
+  }
+  return areaPromise
 }
