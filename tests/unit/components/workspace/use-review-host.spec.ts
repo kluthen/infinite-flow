@@ -115,7 +115,9 @@ describe('useReviewHost', () => {
 
     expect(built.holdsPlayedNote.value).toBe(true)
     await built.exportPlayedNotes()
-    expect(buildPlayedNotesFile).toHaveBeenCalledExactlyOnceWith(fake.state.review?.history)
+    expect(buildPlayedNotesFile).toHaveBeenCalledExactlyOnceWith(fake.state.review?.history, {
+      includeVeryShortNotes: false,
+    })
     expect(ports.download).toHaveBeenCalledExactlyOnceWith(file)
 
     // A session without a controller records no played note.

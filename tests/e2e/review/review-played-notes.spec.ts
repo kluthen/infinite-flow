@@ -6,21 +6,36 @@
  * own time axis (a note played on a written note's beat starts right under its notehead), the
  * staff itself unchanged; off removes every lane; the state holds across `Close review` and
  * `Review last session`; the phone's split layout has two lanes per phrase, named for their bars;
- * and nothing in the Review turns scroll anchoring off.
+ * and nothing in the Review turns scroll anchoring off. From v3.0 (chunk 25), a session whose every
+ * played note is very short (three taps): the played-notes tools show, the lanes hold no bar, and
+ * `Export played notes` is disabled with its reason until `Include very short notes` is turned on,
+ * which holds across Reviews and a later session and is off again after a reload.
  */
 import { expect, test, type Page } from '@playwright/test'
 
 import { watchPageErrors } from '../controller/controller-helpers'
 import { PHONE, sessionAction, sessionState } from '../session/session-helpers'
-import { expectedNotesOf } from '../session/session-midi-helpers'
+import { KEYS, expectedNotesOf, tap } from '../session/session-midi-helpers'
 import {
+  STEM,
+  collectDownloads,
+  exportError,
+  exportOnce,
+  exportPlayedButton,
+  includeVeryShortNotesToggle,
   playedNotesToggle,
   reviewItems,
   reviewLink,
   reviewOfSession,
   reviewPanel,
   reviewTitle,
+  sessionEndedAfter,
 } from './review-helpers'
+import { smfNoteOns } from './smf-note-ons'
+
+/** The reason `Export played notes` is disabled while every played note is very short. */
+const EVERY_NOTE_VERY_SHORT =
+  'Every note you played is very short. Turn on Include very short notes to export them.'
 
 // The export file names (unused here) and the wall clock follow the Review specs' zone.
 test.use({ timezoneId: 'Europe/Paris' })
@@ -266,5 +281,73 @@ test.describe('the Review played-notes lanes', () => {
     }
     await expect(reviewPanel(page).locator('.played-note')).not.toHaveCount(0)
     expect(await scrollAnchoringOff(page)).toEqual([])
+  })
+})
+
+/**
+ * Intent: `Export played notes` is disabled, named by its field note giving the very-short reason,
+ * while `Include very short notes` is off.
+ */
+async function expectDisabledForVeryShortNotes(page: Page): Promise<void> {
+  await expect(includeVeryShortNotesToggle(page)).toHaveAttribute('aria-pressed', 'false')
+  await expect(exportPlayedButton(page)).toBeDisabled()
+  await expect(exportPlayedButton(page)).toHaveAccessibleDescription(EVERY_NOTE_VERY_SHORT)
+  await expect(reviewPanel(page).locator('.review-export-played > .field-note')).toHaveText(
+    EVERY_NOTE_VERY_SHORT,
+  )
+}
+
+// @test-link [[rule_stray_notes_filtered_on_reading]]
+// @test-link [[rule_played_notes_export_omits_stray_notes]]
+test.describe('a session whose every played note is very short', () => {
+  // @test-link [[rule_stray_notes_filtered_on_reading]]
+  // @test-link [[rule_played_notes_export_omits_stray_notes]]
+  // @test-link [[module_review_played_notes_lane]]
+  test('keeps its played-notes tools, draws no bar, and exports only with Include very short notes, held for the page visit', async ({
+    page,
+  }) => {
+    test.setTimeout(180_000)
+    const downloads = collectDownloads(page)
+    await reviewOfSession(page, true, undefined, 0)
+    const played = ((await sessionState(page)).lastHistoryPhrases ?? []).flatMap(
+      (phrase) => phrase.playedNotes,
+    )
+    expect(played.map((note) => note.releaseAt - note.onsetAt)).toEqual([0, 0, 0])
+
+    // The tools show; the lanes draw no bar.
+    await expect(exportPlayedButton(page)).toBeVisible()
+    await playedNotesToggle(page).click()
+    await expectAllEngraved(page, 2)
+    await expect(reviewPanel(page).locator('.played-notes-lane')).toHaveCount(2)
+    await expect(reviewPanel(page).locator('.played-note')).toHaveCount(0)
+    await expectDisabledForVeryShortNotes(page)
+
+    // Turning the option on enables the export at once, focus staying on the toggle.
+    await includeVeryShortNotesToggle(page).focus()
+    await page.keyboard.press('Enter')
+    await expect(includeVeryShortNotesToggle(page)).toHaveAttribute('aria-pressed', 'true')
+    await expect(exportPlayedButton(page)).toBeEnabled()
+    await expect(includeVeryShortNotesToggle(page)).toBeFocused()
+    await expect(reviewPanel(page).locator('.review-export-played > .field-note')).toHaveCount(0)
+    const file = await exportOnce(page, downloads, exportPlayedButton(page))
+    expect(file.fileName).toBe(`${STEM}-played.mid`)
+    expect(smfNoteOns(file.bytes)).toHaveLength(3)
+    await expect(exportError(page)).toHaveCount(0)
+
+    // Held across Close review and Review last session, then into a later session's Review.
+    await sessionAction(page).click()
+    await reviewLink(page).click()
+    await expect(includeVeryShortNotesToggle(page)).toHaveAttribute('aria-pressed', 'true')
+    await sessionAction(page).click()
+    await sessionEndedAfter(page, 1, 7, async () => {
+      await tap(page, KEYS, 30)
+    })
+    await expect(includeVeryShortNotesToggle(page)).toHaveAttribute('aria-pressed', 'true')
+    await expect(exportPlayedButton(page)).toBeEnabled()
+
+    // A new page load starts with it off again.
+    await reviewOfSession(page, true, undefined, 0)
+    await expectDisabledForVeryShortNotes(page)
+    await expect(exportError(page)).toHaveCount(0)
   })
 })

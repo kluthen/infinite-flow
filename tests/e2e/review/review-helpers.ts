@@ -25,6 +25,8 @@ import {
   connectDevice,
   expectedNotesOf,
   idleTimeline,
+  noteOff,
+  noteOn,
   phraseStartsAt,
   tap,
 } from '../session/session-midi-helpers'
@@ -63,11 +65,18 @@ export function exportButton(page: Page): Locator {
 }
 
 /**
- * Intent: the Review's `Export played notes` button, after the generated-notes group (rendered
- * only when the session holds a played note).
+ * Intent: the Review's `Export played notes` button, in the played-notes group after the
+ * generated-notes group (rendered only when the session holds a played note).
  */
 export function exportPlayedButton(page: Page): Locator {
-  return reviewPanel(page).locator('.review-actions > button.review-export-action')
+  return reviewPanel(page).locator('.review-export-played > button.review-export-action')
+}
+
+/** Intent: the played-notes export's `Include very short notes` toggle. */
+export function includeVeryShortNotesToggle(page: Page): Locator {
+  return reviewPanel(page)
+    .locator('.review-export-played')
+    .getByRole('button', { name: 'Include very short notes', exact: true })
 }
 
 /** Intent: the Review's `Played notes` switch (rendered only with a played note in the session). */
@@ -229,16 +238,41 @@ export function fixWallClock(page: Page): Promise<void> {
   return page.evaluate((at) => window.__workspaceHarness.setWallClock(at), STARTED_AT)
 }
 
+/** How long each note `reviewOfSession` plays is held: 100 ms, so none is very short (38 ms). */
+export const HELD_NOTE_SECONDS = 0.1
+
+/**
+ * Intent: a note held `seconds` from audio time `at` (now by default), released by `before` at the
+ * latest (the next note's onset: the controller keeps its messages' times in order). Its note-off
+ * is timestamped ahead of the fake clock, which places it there.
+ */
+async function hold(
+  page: Page,
+  pitch: number,
+  seconds: number,
+  at?: number,
+  before = Number.POSITIVE_INFINITY,
+): Promise<void> {
+  if (seconds === 0) {
+    await tap(page, KEYS, pitch, at)
+    return
+  }
+  const onset = await noteOn(page, KEYS, pitch, at === undefined ? {} : { at })
+  await noteOff(page, KEYS, pitch, Math.min(onset + seconds, before))
+}
+
 /**
  * Intent: on a fresh page (at `size`, the desktop one unless given) with the keyboard connected
  * and the wall clock fixed, run the same session (phrase 1 seeded 7, Start clicked, Stop once
  * phrase 2 sounds), playing notes into it (one right, two wrong, the first two each exactly on a
- * written note's onset) or none; the Review shows.
+ * written note's onset), each held `heldSeconds` (0: taps, all three very short), or none; the
+ * Review shows.
  */
 export async function reviewOfSession(
   page: Page,
   playNotes: boolean,
   size?: { readonly width: number; readonly height: number },
+  heldSeconds = HELD_NOTE_SECONDS,
 ): Promise<void> {
   await gotoSessionHarness(page, size)
   await fixWallClock(page)
@@ -251,12 +285,12 @@ export async function reviewOfSession(
     const [first, second] = expectedNotesOf(phraseOne, 1, await phraseStartsAt(page, 1))
     if (first === undefined || second === undefined) throw new Error('phrase 1 has two notes')
     await clockTo(page, first.onsetAt)
-    await tap(page, KEYS, first.pitch, first.onsetAt)
+    await hold(page, first.pitch, heldSeconds, first.onsetAt, second.onsetAt)
     await clockTo(page, second.onsetAt)
-    await tap(page, KEYS, second.pitch + 1, second.onsetAt)
+    await hold(page, second.pitch + 1, heldSeconds, second.onsetAt)
   }
   await playUntilPhrase(page, 2)
-  if (playNotes) await tap(page, KEYS, 30)
+  if (playNotes) await hold(page, 30, heldSeconds)
   await sessionAction(page).click()
   await expectReviewShowing(page, 2)
   const played = ((await sessionState(page)).lastHistoryPhrases ?? []).flatMap(

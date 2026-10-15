@@ -43,6 +43,7 @@ How the constants are used is described in [MIDI note acknowledgement](midi-ackn
 | `CONNECTION_LATENCY_SECONDS['bluetooth-le']` | 0.0125 | `src/domain/acknowledgement/played-onset-latency.ts`   | Unused: no session applies a Bluetooth-specific correction (`rule_played_onset_latency_compensation`, version 0.3). See [Bluetooth](#bluetooth).         |
 | `SILENCE_TIMEOUT_SECONDS`                    | 30     | `src/session/session-midi-timers.ts`                   | Product rule (`rule_silence_timeout_ends_session`). Not tuned.                                                                                        |
 | `RECONNECTION_WINDOW_SECONDS`                | 30     | `src/session/session-midi-timers.ts`                   | Product rule (`rule_controller_reconnection_window`). Not tuned.                                                                                      |
+| `VERY_SHORT_NOTE_SECONDS`                    | 0.038  | `src/domain/played-notes/stray-notes.ts`               | Measured on 2026-10-15 (breath controller, USB), measurement M1: see [Very short notes (M1)](#very-short-notes-m1). Not used by acknowledgement.      |
 
 What may change without the owner, and what may not:
 
@@ -57,6 +58,10 @@ What may change without the owner, and what may not:
   the owner's decision first.
 - **The two 30-second timers are product rules,** not hardware tuning. They are listed here only
   because they are timing constants of the same session.
+- **The very-short-note threshold is free to tune** within its rule: one constant for every
+  controller, never a player setting, well under 62.5 ms (`rule_stray_note_definition`). Played
+  notes are stored as received, so a new value applies to every session already kept. It changes
+  only the review's lane and the played-notes export, never which notes light.
 
 Three facts about how the latency is applied today:
 
@@ -254,9 +259,121 @@ What the windows run showed beyond the figures:
 - **In-between notes.** While the fingers change position, the Travel Sax often sends short
   notes between the two (here pitches 50, 51 and 55, often in pairs at velocity 127). They light
   nothing, being the wrong pitch, but they reach the review's played-notes view and the
-  played-notes MIDI export.
+  played-notes MIDI export. From v3.0 both leave out notes under 38 ms (see
+  [Very short notes (M1)](#very-short-notes-m1)).
 - **The owner's feel:** the feedback was not a problem; misses were mostly the playing, on a new
   exercise (reading at tempo while managing breath on a controller with no blow resistance).
+
+## Very short notes (M1)
+
+Measurement M1 of the v3.0 build plan
+([M1 — The stray-note threshold](../specs/versions/v3/build-plan.md#m1--the-stray-note-threshold))
+sets `VERY_SHORT_NOTE_SECONDS`, the length under which a played note counts as a very short
+"stray" note ([master spec §9](../specs/versions/v3/master-spec.md#9-stray-notes)): an in-between
+note a controller sends while the fingers move from one position to the next. The review's
+`Played notes` lane leaves those notes out, and so does the played-notes export unless
+`Include very short notes` is on. Acknowledgement never reads the threshold.
+
+**Value: 38 ms.** One full controller step below the shortest note read as intended (45.8 ms), and
+24.5 ms under a sixteenth note at 240 BPM (62.5 ms). It leaves out 66 of the 77 in-between notes
+found; the other 11 last as long as intended notes do, so no length can tell them apart.
+
+### The recordings
+
+On 2026-10-15 the owner played five sessions on the Travel Sax 2 over USB in v2.0, and exported
+each one's played notes (v2.0's played-notes MIDI file, 960 ticks per quarter note: under 0.7 ms
+per tick at 90 BPM). They are kept in `tests/fixtures/stray-notes/`, and the filter's tests replay
+them.
+
+| File (`infinite-flow-2026-10-15-…`) | What was played               | Tempo   | Length | Notes |
+| ----------------------------------- | ----------------------------- | ------- | ------ | ----- |
+| `111340-played.slow.mid`            | Slow scales                   | 90 BPM  | 13 s   | 18    |
+| `111507-played.fast.mid`            | Fast scales                   | 240 BPM | 12 s   | 65    |
+| `111600-played.free.mid`            | Free playing                  | 90 BPM  | 44 s   | 89    |
+| `112838-played.fast.mid`            | Fast scales, a longer retake  | 240 BPM | 48 s   | 227   |
+| `113100-played.free.mid`            | Free playing, a longer retake | 90 BPM  | 77 s   | 135   |
+
+The "fast scales" are a B-flat major scale, up and down, one note per beat at 240 BPM: about
+250 ms a note. The owner found 240 BPM hard.
+
+### The script
+
+`node scripts/stray-note-lengths.mjs [--bin <ms>] [--up-to <ms>] [file.mid ...]` reads
+played-notes files (every file of `tests/fixtures/stray-notes/` by default) through the tests'
+MIDI reader and its tempo map. For each file it lists every note shorter than `--up-to` (200 ms
+by default) with its onset, length, velocity, the pitches just before and after it, and `split`
+when a note of the same pitch touches it within 60 ms. Then it draws the histogram of every
+note's length in `--bin` bins (5 ms by default). It is tooling: nothing in the app reads it.
+
+### What the notes show
+
+The Travel Sax reports lengths in steps of about 5 ms (4.9, 10.4, 15.3, 20.6, 25.5, 30.5, 35.4,
+41.0, 46.4 ms and on), each within about 1 ms. Of the 534 notes, 367 last 130 ms or more; the 167
+shorter ones were read one by one, in their melodic context, into four kinds:
+
+- **In-between notes**: a different pitch wedged between two notes, which the scale or the line
+  never asks for: G between A and B-flat (the commonest, 5 to 87 ms), F or F' between B-flat and
+  C, B an octave up between B and F-sharp (the octave key moving first), and runs of 2 to 4
+  pitches 5 ms apart at the start of a note. Often at full velocity, as the windows run of
+  2026-10-06 saw.
+- **Split halves**: one held note cut in two, the two parts of the same pitch with up to 60 ms
+  between them, usually a loud short part and a soft long one (the controller retriggering on the
+  breath). Leaving a short half out loses no note: the other half carries its pitch.
+- **Intended notes**: the only note of a pitch the scale or the line asks for at that place.
+- **Unclear**: a passing note that could be either, and the 9 notes of a fumbled flourish at the
+  end of the last recording (74.7 to 75.2 s).
+
+Notes per 5 ms of length, under 130 ms (a bin holds its step and that step's jitter):
+
+| Length (ms) | In-between | Split halves | Intended | Unclear |
+| ----------- | ---------- | ------------ | -------- | ------- |
+| 0–4         | 10         | 0            | 0        | 0       |
+| 5–9         | 13         | 0            | 0        | 0       |
+| 10–14       | 8          | 2            | 0        | 0       |
+| 15–19       | 12         | 4            | 0        | 2       |
+| 20–24       | 7          | 3            | 0        | 1       |
+| 25–29       | 7          | 2            | 0        | 0       |
+| 30–34       | 2          | 1            | 0        | 1       |
+| 35–39       | 7          | 4            | 0        | 0       |
+| 40–44       | 2          | 2            | 0        | 2       |
+| 45–49       | 2          | 2            | 1        | 0       |
+| 50–54       | 0          | 1            | 0        | 1       |
+| 55–59       | 2          | 2            | 0        | 1       |
+| 60–64       | 0          | 6            | 1        | 1       |
+| 65–69       | 1          | 4            | 0        | 0       |
+| 70–74       | 2          | 5            | 0        | 0       |
+| 75–79       | 0          | 4            | 0        | 1       |
+| 80–129      | 2          | 34           | 7        | 4       |
+
+There is no empty gap between the in-between notes and the intended ones, only a dip after the
+36 ms step. The two kinds overlap from 41 to 97 ms:
+
+- **The shortest intended notes:** an F (65) of 45.8 ms in a C major run at 16.7 s of the first
+  free recording (the same run in the retake holds a 271 ms F), and an F (53) of 61.5 ms at 7.3 s
+  of the first fast recording.
+- **The longest in-between notes:** 41.0 ms (twice), 46.4, 46.5, 56.8 (twice), 68.1, 70.8, 73.6,
+  87.2 and 97.2 ms.
+
+### The threshold
+
+A length alone can only take the in-between notes shorter than the shortest intended one. The
+threshold is set for the margin on that side, since leaving out a note the player meant is the
+worse error:
+
+- **38 ms** sits between the 36 ms and 41 ms steps. The 41 ms step holds no note read as
+  intended, so a full step (about 5 ms, plus the 1 ms jitter) separates the threshold from the
+  45.8 ms note. At 43 ms that margin would shrink to less than the jitter.
+- **What it leaves out:** 86 notes of the 534: 66 of the 77 in-between notes, 16 short split
+  halves (each one's other half stays) and 4 unclear notes; no intended note. Per recording, in
+  file order: 3, 2, 22, 30 and 29.
+- **What stays:** the 11 in-between notes of 41 ms or more. Raising the threshold to catch them
+  would leave out intended notes first.
+- **Below 62.5 ms:** 24.5 ms under a sixteenth note at 240 BPM, the shortest note the app writes.
+
+To measure again: record the sessions as above, add their files to `tests/fixtures/stray-notes/`,
+run the script, and read the notes under 130 ms in context. A new value goes into
+`VERY_SHORT_NOTE_SECONDS` with its basis in its comment, in the constants table above and in this
+section; the counts in `tests/unit/domain/played-notes/stray-notes.spec.ts` follow it.
 
 ## Bluetooth
 

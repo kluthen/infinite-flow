@@ -32,12 +32,15 @@ const ReviewPanelStub = defineComponent({
     exportPlayedNotes: { type: Function as PropType<() => Promise<void>>, required: true },
     keepPlayedNotes: { type: Boolean, required: true },
     canDeletePlayedNotes: { type: Boolean, required: true },
+    includeVeryShortNotes: { type: Boolean, required: true },
+    playedNotesFileHoldsNote: { type: Boolean, required: true },
   },
   emits: [
     'update:format',
     'update:backingTrack',
     'update:playedNotesShown',
     'update:keepPlayedNotes',
+    'update:includeVeryShortNotes',
     'delete-played-notes',
   ],
   setup(props, { expose, emit }) {
