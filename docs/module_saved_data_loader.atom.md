@@ -12,7 +12,9 @@ parents:
   - [[rule_no_save_during_session]]
   - [[rule_saved_setting_is_players_choice]]
   - [[rule_settings_saved_on_change]]
-dependents: []
+dependents:
+  - [[entity_my_instrument_record]]
+  - [[module_kept_session_reach]]
 version: 0.3
 ---
 

@@ -3,6 +3,7 @@ id: module_save_policy
 status: REVIEW
 priority: 1
 dependents:
+  - [[entity_my_instrument_record]]
   - [[module_kept_session_changes]]
   - [[module_kept_session_save]]
   - [[module_saved_data_loader]]

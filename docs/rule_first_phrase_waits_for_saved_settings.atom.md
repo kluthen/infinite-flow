@@ -6,6 +6,7 @@ layer: BUSINESS
 parents:
   - [[rule_settings_saved_on_change]]
 dependents:
+  - [[entity_my_instrument_record]]
   - [[module_kept_session_save]]
   - [[module_save_policy]]
   - [[module_saved_data_loader]]

@@ -4,6 +4,7 @@ status: DRAFT
 parents:
   - [[req_kept_sessions]]
 dependents:
+  - [[module_kept_session_reach]]
   - [[module_kept_session_save]]
   - [[service_session_end]]
 layer: BUSINESS

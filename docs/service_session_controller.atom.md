@@ -12,7 +12,8 @@ parents:
   - [[rule_session_never_pauses]]
   - [[rule_session_start_conditions]]
   - [[service_workspace_session_flow]]
-dependents: []
+dependents:
+  - [[module_kept_session_reach]]
 type: SERVICE
 version: 0.3
 priority: 1

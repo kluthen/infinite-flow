@@ -3,6 +3,7 @@ id: entity_my_instrument
 status: REVIEW
 priority: 1
 dependents:
+  - [[entity_my_instrument_record]]
   - [[module_generation_worker_protocol]]
   - [[module_phrase_replay_key]]
 type: ENTITY

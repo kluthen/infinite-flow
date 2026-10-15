@@ -12,6 +12,7 @@ human_name: My Instrument
 tags: [v3, release-v3.0, storage, instrument-profile]
 dependents:
   - [[entity_my_instrument]]
+  - [[entity_my_instrument_record]]
   - [[module_notation_layout_preflight]]
   - [[rule_my_instrument_range_limits]]
   - [[rule_my_instrument_transposition_named_interval]]

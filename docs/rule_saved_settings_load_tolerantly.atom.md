@@ -6,7 +6,8 @@ priority: 1
 human_name: Saved Settings Load One by One
 parents:
   - [[rule_settings_saved_on_change]]
-dependents: []
+dependents:
+  - [[entity_my_instrument_record]]
 type: RULE
 version: 0.2
 tags: [v3, release-v3.0, storage, player-controls, changes-in-v3.2]

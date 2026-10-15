@@ -10,6 +10,7 @@ parents:
   - [[req_on_device_storage]]
 human_name: No Saving During a Session
 dependents:
+  - [[entity_my_instrument_record]]
   - [[module_kept_session_save]]
   - [[module_save_policy]]
   - [[module_saved_data_loader]]

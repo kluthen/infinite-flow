@@ -6,6 +6,7 @@ priority: 1
 tags: [v3, release-v3.0, storage, review]
 dependents:
   - [[module_kept_session_codec]]
+  - [[module_kept_session_reach]]
   - [[req_favorite_phrases]]
   - [[rule_session_comment]]
 layer: BUSINESS
