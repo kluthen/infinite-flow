@@ -42,6 +42,7 @@ function mountPanel(
       sessionOptionsReadonly: false,
       presetStatusLive: 'polite',
       myInstrument,
+      instrumentActionsDisabled: false,
     },
   })
 }
@@ -89,5 +90,15 @@ describe('the instrument control with my instrument', () => {
     )
     const checked = radios(wrapper).filter((radio) => radio.attributes('aria-checked') === 'true')
     expect(checked.map((radio) => radio.text())).toEqual(['Low tenor'])
+  })
+
+  // @test-link [[req_my_instrument]]
+  it('offers Create my instrument, then Edit my instrument once it exists, and asks for the sheet', async () => {
+    expect(mountPanel(null).get('.instrument-actions button').text()).toBe('Create my instrument')
+    const wrapper = mountPanel(LOW_TENOR)
+    const button = wrapper.get('.instrument-actions button')
+    expect(button.text()).toBe('Edit my instrument')
+    await button.trigger('click')
+    expect(wrapper.emitted('open-my-instrument')).toHaveLength(1)
   })
 })

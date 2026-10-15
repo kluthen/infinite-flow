@@ -17,11 +17,16 @@ import type { PitchClassNumber } from '@/domain/harmony/harmony-types'
 import type { InstrumentProfile } from '@/domain/profile/instrument-profile'
 import { MY_INSTRUMENT_ID } from '@/domain/profile/instrument-profiles'
 import { spellWrittenKey } from '@/domain/notation/pitch-spelling'
+import type { MyInstrumentSaves } from '@/storage/settings-saver'
 import type { StaffKeySignature } from '@/notation/staff-fit-types'
 import { createControlActions } from './generation-session-control-actions'
 import { createFitRunner } from './generation-session-fit-round'
 import { createNotationActions } from './generation-session-notation'
-import { createSelectInstrumentProfileAction } from './generation-session-profile-switch'
+import { createMyInstrumentActions } from './generation-session-my-instrument'
+import {
+  createReplacePhraseAction,
+  createSelectInstrumentProfileAction,
+} from './generation-session-profile-switch'
 import { createRhythmPrewarmTrigger } from './generation-session-prewarm'
 import { createRoomNoticeReactions } from './generation-session-room-notice'
 import {
@@ -34,6 +39,7 @@ import {
 } from './generation-session-types'
 
 export type { ProfileSelectionOutcome } from './generation-session-profile-switch'
+export type { MyInstrumentChangeOutcome } from './generation-session-my-instrument'
 export type { RoomNoticeCause } from './generation-session-fit-round'
 export type { StaffLayoutReports } from './generation-session-room-notice'
 export type {
@@ -48,6 +54,16 @@ export type {
   ThemePreference,
 } from './generation-session-types'
 export { SessionUsageError } from './generation-session-types'
+
+/** The saves of a session given none: saving or deleting my instrument is then a defect. */
+const NO_MY_INSTRUMENT_SAVES: MyInstrumentSaves = {
+  saveMyInstrument: () => {
+    throw new SessionUsageError('This session was given no saves of my instrument.')
+  },
+  deleteMyInstrument: () => {
+    throw new SessionUsageError('This session was given no saves of my instrument.')
+  },
+}
 
 /** The settings a session given none starts from: the first-load values. */
 const FIRST_LOAD_SETTINGS: InitialGenerationSettings = {
@@ -166,13 +182,18 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
       saveSettings: options.saveSettings,
     })
 
-  const { retryNotation, reportNotationFailure, reportNotationRecovered, clearPhrase } =
-    createNotationActions<TResult>({
-      state,
-      notate: options.notate,
-      clearPresentedPhrase: options.clearPresentedPhrase,
-      routeLayoutFailure: (error) => roomNotice.routeLayoutFailure(error),
-    })
+  const {
+    retryNotation,
+    reportNotationFailure,
+    reportNotationRecovered,
+    clearPhrase,
+    redrawPhrase,
+  } = createNotationActions<TResult>({
+    state,
+    notate: options.notate,
+    clearPresentedPhrase: options.clearPresentedPhrase,
+    routeLayoutFailure: (error) => roomNotice.routeLayoutFailure(error),
+  })
 
   /**
    * Build a fresh, freshly identified/seeded intent from the current controls and profile
@@ -279,12 +300,20 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
     showEmpty: clearPhrase,
   })
 
-  const selectInstrumentProfile = createSelectInstrumentProfileAction<TResult>({
+  const profileSwitch = {
     state,
     isBlocked: isBlockedByUnsupportedRhythm,
     runFitRun: () => fitRunner.run('keep_screen'),
     clearPhrase,
     saveSettings: options.saveSettings,
+  }
+  const selectInstrumentProfile = createSelectInstrumentProfileAction<TResult>(profileSwitch)
+  const { saveMyInstrument, deleteMyInstrument } = createMyInstrumentActions<TResult>({
+    state,
+    saves: options.myInstrumentSaves ?? NO_MY_INSTRUMENT_SAVES,
+    selectInstrumentProfile,
+    replacePhrase: createReplacePhraseAction<TResult>(profileSwitch),
+    redrawPhrase,
   })
 
   const stopListeningForCrossings = options.viewport.subscribe(handleWidthCrossing)
@@ -296,6 +325,8 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
       setControl,
       selectMusicalProfile,
       selectInstrumentProfile,
+      saveMyInstrument,
+      deleteMyInstrument,
       setTheme,
       generate,
       regenerate,

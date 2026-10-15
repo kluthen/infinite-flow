@@ -155,6 +155,7 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
       myInstrument: deps.savedData.myInstrument,
     },
     saveSettings: saves.saveSettings,
+    myInstrumentSaves: saves,
   })
   session = created
   const staffReports = createIdleLayoutGate({

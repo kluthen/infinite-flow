@@ -323,7 +323,7 @@ describe('parseKeptIntent', () => {
       template: 'c-keyboard',
       name: 'Fourth-lower horn',
       clef: 'bass',
-      writtenRange: { minMidi: 50, maxMidi: 84 },
+      writtenRange: { minMidi: 50, maxMidi: 76 },
       transposition: { octaves: 0, semitones: 5, direction: 'lower' },
     })
     const intent = createGenerationIntent({

@@ -3,7 +3,9 @@
  * clef, a written range and a transposition, from which a validated instrument profile is derived
  * under the fixed id `my-instrument`. The clef, treble or bass, is display only: it stays on the
  * record beside the name and never reaches the generator-facing profile, so two my instruments
- * differing only by clef generate the same phrase. Building it refuses an invalid record with a
+ * differing only by clef generate the same phrase. Its written range must lie within its clef's
+ * bound, a rule the generator-facing profile, which carries no clef, cannot check: deriving that
+ * profile alone applies every other rule. Building it refuses an invalid record with a
  * reason and never clamps; the same refusal is available without throwing, for a live check while
  * it is edited.
  */
@@ -57,6 +59,10 @@ export interface MyInstrument {
   readonly profile: InstrumentProfile
 }
 
+/** What the generator-facing profile is derived from: my instrument's input without its clef. */
+// @spec-link [[entity_my_instrument]]
+export type MyInstrumentProfileInput = Omit<MyInstrumentInput, 'clef'>
+
 /** What the player gives to build my instrument; the template may name no built-in. */
 // @spec-link [[entity_my_instrument]]
 export interface MyInstrumentInput {
@@ -77,6 +83,7 @@ export type MyInstrumentRefusalReason =
   | 'lowest-not-below-highest'
   | 'range-under-two-octaves'
   | 'sounds-outside-midi'
+  | 'outside-clef-bound'
 
 /** A refusal: its reason code and a human-readable message. */
 // @spec-link [[rule_my_instrument_range_limits]]
@@ -107,7 +114,21 @@ export interface MyInstrumentDraft {
 }
 
 /** The narrowest written span my instrument may have: two octaves. */
-const MINIMUM_SPAN = 24
+// @spec-link [[rule_my_instrument_range_limits]]
+export const MINIMUM_WRITTEN_SPAN = 24
+const MINIMUM_SPAN = MINIMUM_WRITTEN_SPAN
+
+/**
+ * The bound each clef sets on my instrument's written range, both ends included: written C2 to C7
+ * (MIDI notes 36 to 96) in treble clef, E0 to E5 (16 to 76) in bass clef, the same lines and
+ * spaces of their own staff.
+ */
+// @spec-link [[rule_my_instrument_range_limits]]
+export const MY_INSTRUMENT_RANGE_BOUNDS: Readonly<Record<InstrumentClef, WrittenRange>> =
+  deepFreeze({
+    treble: { minMidi: 36, maxMidi: 96 },
+    bass: { minMidi: 16, maxMidi: 76 },
+  })
 const LOWEST_MIDI_NOTE = 0
 const HIGHEST_MIDI_NOTE = 127
 
@@ -146,13 +167,42 @@ function findRangeRefusal(range: WrittenRange, chromatic: number): MyInstrumentR
 }
 
 /**
+ * Intent: the refusal of a written range outside its clef's bound, both ends included, naming the
+ * clef and the notes out of bound; nothing when both ends lie inside it.
+ */
+// @spec-link [[rule_my_instrument_range_limits]]
+export function findClefBoundRefusal(
+  clef: InstrumentClef,
+  range: WrittenRange,
+): MyInstrumentRefusal | undefined {
+  const bound = MY_INSTRUMENT_RANGE_BOUNDS[clef]
+  const outside = [range.minMidi, range.maxMidi].filter(
+    (note) => note < bound.minMidi || note > bound.maxMidi,
+  )
+  if (outside.length === 0) return undefined
+  return refusal(
+    'outside-clef-bound',
+    `In ${clef} clef the written range must lie within ${bound.minMidi} to ${bound.maxMidi}; ${outside.join(' and ')} lie outside it.`,
+  )
+}
+
+/**
  * Intent: the first rule an input breaks, or nothing when my instrument can be built from it.
  * Checked in a fixed order: a blank name, a template that names no built-in, a malformed
- * transposition, endpoints that are not whole numbers, then the range limits.
+ * transposition, endpoints that are not whole numbers, the range limits, then the clef's bound.
  */
 // @spec-link [[entity_my_instrument]]
 // @spec-link [[rule_my_instrument_range_limits]]
 export function findMyInstrumentRefusal(input: MyInstrumentInput): MyInstrumentRefusal | undefined {
+  return findProfileRefusal(input) ?? findClefBoundRefusal(input.clef, input.writtenRange)
+}
+
+/**
+ * Intent: the first rule but the clef's bound an input breaks, in the same order: what deriving
+ * the generator-facing profile, which carries no clef, can check.
+ */
+// @spec-link [[rule_my_instrument_range_limits]]
+function findProfileRefusal(input: MyInstrumentProfileInput): MyInstrumentRefusal | undefined {
   if (input.name.trim().length === 0)
     return refusal('name-empty', 'My instrument needs a name that is not blank.')
   if (!isBuiltInInstrumentProfileId(input.template))
@@ -191,18 +241,8 @@ export function makeMyInstrument(input: MyInstrumentInput): MyInstrument {
     throw new MyInstrumentError(refusal('unknown-template', `Unknown template ${template}.`))
 
   const interval = deriveTranspositionInterval(input.transposition)
-  const transposition = instrumentTranspositionFor(input.transposition)
   const writtenRange = { minMidi: input.writtenRange.minMidi, maxMidi: input.writtenRange.maxMidi }
-  const profile = makeInstrumentProfile({
-    id: MY_INSTRUMENT_ID,
-    displayName: input.name,
-    concertRange: {
-      minMidi: writtenRange.minMidi - transposition.chromatic,
-      maxMidi: writtenRange.maxMidi - transposition.chromatic,
-    },
-    registerWindows: BUILT_IN_REGISTER_WINDOW_POLICY,
-    transposition,
-  })
+  const profile = builtProfile(input)
 
   return deepFreeze({
     kind: 'MyInstrument',
@@ -219,6 +259,35 @@ export function makeMyInstrument(input: MyInstrumentInput): MyInstrument {
     inputKind: 'midi-controller',
     interval,
     profile,
+  })
+}
+
+/**
+ * Intent: the generator-facing profile my instrument derives from its input without its clef,
+ * refusing as `makeMyInstrument` does every rule but the clef's bound, which needs the clef the
+ * profile never carries. What the generation worker checks a supplied profile against.
+ */
+// @spec-link [[entity_my_instrument]]
+// @spec-link [[rule_my_instrument_range_limits]]
+export function makeMyInstrumentProfile(input: MyInstrumentProfileInput): InstrumentProfile {
+  const refused = findProfileRefusal(input)
+  if (refused !== undefined) throw new MyInstrumentError(refused)
+  return builtProfile(input)
+}
+
+/** Intent: the profile of an input already checked: concert range, window policy, transposition. */
+function builtProfile(input: MyInstrumentProfileInput): InstrumentProfile {
+  const transposition = instrumentTranspositionFor(input.transposition)
+  const writtenRange = input.writtenRange
+  return makeInstrumentProfile({
+    id: MY_INSTRUMENT_ID,
+    displayName: input.name,
+    concertRange: {
+      minMidi: writtenRange.minMidi - transposition.chromatic,
+      maxMidi: writtenRange.maxMidi - transposition.chromatic,
+    },
+    registerWindows: BUILT_IN_REGISTER_WINDOW_POLICY,
+    transposition,
   })
 }
 

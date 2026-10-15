@@ -499,7 +499,14 @@ a current copy of a session, with `storage.seedKeptSessionCopy`, and makes an op
 must refuse, and valid ones in treble and bass clef) with the saved selection naming it, reads what
 its Idle request and pre-warm carried from `generationRequests` and `prewarmInstrumentProfiles`, the
 clef from each staff SVG's clef glyph, and the shared system-position size from the engraved staff
-SVG's `viewBox` height. The harness's audio seam (`window.__workspaceHarness.audio.set…`) drives the
+SVG's `viewBox` height. `my-instrument-sheet.spec.ts` and `my-instrument-sheet-changes.spec.ts`
+(helpers in `my-instrument-sheet-helpers.ts`) drive the My instrument sheet through the
+real UI (`instrument-actions`, the template and clef segments, the three steppers by keyboard,
+`Save`, `Cancel` and the delete confirmation) and read the same observations, plus the
+`instrument`, `controller` and `settings` stores through `storage.records`; the pre-generation
+cases force the re-check's verdicts with `queueFitVerdicts`, and `navigator.storage.persist()`
+calls are counted with an init-script spy, as `review-favorites.spec.ts` does.
+The harness's audio seam (`window.__workspaceHarness.audio.set…`) drives the
 transport directly and saves nothing; only the mix controls on screen save.
 
 ### The session screen specs

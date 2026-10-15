@@ -14,13 +14,14 @@ import type {
 import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import type { MyInstrument } from '@/domain/profile/my-instrument'
 import type { Seed } from '@/domain/random/seed'
-import type { SaveSettings } from '@/storage/settings-saver'
+import type { MyInstrumentSaves, SaveSettings } from '@/storage/settings-saver'
 import type {
   StaffFitVerdict,
   StaffKeySignature,
   StaffRoomVerdict,
 } from '@/notation/staff-fit-types'
 import type { RoomNoticeCause } from './generation-session-fit-round'
+import type { MyInstrumentChangeOutcome } from './generation-session-my-instrument'
 import type { ProfileSelectionOutcome } from './generation-session-profile-switch'
 import type { PostPrewarm } from './generation-session-prewarm'
 import type { StaffLayoutReports } from './generation-session-room-notice'
@@ -81,6 +82,16 @@ export interface GenerationSessionActions {
   ) => boolean
   readonly selectMusicalProfile: (profile: MusicalProfile) => boolean
   readonly selectInstrumentProfile: (id: InstrumentProfileId) => Promise<ProfileSelectionOutcome>
+  /**
+   * Save my instrument, made or changed: its record is written at once; a new one is selected, a
+   * change to the selected one replaces the phrase (range or transposition) or redraws it (clef
+   * alone), as an instrument switch would, once a generation under way has ended.
+   */
+  // @spec-link [[req_my_instrument]]
+  readonly saveMyInstrument: (instrument: MyInstrument) => Promise<MyInstrumentChangeOutcome>
+  /** Delete my instrument; while it is selected, its template is selected first, a switch. */
+  // @spec-link [[req_my_instrument]]
+  readonly deleteMyInstrument: () => Promise<MyInstrumentChangeOutcome>
   readonly setTheme: (theme: ThemePreference) => boolean
   readonly generate: () => Promise<boolean>
   readonly regenerate: () => Promise<boolean>
@@ -182,6 +193,13 @@ export interface CreateGenerationSessionOptions<TResult, TGenerated = TResult> {
   // @spec-link [[rule_settings_saved_on_change]]
   // @spec-link [[rule_saved_setting_is_players_choice]]
   readonly saveSettings: SaveSettings
+  /**
+   * Where my instrument's record is written and deleted, by the player's save or deletion. Absent
+   * for a caller that saves nothing of my instrument: saving or deleting it is then a defect and
+   * throws. The workspace composition root always supplies it.
+   */
+  // @spec-link [[entity_my_instrument_record]]
+  readonly myInstrumentSaves?: MyInstrumentSaves
 }
 
 /** A programming-usage error: a caller used a session action against its documented contract. */

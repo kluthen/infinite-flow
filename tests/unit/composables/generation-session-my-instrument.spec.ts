@@ -37,8 +37,15 @@ function session(controls = MINE_SELECTED, myInstrument: MyInstrument | null = L
   let counter = 0
   const prewarm = vi.fn<(intent: GenerationIntent) => void>()
   const generated: GenerationIntent[] = []
+  const notated: unknown[] = []
+  /** Every save, in order: settings changed, and my instrument written or deleted. */
+  const saves: unknown[] = []
   const created = createGenerationSession({
-    saveSettings: () => undefined,
+    saveSettings: (changes) => saves.push(changes),
+    myInstrumentSaves: {
+      saveMyInstrument: (instrument) => saves.push({ written: instrument }),
+      deleteMyInstrument: () => saves.push('deleted'),
+    },
     ...alwaysFitsStaff(),
     viewport: createFakeViewportWidth(),
     providers: {
@@ -49,9 +56,11 @@ function session(controls = MINE_SELECTED, myInstrument: MyInstrument | null = L
     withSessionSeed: (phrase) => phrase,
     generate: async (intent) => {
       generated.push(intent)
-      return 'phrase'
+      return `phrase ${generated.length}`
     },
-    notate: async () => undefined,
+    notate: async (result) => {
+      notated.push(result)
+    },
     prewarm,
     initialSettings: {
       controls,
@@ -60,7 +69,7 @@ function session(controls = MINE_SELECTED, myInstrument: MyInstrument | null = L
       myInstrument,
     },
   })
-  return { created, prewarm, generated }
+  return { created, prewarm, generated, notated, saves }
 }
 
 // @test-link [[entity_my_instrument]]
@@ -98,5 +107,135 @@ describe('the Idle session with my instrument', () => {
   // @test-link [[entity_my_instrument]]
   it('refuses to start with my instrument selected and none given', () => {
     expect(() => session(MINE_SELECTED, null)).toThrow(/my instrument/)
+  })
+})
+
+/** Intent: my instrument with some fields changed. */
+function changed(changes: Partial<Parameters<typeof makeMyInstrument>[0]>): MyInstrument {
+  return makeMyInstrument({ ...LOW_TENOR, ...changes })
+}
+
+/** Intent: a session with a phrase on screen, its records cleared. */
+async function withPhrase(controls = MINE_SELECTED, myInstrument: MyInstrument | null = LOW_TENOR) {
+  const rig = session(controls, myInstrument)
+  await rig.created.actions.generate()
+  rig.generated.length = 0
+  rig.notated.length = 0
+  rig.saves.length = 0
+  return rig
+}
+
+// @test-link [[req_my_instrument]]
+// @test-link [[rule_profile_switch_validates_phrase]]
+describe('saving and deleting my instrument', () => {
+  // @test-link [[req_my_instrument]]
+  // @test-link [[entity_my_instrument_record]]
+  it('a new one is saved, then selected, and the phrase replaced as on a switch', async () => {
+    const { created, generated, saves } = await withPhrase(DEFAULT_GENERATION_CONTROLS, null)
+
+    expect(await created.actions.saveMyInstrument(LOW_TENOR)).toBe('regenerated')
+
+    expect(saves).toEqual([
+      { written: LOW_TENOR },
+      { 'controls.instrumentProfileId': 'my-instrument' },
+    ])
+    expect(created.state.myInstrument).toBe(LOW_TENOR)
+    expect(created.state.controls.instrumentProfileId).toBe('my-instrument')
+    expect(generated).toHaveLength(1)
+    expect(generated[0]?.instrumentProfile).toEqual(LOW_TENOR.profile)
+    created.dispose()
+  })
+
+  // @test-link [[req_my_instrument]]
+  it('a change of name only relabels: the phrase stays and the selection still names my instrument', async () => {
+    const { created, generated, notated, saves } = await withPhrase()
+    const renamed = changed({ name: 'Tenor two' })
+
+    expect(await created.actions.saveMyInstrument(renamed)).toBe('saved')
+
+    expect(saves).toEqual([{ written: renamed }])
+    expect(created.state.myInstrument?.name).toBe('Tenor two')
+    expect(created.state.controls.instrumentProfileId).toBe('my-instrument')
+    expect(generated).toEqual([])
+    expect(notated).toEqual([])
+    created.dispose()
+  })
+
+  // @test-link [[rule_profile_switch_validates_phrase]]
+  it('a change of range or transposition while selected replaces the phrase, with its new profile', async () => {
+    const { created, generated } = await withPhrase()
+    const wider = changed({ writtenRange: { minMidi: 40, maxMidi: 70 } })
+
+    expect(await created.actions.saveMyInstrument(wider)).toBe('regenerated')
+    expect(generated[0]?.instrumentProfile).toEqual(wider.profile)
+
+    const higher = changed({ transposition: { octaves: 0, semitones: 9, direction: 'lower' } })
+    expect(await created.actions.saveMyInstrument(higher)).toBe('regenerated')
+    expect(generated[1]?.instrumentProfile).toEqual(higher.profile)
+    created.dispose()
+  })
+
+  // @test-link [[req_my_instrument]]
+  it('a change of clef alone while selected keeps the phrase and draws it again', async () => {
+    const { created, generated, notated } = await withPhrase()
+    const shown = created.state.result
+
+    expect(await created.actions.saveMyInstrument(changed({ clef: 'treble' }))).toBe('redrawn')
+
+    expect(generated).toEqual([])
+    expect(notated).toEqual([shown])
+    expect(created.state.result).toBe(shown)
+    created.dispose()
+  })
+
+  // @test-link [[req_my_instrument]]
+  it('a change while another profile is selected touches neither the phrase nor the selection', async () => {
+    const { created, generated, notated } = await withPhrase(DEFAULT_GENERATION_CONTROLS)
+
+    const wider = changed({ writtenRange: { minMidi: 40, maxMidi: 70 } })
+    expect(await created.actions.saveMyInstrument(wider)).toBe('saved')
+
+    expect(created.state.controls.instrumentProfileId).toBe(
+      DEFAULT_GENERATION_CONTROLS.instrumentProfileId,
+    )
+    expect(generated).toEqual([])
+    expect(notated).toEqual([])
+    created.dispose()
+  })
+
+  // @test-link [[entity_my_instrument_record]]
+  it('a save that changes nothing writes nothing', async () => {
+    const { created, saves } = await withPhrase()
+    expect(await created.actions.saveMyInstrument(changed({}))).toBe('unchanged')
+    expect(saves).toEqual([])
+    created.dispose()
+  })
+
+  // @test-link [[req_my_instrument]]
+  it('deleting it while selected selects its template first, then deletes it, the phrase replaced', async () => {
+    const { created, generated, saves } = await withPhrase()
+
+    expect(await created.actions.deleteMyInstrument()).toBe('regenerated')
+
+    expect(saves).toEqual([{ 'controls.instrumentProfileId': 'bb-tenor' }, 'deleted'])
+    expect(created.state.myInstrument).toBeNull()
+    expect(created.state.controls.instrumentProfileId).toBe('bb-tenor')
+    expect(generated[0]?.instrumentProfile.id).toBe('bb-tenor')
+    created.dispose()
+  })
+
+  // @test-link [[req_my_instrument]]
+  it('deleting it while another profile is selected changes nothing else', async () => {
+    const { created, generated, saves } = await withPhrase(DEFAULT_GENERATION_CONTROLS)
+
+    expect(await created.actions.deleteMyInstrument()).toBe('saved')
+
+    expect(saves).toEqual(['deleted'])
+    expect(created.state.myInstrument).toBeNull()
+    expect(created.state.controls.instrumentProfileId).toBe(
+      DEFAULT_GENERATION_CONTROLS.instrumentProfileId,
+    )
+    expect(generated).toEqual([])
+    created.dispose()
   })
 })

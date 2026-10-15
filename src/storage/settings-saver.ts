@@ -1,6 +1,6 @@
 /**
- * What the app saves the player's changes and the remembered controller, and holds a session's
- * saves, through, over the visit's save policy. The loader hands the policy over as a promise; calls made before it settles wait,
+ * What the app saves the player's changes, my instrument and the remembered controller, and
+ * holds a session's saves, through, over the visit's save policy. The loader hands the policy over as a promise; calls made before it settles wait,
  * in order, and every call reaches the policy in the order it was made. Once the policy has
  * loaded, calls reach it at once, so a hold made when a session starts takes effect right there.
  *
@@ -14,6 +14,7 @@
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import type { ProfileSelection } from '@/domain/controls/profile-selection'
 
+import { createMyInstrumentSaves, type MyInstrumentSaves } from './my-instrument-saves'
 import {
   CONTROLLER_RECORD_KEY,
   encodeControllerRecord,
@@ -51,6 +52,8 @@ export type SettingChanges = { readonly [K in SettingKey]?: SettingValue<K> }
 // @spec-link [[rule_saved_setting_is_players_choice]]
 // @spec-link [[module_save_policy]]
 export type SaveSettings = (changes: SettingChanges) => void
+
+export type { MyInstrumentSaves } from './my-instrument-saves'
 
 /**
  * Hold every save while a session runs, and release them, in one transaction, when it ends; then,
@@ -97,9 +100,10 @@ export interface ControllerSaves {
 
 /**
  * The visit's saves of the player's settings, the hold of a session's saves, the changes to kept
- * sessions after their save, and the saves of the remembered controller.
+ * sessions after their save, and the saves of my instrument and of the remembered controller.
  */
-export interface VisitSaves extends SessionSaveHold, KeptSessionChanges, ControllerSaves {
+export interface VisitSaves
+  extends SessionSaveHold, KeptSessionChanges, MyInstrumentSaves, ControllerSaves {
   readonly saveSettings: SaveSettings
 }
 
@@ -176,6 +180,7 @@ export function createVisitSaves(policy: Promise<SavePolicy>, appVersion: string
     saveSession: (changes) => resolved((target) => target.saveSession(changes)),
     changeKept: (changes, refusal) => resolved((target) => target.changeKept(changes, refusal)),
     readKept: (read, refusal) => resolved((target) => target.readKept(read, refusal)),
+    ...createMyInstrumentSaves(submit, appVersion),
     // @spec-link [[rule_last_controller_remembered]]
     rememberController: (device) => {
       const record = encodeControllerRecord(device, appVersion)

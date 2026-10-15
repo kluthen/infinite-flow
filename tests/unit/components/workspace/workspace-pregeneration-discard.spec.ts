@@ -6,6 +6,7 @@
  * changed; a staff layout report, or an explicit re-check, truncates it from the first phrase that
  * no longer fits, and pre-generation resumes from there.
  */
+import { makeMyInstrument } from '@/domain/profile/my-instrument'
 import { describe, expect, it } from 'vitest'
 
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
@@ -216,6 +217,28 @@ describe('Idle pre-generation queue: window changes', () => {
     expect(rig.planner.plans.at(-1)?.containerWidthPx).toBe(700)
     expect(inFlight(rig).intent.carryIn?.phraseNumber).toBe(2)
     expect(intentsFrom(rig, 4)[0]!.seed).toBe(rig.calls[1]!.intent.seed)
+    await answerAll(rig)
+    expect(takenNumbers(rig)).toEqual([2, 3, 4, 5])
+  })
+
+  // @test-link [[rule_pregeneration_discarded_on_change]]
+  // @test-link [[module_idle_pregeneration_queue]]
+  it('checks the ready phrases again when my instrument is saved, keeping those that still fit', async () => {
+    const rig = await fullRig()
+    rig.planner.queue({ kind: 'fits' }, { kind: 'notes_too_wide' })
+    const plansBefore = rig.planner.plans.length
+
+    rig.idle.myInstrument = makeMyInstrument({
+      template: 'bb-tenor',
+      name: 'Low tenor',
+      clef: 'bass',
+      writtenRange: { minMidi: 28, maxMidi: 52 },
+      transposition: { octaves: 1, semitones: 2, direction: 'lower' },
+    })
+    await flush()
+
+    expect(rig.planner.plans.length).toBeGreaterThan(plansBefore)
+    expect(inFlight(rig).intent.carryIn?.phraseNumber).toBe(2)
     await answerAll(rig)
     expect(takenNumbers(rig)).toEqual([2, 3, 4, 5])
   })

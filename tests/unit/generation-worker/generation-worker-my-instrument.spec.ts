@@ -145,13 +145,37 @@ describe('a generation with my instrument crosses the worker', () => {
     const renamed = makeMyInstrument({
       template: 'bb-tenor',
       name: 'Another name',
-      clef: 'bass',
+      clef: 'treble',
       writtenRange: { minMidi: 48, maxMidi: 84 },
       transposition: { octaves: 0, semitones: 3, direction: 'lower' },
     })
     const parsed = parseGenerationWorkerRequest(wire(myInstrumentIntent(7, renamed.profile)))
 
     expect(notePitches(parsed.intent)).toEqual(notePitches(myInstrumentIntent(7)))
+  })
+})
+
+// @test-link [[module_generation_worker_protocol]]
+// @test-link [[rule_my_instrument_range_limits]]
+describe("the worker applies no clef bound to my instrument's profile", () => {
+  // @test-link [[module_generation_worker_protocol]]
+  it('lets a bass-clef my instrument written below C2 cross the worker and generate', () => {
+    const lowInBass = makeMyInstrument({
+      template: 'bb-tenor',
+      name: 'Low tenor',
+      clef: 'bass',
+      writtenRange: { minMidi: 28, maxMidi: 52 },
+      transposition: { octaves: 1, semitones: 2, direction: 'lower' },
+    })
+    const intent = myInstrumentIntent(41, lowInBass.profile)
+    const parsed = parseGenerationWorkerRequest(wire(intent))
+    expect(parsed.intent.instrumentProfile).toEqual(lowInBass.profile)
+    const pitches = notePitches(parsed.intent)
+    expect(pitches.length).toBeGreaterThan(0)
+    for (const pitch of pitches) {
+      expect(pitch).toBeGreaterThanOrEqual(lowInBass.profile.concertRange.minMidi)
+      expect(pitch).toBeLessThanOrEqual(lowInBass.profile.concertRange.maxMidi)
+    }
   })
 })
 

@@ -1,6 +1,6 @@
 /**
- * A save policy double recording the saves, holds, releases, session saves and changes to kept
- * sessions that reach it, in order; its saving state stays on; every other member throws, as the
+ * A save policy double recording the saves, holds, releases, session saves, changes to kept
+ * sessions and persistent-storage requests that reach it, in order; its saving state stays on; every other member throws, as the
  * callers under test must never use it.
  */
 import type {
@@ -20,6 +20,7 @@ export type PolicyCall =
   | { readonly method: 'saveSession'; readonly changes: SessionChanges }
   | { readonly method: 'changeKept'; readonly changes: KeptChanges; readonly refusal: KeptRefusal }
   | { readonly method: 'readKept'; readonly read: KeptRead<unknown>; readonly refusal: KeptRefusal }
+  | { readonly method: 'requestProtection' }
 
 /** Intent: a member of the fake policy the saver must never call. */
 export function notUsed(name: string): () => never {
@@ -62,7 +63,10 @@ export function recordingPolicy(): { readonly policy: SavePolicy; readonly calls
       return Promise.resolve({ status: 'saving-off' })
     },
     onFailure: notUsed('onFailure'),
-    requestProtection: notUsed('requestProtection'),
+    requestProtection: () => {
+      calls.push({ method: 'requestProtection' })
+      return Promise.resolve('not-asked')
+    },
     estimate: notUsed('estimate'),
     persisted: notUsed('persisted'),
     deleteEverything: notUsed('deleteEverything'),

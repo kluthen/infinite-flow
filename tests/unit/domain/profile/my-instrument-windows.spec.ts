@@ -14,7 +14,7 @@ import {
   type BuiltInInstrumentProfileId,
 } from '@/domain/profile/instrument-profiles'
 import {
-  findMyInstrumentRefusal,
+  makeMyInstrumentProfile,
   makeMyInstrument,
   myInstrumentDraftFromTemplate,
   type MyInstrument,
@@ -95,7 +95,11 @@ describe('my instrument display name never affects generation', () => {
 
 // @test-link [[entity_my_instrument]]
 describe('my instrument clef never affects generation', () => {
-  const draft = myInstrumentDraftFromTemplate('bb-tenor')
+  // The tenor's own written range, C4 to C6, lies above bass clef's bound: one valid in both.
+  const draft = {
+    ...myInstrumentDraftFromTemplate('bb-tenor'),
+    writtenRange: { minMidi: 52, maxMidi: 76 },
+  }
   const inTreble = makeMyInstrument({ ...draft, name: 'My tenor', clef: 'treble' })
   const inBass = makeMyInstrument({ ...draft, name: 'My tenor', clef: 'bass' })
 
@@ -129,8 +133,9 @@ function drawInt(next: () => number, min: number, max: number): number {
 }
 
 /**
- * Intent: one random valid my instrument input: a random template, a span of 24 to 60 semitones, a
- * random transposition, and a written range placed so both concert ends sound inside MIDI 0–127.
+ * Intent: one random input of a valid my-instrument profile: a random template, a span of 24 to 60
+ * semitones, a random transposition, and a written range placed so both concert ends sound inside
+ * MIDI 0–127 (the clef's bound, display only, is checked elsewhere).
  */
 function randomValidInput(next: () => number, run: number): MyInstrumentInput {
   const direction = DIRECTIONS[drawInt(next, 0, 2)]!
@@ -158,8 +163,8 @@ describe('derived windows of random valid my instruments (property test)', () =>
     const generator = createMulberry32(0x5eed16)
     for (let run = 0; run < PROPERTY_RUNS; run += 1) {
       const input = randomValidInput(generator.nextFloat, run)
-      expect(findMyInstrumentRefusal(input)).toBe(undefined)
-      const { profile } = makeMyInstrument(input)
+      // The windows come from the generator-facing profile, which no clef bound narrows.
+      const profile = makeMyInstrumentProfile(input)
       expect(profile.registerWindows).toEqual(BUILT_IN_REGISTER_WINDOW_POLICY)
 
       const range = profile.concertRange

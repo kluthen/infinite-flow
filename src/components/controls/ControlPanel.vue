@@ -41,6 +41,8 @@ const props = defineProps<{
   presetStatusLive: 'polite' | 'off'
   /** The player's own instrument, while it exists: the instrument control's fourth choice. */
   myInstrument: MyInstrument | null
+  /** Whether `instrument-actions` is disabled: during a session and during Loading. */
+  instrumentActionsDisabled: boolean
 }>()
 
 const emit = defineEmits<{
@@ -50,6 +52,7 @@ const emit = defineEmits<{
   'set-rising-tempo': [on: boolean]
   'set-tension-across-phrases': [on: boolean]
   'set-vary-settings': [on: boolean]
+  'open-my-instrument': []
 }>()
 
 /** Intent: forward a group's set-control event upward unchanged. */
@@ -106,6 +109,8 @@ const controlSummary = computed(() => controlSummaryText(props.controls, props.p
         :preset-status-live="presetStatusLive"
         :last-session-reached-tempo="lastSessionReachedTempo"
         :my-instrument="myInstrument"
+        :instrument-actions-disabled="instrumentActionsDisabled"
+        @open-my-instrument="emit('open-my-instrument')"
         @set-control="forwardSetControl"
         @select-instrument-profile="forwardInstrumentProfile"
         @select-musical-profile="forwardMusicalProfile"

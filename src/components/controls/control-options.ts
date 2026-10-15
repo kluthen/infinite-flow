@@ -4,6 +4,9 @@
  * parallel edit here. Most catalog values double as their own display label; a handful of values
  * carry a friendlier or enharmonic label instead, listed in the small override maps below.
  */
+import type { InstrumentProfile } from '@/domain/profile/instrument-profile'
+import type { RegisterId } from '@/domain/profile/register-id'
+import { deriveRegisterWindowCandidates } from '@/domain/profile/register-window-derivation'
 import {
   ARPEGGIO_CHAOS_VALUES,
   COLLECTIONS,
@@ -76,6 +79,22 @@ export function instrumentChoiceOptions(
   const builtIns = instrumentProfileOptions()
   if (myInstrumentName === null) return builtIns
   return [...builtIns, { value: MY_INSTRUMENT_ID, label: myInstrumentName }]
+}
+
+/**
+ * Intent: a profile's range summary, as the instrument control and the My instrument sheet show
+ * it: its active concert range and its Low, Middle and High whole-phrase windows, derived from it.
+ */
+// @spec-link [[req_my_instrument]]
+export function profileRangeSummaryText(profile: InstrumentProfile): string {
+  const candidates = deriveRegisterWindowCandidates(profile.concertRange, profile.registerWindows)
+  const windowOf = (id: RegisterId): string => {
+    const found = candidates.find((candidate) => candidate.id === id)
+    if (found === undefined) throw new Error(`No "${id}" register window was derived.`)
+    return `${found.window.minMidi}-${found.window.maxMidi}`
+  }
+  const range = profile.concertRange
+  return `Active range ${range.minMidi}-${range.maxMidi}. Whole-phrase windows: Low ${windowOf('Low')}, Middle ${windowOf('Middle')}, High ${windowOf('High')}.`
 }
 
 /** Intent: build the Neutral/Jazz musical-profile-preset options. */

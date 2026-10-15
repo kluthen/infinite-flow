@@ -4,7 +4,8 @@
  * each under its own abort signal held in the Idle background slot, checks each success's fit in
  * the layout a session would hold now, and keeps the phrases that fit (phrases 2 to 5) in memory
  * only. It watches the queue's key and discards on any change of it, re-checks the queue on every
- * staff layout report and window-width crossing, and hands the queue to Start. A background attempt
+ * staff layout report, window-width crossing and saved change to my instrument, and hands the
+ * queue to Start. A background attempt
  * is never an Idle operation: it changes no Idle state. Loaded with the session controller, outside
  * the entry chunk.
  */
@@ -389,6 +390,13 @@ export function createWorkspacePregeneration(
       () => guarded(() => reconsider(true)),
     ),
     deps.idleLayout.observeInputs(() => guarded(() => reconsider(false))),
+    // A saved change to my instrument may change the staff's shared size or the clef a session
+    // draws in, without changing phrase 1: the ready phrases are checked again, as at a window
+    // change (a change that replaces phrase 1 discards them through the key watcher).
+    watch(
+      () => idle.myInstrument,
+      () => guarded(() => reconsider(false)),
+    ),
   ]
   guarded(() => pump())
 

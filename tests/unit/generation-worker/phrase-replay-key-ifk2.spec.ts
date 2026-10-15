@@ -44,13 +44,16 @@ import {
 /** Generous per-test timeout: the replay cases generate each phrase twice. */
 const TIMEOUT_MS = 120_000
 
-/** Intent: my instrument written C3 to C6, sounding a minor third lower, in the given clef. */
+/**
+ * Intent: my instrument written C3 to E5, inside both clefs' bounds, sounding a minor third lower,
+ * in the given clef.
+ */
 function hornInA(clef: InstrumentClef = 'treble'): MyInstrument {
   return makeMyInstrument({
     template: 'c-keyboard',
     name: 'My horn in A',
     clef,
-    writtenRange: { minMidi: 48, maxMidi: 84 },
+    writtenRange: { minMidi: 48, maxMidi: 76 },
     transposition: { octaves: 0, semitones: 3, direction: 'lower' },
   })
 }
@@ -60,7 +63,7 @@ const BARITONE = makeMyInstrument({
   template: 'bb-tenor',
   name: 'Saxo baryton à moi',
   clef: 'bass',
-  writtenRange: { minMidi: 50, maxMidi: 82 },
+  writtenRange: { minMidi: 50, maxMidi: 76 },
   transposition: { octaves: 1, semitones: 2, direction: 'lower' },
 })
 

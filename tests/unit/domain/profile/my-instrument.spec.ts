@@ -4,6 +4,7 @@ import {
   MyInstrumentError,
   findMyInstrumentRefusal,
   makeMyInstrument,
+  makeMyInstrumentProfile,
   myInstrumentDraftFromTemplate,
   type MyInstrumentInput,
   type MyInstrumentRefusalReason,
@@ -148,21 +149,23 @@ describe('makeMyInstrument: refusals with a reason, never clamped', () => {
   })
 
   // @test-link [[rule_my_instrument_range_limits]]
-  it('bounds the concert ends only: written notes outside MIDI 0–127 are accepted', () => {
+  it('derives its profile bounding the concert ends only, written notes outside MIDI 0–127 accepted', () => {
     const highWritten = withInput({
       writtenRange: { minMidi: 130, maxMidi: 160 },
       transposition: { octaves: 3, semitones: 0, direction: 'lower' },
     })
-    expect(findMyInstrumentRefusal(highWritten)).toBe(undefined)
-    expect(makeMyInstrument(highWritten).profile.concertRange).toMatchObject({
+    expect(makeMyInstrumentProfile(highWritten).concertRange).toMatchObject({
       minMidi: 94,
       maxMidi: 124,
     })
     const extremes = withInput({ writtenRange: { minMidi: 0, maxMidi: 127 } })
-    expect(makeMyInstrument(extremes).profile.concertRange).toMatchObject({
+    expect(makeMyInstrumentProfile(extremes).concertRange).toMatchObject({
       minMidi: 0,
       maxMidi: 127,
     })
+    // The clef's bound is my instrument's own: building it refuses both.
+    expect(findMyInstrumentRefusal(highWritten)?.reason).toBe('outside-clef-bound')
+    expect(findMyInstrumentRefusal(extremes)?.reason).toBe('outside-clef-bound')
   })
 
   // @test-link [[rule_my_instrument_range_limits]]
@@ -322,12 +325,10 @@ describe('makeMyInstrument: the clef, display only', () => {
   )
 
   // @test-link [[rule_my_instrument_range_limits]]
-  it('accepts the same inputs in bass clef as in treble', () => {
+  it('accepts the same inputs in bass clef as in treble inside both bounds', () => {
     for (const writtenRange of [
       { minMidi: 50, maxMidi: 74 },
-      { minMidi: 0, maxMidi: 127 },
-      { minMidi: 16, maxMidi: 76 },
-      { minMidi: 36, maxMidi: 96 },
+      { minMidi: 36, maxMidi: 76 },
     ]) {
       expect(findMyInstrumentRefusal(withInput({ clef: 'bass', writtenRange }))).toBe(undefined)
       expect(findMyInstrumentRefusal(withInput({ clef: 'treble', writtenRange }))).toBe(undefined)
@@ -355,5 +356,51 @@ describe('myInstrumentDraftFromTemplate: a built-in as the starting point', () =
   it('refuses an id that is not a built-in', () => {
     expect(() => myInstrumentDraftFromTemplate('my-instrument')).toThrow(MyInstrumentError)
     expect(() => myInstrumentDraftFromTemplate('tuba')).toThrow(MyInstrumentError)
+  })
+})
+
+// @test-link [[rule_my_instrument_range_limits]]
+describe("makeMyInstrument: the clef's bound on the written range", () => {
+  /** Intent: the refusal's reason for a written range in a clef, or none when it is accepted. */
+  function reasonFor(clef: 'treble' | 'bass', minMidi: number, maxMidi: number) {
+    return findMyInstrumentRefusal(withInput({ clef, writtenRange: { minMidi, maxMidi } }))?.reason
+  }
+
+  // @test-link [[rule_my_instrument_range_limits]]
+  it('accepts written C2 to C7 in treble clef and E0 to E5 in bass clef, both ends included', () => {
+    expect(reasonFor('treble', 36, 96)).toBe(undefined)
+    expect(reasonFor('bass', 16, 76)).toBe(undefined)
+  })
+
+  // @test-link [[rule_my_instrument_range_limits]]
+  it('refuses written B1 low or C♯7 high in treble clef, D♯0 low or F5 high in bass clef', () => {
+    expect(reasonFor('treble', 35, 60)).toBe('outside-clef-bound')
+    expect(reasonFor('treble', 70, 97)).toBe('outside-clef-bound')
+    expect(reasonFor('bass', 15, 50)).toBe('outside-clef-bound')
+    expect(reasonFor('bass', 50, 77)).toBe('outside-clef-bound')
+    expect(() =>
+      makeMyInstrument(withInput({ clef: 'bass', writtenRange: { minMidi: 50, maxMidi: 77 } })),
+    ).toThrow(MyInstrumentError)
+  })
+
+  // @test-link [[rule_my_instrument_range_limits]]
+  it('checks the range again in the other clef: C2–C4 stays valid in bass, E0–E2 is refused in treble', () => {
+    expect(reasonFor('treble', 36, 60)).toBe(undefined)
+    expect(reasonFor('bass', 36, 60)).toBe(undefined)
+    expect(reasonFor('bass', 16, 40)).toBe(undefined)
+    expect(reasonFor('treble', 16, 40)).toBe('outside-clef-bound')
+  })
+
+  // @test-link [[rule_my_instrument_range_limits]]
+  it('checks the bound after the two-octave span', () => {
+    expect(reasonFor('treble', 20, 30)).toBe('range-under-two-octaves')
+  })
+
+  // @test-link [[entity_my_instrument]]
+  it('leaves the bound out of the clef-free profile derivation', () => {
+    const lowInBass = withInput({ clef: 'bass', writtenRange: { minMidi: 28, maxMidi: 52 } })
+    const { clef, ...withoutClef } = lowInBass
+    void clef
+    expect(makeMyInstrumentProfile(withoutClef)).toEqual(makeMyInstrument(lowInBass).profile)
   })
 })
