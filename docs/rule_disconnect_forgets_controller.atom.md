@@ -6,7 +6,8 @@ tags: [v2, release-v2.0, midi]
 parents:
   - [[rule_controller_connects_between_sessions]]
 priority: 1
-dependents: []
+dependents:
+  - [[entity_remembered_controller_record]]
 type: RULE
 layer: BUSINESS
 version: 0.1

@@ -105,7 +105,9 @@ const KNOWN_REJECTIONS: ReadonlyMap<string, MidiAccessRequest> = new Map<string,
  * Intent: create the MIDI access provider over the browser's `navigator` (production passes the
  * real one).
  * - isSupported: whether `navigator.requestMIDIAccess` exists; it is never called for that.
- * - request: the one and only `requestMIDIAccess` call of the app, always `{ sysex: false }`
+ * - request: the one and only `requestMIDIAccess` call of the app (a Connect controller click, or
+ *   the load's reselection of the remembered controller once `permission` reads `granted`), always
+ *   `{ sysex: false }`
  *   (SysEx is ignored by the product, and asking for it prompts a stronger permission). Without
  *   Web MIDI it resolves `unsupported` without calling. A rejection maps by its DOMException name:
  *   `NotAllowedError` (the player refused) and `SecurityError` (the browser refused) resolve

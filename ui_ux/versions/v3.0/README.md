@@ -7,7 +7,9 @@ correction is recorded in the root `decisions.md`). Corrected on 2026-10-12 for 
 added to v3.0 during its build: my instrument's clef, treble or bass, with a range bound per clef;
 the interval name shown with its transposition; kept sessions belonging to the instrument they
 were played with; and the outdated tab after another tab's `Delete everything`. Corrected again on 2026-10-13 for
-the prompt a start opens when the phrase on screen was made before the settings changed. The same
+the prompt a start opens when the phrase on screen was made before the settings changed, and on
+2026-10-15 for a session whose every played note is very short and for a damaged kept session,
+deleted with an apology. The same
 corrections are applied at the root. The product scope is Part A of
 [`specs/versions/v3/master-spec.md`](../../../specs/versions/v3/master-spec.md#part-a--v30). The v2
 design it extends is in [`versions/v2/`](../v2/README.md).
@@ -61,7 +63,7 @@ again.
 - **My instrument is a fourth instrument choice made from a template**, its range entered as
   written notes and its transposition as how a written note sounds.
   ([my-instrument intent](flows/my-instrument/intent.md))
-- **Every deletion is confirmed once, in the error tone; nothing else asks.**
+- **Every deletion the player makes is confirmed once, in the error tone; nothing else asks.**
   ([strategy](strategy.md#edge-case-policy))
 - **My instrument reads in treble or bass clef, display only**, the clef sitting just above the
   range it bounds, and a range outside its clef's bound refused live in note names.
@@ -70,3 +72,12 @@ again.
   or deleting it, erases its kept sessions after one warning naming how many; a name or clef
   change keeps them, each phrase in the clef it was played in, given the room it needs in its
   review. ([my-instrument flow intent](flows/my-instrument/intent.md#what-changing-it-does-to-its-sessions))
+- **An export never offers an empty file.** When every note the player played is very short and
+  `Include very short notes` is off, `Export played notes` is shown unavailable with its reason,
+  which names that option, the cure sitting just before the button.
+  ([review intent](screens/last-session-review/intent.md#the-export))
+- **A damaged kept session is deleted, with an apology.** A session the app cannot read correctly
+  is deleted, pinned or not, as soon as a visit that saves finds it, and one calm notice says
+  sorry and how many went; the player lands on the list without it. A read the device only
+  refused never deletes anything.
+  ([kept-sessions handoff](flows/kept-sessions/handoff.md#a-damaged-session))

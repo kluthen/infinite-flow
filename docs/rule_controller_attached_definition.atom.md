@@ -2,6 +2,7 @@
 id: rule_controller_attached_definition
 status: REVIEW
 dependents:
+  - [[entity_remembered_controller_record]]
   - [[rule_controller_loss_mid_session]]
   - [[rule_same_controller_reattaches]]
 layer: BUSINESS

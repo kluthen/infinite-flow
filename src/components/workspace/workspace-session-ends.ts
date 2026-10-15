@@ -10,9 +10,10 @@
  * most recent one, kept as its save's outcome says once it is known, or not saved at once while
  * saving is off.
  */
+import type { SessionHistory } from '@/session/session-history'
 import type { SessionEndCause } from '@/session/session-types'
 import { endedSession, openedReview, settledKeeping } from './session-review-state'
-import { saveEndedSession } from './workspace-session-save'
+import { endedSessionSave, saveEndedSession } from './workspace-session-save'
 import type { AdaptiveTempoFlag } from './workspace-adaptive-tempo'
 import {
   dispatchAt,
@@ -78,13 +79,16 @@ function tearDown(core: SessionControllerCore, session: ActiveSession | null): v
 
 /**
  * Intent: build the ends of one controller's sessions over its core; an end once phrase 1 has
- * sounded hands the tempo reached to the adaptive-tempo flag. Interruptions are heard from the
- * first start on.
+ * sounded hands the tempo reached to the adaptive-tempo flag, its save keeps the played notes as
+ * `Keep my played notes` says then, and a save the device refused hands its session's history on
+ * for the retry. Interruptions are heard from the first start on.
  */
 // @spec-link [[rule_stop_ends_session]]
 export function createSessionEnds(
   core: SessionControllerCore,
   adaptiveTempo: Pick<AdaptiveTempoFlag, 'sessionEnded'>,
+  keepPlayedNotes: () => boolean,
+  saveRefused: (key: string, history: SessionHistory) => void,
 ): SessionEnds {
   const { audio, idle } = core.deps
   const { state } = core
@@ -95,7 +99,9 @@ export function createSessionEnds(
    * held end now and are recorded, the engine gets `end` (its `ended` output closes the history),
    * then the session is torn down and summed up. Once phrase 1 has sounded, the Review opens over
    * the closed history and that session becomes the most recent one, not pinned, or not saved at
-   * once while saving is off; the session's own save is asked for after the release (never
+   * once while saving is off, under the key minted for its save, its played notes kept when
+   * `Keep my played notes` is on, saving is on and it holds one; the session's own save is asked
+   * for after the release (never
    * awaited, so the end is not delayed; its outcome settles how the session is kept) and, the
    * reports handed back to Idle, Idle is asked for the next phrase; an end during the count-in
    * opens none, saves nothing, asks for nothing and leaves the most recent session as it was.
@@ -126,28 +132,37 @@ export function createSessionEnds(
     state.lastHistory = session.history
     if (ended.soundedPhraseCount === 0) return
     const savingOff = core.deps.keptSessions.savingOff()
-    const reviewed = endedSession(session.history, savingOff ? 'not-saved' : 'not-pinned')
+    const save = endedSessionSave(session.history, !savingOff && keepPlayedNotes())
+    const reviewed = endedSession(session.history, savingOff ? 'not-saved' : 'not-pinned', save)
     state.review = openedReview(reviewed)
     state.mostRecent = Object.freeze({ kind: 'held', session: reviewed })
-    const saving = saveEndedSession(core.deps.saveHold, session.history)
-    if (!savingOff) void saving.then((outcome) => settleKeeping(reviewed, outcome))
+    const saving = saveEndedSession(core.deps.saveHold, session.history, save)
+    if (!savingOff) {
+      void saving.then((outcome) => {
+        settleKeeping(reviewed, outcome)
+        if (outcome.status === 'refused') saveRefused(reviewed.key, session.history)
+      })
+    }
     adaptiveTempo.sessionEnded(reviewed.tempoReached)
     void idle.actions.startFreshPhrase()
   }
 
   /**
    * Intent: once the save of `ended` resolves, keep that session as its outcome says, in the most
-   * recent session and in the Review while it draws that session; a later session that has taken
-   * its place since is left alone.
+   * recent session and in the Review while it draws that session (each found by the session's
+   * key, as a change made since may have replaced them); a later session that has taken its place
+   * since is left alone.
    */
   // @spec-link [[module_kept_session_save]]
   function settleKeeping(ended: ReviewedSession, outcome: SessionSaveOutcome): void {
-    const settled = settledKeeping(ended, outcome)
+    const { keeping } = settledKeeping(ended, outcome)
     const recent = state.mostRecent
-    if (settled === ended || recent?.kind !== 'held' || recent.session !== ended) return
-    state.mostRecent = Object.freeze({ kind: 'held', session: settled })
-    if (state.review !== null && state.review.history === ended.history) {
-      state.review = Object.freeze({ ...state.review, keeping: settled.keeping })
+    if (keeping === ended.keeping || recent?.kind !== 'held' || recent.session.key !== ended.key)
+      return
+    const session = Object.freeze({ ...recent.session, keeping })
+    state.mostRecent = Object.freeze({ kind: 'held', session })
+    if (state.review !== null && state.review.key === ended.key) {
+      state.review = Object.freeze({ ...state.review, keeping })
     }
   }
 

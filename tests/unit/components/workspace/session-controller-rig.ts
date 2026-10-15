@@ -100,11 +100,13 @@ export interface ControllerRigOptions {
   readonly pregeneration?: WorkspacePregenerationFactory
   /** The saved "During a session" choices; a first visit's (all off) by default. */
   readonly savedSessionOptions?: SessionOptionChoices
+  /** The saved `Keep my played notes`; off, a first visit's, by default. */
+  readonly savedKeepPlayedNotes?: boolean
   /** What each session save resolves; `saved` at once by default. */
   readonly sessionSaveOutcome?: () => Promise<SessionSaveOutcome>
   /**
    * The kept sessions the controller reaches: by default none loaded, a read that throws (none is
-   * ever asked for) and saving on.
+   * ever asked for), saving on, and changes after a save that throw (none is ever asked for).
    */
   readonly keptSessions?: Partial<KeptSessionsSeam>
 }
@@ -301,7 +303,8 @@ export function controllerRig(
   })
   const midi = createMidiController({
     provider: midiAccess,
-    clock: { anchor: () => audioRig.output.anchor() },
+    // As in the app: no audio clock until the audio is unlocked.
+    clock: { anchor: () => (transport.isUnlocked() ? audioRig.output.anchor() : null) },
   })
   const sheetOpen = shallowRef(false)
   const freshPhraseRequests: FreshPhraseRequest[] = []
@@ -309,6 +312,7 @@ export function controllerRig(
   const runners: SessionRunner[] = []
   const saveHolds: SaveHoldCall[] = []
   const sessionSaves: SessionChanges[] = []
+  let wallClockReads = 0
 
   /** Intent: log a hold or release of the player's saves with what the controller showed then. */
   function logSaveHold(call: SaveHoldCall['call']): void {
@@ -373,7 +377,8 @@ export function controllerRig(
         timers.push(timer)
         return timer
       },
-      wallClock: fixedWallClock,
+      // A minute later at each session's start, as in a real visit: each session's kept key differs.
+      wallClock: () => fixedWallClock() + 60_000 * wallClockReads++,
       frames: frames.port,
     },
     idleLayout: staff,
@@ -386,6 +391,7 @@ export function controllerRig(
     connectionSheetOpen: () => sheetOpen.value,
     pregeneration: options.pregeneration ?? disabledPregeneration,
     savedSessionOptions: options.savedSessionOptions ?? DEFAULT_SESSION_OPTIONS,
+    savedKeepPlayedNotes: options.savedKeepPlayedNotes ?? false,
     saveHold: {
       hold: () => logSaveHold('hold'),
       release: () => logSaveHold('release'),
@@ -401,6 +407,15 @@ export function controllerRig(
         throw new Error(`rig: no kept session "${key}" can be read`)
       },
       savingOff: () => false,
+      changes: {
+        changeKept: () => {
+          throw new Error('rig: no change to a kept session is asked for')
+        },
+        readKept: () => {
+          throw new Error('rig: no read at a change is asked for')
+        },
+      },
+      requestProtection: () => {},
       ...options.keptSessions,
     },
   })

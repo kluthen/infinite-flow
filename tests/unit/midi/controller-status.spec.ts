@@ -27,13 +27,20 @@ const NO_DEVICE: MidiControllerState = { kind: 'no-device' }
 const CHOOSING: MidiControllerState = { kind: 'choosing' }
 const UNSUPPORTED: MidiControllerState = { kind: 'unsupported' }
 
-/** Intent: a controller change with these devices present. */
+/** Intent: a controller change with these devices present, nothing remembered unless given. */
 function change(
   state: MidiControllerState,
   devices: readonly MidiDevice[] = [],
+  remembered: Pick<MidiControllerChange, 'remembered' | 'reselectedAtLoad'> = {
+    remembered: null,
+    reselectedAtLoad: false,
+  },
 ): MidiControllerChange {
-  return { state, devices }
+  return { state, devices, ...remembered }
 }
+
+/** The remembered KEYS, reselected at load: MIDI access was already allowed. */
+const RESELECTED = { remembered: KEYS, reselectedAtLoad: true } as const
 
 /** Intent: fold a run of changes from not-requested, as the header sees them. */
 function foldAll(...changes: MidiControllerChange[]): ControllerStatusFacts {
@@ -52,6 +59,7 @@ describe('controller status facts: what the header remembers from the controller
       state: NOT_REQUESTED,
       everConnected: false,
       blocked: false,
+      reselectedAtLoad: false,
       seenDeviceIds: [],
     })
   })
@@ -111,6 +119,7 @@ describe('controller status facts: what the header remembers from the controller
       state: CHOOSING,
       everConnected: false,
       blocked: false,
+      reselectedAtLoad: false,
       seenDeviceIds: ['pad'],
     })
   })
@@ -209,5 +218,36 @@ describe('controller status form: the header-form table', () => {
     expect(controllerStatusForm(connected, { lostInSession: true })).toEqual({
       kind: 'disconnected',
     })
+  })
+})
+
+// @test-link [[rule_last_controller_remembered]]
+// @test-link [[rule_controller_attached_definition]]
+describe('controller status form: the remembered controller at load', () => {
+  it('starts in the badge forms: no-controller while it is requested or away', () => {
+    expect(formOf(foldAll(change(REQUESTING, [], RESELECTED)))).toEqual({ kind: 'no-controller' })
+    const away = foldAll(
+      change(REQUESTING, [], RESELECTED),
+      change({ kind: 'away', device: KEYS }, [PAD], RESELECTED),
+    )
+    expect(formOf(away)).toEqual({ kind: 'no-controller' })
+  })
+
+  it('shows the connected badge once it is attached', () => {
+    const facts = foldAll(
+      change(REQUESTING, [], RESELECTED),
+      change({ kind: 'opening', device: KEYS }, [KEYS], RESELECTED),
+      change({ kind: 'connected', device: KEYS }, [KEYS], RESELECTED),
+    )
+    expect(formOf(facts)).toEqual({ kind: 'connected', device: KEYS })
+  })
+
+  it('leaves Connect controller when the load request fails, or nothing was requested', () => {
+    const failed = foldAll(change(REQUESTING, [], RESELECTED), change(NOT_REQUESTED))
+    expect(formOf(failed)).toEqual({ kind: 'connect' })
+    const notAllowed = foldAll(
+      change(NOT_REQUESTED, [], { remembered: KEYS, reselectedAtLoad: false }),
+    )
+    expect(formOf(notAllowed)).toEqual({ kind: 'connect' })
   })
 })

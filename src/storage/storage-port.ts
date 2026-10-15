@@ -23,6 +23,7 @@ import {
   PRODUCTION_MIGRATIONS,
   readAllValues,
   readKeyedValues,
+  readKeys,
   readValue,
   type MigrationStep,
   type StoredEntry,
@@ -100,6 +101,11 @@ export interface StoragePort {
    * transaction; an entry whose key is not a string is left out. Refused as `readAll` is.
    */
   readKeyed(store: StoreName): Promise<readonly StoredEntry[]>
+  /**
+   * The key of every record a store holds, in key order, without reading a value; a key that is
+   * not a string is left out. Refused as `readAll` is.
+   */
+  readKeys(store: StoreName): Promise<readonly string[]>
   /** Store a record under `key`, replacing any; refused when outdated or out of space. */
   write(store: StoreName, key: string, record: RecordVersions): Promise<void>
   /** Remove the record under `key`; refused when outdated. */
@@ -277,6 +283,11 @@ export async function openStoragePort(options: StoragePortOptions): Promise<Stor
     readKeyed: async (store) => {
       assertDataStore(store)
       return refusingAs(async () => readKeyedValues(await readingConnection(), store))
+    },
+    // @spec-link [[module_on_device_database]]
+    readKeys: async (store) => {
+      assertDataStore(store)
+      return refusingAs(async () => readKeys(await readingConnection(), store))
     },
     write: async (store, key, record) => {
       assertDataStore(store)

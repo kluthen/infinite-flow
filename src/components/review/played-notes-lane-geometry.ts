@@ -79,7 +79,8 @@ export interface PlayedNotesLanesInput {
   readonly record: PlayedNotesLaneRecord
   readonly phrase: PlayedNotesLanePhrase
   readonly anchors: readonly LaneMeasureAnchors[]
-  readonly scale: PlayedNotesPitchScale
+  /** The session-wide scale; null only for a record without a played note to draw. */
+  readonly scale: PlayedNotesPitchScale | null
 }
 
 /** Which end of a note a beat is: they differ only exactly on a measure boundary. */
@@ -154,19 +155,30 @@ export function playedNoteBeat(
 export function playedNotesLanes(input: PlayedNotesLanesInput): readonly PlayedNotesLaneDrawing[] {
   const { record, phrase, anchors, scale } = input
   assertRecord(record)
-  assertScale(scale)
+  if (scale !== null) assertScale(scale)
+  else if (record.playedNotes.length > 0)
+    throw new PlayedNotesLaneError('Played notes are drawn without a pitch scale.')
   return laneAxes(phrase, anchors).map((lane) => ({
     systemIndex: lane.systemIndex,
     dividersPx: lane.measures.slice(0, -1).map((measure) => measure.barlinePx),
-    bars: record.playedNotes.flatMap((note) => {
-      const bar = laneBar(
-        lane,
-        playedNoteBeat(record, note.onsetAt),
-        playedNoteBeat(record, note.releaseAt),
-      )
-      return bar === null ? [] : [{ ...bar, pitch: pitchFraction(note.pitch, scale) }]
-    }),
+    bars: scale === null ? [] : laneBars(lane, record, scale),
   }))
+}
+
+/** Intent: the bars of a record's played notes overlapping one lane, in the record's order. */
+function laneBars(
+  lane: LaneAxis,
+  record: PlayedNotesLaneRecord,
+  scale: PlayedNotesPitchScale,
+): PlayedNoteBar[] {
+  return record.playedNotes.flatMap((note) => {
+    const bar = laneBar(
+      lane,
+      playedNoteBeat(record, note.onsetAt),
+      playedNoteBeat(record, note.releaseAt),
+    )
+    return bar === null ? [] : [{ ...bar, pitch: pitchFraction(note.pitch, scale) }]
+  })
 }
 
 /**

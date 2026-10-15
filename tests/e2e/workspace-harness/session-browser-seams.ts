@@ -4,8 +4,10 @@
  * orientation lock and the page visibility are the unit fakes (tests/unit/session/
  * fake-session-browser.ts), so a spec chooses how the browser answers each lock and hides the page
  * at will; the window shape is the production adapter, so a spec moves it for real with
- * `page.setViewportSize`, and `windowShape()` reads it as a session would.
+ * `page.setViewportSize`, and `windowShape()` reads it as a session would; and the page activation
+ * is the production adapter too, so a spec's real click, tap or key press is the page's first.
  */
+import { createBrowserPageActivation } from '../../../src/components/workspace/browser-page-activation'
 import { createBrowserWindowShape } from '../../../src/components/workspace/browser-window-shape'
 import type { SessionBrowserPorts } from '../../../src/session/session-browser-ports'
 import {
@@ -48,7 +50,13 @@ export function createHarnessSessionBrowser(): HarnessSessionBrowser {
   const pageVisibility = createFakePageVisibility()
   const windowShape = createBrowserWindowShape()
   return {
-    ports: { wakeLock, orientationLock, pageVisibility, windowShape },
+    ports: {
+      wakeLock,
+      orientationLock,
+      pageVisibility,
+      windowShape,
+      pageActivation: createBrowserPageActivation(),
+    },
     screenLocks: { wake: lockApi(wakeLock), orientation: lockApi(orientationLock) },
     page: {
       setHidden: (hidden) => pageVisibility.setHidden(hidden),

@@ -13,12 +13,15 @@
  * While a practice session runs, `PhraseScore` shows the controller's session staff instead of the
  * Idle phrase, and its failure to show it is forwarded to the session, never to Idle. It hands
  * `PhraseScore` the controller's marks: the start marker at Idle, the acknowledged notes in a session.
- * While the last session's Review shows, the lazily loaded `ReviewPanel` takes the staff area's
- * place after the toolbar: the banner, the cue row and the score title are hidden, and the staff
- * viewport stays laid out, out of sight and inert, so the Idle rules keep engraving and measuring
- * under it; both live regions stay silent then, and say nothing as it closes. The staff and the
- * Review both draw at the one shared system-position size the workspace gives it. The Review's
- * export choices and Played notes switch start from the saved review preferences it is given.
+ * While the last session's Review shows, the lazily loaded review area (./ReviewArea.vue), which
+ * holds the Review's panel and the confirmations it opens, takes the staff area's place after the
+ * toolbar: the banner, the cue row and the score title are hidden, and the staff viewport stays
+ * laid out, out of sight and inert, so the Idle rules keep engraving and measuring under it; both
+ * live regions stay silent then, and say nothing as it closes. The staff and the Review both draw
+ * at the one shared system-position size the workspace gives it. What the page keeps of the
+ * Review lives here, in its Review host (./use-review-host.ts), and outlives the area as the
+ * Review closes and opens again: the staff's viewport, and the export choices and Played notes
+ * switch, which start from the saved review preferences it is given.
  */
 import { computed, defineAsyncComponent, nextTick, ref, watch } from 'vue'
 
@@ -34,7 +37,7 @@ import {
 import type { NotationError } from '@/notation/notation-error'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { AudioTransport } from '@/audio/audio-transport'
-import { loadReviewPanel } from '@/components/review/load-review-panel'
+import { loadReviewArea } from '@/components/review/load-review-panel'
 import { ROOM_NOTICE_NARROW, ROOM_NOTICE_WIDE } from '@/components/notation/room-notice-copy'
 import {
   DEFAULT_REVIEW_PREFERENCES,
@@ -44,13 +47,14 @@ import MixControls from './MixControls.vue'
 import SessionCueRow from './SessionCueRow.vue'
 import { useScoreOverlays } from './use-score-overlays'
 import type { MixVolumePopover } from './mix-volume-popover'
-import { browserReviewExportPorts, type ReviewExportPorts } from './review-export'
+import type { ReviewExportPorts } from './review-export'
 import { useReviewHost } from './use-review-host'
 import { injectSaveSettings } from './save-settings-injection'
 import type { SessionController } from './workspace-session-controller-types'
 
-// The Review and its engraving code load as their own chunk (see load-review-panel.ts).
-const ReviewPanel = defineAsyncComponent(loadReviewPanel)
+// The Review's area, with its exports, tools and confirmations, loads as its own chunk (see
+// load-review-panel.ts), as does the panel it holds.
+const ReviewArea = defineAsyncComponent(loadReviewArea)
 
 // @spec-link [[module_idle_fit_round]]
 const props = withDefaults(
@@ -73,8 +77,11 @@ const props = withDefaults(
      * stylesheet shows `room-notice-narrow` by; the window's own `matchMedia` by default.
      */
     matchesPhoneLayout?: () => boolean
-    /** How the Review's export loads its code and downloads; the page's own by default. */
-    reviewExportPorts?: ReviewExportPorts
+    /**
+     * How the Review's export loads its code and downloads; null (the default) for the page's own,
+     * which the review area builds.
+     */
+    reviewExportPorts?: ReviewExportPorts | null
     /**
      * The shared system-position size, in engraving units, which the staff and the Review draw
      * at; the workspace always passes it (`planSystemPositionUnits`), the built-in size by default.
@@ -89,8 +96,7 @@ const props = withDefaults(
   {
     // Default: the notation layout's own width query (the split layout's), read from the window now.
     matchesPhoneLayout: () => window.matchMedia(NOTATION_PHONE_LAYOUT_MEDIA_QUERY).matches,
-    // Default: the lazy export code, downloading through this page's document.
-    reviewExportPorts: () => browserReviewExportPorts(document),
+    reviewExportPorts: null,
     systemPositionUnits: NOTATION_SYSTEM_POSITION_UNITS,
     savedReviewPreferences: () => DEFAULT_REVIEW_PREFERENCES,
   },
@@ -108,24 +114,10 @@ const state = computed(() => props.session.state)
 // @spec-link [[req_last_session_review]]
 const review = useReviewHost({
   controller: () => props.controller,
-  idle: () => props.session.state,
-  exportPorts: () => props.reviewExportPorts,
   initialPreferences: props.savedReviewPreferences,
   saveSettings: injectSaveSettings(),
 })
 const reviewShowing = review.showing
-/** Intent: the showing Review's session start and keeping, for its panel; null while none shows. */
-// @spec-link [[req_last_session_review]]
-const reviewSession = computed(() => {
-  const startedAt = review.startedAt.value
-  const keeping = review.keeping.value
-  return startedAt === null || keeping === null ? null : { startedAt, keeping }
-})
-const {
-  format: reviewFormat,
-  backingTrack: reviewBackingTrack,
-  playedNotesShown: reviewPlayedNotesShown,
-} = review
 
 const roomNoticeElement = ref<HTMLElement | null>(null)
 
@@ -139,21 +131,21 @@ function focusRoomNotice(): void {
   roomNoticeElement.value.focus()
 }
 
-/** The mounted Review panel's exposed API; null until its lazy chunk has loaded and mounted. */
-const reviewPanel = ref<{ readonly focusTitle: () => void } | null>(null)
-/** A `review-title` focus asked for before the panel had mounted. */
+/** The mounted review area's exposed API; null until its lazy chunk has loaded and mounted. */
+const reviewArea = ref<{ readonly focusReviewTitle: () => void } | null>(null)
+/** A `review-title` focus asked for before the area had mounted. */
 let reviewTitleFocusPending = false
 
-/** Intent: focus `review-title` now if the panel is mounted, else once it mounts. */
+/** Intent: hand the `review-title` focus to the area now if it is mounted, else once it mounts. */
 function focusPendingReviewTitle(): void {
-  if (!reviewTitleFocusPending || reviewPanel.value === null) return
+  if (!reviewTitleFocusPending || reviewArea.value === null) return
   reviewTitleFocusPending = false
-  reviewPanel.value.focusTitle()
+  reviewArea.value.focusReviewTitle()
 }
 
 /**
- * Intent: move focus to `review-title` (Review last session), at once if the panel is mounted,
- * else as soon as its lazy chunk has loaded and it has mounted; a Review closed meanwhile drops it.
+ * Intent: move focus to `review-title` (Review last session), as soon as the area's and the
+ * panel's lazy chunks have loaded and they have mounted; a Review closed meanwhile drops it.
  */
 // @spec-link [[req_last_session_review]]
 function focusReviewTitle(): void {
@@ -161,7 +153,7 @@ function focusReviewTitle(): void {
   focusPendingReviewTitle()
 }
 
-watch(reviewPanel, focusPendingReviewTitle, { flush: 'post' })
+watch(reviewArea, focusPendingReviewTitle, { flush: 'post' })
 
 defineExpose({ focusRoomNotice, focusReviewTitle })
 
@@ -381,26 +373,14 @@ const generationErrorAlertText = computed(() =>
         {{ notationStatusText }}
       </p>
     </div>
-    <ReviewPanel
-      v-if="reviewShowing && reviewSession !== null"
-      ref="reviewPanel"
-      :records="review.records.value"
-      :instrument-name="review.instrumentName.value"
-      :started-at="reviewSession.startedAt"
-      :most-recent="review.mostRecent.value"
-      :keeping="reviewSession.keeping"
-      :viewport="review.viewport.value"
+    <ReviewArea
+      v-if="reviewShowing"
+      ref="reviewArea"
+      :host="review"
+      :controller="controller"
+      :no-room="state.roomNotice === 'no_room'"
       :system-position-units="systemPositionUnits"
-      :no-room="review.noRoom.value"
-      :format="reviewFormat"
-      :backing-track="reviewBackingTrack"
-      :export-file="review.exportFile"
-      :holds-played-note="review.holdsPlayedNote.value"
-      :played-notes-shown="reviewPlayedNotesShown"
-      :export-played-notes="review.exportPlayedNotes"
-      @update:format="review.setFormat"
-      @update:backing-track="review.setBackingTrack"
-      @update:played-notes-shown="review.setPlayedNotesShown"
+      :export-ports="reviewExportPorts"
     />
     <p
       v-if="generationErrorAlertText !== null"

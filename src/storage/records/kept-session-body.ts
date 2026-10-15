@@ -153,6 +153,39 @@ export function keptSessionBodyRecord(
   }
 }
 
+/**
+ * Intent: the body of phrases read back from a stored body, each copied by name as it was read
+ * (its start as `startsAt`), with the favorite mark `favorite` gives it by its number, written by
+ * `appVersion` at data version 1: a stored body encoded again after the session's save. Throws for
+ * an empty app version.
+ */
+// @spec-link [[module_kept_session_codec]]
+// @spec-link [[module_kept_session_changes]]
+export function rewrittenKeptBodyRecord(
+  phrases: readonly ParsedKeptPhrase[],
+  favorite: (phraseNumber: number) => boolean,
+  appVersion: string,
+): KeptSessionBodyRecord {
+  assertKeptAppVersion(appVersion)
+  return {
+    dataVersion: KEPT_SESSION_DATA_VERSION,
+    appVersion,
+    phrases: phrases.map((phrase) => ({
+      phraseNumber: phrase.phraseNumber,
+      startsAt: phrase.startedAt,
+      request: phrase.request,
+      timeline: phrase.timeline,
+      harmony: phrase.harmony,
+      intent: phrase.intent,
+      tempo: phrase.tempo,
+      isRepeat: phrase.isRepeat,
+      ...(phrase.repeatOf === undefined ? {} : { repeatOf: phrase.repeatOf }),
+      favorite: favorite(phrase.phraseNumber),
+      clef: phrase.clef,
+    })),
+  }
+}
+
 /** Intent: a stored repeat mark: `repeatOf` present exactly on a repeat, naming an earlier phrase. */
 function parseRepeatMark(
   record: Record<string, unknown>,

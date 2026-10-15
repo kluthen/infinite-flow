@@ -53,10 +53,25 @@ export async function gotoControllerHarness(
   options: {
     readonly midi?: 'fake' | 'unsupported'
     readonly size?: { readonly width: number; readonly height: number }
+    /** The fake browser's MIDI state at load, which a reload keeps as a browser does. */
+    readonly atLoad?: {
+      readonly permission?: 'granted' | 'prompt' | 'denied'
+      readonly devices?: readonly WorkspaceHarnessMidiDevice[]
+    }
+    /** More URL parameters (`storageRead`, ...). */
+    readonly query?: Readonly<Record<string, string>>
   } = {},
 ): Promise<void> {
   await page.setViewportSize(options.size ?? DESKTOP)
-  await page.goto(`${WORKSPACE_HARNESS_URL}?audio=fake&midi=${options.midi ?? 'fake'}`)
+  const params = new URLSearchParams({ audio: 'fake', midi: options.midi ?? 'fake' })
+  if (options.atLoad?.permission !== undefined) {
+    params.set('midiPermission', options.atLoad.permission)
+  }
+  if (options.atLoad?.devices !== undefined) {
+    params.set('midiDevices', JSON.stringify(options.atLoad.devices))
+  }
+  for (const [key, value] of Object.entries(options.query ?? {})) params.set(key, value)
+  await page.goto(`${WORKSPACE_HARNESS_URL}?${params.toString()}`)
   await page.waitForFunction(() => window.__workspaceHarness?.session.loaded() === true)
 }
 

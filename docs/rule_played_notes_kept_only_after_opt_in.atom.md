@@ -1,6 +1,6 @@
 ---
 id: rule_played_notes_kept_only_after_opt_in
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 version: 0.2
 priority: 1
@@ -9,6 +9,7 @@ parents:
   - [[req_midi_controller_input]]
 dependents:
   - [[entity_kept_session_record]]
+  - [[module_kept_session_changes]]
   - [[rule_kept_played_notes_deletable]]
 type: RULE
 human_name: Played Notes Kept Only After Opt-In

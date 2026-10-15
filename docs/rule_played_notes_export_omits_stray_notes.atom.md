@@ -4,7 +4,8 @@ status: DRAFT
 type: RULE
 layer: BUSINESS
 tags: [v3, release-v3.0, export, midi]
-dependents: []
+dependents:
+  - [[module_review_export_pipeline]]
 version: 0.1
 priority: 1
 human_name: Played-Notes Export Omits Stray Notes by Default

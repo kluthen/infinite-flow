@@ -7,6 +7,7 @@ import {
   DEFAULT_GENERATION_CONTROLS,
   DEFAULT_PROFILE_SELECTION,
 } from '@/domain/controls/profile-selection'
+import { CONTROLLER_RECORD_KEY, encodeControllerRecord } from '@/storage/records/controller-record'
 import { SETTINGS_DATA_VERSION } from '@/storage/records/settings-record'
 import type { SavePolicy } from '@/storage/save-policy'
 import {
@@ -94,6 +95,53 @@ describe('saveSettings', () => {
   })
 })
 
+// @test-link [[entity_remembered_controller_record]]
+describe('the remembered controller', () => {
+  // @test-link [[rule_last_controller_remembered]]
+  it('is written as its one controller record, in the order the calls were made', async () => {
+    const { policy, calls } = recordingPolicy()
+    const pending = pendingPolicy(policy)
+    const saves = createVisitSaves(pending.promise, APP_VERSION)
+
+    saves.saveSettings({ theme: 'Dark' })
+    saves.rememberController({ id: 'port-sax', name: 'Travel Sax', manufacturer: 'Odisei' })
+    pending.resolve()
+    await flushPromises()
+
+    expect(calls).toEqual([
+      { method: 'save', changes: [settingWrite('theme', 'Dark')] },
+      {
+        method: 'save',
+        changes: [
+          {
+            kind: 'write',
+            store: 'controller',
+            key: CONTROLLER_RECORD_KEY,
+            record: encodeControllerRecord(
+              { id: 'port-sax', name: 'Travel Sax', manufacturer: 'Odisei' },
+              APP_VERSION,
+            ),
+          },
+        ],
+      },
+    ])
+  })
+
+  // @test-link [[rule_disconnect_forgets_controller]]
+  it('is forgotten by deleting that record', async () => {
+    const { saves, calls } = await resolvedSaves()
+
+    saves.forgetController()
+
+    expect(calls).toEqual([
+      {
+        method: 'save',
+        changes: [{ kind: 'delete', store: 'controller', key: CONTROLLER_RECORD_KEY }],
+      },
+    ])
+  })
+})
+
 // @test-link [[module_saved_data_loader]]
 describe('the order calls reach the policy in', () => {
   it('queues calls made before the policy loads and runs them in order once it does', async () => {
@@ -156,6 +204,38 @@ describe('the order calls reach the policy in', () => {
       { method: 'hold' },
       { method: 'release' },
       { method: 'saveSession', changes },
+    ])
+  })
+})
+
+// @test-link [[module_kept_session_changes]]
+describe('the changes to kept sessions', () => {
+  it("queue in call order after the session's save and resolve the policy's outcomes", async () => {
+    const { policy, calls } = recordingPolicy()
+    const pending = pendingPolicy(policy)
+    const saves = createVisitSaves(pending.promise, APP_VERSION)
+    /** Intent: the session save's changes, whatever was read. */
+    const changes = () => [settingWrite('theme', 'Dark')]
+    /** Intent: a change that changes nothing. */
+    const change = () => Promise.resolve([])
+    /** Intent: a read that reads nothing. */
+    const read = () => Promise.resolve(0)
+
+    const saved = saves.saveSession(changes)
+    const changed = saves.changeKept(change, 'caller')
+    const counted = saves.readKept(read, 'notice')
+    await flushPromises()
+    expect(calls).toEqual([])
+
+    pending.resolve()
+
+    expect(await saved).toEqual({ status: 'refused', kind: 'quota' })
+    expect(await changed).toEqual({ status: 'unchanged' })
+    expect(await counted).toEqual({ status: 'saving-off' })
+    expect(calls).toEqual([
+      { method: 'saveSession', changes },
+      { method: 'changeKept', changes: change, refusal: 'caller' },
+      { method: 'readKept', read, refusal: 'notice' },
     ])
   })
 })

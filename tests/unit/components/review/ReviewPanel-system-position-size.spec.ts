@@ -10,7 +10,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import ReviewPanel from '@/components/review/ReviewPanel.vue'
 import type { StaffViewport } from '@/notation/notation-layout-policy'
 import { fakePhraseEngraver, resetFakePhraseEngraver } from '../notation/fake-phrase-engraver'
-import { deliverIntersections, recordedRecords, stubReviewBrowser } from './review-fixtures'
+import {
+  deliverIntersections,
+  recordedRecords,
+  stubReviewBrowser,
+  SESSION_TOOL_PROPS,
+} from './review-fixtures'
 
 vi.mock('@/notation/vexflow-engraver-loader', () => import('../notation/fake-phrase-engraver'))
 
@@ -35,6 +40,11 @@ function mountPanel(systemPositionUnits: number) {
       holdsPlayedNote: false,
       playedNotesShown: false,
       exportPlayedNotes: () => Promise.resolve(),
+      keepPlayedNotes: false,
+      canDeletePlayedNotes: false,
+      includeVeryShortNotes: false,
+      playedNotesFileHoldsNote: true,
+      ...SESSION_TOOL_PROPS,
       systemPositionUnits,
     },
     attachTo: document.body,

@@ -107,8 +107,14 @@ flowchart TD
   choice, `Create my instrument` shown).
 - **Kept sessions:** their row summaries (what a list row and the counts in Your data show) are
   read during the load wait, with the settings; a full session is read only when it is opened
-  (`screens/session-list/`). A kept session this version cannot read is listed there with its
-  note. The most recent kept session makes `Review last session` available at idle.
+  (`screens/session-list/`). A kept session saved by a newer version is listed there with its
+  note. One whose summary is damaged has no row: while saving is on, every such session is
+  deleted, its summary, body and played notes, pinned or not, in one batch once the summaries are
+  read, through the save policy (held like any save if a session has started), and the apology
+  shows once the batch commits (Notices); while saving is off it is left in place, unlisted. A
+  read the device refuses or fails deletes nothing (`flows/kept-sessions/handoff.md`, A Damaged
+  Session). The most recent kept session, decided without the damaged ones, makes
+  `Review last session` available at idle.
 - **The remembered controller** is reattached at load only when the browser already allows MIDI
   access (`flows/controller-connection/`).
 
@@ -120,20 +126,35 @@ Drawn in `app-notice-row`, at the top of `layout-workspace` before `score-panel`
 
 | Notice | Trigger | Copy | Actions | Lifetime |
 | --- | --- | --- | --- | --- |
-| Save failed | A save other than a session's own fails for any cause but full storage | "Something couldn't be saved on this device. The app keeps working, but this change may be lost when the page closes." | `Dismiss` | Until dismissed or the page closes. |
+| Save failed | A save fails for any cause but full storage, other than a session's own and a deletion of damaged sessions (its own wording, below) | "Something couldn't be saved on this device. The app keeps working, but this change may be lost when the page closes." | `Dismiss` | Until dismissed or the page closes. |
 | Storage full | Any save, a session's own included, is refused because storage is full | "This device has no room left for the app's data, so something couldn't be saved. Deleting sessions you no longer need frees space." | `Your data`, `Dismiss` | Until dismissed or the page closes. |
+| Damaged sessions deleted | Kept sessions the app cannot read correctly were deleted, at load, at a session's save or when one was opened, while the visit saves (`flows/kept-sessions/handoff.md`, A Damaged Session); shown once the deletion has committed | One: "Sorry: a kept session was damaged and couldn't be read, so it was deleted." Several: "Sorry: {n} kept sessions were damaged and couldn't be read, so they were deleted." ({n} in figures) | `Dismiss` | Until dismissed or the page closes; while it shows, a further deletion of damaged sessions adds its count in place. |
+| Damaged session not deleted | A deletion of damaged sessions, other than at a session's save, is refused for any cause but full storage (a wording of the save-problem notice) | One: "A kept session was damaged and couldn't be read, and this device refused to delete it. It stays hidden until the page is reloaded." Several: "{n} kept sessions were damaged and couldn't be read, and this device refused to delete them. They stay hidden until the page is reloaded." ({n} in figures) | `Dismiss` | Until dismissed or the page closes. |
 | Outdated tab | Data written by a newer version is known to exist: found at load, revealed by a read that finished after the start-up wait, or written by a newer version while this tab is open. Also `Delete everything` run in another tab while this tab holds the saved data open (its saved data is then gone, and this tab saves nothing until reloaded) | Saved data read: "A newer version of Infinite Flow has saved data on this device. Reload this page to use it; until then, nothing here is saved." Visit started from the defaults after a failed or too-slow read: "Your saved data couldn't be read, and a newer version of Infinite Flow has saved data on this device. This visit started from the defaults and saves nothing. Reload this page to use the newer version." `Delete everything` run in another tab, when this tab can tell (see below): "Everything this app kept on this device was deleted in another tab. Reload this page to start afresh; until then, nothing here is saved." | `Reload` | Until the page reloads. |
 | Unusable data | The saved data couldn't be read at load, or not within the start-up wait | "Your saved data couldn't be read, so this visit started from the defaults and saves nothing. Reloading may fix it." | `Reload` | Until the page reloads. |
 
 - **One notice at a time.** Save failed and Storage full are one save-problem notice in two
   wordings: a new failure while it shows switches it to the latest cause's wording in place, never
-  adds a second. Outdated tab and Unusable data replace a save-problem notice. Unusable data, set
+  adds a second. Damaged session not deleted is a further wording of the same notice, under the
+  same rules. Outdated tab and Unusable data replace a save-problem notice or
+  the apology (Damaged sessions deleted). The apology and the save-problem notice, the dismissible
+  ones, replace each other in place, the latest shown. Unusable data, set
   at load, gives way only to an outdated tab's wording, in place: the defaults wording when data
   written by a newer version becomes known later in the visit, or the deletion wording when the
   tab can tell that another tab ran `Delete everything` (see below); with saving off, no
-  save-problem notice can arise. Outdated tab, in any wording, is never replaced.
+  save-problem notice and no apology can arise. Outdated tab, in any wording, is never replaced:
+  an apology whose deletion commits once the tab is outdated is not shown.
 - **After `Dismiss`,** the save-problem notice comes back only when a save fails again after a
-  save has succeeded since; a run of refusals with no success between them shows it once.
+  save has succeeded since; a run of refusals with no success between them shows it once. The
+  apology comes back only with a new deletion of damaged sessions, counting that one alone. The
+  Damaged session not deleted wording is exempt from that suppression and shows at every refusal:
+  it is the only word on why a session the player opened has left the list.
+- **A deletion of damaged sessions** shows no notice until it settles. Committed, it shows the
+  apology, with how many went, or adds that number to an apology still showing. Refused by the
+  device, it shows the save-problem notice instead, in its Damaged session not deleted wording
+  (Storage full when storage is full), never the apology, since nothing was deleted: the sessions stay unlisted for the visit, and the next load tries again. At a
+  session's save the batch is the session's own save, so a refusal there is told as that save's
+  failure is (below): by the review's keep line, plus the storage-full notice when storage is full.
 - **A session's own save** that fails is told by the review's keep line ("Not saved on this
   device: export it to keep it.", `screens/last-session-review/`), and raises no notice of its
   own, except when storage is full: the storage-full notice then shows too, as the review opens,
@@ -207,7 +228,8 @@ flowchart TD
   with some kept, the confirmation opens; `Keep them` leaves them kept, the switch staying off.
   (While saving is off the sheet shows no switch; see `screens/your-data/`, States.)
 - **What each deletion removes:**
-  - *Delete every session:* every kept session, pinned or not, with its favorites, comment and
+  - *Delete every session:* every kept session, pinned or not (one left unlisted because it is
+    damaged included), with its favorites, comment and
     played notes; also the most recent session from memory, kept or not, so `Review last session`
     and `All sessions` go. Settings, my instrument and the remembered controller stay.
   - *Delete all played notes:* the played notes kept with every session, and those of the most

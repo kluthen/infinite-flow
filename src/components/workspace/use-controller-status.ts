@@ -44,10 +44,7 @@ export function useControllerStatus(
   lostInSession: () => boolean,
 ): ControllerStatusView {
   const facts = shallowRef(
-    foldControllerStatus(initialControllerStatusFacts(midi.state()), {
-      state: midi.state(),
-      devices: midi.devices(),
-    }),
+    foldControllerStatus(initialControllerStatusFacts(midi.state()), midi.change()),
   )
   const unsubscribe = midi.subscribe((change) => {
     facts.value = foldControllerStatus(facts.value, change)

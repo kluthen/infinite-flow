@@ -303,11 +303,20 @@ network or stored.
 
 ### Key format
 
-A key is the prefix `ifk1.` followed by the unpadded base64url encoding of the UTF-8 JSON of a
-7-tuple:
+A key is a version prefix followed by the unpadded base64url encoding of the UTF-8 JSON of a
+fixed-length tuple. The phrase's instrument chooses the version. A built-in instrument's key is
+`ifk1.` over a 7-tuple:
 
 ```text
 [requestId, seed, controls, musicalProfile, isCustom, phraseNumber, carryIn]
+```
+
+My instrument's key is `ifk2.` over an 8-tuple: the same seven entries, unchanged in order and
+meaning, then my instrument's owning profile fields as the intent's profile holds them:
+
+```text
+[requestId, seed, controls, musicalProfile, isCustom, phraseNumber, carryIn,
+  [displayName, concertMinMidi, concertMaxMidi, chromatic, diatonic]]
 ```
 
 - `requestId` is kept because it appears in the generation result, which a byte-identical replay
@@ -326,23 +335,38 @@ A key is the prefix `ifk1.` followed by the unpadded base64url encoding of the U
   [The carry-in after a change](session-engine.md#the-carry-in-after-a-change)). A carry-in
   without the field is refused. The format stays `ifk1.`: a key encoded before chunk 24, which
   always holds a chord, still decodes to the same intent.
+- The eighth `ifk2.` entry is my instrument's display name, its concert range (lowest and highest
+  MIDI note) and its transposition (chromatic and diatonic counts). Its id is not stored, the
+  controls already naming `my-instrument`; its register windows are rebuilt from the concert range
+  by the built-in window policy. The clef, the template, the written range as entered and the
+  input kind are not part of the generator-facing profile and are never stored, so two phrases
+  that differ only by my instrument's clef have the same key.
 
-The key stores only owning inputs: the instrument profile, register intent, concert tonal center,
-measure count and meter are rebuilt from them. It holds no played notes and nothing beyond the
-existing controls, no worker message id (replay always uses id 1, which never affects the
-outcome), and no app version or commit, so a later generator change may replay an older key
-differently.
+A built-in phrase's key is `ifk1.`, byte-identical to the key written before `ifk2.` existed; the
+[replay-key corpus](testing.md#replay-key-corpus) holds that.
+
+The key stores only owning inputs: a built-in's instrument profile, the register intent, the
+concert tonal center, the measure count and the meter are rebuilt from them. It holds no played
+notes and nothing beyond the controls and, in `ifk2.`, my instrument's owning profile fields; no
+worker message id (replay always uses id 1, which never affects the outcome), and no app version
+or commit, so a later generator change may replay an older key differently.
 
 `encodePhraseReplayKey` and `announcePhraseReplayKey`
 (`src/generation-worker/phrase-replay-key.ts`) build the key and its console line; that module also
-owns the prefix, the control order and `PhraseReplayKeyError`.
+owns both prefixes, the control order and `PhraseReplayKeyError`.
 
 ### Decoding
 
 `decodePhraseReplayKey` (`src/generation-worker/phrase-replay-key-decode.ts`) checks the prefix and
-version first, rejecting an unsupported version such as `ifk2.`. A payload that is not strict,
-canonical, unpadded base64url, not UTF-8, not JSON, or not the 7-tuple with the right slot types
-throws a typed `PhraseReplayKeyError`. The owning fields are then validated and the full
+version first, accepting `ifk1.` and `ifk2.` and rejecting any other version, such as `ifk3.`. A
+payload that is not strict, canonical, unpadded base64url, not UTF-8, not JSON, or not its
+version's tuple with the right slot types throws a typed `PhraseReplayKeyError`, as does an
+`ifk1.` key naming `my-instrument` or an `ifk2.` key naming a built-in. An `ifk2.` key's profile is
+rebuilt from its stored fields by `deriveMyInstrumentProfile`
+(`src/generation-worker/generation-worker-inbound.ts`), the derivation the worker's inbound parser
+checks a my-instrument profile with, taking no clef; a profile no my instrument can have is refused
+by its own typed error (`MyInstrumentError`, `TranspositionIntervalError`). The owning fields are
+then validated and the full
 `GenerationIntent` rebuilt by `rebuildGenerationWorkerIntent`, the same validation
 `parseGenerationWorkerIntent` runs on a `generate` message (see
 [Generation Worker protocol](#generation-worker-protocol)). There is no parallel schema and no
@@ -352,7 +376,7 @@ rejected, never repaired.
 ### Replaying a key
 
 ```sh
-npm run replay:phrase -- 'ifk1.…'
+npm run replay:phrase -- 'ifk1.…'   # or 'ifk2.…', a phrase made with my instrument
 npm run replay:phrase < console-line.txt   # the key, or a whole copied console line, on stdin
 ```
 

@@ -98,6 +98,7 @@ export function countCalls(port: StoragePort): CallCounter {
     vi.spyOn(port, 'read'),
     vi.spyOn(port, 'readAll'),
     vi.spyOn(port, 'readKeyed'),
+    vi.spyOn(port, 'readKeys'),
     vi.spyOn(port, 'write'),
     vi.spyOn(port, 'delete'),
     vi.spyOn(port, 'apply'),

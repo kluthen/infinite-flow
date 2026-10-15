@@ -15,7 +15,12 @@ import type { SessionHistoryRecord } from '@/session/session-history'
 import type { SessionKeeping } from '@/components/workspace/workspace-session-controller-types'
 import { sessionDate } from '@/components/review/session-date'
 import { resetFakePhraseEngraver } from '../notation/fake-phrase-engraver'
-import { longHistory, recordedRecords, stubReviewBrowser } from './review-fixtures'
+import {
+  longHistory,
+  recordedRecords,
+  stubReviewBrowser,
+  SESSION_TOOL_PROPS,
+} from './review-fixtures'
 
 vi.mock('@/notation/vexflow-engraver-loader', () => import('../notation/fake-phrase-engraver'))
 
@@ -60,6 +65,11 @@ function mountPanel(options: PanelOptions = {}) {
       holdsPlayedNote: false,
       playedNotesShown: false,
       exportPlayedNotes: () => Promise.resolve(),
+      keepPlayedNotes: false,
+      canDeletePlayedNotes: false,
+      includeVeryShortNotes: false,
+      playedNotesFileHoldsNote: true,
+      ...SESSION_TOOL_PROPS,
     },
     attachTo: document.body,
   })
@@ -124,7 +134,7 @@ describe('the review panel markup', () => {
     const wrapper = mountPanel()
     expect(wrapper.get('.review-title').text()).toBe('Last session')
     expect(wrapper.get('p.review-summary').text()).toBe(
-      `${sessionDate(STARTED_AT)} · 3 phrases · B-flat tenor saxophone`,
+      `${sessionDate(STARTED_AT)} · 3 phrases · B-flat tenor saxophone · No favorites`,
     )
   })
 
@@ -132,14 +142,16 @@ describe('the review panel markup', () => {
   it('titles any other session with its date, left out of the summary', () => {
     const wrapper = mountPanel({ mostRecent: false })
     expect(wrapper.get('.review-title').text()).toBe(sessionDate(STARTED_AT))
-    expect(wrapper.get('p.review-summary').text()).toBe('3 phrases · B-flat tenor saxophone')
+    expect(wrapper.get('p.review-summary').text()).toBe(
+      '3 phrases · B-flat tenor saxophone · No favorites',
+    )
   })
 
   // @test-link [[req_last_session_review]]
   it('says "1 phrase" for a one-phrase session', () => {
     const wrapper = mountPanel({ records: recordedRecords().slice(0, 1), instrumentName: 'Piano' })
     expect(wrapper.get('.review-summary').text()).toBe(
-      `${sessionDate(STARTED_AT)} · 1 phrase · Piano`,
+      `${sessionDate(STARTED_AT)} · 1 phrase · Piano · No favorites`,
     )
   })
 
@@ -188,9 +200,15 @@ describe('the review panel markup', () => {
   })
 
   // @test-link [[req_last_session_review]]
-  it('holds nothing focusable in the list', () => {
+  // @test-link [[req_favorite_phrases]]
+  it("holds nothing focusable in the list but each phrase's favorite star", () => {
     const wrapper = mountPanel()
-    expect(wrapper.get('.review-list').findAll('button, a, input, [tabindex]')).toHaveLength(0)
+    const focusable = wrapper.get('.review-list').findAll('button, a, input, [tabindex]')
+    expect(focusable.map((element) => element.attributes('aria-label'))).toEqual([
+      'Favorite phrase 1',
+      'Favorite phrase 2',
+      'Favorite phrase 3',
+    ])
   })
 
   // @test-link [[req_last_session_review]]
@@ -322,7 +340,7 @@ describe('the review export controls', () => {
     first.reject(new Error('the encoder failed'))
     await flushPromises()
 
-    const error = wrapper.get('.review-header > p.inline-alert.alert-error.review-export-error')
+    const error = wrapper.get('.review-panel > p.inline-alert.alert-error.review-export-error')
     expect(error.text()).toBe("The file couldn't be made. Try again.")
     expect(error.attributes('role')).toBeUndefined()
     expect(error.attributes('aria-live')).toBeUndefined()

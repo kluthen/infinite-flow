@@ -59,7 +59,8 @@ function wrapModule(real: GeneratedNotesExportModule): GeneratedNotesExportModul
     ...real,
     buildGeneratedNotesFile: (history, request) =>
       counted(() => real.buildGeneratedNotesFile(history, request)),
-    buildPlayedNotesFile: (history) => counted(() => real.buildPlayedNotesFile(history)),
+    buildPlayedNotesFile: (history, options) =>
+      counted(() => real.buildPlayedNotesFile(history, options)),
   }
 }
 

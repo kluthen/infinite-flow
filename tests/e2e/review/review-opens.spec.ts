@@ -6,7 +6,7 @@
  * repeat looks like any other phrase, and no played note is drawn although the history holds
  * them. Meanwhile the hidden staff stays laid out (ux D149) and a fresh phrase is generated at
  * Idle, which the next session starts with. A Review inflated to 2 000 phrases lists them all.
- * Nothing in the Review, control or text, favorites, stars or saves a phrase for later.
+ * Nothing in the Review, control or text, grades or scores the playing, its favorites included.
  */
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
@@ -159,9 +159,10 @@ test.describe('the Review a session end opens', () => {
       ['Phrase 1', '90 BPM'],
       ['Phrase 2', '90 BPM'],
     ])
-    // The session date (en-US here), then the phrases and the instrument; the keep line under it.
+    // The session date (en-US here), then the phrases, the instrument and the favorites; the
+    // keep line under it.
     await expect(reviewPanel(page).locator('.review-summary')).toHaveText(
-      /^\w{3}, \w{3} \d{1,2}, \d{4}, \d{1,2}:\d{2}\s[AP]M · 2 phrases · B-flat tenor saxophone$/u,
+      /^\w{3}, \w{3} \d{1,2}, \d{4}, \d{1,2}:\d{2}\s[AP]M · 2 phrases · B-flat tenor saxophone · No favorites$/u,
     )
     await expect(reviewPanel(page).locator('.review-keep-line')).toHaveText(
       'Not pinned: deleted when your next session is saved.',
@@ -210,6 +211,7 @@ test.describe('the Review a session end opens', () => {
       item.evaluate((li) =>
         li.outerHTML
           .replace(/Phrase \d+/g, 'Phrase N')
+          .replace(/Favorite phrase \d+/g, 'Favorite phrase N')
           .replace(/data-(note-id|chord-for)="\d+:/g, 'data-$1="N:')
           .replace(/data-phrase-number="\d+"/g, 'data-phrase-number="N"')
           .replace(/ id="[^"]*"/g, ''),
@@ -294,10 +296,14 @@ test('a Review inflated to 2 000 phrases lists every one, numbered in order', as
   expect((await sessionState(page)).review).toEqual({ showing: true, phraseCount: 1 })
 })
 
-/** A favorite in any wording: favorite or favourite, a star, a bookmark, a save for later. */
-const FAVORITE = /favou?rite|\bstar(?:red|s)?\b|\bbookmark|save[ -](?:it )?for[ -]later/i
+/**
+ * Grading or scoring wording in any form: a score, a grade, accuracy, right or wrong, a mistake or
+ * a miss, a rating, points, a percentage.
+ */
+const GRADING =
+  /\b(?:scored?|scores|scoring|grade[ds]?|grading|accura\w*|correct(?:ly)?|incorrect|wrong|mistakes?|missed|rating|rated|points?)\b|\d\s*%/i
 
-/** The roles a favorite control could take. */
+/** The roles a control or a label could take. */
 const CONTROL_ROLES = [
   'button',
   'link',
@@ -310,8 +316,9 @@ const CONTROL_ROLES = [
   'img',
 ] as const
 
-// @test-link [[req_last_session_review]]
-test('the Review has no favorites: no control or text to favorite, star or save a phrase', async ({
+// @test-link [[rule_no_grading_or_mismatch_signal]]
+// @test-link [[req_favorite_phrases]]
+test('the Review holds no grading or scoring wording, its favorites and played notes included', async ({
   page,
 }) => {
   test.setTimeout(90_000)
@@ -322,14 +329,17 @@ test('the Review has no favorites: no control or text to favorite, star or save 
     await tap(page, KEYS, 60)
   })
   await untilEngraved(page, 2)
-  // The Review does offer controls, the played-notes ones included: the absence below is real.
-  expect(await reviewPanel(page).getByRole('button').count()).toBeGreaterThan(0)
+  // The Review offers its favorites and played-notes controls: the absence below is real.
   await expect(playedNotesToggle(page)).toBeVisible()
+  const star = reviewPanel(page).getByRole('button', { name: 'Favorite phrase 1', exact: true })
+  await star.click()
+  await expect(star).toHaveAttribute('aria-pressed', 'true')
+  await playedNotesToggle(page).click()
+  await expect(reviewPanel(page).locator('.played-notes-lane')).toHaveCount(2)
 
   for (const role of CONTROL_ROLES) {
-    await expect(page.getByRole(role, { name: FAVORITE }), role).toHaveCount(0)
+    await expect(reviewPanel(page).getByRole(role, { name: GRADING }), role).toHaveCount(0)
   }
-  await expect(page.getByText(FAVORITE)).toHaveCount(0)
-  await expect(page.getByTitle(FAVORITE)).toHaveCount(0)
-  expect(await reviewPanel(page).innerText()).not.toMatch(FAVORITE)
+  await expect(reviewPanel(page).getByTitle(GRADING)).toHaveCount(0)
+  expect(await reviewPanel(page).innerText()).not.toMatch(GRADING)
 })

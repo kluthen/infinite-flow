@@ -266,6 +266,9 @@ owner wants nothing offered that has nothing to give.
 **[v3 new]** Beside it, `Include very short notes` puts the in-between notes the lane leaves out
 back into the file, for a player who wants every note exactly as their controller sent it. It is
 off by default, changes only the played-notes file, and is not remembered after the page closes.
+When every note the player played is very short, the file would be empty with the option off, so
+the played-notes export is unavailable and says why, naming the option; it neither fails nor
+turns the option on by itself, which would change the file without asking.
 
 **[v3 changed]** One button makes one file, as an ordinary browser download. The file name says
 what it holds and which session it comes from, by the date and time the session started, so the

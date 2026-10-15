@@ -312,7 +312,7 @@ describe('reading a key', () => {
   it('rejects a malformed or unsupported key with a typed error before generating', () => {
     expect(() => replayPhraseKey('ifk1.!!')).toThrow(PhraseReplayKeyError)
     expect(() => replayPhraseKey('ifk1.AAAA')).toThrow(PhraseReplayKeyError)
-    expect(() => replayPhraseKey('ifk2.AAAA')).toThrow(/unsupported key version/u)
+    expect(() => replayPhraseKey('ifk3.AAAA')).toThrow(/unsupported key version/u)
     expect(() => replayDecodedPhraseKey(key, decodePhraseReplayKey(key))).not.toThrow()
   })
 })

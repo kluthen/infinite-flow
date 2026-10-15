@@ -86,6 +86,21 @@ export interface WindowShape {
   readonly subscribe: (listener: () => void) => () => void
 }
 
+/**
+ * The page's first click, tap or key press since it loaded, which browsers require before a page
+ * may play sound. A MIDI note never counts.
+ */
+// @spec-link [[rule_starting_note_waits_for_first_gesture]]
+export interface PageActivation {
+  /** Whether the page has had its first click, tap or key press. */
+  readonly hasBeenActive: () => boolean
+  /**
+   * Call `listener` once, at that first click, tap or key press (never when it already came).
+   * Returns the function that stops it.
+   */
+  readonly onFirstActivation: (listener: () => void) => () => void
+}
+
 /** Every session browser port, as `WorkspaceSession` carries them. */
 // @spec-link [[service_session_controller]]
 export interface SessionBrowserPorts {
@@ -93,4 +108,5 @@ export interface SessionBrowserPorts {
   readonly orientationLock: OrientationLock
   readonly pageVisibility: PageVisibility
   readonly windowShape: WindowShape
+  readonly pageActivation: PageActivation
 }

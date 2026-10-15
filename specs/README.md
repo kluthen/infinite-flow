@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.63
+Status: draft v0.69
 
 ## Status Snapshot
 
@@ -132,10 +132,35 @@ Status: draft v0.63
   refusal by the device deletes nothing (§5.1, item 6). New chunk 28 in wave 8 builds it, after a
   Damaged session design gate for `ux-writer`; chunk 14's failed reads are the device's refusals.
   Part M2's items 5(b) and 6 are rewritten for the owner.
-- **Open:** 11 questions, none blocking work under way: O48 and O49 (later and governance),
+- **v3.0 build, wave 6 preflight** (2026-10-15, D312–D315): build plan v16, master spec Part A
+  v1.16. Chunks 11, 12 and 25 stay in wave 6 and share the review's files in number order, chunk
+  12 building on chunk 11 (D312). Chunk 11 captures how a kept session changes after its save,
+  which chunk 12 reuses (D313). Remembering the controller changes two STABLE contract wordings:
+  §10's seventh change, major (CONTRACT 6.0), waits for the owner before chunk 22 merges (D314).
+  Chunk 25's lane scale leaves out very short notes; O210 opened (D315). Gate A shown done.
+- **v3.0 build, wave 6 captures** (2026-10-15, D316–D318): build plan v17, master spec Part A
+  v1.17. A change to a kept session reads what is stored at the change, as the session's own save
+  does (D316); deleting every kept played note deletes every played-notes record, an unreadable
+  session's included (D317, correcting D313); a visit that saves nothing neither remembers nor
+  forgets the controller (D318, §7.3).
+- **v3.0 build, wave 6 design gates** (2026-10-15, D319): build plan v18 follows ux D307–D314.
+  O210 closed by ux D308: `Export played notes` is never offered for a file with no note.
+  `Include very short notes` holds for the page visit. Chunk 28 takes the Damaged session design.
+- **v3.0 contract 6.0** (2026-10-15, D320): the owner confirmed the remembered-controller wording
+  as major; master spec Part A v1.18, build plan v19. No contract wording waits any more.
+- **v3.0 stray notes measured** (2026-10-15, D321): the threshold is 38 ms; stray and meant notes
+  overlap in length, so it leaves out most stray notes, not all (66 of 77 in the recordings).
+  Master spec Part A v1.19 (§9, §14), build plan v20 (M1, H5). O211 opened, for the owner at
+  hand check H5. A held note the controller cuts in two is noted for later (§14).
+- **v3.0 owner rulings after the wave-6 sync** (2026-10-15, D322, D323): master spec Part A
+  v1.20, build plan v21. The owner kept the 38 ms threshold, a length rule only (O211 closed;
+  hand check H5 still his to run). A controller reselected at load counts as the same controller
+  coming back, so it is not checked again (§7.3); no contract change, a clarifying clause proposed
+  for `rule_controller_transposition_check` in change set part B2.
+- **Open:** 11 questions: O48 and O49 (later and governance),
   O100–O102 (v4 rhythm), O115 and O116 (v3.x learning), O176 (style packs and the chord level),
-  O180 (octave signs, later), O183 (pre-generation's cancellation cost) and O190 (a newer
-  version's database whose read-only reopening fails). D309 and D310 closed O201 and O200; D295
+  O180 (octave signs, later), O183 (pre-generation's cancellation cost), O190 (a newer
+  version's database whose read-only reopening fails). D322 closed O211; ux D308 closed O210. D309 and D310 closed O201 and O200; D295
   and D296 closed O181; the owner's ruling in D297 closed O182.
   O163 and O164 closed by D257 and D258; D262 closed O174; D264–D273 settled O165–O173 and O175
   in Part D, pending the owner's approval.

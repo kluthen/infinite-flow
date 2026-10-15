@@ -64,8 +64,8 @@ export type SessionKeeping = 'pinned' | 'not-pinned' | 'not-saved'
 
 /**
  * A session as a Review draws it: its history, its instrument's name as the session holds it (never
- * looked up by id), the tempo it reached (its last sounded phrase's) and how it is kept. Frozen;
- * each change replaces it.
+ * looked up by id), the tempo it reached (its last sounded phrase's), how it is kept, the key it is
+ * kept under and whether its played notes are kept. Frozen; each change replaces it.
  */
 // @spec-link [[req_last_session_review]]
 // @spec-link [[req_kept_session_review]]
@@ -76,7 +76,46 @@ export interface ReviewedSession {
   /** The last sounded phrase's tempo, in BPM: the highest the session reached. */
   readonly tempoReached: number
   readonly keeping: SessionKeeping
+  /**
+   * The key the session is kept under: the one its own save minted, or the one it was read by;
+   * every change after its save names it by this key, never by one rebuilt from its facts.
+   */
+  readonly key: string
+  /** Its played notes are kept with it on the device (and are in its history). */
+  readonly playedNotesKept: boolean
+  /**
+   * It is pinned: kept until the player unpins or deletes it. Held apart from `keeping`, which says
+   * "not saved" for a session held in memory only, whose pin still shows and is saved by a retry.
+   */
+  readonly pinned: boolean
+  /** The numbers of its favorite phrases, in increasing order. */
+  readonly favorites: readonly number[]
+  /** Its comment, trimmed, at most 500 characters; empty when it has none. */
+  readonly comment: string
 }
+
+/**
+ * What became of turning `Keep my played notes`: nothing more to do, or, turned off while played
+ * notes are kept with `sessionCount` sessions as read at the switch, the deletion to confirm.
+ */
+// @spec-link [[module_kept_session_save]]
+export type KeepPlayedNotesSwitch =
+  { readonly kind: 'done' } | { readonly kind: 'confirm-deletion'; readonly sessionCount: number }
+
+/**
+ * What became of a deletion of played notes: deleted (also when there was nothing left to
+ * delete), refused by the device (nothing changed), or not made because saving turned off.
+ */
+// @spec-link [[module_kept_session_save]]
+export type PlayedNotesDeletion = 'deleted' | 'refused' | 'saving-off'
+
+/**
+ * What became of `Delete session`: deleted, from the device and from memory (also when it was
+ * held in memory only, or was gone already); refused by the device, nothing changed; or not made
+ * because saving turned off.
+ */
+// @spec-link [[module_kept_session_save]]
+export type SessionDeletion = 'deleted' | 'refused' | 'saving-off'
 
 /**
  * The Review: the session it draws and whether the player is in it. It exists from a session end
@@ -135,6 +174,13 @@ export interface SessionControllerState {
   /** The most recent session is being read from the device for `Review last session`. */
   // @spec-link [[req_kept_session_review]]
   readonly readingMostRecent: boolean
+  /** `Keep my played notes`: from the player's saved choice, changed by `setKeepPlayedNotes`. */
+  readonly keepPlayedNotes: boolean
+  /**
+   * Saving is off for the visit now (an outdated tab, or a visit started from the defaults): no
+   * deletion is offered, and a change holds for the visit only.
+   */
+  readonly savingOff: boolean
   /**
    * What the staff shows while a session runs, from its start (phrase 1, the very phrase Idle
    * shows, in the held layout) to its end; null with no session, so the staff shows Idle.
@@ -148,6 +194,12 @@ export interface SessionControllerState {
    * Idle's phrase. The start line and the start marker are drawn from it.
    */
   readonly startingNote: StartingNote | null
+  /**
+   * Whether the named starting note waits for the page's first click, tap or key press (after a
+   * load, the audio still locked): it starts nothing until then, and the start line says so.
+   */
+  // @spec-link [[rule_midi_starting_note]]
+  readonly startingNoteAwaitsClick: boolean
   /** A lost controller's countdown while it runs, count-in included; null otherwise. */
   readonly controllerLost: ControllerLostCountdown | null
   /** The running session's acknowledged notes, in acknowledgement order; empty at Idle. */
@@ -218,6 +270,45 @@ export interface SessionController {
    * exists, no Review shows, no session runs and no read is under way.
    */
   readonly showReview: () => Promise<boolean>
+  /**
+   * Turn `Keep my played notes` on or off, at Idle only (else throws); the caller saves the
+   * setting. Turned on, it also keeps the played notes of the most recent session when they are
+   * still in memory and the session is kept. Turned off, it resolves the deletion to confirm when
+   * played notes are kept with some session, read at the switch. While saving is off it changes
+   * for the visit only: nothing is read, written or asked.
+   */
+  readonly setKeepPlayedNotes: (on: boolean) => Promise<KeepPlayedNotesSwitch>
+  /**
+   * Delete the played notes of the session the Review shows, from memory too once the device has.
+   * Throws unless at Idle, saving on and the Review's session kept with its played notes.
+   */
+  readonly deletePlayedNotes: () => Promise<PlayedNotesDeletion>
+  /**
+   * Delete every kept played note, across sessions, and from memory those of a session that kept
+   * them, once the device has. Throws unless at Idle with saving on.
+   */
+  readonly deleteEveryKeptPlayedNote: () => Promise<PlayedNotesDeletion>
+  /**
+   * Mark phrase `phraseNumber` of the session held under `key` a favorite, or remove the mark, at
+   * once in memory; marking pins the session, removing the last leaves it pinned. Then saved when
+   * made (a retry of its own save while that save had failed; nothing while saving is off).
+   * Resolves once saved or refused. Throws unless at Idle with that session held and that phrase
+   * in it.
+   */
+  readonly setFavorite: (key: string, phraseNumber: number, favorite: boolean) => Promise<void>
+  /** Pin or unpin the session held under `key`, as `setFavorite` saves a change. */
+  readonly setPinned: (key: string, pinned: boolean) => Promise<void>
+  /**
+   * Set the comment of the session held under `key`, trimmed (empty: none), as `setFavorite`
+   * saves a change; an unchanged comment saves nothing. Throws on one over 500 characters.
+   */
+  readonly setComment: (key: string, comment: string) => Promise<void>
+  /**
+   * Delete the session held under `key`: from the device, then from memory (the Review and, when
+   * it is the most recent session, that too); one held in memory only because its save failed,
+   * from memory alone. Throws unless at Idle with saving on and that session held.
+   */
+  readonly deleteSession: (key: string) => Promise<SessionDeletion>
   /**
    * Turn the page's adaptive-tempo flag on or off, at Idle only: throws during the count-in or a
    * running session, and when turning it on with no controller attached.

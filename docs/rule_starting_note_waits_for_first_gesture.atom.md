@@ -1,13 +1,14 @@
 ---
 id: rule_starting_note_waits_for_first_gesture
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 priority: 1
 human_name: Starting Note Waits for the Page's First Gesture
 parents:
   - [[rule_audio_unlocked_by_player_click]]
   - [[rule_last_controller_remembered]]
-dependents: []
+dependents:
+  - [[module_session_starting_note]]
 type: RULE
 version: 0.1
 tags: [v3, release-v3.0, midi, session-start, audio]

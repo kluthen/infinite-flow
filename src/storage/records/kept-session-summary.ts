@@ -120,6 +120,19 @@ export function keptSessionSummaryRecord(
   facts: KeptSessionSummaryFacts,
   appVersion: string,
 ): KeptSessionSummaryRecord {
+  return summaryRecord(facts, appVersion, appVersion)
+}
+
+/**
+ * Intent: the session-wide record of the given facts, recorded by `recordedBy` and written by
+ * `appVersion` at data version 1, every field copied by name onto a fresh record. Throws on an
+ * empty app version or a comment over 500 characters.
+ */
+function summaryRecord(
+  facts: KeptSessionSummaryFacts,
+  recordedBy: string,
+  appVersion: string,
+): KeptSessionSummaryRecord {
   assertKeptAppVersion(appVersion)
   assertCommentLength(facts.comment)
   return {
@@ -139,9 +152,39 @@ export function keptSessionSummaryRecord(
     favoritesCount: facts.favoritesCount,
     comment: facts.comment,
     playedNotesKept: facts.playedNotesKept,
-    recordedByAppVersion: appVersion,
+    recordedByAppVersion: recordedBy,
     sessionSeed: facts.sessionSeed,
   }
+}
+
+/**
+ * The session's own facts a change after its save may change: whether it is pinned, its
+ * favorites count, its comment and whether its played notes are kept.
+ */
+// @spec-link [[module_kept_session_changes]]
+export type KeptSummaryEdit = Partial<
+  Pick<KeptSessionSummary, 'pinned' | 'favoritesCount' | 'comment' | 'playedNotesKept'>
+>
+
+/**
+ * Intent: a stored session-wide record encoded again after the session's save, with only the
+ * player's change applied to what is stored, so a fact another tab changed since the load stays;
+ * the app version that recorded the session stays, the record is written by `appVersion`. Nothing
+ * when no record is stored, or it cannot be read, or a newer app wrote it. Throws on an empty app
+ * version or a comment over 500 characters.
+ */
+// @spec-link [[module_kept_session_changes]]
+// @spec-link [[entity_kept_session_record]]
+export function rewriteKeptSummary(
+  stored: unknown,
+  edit: KeptSummaryEdit,
+  appVersion: string,
+): KeptSessionSummaryRecord | null {
+  if (stored === undefined) return null
+  const reading = decodeKeptSessionSummary(stored)
+  if (reading.reading !== 'current') return null
+  const { recordedByAppVersion, ...facts } = reading.value
+  return summaryRecord({ ...facts, ...edit }, recordedByAppVersion, appVersion)
 }
 
 /** Intent: a stored instrument: exactly a known instrument id and a non-empty display name. */

@@ -5,7 +5,7 @@
  * and the session-end focus that lands on `controller-status` while phrase 1 regenerates.
  */
 import { flushPromises, mount } from '@vue/test-utils'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { nextTick, reactive, toRaw } from 'vue'
 
 import ConnectionSheet from '@/components/controller-connection/ConnectionSheet.vue'
@@ -17,13 +17,19 @@ import { createTestWorkspace, PHRASE_SCORE_STUB } from './test-workspace'
 import { createFakeSessionController } from './fake-session-controller'
 import { createControllerRig, KEYS_A, PAD_B } from '../../midi/midi-controller-rig'
 import { provideSaveSettings } from './recording-save-settings'
-import { quietSavedData } from './quiet-saved-data'
+import { noRememberedController, quietSavedData } from './quiet-saved-data'
 
 // The opened sheet engraves its check note; jsdom has no fonts nor canvas for VexFlow.
 vi.mock(
   '@/notation/vexflow-engraver-loader',
   () => import('../controller-connection/fake-check-note-engraver'),
 )
+
+// A session's start warms the Review's lazy area; loaded once ahead, so that warm-up settles within
+// the test that starts it, as it does in the app once the chunk has loaded, not as the file ends.
+beforeAll(async () => {
+  await import('@/components/workspace/ReviewArea.vue')
+})
 
 /** Intent: a real workspace whose Idle state a test can edit after mounting. */
 function liveWorkspace() {
@@ -69,6 +75,7 @@ function mountShell(
   return mount(WorkspaceShell, {
     props: {
       savedData: quietSavedData(),
+      rememberedController: noRememberedController(),
       session,
       pendingPhrase: null,
       handleEngraved: () => {},

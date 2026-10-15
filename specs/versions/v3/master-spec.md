@@ -2,7 +2,7 @@
 
 Status: this file holds four parts.
 
-- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.15 (2026-10-14), approved by the
+- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.20 (2026-10-15), approved by the
   product owner, and being built. Its section numbers (§1 to §15) are unchanged; v1.5 and v1.6
   write in the owner's rulings after the build's first intent preflight; v1.7 is a wording fix;
   v1.8 writes in the owner's rulings after the build's second intent preflight; v1.9 adds a bass
@@ -13,8 +13,16 @@ Status: this file holds four parts.
   on what Regenerate does there and on the starting note's contract wording (CONTRACT 5.0);
   v1.13 is a wording clarification (§8), no behaviour changed; v1.14 replaces the kept-session
   size estimate with the build's measurement (§5.2), no behaviour changed; v1.15 writes in the
-  owner's ruling that a damaged kept session is deleted, with an apology (§5.1, item 6).
-  No contract wording it needs waits for the owner any more (§10).
+  owner's ruling that a damaged kept session is deleted, with an apology (§5.1, item 6);
+  v1.16 corrects §10: remembering the controller changes two contract wordings, a seventh
+  contract change that waits for the owner's confirmation (spec D314), no behaviour changed;
+  v1.17 states what follows from §4.3 and §4.4 for the remembered controller: a visit that saves
+  nothing neither remembers nor forgets it (§7.3, item 18; spec D318); v1.18 records the owner's
+  confirmation of that seventh contract change on 2026-10-15 (CONTRACT 6.0), no behaviour changed;
+  v1.19 writes in what measurement M1 found about stray notes (§9, §14; spec D321), no behaviour
+  changed; v1.20 writes in the owner's two rulings of 2026-10-15: the 38 ms threshold is kept
+  (§9, §14; spec D322), and a controller reselected at load counts as the same controller coming
+  back, with no transposition check (§7.3; spec D323), no behaviour changed. No contract wording it needs waits for the owner any more (§10).
 - **[Part B — v3.1](#part-b--v31), embellishment figures and presets:** master spec v1.0
   (2026-10-08), consolidated from the v3.1 drafts the owner approved; approved by the product
   owner (2026-10-08). The owner confirmed the exact wording of the contract
@@ -609,14 +617,22 @@ a constant offset: a match, whole octaves, or a number of semitones.
 The app remembers the last controller the player chose and reselects it when the app loads, as
 soon as that controller is connected, matching it the way v2 already recognises a controller that
 comes back within a page. It does so only when the browser already allows MIDI access, never with
-a permission prompt; otherwise the player connects as in v2. After a load, the starting note
+a permission prompt; otherwise the player connects as in v2. A controller reselected at load
+counts as that controller coming back: it is reattached with no connection step, no pick and no
+transposition check, and the player can still run the check between sessions. Going through the
+connection step while a controller is remembered is the same: the step connects that controller
+as soon as it is present, with no pick and no check. After a load, the starting note
 starts nothing until the page's first click, tap or key press, because browsers do not let a page
 play sound before one. This widens v2's audio-unlock rule, where only a Start or Connect
 controller click unlocked sound and a starting note worked only after Connect controller: with a
 remembered controller there is no Connect click, so any first click, tap or key press on the page
 unlocks sound, and a Start click still does. v2 forgot the choice on reload; v3.0 deliberately keeps it. The
 player's **Disconnect** action, which in v2 forgets the controller for the page, also forgets the
-remembered one, so a reload never reconnects a controller the player chose to disconnect.
+remembered one, so a reload never reconnects a controller the player chose to disconnect. A visit
+that saves nothing (an outdated tab, §4.3, or a visit started from the defaults, §4.4) neither
+remembers nor forgets: a controller connected there is not remembered, and its Disconnect forgets
+the controller for that visit only, so the next load that reads the saved data reselects the
+controller remembered before.
 Deleting "my instrument" does not forget the controller; Delete everything does.
 
 ### 7.4 Phrase replay key
@@ -679,14 +695,23 @@ clef with the phrase (§5.2).
 ## 9. Stray notes
 
 Some controllers send very short notes while the fingers change position: in-between notes a real
-instrument would swallow. The reference breath controller sends them often, in pairs at full
+instrument would swallow. The reference breath controller sends them often, many of them at full
 velocity. This is treated as a general controller matter; nothing is built for one device.
 
 - **A very short note** is a played note whose length, from note-on to note-off, is under a fixed
   threshold.
 - **The threshold is a constant, not a player setting.** It is tuned from recordings of the
   reference controller and must stay well under the shortest note the app writes at its fastest
-  tempo: a sixteenth note at 240 BPM lasts 62.5 ms. Measurement starts around 30 to 40 ms.
+  tempo: a sixteenth note at 240 BPM lasts 62.5 ms.
+- **Measured at 38 ms; a length catches most stray notes, not all** (measurement M1, 2026-10-15).
+  On the reference controller, stray notes and the notes the player meant overlap in length: the
+  stray notes found last from under 5 ms to 97 ms, and the shortest note read as meant lasts
+  45.8 ms, so no length separates the two. The threshold sits one step of the controller's timing
+  (about 5 ms) below that note, so it never leaves out a note the player meant; in the recordings
+  it leaves out 66 of the 77 stray notes found, and the other 11 still show in the lane and in the
+  default export. The owner kept 38 ms (2026-10-15): a length rule never leaves out a note the
+  player meant, and the lane is a record of what was played, not a score, so a few stray notes
+  showing in it is accepted.
 - **Where it applies:** the review's `Played notes` lane and the played-notes export (and, from
   v3.2, the motif Jam reads).
 - **Never in acknowledgement.** An expected note lights only for a played note with exactly its
@@ -738,9 +763,33 @@ below is intended.
   the fifth change. The alternative that kept the wording, the starting note counting as Use it
   without asking, was not chosen: it would never tell the player at the instrument that the
   phrase is out of date.
-- **The audio-unlock rule widens** (not a contract guarantee): v2 unlocked sound only on a Start
-  or Connect controller click; v3.0 unlocks it on the page's first click, tap or key press, since a
-  remembered controller reattaches without a Connect click (§7.3).
+- **A seventh contract change, confirmed by the owner as major on 2026-10-15** (CONTRACT 5.0 to
+  6.0): **remembering the controller** (§7.3). v2 unlocked sound only on a Start or Connect
+  controller click; v3.0 lets a starting note played after the page's first click, tap or key press
+  start the sound, since a remembered controller is reselected without a Connect click, and it asks
+  the browser for MIDI access at load to reselect it. The audio-unlock rule itself
+  (`rule_audio_unlocked_by_player_click`) is not on the contract, but two contract entries restate
+  it, so the change reaches the contract after all (v1.15 said otherwise):
+  - `specification_browser_only_operation_verification` rejects a release that "starts audio or
+    requests MIDI access before the player clicks Start or "Connect controller"". Accepted
+    wording, in place of that clause: "starts audio before the player has either clicked Start or
+    "Connect controller" or played the starting note after the page's first click, tap or key
+    press, requests MIDI access before the player clicks Start or "Connect controller" other than
+    the one request made at load to reselect a remembered controller, which is made only when the
+    browser already allows MIDI access and so never shows a permission prompt"; its expectation
+    says the same.
+  - `rule_midi_starting_note` says: "With a controller attached at Idle, outside the review,
+    playing the starting note at its exact concert pitch starts the count-in". Accepted wording,
+    added to its rule and to that sentence: "After the page loads, the starting note starts nothing
+    until the page's first click, tap or key press (a note played on the controller does not
+    count), because browsers do not let a page play sound before one; this holds also for a
+    controller reselected at load."; its expectation gains a line saying the same.
+
+  Both hold for v2.0, which attaches a controller only after a Connect controller click, itself a
+  click on the page, and asks for no MIDI access at load. Both lose cases (a starting note that no
+  longer starts the count-in just after a load; a release the check no longer rejects), so by the
+  contract's rule the change is major, and the owner confirmed it so on 2026-10-15
+  (`documentalist` applied it, CONTRACT 6.0).
 - **About fifteen declared-intent entries under review** say "never persisted", led by the rule
   that session state is ephemeral; the vision's "out of scope through v2" list needs a v3
   revision.
@@ -920,8 +969,9 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
     when my instrument has kept sessions, that confirmation warns that they will be erased, and
     confirming erases them. Played notes are still compared at the pitch received.
 18. **The controller is remembered** and reselected at load when connected and MIDI access is
-    already allowed, with no prompt; after the player's Disconnect, a reload reselects nothing; the
-    starting note starts nothing before the page's first click, tap or key press.
+    already allowed, with no prompt; after the player's Disconnect in a visit that saves, a reload
+    reselects nothing; the starting note starts nothing before the page's first click, tap or key
+    press.
 19. **Replay keys.** An `ifk2.` key reproduces a phrase made with "my instrument"; every `ifk1.`
     key still decodes to the same phrase as in v2.
 20. **Pre-generation.** Each pre-generated phrase is identical to the phrase the session produces
@@ -936,8 +986,9 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
 22. **v2 behaviour otherwise unchanged:** the v2 test suite passes, apart from the tests §10 lists
     as changing, each replaced by its v3.0 counterpart.
 23. **The declared-intent contract** reflects §10's three major changes, its minor one, the
-    fifth (the review's reachability, confirmed as major) and the sixth (the starting note asking
-    first, confirmed as major), with the owner's explicit confirmation of each recorded.
+    fifth (the review's reachability, confirmed as major), the sixth (the starting note asking
+    first, confirmed as major) and the seventh (remembering the controller, major), with the
+    owner's explicit confirmation of each recorded.
 24. **A stale phrase at Start.** After any change at Idle of a setting the generation reads,
     Start, and the starting note, ask Regenerate or Use it, and start nothing until answered;
     after a change of tempo, Rising tempo, Vary settings, Tension across phrases, the mix, the
@@ -951,8 +1002,7 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
 
 ## 14. Deferred and open
 
-- **Open, for the build plan:** the exact stray-note threshold, set by measurement (§9); the
-  length of the start-up wait for saved settings (§4.4); whether "my instrument" needs a stricter
+- **Open, for the build plan:** the length of the start-up wait for saved settings (§4.4); whether "my instrument" needs a stricter
   range check than the two-octave rule and the bound per clef once the generator's success rate
   on narrow and extreme ranges is known (§7.1, item 16); any stricter rule it shows goes to the
   owner.
@@ -973,12 +1023,23 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
   with the new phrase, the player pressing Start again (O182 closed); the starting note asks
   first, a major contract change (CONTRACT 5.0, §10).
 - **Measured, for information:** the battery cost of pre-generation at Idle on a tablet (§8).
+- **Measured and kept (2026-10-15): the stray-note threshold, 38 ms** (§9). It leaves a few stray
+  notes in the lane and the default export; the owner accepted that and kept a length rule only.
+  Hand check H5 still checks it on real playing.
+- **Noted for later: a held note the controller cuts in two.** M1 also found the reference
+  controller splitting one held note into two notes of the same pitch, up to 60 ms apart, usually a
+  loud short part and then a soft long one (68 of the 167 notes under 130 ms). v3.0 adds nothing
+  for it: a part under the threshold is left out like any very short note, the other part keeping
+  the pitch, and a longer part shows as a second bar in the lane and a second note in the export.
+  Merging the two parts on reading would be a new rule. It is worth weighing when Jam reads played
+  notes as a doodle (Part C), where a split note would count as two notes of the same pitch.
 - **Contract changes:** the owner confirmed the three major contract changes in §10 on
   2026-10-07, and they are applied; he agreed to the minor one, the cancellable background
   attempt, on 2026-10-12, and it is applied with the build. He confirmed the fifth, the review's
   reachability, as a major change on 2026-10-12 (CONTRACT 4.0), and the sixth, the starting note
-  asking first, as a major change on 2026-10-13 (CONTRACT 5.0, applied by `documentalist`).
-  Approving this spec is not a contract confirmation.
+  asking first, as a major change on 2026-10-13 (CONTRACT 5.0, applied by `documentalist`). The
+  seventh, remembering the controller, was confirmed as a major change on 2026-10-15 (CONTRACT
+  6.0, applied by `documentalist`; spec D314). Approving this spec is not a contract confirmation.
 - **Design, for `ux-writer`:** where "Your data", the session list, favorites, the comment, the
   "Keep my played notes" switch and "my instrument" live, and how they look on each device;
   how my instrument's sheet shows the transposition's derived interval name (§7.1); the clef

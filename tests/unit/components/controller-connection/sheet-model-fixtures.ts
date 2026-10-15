@@ -19,12 +19,13 @@ export const KEYS: MidiDevice = { id: 'keys', name: 'Keys', manufacturer: 'Acme'
 export const PAD: MidiDevice = { id: 'pad', name: 'Pad', manufacturer: 'Beta' }
 export const FLUTE: MidiDevice = { id: 'flute', name: 'Flute', manufacturer: 'Gamma' }
 
-/** Intent: a controller snapshot with these devices present. */
+/** Intent: a controller snapshot with these devices present, and this controller remembered. */
 export function change(
   state: MidiControllerState,
   devices: readonly MidiDevice[] = [],
+  remembered: MidiDevice | null = null,
 ): MidiControllerChange {
-  return { state, devices }
+  return { state, devices, remembered, reselectedAtLoad: false }
 }
 
 /** Intent: the controller asking for access, nothing listed yet. */

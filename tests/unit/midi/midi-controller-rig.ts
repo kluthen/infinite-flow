@@ -28,7 +28,8 @@ export const PAD_B: MidiDevice = { id: 'port-b', name: 'Pad 8', manufacturer: 'B
 export interface ControllerRigOptions extends FakeMidiAccessOptions {
   readonly devices?: readonly MidiDevice[]
   readonly performanceOffsetMs?: number
-  readonly anchor?: () => ClockAnchor
+  /** The clock's anchor; null while the audio clock is not running (the audio still locked). */
+  readonly anchor?: () => ClockAnchor | null
 }
 
 /** The wired controller, its fakes and what it reported. */

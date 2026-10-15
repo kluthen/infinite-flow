@@ -6,6 +6,7 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  endedSessionSave,
   keptSessionChanges,
   keptSessionKey,
   saveEndedSession,
@@ -48,9 +49,10 @@ describe("the session's save batch", () => {
   const history = recordedKeptSession('bb-tenor', 3)
   const key = keptSessionKey(history)
   const other = recordedKeptSession('eb-alto', 2)
+  const NOT_KEPT = endedSessionSave(history, false)
 
   it('writes the session-wide record and the body under the new key, and no played notes', () => {
-    const changes = keptSessionChanges(codec, history, [], APP_VERSION)
+    const changes = keptSessionChanges(codec, history, NOT_KEPT, [], APP_VERSION)
     const expected = codec.encodeKeptSession(history, FRESH, APP_VERSION)
 
     expect(changes).toEqual([
@@ -66,7 +68,7 @@ describe("the session's save batch", () => {
       keptSummary(other, 'session-3-3', false),
     ]
 
-    expect(described(keptSessionChanges(codec, history, kept, APP_VERSION))).toEqual([
+    expect(described(keptSessionChanges(codec, history, NOT_KEPT, kept, APP_VERSION))).toEqual([
       'delete sessionSummaries session-1-1',
       'delete sessionBodies session-1-1',
       'delete playedNotes session-1-1',
@@ -78,13 +80,54 @@ describe("the session's save batch", () => {
     ])
   })
 
+  // @test-link [[rule_played_notes_kept_only_after_opt_in]]
+  it('writes the played notes too, in the same batch, when they are kept', () => {
+    const changes = keptSessionChanges(
+      codec,
+      history,
+      endedSessionSave(history, true),
+      [],
+      APP_VERSION,
+    )
+    const expected = codec.encodeKeptSession(
+      history,
+      { ...FRESH, playedNotesKept: true },
+      APP_VERSION,
+    )
+
+    expect(changes).toEqual([
+      { kind: 'write', store: 'sessionSummaries', key, record: expected.summary },
+      { kind: 'write', store: 'sessionBodies', key, record: expected.body },
+      { kind: 'write', store: 'playedNotes', key, record: expected.playedNotes },
+    ])
+  })
+
   it('leaves in place a kept session whose summary cannot be read, or was written by a newer app', () => {
     const unreadable = { key: 'session-4-4', value: { dataVersion: 1, appVersion: 'x' } }
     const newer = { key: 'session-5-5', value: { dataVersion: 2, appVersion: '3.1.0' } }
 
-    expect(described(keptSessionChanges(codec, history, [unreadable, newer], APP_VERSION))).toEqual(
-      [`write sessionSummaries ${key}`, `write sessionBodies ${key}`],
-    )
+    expect(
+      described(keptSessionChanges(codec, history, NOT_KEPT, [unreadable, newer], APP_VERSION)),
+    ).toEqual([`write sessionSummaries ${key}`, `write sessionBodies ${key}`])
+  })
+})
+
+// @test-link [[module_kept_session_save]]
+// @test-link [[rule_played_notes_kept_only_after_opt_in]]
+describe('how the session that ended is saved', () => {
+  it('under the key minted once, its played notes kept only when the setting is on and it holds one', () => {
+    const played = recordedKeptSession('bb-tenor', 2)
+    const silent = {
+      ...played,
+      phrases: () => played.phrases().map((p) => ({ ...p, playedNotes: [] })),
+    }
+
+    expect(endedSessionSave(played, true)).toEqual({
+      key: keptSessionKey(played),
+      playedNotesKept: true,
+    })
+    expect(endedSessionSave(played, false).playedNotesKept).toBe(false)
+    expect(endedSessionSave(silent, true).playedNotesKept).toBe(false)
   })
 })
 
@@ -92,6 +135,7 @@ describe("the session's save batch", () => {
 describe('saving the session that ended', () => {
   it("hands the visit's saves the batch for the summaries read at the save, and resolves its outcome", async () => {
     const history = recordedKeptSession('bb-tenor', 2)
+    const NOT_KEPT = endedSessionSave(history, false)
     const refused: SessionSaveOutcome = { status: 'refused', kind: 'other' }
     const asked: SessionChanges[] = []
     const saves = {
@@ -102,9 +146,50 @@ describe('saving the session that ended', () => {
       },
     }
 
-    expect(await saveEndedSession(saves, history)).toBe(refused)
+    expect(await saveEndedSession(saves, history, NOT_KEPT)).toBe(refused)
     expect(asked).toHaveLength(1)
     const kept = [keptSummary(recordedKeptSession('eb-alto', 2), 'session-1-1', false)]
-    expect(asked[0]?.(kept)).toEqual(keptSessionChanges(codec, history, kept, APP_VERSION))
+    expect(asked[0]?.(kept)).toEqual(
+      keptSessionChanges(codec, history, NOT_KEPT, kept, APP_VERSION),
+    )
+  })
+})
+
+// @test-link [[module_kept_session_save]]
+// @test-link [[rule_failed_save_never_disturbs_session]]
+describe("the retry of a refused session's save", () => {
+  it('is the same batch under the same key, with the facts held in memory then', () => {
+    const history = recordedKeptSession('bb-tenor', 3)
+    const saving = endedSessionSave(history, false)
+    const held = { pinned: true, favorites: [1, 3], comment: 'Steady.' }
+
+    const changes = keptSessionChanges(codec, history, saving, [], APP_VERSION, held)
+
+    const expected = codec.encodeKeptSession(history, { ...FRESH, ...held }, APP_VERSION)
+    expect(changes).toEqual([
+      { kind: 'write', store: 'sessionSummaries', key: saving.key, record: expected.summary },
+      { kind: 'write', store: 'sessionBodies', key: saving.key, record: expected.body },
+    ])
+  })
+
+  it("reads the sessions to delete at the retry, through the visit's saves", async () => {
+    const history = recordedKeptSession('bb-tenor', 2)
+    const saving = endedSessionSave(history, false)
+    const held = { pinned: false, favorites: [], comment: 'Again.' }
+    const asked: SessionChanges[] = []
+    const saves = {
+      /** Intent: record the changes asked for, and resolve as saved. */
+      saveSession: (changes: SessionChanges) => {
+        asked.push(changes)
+        return Promise.resolve({ status: 'saved' } as const)
+      },
+    }
+
+    expect(await saveEndedSession(saves, history, saving, held)).toEqual({ status: 'saved' })
+    const kept = [keptSummary(recordedKeptSession('eb-alto', 2), 'session-1-1', false)]
+    expect(asked[0]?.(kept)).toEqual(
+      keptSessionChanges(codec, history, saving, kept, APP_VERSION, held),
+    )
+    expect(described(asked[0]!(kept))[0]).toBe('delete sessionSummaries session-1-1')
   })
 })

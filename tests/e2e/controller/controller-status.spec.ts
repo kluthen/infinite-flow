@@ -5,7 +5,8 @@
  * display at full strength; its form kept while a session runs and updated once it ends, except
  * for the disconnected badge a controller lost mid-session shows during its countdown (chunk 17); a
  * controller unplugged at Idle keeping its selection and reattaching by itself, a selection a page
- * reload forgets (item 19); and the forms' order and one width, the `Connect controller` button
+ * reload reattaches when MIDI access is already allowed and forgets after `Disconnect` (v3.0
+ * chunk 22, item 18); and the forms' order and one width, the `Connect controller` button
  * included (D146), which never moves the rest of the header.
  */
 import { expect, test, type Page } from '@playwright/test'
@@ -249,16 +250,42 @@ test.describe('item 19: unplugged at Idle', () => {
   })
 
   // @test-link [[rule_same_controller_reattaches]]
-  test('after a page reload no controller is remembered: plugging the same device back in attaches nothing', async ({
+  // @test-link [[rule_last_controller_remembered]]
+  // @test-link [[rule_disconnect_forgets_controller]]
+  test('after a page reload the remembered controller reattaches when MIDI access is already allowed; after Disconnect nothing does', async ({
     page,
   }) => {
-    await gotoControllerHarness(page)
-    await BADGE_SETUPS.connected(page)
+    // The browser keeps its MIDI permission and the device stays plugged in across the reloads.
+    await gotoControllerHarness(page, { atLoad: { permission: 'granted', devices: [KEYS] } })
+    await clickControllerStatus(page)
+    await sheetClose(page).click()
     await expect.poll(() => statusForm(page)).toEqual(FORM.connected(KEYS.name))
+    await expect
+      .poll(() => page.evaluate(() => window.__workspaceHarness.storage.records('controller')))
+      .toHaveLength(1)
 
     await page.reload()
     await page.waitForFunction(() => window.__workspaceHarness?.session.loaded() === true)
-    await plug(page, KEYS)
+
+    // Reattached with no click and no sheet: one request, which cannot prompt.
+    await expect.poll(() => statusForm(page)).toEqual(FORM.connected(KEYS.name))
+    expect(await page.evaluate(() => window.__workspaceHarness.midi.stateLog())).toEqual([
+      'not-requested',
+      'requesting',
+      'opening',
+      'connected',
+    ])
+    expect(await requestCount(page)).toBe(1)
+    await expect(sheet(page)).toHaveCount(0)
+
+    await clickControllerStatus(page)
+    await sheetAction(page, 'Disconnect').click()
+    // The forgetting is saved before the reload, as the player's next load would find it.
+    await expect
+      .poll(() => page.evaluate(() => window.__workspaceHarness.storage.records('controller')))
+      .toEqual([])
+    await page.reload()
+    await page.waitForFunction(() => window.__workspaceHarness?.session.loaded() === true)
 
     // Back to Connect controller: nothing asked the browser for MIDI access, so nothing attached.
     await expect.poll(() => statusForm(page)).toEqual(FORM.connect)

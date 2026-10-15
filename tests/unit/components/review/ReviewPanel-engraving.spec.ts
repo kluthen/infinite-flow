@@ -26,6 +26,7 @@ import {
   page,
   recordedRecords,
   stubReviewBrowser,
+  SESSION_TOOL_PROPS,
 } from './review-fixtures'
 
 vi.mock('@/notation/vexflow-engraver-loader', () => import('../notation/fake-phrase-engraver'))
@@ -63,6 +64,11 @@ function mountPanel(
       holdsPlayedNote: records.some((record) => record.playedNotes.length > 0),
       playedNotesShown,
       exportPlayedNotes: () => Promise.resolve(),
+      keepPlayedNotes: false,
+      canDeletePlayedNotes: false,
+      includeVeryShortNotes: false,
+      playedNotesFileHoldsNote: true,
+      ...SESSION_TOOL_PROPS,
     },
     attachTo: document.body,
   })
@@ -303,7 +309,10 @@ describe('what the review never shows', () => {
 
     const markup = wrapper.findAll('.review-phrase').map((item) => item.html())
     const normalise = (html: string, n: number): string =>
-      html.replaceAll(`Phrase ${n}`, 'Phrase N').replace(/data-note-id="\d+:/gu, 'data-note-id="N:')
+      html
+        .replaceAll(`Phrase ${n}`, 'Phrase N')
+        .replaceAll(`phrase ${n}`, 'phrase N')
+        .replace(/data-note-id="\d+:/gu, 'data-note-id="N:')
     expect(normalise(markup[1]!, 2)).toBe(normalise(markup[0]!, 1))
     expect(wrapper.html()).not.toMatch(/repeat/iu)
   })

@@ -443,6 +443,29 @@ runs one export: it loads the export code, builds the file and downloads it. Its
 (`browserReviewExportPorts(document)`); `ScorePanel`'s `reviewExportPorts` prop lets a test or
 the harness replace them.
 
+### The played-notes action
+
+When the session holds a played note in a phrase (very short ones count), `review-export-played`
+follows, one group named "Export played notes":
+
+- **Include very short notes**: a toggle button, off at first. `useReviewHost` holds it for the
+  page visit, across Reviews and sessions, and saves it nowhere: a reload turns it off.
+- **Export played notes**: builds the played-notes MIDI file and starts its download, with the
+  same loading, focus and error behaviour as `Export generated notes`. It is disabled whenever its
+  file would hold no note: while the option is off and every played note is very short, its
+  `field-note` says so ("Every note you played is very short. Turn on Include very short notes to
+  export them."), named by `aria-describedby`, and turning the option on enables it at once. So
+  it never reaches the export error for want of a note.
+
+`exportPlayedNotes(history, request, ports)` sends the option as it is when the export starts, and
+`buildPlayedNotesFile(history, options)` (in `src/export/played-notes-file.ts`) leaves out every
+very short note unless `options.includeVeryShortNotes`: a note under 38 ms, note-on to
+note-off, from `src/domain/played-notes/stray-notes.ts` (see
+[Very short notes (M1)](midi-tuning.md#very-short-notes-m1)). Without options, the file leaves
+them out. `playedNotesFileHoldsNote(records, request)` tells the Review, without loading the
+export code, whether the file would hold a note. The stored played notes keep every note as
+received.
+
 ### The file
 
 `buildGeneratedNotesFile(history, request)` builds the one file asked for. The request holds the

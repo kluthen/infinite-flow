@@ -86,8 +86,14 @@ pinned: deleted when your next session is saved." to be understood.
   tab saves and deletes nothing until it is reloaded, and the notice above the workspace asks for
   that reload. A deletion that only hid the session for this visit would show a result the device
   does not hold. `Pin` and `Unpin` stay, in memory only for the visit, as the notice says.
-- **A session that fails to open** says so on its row and can be tried again; nothing else on the
-  page changes.
+- **A session that fails to open** (the device refused or failed the read) says so on its row and
+  can be tried again; nothing else on the page changes, and nothing is deleted.
+- **A damaged session** (one the app cannot read correctly) is deleted, with an apology in the
+  notice row, as the master spec rules. Opened from its row, the row leaves and focus moves on as
+  after a deletion, rather than a note promising a retry that can never work. One whose summary
+  is damaged never has a row: its date, length and status would all be guesses. The count behind
+  `All sessions` and Your data's counts follow the rows, so the link never leads to a list with
+  nothing in it.
 - **Opening** takes a moment at most, and only the title pressed shows it is working: the list
   does not dim or lock.
 - **No kept session:** one plain sentence says the next session will be kept here. There is no

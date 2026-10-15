@@ -88,7 +88,7 @@ index: any ordering, such as kept sessions by date, is done in memory over the s
 of stores is fixed at data version 1; a store added later needs its own migration step.
 
 `meta` holds the database's data version and the version of the app that last upgraded the
-database. The port never exposes it: `read`, `readAll`, `readKeyed`, `write`, `delete` and each
+database. The port never exposes it: `read`, `readAll`, `readKeyed`, `readKeys`, `write`, `delete` and each
 change of a batch take one of the six data stores (`StoreName`), and any other name throws a plain `Error`, a
 caller defect.
 
@@ -142,6 +142,11 @@ records carry their own key (`settings`) or need none.
 The load reads the kept sessions' summaries this way, and so does the session's save (see
 [The session's save](#the-sessions-save)): a kept session's key is in no record, so only the
 keyed read can name the body to open or the records to delete.
+
+`readKeys(store)` gives only the keys a store holds, in key order (`getAllKeys` alone, never a
+value), a key that is not a string left out; it is refused as the other reads are. Deleting every
+kept played note reads the `playedNotes` store this way, so it never reads a played note (see
+[Changes after the session's save](#changes-after-the-sessions-save)).
 
 ## Batches
 
@@ -602,7 +607,7 @@ older kept session that is not pinned is deleted in the same save. A session end
 and a start undone part-way save, read and delete nothing.
 
 `src/components/workspace/workspace-session-save.ts`, beside the session's ends, builds it:
-`saveEndedSession(saves, history)` loads the kept-session codec on demand (a lazy chunk: the first
+`saveEndedSession(saves, history, saving)` loads the kept-session codec on demand (a lazy chunk: the first
 draw never needs it) and hands the visit's saves a `SessionChanges` function. The end calls it
 without waiting (`workspace-session-ends.ts`), so a slow or refused save never delays the end or
 the review. It runs in this order:
@@ -614,8 +619,9 @@ the review. It runs in this order:
    and the new session is still saved.
 3. One batch (`keptSessionChanges`), one transaction, all or none: first the deletion of the
    summary, body and played notes of every readable kept session that is not pinned, then the new
-   session's summary and body under its new key (and its played notes, only when they are kept,
-   which they never are before the opt-in). A summary that does not decode, or that a newer app
+   session's summary and body under its new key, and its played notes only when they are kept:
+   `Keep my played notes` on at the session's end and the session holding a played note in a
+   phrase (`endedSessionSave`, which also mints the key once). A summary that does not decode, or that a newer app
    wrote, is left in place with its records, since whether it is pinned is unknown (spec O200's
    proposed default). The deletions come first, so a kept session under the very same key is
    replaced, never deleted after the write.
@@ -636,6 +642,94 @@ row raises Storage full; an `other` refusal is the caller's alone and raises no 
 failed is for saves other than the session's own), and it leaves the run of refusals as it was.
 While saving is off (an outdated tab, or a visit started from the defaults), the session's save
 reads, writes and deletes nothing, and every kept session stays.
+
+## Changes after the session's save
+
+Every change the player makes to a kept session after its own save is one batch through the save
+policy (`src/components/workspace/kept-session-changes.ts`, its runner in
+`src/storage/save-policy-kept-changes.ts`): keeping or deleting one session's played notes and
+deleting every kept played note here; a favorite, a pin or an unpin, the comment and
+`Delete session` through the same `keptSummaryChanges`. The plain `save(changes)`,
+which reads nothing, is never used for them.
+
+- **In line with the session saves.** `policy.changeKept(changes, refusal)` runs in the same line
+  as `saveSession`, so a change made while the session's own save runs applies after it, to what
+  it saved. It waits, as that save does, until no session holds the saves and the release's flush
+  has been applied; a session started while it read makes it read again after that session.
+- **Read at the change.** `changes` is a `KeptChanges` function: given a `KeptRecordsReader`
+  (`read`, `readKeyed`, `readKeys` over the port), it reads what it rewrites now and returns the
+  batch, only the player's change applied to what was read, so a fact another tab stored since the
+  load stays (a session pinned there stays pinned). The read and the batch are separate
+  transactions, the narrow window the session's own save accepts too. A session-wide record that
+  is no longer stored, or cannot be read, gives an empty batch: nothing is written or recreated,
+  and the change resolves `unchanged`.
+- **Named by its key.** A session is named by the key its own save minted (`ReviewedSession.key`),
+  or the one it was read by; never by a key rebuilt from its facts.
+- **Encoded again.** `rewriteKeptSummary(stored, edit, appVersion)` rewrites a stored session-wide
+  record with only `edit` applied (`playedNotesKept`, `pinned`, `favoritesCount`, `comment`), the
+  app version that recorded the session kept; `encodeKeptPlayedNotes(history, appVersion)` gives
+  the very played-notes record the session's save writes when they are kept.
+- **What each change writes.** Keeping a session's played notes writes its `playedNotes` record and
+  its summary saying so; deleting them deletes the record and rewrites the summary; both in one
+  batch, so the two never disagree. Deleting every kept played note reads the keys of every
+  `playedNotes` record and every summary with its key, then deletes every played-notes record (an
+  unreadable session's included) and rewrites every readable summary that said they were kept; an
+  unreadable summary and its body are left as they are.
+- **Its outcome** resolves to the caller (`KeptChangeOutcome`): `saved`, `unchanged`,
+  `refused` with its kind, or `saving-off` (saving off for the visit, or a refusal as `outdated`,
+  which turns it off); a refused read applies nothing and resolves `refused` too. Under `notice`
+  a refusal is also told to the failure listener, so the notice row tells it once the player is
+  back at Idle (keeping a session's played notes, the change holding in memory); under `caller`
+  it is the caller's alone (a deletion, whose sheet tells it and stays open).
+- **A read alone.** `policy.readKept(read, refusal)` reads on the same terms and in the same line:
+  whether played notes are kept with any session, which decides whether turning
+  `Keep my played notes` off opens its confirmation, is the count of `playedNotes` keys read at the
+  switch, whichever tab kept them.
+- **While saving is off**, nothing is read, written or deleted: a change holds for the visit only.
+
+The session controller's side (`workspace-kept-played-notes.ts`) holds `Keep my played notes`
+(`state.keepPlayedNotes`, from the saved setting) and `state.savingOff`, which follows the
+policy's state, so the deletions a Review offers leave the moment the tab turns outdated.
+Turned on, the setting keeps the played notes of the most recent session when they are still in
+memory and the session is kept (`ReviewedSession.playedNotesKept` turns true in memory at once).
+Turned off, it resolves the deletion to confirm when played notes are kept with some session.
+A deletion resolves `deleted` (also when nothing was left to delete), `refused` or `saving-off`;
+once deleted, a held session that kept its played notes loses them from memory too, the Review
+and the most recent session drawing the very same new history. A session whose own save failed is
+never changed through this path.
+
+### The Review's other changes
+
+The Review's favorites, pin, comment and `Delete session` are built in
+`src/components/workspace/kept-session-review-changes.ts` and held by the controller's side
+`workspace-kept-session-edits.ts`. Each applies at once in memory (`ReviewedSession.pinned`,
+`favorites`, `comment`, and `keeping` following the pin unless the session is not saved), then is
+saved when made:
+
+- **A favorite mark** reads the summary and the body; `rewriteKeptBodyFavorite(stored,
+phraseNumber, favorite, appVersion)` rewrites the body with that one mark, every other field as
+  read, and gives the favorites count the body then holds, which the summary is rewritten with
+  (pinned too when marking). Removing the last favorite leaves the pin as it is.
+- **A pin, an unpin and the comment** rewrite the summary only (the comment trimmed, at most 500
+  characters; an unchanged one saves nothing).
+- **`Delete session`** deletes the summary, the body and the played notes in one batch, when the
+  summary is stored and readable; its refusal is the caller's (its sheet tells it). A session held
+  in memory only because its save failed is deleted from memory alone. It is never offered while
+  saving is off.
+- **The retry.** In a session whose own save was refused, the next favorite, pin, unpin or comment
+  runs that save again (`saveEndedSession` with the held facts: pinned, favorites, comment), under
+  the same key, the unpinned sessions to delete read at the retry; once saved, `keeping` takes
+  `pinned` or `not-pinned`. A failed retry changes nothing shown. A change made while a retry runs
+  waits for it, then goes through the change path.
+- **Persistent storage.** A favorite marked and a pin each ask the policy's `requestProtection()`,
+  which asks the browser at most once per visit (see [Persistent storage](#persistent-storage)).
+
+In the Review (`use-review-played-notes.ts`, beside the Review host), `Keep my played notes` and
+`Delete played notes` sit in `review-view` after `Played notes`. Turning the switch saves the
+`keepPlayedNotes` setting through the visit's saves, then hands it to the controller; a deletion
+the controller asks for, or `Delete played notes`, opens the shared confirmation sheet
+(`ConfirmationSheet.vue`, its words in `review-confirmation-copy.ts`), which a refused deletion
+keeps open with its error and which closes, deleting nothing, when saving turns off.
 
 ## The most recent session
 
@@ -667,6 +761,34 @@ session with the latest start. A session ended in its count-in leaves it as it w
   it."; below `bp-tablet-landscape` (the workspace staff's split layout) only the last. The title is
   "Last session" for the most recent session and the session date otherwise; the summary starts
   with the session date (`session-date.ts`) when the title does not hold it.
+
+## The remembered controller
+
+The `controller` store holds at most one record, under the key `remembered`
+(`src/storage/records/controller-record.ts`): the record envelope (data version 1) and the input
+port's `id`, `name` and `manufacturer`. The `id` is the one identity matched at load, the one a
+device that comes back within a page is recognised by; the name and the manufacturer are for
+display only, since two identical devices share them.
+
+- **Read.** The load hands the store's records on raw (`rememberedController`);
+  `composeWorkspaceSession` decodes them with `decodeRememberedController`, tolerantly: a record
+  this version cannot read, or one a newer version wrote, gives no remembered controller. The
+  workspace session hands it to the shell as `rememberedController`, with its saves.
+- **At load** (`useControllerConnection`, at the shell's setup), the MIDI controller's `reselect`
+  makes it the remembered controller; only when the permission query reads `granted` is MIDI
+  access requested, one request that cannot prompt. The input whose `id` equals the record's is
+  selected at once, or stays `away` until it appears and is then attached as a device that comes
+  back within a page. With nothing remembered, no permission is read and nothing is requested.
+- **Saved** when it changes: the MIDI controller reports the remembered controller in every change
+  (the one loaded, then the last device that counted as connected, none after `Disconnect`), and
+  the shell's side writes the record (`rememberController`) or deletes it (`forgetController`)
+  through the visit's saves, so through the save policy. An unplug, or the same device
+  reattaching, saves nothing; deleting my instrument leaves it; Delete everything removes it with
+  the database.
+- **A visit that saves nothing** (an outdated tab, a visit started from the defaults): the policy
+  skips the write and the delete, so a controller connected there is not remembered and its
+  `Disconnect` forgets it for that visit only; the next load that reads the saved data reselects
+  the controller remembered before (spec D318).
 
 ## The notices
 

@@ -209,14 +209,23 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
   `-played-favorites.mid`). Activation builds exactly one file and starts a browser download,
   with the same `is-loading`, focus, code-loading and no-message-on-success behaviour as
   `Export generated notes`. The two buttons are independent: either may be used while the other
-  is building. Under `Favorites only`, when no favorite phrase holds a played note, it is
-  disabled and named by `aria-describedby` to a `field-note` "No played notes in your
-  favorites."
+  is building. It is disabled whenever its file would hold no note under the current scope and
+  `Include very short notes`, and named by `aria-describedby` to a `field-note` giving the first
+  reason that applies: under `Favorites only`, when no favorite phrase holds a played note, "No
+  played notes in your favorites."; otherwise, while `Include very short notes` is off and every
+  played note the scope selects is very short, "Every note you played is very short. Turn on
+  Include very short notes to export them." under `Whole session`, and "Every note you played in
+  your favorites is very short. Turn on Include very short notes to export them." under
+  `Favorites only`. Turning the option on or off, or changing the scope, updates the button and
+  its note at once; focus stays on the control the player changed. A change made while the file
+  builds leaves that build as it started; the button then takes the state the current choices
+  give. So it never reaches `review-export-error` for want of a note.
 - **[v3 new]** **Include very short notes**: `btn toggle-button` reading "Include very short
   notes" with `toggle-button-state` "on"/"off" (`aria-pressed`; the accessible name is the label
   alone), before `Export played notes`. Off at first; holds while the page is open, across
   Reviews; never saved. It changes the played-notes file only, never the lane or the
-  generated-notes file. It stays live while `Export played notes` is disabled or building.
+  generated-notes file. It stays live while `Export played notes` is disabled or building: when
+  every played note the scope selects is very short, it is what enables the export.
 - `review-export-error`: `inline-alert alert-error` reading "The file couldn't be made. Try
   again." It appears under `review-actions` after any failure to build or hand over a file, of
   either content (a failed load of the export code included), is not a live region, moves no
@@ -265,6 +274,12 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
     (`btn btn-error`) then `Cancel` (`btn`).
   - A deletion that fails keeps its sheet open with `inline-alert alert-error` "That couldn't be
     deleted. Try again." under its paragraphs; the confirming action tries again.
+  - While a deletion runs, its confirming action takes `is-loading`; the way back stays live and
+    closes the sheet without stopping it: the deletion finishes (`flows/kept-sessions/handoff.md`,
+    The Confirmation Pattern). Its result then shows as on confirmation, with no message. A
+    refusal after the sheet closed shows nothing: the played notes or the session are still
+    there, and `Delete played notes` or `Delete session` tries again (the played notes already
+    kept, through `Your data`'s `Delete all played notes`).
 - **Played-notes lane**: while `Played notes` is on, each system position in `review-staff`
   is followed by one `played-notes-lane`, a block of the full content inline size and the block
   size `--played-notes-lane-block-size`, separated from the system above by `--spacing-2`, holding
@@ -294,8 +309,10 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
 
     A note held when the session ended stops at the session's end. A bar is cut at its phrase's
     end; in the split layout a bar that crosses from bar 2 into bar 3 is drawn in both lanes, cut
-    at the break. A bar is never narrower than `--played-note-min-inline-size`, so a very short
-    note stays visible.
+    at the break.
+
+    **[v3 changed]** A bar is never narrower than `--played-note-min-inline-size`, so a brief note
+    the lane shows, one at or just above the very-short-note threshold, still gets a visible bar.
   - **Pitch (block axis).** Higher notes higher. The scale runs from the lowest to the highest
     played note of the whole session (not of the phrase), widened equally on both sides to at
     least an octave (12 half steps) when the session's span is smaller, so every lane of the
@@ -407,7 +424,11 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
   the way back, focus returns to the button that opened it. After `Delete played notes` or
   `Delete them` removes `review-view`, focus moves to `review-title`; after `Delete them` with
   `review-view` still shown, to `Keep my played notes`. After `Unpin`, to the button, now `Pin`.
-  After `Delete session`, as `flows/kept-sessions/handoff.md` sets (the list's title).
+  After `Delete session`, as `flows/kept-sessions/handoff.md` sets (the list's title). A sheet
+  closed while its deletion runs returns focus as the way back does; when the deletion then
+  ends, focus still on a button it removed (`Delete played notes`, or `Keep my played notes` with
+  `review-view`, or `Delete session` with the Review) moves as after that confirmation, and focus
+  anywhere else stays.
 - **[v3 changed]** A session end moves focus to `Close review`. `Close review`, `Review last session`,
   `All sessions` and a list row move focus as `flows/review-and-export/handoff.md` and
   `flows/kept-sessions/handoff.md` set. Keyboard route from a session end: Space closes the
@@ -496,8 +517,11 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
 - **Played notes on / off:** lanes shown under every system position, or none; see
   Components and Content.
 - **[v3 new]** **Favorites only unavailable:** no favorite: the segment disabled with its
-  `field-note`. **Played notes export unavailable:** under `Favorites only` with no played note in
-  a favorite phrase: `Export played notes` disabled with its `field-note`.
+  `field-note`. **Played notes export unavailable:** its file would hold no note, under
+  `Favorites only` with no played note in a favorite phrase, or with `Include very short notes`
+  off and every played note the scope selects very short: `Export played notes` disabled with its
+  `field-note` (Components and Content). In the second case, with `Played notes` on, the lanes
+  show no bar.
 - **[v3 new]** **Comment:** collapsed-empty, collapsed-filled, editing (see Components and
   Content).
 - **[v3 new]** **A confirmation open:** the Review stays under the sheet's backdrop, unchanged.

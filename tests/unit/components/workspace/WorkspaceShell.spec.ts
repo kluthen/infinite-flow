@@ -1,5 +1,5 @@
 import { flushPromises, mount } from '@vue/test-utils'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { nextTick, reactive } from 'vue'
 
 import WorkspaceShell from '@/components/workspace/WorkspaceShell.vue'
@@ -18,10 +18,16 @@ import { buildWorkspaceSessionResult } from '../../workspace-test-fixtures'
 import { themeMixTokens, transportRig } from '../../audio/transport-rig'
 import { createControllerRig } from '../../midi/midi-controller-rig'
 import { provideSaveSettings } from './recording-save-settings'
-import { quietSavedData } from './quiet-saved-data'
+import { noRememberedController, quietSavedData } from './quiet-saved-data'
 
 // A session end once phrase 1 has sounded opens the Review: its lazy panel is swapped for a stand-in.
 vi.mock('@/components/review/ReviewPanel.vue', () => import('./review-panel-stub'))
+
+// A session's start warms the Review's lazy area; loaded once ahead, so that warm-up settles within
+// the test that starts it, as it does in the app once the chunk has loaded, not as the file ends.
+beforeAll(async () => {
+  await import('@/components/workspace/ReviewArea.vue')
+})
 
 const MOUNT_OPTIONS = {
   global: { stubs: { PhraseScore: PHRASE_SCORE_STUB }, provide: provideSaveSettings() },
@@ -77,6 +83,7 @@ function mountShell(
   return mount(WorkspaceShell, {
     props: {
       savedData: quietSavedData(),
+      rememberedController: noRememberedController(),
       session,
       pendingPhrase: null,
       handleEngraved: () => {},
@@ -227,6 +234,7 @@ describe('WorkspaceShell', () => {
     const wrapper = mount(WorkspaceShell, {
       props: {
         savedData: quietSavedData(),
+        rememberedController: noRememberedController(),
         session: workspace.session,
         pendingPhrase: workspace.pendingPhrase.value,
         handleEngraved: workspace.handleEngraved,

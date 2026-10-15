@@ -2,12 +2,14 @@
  * Fakes of the session's browser ports (src/session/session-browser-ports.ts) for unit tests and
  * the workspace harness: two screen locks whose answer the test chooses (granted, refused or
  * unsupported), that count and log every request and release and say whether the lock is held; a
- * page whose visibility the test sets; and a window whose shape the test resizes. They honour the
+ * page whose visibility the test sets; a window whose shape the test resizes; and the page's first
+ * click, tap or key press, which the test makes. They honour the
  * ports' contracts (a second request before a release throws) and settle at once, with no
  * browser. They import no Node module and no test framework, so the browser harness reuses them.
  */
 import type {
   OrientationLock,
+  PageActivation,
   PageVisibility,
   ScreenLockOutcome,
   ScreenWakeLock,
@@ -188,9 +190,13 @@ export interface FakeSessionBrowser extends SessionBrowserPorts {
   readonly orientationLock: FakeOrientationLock
   readonly pageVisibility: FakePageVisibility
   readonly windowShape: FakeWindowShape
+  readonly pageActivation: FakePageActivation
 }
 
-/** Intent: a full set of fake session browser ports: locks granted, page visible, desktop window. */
+/**
+ * Intent: a full set of fake session browser ports: locks granted, page visible, desktop window,
+ * the page not yet activated.
+ */
 // @test-link [[service_session_controller]]
 export function createFakeSessionBrowser(): FakeSessionBrowser {
   return {
@@ -198,5 +204,31 @@ export function createFakeSessionBrowser(): FakeSessionBrowser {
     orientationLock: createFakeOrientationLock(),
     pageVisibility: createFakePageVisibility(),
     windowShape: createFakeWindowShape(),
+    pageActivation: createFakePageActivation(),
+  }
+}
+
+/** A fake page activation the test activates, as the page's first click, tap or key press. */
+export interface FakePageActivation extends PageActivation {
+  /** The page's first click, tap or key press; throws when it already came. */
+  readonly activate: () => void
+}
+
+/** Intent: a fake page activation, not active until the test calls `activate`. */
+export function createFakePageActivation(): FakePageActivation {
+  let active = false
+  const listeners = new Set<() => void>()
+  return {
+    hasBeenActive: () => active,
+    onFirstActivation: (listener) => {
+      if (!active) listeners.add(listener)
+      return () => listeners.delete(listener)
+    },
+    activate: () => {
+      if (active) throw new Error('fake page activation: the page is already active')
+      active = true
+      for (const listener of [...listeners]) listener()
+      listeners.clear()
+    },
   }
 }

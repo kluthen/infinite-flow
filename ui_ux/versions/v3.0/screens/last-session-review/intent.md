@@ -190,7 +190,13 @@ in-between notes some controllers send while the fingers move, which the app lea
 default. It is a toggle in the played-notes group because it changes that file only; it is off at
 first and holds while the page is open, without being remembered, because it is a choice for one
 export rather than a preference. Under `Favorites only`, when no favorite phrase holds a played
-note, `Export played notes` is shown unavailable with the reason beside it.
+note, `Export played notes` is shown unavailable with the reason beside it. The same holds
+whenever the file would hold no note: when every note the player played is very short and the
+option is off, the reason names `Include very short notes`, the toggle just before the button, so
+the cure sits beside the explanation. Hiding the group would hide that cure, and an empty file
+gives the player nothing. The lane then shows no bar, as under a phrase in which nothing was
+played, and needs nothing more: its lack of a switch is the master spec's choice, and the export's
+reason already says what was left out.
 
 ## The Notes the Player Played
 

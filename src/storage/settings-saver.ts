@@ -1,6 +1,6 @@
 /**
- * What the app saves the player's changes and holds a session's saves through, over the visit's
- * save policy. The loader hands the policy over as a promise; calls made before it settles wait,
+ * What the app saves the player's changes and the remembered controller, and holds a session's
+ * saves, through, over the visit's save policy. The loader hands the policy over as a promise; calls made before it settles wait,
  * in order, and every call reaches the policy in the order it was made. Once the policy has
  * loaded, calls reach it at once, so a hold made when a session starts takes effect right there.
  *
@@ -15,12 +15,26 @@ import type { GenerationControls } from '@/domain/controls/generation-controls'
 import type { ProfileSelection } from '@/domain/controls/profile-selection'
 
 import {
+  CONTROLLER_RECORD_KEY,
+  encodeControllerRecord,
+  type RememberedControllerDevice,
+} from './records/controller-record'
+import {
   encodeSettingRecord,
   SETTING_KEYS,
   type SettingKey,
   type SettingValue,
 } from './records/settings-record'
-import type { SavePolicy, SessionChanges, SessionSaveOutcome } from './save-policy'
+import type {
+  KeptChangeOutcome,
+  KeptChanges,
+  KeptRead,
+  KeptReadOutcome,
+  KeptRefusal,
+  SavePolicy,
+  SessionChanges,
+  SessionSaveOutcome,
+} from './save-policy'
 import type { StorageChange } from './storage-port'
 
 /**
@@ -55,8 +69,37 @@ export interface SessionSaveHold {
   readonly saveSession: (changes: SessionChanges) => Promise<SessionSaveOutcome>
 }
 
-/** The visit's saves of the player's settings, and the hold of a session's saves. */
-export interface VisitSaves extends SessionSaveHold {
+/**
+ * The changes to kept sessions after their own save, and the reads made at such a change, in the
+ * line of the session saves; each resolves what became of it.
+ */
+// @spec-link [[module_kept_session_changes]]
+export interface KeptSessionChanges {
+  /** Read at the change, then apply the batch built from it (SavePolicy.changeKept). */
+  readonly changeKept: (changes: KeptChanges, refusal: KeptRefusal) => Promise<KeptChangeOutcome>
+  /** Read the kept sessions at a change (SavePolicy.readKept). */
+  readonly readKept: <T>(read: KeptRead<T>, refusal: KeptRefusal) => Promise<KeptReadOutcome<T>>
+}
+
+/**
+ * The saves of the remembered controller: its one record written when a different device counts as
+ * connected, deleted by the player's Disconnect. Skipped by the policy in a visit that saves nothing.
+ */
+// @spec-link [[entity_remembered_controller_record]]
+// @spec-link [[rule_last_controller_remembered]]
+// @spec-link [[rule_disconnect_forgets_controller]]
+export interface ControllerSaves {
+  /** Write the remembered controller's record for `device`, replacing any earlier one. */
+  readonly rememberController: (device: RememberedControllerDevice) => void
+  /** Delete the remembered controller's record. */
+  readonly forgetController: () => void
+}
+
+/**
+ * The visit's saves of the player's settings, the hold of a session's saves, the changes to kept
+ * sessions after their save, and the saves of the remembered controller.
+ */
+export interface VisitSaves extends SessionSaveHold, KeptSessionChanges, ControllerSaves {
   readonly saveSettings: SaveSettings
 }
 
@@ -114,6 +157,14 @@ export function createVisitSaves(policy: Promise<SavePolicy>, appVersion: string
     runPending(resolved)
   })
 
+  /** Intent: call the policy in line, resolving what its call resolves (a defect rejects). */
+  const resolved = <T>(call: (target: SavePolicy) => Promise<T>): Promise<T> =>
+    new Promise((resolve, reject) => {
+      submit((target) => {
+        call(target).then(resolve, reject)
+      })
+    })
+
   return {
     saveSettings: (changes) => {
       const writes = settingWrites(changes, appVersion)
@@ -122,12 +173,29 @@ export function createVisitSaves(policy: Promise<SavePolicy>, appVersion: string
     },
     hold: () => submit((target) => target.hold()),
     release: () => submit((target) => void target.release()),
-    saveSession: (changes) =>
-      new Promise((resolve, reject) => {
-        submit((target) => {
-          target.saveSession(changes).then(resolve, reject)
-        })
-      }),
+    saveSession: (changes) => resolved((target) => target.saveSession(changes)),
+    changeKept: (changes, refusal) => resolved((target) => target.changeKept(changes, refusal)),
+    readKept: (read, refusal) => resolved((target) => target.readKept(read, refusal)),
+    // @spec-link [[rule_last_controller_remembered]]
+    rememberController: (device) => {
+      const record = encodeControllerRecord(device, appVersion)
+      const change: StorageChange = {
+        kind: 'write',
+        store: 'controller',
+        key: CONTROLLER_RECORD_KEY,
+        record,
+      }
+      submit((target) => void target.save([change]))
+    },
+    // @spec-link [[rule_disconnect_forgets_controller]]
+    forgetController: () => {
+      const change: StorageChange = {
+        kind: 'delete',
+        store: 'controller',
+        key: CONTROLLER_RECORD_KEY,
+      }
+      submit((target) => void target.save([change]))
+    },
   }
 }
 

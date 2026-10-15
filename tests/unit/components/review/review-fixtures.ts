@@ -239,3 +239,21 @@ export function stubReviewBrowser(): void {
     return new DOMRect(0, box.top, page.listWidthPx, page.itemHeightPx)
   })
 }
+
+/**
+ * The session tools' props a Review panel spec gives when it does not look at them: an unpinned
+ * session under the test key, with no favorite and no comment, `Delete session` offered.
+ */
+export const SESSION_TOOL_PROPS: {
+  readonly sessionKey: string
+  readonly pinned: boolean
+  readonly favorites: readonly number[]
+  readonly comment: string
+  readonly canDeleteSession: boolean
+} = Object.freeze({
+  sessionKey: 'session-1-1',
+  pinned: false,
+  favorites: Object.freeze([]),
+  comment: '',
+  canDeleteSession: true,
+})

@@ -14,6 +14,7 @@ import { describe, expect, it } from 'vitest'
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
 import { createGenerationIntent } from '@/domain/generation/generation-intent'
 import { makeRequestId } from '@/domain/generation/generation-request'
+import { makeMyInstrument } from '@/domain/profile/my-instrument'
 import { makeSeed } from '@/domain/random/seed'
 import { encodePhraseReplayKey } from '@/generation-worker/phrase-replay-key'
 
@@ -63,6 +64,39 @@ const KEY = encodePhraseReplayKey(
   1,
 )
 
+/** A real `ifk2.` key: my instrument sounding a minor third lower, seed 42, workspace phrase. */
+const MY_INSTRUMENT_KEY = encodePhraseReplayKey(
+  createGenerationIntent({
+    requestId: makeRequestId('script-my-instrument-42'),
+    seed: makeSeed(42),
+    controls: makeGenerationControls({
+      tempo: 90,
+      tonalCenter: 'D',
+      collection: 'Major',
+      harmonicMotion: 'Gentle diatonic',
+      tension: 'Settled',
+      noteDensity: 'Quarter',
+      rhythmicVariety: 'Slightly varied',
+      syncopation: 'Straight',
+      silenceDensity: 'Sparse',
+      contour: 'Wandering',
+      register: 'Middle',
+      leapiness: 'Leaping',
+      arpeggioChaos: 'Predictable',
+      instrumentProfileId: 'my-instrument',
+    }),
+    musicalProfile: { musicalProfile: 'Neutral', isCustom: true },
+    instrumentProfile: makeMyInstrument({
+      template: 'c-keyboard',
+      name: 'My horn in A',
+      clef: 'treble',
+      writtenRange: { minMidi: 48, maxMidi: 84 },
+      transposition: { octaves: 0, semitones: 3, direction: 'lower' },
+    }).profile,
+  }),
+  1,
+)
+
 /** Intent: run the script with the given arguments and stdin, capturing its output. */
 function runScript(args: readonly string[], input?: string): SpawnSyncReturns<string> {
   return spawnSync(process.execPath, ['scripts/replay-phrase.mjs', ...args], {
@@ -106,6 +140,27 @@ describe('npm run replay:phrase', () => {
   // @test-link [[service_headless_phrase_replay]]
   // @test-link [[module_phrase_replay_key]]
   it(
+    'replays an ifk2 key made with my instrument, its profile in the printed input',
+    () => {
+      const run = runScript([MY_INSTRUMENT_KEY])
+      expect(run.stderr).toBe('')
+      expect(run.status).toBe(0)
+      const report = JSON.parse(run.stdout) as Record<string, Record<string, unknown>>
+      expect(report.key).toBe(MY_INSTRUMENT_KEY)
+      expect(report.keyVersion).toBe('ifk2')
+      expect(report.input!.instrumentProfile).toMatchObject({
+        id: 'my-instrument',
+        displayName: 'My horn in A',
+        concertRange: { minMidi: 45, maxMidi: 81 },
+      })
+      expect(report.output!.kind).toBe('generation_success')
+    },
+    TIMEOUT_MS,
+  )
+
+  // @test-link [[service_headless_phrase_replay]]
+  // @test-link [[module_phrase_replay_key]]
+  it(
     'rejects a malformed key with exit 1, a stderr message and nothing on stdout',
     () => {
       const run = runScript(['ifk1.zzz'])
@@ -122,10 +177,10 @@ describe('npm run replay:phrase', () => {
   it(
     'rejects an unsupported key version with exit 1',
     () => {
-      const run = runScript(['ifk2.xxx'])
+      const run = runScript(['ifk3.xxx'])
       expect(run.status).toBe(1)
       expect(run.stdout).toBe('')
-      expect(run.stderr).toMatch(/unsupported key version "ifk2"/u)
+      expect(run.stderr).toMatch(/unsupported key version "ifk3"/u)
     },
     TIMEOUT_MS,
   )

@@ -8,7 +8,7 @@
  * tempo field notes the tempo the last rising-tempo session reached.
  */
 import { flushPromises, mount } from '@vue/test-utils'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import WorkspaceShell from '@/components/workspace/WorkspaceShell.vue'
@@ -25,9 +25,15 @@ import { createFakeSessionController, type FakeSessionController } from './fake-
 import { fakeGenerationSession, readyState } from './fake-generation-session'
 import { PHRASE_SCORE_STUB } from './test-workspace'
 import { provideSaveSettings } from './recording-save-settings'
-import { quietSavedData } from './quiet-saved-data'
+import { noRememberedController, quietSavedData } from './quiet-saved-data'
 
 vi.mock('@/components/review/ReviewPanel.vue', () => import('./review-panel-stub'))
+
+// A session's start warms the Review's lazy area; loaded once ahead, so that warm-up settles within
+// the test that starts it, as it does in the app once the chunk has loaded, not as the file ends.
+beforeAll(async () => {
+  await import('@/components/workspace/ReviewArea.vue')
+})
 
 afterEach(() => {
   document.body.innerHTML = ''
@@ -44,6 +50,7 @@ function mountShell(controller: SessionController | null) {
   return mount(WorkspaceShell, {
     props: {
       savedData: quietSavedData(),
+      rememberedController: noRememberedController(),
       session,
       pendingPhrase: null,
       handleEngraved: () => {},

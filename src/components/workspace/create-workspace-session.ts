@@ -36,11 +36,13 @@ import type { GenerationWorkerClient } from '@/generation-worker/generation-work
 import { createBrowserAudioTransport } from '@/audio/browser-audio-transport'
 import type { SavedDataLoad } from '@/storage-bootstrap'
 import { APP_VERSION } from '@/storage/app-version'
+import { decodeRememberedController } from '@/storage/records/controller-record'
 import { createVisitSaves } from '@/storage/settings-saver'
 import { createMidiController } from '@/midi/midi-controller'
 import { createWebMidiAccessProvider } from '@/midi/web-midi-access'
 import { createBrowserWakeTimerWorker, createWorkerWakeTimer } from '@/audio/worker-wake-timer'
 import { createBrowserViewportWidth } from './browser-viewport-width'
+import { createBrowserPageActivation } from './browser-page-activation'
 import { createBrowserPageVisibility } from './browser-page-visibility'
 import { createBrowserOrientationLock, createBrowserScreenWakeLock } from './browser-screen-locks'
 import { createBrowserWindowShape } from './browser-window-shape'
@@ -90,7 +92,8 @@ export const WORKSPACE_SESSION_FACTORY: InjectionKey<
  * and theme, and each session controller's flags from its "During a session" choices, so the
  * workspace is first drawn with them; the load itself is exposed unchanged. The visit's saves go
  * through the loaded save policy: Idle's control actions and the screen's change handlers save the
- * player's changes through them, and each session controller holds them while a session runs.
+ * player's changes through them, and each session controller holds them while a session runs. The
+ * controller remembered from an earlier visit is decoded from the load and saved through them too.
  */
 // @spec-link [[service_workspace_session_flow]]
 // @spec-link [[service_session_runner]]
@@ -224,12 +227,21 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
             policy: deps.pregenerationPolicy,
           }),
         savedSessionOptions: sessionOptions,
+        savedKeepPlayedNotes: deps.savedData.settings.keepPlayedNotes,
         saveHold: { hold: saves.hold, release: saves.release, saveSession: saves.saveSession },
-        keptSessions: keptSessionsOf(deps.savedData),
+        keptSessions: keptSessionsOf(deps.savedData, {
+          changeKept: saves.changeKept,
+          readKept: saves.readKept,
+        }),
       })
     },
     savedData: deps.savedData,
     saveSettings: saves.saveSettings,
+    rememberedController: {
+      loaded: decodeRememberedController(deps.savedData.rememberedController),
+      remember: saves.rememberController,
+      forget: saves.forgetController,
+    },
     dispose: () => {
       created.dispose()
       deps.dispose()
@@ -326,7 +338,8 @@ export function createWorkspaceSession(
   const audio = createBrowserAudioTransport({ loadedMix: () => options.savedData.settings.mix })
   const midi = createMidiController({
     provider: createWebMidiAccessProvider(navigator),
-    clock: { anchor: () => audio.clockAnchor() },
+    // No audio clock until the audio is unlocked: a note then waits for the starting note's unlock.
+    clock: { anchor: () => (audio.isUnlocked() ? audio.clockAnchor() : null) },
   })
   return composeWorkspaceSession({
     providers: {
@@ -346,6 +359,7 @@ export function createWorkspaceSession(
       orientationLock: createBrowserOrientationLock(),
       pageVisibility: createBrowserPageVisibility(),
       windowShape: createBrowserWindowShape(),
+      pageActivation: createBrowserPageActivation(),
     },
     sessionClock: {
       createWakeTimer: () => createWorkerWakeTimer(createBrowserWakeTimerWorker()),

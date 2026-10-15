@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.63
+Status: draft v0.67
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -197,3 +197,12 @@ opened here are closed: O200 by [D310](decisions.md) (a kept session the app can
 correctly is deleted, with an apology; a read the device refuses deletes nothing; built in chunk
 28) and O201 by [D309](decisions.md) (a session cut short by reloading or closing the page is
 never saved, as §5.1 says; built in chunk 27). O202–O209 stay free.
+
+## v3.0 wave 6 (O210+)
+
+Opened 2026-10-15 by `spec-writer` while writing the wave-6 preflight's corrections into build
+plan v16 (D312–D315). O210–O219 are reserved for v3.0 wave 6. O210 is closed: `ux-writer`
+answered it in ux D308 (`Export played notes` is disabled, with its reason, whenever its file would
+hold no note), recorded in [D319](decisions.md). O211 is closed: the owner kept the 38 ms
+threshold, a length rule only, accepting the few stray notes it leaves in the lane and the
+default export ([D322](decisions.md)); hand check H5 is still his to run. O212–O219 stay free.
