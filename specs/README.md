@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.65
+Status: draft v0.66
 
 ## Status Snapshot
 
@@ -143,11 +143,13 @@ Status: draft v0.65
   does (D316); deleting every kept played note deletes every played-notes record, an unreadable
   session's included (D317, correcting D313); a visit that saves nothing neither remembers nor
   forgets the controller (D318, §7.3).
-- **Open:** 12 questions: O48 and O49 (later and governance),
+- **v3.0 build, wave 6 design gates** (2026-10-15, D319): build plan v18 follows ux D307–D314.
+  O210 closed by ux D308: `Export played notes` is never offered for a file with no note.
+  `Include very short notes` holds for the page visit. Chunk 28 takes the Damaged session design.
+- **Open:** 11 questions: O48 and O49 (later and governance),
   O100–O102 (v4 rhythm), O115 and O116 (v3.x learning), O176 (style packs and the chord level),
-  O180 (octave signs, later), O183 (pre-generation's cancellation cost), O190 (a newer
-  version's database whose read-only reopening fails) and O210 (a session whose every played
-  note is very short, for `ux-writer`; it blocks chunk 25 only). D309 and D310 closed O201 and O200; D295
+  O180 (octave signs, later), O183 (pre-generation's cancellation cost) and O190 (a newer
+  version's database whose read-only reopening fails). ux D308 closed O210. D309 and D310 closed O201 and O200; D295
   and D296 closed O181; the owner's ruling in D297 closed O182.
   O163 and O164 closed by D257 and D258; D262 closed O174; D264–D273 settled O165–O173 and O175
   in Part D, pending the owner's approval.

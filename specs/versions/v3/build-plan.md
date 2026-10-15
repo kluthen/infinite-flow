@@ -1,9 +1,9 @@
 # Infinite Flow v3.0 — Build Plan
 
-Status: v17 (2026-10-15): the wave-6 captures' three points written in: a change to a kept session reads what is stored at the change; deleting every kept played note deletes every played-notes record; Disconnect in a visit that saves nothing forgets the controller for that visit only (spec D316–D318). Approved by
+Status: v18 (2026-10-15): the plan follows the O210 and Damaged session designs (ux D307–D314): `Include very short notes` holds for the page visit; `Export played notes` is never offered for an empty file; chunk 28's refused deletion, landings and counts; O210 closed (spec D319). Approved by
 the product owner on 2026-10-07 (v1), with Gate A and the token-source pass (Q66) confirmed the
 same day; every later revision writes in rulings from [the decisions log](../../decisions.md)
-(spec D252–D318), and earlier wordings are in git.
+(spec D252–D319), and earlier wordings are in git.
 
 Build plan for v3.0, Storage, written from [master spec v1.3](master-spec.md) (now Part A v1.15) and the v3.0 design
 in [`ui_ux/versions/v3.0/`](../../../ui_ux/versions/v3.0/README.md), the copy frozen when the
@@ -88,7 +88,7 @@ wave-0 gate covers chunks 1 and 2.
 | 3 | 5 Save policy · 9 Kept-session record | Chunk 4; chunk 23 (9) |
 | 4 | 7 Saved settings · 8 Notice row | Chunks 5, 6; chunk 1 for 8 |
 | 5 | 10 Most recent session kept (10a, 10b if split) · 17a My instrument through the worker and the session · 17b The clef through the history and the review | Chunks 7, 8, 9 (10); 9, 16, 19b (17) |
-| 6 | 11 Played-notes opt-in · 12 Favorites, pin, comment · 18 Replay key `ifk2.` · 22 Remembered controller · 25 Stray-note filter, in that order | Chunk 10 (11); chunk 11's change path (12, an in-wave edge fixed by 11's capture; spec D312, D313); chunk 17 (18); chunk 7 (22), and the Remembered-controller wording before 22 merges; H1, chunk 1 and O210 (25). Gate A and Review reachability are done. |
+| 6 | 11 Played-notes opt-in · 12 Favorites, pin, comment · 18 Replay key `ifk2.` · 22 Remembered controller · 25 Stray-note filter, in that order | Chunk 10 (11); chunk 11's change path (12, an in-wave edge fixed by 11's capture; spec D312, D313); chunk 17 (18); chunk 7 (22), and the Remembered-controller wording before 22 merges; H1 and chunk 1 (25; O210 answered by ux D308). Gate A and Review reachability are done. |
 | 7 | 13 Favorites-only export · 14 Session list · 20 My instrument sheet · 27 A session cut short by the page going away | Chunk 12 (13, 14); chunks 7, 17, 19b, 24, the clef design and ux Q76 (20); chunk 10 (27, after wave 6's chunk 11, which may touch the session's save) |
 | 8 | 15 Your data · 21 The check feeds my instrument · 28 A damaged kept session deleted, with an apology | Chunks 11, 14 (15); 20 (21); 14, 27 and the Damaged session design gate (28; 28a may start before the gate) |
 | 9 | 20c My instrument's sessions · 24b Stale phrase at Start | Chunks 14, 20 and 21 and the Sessions design gate (20c); chunk 24 and the Stale phrase design gate (24b) |
@@ -2290,8 +2290,10 @@ generated notes (MusicXML or MIDI) and the played notes (MIDI).
 numbers: phrases in session order, each keeping its session phrase number (markers, measure
 numbers); a played note held past the end of a favorite phrase stops there when the next phrase
 is not exported. `review-scope` (`Whole session` / `Favorites only`, never saved, disabled with
-no favorite, and says why); `Export played notes` disabled under `Favorites only` when no favorite
-holds a played note; file names gain `-favorites`. The comment never enters a file.
+no favorite, and says why); `Export played notes` disabled, with its reason, whenever its file
+would hold no note under the scope and `Include very short notes`, by ux D308's precedence ("No
+played notes in your favorites." first, then the favorites' very-short reason once chunk 25's
+filter exists); file names gain `-favorites`. The comment never enters a file.
 
 **Files:** `src/export/favorites-selection.ts` (new), `src/export/generated-notes-file.ts`,
 `src/export/played-notes-file.ts`, `src/export/export-file.ts` (names),
@@ -2399,7 +2401,9 @@ it, with every deletion, Delete everything included.
 **Scope.** `layout-footer` with `Your data`; the sheet's overview (settings, my instrument,
 controller, sessions, played notes with the same `Keep my played notes` switch, space used,
 protection), its four confirmations (every session, all played notes, the played notes already
-kept, everything), the saving-off state, failures kept in the confirmation. Delete everything
+kept, everything), the saving-off state, failures kept in the confirmation. Its session counts
+are the sessions the list shows, and `Delete every session` shows only when there is at least one;
+it still deletes every kept session, one with no row included (ux D311, D313). Delete everything
 deletes the database and reloads into a first visit (the MIDI permission and the offline copy
 stay). `Your data` in the session list's header and the storage-full notice. The sheet loads on
 demand.
@@ -2427,8 +2431,9 @@ Data), [`screens/your-data/handoff.md`](../../../ui_ux/versions/v3.0/screens/you
 
 - Seeded data: the counts, the space line and the protection line show as specified, the
   protection line from a stubbed `persisted()`.
-- Delete every session removes every session and the one in memory; settings, my instrument and
-  the controller stay.
+- Delete every session removes every session and the one in memory, a seeded kept session whose
+  summary cannot be read (no row, not counted) included; settings, my instrument and the
+  controller stay.
 - Delete all played notes removes every played-notes record and nothing else.
 - Delete everything: after the reload, the database holds nothing (no store, no record), the
   workspace is in its first-visit state, and Your data shows the empty overview; with fake MIDI
@@ -3467,14 +3472,18 @@ played-notes export, while storing every note as received.
 **Scope.** The threshold constant from M1, with its measured basis in a comment and in
 `docs/midi-tuning.md`; one pure filter (`src/session/` or `src/domain/`, not `src/midi/`, since
 it reads recorded notes) applied on reading: the lane, and the played-notes export unless
-`Include very short notes` (never saved, off at every review opening) is on. Acknowledgement and
+`Include very short notes` (off by default, held for the page visit across reviews, never
+saved; ux D193) is on. Acknowledgement and
 storage untouched. M1's duration script (tooling). The lane's session-wide pitch scale
 (`playedNotesPitchScale`) is computed from the notes the lane shows, so a very short note never
 widens it (spec D315). "Holds a played note" still counts very short ones (ux D210): a session
-whose every played note is very short keeps `review-view` and `Export played notes`, its lane shows
-no bar, and what `Export played notes` does there with the option off is
-[spec O210](../../open-questions.md#v30-wave-6-o210)'s answer; the filter never lets the export
-reach the encoder's "no played note" error.
+whose every played note is very short keeps `review-view`, both switches and `Export played
+notes`, and its lane shows no bar. `Export played notes` is disabled whenever its file would hold
+no note under the current scope and option, named by `aria-describedby` to its `field-note`
+(ux D308, answering spec O210): with the option off and every played note very short, "Every note
+you played is very short. Turn on Include very short notes to export them."; turning the option
+on enables it at once, focus staying on the toggle. So the export never reaches the encoder's "no
+played note" error. The `Favorites only` reasons are chunk 13's (wave 7), on the same rule.
 
 **Files:** 25a, the filter and the lane: `src/domain/played-notes/stray-notes.ts` (new),
 `src/components/review/played-notes-lane-view.ts`, `src/components/review/ReviewPanel.vue` (the
@@ -3490,7 +3499,8 @@ If the brief exceeds about five source files, split it there: 25a, then 25b.
 **Spec sections:** [§9](master-spec.md#9-stray-notes).
 
 **Design docs:** [`flows/review-and-export/handoff.md`](../../../ui_ux/versions/v3.0/flows/review-and-export/handoff.md)
-(Export: very short notes; Played Notes), [`screens/last-session-review/handoff.md`](../../../ui_ux/versions/v3.0/screens/last-session-review/handoff.md).
+(Export: very short notes; Played Notes), [`screens/last-session-review/handoff.md`](../../../ui_ux/versions/v3.0/screens/last-session-review/handoff.md)
+(ux D193, D308).
 
 **Atoms:** `rule_stray_note_definition`, `rule_stray_notes_filtered_on_reading`,
 `rule_played_notes_export_omits_stray_notes`; (v2) `rule_acknowledgement_exact_pitch`,
@@ -3499,7 +3509,7 @@ If the brief exceeds about five source files, split it there: 25a, then 25b.
 only when the history holds at least one played note" still counts very short ones; the file
 leaves them out by default).
 
-**Depends on:** H1 (the recordings), chunk 1, O210. Chunks 11 and 12 come before it in wave 6
+**Depends on:** H1 (the recordings), chunk 1. Chunks 11 and 12 come before it in wave 6
 (shared files); a kept session's played notes are filtered the same way.
 
 **Done when:**
@@ -3511,8 +3521,10 @@ leaves them out by default).
 - The lane's pitch scale leaves out very short notes: a session whose highest played note is very
   short scales its lane as without it.
 - A session whose every played note is very short: `review-view` and `Export played notes` show,
-  the lane shows no bar, and `Export played notes` behaves as O210 settles, never with the export
-  error.
+  the lane shows no bar, and `Export played notes` is disabled with its reason while the option is
+  off and enabled at once when it is turned on; the export error never shows.
+- `Include very short notes` keeps its state across reviews within the page visit (another
+  session opened, the review left and reopened) and is off again after a reload.
 - Acknowledgement tests are unchanged.
 
 **Items covered:** 21.
@@ -3578,7 +3590,7 @@ check before each step, the abandoned outcome), `src/components/workspace/worksp
 
 Inserted in v15 (spec D310, D311), for the owner's ruling on
 [spec O200](../../open-questions.md#v30-wave-5-o200). Wave 8's preflight covers it. 28b waits for
-the **Damaged session design** gate; 28a may start before it.
+the **Damaged session design** gate, written as ux D309–D314; 28a may start before it.
 
 **Architecture capture** (before code): `module_kept_session_save`: the save's batch also deletes
 every kept session whose summary is damaged (the codec's `unreadable`), never one a newer version
@@ -3607,16 +3619,23 @@ apology; a session the device only failed or refused to read is never deleted (�
 - **Saving off** (an outdated tab, a visit from the defaults): nothing is deleted; in an outdated
   tab a damaged body read keeps the failed-open row ("This session couldn't be opened. Try
   again.").
-- **A refused deletion** shows no apology; it raises the notice any refused save raises (Save
-  failed or Storage full), the session stays unlisted for the visit, and the next load tries
-  again.
+- **A refused deletion** shows no apology; it raises the save-problem notice in its own wording,
+  "Damaged session not deleted" (Storage full keeps its own; at a session's save the keep line
+  tells it, as for any failed session save), shown at every refusal, even after a `Dismiss`; the
+  session stays unlisted for the visit, counted nowhere, and the next load tries again (ux D310,
+  D313, D314).
 
-28b, the apology and where the player lands, as the Damaged session design says: the apology
-notice in the notice row once a deletion of damaged sessions has committed (at load, at the
-save as the review opens, at an opening), held during a session as every notice is, saying how
-many went; `review-link` finding its session damaged shows the list without that row (its empty
-state when none is left), not chunk 14's failed-open row; a list row finding its session damaged
-leaves the list.
+28b, the apology and where the player lands, as the Damaged session design says (ux D309, D310):
+the apology notice in the notice row once a deletion of damaged sessions has committed (at load,
+at the save as the review opens, at an opening), held during a session as every notice is, saying
+how many went, with `Dismiss` only; while it shows, a further deletion adds its count in place;
+the persistent notices replace it, and it and the save-problem notice replace each other; it is
+not shown when the tab became outdated first. `review-link` finding its session damaged keeps
+`is-loading` until the deletion settles, then shows the list without that row (its empty state
+when none is left), focus on the list's title, never chunk 14's failed-open row; a list row
+finding its session damaged keeps `is-loading`, then leaves, focus moving as after that row's
+deletion; the list and the notice change together. A refused deletion lands the same way, with
+the save-problem notice instead of the apology.
 
 **Not in this chunk:** `WorkspaceShell.vue` (chunk 15's in wave 8, chunk 24b-2's in wave 9) and
 `AppNoticeRow.vue` (chunk 15's in wave 8): the apology is a sentence and `Dismiss`, which the row
@@ -3638,8 +3657,9 @@ it there: 28a, then 28b.
 
 **Spec sections:** [§5.1](master-spec.md#51-which-sessions-are-kept), [§4.3](master-spec.md#43-where-and-how) and [§4.4](master-spec.md#44-loading-saved-settings) (no deletion with saving off).
 
-**Design docs:** the Damaged session design, when written; [`flows/saved-data/handoff.md`](../../../ui_ux/versions/v3.0/flows/saved-data/handoff.md)
-(Notices), [`flows/kept-sessions/handoff.md`](../../../ui_ux/versions/v3.0/flows/kept-sessions/handoff.md)
+**Design docs:** the Damaged session design (ux D309–D314) in
+[`flows/saved-data/handoff.md`](../../../ui_ux/versions/v3.0/flows/saved-data/handoff.md)
+(Notices; the apology and Damaged session not deleted), [`flows/kept-sessions/handoff.md`](../../../ui_ux/versions/v3.0/flows/kept-sessions/handoff.md)
 (`review-link` activation, Opening a Session), [`screens/session-list/handoff.md`](../../../ui_ux/versions/v3.0/screens/session-list/handoff.md).
 
 **Atoms:** `rule_most_recent_session_kept`, `req_kept_sessions`, `req_kept_session_list`,
@@ -3662,12 +3682,13 @@ items 5(b) and 6 once the owner agrees to their wording.
 - After a reload, `Review last session` whose body is damaged (seeded): the session is deleted,
   the list shows without its row, focus on its title, the apology shows; `review-link` then
   opens the readable kept session that started last, or is absent. A list row whose body is
-  damaged: the row leaves, the apology shows.
+  damaged: the row leaves, focus moves as after that row's deletion, the apology shows.
 - Nothing is deleted and no apology shows on a refused read (injected, at load, at the save and
   at an opening), on a session a newer version saved, in an outdated tab, or in a visit from the
   defaults.
-- An injected refusal of the clean-up's batch: no apology, the Save failed notice, the damaged
-  session unlisted.
+- An injected refusal of the clean-up's batch: no apology, the "Damaged session not deleted"
+  notice (again at a later refusal, even after a `Dismiss`), the damaged session unlisted and not
+  counted by `sessions-link` or Your data.
 - A session this version saves is never taken for damaged: saved, reloaded and opened, its
   records are all still there (the round trip, for each built-in instrument and my instrument).
 

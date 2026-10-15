@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.64
+Status: draft v0.65
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -201,17 +201,6 @@ never saved, as §5.1 says; built in chunk 27). O202–O209 stay free.
 ## v3.0 wave 6 (O210+)
 
 Opened 2026-10-15 by `spec-writer` while writing the wave-6 preflight's corrections into build
-plan v16 (D312–D315). O210–O219 are reserved for v3.0 wave 6.
-
-- **O210 - A session whose every played note is very short** _(D315; for `ux-writer`; master
-  spec §9; review-and-export design, Export and Played Notes; ux D210; build plan chunk 25)_: "holds
-  a played note" counts very short ones (ux D210), so such a session shows `review-view` and
-  `Export played notes`, and its `Played notes` lane shows no bar. With `Include very short notes`
-  off, the played-notes file would hold no note; the encoder refuses that today with a typed error,
-  which would show `review-export-error`. Open: what does the review offer there? Proposed:
-  `Export played notes` is disabled, with its reason ("Every note you played is very short:
-  include very short notes to export them."), while `Include very short notes` is off, as it is
-  under `Favorites only` when no favorite phrase holds a played note; the same rule then holds for
-  that case once the scope exists (chunk 13): disabled whenever the file would hold no note under
-  the current scope and option. The lane needs nothing more. It blocks chunk 25 only, which also
-  waits for H1.
+plan v16 (D312–D315). O210–O219 are reserved for v3.0 wave 6. O210, the one question opened here,
+is closed: `ux-writer` answered it in ux D308 (`Export played notes` is disabled, with its reason,
+whenever its file would hold no note), recorded in [D319](decisions.md). O211–O219 stay free.

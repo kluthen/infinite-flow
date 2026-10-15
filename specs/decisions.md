@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.93
+Status: draft v2.94
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,13 +14,13 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D319**. D259–D260 are
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D320**. D259–D260 are
 on branch `v4-accompaniment-research`, not merged yet. D263–D288 are v3.3's richer chords (merged
 from `main`); D289 is unused. D290–D299 were reserved for v3.0 wave 2; wave 2 used D290–D298, and
 D299 records wave 3. D300 records the wave-4 preflight; D301 and D302 the plan revision after
 chunk 7a; D303–D305 the wave-5 preflight (D303 the owner's ruling on the session key); D306–D308 the
 wave-5 sync; D309–D311 the owner's rulings on O201 and O200 and the plan revision they bring;
-D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures.
+D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan following the wave-6 design gates.
 
 ## Decision Log
 
@@ -1746,3 +1746,18 @@ D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures.
   screen changes. No contract wording changes: neither atom is on the contract, and the
   Remembered-controller wording (D314) says nothing of Disconnect. Chunk 22's capture and Done when
   carry it. Build plan v17.
+
+- **D319 (2026-10-15): O210 closed by ux D308; the plan follows the O210 and Damaged session
+  designs (ux D307–D314).** `Export played notes` is disabled, with its reason, whenever its file
+  would hold no note under the current scope and `Include very short notes` (ux D308), so the
+  encoder's "no played note" error is never reached; chunk 25 builds the whole-session reason and
+  chunk 13 the favorites' reasons, on the same rule. Build plan chunk 25 had `Include very short
+  notes` "off at every review opening"; the design (ux D193, both review handoffs) holds it for the
+  page visit, across reviews, never saved, and the master spec (§9) does not say otherwise, so the
+  plan follows the design. Chunk 28 follows ux D309–D311 and D313–D314: the apology's lifetime and
+  place among the notices; `review-link` and a row keep `is-loading` until the deletion settles,
+  the list and the notice changing together; a refused deletion shows the save-problem notice in
+  its own wording, "Damaged session not deleted", at every refusal, and the session stays
+  unlisted and uncounted. Chunk 15 counts the sessions the list shows, and its `Delete every
+  session` still deletes every kept session, one with no row included (ux D311, D313). Build plan
+  v18.
