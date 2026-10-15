@@ -3623,6 +3623,32 @@ leaves them out by default).
 
 **Verification:** the chunk checks; hand check H5.
 
+**Record (2026-10-15).** Merged into `v3.0-w6` (1dcf590) in two chunk commits: 25a (6fcbd58: the
+threshold, the filter `stray-notes.ts`, the lane and its pitch scale, the duration script
+`scripts/stray-note-lengths.mjs`, the five H1 recordings in `tests/fixtures/stray-notes/`) and 25b
+(10cbaf2: `Include very short notes` in the export). M1: the threshold is **38 ms**
+(`VERY_SHORT_NOTE_SECONDS = 0.038`), recorded in `docs/midi-tuning.md` ("Very short notes (M1)").
+The 534 notes hold no clean gap: read in their melodic context, the 167 under 130 ms are 77
+in-between notes, 68 halves of a held note the controller cut in two, 9 intended notes and 13
+unclear; in-between and intended notes overlap from 41 to 97 ms. The shortest intended note is
+45.8 ms (the next 61.5 ms); lengths step by about 5 ms, so 38 ms keeps one full step below it.
+It removes 86 notes: 66 of the 77 in-between notes, 16 split halves and 4 unclear, no intended
+one. No spec or design deviation; every Done when item has a test, the all-very-short session
+end to end; "another session opened" is tested as a later session's review, since the session
+list comes in chunk 14. Calls made inside the chunk, for the sync: the filter is a length rule
+only, so 11 in-between notes still show (for the owner at H5, and for spec §9 and M1, which
+describe a separate cluster); `played-notes-lane-geometry.ts` accepts a missing pitch scale so an
+all-very-short session still draws its dividers. Files outside the Files line:
+`played-notes-lane-geometry.ts`, `README.md`, `docs/export.md`, `docs/testing.md`, the e2e
+`review-helpers.ts` (notes now held 100 ms by default, `heldSeconds: 0` for taps),
+chunk 11's `played-notes-opt-in.spec.ts` (its notes held), `export-loader-seam.ts`, the
+review-panel stub and every `ReviewPanel` mount. For the wave gate: `accessibility.spec` scans the
+new toggle and its note; `lint:health` warns that `ReviewPanel.vue` has 414 effective lines (limit
+400), and `use-review-host.ts` is at 10 atom ids; the e2e helpers now time note-offs ahead of
+the fake clock, so other specs that tap notes and expect bars may show up in the full run. Left
+open: hand check H5; the screen handoff's line that "a very short note stays visible" under
+`--played-note-min-inline-size` clashes with the new defined term (for `ux-writer`).
+
 ### Chunk 27 — A session cut short by the page going away
 
 Inserted in v14 (spec D308). The owner chose answer (a) of
