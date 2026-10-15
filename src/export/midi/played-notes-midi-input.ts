@@ -43,7 +43,8 @@ export interface PlayedNotesMidiPhrase {
 }
 
 /**
- * The whole encoder input: every phrase that sounded, in session order. It has no field for
+ * The whole encoder input: the phrases the file holds (every phrase that sounded, or the favorites
+ * only, laid back to back by ../favorites-selection.ts), in session order. It has no field for
  * generated notes or the backing, and the run-time check rejects one.
  */
 // @spec-link [[req_played_notes_export]]
@@ -128,8 +129,8 @@ function assertNoteTimes(
 
 /**
  * Intent: reject a played-notes encoder input that breaks the contract: an extra or missing field
- * anywhere (a timeline or a backing among them), an empty session, phrase numbers that do not run
- * 1, 2, 3 … in order, a tempo outside whole numbers from 60 to 240 BPM, phrases not back to back
+ * anywhere (a timeline or a backing among them), an empty session, phrase numbers that are not
+ * whole numbers from 1 up, each above the one before, a tempo outside whole numbers from 60 to 240 BPM, phrases not back to back
  * on the audio clock within 1 ms, a played note the file could not represent or that lies outside
  * its phrase, or a session in which nothing was played.
  */

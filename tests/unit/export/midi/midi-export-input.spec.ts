@@ -67,10 +67,18 @@ describe('encodeGeneratedNotesMidi: input contract, the session', () => {
     expect(() => encodeGeneratedNotesMidi({ phrases: [], backing: null })).toThrow(MidiExportError)
   })
 
-  it('rejects phrase numbers that do not run 1, 2, 3 … in order', () => {
-    for (const numbers of [[2], [1, 3], [2, 1]]) {
+  it('rejects phrase numbers that are not whole numbers from 1 up, each above the one before', () => {
+    for (const numbers of [[0], [1.5], [2, 1], [1, 1], [2, 5, 4]]) {
       const phrases = numbers.map((number) => midiPhrase(number, plainTimeline(), 90))
       expect(() => encodeGeneratedNotesMidi({ phrases, backing: null })).toThrow(MidiExportError)
+    }
+  })
+
+  // @test-link [[rule_favorites_only_export]]
+  it('accepts the session numbers of a favorites-only file, with gaps', () => {
+    for (const numbers of [[2], [1, 3], [2, 5, 6]]) {
+      const phrases = numbers.map((number) => midiPhrase(number, plainTimeline(), 90))
+      expect(() => encodeGeneratedNotesMidi({ phrases, backing: null })).not.toThrow()
     }
   })
 
@@ -134,6 +142,20 @@ describe('encodeGeneratedNotesMidi: input contract, the backing', () => {
     for (const backing of backings) {
       expect(() => encodeGeneratedNotesMidi({ phrases, backing })).toThrow(MidiExportError)
     }
+  })
+
+  // @test-link [[rule_favorites_only_export]]
+  it('accepts a favorites-only backing numbered as its phrases, and refuses one numbered otherwise', () => {
+    const phrases = [midiPhrase(2, plainTimeline(), 90), midiPhrase(5, plainTimeline(), 90)]
+    const numbered = (first: number, second: number): MidiBackingPhrase[] => [
+      { number: first, notes: plainBacking() },
+      { number: second, notes: plainBacking() },
+    ]
+
+    expect(() => encodeGeneratedNotesMidi({ phrases, backing: numbered(2, 5) })).not.toThrow()
+    expect(() => encodeGeneratedNotesMidi({ phrases, backing: numbered(1, 2) })).toThrow(
+      MidiExportError,
+    )
   })
 
   it('accepts a phrase whose backing has no note', () => {

@@ -387,14 +387,26 @@ describe('encodeGeneratedNotesMusicXml: input contract', () => {
     ).toThrow(MusicXmlExportError)
   })
 
-  it('rejects phrase numbers that do not run 1, 2, 3 … in order', () => {
-    for (const numbers of [[2], [1, 3], [2, 1]]) {
+  it('rejects phrase numbers that are not whole numbers from 1 up, each above the one before', () => {
+    for (const numbers of [[0], [1.5], [2, 1], [1, 1], [2, 5, 4]]) {
       expect(() =>
         encodeGeneratedNotesMusicXml({
           instrument: C_KEYBOARD_PROFILE,
           phrases: numbers.map((number) => phraseFor(number)),
         }),
       ).toThrow(MusicXmlExportError)
+    }
+  })
+
+  // @test-link [[rule_favorites_only_export]]
+  it('accepts the session numbers of a favorites-only file, with gaps', () => {
+    for (const numbers of [[2], [1, 3], [2, 5, 6]]) {
+      expect(() =>
+        encodeGeneratedNotesMusicXml({
+          instrument: C_KEYBOARD_PROFILE,
+          phrases: numbers.map((number) => phraseFor(number)),
+        }),
+      ).not.toThrow()
     }
   })
 

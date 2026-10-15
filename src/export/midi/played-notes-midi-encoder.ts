@@ -2,8 +2,8 @@
  * The played-notes MIDI encoder: a pure function from a session's played notes to the bytes of
  * one Standard MIDI File, type 1, at 960 MIDI ticks per quarter note. Track 1 is the conductor
  * track, built exactly as the generated-notes file's: the 4/4 time signature, the full tempo map
- * and one marker per phrase, with phrase 1 at time zero, ending where the last phrase ends, so the
- * two files of one session line up phrase by phrase. Track 2 holds the notes the player played,
+ * and one marker per phrase, with the file's first phrase at time zero, ending where the last
+ * phrase ends, so the two files of one session and one scope line up phrase by phrase. Track 2 holds the notes the player played,
  * unquantized, at their concert pitch and original velocity. The file never holds the backing or
  * a generated note. The output depends only on the input, so the same session always gives the
  * same bytes.
@@ -22,7 +22,8 @@ import { trackChunk, typeOneHeaderChunk } from './smf-writer'
 const PLAYED_TRACK_NAME = 'Played notes'
 
 /**
- * Intent: encode a whole session's played notes as one type 1 Standard MIDI File. Validates the
+ * Intent: encode a session's played notes (every phrase, or the favorites only) as one type 1
+ * Standard MIDI File. Validates the
  * input first and crashes with a MidiExportError on any breach. The conductor track ends where the
  * last phrase ends, as in the generated-notes file; the played track ends there too, or one tick
  * later when a note played just before the end rounds onto it.
@@ -32,7 +33,7 @@ const PLAYED_TRACK_NAME = 'Played notes'
 // @spec-link [[rule_export_contents_never_merged]]
 export function encodePlayedNotesMidi(input: PlayedNotesMidiInput): Uint8Array {
   validatePlayedNotesMidiInput(input)
-  const fileEnd = phraseStartTick(input.phrases.length + 1)
+  const fileEnd = phraseStartTick(input.phrases.length)
   const notes = playedTrackNotes(input.phrases, fileEnd)
   const playedEnd = notes.reduce((end, note) => Math.max(end, note.endTick), fileEnd)
   return new Uint8Array([
