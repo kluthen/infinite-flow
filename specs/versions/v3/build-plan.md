@@ -4058,6 +4058,26 @@ order](#wave-7-shared-files-in-order)), `src/components/workspace/workspace-sess
 
 **Verification:** the chunk checks.
 
+**Record (2026-10-15).** Merged into `v3.0-w7` (4efb656, chunk commit b102170). A `PageLeaving`
+port (`isGoingAway()`) joins `SessionBrowserPorts`; its browser adapter in
+`browser-page-visibility.ts` listens for `pagehide` from the load and marks the page as going
+away for good. `saveEndedSession` checks it once the codec has loaded and hands it on through
+`SessionSaveHold.saveSession` to `SavePolicy.saveSession(changes, pageGoingAway)`, which checks it
+before the keyed read and before the batch; a save so stopped resolves `{ status: 'abandoned' }`,
+is not retried, and adds no row. No spec or design deviation; `storage-bootstrap.ts` untouched,
+`settings-saver.ts` still at 10 atom ids. Done when: the reload test in `kept-session.spec.ts`
+(summaries byte-identical, no new kept session, `review-link` opens the earlier one), a second
+test on a `pagehide` that leaves the page alive (no transaction, no notice, "Not saved on this
+device"), and unit tests on fake ports and a real policy over fake-indexeddb for each timing.
+Calls made: the signal is a required argument all the way down, with no default; it is checked
+before saving-off; the retry of a refused save carries it; `use-kept-sessions.ts` (chunk 14's)
+forwards it in one line. The real-reload test passes even without the fix, since Chromium aborts
+the unfinished transaction at unload; the alive-page and unit tests fail without it. Open: the
+flag never resets, so on a page brought back from the back-forward cache every later session reads
+"Not saved" and is never saved (sent to `spec-writer`). For the sync: `module_kept_session_save`
+and `module_save_policy` (the new argument and outcome); the owner's wording for
+`rule_most_recent_session_kept`.
+
 ### Chunk 28 — A damaged kept session deleted, with an apology
 
 Inserted in v15 (spec D310, D311), for the owner's ruling on
