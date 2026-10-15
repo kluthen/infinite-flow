@@ -8,7 +8,8 @@
  * shown, into one `staff-content` per position, or shows a note in their place when it cannot.
  * The staff never shows anything of the session: the played notes appear only in the lanes, on
  * request, drawn with the engraving against its anchors (see ./played-notes-lane-view.ts). A
- * repeat looks like any other phrase.
+ * repeat looks like any other phrase. Its header ends with the phrase's favorite star, which asks
+ * the page to mark or unmark it and keeps focus.
  */
 import { computed, nextTick, onBeforeUnmount, ref, shallowRef } from 'vue'
 
@@ -34,6 +35,7 @@ import type { ReviewEngraver, ReviewStaffReservation } from './review-types'
 // @spec-link [[req_last_session_review]]
 // @spec-link [[rule_repeat_phrase_marked_internally_only]]
 // @spec-link [[rule_review_played_notes_toggle]]
+// @spec-link [[req_favorite_phrases]]
 const props = withDefaults(
   defineProps<{
     /**
@@ -51,9 +53,16 @@ const props = withDefaults(
     pitchScale: PlayedNotesPitchScale | null
     /** The workspace staff's shared system-position size, in engraving units; 160 by default. */
     systemPositionUnits?: number
+    /** The phrase is one of the session's favorites: its star is pressed. */
+    favorite?: boolean
   }>(),
-  { systemPositionUnits: NOTATION_SYSTEM_POSITION_UNITS },
+  { systemPositionUnits: NOTATION_SYSTEM_POSITION_UNITS, favorite: false },
 )
+
+const emit = defineEmits<{
+  /** The player pressed the phrase's star: mark it a favorite, or remove the mark. */
+  'toggle-favorite': []
+}>()
 
 /** Which note stands in place of the engraving, if any. */
 type PhraseNote = 'needs-wider-window' | 'failed'
@@ -234,6 +243,19 @@ defineExpose({ engrave, showFailure, release })
     <div class="review-phrase-header">
       <h3 class="review-phrase-title">Phrase {{ record.phraseNumber }}</h3>
       <span class="review-phrase-tempo">{{ record.tempo }} BPM</span>
+      <!-- The star, then its word (shown from bp-tablet-landscape up); named by its phrase. -->
+      <button
+        type="button"
+        class="btn favorite-toggle"
+        :aria-pressed="favorite ? 'true' : 'false'"
+        :aria-label="`Favorite phrase ${record.phraseNumber}`"
+        @click="emit('toggle-favorite')"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.5l-5.9 3.1 1.2-6.5-4.8-4.6 6.6-.9z" />
+        </svg>
+        <span>Favorite</span>
+      </button>
     </div>
     <!-- The reserved block size is the notation layout's (and the lanes'), set before drawing. -->
     <div ref="staffEl" class="review-staff" :style="staffStyle">

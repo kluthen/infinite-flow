@@ -698,6 +698,32 @@ once deleted, a held session that kept its played notes loses them from memory t
 and the most recent session drawing the very same new history. A session whose own save failed is
 never changed through this path.
 
+### The Review's other changes
+
+The Review's favorites, pin, comment and `Delete session` are built in
+`src/components/workspace/kept-session-review-changes.ts` and held by the controller's side
+`workspace-kept-session-edits.ts`. Each applies at once in memory (`ReviewedSession.pinned`,
+`favorites`, `comment`, and `keeping` following the pin unless the session is not saved), then is
+saved when made:
+
+- **A favorite mark** reads the summary and the body; `rewriteKeptBodyFavorite(stored,
+phraseNumber, favorite, appVersion)` rewrites the body with that one mark, every other field as
+  read, and gives the favorites count the body then holds, which the summary is rewritten with
+  (pinned too when marking). Removing the last favorite leaves the pin as it is.
+- **A pin, an unpin and the comment** rewrite the summary only (the comment trimmed, at most 500
+  characters; an unchanged one saves nothing).
+- **`Delete session`** deletes the summary, the body and the played notes in one batch, when the
+  summary is stored and readable; its refusal is the caller's (its sheet tells it). A session held
+  in memory only because its save failed is deleted from memory alone. It is never offered while
+  saving is off.
+- **The retry.** In a session whose own save was refused, the next favorite, pin, unpin or comment
+  runs that save again (`saveEndedSession` with the held facts: pinned, favorites, comment), under
+  the same key, the unpinned sessions to delete read at the retry; once saved, `keeping` takes
+  `pinned` or `not-pinned`. A failed retry changes nothing shown. A change made while a retry runs
+  waits for it, then goes through the change path.
+- **Persistent storage.** A favorite marked and a pin each ask the policy's `requestProtection()`,
+  which asks the browser at most once per visit (see [Persistent storage](#persistent-storage)).
+
 In the Review (`use-review-played-notes.ts`, beside the Review host), `Keep my played notes` and
 `Delete played notes` sit in `review-view` after `Played notes`. Turning the switch saves the
 `keepPlayedNotes` setting through the visit's saves, then hands it to the controller; a deletion

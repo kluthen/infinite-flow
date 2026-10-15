@@ -19,10 +19,11 @@
  * under it; both live regions stay silent then, and say nothing as it closes. The staff and the
  * Review both draw at the one shared system-position size the workspace gives it. The Review's
  * export choices and Played notes switch start from the saved review preferences it is given. A
- * confirmation the Review opens (deleting played notes) shows in the shared confirmation sheet
- * over the page; once it closes, focus returns to the button that opened it on the way back, and
- * after a deletion goes to `Keep my played notes` while the Review still shows its played notes,
- * else to `review-title`.
+ * confirmation the Review opens (deleting played notes, unpinning a session with favorites,
+ * `Delete session`) shows in the shared confirmation sheet over the page; once it closes, focus
+ * returns to the button that opened it on the way back, after an unpin goes to the pin button,
+ * and after a deletion goes to `Keep my played notes` while the Review still shows its played
+ * notes, else to `review-title`.
  */
 import { computed, defineAsyncComponent, nextTick, ref, watch } from 'vue'
 
@@ -150,6 +151,8 @@ const reviewPanel = ref<{
   readonly focusTitle: () => void
   readonly focusKeepPlayedNotes: () => void
   readonly focusDeletePlayedNotes: () => void
+  readonly focusPin: () => void
+  readonly focusDeleteSession: () => void
 } | null>(null)
 /** A `review-title` focus asked for before the panel had mounted. */
 let reviewTitleFocusPending = false
@@ -182,11 +185,13 @@ const confirmationCopy = computed(() => {
 let confirmationClosedByPlayer = false
 
 /**
- * Intent: confirm the open confirmation; once it closes, focus goes to `Keep my played notes`
- * while the Review still shows played notes, else to `review-title`. A refusal keeps the sheet.
+ * Intent: confirm the open confirmation; once it closes, focus goes to the pin button after an
+ * unpin, to `Keep my played notes` while the Review still shows played notes, else to
+ * `review-title`; after `Delete session` the Review is gone. A refusal keeps the sheet.
  */
 // @spec-link [[req_last_session_review]]
 async function confirmReviewConfirmation(): Promise<void> {
+  const kind = review.confirmation.value?.kind
   confirmationClosedByPlayer = true
   const outcome = await review.confirm()
   if (outcome === 'failed') {
@@ -194,7 +199,8 @@ async function confirmReviewConfirmation(): Promise<void> {
     return
   }
   await nextTick()
-  if (outcome === 'deleted' && review.holdsPlayedNote.value) {
+  if (kind === 'unpin') reviewPanel.value?.focusPin()
+  else if (outcome === 'deleted' && review.holdsPlayedNote.value) {
     reviewPanel.value?.focusKeepPlayedNotes()
   } else {
     reviewPanel.value?.focusTitle()
@@ -208,6 +214,8 @@ function cancelReviewConfirmation(): void {
   confirmationClosedByPlayer = true
   review.cancel()
   if (open?.kind === 'session-played-notes') reviewPanel.value?.focusDeletePlayedNotes()
+  else if (open?.kind === 'unpin') reviewPanel.value?.focusPin()
+  else if (open?.kind === 'delete-session') reviewPanel.value?.focusDeleteSession()
   else reviewPanel.value?.focusKeepPlayedNotes()
 }
 
@@ -461,11 +469,20 @@ const generationErrorAlertText = computed(() =>
       :export-played-notes="review.exportPlayedNotes"
       :keep-played-notes="review.keepPlayedNotes.value"
       :can-delete-played-notes="review.canDeletePlayedNotes.value"
+      :session-key="review.sessionKey.value ?? ''"
+      :pinned="review.pinned.value"
+      :favorites="review.favorites.value"
+      :comment="review.comment.value"
+      :can-delete-session="review.canDeleteSession.value"
       @update:format="review.setFormat"
       @update:backing-track="review.setBackingTrack"
       @update:played-notes-shown="review.setPlayedNotesShown"
       @update:keep-played-notes="review.setKeepPlayedNotes"
       @delete-played-notes="review.askDeletePlayedNotes"
+      @toggle-favorite="review.toggleFavorite"
+      @toggle-pin="review.togglePin"
+      @delete-session="review.askDeleteSession"
+      @save-comment="review.saveComment"
     />
     <ConfirmationSheet
       v-if="confirmationCopy !== null"
