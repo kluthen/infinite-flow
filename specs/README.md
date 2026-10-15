@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.66
+Status: draft v0.67
 
 ## Status Snapshot
 
@@ -146,6 +146,8 @@ Status: draft v0.66
 - **v3.0 build, wave 6 design gates** (2026-10-15, D319): build plan v18 follows ux D307–D314.
   O210 closed by ux D308: `Export played notes` is never offered for a file with no note.
   `Include very short notes` holds for the page visit. Chunk 28 takes the Damaged session design.
+- **v3.0 contract 6.0** (2026-10-15, D320): the owner confirmed the remembered-controller wording
+  as major; master spec Part A v1.18, build plan v19. No contract wording waits any more.
 - **Open:** 11 questions: O48 and O49 (later and governance),
   O100–O102 (v4 rhythm), O115 and O116 (v3.x learning), O176 (style packs and the chord level),
   O180 (octave signs, later), O183 (pre-generation's cancellation cost) and O190 (a newer

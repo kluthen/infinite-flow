@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.94
+Status: draft v2.95
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,13 +14,13 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D320**. D259–D260 are
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D321**. D259–D260 are
 on branch `v4-accompaniment-research`, not merged yet. D263–D288 are v3.3's richer chords (merged
 from `main`); D289 is unused. D290–D299 were reserved for v3.0 wave 2; wave 2 used D290–D298, and
 D299 records wave 3. D300 records the wave-4 preflight; D301 and D302 the plan revision after
 chunk 7a; D303–D305 the wave-5 preflight (D303 the owner's ruling on the session key); D306–D308 the
 wave-5 sync; D309–D311 the owner's rulings on O201 and O200 and the plan revision they bring;
-D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan following the wave-6 design gates.
+D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan following the wave-6 design gates; D320 the owner's confirmation of the seventh contract change.
 
 ## Decision Log
 
@@ -1761,3 +1761,11 @@ D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan
   unlisted and uncounted. Chunk 15 counts the sessions the list shows, and its `Delete every
   session` still deletes every kept session, one with no row included (ux D311, D313). Build plan
   v18.
+
+- **D320 (2026-10-15): the owner confirmed the seventh contract change, remembering the
+  controller, as major.** The owner's words: "confirmed for chunk 22", in reply to the
+  confirmation sentence of D314. `documentalist` applied it on `v3.0-w6` (5dd9fb1): CONTRACT 6.0,
+  `specification_browser_only_operation_verification` 0.3 and `rule_midi_starting_note` 0.6, both
+  STABLE, with master spec §10's wordings word for word; change-set part N1 records the
+  confirmation. Master spec Part A v1.18 states it as confirmed, and no contract wording waits for
+  the owner any more; chunk 22 no longer waits for it. Build plan v19.

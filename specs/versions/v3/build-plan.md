@@ -1,9 +1,9 @@
 # Infinite Flow v3.0 — Build Plan
 
-Status: v18 (2026-10-15): the plan follows the O210 and Damaged session designs (ux D307–D314): `Include very short notes` holds for the page visit; `Export played notes` is never offered for an empty file; chunk 28's refused deletion, landings and counts; O210 closed (spec D319). Approved by
+Status: v19 (2026-10-15): the owner confirmed the Remembered-controller wording (CONTRACT 6.0, change set part N1); chunk 22 no longer waits for it. Approved by
 the product owner on 2026-10-07 (v1), with Gate A and the token-source pass (Q66) confirmed the
 same day; every later revision writes in rulings from [the decisions log](../../decisions.md)
-(spec D252–D319), and earlier wordings are in git.
+(spec D252–D320), and earlier wordings are in git.
 
 Build plan for v3.0, Storage, written from [master spec v1.3](master-spec.md) (now Part A v1.15) and the v3.0 design
 in [`ui_ux/versions/v3.0/`](../../../ui_ux/versions/v3.0/README.md), the copy frozen when the
@@ -88,7 +88,7 @@ wave-0 gate covers chunks 1 and 2.
 | 3 | 5 Save policy · 9 Kept-session record | Chunk 4; chunk 23 (9) |
 | 4 | 7 Saved settings · 8 Notice row | Chunks 5, 6; chunk 1 for 8 |
 | 5 | 10 Most recent session kept (10a, 10b if split) · 17a My instrument through the worker and the session · 17b The clef through the history and the review | Chunks 7, 8, 9 (10); 9, 16, 19b (17) |
-| 6 | 11 Played-notes opt-in · 12 Favorites, pin, comment · 18 Replay key `ifk2.` · 22 Remembered controller · 25 Stray-note filter, in that order | Chunk 10 (11); chunk 11's change path (12, an in-wave edge fixed by 11's capture; spec D312, D313); chunk 17 (18); chunk 7 (22), and the Remembered-controller wording before 22 merges; H1 and chunk 1 (25; O210 answered by ux D308). Gate A and Review reachability are done. |
+| 6 | 11 Played-notes opt-in · 12 Favorites, pin, comment · 18 Replay key `ifk2.` · 22 Remembered controller · 25 Stray-note filter, in that order | Chunk 10 (11); chunk 11's change path (12, an in-wave edge fixed by 11's capture; spec D312, D313); chunk 17 (18); chunk 7 (22); H1 and chunk 1 (25; O210 answered by ux D308). Gate A, Review reachability and the Remembered-controller wording are done. |
 | 7 | 13 Favorites-only export · 14 Session list · 20 My instrument sheet · 27 A session cut short by the page going away | Chunk 12 (13, 14); chunks 7, 17, 19b, 24, the clef design and ux Q76 (20); chunk 10 (27, after wave 6's chunk 11, which may touch the session's save) |
 | 8 | 15 Your data · 21 The check feeds my instrument · 28 A damaged kept session deleted, with an apology | Chunks 11, 14 (15); 20 (21); 14, 27 and the Damaged session design gate (28; 28a may start before the gate) |
 | 9 | 20c My instrument's sessions · 24b Stale phrase at Start | Chunks 14, 20 and 21 and the Sessions design gate (20c); chunk 24 and the Stale phrase design gate (24b) |
@@ -975,7 +975,7 @@ half, narrowed in steps; spec D301):
 | Contract guarantees in `req_last_session_review`, `rule_optional_midi_privacy`, `rule_same_controller_reattaches` | **Gate A** | Narrowed to what holds in both v2.0 and v3.0 (CONTRACT 2.0). |
 | `req_last_session_review`: the review "stays reachable until the next session starts" | **Review reachability** (done 2026-10-12) | "or until the player deletes its session" (spec D295), confirmed MAJOR (CONTRACT 4.0). |
 | `rule_midi_starting_note`: playing the starting note "starts the count-in" | **Starting-note wording** (done 2026-10-13) | With a stale phrase 1, the note first asks, as Start does (spec D297), confirmed MAJOR (CONTRACT 5.0). |
-| `specification_browser_only_operation_verification`: no MIDI access before a Start or `Connect controller` click, no audio before one; `rule_midi_starting_note`: with a controller attached at Idle, the starting note starts the count-in | **Remembered-controller wording** (waits for the owner) | One request at load reselects a remembered controller, only when MIDI access is already allowed; after a load, the starting note starts nothing before the page's first click, tap or key press (spec D314), MAJOR (CONTRACT 6.0). Chunk 22 does not merge before it. |
+| `specification_browser_only_operation_verification`: no MIDI access before a Start or `Connect controller` click, no audio before one; `rule_midi_starting_note`: with a controller attached at Idle, the starting note starts the count-in | **Remembered-controller wording** (done 2026-10-15) | One request at load reselects a remembered controller, only when MIDI access is already allowed; after a load, the starting note starts nothing before the page's first click, tap or key press (spec D314), confirmed MAJOR (CONTRACT 6.0, [change set part N1](../../../docs/release/v3.0-intent-change-set.md#n1-contract-50--60-major-the-remembered-controller)). |
 
 Every replaced test gets its v3.0 counterpart in the same chunk, and the gate lists each pair
 (item 22).
@@ -1833,8 +1833,8 @@ a late-opening port's policy is arriving) is not shown, though it counts toward 
 `documentalist` applied A1 (`req_last_session_review` 0.5), A2 (`rule_optional_midi_privacy`
 0.3), A3 (`rule_same_controller_reattaches` 0.2) and A4 (`contract_infinite_flow_first_release`
 2.0, with the date and the confirmation in its notes). Chunks 11, 12 and 22 no longer wait for it;
-chunk 22 waits for the [Remembered-controller wording](#remembered-controller-wording--contract-60)
-instead. The confirmation is item 23's evidence.
+chunk 22 waited for the [Remembered-controller wording](#remembered-controller-wording--contract-60)
+instead, applied 2026-10-15. The confirmation is item 23's evidence.
 
 ### Chunk 9 — Kept-session record
 
@@ -3109,6 +3109,10 @@ warning, the cosmetic changes, the review's room), 17 (the check's warning).
 
 ### Remembered-controller wording — Contract 6.0
 
+**Applied 2026-10-15** (5dd9fb1): the owner confirmed it ("confirmed for chunk 22") and
+`documentalist` applied it, CONTRACT 6.0, `specification_browser_only_operation_verification` 0.3
+and `rule_midi_starting_note` 0.6, both STABLE ([change set part N1](../../../docs/release/v3.0-intent-change-set.md#n1-contract-50--60-major-the-remembered-controller)).
+
 Not a chunk: an owner step with a commit of its own, made by `documentalist` (spec D314). Chunk 22
 changes what two STABLE atoms on the contract say. `specification_browser_only_operation_verification`
 rejects a release that requests MIDI access or starts audio before a Start or `Connect controller`
@@ -3119,16 +3123,15 @@ count-in, while after a load it starts nothing before the page's first click, ta
 Both lose cases, so by the contract's rule the change is MAJOR, CONTRACT 5.0 → 6.0. The wordings
 are in [master spec §10](master-spec.md#10-what-v30-changes-in-v2s-guarantees) (the seventh
 change); both hold for v2.0, which attaches a controller only after a `Connect controller` click
-and requests nothing at load. The owner confirms them in their own words; `documentalist` writes the
-change-set part and applies both atoms and the contract bump, with the date and the confirmation in
-the contract's notes, on `main` or on the wave branch (the wave driver's call; on `main`, merged
-into the wave branch before chunk 22 merges). **Chunk 22 may not merge before it.** The
-confirmation is item 23's evidence.
+and requests nothing at load. The owner confirmed them; `documentalist` applied both atoms and the
+contract bump on the wave branch, the date and the confirmation recorded in
+[change set part N1](../../../docs/release/v3.0-intent-change-set.md#n1-contract-50--60-major-the-remembered-controller), since atoms have no notes field. The confirmation is item 23's
+evidence.
 
 ### Chunk 22 — Remembered controller
 
-**The [Remembered-controller wording](#remembered-controller-wording--contract-60) must be applied
-before this chunk merges.** Gate A, applied 2026-10-07, already narrowed the "forgotten on reload"
+The [Remembered-controller wording](#remembered-controller-wording--contract-60), applied
+2026-10-15 (CONTRACT 6.0), covers the two STABLE wordings this chunk changes. Gate A, applied 2026-10-07, already narrowed the "forgotten on reload"
 guarantee of `rule_same_controller_reattaches`.
 
 **Architecture capture** (before code; spec D314): the remembered controller.
@@ -3196,14 +3199,14 @@ header at load, the starting-note line).
 **Atoms:** `rule_last_controller_remembered`, `rule_delete_everything`,
 `rule_starting_note_waits_for_first_gesture` (DRAFT), `rule_disconnect_forgets_controller`
 (REVIEW); (v2, STABLE) `rule_same_controller_reattaches` (narrowed by Gate A),
-`rule_midi_starting_note` and `specification_browser_only_operation_verification` (revised by the
-Remembered-controller wording). **Part D:** `rule_audio_unlocked_by_player_click` (REVIEW, tagged
+`rule_midi_starting_note` 0.6 and `specification_browser_only_operation_verification` 0.3
+(revised by the Remembered-controller wording, applied). **Part D:** `rule_audio_unlocked_by_player_click` (REVIEW, tagged
 `changes-in-v3.0`: "a MIDI note can start a session only after a `Connect controller` click" stops
 holding), `rule_controller_connects_between_sessions` (REVIEW: a reselection at load connects
 without the step; the e2e test 'the production app asks for no MIDI access at startup' links to
 it).
 
-**Depends on:** chunk 7; the Remembered-controller wording before it merges. Delete everything's
+**Depends on:** chunk 7 (the Remembered-controller wording is applied). Delete everything's
 half of the reload test is chunk 15's (wave 8).
 
 **Done when:**
@@ -3773,7 +3776,7 @@ verification. The gate copies this into the release notes with the final test na
 | 20 Pre-generation | 23, 24 | identity on the fake clock; cancellation, Start, discard tests; M4 recorded; H6 |
 | 21 Stray notes | 25 (M1 from H1) | filter tests on real recordings; H5 |
 | 22 v2 behaviour otherwise unchanged | every wave gate | `npm run quality`; the replaced-tests table of [§2](#2-read-first-what-v30-undoes-in-v2) |
-| 23 Contract | Gate A, Review reachability, Starting-note wording, Remembered-controller wording, 26 | the confirmation recorded in the CONTRACT atom's notes |
+| 23 Contract | Gate A, Review reachability, Starting-note wording, Remembered-controller wording, 26 | each confirmation recorded in the [change set](../../../docs/release/v3.0-intent-change-set.md) (parts A, I1, J1 and N1) |
 | 24 Stale phrase at Start | 24b | engine tests per Written key, Collection, Harmonic motion and Register change, 60–240 BPM; stale-check unit tests; pre-generation identity with a stale phrase 1; e2e prompt; fake-MIDI starting note; H9 |
 
 ## 8. Open points for spec-writer
@@ -3864,8 +3867,8 @@ Master spec v1.16 (2026-10-15, spec D314) corrects §10, which called the audio-
 STABLE atoms that are restate it, `specification_browser_only_operation_verification` (no MIDI
 access and no audio before a Start or `Connect controller` click) and `rule_midi_starting_note`
 (the starting note starts the count-in). Remembering the controller is now §10's seventh contract
-change, MAJOR (CONTRACT 6.0), waiting for the owner: the **Remembered-controller wording**, before
-chunk 22 merges. The wave-6 preflight also brought spec D312 (wave 6's shared files, in order),
+change, MAJOR (CONTRACT 6.0): the **Remembered-controller wording**, which the owner confirmed and
+`documentalist` applied on 2026-10-15 (master spec v1.18). The wave-6 preflight also brought spec D312 (wave 6's shared files, in order),
 D313 (chunk 11's capture of the changes after a session's save) and D315 (chunk 25's pitch scale;
 [spec O210](../../open-questions.md#v30-wave-6-o210), for `ux-writer`, before chunk 25).
 

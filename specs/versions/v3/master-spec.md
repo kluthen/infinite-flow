@@ -2,7 +2,7 @@
 
 Status: this file holds four parts.
 
-- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.17 (2026-10-15), approved by the
+- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.18 (2026-10-15), approved by the
   product owner, and being built. Its section numbers (§1 to §15) are unchanged; v1.5 and v1.6
   write in the owner's rulings after the build's first intent preflight; v1.7 is a wording fix;
   v1.8 writes in the owner's rulings after the build's second intent preflight; v1.9 adds a bass
@@ -17,7 +17,9 @@ Status: this file holds four parts.
   v1.16 corrects §10: remembering the controller changes two contract wordings, a seventh
   contract change that waits for the owner's confirmation (spec D314), no behaviour changed;
   v1.17 states what follows from §4.3 and §4.4 for the remembered controller: a visit that saves
-  nothing neither remembers nor forgets it (§7.3, item 18; spec D318).
+  nothing neither remembers nor forgets it (§7.3, item 18; spec D318); v1.18 records the owner's
+  confirmation of that seventh contract change on 2026-10-15 (CONTRACT 6.0), no behaviour changed.
+  No contract wording it needs waits for the owner any more (§10).
 - **[Part B — v3.1](#part-b--v31), embellishment figures and presets:** master spec v1.0
   (2026-10-08), consolidated from the v3.1 drafts the owner approved; approved by the product
   owner (2026-10-08). The owner confirmed the exact wording of the contract
@@ -745,7 +747,7 @@ below is intended.
   the fifth change. The alternative that kept the wording, the starting note counting as Use it
   without asking, was not chosen: it would never tell the player at the instrument that the
   phrase is out of date.
-- **A seventh contract change, major, waiting for the owner's confirmation** (CONTRACT 5.0 to
+- **A seventh contract change, confirmed by the owner as major on 2026-10-15** (CONTRACT 5.0 to
   6.0): **remembering the controller** (§7.3). v2 unlocked sound only on a Start or Connect
   controller click; v3.0 lets a starting note played after the page's first click, tap or key press
   start the sound, since a remembered controller is reselected without a Connect click, and it asks
@@ -753,7 +755,7 @@ below is intended.
   (`rule_audio_unlocked_by_player_click`) is not on the contract, but two contract entries restate
   it, so the change reaches the contract after all (v1.15 said otherwise):
   - `specification_browser_only_operation_verification` rejects a release that "starts audio or
-    requests MIDI access before the player clicks Start or "Connect controller"". Proposed
+    requests MIDI access before the player clicks Start or "Connect controller"". Accepted
     wording, in place of that clause: "starts audio before the player has either clicked Start or
     "Connect controller" or played the starting note after the page's first click, tap or key
     press, requests MIDI access before the player clicks Start or "Connect controller" other than
@@ -761,7 +763,7 @@ below is intended.
     browser already allows MIDI access and so never shows a permission prompt"; its expectation
     says the same.
   - `rule_midi_starting_note` says: "With a controller attached at Idle, outside the review,
-    playing the starting note at its exact concert pitch starts the count-in". Proposed wording,
+    playing the starting note at its exact concert pitch starts the count-in". Accepted wording,
     added to its rule and to that sentence: "After the page loads, the starting note starts nothing
     until the page's first click, tap or key press (a note played on the controller does not
     count), because browsers do not let a page play sound before one; this holds also for a
@@ -770,8 +772,8 @@ below is intended.
   Both hold for v2.0, which attaches a controller only after a Connect controller click, itself a
   click on the page, and asks for no MIDI access at load. Both lose cases (a starting note that no
   longer starts the count-in just after a load; a release the check no longer rejects), so by the
-  contract's rule the change is major. Chunk 22 of the build does not merge before the owner
-  confirms it.
+  contract's rule the change is major, and the owner confirmed it so on 2026-10-15
+  (`documentalist` applied it, CONTRACT 6.0).
 - **About fifteen declared-intent entries under review** say "never persisted", led by the rule
   that session state is ephemeral; the vision's "out of scope through v2" list needs a v3
   revision.
@@ -1011,8 +1013,8 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
   attempt, on 2026-10-12, and it is applied with the build. He confirmed the fifth, the review's
   reachability, as a major change on 2026-10-12 (CONTRACT 4.0), and the sixth, the starting note
   asking first, as a major change on 2026-10-13 (CONTRACT 5.0, applied by `documentalist`). The
-  seventh, remembering the controller, a major change (CONTRACT 6.0), waits for the owner's
-  confirmation (spec D314). Approving this spec is not a contract confirmation.
+  seventh, remembering the controller, was confirmed as a major change on 2026-10-15 (CONTRACT
+  6.0, applied by `documentalist`; spec D314). Approving this spec is not a contract confirmation.
 - **Design, for `ux-writer`:** where "Your data", the session list, favorites, the comment, the
   "Keep my played notes" switch and "my instrument" live, and how they look on each device;
   how my instrument's sheet shows the transposition's derived interval name (§7.1); the clef
