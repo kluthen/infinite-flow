@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.95
+Status: draft v2.96
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,13 +14,13 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D321**. D259–D260 are
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D322**. D259–D260 are
 on branch `v4-accompaniment-research`, not merged yet. D263–D288 are v3.3's richer chords (merged
 from `main`); D289 is unused. D290–D299 were reserved for v3.0 wave 2; wave 2 used D290–D298, and
 D299 records wave 3. D300 records the wave-4 preflight; D301 and D302 the plan revision after
 chunk 7a; D303–D305 the wave-5 preflight (D303 the owner's ruling on the session key); D306–D308 the
 wave-5 sync; D309–D311 the owner's rulings on O201 and O200 and the plan revision they bring;
-D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan following the wave-6 design gates; D320 the owner's confirmation of the seventh contract change.
+D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan following the wave-6 design gates; D320 the owner's confirmation of the seventh contract change; D321 measurement M1's findings.
 
 ## Decision Log
 
@@ -1769,3 +1769,25 @@ D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan
   STABLE, with master spec §10's wordings word for word; change-set part N1 records the
   confirmation. Master spec Part A v1.18 states it as confirmed, and no contract wording waits for
   the owner any more; chunk 22 no longer waits for it. Build plan v19.
+
+- **D321 (2026-10-15): stray notes are caught by length, mostly; M1's description and §9 follow
+  what was measured; O211 opened for the owner at H5; a held note cut in two is noted for later.**
+  Settled by `spec-writer` from chunk 25's record (1dcf590, 5de073b) and `docs/midi-tuning.md`,
+  "Very short notes (M1)". Build plan M1 expected stray notes to form a separate cluster with a gap
+  before the shortest intended notes. The owner's five H1 recordings (534 notes, Travel Sax, 12 to
+  77 s each) show none: in their melodic context, the 167 notes under 130 ms are 77 in-between
+  notes, 68 halves of a held note the controller cut in two, 9 intended notes and 13 unclear, and
+  in-between and intended notes overlap from 41 to 97 ms. The threshold, 38 ms, sits one controller
+  step (about 5 ms) below the shortest intended note (45.8 ms): it leaves out 66 of the 77
+  in-between notes and no intended note. §9's rule (a constant length threshold, tuned from the
+  reference controller's recordings, well under 62.5 ms) holds as written, so this is a correction
+  of the descriptions, not of behaviour: master spec Part A v1.19 says in §9 that a length catches
+  most stray notes, not all, and drops "in pairs" (the recordings show runs and single notes, many
+  at full velocity); §14 no longer lists the threshold as open; build plan M1 states what was
+  measured; hand check H5 no longer expects "no stray notes" in the lane. Whether the 11 left are
+  acceptable is a product judgment, so it goes to the owner as O211, settled at H5 (proposed: keep
+  38 ms). The 68 split halves need nothing in v3.0: a half under the threshold is left out and the
+  other half keeps the pitch, so no note is lost; a longer half shows as a second note. Merging
+  them would be a new reading rule, so it is a note for later in §14, to weigh when Jam reads
+  played notes as a doodle (Part C), where a split note would count twice; no question is opened,
+  since no v3.0 behaviour depends on it. Build plan v20.

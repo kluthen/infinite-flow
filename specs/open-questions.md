@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.65
+Status: draft v0.66
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -201,6 +201,21 @@ never saved, as §5.1 says; built in chunk 27). O202–O209 stay free.
 ## v3.0 wave 6 (O210+)
 
 Opened 2026-10-15 by `spec-writer` while writing the wave-6 preflight's corrections into build
-plan v16 (D312–D315). O210–O219 are reserved for v3.0 wave 6. O210, the one question opened here,
-is closed: `ux-writer` answered it in ux D308 (`Export played notes` is disabled, with its reason,
-whenever its file would hold no note), recorded in [D319](decisions.md). O211–O219 stay free.
+plan v16 (D312–D315). O210–O219 are reserved for v3.0 wave 6. O210 is closed: `ux-writer`
+answered it in ux D308 (`Export played notes` is disabled, with its reason, whenever its file would
+hold no note), recorded in [D319](decisions.md). O212–O219 stay free.
+
+- **O211 - Are the stray notes a 38 ms threshold leaves acceptable?** _(D321; for the owner, at
+  hand check H5; master spec §9; build plan M1, chunk 25)_: measurement M1 found no length that
+  separates stray notes (in-between notes the controller sends while the fingers move) from the
+  notes the player meant: on the Travel Sax they overlap from 41 to 97 ms, and the shortest meant
+  note lasts 45.8 ms. Chunk 25 set the threshold one controller step below it, 38 ms: in the five
+  recordings it leaves out 66 of the 77 stray notes and no meant note, so 11 still show in the
+  lane and the default export. Open: is that acceptable? Options: (a) keep 38 ms, a length rule
+  only (proposed: it never hides a note the player meant, and the lane is a neutral record, not
+  a score); (b) raise the threshold toward 60 ms, which leaves about 5 stray notes but hides the
+  45.8 ms meant note and comes close to a 240 BPM sixteenth (62.5 ms), against §9's "well under";
+  (c) a later rule that also reads the context (a short note of another pitch wedged between two
+  notes), a new spec rule for a later version. The recordings were short (12 to 77 s) and held no
+  meant note near 62.5 ms, so if the owner wants (b), a recording of fast sixteenths comes first.
+  It blocks nothing before the release gate.

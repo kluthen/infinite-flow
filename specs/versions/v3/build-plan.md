@@ -1,9 +1,9 @@
 # Infinite Flow v3.0 — Build Plan
 
-Status: v19 (2026-10-15): the owner confirmed the Remembered-controller wording (CONTRACT 6.0, change set part N1); chunk 22 no longer waits for it. Approved by
+Status: v20 (2026-10-15): M1's description follows what chunk 25 measured: no gap between stray and intended notes, a 38 ms length rule that leaves out most stray notes, not all; spec O211 for the owner at hand check H5 (spec D321). Approved by
 the product owner on 2026-10-07 (v1), with Gate A and the token-source pass (Q66) confirmed the
 same day; every later revision writes in rulings from [the decisions log](../../decisions.md)
-(spec D252–D320), and earlier wordings are in git.
+(spec D252–D321), and earlier wordings are in git.
 
 Build plan for v3.0, Storage, written from [master spec v1.3](master-spec.md) (now Part A v1.15) and the v3.0 design
 in [`ui_ux/versions/v3.0/`](../../../ui_ux/versions/v3.0/README.md), the copy frozen when the
@@ -62,6 +62,7 @@ Some steps are not code and need the owner. They are part of the sequence:
 | **Damaged session design** | **Done 2026-10-15 (ux D309–D314, ux commit 81037c2):** `ux-writer` designed, for spec D310, the apology notice "Damaged sessions deleted" (one wording for one session and one for several, `Dismiss` only, until dismissed or the page closes, its place among the notices), the save-problem notice's "Damaged session not deleted" for a refused deletion, where the player lands from `review-link` or a list row, and the session list aligned (a damaged summary has no row; counts follow the rows); `ux-critic` passed it. Plan v18 (spec D319) brought chunks 15 and 28 to it. | Done. | Nothing. [Chunk 28](#chunk-28--a-damaged-kept-session-deleted-with-an-apology) builds it. |
 | **Remembered-controller wording** | **Done 2026-10-15:** the owner confirmed the MAJOR contract change for the remembered controller ("confirmed for chunk 22"), in the words of [master spec §10](master-spec.md#10-what-v30-changes-in-v2s-guarantees) (its seventh change; spec D314, D320); `documentalist` applied it on `v3.0-w6` (5dd9fb1): CONTRACT 6.0, `specification_browser_only_operation_verification` 0.3 and `rule_midi_starting_note` 0.6, the confirmation recorded in [change set part N1](../../../docs/release/v3.0-intent-change-set.md). | Done. | Nothing. [Chunk 22](#chunk-22--remembered-controller) may merge. |
 | **O210** | **Closed 2026-10-15 (ux D308, ux commit 81037c2):** when the file would hold no note under the current scope and `Include very short notes`, `Export played notes` is disabled with its reason ("Every note you played is very short. Turn on Include very short notes to export them."); the lane shows no bar ([spec O210](../../open-questions.md#v30-wave-6-o210)). Plan v18 (spec D319) brought chunks 13 and 25 to it. | Done. | Nothing. [Chunk 25](#chunk-25--stray-note-filter) builds it (it still waits for H1). |
+| **O211** | At hand check H5, the owner says whether the stray notes the 38 ms threshold leaves in the lane and the default export bother them ([spec O211](../../open-questions.md#v30-wave-6-o210); measurement M1 found 11 of 77 left). | At H5, any time now that chunk 25 has merged. | Nothing before the release gate ([chunk 26](#chunk-26--v30-release-gate)), which needs the answer. |
 
 ### Waves
 
@@ -1134,12 +1135,22 @@ recorded. The gate copies each into the release notes.
   fingers move between two positions. It must stay well under 62.5 ms, a sixteenth note at
   240 BPM. Measurement starts around 30–40 ms.
 - **How:** the owner (step H1) plays, on the Travel Sax over USB in v2.0 as it ships (nothing new
-  is needed), three sessions of a few minutes: slow scales, fast scales at 240 BPM, and free
-  playing with many finger changes, then exports each session's played notes (v2.0's MIDI file,
-  960 ticks per quarter note, so under 1 ms of resolution at any tempo). Chunk 25 adds a script
-  that lists every note's length in ms from those files and draws the distribution. Stray notes
-  show as a separate cluster of very short lengths, often in pairs at full velocity; the
-  threshold goes in the gap between that cluster and the shortest intended notes.
+  is needed), slow scales, fast scales at 240 BPM, and free playing with many finger changes, then
+  exports each session's played notes (v2.0's MIDI file, 960 ticks per quarter note, so under 1 ms
+  of resolution at any tempo). Chunk 25 adds a script that lists every note's length in ms, with
+  the notes around it, from those files and draws the distribution. The threshold goes one step of
+  the controller's timing below the shortest note read as intended, so it never leaves out a note
+  the player meant.
+- **Measured (2026-10-15, chunk 25; spec D321):** 38 ms. The plan expected stray notes to form a
+  separate cluster of very short lengths, with a gap before the shortest intended notes; the five
+  recordings (12 to 77 s each, shorter than the few minutes planned; 534 notes) show none. In
+  their melodic context, the 167 notes under 130 ms are 77 in-between (stray) notes, 68 halves of
+  a held note the controller cut in two, 9 intended notes and 13 unclear; in-between and intended
+  notes overlap from 41 to 97 ms. The shortest intended note is 45.8 ms, and lengths step by about
+  5 ms. At 38 ms the filter leaves out 66 of the 77 in-between notes, 16 split halves and 4 unclear
+  notes, and no intended note; 11 in-between notes still show. Whether that is enough is
+  [spec O211](../../open-questions.md#v30-wave-6-o210), for the owner at hand check H5. The fast scales were one note per beat
+  (250 ms), so the recordings hold no intended note near a 240 BPM sixteenth (62.5 ms).
 - **Recorded:** a new section of [`docs/midi-tuning.md`](../../../docs/midi-tuning.md), with the
   files kept under `tests/fixtures/stray-notes/` so the filter's tests replay real data.
 
@@ -1209,7 +1220,7 @@ or at the gate.
 | H2 Start-up wait | 7 | M2 on the reference machine, and the tablet if at hand. |
 | H3 Use this for my instrument | 21 | Set the Travel Sax's transpose to a value that does not match the selected profile, run the check, use the result, confirm the written part now matches, reload, confirm it stayed. |
 | H4 Remembered controller | 22 | Connect the Travel Sax, reload: it reattaches with no prompt; the starting note waits for one click; unplug and replug; `Disconnect`, reload: nothing reattaches. |
-| H5 Stray notes in real playing | 25 | Play a fast passage, open the review: the lane shows no stray notes; the played-notes export leaves them out by default and keeps them with `Include very short notes`. |
+| H5 Stray notes in real playing | 25 | Play a fast passage, open the review: the lane leaves out most stray notes and none of the notes you meant; say whether the stray notes that remain bother you ([spec O211](../../open-questions.md#v30-wave-6-o210)); the played-notes export leaves very short notes out by default and keeps them with `Include very short notes`. |
 | H6 Pre-generation at 240 BPM | 24 | Start several 240 BPM sessions right after phrase 1 appears and after waiting a few seconds; note the tablet's battery cost (M4, for information). |
 | H7 Persistent storage in real Chrome | 26 | Pin a session in the installed app and in a plain tab; read Your data's Protection line. For information: Chrome decides silently. |
 | H8 Favorites-only files in real programs | 26 | Open a favorites-only MusicXML in MuseScore and both MIDI files in a MIDI tool; phrase numbers and markers match the session. May follow the tag as a v3.0.x note, as in v2. |

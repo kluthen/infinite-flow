@@ -2,7 +2,7 @@
 
 Status: this file holds four parts.
 
-- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.18 (2026-10-15), approved by the
+- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.19 (2026-10-15), approved by the
   product owner, and being built. Its section numbers (§1 to §15) are unchanged; v1.5 and v1.6
   write in the owner's rulings after the build's first intent preflight; v1.7 is a wording fix;
   v1.8 writes in the owner's rulings after the build's second intent preflight; v1.9 adds a bass
@@ -18,8 +18,9 @@ Status: this file holds four parts.
   contract change that waits for the owner's confirmation (spec D314), no behaviour changed;
   v1.17 states what follows from §4.3 and §4.4 for the remembered controller: a visit that saves
   nothing neither remembers nor forgets it (§7.3, item 18; spec D318); v1.18 records the owner's
-  confirmation of that seventh contract change on 2026-10-15 (CONTRACT 6.0), no behaviour changed.
-  No contract wording it needs waits for the owner any more (§10).
+  confirmation of that seventh contract change on 2026-10-15 (CONTRACT 6.0), no behaviour changed;
+  v1.19 writes in what measurement M1 found about stray notes (§9, §14; spec D321), no behaviour
+  changed. No contract wording it needs waits for the owner any more (§10).
 - **[Part B — v3.1](#part-b--v31), embellishment figures and presets:** master spec v1.0
   (2026-10-08), consolidated from the v3.1 drafts the owner approved; approved by the product
   owner (2026-10-08). The owner confirmed the exact wording of the contract
@@ -688,14 +689,22 @@ clef with the phrase (§5.2).
 ## 9. Stray notes
 
 Some controllers send very short notes while the fingers change position: in-between notes a real
-instrument would swallow. The reference breath controller sends them often, in pairs at full
+instrument would swallow. The reference breath controller sends them often, many of them at full
 velocity. This is treated as a general controller matter; nothing is built for one device.
 
 - **A very short note** is a played note whose length, from note-on to note-off, is under a fixed
   threshold.
 - **The threshold is a constant, not a player setting.** It is tuned from recordings of the
   reference controller and must stay well under the shortest note the app writes at its fastest
-  tempo: a sixteenth note at 240 BPM lasts 62.5 ms. Measurement starts around 30 to 40 ms.
+  tempo: a sixteenth note at 240 BPM lasts 62.5 ms.
+- **Measured at 38 ms; a length catches most stray notes, not all** (measurement M1, 2026-10-15).
+  On the reference controller, stray notes and the notes the player meant overlap in length: the
+  stray notes found last from under 5 ms to 97 ms, and the shortest note read as meant lasts
+  45.8 ms, so no length separates the two. The threshold sits one step of the controller's timing
+  (about 5 ms) below that note, so it never leaves out a note the player meant; in the recordings
+  it leaves out 66 of the 77 stray notes found, and the other 11 still show in the lane and in the
+  default export. Whether that is enough is the owner's call at hand check H5 (open question
+  O211).
 - **Where it applies:** the review's `Played notes` lane and the played-notes export (and, from
   v3.2, the motif Jam reads).
 - **Never in acknowledgement.** An expected note lights only for a played note with exactly its
@@ -986,8 +995,7 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
 
 ## 14. Deferred and open
 
-- **Open, for the build plan:** the exact stray-note threshold, set by measurement (§9); the
-  length of the start-up wait for saved settings (§4.4); whether "my instrument" needs a stricter
+- **Open, for the build plan:** the length of the start-up wait for saved settings (§4.4); whether "my instrument" needs a stricter
   range check than the two-octave rule and the bound per clef once the generator's success rate
   on narrow and extreme ranges is known (§7.1, item 16); any stricter rule it shows goes to the
   owner.
@@ -1008,6 +1016,15 @@ v3.0 ships when every item holds, each verified by a named test or a recorded ha
   with the new phrase, the player pressing Start again (O182 closed); the starting note asks
   first, a major contract change (CONTRACT 5.0, §10).
 - **Measured, for information:** the battery cost of pre-generation at Idle on a tablet (§8).
+- **Measured (2026-10-15): the stray-note threshold, 38 ms** (§9). Whether the stray notes it
+  leaves in the lane are acceptable is open question O211, for the owner at hand check H5.
+- **Noted for later: a held note the controller cuts in two.** M1 also found the reference
+  controller splitting one held note into two notes of the same pitch, up to 60 ms apart, usually a
+  loud short part and then a soft long one (68 of the 167 notes under 130 ms). v3.0 adds nothing
+  for it: a part under the threshold is left out like any very short note, the other part keeping
+  the pitch, and a longer part shows as a second bar in the lane and a second note in the export.
+  Merging the two parts on reading would be a new rule. It is worth weighing when Jam reads played
+  notes as a doodle (Part C), where a split note would count as two notes of the same pitch.
 - **Contract changes:** the owner confirmed the three major contract changes in §10 on
   2026-10-07, and they are applied; he agreed to the minor one, the cancellable background
   attempt, on 2026-10-12, and it is applied with the build. He confirmed the fifth, the review's

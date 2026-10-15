@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.67
+Status: draft v0.68
 
 ## Status Snapshot
 
@@ -148,10 +148,15 @@ Status: draft v0.67
   `Include very short notes` holds for the page visit. Chunk 28 takes the Damaged session design.
 - **v3.0 contract 6.0** (2026-10-15, D320): the owner confirmed the remembered-controller wording
   as major; master spec Part A v1.18, build plan v19. No contract wording waits any more.
-- **Open:** 11 questions: O48 and O49 (later and governance),
+- **v3.0 stray notes measured** (2026-10-15, D321): the threshold is 38 ms; stray and meant notes
+  overlap in length, so it leaves out most stray notes, not all (66 of 77 in the recordings).
+  Master spec Part A v1.19 (§9, §14), build plan v20 (M1, H5). O211 opened, for the owner at
+  hand check H5. A held note the controller cuts in two is noted for later (§14).
+- **Open:** 12 questions: O48 and O49 (later and governance),
   O100–O102 (v4 rhythm), O115 and O116 (v3.x learning), O176 (style packs and the chord level),
-  O180 (octave signs, later), O183 (pre-generation's cancellation cost) and O190 (a newer
-  version's database whose read-only reopening fails). ux D308 closed O210. D309 and D310 closed O201 and O200; D295
+  O180 (octave signs, later), O183 (pre-generation's cancellation cost), O190 (a newer
+  version's database whose read-only reopening fails) and O211 (the stray notes a 38 ms threshold
+  leaves, for the owner at H5). ux D308 closed O210. D309 and D310 closed O201 and O200; D295
   and D296 closed O181; the owner's ruling in D297 closed O182.
   O163 and O164 closed by D257 and D258; D262 closed O174; D264–D273 settled O165–O173 and O175
   in Part D, pending the owner's approval.
