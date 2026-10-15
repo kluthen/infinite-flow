@@ -4,13 +4,22 @@
  * the change to hidden, which ends the session: its save never asks the visit's saves for anything.
  * On a page already hidden (a tab switch ended the session, then the tab closed), the save still
  * running stops at its next step: after the codec loads, or between the read and the batch. Either
- * way the session is held in memory as not saved and the kept sessions stay. A tab switch alone
- * saves as before. On the fake audio clock at 240 BPM from 5 s: phrase 1 starts sounding at 6.1 s.
+ * way the session is held in memory as not saved and the kept sessions stay. A page the
+ * back-forward cache brings back (spec D328) never resumes a save the leaving reached, but saves
+ * the sessions that end after it. A tab switch alone saves as before. On the fake audio clock at
+ * 240 BPM from 5 s: phrase 1 starts sounding at 6.1 s.
  */
 import { describe, expect, it, vi } from 'vitest'
 
-import { createSavePolicy, type SaveFailureKind } from '@/storage/save-policy'
+import { APP_VERSION } from '@/storage/app-version'
+import { encodeKeptSession } from '@/storage/records/kept-session-record'
+import {
+  createSavePolicy,
+  type SaveFailureKind,
+  type SessionSaveOutcome,
+} from '@/storage/save-policy'
 
+import { recordedKeptSession } from '../../storage/kept-session-fixtures'
 import { readyPort } from '../../storage/save-policy-doubles'
 import { freshFactory, sampleRecord } from '../../storage/storage-test-doubles'
 import { controllerRig, flush, playTo, type ControllerRig } from './session-controller-rig'
@@ -93,6 +102,59 @@ describe('session controller: a session cut short by the page going away', () =>
     expect((await port.readKeyed('sessionSummaries')).map(({ key }) => key)).toEqual([
       'session-1-5',
     ])
+  })
+
+  it('hidden, pagehide while the codec loads, then the page back before it loads: nothing is written', async () => {
+    const rig = await soundedRig()
+
+    rig.browser.pageVisibility.setHidden(true)
+    rig.browser.pageLeaving.leave()
+    rig.browser.pageLeaving.comeBack()
+    await codecLoaded()
+
+    expect(rig.sessionSaves).toEqual([])
+    expectNotSaved(rig)
+  })
+
+  it('pagehide, hidden, then the page back: the next session that ends with a review is saved', async () => {
+    const port = await readyPort(freshFactory())
+    const older = encodeKeptSession(
+      recordedKeptSession('eb-alto', 2),
+      { pinned: false, favorites: [], comment: '', playedNotesKept: false },
+      APP_VERSION,
+    )
+    await port.write('sessionSummaries', 'session-1-5', structuredClone(older.summary))
+    const policy = createSavePolicy(port)
+    const outcomes: Promise<SessionSaveOutcome>[] = []
+    const rig = await soundedRig({
+      sessionSaveOutcome: (changes, pageGoingAway) => {
+        const outcome = policy.saveSession(changes, pageGoingAway)
+        outcomes.push(outcome)
+        return outcome
+      },
+    })
+
+    rig.browser.pageLeaving.leave()
+    rig.browser.pageVisibility.setHidden(true)
+    await codecLoaded()
+    rig.browser.pageLeaving.comeBack()
+    rig.browser.pageVisibility.setHidden(false)
+    await codecLoaded()
+    expect(rig.sessionSaves).toEqual([])
+    expectNotSaved(rig)
+
+    rig.controller.closeReview()
+    rig.controller.start()
+    await playTo(rig, rig.audioRig.now() + 1.5)
+    rig.controller.stop()
+    await vi.waitFor(() => expect(outcomes).toHaveLength(1))
+
+    expect(await outcomes[0]).toEqual({ status: 'saved' })
+    await flush()
+    expect(rig.controller.state.review?.keeping).toBe('not-pinned')
+    const keys = (await port.readKeyed('sessionSummaries')).map(({ key }) => key)
+    expect(keys).toHaveLength(1)
+    expect(keys).not.toContain('session-1-5')
   })
 
   it('hidden alone, a tab switch: the session ends and is saved as before', async () => {

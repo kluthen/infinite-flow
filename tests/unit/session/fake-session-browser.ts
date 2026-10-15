@@ -147,20 +147,35 @@ export function createFakePageVisibility(): FakePageVisibility {
   }
 }
 
-/** A fake page the test makes go away. */
+/** A fake page the test makes go away and come back. */
 export interface FakePageLeaving extends PageLeaving {
-  /** The page goes away, as the browser's `pagehide`; it stays gone. */
+  /** The page goes away, as the browser's `pagehide`. */
   readonly leave: () => void
+  /** The page comes back, as a `pageshow` with `persisted` true (the back-forward cache). */
+  readonly comeBack: () => void
 }
 
-/** Intent: a fake page that stays until the test calls `leave`, then is going away for good. */
+/**
+ * Intent: a fake page that stays until the test calls `leave`, then is going away until it calls
+ * `comeBack`; a watch reads set at once if the page is going away at the call, or else once
+ * `leave` is called after it, and then stays set, as the browser adapter's does.
+ */
 // @test-link [[req_rolling_practice_session]]
 export function createFakePageLeaving(): FakePageLeaving {
-  let goingAway = false
+  let away = false
+  let leaves = 0
   return {
-    isGoingAway: () => goingAway,
+    watch: () => {
+      if (away) return () => true
+      const at = leaves
+      return () => leaves !== at
+    },
     leave: () => {
-      goingAway = true
+      away = true
+      leaves += 1
+    },
+    comeBack: () => {
+      away = false
     },
   }
 }

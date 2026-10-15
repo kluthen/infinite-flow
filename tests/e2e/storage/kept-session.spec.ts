@@ -21,9 +21,11 @@
  * From chunk 27, a session cut short by the page going away (spec D309): reloaded after phrase 1
  * has sounded, it is never saved and the kept session stays; and after a `pagehide` that left the
  * page alive (as one the back-forward cache brings back), its Review reads not saved and nothing
- * is written. The harness's page visibility is a fake that does not follow the browser's, so a
- * spec hides it from a `pagehide` listener added after the app's, as the browser hides the page
- * right after `pagehide`, in the same task.
+ * is written; once a `pageshow` from the cache brings the page back (spec D328), the next session
+ * that ends with a review is saved as any session is. The harness's page visibility is a fake that
+ * does not follow the browser's, so a spec hides it from a `pagehide` listener added after the
+ * app's, as the browser hides the page right after `pagehide`, in the same task, and shows it
+ * again itself.
  *
  * A pinned session and an unreadable one are seeded through the harness's storage seam.
  */
@@ -464,7 +466,7 @@ test.describe('a session cut short by the page going away', () => {
     expect((await sessionState(page)).review).toEqual({ showing: true, phraseCount: 1 })
   })
 
-  test('a pagehide that leaves the page alive: the Review reads not saved and nothing is written', async ({
+  test('a pagehide that leaves the page alive: the Review reads not saved and nothing is written, then the page back saves the next session', async ({
     page,
   }) => {
     test.setTimeout(120_000)
@@ -485,5 +487,15 @@ test.describe('a session cut short by the page going away', () => {
     await expect(page.locator('.app-notice-row')).toHaveCount(0)
     await expect(keepLine(page)).toHaveText(NOT_SAVED)
     expect(await keptKeys(page)).toEqual(kept)
+
+    await page.evaluate(() => {
+      window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true }))
+      window.__workspaceHarness.page.setHidden(false)
+    })
+    await nextSessionEnded(page)
+
+    await expect(keepLine(page)).toHaveText(NOT_PINNED)
+    await expect.poll(async () => (await keptKeys(page)).some((key) => key !== kept[0])).toBe(true)
+    expect(await keptKeys(page)).toHaveLength(1)
   })
 })

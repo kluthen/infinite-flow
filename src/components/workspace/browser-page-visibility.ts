@@ -1,10 +1,12 @@
 /**
  * The browser adapters of the page-visibility port, the document's `visibilitychange` event, and of
- * the page-leaving port beside it, the window's `pagehide` event, each read through a structural
- * slice so tests supply a hand-made stand-in. Only a change to `hidden` reaches listeners; a
- * hidden tab ends a running session, and a tab shown again changes nothing. `pagehide` marks the
- * page as going away for the rest of its life; on a reload or close it fires before the change to
- * `hidden`, in the same task, so the save of the session that change ends never starts.
+ * the page-leaving port beside it, the window's `pagehide` and `pageshow` events, each read through
+ * a structural slice so tests supply a hand-made stand-in. Only a change to `hidden` reaches
+ * listeners; a hidden tab ends a running session, and a tab shown again changes nothing.
+ * `pagehide` marks the page as going away until a `pageshow` from the back-forward cache brings it
+ * back; on a reload or close it fires before the change to `hidden`, in the same task, so the save
+ * of the session that change ends never starts. A watch a `pagehide` reached stays set for good,
+ * the page brought back included, so that save is never resumed.
  */
 import type { PageLeaving, PageVisibility } from '@/session/session-browser-ports'
 
@@ -43,20 +45,37 @@ export function createBrowserPageVisibility(): PageVisibility {
 // @spec-link [[req_rolling_practice_session]]
 export interface PageHideTargetLike {
   addEventListener(type: 'pagehide', listener: () => void): void
+  addEventListener(
+    type: 'pageshow',
+    listener: (event: { readonly persisted: boolean }) => void,
+  ): void
 }
 
 /**
- * Intent: adapt a window to the page-leaving port: listening from now on, the first `pagehide`
- * marks the page as going away, for good (a page brought back from the back-forward cache stays
- * marked, and its listener is never removed).
+ * Intent: adapt a window to the page-leaving port, listening from now on (its listeners are never
+ * removed). Each `pagehide` marks the page as going away and counts one leaving; a `pageshow` with
+ * `persisted` true (the back-forward cache bringing the page back) clears the mark, and one
+ * without it (the first load) changes nothing. A watch reads set at once if the page is going away
+ * at the call, or else once a leaving is counted after the call, and then stays set for good.
  */
 // @spec-link [[req_rolling_practice_session]]
 export function createWindowPageLeaving(target: PageHideTargetLike): PageLeaving {
-  let goingAway = false
+  let away = false
+  let leaves = 0
   target.addEventListener('pagehide', () => {
-    goingAway = true
+    away = true
+    leaves += 1
   })
-  return { isGoingAway: () => goingAway }
+  target.addEventListener('pageshow', (event) => {
+    if (event.persisted) away = false
+  })
+  return {
+    watch: () => {
+      if (away) return () => true
+      const at = leaves
+      return () => leaves !== at
+    },
+  }
 }
 
 /** Intent: the page leaving of this browser tab, listened for from the call on. */

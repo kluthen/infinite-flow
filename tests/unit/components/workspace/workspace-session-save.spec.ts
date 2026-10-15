@@ -2,7 +2,8 @@
  * The session's own save, beside the session's ends: the key it mints, the one batch it builds
  * from the kept summaries read at the save (every readable unpinned kept session deleted, the new
  * session written), and the call through the visit's saves, the codec loaded on demand, carrying
- * the page-leaving signal; a page going away by the time the codec has loaded asks for nothing.
+ * the watch on the page leaving it took as it started; a page that went away by the time the codec
+ * has loaded asks for nothing, even if it came back meanwhile.
  */
 import { describe, expect, it } from 'vitest'
 
@@ -20,10 +21,11 @@ import * as codec from '@/storage/records/kept-session-record'
 import type { PageGoingAway, SessionChanges, SessionSaveOutcome } from '@/storage/save-policy'
 import type { StoredEntry } from '@/storage/storage-port'
 
+import { createFakePageLeaving } from '../../session/fake-session-browser'
 import { recordedKeptSession } from '../../storage/kept-session-fixtures'
 
 /** A page that stays. */
-const PAGE_STAYS: PageLeaving = { isGoingAway: () => false }
+const PAGE_STAYS: PageLeaving = { watch: () => () => false }
 
 /** The facts a session ended now is saved with: nothing pinned, chosen or kept yet. */
 const FRESH = { pinned: false, favorites: [], comment: '', playedNotesKept: false } as const
@@ -142,18 +144,23 @@ describe('saving the session that ended', () => {
     const history = recordedKeptSession('bb-tenor', 2)
     const NOT_KEPT = endedSessionSave(history, false)
     const refused: SessionSaveOutcome = { status: 'refused', kind: 'other' }
+    const page = createFakePageLeaving()
     const asked: SessionChanges[] = []
+    const checks: PageGoingAway[] = []
     const saves = {
-      /** Intent: record the changes asked for, and resolve the refusal. */
+      /** Intent: record the changes and the page check asked with, and resolve the refusal. */
       saveSession: (changes: SessionChanges, pageGoingAway: PageGoingAway) => {
         asked.push(changes)
-        expect(pageGoingAway).toBe(PAGE_STAYS.isGoingAway)
+        checks.push(pageGoingAway)
         return Promise.resolve(refused)
       },
     }
 
-    expect(await saveEndedSession(saves, PAGE_STAYS, history, NOT_KEPT)).toBe(refused)
+    expect(await saveEndedSession(saves, page, history, NOT_KEPT)).toBe(refused)
     expect(asked).toHaveLength(1)
+    expect(checks[0]?.()).toBe(false)
+    page.leave()
+    expect(checks[0]?.()).toBe(true)
     const kept = [keptSummary(recordedKeptSession('eb-alto', 2), 'session-1-1', false)]
     expect(asked[0]?.(kept)).toEqual(
       keptSessionChanges(codec, history, NOT_KEPT, kept, APP_VERSION),
@@ -163,7 +170,7 @@ describe('saving the session that ended', () => {
   // @test-link [[rule_most_recent_session_kept]]
   it('asks for nothing and resolves abandoned when the page went away while the codec loaded', async () => {
     const history = recordedKeptSession('bb-tenor', 2)
-    let goingAway = false
+    const page = createFakePageLeaving()
     const asked: SessionChanges[] = []
     const saves = {
       /** Intent: record the changes asked for, and resolve as saved. */
@@ -173,13 +180,29 @@ describe('saving the session that ended', () => {
       },
     }
 
-    const saving = saveEndedSession(
-      saves,
-      { isGoingAway: () => goingAway },
-      history,
-      endedSessionSave(history, false),
-    )
-    goingAway = true
+    const saving = saveEndedSession(saves, page, history, endedSessionSave(history, false))
+    page.leave()
+
+    expect(await saving).toEqual({ status: 'abandoned' })
+    expect(asked).toEqual([])
+  })
+
+  // @test-link [[rule_most_recent_session_kept]]
+  it('stays abandoned when the page went away and came back while the codec loaded', async () => {
+    const history = recordedKeptSession('bb-tenor', 2)
+    const page = createFakePageLeaving()
+    const asked: SessionChanges[] = []
+    const saves = {
+      /** Intent: record the changes asked for, and resolve as saved. */
+      saveSession: (changes: SessionChanges) => {
+        asked.push(changes)
+        return Promise.resolve({ status: 'saved' } as const)
+      },
+    }
+
+    const saving = saveEndedSession(saves, page, history, endedSessionSave(history, false))
+    page.leave()
+    page.comeBack()
 
     expect(await saving).toEqual({ status: 'abandoned' })
     expect(asked).toEqual([])

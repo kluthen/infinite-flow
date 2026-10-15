@@ -613,7 +613,7 @@ and a start undone part-way save, read and delete nothing.
 `src/components/workspace/workspace-session-save.ts`, beside the session's ends, builds it:
 `saveEndedSession(saves, page, history, saving)` loads the kept-session codec on demand (a lazy
 chunk: the first draw never needs it) and hands the visit's saves a `SessionChanges` function with
-the page-leaving signal (`page.isGoingAway`, see
+the page-leaving signal (the watch `page.watch()` it took as it started, see
 [A session cut short by the page going away](#a-session-cut-short-by-the-page-going-away)). The end calls it
 without waiting (`workspace-session-ends.ts`), so a slow or refused save never delays the end or
 the review. It runs in this order:
@@ -642,7 +642,7 @@ before the save has read, it waits for that session's end, then reads again. It 
 | `{ status: 'saved' }`         | The batch was applied. It ends a run of refusals, as any successful save does.           |
 | `{ status: 'refused', kind }` | The port refused the batch, `quota` or `other`: nothing was written or deleted.          |
 | `{ status: 'saving-off' }`    | Saving is off for the visit, or the batch was refused as `outdated`, which turns it off. |
-| `{ status: 'abandoned' }`     | The page was going away before the read or before the batch: nothing more was done.      |
+| `{ status: 'abandoned' }`     | Its page-leaving watch was set before the read or the batch: nothing more was done.      |
 
 Only a `quota` refusal of the session's save is also told to the failure listener, so the notice
 row raises Storage full; an `other` refusal is the caller's alone and raises no notice (Save
@@ -656,13 +656,19 @@ A session cut short by reloading or closing the page is lost, never saved, and t
 stay exactly as they were (master spec §5.1, spec D309). The page-leaving port
 (`PageLeaving` in `src/session/session-browser-ports.ts`, its adapter
 `createBrowserPageLeaving` in `src/components/workspace/browser-page-visibility.ts`) listens from
-the load for the window's `pagehide`, which marks the page as going away for the rest of its
-life. `src/storage/` reads no browser event: the signal reaches the policy with the session's own
-save, as `saveSession`'s `pageGoingAway` argument (through `SessionSaveHold.saveSession`), never
-through the policy's construction.
+the load for the window's `pagehide`, which marks the page as going away, and `pageshow`: one
+with `persisted` true (the back-forward cache bringing the page back) clears the mark, and one
+without it (the first load) changes nothing (spec D328). The mark is never read directly: each
+save takes its own watch, `page.watch()`, as it starts, before the codec loads (the retry of a
+refused save as the retry starts). The watch reads set at once if the page is going away then, or
+else once a `pagehide` fires after it, and once set it stays set, even after the page comes back,
+so a save the page's leaving reached, at its start or while it runs, is abandoned for good and
+never resumed. `src/storage/` reads no browser event: the watch reaches the policy with the
+session's own save, as `saveSession`'s `pageGoingAway` argument (through
+`SessionSaveHold.saveSession`), never through the policy's construction.
 
-The save checks it after loading the codec, and the policy before each of its transactions (the
-keyed read, the batch). Once it is set the save stops there and resolves `abandoned`: nothing more
+The save checks its watch after loading the codec, and the policy before each of its transactions
+(the keyed read, the batch). Once it is set the save stops there and resolves `abandoned`: nothing more
 is read or written, the failure listener hears nothing, and the end holds the session in memory
 as not saved (the keep line reads "Not saved on this device: export it to keep it."); no row is
 added to the session list. The settings flush at the end is unchanged.
@@ -672,8 +678,10 @@ added to the session list. The settings flush at the end is unchanged.
   transaction.
 - **A page already hidden** (a tab switch ended the session, then the tab closed): a save still
   running stops at its next step.
-- **A page the back-forward cache brings back** stays marked: the review of the session it cut
-  short reads not saved, and no later session of that page is saved either.
+- **A page the back-forward cache brings back**: the session the `pagehide` cut short stays not
+  saved for good (its save is never resumed or retried, and its review keeps reading not saved),
+  and the later sessions of that page are saved as any session is, deleting the older kept
+  sessions that are not pinned. A save that a later `pagehide` reaches is abandoned in turn.
 - **A tab or app switch** never fires `pagehide`: it still ends the session, opens its review and
   saves it.
 

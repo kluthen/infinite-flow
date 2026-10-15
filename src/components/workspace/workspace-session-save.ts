@@ -136,10 +136,11 @@ const SESSION_ABANDONED: SessionSaveOutcome = Object.freeze({ status: 'abandoned
  * the release, as `saving` says, with the facts `held` gives: the codec loaded, the batch built
  * from the summaries read at the save. Its retry, after a refused save, is this same save under
  * the same key with the facts held in memory then, the sessions to delete read at the retry.
- * Resolves what became of that save; while saving is off, nothing is read, saved or deleted. Once
- * `page` is going away (checked after the codec loads, and handed on so the policy checks it
- * before each of its transactions), the save stops there, abandoned, with nothing more read or
- * written.
+ * Resolves what became of that save; while saving is off, nothing is read, saved or deleted. The
+ * save takes its watch on `page` as it starts, before the codec loads: once the page is going away
+ * then, or a `pagehide` fires after (checked after the codec loads, and handed on so the policy
+ * checks it before each of its transactions), the save stops there, abandoned for good, with
+ * nothing more read or written, even if the page comes back from the back-forward cache.
  */
 // @spec-link [[module_kept_session_save]]
 // @spec-link [[rule_failed_save_never_disturbs_session]]
@@ -151,10 +152,11 @@ export async function saveEndedSession(
   saving: EndedSessionSave,
   held: HeldSessionFacts = ENDED_SESSION_FACTS,
 ): Promise<SessionSaveOutcome> {
+  const goingAway = page.watch()
   const codec: KeptSessionCodec = await import('@/storage/records/kept-session-record')
-  if (page.isGoingAway()) return SESSION_ABANDONED
+  if (goingAway()) return SESSION_ABANDONED
   /** Intent: the save's batch, from the kept summaries read at the save. */
   const changes: SessionChanges = (keptSummaries) =>
     keptSessionChanges(codec, history, saving, keptSummaries, APP_VERSION, held)
-  return saves.saveSession(changes, page.isGoingAway)
+  return saves.saveSession(changes, goingAway)
 }

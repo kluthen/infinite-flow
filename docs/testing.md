@@ -157,9 +157,10 @@ output with `?audio=real` (see [Audio modes](#audio-modes)). The MIDI controller
 `?midi=real` (see [MIDI modes](#midi-modes)). The window shape the session judges is the real
 probe adapter, moved with `page.setViewportSize`, and so is the page activation, which a spec's
 real click, tap or key press makes (a script's `click()` fires no input event and does not), and
-the page leaving, which a real reload or a dispatched `pagehide` marks; the wake lock, the
-orientation lock and the page visibility are fakes (the fake page does not hide on a real
-`pagehide`, so a spec that cuts a session short hides it from a `pagehide` listener of its own; see
+the page leaving, which a real reload or a dispatched `pagehide` marks and a dispatched `pageshow`
+with `persisted` true clears; the wake lock, the orientation lock and the page visibility are
+fakes (the fake page does not hide on a real `pagehide`, so a spec that cuts a session short hides
+it from a `pagehide` listener of its own, and shows it again itself; see
 [Fake session browser ports](#fake-session-browser-ports)). Only
 randomness, timing and fault injection are replaced, plus the length of the history the Review
 reads, for the long-Review specs. Nothing in `src/` knows the harness exists: the seams are injected
@@ -1175,7 +1176,7 @@ builds the adapters in `src/components/workspace/browser-screen-locks.ts`,
 `browser-page-visibility.ts` (the page leaving's too),
 `browser-window-shape.ts` and `browser-page-activation.ts`; their unit specs drive them through
 hand-made stand-ins of `navigator.wakeLock`, `screen.orientation`, `document`, `window` and
-`navigator.userActivation` (an `EventTarget` for the window). Unit tests and the harness replace
+`navigator.userActivation` (an `EventTarget` for the page activation's window). Unit tests and the harness replace
 the ports with the fakes of `tests/unit/session/fake-session-browser.ts`
 (`createFakeSessionBrowser()` builds all six):
 
@@ -1185,8 +1186,10 @@ the ports with the fakes of `tests/unit/session/fake-session-browser.ts`
   the browser dropping a held lock on its own;
 - `createFakePageVisibility()` tells its `onHidden` listeners of each change to hidden made with
   `setHidden(true)`, never of a change back to visible;
-- `createFakePageLeaving()` is not going away until `leave()`, the browser's `pagehide`, after
-  which `isGoingAway()` is true for good;
+- `createFakePageLeaving()` is not going away until `leave()`, the browser's `pagehide`, and
+  is no longer going away after `comeBack()`, a `pageshow` from the back-forward cache; its
+  `watch()` reads set at once if the page is going away at the call, or else once `leave()` is
+  called after it, and then stays set, `comeBack()` included;
 - `createFakeWindowShape(reading?)` reads a 1280 × 800 px window at a 16 px rem until `resize`
   gives it a new shape and tells its subscribers;
 - `createFakePageActivation()` is not active until `activate()`, the page's first click, tap or

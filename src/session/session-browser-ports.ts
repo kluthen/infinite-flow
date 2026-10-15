@@ -61,16 +61,19 @@ export interface PageVisibility {
 
 /**
  * The page going away: reloaded, closed or left (the browser's `pagehide`). A session cut short
- * that way is lost: its save checks this before each of its steps and stops with nothing written.
- * A tab or app switch never counts.
+ * that way is lost: its save takes a watch as it starts, checks it before each of its steps and
+ * stops with nothing written. A page the back-forward cache brings back is no longer going away,
+ * so its later sessions save. A tab or app switch never counts.
  */
 // @spec-link [[req_rolling_practice_session]]
 export interface PageLeaving {
   /**
-   * Whether the page has begun going away. Once true it stays true for the rest of the page's
-   * life, a page brought back from the back-forward cache included.
+   * Take a watch on the page going away, from the call on. The returned check reads true at once
+   * if the page is going away at the call; otherwise it reads true once a `pagehide` fires after
+   * the call. Once true it stays true, even after the page comes back from the back-forward cache,
+   * so a save the page's leaving reached is never resumed.
    */
-  readonly isGoingAway: () => boolean
+  readonly watch: () => () => boolean
 }
 
 /**
