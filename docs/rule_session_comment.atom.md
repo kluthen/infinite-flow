@@ -5,7 +5,8 @@ layer: BUSINESS
 priority: 1
 parents:
   - [[req_kept_session_review]]
-dependents: []
+dependents:
+  - [[module_kept_session_changes]]
 type: RULE
 version: 0.1
 human_name: A Comment on a Session

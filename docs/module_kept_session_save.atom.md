@@ -1,7 +1,8 @@
 ---
 id: module_kept_session_save
 status: REVIEW
-dependents: []
+dependents:
+  - [[module_kept_session_changes]]
 type: MODULE
 layer: ARCHITECTURE
 version: 0.2

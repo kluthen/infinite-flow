@@ -8,7 +8,8 @@ version: 0.1
 tags: [v3, release-v3.0, storage, midi, privacy, changes-in-v3.2]
 parents:
   - [[rule_played_notes_kept_only_after_opt_in]]
-dependents: []
+dependents:
+  - [[module_kept_session_changes]]
 layer: BUSINESS
 ---
 

@@ -17,6 +17,7 @@ parents:
   - [[rule_persistent_storage_requested]]
   - [[rule_saved_data_belongs_to_browser_profile]]
 dependents:
+  - [[entity_remembered_controller_record]]
   - [[module_save_policy]]
 ---
 

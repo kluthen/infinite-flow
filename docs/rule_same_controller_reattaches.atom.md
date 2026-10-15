@@ -9,6 +9,7 @@ priority: 1
 human_name: Same Controller Reattaches by Itself
 tags: [v2, release-v2.0, midi]
 dependents:
+  - [[entity_remembered_controller_record]]
   - [[rule_start_while_controller_away]]
 type: RULE
 ---

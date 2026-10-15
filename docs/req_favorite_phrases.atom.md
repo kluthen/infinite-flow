@@ -7,6 +7,7 @@ human_name: Favorite Phrases
 parents:
   - [[req_kept_session_review]]
 dependents:
+  - [[module_kept_session_changes]]
   - [[rule_favorite_pins_session]]
   - [[rule_favorites_only_export]]
 version: 0.1

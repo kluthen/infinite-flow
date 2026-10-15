@@ -4,6 +4,7 @@ status: DRAFT
 human_name: Last Controller Remembered
 tags: [v3, release-v3.0, storage, midi]
 dependents:
+  - [[entity_remembered_controller_record]]
   - [[rule_starting_note_waits_for_first_gesture]]
 type: RULE
 layer: BUSINESS

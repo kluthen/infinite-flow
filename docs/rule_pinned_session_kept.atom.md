@@ -10,6 +10,7 @@ parents:
   - [[req_kept_sessions]]
 priority: 1
 dependents:
+  - [[module_kept_session_changes]]
   - [[rule_favorite_pins_session]]
 ---
 

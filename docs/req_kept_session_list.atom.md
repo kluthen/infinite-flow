@@ -10,6 +10,7 @@ version: 0.2
 human_name: List of Kept Sessions
 dependents:
   - [[entity_kept_session_record]]
+  - [[module_kept_session_changes]]
 layer: BUSINESS
 ---
 
