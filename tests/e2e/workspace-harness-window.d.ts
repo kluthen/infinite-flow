@@ -717,6 +717,12 @@ interface WorkspaceHarnessStorageApi {
    */
   seedUnreadableKeptSession: (key: string) => Promise<void>
   /**
+   * Write, under `key`, a played-notes record holding one note, as another tab keeping that
+   * session's played notes would, and, when a session-wide record is stored under it with a
+   * `playedNotesKept` field, that record saying they are kept; in one batch.
+   */
+  seedPlayedNotes: (key: string) => Promise<void>
+  /**
    * Delete the kept session under `key` (its session-wide record, body and played notes), as a
    * deletion made elsewhere would, in one batch.
    */

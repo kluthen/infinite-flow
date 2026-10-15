@@ -77,6 +77,22 @@ export function playedNotesToggle(page: Page): Locator {
     .getByRole('button', { name: 'Played notes', exact: true })
 }
 
+/** Intent: the Review's `Keep my played notes` switch (rendered only with a played note). */
+export function keepPlayedNotesToggle(page: Page): Locator {
+  return reviewPanel(page).locator('.review-view').getByRole('button', {
+    name: 'Keep my played notes',
+    exact: true,
+  })
+}
+
+/** Intent: the Review's `Delete played notes` button (only when its played notes are kept). */
+export function deletePlayedNotesButton(page: Page): Locator {
+  return reviewPanel(page).locator('.review-view').getByRole('button', {
+    name: 'Delete played notes',
+    exact: true,
+  })
+}
+
 /** Intent: the Review's export error. */
 export function exportError(page: Page): Locator {
   return reviewPanel(page).locator('.review-export-error')

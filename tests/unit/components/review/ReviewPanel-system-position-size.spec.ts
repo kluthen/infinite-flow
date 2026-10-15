@@ -35,6 +35,8 @@ function mountPanel(systemPositionUnits: number) {
       holdsPlayedNote: false,
       playedNotesShown: false,
       exportPlayedNotes: () => Promise.resolve(),
+      keepPlayedNotes: false,
+      canDeletePlayedNotes: false,
       systemPositionUnits,
     },
     attachTo: document.body,

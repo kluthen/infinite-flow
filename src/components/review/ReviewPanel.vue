@@ -7,7 +7,9 @@
  * generated-notes export (Format, Backing track for MIDI, and the export button), and, when the
  * session holds a played note, the played-notes export button and the Played notes switch (its
  * state held by the page; while on, each phrase draws its played-notes lanes on one session-wide
- * pitch scale), then the list of the session's phrases in order, each engraved lazily as it comes
+ * pitch scale), `Keep my played notes` (the page's setting) and, only when this session's played
+ * notes are kept and may be deleted, `Delete played notes`, which asks the page for its
+ * confirmation; then the list of the session's phrases in order, each engraved lazily as it comes
  * near the visible area (see ./review-engraving-window.ts) in positions reserved at the workspace
  * staff's size (its viewport and shared system-position size), so a review of any length stays
  * responsive and never moves the page as phrases are drawn. While the workspace staff has no room,
@@ -15,7 +17,7 @@
  * given; it holds each export's state only while its file is built (see
  * ./use-review-export-action.ts), the two exports running independently and sharing one error.
  */
-import { computed, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
 
 import SegmentedControl from '@/components/controls/SegmentedControl.vue'
 import type { SegmentedControlOption } from '@/components/controls/segmented-control-option'
@@ -76,6 +78,10 @@ const props = withDefaults(
     playedNotesShown: boolean
     /** Build the played-notes file and hand it to the browser; rejects on failure. */
     exportPlayedNotes: () => Promise<void>
+    /** `Keep my played notes`, the page's one saved setting. */
+    keepPlayedNotes: boolean
+    /** This session's played notes are kept and may be deleted: `Delete played notes` shows. */
+    canDeletePlayedNotes: boolean
     /**
      * The workspace staff's shared system-position size, in engraving units
      * (`planSystemPositionUnits`); the workspace always passes it, the built-in size by default.
@@ -89,6 +95,8 @@ const emit = defineEmits<{
   'update:format': [format: GeneratedNotesFormat]
   'update:backingTrack': [on: boolean]
   'update:playedNotesShown': [on: boolean]
+  'update:keepPlayedNotes': [on: boolean]
+  'delete-played-notes': []
 }>()
 
 const titleId = useId()
@@ -101,7 +109,43 @@ function focusTitle(): void {
   titleEl.value.focus()
 }
 
-defineExpose({ focusTitle })
+const keepPlayedNotesEl = ref<HTMLButtonElement | null>(null)
+const deletePlayedNotesEl = ref<HTMLButtonElement | null>(null)
+
+/** Intent: move focus to `element`, which must be rendered. */
+function focusRendered(element: HTMLElement | null, name: string): void {
+  if (element === null) throw new Error(`review panel: ${name} is not rendered`)
+  element.focus()
+}
+
+/** Intent: move focus to `Keep my played notes` (after its confirmation, review-view still shown). */
+// @spec-link [[rule_kept_played_notes_deletable]]
+function focusKeepPlayedNotes(): void {
+  focusRendered(keepPlayedNotesEl.value, 'Keep my played notes')
+}
+
+/** Intent: move focus back to `Delete played notes`, on its confirmation's way back. */
+// @spec-link [[rule_kept_played_notes_deletable]]
+function focusDeletePlayedNotes(): void {
+  focusRendered(deletePlayedNotesEl.value, 'Delete played notes')
+}
+
+defineExpose({ focusTitle, focusKeepPlayedNotes, focusDeletePlayedNotes })
+
+/**
+ * Intent: `Delete played notes` leaving while it holds focus (saving turned off) hands focus to
+ * the title; read before the button leaves the page, moved once it has.
+ */
+// @spec-link [[rule_kept_played_notes_deletable]]
+watch(
+  () => props.canDeletePlayedNotes,
+  (offered) => {
+    const button = deletePlayedNotesEl.value
+    if (offered || button === null || document.activeElement !== button) return
+    void nextTick(focusTitle)
+  },
+  { flush: 'pre' },
+)
 
 /** Intent: the session date of the session's start, as the title and the summary write it. */
 // @spec-link [[req_kept_session_review]]
@@ -227,6 +271,12 @@ const { running: exportingPlayed, start: startPlayedExport } = useReviewExportAc
 // @spec-link [[module_review_played_notes_lane]]
 function togglePlayedNotes(): void {
   emit('update:playedNotesShown', !props.playedNotesShown)
+}
+
+/** Intent: ask the page to turn `Keep my played notes`; focus stays on the switch. */
+// @spec-link [[rule_played_notes_kept_only_after_opt_in]]
+function toggleKeepPlayedNotes(): void {
+  emit('update:keepPlayedNotes', !props.keepPlayedNotes)
 }
 
 /**
@@ -434,6 +484,27 @@ onBeforeUnmount(stopEngraving)
           <span class="toggle-button-state" aria-hidden="true">{{
             playedNotesShown ? 'on' : 'off'
           }}</span>
+        </button>
+        <button
+          ref="keepPlayedNotesEl"
+          type="button"
+          class="btn toggle-button"
+          :aria-pressed="keepPlayedNotes ? 'true' : 'false'"
+          @click="toggleKeepPlayedNotes"
+        >
+          Keep my played notes
+          <span class="toggle-button-state" aria-hidden="true">{{
+            keepPlayedNotes ? 'on' : 'off'
+          }}</span>
+        </button>
+        <button
+          v-if="canDeletePlayedNotes"
+          ref="deletePlayedNotesEl"
+          type="button"
+          class="btn"
+          @click="emit('delete-played-notes')"
+        >
+          Delete played notes
         </button>
       </div>
     </div>

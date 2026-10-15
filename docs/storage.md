@@ -698,6 +698,13 @@ once deleted, a held session that kept its played notes loses them from memory t
 and the most recent session drawing the very same new history. A session whose own save failed is
 never changed through this path.
 
+In the Review (`use-review-played-notes.ts`, beside the Review host), `Keep my played notes` and
+`Delete played notes` sit in `review-view` after `Played notes`. Turning the switch saves the
+`keepPlayedNotes` setting through the visit's saves, then hands it to the controller; a deletion
+the controller asks for, or `Delete played notes`, opens the shared confirmation sheet
+(`ConfirmationSheet.vue`, its words in `review-confirmation-copy.ts`), which a refused deletion
+keeps open with its error and which closes, deleting nothing, when saving turns off.
+
 ## The most recent session
 
 The session controller holds the most recent session in `state.mostRecent`, a slot the next Start
