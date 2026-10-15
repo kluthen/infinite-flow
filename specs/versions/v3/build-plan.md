@@ -2547,6 +2547,27 @@ both" reads "the first exported phrase at time zero in both"; wordings `document
 
 **Verification:** the chunk checks; hand check H8 at the gate.
 
+**Record (2026-10-15).** Merged into `v3.0-w7` in two halves: 13a (chunk commit d947d14: the
+selection `phrasesInScope` in `src/export/favorites-selection.ts` and the three files under a
+scope) and 13b (chunk commit e625644: `review-scope` in the Review, its new `ReviewScope.vue`,
+the reasons by ux D308's precedence); merge f6ebb88. No spec or design deviation; every Done when
+item has a unit test, the scope's disabled state and the reasons an end-to-end test
+(`review-export-favorites.spec.ts`), and the whole-session golden files are unchanged. Calls
+made: the encoders place a phrase by its position in the file, so their input checks accept any
+rising session numbers from 1 (three tests that refused [2] and [1,3] now follow that rule;
+`reviewer` OKAY on the loosened guard); runs of consecutive favorites move as one block, a run
+followed by a phrase left out is cut at its end (a note played after it left out, a held note
+clipped there), and very short notes are judged before the cut; the builders take the scope as a
+third argument, defaulting to the whole session; the scope lives in `use-review-area.ts` and
+returns to `Whole session` when another Review shows or the last favorite goes; the panel takes
+a `playedNotesUnavailable` reason in place of the boolean; `ReviewScope.vue` keeps
+`ReviewPanel.vue` at 10 atom ids (it is also at 428 lines, over the 400 warning). Files outside
+the Files line: the MIDI and MusicXML encoders and their inputs, the harness's export seam (it
+dropped the scope; a test-plumbing fix), `package.json`'s e2e list. Docs: `export.md`,
+`testing.md`, the `stray-notes.ts` header. Entry chunk unchanged (225,052 B). Risks noted by the
+review: a whole session with a skipped number is no longer refused (its bytes stay right), and a
+note starting in the 1 ms gap after a cut phrase is left out.
+
 ### Chunk 14 — Session list
 
 **Goal.** List every kept session, newest first, and open, pin, unpin and delete from it.
