@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.97
+Status: draft v2.98
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,13 +14,13 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D328**. D259–D260 are
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D329**. D259–D260 are
 on branch `v4-accompaniment-research`, not merged yet. D263–D288 are v3.3's richer chords (merged
 from `main`); D289 is unused. D290–D299 were reserved for v3.0 wave 2; wave 2 used D290–D298, and
 D299 records wave 3. D300 records the wave-4 preflight; D301 and D302 the plan revision after
 chunk 7a; D303–D305 the wave-5 preflight (D303 the owner's ruling on the session key); D306–D308 the
 wave-5 sync; D309–D311 the owner's rulings on O201 and O200 and the plan revision they bring;
-D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan following the wave-6 design gates; D320 the owner's confirmation of the seventh contract change; D321 measurement M1's findings; D322 and D323 the owner's rulings on O211 and on a controller reselected at load; D324 and D325 the wave-7 preflight; D326 the erasing of my instrument's sessions in one batch; D327 a wording correction to D310.
+D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan following the wave-6 design gates; D320 the owner's confirmation of the seventh contract change; D321 measurement M1's findings; D322 and D323 the owner's rulings on O211 and on a controller reselected at load; D324 and D325 the wave-7 preflight; D326 the erasing of my instrument's sessions in one batch; D327 a wording correction to D310; D328 a page the back-forward cache brings back.
 
 ## Decision Log
 
@@ -1950,3 +1950,46 @@ D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan
   hands it at once to the readable kept session that started last. D310's text stays as it was;
   read its clause through this entry. No behaviour change; nothing to build differently. Build
   plan v23 (chunk 28's scope reworded).
+
+- **D328 (2026-10-15): a page the back-forward cache brings back saves its later sessions; the
+  session the page's leaving cut short stays not saved.** Settled by `spec-writer` under the
+  owner's standing delegation, from chunk 27's open point (record in build plan §"Chunk 27",
+  471aa0f; code on `v3.0-w7`, 4efb656). Chunk 27's adapter marks the page as going away at the
+  first `pagehide` and never clears the mark. A page can outlive `pagehide`: leaving it for
+  another address (a link, or the address bar) fires `pagehide`, and when the player presses Back
+  the browser's back-forward cache may restore it alive, firing `pageshow` with `persisted` true.
+  As built, every later session on that page then ends with "Not saved on this device: export it
+  to keep it." and is never saved, with nothing to say why. That is a consequence nobody chose:
+  §5.1 keeps the most recent session automatically, and D309's ruling ("option A") is about the
+  session the page's leaving cut short, not about sessions played after the player came back. The
+  owner's stake is that the sessions they play are kept, so this is a team call, taken in the
+  direction that keeps them:
+
+  1. **Leaving counts as closing.** Leaving the page for another address is closing it in §5.1's
+     sense (the same `pagehide`; the only kind of leaving the back-forward cache can undo). A
+     session it cuts short is lost, as D309 says.
+  2. **The session it cut short stays not saved, every time.** A save that a `pagehide` has
+     reached, at its start or at any point while it runs, is abandoned for good: it is never
+     resumed, retried or saved when the page comes back. Its review keeps "Not saved on this
+     device: export it to keep it.", the kept sessions stay as they were, no notice shows, and no
+     row is added. Why not save it on the return: whether the browser keeps a page in the cache
+     is its own choice, unseen by the player and often refused, so saving on return would keep the
+     session sometimes and lose it other times for the same action; and a save frozen part-way
+     (the codec still loading, the read done but not the batch) would complete or not by timing.
+     "Leaving the page loses the session that was running; export it if you want it" holds every
+     time, and the review on screen says so.
+  3. **Later sessions save again.** Once the page is shown again from the cache, it is no longer
+     going away: a session that starts after the return and ends with a review is saved as §5.1
+     says (deleting the older unpinned kept sessions), and its keep line reads as any saved
+     session's. A refused save's retry run after the return saves too; one a `pagehide` reaches
+     while it runs is abandoned, as in 2. A `pageshow` that is not from the cache (the first
+     load) changes nothing.
+  4. **A tab or app switch** still never fires `pagehide`, and is unchanged.
+
+  The mark must therefore be per save, not one page-wide flag that `pageshow` clears: a page-wide
+  flag cleared on return would let a save frozen in the cache resume after the return, read "not
+  going away", and save the very session 2 says is lost. No master spec change: §5.1 already keeps
+  the most recent session, and "closing or reloading the page" now reads with 1. No interface
+  change; nothing for `ux-writer`. Build plan v24 revises chunk 27's scope and Done when; the
+  follow-up fix goes on `v3.0-w7`. `documentalist` records it at the wave-7 sync in
+  `req_rolling_practice_session`, `module_kept_session_save` and `module_save_policy`.

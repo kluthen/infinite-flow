@@ -1,9 +1,9 @@
 # Infinite Flow v3.0 — Build Plan
 
-Status: v23 (2026-10-15): chunk 20c's record change and erasing of my instrument's sessions are one batch, a refusal changing nothing (spec D326); chunk 28's successor after a damaged deletion is justified by the load's rule, not the player's deletion (spec D327). v22 placed the wave-7 preflight's corrections (spec D324, D325). Approved by
+Status: v24 (2026-10-15): chunk 27's page brought back from the back-forward cache saves its later sessions, the session cut short staying not saved (spec D328). v23: chunk 20c's record change and erasing of my instrument's sessions are one batch, a refusal changing nothing (spec D326); chunk 28's successor after a damaged deletion is justified by the load's rule, not the player's deletion (spec D327). v22 placed the wave-7 preflight's corrections (spec D324, D325). Approved by
 the product owner on 2026-10-07 (v1), with Gate A and the token-source pass (Q66) confirmed the
 same day; every later revision writes in rulings from [the decisions log](../../decisions.md)
-(spec D252–D327), and earlier wordings are in git.
+(spec D252–D328), and earlier wordings are in git.
 
 Build plan for v3.0, Storage, written from [master spec v1.3](master-spec.md) (now Part A v1.21) and the v3.0 design
 in [`ui_ux/versions/v3.0/`](../../../ui_ux/versions/v3.0/README.md), the copy frozen when the
@@ -4001,21 +4001,30 @@ open: hand check H5; the screen handoff's line that "a very short note stays vis
 
 Inserted in v14 (spec D308). The owner chose answer (a) of
 [spec O201](../../open-questions.md#v30-wave-5-o200) (spec D309): §5.1 stands. Wave 7's
-preflight covers it.
+preflight covers it. Revised in v24 after its merge (spec D328): a page brought back from the
+back-forward cache saves its later sessions; the fix is a follow-up on `v3.0-w7`, covered by the
+wave-7 preflight and sync.
 
-**Goal.** Make sure a session cut short by reloading or closing the page is never saved, every
-time, and test it (§5.1, spec D309).
+**Goal.** Make sure a session cut short by reloading, closing or leaving the page is never saved,
+every time, and that a page the browser brings back saves its later sessions (§5.1, spec D309,
+D328), and test it.
 
-**Scope.** A page-leaving signal beside the page-visibility port: the
-`pagehide` event marks the page as going away for the rest of its life. The session's own save
-checks it after loading the codec and before each of its transactions (the keyed read, the
-batch) and, when it is set, stops with nothing read or written and resolves a new outcome
+**Scope.** A page-leaving signal beside the page-visibility port: `pagehide` marks the page as
+going away, and `pageshow` with `persisted` true (the back-forward cache bringing the page back)
+clears the mark; a `pageshow` from the first load changes nothing. The session's own save takes
+its watch on the signal when it starts, as the session ends (or as its retry starts): the watch
+reads set if the page is going away then, or once a `pagehide` fires after it, and stays set
+even if the page comes back, so a save frozen in the cache never resumes and saves (spec D328).
+The save checks its watch after loading the codec and before each of its transactions (the
+keyed read, the batch) and, when it is set, stops with nothing read or written and resolves a new outcome
 (abandoned; the leader names it) that the end treats as the session held in memory: the keep line
 reads "Not saved on this device: export it to keep it." and the previous kept sessions stay. On a
 visible page `pagehide` fires before `visibilitychange`, in the same task, so a session ended by a
 reload or close never starts its save's first transaction; on a page already hidden (a session
 ended by a tab switch, then the tab closed), a save still running stops at its next step. A page
-the browser brings back from the back-forward cache shows that review as not saved. A tab or app
+the browser brings back from the back-forward cache shows that review as not saved, for good:
+the abandoned save is never resumed or retried; a session that starts after the return and ends
+with a review is saved as any session is. A tab or app
 switch never fires `pagehide`, so it still ends the session, opens its review and saves it. The
 settings flush at the end is unchanged. `src/storage/` reads no browser event: the signal reaches
 the save policy with the session's own save, as part of what the workspace hands to
@@ -4031,6 +4040,9 @@ session save's type is declared there; shared with chunk 20, after it: [Wave 7: 
 order](#wave-7-shared-files-in-order)), `src/components/workspace/workspace-session-ends.ts`
 (settling it as not saved), `create-workspace-session.ts` (wiring); tests under
 `tests/unit/storage/` and `tests/unit/components/workspace/`, `tests/e2e/storage/kept-session.spec.ts`.
+The D328 follow-up touches the port, its adapter, `workspace-session-save.ts`, the fake
+page-leaving in `tests/unit/session/fake-session-browser.ts`, their tests and `docs/storage.md`;
+the policy and `settings-saver.ts` are unchanged.
 
 **Spec sections:** [§5.1](master-spec.md#51-which-sessions-are-kept), [§4.2](master-spec.md#42-what-is-saved-automatically) (settings changed during a session).
 
@@ -4053,6 +4065,16 @@ order](#wave-7-shared-files-in-order)), `src/components/workspace/workspace-sess
   transaction; hidden first, then `pagehide` while the codec loads or between the read and the
   batch, the save stops before its next transaction; either way the keep line reads "Not
   saved…" and no notice shows. Hidden alone (a tab switch) saves as before.
+- Back-forward cache (spec D328), unit on the adapter: a watch taken before `pagehide` reads set
+  after it and still set after `pageshow` with `persisted`; a watch taken while the page is going
+  away reads set at once; one taken after that `pageshow` reads not set; a `pageshow` without
+  `persisted` changes nothing. Unit, on fake ports: hidden, then `pagehide` while the codec
+  loads, then the page brought back before the codec resolves: the save is abandoned and writes
+  nothing; `pagehide` then hidden ends a session as not saved, the page is brought back, and the
+  next session that ends with a review is saved (the older unpinned kept session deleted) while
+  the first review still reads "Not saved…". End to end: the alive-page test goes on with a
+  dispatched `pageshow` with `persisted` true, the page shown again, and a next session that ends
+  with a review: one new kept session exists, and its keep line reads as a saved session's.
 
 **Items covered:** 6.
 
