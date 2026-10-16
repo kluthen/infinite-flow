@@ -4457,6 +4457,21 @@ it follows chunks 15 and 21, whose files it shares.
 **Verification:** the chunk checks; the bundle at the wave gate (the entry chunk gains only the
 reports' channel and the notices' wording; the clean-up, the read and the codec stay out of it).
 
+**Record (2026-10-16).** Merged into `v3.0-w8` (9d2a300; 28a 250500f, 28b 7c62fbd), passed by
+`reviewer` (OKAY). 28a: damaged kept sessions deleted at load (a clean-up from the controller's
+chunk, only when a load summary is damaged, re-reading at the change), in the next session's save
+batch (its retry too) and at an opening, each through `changeKept` with refusal `caller`; D334's
+successor; the new `workspace-damaged-session-deletions.ts` keeps the capped files untouched.
+28b: the apology and "Damaged session not deleted" from the deletion's report through the channel
+of D330 (b); the landing after `Review last session` (the list's title) and after a row (the next
+row). Done when: e2e `damaged-sessions.spec.ts` and the controller, shell and focus unit specs,
+for every item; D334's re-read case at unit level only (`reviewer`: no end-to-end test); new
+harness seams `seedDamagedKeptBody` and `?storageRefuse=quota|other`. Two older e2e tests that
+expected a damaged session to survive now expect it deleted (spec D310). Chunk 15's risk fixed:
+Delete every session cancels a pending row opening (`cancelOpening`, resolving `superseded`). No
+spec or design deviation; no business atom edited. Entry chunk 227,885 B (+1,563 B over chunk
+21's; 1,491 B under the budget); none of the clean-up's code is in it.
+
 ### Chunk 26 — v3.0 release gate
 
 **Goal.** Check the whole definition of done on the merged code, record every measurement and hand
