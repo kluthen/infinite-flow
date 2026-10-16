@@ -57,6 +57,7 @@ export interface FakeSessionController {
   readonly setPinned: Mock<SessionController['setPinned']>
   readonly setComment: Mock<SessionController['setComment']>
   readonly deleteSession: Mock<SessionController['deleteSession']>
+  readonly deleteEverySession: Mock<SessionController['deleteEverySession']>
 }
 
 /** The key the fake's Reviews are kept under: the fixed test start and session seed. */
@@ -331,6 +332,13 @@ export function createFakeSessionController(
     state.mostRecent = null
     return Promise.resolve('deleted')
   })
+  const deleteEverySession = vi.fn((): Promise<SessionDeletion> => {
+    if (state.review?.showing === true) state.listShowing = true
+    state.review = null
+    state.mostRecent = null
+    state.keptRows = []
+    return Promise.resolve('deleted')
+  })
   return {
     controller: {
       state,
@@ -352,6 +360,7 @@ export function createFakeSessionController(
       setPinned,
       setComment,
       deleteSession,
+      deleteEverySession,
     },
     state,
     start,
@@ -371,5 +380,6 @@ export function createFakeSessionController(
     setPinned,
     setComment,
     deleteSession,
+    deleteEverySession,
   }
 }

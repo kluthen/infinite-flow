@@ -838,6 +838,14 @@ The session controller reaches every kept session, not only those it holds in me
   change path keyed by the row (`changeKeptPinned`, `deleteKeptSession` in
   `kept-session-review-changes.ts`), which reads the session-wide record only, never the body.
   Deleting the most recent session leaves none for the visit.
+- **Delete every session** (`deleteEverySession()`, `workspace-kept-sessions-deletion.ts`), from
+  Your data, is one change with refusal `caller`: `deleteEverySessionChanges` reads only the keys
+  of `sessionSummaries`, `sessionBodies` and `playedNotes` and deletes every key found, so a
+  session with no row goes too, with no filter on the version that wrote it (spec D333). Once it
+  resolves `saved`, or `unchanged` when no key was found (spec D332), every session held in memory
+  goes, the most recent one included, and every row leaves through `rows.removed(keys)`; a showing
+  Review gives way to the list. A refusal changes nothing. It throws during a session and while
+  saving is off.
 
 The `controller` store holds at most one record, under the key `remembered`
 (`src/storage/records/controller-record.ts`): the record envelope (data version 1) and the input

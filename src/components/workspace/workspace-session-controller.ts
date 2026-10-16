@@ -33,7 +33,8 @@
  * end's save reads, and keeps or deletes a kept session's played notes after its save. Its side
  * of the Review's other changes (./workspace-kept-session-edits.ts) marks favorites, pins, sets
  * the comment and deletes the session, each at once in memory and saved when made, a session whose
- * own save failed by a retry of that save.
+ * own save failed by a retry of that save; `Delete every session`, from Your data
+ * (./workspace-kept-sessions-deletion.ts), deletes them all, from the device then from memory.
  */
 import { computed, shallowReactive, shallowReadonly, shallowRef } from 'vue'
 
@@ -59,6 +60,7 @@ import { mostRecentKept } from './workspace-kept-session-read'
 import { createAdaptiveTempoFlag } from './workspace-adaptive-tempo'
 import { createKeptPlayedNotes } from './workspace-kept-played-notes'
 import { createKeptSessionEdits } from './workspace-kept-session-edits'
+import { createEverySessionDeletion } from './workspace-kept-sessions-deletion'
 import type { SessionControllerCore, SessionControllerSides } from './workspace-session-active'
 import { createSessionEnds } from './workspace-session-ends'
 import {
@@ -265,6 +267,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
   })
   const keptPlayedNotes = createKeptPlayedNotes(core, deps.savedKeepPlayedNotes, rows)
   const edits = createKeptSessionEdits(core, rows)
+  const deleteEverySession = createEverySessionDeletion(core, rows)
   const ends = createSessionEnds(core, adaptiveTempo, keptPlayedNotes.on, edits.saveRefused, rows)
   const reviewMode = createReviewMode(core, rows)
   const start = createSessionStart(
@@ -295,6 +298,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     setPinned: edits.setPinned,
     setComment: edits.setComment,
     deleteSession: edits.deleteSession,
+    deleteEverySession,
     setAdaptiveTempo: adaptiveTempo.set,
     setVarySettings: varySettings.set,
     setTensionAcrossPhrases: tensionAcrossPhrases.set,

@@ -2,7 +2,8 @@
 /**
  * The changes a Review makes to a kept session after its save, over a real save policy and port on
  * an in-memory IndexedDB: a favorite mark, a pin or unpin, the comment and Delete session, each
- * read at the change and applied as one batch, only the player's change applied to what is stored.
+ * read at the change and applied as one batch, only the player's change applied to what is stored;
+ * and Delete every session, one batch over every key the three kept-session stores hold.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -10,6 +11,7 @@ import {
   changeKeptComment,
   changeKeptFavorite,
   changeKeptPinned,
+  deleteEveryKeptSession,
   deleteKeptSession,
 } from '@/components/workspace/kept-session-review-changes'
 import { keptSessionKey } from '@/components/workspace/workspace-session-save'
@@ -25,7 +27,12 @@ import { createVisitSaves, type VisitSaves } from '@/storage/settings-saver'
 import type { StorageChange, StoragePort } from '@/storage/storage-port'
 
 import { recordedKeptSession } from '../../storage/kept-session-fixtures'
-import { readyPort, recordFailures, refusingPort } from '../../storage/save-policy-doubles'
+import {
+  raiseMeta,
+  readyPort,
+  recordFailures,
+  refusingPort,
+} from '../../storage/save-policy-doubles'
 import { freshFactory, sampleRecord } from '../../storage/storage-test-doubles'
 
 /** The key a second kept session is stored under, apart from the first's. */
@@ -305,5 +312,80 @@ describe('Delete session', () => {
     })
     expect(await stored(real)).toEqual(before)
     expect(failures).toEqual([])
+  })
+})
+
+// @test-link [[module_kept_session_changes]]
+// @test-link [[req_your_data]]
+describe('Delete every session', () => {
+  /** Intent: a rig whose port also holds my instrument, the controller and a session with no row. */
+  async function everythingRig(): Promise<Rig & { readonly key: string }> {
+    const rig = await keptRig(recordedKeptSession('bb-tenor', 2), { ...FRESH, pinned: true })
+    const lost = recordedKeptSession('c-keyboard', 2)
+    const [, body, playedNotes] = keptRecords(lost, FRESH, 'session-no-row')
+    const unreadable = { dataVersion: 1, appVersion: APP_VERSION, startedAt: 'not a time' }
+    await rig.port.apply([
+      ...(body === undefined ? [] : [body]),
+      ...(playedNotes === undefined ? [] : [playedNotes]),
+      { kind: 'write', store: 'sessionSummaries', key: 'session-unreadable', record: unreadable },
+      { kind: 'write', store: 'instrument', key: 'mine', record: sampleRecord('Mine') },
+      { kind: 'write', store: 'controller', key: 'remembered', record: sampleRecord('Keys') },
+    ] as StorageChange[])
+    return rig
+  }
+
+  it('deletes every kept session in one batch, one with no row included, and nothing else', async () => {
+    const rig = await everythingRig()
+    const before = await stored(rig.port)
+    const batchesBefore = rig.batches()
+    const read = vi.spyOn(rig.port, 'read')
+    const readKeyed = vi.spyOn(rig.port, 'readKeyed')
+
+    expect(await deleteEveryKeptSession(rig.saves)).toEqual({ status: 'saved' })
+
+    expect(rig.batches()).toBe(batchesBefore + 1)
+    expect(read).not.toHaveBeenCalled()
+    expect(readKeyed).not.toHaveBeenCalled()
+    for (const store of ['sessionSummaries', 'sessionBodies', 'playedNotes'] as const) {
+      expect(await rig.port.readKeys(store)).toEqual([])
+    }
+    expect((await stored(rig.port)).settings).toEqual(before.settings)
+    expect(await rig.port.readKeys('instrument')).toEqual(['mine'])
+    expect(await rig.port.readKeys('controller')).toEqual(['remembered'])
+  })
+
+  it('with nothing stored, writes nothing and resolves unchanged', async () => {
+    const rig = rigOver(await readyPort(freshFactory()))
+
+    expect(await deleteEveryKeptSession(rig.saves)).toEqual({ status: 'unchanged' })
+
+    expect(rig.batches()).toBe(0)
+  })
+
+  it('refused, deletes nothing and tells only its caller', async () => {
+    const real = await readyPort(freshFactory())
+    await real.apply(keptRecords(recordedKeptSession('bb-tenor', 2), FRESH))
+    const before = await stored(real)
+    const { port, refuse } = refusingPort(real)
+    const rig = rigOver(port, real)
+    const failures = recordFailures(rig.policy)
+    refuse('quota')
+
+    expect(await deleteEveryKeptSession(rig.saves)).toEqual({ status: 'refused', kind: 'quota' })
+
+    expect(await stored(real)).toEqual(before)
+    expect(failures).toEqual([])
+  })
+
+  it('in a tab a newer version outdated since its load, deletes nothing and resolves saving off', async () => {
+    const factory = freshFactory()
+    const port = await readyPort(factory)
+    await port.apply(keptRecords(recordedKeptSession('bb-tenor', 2), FRESH))
+    const rig = rigOver(port)
+    await raiseMeta(factory)
+
+    expect(await deleteEveryKeptSession(rig.saves)).toEqual({ status: 'saving-off' })
+
+    expect(await port.readKeys('sessionSummaries')).toHaveLength(1)
   })
 })
