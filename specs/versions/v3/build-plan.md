@@ -3593,6 +3593,21 @@ Transposition Check).
 
 **Verification:** the chunk checks; hand check H3. Part B2 waits for chunk 20c.
 
+**Record (2026-10-16).** Merged into `v3.0-w8` (ae394ca; 21a 87d73cc, 21b 1337520). 21a: a
+session action `saveAndSelectMyInstrument` saves through `saveMyInstrument` as the sheet does and
+also selects an existing, unselected my instrument; the record is written at once, the selection
+waits for a generation under way and replaces the phrase as an instrument switch does. 21b: the
+step's view and copy as pure functions in the lazy `check-for-my-instrument.ts` (the MIDI 0–127
+absence reuses my instrument's `sounds-outside-midi` refusal), the confirmation, the route through
+the connection sheet's contract and `WorkspaceShell.vue` (bound in its template, no new link; 9
+atom ids), the check's "your instrument, {name}," wording in `transposition-check-copy.ts`, H3 in
+`HARDWARE-CHECKLIST.md`. Done when: the "Use this for my instrument" block of
+`tests/e2e/controller/controller-connection-check.spec.ts` (the stored record, the selection, the
+check again, the reload, `Back` and Escape changing nothing); acknowledgement unchanged (98 unit
+tests). No spec or design deviation; the erase warning and `Use and erase` stay for chunk 20c,
+and until then the check's change keeps my instrument's sessions. STABLE atom untouched. Entry
+chunk 226,322 B (+391 B, the route only; 3,054 B under the budget).
+
 ### Chunk 20c — My instrument's sessions
 
 **Goal.** Make every kept session belong to the instrument it was played with: deleting my
