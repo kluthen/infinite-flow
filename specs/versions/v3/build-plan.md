@@ -1167,6 +1167,18 @@ wave-8 sync: M2 5(b)'s LOGIC clause, ux D212's absence rule in
 `rule_transposition_check_sets_my_instrument`, and D331's second trigger in
 `rule_outdated_tab_stops_saving`.
 
+**Captures and rulings before chunk 15 (2026-10-16).** `documentalist` recorded chunk 15's capture
+and revised chunk 28's for D330 in b4774c5 (`module_kept_session_changes` 0.6,
+`module_kept_session_reach` 0.3, `module_kept_session_save` 0.7, all DRAFT); `module_on_device_database`
+already states D331. `ux-writer` closed Q80 as ux D318 (120ce31), adding the fallback wording to
+the saved-data intent and Your data's handoff. Three edges the captures left open went to
+`spec-writer`, placed in v26 (903b179): D332, an empty Delete every session (`unchanged`) is done,
+as `saved`, with the ordinary success; D333, a newer version's session cannot be among the keys
+found, so no filter; D334, a clean-up re-read that deletes the most recent kept session not yet
+read makes the readable one that started last the most recent at once. `documentalist` amended the
+captures in f061e8b: `module_kept_session_reach` 0.4, `module_kept_session_changes` 0.7,
+`module_kept_session_save` 0.8.
+
 **Hand checks so far (2026-10-16, Travel Sax, the deployed site).** H4's first three steps pass:
 the Travel Sax reattaches at a reload with no prompt, plays nothing before the page's first click,
 and the badge follows an unplug and a replug; its `Disconnect` step is still to run. My
