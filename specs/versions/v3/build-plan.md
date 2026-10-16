@@ -1179,6 +1179,17 @@ read makes the readable one that started last the most recent at once. `document
 captures in f061e8b: `module_kept_session_reach` 0.4, `module_kept_session_changes` 0.7,
 `module_kept_session_save` 0.8.
 
+**Fixes after chunk 15 (2026-10-16).** Entry headroom before chunks 21 and 28 (306 B left):
+da4c737, merged as 384154d, builds the five session browser ports (wake lock, orientation lock,
+page hidden, page going away, window shape) in the lazy `browser-session-ports.ts`, awaited with
+the session controller's chunks, so no Start exists before they load and Start still asks for
+both locks inside its click; the page activation stays in the entry. Entry chunk 229,070 →
+225,931 B (3,445 B under the budget, unchanged). The record encoder and saves stay in the entry,
+since a lazy save could be lost to a page going away. `verify:boundaries` then showed that chunk
+15 read `usageDetails.indexedDB` outside `src/storage/`: 2c33a39, merged as c7c144d, moves
+`databaseBytes` to the pure `src/storage/storage-estimate.ts`, still lazy, linked to
+`req_your_data`, with its unit test; behaviour and entry bytes unchanged.
+
 **Hand checks so far (2026-10-16, Travel Sax, the deployed site).** H4's first three steps pass:
 the Travel Sax reattaches at a reload with no prompt, plays nothing before the page's first click,
 and the badge follows an unplug and a replug; its `Disconnect` step is still to run. My
