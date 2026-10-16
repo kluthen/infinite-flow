@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.100
+Status: draft v2.101
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D336**. D259–D260 are
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D340**. D336–D338 are wave 9's (branch `v3.0-w9`); D339 is the v3.1 plan migration (branch `plan-migration`). D259–D260 are
 on branch `v4-accompaniment-research`, not merged yet. D263–D288 are v3.3's richer chords (merged
 from `main`); D289 is unused. D290–D299 were reserved for v3.0 wave 2; wave 2 used D290–D298, and
 D299 records wave 3. D300 records the wave-4 preflight; D301 and D302 the plan revision after
@@ -2154,3 +2154,11 @@ D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan
   `rule_transposition_check_sets_my_instrument` 0.4 already says both (intent change set
   `docs/release/v3.0-intent-change-set.md`, part Q2 item 4 and part Q4 item 6, applied by
   `documentalist`).
+
+- **D339 (2026-10-16): v3.1's build plan moves to the build-plan model, with one shared v3 build
+  workflow and its waves re-formed.** Chunk IDs and Done-when statements are kept; the four
+  drifting §3 copies give way to one workflow document, and the eleven waves become six of three to
+  five chunks, in-wave edges held by architecture captures, the release gate no wave. Why: thin
+  waves paid a full preflight and gate each. Prepared on branch `plan-migration`, as the owner
+  pre-authorized; not approved. Now in: [build-workflow.md](versions/v3/build-workflow.md),
+  [build-plan-v3.1.md](versions/v3/build-plan-v3.1.md#waves).
