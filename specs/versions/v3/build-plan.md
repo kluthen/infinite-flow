@@ -3815,6 +3815,23 @@ warning, the cosmetic changes, the review's room), 17 (the check's warning).
 
 **Verification:** the chunk checks; then Part B2 with the owner.
 
+**Record (2026-10-16).** Merged into `v3.0-w9` in three parts: 20c-1 (100ebb4, merge 703a8c4: my
+instrument's delete, and a range or transposition change while it has kept sessions, as one
+`changeKept(…, 'caller')` batch; memory changes after it; the count in the new
+`workspace-my-instrument-sessions.ts`), 20c-2 (563193a, merge ee83a38: the erase warning, the
+delete confirmation naming the sessions, the check's `Use and erase`, the outdated tab's sheet;
+copy in `my-instrument-sessions-copy.ts`), 20c-3 (714bcc7, merge 45e4a65: a review's systems take
+the larger of the shared size and the session's own, `review-system-size.ts`). Every Done when
+item holds, by the new `tests/e2e/storage/my-instrument-sessions.spec.ts` (11 tests) and
+`tests/e2e/notation/notation-review-room.spec.ts` (190 units, 160 without the fix), plus unit
+tests over real IndexedDB. Entry chunk 228,146 B after 20c-1, 228,703 B after 20c-2 and 20c-3
+(673 B under the budget). 20c-2 corrected 20c-1's count (no held session counted while saving is
+off; `reviewed` and `withheld` added) and fixed a throw during `Use and erase`, when the check's
+result turns to a match once saved. Settled by the chunk owner: when the tab turns outdated while
+the form shows, the range and transposition go back to their saved values. Left for the fix
+below: a failed session's retry still saving when the batch is counted is not named, so its
+records could outlive the deletion.
+
 ### Remembered-controller wording — Contract 6.0
 
 **Applied 2026-10-15** (5dd9fb1): the owner confirmed it ("confirmed for chunk 22") and
