@@ -1220,6 +1220,18 @@ six under 40 ms; 18 notes of 40–150 ms remain, several of them halves of a spl
 D322 accepts. Still to run for H5: the owner's look at the lane for a dropped intended note, and
 the export with `Include very short notes` on.
 
+**Sign-offs applied and merge (2026-10-16).** The owner answered "ok for everything": the merge
+and the push of `main`, part Q2's four wordings, part Q3's six advances, and the gap closed in
+`rule_transposition_check_sets_my_instrument` (using the action selects my instrument if another
+instrument was selected). `documentalist` applied them in f99d5bf (`rule_most_recent_session_kept`
+0.6, `req_kept_sessions` 0.4, `rule_outdated_tab_stops_saving` 0.6,
+`rule_transposition_check_sets_my_instrument` 0.4 with the gap as part Q4 item 6, all DRAFT; six
+atoms DRAFT → REVIEW) and d4d1778 (part M's stale "pending" wording). `spec-writer` brought
+master spec §7.2 in line in 1cdd20f (Part A v1.23, spec D335; numbering continues from D336). Still
+pending: P2 item 4 and the H4 and H5 advances, Part B2 after chunk 20c, D326 at chunk 20c's
+preflight, hand checks H3, H6–H9. The owner asked to start wave 9; the wave merges into `main`
+with entry chunk 227,885 B.
+
 ## 2. Read first: what v3.0 undoes in v2
 
 v2 promised that nothing survives a reload and enforced it three ways: two code gates, about ten
