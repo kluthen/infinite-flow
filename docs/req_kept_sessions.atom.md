@@ -5,6 +5,7 @@ parents:
   - [[req_on_device_storage]]
   - [[req_rolling_practice_session]]
 dependents:
+  - [[module_kept_session_save]]
   - [[req_kept_session_list]]
   - [[req_kept_session_review]]
   - [[rule_earlier_kept_sessions_carried_over]]

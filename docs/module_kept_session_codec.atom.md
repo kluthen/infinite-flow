@@ -10,7 +10,8 @@ parents:
   - [[rule_kept_session_content]]
   - [[rule_outdated_tab_reads_what_it_can]]
   - [[service_session_history]]
-dependents: []
+dependents:
+  - [[module_kept_session_save]]
 layer: ARCHITECTURE
 version: 0.3
 tags: [v3, release-v3.0, storage, review, session]
