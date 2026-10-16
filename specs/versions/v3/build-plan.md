@@ -1196,6 +1196,20 @@ passed, 4 skipped; code health 0 errors; boundaries passed (389 source files, 41
 budget). Entry chunk 227,885 B (+715 B since wave 7's 227,170 B, the build id and the headroom
 fix included; 1,491 B under the budget). No fix needed.
 
+**Wave 8 sync and report (2026-10-16).** `documentalist`'s sync is 95ecba7: chunk 15's Part D
+(`rule_single_local_user` 0.2, its `changes-in-v3.0` tag removed); the captures brought to the
+code as built (`module_kept_session_reach` 0.5, `module_kept_session_changes` 0.8,
+`module_kept_session_save` 0.9, all DRAFT); `service_session_controller` 0.5 (the lazy ports, the
+clean-up, the damaged opening); `module_saved_data_loader` and `entity_my_instrument_record` 0.3
+(interface only); one missing test link. No drift. Change set part Q holds the owner's items: Q2's
+four wordings (`rule_most_recent_session_kept` 0.6 and `req_kept_sessions` 0.4, M2 items 5(b) and
+6 with the preflight's fixes; `rule_outdated_tab_stops_saving` 0.6, D331's second trigger;
+`rule_transposition_check_sets_my_instrument` 0.4, ux D212's absence rule) and Q3's six DRAFT →
+REVIEW advances (`req_your_data`, `rule_delete_everything`, `rule_persistent_storage_requested`
+and the three captures). A gap, not a contradiction: chunk 21a's save also selects an existing,
+unselected my instrument, which neither that rule nor master spec §7.2 states. Still pending: P2
+item 4 and the H4 and H5 advances, Part B2 after chunk 20c, D326 at chunk 20c's preflight.
+
 **Hand checks so far (2026-10-16, Travel Sax, the deployed site).** H4's first three steps pass:
 the Travel Sax reattaches at a reload with no prompt, plays nothing before the page's first click,
 and the badge follows an unplug and a replug; its `Disconnect` step is still to run. My
