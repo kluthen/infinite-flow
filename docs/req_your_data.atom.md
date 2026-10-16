@@ -1,6 +1,6 @@
 ---
 id: req_your_data
-status: DRAFT
+status: REVIEW
 human_name: Your Data
 tags: [v3, release-v3.0, storage, privacy, changes-in-v3.1]
 dependents:
