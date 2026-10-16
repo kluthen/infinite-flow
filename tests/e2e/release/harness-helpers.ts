@@ -11,8 +11,8 @@ import { primaryButton } from '../workspace/helpers'
 export const WORKSPACE_HARNESS_URL = 'http://127.0.0.1:4175/'
 
 /** Intent: land on the harness's empty workspace state with its deterministic API ready. */
-export async function gotoWorkspaceHarness(page: Page): Promise<void> {
-  await page.goto(WORKSPACE_HARNESS_URL)
+export async function gotoWorkspaceHarness(page: Page, search = ''): Promise<void> {
+  await page.goto(`${WORKSPACE_HARNESS_URL}${search}`)
   await page.waitForFunction(() => typeof window.__workspaceHarness !== 'undefined')
 }
 

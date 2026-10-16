@@ -117,7 +117,12 @@ async function playedWithMyInstrument(rig: ControllerRig): Promise<void> {
   })
   rig.idle.controls = controls
   rig.idle.latestIntent = intent
-  rig.idle.result = { intent, outcome: generateSuccess(intent), sessionSeed: RIG_SESSION_SEED }
+  rig.idle.result = {
+    intent,
+    outcome: generateSuccess(intent),
+    settings: { controls, profileSelection: rig.idle.profileSelection },
+    sessionSeed: RIG_SESSION_SEED,
+  }
   rig.controller.start()
   await playTo(rig, 10.2)
   rig.controller.stop()

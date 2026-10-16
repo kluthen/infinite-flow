@@ -582,7 +582,10 @@ still re-derive identically with the window read now (the density step-down) and
 layout a session would hold now, through the same staff planner and held-layout fit the session's
 display uses. The first that does not is discarded with every phrase after it, and pre-generation
 resumes from there. A width crossing, whose new density may change the next request, or a
-re-check that discarded a phrase also aborts the attempt in flight.
+re-check that discarded a phrase also aborts the attempt in flight. None of these re-checks runs
+during a session (the start blocker is `session_active`): a layout report or a crossing then
+re-checks nothing and leaves the ready phrases as they are, and the re-check runs once every start
+condition holds again, back at Idle.
 
 **Start's take.** `take(heldLayout)` runs inside the Start click: it aborts the attempt in flight,
 never waiting for it, re-checks the ready phrases' fit against the start's held layout and drops
@@ -596,15 +599,19 @@ once in `App.vue`: no `pregeneration` parameter or `?pregeneration=on` is `enabl
 `?pregeneration=off` is `disabled`, and any other value throws. `disabled` builds an orchestrator
 that never runs and whose take is always empty.
 
-**A carry-in that does not hold (ISS-011).** After a harmony or register control changed at Idle
-with phrase 1 kept, the plan builds the carry-in from phrase 1 under the new settings, as the
-session engine does at Start, and that carry-in can fail its check with a `CarryInError`
-([ISS-011](../issues/Ref_20261012_start_after_idle_harmony_change.md), an engine defect left open).
-The orchestrator then stands down: it aborts the attempt in flight, empties the queue and reports
-nothing, since nothing can be pre-generated for this phrase 1 under these settings, and runs again
-at the next change of its key. Any other error while it runs is a programming error: the
-orchestrator stops the same way until the key changes, and the controller throws the error out of
-band (a microtask), the unhandled error it is, since there is no session to end.
+**A stale phrase 1.** At Idle an ordinary edit never regenerates phrase 1, so the settings it was
+generated under can differ from the current ones (master spec §16). The Idle result records them:
+`WorkspaceSessionResult.settings` holds the chosen controls and the profile selection its request
+was built from (`createWorkspaceGenerate` reads them as the request is posted; the intent holds the
+density the window gave, which is not a setting). The plan starts from them
+(`PregenerationStart.phraseOneSettings`, built by `phraseOneSettings` in
+`src/session/stale-phrase-one.ts` at the tempo in effect), so phrase 2 is planned joined to phrase 1
+as after a settings change at their boundary, as the session engine joins it when the player uses
+that phrase 1 ([Phrase 1's own settings](session-engine.md#phrase-1s-own-settings)). A stale phrase
+1 stops nothing. Any error while the orchestrator runs, a `CarryInError` included, is a
+programming error: it aborts the attempt in flight, empties the queue and stays stopped until the
+key changes, and the controller throws the error out of band (a microtask), the unhandled error it
+is, since there is no session to end.
 
 ## Unsupported rhythm settings
 

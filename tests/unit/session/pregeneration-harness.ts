@@ -44,6 +44,8 @@ export function planSeams(below = false): PlanSeams {
 export interface PlanStartOptions {
   readonly settings?: SessionSettings
   readonly phraseOne?: PregenerationStart['phraseOne']
+  /** The settings phrase 1 was generated under; none means the chosen settings. */
+  readonly phraseOneSettings?: SessionSettings
   readonly sessionSeed?: Seed
   readonly mutation?: SettingsMutationFlag
   readonly multiPhraseTensionArc?: boolean
@@ -58,6 +60,9 @@ export function planStart(options: PlanStartOptions = {}): PregenerationStart {
     sessionSeed: options.sessionSeed ?? DEFAULT_SESSION_SEED,
     mutation: options.mutation ?? SETTINGS_MUTATION_OFF,
     multiPhraseTensionArc: options.multiPhraseTensionArc ?? false,
+    ...(options.phraseOneSettings === undefined
+      ? {}
+      : { phraseOneSettings: options.phraseOneSettings }),
   }
 }
 

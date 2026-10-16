@@ -54,13 +54,24 @@ export async function setRisingTempo(page: Page, on: boolean): Promise<void> {
     .toBe(on)
 }
 
-/** Intent: land on the harness at `size`, and wait for the session controller to load. */
+/**
+ * The page URL's search for a spec that scripts or counts every generate call, or every phrase a
+ * session requests: pre-generation off, whatever the harness build's default
+ * (`VITE_HARNESS_PREGENERATION`, the `test:e2e:pregeneration` lane).
+ */
+export const PREGENERATION_OFF = '?pregeneration=off'
+
+/**
+ * Intent: land on the harness at `size`, with the page URL's `search` if any, and wait for the
+ * session controller to load.
+ */
 export async function gotoSessionHarness(
   page: Page,
   size: { readonly width: number; readonly height: number } = DESKTOP,
+  search = '',
 ): Promise<void> {
   await page.setViewportSize(size)
-  await gotoWorkspaceHarness(page)
+  await gotoWorkspaceHarness(page, search)
   await page.waitForFunction(() => window.__workspaceHarness.session.loaded())
 }
 

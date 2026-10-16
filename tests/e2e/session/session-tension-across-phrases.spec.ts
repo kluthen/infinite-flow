@@ -12,7 +12,9 @@ import { expect, test, type Locator, type Page } from '@playwright/test'
 import { clockTo } from './session-midi-helpers'
 import {
   BEAT,
+  DESKTOP,
   gotoSessionHarness,
+  PREGENERATION_OFF,
   readyToStart,
   sessionAction,
   sessionState,
@@ -69,7 +71,7 @@ async function tensionsPerPhraseAfter(page: Page, skip: number): Promise<string[
 test('Tension across phrases starts Off between Rising tempo and Vary settings, and is read-only during a session', async ({
   page,
 }) => {
-  await gotoSessionHarness(page)
+  await gotoSessionHarness(page, DESKTOP, PREGENERATION_OFF)
   await readyToStart(page)
   await expect(page.locator('.control-group-session .field-label')).toHaveText([
     'Rising tempo',
@@ -105,7 +107,7 @@ test('a session with it on generates each group of four around Lift while the Te
   page,
 }) => {
   test.setTimeout(90_000)
-  await gotoSessionHarness(page)
+  await gotoSessionHarness(page, DESKTOP, PREGENERATION_OFF)
   await readyToStart(page)
   expect(await checkedIn(page, 'Tension')).toBe('Lift')
   await setTensionAcrossPhrases(page, true)

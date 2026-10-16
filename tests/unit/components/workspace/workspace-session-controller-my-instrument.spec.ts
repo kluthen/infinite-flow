@@ -56,7 +56,12 @@ describe('session controller: Start with my instrument', () => {
     })
     rig.idle.controls = controls
     rig.idle.latestIntent = intent
-    rig.idle.result = { intent, outcome: generateSuccess(intent), sessionSeed: RIG_SESSION_SEED }
+    rig.idle.result = {
+      intent,
+      outcome: generateSuccess(intent),
+      settings: { controls, profileSelection: rig.idle.profileSelection },
+      sessionSeed: RIG_SESSION_SEED,
+    }
 
     rig.controller.start()
     expect(rig.runnerInputs[0]?.start.settings.instrumentProfile).toStrictEqual(MY_PROFILE)
@@ -89,7 +94,12 @@ describe('session controller: Start with my instrument', () => {
     const outcome = generateSuccess(intent)
     rig.idle.controls = controls
     rig.idle.latestIntent = intent
-    rig.idle.result = { intent, outcome, sessionSeed: RIG_SESSION_SEED }
+    rig.idle.result = {
+      intent,
+      outcome,
+      settings: { controls, profileSelection: rig.idle.profileSelection },
+      sessionSeed: RIG_SESSION_SEED,
+    }
     rig.showIdleWritten(transformToWrittenPhrase(notationInputFromOutcome(outcome, intent, 'bass')))
 
     rig.controller.start()

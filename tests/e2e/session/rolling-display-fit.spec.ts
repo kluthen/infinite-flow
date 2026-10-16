@@ -26,9 +26,10 @@ import {
 import { reviewPanel } from '../review/review-helpers'
 import {
   DESKTOP,
-  PHONE,
   expectEndedLikeStop,
   gotoSessionHarness,
+  PHONE,
+  PREGENERATION_OFF,
   readyToStart,
   sessionAction,
   sessionState,
@@ -143,7 +144,7 @@ test('a look-ahead phrase too wide for the held layout is never drawn: its retry
   page,
 }) => {
   test.setTimeout(120_000)
-  await gotoSessionHarness(page, DESKTOP)
+  await gotoSessionHarness(page, DESKTOP, PREGENERATION_OFF)
   await readyToStart(page)
   const sessions = await sessionSeeds(page)
 
