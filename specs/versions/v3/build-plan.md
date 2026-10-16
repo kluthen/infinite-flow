@@ -1283,6 +1283,25 @@ green. Unit 6,730 tests in 445 files; e2e 453, and 453 again with pre-generation
 boundaries passed (397 source files, 42 chunks within budget). **Entry chunk 229,194 B (+1,309 B
 since wave 8's 227,885 B; 182 B under the budget).**
 
+**After the gate (2026-10-16).** `ux-writer` (1921b3e) confirmed 24b-2's reading as ux D319 (after
+`Start with this phrase` the Musical profile preset shows the player's selection at Start, never
+phrase 1's) and settled D320–D322 (a lone sheet button keeps its width; sheets capped at every
+breakpoint; the build id in the workspace handoff). 704fb32 (merge e1ec552) builds D320 and moves
+the header's `.brand` and `.build-id` into `components.css`, styles only, its affected e2e and a11y
+green; entry chunk 229,146 B (230 B under the budget).
+
+**Wave 9 sync and report (2026-10-16).** `documentalist`'s sync is 0e7fbb2 (change set part R4):
+`entity_my_instrument_record` 0.5 (D337, the failed session named, its retries held), 24b's
+Revisions (`service_workspace_session_flow` 1.9, `service_session_start` 0.3,
+`module_session_starting_note` 0.3), `module_session_shown_settings` 0.3 (D319),
+`service_session_engine` 1.3, `module_kept_session_save` 1.0, interface-only updates, two test
+links; `service_session_midi` linked at last. Drift, unresolved: `rule_stale_phrase_prompt_at_start`
+and master spec §16 say every read-only control shows phrase 1's settings, where D319 keeps the
+preset's selection. Put to the owner (R5, R6): Part B2 (`rule_controller_transposition_check` 0.5,
+STABLE, CONTRACT 6.1 → 6.2, carrying D335's bound and `Use and erase`); the stale-prompt rule
+brought to D319; `module_save_policy` back to REVIEW; ten DRAFT → REVIEW advances. ISS-011 is In
+Progress until H9.
+
 ## 2. Read first: what v3.0 undoes in v2
 
 v2 promised that nothing survives a reload and enforced it three ways: two code gates, about ten
