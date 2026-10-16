@@ -27,6 +27,7 @@ import type {
   SessionKeeping,
   SessionReview,
 } from '@/components/workspace/workspace-session-controller-types'
+import type { StalePhrasePrompt } from '@/components/workspace/workspace-stale-phrase'
 import { getInstrumentProfile } from '@/domain/generation/generation-intent'
 import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import type { SessionHistory, SessionHistoryRecord } from '@/session/session-history'
@@ -41,7 +42,14 @@ export type FakeSessionControllerState = {
 export interface FakeSessionController {
   readonly controller: SessionController
   readonly state: FakeSessionControllerState
-  readonly start: Mock<() => void>
+  readonly start: Mock<SessionController['start']>
+  readonly useStalePhrase: Mock<SessionController['useStalePhrase']>
+  readonly dismissStalePhrase: Mock<SessionController['dismissStalePhrase']>
+  /**
+   * The prompt the next `start` opens instead of starting, as with a stale phrase 1; null (the
+   * default) starts at once.
+   */
+  staleOnStart: StalePhrasePrompt | null
   readonly stop: Mock<() => void>
   readonly dispose: Mock<() => void>
   readonly closeReview: Mock<() => void>
@@ -199,6 +207,7 @@ export function createFakeSessionController(
     varySettings: false,
     tensionAcrossPhrases: false,
     shownSettings: null,
+    stalePhrasePrompt: null,
     keepPlayedNotes: false,
     savingOff: false,
     ...overrides,
@@ -214,7 +223,8 @@ export function createFakeSessionController(
     state.mostRecent = heldSessionOf(review)
     showing(review)
   }
-  const start = vi.fn((): void => {
+  /** Intent: enter the count-in, as a real start does. */
+  function begin(): void {
     state.review = null
     state.phase = 'count-in'
     state.countIn = COUNT_IN_MUTED
@@ -222,6 +232,23 @@ export function createFakeSessionController(
     state.heldLayout = 'one-system'
     state.canStart = false
     state.startBlocker = 'session_active'
+  }
+  const start = vi.fn((): 'started' | 'asked' => {
+    if (fake.staleOnStart !== null) {
+      state.stalePhrasePrompt = fake.staleOnStart
+      return 'asked'
+    }
+    begin()
+    return 'started'
+  })
+  const useStalePhrase = vi.fn((): boolean => {
+    state.stalePhrasePrompt = null
+    if (!state.canStart) return false
+    begin()
+    return true
+  })
+  const dismissStalePhrase = vi.fn((): void => {
+    state.stalePhrasePrompt = null
   })
   const stop = vi.fn((): void => {
     const phase = state.phase === 'running' ? 'running' : 'count-in'
@@ -351,10 +378,12 @@ export function createFakeSessionController(
       stay: () => undefined,
     }),
   )
-  return {
+  const fake: FakeSessionController = {
     controller: {
       state,
       start,
+      useStalePhrase,
+      dismissStalePhrase,
       stop,
       isPhraseOnScreen,
       dispose,
@@ -377,6 +406,9 @@ export function createFakeSessionController(
     },
     state,
     start,
+    useStalePhrase,
+    dismissStalePhrase,
+    staleOnStart: null,
     stop,
     dispose,
     closeReview,
@@ -396,4 +428,5 @@ export function createFakeSessionController(
     deleteEverySession,
     myInstrumentSessions,
   }
+  return fake
 }

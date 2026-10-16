@@ -1,7 +1,9 @@
 /**
  * The settings a running session shows in its read-only controls, for the session controller:
- * what the phrase now sounding was generated with. During the count-in that is the session's
- * start settings, the player's own. Each settings change the engine reports is kept until the
+ * what the phrase now sounding was generated with. During the count-in and phrase 1 that is the
+ * settings phrase 1 was generated with: the player's own, unless a stale phrase 1 was used as it
+ * is, whose own then show until the first phrase generated under the session's settings starts
+ * sounding, as any change does. Each settings change the engine reports is kept until the
  * first phrase it applies to, or a later one, starts sounding as a generated phrase; it shows
  * from that instant, on the audio clock, never when it is decided. A repeat is the phrase before
  * it played again, generated with the settings already shown, so it shows nothing new, and a
@@ -40,16 +42,22 @@ export interface SessionShownSettings {
 }
 
 /**
- * Intent: one session's shown settings, starting from its start settings. A change is shown only
- * at a generated phrase's start; when several are pending for that phrase or earlier ones, the
- * latest reported wins, as it is the one that phrase was generated with.
+ * Intent: one session's shown settings, starting from those phrase 1 was generated with
+ * (`phraseOne`). The session's own (`session`, the same by default) are then pending from phrase
+ * 2 when they are other settings, as a change applying from there. A change is shown only at a
+ * generated phrase's start; when several are pending for that phrase or earlier ones, the latest
+ * reported wins, as it is the one that phrase was generated with.
  */
 // @spec-link [[rule_automatic_change_updates_controls_quietly]]
 // @spec-link [[rule_session_change_applies_at_phrase_boundary]]
 // @spec-link [[module_session_shown_settings]]
-export function createSessionShownSettings(start: SessionSettings): SessionShownSettings {
-  let shown = start
-  let pending: PendingChange[] = []
+export function createSessionShownSettings(
+  phraseOne: SessionSettings,
+  session: SessionSettings = phraseOne,
+): SessionShownSettings {
+  let shown = phraseOne
+  let pending: PendingChange[] =
+    session === phraseOne ? [] : [{ phraseNumber: 2, settings: session }]
 
   /** Intent: keep a reported change, by the first phrase it applies to. */
   function settingsChanged(output: SettingsChangedOutput): void {

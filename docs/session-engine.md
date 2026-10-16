@@ -655,8 +655,9 @@ from the Idle state and from the window's shape, which it reads from its creatio
 screen locks only from the player's own gesture. Playing the starting note takes the very same
 `start()`, from the MIDI note's callback (see [The starting note](#the-starting-note)); the audio
 was already unlocked then by the `Connect controller` click. A start that a condition blocks throws
-and touches nothing. An accepted start first discards the kept Review, if any, before anything
-else changes. Then, in order, it:
+and touches nothing. With a stale phrase 1 it starts nothing and opens the stale-phrase prompt
+instead ([A stale phrase 1 at Start](#a-stale-phrase-1-at-start)). An accepted start first discards
+the kept Review, if any, before anything else changes. Then, in order, it:
 
 1. unlocks the audio, asks for the screen wake lock and the landscape orientation lock without
    waiting for their answers (a refused or unsupported lock changes nothing and shows nothing),
@@ -667,7 +668,9 @@ else changes. Then, in order, it:
    ends the session, so a drop then is not followed up. The orientation lock is never asked for
    again;
 2. queues phrase 1's backing with the Idle phrase's harmony;
-3. locks the settings (the Idle controls and musical profile), chooses the held layout from the
+3. locks the settings (the Idle controls and musical profile), with the settings phrase 1 was
+   generated under beside them (`phraseOneSettings` from the Idle result's recorded settings at
+   the session's tempo; see [Phrase 1's own settings](#phrase-1s-own-settings)), chooses the held layout from the
    window's width alone (`sessionLayoutAtStart`: split below `bp-tablet-landscape`, one system
    from it up), takes the phrases the Idle pre-generation queue has ready that fit the held layout
    (aborting its attempt in flight, never waiting for it; see
@@ -680,7 +683,38 @@ else changes. Then, in order, it:
    phrase 1 is the Idle phrase, whose start carries the ready phrases taken in step 3 and whose
    fit check is the display's, and the end watchers. The runner runs adaptive tempo when the flag
    is on and step 4 found the controller attached (`sessionHasController`); a session started
-   with the selected controller away, or with none, runs without it.
+   with the selected controller away, or with none, runs without it. The controls show phrase 1's
+   own settings through the count-in and phrase 1, the profile selection as the player's (showing
+   them is no edit), then the session's from the first phrase generated under them
+   (`createSessionShownSettings(phraseOne, session)`).
+
+### A stale phrase 1 at Start
+
+At Idle an ordinary edit never regenerates phrase 1, so it can have been generated under settings
+that differ from the current ones (master spec §16). `createStalePhraseStart`
+(`src/components/workspace/workspace-stale-phrase.ts`) wraps the controller's `start()`: the
+controller's `start()` (the Start click) and the starting note both go through its
+`request(opener)`. Once every start condition holds, it compares phrase 1's own settings with the
+current ones (`staleSettingsOf` in `src/session/stale-phrase-one.ts`: every control but the tempo,
+the musical profile without its customized mark, my instrument's range and transposition as saved
+now). With a difference it starts nothing, no sound, no lock, no count-in, and publishes
+`state.stalePhrasePrompt`, `{ opener: 'start' | 'note', changed }`, the changed settings fixed as it
+opens; `start()` then returns `'asked'` instead of `'started'`, and returns it again, changing
+nothing, while the prompt shows (a second press before its sheet has loaded). (A starting note
+played while the audio is still locked has the MIDI side unlock the audio context first, as it
+always does; nothing sounds.) A start that a condition blocks
+still throws as before: the prompt is no start condition.
+
+- `useStalePhrase()`, the prompt's `Start with this phrase`, closes it and runs the same start
+  inside that click, unless a start condition no longer holds (false: nothing starts).
+- `dismissStalePhrase()` closes it, changing nothing; the prompt's `Regenerate phrase` closes it
+  this way, then runs the Idle Regenerate.
+- A start condition that stops holding while it shows (the workspace leaving Ready) closes it.
+- While it shows, the MIDI side names no starting note (its `connectionSheetOpen` reading counts
+  the prompt as an open sheet), so no note starts anything and the start line is hidden.
+
+The prompt itself is `StalePhrasePrompt.vue`, loaded on demand (see
+[A stale phrase 1](phrase-workspace.md#a-stale-phrase-1)).
 
 ### The audio-time agenda
 
@@ -819,16 +853,17 @@ It throws a `StartingNoteError` on a phrase with no attack, or when the staff sh
 another pitch than its concert pitch under the phrase's transposition.
 
 `state.startingNote` is set exactly when all of these hold: `Start session` may be clicked
-(`canStart`), the MIDI controller is `connected`, the connection sheet is closed
+(`canStart`), the MIDI controller is `connected`, no sheet is open
 (`WorkspaceSession.connectionSheetOpen`, see
-[`docs/controller-connection.md`](controller-connection.md#the-click)), and the staff shows Idle's
-phrase. The cue row's start line and the score's start marker are drawn from it (see
+[`docs/controller-connection.md`](controller-connection.md#the-click)) and no stale-phrase prompt
+shows, and the staff shows Idle's phrase. It is computed by `createIdleStartingNote`
+(`workspace-session-starting-note.ts`), split out of the MIDI side. The cue row's start line and the score's start marker are drawn from it (see
 [The cue row](phrase-workspace.md#the-cue-row)).
 
 A played note at Idle starts a session only when `startingNote` is set and the note has exactly
 its concert pitch, [octave](music/lexicon.md#octave) included (`isStartingNote`). It then calls the
 controller's own `start()`, the path the Start click takes, so every start condition, lock and
-count-in is the same. Any other note, or the starting note while nothing is named, does nothing.
+count-in is the same, and with a stale phrase 1 it opens the same prompt and starts nothing. Any other note, or the starting note while nothing is named, does nothing.
 The starting note is the first note played in the session: it arms the silence timer (below).
 
 #### With or without the controller, fixed at the start

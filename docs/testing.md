@@ -56,7 +56,7 @@ a layer, a script, a harness seam, a fake or a fixture updates this document in 
 
 ### The `test:e2e` file list
 
-`test:e2e` names its specs one by one: `tests/e2e/startup.spec.ts`, nine files in
+`test:e2e` names its specs one by one: `tests/e2e/startup.spec.ts`, ten files in
 `tests/e2e/workspace/`, the five audio specs in `tests/e2e/audio/` (`audio-transport.spec.ts`,
 `audio-transport-mix.spec.ts`, `audio-transport-real.spec.ts`, `audio-backing.spec.ts` and
 `mix-controls.spec.ts`), `tests/e2e/midi/midi-input.spec.ts`, the six controller connection

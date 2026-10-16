@@ -116,6 +116,7 @@ async function playedWithMyInstrument(rig: ControllerRig): Promise<void> {
     instrumentProfile: HORN.profile,
   })
   rig.idle.controls = controls
+  rig.idle.myInstrument = HORN
   rig.idle.latestIntent = intent
   rig.idle.result = {
     intent,

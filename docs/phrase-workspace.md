@@ -913,7 +913,9 @@ controller's lazy chunk has loaded, and no session can start then.
 - **The Start click.** The header emits `start-session`, and `WorkspaceShell` handles it
   synchronously, inside the click: it closes the volume popover, calls `controller.start()`, which
   unlocks the audio and asks for the screen locks, then makes the start's one jump. Focus stays on
-  the session action, which now reads `Stop`.
+  the session action, which now reads `Stop`. When `controller.start()` answers `'asked'`
+  instead, phrase 1 is stale: nothing started, no jump is made, and the stale-phrase prompt shows
+  ([A stale phrase 1](#a-stale-phrase-1)).
 - **The jump.** Once, instantly, before the count-in's first click, `jumpForSessionStart`
   (`session-start-jump.ts`) scrolls the page for the layout the session holds. From
   `bp-tablet-landscape` up, it jumps to the top of the workspace only if the top edge of
@@ -921,6 +923,31 @@ controller's lazy chunk has loaded, and no session can start then.
   whole of `session-cue-row` and `staff-viewport` in view, never scrolling the cue row above the
   viewport. `WorkspaceShell` takes the scroll and the viewport's height through its `jumpView`
   prop (the window by default), so unit tests measure no real page.
+
+### A stale phrase 1
+
+When Start, or the starting note, meets a stale phrase 1 (master spec §16; the controller's side is
+[A stale phrase 1 at Start](session-engine.md#a-stale-phrase-1-at-start)), the controller publishes
+`state.stalePhrasePrompt` and `WorkspaceShell` shows `StalePhrasePrompt.vue`, in its own chunk
+(`defineAsyncComponent`), outside the entry chunk. It is the design's `screens/stale-phrase-prompt/`
+sheet: an `alertdialog` titled "This phrase is from before your changes", named by its title and
+described by its body, with the starting note's paragraph first and its hint last when the note
+opened it. It names the changed settings by their controls' labels in page order (Written key,
+Collection, Instrument profile, Musical profile preset, Harmonic motion, Tension, Note density,
+Rhythmic variety, Syncopation, Silence density, Contour, Register, Leapiness, Arpeggio chaos): one,
+"A and B", "A, B and C", or the first two and "{n} other settings".
+
+- **On open** it closes the volume popover (the shell's start preparation) and puts focus on
+  `Regenerate phrase`; Tab and Shift+Tab stay in the sheet.
+- **`Start with this phrase`** calls `controller.useStalePhrase()` inside its click, then the
+  start's jump; focus goes to the session action, now `Stop`. When a start condition no longer
+  holds, nothing starts and focus goes as after a dismissal.
+- **`Regenerate phrase`** dismisses it, puts focus on the phrase action and runs the session's
+  `regenerate()`, the header's own action; nothing starts.
+- **`Close`, Escape or a press on the backdrop** dismiss it; focus goes to the session action if
+  enabled, else the phrase action if enabled, else `controller-status` (the connection sheet's
+  rule). Closed by itself (the controller closes it when a start condition stops holding), focus
+  goes the same way.
 
 ### The cue row
 

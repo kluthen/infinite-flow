@@ -75,6 +75,42 @@ describe('session shown settings', () => {
   })
 })
 
+// @test-link [[module_session_shown_settings]]
+describe('session shown settings after a stale phrase 1 used as it is', () => {
+  const PHRASE_ONE = sessionSettings({ tempo: 90, tonalCenter: 'D' })
+
+  // @test-link [[module_session_shown_settings]]
+  it("shows phrase 1's own settings through the count-in and phrase 1, then the session's from phrase 2", () => {
+    const shown = createSessionShownSettings(PHRASE_ONE, START)
+    expect(shown.current()).toBe(PHRASE_ONE)
+    expect(shown.phraseSounding(phrase(1, 'idle'))).toBe(PHRASE_ONE)
+    expect(shown.phraseSounding(phrase(2))).toBe(START)
+    expect(shown.phraseSounding(phrase(3))).toBe(START)
+  })
+
+  // @test-link [[module_session_shown_settings]]
+  it("keeps phrase 1's when phrase 2 repeats it, the session's showing with the next generated phrase", () => {
+    const shown = createSessionShownSettings(PHRASE_ONE, START)
+    expect(shown.phraseSounding(phrase(2, 'repeat'))).toBe(PHRASE_ONE)
+    expect(shown.phraseSounding(phrase(3, 'standalone'))).toBe(START)
+  })
+
+  // @test-link [[module_session_shown_settings]]
+  // @test-link [[rule_mutation_lands_on_scheduled_phrase]]
+  it('shows a change landing on phrase 2 over the session settings, the latest reported winning', () => {
+    const shown = createSessionShownSettings(PHRASE_ONE, START)
+    shown.settingsChanged(changed(2, ANGULAR))
+    expect(shown.phraseSounding(phrase(2))).toBe(ANGULAR)
+  })
+
+  // @test-link [[module_session_shown_settings]]
+  it('has nothing pending when phrase 1 was generated under the session settings', () => {
+    const shown = createSessionShownSettings(START, START)
+    expect(shown.phraseSounding(phrase(2))).toBe(START)
+    expect(shown.current()).toBe(START)
+  })
+})
+
 // @test-link [[req_settings_mutation_flag]]
 // @test-link [[module_session_vary_settings_flag]]
 describe('the Vary settings flag', () => {

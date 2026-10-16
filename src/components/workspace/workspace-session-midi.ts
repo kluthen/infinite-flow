@@ -1,7 +1,8 @@
 /**
  * The session controller's MIDI side: from the controller's creation to its disposal it follows
- * the MIDI controller's state and every played note. At Idle the one starting note starts a
- * session, through the controller's own start, but only once the audio can sound: unlocked
+ * the MIDI controller's state and every played note. At Idle the one starting note
+ * (./workspace-session-starting-note.ts) starts a session through the controller's own start,
+ * which asks first when phrase 1 is stale, but only once the audio can sound: unlocked
  * already (a Start or Connect controller click), or, after the page's first click, tap or key
  * press, made by the starting note itself; before that click it starts nothing, and the
  * starting-note line asks for it. A session reads the controller only if it was
@@ -12,7 +13,7 @@
  * device reattaches only once that session ends. Every time is on the audio clock; every timer is
  * on the session's audio-time agenda. Loaded with the controller, never in the entry chunk.
  */
-import { computed, shallowRef } from 'vue'
+import { shallowRef } from 'vue'
 
 import type { AudioTransport } from '@/audio/audio-transport'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
@@ -39,7 +40,8 @@ import {
 } from '@/session/session-midi-timers'
 import type { PageActivation } from '@/session/session-browser-ports'
 import type { AudioTime, SessionEndCause } from '@/session/session-types'
-import { isStartingNote, startingNoteOf, type StartingNote } from '@/session/starting-note'
+import { isStartingNote, type StartingNote } from '@/session/starting-note'
+import { createIdleStartingNote } from './workspace-session-starting-note'
 
 /** A lost controller's countdown: the whole seconds left before the session ends, 30 down to 1. */
 // @spec-link [[rule_controller_loss_mid_session]]
@@ -50,15 +52,16 @@ export interface ControllerLostCountdown {
 
 /**
  * What the MIDI side reads from the controller: the MIDI controller and the audio transport, the
- * page's first click, tap or key press, whether the connection sheet is open and whether Start may
- * be clicked (both reactive), the Idle result and the written phrase the staff shows, and the
- * controller's own start.
+ * page's first click, tap or key press, whether a sheet or the stale-phrase prompt is open and
+ * whether Start may be clicked (both reactive), the Idle result and the written phrase the staff
+ * shows, and the controller's own start (which opens the prompt instead with a stale phrase 1).
  */
 // @spec-link [[rule_midi_starting_note]]
 export interface SessionMidiDependencies {
   readonly midi: MidiController
   readonly audio: AudioTransport
   readonly pageActivation: PageActivation
+  /** A sheet (connection, My instrument, Your data) or the stale-phrase prompt is open. */
   readonly connectionSheetOpen: () => boolean
   readonly canStart: () => boolean
   readonly idleResult: () => WorkspaceSessionResult | null
@@ -151,29 +154,7 @@ export function createSessionMidi(deps: SessionMidiDependencies): SessionMidi {
   let listeners: SessionListeners | null = null
   /** The onset of the starting note while the start it triggered runs. */
   let startingOnset: AudioTime | null = null
-
-  const startingNote = computed(() => {
-    if (!deps.canStart() || midiState.value.kind !== 'connected' || deps.connectionSheetOpen())
-      return null
-    const result = deps.idleResult()
-    const written = deps.idlePhrase()
-    if (result === null || written === null) return null
-    return startingNoteOf(result.outcome.result.timeline, written)
-  })
-
-  const pageActivated = shallowRef(deps.pageActivation.hasBeenActive())
-  const stopWaitingForActivation = deps.pageActivation.onFirstActivation(() => {
-    pageActivated.value = true
-  })
-
-  /**
-   * Intent: whether the named starting note waits for the page's first click: the audio is still
-   * locked and the page has had none (any click that unlocks the audio is one).
-   */
-  // @spec-link [[rule_midi_starting_note]]
-  const startingNoteAwaitsClick = computed(
-    () => startingNote.value !== null && !pageActivated.value && !audio.isUnlocked(),
-  )
+  const idleStartingNote = createIdleStartingNote({ ...deps, midiState: () => midiState.value })
 
   /**
    * Intent: at Idle, the starting note played while the audio is still locked: after the page's
@@ -183,17 +164,20 @@ export function createSessionMidi(deps: SessionMidiDependencies): SessionMidi {
    */
   // @spec-link [[rule_midi_starting_note]]
   function onUnclockedNote(pitch: ConcertPitch): void {
-    if (listeners !== null || !pageActivated.value) return
-    const starting = startingNote.value
+    if (listeners !== null || !idleStartingNote.pageActivated()) return
+    const starting = idleStartingNote.startingNote()
     if (starting === null || !isStartingNote({ pitch }, starting)) return
     audio.unlock()
   }
 
-  /** Intent: at Idle, start the session from the starting note, exactly as Start does. */
+  /**
+   * Intent: at Idle, start the session from the starting note, exactly as Start does: with a stale
+   * phrase 1 the controller's start opens the prompt instead, and nothing starts.
+   */
   // @spec-link [[rule_starting_note_only_starts_count_in]]
   function onIdleNote(event: PlayedNoteEvent): void {
     if (event.kind !== 'played') return
-    const starting = startingNote.value
+    const starting = idleStartingNote.startingNote()
     if (starting === null || !isStartingNote(event.note, starting)) return
     startingOnset = event.note.onsetAt
     try {
@@ -238,8 +222,8 @@ export function createSessionMidi(deps: SessionMidiDependencies): SessionMidi {
 
   return {
     controllerState: () => midiState.value,
-    startingNote: () => startingNote.value,
-    startingNoteAwaitsClick: () => startingNoteAwaitsClick.value,
+    startingNote: idleStartingNote.startingNote,
+    startingNoteAwaitsClick: idleStartingNote.awaitsClick,
     controllerLost: () => controllerLost.value,
     acknowledged: () => acknowledged.value,
     sessionHasController: () => sessionHasController.value,
@@ -267,7 +251,7 @@ export function createSessionMidi(deps: SessionMidiDependencies): SessionMidi {
       stopHearingUnclockedNotes()
       stopHearingNotes()
       stopFollowingState()
-      stopWaitingForActivation()
+      idleStartingNote.dispose()
     },
   }
 }
