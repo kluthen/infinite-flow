@@ -186,7 +186,9 @@ and change only if `spec-writer` settles otherwise.
 
 ## v3.0 wave 2, for `spec-writer` (raised 2026-10-12)
 
-- **Q80 — Does §4.3's outdated tab cover another tab's `Delete everything`?** Master spec §4.3
+- **Q80 — Does §4.3's outdated tab cover another tab's `Delete everything`?** **Closed
+  2026-10-16 by ux D318** (spec D331: yes, every other open tab is outdated; v3.0 shows the
+  newer-version wording; a visit whose database never opened is not told). Master spec §4.3
   makes a tab outdated when data written by a newer version is known. The storage design built in
   chunk 4 (`docs/storage.md`, Outdated tabs and the port's states, and Delete everything) also
   outdates every other open tab when one tab runs `Delete everything`: their connections close

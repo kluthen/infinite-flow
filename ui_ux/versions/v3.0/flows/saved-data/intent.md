@@ -107,7 +107,9 @@ that moment and says so.
 and anything it saved now would bring back a part of what the player chose to delete. So that tab
 stops saving too and asks for a reload, in words that say what happened ("Everything this app
 kept on this device was deleted in another tab."), rather than the newer-version wording, which
-would send the player looking for an update that never happened.
+would send the player looking for an update that never happened. Those words need the storage
+port to say why the tab became outdated; until it can, the tab shows the newer-version wording,
+which is still right about the reload, the cure in both cases.
 
 The two cases can meet, and then the newer data wins (master spec §4.4). A visit that could not
 read the saved data still offers `Delete everything`, because when reloading does not help it is

@@ -173,15 +173,18 @@ The second paragraph is always "This can't be undone."
   - *Outdated tab:* "A newer version of the app saved this data, so it isn't listed here, and
     nothing can be deleted until the page is reloaded. Reload the page to see it."
     `sheet-actions-destructive` is absent: an outdated tab saves and deletes nothing and offers
-    no deletion of any kind, and the reload comes first (master spec §4.3).
+    no deletion of any kind, and the reload comes first (master spec §4.3). After another tab's
+    `Delete everything` the tab is outdated too and shows this form, as its notice shows the
+    newer-version wording until the tab can tell the two causes apart
+    (`flows/saved-data/handoff.md`, Notices).
   - *Outdated tab, in a visit started from the defaults* (the read failed or was too slow, and
     data written by a newer version is known, at load or since): "Your saved data couldn't be
     read in this visit, so it isn't listed here. A newer version of the app has also saved data
     on this device, so nothing can be deleted until the page is reloaded. Reload the page to use
     the newer version." `sheet-actions-destructive` is absent, as in any outdated tab (master spec
     §4.4).
-  - *Becoming outdated while the sheet is open* (a newer version writes, or a read that finished
-    late reveals its data): the Overview takes the matching outdated form in place, losing
+  - *Becoming outdated while the sheet is open* (a newer version writes, a read that finished
+    late reveals its data, or another tab runs `Delete everything`): the Overview takes the matching outdated form in place, losing
     `Delete everything` if it had it; an open Confirmation gives way to it, deleting nothing, and
     focus goes to `Done`. A deletion already running is not interrupted.
   - *Data couldn't be read* (failed or too slow, nothing newer known): "Your saved data couldn't
