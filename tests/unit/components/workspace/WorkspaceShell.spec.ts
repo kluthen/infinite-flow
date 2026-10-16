@@ -43,6 +43,7 @@ function fakeSession(overrides: Partial<GenerationSession<WorkspaceSessionResult
     selectMusicalProfile: vi.fn(() => true),
     selectInstrumentProfile: vi.fn(async () => 'applied' as const),
     saveMyInstrument: vi.fn(async () => 'saved' as const),
+    saveAndSelectMyInstrument: vi.fn(async () => 'saved' as const),
     deleteMyInstrument: vi.fn(async () => 'saved' as const),
     setTheme: vi.fn(() => true),
     generate: vi.fn(async () => true),

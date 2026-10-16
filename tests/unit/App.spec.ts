@@ -63,6 +63,7 @@ function fakeWorkspaceSession(savedData: SavedDataLoad = fakeSavedData()) {
       selectMusicalProfile: () => false,
       selectInstrumentProfile: async () => 'rejected',
       saveMyInstrument: async () => 'rejected',
+      saveAndSelectMyInstrument: async () => 'rejected',
       deleteMyInstrument: async () => 'rejected',
       setTheme: (theme: ThemePreference) => {
         state.presentation = { ...state.presentation, theme }

@@ -925,7 +925,8 @@ and the generator-facing profile are derived again at each load.
   check reads its profile and draws its note in its clef, and each phrase of it is written in its
   clef (`instrumentClefOf`). `App.vue` sizes the staff's shared system positions from its written
   range in its clef.
-- **Saved** by the player, from the My instrument sheet: `saveMyInstrument` writes the record
+- **Saved** by the player, from the My instrument sheet or the connection sheet's `Use for my
+  instrument`: `saveMyInstrument` writes the record
   whole and `deleteMyInstrument` deletes it (`src/storage/my-instrument-saves.ts`, part of the
   visit's saves), each one batch through the save policy, so held during a session, refused in an
   outdated tab and skipped in a visit that saves nothing; my instrument still applies for the
@@ -933,7 +934,9 @@ and the generator-facing profile are derived again at each load.
   once per visit. The Idle session's `saveMyInstrument` and `deleteMyInstrument` actions call them
   in the visit's order: a new my instrument's record before the selection that names it, and,
   when the selected my instrument is deleted, its template's selection before the record's
-  deletion. A save that changes nothing writes nothing. Delete everything removes the record with
+  deletion. The check's `saveAndSelectMyInstrument` saves the same way and also selects a my
+  instrument that exists but is not selected, after its record is written. A save that changes
+  nothing writes nothing. Delete everything removes the record with
   the database.
 
 ## The notices
