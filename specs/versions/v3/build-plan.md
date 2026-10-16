@@ -1190,6 +1190,12 @@ since a lazy save could be lost to a page going away. `verify:boundaries` then s
 `databaseBytes` to the pure `src/storage/storage-estimate.ts`, still lazy, linked to
 `req_your_data`, with its unit test; behaviour and entry bytes unchanged.
 
+**Wave 8 gate (2026-10-16).** `npm run quality` on `v3.0-w8` at 4e25290, on the reference machine
+(Ryzen 5 PRO 8640HS), idle: green. Unit 6,575 tests in 432 files; e2e 437; a11y 57; notation 106
+passed, 4 skipped; code health 0 errors; boundaries passed (389 source files, 41 chunks within
+budget). Entry chunk 227,885 B (+715 B since wave 7's 227,170 B, the build id and the headroom
+fix included; 1,491 B under the budget). No fix needed.
+
 **Hand checks so far (2026-10-16, Travel Sax, the deployed site).** H4's first three steps pass:
 the Travel Sax reattaches at a reload with no prompt, plays nothing before the page's first click,
 and the badge follows an unplug and a replug; its `Disconnect` step is still to run. My
