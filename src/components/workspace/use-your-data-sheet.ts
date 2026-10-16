@@ -17,6 +17,7 @@ import { computed, onScopeDispose, shallowRef, watch, type ComputedRef, type Sha
 import type { SavedDataLoad } from '@/storage-bootstrap'
 import type { SavePolicy, SavingState } from '@/storage/save-policy'
 import type { SaveSettings } from '@/storage/settings-saver'
+import { databaseBytes } from '@/storage/storage-estimate'
 import { StorageError } from '@/storage/storage-port'
 import type {
   ProtectionReading,
@@ -89,13 +90,6 @@ function rowFacts(row: KeptSessionRow): { pinned: boolean; favorites: number; ke
   }
   const { pinned, favoritesCount, playedNotesKept } = row.readable
   return { pinned: pinned ?? false, favorites: favoritesCount ?? 0, kept: playedNotesKept ?? false }
-}
-
-/** Intent: the space the app's database uses, from the browser's estimate; null if it can't say. */
-function databaseBytes(estimate: StorageEstimate): number | null {
-  const details = (estimate as { readonly usageDetails?: Record<string, number> }).usageDetails
-  if (details === undefined) return null
-  return details.indexedDB ?? 0
 }
 
 /** Intent: whether a deletion refused as outdated, or a plain refusal; anything else is a defect. */
