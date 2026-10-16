@@ -194,8 +194,9 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
 - `scripts/` — `verify-boundaries.mjs`, the deterministic boundary/precache verifier;
   `replay-phrase.mjs`, the headless phrase replay behind `npm run replay:phrase` (see
   [Phrase replay key](docs/phrase-workspace.md#phrase-replay-key)); and `app-version-define.mjs`,
-  the build-time `define` of the app version for the Vite and Vitest configs (see
-  [The app version](docs/storage.md#the-app-version)).
+  the build-time `define` of the app version and the build's commit id for the Vite and Vitest
+  configs (see [The app version](docs/storage.md#the-app-version) and
+  [The build id in the header](#the-build-id-in-the-header)).
 - `public/licenses/` — vendored full license texts for every runtime third-party component,
   copied into `dist/licenses/` at build time; see [`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md).
 - `docs/` — ATD-linked business-intent atoms plus narrative docs (architecture, notation,
@@ -523,6 +524,18 @@ only ever touches `~/infinite-flow` there: `update [ref]` ships a committed ref 
 the read-only `status` do what they say. `update`, `start` and `rollback` end with a health and HTTP
 check of the app and the shared site; `stop` checks the shared site still answers. `VPS_HOST`
 overrides the SSH host alias (default `vps`).
+
+### The build id in the header
+
+The header shows the build beside the app's name: the package version and the short id of the
+commit it was built from, such as `2.0.0 · 283a8ed`. The id comes from
+[`scripts/build-commit.txt`](scripts/build-commit.txt), which [`.gitattributes`](.gitattributes)
+marks `export-subst`: `git archive`, which `scripts/vps.sh update` uses to ship the source, writes
+the archived commit's id into it, so the VPS's Docker build knows it without a `.git` directory. In
+a git checkout (the dev server, `npm run build`, the tests) the file keeps its `$Format:%h$`
+placeholder and the id is HEAD's, from `git rev-parse --short HEAD`; uncommitted changes are not
+flagged. Where neither works, such as `docker compose up --build` from a working tree (the build
+context leaves `.git` out), the build prints a warning and the header shows `unknown`.
 
 ## Product References
 

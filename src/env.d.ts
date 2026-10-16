@@ -4,3 +4,6 @@
 
 /** The app's package version, injected at build time (scripts/app-version-define.mjs). */
 declare const __APP_VERSION__: string
+
+/** The short id of the commit the build comes from, or `unknown` (scripts/app-version-define.mjs). */
+declare const __APP_COMMIT__: string

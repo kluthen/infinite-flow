@@ -30,6 +30,7 @@
     "vite.workspace-harness.config.ts",
     "scripts/**/*.mjs",
     "tests/unit/boundaries/**/*.ts",
-    "tests/unit/code-health/**/*.ts"
+    "tests/unit/code-health/**/*.ts",
+    "tests/unit/scripts/build-commit.spec.ts"
   ]
 }

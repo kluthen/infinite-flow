@@ -33,7 +33,8 @@ export const ATD_ERROR_DISTINCT = 10
  *   (`tests/perf/`).
  * - `files`: the measurement harnesses run by the other `measure:*` npm scripts and by
  *   `sweep:my-instrument` (see package.json), and the design-system accessibility conformance checks (focus visibility,
- *   reduced motion, target size), which no business atom governs.
+ *   reduced motion, target size), which no business atom governs, and the test of the build
+ *   commit id the header shows (build tooling).
  * - `plumbingUnder`: test plumbing, i.e. every file under these directories that is not a spec
  *   (its name holds neither `.spec.` nor `.test.`): fixtures, fakes, shared helpers, goldens,
  *   harness entry points and seams, `.d.ts` window typings. The specs there test business
@@ -52,6 +53,7 @@ export const ATD_EXEMPT_PATHS = {
     'tests/e2e/workspace/focus-visibility.spec.ts',
     'tests/e2e/workspace/reduced-motion.spec.ts',
     'tests/e2e/workspace/target-size.spec.ts',
+    'tests/unit/scripts/build-commit.spec.ts',
   ],
   plumbingUnder: ['tests/'],
 }
