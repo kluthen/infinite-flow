@@ -43,6 +43,7 @@ import type { AudioTransport } from '@/audio/audio-transport'
 import type { SavedDataLoad } from '@/storage-bootstrap'
 import { selectedInstrumentProfile } from '@/domain/generation/generation-intent'
 import { instrumentClefOf } from '@/domain/profile/instrument-clef'
+import type { MyInstrument } from '@/domain/profile/my-instrument'
 import type { MidiController } from '@/midi/midi-controller-state'
 import { planSystemPositionUnits, type WrittenRangeInClef } from '@/notation/notation-layout-policy'
 import { loadVexflowEngraver } from '@/notation/vexflow-engraver-loader'
@@ -72,7 +73,7 @@ import { useAppNotices } from './use-app-notices'
 import type { DamagedSessionReports } from './workspace-kept-sessions-seam'
 import { useShownSettings } from './use-shown-settings'
 import { useWorkspaceFocus } from './use-workspace-focus'
-import { useMyInstrumentSheet } from './use-my-instrument-sheet'
+import { NO_SESSIONS_COUNTED, useMyInstrumentSheet } from './use-my-instrument-sheet'
 import { useYourData } from './use-your-data'
 
 const props = withDefaults(
@@ -480,7 +481,10 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
     v-if="sheetComponent !== null && sheetProps !== null"
     v-bind="sheetProps"
     @close="closeConnectionSheet"
-    @use-for-my-instrument="session.actions.saveAndSelectMyInstrument"
+    @use-for-my-instrument="
+      (instrument: MyInstrument) =>
+        session.actions.saveAndSelectMyInstrument(instrument, NO_SESSIONS_COUNTED)
+    "
   />
   <component
     :is="myInstrumentSheet.sheetComponent.value"

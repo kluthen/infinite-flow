@@ -16,13 +16,23 @@ import {
   type ShallowRef,
 } from 'vue'
 
-import type { GenerationSession } from '@/composables/use-generation-session'
+import type { GenerationSession, MyInstrumentSessions } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import type { MyInstrument } from '@/domain/profile/my-instrument'
 import { loadMyInstrumentSheet } from './load-my-instrument-sheet'
 import type { MyInstrumentSheetProps } from './my-instrument-sheet-opening'
 
 export type { MyInstrumentSheetProps } from './my-instrument-sheet-opening'
+
+/**
+ * No kept session of my instrument counted: what the sheet and the check pass until they count
+ * them and warn (chunk 20c-2), so a save erases nothing and a deletion deletes the record only.
+ */
+export const NO_SESSIONS_COUNTED: MyInstrumentSessions = Object.freeze({
+  count: 0,
+  deletes: () => Promise.resolve([]),
+  leave: () => undefined,
+})
 
 /** What the host needs. */
 export interface MyInstrumentSheetDeps {
@@ -68,11 +78,11 @@ export function useMyInstrumentSheet(deps: MyInstrumentSheetDeps): MyInstrumentS
       sheetProps.value = opening.sheetPropsNow(deps.session.state)
     },
     save: (instrument) => {
-      void deps.session.actions.saveMyInstrument(instrument)
+      void deps.session.actions.saveMyInstrument(instrument, NO_SESSIONS_COUNTED)
       close()
     },
     remove: () => {
-      void deps.session.actions.deleteMyInstrument()
+      void deps.session.actions.deleteMyInstrument(NO_SESSIONS_COUNTED)
       close()
     },
     close,

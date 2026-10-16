@@ -11,7 +11,9 @@
  * and Delete session also come from a session list row, for a kept session not held in memory,
  * keyed by the row: neither reads the session's body. Delete every session, from Your data, names
  * no session: it deletes every key the three kept-session stores hold, read by its key only, so a
- * session with no row goes too. The codec is loaded on demand, as the session's save loads it.
+ * session with no row goes too. Deleting my instrument, or erasing its sessions, deletes the
+ * sessions it counted by their keys, in its own batch. The codec is loaded on demand, as the
+ * session's save loads it.
  */
 import { APP_VERSION } from '@/storage/app-version'
 import type { KeptChangeOutcome, KeptChanges, KeptRefusal } from '@/storage/save-policy'
@@ -134,6 +136,24 @@ export const deleteEverySessionChanges: KeptChanges = async (reader) => {
     ),
   )
   return perStore.flat()
+}
+
+/**
+ * Intent: the deletes of the sessions under `keys`, for the batch that deletes or changes my
+ * instrument (spec D326): each session's session-wide record, body and played notes, built as
+ * `Delete session` builds them, so a counted session gone from the device adds nothing. Named by
+ * the counted keys, never by keys rebuilt from their facts; the codec loads only when a key is
+ * given.
+ */
+// @spec-link [[module_kept_session_changes]]
+// @spec-link [[entity_my_instrument_record]]
+export function keptSessionsDeletes(keys: readonly string[]): KeptChanges {
+  return async (reader) => {
+    if (keys.length === 0) return []
+    const codec = await loadCodec()
+    const perKey = await Promise.all(keys.map((key) => deleteSessionChanges(codec, key)(reader)))
+    return perKey.flat()
+  }
 }
 
 /** Intent: run a change built with the codec through the visit's saves; resolve its outcome. */

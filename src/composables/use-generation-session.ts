@@ -32,6 +32,7 @@ import { createRoomNoticeReactions } from './generation-session-room-notice'
 import type {
   MyInstrumentActions,
   MyInstrumentChangeOutcome,
+  MyInstrumentSessions,
 } from './generation-session-my-instrument'
 import { loadMyInstrumentActions } from './load-my-instrument-actions'
 import {
@@ -44,7 +45,10 @@ import {
 } from './generation-session-types'
 
 export type { ProfileSelectionOutcome } from './generation-session-profile-switch'
-export type { MyInstrumentChangeOutcome } from './generation-session-my-instrument'
+export type {
+  MyInstrumentChangeOutcome,
+  MyInstrumentSessions,
+} from './generation-session-my-instrument'
 export type { RoomNoticeCause } from './generation-session-fit-round'
 export type { StaffLayoutReports } from './generation-session-room-notice'
 export type {
@@ -60,14 +64,16 @@ export type {
 } from './generation-session-types'
 export { SessionUsageError } from './generation-session-types'
 
+/** Intent: refuse a save of my instrument in a session given no saves of it, a defect. */
+function noMyInstrumentSaves(): never {
+  throw new SessionUsageError('This session was given no saves of my instrument.')
+}
+
 /** The saves of a session given none: saving or deleting my instrument is then a defect. */
 const NO_MY_INSTRUMENT_SAVES: MyInstrumentSaves = {
-  saveMyInstrument: () => {
-    throw new SessionUsageError('This session was given no saves of my instrument.')
-  },
-  deleteMyInstrument: () => {
-    throw new SessionUsageError('This session was given no saves of my instrument.')
-  },
+  saveMyInstrument: noMyInstrumentSaves,
+  saveMyInstrumentErasing: noMyInstrumentSaves,
+  deleteMyInstrument: noMyInstrumentSaves,
 }
 
 /** The settings a session given none starts from: the first-load values. */
@@ -338,22 +344,28 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
 
   /** Intent: save my instrument (made or changed) through its actions, loaded on demand. */
   // @spec-link [[req_my_instrument]]
-  async function saveMyInstrument(instrument: MyInstrument): Promise<MyInstrumentChangeOutcome> {
-    return (await loadedMyInstrumentActions()).saveMyInstrument(instrument)
+  async function saveMyInstrument(
+    instrument: MyInstrument,
+    sessions: MyInstrumentSessions,
+  ): Promise<MyInstrumentChangeOutcome> {
+    return (await loadedMyInstrumentActions()).saveMyInstrument(instrument, sessions)
   }
 
   /** Intent: save my instrument and make it the selection, through its actions, loaded on demand. */
   // @spec-link [[req_my_instrument]]
   async function saveAndSelectMyInstrument(
     instrument: MyInstrument,
+    sessions: MyInstrumentSessions,
   ): Promise<MyInstrumentChangeOutcome> {
-    return (await loadedMyInstrumentActions()).saveAndSelectMyInstrument(instrument)
+    return (await loadedMyInstrumentActions()).saveAndSelectMyInstrument(instrument, sessions)
   }
 
   /** Intent: delete my instrument through its actions, loaded on demand. */
   // @spec-link [[req_my_instrument]]
-  async function deleteMyInstrument(): Promise<MyInstrumentChangeOutcome> {
-    return (await loadedMyInstrumentActions()).deleteMyInstrument()
+  async function deleteMyInstrument(
+    sessions: MyInstrumentSessions,
+  ): Promise<MyInstrumentChangeOutcome> {
+    return (await loadedMyInstrumentActions()).deleteMyInstrument(sessions)
   }
 
   const stopListeningForCrossings = options.viewport.subscribe(handleWidthCrossing)

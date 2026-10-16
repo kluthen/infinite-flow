@@ -176,6 +176,9 @@ export function createVisitSaves(policy: Promise<SavePolicy>, appVersion: string
       })
     })
 
+  const changeKept: KeptSessionChanges['changeKept'] = (changes, refusal) =>
+    resolved((target) => target.changeKept(changes, refusal))
+
   return {
     saveSettings: (changes) => {
       const writes = settingWrites(changes, appVersion)
@@ -186,9 +189,9 @@ export function createVisitSaves(policy: Promise<SavePolicy>, appVersion: string
     release: () => submit((target) => void target.release()),
     saveSession: (changes, pageGoingAway) =>
       resolved((target) => target.saveSession(changes, pageGoingAway)),
-    changeKept: (changes, refusal) => resolved((target) => target.changeKept(changes, refusal)),
+    changeKept,
     readKept: (read, refusal) => resolved((target) => target.readKept(read, refusal)),
-    ...createMyInstrumentSaves(submit, appVersion),
+    ...createMyInstrumentSaves(submit, changeKept, appVersion),
     // @spec-link [[rule_last_controller_remembered]]
     rememberController: (device) => {
       const record = encodeControllerRecord(device, appVersion)

@@ -9,6 +9,7 @@
  * false). `isPhraseOnScreen` answers from the session staff the test sets. `setKeepPlayedNotes`
  * sets the setting and resolves nothing to confirm unless the test mocks it; the two deletions
  * resolve deleted, the Review's session losing its played notes as the real one does.
+ * `myInstrumentSessions` counts none unless the test mocks it.
  */
 import { shallowReactive } from 'vue'
 import { vi, type Mock } from 'vitest'
@@ -58,6 +59,7 @@ export interface FakeSessionController {
   readonly setComment: Mock<SessionController['setComment']>
   readonly deleteSession: Mock<SessionController['deleteSession']>
   readonly deleteEverySession: Mock<SessionController['deleteEverySession']>
+  readonly myInstrumentSessions: Mock<SessionController['myInstrumentSessions']>
 }
 
 /** The key the fake's Reviews are kept under: the fixed test start and session seed. */
@@ -339,6 +341,9 @@ export function createFakeSessionController(
     state.keptRows = []
     return Promise.resolve('deleted')
   })
+  const myInstrumentSessions = vi.fn(() =>
+    Object.freeze({ count: 0, deletes: () => Promise.resolve([]), leave: () => undefined }),
+  )
   return {
     controller: {
       state,
@@ -361,6 +366,7 @@ export function createFakeSessionController(
       setComment,
       deleteSession,
       deleteEverySession,
+      myInstrumentSessions,
     },
     state,
     start,
@@ -381,5 +387,6 @@ export function createFakeSessionController(
     setComment,
     deleteSession,
     deleteEverySession,
+    myInstrumentSessions,
   }
 }
