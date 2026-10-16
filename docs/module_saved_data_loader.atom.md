@@ -1,6 +1,6 @@
 ---
 id: module_saved_data_loader
-status: REVIEW
+status: STABLE
 priority: 1
 human_name: Saved Data Loader
 type: MODULE

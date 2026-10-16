@@ -1,6 +1,6 @@
 ---
 id: req_kept_session_review
-status: REVIEW
+status: STABLE
 version: 0.1
 priority: 1
 tags: [v3, release-v3.0, storage, review]

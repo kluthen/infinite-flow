@@ -1,6 +1,6 @@
 ---
 id: module_on_device_database
-status: REVIEW
+status: STABLE
 human_name: On-Device Database
 version: 0.4
 type: MODULE

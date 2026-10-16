@@ -1,6 +1,6 @@
 ---
 id: service_session_midi
-status: DRAFT
+status: REVIEW
 dependents: []
 priority: 1
 human_name: Session MIDI Side

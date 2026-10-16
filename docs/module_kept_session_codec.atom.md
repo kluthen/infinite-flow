@@ -1,6 +1,6 @@
 ---
 id: module_kept_session_codec
-status: REVIEW
+status: STABLE
 human_name: Kept-Session Codec
 type: MODULE
 priority: 1

@@ -1,6 +1,6 @@
 ---
 id: module_session_seed_plan
-status: REVIEW
+status: STABLE
 version: 0.2
 human_name: Session Seed Plan
 parents:

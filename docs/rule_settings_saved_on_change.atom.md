@@ -1,6 +1,6 @@
 ---
 id: rule_settings_saved_on_change
-status: REVIEW
+status: STABLE
 human_name: Settings Saved When the Player Changes Them
 tags: [v3, release-v3.0, storage, player-controls, changes-in-v3.1, changes-in-v3.2]
 parents:

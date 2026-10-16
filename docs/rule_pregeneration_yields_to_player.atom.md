@@ -1,6 +1,6 @@
 ---
 id: rule_pregeneration_yields_to_player
-status: DRAFT
+status: REVIEW
 version: 0.2
 priority: 1
 human_name: Pre-Generation Yields to the Player

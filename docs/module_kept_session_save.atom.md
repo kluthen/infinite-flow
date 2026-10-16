@@ -1,6 +1,6 @@
 ---
 id: module_kept_session_save
-status: REVIEW
+status: STABLE
 dependents:
   - [[module_kept_session_changes]]
   - [[module_kept_session_reach]]

@@ -1,6 +1,6 @@
 ---
 id: req_kept_session_list
-status: REVIEW
+status: STABLE
 priority: 1
 tags: [v3, release-v3.0, storage, review, changes-in-v3.1, changes-in-v3.2]
 parents:

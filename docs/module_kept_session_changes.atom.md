@@ -1,6 +1,6 @@
 ---
 id: module_kept_session_changes
-status: REVIEW
+status: STABLE
 type: MODULE
 layer: ARCHITECTURE
 version: 0.8

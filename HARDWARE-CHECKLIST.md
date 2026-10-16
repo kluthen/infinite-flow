@@ -347,6 +347,9 @@ how long the first draw waits for the saved data before starting from the defaul
       fully and reopen the app: the workspace appears once, already in the saved theme and
       values, with no flash of the defaults. Note how long the page showed only its background.
 
+**Result (2026-10-16):** passed on the owner's word (spec D340). M2's figures are in
+[`docs/storage.md`](docs/storage.md#the-start-up-wait-m2).
+
 ## H3. Use this for my instrument (chunk 21; about 10 min)
 
 The Travel Sax over USB, the reference machine, Chromium, a production build or `npm run dev`.
@@ -372,6 +375,8 @@ my instrument's transposition, so the written part matches what the Travel Sax s
 - [ ] Reload the page: My instrument is still selected, its sheet (`Edit my instrument`) shows the
       same transposition and the range C4 to C6, and the check run again is still a match.
 
+**Result (2026-10-16):** passed on the owner's word (spec D340).
+
 ## H4. Remembered controller (chunk 22; about 10 min)
 
 The Travel Sax over USB, the reference machine, Chromium, a production build or `npm run dev`. The
@@ -394,6 +399,35 @@ name.
 - [ ] Open the sheet from the badge, `Disconnect`, reload: the header shows `Connect controller`
       and nothing reattaches.
 
+**Result (2026-10-16):** passed on the owner's word (spec D340). The first three steps were run on
+the deployed site on 2026-10-16 with the Travel Sax: it reattached at a reload with no prompt,
+nothing played before the page's first click, and the badge followed an unplug and a replug. The
+`Disconnect` step passed on the owner's word.
+
+## H5. Stray notes in real playing (chunk 25; section written by chunk 26)
+
+The Travel Sax over USB, the reference machine, Chromium, a production build or the deployed site.
+The app leaves very short "stray" notes, under 38 ms, out of the review's `Played notes` lane and,
+by default, out of the played-notes export (measurement M1, spec D321). A stray note is one the
+controller sends for a few milliseconds while the fingers move between two positions.
+
+- [ ] Turn `Played notes` on in the review, then play a session with a fast passage, with many
+      finger changes, and Stop.
+- [ ] In the review, read the `Played notes` lane: it leaves out most stray notes and none of the
+      notes you meant. A few stray notes may remain: some last as long as meant notes do, as the
+      owner accepted (spec D322).
+- [ ] Export the played notes with `Include very short notes` off: the file leaves the very short
+      notes out.
+- [ ] Turn `Include very short notes` on and export again: the file keeps them.
+
+**Partial run (2026-10-16, Travel Sax, the deployed site):** the default played-notes export
+(`infinite-flow-2026-10-16-083403-played.latest.mid`, 169 notes) holds no note under 41 ms, where
+the H1 recordings had about one note in six under 40 ms; 18 notes of 40–150 ms remain, several of
+them halves of a split note, as spec D322 accepts. The lane half: passed on the owner's word,
+2026-10-16 (spec D340). The played-notes-export half (`Include very short notes` off and on): not
+checked; it follows the tag as a v3.0.x note beside H8 (spec D342). Item 21's export clause rests
+on its automated tests at the release.
+
 ## H6. Pre-generation at 240 BPM (chunk 24; about 10 min)
 
 On the reference machine, then the tablet on battery if at hand. Production build or `npm run dev`;
@@ -410,6 +444,41 @@ pre-generation is on unless the page URL has `?pregeneration=off`.
       Idle, each followed by a few seconds' wait (up to four background generations each).
 - [ ] M4 on the reference machine: `npm run test:sweep`, copy the `SWEEP-M4` lines into
       [`docs/generation-latency.md`](docs/generation-latency.md#phrase-2-after-pre-generation-m4-2026-10-12).
+
+**Result (2026-10-16):** passed on the owner's word (spec D340). M4's figure is in
+[`docs/generation-latency.md`](docs/generation-latency.md#phrase-2-after-pre-generation-m4-2026-10-12):
+568 of 568 cases join phrase 2 to phrase 1 with a carry-in at 240 BPM.
+
+## H7. Persistent storage in real Chrome (chunk 26)
+
+The reference machine, Chrome, the deployed site. The app asks the browser once per visit to keep
+its data safe from automatic clearing (persistent storage), on the first pin, favorite or saved
+instrument. Chrome grants or refuses it silently, with no prompt, so this check is for information
+only.
+
+- [ ] In the installed app, pin a session (or mark a favorite), then open `Your data` and read its
+      Protection section.
+- [ ] In a plain Chrome tab (not the installed app), do the same and read the Protection section.
+- [ ] Note what each says. Either answer is acceptable: Chrome decides.
+
+**Not run** (2026-10-16): for information only (spec D340).
+
+## H8. Favorites-only files in real programs (chunk 26)
+
+Any machine with MuseScore and a MIDI tool (a DAW or a MIDI file viewer), a production build or the
+deployed site. A favorites-only export holds only the phrases marked as favorites, each with its
+phrase number in the session.
+
+- [ ] Play a session of at least six phrases, mark two or three phrases as favorites (not next to
+      each other), and note their phrase numbers.
+- [ ] In the review, choose `Favorites only` and export the MusicXML file. Open it in MuseScore:
+      it shows only the favorite phrases, in session order, with their phrase numbers.
+- [ ] Export the generated-notes MIDI file and the played-notes MIDI file, favorites only. Open
+      both in a MIDI tool: each holds only the favorite phrases, and the markers and phrase numbers
+      match the session in both files.
+
+**Not done** (2026-10-16): no file has been opened in an outside program yet. It follows the tag as
+a v3.0.x note, as v2.0's part F did (spec D340).
 
 ## H9. Stale phrase at Start (chunk 24b; about 10 min)
 
@@ -430,3 +499,5 @@ On the reference machine, production build or `npm run dev`. ISS-011's steps, wh
 - [ ] With the Travel Sax connected, change a setting and play the starting note: the prompt shows,
       saying your note did not start the session, and nothing starts; play the note again: still
       nothing. `Close`: back at Idle, the starting-note line back.
+
+**Result (2026-10-16):** ISS-011's steps passed on the owner's word (spec D340).

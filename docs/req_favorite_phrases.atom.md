@@ -1,6 +1,6 @@
 ---
 id: req_favorite_phrases
-status: REVIEW
+status: STABLE
 type: REQUIREMENT
 layer: BUSINESS
 human_name: Favorite Phrases

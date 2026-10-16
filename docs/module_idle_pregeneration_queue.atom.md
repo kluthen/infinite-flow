@@ -1,6 +1,6 @@
 ---
 id: module_idle_pregeneration_queue
-status: DRAFT
+status: REVIEW
 layer: ARCHITECTURE
 priority: 1
 parents:

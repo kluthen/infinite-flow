@@ -1,6 +1,6 @@
 ---
 id: rule_no_save_during_session
-status: REVIEW
+status: STABLE
 type: RULE
 layer: BUSINESS
 version: 0.2

@@ -1,6 +1,6 @@
 ---
 id: rule_played_notes_export_omits_stray_notes
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 tags: [v3, release-v3.0, export, midi]

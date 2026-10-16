@@ -4,7 +4,7 @@
 **Ref:** `ISS-011`
 **Date:** 2026-10-12
 **Severity:** High
-**Status:** In Progress
+**Status:** Resolved
 **Component:** `src/session/session-engine.ts`
 **Affects:** `src/components/workspace/workspace-session-start.ts`, `src/session/session-pregeneration.ts`, `src/components/workspace/workspace-pregeneration.ts`
 
@@ -159,3 +159,6 @@ gate (chunk 26, wave 10), after the **Stale phrase design** gate (`ux-writer`)
   Harmonic motion and Register change at 60 to 240 BPM); the queue's quiet stop is gone. 24b-2:
   Start and the starting note open the stale-phrase prompt on a stale phrase 1. Status In
   Progress until the wave-9 gate and hand check H9 pass; then Resolved.
+- **2026-10-16**: Resolved. The wave-9 gate passed and wave 9 merged into `main` (c950612); hand
+  check H9 counts as passed on the owner's word (spec D340), recorded in `HARDWARE-CHECKLIST.md`'s
+  v3.0 part by chunk 26. Shipped in v3.0.0.

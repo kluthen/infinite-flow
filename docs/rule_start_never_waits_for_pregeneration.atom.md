@@ -1,6 +1,6 @@
 ---
 id: rule_start_never_waits_for_pregeneration
-status: DRAFT
+status: REVIEW
 priority: 1
 human_name: Start Never Waits for Pre-Generation
 tags: [v3, release-v3.0, idle, session-start]

@@ -1,6 +1,6 @@
 ---
 id: rule_new_session_never_asks_about_favorites
-status: REVIEW
+status: STABLE
 type: RULE
 layer: BUSINESS
 priority: 1

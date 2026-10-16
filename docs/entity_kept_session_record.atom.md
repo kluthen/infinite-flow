@@ -1,6 +1,6 @@
 ---
 id: entity_kept_session_record
-status: REVIEW
+status: STABLE
 version: 0.4
 tags: [v3, release-v3.0, storage, review, session]
 parents:

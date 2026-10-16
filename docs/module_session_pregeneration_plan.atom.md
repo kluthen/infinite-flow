@@ -1,6 +1,6 @@
 ---
 id: module_session_pregeneration_plan
-status: DRAFT
+status: REVIEW
 priority: 1
 tags: [v3, release-v3.0, idle, generation, session, determinism]
 human_name: Session Pre-Generation Plan

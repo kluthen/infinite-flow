@@ -1,6 +1,6 @@
 ---
 id: rule_stray_note_definition
-status: DRAFT
+status: REVIEW
 dependents:
   - [[rule_stray_notes_filtered_on_reading]]
 layer: BUSINESS

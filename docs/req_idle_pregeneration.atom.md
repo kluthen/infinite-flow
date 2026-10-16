@@ -1,6 +1,6 @@
 ---
 id: req_idle_pregeneration
-status: DRAFT
+status: REVIEW
 priority: 1
 human_name: Pre-Generating Phrases at Idle
 tags: [v3, release-v3.0, idle, generation, session, changes-in-v3.2]

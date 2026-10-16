@@ -1,6 +1,6 @@
 ---
 id: rule_stale_phrase_prompt_at_start
-status: DRAFT
+status: REVIEW
 priority: 1
 tags: [v3, release-v3.0, session, session-start, midi]
 dependents:

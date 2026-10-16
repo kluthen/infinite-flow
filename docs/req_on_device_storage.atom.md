@@ -1,6 +1,6 @@
 ---
 id: req_on_device_storage
-status: DRAFT
+status: REVIEW
 parents:
   - [[req_browser_only_first_release]]
 type: REQUIREMENT
