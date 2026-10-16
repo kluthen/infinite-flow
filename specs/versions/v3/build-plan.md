@@ -1313,6 +1313,22 @@ D340). Still pending: P2 item 4 and the H4 and H5 advances; `rule_transposition_
 after H3; `rule_stale_phrase_prompt_at_start` and ISS-011 after H9. The owner asked not to start
 wave 10 yet; the wave merges into `main` with entry chunk 229,146 B.
 
+#### Wave 10 preflight (2026-10-16)
+
+The owner asked to start wave 10, chunk 26 alone (the release gate). `v3.0-w10` is cut from
+`main` at c950612 (wave 9's merge, pushed). `documentalist`'s preflight is b1dbffc ([change set
+part S](../../../docs/release/v3.0-intent-change-set.md)): chunk 26 PROCEED with sign-off pending
+(the final sync's promotion list); no capture. It found Part C already applied on 2026-10-08
+(spec D246) and 59 `release-v3.0` atoms: 42 REVIEW (30 business, 12 architecture), 17 DRAFT, 0
+STABLE; `atd:lint` and `atd check --full` pass. The owner ruled the hand checks H2–H6 and H9
+passed, with the caveat that no file has been opened in an outside program yet (spec D340: H8 and
+H5's export half follow the tag as v3.0.x notes, spec D342; H7 recorded as not run). Plan v28
+placed the preflight's corrections (107ec59, spec D341: items 1–24, part G in item 23, item 19's
+tests, the budget stated as 229,376 B) and the owner's answers (f90992b, spec D342, D343: all 42
+REVIEW atoms to STABLE at the final sync, architecture included, with the contract bump;
+`rule_saved_data_belongs_to_browser_profile` DRAFT → REVIEW on argument). Next: chunk 26 to a
+`coding-leader`; then the wave gate (`npm run quality`) and `documentalist`'s final sync.
+
 ## 2. Read first: what v3.0 undoes in v2
 
 v2 promised that nothing survives a reload and enforced it three ways: two code gates, about ten
