@@ -47,11 +47,16 @@ active and disabled states are those classes' own unless stated.
 ### Sheets
 
 - **`sheet-wide`** — modifier on `sheet`: `max-inline-size: var(--sheet-wide-max-inline-size)`.
-  States: none of its own (layout only). Below `bp-tablet-landscape` it behaves as `sheet` does
-  there: the inline size left by the backdrop's padding.
+  States: none of its own (layout only). Capped at every breakpoint, as `sheet` is at its own
+  `--sheet-max-inline-size`: it fills the inline size left by the backdrop's padding up to the
+  cap, so a phone in landscape (844 px wide, say) shows it at the cap, as a tablet does, and only
+  a viewport narrower than the cap plus that padding makes it fill the width.
 - **`sheet-section`** — a titled group inside `sheet-body`: an `h3` at `--text-md`, weight 700,
   then its rows; `--spacing-5` between sections, a `--color-border` hairline above every section
-  but the first. States: default only (static).
+  but the first. A `btn` placed directly in a section (Your data's section buttons, `Keep my
+  played notes` included) keeps its own width at the inline start (`.sheet-section > .btn {
+  justify-self: start }`), at every breakpoint, never stretched across the section; no wrapper is
+  needed. States: default only (static).
 - **`sheet-actions-destructive`** — a row at the end of `sheet-body`, after every section, holding
   one `btn btn-error`; aligned to the inline start, separated from the section above by
   `--spacing-6`, so a deleting action never sits beside `Done` or `Save`. States: none of its own.
@@ -85,6 +90,15 @@ active and disabled states are those classes' own unless stated.
   problem is not the player's fault and needs no alarm. Not a live region (it never appears
   during a session, and appears only after the player's own action or at load). States: shown;
   its buttons carry `btn`'s states. Appears and leaves with no animation.
+
+### Header
+
+- **`brand`** — the header's first item, holding `brand-mark` then `build-id` in one row on a
+  shared baseline, `--spacing-2` apart, wrapping if it must. States: none of its own (layout only).
+- **`build-id`** — the build the page comes from beside the app name: "{app version} · {short
+  commit id}" (e.g. "2.0.0 · c31e18b"), the dot `aria-hidden`; `--text-xs`, `--color-text-muted`,
+  tabular digits, never wrapped inside itself. Static: no state, not a live region, not
+  interactive. It reads "unknown" in place of the commit id when the build could not tell.
 
 ### Footer
 

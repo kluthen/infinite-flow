@@ -1478,3 +1478,66 @@ edited.
   "Becoming outdated while the sheet is open" names that trigger. `flows/saved-data/handoff.md`
   (Notices, Outdated tab and `Delete everything` in another tab) and `strategy.md` already said
   it and are unchanged.
+
+## v3.0 wave 9: small follow-ups, 2026-10-16
+
+Inputs: chunk 24b-2 (65db2a4), the cosmetic notes the build plan's wave records left for
+`ux-writer` (chunks 15b and 20b), the header's build id (10af03a, merged as c31e18b). The owner's
+standing delegation applies (D119, D135, archived). Nothing in `src/` is edited. Every edit is
+written in both trees, a recorded correction to `versions/v3.0/` to match what v3.0 ships (as
+D296, D307), inside paragraphs or documents v3.0 already marks, except where a new mark is named.
+
+- **D319 — After `Start with this phrase`, the musical profile preset shows the player's
+  selection, never phrase 1's (2026-10-16; confirms chunk 24b-2's reading of D302 and D305).**
+  The handoff's "keep what they showed at the start" meant the instant the player pressed Start,
+  and chunk 24b-2 built it so; the words are now exact. From the start to the session's end the
+  musical profile preset's `radiogroup` (checked `Neutral` or `Jazz`, or none in the custom
+  state), `preset-status` (text and grammar word) and `control-summary`'s musical-profile segment
+  show that selection, even when it is one of the settings the prompt named (a `Neutral`-to-`Jazz`
+  change), changing only as an automatic change changes them (Vary settings, from phrase 2 on);
+  every other changed control, Written key included, shows phrase 1's value through the count-in
+  and phrase 1. Why: the selection names a set of values rather than one, and worked out from
+  phrase 1's values it would turn to Custom or the other profile and back inside one phrase the
+  player is not acting on; it keeps in view the choice the prompt said the next phrases follow;
+  and it is the rule v3.1's preset bar already holds. Accepted cost: for one phrase, read-only,
+  `Jazz` can be checked over `Neutral`'s values. Rejected: showing phrase 1's selection (more
+  literal to "the controls show what sounds", but two flips per stale start for a derived mark).
+  No code change. Files: `flows/play-session/handoff.md` (What the controls show),
+  `flows/play-session/intent.md` (A phrase made before the settings changed: why),
+  `screens/phrase-workspace/handoff.md` (Automatic changes, After `Start with this phrase`); root
+  only, the v3.1 preset-bar lines in both handoffs now say "when the player pressed Start, their
+  selection and never phrase 1's".
+- **D320 — A button directly in a `sheet-section` keeps its own width (2026-10-16; chunk 15b's
+  note).** `sheet-section` is a grid, so a `.btn` child stretched across it; chunk 15b wrapped
+  Your data's section buttons in plain `div`s to stop that. The design already said those buttons
+  keep their own width at the inline start (`screens/your-data/handoff.md`, Responsive); the class
+  now carries it: `.sheet-section > .btn { justify-self: start }`, at every breakpoint, the
+  `Keep my played notes` toggle included, so no wrapper is needed. Written in `token-source-v3.md`
+  (`sheet-section`). **Code change to route:** add the rule to `src/styles/components.css`'s
+  `sheet-section` block (its `v3 new` run); the wrappers in `YourDataSheet.vue` may then go.
+- **D321 — A sheet is capped at every breakpoint; 36rem at 844 px is intended (2026-10-16;
+  chunk 20b's note).** At 844 px (a phone in landscape, inside `bp-mobile-landscape`) the My
+  instrument sheet stops at `--sheet-wide-max-inline-size`, as the connection sheet has always
+  stopped at `--sheet-max-inline-size` there ("up to" its cap, v2's wording). That is the design:
+  a label, a value and an action read as one row only within a measure, and a phone in landscape
+  is short, not narrow, so a wider sheet gains it nothing. The later sheets' phone lines ("fills
+  the inline size left by the backdrop's padding") had dropped the cap and now say "up to" it:
+  `token-source-v3.md` (`sheet-wide`), `screens/my-instrument/handoff.md`,
+  `screens/your-data/handoff.md`, `screens/stale-phrase-prompt/` (handoff and intent) and, root
+  only, `screens/preset-sheet/handoff.md`. Rejected: putting the range steppers side by side in
+  the 36rem phone sheet to save height (a code change for a few lines on a secondary display
+  whose sheet scrolls inside itself; the stacking stays tied to `bp-tablet-landscape`, as built).
+  No code change.
+- **D322 — The build id in the header (2026-10-16; 10af03a, merged as c31e18b).** Written as
+  built: `brand` holds `brand-mark` (the `h1`) then `build-id`, "{app version} · {short commit
+  id}", the dot `aria-hidden`, `--text-xs`, `--color-text-muted`, tabular digits, on the brand
+  mark's baseline, never wrapping inside itself, "unknown" when the build could not tell; static,
+  not a control or a live region, the same in every mode. Below `bp-desktop` `header-actions`
+  takes its own row, so the brand row has room for it on a phone. It is for the owner and bug
+  reports, so it stays small and outside the `h1`. A new v3.0 item, so newly marked in both
+  trees: a `_New:_` change-block item and `[v3 new]` tags in `screens/phrase-workspace/handoff.md`
+  (Layout Tree, Components and Content, Responsive Behavior); the two classes in
+  `token-source-v3.md` (Header). **Code change to route (token discipline only, no visible
+  change):** `.brand` and `.build-id` are scoped styles in `WorkspaceHeader.vue`; they belong in
+  `src/styles/components.css`, beside `brand-mark`, under a `v3 new` comment with their states
+  comment, so every class lives in the token source.

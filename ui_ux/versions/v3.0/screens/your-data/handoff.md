@@ -149,8 +149,8 @@ The second paragraph is always "This can't be undone."
 - At `bp-tablet-landscape` and `bp-desktop`: `sheet sheet-wide` centred, up to
   `--sheet-wide-max-inline-size`; `sheet-actions` in one row aligned to the end, as in the
   connection sheet (Confirmation: the confirming action first, then the way back).
-- At `bp-mobile-landscape`: the sheet fills the inline size left by the backdrop's padding;
-  `sheet-actions` stacks its buttons full width, the first on top. Section buttons and
+- At `bp-mobile-landscape`: the sheet fills the inline size left by the backdrop's padding, up to
+  `--sheet-wide-max-inline-size`; `sheet-actions` stacks its buttons full width, the first on top. Section buttons and
   `Delete everything` keep their own width, aligned to the inline start.
 - At every breakpoint: sections stack in one column; long names (an instrument, a device) wrap;
   the sheet scrolls vertically inside itself, never horizontally.

@@ -195,8 +195,8 @@ keeps each Jam session's written-out doodle (`flows/saved-data/handoff.md`, Your
 - At `bp-tablet-landscape` and `bp-desktop`: `sheet sheet-wide` centred, up to
   `--sheet-wide-max-inline-size`; `sheet-actions` in one row aligned to the end, as in the
   connection sheet (Confirmation: the confirming action first, then the way back).
-- At `bp-mobile-landscape`: the sheet fills the inline size left by the backdrop's padding;
-  `sheet-actions` stacks its buttons full width, the first on top. Section buttons and
+- At `bp-mobile-landscape`: the sheet fills the inline size left by the backdrop's padding, up to
+  `--sheet-wide-max-inline-size`; `sheet-actions` stacks its buttons full width, the first on top. Section buttons and
   `Delete everything` keep their own width, aligned to the inline start.
 - **[v3.1 new]** At every breakpoint, a preset's row holds its name, then its `Delete` at its own
   width; a long name wraps, and when the row cannot hold both, `Delete` goes under the name, at

@@ -165,8 +165,8 @@ sheet-backdrop
 
 ## Responsive Behavior
 
-- At `bp-mobile-landscape`: the sheet fills the inline size left by the backdrop's padding;
-  `text-input` takes the full width up to `--text-input-max-inline-size`; `choice-list`'s options
+- At `bp-mobile-landscape`: the sheet fills the inline size left by the backdrop's padding, up to
+  `--sheet-max-inline-size`; `text-input` takes the full width up to `--text-input-max-inline-size`; `choice-list`'s options
   take the full width, their labels wrapping when long; `sheet-actions` stacks its buttons full
   width, the main action on top; the sheet scrolls vertically inside itself, which is why
   `name-alert` is a live region and why the main action also carries the refusal by being

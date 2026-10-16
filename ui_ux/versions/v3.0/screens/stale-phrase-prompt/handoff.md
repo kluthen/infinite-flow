@@ -90,8 +90,8 @@ sheet-backdrop
 
 ## Responsive Behavior
 
-- At `bp-mobile-landscape`: the sheet fills the inline size left by the backdrop's padding;
-  `sheet-actions` stacks both buttons full width, `Regenerate phrase` on top; the paragraphs wrap,
+- At `bp-mobile-landscape`: the sheet fills the inline size left by the backdrop's padding, up to
+  `--sheet-max-inline-size`; `sheet-actions` stacks both buttons full width, `Regenerate phrase` on top; the paragraphs wrap,
   and the sheet scrolls vertically inside itself on a short screen.
 - At `bp-tablet-landscape` and `bp-desktop`: centred, up to `--sheet-max-inline-size`;
   `sheet-actions` one row aligned to the end, `Regenerate phrase` first.
