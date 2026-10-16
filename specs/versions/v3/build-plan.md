@@ -1271,6 +1271,18 @@ three; D337 accepts that a reload between the batch and the template's selection
 default instrument; D338 confirms that a session whose own save failed only leaves memory. Run
 order: 20c-1 → 20c-2 → 20c-3 → 24b-1 → 24b-2. Nothing needs the owner before the gate.
 
+**Wave 9 gate (2026-10-16).** Chunks 20c (703a8c4, ee83a38, 45e4a65; fix b270232: a failed
+session's retry no longer outlives the batch) and 24b (4c65625, 2796326) merged into `v3.0-w9`;
+records under each chunk. `npm run quality` on the reference machine (Ryzen 5 PRO 8640HS), idle.
+The first run, at b9f3b0e, failed one test in the new pre-generation lane
+(`stale-phrase-start.spec.ts`: a C call made before the key change counted as made after it, a
+test-timing artefact; no C phrase was played). 9b9fbde (merge 22b71ce) counts the calls as the
+click lands and adds a check that every phrase from phrase 2 on is in D; spec only. At 22b71ce:
+green. Unit 6,730 tests in 445 files; e2e 453, and 453 again with pre-generation on (the lane
+24b-1 added to `quality`); a11y 57; notation 107 passed, 4 skipped; code health 0 errors;
+boundaries passed (397 source files, 42 chunks within budget). **Entry chunk 229,194 B (+1,309 B
+since wave 8's 227,885 B; 182 B under the budget).**
+
 ## 2. Read first: what v3.0 undoes in v2
 
 v2 promised that nothing survives a reload and enforced it three ways: two code gates, about ten
