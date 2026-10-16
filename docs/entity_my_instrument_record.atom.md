@@ -1,6 +1,6 @@
 ---
 id: entity_my_instrument_record
-status: DRAFT
+status: REVIEW
 dependents: []
 type: ENTITY
 version: 0.5

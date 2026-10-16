@@ -1,6 +1,6 @@
 ---
 id: req_my_instrument
-status: DRAFT
+status: REVIEW
 type: REQUIREMENT
 priority: 1
 parents:

@@ -1,6 +1,6 @@
 ---
 id: rule_most_recent_session_kept
-status: DRAFT
+status: REVIEW
 parents:
   - [[req_kept_sessions]]
 dependents:
