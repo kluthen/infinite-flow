@@ -174,6 +174,25 @@ interface KeyChange {
   readonly sessionSeed: number
   readonly apply: (page: Page) => Promise<void>
   readonly expectCarried: (request: WorkspaceHarnessGenerationRequest) => void
+  /**
+   * The change leaves phrase 1 made under other settings (stale): Start asks first, and the
+   * session is started with `Start with this phrase` (chunk 24b).
+   */
+  readonly stale: boolean
+}
+
+/**
+ * Intent: start the session, through the stale-phrase prompt's `Start with this phrase` when
+ * phrase 1 is stale, and wait until the count-in shows.
+ */
+async function startOnPhraseOne(page: Page, stale: boolean): Promise<void> {
+  if (!stale) {
+    await startSession(page)
+    return
+  }
+  await sessionAction(page).click()
+  await page.getByRole('button', { name: 'Start with this phrase', exact: true }).click()
+  await expect(sessionAction(page)).toHaveText('Stop')
 }
 
 /** Intent: click `option` of the radiogroup `group`, then wait for the new phrase 1. */
@@ -194,6 +213,7 @@ const KEY_CHANGES: readonly KeyChange[] = [
       await expect(radio(page, 'Contour', 'Falling')).toHaveAttribute('aria-checked', 'true')
     },
     expectCarried: (request) => expect(request.controls.contour).toBe('Falling'),
+    stale: true,
   },
   {
     name: 'a profile change',
@@ -206,12 +226,14 @@ const KEY_CHANGES: readonly KeyChange[] = [
       )
     },
     expectCarried: (request) => expect(request.musicalProfile.musicalProfile).toBe('Jazz'),
+    stale: true,
   },
   {
     name: 'an instrument change',
     sessionSeed: NEXT_SESSION_SEED,
     apply: (page) => switchAndRegenerate(page, 'Instrument profile', 'E-flat alto saxophone'),
     expectCarried: (request) => expect(request.controls.instrumentProfileId).toBe('eb-alto'),
+    stale: false,
   },
   {
     name: 'a regeneration',
@@ -224,6 +246,7 @@ const KEY_CHANGES: readonly KeyChange[] = [
       await untilNewPhraseOne(page, before)
     },
     expectCarried: () => undefined,
+    stale: false,
   },
 ]
 
@@ -243,7 +266,7 @@ for (const change of KEY_CHANGES) {
     expect(await phraseOfSeed(page, change.sessionSeed, restarted.seed)).toBe(2)
     change.expectCarried(restarted)
     const startedAt = (await generationRecords(page)).length
-    await startSession(page)
+    await startOnPhraseOne(page, change.stale)
     const phraseTwo = await sessionRequestForPhraseTwo(page, startedAt, change.sessionSeed)
     change.expectCarried(phraseTwo)
   })

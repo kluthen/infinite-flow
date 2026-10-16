@@ -26,6 +26,7 @@ import {
   isPhraseOneStale,
   phraseOneSettings,
   phraseOneSettingsAtStart,
+  staleSettingsOf,
 } from '@/session/stale-phrase-one'
 
 /** Intent: settings on the first-load defaults, with these controls changed. */
@@ -200,5 +201,63 @@ describe("phrase 1's settings", () => {
         settingsWith({ tempo: 120, instrumentProfileId: 'c-keyboard' }),
       ),
     ).toThrow(SessionEngineError)
+  })
+})
+
+/** The setting each counted change names. */
+const NAMED: readonly string[] = [
+  'tonalCenter',
+  'collection',
+  'harmonicMotion',
+  'tension',
+  'noteDensity',
+  'rhythmicVariety',
+  'syncopation',
+  'silenceDensity',
+  'contour',
+  'register',
+  'leapiness',
+  'arpeggioChaos',
+  'instrumentProfileId',
+  'musicalProfile',
+]
+
+// @test-link [[rule_stale_phrase_prompt_at_start]]
+describe('the settings a stale phrase 1 differs in', () => {
+  // @test-link [[rule_stale_phrase_prompt_at_start]]
+  it.each(COUNTED.map((change, index) => ({ ...change, setting: NAMED[index] })))(
+    'names $setting alone after a change of $name',
+    ({ current, setting }) => {
+      expect(staleSettingsOf(settingsWith(), current)).toEqual([setting])
+    },
+  )
+
+  // @test-link [[rule_stale_phrase_prompt_at_start]]
+  it("names the instrument after a change of my instrument's range, and nothing for its name", () => {
+    const before = mySettings(mine())
+
+    expect(
+      staleSettingsOf(before, mySettings(mine({ writtenRange: { minMidi: 48, maxMidi: 76 } }))),
+    ).toEqual(['instrumentProfileId'])
+    expect(staleSettingsOf(before, mySettings(mine({ name: 'Renamed', clef: 'bass' })))).toEqual([])
+  })
+
+  // @test-link [[rule_stale_phrase_prompt_at_start]]
+  it('names several changes, none for the tempo, and agrees with the stale check', () => {
+    const current = {
+      ...settingsWith({ tonalCenter: 'G', register: 'Low', tempo: 200 }),
+      musicalProfile: { musicalProfile: 'Jazz' as const, isCustom: true },
+    }
+
+    expect(staleSettingsOf(settingsWith(), current)).toEqual([
+      'tonalCenter',
+      'register',
+      'musicalProfile',
+    ])
+    expect(staleSettingsOf(settingsWith(), settingsWith({ tempo: 200 }))).toEqual([])
+    for (const { current: each } of COUNTED)
+      expect(isPhraseOneStale(settingsWith(), each)).toBe(
+        staleSettingsOf(settingsWith(), each).length > 0,
+      )
   })
 })

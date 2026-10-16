@@ -76,6 +76,7 @@ import {
 } from './workspace-session-settings'
 import { createSessionMidi, type ControllerLostCountdown } from './workspace-session-midi'
 import { createSessionStart } from './workspace-session-start'
+import { createStalePhraseStart, type StalePhrasePrompt } from './workspace-stale-phrase'
 import type { WorkspacePregeneration } from './workspace-pregeneration'
 import {
   SessionControllerError,
@@ -179,6 +180,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     sessionStaff: null as SessionStaff | null,
     latestReady: null as number | null,
     shownSettings: null as SessionSettings | null,
+    stalePhrasePrompt: null as StalePhrasePrompt | null,
     get canStart(): boolean {
       return startBlocker.value === null
     },
@@ -251,11 +253,12 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     midi: deps.midi,
     audio,
     pageActivation: deps.browser.pageActivation,
-    connectionSheetOpen: deps.connectionSheetOpen,
+    // While the stale-phrase prompt shows, as while a sheet is open, no note starts anything.
+    connectionSheetOpen: () => deps.connectionSheetOpen() || state.stalePhrasePrompt !== null,
     canStart: () => startBlocker.value === null,
     idleResult: () => idle.state.result,
     idlePhrase: deps.idlePhrase,
-    start: () => start(),
+    start: () => void stalePhrase.request('note'),
   })
   const saved = deps.savedSessionOptions
   const adaptiveTempo = createAdaptiveTempoFlag(
@@ -290,13 +293,21 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     ends,
     () => startBlocker.value,
   )
+  const stalePhrase = createStalePhraseStart({
+    idle: idle.state,
+    state,
+    startBlocker: () => startBlocker.value,
+    start,
+  })
 
   // Never awaited: a defect in the clean-up surfaces as the unhandled rejection it is.
   void damagedSessions.cleanUpAtLoad()
 
   return {
     state: shallowReadonly(state),
-    start,
+    start: () => stalePhrase.request('start'),
+    useStalePhrase: stalePhrase.use,
+    dismissStalePhrase: stalePhrase.dismiss,
     stop: () => ends.end('stop'),
     isPhraseOnScreen: (phraseNumber) => {
       if (!(Number.isInteger(phraseNumber) && phraseNumber >= 1)) {
@@ -325,6 +336,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
       core.disposed = true
       // First, so a session ending now never makes pre-generation run.
       pregeneration.dispose()
+      stalePhrase.dispose()
       if (core.active !== null) ends.end('stop')
       stopReadingWindow()
       sessionMidi.dispose()

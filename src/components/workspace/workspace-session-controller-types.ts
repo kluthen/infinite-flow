@@ -17,6 +17,7 @@ import type { StaffLayout } from '@/notation/notation-layout-policy'
 import type { SessionStaff } from '@/components/notation/session-staff'
 import type { KeptSessionRow } from './use-kept-sessions'
 import type { ControllerLostCountdown } from './workspace-session-midi'
+import type { StalePhrasePrompt } from './workspace-stale-phrase'
 
 export type { KeptSessionsSeam } from './workspace-kept-sessions-seam'
 export type {
@@ -269,11 +270,17 @@ export interface SessionControllerState {
    */
   readonly tensionAcrossPhrases: boolean
   /**
-   * What the read-only controls show while a session runs: its start settings during the
-   * count-in, then the settings the phrase now sounding was generated with; null with no session,
+   * What the read-only controls show while a session runs: the settings phrase 1 was generated
+   * with during the count-in and phrase 1 (the player's own, unless phrase 1 was stale and used as
+   * it is), then the settings the phrase now sounding was generated with; null with no session,
    * when the controls show the player's own choices, which a session never writes.
    */
   readonly shownSettings: SessionSettings | null
+  /**
+   * The stale-phrase prompt while it shows: what opened it (Start or the starting note) and the
+   * settings phrase 1 differs in; null otherwise. Never during a session.
+   */
+  readonly stalePhrasePrompt: StalePhrasePrompt | null
 }
 
 /** The session controller a screen binds to. */
@@ -282,9 +289,18 @@ export interface SessionController {
   readonly state: SessionControllerState
   /**
    * Start a session; call it synchronously inside the player's Start click. Throws when blocked.
+   * With a stale phrase 1 it starts nothing and opens the stale-phrase prompt instead (`asked`).
    * Playing the starting note takes this same path.
    */
-  readonly start: () => void
+  readonly start: () => 'started' | 'asked'
+  /**
+   * The stale-phrase prompt's Use it, inside its click: close the prompt and start the session
+   * from phrase 1 as on screen, unless a start condition no longer holds (false: nothing starts).
+   * Throws when no prompt shows.
+   */
+  readonly useStalePhrase: () => boolean
+  /** Close the stale-phrase prompt, changing and starting nothing; throws when none shows. */
+  readonly dismissStalePhrase: () => void
   /**
    * End the running session (the player's Stop). Throws with no session running. A session also
    * ends on its own, like Stop: the page hidden, the staff no longer shown (the window, the

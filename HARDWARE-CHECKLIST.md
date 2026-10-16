@@ -404,8 +404,29 @@ pre-generation is on unless the page URL has `?pregeneration=off`.
       phrase 2 arrives on time.
 - [ ] Generate, wait **a few seconds**, then Start, a few times: phrase 2 joins phrase 1 smoothly
       (it continues from phrase 1's last note and chord instead of starting afresh).
-- [ ] Change a control, wait, Start: no phrase made before the change is played.
+- [ ] Change a control, wait, Start (and `Start with this phrase` when the prompt asks, from
+      chunk 24b): no phrase made before the change is played, phrase 1 aside.
 - [ ] Tablet on battery, for information (M4): note the battery cost of about ten changes at
       Idle, each followed by a few seconds' wait (up to four background generations each).
 - [ ] M4 on the reference machine: `npm run test:sweep`, copy the `SWEEP-M4` lines into
       [`docs/generation-latency.md`](docs/generation-latency.md#phrase-2-after-pre-generation-m4-2026-10-12).
+
+## H9. Stale phrase at Start (chunk 24b; about 10 min)
+
+On the reference machine, production build or `npm run dev`. ISS-011's steps, which v2.0 failed.
+
+- [ ] At Idle, once a phrase appears, change the Written key, then press Start at 60 BPM: the
+      prompt "This phrase is from before your changes" shows, naming Written key, and nothing
+      sounds.
+- [ ] `Start with this phrase`: the count-in plays, then phrase 1 as it was; the Written key
+      control shows the old key until phrase 2 starts, then the new one; phrase 2 follows, in the
+      new key. Stop.
+- [ ] The same at 120 and at 220 BPM.
+- [ ] Again with a Collection change, then with a Register change: the prompt shows each time, and
+      `Start with this phrase` starts and phrase 2 follows.
+- [ ] Change a setting, press Start, then `Regenerate phrase`: a new phrase appears at Idle and
+      nothing starts; press Start: it starts at once, asking nothing.
+- [ ] Change only the tempo, press Start: it starts at once, asking nothing.
+- [ ] With the Travel Sax connected, change a setting and play the starting note: the prompt shows,
+      saying your note did not start the session, and nothing starts; play the note again: still
+      nothing. `Close`: back at Idle, the starting-note line back.

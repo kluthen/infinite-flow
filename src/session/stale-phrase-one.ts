@@ -97,3 +97,30 @@ export function isPhraseOneStale(phraseOne: SessionSettings, current: SessionSet
     instrumentDiffers(phraseOne, current)
   )
 }
+
+/** A setting that can make phrase 1 stale: a generation control but the tempo, or the profile. */
+// @spec-link [[rule_stale_phrase_prompt_at_start]]
+export type StaleSetting = Exclude<keyof GenerationControls, 'tempo'> | 'musicalProfile'
+
+/**
+ * Intent: every setting whose value differs from phrase 1's, over what the generation reads, as
+ * `isPhraseOneStale` compares them, for the prompt to name: each generation control but the
+ * tempo, the instrument's control also when my instrument's range or transposition differs, and
+ * the musical profile (Neutral or Jazz). None when phrase 1 is not stale.
+ */
+// @spec-link [[rule_stale_phrase_prompt_at_start]]
+export function staleSettingsOf(
+  phraseOne: SessionSettings,
+  current: SessionSettings,
+): readonly StaleSetting[] {
+  const keys = Object.keys(phraseOne.controls) as (keyof GenerationControls)[]
+  const changed = keys.filter(
+    (key): key is Exclude<keyof GenerationControls, 'tempo'> =>
+      key !== 'tempo' && phraseOne.controls[key] !== current.controls[key],
+  )
+  if (!changed.includes('instrumentProfileId') && instrumentDiffers(phraseOne, current))
+    changed.push('instrumentProfileId')
+  const profileChanged =
+    phraseOne.musicalProfile.musicalProfile !== current.musicalProfile.musicalProfile
+  return profileChanged ? [...changed, 'musicalProfile'] : changed
+}
