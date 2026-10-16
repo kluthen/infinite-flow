@@ -2919,6 +2919,26 @@ both saving-off states; another tab's Delete everything).
 
 **Verification:** the chunk checks; the bundle at the wave gate (the sheet is lazy).
 
+**Record (2026-10-16).** Merged into `v3.0-w8` (5b5be29; 15a d5c75b1, 15b 3b27c6a). 15a:
+`deleteEverySessionChanges` and `deleteEveryKeptSession` beside `deleteKeptSession` in
+`kept-session-review-changes.ts` (a keys-only `readKeys` of the three stores, no version filter,
+through `changeKept` with refusal `caller`); the controller action in the new
+`workspace-kept-sessions-deletion.ts`, which on `saved` or `unchanged` removes every row, clears
+`review` and `mostRecent`, and turns a showing Review to the list; a refusal changes nothing.
+15b: the lazy `YourDataSheet.vue`, `use-your-data-sheet.ts` and `your-data-copy.ts`; the entry
+host `use-your-data.ts` and `LayoutFooter.vue`; the list header's opener injected, so `ReviewArea`
+and `ScorePanel` stay untouched; the notice row's `Your data` enabled. `use-kept-sessions.ts` and
+`workspace-kept-session-edits.ts` untouched. Done when: every item tested, in
+`tests/e2e/storage/your-data.spec.ts` and `your-data-deletions.spec.ts` (split for the link cap),
+the two-tab case included (D331); the 15a controller unit tests. Choices, no spec deviation: each
+section button sits in a plain `<div>`, as `.sheet-section` stretches its buttons (for
+`ux-writer`: a `.sheet-section > .btn { justify-self: start }` rule would let the wrappers go);
+space used reads `estimate().usageDetails.indexedDB` in binary units, "Couldn't be measured."
+without it; the openers wait for the session controller. Entry chunk 229,070 B (+1,558 B over
+15a's 227,512 B; 306 B under the budget). Risks left: an opening of a kept session still pending
+when Delete every session resolves may still show its Review (for chunk 28a, which owns the
+opening path); the edits part keeps a refused save's retry history after the deletion, harmless.
+
 ### Chunk 16 — My instrument in the domain
 
 **Architecture capture:** opening the closed instrument id: how a player-made profile is named in
