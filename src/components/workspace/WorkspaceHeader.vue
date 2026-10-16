@@ -1,8 +1,9 @@
 <script setup lang="ts">
 /**
- * The workspace header: brand mark, `controller-status`, live meter/tempo context, the theme
- * override, then its two action slots: the phrase action and the session action (`Start session` /
- * `Stop`, or `Close review` while the last session's Review shows). This is the
+ * The workspace header: brand mark with the build beside it (version and short commit id),
+ * `controller-status`, live meter/tempo context, the theme override, then its two action slots:
+ * the phrase action and the session action (`Start session` / `Stop`, or `Close review` while the
+ * last session's Review shows). This is the
  * one place the generate/regenerate/retry vocabulary, the session action's label and both slots'
  * disabled and emphasis policy live -- everything else reads the session's state directly. The
  * session action and `controller-status` only ask: the shell starts and stops the session, closes
@@ -16,6 +17,8 @@ import type { GenerationSession, ThemePreference } from '@/composables/use-gener
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import { isRhythmSettingBlocked } from '@/domain/controls/unsupported-rhythm-settings'
 import type { ControllerStatusForm } from '@/midi/controller-status'
+import { APP_VERSION } from '@/storage/app-version'
+import { APP_COMMIT } from './build-id'
 import ControllerStatus from './ControllerStatus.vue'
 import ThemeControl from './ThemeControl.vue'
 import { phraseActionDisabled, primaryHeaderAction } from './session-action-policy'
@@ -248,7 +251,12 @@ function handleThemeSelect(theme: ThemePreference): void {
 
 <template>
   <header class="layout-header">
-    <h1 id="workspace-title" class="brand-mark">Infinite Flow</h1>
+    <div class="brand">
+      <h1 id="workspace-title" class="brand-mark">Infinite Flow</h1>
+      <span class="build-id"
+        >{{ APP_VERSION }}<span aria-hidden="true"> · </span>{{ APP_COMMIT }}</span
+      >
+    </div>
     <div class="header-actions">
       <div class="context-group" aria-label="Score context">
         <ControllerStatus
@@ -286,3 +294,22 @@ function handleThemeSelect(theme: ThemePreference): void {
     </div>
   </header>
 </template>
+
+<style scoped>
+/* The build beside the brand mark: small and muted, on the brand mark's baseline. Below
+   bp-desktop the header actions take a row of their own, so the brand row always has room for it
+   (phones in landscape included); from bp-desktop up it sits between the brand mark and them. */
+.brand {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+  min-inline-size: 0;
+}
+.build-id {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+</style>

@@ -952,11 +952,15 @@ build that forgot to inject it fails loudly instead of writing records nothing c
 The app passes it to the port as `appVersion`.
 
 `scripts/app-version-define.mjs` reads `package.json`'s `version` and returns the Vite `define`
-entry `{ __APP_VERSION__: "<version>" }`; it throws when there is no non-empty version. Four
+entry `{ __APP_VERSION__: "<version>", ... }`; it throws when there is no non-empty version. Four
 configs use it: `vite.config.ts` (the app), `vitest.config.ts` (the unit tests), and the two
 harnesses, `vite.workspace-harness.config.ts` and `vite.notation-harness.config.ts`. The perf and
 sweep Vitest configs never reach `src/storage/` and are left alone. A new config whose code
 reaches `src/storage/app-version.ts` must add the same `define`, or that code fails at load.
+
+The same function also returns `__APP_COMMIT__`, the short id of the commit the build comes from,
+which the header shows beside the version and nothing stores (see the README's
+[build id section](../README.md#the-build-id-in-the-header)).
 
 ## Tests
 

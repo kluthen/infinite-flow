@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
 import WorkspaceHeader from '@/components/workspace/WorkspaceHeader.vue'
+import { APP_COMMIT } from '@/components/workspace/build-id'
 import type { GenerationSession } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import {
@@ -12,6 +13,7 @@ import type { GenerationControls } from '@/domain/controls/generation-controls'
 import type { SessionController } from '@/components/workspace/workspace-session-controller-types'
 import type { ControllerStatusForm } from '@/midi/controller-status'
 import { createSessionHistory } from '@/session/session-history'
+import { APP_VERSION } from '@/storage/app-version'
 import { fakeReview } from './fake-session-controller'
 import { buildWorkspaceSessionResult } from '../../workspace-test-fixtures'
 import {
@@ -105,6 +107,16 @@ describe('WorkspaceHeader', () => {
     const wrapper = mountHeader(session)
 
     expect(wrapper.get('h1.brand-mark').text()).toBe('Infinite Flow')
+  })
+
+  it('shows the build beside the brand mark: the version and the short commit id', () => {
+    const { session } = fakeSession()
+    const wrapper = mountHeader(session)
+
+    const buildId = wrapper.get('.brand > h1.brand-mark + .build-id')
+    expect(buildId.text()).toBe(`${APP_VERSION} · ${APP_COMMIT}`)
+    expect(APP_COMMIT).toMatch(/^([0-9a-f]{4,40}|unknown)$/)
+    expect(buildId.get('[aria-hidden="true"]').text()).toBe('·')
   })
 
   it('labels the primary action "Generate phrase" with no prior result or errors', () => {
