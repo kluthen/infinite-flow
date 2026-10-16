@@ -34,26 +34,73 @@
  *   click. Only the played-notes file the player asked for carries them; no generated-notes file
  *   does: each is byte for byte the file of the same session played silently, whose Review offers
  *   no played-notes export.
+ * - **With every kind of record stored** (v3.0 release gate, definition of done item 5). The
+ *   network half again, watched from before the first load, over a database holding every kind of
+ *   record: non-default settings with `Keep my played notes` on, my instrument selected, the
+ *   remembered controller, three kept sessions with their played notes (one pinned by a favorite
+ *   and commented, one pinned, the most recent), one whose session-wide record cannot be read and
+ *   one whose body is damaged. A second visit reads it all, opens Your data, the session list and a
+ *   kept session's Review, exports it in every way, then plays and exports a new session with
+ *   played notes: still nothing but the app's own static files is fetched, no WebSocket opens.
  */
-import { expect, test, type BrowserContext, type Page, type Request } from '@playwright/test'
-
-import { watchPageErrors } from '../controller/controller-helpers'
-import { sessionState } from '../session/session-helpers'
-import { untilStored } from '../storage/storage-helpers'
 import {
+  expect,
+  test,
+  type BrowserContext,
+  type Locator,
+  type Page,
+  type Request,
+} from '@playwright/test'
+
+import {
+  KEYS,
+  clickControllerStatus,
+  gotoControllerHarness,
+  midiState,
+  sheet as controllerSheet,
+  sheetClose,
+  watchPageErrors,
+} from '../controller/controller-helpers'
+import { sessionAction, sessionState } from '../session/session-helpers'
+import { noteOff, noteOn } from '../session/session-midi-helpers'
+import { INSTRUMENT_GROUP, MY_INSTRUMENT_ID } from '../storage/my-instrument-sheet-helpers'
+import {
+  harnessReady,
+  seedMyInstrument,
+  seedSettings,
+  untilStored,
+} from '../storage/storage-helpers'
+import { LOW_TENOR, closeWithDone, openYourData } from '../storage/your-data-helpers'
+import { radio } from '../workspace/helpers'
+import {
+  HELD_NOTE_SECONDS,
   STEM,
   backingTrackToggle,
   collectDownloads,
   exportEach,
   exportOnce,
   exportPlayedButton,
+  formatOption,
   keepPlayedNotesToggle,
   pickFormat,
   playedNotesToggle,
   reviewItems,
   reviewOfSession,
+  reviewPanel,
+  reviewTitle,
+  sessionEndedAfter,
   type Downloads,
 } from './review-helpers'
+import { keyedRecords, pinButton, star, summaryOf } from './review-tools-helpers'
+import {
+  keyStartedAt,
+  rowOpen,
+  rows,
+  seedCopy,
+  sessionDateOf,
+  showListFromCueRow,
+  startAt,
+} from './session-list-helpers'
 
 // The export file names are the session's start in the player's local time: fix the zone.
 test.use({ timezoneId: 'Europe/Paris' })
@@ -365,6 +412,100 @@ async function expectOnlyKeptSessionAndSettingsStored(page: Page): Promise<void>
   })
 }
 
+/** Intent: the in-page spy is armed and saw the page call no network API since its load. */
+async function expectNoNetworkCall(page: Page): Promise<void> {
+  const spy = await readPrivacySpy(page)
+  expect(spy.installed).toEqual(expect.arrayContaining([...NETWORK_APIS]))
+  expect(spy.calls.filter((call) => NETWORK_APIS.has(call))).toEqual([])
+}
+
+/** The fake browser's MIDI state at every load: access already allowed, the keyboard plugged in. */
+const KEYS_ALLOWED = { atLoad: { permission: 'granted' as const, devices: [KEYS] } }
+
+/**
+ * The settings the full database holds, none at its first-load value: my instrument selected, the
+ * theme, the Review's preferences, and `Keep my played notes` on.
+ */
+const SAVED_SETTINGS = {
+  theme: 'Dark',
+  'controls.instrumentProfileId': MY_INSTRUMENT_ID,
+  'review.format': 'midi',
+  'review.backingTrack': true,
+  'review.playedNotesShown': true,
+  keepPlayedNotes: true,
+}
+
+/** The comment the first kept session holds. */
+const COMMENT = 'Slower next time.'
+
+/** The key of the seeded kept session whose session-wide record cannot be read. */
+const UNREADABLE_KEY = 'session-1-1'
+/** The key of the seeded kept session whose body is damaged. */
+const DAMAGED_BODY_KEY = 'session-copy-damaged'
+
+/** Every store of the app's database the harness reads. */
+const STORES: readonly WorkspaceHarnessStoreName[] = [
+  'settings',
+  'instrument',
+  'controller',
+  'sessionSummaries',
+  'sessionBodies',
+  'playedNotes',
+]
+
+/** Intent: how many records each store of the app's database holds now, read through the seam. */
+function storeCounts(page: Page): Promise<Record<string, number>> {
+  return page.evaluate(async (stores) => {
+    const { storage } = window.__workspaceHarness
+    const counts = await Promise.all(
+      stores.map(async (store) => [store, (await storage.records(store)).length] as const),
+    )
+    return Object.fromEntries(counts)
+  }, STORES)
+}
+
+/** Intent: the keys of the kept sessions stored now, sorted. */
+async function keptKeys(page: Page): Promise<string[]> {
+  return (await keyedRecords(page, 'sessionSummaries')).map(({ key }) => key).sort()
+}
+
+/**
+ * Intent: the export files' name stem of the session started at `startAt(n)`, in a spec run with
+ * `timezoneId: 'Europe/Paris'`: 12:05 on October `n + 1`, 2026.
+ */
+function stemAt(n: number): string {
+  return `infinite-flow-2026-10-${String(n + 1).padStart(2, '0')}-120500`
+}
+
+/**
+ * Intent: leave the Review if it shows, then play a two-phrase session (phrase 1 seeded 7) started
+ * at `startAt(n)` on the wall clock, one note held on the keyboard while phrase 2 sounds, then
+ * Stop: the Review shows, with its played note. Resolves the key it is kept under.
+ */
+async function sessionWithPlayedNoteAt(page: Page, n: number): Promise<string> {
+  if ((await sessionAction(page).textContent())?.trim() === 'Close review') {
+    await expect
+      .poll(() => page.evaluate(() => window.__workspaceHarness.snapshot().operation))
+      .toBe('idle')
+    await sessionAction(page).click()
+    await expect(sessionAction(page)).toHaveText('Start session')
+  }
+  await page.evaluate((at) => window.__workspaceHarness.setWallClock(at), startAt(n))
+  await sessionEndedAfter(page, 2, 7, async () => {
+    const onset = await noteOn(page, KEYS, 30)
+    await noteOff(page, KEYS, 30, onset + HELD_NOTE_SECONDS)
+  })
+  await expect(playedNotesToggle(page)).toBeVisible()
+  return keyStartedAt(page, startAt(n))
+}
+
+/** Intent: one of the Review's export scope choices. */
+function scopeOption(page: Page, label: 'Whole session' | 'Favorites only'): Locator {
+  return reviewPanel(page)
+    .getByRole('radiogroup', { name: 'Export' })
+    .getByRole('radio', { name: label, exact: true })
+}
+
 // @test-link [[rule_session_data_never_sent_or_stored]]
 // @test-link [[rule_optional_midi_privacy]]
 // @test-link [[rule_played_notes_kept_only_after_opt_in]]
@@ -445,5 +586,155 @@ test.describe('a session under a network and storage spy', () => {
     expect(silent.musicXml.equals(played.musicXml), 'MusicXML').toBe(true)
     expect(silent.midi.equals(played.midi), 'MIDI').toBe(true)
     expect(silent.midiWithBacking.equals(played.midiWithBacking), 'MIDI with backing').toBe(true)
+  })
+
+  // @test-link [[rule_session_data_never_sent_or_stored]]
+  // @test-link [[rule_optional_midi_privacy]]
+  test('with every kind of record stored, a visit reading them, opening kept sessions, playing a session with played notes and every export sends nothing', async ({
+    context,
+    page,
+  }) => {
+    test.setTimeout(300_000)
+    await installPrivacySpy(page)
+    const network = spyOnNetwork(context, page)
+    const downloads: Downloads = collectDownloads(page)
+    /** Intent: export once with `button` (`Export generated notes` unless given); its file name. */
+    const exportAs = async (button?: Locator): Promise<string> =>
+      (await exportOnce(page, downloads, button)).fileName
+
+    // The first visit fills the database. The keyboard connected through the connection sheet is
+    // the remembered controller; my instrument and the settings are seeded, then read by a reload.
+    await gotoControllerHarness(page, KEYS_ALLOWED)
+    await clickControllerStatus(page)
+    await sheetClose(page).click()
+    await expect(controllerSheet(page)).toBeHidden()
+    await expect.poll(async () => (await storeCounts(page)).controller).toBe(1)
+    await seedMyInstrument(page, LOW_TENOR)
+    await seedSettings(page, SAVED_SETTINGS)
+    await expectNoNetworkCall(page)
+    await page.reload()
+    await harnessReady(page)
+    await expect.poll(() => midiState(page)).toEqual({ kind: 'connected', device: KEYS })
+    await expect(radio(page, INSTRUMENT_GROUP, LOW_TENOR.name)).toHaveAttribute(
+      'aria-checked',
+      'true',
+    )
+
+    // Three sessions played with my instrument, each with a played note kept: the first with a
+    // favorite (which pins it) and a comment, the second pinned, the third the most recent.
+    const first = await sessionWithPlayedNoteAt(page, 1)
+    await expect(keepPlayedNotesToggle(page)).toHaveAttribute('aria-pressed', 'true')
+    await star(page, 2).click()
+    const comment = reviewPanel(page).locator('.review-comment')
+    await comment.getByRole('button', { name: 'Add a comment', exact: true }).click()
+    await page.keyboard.insertText(COMMENT)
+    await comment.getByRole('button', { name: 'Done', exact: true }).click()
+    await expect
+      .poll(() => summaryOf(page, first))
+      .toMatchObject({ pinned: true, favoritesCount: 1, comment: COMMENT })
+    const second = await sessionWithPlayedNoteAt(page, 2)
+    await pinButton(page).click()
+    await expect.poll(async () => (await summaryOf(page, second))?.pinned).toBe(true)
+    const third = await sessionWithPlayedNoteAt(page, 3)
+    // Two damaged kept sessions: one whose session-wide record cannot be read, and a copy of the
+    // second, started a day before the first, whose body is damaged.
+    await seedCopy(page, second, DAMAGED_BODY_KEY, { startedAt: startAt(0), newer: false })
+    await page.evaluate(
+      (key) => window.__workspaceHarness.storage.seedDamagedKeptBody(key),
+      DAMAGED_BODY_KEY,
+    )
+    await page.evaluate(
+      (key) => window.__workspaceHarness.storage.seedUnreadableKeptSession(key),
+      UNREADABLE_KEY,
+    )
+
+    // Every store holds records: the settings, my instrument, the remembered controller, five
+    // kept sessions (two damaged) and the three readable ones' played notes.
+    await expect
+      .poll(() => storeCounts(page))
+      .toMatchObject({
+        instrument: 1,
+        controller: 1,
+        sessionSummaries: 5,
+        sessionBodies: 5,
+        playedNotes: 3,
+      })
+    expect((await storeCounts(page)).settings).toBeGreaterThanOrEqual(
+      Object.keys(SAVED_SETTINGS).length,
+    )
+    for (const key of [first, second, third]) {
+      expect(await summaryOf(page, key)).toMatchObject({ playedNotesKept: true })
+    }
+    expect(await summaryOf(page, third)).toMatchObject({ pinned: false })
+
+    // The second visit reads that full database: the controller reattaches, my instrument and the
+    // theme come back, and the unreadable session goes at load.
+    await expectNoNetworkCall(page)
+    await page.reload()
+    await harnessReady(page)
+    await expect.poll(() => midiState(page)).toEqual({ kind: 'connected', device: KEYS })
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+    await expect(radio(page, INSTRUMENT_GROUP, LOW_TENOR.name)).toHaveAttribute(
+      'aria-checked',
+      'true',
+    )
+    await expect.poll(() => keptKeys(page)).toEqual([first, second, third, DAMAGED_BODY_KEY].sort())
+
+    // Your data, then the session list: the damaged body's row leaves once opened.
+    await openYourData(page)
+    await closeWithDone(page)
+    await showListFromCueRow(page)
+    await expect(rows(page)).toHaveCount(4)
+    await rowOpen(page, await sessionDateOf(page, startAt(0))).click()
+    await expect(rows(page)).toHaveCount(3)
+    await expect.poll(() => keptKeys(page)).toEqual([first, second, third].sort())
+
+    // The first kept session's Review, its played note shown, its favorite and comment read back;
+    // every export: generated notes in each format and played notes, whole and favorites only.
+    const firstDate = await sessionDateOf(page, startAt(1))
+    await rowOpen(page, firstDate).click()
+    await expect(reviewTitle(page)).toBeFocused()
+    await expect(reviewTitle(page)).toHaveText(firstDate)
+    await expect(playedNotesToggle(page)).toHaveAttribute('aria-pressed', 'true')
+    await expect(reviewPanel(page).locator('.played-note')).toHaveCount(1)
+    await expect(comment.locator('p')).toHaveText(COMMENT)
+    await expect(formatOption(page, 'MIDI')).toHaveAttribute('aria-checked', 'true')
+    await expect(backingTrackToggle(page)).toHaveAttribute('aria-pressed', 'true')
+    const kept: string[] = [await exportAs()]
+    await backingTrackToggle(page).click()
+    kept.push(await exportAs())
+    await pickFormat(page, 'MusicXML')
+    kept.push(await exportAs(), await exportAs(exportPlayedButton(page)))
+    await scopeOption(page, 'Favorites only').click()
+    await expect(scopeOption(page, 'Favorites only')).toHaveAttribute('aria-checked', 'true')
+    kept.push(await exportAs())
+    await pickFormat(page, 'MIDI')
+    kept.push(await exportAs(), await exportAs(exportPlayedButton(page)))
+    expect(kept).toEqual([
+      `${stemAt(1)}-generated.mid`,
+      `${stemAt(1)}-generated.mid`,
+      `${stemAt(1)}-generated.musicxml`,
+      `${stemAt(1)}-played.mid`,
+      `${stemAt(1)}-generated-favorites.musicxml`,
+      `${stemAt(1)}-generated-favorites.mid`,
+      `${stemAt(1)}-played-favorites.mid`,
+    ])
+
+    // A new session with a played note, and its exports: its save deletes the unpinned third.
+    const fourth = await sessionWithPlayedNoteAt(page, 4)
+    expect([await exportAs(), await exportAs(exportPlayedButton(page))]).toEqual([
+      `${stemAt(4)}-generated.mid`,
+      `${stemAt(4)}-played.mid`,
+    ])
+    await expect.poll(() => keptKeys(page)).toEqual([first, second, fourth].sort())
+
+    // Nothing was sent, from before the first load on: only the app's own static files were
+    // fetched, no WebSocket was opened, and the page called no network API.
+    await expectNoNetworkCall(page)
+    const origin = new URL(page.url()).origin
+    expect(network.requests.length).toBeGreaterThan(0)
+    expect(offendingRequests(network.requests, origin)).toEqual([])
+    expect(network.webSockets).toEqual([])
+    expect(downloads.all).toHaveLength(9)
   })
 })
