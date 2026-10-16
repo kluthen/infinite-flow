@@ -67,11 +67,6 @@ function replayKeyLines(page: Page): string[] {
   return lines
 }
 
-/** Intent: how many generate calls the harness has recorded since the page loaded. */
-async function requestCount(page: Page): Promise<number> {
-  return (await page.evaluate(() => window.__workspaceHarness.generationRequests())).length
-}
-
 /**
  * Intent: the written keys of the requests joining a phrase before (a carry-in), made from call
  * `from` on: phrase 2 and later, pre-generated at Idle or requested by the session.
@@ -86,15 +81,40 @@ async function joinedKeysFrom(page: Page, from: number): Promise<string[]> {
 
 /**
  * Intent: at Ready with phrase 1 made in C, change the Written key to D at Idle; returns how many
- * generate calls were made before the change.
+ * generate calls were made before the change. Pre-generation may still be making phrases in C at
+ * Idle, so the count is read in the page as the click reaches it, before the control handles it:
+ * no call can land between the count and the change.
  */
 async function staleAtReady(page: Page): Promise<number> {
   await readyToStart(page)
   await expectWrittenKey(page, 'C')
-  const before = await requestCount(page)
+  const mark = await page.evaluateHandle(() => {
+    const atChange = { requests: -1 }
+    window.addEventListener(
+      'click',
+      () => {
+        atChange.requests = window.__workspaceHarness.generationRequests().length
+      },
+      { capture: true, once: true },
+    )
+    return atChange
+  })
   await radio(page, 'Written key', 'D').click()
   await expectWrittenKey(page, 'D')
+  const before = await mark.evaluate((atChange) => atChange.requests)
+  await mark.dispose()
+  expect(before).toBeGreaterThan(0)
   return before
+}
+
+/** Intent: the written key of the generate call that made each played phrase from phrase 2 on. */
+async function playedKeysFromPhraseTwo(page: Page): Promise<(string | undefined)[]> {
+  const records = await page.evaluate(() => window.__workspaceHarness.generationRequests())
+  const phrases = (await sessionState(page)).lastHistoryPhrases ?? []
+  return phrases
+    .filter((phrase) => phrase.phraseNumber >= 2)
+    .map((phrase) => records.find((record) => record.timeline === phrase.timeline))
+    .map((record) => record?.writtenTonalCenter)
 }
 
 /** Intent: nothing of a start happened: Idle, no count-in click, no lock asked for. */
@@ -146,7 +166,8 @@ test.describe('a stale phrase 1 at Start', () => {
     await toBarline(page, 2, 0)
     await expectWrittenKey(page, 'D')
     await untilReady(page, 3)
-    // Phrase 2 on is made under the session's settings, pre-generated at Idle or requested now.
+    // Phrase 2 on is made under the session's settings, pre-generated at Idle or requested now:
+    // every call made from the change on that joins a phrase before is in D.
     const joinedKeys = await joinedKeysFrom(page, beforeChange)
     expect(joinedKeys.length).toBeGreaterThan(0)
     expect(new Set(joinedKeys)).toEqual(new Set(['D']))
@@ -156,6 +177,10 @@ test.describe('a stale phrase 1 at Start', () => {
 
     await sessionAction(page).click()
     await expect(sessionAction(page)).toHaveText('Close review')
+    // And every phrase played from phrase 2 on was made in D.
+    const playedKeys = await playedKeysFromPhraseTwo(page)
+    expect(playedKeys.length).toBeGreaterThan(0)
+    expect(new Set(playedKeys)).toEqual(new Set(['D']))
     const [first] = (await sessionState(page)).lastHistoryPhrases ?? []
     expect(first?.timeline).toBe(phraseOne)
     const musicXml = (await exportOnce(page, downloads)).bytes.toString('utf8')
