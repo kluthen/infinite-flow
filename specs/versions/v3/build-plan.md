@@ -11,7 +11,7 @@ v3.1 and v3.2 design started at the `ui_ux/` root (its links were repointed ther
 2026-10-08). Approved for execution. It adds no behaviour:
 what the app does is in the master spec, what the interface looks like is in the design set, and
 where this plan disagrees with either, they win and the plan is corrected. The code facts it
-relies on are in [storage-grounding.md](storage-grounding.md); the generation-worker facts that
+relies on are in [storage-grounding.md](../../archive/v3/storage-grounding.md); the generation-worker facts that
 pre-generation needs are in [jam-grounding.md](jam-grounding.md#a7-performance-budget).
 
 It is read by whoever builds v3.0, and by the owner. Music terms are explained where they first
@@ -57,12 +57,12 @@ Some steps are not code and need the owner. They are part of the sequence:
 | **Part B1** | **Done 2026-10-15 (2b77f3d, CONTRACT 6.1):** the owner confirmed it after the wave-7 gate. The owner confirms the revised `rule_instrument_profile_range` (change set part B, a MINOR contract bump), which now also states my instrument's written-range bound per clef (spec D294). | After chunk 20's wave gate (its post-task sync revises the atom). | Nothing; the gate checks it is done. |
 | **Part B2** | **Done 2026-10-16 (f121ac5, CONTRACT 6.2):** the owner confirmed it after the wave-9 sync, carrying D335's bound and `Use and erase`. The owner confirms the revised `rule_controller_transposition_check` (part B, MINOR), which now also states that "use this for my instrument" first warns when it would erase my instrument's kept sessions (spec D295), and that a controller reattached by itself, the remembered controller reselected at load included, is not checked again, the check staying available between sessions (spec D323; a clarification that adds no case, wording `documentalist`'s). The third outcome, the check's action, carries spec D335's bound (not offered when the transposition found would make my instrument's written range sound outside MIDI notes 0 to 127), or leaves its conditions to `rule_transposition_check_sets_my_instrument`; the wording never says it is always offered (wave-9 preflight, change set part R3). | After chunk 20c's wave gate (its post-task sync revises the atom, once the warning is built). | Nothing; the gate checks it is done. |
 | **Part C** | **Done 2026-10-08 (spec D246):** the owner confirmed the VISION 0.7 → 0.8 text and the retirement of the four chord-fit atoms (part C); `documentalist` applied it with the v3.1 and v3.2 change set's part C. The four atoms are deleted, and the VISION has since moved on (0.9). | Done. | Nothing; the gate checks it is done. |
-| **O200** | **Closed 2026-10-14 (spec D310):** a kept session the app cannot read correctly is deleted, with an apology, at load, at the next save or when opened, while the visit saves; a read the device refuses deletes nothing ([spec O200](../../open-questions.md#v30-wave-5-o200), master spec §5.1). | Done. | Nothing. [Chunk 28](#chunk-28--a-damaged-kept-session-deleted-with-an-apology) builds it. |
-| **O201** | **Closed 2026-10-14 (spec D309):** a session cut short by reloading or closing the page is never saved, §5.1 kept ([spec O201](../../open-questions.md#v30-wave-5-o200)). | Done. | Nothing. [Chunk 27](#chunk-27--a-session-cut-short-by-the-page-going-away) builds it. |
+| **O200** | **Closed 2026-10-14 (spec D310):** a kept session the app cannot read correctly is deleted, with an apology, at load, at the next save or when opened, while the visit saves; a read the device refuses deletes nothing ([spec O200](../../archive/v3/open-questions-history.md#v30-wave-5-o200), master spec §5.1). | Done. | Nothing. [Chunk 28](#chunk-28--a-damaged-kept-session-deleted-with-an-apology) builds it. |
+| **O201** | **Closed 2026-10-14 (spec D309):** a session cut short by reloading or closing the page is never saved, §5.1 kept ([spec O201](../../archive/v3/open-questions-history.md#v30-wave-5-o200)). | Done. | Nothing. [Chunk 27](#chunk-27--a-session-cut-short-by-the-page-going-away) builds it. |
 | **Damaged session design** | **Done 2026-10-15 (ux D309–D314, ux commit 81037c2):** `ux-writer` designed, for spec D310, the apology notice "Damaged sessions deleted" (one wording for one session and one for several, `Dismiss` only, until dismissed or the page closes, its place among the notices), the save-problem notice's "Damaged session not deleted" for a refused deletion, where the player lands from `review-link` or a list row, and the session list aligned (a damaged summary has no row; counts follow the rows); `ux-critic` passed it. Plan v18 (spec D319) brought chunks 15 and 28 to it. | Done. | Nothing. [Chunk 28](#chunk-28--a-damaged-kept-session-deleted-with-an-apology) builds it. |
 | **Remembered-controller wording** | **Done 2026-10-15:** the owner confirmed the MAJOR contract change for the remembered controller ("confirmed for chunk 22"), in the words of [master spec §10](master-spec.md#10-what-v30-changes-in-v2s-guarantees) (its seventh change; spec D314, D320); `documentalist` applied it on `v3.0-w6` (5dd9fb1): CONTRACT 6.0, `specification_browser_only_operation_verification` 0.3 and `rule_midi_starting_note` 0.6, the confirmation recorded in [change set part N1](../../../docs/release/v3.0-intent-change-set.md). | Done. | Nothing. [Chunk 22](#chunk-22--remembered-controller) may merge. |
-| **O210** | **Closed 2026-10-15 (ux D308, ux commit 81037c2):** when the file would hold no note under the current scope and `Include very short notes`, `Export played notes` is disabled with its reason ("Every note you played is very short. Turn on Include very short notes to export them."); the lane shows no bar ([spec O210](../../open-questions.md#v30-wave-6-o210)). Plan v18 (spec D319) brought chunks 13 and 25 to it. | Done. | Nothing. [Chunk 25](#chunk-25--stray-note-filter) builds it (it still waits for H1). |
-| **O211** | **Closed 2026-10-15 (spec D322):** the owner kept the 38 ms threshold ("O211: ok"), a length rule only, accepting the stray notes it leaves in the lane and the default export ([spec O211](../../open-questions.md#v30-wave-6-o210); measurement M1 found 11 of 77 left). | Done. | Nothing. Hand check H5 is in the **Hand checks** row below. |
+| **O210** | **Closed 2026-10-15 (ux D308, ux commit 81037c2):** when the file would hold no note under the current scope and `Include very short notes`, `Export played notes` is disabled with its reason ("Every note you played is very short. Turn on Include very short notes to export them."); the lane shows no bar ([spec O210](../../archive/v3/open-questions-history.md#v30-wave-6-o210)). Plan v18 (spec D319) brought chunks 13 and 25 to it. | Done. | Nothing. [Chunk 25](#chunk-25--stray-note-filter) builds it (it still waits for H1). |
+| **O211** | **Closed 2026-10-15 (spec D322):** the owner kept the 38 ms threshold ("O211: ok"), a length rule only, accepting the stray notes it leaves in the lane and the default export ([spec O211](../../archive/v3/open-questions-history.md#v30-wave-6-o210); measurement M1 found 11 of 77 left). | Done. | Nothing. Hand check H5 is in the **Hand checks** row below. |
 | **Hand checks** | **Ruled 2026-10-16 (spec D340, D342):** H2, H3, H4, H6 and H9, and H5's lane half, count as passed on the owner's word; H5's played-notes-export half and H8 follow the tag as v3.0.x notes (no file has been opened in an outside program yet); H7, for information only, is recorded as not run. | Done. | Nothing. |
 
 ### Waves
@@ -896,7 +896,7 @@ Plan corrections the preflight found, applied in v13 (spec D303–D305):
 - **Chunk 10, the save** (D304): "exactly one save transaction" becomes the settings flush in its
   own transaction, when a setting changed, then one transaction for the session; the deletions
   are read at the save; an unreadable summary stays (owner question
-  [O200](../../open-questions.md#v30-wave-5-o200), which blocks nothing); with saving off the end
+  [O200](../../archive/v3/open-questions-history.md#v30-wave-5-o200), which blocks nothing); with saving off the end
   saves and deletes nothing and the keep line reads "Not saved on this device: export it to keep
   it."; the most recent session after a reload is the readable one with the latest start, and in
   its visit it survives the next Start.
@@ -946,9 +946,9 @@ or VISION touched ([change set part M1](../../../docs/release/v3.0-intent-change
 Put to the owner with the report: the seven business wordings of
 part M2 of the [change set](../../../docs/release/v3.0-intent-change-set.md) (items 1–4, 5(a) and
 7 since applied; items 5(b) and 6 rewritten to the owner's ruling on
-[spec O200](../../open-questions.md#v30-wave-5-o200) and applied at chunk 28's sync);
+[spec O200](../../archive/v3/open-questions-history.md#v30-wave-5-o200) and applied at chunk 28's sync);
 `module_kept_session_save` DRAFT → REVIEW (part M3); and a new question,
-[spec O201](../../open-questions.md#v30-wave-5-o200): a session cut short by reloading or closing
+[spec O201](../../archive/v3/open-questions-history.md#v30-wave-5-o200): a session cut short by reloading or closing
 the page may be saved today, against §5.1's "lost" (the sync's drift; its answer may change part
 M2's item 2). Placed in v14 (spec D306–D308): [chunk 20](#chunk-20--my-instrument-sheet-and-the-instrument-control)
 takes Idle pre-generation's settings with the profile, my instrument's clef on Idle's and the
@@ -1010,7 +1010,7 @@ chunk 11 gets an **Architecture capture** for how a kept session changes after i
 chunk 22 gets a capture for the controller record and a new owner gate, **Remembered-controller
 wording**, CONTRACT 5.0 → 6.0, with master spec Part A v1.16 correcting §10 (D314); chunk 25's
 lane scale leaves out very short notes, and the all-very-short edge case goes to `ux-writer` as
-[spec O210](../../open-questions.md#v30-wave-6-o210), a gate before chunk 25 (D315). Chunk 18 went ahead of 11
+[spec O210](../../archive/v3/open-questions-history.md#v30-wave-6-o210), a gate before chunk 25 (D315). Chunk 18 went ahead of 11
 and 12 while the plan was revised: its files were untouched by the corrections.
 
 **Plan revisions and designs during wave 6 (2026-10-15).** Writing chunks 11's and 22's captures
@@ -1055,7 +1055,7 @@ CONTRACT or VISION touched ([change set part O1](../../../docs/release/v3.0-inte
 Put to the owner with the report: two wordings that fix drift (part O2: `module_phrase_replay_key`
 0.4, every v2.0 `ifk1.` key replays byte for byte; `rule_last_controller_remembered` 0.3, D318's
 clause); the status advances of part O3 (five DRAFT → REVIEW now, one after H4, three after H5,
-and `rule_saved_settings_load_tolerantly` still pending); [spec O211](../../open-questions.md#v30-wave-6-o210)
+and `rule_saved_settings_load_tolerantly` still pending); [spec O211](../../archive/v3/open-questions-history.md#v30-wave-6-o210)
 (keep 38 ms?) at H5, answered by the release gate; and hand checks H4 and H5. Left open by
 the sync: whether a reselection at load counts as a reattach for
 `rule_controller_transposition_check` (STABLE), for `spec-writer`; closing a confirmation sheet
@@ -1541,7 +1541,7 @@ recorded. The gate copies each into the release notes.
   notes overlap from 41 to 97 ms. The shortest intended note is 45.8 ms, and lengths step by about
   5 ms. At 38 ms the filter leaves out 66 of the 77 in-between notes, 16 split halves and 4 unclear
   notes, and no intended note; 11 in-between notes still show. The owner kept 38 ms
-  ([spec O211](../../open-questions.md#v30-wave-6-o210) closed, spec D322). The fast scales were one note per beat
+  ([spec O211](../../archive/v3/open-questions-history.md#v30-wave-6-o210) closed, spec D322). The fast scales were one note per beat
   (250 ms), so the recordings hold no intended note near a 240 BPM sixteenth (62.5 ms).
 - **Recorded:** a new section of [`docs/midi-tuning.md`](../../../docs/midi-tuning.md), with the
   files kept under `tests/fixtures/stray-notes/` so the filter's tests replay real data.
@@ -2363,7 +2363,7 @@ save it in one port `apply` batch under its new key (spec D303) that writes the 
 (summary and body; played notes only when `Keep my played notes` is on, which is always off until
 chunk 11) and deletes every readable unpinned kept session (spec D304; an unreadable one stays
 here, and [chunk 28](#chunk-28--a-damaged-kept-session-deleted-with-an-apology) deletes it, the
-owner's ruling on [spec O200](../../open-questions.md#v30-wave-5-o200), spec D310). A session ended during its count-in
+owner's ruling on [spec O200](../../archive/v3/open-questions-history.md#v30-wave-5-o200), spec D310). A session ended during its count-in
 saves and deletes nothing. A failed save keeps the session in memory as the most recent one,
 deletes nothing, and the review's keep line says "Not saved on this device: export it to keep
 it."; storage full also raises the notice, and no other failure of this save does (the design's
@@ -4445,7 +4445,7 @@ open: hand check H5; the screen handoff's line that "a very short note stays vis
 ### Chunk 27 — A session cut short by the page going away
 
 Inserted in v14 (spec D308). The owner chose answer (a) of
-[spec O201](../../open-questions.md#v30-wave-5-o200) (spec D309): §5.1 stands. Wave 7's
+[spec O201](../../archive/v3/open-questions-history.md#v30-wave-5-o200) (spec D309): §5.1 stands. Wave 7's
 preflight covers it. Revised in v24 after its merge (spec D328): a page brought back from the
 back-forward cache saves its later sessions; the fix is a follow-up on `v3.0-w7`, covered by the
 wave-7 preflight and sync.
@@ -4548,7 +4548,7 @@ and `module_save_policy` (the new argument and outcome); the owner's wording for
 ### Chunk 28 — A damaged kept session deleted, with an apology
 
 Inserted in v15 (spec D310, D311), for the owner's ruling on
-[spec O200](../../open-questions.md#v30-wave-5-o200). Wave 8's preflight covers it. 28b waits for
+[spec O200](../../archive/v3/open-questions-history.md#v30-wave-5-o200). Wave 8's preflight covers it. 28b waits for
 the **Damaged session design** gate, written as ux D309–D314; 28a may start before it.
 
 **Architecture capture** (recorded before code by the wave-8 preflight, 9aef0c0:
@@ -4879,11 +4879,11 @@ again ([spec O182](../../open-questions.md#v30-wave-2-o180) closed); the startin
 accepted, MAJOR (CONTRACT 5.0). Only the **Stale phrase design** gate remains before chunk 24b-2.
 
 Master spec v1.15 (2026-10-14, spec D310) writes in the owner's ruling on
-[spec O200](../../open-questions.md#v30-wave-5-o200): a kept session the app cannot read
+[spec O200](../../archive/v3/open-questions-history.md#v30-wave-5-o200): a kept session the app cannot read
 correctly is deleted, with an apology, at load, at the next save or when opened, while the visit
 saves; a refusal by the device deletes nothing (§5.1, item 6). New chunk 28 in wave 8 builds it,
 after the **Damaged session design** gate. It also aligns §4.4 with §5.1 (spec D304); no chunk
-changes for that. The owner's ruling on [spec O201](../../open-questions.md#v30-wave-5-o200)
+changes for that. The owner's ruling on [spec O201](../../archive/v3/open-questions-history.md#v30-wave-5-o200)
 (spec D309) keeps §5.1 as written; chunk 27 builds it.
 
 Master spec v1.16 (2026-10-15, spec D314) corrects §10, which called the audio-unlock widening
@@ -4894,7 +4894,7 @@ access and no audio before a Start or `Connect controller` click) and `rule_midi
 change, MAJOR (CONTRACT 6.0): the **Remembered-controller wording**, which the owner confirmed and
 `documentalist` applied on 2026-10-15 (master spec v1.18). The wave-6 preflight also brought spec D312 (wave 6's shared files, in order),
 D313 (chunk 11's capture of the changes after a session's save) and D315 (chunk 25's pitch scale;
-[spec O210](../../open-questions.md#v30-wave-6-o210), for `ux-writer`, before chunk 25).
+[spec O210](../../archive/v3/open-questions-history.md#v30-wave-6-o210), for `ux-writer`, before chunk 25).
 
 Master spec v1.17 (2026-10-15, spec D318) states what §4.3 and §4.4 imply for the remembered
 controller: a visit that saves nothing neither remembers nor forgets it (§7.3, item 18). Chunk

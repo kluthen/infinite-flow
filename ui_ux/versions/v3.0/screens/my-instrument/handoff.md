@@ -201,8 +201,8 @@ sheet-backdrop
   started from the defaults because the saved data couldn't be read, {N} is always 0 (that visit
   has read no kept session); in a tab that must be reloaded, {N} counts only the kept rows the
   tab read, and those changes are withheld while there is one (States).
-- No raw value: every visual value comes from `src/styles/theme.css`, `src/styles/components.css`
-  and `ui_ux/token-source-v3.md` through the classes above.
+- No raw value: every visual value comes from `src/styles/theme.css` and
+  `src/styles/components.css` through the classes above.
 
 ## What Save Does
 

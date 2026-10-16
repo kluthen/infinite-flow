@@ -466,7 +466,7 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
 - `review-panel` takes the full inline size of `layout-workspace` at every breakpoint; no side
   rail, no second column.
 - Every visual value comes from the token source (`src/styles/theme.css`,
-  `src/styles/components.css`) or `ui_ux/token-source-v3.md`; this handoff declares none.
+  `src/styles/components.css`); this handoff declares none.
 
 ## States
 

@@ -1,16 +1,11 @@
 # v3 — Player Material and "My Instrument"
 
-Status: direction, split into releases (2026-10-07, D211; v3.0.1 merged into v3.0, D212). Not yet specced. The items and
-candidates gathered here from 2026-09-25 on are recorded in the decisions log: D128–D130, D146,
-D174, D175, D190, D192, D196, D206, D209 and D210. D211 places each of them in a release, moves
-two to v4 and drops four. D212 merges v3.0.1 into v3.0. D216 approves spec-writer's
-recommendations at the owner's overall review: v3.0 is drafted, and Jam's main questions are settled.
-D261 (2026-10-12) adds v3.3, richer chords, after v3.2: direction only, with a research phase first.
-D262 makes that research a separate item before v3.3, running on branch `v3.3-chord-research`.
-D263 confirms the vision's v3.3 wording. D264–D274 settle v3.3 from the research: **v3.3 master
-spec: [Part D](master-spec.md#part-d--v33), awaiting owner approval**. Its build plan,
-[build-plan-v3.3.md](build-plan-v3.3.md), is draft v2, not approved, and depends on owner approval
-of Part D (D276–D288).
+Status: v3.0 released as version 3.0.0 on 2026-10-16 (tag `v3.0.0` at e288d98, deployed;
+D348); v3.1 and v3.2 consolidated as master spec Parts B and C, approved (D239), their build plans
+drafts, not approved; v3.3 in master spec Part D, awaiting owner approval (D264–D275), its build
+plan a draft, not approved (D276–D288); v3.x direction only. The Status paragraph this README kept
+until the v3.0 release is archived verbatim in
+[archive/v3/v3-readme-status.md](../../archive/v3/v3-readme-status.md).
 
 **Serves:** P3, the Fledgling Composer: "I liked that gimmick, I play it, and see where it goes."
 Also every tester on an instrument v1 doesn't ship. See [personas](../../personas.md).
@@ -26,11 +21,15 @@ Also every tester on an instrument v1 doesn't ship. See [personas](../../persona
 | **v3.x** | Kept, likely to move or go      | [Learning from positive signals](#v3x--learning-from-positive-signals)                                                                                                                                                                                                                                                                  |
 
 - **v3.0 master spec:** [master-spec.md](master-spec.md) (D217), consolidated from the approved
-  drafts; handed to `documentalist` and `ux-writer`, a build plan to follow the design.
-- **v3.0 drafts** (2026-10-07, draft v2, approved at the owner's overall review, D216): [persistence](persistence.md), [kept sessions and favorites](kept-sessions.md),
-  [my instrument](my-instrument.md), [pre-generation at Idle](pre-generation.md),
-  [stray notes](stray-notes.md).
-- **Research:** [storage grounding](storage-grounding.md), [Jam grounding](jam-grounding.md);
+  drafts; built from the [v3.0 build plan](build-plan.md) and released as version 3.0.0 on
+  2026-10-16 (D348). What follows the tag is in [v3.0.x notes](#v30x-notes-after-the-tag).
+- **v3.0 drafts** (2026-10-07, draft v2, approved at the owner's overall review, D216), archived at
+  the v3.0 release: [persistence](../../archive/v3/persistence.md),
+  [kept sessions and favorites](../../archive/v3/kept-sessions.md),
+  [my instrument](../../archive/v3/my-instrument.md),
+  [pre-generation at Idle](../../archive/v3/pre-generation.md),
+  [stray notes](../../archive/v3/stray-notes.md).
+- **Research:** [storage grounding](../../archive/v3/storage-grounding.md) (archived), [Jam grounding](jam-grounding.md);
   music research in `docs/music/`: [embellishment catalogue](../../../docs/music/embellishment-catalogue.md),
   [mutation catalogue](../../../docs/music/mutation-catalogue.md),
   [played-pattern recognition](../../../docs/music/played-pattern-recognition.md),
@@ -53,6 +52,10 @@ Also every tester on an instrument v1 doesn't ship. See [personas](../../persona
   that needs it.
 
 ## v3.0 — Storage
+
+**Released as version 3.0.0 on 2026-10-16** (D348). What v3.0 does is stated in
+[master spec Part A](master-spec.md#part-a--v30); the subsections below are the direction
+recorded before it was specced, and where they leave a point open, Part A settles it.
 
 Everything that needs the app to keep something on the player's device. Presets are excluded,
 though they are saved too: they ship with the embellishment flags in v3.1.
@@ -106,7 +109,7 @@ review asks no confirmation
   is not exported; starting a new session asks for confirmation when the review holds unexported
   favorites. Marking a bar range instead of a whole phrase was already noted as a v3 idea, tied to
   seeding a continuation.
-- **Settled by D216** ([kept-sessions.md](kept-sessions.md)): marking a favorite pins its session,
+- **Settled by D216** ([kept-sessions.md](../../archive/v3/kept-sessions.md)): marking a favorite pins its session,
   so a new session never asks for confirmation and O86 is closed as moot.
 
 ### Follow-ups merged into v3.0
@@ -131,7 +134,7 @@ ahead." Not designed.
   pre-generated phrases would be phrases with carry-in, generated at Idle.
 - **Not v2's prewarm.** The prewarm (`module_generation_prewarm`) only warms the generator's
   rhythm memo for the current settings on the one generation worker, and produces no phrase.
-- **Settled by D216** (O107–O111 closed): [pre-generation.md](pre-generation.md).
+- **Settled by D216** (O107–O111 closed): [pre-generation.md](../../archive/v3/pre-generation.md).
 
 ### Stray notes from controllers
 
@@ -180,6 +183,44 @@ nothing survives a reload
 v2 already stores each phrase's generated timeline and reproduction inputs in memory, which is what
 a kept session would need
 ([v2 master spec §7](../v2/master-spec.md#7-sessions-review-export-and-privacy)).
+
+### v3.0.x notes (after the tag)
+
+These follow the v3.0.0 tag, as v2.0's real-program checks did. The hand checks are recorded in
+`HARDWARE-CHECKLIST.md`, v3.0 part, and in the
+[release notes](../../../docs/release/v3.0-release-notes.md) when they run.
+
+- **H8, favorites-only files in real programs** (D340): open a favorites-only MusicXML file in
+  MuseScore and both MIDI files in a MIDI tool; the phrase numbers and markers match the session.
+  No file has been opened in an outside program yet.
+- **H5, its played-notes-export half** (D342): export the played notes with
+  `Include very short notes` off and then on, and check what each file holds. H5's lane half
+  passed. Until this runs, item 21's export clause rests on its automated tests.
+- **H7, for information only** (D340): recorded as not run; Chrome decides silently.
+- **The 17 REVIEW `release-v3.0` atoms are promoted later** (D345), by `documentalist` with the
+  owner, for example once H5's played-notes-export half and H8 have run. Until then 22 STABLE
+  atoms sit under REVIEW parents.
+- **The CONTRACT's EXPECTATION is trimmed** (D347), by `documentalist`; no guarantee changes, and
+  the version level is its call. In `contract_infinite_flow_first_release`, EXPECTATION:
+  1. Keep its first two sentences: the contract is singular, and the MAJOR and MINOR rule.
+  2. Remove the notes for versions 1.2 to 1.8, the sentence "None of these versions weakens or
+     removes a guarantee.", and the notes for versions 2.0, 3.1, 4.0, 5.0, 6.0, 6.1 and 6.2.
+     They describe versions shipped in 2.0.0 and 3.0.0; each change stays stated in its atoms.
+     This also removes the one decision ID any atom cites ("spec D184 to D186", in the 1.2 note).
+  3. Keep the 3.0 note: it explains the guarantee wordings changed ahead of the v3.1 and v3.2
+     build. Trim it when v3.2 is archived.
+  4. Keep the 6.3 note, the current version's.
+
+  Done: the CONTRACT is now version 6.3.1, a PATCH bump, as no guarantee changed.
+
+Settled at the release, nothing to do:
+
+- `createSessionMidi`, in `src/components/workspace/workspace-session-midi.ts`, keeps no code link
+  to `service_session_midi` (D344): the file already links ten atoms, the code-health cap. The
+  atom stays traced through `workspace-session-starting-note.ts` and two test files.
+- Ten STABLE atoms tagged `changes-in-v3.1` or `changes-in-v3.2` now cross the contract gate
+  (D346): when v3.1 or v3.2 revises them, each revision takes the contract bump its level
+  requires, a MAJOR one with the owner's explicit confirmation.
 
 ## v3.1 — Embellishment flags and presets
 

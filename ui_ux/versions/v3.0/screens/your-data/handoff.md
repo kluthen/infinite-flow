@@ -154,7 +154,7 @@ The second paragraph is always "This can't be undone."
   `Delete everything` keep their own width, aligned to the inline start.
 - At every breakpoint: sections stack in one column; long names (an instrument, a device) wrap;
   the sheet scrolls vertically inside itself, never horizontally.
-- Every visual value comes from the token source and `ui_ux/token-source-v3.md`; this handoff
+- Every visual value comes from the token source; this handoff
   declares none of its own. Opening and closing follow the sheet's existing fade; changing between
   the Overview and a Confirmation has no animation.
 

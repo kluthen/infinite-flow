@@ -1,12 +1,19 @@
 # v3.0 — Kept Sessions, Review of Earlier Sessions and Favorites
 
+> **Archived 2026-10-16.** v3.0 is released as version 3.0.0; this approved draft was
+> consolidated into the v3 master spec (D217). Live summary:
+> [master spec §5](../../versions/v3/master-spec.md#5-kept-sessions-and-the-review-of-earlier-sessions)
+> and [§6](../../versions/v3/master-spec.md#6-favorites).
+> Relative links were written from `specs/versions/v3/`; the paths of those to files that stayed
+> there were repaired on 2026-10-16 so they resolve from this folder.
+
 Status: draft v3 (2026-10-14). spec-writer's recommendations, approved by the owner at the
 overall review (D216); v3 replaces the size estimate with the build's measurement (D299).
 
 Serves P3, the Fledgling Composer: C1 "review a session" and C2 "take it out"
 ([personas](../../personas.md#p3--the-fledgling-composer-secondary-d61)). Built on v2's
 last-session review and export
-([v2 master spec §7](../v2/master-spec.md#7-sessions-review-export-and-privacy)) and on
+([v2 master spec §7](../../versions/v2/master-spec.md#7-sessions-review-export-and-privacy)) and on
 [persistence.md](persistence.md). Code facts: [storage-grounding.md](storage-grounding.md) §A1.
 
 ## 1. Which sessions are kept

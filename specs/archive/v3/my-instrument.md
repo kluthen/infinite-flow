@@ -1,5 +1,11 @@
 # v3.0 — My Instrument
 
+> **Archived 2026-10-16.** v3.0 is released as version 3.0.0; this approved draft was
+> consolidated into the v3 master spec (D217). Live summary:
+> [master spec §7](../../versions/v3/master-spec.md#7-my-instrument).
+> Relative links were written from `specs/versions/v3/`; the paths of those to files that stayed
+> there were repaired on 2026-10-16 so they resolve from this folder.
+
 Status: draft v2 (2026-10-07). spec-writer's recommendations, approved by the owner at the
 overall review (D216).
 

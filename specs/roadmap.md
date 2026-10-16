@@ -1,6 +1,6 @@
 # Infinite Flow Roadmap
 
-Status: draft v1.11 (rewritten 2026-09-25 after the persona and vision session; browser scope
+Status: draft v1.12 (rewritten 2026-09-25 after the persona and vision session; browser scope
 added 2026-09-28, D127; review candidates added 2026-09-28, D128; session-keeping candidates and
 export by content added 2026-09-28, D129; favorites moved to v3 2026-09-28, D130; staff-only
 session view placed in v5 2026-09-28, D133; v2 replanned 2026-10-03: real-hardware checks as
@@ -15,7 +15,8 @@ player-made presets in v3, sequence writing as a later candidate, 2026-10-07, D2
 into releases, rhythm ratios and editor moved to v4, four candidates dropped, 2026-10-07, D211;
 v3.0.1 merged into v3.0 and played signal patterns tied to learning, D212; v3.3, richer chords,
 added after v3.2 2026-10-12, D261; its chord research started as a separate item, D262; v3.3
-master spec Part D, awaiting owner approval, 2026-10-12, D264–D274)
+master spec Part D, awaiting owner approval, 2026-10-12, D264–D274; v3.0 released as 3.0.0
+2026-10-16, D348)
 
 This is an ordered timeline with no dates. Each version's scope lives in its folder under
 [versions/](versions/README.md). The principles every version follows are in the
@@ -85,8 +86,8 @@ record is archived at [archive/v2/](archive/v2/README.md).
 
 - **Intent:** the Fledgling Composer's release: grow the player's own ideas.
 - **Releases (D211):**
-  - **v3.0, storage:** first local persistence; a "my instrument" configuration (input kind,
-    range, transposition); review of earlier sessions, with opt-in retention of played notes;
+  - **v3.0, storage, released as version 3.0.0 on 2026-10-16 (D348):** first local persistence;
+    a "my instrument" configuration (input kind, range, transposition); review of earlier sessions, with opt-in retention of played notes;
     favorites, marking the phrases the player liked and exporting them (D130); keeping sessions
     (D129). With them, merged from a v3.0.1 (D212): pre-generating phrases at Idle (D206) and the
     stray-note filter (D196).

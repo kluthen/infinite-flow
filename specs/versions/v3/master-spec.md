@@ -3,7 +3,8 @@
 Status: this file holds four parts.
 
 - **[Part A — v3.0](#part-a--v30), storage:** master spec v1.24 (2026-10-16), approved by the
-  product owner, and being built. Its section numbers (§1 to §15) are unchanged; v1.5 and v1.6
+  product owner, built and released as version 3.0.0 on 2026-10-16 (spec D348); the contract for
+  the running code. Its section numbers (§1 to §15) are unchanged; v1.5 and v1.6
   write in the owner's rulings after the build's first intent preflight; v1.7 is a wording fix;
   v1.8 writes in the owner's rulings after the build's second intent preflight; v1.9 adds a bass
   clef choice for my instrument, the owner's ruling during wave 2; v1.10 writes in the bound on
@@ -828,7 +829,7 @@ below is intended.
 
 ## 11. Existing code and risks
 
-From reading the code (details: [storage-grounding.md](storage-grounding.md)).
+From reading the code (details: [storage-grounding.md](../../archive/v3/storage-grounding.md)).
 
 - **Settings** are one validated controls object plus the profile selection, held by the
   generation session composable; the audio mix lives in the audio transport; the session options

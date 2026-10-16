@@ -1,11 +1,16 @@
 # Open Questions
 
-Only questions that are truly open appear here. IDs are stable; numbering continues from Q65.
-Closed questions are archived verbatim:
+Only questions that are truly open appear here, with the closed questions of releases not yet
+shipped (Q70-Q72 for v3.1 and v3.2, Q77 for v3.3), which are archived at their own release. IDs
+are stable; numbering continues from Q81 (Q65, Q78 and Q79 were never used). Closed questions are
+archived verbatim:
 
 - First release (v1.0): [Q15](archive/v1/open-questions-Q15.md), closed by D37.
 - v2 (released as version 2.0.0): [Q17–Q64](archive/v2/open-questions-Q17-Q64.md), every one
   closed; each entry names what closed it.
+- v3.0 (released as version 3.0.0): [Q66–Q69](archive/v3.0/open-questions-Q66-Q69.md),
+  [Q76](archive/v3.0/open-questions-Q76.md) and [Q80](archive/v3.0/open-questions-Q80.md), every
+  one closed; each entry names what closed it.
 
 Decision IDs cited here (D37, D100, …) refer to this tree's decision log; archived ones resolve
 through the header of [`decisions.md`](decisions.md).
@@ -26,65 +31,6 @@ through the header of [`decisions.md`](decisions.md).
   about the pre-session, Idle-only static workspace. **Updated 2026-09-28:** an in-session misfit
   can occur after all; ux D100 handles it as a failed generation attempt (retried, never a
   notation-error display), so Q16 stays Idle-only.
-
-- **Q66 — May `ux-writer` apply v3.0's token-source pass to `src/styles/`?** **Closed
-  2026-10-07 by ux D218** (the owner allows it; applied as build plan chunk 1, ux D220). The token source
-  (`src/styles/theme.css`, `components.css`) is this tree's to maintain, but the v3.0 design pass
-  was barred from application files. v3.0's new classes and tokens are therefore specified in
-  `token-source-v3.md` (ux D179), and three earlier token-source chores wait with them: clearing
-  the `v2 new` / `v2 changed` comments (ux D178), and the audio-mix comment fix (ux D177). Needs
-  the owner's go-ahead for one `ux-writer` pass that edits those two files only; until then the
-  build of v3.0's screens cannot style its new components.
-- **Q67 — Behaviours the v3.0 master spec leaves open, settled here for `spec-writer` to confirm.**
-  **Closed 2026-10-07 by ux D218** (confirmed into the master spec, spec D219, and approved by
-  the owner, spec D221).
-  Each is a recommendation the design is built on; the owner reviews them, and `spec-writer`
-  writes the confirmed ones into the master spec:
-  - ux D183: every unpinned session, not only the previous most recent one, is deleted when the
-    next session is saved (§5.1).
-  - ux D185: removing a session's last favorite never unpins it (§6).
-  - ux D191: switching "Keep my played notes" on while reviewing the session that just ended keeps
-    that session's played notes too (§5.3).
-  - ux D195: `Delete everything` reloads the page into its first-visit state (§4.1).
-  - ux D197: the first phrase waits for the saved settings; a read that fails or exceeds a short
-    start-up wait starts from the defaults and saves nothing for that visit (§4.4).
-  - ux D199: changing my instrument's transposition keeps its written range (§7.1, §7.2).
-  - ux D201: the remembered controller is reattached at load only when the browser already allows
-    MIDI access, never with a prompt (§7.3).
-  - ux D214: my instrument's written range counts toward the staff's shared height; a bound on
-    that range, with §14's stricter range check, would spare every instrument a taller staff
-    (§7.1).
-  - ux D209: `Disconnect` also forgets the remembered controller (§7.3).
-  - ux D216: theme and audio-mix changes made during a session are saved at its end (§4.2 meets
-    §13 item 7).
-  - ux D202: after a load, the starting note starts nothing until the page's first click, tap or
-    key press, because browsers do not let a page play sound before one (§7.3 meets v2's
-    audio-unlock rule).
-- **Q68 — Are a session's deletions offered in an outdated tab?** **Closed 2026-10-07 by ux
-  D221** (spec D223, master spec v1.4 §4.3 and done item 14: no deletion of any kind, as
-  recommended). An outdated tab deletes nothing
-  (master spec §4.3). Your data now offers it no deletion (ux D219), but the session list's
-  `Delete`, the review's `Delete session` and `Delete played notes`, and the confirmation that
-  turning `Keep my played notes` off can open still appear there (`screens/session-list/`,
-  `screens/last-session-review/`, `flows/kept-sessions/`). Recommended: absent in an outdated
-  tab, like `Delete everything`, the workspace's notice already asking for a reload; the
-  alternative, a deletion that only hides the session for this visit, would show the player a
-  result the device does not hold. Pin, favorites and comments already apply in memory only
-  while saving is off, which the notice says.
-- **Q69 — In a visit whose saved data couldn't be read, are the review's in-memory deletions
-  offered?** **Closed 2026-10-07 by ux D223** (spec D226, master spec v1.4 §4.4: absent, as
-  recommended). For `spec-writer`. Master spec v1.4 §4.4 says `Delete everything` "is the only
-  deletion it offers", and spec D224 records that as what the design already does. It is not
-  quite: such a visit holds the session that just ended in memory, as after a failed save
-  (`flows/kept-sessions/handoff.md`, Keeping at a Session's End), and that session's review
-  offers `Delete session` (removing it from memory) and, once `Keep my played notes` is turned on
-  there, `Delete played notes` (`screens/last-session-review/handoff.md`, States;
-  `flows/kept-sessions/handoff.md`, Deleting a Session). Neither touches anything kept on the
-  device. Recommended: absent in such a visit, as in an outdated tab (ux D221 removed them there,
-  the session held in memory included), so that §4.4's wording holds literally and the two
-  saving-off visits differ only by `Delete everything`. The alternative, keeping them because
-  they delete nothing kept, needs §4.4 to say "the only deletion of saved data". Not applied
-  until `spec-writer` settles it. (Raised with ux D222.)
 
 ## v3.1 and v3.2, for `spec-writer` (raised 2026-10-08)
 
@@ -143,29 +89,6 @@ and change only if `spec-writer` settles otherwise.
   a later look at the session unexplained. Recommended: **every review, one sentence**.
   Provisional design: ux D251 (first settled in D246), in `screens/last-session-review/`.
 
-## v3.0, for `ux-writer` (raised 2026-10-09 by `spec-writer`)
-
-- **Q76 — My instrument's sheet must show the transposition's derived interval name.** **Closed
-  2026-10-12 by ux D285** (the name leads the transposition's line; compound names with their
-  octave in brackets; the check's confirmation uses the same line). The owner
-  ruled (spec D253, master spec §7.1, v1.5) that the transposition is entered as a number of
-  octaves and a signed semitone count, never chosen by interval name, and that the interval name
-  is derived and shown as the result. The `Sounds` stepper ("{n} lower", "Same", "{n} higher",
-  `screens/my-instrument/handoff.md`) now matches the spec; what the design lacks is the derived
-  name, shown with the stepper and updated on every step (14 lower: a major ninth lower; 9 lower:
-  a major sixth lower; Same: no transposition). Three points for the design: (1) the name comes
-  from §7.1's fixed table (0 unison, 1 minor second … 6 augmented fourth, never "tritone" or
-  "diminished fifth" … 11 major seventh, plus octaves); how a compound name is worded on screen
-  (a major ninth, or a major second plus an octave) is the design's call, for a beginner;
-  (2) `screens/my-instrument/intent.md`'s "Interval names were rejected" reasoning needs
-  revising: names are still never entered, but they are now shown; (3) the one stepper stays:
-  the owner settled (spec D257, master spec §7.1, v1.6) that the transposition is entered with the
-  design's single stepper counting semitones across octaves, one direction for the whole
-  transposition, octaves included (12 lower is one octave lower), with the derived name beside
-  it, not with separate octave and semitone inputs.
-  The check's confirmation (`flows/controller-connection/`, "Use this for my instrument") may
-  show the same name. Blocks build plan chunk 20, not chunk 16.
-
 ## v3.3, for `spec-writer` (raised 2026-10-12)
 
 - **Q77 — At Strongly favored, does a triad replace one chord or the whole plan?** **Closed
@@ -183,20 +106,3 @@ and change only if `spec-writer` settles otherwise.
   records at Strongly favored (§D10, done item 5) is reported to `ux-writer`: if it is not a clear
   majority, the label is revisited (for example "Often" and "Very often" for the top two steps).
   No design change until then; the design stands on the recommended reading.
-
-## v3.0 wave 2, for `spec-writer` (raised 2026-10-12)
-
-- **Q80 — Does §4.3's outdated tab cover another tab's `Delete everything`?** **Closed
-  2026-10-16 by ux D318** (spec D331: yes, every other open tab is outdated; v3.0 shows the
-  newer-version wording; a visit whose database never opened is not told). Master spec §4.3
-  makes a tab outdated when data written by a newer version is known. The storage design built in
-  chunk 4 (`docs/storage.md`, Outdated tabs and the port's states, and Delete everything) also
-  outdates every other open tab when one tab runs `Delete everything`: their connections close
-  on the deletion, writes and deletions are refused, and reads find nothing. The design treats it
-  as an outdated tab in every respect, with its own notice wording ("Everything this app kept on
-  this device was deleted in another tab. Reload this page to start afresh; until then, nothing
-  here is saved.", ux D293, `flows/saved-data/handoff.md`, Notices). Recommended: §4.3 names this
-  second trigger, so the save policy (chunk 5) and done item 14 cover it; no other change.
-  For the build, not the spec: the storage port reports no cause with its outdated event, so the
-  save policy needs it to tell the two notices apart (ux D294); until then the newer-version
-  wording shows.
