@@ -200,7 +200,7 @@ Status: draft v0.71
   dependencies and version-specific open questions. Also holds the cross-version
   [prerequisites](versions/prerequisites.md). v3's build plans: [v3.0](versions/v3/build-plan.md) (approved; v2 moves the workflow to wave
   level, D252; v3 writes in D253–D256; v4 writes in D257 and D258; v5 a wording fix in chunk 23; v6 writes in D290–D292 and moves chunk 18 to wave 6; v7 adds chunk 19b for D293; v8 writes in D294–D296 and adds chunk 20c; v9 writes in D297 and adds chunk 24b; v10 records wave 3 and writes in D299; v11 writes in the wave-4 preflight's corrections and D300; v12 writes in D301 and D302 after chunk 7a; v13 writes in the wave-5 preflight's corrections and D303–D305; v14 writes in D306–D308 and adds chunk 27), [v3.1](versions/v3/build-plan-v3.1.md) (v3, migrated to the build-plan model with the shared [v3 build workflow](versions/v3/build-workflow.md), D339; not approved),
-  [v3.2](versions/v3/build-plan-v3.2.md) (draft v2, not approved) and
+  [v3.2](versions/v3/build-plan-v3.2.md) (v3, migrated to the build-plan model, D340; not approved) and
   [v3.3](versions/v3/build-plan-v3.3.md) (draft v2, not approved; depends on owner approval of
   Part D). Every build plan runs wave by
   wave (D252): one intent preflight and one full wave gate per wave; a chunk checks only its own

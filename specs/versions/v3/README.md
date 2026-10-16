@@ -298,10 +298,10 @@ D229–D231; consolidated in [master spec Part B](master-spec.md#b6-presets).
 awaiting the owner's approval of the consolidation and the owner's confirmation of the contract
 wording it lists).
 
-**Build plan:** [build-plan-v3.2.md](build-plan-v3.2.md), draft v1 (2026-10-08), not approved;
-written while implementation is paused, for the owner to review with the v3.2 design. It plans
-v3.2 on top of the [v3.0](build-plan.md) and [v3.1](build-plan-v3.1.md) build plans and lists five
-questions for `spec-writer`.
+**Build plan:** [build-plan-v3.2.md](build-plan-v3.2.md), v3 (2026-10-16), not approved; for the
+owner to review with the v3.2 design. It plans v3.2 on top of the [v3.0](build-plan.md) and
+[v3.1](build-plan-v3.1.md) build plans on the build-plan model: 27 chunks in seven waves, then the
+release gate, under the shared [v3 build workflow](build-workflow.md) (D340).
 
 **Drafts** (2026-10-08, draft v2, approved by the owner: D232 for the rhythm lock, D234 for the
 rest): [Jam](jam.md), [key and mode suggestion](key-and-mode-suggestion.md),
