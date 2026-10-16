@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.67
+Status: draft v0.68
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -15,7 +15,8 @@ closed during v2 (O24, O50–O99 and O104–O106, apart from O86) are archived v
 [v2 archive index](archive/v2/README.md) says where each answer now lives.
 
 Open on 2026-10-14: O48 and O49 (later and governance), O100–O102 (v4 rhythm ratios and editor),
-O115 and O116 (v3.x learning), O176 (style packs and the chord level, below), O180 (v3.0
+O115 and O116 (v3.x learning), O176 (style packs and the chord level, below), O177 (a stale
+replay-key wording in a STABLE atom, opened 2026-10-16 with D341), O180 (v3.0
 wave 2: octave signs, later), O183 (v3.0 wave 2: the warm worker lost when pre-generation is
 cancelled, opened with D298), O190 (v3.0 wave 4: a newer version's database whose read-only
 reopening fails, opened with D300). The owner closed O201 (a session cut short by reloading or
@@ -119,6 +120,16 @@ amended is revised, and no question comes back unless the owner reopens it.
   Seventh chords level says otherwise, which applies, and how the player sees it? Not needed
   before style packs (D259, on branch `v4-accompaniment-research`, not merged). Proposed: decided
   with style packs.
+- **O177 - A stale replay-key wording in `module_tension_arc_cycle`** _(D341; from the v3.3 build
+  plan's owner questions; outside v3.3)_: the STABLE atom `module_tension_arc_cycle` (outside the
+  contract surface) still says a session phrase's replay key keeps "the unchanged `ifk1.` format",
+  which v3.0's `ifk2.` already breaks and neither earlier intent change set lists. The plan had
+  proposed correcting it at v3.0 chunk 18's capture; that chunk is merged and the wording stands.
+  Open: who corrects it, and when? Proposed: a wording-only revision (no guarantee changes) that
+  names no key version, confirmed by the owner and applied by `documentalist` at the next intent
+  pass that touches it, I0 at the latest; v3.3's
+  [chunk 15](versions/v3/build-plan-v3.3.md#chunk-15--replay-key-ifk5) must not repeat it for
+  `ifk5.`. It blocks no chunk.
 
 ## v3.0 wave 2 (O180+)
 

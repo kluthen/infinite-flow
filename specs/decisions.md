@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.102
+Status: draft v2.103
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,7 +14,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D341**. D336–D338 are wave 9's (branch `v3.0-w9`); D339 and D340 are the v3.1 and v3.2 plan migrations (branch `plan-migration`). D259–D260 are
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D342**. D336–D338 are wave 9's (branch `v3.0-w9`, merged into `main` with a D339 of its own); D339–D341 are the v3.1, v3.2 and v3.3 plan migrations (branch `plan-migration`), renumbered when that branch merges. D259–D260 are
 on branch `v4-accompaniment-research`, not merged yet. D263–D288 are v3.3's richer chords (merged
 from `main`); D289 is unused. D290–D299 were reserved for v3.0 wave 2; wave 2 used D290–D298, and
 D299 records wave 3. D300 records the wave-4 preflight; D301 and D302 the plan revision after
@@ -2170,3 +2170,12 @@ D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan
   uses. Why: thin waves paid a full preflight and gate each, and old wave 3 held the chain 8 → LD →
   20. Prepared on branch `plan-migration`, as the owner pre-authorized; not approved. Now in:
   [build-plan-v3.2.md](versions/v3/build-plan-v3.2.md#waves).
+
+- **D341 (2026-10-16): v3.3's build plan moves to the build-plan model, under the shared v3 build
+  workflow, its waves re-formed.** Chunk IDs and Done-when statements are kept; eight waves and
+  the gate become six waves, in-wave edges held by architecture captures, the release gate no
+  wave; chunk 7 now follows chunks 5 and 6, whose chord-tone facts its run rule reads (chunk 6
+  gains a capture), and the owner's four questions become gates A0, C1, R0 and I0 and
+  [O177](open-questions.md). Why: thin waves paid a full preflight and gate each, and old wave 2
+  held 5, 6 and 7 with no path between them. Prepared on branch `plan-migration`, as the owner
+  pre-authorized; not approved. Now in: [build-plan-v3.3.md](versions/v3/build-plan-v3.3.md#waves).
