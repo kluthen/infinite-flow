@@ -14,13 +14,13 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D339**. D259–D260 are
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D340**. D259–D260 are
 on branch `v4-accompaniment-research`, not merged yet. D263–D288 are v3.3's richer chords (merged
 from `main`); D289 is unused. D290–D299 were reserved for v3.0 wave 2; wave 2 used D290–D298, and
 D299 records wave 3. D300 records the wave-4 preflight; D301 and D302 the plan revision after
 chunk 7a; D303–D305 the wave-5 preflight (D303 the owner's ruling on the session key); D306–D308 the
 wave-5 sync; D309–D311 the owner's rulings on O201 and O200 and the plan revision they bring;
-D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan following the wave-6 design gates; D320 the owner's confirmation of the seventh contract change; D321 measurement M1's findings; D322 and D323 the owner's rulings on O211 and on a controller reselected at load; D324 and D325 the wave-7 preflight; D326 the erasing of my instrument's sessions in one batch; D327 a wording correction to D310; D328 a page the back-forward cache brings back; D329–D331 the wave-8 preflight; D332–D334 three edges found while recording its captures; D335 the owner's sign-off at the wave-8 report on the transposition check's action; D336–D338 the wave-9 preflight.
+D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan following the wave-6 design gates; D320 the owner's confirmation of the seventh contract change; D321 measurement M1's findings; D322 and D323 the owner's rulings on O211 and on a controller reselected at load; D324 and D325 the wave-7 preflight; D326 the erasing of my instrument's sessions in one batch; D327 a wording correction to D310; D328 a page the back-forward cache brings back; D329–D331 the wave-8 preflight; D332–D334 three edges found while recording its captures; D335 the owner's sign-off at the wave-8 report on the transposition check's action; D336–D338 the wave-9 preflight; D339 the owner keeping ux D319.
 
 ## Decision Log
 
@@ -2215,3 +2215,9 @@ D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan
   batch is saved it leaves memory with the others (its review closes, `Review last session`
   goes), and with it any retry of its save, so nothing writes it to the device later. Refused,
   it stays, as everything does. No behaviour, design or atom change; chunk 20c-1 tests it.
+
+- **D339 (2026-10-16): after Use it, the musical profile selection shows the player's
+  selection from Start, never phrase 1's; other changed controls show phrase 1's values.** The
+  owner kept ux D319. Why: the selection names the choice the next phrases follow. Stated in
+  [master spec §16](versions/v3/master-spec.md#16-a-stale-phrase-1-at-start) (Part A v1.24) and
+  `rule_stale_phrase_prompt_at_start` 0.2 (change set part R5 item 2); chunk 24b-2 built it.

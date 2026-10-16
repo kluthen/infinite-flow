@@ -2,7 +2,7 @@
 
 Status: this file holds four parts.
 
-- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.23 (2026-10-16), approved by the
+- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.24 (2026-10-16), approved by the
   product owner, and being built. Its section numbers (§1 to §15) are unchanged; v1.5 and v1.6
   write in the owner's rulings after the build's first intent preflight; v1.7 is a wording fix;
   v1.8 writes in the owner's rulings after the build's second intent preflight; v1.9 adds a bass
@@ -28,7 +28,9 @@ Status: this file holds four parts.
   the build already does (§4.3, item 14; spec D331); v1.23 states, as the build already does, that
   the transposition check's action also selects my instrument when another instrument was
   selected, and is not offered when its transposition would make my instrument's written range
-  sound outside MIDI notes 0 to 127 (§7.2; spec D335). No contract wording it needs waits for the
+  sound outside MIDI notes 0 to 127 (§7.2; spec D335); v1.24 states, as the build already does,
+  that after Use it the musical profile selection shows the player's selection from the start,
+  never phrase 1's (§16; spec D339). No contract wording it needs waits for the
   owner any more (§10).
 - **[Part B — v3.1](#part-b--v31), embellishment figures and presets:** master spec v1.0
   (2026-10-08), consolidated from the v3.1 drafts the owner approved; approved by the product
@@ -1132,7 +1134,9 @@ most tempos (ISS-011). From v3.0 the app says so and asks.
     phrase 2 standalone. No new rule is needed, and the join can no longer fail at any tempo;
   - the read-only controls show the settings phrase 1 was generated with during the count-in and
     phrase 1, since phrase 1's first measure is on screen through the count-in, then the session's
-    settings from phrase 2, as at any change;
+    settings from phrase 2, as at any change. The musical profile selection alone (from v3.1, the
+    preset) shows the player's selection from the start, never phrase 1's, even when it is one of
+    the settings that changed, since it names the choice the next phrases follow (spec D339);
   - in v3.2, the rhythm lock still locks phrase 1's rhythm (§C7.1 holds as written).
 - **Regenerate** (the owner's ruling, 2026-10-13, spec D297) runs the Idle Regenerate exactly: the current settings, a fresh seed, the usual fit run. The app stays at
   Idle with the new phrase on screen and nothing starts. The player presses Start, or plays the
