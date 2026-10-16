@@ -76,11 +76,13 @@ export interface WorkspaceSession {
    * The browser capabilities a session uses around its run: the screen wake lock and the
    * landscape orientation lock (requested in the Start click, released at every end), the page
    * becoming hidden and the window's shape (both judged during a session). No screen uses them
-   * yet; building the session asks for no lock and listens to nothing.
+   * yet; building the session asks for no lock and listens to nothing. Still loading when the
+   * caller gave them so (production loads them on demand); the session controller is built only
+   * once they have loaded.
    */
   // @spec-link [[service_workspace_session_flow]]
   // @spec-link [[rule_screen_wake_lock_during_session]]
-  readonly browser: SessionBrowserPorts
+  readonly browser: SessionBrowserPorts | Promise<SessionBrowserPorts>
   /**
    * Build the controller of this workspace's practice sessions, over its Idle state, audio
    * transport, browser ports and runners, woken by the session clock's timer. The screen builds
