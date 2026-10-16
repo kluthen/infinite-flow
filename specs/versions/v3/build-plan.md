@@ -4248,6 +4248,24 @@ before code.
 
 **Verification:** the chunk checks; hand check H9.
 
+**Record (2026-10-16).** Merged into `v3.0-w9` in two parts: 24b-1 (ac36f37, merge 4c65625: the
+Idle result records phrase 1's settings; the pure `stale-phrase-one.ts`; the session and
+pre-generation start from phrase 1's settings, so phrase 2 joins as after a settings change; the
+queue's quiet `CarryInError` stop and its re-check during a session removed; the harness switch,
+`test:e2e:pregeneration` added to `quality`, eleven tests pinned to `?pregeneration=off`), 24b-2
+(65db2a4, merge 2796326: `workspace-stale-phrase.ts`, the lazy `StalePhrasePrompt.vue`, Start and
+the starting note ask first; `SessionController.start()` returns `'started' | 'asked'`;
+`workspace-session-starting-note.ts` split out of `workspace-session-midi.ts`, carrying the
+missing `service_session_midi` link). `reviewer`: OKAY on 24b-2 (CONTRACT 5.0's starting note,
+`rule_midi_starting_note` unchanged); two of its notes fixed. Every Done when item holds: the
+ISS-011 reproduction, the 60–240 BPM sweep over every Written key, Collection, Harmonic motion and
+Register change, the stale check's settings, the identity of Use it's phrases with pre-generation,
+`stale-phrase-start.spec.ts` (5 tests), both e2e lanes 453/453. Entry chunk 228,844 B after 24b-1,
+229,194 B after 24b-2 (182 B under the budget). Settled by the chunk owner, for `ux-writer` to
+confirm: during the count-in and phrase 1, the Musical profile preset shows the player's current
+selection, not phrase 1's. H9 is written in `HARDWARE-CHECKLIST.md`; ISS-011 is In Progress until
+the gate and H9.
+
 ### Chunk 25 — Stray-note filter
 
 **Goal.** Leave very short stray notes out of the review's lane and, by default, out of the
