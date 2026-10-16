@@ -1329,6 +1329,13 @@ REVIEW atoms to STABLE at the final sync, architecture included, with the contra
 `rule_saved_data_belongs_to_browser_profile` DRAFT → REVIEW on argument). Next: chunk 26 to a
 `coding-leader`; then the wave gate (`npm run quality`) and `documentalist`'s final sync.
 
+**Wave 10 gate (2026-10-16).** Chunk 26 (cc1ada7, merge 7d1139e) merged into `v3.0-w10`;
+record under the chunk. `npm run quality` on the reference machine (Ryzen 5 PRO 8640HS), idle, at
+c6783af: green at the first run. Unit 6,730 tests in 445 files; e2e 454, and 454 again with
+pre-generation on; a11y 57; notation 107 passed, 4 skipped; code health 0 errors; boundaries
+passed (397 source files, 42 chunks within budget). **Entry chunk 229,146 B (unchanged since wave
+9; 230 B under the 229,376 B budget).** Next: `documentalist`'s final sync (spec D343).
+
 ## 2. Read first: what v3.0 undoes in v2
 
 v2 promised that nothing survives a reload and enforced it three ways: two code gates, about ten
