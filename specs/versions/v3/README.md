@@ -211,6 +211,8 @@ These follow the v3.0.0 tag, as v2.0's real-program checks did. The hand checks 
      build. Trim it when v3.2 is archived.
   4. Keep the 6.3 note, the current version's.
 
+  Done: the CONTRACT is now version 6.3.1, a PATCH bump, as no guarantee changed.
+
 Settled at the release, nothing to do:
 
 - `createSessionMidi`, in `src/components/workspace/workspace-session-midi.ts`, keeps no code link
