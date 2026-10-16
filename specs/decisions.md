@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.98
+Status: draft v2.99
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,13 +14,13 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D329**. D259–D260 are
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D332**. D259–D260 are
 on branch `v4-accompaniment-research`, not merged yet. D263–D288 are v3.3's richer chords (merged
 from `main`); D289 is unused. D290–D299 were reserved for v3.0 wave 2; wave 2 used D290–D298, and
 D299 records wave 3. D300 records the wave-4 preflight; D301 and D302 the plan revision after
 chunk 7a; D303–D305 the wave-5 preflight (D303 the owner's ruling on the session key); D306–D308 the
 wave-5 sync; D309–D311 the owner's rulings on O201 and O200 and the plan revision they bring;
-D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan following the wave-6 design gates; D320 the owner's confirmation of the seventh contract change; D321 measurement M1's findings; D322 and D323 the owner's rulings on O211 and on a controller reselected at load; D324 and D325 the wave-7 preflight; D326 the erasing of my instrument's sessions in one batch; D327 a wording correction to D310; D328 a page the back-forward cache brings back.
+D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan following the wave-6 design gates; D320 the owner's confirmation of the seventh contract change; D321 measurement M1's findings; D322 and D323 the owner's rulings on O211 and on a controller reselected at load; D324 and D325 the wave-7 preflight; D326 the erasing of my instrument's sessions in one batch; D327 a wording correction to D310; D328 a page the back-forward cache brings back; D329–D331 the wave-8 preflight.
 
 ## Decision Log
 
@@ -1993,3 +1993,97 @@ D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan
   change; nothing for `ux-writer`. Build plan v24 revises chunk 27's scope and Done when; the
   follow-up fix goes on `v3.0-w7`. `documentalist` records it at the wave-7 sync in
   `req_rolling_practice_session`, `module_kept_session_save` and `module_save_policy`.
+
+- **D329 (2026-10-16): build plan v25 places the wave-8 preflight's corrections.** Settled by
+  `spec-writer` under the owner's delegation of minor technical calls, from `documentalist`'s
+  wave-8 preflight (9aef0c0 on `v3.0-w8`: every chunk PROCEED with notes or with sign-off
+  pending; the capture `module_kept_session_save` 0.6), checked against the code on that branch.
+  Wave 8 is not file-disjoint, as v24 claimed: chunks 15, 21 and 28 share
+  `WorkspaceShell.vue` (15's footer and Your data host, then 21's route from the check's action
+  to the session's actions, then 28b's reports, D330) and the session controller's two files
+  (15's Delete every session, then 28a), in number order, κ=1, as waves 6 and 7 did (D312,
+  D325). `use-kept-sessions.ts` stays 28b's: chunk 15 uses its `removed(keys)` as it is.
+  Chunk 15 builds Delete every session through the session controller, not only in the sheet:
+  one batch through the kept-change line (`changeKept`, refusal `caller`) from a key-only read of
+  the three kept-session stores, so a session with no row is deleted too; on success every
+  session held in memory goes, the most recent included, kept or held in memory only, and every
+  row, leaving no most recent session until the next session ends with a review (D327). This is
+  a new change neither `module_kept_session_changes` nor `module_kept_session_reach` covers, so
+  it is an architecture capture before chunk 15's code, not a revision at the sync. Chunk 15
+  gains §4.3, §4.4 and §5.4 and nine governing atoms, and a split rule (15a the controller's
+  Delete every session, 15b the sheet, the footer and their hosts). Chunk 21's save path is
+  `generation-session-my-instrument.ts`, not the sheet's form model `use-my-instrument.ts`;
+  `saveMyInstrument` must also select an existing my instrument that is not selected; the action
+  reaches the session's actions through `WorkspaceShell.vue` and the connection sheet's contract,
+  component and host; `transposition-check.ts` likely needs no change (it takes any
+  `InstrumentProfile`); `HARDWARE-CHECKLIST.md` carries H3; only
+  `rule_controller_transposition_check` is STABLE (`rule_acknowledgement_exact_pitch` is REVIEW);
+  it gains a split rule (21a the save path, 21b the action and its route). Chunk 28's opening
+  path is `workspace-kept-session-opening.ts` (`SessionOpening` gains a damaged outcome in
+  `workspace-session-controller-types.ts`), a row's opening is `use-session-list.ts` →
+  `openSession`, and the landing after a damaged row is `ReviewArea.vue`'s `openRow` and
+  `review-area-focus.ts`; it gains `module_kept_session_reach`, `module_save_policy` and
+  `service_session_controller`. `workspace-session-controller-types.ts`,
+  `workspace-kept-session-edits.ts`, `workspace-session-ends.ts` and
+  `create-workspace-session.ts` each already link 10 atoms, the cap: a new linked function goes
+  in a new file.
+
+- **D330 (2026-10-16): chunk 28's damaged-session deletions go through the kept-change line, and
+  their reports reach the notices through `App.vue` and the workspace shell, as the remembered
+  controller's store does.** Settled by `spec-writer` under the owner's delegation of minor
+  technical calls, from the three points `documentalist` derived while writing the capture
+  (`module_kept_session_save` 0.6, 9aef0c0) and the one it left open. All three points are
+  confirmed. (1) The load's clean-up and an opening's deletion go through
+  `changeKept(changes, 'caller')`, never `save()`: during a session `save()` resolves `held`
+  and a later refusal would reach the failure listener as Save failed, where ux D313 wants
+  "Damaged session not deleted"; the kept-change line also reads at the change and queues behind
+  the session saves, which (2) needs. (2) The clean-up runs only when a summary the load read is
+  damaged, so a visit with nothing damaged opens no transaction for it, and it re-reads the
+  summaries at the change: a summary damaged since the load goes too, its row with it, and none
+  damaged at the re-read writes and tells nothing. (3) A refusal for lack of space gives Storage
+  full, any other refusal the save-problem notice's "Damaged session not deleted" (ux D310,
+  D313); since the refusal is the caller's, the notices take both from the deletion's report,
+  not from the failure listener. The open point, how the reports reach `use-app-notices.ts`:
+  option (b), read in the code on `v3.0-w8`. The remembered controller is the idiom it follows:
+  `createWorkspaceSession` builds its store, `App.vue` passes it to `WorkspaceShell.vue` as a
+  prop (`remembered-controller`), and the shell hands it to the composable that uses it. So the
+  reports' channel is built with the workspace, before the controller's chunk loads (a small
+  builder in `workspace-kept-sessions-seam.ts`, called from `create-workspace-session.ts`, which
+  gains no link), handed to `keptSessionsOf` for the controller to tell through, and exposed on
+  `WorkspaceSession`; `App.vue` passes it to the shell, which hands it to `useAppNotices` as a
+  dependency (an optional prop defaulting to none, so the shell's specs stand). The shell's edit
+  is one prop and one argument, made by 28b after chunks 15 and 21 in the wave's shared-files
+  order (D329). Option (a), a `WeakMap` in the seam module keyed to the visit's `SavedDataLoad`,
+  is rejected: a hidden module-level channel that works only when the shell's `savedData` is the
+  very object the seam was built from, which the shell's `Pick` type does not show; every shell
+  spec builds its own `savedData` (`quietSavedData`), and a mis-wired harness would drop the
+  apology with no error. Option (c), `App.vue` providing the reports as it provides
+  `SAVE_SETTINGS`, is rejected: `SAVE_SETTINGS` serves components deep in the tree, and the
+  idiom has the component inject and pass it to its composable as a dependency (the shell passes
+  `injectSaveSettings()` to `useSessionOptions`), so following it still edits the shell; the
+  only way to leave the shell alone is for `useAppNotices` to inject by itself, which its unit
+  tests (an effect scope, no component) cannot provide and which hides a required dependency.
+  The notices are built in one place, `App.vue`'s direct child, where a prop is the plain path.
+  `documentalist` revises `module_kept_session_save` 0.6 before chunk 28's code: its "never
+  through the workspace shell" goes, and the TECHNICAL INTERFACE names the channel's route.
+
+- **D331 (2026-10-16): another tab's Delete everything outdates every other open tab; master spec
+  §4.3 names it (ux Q80).** Settled by `spec-writer` under the owner's delegation of minor design
+  calls; the behaviour is already built and designed, and this names it in the spec. As written,
+  §4.3 makes a tab outdated only when data written by a newer version is known, so it does not
+  cover another tab's `Delete everything`. Chunk 4's port does outdate the other tabs then (their
+  connections close on the deletion; writes and deletions are refused, reads find nothing), and
+  the design treats such a tab as outdated in every respect (ux D293, D294). That is the right
+  behaviour: the other tab holds what was deleted in memory (settings, my instrument, the rows of
+  kept sessions), and saving from it would bring back part of what the player chose to delete
+  everywhere. So §4.3 gains a second trigger: once the player runs Delete everything in one tab,
+  every other open tab of the app is an outdated tab, saving and deleting nothing, offering no
+  deletion and showing the reload notice outside a running session; in v3.0 its notice shows the
+  newer version's wording, since the port reports no cause (D300), and the reload cures both.
+  Done item 14 covers it. A visit whose database never opened (its read failed) is not told, as
+  it has no connection to close, and still offers Delete everything as §4.4 says; that is
+  accepted, since it holds nothing it read. Master spec Part A v1.22. Chunk 15 tests it (a second
+  tab, after Delete everything in the first, saves nothing, offers no deletion and shows that
+  wording). `rule_outdated_tab_stops_saving` gains the second trigger in business wording, for
+  the owner at the wave-8 sync. `ux-writer` closes ux Q80 in its own register, citing this entry;
+  no design change (its deletion wording stays for a later version, D300).
