@@ -112,6 +112,7 @@ describe('composeWorkspaceSession', () => {
   })
 
   // @test-link [[service_workspace_session_flow]]
+  // @test-link [[service_session_controller]]
   it('builds session controllers only once browser ports given still loading have loaded', async () => {
     const warm = composeWorkspaceSession(fakeDependencies())
     ;(await warm.createSessionController()).dispose()
