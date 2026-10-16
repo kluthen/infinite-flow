@@ -6,7 +6,10 @@
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 
 import ConnectionSheet from '@/components/controller-connection/ConnectionSheet.vue'
-import type { SheetOpenAt } from '@/components/controller-connection/connection-sheet-contract'
+import type {
+  ConnectionSheetSessionsProps,
+  SheetOpenAt,
+} from '@/components/controller-connection/connection-sheet-contract'
 import type { InstrumentClef } from '@/domain/profile/instrument-clef'
 import type { InstrumentProfile } from '@/domain/profile/instrument-profile'
 import {
@@ -24,7 +27,20 @@ export interface OpenSheetOptions {
   readonly seenDeviceCount?: number
   /** The saved my instrument, if any (none by default). */
   readonly myInstrument?: MyInstrument | null
+  /** The kept sessions of my instrument counted (none by default). */
+  readonly myInstrumentSessions?: ConnectionSheetSessionsProps['myInstrumentSessions']
+  /** The `Use and erase` batch (one that is never expected by default). */
+  readonly useAndErase?: ConnectionSheetSessionsProps['useAndErase']
 }
+
+/** No kept session of my instrument counted. */
+export const NO_SESSIONS_COUNTED = Object.freeze({
+  count: 0,
+  reviewed: false,
+  withheld: false,
+  deletes: () => Promise.resolve([]),
+  leave: () => undefined,
+})
 
 export type SheetWrapper = VueWrapper<InstanceType<typeof ConnectionSheet>>
 
@@ -53,6 +69,10 @@ export async function openSheet(
       profiles: ADOPTED_INSTRUMENT_PROFILES,
       seenDeviceCount: options.seenDeviceCount ?? 1,
       myInstrument: options.myInstrument ?? null,
+      myInstrumentSessions: options.myInstrumentSessions ?? NO_SESSIONS_COUNTED,
+      useAndErase:
+        options.useAndErase ??
+        (() => Promise.reject(new Error('connection sheet rig: no Use and erase is expected'))),
     },
     attachTo: document.body,
   })

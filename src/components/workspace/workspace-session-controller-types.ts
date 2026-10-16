@@ -151,6 +151,18 @@ export type MostRecentSession =
   | { readonly kind: 'held'; readonly session: ReviewedSession }
   | { readonly kind: 'kept'; readonly key: string }
 
+/**
+ * The kept sessions of my instrument as the controller counts them for a warning or confirmation:
+ * their number, deletes and leaving memory, whether the Review on screen draws one of them, and
+ * whether erasing them is withheld because saving is off while there are some (an outdated tab).
+ */
+export interface MyInstrumentSessionCount extends MyInstrumentSessions {
+  /** The Review on screen shows one of the counted sessions: confirming closes it. */
+  readonly reviewed: boolean
+  /** Saving is off while some are counted: deleting my instrument and erasing them are withheld. */
+  readonly withheld: boolean
+}
+
 /** What the screen reads from the controller; every field is reactive. */
 // @spec-link [[service_session_controller]]
 // @spec-link [[rule_session_start_conditions]]
@@ -370,9 +382,10 @@ export interface SessionController {
    * with it. The count holds the deletes of those stored on the device, by their keys (none for one
    * held in memory only because its save failed), and their leaving memory once the batch that
    * erases them is saved: their rows, a Review of one (the list in its place when it showed) and the
-   * most recent session when it is one, leaving none. Reactive through the state it reads.
+   * most recent session when it is one, leaving none. While saving is off it counts only the rows
+   * (a held session keeps its Review). Reactive through the state it reads.
    */
-  readonly myInstrumentSessions: () => MyInstrumentSessions
+  readonly myInstrumentSessions: () => MyInstrumentSessionCount
   /**
    * Turn the page's adaptive-tempo flag on or off, at Idle only: throws during the count-in or a
    * running session, and when turning it on with no controller attached.

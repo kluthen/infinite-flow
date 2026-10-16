@@ -7,7 +7,7 @@
  * showed) and the most recent session when it is one. Another instrument's sessions stay. On the
  * fake audio clock at 240 BPM from 5 s: phrase 1 sounds from 6.1 s.
  */
-import { beforeAll, describe, expect, it } from 'vitest'
+import { afterEach, beforeAll, describe, expect, it } from 'vitest'
 
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
 import { createGenerationIntent } from '@/domain/generation/generation-intent'
@@ -77,6 +77,13 @@ function deletedKeys(batch: readonly StorageChange[]): string[] {
   return [...new Set(batch.map((change) => change.key))].sort()
 }
 
+/** Whether saving is off for the rigs built next: set by a test, reset after each. */
+let savingOff = false
+
+afterEach(() => {
+  savingOff = false
+})
+
 /** Intent: a rig over `summaries` whose sessions' own saves resolve `outcome`. */
 function rigOver(
   summaries: readonly StoredEntry[],
@@ -85,7 +92,7 @@ function rigOver(
   return controllerRig(undefined, undefined, {
     keptSessions: {
       summaries,
-      savingOff: () => false,
+      savingOff: () => savingOff,
     },
     sessionSaveOutcome: (changes: SessionChanges) => {
       changes([])
@@ -164,6 +171,8 @@ describe("session controller: my instrument's kept sessions", () => {
 
     const counted = rig.controller.myInstrumentSessions()
     expect(counted.count).toBe(4)
+    expect(counted.reviewed).toBe(true)
+    expect(counted.withheld).toBe(false)
 
     counted.leave()
     expect(rig.controller.state.review).toBeNull()
@@ -207,5 +216,25 @@ describe("session controller: my instrument's kept sessions", () => {
     counted.leave()
     expect(rig.controller.state.review?.showing).toBe(true)
     expect(rig.controller.state.mostRecent?.kind).toBe('held')
+  })
+
+  // @test-link [[rule_outdated_tab_stops_saving]]
+  // @test-link [[rule_failed_read_offers_only_delete_everything]]
+  it('while saving is off counts no held session, so it keeps its Review; with rows read, erasing them is withheld', async () => {
+    savingOff = true
+    const fromDefaults = rigOver([], { status: 'saving-off' })
+    await playedWithMyInstrument(fromDefaults)
+    const none = fromDefaults.controller.myInstrumentSessions()
+    expect(none).toMatchObject({ count: 0, reviewed: false, withheld: false })
+    none.leave()
+    expect(fromDefaults.controller.state.review?.showing).toBe(true)
+
+    const outdated = rigOver(loaded(), { status: 'saving-off' })
+    await playedWithMyInstrument(outdated)
+    expect(outdated.controller.myInstrumentSessions()).toMatchObject({
+      count: 3,
+      reviewed: false,
+      withheld: true,
+    })
   })
 })

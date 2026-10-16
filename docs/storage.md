@@ -993,7 +993,16 @@ and the generator-facing profile are derived again at each load.
   counts the sessions (`myInstrumentSessions`, `src/components/workspace/workspace-my-instrument-sessions.ts`):
   the list's rows naming `my-instrument`, and the session that just ended when played with it; a
   session held in memory only because its own save failed is counted, named by no delete, and only
-  leaves memory (spec D338).
+  leaves memory (spec D338). While saving is off no held session is counted (it keeps its Review),
+  so a visit started from the defaults counts none; an outdated tab counts the rows it read and
+  withholds both changes (`withheld`): the My instrument sheet shows its reload line, its steppers
+  disabled and no Delete, and the check offers no `Use this for my instrument` that would erase.
+- **Waited for by the sheet and the check.** The sheet's host (`use-my-instrument-sheet.ts`) and
+  the connection sheet hand the counted sessions to the batch and wait for its outcome: the erase
+  warning (`Save and erase`), the delete confirmation and the check's `Use and erase` stay open,
+  loading, while it runs, keep their error line on a refusal, and return to the form (or the check
+  result) on saving off, the range and the transposition back to their saved values
+  (`use-my-instrument-confirmations.ts`).
 - **In memory, only once saved.** The Idle session's actions (`saveMyInstrument`,
   `saveAndSelectMyInstrument`, `deleteMyInstrument`, given the counted sessions) change nothing
   before the batch is saved: then the counted sessions leave memory (their rows, a Review of one,

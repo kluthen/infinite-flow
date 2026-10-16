@@ -10,7 +10,6 @@ import { nextTick, reactive, toRaw } from 'vue'
 
 import ConnectionSheet from '@/components/controller-connection/ConnectionSheet.vue'
 import WorkspaceShell from '@/components/workspace/WorkspaceShell.vue'
-import { NO_SESSIONS_COUNTED } from '@/components/workspace/use-my-instrument-sheet'
 import type { SessionController } from '@/components/workspace/workspace-session-controller-types'
 import type { AudioTransport } from '@/audio/audio-transport'
 import type { MidiController } from '@/midi/midi-controller-state'
@@ -249,15 +248,23 @@ describe('WorkspaceShell connection sheet and my instrument', () => {
       ...live.session,
       actions: { ...live.session.actions, saveAndSelectMyInstrument: saveAndSelect },
     }
-    const wrapper = mountShell({ ...live, session }, { midi: rig.controller })
+    const fake = createFakeSessionController()
+    const wrapper = mountShell(
+      { ...live, session },
+      { midi: rig.controller, controller: fake.controller },
+    )
 
     const sheet = await openSheet(wrapper)
     expect(sheet.props('myInstrument')).toEqual(HOME_TENOR)
+    expect(sheet.props('myInstrumentSessions')).toMatchObject({ count: 0, withheld: false })
 
     sheet.vm.$emit('use-for-my-instrument', HOME_TENOR)
     await flushPromises()
 
-    expect(saveAndSelect).toHaveBeenCalledExactlyOnceWith(HOME_TENOR, NO_SESSIONS_COUNTED)
+    expect(saveAndSelect).toHaveBeenCalledExactlyOnceWith(
+      HOME_TENOR,
+      expect.objectContaining({ count: 0 }),
+    )
     // The sheet stays open: it goes on to Connected by itself.
     expect(wrapper.findComponent(ConnectionSheet).exists()).toBe(true)
   })
