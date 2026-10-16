@@ -348,6 +348,7 @@ export function createFakeSessionController(
       withheld: false,
       deletes: () => Promise.resolve([]),
       leave: () => undefined,
+      stay: () => undefined,
     }),
   )
   return {

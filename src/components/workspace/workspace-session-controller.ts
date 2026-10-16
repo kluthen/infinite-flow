@@ -277,7 +277,12 @@ export function createSessionController(deps: SessionControllerDependencies): Se
   const damagedSessions = createDamagedSessionDeletions(core, rows)
   const reviewMode = createReviewMode(core, rows, damagedSessions)
   const deleteEverySession = createEverySessionDeletion(core, rows, reviewMode.cancelOpening)
-  const myInstrumentSessions = createMyInstrumentSessions(core, rows, reviewMode.cancelOpening)
+  const myInstrumentSessions = createMyInstrumentSessions(
+    core,
+    rows,
+    reviewMode.cancelOpening,
+    edits,
+  )
   const ends = createSessionEnds(core, adaptiveTempo, keptPlayedNotes.on, edits.saveRefused, rows)
   const start = createSessionStart(
     core,
