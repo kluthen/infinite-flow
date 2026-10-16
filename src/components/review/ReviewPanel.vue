@@ -52,6 +52,7 @@ import {
   type ReviewEngravingOutcome,
   type ReviewEngravingWindow,
 } from './review-engraving-window'
+import { reviewSystemPositionUnits } from './review-system-size'
 import { distanceFromVisibleArea, observeReviewList } from './review-list-observers'
 import { useReviewExportAction } from './use-review-export-action'
 import type {
@@ -296,9 +297,12 @@ function reviewStaffReservation(
   return { positionCount, positionBlockPx: Math.max(0, viewport.heightBudgetPx) / 2 }
 }
 
-const reservation = computed(() =>
-  reviewStaffReservation(props.viewport, props.systemPositionUnits),
+/** The Review's own system-position size: the shared one, or more for this session's own clef. */
+const positionUnits = computed(() =>
+  reviewSystemPositionUnits(props.systemPositionUnits, props.records),
 )
+
+const reservation = computed(() => reviewStaffReservation(props.viewport, positionUnits.value))
 
 // ---- Export ----
 
@@ -504,11 +508,11 @@ onMounted(serveList)
 watch([listEl, () => props.records], serveList, { flush: 'post' })
 
 /**
- * Intent: a real change of the viewport or the shared system-position size re-engraves what is
+ * Intent: a real change of the viewport or the Review's system-position size re-engraves what is
  * engraved near the window, once rendered.
  */
 watch(
-  () => [props.viewport, props.systemPositionUnits] as const,
+  () => [props.viewport, positionUnits.value] as const,
   (next, previous) => {
     if (JSON.stringify(next) === JSON.stringify(previous)) return
     engraving?.invalidate()
@@ -661,7 +665,7 @@ onBeforeUnmount(stopEngraving)
         :ref="(instance) => setPhrase(index, instance)"
         :record="record"
         :viewport="viewport"
-        :system-position-units="systemPositionUnits"
+        :system-position-units="positionUnits"
         :reservation="reservation"
         :played-notes-shown="lanesShown"
         :pitch-scale="pitchScale"
