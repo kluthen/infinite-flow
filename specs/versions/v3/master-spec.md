@@ -2,7 +2,7 @@
 
 Status: this file holds four parts.
 
-- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.22 (2026-10-16), approved by the
+- **[Part A — v3.0](#part-a--v30), storage:** master spec v1.23 (2026-10-16), approved by the
   product owner, and being built. Its section numbers (§1 to §15) are unchanged; v1.5 and v1.6
   write in the owner's rulings after the build's first intent preflight; v1.7 is a wording fix;
   v1.8 writes in the owner's rulings after the build's second intent preflight; v1.9 adds a bass
@@ -25,7 +25,10 @@ Status: this file holds four parts.
   back, with no transposition check (§7.3; spec D323), no behaviour changed; v1.21 states where
   favorite phrases sit in time in a favorites-only file (§6; spec D324), which §6 already
   implied; v1.22 names a second way a tab becomes outdated, another tab's Delete everything, as
-  the build already does (§4.3, item 14; spec D331). No contract wording it needs waits for the
+  the build already does (§4.3, item 14; spec D331); v1.23 states, as the build already does, that
+  the transposition check's action also selects my instrument when another instrument was
+  selected, and is not offered when its transposition would make my instrument's written range
+  sound outside MIDI notes 0 to 127 (§7.2; spec D335). No contract wording it needs waits for the
   owner any more (§10).
 - **[Part B — v3.1](#part-b--v31), embellishment figures and presets:** master spec v1.0
   (2026-10-08), consolidated from the v3.1 drafts the owner approved; approved by the product
@@ -616,7 +619,10 @@ a constant offset: a match, whole octaves, or a number of semitones.
   offset in semitones becomes §7.1's octaves, semitones and direction, and its interval name
   follows from §7.1's table),
   creating "my instrument" from the selected profile if there is none yet. The player confirms it
-  once; it is then saved, and the check need not be redone in later visits. When my instrument
+  once; it is then saved as my instrument's transposition, and the check need not be redone in
+  later visits. When another instrument was selected, the action also selects my instrument. It
+  is not offered when that transposition would make a note of my instrument's written range sound
+  outside the MIDI note range (notes 0 to 127, §7.1). When my instrument
   already exists and has kept sessions, that one confirmation also warns that changing its
   transposition erases them, and how many (§5.1); confirming erases them.
 - **The app still applies no offset to played notes.** They are compared at the exact concert

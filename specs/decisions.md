@@ -14,13 +14,13 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D335**. D259–D260 are
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D336**. D259–D260 are
 on branch `v4-accompaniment-research`, not merged yet. D263–D288 are v3.3's richer chords (merged
 from `main`); D289 is unused. D290–D299 were reserved for v3.0 wave 2; wave 2 used D290–D298, and
 D299 records wave 3. D300 records the wave-4 preflight; D301 and D302 the plan revision after
 chunk 7a; D303–D305 the wave-5 preflight (D303 the owner's ruling on the session key); D306–D308 the
 wave-5 sync; D309–D311 the owner's rulings on O201 and O200 and the plan revision they bring;
-D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan following the wave-6 design gates; D320 the owner's confirmation of the seventh contract change; D321 measurement M1's findings; D322 and D323 the owner's rulings on O211 and on a controller reselected at load; D324 and D325 the wave-7 preflight; D326 the erasing of my instrument's sessions in one batch; D327 a wording correction to D310; D328 a page the back-forward cache brings back; D329–D331 the wave-8 preflight; D332–D334 three edges found while recording its captures.
+D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan following the wave-6 design gates; D320 the owner's confirmation of the seventh contract change; D321 measurement M1's findings; D322 and D323 the owner's rulings on O211 and on a controller reselected at load; D324 and D325 the wave-7 preflight; D326 the erasing of my instrument's sessions in one batch; D327 a wording correction to D310; D328 a page the back-forward cache brings back; D329–D331 the wave-8 preflight; D332–D334 three edges found while recording its captures; D335 the owner's sign-off at the wave-8 report on the transposition check's action.
 
 ## Decision Log
 
@@ -2142,3 +2142,15 @@ D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan
   `module_kept_session_save` 0.7 says the most recent session is "decided without those sessions,
   as they already are", which no longer holds for a summary damaged since the load;
   `documentalist` amends its rule and its acceptance criterion before chunk 28a's code.
+
+- **D335 (2026-10-16): the transposition check's action also selects my instrument, and is not
+  offered past MIDI's range; master spec §7.2 says both.** The owner's sign-off at the wave-8
+  report (item 6). Chunk 21a's save (`saveAndSelectMyInstrument`) also selects my instrument
+  when another instrument was selected, as the build plan asked; §7.2 did not state it. §7.2 now
+  does, and also states the bound ux D212 settled: the action is not offered when the
+  transposition it would set would make a note of my instrument's written range sound outside
+  MIDI notes 0 to 127, the bound §7.1 already puts on the transposition. No behaviour changed;
+  the spec now says what is built. Master spec Part A v1.23.
+  `rule_transposition_check_sets_my_instrument` 0.4 already says both (intent change set
+  `docs/release/v3.0-intent-change-set.md`, part Q2 item 4 and part Q4 item 6, applied by
+  `documentalist`).
