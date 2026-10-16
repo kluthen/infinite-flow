@@ -1336,6 +1336,21 @@ pre-generation on; a11y 57; notation 107 passed, 4 skipped; code health 0 errors
 passed (397 source files, 42 chunks within budget). **Entry chunk 229,146 B (unchanged since wave
 9; 230 B under the 229,376 B budget).** Next: `documentalist`'s final sync (spec D343).
 
+**Wave 10 sync and report (2026-10-16).** `documentalist`'s final sync is 02a4f0a ([change set
+part T](../../../docs/release/v3.0-intent-change-set.md)), with the release notes' item 23 brought
+to it in eaceca5. As the owner ruled (spec D340, D342, D343): 17 atoms DRAFT → REVIEW (the hand
+checks' holds, P2 item 4 in `rule_last_controller_remembered` 0.4, `service_session_midi`,
+`rule_played_notes_export_omits_stray_notes` on its automated tests alone,
+`rule_saved_data_belongs_to_browser_profile` on argument); the 42 REVIEW atoms → STABLE and onto
+the contract surface, CONTRACT 6.2 → 6.3 (MINOR: additive, no guarantee weakened); the
+`changes-in-v3.0` tag gone from every atom; ISS-011 resolved. `release-v3.0`: 42 STABLE, 17 REVIEW,
+0 DRAFT. `atd:lint`, `atd check --full` pass. Put to the owner, none blocking the tag: a missing
+code link to `service_session_midi` (its file is at the ten-atom cap; part T5); 22 new STABLE atoms
+under a REVIEW parent; ten promoted atoms carrying `changes-in-v3.1`/`v3.2`, whose revisions now
+cross the contract gate; the contract's EXPECTATION kept as a version history. Then: the owner's
+review of the release notes, the merge into `main`, the `3.0.0` tag on his ask, and the milestone
+archive (`spec-writer`, `ux-writer`).
+
 ## 2. Read first: what v3.0 undoes in v2
 
 v2 promised that nothing survives a reload and enforced it three ways: two code gates, about ten
