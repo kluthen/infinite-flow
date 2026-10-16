@@ -1138,6 +1138,45 @@ H5 advances (the owner's hand checks), Part B2 after chunk 20c, D326 in
 merge and the push of `main`, and asked not to start wave 8 yet; the wave merges into `main` with
 entry chunk 227,170 B.
 
+#### Wave 8 preflight (2026-10-16)
+
+The owner asked to start wave 8. Before it, `main` gained the build id in the header (c31e18b,
+merging 10af03a: the version and short commit id beside the app name, from `git archive`'s
+`export-subst`; entry chunk 227,512 B, +342 B) and the website's new address (ac006d9). `v3.0-w8`
+is made from c31e18b. `documentalist` ran the full pass for chunks 15, 21 and 28 without a
+semantic index (keyword search and the files' existing links): 15 PROCEEDs with notes; 21 and 28
+PROCEED with sign-off pending (Part B2 after chunk 20c; change set M2 items 5(b) and 6 at chunk
+28's sync). No CONTRACT or VISION change. It recorded chunk 28's capture in 9aef0c0:
+`module_kept_session_save` 0.5 → 0.6, REVIEW → DRAFT. Its notes: the three chunks share files
+(`WorkspaceShell.vue`, the session controller's two files), files and atoms the chunks' lines
+missed, three points it derived for chunk 28 and one it left open (how the deletion's reports
+reach the notices), M2 5(b) needing three fixes, and ux Q80 blocking nothing.
+
+Placed in v25 (68e7439, spec D329–D331): the wave runs 15a → 15b → 21a → 21b → 28a → 28b, κ=1,
+with shared files in the order of the section "Wave 8: shared files, in order"; chunk 15 gains an
+Architecture capture line (Delete every session as one batch through `changeKept`). D330
+confirms chunk 28's three derived points (the clean-up and an opening's deletion through
+`changeKept` with refusal `caller`; the clean-up only when a load summary is damaged, re-reading
+the summaries; Storage full versus "Damaged session not deleted" from the deletion's report) and
+picks option (b) for the reports: a channel built with the workspace, passed by `App.vue` to the
+shell as a prop and to `useAppNotices` as a dependency. D331 answers ux Q80: another tab's Delete
+everything outdates every other open tab, with the newer-version wording (D300); master spec Part
+A v1.22, and a two-tab done-when in chunk 15. Sent: chunk 15's capture and the D330 revision of
+`module_kept_session_save` to `documentalist`; Q80's closing to `ux-writer`. For the owner at the
+wave-8 sync: M2 5(b)'s LOGIC clause, ux D212's absence rule in
+`rule_transposition_check_sets_my_instrument`, and D331's second trigger in
+`rule_outdated_tab_stops_saving`.
+
+**Hand checks so far (2026-10-16, Travel Sax, the deployed site).** H4's first three steps pass:
+the Travel Sax reattaches at a reload with no prompt, plays nothing before the page's first click,
+and the badge follows an unplug and a replug; its `Disconnect` step is still to run. My
+instrument made from a built-in profile keeps its range and clef across a reload; favorites stay
+after a reload. H5, in part: the default played-notes export (`infinite-flow-2026-10-16-083403-
+played.latest.mid`, 169 notes) holds no note under 41 ms, where the H1 recordings had about one in
+six under 40 ms; 18 notes of 40–150 ms remain, several of them halves of a split note, as spec
+D322 accepts. Still to run for H5: the owner's look at the lane for a dropped intended note, and
+the export with `Include very short notes` on.
+
 ## 2. Read first: what v3.0 undoes in v2
 
 v2 promised that nothing survives a reload and enforced it three ways: two code gates, about ten
