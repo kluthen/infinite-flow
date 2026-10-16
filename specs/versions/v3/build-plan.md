@@ -3828,9 +3828,12 @@ tests over real IndexedDB. Entry chunk 228,146 B after 20c-1, 228,703 B after 20
 (673 B under the budget). 20c-2 corrected 20c-1's count (no held session counted while saving is
 off; `reviewed` and `withheld` added) and fixed a throw during `Use and erase`, when the check's
 result turns to a match once saved. Settled by the chunk owner: when the tab turns outdated while
-the form shows, the range and transposition go back to their saved values. Left for the fix
-below: a failed session's retry still saving when the batch is counted is not named, so its
-records could outlive the deletion.
+the form shows, the range and transposition go back to their saved values. Fix after the
+chunk: 68f6559 (merge b270232) names every counted session in the batch, a failed one too,
+and holds that session's retries while the batch applies: dropped once it is saved, run again on
+a refusal or with saving off (`stay()`), so a retry asked before or after the batch leaves no
+record behind; three unit tests over `fake-indexeddb`; entry unchanged. For the sync: check
+`entity_my_instrument_record`'s wording against a failed session now being named.
 
 ### Remembered-controller wording — Contract 6.0
 
