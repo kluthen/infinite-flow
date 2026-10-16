@@ -85,6 +85,7 @@ afterEach(() => {
 
 // @test-link [[entity_my_instrument_record]]
 // @test-link [[module_kept_session_changes]]
+// @test-link [[module_save_policy]]
 describe("my instrument's batch with its kept sessions", () => {
   // @test-link [[entity_my_instrument_record]]
   it('deleting it deletes its record and the three counted sessions in one batch; the tenor one stays', async () => {
@@ -122,6 +123,7 @@ describe("my instrument's batch with its kept sessions", () => {
   })
 
   // @test-link [[entity_my_instrument_record]]
+  // @test-link [[module_save_policy]]
   it('refused, deletes and writes nothing, and tells only its caller', async () => {
     const real = await seededPort()
     const before = await keysOf(real)
