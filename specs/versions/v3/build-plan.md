@@ -1255,6 +1255,22 @@ pending: P2 item 4 and the H4 and H5 advances, Part B2 after chunk 20c, D326 at 
 preflight, hand checks H3, H6–H9. The owner asked to start wave 9; the wave merges into `main`
 with entry chunk 227,885 B.
 
+#### Wave 9 preflight (2026-10-16)
+
+Wave 8 merged into `main` as 180ac76 and `main` was pushed, at the owner's ask; the owner asked to
+start wave 9. `v3.0-w9` is cut from 180ac76. Both design gates (Sessions, Stale phrase) were done
+and chunks 14, 20, 21 and 24 merged. `documentalist`'s preflight is 83a90ec ([change set part
+R](../../../docs/release/v3.0-intent-change-set.md)): chunk 20c PROCEED with sign-off pending
+(Part B2, with the owner after the wave gate; `module_save_policy` back to REVIEW at the sync);
+chunk 24b PROCEED. Captures, all DRAFT: spec D326 in `entity_my_instrument_record` 0.4 and
+`module_save_policy` 0.6 (REVIEW → DRAFT for the new caller), and 24b-1's re-check on the return
+to Idle in `module_idle_pregeneration_queue` 0.5. Its plan corrections went to `spec-writer`:
+plan v27 (27d59e2, spec D336) completes 20c's Files and Atoms lines and 24b's Atoms line, adds
+"Wave 9: shared files, in order" (`WorkspaceShell.vue`, 20c-2 before 24b-2) and splits 20c in
+three; D337 accepts that a reload between the batch and the template's selection save loads the
+default instrument; D338 confirms that a session whose own save failed only leaves memory. Run
+order: 20c-1 → 20c-2 → 20c-3 → 24b-1 → 24b-2. Nothing needs the owner before the gate.
+
 ## 2. Read first: what v3.0 undoes in v2
 
 v2 promised that nothing survives a reload and enforced it three ways: two code gates, about ten
