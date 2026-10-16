@@ -101,7 +101,7 @@ test.describe('deleting my instrument', () => {
     await sheetActionButton(page, 'Delete my instrument').click()
     await expect(mySheet(page)).toHaveCount(0)
 
-    expect(await instrumentLabels(page)).toEqual(BUILT_IN_LABELS)
+    await expect.poll(() => instrumentLabels(page)).toEqual(BUILT_IN_LABELS)
     await expect(radio(page, INSTRUMENT_GROUP, 'E-flat alto saxophone')).toHaveAttribute(
       'aria-checked',
       'true',
@@ -140,7 +140,7 @@ test.describe('deleting my instrument', () => {
     await sheetActionButton(page, 'Delete my instrument').click()
     await expect(mySheet(page)).toHaveCount(0)
 
-    expect(await instrumentLabels(page)).toEqual(BUILT_IN_LABELS)
+    await expect.poll(() => instrumentLabels(page)).toEqual(BUILT_IN_LABELS)
     await expect(radio(page, INSTRUMENT_GROUP, 'C MIDI keyboard')).toHaveAttribute(
       'aria-checked',
       'true',

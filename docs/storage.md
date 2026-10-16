@@ -975,18 +975,38 @@ and the generator-facing profile are derived again at each load.
   clef (`instrumentClefOf`). `App.vue` sizes the staff's shared system positions from its written
   range in its clef.
 - **Saved** by the player, from the My instrument sheet or the connection sheet's `Use for my
-  instrument`: `saveMyInstrument` writes the record
-  whole and `deleteMyInstrument` deletes it (`src/storage/my-instrument-saves.ts`, part of the
-  visit's saves), each one batch through the save policy, so held during a session, refused in an
+  instrument`. A save that erases nothing (creating my instrument, a change of its name or clef,
+  or a change of its range or transposition while it has no kept session) is the plain write:
+  `saveMyInstrument` writes the record whole (`src/storage/my-instrument-saves.ts`, part of the
+  visit's saves), one batch through the save policy, so held during a session, refused in an
   outdated tab and skipped in a visit that saves nothing; my instrument still applies for the
-  visit. Each save also calls the policy's `requestProtection()`, which asks the browser at most
-  once per visit. The Idle session's `saveMyInstrument` and `deleteMyInstrument` actions call them
-  in the visit's order: a new my instrument's record before the selection that names it, and,
-  when the selected my instrument is deleted, its template's selection before the record's
-  deletion. The check's `saveAndSelectMyInstrument` saves the same way and also selects a my
-  instrument that exists but is not selected, after its record is written. A save that changes
-  nothing writes nothing. Delete everything removes the record with
-  the database.
+  visit, and the notice row tells a refusal.
+- **Deleted, or changed with its kept sessions, in one batch** (spec D326). `deleteMyInstrument`,
+  whatever the number of its kept sessions, and `saveMyInstrumentErasing`, for a change of its
+  range or transposition while it has kept sessions, are each one change through the policy's
+  kept-change line (`changeKept(…, 'caller')`): the record's delete or whole write and the deletes
+  of each counted session's summary, body and played notes, all or none, by the keys the warning
+  or confirmation counted (`keptSessionsDeletes` beside `deleteKeptSession` in
+  `src/components/workspace/kept-session-review-changes.ts`). It runs after every session save
+  asked for before it, so the session that just ended is saved first and erased by the key its save
+  minted. Its outcome reaches the caller alone, never the notice row. The session controller
+  counts the sessions (`myInstrumentSessions`, `src/components/workspace/workspace-my-instrument-sessions.ts`):
+  the list's rows naming `my-instrument`, and the session that just ended when played with it; a
+  session held in memory only because its own save failed is counted, named by no delete, and only
+  leaves memory (spec D338).
+- **In memory, only once saved.** The Idle session's actions (`saveMyInstrument`,
+  `saveAndSelectMyInstrument`, `deleteMyInstrument`, given the counted sessions) change nothing
+  before the batch is saved: then the counted sessions leave memory (their rows, a Review of one,
+  which the list replaces when it showed, and the most recent session when it is one), my
+  instrument changes or goes, and the phrase is replaced as on a switch. A refusal, or saving off
+  with sessions to erase, changes nothing; with no session to erase, a deletion while saving is off
+  applies for the visit only. When the selected my instrument is deleted, its template's selection
+  is saved after the batch: a reload, or a refused selection save, in between loads the default
+  instrument, which is accepted (spec D337). The check's `saveAndSelectMyInstrument` saves the same
+  way and also selects a my instrument that exists but is not selected, once its record is written.
+  Each write also calls the policy's `requestProtection()` (a batch's once it is saved), which asks
+  the browser at most once per visit. A save that changes nothing writes nothing. Delete everything
+  removes the record with the database.
 
 ## The notices
 

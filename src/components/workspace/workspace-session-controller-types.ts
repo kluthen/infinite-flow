@@ -4,6 +4,7 @@
  * breaks the contract. The seams it is built from live in `workspace-session-controller-seams.ts`
  * and are re-exported here; the controller itself is `workspace-session-controller.ts`.
  */
+import type { MyInstrumentSessions } from '@/composables/use-generation-session'
 import type { ExpectedNoteIdentity } from '@/domain/acknowledgement/expected-note'
 import type { CountInDisplay } from '@/session/count-in-display'
 import type { ExportableHistory } from '@/export/export-file'
@@ -363,6 +364,15 @@ export interface SessionController {
    * way to the list. A refusal changes nothing. Throws unless at Idle with saving on.
    */
   readonly deleteEverySession: () => Promise<SessionDeletion>
+  /**
+   * The kept sessions of my instrument now, as its delete confirmation and its erase warnings count
+   * them: the session list's rows naming my instrument, and the session that just ended when played
+   * with it. The count holds the deletes of those stored on the device, by their keys (none for one
+   * held in memory only because its save failed), and their leaving memory once the batch that
+   * erases them is saved: their rows, a Review of one (the list in its place when it showed) and the
+   * most recent session when it is one, leaving none. Reactive through the state it reads.
+   */
+  readonly myInstrumentSessions: () => MyInstrumentSessions
   /**
    * Turn the page's adaptive-tempo flag on or off, at Idle only: throws during the count-in or a
    * running session, and when turning it on with no controller attached.

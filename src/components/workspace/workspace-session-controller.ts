@@ -35,6 +35,8 @@
  * the comment and deletes the session, each at once in memory and saved when made, a session whose
  * own save failed by a retry of that save; `Delete every session`, from Your data
  * (./workspace-kept-sessions-deletion.ts), deletes them all, from the device then from memory.
+ * It counts the kept sessions of my instrument for the batch that deletes or changes my instrument,
+ * and makes them leave memory once it is saved (./workspace-my-instrument-sessions.ts).
  * While the visit saves, a kept session found damaged is deleted
  * (./workspace-damaged-session-deletions.ts): at load, by a clean-up run once this controller is
  * built, only when a summary the load read is damaged; at an opening; and by a session's own save.
@@ -64,6 +66,7 @@ import { createAdaptiveTempoFlag } from './workspace-adaptive-tempo'
 import { createKeptPlayedNotes } from './workspace-kept-played-notes'
 import { createKeptSessionEdits } from './workspace-kept-session-edits'
 import { createEverySessionDeletion } from './workspace-kept-sessions-deletion'
+import { createMyInstrumentSessions } from './workspace-my-instrument-sessions'
 import { createDamagedSessionDeletions } from './workspace-damaged-session-deletions'
 import type { SessionControllerCore, SessionControllerSides } from './workspace-session-active'
 import { createSessionEnds } from './workspace-session-ends'
@@ -274,6 +277,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
   const damagedSessions = createDamagedSessionDeletions(core, rows)
   const reviewMode = createReviewMode(core, rows, damagedSessions)
   const deleteEverySession = createEverySessionDeletion(core, rows, reviewMode.cancelOpening)
+  const myInstrumentSessions = createMyInstrumentSessions(core, rows, reviewMode.cancelOpening)
   const ends = createSessionEnds(core, adaptiveTempo, keptPlayedNotes.on, edits.saveRefused, rows)
   const start = createSessionStart(
     core,
@@ -307,6 +311,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     setComment: edits.setComment,
     deleteSession: edits.deleteSession,
     deleteEverySession,
+    myInstrumentSessions,
     setAdaptiveTempo: adaptiveTempo.set,
     setVarySettings: varySettings.set,
     setTensionAcrossPhrases: tensionAcrossPhrases.set,
