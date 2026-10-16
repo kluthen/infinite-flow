@@ -451,6 +451,7 @@ opened and work through it, never through the save policy:
 | `storage.seedUnreadableKeptSession` | `(key: string) => Promise<void>`                                                            | Writes, under `key`, a kept session whose session-wide record the kept-session codec cannot read (current versions, an invalid start), with a body, in one batch.                                                                                                                                                                                                                                                    |
 | `storage.seedPlayedNotes`           | `(key: string) => Promise<void>`                                                            | Writes, under `key`, a played-notes record of one note, as another tab keeping that session's played notes would, and, when a session-wide record with a `playedNotesKept` field is stored under it, that record saying they are kept; in one batch.                                                                                                                                                                 |
 | `storage.seedKeptSessionCopy`       | `(from: string, key: string, copy: { startedAt: number; newer: boolean }) => Promise<void>` | Copies the kept session stored under `from` (its session-wide record and body) under `key`, its start set to `startedAt`. With `newer`, as a newer version of the app would have written it: one data version up, with a field this version does not know, written straight to IndexedDB (the port refuses it) without upgrading the database, so the tab stays current. Throws when nothing is stored under `from`. |
+| `storage.seedDamagedKeptBody`       | `(key: string) => Promise<void>`                                                            | Rewrites the body of the kept session stored under `key` with phrases the kept-session codec refuses, its envelope current, so the session reads as damaged when it is opened. Throws when no body is stored under it.                                                                                                                                                                                               |
 | `storage.deleteKeptSession`         | `(key: string) => Promise<void>`                                                            | Deletes the kept session under `key` (its session-wide record, body and played notes) in one batch, as a deletion made elsewhere would.                                                                                                                                                                                                                                                                              |
 | `storage.settingsNotReadBack`       | `() => Promise<string[]>`                                                                   | The key of each stored settings record the settings codec does not read back as the value it holds, the records decoded together as a load decodes them (the page's mix design, my instrument not loaded); empty when all read back.                                                                                                                                                                                 |
 | `storage.loadOutcome`               | `() => 'saved-data-read' \| 'started-from-defaults'`                                        | The load's outcome.                                                                                                                                                                                                                                                                                                                                                                                                  |
@@ -469,7 +470,9 @@ page shows only its background. With
 `?storageRead=fail` every read of the app's port fails, and with `?storageRead=slow` each ends a
 second after the start-up wait, so the visit starts from the defaults. The app's port is the opened
 port wrapped by these injections (the keyed read included); the seeds, `storage.records` and
-`storage.keyedRecords` bypass them. The specs are in
+`storage.keyedRecords` bypass them. With `?storageRefuse=quota|other` the app's port refuses every
+change from the load on, as `storage.refuseSaves` would, so the load's clean-up of damaged
+sessions meets the refusal. The specs are in
 `tests/e2e/storage/`; their shared helpers (`storage-helpers.ts`) also record the controls at the
 workspace's first draw, before the browser paints it, through a `MutationObserver` an init script
 installs.
@@ -517,7 +520,10 @@ seeds kept sessions by playing one and copying it (`storage.seedKeptSessionCopy`
 played notes with `storage.seedPlayedNotes`, deletes one as another tab would with
 `storage.deleteKeptSession`, injects deletion refusals with `storage.refuseSaves`, a failed read
 with `?storageRead=fail`, a newer version with `storage.openNewerVersion`, and runs Delete
-everything in a second page of the same browser context.
+everything in a second page of the same browser context. `damaged-sessions.spec.ts` seeds
+damaged summaries with `storage.seedUnreadableKeptSession` and damaged bodies with
+`storage.seedDamagedKeptBody`, counts a session's save with its deletions as one batch with the
+write spy, and refuses the deletions with `?storageRefuse=other`.
 The harness's audio seam (`window.__workspaceHarness.audio.set…`) drives the
 transport directly and saves nothing; only the mix controls on screen save.
 
@@ -1234,7 +1240,11 @@ pre-generation rig's gated generate seam. The rig's wall clock reads a minute la
 session's start, as in a real visit, so each session's kept key differs. Its saved
 `Keep my played notes` is off unless a spec passes `savedKeepPlayedNotes: true`, and its kept
 sessions' `changes` (the changes after a session's save) throw unless a spec passes its own in
-`keptSessions` (`workspace-session-controller-played-notes.spec.ts` logs and resolves them).
+`keptSessions` (`workspace-session-controller-played-notes.spec.ts` logs and resolves them), and
+so do its `reports` of damaged sessions' deletions;
+`workspace-session-controller-damaged-sessions.spec.ts` passes a fake device of the three
+kept-session stores whose `changeKept` runs each change against it (refusals of the read or the
+batch, a gate and saving off injected) and logs every report.
 
 ## Fake staff fit
 

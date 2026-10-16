@@ -656,15 +656,19 @@ the review. It runs in this order:
    summary, body and played notes of every readable kept session that is not pinned, then the new
    session's summary and body under its new key, and its played notes only when they are kept:
    `Keep my played notes` on at the session's end and the session holding a played note in a
-   phrase (`endedSessionSave`, which also mints the key once). A summary that does not decode, or that a newer app
-   wrote, is left in place with its records, since whether it is pinned is unknown (spec O200's
-   proposed default). The deletions come first, so a kept session under the very same key is
-   replaced, never deleted after the write.
+   phrase (`endedSessionSave`, which also mints the key once). Every kept session whose summary is
+   damaged (the codec reads it as `unreadable`) is deleted in the same batch, pinned or not, and
+   once the batch is saved `saveEndedSession` resolves how many it deleted (`damagedDeleted`),
+   which the end and the retry tell (`tellDamagedDeleted`; see
+   [Damaged kept sessions](#damaged-kept-sessions)). A summary a newer app wrote is never damaged:
+   it is left in place with its records. The deletions come first, so a kept session under the
+   very same key is replaced, never deleted after the write.
 
 The policy's `saveSession(changes, pageGoingAway)` runs steps 2 and 3, once no session holds the saves and the
 release's flush has been applied; session saves run one after the other. If a new session starts
 before the save has read, it waits for that session's end, then reads again. It resolves a
-`SessionSaveOutcome` to its caller, apart from the failure listener:
+`SessionSaveOutcome` to its caller, apart from the failure listener (`saveEndedSession` adds
+`damagedDeleted` to a saved one):
 
 | Outcome                       | When                                                                                     |
 | ----------------------------- | ---------------------------------------------------------------------------------------- |
@@ -828,8 +832,10 @@ session with the latest start. A session ended in its count-in leaves it as it w
   `is-loading` and `disabled`). The kept-session codec, loaded on demand, decodes it into the
   session the Review draws: its phrases and start, the summary's instrument name, its tempo reached
   and whether it is pinned. Once read it is held in memory, so showing it again reads nothing. A
-  refused read, records this version cannot read, or a session started meanwhile show nothing; a
-  read that does not give the session also marks its row as failed to open (below).
+  refused read, records all absent, records a newer version wrote, or a session started meanwhile
+  show nothing; a read that does not give the session also marks its row as failed to open
+  (below). Records the codec reads as `unreadable` are damaged: the session is deleted while the
+  visit saves, and the list shows in its place ([Damaged kept sessions](#damaged-kept-sessions)).
 - **The keep line** (`ReviewPanel.vue`): "Pinned: kept until you unpin or delete it.", "Not
   pinned: deleted when your next session is saved." or "Not saved on this device: export it to keep
   it."; below `bp-tablet-landscape` (the workspace staff's split layout) only the last. The title is
@@ -873,8 +879,51 @@ The session controller reaches every kept session, not only those it holds in me
   session with no row goes too, with no filter on the version that wrote it (spec D333). Once it
   resolves `saved`, or `unchanged` when no key was found (spec D332), every session held in memory
   goes, the most recent one included, and every row leaves through `rows.removed(keys)`; a showing
-  Review gives way to the list. A refusal changes nothing. It throws during a session and while
-  saving is off.
+  Review gives way to the list, and an opening still pending is cancelled (`cancelOpening`), so
+  the session it reads never shows. A refusal changes nothing. It throws during a session and
+  while saving is off.
+
+## Damaged kept sessions
+
+A kept session is damaged when the kept-session codec reads it as `unreadable`: at load and at the
+session's save from its summary alone; at an opening from all its records (any of them
+unreadable, refused in content, missing, or disagreeing with another). A summary a newer version
+wrote is never damaged, and neither is a read the device refuses or a session whose records are
+all absent. While the visit saves, a damaged session is deleted, its summary, body and played
+notes in one batch, pinned or not; while saving is off nothing is deleted (an outdated tab keeps
+the failed-to-open path at an opening).
+
+- **At load** (`createDamagedSessionDeletions` in `workspace-damaged-session-deletions.ts`, run
+  once the session controller is built, so in the controller's chunk, never the entry chunk): only
+  when a summary the load read is damaged (`damagedSummaryKeys`), so a visit with nothing damaged
+  opens no transaction for it. One change through the kept-change line, `changeKept(changes,
+  'caller')`, never `save()`: `damagedSessionsCleanUp()` (`workspace-kept-session-read.ts`)
+  re-reads `sessionSummaries` at the change and deletes every session damaged then, one damaged
+  since the load included; with none, the batch is empty and nothing is told. Queued like every
+  kept change, it runs after the session saves asked for before it and waits for a running
+  session's end. The rows leave with it, and when the most recent session was one of them while
+  still a kept session not read into memory, the readable kept session that started last among the
+  summaries the re-read found becomes the most recent at once (`mostRecentKept`), or none (spec
+  D334); one held in memory stays.
+- **At the session's save**, in its own batch (above).
+- **At an opening** (`Review last session`, a list row): `readKeptReviewedSession` gives a
+  `KeptSessionRead`, `read` with the session, `damaged`, or `not-read`. A damaged one is deleted
+  through the same line (`damagedSessionChanges`, which reads the session's records again at the
+  change and deletes them only while they still read as damaged); the opening stays under way
+  (`readingMostRecent`, `openingKey`) until the batch settles, then resolves `damaged`: its row
+  leaves, `Review last session` shows the list, and when it was the most recent session the
+  readable kept session that started last among the rows becomes the most recent (spec D327).
+  A deletion that resolves `unchanged` or `saving-off` takes the failed-to-open path instead.
+- **A refused deletion** changes nothing stored: the sessions it named still leave the rows for
+  the visit, counted nowhere, an opening lands as after the deletion, and the next load tries
+  again.
+- **The reports.** Each committed deletion is told with how many sessions it deleted
+  (`{ status: 'deleted', count }`), each refused one with its kind and how many it named
+  (`{ status: 'refused', kind, count }`); a refused session save tells none, its keep line telling
+  it. They go through a `DamagedSessionReports` channel, built by `createDamagedSessionReports()`
+  (`workspace-kept-sessions-seam.ts`) in `composeWorkspaceSession` before the controller's chunk
+  loads, handed to `keptSessionsOf` (the seam's `reports`) and exposed on `WorkspaceSession` as
+  `damagedSessionReports`. The refusals never reach the save policy's failure listener.
 
 The `controller` store holds at most one record, under the key `remembered`
 (`src/storage/records/controller-record.ts`): the record envelope (data version 1) and the input
@@ -944,13 +993,16 @@ and the generator-facing profile are derived again at each load.
 The notice row at the top of the workspace (`AppNoticeRow.vue`) shows one notice at a time, chosen
 by `useAppNotices` (`src/components/workspace/use-app-notices.ts`) from three things the load
 gives `WorkspaceShell` (`App.vue`'s `savedData`): the load outcome, and the save policy's saving
-state and failure report. The copy and the rules are the saved-data flow's (Notices).
+state and failure report; and from the reports of the deletions of damaged kept sessions
+(`damagedSessionReports`, which `App.vue` passes to the shell as an optional prop, as it passes
+the remembered controller's store, and the shell hands to `useAppNotices` as `damagedSessions`).
+The copy and the rules are the saved-data flow's (Notices).
 
 | Saving state     | Notice                                                                                                                                       |
 | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | `off-outdated`   | Outdated tab: the saved-data wording when the load outcome is `saved-data-read`, the defaults wording when it is `started-from-defaults`.    |
 | `off-unreadable` | Unusable data.                                                                                                                               |
-| `on`             | The save-problem notice once a save failed: Storage full for `quota`, Save failed for `other`, switched in place to the latest one reported. |
+| `on`             | The save-problem notice once a save failed: Storage full for `quota`, Save failed for `other`, switched in place to the latest one reported; or the apology for damaged sessions deleted (below). |
 
 Before a late-opening port hands its policy over, a visit started from the defaults shows Unusable
 data. The port's outdated report carries no cause, so after another tab's Delete everything the
@@ -958,6 +1010,16 @@ outdated notice shows the newer version's wording, the design's fallback (spec D
 removes the save-problem notice until a report that starts a new run. While a session runs the row
 keeps the notice it showed at Start, its buttons disabled; what arose meanwhile shows when the
 session ends. `Your data` opens the Your data sheet (see [The Your data sheet](#the-your-data-sheet)).
+
+A committed deletion of damaged kept sessions ([Damaged kept sessions](#damaged-kept-sessions))
+shows the apology, Damaged sessions deleted, with how many went ("Sorry: a kept session was
+damaged…", or "{n} kept sessions"), `Dismiss` only; while it shows, a further one adds its count
+in place, and after `Dismiss` the next one counts alone. A refused one shows the save-problem
+notice instead, in its Damaged session not deleted wording (Storage full for `quota`), at every
+refusal, even after `Dismiss`: both come from the deletion's report, never the failure listener.
+The apology and the save-problem notice replace each other in place, the latest shown; Outdated
+tab and Unusable data replace both, and an apology for a deletion that commits once the tab is
+outdated is not shown.
 
 ## The start-up wait (M2)
 

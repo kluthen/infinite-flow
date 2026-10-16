@@ -11,8 +11,10 @@
  * without ever branching this file on being under test. It also builds the workspace's one
  * session controller, whose module loads as its own chunk: until it has loaded, `Start session`
  * stays disabled. A load failure is not caught: it surfaces as the unhandled error it is. It
- * keeps the workspace's connection-sheet flag in step with the shell's sheet, and provides the
- * workspace's saver of the player's changes to the components whose change handlers save.
+ * keeps the workspace's connection-sheet flag in step with the shell's sheet, hands the shell the
+ * remembered controller's store and the reports of the deletions of damaged kept sessions, and
+ * provides the workspace's saver of the player's changes to the components whose change handlers
+ * save.
  */
 import { computed, inject, onUnmounted, provide, shallowRef, watch } from 'vue'
 
@@ -115,6 +117,7 @@ onUnmounted(() => {
     :saved-review-preferences="savedData.settings.review"
     :saved-session-options="savedData.settings.sessionOptions"
     :remembered-controller="workspace.rememberedController"
+    :damaged-session-reports="workspace.damagedSessionReports"
     @connection-sheet-open-change="handleConnectionSheetOpenChange"
   />
 </template>

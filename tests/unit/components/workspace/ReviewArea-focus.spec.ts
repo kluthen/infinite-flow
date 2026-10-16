@@ -4,7 +4,8 @@
  * Review lands on the list's title; a deletion whose sheet the player closed while it ran finishes
  * and moves focus only if it sat on a control the deletion removed, a refusal then moving nothing
  * (ux D316); a row's deletion moves focus to the next row, else the previous, else the list's
- * title; `All sessions` lands on that session's row.
+ * title, and so does a row whose opening found its session damaged; `All sessions` lands on that
+ * session's row.
  */
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -306,6 +307,31 @@ describe('ReviewArea: the session list', () => {
     expect(document.querySelector('.sessions-empty')?.textContent?.trim()).toBe(
       'No sessions are kept. Your next session will be kept here.',
     )
+    expect(document.activeElement).toBe(title())
+  })
+
+  // @test-link [[module_kept_session_save]]
+  it('a row whose opening found its session damaged leaves, focus moving as after its deletion', async () => {
+    const fake = listing(deferred<SessionDeletion>(), ['a', 'b', 'c'])
+    fake.openSession.mockImplementation((key: string) => {
+      fake.state.keptRows = fake.state.keptRows.filter((candidate) => candidate.key !== key)
+      return Promise.resolve('damaged')
+    })
+    await mountPanel(fake)
+    const rowTitles = () => [...document.querySelectorAll<HTMLButtonElement>('.session-row-open')]
+
+    rowTitles()[1]?.click()
+    await flushPromises()
+    expect(rowTitles()).toHaveLength(2)
+    expect(document.activeElement).toBe(rowTitles()[1])
+
+    rowTitles()[1]?.click()
+    await flushPromises()
+    expect(document.activeElement).toBe(rowTitles()[0])
+
+    rowTitles()[0]?.click()
+    await flushPromises()
+    expect(document.querySelector('.sessions-empty')).not.toBeNull()
     expect(document.activeElement).toBe(title())
   })
 })

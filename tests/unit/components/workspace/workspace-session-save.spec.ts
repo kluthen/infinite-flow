@@ -109,13 +109,19 @@ describe("the session's save batch", () => {
     ])
   })
 
-  it('leaves in place a kept session whose summary cannot be read, or was written by a newer app', () => {
-    const unreadable = { key: 'session-4-4', value: { dataVersion: 1, appVersion: 'x' } }
+  it('also deletes every kept session whose summary is damaged, pinned or not, never one a newer app wrote', () => {
+    const damaged = { key: 'session-4-4', value: { dataVersion: 1, appVersion: 'x' } }
     const newer = { key: 'session-5-5', value: { dataVersion: 2, appVersion: '3.1.0' } }
 
     expect(
-      described(keptSessionChanges(codec, history, NOT_KEPT, [unreadable, newer], APP_VERSION)),
-    ).toEqual([`write sessionSummaries ${key}`, `write sessionBodies ${key}`])
+      described(keptSessionChanges(codec, history, NOT_KEPT, [damaged, newer], APP_VERSION)),
+    ).toEqual([
+      'delete sessionSummaries session-4-4',
+      'delete sessionBodies session-4-4',
+      'delete playedNotes session-4-4',
+      `write sessionSummaries ${key}`,
+      `write sessionBodies ${key}`,
+    ])
   })
 })
 
@@ -164,6 +170,32 @@ describe('saving the session that ended', () => {
     const kept = [keptSummary(recordedKeptSession('eb-alto', 2), 'session-1-1', false)]
     expect(asked[0]?.(kept)).toEqual(
       keptSessionChanges(codec, history, NOT_KEPT, kept, APP_VERSION),
+    )
+  })
+
+  it('tells, once saved, how many damaged kept sessions its batch deleted', async () => {
+    const history = recordedKeptSession('bb-tenor', 2)
+    const kept = [
+      keptSummary(recordedKeptSession('eb-alto', 2), 'session-1-1', false),
+      { key: 'session-2-2', value: { dataVersion: 1, appVersion: 'x' } },
+      { key: 'session-3-3', value: 'not a record' },
+      { key: 'session-4-4', value: { dataVersion: 2, appVersion: '3.1.0' } },
+    ]
+    /** Intent: saves that build the batch from `kept`, then resolve `outcome`. */
+    const savesResolving = (outcome: SessionSaveOutcome) => ({
+      saveSession: (changes: SessionChanges) => {
+        changes(kept)
+        return Promise.resolve(outcome)
+      },
+    })
+    const saving = endedSessionSave(history, false)
+
+    expect(
+      await saveEndedSession(savesResolving({ status: 'saved' }), PAGE_STAYS, history, saving),
+    ).toEqual({ status: 'saved', damagedDeleted: 2 })
+    const refused = { status: 'refused', kind: 'other' } as const
+    expect(await saveEndedSession(savesResolving(refused), PAGE_STAYS, history, saving)).toEqual(
+      refused,
     )
   })
 
@@ -241,6 +273,7 @@ describe("the retry of a refused session's save", () => {
 
     expect(await saveEndedSession(saves, PAGE_STAYS, history, saving, held)).toEqual({
       status: 'saved',
+      damagedDeleted: 0,
     })
     const kept = [keptSummary(recordedKeptSession('eb-alto', 2), 'session-1-1', false)]
     expect(asked[0]?.(kept)).toEqual(

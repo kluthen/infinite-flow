@@ -2,7 +2,7 @@
  * The session's own save, at a session's end with a review, beside the session's ends: the
  * session that ended is kept under a key minted here, with its played notes when `Keep my played
  * notes` is on at its end and it holds one, and every older kept session that is not pinned goes
- * in the same batch. The changes made to a kept session after this save are beside it, in
+ * in the same batch, with every kept session whose summary is damaged, whose count the save tells. The changes made to a kept session after this save are beside it, in
  * ./kept-session-changes.ts. The visit's saves run it after the release of the settings held
  * during the session; the save policy reads the kept summaries at the save and applies the batch
  * in one transaction, then resolves what became of it. A save the device refused is retried by the
@@ -17,6 +17,7 @@ import type { SessionHistory } from '@/session/session-history'
 import { APP_VERSION } from '@/storage/app-version'
 import type { SessionChanges, SessionSaveOutcome } from '@/storage/save-policy'
 import type { SessionSaveHold } from '@/storage/settings-saver'
+import type { DamagedSessionReports } from './workspace-kept-sessions-seam'
 import type { StorageChange, StoredEntry, StoreName } from '@/storage/storage-port'
 
 /** The kept-session codec, as its module gives it. */
@@ -88,9 +89,32 @@ export const ENDED_SESSION_FACTS: HeldSessionFacts = Object.freeze({
 })
 
 /**
+ * Intent: the keys of the kept sessions the session's save deletes, from the kept summaries read
+ * at the save: every readable one that is not pinned, and every damaged one (the codec reads its
+ * summary as unreadable), pinned or not; one a newer app wrote stays with its records.
+ */
+// @spec-link [[module_kept_session_save]]
+// @spec-link [[rule_most_recent_session_kept]]
+function deletedBySave(
+  codec: KeptSessionCodec,
+  keptSummaries: readonly StoredEntry[],
+): { readonly keys: string[]; readonly damaged: number } {
+  let damaged = 0
+  const keys = keptSummaries.flatMap(({ key, value }) => {
+    const reading = codec.decodeKeptSessionSummary(value)
+    if (reading.reading === 'unreadable') {
+      damaged += 1
+      return [key]
+    }
+    return reading.reading === 'current' && !reading.value.pinned ? [key] : []
+  })
+  return { keys, damaged }
+}
+
+/**
  * Intent: the one batch of the session's save, from the kept summaries read at the save: first
  * the deletion of the summary, body and played notes of every readable kept session that is not
- * pinned (a summary that does not decode, or that a newer app wrote, stays with its records), then
+ * pinned and of every damaged one (a summary a newer app wrote stays with its records), then
  * the new session's records under its key with the facts `held` gives (at its end nothing pinned,
  * chosen or commented yet; at a retry, the facts held in memory then), and its played notes only
  * when they are kept.
@@ -106,11 +130,9 @@ export function keptSessionChanges(
   appVersion: string,
   held: HeldSessionFacts = ENDED_SESSION_FACTS,
 ): StorageChange[] {
-  const deletions = keptSummaries.flatMap(({ key, value }) => {
-    const reading = codec.decodeKeptSessionSummary(value)
-    if (reading.reading !== 'current' || reading.value.pinned) return []
-    return KEPT_SESSION_STORES.map((store): StorageChange => ({ kind: 'delete', store, key }))
-  })
+  const deletions = deletedBySave(codec, keptSummaries).keys.flatMap((key) =>
+    KEPT_SESSION_STORES.map((store): StorageChange => ({ kind: 'delete', store, key })),
+  )
   const facts = {
     pinned: held.pinned,
     favorites: held.favorites,
@@ -129,14 +151,24 @@ export function keptSessionChanges(
   return [...deletions, ...writes]
 }
 
-const SESSION_ABANDONED: SessionSaveOutcome = Object.freeze({ status: 'abandoned' })
+/**
+ * What became of the session's own save, as the session's end and its retry read it: the save
+ * policy's outcome, a saved one also saying how many damaged kept sessions its batch deleted.
+ */
+// @spec-link [[module_kept_session_save]]
+export type EndedSessionOutcome =
+  | { readonly status: 'saved'; readonly damagedDeleted: number }
+  | Exclude<SessionSaveOutcome, { readonly status: 'saved' }>
+
+const SESSION_ABANDONED: EndedSessionOutcome = Object.freeze({ status: 'abandoned' })
 
 /**
  * Intent: save the session that ended with a review through the visit's saves, which run it after
  * the release, as `saving` says, with the facts `held` gives: the codec loaded, the batch built
  * from the summaries read at the save. Its retry, after a refused save, is this same save under
  * the same key with the facts held in memory then, the sessions to delete read at the retry.
- * Resolves what became of that save; while saving is off, nothing is read, saved or deleted. The
+ * Resolves what became of that save, a saved one with how many damaged kept sessions its batch
+ * deleted; while saving is off, nothing is read, saved or deleted. The
  * save takes its watch on `page` as it starts, before the codec loads: once the page is going away
  * then, or a `pagehide` fires after (checked after the codec loads, and handed on so the policy
  * checks it before each of its transactions), the save stops there, abandoned for good, with
@@ -151,12 +183,30 @@ export async function saveEndedSession(
   history: SessionHistory,
   saving: EndedSessionSave,
   held: HeldSessionFacts = ENDED_SESSION_FACTS,
-): Promise<SessionSaveOutcome> {
+): Promise<EndedSessionOutcome> {
   const goingAway = page.watch()
   const codec: KeptSessionCodec = await import('@/storage/records/kept-session-record')
   if (goingAway()) return SESSION_ABANDONED
+  let damagedDeleted = 0
   /** Intent: the save's batch, from the kept summaries read at the save. */
-  const changes: SessionChanges = (keptSummaries) =>
-    keptSessionChanges(codec, history, saving, keptSummaries, APP_VERSION, held)
-  return saves.saveSession(changes, goingAway)
+  const changes: SessionChanges = (keptSummaries) => {
+    damagedDeleted = deletedBySave(codec, keptSummaries).damaged
+    return keptSessionChanges(codec, history, saving, keptSummaries, APP_VERSION, held)
+  }
+  const outcome = await saves.saveSession(changes, goingAway)
+  return outcome.status === 'saved' ? Object.freeze({ status: 'saved', damagedDeleted }) : outcome
+}
+
+/**
+ * Intent: tell through `reports` how many damaged kept sessions the batch of a saved session's own
+ * save deleted; nothing when it deleted none or was not saved (a refused one is told by its keep
+ * line, as any failed session save).
+ */
+// @spec-link [[module_kept_session_save]]
+export function tellDamagedDeleted(
+  reports: Pick<DamagedSessionReports, 'tell'>,
+  outcome: EndedSessionOutcome,
+): void {
+  if (outcome.status === 'saved' && outcome.damagedDeleted > 0)
+    reports.tell({ status: 'deleted', count: outcome.damagedDeleted })
 }
