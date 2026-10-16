@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.68
+Status: draft v0.69
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -206,14 +206,11 @@ answered it in ux D308 (`Export played notes` is disabled, with its reason, when
 hold no note), recorded in [D319](decisions.md). O211 is closed: the owner kept the 38 ms
 threshold, a length rule only, accepting the few stray notes it leaves in the lane and the
 default export ([D322](decisions.md)); hand check H5 counts as passed on his word
-([D340](decisions.md)), its export half open as O220. O212–O219 stay free.
+([D340](decisions.md)), its export half following the tag ([D342](decisions.md)). O212–O219 stay free.
 
 ## v3.0 wave 10 (O220+)
 
 Opened 2026-10-16 by `spec-writer` while writing the owner's hand-check ruling (D340) into build
-plan v28. O220–O229 are reserved for v3.0 wave 10.
-
-- **O220 — H5's played-notes-export half.** Does H5's export half (the default export leaving very
-  short notes out, `Include very short notes` keeping them) count as checked on the owner's word,
-  or does it follow the tag as a v3.0.x note beside H8? Only its default export was run
-  (2026-10-16). The owner answers through the wave driver; chunk 26 writes H5's record from it.
+plan v28. O220–O229 are reserved for v3.0 wave 10. O220 is closed: H5's played-notes-export half
+was not checked and follows the tag as a v3.0.x note beside H8 ([D342](decisions.md)).
+O221–O229 stay free.

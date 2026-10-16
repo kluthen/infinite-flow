@@ -1,9 +1,9 @@
 # Infinite Flow v3.0 — Build Plan
 
-Status: v28 (2026-10-16): the wave-10 preflight's corrections placed in chunk 26, §7 and M5, the gates it checks all done (spec D341); the owner's hand-check ruling written into chunk 26 (spec D340). Approved by
+Status: v28 (2026-10-16): the wave-10 preflight's corrections placed in chunk 26, §7 and M5, the gates it checks all done (spec D341); the owner's hand-check ruling written into chunk 26 (spec D340, D342); every REVIEW `release-v3.0` atom promoted to STABLE at the final sync, CONTRACT 6.3 (spec D343). Approved by
 the product owner on 2026-10-07 (v1), with Gate A and the token-source pass (Q66) confirmed the
 same day; every later revision writes in rulings from [the decisions log](../../decisions.md)
-(spec D252–D341), and earlier wordings are in git.
+(spec D252–D343), and earlier wordings are in git.
 
 Build plan for v3.0, Storage, written from [master spec v1.3](master-spec.md) (now Part A v1.24) and the v3.0 design
 in [`ui_ux/versions/v3.0/`](../../../ui_ux/versions/v3.0/README.md), the copy frozen when the
@@ -63,7 +63,7 @@ Some steps are not code and need the owner. They are part of the sequence:
 | **Remembered-controller wording** | **Done 2026-10-15:** the owner confirmed the MAJOR contract change for the remembered controller ("confirmed for chunk 22"), in the words of [master spec §10](master-spec.md#10-what-v30-changes-in-v2s-guarantees) (its seventh change; spec D314, D320); `documentalist` applied it on `v3.0-w6` (5dd9fb1): CONTRACT 6.0, `specification_browser_only_operation_verification` 0.3 and `rule_midi_starting_note` 0.6, the confirmation recorded in [change set part N1](../../../docs/release/v3.0-intent-change-set.md). | Done. | Nothing. [Chunk 22](#chunk-22--remembered-controller) may merge. |
 | **O210** | **Closed 2026-10-15 (ux D308, ux commit 81037c2):** when the file would hold no note under the current scope and `Include very short notes`, `Export played notes` is disabled with its reason ("Every note you played is very short. Turn on Include very short notes to export them."); the lane shows no bar ([spec O210](../../open-questions.md#v30-wave-6-o210)). Plan v18 (spec D319) brought chunks 13 and 25 to it. | Done. | Nothing. [Chunk 25](#chunk-25--stray-note-filter) builds it (it still waits for H1). |
 | **O211** | **Closed 2026-10-15 (spec D322):** the owner kept the 38 ms threshold ("O211: ok"), a length rule only, accepting the stray notes it leaves in the lane and the default export ([spec O211](../../open-questions.md#v30-wave-6-o210); measurement M1 found 11 of 77 left). | Done. | Nothing. Hand check H5 is in the **Hand checks** row below. |
-| **Hand checks** | **Ruled 2026-10-16 (spec D340):** H2, H3, H4, H5, H6 and H9 count as passed on the owner's word; H8 follows the tag as a v3.0.x note (no file has been opened in an outside program yet); H7, for information only, is recorded as not run. Still open: whether H5's played-notes-export half counts as checked ([spec O220](../../open-questions.md#v30-wave-10-o220)); the wave driver passes the owner's answer to chunk 26. | Before chunk 26 writes H5's record. | Chunk 26's H5 record only. |
+| **Hand checks** | **Ruled 2026-10-16 (spec D340, D342):** H2, H3, H4, H6 and H9, and H5's lane half, count as passed on the owner's word; H5's played-notes-export half and H8 follow the tag as v3.0.x notes (no file has been opened in an outside program yet); H7, for information only, is recorded as not run. | Done. | Nothing. |
 
 ### Waves
 
@@ -4686,10 +4686,10 @@ check, close the intent record, and get the owner's go for the `3.0.0` tag.
   - H2, H3, H4, H6 and H9: passed on the owner's word, 2026-10-16.
   - H5: a new section, which chunk 25 never wrote, from [§5](#5-hand-checks)'s H5 row; it records
     the partial run of 2026-10-16 (the default played-notes export: 169 notes, none under 41 ms,
-    18 of 40–150 ms left, as spec D322 accepts) and the lane half as passed on the owner's word,
-    2026-10-16. Its played-notes-export half (`Include very short notes` off and on) is recorded
-    by the owner's answer to [spec O220](../../open-questions.md#v30-wave-10-o220), which the wave
-    driver passes on: passed on his word, or following the tag as a v3.0.x note beside H8.
+    18 of 40–150 ms left, as spec D322 accepts), the lane half as passed on the owner's word,
+    2026-10-16, and the played-notes-export half (`Include very short notes` off and on) as not
+    checked, following the tag as a v3.0.x note beside H8 (spec D342). Item 21's export clause
+    rests on its automated tests at the release.
   - H7: a new section, recorded as not run (for information only; Chrome decides silently).
   - H8: a new section, recorded as not done: no file has been opened in an outside program yet
     (a favorites-only MusicXML in MuseScore, the MIDI files in a MIDI tool); it follows the tag as
@@ -4698,10 +4698,13 @@ check, close the intent record, and get the owner's go for the `3.0.0` tag.
   Gate A, Parts B1 and B2 (CONTRACT 6.1, 6.2), Part C (2026-10-08, spec D246: the VISION past
   0.8, the four chord-fit atoms deleted), **Review reachability** (I1), **Starting-note wording**
   (J1) and **Remembered-controller wording** (N1); the CONTRACT stands at 6.2.
-- `documentalist`'s final sync over every `release-v3.0` atom (change set part S): one list to the
-  owner with the status advances that waited on the hand checks (parts O3, P2 item 4, R6) and the
-  promotions he agrees to, and the `changes-in-v3.0` tag removed from the three atoms that still
-  carry it.
+- `documentalist`'s final sync over every `release-v3.0` atom (change set part S), as the owner
+  ruled (spec D343): the status advances that waited on the hand checks (parts O3, P2 item 4, R6);
+  every `release-v3.0` atom in REVIEW, 42 of them, the 12 MODULE and ENTITY atoms included,
+  promoted to STABLE and put on the contract surface, with the CONTRACT bump that goes with it
+  (6.2 → 6.3, MINOR, proposed; `documentalist` settles the level if architecture on the surface
+  changes it); `rule_saved_data_belongs_to_browser_profile` DRAFT → REVIEW on argument; and the
+  `changes-in-v3.0` tag removed from the three atoms that still carry it.
 - `package.json` version `3.0.0`; the tag only when the owner asks.
 
 **Atoms:** every atom tagged `release-v3.0`; `module_phrase_replay_key` (item 19, untagged);
@@ -4709,8 +4712,8 @@ check, close the intent record, and get the owner's go for the `3.0.0` tag.
 `specification_behavioral_quality_gates`, `specification_ephemeral_state_verification`.
 
 **Depends on:** every other chunk. The gates it checks (Gate A, Parts B1, B2 and C, Review
-reachability, Starting-note wording, Remembered-controller wording) are all done; H5's record
-waits for the owner's answer to O220 (the **Hand checks** gate).
+reachability, Starting-note wording, Remembered-controller wording) and the **Hand checks**
+ruling are all done.
 
 **Done when:** every item of §13 has a row with evidence; every measurement has its figure; the
 owner says go.
@@ -4748,7 +4751,7 @@ verification. The gate copies this into the release notes with the final test na
 | 18 Controller remembered | 22 | fake-MIDI e2e with permission states; H4 |
 | 19 Replay keys | 2, 18 | `ifk1.` corpus; `ifk2.` round trip. No `release-v3.0` atom governs it: it is `module_phrase_replay_key`'s (REVIEW), so its row cites its tests directly (`tests/unit/generation-worker/phrase-replay-key-corpus.spec.ts`, `phrase-replay-key-ifk2.spec.ts`) |
 | 20 Pre-generation | 23, 24 | identity on the fake clock; cancellation, Start, discard tests; M4 recorded; H6 |
-| 21 Stray notes | 25 (M1 from H1) | filter tests on real recordings; H5 |
+| 21 Stray notes | 25 (M1 from H1) | filter tests on real recordings; H5's lane half; the export clause on its automated tests, H5's export half following the tag (spec D342) |
 | 22 v2 behaviour otherwise unchanged | every wave gate | `npm run quality`; the replaced-tests table of [§2](#2-read-first-what-v30-undoes-in-v2) |
 | 23 Contract | Gate A, the wave-2 ruling on §10's minor change, Review reachability, Starting-note wording, Remembered-controller wording, 26 | each confirmation recorded in the [change set](../../../docs/release/v3.0-intent-change-set.md): parts A (the three major changes, CONTRACT 2.0), G (the minor one, CONTRACT 3.0 → 3.1, `module_generation_worker_cancellation`), I1, J1 and N1 (the fifth to seventh, CONTRACT 4.0, 5.0, 6.0). Parts B1 and B2 (CONTRACT 6.1, 6.2) extend two STABLE atoms outside §10; the row names them as the CONTRACT's current 6.2 |
 | 24 Stale phrase at Start | 24b | engine tests per Written key, Collection, Harmonic motion and Register change, 60–240 BPM; stale-check unit tests; pre-generation identity with a stale phrase 1; e2e prompt; fake-MIDI starting note; H9 |
