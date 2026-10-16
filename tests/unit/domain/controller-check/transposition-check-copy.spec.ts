@@ -13,6 +13,7 @@ import {
   C_KEYBOARD_PROFILE,
   EB_ALTO_PROFILE,
 } from '@/domain/profile/instrument-profiles'
+import { makeMyInstrument } from '@/domain/profile/my-instrument'
 
 // Literal wording transcribed from the controller-connection handoff ("## Check result copy").
 // Per offset d: distance wording, direction, opposite direction, and which setting to change.
@@ -126,5 +127,45 @@ describe('transpositionCheckCopy', () => {
     expect(copyFor(C_KEYBOARD_PROFILE, -27).result).toBe(
       'Your controller sounds 27 semitones (2 octaves and 3 semitones) lower than the C MIDI keyboard profile expects.',
     )
+  })
+})
+
+/** A my instrument sounding 14 semitones lower, as the tenor does, under its own name. */
+const MY_TENOR = makeMyInstrument({
+  template: 'bb-tenor',
+  name: 'Tenor at home',
+  clef: 'treble',
+  writtenRange: { minMidi: 60, maxMidi: 84 },
+  transposition: { octaves: 1, semitones: 2, direction: 'lower' },
+})
+
+// @test-link [[rule_controller_transposition_check]]
+// @test-link [[rule_transposition_check_sets_my_instrument]]
+describe('transpositionCheckCopy with my instrument selected', () => {
+  it('names it as "your instrument, {name}," where a profile is named', () => {
+    expect(copyFor(MY_TENOR.profile, 0)).toEqual({
+      result: 'Your controller matches your instrument, Tenor at home.',
+      suggestion: "Nothing to change — you're ready to play.",
+      profileSuggestion: null,
+    })
+    expect(copyFor(MY_TENOR.profile, 12)).toEqual({
+      result:
+        'Your controller sounds 1 octave higher than your instrument, Tenor at home, expects.',
+      suggestion:
+        "Change your controller's octave setting so it plays 1 octave lower, then run the check again.",
+      profileSuggestion: null,
+    })
+  })
+
+  it('suggests a built-in profile whose transposition is its own minus the offset, never itself', () => {
+    expect(copyFor(MY_TENOR.profile, 14)).toEqual({
+      result:
+        'Your controller sounds 14 semitones (1 octave and 2 semitones) higher than your instrument, Tenor at home, expects.',
+      suggestion:
+        "Change your controller's transpose setting so it plays 14 semitones (1 octave and 2 semitones) lower, then run the check again.",
+      profileSuggestion:
+        'If you actually play the C MIDI keyboard, choose the C MIDI keyboard instrument profile instead — no controller change needed.',
+    })
+    expect(copyFor(MY_TENOR.profile, 2).profileSuggestion).toBeNull()
   })
 })

@@ -1,6 +1,6 @@
 ---
 id: rule_delete_everything
-status: DRAFT
+status: REVIEW
 priority: 1
 tags: [v3, release-v3.0, storage, privacy, changes-in-v3.1, changes-in-v3.2]
 type: RULE

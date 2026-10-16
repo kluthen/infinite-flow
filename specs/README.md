@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.69
+Status: draft v0.71
 
 ## Status Snapshot
 
@@ -163,6 +163,18 @@ Status: draft v0.69
   controller's reach into kept sessions) and 20 (the stored my-instrument record) carry an
   architecture capture; chunk 27's page-leaving signal travels with the session's save; wave 7
   shares four files in number order (D325).
+- **v3.0 build, wave 8 preflight** (2026-10-16, D329–D331): master spec Part A v1.22, build plan
+  v25. Wave 8 shares the workspace shell and the session controller's files in number order;
+  chunk 15 captures Delete every session as one batch from a key-only read, and chunks 15 and 21
+  gain split rules (D329). Chunk 28's damaged-session deletions go through the kept-change line,
+  their reports reaching the notices through `App.vue` and the workspace shell (D330). Another
+  tab's Delete everything outdates every other open tab, now named in §4.3 (D331, ux Q80, closed
+  by ux D318). Build plan v26 (D332–D334): Delete every session finding nothing stored is done; it
+  never meets a newer version's session; the load's clean-up deleting the most recent session
+  gives the readable kept session that started last. Master spec Part A v1.23 (D335, the owner's
+  sign-off at the wave-8 report): §7.2's action also selects my instrument when another was
+  selected, and is not offered when its transposition would put my instrument's written range
+  outside MIDI notes 0 to 127.
 - **Open:** 11 questions: O48 and O49 (later and governance),
   O100–O102 (v4 rhythm), O115 and O116 (v3.x learning), O176 (style packs and the chord level),
   O180 (octave signs, later), O183 (pre-generation's cancellation cost), O190 (a newer

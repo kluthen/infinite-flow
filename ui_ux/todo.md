@@ -68,7 +68,7 @@ Settled: ux D307-D314; no question for the owner.
 **v3.0 wave 2: the Clef design and Sessions design gates** (build plan v8 §1), from spec
 D293-D296 (master spec Part A v1.10), on branch `v3.0-w2`. Started 2026-10-12. Written into
 `versions/v3.0/` as a recorded correction and at the root (ux D280). Settled: ux D280-D293; Q76
-closed (ux D285); Q80 raised for `spec-writer`.
+closed (ux D285); Q80 raised for `spec-writer`, closed 2026-10-16 (ux D318, spec D331).
 
 - **Clef design gate** (before chunk 20): the clef control, the range bound's refusal, the
   staff-reach note in the chosen clef, the clef on screen and in the check note, the interval
@@ -218,7 +218,8 @@ drops the check.
 v3.0 wave 6: the O210 and Damaged session gates are passed (ux D307-D314); chunk 25 still waits
 for H1, chunk 28b may start. The chunk-25 wording note above waits for `spec-writer`.
 
-v3.0 wave 2: the Clef and Sessions gates are passed (ux D280-D295); Q80 waits for `spec-writer`.
+v3.0 wave 2: the Clef and Sessions gates are passed (ux D280-D295); Q80 closed 2026-10-16 by
+ux D318 (spec D331), no design change.
 The Stale phrase design gate is written (ux D296-D304); for `spec-writer`: the lexicon's
 **Starting note** and **Count-in** entries still say the starting note starts the count-in, with
 no word of the prompt an out-of-date phrase opens first (CONTRACT 5.0). At chunk 19b's calibration, if the bass-clef bound E0-E5 needs more than

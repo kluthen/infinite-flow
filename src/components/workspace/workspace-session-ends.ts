@@ -13,7 +13,7 @@
 import type { SessionHistory } from '@/session/session-history'
 import type { SessionEndCause } from '@/session/session-types'
 import { endedSession, openedReview, settledKeeping } from './session-review-state'
-import { endedSessionSave, saveEndedSession } from './workspace-session-save'
+import { endedSessionSave, saveEndedSession, tellDamagedDeleted } from './workspace-session-save'
 import type { KeptSessionRows } from './use-kept-sessions'
 import type { AdaptiveTempoFlag } from './workspace-adaptive-tempo'
 import { findHeldSession } from './workspace-kept-session-opening'
@@ -106,7 +106,8 @@ export function createSessionEnds(
    * once while saving is off, under the key minted for its save, its played notes kept when
    * `Keep my played notes` is on, saving is on and it holds one; the session's own save is asked
    * for after the release (never
-   * awaited, so the end is not delayed; its outcome settles how the session is kept) and, the
+   * awaited, so the end is not delayed; its outcome settles how the session is kept, and the
+   * damaged kept sessions its batch deleted are told once it is saved) and, the
    * reports handed back to Idle, Idle is asked for the next phrase; an end during the count-in
    * opens none, saves nothing, asks for nothing and leaves the most recent session as it was.
    * The session is dropped first, so nothing can end it twice; ending with none running throws.
@@ -146,6 +147,7 @@ export function createSessionEnds(
       void saving.then((outcome) => {
         settleKeeping(reviewed, outcome)
         if (outcome.status === 'refused') saveRefused(reviewed.key, session.history)
+        tellDamagedDeleted(core.deps.keptSessions.reports, outcome)
       })
     }
     adaptiveTempo.sessionEnded(reviewed.tempoReached)

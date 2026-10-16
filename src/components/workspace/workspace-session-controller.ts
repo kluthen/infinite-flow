@@ -33,7 +33,11 @@
  * end's save reads, and keeps or deletes a kept session's played notes after its save. Its side
  * of the Review's other changes (./workspace-kept-session-edits.ts) marks favorites, pins, sets
  * the comment and deletes the session, each at once in memory and saved when made, a session whose
- * own save failed by a retry of that save.
+ * own save failed by a retry of that save; `Delete every session`, from Your data
+ * (./workspace-kept-sessions-deletion.ts), deletes them all, from the device then from memory.
+ * While the visit saves, a kept session found damaged is deleted
+ * (./workspace-damaged-session-deletions.ts): at load, by a clean-up run once this controller is
+ * built, only when a summary the load read is damaged; at an opening; and by a session's own save.
  */
 import { computed, shallowReactive, shallowReadonly, shallowRef } from 'vue'
 
@@ -59,6 +63,8 @@ import { mostRecentKept } from './workspace-kept-session-read'
 import { createAdaptiveTempoFlag } from './workspace-adaptive-tempo'
 import { createKeptPlayedNotes } from './workspace-kept-played-notes'
 import { createKeptSessionEdits } from './workspace-kept-session-edits'
+import { createEverySessionDeletion } from './workspace-kept-sessions-deletion'
+import { createDamagedSessionDeletions } from './workspace-damaged-session-deletions'
 import type { SessionControllerCore, SessionControllerSides } from './workspace-session-active'
 import { createSessionEnds } from './workspace-session-ends'
 import {
@@ -265,14 +271,19 @@ export function createSessionController(deps: SessionControllerDependencies): Se
   })
   const keptPlayedNotes = createKeptPlayedNotes(core, deps.savedKeepPlayedNotes, rows)
   const edits = createKeptSessionEdits(core, rows)
+  const damagedSessions = createDamagedSessionDeletions(core, rows)
+  const reviewMode = createReviewMode(core, rows, damagedSessions)
+  const deleteEverySession = createEverySessionDeletion(core, rows, reviewMode.cancelOpening)
   const ends = createSessionEnds(core, adaptiveTempo, keptPlayedNotes.on, edits.saveRefused, rows)
-  const reviewMode = createReviewMode(core, rows)
   const start = createSessionStart(
     core,
     { sessionMidi, adaptiveTempo, varySettings, tensionAcrossPhrases, pregeneration },
     ends,
     () => startBlocker.value,
   )
+
+  // Never awaited: a defect in the clean-up surfaces as the unhandled rejection it is.
+  void damagedSessions.cleanUpAtLoad()
 
   return {
     state: shallowReadonly(state),
@@ -295,6 +306,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     setPinned: edits.setPinned,
     setComment: edits.setComment,
     deleteSession: edits.deleteSession,
+    deleteEverySession,
     setAdaptiveTempo: adaptiveTempo.set,
     setVarySettings: varySettings.set,
     setTensionAcrossPhrases: tensionAcrossPhrases.set,

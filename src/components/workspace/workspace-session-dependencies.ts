@@ -90,9 +90,12 @@ export interface WorkspaceSessionDependencies {
   // @spec-link [[req_midi_controller_input]]
   // @spec-link [[rule_controller_connects_between_sessions]]
   readonly midi: MidiController
-  /** The session browser ports, passed through unchanged as `WorkspaceSession.browser`. */
+  /**
+   * The session browser ports, passed through unchanged as `WorkspaceSession.browser`: given, or
+   * still loading (production loads them on demand); the session controller is built once they are.
+   */
   // @spec-link [[service_workspace_session_flow]]
-  readonly browser: SessionBrowserPorts
+  readonly browser: SessionBrowserPorts | Promise<SessionBrowserPorts>
   /**
    * The session controller's time seams: the wake-up timer that has it read the audio clock
    * (production: a Web Worker timer; the harness: a timer stepped by its fake audio clock), the

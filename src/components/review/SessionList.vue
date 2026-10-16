@@ -4,13 +4,15 @@
  * title ("All sessions", a focus target never in the tab order), its intro, then one
  * `session-row` per kept session the controller holds a row for, newest first (./SessionRow.vue),
  * or its empty state: "No sessions are kept…", or, when the kept sessions could not be read in this
- * visit, "Kept sessions can't be read in this visit." It ships with the Review's code, loaded on
+ * visit, "Kept sessions can't be read in this visit." Its header's `Your data` opens the Your data
+ * sheet, through the opener the workspace provides. It ships with the Review's code, loaded on
  * demand with the review area (./load-review-panel.ts). A `Delete` holding focus as saving turns
  * off, and so leaves, hands focus to the title.
  */
 import { nextTick, ref, useId, watch } from 'vue'
 
 import type { KeptSessionRow } from '@/components/workspace/use-kept-sessions'
+import { injectOpenYourData } from '@/components/workspace/use-your-data'
 import SessionRow from './SessionRow.vue'
 
 const props = defineProps<{
@@ -30,6 +32,7 @@ const emit = defineEmits<{
   delete: [key: string]
 }>()
 
+const openYourData = injectOpenYourData()
 const titleId = useId()
 const titleEl = ref<HTMLElement | null>(null)
 /** The mounted rows, by their session's key (a `v-for` ref array keeps no order). */
@@ -81,6 +84,7 @@ watch(
   <section class="sessions-panel" :aria-labelledby="titleId">
     <div class="sessions-header">
       <h2 :id="titleId" ref="titleEl" class="review-title" tabindex="-1">All sessions</h2>
+      <button type="button" class="btn" @click="openYourData">Your data</button>
     </div>
     <p class="sessions-intro">
       Your most recent session is kept until your next one is saved. Pin a session to keep it for

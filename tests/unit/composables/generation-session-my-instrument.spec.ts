@@ -239,3 +239,81 @@ describe('saving and deleting my instrument', () => {
     created.dispose()
   })
 })
+
+// @test-link [[rule_transposition_check_sets_my_instrument]]
+describe('my instrument saved and selected, as the transposition check uses it', () => {
+  const SAME_PITCH = changed({ transposition: { octaves: 0, semitones: 0, direction: 'same' } })
+
+  // @test-link [[rule_transposition_check_sets_my_instrument]]
+  it('a new one is saved, then selected, and the phrase replaced as on a switch', async () => {
+    const { created, generated, saves } = await withPhrase(DEFAULT_GENERATION_CONTROLS, null)
+
+    expect(await created.actions.saveAndSelectMyInstrument(SAME_PITCH)).toBe('regenerated')
+
+    expect(saves).toEqual([
+      { written: SAME_PITCH },
+      { 'controls.instrumentProfileId': 'my-instrument' },
+    ])
+    expect(created.state.myInstrument).toBe(SAME_PITCH)
+    expect(generated).toHaveLength(1)
+    expect(generated[0]?.instrumentProfile).toEqual(SAME_PITCH.profile)
+    created.dispose()
+  })
+
+  // @test-link [[rule_transposition_check_sets_my_instrument]]
+  it('one that exists, not selected, is saved first, then selected, the phrase replaced', async () => {
+    const { created, generated, saves } = await withPhrase(DEFAULT_GENERATION_CONTROLS)
+
+    expect(await created.actions.saveAndSelectMyInstrument(SAME_PITCH)).toBe('regenerated')
+
+    expect(saves).toEqual([
+      { written: SAME_PITCH },
+      { 'controls.instrumentProfileId': 'my-instrument' },
+    ])
+    expect(created.state.myInstrument).toBe(SAME_PITCH)
+    expect(created.state.controls.instrumentProfileId).toBe('my-instrument')
+    expect(generated[0]?.instrumentProfile).toEqual(SAME_PITCH.profile)
+    created.dispose()
+  })
+
+  // @test-link [[rule_transposition_check_sets_my_instrument]]
+  it('one that exists, not selected, with the same record is only selected', async () => {
+    const { created, generated, saves } = await withPhrase(DEFAULT_GENERATION_CONTROLS)
+
+    expect(await created.actions.saveAndSelectMyInstrument(changed({}))).toBe('regenerated')
+
+    expect(saves).toEqual([{ 'controls.instrumentProfileId': 'my-instrument' }])
+    expect(created.state.myInstrument).toBe(LOW_TENOR)
+    expect(generated[0]?.instrumentProfile).toEqual(LOW_TENOR.profile)
+    created.dispose()
+  })
+
+  // @test-link [[rule_transposition_check_sets_my_instrument]]
+  it('the selected one is saved and the phrase replaced, the selection unchanged', async () => {
+    const { created, generated, saves } = await withPhrase()
+
+    expect(await created.actions.saveAndSelectMyInstrument(SAME_PITCH)).toBe('regenerated')
+
+    expect(saves).toEqual([{ written: SAME_PITCH }])
+    expect(created.state.controls.instrumentProfileId).toBe('my-instrument')
+    expect(generated[0]?.instrumentProfile).toEqual(SAME_PITCH.profile)
+    created.dispose()
+  })
+
+  // @test-link [[rule_transposition_check_sets_my_instrument]]
+  it('waits for a generation under way before it selects', async () => {
+    const { created, generated, saves } = await withPhrase(DEFAULT_GENERATION_CONTROLS)
+    const regenerating = created.actions.regenerate()
+
+    const saving = created.actions.saveAndSelectMyInstrument(SAME_PITCH)
+    await regenerating
+    expect(await saving).toBe('regenerated')
+
+    expect(saves).toEqual([
+      { written: SAME_PITCH },
+      { 'controls.instrumentProfileId': 'my-instrument' },
+    ])
+    expect(generated.at(-1)?.instrumentProfile).toEqual(SAME_PITCH.profile)
+    created.dispose()
+  })
+})

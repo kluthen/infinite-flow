@@ -243,7 +243,7 @@ test('a quota refusal: the storage-full notice, one notice for another refusal, 
 
   await changeTheme(page)
   await expectNotice(page, STORAGE_FULL, ['Your data', 'Dismiss'])
-  await expect(noticeButton(page, 'Your data')).toBeDisabled()
+  await expect(noticeButton(page, 'Your data')).toBeEnabled()
   // No focus move and no live region: focus stays on the theme the player chose.
   await expect(radio(page, 'Presentation theme', 'Dark')).toBeFocused()
   expect(

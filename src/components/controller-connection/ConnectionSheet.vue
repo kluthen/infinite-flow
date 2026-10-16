@@ -4,16 +4,20 @@
  * title, showing one state at a time (screens/controller-connection/handoff.md). It is driven by
  * the sheet reducer over the controller (see useConnectionSheetDriver). Focus moves to each new
  * state's main action (else Close) and is trapped in the sheet; Close, Escape and a backdrop click
- * close it from any state. The host hides it on `close` and moves focus.
+ * close it from any state but the Use for my instrument confirmation, where they go back to the
+ * check result. The host hides it on `close` and moves focus, and saves my instrument on
+ * `use-for-my-instrument`.
  */
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
+import type { MyInstrument } from '@/domain/profile/my-instrument'
+import { useForMyInstrument, type UseForMyInstrument } from './check-for-my-instrument'
 import type { ConnectionSheetProps } from './connection-sheet-contract'
 import {
   sheetActions,
   sheetFocusTarget,
   sheetTitle,
-  type SheetActionName,
+  type SheetButtonAction,
 } from './connection-sheet-view'
 import SheetStateBody from './SheetStateBody.vue'
 import { useConnectionSheetDriver } from './use-connection-sheet-driver'
@@ -23,20 +27,47 @@ const props = defineProps<ConnectionSheetProps>()
 const emit = defineEmits<{
   /** The sheet closed, by any path; the host hides it and moves focus. */
   close: []
+  /** `Use for my instrument` was confirmed: the host saves this my instrument and selects it. */
+  'use-for-my-instrument': [instrument: MyInstrument]
 }>()
 
 const { model, dispatch } = useConnectionSheetDriver(props, () => emit('close'))
 
 const stage = computed(() => model.value.stage)
-const actions = computed(() => sheetActions(stage.value, props.seenDeviceCount))
+
+/**
+ * Intent: what `Use this for my instrument` would save for the check's result, shown or being
+ * confirmed; null when it is not offered (a match, or an instrument sounding outside MIDI notes 0
+ * to 127) or no result shows.
+ */
+// @spec-link [[rule_transposition_check_sets_my_instrument]]
+const use = computed<UseForMyInstrument | null>(() => {
+  const current = stage.value
+  if (current.kind !== 'check' && current.kind !== 'use') return null
+  if (current.played === null) return null
+  return useForMyInstrument(props.profile, props.myInstrument, current.played)
+})
+
+const actions = computed(() => sheetActions(stage.value, props.seenDeviceCount, use.value !== null))
 
 const dialog = ref<HTMLElement | null>(null)
 const closeButton = ref<HTMLButtonElement | null>(null)
 
-/** Intent: run a named action (Close, Escape and the backdrop are `close`). */
+/**
+ * Intent: run a button's action (Close, Escape and the backdrop are `close`). The confirmed `Use
+ * for my instrument` goes on to Connected and hands my instrument to the host to save.
+ */
 // @spec-link [[rule_controller_connects_between_sessions]]
-function act(action: SheetActionName): void {
-  dispatch({ kind: 'action', action })
+// @spec-link [[rule_transposition_check_sets_my_instrument]]
+function act(action: SheetButtonAction): void {
+  if (action !== 'use-for-my-instrument') {
+    dispatch({ kind: 'action', action })
+    return
+  }
+  const confirmed = use.value
+  if (confirmed === null) throw new Error('connection sheet: nothing to use for my instrument')
+  dispatch({ kind: 'used', name: confirmed.instrument.name })
+  emit('use-for-my-instrument', confirmed.instrument)
 }
 
 /** Intent: a click on the backdrop itself (not inside the sheet) closes the sheet. */
@@ -59,11 +90,15 @@ function dialogElement(): HTMLElement {
 
 /** Intent: the element the current state's focus goes to (see sheetFocusTarget). */
 function mainFocusTarget(): HTMLElement | null {
-  switch (sheetFocusTarget(stage.value, actions.value)) {
+  const target = sheetFocusTarget(stage.value, actions.value)
+  switch (target.kind) {
     case 'picker':
       return dialogElement().querySelector<HTMLElement>('.device-option[tabindex="0"]')
-    case 'first-action':
-      return dialogElement().querySelector<HTMLElement>('.sheet-actions > button')
+    case 'action':
+      return (
+        dialogElement().querySelectorAll<HTMLElement>('.sheet-actions > button')[target.index] ??
+        null
+      )
     case 'close':
       return closeButton.value
   }
@@ -143,6 +178,7 @@ watch(
         :profile="profile"
         :clef="clef"
         :profiles="profiles"
+        :use="use"
         @choose="choose"
       />
       <div v-if="actions.length > 0" class="sheet-actions">

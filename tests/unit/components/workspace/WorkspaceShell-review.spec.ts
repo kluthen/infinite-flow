@@ -3,12 +3,17 @@
  * instantly to its top and moves focus by the idle state reached (the session action if enabled,
  * else `room-notice`, else the phrase action if enabled, else `controller-status`); `Review last
  * session` shows it again, scrolls to the top and focuses `review-title` once the lazily loaded
- * panel has mounted.
+ * panel has mounted; finding its session damaged, it lands on the list's title as the notice row
+ * apologises, the reports reaching the notices through the shell.
  */
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import WorkspaceShell from '@/components/workspace/WorkspaceShell.vue'
+import {
+  createDamagedSessionReports,
+  type DamagedSessionReports,
+} from '@/components/workspace/workspace-kept-sessions-seam'
 import type { GenerationSession } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import { transportRig } from '../../audio/transport-rig'
@@ -42,10 +47,12 @@ afterEach(() => {
 function mountShell(
   session: GenerationSession<WorkspaceSessionResult>,
   fake: FakeSessionController,
+  damagedSessionReports: DamagedSessionReports | null = null,
 ) {
   const scrollToPageTop = vi.fn()
   const wrapper = mount(WorkspaceShell, {
     props: {
+      damagedSessionReports,
       savedData: quietSavedData(),
       rememberedController: noRememberedController(),
       session,
@@ -188,5 +195,39 @@ describe('WorkspaceShell: Review last session', () => {
     await flushPromises()
 
     expect(document.activeElement).toBe(status)
+  })
+})
+
+// @test-link [[module_kept_session_save]]
+// @test-link [[req_kept_session_review]]
+describe('WorkspaceShell: Review last session finding its session damaged', () => {
+  it("shows the list in its place, focus on the list's title, and the notice row apologises", async () => {
+    const reports = createDamagedSessionReports()
+    const fake = showingReview()
+    fake.controller.closeReview()
+    fake.showReview.mockImplementation(() => {
+      // As the controller lands a damaged session's deletion: told, its row gone, the list shown.
+      reports.tell({ status: 'deleted', count: 1 })
+      fake.state.keptRows = []
+      fake.state.listShowing = true
+      return Promise.resolve('damaged')
+    })
+    const { wrapper, scrollToPageTop } = mountShell(
+      fakeGenerationSession(readyState()).session,
+      fake,
+      reports,
+    )
+    await flushPromises()
+    expect(wrapper.find('.app-notice-row').exists()).toBe(false)
+
+    await wrapper.get('.review-link').trigger('click')
+    await flushPromises()
+
+    expect(scrollToPageTop).toHaveBeenCalledTimes(1)
+    expect(wrapper.get('.review-title').text()).toBe('All sessions')
+    expect(document.activeElement).toBe(wrapper.get('.review-title').element)
+    expect(wrapper.get('.app-notice-row').text()).toContain(
+      "Sorry: a kept session was damaged and couldn't be read, so it was deleted.",
+    )
   })
 })

@@ -1455,3 +1455,26 @@ phones low priority, no question to the owner. Nothing in `src/` is edited.
   `module_kept_session_reach`), and the damaged deletion is chunk 28's, whose scope already says
   the started-last session; chunk 14's " · Last session" follows the controller's most recent
   session either way. When chunk 28 is captured, its atom states the successor.
+
+## v3.0 wave 8: another tab's Delete everything, 2026-10-16
+
+Inputs: master spec Part A v1.22 (§4.3, done item 14), spec D331, D300. Nothing in `src/` is
+edited.
+
+- **D318 — Q80 closed: another tab's `Delete everything` outdates every other open tab
+  (2026-10-16; spec D331, D300).** Ruled by `spec-writer` as spec D331: once the player runs
+  `Delete everything` in one tab, every other open tab is an outdated tab, saving and deleting
+  nothing, offering no deletion and showing the reload notice outside a running session; in v3.0
+  its notice shows the newer version's wording, since the storage port reports no cause (spec
+  D300); a visit whose database never opened (its read failed) is not told and still offers
+  `Delete everything`, as §4.4 says. This is the design of ux D293 and D294 as it stands: the
+  deletion's own wording stays in the design for a later version, behind the port's cause. No
+  design change. Two documents would have misled and gain a line, in both trees (a recorded
+  correction to `versions/v3.0/`, as D307 and D316; both documents are new in v3, so no new
+  mark): `flows/saved-data/intent.md`, whose deletion paragraph promised its own words with no
+  word of the fallback, now says the newer-version wording shows until the port can say why;
+  `screens/your-data/handoff.md`, States, Saving off this visit: the outdated form also follows
+  another tab's `Delete everything` (with the newer-version wording, as the notice), and
+  "Becoming outdated while the sheet is open" names that trigger. `flows/saved-data/handoff.md`
+  (Notices, Outdated tab and `Delete everything` in another tab) and `strategy.md` already said
+  it and are unchanged.

@@ -1,11 +1,15 @@
 /**
  * The workspace session saves the player's changes through the visit's save policy: Idle's control
  * actions and the screen's saver write through it, and each session controller holds the saves
- * from an accepted start to its end.
+ * from an accepted start to its end. The reports of the deletions of damaged kept sessions go
+ * through a channel built with the workspace, which the controller tells through.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { composeWorkspaceSession } from '@/components/workspace/create-workspace-session'
+import type { DamagedSessionsReport } from '@/components/workspace/workspace-kept-sessions-seam'
+import type { KeptRecordsReader } from '@/storage/save-policy'
+import type { StorageChange } from '@/storage/storage-port'
 import { resetFakeEngraver } from '../../notation/fake-vexflow-engraver-loader'
 import { recordingPolicy, type PolicyCall } from '../../storage/recording-save-policy'
 import { fakeDependencies, fakeSavedData, generateAndEngrave } from './fake-workspace-dependencies'
@@ -59,6 +63,48 @@ describe("composeWorkspaceSession: saving the player's changes", () => {
       'hold',
       { save: ['mix.clickVolume'] },
       'release',
+    ])
+    controller.dispose()
+    workspace.dispose()
+  })
+})
+
+// @test-link [[module_kept_session_save]]
+describe('composeWorkspaceSession: the reports of damaged sessions deleted', () => {
+  it("exposes the channel built with the workspace, through which the controller's clean-up tells", async () => {
+    const { policy } = recordingPolicy()
+    const damaged = { key: 'session-1-1', value: { dataVersion: 1, appVersion: 'x' } }
+    const batches: (readonly StorageChange[])[] = []
+    const reader: KeptRecordsReader = {
+      read: () => Promise.resolve(undefined),
+      readKeyed: () => Promise.resolve([damaged]),
+      readKeys: () => Promise.resolve([]),
+    }
+    const savePolicy = {
+      ...policy,
+      changeKept: async (changes: Parameters<typeof policy.changeKept>[0], refusal: string) => {
+        expect(refusal).toBe('caller')
+        batches.push(await changes(reader))
+        return { status: 'saved' } as const
+      },
+    }
+    const savedData = {
+      ...fakeSavedData(),
+      keptSessionSummaries: [damaged],
+      savePolicy: Promise.resolve(savePolicy),
+    }
+    const workspace = composeWorkspaceSession({ ...fakeDependencies(), savedData })
+    const heard: DamagedSessionsReport[] = []
+    workspace.damagedSessionReports.listen((report) => heard.push(report))
+
+    const controller = await workspace.createSessionController()
+    await vi.waitFor(() => expect(heard).toEqual([{ status: 'deleted', count: 1 }]))
+
+    expect(batches).toHaveLength(1)
+    expect(batches[0]?.map((change) => `${change.kind} ${change.store}`)).toEqual([
+      'delete sessionSummaries',
+      'delete sessionBodies',
+      'delete playedNotes',
     ])
     controller.dispose()
     workspace.dispose()

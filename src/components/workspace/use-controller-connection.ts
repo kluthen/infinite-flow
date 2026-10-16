@@ -11,6 +11,7 @@ import { onMounted, onScopeDispose, watch } from 'vue'
 import type { AudioTransport } from '@/audio/audio-transport'
 import { loadConnectionSheet } from '@/components/controller-connection/load-connection-sheet'
 import type { InstrumentProfile } from '@/domain/profile/instrument-profile'
+import type { MyInstrument } from '@/domain/profile/my-instrument'
 import type { MidiController, MidiDevice } from '@/midi/midi-controller-state'
 import { useConnectionSheet, type ConnectionSheetHost } from './use-connection-sheet'
 import { useControllerStatus, type ControllerStatusView } from './use-controller-status'
@@ -39,6 +40,8 @@ export interface ControllerConnectionDeps {
   readonly profile: () => InstrumentProfile
   /** The current instrument's clef, the staff the check's note is drawn on. */
   readonly clef: () => InstrumentClef
+  /** The saved my instrument, or null: what the check's Use this for my instrument changes. */
+  readonly myInstrument: () => MyInstrument | null
   /** True while a session runs, count-in included. */
   readonly sessionActive: () => boolean
   /** True while a running session's controller is lost (its countdown runs). */
@@ -115,6 +118,7 @@ export function useControllerConnection(deps: ControllerConnectionDeps): Control
     status: controllerStatus,
     profile: deps.profile,
     clef: deps.clef,
+    myInstrument: deps.myInstrument,
     sessionActive: deps.sessionActive,
   })
 

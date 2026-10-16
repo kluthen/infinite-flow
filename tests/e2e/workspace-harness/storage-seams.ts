@@ -14,17 +14,19 @@
  *   the app saved, as the review's pin will, `seedUnreadableKeptSession` writes a kept session
  *   whose session-wide record the codec cannot read, `seedPlayedNotes` keeps a session's played
  *   notes as another tab would, `deleteKeptSession` deletes one, as a deletion made elsewhere
- *   would, and `seedKeptSessionCopy` copies one under another key and start, as this version or a
- *   newer one would have written it;
+ *   would, `seedKeptSessionCopy` copies one under another key and start, as this version or a
+ *   newer one would have written it, and `seedDamagedKeptBody` rewrites a kept session's body so
+ *   the codec reads it as unreadable;
  * - `settingsNotReadBack` names each stored settings record the settings codec does not read back
  *   as the value it holds, read as a load reads them all (with the mix design of the page's tokens,
  *   and my instrument not loaded);
  * - `loadOutcome`, `savingState` and `loadMs` report the load;
  * - `?storageRead=fail` makes every read of the app's port fail, and `?storageRead=slow` delays
  *   each past the start-up wait, so the visit starts from the defaults;
- * - `refuseSaves(kind)` makes the app's port refuse every write, delete and batch as `quota` or
- *   `other` (null to stop), and `portChanges()` counts the changes that reached the app's port,
- *   refused or not: the write spy;
+ * - `refuseSaves(kind)` makes the app's port refuse every write, delete and batch, and Delete
+ *   everything, as `quota` or `other` (null to stop), `?storageRefuse=quota|other` does so from
+ *   the load on (so the load's clean-up of damaged sessions meets it), and `portChanges()` counts
+ *   the changes that reached the app's port, refused or not: the write spy;
  * - `refuseKeptSessionReads(on)` makes the app's port refuse each read of a kept session's body as
  *   `other`, so opening a kept session fails while the load's reads go through;
  * - `openNewerVersion()` opens the database as a newer version of the app would, one data version
@@ -87,6 +89,14 @@ export function harnessStorageReadMode(search: string): HarnessStorageReadMode {
   throw new Error(`Workspace harness: ?storageRead=${value} is not a read mode (fail, slow)`)
 }
 
+/** Intent: the refusal the page URL asks the app's port to make from the load on; none by default. */
+export function harnessStorageRefusal(search: string): 'quota' | 'other' | null {
+  const value = new URLSearchParams(search).get('storageRefuse')
+  if (value === null) return null
+  if (value === 'quota' || value === 'other') return value
+  throw new Error(`Workspace harness: ?storageRefuse=${value} is not a refusal (quota, other)`)
+}
+
 /** How far past the start-up wait a slow read ends, in milliseconds. */
 const SLOW_READ_PAST_WAIT_MS = 1000
 
@@ -101,8 +111,8 @@ interface PortInjections {
 
 /**
  * Intent: the app's port over `real`: each read failed or delayed per the read mode, a kept
- * session's body read refused while those reads are, each change counted, then refused when a
- * refusal is set.
+ * session's body read refused while those reads are, each change (Delete everything included)
+ * counted, then refused when a refusal is set.
  */
 function injectedPort(real: StoragePort, injections: PortInjections): StoragePort {
   const read = async <T>(operation: () => Promise<T>, store?: StoreName): Promise<T> => {
@@ -131,6 +141,7 @@ function injectedPort(real: StoragePort, injections: PortInjections): StoragePor
     write: (store, key, record) => change(() => real.write(store, key, record)),
     delete: (store, key) => change(() => real.delete(store, key)),
     apply: (changes) => change(() => real.apply(changes)),
+    deleteEverything: () => change(() => real.deleteEverything()),
   }
 }
 
@@ -240,15 +251,16 @@ function notReadBack(records: readonly unknown[]): string[] {
   })
 }
 
-/** Intent: the harness's saved data, loaded in `mode`. */
+/** Intent: the harness's saved data, loaded in `mode`, its port refusing changes as `refusal`. */
 export function createHarnessStorage(
   mode: HarnessStorageLoadMode,
   readMode: HarnessStorageReadMode,
+  refusal: 'quota' | 'other' | null = null,
 ): HarnessStorage {
   const production = browserSavedDataLoad()
   const injections: PortInjections = {
     readMode,
-    refusal: null,
+    refusal,
     keptReadsRefused: false,
     changes: 0,
   }
@@ -439,10 +451,28 @@ export function createHarnessStorage(
     ])
   }
 
+  /**
+   * Intent: rewrite the body of the kept session under `key` with phrases the codec refuses, its
+   * envelope current, so the session reads as damaged at its opening; throws when none is stored.
+   */
+  async function seedDamagedKeptBody(key: string): Promise<void> {
+    const target = openedPort()
+    const body: unknown = await target.read('sessionBodies', key)
+    if (typeof body !== 'object' || body === null) {
+      throw new Error(`Workspace harness: no kept session body is stored under "${key}"`)
+    }
+    const damaged: RecordVersions & { readonly phrases: string } = {
+      ...(body as RecordVersions),
+      phrases: 'not phrases',
+    }
+    await target.write('sessionBodies', key, damaged)
+  }
+
   return {
     load,
     api: {
       seedSettings,
+      seedDamagedKeptBody,
       seedMyInstrument,
       seedTimingSessions,
       pinKeptSession,

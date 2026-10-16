@@ -89,6 +89,15 @@ export interface GenerationSessionActions {
    */
   // @spec-link [[req_my_instrument]]
   readonly saveMyInstrument: (instrument: MyInstrument) => Promise<MyInstrumentChangeOutcome>
+  /**
+   * Save my instrument, made or changed, as `saveMyInstrument` does, and make it the selection:
+   * one that exists but is not selected is selected once its record is written, a switch that
+   * replaces the phrase. What the transposition check's Use for my instrument does.
+   */
+  // @spec-link [[rule_transposition_check_sets_my_instrument]]
+  readonly saveAndSelectMyInstrument: (
+    instrument: MyInstrument,
+  ) => Promise<MyInstrumentChangeOutcome>
   /** Delete my instrument; while it is selected, its template is selected first, a switch. */
   // @spec-link [[req_my_instrument]]
   readonly deleteMyInstrument: () => Promise<MyInstrumentChangeOutcome>

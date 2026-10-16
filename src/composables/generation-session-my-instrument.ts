@@ -42,6 +42,9 @@ export interface MyInstrumentActionDependencies<TResult> {
 /** The actions on my instrument. */
 export interface MyInstrumentActions {
   readonly saveMyInstrument: (instrument: MyInstrument) => Promise<MyInstrumentChangeOutcome>
+  readonly saveAndSelectMyInstrument: (
+    instrument: MyInstrument,
+  ) => Promise<MyInstrumentChangeOutcome>
   readonly deleteMyInstrument: () => Promise<MyInstrumentChangeOutcome>
 }
 
@@ -68,7 +71,8 @@ function sameMyInstrument(before: MyInstrument, after: MyInstrument): boolean {
 
 /**
  * Intent: build the actions on my instrument. Saving a new one saves it and selects it, an
- * instrument switch. Saving a change saves it; while it is selected, a change of range or
+ * instrument switch; saving one and selecting it (the transposition check's way) also selects one
+ * that exists but is not selected. Saving a change saves it; while it is selected, a change of range or
  * transposition replaces the phrase as a switch does, and a change of clef alone redraws the
  * phrase in it, keeping it; a change of name relabels only. Deleting deletes its record; while it
  * is selected, its template is selected first, a switch, so no selection ever names a my
@@ -112,19 +116,45 @@ export function createMyInstrumentActions<TResult>(
     return 'redrawn'
   }
 
-  return {
-    saveMyInstrument: async (instrument) => {
-      const before = state.myInstrument
-      if (before !== null && sameMyInstrument(before, instrument)) return 'unchanged'
+  /** Intent: save my instrument, made or changed (see the factory's intent). */
+  async function saveMyInstrument(instrument: MyInstrument): Promise<MyInstrumentChangeOutcome> {
+    const before = state.myInstrument
+    if (before !== null && sameMyInstrument(before, instrument)) return 'unchanged'
+    deps.saves.saveMyInstrument(instrument)
+    state.myInstrument = instrument
+    if (before === null) {
+      await whenIdle()
+      return deps.selectInstrumentProfile(MY_INSTRUMENT_ID)
+    }
+    if (state.controls.instrumentProfileId !== MY_INSTRUMENT_ID) return 'saved'
+    return afterChange(before, instrument)
+  }
+
+  /**
+   * Intent: save my instrument and make it the selection. A new one, or the selected one, is saved
+   * as `saveMyInstrument` saves it; one that exists but is not selected has its record written
+   * at once (unless nothing in it changed), then is selected, a switch that replaces the phrase,
+   * once a generation under way has ended.
+   */
+  // @spec-link [[rule_transposition_check_sets_my_instrument]]
+  async function saveAndSelectMyInstrument(
+    instrument: MyInstrument,
+  ): Promise<MyInstrumentChangeOutcome> {
+    const before = state.myInstrument
+    if (before === null || state.controls.instrumentProfileId === MY_INSTRUMENT_ID) {
+      return saveMyInstrument(instrument)
+    }
+    if (!sameMyInstrument(before, instrument)) {
       deps.saves.saveMyInstrument(instrument)
       state.myInstrument = instrument
-      if (before === null) {
-        await whenIdle()
-        return deps.selectInstrumentProfile(MY_INSTRUMENT_ID)
-      }
-      if (state.controls.instrumentProfileId !== MY_INSTRUMENT_ID) return 'saved'
-      return afterChange(before, instrument)
-    },
+    }
+    await whenIdle()
+    return deps.selectInstrumentProfile(MY_INSTRUMENT_ID)
+  }
+
+  return {
+    saveMyInstrument,
+    saveAndSelectMyInstrument,
     deleteMyInstrument: async () => {
       const before = state.myInstrument
       if (before === null) throw new Error('my instrument: there is none to delete')

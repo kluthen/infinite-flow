@@ -9,8 +9,9 @@
  * the session-wide record, the body and the played notes together. A change to a session no longer
  * stored, or whose records cannot be read, writes nothing and recreates nothing. A pin, an unpin
  * and Delete session also come from a session list row, for a kept session not held in memory,
- * keyed by the row: neither reads the session's body. The codec is loaded on demand, as the
- * session's save loads it.
+ * keyed by the row: neither reads the session's body. Delete every session, from Your data, names
+ * no session: it deletes every key the three kept-session stores hold, read by its key only, so a
+ * session with no row goes too. The codec is loaded on demand, as the session's save loads it.
  */
 import { APP_VERSION } from '@/storage/app-version'
 import type { KeptChangeOutcome, KeptChanges, KeptRefusal } from '@/storage/save-policy'
@@ -118,6 +119,23 @@ export function deleteSessionChanges(codec: KeptReviewCodec, key: string): KeptC
   }
 }
 
+/**
+ * Intent: the change that deletes every kept session: every key the session-wide records, the
+ * bodies and the played notes hold, read by its key only (never a record), deleted in one batch,
+ * a session whose session-wide record is missing or cannot be read included; an empty batch when
+ * nothing is stored. No key is filtered by the version that wrote it (spec D333).
+ */
+// @spec-link [[module_kept_session_changes]]
+// @spec-link [[req_your_data]]
+export const deleteEverySessionChanges: KeptChanges = async (reader) => {
+  const perStore = await Promise.all(
+    KEPT_SESSION_STORES.map(async (store) =>
+      (await reader.readKeys(store)).map((key): StorageChange => ({ kind: 'delete', store, key })),
+    ),
+  )
+  return perStore.flat()
+}
+
 /** Intent: run a change built with the codec through the visit's saves; resolve its outcome. */
 async function changed(
   saves: Pick<KeptSessionChanges, 'changeKept'>,
@@ -176,4 +194,16 @@ export function deleteKeptSession(
   key: string,
 ): Promise<KeptChangeOutcome> {
   return changed(saves, (codec) => deleteSessionChanges(codec, key), 'caller')
+}
+
+/**
+ * Intent: delete every kept session and its records, a session with no row included; its
+ * confirmation tells a refusal. Resolves `unchanged` when nothing is stored.
+ */
+// @spec-link [[module_kept_session_changes]]
+// @spec-link [[req_your_data]]
+export function deleteEveryKeptSession(
+  saves: Pick<KeptSessionChanges, 'changeKept'>,
+): Promise<KeptChangeOutcome> {
+  return saves.changeKept(deleteEverySessionChanges, 'caller')
 }

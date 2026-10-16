@@ -1,11 +1,11 @@
 # Infinite Flow v3.0 — Build Plan
 
-Status: v24 (2026-10-15): chunk 27's page brought back from the back-forward cache saves its later sessions, the session cut short staying not saved (spec D328). v23: chunk 20c's record change and erasing of my instrument's sessions are one batch, a refusal changing nothing (spec D326); chunk 28's successor after a damaged deletion is justified by the load's rule, not the player's deletion (spec D327). v22 placed the wave-7 preflight's corrections (spec D324, D325). Approved by
+Status: v26 (2026-10-16): chunk 15a takes Delete every session finding nothing stored as done (spec D332) and deletes every key found, a newer version's session never among them (spec D333); chunk 28a's clean-up deleting the most recent session gives the readable kept session that started last (spec D334). v25: the wave-8 preflight's corrections placed, wave 8 sharing files in order, chunks 15 and 21 gaining split rules (spec D329); chunk 28's damaged-session deletions go through the kept-change line and their reports reach the notices through `App.vue` and the workspace shell (spec D330); chunk 15 tests another tab's Delete everything, now in master spec §4.3 (spec D331). v24: chunk 27's page brought back from the back-forward cache saves its later sessions, the session cut short staying not saved (spec D328). v23: chunk 20c's record change and erasing of my instrument's sessions are one batch, a refusal changing nothing (spec D326); chunk 28's successor after a damaged deletion is justified by the load's rule, not the player's deletion (spec D327). v22 placed the wave-7 preflight's corrections (spec D324, D325). Approved by
 the product owner on 2026-10-07 (v1), with Gate A and the token-source pass (Q66) confirmed the
 same day; every later revision writes in rulings from [the decisions log](../../decisions.md)
-(spec D252–D328), and earlier wordings are in git.
+(spec D252–D334), and earlier wordings are in git.
 
-Build plan for v3.0, Storage, written from [master spec v1.3](master-spec.md) (now Part A v1.21) and the v3.0 design
+Build plan for v3.0, Storage, written from [master spec v1.3](master-spec.md) (now Part A v1.22) and the v3.0 design
 in [`ui_ux/versions/v3.0/`](../../../ui_ux/versions/v3.0/README.md), the copy frozen when the
 v3.1 and v3.2 design started at the `ui_ux/` root (its links were repointed there on
 2026-10-08). Approved for execution. It adds no behaviour:
@@ -70,10 +70,11 @@ Waves run one after another. Inside a wave, chunks run one at a time in number o
 rule is **one coding chunk in flight at a time**. Each wave starts with one intent preflight, ends
 with one wave gate (the full test pass, the bundle and the post-task sync), and reaches `main` as
 one merge ([§3](#3-workflow-waves-and-chunks)). The chunks in a wave are independent of each other
-and touch different source files, so one preflight can cover them all; waves 6 and 7 are the
+and touch different source files, so one preflight can cover them all; waves 6, 7 and 8 are the
 exceptions, sharing some files in a stated order ([Wave 6: shared files, in
 order](#wave-6-shared-files-in-order), [Wave 7: shared files, in
-order](#wave-7-shared-files-in-order)). A chunk still blocked
+order](#wave-7-shared-files-in-order), [Wave 8: shared files, in
+order](#wave-8-shared-files-in-order)). A chunk still blocked
 when the rest of its wave is done (waiting for the owner, a design answer or a measurement) moves to the
 next wave.
 
@@ -104,8 +105,9 @@ asked for the end of v3.0; the two touch different files. Since v14, chunk 27 (a
 short by the page going away, spec O201) joins wave 7; since v22 it shares one file with chunk 20,
 after it (see below). Since
 v15, chunk 28 (a damaged kept session deleted with an apology, spec D310) joins wave 8: it
-changes files chunks 14 and 27 own in wave 7, after them, and none of chunk 15's or 21's; wave
-8's file pass checks `use-kept-sessions.ts` against chunk 15's Delete every session. Since v16,
+changes files chunks 14 and 27 own in wave 7, after them; since v25 it also shares the workspace
+shell and the session controller's files with chunks 15 and 21, after them (spec D329; see
+below). Since v16,
 wave 6's chunks 11, 12 and 25 share files, and chunk 12 builds on chunk 11 (spec D312): see
 below. Since v22, wave 7's chunks 13 and 14 share the review area's files, and chunks 20 and 27
 the visit's saves: see below.
@@ -233,6 +235,28 @@ summaries passed through it) is shared the same way and named in the later chunk
 `src/storage-bootstrap.ts` is chunk 20's alone: chunk 27's signal never goes through the policy's
 construction. The in-wave edges are the split halves (13a → 13b, 14a → 14b, 20a → 20b), each fixed by its first half; chunk 14a's and
 chunk 20a's captures fix the interfaces their second halves call.
+
+#### Wave 8: shared files, in order
+
+Settled in spec D329, from the wave-8 preflight. Wave 8 runs as waves 6 and 7 did: one chunk at
+a time (κ=1), in number order, 15 → 21 → 28 (15a → 15b → 21a → 21b → 28a → 28b where they
+split), each branch cut from the wave branch after the previous chunk merged:
+
+| File | Order and what each chunk adds |
+| --- | --- |
+| `src/components/workspace/WorkspaceShell.vue` | 15 (the footer, the Your data sheet's host), then 21 (the check's save reaching the connection sheet's host), then 28b (the damaged-session reports into the notices, one prop and one argument; spec D330) |
+| `src/components/workspace/workspace-session-controller.ts`, `workspace-session-controller-types.ts` | 15 (the Delete every session action), then 28a (the load's clean-up and the opening's deletion; `SessionOpening`'s damaged outcome) |
+| `src/App.vue`, `src/components/workspace/create-workspace-session.ts`, `workspace-session-types.ts` | 28 (the reports' channel built with the workspace and passed to the shell; spec D330); shared the same way, 15 first, if chunk 15's Your data host turns out to need them |
+
+`src/components/workspace/use-kept-sessions.ts` stays 28b's: chunk 15 uses its `removed(keys)` as
+it is. A later chunk adds its part and leaves an earlier chunk's part as it merged; a change it
+would need there is reported, as any drift, never made in passing. Link cap:
+`workspace-session-controller-types.ts`, `workspace-kept-session-edits.ts`,
+`workspace-session-ends.ts` and `create-workspace-session.ts` already link 10 atoms each, so a new
+linked function goes in a new file; an edit there that adds no link (a call, a member of an
+existing type) stays in the file. The in-wave edges are the split halves (15a → 15b, 21a → 21b,
+28a → 28b), each fixed by its first half; chunk 15's and chunk 28's architecture captures fix the
+interfaces their second halves call.
 
 ### Wave records
 
@@ -1113,6 +1137,100 @@ H5 advances (the owner's hand checks), Part B2 after chunk 20c, D326 in
 `entity_my_instrument_record` at chunk 20c's preflight, hand check H8. The owner asked for the
 merge and the push of `main`, and asked not to start wave 8 yet; the wave merges into `main` with
 entry chunk 227,170 B.
+
+#### Wave 8 preflight (2026-10-16)
+
+The owner asked to start wave 8. Before it, `main` gained the build id in the header (c31e18b,
+merging 10af03a: the version and short commit id beside the app name, from `git archive`'s
+`export-subst`; entry chunk 227,512 B, +342 B) and the website's new address (ac006d9). `v3.0-w8`
+is made from c31e18b. `documentalist` ran the full pass for chunks 15, 21 and 28 without a
+semantic index (keyword search and the files' existing links): 15 PROCEEDs with notes; 21 and 28
+PROCEED with sign-off pending (Part B2 after chunk 20c; change set M2 items 5(b) and 6 at chunk
+28's sync). No CONTRACT or VISION change. It recorded chunk 28's capture in 9aef0c0:
+`module_kept_session_save` 0.5 → 0.6, REVIEW → DRAFT. Its notes: the three chunks share files
+(`WorkspaceShell.vue`, the session controller's two files), files and atoms the chunks' lines
+missed, three points it derived for chunk 28 and one it left open (how the deletion's reports
+reach the notices), M2 5(b) needing three fixes, and ux Q80 blocking nothing.
+
+Placed in v25 (68e7439, spec D329–D331): the wave runs 15a → 15b → 21a → 21b → 28a → 28b, κ=1,
+with shared files in the order of the section "Wave 8: shared files, in order"; chunk 15 gains an
+Architecture capture line (Delete every session as one batch through `changeKept`). D330
+confirms chunk 28's three derived points (the clean-up and an opening's deletion through
+`changeKept` with refusal `caller`; the clean-up only when a load summary is damaged, re-reading
+the summaries; Storage full versus "Damaged session not deleted" from the deletion's report) and
+picks option (b) for the reports: a channel built with the workspace, passed by `App.vue` to the
+shell as a prop and to `useAppNotices` as a dependency. D331 answers ux Q80: another tab's Delete
+everything outdates every other open tab, with the newer-version wording (D300); master spec Part
+A v1.22, and a two-tab done-when in chunk 15. Sent: chunk 15's capture and the D330 revision of
+`module_kept_session_save` to `documentalist`; Q80's closing to `ux-writer`. For the owner at the
+wave-8 sync: M2 5(b)'s LOGIC clause, ux D212's absence rule in
+`rule_transposition_check_sets_my_instrument`, and D331's second trigger in
+`rule_outdated_tab_stops_saving`.
+
+**Captures and rulings before chunk 15 (2026-10-16).** `documentalist` recorded chunk 15's capture
+and revised chunk 28's for D330 in b4774c5 (`module_kept_session_changes` 0.6,
+`module_kept_session_reach` 0.3, `module_kept_session_save` 0.7, all DRAFT); `module_on_device_database`
+already states D331. `ux-writer` closed Q80 as ux D318 (120ce31), adding the fallback wording to
+the saved-data intent and Your data's handoff. Three edges the captures left open went to
+`spec-writer`, placed in v26 (903b179): D332, an empty Delete every session (`unchanged`) is done,
+as `saved`, with the ordinary success; D333, a newer version's session cannot be among the keys
+found, so no filter; D334, a clean-up re-read that deletes the most recent kept session not yet
+read makes the readable one that started last the most recent at once. `documentalist` amended the
+captures in f061e8b: `module_kept_session_reach` 0.4, `module_kept_session_changes` 0.7,
+`module_kept_session_save` 0.8.
+
+**Fixes after chunk 15 (2026-10-16).** Entry headroom before chunks 21 and 28 (306 B left):
+da4c737, merged as 384154d, builds the five session browser ports (wake lock, orientation lock,
+page hidden, page going away, window shape) in the lazy `browser-session-ports.ts`, awaited with
+the session controller's chunks, so no Start exists before they load and Start still asks for
+both locks inside its click; the page activation stays in the entry. Entry chunk 229,070 →
+225,931 B (3,445 B under the budget, unchanged). The record encoder and saves stay in the entry,
+since a lazy save could be lost to a page going away. `verify:boundaries` then showed that chunk
+15 read `usageDetails.indexedDB` outside `src/storage/`: 2c33a39, merged as c7c144d, moves
+`databaseBytes` to the pure `src/storage/storage-estimate.ts`, still lazy, linked to
+`req_your_data`, with its unit test; behaviour and entry bytes unchanged.
+
+**Wave 8 gate (2026-10-16).** `npm run quality` on `v3.0-w8` at 4e25290, on the reference machine
+(Ryzen 5 PRO 8640HS), idle: green. Unit 6,575 tests in 432 files; e2e 437; a11y 57; notation 106
+passed, 4 skipped; code health 0 errors; boundaries passed (389 source files, 41 chunks within
+budget). Entry chunk 227,885 B (+715 B since wave 7's 227,170 B, the build id and the headroom
+fix included; 1,491 B under the budget). No fix needed.
+
+**Wave 8 sync and report (2026-10-16).** `documentalist`'s sync is 95ecba7: chunk 15's Part D
+(`rule_single_local_user` 0.2, its `changes-in-v3.0` tag removed); the captures brought to the
+code as built (`module_kept_session_reach` 0.5, `module_kept_session_changes` 0.8,
+`module_kept_session_save` 0.9, all DRAFT); `service_session_controller` 0.5 (the lazy ports, the
+clean-up, the damaged opening); `module_saved_data_loader` and `entity_my_instrument_record` 0.3
+(interface only); one missing test link. No drift. Change set part Q holds the owner's items: Q2's
+four wordings (`rule_most_recent_session_kept` 0.6 and `req_kept_sessions` 0.4, M2 items 5(b) and
+6 with the preflight's fixes; `rule_outdated_tab_stops_saving` 0.6, D331's second trigger;
+`rule_transposition_check_sets_my_instrument` 0.4, ux D212's absence rule) and Q3's six DRAFT →
+REVIEW advances (`req_your_data`, `rule_delete_everything`, `rule_persistent_storage_requested`
+and the three captures). A gap, not a contradiction: chunk 21a's save also selects an existing,
+unselected my instrument, which neither that rule nor master spec §7.2 states. Still pending: P2
+item 4 and the H4 and H5 advances, Part B2 after chunk 20c, D326 at chunk 20c's preflight.
+
+**Hand checks so far (2026-10-16, Travel Sax, the deployed site).** H4's first three steps pass:
+the Travel Sax reattaches at a reload with no prompt, plays nothing before the page's first click,
+and the badge follows an unplug and a replug; its `Disconnect` step is still to run. My
+instrument made from a built-in profile keeps its range and clef across a reload; favorites stay
+after a reload. H5, in part: the default played-notes export (`infinite-flow-2026-10-16-083403-
+played.latest.mid`, 169 notes) holds no note under 41 ms, where the H1 recordings had about one in
+six under 40 ms; 18 notes of 40–150 ms remain, several of them halves of a split note, as spec
+D322 accepts. Still to run for H5: the owner's look at the lane for a dropped intended note, and
+the export with `Include very short notes` on.
+
+**Sign-offs applied and merge (2026-10-16).** The owner answered "ok for everything": the merge
+and the push of `main`, part Q2's four wordings, part Q3's six advances, and the gap closed in
+`rule_transposition_check_sets_my_instrument` (using the action selects my instrument if another
+instrument was selected). `documentalist` applied them in f99d5bf (`rule_most_recent_session_kept`
+0.6, `req_kept_sessions` 0.4, `rule_outdated_tab_stops_saving` 0.6,
+`rule_transposition_check_sets_my_instrument` 0.4 with the gap as part Q4 item 6, all DRAFT; six
+atoms DRAFT → REVIEW) and d4d1778 (part M's stale "pending" wording). `spec-writer` brought
+master spec §7.2 in line in 1cdd20f (Part A v1.23, spec D335; numbering continues from D336). Still
+pending: P2 item 4 and the H4 and H5 advances, Part B2 after chunk 20c, D326 at chunk 20c's
+preflight, hand checks H3, H6–H9. The owner asked to start wave 9; the wave merges into `main`
+with entry chunk 227,885 B.
 
 ## 2. Read first: what v3.0 undoes in v2
 
@@ -2759,6 +2877,17 @@ Docs: `phrase-workspace.md`, `storage.md` (both stale lines fixed), `session-eng
 
 ### Chunk 15 — Your data
 
+**Architecture capture** (before code; spec D329): `module_kept_session_changes` and
+`module_kept_session_reach`: Delete every session is one change through the kept-change line
+(`changeKept`, refusal `caller`, its confirmation telling a refusal), its batch built from a
+key-only read (`readKeys`) of the three kept-session stores at the change and deleting every key
+found, so a session with no row goes too (a session a newer version wrote is never among them:
+saving is then off, and the batch's transaction reads `meta` first and aborts, spec D333); once
+it is saved, or finds nothing stored (`unchanged`, spec D332), every session held in memory goes,
+the most recent included, whether kept or held in memory only, and every row, leaving no most
+recent session until the next session ends with a review (spec D327); a refusal changes nothing,
+stored or in memory; while saving is off it is not offered.
+
 **Goal.** One sheet that shows what is kept, the space it uses and whether the browser protects
 it, with every deletion, Delete everything included.
 
@@ -2773,12 +2902,21 @@ stay). `Your data` in the session list's header and the storage-full notice. The
 demand.
 
 **Files:** `src/components/workspace/YourDataSheet.vue` (new), `src/components/workspace/use-your-data.ts`
-(new), `src/components/workspace/LayoutFooter.vue` (new), `src/components/workspace/WorkspaceShell.vue`,
+(new), `src/components/workspace/LayoutFooter.vue` (new), `src/components/workspace/WorkspaceShell.vue`
+(shared, first; [Wave 8: shared files](#wave-8-shared-files-in-order)),
 `src/components/review/SessionList.vue` (header button), `src/components/workspace/AppNoticeRow.vue`
-(the storage-full notice's `Your data`, disabled until this chunk); tests
-`tests/e2e/storage/your-data.spec.ts`.
+(the storage-full notice's `Your data`, disabled until this chunk); for Delete every session,
+`src/components/workspace/workspace-session-controller.ts` and
+`workspace-session-controller-types.ts` (the action; shared, first), its batch beside
+`deleteKeptSession` in `src/components/workspace/kept-session-review-changes.ts` (or a new file
+beside it), and a new file for the controller's action (`workspace-kept-session-edits.ts` is 312
+lines and already links 10 atoms, the cap); `use-kept-sessions.ts` is not edited (its
+`removed(keys)` serves); tests `tests/e2e/storage/your-data.spec.ts` and unit tests of the batch
+and the action. If the brief exceeds about five source files, split it there: 15a, Delete every
+session through the session controller (the batch, the action, the controller's two files), then
+15b, the sheet, the footer and their hosts.
 
-**Spec sections:** [§4.1](master-spec.md#41-principles), [§4.5](master-spec.md#45-keeping-the-data-safe-from-the-browser), [§5.3](master-spec.md#53-played-notes-opt-in-and-deletion), [§15](master-spec.md#15-access-model).
+**Spec sections:** [§4.1](master-spec.md#41-principles), [§4.3](master-spec.md#43-where-and-how) (an outdated tab, another tab's Delete everything included), [§4.4](master-spec.md#44-loading-saved-settings), [§4.5](master-spec.md#45-keeping-the-data-safe-from-the-browser), [§5.3](master-spec.md#53-played-notes-opt-in-and-deletion), [§5.4](master-spec.md#54-reaching-earlier-sessions), [§15](master-spec.md#15-access-model).
 
 **Design docs:** [`flows/saved-data/handoff.md`](../../../ui_ux/versions/v3.0/flows/saved-data/handoff.md) (Your
 Data), [`screens/your-data/handoff.md`](../../../ui_ux/versions/v3.0/screens/your-data/handoff.md),
@@ -2786,8 +2924,12 @@ Data), [`screens/your-data/handoff.md`](../../../ui_ux/versions/v3.0/screens/you
 (footer).
 
 **Atoms:** `req_your_data`, `rule_delete_everything`, `rule_kept_played_notes_deletable`,
-`rule_saved_data_belongs_to_browser_profile`, `rule_persistent_storage_requested` (the report).
-**Part D:** `rule_single_local_user`.
+`rule_saved_data_belongs_to_browser_profile`, `rule_persistent_storage_requested` (the report),
+`req_kept_session_list`, `rule_failed_read_offers_only_delete_everything`,
+`rule_outdated_tab_stops_saving` (gaining another tab's Delete everything, spec D331),
+`rule_played_notes_kept_only_after_opt_in`, `rule_last_controller_remembered`,
+`module_kept_session_changes`, `module_kept_session_reach` (the capture above),
+`module_save_policy`, `module_on_device_database`. **Part D:** `rule_single_local_user`.
 
 **Depends on:** chunks 11 and 14.
 
@@ -2796,8 +2938,12 @@ Data), [`screens/your-data/handoff.md`](../../../ui_ux/versions/v3.0/screens/you
 - Seeded data: the counts, the space line and the protection line show as specified, the
   protection line from a stubbed `persisted()`.
 - Delete every session removes every session and the one in memory, a seeded kept session whose
-  summary cannot be read (no row, not counted) included; settings, my instrument and the
-  controller stay.
+  summary cannot be read (no row, not counted) included, in one transaction (write spy), and
+  leaves no most recent session until the next session ends with a review; settings, my
+  instrument and the controller stay.
+- Delete every session with nothing stored (another tab's Delete every session run while the
+  sheet is open, with or without a session held in memory after a refused save): no write, and the same result as a success, the sessions in memory and the rows gone, the
+  confirmation back at the Overview with "No sessions kept yet." and no error line (spec D332).
 - Delete all played notes removes every played-notes record and nothing else.
 - Delete everything: after the reload, the database holds nothing (no store, no record), the
   workspace is in its first-visit state, and Your data shows the empty overview; with fake MIDI
@@ -2807,11 +2953,34 @@ Data), [`screens/your-data/handoff.md`](../../../ui_ux/versions/v3.0/screens/you
 - An injected failed or slow read: Your data offers Delete everything and no other deletion; once
   newer data is detected (at load, or written later by a stubbed newer version), no deletion is
   offered and an open confirmation closes without deleting (master spec §4.4, v1.4).
+- Two tabs, saving on: after Delete everything in the first, the second saves nothing (a setting
+  changed there is not in the database the first tab reads after its reload), offers no
+  deletion, and shows the outdated notice in the newer version's wording (spec D300, D331).
 
 **Items covered:** 9 (all-sessions deletion), 12, 13 (the report), 14 (Your data's deletions in
-both saving-off states).
+both saving-off states; another tab's Delete everything).
 
 **Verification:** the chunk checks; the bundle at the wave gate (the sheet is lazy).
+
+**Record (2026-10-16).** Merged into `v3.0-w8` (5b5be29; 15a d5c75b1, 15b 3b27c6a). 15a:
+`deleteEverySessionChanges` and `deleteEveryKeptSession` beside `deleteKeptSession` in
+`kept-session-review-changes.ts` (a keys-only `readKeys` of the three stores, no version filter,
+through `changeKept` with refusal `caller`); the controller action in the new
+`workspace-kept-sessions-deletion.ts`, which on `saved` or `unchanged` removes every row, clears
+`review` and `mostRecent`, and turns a showing Review to the list; a refusal changes nothing.
+15b: the lazy `YourDataSheet.vue`, `use-your-data-sheet.ts` and `your-data-copy.ts`; the entry
+host `use-your-data.ts` and `LayoutFooter.vue`; the list header's opener injected, so `ReviewArea`
+and `ScorePanel` stay untouched; the notice row's `Your data` enabled. `use-kept-sessions.ts` and
+`workspace-kept-session-edits.ts` untouched. Done when: every item tested, in
+`tests/e2e/storage/your-data.spec.ts` and `your-data-deletions.spec.ts` (split for the link cap),
+the two-tab case included (D331); the 15a controller unit tests. Choices, no spec deviation: each
+section button sits in a plain `<div>`, as `.sheet-section` stretches its buttons (for
+`ux-writer`: a `.sheet-section > .btn { justify-self: start }` rule would let the wrappers go);
+space used reads `estimate().usageDetails.indexedDB` in binary units, "Couldn't be measured."
+without it; the openers wait for the session controller. Entry chunk 229,070 B (+1,558 B over
+15a's 227,512 B; 306 B under the budget). Risks left: an opening of a kept session still pending
+when Delete every session resolves may still show its Review (for chunk 28a, which owns the
+opening path); the edits part keeps a refused save's retry history after the deletion, harmless.
 
 ### Chunk 16 — My instrument in the domain
 
@@ -3415,9 +3584,21 @@ changes.
 
 **Files:** `src/components/controller-connection/SheetStateBody.vue`,
 `src/components/controller-connection/connection-sheet-model.ts`,
-`src/domain/controller-check/transposition-check.ts` (my instrument as the expected profile),
-`src/components/workspace/use-my-instrument.ts`; tests
-`tests/e2e/controller/controller-connection-check.spec.ts` (extended), unit tests of the model.
+`src/composables/generation-session-my-instrument.ts` (the save, the selection and the phrase
+replaced; `saveMyInstrument` does not select today an existing my instrument that is not
+selected, which the confirmation must; `use-my-instrument.ts` is the sheet's form model, not this
+path); the action's route to the session's actions:
+`src/components/controller-connection/connection-sheet-contract.ts`,
+`src/components/controller-connection/ConnectionSheet.vue`,
+`src/components/workspace/use-connection-sheet.ts` or
+`src/components/workspace/use-controller-connection.ts`, and
+`src/components/workspace/WorkspaceShell.vue` (shared, after chunk 15; [Wave 8: shared
+files](#wave-8-shared-files-in-order)); `src/domain/controller-check/transposition-check.ts`
+probably unchanged (it takes any `InstrumentProfile`, my instrument's derived one included);
+`HARDWARE-CHECKLIST.md` (H3); tests `tests/e2e/controller/controller-connection-check.spec.ts`
+(extended), unit tests of the model and of the save path. If the brief exceeds about five source
+files, split it there: 21a, the save path in `generation-session-my-instrument.ts` (create or
+update, select, replace the phrase), then 21b, the action, its confirmation and its route.
 
 **Spec sections:** [§7.2](master-spec.md#72-the-transposition-check-feeds-it).
 
@@ -3426,8 +3607,9 @@ changes.
 [`flows/my-instrument/handoff.md`](../../../ui_ux/versions/v3.0/flows/my-instrument/handoff.md) (From the
 Transposition Check).
 
-**Atoms:** `rule_transposition_check_sets_my_instrument`; (v2, STABLE)
-`rule_controller_transposition_check` (Part B2 follows chunk 20c, which adds the erase warning), `rule_acknowledgement_exact_pitch`.
+**Atoms:** `rule_transposition_check_sets_my_instrument`; (v2) `rule_controller_transposition_check`
+(STABLE; Part B2 follows chunk 20c, which adds the erase warning), `rule_acknowledgement_exact_pitch`
+(REVIEW).
 
 **Depends on:** chunk 20.
 
@@ -3442,6 +3624,21 @@ Transposition Check).
 **Items covered:** 17.
 
 **Verification:** the chunk checks; hand check H3. Part B2 waits for chunk 20c.
+
+**Record (2026-10-16).** Merged into `v3.0-w8` (ae394ca; 21a 87d73cc, 21b 1337520). 21a: a
+session action `saveAndSelectMyInstrument` saves through `saveMyInstrument` as the sheet does and
+also selects an existing, unselected my instrument; the record is written at once, the selection
+waits for a generation under way and replaces the phrase as an instrument switch does. 21b: the
+step's view and copy as pure functions in the lazy `check-for-my-instrument.ts` (the MIDI 0–127
+absence reuses my instrument's `sounds-outside-midi` refusal), the confirmation, the route through
+the connection sheet's contract and `WorkspaceShell.vue` (bound in its template, no new link; 9
+atom ids), the check's "your instrument, {name}," wording in `transposition-check-copy.ts`, H3 in
+`HARDWARE-CHECKLIST.md`. Done when: the "Use this for my instrument" block of
+`tests/e2e/controller/controller-connection-check.spec.ts` (the stored record, the selection, the
+check again, the reload, `Back` and Escape changing nothing); acknowledgement unchanged (98 unit
+tests). No spec or design deviation; the erase warning and `Use and erase` stay for chunk 20c,
+and until then the check's change keeps my instrument's sessions. STABLE atom untouched. Entry
+chunk 226,322 B (+391 B, the route only; 3,054 B under the budget).
 
 ### Chunk 20c — My instrument's sessions
 
@@ -4153,28 +4350,39 @@ Inserted in v15 (spec D310, D311), for the owner's ruling on
 [spec O200](../../open-questions.md#v30-wave-5-o200). Wave 8's preflight covers it. 28b waits for
 the **Damaged session design** gate, written as ux D309–D314; 28a may start before it.
 
-**Architecture capture** (before code): `module_kept_session_save`: the save's batch also deletes
-every kept session whose summary is damaged (the codec's `unreadable`), never one a newer version
-wrote, and says how many damaged sessions it deleted; the load's clean-up of damaged sessions,
-where it runs (the session controller's chunk, never the entry chunk), its one batch through the
-save policy, and what it reports; the read of a kept session for its review, which tells a
-damaged session from one not read (refused, absent or newer) instead of giving `null` for all;
-and the path by which a deletion of damaged sessions reaches the notices without
-`WorkspaceShell.vue`.
+**Architecture capture** (recorded before code by the wave-8 preflight, 9aef0c0:
+`module_kept_session_save` 0.6; spec D330 confirms its three derived points and revises its
+notice path, which `documentalist` writes in before chunk 28's code): the save's batch also
+deletes every kept session whose summary is damaged (the codec's `unreadable`), never one a newer
+version wrote, and says how many damaged sessions it deleted; the load's clean-up runs in the
+session controller's chunk, never the entry chunk, only when a summary the load read is damaged,
+as one batch through the kept-change line (`changeKept`, refusal `caller`, never `save()`), which
+re-reads the summaries at the change, the most recent session going to the readable kept session
+that started last when the re-read deletes it (spec D334); the read of a kept session for its review tells a damaged
+session from one not read (refused, absent or newer) instead of giving `null` for all; and the
+reports of those deletions reach the notices by a channel built with the workspace, handed to
+the kept-sessions seam for the controller to tell through, and passed by `App.vue` to
+`WorkspaceShell.vue` and into `useAppNotices`, as the remembered controller's store is.
 
 **Goal.** A kept session the app cannot read correctly is deleted, and the player gets an
 apology; a session the device only failed or refused to read is never deleted (§5.1, spec D310).
 
 **Scope.** 28a, the deletions, only while saving is on:
 
-- **At load:** once the summaries are read, one batch deletes the summary, body and played notes
-  of every kept session whose summary is damaged, through the save policy (held like any save if
-  a session has started). The most recent session and the links are decided without them.
+- **At load:** once the summaries are read, and only when one of them is damaged, one batch
+  deletes the summary, body and played notes of every kept session whose summary is damaged,
+  through the kept-change line (`changeKept`, refusal `caller`), which re-reads the summaries at
+  the change and waits like any kept change if a session has started: a summary damaged since
+  the load goes too, its row with it, and none damaged at the re-read writes and tells nothing
+  (spec D330). The most recent session and the links are decided without them. When the re-read
+  deletes the most recent session, still a kept session not read into memory, the most recent
+  becomes at once the readable kept session that started last among the summaries it read, or
+  none, as at an opening; a most recent session held in memory stays (spec D334).
 - **At a session's save:** the batch also deletes every kept session whose summary is damaged
   (chunk 10 leaves them); a summary a newer version wrote stays; a refused read still deletes
   nothing (spec D304).
 - **At an opening** (`review-link` after a reload, a list row): a damaged body deletes that
-  session at once, in one batch; the most recent session then becomes, at once, the readable kept
+  session at once, in one batch through the same line; the most recent session then becomes, at once, the readable kept
   session that started last, as the load would have chosen had it found the damage (spec D304's
   rule after a reload, D327); unlike the player's own deletion, which leaves none in that visit
   (ux D317). A refusal by the device, or
@@ -4183,8 +4391,9 @@ apology; a session the device only failed or refused to read is never deleted (�
   tab a damaged body read keeps the failed-open row ("This session couldn't be opened. Try
   again.").
 - **A refused deletion** shows no apology; it raises the save-problem notice in its own wording,
-  "Damaged session not deleted" (Storage full keeps its own; at a session's save the keep line
-  tells it, as for any failed session save), shown at every refusal, even after a `Dismiss`; the
+  "Damaged session not deleted" (a refusal for lack of space gives Storage full instead; both
+  reach the notices from the deletion's report, never the failure listener, spec D330; at a
+  session's save the keep line tells it, as for any failed session save), shown at every refusal, even after a `Dismiss`; the
   session stays unlisted for the visit, counted nowhere, and the next load tries again (ux D310,
   D313, D314).
 
@@ -4200,23 +4409,37 @@ finding its session damaged keeps `is-loading`, then leaves, focus moving as aft
 deletion; the list and the notice change together. A refused deletion lands the same way, with
 the save-problem notice instead of the apology.
 
-**Not in this chunk:** `WorkspaceShell.vue` (chunk 15's in wave 8, chunk 24b-2's in wave 9) and
-`AppNoticeRow.vue` (chunk 15's in wave 8): the apology is a sentence and `Dismiss`, which the row
-already draws from the notice's model;
-`save-policy.ts`, whose `save` batch and `saveSession` serve as they are; the kept-session codec
-files, whose verdicts serve as they are.
+**Not in this chunk:** `AppNoticeRow.vue` (chunk 15's in wave 8): the apology is a sentence and
+`Dismiss`, which the row already draws from the notice's model; `save-policy.ts`, whose
+`changeKept` (refusal `caller`) is the path the load's clean-up and the opening's deletion use,
+and whose `saveSession` serves the save's batch, both as they are; the kept-session codec files,
+whose verdicts serve as they are. `WorkspaceShell.vue` is 28b's only for the reports, after
+chunks 15 and 21 (spec D330), and chunk 24b-2's in wave 9.
 
 **Files:** 28a: `src/components/workspace/workspace-kept-session-read.ts` (the read's result; the
-load's clean-up beside `mostRecentKept`), `src/components/workspace/workspace-kept-sessions-seam.ts`
-(the clean-up's report), `src/components/workspace/workspace-session-save.ts` (damaged summaries
-in the batch, their count), `src/components/workspace/workspace-session-ends.ts` (the count passed
-on), `src/components/workspace/workspace-session-controller.ts` (the most recent session after a
-damaged one goes), `docs/storage.md`; 28b: `src/components/workspace/use-app-notices.ts` (the
-apology), `src/components/workspace/use-review-navigation.ts` (`review-link`'s landing),
-`src/components/workspace/use-kept-sessions.ts` (a row's opening, the row's removal); tests under
-`tests/unit/components/workspace/`, `tests/unit/storage/`, the notices' unit tests and a new
-`tests/e2e/storage/damaged-sessions.spec.ts`. If the brief exceeds about five source files, split
-it there: 28a, then 28b.
+load's clean-up beside `mostRecentKept`), `src/components/workspace/workspace-kept-session-opening.ts`
+(`showReview` and `openSession` meeting a damaged session),
+`src/components/workspace/workspace-kept-sessions-seam.ts` (the reports' channel and its
+builder), `src/components/workspace/workspace-session-save.ts` (damaged summaries in the batch,
+their count), `src/components/workspace/workspace-session-ends.ts` (the count passed on),
+`src/components/workspace/workspace-session-controller.ts` (the clean-up run; the most recent
+session after a damaged one goes) and `workspace-session-controller-types.ts` (`SessionOpening`
+gains a damaged outcome), both after chunk 15, `src/components/workspace/create-workspace-session.ts`
+and `workspace-session-types.ts` (the channel built with the workspace and exposed on
+`WorkspaceSession`), `docs/storage.md`; 28b: `src/components/workspace/use-app-notices.ts` (the
+apology; Damaged session not deleted and Storage full from the reports), `src/App.vue` and
+`src/components/workspace/WorkspaceShell.vue` (the channel passed to the notices; the shell after
+chunks 15 and 21), `src/components/workspace/use-review-navigation.ts` (`review-link`'s landing),
+`src/components/workspace/use-session-list.ts` (a row's opening, through `openSession`),
+`src/components/workspace/ReviewArea.vue` (`openRow`) and
+`src/components/workspace/review-area-focus.ts` (the landing and the focus after a damaged row),
+`src/components/workspace/use-kept-sessions.ts` only if the row's removal needs more than
+`removed(keys)`; tests under `tests/unit/components/workspace/`, `tests/unit/storage/`, the
+notices' unit tests and a new `tests/e2e/storage/damaged-sessions.spec.ts`. If the brief exceeds
+about five source files, split it there: 28a, then 28b. Link cap:
+`workspace-session-controller-types.ts`, `workspace-session-ends.ts` and
+`create-workspace-session.ts` already link 10 atoms each, so a new linked function goes in a new
+file ([Wave 8: shared files](#wave-8-shared-files-in-order)).
 
 **Spec sections:** [§5.1](master-spec.md#51-which-sessions-are-kept), [§4.3](master-spec.md#43-where-and-how) and [§4.4](master-spec.md#44-loading-saved-settings) (no deletion with saving off).
 
@@ -4228,17 +4451,23 @@ it there: 28a, then 28b.
 **Atoms:** `rule_most_recent_session_kept`, `req_kept_sessions`, `req_kept_session_list`,
 `req_kept_session_review`, `rule_outdated_tab_reads_what_it_can`,
 `rule_failed_read_offers_only_delete_everything`, `module_kept_session_save`,
-`module_kept_session_codec`, `module_saved_data_loader`. **Part D:** `module_kept_session_save`
+`module_kept_session_codec`, `module_saved_data_loader`, `module_kept_session_reach`,
+`module_save_policy`, `service_session_controller`. **Part D:** `module_kept_session_save`
 (the capture above); `rule_most_recent_session_kept` and `req_kept_sessions` take part M2's
 items 5(b) and 6 once the owner agrees to their wording.
 
-**Depends on:** chunks 14 and 27 (their files), the Damaged session design gate (28b).
+**Depends on:** chunks 14 and 27 (their files), the Damaged session design gate (28b); in wave 8
+it follows chunks 15 and 21, whose files it shares.
 
 **Done when:**
 
 - Seeded with a readable unpinned session, a pinned one and a damaged one (an invalid summary),
   saving on: after the load the damaged one's three records are gone, the apology shows once
   with its count, and the list and the links show only the other two.
+- The most recent kept session's summary damaged after the load, before the clean-up's re-read
+  (seeded between the two, another summary damaged at load so the clean-up runs): it goes with the others, its row with
+  it, and `review-link` opens the readable kept session that started last, or is absent (spec
+  D334).
 - A damaged summary written after the load (seeded mid-visit): the next session's save deletes
   it in the same transaction as the new session (write spy), and the apology shows as the review
   opens.
@@ -4257,7 +4486,23 @@ items 5(b) and 6 once the owner agrees to their wording.
 
 **Items covered:** 6.
 
-**Verification:** the chunk checks; the bundle at the wave gate (the entry chunk unchanged).
+**Verification:** the chunk checks; the bundle at the wave gate (the entry chunk gains only the
+reports' channel and the notices' wording; the clean-up, the read and the codec stay out of it).
+
+**Record (2026-10-16).** Merged into `v3.0-w8` (9d2a300; 28a 250500f, 28b 7c62fbd), passed by
+`reviewer` (OKAY). 28a: damaged kept sessions deleted at load (a clean-up from the controller's
+chunk, only when a load summary is damaged, re-reading at the change), in the next session's save
+batch (its retry too) and at an opening, each through `changeKept` with refusal `caller`; D334's
+successor; the new `workspace-damaged-session-deletions.ts` keeps the capped files untouched.
+28b: the apology and "Damaged session not deleted" from the deletion's report through the channel
+of D330 (b); the landing after `Review last session` (the list's title) and after a row (the next
+row). Done when: e2e `damaged-sessions.spec.ts` and the controller, shell and focus unit specs,
+for every item; D334's re-read case at unit level only (`reviewer`: no end-to-end test); new
+harness seams `seedDamagedKeptBody` and `?storageRefuse=quota|other`. Two older e2e tests that
+expected a damaged session to survive now expect it deleted (spec D310). Chunk 15's risk fixed:
+Delete every session cancels a pending row opening (`cancelOpening`, resolving `superseded`). No
+spec or design deviation; no business atom edited. Entry chunk 227,885 B (+1,563 B over chunk
+21's; 1,491 B under the budget); none of the clean-up's code is in it.
 
 ### Chunk 26 — v3.0 release gate
 
@@ -4425,3 +4670,8 @@ controller: a visit that saves nothing neither remembers nor forgets it (§7.3, 
 22 builds it. Spec D316 and D317 change no spec text: a change to a kept session reads what is
 stored at the change, and deleting every kept played note deletes every played-notes record
 (chunk 11).
+
+Master spec v1.22 (2026-10-16, spec D331, from ux Q80) names a second way a tab becomes
+outdated: once the player runs Delete everything in one tab, every other open tab is outdated in
+every respect, as chunk 4's port already makes it, its notice in the newer version's wording
+(spec D300). Chunk 15 tests it; no other chunk changes.

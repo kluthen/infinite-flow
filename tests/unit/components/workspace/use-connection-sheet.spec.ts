@@ -33,6 +33,7 @@ function hostOver(rig: ControllerRig, form: ControllerStatusForm = { kind: 'conn
     status: { form: computed(() => form), seenDeviceCount: computed(() => 0) },
     profile: () => C_KEYBOARD_PROFILE,
     clef: () => 'treble',
+    myInstrument: () => null,
     sessionActive: () => false,
   })
 }

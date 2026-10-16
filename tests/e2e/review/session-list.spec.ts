@@ -345,8 +345,9 @@ test('a kept session whose summary cannot be read has no row; alone, neither lin
   await expect(reviewLink(page)).toHaveCount(0)
   await expect(sessionsLink(page)).toHaveCount(0)
 
+  // The load deleted the damaged session (spec D310): only the new one is kept.
   await sessionAt(page, startAt(1))
-  await untilKept(page, 2)
+  await untilKept(page, 1)
   await reloadHarness(page)
   await showListFromCueRow(page)
   expect((await shownRows(page)).map((row) => row.title)).toEqual([

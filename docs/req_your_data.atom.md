@@ -1,9 +1,11 @@
 ---
 id: req_your_data
-status: DRAFT
+status: REVIEW
 human_name: Your Data
 tags: [v3, release-v3.0, storage, privacy, changes-in-v3.1]
 dependents:
+  - [[module_kept_session_changes]]
+  - [[module_kept_session_reach]]
   - [[module_on_device_database]]
   - [[module_save_policy]]
   - [[rule_delete_everything]]

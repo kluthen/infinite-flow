@@ -4,7 +4,7 @@
  * reads a browser without Web MIDI as unsupported, and places played notes on the clock anchor of
  * the session's own audio transport. No real browser `Worker` is ever constructed.
  */
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { createWorkspaceSession } from '@/components/workspace/create-workspace-session'
 import type { PlayedNoteEvent } from '@/midi/played-note-tracker'
@@ -51,6 +51,13 @@ function stubRequestMidiAccess(browser: WebMidiNavigatorPort): void {
 // @test-link [[req_midi_controller_input]]
 // @test-link [[rule_controller_connects_between_sessions]]
 describe('createWorkspaceSession: the MIDI controller', () => {
+  // Loaded once ahead, so the modules each session loads on demand never load after the test
+  // environment is torn down.
+  beforeAll(async () => {
+    await import('@/generation-worker/generation-worker-client')
+    await import('@/components/workspace/browser-session-ports')
+  })
+
   afterEach(() => {
     vi.unstubAllGlobals()
     Reflect.deleteProperty(navigator, 'requestMIDIAccess')

@@ -111,20 +111,21 @@ export type KeepPlayedNotesSwitch =
 export type PlayedNotesDeletion = 'deleted' | 'refused' | 'saving-off'
 
 /**
- * What became of `Delete session`: deleted, from the device and from memory (also when it was
- * held in memory only, or was gone already); refused by the device, nothing changed; or not made
- * because saving turned off.
+ * What became of `Delete session`, or of `Delete every session`: deleted, from the device and from
+ * memory (also when it was held in memory only, or was gone already); refused by the device,
+ * nothing changed; or not made because saving turned off.
  */
 // @spec-link [[module_kept_session_save]]
 export type SessionDeletion = 'deleted' | 'refused' | 'saving-off'
 
 /**
  * What became of opening a session's Review, from `Review last session` or a list row: shown;
- * failed, its read not giving the session (its row says so); or superseded by a later opening,
- * the mode left or a session started meanwhile, so nothing shows.
+ * failed, its read not giving the session (its row says so); damaged, the session found damaged
+ * and deleted (or its deletion refused), its row gone and the list showing; or superseded by a
+ * later opening, the mode left or a session started meanwhile, so nothing shows.
  */
 // @spec-link [[req_kept_session_review]]
-export type SessionOpening = 'shown' | 'failed' | 'superseded'
+export type SessionOpening = 'shown' | 'failed' | 'damaged' | 'superseded'
 
 /**
  * The Review: the session it draws and whether the player is in it. It exists from a session end
@@ -291,15 +292,18 @@ export interface SessionController {
   /**
    * Show the most recent session's Review (`Review last session`): at once when it is held in
    * memory, after reading it from the device when it is kept. Resolves what became of it; a read
-   * that does not give it shows the list instead, its row marked as failed to open. Throws unless a most recent session
+   * that does not give it shows the list instead, its row marked as failed to open; one that finds
+   * it damaged, while saving is on, deletes it, then shows the list without its row, the readable
+   * kept session that started last becoming the most recent. Throws unless a most recent session
    * exists, neither the Review nor the list shows, no session runs and no read is under way.
    */
   readonly showReview: () => Promise<SessionOpening>
   /**
    * Open the kept session under `key` from its row: at once when it is held in memory, else read
    * by its key (`openingKey`), the latest opening winning and `closeReview` cancelling it; once
-   * read, held in memory and shown in the list's place. Throws during a session or when no row
-   * this version can open has that key.
+   * read, held in memory and shown in the list's place; found damaged while saving is on,
+   * deleted, its row leaving. Throws during a session or when no row this version can open has
+   * that key.
    */
   readonly openSession: (key: string) => Promise<SessionOpening>
   /**
@@ -352,6 +356,13 @@ export interface SessionController {
    * Throws unless at Idle with saving on and that session held or with a row this version reads.
    */
   readonly deleteSession: (key: string) => Promise<SessionDeletion>
+  /**
+   * Delete every kept session (Your data), one with no row included: from the device, then, once
+   * deleted or found already gone, every session from memory, the most recent one included, kept
+   * or held in memory only, and every row, leaving no most recent session; a showing Review gives
+   * way to the list. A refusal changes nothing. Throws unless at Idle with saving on.
+   */
+  readonly deleteEverySession: () => Promise<SessionDeletion>
   /**
    * Turn the page's adaptive-tempo flag on or off, at Idle only: throws during the count-in or a
    * running session, and when turning it on with no controller attached.

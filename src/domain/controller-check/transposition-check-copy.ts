@@ -5,6 +5,7 @@
  */
 
 import type { InstrumentProfile } from '../profile/instrument-profile'
+import { MY_INSTRUMENT_ID } from '../profile/instrument-profiles'
 import type { TranspositionCheckReport } from './transposition-check'
 
 const OCTAVE = 12
@@ -35,6 +36,16 @@ function distanceWording(offset: number): string {
   return `${semitones} semitones (${count(octaves, 'octave')} and ${count(remainder, 'semitone')})`
 }
 
+/**
+ * Intent: how the result names the instrument checked: "the {profile} profile" for a built-in,
+ * "your instrument, {name}," for my instrument, its name being the profile's display name.
+ */
+// @spec-link [[rule_transposition_check_sets_my_instrument]]
+function checkedName(profile: InstrumentProfile, beforeVerb: boolean): string {
+  if (profile.id !== MY_INSTRUMENT_ID) return `the ${profile.displayName} profile`
+  return `your instrument, ${profile.displayName}${beforeVerb ? ',' : ''}`
+}
+
 /** Intent: the result and suggestion lines for a controller that is `offset` semitones off. */
 function mismatchLines(
   offset: number,
@@ -45,14 +56,15 @@ function mismatchLines(
   const direction = offset > 0 ? 'higher' : 'lower'
   const opposite = offset > 0 ? 'lower' : 'higher'
   return {
-    result: `Your controller sounds ${distance} ${direction} than the ${profile.displayName} profile expects.`,
+    result: `Your controller sounds ${distance} ${direction} than ${checkedName(profile, true)} expects.`,
     suggestion: `Change your controller's ${setting} setting so it plays ${distance} ${opposite}, then run the check again.`,
   }
 }
 
 /**
  * Intent: turn a check report into the exact handoff copy for the current profile, adding the
- * other-profile line only when the report names a profile that would match as is.
+ * other-profile line only when the report names a profile that would match as is. With my
+ * instrument selected, the copy names it as "your instrument, {name},".
  */
 // @spec-link [[rule_controller_transposition_check]]
 export function transpositionCheckCopy(
@@ -62,7 +74,7 @@ export function transpositionCheckCopy(
   switch (report.kind) {
     case 'match':
       return {
-        result: `Your controller matches the ${profile.displayName} profile.`,
+        result: `Your controller matches ${checkedName(profile, false)}.`,
         suggestion: "Nothing to change — you're ready to play.",
         profileSuggestion: null,
       }

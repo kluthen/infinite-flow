@@ -111,6 +111,37 @@ describe('composeWorkspaceSession', () => {
     expect(controller.state.lastHistory?.phraseCount).toBe(0)
   })
 
+  // @test-link [[service_workspace_session_flow]]
+  // @test-link [[service_session_controller]]
+  it('builds session controllers only once browser ports given still loading have loaded', async () => {
+    const warm = composeWorkspaceSession(fakeDependencies())
+    ;(await warm.createSessionController()).dispose()
+    warm.dispose()
+    const deps = fakeDependencies()
+    let loadPorts!: (ports: typeof deps.browser) => void
+    const workspace = composeWorkspaceSession({
+      ...deps,
+      browser: new Promise((resolve) => {
+        loadPorts = resolve
+      }),
+    })
+    let built = false
+    const building = workspace.createSessionController().then((controller) => {
+      built = true
+      return controller
+    })
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    expect(built).toBe(false)
+
+    loadPorts(deps.browser)
+    const controller = await building
+    expect(await generateAndEngrave(workspace)).toBe(true)
+    controller.start()
+
+    expect(deps.browser.wakeLock.isHeld()).toBe(true)
+    controller.dispose()
+  })
+
   // @test-link [[rule_midi_starting_note]]
   it('builds session controllers over its MIDI controller and connection-sheet flag, false at first', async () => {
     const deps = fakeDependencies()

@@ -77,10 +77,11 @@
  *   seeds settings for the next load, `storage.seedMyInstrument` my instrument, and
  *   `?storageLoad=held` holds the load until `window.__workspaceHarnessHeldLoad.release()`;
  *   `?storageRead=fail|slow` fails or delays the app's reads, `storage.refuseSaves` refuses its
- *   saves, `storage.portChanges` counts them and `storage.openNewerVersion` outdates the tab as a
- *   newer version would; `storage.keyedRecords` reads a store with its keys,
- *   `storage.pinKeptSession` pins a saved session and `storage.seedUnreadableKeptSession` seeds
- *   one no codec reads.
+ *   saves (`?storageRefuse=quota|other` from the load on), `storage.portChanges` counts them and
+ *   `storage.openNewerVersion` outdates the tab as a newer version would; `storage.keyedRecords`
+ *   reads a store with its keys, `storage.pinKeptSession` pins a saved session,
+ *   `storage.seedUnreadableKeptSession` seeds one no codec reads and
+ *   `storage.seedDamagedKeptBody` damages a saved session's body.
  *
  * The lazy VexFlow engraver, the real generation Worker, real notation, the real `matchMedia`
  * window-width provider and the real window-shape probe all run for real (a spec moves the window
@@ -126,6 +127,7 @@ import {
   createHarnessStorage,
   harnessStorageLoadMode,
   harnessStorageReadMode,
+  harnessStorageRefusal,
 } from './storage-seams'
 import { armNextExportFailure, exportsBuilt } from './export-loader-seam'
 import {
@@ -284,6 +286,7 @@ const generationRequests: GenerationRecord[] = []
 const harnessStorage = createHarnessStorage(
   harnessStorageLoadMode(window.location.search),
   harnessStorageReadMode(window.location.search),
+  harnessStorageRefusal(window.location.search),
 )
 /** What the saved-data load gave; null until it has ended. */
 let savedData: SavedDataLoad | null = null

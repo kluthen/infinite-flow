@@ -30,7 +30,7 @@ import {
   type SessionDeletion,
   type SessionKeeping,
 } from './workspace-session-controller-types'
-import { saveEndedSession } from './workspace-session-save'
+import { saveEndedSession, tellDamagedDeleted } from './workspace-session-save'
 
 /** The controller's changes to the session a Review draws. */
 export interface KeptSessionEdits {
@@ -154,8 +154,8 @@ export function createKeptSessionEdits(
 
   /**
    * Intent: run the session's own save again for the session under `key`, with its facts as they
-   * are now; once saved, its keep line takes its pinned or not-pinned wording. A failed retry
-   * changes nothing shown. Nothing to retry without the history of a refused save.
+   * are now; once saved, its keep line takes its pinned or not-pinned wording, and the damaged kept
+   * sessions its batch deleted are told. A failed retry changes nothing shown. Nothing to retry without the history of a refused save.
    */
   // @spec-link [[module_kept_session_save]]
   // @spec-link [[rule_failed_save_never_disturbs_session]]
@@ -171,6 +171,7 @@ export function createKeptSessionEdits(
       { key, playedNotesKept },
       { pinned, favorites, comment },
     )
+    tellDamagedDeleted(kept.reports, outcome)
     if (outcome.status !== 'saved') return
     if (unsaved === pending) unsaved = null
     const current = findHeld(key)

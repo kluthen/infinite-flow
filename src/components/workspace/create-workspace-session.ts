@@ -44,9 +44,6 @@ import { createWebMidiAccessProvider } from '@/midi/web-midi-access'
 import { createBrowserWakeTimerWorker, createWorkerWakeTimer } from '@/audio/worker-wake-timer'
 import { createBrowserViewportWidth } from './browser-viewport-width'
 import { createBrowserPageActivation } from './browser-page-activation'
-import { createBrowserPageLeaving, createBrowserPageVisibility } from './browser-page-visibility'
-import { createBrowserOrientationLock, createBrowserScreenWakeLock } from './browser-screen-locks'
-import { createBrowserWindowShape } from './browser-window-shape'
 import { createIdleLayoutGate } from './idle-layout-gate'
 import { createPhraseReplayAnnouncer } from './phrase-replay-announcer'
 import type { WorkspacePregenerationPolicy, WorkspacePrewarmPolicy } from './prewarm-policy'
@@ -55,7 +52,7 @@ import type {
   WorkspaceSessionRunnerStarter,
 } from './workspace-session-dependencies'
 import type { WorkspaceSession } from './workspace-session-types'
-import { keptSessionsOf } from './workspace-kept-sessions-seam'
+import { createDamagedSessionReports, keptSessionsOf } from './workspace-kept-sessions-seam'
 
 export type {
   WorkspaceSessionDependencies,
@@ -135,6 +132,9 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
   const slot = createPregenerationSlot()
   const { controls, profileSelection, theme, sessionOptions } = deps.savedData.settings
   const saves = createVisitSaves(deps.savedData.savePolicy, APP_VERSION)
+  // Built with the workspace, before the controller's chunk loads, so the notices hear it from
+  // the first draw.
+  const damagedSessionReports = createDamagedSessionReports()
   const created = createGenerationSession<WorkspaceSessionResult, WorkspaceGeneratedPhrase>({
     providers: deps.providers,
     nextSessionSeed: deps.nextSessionSeed,
@@ -210,23 +210,26 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
     browser: deps.browser,
     createSessionController: async () => {
       // The runner starter settles only once the replay-key announcer has loaded, so the
-      // announcer is ready before the controller starts any runner.
+      // announcer is ready before the controller starts any runner. The browser ports, too, have
+      // loaded before the controller is built: Start asks for its locks inside its click.
       const [
         { createSessionController },
         { measureSessionStaffFixedParts, loadSessionStaffFitPlanner },
         { createWorkspacePregeneration },
         startRunner,
+        browser,
       ] = await Promise.all([
         import('./workspace-session-controller'),
         import('./session-staff-fixed-parts'),
         import('./workspace-pregeneration'),
         loadSessionRunner(),
+        deps.browser,
       ])
       return createSessionController({
         idle: created,
         idlePhrase: () => coordinator.pendingPhrase.value,
         audio: deps.audio,
-        browser: deps.browser,
+        browser,
         createSessionRunner: startRunner,
         clock: deps.sessionClock,
         idleLayout: staffReports,
@@ -246,14 +249,16 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
         savedSessionOptions: sessionOptions,
         savedKeepPlayedNotes: deps.savedData.settings.keepPlayedNotes,
         saveHold: { hold: saves.hold, release: saves.release, saveSession: saves.saveSession },
-        keptSessions: keptSessionsOf(deps.savedData, {
-          changeKept: saves.changeKept,
-          readKept: saves.readKept,
-        }),
+        keptSessions: keptSessionsOf(
+          deps.savedData,
+          { changeKept: saves.changeKept, readKept: saves.readKept },
+          damagedSessionReports,
+        ),
       })
     },
     savedData: deps.savedData,
     saveSettings: saves.saveSettings,
+    damagedSessionReports,
     rememberedController: {
       loaded: decodeRememberedController(deps.savedData.rememberedController),
       remember: saves.rememberController,
@@ -331,9 +336,10 @@ export interface ProductionWorkspaceSessionOptions {
  * audio context exists until a player click unlocks it, the Web MIDI controller on that transport's
  * clock, which requests no MIDI access until `connect()`, and the browser adapters of the session's
  * wake lock, orientation lock, page visibility and window shape, none of which asks or listens for
- * anything until used, and the session clock: a wake-up Worker timer, created only when a session
- * controller first starts a session, the system's wall clock for session histories, and the
- * browser's animation frames for the playhead. Everything starts from the saved data loaded before
+ * anything until used (loaded on demand, with the page leaving, before the session controller is
+ * built; the page activation listens from the page's load), and the session clock: a wake-up
+ * Worker timer, created only when a session controller first starts a session, the system's wall
+ * clock for session histories, and the browser's animation frames for the playhead. Everything starts from the saved data loaded before
  * the first draw, the audio mix included.
  */
 // @spec-link [[service_workspace_session_flow]]
@@ -358,6 +364,8 @@ export function createWorkspaceSession(
     // No audio clock until the audio is unlocked: a note then waits for the starting note's unlock.
     clock: { anchor: () => (audio.isUnlocked() ? audio.clockAnchor() : null) },
   })
+  // Listens from the page's load, so it stays eager; the other browser ports load on demand.
+  const pageActivation = createBrowserPageActivation()
   return composeWorkspaceSession({
     providers: {
       nextRequestId: createRequestIdProvider(),
@@ -371,14 +379,9 @@ export function createWorkspaceSession(
     prewarm: client.prewarm,
     audio,
     midi,
-    browser: {
-      wakeLock: createBrowserScreenWakeLock(),
-      orientationLock: createBrowserOrientationLock(),
-      pageVisibility: createBrowserPageVisibility(),
-      pageLeaving: createBrowserPageLeaving(),
-      windowShape: createBrowserWindowShape(),
-      pageActivation: createBrowserPageActivation(),
-    },
+    browser: import('./browser-session-ports').then(({ createBrowserSessionPorts }) =>
+      createBrowserSessionPorts(pageActivation),
+    ),
     sessionClock: {
       createWakeTimer: () => createWorkerWakeTimer(createBrowserWakeTimerWorker()),
       wallClock: () => Date.now(),

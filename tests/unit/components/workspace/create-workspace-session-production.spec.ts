@@ -52,10 +52,11 @@ function stubMatchMedia(matches: boolean) {
 }
 
 describe('createWorkspaceSession', () => {
-  // Loaded once ahead, so each session's client is created within its own test, as every session's
-  // is in the app once the module has loaded.
+  // Loaded once ahead, so each session's client and browser ports are created within its own test,
+  // as every session's are in the app once the modules have loaded.
   beforeAll(async () => {
     await import('@/generation-worker/generation-worker-client')
+    await import('@/components/workspace/browser-session-ports')
   })
 
   afterEach(() => {

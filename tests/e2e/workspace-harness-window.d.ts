@@ -753,6 +753,12 @@ interface WorkspaceHarnessStorageApi {
    */
   seedUnreadableKeptSession: (key: string) => Promise<void>
   /**
+   * Rewrite the body of the kept session stored under `key` with phrases the kept-session codec
+   * refuses (its envelope current), so the session reads as damaged when it is opened. Throws when
+   * no body is stored under it.
+   */
+  seedDamagedKeptBody: (key: string) => Promise<void>
+  /**
    * Write, under `key`, a played-notes record holding one note, as another tab keeping that
    * session's played notes would, and, when a session-wide record is stored under it with a
    * `playedNotesKept` field, that record saying they are kept; in one batch.
@@ -783,7 +789,8 @@ interface WorkspaceHarnessStorageApi {
   settingsNotReadBack: () => Promise<string[]>
   /**
    * Make the app's port refuse every write, delete and batch from now on, as `quota` (no room
-   * left) or `other`; null to let them through again. Seeds are never refused.
+   * left) or `other`; null to let them through again. Seeds are never refused. The page URL's
+   * `?storageRefuse=quota|other` sets it from the load on.
    */
   refuseSaves: (kind: 'quota' | 'other' | null) => void
   /**

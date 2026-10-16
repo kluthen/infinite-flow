@@ -186,15 +186,22 @@ watch(
   { flush: 'post' },
 )
 
-/** Intent: a row's title pressed: once read, its Review shows; a failed read keeps focus there. */
+/**
+ * Intent: a row's title pressed: once read, its Review shows; a failed read keeps focus there; a
+ * session found damaged leaves with its row, focus moving as after that row's deletion.
+ */
 // @spec-link [[module_kept_session_reach]]
+// @spec-link [[module_kept_session_save]]
 async function openRow(key: string): Promise<void> {
+  const rowsBefore = list.rows.value.map((row) => row.key)
   const outcome = await list.open(key)
   if (outcome === 'shown') {
     emit('scroll-to-top')
     focus.title()
   } else if (outcome === 'failed') {
     await focus.rowOpenWhenRendered(key)
+  } else if (outcome === 'damaged') {
+    await focus.rowLeft(key, rowsBefore)
   }
 }
 
