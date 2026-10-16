@@ -9,8 +9,9 @@
  * click (popover closed, session started, the one jump), Stop, the musical controls locked while a
  * session runs, and where focus goes when it ends. It also hosts the controller connection: the
  * header `controller-status` it feeds, the click that opens the lazily loaded connection sheet,
- * whether the sheet is open (reported to the workspace as it changes), and where focus goes when
- * the sheet closes. It also runs the last session's Review from the screen: `Close review` and
+ * whether the sheet is open (reported to the workspace as it changes), where focus goes when
+ * the sheet closes, and the sheet's confirmed `Use for my instrument`, saved and selected through
+ * the session's `saveAndSelectMyInstrument`. It also runs the last session's Review from the screen: `Close review` and
  * `Review last session`, each scrolling the page to its top and moving focus. While a session runs,
  * the read-only controls show what the controller says the phrase now sounding was generated with,
  * and the preset status announces nothing; at the end they show the player's own choices again, and
@@ -241,6 +242,7 @@ const {
   profile: () =>
     selectedInstrumentProfile(state.value.controls.instrumentProfileId, state.value.myInstrument),
   clef: () => instrumentClefOf(state.value.controls.instrumentProfileId, state.value.myInstrument),
+  myInstrument: () => state.value.myInstrument,
   sessionActive: () => sessionActive.value,
   controllerLost: () => props.controller !== null && props.controller.state.controllerLost !== null,
   onOpenChange: (open) => {
@@ -466,6 +468,7 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
     v-if="sheetComponent !== null && sheetProps !== null"
     v-bind="sheetProps"
     @close="closeConnectionSheet"
+    @use-for-my-instrument="session.actions.saveAndSelectMyInstrument"
   />
   <component
     :is="myInstrumentSheet.sheetComponent.value"

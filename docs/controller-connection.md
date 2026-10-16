@@ -15,7 +15,8 @@ phrase down, and the choices made while building it. How the controller itself r
 - **The connection sheet** is a modal dialog over the workspace. It asks the browser for MIDI
   access, says why it can't connect when it can't, lets the player pick one device when several
   are plugged in, runs the transposition check, and shows the connected device with `Done`,
-  `Run check again`, `Choose a different device` and `Disconnect`.
+  `Run check again`, `Choose a different device` and `Disconnect`. From v3.0 a check result that
+  is not a match can be used for my instrument, in one confirmed step.
 - **The transposition check** shows one [written pitch](music/lexicon.md#written-pitch) of the
   current instrument profile on a short staff, and compares the note the controller sends with the
   [concert pitch](music/lexicon.md#concert-pitch) a correctly set controller would send for it.
@@ -214,9 +215,10 @@ runs `useConnectionSheet`'s `open()` synchronously, inside the click:
 stage shown, the picker's list, the device-change line (the device just unplugged, and whether it
 had reached Connected), and the controller's latest snapshot.
 
-- **Events** come from the view (`action` for a named action, `choose` for a device) and from the
-  controller (`connect-settled`, `permission-known`, `controller-changed`, `note-played`), plus the
-  two openings, `open-requesting` and `open-connected`.
+- **Events** come from the view (`action` for a named action, `choose` for a device, `used` for a
+  confirmed `Use for my instrument`) and from the controller (`connect-settled`,
+  `permission-known`, `controller-changed`, `note-played`), plus the two openings,
+  `open-requesting` and `open-connected`.
 - **Effects** are data: `connect`, `select`, `disconnect` and `abandon-connect`. The reducer never
   calls the controller; `useConnectionSheetDriver` runs the effects on it, in order, after storing
   the new model.
@@ -232,15 +234,16 @@ component specs only check that the view and the driver follow it.
 
 ### The states
 
-| Stage         | Shows                                                                                          | Main focus                      |
-| ------------- | ---------------------------------------------------------------------------------------------- | ------------------------------- |
-| `requesting`  | Requesting access: Checking ("Connecting…") or Waiting for your browser ("Allow MIDI access"). | `sheet-close`                   |
-| `unsupported` | Unsupported browser; `Continue without a controller`, no retry.                                | `Continue without a controller` |
-| `denied`      | Permission denied; `Check again`, `Continue without a controller`.                             | `Check again`                   |
-| `no-device`   | No device found; `Try again`, `Continue without a controller`.                                 | `Try again`                     |
-| `picker`      | Multi-device picker; `Continue without a controller`.                                          | The picker's tab stop           |
-| `check`       | Transposition check: Prompt (no action), then Result (`Continue`, `Run check again`).          | `sheet-close`, then `Continue`  |
-| `connected`   | Connected: `Done`, `Run check again`, `Choose a different device` (conditional), `Disconnect`. | `Done`                          |
+| Stage         | Shows                                                                                                                            | Main focus                                                                    |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `requesting`  | Requesting access: Checking ("Connecting…") or Waiting for your browser ("Allow MIDI access").                                   | `sheet-close`                                                                 |
+| `unsupported` | Unsupported browser; `Continue without a controller`, no retry.                                                                  | `Continue without a controller`                                               |
+| `denied`      | Permission denied; `Check again`, `Continue without a controller`.                                                               | `Check again`                                                                 |
+| `no-device`   | No device found; `Try again`, `Continue without a controller`.                                                                   | `Try again`                                                                   |
+| `picker`      | Multi-device picker; `Continue without a controller`.                                                                            | The picker's tab stop                                                         |
+| `check`       | Transposition check: Prompt (no action), then Result (`Continue`, `Use this for my instrument` when offered, `Run check again`). | `sheet-close`, then `Continue` (`Use this for my instrument` back from `use`) |
+| `use`         | Use for my instrument, the confirmation: `Use for my instrument`, `Back`.                                                        | `Back`                                                                        |
+| `connected`   | Connected: `Done`, `Run check again`, `Choose a different device` (conditional), `Disconnect`.                                   | `Done`                                                                        |
 
 - **Requesting access resolves only on `connect-settled`,** from the controller's state then:
   `unsupported`, `denied`, or the inputs present (none: No device found; one: its check, selected
@@ -256,7 +259,9 @@ component specs only check that the view and the driver follow it.
 - **`Choose a different device`** shows on Connected only once more than one input has been seen
   this page session. It opens the picker with the device in use marked "(in use)".
 - **`Disconnect`** closes the sheet and runs the controller's `disconnect()`. **`Done`**,
-  **`Continue without a controller`**, **Close**, **Escape** and a click on the backdrop close it.
+  **`Continue without a controller`**, **Close**, **Escape** and a click on the backdrop close it,
+  except on the Use for my instrument confirmation, where they do what `Back` does: return to the
+  result, the sheet still open (see [Using the result for my instrument](#using-the-result-for-my-instrument)).
 
 ### Checking or Waiting for your browser
 
@@ -299,8 +304,9 @@ changes while the sheet is open says:
 - **Picker:** listed devices keep their place, a new one is appended and an unplugged one removed;
   an empty list becomes No device found. When the option holding the tab stop leaves, the next
   option takes it, or the previous when it was last, with focus if it had it.
-- **Check or Connected, the chosen device unplugged:** the picker with the inputs present, or No
-  device found, under the line "{device name} was unplugged." The sheet never switches device by
+- **Check (its Use for my instrument confirmation included, which then saves nothing) or
+  Connected, the chosen device unplugged:** the picker with the inputs present, or No device
+  found, under the line "{device name} was unplugged." The sheet never switches device by
   itself. If that same device comes back while the picker or No device found shows, the sheet
   returns where it was, and the line clears:
   Connected if it had reached it (reattached, no new check, once its port is open again), else
@@ -309,9 +315,10 @@ changes while the sheet is open says:
 ### Focus
 
 - **On open and on every state change,** focus moves to the new state's main action
-  (`sheetFocusTarget`): the picker's tab stop in the picker, the primary action where there is one,
-  else `sheet-close` (Requesting access, the check's Prompt). A check result counts as a state
-  change.
+  (`sheetFocusTarget`): the picker's tab stop in the picker, `Back` on the Use for my instrument
+  confirmation (never its confirming action), `Use this for my instrument` on a result come back
+  from it, else the primary action where there is one, else `sheet-close` (Requesting access, the
+  check's Prompt). A check result counts as a state change.
 - **Trapped.** While the sheet is open, Tab and Shift+Tab cycle through `sheet-close`, the body's
   tab stop and the actions, wrapping at both ends.
 - **The picker.** One roving tab stop, on the device in use, else the first option. Arrow keys only
@@ -375,6 +382,39 @@ profile table. A played value that is not an integer from 0 to 127 throws.
 word: the result line, the suggestion line, and the other-profile line when there is one. The
 distance reads "{n} semitone(s)" below an octave, "{n} octave(s)" for a multiple of 12, and
 "{n} semitones ({octaves} octave(s) and {remainder} semitone(s))" otherwise.
+
+**My instrument selected (v3.0).** The check reads my instrument's derived profile and draws its
+note in my instrument's clef; its note is the C nearest the middle of its written range, which a
+range of at least two octaves always holds. The copy then names it as "your instrument,
+{name}," where it names "the {profile} profile". The suggestion still considers only the three
+built-in profiles, which the host passes in; my instrument is never suggested.
+
+### Using the result for my instrument
+
+From v3.0, a result that is not a match offers `Use this for my instrument`
+(master spec [§7.2](../specs/versions/v3/master-spec.md#72-the-transposition-check-feeds-it)).
+`check-for-my-instrument.ts`, pure and loaded with the sheet only, decides what it would save:
+
+- **The transposition** becomes the semitones from the written note asked for to the note sent:
+  the checked instrument's chromatic count minus _d_, as octaves, semitones and a direction. On
+  the tenor, a controller 2 semitones high (60 for the written C5) gives one octave lower.
+- **What is kept:** with no my instrument yet, it is made from the checked built-in, named "My
+  instrument", in treble clef, with that profile's written range; with one, its name, template,
+  clef and written range stay, whichever instrument was checked.
+- **Absent** on a match, and when the instrument it would make would sound outside MIDI notes 0
+  to 127 (my instrument's own range rule, `findMyInstrumentRefusal`'s `sounds-outside-midi`); the
+  result is otherwise unchanged.
+
+The action opens the `use` stage, whose copy (`useForMyInstrumentCopy`) is the screen handoff's,
+word for word: the interval and the note a written C4 will sound as (from the My instrument
+sheet's own wording, `my-instrument-copy.ts`), then what happens to my instrument. Nothing
+changes until `Use for my instrument`: the sheet then goes to Connected with the line "{name} now
+matches your controller." and emits `use-for-my-instrument` with the new my instrument. The shell
+hands it to the session's `saveAndSelectMyInstrument`, which saves it through the sheet's own save
+path, selects it if it was not selected, and replaces the phrase as an instrument switch does
+(see [My instrument](storage.md#my-instrument)). Played notes are still compared at the pitch
+received: nothing in acknowledgement changes. Until chunk 20c, the change keeps my instrument's
+kept sessions, as the sheet's save does.
 
 **On the reference hardware (2026-10-06).** The check was run on the reference breath controller,
 a Travel Sax 2 (MIDI port `TravelSax2 MIDI 1`), over USB, in Debian's Chrome on the Linux machine,

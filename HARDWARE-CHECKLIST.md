@@ -347,6 +347,31 @@ how long the first draw waits for the saved data before starting from the defaul
       fully and reopen the app: the workspace appears once, already in the saved theme and
       values, with no flash of the defaults. Note how long the page showed only its background.
 
+## H3. Use this for my instrument (chunk 21; about 10 min)
+
+The Travel Sax over USB, the reference machine, Chromium, a production build or `npm run dev`.
+Start from no my instrument (delete it from its sheet first if one exists) and the B-flat tenor
+saxophone selected, with a phrase on screen. The check never shifts the notes you play: it changes
+my instrument's transposition, so the written part matches what the Travel Sax sends.
+
+- [ ] Set the Travel Sax's transpose setting to a value that does not match the tenor (for
+      example 0, where the textbook tenor value is −2 on this device), then open the sheet and
+      run the check. The result is not a match, and offers `Use this for my instrument` after
+      `Continue`.
+- [ ] Choose `Use this for my instrument`: the confirmation names the interval and the note a
+      written C4 will sound as, and says my instrument will be made from the B-flat tenor
+      saxophone profile, named My instrument, in treble clef, with that profile's range: C4 to C6
+      in written notes. Choose `Back`: the same result shows again, and the instrument control
+      still has three segments.
+- [ ] Choose `Use this for my instrument`, then `Use for my instrument`: the sheet reads "My
+      instrument now matches your controller.", the instrument control shows My instrument
+      selected, and the phrase on screen is replaced.
+- [ ] `Run check again` and play the note shown: "Your controller matches your instrument, My
+      instrument." Close the sheet and play a few notes of the phrase as written: they light as
+      played.
+- [ ] Reload the page: My instrument is still selected, its sheet (`Edit my instrument`) shows the
+      same transposition and the range C4 to C6, and the check run again is still a match.
+
 ## H4. Remembered controller (chunk 22; about 10 min)
 
 The Travel Sax over USB, the reference machine, Chromium, a production build or `npm run dev`. The

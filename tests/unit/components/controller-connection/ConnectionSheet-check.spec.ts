@@ -79,7 +79,12 @@ describe('ConnectionSheet check result', () => {
       "Change your controller's transpose setting so it plays 14 semitones (1 octave and 2 semitones) lower, then run the check again.",
       'If you actually play the C MIDI keyboard, choose the C MIDI keyboard instrument profile instead — no controller change needed.',
     ])
-    expect(actionLabels(wrapper)).toEqual(['Continue', 'Run check again'])
+    // v3.0: a result that is not a match also offers its use for my instrument.
+    expect(actionLabels(wrapper)).toEqual([
+      'Continue',
+      'Use this for my instrument',
+      'Run check again',
+    ])
   })
 
   it('words whole octaves with no profile suggestion', async () => {

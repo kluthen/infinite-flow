@@ -13,6 +13,7 @@ import {
   ADOPTED_INSTRUMENT_PROFILES,
   C_KEYBOARD_PROFILE,
 } from '@/domain/profile/instrument-profiles'
+import type { MyInstrument } from '@/domain/profile/my-instrument'
 import type { ControllerRig } from '../../midi/midi-controller-rig'
 
 /** How the sheet opens: where, for which profile, and how many inputs the page has seen. */
@@ -21,6 +22,8 @@ export interface OpenSheetOptions {
   readonly profile?: InstrumentProfile
   readonly clef?: InstrumentClef
   readonly seenDeviceCount?: number
+  /** The saved my instrument, if any (none by default). */
+  readonly myInstrument?: MyInstrument | null
 }
 
 export type SheetWrapper = VueWrapper<InstanceType<typeof ConnectionSheet>>
@@ -49,6 +52,7 @@ export async function openSheet(
       clef: options.clef ?? 'treble',
       profiles: ADOPTED_INSTRUMENT_PROFILES,
       seenDeviceCount: options.seenDeviceCount ?? 1,
+      myInstrument: options.myInstrument ?? null,
     },
     attachTo: document.body,
   })

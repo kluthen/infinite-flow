@@ -5,6 +5,11 @@
  * with its profile suggestion, Continue, Run check again, Choose a different device with the
  * device in use marked, Disconnect and Done, and the connected badge opening the sheet at
  * Connected. Focus goes to each state's main action, else Close.
+ *
+ * v3.0 chunk 21, the check feeds my instrument, over the browser's real IndexedDB: a result that
+ * is not a match offers `Use this for my instrument`; its confirmation made my instrument from the
+ * tenor (its written range, the matching transposition), saved and selected it, and the check run
+ * again is a match, still there after a reload; `Back` and Escape change nothing.
  */
 import { expect, test } from '@playwright/test'
 
@@ -29,6 +34,9 @@ import {
   statusForm,
   watchPageErrors,
 } from './controller-helpers'
+import { instrumentRecords } from '../storage/my-instrument-sheet-helpers'
+import { reloadHarness, untilStored } from '../storage/storage-helpers'
+import { radio } from '../workspace/helpers'
 
 const CHECK_PROMPT = {
   title: 'Check your controller',
@@ -38,6 +46,15 @@ const CHECK_PROMPT = {
 
 const RESULT_ACTIONS = [
   { label: 'Continue', primary: true },
+  { label: 'Run check again', primary: false },
+] as const
+
+const USE_THIS = 'Use this for my instrument'
+
+/** A result that is not a match: v3.0 adds its use for my instrument after Continue. */
+const NON_MATCH_ACTIONS = [
+  { label: 'Continue', primary: true },
+  { label: USE_THIS, primary: false },
   { label: 'Run check again', primary: false },
 ] as const
 
@@ -126,7 +143,7 @@ test.describe('the transposition check', () => {
           "Change your controller's transpose setting so it plays 14 semitones (1 octave and 2 semitones) lower, then run the check again.",
           'If you actually play the C MIDI keyboard, choose the C MIDI keyboard instrument profile instead — no controller change needed.',
         ],
-        actions: RESULT_ACTIONS,
+        actions: NON_MATCH_ACTIONS,
       },
       sheetAction(page, 'Continue'),
     )
@@ -152,7 +169,7 @@ test.describe('the transposition check', () => {
           'Your controller sounds 1 octave higher than the C MIDI keyboard profile expects.',
           "Change your controller's octave setting so it plays 1 octave lower, then run the check again.",
         ],
-        actions: RESULT_ACTIONS,
+        actions: NON_MATCH_ACTIONS,
       },
       sheetAction(page, 'Continue'),
     )
@@ -284,5 +301,148 @@ test.describe('Connected', () => {
       .poll(() => sheet(page).locator('.sheet-actions > button').allTextContents())
       .toEqual(connectedShape(KEYS.name, true).actions.map((action) => action.label))
     await expect(sheet(page).locator('#sheet-title')).toHaveText('Controller connected')
+  })
+})
+
+/** The instrument control's radiogroup label, and my instrument's id. */
+const INSTRUMENT_GROUP = 'Instrument profile'
+const MY_INSTRUMENT_ID = 'my-instrument'
+
+/**
+ * The tenor's check note is written C5 (72), sounding B-flat 3 (58); a controller sending C4 (60)
+ * sounds 2 semitones higher. Using that for my instrument makes written C5 sound as C4: one
+ * octave lower, the tenor's written range C4 to C6 kept.
+ */
+const TWO_HIGHER = CHECK.tenor.concert + 2
+
+const CONFIRMATION = {
+  title: 'Use this for my instrument?',
+  body: [
+    'One octave lower: a written C4 will sound as C3.',
+    "My instrument will be made from the B-flat tenor saxophone profile, named My instrument, in treble clef, with that profile's range: C4 to C6 in written notes.",
+    'You can change it later with Edit my instrument.',
+  ],
+  actions: [
+    { label: 'Use for my instrument', primary: true },
+    { label: 'Back', primary: false },
+  ],
+} as const
+
+/** The result for TWO_HIGHER on the tenor profile. */
+const TWO_HIGHER_RESULT = {
+  title: 'Check your controller',
+  body: [
+    'Your controller sounds 2 semitones higher than the B-flat tenor saxophone profile expects.',
+    "Change your controller's transpose setting so it plays 2 semitones lower, then run the check again.",
+  ],
+  actions: NON_MATCH_ACTIONS,
+} as const
+
+// @test-link [[rule_transposition_check_sets_my_instrument]]
+test.describe('Use this for my instrument', () => {
+  // @test-link [[rule_transposition_check_sets_my_instrument]]
+  // @test-link [[req_my_instrument]]
+  // @test-link [[entity_my_instrument_record]]
+  test('2 semitones above the tenor: confirmed, my instrument matches, saved and selected, and stays after a reload', async ({
+    page,
+  }) => {
+    await gotoControllerHarness(page)
+    await connectThroughSheet(page, [KEYS])
+    await play(page, KEYS, TWO_HIGHER)
+    await expectSheet(page, TWO_HIGHER_RESULT, sheetAction(page, 'Continue'))
+
+    await sheetAction(page, USE_THIS).click()
+    await expectSheet(page, CONFIRMATION, sheetAction(page, 'Back'))
+    await expect(sheet(page).locator('.sheet-body > p.sheet-hint')).toHaveText(
+      'You can change it later with Edit my instrument.',
+    )
+
+    await sheetAction(page, 'Use for my instrument').click()
+    await expectSheet(
+      page,
+      {
+        title: 'Controller connected',
+        body: [`${KEYS.name} is connected.`, 'My instrument now matches your controller.'],
+        actions: [
+          { label: 'Done', primary: true },
+          { label: 'Run check again', primary: false },
+          { label: 'Disconnect', primary: false },
+        ],
+      },
+      sheetAction(page, 'Done'),
+    )
+    // Saved with the matching transposition and the tenor's written range, and selected.
+    await expect
+      .poll(() => instrumentRecords(page))
+      .toEqual([
+        expect.objectContaining({
+          id: MY_INSTRUMENT_ID,
+          template: 'bb-tenor',
+          name: 'My instrument',
+          clef: 'treble',
+          writtenRange: { minMidi: 60, maxMidi: 84 },
+          transposition: { octaves: 1, semitones: 0, direction: 'lower' },
+        }),
+      ])
+    await untilStored(page, { 'controls.instrumentProfileId': MY_INSTRUMENT_ID })
+    await expect(radio(page, INSTRUMENT_GROUP, 'My instrument')).toHaveAttribute(
+      'aria-checked',
+      'true',
+    )
+
+    // The check run again, now against my instrument: the same note is a match.
+    await sheetAction(page, 'Run check again').click()
+    await expectSheet(page, CHECK_PROMPT, sheetClose(page))
+    await play(page, KEYS, TWO_HIGHER)
+    await expectSheet(
+      page,
+      {
+        title: 'Check your controller',
+        body: [
+          'Your controller matches your instrument, My instrument.',
+          "Nothing to change — you're ready to play.",
+        ],
+        actions: RESULT_ACTIONS,
+      },
+      sheetAction(page, 'Continue'),
+    )
+
+    await reloadHarness(page)
+    await expect(radio(page, INSTRUMENT_GROUP, 'My instrument')).toHaveAttribute(
+      'aria-checked',
+      'true',
+    )
+    expect(await instrumentRecords(page)).toEqual([
+      expect.objectContaining({
+        writtenRange: { minMidi: 60, maxMidi: 84 },
+        transposition: { octaves: 1, semitones: 0, direction: 'lower' },
+      }),
+    ])
+  })
+
+  // @test-link [[rule_transposition_check_sets_my_instrument]]
+  test('Back and Escape return to the result and change nothing', async ({ page }) => {
+    await gotoControllerHarness(page)
+    await connectThroughSheet(page, [KEYS])
+    await play(page, KEYS, TWO_HIGHER)
+
+    await sheetAction(page, USE_THIS).click()
+    await expectSheet(page, CONFIRMATION, sheetAction(page, 'Back'))
+    await sheetAction(page, 'Back').click()
+    await expectSheet(page, TWO_HIGHER_RESULT, sheetAction(page, USE_THIS))
+
+    await sheetAction(page, USE_THIS).click()
+    await page.keyboard.press('Escape')
+    await expectSheet(page, TWO_HIGHER_RESULT, sheetAction(page, USE_THIS))
+
+    // Nothing made, saved or selected.
+    await expect(radio(page, INSTRUMENT_GROUP, 'B-flat tenor saxophone')).toHaveAttribute(
+      'aria-checked',
+      'true',
+    )
+    await expect(
+      page.getByRole('radiogroup', { name: INSTRUMENT_GROUP }).getByRole('radio'),
+    ).toHaveCount(3)
+    expect(await instrumentRecords(page)).toEqual([])
   })
 })

@@ -41,6 +41,7 @@ function mountConnection(
         audio: workspace.audio,
         profile: () => ADOPTED_INSTRUMENT_PROFILES[0]!,
         clef: () => 'treble',
+        myInstrument: () => null,
         sessionActive: () => false,
         controllerLost: () => false,
         onOpenChange: () => {},

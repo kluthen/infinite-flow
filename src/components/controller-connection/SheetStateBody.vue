@@ -3,6 +3,7 @@
  * The connection sheet's `sheet-body`: exactly one state's block (screen handoff, Layout Tree and
  * States), copy verbatim, with the device-change line above it when the state was reached because
  * the chosen device was unplugged. Only the picker is interactive; its choice goes up as `choose`.
+ * The Use for my instrument confirmation shows the words of the use it is given.
  */
 import { computed } from 'vue'
 
@@ -13,6 +14,7 @@ import {
 } from '@/domain/controller-check/transposition-check-copy'
 import type { InstrumentClef } from '@/domain/profile/instrument-clef'
 import type { InstrumentProfile } from '@/domain/profile/instrument-profile'
+import { useForMyInstrumentCopy, type UseForMyInstrument } from './check-for-my-instrument'
 import CheckNote from './CheckNote.vue'
 import DevicePicker from './DevicePicker.vue'
 import type { SheetModel } from './connection-sheet-model'
@@ -25,6 +27,8 @@ const props = defineProps<{
   clef: InstrumentClef
   /** The instrument profiles the check may suggest instead of the current one. */
   profiles: readonly InstrumentProfile[]
+  /** What `Use this for my instrument` would save for the result; null when it is not offered. */
+  use: UseForMyInstrument | null
 }>()
 
 const emit = defineEmits<{
@@ -63,6 +67,14 @@ const checkCopy = computed<TranspositionCheckCopy | null>(() => {
   if (current.kind !== 'check' || current.played === null) return null
   const report = judgeTranspositionCheck(props.profile, current.played, props.profiles)
   return transpositionCheckCopy(report, props.profile)
+})
+
+/** Intent: the Use for my instrument confirmation's words, while it shows; else null. */
+// @spec-link [[rule_transposition_check_sets_my_instrument]]
+const useCopy = computed(() => {
+  if (stage.value.kind !== 'use') return null
+  if (props.use === null) throw new Error('connection sheet: the confirmation has no use to show')
+  return useForMyInstrumentCopy(props.use)
 })
 </script>
 
@@ -120,10 +132,17 @@ const checkCopy = computed<TranspositionCheckCopy | null>(() => {
         <p class="sheet-hint">Playing it here won't start a session.</p>
       </template>
     </template>
+    <template v-else-if="stage.kind === 'use' && useCopy !== null">
+      <p v-for="paragraph in useCopy.paragraphs" :key="paragraph">{{ paragraph }}</p>
+      <p v-if="useCopy.hint !== null" class="sheet-hint">{{ useCopy.hint }}</p>
+    </template>
     <template v-else-if="stage.kind === 'connected'">
       <p>
         <span class="status-dot is-success" aria-hidden="true"></span>
         {{ stage.device.name }} is connected.
+      </p>
+      <p v-if="stage.matchedName !== undefined">
+        {{ stage.matchedName }} now matches your controller.
       </p>
       <p v-if="stage.rememberedLine === true" class="sheet-hint">
         This is the controller you chose last time. Run the check again if you have changed its

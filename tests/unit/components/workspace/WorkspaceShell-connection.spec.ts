@@ -13,6 +13,7 @@ import WorkspaceShell from '@/components/workspace/WorkspaceShell.vue'
 import type { SessionController } from '@/components/workspace/workspace-session-controller-types'
 import type { AudioTransport } from '@/audio/audio-transport'
 import type { MidiController } from '@/midi/midi-controller-state'
+import { makeMyInstrument } from '@/domain/profile/my-instrument'
 import { createTestWorkspace, PHRASE_SCORE_STUB } from './test-workspace'
 import { createFakeSessionController } from './fake-session-controller'
 import { createControllerRig, KEYS_A, PAD_B } from '../../midi/midi-controller-rig'
@@ -225,6 +226,39 @@ describe('WorkspaceShell controller-status click', () => {
     await nextTick()
     expect(controllerStatus(wrapper).text()).toBe('MIDI access blocked')
     expect(controllerStatus(wrapper).attributes('disabled')).toBeUndefined()
+  })
+})
+
+// @test-link [[rule_transposition_check_sets_my_instrument]]
+describe('WorkspaceShell connection sheet and my instrument', () => {
+  const HOME_TENOR = makeMyInstrument({
+    template: 'bb-tenor',
+    name: 'Home tenor',
+    clef: 'treble',
+    writtenRange: { minMidi: 60, maxMidi: 84 },
+    transposition: { octaves: 1, semitones: 0, direction: 'lower' },
+  })
+
+  it('hands the sheet the saved my instrument, and saves and selects the one it confirms', async () => {
+    const rig = createControllerRig({ devices: [KEYS_A] })
+    const live = liveWorkspace()
+    live.state.myInstrument = HOME_TENOR
+    const saveAndSelect = vi.fn(async () => 'regenerated' as const)
+    const session = {
+      ...live.session,
+      actions: { ...live.session.actions, saveAndSelectMyInstrument: saveAndSelect },
+    }
+    const wrapper = mountShell({ ...live, session }, { midi: rig.controller })
+
+    const sheet = await openSheet(wrapper)
+    expect(sheet.props('myInstrument')).toEqual(HOME_TENOR)
+
+    sheet.vm.$emit('use-for-my-instrument', HOME_TENOR)
+    await flushPromises()
+
+    expect(saveAndSelect).toHaveBeenCalledExactlyOnceWith(HOME_TENOR)
+    // The sheet stays open: it goes on to Connected by itself.
+    expect(wrapper.findComponent(ConnectionSheet).exists()).toBe(true)
   })
 })
 
