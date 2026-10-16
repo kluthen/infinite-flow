@@ -5,6 +5,7 @@ parents:
   - [[req_on_device_storage]]
   - [[req_rolling_practice_session]]
 dependents:
+  - [[entity_my_instrument_record]]
   - [[module_kept_session_save]]
   - [[req_kept_session_list]]
   - [[req_kept_session_review]]

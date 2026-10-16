@@ -23,6 +23,7 @@ parents:
   - [[rule_session_comment]]
 priority: 1
 dependents:
+  - [[entity_my_instrument_record]]
   - [[module_kept_session_reach]]
 ---
 
