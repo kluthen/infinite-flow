@@ -23,8 +23,10 @@ import {
 import {
   advanceAudioBy,
   cueRow,
+  DESKTOP,
   expectEndedLikeStop,
   gotoSessionHarness,
+  PREGENERATION_OFF,
   readyToStart,
   sessionAction,
   sessionState,
@@ -109,7 +111,7 @@ async function expectNoNotice(page: Page): Promise<void> {
  * measures later; phrase 2 is requested at Start, with the count-in's end as its deadline.
  */
 async function startUntilNoticeShows(page: Page): Promise<number> {
-  await gotoSessionHarness(page)
+  await gotoSessionHarness(page, DESKTOP, PREGENERATION_OFF)
   await readyToStart(page)
   await observeLiveRegion(page, '.generation-status')
   await observeLiveRegion(page, '.notation-status')

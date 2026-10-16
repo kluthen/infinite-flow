@@ -86,7 +86,8 @@ export interface SessionPhrase {
  * from its start and its event list alone, and whether adaptive tempo runs in it: only when the
  * page's adaptive-tempo flag is on and the session has a controller at its start, whether the
  * multi-phrase tension arc runs in it, and the phrases pre-generated at Idle, if any. The chosen
- * settings' tempo is the starting tempo.
+ * settings' tempo is the starting tempo. Phrase 1's own settings, beside the chosen ones, are
+ * those it was generated under at Idle.
  */
 // @spec-link [[service_session_engine]]
 // @spec-link [[req_settings_mutation_flag]]
@@ -94,6 +95,12 @@ export interface SessionStart {
   readonly at: AudioTime
   readonly settings: SessionSettings
   readonly phraseOne: { readonly intent: GenerationIntent; readonly outcome: SuccessfulOutcome }
+  /**
+   * The settings phrase 1 was generated under, at the session's tempo and with its instrument:
+   * phrase 2 joins phrase 1 as after a change from them to the chosen settings at the boundary
+   * between the two, the carry-in adapted. Absent means the chosen settings, as do equal values.
+   */
+  readonly phraseOneSettings?: SessionSettings
   /** The session seed every seed the session uses after phrase 1 is derived from. */
   readonly sessionSeed: Seed
   readonly mutation: SettingsMutationFlag

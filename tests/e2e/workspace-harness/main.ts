@@ -240,12 +240,20 @@ function createBackgroundGate(): BackgroundGate {
 }
 
 /**
- * Intent: the harness's pre-generation policy: disabled when the page URL names none, so existing
- * specs meet no background attempt; otherwise production's own parser reads the value.
+ * Intent: the harness's pre-generation policy: production's own parser reads the page URL's value
+ * when it names one; with none, it is off, so a spec meets no background attempt, unless the
+ * harness is built with `VITE_HARNESS_PREGENERATION=on`, as the e2e lane that runs the suite with
+ * pre-generation on builds it. Any other build value is a wiring defect and throws.
  */
 function harnessPregenerationPolicy(search: string): WorkspacePregenerationPolicy {
-  if (new URLSearchParams(search).get('pregeneration') === null) return 'disabled'
-  return pregenerationPolicyFromSearch(search)
+  if (new URLSearchParams(search).get('pregeneration') !== null)
+    return pregenerationPolicyFromSearch(search)
+  const built: unknown = import.meta.env.VITE_HARNESS_PREGENERATION
+  if (built === undefined || built === 'off') return 'disabled'
+  if (built === 'on') return 'enabled'
+  throw new Error(
+    `workspace harness: VITE_HARNESS_PREGENERATION must be on or off, not ${String(built)}`,
+  )
 }
 
 /** One `generate` call's record, settled in place as the call settles. */

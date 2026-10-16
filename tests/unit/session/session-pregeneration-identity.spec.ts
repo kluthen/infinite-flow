@@ -15,7 +15,8 @@ import {
 import { makeSeed, type Seed } from '@/domain/random/seed'
 import type { ReadyPhrase } from '@/session/session-ready-phrases'
 import { measureSeconds } from '@/session/session-timing'
-import type { SessionOutput } from '@/session/session-types'
+import type { SessionOutput, SessionSettings } from '@/session/session-types'
+import type { GenerationControls } from '@/domain/controls/generation-controls'
 import { planSeams, planStart, plannedReadyPhrases } from './pregeneration-harness'
 import {
   DEFAULT_SESSION_SEED,
@@ -53,6 +54,24 @@ interface SessionCase {
   readonly varySettings: boolean
   readonly multiPhraseTensionArc: boolean
   readonly sessionSeed: Seed
+  /**
+   * Controls changed at Idle after phrase 1 was generated under the base settings: the session
+   * then starts on a stale phrase 1, used as it is (Use it), with phrase 1's own settings.
+   */
+  readonly changedAtIdle?: Partial<GenerationControls>
+}
+
+/**
+ * Intent: a case's settings: phrase 1's, the base settings at 60 BPM, and the session's, those
+ * with the case's Idle change; with none, the two are the same.
+ */
+function caseSettings(options: SessionCase): {
+  readonly phraseOne: SessionSettings
+  readonly session: SessionSettings
+} {
+  const phraseOne = sessionSettings({ tempo: TEMPO })
+  if (options.changedAtIdle === undefined) return { phraseOne, session: phraseOne }
+  return { phraseOne, session: sessionSettings({ tempo: TEMPO, ...options.changedAtIdle }) }
 }
 
 /** What one session gave: every output, in order. */
@@ -72,7 +91,8 @@ async function runSession(
   const clock = { at: 0 }
   const log: SessionOutput[] = []
   const errors: unknown[] = []
-  const settings = sessionSettings({ tempo: TEMPO })
+  const { changedAtIdle, ...flags } = options
+  const settings = caseSettings(options)
   const runner = startWorkspaceSessionRunner(
     {
       generate: (intent) => Promise.resolve(realOutcomeFor(intent)),
@@ -86,10 +106,11 @@ async function runSession(
     },
     {
       at: 0,
-      settings,
-      phraseOne: phraseOneFor(settings),
+      settings: settings.session,
+      phraseOne: phraseOneFor(settings.phraseOne),
+      ...(changedAtIdle === undefined ? {} : { phraseOneSettings: settings.phraseOne }),
       adaptiveTempo: false,
-      ...options,
+      ...flags,
       ...(readyPhrases === undefined ? {} : { readyPhrases }),
     },
   )
@@ -107,11 +128,13 @@ async function runSession(
 
 /** Intent: the ready phrases the plan makes for a case's phrase 1, seed and options. */
 function readyFor(options: SessionCase): readonly ReadyPhrase[] {
-  const settings = sessionSettings({ tempo: TEMPO })
+  const settings = caseSettings(options)
   return plannedReadyPhrases(
     planSeams(),
     planStart({
-      settings,
+      settings: settings.session,
+      phraseOne: phraseOneFor(settings.phraseOne),
+      ...(options.changedAtIdle === undefined ? {} : { phraseOneSettings: settings.phraseOne }),
       sessionSeed: options.sessionSeed,
       mutation: mutationFlagFor(options.varySettings, options.sessionSeed),
       multiPhraseTensionArc: options.multiPhraseTensionArc,
@@ -171,6 +194,60 @@ describe('a session with and without pre-generation', () => {
         (request) => request.phraseNumber,
       )
       expect(requested.length).toBeGreaterThan(0)
+      expect(requested.every((phraseNumber) => phraseNumber >= 6)).toBe(true)
+    },
+    SESSIONS_TIMEOUT_MS,
+  )
+})
+
+/** Settings changed at Idle after phrase 1 that make it stale, each with every option combination. */
+const STALE_CASES: readonly (SessionCase & { readonly change: string })[] = (
+  [
+    ['Written key', { tonalCenter: 'F#' }],
+    ['Collection', { collection: 'Dorian' }],
+    ['Register', { register: 'Low' }],
+  ] as const
+).flatMap(([change, changedAtIdle]) =>
+  [false, true].flatMap((varySettings) =>
+    [false, true].map((multiPhraseTensionArc) => ({
+      change,
+      changedAtIdle,
+      varySettings,
+      multiPhraseTensionArc,
+      sessionSeed: DEFAULT_SESSION_SEED,
+    })),
+  ),
+)
+
+// @test-link [[rule_pregenerated_phrase_matches_session]]
+// @test-link [[module_session_pregeneration_plan]]
+// @test-link [[rule_stale_phrase_prompt_at_start]]
+describe('a session on a stale phrase 1, with and without pre-generation', () => {
+  // @test-link [[rule_pregenerated_phrase_matches_session]]
+  // @test-link [[module_session_pregeneration_plan]]
+  // @test-link [[rule_stale_phrase_prompt_at_start]]
+  it.each(STALE_CASES)(
+    'decides the phrases the plan made, after a $change change (Vary $varySettings, Tension $multiPhraseTensionArc)',
+    async ({ change, ...options }) => {
+      void change
+      const ready = readyFor(options)
+      expect(ready.map((entry) => entry.phraseNumber)).toEqual([2, 3, 4, 5])
+      const without = await runSession(options, undefined)
+      const withReady = await runSession(options, ready)
+      expect(decidedPhrases(withReady)).toEqual(decidedPhrases(without))
+      expect(withoutRequestIds(ready.map((entry) => entry.intent))).toEqual(
+        withoutRequestIds(
+          outputsOf(without, 'phrase-ready')
+            .slice(0, 4)
+            .map((output) => output.phrase.intent),
+        ),
+      )
+      expect(outputsOf(withReady, 'settings-changed')).toEqual(
+        outputsOf(without, 'settings-changed'),
+      )
+      const requested = outputsOf(withReady, 'request-generation').map(
+        (request) => request.phraseNumber,
+      )
       expect(requested.every((phraseNumber) => phraseNumber >= 6)).toBe(true)
     },
     SESSIONS_TIMEOUT_MS,

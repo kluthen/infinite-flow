@@ -45,6 +45,7 @@ import {
   type SuccessfulOutcome,
 } from './session-types'
 import type { SettingsMutationFlag } from './settings-mutation'
+import { phraseOneSettingsAtStart } from './stale-phrase-one'
 import { requireTensionArcFlag } from './tension-arc-cycle'
 
 /** The plan's seams: the page-wide request-identity provider and the window-width reading. */
@@ -53,15 +54,18 @@ export type PregenerationSeams = Pick<SessionEngineDependencies, 'providers' | '
 
 /**
  * What the plan starts from, as a session would: the chosen settings, phrase 1 (the Idle result's
- * intent and successful outcome), the session seed published with it, the settings-mutation flag
- * (the workspace builds it from the Vary settings choice and the session seed) and the
- * multi-phrase tension arc flag. Tempo and Rising tempo change no request.
+ * intent and successful outcome) and the settings it was generated under, the session seed
+ * published with it, the settings-mutation flag (the workspace builds it from the Vary settings
+ * choice and the session seed) and the multi-phrase tension arc flag. Tempo and Rising tempo
+ * change no request.
  */
 // @spec-link [[module_session_pregeneration_plan]]
 // @spec-link [[req_idle_pregeneration]]
 export interface PregenerationStart {
   readonly settings: SessionSettings
   readonly phraseOne: SessionStart['phraseOne']
+  /** As the session start's: phrase 1's own settings, the chosen ones when absent. */
+  readonly phraseOneSettings?: SessionSettings
   readonly sessionSeed: Seed
   readonly mutation: SettingsMutationFlag
   readonly multiPhraseTensionArc: boolean
@@ -131,7 +135,11 @@ function planContext(seams: PregenerationSeams, start: PregenerationStart): Plan
   }
 }
 
-/** Intent: the course at the start, as the engine's: phrase 1 decided under the chosen settings. */
+/**
+ * Intent: the course at the start, as the engine's: phrase 1 decided under its own settings, so
+ * phrase 2 is planned joined to it as the session joins it after a stale phrase 1 is used.
+ */
+// @spec-link [[rule_pregenerated_phrase_matches_session]]
 function initialCourse(start: PregenerationStart): PhraseCourse {
   if (start.phraseOne.outcome.kind !== 'generation_success')
     throw new SessionEngineError('Phrase 1 must be a successfully generated phrase.')
@@ -142,7 +150,12 @@ function initialCourse(start: PregenerationStart): PhraseCourse {
     intent: start.phraseOne.intent,
     outcome: start.phraseOne.outcome,
   })
-  return { settings, lastDecided: phraseOne, lastDecidedSettings: settings, steppedDown: false }
+  return {
+    settings,
+    lastDecided: phraseOne,
+    lastDecidedSettings: phraseOneSettingsAtStart(settings, start.phraseOneSettings),
+    steppedDown: false,
+  }
 }
 
 /**

@@ -266,6 +266,7 @@ export function controllerRig(
   const settings = sessionSettings({ tempo: options.tempo ?? RIG_TEMPO })
   const phraseOne: WorkspaceSessionResult = {
     ...phraseOneFor(settings),
+    settings: { controls: settings.controls, profileSelection: settings.musicalProfile },
     sessionSeed: RIG_SESSION_SEED,
   }
   const idleWritten = transformToWrittenPhrase(

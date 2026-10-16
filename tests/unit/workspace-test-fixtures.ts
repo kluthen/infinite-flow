@@ -23,6 +23,9 @@ export const CHEAP_CONTROLS: GenerationControls = {
   tension: 'Settled',
 }
 
+/** The profile selection the fixture's phrases are generated with. */
+const PROFILE_SELECTION = { musicalProfile: 'Neutral', isCustom: false } as const
+
 /** Intent: run one real, cheap generation and return its successful WorkspaceSessionResult. */
 export function buildWorkspaceSessionResult(
   requestId = 'workspace-fixture-1',
@@ -33,11 +36,12 @@ export function buildWorkspaceSessionResult(
     requestId: makeRequestId(requestId),
     seed: makeSeed(seed),
     controls: CHEAP_CONTROLS,
-    musicalProfile: { musicalProfile: 'Neutral', isCustom: false },
+    musicalProfile: PROFILE_SELECTION,
   })
   const outcome = generatePhrase(intent)
   if (outcome.kind !== 'generation_success') {
     throw new Error(`Fixture setup: expected generation_success, got "${outcome.kind}".`)
   }
-  return { outcome, intent, sessionSeed: makeSeed(sessionSeed) }
+  const settings = { controls: CHEAP_CONTROLS, profileSelection: PROFILE_SELECTION }
+  return { outcome, intent, settings, sessionSeed: makeSeed(sessionSeed) }
 }

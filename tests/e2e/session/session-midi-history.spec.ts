@@ -11,7 +11,14 @@ import { expect, test, type Page } from '@playwright/test'
 
 import { watchPageErrors } from '../controller/controller-helpers'
 import { untilReady } from './rolling-helpers'
-import { gotoSessionHarness, readyToStart, sessionAction, sessionState } from './session-helpers'
+import {
+  DESKTOP,
+  gotoSessionHarness,
+  PREGENERATION_OFF,
+  readyToStart,
+  sessionAction,
+  sessionState,
+} from './session-helpers'
 import {
   KEYS,
   clockTo,
@@ -72,7 +79,7 @@ function asPlayed(note: ExpectedNoteAt, velocity: number, holdFor = 0.1): Script
  * note held into phrase 2, then phrase 2's second and third notes, and Stop.
  */
 async function runScript(page: Page): Promise<ScriptRun> {
-  await gotoSessionHarness(page)
+  await gotoSessionHarness(page, DESKTOP, PREGENERATION_OFF)
   await connectDevice(page, KEYS)
   await readyToStart(page)
   const phraseOneTimeline = await idleTimeline(page)

@@ -358,8 +358,9 @@ does.
 `createPregenerationPlan(seams, start, readyPhrases)` (`session-pregeneration.ts`) is a pure,
 deadline-free state machine that builds, one attempt at a time, phrases 2 to 5 as a session would
 generate them after a given phrase 1. Its start is the session's: the chosen settings, phrase 1
-(the Idle result's intent and outcome), the session seed published with it, the settings-mutation
-flag and the multi-phrase tension arc flag. Its only seams are the request-id provider, from which
+(the Idle result's intent and outcome) and the settings it was generated under
+([Phrase 1's own settings](#phrase-1s-own-settings)), the session seed published with it, the
+settings-mutation flag and the multi-phrase tension arc flag. Its only seams are the request-id provider, from which
 each attempt's request id is drawn, and the window-width reading. It reads no clock and draws no
 seed: every seed comes from the session seed plan. Tempo and Rising tempo never reach it.
 
@@ -1225,6 +1226,29 @@ no longer a tense note owed a step; the leap-recovery checks stay.
 adapted carry-in and the standalone rung pins the register whose window it carries, as in
 [Failure ladder](#failure-ladder). With a standalone source every rung is standalone, with the
 source's register.
+
+### Phrase 1's own settings
+
+At Idle an ordinary edit never regenerates phrase 1, so phrase 1 can have been generated under
+settings the player has since changed: a **stale** phrase 1 (master spec §16, ISS-011). A start
+then carries phrase 1's own settings beside the chosen ones, `SessionStart.phraseOneSettings`, at
+the session's tempo and with its instrument (`phraseOneSettingsAtStart` in
+`stale-phrase-one.ts` refuses either difference as a `SessionEngineError`). The engine takes them
+as the settings phrase 1 was decided under (`lastDecidedSettings`), so `lookAheadBasis` adapts
+phrase 2's carry-in through `adaptCarryIn` exactly as after a settings change at the boundary
+between phrase 1 and phrase 2: the rules above apply, no new one, and the start can no longer
+meet a `CarryInError` at any tempo. Absent, they are the chosen settings, and equal values change
+nothing: `adaptCarryIn` returns the same carry-in, so the requests and seeds are those of a start
+without them. The pre-generation plan takes the same input (`PregenerationStart.phraseOneSettings`)
+for its initial course, so its phrases stay the session's.
+
+`stale-phrase-one.ts` also holds the pure pieces the workspace uses around it:
+`phraseOneSettings(recorded, phraseOneIntent, tempo)` builds phrase 1's settings from what the Idle
+result recorded (the chosen controls and profile selection) at the session's tempo, my instrument's
+profile taken from phrase 1's intent; `isPhraseOneStale(phraseOne, current)` compares them by value
+with the current settings over what the generation reads: every control but the tempo, the musical
+profile but not its customized mark, and the instrument's concert range and transposition (never
+its display name or clef).
 
 ### Replay from the inputs
 

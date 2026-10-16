@@ -47,6 +47,7 @@ import {
   tempoOfPhrase,
 } from './session-tempo-step'
 import { deadlineReached, nextPhraseDeadline, phraseTwoDeadline } from './session-timing'
+import { phraseOneSettingsAtStart } from './stale-phrase-one'
 import {
   SessionEngineError,
   type AudioTime,
@@ -365,14 +366,16 @@ function handleEvent(context: EngineContext, state: EngineState, event: SessionE
 }
 
 /**
- * Intent: start a session from its start time, chosen settings, phrase 1 (the Idle phrase),
- * session seed (one that is no seed throws), mutation flag, adaptive-tempo choice, multi-phrase
- * tension arc flag (a non-boolean throws) and ready phrases (none when absent; an invalid list
- * throws):
+ * Intent: start a session from its start time, chosen settings, phrase 1 (the Idle phrase) and the
+ * settings it was generated under (the chosen ones when absent), session seed (one that is no
+ * seed throws), mutation flag, adaptive-tempo choice, multi-phrase tension arc flag (a
+ * non-boolean throws) and ready phrases (none when absent; an invalid list throws):
  * freeze the settings as the settings in effect, whose tempo stays the starting tempo, keep
- * phrase 1 as the `idle` record at the starting tempo, and request phrase 2 at once (or spend its
- * ready phrase) with its deadline at the end of the count-in. Returns the start outputs and the
- * handler of every later event; every output is deep-frozen, and attempt ids increase from 1.
+ * phrase 1 as the `idle` record at the starting tempo, decided under its own settings, so phrase
+ * 2's carry-in is adapted as after a change at their boundary, and request phrase 2 at once (or
+ * spend its ready phrase) with its deadline at the end of the count-in. Returns the start outputs
+ * and the handler of every later event; every output is deep-frozen, and attempt ids increase
+ * from 1.
  */
 // @spec-link [[service_session_engine]]
 // @spec-link [[req_settings_mutation_flag]]
@@ -417,7 +420,7 @@ export function createSessionEngine(
     soundedCount: 0,
     settings,
     lastDecided: phraseOne,
-    lastDecidedSettings: settings,
+    lastDecidedSettings: phraseOneSettingsAtStart(settings, start.phraseOneSettings),
     lookAhead: undefined,
     decided: undefined,
     steppedDown: false,
