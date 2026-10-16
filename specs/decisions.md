@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.99
+Status: draft v2.100
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,13 +14,13 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D332**. D259–D260 are
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D335**. D259–D260 are
 on branch `v4-accompaniment-research`, not merged yet. D263–D288 are v3.3's richer chords (merged
 from `main`); D289 is unused. D290–D299 were reserved for v3.0 wave 2; wave 2 used D290–D298, and
 D299 records wave 3. D300 records the wave-4 preflight; D301 and D302 the plan revision after
 chunk 7a; D303–D305 the wave-5 preflight (D303 the owner's ruling on the session key); D306–D308 the
 wave-5 sync; D309–D311 the owner's rulings on O201 and O200 and the plan revision they bring;
-D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan following the wave-6 design gates; D320 the owner's confirmation of the seventh contract change; D321 measurement M1's findings; D322 and D323 the owner's rulings on O211 and on a controller reselected at load; D324 and D325 the wave-7 preflight; D326 the erasing of my instrument's sessions in one batch; D327 a wording correction to D310; D328 a page the back-forward cache brings back; D329–D331 the wave-8 preflight.
+D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan following the wave-6 design gates; D320 the owner's confirmation of the seventh contract change; D321 measurement M1's findings; D322 and D323 the owner's rulings on O211 and on a controller reselected at load; D324 and D325 the wave-7 preflight; D326 the erasing of my instrument's sessions in one batch; D327 a wording correction to D310; D328 a page the back-forward cache brings back; D329–D331 the wave-8 preflight; D332–D334 three edges found while recording its captures.
 
 ## Decision Log
 
@@ -2087,3 +2087,58 @@ D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan
   wording). `rule_outdated_tab_stops_saving` gains the second trigger in business wording, for
   the owner at the wave-8 sync. `ux-writer` closes ux Q80 in its own register, citing this entry;
   no design change (its deletion wording stays for a later version, D300).
+
+- **D332 (2026-10-16): Delete every session that finds nothing stored is done, as Delete session
+  is.** Settled by `spec-writer` under the owner's delegation of minor technical calls, from an
+  edge `documentalist` found while recording the wave-8 captures (b4774c5). Delete every
+  session's keys-only read can find no key while the tab still lists sessions: another tab ran
+  Delete every session, or deleted each session, after this tab's load; this tab may also hold a
+  session in memory only, its save refused (such a session has no row, so it never makes the
+  action show on its own). Another tab's Delete everything is not this case: it outdates this tab
+  (D331), and the change resolves `saving-off`. With no key, the batch is empty and the
+  kept-change line resolves `unchanged`. The controller takes `unchanged` as it takes `saved`:
+  every session held in memory goes, the most recent included, and every row, leaving no most
+  recent session until the next session ends with a review, as Delete session already does when
+  nothing is stored under its key (`workspace-kept-session-edits.ts`). The player asked for no
+  session to be kept, and none is. The confirmation tells it as a success: it returns to the
+  Overview with its counts updated ("No sessions kept yet.") and the space measured again, with no
+  error line and no wording of its own (ux design, `screens/your-data/`, Confirmations: Success).
+  No design change. Chunk 15a builds and tests it. `module_kept_session_reach` 0.3 says "once
+  that deletion is saved" in its rule, its technical interface and its acceptance criterion;
+  `documentalist` widens all three to "saved, or finding nothing stored" before chunk 15a's code.
+
+- **D333 (2026-10-16): Delete every session never meets a session a newer version wrote; "every
+  key found" stands.** Settled by `spec-writer` under the owner's delegation of minor technical
+  calls, from the second edge of b4774c5, checked in the code on `v3.0-w8`. The case cannot
+  arise. A record a newer version wrote carries a data version above this code's, and no record
+  is written with a data version above the database's (`assertWritableVersions`), so the database
+  itself is at a newer data version. Then (1) at load, the open meets a newer IndexedDB version
+  or a newer `meta` and the port starts outdated (`openDatabase`); (2) later in the visit, the
+  newer app's upgrade closes this tab's connection and the port turns outdated
+  (`onVersionChange`), and with saving off Delete every session is not offered and an open
+  confirmation closes without deleting (§4.4, chunk 15's existing test); (3) a batch read before
+  that and applied after reads `meta` first in its own transaction and aborts, writing nothing,
+  when the data version is newer (`changeStores`), so the change resolves `saving-off`. A row
+  for a session a newer version wrote exists only in an outdated tab, where nothing is offered.
+  No behaviour, plan test or capture changes; chunk 15's capture gains a clause saying why, so the
+  chunk owner adds no filter of its own.
+
+- **D334 (2026-10-16): when the load's clean-up deletes the most recent session, the readable
+  kept session that started last becomes the most recent, at once.** Settled by `spec-writer`
+  under the owner's delegation of minor technical calls, from the third edge of b4774c5. The
+  clean-up re-reads the summaries at the change (D330), so it can delete a summary that was
+  readable at the load and is damaged now, and that one may be the most recent session the load
+  chose. The opening path's rule applies (spec D304's rule after a reload, D327, ux D317): the
+  most recent session becomes, at once, the readable kept session that started last among the
+  summaries the re-read found readable, or none, in which case `review-link` goes. This changes
+  the most recent session only while it is a kept session not yet read into memory. A most recent
+  session held in memory (one that ended in this visit, or one opened from its row) stays the
+  most recent, readable in memory; its records are among those deleted only if another tab
+  damaged them after this tab read or wrote them, and then its row goes with the deletion and the
+  apology counts it.
+  Unlike the player's own deletion, which leaves no most recent session (ux D317), a damaged
+  session's deletion is the app's, so the load's rule chooses again. No design change: ux D317
+  already gives the rule for a damaged deletion. Chunk 28a builds and tests it.
+  `module_kept_session_save` 0.7 says the most recent session is "decided without those sessions,
+  as they already are", which no longer holds for a summary damaged since the load;
+  `documentalist` amends its rule and its acceptance criterion before chunk 28a's code.

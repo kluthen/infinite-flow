@@ -1,9 +1,9 @@
 # Infinite Flow v3.0 — Build Plan
 
-Status: v25 (2026-10-16): the wave-8 preflight's corrections placed, wave 8 sharing files in order, chunks 15 and 21 gaining split rules (spec D329); chunk 28's damaged-session deletions go through the kept-change line and their reports reach the notices through `App.vue` and the workspace shell (spec D330); chunk 15 tests another tab's Delete everything, now in master spec §4.3 (spec D331). v24: chunk 27's page brought back from the back-forward cache saves its later sessions, the session cut short staying not saved (spec D328). v23: chunk 20c's record change and erasing of my instrument's sessions are one batch, a refusal changing nothing (spec D326); chunk 28's successor after a damaged deletion is justified by the load's rule, not the player's deletion (spec D327). v22 placed the wave-7 preflight's corrections (spec D324, D325). Approved by
+Status: v26 (2026-10-16): chunk 15a takes Delete every session finding nothing stored as done (spec D332) and deletes every key found, a newer version's session never among them (spec D333); chunk 28a's clean-up deleting the most recent session gives the readable kept session that started last (spec D334). v25: the wave-8 preflight's corrections placed, wave 8 sharing files in order, chunks 15 and 21 gaining split rules (spec D329); chunk 28's damaged-session deletions go through the kept-change line and their reports reach the notices through `App.vue` and the workspace shell (spec D330); chunk 15 tests another tab's Delete everything, now in master spec §4.3 (spec D331). v24: chunk 27's page brought back from the back-forward cache saves its later sessions, the session cut short staying not saved (spec D328). v23: chunk 20c's record change and erasing of my instrument's sessions are one batch, a refusal changing nothing (spec D326); chunk 28's successor after a damaged deletion is justified by the load's rule, not the player's deletion (spec D327). v22 placed the wave-7 preflight's corrections (spec D324, D325). Approved by
 the product owner on 2026-10-07 (v1), with Gate A and the token-source pass (Q66) confirmed the
 same day; every later revision writes in rulings from [the decisions log](../../decisions.md)
-(spec D252–D331), and earlier wordings are in git.
+(spec D252–D334), and earlier wordings are in git.
 
 Build plan for v3.0, Storage, written from [master spec v1.3](master-spec.md) (now Part A v1.22) and the v3.0 design
 in [`ui_ux/versions/v3.0/`](../../../ui_ux/versions/v3.0/README.md), the copy frozen when the
@@ -2826,7 +2826,9 @@ Docs: `phrase-workspace.md`, `storage.md` (both stale lines fixed), `session-eng
 `module_kept_session_reach`: Delete every session is one change through the kept-change line
 (`changeKept`, refusal `caller`, its confirmation telling a refusal), its batch built from a
 key-only read (`readKeys`) of the three kept-session stores at the change and deleting every key
-found, so a session with no row goes too; once it is saved, every session held in memory goes,
+found, so a session with no row goes too (a session a newer version wrote is never among them:
+saving is then off, and the batch's transaction reads `meta` first and aborts, spec D333); once
+it is saved, or finds nothing stored (`unchanged`, spec D332), every session held in memory goes,
 the most recent included, whether kept or held in memory only, and every row, leaving no most
 recent session until the next session ends with a review (spec D327); a refusal changes nothing,
 stored or in memory; while saving is off it is not offered.
@@ -2884,6 +2886,9 @@ Data), [`screens/your-data/handoff.md`](../../../ui_ux/versions/v3.0/screens/you
   summary cannot be read (no row, not counted) included, in one transaction (write spy), and
   leaves no most recent session until the next session ends with a review; settings, my
   instrument and the controller stay.
+- Delete every session with nothing stored (another tab's Delete every session run while the
+  sheet is open, with or without a session held in memory after a refused save): no write, and the same result as a success, the sessions in memory and the rows gone, the
+  confirmation back at the Overview with "No sessions kept yet." and no error line (spec D332).
 - Delete all played notes removes every played-notes record and nothing else.
 - Delete everything: after the reload, the database holds nothing (no store, no record), the
   workspace is in its first-visit state, and Your data shows the empty overview; with fake MIDI
@@ -4262,7 +4267,8 @@ deletes every kept session whose summary is damaged (the codec's `unreadable`), 
 version wrote, and says how many damaged sessions it deleted; the load's clean-up runs in the
 session controller's chunk, never the entry chunk, only when a summary the load read is damaged,
 as one batch through the kept-change line (`changeKept`, refusal `caller`, never `save()`), which
-re-reads the summaries at the change; the read of a kept session for its review tells a damaged
+re-reads the summaries at the change, the most recent session going to the readable kept session
+that started last when the re-read deletes it (spec D334); the read of a kept session for its review tells a damaged
 session from one not read (refused, absent or newer) instead of giving `null` for all; and the
 reports of those deletions reach the notices by a channel built with the workspace, handed to
 the kept-sessions seam for the controller to tell through, and passed by `App.vue` to
@@ -4278,7 +4284,10 @@ apology; a session the device only failed or refused to read is never deleted (�
   through the kept-change line (`changeKept`, refusal `caller`), which re-reads the summaries at
   the change and waits like any kept change if a session has started: a summary damaged since
   the load goes too, its row with it, and none damaged at the re-read writes and tells nothing
-  (spec D330). The most recent session and the links are decided without them.
+  (spec D330). The most recent session and the links are decided without them. When the re-read
+  deletes the most recent session, still a kept session not read into memory, the most recent
+  becomes at once the readable kept session that started last among the summaries it read, or
+  none, as at an opening; a most recent session held in memory stays (spec D334).
 - **At a session's save:** the batch also deletes every kept session whose summary is damaged
   (chunk 10 leaves them); a summary a newer version wrote stays; a refused read still deletes
   nothing (spec D304).
@@ -4365,6 +4374,10 @@ it follows chunks 15 and 21, whose files it shares.
 - Seeded with a readable unpinned session, a pinned one and a damaged one (an invalid summary),
   saving on: after the load the damaged one's three records are gone, the apology shows once
   with its count, and the list and the links show only the other two.
+- The most recent kept session's summary damaged after the load, before the clean-up's re-read
+  (seeded between the two, another summary damaged at load so the clean-up runs): it goes with the others, its row with
+  it, and `review-link` opens the readable kept session that started last, or is absent (spec
+  D334).
 - A damaged summary written after the load (seeded mid-visit): the next session's save deletes
   it in the same transaction as the new session (write spy), and the apology shows as the review
   opens.

@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.70
+Status: draft v0.71
 
 ## Status Snapshot
 
@@ -168,8 +168,10 @@ Status: draft v0.70
   chunk 15 captures Delete every session as one batch from a key-only read, and chunks 15 and 21
   gain split rules (D329). Chunk 28's damaged-session deletions go through the kept-change line,
   their reports reaching the notices through `App.vue` and the workspace shell (D330). Another
-  tab's Delete everything outdates every other open tab, now named in §4.3 (D331, ux Q80, for
-  `ux-writer` to close).
+  tab's Delete everything outdates every other open tab, now named in §4.3 (D331, ux Q80, closed
+  by ux D318). Build plan v26 (D332–D334): Delete every session finding nothing stored is done; it
+  never meets a newer version's session; the load's clean-up deleting the most recent session
+  gives the readable kept session that started last.
 - **Open:** 11 questions: O48 and O49 (later and governance),
   O100–O102 (v4 rhythm), O115 and O116 (v3.x learning), O176 (style packs and the chord level),
   O180 (octave signs, later), O183 (pre-generation's cancellation cost), O190 (a newer
