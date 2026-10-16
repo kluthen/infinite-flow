@@ -379,11 +379,13 @@ export interface SessionController {
   /**
    * The kept sessions of my instrument now, as its delete confirmation and its erase warnings count
    * them: the session list's rows naming my instrument, and the session that just ended when played
-   * with it. The count holds the deletes of those stored on the device, by their keys (none for one
-   * held in memory only because its save failed), and their leaving memory once the batch that
-   * erases them is saved: their rows, a Review of one (the list in its place when it showed) and the
-   * most recent session when it is one, leaving none. While saving is off it counts only the rows
-   * (a held session keeps its Review). Reactive through the state it reads.
+   * with it. The count holds their deletes, by their keys (a delete of nothing for one held in
+   * memory only because its save failed, unless a retry of that save wrote it), no retry of their
+   * saves writing while the batch applies, and their leaving memory once the batch that erases
+   * them is saved: their rows, a Review of one (the list in its place when it showed) and the most
+   * recent session when it is one, leaving none, and the retries of their saves; refused, they
+   * stay, a retry held back running again. While saving is off it counts only the rows (a held
+   * session keeps its Review). Reactive through the state it reads.
    */
   readonly myInstrumentSessions: () => MyInstrumentSessionCount
   /**

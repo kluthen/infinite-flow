@@ -1,11 +1,11 @@
 /**
  * The session controller's count of my instrument's kept sessions (spec D295, D326, D338): the
  * session list's rows naming my instrument, and the session that just ended when it was played
- * with it and has no row yet. The count names those stored on the device by their keys (not one
- * held in memory only because its save failed) and, once the batch is saved, makes them leave
- * memory as `Delete session` does: their rows, a Review of one (the list in its place when it
- * showed) and the most recent session when it is one. Another instrument's sessions stay. On the
- * fake audio clock at 240 BPM from 5 s: phrase 1 sounds from 6.1 s.
+ * with it and has no row yet. The count names them by their keys (one held in memory only because
+ * its save failed adding no delete while nothing of it is stored) and, once the batch is saved,
+ * makes them leave memory as `Delete session` does: their rows, a Review of one (the list in its
+ * place when it showed) and the most recent session when it is one. Another instrument's sessions
+ * stay. On the fake audio clock at 240 BPM from 5 s: phrase 1 sounds from 6.1 s.
  */
 import { afterEach, beforeAll, describe, expect, it } from 'vitest'
 
@@ -182,7 +182,7 @@ describe("session controller: my instrument's kept sessions", () => {
   })
 
   // @test-link [[entity_my_instrument_record]]
-  it('counts a session whose own save failed, names nothing of it on the device, and it only leaves memory', async () => {
+  it('counts a session whose own save failed, deletes nothing of it from the device, and it only leaves memory', async () => {
     const summaries = loaded()
     const rig = rigOver(summaries, { status: 'refused', kind: 'quota' })
     await playedWithMyInstrument(rig)

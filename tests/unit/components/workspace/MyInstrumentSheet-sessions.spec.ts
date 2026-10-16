@@ -31,6 +31,7 @@ function sessions(count: number, facts: Partial<MyInstrumentSessionCount> = {}) 
     withheld: false,
     deletes: () => Promise.resolve([]),
     leave: () => undefined,
+    stay: () => undefined,
     ...facts,
   }
 }

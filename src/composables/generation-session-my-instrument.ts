@@ -35,18 +35,20 @@ export type MyInstrumentChangeOutcome =
 
 /**
  * The kept sessions of my instrument as the caller counted them for its warning or confirmation:
- * how many, the deletes of those stored on the device by their keys, and their leaving memory once
- * the batch that erases them is saved.
+ * how many, their deletes by their keys, their leaving memory once the batch that erases them is
+ * saved, and their staying as they were when it is not.
  */
 // @spec-link [[entity_my_instrument_record]]
 // @spec-link [[req_kept_sessions]]
 export interface MyInstrumentSessions {
   /** How many sessions the warning or confirmation names. */
   readonly count: number
-  /** The deletes of the counted sessions stored on the device, for the batch. */
+  /** The deletes of the counted sessions, for the batch. */
   readonly deletes: KeptChanges
   /** The batch is saved: the counted sessions leave memory. */
   readonly leave: () => void
+  /** The batch is refused, or not made as saving is off: the counted sessions stay as they were. */
+  readonly stay: () => void
 }
 
 /** What the actions need from the root session composable. */
@@ -176,6 +178,7 @@ export function createMyInstrumentActions<TResult>(
       await deps.saves.saveMyInstrumentErasing(instrument, sessions.deletes),
     )
     if (outcome === 'saved') sessions.leave()
+    else sessions.stay()
     return outcome
   }
 
@@ -235,7 +238,10 @@ export function createMyInstrumentActions<TResult>(
     const before = state.myInstrument
     if (before === null) throw new Error('my instrument: there is none to delete')
     const outcome = batchOutcome(await deps.saves.deleteMyInstrument(sessions.deletes))
-    if (outcome === 'refused' || (outcome === 'saving-off' && sessions.count > 0)) return outcome
+    if (outcome === 'refused' || (outcome === 'saving-off' && sessions.count > 0)) {
+      sessions.stay()
+      return outcome
+    }
     sessions.leave()
     if (state.controls.instrumentProfileId !== MY_INSTRUMENT_ID) {
       state.myInstrument = null

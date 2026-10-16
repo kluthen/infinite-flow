@@ -125,6 +125,7 @@ const NO_SESSIONS: MyInstrumentSessions = {
   count: 0,
   deletes: () => Promise.resolve([]),
   leave: () => undefined,
+  stay: () => undefined,
 }
 
 /** Intent: my instrument with some fields changed. */

@@ -25,6 +25,7 @@ const NO_SESSIONS = {
   withheld: false,
   deletes: () => Promise.resolve([]),
   leave: () => undefined,
+  stay: () => undefined,
 }
 
 /** Intent: the sheet mounted on the page, opened as `start`, with no session of my instrument. */

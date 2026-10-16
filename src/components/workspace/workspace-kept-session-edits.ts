@@ -6,7 +6,9 @@
  * the change path (./kept-session-review-changes.ts), named by its key; a session whose own save
  * was refused is saved instead by a retry of that save (./workspace-session-save.ts), with its
  * facts as they are then, and a change made while a retry runs waits for it; while saving is off a
- * change holds for the visit only. The first pin or favorite of a visit also asks the browser for
+ * change holds for the visit only. A batch erasing my instrument's sessions holds back the retries
+ * of their saves while it is applied: saved, they go with the sessions; refused, each one it held
+ * back runs again (spec D338). The first pin or favorite of a visit also asks the browser for
  * persistent storage. `Delete session` removes the session from the device, then from memory.
  * Each change also changes the session's row in the session list (./use-kept-sessions.ts) at
  * once, a deletion once the device has made it. A pin, an unpin and `Delete session` also reach a
@@ -40,6 +42,12 @@ export interface KeptSessionEdits {
   readonly deleteSession: (key: string) => Promise<SessionDeletion>
   /** The own save of the session under `key` was refused: hold its history for the retry. */
   readonly saveRefused: (key: string, history: SessionHistory) => void
+  /** A batch erasing the sessions under `keys` is applied: no retry of their saves writes. */
+  readonly holdRetries: (keys: readonly string[]) => void
+  /** That batch is saved: the sessions left memory, and the retries of their saves go too. */
+  readonly dropRetries: (keys: readonly string[]) => void
+  /** That batch is refused, or not made: each retry it held back runs again. */
+  readonly resumeRetries: (keys: readonly string[]) => void
 }
 
 /** Intent: how a session with the pin `pinned` is kept, a session not saved staying so. */
@@ -96,6 +104,10 @@ export function createKeptSessionEdits(
   let unsaved: { readonly key: string; readonly history: SessionHistory } | null = null
   /** The retry under way; a change made meanwhile waits for it. */
   let retrying: Promise<void> | null = null
+  /** The sessions a batch erasing them holds back from a retry of their save while it applies. */
+  const erasing = new Set<string>()
+  /** The sessions whose retry such a batch held back, to run again if it is refused. */
+  const heldBack = new Set<string>()
 
   /** Intent: the session held under `key`, in the Review or as the most recent one; null if none. */
   const findHeld = (key: string): ReviewedSession | null => {
@@ -156,6 +168,8 @@ export function createKeptSessionEdits(
    * Intent: run the session's own save again for the session under `key`, with its facts as they
    * are now; once saved, its keep line takes its pinned or not-pinned wording, and the damaged kept
    * sessions its batch deleted are told. A failed retry changes nothing shown. Nothing to retry without the history of a refused save.
+   * It stops before its transaction, writing nothing, once its session has left memory, and while
+   * a batch erasing it is applied, which holds it back (spec D338).
    */
   // @spec-link [[module_kept_session_save]]
   // @spec-link [[rule_failed_save_never_disturbs_session]]
@@ -164,8 +178,18 @@ export function createKeptSessionEdits(
     if (pending === null || pending.key !== session.key) return
     const { key, playedNotesKept, pinned, favorites, comment } = session
     const saves = rows.savingThrough(core.deps.saveHold, () => findHeld(key))
+    /** Intent: whether the retry stops: its session left memory, or a batch erasing it holds it. */
+    const stopped = (): boolean => {
+      if (unsaved !== pending) return true
+      if (!erasing.has(key)) return false
+      heldBack.add(key)
+      return true
+    }
     const outcome = await saveEndedSession(
-      saves,
+      {
+        saveSession: (changes, pageGoingAway) =>
+          saves.saveSession(changes, () => pageGoingAway() || stopped()),
+      },
       core.deps.browser.pageLeaving,
       pending.history,
       { key, playedNotesKept },
@@ -178,6 +202,15 @@ export function createKeptSessionEdits(
     if (current?.keeping === 'not-saved') {
       replaceHeld(Object.freeze({ ...current, keeping: keepingOf('not-pinned', current.pinned) }))
     }
+  }
+
+  /** Intent: run the retry of `session`'s own save as the retry under way. */
+  const retried = (session: ReviewedSession): Promise<void> => {
+    const run = retry(session).finally(() => {
+      if (retrying === run) retrying = null
+    })
+    retrying = run
+    return run
   }
 
   /**
@@ -194,11 +227,19 @@ export function createKeptSessionEdits(
       await change()
       return
     }
-    const run = retry(session).finally(() => {
-      if (retrying === run) retrying = null
-    })
-    retrying = run
-    await run
+    await retried(session)
+  }
+
+  /**
+   * Intent: run again, once any retry under way is over, the retry of the session under `key`
+   * that a refused batch held back, while it is still held in memory, not saved, and saving is on.
+   */
+  // @spec-link [[rule_failed_save_never_disturbs_session]]
+  const resumed = async (key: string): Promise<void> => {
+    if (retrying !== null) await retrying
+    const session = findHeld(key)
+    if (session === null || session.keeping !== 'not-saved' || kept.savingOff()) return
+    await retried(session)
   }
 
   /** Intent: mark or unmark a favorite, at once in memory, then save it. */
@@ -308,6 +349,22 @@ export function createKeptSessionEdits(
     deleteSession,
     saveRefused: (key, history) => {
       unsaved = { key, history }
+    },
+    holdRetries: (keys) => {
+      for (const key of keys) erasing.add(key)
+    },
+    dropRetries: (keys) => {
+      for (const key of keys) {
+        erasing.delete(key)
+        heldBack.delete(key)
+      }
+      if (unsaved !== null && keys.includes(unsaved.key)) unsaved = null
+    },
+    resumeRetries: (keys) => {
+      for (const key of keys) {
+        erasing.delete(key)
+        if (heldBack.delete(key)) void resumed(key)
+      }
     },
   }
 }

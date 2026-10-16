@@ -2,8 +2,9 @@
  * My instrument's actions with its kept sessions (spec D326): deleting it, and a change of its
  * range or transposition while it has kept sessions, are one batch with the counted sessions'
  * deletes, and nothing changes in memory (my instrument, its sessions, the selection, the phrase)
- * until it is saved; a refusal, or saving off with sessions to erase, changes nothing. A change of
- * name or clef, and any change with no kept session, stays the plain write.
+ * until it is saved; a refusal, or saving off with sessions to erase, changes nothing, the counted
+ * sessions told they stay. A change of name or clef, and any change with no kept session, stays
+ * the plain write.
  */
 import { describe, expect, it, vi, type Mock } from 'vitest'
 
@@ -46,17 +47,30 @@ const MINE_SELECTED = makeGenerationControls({
 /** The deletes the counted sessions hand the batch: a marker the fake saves pass through. */
 const THREE_DELETES: KeptChanges = () => Promise.resolve([])
 
-/** Counted sessions of my instrument, with a spy on their leaving memory. */
-type CountedSessions = MyInstrumentSessions & { readonly leave: Mock<() => void> }
-
-/** Intent: three counted sessions of my instrument, with a spy on their leaving memory. */
-function threeSessions(): CountedSessions {
-  return { count: 3, deletes: THREE_DELETES, leave: vi.fn<() => void>() }
+/** Counted sessions of my instrument, with spies on their leaving memory and their staying. */
+type CountedSessions = MyInstrumentSessions & {
+  readonly leave: Mock<() => void>
+  readonly stay: Mock<() => void>
 }
 
-/** Intent: no counted session, with a spy on their (empty) leaving. */
+/** Intent: three counted sessions of my instrument, with spies on their leaving and staying. */
+function threeSessions(): CountedSessions {
+  return {
+    count: 3,
+    deletes: THREE_DELETES,
+    leave: vi.fn<() => void>(),
+    stay: vi.fn<() => void>(),
+  }
+}
+
+/** Intent: no counted session, with spies on their (empty) leaving and staying. */
 function noSessions(): CountedSessions {
-  return { count: 0, deletes: () => Promise.resolve([]), leave: vi.fn<() => void>() }
+  return {
+    count: 0,
+    deletes: () => Promise.resolve([]),
+    leave: vi.fn<() => void>(),
+    stay: vi.fn<() => void>(),
+  }
 }
 
 /**
@@ -178,6 +192,7 @@ describe('a change of range or transposition while my instrument has kept sessio
 
       expect(saves).toHaveLength(1)
       expect(sessions.leave).not.toHaveBeenCalled()
+      expect(sessions.stay).toHaveBeenCalledOnce()
       expect(created.state.myInstrument).toBe(LOW_TENOR)
       expect(created.state.result).toBe(shown)
       expect(generated).toEqual([])
@@ -288,6 +303,7 @@ describe('deleting my instrument with its kept sessions', () => {
 
       expect(saves).toHaveLength(1)
       expect(sessions.leave).not.toHaveBeenCalled()
+      expect(sessions.stay).toHaveBeenCalledOnce()
       expect(created.state.myInstrument).toBe(LOW_TENOR)
       expect(created.state.controls.instrumentProfileId).toBe('my-instrument')
       created.dispose()

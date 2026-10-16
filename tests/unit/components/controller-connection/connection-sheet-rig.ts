@@ -40,6 +40,7 @@ export const NO_SESSIONS_COUNTED = Object.freeze({
   withheld: false,
   deletes: () => Promise.resolve([]),
   leave: () => undefined,
+  stay: () => undefined,
 })
 
 export type SheetWrapper = VueWrapper<InstanceType<typeof ConnectionSheet>>

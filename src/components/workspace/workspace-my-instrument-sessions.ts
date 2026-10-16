@@ -6,16 +6,21 @@
  * summary names `my-instrument`, and the session that just ended when it was played with it and
  * has no row yet, while the visit saves: while saving is off, a session held in memory is never
  * counted and keeps its Review, so a visit started from the defaults counts none, and an outdated
- * tab counts only the rows it read, the changes that would erase them withheld. The batch names each counted session stored on the device by its key, the one
- * that just ended by the key its save minted, so it is erased after that save; one held in memory
- * only because its own save failed has nothing on the device to delete and only leaves memory,
- * so its retry has nothing left to save (spec D338). Leaving memory, as `Delete session` does:
- * the rows go, a pending opening of one of them is cancelled, a Review of one gives way to the
- * session list when it showed, and a most recent one goes, leaving none.
+ * tab counts only the rows it read, the changes that would erase them withheld. The batch names
+ * every counted session by its key, the one that just ended by the key its save minted, so it is
+ * erased after that save; one held in memory only because its own save failed is named too, so
+ * whatever a retry of that save wrote before the batch is erased with it (a delete of nothing
+ * when none did), and while the batch is applied no retry of their saves writes: saved, the
+ * sessions leave memory and their retries with them; refused, they stay, a retry held back
+ * running again (spec D338). Leaving memory, as `Delete session` does: the rows go, a pending
+ * opening of one of them is cancelled, a Review of one gives way to the session list when it
+ * showed, and a most recent one goes, leaving none.
  */
 import { MY_INSTRUMENT_ID } from '@/domain/profile/instrument-profiles'
+import type { KeptRecordsReader } from '@/storage/save-policy'
 import { keptSessionsDeletes } from './kept-session-review-changes'
 import type { KeptSessionRows } from './use-kept-sessions'
+import type { KeptSessionEdits } from './workspace-kept-session-edits'
 import type { SessionControllerCore } from './workspace-session-active'
 import type {
   MyInstrumentSessionCount,
@@ -32,6 +37,8 @@ function playedWithMyInstrument(session: ReviewedSession): boolean {
  * the list's rows and the review mode's cancelling of a pending opening; each count holds its
  * sessions' deletes and their leaving memory, by the keys it counted, whatever changes after it,
  * with whether the Review on screen is one of them and whether saving off withholds erasing them.
+ * Its deletes hold back, through `retries`, the retries of their saves while the batch applies;
+ * leaving drops them, staying lets one held back run again.
  */
 // @spec-link [[entity_my_instrument_record]]
 // @spec-link [[req_kept_sessions]]
@@ -41,6 +48,7 @@ export function createMyInstrumentSessions(
   core: Pick<SessionControllerCore, 'state' | 'deps'>,
   rows: KeptSessionRows,
   cancelOpening: () => void,
+  retries: Pick<KeptSessionEdits, 'holdRetries' | 'dropRetries' | 'resumeRetries'>,
 ): () => MyInstrumentSessionCount {
   const { state } = core
   const kept = core.deps.keptSessions
@@ -81,17 +89,21 @@ export function createMyInstrumentSessions(
           (session) => playedWithMyInstrument(session) && !stored.includes(session.key),
         )
     const counted = Object.freeze([...stored, ...unlisted.map((session) => session.key)])
-    const named = [
-      ...stored,
-      ...unlisted.filter((session) => session.keeping !== 'not-saved').map(({ key }) => key),
-    ]
+    const deletes = keptSessionsDeletes(counted)
     const review = state.review
     return Object.freeze({
       count: counted.length,
       reviewed: review !== null && review.showing && counted.includes(review.key),
       withheld: savingOff && counted.length > 0,
-      deletes: keptSessionsDeletes(named),
-      leave: () => leave(counted),
+      deletes: (reader: KeptRecordsReader) => {
+        retries.holdRetries(counted)
+        return deletes(reader)
+      },
+      leave: () => {
+        leave(counted)
+        retries.dropRetries(counted)
+      },
+      stay: () => retries.resumeRetries(counted),
     })
   }
 }
