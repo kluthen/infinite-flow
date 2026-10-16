@@ -6,7 +6,8 @@
  *   the settings changed during the session in a transaction of their own (none when nothing
  *   changed), the read of the kept summaries, and one transaction for the session;
  * - each save keeps the session under `session-{startedAt}-{sessionSeed}` and deletes every
- *   readable kept session that is not pinned: a pinned one and an unreadable one survive;
+ *   readable kept session that is not pinned, and every damaged one (spec D310): a pinned one
+ *   survives;
  * - a session ended in its count-in changes nothing kept;
  * - a refused save never delays the end: an `other` refusal raises no notice, a `quota` one the
  *   storage-full notice;
@@ -27,7 +28,7 @@
  * app's, as the browser hides the page right after `pagehide`, in the same task, and shows it
  * again itself.
  *
- * A pinned session and an unreadable one are seeded through the harness's storage seam.
+ * A pinned session and a damaged one are seeded through the harness's storage seam.
  */
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
@@ -257,7 +258,7 @@ test.describe('the session saved at its end', () => {
 // @test-link [[module_kept_session_save]]
 // @test-link [[rule_most_recent_session_kept]]
 // @test-link [[entity_kept_session_record]]
-test('each save keeps one unpinned session under its key; pinned and unreadable ones survive', async ({
+test('each save keeps one unpinned session under its key; a pinned one survives, a damaged one goes', async ({
   page,
 }) => {
   test.setTimeout(120_000)
@@ -271,20 +272,23 @@ test('each save keeps one unpinned session under its key; pinned and unreadable 
     (key) => window.__workspaceHarness.storage.seedUnreadableKeptSession(key),
     UNREADABLE_KEY,
   )
+  await untilKept(page, 2)
 
+  // The next save deletes the damaged session in its own batch (spec D310).
   await nextSessionEnded(page)
-  const second = (await untilKept(page, 3)).find((key) => key !== first && key !== UNREADABLE_KEY)
+  const second = (await untilKept(page, 2)).find((key) => key !== first)
+  expect(second).not.toBe(UNREADABLE_KEY)
   await nextSessionEnded(page)
   await expect.poll(async () => (await keptKeys(page)).includes(second ?? '')).toBe(false)
 
   const summaries = await keyedRecords(page, 'sessionSummaries')
-  expect(summaries).toHaveLength(3)
-  const third = summaries.find(({ key }) => key !== first && key !== UNREADABLE_KEY)
+  expect(summaries).toHaveLength(2)
+  const third = summaries.find(({ key }) => key !== first)
   expect(third?.key).not.toBe(second)
   expect(await keptPins(page)).toEqual(
-    expect.arrayContaining([`${first} true`, `${third?.key} false`, `${UNREADABLE_KEY} undefined`]),
+    expect.arrayContaining([`${first} true`, `${third?.key} false`]),
   )
-  for (const { key, value } of summaries.filter((summary) => summary.key !== UNREADABLE_KEY)) {
+  for (const { key, value } of summaries) {
     const { startedAt, sessionSeed } = value as { startedAt: number; sessionSeed: number }
     expect(key).toBe(`session-${startedAt}-${sessionSeed}`)
   }

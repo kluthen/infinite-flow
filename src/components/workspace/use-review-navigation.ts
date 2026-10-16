@@ -1,7 +1,8 @@
 /**
  * The workspace shell's moves in and out of the review mode: `Close review`, `Review last session`
  * and the cue row's `All sessions` (each scrolling the page instantly to its top, then moving
- * focus; a `Review last session` whose read fails shows the list instead, spec D307), and the focus
+ * focus; a `Review last session` whose read fails, or finds its session damaged, shows the list
+ * instead, spec D307, D310), and the focus
  * a session start leaves behind when it removes a focused cue-row link. The shell owns the elements
  * focus lands on; this holds only the order of the steps and the choice of target.
  */
@@ -77,7 +78,9 @@ export function useReviewNavigation(deps: ReviewNavigationDependencies): ReviewN
    * memory, once read when kept on the device), the page scrolls instantly to its top, then focus
    * moves to `review-title` once the panel is mounted. When its read fails, the session list shows
    * instead, that session's row marked as failed to open, focus on the list's title (spec D307);
-   * when a session started meanwhile, nothing moves.
+   * when it finds the session damaged, the list shows once its deletion settled, without that
+   * session's row, focus on the list's title (spec D310); when a session started meanwhile,
+   * nothing moves.
    */
   // @spec-link [[req_last_session_review]]
   // @spec-link [[req_kept_session_review]]

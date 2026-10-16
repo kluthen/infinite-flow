@@ -3,7 +3,8 @@
  * loaded on demand, and the session list. A focus asked for before its target has mounted waits
  * for it. After a confirmation: an unpin to the pin button; `Delete session` from a Review to the
  * list's title; a row's deletion to the next row's title, else the previous row's, else the list's
- * title; a played-notes deletion to `Keep my played notes` while the Review still shows played
+ * title, as after a row whose opening found its session damaged and deleted it; a played-notes
+ * deletion to `Keep my played notes` while the Review still shows played
  * notes, else to the title. The way back returns focus to the button that opened the sheet. A
  * deletion that finishes after the player closed its sheet moves focus by that same rule only if
  * focus sat on a control the deletion removed; focus anywhere else stays (ux D316).
@@ -61,6 +62,11 @@ export interface ReviewAreaFocus {
   readonly rowOrTitle: (key: string | null) => void
   /** Focus a row's title once it is rendered again (after its failed opening). */
   readonly rowOpenWhenRendered: (key: string) => Promise<void>
+  /**
+   * Once rendered, focus as after the deletion of the row under `key` (its opening found it
+   * damaged): the next row's title, else the previous one's, else the list's title.
+   */
+  readonly rowLeft: (key: string, rowsBefore: readonly string[]) => Promise<void>
   /** The way back from a confirmation of `kind`, opened from `row` or the Review. */
   readonly opener: (kind: ReviewConfirmation['kind'], row: string | null) => void
   /** Follow focus while a confirmed deletion runs, to know where it sat when it ends. */
@@ -146,6 +152,10 @@ export function useReviewAreaFocus(deps: ReviewAreaFocusDependencies): ReviewAre
     rowOpenWhenRendered: async (key) => {
       await nextTick()
       deps.list()?.focusOpen(key)
+    },
+    rowLeft: async (key, rowsBefore) => {
+      await nextTick()
+      afterRowDeletion(key, rowsBefore)
     },
     opener: (kind, row) => {
       const list = deps.list()

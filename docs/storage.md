@@ -993,13 +993,16 @@ and the generator-facing profile are derived again at each load.
 The notice row at the top of the workspace (`AppNoticeRow.vue`) shows one notice at a time, chosen
 by `useAppNotices` (`src/components/workspace/use-app-notices.ts`) from three things the load
 gives `WorkspaceShell` (`App.vue`'s `savedData`): the load outcome, and the save policy's saving
-state and failure report. The copy and the rules are the saved-data flow's (Notices).
+state and failure report; and from the reports of the deletions of damaged kept sessions
+(`damagedSessionReports`, which `App.vue` passes to the shell as an optional prop, as it passes
+the remembered controller's store, and the shell hands to `useAppNotices` as `damagedSessions`).
+The copy and the rules are the saved-data flow's (Notices).
 
 | Saving state     | Notice                                                                                                                                       |
 | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | `off-outdated`   | Outdated tab: the saved-data wording when the load outcome is `saved-data-read`, the defaults wording when it is `started-from-defaults`.    |
 | `off-unreadable` | Unusable data.                                                                                                                               |
-| `on`             | The save-problem notice once a save failed: Storage full for `quota`, Save failed for `other`, switched in place to the latest one reported. |
+| `on`             | The save-problem notice once a save failed: Storage full for `quota`, Save failed for `other`, switched in place to the latest one reported; or the apology for damaged sessions deleted (below). |
 
 Before a late-opening port hands its policy over, a visit started from the defaults shows Unusable
 data. The port's outdated report carries no cause, so after another tab's Delete everything the
@@ -1007,6 +1010,16 @@ outdated notice shows the newer version's wording, the design's fallback (spec D
 removes the save-problem notice until a report that starts a new run. While a session runs the row
 keeps the notice it showed at Start, its buttons disabled; what arose meanwhile shows when the
 session ends. `Your data` opens the Your data sheet (see [The Your data sheet](#the-your-data-sheet)).
+
+A committed deletion of damaged kept sessions ([Damaged kept sessions](#damaged-kept-sessions))
+shows the apology, Damaged sessions deleted, with how many went ("Sorry: a kept session was
+damaged…", or "{n} kept sessions"), `Dismiss` only; while it shows, a further one adds its count
+in place, and after `Dismiss` the next one counts alone. A refused one shows the save-problem
+notice instead, in its Damaged session not deleted wording (Storage full for `quota`), at every
+refusal, even after `Dismiss`: both come from the deletion's report, never the failure listener.
+The apology and the save-problem notice replace each other in place, the latest shown; Outdated
+tab and Unusable data replace both, and an apology for a deletion that commits once the tab is
+outdated is not shown.
 
 ## The start-up wait (M2)
 

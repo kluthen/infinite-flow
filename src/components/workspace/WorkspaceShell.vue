@@ -23,7 +23,8 @@
  * size from the saved my instrument's written range, for the staff and the Review alike. The saved
  * review preferences and "During a session" choices it is given are where the Review's export
  * choices and the options (while the controller loads) start from. It shows the notice row over the
- * load's outcome and save policy (./use-app-notices.ts): `Dismiss` sends focus to the first enabled
+ * load's outcome and save policy, and the reports of the deletions of damaged kept sessions it is
+ * given (./use-app-notices.ts): `Dismiss` sends focus to the first enabled
  * of the session action, the phrase action and `controller-status`; `Reload` reloads the page. It
  * ends with the page footer and hosts the Your data sheet (./use-your-data.ts), opened from the
  * footer, the session list's header and the storage-full notice, loaded on demand.
@@ -68,6 +69,7 @@ import { useReviewNavigation } from './use-review-navigation'
 import { useSessionOptions } from './use-session-options'
 import { injectSaveSettings } from './save-settings-injection'
 import { useAppNotices } from './use-app-notices'
+import type { DamagedSessionReports } from './workspace-kept-sessions-seam'
 import { useShownSettings } from './use-shown-settings'
 import { useWorkspaceFocus } from './use-workspace-focus'
 import { useMyInstrumentSheet } from './use-my-instrument-sheet'
@@ -91,6 +93,11 @@ const props = withDefaults(
     savedData: Pick<SavedDataLoad, 'outcome' | 'savePolicy'>
     /** The controller remembered from an earlier visit, and its saves; reselected at setup. */
     rememberedController: RememberedControllerStore
+    /**
+     * The reports of the deletions of damaged kept sessions, which the notice row apologises for
+     * or tells refused; none by default.
+     */
+    damagedSessionReports?: DamagedSessionReports | null
     /** Reload the page (a notice's `Reload`); the window's own by default. */
     reloadPage?: () => void
     /** How the start's jump scrolls and measures the window; the window itself by default. */
@@ -124,6 +131,7 @@ const props = withDefaults(
     // Default: the window's own reload (a function prop's default is itself).
     reloadPage: () => window.location.reload(),
     savedMyInstrumentRangeInClef: null,
+    damagedSessionReports: null,
     savedReviewPreferences: () => DEFAULT_REVIEW_PREFERENCES,
     savedSessionOptions: () => DEFAULT_SESSION_OPTIONS,
   },
@@ -178,7 +186,11 @@ const {
   notice: appNotice,
   actionsDisabled: appNoticeActionsDisabled,
   dismiss: dismissAppNotice,
-} = useAppNotices({ source: props.savedData, sessionActive: () => sessionActive.value })
+} = useAppNotices({
+  source: props.savedData,
+  sessionActive: () => sessionActive.value,
+  ...(props.damagedSessionReports === null ? {} : { damagedSessions: props.damagedSessionReports }),
+})
 
 // The "During a session" options and the player's changes to them.
 const {

@@ -19,6 +19,9 @@ let lastGenerate: ReturnType<typeof vi.fn> | null = null
 /** Every batch the latest fake workspace's saver was given, in order. */
 let lastSaves: SettingChanges[] = []
 
+/** The latest fake workspace's reports of the deletions of damaged kept sessions. */
+let lastDamagedReports: DamagedSessionReports | null = null
+
 /** The fake session controller the next fake workspace's `createSessionController` resolves with. */
 let nextController: FakeSessionController | null = null
 
@@ -38,6 +41,8 @@ function fakeWorkspaceSession(savedData: SavedDataLoad = fakeSavedData()) {
   lastGenerate = generate
   const saves: SettingChanges[] = []
   lastSaves = saves
+  const damagedSessionReports = createDamagedSessionReports()
+  lastDamagedReports = damagedSessionReports
   const state = reactive({
     controls: savedData.settings.controls,
     profileSelection: savedData.settings.profileSelection,
@@ -97,6 +102,7 @@ function fakeWorkspaceSession(savedData: SavedDataLoad = fakeSavedData()) {
     savedData,
     saveSettings: (changes: SettingChanges) => void saves.push(changes),
     rememberedController: noRememberedController(),
+    damagedSessionReports,
     dispose: () => {},
   }
 }
@@ -122,6 +128,10 @@ vi.mock('../../src/components/workspace/create-workspace-session', () => ({
 }))
 
 import App from '../../src/App.vue'
+import {
+  createDamagedSessionReports,
+  type DamagedSessionReports,
+} from '../../src/components/workspace/workspace-kept-sessions-seam'
 import { loadConnectionSheet } from '../../src/components/controller-connection/load-connection-sheet'
 import { transportRig } from './audio/transport-rig'
 import { createControllerRig } from './midi/midi-controller-rig'
@@ -196,6 +206,19 @@ describe('App', () => {
     await click.trigger('click')
 
     expect(lastSaves).toEqual([{ 'mix.clickOn': false }])
+  })
+
+  // @test-link [[module_kept_session_save]]
+  it("hands the shell the workspace's reports of damaged sessions deleted, which the notice row tells", async () => {
+    const wrapper = mount(App, { props: { savedData: fakeSavedData() }, global: { stubs: STUBS } })
+    await flushPromises()
+
+    lastDamagedReports?.tell({ status: 'deleted', count: 2 })
+    await flushPromises()
+
+    expect(wrapper.get('.app-notice-row').text()).toContain(
+      "Sorry: 2 kept sessions were damaged and couldn't be read, so they were deleted.",
+    )
   })
 })
 
