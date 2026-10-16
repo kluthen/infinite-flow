@@ -7,29 +7,34 @@ product, controls support it, and notation receives the largest share of space a
 landscape viewport. v2 ("Rolling Phrase," `specs/versions/v2/master-spec.md`) turns that static
 phrase into a continuous, MIDI-acknowledged session with backing audio and a review/export step,
 built as an extension of the same screen and flow rather than a new top-level IA. v2 shipped as
-version 2.0.0, and its design is frozen in `versions/v2/`. The root now works toward v3.0
-("Storage," `specs/versions/v3/master-spec.md`), the first version that keeps things on the
-player's device: settings, the last session and pinned sessions with their favorites and comments,
+version 2.0.0, and its design is frozen in `versions/v2/`. v3.0 ("Storage,"
+`specs/versions/v3/master-spec.md`) is the first version that keeps things on the player's
+device: settings, the last session and pinned sessions with their favorites and comments,
 the player's own instrument, the remembered controller and, on request, the notes the player
 played. It extends the same screen again: kept sessions live inside the review, "Your data" and
 "My instrument" are sheets. v3 ships in three releases, each built on the one before: v3.0
-(Storage, approved and frozen in `versions/v3.0/`), v3.1 (presets and embellishment figures: a
-preset dropdown at the top of the controls, a group of seven figure levels) and v3.2 (Jam: a
-session begun by a doodle the player plays, the key and mode suggestion, the rhythm lock, Jam's
-drift and what Vary settings may move). v3.3 (richer chords, master spec Part D) follows them:
-a Seventh chords level beside Harmonic motion, and the longer chord symbols it brings. See
-`todo.md` for where the work stands.
+(Storage), v3.1 (presets and embellishment figures: a preset dropdown at the top of the controls,
+a group of seven figure levels) and v3.2 (Jam: a session begun by a doodle the player plays, the
+key and mode suggestion, the rhythm lock, Jam's drift and what Vary settings may move). v3.3
+(richer chords, master spec Part D) follows them: a Seventh chords level beside Harmonic motion,
+and the longer chord symbols it brings.
+
+**Status.** v3.0 is released as version 3.0.0 (tag `v3.0.0` at e288d98, 2026-10-16, deployed);
+its design is frozen in `versions/v3.0/` and its working record is in `archive/v3.0/`. The root
+now works toward v3.1, v3.2 and v3.3, none of them built yet. See `todo.md` for where the work
+stands.
 
 ## Released versions and work in progress
 
 - `versions/<version>/` holds each released version's design exactly as it shipped, frozen, with a
   `README.md` summarizing the decisions worth keeping. `versions/v1/` is the first release;
   `versions/v2/` is v2 (Rolling Phrase), released as version 2.0.0. `versions/v3.0/` is v3.0
-  (Storage) as the owner approved it, frozen before it is built so that v3.1 and v3.2 could be
-  designed at the root.
-- Everything outside `versions/` and `archive/` is work in progress toward the next version, v3. It
-  covers the whole interface, not only what the next version adds: a screen the next version
-  extends is specified here in full, old behavior included. When a version's design is approved,
+  (Storage), released as version 3.0.0: frozen when the owner approved it, before it was built,
+  so that v3.1 and v3.2 could be designed at the root, and corrected since to match what
+  shipped.
+- Everything outside `versions/` and `archive/` is work in progress toward the next releases,
+  v3.1 to v3.3. It covers the whole interface, not only what the next version adds: a screen the
+  next version extends is specified here in full, old behavior included. When a version's design is approved,
   a copy of it goes into `versions/<version>/`, and the work at the root continues toward the one
   after.
 - What the version in progress adds, changes and removes is marked, so the unchanged part never
@@ -76,9 +81,10 @@ a Seventh chords level beside Harmonic motion, and the longer chord symbols it b
 - `flows/my-instrument/` specifies making, selecting, changing and deleting the player's own
   instrument, and `screens/my-instrument/` the sheet it is made in. The transposition check's
   way into it is in `flows/controller-connection/`.
-- `token-source-v3.md` specifies v3.0's new tokens and component classes until they are written
-  into `src/styles/theme.css` and `components.css`; the handoffs cite them by name.
-- `token-source-v3.1-v3.2.md` does the same for v3.1 (its first part) and v3.2 (its second).
+- `token-source-v3.1-v3.2.md` specifies the new tokens and component classes of v3.1 (its first
+  part) and v3.2 (its second) until they are written into `src/styles/theme.css` and
+  `components.css`; the handoffs cite them by name. v3.0's are in those two files, shipped in
+  3.0.0.
   v3.3 adds no token, class or motion: its one control and its chord symbols reuse existing ones.
 - `flows/presets/` specifies choosing a preset, the Custom state, the key and mode highlight, and
   saving, renaming and deleting the player's own presets; `screens/preset-sheet/` the sheet those
@@ -90,12 +96,13 @@ a Seventh chords level beside Harmonic motion, and the longer chord symbols it b
 - `open-questions.md`, `decisions.md`, and `todo.md` are working registers. Read `todo.md` before extending this set.
 - `versions/v2/` holds the v2 design as it shipped in version 2.0.0, frozen, with a summary of the
   decisions worth keeping.
-- `versions/v3.0/` holds the v3.0 design as approved, frozen, with a summary of the decisions
-  worth keeping.
+- `versions/v3.0/` holds the v3.0 design as it shipped in version 3.0.0, frozen, with a summary
+  of the decisions worth keeping.
 - `archive/v1/` holds the closed first-release (v1.0) working record: the complete decision log,
   the closed question that record answers, and the finished work tracker. `archive/v2/` holds the
   v2 working record the same way: its decision log, its closed questions and its finished work
-  tracker. The live registers above stay current; the archive is kept verbatim and is never
+  tracker. `archive/v3.0/` holds the v3.0 working record: its decisions, its closed questions and
+  its finished work tracker. The live registers above stay current; the archive is kept verbatim and is never
   edited further.
 
 ## How future UI changes flow

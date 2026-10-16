@@ -1,7 +1,9 @@
 # v3.0 — Storage: UI/UX Design
 
-Status: **approved by the owner on 2026-10-07, being built.** This folder is the v3.0 design as
-approved, frozen on 2026-10-08 when the design of v3.1 and v3.2 started at the `ui_ux/` root. It
+Status: **released as version 3.0.0** (tag `v3.0.0` at e288d98, 2026-10-16, deployed). The
+working record that produced this design (decision log, closed questions, work tracker) is in
+[`archive/v3.0/`](../../archive/v3.0/README.md). Approved by the owner on 2026-10-07, this
+folder is the v3.0 design as approved, frozen on 2026-10-08 when the design of v3.1 and v3.2 started at the `ui_ux/` root. It
 is never edited again, except to correct it to match what v3.0 actually ships (each such
 correction is recorded in the root `decisions.md`). Corrected on 2026-10-12 for what the owner
 added to v3.0 during its build: my instrument's clef, treble or bass, with a range bound per clef;
@@ -18,7 +20,8 @@ The documents keep their marks: a `[v3 new]` or `[v3 changed]` tag, and each doc
 **Changes since v2** block, show what v3.0 changes from v2. The token-source additions are in
 [`token-source-v3.md`](token-source-v3.md); they are written into `src/styles/theme.css` and
 `components.css` by build plan chunk 1, after which the shipped state of those two files is the
-release tag's.
+release tag's. Since 3.0.0 shipped, the handoffs here cite the token source alone: every class
+and token they name is in it.
 
 ## What v3.0 is
 

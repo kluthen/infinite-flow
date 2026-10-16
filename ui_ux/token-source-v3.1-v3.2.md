@@ -8,9 +8,8 @@ the key and mode suggestion, the rhythm lock, drift and Vary settings' allowed g
 specified here, in the same terms, until each release's token-source pass writes them into those
 two files. The two parts are applied separately, v3.1 first: each pass writes its own part under
 `v3.1 new` / `v3.1 changed` (or `v3.2 …`) comments, and the document is deleted once both parts
-are in. v3.0's additions are in [`token-source-v3.md`](token-source-v3.md), applied before either.
-A class or token named in a v3.1 or v3.2 handoff exists in the token source, in
-`token-source-v3.md`, or here, never only in a handoff.
+are in. v3.0's additions are already in the token source, shipped in 3.0.0. A class or token
+named in a v3.1 or v3.2 handoff exists in the token source or here, never only in a handoff.
 
 Everything below reuses the existing colour, type, spacing, radius, shadow, duration and
 breakpoint tokens. There is no new colour, no new spacing step and no new duration: the only new
