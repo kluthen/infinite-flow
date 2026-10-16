@@ -1,8 +1,9 @@
 /**
  * The workspace session's browser ports: `composeWorkspaceSession` carries the injected ports
- * unchanged without using them, and `createWorkspaceSession` builds the browser adapters over the
- * page's own `navigator`, `screen`, `document` and `window` (jsdom, with hand-made stand-ins where
- * it has no such API), asking for no lock and adding nothing to the page until a port is used.
+ * unchanged without using them, and `createWorkspaceSession` builds the browser adapters, loaded on
+ * demand, over the page's own `navigator`, `screen`, `document` and `window` (jsdom, with
+ * hand-made stand-ins where it has no such API), asking for no lock and adding nothing to the page
+ * until a port is used.
  */
 import { countingSessionSeeds } from '../../composables/fake-session-seed'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -127,11 +128,12 @@ describe('createWorkspaceSession: the browser adapters', () => {
       pregenerationPolicy: 'disabled',
       savedData: fakeSavedData(),
     })
+    const ports = await workspace.browser
     expect(browser.requests).toEqual([])
 
-    expect(await workspace.browser.wakeLock.request()).toEqual({ kind: 'held' })
+    expect(await ports.wakeLock.request()).toEqual({ kind: 'held' })
     expect(browser.requests).toEqual(['screen'])
-    workspace.browser.wakeLock.release()
+    ports.wakeLock.release()
     workspace.dispose()
   })
 
@@ -145,12 +147,13 @@ describe('createWorkspaceSession: the browser adapters', () => {
       pregenerationPolicy: 'disabled',
       savedData: fakeSavedData(),
     })
+    const ports = await workspace.browser
 
-    await workspace.browser.wakeLock.request()
+    await ports.wakeLock.request()
     browser.sentinels[0]!.dispatchEvent(new Event('release'))
 
     expect(browser.requests).toEqual(['screen', 'screen'])
-    workspace.browser.wakeLock.release()
+    ports.wakeLock.release()
     workspace.dispose()
   })
 
@@ -166,21 +169,24 @@ describe('createWorkspaceSession: the browser adapters', () => {
       savedData: fakeSavedData(),
     })
 
-    expect(await workspace.browser.wakeLock.request()).toEqual({ kind: 'unsupported' })
-    expect(await workspace.browser.orientationLock.lock()).toEqual({ kind: 'unsupported' })
+    const ports = await workspace.browser
+
+    expect(await ports.wakeLock.request()).toEqual({ kind: 'unsupported' })
+    expect(await ports.orientationLock.lock()).toEqual({ kind: 'unsupported' })
     workspace.dispose()
   })
 
   // @test-link [[rule_hidden_tab_ends_session]]
-  it("hears the document's visibilitychange to hidden", () => {
+  it("hears the document's visibilitychange to hidden", async () => {
     stubWideWindow()
     const workspace = createWorkspaceSession({
       prewarmPolicy: 'disabled',
       pregenerationPolicy: 'disabled',
       savedData: fakeSavedData(),
     })
+    const ports = await workspace.browser
     let hidden = 0
-    workspace.browser.pageVisibility.onHidden(() => {
+    ports.pageVisibility.onHidden(() => {
       hidden += 1
     })
 
@@ -192,19 +198,20 @@ describe('createWorkspaceSession: the browser adapters', () => {
   })
 
   // @test-link [[rule_session_ends_when_staff_too_small]]
-  it("reads the window's width and its probe's small viewport height, adding the probe lazily", () => {
+  it("reads the window's width and its probe's small viewport height, adding the probe lazily", async () => {
     stubWideWindow()
     const workspace = createWorkspaceSession({
       prewarmPolicy: 'disabled',
       pregenerationPolicy: 'disabled',
       savedData: fakeSavedData(),
     })
+    const ports = await workspace.browser
     expect(document.body.children).toHaveLength(0)
 
     vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue(
       DOMRect.fromRect({ width: 0, height: 600 }),
     )
-    expect(workspace.browser.windowShape.read()).toEqual({
+    expect(ports.windowShape.read()).toEqual({
       widthPx: window.innerWidth,
       smallHeightPx: 600,
       remPx: 16,
