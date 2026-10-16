@@ -3,7 +3,9 @@
  * The connection sheet's `sheet-body`: exactly one state's block (screen handoff, Layout Tree and
  * States), copy verbatim, with the device-change line above it when the state was reached because
  * the chosen device was unplugged. Only the picker is interactive; its choice goes up as `choose`.
- * The Use for my instrument confirmation shows the words of the use it is given.
+ * The Use for my instrument confirmation shows the words of the use it is given, and, when my
+ * instrument's kept sessions go with it, which, with the error line after a refused batch; a check
+ * result whose use is withheld until a reload says so.
  */
 import { computed } from 'vue'
 
@@ -14,6 +16,12 @@ import {
 } from '@/domain/controller-check/transposition-check-copy'
 import type { InstrumentClef } from '@/domain/profile/instrument-clef'
 import type { InstrumentProfile } from '@/domain/profile/instrument-profile'
+import {
+  checkEraseText,
+  checkKeepSessionHint,
+  ERASE_FAILED_LINE,
+} from '@/components/workspace/my-instrument-sessions-copy'
+import type { MyInstrumentSessionCount } from '@/components/workspace/workspace-session-controller-types'
 import { useForMyInstrumentCopy, type UseForMyInstrument } from './check-for-my-instrument'
 import CheckNote from './CheckNote.vue'
 import DevicePicker from './DevicePicker.vue'
@@ -29,6 +37,12 @@ const props = defineProps<{
   profiles: readonly InstrumentProfile[]
   /** What `Use this for my instrument` would save for the result; null when it is not offered. */
   use: UseForMyInstrument | null
+  /** The kept sessions of my instrument the use erases; null when it erases none. */
+  erased: MyInstrumentSessionCount | null
+  /** The last `Use and erase` was refused: its error line shows. */
+  eraseFailed: boolean
+  /** The result's line saying the use waits for a reload; null when it is not withheld. */
+  reloadLine: string | null
 }>()
 
 const emit = defineEmits<{
@@ -126,6 +140,7 @@ const useCopy = computed(() => {
         <p>{{ checkCopy.result }}</p>
         <p>{{ checkCopy.suggestion }}</p>
         <p v-if="checkCopy.profileSuggestion !== null">{{ checkCopy.profileSuggestion }}</p>
+        <p v-if="reloadLine !== null">{{ reloadLine }}</p>
       </div>
       <template v-else>
         <p>Play this note on your controller.</p>
@@ -135,6 +150,12 @@ const useCopy = computed(() => {
     <template v-else-if="stage.kind === 'use' && useCopy !== null">
       <p v-for="paragraph in useCopy.paragraphs" :key="paragraph">{{ paragraph }}</p>
       <p v-if="useCopy.hint !== null" class="sheet-hint">{{ useCopy.hint }}</p>
+      <template v-if="erased !== null">
+        <p>{{ checkEraseText(erased.count, erased.reviewed) }}</p>
+        <p>This can't be undone.</p>
+        <p class="sheet-hint">{{ checkKeepSessionHint(erased.count) }}</p>
+        <div v-if="eraseFailed" class="inline-alert alert-error">{{ ERASE_FAILED_LINE }}</div>
+      </template>
     </template>
     <template v-else-if="stage.kind === 'connected'">
       <p>

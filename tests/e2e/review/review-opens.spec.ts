@@ -20,7 +20,9 @@ import {
 import { toBarline, untilReady } from '../session/rolling-helpers'
 import {
   cueRow,
+  DESKTOP,
   gotoSessionHarness,
+  PREGENERATION_OFF,
   readyToStart,
   sessionAction,
   sessionState,
@@ -124,7 +126,7 @@ test.describe('the Review a session end opens', () => {
     page,
   }) => {
     test.setTimeout(90_000)
-    await gotoSessionHarness(page)
+    await gotoSessionHarness(page, DESKTOP, PREGENERATION_OFF)
     await connectDevice(page, KEYS)
     await readyToStart(page)
     const phraseOne = await idleTimeline(page)
@@ -187,7 +189,7 @@ test.describe('the Review a session end opens', () => {
     page,
   }) => {
     test.setTimeout(90_000)
-    await gotoSessionHarness(page)
+    await gotoSessionHarness(page, DESKTOP, PREGENERATION_OFF)
     await readyToStart(page)
     // Every rung of phrase 2's failure ladder fails: phrase 1 is repeated as phrase 2.
     const settledBefore = await generationsSettled(page)

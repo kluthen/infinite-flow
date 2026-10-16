@@ -175,6 +175,15 @@ Status: draft v0.71
   sign-off at the wave-8 report): §7.2's action also selects my instrument when another was
   selected, and is not offered when its transposition would put my instrument's written range
   outside MIDI notes 0 to 127.
+- **v3.0 build, wave 9 preflight** (2026-10-16, D336–D339): build plan v27. Chunk 20c names the
+  files D326 changes (my instrument's saves, its Idle actions, the sheet's host, the workspace
+  shell, the session controller) and splits in three parts: the batch and memory, the warnings
+  and their hosts, the review's room; wave 9 shares the workspace shell, 20c before 24b-2
+  (D336). A reload between my instrument's deletion and the template's saved selection loads the
+  default instrument, accepted (D337). A session whose own save failed is counted and only
+  leaves memory (D338). Master spec Part A v1.24 (D339, the owner keeping ux D319): after Use
+  it, §16's musical profile selection shows the player's selection from the start, never
+  phrase 1's.
 - **Open:** 11 questions: O48 and O49 (later and governance),
   O100–O102 (v4 rhythm), O115 and O116 (v3.x learning), O176 (style packs and the chord level),
   O180 (octave signs, later), O183 (pre-generation's cancellation cost), O190 (a newer

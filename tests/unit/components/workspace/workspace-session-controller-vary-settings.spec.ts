@@ -38,7 +38,8 @@ async function startedVarying(
   const rig = controllerRig()
   await before?.(rig)
   rig.controller.setVarySettings(true)
-  rig.controller.start()
+  // A preset chosen at Idle leaves phrase 1 stale: the player then uses it as it is.
+  if (rig.controller.start() === 'asked') expect(rig.controller.useStalePhrase()).toBe(true)
   const mutationSeed = settingsMutationSeed(rig.phraseOne.sessionSeed)
   return { rig, landsOn: mutationPhrase(mutationSeed, 1) }
 }

@@ -7,11 +7,14 @@
  * audio mix, which the toolbar's and the phone's compact `Volume` share and a session's start and
  * end close. It runs the screen's side of a practice session over the session controller: the Start
  * click (popover closed, session started, the one jump), Stop, the musical controls locked while a
- * session runs, and where focus goes when it ends. It also hosts the controller connection: the
+ * session runs, and where focus goes when it ends. A stale phrase 1 has Start, or the starting
+ * note, open the stale-phrase prompt instead (./StalePhrasePrompt.vue, loaded on demand), whose
+ * `Start with this phrase` takes the same start and jump. It also hosts the controller connection: the
  * header `controller-status` it feeds, the click that opens the lazily loaded connection sheet,
  * whether the sheet is open (reported to the workspace as it changes), where focus goes when
- * the sheet closes, and the sheet's confirmed `Use for my instrument`, saved and selected through
- * the session's `saveAndSelectMyInstrument`. It also runs the last session's Review from the screen: `Close review` and
+ * the sheet closes, and the sheet's confirmed `Use for my instrument` (or `Use and erase`), saved
+ * and selected through the My instrument sheet's host with the kept sessions of my instrument the
+ * controller counts. It also runs the last session's Review from the screen: `Close review` and
  * `Review last session`, each scrolling the page to its top and moving focus. While a session runs,
  * the read-only controls show what the controller says the phrase now sounding was generated with,
  * and the preset status announces nothing; at the end they show the player's own choices again, and
@@ -29,7 +32,7 @@
  * ends with the page footer and hosts the Your data sheet (./use-your-data.ts), opened from the
  * footer, the session list's header and the storage-full notice, loaded on demand.
  */
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue'
 
 import type { GenerationSession } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
@@ -74,6 +77,9 @@ import { useShownSettings } from './use-shown-settings'
 import { useWorkspaceFocus } from './use-workspace-focus'
 import { useMyInstrumentSheet } from './use-my-instrument-sheet'
 import { useYourData } from './use-your-data'
+
+// The stale-phrase prompt, in its own chunk: only a stale phrase 1 at a start needs it.
+const StalePhrasePrompt = defineAsyncComponent(() => import('./StalePhrasePrompt.vue'))
 
 const props = withDefaults(
   defineProps<{
@@ -222,6 +228,7 @@ const emit = defineEmits<{
 // @spec-link [[req_my_instrument]]
 const myInstrumentSheet = useMyInstrumentSheet({
   session: props.session,
+  sessions: () => props.controller?.myInstrumentSessions() ?? null,
   focusInstrumentActions: () => {
     const button = workspacePart('.instrument-actions button')
     if (button instanceof HTMLElement) button.focus()
@@ -283,19 +290,28 @@ function workspacePart(selector: string): Element {
   return element
 }
 
+/** Intent: what precedes a start inside its click: the volume popover closed, a late landing cleared. */
+function prepareStart(): void {
+  mixPopover.closeForSessionStart()
+  workspaceFocus.clearLateRoomNotice()
+}
+
 /**
  * Intent: the Start click, synchronously: close the volume popover, start the session (which
  * unlocks the audio and asks for the screen locks inside this click), then make the start's one
- * instant jump for the layout the session holds. Focus stays on the session action.
+ * instant jump for the layout the session holds. Focus stays on the session action. With a stale
+ * phrase 1 nothing starts: the controller opens the stale-phrase prompt instead.
  */
 // @spec-link [[rule_session_start_conditions]]
 // @spec-link [[req_landscape_phrase_workspace]]
 function handleStartSession(): void {
-  const controller = requireController()
-  mixPopover.closeForSessionStart()
-  workspaceFocus.clearLateRoomNotice()
-  controller.start()
-  const layout = controller.state.heldLayout
+  prepareStart()
+  if (requireController().start() === 'started') jumpAfterStart()
+}
+
+/** Intent: the start's one instant jump, for the layout the session just started holds. */
+function jumpAfterStart(): void {
+  const layout = requireController().state.heldLayout
   if (layout === null) throw new Error('workspace shell: a started session holds no staff layout')
   if (layoutRoot.value === null) throw new Error('workspace shell: the workspace is not mounted')
   jumpForSessionStart(
@@ -479,8 +495,10 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
     :is="sheetComponent"
     v-if="sheetComponent !== null && sheetProps !== null"
     v-bind="sheetProps"
+    :my-instrument-sessions="myInstrumentSheet.sessions.value"
+    :use-and-erase="myInstrumentSheet.useAndErase"
     @close="closeConnectionSheet"
-    @use-for-my-instrument="session.actions.saveAndSelectMyInstrument"
+    @use-for-my-instrument="myInstrumentSheet.useForMyInstrument"
   />
   <component
     :is="myInstrumentSheet.sheetComponent.value"
@@ -489,7 +507,6 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
     "
     v-bind="myInstrumentSheet.sheetProps.value"
     @save="myInstrumentSheet.save"
-    @delete="myInstrumentSheet.remove"
     @close="myInstrumentSheet.close"
   />
   <component
@@ -502,6 +519,15 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
     :reload-page="reloadPage"
     :focus-fallback="focusFallback"
     @close="yourData.close"
+  />
+  <StalePhrasePrompt
+    v-if="controller?.state.stalePhrasePrompt"
+    :controller="controller"
+    :regenerate="session.actions.regenerate"
+    :prepare-start="prepareStart"
+    :after-start="jumpAfterStart"
+    :focus-target="focusTarget"
+    :focus-fallback="focusFallback"
   />
   <OrientationNotice />
 </template>

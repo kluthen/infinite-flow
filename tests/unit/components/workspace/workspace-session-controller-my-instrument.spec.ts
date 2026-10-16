@@ -27,13 +27,14 @@ import {
 } from './session-controller-rig'
 
 /** My instrument written C3 to C6, sounding a minor third lower. */
-const MY_PROFILE = makeMyInstrument({
+const MY_INSTRUMENT = makeMyInstrument({
   template: 'c-keyboard',
   name: 'My horn in A',
   clef: 'treble',
   writtenRange: { minMidi: 48, maxMidi: 84 },
   transposition: { octaves: 0, semitones: 3, direction: 'lower' },
-}).profile
+})
+const MY_PROFILE = MY_INSTRUMENT.profile
 
 // @test-link [[service_session_engine]]
 // @test-link [[entity_my_instrument]]
@@ -55,8 +56,14 @@ describe('session controller: Start with my instrument', () => {
       instrumentProfile: MY_PROFILE,
     })
     rig.idle.controls = controls
+    rig.idle.myInstrument = MY_INSTRUMENT
     rig.idle.latestIntent = intent
-    rig.idle.result = { intent, outcome: generateSuccess(intent), sessionSeed: RIG_SESSION_SEED }
+    rig.idle.result = {
+      intent,
+      outcome: generateSuccess(intent),
+      settings: { controls, profileSelection: rig.idle.profileSelection },
+      sessionSeed: RIG_SESSION_SEED,
+    }
 
     rig.controller.start()
     expect(rig.runnerInputs[0]?.start.settings.instrumentProfile).toStrictEqual(MY_PROFILE)
@@ -88,8 +95,14 @@ describe('session controller: Start with my instrument', () => {
     })
     const outcome = generateSuccess(intent)
     rig.idle.controls = controls
+    rig.idle.myInstrument = horn
     rig.idle.latestIntent = intent
-    rig.idle.result = { intent, outcome, sessionSeed: RIG_SESSION_SEED }
+    rig.idle.result = {
+      intent,
+      outcome,
+      settings: { controls, profileSelection: rig.idle.profileSelection },
+      sessionSeed: RIG_SESSION_SEED,
+    }
     rig.showIdleWritten(transformToWrittenPhrase(notationInputFromOutcome(outcome, intent, 'bass')))
 
     rig.controller.start()

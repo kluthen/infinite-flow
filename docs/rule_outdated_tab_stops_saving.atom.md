@@ -1,6 +1,6 @@
 ---
 id: rule_outdated_tab_stops_saving
-status: DRAFT
+status: REVIEW
 tags: [v3, release-v3.0, storage]
 parents:
   - [[req_on_device_storage]]

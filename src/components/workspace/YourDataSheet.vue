@@ -229,46 +229,41 @@ onUnmounted(() => {
             <h3>Sessions</h3>
             <p>{{ sessionsLine(sessions.count, sessions.pinned, sessions.favorites) }}</p>
             <p class="sheet-hint">{{ SESSIONS_HINT }}</p>
-            <!-- A plain wrapper: the section's grid would stretch the button (its own width). -->
-            <div v-if="sessions.count > 0">
-              <button
-                :ref="(element) => keep('every-session', element)"
-                type="button"
-                class="btn"
-                @click="ask('every-session')"
-              >
-                Delete every session
-              </button>
-            </div>
+            <button
+              v-if="sessions.count > 0"
+              :ref="(element) => keep('every-session', element)"
+              type="button"
+              class="btn"
+              @click="ask('every-session')"
+            >
+              Delete every session
+            </button>
           </section>
           <section class="sheet-section">
             <h3>Played notes</h3>
-            <div>
-              <button
-                :ref="(element) => keep('keep-played-notes', element)"
-                type="button"
-                class="btn toggle-button"
-                :aria-pressed="keepPlayedNotes ? 'true' : 'false'"
-                @click="toggleKeepPlayedNotes"
-              >
-                Keep my played notes
-                <span class="toggle-button-state" aria-hidden="true">{{
-                  keepPlayedNotes ? 'on' : 'off'
-                }}</span>
-              </button>
-            </div>
+            <button
+              :ref="(element) => keep('keep-played-notes', element)"
+              type="button"
+              class="btn toggle-button"
+              :aria-pressed="keepPlayedNotes ? 'true' : 'false'"
+              @click="toggleKeepPlayedNotes"
+            >
+              Keep my played notes
+              <span class="toggle-button-state" aria-hidden="true">{{
+                keepPlayedNotes ? 'on' : 'off'
+              }}</span>
+            </button>
             <p class="sheet-hint">{{ PLAYED_NOTES_HINT }}</p>
             <p>{{ playedNotesLine(playedNotesCount) }}</p>
-            <div v-if="playedNotesCount > 0">
-              <button
-                :ref="(element) => keep('all-played-notes', element)"
-                type="button"
-                class="btn"
-                @click="ask('all-played-notes')"
-              >
-                Delete all played notes
-              </button>
-            </div>
+            <button
+              v-if="playedNotesCount > 0"
+              :ref="(element) => keep('all-played-notes', element)"
+              type="button"
+              class="btn"
+              @click="ask('all-played-notes')"
+            >
+              Delete all played notes
+            </button>
           </section>
         </template>
         <section class="sheet-section">

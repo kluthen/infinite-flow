@@ -269,7 +269,8 @@ sheet-backdrop
 ## Responsive Behavior
 
 - At `bp-mobile-landscape`: `sheet-wide` behaves as `sheet` does there, filling the inline size
-  left by the backdrop's padding; `range-row` stacks the two steppers; the template's
+  left by the backdrop's padding up to `--sheet-wide-max-inline-size`, so a phone in landscape
+  shows it at that cap; `range-row` stacks the two steppers; the template's
   `segmented-control` wraps as the workspace's instrument control does, and the clef's two
   segments stay on one row; `sheet-actions` stacks full-width, `Save` on top; the sheet scrolls
   vertically inside itself, so `range-alert` may sit below the fold, which is why it is a live

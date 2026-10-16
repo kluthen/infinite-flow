@@ -108,7 +108,7 @@ start that can no longer happen is not left on screen.
 
 ## The Phone
 
-The phone is the third display. It gets the same sheet, filling the width, the two answers
+The phone is the third display. It gets the same sheet, as wide as the screen allows up to its usual width, the two answers
 stacked, `Regenerate phrase` on top; the sentences wrap, and the sheet scrolls inside itself on a
 very short screen. Nothing is dropped and nothing is added.
 

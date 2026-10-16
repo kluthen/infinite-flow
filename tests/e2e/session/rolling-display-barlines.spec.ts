@@ -13,8 +13,9 @@ import { expect, test, type Page } from '@playwright/test'
 import { holdGeneration, releaseGeneration, generationsSettled } from '../release/harness-helpers'
 import {
   DESKTOP,
-  PHONE,
   gotoSessionHarness,
+  PHONE,
+  PREGENERATION_OFF,
   readyToStart,
   sessionState,
   startSession,
@@ -43,9 +44,17 @@ const LAYOUTS = [
   { layout: 'split', size: PHONE },
 ] as const satisfies readonly { layout: Layout; size: typeof DESKTOP | typeof PHONE }[]
 
-/** Intent: land at `size`, make a phrase ready and start a session in `layout`. */
-async function startIn(page: Page, size: typeof DESKTOP | typeof PHONE, layout: Layout) {
-  await gotoSessionHarness(page, size)
+/**
+ * Intent: land at `size`, with the page URL's `search` if any, make a phrase ready and start a
+ * session in `layout`.
+ */
+async function startIn(
+  page: Page,
+  size: typeof DESKTOP | typeof PHONE,
+  layout: Layout,
+  search = '',
+) {
+  await gotoSessionHarness(page, size, search)
   await readyToStart(page)
   await startRollingLog(page)
   await startSession(page)
@@ -183,7 +192,7 @@ test('split: a look-ahead phrase late past its deadline leaves a measure of read
   page,
 }) => {
   test.setTimeout(180_000)
-  await startIn(page, PHONE, 'split')
+  await startIn(page, PHONE, 'split', PREGENERATION_OFF)
   await toCountInMiddle(page)
   await untilReady(page, 2)
   for (let measure = 0; measure < 4; measure += 1) await toBarline(page, 1, measure)

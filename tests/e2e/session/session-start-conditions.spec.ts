@@ -20,6 +20,7 @@ import {
 import {
   DESKTOP,
   gotoSessionHarness,
+  PREGENERATION_OFF,
   readyToStart,
   sessionAction,
   sessionState,
@@ -72,7 +73,8 @@ test.describe('Start session is enabled only when every start condition holds', 
   })
 
   test('fit retries running: disabled', async ({ page }) => {
-    await gotoSessionHarness(page)
+    // Its scripted fit verdict is for the player's fit run: no background attempt may meet it.
+    await gotoSessionHarness(page, DESKTOP, PREGENERATION_OFF)
     await readyToStart(page)
     await queueSeeds(page, [8, 9])
     await queueFitVerdicts(page, ['notes_too_wide'])

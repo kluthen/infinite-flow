@@ -102,7 +102,11 @@ export function idlePhraseFor(
   sessionSeed = PREGENERATION_SESSION_SEED,
 ): WorkspaceSessionResult {
   const settings = { ...sessionSettings(), controls }
-  return { ...phraseOneFor(settings, { seed }), sessionSeed }
+  return {
+    ...phraseOneFor(settings, { seed }),
+    settings: { controls, profileSelection: settings.musicalProfile },
+    sessionSeed,
+  }
 }
 
 /** A generate seam the test settles by hand, and every call made to it. */

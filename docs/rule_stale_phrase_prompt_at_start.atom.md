@@ -17,7 +17,7 @@ parents:
   - [[req_rolling_practice_session]]
   - [[rule_phrase_one_is_idle_phrase]]
   - [[rule_session_start_conditions]]
-version: 0.1
+version: 0.2
 ---
 
 # A Stale Phrase 1 Asks Before Start
@@ -36,7 +36,7 @@ Stale. Phrase 1 is stale when a setting the generation reads has a different val
 
 When it asks. When the player presses Start, or plays the starting note, once every session start condition holds and before anything starts (no sound, no screen lock, no count-in), a stale phrase 1 opens a prompt that says the phrase on screen was made before the settings changed and offers two choices, Regenerate and Use it. The prompt is not a start condition and never replaces one: a start that a start condition blocks stays blocked and asks nothing. When phrase 1 is not stale, Start and the starting note work as before and nothing is asked.
 
-Use it starts the session from that choice exactly as Start does: the choice is the start click, which unlocks the sound and asks for the screen locks, and every start condition is checked again at that moment. Phrase 1 is the phrase on screen, unchanged, with its request, seed and replay key, and it is shown, reviewed, kept and exported with the settings it was generated with. The session's settings are the current ones: phrase 2 onward is generated under them, Vary settings moves from them and returns to them, and the session's record names them. Phrase 2 joins phrase 1 as after a settings change applied at the boundary between phrase 1 and phrase 2 during a session, so the existing carry-in adaptation rules adapt the join and it cannot fail at any tempo. The read-only controls show the settings phrase 1 was generated with during the count-in and phrase 1, then the session's settings from phrase 2, as at any change. With the rhythm lock, the locked rhythm is still phrase 1's.
+Use it starts the session from that choice exactly as Start does: the choice is the start click, which unlocks the sound and asks for the screen locks, and every start condition is checked again at that moment. Phrase 1 is the phrase on screen, unchanged, with its request, seed and replay key, and it is shown, reviewed, kept and exported with the settings it was generated with. The session's settings are the current ones: phrase 2 onward is generated under them, Vary settings moves from them and returns to them, and the session's record names them. Phrase 2 joins phrase 1 as after a settings change applied at the boundary between phrase 1 and phrase 2 during a session, so the existing carry-in adaptation rules adapt the join and it cannot fail at any tempo. The read-only controls show the settings phrase 1 was generated with during the count-in and phrase 1, then the session's settings from phrase 2, as at any change; the musical profile preset alone shows the player's selection from the start, never phrase 1's, since it names the choice the next phrases follow. With the rhythm lock, the locked rhythm is still phrase 1's.
 
 Regenerate runs the Idle Regenerate exactly: the current settings, a fresh seed, the usual fit run. The app stays at Idle with the new phrase on screen and nothing starts; regenerating never starts the session by itself. The player presses Start, or plays the new phrase's starting note, when ready, and is not asked again, since the new phrase is not stale. A failed regeneration shows the usual generation failure.
 
@@ -54,7 +54,7 @@ At Idle, with every start condition holding, the Start action and the starting n
 - A setting changed and changed back, or a change of only the tempo, Rising tempo, Vary settings, Tension across phrases, the audio mix, the theme, my instrument's clef or name, or the window's width, makes nothing stale: Start starts as before and nothing is asked.
 - A start blocked by a start condition stays blocked and opens no prompt.
 - Use it starts the session with phrase 1 unchanged, its request, seed and replay key the same; phrase 2 onward is generated under the current settings, joined to phrase 1 as after a settings change at that boundary, and the session starts at every tempo.
-- During the count-in and phrase 1 the read-only controls show phrase 1's own settings, then the session's settings from phrase 2.
+- During the count-in and phrase 1 the read-only controls show phrase 1's own settings, the musical profile preset aside, which shows the player's selection, then the session's settings from phrase 2.
 - Regenerate shows a new phrase at Idle and starts nothing; the next Start or starting note asks nothing.
 - Dismissing the prompt changes nothing and starts nothing.
 - While the prompt shows, no MIDI note starts anything, the starting note included.

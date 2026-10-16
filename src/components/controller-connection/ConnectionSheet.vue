@@ -6,13 +6,26 @@
  * state's main action (else Close) and is trapped in the sheet; Close, Escape and a backdrop click
  * close it from any state but the Use for my instrument confirmation, where they go back to the
  * check result. The host hides it on `close` and moves focus, and saves my instrument on
- * `use-for-my-instrument`.
+ * `use-for-my-instrument`. When my instrument's kept sessions go with the change, the action reads
+ * `Use and erase` and waits for its batch (`useAndErase`): the way back does nothing while it runs,
+ * a refusal keeps the confirmation with its error line, saving off returns to the result. In a tab
+ * that must be reloaded while sessions would go, the action is not offered and the result says
+ * why.
  */
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
 
 import type { MyInstrument } from '@/domain/profile/my-instrument'
-import { useForMyInstrument, type UseForMyInstrument } from './check-for-my-instrument'
-import type { ConnectionSheetProps } from './connection-sheet-contract'
+import { checkReloadText } from '@/components/workspace/my-instrument-sessions-copy'
+import type { MyInstrumentSessionCount } from '@/components/workspace/workspace-session-controller-types'
+import {
+  changesSavedTransposition,
+  useForMyInstrument,
+  type UseForMyInstrument,
+} from './check-for-my-instrument'
+import type {
+  ConnectionSheetProps,
+  ConnectionSheetSessionsProps,
+} from './connection-sheet-contract'
 import {
   sheetActions,
   sheetFocusTarget,
@@ -22,7 +35,7 @@ import {
 import SheetStateBody from './SheetStateBody.vue'
 import { useConnectionSheetDriver } from './use-connection-sheet-driver'
 
-const props = defineProps<ConnectionSheetProps>()
+const props = defineProps<ConnectionSheetProps & ConnectionSheetSessionsProps>()
 
 const emit = defineEmits<{
   /** The sheet closed, by any path; the host hides it and moves focus. */
@@ -41,14 +54,55 @@ const stage = computed(() => model.value.stage)
  * to 127) or no result shows.
  */
 // @spec-link [[rule_transposition_check_sets_my_instrument]]
-const use = computed<UseForMyInstrument | null>(() => {
+const offer = computed<UseForMyInstrument | null>(() => {
   const current = stage.value
   if (current.kind !== 'check' && current.kind !== 'use') return null
-  if (current.played === null) return null
+  if (current.played === null || props.myInstrumentSessions === null) return null
   return useForMyInstrument(props.profile, props.myInstrument, current.played)
 })
 
-const actions = computed(() => sheetActions(stage.value, props.seenDeviceCount, use.value !== null))
+/**
+ * Intent: the kept sessions of my instrument the offered use would erase: those counted, when it
+ * changes the transposition of the my instrument that exists; null when it erases none.
+ */
+// @spec-link [[entity_my_instrument_record]]
+const erased = computed<MyInstrumentSessionCount | null>(() => {
+  const sessions = props.myInstrumentSessions
+  if (offer.value === null || sessions === null || sessions.count === 0) return null
+  return changesSavedTransposition(offer.value, props.myInstrument) ? sessions : null
+})
+
+/** In a tab that must be reloaded while the use would erase sessions: it is not offered. */
+// @spec-link [[rule_outdated_tab_stops_saving]]
+const withheld = computed(() => erased.value?.withheld === true)
+
+/** The offered use; null when it is not offered (see `offer`), or withheld. */
+const use = computed(() => (withheld.value ? null : offer.value))
+
+/** The check result's reload line while the use is withheld; else null. */
+const reloadLine = computed(() =>
+  withheld.value && props.myInstrument !== null ? checkReloadText(props.myInstrument.name) : null,
+)
+
+/**
+ * The `Use and erase` running: the use confirmed and the sessions it erases, held while its batch
+ * runs, since saving my instrument makes the check's result a match before the sheet moves on.
+ */
+const running = shallowRef<{
+  readonly use: UseForMyInstrument
+  readonly sessions: MyInstrumentSessionCount
+} | null>(null)
+const erasing = computed(() => running.value !== null)
+/** The last `Use and erase` was refused. */
+const eraseFailed = shallowRef(false)
+
+/** What the confirmation shows: the running use, else the one offered. */
+const shownUse = computed(() => running.value?.use ?? offer.value)
+const shownErased = computed(() => running.value?.sessions ?? erased.value)
+
+const actions = computed(() =>
+  sheetActions(stage.value, props.seenDeviceCount, use.value !== null, shownErased.value !== null),
+)
 
 const dialog = ref<HTMLElement | null>(null)
 const closeButton = ref<HTMLButtonElement | null>(null)
@@ -60,15 +114,51 @@ const closeButton = ref<HTMLButtonElement | null>(null)
 // @spec-link [[rule_controller_connects_between_sessions]]
 // @spec-link [[rule_transposition_check_sets_my_instrument]]
 function act(action: SheetButtonAction): void {
+  if (erasing.value) return
   if (action !== 'use-for-my-instrument') {
+    eraseFailed.value = false
     dispatch({ kind: 'action', action })
     return
   }
   const confirmed = use.value
   if (confirmed === null) throw new Error('connection sheet: nothing to use for my instrument')
+  const sessions = erased.value
+  if (sessions !== null) {
+    void useAndErase(confirmed, sessions)
+    return
+  }
   dispatch({ kind: 'used', name: confirmed.instrument.name })
   emit('use-for-my-instrument', confirmed.instrument)
 }
+
+/**
+ * Intent: `Use and erase`: save and select my instrument erasing `sessions` in one batch, then go
+ * on to Connected; refused, stay with the error line; saving off, back to the result.
+ */
+// @spec-link [[rule_transposition_check_sets_my_instrument]]
+// @spec-link [[entity_my_instrument_record]]
+async function useAndErase(confirmed: UseForMyInstrument, sessions: MyInstrumentSessionCount) {
+  running.value = { use: confirmed, sessions }
+  eraseFailed.value = false
+  const outcome = await props.useAndErase(confirmed.instrument, sessions)
+  running.value = null
+  if (outcome === 'refused') eraseFailed.value = true
+  else if (outcome === 'saving-off') dispatch({ kind: 'action', action: 'back' })
+  else dispatch({ kind: 'used', name: confirmed.instrument.name })
+}
+
+// The tab must be reloaded while the confirmation would erase sessions: back to the result, at
+// once, before the confirmation draws without its use.
+watch(
+  withheld,
+  (now) => {
+    if (now && stage.value.kind === 'use' && !erasing.value) {
+      eraseFailed.value = false
+      dispatch({ kind: 'action', action: 'back' })
+    }
+  },
+  { flush: 'sync' },
+)
 
 /** Intent: a click on the backdrop itself (not inside the sheet) closes the sheet. */
 // @spec-link [[rule_controller_connects_between_sessions]]
@@ -178,7 +268,10 @@ watch(
         :profile="profile"
         :clef="clef"
         :profiles="profiles"
-        :use="use"
+        :use="stage.kind === 'use' ? shownUse : use"
+        :erased="shownErased"
+        :erase-failed="eraseFailed"
+        :reload-line="reloadLine"
         @choose="choose"
       />
       <div v-if="actions.length > 0" class="sheet-actions">
@@ -186,8 +279,13 @@ watch(
           v-for="button in actions"
           :key="button.action"
           class="btn"
-          :class="{ 'btn-primary': button.primary }"
+          :class="{
+            'btn-primary': button.primary,
+            'btn-error': button.destructive === true,
+            'is-loading': erasing && button.action === 'use-for-my-instrument',
+          }"
           type="button"
+          :disabled="erasing && button.action === 'use-for-my-instrument'"
           @click="act(button.action)"
         >
           {{ button.label }}

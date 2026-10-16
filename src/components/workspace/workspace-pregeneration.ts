@@ -3,18 +3,18 @@
  * it runs the pure pre-generation plan's attempts one at a time on the generation worker client,
  * each under its own abort signal held in the Idle background slot, checks each success's fit in
  * the layout a session would hold now, and keeps the phrases that fit (phrases 2 to 5) in memory
- * only. It watches the queue's key and discards on any change of it, re-checks the queue on every
- * staff layout report, window-width crossing and saved change to my instrument, and hands the
- * queue to Start. A background attempt
- * is never an Idle operation: it changes no Idle state. Loaded with the session controller, outside
- * the entry chunk.
+ * only. It plans them from phrase 1 under the settings phrase 1 was generated under, so a stale
+ * phrase 1 stops nothing. It watches the queue's key and discards on any change of it, re-checks
+ * the queue on every staff layout report, window-width crossing and saved change to my
+ * instrument outside a session (one seen during a session waits for the return to Idle), and
+ * hands the queue to Start. A background attempt is never an Idle operation: it changes no Idle
+ * state. Loaded with the session controller, outside the entry chunk.
  */
 import { watch } from 'vue'
 
 import type { GenerationSessionState } from '@/composables/use-generation-session'
 import type { PregenerationSlot } from '@/composables/generation-session-pregeneration'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
-import { CarryInError } from '@/domain/generation/carry-in/carry-in'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
 import { instrumentClefOf, type InstrumentClef } from '@/domain/profile/instrument-clef'
@@ -38,6 +38,7 @@ import { sessionSettingsAtStart } from '@/session/session-intents'
 import type { ReadyPhrase } from '@/session/session-ready-phrases'
 import type { SessionStartBlocker } from '@/session/session-start-conditions'
 import { sessionLayoutAtStart } from '@/session/session-window'
+import { phraseOneSettings } from '@/session/stale-phrase-one'
 import { fitsHeldLayout, writtenPhraseOf } from './held-layout-fit'
 import type { IdleLayoutPort } from './idle-layout-gate'
 import type { WorkspacePregenerationPolicy } from './prewarm-policy'
@@ -147,16 +148,10 @@ function disabledPregeneration(): WorkspacePregeneration {
 /**
  * Intent: build the orchestrator and start it: it runs at once if every start condition holds.
  * A disabled policy builds one that never runs. A programming error met while it runs (an
- * unexpected rejection, or a plan that cannot be built or stepped) goes to `fail`, the attempt in
- * flight aborted and the queue emptied; it then stays stopped, Start taking nothing, until the
- * queue's key next changes. One error is no programming error here: a `CarryInError` thrown while
- * the plan is built or stepped. A session started now would meet the same one at Start: after a
- * harmony or register control changed at Idle with phrase 1 kept, the carry-in from phrase 1 is
- * built under the new settings as if phrase 1 had been generated under them, and that carry-in
- * does not hold (ISS-011, an engine defect left to the session engine). It means nothing can be
- * pre-generated for this phrase 1 under these settings: the orchestrator stops the same way, the
- * attempt in flight aborted and the queue emptied, but reports nothing, and runs again once the
- * queue's key next changes (a new phrase 1 or another settings change).
+ * unexpected rejection, or a plan that cannot be built or stepped, a carry-in error included)
+ * goes to `fail`, the attempt in flight aborted and the queue emptied; it then stays stopped,
+ * Start taking nothing, until the queue's key next changes. A layout re-check asked for while a
+ * session runs re-checks nothing then: it runs once every start condition holds again.
  */
 // @spec-link [[module_idle_pregeneration_queue]]
 // @spec-link [[rule_pregeneration_discarded_on_change]]
@@ -175,12 +170,16 @@ export function createWorkspacePregeneration(
   let planner: StaffFitPlanner | null = null
   let stalled = false
   let disposed = false
+  /** A layout re-check was asked for during a session; it runs on the return to Idle. */
+  let recheckOnIdle = false
 
   /**
    * Intent: the plan's start from phrase 1 and the Idle choices as a session would take them, my
-   * instrument's profile taken from phrase 1's intent, as Start takes it.
+   * instrument's profile taken from phrase 1's intent, as Start takes it, with the settings phrase
+   * 1 was generated under, as the stale-phrase prompt's Use it passes them.
    */
   // @spec-link [[entity_my_instrument]]
+  // @spec-link [[rule_pregenerated_phrase_matches_session]]
   function startOf(phraseOne: WorkspaceSessionResult): PregenerationStart {
     return {
       settings: sessionSettingsAtStart(
@@ -188,6 +187,11 @@ export function createWorkspacePregeneration(
         phraseOne.intent,
       ),
       phraseOne: { intent: phraseOne.intent, outcome: phraseOne.outcome },
+      phraseOneSettings: phraseOneSettings(
+        phraseOne.settings,
+        phraseOne.intent,
+        idle.controls.tempo,
+      ),
       sessionSeed: phraseOne.sessionSeed,
       mutation: mutationFlagFor(deps.varySettings(), phraseOne.sessionSeed),
       multiPhraseTensionArc: deps.tensionAcrossPhrases(),
@@ -254,30 +258,18 @@ export function createWorkspacePregeneration(
    * the queue emptied, and report it.
    */
   function breakDown(error: unknown): void {
-    standDown()
-    deps.fail(error)
-  }
-
-  /**
-   * Intent: stop, unreported, until the key changes, the attempt in flight aborted and the queue
-   * emptied.
-   */
-  function standDown(): void {
     stalled = true
     abortFlight()
     ready = []
+    deps.fail(error)
   }
 
-  /**
-   * Intent: run `step`, which builds or steps the plan: a `CarryInError` in it stops the
-   * orchestrator unreported, any other error stops it and is reported.
-   */
+  /** Intent: run `step`, which builds or steps the plan: any error in it stops it and is reported. */
   function guarded(step: () => void): void {
     try {
       step()
     } catch (error: unknown) {
-      if (error instanceof CarryInError) standDown()
-      else breakDown(error)
+      breakDown(error)
     }
   }
 
@@ -354,10 +346,17 @@ export function createWorkspacePregeneration(
    * Intent: the window re-check: truncate the queue at its first phrase that no longer re-derives
    * or fits; abort the attempt in flight when the queue shrank or `staleFlight` (a width crossing
    * may have changed its request), then resume. A phrase that stopped the plan is tried again.
+   * During a session it re-checks nothing and leaves the ready phrases as they are: it runs once
+   * every start condition holds again.
    */
   // @spec-link [[rule_pregeneration_discarded_on_change]]
   function reconsider(staleFlight: boolean): void {
     if (stalled || disposed) return
+    if (deps.startBlocker() === 'session_active') {
+      recheckOnIdle = true
+      return
+    }
+    recheckOnIdle = false
     exhausted = false
     const before = ready.length
     ready = keptReady()
@@ -376,13 +375,17 @@ export function createWorkspacePregeneration(
     ready = []
     exhausted = false
     stalled = false
+    recheckOnIdle = false
     queueMicrotask(() => guarded(() => pump()))
   }
 
   const stops = [
     watch(
       () => deps.startBlocker() === null,
-      (eligible) => (eligible ? guarded(() => pump()) : abortFlight()),
+      (eligible) => {
+        if (!eligible) abortFlight()
+        else guarded(() => (recheckOnIdle ? reconsider(false) : pump()))
+      },
     ),
     watch([() => idle.result, () => settingsKeyOf(deps)], discard, { flush: 'sync' }),
     watch(

@@ -35,6 +35,8 @@
  * the comment and deletes the session, each at once in memory and saved when made, a session whose
  * own save failed by a retry of that save; `Delete every session`, from Your data
  * (./workspace-kept-sessions-deletion.ts), deletes them all, from the device then from memory.
+ * It counts the kept sessions of my instrument for the batch that deletes or changes my instrument,
+ * and makes them leave memory once it is saved (./workspace-my-instrument-sessions.ts).
  * While the visit saves, a kept session found damaged is deleted
  * (./workspace-damaged-session-deletions.ts): at load, by a clean-up run once this controller is
  * built, only when a summary the load read is damaged; at an opening; and by a session's own save.
@@ -64,6 +66,7 @@ import { createAdaptiveTempoFlag } from './workspace-adaptive-tempo'
 import { createKeptPlayedNotes } from './workspace-kept-played-notes'
 import { createKeptSessionEdits } from './workspace-kept-session-edits'
 import { createEverySessionDeletion } from './workspace-kept-sessions-deletion'
+import { createMyInstrumentSessions } from './workspace-my-instrument-sessions'
 import { createDamagedSessionDeletions } from './workspace-damaged-session-deletions'
 import type { SessionControllerCore, SessionControllerSides } from './workspace-session-active'
 import { createSessionEnds } from './workspace-session-ends'
@@ -73,6 +76,7 @@ import {
 } from './workspace-session-settings'
 import { createSessionMidi, type ControllerLostCountdown } from './workspace-session-midi'
 import { createSessionStart } from './workspace-session-start'
+import { createStalePhraseStart, type StalePhrasePrompt } from './workspace-stale-phrase'
 import type { WorkspacePregeneration } from './workspace-pregeneration'
 import {
   SessionControllerError,
@@ -176,6 +180,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     sessionStaff: null as SessionStaff | null,
     latestReady: null as number | null,
     shownSettings: null as SessionSettings | null,
+    stalePhrasePrompt: null as StalePhrasePrompt | null,
     get canStart(): boolean {
       return startBlocker.value === null
     },
@@ -248,11 +253,12 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     midi: deps.midi,
     audio,
     pageActivation: deps.browser.pageActivation,
-    connectionSheetOpen: deps.connectionSheetOpen,
+    // While the stale-phrase prompt shows, as while a sheet is open, no note starts anything.
+    connectionSheetOpen: () => deps.connectionSheetOpen() || state.stalePhrasePrompt !== null,
     canStart: () => startBlocker.value === null,
     idleResult: () => idle.state.result,
     idlePhrase: deps.idlePhrase,
-    start: () => start(),
+    start: () => void stalePhrase.request('note'),
   })
   const saved = deps.savedSessionOptions
   const adaptiveTempo = createAdaptiveTempoFlag(
@@ -274,6 +280,12 @@ export function createSessionController(deps: SessionControllerDependencies): Se
   const damagedSessions = createDamagedSessionDeletions(core, rows)
   const reviewMode = createReviewMode(core, rows, damagedSessions)
   const deleteEverySession = createEverySessionDeletion(core, rows, reviewMode.cancelOpening)
+  const myInstrumentSessions = createMyInstrumentSessions(
+    core,
+    rows,
+    reviewMode.cancelOpening,
+    edits,
+  )
   const ends = createSessionEnds(core, adaptiveTempo, keptPlayedNotes.on, edits.saveRefused, rows)
   const start = createSessionStart(
     core,
@@ -281,13 +293,21 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     ends,
     () => startBlocker.value,
   )
+  const stalePhrase = createStalePhraseStart({
+    idle: idle.state,
+    state,
+    startBlocker: () => startBlocker.value,
+    start,
+  })
 
   // Never awaited: a defect in the clean-up surfaces as the unhandled rejection it is.
   void damagedSessions.cleanUpAtLoad()
 
   return {
     state: shallowReadonly(state),
-    start,
+    start: () => stalePhrase.request('start'),
+    useStalePhrase: stalePhrase.use,
+    dismissStalePhrase: stalePhrase.dismiss,
     stop: () => ends.end('stop'),
     isPhraseOnScreen: (phraseNumber) => {
       if (!(Number.isInteger(phraseNumber) && phraseNumber >= 1)) {
@@ -307,6 +327,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     setComment: edits.setComment,
     deleteSession: edits.deleteSession,
     deleteEverySession,
+    myInstrumentSessions,
     setAdaptiveTempo: adaptiveTempo.set,
     setVarySettings: varySettings.set,
     setTensionAcrossPhrases: tensionAcrossPhrases.set,
@@ -315,6 +336,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
       core.disposed = true
       // First, so a session ending now never makes pre-generation run.
       pregeneration.dispose()
+      stalePhrase.dispose()
       if (core.active !== null) ends.end('stop')
       stopReadingWindow()
       sessionMidi.dispose()

@@ -13,6 +13,7 @@ import {
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { makeRequestId } from '@/domain/generation/generation-request'
+import type { MyInstrumentSessions } from '@/composables/use-generation-session'
 import { makeMyInstrument, type MyInstrument } from '@/domain/profile/my-instrument'
 import { makeSeed } from '@/domain/random/seed'
 import { alwaysFitsStaff } from './fake-staff-fit'
@@ -43,8 +44,17 @@ function session(controls = MINE_SELECTED, myInstrument: MyInstrument | null = L
   const created = createGenerationSession({
     saveSettings: (changes) => saves.push(changes),
     myInstrumentSaves: {
-      saveMyInstrument: (instrument) => saves.push({ written: instrument }),
-      deleteMyInstrument: () => saves.push('deleted'),
+      saveMyInstrument: (instrument) => {
+        saves.push({ written: instrument })
+      },
+      saveMyInstrumentErasing: (instrument) => {
+        saves.push({ writtenErasing: instrument })
+        return Promise.resolve({ status: 'saved' })
+      },
+      deleteMyInstrument: () => {
+        saves.push('deleted')
+        return Promise.resolve({ status: 'saved' })
+      },
     },
     ...alwaysFitsStaff(),
     viewport: createFakeViewportWidth(),
@@ -110,6 +120,14 @@ describe('the Idle session with my instrument', () => {
   })
 })
 
+/** No kept session of my instrument: every save is the plain write. */
+const NO_SESSIONS: MyInstrumentSessions = {
+  count: 0,
+  deletes: () => Promise.resolve([]),
+  leave: () => undefined,
+  stay: () => undefined,
+}
+
 /** Intent: my instrument with some fields changed. */
 function changed(changes: Partial<Parameters<typeof makeMyInstrument>[0]>): MyInstrument {
   return makeMyInstrument({ ...LOW_TENOR, ...changes })
@@ -133,7 +151,7 @@ describe('saving and deleting my instrument', () => {
   it('a new one is saved, then selected, and the phrase replaced as on a switch', async () => {
     const { created, generated, saves } = await withPhrase(DEFAULT_GENERATION_CONTROLS, null)
 
-    expect(await created.actions.saveMyInstrument(LOW_TENOR)).toBe('regenerated')
+    expect(await created.actions.saveMyInstrument(LOW_TENOR, NO_SESSIONS)).toBe('regenerated')
 
     expect(saves).toEqual([
       { written: LOW_TENOR },
@@ -151,7 +169,7 @@ describe('saving and deleting my instrument', () => {
     const { created, generated, notated, saves } = await withPhrase()
     const renamed = changed({ name: 'Tenor two' })
 
-    expect(await created.actions.saveMyInstrument(renamed)).toBe('saved')
+    expect(await created.actions.saveMyInstrument(renamed, NO_SESSIONS)).toBe('saved')
 
     expect(saves).toEqual([{ written: renamed }])
     expect(created.state.myInstrument?.name).toBe('Tenor two')
@@ -166,11 +184,11 @@ describe('saving and deleting my instrument', () => {
     const { created, generated } = await withPhrase()
     const wider = changed({ writtenRange: { minMidi: 40, maxMidi: 70 } })
 
-    expect(await created.actions.saveMyInstrument(wider)).toBe('regenerated')
+    expect(await created.actions.saveMyInstrument(wider, NO_SESSIONS)).toBe('regenerated')
     expect(generated[0]?.instrumentProfile).toEqual(wider.profile)
 
     const higher = changed({ transposition: { octaves: 0, semitones: 9, direction: 'lower' } })
-    expect(await created.actions.saveMyInstrument(higher)).toBe('regenerated')
+    expect(await created.actions.saveMyInstrument(higher, NO_SESSIONS)).toBe('regenerated')
     expect(generated[1]?.instrumentProfile).toEqual(higher.profile)
     created.dispose()
   })
@@ -180,7 +198,9 @@ describe('saving and deleting my instrument', () => {
     const { created, generated, notated } = await withPhrase()
     const shown = created.state.result
 
-    expect(await created.actions.saveMyInstrument(changed({ clef: 'treble' }))).toBe('redrawn')
+    expect(await created.actions.saveMyInstrument(changed({ clef: 'treble' }), NO_SESSIONS)).toBe(
+      'redrawn',
+    )
 
     expect(generated).toEqual([])
     expect(notated).toEqual([shown])
@@ -193,7 +213,7 @@ describe('saving and deleting my instrument', () => {
     const { created, generated, notated } = await withPhrase(DEFAULT_GENERATION_CONTROLS)
 
     const wider = changed({ writtenRange: { minMidi: 40, maxMidi: 70 } })
-    expect(await created.actions.saveMyInstrument(wider)).toBe('saved')
+    expect(await created.actions.saveMyInstrument(wider, NO_SESSIONS)).toBe('saved')
 
     expect(created.state.controls.instrumentProfileId).toBe(
       DEFAULT_GENERATION_CONTROLS.instrumentProfileId,
@@ -206,18 +226,19 @@ describe('saving and deleting my instrument', () => {
   // @test-link [[entity_my_instrument_record]]
   it('a save that changes nothing writes nothing', async () => {
     const { created, saves } = await withPhrase()
-    expect(await created.actions.saveMyInstrument(changed({}))).toBe('unchanged')
+    expect(await created.actions.saveMyInstrument(changed({}), NO_SESSIONS)).toBe('unchanged')
     expect(saves).toEqual([])
     created.dispose()
   })
 
   // @test-link [[req_my_instrument]]
-  it('deleting it while selected selects its template first, then deletes it, the phrase replaced', async () => {
+  // @test-link [[entity_my_instrument_record]]
+  it('deleting it while selected deletes it, then selects its template, the phrase replaced', async () => {
     const { created, generated, saves } = await withPhrase()
 
-    expect(await created.actions.deleteMyInstrument()).toBe('regenerated')
+    expect(await created.actions.deleteMyInstrument(NO_SESSIONS)).toBe('regenerated')
 
-    expect(saves).toEqual([{ 'controls.instrumentProfileId': 'bb-tenor' }, 'deleted'])
+    expect(saves).toEqual(['deleted', { 'controls.instrumentProfileId': 'bb-tenor' }])
     expect(created.state.myInstrument).toBeNull()
     expect(created.state.controls.instrumentProfileId).toBe('bb-tenor')
     expect(generated[0]?.instrumentProfile.id).toBe('bb-tenor')
@@ -228,7 +249,7 @@ describe('saving and deleting my instrument', () => {
   it('deleting it while another profile is selected changes nothing else', async () => {
     const { created, generated, saves } = await withPhrase(DEFAULT_GENERATION_CONTROLS)
 
-    expect(await created.actions.deleteMyInstrument()).toBe('saved')
+    expect(await created.actions.deleteMyInstrument(NO_SESSIONS)).toBe('saved')
 
     expect(saves).toEqual(['deleted'])
     expect(created.state.myInstrument).toBeNull()
@@ -248,7 +269,9 @@ describe('my instrument saved and selected, as the transposition check uses it',
   it('a new one is saved, then selected, and the phrase replaced as on a switch', async () => {
     const { created, generated, saves } = await withPhrase(DEFAULT_GENERATION_CONTROLS, null)
 
-    expect(await created.actions.saveAndSelectMyInstrument(SAME_PITCH)).toBe('regenerated')
+    expect(await created.actions.saveAndSelectMyInstrument(SAME_PITCH, NO_SESSIONS)).toBe(
+      'regenerated',
+    )
 
     expect(saves).toEqual([
       { written: SAME_PITCH },
@@ -264,7 +287,9 @@ describe('my instrument saved and selected, as the transposition check uses it',
   it('one that exists, not selected, is saved first, then selected, the phrase replaced', async () => {
     const { created, generated, saves } = await withPhrase(DEFAULT_GENERATION_CONTROLS)
 
-    expect(await created.actions.saveAndSelectMyInstrument(SAME_PITCH)).toBe('regenerated')
+    expect(await created.actions.saveAndSelectMyInstrument(SAME_PITCH, NO_SESSIONS)).toBe(
+      'regenerated',
+    )
 
     expect(saves).toEqual([
       { written: SAME_PITCH },
@@ -280,7 +305,9 @@ describe('my instrument saved and selected, as the transposition check uses it',
   it('one that exists, not selected, with the same record is only selected', async () => {
     const { created, generated, saves } = await withPhrase(DEFAULT_GENERATION_CONTROLS)
 
-    expect(await created.actions.saveAndSelectMyInstrument(changed({}))).toBe('regenerated')
+    expect(await created.actions.saveAndSelectMyInstrument(changed({}), NO_SESSIONS)).toBe(
+      'regenerated',
+    )
 
     expect(saves).toEqual([{ 'controls.instrumentProfileId': 'my-instrument' }])
     expect(created.state.myInstrument).toBe(LOW_TENOR)
@@ -292,7 +319,9 @@ describe('my instrument saved and selected, as the transposition check uses it',
   it('the selected one is saved and the phrase replaced, the selection unchanged', async () => {
     const { created, generated, saves } = await withPhrase()
 
-    expect(await created.actions.saveAndSelectMyInstrument(SAME_PITCH)).toBe('regenerated')
+    expect(await created.actions.saveAndSelectMyInstrument(SAME_PITCH, NO_SESSIONS)).toBe(
+      'regenerated',
+    )
 
     expect(saves).toEqual([{ written: SAME_PITCH }])
     expect(created.state.controls.instrumentProfileId).toBe('my-instrument')
@@ -305,7 +334,7 @@ describe('my instrument saved and selected, as the transposition check uses it',
     const { created, generated, saves } = await withPhrase(DEFAULT_GENERATION_CONTROLS)
     const regenerating = created.actions.regenerate()
 
-    const saving = created.actions.saveAndSelectMyInstrument(SAME_PITCH)
+    const saving = created.actions.saveAndSelectMyInstrument(SAME_PITCH, NO_SESSIONS)
     await regenerating
     expect(await saving).toBe('regenerated')
 

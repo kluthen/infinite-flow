@@ -4,12 +4,14 @@
  * player's saves until the session ends, asks for both screen locks, starts the transport with
  * phrase 1's backing queued, builds the session's record, its history holding the Idle result's
  * session seed and the clef Idle drew phrase 1 in, takes the pre-generated phrases ready, and
- * hands it to the rest of the start (./workspace-session-begin.ts). Once the locks are asked for,
+ * hands it to the rest of the start (./workspace-session-begin.ts) with the settings phrase 1 was
+ * generated under, which a stale phrase 1 used as it is differs in (./workspace-stale-phrase.ts). Once the locks are asked for,
  * a start is all or nothing: any later throw undoes it (./workspace-session-ends.ts).
  */
 import { createAudioTimeAgenda } from '@/session/session-agenda'
 import { createSessionHistory } from '@/session/session-history'
 import { sessionSettingsAtStart } from '@/session/session-intents'
+import { phraseOneSettings } from '@/session/stale-phrase-one'
 import type { SessionStartBlocker } from '@/session/session-start-conditions'
 import type { SessionSettings } from '@/session/session-types'
 import { sessionLayoutAtStart } from '@/session/session-window'
@@ -43,7 +45,10 @@ export function createSessionStart(
    * unlock the audio, hold the player's saves until the session ends, ask for the wake lock and the
    * landscape lock (a refusal changes nothing, so their outcomes are ignored), start the transport
    * and queue phrase 1's backing; then lock the current settings (my instrument's profile taken
-   * from phrase 1's intent, which embeds it), hold the staff layout the
+   * from phrase 1's intent, which embeds it), beside the settings phrase 1 was generated under at
+   * the session's tempo (phrase 2 joins phrase 1 as after a change from them, and the controls show
+   * them, the profile selection as the player's, through the count-in and phrase 1; equal ones
+   * change nothing), hold the staff layout the
    * window's width selects, take the phrases the Idle pre-generation queue has ready that fit it
    * (aborting its attempt in flight, never waiting for it), open the history with the session seed
    * the Idle result carries and the clef of the written phrase Idle shows (display data, never in
@@ -76,6 +81,7 @@ export function createSessionStart(
       phraseOne.intent,
     )
     const tempo = settings.controls.tempo
+    const phraseOneOwn = phraseOneSettings(phraseOne.settings, phraseOne.intent, tempo)
     const idleWritten = deps.idlePhrase()
     if (idleWritten === null) throw new Error('session controller: Idle shows no written phrase')
     const shape = browser.windowShape.read()
@@ -108,9 +114,18 @@ export function createSessionStart(
         watch: null,
         display: null,
         midi: null,
-        shown: createSessionShownSettings(settings),
+        shown: createSessionShownSettings(
+          { ...phraseOneOwn, musicalProfile: settings.musicalProfile },
+          settings,
+        ),
       }
-      beginSession(core, sides, ends, session, { settings, heldLayout, idleWritten, readyPhrases })
+      beginSession(core, sides, ends, session, {
+        settings,
+        phraseOneSettings: phraseOneOwn,
+        heldLayout,
+        idleWritten,
+        readyPhrases,
+      })
     } catch (error: unknown) {
       ends.abandonStart(session, error)
     }

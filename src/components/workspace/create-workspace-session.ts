@@ -140,7 +140,10 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
     nextSessionSeed: deps.nextSessionSeed,
     withSessionSeed,
     viewport: deps.viewport,
-    generate: createWorkspaceGenerate(yieldingToPlayer(slot, deps.generate)),
+    generate: createWorkspaceGenerate(yieldingToPlayer(slot, deps.generate), () => {
+      const { controls, profileSelection } = requireSession().state
+      return { controls, profileSelection }
+    }),
     notate: coordinator.notate,
     checkFit: coordinator.checkFit,
     checkRoom: coordinator.checkRoom,

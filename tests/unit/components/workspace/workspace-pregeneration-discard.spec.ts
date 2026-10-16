@@ -4,7 +4,9 @@
  * starts again from the new phrase 1; tempo keeps it, its phrases then carrying the new tempo; a
  * width crossing re-derives the queue and truncates it from the first phrase whose density
  * changed; a staff layout report, or an explicit re-check, truncates it from the first phrase that
- * no longer fits, and pre-generation resumes from there.
+ * no longer fits, and pre-generation resumes from there. None of these re-checks runs during a
+ * session: they run on the return to Idle. A stale phrase 1 stops nothing: the queue plans its
+ * phrases under phrase 1's own settings, as a session started with Use it would.
  */
 import { makeMyInstrument } from '@/domain/profile/my-instrument'
 import { describe, expect, it } from 'vitest'
@@ -20,6 +22,8 @@ import {
   takenNumbers,
   type PregenerationRig,
 } from './pregeneration-rig'
+import { planSeams, planStart, plannedReadyPhrases } from '../../session/pregeneration-harness'
+import { sessionSettings, withoutRequestIds } from '../../session/session-harness'
 
 /** One change of the queue's key, made at Idle. */
 interface KeyChange {
@@ -262,6 +266,33 @@ describe('Idle pre-generation queue: window changes', () => {
   })
 
   // @test-link [[module_idle_pregeneration_queue]]
+  it('re-checks nothing on a layout report or a crossing during a session, and re-checks on the return to Idle', async () => {
+    const rig = await fullRig()
+    rig.queue.take('one-system')
+    rig.blocker.value = 'session_active'
+    await flush()
+    const plansBefore = rig.planner.plans.length
+    rig.planner.queue({ kind: 'fits' }, { kind: 'notes_too_wide' })
+
+    rig.gate.layoutInputs({ ...rig.gate.latestInputs()!, containerWidthPx: 700 })
+    rig.idle.noteDensityContext = { ...rig.idle.noteDensityContext, belowTabletLandscape: true }
+    rig.idle.noteDensityContext = { ...rig.idle.noteDensityContext, belowTabletLandscape: false }
+    await flush()
+
+    expect(rig.planner.plans).toHaveLength(plansBefore)
+    expect(rig.calls).toHaveLength(4)
+    expect(rig.failures).toEqual([])
+
+    rig.blocker.value = null
+    await flush()
+
+    expect(rig.planner.plans.at(-1)?.containerWidthPx).toBe(700)
+    expect(inFlight(rig).intent.carryIn?.phraseNumber).toBe(2)
+    await answerAll(rig)
+    expect(takenNumbers(rig)).toEqual([2, 3, 4, 5])
+  })
+
+  // @test-link [[module_idle_pregeneration_queue]]
   it('keeps the queue on a layout report where every ready phrase still fits', async () => {
     const rig = await fullRig()
 
@@ -274,30 +305,37 @@ describe('Idle pre-generation queue: window changes', () => {
 })
 
 // @test-link [[module_idle_pregeneration_queue]]
-describe('Idle pre-generation queue: a carry-in that no longer holds', () => {
+// @test-link [[rule_stale_phrase_prompt_at_start]]
+describe('Idle pre-generation queue: a stale phrase 1', () => {
   // @test-link [[module_idle_pregeneration_queue]]
-  it('stops unreported after a tonal-center change with phrase 1 kept, and runs again on a new phrase 1', async () => {
+  // @test-link [[module_session_pregeneration_plan]]
+  // @test-link [[rule_pregenerated_phrase_matches_session]]
+  it("keeps running after a tonal-center change with phrase 1 kept, phrase 2 joined under phrase 1's settings", async () => {
     const rig = await fullRig()
+    const phraseOne = rig.idle.result!
 
     rig.idle.controls = { ...rig.idle.controls, tonalCenter: 'F#' }
-    await flush()
+    await answerAll(rig)
 
     expect(rig.failures).toEqual([])
-    expect(rig.calls).toHaveLength(4)
-    expect(rig.calls.every((call) => call.settled)).toBe(true)
-    expect(rig.queue.take('one-system')).toEqual([])
-
-    rig.queue.recheck()
-    rig.gate.layoutInputs({ ...rig.gate.latestInputs()!, containerWidthPx: 1000 })
-    await flush()
-    expect(rig.calls).toHaveLength(4)
-
-    rig.idle.result = idlePhraseFor(rig.idle.controls, 12)
-    await flush()
-
-    expect(rig.failures).toEqual([])
-    expect(rig.calls).toHaveLength(5)
-    expect(inFlight(rig).intent.carryIn?.phraseNumber).toBe(1)
-    expect(inFlight(rig).intent.controls.tonalCenter).toBe('F#')
+    expect(rig.calls).toHaveLength(8)
+    const replanned = intentsFrom(rig, 4)
+    expect(replanned[0]!.carryIn?.phraseNumber).toBe(1)
+    expect(replanned[0]!.carryIn?.finalHarmony).toBeNull()
+    expect(replanned.every((intent) => intent.controls.tonalCenter === 'F#')).toBe(true)
+    const session = sessionSettings({ tempo: 60, tonalCenter: 'F#' })
+    const planned = plannedReadyPhrases(
+      planSeams(),
+      planStart({
+        settings: session,
+        phraseOne: { intent: phraseOne.intent, outcome: phraseOne.outcome },
+        phraseOneSettings: sessionSettings({ tempo: 60 }),
+        sessionSeed: phraseOne.sessionSeed,
+      }),
+    )
+    expect(withoutRequestIds(replanned)).toEqual(
+      withoutRequestIds(planned.map((ready) => ready.intent)),
+    )
+    expect(takenNumbers(rig)).toEqual([2, 3, 4, 5])
   })
 })

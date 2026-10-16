@@ -6,6 +6,7 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  changesSavedTransposition,
   useForMyInstrument,
   useForMyInstrumentCopy,
 } from '@/components/controller-connection/check-for-my-instrument'
@@ -135,5 +136,25 @@ describe('useForMyInstrumentCopy', () => {
       ],
       hint: null,
     })
+  })
+})
+
+// @test-link [[rule_transposition_check_sets_my_instrument]]
+// @test-link [[entity_my_instrument_record]]
+describe('changesSavedTransposition', () => {
+  /** Intent: the use a keyboard check `offset` semitones off offers over `saved`. */
+  function useOver(offset: number, saved: typeof LOW_ALTO | null) {
+    const use = useForMyInstrument(C_KEYBOARD_PROFILE, saved, sent(C_KEYBOARD_PROFILE, offset))
+    if (use === null) throw new Error('no use offered')
+    return use
+  }
+
+  it('is true when the use changes the saved transposition, the change that erases its sessions', () => {
+    expect(changesSavedTransposition(useOver(-14, LOW_ALTO), LOW_ALTO)).toBe(true)
+  })
+
+  it('is false when the saved one already sounds that way, or when none exists yet', () => {
+    expect(changesSavedTransposition(useOver(-9, LOW_ALTO), LOW_ALTO)).toBe(false)
+    expect(changesSavedTransposition(useOver(-14, null), null)).toBe(false)
   })
 })

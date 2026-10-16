@@ -294,22 +294,3 @@ function handleThemeSelect(theme: ThemePreference): void {
     </div>
   </header>
 </template>
-
-<style scoped>
-/* The build beside the brand mark: small and muted, on the brand mark's baseline. Below
-   bp-desktop the header actions take a row of their own, so the brand row always has room for it
-   (phones in landscape included); from bp-desktop up it sits between the brand mark and them. */
-.brand {
-  align-items: baseline;
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-2);
-  min-inline-size: 0;
-}
-.build-id {
-  color: var(--color-text-muted);
-  font-size: var(--text-xs);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-</style>

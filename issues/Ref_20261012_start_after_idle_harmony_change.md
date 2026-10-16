@@ -4,7 +4,7 @@
 **Ref:** `ISS-011`
 **Date:** 2026-10-12
 **Severity:** High
-**Status:** Open
+**Status:** In Progress
 **Component:** `src/session/session-engine.ts`
 **Affects:** `src/components/workspace/workspace-session-start.ts`, `src/session/session-pregeneration.ts`, `src/components/workspace/workspace-pregeneration.ts`
 
@@ -152,3 +152,10 @@ gate (chunk 26, wave 10), after the **Stale phrase design** gate (`ux-writer`)
   recorded (spec D297); the fix planned as v3.0 build plan chunk 24b, wave 9. Status stays Open.
 - **2026-10-13**: The owner settled both open points the same day: Regenerate stays at Idle (spec
   O182 closed) and the starting-note wording is accepted, MAJOR (CONTRACT 5.0). Status stays Open.
+- **2026-10-16**: The fix landed on `v3.0-w9` as v3.0 chunk 24b. 24b-1: the Idle result records the
+  settings it was generated under, the session start and the pre-generation plan carry phrase 1's
+  own settings, so phrase 2's carry-in is adapted as after a change at the phrase 1/2 boundary
+  and no `CarryInError` occurs at any tempo (engine tests over every Written key, Collection,
+  Harmonic motion and Register change at 60 to 240 BPM); the queue's quiet stop is gone. 24b-2:
+  Start and the starting note open the stale-phrase prompt on a stale phrase 1. Status In
+  Progress until the wave-9 gate and hand check H9 pass; then Resolved.

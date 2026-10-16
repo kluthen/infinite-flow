@@ -1,6 +1,6 @@
 ---
 id: rule_favorite_pins_session
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 tags: [v3, release-v3.0, storage, favorites]

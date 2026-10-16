@@ -224,6 +224,8 @@ export interface DriverOptions {
   readonly at?: AudioTime
   readonly settings?: SessionSettings
   readonly phraseOne?: SessionStart['phraseOne']
+  /** The settings phrase 1 was generated under; none means the chosen settings. */
+  readonly phraseOneSettings?: SessionSettings
   readonly sessionSeed?: Seed
   readonly viewport?: FakeViewport
   readonly display?: FakeDisplay
@@ -263,6 +265,9 @@ export class SessionDriver {
       adaptiveTempo: options.adaptiveTempo ?? false,
       multiPhraseTensionArc: options.multiPhraseTensionArc ?? false,
       ...(options.readyPhrases === undefined ? {} : { readyPhrases: options.readyPhrases }),
+      ...(options.phraseOneSettings === undefined
+        ? {}
+        : { phraseOneSettings: options.phraseOneSettings }),
     }
     this.engine = createSessionEngine(
       { providers: this.providers, viewport: this.viewport, display: this.display },

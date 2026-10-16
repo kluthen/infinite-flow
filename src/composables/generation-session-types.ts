@@ -21,7 +21,10 @@ import type {
   StaffRoomVerdict,
 } from '@/notation/staff-fit-types'
 import type { RoomNoticeCause } from './generation-session-fit-round'
-import type { MyInstrumentChangeOutcome } from './generation-session-my-instrument'
+import type {
+  MyInstrumentChangeOutcome,
+  MyInstrumentSessions,
+} from './generation-session-my-instrument'
 import type { ProfileSelectionOutcome } from './generation-session-profile-switch'
 import type { PostPrewarm } from './generation-session-prewarm'
 import type { StaffLayoutReports } from './generation-session-room-notice'
@@ -83,12 +86,17 @@ export interface GenerationSessionActions {
   readonly selectMusicalProfile: (profile: MusicalProfile) => boolean
   readonly selectInstrumentProfile: (id: InstrumentProfileId) => Promise<ProfileSelectionOutcome>
   /**
-   * Save my instrument, made or changed: its record is written at once; a new one is selected, a
-   * change to the selected one replaces the phrase (range or transposition) or redraws it (clef
-   * alone), as an instrument switch would, once a generation under way has ended.
+   * Save my instrument, made or changed: its record is written at once, or, for a change of range
+   * or transposition while it has kept sessions, in one batch erasing `sessions`, applied once
+   * saved; a new one is selected, a change to the selected one replaces the phrase (range or
+   * transposition) or redraws it (clef alone), as an instrument switch would, once a generation
+   * under way has ended. A refused batch, or one with saving off, changes nothing.
    */
   // @spec-link [[req_my_instrument]]
-  readonly saveMyInstrument: (instrument: MyInstrument) => Promise<MyInstrumentChangeOutcome>
+  readonly saveMyInstrument: (
+    instrument: MyInstrument,
+    sessions: MyInstrumentSessions,
+  ) => Promise<MyInstrumentChangeOutcome>
   /**
    * Save my instrument, made or changed, as `saveMyInstrument` does, and make it the selection:
    * one that exists but is not selected is selected once its record is written, a switch that
@@ -97,10 +105,16 @@ export interface GenerationSessionActions {
   // @spec-link [[rule_transposition_check_sets_my_instrument]]
   readonly saveAndSelectMyInstrument: (
     instrument: MyInstrument,
+    sessions: MyInstrumentSessions,
   ) => Promise<MyInstrumentChangeOutcome>
-  /** Delete my instrument; while it is selected, its template is selected first, a switch. */
+  /**
+   * Delete my instrument and its counted kept `sessions` in one batch; once saved, and while it
+   * was selected, its template is selected, a switch. A refusal changes nothing.
+   */
   // @spec-link [[req_my_instrument]]
-  readonly deleteMyInstrument: () => Promise<MyInstrumentChangeOutcome>
+  readonly deleteMyInstrument: (
+    sessions: MyInstrumentSessions,
+  ) => Promise<MyInstrumentChangeOutcome>
   readonly setTheme: (theme: ThemePreference) => boolean
   readonly generate: () => Promise<boolean>
   readonly regenerate: () => Promise<boolean>

@@ -115,6 +115,20 @@ export function useForMyInstrument(
 }
 
 /**
+ * Intent: whether `use` changes the transposition of the my instrument that exists, `saved`: the
+ * change that erases its kept sessions. Making a new one changes none.
+ */
+// @spec-link [[rule_transposition_check_sets_my_instrument]]
+// @spec-link [[entity_my_instrument_record]]
+export function changesSavedTransposition(
+  use: UseForMyInstrument,
+  saved: MyInstrument | null,
+): boolean {
+  if (use.start === 'none' || saved === null) return false
+  return use.instrument.profile.transposition.chromatic !== saved.profile.transposition.chromatic
+}
+
+/**
  * Intent: the confirmation's words: the interval under the new transposition and the note a
  * written C4 will sound as, then what happens to my instrument (made from the profile, with the
  * hint that it can be changed later; or keeping its range and clef, becoming the selection when

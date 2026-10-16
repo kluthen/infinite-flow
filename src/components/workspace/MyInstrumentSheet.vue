@@ -6,9 +6,12 @@
  * steppers, refused live in note names, never clamped) and the transposition (one stepper counting
  * semitones across octaves, its interval named beside it); the windows and the staff-reach note
  * follow the range. `Save` is disabled only while the range is refused; an unchanged save just
- * closes. The delete confirmation asks once. Escape, the backdrop and `Close` do what the way back
- * does; focus stays trapped in the sheet. The host applies what it reports and moves focus once
- * it closes. Loaded on demand.
+ * closes. A change of the range or the transposition while my instrument has kept sessions opens
+ * the erase warning; deleting opens the delete confirmation; each names the sessions that go and
+ * waits for its batch (./use-my-instrument-confirmations.ts). In a tab that must be reloaded while
+ * sessions would go, the form shows the reload line, its steppers disabled and Delete absent.
+ * Escape, the backdrop and `Close` do what the way back does; focus stays trapped in the sheet.
+ * The host applies what it reports and moves focus once it closes. Loaded on demand.
  */
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId } from 'vue'
 
@@ -19,23 +22,45 @@ import {
   findBuiltInInstrumentProfile,
   isBuiltInInstrumentProfileId,
 } from '@/domain/profile/instrument-profiles'
+import type { MyInstrumentSessions } from '@/composables/use-generation-session'
 import type { MyInstrument } from '@/domain/profile/my-instrument'
 import NoteStepper from './NoteStepper.vue'
 import { noteName } from './my-instrument-copy'
+import {
+  DELETE_FAILED_LINE,
+  deleteConfirmationText,
+  ERASE_FAILED_LINE,
+  eraseWarningText,
+  keepSessionHint,
+  reloadToChangeText,
+} from './my-instrument-sessions-copy'
 import { useMyInstrumentForm, type MyInstrumentFormStart } from './use-my-instrument'
+import {
+  useMyInstrumentConfirmations,
+  type MyInstrumentSheetFocus,
+} from './use-my-instrument-confirmations'
+import type { MyInstrumentBatchOutcome } from './use-my-instrument-sheet'
+import type { MyInstrumentSessionCount } from './workspace-session-controller-types'
 
 const props = defineProps<{
   /** Creating from the selected built-in, or editing the saved my instrument. */
   start: MyInstrumentFormStart
   /** Whether my instrument is the selected instrument now. */
   selected: boolean
+  /** The kept sessions of my instrument now, as the session controller counts them. */
+  sessions: MyInstrumentSessionCount
+  /** Save this my instrument and erase `sessions`, in one batch; the host closes once done. */
+  saveAndErase: (
+    instrument: MyInstrument,
+    sessions: MyInstrumentSessions,
+  ) => Promise<MyInstrumentBatchOutcome>
+  /** Delete my instrument and `sessions`, in one batch; the host closes once done. */
+  remove: (sessions: MyInstrumentSessions) => Promise<MyInstrumentBatchOutcome>
 }>()
 
 const emit = defineEmits<{
-  /** Save this my instrument (it differs from the saved one, or none exists). */
+  /** Save this my instrument, erasing nothing (it differs from the saved one, or none exists). */
   save: [instrument: MyInstrument]
-  /** Delete my instrument, confirmed. */
-  delete: []
   /** Leave the sheet with nothing saved: the way back, or a Save that changed nothing. */
   close: []
 }>()
@@ -52,12 +77,31 @@ const dialog = ref<HTMLElement | null>(null)
 const nameInput = ref<HTMLInputElement | null>(null)
 const templateField = ref<HTMLElement | null>(null)
 const deleteButton = ref<HTMLButtonElement | null>(null)
+const saveButton = ref<HTMLButtonElement | null>(null)
 const confirmWayBack = ref<HTMLButtonElement | null>(null)
-const confirming = ref(false)
+
+/** Intent: once the step shows, move focus to `target`. */
+async function focusOn(target: MyInstrumentSheetFocus): Promise<void> {
+  await nextTick()
+  const element = { cancel: confirmWayBack, save: saveButton, delete: deleteButton }[target]
+  element.value?.focus()
+}
+
+const confirmations = useMyInstrumentConfirmations({
+  sessions: () => props.sessions,
+  saveAndErase: (instrument, sessions) => props.saveAndErase(instrument, sessions),
+  remove: (sessions) => props.remove(sessions),
+  restoreSound: form.restoreSound,
+  focus: (target) => void focusOn(target),
+})
+const { step, running, failed, counted } = confirmations
 
 const editing = computed(() => props.start.mode === 'editing')
+/** In a tab that must be reloaded while sessions would go: range, transposition and Delete withheld. */
+const withheld = computed(() => editing.value && props.sessions.withheld)
 const title = computed(() => {
-  if (confirming.value) return 'Delete my instrument?'
+  if (step.value === 'erase') return 'Save and erase sessions?'
+  if (step.value === 'delete') return 'Delete my instrument?'
   return editing.value ? 'My instrument' : 'Create my instrument'
 })
 
@@ -71,15 +115,20 @@ function builtInName(id: string): string {
 const madeFrom = computed(() => `Made from: ${builtInName(form.template.value)}`)
 const canSave = computed(() => form.refusals.value.length === 0)
 
-/** The delete confirmation's first paragraph: what goes, and where the selection returns. */
-const deleteWhat = computed(() => {
-  if (props.start.mode !== 'editing') return ''
+/** The open confirmation's first paragraph: what goes, and where the selection returns. */
+const confirmationWhat = computed(() => {
+  const sessions = counted.value
+  if (props.start.mode !== 'editing' || sessions === null) return ''
+  if (step.value === 'erase') return eraseWarningText(sessions.count, sessions.reviewed)
   const { name, template } = props.start.saved
-  const goes = `${name} will be deleted, with its clef, range and transposition.`
-  return props.selected
-    ? `${goes} The instrument goes back to ${builtInName(template)}, the profile it was made from.`
-    : goes
+  const goesBack = props.selected ? builtInName(template) : null
+  return deleteConfirmationText(name, sessions.count, sessions.reviewed, goesBack)
 })
+
+/** The reload line's text, naming my instrument. */
+const reloadLine = computed(() =>
+  props.start.mode === 'editing' ? reloadToChangeText(props.start.saved.name) : '',
+)
 
 /** Intent: whether `instrument` holds what the saved one holds, so saving it changes nothing. */
 function unchanged(instrument: MyInstrument): boolean {
@@ -96,12 +145,18 @@ function unchanged(instrument: MyInstrument): boolean {
   )
 }
 
-/** Intent: `Save`: report my instrument as the form holds it; an unchanged one only closes. */
+/**
+ * Intent: `Save`: report my instrument as the form holds it; an unchanged one only closes; a change
+ * of its range or transposition while it has kept sessions opens the erase warning instead.
+ */
 // @spec-link [[req_my_instrument]]
+// @spec-link [[entity_my_instrument_record]]
 function save(): void {
   if (!canSave.value) return
   const instrument = form.instrument()
   if (unchanged(instrument)) emit('close')
+  else if (props.sessions.count > 0 && !withheld.value && form.changesSound(instrument))
+    confirmations.askToErase(instrument)
   else emit('save', instrument)
 }
 
@@ -117,23 +172,9 @@ function chooseClef(value: string): void {
   form.clef.value = value
 }
 
-/** Intent: open the delete confirmation, focus on its way back. */
-async function askToDelete(): Promise<void> {
-  confirming.value = true
-  await nextTick()
-  confirmWayBack.value?.focus()
-}
-
-/** Intent: leave the delete confirmation for the form, focus back on its Delete button. */
-async function backToForm(): Promise<void> {
-  confirming.value = false
-  await nextTick()
-  deleteButton.value?.focus()
-}
-
-/** Intent: the way back: from the confirmation to the form, from the form out of the sheet. */
+/** Intent: the way back: from a confirmation to the form, from the form out of the sheet. */
 function wayBack(): void {
-  if (confirming.value) void backToForm()
+  if (step.value !== 'form') confirmations.back()
   else emit('close')
 }
 
@@ -217,11 +258,16 @@ onBeforeUnmount(() => {
         <h2 :id="titleId" class="sheet-title">{{ title }}</h2>
         <button class="btn sheet-close" type="button" @click="wayBack">Close</button>
       </div>
-      <div v-if="confirming" class="sheet-body">
-        <p>{{ deleteWhat }}</p>
+      <div v-if="step !== 'form' && counted !== null" class="sheet-body">
+        <p>{{ confirmationWhat }}</p>
         <p>This can't be undone.</p>
+        <p v-if="counted.count > 0" class="sheet-hint">{{ keepSessionHint(counted.count) }}</p>
+        <div v-if="failed" class="inline-alert alert-error">
+          {{ step === 'erase' ? ERASE_FAILED_LINE : DELETE_FAILED_LINE }}
+        </div>
       </div>
       <div v-else class="sheet-body">
+        <div v-if="withheld" class="inline-alert alert-notice">{{ reloadLine }}</div>
         <div v-if="!editing" ref="templateField" class="field-group">
           <span class="field-label">Start from</span>
           <SegmentedControl
@@ -278,7 +324,7 @@ onBeforeUnmount(() => {
                 :value-a11y-text="noteName(form.lowest.value)"
                 down-label="Lowest note one semitone down"
                 up-label="Lowest note one semitone up"
-                :disabled="false"
+                :disabled="withheld"
               />
             </div>
             <div class="field-group">
@@ -292,7 +338,7 @@ onBeforeUnmount(() => {
                 :value-a11y-text="noteName(form.highest.value)"
                 down-label="Highest note one semitone down"
                 up-label="Highest note one semitone up"
-                :disabled="false"
+                :disabled="withheld"
               />
             </div>
           </div>
@@ -321,25 +367,44 @@ onBeforeUnmount(() => {
               :value-a11y-text="form.countA11yText.value"
               down-label="One semitone lower"
               up-label="One semitone higher"
-              :disabled="false"
+              :disabled="withheld"
             />
             <p class="field-note">{{ form.transpositionNote.value }}</p>
           </div>
         </section>
-        <div v-if="editing" class="sheet-actions-destructive">
-          <button ref="deleteButton" class="btn btn-error" type="button" @click="askToDelete">
+        <div v-if="editing && !withheld" class="sheet-actions-destructive">
+          <button
+            ref="deleteButton"
+            class="btn btn-error"
+            type="button"
+            @click="confirmations.askToDelete"
+          >
             Delete my instrument
           </button>
         </div>
       </div>
-      <div v-if="confirming" class="sheet-actions">
-        <button class="btn btn-error" type="button" @click="emit('delete')">
-          Delete my instrument
+      <div v-if="step !== 'form'" class="sheet-actions">
+        <button
+          class="btn btn-error"
+          :class="{ 'is-loading': running }"
+          type="button"
+          :disabled="running"
+          @click="confirmations.confirm"
+        >
+          {{ step === 'erase' ? 'Save and erase' : 'Delete my instrument' }}
         </button>
-        <button ref="confirmWayBack" class="btn" type="button" @click="backToForm">Cancel</button>
+        <button ref="confirmWayBack" class="btn" type="button" @click="confirmations.back">
+          Cancel
+        </button>
       </div>
       <div v-else class="sheet-actions">
-        <button class="btn btn-primary" type="button" :disabled="!canSave" @click="save">
+        <button
+          ref="saveButton"
+          class="btn btn-primary"
+          type="button"
+          :disabled="!canSave"
+          @click="save"
+        >
           Save
         </button>
         <button class="btn" type="button" @click="emit('close')">Cancel</button>

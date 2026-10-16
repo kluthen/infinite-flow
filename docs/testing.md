@@ -56,7 +56,7 @@ a layer, a script, a harness seam, a fake or a fixture updates this document in 
 
 ### The `test:e2e` file list
 
-`test:e2e` names its specs one by one: `tests/e2e/startup.spec.ts`, nine files in
+`test:e2e` names its specs one by one: `tests/e2e/startup.spec.ts`, ten files in
 `tests/e2e/workspace/`, the five audio specs in `tests/e2e/audio/` (`audio-transport.spec.ts`,
 `audio-transport-mix.spec.ts`, `audio-transport-real.spec.ts`, `audio-backing.spec.ts` and
 `mix-controls.spec.ts`), `tests/e2e/midi/midi-input.spec.ts`, the six controller connection
@@ -90,6 +90,7 @@ runs it.
 | ------------------------- | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `test:unit`               | `vitest run`                                                                   | Every `tests/unit/**/*.spec.ts` in jsdom.                                                                                                                                                                                                                                                                                                                                                      |
 | `test:e2e`                | `playwright test` with the explicit file list above                            | Startup, workspace, audio transport, backing, audio mix, MIDI input, controller connection, session screen, last-session Review and export, and release journeys.                                                                                                                                                                                                                              |
+| `test:e2e:pregeneration`  | `VITE_HARNESS_PREGENERATION=on npm run test:e2e`                               | The same journeys with the workspace harness built with pre-generation on by default (see [Pre-generation in the harness](#the-workspace-harness)). Part of `quality`. |
 | `test:a11y`               | `playwright test tests/e2e/accessibility.spec.ts`                              | The axe scans.                                                                                                                                                                                                                                                                                                                                                                                 |
 | `test:notation`           | `playwright test tests/e2e/notation`                                           | Every notation spec, including the visual baselines.                                                                                                                                                                                                                                                                                                                                           |
 | `test:sweep`              | `vitest run --config vitest.sweep.config.ts`                                   | `tests/sweep/*.spec.ts` in Node, one file at a time: every supported rhythm setting with seeds 7 and 13 plays a six-phrase session at 60, 120 and 240 BPM, each attempt at its measured cost plus 100 ms; fails on a phrase after the first not generated before its deadline. Also M4 at 240 BPM after pre-generation (`SWEEP-M4` lines). Not in `quality`; run it idle.                      |
@@ -264,7 +265,11 @@ mode).
 **Pre-generation in the harness.** The harness reads the Idle pre-generation policy from its page
 URL with its own default: with no `pregeneration` parameter it is `disabled`, unlike production,
 so no spec meets a background attempt unless it asks for one. `?pregeneration=on` enables it
-(`off` disables it, and a mistyped value throws, through production's own parser).
+(`off` disables it, and a mistyped value throws, through production's own parser). Built with
+`VITE_HARNESS_PREGENERATION=on`, the harness's default is `enabled` instead (`off` or no value
+keeps it `disabled`; any other value throws): the `test:e2e:pregeneration` lane runs the whole
+`test:e2e` list that way, so every journey also passes with background attempts running. A spec
+that needs pre-generation off whatever the build loads `?pregeneration=off` explicitly.
 `tests/e2e/workspace/pregeneration.spec.ts` loads it that way through
 `gotoPregenerationHarness(page)` in `tests/e2e/workspace/pregeneration-helpers.ts`, whose other
 helpers read the call records (`generationRecords`, `backgroundRecordsFrom`,

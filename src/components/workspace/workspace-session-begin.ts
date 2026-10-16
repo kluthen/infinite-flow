@@ -57,12 +57,14 @@ function onWake(core: SessionControllerCore, ends: SessionEnds): void {
 }
 
 /**
- * What the in-click part of a start settled: the session's settings, the staff layout it holds,
- * the written phrase Idle shows (phrase 1) and the pre-generated phrases Start took.
+ * What the in-click part of a start settled: the session's settings and those phrase 1 was
+ * generated under, the staff layout it holds, the written phrase Idle shows (phrase 1) and the
+ * pre-generated phrases Start took.
  */
 // @spec-link [[module_session_ready_phrases]]
 export interface SessionBeginning {
   readonly settings: SessionSettings
+  readonly phraseOneSettings: SessionSettings
   readonly heldLayout: StaffLayout
   readonly idleWritten: WrittenPhrase
   readonly readyPhrases: readonly ReadyPhrase[]
@@ -91,7 +93,7 @@ export function beginSession(
   session: ActiveSession,
   begun: SessionBeginning,
 ): void {
-  const { settings, heldLayout, idleWritten, readyPhrases } = begun
+  const { settings, phraseOneSettings, heldLayout, idleWritten, readyPhrases } = begun
   const { deps, state } = core
   const { audio, browser } = deps
   const { sessionMidi, adaptiveTempo, varySettings, tensionAcrossPhrases } = sides
@@ -148,6 +150,7 @@ export function beginSession(
       at: timeline.startAt,
       settings,
       phraseOne: { intent: phraseOne.intent, outcome: phraseOne.outcome },
+      phraseOneSettings,
       sessionSeed: phraseOne.sessionSeed,
       adaptiveTempo: adaptiveTempo.forSession(sessionMidi.sessionHasController()),
       varySettings: varySettings.on(),

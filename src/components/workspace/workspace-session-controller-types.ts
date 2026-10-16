@@ -4,6 +4,7 @@
  * breaks the contract. The seams it is built from live in `workspace-session-controller-seams.ts`
  * and are re-exported here; the controller itself is `workspace-session-controller.ts`.
  */
+import type { MyInstrumentSessions } from '@/composables/use-generation-session'
 import type { ExpectedNoteIdentity } from '@/domain/acknowledgement/expected-note'
 import type { CountInDisplay } from '@/session/count-in-display'
 import type { ExportableHistory } from '@/export/export-file'
@@ -16,6 +17,7 @@ import type { StaffLayout } from '@/notation/notation-layout-policy'
 import type { SessionStaff } from '@/components/notation/session-staff'
 import type { KeptSessionRow } from './use-kept-sessions'
 import type { ControllerLostCountdown } from './workspace-session-midi'
+import type { StalePhrasePrompt } from './workspace-stale-phrase'
 
 export type { KeptSessionsSeam } from './workspace-kept-sessions-seam'
 export type {
@@ -150,6 +152,18 @@ export type MostRecentSession =
   | { readonly kind: 'held'; readonly session: ReviewedSession }
   | { readonly kind: 'kept'; readonly key: string }
 
+/**
+ * The kept sessions of my instrument as the controller counts them for a warning or confirmation:
+ * their number, deletes and leaving memory, whether the Review on screen draws one of them, and
+ * whether erasing them is withheld because saving is off while there are some (an outdated tab).
+ */
+export interface MyInstrumentSessionCount extends MyInstrumentSessions {
+  /** The Review on screen shows one of the counted sessions: confirming closes it. */
+  readonly reviewed: boolean
+  /** Saving is off while some are counted: deleting my instrument and erasing them are withheld. */
+  readonly withheld: boolean
+}
+
 /** What the screen reads from the controller; every field is reactive. */
 // @spec-link [[service_session_controller]]
 // @spec-link [[rule_session_start_conditions]]
@@ -256,11 +270,17 @@ export interface SessionControllerState {
    */
   readonly tensionAcrossPhrases: boolean
   /**
-   * What the read-only controls show while a session runs: its start settings during the
-   * count-in, then the settings the phrase now sounding was generated with; null with no session,
+   * What the read-only controls show while a session runs: the settings phrase 1 was generated
+   * with during the count-in and phrase 1 (the player's own, unless phrase 1 was stale and used as
+   * it is), then the settings the phrase now sounding was generated with; null with no session,
    * when the controls show the player's own choices, which a session never writes.
    */
   readonly shownSettings: SessionSettings | null
+  /**
+   * The stale-phrase prompt while it shows: what opened it (Start or the starting note) and the
+   * settings phrase 1 differs in; null otherwise. Never during a session.
+   */
+  readonly stalePhrasePrompt: StalePhrasePrompt | null
 }
 
 /** The session controller a screen binds to. */
@@ -269,9 +289,18 @@ export interface SessionController {
   readonly state: SessionControllerState
   /**
    * Start a session; call it synchronously inside the player's Start click. Throws when blocked.
+   * With a stale phrase 1 it starts nothing and opens the stale-phrase prompt instead (`asked`).
    * Playing the starting note takes this same path.
    */
-  readonly start: () => void
+  readonly start: () => 'started' | 'asked'
+  /**
+   * The stale-phrase prompt's Use it, inside its click: close the prompt and start the session
+   * from phrase 1 as on screen, unless a start condition no longer holds (false: nothing starts).
+   * Throws when no prompt shows.
+   */
+  readonly useStalePhrase: () => boolean
+  /** Close the stale-phrase prompt, changing and starting nothing; throws when none shows. */
+  readonly dismissStalePhrase: () => void
   /**
    * End the running session (the player's Stop). Throws with no session running. A session also
    * ends on its own, like Stop: the page hidden, the staff no longer shown (the window, the
@@ -363,6 +392,18 @@ export interface SessionController {
    * way to the list. A refusal changes nothing. Throws unless at Idle with saving on.
    */
   readonly deleteEverySession: () => Promise<SessionDeletion>
+  /**
+   * The kept sessions of my instrument now, as its delete confirmation and its erase warnings count
+   * them: the session list's rows naming my instrument, and the session that just ended when played
+   * with it. The count holds their deletes, by their keys (a delete of nothing for one held in
+   * memory only because its save failed, unless a retry of that save wrote it), no retry of their
+   * saves writing while the batch applies, and their leaving memory once the batch that erases
+   * them is saved: their rows, a Review of one (the list in its place when it showed) and the most
+   * recent session when it is one, leaving none, and the retries of their saves; refused, they
+   * stay, a retry held back running again. While saving is off it counts only the rows (a held
+   * session keeps its Review). Reactive through the state it reads.
+   */
+  readonly myInstrumentSessions: () => MyInstrumentSessionCount
   /**
    * Turn the page's adaptive-tempo flag on or off, at Idle only: throws during the count-in or a
    * running session, and when turning it on with no controller attached.

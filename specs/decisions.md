@@ -14,13 +14,13 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D336**. D259–D260 are
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D340**. D259–D260 are
 on branch `v4-accompaniment-research`, not merged yet. D263–D288 are v3.3's richer chords (merged
 from `main`); D289 is unused. D290–D299 were reserved for v3.0 wave 2; wave 2 used D290–D298, and
 D299 records wave 3. D300 records the wave-4 preflight; D301 and D302 the plan revision after
 chunk 7a; D303–D305 the wave-5 preflight (D303 the owner's ruling on the session key); D306–D308 the
 wave-5 sync; D309–D311 the owner's rulings on O201 and O200 and the plan revision they bring;
-D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan following the wave-6 design gates; D320 the owner's confirmation of the seventh contract change; D321 measurement M1's findings; D322 and D323 the owner's rulings on O211 and on a controller reselected at load; D324 and D325 the wave-7 preflight; D326 the erasing of my instrument's sessions in one batch; D327 a wording correction to D310; D328 a page the back-forward cache brings back; D329–D331 the wave-8 preflight; D332–D334 three edges found while recording its captures; D335 the owner's sign-off at the wave-8 report on the transposition check's action.
+D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan following the wave-6 design gates; D320 the owner's confirmation of the seventh contract change; D321 measurement M1's findings; D322 and D323 the owner's rulings on O211 and on a controller reselected at load; D324 and D325 the wave-7 preflight; D326 the erasing of my instrument's sessions in one batch; D327 a wording correction to D310; D328 a page the back-forward cache brings back; D329–D331 the wave-8 preflight; D332–D334 three edges found while recording its captures; D335 the owner's sign-off at the wave-8 report on the transposition check's action; D336–D338 the wave-9 preflight; D339 the owner keeping ux D319.
 
 ## Decision Log
 
@@ -2154,3 +2154,70 @@ D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan
   `rule_transposition_check_sets_my_instrument` 0.4 already says both (intent change set
   `docs/release/v3.0-intent-change-set.md`, part Q2 item 4 and part Q4 item 6, applied by
   `documentalist`).
+
+- **D336 (2026-10-16): build plan v27 places the wave-9 preflight's corrections.** Settled by
+  `spec-writer` under the owner's delegation of minor technical calls, from `documentalist`'s
+  wave-9 preflight (83a90ec on `v3.0-w9`, change set part R: 20c PROCEED-WITH-SIGNOFF-PENDING,
+  Part B2 after the gate; 24b PROCEED; D326 captured in `entity_my_instrument_record` 0.4 and
+  `module_save_policy` 0.6, 24b-1's re-check on the return to Idle in
+  `module_idle_pregeneration_queue` 0.5), checked against the code on that branch. Chunk 20c's
+  Files line missed the files D326 changes: `my-instrument-saves.ts` (it sends both saves as
+  `void policy.save`, with no outcome), `generation-session-my-instrument.ts` (it changes
+  `state.myInstrument` at once and selects the template before the record's delete),
+  `use-my-instrument-sheet.ts` (the sheet's host, which calls the actions with `void` and closes
+  at once; `use-my-instrument.ts` is only the form model), `use-generation-session.ts` (the
+  actions' outcome and its no-saves stub), `WorkspaceShell.vue` (it hosts the sheet and wires the
+  check's `use-for-my-instrument` to `saveAndSelectMyInstrument`) and the session controller's
+  files (the counted sessions leaving memory, as `workspace-kept-sessions-deletion.ts` does for
+  Delete every session). With them the chunk passes about fourteen source files, so its split
+  rule becomes three parts, in order: 20c-1 the batch and memory (no interface), 20c-2 the
+  warnings, confirmations and their hosts, 20c-3 the review's room for another clef. Wave 9 is
+  not file-disjoint: `WorkspaceShell.vue` is also 24b-2's (the prompt's host), so it is shared,
+  20c before 24b-2, κ=1, run order 20c-1 → 20c-2 → 20c-3 → 24b-1 → 24b-2, as waves 6 to 8 did
+  (D312, D325, D329); the session controller's two files are shared the same way if 24b-2's Start
+  needs them. `WorkspaceShell.vue` links 9 atoms, so one new linked function fits there.
+  Chunk 20c gains `rule_failed_read_offers_only_delete_everything`, `rule_kept_session_content`,
+  `module_kept_session_changes`, `module_kept_session_reach` and `service_session_controller`;
+  its review-height rule is ux D290's, no longer proposed. Chunk 24b names
+  `rule_stale_phrase_prompt_at_start` (part J2) and gains `service_session_start`,
+  `module_session_starting_note`, `module_session_carry_in_after_change`, and
+  `rule_pregeneration_discarded_on_change` to keep true (it governs Idle;
+  `workspace-pregeneration.ts` links it); its revisions before code are complete with parts J2
+  and R2, and the wave sync describes the prompt in `service_workspace_session_flow` as built.
+  The Part B2 gate records the preflight's point on D335's bound.
+
+- **D337 (2026-10-16): a reload between my instrument's deletion and the template's saved
+  selection loads the default instrument; accepted, and stated in the record's atom.** Settled
+  by `spec-writer` under the owner's delegation of minor technical calls, from the wave-9
+  preflight's first D326 point. D326 item 3 saves the template's selection after the batch,
+  through the visit's saves, where chunk 20's code selected the template before the record's
+  delete. So a reload after the batch is saved and before that selection is saved (a moment, at
+  most a generation under way at Idle longer), or a refusal of that one settings save, leaves a
+  saved selection naming a my instrument that no longer exists; the next load reads it
+  tolerantly (`rule_saved_settings_load_tolerantly`, `settings-record.ts`'s `readInstrument`) and
+  selects the default instrument, the B-flat tenor saxophone, not the template. Accepted: nothing
+  is lost, my instrument and its sessions are gone as the player confirmed, the instrument
+  control shows a built-in the player can change in one choice, and it takes a reload in that
+  moment. Putting the selection's write into the batch was rejected: it would bring a settings
+  record into the kept-change line, against D326 item 1 and `module_save_policy`. Stated, not
+  left implicit: `documentalist` adds the case to `entity_my_instrument_record` at chunk 20c's
+  sync, and chunk 20c-1 replaces the code's claim that "no selection ever names a my instrument
+  that is gone". No business atom, master spec or design change: master spec §4.4 already gives
+  the tolerant fallback. Not the owner's to rule on.
+
+- **D338 (2026-10-16): D326 item 2's "leaves memory alone" means it only leaves memory.**
+  Settled by `spec-writer` under the owner's delegation of minor technical calls, from the
+  wave-9 preflight's second D326 point; it confirms the reading in change set part R1. The
+  session that just ended, held in memory only because its own save failed, has no record on the
+  device, so the batch deletes nothing for it; naming its minted key would be a delete that
+  changes nothing (D326 item 2), and the batch need not name it. It is still a session of my
+  instrument: the warning or confirmation counts it, as the session that just ended, and once the
+  batch is saved it leaves memory with the others (its review closes, `Review last session`
+  goes), and with it any retry of its save, so nothing writes it to the device later. Refused,
+  it stays, as everything does. No behaviour, design or atom change; chunk 20c-1 tests it.
+
+- **D339 (2026-10-16): after Use it, the musical profile selection shows the player's
+  selection from Start, never phrase 1's; other changed controls show phrase 1's values.** The
+  owner kept ux D319. Why: the selection names the choice the next phrases follow. Stated in
+  [master spec §16](versions/v3/master-spec.md#16-a-stale-phrase-1-at-start) (Part A v1.24) and
+  `rule_stale_phrase_prompt_at_start` 0.2 (change set part R5 item 2); chunk 24b-2 built it.

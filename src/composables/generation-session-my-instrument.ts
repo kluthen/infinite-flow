@@ -4,25 +4,52 @@
  * no state of its own and reads and writes the shared session state. Loaded on demand, through
  * ./load-my-instrument-actions.ts only.
  *
- * Every save writes my instrument's record at once, through the visit's saves (the save policy
- * holds, refuses or skips it); its effect on the selection and the phrase waits for a generation
- * under way to end, as an instrument switch made at that moment would be applied.
+ * A save that erases nothing writes my instrument's record at once, through the visit's saves
+ * (the save policy holds, refuses or skips it), and applies at once. Deleting my instrument, and
+ * a change of its range or transposition while it has kept sessions, are one batch with the
+ * deletes of the sessions the caller counted (spec D326): nothing changes in memory until it is
+ * saved, and a refusal, or saving off with sessions to erase, changes nothing. Each effect on the
+ * selection and the phrase waits for a generation under way to end, as an instrument switch made
+ * at that moment would be applied.
  */
 
 import { watch } from 'vue'
 
 import { MY_INSTRUMENT_ID } from '@/domain/profile/instrument-profiles'
 import type { MyInstrument } from '@/domain/profile/my-instrument'
+import type { KeptChangeOutcome, KeptChanges } from '@/storage/save-policy'
 import type { MyInstrumentSaves } from '@/storage/settings-saver'
 import type { ProfileSelectionOutcome } from './generation-session-profile-switch'
 import type { MutableGenerationSessionState } from './generation-session-types'
 
 /**
  * What saving or deleting my instrument did: nothing (`unchanged`), saved it without touching the
- * phrase (`saved`), redrew the phrase in its new clef (`redrawn`), or a switch's outcome.
+ * phrase (`saved`), redrew the phrase in its new clef (`redrawn`), or a switch's outcome; or, for
+ * its batch with its kept sessions, nothing because the device refused it (`refused`) or because
+ * saving is off (`saving-off`).
  */
 // @spec-link [[req_my_instrument]]
-export type MyInstrumentChangeOutcome = 'unchanged' | 'saved' | 'redrawn' | ProfileSelectionOutcome
+// @spec-link [[entity_my_instrument_record]]
+export type MyInstrumentChangeOutcome =
+  'unchanged' | 'saved' | 'redrawn' | 'refused' | 'saving-off' | ProfileSelectionOutcome
+
+/**
+ * The kept sessions of my instrument as the caller counted them for its warning or confirmation:
+ * how many, their deletes by their keys, their leaving memory once the batch that erases them is
+ * saved, and their staying as they were when it is not.
+ */
+// @spec-link [[entity_my_instrument_record]]
+// @spec-link [[req_kept_sessions]]
+export interface MyInstrumentSessions {
+  /** How many sessions the warning or confirmation names. */
+  readonly count: number
+  /** The deletes of the counted sessions, for the batch. */
+  readonly deletes: KeptChanges
+  /** The batch is saved: the counted sessions leave memory. */
+  readonly leave: () => void
+  /** The batch is refused, or not made as saving is off: the counted sessions stay as they were. */
+  readonly stay: () => void
+}
 
 /** What the actions need from the root session composable. */
 export interface MyInstrumentActionDependencies<TResult> {
@@ -39,13 +66,19 @@ export interface MyInstrumentActionDependencies<TResult> {
   readonly redrawPhrase: () => Promise<boolean>
 }
 
-/** The actions on my instrument. */
+/** The actions on my instrument, each given the kept sessions of my instrument counted. */
 export interface MyInstrumentActions {
-  readonly saveMyInstrument: (instrument: MyInstrument) => Promise<MyInstrumentChangeOutcome>
+  readonly saveMyInstrument: (
+    instrument: MyInstrument,
+    sessions: MyInstrumentSessions,
+  ) => Promise<MyInstrumentChangeOutcome>
   readonly saveAndSelectMyInstrument: (
     instrument: MyInstrument,
+    sessions: MyInstrumentSessions,
   ) => Promise<MyInstrumentChangeOutcome>
-  readonly deleteMyInstrument: () => Promise<MyInstrumentChangeOutcome>
+  readonly deleteMyInstrument: (
+    sessions: MyInstrumentSessions,
+  ) => Promise<MyInstrumentChangeOutcome>
 }
 
 /** Intent: whether two my instruments sound the same: the same written range and transposition. */
@@ -69,14 +102,23 @@ function sameMyInstrument(before: MyInstrument, after: MyInstrument): boolean {
   )
 }
 
+/** Intent: a batch's outcome as an action resolves it: saved (or nothing to change), or why not. */
+function batchOutcome(outcome: KeptChangeOutcome): 'saved' | 'refused' | 'saving-off' {
+  if (outcome.status === 'refused' || outcome.status === 'saving-off') return outcome.status
+  return 'saved'
+}
+
 /**
  * Intent: build the actions on my instrument. Saving a new one saves it and selects it, an
  * instrument switch; saving one and selecting it (the transposition check's way) also selects one
  * that exists but is not selected. Saving a change saves it; while it is selected, a change of range or
  * transposition replaces the phrase as a switch does, and a change of clef alone redraws the
- * phrase in it, keeping it; a change of name relabels only. Deleting deletes its record; while it
- * is selected, its template is selected first, a switch, so no selection ever names a my
- * instrument that is gone.
+ * phrase in it, keeping it; a change of name relabels only. A change of range or transposition
+ * while my instrument has kept sessions saves in one batch that erases them, and applies once it
+ * is saved. Deleting deletes its record and its kept sessions in one batch; once it is saved, and
+ * while it was selected, its template is selected, a switch whose selection is saved after the
+ * batch: a reload, or a refused selection save, in between loads the default instrument, which is
+ * accepted (spec D337).
  */
 // @spec-link [[req_my_instrument]]
 // @spec-link [[rule_profile_switch_validates_phrase]]
@@ -116,11 +158,39 @@ export function createMyInstrumentActions<TResult>(
     return 'redrawn'
   }
 
+  /**
+   * Intent: write `instrument`'s record over `before`: in one batch erasing `sessions` when it
+   * changes the range or transposition of a my instrument that has kept sessions, the counted
+   * sessions leaving memory once it is saved; else the plain write. Resolves `saved` once memory
+   * may change, else why it may not.
+   */
+  // @spec-link [[entity_my_instrument_record]]
+  async function written(
+    before: MyInstrument | null,
+    instrument: MyInstrument,
+    sessions: MyInstrumentSessions,
+  ): Promise<'saved' | 'refused' | 'saving-off'> {
+    if (before === null || sessions.count === 0 || soundsTheSame(before, instrument)) {
+      deps.saves.saveMyInstrument(instrument)
+      return 'saved'
+    }
+    const outcome = batchOutcome(
+      await deps.saves.saveMyInstrumentErasing(instrument, sessions.deletes),
+    )
+    if (outcome === 'saved') sessions.leave()
+    else sessions.stay()
+    return outcome
+  }
+
   /** Intent: save my instrument, made or changed (see the factory's intent). */
-  async function saveMyInstrument(instrument: MyInstrument): Promise<MyInstrumentChangeOutcome> {
+  async function saveMyInstrument(
+    instrument: MyInstrument,
+    sessions: MyInstrumentSessions,
+  ): Promise<MyInstrumentChangeOutcome> {
     const before = state.myInstrument
     if (before !== null && sameMyInstrument(before, instrument)) return 'unchanged'
-    deps.saves.saveMyInstrument(instrument)
+    const saved = await written(before, instrument, sessions)
+    if (saved !== 'saved') return saved
     state.myInstrument = instrument
     if (before === null) {
       await whenIdle()
@@ -133,41 +203,55 @@ export function createMyInstrumentActions<TResult>(
   /**
    * Intent: save my instrument and make it the selection. A new one, or the selected one, is saved
    * as `saveMyInstrument` saves it; one that exists but is not selected has its record written
-   * at once (unless nothing in it changed), then is selected, a switch that replaces the phrase,
-   * once a generation under way has ended.
+   * (unless nothing in it changed; in the batch erasing `sessions` when its range or
+   * transposition changed while it has kept sessions), then, once written, is selected, a switch
+   * that replaces the phrase, once a generation under way has ended.
    */
   // @spec-link [[rule_transposition_check_sets_my_instrument]]
   async function saveAndSelectMyInstrument(
     instrument: MyInstrument,
+    sessions: MyInstrumentSessions,
   ): Promise<MyInstrumentChangeOutcome> {
     const before = state.myInstrument
     if (before === null || state.controls.instrumentProfileId === MY_INSTRUMENT_ID) {
-      return saveMyInstrument(instrument)
+      return saveMyInstrument(instrument, sessions)
     }
     if (!sameMyInstrument(before, instrument)) {
-      deps.saves.saveMyInstrument(instrument)
+      const saved = await written(before, instrument, sessions)
+      if (saved !== 'saved') return saved
       state.myInstrument = instrument
     }
     await whenIdle()
     return deps.selectInstrumentProfile(MY_INSTRUMENT_ID)
   }
 
-  return {
-    saveMyInstrument,
-    saveAndSelectMyInstrument,
-    deleteMyInstrument: async () => {
-      const before = state.myInstrument
-      if (before === null) throw new Error('my instrument: there is none to delete')
-      if (state.controls.instrumentProfileId !== MY_INSTRUMENT_ID) {
-        state.myInstrument = null
-        deps.saves.deleteMyInstrument()
-        return 'saved'
-      }
-      await whenIdle()
-      const switched = deps.selectInstrumentProfile(before.template)
+  /**
+   * Intent: delete my instrument and `sessions` in one batch (see the factory's intent). Once it
+   * is saved, the sessions leave memory and my instrument goes, its template selected first while
+   * it was selected. Saving off deletes it for the visit only when it has no session to erase.
+   */
+  // @spec-link [[entity_my_instrument_record]]
+  // @spec-link [[req_my_instrument]]
+  async function deleteMyInstrument(
+    sessions: MyInstrumentSessions,
+  ): Promise<MyInstrumentChangeOutcome> {
+    const before = state.myInstrument
+    if (before === null) throw new Error('my instrument: there is none to delete')
+    const outcome = batchOutcome(await deps.saves.deleteMyInstrument(sessions.deletes))
+    if (outcome === 'refused' || (outcome === 'saving-off' && sessions.count > 0)) {
+      sessions.stay()
+      return outcome
+    }
+    sessions.leave()
+    if (state.controls.instrumentProfileId !== MY_INSTRUMENT_ID) {
       state.myInstrument = null
-      deps.saves.deleteMyInstrument()
-      return switched
-    },
+      return 'saved'
+    }
+    await whenIdle()
+    const switched = deps.selectInstrumentProfile(before.template)
+    state.myInstrument = null
+    return switched
   }
+
+  return { saveMyInstrument, saveAndSelectMyInstrument, deleteMyInstrument }
 }

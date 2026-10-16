@@ -31,6 +31,19 @@
 
 ## In Progress
 
+**v3.0 wave 9: small follow-ups** (on branch `v3.0-w9`). Started and done 2026-10-16. Both trees
+(recorded corrections to `versions/v3.0/`); cosmetic or wording only, so no `ux-critic` pass.
+
+- **Stale phrase, the musical profile preset:** chunk 24b-2's reading confirmed and written
+  exactly (ux D319): the preset's selection, status and summary segment show the player's
+  selection at Start, never phrase 1's. No code change.
+- **Sheets:** a lone `btn` in a `sheet-section` keeps its own width (ux D320; code change to
+  route: the rule in `components.css`); every sheet capped at every breakpoint, 36rem at 844 px
+  intended, the phone lines say "up to" the cap (ux D321; no code change).
+- **Header build id** written into the workspace handoff and `token-source-v3.md`, newly marked
+  `[v3 new]` (ux D322; code change to route: `.brand` and `.build-id` from the component's scoped
+  style into `components.css`).
+
 **v3.0 wave 7: before chunk 14** (on branch `v3.0-w7`). Started 2026-10-15.
 
 - **The most recent session after a deletion** (found by documentalist capturing
