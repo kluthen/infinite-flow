@@ -4740,6 +4740,15 @@ owner says go.
 `npm run lint:links`. After the tag: `spec-writer` and `ux-writer` archive the v3.0 working
 records (milestone archive).
 
+**Record (2026-10-16).** Merged into `v3.0-w10` (7d1139e, chunk commit cc1ada7):
+`docs/release/v3.0-release-notes.md` (items 1–24, 197 cited tests checked by `reviewer`, the
+item-22 table with 31 v2.0.0 titles, M1–M5), the privacy spy re-run with every kind of record
+stored (`tests/e2e/review/review-privacy.spec.ts`), the v3.0 hand-check records with new H5, H7
+and H8 sections, version 3.0.0 (not tagged). Entry chunk 229,146 B, unchanged (230 B under
+229,376 B). No deviation; the notes' reading notes name the clauses with indirect evidence (items
+6, 12, 15, 17, 21, 24) and a session's phrases after phrase 1 differing from v2's under the same
+seeds (chunk 23, §8; not listed in §10).
+
 ## 7. Definition-of-done coverage
 
 Every item of [§13](master-spec.md#13-definition-of-done), the chunk that builds it, and its
