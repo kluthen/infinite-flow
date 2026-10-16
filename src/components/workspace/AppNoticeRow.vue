@@ -2,8 +2,7 @@
 /**
  * The notice row at the top of the workspace: one `app-notice`, its sentence, then its action and
  * `Dismiss` when it has them. Never error-toned, not a live region, no animation; it moves no
- * focus. Its buttons are disabled while a session runs. `Your data` stays disabled until the Your
- * data sheet exists.
+ * focus. Its buttons are disabled while a session runs. `Your data` opens the Your data sheet.
  */
 import type { AppNotice } from './use-app-notices'
 
@@ -20,6 +19,8 @@ const emit = defineEmits<{
   dismiss: []
   /** `Reload` was pressed. */
   reload: []
+  /** `Your data` was pressed. */
+  'your-data': []
 }>()
 </script>
 
@@ -27,7 +28,13 @@ const emit = defineEmits<{
   <div class="app-notice-row">
     <div class="inline-alert alert-notice app-notice">
       <p>{{ notice.text }}</p>
-      <button v-if="notice.action === 'your-data'" type="button" class="btn" disabled>
+      <button
+        v-if="notice.action === 'your-data'"
+        type="button"
+        class="btn"
+        :disabled="disabled"
+        @click="emit('your-data')"
+      >
         Your data
       </button>
       <button

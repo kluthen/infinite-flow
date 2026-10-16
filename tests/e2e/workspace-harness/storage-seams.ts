@@ -22,9 +22,9 @@
  * - `loadOutcome`, `savingState` and `loadMs` report the load;
  * - `?storageRead=fail` makes every read of the app's port fail, and `?storageRead=slow` delays
  *   each past the start-up wait, so the visit starts from the defaults;
- * - `refuseSaves(kind)` makes the app's port refuse every write, delete and batch as `quota` or
- *   `other` (null to stop), and `portChanges()` counts the changes that reached the app's port,
- *   refused or not: the write spy;
+ * - `refuseSaves(kind)` makes the app's port refuse every write, delete and batch, and Delete
+ *   everything, as `quota` or `other` (null to stop), and `portChanges()` counts the changes that
+ *   reached the app's port, refused or not: the write spy;
  * - `refuseKeptSessionReads(on)` makes the app's port refuse each read of a kept session's body as
  *   `other`, so opening a kept session fails while the load's reads go through;
  * - `openNewerVersion()` opens the database as a newer version of the app would, one data version
@@ -101,8 +101,8 @@ interface PortInjections {
 
 /**
  * Intent: the app's port over `real`: each read failed or delayed per the read mode, a kept
- * session's body read refused while those reads are, each change counted, then refused when a
- * refusal is set.
+ * session's body read refused while those reads are, each change (Delete everything included)
+ * counted, then refused when a refusal is set.
  */
 function injectedPort(real: StoragePort, injections: PortInjections): StoragePort {
   const read = async <T>(operation: () => Promise<T>, store?: StoreName): Promise<T> => {
@@ -131,6 +131,7 @@ function injectedPort(real: StoragePort, injections: PortInjections): StoragePor
     write: (store, key, record) => change(() => real.write(store, key, record)),
     delete: (store, key) => change(() => real.delete(store, key)),
     apply: (changes) => change(() => real.apply(changes)),
+    deleteEverything: () => change(() => real.deleteEverything()),
   }
 }
 

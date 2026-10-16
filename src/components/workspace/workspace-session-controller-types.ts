@@ -111,9 +111,9 @@ export type KeepPlayedNotesSwitch =
 export type PlayedNotesDeletion = 'deleted' | 'refused' | 'saving-off'
 
 /**
- * What became of `Delete session`: deleted, from the device and from memory (also when it was
- * held in memory only, or was gone already); refused by the device, nothing changed; or not made
- * because saving turned off.
+ * What became of `Delete session`, or of `Delete every session`: deleted, from the device and from
+ * memory (also when it was held in memory only, or was gone already); refused by the device,
+ * nothing changed; or not made because saving turned off.
  */
 // @spec-link [[module_kept_session_save]]
 export type SessionDeletion = 'deleted' | 'refused' | 'saving-off'
@@ -352,6 +352,13 @@ export interface SessionController {
    * Throws unless at Idle with saving on and that session held or with a row this version reads.
    */
   readonly deleteSession: (key: string) => Promise<SessionDeletion>
+  /**
+   * Delete every kept session (Your data), one with no row included: from the device, then, once
+   * deleted or found already gone, every session from memory, the most recent one included, kept
+   * or held in memory only, and every row, leaving no most recent session; a showing Review gives
+   * way to the list. A refusal changes nothing. Throws unless at Idle with saving on.
+   */
+  readonly deleteEverySession: () => Promise<SessionDeletion>
   /**
    * Turn the page's adaptive-tempo flag on or off, at Idle only: throws during the count-in or a
    * running session, and when turning it on with no controller attached.
