@@ -1234,7 +1234,11 @@ pre-generation rig's gated generate seam. The rig's wall clock reads a minute la
 session's start, as in a real visit, so each session's kept key differs. Its saved
 `Keep my played notes` is off unless a spec passes `savedKeepPlayedNotes: true`, and its kept
 sessions' `changes` (the changes after a session's save) throw unless a spec passes its own in
-`keptSessions` (`workspace-session-controller-played-notes.spec.ts` logs and resolves them).
+`keptSessions` (`workspace-session-controller-played-notes.spec.ts` logs and resolves them), and
+so do its `reports` of damaged sessions' deletions;
+`workspace-session-controller-damaged-sessions.spec.ts` passes a fake device of the three
+kept-session stores whose `changeKept` runs each change against it (refusals of the read or the
+batch, a gate and saving off injected) and logs every report.
 
 ## Fake staff fit
 

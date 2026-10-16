@@ -112,7 +112,8 @@ export interface ControllerRigOptions {
   ) => Promise<SessionSaveOutcome>
   /**
    * The kept sessions the controller reaches: by default none loaded, a read that throws (none is
-   * ever asked for), saving on, and changes after a save that throw (none is ever asked for).
+   * ever asked for), saving on, changes after a save that throw (none is ever asked for), and
+   * reports of damaged sessions' deletions that throw (none is ever told).
    */
   readonly keptSessions?: Partial<KeptSessionsSeam>
 }
@@ -427,6 +428,11 @@ export function controllerRig(
         },
       },
       requestProtection: () => {},
+      reports: {
+        tell: (report) => {
+          throw new Error(`rig: no damaged-session report is told (${report.status})`)
+        },
+      },
       ...options.keptSessions,
     },
   })

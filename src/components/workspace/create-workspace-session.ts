@@ -52,7 +52,7 @@ import type {
   WorkspaceSessionRunnerStarter,
 } from './workspace-session-dependencies'
 import type { WorkspaceSession } from './workspace-session-types'
-import { keptSessionsOf } from './workspace-kept-sessions-seam'
+import { createDamagedSessionReports, keptSessionsOf } from './workspace-kept-sessions-seam'
 
 export type {
   WorkspaceSessionDependencies,
@@ -132,6 +132,9 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
   const slot = createPregenerationSlot()
   const { controls, profileSelection, theme, sessionOptions } = deps.savedData.settings
   const saves = createVisitSaves(deps.savedData.savePolicy, APP_VERSION)
+  // Built with the workspace, before the controller's chunk loads, so the notices hear it from
+  // the first draw.
+  const damagedSessionReports = createDamagedSessionReports()
   const created = createGenerationSession<WorkspaceSessionResult, WorkspaceGeneratedPhrase>({
     providers: deps.providers,
     nextSessionSeed: deps.nextSessionSeed,
@@ -246,14 +249,16 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
         savedSessionOptions: sessionOptions,
         savedKeepPlayedNotes: deps.savedData.settings.keepPlayedNotes,
         saveHold: { hold: saves.hold, release: saves.release, saveSession: saves.saveSession },
-        keptSessions: keptSessionsOf(deps.savedData, {
-          changeKept: saves.changeKept,
-          readKept: saves.readKept,
-        }),
+        keptSessions: keptSessionsOf(
+          deps.savedData,
+          { changeKept: saves.changeKept, readKept: saves.readKept },
+          damagedSessionReports,
+        ),
       })
     },
     savedData: deps.savedData,
     saveSettings: saves.saveSettings,
+    damagedSessionReports,
     rememberedController: {
       loaded: decodeRememberedController(deps.savedData.rememberedController),
       remember: saves.rememberController,

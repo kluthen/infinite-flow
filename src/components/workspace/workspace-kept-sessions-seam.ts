@@ -1,17 +1,61 @@
 /**
  * The kept sessions as the session controller reaches them, for the most recent session and the
  * changes made to a kept session after its save: the seam's shape, and the workspace's own seam
- * over the saved data the load gave and the visit's saves. Types and one small builder only, so
- * the entry chunk that builds the workspace stays as it was; the decoding lives in the
- * controller's chunk (./workspace-kept-session-read.ts).
+ * over the saved data the load gave and the visit's saves. Beside it, the channel the reports of
+ * the deletions of damaged kept sessions reach the notices by: built with the workspace, before the
+ * controller's chunk loads, handed to the seam for the controller to tell through, and to the
+ * notices to hear. Types and two small builders only, so the entry chunk that builds the
+ * workspace stays small; the decoding and the deletions live in the controller's chunk
+ * (./workspace-kept-session-read.ts, ./workspace-damaged-session-deletions.ts).
  */
 import { shallowRef } from 'vue'
 
 import type { SavedDataLoad } from '@/storage-bootstrap'
 import type { StoredKeptSession } from '@/storage/records/kept-session-record'
-import type { SavingState } from '@/storage/save-policy'
+import type { KeptRefusalKind, SavingState } from '@/storage/save-policy'
 import type { KeptSessionChanges } from '@/storage/settings-saver'
 import type { StoredEntry } from '@/storage/storage-port'
+
+/**
+ * What became of a deletion of damaged kept sessions, at load, at a session's save or at an
+ * opening: committed, with how many sessions it deleted; or refused by the device, with the
+ * refusal's kind and how many sessions it named. The count is at least 1.
+ */
+// @spec-link [[module_kept_session_save]]
+export type DamagedSessionsReport =
+  | { readonly status: 'deleted'; readonly count: number }
+  | { readonly status: 'refused'; readonly kind: KeptRefusalKind; readonly count: number }
+
+/** The channel the reports of the deletions of damaged kept sessions go through. */
+// @spec-link [[module_kept_session_save]]
+export interface DamagedSessionReports {
+  /** Tell `report` to every listener now; a count below 1 is a defect. */
+  readonly tell: (report: DamagedSessionsReport) => void
+  /** Hear every report told from now on; returns the way to stop. */
+  readonly listen: (listener: (report: DamagedSessionsReport) => void) => () => void
+}
+
+/**
+ * Intent: the channel of the reports of the deletions of damaged kept sessions, one per
+ * workspace: a report reaches the listeners attached when it is told, and nothing keeps it after.
+ */
+// @spec-link [[module_kept_session_save]]
+export function createDamagedSessionReports(): DamagedSessionReports {
+  const listeners = new Set<(report: DamagedSessionsReport) => void>()
+  return {
+    tell: (report) => {
+      if (!(Number.isInteger(report.count) && report.count >= 1))
+        throw new Error(`damaged session reports: ${String(report.count)} sessions is no count`)
+      for (const listener of [...listeners]) listener(report)
+    },
+    listen: (listener) => {
+      listeners.add(listener)
+      return () => {
+        listeners.delete(listener)
+      }
+    },
+  }
+}
 
 /**
  * The kept sessions as the session controller reaches them: the summaries the load read, the read
@@ -44,6 +88,8 @@ export interface KeptSessionsSeam {
    * per visit, never while saving is off, and not when the storage already is persistent.
    */
   readonly requestProtection: () => void
+  /** Where the controller tells each deletion of damaged kept sessions, committed or refused. */
+  readonly reports: Pick<DamagedSessionReports, 'tell'>
 }
 
 /**
@@ -51,8 +97,9 @@ export interface KeptSessionsSeam {
  * gave and the visit's saves: the summaries it read, a session's records read by its key through
  * the visit's save policy, whether saving is off now, known without waiting on a policy that may
  * never settle (a visit started from the defaults, whose port opens late or never, saves nothing)
- * and followed as the policy's state changes, the changes after a save through the saves, and the
- * request for persistent storage through the policy.
+ * and followed as the policy's state changes, the changes after a save through the saves, the
+ * request for persistent storage through the policy, and the deletions of damaged kept sessions
+ * told through `reports`.
  */
 // @spec-link [[module_kept_session_save]]
 // @spec-link [[module_saved_data_loader]]
@@ -60,6 +107,7 @@ export interface KeptSessionsSeam {
 export function keptSessionsOf(
   savedData: SavedDataLoad,
   changes: KeptSessionChanges,
+  reports: Pick<DamagedSessionReports, 'tell'>,
 ): KeptSessionsSeam {
   const saving = shallowRef<SavingState | null>(null)
   void savedData.savePolicy.then((loaded) => {
@@ -79,5 +127,6 @@ export function keptSessionsOf(
     requestProtection: () => {
       void savedData.savePolicy.then((loaded) => loaded.requestProtection())
     },
+    reports,
   }
 }
