@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.100
+Status: draft v2.101
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -14,13 +14,13 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and
-[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D340**. D259–D260 are
+[archive/v2/README.md](archive/v2/README.md)). Numbering continues from **D342**. D259–D260 are
 on branch `v4-accompaniment-research`, not merged yet. D263–D288 are v3.3's richer chords (merged
 from `main`); D289 is unused. D290–D299 were reserved for v3.0 wave 2; wave 2 used D290–D298, and
 D299 records wave 3. D300 records the wave-4 preflight; D301 and D302 the plan revision after
 chunk 7a; D303–D305 the wave-5 preflight (D303 the owner's ruling on the session key); D306–D308 the
 wave-5 sync; D309–D311 the owner's rulings on O201 and O200 and the plan revision they bring;
-D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan following the wave-6 design gates; D320 the owner's confirmation of the seventh contract change; D321 measurement M1's findings; D322 and D323 the owner's rulings on O211 and on a controller reselected at load; D324 and D325 the wave-7 preflight; D326 the erasing of my instrument's sessions in one batch; D327 a wording correction to D310; D328 a page the back-forward cache brings back; D329–D331 the wave-8 preflight; D332–D334 three edges found while recording its captures; D335 the owner's sign-off at the wave-8 report on the transposition check's action; D336–D338 the wave-9 preflight; D339 the owner keeping ux D319.
+D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan following the wave-6 design gates; D320 the owner's confirmation of the seventh contract change; D321 measurement M1's findings; D322 and D323 the owner's rulings on O211 and on a controller reselected at load; D324 and D325 the wave-7 preflight; D326 the erasing of my instrument's sessions in one batch; D327 a wording correction to D310; D328 a page the back-forward cache brings back; D329–D331 the wave-8 preflight; D332–D334 three edges found while recording its captures; D335 the owner's sign-off at the wave-8 report on the transposition check's action; D336–D338 the wave-9 preflight; D339 the owner keeping ux D319; D340 the owner's hand-check ruling for the v3.0 gate; D341 the wave-10 preflight.
 
 ## Decision Log
 
@@ -2221,3 +2221,17 @@ D312–D315 the wave-6 preflight; D316–D318 the wave-6 captures; D319 the plan
   owner kept ux D319. Why: the selection names the choice the next phrases follow. Stated in
   [master spec §16](versions/v3/master-spec.md#16-a-stale-phrase-1-at-start) (Part A v1.24) and
   `rule_stale_phrase_prompt_at_start` 0.2 (change set part R5 item 2); chunk 24b-2 built it.
+
+- **D340 (2026-10-16): v3.0 hand checks H2, H3, H4, H5, H6 and H9 count as passed on the
+  owner's word; H8 follows the tag as a v3.0.x note; H7 is recorded as not run.** Owner ruling,
+  through the wave driver. Why H8 waits: no file has been opened in an outside program yet
+  (MusicXML in MuseScore, MIDI files in a MIDI tool); H7 is for information only. Whether H5's
+  played-notes-export half counts as checked is open as O220. Stated in build plan v28,
+  [chunk 26](versions/v3/build-plan.md#chunk-26--v30-release-gate) and its gates table.
+
+- **D341 (2026-10-16): build plan v28 places the wave-10 preflight's corrections.** Settled by
+  `spec-writer` from `documentalist`'s preflight (b1dbffc, change set part S): chunk 26 checks
+  Part C (done 2026-10-08, D246), B1, B2, I1, J1 and N1 rather than obtaining them; it covers
+  items 1–24; §7's item 23 cites part G, item 19 its replay-key tests; M5's budget is 229,376
+  bytes (`224 * 1024`). Stated in [chunk 26](versions/v3/build-plan.md#chunk-26--v30-release-gate),
+  [§7](versions/v3/build-plan.md#7-definition-of-done-coverage) and M5.
