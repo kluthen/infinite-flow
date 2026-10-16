@@ -23,7 +23,9 @@
  * review preferences and "During a session" choices it is given are where the Review's export
  * choices and the options (while the controller loads) start from. It shows the notice row over the
  * load's outcome and save policy (./use-app-notices.ts): `Dismiss` sends focus to the first enabled
- * of the session action, the phrase action and `controller-status`; `Reload` reloads the page.
+ * of the session action, the phrase action and `controller-status`; `Reload` reloads the page. It
+ * ends with the page footer and hosts the Your data sheet (./use-your-data.ts), opened from the
+ * footer, the session list's header and the storage-full notice, loaded on demand.
  */
 import { computed, onMounted, ref, watch } from 'vue'
 
@@ -49,6 +51,7 @@ import {
   type SessionOptionChoices,
 } from '@/storage/records/setting-defaults'
 import AppNoticeRow from './AppNoticeRow.vue'
+import LayoutFooter from './LayoutFooter.vue'
 import WorkspaceHeader from './WorkspaceHeader.vue'
 import ScorePanel from './ScorePanel.vue'
 import OrientationNotice from './OrientationNotice.vue'
@@ -67,6 +70,7 @@ import { useAppNotices } from './use-app-notices'
 import { useShownSettings } from './use-shown-settings'
 import { useWorkspaceFocus } from './use-workspace-focus'
 import { useMyInstrumentSheet } from './use-my-instrument-sheet'
+import { useYourData } from './use-your-data'
 
 const props = withDefaults(
   defineProps<{
@@ -194,9 +198,9 @@ const {
 
 const emit = defineEmits<{
   /**
-   * The connection sheet or the My instrument sheet opened or closed (also once at setup,
-   * closed): whether either is open, emitted synchronously inside the change, so the workspace's
-   * flag, which keeps a MIDI note from starting a session, never lags the sheets.
+   * The connection sheet, the My instrument sheet or the Your data sheet opened or closed (also
+   * once at setup, closed): whether any is open, emitted synchronously inside the change, so the
+   * workspace's flag, which keeps a MIDI note from starting a session, never lags the sheets.
    */
   'connection-sheet-open-change': [open: boolean]
 }>()
@@ -210,10 +214,18 @@ const myInstrumentSheet = useMyInstrumentSheet({
     if (button instanceof HTMLElement) button.focus()
   },
 })
+// The Your data sheet, opened from the footer, the session list's header and the storage-full
+// notice; it returns focus to its opener itself, else to the workspace's fallback.
+// @spec-link [[req_your_data]]
+const yourData = useYourData(() => sessionActive.value)
 let connectionSheetShown = false
-watch(myInstrumentSheet.sheetOpen, (open) =>
-  emit('connection-sheet-open-change', connectionSheetShown || open),
-)
+/** Intent: tell the workspace whether any of its sheets is open now. */
+function reportSheetsOpen(): void {
+  const open = myInstrumentSheet.sheetOpen.value || yourData.sheet.value !== null
+  emit('connection-sheet-open-change', connectionSheetShown || open)
+}
+watch(myInstrumentSheet.sheetOpen, reportSheetsOpen)
+watch(yourData.sheet, reportSheetsOpen, { flush: 'sync' })
 
 // The header's `controller-status` and the connection sheet it opens.
 const {
@@ -233,7 +245,7 @@ const {
   controllerLost: () => props.controller !== null && props.controller.state.controllerLost !== null,
   onOpenChange: (open) => {
     connectionSheetShown = open
-    emit('connection-sheet-open-change', open || myInstrumentSheet.sheetOpen.value)
+    reportSheetsOpen()
   },
   rememberedController: props.rememberedController,
 })
@@ -338,16 +350,21 @@ const reviewNavigation = useReviewNavigation({
 })
 
 /**
- * Intent: `Dismiss`: remove the notice, and move focus to the first enabled of the session action,
- * the phrase action and `controller-status` (the workspace's fallback order).
+ * Intent: move focus to the first enabled of the session action, the phrase action and
+ * `controller-status` (the workspace's fallback order).
  */
-// @spec-link [[rule_failed_save_never_disturbs_session]]
-function handleDismissAppNotice(): void {
-  dismissAppNotice()
+function focusFallback(): void {
   const { header: shown } = focusParts()
   if (shown.sessionActionEnabled) focusTarget('session-action')
   else if (shown.phraseActionEnabled) focusTarget('phrase-action')
   else focusTarget('controller-status')
+}
+
+/** Intent: `Dismiss`: remove the notice, and move focus to the workspace's fallback. */
+// @spec-link [[rule_failed_save_never_disturbs_session]]
+function handleDismissAppNotice(): void {
+  dismissAppNotice()
+  focusFallback()
 }
 
 /** Intent: an Idle operation starting settles the end's landing: no late notice takes focus. */
@@ -396,6 +413,7 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
         :disabled="appNoticeActionsDisabled"
         @dismiss="handleDismissAppNotice"
         @reload="reloadPage"
+        @your-data="yourData.open"
       />
       <ScorePanel
         ref="scorePanel"
@@ -438,6 +456,10 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
         @set-vary-settings="handleSetVarySettings"
       />
     </div>
+    <LayoutFooter
+      :disabled="sessionActive || controller === null"
+      @open-your-data="yourData.open"
+    />
   </main>
   <component
     :is="sheetComponent"
@@ -454,6 +476,17 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
     @save="myInstrumentSheet.save"
     @delete="myInstrumentSheet.remove"
     @close="myInstrumentSheet.close"
+  />
+  <component
+    :is="yourData.sheet.value"
+    v-if="yourData.sheet.value !== null && controller !== null"
+    :controller="controller"
+    :saved-data="savedData"
+    :my-instrument="state.myInstrument"
+    :midi="midi"
+    :reload-page="reloadPage"
+    :focus-fallback="focusFallback"
+    @close="yourData.close"
   />
   <OrientationNotice />
 </template>

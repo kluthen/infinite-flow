@@ -280,7 +280,8 @@ UI (Vue components, props-in/events-out)
   `WorkspaceHeader` (with `controller-status`), `ScorePanel` (with the audio mix and the session
   cue row), `ControlPanel` and its five control groups are props-in/events-out around that one
   session and its controller. The connection sheet loads as its own chunk when
-  `controller-status` is clicked (see below).
+  `controller-status` is clicked (see below), and the Your data sheet as its own when one of its
+  openers is (the page footer, the session list's header, the storage-full notice).
 - **Session composables.** `createGenerationSession` owns the session's state machine (`idle` /
   `generating` / `notating`, exactly one operation at a time, prior-result retention on failure)
   and exposes explicit actions; `create-workspace-session.ts` wires it to a `generate` seam, a

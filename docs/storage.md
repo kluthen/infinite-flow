@@ -475,6 +475,35 @@ caller, not to the failure listener.
 After a successful Delete everything the port refuses every later write with `other`; the app
 reloads the page then.
 
+### The Your data sheet
+
+`YourDataSheet.vue`, with its model `use-your-data-sheet.ts` and its words `your-data-copy.ts`
+(all in `src/components/workspace/`), loads on demand through `use-your-data.ts`, the only part in
+the entry chunk: the footer's `Your data` (`LayoutFooter.vue`), the session list header's (through
+`injectOpenYourData`) and the storage-full notice's open it, each disabled during a session. While
+it is open no MIDI note starts a session; once it closes, focus returns to its opener while that is
+still shown and enabled, else to the workspace's fallback.
+
+- **Its form** follows the load outcome and the saving state (`yourDataForm`), as it changes
+  while the sheet is open: `on` gives the Overview; `off-unreadable` the unreadable notice with
+  Space used, Protection and Delete everything; `off-outdated` the outdated notice, in its
+  saved-data or defaults wording, with no deletion. Another tab's Delete everything closes this
+  tab's connection (`versionchange`), so it turns `off-outdated` and shows the saved-data wording
+  (spec D331). A confirmation open when the visit stops saving closes, deleting nothing, and focus
+  goes to `Done`; a deletion already running finishes.
+- **Its counts** come from the session controller's rows (`state.keptRows`), the sessions the list
+  shows: a session with no row is not counted, though Delete every session deletes it. The played
+  notes count is the rows saying their played notes are kept; the played notes already kept that
+  turning the switch off offers to delete are counted at the switch, from the device.
+- **Space used** is the IndexedDB part of the browser's estimate (`usageDetails.indexedDB`, which
+  leaves out the app's offline copy of its own files), in binary units (1 KB = 1024 bytes); a
+  browser that gives no `usageDetails` gets "Couldn't be measured." **Protection** is
+  `persisted()`; a refusal reads as not protected. Both are read when the sheet opens and again
+  after each deletion that does not reload.
+- **Its deletions** go through the controller (`deleteEverySession`, `deleteEveryKeptPlayedNote`)
+  or the save policy (`deleteEverything`, then the page reloads). A refusal keeps the confirmation
+  open with its error line, the confirming action trying again.
+
 ## The load before the first draw
 
 `src/storage-bootstrap.ts`, beside `main.ts`, loads the saved data before the workspace is first
@@ -925,7 +954,7 @@ data. The port's outdated report carries no cause, so after another tab's Delete
 outdated notice shows the newer version's wording, the design's fallback (spec D300). `Dismiss`
 removes the save-problem notice until a report that starts a new run. While a session runs the row
 keeps the notice it showed at Start, its buttons disabled; what arose meanwhile shows when the
-session ends. `Your data` is disabled until the Your data sheet exists.
+session ends. `Your data` opens the Your data sheet (see [The Your data sheet](#the-your-data-sheet)).
 
 ## The start-up wait (M2)
 
@@ -1008,7 +1037,6 @@ Chunks 4, 5, 9, 7, 8 and 10 build the storage core, the save policy, the kept-se
 load before the first draw, the saves of the player's settings, with the session hold, the notices,
 the session's save at its end, and the most recent session with its keep line. These come later:
 
-- the Your data sheet the storage-full notice's `Your data` opens;
 - the moment the app calls `requestProtection()`;
 - the session list, and opening a kept session other than the most recent one; a read of the most
   recent one that fails shows nothing yet, where the design shows the list with that session's row
