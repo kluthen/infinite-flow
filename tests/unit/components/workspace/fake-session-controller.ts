@@ -342,7 +342,13 @@ export function createFakeSessionController(
     return Promise.resolve('deleted')
   })
   const myInstrumentSessions = vi.fn(() =>
-    Object.freeze({ count: 0, deletes: () => Promise.resolve([]), leave: () => undefined }),
+    Object.freeze({
+      count: 0,
+      reviewed: false,
+      withheld: false,
+      deletes: () => Promise.resolve([]),
+      leave: () => undefined,
+    }),
   )
   return {
     controller: {

@@ -10,8 +10,9 @@
  * session runs, and where focus goes when it ends. It also hosts the controller connection: the
  * header `controller-status` it feeds, the click that opens the lazily loaded connection sheet,
  * whether the sheet is open (reported to the workspace as it changes), where focus goes when
- * the sheet closes, and the sheet's confirmed `Use for my instrument`, saved and selected through
- * the session's `saveAndSelectMyInstrument`. It also runs the last session's Review from the screen: `Close review` and
+ * the sheet closes, and the sheet's confirmed `Use for my instrument` (or `Use and erase`), saved
+ * and selected through the My instrument sheet's host with the kept sessions of my instrument the
+ * controller counts. It also runs the last session's Review from the screen: `Close review` and
  * `Review last session`, each scrolling the page to its top and moving focus. While a session runs,
  * the read-only controls show what the controller says the phrase now sounding was generated with,
  * and the preset status announces nothing; at the end they show the player's own choices again, and
@@ -43,7 +44,6 @@ import type { AudioTransport } from '@/audio/audio-transport'
 import type { SavedDataLoad } from '@/storage-bootstrap'
 import { selectedInstrumentProfile } from '@/domain/generation/generation-intent'
 import { instrumentClefOf } from '@/domain/profile/instrument-clef'
-import type { MyInstrument } from '@/domain/profile/my-instrument'
 import type { MidiController } from '@/midi/midi-controller-state'
 import { planSystemPositionUnits, type WrittenRangeInClef } from '@/notation/notation-layout-policy'
 import { loadVexflowEngraver } from '@/notation/vexflow-engraver-loader'
@@ -73,7 +73,7 @@ import { useAppNotices } from './use-app-notices'
 import type { DamagedSessionReports } from './workspace-kept-sessions-seam'
 import { useShownSettings } from './use-shown-settings'
 import { useWorkspaceFocus } from './use-workspace-focus'
-import { NO_SESSIONS_COUNTED, useMyInstrumentSheet } from './use-my-instrument-sheet'
+import { useMyInstrumentSheet } from './use-my-instrument-sheet'
 import { useYourData } from './use-your-data'
 
 const props = withDefaults(
@@ -223,6 +223,7 @@ const emit = defineEmits<{
 // @spec-link [[req_my_instrument]]
 const myInstrumentSheet = useMyInstrumentSheet({
   session: props.session,
+  sessions: () => props.controller?.myInstrumentSessions() ?? null,
   focusInstrumentActions: () => {
     const button = workspacePart('.instrument-actions button')
     if (button instanceof HTMLElement) button.focus()
@@ -480,11 +481,10 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
     :is="sheetComponent"
     v-if="sheetComponent !== null && sheetProps !== null"
     v-bind="sheetProps"
+    :my-instrument-sessions="myInstrumentSheet.sessions.value"
+    :use-and-erase="myInstrumentSheet.useAndErase"
     @close="closeConnectionSheet"
-    @use-for-my-instrument="
-      (instrument: MyInstrument) =>
-        session.actions.saveAndSelectMyInstrument(instrument, NO_SESSIONS_COUNTED)
-    "
+    @use-for-my-instrument="myInstrumentSheet.useForMyInstrument"
   />
   <component
     :is="myInstrumentSheet.sheetComponent.value"
@@ -493,7 +493,6 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
     "
     v-bind="myInstrumentSheet.sheetProps.value"
     @save="myInstrumentSheet.save"
-    @delete="myInstrumentSheet.remove"
     @close="myInstrumentSheet.close"
   />
   <component

@@ -1,10 +1,10 @@
 /**
  * The My instrument sheet: its form, `Save` disabled with the refusal while the range is refused,
  * what `Save` reports (the instrument, or a close when nothing changed), the delete confirmation
- * asked once, and Escape as the way back.
+ * asked once, its deletion handed to the host, and Escape as the way back.
  */
 import { mount } from '@vue/test-utils'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import MyInstrumentSheet from '@/components/workspace/MyInstrumentSheet.vue'
 import type { MyInstrumentFormStart } from '@/components/workspace/use-my-instrument'
@@ -18,9 +18,24 @@ const SAVED = makeMyInstrument({
   transposition: { octaves: 1, semitones: 2, direction: 'lower' },
 })
 
-/** Intent: the sheet mounted on the page, opened as `start`. */
+/** No kept session of my instrument counted. */
+const NO_SESSIONS = {
+  count: 0,
+  reviewed: false,
+  withheld: false,
+  deletes: () => Promise.resolve([]),
+  leave: () => undefined,
+}
+
+/** Intent: the sheet mounted on the page, opened as `start`, with no session of my instrument. */
 function mountSheet(start: MyInstrumentFormStart, selected = false) {
-  return mount(MyInstrumentSheet, { props: { start, selected }, attachTo: document.body })
+  const remove = vi.fn(() => Promise.resolve('done' as const))
+  const saveAndErase = vi.fn(() => Promise.resolve('done' as const))
+  const wrapper = mount(MyInstrumentSheet, {
+    props: { start, selected, sessions: NO_SESSIONS, saveAndErase, remove },
+    attachTo: document.body,
+  })
+  return Object.assign(wrapper, { remove, saveAndErase })
 }
 
 /** Intent: the sheet's action button whose text is `label`. */
@@ -125,11 +140,11 @@ describe('the My instrument sheet', () => {
     expect(document.activeElement?.textContent?.trim()).toBe('Cancel')
     await button(wrapper, 'Cancel').trigger('click')
     expect(wrapper.get('.sheet-title').text()).toBe('My instrument')
-    expect(wrapper.emitted('delete')).toBeUndefined()
+    expect(wrapper.remove).not.toHaveBeenCalled()
 
     await button(wrapper, 'Delete my instrument').trigger('click')
     await button(wrapper, 'Delete my instrument').trigger('click')
-    expect(wrapper.emitted('delete')).toHaveLength(1)
+    expect(wrapper.remove).toHaveBeenCalledExactlyOnceWith(NO_SESSIONS)
     wrapper.unmount()
   })
 

@@ -14,11 +14,15 @@ export type SheetActionName = Extract<SheetEvent, { kind: 'action' }>['action']
  */
 export type SheetButtonAction = SheetActionName | 'use-for-my-instrument'
 
-/** One button of `sheet-actions`: what it does, its label, and whether it is the main action. */
+/**
+ * One button of `sheet-actions`: what it does, its label, whether it is the main action, and
+ * whether it is a destructive one (`btn-error`).
+ */
 export interface SheetActionButton {
   readonly action: SheetButtonAction
   readonly label: string
   readonly primary: boolean
+  readonly destructive?: true
 }
 
 /**
@@ -70,8 +74,9 @@ export function sheetTitle(stage: OpenSheetStage): string {
  * Intent: the stage's action buttons, the primary one first. `Choose a different device` shows on
  * Connected only once more than one input has been seen this page session; `Use this for my
  * instrument` shows on a check result only when `useOffered` (a result that is not a match, whose
- * instrument would sound inside the MIDI note range); Requesting access and the check's Prompt
- * have none; Unsupported browser has no retry.
+ * instrument would sound inside the MIDI note range); the confirmation's action reads `Use and
+ * erase`, destructive, when `erases` (my instrument's kept sessions go with the change);
+ * Requesting access and the check's Prompt have none; Unsupported browser has no retry.
  */
 // @spec-link [[rule_controller_connects_between_sessions]]
 // @spec-link [[rule_controller_transposition_check]]
@@ -80,6 +85,7 @@ export function sheetActions(
   stage: SheetStage,
   seenDeviceCount: number,
   useOffered: boolean,
+  erases: boolean,
 ): readonly SheetActionButton[] {
   switch (stage.kind) {
     case 'unsupported':
@@ -94,7 +100,14 @@ export function sheetActions(
       return stage.played === null ? [] : checkResultActions(useOffered)
     case 'use':
       return [
-        { action: 'use-for-my-instrument', label: 'Use for my instrument', primary: true },
+        erases
+          ? {
+              action: 'use-for-my-instrument',
+              label: 'Use and erase',
+              primary: false,
+              destructive: true,
+            }
+          : { action: 'use-for-my-instrument', label: 'Use for my instrument', primary: true },
         { action: 'back', label: 'Back', primary: false },
       ]
     case 'connected':

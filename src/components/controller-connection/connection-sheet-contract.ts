@@ -7,7 +7,10 @@ import type { InstrumentClef } from '@/domain/profile/instrument-clef'
 import type { MidiController } from '@/midi/midi-controller-state'
 import type { MidiPermissionState } from '@/midi/midi-access-port'
 import type { InstrumentProfile } from '@/domain/profile/instrument-profile'
+import type { MyInstrumentSessions } from '@/composables/use-generation-session'
 import type { MyInstrument } from '@/domain/profile/my-instrument'
+import type { MyInstrumentBatchOutcome } from '@/components/workspace/use-my-instrument-sheet'
+import type { MyInstrumentSessionCount } from '@/components/workspace/workspace-session-controller-types'
 
 /** A connect attempt started by the player's click, before the sheet module loaded. */
 // @spec-link [[rule_controller_connects_between_sessions]]
@@ -36,6 +39,22 @@ export interface ConnectionSheetProps {
   readonly myInstrument: MyInstrument | null
 }
 
+/**
+ * ConnectionSheet.vue's props beside the opening's: the kept sessions of my instrument the check's
+ * `Use and erase` would erase (null while the session controller loads: the action is then not
+ * offered), and that action's batch, whose outcome the sheet waits for.
+ */
+// @spec-link [[rule_transposition_check_sets_my_instrument]]
+export interface ConnectionSheetSessionsProps {
+  readonly myInstrumentSessions: MyInstrumentSessionCount | null
+  /** Save and select `instrument`, erasing `sessions`, in one batch; resolves its outcome. */
+  readonly useAndErase: (
+    instrument: MyInstrument,
+    sessions: MyInstrumentSessions,
+  ) => Promise<MyInstrumentBatchOutcome>
+}
+
 // emits: close() — the host hides the sheet and runs the close-focus order.
-// emits: use-for-my-instrument(instrument) — the confirmed `Use for my instrument`: the host saves
-// `instrument` and selects it, replacing the phrase; the sheet goes on to Connected by itself.
+// emits: use-for-my-instrument(instrument) — the confirmed `Use for my instrument` erasing nothing:
+// the host saves `instrument` and selects it, replacing the phrase; the sheet goes on to Connected
+// by itself. `Use and erase` goes through `useAndErase` instead, and waits for its outcome.

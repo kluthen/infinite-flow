@@ -3,7 +3,9 @@
  * and transposition, as one count of semitones), what each step may reach, and what the form
  * shows from it (the refusals in note names, the windows, the staff-reach note, the transposition's
  * interval). The range is refused live and never clamped: the steppers stop only at the MIDI note
- * range of the note they sound. Loaded with the sheet, outside the entry chunk.
+ * range of the note they sound. When editing, it also says whether a save changes how the
+ * instrument sounds (its range or transposition), the change that erases its kept sessions, and
+ * puts the sound back to the saved one. Loaded with the sheet, outside the entry chunk.
  */
 
 import { computed, ref, type ComputedRef, type Ref } from 'vue'
@@ -69,6 +71,10 @@ export interface MyInstrumentForm {
   readonly chooseTemplate: (template: BuiltInInstrumentProfileId) => void
   /** My instrument as the form holds it, its name trimmed or the default; refused while invalid. */
   readonly instrument: () => MyInstrument
+  /** Whether `instrument` sounds otherwise than the saved one: its range or transposition. */
+  readonly changesSound: (instrument: MyInstrument) => boolean
+  /** Put the range and the transposition back to the saved one's (editing only). */
+  readonly restoreSound: () => void
 }
 
 /** Intent: the form's starting values: the template's own, or the saved instrument's. */
@@ -160,5 +166,21 @@ export function useMyInstrumentForm(start: MyInstrumentFormStart): MyInstrumentF
       count.value = countOfTransposition(draft.transposition)
     },
     instrument: () => makeMyInstrument(input()),
+    changesSound: (instrument) => {
+      if (start.mode !== 'editing') return false
+      const { writtenRange, transposition } = start.saved
+      return (
+        instrument.writtenRange.minMidi !== writtenRange.minMidi ||
+        instrument.writtenRange.maxMidi !== writtenRange.maxMidi ||
+        countOfTransposition(instrument.transposition) !== countOfTransposition(transposition)
+      )
+    },
+    restoreSound: () => {
+      if (start.mode !== 'editing') return
+      const { writtenRange, transposition } = start.saved
+      lowest.value = writtenRange.minMidi
+      highest.value = writtenRange.maxMidi
+      count.value = countOfTransposition(transposition)
+    },
   }
 }
