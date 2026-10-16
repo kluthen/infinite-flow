@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Manage the Infinite Flow website on the shared production VPS (https://infinity.upsilon-hub.com).
+# Manage the Infinite Flow website on the shared production VPS (https://infinite.upsilon-hub.com).
 # The full runbook is ~/infinite-flow/README_INFINITE_FLOW.md on the VPS.
 #
 # Hard rules (the VPS also serves filetstudio, which must never go down):
@@ -14,7 +14,7 @@
 set -euo pipefail
 
 VPS_HOST="${VPS_HOST:-vps}"
-APP_URL="https://infinity.upsilon-hub.com"
+APP_URL="https://infinite.upsilon-hub.com"
 SHARED_URL="https://filetstudio.com"
 CONTAINER="infinite-flow-web"
 IMAGE="infinite-flow:vps"
