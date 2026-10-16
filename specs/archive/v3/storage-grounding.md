@@ -1,5 +1,11 @@
 # v3.0 Storage — Grounding Research
 
+> **Archived 2026-10-16.** v3.0 is released as version 3.0.0; this research describes the code
+> before v3.0 and served the v3.0 spec and build plan. Live summary:
+> [master spec §11](../../versions/v3/master-spec.md#11-existing-code-and-risks).
+> Relative links were written from `specs/versions/v3/`; the paths of those to files that stayed
+> there were repaired on 2026-10-16 so they resolve from this folder.
+
 Status: research v1 (2026-10-07)
 
 Prepared by a grounding researcher for `spec-writer`, for the v3.0 "storage" spec session. It
@@ -13,10 +19,10 @@ phrases, export favorites only); keeping sessions (pin, access older sessions, o
 pre-generating up to 4 phrases at Idle; a stray-note filter. Data stays on the player's system:
 browser storage, or a file export the player triggers.
 
-**Read for context:** [v3 README](README.md#v30--storage),
+**Read for context:** [v3 README](../../versions/v3/README.md#v30--storage),
 [open questions](../../open-questions.md) (O86, O107–O111, O117),
-[v2 master spec §7](../v2/master-spec.md#7-sessions-review-export-and-privacy) and
-[§13](../v2/master-spec.md#13-access-model), [personas, context of use](../../personas.md#context-of-use).
+[v2 master spec §7](../../versions/v2/master-spec.md#7-sessions-review-export-and-privacy) and
+[§13](../../versions/v2/master-spec.md#13-access-model), [personas, context of use](../../personas.md#context-of-use).
 
 **Words used here.** _Persist_: keep something after the page is reloaded or the browser is
 closed. _Origin_: the scheme, host and port of a web address (`https://infinity.upsilon-hub.com`
@@ -268,8 +274,8 @@ makes "whoever has the page open" also "whoever uses that browser profile".
 - `docs/release/browser-and-offline-limits.md`, section "Browser API boundaries".
 - `README.md`: the `src/composables/` description ("no persistence"), the "Forbidden everywhere"
   list, and the "Persistence/PWA/optional-scope boundary" row of the quality-gate table.
-- [v2 master spec §7](../v2/master-spec.md#7-sessions-review-export-and-privacy) "Privacy is
-  absolute…" and [§13](../v2/master-spec.md#13-access-model): frozen v2 documents; the v3 spec
+- [v2 master spec §7](../../versions/v2/master-spec.md#7-sessions-review-export-and-privacy) "Privacy is
+  absolute…" and [§13](../../versions/v2/master-spec.md#13-access-model): frozen v2 documents; the v3 spec
   supersedes them rather than editing them.
 
 #### Security headers (`docker/security-headers.conf`, `docker/nginx.conf`)

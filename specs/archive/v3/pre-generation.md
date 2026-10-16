@@ -1,5 +1,11 @@
 # v3.0 — Pre-generating Phrases at Idle
 
+> **Archived 2026-10-16.** v3.0 is released as version 3.0.0; this approved draft was
+> consolidated into the v3 master spec (D217). Live summary:
+> [master spec §8](../../versions/v3/master-spec.md#8-pre-generating-phrases-at-idle).
+> Relative links were written from `specs/versions/v3/`; the paths of those to files that stayed
+> there were repaired on 2026-10-16 so they resolve from this folder.
+
 Status: draft v2 (2026-10-07). spec-writer's recommendations, approved by the owner at the
 overall review (D216).
 
@@ -7,7 +13,7 @@ Recorded by D206, in the owner's words: "while start session isn't pushed have b
 generate a few phrases in advance (no more than 4) that give us some time ahead." In v3.0 since
 D211 and D212. Serves P2, the Speed Builder, who plays at the fastest tempos
 ([personas](../../personas.md)). Background:
-[v3 README](README.md#pre-generating-phrases-at-idle).
+[v3 README](../../versions/v3/README.md#pre-generating-phrases-at-idle).
 
 ## 1. Why
 
