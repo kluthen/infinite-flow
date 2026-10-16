@@ -1,9 +1,9 @@
 # Infinite Flow v3.0 — Build Plan
 
-Status: v26 (2026-10-16): chunk 15a takes Delete every session finding nothing stored as done (spec D332) and deletes every key found, a newer version's session never among them (spec D333); chunk 28a's clean-up deleting the most recent session gives the readable kept session that started last (spec D334). v25: the wave-8 preflight's corrections placed, wave 8 sharing files in order, chunks 15 and 21 gaining split rules (spec D329); chunk 28's damaged-session deletions go through the kept-change line and their reports reach the notices through `App.vue` and the workspace shell (spec D330); chunk 15 tests another tab's Delete everything, now in master spec §4.3 (spec D331). v24: chunk 27's page brought back from the back-forward cache saves its later sessions, the session cut short staying not saved (spec D328). v23: chunk 20c's record change and erasing of my instrument's sessions are one batch, a refusal changing nothing (spec D326); chunk 28's successor after a damaged deletion is justified by the load's rule, not the player's deletion (spec D327). v22 placed the wave-7 preflight's corrections (spec D324, D325). Approved by
+Status: v27 (2026-10-16): the wave-9 preflight's corrections placed: chunk 20c's files, atoms and three-part split, wave 9 sharing the workspace shell in order, chunk 24b's atoms and revisions, D335's bound in Part B2 (spec D336); the template's selection saved after my instrument's batch (spec D337); a session whose own save failed only leaves memory (spec D338). v26: chunk 15a takes Delete every session finding nothing stored as done (spec D332) and deletes every key found, a newer version's session never among them (spec D333); chunk 28a's clean-up deleting the most recent session gives the readable kept session that started last (spec D334). v25: the wave-8 preflight's corrections placed, wave 8 sharing files in order, chunks 15 and 21 gaining split rules (spec D329); chunk 28's damaged-session deletions go through the kept-change line and their reports reach the notices through `App.vue` and the workspace shell (spec D330); chunk 15 tests another tab's Delete everything, now in master spec §4.3 (spec D331). v24: chunk 27's page brought back from the back-forward cache saves its later sessions, the session cut short staying not saved (spec D328). v23: chunk 20c's record change and erasing of my instrument's sessions are one batch, a refusal changing nothing (spec D326); chunk 28's successor after a damaged deletion is justified by the load's rule, not the player's deletion (spec D327). v22 placed the wave-7 preflight's corrections (spec D324, D325). Approved by
 the product owner on 2026-10-07 (v1), with Gate A and the token-source pass (Q66) confirmed the
 same day; every later revision writes in rulings from [the decisions log](../../decisions.md)
-(spec D252–D334), and earlier wordings are in git.
+(spec D252–D338), and earlier wordings are in git.
 
 Build plan for v3.0, Storage, written from [master spec v1.3](master-spec.md) (now Part A v1.22) and the v3.0 design
 in [`ui_ux/versions/v3.0/`](../../../ui_ux/versions/v3.0/README.md), the copy frozen when the
@@ -55,7 +55,7 @@ Some steps are not code and need the owner. They are part of the sequence:
 | **O182** | **Done 2026-10-13:** Regenerate runs the usual Idle Regenerate and the app stays at Idle with the new phrase on screen; the player presses Start again ([spec O182](../../open-questions.md#v30-wave-2-o180) closed, master spec §16). | Done. | Nothing. |
 | **Stale phrase design** | **Done 2026-10-13 (ux D296–D304, passed by `ux-critic` with D305–D306):** `ux-writer` designs the stale-phrase prompt (master spec §16 and §14): its wording in plain words for a beginner, the labels of its two choices (the owner's words are Regenerate and Use it; Part C's key and mode suggestion already has a Use it), how it is dismissed, whether it names the settings that changed, whether other controls can be used while it shows (proposed: no), and how it reads when the starting note opened it. | Now (O182 is settled); before chunk 24b-2. | Chunk 24b-2. |
 | **Part B1** | **Done 2026-10-15 (2b77f3d, CONTRACT 6.1):** the owner confirmed it after the wave-7 gate. The owner confirms the revised `rule_instrument_profile_range` (change set part B, a MINOR contract bump), which now also states my instrument's written-range bound per clef (spec D294). | After chunk 20's wave gate (its post-task sync revises the atom). | Nothing; the gate checks it is done. |
-| **Part B2** | The owner confirms the revised `rule_controller_transposition_check` (part B, MINOR), which now also states that "use this for my instrument" first warns when it would erase my instrument's kept sessions (spec D295), and that a controller reattached by itself, the remembered controller reselected at load included, is not checked again, the check staying available between sessions (spec D323; a clarification that adds no case, wording `documentalist`'s). | After chunk 20c's wave gate (its post-task sync revises the atom, once the warning is built). | Nothing; the gate checks it is done. |
+| **Part B2** | The owner confirms the revised `rule_controller_transposition_check` (part B, MINOR), which now also states that "use this for my instrument" first warns when it would erase my instrument's kept sessions (spec D295), and that a controller reattached by itself, the remembered controller reselected at load included, is not checked again, the check staying available between sessions (spec D323; a clarification that adds no case, wording `documentalist`'s). The third outcome, the check's action, carries spec D335's bound (not offered when the transposition found would make my instrument's written range sound outside MIDI notes 0 to 127), or leaves its conditions to `rule_transposition_check_sets_my_instrument`; the wording never says it is always offered (wave-9 preflight, change set part R3). | After chunk 20c's wave gate (its post-task sync revises the atom, once the warning is built). | Nothing; the gate checks it is done. |
 | **Part C** | The owner confirms the VISION 0.7 → 0.8 text and the retirement of the four chord-fit atoms (part C). | In chunk 26. | The gate. |
 | **O200** | **Closed 2026-10-14 (spec D310):** a kept session the app cannot read correctly is deleted, with an apology, at load, at the next save or when opened, while the visit saves; a read the device refuses deletes nothing ([spec O200](../../open-questions.md#v30-wave-5-o200), master spec §5.1). | Done. | Nothing. [Chunk 28](#chunk-28--a-damaged-kept-session-deleted-with-an-apology) builds it. |
 | **O201** | **Closed 2026-10-14 (spec D309):** a session cut short by reloading or closing the page is never saved, §5.1 kept ([spec O201](../../open-questions.md#v30-wave-5-o200)). | Done. | Nothing. [Chunk 27](#chunk-27--a-session-cut-short-by-the-page-going-away) builds it. |
@@ -70,11 +70,12 @@ Waves run one after another. Inside a wave, chunks run one at a time in number o
 rule is **one coding chunk in flight at a time**. Each wave starts with one intent preflight, ends
 with one wave gate (the full test pass, the bundle and the post-task sync), and reaches `main` as
 one merge ([§3](#3-workflow-waves-and-chunks)). The chunks in a wave are independent of each other
-and touch different source files, so one preflight can cover them all; waves 6, 7 and 8 are the
+and touch different source files, so one preflight can cover them all; waves 6 to 9 are the
 exceptions, sharing some files in a stated order ([Wave 6: shared files, in
 order](#wave-6-shared-files-in-order), [Wave 7: shared files, in
 order](#wave-7-shared-files-in-order), [Wave 8: shared files, in
-order](#wave-8-shared-files-in-order)). A chunk still blocked
+order](#wave-8-shared-files-in-order), [Wave 9: shared files, in
+order](#wave-9-shared-files-in-order)). A chunk still blocked
 when the rest of its wave is done (waiting for the owner, a design answer or a measurement) moves to the
 next wave.
 
@@ -94,14 +95,15 @@ wave-0 gate covers chunks 1 and 2.
 | 6 | 11 Played-notes opt-in · 12 Favorites, pin, comment · 18 Replay key `ifk2.` · 22 Remembered controller · 25 Stray-note filter, in that order | Chunk 10 (11); chunk 11's change path (12, an in-wave edge fixed by 11's capture; spec D312, D313); chunk 17 (18); chunk 7 (22); H1 and chunk 1 (25; O210 answered by ux D308). Gate A, Review reachability and the Remembered-controller wording are done. |
 | 7 | 13 Favorites-only export (13a, 13b) · 14 Session list (14a, 14b) · 20 My instrument sheet (20a, 20b) · 27 A session cut short by the page going away, in that order | Chunk 12 (13, 14); chunks 7, 17, 19b and 24 (20; the Clef design is done and ux Q76 closed, ux D285); chunk 10 (27, after wave 6's chunk 11, which may touch the session's save) |
 | 8 | 15 Your data · 21 The check feeds my instrument · 28 A damaged kept session deleted, with an apology | Chunks 11, 14 (15); 20 (21); 14, 27 and the Damaged session design gate (28; 28a may start before the gate) |
-| 9 | 20c My instrument's sessions · 24b Stale phrase at Start | Chunks 14, 20 and 21 and the Sessions design gate (20c); chunk 24 and the Stale phrase design gate (24b) |
+| 9 | 20c My instrument's sessions (20c-1, 20c-2, 20c-3) · 24b Stale phrase at Start (24b-1, 24b-2), in that order | Chunks 14, 20 and 21 and the Sessions design gate (20c); chunk 24 and the Stale phrase design gate (24b) |
 | 10 | 26 v3.0 release gate | Every other chunk |
 
 The critical path runs 0 → 3 → 4 → 5 → 7 → 10 → 12 → 14 → 15 → 26; since v8, chunk 20c, which
 waits for chunks 14, 20 and 21, adds wave 9 before the gate. My instrument (16–21, 20c) and
 pre-generation (23–24) are side branches; their chunks share waves with the critical path's.
 Since v9, chunk 24b (a stale phrase at Start, ISS-011) joins wave 9 beside chunk 20c, as the owner
-asked for the end of v3.0; the two touch different files. Since v14, chunk 27 (a session cut
+asked for the end of v3.0; since v27 the two share the workspace shell, 20c before 24b-2
+(spec D336; see below). Since v14, chunk 27 (a session cut
 short by the page going away, spec O201) joins wave 7; since v22 it shares one file with chunk 20,
 after it (see below). Since
 v15, chunk 28 (a damaged kept session deleted with an apology, spec D310) joins wave 8: it
@@ -257,6 +259,27 @@ linked function goes in a new file; an edit there that adds no link (a call, a m
 existing type) stays in the file. The in-wave edges are the split halves (15a → 15b, 21a → 21b,
 28a → 28b), each fixed by its first half; chunk 15's and chunk 28's architecture captures fix the
 interfaces their second halves call.
+
+#### Wave 9: shared files, in order
+
+Settled in spec D336, from the wave-9 preflight. Wave 9 runs as waves 6 to 8 did: one chunk at
+a time (κ=1), in number order, 20c-1 → 20c-2 → 20c-3 → 24b-1 → 24b-2, each branch cut from the
+wave branch after the previous part merged:
+
+| File | Order and what each chunk adds |
+| --- | --- |
+| `src/components/workspace/WorkspaceShell.vue` | 20c-2 (it hosts `useMyInstrumentSheet`, whose save and delete now wait for the batch's outcome; the check's `use-for-my-instrument`, wired to `saveAndSelectMyInstrument`, gains the erase warning's outcome), then 24b-2 (the prompt's host; Start and the starting note opening it) |
+| `src/components/workspace/workspace-session-controller.ts`, `workspace-session-controller-types.ts` | 20c-1 (the counted sessions leaving memory, wired from a new file), then 24b-2 only if Start's stale check or Use it's start passes through them |
+
+Link cap: `WorkspaceShell.vue` links 9 atoms, so one new linked function fits there; if 20c-2
+adds one, 24b-2's linked code goes in its new prompt component.
+`workspace-session-controller-types.ts`, `settings-saver.ts`, `workspace-session-start.ts` and
+`workspace-session-midi.ts` already link 10 each: a new linked function goes in a new file, and
+an edit there that adds no link stays in the file. A later part adds its part and leaves an
+earlier one's as it merged; a change it would need there is reported, as any drift, never made
+in passing. The in-wave edges are the parts' order, 20c-1 → 20c-2 and 24b-1 → 24b-2, each fixed
+by its first part: `entity_my_instrument_record` 0.4 (spec D326) fixes the batch and its outcome
+that 20c-2 calls. 20c-3 needs nothing else in the wave.
 
 ### Wave records
 
@@ -3669,7 +3692,11 @@ them after a warning (spec D295, D296; master spec §5.1, §7.1, §7.2).
   `caller`), never chunk 20's plain write or delete; deleting my instrument takes it whatever the
   number of sessions. It names exactly the sessions the warning counted, by their keys, after
   every session save asked for before it. Only once it is saved does anything change in memory
-  (my instrument, its sessions, the selection, the phrase). Refused, nothing changes on the
+  (my instrument, its sessions, the selection, the phrase); the template's selection is saved
+  after the batch, and a reload before that save loads the default instrument, accepted (spec
+  D337). The session that just ended, held in memory only because its own save failed, is
+  counted, has nothing on the device to delete, and only leaves memory, its retry with it (spec
+  D338). Refused, nothing changes on the
   device or in memory, the warning or confirmation keeps its error line and its action tries
   again, and the notice row tells nothing; resolved saving off, the sheet returns to the form as
   the design's outdated-tab state says.
@@ -3678,19 +3705,45 @@ them after a warning (spec D295, D296; master spec §5.1, §7.1, §7.2).
   notice asks for a reload. A visit whose saved data could not be read erases nothing: it read
   no kept session.
 - **A review never cuts a phrase:** a kept session whose phrases need more height than the
-  shared height (one played in a clef my instrument no longer has) gets the room the design
-  gives it (proposed: the larger of the shared height and its own), measured by chunk 19b's
-  planner from the session's own instrument and clef.
+  shared height (one played in a clef my instrument no longer has) gets the larger of the shared
+  height and its own (ux D290), measured by chunk 19b's planner from the session's own
+  instrument and clef.
 - A failed deletion or save-and-erase keeps its confirmation or warning with the error line, as
   in chunks 12 and 15, and changes nothing.
 
-**Files:** `src/components/workspace/use-my-instrument.ts`, `src/components/workspace/MyInstrumentSheet.vue`,
-`src/components/workspace/use-kept-sessions.ts`, the batch by the counted sessions' keys beside
-`src/components/workspace/kept-session-review-changes.ts`, `src/components/controller-connection/SheetStateBody.vue` (the warning),
-`src/components/workspace/use-review-host.ts` (closing the review), the review's staff size in
-`src/components/review/`; tests `tests/e2e/storage/my-instrument-sessions.spec.ts`, unit tests
-beside each module. If the brief exceeds about five source files, split the review's room for
-another clef (20c-2) from the deletions and warnings (20c-1).
+**Files** (spec D336), in three parts run in order, each one commit:
+
+- **20c-1, the batch and memory (no interface):** `src/storage/my-instrument-saves.ts` (it sends
+  both saves as `void policy.save` today; deleting and a save that erases become one
+  `changeKept(…, 'caller')` batch whose outcome reaches the caller), and
+  `src/storage/settings-saver.ts` if the saves' composition there changes; the batch's session
+  deletes by the counted keys beside `src/components/workspace/kept-session-review-changes.ts`,
+  as `deleteKeptSession` builds them; `src/composables/generation-session-my-instrument.ts`
+  (today it changes `state.myInstrument` at once and selects the template before the record's
+  delete: memory changes once the batch is saved, the template's selection after it) and
+  `src/composables/use-generation-session.ts` (the actions' outcome, its `NO_MY_INSTRUMENT_SAVES`
+  stub); the sessions of my instrument counted from `src/components/workspace/use-kept-sessions.ts`'s
+  rows and the session that just ended; the session controller's side, the counted sessions
+  leaving memory (the most recent included, its review closing and `Review last session` going)
+  as `workspace-kept-sessions-deletion.ts` does for Delete every session, in a new file beside it
+  wired in `workspace-session-controller.ts` and `workspace-session-controller-types.ts`.
+- **20c-2, the warnings, the confirmations and their hosts:** `src/components/workspace/use-my-instrument.ts`
+  (the form model) and `MyInstrumentSheet.vue` (the confirmation's count, the erase warning, their
+  error lines, the outdated-tab form); `src/components/workspace/use-my-instrument-sheet.ts`, the
+  sheet's host (its `save` and `remove` call the actions with `void` and close at once today;
+  they wait for the outcome, the sheet staying open on a refusal); `src/components/workspace/WorkspaceShell.vue`,
+  which hosts `useMyInstrumentSheet` and wires the check's `use-for-my-instrument` to
+  `saveAndSelectMyInstrument` (shared with 24b-2, after it; see "Wave 9: shared files, in
+  order"); the check's `Use and erase` in `src/components/controller-connection/SheetStateBody.vue`,
+  and in `ConnectionSheet.vue`, `connection-sheet-view.ts` or `check-for-my-instrument.ts` as
+  chunk 21b left them if its count and error line need them; `src/components/workspace/use-review-host.ts`
+  (closing the review).
+- **20c-3, the review's room for another clef:** the review's staff size in `src/components/review/`
+  (`ReviewPanel.vue` plans its positions from the shared `systemPositionUnits` today), from chunk
+  19b's planner.
+
+Tests: `tests/e2e/storage/my-instrument-sessions.spec.ts`, unit tests beside each module, the
+notation harness for 20c-3.
 
 **Spec sections:** [§5.1](master-spec.md#51-which-sessions-are-kept), [§7.1](master-spec.md#71-what-it-is),
 [§7.2](master-spec.md#72-the-transposition-check-feeds-it), [§4.3](master-spec.md#43-where-and-how),
@@ -3706,8 +3759,10 @@ as the **Sessions design** gate revises them.
 **Atoms:** `req_my_instrument`, `entity_my_instrument`, `req_kept_sessions`,
 `rule_most_recent_session_kept`, `rule_pinned_session_kept`, `rule_favorite_pins_session`,
 `req_kept_session_list`, `req_kept_session_review`, `rule_outdated_tab_stops_saving`,
-`rule_transposition_check_sets_my_instrument`, `module_notation_layout_preflight`,
-`entity_my_instrument_record` and `module_save_policy` (the one batch, spec D326); (v2, STABLE)
+`rule_transposition_check_sets_my_instrument`, `rule_failed_read_offers_only_delete_everything`,
+`rule_kept_session_content`, `module_notation_layout_preflight`, `module_kept_session_changes`,
+`module_kept_session_reach`, `service_session_controller`, `entity_my_instrument_record` 0.4 and
+`module_save_policy` 0.6 (the one batch, spec D326, captured by the wave-9 preflight); (v2, STABLE)
 `req_last_session_review` (after **Review reachability**), `rule_controller_transposition_check`
 (Part B2 follows the merge). Each is revised by `documentalist` before code.
 
@@ -4098,9 +4153,12 @@ as the **Stale phrase design** gate revises them, or wherever it places the prom
 **Atoms:** `rule_phrase_one_is_idle_phrase`, `rule_session_start_conditions`,
 `module_session_shown_settings`, `service_session_engine`, `service_workspace_session_flow`,
 `service_idle_generation_session`, `module_session_pregeneration_plan`,
-`module_idle_pregeneration_queue`, `rule_pregenerated_phrase_matches_session`, and a new rule for
-the prompt, each revised or written by `documentalist` before code; (STABLE, contract surface)
-`rule_midi_starting_note` after **Starting-note wording**. Keep true:
+`module_idle_pregeneration_queue`, `rule_pregenerated_phrase_matches_session`,
+`rule_stale_phrase_prompt_at_start` (written in change set part J2), `service_session_start`,
+`module_session_starting_note`, `module_session_carry_in_after_change`; (STABLE, contract
+surface) `rule_midi_starting_note` after **Starting-note wording**. Keep true:
+`rule_pregeneration_discarded_on_change` (DRAFT, unchanged: it governs changes at Idle, and
+`workspace-pregeneration.ts` links it),
 `rule_setting_change_rechecks_pitch_carry_in`, `rule_key_change_drops_harmonic_carry_in`,
 `rule_harmony_change_drops_unfit_harmonic_carry_in`, `rule_join_carry_in_limited`,
 `rule_count_in_shown_on_screen`, `rule_tempo_never_affects_generation` (STABLE);
@@ -4108,6 +4166,12 @@ the prompt, each revised or written by `documentalist` before code; (STABLE, con
 D325): `service_session_midi` has no `@spec-link` in code; 24b-2, which changes
 `workspace-session-midi.ts`, places one, splitting the file or linking it from another of the
 service's files, since that file already carries ten atom ids.
+
+**Revisions:** before code, complete: change set part J2 (2026-10-13) and part R2 (the wave-9
+preflight: `module_idle_pregeneration_queue` 0.5, the re-check on the return to Idle and the
+harness's switch). At the wave sync, `service_workspace_session_flow`, which still says the
+prompt's part is described once its design is settled, describes the prompt as built, with
+`service_session_start` and `module_session_starting_note`.
 
 **Depends on:** chunk 24; the **Stale phrase design** gate (24b-2 only). O182 and
 **Starting-note wording** are settled (2026-10-13); the atom revision is `documentalist`'s,
