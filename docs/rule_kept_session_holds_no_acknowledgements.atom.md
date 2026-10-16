@@ -1,6 +1,6 @@
 ---
 id: rule_kept_session_holds_no_acknowledgements
-status: DRAFT
+status: REVIEW
 human_name: Kept Sessions Hold No Acknowledgement
 parents:
   - [[rule_kept_session_content]]

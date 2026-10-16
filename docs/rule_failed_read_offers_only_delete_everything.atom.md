@@ -1,6 +1,6 @@
 ---
 id: rule_failed_read_offers_only_delete_everything
-status: REVIEW
+status: STABLE
 dependents: []
 layer: BUSINESS
 priority: 1

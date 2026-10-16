@@ -1,6 +1,6 @@
 ---
 id: req_my_instrument
-status: REVIEW
+status: STABLE
 type: REQUIREMENT
 priority: 1
 parents:

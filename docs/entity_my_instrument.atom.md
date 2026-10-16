@@ -1,6 +1,6 @@
 ---
 id: entity_my_instrument
-status: REVIEW
+status: STABLE
 priority: 1
 dependents:
   - [[entity_my_instrument_record]]

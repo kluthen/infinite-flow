@@ -1,6 +1,6 @@
 ---
 id: module_save_policy
-status: REVIEW
+status: STABLE
 priority: 1
 dependents:
   - [[entity_my_instrument_record]]

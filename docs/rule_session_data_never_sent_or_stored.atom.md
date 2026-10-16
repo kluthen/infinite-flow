@@ -5,7 +5,7 @@ layer: BUSINESS
 human_name: Session Data Never Sent, Stored Only as Kept
 version: 0.2
 priority: 1
-tags: [v2, release-v2.0, privacy, session, changes-in-v3.0]
+tags: [v2, release-v2.0, privacy, session]
 parents:
   - [[req_browser_only_first_release]]
   - [[rule_ephemeral_session_state]]

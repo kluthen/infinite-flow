@@ -1,6 +1,6 @@
 ---
 id: rule_starting_note_waits_for_first_gesture
-status: REVIEW
+status: STABLE
 layer: BUSINESS
 priority: 1
 human_name: Starting Note Waits for the Page's First Gesture

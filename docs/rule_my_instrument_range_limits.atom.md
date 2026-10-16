@@ -1,6 +1,6 @@
 ---
 id: rule_my_instrument_range_limits
-status: REVIEW
+status: STABLE
 type: RULE
 version: 0.2
 parents:

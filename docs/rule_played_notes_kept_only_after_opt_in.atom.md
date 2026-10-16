@@ -1,6 +1,6 @@
 ---
 id: rule_played_notes_kept_only_after_opt_in
-status: REVIEW
+status: STABLE
 layer: BUSINESS
 version: 0.2
 priority: 1

@@ -1,6 +1,6 @@
 ---
 id: module_session_ready_phrases
-status: REVIEW
+status: STABLE
 layer: ARCHITECTURE
 parents:
   - [[module_session_pregeneration_plan]]

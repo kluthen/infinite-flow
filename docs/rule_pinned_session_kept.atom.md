@@ -1,6 +1,6 @@
 ---
 id: rule_pinned_session_kept
-status: REVIEW
+status: STABLE
 type: RULE
 layer: BUSINESS
 version: 0.2

@@ -11,7 +11,7 @@ dependents:
   - [[service_workspace_session_flow]]
 layer: BUSINESS
 version: 0.4
-tags: [v2, release-v2.0, review, session-start, changes-in-v3.0]
+tags: [v2, release-v2.0, review, session-start]
 type: RULE
 ---
 

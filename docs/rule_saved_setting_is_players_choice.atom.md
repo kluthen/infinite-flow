@@ -1,6 +1,6 @@
 ---
 id: rule_saved_setting_is_players_choice
-status: REVIEW
+status: STABLE
 tags: [v3, release-v3.0, storage, player-controls]
 type: RULE
 layer: BUSINESS

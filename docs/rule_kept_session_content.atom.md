@@ -1,6 +1,6 @@
 ---
 id: rule_kept_session_content
-status: REVIEW
+status: STABLE
 version: 0.3
 priority: 1
 human_name: What a Kept Session Holds

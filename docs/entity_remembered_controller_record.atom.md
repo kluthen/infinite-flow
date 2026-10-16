@@ -1,6 +1,6 @@
 ---
 id: entity_remembered_controller_record
-status: DRAFT
+status: REVIEW
 type: ENTITY
 version: 0.3
 human_name: Remembered-Controller Record

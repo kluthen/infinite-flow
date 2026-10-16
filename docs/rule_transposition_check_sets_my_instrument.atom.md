@@ -1,6 +1,6 @@
 ---
 id: rule_transposition_check_sets_my_instrument
-status: DRAFT
+status: REVIEW
 priority: 1
 tags: [v3, release-v3.0, midi, instrument-profile]
 parents:

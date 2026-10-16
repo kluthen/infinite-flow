@@ -1,6 +1,6 @@
 ---
 id: req_kept_sessions
-status: REVIEW
+status: STABLE
 parents:
   - [[req_on_device_storage]]
   - [[req_rolling_practice_session]]

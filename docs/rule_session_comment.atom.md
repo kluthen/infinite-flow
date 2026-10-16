@@ -1,6 +1,6 @@
 ---
 id: rule_session_comment
-status: REVIEW
+status: STABLE
 layer: BUSINESS
 priority: 1
 parents:

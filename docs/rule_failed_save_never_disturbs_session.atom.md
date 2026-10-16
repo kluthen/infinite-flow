@@ -1,6 +1,6 @@
 ---
 id: rule_failed_save_never_disturbs_session
-status: REVIEW
+status: STABLE
 tags: [v3, release-v3.0, storage, session]
 parents:
   - [[req_on_device_storage]]

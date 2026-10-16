@@ -1,6 +1,6 @@
 ---
 id: rule_my_instrument_transposition_named_interval
-status: REVIEW
+status: STABLE
 version: 0.3
 priority: 1
 human_name: My Instrument's Transposition Derives Its Interval Name

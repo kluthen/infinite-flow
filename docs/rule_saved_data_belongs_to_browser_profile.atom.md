@@ -1,6 +1,6 @@
 ---
 id: rule_saved_data_belongs_to_browser_profile
-status: DRAFT
+status: REVIEW
 parents:
   - [[req_on_device_storage]]
   - [[rule_single_local_user]]

@@ -1,6 +1,6 @@
 ---
 id: rule_stray_notes_filtered_on_reading
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 version: 0.2
 parents:

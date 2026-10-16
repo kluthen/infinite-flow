@@ -1,6 +1,6 @@
 ---
 id: rule_failed_read_told_to_player
-status: REVIEW
+status: STABLE
 layer: BUSINESS
 human_name: The Player Is Told When Saved Data Could Not Be Read
 tags: [v3, release-v3.0, storage]
