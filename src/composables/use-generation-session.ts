@@ -342,6 +342,14 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
     return (await loadedMyInstrumentActions()).saveMyInstrument(instrument)
   }
 
+  /** Intent: save my instrument and make it the selection, through its actions, loaded on demand. */
+  // @spec-link [[req_my_instrument]]
+  async function saveAndSelectMyInstrument(
+    instrument: MyInstrument,
+  ): Promise<MyInstrumentChangeOutcome> {
+    return (await loadedMyInstrumentActions()).saveAndSelectMyInstrument(instrument)
+  }
+
   /** Intent: delete my instrument through its actions, loaded on demand. */
   // @spec-link [[req_my_instrument]]
   async function deleteMyInstrument(): Promise<MyInstrumentChangeOutcome> {
@@ -358,6 +366,7 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
       selectMusicalProfile,
       selectInstrumentProfile,
       saveMyInstrument,
+      saveAndSelectMyInstrument,
       deleteMyInstrument,
       setTheme,
       generate,

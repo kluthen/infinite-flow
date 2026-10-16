@@ -8,15 +8,27 @@ import type { SheetEvent, SheetStage } from './connection-sheet-model'
 /** A named action of the sheet, as the reducer takes it. */
 export type SheetActionName = Extract<SheetEvent, { kind: 'action' }>['action']
 
+/**
+ * What a button of `sheet-actions` does: a named action the reducer takes, or the confirmation's
+ * `Use for my instrument`, which the sheet hands its host before the reducer hears of it.
+ */
+export type SheetButtonAction = SheetActionName | 'use-for-my-instrument'
+
 /** One button of `sheet-actions`: what it does, its label, and whether it is the main action. */
 export interface SheetActionButton {
-  readonly action: SheetActionName
+  readonly action: SheetButtonAction
   readonly label: string
   readonly primary: boolean
 }
 
-/** Where focus goes when a stage is entered: the picker's tab stop, the first action, or Close. */
-export type SheetFocusTarget = 'picker' | 'first-action' | 'close'
+/**
+ * Where focus goes when a stage is entered: the picker's tab stop, one of the actions (by its
+ * place among them), or Close.
+ */
+export type SheetFocusTarget =
+  | { readonly kind: 'picker' }
+  | { readonly kind: 'action'; readonly index: number }
+  | { readonly kind: 'close' }
 
 /** An open stage: every stage but `closed`, which shows nothing. */
 export type OpenSheetStage = Exclude<SheetStage, { kind: 'closed' }>
@@ -47,6 +59,8 @@ export function sheetTitle(stage: OpenSheetStage): string {
       return 'Choose a controller'
     case 'check':
       return 'Check your controller'
+    case 'use':
+      return 'Use this for my instrument?'
     case 'connected':
       return 'Controller connected'
   }
@@ -54,14 +68,18 @@ export function sheetTitle(stage: OpenSheetStage): string {
 
 /**
  * Intent: the stage's action buttons, the primary one first. `Choose a different device` shows on
- * Connected only once more than one input has been seen this page session; Requesting access and
- * the check's Prompt have none; Unsupported browser has no retry.
+ * Connected only once more than one input has been seen this page session; `Use this for my
+ * instrument` shows on a check result only when `useOffered` (a result that is not a match, whose
+ * instrument would sound inside the MIDI note range); Requesting access and the check's Prompt
+ * have none; Unsupported browser has no retry.
  */
 // @spec-link [[rule_controller_connects_between_sessions]]
 // @spec-link [[rule_controller_transposition_check]]
+// @spec-link [[rule_transposition_check_sets_my_instrument]]
 export function sheetActions(
   stage: SheetStage,
   seenDeviceCount: number,
+  useOffered: boolean,
 ): readonly SheetActionButton[] {
   switch (stage.kind) {
     case 'unsupported':
@@ -73,7 +91,12 @@ export function sheetActions(
     case 'picker':
       return [CONTINUE_WITHOUT]
     case 'check':
-      return stage.played === null ? [] : checkResultActions()
+      return stage.played === null ? [] : checkResultActions(useOffered)
+    case 'use':
+      return [
+        { action: 'use-for-my-instrument', label: 'Use for my instrument', primary: true },
+        { action: 'back', label: 'Back', primary: false },
+      ]
     case 'connected':
       return connectedActions(seenDeviceCount)
     case 'requesting':
@@ -82,10 +105,14 @@ export function sheetActions(
   }
 }
 
-/** Intent: a check result's actions: Continue (main), Run check again. */
-function checkResultActions(): readonly SheetActionButton[] {
+/** Intent: a check result's actions: Continue (main), Use this for my instrument if offered, Run check again. */
+function checkResultActions(useOffered: boolean): readonly SheetActionButton[] {
+  const use: readonly SheetActionButton[] = useOffered
+    ? [{ action: 'use-this', label: 'Use this for my instrument', primary: false }]
+    : []
   return [
     { action: 'continue', label: 'Continue', primary: true },
+    ...use,
     { action: 'run-check-again', label: 'Run check again', primary: false },
   ]
 }
@@ -105,14 +132,25 @@ function connectedActions(seenDeviceCount: number): readonly SheetActionButton[]
 }
 
 /**
- * Intent: the stage's main focus target: the picker's tab stop in the picker, the primary action
- * where there is one, else `sheet-close` (Requesting access, the check's Prompt).
+ * Intent: the stage's main focus target: the picker's tab stop in the picker; `Back` on the Use
+ * for my instrument confirmation, never its confirming action; `Use this for my instrument` on a
+ * result come back from it; else the primary action where there is one, else `sheet-close`
+ * (Requesting access, the check's Prompt).
  */
 // @spec-link [[rule_controller_connects_between_sessions]]
+// @spec-link [[rule_transposition_check_sets_my_instrument]]
 export function sheetFocusTarget(
   stage: SheetStage,
   actions: readonly SheetActionButton[],
 ): SheetFocusTarget {
-  if (stage.kind === 'picker') return 'picker'
-  return actions[0]?.primary === true ? 'first-action' : 'close'
+  if (stage.kind === 'picker') return { kind: 'picker' }
+  const named =
+    stage.kind === 'use'
+      ? 'back'
+      : stage.kind === 'check' && stage.backFromUse === true
+        ? 'use-this'
+        : null
+  const index = actions.findIndex((button) => button.action === named)
+  if (index !== -1) return { kind: 'action', index }
+  return actions[0]?.primary === true ? { kind: 'action', index: 0 } : { kind: 'close' }
 }

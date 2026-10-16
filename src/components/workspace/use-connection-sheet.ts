@@ -16,6 +16,7 @@ import type {
 import { loadConnectionSheet } from '@/components/controller-connection/load-connection-sheet'
 import type { InstrumentProfile } from '@/domain/profile/instrument-profile'
 import { ADOPTED_INSTRUMENT_PROFILES } from '@/domain/profile/instrument-profiles'
+import type { MyInstrument } from '@/domain/profile/my-instrument'
 import type { MidiController } from '@/midi/midi-controller-state'
 import type { ControllerStatusView } from './use-controller-status'
 
@@ -29,6 +30,8 @@ export interface ConnectionSheetDeps {
   readonly profile: () => InstrumentProfile
   /** The current instrument's clef, the staff the check's note is drawn on. */
   readonly clef: () => InstrumentClef
+  /** The saved my instrument, or null: what the check's Use this for my instrument changes. */
+  readonly myInstrument: () => MyInstrument | null
   readonly sessionActive: () => boolean
 }
 
@@ -121,6 +124,7 @@ export function useConnectionSheet(deps: ConnectionSheetDeps): ConnectionSheetHo
       clef: deps.clef(),
       profiles: ADOPTED_INSTRUMENT_PROFILES,
       seenDeviceCount: deps.status.seenDeviceCount.value,
+      myInstrument: deps.myInstrument(),
     }
   })
 
