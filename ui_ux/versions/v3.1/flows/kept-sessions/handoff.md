@@ -1,0 +1,316 @@
+# Kept Sessions Handoff
+
+> **New in v3.**
+
+> **Changes since v3.0**
+>
+> - _v3.1 new:_ the preset label ([Terms](#terms))
+
+## Flow
+
+```mermaid
+flowchart TD
+  ID["phrase-workspace: idle (no session; the review mode not showing)"]
+  ID -->|"review-link: Review last session (phone: Last session); shown when the most recent session can be opened"| RO["Reading it (kept: review-link is-loading; in memory: at once)"]
+  RO -->|Read| RV["last-session-review: that session's review; title Last session; focus review-title"]
+  RO -->|"Not read: the device refused or failed it; that row's failed-open note"| SL
+  RO -->|"Damaged: deleted while saving is on; the list without it; apology notice"| SL
+  ID -->|"sessions-link: All sessions; shown when the list has at least one row"| SL["session-list: list showing; focus on its title"]
+  PS["play-session: session end, phrase 1 has sounded"] -->|"Saved once; every unpinned kept session deleted"| RV0["last-session-review: the session just ended; focus Close review"]
+  RV0 --> RV
+  SL -->|"session-row-open"| OP["Opening: session-row-open is-loading"]
+  OP -->|Read| RV
+  OP -->|"Not read: the device refused or failed it; row note; focus stays"| SL
+  OP -->|"Damaged: deleted while saving is on; row leaves; focus as after its deletion; apology notice"| SL
+  RV -->|"All sessions (review-nav)"| SLB["session-list: focus on that session's session-row-open (its title if it has no row)"]
+  SLB --> SL
+  RV -->|"Delete session, confirmed (never while saving is off)"| SLD["session-list (its empty state included): focus on its title"]
+  SLD --> SL
+  RV -->|"Its session erased through my instrument: deleted, or a range or transposition change saved after the warning (flows/my-instrument/)"| SLD
+  SL -->|"Pin; Unpin without favorites"| SL
+  SL -->|"Unpin with favorites"| UC["Confirmation sheet: Unpin this session?"]
+  UC -->|"Unpin"| SL
+  UC -->|"Keep pinned, Close, Escape, backdrop"| SL
+  SL -->|"Delete (never while saving is off)"| DC["Confirmation sheet: Delete this session?"]
+  DC -->|"Delete session: row removed; focus next row, else previous, else the list title"| SL
+  DC -->|"Cancel, Close, Escape, backdrop: focus back on that row's Delete"| SL
+  SL -->|"Your data (sessions-header)"| YD["screens/your-data/ sheet"]
+  YD -->|"Closed: focus back on Your data"| SL
+  SL -->|Close review| LV["Mode left: the workspace's idle state; review-link and sessions-link by their rules"]
+  RV -->|Close review| LV
+  LV --> ID
+  ID -->|"Start session, or the starting note: both links removed; nothing asked"| PS2["play-session: count-in"]
+```
+
+- Screens: `screens/phrase-workspace/` (the cue row and its two links, the header's session
+  action, every idle state), `screens/session-list/` (the list), `screens/last-session-review/`
+  (a session's review) and `screens/your-data/` (the sheet). What happens inside a review is
+  routed in `flows/review-and-export/handoff.md`; this flow routes the links, the list and the
+  moves between the list and a review.
+
+## Terms
+
+- **Kept session:** a session saved on this device, pinned or not.
+- **The most recent session:** the last session that ended with a review, while it still exists:
+  in memory during the visit it ended in (kept, or held in memory only because its save failed),
+  or, after a reload, the session that was saved last. Deleting it, whichever way the player
+  deletes it, leaves no most recent session in that visit until the next session ends with a
+  review. The one exception is a damaged session's deletion: the most recent session then becomes
+  at once the readable kept session that started last ([A Damaged Session](#a-damaged-session)).
+  A session ended during its count-in changes nothing.
+- **[v3.1 new]** **Preset label:** the selection at a session's start, recorded with the session
+  as `control-summary` wrote it ("Bebop", "Custom, based on Bebop", "Custom"); a session kept by
+  v3.0 carries its musical profile in the same form ("Neutral", "Jazz", "Custom, based on Jazz").
+  A snapshot: renaming or deleting a preset never changes it. Shown in the list's detail line and
+  the review's summary.
+- **Can be opened:** held in memory, or kept and readable by this version of the app.
+- **Damaged:** a kept session whose records, as the device returned them, the app cannot read
+  correctly: a record that cannot be read at all, content this version's rules refuse, records of
+  one session that disagree, or a summary whose body, or whose played notes it says are kept, is
+  missing. It can be neither opened nor exported. Not damaged: a session saved by a newer version, and
+  a session the device only refused or failed to read (master spec §5.1).
+- **Session date:** a session's start in local time, written with the browser's locale as the
+  short weekday, the day, the short month, the year, then the hour and minutes ("Tue 6 Oct 2026,
+  18:42" in British English, "Tue, Oct 6, 2026, 6:42 PM" in US English). The same text in the
+  review's title or summary and in the list's rows, never written any other way.
+
+## The Cue-Row Links
+
+Drawn in `screens/phrase-workspace/` (`session-cue-row`); routed here.
+
+- **When each shows.** Both only at idle: never from a session's start (count-in included) to its
+  end, and never while the review mode shows (a review or the list). `review-link` while the most
+  recent session can be opened; `sessions-link` while the session list has at least one row (a
+  session saved by a newer version has one; a damaged one has none). Both, one, or none may show. They are decided with the saved settings at load, inside the
+  load wait, so neither appears under the player's eyes once the first phrase is drawn; after
+  that they change only at a session end, at `Close review` and when a deletion changes what is
+  kept.
+- **Labels.** `review-link`: "Review last session" from `bp-tablet-landscape` up, "Last session"
+  below it. `sessions-link`: "All sessions" at every breakpoint.
+- **Order.** At the row's trailing end, `review-link` then `sessions-link`, beside
+  `start-note-line` or alone.
+- **`review-link` activation.** Shows the review mode with the most recent session's review,
+  scrolls the page instantly to its top, and moves focus to `review-title`. A session held in
+  memory shows at once. A kept one is read first: `review-link` takes `is-loading` and
+  `disabled` until it is read; if the device refuses or fails the read, the mode shows the list
+  instead, that session's row in its failed-to-open state, focus on the list's title; if the
+  session is damaged, see A Damaged Session.
+- **`sessions-link` activation.** Shows the review mode with the list, scrolls the page instantly
+  to its top, and moves focus to the list's title.
+- **At a session start** (Start, or the starting note), both links are removed before the start's
+  jump; if one had focus when the starting note started the session, focus moves to the session
+  action (now `Stop`); focus anywhere else is left where it is.
+
+## The List in the Review Mode
+
+- **Showing the list** puts `sessions-panel` in the staff area's place, exactly where
+  `review-panel` goes and with the same mode rules (`flows/review-and-export/handoff.md`,
+  Showing): the session action reads `Close review`, primary and always enabled; the phrase action
+  is disabled; no session starts, by click or by MIDI note; `score-toolbar` (without
+  `score-title`), the audio mix, `control-section`, `controller-status` with the connection sheet,
+  `theme-control` and the page footer stay usable. At most one of `review-panel` and
+  `sessions-panel` is rendered.
+- **Switching levels.** A row's `session-row-open` replaces the list with that session's review;
+  the review's `All sessions` button replaces the review with the list. Each switch scrolls the
+  page instantly to its top. Neither leaves the mode.
+- **`Close review`** leaves the mode from either level, with v2's focus rules unchanged
+  (`flows/review-and-export/handoff.md`, Close review), then shows each link by its rule.
+- **Focus.** List shown from `sessions-link`, from a review's deletion, or after a failed open
+  from `review-link` or one that found the session damaged: the list's title. From a review's `All sessions`: that session's
+  `session-row-open`, or the list's title when the session has no row (it is held in memory
+  only). A row's title pressed and its session read: `review-title`.
+
+## Opening a Session
+
+- Activating `session-row-open` reads the session from the device: the button takes `is-loading`
+  and `disabled`; the rest of the list and the page stay usable. Pressing another row's title
+  meanwhile replaces the pending opening (the latest press wins). `Close review` cancels it.
+- **Read:** its review replaces the list (`screens/last-session-review/`), focus on
+  `review-title`.
+- **Not read** (the device refused or failed the read, or the session was deleted meanwhile in
+  another tab): the list stays; the row shows `session-row-note` "This session couldn't be
+  opened. Try again, or delete it." in place of its comment; `session-row-open` returns enabled
+  and keeps focus. The note goes at the next successful open. Nothing is deleted.
+- **Damaged:** the session is deleted and its row leaves; see A Damaged Session.
+- **Saved by a newer version** (known from the row itself): `session-row-open` is disabled from
+  the start; see `screens/session-list/handoff.md`, States.
+
+## A Damaged Session
+
+A damaged kept session is deleted, pinned or not, with everything it holds (its summary, body and
+played notes, its favorites and comment), as soon as the app finds it, and only while the visit
+saves (master spec §5.1). Nothing is asked: the player has nothing to choose.
+
+- **Where it is found.** At load, once the summaries are read: every session whose summary is
+  damaged goes in one batch, through the save policy (`flows/saved-data/handoff.md`, Load). At a
+  session's save: the same batch as the new session (Keeping at a Session's End). At an opening,
+  from `review-link` or a row: a damaged body deletes that session at once.
+- **The apology.** Once the deletion has committed, the notice row apologises, saying how many
+  sessions went (`flows/saved-data/handoff.md`, Notices: Damaged sessions deleted). Held during a
+  session, as every notice; at a session's save it shows as the review opens.
+- **Where the player lands after `review-link`.** `review-link` keeps `is-loading` and `disabled`
+  until the deletion settles; then the review mode shows the list without that session, its
+  empty state when none is left, focus on the list's title, and the notice shows at the same
+  moment. Never the failed-open row.
+- **Where the player lands from a row.** `session-row-open` keeps `is-loading` and `disabled` until
+  the deletion settles; then the row leaves, focus moves as after that row's deletion (the next
+  row's `session-row-open`, else the previous row's, else the list's title over
+  `sessions-empty`), and the notice shows at the same moment.
+- **The most recent session afterwards** is, at once, the readable kept session that started
+  last, as it would have been at load had the damage been found there; unlike the player's own
+  deletion, which leaves none in that visit (Terms). Its row takes " · Last session", and
+  `review-link` follows its rule when the mode is left (absent when no session can be opened).
+  `sessions-link` follows the rows.
+- **A deletion the device refuses** lands the same way, the session staying unlisted for the
+  visit, but shows the save-problem notice in its Damaged session not deleted wording ("A kept
+  session was damaged and couldn't be read, and this device refused to delete it. It stays hidden
+  until the page is reloaded."; Storage full when storage is full) instead of the apology; the
+  next load tries again.
+- **Never deleted:** a session the device only refused or failed to read, or found absent (its
+  failed-open path, Opening a Session); a session saved by a newer version; anything while saving
+  is off. In an outdated tab a damaged body keeps the failed-open row "This session couldn't be
+  opened. Try again."; a damaged summary has no row there either. A visit started from the
+  defaults lists no session.
+
+## Pin and Unpin
+
+From a row (`session-row-actions`) or a review (`review-session-tools`), the same rules:
+
+- **`Pin`** pins at once, with no confirmation and no message. The button becomes `Unpin`, keeps
+  focus, and the row's status line or the review's keep line changes in place.
+- **`Unpin`, no favorites in the session:** unpins at once, the same way.
+- **`Unpin`, favorites in the session:** opens the confirmation sheet (pattern below): title
+  "Unpin this session?"; body "It will be deleted, with its {k} favorites, when your next session
+  is saved." ("its favorite" when one); actions `Unpin` (`btn`) then `Keep pinned` (`btn`). On
+  `Unpin`, the session is unpinned and focus returns to the button, now `Pin`; on the way back,
+  nothing changes and focus returns to `Unpin`.
+- Marking a favorite pins its session (`flows/review-and-export/handoff.md`); removing a session's
+  last favorite never unpins it.
+
+## Deleting a Session
+
+- **From a row:** `Delete` opens the confirmation sheet: title "Delete this session?"; body "This
+  deletes the session from {session date}, with {what it holds}." then "This can't be undone.",
+  where {what it holds} names, in this order and only when present, "its {k} favorite phrases"
+  ("its favorite phrase" when one), "its comment" and "its played notes", joined with commas and
+  "and"; with none of them the first sentence is "This deletes the session from
+  {session date}."; actions `Delete session`
+  (`btn btn-error`) then `Cancel` (`btn`). On `Delete session`, the session is deleted and its row
+  removed; focus moves to the next row's `session-row-open`, else the previous row's, else the
+  list's title over `sessions-empty`. On the way back,
+  focus returns to the row's `Delete`.
+- **From a review:** `Delete session` opens the same sheet; on confirmation the list replaces the
+  review, its empty state included, focus on the list's title. On the way back, focus returns to
+  `Delete session`.
+- **The session that just ended:** deleting it also removes it from memory; there is then no most
+  recent session, and `review-link` is not shown until the next session ends with a review.
+- **A session held in memory only because its save failed:** `Delete session` in its review
+  deletes it from memory, with the same sheet. A session held in memory because saving is off
+  has no `Delete session` (see While Saving Is Off).
+- **A deletion that fails** keeps the confirmation open, adding `inline-alert alert-error` under
+  its paragraphs: "That couldn't be deleted. Try again." The confirming action tries again; the
+  line leaves when it does. The session stays as it was.
+
+## The Confirmation Pattern
+
+Every confirmation here is a `sheet` of its own, opened from the page: `sheet-backdrop`, `sheet`
+(`role="dialog"`, `aria-modal="true"`, `aria-labelledby` its `sheet-title`), `sheet-header` with
+`sheet-title` (the question) and `btn sheet-close` ("Close"), `sheet-body` with a `p` naming what
+goes and, for a deletion, a second `p` reading "This can't be undone.", and `sheet-actions` holding the confirming action then the way back, in markup, visual and focus
+order. On open, focus goes to the way back. Escape, a press on the backdrop and `Close` are the
+way back. Focus is trapped in the sheet while it is open. No MIDI note starts a session while it
+is open (none could anyway: the review mode shows). It opens and closes with the sheet's own
+opacity transition (`motion.md`).
+
+While a confirmed deletion runs, its confirming action takes `is-loading` and is disabled; the way
+back stays live. Taken then, it closes the sheet as the way back does, focus returning to the
+button that opened it, but it no longer cancels: the deletion already under way finishes, wherever
+the player has gone meanwhile. When it does, the page changes as after that deletion confirmed
+with its sheet open (the row leaves, the list replaces the review, or the played notes leave the
+review), with no message: the change is what tells it. Focus still on a control that change
+removes moves by that deletion's own rule; focus anywhere else stays where the player put it. A
+deletion refused after its sheet closed changes nothing, and nothing tells it, since only its
+sheet tells a refusal: what was to go still shows, with the action that deletes it, to try again.
+
+## Keeping at a Session's End
+
+- A session that ends once phrase 1 has sounded is saved once, as its review opens; nothing is
+  written during a session and nothing is shown on success (`flows/review-and-export/handoff.md`).
+- The same save deletes every kept session that is not pinned, the previous most recent one
+  included. The new session becomes the most recent one.
+- The same batch deletes every kept session whose summary is damaged, pinned or not, and the
+  apology shows as the review opens (A Damaged Session). A summary a newer version wrote stays. A
+  save that fails deletes none of them.
+- A session ended during its count-in saves and deletes nothing; the most recent session stays,
+  and the links return by their rules.
+- A save that fails deletes nothing; the session stays in memory as the most recent one, until
+  the next session ends with a review or the page closes. Its review's keep line says it is not
+  saved; it has no row.
+- While saving is off (an outdated tab, or a visit started from the defaults because the saved
+  data couldn't be read; `flows/saved-data/handoff.md`), a session's end saves and deletes
+  nothing: the session is held in memory as after a failed save, its keep line saying it is not
+  saved, and every kept session stays. Unlike after a failed save, no change made in its review
+  tries the save again (see While Saving Is Off).
+
+## While Saving Is Off
+
+Saving is off for a whole visit in two cases (`flows/saved-data/handoff.md`, Saving off): an
+outdated tab, which a newer version has outdated (master spec §4.3), and a visit started from the
+defaults because the saved data couldn't be read, or not within the start-up wait (master spec
+§4.4). Neither saves anything, and neither offers a deletion in the session list or a review,
+the session held in memory included; the workspace's notice says why. The two differ only in
+`Your data`: a visit started from the defaults keeps `Delete everything`, the one deletion it
+offers, as the way out when reloading does not help; an outdated tab offers no deletion of any
+kind, and its notice's `Reload` is the way forward (`flows/saved-data/handoff.md`, Notices). A
+visit started from the defaults becomes an outdated tab in every respect from the moment data
+written by a newer version is known (master spec §4.4). While saving is off:
+
+- **The session list** has no `Delete` on any row; a row keeps `Pin` or `Unpin` when it has one
+  (a row saved by a newer version has neither, so it has no `session-row-actions`). A row whose
+  opening failed reads "This session couldn't be opened. Try again." (`screens/session-list/`),
+  a damaged one included, since nothing is deleted; a session whose summary is damaged has no
+  row.
+  In a visit started from the defaults the list has no row at all: it says the kept sessions
+  cannot be read in this visit.
+- **A review** has no `Delete session` and no `Delete played notes`, whichever session it shows,
+  the session held in memory included (`screens/last-session-review/`).
+- **`Keep my played notes`** still turns on and off, for this visit only: nothing is saved, no
+  played notes are kept, and turning it off opens no confirmation.
+- **My instrument** offers no deletion and no range or transposition change in an outdated tab
+  while it has kept sessions, here or through the check (`flows/my-instrument/handoff.md`); in a
+  visit started from the defaults it has none, so its changes erase nothing, and the session held
+  in memory keeps its review.
+- **Pin, Unpin, favorites and the comment** work as usual, in memory only for the visit, as the
+  notice says. `Your data` offers `Delete everything` alone in a visit started from the defaults,
+  and no deletion in an outdated tab (`screens/your-data/`, States).
+- **When the tab becomes outdated while the page is open** (a newer version writes, or a read
+  that finished after the start-up wait reveals its data), the deletion buttons leave at that
+  moment, as the notice appears or takes its outdated wording. A deletion confirmation open then
+  closes, deleting nothing. Focus that was on a button that left, or in that confirmation, goes
+  to `review-title` in a review and to the list's title in the list. In a visit started from
+  the defaults, the list and the review have no deletion to lose; only `Your data` changes.
+
+## Deletions Made Elsewhere
+
+From `Your data` (`screens/your-data/`), opened from the list's header or the page footer:
+
+- **`Delete every session`:** every kept session goes, and the session held in memory with them.
+  If the review mode shows, it shows the list's empty state; when the sheet closes, focus
+  returns to the button that opened it, as from every sheet (the list's `Your data` button stays
+  in its header). Neither link is shown afterwards.
+- **`Delete all played notes`:** every row loses "Played notes kept"; a review showing a session
+  whose played notes were kept loses its `Played notes` lane, its view row and its played-notes
+  export at once (`screens/last-session-review/handoff.md`).
+- **`Delete everything`:** the page reloads into its first visit; nothing here needs routing.
+
+From my instrument's sheet or the transposition check (`flows/my-instrument/handoff.md`):
+
+- **Deleting my instrument, or saving a change to its range or transposition** after the warning
+  that names how many sessions go: every session played with my instrument goes, kept or held in
+  memory after a failed save, each as if deleted from its own review. If the review mode shows
+  the review of one of them, the list replaces it, its empty state included; if it shows the
+  list, their rows leave. When the session that just ended is one of them, there is no most
+  recent session until the next session ends with a review. Focus stays in the sheet that did it
+  and returns by that sheet's rule when it closes; each link follows its rule. Sessions played
+  with a built-in profile are never touched, nor are my instrument's sessions by a change of its
+  name or clef.
