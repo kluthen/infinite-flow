@@ -6,9 +6,10 @@
  * rotate by index so that, for every profile selection and instrument, the nine collections
  * between them use every tension, leapiness and arpeggio-chaos value, and pair eighth and
  * sixteenth notes with heavily varied rhythm. Three-phrase carry-in chains and key-change phrases
- * receiving a null final harmony complete it. A built-in phrase encodes as an `ifk1.` key, a
- * my-instrument phrase as an `ifk2.` key. The recording script turns these cases into
- * `tests/fixtures/replay-keys/v3.0-neutral-jazz.json`; the corpus spec reads only that file.
+ * receiving a null final harmony complete it. On v3.0, which recorded the corpus, a built-in
+ * phrase encoded as an `ifk1.` key, a my-instrument phrase as an `ifk2.` key. The recording script
+ * turned these cases into `tests/fixtures/replay-keys/v3.0-neutral-jazz.json`; the corpus spec
+ * reads only that file.
  */
 
 import {

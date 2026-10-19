@@ -59,6 +59,19 @@ export function settingsMutationSeed(page: Page, seed: number): Promise<number> 
   return page.evaluate((s) => window.__workspaceHarness.settingsMutationSeed(s), seed)
 }
 
+/**
+ * Intent: replay a phrase replay key in the page: decoded by the app's decoder, replayed through
+ * the real browser generation worker, answered as its timeline's JSON text or a failure's description.
+ */
+export function replayKeyInBrowser(page: Page, key: string): Promise<WorkspaceHarnessReplayAnswer> {
+  return page.evaluate((value) => window.__workspaceHarness.replay.replayKey(value), key)
+}
+
+/** Intent: a phrase replay key's `ifk3.` re-encoding, decoded and encoded again in the page. */
+export function reEncodeKeyInBrowser(page: Page, key: string): Promise<string> {
+  return page.evaluate((value) => window.__workspaceHarness.replay.reEncodeKey(value), key)
+}
+
 /** Intent: hold every subsequent generate() call before it reaches the real worker. */
 export function holdGeneration(page: Page): Promise<void> {
   return page.evaluate(() => window.__workspaceHarness.holdGeneration())

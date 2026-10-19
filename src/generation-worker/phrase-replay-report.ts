@@ -8,7 +8,7 @@
  */
 
 import type { GenerationControls, PitchClass } from '../domain/controls/generation-controls'
-import type { ProfileSelection } from '../domain/controls/profile-selection'
+import type { FigureLevels } from '../domain/figures/figure-levels'
 import { deriveCarryIn } from '../domain/generation/carry-in/carry-in-derivation'
 import type { CarryIn } from '../domain/generation/carry-in/carry-in'
 import type { GenerationIntent } from '../domain/generation/generation-intent'
@@ -76,7 +76,8 @@ export interface PhraseReplayInput {
   readonly controls: GenerationControls
   readonly writtenTonalCenter: PitchClass
   readonly tonalCenters: ReplayTonalCenters
-  readonly musicalProfile: ProfileSelection
+  /** The seven figure levels by figure id; the intent holds no musical profile. */
+  readonly figureLevels: FigureLevels
   readonly instrumentProfile: InstrumentProfile
   readonly instrumentConcertRange: NamedMidiRange
   readonly registerIntent: RegisterIntent
@@ -209,7 +210,7 @@ function replayInput(
       written: { pitchClass: intent.writtenTonalCenter, key: writtenKey.label },
       concert: { pitchClass: intent.controls.tonalCenter, key: concertKey.label },
     },
-    musicalProfile: intent.musicalProfile,
+    figureLevels: intent.figureLevels,
     instrumentProfile: intent.instrumentProfile,
     instrumentConcertRange: namedRange(intent.instrumentProfile.concertRange, concertKey),
     registerIntent: intent.registerIntent,

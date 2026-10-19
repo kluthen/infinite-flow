@@ -93,13 +93,46 @@ describe('stale-phrase prompt: words', () => {
     [['register', 'tonalCenter'], 'Written key and Register'],
     [['leapiness', 'register', 'tonalCenter'], 'Written key, Register and Leapiness'],
     [
-      ['arpeggioChaos', 'register', 'musicalProfile', 'tonalCenter'],
-      'Written key, Musical profile preset and 2 other settings',
+      ['arpeggioChaos', 'register', 'chromaticApproach', 'tonalCenter'],
+      'Written key, Register and 2 other settings',
     ],
     [['instrumentProfileId', 'collection'], 'Collection and Instrument profile'],
+    [['passingTone', 'arpeggioChaos'], 'Arpeggio chaos and Passing tone'],
   ] as const)('names %j, in page order, as "%s"', (changed, text) => {
     const { wrapper } = mountPrompt(changed)
     expect(paragraphs(wrapper)[0]).toBe(`Since it was made, you changed ${text}.`)
+  })
+
+  // @test-link [[rule_stale_phrase_prompt_at_start]]
+  it('names a Neutral–Jazz change by its two chromatic figures, never Musical profile preset', () => {
+    const { wrapper } = mountPrompt(['chromaticApproach', 'chromaticEnclosure'])
+    const text = paragraphs(wrapper)[0]
+    expect(text).toBe('Since it was made, you changed Chromatic approach and Chromatic enclosure.')
+    expect(text).not.toContain('Musical profile preset')
+  })
+
+  // @test-link [[rule_stale_phrase_prompt_at_start]]
+  it.each([
+    ['passingTone', 'Passing tone'],
+    ['accentedPassingTone', 'Accented passing tone'],
+    ['neighborTone', 'Neighbor tone'],
+    ['appoggiatura', 'Appoggiatura'],
+    ['diatonicEnclosure', 'Diatonic enclosure'],
+    ['chromaticApproach', 'Chromatic approach'],
+    ['chromaticEnclosure', 'Chromatic enclosure'],
+  ] as const)('names the figure %s by its label "%s"', (figure, label) => {
+    const { wrapper } = mountPrompt([figure])
+    const text = paragraphs(wrapper)[0]
+    expect(text).toBe(`Since it was made, you changed ${label}.`)
+    expect(text).not.toContain('Musical profile preset')
+  })
+
+  // @test-link [[rule_stale_phrase_prompt_at_start]]
+  it('names the seven figures after Arpeggio chaos, in their order', () => {
+    const { wrapper } = mountPrompt(['chromaticEnclosure', 'appoggiatura', 'arpeggioChaos'])
+    expect(paragraphs(wrapper)[0]).toBe(
+      'Since it was made, you changed Arpeggio chaos, Appoggiatura and Chromatic enclosure.',
+    )
   })
 
   // @test-link [[rule_midi_starting_note]]

@@ -199,7 +199,7 @@ describe('a carry-in checked against the intent that receives it', () => {
       requestId: plain.requestId,
       seed: plain.seed,
       controls: { ...plain.controls, tonalCenter: plain.writtenTonalCenter },
-      musicalProfile: plain.musicalProfile,
+      figureLevels: plain.figureLevels,
     }
     expect(makeGenerationIntent(input)).toStrictEqual(plain)
     expect(() => makeGenerationIntent(Object.assign({}, input, { carryIn }))).toThrow(

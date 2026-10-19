@@ -7,7 +7,7 @@
  */
 
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
-import { PROFILE_BUNDLES } from '@/domain/controls/profile-selection'
+import { PROFILE_BUNDLES, type ProfileSelection } from '@/domain/controls/profile-selection'
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
 import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import {
@@ -122,15 +122,20 @@ export function recordedKeptSession(
   return history
 }
 
-/** Intent: a history-shaped value over given records, as the encoder reads one. */
+/**
+ * Intent: a history-shaped value over given records, as the encoder reads one, its session's
+ * musical profile selection the harness settings' unless given.
+ */
 export function historyOf(
   records: readonly SessionHistoryRecord[],
   instrumentProfileId: InstrumentProfileId,
+  profileSelection: ProfileSelection = sessionSettings().musicalProfile,
 ): KeptSessionHistory {
   return {
     phrases: () => records,
     startedAt: SESSION_START_EPOCH_MS,
     instrumentProfileId,
+    profileSelection,
     sessionSeed: DEFAULT_SESSION_SEED,
   }
 }

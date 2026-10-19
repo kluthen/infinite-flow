@@ -31,7 +31,11 @@ import type { StalePhrasePrompt } from '@/components/workspace/workspace-stale-p
 import { getInstrumentProfile } from '@/domain/generation/generation-intent'
 import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import type { SessionHistory, SessionHistoryRecord } from '@/session/session-history'
-import { DEFAULT_SESSION_SEED, SESSION_START_EPOCH_MS } from '../../session/session-harness'
+import {
+  DEFAULT_SESSION_SEED,
+  SESSION_START_EPOCH_MS,
+  sessionSettings,
+} from '../../session/session-harness'
 
 /** The fake's state, writable by the test. */
 export type FakeSessionControllerState = {
@@ -87,7 +91,8 @@ function closed(): never {
 
 /**
  * Intent: a closed session history for a Review: `records` as its phrases, the fixed test start
- * time, and the session's instrument profile (the B-flat tenor unless given).
+ * time, the harness's session settings' musical profile selection, and the session's instrument
+ * profile (the B-flat tenor unless given).
  */
 // @test-link [[req_last_session_review]]
 export function fakeReviewHistory(
@@ -103,6 +108,7 @@ export function fakeReviewHistory(
     phraseCount: records.length,
     startedAt: SESSION_START_EPOCH_MS,
     instrumentProfileId,
+    profileSelection: sessionSettings().musicalProfile,
     sessionSeed: DEFAULT_SESSION_SEED,
   }
 }

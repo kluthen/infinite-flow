@@ -39,7 +39,6 @@ const LABELS: readonly (readonly [StaleSetting, string])[] = [
   ['tonalCenter', 'Written key'],
   ['collection', 'Collection'],
   ['instrumentProfileId', 'Instrument profile'],
-  ['musicalProfile', 'Musical profile preset'],
   ['harmonicMotion', 'Harmonic motion'],
   ['tension', 'Tension'],
   ['noteDensity', 'Note density'],
@@ -50,6 +49,13 @@ const LABELS: readonly (readonly [StaleSetting, string])[] = [
   ['register', 'Register'],
   ['leapiness', 'Leapiness'],
   ['arpeggioChaos', 'Arpeggio chaos'],
+  ['passingTone', 'Passing tone'],
+  ['accentedPassingTone', 'Accented passing tone'],
+  ['neighborTone', 'Neighbor tone'],
+  ['appoggiatura', 'Appoggiatura'],
+  ['diatonicEnclosure', 'Diatonic enclosure'],
+  ['chromaticApproach', 'Chromatic approach'],
+  ['chromaticEnclosure', 'Chromatic enclosure'],
 ]
 
 /**
