@@ -222,3 +222,15 @@ with no owner; chunk 8's drift list and size; chunk 10's key labels) and a v3.0 
   `src/domain/presets/` and its tests; Done when met item by item (164 tests on its paths). For
   the interface chunks: each change is reported by its kind, with the key and collection after
   it. For the sync: `module_preset_model`'s refusal list adds `tooLong`.
+- **Chunk 5, levels gate the figures: merged 9383597** (5a 7afa187, 5b 8ab76c9). Done when met
+  item by item; 86 files / 1,509 tests on its paths on the merged tree; corpus guard passed. M1
+  (2026-10-19 18:28 CEST, reference machine, load about 1.5 from the parallel chunks; shares do
+  not depend on load): Neutral and Jazz equal v3.0's baseline; each figure Off gives 0 of it;
+  every figure Off keeps Tension's figure, 6 of 1,278 Lift cases find no pitch plan (for the cost
+  guard, chunk 11). Stale atom text for the sync: `rule_neutral_profile_diatonic_pitches`,
+  `rule_jazz_chromatic_resolution`, `rule_tension_resolution_delay_permits_rests`,
+  `module_musical_profile_capabilities`, `module_figure_levels`'s interface; and
+  `rule_levels_govern_free_figures_only`'s EXPECTATION says "never changes which scheduled
+  figure" where B5.4 says "does not reorder" (the binding can differ when one fails). Sent to
+  `spec-writer`: whether the carry-in phrase's settleable tense ending should follow the passing
+  or neighbor tone's level (ungated today; B5 is silent).

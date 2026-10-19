@@ -539,7 +539,7 @@ Record: d06205b (4a, the figures module, `figureLevels` in the intent, the worke
 
 ### Chunk 5 — Levels gate the figures
 
-Status: in progress (w1, 2026-10-19)
+Status: merged (w1, 9383597)
 Wave: 1
 Depends on: 3 (the census its Done when runs), 4
 Architecture capture: none
@@ -603,6 +603,8 @@ Architecture capture: none
   sweep at the wave gate.
 - **Split rule:** if the brief passes about five source files, 5a the search (candidates, figures,
   types, context), 5b the validator (figure rules and their types).
+
+Record: 7afa187 (5a, the search) and 8ab76c9 (5b, the validator, M1, docs), merged as 9383597. `PitchPolicy.capabilities` replaced by `figureLevels` (the validation context the same); chromatic approach and enclosure gated each by its own level; a free diatonic tone allowed only one resolution carries a `freeResolution` tag; Tension's scheduled figure reads no level. Corpus guard passed, fixtures byte-identical. M1, 2026-10-19 18:28 CEST, reference machine, not idle (chunks 8 and 10 building; shares do not depend on load): Neutral and Jazz rows equal the v3.0 baseline digit for digit; each figure Off gives 0 of it, 0 unexplained, no `result_validation_failed`; every figure Off keeps Tension's scheduled figure (50.1 %), with 6 Lift cases of 1,278 `no_legal_pitch_plan`. Rows in `docs/generation-latency.md`, "Each figure Off (v3.1 chunk 5)". Outside its Files line: `pitch-policy.ts`, `generation-result-validator.ts`, `figure-levels.ts` (capabilities type removed), the census sweep and measure files. Open: the settleable tense ending of a carry-in phrase is not gated by any level (sent to `spec-writer`).
 
 ### Chunk 6 — Favored levels order the search
 
