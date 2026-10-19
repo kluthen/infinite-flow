@@ -21,14 +21,14 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and each milestone
 folder's README, such as [archive/v3/README.md](archive/v3/README.md)). Numbering continues from
-**D373**.
+**D376**.
 
 Live here: D228–D251 (v3.1 and v3.2, not built yet), D259–D260 (style packs, planned with no
 version, and the sound ban; merged from branch `v4-accompaniment-research`), D261–D288 (v3.3, not
 built yet; D263–D288 merged from branch `v3.3-chord-research`), D344–D348 (the v3.0 release and
 its follow-ups) and D349–D358 (the v3.1–v3.3 plan migrations, merged from branch
 `plan-migration` as D339–D341, the v3.1 plan's gates and approval, and B12's code check) and
-D359–D363 (the owner's rulings during v3.1's wave 0) and D364–D372 (the v3.1 build's rulings and
+D359–D363 (the owner's rulings during v3.1's wave 0) and D364–D375 (the v3.1 build's rulings and
 preflight corrections). D289 is unused.
 
 ## Decision Log
@@ -803,3 +803,22 @@ preflight corrections). D289 is unused.
   v1.4). Now in: [chunk 6](versions/v3/build-plan-v3.1.md#chunk-6--favored-levels-order-the-search),
   [chunk 7](versions/v3/build-plan-v3.1.md#chunk-7--two-new-free-figures-the-appoggiatura-and-the-diatonic-enclosure),
   [B9](versions/v3/master-spec.md#b9-the-generation-request-the-replay-key-and-kept-sessions).
+
+- **D373 (2026-10-19): chunk 22 adds {length} to the review's summary.** Both designs write
+  "{session date} · {length} · {phrases} · …"; v3.0 shipped without it with no ruling, and chunk 9
+  added only {preset}. A small chunk in wave 3 (not started), after chunk 12, which may change the
+  same kept-session record. Not adopted: folding it into chunk 12, which touches no review file.
+  Now in: [chunk 22](versions/v3/build-plan-v3.1.md#chunk-22--the-reviews-summary-gives-the-sessions-length),
+  [waves](versions/v3/build-plan-v3.1.md#waves).
+
+- **D374 (2026-10-19): M3's version 2 decision is taken by the plan's method; the heavy case is
+  the owner's (opens O233).** At 10, 100 and 500 sessions of M2's 100 kB bodies the upgrade loads in
+  at most 750 ms, inside the 2 s wait: the step stays at open. Larger bodies run past the wait,
+  which B9's "the player sees no difference" does not allow, so spec-writer does not accept it.
+  Now in: [M3](versions/v3/build-plan-v3.1.md#m3--the-start-up-read-and-the-migrations),
+  [gates](versions/v3/build-plan-v3.1.md#gates), [O233](open-questions.md).
+
+- **D375 (2026-10-19): a hole in a timeline's measures goes to the issue tracker (ISS-013).** The
+  domain parser accepts it and yields a timeline with a missing measure; no v3.1 chunk owns the
+  parser, and the fix is not v3.1 behaviour. Not adopted: a v3.1 chunk. Now in:
+  [ISS-013](../issues/Ref_20261019_timeline_parser_accepts_holes.md).

@@ -1,6 +1,10 @@
 # Infinite Flow v3.1 — Build Plan
 
-Status: v11 (2026-10-19): wave 2's preflight corrections, before its first chunk: a favored free
+Status: v12 (2026-10-19): from chunk 9's report: chunk 22 joins wave 3 after chunk 12, {length}
+in the review's summary (spec D373); M3's version 2 result, the step stays at open, and the
+heavy-body case goes to the owner as O233, gate M3H (spec D374); a hole in a timeline's measures
+goes to ISS-013 (spec D375).
+v11 (2026-10-19): wave 2's preflight corrections, before its first chunk: a favored free
 scale tone is tried first as the drawn figure and keeps its usual place (chunk 6); each kept shape
 keeps its own data version, played notes at 1, and new sessions write the label in B9's form
 (chunk 9); files, atoms and owner notes follow the code (spec D369–D372).
@@ -93,18 +97,19 @@ waits, but no release is cut before wave 5 has merged.
 | **L1**       | The owner's listening check of the figure levels ([H1](#hand-checks)); the shares are tuned from it.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | The owner                                                                                                 | The release gate's final M1 and M2 runs                                                                                                                                                                                     | open (after chunk 14)                                        |
 | **L2**       | The owner's listening check of the eight built-in presets ([H2](#hand-checks)).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | The owner                                                                                                 | The release gate                                                                                                                                                                                                            | open (after chunk 14)                                        |
 | **Contract** | B11's four guarantee changes confirmed and applied (CONTRACT 3.0).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | The owner; `documentalist`                                                                                | Nothing; the release gate checks the record (item 23)                                                                                                                                                                       | done (2026-10-08, spec D246)                                 |
+| **M3H**      | The owner's answer to [O233](../../open-questions.md): kept sessions with long phrase lists upgraded past the start-up wait (accept it, B9 saying so; or convert the phrase lists when a session is opened).                                                                                                                                                                                                                                                                                                                                                                         | The owner; `spec-writer` records it                                                                       | The release gate; if converting when opened is chosen, the chunk inserted for it                                                                                                                                            | open (from chunk 9, spec D374)                               |
 | **CS**       | The MAJOR contract bump for v3.0's STABLE contract atoms that v3.1 revises (the twelve of the change set's [part I3](../../../docs/release/v3.1-v3.2-intent-change-set.md#i3-for-the-owner-not-applied)) and for `rule_open_phrase_ending` ([B11](master-spec.md#b11-what-v31-changes-in-v30-and-in-v2s-guarantees); spec D361, D362): `documentalist` drafts their new wordings, the three "to decide" rows first (two weaken a guarantee); the owner confirms them all at once. The chunks that revise them say "(contract, CS)" in their Revisions line: 8, 9, 12, 16, 17 and 18. | `documentalist` drafts; the owner confirms                                                                | The sync of wave 1, the first wave whose chunks revise one (chunk 8: `rule_kept_session_content`, `entity_kept_session_record`, `module_kept_session_codec`); its chunks may be built and merged into the wave branch first | done (2026-10-19, spec D363)                                 |
 
 ## Waves
 
-| Wave | Chunks                                                                                                                                                | Waits for                                                                                                                                                                                                                                                          | Status              |
-| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------- |
-| 0    | 0 Intent re-sync · 2 Baselines · 3 Measurement tools                                                                                                  | Nothing (R0 done). Chunk 3 records its baselines on v3.0's code: nothing in this wave changes the generator.                                                                                                                                                       | merged (2026-10-19) |
-| 1    | 4 Figure levels in the request · 5 Levels gate the figures · 8 Replay key `ifk3.` · 10 Preset model                                                   | Wave 0. In-wave 4 → 5, 4 → 8 and 4 → 10: chunk 4's capture fixes the figure ids, the level type and the request's `figureLevels`.                                                                                                                                  | merged (2026-10-19) |
-| 2    | 6 Favored levels order the search · 7 Two new free figures · 9 Kept sessions hold the levels                                                          | Wave 1. In-wave 6 → 7: chunk 6's capture fixes the draw and the figures a candidate names.                                                                                                                                                                         | planned             |
-| 3    | 11 Cost guard, first run · 12 Presets replace the musical profile · 15 Vary settings inside the restriction · 16 Presets on the device                | Wave 2. In-wave 12 → 15 and 12 → 16: chunk 12's capture fixes the session settings and the routing point. DP opens at its end.                                                                                                                                     | planned             |
-| 4    | 1 Token-source pass · 13 Preset bar and marks                                                                                                         | Wave 3; **T1** (not given, D355). Two chunks: every other chunk T1 holds needs both 1 and 13, which would make a chain of three, and every chunk T1 does not hold is in waves 0–3 so that it need not wait.                                                        | blocked (on T1)     |
-| 5    | 14 Embellishments group · 17 Preset management · 18 Your data · 19 Pre-generation discards · 20 Passing and neighbor never both Off (**conditional**) | Wave 4; DP (20). In-wave 14 → 19 and 14 → 20: chunk 14's capture fixes the level controls' option model and their change path; 17 → 18 and 17 → 19: chunk 17's capture fixes the player-presets composable. L1 and L2 open at its end. Four chunks if DP drops 20. | planned             |
+| Wave | Chunks                                                                                                                                                              | Waits for                                                                                                                                                                                                                                                          | Status              |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------- |
+| 0    | 0 Intent re-sync · 2 Baselines · 3 Measurement tools                                                                                                                | Nothing (R0 done). Chunk 3 records its baselines on v3.0's code: nothing in this wave changes the generator.                                                                                                                                                       | merged (2026-10-19) |
+| 1    | 4 Figure levels in the request · 5 Levels gate the figures · 8 Replay key `ifk3.` · 10 Preset model                                                                 | Wave 0. In-wave 4 → 5, 4 → 8 and 4 → 10: chunk 4's capture fixes the figure ids, the level type and the request's `figureLevels`.                                                                                                                                  | merged (2026-10-19) |
+| 2    | 6 Favored levels order the search · 7 Two new free figures · 9 Kept sessions hold the levels                                                                        | Wave 1. In-wave 6 → 7: chunk 6's capture fixes the draw and the figures a candidate names.                                                                                                                                                                         | planned             |
+| 3    | 11 Cost guard, first run · 12 Presets replace the musical profile · 15 Vary settings inside the restriction · 16 Presets on the device · 22 Review summary's length | Wave 2. In-wave 12 → 15, 12 → 16 and 12 → 22: chunk 12's capture fixes the session settings and the routing point; chunk 22 follows 12 because both may change the kept-session record. DP opens at its end.                                                       | planned             |
+| 4    | 1 Token-source pass · 13 Preset bar and marks                                                                                                                       | Wave 3; **T1** (not given, D355). Two chunks: every other chunk T1 holds needs both 1 and 13, which would make a chain of three, and every chunk T1 does not hold is in waves 0–3 so that it need not wait.                                                        | blocked (on T1)     |
+| 5    | 14 Embellishments group · 17 Preset management · 18 Your data · 19 Pre-generation discards · 20 Passing and neighbor never both Off (**conditional**)               | Wave 4; DP (20). In-wave 14 → 19 and 14 → 20: chunk 14's capture fixes the level controls' option model and their change path; 17 → 18 and 17 → 19: chunk 17's capture fixes the player-presets composable. L1 and L2 open at its end. Four chunks if DP drops 20. | planned             |
 
 The [release gate](#chunk-21--v31-release-gate) (chunk 21) follows wave 5, with L1 and L2. κ is 1
 ([build workflow](build-workflow.md#concurrency-and-order)). If the owner gives T1 before wave 3's
@@ -137,6 +142,7 @@ flowchart LR
     C12[12 Presets replace the profile]
     C15[15 Vary inside restriction]
     C16[16 Presets on the device]
+    C22[22 Review summary length]
   end
   subgraph W4[Wave 4]
     C1[1 Token pass]
@@ -169,6 +175,7 @@ flowchart LR
   C10 --> C12
   C12 --> C15
   C12 --> C16
+  C12 --> C22
   C9 --> C16
   C1 --> C13
   C12 --> C13
@@ -190,6 +197,7 @@ flowchart LR
   C18 --> C21
   C19 --> C21
   C20 --> C21
+  C22 --> C21
   L --> C21
 ```
 
@@ -284,6 +292,14 @@ Gate DP: whether B5.6's rule (the passing tone and the neighbor tone may not bot
 - **Acceptance:** each, upgrade included, well under the start-up wait constant. If the
   kept-session upgrade does not fit with many pinned sessions, chunk 9 maps each v3.0 body when it
   is read instead (B9, spec D250), decided before chunk 9 merges.
+- **Version 2, chunk 9** (spec D374; figures in [`docs/storage.md`](../../../docs/storage.md#the-upgrade-to-data-version-2-m3),
+  2026-10-19, reference machine): by this plan's method, 10, 100 and 500 pinned v3.0 sessions
+  with M2's 100 kB bodies (15 phrases), the upgrading load takes at most 750 ms, about 38 % of
+  the 2 s wait. That is the decision above: the step stays at open, with no mapping when read.
+  Beyond the method, with 650 kB bodies (97 phrases), 100 sessions take 902 ms and 500 pass the
+  wait: that first visit is a failed-read visit (Part A §4.4), the upgrade completes, the next
+  visit reads normally. B9 promises no difference, so this case is the owner's: O233, gate
+  [M3H](#gates).
 - **Recorded:** `docs/storage.md`.
 
 ### M4 — The first-load bundle
@@ -1689,6 +1705,52 @@ Architecture capture: none (it builds on chunk 14's)
   diatonic figure Off" is no longer reachable from the controls.
 - **Verification:** chunk checks with the corpus guard.
 - **Split rule:** none needed (five source files).
+
+### Chunk 22 — The review's summary gives the session's length
+
+Status: planned
+Wave: 3
+Depends on: 9 (the summary's {preset}), 12 (it may change the kept-session record and the
+review state this chunk reads)
+Architecture capture: none (one length function shared by the save and the review)
+
+- **Goal:** the review's summary gives the session's length, as both the v3.0 and the v3.1
+  designs write it; v3.0 shipped without it and chunk 9 added only {preset} (spec D373).
+- **Scope:**
+  - `review-summary` reads "{session date} · {length} · {phrases} · {instrument} · {preset} ·
+    {favorites}", the session date left out when it is the title; {length} written exactly as the
+    session list's detail line writes it (`sessionLengthText`, `session-row-text.ts`: "{m} min"
+    rounded to the nearest minute, "Under 1 min" below 30 seconds).
+  - One length for a session wherever it is shown: the review's comes from the same function as
+    the stored `lengthSeconds` (`sessionLengthSeconds`, `kept-session-record.ts`, private today:
+    phrase 1's scheduled start to the end of the last phrase that sounded), for a kept session and
+    for the session that just ended, its save failed included. The chunk owner places the function
+    within the boundary rules (exported, or moved out of `src/storage/` with the record importing
+    it).
+  - Nothing else in the summary changes: still not rendered below `bp-tablet-landscape`, and no
+    figure about how the player played.
+- **Files:** `src/components/review/ReviewPanel.vue` (`summary`, the length prop),
+  `src/components/workspace/use-review-area.ts` (the length of the shown Review),
+  `src/components/workspace/ReviewArea.vue` (passes it), `src/storage/records/kept-session-record.ts`
+  (the shared length function); tests `tests/unit/components/review/ReviewPanel.spec.ts`, and the
+  e2e specs that read `review-summary` (`tests/e2e/review/review-opens.spec.ts`,
+  `review-favorites.spec.ts`, `tests/e2e/storage/kept-sessions-carried-over.spec.ts`,
+  `my-instrument.spec.ts`), updated to the full line.
+- **Spec sections:** Part A [§5.4](master-spec.md#54-reaching-earlier-sessions).
+- **Design docs:** [`screens/last-session-review/handoff.md`](../../../ui_ux/versions/v3.1/screens/last-session-review/handoff.md)
+  (`review-summary`), [`screens/session-list/handoff.md`](../../../ui_ux/versions/v3.1/screens/session-list/handoff.md)
+  (Detail line: {length}).
+- **Atoms:** `req_last_session_review`, `req_kept_session_review`, `req_kept_session_list`.
+- **Revisions:** none.
+- **Done when:**
+  - The summary of the session that just ended and of a kept session read in the full form, the
+    date only when it is not the title, at a length under 30 seconds ("Under 1 min") and over.
+  - A kept session's review gives the same {length} as its row in the session list (one seeded
+    session, both read).
+  - The session that just ended gives the length its kept summary records; after a failed save,
+    the length that summary would have recorded.
+- **Verification:** chunk checks.
+- **Split rule:** none needed (four source files).
 
 ## Chunk 21 — v3.1 release gate
 

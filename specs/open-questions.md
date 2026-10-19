@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.75
+Status: draft v0.76
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -23,8 +23,9 @@ Open on 2026-10-19: O48 and O49 (later and governance), O100–O102 (v4 rhythm r
 O115 and O116 (v3.x learning), O176 (style packs and the chord level), O180 (octave signs, later),
 O183 (the warm worker lost when pre-generation is cancelled), O190 (a newer version's database
 whose read-only reopening fails), O230 (a stale replay-key wording in a STABLE atom, opened with
-D351; numbered O177 on branch `plan-migration`, D352). D359 closed O231 (v3.1's entry-chunk
-budget, opened with D358) the same day. New questions take IDs from **O232**; the IDs
+D351; numbered O177 on branch `plan-migration`, D352), O233 (kept sessions with long phrase lists
+upgraded past the start-up wait, D374). D359 closed O231 (v3.1's entry-chunk
+budget, opened with D358) the same day. New questions take IDs from **O234**; the IDs
 reserved for v3.0's waves and left unused stay unused, and O177 stays unused.
 
 Opened on 2026-10-12 with v3.3 (D261): O165–O175, richer chords. D262 closed O174 the same day.
@@ -200,3 +201,17 @@ Opened 2026-10-19 by `spec-writer` when master spec B12 was checked against v3.0
 
 - O232 (does a figure level reach the tense note a joined phrase may end on?) was closed by
   [D368](decisions.md) on 2026-10-19: it follows the levels like a free scale note.
+
+- **O233 - Kept sessions with long phrase lists upgraded past the start-up wait** _(D374; from
+  chunk 9's M3; gate [M3H](versions/v3/build-plan-v3.1.md#gates))_: v3.1's first open rewrites every
+  session v3.0 kept. With sessions of about 15 phrases it takes at most 0.75 s for 500 of them,
+  inside the 2 s start-up wait. With long sessions (about 97 phrases, 13 minutes at 120 BPM),
+  100 take 0.9 s and 500 pass the wait (from about 220 on, by a straight-line estimate). That one visit then
+  starts from the defaults and saves nothing (Part A §4.4, so the session played in it is not
+  kept); the rewrite still completes and the next visit reads normally. B9 says that when the
+  rewrite does not fit, each session is converted when it is read instead, "the player sees no
+  difference". Open: (a) accept it, and B9 says so; or (b) convert the phrase lists when a session
+  is opened, a new storage chunk. Proposed: (a). Reaching it needs a couple of hundred long pinned
+  sessions kept between v3.0's release (2026-10-16) and v3.1's, and the visit recovers by itself;
+  (b) leaves two reading paths in place for good. A later version that rewrites the phrase lists
+  should measure against the space a real store holds. Blocks the release gate only, unless (b).
