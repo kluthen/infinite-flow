@@ -68,3 +68,17 @@ Open for the owner, not blocking wave 0: **O231**, the entry chunk's 230 B of he
   that revises one; `rule_open_phrase_ending` is reworded with v3.1; the entry budget is raised to
   **300 kB** (read as 300 KiB, 307,200 B, the unit the 224 kB budget uses). Sent to `spec-writer`
   to record and to `documentalist` for the tag and the wording draft.
+- **Rulings recorded (plan v5, 67b92c0):** D359 (budget 300 KiB, O231 closed), D360 (STABLE tag),
+  D361 (MAJOR bump, gate CS), D362 (`rule_open_phrase_ending` reworded in chunk 12). `spec-writer`
+  traced from the code that **CS blocks wave 1's sync** (chunk 8 changes what a kept phrase
+  stores), added the contract atoms to chunks 8, 9, 12, 16, 17 and 18's Revisions, and gave the
+  three REVIEW atoms of change set I4 a chunk each. For wave 1's preflight: chunk 8 writes kept
+  phrases in the new shape at data version 1 while chunk 9's migration to version 2 expects
+  v3.0's, so sessions kept in a development database between waves 1 and 2 may not read after
+  the upgrade (development data only; no release before wave 5).
+- **CS drafts and the D360 tag (c1e4913, `documentalist`):** change set part J, nine wordings,
+  two of them weakening a guarantee; CONTRACT 6.3.1 → 7.0.0, applied from wave 1's sync on. Sent
+  to the owner 2026-10-19; CS open.
+- **Entry budget 300 KiB (fa76c8b, `coding-executor`):** `entryChunkByteBudget = 300 * 1024`, the
+  README's checks table; `verify:boundaries` passes with the entry chunk at 229,146 B. The two
+  present-tense 224 KiB lines in `docs/controller-connection.md` marked as history.
