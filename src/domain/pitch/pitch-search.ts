@@ -13,9 +13,9 @@ import type { PitchTieKeyFactory } from './pitch-tie-key'
 import type {
   BoundPitchPlannerInput,
   PitchAssignment,
-  PitchCandidate,
   PitchPhrase,
   PitchPlanResult,
+  PitchSearchEntry,
   PitchSearchState,
 } from './pitch-types'
 
@@ -27,16 +27,27 @@ interface SearchBudget {
 }
 
 /**
- * Deterministic depth-first search with forward checking. Candidates are tried in ranked order
- * and each `advance` call costs one unit of fuel. A state whose subtree has been exhausted is
- * recorded by its exact key and never expanded again, which cannot change the first plan found.
+ * Deterministic depth-first search with forward checking. Each attack's search entries are tried
+ * in ranked order and each `advance` call costs one unit of fuel. A state whose subtree has been
+ * exhausted is recorded by its exact key and never expanded again, which cannot change the first
+ * plan found.
  *
- * An attack's ordered candidates depend only on the attack, its required MIDI, and the prior MIDI
- * (chaos, seed, and key are fixed for the run), so they are ordered once per such triple. The
- * prefix is a push/pop stack copied only into the returned phrase.
+ * Where no figure path is in progress, the ordering reads the request's figure levels: at a note
+ * where a favored figure is drawn, the candidates that may start it are tried first as that figure
+ * (a free diatonic tone held to its resolution, then tried again unheld in its usual place). At a
+ * later note of a figure no draw is made. A held entry that leads to a dead end is backed out of
+ * like any other; it never prunes the same tone tried unheld, since `pitchStateKey` includes the
+ * held resolution through `state.figure.free.only`. Nothing rejects or retries a phrase for
+ * lacking a drawn figure, and the assignments always hold the domain member itself.
+ *
+ * An attack's ordered entries depend only on the attack, its required MIDI, and the prior MIDI
+ * (chaos, seed, key and levels are fixed for the run, and the draw reads only the seed and the
+ * attack), so they are ordered once per such triple. The prefix is a push/pop stack copied only
+ * into the returned phrase.
  */
 // @spec-link [[module_pitch_planner]]
 // @spec-link [[mechanic_pitch_search_policy]]
+// @spec-link [[rule_figure_level_never_a_quota]]
 export function searchPitchPlan(
   input: BoundPitchPlannerInput,
   key: PitchTieKeyFactory,
@@ -49,15 +60,15 @@ export function searchPitchPlan(
     return deepFreeze({ kind: 'no_legal_pitch_plan', fuelUsed: 0 })
   const budget: SearchBudget = { fuel: input.policy.searchFuel, limited: false, dead: new Set() }
   const member = indexedDomainMember(context)
-  const orderings = new Map<string, readonly PitchCandidate[]>()
-  const ordered = (state: PitchSearchState): readonly PitchCandidate[] => {
+  const orderings = new Map<string, readonly PitchSearchEntry[]>()
+  const ordered = (state: PitchSearchState): readonly PitchSearchEntry[] => {
     const attack = context.attacks[state.nextAttackIndex]!
     const required = requiredMidi(state.figure)
     const priorMidi = priorSoundingMidi(state)
     const orderingKey = `${attack.attackIndex}|${required ?? ''}|${priorMidi ?? ''}`
-    let candidates = orderings.get(orderingKey)
-    if (!candidates) {
-      candidates = orderCandidates({
+    let entries = orderings.get(orderingKey)
+    if (!entries) {
+      entries = orderCandidates({
         chaos: input.policy.arpeggioChaos,
         seed: input.request.seed,
         attack,
@@ -66,10 +77,11 @@ export function searchPitchPlan(
         ),
         priorMidi,
         key,
+        ...(required === undefined ? { figureLevels: input.policy.figureLevels } : {}),
       })
-      orderings.set(orderingKey, candidates)
+      orderings.set(orderingKey, entries)
     }
-    return candidates
+    return entries
   }
   const assignments: PitchAssignment[] = []
   const visit = (state: PitchSearchState): PitchPhrase | undefined => {
@@ -78,15 +90,15 @@ export function searchPitchPlan(
     const stateKey = pitchStateKey(state)
     if (budget.dead.has(stateKey)) return undefined
     const attack = context.attacks[state.nextAttackIndex]!
-    for (const candidate of ordered(state)) {
+    for (const entry of ordered(state)) {
       if (budget.fuel === 0) {
         budget.limited = true
         return undefined
       }
       budget.fuel -= 1
-      const result = advanceSearchStep(context, state, candidate, member)
+      const result = advanceSearchStep(context, state, entry.candidate, member, entry.favored)
       if (result.kind === 'rejected') continue
-      assignments.push({ attack, candidate })
+      assignments.push({ attack, candidate: entry.candidate })
       const phrase = visit(result.nextState)
       if (phrase || budget.limited) return phrase
       assignments.pop()

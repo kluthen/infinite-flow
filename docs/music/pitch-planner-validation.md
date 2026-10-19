@@ -58,6 +58,15 @@ Each of the seven figures has a level in the generation request (`figureLevels`:
 
 Neutral's and Jazz's levels hold only As today and Off, so they generate exactly what v3.0 generated.
 
+### Favored levels order the search (v3.1)
+
+A level above As today changes only the order in which the search tries candidates, never what it may write:
+
+- **The draw.** At each note, a figure at Favored or Strongly favored is drawn or not by `isFigureDrawn` (`src/domain/pitch/figure-draw.ts`): the FNV-1a 32-bit hash of `infinite-flow/figure-draw/v1|seed|note|figure`, where the note is the attack's `bar:tick` identity, is drawn when its top 16 bits fall under the level's share, `FAVORED_SHARE` (16,384 of 65,536, 1 in 4) or `STRONGLY_FAVORED_SHARE` (32,768, 1 in 2). Integer operations only; at Off and As today no hash is computed.
+- **The figures a candidate names.** A free diatonic tone names the passing figure for its beat (the accented passing tone on beats 1 and 3, the passing tone elsewhere) and the neighbor tone, among those the levels allow; the first note of a chromatic approach or enclosure names that figure. Chord tones, later notes of a figure, the notes of Tension's scheduled figure and the tense note a joined phrase may end on name none, so no draw moves them.
+- **The order.** Where a named figure is drawn, its candidates go first, before the chord tones even on beat 1: a free diatonic tone held to that figure's resolution (a drawn passing tone must go on by step in the same direction, a drawn neighbor tone must step back), then tried again unheld in its usual place; a chromatic figure's first note simply moves ahead. Several drawn figures go higher level first, then by a tie key seeded over the candidate and the figure. While a figure path is in progress no draw is made. Where nothing is drawn the order is v3.0's.
+- **Never a quota.** A favored entry that dead-ends is backed out of like any other. Since the dead-state key holds the held resolution, a held entry's dead end never prunes the unheld tone, so wherever the search found a phrase before it still finds one, fuel allowing, though not always the same one; nothing rejects or retries a phrase for lacking a figure.
+
 ## Contour checkpoints
 
 Choose each bar's checkpoint as its first fresh attack on beat 1 or beat 3; if both qualify, use beat 1. A bar whose metrical anchor is only a tie continuation has no such attack; its checkpoint is then the bar's first fresh attack. Every generated bar has at least one attack, and the phrase's first attack is on bar 1, beat 1, so every bar has exactly one checkpoint. Compare checkpoint MIDI values, not every decorative note.

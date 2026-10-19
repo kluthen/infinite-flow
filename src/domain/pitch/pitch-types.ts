@@ -12,6 +12,7 @@ import type { PhraseEndingDebtAllowance } from '../generation/carry-in/phrase-en
 import type { GenerationRequest } from '../generation/generation-request'
 import type { HarmonyCandidate, TensionFigureKind } from '../harmony/harmony-types'
 import type { RhythmCandidate } from '../rhythm/rhythm-types'
+import type { FavoredLevel } from './figure-draw'
 import type { ContourPlan, ContourState } from './pitch-contour'
 import type { FigureState } from './pitch-figures'
 import type { MotionLimits, MotionState } from './pitch-motion'
@@ -137,6 +138,24 @@ export interface PitchCandidate {
    */
   // @spec-link [[module_favored_figure_draw]]
   readonly figures?: readonly FigureId[]
+}
+
+/**
+ * A candidate tried first as a drawn figure: the figure, its level, and, for a free diatonic tone,
+ * the resolution it is held to.
+ */
+// @spec-link [[module_favored_figure_draw]]
+export interface FavoredEntry {
+  readonly figure: FigureId
+  readonly level: FavoredLevel
+  readonly hold?: FreeToneResolution
+}
+
+/** One entry of an attack's search order: a candidate, tried first as a drawn figure when `favored` is set. */
+// @spec-link [[module_favored_figure_draw]]
+export interface PitchSearchEntry {
+  readonly candidate: PitchCandidate
+  readonly favored?: FavoredEntry
 }
 
 /**

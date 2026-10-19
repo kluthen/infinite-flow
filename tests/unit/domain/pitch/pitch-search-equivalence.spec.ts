@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   JAZZ_FIGURE_LEVELS,
   NEUTRAL_FIGURE_LEVELS,
+  type FigureId,
   type FigureLevels,
 } from '@/domain/figures/figure-levels'
 import {
@@ -188,6 +189,24 @@ const ALL_ROLES: readonly PitchRole[] = [
 
 const ALL_CHAOS: readonly ArpeggioChaos[] = ['Predictable', 'Chaotic', 'Varied']
 
+/**
+ * The figures a randomized candidate names, by role, so the levels' ordering has figures to read;
+ * the reference ordering ignores them. Assigned without drawing from the PRNG, so the scenarios
+ * themselves are unchanged.
+ */
+const ROLE_FIGURES: Readonly<Partial<Record<PitchRole, readonly FigureId[]>>> = {
+  passing_or_neighbor: ['passingTone', 'neighborTone'],
+  chromatic_approach: ['chromaticApproach'],
+  chromatic_enclosure_upper: ['chromaticEnclosure'],
+}
+
+/** No levels (the order before the levels existed), then Neutral's and Jazz's levels. */
+const ORDER_LEVELS: readonly (FigureLevels | undefined)[] = [
+  undefined,
+  NEUTRAL_FIGURE_LEVELS,
+  JAZZ_FIGURE_LEVELS,
+]
+
 /** Key factories exercised by the ordering property test, including unsigned-compare edges. */
 function keyFactories(): ReadonlyArray<{
   readonly name: string
@@ -249,37 +268,71 @@ function randomScenario(
   const candidates = Array.from({ length: candidateCount }, (_, position) => {
     const role = pick(rng, ALL_ROLES)
     const midi = pick(rng, midiPool)
-    return candidate({
-      role,
-      midi,
-      identity: `${pick(rng, identityPool)}/${position}`,
-      enumerationIndex: pick(rng, enumerationPool),
-    })
+    const figures = ROLE_FIGURES[role]
+    return {
+      ...candidate({
+        role,
+        midi,
+        identity: `${pick(rng, identityPool)}/${position}`,
+        enumerationIndex: pick(rng, enumerationPool),
+      }),
+      ...(figures === undefined ? {} : { figures }),
+    }
   })
   const priorMidi = rng() < 0.3 ? undefined : randomInt(rng, 40, 90)
   const { name: keyName, factory: key } = pick(rng, keys)
   return { chaos, seed, attack: attackFixture, candidates, priorMidi, key, keyName }
 }
 
+/**
+ * The production order of a scenario under each of ORDER_LEVELS, each checked against the
+ * reference order: equal candidates in equal order, and no favored entry.
+ */
+function expectReferenceOrder(
+  scenario: Parameters<typeof referenceOrderCandidates>[0],
+  message: string,
+): void {
+  const reference = referenceOrderCandidates(scenario).map((entry) => [
+    entry.identity,
+    entry.midi,
+    entry.enumerationIndex,
+  ])
+  for (const figureLevels of ORDER_LEVELS) {
+    const production = orderCandidates({
+      ...scenario,
+      ...(figureLevels === undefined ? {} : { figureLevels }),
+    })
+    expect(production.every((entry) => entry.favored === undefined)).toBe(true)
+    expect(
+      production.map(({ candidate }) => [
+        candidate.identity,
+        candidate.midi,
+        candidate.enumerationIndex,
+      ]),
+      message,
+    ).toEqual(reference)
+  }
+}
+
 // @test-link [[module_pitch_planner]]
 describe('pitch-search-equivalence: orderCandidates', () => {
   // @test-link [[rule_arpeggio_chaos_respects_constraints]]
+  // @test-link [[module_favored_figure_draw]]
   it('matches the be9128b reference ordering across a few thousand randomized scenarios', () => {
     const rng = mulberry32(0x5eed_5eed)
     const keys = keyFactories()
     const SCENARIO_COUNT = 3000
     for (let index = 0; index < SCENARIO_COUNT; index += 1) {
       const scenario = randomScenario(rng, index, keys)
-      const production = orderCandidates(scenario)
-      const reference = referenceOrderCandidates(scenario)
-      expect(
-        production.map((entry) => [entry.identity, entry.midi, entry.enumerationIndex]),
+      expectReferenceOrder(
+        scenario,
         `scenario ${index} (chaos=${scenario.chaos}, key=${scenario.keyName}) diverged`,
-      ).toEqual(reference.map((entry) => [entry.identity, entry.midi, entry.enumerationIndex]))
+      )
     }
   })
 
   // @test-link [[rule_arpeggio_chaos_respects_constraints]]
+  // @test-link [[module_favored_figure_draw]]
   it('matches the be9128b reference ordering over candidates from real compiled contexts', () => {
     const inputs = [
       fixtureInput({ seed: 1 }),
@@ -304,11 +357,7 @@ describe('pitch-search-equivalence: orderCandidates', () => {
               priorMidi: attackFixture.attackIndex === 0 ? undefined : 60,
               key,
             }
-            const production = orderCandidates(scenario)
-            const reference = referenceOrderCandidates(scenario)
-            expect(production.map((entry) => entry.identity)).toEqual(
-              reference.map((entry) => entry.identity),
-            )
+            expectReferenceOrder(scenario, `attack ${attackFixture.identity} diverged`)
           }
         }
       }

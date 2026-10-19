@@ -1,8 +1,8 @@
 /**
  * The figure census sweep's plumbing (measurement tooling, run by `npm run measure:figures`): the
  * census population, the settings a population is measured under (the musical profiles, every
- * figure as today, and each figure off in turn), one census per case, and the per-setting
- * aggregate the sweep prints and writes.
+ * figure as today, each figure off in turn, and each figure Favored and Strongly favored in turn),
+ * one census per case, and the per-setting aggregate the sweep prints and writes.
  */
 
 import { cpus, loadavg, release } from 'node:os'
@@ -74,6 +74,13 @@ function levelsWith(level: FigureLevel, off: readonly FigureId[]): FigureLevels 
   ) as FigureLevels
 }
 
+/** Intent: every figure as today, except `figure`, which is at `level`. */
+function oneFigureAt(figure: FigureId, level: FigureLevel): FigureLevels {
+  return Object.fromEntries(
+    FIGURE_IDS.map((other) => [other, other === figure ? level : 'asToday']),
+  ) as FigureLevels
+}
+
 /** Intent: the setting giving every case the levels `figureLevels`, keeping its profile. */
 function levelsSetting(label: string, figureLevels: FigureLevels): CensusSetting {
   return {
@@ -93,6 +100,15 @@ export const FIGURE_OFF_SETTINGS: readonly CensusSetting[] = [
   ...FIGURE_IDS.map((figure) => levelsSetting(`${figure} off`, levelsWith('asToday', [figure]))),
   levelsSetting('every figure off', levelsWith('off', FIGURE_IDS)),
 ]
+
+/**
+ * Each figure Favored, then Strongly favored, in turn, every other figure as today: the upper rungs
+ * of each figure's ladder, whose lower rungs are its off setting and every figure as today.
+ */
+export const FIGURE_FAVORED_SETTINGS: readonly CensusSetting[] = FIGURE_IDS.flatMap((figure) => [
+  levelsSetting(`${figure} favored`, oneFigureAt(figure, 'favored')),
+  levelsSetting(`${figure} strongly favored`, oneFigureAt(figure, 'stronglyFavored')),
+])
 
 /**
  * Intent: the census population of some sweep cases: each case under each of the nine
