@@ -445,7 +445,7 @@ Record: d976392, merged as 6e9f36c. `src/` identical to `v3.0.0`, so both baseli
 
 ### Chunk 4 — Figure levels in the generation request
 
-Status: planned
+Status: in progress (w1, 2026-10-19)
 Wave: 1
 Depends on: 0, 2
 Architecture capture: the figures and levels module, `src/domain/figures/figure-levels.ts`: the
