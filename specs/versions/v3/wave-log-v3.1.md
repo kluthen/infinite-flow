@@ -327,3 +327,17 @@ C6-3, C6-4, C7-1, C9-4.
   check what the open does after a callback abort.
 - **Chunks 6 and 9 dispatched in parallel** (no shared file; chunk 7 follows 6). Chunk 9, a data
   migration, has a `reviewer` check its step before merging.
+
+### Chunks
+
+- **Chunk 6, favored order: merged e307449** (6a c7bc4ae, 6b 1fed56c). Done when met item by
+  item; 764 tests on its paths plus the corpus guard, 679 on orchestration and validation. Hash
+  domain `infinite-flow/figure-draw/v1`, shares 1/4 and 1/2 (in the Record line, for the sync).
+  M1 (load 4–10 from chunk 9; shares do not depend on it): each written figure rises strictly
+  from As today to Strongly favored, for example neighbor tone 16.7 → 92.0 → 97.0 % of phrases.
+  **For the owner when listening:** at 1 note in 4, a favored figure appears in most phrases;
+  tuning is one constant in `figure-draw.ts`. Favoring adds a few `search_limit_exceeded` (up to
+  15 against 6 of 5,112), well under B5.6's 2-point limit; chunk 11's M2 confirms at 240 BPM.
+  Stale for the sync: `module_named_stream_pseudorandomness`, `module_pitch_search_transition`,
+  `mechanic_pitch_tie_break_ordering`, `entity_pitch_candidate_domain`,
+  `module_favored_figure_draw`'s "not built yet".

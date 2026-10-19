@@ -618,7 +618,7 @@ Record: 7afa187 (5a, the search) and 8ab76c9 (5b, the validator, M1, docs), merg
 
 ### Chunk 6 — Favored levels order the search
 
-Status: in progress (w2, 2026-10-19)
+Status: merged (w2, e307449)
 Wave: 2
 Depends on: 5
 Architecture capture: the favored draw, `isFigureDrawn(seed, noteIdentity, figureId, level)` in
@@ -705,6 +705,8 @@ in the same wave. Captured as `module_favored_figure_draw` 0.1; `documentalist` 
 - **Split rule:** if the brief passes about five source files (six named), 6a the draw and the
   figures a candidate names (`figure-draw.ts`, `pitch-types.ts`, `pitch-candidates.ts`; no order
   changes), 6b the order (`pitch-ranking.ts`, `pitch-search.ts`, `pitch-advance.ts`).
+
+Record: c7bc4ae (6a, the draw and the figures a candidate names) and 1fed56c (6b, the order), merged as e307449 (built beside chunk 9). Draw: `fnv1a32("infinite-flow/figure-draw/v1|<seed>|<bar:tick>|<figureId>")`, drawn when `((hash >>> 16) & 0xffff) < share`; `FAVORED_SHARE = 0x4000` (1/4), `STRONGLY_FAVORED_SHARE = 0x8000` (1/2); no hash at Off or As today; no draw at a later note of a figure in progress. `PitchCandidate.figures?` outside the identity; `orderCandidates` returns entries, v3.0's order exactly where nothing is drawn. Corpus guard passed; Neutral and Jazz never call the draw. M1, 2026-10-19 20:54 CEST, reference machine, load 4–10 from chunk 9 (shares do not depend on load), shares As today → Favored → Strongly favored: passing 1.9 → 67.8 → 84.0 %, accented passing 4.0 → 55.2 → 67.7 %, neighbor 16.7 → 92.0 → 97.0 %, chromatic approach 10.6 → 75.1 → 88.4 %, chromatic enclosure 7.9 → 60.2 → 70.0 %; `search_limit_exceeded` up to 15 (neighbor Strongly favored) against 6, for chunk 11's M2. For chunk 7: `freeToneHold` throws for free-tone figures other than passing and neighbor (extend `FREE_TONE_HOLDS` or use path candidates); turn the census's "stay 0" assertion for the two new figures into the strict-rise check.
 
 ### Chunk 7 — Two new free figures: the appoggiatura and the diatonic enclosure
 
