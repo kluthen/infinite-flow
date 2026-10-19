@@ -21,11 +21,12 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and each milestone
 folder's README, such as [archive/v3/README.md](archive/v3/README.md)). Numbering continues from
-**D353**.
+**D357**.
 
 Live here: D228–D251 (v3.1 and v3.2, not built yet), D261–D288 (v3.3, not built yet; D263–D288
 merged from branch `v3.3-chord-research`), D344–D348 (the v3.0 release and its follow-ups) and
-D349–D352 (the v3.1–v3.3 plan migrations, merged from branch `plan-migration` as D339–D341). D259 and D260 are on branch `v4-accompaniment-research`, not merged yet.
+D349–D356 (the v3.1–v3.3 plan migrations, merged from branch `plan-migration` as D339–D341, and
+the v3.1 plan's gates). D259 and D260 are on branch `v4-accompaniment-research`, not merged yet.
 D289 is unused.
 
 ## Decision Log
@@ -646,3 +647,22 @@ D289 is unused.
   renumbered. Its D339, D340 and D341 collided with `main`'s v3.0 gate entries and became D349,
   D350 and D351; its O177 became [O230](open-questions.md). `main`'s v3.0 release and archive state
   wins every conflict in the registers and indexes. Not an approval of any of the three plans.
+
+- **D353 (2026-10-19): gate D0 is given: the owner approves the v3.1 design (ux D225–D251).** v3.1
+  only; the v3.2 design is not approved. `ux-writer` freezes it into `ui_ux/versions/v3.1/` and the
+  plan's design links are repointed there. Now in:
+  [build-plan-v3.1.md, Gates](versions/v3/build-plan-v3.1.md#gates).
+
+- **D354 (2026-10-19): gate R0 is met.** v3.0 is released: `3.0.0` was tagged on 2026-10-16 (D348),
+  so chunks 0 and 2 may start. Now in: [build-plan-v3.1.md, Gates](versions/v3/build-plan-v3.1.md#gates).
+
+- **D355 (2026-10-19): gate T1 is not given.** The owner allows no `ux-writer` pass on
+  `src/styles/theme.css` and `components.css` for now. Chunk 1 and every chunk that waits on it
+  (13, 14, 17–20) stay blocked; the waves are re-formed so the rest goes ahead (D356). Now in:
+  [build-plan-v3.1.md, Gates](versions/v3/build-plan-v3.1.md#gates).
+
+- **D356 (2026-10-19): v3.1's plan v4: waves re-formed around T1, code facts refreshed.** Waves 0–3
+  hold every chunk T1 does not block, waves 4 and 5 the rest; chunk 3 no longer waits on chunk 2
+  (an order-only edge: wave 0 changes no generator code), and chunk 14 gains a capture so 19 and 20
+  can share its wave. The code facts are checked against `main` (d007b27). Status: ready for owner
+  approval. Now in: [build-plan-v3.1.md](versions/v3/build-plan-v3.1.md#waves).
