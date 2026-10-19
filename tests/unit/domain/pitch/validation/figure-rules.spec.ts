@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { JAZZ_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
+import {
+  FIGURE_IDS,
+  JAZZ_FIGURE_LEVELS,
+  NEUTRAL_FIGURE_LEVELS,
+  type FigureId,
+  type FigureLevel,
+  type FigureLevels,
+} from '@/domain/figures/figure-levels'
 import { validatePitchMidis } from '@/domain/pitch/validation/pitch-phrase-validator'
 import { BASELINE, QUARTERS, bar, chord, context, figure, withMidis } from './validation-fixtures'
 
@@ -19,6 +26,7 @@ describe('pitch validation: diatonic vocabulary', () => {
     expect(failures(withMidis({ 1: 63 }))).toEqual([{ code: 'out_of_collection', attackIndex: 1 }])
   })
 
+  // @test-link [[rule_figures_resolve_onto_chord_tones]]
   it('requires every free non-chord tone to be a passing tone or neighbor', () => {
     expect(failures(withMidis({ 3: 64, 4: 69, 5: 67 }))).toEqual([
       { code: 'unexplained_non_chord_tone', attackIndex: 4 },
@@ -72,18 +80,144 @@ describe('pitch validation: Jazz chromatic ornaments', () => {
 })
 
 // @test-link [[module_musical_profile_capabilities]]
-// @test-link [[rule_jazz_chromatic_resolution]]
-describe('pitch validation: chromatic approach gated by capability, not profile name', () => {
-  it('accepts a chromatic approach under Neutral when the capability is overridden on', () => {
-    const overrides = { capabilities: { allowsChromaticApproach: true } } as const
+// @test-link [[rule_chromatic_notes_need_a_chromatic_figure]]
+describe('pitch validation: chromatic approach gated by the figure levels, not profile name', () => {
+  it("accepts a chromatic approach under Neutral's levels with the chromatic approach as today", () => {
+    const overrides = {
+      figureLevels: { ...NEUTRAL_FIGURE_LEVELS, chromaticApproach: 'asToday' },
+    } as const
     expect(failures(withMidis({ 1: 63 }), overrides)).toEqual([])
   })
 
-  it('rejects a chromatic approach under Jazz when the capability is overridden off', () => {
-    const overrides = { ...JAZZ, capabilities: { allowsChromaticApproach: false } } as const
+  it("rejects a chromatic approach under Jazz's levels with both chromatic figures off", () => {
+    const overrides = {
+      figureLevels: { ...JAZZ_FIGURE_LEVELS, chromaticApproach: 'off', chromaticEnclosure: 'off' },
+    } as const
     expect(failures(withMidis({ 1: 63 }), overrides)).toEqual([
       { code: 'out_of_collection', attackIndex: 1 },
     ])
+  })
+})
+
+/** Every figure at one level, with the given figures overridden. */
+function levels(
+  level: FigureLevel,
+  overrides: Partial<Record<FigureId, FigureLevel>> = {},
+): FigureLevels {
+  const base = Object.fromEntries(FIGURE_IDS.map((id) => [id, level])) as Record<
+    FigureId,
+    FigureLevel
+  >
+  return { ...base, ...overrides }
+}
+
+/** The baseline with every non-chord tone replaced by a chord tone: no figure at all. */
+const CHORD_TONES = withMidis({ 1: 64, 3: 64, 5: 64, 7: 64, 9: 64, 11: 64, 13: 64 })
+
+// @test-link [[rule_figure_level_orders_search]]
+// @test-link [[rule_chromatic_notes_need_a_chromatic_figure]]
+describe('pitch validation: free figures gated by the figure levels', () => {
+  const cases: readonly {
+    readonly figure: FigureId
+    readonly midis: readonly number[]
+    readonly refused: { readonly code: string; readonly attackIndex: number }[]
+  }[] = [
+    {
+      figure: 'passingTone',
+      midis: withMidis({ 1: 62 }, CHORD_TONES),
+      refused: [{ code: 'unexplained_non_chord_tone', attackIndex: 1 }],
+    },
+    {
+      figure: 'accentedPassingTone',
+      midis: withMidis({ 2: 65, 3: 67 }, CHORD_TONES),
+      refused: [{ code: 'unexplained_non_chord_tone', attackIndex: 2 }],
+    },
+    {
+      figure: 'neighborTone',
+      midis: withMidis({ 9: 62, 10: 60 }, CHORD_TONES),
+      refused: [{ code: 'unexplained_non_chord_tone', attackIndex: 9 }],
+    },
+    {
+      figure: 'chromaticApproach',
+      midis: withMidis({ 1: 63 }, CHORD_TONES),
+      refused: [{ code: 'invalid_chromatic_ornament', attackIndex: 1 }],
+    },
+    {
+      figure: 'chromaticEnclosure',
+      midis: withMidis({ 1: 65, 2: 63 }, CHORD_TONES),
+      refused: [
+        { code: 'unexplained_non_chord_tone', attackIndex: 1 },
+        { code: 'invalid_chromatic_ornament', attackIndex: 2 },
+      ],
+    },
+  ]
+
+  it.each(cases)('accepts a free $figure as today and refuses it when off', (testCase) => {
+    const asToday = { figureLevels: levels('asToday') }
+    const off = { figureLevels: levels('asToday', { [testCase.figure]: 'off' }) }
+    expect(failures(testCase.midis, asToday)).toEqual([])
+    expect(failures(testCase.midis, off)).toEqual(testCase.refused)
+  })
+
+  it('refuses a chromatic note as out of the collection when both chromatic figures are off', () => {
+    const off = levels('asToday', { chromaticApproach: 'off', chromaticEnclosure: 'off' })
+    expect(failures(withMidis({ 1: 63 }, CHORD_TONES), { figureLevels: off })).toEqual([
+      { code: 'out_of_collection', attackIndex: 1 },
+    ])
+    expect(failures(withMidis({ 1: 65, 2: 63 }, CHORD_TONES), { figureLevels: off })).toEqual([
+      { code: 'unexplained_non_chord_tone', attackIndex: 1 },
+      { code: 'out_of_collection', attackIndex: 2 },
+    ])
+  })
+
+  it('refuses a chromatic note as an invalid ornament when only the other chromatic figure is on', () => {
+    const approachOnly = levels('off', { chromaticApproach: 'asToday' })
+    const enclosureOnly = levels('off', { chromaticEnclosure: 'asToday' })
+    expect(failures(withMidis({ 1: 63 }, CHORD_TONES), { figureLevels: enclosureOnly })).toEqual([
+      { code: 'invalid_chromatic_ornament', attackIndex: 1 },
+    ])
+    expect(
+      failures(withMidis({ 1: 65, 2: 63 }, CHORD_TONES), { figureLevels: approachOnly }),
+    ).toEqual([
+      { code: 'unexplained_non_chord_tone', attackIndex: 1 },
+      { code: 'invalid_chromatic_ornament', attackIndex: 2 },
+    ])
+  })
+
+  it('refuses a free appoggiatura and a free diatonic enclosure even when they are favored', () => {
+    const favored = {
+      figureLevels: levels('asToday', { appoggiatura: 'favored', diatonicEnclosure: 'favored' }),
+    }
+    expect(failures(withMidis({ 4: 69, 5: 67 }, CHORD_TONES), favored)).toEqual([
+      { code: 'unexplained_non_chord_tone', attackIndex: 4 },
+    ])
+    expect(failures(withMidis({ 1: 65, 2: 62 }, CHORD_TONES), favored)).toEqual([
+      { code: 'unexplained_non_chord_tone', attackIndex: 1 },
+      { code: 'unexplained_non_chord_tone', attackIndex: 2 },
+    ])
+  })
+})
+
+// @test-link [[rule_levels_govern_free_figures_only]]
+describe("pitch validation: Tension's bound figure reads no level", () => {
+  const ALL_OFF = { figureLevels: levels('off') } as const
+
+  it('accepts a bound passing or neighbor tone with every level off', () => {
+    const midis = withMidis({ 5: 65 }, CHORD_TONES)
+    const binding = figure('diatonic_passing_or_neighbor', [5])
+    expect(failures(midis, { ...ALL_OFF, ...REQUIRED, binding })).toEqual([])
+  })
+
+  it('accepts a bound appoggiatura with every level off', () => {
+    const midis = withMidis({ 4: 69, 5: 67 }, CHORD_TONES)
+    const binding = figure('appoggiatura', [4])
+    expect(failures(midis, { ...ALL_OFF, ...REQUIRED, binding })).toEqual([])
+  })
+
+  it('accepts a bound two-note diatonic approach with every level off', () => {
+    const midis = withMidis({ 5: 69, 6: 71, 7: 72, 8: 67, 9: 67 }, CHORD_TONES)
+    const binding = figure('two_note_diatonic_approach', [5, 6])
+    expect(failures(midis, { ...ALL_OFF, ...REQUIRED, binding })).toEqual([])
   })
 })
 

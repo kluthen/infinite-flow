@@ -32,7 +32,6 @@ function fixtureInput(
     readonly figureLevels?: FigureLevels
     readonly tensionBinding?: ConcreteTensionBinding
     readonly window?: readonly [number, number]
-    readonly capabilities?: { readonly allowsChromaticApproach: boolean }
   } = {},
 ): BoundPitchPlannerInput {
   const harmony = makeHarmonyCandidateDomain({
@@ -75,7 +74,6 @@ function fixtureInput(
       leapiness: 'Angular',
       arpeggioChaos: 'Predictable',
       searchFuel: 20_000,
-      ...(input.capabilities ? { capabilities: input.capabilities } : {}),
     }),
     harmony: tonic,
     rhythm,
@@ -141,20 +139,22 @@ describe('pitch-candidates: buildCandidateDomains', () => {
 
   // @test-link [[module_musical_profile_capabilities]]
   // @test-link [[rule_jazz_chromatic_resolution]]
-  it('gates chromatic candidates on the declared capability, not the profile name', () => {
+  it('gates chromatic candidates on the figure levels, not the profile name', () => {
     const { collection: neutralCollection } = domainsFor(
       fixtureInput({ figureLevels: NEUTRAL_FIGURE_LEVELS }),
     )
     const neutralWithCapability = domainsFor(
       fixtureInput({
-        figureLevels: NEUTRAL_FIGURE_LEVELS,
-        capabilities: { allowsChromaticApproach: true },
+        figureLevels: { ...NEUTRAL_FIGURE_LEVELS, chromaticApproach: 'asToday' },
       }),
     ).domains
     const jazzWithoutCapability = domainsFor(
       fixtureInput({
-        figureLevels: JAZZ_FIGURE_LEVELS,
-        capabilities: { allowsChromaticApproach: false },
+        figureLevels: {
+          ...JAZZ_FIGURE_LEVELS,
+          chromaticApproach: 'off',
+          chromaticEnclosure: 'off',
+        },
       }),
     ).domains
     expect(
@@ -241,5 +241,85 @@ describe('pitch-candidates: buildCandidateDomains', () => {
         .map((candidate) => candidate.pitchClass)
       expect(new Set(chordPitchClasses)).toEqual(new Set([0, 4, 7]))
     }
+  })
+})
+
+/** Every role offered across a fixture's domains. */
+function rolesOf(figureLevels: FigureLevels): ReadonlySet<string> {
+  const { domains } = domainsFor(fixtureInput({ figureLevels }))
+  return new Set(domains.flat().map((candidate) => candidate.role))
+}
+
+/** The free diatonic tones (no reservation) of every interior attack, with their attack. */
+function freeTonesOf(figureLevels: FigureLevels) {
+  const { attacks, domains } = domainsFor(fixtureInput({ figureLevels }))
+  return attacks
+    .filter((attack) => attack.attackIndex !== 0 && !attack.isFinal)
+    .flatMap((attack) =>
+      domains[attack.attackIndex]!.filter(
+        (candidate) =>
+          candidate.role === 'passing_or_neighbor' && candidate.reservation === undefined,
+      ).map((candidate) => ({ attack, candidate })),
+    )
+}
+
+/** True for an attack on beat 1 or beat 3 of its bar. */
+function onStrongBeat(attack: { readonly startTick: number }): boolean {
+  return attack.startTick === 0 || attack.startTick === 8
+}
+
+// @test-link [[rule_figure_level_orders_search]]
+// @test-link [[rule_chromatic_notes_need_a_chromatic_figure]]
+describe('pitch-candidates: each chromatic figure gated by its own level', () => {
+  it('offers the enclosure but no chromatic approach when only the approach is off', () => {
+    const roles = rolesOf({ ...JAZZ_FIGURE_LEVELS, chromaticApproach: 'off' })
+    expect(roles.has('chromatic_enclosure_upper')).toBe(true)
+    expect(roles.has('chromatic_enclosure_lower')).toBe(true)
+    expect(roles.has('chromatic_approach')).toBe(false)
+  })
+
+  it('offers the chromatic approach but no enclosure when only the enclosure is off', () => {
+    const roles = rolesOf({ ...JAZZ_FIGURE_LEVELS, chromaticEnclosure: 'off' })
+    expect(roles.has('chromatic_approach')).toBe(true)
+    expect(roles.has('chromatic_enclosure_upper')).toBe(false)
+    expect(roles.has('chromatic_enclosure_lower')).toBe(false)
+  })
+})
+
+// @test-link [[rule_figure_level_orders_search]]
+// @test-link [[rule_levels_govern_free_figures_only]]
+describe('pitch-candidates: free diatonic tones tagged by the resolutions their levels allow', () => {
+  it("tags no candidate under Neutral's or Jazz's levels", () => {
+    for (const figureLevels of [NEUTRAL_FIGURE_LEVELS, JAZZ_FIGURE_LEVELS]) {
+      const { domains } = domainsFor(fixtureInput({ figureLevels }))
+      expect(domains.flat().some((candidate) => candidate.freeResolution !== undefined)).toBe(false)
+    }
+    expect(freeTonesOf(NEUTRAL_FIGURE_LEVELS).length).toBeGreaterThan(0)
+  })
+
+  it('offers no free diatonic tone when passing, accented passing and neighbor tones are off', () => {
+    const levels: FigureLevels = {
+      ...NEUTRAL_FIGURE_LEVELS,
+      passingTone: 'off',
+      accentedPassingTone: 'off',
+      neighborTone: 'off',
+    }
+    expect(freeTonesOf(levels)).toEqual([])
+  })
+
+  it('tags every free tone as a passing tone when the neighbor tone is off', () => {
+    const tones = freeTonesOf({ ...NEUTRAL_FIGURE_LEVELS, neighborTone: 'off' })
+    expect(tones.length).toBeGreaterThan(0)
+    for (const { candidate } of tones) expect(candidate.freeResolution).toBe('passing')
+  })
+
+  it('tags only off-beat free tones as neighbors when only the passing tone is off', () => {
+    const tones = freeTonesOf({ ...NEUTRAL_FIGURE_LEVELS, passingTone: 'off' })
+    const strong = tones.filter(({ attack }) => onStrongBeat(attack))
+    const weak = tones.filter(({ attack }) => !onStrongBeat(attack))
+    expect(strong.length).toBeGreaterThan(0)
+    expect(weak.length).toBeGreaterThan(0)
+    for (const { candidate } of strong) expect(candidate.freeResolution).toBeUndefined()
+    for (const { candidate } of weak) expect(candidate.freeResolution).toBe('neighbor')
   })
 })

@@ -248,6 +248,44 @@ The free neighbor tone, which B12 does not count, is the one common free figure:
 phrases. To re-run: `FIGURES_OUT=<file.json> npm run measure:figures` (`FIGURES_LIMIT=n` keeps the
 first n cases for a quick check).
 
+### Each figure Off (v3.1 chunk 5)
+
+Chunk 5 makes each figure's level decide whether the search may write it as a free figure and the
+validator accept it. The same sweep now also runs a base setting, every figure As today, then each
+of the seven figures Off in turn from that base, then every figure Off (`FIGURE_OFF_SETTINGS`,
+`tests/sweep/figure-census-sweep.ts`). The run fails if a setting holds an unexplained note or a
+phrase the result validator refused, if a figure Off is found as a free figure, or if, with every
+figure Off, a Build or Edge phrase lacks Tension's scheduled figure.
+
+**Machine and date.** Run by Claude on 2026-10-19 at 18:28 CEST on branch
+`v3.1-c5-levels-gate-figures`, on the reference machine (AMD Ryzen 5 PRO 8640HS, 12 threads,
+Node 22.23.3, Linux 6.12.111), shared with two other chunk builds: 1-minute load average 1.21
+before, 1.71 after. The run took 518 s. Shares do not depend on the load.
+
+Neutral's and Jazz's rows are the v3.0 baseline above, digit for digit. The base equals Jazz's
+(the two new figures are not written yet, whatever their level). Share of phrases holding each
+free figure, and Tension's scheduled figure:
+
+| Setting                   | Passing | Accented | Neighbor | Chr. approach | Chr. enclosure | Tension's | Generated |
+| ------------------------- | ------- | -------- | -------- | ------------- | -------------- | --------- | --------- |
+| Every figure As today     | 1.9 %   | 4.0 %    | 16.7 %   | 10.6 %        | 7.9 %          | 49.9 %    | 5,106     |
+| Passing tone Off          | 0       | 5.3 %    | 16.7 %   | 10.7 %        | 8.0 %          | 49.9 %    | 5,106     |
+| Accented passing tone Off | 2.8 %   | 0        | 16.4 %   | 10.5 %        | 8.0 %          | 49.9 %    | 5,104     |
+| Neighbor tone Off         | 0.6 %   | 3.8 %    | 0        | 14.3 %        | 10.6 %         | 49.8 %    | 5,096     |
+| Appoggiatura Off          | 1.9 %   | 4.0 %    | 16.7 %   | 10.6 %        | 7.9 %          | 49.9 %    | 5,106     |
+| Diatonic enclosure Off    | 1.9 %   | 4.0 %    | 16.7 %   | 10.6 %        | 7.9 %          | 49.9 %    | 5,106     |
+| Chromatic approach Off    | 1.9 %   | 4.4 %    | 19.7 %   | 0             | 11.9 %         | 50.0 %    | 5,110     |
+| Chromatic enclosure Off   | 2.1 %   | 4.8 %    | 18.2 %   | 12.6 %        | 0              | 49.9 %    | 5,106     |
+| Every figure Off          | 0       | 0        | 0        | 0             | 0              | 50.1 %    | 5,104     |
+
+The free appoggiatura and the diatonic enclosure are 0 in every row. Unexplained notes: 0 in every
+setting; no phrase was refused by the result validator. The phrases not generated (of 5,112) are
+`search_limit_exceeded`, except with every figure Off: 6 `no_legal_pitch_plan`, all Lift, and 2
+`search_limit_exceeded`. With every figure Off, all 1,278 Build and 1,278 Edge phrases hold
+Tension's scheduled figure; in this sweep no Settled or Lift phrase holds one, at any setting.
+Turning a figure Off moves the search's fallbacks to the others (with the neighbor tone Off, the
+chromatic approach rises from 10.6 % to 14.3 %).
+
 ## Embellishment figures: the cost guard
 
 Measurement M2 (v3.1 build plan, chunk 3; master spec B5.6): the pitch search's cost at three

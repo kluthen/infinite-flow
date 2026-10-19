@@ -117,18 +117,6 @@ export function allowsChromaticNotes(levels: FigureLevels): boolean {
   )
 }
 
-/** What the levels allow the pitch policy and the result validator, worked out from them alone. */
-// @spec-link [[module_figure_levels]]
-export interface GeneratorCapabilities {
-  readonly allowsChromaticApproach: boolean
-}
-
-/** Intent: the generator's capabilities the levels give, from the levels alone. */
-// @spec-link [[module_figure_levels]]
-export function generatorCapabilities(levels: FigureLevels): GeneratorCapabilities {
-  return deepFreeze({ allowsChromaticApproach: allowsChromaticNotes(levels) })
-}
-
 /** A figure-levels value that is not exactly one known level for each of the seven figures. */
 // @spec-link [[module_figure_levels]]
 export class FigureLevelsError extends Error {

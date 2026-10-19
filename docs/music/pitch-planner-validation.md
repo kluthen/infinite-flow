@@ -8,7 +8,7 @@ The [first-release master specification](../../specs/first-release-master-spec.m
 
 **Evidence:** Chord tones, passing/neighbor tones, appoggiaturas, bounded leap recovery, and chromatic approaches/enclosures supply useful candidate roles. They are style-bound conventions rather than universal laws; see [research sources S4-S10](research-sources.md#melody-tension-and-resolution).
 
-**Project policy:** Neutral is entirely diatonic. Jazz adds only brief, immediately resolving chromatic approaches/enclosures to chord-tone targets and shares Neutral harmony. Every pitch stays in the active concert range and one resolved whole-phrase register window. Explicit controls outrank tension. Invalid requests fail rather than relax.
+**Project policy:** a pitch from outside the collection enters a melody only as a chromatic approach or enclosure, and only when that figure's level is not Off; with both Off, as in Neutral's levels, a phrase is entirely diatonic. Jazz's levels add only brief, immediately resolving chromatic approaches/enclosures to chord-tone targets, and Jazz shares Neutral harmony. Being diatonic is a property of the figure levels, not of a profile (see [Figure levels gate the free figures](#figure-levels-gate-the-free-figures-v31)). Every pitch stays in the active concert range and one resolved whole-phrase register window. Explicit controls outrank tension. Invalid requests fail rather than relax.
 
 ## Planner input and output
 
@@ -21,9 +21,9 @@ The planner cannot add/delete/move an onset, change a duration/rest/tie, alter a
 For each sounding attack, construct these role classes. This list defines vocabulary, not canonical enumeration or final musical rank:
 
 1. Active-chord tones.
-2. Diatonic passing or neighbor tones whose preparation and stepwise chord-tone resolution are already feasible.
+2. Diatonic passing or neighbor tones whose preparation and stepwise chord-tone resolution are already feasible, and whose figure level is not Off.
 3. A scheduled diatonic appoggiatura/approach permitted by the tension plan with a reserved target.
-4. For Jazz only, an authorized chromatic approach or enclosure member with a reserved chord-tone target.
+4. When its figure level is not Off (Jazz's levels), a chromatic approach or enclosure member with a reserved chord-tone target.
 
 Expand each pitch class into every octave instance inside both the inclusive active range and resolved window using the seed-independent enumeration defined below. Then reject, in order: collection/profile violations; endpoint or reserved-resolution violations; tie/harmony incompatibility; range/window violations; contour infeasibility; adjacent-interval cap and remaining leap budget; recovery/arpeggio-state violations. Rank only survivors.
 
@@ -40,12 +40,23 @@ Neutral sounding pitches must belong to the selected seven-note collection. A no
 
 **Bound tension figures (passing/neighbor, appoggiatura, two-note approach).** The members of a bound figure and its target are consecutive sounding attacks under one harmony event; rests may separate them. Each attack after the first member must start no later than the resolution deadline measured from the end of the previous attack (tie-inclusive): for Lift, Build, and Edge (`next_beat_or_bar`) the next beat boundary after that end; for Settled (`next_strong_sounding_onset`) the next strong-onset boundary (beat 1 or beat 3) after that end. The preparation note before the first member must be the immediately preceding sounding attack under the same harmony event; a rest may separate it from the figure, and no delay bound applies to it. The planner (`bindingAt`) and the independent validator (`bindingStructureHolds`) enforce the same rule. Jazz chromatic approaches and enclosures keep their stricter no-rest rule below.
 
-Jazz inherits all Neutral candidates and adds:
+When the chromatic approach or the chromatic enclosure is not Off (Jazz's levels), the vocabulary adds that figure:
 
 - Chromatic approach: exactly one pitch one semitone above or below a target chord tone; the next sounding event is the target, with no intervening rest, harmony change, or attack.
 - Chromatic enclosure: exactly two consecutive short attacks around one target chord tone, one above and one below in either order, followed immediately by the target. At least one enclosure pitch is outside the collection; each approach interval to the target side is one semitone. All three attacks are contiguous with no rest or harmony change.
 
 Approach/enclosure attacks must be no longer than their target, must fit the selected rhythm without adding attacks, and cannot overlap another ornament. An enclosure requires three available sounding attacks; it is unavailable on Quarter density unless the actual rhythm already supplies those attacks. The target is always a chord tone. No chromatic pitch may be reclassified as a chord extension, altered harmony, or scale member. The final sounding event cannot be chromatic or an ornament target that leaves another obligation unresolved.
+
+### Figure levels gate the free figures (v3.1)
+
+Each of the seven figures has a level in the generation request (`figureLevels`: Off, As today, Favored, Strongly favored; master spec B5). A figure whose level is Off is never written as a free figure, and the validator refuses it:
+
+- A free diatonic tone is told apart when it resolves: a passing tone off beats 1 and 3 needs the passing tone allowed, one on beat 1 or 3 the accented passing tone, and a neighbor tone (either beat) the neighbor tone. The search offers a free tone only where the levels allow one of its resolutions and refuses a resolution they do not allow; the validator reports a free tone whose figure is Off as `unexplained_non_chord_tone`.
+- A chromatic approach and a chromatic enclosure are each offered only when their own level is not Off. With both Off, the validator refuses any pitch outside the collection (`out_of_collection`); with one of them Off, a pitch only that figure would explain is `invalid_chromatic_ornament`.
+- **Tension's scheduled figure reads no level.** The binding domain, the bound figure's paths and the validator's binding checks are unchanged, so every Tension value keeps its scheduled figure with every level Off.
+- The free appoggiatura and the diatonic enclosure are not written yet, whatever their level.
+
+Neutral's and Jazz's levels hold only As today and Off, so they generate exactly what v3.0 generated.
 
 ## Contour checkpoints
 
@@ -133,7 +144,7 @@ Validation reconstructs facts from the immutable result rather than trusting pla
 - exactly four tiled 4/4 bars and one deterministic event order;
 - every note/rest/tie and harmony boundary is valid;
 - every source pitch is within the active range and resolved whole-phrase window;
-- every Neutral pitch is in collection; every Jazz exception forms a complete immediate approach/enclosure to a chord tone;
+- every pitch is in collection, except a pitch that a chromatic figure whose level is not Off accounts for: a complete immediate approach/enclosure to a chord tone;
 - every tie repeats pitch and remains legal across harmony;
 - contour checkpoints, leap caps/budgets, recovery debts, and arpeggio-run limits pass;
 - every scheduled local tension resolves before the final sounding event;
@@ -142,7 +153,7 @@ Validation reconstructs facts from the immutable result rather than trusting pla
 
 The pitch-phrase validator applies these readings, and the planner must match them:
 
-- Free diatonic passing and neighbor tones are ordinary vocabulary and don't count as tension figures.
+- Free diatonic passing and neighbor tones are ordinary vocabulary and don't count as tension figures. Each is accepted only when its figure level is not Off: the passing tone off beats 1 and 3, the accented passing tone on them, the neighbor tone on either (see [Figure levels gate the free figures](#figure-levels-gate-the-free-figures-v31)).
   - A passing tone is entered and left by collection steps in the same direction and lands on a chord tone.
   - A neighbor leaves a chord tone by a collection step and returns to the same MIDI value.
 - Appoggiaturas and two-note approaches are legal only as the bound tension figure. An appoggiatura is entered by a jump of three or more semitones.

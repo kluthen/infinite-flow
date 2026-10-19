@@ -4,6 +4,7 @@ import { phraseEndingDebtAllowance } from '../generation/carry-in/phrase-ending-
 import { deepFreeze } from '../events/deep-freeze'
 import {
   buildCandidateDomains,
+  freeFigureAllowanceKey,
   makeCandidateDomainMemo,
   makeFreeDomainStore,
   type CandidateDomainMemo,
@@ -35,7 +36,7 @@ interface ContourPlanEntry {
 
 /**
  * What every harmony/rhythm pair searched under one request shares for one collection and
- * chromatic capability: the collection pitch classes, the store of free attacks' candidate
+ * free-figure allowance: the collection pitch classes, the store of free attacks' candidate
  * domains, and the phrase facts of each pair, by rhythm then harmony object.
  */
 interface RequestFacts {
@@ -144,16 +145,16 @@ function distinctMidis(domain: readonly PitchCandidate[]): readonly ConcertPitch
   return [...new Set(domain.map((candidate) => candidate.midi))]
 }
 
-/** True when the request facts were compiled for this input's collection and capability. */
+/** True when the request facts were compiled for this input's collection and allowance. */
 function requestFactsFit(facts: RequestFacts, input: BoundPitchPlannerInput): boolean {
   return (
     facts.tonalCenter === input.policy.tonalCenter &&
     facts.collectionName === input.policy.collection &&
-    facts.store.allowsChromaticApproach === input.policy.capabilities.allowsChromaticApproach
+    facts.store.allowance === freeFigureAllowanceKey(input.policy.figureLevels)
   )
 }
 
-/** Compile the request facts of one input's request, collection and capability. */
+/** Compile the request facts of one input's request, collection and allowance. */
 function compileRequestFacts(input: BoundPitchPlannerInput): RequestFacts {
   return {
     tonalCenter: input.policy.tonalCenter,
@@ -178,7 +179,7 @@ function compilePhraseFacts(input: BoundPitchPlannerInput, store: FreeDomainStor
  * The phrase facts for an input, reused across the bindings of one harmony/rhythm pair and, for
  * free attacks' domains, across every pair searched under one request: looked up by the frozen
  * request, rhythm and harmony objects, and compiled afresh (and kept) when missing or made for
- * another collection or capability. Unfrozen inputs never share.
+ * another collection or allowance. Unfrozen inputs never share.
  */
 function phraseFactsFor(input: BoundPitchPlannerInput): PhraseFacts {
   const { harmony, rhythm, request } = input

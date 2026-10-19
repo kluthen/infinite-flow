@@ -1,11 +1,18 @@
 import { makeConcertPitch } from '../events/concert-pitch'
 import { deepFreeze } from '../events/deep-freeze'
 import {
+  allowsChromaticNotes,
+  allowsFreeFigure,
+  FIGURE_IDS,
+  type FigureLevels,
+} from '../figures/figure-levels'
+import {
   phraseEndingDebtAllowance,
   tenseNoteCanSettle,
 } from '../generation/carry-in/phrase-ending-debt'
 import type {
   BoundPitchPlannerInput,
+  FreeToneResolution,
   PitchAttack,
   PitchCandidate,
   PitchFigureKind,
@@ -19,6 +26,7 @@ interface RawCandidate {
   readonly midi: number
   readonly obligation: string
   readonly reservation?: PitchReservation
+  readonly freeResolution?: FreeToneResolution
 }
 
 /** A concrete figure: member attacks, target attack, member roles, and every MIDI value. */
@@ -34,14 +42,15 @@ interface FigurePath {
 
 /**
  * Canonical domains of free attacks (outside the bound figure), shared by every harmony/rhythm
- * pair searched under one request, collection and chromatic capability. Beyond those, such a
+ * pair searched under one request, collection and free-figure allowance. Beyond those, such a
  * domain reads only a few facts of its attack and its neighbours, which `freeDomainKey` spells
  * out.
  */
 export interface FreeDomainStore {
   readonly request: BoundPitchPlannerInput['request']
   readonly collection: readonly number[]
-  readonly allowsChromaticApproach: boolean
+  /** Which figures the levels allow as free figures, as `freeFigureAllowanceKey` spells it. */
+  readonly allowance: string
   readonly playable: readonly number[]
   /** Domains by `freeDomainKey`. */
   readonly domains: Map<string, readonly PitchCandidate[]>
@@ -65,6 +74,15 @@ interface DomainFacts {
   readonly collection: readonly number[]
   readonly playable: readonly number[]
   readonly boundAttacks: ReadonlySet<number>
+}
+
+/**
+ * Which figures the levels let the search write as free figures: one `1` (allowed) or `0` (off)
+ * digit per figure, in FIGURE_IDS order. Two levels values with the same key give the same free
+ * domains.
+ */
+export function freeFigureAllowanceKey(levels: FigureLevels): string {
+  return FIGURE_IDS.map((figure) => (allowsFreeFigure(levels, figure) ? '1' : '0')).join('')
 }
 
 /** Pitch class of a MIDI value. */
@@ -247,22 +265,27 @@ function enclosureOffered(facts: DomainFacts, index: number): boolean {
  * Chromatic approach and enclosure ornament paths whose first member's attack index lies in
  * `first..last`, in attack order: at every such attack whose members are free of the bound
  * figure, sound back to back with their target under one harmony event, and last no longer than
- * the target. Offered only when the active profile declares the capability.
+ * the target. None when the figure levels allow no chromatic note; otherwise each of the two
+ * figures is offered only when its own level is not off.
  */
-// @spec-link [[rule_jazz_chromatic_resolution]]
+// @spec-link [[rule_chromatic_notes_need_a_chromatic_figure]]
+// @spec-link [[rule_figure_level_orders_search]]
 // @spec-link [[module_musical_profile_capabilities]]
 function chromaticApproachPaths(
   facts: DomainFacts,
   first: number,
   last: number,
 ): readonly FigurePath[] {
-  if (!facts.input.policy.capabilities.allowsChromaticApproach) return []
+  const levels = facts.input.policy.figureLevels
+  if (!allowsChromaticNotes(levels)) return []
+  const approachAllowed = allowsFreeFigure(levels, 'chromaticApproach')
+  const enclosureAllowed = allowsFreeFigure(levels, 'chromaticEnclosure')
   const paths: FigurePath[] = []
   const { attacks } = facts
   for (let index = Math.max(first, 0); index <= last; index += 1) {
-    if (approachOffered(facts, index))
+    if (approachAllowed && approachOffered(facts, index))
       paths.push(...approachPaths(facts, attacks[index]!, attacks[index + 1]!))
-    if (enclosureOffered(facts, index))
+    if (enclosureAllowed && enclosureOffered(facts, index))
       paths.push(
         ...enclosurePaths(facts, [attacks[index]!, attacks[index + 1]!, attacks[index + 2]!]),
       )
@@ -325,9 +348,27 @@ function tenseEndingCandidates(facts: DomainFacts, attack: PitchAttack): readonl
 }
 
 /**
+ * The resolutions the figure levels allow a free diatonic tone at an attack: as a passing tone
+ * (an accented passing tone on beats 1 and 3, a passing tone elsewhere) and as a neighbor tone.
+ */
+function allowedFreeResolutions(
+  levels: FigureLevels,
+  attack: PitchAttack,
+): readonly FreeToneResolution[] {
+  const strong = attack.startTick === 0 || attack.startTick === 8
+  const passing = allowsFreeFigure(levels, strong ? 'accentedPassingTone' : 'passingTone')
+  const neighbor = allowsFreeFigure(levels, 'neighborTone')
+  return [...(passing ? ['passing' as const] : []), ...(neighbor ? ['neighbor' as const] : [])]
+}
+
+/**
  * Ordinary candidates: chord tones everywhere, free diatonic tones away from the phrase ends, and
  * on the final attack of a phrase that may end owing a resolution, its settleable tense tones.
+ * Free diatonic tones are offered only when the figure levels allow at least one of their two
+ * resolutions; when they allow exactly one, each free tone carries it as `freeResolution`.
  */
+// @spec-link [[rule_figure_level_orders_search]]
+// @spec-link [[rule_levels_govern_free_figures_only]]
 function ordinaryCandidates(facts: DomainFacts, attack: PitchAttack): readonly RawCandidate[] {
   const chord = chordMidis(facts, attack).map((midi): RawCandidate => ({
     role: 'chord_tone',
@@ -336,10 +377,14 @@ function ordinaryCandidates(facts: DomainFacts, attack: PitchAttack): readonly R
   }))
   if (attack.attackIndex === 0 || attack.isFinal)
     return [...chord, ...tenseEndingCandidates(facts, attack)]
+  const resolutions = allowedFreeResolutions(facts.input.policy.figureLevels, attack)
+  if (resolutions.length === 0) return chord
+  const only = resolutions.length === 1 ? resolutions[0] : undefined
   const free = diatonicNonChord(facts, attack).map((midi): RawCandidate => ({
     role: 'passing_or_neighbor',
     midi,
     obligation: `free:${attack.identity}`,
+    ...(only === undefined ? {} : { freeResolution: only }),
   }))
   return [...chord, ...free]
 }
@@ -374,6 +419,7 @@ function canonical(raw: readonly RawCandidate[]): readonly PitchCandidate[] {
         obligationIdentity: value.obligation,
         enumerationIndex,
         ...(value.reservation ? { reservation: value.reservation } : {}),
+        ...(value.freeResolution === undefined ? {} : { freeResolution: value.freeResolution }),
       }
     }),
   )
@@ -389,7 +435,7 @@ function retainedDomain(domain: readonly PitchCandidate[]): readonly PitchCandid
   return deepFreeze(domain.map((candidate) => ({ ...candidate })))
 }
 
-/** A fresh, empty free-domain store for one input's request, collection and capability. */
+/** A fresh, empty free-domain store for one input's request, collection and free-figure allowance. */
 export function makeFreeDomainStore(
   input: BoundPitchPlannerInput,
   collection: readonly number[],
@@ -397,7 +443,7 @@ export function makeFreeDomainStore(
   return {
     request: input.request,
     collection,
-    allowsChromaticApproach: input.policy.capabilities.allowsChromaticApproach,
+    allowance: freeFigureAllowanceKey(input.policy.figureLevels),
     playable: playableMidis(input),
     domains: new Map(),
   }
@@ -411,7 +457,7 @@ export function makeCandidateDomainMemo(
   return { attacks, store, domains: new Map() }
 }
 
-/** True when `memo` was made for exactly these attacks, collection, request and capability. */
+/** True when `memo` was made for exactly these attacks, collection, request and allowance. */
 function memoFits(
   memo: CandidateDomainMemo,
   input: BoundPitchPlannerInput,
@@ -423,7 +469,7 @@ function memoFits(
     memo.attacks === attacks &&
     store.collection === collection &&
     store.request === input.request &&
-    store.allowsChromaticApproach === input.policy.capabilities.allowsChromaticApproach
+    store.allowance === freeFigureAllowanceKey(input.policy.figureLevels)
   )
 }
 
@@ -433,7 +479,7 @@ function memoFits(
  * facts its ornament members depend on.
  */
 function domainMemoKey(facts: DomainFacts, attackIndex: number): number {
-  if (!facts.input.policy.capabilities.allowsChromaticApproach) return attackIndex * 4
+  if (!allowsChromaticNotes(facts.input.policy.figureLevels)) return attackIndex * 4
   const before = facts.boundAttacks.has(attackIndex - 1) ? 1 : 0
   const after = facts.boundAttacks.has(attackIndex + 1) ? 2 : 0
   return attackIndex * 4 + before + after
@@ -441,18 +487,21 @@ function domainMemoKey(facts: DomainFacts, attackIndex: number): number {
 
 /**
  * Key of a free attack's domain across phrases: every fact its candidates read beyond the store's
- * request, collection and capability. That is the attack's index, identity, finality and chord;
- * which chromatic ornaments land on it (an enclosure from the attack before, an approach or an
- * enclosure from itself); and the chords of the targets those ornaments resolve to.
+ * request, collection and free-figure allowance. That is the attack's index, identity (which holds
+ * its onset, so whether it falls on beat 1 or 3), finality and chord; which allowed chromatic
+ * ornaments land on it (an enclosure from the attack before, an approach or an enclosure from
+ * itself); and the chords of the targets those ornaments resolve to.
  */
 function freeDomainKey(facts: DomainFacts, attack: PitchAttack): string {
   const index = attack.attackIndex
   /** The chord pitch classes of the attack at `at`, as key text. */
   const chord = (at: number) => facts.attacks[at]!.chordPitchClasses.join(',')
-  const jazz = facts.input.policy.capabilities.allowsChromaticApproach
-  const enclosedFromBefore = jazz && enclosureOffered(facts, index - 1)
-  const approach = jazz && approachOffered(facts, index)
-  const enclosure = jazz && enclosureOffered(facts, index)
+  const levels = facts.input.policy.figureLevels
+  const approachAllowed = allowsFreeFigure(levels, 'chromaticApproach')
+  const enclosureAllowed = allowsFreeFigure(levels, 'chromaticEnclosure')
+  const enclosedFromBefore = enclosureAllowed && enclosureOffered(facts, index - 1)
+  const approach = approachAllowed && approachOffered(facts, index)
+  const enclosure = enclosureAllowed && enclosureOffered(facts, index)
   return [
     index,
     attack.identity,
@@ -466,8 +515,8 @@ function freeDomainKey(facts: DomainFacts, attack: PitchAttack): string {
 
 /**
  * Enumerate every attack's canonical candidate domain. Bound member attacks hold only concrete
- * bound-path members; other attacks hold chord tones, free diatonic tones, and Jazz ornament
- * members. Every MIDI value lies inside both the active range and the register window.
+ * bound-path members; other attacks hold chord tones, and the free diatonic tones and chromatic
+ * ornament members the figure levels allow. Every MIDI value lies inside both the active range and the register window.
  */
 // @spec-link [[entity_pitch_candidate_domain]]
 // @spec-link [[rule_neutral_profile_diatonic_pitches]]
@@ -499,9 +548,9 @@ export function buildCandidateDomains(
     const key = freeDomainKey(facts, attack)
     let domain = store.domains.get(key)
     if (!domain) {
-      const jazz = pathCandidates(chromaticApproachPaths(facts, index - 1, index))
+      const ornaments = pathCandidates(chromaticApproachPaths(facts, index - 1, index))
       domain = retainedDomain(
-        canonical([...ordinaryCandidates(facts, attack), ...(jazz.get(index) ?? [])]),
+        canonical([...ordinaryCandidates(facts, attack), ...(ornaments.get(index) ?? [])]),
       )
       store.domains.set(key, domain)
     }

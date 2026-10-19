@@ -1,5 +1,10 @@
 import { deepFreeze } from '../events/deep-freeze'
-import type { PitchCandidate, PitchNoteFacts, PitchReservation } from './pitch-types'
+import type {
+  FreeToneResolution,
+  PitchCandidate,
+  PitchNoteFacts,
+  PitchReservation,
+} from './pitch-types'
 
 /** A figure path in progress: the next expected position and the fixed MIDI values. */
 // @spec-link [[entity_pitch_candidate_domain]]
@@ -16,12 +21,14 @@ export interface ActiveFigurePath {
 
 /**
  * A free passing tone or neighbor waiting for the note that explains it. `before` is the note
- * that approached it and `midi` is the free tone itself.
+ * that approached it and `midi` is the free tone itself. `only` is the one resolution the figure
+ * levels allow it, when they allow just one; absent when both are allowed.
  */
 // @spec-link [[entity_pitch_candidate_domain]]
 export interface FreeObligation {
   readonly before: PitchNoteFacts
   readonly midi: number
+  readonly only?: FreeToneResolution
 }
 
 /** Figure progress between attacks. */
@@ -74,6 +81,25 @@ export function collectionStep(
 }
 
 /**
+ * How `after` explains a free tone approached from `before`, or undefined when it does not: both
+ * moves are collection steps, and `after` either continues in the same direction onto a chord tone
+ * (passing) or returns to a chord-tone `before` (neighbor).
+ */
+// @spec-link [[entity_pitch_candidate_domain]]
+// @spec-link [[rule_figure_level_orders_search]]
+export function freeToneResolution(
+  before: PitchNoteFacts,
+  tone: Pick<PitchNoteFacts, 'midi' | 'inCollection'>,
+  after: PitchNoteFacts,
+): FreeToneResolution | undefined {
+  if (!collectionStep(before, tone) || !collectionStep(tone, after)) return undefined
+  const passing = Math.sign(tone.midi - before.midi) === Math.sign(after.midi - tone.midi)
+  if (passing && after.chordTone) return 'passing'
+  if (before.chordTone && after.midi === before.midi) return 'neighbor'
+  return undefined
+}
+
+/**
  * True when `after` explains a free tone approached from `before`: it continues by collection step
  * in the same direction onto a chord tone (passing) or returns to a chord-tone `before` (neighbor).
  */
@@ -83,9 +109,7 @@ export function freeToneResolves(
   tone: Pick<PitchNoteFacts, 'midi' | 'inCollection'>,
   after: PitchNoteFacts,
 ): boolean {
-  if (!collectionStep(before, tone) || !collectionStep(tone, after)) return false
-  const passing = Math.sign(tone.midi - before.midi) === Math.sign(after.midi - tone.midi)
-  return (passing && after.chordTone) || (before.chordTone && after.midi === before.midi)
+  return freeToneResolution(before, tone, after) !== undefined
 }
 
 /** Confirm the note against the active path; returns the rest of the path or a rejection. */
@@ -157,8 +181,15 @@ export function advanceFigure(state: FigureState, step: FigureStep): FigureResul
   const opensPath = reservation?.memberPosition === 0
   if (reservation && !opensPath && !state.path) return reject('figure_member_without_path')
   const pending = state.free
-  if (pending && !freeToneResolves(pending.before, { ...pending, inCollection: true }, step.note))
-    return reject('free_tone_unresolved')
+  if (pending) {
+    const resolution = freeToneResolution(
+      pending.before,
+      { midi: pending.midi, inCollection: true },
+      step.note,
+    )
+    if (resolution === undefined) return reject('free_tone_unresolved')
+    if (pending.only !== undefined && resolution !== pending.only) return reject('free_figure_off')
+  }
   let free: FreeObligation | undefined
   if (opensPath && !path) {
     const error = entryError(reservation, step)
@@ -173,7 +204,8 @@ export function advanceFigure(state: FigureState, step: FigureStep): FigureResul
       !collectionStep(prior, step.note)
     )
       return reject('free_tone_unprepared')
-    free = { before: prior, midi: step.note.midi }
+    const only = step.candidate.freeResolution
+    free = { before: prior, midi: step.note.midi, ...(only === undefined ? {} : { only }) }
   }
   return deepFreeze({
     kind: 'accepted',
