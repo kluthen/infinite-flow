@@ -397,7 +397,7 @@ Record: 99d6233, merged as 392cdc9. 210 cases (126 `ifk1.`, 84 `ifk2.`), 677,547
 
 ### Chunk 3 — Measurement tools: the figure census and the cost runner
 
-Status: planned
+Status: merged (w0, 6e9f36c)
 Wave: 0
 Depends on: R0 (its baselines are v3.0's; no chunk of its wave changes the generator)
 Architecture capture: none
@@ -432,6 +432,8 @@ Architecture capture: none
 - **Verification:** chunk checks (the census's own unit test); the baseline runs (M1, M2: this
   chunk's point).
 - **Split rule:** none needed (tooling, two scripts).
+
+Record: d976392, merged as 6e9f36c. `src/` identical to `v3.0.0`, so both baselines are v3.0's; reference machine (Ryzen 5 PRO 8640HS, not a VM), 2026-10-19, idle. M1 over the 568 sweep cases × 9 collections (5,112 phrases per profile): Neutral/Jazz phrase shares passing 2.3/1.9 %, accented passing 5.3/4.0 %, neighbor 22.7/16.7 %, free appoggiatura and diatonic enclosure 0/0, chromatic approach 0/10.6 %, chromatic enclosure 0/7.9 %, Tension's scheduled figure 50.0/49.9 %, unexplained 0. M2: phrases 2–6 generated at 60 and 120 BPM 100.0/99.96 %, at 240 BPM 100/100 %; 95th percentile 0.022/0.019 s; slowest success 0.408/0.570 s; 240 BPM fallback share 21.2/21.0 % over phrases 2–6, 1.5/1.2 % over 3–6. Figures in `docs/generation-latency.md`. Scripts `measure:figures`, `measure:cost` take a `{label, apply}` setting list for chunks 4 and 11. Finding: sweep case #542 played as Jazz repeats phrase 5 at its deadline at 60 and 120 BPM (v3.0 behaviour, recorded in the doc, no issue filed). The cost runner peaks near 1.57 GB heap.
 
 ### Chunk 4 — Figure levels in the generation request
 

@@ -87,3 +87,14 @@ Open for the owner, not blocking wave 0: **O231**, the entry chunk's 230 B of he
   Waits-for. The wave sync marks part J confirmed. Next free ids D364, O232.
 - **Owner, 2026-10-19:** "once you're done with wave 0 you may proceed to wave 1", read as leave to
   close wave 0 (gate, sync, merge into `main`, unpushed) and start wave 1 without a further stop.
+- **Chunk 3, measurement tools: merged 6e9f36c** (d976392). Figure census (`measure:figures`, M1)
+  and cost runner (`measure:cost`, M2), both taking a `{label, apply}` setting list so chunk 4 can
+  add figure levels. Baselines on v3.0's code (`src/` identical to `v3.0.0`), reference machine
+  (Ryzen 5 PRO 8640HS, not a VM), 2026-10-19, idle; in the plan's Record line and
+  `docs/generation-latency.md`. Within-chunk readings: "568 rhythm settings × two seeds" as the 568
+  sweep cases (284 settings × 2 seeds); "240 BPM session run" as the sweep's six-phrase sessions.
+  The first M2 run ran out of memory; the outcome cache is now per (setting, density), peak about
+  1.57 GB. Finding, no issue filed: sweep case #542 played as Jazz repeats phrase 5 at its deadline
+  at 60 and 120 BPM (v3.0 behaviour; `test:sweep` plays it as Neutral). `test:sweep` now also runs
+  the census's 4 fast tests. Risk for chunks 5–7: the census mirrors the validator's free-figure
+  rules and must follow any change to them.
