@@ -85,6 +85,10 @@ spec gaps for `spec-writer`: Q70-Q73 (provisional answers designed).
 - **Unit J — v3.2 core** (delegated, after P): `flows/jam/` (new); `screens/phrase-workspace/`,
   `flows/play-session/` and `flows/generate-phrase/` for v3.2. Governing: ux D235-D244, D246, D247. Written 2026-10-08 (details: ux D248).
 - **Validation.** `ux-critic` on v3.1 and on v3.2: DRIFT both, findings fixed (ux D249, D250); recheck: two small slips, fixed (ux D251). Validated for the owner's review.
+- **v3.1 approved and frozen** (2026-10-19, ux D324): the owner approved the v3.1 design (the
+  v3.1 build plan's gate D0); `versions/v3.1/` taken from the root without the v3.2 and v3.3
+  parts, with `token-source-v3.1.md`. The token-source pass (T1) is not allowed yet. v3.2 still
+  waits for the owner's review.
 
 ## Remaining
 
@@ -118,4 +122,11 @@ D254, D264): after the first measurement, before the control is built, and on th
 the release gate. A symbol calibration failure, or a triad layout that counting the symbols' widths
 would move, also comes back here (ux D258, D264).
 
-The owner's full review of the v3.1 and v3.2 design (ux D225-D251), and `spec-writer`'s answers to Q73-Q75. After approval, take `versions/v3.1/` (and `versions/v3.2/`) copies when each is approved as complete.
+v3.1: approved and frozen in [`versions/v3.1/`](versions/v3.1/README.md) (ux D324); its build reads
+that copy. A correction to match what v3.1 ships goes into both the copy and the root, recorded in
+`decisions.md`. The token-source pass (T1: `src/styles/theme.css` and `components.css`) waits for
+the owner's go.
+
+v3.2: the owner's review of the v3.2 design (ux D225-D251, its `v3.2` marks), and `spec-writer`'s
+answers to Q73-Q75. Once approved, take `versions/v3.2/` the same way, from the root without the
+v3.3 parts.
