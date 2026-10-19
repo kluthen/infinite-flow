@@ -187,3 +187,10 @@ with no owner; chunk 8's drift list and size; chunk 10's key labels) and a v3.0 
   as input; `rule_preset_management_actions` not added (chunk 17's).
 - D366 records the rest. Next ids D367, O232. A `documentalist` peek over chunk 4's and chunk 8's
   added files runs before chunk 4.
+- **Peek after plan v7 (f2cd74b, `documentalist`):** chunk 4 PROCEED, chunk 8 PROCEED (sign-off
+  given) confirmed. Eight STABLE atoms sit in the added files outside part J; none changes
+  meaning (the files only drop an unused profile argument). Capture touch-ups:
+  `module_musical_profile_capabilities` and `module_generation_request_construction` (the factory
+  input keeps the profile until chunk 12). For the wave sync: J3's kept-record wording applies
+  only in its chunk 8 half (spec D364); revise `module_harmony_candidate_domain` together with
+  `rule_jazz_chromatic_resolution` (chunk 5).
