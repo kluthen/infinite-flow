@@ -66,6 +66,11 @@ two halves. Together they make what musicians call the key, such as "G Dorian".
 
 Checked in the code on 2026-10-07:
 
+> **As of 2026-10-07, before v3.0 was built.** Line numbers and the "not built yet" statements below
+> (storage, `ifk2.`, pre-generation) are out of date: v3.0 built them. The code facts v3.1 is built
+> on were checked again on 2026-10-19 (`main` d007b27) and live in the
+> [v3.1 build plan](build-plan-v3.1.md); where the two differ, the plan follows the code (D356).
+
 - **14 generation controls** (`src/domain/controls/generation-controls.ts:83-98`): tempo, written
   key, collection, harmonic motion, tension, note density, rhythmic variety, syncopation, silence
   density, contour, register, leapiness, arpeggio chaos and instrument profile. The musical profile

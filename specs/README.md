@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.72
+Status: draft v0.73
 
 ## Status Snapshot
 
@@ -32,23 +32,24 @@ Status: draft v0.72
   desktop in Chrome or Edge first, at music-stand distance, no click while playing.
 - **Next: the rest of v3** ([v3](versions/v3/README.md#releases-d211)):
   - **v3.1:** embellishment flags and presets. Master spec
-    [Part B](versions/v3/master-spec.md#part-b--v31), approved (D239); build plan
-    [v3.1](versions/v3/build-plan-v3.1.md), draft, not approved.
+    [Part B](versions/v3/master-spec.md#part-b--v31), approved (D239); design approved (D353);
+    build plan [v3.1](versions/v3/build-plan-v3.1.md), v4, ready for owner approval: waves 0–3 go
+    ahead, waves 4 and 5 wait for the token-source pass the owner has not allowed yet (D355).
   - **v3.2:** Jam, the key and mode suggestion, the rhythm lock and its mutation option. Master
     spec [Part C](versions/v3/master-spec.md#part-c--v32), approved (D239); build plan
-    [v3.2](versions/v3/build-plan-v3.2.md), draft, not approved. The contract wording v3.1 and
+    [v3.2](versions/v3/build-plan-v3.2.md), v3, not approved. The contract wording v3.1 and
     v3.2 change was confirmed by the owner (D246).
   - **v3.3:** richer chords, opt-in: one Seventh chords level, Off by default, diatonic sevenths
     only. Master spec [Part D](versions/v3/master-spec.md#part-d--v33), awaiting owner approval
-    (D264–D275); build plan [v3.3](versions/v3/build-plan-v3.3.md), draft, not approved, after
+    (D264–D275); build plan [v3.3](versions/v3/build-plan-v3.3.md), v3, not approved, after
     v3.2's release (D276–D288).
   - **v3.x:** learning from positive signals, with recognising played signals (D213, D214);
     likely to move or go. Rhythm ratios and the rhythm editor are v4; the chord-fit check, review
     tooling and the two controller-connection ideas are dropped (D211).
-- **Open:** 11 questions: O48 and O49 (later and governance), O100–O102 (v4 rhythm), O115 and
+- **Open:** 12 questions: O48 and O49 (later and governance), O100–O102 (v4 rhythm), O115 and
   O116 (v3.x learning), O176 (style packs and the chord level), O180 (octave signs, later), O183
-  (pre-generation's cancellation cost) and O190 (a newer version's database whose read-only
-  reopening fails). See the [register](open-questions.md).
+  (pre-generation's cancellation cost), O190 (a newer version's database whose read-only
+  reopening fails) and O230 (a stale replay-key wording in a STABLE atom). See the [register](open-questions.md).
 - The snapshots this index kept through v2's design and build and through v3.0's are archived
   verbatim at [archive/v2/readme-status-snapshot.md](archive/v2/readme-status-snapshot.md) and
   [archive/v3/readme-status-snapshot.md](archive/v3/readme-status-snapshot.md).
@@ -62,10 +63,11 @@ Status: draft v0.72
 - [Versions](versions/README.md): one folder per version (v1, v2, v3, v4, v5+) holding its scope,
   dependencies and version-specific open questions. Also holds the cross-version
   [prerequisites](versions/prerequisites.md). v3's build plans: [v3.0](versions/v3/build-plan.md) (complete; chunk 26 is the release gate's
-  record), [v3.1](versions/v3/build-plan-v3.1.md) (draft v2, not approved),
-  [v3.2](versions/v3/build-plan-v3.2.md) (draft v2, not approved) and
-  [v3.3](versions/v3/build-plan-v3.3.md) (draft v2, not approved; depends on owner approval of
-  Part D). Every build plan runs wave by
+  record), [v3.1](versions/v3/build-plan-v3.1.md) (v4, ready for owner approval; on the
+  build-plan model with the shared [v3 build workflow](versions/v3/build-workflow.md), D349,
+  D356), [v3.2](versions/v3/build-plan-v3.2.md) (v3, on the build-plan model, D350; not approved)
+  and [v3.3](versions/v3/build-plan-v3.3.md) (v3, on the build-plan model, D351; not approved;
+  depends on owner approval of Part D). Every build plan runs wave by
   wave (D252): one intent preflight and one full wave gate per wave; a chunk checks only its own
   change.
 - [Personas](personas.md) (draft): who the product serves.

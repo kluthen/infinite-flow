@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.70
+Status: draft v0.71
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -19,12 +19,12 @@ questions closed during v3.0 (O163, O164, O181, O182, O200, O201, O210, O211 and
 [archive/v3/open-questions-history.md](archive/v3/open-questions-history.md); each archive's
 README says where each answer now lives.
 
-Open on 2026-10-16, after the v3.0 release (D348): O48 and O49 (later and governance), O100–O102
-(v4 rhythm ratios and editor), O115 and O116 (v3.x learning), O176 (style packs and the chord
-level), O180 (octave signs, later), O183 (the warm worker lost when pre-generation is cancelled)
-and O190 (a newer version's database whose read-only reopening fails). New questions take IDs from
-**O230**; the IDs reserved for v3.0's waves and left unused stay unused, and O177 is taken on
-branch `plan-migration`, not merged.
+Open on 2026-10-19: O48 and O49 (later and governance), O100–O102 (v4 rhythm ratios and editor),
+O115 and O116 (v3.x learning), O176 (style packs and the chord level), O180 (octave signs, later),
+O183 (the warm worker lost when pre-generation is cancelled), O190 (a newer version's database
+whose read-only reopening fails) and O230 (a stale replay-key wording in a STABLE atom, opened with
+D351; numbered O177 on branch `plan-migration`, D352). New questions take IDs from **O231**; the IDs
+reserved for v3.0's waves and left unused stay unused, and O177 stays unused.
 
 Opened on 2026-10-12 with v3.3 (D261): O165–O175, richer chords. D262 closed O174 the same day.
 D264–D273 settled the rest the same day in master spec Part D, as proposed for the owner's
@@ -113,6 +113,17 @@ amended is revised, and no question comes back unless the owner reopens it.
   Seventh chords level says otherwise, which applies, and how the player sees it? Not needed
   before style packs (D259, on branch `v4-accompaniment-research`, not merged). Proposed: decided
   with style packs.
+
+- **O230 - A stale replay-key wording in `module_tension_arc_cycle`** _(D351; from the v3.3 build
+  plan's owner questions; outside v3.3)_: the STABLE atom `module_tension_arc_cycle` (outside the
+  contract surface) still says a session phrase's replay key keeps "the unchanged `ifk1.` format",
+  which v3.0's `ifk2.` already breaks and neither earlier intent change set lists. The plan had
+  proposed correcting it at v3.0 chunk 18's capture; that chunk is merged and the wording stands.
+  Open: who corrects it, and when? Proposed: a wording-only revision (no guarantee changes) that
+  names no key version, confirmed by the owner and applied by `documentalist` at the next intent
+  pass that touches it, I0 at the latest; v3.3's
+  [chunk 15](versions/v3/build-plan-v3.3.md#chunk-15--replay-key-ifk5) must not repeat it for
+  `ifk5.`. It blocks no chunk.
 
 ## v3.0 wave 2 (O180+)
 

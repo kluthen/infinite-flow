@@ -31,6 +31,11 @@ decorates a more important note without changing the chord underneath
 
 Checked in the code on 2026-10-07 (paths relative to the repository root):
 
+> **As of 2026-10-07, before v3.0 was built.** Line numbers and the "not built yet" statements below
+> (storage, `ifk2.`, pre-generation) are out of date: v3.0 built them. The code facts v3.1 is built
+> on were checked again on 2026-10-19 (`main` d007b27) and live in the
+> [v3.1 build plan](build-plan-v3.1.md); where the two differ, the plan follows the code (D356).
+
 - **Chord tones are always tried first.** At each note the pitch search orders its candidates by
   a rank that puts chord tones before every decorating note
   (`src/domain/pitch/pitch-ranking.ts:14-31, 48-78`), and searches depth-first in that order

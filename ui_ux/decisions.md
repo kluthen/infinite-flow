@@ -12,7 +12,7 @@ Append-only record of settled UI/UX decisions. Earlier logs are archived verbati
 
 Archived IDs keep their meaning; a citation to one by ID elsewhere in this repository stays valid
 through this header. D225–D264 (v3.1, v3.2 and v3.3, not yet released) stay here; D265–D279 were
-never used. Numbering continues from D324.
+never used. Numbering continues from D325.
 
 ## v3.1 (presets and embellishment figures) and v3.2 (Jam) design, 2026-10-08
 
@@ -542,3 +542,15 @@ Part D changes what it rests on.
   token source alone: root `screens/` session-list, your-data, my-instrument, last-session-review
   and preset-sheet, `token-source-v3.1-v3.2.md`, `README.md`. A recorded correction gives the four
   `versions/v3.0/` handoffs the same wording and its `README.md` the released status.
+
+## The v3.1 approval, 2026-10-19
+
+- **D324 — v3.1's design approved and frozen in `versions/v3.1/` (2026-10-19; the owner's ruling,
+  the v3.1 build plan's gate D0).** The owner approved the v3.1 design: D225-D251's v3.1 part,
+  everything marked `[v3.1 new]`, `[v3.1 changed]` or `_v3.1 …:_` at the root. v3.2 (Q73-Q75
+  open) and v3.3 are not approved. The copy, as D225 took v3.0's: every tier document, marks
+  kept, with v3.2's and v3.3's tagged parts and the sections they open left out, `flows/jam/`
+  omitted, the flow index's two rows v3.2 rewrote in place restored to v3.0's goals, and link
+  paths adjusted; `token-source-v3.1.md` holds the v3.1 part of the token source document. The
+  root and its marks are unchanged (cleared with v4, D225). Not allowed: the token pass (T1).
+  The v3.1 build plan's links should point at `versions/v3.1/` (spec-writer, on its branch).

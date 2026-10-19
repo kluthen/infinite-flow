@@ -1,9 +1,10 @@
 # v3 — Player Material and "My Instrument"
 
 Status: v3.0 released as version 3.0.0 on 2026-10-16 (tag `v3.0.0` at e288d98, deployed;
-D348); v3.1 and v3.2 consolidated as master spec Parts B and C, approved (D239), their build plans
-drafts, not approved; v3.3 in master spec Part D, awaiting owner approval (D264–D275), its build
-plan a draft, not approved (D276–D288); v3.x direction only. The Status paragraph this README kept
+D348); v3.1 and v3.2 consolidated as master spec Parts B and C, approved (D239), the v3.1 design
+approved (D353), v3.1's build plan ready for owner approval (D356), v3.2's not approved; v3.3 in
+master spec Part D, awaiting owner approval (D264–D275), its build plan not approved (D276–D288,
+D351); v3.x direction only. The Status paragraph this README kept
 until the v3.0 release is archived verbatim in
 [archive/v3/v3-readme-status.md](../../archive/v3/v3-readme-status.md).
 
@@ -45,7 +46,7 @@ Also every tester on an instrument v1 doesn't ship. See [personas](../../persona
 - **v3.3 master spec: [Part D](master-spec.md#part-d--v33), awaiting owner approval** (D264–D274,
   2026-10-12): one Seventh chords level, Off by default; its contract wording changes wait for the
   owner's confirmation. O176 (style packs and the level) stays open for later.
-- **v3.3 build plan:** [build-plan-v3.3.md](build-plan-v3.3.md), draft v2 (2026-10-12), not
+- **v3.3 build plan:** [build-plan-v3.3.md](build-plan-v3.3.md), v3 (2026-10-16), not
   approved; depends on owner approval of Part D. Planning answers D276–D288.
 - **v3.0.1 is merged into v3.0** (D212), the owner: "v3.0.1 could very well be just included
   into v3.0". This also settles where keeping sessions goes: with the review of earlier sessions
@@ -235,9 +236,11 @@ key and mode restriction (D229–D231); and player presets saved with v3.0's sto
 open; the figure shares and the cost guard are measured before the gate. The notes below are the
 background those drafts started from.
 
-**Build plan:** [build-plan-v3.1.md](build-plan-v3.1.md), draft v1 (2026-10-08), not approved;
-written while implementation is paused, for the owner to review with the v3.1 design. It plans
-v3.1 on top of the [v3.0 build plan](build-plan.md) and lists four questions for `spec-writer`.
+**Build plan:** [build-plan-v3.1.md](build-plan-v3.1.md), v4 (2026-10-19), ready for owner
+approval. It plans v3.1 on top of the [v3.0 build plan](build-plan.md) on the build-plan model: 21
+chunks in six waves, then the release gate, under the shared [v3 build workflow](build-workflow.md)
+(D349). The design is approved (D353); waves 4 and 5 wait for the token-source pass (gate T1), which
+the owner has not allowed yet (D355, D356).
 
 ### Embellishment flags
 
@@ -338,10 +341,10 @@ D229–D231; consolidated in [master spec Part B](master-spec.md#b6-presets).
 awaiting the owner's approval of the consolidation and the owner's confirmation of the contract
 wording it lists).
 
-**Build plan:** [build-plan-v3.2.md](build-plan-v3.2.md), draft v1 (2026-10-08), not approved;
-written while implementation is paused, for the owner to review with the v3.2 design. It plans
-v3.2 on top of the [v3.0](build-plan.md) and [v3.1](build-plan-v3.1.md) build plans and lists five
-questions for `spec-writer`.
+**Build plan:** [build-plan-v3.2.md](build-plan-v3.2.md), v3 (2026-10-16), not approved; for the
+owner to review with the v3.2 design. It plans v3.2 on top of the [v3.0](build-plan.md) and
+[v3.1](build-plan-v3.1.md) build plans on the build-plan model: 27 chunks in seven waves, then the
+release gate, under the shared [v3 build workflow](build-workflow.md) (D350).
 
 **Drafts** (2026-10-08, draft v2, approved by the owner: D232 for the rhythm lock, D234 for the
 rest): [Jam](jam.md), [key and mode suggestion](key-and-mode-suggestion.md),
@@ -485,11 +488,12 @@ generation." v3.2 was the last v3 release; v3.3 follows it. Specced on 2026-10-1
 nothing built. The text below is the direction as recorded before the research; where it and
 Part D differ, Part D wins.
 
-**Build plan:** [build-plan-v3.3.md](build-plan-v3.3.md), draft v2 (2026-10-12), not approved;
-depends on owner approval of Part D. It plans v3.3 on top of the [v3.0](build-plan.md),
-[v3.1](build-plan-v3.1.md) and [v3.2](build-plan-v3.2.md) build plans: 23 chunks in 9 waves, a
-contract gate on the three STABLE changes, the owner's listening check on endings before the
-conditional second ending rule, and four questions for the owner. Its planning answers are D276–D288.
+**Build plan:** [build-plan-v3.3.md](build-plan-v3.3.md), v3 (2026-10-16), not approved; depends
+on owner approval of Part D. It plans v3.3 on top of the [v3.0](build-plan.md),
+[v3.1](build-plan-v3.1.md) and [v3.2](build-plan-v3.2.md) build plans on the build-plan model: 22
+chunks in six waves, then the release gate, under the shared [v3 build workflow](build-workflow.md)
+(D351), with contract sign-offs on the three STABLE changes and the owner's listening check on
+endings before the conditional second ending rule. Its planning answers are D276–D288.
 
 In standard terms, "higher end chords" are **seventh chords** and **extended chords**. An extended
 chord stacks **chord extensions** (the ninth, the eleventh, the thirteenth) on top of a seventh
