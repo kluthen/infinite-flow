@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.74
+Status: draft v0.75
 
 ## Status Snapshot
 
@@ -47,10 +47,11 @@ Status: draft v0.74
   - **v3.x:** learning from positive signals, with recognising played signals (D213, D214);
     likely to move or go. Rhythm ratios and the rhythm editor are v4; the chord-fit check, review
     tooling and the two controller-connection ideas are dropped (D211).
-- **Open:** 12 questions: O48 and O49 (later and governance), O100–O102 (v4 rhythm), O115 and
+- **Open:** 13 questions: O48 and O49 (later and governance), O100–O102 (v4 rhythm), O115 and
   O116 (v3.x learning), O176 (style packs and the chord level), O180 (octave signs, later), O183
   (pre-generation's cancellation cost), O190 (a newer version's database whose read-only
-  reopening fails) and O230 (a stale replay-key wording in a STABLE atom). See the [register](open-questions.md).
+  reopening fails), O230 (a stale replay-key wording in a STABLE atom) and O231 (v3.1's
+  entry-chunk budget: v3.0 left 230 bytes). See the [register](open-questions.md).
 - The snapshots this index kept through v2's design and build and through v3.0's are archived
   verbatim at [archive/v2/readme-status-snapshot.md](archive/v2/readme-status-snapshot.md) and
   [archive/v3/readme-status-snapshot.md](archive/v3/readme-status-snapshot.md).

@@ -266,6 +266,8 @@ Gate DP: whether B5.6's rule (the passing tone and the neighbor tone may not bot
 - **Run by:** chunk 2 (the baseline on the v3.0 release); every wave gate; the release gate
   (`npm run verify:boundaries`, budget unchanged).
 - **Recorded:** the wave log and each wave's merge commit message; the release notes.
+- **Open:** v3.0 left 230 bytes of that budget ([B12](master-spec.md#b12-existing-code-and-risks));
+  whether and how it is raised is [O231](../../open-questions.md), to settle before wave 1's gate.
 
 ### Hand checks
 

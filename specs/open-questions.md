@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.71
+Status: draft v0.72
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -22,8 +22,9 @@ README says where each answer now lives.
 Open on 2026-10-19: O48 and O49 (later and governance), O100–O102 (v4 rhythm ratios and editor),
 O115 and O116 (v3.x learning), O176 (style packs and the chord level), O180 (octave signs, later),
 O183 (the warm worker lost when pre-generation is cancelled), O190 (a newer version's database
-whose read-only reopening fails) and O230 (a stale replay-key wording in a STABLE atom, opened with
-D351; numbered O177 on branch `plan-migration`, D352). New questions take IDs from **O231**; the IDs
+whose read-only reopening fails), O230 (a stale replay-key wording in a STABLE atom, opened with
+D351; numbered O177 on branch `plan-migration`, D352) and O231 (v3.1's entry-chunk budget, opened
+with D358). New questions take IDs from **O232**; the IDs
 reserved for v3.0's waves and left unused stay unused, and O177 stays unused.
 
 Opened on 2026-10-12 with v3.3 (D261): O165–O175, richer chords. D262 closed O174 the same day.
@@ -189,3 +190,18 @@ version that upgrades the saved data.
   `src/storage/database.ts` and `src/storage/storage-port.ts`, with a unit test), in a chunk of the
   wave driver's choosing before the v3.0 gate; chunk 8 needs nothing more, since it shows the
   notice from the saving state and the load outcome.
+
+## v3.1 build (O231+)
+
+Opened 2026-10-19 by `spec-writer` when master spec B12 was checked against v3.0's code (D358).
+
+- **O231 - v3.1's entry-chunk budget** _(D358; before wave 1's gate)_: v3.0 shipped its entry
+  chunk at 229,146 bytes, 230 bytes under the 224 KiB budget (`entryChunkByteBudget`,
+  `scripts/verify-boundaries.mjs`; the [v3.0 release notes](../docs/release/v3.0-release-notes.md)).
+  The v3.1 plan's [M4](versions/v3/build-plan-v3.1.md#m4--the-first-load-bundle) keeps that budget
+  unchanged at the release gate while the built-in table, the preset bar and the seven level
+  controls go in the entry chunk, so the first wave that adds entry code (likely wave 1, chunk 10)
+  can fail `npm run verify:boundaries`. Open: raise the budget, by how much and on whose word, or
+  move more to on-demand loading? Proposed: a chunk that adds entry code may raise the budget by
+  its measured growth, the reason written on the budget line as v2's chunks did, and each raise is
+  reported at its wave gate; chunk 2's baseline gives the starting figure.

@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.105
+Status: draft v2.106
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -21,12 +21,12 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and each milestone
 folder's README, such as [archive/v3/README.md](archive/v3/README.md)). Numbering continues from
-**D358**.
+**D359**.
 
 Live here: D228–D251 (v3.1 and v3.2, not built yet), D261–D288 (v3.3, not built yet; D263–D288
 merged from branch `v3.3-chord-research`), D344–D348 (the v3.0 release and its follow-ups) and
-D349–D357 (the v3.1–v3.3 plan migrations, merged from branch `plan-migration` as D339–D341, and
-the v3.1 plan's gates and approval). D259 and D260 are on branch `v4-accompaniment-research`, not merged yet.
+D349–D358 (the v3.1–v3.3 plan migrations, merged from branch `plan-migration` as D339–D341, and
+the v3.1 plan's gates and approval, and B12's code check). D259 and D260 are on branch `v4-accompaniment-research`, not merged yet.
 D289 is unused.
 
 ## Decision Log
@@ -673,3 +673,9 @@ D289 is unused.
   Jazz through the old control, and no release is cut before wave 5 merges. T1 stays not given and
   is asked again before wave 4; wave 0 starts now. Now in:
   [build-plan-v3.1.md](versions/v3/build-plan-v3.1.md#read-first-what-v31-changes-in-v30-and-v2).
+
+- **D358 (2026-10-19): master spec Part B v1.1: B12's code facts checked against v3.0.** Facts
+  only, following the code (`d007b27`); no behaviour changes. The routing point is not the only
+  path (the instrument switch and Vary settings take their own), pre-generation discards on a
+  change, storage exists, and v3.0 left 230 bytes of entry-chunk budget, which opens
+  [O231](open-questions.md). Now in: [B12](versions/v3/master-spec.md#b12-existing-code-and-risks).

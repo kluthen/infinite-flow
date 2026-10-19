@@ -36,7 +36,8 @@ Status: this file holds four parts.
 - **[Part B — v3.1](#part-b--v31), embellishment figures and presets:** master spec v1.0
   (2026-10-08), consolidated from the v3.1 drafts the owner approved; approved by the product
   owner (2026-10-08). The owner confirmed the exact wording of the contract
-  guarantees it changes (B11) the same day. Its sections are numbered B1 to B16.
+  guarantees it changes (B11) the same day. v1.1 (2026-10-19) checks B12's code facts against
+  v3.0's released code; no behaviour changes. Its sections are numbered B1 to B16.
 - **[Part C — v3.2](#part-c--v32), Jam, the key and mode suggestion and the rhythm lock:**
   master spec v1.0 (2026-10-08), consolidated from the approved v3.2 drafts; approved by the
   product owner (2026-10-08). The owner confirmed the exact wording of the contract
@@ -1159,7 +1160,8 @@ most tempos (ISS-011). From v3.0 the app says so and asks.
 
 ## Part B — v3.1
 
-Generation choices: embellishment figures and presets. Master spec v1.0 (2026-10-08), consolidated
+Generation choices: embellishment figures and presets. Master spec v1.1 (B12's code facts
+checked against v3.0, 2026-10-19; v1.0 2026-10-08), consolidated
 from the approved drafts [embellishment-flags.md](embellishment-flags.md) and
 [presets.md](presets.md), which keep the code references line by line. Approved by the owner on 2026-10-08; the owner confirmed the contract wording
 (B11) the same day. v3.1 is built on v3.0 (Part A): its storage, its settings record,
@@ -1913,33 +1915,57 @@ selection.
 
 ## B12. Existing code and risks
 
-From reading the code on 2026-10-07 and 2026-10-08 (line references in the drafts).
+From reading the code on 2026-10-07 and 2026-10-08 (line references in the drafts), checked again
+against v3.0's released code (`d007b27`) on 2026-10-19; where the drafts are older, this section
+follows the code.
 
 - **The pitch search** orders candidates with chord tones before every decorating note; decorating
-  notes share one rank, ordered among themselves by the seed only. So a decoration appears only
-  when the chord-tone path fails: in about 5,200 sampled phrases, free passing tones were in 1 to
-  6 % of phrases, Jazz's chromatic approaches in 4 to 20 %, and the free appoggiatura in none. Two
-  decorating notes in a row are rejected unless they form one written figure, which is what blocks
+  notes share one rank, ordered among themselves by the seed only (`orderCandidates`,
+  `src/domain/pitch/pitch-ranking.ts`). So a decoration appears only when the chord-tone path
+  fails: in about 5,200 sampled phrases, free passing tones were in 1 to 6 % of phrases, Jazz's
+  chromatic approaches in 4 to 20 %, and the free appoggiatura in none. A free decorating note must
+  resolve on the next note, so two decorating notes in a row are rejected unless they form one
+  written figure, in the search (`freeToneResolves`, `pitch-figures.ts`) and in the validator's
+  figure rules (`figureFailures`, `src/domain/pitch/validation/figure-rules.ts`). No written figure
+  is a diatonic enclosure (an enclosure needs a note outside the collection), which is what blocks
   the diatonic enclosure today.
 - **One capability separates Neutral from Jazz** (chromatic approach and enclosure allowed), looked
-  up from the profile's name. The name or the capability is read in about thirty files: the
-  generation request, the pitch candidates and context, the window search, the joining fit
-  (carry-in), the result validator and its figure rules, the worker's inbound check, the replay
-  key, the session's intents and the controls. The validator must accept exactly what the levels
+  up from the profile's name (`MUSICAL_PROFILE_CAPABILITIES`,
+  `src/domain/controls/profile-selection.ts`) by the pitch policy and the result validator; the
+  policy carries it on to the pitch candidates, the pitch context and the figure rules. The name
+  or the capability is read in about fifty source files, about ten of them in the generator and
+  the validator: the generation request, the chord planner's input check, the pitch candidates and
+  context, the window search, the joining fit (carry-in), the result validator and its figure
+  rules; and beyond them the worker's inbound check, the replay key, the session's intents, the
+  controls, the generation-session composables, the workspace and pre-generation, the settings
+  and kept-session records, and the Review. The validator must accept exactly what the levels
   allow, the two new figures included.
-- **The Tension control** schedules its one figure in the chord planner; each candidate placement
-  runs a whole pitch search of its own.
-- **The selection** is a name plus a customized flag. Choosing Neutral or Jazz overwrites seven
-  controls; any edit of those seven sets the flag; every other control edit goes through one
-  routing point, which is where opting out by key or mode is detected. At Idle no control change
-  regenerates the phrase; only the instrument switch does.
-- **The controls** are segmented controls; an option can be disabled but not highlighted while
-  staying selectable, so the highlight is new (a small addition plus its design).
+- **The Tension control**: the chord planner sets its requirement (at most one figure, the bars
+  and figure kinds allowed, and whether one is required); the pitch policy lists the candidate
+  placements, and the window search runs a whole pitch search for each, all from one shared
+  search budget.
+- **The selection** is a name plus a customized flag (`ProfileSelection`: `musicalProfile`,
+  `isCustom`). Choosing Neutral or Jazz overwrites seven controls; any edit of those seven sets the
+  flag. Every other control edit but the instrument goes through one routing point (`setControl`,
+  `src/composables/generation-session-control-actions.ts`), which is where opting out by key or
+  mode is detected; the instrument switch and Vary settings take their own paths, through the
+  same two helpers. At Idle no control change regenerates the phrase on screen, with one
+  exception: under the notice that the notes are too wide, a change of a setting the phrase is
+  generated from starts a new round. The instrument switch regenerates when a phrase is shown.
+  Since v3.0, any change but tempo also discards the pre-generated phrases and restarts
+  pre-generation (`settingsKeyOf`, `src/components/workspace/workspace-pregeneration.ts`).
+- **The controls** are segmented controls (Tempo is a stepper); an option can be disabled but not
+  highlighted while staying selectable, so the highlight is new (a small addition plus its
+  design).
 - **Vary settings** draws a setting then a direction from a seeded source, redraws a draw that
-  lands on an unsupported combination, and refuses after a fixed bound of redraws. The restriction
-  reuses that redraw.
-- **Nothing is saved yet**: v3.0's storage, settings record, tolerant loading and `ifk2.` are
-  specified and being built. v3.1 depends on them.
+  lands on an unsupported combination, and refuses after a fixed bound of redraws (10,000,
+  `src/session/settings-mutation.ts`). The restriction reuses that redraw.
+- **v3.0 saves**, and v3.1 builds on it: one IndexedDB database at data version 1, with no preset
+  store (`src/storage/database.ts`); the settings record holds the profile selection and loads
+  each setting on its own, falling back to its default (`settings-record.ts`); kept phrases hold
+  the profile in their reproduction inputs and the session summary holds it with its customized
+  flag (`kept-phrase-parsers.ts`, `kept-session-summary.ts`); the `ifk2.` key carries my instrument
+  (`src/generation-worker/phrase-replay-key.ts`).
 
 **At risk:**
 
@@ -1950,9 +1976,10 @@ From reading the code on 2026-10-07 and 2026-10-08 (line references in the draft
 - **The redraw bound**: a one-mode restriction makes more key and mode draws land outside; the
   fixed bound must stay comfortably above what a restriction adds, so a valid move is never
   refused.
-- **The first-load bundle budget** (Part A §4.3 records little headroom): the combo box, seven level
-  controls, the built-in table and preset management add code; `coding-leader` measures it and may
-  load preset management on demand.
+- **The first-load bundle budget**: v3.0 shipped its entry chunk at 229,146 bytes, 230 bytes under
+  its 224 KiB budget (the v3.0 release notes; Part A §4.3's 8.8 kB was the headroom before v3.0's
+  build). The combo box, seven level controls, the built-in table and preset management add code;
+  `coding-leader` measures it and may load preset management on demand.
 - **Migration**: v3.0's saved settings and kept sessions must migrate on first open by v3.1.
 - **Contract**: four STABLE guarantees change (B11), which needs the owner's confirmation before
   the gate.
