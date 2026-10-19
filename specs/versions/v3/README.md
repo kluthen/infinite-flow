@@ -2,7 +2,7 @@
 
 Status: v3.0 released as version 3.0.0 on 2026-10-16 (tag `v3.0.0` at e288d98, deployed;
 D348); v3.1 and v3.2 consolidated as master spec Parts B and C, approved (D239), the v3.1 design
-approved (D353), v3.1's build plan ready for owner approval (D356), v3.2's not approved; v3.3 in
+approved (D353), v3.1's build plan approved (D357), v3.2's not approved; v3.3 in
 master spec Part D, awaiting owner approval (D264–D275), its build plan not approved (D276–D288,
 D351); v3.x direction only. The Status paragraph this README kept
 until the v3.0 release is archived verbatim in
@@ -236,11 +236,12 @@ key and mode restriction (D229–D231); and player presets saved with v3.0's sto
 open; the figure shares and the cost guard are measured before the gate. The notes below are the
 background those drafts started from.
 
-**Build plan:** [build-plan-v3.1.md](build-plan-v3.1.md), v4 (2026-10-19), ready for owner
-approval. It plans v3.1 on top of the [v3.0 build plan](build-plan.md) on the build-plan model: 21
+**Build plan:** [build-plan-v3.1.md](build-plan-v3.1.md), v4 (2026-10-19), approved by the
+owner on 2026-10-19 (D357). It plans v3.1 on top of the [v3.0 build plan](build-plan.md) on the build-plan model: 21
 chunks in six waves, then the release gate, under the shared [v3 build workflow](build-workflow.md)
 (D349). The design is approved (D353); waves 4 and 5 wait for the token-source pass (gate T1), which
-the owner has not allowed yet (D355, D356).
+the owner has not allowed yet (D355, D356); waves 0–3 may merge into `main` meanwhile, with no
+release before wave 5 merges (D357).
 
 ### Embellishment flags
 

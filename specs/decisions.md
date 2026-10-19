@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.104
+Status: draft v2.105
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -21,12 +21,12 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and each milestone
 folder's README, such as [archive/v3/README.md](archive/v3/README.md)). Numbering continues from
-**D357**.
+**D358**.
 
 Live here: D228–D251 (v3.1 and v3.2, not built yet), D261–D288 (v3.3, not built yet; D263–D288
 merged from branch `v3.3-chord-research`), D344–D348 (the v3.0 release and its follow-ups) and
-D349–D356 (the v3.1–v3.3 plan migrations, merged from branch `plan-migration` as D339–D341, and
-the v3.1 plan's gates). D259 and D260 are on branch `v4-accompaniment-research`, not merged yet.
+D349–D357 (the v3.1–v3.3 plan migrations, merged from branch `plan-migration` as D339–D341, and
+the v3.1 plan's gates and approval). D259 and D260 are on branch `v4-accompaniment-research`, not merged yet.
 D289 is unused.
 
 ## Decision Log
@@ -667,3 +667,9 @@ D289 is unused.
   can share its wave, and chunk 16 waits on chunk 9 (data version 2 first). The code facts are
   checked against `main` (d007b27); the design links point at the frozen v3.1 design (ux D324).
   Status: ready for owner approval. Now in: [build-plan-v3.1.md](versions/v3/build-plan-v3.1.md#waves).
+
+- **D357 (2026-10-19): the owner approves v3.1's build plan v4, transitional state included.**
+  Waves 0–3 may merge into `main` and stay there while T1 waits: `main` keeps offering Neutral and
+  Jazz through the old control, and no release is cut before wave 5 merges. T1 stays not given and
+  is asked again before wave 4; wave 0 starts now. Now in:
+  [build-plan-v3.1.md](versions/v3/build-plan-v3.1.md#read-first-what-v31-changes-in-v30-and-v2).

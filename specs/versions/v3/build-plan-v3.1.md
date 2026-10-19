@@ -1,8 +1,8 @@
 # Infinite Flow v3.1 — Build Plan
 
 Status: v4 (2026-10-19): gates D0 and R0 cleared, T1 not given, waves re-formed around it, code
-facts refreshed, design links on the frozen v3.1 design (spec D353–D356, ux D324). Ready for owner
-approval; not approved.
+facts refreshed, design links on the frozen v3.1 design (spec D353–D356, ux D324). Approved by the
+owner on 2026-10-19 (spec D357), with the transitional interface below.
 
 Embellishment figures and presets, written from [master spec Part B](master-spec.md#part-b--v31)
 (v1.0, approved 2026-10-08, with spec D250 written in) and the v3.1 design, frozen at
