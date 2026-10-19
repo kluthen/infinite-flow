@@ -1,8 +1,8 @@
 # Music Lexicon
 
-Status: v1.5 (v3 research terms merged; preset catalogue terms merged 2026-10-07; v3.1 and v3.2 spec terms merged 2026-10-08; v3.3 chord research terms added 2026-10-12; bass clef and octave sign added, clef entries revised for my instrument's clef, 2026-10-12; starting note and count-in say an out-of-date phrase asks first, 2026-10-13)
+Status: v1.7 (v3 research terms merged; preset catalogue terms merged 2026-10-07; v3.1 and v3.2 spec terms merged 2026-10-08; v4 accompaniment research terms merged 2026-10-11; endgame musical-identity research terms merged 2026-10-11; style atlas research terms merged 2026-10-11; v3.3 chord research terms added 2026-10-12; bass clef and octave sign added, clef entries revised for my instrument's clef, 2026-10-12; starting note and count-in say an out-of-date phrase asks first, 2026-10-13; the v4, musical-identity and style atlas terms merged from branch `v4-accompaniment-research` 2026-10-19)
 
-Date: 2026-10-13
+Date: 2026-10-19
 
 ## How to use
 
@@ -35,15 +35,17 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 ## Category index
 
 1. [Basics](#basics): cue, half step, interval, note, octave, phrase, pitch, rest, tie, whole step.
-2. [Pitch and notation](#pitch-and-notation): the staff, clefs, note names and the signs written on the staff, including ornaments and jazz articulations.
-3. [Rhythm and meter](#rhythm-and-meter): beats, note values, meter, syncopation, tempo, and rhythmic changes such as anticipation, augmentation and metric displacement.
-4. [Melody](#melody): melodic motion, shape, decorating notes (embellishments), motifs and the ways musicians develop them.
-5. [Harmony](#harmony): chords, their roles, cadences, tension and resolution, common chord patterns such as the twelve-bar blues and the vamp, and the richer chords (seventh, sixth, suspended and extended chords, voicing).
-6. [Scales and modes](#scales-and-modes): scales, keys, the seven modes and how a key is found from a melody.
-7. [Styles](#styles): styles of music the presets refer to, such as the reel and bossa nova.
-8. [Instruments and transposition](#instruments-and-transposition): concert and written pitch, B-flat and E-flat instruments, range.
-9. [App controls](#app-controls): one entry per control label, with every option explained; the kinds of preset and the Custom state; and the session words the player meets, such as Jam, doodle and starting note.
-10. [Internal (no popup)](#internal-no-popup): project terms used in docs and code, never shown in the UI.
+2. [Pitch and notation](#pitch-and-notation): the staff, clefs, note names and the signs written on the staff, including ornaments, articulation, dynamics and jazz articulations.
+3. [Rhythm and meter](#rhythm-and-meter): beats, note values, meter, syncopation, tempo, rhythmic changes such as anticipation, augmentation and metric displacement, and the rhythms that mark a style, such as the shuffle, the clave and aksak meters.
+4. [Melody](#melody): melodic motion, shape, decorating notes (embellishments), motifs, themes and the ways musicians develop them.
+5. [Harmony](#harmony): chords, their roles, cadences, tension and resolution, common chord patterns such as the twelve-bar blues, the vamp and the two-five-one, the richer chords (seventh, sixth, suspended and extended chords), and how parts move between chords (voicing, voice leading).
+6. [Scales and modes](#scales-and-modes): scales, keys, the seven modes, how a key is found from a melody, and melodic systems beyond major and minor keys, such as maqam and raga.
+7. [Styles](#styles): styles of music the presets and the style atlas refer to, such as the reel, bossa nova, the waltz and gamelan.
+8. [Style and identity](#style-and-identity): how music becomes recognisable as a style, a person's voice (idiolect), a place or an event: musical topics and fanfares.
+9. [Texture and arranging](#texture-and-arranging): how several parts fit together, the jobs accompanying parts do (pad, comping, fill, counter-melody and others), and how game music adds and removes layers.
+10. [Instruments and transposition](#instruments-and-transposition): concert and written pitch, B-flat and E-flat instruments, range, and the sound of an instrument (timbre) with the audio effects that change it.
+11. [App controls](#app-controls): one entry per control label, with every option explained; the kinds of preset and the Custom state; and the session words the player meets, such as Jam, doodle and starting note.
+12. [Internal (no popup)](#internal-no-popup): project terms used in docs and code, never shown in the UI.
 
 ## Basics
 
@@ -158,6 +160,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `sharp`, `flat`, `natural`, `double-sharp-and-double-flat`, `key-signature`
 - **sources:** S14
 
+### Articulation
+
+- **id:** `articulation`
+- **aliases:** staccato, legato, accent
+- **popup:** How a note starts and ends: short and detached, stressed, or smoothly joined to the next note.
+- **definition:** Articulation is the way each note is attacked and released. Staccato notes are short and detached, marked with a dot; an accent (>) makes a note stand out by stressing its start; legato notes are joined smoothly, often shown by a curved line called a slur. The same pitches and rhythm sound quite different played all staccato or all legato, so articulation carries much of a line's character.
+- **in_infinite_flow:** Not written today: the generated phrase carries no articulation marks. The endgame research lists articulation as a possible part of a character's musical identity, for example short, accented high notes (docs/music/musical-identity.md); endgame groundwork, not built.
+- **related:** `jazz-articulation`, `ornament`, `dynamics`, `note`, `musical-identity`
+- **sources:** S225, S156, docs/music/musical-identity.md
+
 ### Bar line
 
 - **id:** `bar-line`
@@ -207,6 +219,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `accidental`, `sharp`, `flat`, `enharmonic`
 - **sources:** S14
 
+### Dynamics
+
+- **id:** `dynamics`
+- **aliases:** loudness, dynamic marks
+- **popup:** How loud or soft the music is, and how that changes, written with signs such as p (soft) and f (loud).
+- **definition:** Dynamics are the loudness levels of music and the changes between them. Musicians write them with Italian abbreviations under the staff: p (piano, soft), mf (mezzo forte, moderately loud), f (forte, loud), and wedge-shaped "hairpins" for growing louder (crescendo) or softer (diminuendo). Dynamics shape a phrase: a line that swells toward its high point and fades at its end sounds more alive than one played at a single level.
+- **in_infinite_flow:** Not written today: the phrase carries no dynamic marks and the backing plays at one level. The endgame research names dynamics as part of a system voice's "performer" layer, which adds life more than recognition (docs/music/musical-identity.md); endgame groundwork, not built.
+- **related:** `articulation`, `phrase`, `accompaniment`
+- **sources:** S226, S202, S203, docs/music/musical-identity.md
+
 ### Enharmonic
 
 - **id:** `enharmonic`
@@ -227,6 +249,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `doit`, `scoop`, `jazz-articulation`, `ornament`
 - **sources:** S31, S33
 
+### Fermata
+
+- **id:** `fermata`
+- **aliases:** hold, pause
+- **popup:** A sign over a note or rest meaning: hold it longer than written, until the player or conductor moves on.
+- **definition:** A fermata is a curved sign with a dot placed over a note or a rest. It tells the performer to hold it longer than its written value; how much longer is left to the player or the conductor. In chorales and hymns a fermata often marks the end of each line of text, where the singers breathe, rather than a long dramatic hold.
+- **in_infinite_flow:** Not built; style atlas research: the app keeps strict time on a fixed grid, so a held line end is one of the chorale's stated losses (docs/music/styles/art-music.md).
+- **related:** `chorale`, `rest`, `tempo`, `cadence`
+- **sources:** S304, docs/music/styles/art-music.md
+
 ### Flat
 
 - **id:** `flat`
@@ -235,6 +267,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **definition:** A flat lowers a note by one half step, so B-flat is the key just below B on a keyboard. In a key signature, a flat applies to that letter in every octave for the whole piece. Written as an accidental in front of one note, it lasts to the end of the measure. It also appears in instrument names such as "B-flat tenor saxophone": the instrument's written C sounds as a B-flat.
 - **related:** `sharp`, `natural`, `accidental`, `key-signature`, `b-flat-instrument`
 - **sources:** S14
+
+### Gamaka
+
+- **id:** `gamaka`
+- **aliases:** gamakam
+- **popup:** An Indian ornament: a shake, slide or swing on or between notes that is part of what makes a raga recognisable.
+- **definition:** In Indian classical music a gamaka is an ornament: an oscillation around a note, a slide from one note to another, or a quick touch of a neighbouring note. In Carnatic (South Indian) music gamakas are so central that how a note is ornamented helps tell one raga from another. They move through the space between fixed pitches, so staff notation can show them only roughly.
+- **in_infinite_flow:** Not built; style atlas research: the app writes fixed pitches only, so slides and oscillations are a stated loss of a raga sketch (docs/music/styles/folk-and-world.md).
+- **related:** `raga`, `ornament`, `glissando`, `slide`
+- **sources:** S403, S401, docs/music/styles/folk-and-world.md
 
 ### Glissando
 
@@ -256,6 +298,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `ornament`, `appoggiatura`, `note`, `half-step`
 - **sources:** S30, S37
 
+### Grand staff
+
+- **id:** `grand-staff`
+- **aliases:** great staff, piano staff
+- **popup:** Two staves, treble on top and bass below, joined by a brace: the usual way piano music is written.
+- **definition:** A grand staff joins a treble-clef staff and a bass-clef staff with a curly brace at the left, so that one player can read a high part and a low part together. Piano, organ and harp music use it, the right hand usually reading the top staff and the left hand the bottom one. Middle C sits on a short ledger line between the two.
+- **in_infinite_flow:** The app shows a single treble-clef staff, even for the keyboard profile. Whether system voices ever get a second staff is an open question for v4.
+- **related:** `staff`, `treble-clef`, `clef`, `middle-c`, `ledger-line`
+- **sources:** S14, docs/music/accompaniment-systems.md
+
 ### Jazz articulation
 
 - **id:** `jazz-articulation`
@@ -275,6 +327,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** The key signature follows the Written key and Collection: the app shows the standard signature of the major (Ionian) key that shares the collection's notes. C Aeolian therefore shows three flats, like E-flat major, and D Dorian shows none. It is in your instrument's written pitch, so C Ionian on tenor saxophone shows an empty signature.
 - **related:** `accidental`, `key`, `written-pitch`, `control-written-key`, `control-collection`
 - **sources:** S14, ui_ux/screens/phrase-workspace/handoff.md
+
+### Lead sheet
+
+- **id:** `lead-sheet`
+- **aliases:** none
+- **popup:** A page with just the melody and chord symbols above it; the band makes up the accompaniment from the chords.
+- **definition:** A lead sheet writes down only the essentials of a song: the melody on one staff, with chord symbols above it and sometimes the lyrics. The accompanying players read the chord symbols and improvise their parts, so the same lead sheet can be played in many styles. Jazz and pop musicians use lead sheets all the time; books of them are called fake books.
+- **in_infinite_flow:** The app's staff is close to a lead sheet: the phrase's melody with a chord symbol at each chord change.
+- **related:** `chord-symbol`, `staff`, `melody`, `accompaniment`, `head`
+- **sources:** S191
 
 ### Ledger line
 
@@ -385,6 +447,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `scoop`, `fall`, `jazz-articulation`
 - **sources:** S31, S33
 
+### Quarter tone
+
+- **id:** `quarter-tone`
+- **aliases:** quarter step
+- **popup:** A pitch about halfway between two neighbouring piano keys. Arabic music uses such in-between notes.
+- **definition:** A quarter tone is half of a half step, so it falls between two neighbouring keys of a piano and cannot be played on one. Arabic notation writes some notes with a "half-flat" sign, for example a slightly lowered E or B in the maqams Rast and Bayati. The name is an approximation: in practice these notes are tuned by ear, and their exact height varies between regions, maqams and musicians.
+- **in_infinite_flow:** Not built; style atlas research: the app uses the twelve notes of the piano only, so a maqam sketch has to round such notes to a neighbour (docs/music/styles/folk-and-world.md).
+- **related:** `half-step`, `maqam`, `jins`, `pitch`, `flat`
+- **sources:** S397, S398, docs/music/styles/folk-and-world.md
+
 ### Scoop
 
 - **id:** `scoop`
@@ -421,7 +493,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **popup:** The five horizontal lines music is written on. The higher a note sits on them, the higher it sounds.
 - **definition:** A staff is a set of five evenly spaced horizontal lines. Notes go on the lines or in the four spaces between them, and higher placement means higher pitch. A clef at the left fixes which pitch each line stands for, and ledger lines extend the staff above or below. Piano music usually uses two staves joined together; a saxophone part uses one.
 - **in_infinite_flow:** The app shows the phrase on a single staff, with chord symbols marking the harmony. The staff is in treble clef, or in bass clef for a my instrument set to it.
-- **related:** `clef`, `treble-clef`, `bass-clef`, `ledger-line`, `measure`, `chord-symbol`
+- **related:** `clef`, `treble-clef`, `bass-clef`, `ledger-line`, `measure`, `chord-symbol`, `grand-staff`
 - **sources:** S14
 
 ### Treble clef
@@ -456,6 +528,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 
 ## Rhythm and meter
 
+### Aksak
+
+- **id:** `aksak`
+- **aliases:** limping rhythm, asymmetric meter
+- **popup:** A "limping" meter with beats of unequal length, made of quick groups of two and three, such as 2+2+3 in 7/8.
+- **definition:** Aksak is a Turkish word meaning "limping", used for meters built from short groups of two and three quick pulses, so that the beats are not all the same length. A bar of 7/8 counted 2+2+3 has three beats, the last one longer. Balkan dances use many such meters, such as 7/8, 9/8 (2+2+2+3) and 11/8. Within a tune the grouping usually stays the same, which gives the music its lopsided swing.
+- **in_infinite_flow:** Not built; style atlas research: the app writes four bars of 4/4, so aksak meters need a new meter capability (docs/music/styles/folk-and-world.md).
+- **related:** `meter`, `time-signature`, `beat`, `subdivision`, `compound-meter`
+- **sources:** S379, S380, docs/music/styles/folk-and-world.md
+
 ### Anticipation
 
 - **id:** `anticipation`
@@ -476,6 +558,15 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `diminution`, `rhythm`, `motivic-development`, `control-note-density`
 - **sources:** S51, S41
 
+### Backbeat
+
+- **id:** `backbeat`
+- **aliases:** back beat
+- **popup:** The accent on beats 2 and 4 of a four-beat bar, usually on the snare drum: the beat people clap on in pop and rock.
+- **definition:** In a bar of four beats, beats 1 and 3 are normally the strong ones. A backbeat puts a strong accent on beats 2 and 4 instead, usually with the snare drum, while the bass drum keeps beats 1 and 3. It is the beat audiences clap on in rock, pop, soul and funk, and much of what makes those styles feel driving.
+- **related:** `beat`, `strong-and-weak-beats`, `meter`, `groove`, `offbeat`
+- **sources:** S139
+
 ### Beat
 
 - **id:** `beat`
@@ -485,6 +576,36 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** In the app's 4/4 phrases one beat is a quarter note, which is four ticks.
 - **related:** `tempo`, `meter`, `measure`, `strong-and-weak-beats`, `subdivision`, `offbeat`
 - **sources:** S14, S15, S8
+
+### Clave
+
+- **id:** `clave`
+- **aliases:** son clave, rumba clave, 3-2 clave, 2-3 clave
+- **popup:** A five-stroke rhythm spread over two bars that holds Cuban music together; also the pair of wooden sticks that play it.
+- **definition:** The clave is a two-bar rhythm of five strokes, three in one half and two in the other. In Cuban son and salsa every part, from the piano pattern to the bass and the melody, is shaped to fit it, and musicians say a tune is in 3-2 or 2-3 clave depending on which half comes first. Rumba clave places one stroke a little later. The word also names the two hardwood sticks that play the rhythm.
+- **in_infinite_flow:** Not built; style atlas research: clave patterns would be stored timelines that the drums and the line align with (docs/music/styles/folk-and-world.md).
+- **related:** `timeline`, `tresillo`, `syncopation`, `montuno`, `tumbao`, `bossa-nova`
+- **sources:** S387, S380, docs/music/styles/folk-and-world.md
+
+### Compás
+
+- **id:** `compas`
+- **aliases:** compas
+- **popup:** In flamenco, the cycle of beats and accents a song form is built on, often twelve beats long.
+- **definition:** Compás is the Spanish word for a bar or meter. In flamenco it means the rhythmic cycle of a song form, with its own pattern of accents. Soleá and bulerías use a twelve-beat cycle accented on beats 3, 6, 8, 10 and 12, which sounds like groups of three followed by groups of two; siguiriya groups its beats 2+2+3+3+2. Hand-claps (palmas) and the guitar mark the compás, and every part lines up with it.
+- **in_infinite_flow:** Not built; style atlas research: a twelve-beat cycle does not fit four bars of 4/4; the research treats compás as an accent template over a longer cycle (docs/music/styles/folk-and-world.md).
+- **related:** `meter`, `aksak`, `hemiola`, `strong-and-weak-beats`, `andalusian-cadence`
+- **sources:** S383, S381, docs/music/styles/folk-and-world.md
+
+### Compound meter
+
+- **id:** `compound-meter`
+- **aliases:** compound time, 6/8, 12/8
+- **popup:** A meter whose beats each split into three, such as 6/8: two beats per bar, each made of three quick notes.
+- **definition:** In a compound meter each beat divides into three equal parts instead of two. A bar of 6/8 holds six eighth notes felt as two beats of three (ONE-two-three, TWO-two-three); 9/8 has three such beats and 12/8 four. Jigs, many lullabies and slow blues use compound meters. A meter whose beats divide in two, such as 2/4 or 4/4, is called simple.
+- **in_infinite_flow:** Not built; style atlas research: the app writes 4/4 only, and its swing just lengthens the first eighth of a pair; jigs need a compound-meter capability (docs/music/styles/folk-and-world.md).
+- **related:** `meter`, `time-signature`, `subdivision`, `jig`, `swing`, `shuffle`
+- **sources:** S373, docs/music/styles/folk-and-world.md
 
 ### Count-in
 
@@ -536,6 +657,46 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `quarter-note`, `sixteenth-note`, `subdivision`, `offbeat`, `control-note-density`
 - **sources:** S14, S8a
 
+### Four on the floor
+
+- **id:** `four-on-the-floor`
+- **aliases:** four to the floor
+- **popup:** A drum pattern with the bass drum on every beat of a 4/4 bar: the steady thump of disco and house music.
+- **definition:** Four on the floor is a drum pattern in which the bass drum (kick) plays on all four beats of a 4/4 bar, usually with a hi-hat on the offbeats between them and a snare or hand-clap on beats 2 and 4. It became widespread with disco in the 1970s and is the basis of house and techno. The even pulse makes the beat very easy to follow.
+- **in_infinite_flow:** Not built; style atlas research: it would be a drum pattern for v4's planned drums, needed by the house and techno entries (docs/music/styles/popular-electronic-game.md).
+- **related:** `beat`, `backbeat`, `offbeat`, `groove`
+- **sources:** S355, S353, docs/music/styles/popular-electronic-game.md
+
+### Gallop
+
+- **id:** `gallop`
+- **aliases:** galloping rhythm
+- **popup:** A repeated rhythm of one longer note and two quick ones, like a horse's gallop; common in heavy metal.
+- **definition:** A gallop is a rhythm cell of one eighth note followed by two sixteenth notes (long, short-short), repeated without a break, so it sounds like hooves. Heavy metal guitarists and bass players drive songs with it, often on one low note; Iron Maiden's bassist Steve Harris made it a trademark.
+- **in_infinite_flow:** Not built; style atlas research: the gallop would be a stored rhythm cell for a metal style (docs/music/styles/popular-electronic-game.md).
+- **related:** `rhythm`, `eighth-note`, `sixteenth-note`, `riff`
+- **sources:** S345, S346, docs/music/styles/popular-electronic-game.md
+
+### Ghost note
+
+- **id:** `ghost-note`
+- **aliases:** ghosted note
+- **popup:** A very quiet, almost unpitched note, felt more than heard, that adds rhythm between the main notes.
+- **definition:** A ghost note is played so softly, or so damped, that it is felt more than heard. Funk drummers fill the gaps between loud backbeats with ghost notes on the snare drum; bass players and guitarists add muted, nearly pitchless notes. Notation shows a ghost note with its note head in brackets, or sometimes with an x. Ghost notes give a groove its busy, rolling surface.
+- **in_infinite_flow:** Not built; style atlas research: the app has no loudness levels within a phrase; the funk entry lists ghost notes for the drums and the line (docs/music/styles/jazz-blues-soul.md).
+- **related:** `dynamics`, `groove`, `backbeat`, `articulation`
+- **sources:** docs/music/styles/jazz-blues-soul.md
+
+### Groove
+
+- **id:** `groove`
+- **aliases:** feel
+- **popup:** The repeating rhythmic feel that makes you want to move, mostly made by the drums and the bass together.
+- **definition:** A groove is the repeating rhythmic pattern and feel of a piece, the part that makes listeners tap their feet. It comes mostly from the drums and the bass playing together, and from details such as which beats are accented, how the beat is divided and whether the eighth notes swing. Musicians talk about "locking into" a groove when everyone shares the same feel.
+- **in_infinite_flow:** There is no groove part today: a session has a click and a count-in, but no drums. Drums are a candidate for v4.
+- **related:** `rhythm`, `backbeat`, `swing`, `beat`, `functional-layer`, `vamp`
+- **sources:** S127, S128
+
 ### Half note
 
 - **id:** `half-note`
@@ -545,6 +706,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** Note density sets the main note value, but longer notes such as half notes can still appear when the app joins two notes into one longer one.
 - **related:** `quarter-note`, `whole-note`, `dotted-note`, `control-note-density`
 - **sources:** S14, S8a
+
+### Hemiola
+
+- **id:** `hemiola`
+- **aliases:** none
+- **popup:** Two bars of three beats heard for a moment as three groups of two, a brief shift of the beat often heard at cadences.
+- **definition:** A hemiola regroups six equal beats: instead of two groups of three (two bars of 3/4), the accents fall as three groups of two. The music seems to slow and stretch for a moment, then the normal meter returns. Baroque dances such as the courante and the minuet often use a hemiola just before a cadence. The reverse, three-beat groups heard across a duple meter, also appears, for example in jazz.
+- **in_infinite_flow:** Not built; style atlas research: the app writes 4/4 only; the Baroque, waltz and jazz-waltz entries list hemiola as a rhythm manipulation (docs/music/styles/art-music.md, docs/music/styles/jazz-blues-soul.md).
+- **related:** `meter`, `strong-and-weak-beats`, `metric-displacement`, `cadence`, `waltz`
+- **sources:** S275, S273, docs/music/styles/art-music.md, docs/music/styles/jazz-blues-soul.md
 
 ### Meter
 
@@ -576,6 +747,26 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `beat`, `subdivision`, `syncopation`, `eighth-note`, `control-syncopation`
 - **sources:** S14, S8
 
+### One drop
+
+- **id:** `one-drop`
+- **aliases:** one-drop rhythm
+- **popup:** A reggae drum pattern that leaves beat 1 empty and lands the bass drum and snare together on beat 3.
+- **definition:** The one drop is the classic reggae drum pattern. The drummer leaves the first beat of the bar empty and plays the bass drum together with a rim-shot or snare on beat 3, with the hi-hat keeping steady eighths or a light shuffle. The empty downbeat and heavy third beat give reggae its laid-back, half-time feel. Variants called rockers and steppers add the bass drum on other beats.
+- **in_infinite_flow:** Not built; style atlas research: it would be a drum pattern for v4's planned drums, together with the offbeat skank (docs/music/styles/popular-electronic-game.md).
+- **related:** `backbeat`, `downbeat`, `groove`, `skank`
+- **sources:** S351, S350, docs/music/styles/popular-electronic-game.md
+
+### Phasing
+
+- **id:** `phasing`
+- **aliases:** phase music, phase shifting
+- **popup:** Two players repeat the same short figure, one slowly pulling ahead, so the two copies drift apart and form new patterns.
+- **definition:** Phasing is a technique of minimalist music. Two players (or two tape loops) start a short repeated figure together; one gradually moves ahead until the copies are one note apart, then two, and so on, until they line up again. The shifting overlaps create rhythms and melodies neither part plays alone. Steve Reich's Piano Phase (1967) uses a twelve-note figure this way. A simpler variant shifts the figure by inserting or removing a note.
+- **in_infinite_flow:** Not built; style atlas research: the minimalism entry proposes phase steps as a manipulation of a repeated figure (docs/music/styles/art-music.md).
+- **related:** `additive-process`, `riff`, `metric-displacement`, `imitation`
+- **sources:** S291, S292, S115, docs/music/styles/art-music.md
+
 ### Quantize
 
 - **id:** `quantize`
@@ -606,6 +797,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `beat`, `meter`, `rest`, `syncopation`, `control-note-density`, `control-rhythmic-variety`
 - **sources:** S14, S15, S8a
 
+### Shuffle
+
+- **id:** `shuffle`
+- **aliases:** shuffle rhythm, shuffle feel
+- **popup:** A rolling long-short rhythm, close to the first and last notes of a triplet, that drives much blues and early rock and roll.
+- **definition:** A shuffle splits each beat into a long note and a short one, close to the first and last notes of a three-note triplet (a triplet quarter plus a triplet eighth). It is a strong, bouncy form of swing, often played by the whole band at once: drums, bass, guitar and piano. The shuffle is the typical beat of the blues and of boogie-woogie, and it carried over into rhythm and blues before early rock and roll straightened it.
+- **in_infinite_flow:** Not built; style atlas research: the app's swing control lengthens the first eighth of a pair, which approaches a shuffle in the line; a shuffled backing needs v4's accompaniment (docs/music/styles/jazz-blues-soul.md).
+- **related:** `swing`, `eighth-note`, `subdivision`, `compound-meter`, `twelve-bar-blues`, `boogie-woogie`
+- **sources:** S317, S313, S336, docs/music/styles/jazz-blues-soul.md
+
 ### Sixteenth note
 
 - **id:** `sixteenth-note`
@@ -615,6 +816,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** "Sixteenth" is the busiest Note density option. The sixteenth note is also the app's smallest unit of time: every measure has 16 sixteenth-note ticks.
 - **related:** `eighth-note`, `quarter-note`, `subdivision`, `tick`, `control-note-density`
 - **sources:** S14, S8a
+
+### Stop time
+
+- **id:** `stop-time`
+- **aliases:** stop-time breaks, stop chorus
+- **popup:** The band plays only short hits on chosen beats, often the first of each bar, while the soloist keeps going in between.
+- **definition:** In stop time the accompaniment stops playing continuously and plays only short, sharp hits on chosen beats, usually the first beat of each bar or of every other bar, while the singer or soloist continues through the gaps. It is common in blues, early jazz and rock and roll, often in the first bars of a verse. A full stop of a bar or two, with the soloist alone, is a break.
+- **in_infinite_flow:** Not built; style atlas research: the research proposes a stop-time-and-breaks capability for the accompaniment (docs/music/styles/jazz-blues-soul.md).
+- **related:** `break`, `accompaniment`, `stab`, `rest`
+- **sources:** docs/music/styles/jazz-blues-soul.md
 
 ### Strong and weak beats
 
@@ -656,6 +867,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `offbeat`, `strong-and-weak-beats`, `tie`, `control-syncopation`
 - **sources:** S8, S14, S15
 
+### Tala
+
+- **id:** `tala`
+- **aliases:** taal, tāla
+- **popup:** An Indian rhythmic cycle with a fixed number of beats, grouped in sections, such as teental with 16 beats.
+- **definition:** A tala is a rhythmic cycle in Indian classical music: a fixed number of beats, divided into sections, that repeats throughout a piece. Teental, the most common Hindustani tala, has 16 beats grouped 4+4+4+4; its first beat (sam) is the strongest, and one section (khali, "empty") is marked by a wave of the hand rather than a clap. Carnatic music has its own talas, such as adi with 8 beats. Musicians aim to land phrases on sam.
+- **in_infinite_flow:** Not built; style atlas research: a tala cycle would be a long rhythmic frame; the raga entry can only sketch it within the app's short phrases (docs/music/styles/folk-and-world.md).
+- **related:** `meter`, `raga`, `downbeat`, `aksak`
+- **sources:** S402, S85, docs/music/styles/folk-and-world.md
+
 ### Tempo
 
 - **id:** `tempo`
@@ -665,6 +886,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** The app counts the quarter note as the beat. The Tempo control sets the value.
 - **related:** `beat`, `meter`, `control-tempo`
 - **sources:** S14, S15
+
+### The One
+
+- **id:** `the-one`
+- **aliases:** on the one
+- **popup:** Funk's heavy accent on the first beat of the bar, where the whole band hits together.
+- **definition:** In funk, "the One" is the first beat of the bar, which James Brown's bands stressed far more heavily than the backbeat on 2 and 4 that rhythm and blues favoured. Bass, drums and horns hit it together; between those hits, interlocking parts (often in sixteenth notes) leave plenty of space. Musicians talk about being "on the one" when the whole groove locks to that beat.
+- **in_infinite_flow:** Not built; style atlas research: the funk entry asks for a strong downbeat accent in the drums and the bass (docs/music/styles/jazz-blues-soul.md).
+- **related:** `downbeat`, `strong-and-weak-beats`, `groove`, `backbeat`
+- **sources:** S334, S335, docs/music/styles/jazz-blues-soul.md
 
 ### Time signature
 
@@ -676,6 +907,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `meter`, `beat`, `measure`, `quarter-note`
 - **sources:** S14, S15, S8a
 
+### Timeline
+
+- **id:** `timeline`
+- **aliases:** timeline pattern, bell pattern, standard pattern
+- **popup:** A fixed rhythm, often played on a bell, repeated without change so that every other part can line up with it.
+- **definition:** A timeline is a short rhythm repeated throughout a piece without change, usually by a bell or sticks, that the other players use as their reference. West African music is built on such patterns, such as the seven-stroke "standard pattern" spread over twelve quick pulses; the Cuban clave is another timeline. Many timelines spread their strokes as evenly as possible over the cycle, which lets a computer generate them with a simple rule (Euclidean rhythms).
+- **in_infinite_flow:** Not built; style atlas research: the research proposes stored timelines (clave, bell pattern, tresillo) as a shared rhythm capability (docs/music/styles/folk-and-world.md).
+- **related:** `clave`, `tresillo`, `rhythm`, `groove`
+- **sources:** S394, S380, S387, docs/music/styles/folk-and-world.md
+
 ### Trading fours
 
 - **id:** `trading-fours`
@@ -684,6 +925,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **definition:** Trading fours is a jazz habit in which players take turns improvising solos of four measures each, often a soloist alternating with the drummer. Each answer can echo or contrast the one before. The length varies: players also trade eights, twos, single measures or whole choruses. Nobody signals the change of turn: everyone counts the measures, so the form itself hands over the turn.
 - **related:** `call-and-response`, `measure`, `phrase`
 - **sources:** S81, S84
+
+### Tresillo
+
+- **id:** `tresillo`
+- **aliases:** 3+3+2, three-three-two
+- **popup:** A rhythm cell of three notes over eight quick pulses, grouped 3+3+2; heard in Cuban music, tango, pop and rock.
+- **definition:** The tresillo ("little triplet" in Spanish) places three notes on eight quick pulses, at positions 1, 4 and 7, so the gaps measure 3+3+2. It is the first half of the son clave and the basis of the habanera rhythm, and it runs through Latin American music, tango and much pop music, where it is often felt as a pushed, syncopated eighth-note pattern.
+- **in_infinite_flow:** Not built; style atlas research: the tresillo would be a stored rhythm cell or timeline (docs/music/styles/folk-and-world.md).
+- **related:** `clave`, `timeline`, `syncopation`, `tumbao`
+- **sources:** S387, S386, S380, docs/music/styles/folk-and-world.md
 
 ### Whole note
 
@@ -697,6 +948,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 
 ## Melody
 
+### AABA form
+
+- **id:** `aaba-form`
+- **aliases:** 32-bar form, thirty-two-bar form, song form
+- **popup:** A song form of four eight-bar sections: a tune (A) played twice, a contrasting bridge (B), then the tune again.
+- **definition:** AABA form is the classic layout of American popular songs and jazz standards. It has four sections, usually eight bars each, so 32 bars in all: the main tune (A), the tune again (A), a contrasting middle section called the bridge (B), and the tune a last time (A). The bridge often moves to another key or chord area. Jazz musicians play the whole form as one chorus and repeat it for each solo.
+- **in_infinite_flow:** Not built; style atlas research: the app writes one four-bar phrase at a time, so a style's form beyond four bars is an open question of the research (docs/music/styles/jazz-blues-soul.md).
+- **related:** `phrase`, `head`, `rhythm-changes`, `strain`
+- **sources:** S324, docs/music/styles/jazz-blues-soul.md
+
 ### Accented passing tone
 
 - **id:** `accented-passing-tone`
@@ -706,6 +967,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** The generator can write one by chance, but never aims for it: it ranks other notes first on beat 1 and at a chord change. v3.1 gives it a figure level of its own, separate from the plain passing tone's because it sounds much tenser (spec decision D233; planned, not built).
 - **related:** `passing-tone`, `non-chord-tone`, `strong-and-weak-beats`, `appoggiatura`
 - **sources:** S25, src/domain/pitch/pitch-ranking.ts, docs/music/embellishment-catalogue.md
+
+### Additive process
+
+- **id:** `additive-process`
+- **aliases:** additive technique
+- **popup:** Changing a repeated figure slowly by adding a note (or later removing one) at each repetition.
+- **definition:** An additive process is a minimalist technique: a short figure is repeated many times, and at regular points one note is added to it, so it grows step by step; later, notes may be taken away again. Philip Glass built his pieces of 1969 on this idea. The listener follows the slow change because everything else stays the same.
+- **in_infinite_flow:** Not built; style atlas research: the minimalism entry proposes it as a manipulation of a repeated figure (docs/music/styles/art-music.md).
+- **related:** `phasing`, `riff`, `motivic-development`, `sequence`
+- **sources:** S293, S115, docs/music/styles/art-music.md
 
 ### Appoggiatura
 
@@ -744,7 +1015,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **popup:** Music as a conversation: one musician plays a phrase, and another answers it.
 - **definition:** Call and response makes music as a dialogue. One player, singer or group offers a phrase (the call) and another answers it (the response), echoing it, varying it or completing it. It is rooted in African musical traditions, where a leader's call organizes a group, and it runs through blues, gospel, jazz, soul and hip hop. In classical music the same idea between groups of players is called antiphony, and jazz musicians "trade" short solos in the same spirit.
 - **in_infinite_flow:** Jam, planned for v3.2 (not built), works this way: the player's doodle is the call and the generated phrases answer it. The endgame vision describes fights as exchanges of short phrases. Inside one phrase, the rhythm plan's gesture and answer is a small, rhythm-only cousin of the idea.
-- **related:** `gesture-and-answer`, `phrase`, `motif`, `trading-fours`, `riff`
+- **related:** `gesture-and-answer`, `phrase`, `motif`, `trading-fours`, `riff`, `imitation`, `fill`
 - **sources:** S52, S80, S57, specs/vision/endgame.md, docs/music/rhythm-phrase-structure.md
 
 ### Chord tone
@@ -827,6 +1098,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `non-chord-tone`, `neighbor-tone`, `appoggiatura`, `step`, `leap`
 - **sources:** S19, S25
 
+### Fortspinnung
+
+- **id:** `fortspinnung`
+- **aliases:** spinning out
+- **popup:** German for "spinning out": a Baroque way of growing a melody from one short idea by sequences and variation.
+- **definition:** Fortspinnung is a Baroque way of building a melody. An opening idea is stated, then "spun out": repeated on other notes in a sequence, varied and extended, until the phrase arrives at a cadence. Many Bach and Vivaldi movements follow this opening, spinning-out and cadence shape instead of the balanced four-bar question and answer of the later Classical style.
+- **in_infinite_flow:** Not built; style atlas research: the Baroque entry asks for a stored motif spun out by sequence (docs/music/styles/art-music.md).
+- **related:** `motif`, `sequence`, `motivic-development`, `cadence`, `sentence`
+- **sources:** S109, S110, docs/music/styles/art-music.md
+
 ### Fragmentation
 
 - **id:** `fragmentation`
@@ -843,7 +1124,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** head in, head out, the tune
 - **popup:** In jazz, the tune's main melody, played at the start and again at the end, with solos in between.
 - **definition:** In jazz the head is the main theme of a tune: its melody over its chords. A typical performance plays the head once ("head in"), then lets players improvise solos over the same chords, then plays the head again to finish ("head out"). At a jam session, a player patting the top of their head is asking the band to go back to the head.
-- **related:** `melody`, `chord-progression`, `riff`, `lick`
+- **related:** `melody`, `chord-progression`, `riff`, `lick`, `arrangement`
 - **sources:** S83, S84
 
 ### Leap
@@ -863,8 +1144,8 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **popup:** A short tune tied to a character, place or idea, so that hearing it brings them to mind.
 - **definition:** A leitmotif is a motif linked to something outside the music: a person, a place, an object or a feeling. Each time it returns, sometimes changed in key, rhythm or speed, the listener is reminded of what it stands for. Opera and film scores use leitmotifs heavily, and so do many video game soundtracks, where a hero or a villain has their own short tune.
 - **in_infinite_flow:** The endgame vision gives each character "a signature motif or gimmick": a leitmotif in musical terms. Nothing in the app uses it yet.
-- **related:** `motif`, `melody`, `phrase`
-- **sources:** S82, specs/vision/endgame.md
+- **related:** `motif`, `melody`, `phrase`, `theme`, `musical-identity`
+- **sources:** S82, S155, S157, S206, specs/vision/endgame.md
 
 ### Lick
 
@@ -874,6 +1155,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **definition:** A lick is a short melodic phrase that a player keeps in their vocabulary and reuses when improvising, often adapted to the chords of the moment. Players learn licks by copying other musicians, then mix and vary them. Unlike a riff, a lick is not usually repeated over and over to hold a song together; it is a phrase used once here and there.
 - **related:** `riff`, `motif`, `phrase`, `melody`
 - **sources:** S83
+
+### Melisma
+
+- **id:** `melisma`
+- **aliases:** melismatic
+- **popup:** Many notes sung on one syllable of text, as in the long flowing phrases of plainchant or gospel runs.
+- **definition:** A melisma is a group of several notes sung on a single syllable. Gregorian chant has plain (syllabic) chants with one note per syllable and ornate (melismatic) chants with long melismas, especially on words such as "Alleluia". Gospel, soul and pop singers also decorate a syllable with a quick run of notes.
+- **in_infinite_flow:** Not built; style atlas research: the app has no text, but a melismatic style would favour long stepwise runs (docs/music/styles/art-music.md).
+- **related:** `scale-run`, `ornament`, `gregorian-chant`, `phrase`
+- **sources:** S267, docs/music/styles/art-music.md
 
 ### Melodic inversion
 
@@ -955,6 +1246,26 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `neighbor-tone`, `non-chord-tone`, `chord-tone`, `step`, `accented-passing-tone`, `chromatic-passing-tone`
 - **sources:** S5, S4, S14, docs/music/embellishment-catalogue.md
 
+### Period
+
+- **id:** `period`
+- **aliases:** musical period, antecedent and consequent
+- **popup:** Two phrases that answer each other: the first ends open, the second, starting the same way, ends closed.
+- **definition:** A period is a pair of phrases that work as question and answer. The first (antecedent) ends on an open, unfinished-sounding cadence, often on the dominant; the second (consequent) starts with the same idea and ends with a closed cadence on the tonic. Classical-era melodies, such as many Mozart themes, are often built this way, usually as two four-bar phrases.
+- **in_infinite_flow:** Not built; style atlas research: every phrase the app writes ends open (spec decision D28), so a closed answer would need a style-scoped exception; the Classical entry asks for it (docs/music/styles/art-music.md).
+- **related:** `phrase`, `cadence`, `open-ending`, `sentence`, `gesture-and-answer`
+- **sources:** S45, docs/music/styles/art-music.md
+
+### Reciting tone
+
+- **id:** `reciting-tone`
+- **aliases:** tenor, recitation tone
+- **popup:** In plainchant, the one note that most of the words are sung on, with short formulas leading to and away from it.
+- **definition:** A reciting tone is the pitch on which a chant sings most of its text, repeating it for many syllables. Short melodic formulas lead up to it at the start and away from it at the end of each verse. In the church modes the reciting tone usually lies a fifth above the final note, or a sixth in some modes. In that sense it is also called the tenor or the dominant of the mode, an older meaning of "dominant" than the chord on the fifth degree.
+- **in_infinite_flow:** Not built; style atlas research: a chant style would favour one repeated pitch above the final (docs/music/styles/art-music.md).
+- **related:** `final`, `mode`, `gregorian-chant`, `pedal-point`
+- **sources:** S269, S268, docs/music/styles/art-music.md
+
 ### Register
 
 - **id:** `register`
@@ -962,7 +1273,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **popup:** The part of an instrument's range a passage uses: low, middle or high. The same tune sounds darker low and brighter high.
 - **definition:** Register means a zone of pitch, such as the low, middle or high part of an instrument or voice. The same melody moved to another register keeps its shape but changes color: darker and fuller low, brighter or more strained high. On wind instruments each register also feels different to play. Register is the zone in use; range is the full span an instrument can reach.
 - **in_infinite_flow:** Register is also an app control that picks a one-octave window of the instrument's range for the whole phrase. See the Register entry under App controls.
-- **related:** `control-register`, `instrument-range`, `octave`, `register-window`
+- **related:** `control-register`, `instrument-range`, `octave`, `register-window`, `register-spike`
 - **sources:** S15, S14
 
 ### Retardation
@@ -1002,17 +1313,27 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **popup:** A short catchy phrase repeated again and again, often the backbone of a song.
 - **definition:** A riff is a short melodic or rhythmic phrase that repeats many times in a row, so that it becomes the thing a listener remembers. Rock, blues, funk, jazz and Latin music all use riffs; swing-era big bands passed riffs back and forth between sections like a call and response. Classical music calls a figure repeated this way an ostinato.
 - **related:** `lick`, `motif`, `call-and-response`, `phrase`
-- **sources:** S83
+- **sources:** S83, S136
 
 ### Scale run
 
 - **id:** `scale-run`
-- **aliases:** scalar run, fill
+- **aliases:** scalar run
 - **popup:** A quick string of notes going straight up or down a scale.
 - **definition:** A scale run moves through several scale notes in a row by step, in one direction, usually in short notes. Many of its notes are outside the chord; they pass by so quickly that the ear hears the whole run as a sweep toward its last note. Players often use runs to fill a gap between two phrases. Over a C chord, C, D, E, F, G, A, B, C is a scale run.
 - **in_infinite_flow:** Partly possible: the generator can alternate chord and outside notes by step, but not place two outside notes in a row. Different from the internal term run, which means a three-note arpeggio.
-- **related:** `scale`, `step`, `passing-tone`, `run`, `sixteenth-note`
+- **related:** `scale`, `step`, `passing-tone`, `run`, `sixteenth-note`, `fill`
 - **sources:** S25, src/domain/pitch/pitch-figures.ts
+
+### Sentence
+
+- **id:** `sentence`
+- **aliases:** musical sentence
+- **popup:** A phrase made of a short idea, its repetition, then a faster, more continuous run to the cadence.
+- **definition:** A sentence is a common phrase plan of the Classical era. It opens with a short idea (often two bars), repeats or varies it, then continues with faster, fragmented and more continuous music that drives to a cadence. In an eight-bar sentence the proportions are often 2+2+4. Unlike a period, it is one phrase rather than a question and answer.
+- **in_infinite_flow:** Not built; style atlas research: the Classical entry proposes the sentence as planned material within a phrase (docs/music/styles/art-music.md).
+- **related:** `phrase`, `period`, `motif`, `fragmentation`, `cadence`
+- **sources:** S43, S45, docs/music/styles/art-music.md
 
 ### Sequence
 
@@ -1044,6 +1365,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `half-step`, `whole-step`, `skip`, `leap`, `passing-tone`
 - **sources:** S14, S15, S7
 
+### Strain
+
+- **id:** `strain`
+- **aliases:** none
+- **popup:** One section of a march or a ragtime piece, usually sixteen bars, often repeated before the next one starts.
+- **definition:** A strain is one self-contained section of a march or a rag, usually sixteen bars long and played twice. A typical rag strings several strains together, such as AABBACCDD, and the later ones (the trio) often move to the key a fourth higher (the subdominant). Marches use the same plan, sometimes with a loud, contrasting "dogfight" strain.
+- **in_infinite_flow:** Not built; style atlas research: the app writes four-bar phrases, so strains belong to the research's open question on longer forms (docs/music/styles/art-music.md, docs/music/styles/jazz-blues-soul.md).
+- **related:** `march`, `phrase`, `aaba-form`
+- **sources:** S319, S299, docs/music/styles/art-music.md, docs/music/styles/jazz-blues-soul.md
+
 ### Suspension
 
 - **id:** `suspension`
@@ -1053,6 +1384,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** Not written today: a tie may cross a chord change only on a note both chords share. Not among v3.1's figure levels, since it looks across a chord change (spec decision D233); later.
 - **related:** `retardation`, `tie`, `non-chord-tone`, `tension-and-resolution`, `strong-and-weak-beats`
 - **sources:** S22, S25
+
+### Theme
+
+- **id:** `theme`
+- **aliases:** main theme, character theme, theme transformation
+- **popup:** The main tune a piece is built on and keeps coming back to; a character theme is one tied to a character.
+- **definition:** A theme is a melody that a piece, or a whole film or game score, treats as its main material: it is stated clearly, then returns, often changed. A theme is usually longer than a motif and may be built from one or two motifs. When a theme comes back with a new harmony, instrument, tempo or mood but keeps its shape and rhythm, musicians speak of theme transformation: a hero's theme in a sad minor version, or a village tune re-orchestrated for night.
+- **in_infinite_flow:** Endgame groundwork, not built. The musical-identity research proposes that a character keep a "core" (its theme's contour and rhythm, its timbre) while the situation changes the "surface" (harmony, mode, tempo, accompaniment) (docs/music/musical-identity.md). The app cannot store or place a theme today.
+- **related:** `leitmotif`, `motif`, `melody`, `motivic-development`, `musical-identity`
+- **sources:** S206, S155, S212, S214, docs/music/musical-identity.md
 
 ### Transposition
 
@@ -1066,6 +1407,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 
 ## Harmony
 
+### Aeolian cadence
+
+- **id:** `aeolian-cadence`
+- **aliases:** Mario cadence, ♭VI–♭VII–I
+- **popup:** The chord ending ♭VI–♭VII–I (or i), rising by whole steps to the home chord; the triumphant close of many game themes.
+- **definition:** The Aeolian cadence moves from the chord on the lowered sixth degree to the chord on the lowered seventh and then to the tonic: in C, A-flat major, B-flat major, C. Both approach chords come from the minor (Aeolian) mode, so the ending sounds bold and modal rather than classical. Rock uses it, and when it ends on a major tonic it is nicknamed the "Mario cadence", after its use in Super Mario level-clear and victory music.
+- **in_infinite_flow:** Not built; style atlas research: the victory-fanfare and overworld entries ask for it as a stored cadence formula (docs/music/styles/popular-electronic-game.md).
+- **related:** `cadence`, `aeolian`, `modal-mixture`, `subtonic`, `fanfare`
+- **sources:** S338, S370, docs/music/styles/popular-electronic-game.md
+
 ### Altered chord
 
 - **id:** `altered-chord`
@@ -1075,6 +1426,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** Not used. Every chord is built from the selected collection, and v3.3's research proposes keeping it that way (docs/music/chord-research.md); altered dominants were deferred in v1 (D12).
 - **related:** `dominant-seventh-chord`, `chord-extension`, `extended-chord`, `chromatic`, `chord-symbol`
 - **sources:** S417, S428, S103
+
+### Andalusian cadence
+
+- **id:** `andalusian-cadence`
+- **aliases:** i–♭VII–♭VI–V
+- **popup:** A falling chord sequence of four chords, such as Am–G–F–E, typical of flamenco.
+- **definition:** The Andalusian cadence is a sequence of four chords stepping down: in A minor, A minor, G major, F major, E major (i–♭VII–♭VI–V). The bass falls by step and the last chord is major, which gives a strong pull back to A. Flamenco hears that final E major chord as its home, in a Phrygian-based mode; in other music it sounds like an open ending on the dominant.
+- **in_infinite_flow:** Not built; style atlas research: the flamenco entry asks for it as a stored progression (docs/music/styles/folk-and-world.md).
+- **related:** `chord-progression`, `cadence`, `phrygian`, `phrygian-dominant-scale`
+- **sources:** S382, S381, docs/music/styles/folk-and-world.md
 
 ### Avoid note
 
@@ -1163,7 +1524,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **popup:** A short name for a chord, like C, Dm or G7. The letter is the chord's main note; the rest tells its flavor.
 - **definition:** A chord symbol is shorthand for a chord, written above the staff in lead sheets and in jazz and pop charts. It starts with the root's letter name, then adds signs for the quality and any extra notes: "C" is C major, "Dm" D minor, "Bdim" B diminished, "G7" a G dominant seventh. Players read them to know the harmony without every note being written out.
 - **in_infinite_flow:** The app shows one chord symbol at each chord change, transposed into your instrument's written pitch like the notes. Only triad symbols appear: major (C), minor (Dm) and diminished (Bdim).
-- **related:** `chord`, `chord-quality`, `root`, `written-pitch`, `triad`
+- **related:** `chord`, `chord-quality`, `root`, `written-pitch`, `triad`, `lead-sheet`
 - **sources:** S14, ui_ux/screens/phrase-workspace/handoff.md
 
 ### Chromatic
@@ -1175,6 +1536,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** Today Neutral phrases use no chromatic notes. Jazz adds exactly two chromatic melodic figures, the chromatic approach and the enclosure; its chords stay diatonic. From v3.1 (planned, not built; spec decision D233) those two figures get figure levels that any preset can turn on, so "Neutral is diatonic" becomes a property of Neutral's default levels, not a rule. Chords stay diatonic in every preset.
 - **related:** `diatonic`, `half-step`, `chromatic-approach`, `enclosure`, `accidental`, `control-figure-level`
 - **sources:** S14, S15, S4
+
+### Chromatic mediant
+
+- **id:** `chromatic-mediant`
+- **aliases:** third relation, chromatic third relation
+- **popup:** A chord a third away from another, borrowed from outside the key, giving a sudden, colourful shift.
+- **definition:** A mediant relation is a move between two chords whose roots are a third apart, such as C major to E major or C major to A-flat major. When one of the chords lies outside the key, the move is a chromatic mediant: it shares only one note (or none) with the first chord and sounds like a sudden change of light. Rare in Baroque and Classical music, it is common in Romantic music and in film scores.
+- **in_infinite_flow:** Not built; style atlas research: the Romantic and epic-film entries ask for it as a chord choice beyond the key (docs/music/styles/art-music.md).
+- **related:** `chord`, `chromatic`, `modal-mixture`, `chord-progression`
+- **sources:** S283, S282, docs/music/styles/art-music.md
 
 ### Diatonic
 
@@ -1216,6 +1587,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `dominant`, `seventh-chord`, `twelve-bar-blues`, `mixolydian`, `chord-symbol`
 - **sources:** S430, S416, S420
 
+### Double plagal
+
+- **id:** `double-plagal`
+- **aliases:** double plagal cadence, ♭VII–IV–I
+- **popup:** The rock progression ♭VII–IV–I, two "four to one" steps in a row, as in D–A–E in the key of E.
+- **definition:** The double plagal progression goes from the chord on the lowered seventh degree to the chord on the fourth, then to the tonic: in C, B-flat major, F major, C major. Each step moves the same way as the plagal cadence IV–I (down a fourth or up a fifth), so it is "plagal twice". It is a hallmark of classic rock and also appears in gospel.
+- **in_infinite_flow:** Not built; style atlas research: the classic-rock entry asks for it as a stored progression (docs/music/styles/popular-electronic-game.md).
+- **related:** `plagal-cadence`, `subtonic`, `modal-mixture`, `chord-progression`
+- **sources:** S338, S341, S312, docs/music/styles/popular-electronic-game.md
+
 ### Extended chord
 
 - **id:** `extended-chord`
@@ -1225,6 +1606,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** Not used. v3.3 (planned, not built; D261) may allow seventh chords first; extended chords would come later, behind their own flag.
 - **related:** `chord-extension`, `seventh-chord`, `chord`, `altered-chord`
 - **sources:** S437, S417, S425
+
+### Galant schema
+
+- **id:** `galant-schema`
+- **aliases:** schema, partimento schema, Prinner
+- **popup:** A stock pattern of melody and bass used again and again by 18th-century composers, such as the Prinner.
+- **definition:** Galant schemas are short, standard pairings of a melody line and a bass line that 18th-century composers learned as stock patterns and reused in many pieces. The Prinner, for example, has the melody fall 6–5–4–3 (scale degrees) over a bass falling 4–3–2–1, and often answers an opening idea. Recognising schemas helps explain why music of that era sounds so consistent.
+- **in_infinite_flow:** Not built; style atlas research: the Classical entry proposes schemas as planned material for melody and backing (docs/music/styles/art-music.md).
+- **related:** `chord-progression`, `scale-degree`, `cadence`, `sentence`
+- **sources:** S279, docs/music/styles/art-music.md
 
 ### Half-diminished seventh chord
 
@@ -1286,6 +1677,76 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `seventh-chord`, `major-seventh-chord`, `dorian`, `chord-quality`, `chord-symbol`
 - **sources:** S416, S429, S105
 
+### Modal mixture
+
+- **id:** `modal-mixture`
+- **aliases:** mode mixture, borrowed chord, borrowing
+- **popup:** Borrowing a chord from the parallel key, such as a minor iv or a ♭VI in a major key.
+- **definition:** Modal mixture means using, in one key, chords that belong to its parallel key (the other mode on the same tonic). In C major the most common borrowed chords come from C minor: F minor (iv), A-flat major (♭VI) and B-flat major (♭VII). They add shade and drama without leaving the key. Mixture is more common in major keys; Romantic composers, film scores and rock all use it.
+- **in_infinite_flow:** Not built; style atlas research: the Romantic, film and rock entries ask for borrowed chords as a harmony capability (docs/music/styles/art-music.md, docs/music/styles/popular-electronic-game.md).
+- **related:** `parallel-keys`, `chromatic`, `chromatic-mediant`, `subtonic`, `picardy-third`
+- **sources:** S281, S338, docs/music/styles/art-music.md, docs/music/styles/popular-electronic-game.md
+
+### Parallel fifths and octaves
+
+- **id:** `parallel-fifths-and-octaves`
+- **aliases:** consecutive fifths, consecutive octaves, parallel perfect intervals
+- **popup:** Two separate parts moving together a fifth or an octave apart. Classical writing avoids it because the two parts blend into one.
+- **definition:** Parallel fifths (or octaves) happen when two parts that are a fifth (or an octave) apart both move to new notes that are again a fifth (or an octave) apart. These intervals blend so well that the two parts stop sounding independent, so classical part-writing avoids them between independent parts. Elsewhere they are normal: rock power chords are parallel fifths, and doubling a melody in octaves is standard orchestration.
+- **in_infinite_flow:** Not built. The v4 research proposes the rule only between parts meant to be independent, such as the player's line and a counter-melody, never inside a doubling or a chord.
+- **related:** `interval`, `octave`, `doubling`, `types-of-motion`, `voice-leading`
+- **sources:** S145, S147
+
+### Passing chord
+
+- **id:** `passing-chord`
+- **aliases:** chromatic passing chord
+- **popup:** A quick chord slipped between two main chords to make the move from one to the other smoother.
+- **definition:** A passing chord connects two more important chords, usually so that the bass or an inner part can move by step between them. It is brief and weakly placed in the bar; the ear hears it as a bridge rather than a destination. Gospel and jazz pianists often insert chromatic passing chords, a half step away from the next chord.
+- **in_infinite_flow:** Not built; style atlas research: the gospel and bebop entries propose inserting passing chords between template chords (docs/music/styles/jazz-blues-soul.md).
+- **related:** `chord`, `passing-tone`, `chord-progression`, `chromatic`
+- **sources:** docs/music/styles/jazz-blues-soul.md
+
+### Picardy third
+
+- **id:** `picardy-third`
+- **aliases:** tierce de Picardie
+- **popup:** A major tonic chord ending a piece or section in a minor key, giving a sudden brightness at the close.
+- **definition:** A Picardy third is the use of a major tonic chord for the last chord of a passage in a minor key or a minor-sounding mode: a piece in A minor ending on A major. The raised third brightens the final moment. It was common in the Renaissance and Baroque, for example at the close of many Bach chorales in minor.
+- **in_infinite_flow:** Not built; style atlas research: the app's phrases always end open (spec decision D28), so the closed endings of chorales are a stated loss; a style-scoped exception would allow it (docs/music/styles/art-music.md).
+- **related:** `cadence`, `tonic`, `minor`, `modal-mixture`, `chorale`
+- **sources:** S306, docs/music/styles/art-music.md
+
+### Plagal cadence
+
+- **id:** `plagal-cadence`
+- **aliases:** Amen cadence, IV–I
+- **popup:** The chord ending IV–I, the "Amen" at the end of hymns; common in gospel and blues.
+- **definition:** A plagal cadence moves from the chord on the fourth degree to the tonic: in C, F major to C major. It sounds softer than the dominant-to-tonic ending and is known as the "Amen" cadence because hymns traditionally set the final "Amen" to it. Gospel and blues use IV–I often, also in the middle of sections; a minor plagal cadence (iv–I) borrows a minor iv chord.
+- **in_infinite_flow:** Not built; style atlas research: the gospel, hard-bop and blues entries ask for IV–I endings; every phrase the app writes ends open today (spec decision D28) (docs/music/styles/jazz-blues-soul.md).
+- **related:** `cadence`, `predominant`, `tonic`, `double-plagal`, `open-ending`
+- **sources:** S330, S312, docs/music/styles/jazz-blues-soul.md
+
+### Planing
+
+- **id:** `planing`
+- **aliases:** parallel harmony, parallel chords
+- **popup:** Moving a whole chord shape up or down note for note, so every voice moves in parallel.
+- **definition:** Planing moves a chord shape in parallel: every note slides by the same interval, so a stack of notes glides up or down as a block. It ignores the usual rule that voices should move independently, and it weakens the sense of chord progression in favour of colour. Debussy and other Impressionist composers used it often; it is also common in jazz and film music.
+- **in_infinite_flow:** Not built; style atlas research: the Impressionism entry asks for planed chords in the backing (docs/music/styles/art-music.md).
+- **related:** `types-of-motion`, `parallel-fifths-and-octaves`, `voicing`, `chord`
+- **sources:** S286, S284, docs/music/styles/art-music.md
+
+### Power chord
+
+- **id:** `power-chord`
+- **aliases:** fifth chord, 5 chord
+- **popup:** A two-note guitar chord of a root and the fifth above it, with no third, so it is neither major nor minor.
+- **definition:** A power chord sounds only the root and the fifth (often with the root doubled an octave higher), leaving out the third that would make the chord major or minor. Written C5, it is the basic chord of rock, punk and metal guitar. With heavy distortion, a full triad sounds muddy, while the plain fifth stays clear and powerful.
+- **in_infinite_flow:** Not built; style atlas research: the rock, punk and metal entries ask for fifth-only chords in the backing (docs/music/styles/popular-electronic-game.md).
+- **related:** `chord`, `chord-quality`, `interval`, `triad`
+- **sources:** S339, S341, S343, docs/music/styles/popular-electronic-game.md
+
 ### Predominant
 
 - **id:** `predominant`
@@ -1295,6 +1756,36 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** In tonal music, a predominant is a diatonic chord function that leads away from tonic toward dominant motion. In the app's Major and Minor plans, Gentle and Active motion often place a predominant chord (ii or IV; in Minor, ii-diminished or iv) in measure 2 or 3, before the final degree-5 chord.
 - **related:** `tonic`, `dominant`, `harmonic-function`, `chord-progression`
 - **sources:** S2, S14, docs/music/harmony-planner-policy.md
+
+### Quartal harmony
+
+- **id:** `quartal-harmony`
+- **aliases:** quartal chord, quartal voicing, chord in fourths, So What chord
+- **popup:** Chords built from stacked fourths instead of thirds, sounding open and modern.
+- **definition:** Most Western chords stack thirds (C–E–G). Quartal harmony stacks fourths instead (D–G–C–F), which gives an open, unresolved sound without a clear major or minor quality, and any note of the chord can act as its root. 20th-century composers and modal jazz pianists use it; the "So What chord" from Miles Davis's tune is three fourths topped by a third.
+- **in_infinite_flow:** Not built; style atlas research: the neoclassical and modal-jazz entries ask for quartal voicings in the backing (docs/music/styles/art-music.md, docs/music/styles/jazz-blues-soul.md).
+- **related:** `chord`, `voicing`, `triad`, `interval`
+- **sources:** S296, S324, docs/music/styles/art-music.md, docs/music/styles/jazz-blues-soul.md
+
+### Quick change
+
+- **id:** `quick-change`
+- **aliases:** quick four, quick-change blues
+- **popup:** A twelve-bar blues that moves to the IV chord in bar 2 and back to I in bar 3, instead of staying on I for four bars.
+- **definition:** In the standard twelve-bar blues the first four bars stay on the tonic (I). The quick change replaces bar 2 with the IV chord, then returns to I for bars 3 and 4. The early move to IV adds variety to the opening line and is very common in blues and jazz blues.
+- **in_infinite_flow:** Not built; style atlas research: the Chicago-blues entry asks for it as a variant of a twelve-bar plan (docs/music/styles/jazz-blues-soul.md).
+- **related:** `twelve-bar-blues`, `predominant`, `turnaround`
+- **sources:** S309, docs/music/styles/jazz-blues-soul.md
+
+### Rhythm changes
+
+- **id:** `rhythm-changes`
+- **aliases:** I Got Rhythm changes
+- **popup:** The chord progression of Gershwin's "I Got Rhythm", reused for countless jazz tunes in AABA form.
+- **definition:** Rhythm changes are the chords of George Gershwin's song "I Got Rhythm" (1930). Jazz musicians wrote many new melodies over them, so "rhythm changes" became, with the twelve-bar blues, one of the two most common forms in jazz. It is a 32-bar AABA form: the A sections cycle quickly around the tonic (I–vi–ii–V and similar), and the bridge moves through a chain of dominant seventh chords.
+- **in_infinite_flow:** Not built; style atlas research: the bebop entry lists it with the open question of forms longer than four bars (docs/music/styles/jazz-blues-soul.md).
+- **related:** `aaba-form`, `chord-progression`, `twelve-bar-blues`, `two-five-one`
+- **sources:** docs/music/styles/jazz-blues-soul.md
 
 ### Roman numeral
 
@@ -1336,6 +1827,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `seventh-chord`, `major-seventh-chord`, `minor-seventh-chord`, `chord-inversion`, `chord-symbol`
 - **sources:** S435, S426, S421, S112
 
+### Subtonic
+
+- **id:** `subtonic`
+- **aliases:** ♭VII, flat seven chord
+- **popup:** The note or chord a whole step below the tonic, written ♭VII; common in rock, folk and modal music.
+- **definition:** In a major key the seventh note is a half step below the tonic and is called the leading tone. When it is lowered to a whole step below, as in the Mixolydian mode or natural minor, it is called the subtonic. The chord built on it, ♭VII (B-flat major in C), is common in rock, folk and game music, where it often replaces the dominant (V) before the tonic.
+- **in_infinite_flow:** Not built; style atlas research: several rock and game-music entries ask for ♭VII in the progression templates (docs/music/styles/popular-electronic-game.md).
+- **related:** `scale-degree`, `mixolydian`, `aeolian`, `dominant`, `double-plagal`, `aeolian-cadence`
+- **sources:** S338, S341, docs/music/styles/popular-electronic-game.md
+
 ### Suspended chord
 
 - **id:** `suspended-chord`
@@ -1376,6 +1877,26 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `chord`, `root`, `chord-quality`, `seventh-chord`, `diatonic`
 - **sources:** S14, S15
 
+### Tritone substitution
+
+- **id:** `tritone-substitution`
+- **aliases:** tritone sub, tritone substitute
+- **popup:** In jazz, replacing a dominant chord with another dominant chord a tritone (six half steps) away.
+- **definition:** A tritone substitution swaps a dominant seventh chord for the dominant seventh whose root lies a tritone away: D-flat7 in place of G7 before C. The two chords share their two most active notes (the third and the seventh, B and F), so the substitute still leads home, and the bass now slides down by a half step (D-flat to C). Bebop and later jazz use it constantly.
+- **in_infinite_flow:** Not built; style atlas research: the bebop entry proposes chord substitutions in the progression templates (docs/music/styles/jazz-blues-soul.md).
+- **related:** `dominant`, `seventh-chord`, `two-five-one`, `guide-tone`, `chromatic`
+- **sources:** S103, docs/music/styles/jazz-blues-soul.md
+
+### Turnaround
+
+- **id:** `turnaround`
+- **aliases:** turnback
+- **popup:** The last bar or two of a form, with chords that lead back to the start for the next time through.
+- **definition:** A turnaround is a short chord progression at the end of a section or form that leads back to its beginning instead of coming to rest. In a twelve-bar blues it fills bars 11 and 12, often moving to V so that the next chorus can start on I. In jazz the I–vi–ii–V turnaround is common. A band can also loop a turnaround to vamp before a song starts.
+- **in_infinite_flow:** Not built; style atlas research: the blues entries ask for it as a stored cadence formula; it fits the app's open endings (spec decision D28) (docs/music/styles/jazz-blues-soul.md).
+- **related:** `twelve-bar-blues`, `cadence`, `open-ending`, `vamp`, `quick-change`
+- **sources:** S309, docs/music/styles/jazz-blues-soul.md
+
 ### Twelve-bar blues
 
 - **id:** `twelve-bar-blues`
@@ -1386,15 +1907,45 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `chord-progression`, `seventh-chord`, `blue-note`, `call-and-response`, `blues-scale`
 - **sources:** S101, docs/music/harmony-planner-policy.md
 
+### Two-five-one
+
+- **id:** `two-five-one`
+- **aliases:** ii–V–I, ii-V-I, 2-5-1
+- **popup:** The basic jazz chord move: the chord on degree 2, then the dominant, then the home chord, as Dm7–G7–Cmaj7 in C.
+- **definition:** The two-five-one (ii–V–I) chains the chord on the second degree, the dominant and the tonic. In C major it is D minor 7, G7, C major 7; in minor it is usually a half-diminished ii, a dominant V and a minor i. Each root falls a fifth to the next, so the progression pulls strongly home. It is one of the most important progressions in jazz, and players practise it in every key.
+- **in_infinite_flow:** Not built; style atlas research: the bebop and swing entries ask for it as a progression template (docs/music/styles/jazz-blues-soul.md).
+- **related:** `chord-progression`, `predominant`, `dominant`, `tonic`, `seventh-chord`, `tritone-substitution`
+- **sources:** S308, docs/music/styles/jazz-blues-soul.md
+
+### Types of motion
+
+- **id:** `types-of-motion`
+- **aliases:** contrary motion, oblique motion, similar motion, parallel motion
+- **popup:** How two parts move against each other: in opposite directions, one holding while the other moves, or side by side.
+- **definition:** Between two parts there are four types of motion. In contrary motion they move in opposite directions. In oblique motion one part holds its note while the other moves. In similar motion both move the same way by different intervals, and in parallel motion both move the same way by the same interval. Contrary and oblique motion keep two lines sounding separate; parallel motion makes them sound like one thickened line.
+- **in_infinite_flow:** Not built. The v4 research suggests that a counter-melody prefer contrary and oblique motion against the player's line, while a doubling moves in parallel on purpose.
+- **related:** `voice-leading`, `counter-melody`, `parallel-fifths-and-octaves`, `parallel-thirds-and-sixths`, `polyphony`
+- **sources:** S144
+
 ### Vamp
 
 - **id:** `vamp`
-- **aliases:** groove, ostinato (for a repeated melodic figure)
+- **aliases:** ostinato (for a repeated melodic figure)
 - **popup:** A short chord pattern, often just one or two chords, repeated again and again under a solo.
 - **definition:** A vamp is a short pattern of one or two chords that keeps repeating, giving a soloist an open-ended bed to play over. Because the chords barely move, the mode or scale becomes the main color. A minor chord moving to a major chord a fourth higher, i to IV, is a classic Dorian vamp.
 - **in_infinite_flow:** Closest today: Static harmonic motion (one chord) or a modal Gentle plan, which returns home after one color chord. The backing does not loop a vamp across phrases.
-- **related:** `chord-progression`, `dorian`, `mode`, `control-harmonic-motion`, `riff`
+- **related:** `chord-progression`, `dorian`, `mode`, `control-harmonic-motion`, `riff`, `groove`
 - **sources:** S104, S105, docs/music/harmony-planner-policy.md
+
+### Voice leading
+
+- **id:** `voice-leading`
+- **aliases:** part-writing
+- **popup:** How each part moves from one note to the next as the chords change, ideally by small, smooth steps.
+- **definition:** Voice leading is how each single part moves as the harmony changes. Good voice leading keeps each part easy to follow: it moves by small steps, keeps shared notes where they are, does not cross another part and does not melt into another part. Many classical rules about it can be explained by how hearing sorts sounds into lines, which is why they still help when writing several parts in any style.
+- **in_infinite_flow:** Not built. The backing places each chord by its top note (the highest it can be at or below E4), not by a smooth move from the previous chord. The v4 research proposes a short minimum rule set for system voices (docs/music/arranging-and-roles.md).
+- **related:** `voice`, `voicing`, `types-of-motion`, `parallel-fifths-and-octaves`, `chord`, `step`
+- **sources:** S148, S144, S145, src/domain/backing/backing-renderer.ts
 
 ### Voicing
 
@@ -1417,6 +1968,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** Aeolian and Minor use the same seven notes but are planned differently: Minor follows the tonal chord cycle, while Aeolian uses the modal plan, whose color chords contain degree 6. On C, both show a three-flat key signature.
 - **related:** `minor`, `mode`, `ionian`, `dorian`, `control-collection`
 - **sources:** S14
+
+### Augmented second
+
+- **id:** `augmented-second`
+- **aliases:** none
+- **popup:** A gap of three half steps between two neighbouring scale notes, heard as one wide, exotic-sounding step.
+- **definition:** An augmented second spans three half steps, the same distance as a minor third, but it is written between neighbouring letter names, so it acts as one step of a scale: A-flat to B in C harmonic minor. That unusually wide step gives harmonic minor, the Phrygian dominant scale (klezmer's Freygish), maqam Hijaz and flamenco their distinctive colour.
+- **in_infinite_flow:** Not built; style atlas research: the klezmer, flamenco and maqam entries ask for scales that contain it (docs/music/styles/folk-and-world.md).
+- **related:** `interval`, `harmonic-minor`, `phrygian-dominant-scale`, `maqam`, `enharmonic`
+- **sources:** S378, docs/music/styles/folk-and-world.md
 
 ### Bebop scale
 
@@ -1488,6 +2049,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `minor`, `aeolian`, `scale`, `half-step`, `control-collection`
 - **sources:** S78, S14, docs/music/harmony-planner-policy.md
 
+### Hexatonic scale
+
+- **id:** `hexatonic-scale`
+- **aliases:** six-note scale, hexatonic
+- **popup:** A scale of six notes, for example a seven-note scale with one note left out.
+- **definition:** A hexatonic scale has six different notes in each octave. Some are well-known shapes of their own: the whole-tone scale (C D E F♯ G♯ A♯, every step a whole step) and the blues scale both have six notes. Others come from leaving one note out of a seven-note scale: A minor without its seventh note, G, gives A B C D E F. One step becomes wider, so the result sounds a little more open than its seven-note parent.
+- **in_infinite_flow:** Not available: the Collection control offers seven-note scales and modes only. The endgame research uses it for a character that "hates G" in A minor, whose own line would then use six notes (docs/music/musical-identity.md); endgame groundwork, not built.
+- **related:** `scale`, `pentatonic-scale`, `blues-scale`, `aeolian`, `control-collection`, `musical-identity`
+- **sources:** S241, docs/music/musical-identity.md
+
 ### Ionian
 
 - **id:** `ionian`
@@ -1497,6 +2068,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** Ionian is the default Collection. It has the same notes as Major but uses the app's modal plan (color chords containing degree 4) instead of the tonal chord cycle.
 - **related:** `major`, `mode`, `lydian`, `mixolydian`, `control-collection`
 - **sources:** S14
+
+### Jins
+
+- **id:** `jins`
+- **aliases:** ajnas, jins (plural ajnas)
+- **popup:** A group of three to five notes, the building block of an Arabic maqam.
+- **definition:** A jins (plural ajnas) is a small group of three to five neighbouring notes with a fixed pattern of steps, which may include a quarter tone. An Arabic maqam is built from two or more ajnas, one at the bottom and one or more above, and a melody often explores the lower jins first before climbing to the upper one. Swapping the upper jins is one way a performer changes maqam.
+- **in_infinite_flow:** Not built; style atlas research: a maqam sketch would treat ajnas as note groups the line moves through (docs/music/styles/folk-and-world.md).
+- **related:** `maqam`, `quarter-tone`, `scale`
+- **sources:** S397, S398, docs/music/styles/folk-and-world.md
 
 ### Key
 
@@ -1558,6 +2139,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `ionian`, `minor`, `scale`, `key`, `chord-quality`, `control-collection`
 - **sources:** S14
 
+### Maqam
+
+- **id:** `maqam`
+- **aliases:** makam, maqamat (plural)
+- **popup:** An Arabic melodic mode: a set of notes built from small groups, with its own path, focal notes and intonation.
+- **definition:** A maqam (plural maqamat) is the melodic system of Arabic music. Like a Western mode it has a set of notes, but it also carries habits: which note to start from, which notes to stress, how to move from the lower note group (jins) to the upper ones, and how to tune notes that fall between the piano keys. Hijaz, Rast and Bayati are among the best known. Performers often modulate from one maqam to another within a piece.
+- **in_infinite_flow:** Not built; style atlas research: the twelve-note generator can only approximate a maqam, rounding its quarter tones; Hijaz comes closest (docs/music/styles/folk-and-world.md).
+- **related:** `mode`, `jins`, `quarter-tone`, `phrygian-dominant-scale`, `raga`
+- **sources:** S397, S398, S399, docs/music/styles/folk-and-world.md
+
 ### Minor
 
 - **id:** `minor`
@@ -1587,6 +2178,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** The Collection control offers all seven modes by name. For them the app uses a modal plan built around each mode's color degree, instead of the tonal chord cycle used for Major and Minor.
 - **related:** `scale`, `ionian`, `dorian`, `phrygian`, `lydian`, `mixolydian`, `aeolian`, `locrian`, `characteristic-note`
 - **sources:** S14, S9
+
+### Octatonic scale
+
+- **id:** `octatonic-scale`
+- **aliases:** diminished scale, half-whole scale, whole-half scale
+- **popup:** An eight-note scale that alternates whole steps and half steps, giving a tense, symmetrical sound.
+- **definition:** The octatonic scale has eight notes per octave and alternates whole steps and half steps, for example C, D, E-flat, F, G-flat, A-flat, A, B. Because the pattern repeats every three half steps, there are only three different octatonic scales. Rimsky-Korsakov, Stravinsky and many film composers used it for strange or menacing colours; jazz players know it as the diminished scale.
+- **in_infinite_flow:** Not built; style atlas research: the Collection control offers seven-note scales only; the modernist and epic-film entries ask for it (docs/music/styles/art-music.md).
+- **related:** `scale`, `whole-tone-scale`, `hexatonic-scale`, `control-collection`
+- **sources:** S297, S285, docs/music/styles/art-music.md
 
 ### Parallel keys
 
@@ -1618,6 +2219,26 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `mode`, `aeolian`, `locrian`, `characteristic-note`, `control-collection`
 - **sources:** S14
 
+### Phrygian dominant scale
+
+- **id:** `phrygian-dominant-scale`
+- **aliases:** Freygish, Spanish Phrygian, Hijaz scale
+- **popup:** The Phrygian mode with a major third: 1, ♭2, 3, 4, 5, ♭6, ♭7. Called Freygish in klezmer and close to maqam Hijaz.
+- **definition:** The Phrygian dominant scale is the Phrygian mode with its third raised: on E, the notes E, F, G-sharp, A, B, C, D. The step from F to G-sharp is an augmented second, which gives the scale its strong, "Eastern" flavour. It is the fifth mode of harmonic minor. Klezmer calls it Freygish, Arabic music uses a closely related maqam Hijaz, and flamenco melodies over the Andalusian cadence often use it.
+- **in_infinite_flow:** Not built; style atlas research: the Collection control has no such scale yet; the klezmer, flamenco and maqam entries ask for it (docs/music/styles/folk-and-world.md).
+- **related:** `phrygian`, `harmonic-minor`, `augmented-second`, `maqam`, `andalusian-cadence`, `control-collection`
+- **sources:** S378, S377, docs/music/styles/folk-and-world.md
+
+### Raga
+
+- **id:** `raga`
+- **aliases:** rāga, raag
+- **popup:** An Indian melodic framework: allowed notes, important notes, typical phrases and ornaments, all together.
+- **definition:** A raga is the melodic framework of Indian classical music. It is more than a scale: it fixes which notes may be used going up and coming down, which notes are most important (vadi and samvadi), characteristic phrases (pakad) that identify it, and how notes are ornamented. Performers improvise within a raga for a long time, often over a rhythmic cycle (tala). Hindustani music groups ragas by parent scales called thaats.
+- **in_infinite_flow:** Not built; style atlas research: a seeded four-bar phrase can only sketch a raga: its note set, focal notes and a stored phrase or two (docs/music/styles/folk-and-world.md).
+- **related:** `mode`, `scale`, `tala`, `gamaka`, `maqam`, `characteristic-note`
+- **sources:** S401, S404, docs/music/styles/folk-and-world.md
+
 ### Relative keys
 
 - **id:** `relative-keys`
@@ -1648,6 +2269,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `tonic`, `dominant`, `roman-numeral`, `scale`, `open-ending`
 - **sources:** S14
 
+### Slendro and pelog
+
+- **id:** `slendro-and-pelog`
+- **aliases:** slendro, pelog, laras
+- **popup:** The two tuning families of Indonesian gamelan: slendro with five nearly equal steps, pelog with seven unequal ones.
+- **definition:** Gamelan music uses two tuning systems. Slendro divides the octave into five steps of nearly equal size; pelog has seven unequal steps, of which a piece usually uses a five-note subset. Neither matches the piano's twelve notes, and each gamelan set is tuned in its own way, so Western notation and piano versions are only approximations.
+- **in_infinite_flow:** Not built; style atlas research: the gamelan entry can only round these tunings to the nearest piano notes, a pentatonic sketch (docs/music/styles/folk-and-world.md).
+- **related:** `gamelan`, `pentatonic-scale`, `scale`, `quarter-tone`
+- **sources:** S410, docs/music/styles/folk-and-world.md
+
 ### Tonal center
 
 - **id:** `tonal-center`
@@ -1658,7 +2289,37 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `tonic`, `key`, `concert-pitch`, `written-pitch`, `control-written-key`
 - **sources:** S14
 
+### Whole-tone scale
+
+- **id:** `whole-tone-scale`
+- **aliases:** whole-tone collection
+- **popup:** A six-note scale made only of whole steps; it has no clear home note and sounds vague and dreamlike.
+- **definition:** The whole-tone scale divides the octave into six equal whole steps, for example C, D, E, F-sharp, G-sharp, A-sharp. Since every step is the same, no note stands out as home, and the only chords it contains are augmented triads. There are just two different whole-tone scales. Debussy used it for misty, floating passages, and film music uses it for dream sequences.
+- **in_infinite_flow:** Not built; style atlas research: the Collection control offers seven-note scales only; the Impressionism entry asks for it (docs/music/styles/art-music.md).
+- **related:** `scale`, `hexatonic-scale`, `octatonic-scale`, `whole-step`, `control-collection`
+- **sources:** S287, S285, docs/music/styles/art-music.md
+
 ## Styles
+
+### Boogie-woogie
+
+- **id:** `boogie-woogie`
+- **aliases:** boogie, boogie-woogie bass, eight to the bar
+- **popup:** A driving blues piano style with a repeated eighth-note bass pattern in the left hand, moved with the chords.
+- **definition:** Boogie-woogie is a blues piano style that became a craze in the late 1930s and the 1940s. The left hand plays a repeated eighth-note pattern ("eight to the bar"), usually on the twelve-bar blues, moving it to each new chord, while the right hand plays riffs and rhythmic figures above. Its energetic shuffle passed into rhythm and blues and early rock and roll.
+- **in_infinite_flow:** Not built; style atlas research: the boogie-woogie entry asks for the left-hand pattern as a stored bass figure (docs/music/styles/jazz-blues-soul.md).
+- **related:** `twelve-bar-blues`, `shuffle`, `riff`, `walking-bass`
+- **sources:** S318, docs/music/styles/jazz-blues-soul.md
+
+### Boom bap
+
+- **id:** `boom-bap`
+- **aliases:** none
+- **popup:** A hip-hop drum style with a hard kick ("boom") and a sharp snare ("bap") on beats 2 and 4, over a sampled loop.
+- **definition:** Boom bap is a style of hip-hop production named after its drum sound: a heavy kick drum ("boom") and a cracking snare on beats 2 and 4 ("bap"). Producers built beats from short loops sampled from vinyl records, with the drum machine's swing nudging off-beats late. It defined East Coast hip-hop of the late 1980s and 1990s.
+- **in_infinite_flow:** Not built; style atlas research: without drums and samples a melodic line gives only a hint of it; the style lives in v4's planned drums (docs/music/styles/popular-electronic-game.md).
+- **related:** `backbeat`, `groove`, `swing`
+- **sources:** S352, docs/music/styles/popular-electronic-game.md
 
 ### Bossa nova
 
@@ -1670,6 +2331,76 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `syncopation`, `swing`, `seventh-chord`, `anticipation`
 - **sources:** S112
 
+### Chiptune
+
+- **id:** `chiptune`
+- **aliases:** 8-bit music, chip music
+- **popup:** Music made with, or imitating, the sound chips of old game consoles and home computers: bleepy square waves and quick arpeggios.
+- **definition:** Chiptune is music made with the sound chips of early game consoles and computers, or in imitation of them. Those chips had very few channels and simple waveforms: the NES had two pulse waves, a triangle wave, a noise channel and a sample channel. Composers used fast arpeggios to suggest chords on one channel and looped short sections. The style is defined more by its sound than by any harmony.
+- **in_infinite_flow:** Not built; style atlas research: the chiptune entry needs pulse-wave timbres and fast arpeggios from v4's system voices; its melodies are close to what the app writes today (docs/music/styles/popular-electronic-game.md).
+- **related:** `pulse-wave`, `arpeggio`, `timbre`, `overworld-theme`
+- **sources:** S361, S362, S363, docs/music/styles/popular-electronic-game.md
+
+### Chorale
+
+- **id:** `chorale`
+- **aliases:** hymn tune, four-part chorale
+- **popup:** A hymn tune harmonised in four voices, usually one chord per melody note, as in Bach's chorales.
+- **definition:** A chorale is a Lutheran hymn tune. Composers such as J. S. Bach harmonised chorales for four voices (soprano, alto, tenor, bass), usually with a new chord on almost every note of the slow, steady melody, and with a clear cadence at the end of each line. Four-part chorale writing is still the standard exercise for learning harmony and voice leading.
+- **in_infinite_flow:** Not built; style atlas research: the chorale entry asks for four-part, one-chord-per-note backing and closed line endings (docs/music/styles/art-music.md).
+- **related:** `homophony`, `voice-leading`, `harmonic-rhythm`, `cadence`, `fermata`, `picardy-third`
+- **sources:** S304, S305, S143, docs/music/styles/art-music.md
+
+### Gamelan
+
+- **id:** `gamelan`
+- **aliases:** gamelan orchestra
+- **popup:** An Indonesian ensemble of tuned gongs, metallophones and drums, playing layered parts in long cycles.
+- **definition:** A gamelan is a traditional ensemble from Java and Bali, made mostly of tuned bronze gongs and metallophones, with drums and sometimes flutes, strings and voices. A core melody (balungan) is played in several versions at different speeds at once, while gongs of different sizes mark the cycle (colotomic structure). In Balinese gamelan, pairs of players split fast figures between them (kotekan, a kind of hocket).
+- **in_infinite_flow:** Not built; style atlas research: the twelve-note generator can only give a sketch, with rounded tunings and short cycles (docs/music/styles/folk-and-world.md).
+- **related:** `slendro-and-pelog`, `colotomic-structure`, `hocket`, `heterophony`
+- **sources:** S408, S409, S410, docs/music/styles/folk-and-world.md
+
+### Gregorian chant
+
+- **id:** `gregorian-chant`
+- **aliases:** plainchant, plainsong, chant
+- **popup:** The Roman Catholic Church's unaccompanied Latin song: one melody, no harmony and no fixed beat.
+- **definition:** Gregorian chant is the traditional sung prayer of the Roman Catholic Church, in Latin. It is monophonic: one melody, sung in unison, with no harmony or accompaniment, and it flows with the words rather than a regular beat (how its old notation was timed is still debated). Chants range from simple recitation on one note to long, ornate melismas, and they are organised in the eight church modes.
+- **in_infinite_flow:** Not built; style atlas research: the chant entry needs a free, unmetered line on a single voice; today's backing and 4/4 grid are its main losses (docs/music/styles/art-music.md).
+- **related:** `monophony`, `mode`, `final`, `reciting-tone`, `melisma`, `organum`
+- **sources:** S267, S268, S70, docs/music/styles/art-music.md
+
+### Jig
+
+- **id:** `jig`
+- **aliases:** double jig, single jig, slip jig
+- **popup:** An Irish or Scottish dance tune in 6/8, each beat split in three; the slip jig is in 9/8.
+- **definition:** A jig is a lively dance tune from Ireland and Scotland in a compound meter. The double jig, the most common, runs in 6/8 with steady groups of three eighth notes; the single jig mixes long-short (quarter-eighth) pairs; the slip jig is in 9/8, three beats per bar. Like a reel, a jig usually has two eight-bar parts, each played twice, decorated with cuts and rolls.
+- **in_infinite_flow:** Not built; style atlas research: the app cannot write 6/8 or 9/8 yet; the jig entry asks for a compound-meter capability (docs/music/styles/folk-and-world.md).
+- **related:** `compound-meter`, `reel`, `ornament`, `meter`
+- **sources:** S373, S108, docs/music/styles/folk-and-world.md
+
+### March
+
+- **id:** `march`
+- **aliases:** military march, march music
+- **popup:** Music for marching: a steady two- or four-beat pulse, crisp rhythms, brass and drums, in repeated sections called strains.
+- **definition:** A march is music for soldiers or a procession to walk to. It has a steady duple meter (2/4, 2/2, 4/4 or 6/8), often at about 120 beats per minute (funeral marches much slower), with crisp dotted rhythms, brass, woodwinds and snare drum. The form strings together repeated strains, with a trio that often moves to the subdominant key. The bass often plays "oom-pah": a low note on the beat, a chord off it.
+- **in_infinite_flow:** Not built; style atlas research: the march entry is close to what the app can do today in 4/4; it asks for an oom-pah backing and longer forms (docs/music/styles/art-music.md).
+- **related:** `strain`, `oom-pah`, `fanfare`, `meter`, `dotted-note`
+- **sources:** S299, S300, docs/music/styles/art-music.md
+
+### Polska
+
+- **id:** `polska`
+- **aliases:** none
+- **popup:** A Nordic couple dance in 3/4, often with beats of unequal length, played on fiddles.
+- **definition:** The polska is a couple dance from Sweden, Norway and Finland, in 3/4 time. Regional styles divide the beat differently: sixteenth-note, eighth-note and triplet polskas. Many are played with uneven beats, for example with the second beat arriving early, so the bar does not divide into three equal parts. Fiddles lead, sometimes with drone strings such as those of the Norwegian Hardanger fiddle.
+- **in_infinite_flow:** Not built; style atlas research: the app writes 4/4 only; the polska entry asks for 3/4 and, for the uneven beats, a microtiming capability (docs/music/styles/folk-and-world.md).
+- **related:** `meter`, `waltz`, `drone`, `swing`
+- **sources:** S376, docs/music/styles/folk-and-world.md
+
 ### Reel
 
 - **id:** `reel`
@@ -1680,7 +2411,431 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `eighth-note`, `phrase`, `mixolydian`, `dorian`, `ornament`, `built-in-preset`, `key-and-mode-restriction`
 - **sources:** S106, S107, S108, specs/versions/v3/presets.md
 
+### Waltz
+
+- **id:** `waltz`
+- **aliases:** valse, jazz waltz, Viennese waltz
+- **popup:** A dance in 3/4 with a strong first beat: a bass note on beat 1 and chords on beats 2 and 3.
+- **definition:** A waltz is a dance in triple meter (3/4), usually with one chord per bar: the bass plays the root on beat 1 and the upper notes of the chord follow on beats 2 and 3 ("oom-pah-pah"). Slow waltzes run at about 90 beats per minute; the Viennese waltz of the Strauss family is much faster, about 180. Jazz musicians also play swung "jazz waltzes" in 3/4.
+- **in_infinite_flow:** Not built; style atlas research: the app writes 4/4 only; the waltz and jazz-waltz entries ask for 3/4 and an oom-pah-pah backing (docs/music/styles/art-music.md, docs/music/styles/jazz-blues-soul.md).
+- **related:** `meter`, `oom-pah`, `hemiola`, `polska`
+- **sources:** S301, S302, S327, docs/music/styles/art-music.md, docs/music/styles/jazz-blues-soul.md
+
+## Style and identity
+
+### Fanfare
+
+- **id:** `fanfare`
+- **aliases:** flourish, victory fanfare
+- **popup:** A short, bright, festive burst of music, traditionally for trumpets, that announces someone or celebrates a victory.
+- **definition:** A fanfare is a short, brilliant flourish, traditionally played by trumpets and other brass, often with drums, to announce an important person or event. Fanfares tend to use the notes of a major chord, repeated notes and crisp rhythms, which brass instruments play easily and which sound bold. Video games borrowed the idea: many role-playing games play the same short victory fanfare after every won battle, until it becomes a signature of the series.
+- **in_infinite_flow:** Endgame groundwork, not built: the research proposes a victory event as a fixed fanfare-like stinger, the one place where exact repetition is the point (docs/music/musical-identity.md).
+- **related:** `stinger`, `arpeggio`, `leitmotif`, `musical-topic`
+- **sources:** S223, S210, docs/music/musical-identity.md
+
+### Idiolect
+
+- **id:** `idiolect`
+- **aliases:** personal style, personal voice
+- **popup:** One musician's personal style: the habits that make them recognisable inside a style they share with others.
+- **definition:** An idiolect is one person's own way of making music, a word borrowed from linguistics, where it means one person's way of speaking. Two bebop saxophonists share a style, yet each has favourite phrases, rhythms and sounds that let fans recognise them. Jazz players build an idiolect by learning stock phrases (licks) from others, then reshaping them into a voice of their own; a study of Charlie Parker's solos found that much of each solo was made of recurring patterns.
+- **in_infinite_flow:** Endgame groundwork, not built: the research reads a character's musical identity as an idiolect, personal habits layered over a style rather than a style of its own (docs/music/musical-identity.md, docs/music/generation-breadth-review.md).
+- **related:** `musical-style`, `lick`, `signature-figure`, `musical-identity`
+- **sources:** S196, S197, S198, S200, docs/music/musical-identity.md
+
+### Musical style
+
+- **id:** `musical-style`
+- **aliases:** dialect
+- **popup:** The recognisable habits shared by a group, a period or a place, such as bebop or Baroque music.
+- **definition:** A style is a set of musical habits that repeat often enough to be recognised: which scales and chords, which rhythms, which ornaments, which instruments. The music theorist Leonard B. Meyer described style as patterns that come from choices made within limits, and nested it in levels: the style of a period or culture, the dialect of a group or school inside it (French Baroque), one composer's own idiom, and the habits of a single piece. In everyday speech "idiom" often means a shared style too.
+- **in_infinite_flow:** The preset selector uses style names (Jazz today; Reel, Bebop and others planned for v3.1, see Built-in preset), but a preset only chooses settings within one fixed vocabulary, so it is not a style in full. Style packs and character identities are research proposals (docs/music/generation-breadth-review.md, docs/music/musical-identity.md); endgame groundwork, not built.
+- **related:** `idiolect`, `musical-topic`, `built-in-preset`, `musical-identity`, `reel`, `bossa-nova`
+- **sources:** S195, S196, S197, docs/music/generation-breadth-review.md, docs/music/musical-identity.md
+
+### Musical topic
+
+- **id:** `musical-topic`
+- **aliases:** topic, topos
+- **popup:** A musical type with an agreed meaning, such as horn calls for a hunt, or drones and a lilting rhythm for the countryside.
+- **definition:** A topic is a familiar musical type that listeners connect with a meaning. Music theorists first described topics in 18th-century music: the pastoral (drones, gentle lilting rhythms) suggests shepherds and countryside; the military (drums, fanfares) suggests soldiers; the hunt (horn calls) suggests hunting. Film and game music use topics too. A study of "winter" music in video games found it marked by heavy reverb, bell-like metallic sounds and arpeggios, not by major or minor mode.
+- **in_infinite_flow:** Endgame groundwork, not built: the research suggests a location's identity rests mostly on topic-like markers, its timbres, effects and texture, more than on its mode (docs/music/musical-identity.md).
+- **related:** `musical-style`, `timbre`, `audio-effect`, `drone`, `fanfare`
+- **sources:** S221, S222, docs/music/musical-identity.md
+
+### Overworld theme
+
+- **id:** `overworld-theme`
+- **aliases:** field theme, field music, overworld music
+- **popup:** In role-playing games, the music that plays while the hero travels between towns and dungeons.
+- **definition:** In role-playing games (RPGs) the overworld is the large map that connects towns, dungeons and other places, and the overworld or field theme plays while the player travels across it. It is heard for hours, so composers usually make it adventurous but not tiring, with a broad, memorable melody that loops smoothly. Since Dragon Quest, Japanese RPGs give the overworld its own theme alongside town, dungeon and battle music.
+- **in_infinite_flow:** Not built; style atlas research: the overworld entry describes it as one context in the game-music context system (docs/music/styles/popular-electronic-game.md).
+- **related:** `musical-topic`, `leitmotif`, `fanfare`, `chiptune`
+- **sources:** S364, S92, docs/music/styles/popular-electronic-game.md
+
+## Texture and arranging
+
+### Accompaniment
+
+- **id:** `accompaniment`
+- **aliases:** backing, accompanying parts
+- **popup:** The music that supports a main melody: for example a bass line and chords played under a singer or a soloist.
+- **definition:** Accompaniment is everything that plays alongside a main melody to support it: a bass line, chords, a rhythm part, short answering phrases. It sets the harmony and the beat and fills out the sound, while the melody stays the part a listener follows. The same tune can have very different accompaniments: a strummed guitar, a jazz trio, a full orchestra.
+- **in_infinite_flow:** The session backing (the Backing toggle) is a simple accompaniment: a bass note and a block chord at every chord change and every downbeat, worked out from the phrase's harmony alone. v4 plans side instruments with distinct roles (not built).
+- **related:** `melody`, `harmony`, `chord`, `accompaniment-role`, `texture`, `voice`
+- **sources:** S124, S126, src/domain/backing/backing-renderer.ts, specs/versions/v4/README.md
+
+### Accompaniment role
+
+- **id:** `accompaniment-role`
+- **aliases:** role, foundation, highlighting, contrasting, responding
+- **popup:** The job an accompanying part does for the melody: support it, reinforce it, contrast with it or answer it.
+- **definition:** An accompaniment role is the job one part does, as opposed to the instrument that plays it: a saxophone can accompany and a piano can lead. Arrangers name roles by technique, such as doubling, counter-melody, pad, comping or fill. Grouped by how they relate to the melody, roles fall into four families: foundation (bass, chords, groove), highlighting (reinforcing the melody), contrasting (a second, independent line) and responding (answering the melody in its gaps).
+- **in_infinite_flow:** Planned for v4 (not built). The owner's three words, highlighting, contrasting and responding, are the v4 direction; the research adds a fourth family, foundation, for the bass, chords and drums (docs/music/arranging-and-roles.md).
+- **related:** `accompaniment`, `doubling`, `counter-melody`, `fill`, `comping`, `system-voice`, `functional-layer`
+- **sources:** S127, S128, docs/music/arranging-and-roles.md, docs/music/accompaniment-systems.md, specs/versions/v4/README.md
+
+### Alberti bass
+
+- **id:** `alberti-bass`
+- **aliases:** none
+- **popup:** A broken-chord accompaniment playing the lowest, highest, middle, then highest note of a chord, over and over.
+- **definition:** An Alberti bass is a left-hand accompaniment pattern for keyboard that breaks a chord into a steady stream of notes in the order lowest, highest, middle, highest: C–G–E–G for C major. It is named after the Italian composer Domenico Alberti and is a hallmark of the Classical style, heard in many Mozart and Haydn piano sonatas.
+- **in_infinite_flow:** Not built; style atlas research: the Classical entry asks for it as an accompaniment pattern in v4's backing (docs/music/styles/art-music.md).
+- **related:** `arpeggio`, `accompaniment`, `homophony`, `chord`
+- **sources:** S278, S277, docs/music/styles/art-music.md
+
+### Arrangement
+
+- **id:** `arrangement`
+- **aliases:** arranging, chart
+- **popup:** A version of a piece prepared for particular players: who plays what, and what is added or changed.
+- **definition:** An arrangement takes an existing tune and prepares it for a group of players. The arranger may change the chords, add an introduction or an ending, and decide which instrument plays the melody, which ones accompany it, and how. Orchestration is the narrower part of that job: choosing the instrument for each note. Jazz bands also play head arrangements, worked out by ear in rehearsal rather than written down.
+- **in_infinite_flow:** The generator already writes a melody with its chords for each phrase, like a lead sheet. v4's accompaniment would arrange that phrase for a few side instruments (planned, not built).
+- **related:** `accompaniment`, `lead-sheet`, `accompaniment-role`, `head`, `texture`
+- **sources:** S120, S121, S122
+
+### Basso continuo
+
+- **id:** `basso-continuo`
+- **aliases:** continuo, figured bass, thoroughbass
+- **popup:** The Baroque accompaniment: a written bass line, with chords that a keyboard player fills in above it.
+- **definition:** Basso continuo ("continuous bass") is the standard accompaniment of Baroque music. The composer writes only the bass line, often with small figures (numbers) showing which chords to play. A cello or bassoon plays the bass, and a harpsichord, organ or lute "realises" the chords above it, improvising their exact layout. It runs under almost every Baroque piece, from solo sonatas to operas.
+- **in_infinite_flow:** Not built; style atlas research: the Baroque entry maps it onto v4's bass and chord roles (docs/music/styles/art-music.md).
+- **related:** `accompaniment`, `chord-inversion`, `walking-bass`, `homophony`
+- **sources:** S272, docs/music/styles/art-music.md
+
+### Break
+
+- **id:** `break`
+- **aliases:** solo break
+- **popup:** A bar or two where the band stops completely and one player fills the gap alone.
+- **definition:** A break is a short stop of the whole band, usually one or two bars, during which a soloist (or the drummer) plays alone before the band comes back in. Early jazz used breaks at the ends of sections to show off a player; rock, funk and hip-hop use them too (the hip-hop "breakbeat" began as a looped drum break). A band that keeps playing short hits instead is playing stop time.
+- **in_infinite_flow:** Not built; style atlas research: the research proposes a stop-time-and-breaks capability for the accompaniment (docs/music/styles/jazz-blues-soul.md).
+- **related:** `stop-time`, `fill`, `accompaniment`, `rest`
+- **sources:** S321, docs/music/styles/jazz-blues-soul.md
+
+### Collective improvisation
+
+- **id:** `collective-improvisation`
+- **aliases:** polyphonic improvisation
+- **popup:** Several players improvising at the same time around one tune, each with their own part, as in New Orleans jazz.
+- **definition:** In collective improvisation several musicians improvise together instead of taking turns. In New Orleans jazz (Dixieland), the trumpet plays the tune with variations, the clarinet weaves fast lines above it, and the trombone adds slides and lines below, while the rhythm section keeps time. The result is a lively polyphony that still keeps the melody in front.
+- **in_infinite_flow:** Not built; style atlas research: the New Orleans entry maps it onto several of v4's roles at once (lead, counter-melody, bass line), and lists true collective improvisation as a loss (docs/music/styles/jazz-blues-soul.md).
+- **related:** `polyphony`, `counter-melody`, `accompaniment-role`, `call-and-response`
+- **sources:** S321, docs/music/styles/jazz-blues-soul.md
+
+### Colotomic structure
+
+- **id:** `colotomic-structure`
+- **aliases:** colotomy
+- **popup:** In gamelan, gongs of different sizes marking nested points of a repeating cycle, the largest gong ending it.
+- **definition:** Colotomic structure is the way gamelan music marks time. A cycle of beats is punctuated by gongs of different sizes, each on its own schedule: small gongs often, middle ones less often, and the largest gong once, at the end of the cycle, which is also its most important point. Cycles have fixed lengths, such as 16 beats (lancaran) or 32 (ladrang). Melodies are heard as heading towards the gong stroke.
+- **in_infinite_flow:** Not built; style atlas research: the gamelan entry proposes it as a percussion pattern over a long cycle (docs/music/styles/folk-and-world.md).
+- **related:** `gamelan`, `meter`, `downbeat`, `timeline`
+- **sources:** S408, docs/music/styles/folk-and-world.md
+
+### Comping
+
+- **id:** `comping`
+- **aliases:** comp, to comp
+- **popup:** In jazz, the chords a pianist or guitarist plays behind a soloist: short, well placed, and leaving room.
+- **definition:** Comping (from "accompanying") is how a jazz pianist, guitarist or organist plays the chords behind a soloist. Instead of striking a chord on every beat, a comper places short chords at chosen moments, often off the beat and in the soloist's pauses, and reacts to what the soloist plays. The chords usually keep their third and seventh and often leave the root to the bass player. Some players comp busily, others very sparsely.
+- **in_infinite_flow:** Not built. The backing's block chords attack on every chord change and every downbeat, closer to old-style on-the-beat accompaniment. Comping is a candidate role for v4.
+- **related:** `accompaniment`, `voicing`, `guide-tone`, `syncopation`, `offbeat`, `chord`
+- **sources:** S131, S141
+
+### Counter-melody
+
+- **id:** `counter-melody`
+- **aliases:** countermelody, counterline, descant (when above the melody)
+- **popup:** A second melody played at the same time as the main one: less prominent, but a real tune of its own.
+- **definition:** A counter-melody is a second melody that plays against the main one. It is quieter or less prominent, but it has its own shape and rhythm, so the music gains a second line to follow. It sounds clearest when it moves while the main melody holds a note or rests, and holds while the main melody moves. Placed above the main melody it is called a descant. Marches often give one to the trombones or horns.
+- **in_infinite_flow:** Not built. It is the standard name for the owner's "contrasting" role, planned for v4, and the hardest role to generate well.
+- **related:** `melody`, `polyphony`, `accompaniment-role`, `types-of-motion`, `voice-leading`
+- **sources:** S130, S144, S150
+
+### Doubling
+
+- **id:** `doubling`
+- **aliases:** unison, octave doubling
+- **popup:** Two instruments playing the same line together, at the same pitch or an octave apart, to make it stronger.
+- **definition:** Doubling means giving the same line to a second instrument, either at exactly the same pitch (in unison) or an octave higher or lower. It makes the line louder, richer in tone and easier to hear, so orchestrators use it to make a melody stand out from its accompaniment. A doubled line is heard as one thickened voice, not as two independent ones.
+- **in_infinite_flow:** Not built. Doubling the player's line, or only its key notes, is one form of the "highlighting" role planned for v4.
+- **related:** `octave`, `accompaniment-role`, `parallel-thirds-and-sixths`, `heterophony`, `parallel-fifths-and-octaves`
+- **sources:** S129, S147
+
+### Drone
+
+- **id:** `drone`
+- **aliases:** drone note
+- **popup:** One note, or a note and its fifth, sounding the whole time under the music, like the hum of bagpipes.
+- **definition:** A drone is a note that keeps sounding through a whole piece or a long section, often the home note alone or with the note a fifth above it (an open fifth). Bagpipes and the Indian tanpura make drones. Because it never moves, a drone fixes the home note firmly, and every melody note is heard against it. Open-fifth drones often give music a rustic or ancient feel.
+- **in_infinite_flow:** Not built. A drone would suit the modal collections, where a strong home note is what makes the mode audible.
+- **related:** `pedal-point`, `tonic`, `tonal-center`, `mode`, `interval`
+- **sources:** S135
+
+### Fill
+
+- **id:** `fill`
+- **aliases:** drum fill
+- **popup:** A short burst of music played in a gap, when the melody pauses, to keep things moving or to mark a phrase's end.
+- **definition:** A fill is a short passage played where the melody stops for a moment, between two phrases or at the end of a section. It keeps the music moving and often signals that something new is coming. Drummers play fills, but so do bass players, guitarists, keyboard players and horn sections. Unlike a riff, a fill is not repeated throughout: each one is a small one-off answer to its gap.
+- **in_infinite_flow:** Not built. Filling the generated phrase's rests is the cheapest form of the "responding" role studied for v4; the Silence density control would then set how much room fills get.
+- **related:** `rest`, `riff`, `call-and-response`, `accompaniment-role`, `phrase`
+- **sources:** S137
+
+### Functional layer
+
+- **id:** `functional-layer`
+- **aliases:** layer, novelty layer
+- **popup:** A way to describe a pop arrangement by the job each part does: beat, bass, chords filling the middle, and melody.
+- **definition:** In pop music, parts are often described by their job rather than their instrument. The usual layers are the beat (drums and percussion keeping time), the bass (the lowest part, close to the chord roots), the harmonic filler (keyboards or guitars filling the middle with chords) and the melody (the voice or lead instrument on top). An optional novelty layer answers or interrupts the melody in its gaps, with a sound that stands out.
+- **in_infinite_flow:** Not built. The layers are a useful map for v4's roles; today's backing covers the bass and a simple harmonic filler.
+- **related:** `accompaniment`, `texture`, `accompaniment-role`, `groove`, `pad`
+- **sources:** S127, S128
+
+### Guide tone
+
+- **id:** `guide-tone`
+- **aliases:** guide tones, guide-tone line
+- **popup:** The third and seventh of a chord: the two notes that say most about what kind of chord it is.
+- **definition:** A chord's guide tones are its third and its seventh. The third tells major from minor, and the seventh tells which kind of seventh chord it is, so these two notes outline the harmony with very little. Joining each chord's guide tone to the nearest guide tone of the next chord makes a guide-tone line: a slow, smooth line that moves mostly by step. Jazz players use it to comp, to write background lines and to practise improvising.
+- **in_infinite_flow:** Not built. The app's chords are triads, so each chord's third is known but its seventh would have to be worked out from the scale.
+- **related:** `seventh-chord`, `triad`, `chord-tone`, `comping`, `voice-leading`
+- **sources:** S131, S153
+
+### Heterophony
+
+- **id:** `heterophony`
+- **aliases:** none
+- **popup:** Several players playing the same tune at once, each decorating it a little differently.
+- **definition:** Heterophony is a texture in which two or more players perform the same melody at the same time, but each varies it slightly: one adds an ornament, another turns a run into one long note, or the rhythms differ a little. The result sounds like one tune with a shimmering, slightly blurred edge. It is common in folk music and in Indonesian gamelan, where one melody is played in several versions at once.
+- **in_infinite_flow:** Not built. A voice that plays the player's line with ornaments added or passing notes removed is one form of "highlighting" studied for v4.
+- **related:** `texture`, `monophony`, `doubling`, `ornament`, `embellishment`
+- **sources:** S124, S125
+
+### Hocket
+
+- **id:** `hocket`
+- **aliases:** hoquetus, interlocking parts
+- **popup:** One melody shared between two or more players who take turns, each playing only some of its notes.
+- **definition:** In a hocket a melody is split between players: one plays a note, the other the next, so neither part makes sense alone but together they form a continuous line. Medieval European music used it, and it is central to Andean panpipe playing (siku, where two players share the notes of one scale) and to Balinese gamelan, where interlocking parts are called kotekan.
+- **in_infinite_flow:** Not built; style atlas research: the huayno and gamelan entries propose an interlocking role between the player and a system voice (docs/music/styles/folk-and-world.md).
+- **related:** `call-and-response`, `accompaniment-role`, `gamelan`, `texture`
+- **sources:** S393, S409, docs/music/styles/folk-and-world.md
+
+### Homophony
+
+- **id:** `homophony`
+- **aliases:** melody and accompaniment, homorhythm
+- **popup:** Several parts moving together in chords; most often one clear melody over an accompaniment.
+- **definition:** Homophony is a texture in which the parts move together to make chords rather than as separate tunes. In homorhythm all the parts share one rhythm, as in a hymn. More often one part is a clear melody and the others accompany it with their own, usually simpler, rhythm: this melody-and-accompaniment texture is the sound of most pop songs, a voice over guitar chords.
+- **in_infinite_flow:** A session with the backing on is melody and accompaniment: the player's line over a bass and block chords that attack together.
+- **related:** `texture`, `polyphony`, `monophony`, `accompaniment`, `melody`
+- **sources:** S124, S126
+
+### Imitation
+
+- **id:** `imitation`
+- **aliases:** echo, canon, round
+- **popup:** A second part repeating a figure the first part just played, a little later, like an echo.
+- **definition:** Imitation happens when one part plays a figure and another part repeats it shortly afterwards, often at a different pitch. A short, softer repeat is an echo. A canon is strict imitation: the follower copies the leader's whole line, note for note, at a fixed delay. A round, such as "Frère Jacques", is a canon in which everyone sings the same tune, entering one after another.
+- **in_infinite_flow:** Not built. Echoing the player's last figure in the rest that follows it is a form of the "responding" role studied for v4; a full canon is much harder to fit.
+- **related:** `call-and-response`, `motif`, `transposition`, `polyphony`, `accompaniment-role`
+- **sources:** S140
+
+### Monophony
+
+- **id:** `monophony`
+- **aliases:** none
+- **popup:** A single line of melody with no accompaniment, even when several people play or sing it together.
+- **definition:** Monophony is the simplest texture: one melody alone, with no chords or other parts. A solo flute is monophonic, and so is a crowd singing one tune together, because everyone sings the same line; voices an octave apart still count as one line. Plainchant is the classic example.
+- **in_infinite_flow:** With the backing off, a session is monophonic: the player's line alone.
+- **related:** `texture`, `melody`, `heterophony`, `homophony`, `polyphony`
+- **sources:** S124
+
+### Montuno
+
+- **id:** `montuno`
+- **aliases:** guajeo, piano montuno
+- **popup:** The vamping section of a son or salsa tune, with a repeated sung refrain and a looping, syncopated piano pattern.
+- **definition:** In Cuban son and salsa, the montuno is the later, livelier section of a tune, where a short chorus refrain alternates with a lead singer's improvised lines over a repeating chord vamp. The repeating, syncopated figure the piano or tres plays there, locked to the clave, is called a guajeo and is also often called a montuno.
+- **in_infinite_flow:** Not built; style atlas research: the son entry asks for a stored, clave-aligned piano pattern in v4's backing (docs/music/styles/folk-and-world.md).
+- **related:** `vamp`, `clave`, `call-and-response`, `tumbao`, `riff`
+- **sources:** S389, S390, docs/music/styles/folk-and-world.md
+
+### Oom-pah
+
+- **id:** `oom-pah`
+- **aliases:** oompah, boom-chick, stride bass
+- **popup:** A backing of a low bass note on the strong beats answered by chords on the weak ones: "oom-pah, oom-pah".
+- **definition:** Oom-pah is an accompaniment in which a low bass note on the strong beat ("oom") alternates with a chord on the weak beat ("pah"). Brass bands, polkas and marches give the bass to a tuba; ragtime and stride piano play it with the left hand alone, a bass note or octave on beats 1 and 3 and a chord on 2 and 4. In a waltz it becomes "oom-pah-pah".
+- **in_infinite_flow:** Not built; style atlas research: the march, waltz and ragtime entries ask for it as a backing pattern (docs/music/styles/art-music.md, docs/music/styles/jazz-blues-soul.md).
+- **related:** `accompaniment`, `strong-and-weak-beats`, `march`, `waltz`, `walking-bass`
+- **sources:** S300, S319, S320, docs/music/styles/art-music.md, docs/music/styles/jazz-blues-soul.md
+
+### Organum
+
+- **id:** `organum`
+- **aliases:** parallel organum
+- **popup:** Medieval chant with an added voice, often moving in parallel fourths or fifths: the earliest written harmony in Europe.
+- **definition:** Organum is the earliest written form of European polyphony. A second voice is added to a plainchant melody, at first moving in parallel a fourth or a fifth below or above it, usually starting and ending on the same note (a unison). Later forms let the added voice move more freely or hold the chant's notes as a long sustained bass.
+- **in_infinite_flow:** Not built; style atlas research: the chant entry proposes a parallel-fifth or fourth voice as a v4 role (docs/music/styles/art-music.md).
+- **related:** `gregorian-chant`, `polyphony`, `parallel-fifths-and-octaves`, `drone`, `doubling`
+- **sources:** S270, docs/music/styles/art-music.md
+
+### Pad
+
+- **id:** `pad`
+- **aliases:** sustained harmony, string pad
+- **popup:** Long held chords that make a soft bed of harmony under the melody.
+- **definition:** A pad is a part that holds chords for a long time, giving a smooth bed of harmony for the melody to sit on. String sections, organs and synthesizers often play pads. A pad attacks rarely, usually once per chord, so it does not compete with the melody's rhythm. Its notes move to the next chord by the smallest steps possible, keeping any shared notes in place.
+- **in_infinite_flow:** Not built. The backing's block chords are struck again on every downbeat; a pad would hold each chord for its whole length instead.
+- **related:** `chord`, `accompaniment`, `voicing`, `voice-leading`, `functional-layer`
+- **sources:** S127, S154
+
+### Parallel thirds and sixths
+
+- **id:** `parallel-thirds-and-sixths`
+- **aliases:** parallel thirds, parallel sixths, harmony line
+- **popup:** A second line that follows the melody a third (or a sixth) away, like a harmony singer.
+- **definition:** In parallel thirds, a second line copies the melody's rhythm and shape a third below or above it: the sound of a harmony vocal, or of two horns playing together. Staying in the key, the thirds are sometimes major and sometimes minor. Sixths work the same way, since a sixth below is the same note as a third above, an octave lower. Thirds and sixths are consonant, so they can move in parallel freely.
+- **in_infinite_flow:** Not built. It is one form of the "highlighting" role studied for v4.
+- **related:** `interval`, `doubling`, `parallel-fifths-and-octaves`, `types-of-motion`, `accompaniment-role`
+- **sources:** S129, S145
+
+### Pedal point
+
+- **id:** `pedal-point`
+- **aliases:** pedal, pedal tone, inverted pedal
+- **popup:** One note held or repeated, usually in the bass, while the chords above it change.
+- **definition:** A pedal point is a note that stays put, held or repeated, while the harmony above it moves on. It is usually the home note (the tonic) or the fifth note of the scale (the dominant), and usually in the bass; held in the top part it is an inverted pedal. As the chords change, some clash with the pedal, which builds tension and pulls the music back toward home. A pedal that lasts a whole piece is a drone.
+- **in_infinite_flow:** Not built. A dominant pedal under a phrase's last measure is one idea studied for v4, to raise expectation under the Tension control's stronger settings.
+- **related:** `drone`, `tonic`, `dominant`, `tension-and-resolution`, `harmony`
+- **sources:** S134
+
+### Polyphony
+
+- **id:** `polyphony`
+- **aliases:** counterpoint (the craft of writing it), contrapuntal texture
+- **popup:** Several independent melodies sounding at once, each with its own rhythm, that together make harmony.
+- **definition:** Polyphony is a texture of several independent melodic lines played at the same time. Each line has its own shape and rhythm, yet together they make good harmony. A fugue is polyphonic, and so is a jazz front line when trumpet and saxophone improvise separate lines together. Counterpoint is the craft of writing such lines so that each stays easy to follow and they sound well together.
+- **in_infinite_flow:** Not built. A counter-melody against the player's line would turn a session's texture toward polyphony.
+- **related:** `texture`, `counter-melody`, `homophony`, `voice-leading`, `types-of-motion`
+- **sources:** S124, S126
+
+### Skank
+
+- **id:** `skank`
+- **aliases:** offbeat chop, chop
+- **popup:** Short, damped guitar or keyboard chords on the offbeats, the core of reggae and ska.
+- **definition:** In reggae and ska, the skank is the rhythm guitar or keyboard playing short, choked chords on the offbeats, on the "and" of each beat, while the bass and drums hold the beat below. "Skank" is also the name of the dance done to this music.
+- **in_infinite_flow:** Not built; style atlas research: the reggae entry asks for it as an offbeat chord pattern in v4's backing (docs/music/styles/popular-electronic-game.md).
+- **related:** `offbeat`, `comping`, `stab`, `one-drop`, `groove`
+- **sources:** S350, docs/music/styles/popular-electronic-game.md
+
+### Stab
+
+- **id:** `stab`
+- **aliases:** hit, kick, orchestra hit
+- **popup:** A single short, punchy chord or note that punctuates the music, like an exclamation mark.
+- **definition:** A stab is one short, detached chord or note, played with an accent to punctuate the music, such as a horn section's sharp chord or the sampled "orchestra hit" of 1980s pop. Big bands call rhythmic chords like these hits or kicks. Stabs can land with the melody's accents, to underline them, or between them, to answer them. Much of their effect comes from the silence around them.
+- **in_infinite_flow:** Not built. Short chords on the player's syncopated notes are one form of the "highlighting" role studied for v4.
+- **related:** `chord`, `syncopation`, `accompaniment-role`, `fill`, `offbeat`
+- **sources:** S138, S131
+
+### Stinger
+
+- **id:** `stinger`
+- **aliases:** sting
+- **popup:** A very short burst of music that marks an event, like the "dun dun duuun" when something dramatic happens.
+- **definition:** A stinger is a short musical phrase used as punctuation: it marks the end of a scene, a sudden discovery or a climax. Film, television and radio use stingers, and so do video games, where a stinger is played on top of the music already running when something happens in the game, such as an enemy appearing.
+- **in_infinite_flow:** Not built. In the endgame vision, a player's action or a game event could trigger a short generated stinger, placed on the next beat or measure so that it never cuts through a note the player is reading.
+- **related:** `fill`, `cue`, `leitmotif`, `vertical-layering`, `fanfare`
+- **sources:** S161, S181, specs/vision/endgame.md
+
+### Texture
+
+- **id:** `texture`
+- **aliases:** musical texture
+- **popup:** How the parts playing at the same moment fit together: how many there are, and whether they move together or apart.
+- **definition:** Texture describes how the parts sounding at the same time relate to each other: how many there are, how busy they are, and whether they move together or independently. The four classic types are monophony (one line), heterophony (one tune in several varied versions), homophony (parts moving together, most often melody and accompaniment) and polyphony (independent lines). Most pieces change texture as they go, thinning out or thickening.
+- **in_infinite_flow:** With the backing on, a session is melody and accompaniment. v4's planned roles would each change the texture: a doubling thickens the melody, a counter-melody adds polyphony, a fill answers in the gaps.
+- **related:** `monophony`, `heterophony`, `homophony`, `polyphony`, `accompaniment`, `functional-layer`
+- **sources:** S124
+
+### Tumbao
+
+- **id:** `tumbao`
+- **aliases:** bass tumbao
+- **popup:** The Cuban bass pattern that anticipates the beat: it lands just before beat 3 and on beat 4, and skips the downbeat.
+- **definition:** The tumbao is the typical bass pattern of son and salsa. Built on the tresillo, it plays on the "and" of beat 2 and on beat 4 and usually leaves the downbeat empty, so the bass anticipates the next chord instead of confirming the current one. The name also covers the basic conga pattern.
+- **in_infinite_flow:** Not built; style atlas research: the son entry asks for it as a stored bass pattern in v4's backing (docs/music/styles/folk-and-world.md).
+- **related:** `tresillo`, `clave`, `anticipation`, `montuno`, `walking-bass`
+- **sources:** S388, docs/music/styles/folk-and-world.md
+
+### Vertical layering
+
+- **id:** `vertical-layering`
+- **aliases:** layering, vertical re-orchestration
+- **popup:** Changing game music by adding or removing instrument layers while it plays, to make it calmer or more intense.
+- **definition:** Vertical layering is a way to make music adapt to a game. The composer writes several layers that fit together, such as drums, a bass, a string part and a melody, and the game fades layers in or out as the situation changes; more layers usually means more intensity. The other classic technique, horizontal re-sequencing, switches to a different section or piece instead, ideally when the current musical phrase ends.
+- **in_infinite_flow:** Not built. Because the app generates notes rather than playing recordings, a layer would be a whole system voice that can enter on any beat, for example when a companion joins the team in the endgame vision.
+- **related:** `accompaniment`, `texture`, `stinger`, `system-voice`, `functional-layer`
+- **sources:** S159, S180
+
+### Voice
+
+- **id:** `voice`
+- **aliases:** part, line
+- **popup:** One line of music played by one instrument or singer, such as the melody or the bass line.
+- **definition:** A voice, or part, is one line of notes played by one instrument or sung by one singer; musicians use the word for instruments too. A piano piece might have a melody voice on top, a bass voice at the bottom and inner voices in between. Thinking in voices helps describe how a piece is built: how many lines there are and how each one moves.
+- **in_infinite_flow:** The player's phrase is one voice. The backing has two, bass and chords (BackingVoice in src/audio/audio-ports.ts); v4 plans more, each with a role.
+- **related:** `melody`, `texture`, `voice-leading`, `system-voice`, `accompaniment`
+- **sources:** S148, S124, src/audio/audio-ports.ts
+
+### Walking bass
+
+- **id:** `walking-bass`
+- **aliases:** walking bass line, four feel, two-feel (the lighter style)
+- **popup:** A jazz bass line that steps along in steady quarter notes, one on every beat, outlining the chords.
+- **definition:** A walking bass plays one note on every beat, in steady quarter notes, moving mostly by step through chord tones, scale tones and chromatic passing notes, so that it seems to walk from chord to chord. A common recipe puts the chord's root on beat 1 and, on the last beat before a change, an approach note a half step above or below the next root. A lighter style, the two-feel, plays only two notes per measure.
+- **in_infinite_flow:** Not built. Today's backing bass plays the chord's root at each chord change and downbeat, and the fifth on beat 3 when one chord fills the measure, close to a two-feel. A walking bass is a candidate foundation role for v4.
+- **related:** `approach-note`, `chromatic-approach`, `quarter-note`, `root`, `chord-tone`, `swing`
+- **sources:** S132, S133, src/domain/backing/backing-renderer.ts
+
 ## Instruments and transposition
+
+### Audio effect
+
+- **id:** `audio-effect`
+- **aliases:** effect, effects, reverb, filter, distortion
+- **popup:** A treatment that changes how a sound comes out, such as reverb (a room's echo), a filter (duller or brighter) or distortion (gritty).
+- **definition:** An audio effect processes a sound after it is made. Reverb adds the echo of a room or a hall; delay repeats the sound a moment later; a filter removes high or low frequencies, making the sound duller or thinner; distortion makes it gritty. Effects do not change which notes are played, only how they sound, so they go together with timbre. Game music uses them heavily: a study of "winter" game music found heavy reverb in most tracks.
+- **in_infinite_flow:** The app plays its click and backing without effects today. v4 plans a synth-based sound library with effects (docs/sound-library-survey.md), and the endgame research proposes effects as part of a location's or character's identity, together with timbre what the owner calls "tone" (docs/music/musical-identity.md); endgame groundwork, not built.
+- **related:** `timbre`, `musical-topic`, `system-voice`
+- **sources:** S222, docs/sound-library-survey.md, docs/music/musical-identity.md
 
 ### B-flat instrument
 
@@ -1731,6 +2886,26 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** The app stores every pitch as a concert MIDI number. Ranges: keyboard 48-72, tenor saxophone 46-70, alto saxophone 51-75.
 - **related:** `pitch`, `middle-c`, `octave-number`, `concert-pitch`
 - **sources:** S13
+
+### Pulse wave
+
+- **id:** `pulse-wave`
+- **aliases:** square wave, duty cycle
+- **popup:** The buzzy, square-like tone of old game consoles; changing the width of its pulse (its duty cycle) changes its colour.
+- **definition:** A pulse wave switches abruptly between two levels, giving a bright, hollow, buzzy tone. Its duty cycle is the fraction of each cycle spent "on": at 50 % it is a square wave, and at 12.5 % or 25 % it sounds thinner and more nasal. The NES console had two pulse channels with selectable duty cycles, which is why its melodies sound the way they do.
+- **in_infinite_flow:** Not built; style atlas research: the chiptune entry needs it as a system-voice timbre (docs/music/styles/popular-electronic-game.md).
+- **related:** `timbre`, `chiptune`, `audio-effect`
+- **sources:** S362, S361, docs/music/styles/popular-electronic-game.md
+
+### Timbre
+
+- **id:** `timbre`
+- **aliases:** tone colour, tone color, sound colour
+- **popup:** The colour of a sound: what makes a flute and a violin sound different on the same note. Said "TAM-ber".
+- **definition:** Timbre is the quality of a sound that is neither its pitch, its loudness nor its length. A flute, a violin and a voice can play the same note equally loud and still be told apart at once, because each makes a different mix of overtones and starts and fades in its own way. People often call it "tone", but in music that word also means a pitched sound or a whole step. Listeners recognise timbre very fast: a fraction of a second of a familiar recording can be enough.
+- **in_infinite_flow:** The player's own instrument gives the lead its timbre; the app's backing uses fixed placeholder synth waves (a triangle-wave bass, sine-wave chords). v4 plans a synth library for system voices, and the endgame research names a distinct timbre per character voice as the cheapest strong identity cue (docs/music/musical-identity.md); endgame groundwork, not built.
+- **related:** `audio-effect`, `instrument-range`, `system-voice`, `musical-identity`
+- **sources:** S224, S227, S228, src/audio/web-audio-session-bus.ts, docs/music/musical-identity.md
 
 ### Transposing instrument
 
@@ -2106,6 +3281,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `strong-and-weak-beats`, `meter`, `tie`, `tick`, `control-syncopation`
 - **sources:** S8, docs/music/rhythm-phrase-structure.md
 
+### Musical identity
+
+- **id:** `musical-identity`
+- **aliases:** identity, character identity
+- **popup:** Internal: the sound and habits that make a character, place or event recognisable in the music the app writes for it.
+- **definition:** In the endgame vision, characters, locations and events each carry a musical identity: a sound (timbre and effects) plus musical habits, such as a signature motif, favoured or banned notes, preferred rhythms, ornaments and accompaniment roles. An identity steers how the app generates the player's melody and the system voices, mostly as preferences, with a few strict rules. It is the endgame's richer form of a built-in preset.
+- **in_infinite_flow:** Endgame groundwork, not built; spec decision D228(6) places such character, location and event presets after v3. The research covers what an identity could contain (docs/music/musical-identity.md) and how it could act on generation as filters, rank levels, weighted orders and planned material (docs/music/identity-modelling.md).
+- **related:** `built-in-preset`, `signature-figure`, `leitmotif`, `idiolect`, `timbre`, `register-spike`, `system-voice`
+- **sources:** specs/vision/endgame.md, specs/decisions.md, docs/music/musical-identity.md, docs/music/identity-modelling.md
+
 ### Open ending
 
 - **id:** `open-ending`
@@ -2135,6 +3320,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** Smooth allows no large leaps, so it never creates debt. Under Shaped the recovery must come on the very next note. Under Leaping and Angular, a large leap inside a recognized arpeggio run may recover after the run's last note instead. The phrase's final note can't leave a debt unpaid, except in a session phrase generated from the phrase before it: such a phrase may end owing a recovery, and the next phrase's first note pays it by moving back 1-4 half steps onto a note of the home chord. A repeated pitch does not count as recovery.
 - **related:** `leap`, `run`, `control-leapiness`
 - **sources:** S7, docs/music/melodic-control-models.md, src/domain/generation/carry-in/phrase-ending-debt.ts
+
+### Register spike
+
+- **id:** `register-spike`
+- **aliases:** spike
+- **popup:** Internal: a rare, short note far above (or below) where a line usually sits, followed by a return.
+- **definition:** A register spike is a brief jump out of a voice's usual zone: a single short note, often high and accented, after which the line comes back. The endgame vision mentions sparse register "spikes" for a dark character, a low line punctuated by sharp, brief high notes. Used rarely and always shaped the same way, a spike can become a recognisable signature.
+- **in_infinite_flow:** Endgame groundwork, not built. Today the Register control keeps the whole phrase inside one one-octave window, and a large leap must be followed by a recovery, so a spike would need its own rule or an exception, as octave displacement does (docs/music/musical-identity.md, docs/music/identity-modelling.md).
+- **related:** `register`, `register-window`, `leap`, `recovery`, `octave-displacement`, `musical-identity`
+- **sources:** specs/vision/endgame.md, docs/music/musical-identity.md, docs/music/identity-modelling.md
 
 ### Register window
 
@@ -2173,8 +3368,18 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **popup:** Internal: a short melodic idea that marks a style or a song, like a famous riff or a typical blues bend.
 - **definition:** A signature figure is a short melodic or rhythmic idea that listeners associate with a style, a player or a song: a riff, a hook, a stock lick, a characteristic ornament. Musicians build a personal or stylistic vocabulary partly from such figures and reuse them, varied, in new phrases.
 - **in_infinite_flow:** Internal word for what the owner calls a "gimmick". The app cannot store one today; later presets may carry a few (spec decision D228 places them after v3), and Jam (v3.2) grows a player's own idea. Not built.
-- **related:** `riff`, `lick`, `motif`, `played-signal`
+- **related:** `riff`, `lick`, `motif`, `played-signal`, `idiolect`, `musical-identity`
 - **sources:** specs/versions/v3/README.md, specs/personas.md
+
+### System voice
+
+- **id:** `system-voice`
+- **aliases:** side instrument, companion voice
+- **popup:** Internal: a voice the app plays alongside the player's line, such as the backing's bass or a planned accompaniment role.
+- **definition:** A system voice is any line the app itself plays during a session, as opposed to the line the player plays. In the research and spec notes it is the unit of v4's accompaniment: each system voice has a role and a register and, later, a timbre and a character.
+- **in_infinite_flow:** Today the backing's bass and chords are the only system voices (BackingVoice in src/audio/audio-ports.ts, kept narrow so that v4 can widen it). The endgame vision makes companions and antagonists system voices.
+- **related:** `voice`, `accompaniment`, `accompaniment-role`, `vertical-layering`
+- **sources:** docs/music/accompaniment-systems.md, src/audio/audio-ports.ts, specs/versions/v4/README.md, specs/vision/endgame.md
 
 ### Tick
 

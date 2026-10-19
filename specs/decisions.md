@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.104
+Status: draft v2.105
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -23,11 +23,11 @@ fact in the live documents (see the [archive index](archive/README.md) and each 
 folder's README, such as [archive/v3/README.md](archive/v3/README.md)). Numbering continues from
 **D357**.
 
-Live here: D228–D251 (v3.1 and v3.2, not built yet), D261–D288 (v3.3, not built yet; D263–D288
-merged from branch `v3.3-chord-research`), D344–D348 (the v3.0 release and its follow-ups) and
-D349–D356 (the v3.1–v3.3 plan migrations, merged from branch `plan-migration` as D339–D341, and
-the v3.1 plan's gates). D259 and D260 are on branch `v4-accompaniment-research`, not merged yet.
-D289 is unused.
+Live here: D228–D251 (v3.1 and v3.2, not built yet), D259–D260 (style packs, planned with no
+version, and the sound ban; merged from branch `v4-accompaniment-research`), D261–D288 (v3.3, not
+built yet; D263–D288 merged from branch `v3.3-chord-research`), D344–D348 (the v3.0 release and
+its follow-ups) and D349–D356 (the v3.1–v3.3 plan migrations, merged from branch
+`plan-migration` as D339–D341, and the v3.1 plan's gates). D289 is unused.
 
 ## Decision Log
 
@@ -321,6 +321,25 @@ D289 is unused.
   "there is no session seed" was stale against Part A §8's fixed session seeds; reworded (C6.2,
   C14, C15) with no behaviour change: the suggestion is seeded by the doodle alone, the rhythm
   change by each phrase's own seed, and a fresh Jam fixes its session seeds at Start.
+- **D259 (2026-10-11): style packs are recorded as planned, version not yet assigned.** The
+  owner's call: keep the style-pack plan and the reasoning behind it in the
+  [roadmap](roadmap.md#planned-version-not-yet-assigned--style-packs) for future reference, with
+  no version, no scope and no spec yet. The plan groups the generator's settings and new
+  capabilities into style packs (dialects such as Folk reel, Bebop, Blues, Baroque), layered style
+  → character identity → situation, as declarative data over the one generator (the breadth
+  review's option B), in the style atlas's greedy unlock order and tiers. Nothing it would revisit
+  (D11–D13, D15, D20, D28, the voice-leading minimum rules, the fixed four-bar phrase) changes
+  now. The research behind it is on branch `v4-accompaniment-research`:
+  `docs/music/styles/README.md`, `docs/music/generation-breadth-review.md`,
+  `docs/music/identity-modelling.md`, `docs/music/README.md` and `docs/sound-library-survey.md`.
+- **D260 (2026-10-11): the only sound ban is on samples.** The owner's position, from the v4 sound
+  library survey (its open question 1): the one true ban is on samples, recorded audio and audio
+  assets. Generated buffers (noise, a reverb impulse response, a wavetable computed in code),
+  AudioWorklets, WASM DSP and effect chains are open in principle. The "oscillators and gains
+  only" wording of `req_session_backing_track` and of the `verify:boundaries` check (which bans
+  `createBufferSource` and `new AudioBuffer(` in authored code) is narrower than this intent; the
+  v4 spec rewords both to ban recorded audio and audio assets rather than buffers
+  (`documentalist` for the atom). It does not touch the separate no-network rule.
 - **D261 (2026-10-12): v3.3, richer chords, opt-in, after a research phase.** The owner's
   request, in their words: "managing higher end chords (optionnal, with flags to be set from the
   front end as to what's allowed and what's not). It will be preceeded by an internal doc/web
