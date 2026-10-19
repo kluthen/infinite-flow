@@ -56,3 +56,15 @@ Open for the owner, not blocking wave 0: **O231**, the entry chunk's 230 B of he
   - For `spec-writer` (I4): B11 and B12 still count four STABLE changes, from before CONTRACT 6.3,
     and miss four atoms. For the chunk that revises `rule_pregeneration_discarded_on_change`:
     `settingsKeyOf` keys on the profile selection, against B8.3 (part F).
+- **Chunk 2, baselines: merged 392cdc9** (99d6233). The wave branch's `src/`, `tests/`, `scripts/`
+  and package files equal `v3.0.0`; the corpus passed on the tag itself and on the wave branch.
+  210 cases (126 `ifk1.`, 84 `ifk2.`), 677,547 B, deterministic (each key replayed twice). Entry
+  chunk 229,146 B on the tag. Within-chunk decision: 21 rotated cases the workspace blocks take the
+  workspace's nearest supported syncopation. A temporary `@lint-ignore-atd` line in the new spec
+  must be removed by chunk 8 (carried into its brief).
+- **Owner rulings (2026-10-19)** on chunk 0's I3 and O231: the `changes-in-v3.1` tag may go on the
+  STABLE `rule_saved_settings_load_tolerantly`; v3.1's revisions of v3.0's STABLE atoms on the
+  contract take a **MAJOR** bump, with the owner confirming the wordings before the first wave sync
+  that revises one; `rule_open_phrase_ending` is reworded with v3.1; the entry budget is raised to
+  **300 kB** (read as 300 KiB, 307,200 B, the unit the 224 kB budget uses). Sent to `spec-writer`
+  to record and to `documentalist` for the tag and the wording draft.

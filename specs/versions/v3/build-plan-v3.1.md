@@ -353,7 +353,7 @@ Architecture capture: none
 
 ### Chunk 2 — Baselines: the v3.0 phrase corpus and the bundle
 
-Status: planned
+Status: merged (w0, 392cdc9)
 Wave: 0
 Depends on: R0
 Architecture capture: none
@@ -384,6 +384,8 @@ Architecture capture: none
 - **Done when:** the corpus test passes on the tag and on `main`; the baseline size is recorded.
 - **Verification:** chunk checks; the corpus test is red if any timeline is changed by hand.
 - **Split rule:** none needed.
+
+Record: 99d6233, merged as 392cdc9. 210 cases (126 `ifk1.`, 84 `ifk2.`), 677,547 B, recorded on the tag (`src/` identical to `v3.0.0`); entry chunk 229,146 B, 230 B under the 224 KiB budget. 21 rotated cases the workspace blocks (`UNSUPPORTED_RHYTHM_SETTINGS`) take the workspace's own nearest supported syncopation. The new spec carries a temporary `// @lint-ignore-atd` line naming chunk 8, which removes it when it adds the test links. New `.prettierignore` (the fixture only).
 
 ### Chunk 3 — Measurement tools: the figure census and the cost runner
 
