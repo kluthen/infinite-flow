@@ -282,3 +282,32 @@ tested); the J3 deviation above. For chunk 9's sync: the J3/J5 second half, the
 
 Owner, 2026-10-19: "you may merge into main, you may work on the next wave, but that will be the
 last for the day." Wave 1 merged into `main`, not pushed; wave 2 is the last wave today.
+
+## Wave 2 (2026-10-19)
+
+Chunks 6 (favored levels order the search), 7 (two new free figures, plus D368's tense ending)
+and 9 (kept sessions hold the levels and the preset label). Branch `v3.1-w2`, worktree
+`../infinite_flow-v3.1-w2`, cut from `main` 8e327bb (wave 1 merged). The owner's last wave for
+2026-10-19.
+
+### Preflight
+
+`documentalist` (787241d), without `atd audit`. `atd lint` and `atd check` pass.
+
+| Chunk | Verdict                                    | Captures                                                                                |
+| ----- | ------------------------------------------ | --------------------------------------------------------------------------------------- |
+| 6     | PROCEED after C6-1                         | `module_favored_figure_draw` 0.1 (`isFigureDrawn` in `src/domain/pitch/figure-draw.ts`) |
+| 7     | PROCEED, sign-off given (D368), after C6-1 | none (builds on chunk 6's)                                                              |
+| 9     | PROCEED, sign-off given (part J, D363)     | `module_kept_session_upgrade_step` 0.1 (`src/storage/migrations/kept-sessions-v2.ts`)   |
+
+Part J covers every chunk 9 Revision, `module_on_device_database` included (J3), so the contract
+stays 7.0.0. Chunk 9 shares no file with 6 or 7, so it may run beside them.
+
+Sent to `spec-writer` before the first chunk: **C6-1** (blocks 6 and 7) which figure a free
+diatonic tone "starts" and whether a favored one is held to the drawn figure's resolution;
+**C9-1** one `KEPT_SESSION_DATA_VERSION` for summary, body and played notes, so moving it to 2
+would make every session with played notes unreadable (option a: each shape its own version,
+played notes stay at 1, per the STABLE database rule; option b: rewrite played notes too, which
+needs the owner); C9-2 the label new sessions write until chunk 12 ("Custom (Jazz grammar)" today
+vs. "Custom, based on Jazz"); C9-3 the phrase 1 fallback; Files and drift-check corrections C6-2,
+C6-3, C6-4, C7-1, C9-4.
