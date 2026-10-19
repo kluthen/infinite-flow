@@ -6,11 +6,7 @@ import type {
   PitchClass,
 } from '../controls/generation-controls'
 import { deepFreeze } from '../events/deep-freeze'
-import {
-  generatorCapabilities,
-  type FigureLevels,
-  type GeneratorCapabilities,
-} from '../figures/figure-levels'
+import type { FigureLevels } from '../figures/figure-levels'
 import type {
   AbstractTensionRequirement,
   HarmonyCandidate,
@@ -37,10 +33,9 @@ import type {
 export const DEFAULT_PITCH_SEARCH_FUEL = 20_000
 
 /**
- * Freeze a versioned pitch policy, filling the default search fuel when none is given and working
- * out the generator's capabilities from the request's figure levels. The levels themselves are not
- * kept: the policy holds only the capabilities they give. `capabilities` may be overridden for
- * tests, to exercise a capability no figure-levels value gives on its own.
+ * Freeze a versioned pitch policy, filling the default search fuel when none is given and keeping
+ * the request's figure levels as they are. Nothing else is derived from them: the search reads
+ * what it may write from the levels through the figures module's allowance.
  */
 // @spec-link [[mechanic_pitch_search_policy]]
 // @spec-link [[module_musical_profile_capabilities]]
@@ -52,14 +47,13 @@ export function makePitchPolicy(input: {
   readonly leapiness: Leapiness
   readonly arpeggioChaos: ArpeggioChaos
   readonly searchFuel?: number
-  readonly capabilities?: GeneratorCapabilities
 }): PitchPolicy {
-  const { figureLevels, capabilities, ...controls } = input
+  const { figureLevels, ...controls } = input
   return deepFreeze({
     version: 'pitch-search-v1' as const,
     ...controls,
     searchFuel: input.searchFuel ?? DEFAULT_PITCH_SEARCH_FUEL,
-    capabilities: capabilities ?? generatorCapabilities(figureLevels),
+    figureLevels,
   })
 }
 

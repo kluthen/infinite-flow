@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { JAZZ_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
+import { JAZZ_FIGURE_LEVELS, NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { validatePitchMidis } from '@/domain/pitch/validation/pitch-phrase-validator'
 import { BASELINE, QUARTERS, bar, chord, context, figure, withMidis } from './validation-fixtures'
 
@@ -72,15 +72,19 @@ describe('pitch validation: Jazz chromatic ornaments', () => {
 })
 
 // @test-link [[module_musical_profile_capabilities]]
-// @test-link [[rule_jazz_chromatic_resolution]]
-describe('pitch validation: chromatic approach gated by capability, not profile name', () => {
-  it('accepts a chromatic approach under Neutral when the capability is overridden on', () => {
-    const overrides = { capabilities: { allowsChromaticApproach: true } } as const
+// @test-link [[rule_chromatic_notes_need_a_chromatic_figure]]
+describe('pitch validation: chromatic approach gated by the figure levels, not profile name', () => {
+  it("accepts a chromatic approach under Neutral's levels with the chromatic approach as today", () => {
+    const overrides = {
+      figureLevels: { ...NEUTRAL_FIGURE_LEVELS, chromaticApproach: 'asToday' },
+    } as const
     expect(failures(withMidis({ 1: 63 }), overrides)).toEqual([])
   })
 
-  it('rejects a chromatic approach under Jazz when the capability is overridden off', () => {
-    const overrides = { ...JAZZ, capabilities: { allowsChromaticApproach: false } } as const
+  it("rejects a chromatic approach under Jazz's levels with both chromatic figures off", () => {
+    const overrides = {
+      figureLevels: { ...JAZZ_FIGURE_LEVELS, chromaticApproach: 'off', chromaticEnclosure: 'off' },
+    } as const
     expect(failures(withMidis({ 1: 63 }), overrides)).toEqual([
       { code: 'out_of_collection', attackIndex: 1 },
     ])

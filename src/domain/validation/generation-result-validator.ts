@@ -6,12 +6,10 @@
  * this module implements. This module and its sibling checks file must never import the pitch
  * planner (pitch-planner.ts, pitch-policy.ts, pitch-search.ts, pitch-context.ts, pitch-advance.ts,
  * pitch-candidates.ts, etc.) — only the independent pitch-phrase validator, the independent
- * rhythm validator, and the harmony planner's public candidate-domain constructor, besides the
- * figures module's allowance, which it reads the generator's capabilities from.
+ * rhythm validator, and the harmony planner's public candidate-domain constructor.
  */
 
 import { deepFreeze } from '../events/deep-freeze'
-import { generatorCapabilities } from '../figures/figure-levels'
 import type { GenerationIntent } from '../generation/generation-intent'
 import type { GenerationRequest } from '../generation/generation-request'
 import type { GenerationResult } from '../generation/generation-result'
@@ -138,7 +136,7 @@ function melodicFailures(
       contour: intent.controls.contour,
       leapiness: intent.controls.leapiness,
       // @spec-link [[module_musical_profile_capabilities]]
-      capabilities: generatorCapabilities(intent.figureLevels),
+      figureLevels: intent.figureLevels,
     },
     harmony: provenance.harmony,
     rhythm: provenance.rhythm,

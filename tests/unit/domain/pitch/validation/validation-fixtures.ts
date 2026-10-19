@@ -1,8 +1,4 @@
-import {
-  NEUTRAL_FIGURE_LEVELS,
-  generatorCapabilities,
-  type FigureLevels,
-} from '@/domain/figures/figure-levels'
+import { NEUTRAL_FIGURE_LEVELS, type FigureLevels } from '@/domain/figures/figure-levels'
 import { makeHarmonyCollection } from '@/domain/harmony/collection'
 import type {
   AbstractTensionRequirement,
@@ -106,15 +102,12 @@ interface ContextOverrides {
   readonly requirement?: Partial<AbstractTensionRequirement>
   readonly binding?: ConcreteTensionBinding
   readonly window?: readonly [number, number]
-  /** Test-only override so a capability set can be exercised independent of the figure levels. */
-  readonly capabilities?: { readonly allowsChromaticApproach: boolean }
 }
 
 /** C major, quarter notes, tonic every bar, static open endpoint, no bound figure. */
 // @test-link [[module_pitch_domain_validation]]
 export function context(overrides: ContextOverrides = {}): PitchValidationContext {
   const [minMidi, maxMidi] = overrides.window ?? [55, 79]
-  const figureLevels = overrides.figureLevels ?? NEUTRAL_FIGURE_LEVELS
   return {
     request: {
       activeConcertRange: { kind: 'ActiveConcertRange', minMidi: 48, maxMidi: 84 },
@@ -125,7 +118,7 @@ export function context(overrides: ContextOverrides = {}): PitchValidationContex
       tonalCenter: 'C',
       contour: overrides.contour ?? 'Wandering',
       leapiness: overrides.leapiness ?? 'Leaping',
-      capabilities: overrides.capabilities ?? generatorCapabilities(figureLevels),
+      figureLevels: overrides.figureLevels ?? NEUTRAL_FIGURE_LEVELS,
     },
     harmony: {
       identity: 'fixture-harmony',

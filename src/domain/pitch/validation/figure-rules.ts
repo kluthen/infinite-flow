@@ -1,3 +1,4 @@
+import { allowsChromaticNotes } from '../../figures/figure-levels'
 import { isOwedTenseEnding } from './join-rules'
 import { collectionStep, contiguous } from './phrase-facts'
 import type { AbstractTensionRequirement as TensionRequirement } from '../../harmony/harmony-types'
@@ -144,9 +145,9 @@ function chromaticOrnament(
 }
 
 /**
- * Explain every non-chord tone. Pitches stay in the collection unless the active profile declares
- * the chromatic-approach capability, in which case an out-of-collection pitch must belong to a
- * complete chromatic approach or enclosure. The bound figure must be structurally sound and
+ * Explain every non-chord tone. Pitches stay in the collection unless the figure levels allow
+ * chromatic notes, in which case an out-of-collection pitch must belong to a complete chromatic
+ * approach or enclosure. The bound figure must be structurally sound and
  * realized by its MIDI path. Remaining diatonic non-chord tones must be free passing tones or
  * neighbors, except a tense final note a phrase generated with carry-in may leave for its next
  * phrase to resolve.
@@ -169,7 +170,7 @@ export function figureFailures(facts: PhraseFacts): readonly PitchValidationFail
   const chromatic = new Set<number>()
   for (const attack of facts.attacks) {
     if (attack.inCollection) continue
-    if (!facts.context.policy.capabilities.allowsChromaticApproach) {
+    if (!allowsChromaticNotes(facts.context.policy.figureLevels)) {
       failures.push({ code: 'out_of_collection', attackIndex: attack.index })
       continue
     }

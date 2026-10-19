@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { makeHarmonyCandidateDomain } from '@/domain/harmony/harmony-planner'
 import type {
   AbstractTensionRequirement,
@@ -140,7 +141,7 @@ function validatorAccepts(
       tonalCenter: 'C',
       contour: 'Wandering',
       leapiness: 'Leaping',
-      capabilities: { allowsChromaticApproach: false },
+      figureLevels: NEUTRAL_FIGURE_LEVELS,
     },
     harmony: {
       identity: harmony.identity,

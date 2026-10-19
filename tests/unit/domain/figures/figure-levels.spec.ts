@@ -10,7 +10,6 @@ import {
   FIGURE_IDS,
   FIGURE_LEVEL_IDS,
   FigureLevelsError,
-  generatorCapabilities,
   JAZZ_FIGURE_LEVELS,
   levelsForProfile,
   NEUTRAL_FIGURE_LEVELS,
@@ -124,10 +123,6 @@ describe('what the levels allow', () => {
   it('allows no chromatic note with Neutral levels and allows it with Jazz levels', () => {
     expect(allowsChromaticNotes(NEUTRAL_FIGURE_LEVELS)).toBe(false)
     expect(allowsChromaticNotes(JAZZ_FIGURE_LEVELS)).toBe(true)
-    expect(generatorCapabilities(NEUTRAL_FIGURE_LEVELS)).toEqual({
-      allowsChromaticApproach: false,
-    })
-    expect(generatorCapabilities(JAZZ_FIGURE_LEVELS)).toEqual({ allowsChromaticApproach: true })
   })
 
   it('allows chromatic notes when only one chromatic figure is not off', () => {
