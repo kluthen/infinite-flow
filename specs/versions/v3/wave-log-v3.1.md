@@ -194,3 +194,15 @@ with no owner; chunk 8's drift list and size; chunk 10's key labels) and a v3.0 
   input keeps the profile until chunk 12). For the wave sync: J3's kept-record wording applies
   only in its chunk 8 half (spec D364); revise `module_harmony_candidate_domain` together with
   `rule_jazz_chromatic_resolution` (chunk 5).
+
+### Chunks
+
+- **Chunk 4, figure levels in the request: merged bfa53a3** (4a d06205b, 4b 683bee4; split rule
+  applied). Done when met item by item; corpus guard passed, fixtures byte-identical; unit 223
+  files / 4,287 tests on its paths. Outside its Files line, forced by the intent's new field:
+  `kept-phrase-parsers.ts` reads `figureLevels` as optional (checked against the stored profile,
+  filled from it when absent). So phrases kept until chunk 8 hold both `musicalProfile` and
+  `figureLevels`: a third version 1 shape, sent to `spec-writer` for chunks 8 and 9 (D364's
+  reader). Chunk 8 routes that parser's `levelsForProfile` call through `profile-to-levels.ts`
+  (`module_stored_profile_to_levels`). For the sync: `module_harmony_candidate_domain` no longer
+  consumes a profile.

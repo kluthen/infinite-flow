@@ -445,7 +445,7 @@ Record: d976392, merged as 6e9f36c. `src/` identical to `v3.0.0`, so both baseli
 
 ### Chunk 4 — Figure levels in the generation request
 
-Status: in progress (w1, 2026-10-19)
+Status: merged (w1, bfa53a3)
 Wave: 1
 Depends on: 0, 2
 Architecture capture: the figures and levels module, `src/domain/figures/figure-levels.ts`: the
@@ -530,6 +530,8 @@ wave.
   `generation-worker-inbound.ts`), 4b the allowance read from the levels and the harmony planner's
   profile (the policy, its types, `window-search.ts`, the validator, the table, the planner and its
   callers, the census and the test call sites).
+
+Record: d06205b (4a, the figures module, `figureLevels` in the intent, the worker parser, the kept-intent reader) and 683bee4 (4b, the allowance from the levels, the harmony planner without a profile), merged as bfa53a3. `MUSICAL_PROFILE_CAPABILITIES` deleted; a grep test keeps profile-name reads out of the generator. The worker refuses bad levels with `GenerationWorkerProtocolError`. Corpus guard passed, fixtures byte-identical. Outside its Files line: `src/storage/records/kept-phrase-parsers.ts`, where `figureLevels` is an optional key, checked against the stored profile, filled from it when absent; so phrases kept from now until chunk 8 hold both `musicalProfile` and `figureLevels` (a third version 1 shape for chunks 8 and 9). The parser calls `levelsForProfile` directly until chunk 8 adds `profile-to-levels.ts`. `PitchPolicy.capabilities` keeps the field name `allowsChromaticApproach` for chunk 5.
 
 ### Chunk 5 — Levels gate the figures
 
