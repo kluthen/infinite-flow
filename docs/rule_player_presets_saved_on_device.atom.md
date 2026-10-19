@@ -14,6 +14,7 @@ dependents:
   - [[rule_preset_load_values_win]]
   - [[rule_presets_in_visits_that_save_nothing]]
   - [[rule_presets_load_tolerantly]]
+  - [[rule_presets_read_at_start_up]]
   - [[rule_refused_preset_save_told]]
   - [[rule_saved_profile_becomes_preset]]
 ---
