@@ -710,7 +710,7 @@ Record: c7bc4ae (6a, the draw and the figures a candidate names) and 1fed56c (6b
 
 ### Chunk 7 — Two new free figures: the appoggiatura and the diatonic enclosure
 
-Status: planned
+Status: in progress (w2, 2026-10-19)
 Wave: 2
 Depends on: 6
 Architecture capture: none (it builds on chunk 6's)
