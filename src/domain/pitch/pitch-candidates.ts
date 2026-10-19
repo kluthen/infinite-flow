@@ -268,6 +268,7 @@ function enclosureOffered(facts: DomainFacts, index: number): boolean {
  * the target. None when the figure levels allow no chromatic note; otherwise each of the two
  * figures is offered only when its own level is not off.
  */
+// @spec-link [[rule_jazz_chromatic_resolution]]
 // @spec-link [[rule_chromatic_notes_need_a_chromatic_figure]]
 // @spec-link [[rule_figure_level_orders_search]]
 // @spec-link [[module_musical_profile_capabilities]]

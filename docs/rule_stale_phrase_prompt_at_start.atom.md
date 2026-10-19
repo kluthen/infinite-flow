@@ -17,7 +17,7 @@ parents:
   - [[req_rolling_practice_session]]
   - [[rule_phrase_one_is_idle_phrase]]
   - [[rule_session_start_conditions]]
-version: 0.2
+version: 0.3
 ---
 
 # A Stale Phrase 1 Asks Before Start
@@ -30,7 +30,7 @@ At Idle, ordinary edits never regenerate the phrase on screen, and a session sta
 
 Stale. Phrase 1 is stale when a setting the generation reads has a different value now than when phrase 1 was generated. Values are compared, not edits: a setting changed and changed back is no difference.
 
-- What counts: every generation control except the tempo (Written key, Collection, Harmonic motion, Tension, Note density as the player chose it, Rhythmic variety, Syncopation, Silence density, Contour, Register, Leapiness, Arpeggio chaos); the musical profile, Neutral or Jazz, its customized mark alone not counting; the instrument as the generation reads it, its id and, for my instrument, its range and transposition; and, from v3.1 on, every setting a later version adds to the generation request (the embellishment figure levels, the chord level), in the same way.
+- What counts: every generation control except the tempo (Written key, Collection, Harmonic motion, Tension, Note density as the player chose it, Rhythmic variety, Syncopation, Silence density, Contour, Register, Leapiness, Arpeggio chaos); each of the seven embellishment figure levels, the musical profile counting only through the levels it gives (a change between Neutral and Jazz changes the chromatic approach's and the chromatic enclosure's, and the customized mark alone changes none); the instrument as the generation reads it, its id and, for my instrument, its range and transposition; and every setting a later version adds to the generation request (the chord level), in the same way.
 - What never counts: the tempo and Rising tempo, since the tempo never affects generation; Vary settings and Tension across phrases, since neither acts on phrase 1; the audio mix; the theme; my instrument's clef and display name; and the window's width, since the note density a narrow window gives is not a setting.
 - The instrument never makes phrase 1 stale in practice, since an instrument switch regenerates the phrase and saving my instrument's range or transposition while it is selected replaces it; it is counted for completeness.
 
@@ -47,7 +47,7 @@ While the prompt shows, the app is still at Idle: no MIDI note starts anything, 
 A running session never asks. The prompt comes before the session starts; the count-in starts only after Use it, and once the session has started nothing is asked until it ends.
 
 ## TECHNICAL INTERFACE
-At Idle, with every start condition holding, the Start action and the starting note on a stale phrase 1 open the stale-phrase prompt and start nothing. The staleness check compares, by value, the settings phrase 1 was generated under with the current ones, over what the generation reads. The prompt's Use it runs the session start with phrase 1 kept as it is and its own settings passed beside the session's settings; its Regenerate runs the Idle Regenerate and stays at Idle; dismissing it changes nothing. Its wording and form belong to the interface design. On screen, the two choices are labelled `Regenerate phrase`, the header's own Regenerate action, which the choice runs, and `Start with this phrase`; Regenerate and Use it stay the names of the two choices in the spec and the atoms.
+At Idle, with every start condition holding, the Start action and the starting note on a stale phrase 1 open the stale-phrase prompt and start nothing. The staleness check compares, by value, the settings phrase 1 was generated under with the current ones, over what the generation reads; a changed figure level is named by its figure's label, never as the musical profile. The prompt's Use it runs the session start with phrase 1 kept as it is and its own settings passed beside the session's settings; its Regenerate runs the Idle Regenerate and stays at Idle; dismissing it changes nothing. Its wording and form belong to the interface design. On screen, the two choices are labelled `Regenerate phrase`, the header's own Regenerate action, which the choice runs, and `Start with this phrase`; Regenerate and Use it stay the names of the two choices in the spec and the atoms.
 
 ## EXPECTATION
 - After a change of Written key, Collection, Register or any other setting that counts, with phrase 1 kept, Start and the starting note open the prompt and start nothing: no sound, no screen lock, no count-in.

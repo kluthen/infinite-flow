@@ -22,7 +22,7 @@ parents:
   - [[rule_save_changes_restriction]]
   - [[rule_saving_preset_asks_its_restriction]]
 type: MODULE
-version: 0.1
+version: 0.2
 ---
 
 # The Preset Model
@@ -39,7 +39,7 @@ Choosing a preset sets the ten controls and the seven levels to its values and, 
 
 With a preset selected, changing a preset-held setting, or choosing a written key or collection outside the restriction in force, makes the selection Custom based on that preset; Custom stays Custom with the same base. Values are never compared with the preset's, and only choosing a preset leaves Custom. Changing the tempo or the instrument never makes Custom, nor does a key or mode inside the restriction in force. The restriction in force is worked out, never stored: the selected preset's restriction, or in Custom its base's, while the current written key and collection are both inside it; otherwise none, and Custom with no base has none. Deleting the selected player preset, or Custom's base, leaves Custom with no base and the same values.
 
-Saving as new offers three restriction choices, the first the default: as now (the restriction in force, or any when none is), only the current written key and collection, and any key and mode; choices that would mean the same restriction are one, keeping the default. Saving changes into a player preset asks for its restriction only when the current written key or collection lies outside that preset's restriction, offering any key and mode (as now) and only the current key and mode; inside it, the preset keeps its restriction. A name is trimmed, of 1 to 40 characters, unique among all presets ignoring case, the built-in names included and the preset being renamed excepted, and never Custom in any letter case; a refused name gives its reason, the first that applies of empty, reserved and taken. A new preset's suggested name is My preset, then My preset 2, My preset 3 and so on, the first no preset has, ignoring case. Uniqueness is checked only when saving or renaming. Saving a new player preset is refused while 50 or more are loaded. The restriction is also put in words, as the preset sheet and the preset's description line write it (Mixolydian or Dorian in any key, only G Dorian).
+Saving as new offers three restriction choices, the first the default: as now (the restriction in force, or any when none is), only the current written key and collection, and any key and mode; choices that would mean the same restriction are one, keeping the default. Saving changes into a player preset asks for its restriction only when the current written key or collection lies outside that preset's restriction, offering any key and mode (as now) and only the current key and mode; inside it, the preset keeps its restriction. A name is trimmed, of 1 to 40 characters, unique among all presets ignoring case, the built-in names included and the preset being renamed excepted, and never Custom in any letter case; a refused name gives its reason, the first that applies of empty, too long, reserved and taken. A new preset's suggested name is My preset, then My preset 2, My preset 3 and so on, the first no preset has, ignoring case. Uniqueness is checked only when saving or renaming. Saving a new player preset is refused while 50 or more are loaded. The restriction is also put in words, as the preset sheet and the preset's description line write it (Mixolydian or Dorian in any key, only G Dorian).
 
 The model is pure: it reads and writes no storage, renders nothing, and reads no clock or random source beyond the injected id source.
 
