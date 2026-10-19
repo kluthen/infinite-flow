@@ -236,8 +236,8 @@ key and mode restriction (D229–D231); and player presets saved with v3.0's sto
 open; the figure shares and the cost guard are measured before the gate. The notes below are the
 background those drafts started from.
 
-**Build plan:** [build-plan-v3.1.md](build-plan-v3.1.md), v4 (2026-10-19), approved by the
-owner on 2026-10-19 (D357). It plans v3.1 on top of the [v3.0 build plan](build-plan.md) on the build-plan model: 21
+**Build plan:** [build-plan-v3.1.md](build-plan-v3.1.md), v5 (2026-10-19; v4 approved by the
+owner on 2026-10-19, D357; v5 writes in D359–D362). It plans v3.1 on top of the [v3.0 build plan](build-plan.md) on the build-plan model: 21
 chunks in six waves, then the release gate, under the shared [v3 build workflow](build-workflow.md)
 (D349). The design is approved (D353); waves 4 and 5 wait for the token-source pass (gate T1), which
 the owner has not allowed yet (D355, D356); waves 0–3 may merge into `main` meanwhile, with no
@@ -548,13 +548,15 @@ policy's vocabulary implements them.
 - **D13 is untouched.** The chords stay generated. A flag allows a chord family; it never chooses a
   chord progression.
 
-The style atlas on branch `v4-accompaniment-research` cites D12 for "triads only". The rule is in
-fact the policy's, under D11; the research and the v3.3 spec cite the policy.
+The [style atlas](../../../docs/music/styles/README.md) (merged from branch
+`v4-accompaniment-research` on 2026-10-19) cites D12 for "triads only". The rule is in fact the
+policy's, under D11; the research and the v3.3 spec cite the policy.
 
-**Style packs (D259, on branch `v4-accompaniment-research`, not merged).** D259 records style packs
-as planned, with no version: the generator's capabilities grouped into dialects (Folk reel, Bebop,
-Blues, Baroque...), as declarative data over the one generator, in the style atlas's greedy unlock
-order. The breadth review there (`docs/music/generation-breadth-review.md`) treats each missing
+**Style packs (D259, merged from branch `v4-accompaniment-research` on 2026-10-19).** D259 records
+style packs as planned, with no version: the generator's capabilities grouped into dialects (Folk
+reel, Bebop, Blues, Baroque...), as declarative data over the one generator, in the style atlas's
+greedy unlock order. The
+[breadth review](../../../docs/music/generation-breadth-review.md) treats each missing
 device, seventh chords among them, as a _capability, not a style_. Each capability is built once,
 off by default, with its own invariant, and a pack later becomes a named bundle that switches
 capabilities on. It asks which version opens the first device.
@@ -593,10 +595,12 @@ v3.0 is built.
      [research sources](../../../docs/music/research-sources.md);
    - the code and atoms that assume a three-note chord ([below](#what-a-fourth-chord-note-meets)).
 
-   Unmerged research on branch `v4-accompaniment-research` is an input while that branch exists:
-   `docs/music/generation-breadth-review.md`, the style atlas (`docs/music/styles/`), which count
-   seventh chords as one capability, and its lexicon entries `chord-inversion`, `voicing`,
-   `guide-tone` and `two-five-one`. It is not on `main`.
+   The research merged from branch `v4-accompaniment-research` on 2026-10-19 (3861edc) is an
+   input too: the [breadth review](../../../docs/music/generation-breadth-review.md) and the
+   [style atlas](../../../docs/music/styles/README.md), which count seventh chords as one
+   capability, and its lexicon entries [chord inversion](../../../docs/music/lexicon.md#chord-inversion),
+   [voicing](../../../docs/music/lexicon.md#voicing), [guide tone](../../../docs/music/lexicon.md#guide-tone)
+   and [two-five-one](../../../docs/music/lexicon.md#two-five-one).
 
 2. **Web.** The web research covers five subjects:
    - **Chord types:** the seventh-chord qualities; sixth and suspended chords; ninths, elevenths
@@ -612,7 +616,8 @@ v3.0 is built.
    - a research document in `docs/music/`, where every fact the generator will rely on cites a
      source;
    - its sources, merged into [research sources](../../../docs/music/research-sources.md) under
-     new S numbers above the highest on any branch (S411 on `v4-accompaniment-research` today);
+     new S numbers above the highest on any branch (S452 on `main` today, both research branches
+     merged);
    - new terms, added to the [lexicon](../../../docs/music/lexicon.md). The v3.3 questions rely on
      these terms, which the lexicon on `main` does not have yet, so this spec glosses them in
      place and links only entries that exist:
@@ -626,8 +631,8 @@ v3.0 is built.
        [root](../../../docs/music/lexicon.md#root);
      - **voicing**, with close and open position.
 
-     `chord-inversion` and `voicing` already exist on branch `v4-accompaniment-research`. The
-     research reuses those entries rather than writing a second definition.
+     `chord-inversion` and `voicing` are in the lexicon since the `v4-accompaniment-research`
+     merge. The research reuses those entries rather than writing a second definition.
 4. **Privacy.** Every brief for a web-research agent forbids putting the owner's name, email or
    any other personal data into request headers (User-Agent included), URLs or payloads. When an
    API asks for contact details, the agent sends a generic User-Agent or skips that API.

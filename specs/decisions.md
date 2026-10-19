@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.107
+Status: draft v2.108
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -21,14 +21,14 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and each milestone
 folder's README, such as [archive/v3/README.md](archive/v3/README.md)). Numbering continues from
-**D359**.
+**D363**.
 
 Live here: D228–D251 (v3.1 and v3.2, not built yet), D259–D260 (style packs, planned with no
 version, and the sound ban; merged from branch `v4-accompaniment-research`), D261–D288 (v3.3, not
 built yet; D263–D288 merged from branch `v3.3-chord-research`), D344–D348 (the v3.0 release and
 its follow-ups) and D349–D358 (the v3.1–v3.3 plan migrations, merged from branch
-`plan-migration` as D339–D341, the v3.1 plan's gates and approval, and B12's code check). D289
-is unused.
+`plan-migration` as D339–D341, the v3.1 plan's gates and approval, and B12's code check) and
+D359–D362 (the owner's rulings during v3.1's wave 0). D289 is unused.
 
 ## Decision Log
 
@@ -699,3 +699,30 @@ is unused.
   path (the instrument switch and Vary settings take their own), pre-generation discards on a
   change, storage exists, and v3.0 left 230 bytes of entry-chunk budget, which opens
   [O231](open-questions.md). Now in: [B12](versions/v3/master-spec.md#b12-existing-code-and-risks).
+
+- **D359 (2026-10-19): v3.1's entry budget is raised to 300 KiB (closes O231).** The owner wrote
+  "raise to 300kb"; read in the unit the 224 KiB budget uses (`entryChunkByteBudget = 224 * 1024`,
+  `scripts/verify-boundaries.mjs`), that is 307,200 B. The driver's change to the constant lands in
+  wave 0. Not adopted: raising it chunk by chunk by measured growth (O231's proposal). Now in:
+  [M4](versions/v3/build-plan-v3.1.md#m4--the-first-load-bundle),
+  [B12](versions/v3/master-spec.md#b12-existing-code-and-risks).
+
+- **D360 (2026-10-19): the STABLE `rule_saved_settings_load_tolerantly` may take the
+  `changes-in-v3.1` tag.** The owner allows `documentalist` the STABLE guard's override for this tag,
+  metadata only ([change set part I3](../docs/release/v3.1-v3.2-intent-change-set.md#i3-for-the-owner-not-applied));
+  its wording changes under D361. Now in:
+  [chunk 16](versions/v3/build-plan-v3.1.md#chunk-16--presets-and-levels-on-the-device).
+
+- **D361 (2026-10-19): v3.1's revisions of v3.0's STABLE contract atoms take a MAJOR contract
+  bump.** The twelve atoms of change set part I3; `documentalist` drafts their new wordings and the
+  owner confirms them, the "to decide" rows included, before the first wave sync that revises one:
+  gate CS, which blocks wave 1's sync, since chunk 8 already changes what a kept phrase stores. B11
+  and B12 now count them, and B11 lists the four entries it missed (part I4). Now in:
+  [Gates](versions/v3/build-plan-v3.1.md#gates),
+  [B11](versions/v3/master-spec.md#b11-what-v31-changes-in-v30-and-in-v2s-guarantees).
+
+- **D362 (2026-10-19): the STABLE `rule_open_phrase_ending` is reworded with v3.1.** Its "jazz
+  approaches, and jazz enclosures" and "profile-approved" continuation give way to wording that
+  names no profile, since chromatic figures come from any preset; its guarantee is unchanged. Under
+  D361's bump and gate CS; chunk 12 revises it. Now in:
+  [chunk 12](versions/v3/build-plan-v3.1.md#chunk-12--presets-replace-the-musical-profile).

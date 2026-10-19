@@ -1,8 +1,11 @@
 # Infinite Flow v3.1 — Build Plan
 
-Status: v4 (2026-10-19): gates D0 and R0 cleared, T1 not given, waves re-formed around it, code
-facts refreshed, design links on the frozen v3.1 design (spec D353–D356, ux D324). Approved by the
-owner on 2026-10-19 (spec D357), with the transitional interface below.
+Status: v5 (2026-10-19): entry budget 300 KiB, gate CS for the MAJOR contract bump (it blocks wave
+1's sync), the contract atoms each chunk revises, chunk 8 removes chunk 2's lint exception (spec
+D359–D362).
+v4 (2026-10-19): gates D0 and R0 cleared, T1 not given, waves re-formed around it, code facts
+refreshed, design links on the frozen v3.1 design (spec D353–D356, ux D324). Approved by the owner
+on 2026-10-19 (spec D357), with the transitional interface below.
 
 Embellishment figures and presets, written from [master spec Part B](master-spec.md#part-b--v31)
 (v1.0, approved 2026-10-08, with spec D250 written in) and the v3.1 design, frozen at
@@ -67,13 +70,14 @@ and `main` may stay in it while T1 waits, but no release is cut before wave 5 ha
 | **L1**       | The owner's listening check of the figure levels ([H1](#hand-checks)); the shares are tuned from it.                                                                                                                                                                          | The owner                                                                                                 | The release gate's final M1 and M2 runs                                       | open (after chunk 14)                                        |
 | **L2**       | The owner's listening check of the eight built-in presets ([H2](#hand-checks)).                                                                                                                                                                                               | The owner                                                                                                 | The release gate                                                              | open (after chunk 14)                                        |
 | **Contract** | B11's four guarantee changes confirmed and applied (CONTRACT 3.0).                                                                                                                                                                                                            | The owner; `documentalist`                                                                                | Nothing; the release gate checks the record (item 23)                         | done (2026-10-08, spec D246)                                 |
+| **CS**       | The MAJOR contract bump for v3.0's STABLE contract atoms that v3.1 revises (the twelve of the change set's [part I3](../../../docs/release/v3.1-v3.2-intent-change-set.md#i3-for-the-owner-not-applied)) and for `rule_open_phrase_ending` ([B11](master-spec.md#b11-what-v31-changes-in-v30-and-in-v2s-guarantees); spec D361, D362): `documentalist` drafts their new wordings, the three "to decide" rows first (two weaken a guarantee); the owner confirms them all at once. The chunks that revise them say "(contract, CS)" in their Revisions line: 8, 9, 12, 16, 17 and 18. | `documentalist` drafts; the owner confirms | The sync of wave 1, the first wave whose chunks revise one (chunk 8: `rule_kept_session_content`, `entity_kept_session_record`, `module_kept_session_codec`); its chunks may be built and merged into the wave branch first | open (drafts before wave 1's sync) |
 
 ## Waves
 
 | Wave | Chunks                                                                                                                                                | Waits for                                                                                                                                                                                                                                                          | Status                   |
 | ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------ |
 | 0    | 0 Intent re-sync · 2 Baselines · 3 Measurement tools                                                                                                  | Nothing (R0 done). Chunk 3 records its baselines on v3.0's code: nothing in this wave changes the generator.                                                                                                                                                       | in progress (2026-10-19) |
-| 1    | 4 Figure levels in the request · 5 Levels gate the figures · 8 Replay key `ifk3.` · 10 Preset model                                                   | Wave 0. In-wave 4 → 5, 4 → 8 and 4 → 10: chunk 4's capture fixes the figure ids, the level type and the request's `figureLevels`.                                                                                                                                  | planned                  |
+| 1    | 4 Figure levels in the request · 5 Levels gate the figures · 8 Replay key `ifk3.` · 10 Preset model                                                   | Wave 0. In-wave 4 → 5, 4 → 8 and 4 → 10: chunk 4's capture fixes the figure ids, the level type and the request's `figureLevels`. **CS** before its sync (chunk 8).                                                                                                 | planned                  |
 | 2    | 6 Favored levels order the search · 7 Two new free figures · 9 Kept sessions hold the levels                                                          | Wave 1. In-wave 6 → 7: chunk 6's capture fixes the draw and the candidate's figure.                                                                                                                                                                                | planned                  |
 | 3    | 11 Cost guard, first run · 12 Presets replace the musical profile · 15 Vary settings inside the restriction · 16 Presets on the device                | Wave 2. In-wave 12 → 15 and 12 → 16: chunk 12's capture fixes the session settings and the routing point. DP opens at its end.                                                                                                                                     | planned                  |
 | 4    | 1 Token-source pass · 13 Preset bar and marks                                                                                                         | Wave 3; **T1** (not given, D355). Two chunks: every other chunk T1 holds needs both 1 and 13, which would make a chain of three, and every chunk T1 does not hold is in waves 0–3 so that it need not wait.                                                        | blocked (on T1)          |
@@ -182,13 +186,15 @@ The [build workflow](build-workflow.md) holds for v3.1 with release name `v3.1`.
 - **Intent**: the DRAFT atoms are tagged `release-v3.1`, the atoms to revise `changes-in-v3.1`;
   revisions are part E and drift checks part F of the
   [v3.1–v3.2 intent change set](../../../docs/release/v3.1-v3.2-intent-change-set.md). Chunks 2, 3
-  and 11 add no atom.
+  and 11 add no atom. A revision marked "(contract, CS)" changes a STABLE contract atom: it is
+  part of one MAJOR contract bump whose wordings the owner confirms first (gate [CS](#gates)).
 - **Chunks 0 and 1 are not coding chunks**: the driver hands chunk 0 to `documentalist` (spec
   ingestion, milestone refinement) and chunk 1 to `ux-writer`.
 - **Area documents**: `docs/session-engine.md`, `docs/phrase-workspace.md`,
   `docs/generation-latency.md`, [`docs/music/`](../../../docs/music/README.md); the lexicon entries
   B11 lists.
-- **Entry budget**: 224 kB, unchanged ([M4](#m4--the-first-load-bundle)).
+- **Entry budget**: 300 KiB (307,200 B), raised from 224 KiB in wave 0
+  ([M4](#m4--the-first-load-bundle)).
 - **Hand checks** go into a new "v3.1 hand checks" part of
   [`HARDWARE-CHECKLIST.md`](../../../HARDWARE-CHECKLIST.md), written by the chunk the
   [table](#hand-checks) names. The file's v3.0 part already uses H2–H9, so the v3.1 part names its
@@ -259,15 +265,16 @@ Gate DP: whether B5.6's rule (the passing tone and the neighbor tone may not bot
 
 ### M4 — The first-load bundle
 
-- **What:** the entry chunk stays within its 224 kB budget (`entryChunkByteBudget`). v3.0 left
-  little headroom; the combo box, the seven level controls and the built-in table add code (B12).
+- **What:** the entry chunk stays within its 300 KiB budget, 307,200 B (`entryChunkByteBudget`,
+  `scripts/verify-boundaries.mjs`): the owner's "300kb", read in the unit of v3.0's 224 KiB budget
+  (spec D359). v3.0 left 230 bytes of that one; the combo box, the seven level controls and the
+  built-in table add code (B12).
   The preset sheet and Your data's Presets section load on demand; the built-in table, the preset
   bar and the seven level controls are in the entry chunk.
-- **Run by:** chunk 2 (the baseline on the v3.0 release); every wave gate; the release gate
-  (`npm run verify:boundaries`, budget unchanged).
+- **Run by:** chunk 2 (the baseline on the v3.0 release, 229,146 B); every wave gate; the release
+  gate (`npm run verify:boundaries` at 300 KiB). The constant's raise lands in wave 0, made by the
+  driver.
 - **Recorded:** the wave log and each wave's merge commit message; the release notes.
-- **Open:** v3.0 left 230 bytes of that budget ([B12](master-spec.md#b12-existing-code-and-risks));
-  whether and how it is raised is [O231](../../open-questions.md), to settle before wave 1's gate.
 
 ### Hand checks
 
@@ -532,7 +539,9 @@ Architecture capture: none
   `rule_levels_govern_free_figures_only`, `rule_chromatic_notes_need_a_chromatic_figure`,
   `rule_figures_resolve_onto_chord_tones`; (v2) `rule_neutral_profile_diatonic_harmony`. Drift
   check: `service_generation_result_validation`, `module_musical_profile_capabilities`.
-- **Revisions:** revise `rule_neutral_profile_diatonic_pitches`, `rule_jazz_chromatic_resolution`.
+- **Revisions:** revise `rule_neutral_profile_diatonic_pitches`, `rule_jazz_chromatic_resolution`,
+  `rule_tension_resolution_delay_permits_rests` (chromatic approaches and enclosures under any
+  preset's levels, not only Jazz's; its no-rest rule unchanged).
 - **Done when:**
   - With a figure Off, the census over the M1 sweep finds it only as Tension's scheduled figure
     (for the three figures Tension can schedule) or not at all, for each of the seven in turn.
@@ -680,6 +689,9 @@ replay:phrase` replays all three. Code fact: the `ifk1.` payload is the unpadded
     writes levels; a stored v3.0 phrase is read through `profile-to-levels.ts`.
   - An in-browser replay test (workspace harness) replays a slice of the corpus through the worker,
     for H3.
+  - **Chunk 2's lint exception goes:** chunk 2 left a temporary `// @lint-ignore-atd` line (line 2)
+    in `tests/unit/generation-worker/phrase-replay-key-v30-corpus.spec.ts`; this chunk removes it
+    when it adds that spec's `@test-link` tags.
 - **Files:** `src/generation-worker/phrase-replay-key.ts`, `phrase-replay-key-decode.ts`,
   `phrase-replay.ts`, `phrase-replay-report.ts`, `generation-worker-inbound.ts`,
   `scripts/replay-phrase.mjs`, `src/domain/generation/generation-intent.ts`, the five name readers
@@ -692,10 +704,15 @@ replay:phrase` replays all three. Code fact: the `ifk1.` payload is the unpadded
 - **Spec sections:** [B9](master-spec.md#b9-the-generation-request-the-replay-key-and-kept-sessions),
   Part A §7.4; items 19, 7 (the key reproduces; H3 for Edge), 20 (reading v3.0 phrases).
 - **Atoms:** `rule_figure_draws_reproducible`, `rule_neutral_and_jazz_figure_levels`; (v2)
-  `rule_seeded_phrase_reproduction`, `rule_neutral_profile_diatonic_harmony`. Drift check:
+  `rule_seeded_phrase_reproduction`, `rule_neutral_profile_diatonic_harmony`; (v3.0)
+  `rule_kept_session_content`, `rule_stale_phrase_prompt_at_start`. Drift check:
   `module_phrase_replay_key`, `module_generation_worker_protocol`,
   `module_generation_request_construction`.
-- **Revisions:** revise `rule_seeded_phrase_reproduction` (figure levels in the request).
+- **Revisions:** revise `rule_seeded_phrase_reproduction` (figure levels in the request);
+  `rule_stale_phrase_prompt_at_start` (the levels count where the profile did); (contract, CS)
+  `rule_kept_session_content` (each phrase's inputs hold the levels in place of the profile; chunk 9
+  adds the label), `entity_kept_session_record` and `module_kept_session_codec` (a kept phrase's
+  intent holds no profile, so the summary's profile no longer comes from phrase 1's intent).
 - **Done when:**
   - Every phrase's key is `ifk3.`; encoding then decoding returns an equal intent, and replaying it
     gives the same timeline, for built-in and player-made instruments.
@@ -706,6 +723,8 @@ replay:phrase` replays all three. Code fact: the `ifk1.` payload is the unpadded
   - No intent, key or kept phrase holds a profile or preset name (a test over each one's keys).
   - A v3.0-shaped kept session (seeded) still opens, its phrases read with its profile's levels.
   - `npm run replay:phrase` replays one key of each version.
+  - `phrase-replay-key-v30-corpus.spec.ts` carries its `@test-link` tags and no `@lint-ignore-atd`
+    line; `npm run atd:lint` passes.
 - **Verification:** chunk checks with the corpus guard; `npm run replay:phrase -- <key>` for each
   version by hand; H3.
 - **Split rule:** none: wide but mechanical (about fifteen files, most a removed field). It cannot be
@@ -759,7 +778,10 @@ string). One data version per stored shape that changes, each with its own step 
   (`review-summary`).
 - **Atoms:** `rule_earlier_kept_sessions_carried_over`, `rule_preset_label_kept_with_session`;
   (v3.0) `rule_kept_session_content`, `rule_kept_session_holds_no_acknowledgements`.
-- **Revisions:** revise `rule_kept_session_content`, `req_kept_session_list`.
+- **Revisions:** (contract, CS) revise `rule_kept_session_content` (the preset label),
+  `req_kept_session_list`, `entity_kept_session_record`, `module_kept_session_codec` (the label in
+  the summary), `module_kept_session_reach` (the rows' label), `module_on_device_database` (data
+  version 2 and its step).
 - **Done when:**
   - A database seeded with v3.0 sessions (Neutral, Jazz, customized Jazz, my instrument, played
     notes, favorites, a comment) opens at data version 2: each phrase holds its profile's levels,
@@ -950,7 +972,10 @@ settings and the draw) and 16 (the state it loads into) build on it in the same 
   `module_generative_profile_selection`, `module_session_vary_settings_flag`.
 - **Revisions:** revise `user_story_controlled_phrase_generation`,
   `rule_selectable_generative_profiles`, `rule_profile_presets_apply_defined_controls`,
-  `rule_profile_control_customization`, `rule_mutation_draws_setting_then_direction`. Delete
+  `rule_profile_control_customization`, `rule_mutation_draws_setting_then_direction`,
+  `rule_stale_phrase_prompt_at_start` (the preset selection shown from the start); (contract, CS)
+  `rule_open_phrase_ending` (no "jazz" approaches and enclosures, no "profile-approved"
+  continuation; spec D362). Delete
   `rule_mutation_profile_flip_keeps_controls` (the documentalist's escalation): move its
   `@spec-link` (`src/session/settings-mutation-scales.ts`) and `@test-link`s
   (`tests/unit/session/settings-mutation-scales.spec.ts`,
@@ -1186,7 +1211,11 @@ levels, restriction; data and app version) and its tolerant codec.
   `rule_saved_settings_load_tolerantly`, `rule_saved_setting_is_players_choice`,
   `rule_no_save_during_session`, `rule_outdated_tab_stops_saving`,
   `rule_failed_read_offers_only_delete_everything`.
-- **Revisions:** revise `rule_settings_saved_on_change`.
+- **Revisions:** (contract, CS) revise `rule_settings_saved_on_change`,
+  `rule_saved_settings_load_tolerantly` (Custom based on the preset in place of its grammar; a key
+  and mode outside the restriction load as Custom; tagged `changes-in-v3.1` by spec D360),
+  `module_on_device_database` (data version 3, the `presets` store), `module_saved_data_loader`
+  (the levels, the selection and the presets read with the settings).
 - **Done when:**
   - The seven levels and the selection survive a reload (one e2e test per level, and for a
     built-in, a player preset and Custom with and without a base).
@@ -1265,7 +1294,9 @@ Chunks 18 and 19 build on it in the same wave.
   `rule_refused_preset_save_told`, `rule_presets_in_visits_that_save_nothing`,
   `rule_no_preset_leaves_device`; (v3.0) `rule_failed_save_never_disturbs_session`,
   `rule_outdated_tab_stops_saving`.
-- **Revisions:** revise `rule_persistent_storage_requested`.
+- **Revisions:** revise `rule_unsupported_rhythm_settings_block_generation` (a player preset may
+  hold an unsupported combination; eight built-ins); (contract, CS)
+  `rule_persistent_storage_requested`.
 - **Done when:**
   - Save as new from a built-in, a player preset and each Custom state: the three restriction
     choices (merged as the design says), "as now" by default; from Custom based on Reel "as now"
@@ -1323,7 +1354,7 @@ Architecture capture: none (it builds on chunk 17's)
   (Deleting from Your data).
 - **Atoms:** `rule_deleting_base_preset_leaves_custom`, `rule_presets_in_visits_that_save_nothing`;
   (v3.0) `rule_failed_read_offers_only_delete_everything`.
-- **Revisions:** revise `req_your_data`, `rule_delete_everything`.
+- **Revisions:** (contract, CS) revise `req_your_data`, `rule_delete_everything`.
 - **Done when:**
   - Seeded with three player presets and one unreadable record: the section lists three, counts
     three; deleting the selected one leaves "Custom" with the same values; deleting another leaves
@@ -1414,11 +1445,11 @@ The release gate, not a wave; it keeps its chunk number because other plans link
 - The v3.0 corpus, the `ifk1.` corpus, the `ifk2.` tests and the goldens re-run; the privacy spy
   (`tests/e2e/review/review-privacy.spec.ts`, network half) with player presets saved (no preset
   leaves the device).
-- `npm run verify:boundaries` with the 224 kB entry budget unchanged (M4).
+- `npm run verify:boundaries` with the 300 KiB entry budget (M4).
 - Hand checks v3.1 H1–H5 done.
 - `documentalist`'s post-task sync over every `release-v3.1` atom, promoting those the owner agrees
   to; every `changes-in-v3.1` atom revised; part F's drift checks done; the contract's item 23
-  record checked (D246, in the CONTRACT 3.0 notes). The lexicon entries B11 lists no longer say
+  record checked (D246, in the CONTRACT 3.0 notes, and gate CS's MAJOR bump, spec D361). The lexicon entries B11 lists no longer say
   "planned". Atoms: every atom tagged `release-v3.1`; `contract_infinite_flow_first_release`,
   `vision_infinite_flow_first_release`, `specification_behavioral_quality_gates`.
 - `ux-writer` confirms no v3.1 handoff names a class missing from `src/styles/`.
@@ -1453,4 +1484,4 @@ owner says go.
 | 20 Kept sessions                                                                           | 8, 9, 12                     | version 2 migration test with byte-identical exports; label snapshot test                                                       |
 | 21 Acknowledgement and exports unchanged; no preset leaves the device                      | 7, 17, 21                    | acknowledgement tests on figure notes; export byte scan; network privacy spy                                                    |
 | 22 v3.0 and v2 otherwise unchanged                                                         | every wave gate              | `npm run quality`; the replaced-tests table of [Read first](#read-first-what-v31-changes-in-v30-and-v2)                         |
-| 23 Contract                                                                                | done (D246), 21              | the confirmation in the CONTRACT 3.0 atom's notes                                                                               |
+| 23 Contract                                                                                | done (D246), CS, 21          | the confirmations in the CONTRACT 3.0 atom's notes and in the MAJOR bump's (gate CS)                                            |

@@ -37,7 +37,11 @@ Status: this file holds four parts.
   (2026-10-08), consolidated from the v3.1 drafts the owner approved; approved by the product
   owner (2026-10-08). The owner confirmed the exact wording of the contract
   guarantees it changes (B11) the same day. v1.1 (2026-10-19) checks B12's code facts against
-  v3.0's released code; no behaviour changes. Its sections are numbered B1 to B16.
+  v3.0's released code; no behaviour changes. v1.2 (2026-10-19) writes in the owner's rulings of
+  that day: v3.0's contract atoms that v3.1 revises take a MAJOR contract bump, with
+  `rule_open_phrase_ending` reworded under it (B11, item 23; spec D361, D362), B11 lists the four
+  entries it missed, and the entry budget is 300 KiB (B12; spec D359); no behaviour changes. Its
+  sections are numbered B1 to B16.
 - **[Part C — v3.2](#part-c--v32), Jam, the key and mode suggestion and the rhythm lock:**
   master spec v1.0 (2026-10-08), consolidated from the approved v3.2 drafts; approved by the
   product owner (2026-10-08). The owner confirmed the exact wording of the contract
@@ -1855,8 +1859,32 @@ wording on 2026-10-08):
   (`rule_mutation_reverts_at_session_end`): its "musical profile's customized marking" becomes the
   selection's Custom marking, the figure levels included. Wording only.
 
+**v3.0's contract atoms that change** (on the contract since v3.0's release, after this part was
+written; one more major contract version, whose new wordings the owner confirms before the first
+build step that revises one, spec D361):
+
+- The settings saved on change (`rule_settings_saved_on_change`) and their tolerant loading
+  (`rule_saved_settings_load_tolerantly`), B7: the selection may come back as Custom based on the
+  saved preset, and a saved key and mode outside the preset's restriction load as Custom.
+- The persistent-storage request (`rule_persistent_storage_requested`), Delete everything
+  (`rule_delete_everything`) and Your data (`req_your_data`): player presets join them.
+- A kept session's content (`rule_kept_session_content`) and the session list
+  (`req_kept_session_list`): the levels and the preset label take the profile's place.
+- The storage entries (`module_on_device_database`, `module_saved_data_loader`,
+  `entity_kept_session_record`, `module_kept_session_codec`, `module_kept_session_reach`): the
+  preset store, the two upgrade steps and the changed record shapes.
+- The open phrase ending (`rule_open_phrase_ending`): its "jazz approaches, and jazz enclosures"
+  and its "profile-approved" continuation are reworded, since chromatic figures come from any
+  preset; the guarantee (every figure resolves before the last event) is unchanged (spec D362).
+
 **Other v2 rules and entries that change:**
 
+- **Wording that names Jazz or the profile** (`rule_tension_resolution_delay_permits_rests`: its
+  "Jazz chromatic approaches or enclosures" come from any preset, its no-rest rule unchanged;
+  `rule_stale_phrase_prompt_at_start`, Part A §16, written after this part: the levels count where
+  the profile did, and the selection is shown from the start) and **unsupported rhythm settings**
+  (`rule_unsupported_rhythm_settings_block_generation`: presets never select an unsupported
+  combination holds for the eight built-ins only, since a player preset may hold one, B6.1).
 - **Vary settings' redraw** (`rule_mutation_rerolls_unsupported_combination`,
   `rule_mutation_draws_setting_then_direction`, `module_settings_mutation`): a key or mode move
   outside the restriction in force is drawn again; the figure step draws setting, figure, then
@@ -1905,7 +1933,7 @@ wording on 2026-10-08):
 - v3.0's declared-intent entries for these (`rule_settings_saved_on_change`,
   `rule_persistent_storage_requested`, `rule_delete_everything`, `req_your_data`,
   `rule_kept_session_content`, `req_kept_session_list`, `rule_pregeneration_discarded_on_change`)
-  follow.
+  follow; all but the last are among v3.0's contract atoms above.
 
 **Tests that change with them:** the profile-flip mutation tests, the profile selection tests
 that expect seven controls and an untouched Tension, the "Custom (Jazz grammar)" and "grammar
@@ -1978,11 +2006,13 @@ follows the code.
   refused.
 - **The first-load bundle budget**: v3.0 shipped its entry chunk at 229,146 bytes, 230 bytes under
   its 224 KiB budget (the v3.0 release notes; Part A §4.3's 8.8 kB was the headroom before v3.0's
-  build). The combo box, seven level controls, the built-in table and preset management add code;
-  `coding-leader` measures it and may load preset management on demand.
+  build). v3.1's budget is 300 KiB, 307,200 bytes (spec D359). The combo box, seven level
+  controls, the built-in table and preset management add code; `coding-leader` measures it and may
+  load preset management on demand.
 - **Migration**: v3.0's saved settings and kept sessions must migrate on first open by v3.1.
-- **Contract**: four STABLE guarantees change (B11), which needs the owner's confirmation before
-  the gate.
+- **Contract**: B11's four v2 guarantees change (the owner confirmed their wording on
+  2026-10-08), and so do v3.0's twelve contract atoms and `rule_open_phrase_ending` (B11), whose
+  new wordings the owner confirms before the first build step that revises one.
 
 ## B13. Architectural decisions and their reasons
 
@@ -2098,8 +2128,8 @@ v3.1 ships when every item holds, each verified by a named test or a recorded ha
     exact pitch inside its window; no export carries a preset, and no preset leaves the device.
 22. **v3.0 and v2 behaviour otherwise unchanged:** their test suites pass, apart from the tests B11
     lists as changing, each replaced by its v3.1 counterpart.
-23. **The declared-intent contract** reflects B11's four guarantee changes, with the owner's
-    explicit confirmation recorded.
+23. **The declared-intent contract** reflects B11's four guarantee changes and its changes to
+    v3.0's contract atoms (a major version), each with the owner's explicit confirmation recorded.
 
 ## B15. Deferred and open
 
