@@ -1,6 +1,6 @@
 # Music Research Sources
 
-Status: draft v0.4 (v3 research sources S18-S99 and S100-S115 merged 2026-10-07; v3.3 chord research sources S412-S452 added 2026-10-12)
+Status: draft v0.7 (v3 research sources S18-S99 and S100-S115 merged 2026-10-07; v4 research sources S120–S194 merged 2026-10-11; endgame musical-identity research sources S195–S266 merged 2026-10-11; style atlas research sources S267–S411 merged 2026-10-11; v3.3 chord research sources S412-S452 added 2026-10-12; S120–S411 merged from branch `v4-accompaniment-research` 2026-10-19)
 
 ## How To Use This Record
 
@@ -16,7 +16,7 @@ This is a retained research trail for later generator design and player document
   - Applied in: neutral profile harmonic motion.
 - **S3 - Cadences.** University of Puget Sound, Music Theory for the 21st-Century Classroom: https://musictheory.pugetsound.edu/mt21c/cadences.html
   - Useful for: describing a phrase as closed at tonic or open at dominant without treating either choice as objectively better.
-  - Applied in: neutral profile endpoint rules and the open-ending policy.
+  - Applied in: neutral profile endpoint rules and the open-ending policy; [style atlas: Western art music](styles/art-music.md): Classical period.
 
 ## Melody, Tension, and Resolution
 
@@ -28,10 +28,10 @@ This is a retained research trail for later generator design and player document
   - Applied in: neutral pitch selection and jazz chromatic approach constraints.
 - **S6 - Appoggiaturas.** University of Puget Sound, Music Theory for the 21st-Century Classroom: https://musictheory.pugetsound.edu/mt21c/Appoggiatura.html
   - Useful for: a controlled high-tension neutral event: leap into an accented non-chord tone, then resolve by step.
-  - Applied in: neutral profile high-tension candidate rule.
+  - Applied in: neutral profile high-tension candidate rule; [style atlas: Western art music](styles/art-music.md): Classical period.
 - **S7 - Rules of melody.** University of Puget Sound, Music Theory for the 21st-Century Classroom: https://musictheory.pugetsound.edu/mt21c/RulesOfMelody.html
   - Useful for: conservative defaults for stepwise motion, accountable leaps, recovery after large intervals, and contour.
-  - Applied in: neutral pitch and contour rules. Its common-practice focus means it is a default, not a universal restriction.
+  - Applied in: neutral pitch and contour rules; [arranging and accompaniment roles](arranging-and-roles.md): counter-melody, the minimum voice-leading rule set. Its common-practice focus means it is a default, not a universal restriction.
 
 ## Rhythm and Jazz Vocabulary
 
@@ -43,7 +43,7 @@ This is a retained research trail for later generator design and player document
   - Applied in: exact integer-tick representation and tie semantics. The project's quantitative grids/budgets remain implementation inference.
 - **S9 - Jazz scales.** University of Puget Sound, Music Theory for the 21st-Century Classroom: https://musictheory.pugetsound.edu/mt21c/JazzScales.html
   - Useful for: confirming that chromatic jazz vocabulary belongs to a distinct style layer.
-  - Applied in: the decision to isolate jazz-only chromatic ornaments.
+  - Applied in: the decision to isolate jazz-only chromatic ornaments; [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Bebop.
 - **S10 - Standard chord progressions.** University of Puget Sound, Music Theory for the 21st-Century Classroom: https://musictheory.pugetsound.edu/mt21c/StandardChordProgressions.html
   - Useful for: distinguishing melodic chromatic approaches from harmonic devices such as ii-V-I motion and tritone substitution.
   - Applied in: the jazz profile boundary that defers substitutions and altered dominants.
@@ -164,7 +164,7 @@ These back the [mutation catalogue](mutation-catalogue.md), research for the mut
 
 - **S40 - Motive.** University of Puget Sound, Music Theory for the 21st-Century Classroom: https://musictheory.pugetsound.edu/mt21c/MotiveSection.html
   - Useful for: the definition of a motive as the smallest identifiable melodic idea.
-  - Applied in: [mutation catalogue](mutation-catalogue.md): the purpose, the motif lexicon entry.
+  - Applied in: [mutation catalogue](mutation-catalogue.md): the purpose, the motif lexicon entry; [arranging and accompaniment roles](arranging-and-roles.md): the usual stages (material).
 - **S41 - Melodic alteration.** University of Puget Sound, Music Theory for the 21st-Century Classroom: https://musictheory.pugetsound.edu/mt21c/MelodicAlteration.html
   - Useful for: the standard list of motif changes (inversion real and tonal, intervallic change, augmentation and diminution, rhythmic change, ornamentation, extension, retrograde) and the note that sequence is too common to count as one.
   - Applied in: [mutation catalogue](mutation-catalogue.md): most motif-development entries.
@@ -173,22 +173,22 @@ These back the [mutation catalogue](mutation-catalogue.md), research for the mut
   - Applied in: [mutation catalogue](mutation-catalogue.md): fragmentation entries.
 - **S43 - The sentence.** University of Puget Sound, Music Theory for the 21st-Century Classroom: https://musictheory.pugetsound.edu/mt21c/SentenceStructure.html
   - Useful for: a phrase whose opening idea is repeated or sequenced before the music moves on.
-  - Applied in: [mutation catalogue](mutation-catalogue.md): repetition and sequence.
+  - Applied in: [mutation catalogue](mutation-catalogue.md): repetition and sequence; [arranging and accompaniment roles](arranging-and-roles.md): the usual stages (development); [style atlas: Western art music](styles/art-music.md): Classical period.
 - **S44 - Anticipation (non-chord tone).** University of Puget Sound, Music Theory for the 21st-Century Classroom: https://musictheory.pugetsound.edu/mt21c/Anticipation.html
   - Useful for: the harmony meaning of anticipation, distinct from the rhythmic push.
   - Applied in: [mutation catalogue](mutation-catalogue.md): the anticipation entry and lexicon entry.
 - **S45 - Phrase archetypes.** Open Music Theory, "The Phrase, Archetypes, and Unique Forms": https://viva.pressbooks.pub/openmusictheory/chapter/phrase-archetypes-unique-forms/
   - Useful for: the sentence's continuation traits: fragmentation, faster durations, sequence, faster harmonic rhythm.
-  - Applied in: [mutation catalogue](mutation-catalogue.md): fragmentation, diminution, sequence.
+  - Applied in: [mutation catalogue](mutation-catalogue.md): fragmentation, diminution, sequence; [style atlas: Western art music](styles/art-music.md): Classical period.
 - **S46 - Rhythm and meter in pop music.** Open Music Theory 2e (Gotham et al.), LibreTexts mirror: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.01%3A_Rhythm_and_Meter_in_Pop_Music
   - Useful for: syncopation made by shifting notes early by half their length, and the 3 + 3 + 2 tresillo.
-  - Applied in: [mutation catalogue](mutation-catalogue.md): anticipation, regrouping.
+  - Applied in: [mutation catalogue](mutation-catalogue.md): anticipation, regrouping; [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Pop; [style atlas: folk and world traditions](styles/folk-and-world.md): Klezmer.
 - **S47 - Metrical dissonance.** Open Music Theory 2e (Gotham et al.), LibreTexts mirror: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/11%3A_Rhythm_and_Meter/11.06%3A_Metrical_Dissonance
   - Useful for: displacement dissonance and the displacement index.
   - Applied in: [mutation catalogue](mutation-catalogue.md): whole-motif displacement, metric displacement lexicon entry.
 - **S48 - Basics of twelve-tone theory.** Open Music Theory: https://viva.pressbooks.pub/openmusictheory/chapter/basics-of-twelve-tone-theory/
   - Useful for: the four row forms (prime, inversion, retrograde, retrograde inversion) as exact operations.
-  - Applied in: [mutation catalogue](mutation-catalogue.md): inversion, retrograde, retrograde inversion; the note that "rhythmic inversion" has no settled meaning.
+  - Applied in: [mutation catalogue](mutation-catalogue.md): inversion, retrograde, retrograde inversion; the note that "rhythmic inversion" has no settled meaning; [style atlas: Western art music](styles/art-music.md): Neoclassical and modernist (tonal side).
 - **S49 - Schoenberg, _Fundamentals of Musical Composition_.** Arnold Schoenberg, ed. Gerald Strang and Leonard Stein, Faber and Faber, 1967. As commonly referenced; not read in full for this catalogue.
   - Useful for: varying a motif by changing its rhythm and intervals while preserving its important features, and the loss of coherence when too much changes.
   - Applied in: [mutation catalogue](mutation-catalogue.md): the motif-development frame, split a note, the distance scale's intent.
@@ -200,28 +200,28 @@ These back the [mutation catalogue](mutation-catalogue.md), research for the mut
   - Applied in: [mutation catalogue](mutation-catalogue.md): augmentation and diminution.
 - **S52 - Call and response (music).** Wikipedia: https://en.wikipedia.org/wiki/Call_and_response_(music)
   - Useful for: the definition, its African and African-American roots, antiphony, the question-and-answer form.
-  - Applied in: [mutation catalogue](mutation-catalogue.md): call and response.
+  - Applied in: [mutation catalogue](mutation-catalogue.md): call and response; [arranging and accompaniment roles](arranging-and-roles.md): call and response, answering, trading.
 - **S53 - Dowling, recognition of melodic transformations.** W. J. Dowling, "Recognition of melodic transformations: Inversion, retrograde, and retrograde inversion", _Perception & Psychophysics_ 12(5), 1972, 417 ff.: https://labs.utdallas.edu/mpac/files/2021/03/1972.pdf
   - Useful for: all three recognized above chance in easier conditions, difficulty rising from inversion to retrograde to retrograde inversion; no distinction between exact and contour-only versions.
-  - Applied in: [mutation catalogue](mutation-catalogue.md): recognizability fields, the "not in the first list" group.
+  - Applied in: [mutation catalogue](mutation-catalogue.md): recognizability fields, the "not in the first list" group; [identity modelling](identity-modelling.md): signature motifs and licks.
 - **S54 - Dowling, scale and contour.** W. J. Dowling, "Scale and contour: Two components of a theory of memory for melodies", _Psychological Review_ 85(4), 1978, 341–354: https://doi.org/10.1037/0033-295X.85.4.341
   - Useful for: contour as the main thing remembered of a short new melody.
-  - Applied in: [mutation catalogue](mutation-catalogue.md): recognizability, sequence, interval change.
+  - Applied in: [mutation catalogue](mutation-catalogue.md): recognizability, sequence, interval change; [musical identity](musical-identity.md): pitch material, melody, how few notes it takes; [identity modelling](identity-modelling.md): signature motifs and licks.
 - **S55 - Hébert and Peretz, melodic and temporal patterns.** S. Hébert and I. Peretz, "Recognition of music in long-term memory: Are melodic and temporal patterns equal partners?", _Memory & Cognition_ 25(4), 1997: https://link.springer.com/article/10.3758/BF03195003
   - Useful for: familiar tunes are named far more often from their pitches alone than from their rhythm alone.
-  - Applied in: [mutation catalogue](mutation-catalogue.md): recognizability; the lock as a matter of feel more than recognition.
+  - Applied in: [mutation catalogue](mutation-catalogue.md): recognizability; the lock as a matter of feel more than recognition; [musical identity](musical-identity.md): melody, rhythm, how few notes it takes; [identity modelling](identity-modelling.md): signature motifs and licks.
 - **S56 - Post and Toussaint, edit distance and rhythm similarity.** O. Post and G. Toussaint, "The edit distance as a measure of perceived rhythmic similarity", _Empirical Musicology Review_ 6(3), 2011: https://doaj.org/article/02173439e1c24e4cb83f2e9d3be90081
   - Useful for: the count of insert/delete/substitute edits predicts perceived rhythmic difference (r = 0.87 in the first experiment), and metric placement affects an edit's salience.
   - Applied in: [mutation catalogue](mutation-catalogue.md): the distance scale.
 - **S57 - Pachet, the Continuator.** F. Pachet, "The Continuator: Musical interaction with style", _Journal of New Music Research_ 32(3), 2003, 333–341: https://www.francoispachet.fr/?p=4360
   - Useful for: a system that continues what a musician just played, in their style; the nearest prior art to Jam.
-  - Applied in: [mutation catalogue](mutation-catalogue.md): call and response, Jam framing.
+  - Applied in: [mutation catalogue](mutation-catalogue.md): call and response, Jam framing; [accompaniment systems](accompaniment-systems.md): prior art; [musical identity](musical-identity.md): learning an identity from play; [identity modelling](identity-modelling.md): representations of style, learning identities.
 - **S58 - Biles, GenJam.** J. A. Biles, "GenJam: A genetic algorithm for generating jazz solos", _Proceedings of the International Computer Music Conference_, 1994; papers list: https://genjam.org/al-biles/genjam-the-genetic-jammer/genjam-papers/
   - Useful for: "musically meaningful" mutation operators on measures (reverse, rotate, invert, sort, transpose), designed not to destroy musical structure.
-  - Applied in: [mutation catalogue](mutation-catalogue.md): rhythmic retrograde, rotation; the idea of a curated mutation list.
+  - Applied in: [mutation catalogue](mutation-catalogue.md): rhythmic retrograde, rotation; the idea of a curated mutation list; [accompaniment systems](accompaniment-systems.md): prior art; [identity modelling](identity-modelling.md): signature motifs and licks.
 - **S59 - Fernández and Vico, survey.** J. D. Fernández and F. Vico, "AI methods in algorithmic composition: A comprehensive survey", _Journal of Artificial Intelligence Research_ 48, 2013: https://arxiv.org/abs/1402.0585
   - Useful for: independent description of GenJam's measure mutations and of musically meaningful operators in evolutionary composition.
-  - Applied in: [mutation catalogue](mutation-catalogue.md): cross-check of S58.
+  - Applied in: [mutation catalogue](mutation-catalogue.md): cross-check of S58; [identity modelling](identity-modelling.md): representations of style.
 
 ## Key and Mode Estimation (v3)
 
@@ -229,25 +229,25 @@ These back [key and mode estimation](key-and-mode-estimation.md), research for v
 
 - **S60 - Krumhansl–Kessler key profiles.** Carol L. Krumhansl and Edward J. Kessler, "Tracing the dynamic changes in perceived tonal organization in a spatial representation of musical keys", Psychological Review 89(4), 334–368 (1982): https://doi.org/10.1037/0033-295X.89.4.334 ; and Carol L. Krumhansl, Cognitive Foundations of Musical Pitch, Oxford University Press (1990; online edition 2001): https://doi.org/10.1093/acprof:oso/9780195148367.001.0001
   - Useful for: the probe-tone key profiles and the Krumhansl–Schmuckler correlation algorithm (described most fully in the 1990 book, per S63).
-  - Applied in: [key and mode estimation](key-and-mode-estimation.md): the methods survey and the shape of the proposed role profile.
+  - Applied in: [key and mode estimation](key-and-mode-estimation.md): the methods survey and the shape of the proposed role profile; [identity modelling](identity-modelling.md): representations of style.
 - **S61 - Temperley's revision of Krumhansl–Schmuckler.** David Temperley, "What's Key for Key? The Krumhansl-Schmuckler Key-Finding Algorithm Reconsidered", Music Perception 17(1), 65–100 (1999): https://doi.org/10.2307/40285812
   - Useful for: revised profile values, presence-per-segment instead of summed durations, a modulation penalty; tests on the Bach fugue subjects (abstract read).
   - Applied in: [key and mode estimation](key-and-mode-estimation.md): the profile table and the duration-weighting discussion.
 - **S62 - Bayesian key finding.** David Temperley, "A Bayesian Approach to Key-Finding", in Music and Artificial Intelligence (ICMAI 2002), Lecture Notes in Computer Science 2445, 195–206: https://doi.org/10.1007/3-540-45722-4_18 ; expanded in David Temperley, Music and Probability, MIT Press (2007).
   - Useful for: framing key finding as choosing the key that makes the notes most probable.
-  - Applied in: [key and mode estimation](key-and-mode-estimation.md): the probabilistic method and the softmax-at-T=1 reading of the proposal.
+  - Applied in: [key and mode estimation](key-and-mode-estimation.md): the probabilistic method and the softmax-at-T=1 reading of the proposal; [identity modelling](identity-modelling.md): representations of style.
 - **S63 - Probabilistic model of melody perception.** David Temperley, "A Probabilistic Model of Melody Perception", Cognitive Science 32(2), 418–444 (2008): https://doi.org/10.1080/03640210701864089 (author copy: https://davidtemperley.com/wp-content/uploads/2015/11/temperley-cs08.pdf)
   - Useful for: a key-finding model for single melodies (key profile, range, pitch proximity); Essen profiles (degree 1 = 18.4% of major-melody notes); Table 2 accuracies on 65 Essen songs and 48 Bach fugue subjects for this and four other models; descriptions of the Longuet-Higgins–Steedman and Krumhansl–Schmuckler models. Read in full.
-  - Applied in: [key and mode estimation](key-and-mode-estimation.md): accuracy figures throughout, the first-note cue, the role-profile shares.
+  - Applied in: [key and mode estimation](key-and-mode-estimation.md): accuracy figures throughout, the first-note cue, the role-profile shares; [identity modelling](identity-modelling.md): representations of style.
 - **S64 - Distribution alone and listeners.** David Temperley and Elizabeth West Marvin, "Pitch-Class Distribution and the Identification of Key", Music Perception 25(3), 193–212 (2008): https://doi.org/10.1525/mp.2008.25.3.193
   - Useful for: listeners matched the generating key in slightly more than half of their judgments on melodies drawn at random from key distributions, so note counts are far from the whole story (abstract, as summarised by the indexing services consulted).
-  - Applied in: [key and mode estimation](key-and-mode-estimation.md): why short melodies are ambiguous.
+  - Applied in: [key and mode estimation](key-and-mode-estimation.md): why short melodies are ambiguous; [identity modelling](identity-modelling.md): representations of style.
 - **S65 - Aarden–Essen profiles.** Bret J. Aarden, Dynamic Melodic Expectancy, PhD dissertation, The Ohio State University (2003). Profile values as published in S73 and S74.
   - Useful for: key profiles counted in folk melodies of the Essen collection, the corpus closest to a one-voice doodle.
-  - Applied in: [key and mode estimation](key-and-mode-estimation.md): the profile table and the worked-example comparison.
+  - Applied in: [key and mode estimation](key-and-mode-estimation.md): the profile table and the worked-example comparison; [identity modelling](identity-modelling.md): representations of style, learning identities.
 - **S66 - Albrecht–Shanahan profiles.** Joshua Albrecht and Daniel Shanahan, "The Use of Large Corpora to Train a New Type of Key-Finding Algorithm: An Improved Treatment of the Minor Mode", Music Perception 31(1), 59–67 (2013): https://doi.org/10.1525/mp.2013.31.1.59
   - Useful for: distance instead of correlation; trained on 490 and tested on 492 pieces; most models do better in major than minor; combined with Aarden–Essen it beat all other models (abstract read; accuracy figures and profile values not checked).
-  - Applied in: [key and mode estimation](key-and-mode-estimation.md): the profile discussion.
+  - Applied in: [key and mode estimation](key-and-mode-estimation.md): the profile discussion; [identity modelling](identity-modelling.md): learning identities.
 - **S67 - Parallel-processing key finding.** Piet G. Vos and Erwin W. Van Geenen, "A Parallel-Processing Key-Finding Model", Music Perception 14(2), 185–223 (1996): https://doi.org/10.2307/40285717
   - Useful for: a model for single-voiced music using pitch class, duration, scale and chord evidence, and primacy of the first notes (abstract read).
   - Applied in: [key and mode estimation](key-and-mode-estimation.md): the first-note cue and the summary table.
@@ -259,7 +259,7 @@ These back [key and mode estimation](key-and-mode-estimation.md), research for v
   - Applied in: [key and mode estimation](key-and-mode-estimation.md): first-note cue, summary table.
 - **S70 - Mode profiles for chant.** David Huron and Joshua Veltman, "A Cognitive Approach to Medieval Mode: Evidence for an Historical Antecedent to the Major/Minor System", Empirical Musicology Review 1(1), 33–55 (2006): https://doi.org/10.18061/1811/24072
   - Useful for: per-mode pitch-class profiles built from 98 chants and used to predict mode; three modes with very similar profiles (abstract read).
-  - Applied in: [key and mode estimation](key-and-mode-estimation.md): mode detection beyond major and minor; per-mode profiles in the proposal.
+  - Applied in: [key and mode estimation](key-and-mode-estimation.md): mode detection beyond major and minor; per-mode profiles in the proposal; [style atlas: Western art music](styles/art-music.md): Gregorian chant.
 - **S71 - Mode classification in plainchant.** Bas Cornelissen, Willem Zuidema and John Ashley Burgoyne, "Mode Classification and Natural Units in Plainchant", Proceedings of the 21st ISMIR Conference, 869–875 (2020): https://archives.ismir.net/ismir2020/paper/000232.pdf
   - Useful for: textbook mode determination by final, range and first note; final alone expected near 50%; 86–90% for classical and profile methods, 93–95% F1 for fragment-based vectors on 20,865 chants. Read in full.
   - Applied in: [key and mode estimation](key-and-mode-estimation.md): the final-note cue, mode detection, the lexicon entry Final.
@@ -280,7 +280,7 @@ These back [key and mode estimation](key-and-mode-estimation.md), research for v
   - Applied in: [key and mode estimation](key-and-mode-estimation.md): the summary table.
 - **S77 - ECMAScript implementation-approximated maths.** ECMA-262, ECMAScript Language Specification, clause 4.4 "implementation-approximated": https://tc39.es/ecma262/
   - Useful for: "Some mathematical operations, such as Math.exp, are implementation-approximated", so results may differ between engines.
-  - Applied in: [key and mode estimation](key-and-mode-estimation.md): the integers-only rule for the seeded draw.
+  - Applied in: [key and mode estimation](key-and-mode-estimation.md): the integers-only rule for the seeded draw; [identity modelling](identity-modelling.md): where weights could act, risks.
 - **S78 - General music-theory terms.** Wikipedia articles "Pitch class" https://en.wikipedia.org/wiki/Pitch_class , "Relative key" https://en.wikipedia.org/wiki/Relative_key , "Parallel key" https://en.wikipedia.org/wiki/Parallel_key , "Minor scale" https://en.wikipedia.org/wiki/Minor_scale , "Blue note" https://en.wikipedia.org/wiki/Blue_note
   - Useful for: fact-checking the beginner definitions of pitch class, relative and parallel keys, harmonic minor and blue notes. Reference only; no text copied.
   - Applied in: [key and mode estimation](key-and-mode-estimation.md): the problem statement and the lexicon entries.
@@ -291,55 +291,55 @@ These back [played-pattern recognition](played-pattern-recognition.md), research
 
 - **S80 - Call and response (music).** Wikipedia: https://en.wikipedia.org/wiki/Call_and_response_(music)
   - Useful for: the definition of call and response, its African origins, the master drummer's coordinating pattern, and its place in blues, gospel, jazz and soul.
-  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the vocabulary section and the `call-and-response` lexicon entry.
+  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the vocabulary section and the `call-and-response` lexicon entry; [accompaniment systems](accompaniment-systems.md): roles in practice; [style atlas: folk and world traditions](styles/folk-and-world.md): West African timeline music and highlife.
 - **S81 - Trading fours.** Wikipedia, Drum solo: https://en.wikipedia.org/wiki/Drum_solo and A Way with Words, "trade fours": https://www.waywordradio.org/trade_fours_1/
   - Useful for: alternating four-bar solos, and the variants (eights, twelves, twos, single bars, choruses).
-  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the vocabulary and jam-practice sections, the turn-by-form argument, the `trading-fours` lexicon entry.
+  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the vocabulary and jam-practice sections, the turn-by-form argument, the `trading-fours` lexicon entry; [arranging and accompaniment roles](arranging-and-roles.md): call and response, answering, trading; [accompaniment systems](accompaniment-systems.md): roles in practice, endgame mapping; [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Swing / big band, Bebop.
 - **S82 - Motif, leitmotif and cue notes.** Wikipedia: https://en.wikipedia.org/wiki/Motif_(music) and https://en.wikipedia.org/wiki/Cue_note
   - Useful for: the motif as the smallest unit with thematic identity, the leitmotif as a motif tied to a person or idea, and cue notes as entrance hints after long rests.
-  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the vocabulary section and the `motif`, `leitmotif` and `cue` lexicon entries.
+  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the vocabulary section and the `motif`, `leitmotif` and `cue` lexicon entries; [arranging and accompaniment roles](arranging-and-roles.md): characters; [accompaniment systems](accompaniment-systems.md): endgame mapping, showing several voices (cue notes); [musical identity](musical-identity.md): leitmotif and character themes.
 - **S83 - Lick, riff and head.** Wikipedia: https://en.wikipedia.org/wiki/Lick_(music), https://en.wikipedia.org/wiki/Riff and https://en.wikipedia.org/wiki/Head_(music)
   - Useful for: the lick as stock vocabulary, the riff as a repeated figure (and big-band riff exchanges), the head and the head-solos-head form, and the head-pat signal.
-  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the vocabulary section and the `lick`, `riff` and `head` lexicon entries.
+  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the vocabulary section and the `lick`, `riff` and `head` lexicon entries; [arranging and accompaniment roles](arranging-and-roles.md): the variety across traditions; [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Chicago (electric) blues, Rhythm and blues and early rock and roll (overlap); [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Classic rock.
 - **S84 - Jam session hand signals.** Sonicbids blog, "8 Jam Session Hand Signals That Every Musician Should Know": https://blog.sonicbids.com/8-jam-session-hand-signals-musicians
   - Useful for: how players cue solos, the head, trading fours and endings with gestures.
   - Applied in: [played-pattern recognition](played-pattern-recognition.md): the vocabulary and jam-practice sections. A practitioner blog, not a reference work.
 - **S85 - Tihai.** Wikipedia: https://en.wikipedia.org/wiki/Tihai
   - Useful for: a phrase played three times that lands on the first beat of the cycle and marks the end of a section.
-  - Applied in: [played-pattern recognition](played-pattern-recognition.md): played cues, repetition as a frame, accidental-trigger reasoning.
+  - Applied in: [played-pattern recognition](played-pattern-recognition.md): played cues, repetition as a frame, accidental-trigger reasoning; [style atlas: folk and world traditions](styles/folk-and-world.md): Hindustani and Carnatic raga.
 - **S86 - Samba band.** Wikipedia: https://en.wikipedia.org/wiki/Samba_band
   - Useful for: the mestre leading with the repinique and whistles that signal breaks and calls.
   - Applied in: [played-pattern recognition](played-pattern-recognition.md): played cues and jam-practice sections.
 - **S87 - _The Legend of Zelda: Ocarina of Time_ songs.** Wikipedia: https://en.wikipedia.org/wiki/The_Legend_of_Zelda:_Ocarina_of_Time ; Wikibooks, Ocarina Songs: https://en.wikibooks.org/wiki/The_Legend_of_Zelda:_Ocarina_of_Time/Ocarina_Songs ; Zelda Wiki, Scarecrow's Song: https://zeldawiki.wiki/wiki/Scarecrow%27s_Song
   - Useful for: the five-note ocarina, the 12 songs and their effects, song lengths, songs taught by characters, the player-composed eight-note Scarecrow's Song and its refusal of existing songs or one repeated note.
-  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the games table, framing, discoverability, player-defined signals. The Zelda Wiki page refused direct access; its content was read through search summaries.
+  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the games table, framing, discoverability, player-defined signals; [musical identity](musical-identity.md): learning an identity from play. The Zelda Wiki page refused direct access; its content was read through search summaries.
 - **S88 - _Patapon_.** Wikipedia: https://en.wikipedia.org/wiki/Patapon
   - Useful for: four-drum, four-beat commands on a visible beat, the sung-back confirmation, and the combo and fever lost off the beat.
-  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the games table, beat framing, feedback, the endgame needs.
+  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the games table, beat framing, feedback, the endgame needs; [accompaniment systems](accompaniment-systems.md): what the systems do with a live player, rhythm games, endgame mapping.
 - **S89 - _Loom_.** Wikipedia: https://en.wikipedia.org/wiki/Loom_(video_game)
   - Useful for: four-note drafts on a C-to-C scale, learning by observation, reversed drafts, per-game randomisation and the no-labels Expert level.
   - Applied in: [played-pattern recognition](played-pattern-recognition.md): the games table, discoverability.
 - **S90 - _PaRappa the Rapper_.** Wikipedia: https://en.wikipedia.org/wiki/PaRappa_the_Rapper
   - Useful for: call and response with a teacher, the Good/Bad/Awful/Cool rating, and freestyle that flips into Cool mode.
-  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the games table, the endgame outcomes discussion.
+  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the games table, the endgame outcomes discussion; [accompaniment systems](accompaniment-systems.md): what the systems do with a live player.
 - **S91 - _Rock Band_ and _Guitar Hero_.** Wikipedia: https://en.wikipedia.org/wiki/Rock_Band and https://en.wikipedia.org/wiki/Guitar_Hero_(video_game)
   - Useful for: freestyle drum fills closed by a crash to trigger Overdrive, the Big Rock Ending, and Star Power triggered by tilting the guitar.
-  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the games table, the separate-channel frame.
+  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the games table, the separate-channel frame; [accompaniment systems](accompaniment-systems.md): how notation shows melody and accompaniment.
 - **S92 - _Theatrhythm Final Fantasy_.** Wikipedia: https://en.wikipedia.org/wiki/Theatrhythm_Final_Fantasy
   - Useful for: tap, slide and hold triggers, battle stages where timing deals damage, and reviews of its RPG layer.
-  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the games table, the endgame outcomes discussion.
+  - Applied in: [played-pattern recognition](played-pattern-recognition.md): the games table, the endgame outcomes discussion; [accompaniment systems](accompaniment-systems.md): rhythm games, endgame mapping; [musical identity](musical-identity.md): concrete examples (the field, battle and event stages); [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): purpose, JRPG music: the context system, JRPG overworld and field, JRPG battle.
 - **S93 - The Continuator, system paper.** François Pachet, "Interacting with a Musical Learning System: The Continuator", ICMAI 2002: https://www.francoispachet.fr/wp-content/uploads/2021/01/pachet-02-icmai-final.pdf
   - Useful for: the phrase-end detection thread and its threshold, and the hierarchy of reduction functions (pitch, pitch regions) used when an exact match fails.
-  - Applied in: [played-pattern recognition](played-pattern-recognition.md): interactive systems, matching approaches.
+  - Applied in: [played-pattern recognition](played-pattern-recognition.md): interactive systems, matching approaches; [accompaniment systems](accompaniment-systems.md): prior art, Markov models, what the systems do with a live player, what is cheap and robust; [identity modelling](identity-modelling.md): representations of style, learning identities.
 - **S94 - The Continuator with children.** Anna Rita Addessi and François Pachet, "Experiments with a musical machine: musical style replication in 3 to 5 year old children", British Journal of Music Education 22(1), 2005, DOI 10.1017/S0265051704005972: https://www.francoispachet.fr/wp-content/uploads/2021/01/pachet-04j.pdf
   - Useful for: the three turn-taking rules (a silence threshold of about 400 ms, an answer as long as the phrase, the player's priority) and children learning them implicitly.
-  - Applied in: [played-pattern recognition](played-pattern-recognition.md): interactive systems, the silence frame, the "your turn" recommendation.
+  - Applied in: [played-pattern recognition](played-pattern-recognition.md): interactive systems, the silence frame, the "your turn" recommendation; [accompaniment systems](accompaniment-systems.md): prior art, what the systems do with a live player, what is cheap and robust.
 - **S95 - GenJam trading fours.** John A. Biles, "Interactive GenJam: Integrating Real-Time Performance with a Genetic Algorithm", International Computer Music Conference: https://genjam.org/wp-content/uploads/2019/07/bilesicmc98.pdf
   - Useful for: trading fours with a human through pitch-to-MIDI, the per-slot filter for noisy input, and a human mentor's "good"/"bad" feedback training the system's taste.
-  - Applied in: [played-pattern recognition](played-pattern-recognition.md): interactive systems, stray notes, the never-penalize discussion, the endgame needs.
+  - Applied in: [played-pattern recognition](played-pattern-recognition.md): interactive systems, stray notes, the never-penalize discussion, the endgame needs; [accompaniment systems](accompaniment-systems.md): prior art, what the systems do with a live player, what is cheap and robust; [identity modelling](identity-modelling.md): signature motifs and licks.
 - **S96 - Score following.** Wikipedia: https://en.wikipedia.org/wiki/Score_following ; Roger B. Dannenberg, "An On-Line Algorithm for Real-Time Accompaniment", ICMC 1984: https://hdl.handle.net/2027/spo.bbp2372.1984.025
   - Useful for: tracking a live player in a known score, and dynamic-programming matching that tolerates wrong, extra and missing notes.
-  - Applied in: [played-pattern recognition](played-pattern-recognition.md): interactive systems, tolerant matching.
+  - Applied in: [played-pattern recognition](played-pattern-recognition.md): interactive systems, tolerant matching; [accompaniment systems](accompaniment-systems.md): prior art, what is cheap and robust.
 - **S97 - Query by humming and contour codes.** Asif Ghias, Jonathan Logan, David Chamberlin and Brian C. Smith, "Query By Humming", ACM Multimedia 1995: https://www.cs.cornell.edu/zeno/papers/humming/humming.html ; Wikipedia, Parsons code: https://en.wikipedia.org/wiki/Parsons_code
   - Useful for: up/down/same contour matching with k mismatches, 10–12 steps to tell apart 90% of 183 songs, and the 23% share of the "up, up" opening.
   - Applied in: [played-pattern recognition](played-pattern-recognition.md): contour-only matching, accidental-trigger reasoning.
@@ -356,7 +356,7 @@ These back the [preset catalogue](preset-catalogue.md), research for the v3.1 bu
 
 - **S100 - Pentatonic scale.** Wikipedia: https://en.wikipedia.org/wiki/Pentatonic_scale
   - Useful for: major and minor pentatonic contents; the minor pentatonic as the basis of the blues scale and of blues and rock soloing; its use in Scottish, Irish and Appalachian folk; why it suits improvisers.
-  - Applied in: [preset catalogue](preset-catalogue.md): [What no setting can express today](preset-catalogue.md#what-no-setting-can-express-today), Blues, Considered, the pentatonic-scale and blues-scale lexicon drafts.
+  - Applied in: [preset catalogue](preset-catalogue.md): [What no setting can express today](preset-catalogue.md#what-no-setting-can-express-today), Blues, Considered, the pentatonic-scale and blues-scale lexicon drafts; [style atlas: folk and world traditions](styles/folk-and-world.md): Appalachian old-time and bluegrass, Andean huayno, West African timeline music and highlife, Chinese pentatonic and silk-and-bamboo, Javanese and Balinese gamelan.
 - **S101 - Twelve-bar blues.** Wikipedia: https://en.wikipedia.org/wiki/Twelve-bar_blues
   - Useful for: the I–IV–V twelve-bar pattern, seventh-chord variants, the AAB melodic shape.
   - Applied in: [preset catalogue](preset-catalogue.md): Blues, the twelve-bar-blues lexicon draft.
@@ -365,43 +365,961 @@ These back the [preset catalogue](preset-catalogue.md), research for the v3.1 bu
   - Applied in: [preset catalogue](preset-catalogue.md): What no setting can express today (swing, acknowledgement of swung notes), Bebop, Blues.
 - **S103 - Bebop.** Wikipedia: https://en.wikipedia.org/wiki/Bebop
   - Useful for: fast tempos, quick and complex chord changes, angular lines, extended and altered chords; early-1940s origin with Parker and Gillespie.
-  - Applied in: [preset catalogue](preset-catalogue.md): Bebop, What no setting can express today.
+  - Applied in: [preset catalogue](preset-catalogue.md): Bebop, What no setting can express today; [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Bebop.
 - **S104 - Modal jazz.** Wikipedia: https://en.wikipedia.org/wiki/Modal_jazz
   - Useful for: modes in front instead of changing chords; "So What" and _Kind of Blue_ (1959); D Dorian in "So What"; chords voiced in fourths.
-  - Applied in: [preset catalogue](preset-catalogue.md): Modal (Dorian), the vamp lexicon draft.
+  - Applied in: [preset catalogue](preset-catalogue.md): Modal (Dorian), the vamp lexicon draft; [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Cool and modal jazz.
 - **S105 - "Oye Como Va".** Ethan Hein, blog post: https://ethanhein.com/wp/2021/oye-como-va/
   - Useful for: a whole tune in A Dorian on a two-chord i–IV vamp, and the raised 6th as the source of its color.
   - Applied in: [preset catalogue](preset-catalogue.md): Modal (Dorian), the vamp lexicon draft. A practitioner blog, used for one well-known example.
 - **S106 - Reel.** Wikipedia: https://en.wikipedia.org/wiki/Reel_(dance)
   - Useful for: 4/4 or 2/2; mostly eighth-note movement accented on beats 1 and 3; played even, without swing; eight-bar parts divisible into four-bar phrases; AABB form.
-  - Applied in: [preset catalogue](preset-catalogue.md): Folk reel, the reel lexicon draft.
+  - Applied in: [preset catalogue](preset-catalogue.md): Folk reel, the reel lexicon draft; [style atlas: folk and world traditions](styles/folk-and-world.md): Irish and Scottish reel.
 - **S107 - Modes in Irish and Scottish music.** John Chambers, "A Brief Tutorial on Musical Modes", ABC notation pages at MIT: https://trillian.mit.edu/~jc/doc/abc/Modes.html
   - Useful for: Dorian and Mixolydian as very common in Irish and Scottish tunes; a "minor" tune often being Dorian.
-  - Applied in: [preset catalogue](preset-catalogue.md): Folk reel.
+  - Applied in: [preset catalogue](preset-catalogue.md): Folk reel; [style atlas: folk and world traditions](styles/folk-and-world.md): Irish and Scottish reel, Irish and Scottish jig (and slip jig).
 - **S108 - Irish ornamentation.** The Celtic Room, "Irish music ornamentation": https://thecelticroom.org/playing-irish-music/irish-music-ornamentation.html
   - Useful for: the cut (a grace note above), the tap or strike (below), the long and short roll, the cran; ornaments varied freely by the player.
-  - Applied in: [preset catalogue](preset-catalogue.md): Folk reel, the reel lexicon draft. A practitioner page, cross-checked against the ornament entries of the [embellishment catalogue](embellishment-catalogue.md).
+  - Applied in: [preset catalogue](preset-catalogue.md): Folk reel, the reel lexicon draft; [musical identity](musical-identity.md): ornamentation; [style atlas: folk and world traditions](styles/folk-and-world.md): Irish and Scottish reel, Irish and Scottish jig (and slip jig). A practitioner page, cross-checked against the ornament entries of the [embellishment catalogue](embellishment-catalogue.md).
 - **S109 - Fortspinnung.** Wikipedia: https://en.wikipedia.org/wiki/Fortspinnung
   - Useful for: "spinning out" a motif through sequences, repetition and variation; the opening–development–cadence shape; Baroque usage.
-  - Applied in: [preset catalogue](preset-catalogue.md): Baroque.
+  - Applied in: [preset catalogue](preset-catalogue.md): Baroque; [style atlas: Western art music](styles/art-music.md): Baroque.
 - **S110 - Sequence.** Wikipedia: https://en.wikipedia.org/wiki/Sequence_(music)
   - Useful for: a passage restated at another pitch level; the descending-fifths sequence; its strong association with Baroque music and Vivaldi.
-  - Applied in: [preset catalogue](preset-catalogue.md): Baroque.
+  - Applied in: [preset catalogue](preset-catalogue.md): Baroque; [style atlas: Western art music](styles/art-music.md): Baroque.
 - **S111 - Ornament (music).** Wikipedia: https://en.wikipedia.org/wiki/Ornament_(music)
   - Useful for: Baroque performers improvising trills, mordents and appoggiaturas; most Baroque ornaments falling on the beat.
-  - Applied in: [preset catalogue](preset-catalogue.md): Baroque.
+  - Applied in: [preset catalogue](preset-catalogue.md): Baroque; [musical identity](musical-identity.md): ornamentation; [style atlas: Western art music](styles/art-music.md): Baroque.
 - **S112 - Bossa nova.** Wikipedia: https://en.wikipedia.org/wiki/Bossa_nova
   - Useful for: late-1950s Rio de Janeiro origin (Gilberto, Jobim); the guitar pattern and clave-like percussion; syncopation; played without swing; complex chords; usual 2/4 notation.
-  - Applied in: [preset catalogue](preset-catalogue.md): Bossa, What no setting can express today, the bossa-nova lexicon draft.
+  - Applied in: [preset catalogue](preset-catalogue.md): Bossa, What no setting can express today, the bossa-nova lexicon draft; [style atlas: folk and world traditions](styles/folk-and-world.md): Samba and bossa nova.
 - **S113 - Four-chord schemas.** Open Music Theory 2e (Gotham et al.), LibreTexts mirror, CC BY-SA: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.09%3A_Four-Chord_Schemas
   - Useful for: I, IV, V and vi as pop's most common chords; the doo-wop schema I–vi–IV–V (1950s–60s) and the singer/songwriter schema I–V–vi–IV (from the mid-1990s).
-  - Applied in: [preset catalogue](preset-catalogue.md): Pop song.
+  - Applied in: [preset catalogue](preset-catalogue.md): Pop song; [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Soul and Motown; [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Pop.
 - **S114 - Melody and phrasing in pop music.** Open Music Theory 2e (Gotham et al.), LibreTexts mirror, CC BY-SA: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.03%3A_Melody_and_Phrasing
   - Useful for: a pop phrase typically lasting four bars; the SRDC (statement, response, departure, conclusion) sentence form.
-  - Applied in: [preset catalogue](preset-catalogue.md): Pop song.
+  - Applied in: [preset catalogue](preset-catalogue.md): Pop song; [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Soul and Motown; [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Pop.
 - **S115 - Minimal music.** Wikipedia: https://en.wikipedia.org/wiki/Minimal_music
   - Useful for: repetition, process, steady pulse, consonant diatonic harmony with slow harmonic rhythm.
-  - Applied in: [preset catalogue](preset-catalogue.md): Considered, not proposed.
+  - Applied in: [preset catalogue](preset-catalogue.md): Considered, not proposed; [style atlas: Western art music](styles/art-music.md): Minimalism.
+
+## Arranging and Accompaniment Roles (v4)
+
+These back [arranging and accompaniment roles](arranging-and-roles.md), research for v4's accompaniment with roles and the endgame's system voices, and its lexicon entries. S130, S131, S137, S143, S148, S159 and S161 are also cited by [accompaniment systems and adaptive music](accompaniment-systems.md). All URLs were checked on 2026-10-11; Britannica, VIVA Pressbooks, the DOI targets and the Owsinski blog refused automated requests, so their content was confirmed through search results or a fetch tool, and the DOIs as registered. Reference only; no text copied.
+
+- **S120 - Arrangement.** Wikipedia: https://en.wikipedia.org/wiki/Arrangement
+  - Useful for: arrangement versus orchestration; what arrangers change (reharmonization, added introductions and endings, instrumentation); head arrangements versus written charts in jazz.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): composer, arranger, orchestrator; the arrangement lexicon entry.
+- **S121 - Head arrangement.** Wikipedia: https://en.wikipedia.org/wiki/Head_arrangement
+  - Useful for: the head arrangement as a memorized, unwritten arrangement worked out by the players; Count Basie's early band.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): the variety across traditions; [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Swing / big band, Bebop.
+- **S122 - Big band.** Wikipedia: https://en.wikipedia.org/wiki/Big_band
+  - Useful for: the swing-era chart form (melody chorus, choruses of development, shout chorus, introductions and interludes).
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): the usual stages (form); [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Swing / big band.
+- **S123 - Collins, creative thinking in composition.** Dave Collins, "A synthesis process model of creative thinking in music composition", _Psychology of Music_ 33(2), 193–216 (2005): https://doi.org/10.1177/0305735605050651
+  - Useful for: evidence that composing is chunked at micro and macro levels and proceeds recursively, not linearly.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): the usual stages, top-down and bottom-up.
+- **S124 - Texture.** Mark Gotham et al., Open Music Theory 2e, LibreTexts mirror, CC BY-SA: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/01%3A_Fundamentals/1.20%3A_Texture
+  - Useful for: monophony, heterophony, homophony (homorhythm, melody and accompaniment) and polyphony; texture changing within a piece.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): texture; the texture lexicon entries.
+- **S125 - Heterophony.** Encyclopaedia Britannica: https://www.britannica.com/art/heterophony (and Wikipedia: https://en.wikipedia.org/wiki/Heterophony)
+  - Useful for: heterophony as simultaneous variants of one tune; gamelan and folk examples.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): texture, heterophonic doubling; the heterophony lexicon entry; [style atlas: folk and world traditions](styles/folk-and-world.md): Appalachian old-time and bluegrass, Arabic maqam (Hijaz, Rast, Bayati), Japanese min'yō and koto scales, Chinese pentatonic and silk-and-bamboo.
+- **S126 - Homophony.** Encyclopaedia Britannica: https://www.britannica.com/art/homophony-music
+  - Useful for: homophony versus polyphony; the top line standing out over chords.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): texture; the homophony lexicon entry; [style atlas: Western art music](styles/art-music.md): Chorale and hymn.
+- **S127 - Texture in pop music.** Megan Lavengood, Open Music Theory 2e, VIVA Pressbooks, CC BY-SA: https://viva.pressbooks.pub/openmusictheory/chapter/texture-in-pop-music/
+  - Useful for: Moore's functional layers (explicit beat, functional bass, harmonic filler, melodic) and the novelty layer; why classical texture terms fit pop poorly.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): texture, pad, bass roles, groove and drums, balance and density; the functional-layer lexicon entry; [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Pop.
+- **S128 - Lavengood, the novelty layer.** Megan L. Lavengood, "The Cultural Significance of Timbre Analysis: A Case Study in 1980s Pop Music, Texture, and Narrative", _Music Theory Online_ 26(3) (2020): https://doi.org/10.30535/mto.26.3.3
+  - Useful for: the novelty layer's definition (opposition to the melody, call and response, interjections in the melody's gaps); marked versus blending timbres.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): texture, fills, call and response, groove, balance and density, antagonists; [musical identity](musical-identity.md): interaction habits; [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Synthwave.
+- **S129 - Rimsky-Korsakov, _Principles of Orchestration_.** Nikolay Rimsky-Korsakov, ed. Maximilian Steinberg, trans. Edward Agate, Project Gutenberg (public domain): https://www.gutenberg.org/ebooks/33900
+  - Useful for: "melody should always stand out in relief from the accompaniment" and the means to do it; sections on melody in unison, octaves, thirds and sixths.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): the usual stages (orchestration), unison and octave doubling, parallel thirds and sixths, balance and density; the doubling lexicon entry.
+- **S130 - Countermelody.** Wikipedia: https://en.wikipedia.org/wiki/Countermelody
+  - Useful for: the counter-melody as a distinct, subordinate melody played with the lead, which makes the texture polyphonic; marches giving it to trombones and horns.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): counter-melody; [accompaniment systems](accompaniment-systems.md): terms, roles in practice, the recommended family; the counter-melody lexicon entry; [style atlas: Western art music](styles/art-music.md): March and fanfare.
+- **S131 - Comping (jazz).** Wikipedia: https://en.wikipedia.org/wiki/Comping_(jazz)
+  - Useful for: comping's definition, rhythm and voicings (3rds and 7ths, rootless); playing "in the space left by the soloist"; guide-tone lines; hits behind drum solos; Basie's sparse versus Peterson's busy comping.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): guide-tone line, comping, stabs, balance and density; [accompaniment systems](accompaniment-systems.md): terms, roles in practice, what is cheap and robust, the recommended family; the comping and guide-tone lexicon entries; [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Swing / big band, Bebop.
+- **S132 - Walking bass.** Wikipedia: https://en.wikipedia.org/wiki/Walking_bass
+  - Useful for: walking bass as steady quarter notes through scale tones, chord tones and chromatic passing notes; pedal points in bass playing.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): bass roles; the walking-bass lexicon entry; [style atlas: Western art music](styles/art-music.md): Baroque; [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Swing / big band, Bebop.
+- **S133 - Building walking bass lines.** Matt Warnock, Fundamental Changes: https://www.fundamental-changes.com/walking-basslines-on-guitar/
+  - Useful for: the four-step teaching recipe (root on beat 1, chromatic approach on beat 4, second approach or enclosure on beat 3, diatonic note on beat 2). A teaching site, consistent with others.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): bass roles.
+- **S134 - Pedal point.** Wikipedia: https://en.wikipedia.org/wiki/Pedal_point
+  - Useful for: pedal points on tonic and dominant, inverted and inner pedals, the tension they create, the pedal versus the drone.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): pedal point and drone, bass roles; the pedal-point lexicon entry.
+- **S135 - Drone.** Wikipedia: https://en.wikipedia.org/wiki/Drone_(music)
+  - Useful for: the drone as a continuous tonic or fifth that fixes the tonal centre; rustic and archaic associations of open fifths.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): pedal point and drone, locations; [musical identity](musical-identity.md): places; the drone lexicon entry; [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Ambient and drone, JRPG town and village; [style atlas: folk and world traditions](styles/folk-and-world.md): Irish and Scottish reel, Balkan aksak dances (7/8, 9/8, 11/8), Arabic maqam (Hijaz, Rast, Bayati), Hindustani and Carnatic raga.
+- **S136 - Ostinato.** Wikipedia: https://en.wikipedia.org/wiki/Ostinato
+  - Useful for: ostinato, riff, vamp and ground bass as one family; ostinatos confirming a modal centre.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): ostinato, riff and vamp; the riff lexicon entry; [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): JRPG dungeon, Epic trailer and battle.
+- **S137 - Fill.** Wikipedia: https://en.wikipedia.org/wiki/Fill_(music)
+  - Useful for: the fill as a short passage in a gap between melodic phrases, where nothing else is happening, often marking a phrase's end; instruments that play fills.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): fills, balance and density; [accompaniment systems](accompaniment-systems.md): terms, roles in practice, the recommended family; the fill lexicon entry.
+- **S138 - Stab.** Wikipedia: https://en.wikipedia.org/wiki/Stab_(music)
+  - Useful for: stabs and orchestra hits as short punctuating chords; silence between hits as tension and release.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): stabs, hits and kicks, balance and density; the stab lexicon entry.
+- **S139 - Backbeat.** Wikipedia: https://en.wikipedia.org/wiki/Backbeat
+  - Useful for: the backbeat on beats 2 and 4, usually on the snare.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): groove and drums; the backbeat lexicon entry; [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Chicago (electric) blues, Gospel, Rhythm and blues and early rock and roll (overlap); [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Pop, Classic rock.
+- **S140 - Canon.** Wikipedia: https://en.wikipedia.org/wiki/Canon_(music)
+  - Useful for: canon, leader and follower, strict and free imitation, the round; imitation as the broader practice.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): echo, imitation and canon; the imitation lexicon entry.
+- **S141 - Impro-Visor Style Editor.** Bob Keller, "Using the Impro-Visor Style Editor" (Harvey Mudd College, 2012): https://www.cs.hmc.edu/~keller/jazz/improvisor/StyleEditorTutorial.pdf
+  - Useful for: generating bass, comping and drum parts from a chord progression with weighted patterns; bass note categories (bass note, chord tone, scale tone, chromatic approach to the next bass note); pushed (anticipated) patterns.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): comping, bass roles, groove and drums; [identity modelling](identity-modelling.md): existing style and preset formats.
+- **S142 - Band-in-a-Box.** PG Music: https://www.pgmusic.com/
+  - Useful for: precedent for generating a full accompaniment (piano, bass, drums, guitar, strings or horns) from chord symbols and a style.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): comping.
+- **S143 - Coconet.** Magenta, "Coconet: the ML model behind today's Bach Doodle": https://magenta.tensorflow.org/coconet ; Cheng-Zhi Anna Huang et al., "Counterpoint by Convolution", ISMIR 2017: https://arxiv.org/abs/1903.07227
+  - Useful for: machine-learned multi-voice (Bach chorale) generation that harmonises a melody in four voices by filling in erased notes, run in the browser with TensorFlow.js; a contrast to rule-based generation. Not read in depth.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): how this was gathered (generation precedent); [accompaniment systems](accompaniment-systems.md): prior art, neural models; [style atlas: Western art music](styles/art-music.md): Chorale and hymn.
+- **S144 - Types of motion.** University of Puget Sound, Music Theory for the 21st-Century Classroom: https://musictheory.pugetsound.edu/mt21c/TypesOfMotion.html
+  - Useful for: contrary, oblique, similar and parallel motion.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): counter-melody, motion types, the minimum rule set; the types-of-motion lexicon entry.
+- **S145 - Objectionable parallels.** University of Puget Sound, Music Theory for the 21st-Century Classroom: https://musictheory.pugetsound.edu/mt21c/ObjectionableParallels.html
+  - Useful for: which parallels classical part-writing avoids (fifths, octaves, unisons) and why; parallel 3rds and 6ths acceptable.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): parallel thirds and sixths, which parallels matter, the minimum rule set; the parallel-fifths-and-octaves lexicon entry; [style atlas: Western art music](styles/art-music.md): Renaissance polyphony (Palestrina style), Chorale and hymn.
+- **S146 - Rules of spacing.** University of Puget Sound, Music Theory for the 21st-Century Classroom: https://musictheory.pugetsound.edu/mt21c/RulesOfSpacing.html
+  - Useful for: adjacent upper voices within an octave; the bass may be further away.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): pad, the minimum rule set; the voicing lexicon entry; [style atlas: Western art music](styles/art-music.md): Chorale and hymn.
+- **S147 - Consecutive fifths.** Wikipedia: https://en.wikipedia.org/wiki/Consecutive_fifths
+  - Useful for: why parallel fifths and octaves are avoided, and where they are not (power chords, folk styles, octave doubling in orchestration).
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): unison and octave doubling, which parallels matter, the minimum rule set; the parallel-fifths-and-octaves lexicon entry.
+- **S148 - Huron, _Tone and Voice_.** David Huron, "Tone and Voice: A Derivation of the Rules of Voice-Leading from Perceptual Principles", _Music Perception_ 19(1), 1–64 (2001): https://doi.org/10.1525/mp.2001.19.1.1
+  - Useful for: deriving voice-leading rules from hearing (pitch proximity, minimum masking, tonal fusion, among others), and so how a contrasting voice should stay apart and a highlighting voice may fuse. Principles cited from the abstract and secondary summaries; read the paper before relying on details.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): voice-leading minimum rules; [accompaniment systems](accompaniment-systems.md): rule-based generation, roles in practice, the recommended family; the voice-leading lexicon entry.
+- **S149 - Huron, avoidance of part-crossing.** David Huron, "The Avoidance of Part-Crossing in Polyphonic Music: Perceptual Evidence and Musical Practice", _Music Perception_ 9(1), 93–103 (1991): https://doi.org/10.2307/40286160
+  - Useful for: listeners lose track of crossing streams; Bach avoids crossings more in denser textures.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): counter-melody, the minimum rule set.
+- **S150 - Huron, note-onset asynchrony.** David Huron, "Note-Onset Asynchrony in J. S. Bach's Two-Part Inventions", _Music Perception_ 10(4), 435–443 (1993): https://doi.org/10.2307/40285582
+  - Useful for: Bach keeps simultaneous onsets below chance; asynchronous onsets help listeners separate voices (complementary rhythm).
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): counter-melody, the minimum rule set, balance and density.
+- **S151 - Huron, voice denumerability.** David Huron, "Voice Denumerability in Polyphonic Music of Homogeneous Timbres", _Music Perception_ 6(4), 361–382 (1989): https://doi.org/10.2307/40285438
+  - Useful for: listeners count up to three concurrent voices well, and under-count from four on.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): balance and density.
+- **S152 - Arrangement rules.** Bobby Owsinski, blog post: https://bobbyowsinskiblog.com/arrangement-rules/
+  - Useful for: a producer's rules of thumb: no more than four elements at once; each instrument in its own frequency range, octave or time. A practitioner blog.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): balance and density.
+- **S153 - Arranging for Horns (course outline).** Berklee Online: https://online.berklee.edu/courses/arranging-for-horns
+  - Useful for: background lines built from common tones and 3rds and 7ths leading to target notes; spread voicings to support a soloist.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): the variety across traditions, counter-melody, guide-tone line.
+- **S154 - "Carmelo's by the Freeway", chart notes.** Jazz Lines Publications (Bob Florence, arr.): https://ejazzlines.com/carmelos-by-the-freeway-arranged-by-bob-florence
+  - Useful for: a concrete example of soloist backgrounds: short hits on the A sections, sustained pads on the bridges. Publisher's product notes, a weak but concrete source.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): the variety across traditions, pad, stabs, balance and density; the pad lexicon entry.
+- **S155 - Leitmotif.** Encyclopaedia Britannica: https://www.britannica.com/art/leitmotif
+  - Useful for: the leitmotif as a recurring theme tied to a character or dramatic element, and its association with Wagner.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): characters; [musical identity](musical-identity.md): leitmotif and character themes; the leitmotif lexicon entry; [style atlas: Western art music](styles/art-music.md): Epic film orchestral (late Romantic).
+- **S156 - _Peter and the Wolf_.** Wikipedia: https://en.wikipedia.org/wiki/Peter_and_the_Wolf (and Britannica: https://www.britannica.com/topic/Peter-and-the-Wolf)
+  - Useful for: one instrument and manner per character; the work's purpose of teaching children to recognize instruments.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): characters, antagonists; [musical identity](musical-identity.md): concrete examples, what stays fixed and what varies, sound, register.
+- **S157 - _Star Wars_ themes.** Frank Lehman, "Complete Catalogue of the Musical Themes of Star Wars": https://www.franklehman.com/starwars ; and Tufts Now, "Professor Turns to the Dark Side" (2018): https://now.tufts.edu/2018/01/12/professor-turns-dark-side
+  - Useful for: a modern leitmotif catalogue; several leitmotifs for one conflicted character; chromatic harmony marking villainy.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): characters, antagonists; [musical identity](musical-identity.md): purpose, concrete examples, pitch material, harmony, the antagonist example; [style atlas: Western art music](styles/art-music.md): Epic film orchestral (late Romantic).
+- **S158 - Music of _Final Fantasy VI_.** Wikipedia: https://en.wikipedia.org/wiki/Music_of_Final_Fantasy_VI
+  - Useful for: character themes in an RPG score (the playable characters each have one).
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): characters; [musical identity](musical-identity.md): concrete examples.
+- **S159 - Adaptive music.** Wikipedia: https://en.wikipedia.org/wiki/Adaptive_music
+  - Useful for: vertical layering and horizontal re-sequencing; crossfade, phrase-branching and bridge transitions; _Dead Space 2_'s layered score; generative examples.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): the variety across traditions, texture, team, actions; [accompaniment systems](accompaniment-systems.md): the vocabulary of adaptive music, what a symbolic generator changes, endgame mapping; [musical identity](musical-identity.md): places, combining identities; [identity modelling](identity-modelling.md): combining identities; the vertical-layering lexicon entry; [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): capability notes.
+- **S160 - Ground BGM (_Super Mario World_).** Super Mario Wiki: https://www.mariowiki.com/Ground_BGM_(Super_Mario_World)
+  - Useful for: one theme rearranged for many locations; the bongo layer added while riding Yoshi.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): team, locations; [musical identity](musical-identity.md): what stays fixed and what varies, places, combining identities.
+- **S161 - Sting (musical phrase).** Wikipedia: https://en.wikipedia.org/wiki/Sting_(musical_phrase)
+  - Useful for: the sting or stinger as a short punctuating phrase marking an event, a scene end or a climax, in broadcasting and film.
+  - Applied in: [arranging and accompaniment roles](arranging-and-roles.md): actions; [accompaniment systems](accompaniment-systems.md): terms, the vocabulary of adaptive music; [musical identity](musical-identity.md): events; the stinger lexicon entry; [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): JRPG victory fanfare, capability notes.
+
+## Accompaniment Systems and Adaptive Music (v4)
+
+These back [accompaniment systems and adaptive music](accompaniment-systems.md), research for v4's accompaniment with roles and the endgame, and its lexicon entries. Sources shared with the arranging research keep their id from the block above: S130 (countermelody), S131 (comping), S137 (fill), S143 (Coconet), S148 (Huron, _Tone and Voice_), S159 (adaptive music) and S161 (sting). The software sources of the [sound library survey](../sound-library-survey.md#sources) stay local to that survey and are not registered here. All URLs were read on 2026-10-11; Audiokinetic's Wwise help and course pages and FMOD's manual refused automated readers, and the GDC Vault pages give abstracts only. Reference only; no text copied.
+
+- **S162 - Band-in-a-Box StyleMaker.** PG Music, Band-in-a-Box 2026 for Windows manual, chapter 14: https://www.pgmusic.com/manuals/bbw2026full/chapter14.htm ; "Using the Band-in-a-Box Stylemaker, Part I": https://www.pgmusic.com/tutorial_stylemaker1.htm
+  - Useful for: patterns recorded over C7 and transposed, 8/4/2/1-beat rows, A and B sub-styles, fills, weights 1–8, masks by bar, chord type and next chord, "transpose only" and "riff based" voice leading, and the "random pattern player" description.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, style templates, the recommended family; [identity modelling](identity-modelling.md): signature motifs and licks, existing style and preset formats.
+- **S163 - Band-in-a-Box RealTracks.** PG Music, Band-in-a-Box 2026 manual, chapter 7: https://www.pgmusic.com/manuals/bbw2026full/chapter7.htm
+  - Useful for: recorded audio tracks that follow entered chords, as the audio counterpart to MIDI styles.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art.
+- **S164 - iReal Pro backing track styles.** iReal Pro help, "Backing track styles": https://www.irealpro.com/learn/accompaniment-styles
+  - Useful for: styles as recorded performances, fills into double and final bar lines "most times rather than every time", pattern sets per chorus, and swing pattern sets chosen by tempo.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, style templates; [identity modelling](identity-modelling.md): existing style and preset formats.
+- **S165 - Impro-Visor.** Robert M. Keller, Harvey Mudd College, home and uses pages: https://www.cs.hmc.edu/~keller/jazz/improvisor/ and https://www.cs.hmc.edu/~keller/jazz/improvisor/uses.html ; Wikipedia: https://en.wikipedia.org/wiki/Impro-Visor
+  - Useful for: accompaniment generated from a lead sheet's chords with user-definable styles, a probabilistic grammar for solos, and passive trading that "does not react to what the soloist is playing".
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, style templates; [identity modelling](identity-modelling.md): representations of style, signature motifs and licks, existing style and preset formats; [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Bebop.
+- **S166 - Active trading with Impro-Visor.** Zachary Kondak, Mikayla Konst, Carli Lessard, David Siah and Robert M. Keller, "Active Trading with Impro-Visor", MUME 2016: http://musicalmetacreation.org/mume2016/proceedings/Kondak_Impro_Visor.pdf
+  - Useful for: trading modes (repeat and rectify, modify and rectify, abstract melody, transform, grammar solo), rectification onto chord tones, trade length and who starts, and the companion-versus-tutor distinction.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, what the systems do with a live player, what is cheap and robust, endgame mapping, open questions; [musical identity](musical-identity.md): interaction habits; [identity modelling](identity-modelling.md): signature motifs and licks.
+- **S167 - OMax, factor oracles.** Gérard Assayag and Shlomo Dubnov, "Using Factor Oracles for Machine Improvisation", Soft Computing 8(9), 2004, DOI 10.1007/s00500-004-0385-4: https://doi.org/10.1007/s00500-004-0385-4
+  - Useful for: variable Markov models and the factor oracle as the basis of OMax's style learning.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, Markov models; [musical identity](musical-identity.md): learning an identity from play.
+- **S168 - Somax2.** IRCAM REACH project page: https://reach.ircam.fr/index.php/2024/01/27/somax2/
+  - Useful for: a corpus-trained, listening, multi-agent co-improviser in Max and Python, and its "agreement, discord or independence" interplay.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, what the systems do with a live player, endgame mapping.
+- **S169 - Music Plus One.** Christopher Raphael, "Demonstration of Music Plus One", ISMIR 2004: https://archives.ismir.net/ismir2004/paper/000176.pdf ; "A Bayesian Network for Real-Time Musical Accompaniment", NIPS 2001: https://papers.nips.cc/paper_files/paper/2001/hash/2b0f658cbffd284984fb11d90254081f-Abstract.html
+  - Useful for: Listen (HMM score following), Predict (timing learnt in rehearsals) and Synthesize (phase-vocoded orchestral recording).
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, what the systems do with a live player, what is cheap and robust.
+- **S170 - Magenta sequence models.** Adam Roberts et al., "A Hierarchical Latent Vector Model for Learning Long-Term Structure in Music" (MusicVAE), 2018: https://arxiv.org/abs/1803.05428 ; Magenta, "Performance RNN": https://magenta.tensorflow.org/performance-rnn ; Chris Donahue, Ian Simon and Sander Dieleman, "Piano Genie", 2018: https://arxiv.org/abs/1810.05246
+  - Useful for: what neural melody, performance and simplified-input models do.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, neural models.
+- **S171 - Magenta in the browser.** Magenta web demos: https://magenta.tensorflow.org/demos/web/ ; MusicVAE 4-bar small weights manifest: https://storage.googleapis.com/magentadata/js/checkpoints/music_vae/mel_4bar_small_q2/weights_manifest.json
+  - Useful for: browser demos (A.I. Duet, DrumBot, Piano Genie) and model sizes; the parameter counts are the author's arithmetic from the manifests (mel_4bar_small_q2, mel_2bar_small, coconet/bach).
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, neural models.
+- **S172 - A.I. Duet.** Google Creative Lab, source repository: https://github.com/googlecreativelab/aiexperiments-ai-duet
+  - Useful for: a call-and-response piano experiment whose browser client sends the player's MIDI to a server that continues it.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, what the systems do with a live player.
+- **S173 - Magenta RealTime and Lyria RealTime.** Magenta, "Magenta RealTime": https://magenta.tensorflow.org/magenta-realtime ; Lyria Team, "Live Music Models", 2025: https://arxiv.org/abs/2508.04651
+  - Useful for: live audio generation in 2-second chunks with an 800-million-parameter model on a TPU, steered by prompts; why it does not fit a symbolic, offline app.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, neural models.
+- **S174 - MySong.** Ian Simon, Dan Morris and Sumit Basu, "MySong: Automatic Accompaniment Generation for Vocal Melodies", CHI 2008: https://www.microsoft.com/en-us/research/uploads/prod/2016/02/mysongchi2008.pdf ; project page: https://www.microsoft.com/en-us/research/project/mysong/
+  - Useful for: an HMM choosing one chord per measure, the "happy factor" and "jazz factor" sliders for non-musicians, under-5 ms re-choice, and Band-in-a-Box as the band renderer.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, Markov models; [identity modelling](identity-modelling.md): existing style and preset formats, explaining identities to the player.
+- **S175 - Hookpad and Aria.** Hooktheory, Hookpad: https://www.hooktheory.com/hookpad ; Aria: https://hooktheory.com/hookpad/aria ; Chris Donahue et al., "Hookpad Aria: A Copilot for Songwriters", ISMIR 2024 late-breaking demo: https://ismir2024program.ismir.net/lbd_489.html
+  - Useful for: chord suggestions ranked by popularity, and a transformer that proposes alternatives within a selection.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art.
+- **S176 - Steedman's jazz grammar.** Mark J. Steedman, "A Generative Grammar for Jazz Chord Sequences", Music Perception 2(1), 1984: https://homepages.inf.ed.ac.uk/steedman/papers/music/40285282.pdf ; Marc Chemillier, "Toward a formal study of jazz chord sequences generated by Steedman's grammar", Soft Computing 8, 2004: https://ehess.modelisationsavoirs.fr/atiam/biblio/Chemillier-SoftC-steedman2004.pdf
+  - Useful for: chord substitution as rewrite rules, and incremental generation for real-time improvisation systems.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art.
+- **S177 - David Cope and EMI.** Computer History Museum, "Algorithmic Music: David Cope and EMI": https://computerhistory.org/blog/algorithmic-music-david-cope-and-emi/
+  - Useful for: style imitation by analysing a composer's works, and "signatures" as recurring style markers.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art; [identity modelling](identity-modelling.md): representations of style, signature motifs and licks.
+- **S178 - Harmonisation with constraints.** François Pachet and Pierre Roy, "Musical Harmonization with Constraints: A Survey", Constraints 6(1), 2001: https://www.francoispachet.fr/wp-content/uploads/2021/01/pachet-01-Musical_Harmonization_with_Constraints.pdf
+  - Useful for: harmonisation as constraint satisfaction, and the need to structure the problem to keep the search feasible.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, constraint satisfaction; [identity modelling](identity-modelling.md): hard constraints and soft weights.
+- **S179 - Markov constraints.** François Pachet and Pierre Roy, "Markov constraints: steerable generation of Markov sequences", Constraints 16(2), 2011: https://link.springer.com/article/10.1007/s10601-010-9101-4
+  - Useful for: user controls as constraints on Markov generation, and its cost against greedy generation.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): prior art, constraint satisfaction; [identity modelling](identity-modelling.md): hard constraints and soft weights.
+- **S180 - iMUSE.** Wikipedia: https://en.wikipedia.org/wiki/IMUSE ; Michael Z. Land and Peter N. McConnell, US patent 5,315,057: https://patents.google.com/patent/US5315057A/en
+  - Useful for: decision points, hooks and markers; turning parts on and off and transposing them; jumps to transition passages at "aesthetically correct" points; _Monkey Island 2_'s instrument changes.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): the vocabulary of adaptive music, what a symbolic generator changes, endgame mapping; [identity modelling](identity-modelling.md): combining identities.
+- **S181 - Wwise interactive music.** Audiokinetic, "Wwise Tutorial 13 - Creating Stingers": https://www.audiokinetic.com/learn/videos/fLrz463kVEI ; Wwise-201 course, "Configuring a Music Switch Container": https://www.audiokinetic.com/en/courses/wwise201/?id=configuring_music_switch_container
+  - Useful for: stingers as brief phrases superimposed on the current music by a trigger, and switch containers with transition rules that fit the music to "the current mode of gameplay". The course page refuses automated readers; its wording comes from a search summary.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): terms, the vocabulary of adaptive music, endgame mapping; [musical identity](musical-identity.md): events; [identity modelling](identity-modelling.md): combining identities; the stinger lexicon entry.
+- **S182 - _Spore_'s generative music.** Wikipedia: https://en.wikipedia.org/wiki/Spore_(2008_video_game) ; Kent Jolly, GDC 2008 session recording: https://archive.org/details/GDC2008Jolly
+  - Useful for: generative music in editors, built on a modified Pure Data, with Brian Eno and Peter Chilvers.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): procedural music in games; [identity modelling](identity-modelling.md): combining identities.
+- **S183 - _No Man's Sky_'s procedural music.** Wikipedia: https://en.wikipedia.org/wiki/No_Man%27s_Sky ; Laced Records, interview with Paul Weir: https://www.lacedrecords.com/blogs/blog/interview-hello-games-audio-director-on-the-sound-and-music-of-no-man-s-sky ; GDC Vault, "The Sound of No Man's Sky": https://gdcvault.com/play/1024067/The-Sound-of-No-Man
+  - Useful for: an engine that reuses a band's album as loops and fragments, "a glorified random file player" with behaviours linked to the game.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): procedural music in games, endgame mapping; [identity modelling](identity-modelling.md): combining identities.
+- **S184 - _Proteus_.** Wikipedia: https://en.wikipedia.org/wiki/Proteus_(video_game)
+  - Useful for: music emitted by objects and creatures, shaped by where the player walks and the season.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): procedural music in games, endgame mapping.
+- **S185 - _Ape Out_.** Wikipedia: https://en.wikipedia.org/wiki/Ape_Out ; Shacknews, "Ape Out's jazz soundtrack explored": https://www.shacknews.com/article/110273/ape-outs-jazz-soundtrack-explored-in-devolver-digital-video
+  - Useful for: a procedural jazz drummer reacting to enemies, kills and speed.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): procedural music in games, endgame mapping.
+- **S186 - _Rise of the Tomb Raider_ percussion.** GDC Vault, "Real-time Procedural Percussion Scoring", GDC 2016: https://www.gdcvault.com/play/1023215/Real-time-Procedural-Percussion-Scoring
+  - Useful for: combat percussion that "never loops" and adapts to game action.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): procedural music in games.
+- **S187 - _Rez_.** Wikipedia: https://en.wikipedia.org/wiki/Rez_(video_game)
+  - Useful for: player shots quantised to the beat as musical layers, and mistakes absorbed into the music.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): rhythm games, endgame mapping.
+- **S188 - _Crypt of the NecroDancer_.** Wikipedia: https://en.wikipedia.org/wiki/Crypt_of_the_NecroDancer
+  - Useful for: moving on the beat, missing a beat without direct harm, a widened and auto-calibrated accuracy window, and beat tracking for custom music.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): rhythm games, endgame mapping.
+- **S189 - _Hi-Fi Rush_.** Wikipedia: https://en.wikipedia.org/wiki/Hi-Fi_Rush ; John Johanas, "Developing Hi-Fi RUSH Backwards", GDC 2024: https://gdcvault.com/play/1034256/Developing-Hi-Fi-RUSH-Backwards
+  - Useful for: a world synced to the beat, actions that sync automatically, and timing rewarded rather than required.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): rhythm games, endgame mapping.
+- **S190 - _Thumper_, _Sayonara Wild Hearts_, _BPM: Bullets Per Minute_.** Wikipedia: https://en.wikipedia.org/wiki/Thumper_(video_game), https://en.wikipedia.org/wiki/Sayonara_Wild_Hearts and https://en.wikipedia.org/wiki/BPM:_Bullets_Per_Minute
+  - Useful for: fixed soundtracks with timed input, and BPM's misfire penalty off the beat.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): rhythm games, endgame mapping.
+- **S191 - Lead sheet.** Wikipedia: https://en.wikipedia.org/wiki/Lead_sheet
+  - Useful for: melody plus chord symbols, accompanists improvising from the progression.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): how notation shows melody and accompaniment; the lead-sheet lexicon entry.
+- **S192 - MusicXML cue element.** W3C, MusicXML 4.0 reference, `<cue>`: https://www.w3.org/2021/06/musicxml40/musicxml-reference/elements/cue/
+  - Useful for: cue notes as silent notes in export.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): how notation shows melody and accompaniment, should system voices be shown.
+- **S193 - Multiple voices per staff.** MuseScore 3 handbook, "Working with multiple voices": https://handbook.musescore.org/3/basics/working-with-multiple-voices
+  - Useful for: up to four voices per staff with fixed stem directions.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): how notation shows melody and accompaniment.
+- **S194 - VexFlow.** VexFlow FAQ: https://github.com/0xfe/vexflow/wiki/FAQ ; VexFlow repository: https://github.com/vexflow/vexflow ; the pinned 5.0.0 type declarations (`node_modules/vexflow/build/types/src/system.d.ts`, `staveconnector.d.ts`, `voice.d.ts`).
+  - Useful for: `Formatter.joinVoices` per stave, formatting aligned voices across staves, `System.addStave` and `addConnector` (brace, bracket), and the absence of a cue-size option.
+  - Applied in: [accompaniment systems](accompaniment-systems.md): VexFlow 5 support.
+
+## Musical Identity (endgame)
+
+These back [musical identity](musical-identity.md), endgame research on what makes a character, place or event musically recognisable, and its lexicon entries. S205 (jSymbolic 2.2), S238 (status effect) and S240 (Conklin and Witten) are also cited by [identity modelling](identity-modelling.md). The _Theatrhythm Final Fantasy_ stage types it cites are filed under S92. All URLs were requested on 2026-10-11; the publishers behind S199, S200, S204, S221, S228, S230, S231, S232 and S240 refuse scripted requests while the DOI or page resolves in a browser, so their content was confirmed through abstracts, search results or secondary summaries. Figures known only second-hand are marked. Reference only; no text copied.
+
+- **S195 - LaRue, _Guidelines for Style Analysis_ (review).** Eric Sams, review in _The Musical Times_, April 1981: https://ericsams.org/index.php/music-reviews/history-and-aesthetics-of-music/665-guidelines-for-style-analysis-by-jan-larue
+  - Useful for: the SHMRG elements (Sound, Harmony, Melody, Rhythm, Growth) and what Sound covers.
+  - Applied in: [musical identity](musical-identity.md): frameworks for describing a style, phrase and form habits.
+- **S196 - Meyer, _Style and Music_ (review-article).** Douglas Dempster and Matthew Brown, _Intégral_ 6 (1992): https://theory.esm.rochester.edu/integral/wp-content/uploads/2019/06/INTEGRAL_6_dempster-and-brown.pdf
+  - Useful for: Meyer's definition of style as replicated patterning from constrained choices; laws, rules and strategies. The dialect and idiom levels come from secondary summaries; the book itself was not read.
+  - Applied in: [musical identity](musical-identity.md): frameworks for describing a style, style as learned expectation, phrase and form habits; the musical-style and idiolect lexicon entries.
+- **S197 - Van Kranenburg, composer attribution by strategies.** Peter van Kranenburg, "Composer attribution by quantifying compositional strategies", ISMIR 2006: https://archives.ismir.net/ismir2006/paper/000093.pdf
+  - Useful for: Meyer's three levels stated plainly (Handel against Telemann lies in strategies); score-based style markers for composer identification.
+  - Applied in: [musical identity](musical-identity.md): frameworks for describing a style, performer and composer fingerprints; the musical-style and idiolect lexicon entries.
+- **S198 - Berliner, _Thinking in Jazz_.** Paul F. Berliner, University of Chicago Press, 1994: https://press.uchicago.edu/ucp/books/book/chicago/T/bo3697073.html
+  - Useful for: jazz vocabulary learned from models and the building of a personal voice.
+  - Applied in: [musical identity](musical-identity.md): personal voice and vocabulary in jazz; the idiolect lexicon entry.
+- **S199 - Owens, _Bebop: The Music and Its Players_.** Thomas Owens, Oxford University Press, 1995: https://academic.oup.com/book/2103
+  - Useful for: Parker's style and his repertoire of formulas. The "about 100 formulas in about 250 solos" figure is from Owens's 1974 UCLA dissertation, known only second-hand.
+  - Applied in: [musical identity](musical-identity.md): personal voice and vocabulary in jazz; [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Bebop.
+- **S200 - Norgaard, patterns in Parker's solos.** Martin Norgaard, "How Jazz Musicians Improvise: The Central Role of Auditory and Motor Patterns", _Music Perception_ 31(3), 271–287 (2014): https://doi.org/10.1525/mp.2014.31.3.271
+  - Useful for: 82.6 % of notes begin a recurring four-interval pattern in 48 Parker solos.
+  - Applied in: [musical identity](musical-identity.md): personal voice and vocabulary in jazz, melody, learning an identity from play; [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Bebop.
+- **S201 - Jazzomat and the Weimar Jazz Database.** Martin Pfleiderer, Klaus Frieler, Jakob Abeßer, Wolf-Georg Zaddach and Benjamin Burkhart (eds.), _Inside the Jazzomat_, Schott Campus, 2017: http://schott-campus.com/jazzomat/ ; database contents: https://jazzomat.hfm-weimar.de/dbformat/dbcontent.html
+  - Useful for: a 456-solo corpus and pattern research on jazz vocabulary.
+  - Applied in: [musical identity](musical-identity.md): personal voice and vocabulary in jazz.
+- **S202 - Stamatatos and Widmer, performer identification.** Efstathios Stamatatos and Gerhard Widmer, "Automatic identification of music performers with learning ensembles", _Artificial Intelligence_ 165(1) (2005): https://research.jku.at/en/publications/automatic-identification-of-music-performers-with-learning-ensemb/
+  - Useful for: 22 pianists told apart from expressive deviations, better than human listeners would be expected to.
+  - Applied in: [musical identity](musical-identity.md): performer and composer fingerprints, sound.
+- **S203 - Saunders et al., performers' playing style.** "Using string kernels to identify famous performers from their playing style", _Intelligent Data Analysis_ 12(4) (2008): https://research.jku.at/en/publications/using-string-kernels-to-identify-famous-performers-from-their-pla/
+  - Useful for: beat-level tempo and loudness changes as a performer fingerprint.
+  - Applied in: [musical identity](musical-identity.md): performer and composer fingerprints, sound.
+- **S204 - Cheston et al., rhythm and jazz pianist identity.** "Rhythmic qualities of jazz improvisation predict performer identity and style in source-separated audio recordings", _Royal Society Open Science_ (2024): https://doi.org/10.1098/rsos.240920
+  - Useful for: rhythm alone identifies 10 pianists at 59 %, six times chance; a personal rhythm stable across a career.
+  - Applied in: [musical identity](musical-identity.md): performer and composer fingerprints, rhythm, learning an identity from play.
+- **S205 - jSymbolic 2.2.** Cory McKay, Julie E. Cumming and Ichiro Fujinaga, "jSymbolic 2.2: Extracting Features from Symbolic Music for use in Musicological and MIR Research", ISMIR 2018: https://ismir2018.ismir.net/doc/pdfs/26_Paper.pdf ; project page: https://jmir.sourceforge.net/jSymbolic.html
+  - Useful for: the size and families of a style feature set (246 features, 1,497 values) for composer and genre identification; features as "stylistic guideposts"; music21 and Humdrum compared. The project page refuses automated readers; it was confirmed by search.
+  - Applied in: [musical identity](musical-identity.md): performer and composer fingerprints; [identity modelling](identity-modelling.md): representations of style, testing an identity.
+- **S206 - Leitmotif.** Wikipedia: https://en.wikipedia.org/wiki/Leitmotif
+  - Useful for: a leitmotif stays recognisable as rhythm, harmony and orchestration change; Siegfried's horn call transformed; motifs combined.
+  - Applied in: [musical identity](musical-identity.md): purpose, concrete examples, what stays fixed and what varies, register, harmony, combining identities; the leitmotif and theme lexicon entries; [style atlas: Western art music](styles/art-music.md): Epic film orchestral (late Romantic).
+- **S207 - Music of _The Lord of the Rings_ film series.** Wikipedia: https://en.wikipedia.org/wiki/Music_of_The_Lord_of_the_Rings_film_series
+  - Useful for: over 50 themes; cultures marked by instruments, metre and mode; themes set against each other at Helm's Deep.
+  - Applied in: [musical identity](musical-identity.md): concrete examples, what stays fixed and what varies, places, pitch material, rhythm, combining identities.
+- **S208 - "Concerning Hobbits".** Wikipedia: https://en.wikipedia.org/wiki/Concerning_Hobbits
+  - Useful for: the Shire theme's key, instruments and variants.
+  - Applied in: [musical identity](musical-identity.md): concrete examples.
+- **S209 - Murphy, the major tritone progression.** Scott Murphy, "The Major Tritone Progression in Recent Hollywood Science Fiction Films", _Music Theory Online_ 12(2) (2006): https://mtosmt.org/issues/mto.06.12.2/mto.06.12.2.murphy.html
+  - Useful for: a chord progression associated with outer space; harmony as a semantic marker.
+  - Applied in: [musical identity](musical-identity.md): concrete examples, pitch material, harmony, the antagonist example; [style atlas: Western art music](styles/art-music.md): Epic film orchestral (late Romantic); [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): JRPG boss and final battle.
+- **S210 - Music of the _Final Fantasy_ series.** Wikipedia: https://en.wikipedia.org/wiki/Music_of_the_Final_Fantasy_series
+  - Useful for: character themes in VI and VII and none in VIII; the victory fanfare and other series signatures; the battle-music convention.
+  - Applied in: [musical identity](musical-identity.md): concrete examples, events, the event example; the fanfare lexicon entry; [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): JRPG music: the context system, JRPG town and village, JRPG overworld and field, JRPG battle, JRPG victory fanfare.
+- **S211 - Music of _Final Fantasy VII_.** Wikipedia: https://en.wikipedia.org/wiki/Music_of_Final_Fantasy_VII
+  - Useful for: "One-Winged Angel" as Sephiroth's piece; a main theme recurring in other tracks.
+  - Applied in: [musical identity](musical-identity.md): concrete examples, combining identities. The "Dancing Mad" counter-melody claim comes from fan criticism (Destructoid) and should be rechecked before reuse.
+- **S212 - Yu, leitmotifs in _Undertale_.** Jason Yu, "An Examination of Leitmotifs and Their Use to Shape Narrative in UNDERTALE, Part 1", Game Developer (2016): https://www.gamedeveloper.com/audio/an-examination-of-leitmotifs-and-their-use-to-shape-narrative-in-undertale-part-1-of-2
+  - Useful for: one theme in 13 or more tracks in different instrumentation; one theme's pitches with another's rhythm.
+  - Applied in: [musical identity](musical-identity.md): concrete examples, what stays fixed and what varies, rhythm, combining identities. The "Hopes and Dreams" combination is from a fan wiki.
+- **S213 - Soken on _Final Fantasy XIV_ area music.** VGMO interview with Masayoshi Soken: https://vgmonline.net/masayoshisoken2/ ; Siliconera (2013): https://www.siliconera.com/?p=282222
+  - Useful for: day, night and weather versions of area music; the same melody re-orchestrated.
+  - Applied in: [musical identity](musical-identity.md): concrete examples, what stays fixed and what varies, places, combining identities; [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): JRPG town and village.
+- **S214 - _Stormblood_ soundtrack review.** VGMO: https://vgmonline.net/stormblood/
+  - Useful for: "Triumph" as a minor-key variation of the expansion theme on low brass.
+  - Applied in: [musical identity](musical-identity.md): concrete examples, what stays fixed and what varies, harmony, the antagonist example.
+- **S215 - Music of _Chrono Cross_.** Wikipedia: https://en.wikipedia.org/wiki/Music_of_Chrono_Cross
+  - Useful for: paired location tracks for two worlds with bright and dark moods; regional influences.
+  - Applied in: [musical identity](musical-identity.md): concrete examples, what stays fixed and what varies, places, tempo; [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): JRPG music: the context system.
+- **S216 - Brame, thematic unity in Zelda.** Jason Brame, "Thematic Unity Across a Video Game Series", _ACT: Zeitschrift für Musik & Performance_ 2 (2011): https://ojournals.uni-bayreuth.de/index.php/act/article/view/423
+  - Useful for: overworld themes sharing motifs across a series. Abstract read.
+  - Applied in: [musical identity](musical-identity.md): concrete examples.
+- **S217 - "Important Item Acquired".** Super Mario Wiki (fan wiki): https://www.mariowiki.com/Important_Item_Acquired
+  - Useful for: an event jingle recurring across a series.
+  - Applied in: [musical identity](musical-identity.md): concrete examples, events.
+- **S218 - Shoji Meguro.** Wikipedia: https://en.wikipedia.org/wiki/Shoji_Meguro
+  - Useful for: _Persona_'s identity through pop vocal style and English lyrics.
+  - Applied in: [musical identity](musical-identity.md): concrete examples.
+- **S219 - Slater, Lydian and wonder.** Mark Slater, "Why Lydian Sounds Like Wonder", blog (2024): https://markslater.net/unlocking-the-power-of-the-lydian-mode/
+  - Useful for: the practitioner trope only (Lydian for awe; the _Star Trek_ theme). Not scholarly.
+  - Applied in: [musical identity](musical-identity.md): concrete examples (the Lydian trope); [style atlas: Western art music](styles/art-music.md): Epic film orchestral (late Romantic); [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): JRPG overworld and field.
+- **S220 - Kondo on Mario's location music.** Nintendo, Iwata Asks, _Super Mario All-Stars_, "Music Commentary by Koji Kondo" (2010): https://www.nintendo.com/en-gb/Iwata-Asks/Iwata-Asks-Super-Mario-All-Stars/Vol-1-Super-Mario-History-Soundtrack-CD/4-Music-Commentary-by-Koji-Kondo-1-/4-Music-Commentary-by-Koji-Kondo-1--219986.html
+  - Useful for: music made different by location (above ground, underwater, underground, castle).
+  - Applied in: [musical identity](musical-identity.md): places, combining identities.
+- **S221 - _The Oxford Handbook of Topic Theory_.** Danuta Mirka (ed.), Oxford University Press, 2014: https://academic.oup.com/edited-volume/34564
+  - Useful for: topic theory from Ratner (1980) on; hunt, military and pastoral topics. Cited as a pointer; the chapters were not read.
+  - Applied in: [musical identity](musical-identity.md): places; the musical-topic lexicon entry; [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): JRPG music: the context system.
+- **S222 - Lavengood and Williams, the winter topic.** Megan Lavengood and Evan Williams, "The Common Cold: Using Computational Musicology to Define the Winter Topic in Video Game Music", _Music Theory Online_ 29(1) (2023): https://mtosmt.org/ojs/index.php/mto/article/view/1015/217
+  - Useful for: measured place markers (reverb 82 %, metallic percussion 71 %, arpeggios 62 %, usually no drums); instruments and effects define the topic, mode does not.
+  - Applied in: [musical identity](musical-identity.md): places, sound, pitch material, the location example; the musical-topic and audio-effect lexicon entries; [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): JRPG music: the context system, JRPG town and village, JRPG overworld and field, JRPG dungeon, JRPG battle.
+- **S223 - Fanfare.** Wikipedia: https://en.wikipedia.org/wiki/Fanfare
+  - Useful for: the definition of a fanfare.
+  - Applied in: [musical identity](musical-identity.md): events; the fanfare lexicon entry; [style atlas: Western art music](styles/art-music.md): March and fanfare; [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): JRPG victory fanfare.
+- **S224 - Timbre.** Wikipedia: https://en.wikipedia.org/wiki/Timbre
+  - Useful for: the definition of timbre (tone colour).
+  - Applied in: [musical identity](musical-identity.md): sound; the timbre lexicon entry.
+- **S225 - Articulation.** Wikipedia: https://en.wikipedia.org/wiki/Articulation_(music)
+  - Useful for: staccato, accent, legato.
+  - Applied in: [musical identity](musical-identity.md): sound; the articulation lexicon entry.
+- **S226 - Dynamics.** Wikipedia: https://en.wikipedia.org/wiki/Dynamics_(music)
+  - Useful for: the definition of dynamics.
+  - Applied in: [musical identity](musical-identity.md): sound; the dynamics lexicon entry.
+- **S227 - Schellenberg, Iverson and McKinnon, "Name that tune".** E. Glenn Schellenberg, Paul Iverson and Margaret C. McKinnon, "Name that tune: Identifying popular recordings from brief excerpts", _Psychonomic Bulletin & Review_ 6(4) (1999): https://doi.org/10.3758/BF03212973
+  - Useful for: recordings identified from 100–200 ms clips; timbre as an instant cue.
+  - Applied in: [musical identity](musical-identity.md): sound, how few notes it takes.
+- **S228 - Krumhansl, "Plink".** Carol L. Krumhansl, "Plink: 'Thin slices' of music", _Music Perception_ 27(5) (2010): https://doi.org/10.1525/mp.2010.27.5.337
+  - Useful for: artist and title from 400 ms clips; style and decade from unnamed clips.
+  - Applied in: [musical identity](musical-identity.md): sound, how few notes it takes.
+- **S229 - Siedenburg and Müllensiefen, timbre similarity of short clips.** Kai Siedenburg and Daniel Müllensiefen, "Modeling Timbre Similarity of Short Music Clips", _Frontiers in Psychology_ 8:639 (2017): https://doi.org/10.3389/fpsyg.2017.00639
+  - Useful for: its review of Gjerdingen and Perrott (2008, genre from 250 ms) and Mace et al. (54 % genre accuracy at 125 ms). Figures cited second-hand.
+  - Applied in: [musical identity](musical-identity.md): sound, how few notes it takes.
+- **S230 - Dowling and Fujitani, contour and intervals.** W. J. Dowling and D. S. Fujitani, "Contour, interval, and pitch recognition in memory for melodies", _Journal of the Acoustical Society of America_ 49(2B) (1971): https://doi.org/10.1121/1.1912382
+  - Useful for: contour alone against exact intervals, for familiar and new melodies (percentages as summarised in S54).
+  - Applied in: [musical identity](musical-identity.md): melody, how few notes it takes.
+- **S231 - Jakubowski et al., earworms.** Kelly Jakubowski et al., "Dissecting an earworm: Melodic features and song popularity predict involuntary musical imagery", _Psychology of Aesthetics, Creativity, and the Arts_ 11(2) (2017): https://doi.org/10.1037/aca0000090
+  - Useful for: common global contour plus unusual interval slopes, and faster tempi, in catchy tunes.
+  - Applied in: [musical identity](musical-identity.md): tempo, what makes one identity stand out.
+- **S232 - Schulkind, Posner and Rubin, melody identification.** Matthew D. Schulkind, Rachel J. Posner and David C. Rubin, "Musical features that facilitate melody identification", _Music Perception_ 21(2) (2003): https://doi.org/10.1525/mp.2003.21.2.217
+  - Useful for: about 5–7 notes to name a tune; phrase boundaries, strong beats and a zigzag contour help.
+  - Applied in: [musical identity](musical-identity.md): how few notes it takes.
+- **S233 - Dalla Bella, Peretz and Aronoff, gating study.** Simone Dalla Bella, Isabelle Peretz and Neil Aronoff, "Time course of melody recognition: A gating paradigm study", _Perception & Psychophysics_ 65(7) (2003): https://doi.org/10.3758/BF03194831
+  - Useful for: familiarity after 3–6 notes; musicians faster.
+  - Applied in: [musical identity](musical-identity.md): how few notes it takes.
+- **S234 - Müllensiefen and Halpern, features and context.** Daniel Müllensiefen and Andrea R. Halpern, "The role of features and context in recognition of novel melodies", _Music Perception_ 31(5) (2014); open copy: https://research.gold.ac.uk/id/eprint/10838
+  - Useful for: distinctiveness relative to the set heard helps recognition.
+  - Applied in: [musical identity](musical-identity.md): what makes one identity stand out.
+- **S235 - Van Balen et al., hook discovery.** Jan Van Balen et al., "Corpus analysis tools for computational hook discovery", ISMIR 2015: https://archives.ismir.net/ismir2015/paper/000148.pdf
+  - Useful for: recognisable sections are typical of the song and hold its repeated material.
+  - Applied in: [musical identity](musical-identity.md): what makes one identity stand out; [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Pop.
+- **S236 - Burgoyne et al., "Hooked".** John Ashley Burgoyne et al., "Hooked: A game for discovering what makes music catchy", ISMIR 2013: https://archives.ismir.net/ismir2013/paper/000101.pdf
+  - Useful for: a recall game as a measure of catchiness; players poor at predicting their own recall.
+  - Applied in: [musical identity](musical-identity.md): what makes one identity stand out; [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Pop.
+- **S237 - Medina-Gray, modular smoothness.** Elizabeth Medina-Gray, "Analyzing Modular Smoothness in Video Game Music", _Music Theory Online_ 25(3) (2019): https://www.mtosmt.org/issues/mto.19.25.3/mto.19.25.3.medina.gray.html
+  - Useful for: what makes simultaneous game-music layers combine smoothly (timbre, consonance, aligned beats).
+  - Applied in: [musical identity](musical-identity.md): combining identities.
+- **S238 - Status effect.** Wikipedia: https://en.wikipedia.org/wiki/Status_effect
+  - Useful for: the game meaning of a status effect: a temporary modification of a character's attributes, abilities or conditions; buffs and debuffs.
+  - Applied in: [musical identity](musical-identity.md): status effects; [identity modelling](identity-modelling.md): status effects as modifiers.
+- **S239 - Amusia and its prevalence.** Wikipedia: https://en.wikipedia.org/wiki/Amusia ; Isabelle Peretz and Dominique T. Vuvan, "Prevalence of congenital amusia", _European Journal of Human Genetics_ 25(5) (2017): https://doi.org/10.1038/ejhg.2017.15
+  - Useful for: "tone deafness" as a pitch-perception deficit; about 1.5 % prevalence.
+  - Applied in: [musical identity](musical-identity.md): status effects (the "tone deaf" note).
+- **S240 - Conklin and Witten, multiple viewpoints.** Darrell Conklin and Ian H. Witten, "Multiple viewpoint systems for music prediction", _Journal of New Music Research_ 24(1), 51–73 (1995): https://doi.org/10.1080/09298219508570672
+  - Useful for: modelling a style through several separate views of the music (pitch, interval, duration), each with its own model, combined; long-term and short-term models.
+  - Applied in: [musical identity](musical-identity.md): learning an identity from play; [identity modelling](identity-modelling.md): representations of style.
+- **S241 - Hexatonic scale.** Wikipedia: https://en.wikipedia.org/wiki/Hexatonic_scale
+  - Useful for: six-note scales, such as a seven-note scale with one note left out.
+  - Applied in: [musical identity](musical-identity.md): wording notes on the brief; the hexatonic-scale lexicon entry.
+
+## Identity Modelling (endgame)
+
+These back [identity modelling](identity-modelling.md), endgame research on turning musical identities into generation weights. Sources shared with [musical identity](musical-identity.md) keep their id from the block above: S205 (jSymbolic 2.2), S238 (status effect) and S240 (Conklin and Witten). All URLs were checked on 2026-10-11; Zenodo and Audiokinetic's pages refuse automated readers, so their content was confirmed through search extracts, as noted per entry. Reference only; no text copied beyond short marked quotations.
+
+- **S242 - music21 features module.** music21 documentation, `features.base`: https://music21.org/music21docs/moduleReference/moduleFeaturesBase.html
+  - Useful for: jSymbolic and native feature extractors; pitch-class distribution features.
+  - Applied in: [identity modelling](identity-modelling.md): representations of style.
+- **S243 - Humdrum Toolkit.** humdrum.org: https://www.humdrum.org/
+  - Useful for: an analysis toolkit created by David Huron, its command-line tools and the `**kern` format.
+  - Applied in: [identity modelling](identity-modelling.md): representations of style.
+- **S244 - Pearce's thesis and IDyOM.** Marcus T. Pearce, _The Construction and Evaluation of Statistical Models of Melodic Structure in Music Perception and Composition_, PhD thesis, City University London, 2005: https://www.marcus-pearce.com/assets/papers/Pearce2005.pdf ; IDyOM: https://github.com/mtpearce/idyom
+  - Useful for: multiple-viewpoint variable-order Markov models, long- and short-term models, arithmetic versus weighted geometric combination of viewpoints.
+  - Applied in: [identity modelling](identity-modelling.md): representations of style, combining identities, learning identities.
+- **S245 - Implication-Realization.** Wikipedia: https://en.wikipedia.org/wiki/Implication-Realization (a pointer to Narmour, 1990, and E. Glenn Schellenberg, "Simplifying the implication-realization model of melodic expectancy", _Music Perception_ 14(3), 1997)
+  - Useful for: a few rule-based melodic expectancy principles, such as pitch proximity and pitch reversal.
+  - Applied in: [identity modelling](identity-modelling.md): representations of style.
+- **S246 - Music constraint programming survey.** Torsten Anders and Eduardo R. Miranda, "Constraint Programming Systems for Modeling Music Theories and Composition", _ACM Computing Surveys_ 43(4), article 30 (2011): https://doi.org/10.1145/1978802.1978809
+  - Useful for: the field of music constraint systems (Strasheela and others).
+  - Applied in: [identity modelling](identity-modelling.md): hard constraints and soft weights.
+- **S247 - MorpheuS.** Dorien Herremans and Elaine Chew, "MorpheuS: generating structured music with constrained patterns and tension", _IEEE Transactions on Affective Computing_ (2017): https://arxiv.org/abs/1812.04832
+  - Useful for: hard pattern constraints plus a soft tension profile, solved by local search.
+  - Applied in: [identity modelling](identity-modelling.md): hard constraints and soft weights.
+- **S248 - Constraint hierarchies.** Alan Borning, Bjorn Freeman-Benson and Molly Wilson, "Constraint Hierarchies", _Lisp and Symbolic Computation_ 5(3), 223–270 (1992), DOI 10.1007/BF01807506: https://constraints.cs.washington.edu/theory/hierarchies-92.html
+  - Useful for: required versus preferred constraints at strengths; precedence among preferences.
+  - Applied in: [identity modelling](identity-modelling.md): hard constraints and soft weights, keeping a restrictive identity feasible, combining identities.
+- **S249 - Soft constraints.** Pedro Meseguer, Francesca Rossi and Thomas Schiex, "Soft Constraints", chapter 9 of _Handbook of Constraint Programming_ (Francesca Rossi, Peter van Beek and Toby Walsh, eds.), Elsevier, 2006: https://cs.uwaterloo.ca/~vanbeek/Publications/cphandbook.html
+  - Useful for: soft constraints as cost functions.
+  - Applied in: [identity modelling](identity-modelling.md): hard constraints and soft weights.
+- **S250 - QuickXplain.** Ulrich Junker, "QUICKXPLAIN: Preferred Explanations and Relaxations for Over-Constrained Problems", AAAI 2004, 167–172: https://mlanthology.org/aaai/2004/junker2004aaai-quickxplain
+  - Useful for: explaining a failure by a minimal, preference-ordered set of conflicting constraints.
+  - Applied in: [identity modelling](identity-modelling.md): hard constraints and soft weights, keeping a restrictive identity feasible.
+- **S251 - Finite-length Markov processes with constraints.** François Pachet, Pierre Roy and Gabriele Barbieri, "Finite-Length Markov Processes with Constraints", IJCAI 2011, 635–642: https://mlanthology.org/ijcai/2011/pachet2011ijcai-finite
+  - Useful for: keeping a model's probabilities exact under control constraints; why backtracking distorts weights.
+  - Applied in: [identity modelling](identity-modelling.md): weighted draw or weighted ranking, hard constraints and soft weights.
+- **S252 - Weighted random sampling.** Pavlos S. Efraimidis and Paul G. Spirakis, "Weighted random sampling with a reservoir", _Information Processing Letters_ 97(5), 181–185 (2006); overview by Efraimidis, "Weighted Random Sampling over Data Streams": https://arxiv.org/abs/1012.0256
+  - Useful for: a weighted random order from uniform keys (`u^(1/w)`).
+  - Applied in: [identity modelling](identity-modelling.md): weighted draw or weighted ranking.
+- **S253 - Impro-Visor grammar.** Robert M. Keller and David R. Morrison, "A Grammatical Approach to Automatic Improvisation", SMC 2007: https://zenodo.org/record/849479 ; paper list: https://www.cs.hmc.edu/~keller/jazz/improvisor/papers.html
+  - Useful for: probabilistic grammars over note categories (abstract melodies). The Zenodo record refuses automated readers; it was confirmed by search.
+  - Applied in: [identity modelling](identity-modelling.md): representations of style, signature motifs and licks, existing style and preset formats; [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Bebop.
+- **S254 - Product of experts for jazz melodies.** Daniel D. Johnson, Robert M. Keller and Nicholas Weintraut, "Learning to Create Jazz Melodies Using a Product of Experts", ICCC 2017: https://computationalcreativity.net/iccc2017/ICCC_17_accepted_submissions/ICCC-17_paper_62.pdf
+  - Useful for: an interval expert and a chord expert combined by product of experts.
+  - Applied in: [identity modelling](identity-modelling.md): combining identities.
+- **S255 - Products of experts.** Geoffrey E. Hinton, "Training Products of Experts by Minimizing Contrastive Divergence", _Neural Computation_ 14(8), 1771–1800 (2002): https://www.cs.utoronto.ca/~hinton/absps/nccd.pdf
+  - Useful for: combining models by multiplying and renormalising.
+  - Applied in: [identity modelling](identity-modelling.md): representations of style, combining identities.
+- **S256 - Logarithmic opinion pools.** Tom Heskes, "Selecting Weighting Factors in Logarithmic Opinion Pools", NIPS 10 (1997): https://papers.nips.cc/paper/1997/hash/59f51fd6937412b7e56ded1ea2470c25-Abstract.html
+  - Useful for: weighted products of probability statements and how to choose their weights.
+  - Applied in: [identity modelling](identity-modelling.md): combining identities.
+- **S257 - CSS cascade.** W3C, "CSS Cascading and Inheritance Level 5": https://www.w3.org/TR/css-cascade-5/
+  - Useful for: a precedence model with layers and an inverted order for important rules.
+  - Applied in: [identity modelling](identity-modelling.md): combining identities.
+- **S258 - Unreal Gameplay Effects.** Epic Games, "Gameplay Effects": https://dev.epicgames.com/documentation/en-us/unreal-engine/gameplay-effects-for-the-gameplay-ability-system-in-unreal-engine ; `EGameplayModOp`: https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Plugins/GameplayAbilities/EGameplayModOp__Type
+  - Useful for: modifier aggregation order, override, durations and stacking.
+  - Applied in: [identity modelling](identity-modelling.md): combining identities, status effects as modifiers.
+- **S259 - Wwise game parameters and states.** Audiokinetic, "Wwise-101 - Lesson 3 - Using Game Parameters (RTPC)": https://www.audiokinetic.com/learn/videos/oPq_yZRC214 ; "Wwise Tutorial 22 - Dynamic Mixing Using States": https://www.audiokinetic.com/learn/videos/a77W-THkPMY
+  - Useful for: continuous parameters mapped by curves; states as mixer snapshots. Both pages refuse automated readers; titles and summaries were confirmed by search.
+  - Applied in: [identity modelling](identity-modelling.md): combining identities.
+- **S260 - _No Man's Sky_'s Pulse.** Audiokinetic blog, "Behind the Sound of 'NO MAN'S SKY': A Q&A with Paul Weir on Procedural Audio" (first published on A Sound Effect): https://www.audiokinetic.com/en/blog/behind-the-sound-of-no-mans-sky-a-qa-with-paul-weir-on-procedural-audio
+  - Useful for: instruments, canvases and playback rules under gameplay control. The page refuses automated readers; the quotations were confirmed by search.
+  - Applied in: [identity modelling](identity-modelling.md): combining identities.
+- **S261 - Yamaha style files.** Community documentation, the Yamaha Style Studio README: https://github.com/jozphe/Yamaha-Style-Studio
+  - Useful for: SFF2 as a MIDI file plus a CASM chunk of channel tables, note limits, transposition and chord rules. No official Yamaha specification was found; unofficial.
+  - Applied in: [identity modelling](identity-modelling.md): existing style and preset formats.
+- **S262 - Ableton Live 12 MIDI Tools.** Ableton, Live 12 manual, "MIDI Tools": https://www.ableton.com/en/live-manual/12/midi-tools/
+  - Useful for: generators that draw notes within ranges, and scale-aware parameters in scale degrees.
+  - Applied in: [identity modelling](identity-modelling.md): existing style and preset formats.
+- **S263 - Strudel and TidalCycles randomness.** Strudel, "Random Modifiers": https://strudel.cc/learn/random-modifiers/ ; TidalCycles reference, "Randomness": https://tidalcycles.org/docs/reference/randomness/ ; Tidal Club lesson, "Week 4 lesson 2 - random marathon": https://uzu.lurk.org/t/week-4-lesson-2-random-marathon-rand-irand-mininotation-randomness-scramble-shuffle-choose-more/685
+  - Useful for: weighted choice in pattern languages and randomness keyed to cycle position.
+  - Applied in: [identity modelling](identity-modelling.md): existing style and preset formats.
+- **S264 - Additive smoothing.** Wikipedia: https://en.wikipedia.org/wiki/Additive_smoothing
+  - Useful for: pseudocounts so unseen values keep a small probability.
+  - Applied in: [identity modelling](identity-modelling.md): learning identities.
+- **S265 - Taxonomy of music generation.** Dorien Herremans, Ching-Hua Chuan and Elaine Chew, "A Functional Taxonomy of Music Generation Systems", _ACM Computing Surveys_ 50(5), article 69: https://arxiv.org/abs/1812.04186
+  - Useful for: classifying generators by purpose.
+  - Applied in: [identity modelling](identity-modelling.md): explaining identities to the player.
+- **S266 - PAIR Guidebook, explainability.** Google People + AI Research, "Explainability + Trust": https://pair.withgoogle.com/guidebook-v2/chapters/explainability-trust/
+  - Useful for: explaining a specific output in response to a user action; partial explanations.
+  - Applied in: [identity modelling](identity-modelling.md): explaining identities to the player. Also cited, without an id, by [control interaction](<Melodic control models/control-interaction.md>).
+
+## Style Atlas: Western Art Music
+
+These back [style atlas: Western art music](styles/art-music.md), style atlas research describing ten Western art-music styles and two functional genres (march and waltz) for a future style layer, and its lexicon entries. The synthesis of the four style atlas files is the [style atlas](styles/README.md). Open Music Theory pages are cited through the LibreTexts mirror of the second edition (CC BY-SA), whose URLs resolved on 2026-10-11; the VIVA Pressbooks original refuses scripted requests. Wikipedia pages are pointers for widely documented style facts. Reference only; no text copied.
+
+- **S267 - Gregorian chant.** Wikipedia: https://en.wikipedia.org/wiki/Gregorian_chant
+  - Useful for: monophonic, unaccompanied Latin song; syllabic, neumatic and melismatic chant; recitative melodies on a reciting tone; the debated rhythm of the notation; organum as an early polyphony.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Gregorian chant.
+- **S268 - Gregorian mode.** Wikipedia: https://en.wikipedia.org/wiki/Gregorian_mode
+  - Useful for: eight modes in four authentic/plagal pairs on the finals D, E, F, G; Aeolian and Ionian added in 1547; authentic and plagal ranges; the tenor (reciting tone) a fifth above the final, a sixth in Phrygian.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Gregorian chant.
+- **S269 - Reciting tone.** Wikipedia: https://en.wikipedia.org/wiki/Reciting_tone
+  - Useful for: the reciting tone as a repeated pitch and as a formula; intonation, mediant and termination.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Gregorian chant.
+- **S270 - Organum.** Wikipedia: https://en.wikipedia.org/wiki/Organum
+  - Useful for: parallel organum at the fourth or fifth; starting and ending on a unison; a sustained bass (bourdon).
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Gregorian chant.
+- **S271 - 16th-century contrapuntal style.** Open Music Theory 2e (Gotham et al.), LibreTexts mirror, CC BY-SA: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.08%3A_16th-Century_Contrapuntal_Style
+  - Useful for: points of imitation; conjunct lines and contrary motion; interval rules (sixths, sevenths, tritones) with Palestrina counts; range per part; leap rules; suspensions; raised leading note except Phrygian; quarter-note motion on weak beats.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Renaissance polyphony (Palestrina style).
+- **S272 - Basso continuo.** Wikipedia: https://en.wikipedia.org/wiki/Basso_continuo
+  - Useful for: a bass line plus realised chords; figured bass; harpsichord and cello today.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Baroque.
+- **S273 - Suite (music).** Wikipedia: https://en.wikipedia.org/wiki/Suite_(music)
+  - Useful for: allemande, courante, sarabande, gigue as the Baroque suite's core; the courante's hemiola at cadences.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Baroque.
+- **S274 - Gigue.** Wikipedia: https://en.wikipedia.org/wiki/Gigue
+  - Useful for: compound metres; fugal, imitative openings of each section.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Baroque.
+- **S275 - Hemiola.** Wikipedia: https://en.wikipedia.org/wiki/Hemiola
+  - Useful for: hemiola in Baroque dances (courante, minuet), restored metre at cadences.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Baroque, Waltz (and minuet).
+- **S276 - The Rule of the Octave and harmonising the scale with sequences.** Open Music Theory 2e, LibreTexts mirror, CC BY-SA: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.13%3A_Galant_schemas__The_Rule_of_the_Octave_and_Harmonizing_the_Scale_with_Sequences
+  - Useful for: a stock harmonisation of a stepwise bass, built from parallel first-inversion chords and sequences.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Baroque.
+- **S277 - Classical period (music).** Wikipedia: https://en.wikipedia.org/wiki/Classical_period_(music)
+  - Useful for: homophony with a subordinate chordal accompaniment; short phrases, typically four bars; the Alberti bass as a texture marker.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Classical period.
+- **S278 - Alberti bass.** Wikipedia: https://en.wikipedia.org/wiki/Alberti_bass
+  - Useful for: the lowest–highest–middle–highest broken chord; Classical keyboard use (Mozart).
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Classical period.
+- **S279 - Galant schemas.** Open Music Theory 2e, LibreTexts mirror, CC BY-SA: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.11%3A_Galant_Schemas
+  - Useful for: schemas as stock patterns; the Meyer and the Prinner; Alberti bass as a characteristic accompaniment.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Classical period.
+- **S280 - Romantic music.** Wikipedia: https://en.wikipedia.org/wiki/Romantic_music
+  - Useful for: increased chromaticism; a wider orchestral palette; tonality stretched to its limits.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Romantic.
+- **S281 - Modal mixture.** Open Music Theory 2e, LibreTexts mirror, CC BY-SA: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/05%3A_Chromaticism/5.01%3A_Modal_Mixture
+  - Useful for: borrowing from the parallel key; more common in major keys.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Romantic.
+- **S282 - Mediants.** Open Music Theory 2e, LibreTexts mirror, CC BY-SA: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/05%3A_Chromaticism/5.15%3A_Mediants
+  - Useful for: diatonic, chromatic and doubly chromatic mediants by common tones and quality.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Romantic, capability notes.
+- **S283 - Chromatic mediant.** Wikipedia: https://en.wikipedia.org/wiki/Chromatic_mediant
+  - Useful for: the definition; rare in Baroque and Classical, common in Romantic, post-Romantic and Impressionist music.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Romantic, capability notes.
+- **S284 - Impressionism in music.** Wikipedia: https://en.wikipedia.org/wiki/Impressionism_in_music
+  - Useful for: timbre as the main feature; whole-tone and pentatonic scales, extended chords, parallel motion, ambiguous tonality in Debussy.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Impressionism.
+- **S285 - Collections.** Open Music Theory 2e, LibreTexts mirror, CC BY-SA: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/08%3A_20th-_and_21st-Century_Techniques/8.09%3A_Collections
+  - Useful for: pentatonic, whole-tone, octatonic, hexatonic and acoustic collections; the whole-tone "dream sequence" trope; pandiatonicism in Stravinsky.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Impressionism, Neoclassical and modernist (tonal side).
+- **S286 - Parallel harmony.** Wikipedia: https://en.wikipedia.org/wiki/Parallel_harmony
+  - Useful for: planing as parallel movement of a chord shape; its weakening of progression.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Impressionism.
+- **S287 - Whole-tone scale.** Wikipedia: https://en.wikipedia.org/wiki/Whole-tone_scale
+  - Useful for: only augmented triads; two augmented triads cover the scale.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Impressionism.
+- **S288 - Diatonic modes.** Open Music Theory 2e, LibreTexts mirror, CC BY-SA: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/08%3A_20th-_and_21st-Century_Techniques/8.08%3A_Diatonic_Modes
+  - Useful for: major-ish and minor-ish modes; each mode's colour note (Lydian's raised fourth).
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Impressionism.
+- **S289 - Film score.** Wikipedia: https://en.wikipedia.org/wiki/Film_score
+  - Useful for: themes for characters, events and ideas after Wagner's leitmotif; the _Star Wars_ example; the late-Romantic lineage (Korngold).
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Epic film orchestral (late Romantic).
+- **S290 - Lehman, "Hollywood Cadences".** Frank Lehman, "Hollywood Cadences: Music and the Structure of Cinematic Expectation", _Music Theory Online_ 19(4) (2013): https://mtosmt.org/issues/mto.13.19.4/mto.13.19.4.lehman.html
+  - Useful for: the chromatically modulating cadential resolution and its link to wonder; the mixed plagal cadence; the subtonic half cadence and the Western.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Epic film orchestral (late Romantic).
+- **S291 - Phase music.** Wikipedia: https://en.wikipedia.org/wiki/Phase_music
+  - Useful for: gradual drift out of unison; the note-insertion variant for live players; Reich.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Minimalism.
+- **S292 - _Piano Phase_.** Wikipedia: https://en.wikipedia.org/wiki/Piano_Phase
+  - Useful for: Reich's 1967 piece; the twelve-note figure; process music.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Minimalism.
+- **S293 - Philip Glass.** Wikipedia: https://en.wikipedia.org/wiki/Philip_Glass
+  - Useful for: the additive process as Glass's basic technique (1969 pieces); the consonant vocabulary.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Minimalism.
+- **S294 - Neoclassicism (music).** Wikipedia: https://en.wikipedia.org/wiki/Neoclassicism_(music)
+  - Useful for: order, balance, clarity, economy; Stravinsky and Hindemith; neo-Baroque models.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Neoclassical and modernist (tonal side).
+- **S295 - Pandiatonicism.** Wikipedia: https://en.wikipedia.org/wiki/Pandiatonicism
+  - Useful for: free diatonic use without functional limits; "white-note music".
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Neoclassical and modernist (tonal side).
+- **S296 - Quartal and quintal harmony.** Wikipedia: https://en.wikipedia.org/wiki/Quartal_and_quintal_harmony
+  - Useful for: chords from stacked fourths; any member can act as the root (Persichetti).
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Neoclassical and modernist (tonal side), capability notes.
+- **S297 - Octatonic scale.** Wikipedia: https://en.wikipedia.org/wiki/Octatonic_scale
+  - Useful for: alternating whole and half steps; the "Korsakovian scale" of Rimsky-Korsakov's circle.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Neoclassical and modernist (tonal side).
+- **S298 - Twentieth-century rhythmic techniques.** Open Music Theory 2e, LibreTexts mirror, CC BY-SA: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/08%3A_20th-_and_21st-Century_Techniques/8.01%3A_Twentieth-Century_Rhythmic_Techniques
+  - Useful for: asymmetrical and changing metres; ostinato.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Neoclassical and modernist (tonal side).
+- **S299 - March (music).** Wikipedia: https://en.wikipedia.org/wiki/March_(music)
+  - Useful for: 4/4, 2/2 and 6/8; about 120 beats per minute (funeral marches 60); snare, brass, woodwinds; the dogfight strain; modulation to the subdominant.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): March and fanfare.
+- **S300 - Oom-pah.** Wikipedia: https://en.wikipedia.org/wiki/Oom-pah
+  - Useful for: a bass on the beat alternating with off-beat chords; tuba; polka and German band music.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): March and fanfare, Waltz (and minuet).
+- **S301 - Waltz (music).** Wikipedia: https://en.wikipedia.org/wiki/Waltz_(music)
+  - Useful for: triple metre in 3/4; one chord per bar; root on beat 1, upper notes on 2 and 3; about 84–108 BPM; the Strauss and Chopin repertoire.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Waltz (and minuet).
+- **S302 - Viennese waltz.** Wikipedia: https://en.wikipedia.org/wiki/Viennese_waltz
+  - Useful for: the fast Viennese tempo (about 180 beats per minute) against the slow waltz (about 90).
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Waltz (and minuet).
+- **S303 - Minuet.** Wikipedia: https://en.wikipedia.org/wiki/Minuet
+  - Useful for: binary form of two repeated eight-bar sections; minuet and trio.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Waltz (and minuet).
+- **S304 - Chorale.** Wikipedia: https://en.wikipedia.org/wiki/Chorale
+  - Useful for: Lutheran origin; four-part SATB settings as the standard; Bach's closing chorales.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Chorale and hymn.
+- **S305 - Hymn tune.** Wikipedia: https://en.wikipedia.org/wiki/Hymn_tune
+  - Useful for: four-part harmony and a fast harmonic rhythm as the musical marks of a hymn.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Chorale and hymn.
+- **S306 - Picardy third.** Wikipedia: https://en.wikipedia.org/wiki/Picardy_third
+  - Useful for: the major tonic ending a minor or modal section.
+  - Applied in: [style atlas: Western art music](styles/art-music.md): Chorale and hymn.
+
+## Style Atlas: Blues, Jazz, Gospel and Soul
+
+These back [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md), style atlas research describing fourteen blues, jazz, gospel, soul and funk styles for a future style layer, and its lexicon entries. Open Music Theory pages are cited through the LibreTexts mirror of the second edition (CC BY-SA). S314 (Cutting), S331 (Shelley) and S335 (Vincent) are known only through abstracts, summaries or the articles that cite them, as noted per entry. Reference only; no text copied.
+
+- **S307 - Swing rhythms.** Open Music Theory 2e (Gotham et al.), LibreTexts mirror, CC BY-SA: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/06%3A_Jazz/6.01%3A_Swing_Rhythms
+  - Useful for: the swing ratio (1:1 to about 2:1), straighter at fast tempos, written as straight eighths, offbeat accents.
+  - Applied in: [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Delta blues, Chicago (electric) blues, Swing / big band, Bebop, Hard bop and soul jazz, capability notes.
+- **S308 - ii–V–I.** Open Music Theory 2e (Gotham et al.), LibreTexts mirror, CC BY-SA: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/06%3A_Jazz/6.04%3A_iiVI
+  - Useful for: ii7–V7–Imaj7 and iiø7–V7–i as progression templates.
+  - Applied in: [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Bebop, Hard bop and soul jazz.
+- **S309 - Blues harmony.** Open Music Theory 2e (Gotham et al.), LibreTexts mirror, CC BY-SA: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/06%3A_Jazz/6.08%3A_Blues_Harmony
+  - Useful for: the 12-bar plan, all dominant sevenths, quick change, turnaround, jazz blues, minor blues.
+  - Applied in: [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Chicago (electric) blues, Bebop, Hard bop and soul jazz, capability notes.
+- **S310 - Blues melodies and the blues scale.** Open Music Theory 2e (Gotham et al.), LibreTexts mirror, CC BY-SA: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/06%3A_Jazz/6.09%3A_Blues_Melodies_and_the_Blues_Scale
+  - Useful for: AAB lines, call in the first two bars of each line, blues and major blues scales, deliberate clashes with I and V.
+  - Applied in: [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Delta blues, Chicago (electric) blues, capability notes.
+- **S311 - Drumbeats.** Open Music Theory 2e (Gotham et al.), LibreTexts mirror, CC BY-SA: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.02%3A_Drumbeats
+  - Useful for: standard rock beat, backbeat, four-on-the-floor, half-time and double-time as drum patterns.
+  - Applied in: [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Chicago (electric) blues.
+- **S312 - Blues-based schemas.** Open Music Theory 2e (Gotham et al.), LibreTexts mirror, CC BY-SA: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.08%3A_Blues-Based_Schemas
+  - Useful for: the I–IV vamp, plagal sigh IV–iv–I, double plagal ♭VII–IV–I.
+  - Applied in: [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Gospel, Soul and Motown.
+- **S313 - Blues.** Wikipedia: https://en.wikipedia.org/wiki/Blues
+  - Useful for: blue notes, call and response, flexible early forms (Odum), the shuffle spreading to R&B, Basie's 12-bar instrumentals.
+  - Applied in: [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Delta blues, Chicago (electric) blues, Swing / big band, Rhythm and blues and early rock and roll (overlap).
+- **S314 - Cutting, microtonal analysis of blue notes.** Court B. Cutting, "Microtonal Analysis of 'Blue Notes' and the Blues Scale", _Empirical Musicology Review_ 13(1–2), 84–99 (2019): https://doi.org/10.18061/emr.v13i1-2.6316
+  - Useful for: blue notes as pitches between the 12-tone steps (cited via S313; abstract not read).
+  - Applied in: [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Delta blues.
+- **S315 - Delta blues.** Wikipedia: https://en.wikipedia.org/wiki/Delta_blues
+  - Useful for: slide guitar as a hallmark, solo voice and instrument, era and key figures.
+  - Applied in: [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Delta blues.
+- **S316 - Chicago blues.** Wikipedia: https://en.wikipedia.org/wiki/Chicago_blues
+  - Useful for: electric guitar, amplified harmonica, rhythm section, the 12-bar form in bands.
+  - Applied in: [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Chicago (electric) blues.
+- **S317 - Shuffle rhythm.** Wikipedia: https://en.wikipedia.org/wiki/Shuffle_rhythm
+  - Useful for: the long-short shuffle pair and its triplet feel in blues, boogie-woogie and R&B.
+  - Applied in: [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Chicago (electric) blues.
+- **S318 - Boogie-woogie.** Wikipedia: https://en.wikipedia.org/wiki/Boogie-woogie
+  - Useful for: the transposed left-hand bass figure, eight to the bar, 12-bar basis, origins.
+  - Applied in: [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Boogie-woogie.
+- **S319 - Ragtime.** Wikipedia: https://en.wikipedia.org/wiki/Ragtime
+  - Useful for: bass on strong beats and chords on weak beats, syncopated melody, multi-strain form, subdominant trio, Joplin's tempo warning.
+  - Applied in: [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Ragtime.
+- **S320 - Stride (music).** Wikipedia: https://en.wikipedia.org/wiki/Stride_(music)
+  - Useful for: the stride left hand derived from ragtime (bass note or tenth, then a chord).
+  - Applied in: [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Ragtime.
+- **S321 - Dixieland.** Wikipedia: https://en.wikipedia.org/wiki/Dixieland
+  - Useful for: front line and rhythm section, collective polyphonic improvisation, two-beat vs four to the bar.
+  - Applied in: [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): New Orleans jazz / Dixieland.
+- **S322 - Swing music.** Wikipedia: https://en.wikipedia.org/wiki/Swing_music
+  - Useful for: riffs in call and response between sections, the 1935–1946 swing era, accents on 2 and 4.
+  - Applied in: [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Swing / big band.
+- **S323 - Cool jazz.** Wikipedia: https://en.wikipedia.org/wiki/Cool_jazz
+  - Useful for: relaxed tempos, lighter tone, counterpoint, _Birth of the Cool_, link to modal jazz.
+  - Applied in: [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Cool and modal jazz.
+- **S324 - "So What" (Miles Davis composition).** Wikipedia: https://en.wikipedia.org/wiki/So_What_(Miles_Davis_composition)
+  - Useful for: AABA 32 bars in D and E-flat Dorian, the "So What chord", bass call and chord response.
+  - Applied in: [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Cool and modal jazz.
+- **S325 - Hard bop.** Wikipedia: https://en.wikipedia.org/wiki/Hard_bop
+  - Useful for: R&B, gospel and blues influences, simpler melodies, the plagal cadence, "funky" feel.
+  - Applied in: [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Hard bop and soul jazz.
+- **S326 - Soul jazz.** Wikipedia: https://en.wikipedia.org/wiki/Soul_jazz
+  - Useful for: organ trio, bass-led groove with riffs, Gridley's "earthy, bluesy" description.
+  - Applied in: [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Hard bop and soul jazz.
+- **S327 - _Jazz in 3/4 Time_.** Wikipedia: https://en.wikipedia.org/wiki/Jazz_in_3/4_Time
+  - Useful for: dating the modern jazz waltz (Max Roach, recorded 1956–57).
+  - Applied in: [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Jazz waltz.
+- **S328 - "Max Roach: Valse Hot (1957)".** jazz.com: https://jazz.com/music/max-roach-valse-hot
+  - Useful for: the waltz as "surprisingly compatible" with modern jazz; Roach's 3/4 timekeeping.
+  - Applied in: [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Jazz waltz.
+- **S329 - Gospel music.** Wikipedia: https://en.wikipedia.org/wiki/Gospel_music
+  - Useful for: call and response, choirs, hand-clapping, Thomas Dorsey, piano.
+  - Applied in: [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Gospel.
+- **S330 - Plagal cadence.** Wikipedia: https://en.wikipedia.org/wiki/Plagal_cadence
+  - Useful for: IV–I "Amen" cadence, its repetition through gospel and blues sections, minor plagal.
+  - Applied in: [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Hard bop and soul jazz, Gospel.
+- **S331 - Shelley, "Analyzing Gospel".** Braxton D. Shelley, _Journal of the American Musicological Society_ 72(1), 181–243 (2019): https://doi.org/10.1525/jams.2019.72.1.181
+  - Useful for: the gospel vamp and form (known from summaries; the article itself was not read).
+  - Applied in: [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Gospel.
+- **S332 - Soul music.** Wikipedia: https://en.wikipedia.org/wiki/Soul_music
+  - Useful for: gospel roots, lead and backing call and response, handclaps, Stax vs Motown.
+  - Applied in: [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Soul and Motown.
+- **S333 - Motown.** Wikipedia: https://en.wikipedia.org/wiki/Motown
+  - Useful for: the Motown sound: tambourine backbeat, melodic bass, gospel call and response, Landau's "four-beat drum pattern".
+  - Applied in: [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Soul and Motown.
+- **S334 - Funk.** Wikipedia: https://en.wikipedia.org/wiki/Funk
+  - Useful for: the One, swung sixteenths, one- and two-chord vamps, ninth chords, interlocking bass, guitar and horns.
+  - Applied in: [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Funk, capability notes.
+- **S335 - Vincent, _Funk: The Music, the People, and the Rhythm of the One_.** Rickey Vincent, St. Martin's Press (1996): https://books.google.com/books?id=Tb-FBAAAQBAJ
+  - Useful for: the standard book on funk and the One (cited via S334; not read).
+  - Applied in: [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Funk.
+- **S336 - Rhythm and blues.** Wikipedia: https://en.wikipedia.org/wiki/Rhythm_and_blues
+  - Useful for: jump blues, saxophones, backbeat, shuffle-to-straight shift, boogie bass, link to rock and roll.
+  - Applied in: [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Rhythm and blues and early rock and roll (overlap).
+- **S337 - Rock and roll.** Wikipedia: https://en.wikipedia.org/wiki/Rock_and_roll
+  - Useful for: rock and roll's roots in R&B, boogie-woogie and gospel; the snare backbeat.
+  - Applied in: [style atlas: blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Rhythm and blues and early rock and roll (overlap).
+
+## Style Atlas: Popular, Electronic and Game Music
+
+These back [style atlas: popular, electronic and game music](styles/popular-electronic-game.md), style atlas research describing popular, electronic and game-music styles (with extra depth on JRPG music) for a future style layer, and its lexicon entries. Open Music Theory pages are cited through the LibreTexts mirror of the second edition (CC BY-SA). The publishers of S344 (Lilja) and S357 (Lavengood, DX7) block automated requests while their DOIs resolve; the chapters behind S365 were not read in full; S370 is an instructional page, paired with S338. Reference only; no text copied.
+
+- **S338 - Open Music Theory, modal schemas.** Megan Lavengood, Open Music Theory 2e, LibreTexts mirror, CC BY-SA: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.12%3A_Modal_Schemas
+  - Useful for: double plagal, subtonic and Aeolian shuttles, the Aeolian cadence ♭VI–♭VII–i (or I), Dorian shuttle i–IV, ♭VII as dominant-function chord.
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Classic rock, House and techno, Synthwave, JRPG overworld and field, JRPG battle, JRPG victory fanfare, Epic trailer and battle.
+- **S339 - Open Music Theory, pentatonic harmony.** Open Music Theory 2e, LibreTexts mirror, CC BY-SA: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.13%3A_Pentatonic_Harmony
+  - Useful for: pentatonic roots for chords, parallel major triads and power chords in rock.
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Classic rock.
+- **S340 - Open Music Theory, verse–chorus form.** Bryn Hughes and Megan Lavengood, Open Music Theory 2e, LibreTexts mirror, CC BY-SA: https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.06%3A_Verse-Chorus_Form
+  - Useful for: verse, prechorus, chorus, bridge; the hook in the chorus.
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Pop.
+- **S341 - Everett, rock's tonal systems.** Walter Everett, "Making Sense of Rock's Tonal Systems", _Music Theory Online_ 10(4) (2004): https://mtosmt.org/issues/mto.04.10.4/mto.04.10.4.w_everett.html
+  - Useful for: six tonal systems of rock (modal, mixture, blues, triad-doubled pentatonic), double plagal, power chords in parallel.
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Classic rock.
+- **S342 - Biamonte, triadic modal and pentatonic patterns.** Nicole Biamonte, "Triadic Modal and Pentatonic Patterns in Rock Music", _Music Theory Spectrum_ 32(2) (2010), author copy at McGill eScholarship: https://escholarship.mcgill.ca/downloads/73666866p
+  - Useful for: double-plagal and Aeolian progressions, flat-side triads in classic rock.
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Classic rock.
+- **S343 - Heavy metal music.** Wikipedia: https://en.wikipedia.org/wiki/Heavy_metal_music
+  - Useful for: Aeolian and Phrygian modes, power chords, pedal point, tritone, tempo range (citing Walser, Lilja, Berry).
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Heavy metal.
+- **S344 - Lilja, harmonic function and modality in classic heavy metal.** Esa Lilja, _Metal Music Studies_ 5(3) (2019), 355–378, DOI 10.1386/mms.5.3.355_1: https://doi.org/10.1386/mms.5.3.355_1 (the publisher blocks automated fetches; the DOI resolves)
+  - Useful for: plagal systems and dark modes; distortion shaping metal's chord choices.
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Heavy metal.
+- **S345 - Drum beat (heavy metal gallop).** Wikipedia: https://en.wikipedia.org/wiki/Drum_beat
+  - Useful for: the gallop as one eighth plus two sixteenths.
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Heavy metal.
+- **S346 - The basics of metal bass lines.** _Berklee Today_, fall 2015: https://www.berklee.edu/berklee-today/fall-2015/The-Basics-of-Metal-Bass-Lines
+  - Useful for: the gallop bass line and Steve Harris (Iron Maiden).
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Heavy metal.
+- **S347 - Punk rock.** Wikipedia: https://en.wikipedia.org/wiki/Punk_rock
+  - Useful for: fast tempos, short songs, distorted power chords, verse–chorus form in 4/4, vocals.
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Punk.
+- **S348 - Graham, country music grooves.** Aaron Graham, "Country Music Grooves: Variations on the Classics", Percussive Arts Society blog (2021): https://pas.org/?p=30086
+  - Useful for: train beat, country waltz, classic shuffle.
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Country.
+- **S349 - Country music.** Wikipedia: https://en.wikipedia.org/wiki/Country_music
+  - Useful for: typical instruments (fiddle, banjo, steel guitar).
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Country.
+- **S350 - Reggae.** Wikipedia: https://en.wikipedia.org/wiki/Reggae
+  - Useful for: the offbeat chop (skank), bass role, tempo relative to ska, organ shuffle.
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Reggae.
+- **S351 - One drop rhythm.** Wikipedia: https://en.wikipedia.org/wiki/One_drop_rhythm
+  - Useful for: one drop on beat 3, rockers and steppers variants.
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Reggae.
+- **S352 - Boom bap.** Wikipedia: https://en.wikipedia.org/wiki/Boom_bap
+  - Useful for: kick and snare placement, sampled loops, MPC swing quantisation.
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Hip-hop (boom bap).
+- **S353 - House music.** Wikipedia: https://en.wikipedia.org/wiki/House_music
+  - Useful for: tempo 115–130 BPM, four-on-the-floor, offbeat hats, eight-bar sections.
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): House and techno.
+- **S354 - Techno.** Wikipedia: https://en.wikipedia.org/wiki/Techno
+  - Useful for: tempo 120–150 BPM, loops, minimal harmony, drum machines, Detroit origin.
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): House and techno.
+- **S355 - Four on the floor.** Wikipedia: https://en.wikipedia.org/wiki/Four_on_the_floor_(music)
+  - Useful for: the definition and its disco origin.
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): House and techno.
+- **S356 - Synthwave.** Wikipedia: https://en.wikipedia.org/wiki/Synthwave
+  - Useful for: origins, influences, repetitive synth patterns, tempo ranges.
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Synthwave.
+- **S357 - Lavengood, the DX7 electric piano.** Megan Lavengood, "What Makes It Sound '80s? The Yamaha DX7 Electric Piano Sound", _Journal of Popular Music Studies_ 31(3) (2019), DOI 10.1525/jpms.2019.313009: https://doi.org/10.1525/jpms.2019.313009 (the publisher blocks automated fetches; the DOI resolves)
+  - Useful for: the timbre that defines the "'80s" sound.
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Synthwave.
+- **S358 - Ambient music.** Wikipedia: https://en.wikipedia.org/wiki/Ambient_music
+  - Useful for: Eno's definition, lack of beat, drones, slow change.
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Ambient and drone.
+- **S359 - Eno, "Generative Music".** Brian Eno, talk at the Imagination Conference, San Francisco, 8 June 1996, transcript in _In Motion Magazine_: https://inmotionmagazine.com/eno1.html
+  - Useful for: _Music for Airports_'s incommensurable tape loops; generative process music.
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Ambient and drone.
+- **S360 - Lo-fi hip hop.** Wikipedia: https://en.wikipedia.org/wiki/Lo-fi_hip_hop
+  - Useful for: tempo, jazz roots, vinyl hiss, J Dilla and Nujabes.
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Lo-fi hip-hop.
+- **S361 - Chiptune.** Wikipedia: https://en.wikipedia.org/wiki/Chiptune
+  - Useful for: few waveforms and channels, arpeggios implying chords, timbre over style.
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Chiptune (8-bit).
+- **S362 - NES APU.** NESdev Wiki: https://www.nesdev.org/wiki/APU
+  - Useful for: two pulse channels (duty cycles), triangle, noise, sample channel.
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Chiptune (8-bit).
+- **S363 - Collins, "In the Loop".** Karen Collins, "In the Loop: Creativity and Constraint in 8-bit Video Game Audio", _Twentieth-Century Music_ 4(2) (2007), 209–227: https://www.cambridge.org/core/journals/twentieth-century-music/article/abs/in-the-loop-creativity-and-constraint-in-8bit-video-game-audio/13249E23669D3D386D2B505A96239453
+  - Useful for: looping as a response to 8-bit constraints.
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Chiptune (8-bit).
+- **S364 - Koichi Sugiyama.** Wikipedia: https://en.wikipedia.org/wiki/Koichi_Sugiyama
+  - Useful for: the eight-track _Dragon Quest_ template (Town, Field, Dungeon, Battle, Final Battle); late Baroque and early Classical style.
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): JRPG music: the context system, JRPG town and village, JRPG overworld and field, JRPG dungeon, JRPG battle, JRPG boss and final battle.
+- **S365 - Anatone (ed.), _The Music of Nobuo Uematsu in the Final Fantasy Series_.** Richard Anatone (ed.), Intellect (2022); chapter list and supplemental figures at Ludomusicology: https://www.ludomusicology.org/studies-game-sound-music/uematsu-final-fantasy/
+  - Useful for: Mitchell on battle-music rhythms; Kizzire on villainy ("Dancing Mad"); Tate on "One-Winged Angel" (chapters not read in full).
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): JRPG music: the context system, JRPG battle, JRPG boss and final battle, open questions.
+- **S366 - "One-Winged Angel".** Wikipedia: https://en.wikipedia.org/wiki/One-Winged_Angel
+  - Useful for: Stravinsky and Hendrix fusion, Latin choir texts, assembly from phrases.
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): JRPG music: the context system, JRPG boss and final battle.
+- **S367 - Hitoshi Sakimoto.** Wikipedia: https://en.wikipedia.org/wiki/Hitoshi_Sakimoto
+  - Useful for: sequenced orchestral style; influences.
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): JRPG music: the context system.
+- **S368 - Music of _Chrono Trigger_.** Wikipedia: https://en.wikipedia.org/wiki/Music_of_Chrono_Trigger
+  - Useful for: Mitsuda's "imaginary world" aim and leitmotifs.
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): JRPG music: the context system.
+- **S369 - Yasunori Mitsuda.** Wikipedia: https://en.wikipedia.org/wiki/Yasunori_Mitsuda
+  - Useful for: Celtic and world influences; minimalist final battle themes on few chords.
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): JRPG music: the context system, JRPG town and village, JRPG boss and final battle.
+- **S370 - The Mario cadence.** Jake Lizzio, Signals Music Studio (instructional): https://signalsmusic.studio/lessons/mario-cadence
+  - Useful for: the name and use of ♭VI–♭VII–I in game victory music (instructional, not scholarly; pair with S338).
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): JRPG overworld and field, JRPG victory fanfare.
+- **S371 - Summers, epic texturing.** Tim Summers, "The Aesthetics of Video Game Music: Epic Texturing in the First-Person Shooter", _The Soundtrack_ 7(2) (2014), 131–151: https://pure.royalholloway.ac.uk/en/publications/the-aesthetics-of-video-game-music-epic-texturing-in-the-first-pe
+  - Useful for: "epic" as a texturing strategy in game scores.
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Epic trailer and battle.
+- **S372 - Trailer music.** Wikipedia: https://en.wikipedia.org/wiki/Trailer_music
+  - Useful for: the sound-design-driven, hybrid orchestral style.
+  - Applied in: [style atlas: popular, electronic and game music](styles/popular-electronic-game.md): Epic trailer and battle.
+
+## Style Atlas: Folk and World Traditions
+
+These back [style atlas: folk and world traditions](styles/folk-and-world.md), style atlas research describing eighteen folk and world styles, as approximations a twelve-note generator could sketch, for a future style layer, and its lexicon entries. Wikipedia pages are used as pointers for widely documented facts. S383 (Cante y Toque) is a practitioner page whose accent readings vary by teacher; of S385 (Link and Wendland) only the summary was read. All URLs were checked on 2026-10-11. Reference only; no text copied.
+
+- **S373 - Jig.** Wikipedia: https://en.wikipedia.org/wiki/Jig
+  - Useful for: single, double, slip and treble jigs; 6/8, 9/8, 12/8; quarter-eighth versus three-eighth rhythms; two eight-bar parts.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Irish and Scottish jig (and slip jig).
+- **S374 - Old-time music.** Wikipedia: https://en.wikipedia.org/wiki/Old-time_music
+  - Useful for: fiddle and clawhammer banjo, the banjo drone string, cross-tunings, ensemble unison rather than solos, the reel as the dominant US dance meter.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Appalachian old-time and bluegrass.
+- **S375 - Bluegrass music.** Wikipedia: https://en.wikipedia.org/wiki/Bluegrass_music
+  - Useful for: 1940s Appalachian origin, Bill Monroe, Scruggs three-finger roll, solos in turn, off-beat emphasis, root-fifth bass, I–IV–V in keys like G.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Appalachian old-time and bluegrass.
+- **S376 - Polska (dance).** Wikipedia: https://en.wikipedia.org/wiki/Polska_(dance)
+  - Useful for: 3/4; sixteenth, eighth and triplet polskas by region; uneven beats (springar, Dalarna "early two"); Hardanger fiddle drone.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Scandinavian polska.
+- **S377 - Klezmer.** Wikipedia: https://en.wikipedia.org/wiki/Klezmer
+  - Useful for: Freygish, Mi Sheberakh, Adonoy Molokh, Mogen Ovos; krekhts, kneytsh, glitshn, tshoks; dance genres and their meters; accompaniment history.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Klezmer.
+- **S378 - Phrygian dominant scale.** Wikipedia: https://en.wikipedia.org/wiki/Phrygian_dominant_scale
+  - Useful for: degrees 1, ♭2, 3, 4, 5, ♭6, ♭7; fifth mode of harmonic minor; Freygish, Hijaz, flamenco usage.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Klezmer, Flamenco, Arabic maqam (Hijaz, Rast, Bayati).
+- **S379 - Aksak.** Wikipedia: https://en.wikipedia.org/wiki/Aksak
+  - Useful for: the Ottoman "limping" rhythm; 2+2+3 račenica, 2+2+2+3 daychovo, 11-unit gankino, 13 and 15.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Balkan aksak dances (7/8, 9/8, 11/8).
+- **S380 - Toussaint, Euclidean rhythms.** Godfried Toussaint, "The Euclidean Algorithm Generates Traditional Musical Rhythms", BRIDGES 2005, McGill University: http://cgm.cs.mcgill.ca/~godfried/publications/banff.pdf
+  - Useful for: generating timelines as evenly spread onsets E(k,n); tresillo E(3,8), račenica E(3,7), West African bell E(7,12), bossa nova E(5,16), samba E(7,16). Directly usable by a deterministic generator.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Balkan aksak dances (7/8, 9/8, 11/8), Samba and bossa nova, West African timeline music and highlife.
+- **S381 - Flamenco.** Wikipedia: https://en.wikipedia.org/wiki/Flamenco
+  - Useful for: cante, toque, baile; palos by meter (binary, twelve-beat, triple); palmas, rasgueado, falsetas; the Phrygian-based mode.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Flamenco.
+- **S382 - Andalusian cadence.** Wikipedia: https://en.wikipedia.org/wiki/Andalusian_cadence
+  - Useful for: i–♭VII–♭VI–V; the Phrygian link; the major final chord.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Flamenco.
+- **S383 - Flamenco compás: soleá and siguiriya.** Cante y Toque (flamenco guitar transcriptions): https://canteytoque.es/compexp.htm
+  - Useful for: twelve-beat accents on 3, 6, 8, 10, 12; bulerías as double-time soleá; siguiriya 2+2+3+3+2. A practitioner page; accent readings vary by teacher.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Flamenco.
+- **S384 - Tango music.** Wikipedia: https://en.wikipedia.org/wiki/Tango_music
+  - Useful for: 2/4 or 4/4; bandoneón; the orquesta típica; habanera, milonga and candombe influences.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Tango.
+- **S385 - Link and Wendland, "Tracing Tangueros".** Kacey Link and Kristin Wendland, "Tracing Tangueros: Argentine Instrumental Tango Music", _Diagonal: An Ibero-American Music Review_ (UC Riverside), 2013: https://webarchive.ucr.edu/cilam.ucr.edu/diagonal/issues/2013/LinkandWendland.pdf
+  - Useful for: marcato, síncopa and 3-3-2 as the key accompaniment rhythms; arrastre; tipo melódico and tipo rítmico; fraseo. (Read: the session summary only.)
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Tango.
+- **S386 - Habanera (music).** Wikipedia: https://en.wikipedia.org/wiki/Habanera_(music)
+  - Useful for: the habanera rhythm, its tresillo link, its role as early tango's bass.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Tango.
+- **S387 - Clave (rhythm).** Wikipedia: https://en.wikipedia.org/wiki/Clave_(rhythm)
+  - Useful for: son and rumba clave onsets on 16 and 12 pulses; 3-2 and 2-3; the bossa clave; the tresillo; the link with the bell pattern.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Son cubano and salsa, Samba and bossa nova.
+- **S388 - Tumbao.** Wikipedia: https://en.wikipedia.org/wiki/Tumbao
+  - Useful for: the tresillo-based bass tumbao anticipating the downbeat; conga tumbao.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Son cubano and salsa.
+- **S389 - Montuno.** Wikipedia: https://en.wikipedia.org/wiki/Montuno
+  - Useful for: the montuno section with its refrain, and the piano guajeo ostinato.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Son cubano and salsa.
+- **S390 - Son cubano.** Wikipedia: https://en.wikipedia.org/wiki/Son_cubano
+  - Useful for: Oriente origin; tres, bongó, maracas, claves, bass; son as salsa's foundation.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Son cubano and salsa.
+- **S391 - Samba.** Wikipedia: https://en.wikipedia.org/wiki/Samba
+  - Useful for: Bahia origin; mostly 2/4; the percussion and string instruments; partido-alto solo and chorus.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Samba and bossa nova.
+- **S392 - Huayno.** Wikipedia: https://en.wikipedia.org/wiki/Huayno
+  - Useful for: regions and Quechua roots; the stressed-then-two-short rhythm; instruments.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Andean huayno.
+- **S393 - Andean Music Teacher Guide.** The Ohio State University, Center for Latin American Studies: https://clas.osu.edu/andean-music-teacher-guide
+  - Useful for: the galloping duple huayno rhythm; AABB form and the fuga coda; siku ira and arka hocket; instruments.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Andean huayno.
+- **S394 - Bell pattern.** Wikipedia: https://en.wikipedia.org/wiki/Bell_pattern
+  - Useful for: the seven-stroke standard pattern on twelve pulses; timelines; four main beats in 12/8; why "polyrhythm" can mislead.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): West African timeline music and highlife.
+- **S395 - Ewe music.** Wikipedia: https://en.wikipedia.org/wiki/Ewe_music
+  - Useful for: gankogui bell, axatse rattle, supporting drums and atsimevu master drum.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): West African timeline music and highlife.
+- **S396 - Highlife.** Wikipedia: https://en.wikipedia.org/wiki/Highlife
+  - Useful for: Ghanaian origin; horns and guitars; the clave-type bell; the guitar figure mirroring 3-2 clave.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): West African timeline music and highlife.
+- **S397 - Arabic maqam.** Wikipedia: https://en.wikipedia.org/wiki/Arabic_maqam
+  - Useful for: maqam as mode plus melodic patterns; ajnas; half-flats on E and B; quarter-tone notation as an approximation; modulation.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Arabic maqam (Hijaz, Rast, Bayati).
+- **S398 - Maqam World: Hijaz, Rast, Bayati.** Johnny Farraj, Maqam World: https://www.maqamworld.com/en/maqam/hijaz.php, https://www.maqamworld.com/en/maqam/rast.php, https://www.maqamworld.com/en/maqam/bayati.php
+  - Useful for: the ajnas that build each maqam and the alternatives on the upper degree.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Arabic maqam (Hijaz, Rast, Bayati), capability notes.
+- **S399 - Taqsim.** Wikipedia: https://en.wikipedia.org/wiki/Taqsim
+  - Useful for: the improvised solo before a composition, its path from the lower ajnas, its modulations.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Arabic maqam (Hijaz, Rast, Bayati).
+- **S400 - Iqa'.** Wikipedia: https://en.wikipedia.org/wiki/Iqa%27
+  - Useful for: rhythmic modes of Arabic music, over a hundred, from 2 to 48 beats.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Arabic maqam (Hijaz, Rast, Bayati).
+- **S401 - Raga.** Wikipedia: https://en.wikipedia.org/wiki/Raga
+  - Useful for: raga as more than a scale; vadi, samvadi, pakad; thaats; 22 shrutis.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Hindustani and Carnatic raga.
+- **S402 - Tala (music).** Wikipedia: https://en.wikipedia.org/wiki/Tala_(music)
+  - Useful for: teental 4+4+4+4 with sam and khali; adi 8, rupak 3+2+2, jhaptal 2+3+2+3.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Hindustani and Carnatic raga.
+- **S403 - Gamaka (music).** Wikipedia: https://en.wikipedia.org/wiki/Gamaka_(music)
+  - Useful for: oscillations and slides; their role in defining Carnatic ragas.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Hindustani and Carnatic raga.
+- **S404 - Thaat.** Wikipedia: https://en.wikipedia.org/wiki/Thaat
+  - Useful for: the ten thaats and their Western mode equivalents; thaats as a classification, not ragas.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Hindustani and Carnatic raga.
+- **S405 - Japanese scales: In, Yo, Hirajōshi.** Wikipedia: https://en.wikipedia.org/wiki/In_scale, https://en.wikipedia.org/wiki/Yo_scale, https://en.wikipedia.org/wiki/Hiraj%C5%8Dshi_scale
+  - Useful for: In scale degrees and nuclear tones; the anhemitonic Yo scale in folk song; the disputed Hirajōshi note sets.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Japanese min'yō and koto scales.
+- **S406 - Min'yō.** Wikipedia: https://en.wikipedia.org/wiki/Min%27y%C5%8D
+  - Useful for: work, dance and ritual songs; added shamisen, shakuhachi, shinobue; drums for dances.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Japanese min'yō and koto scales.
+- **S407 - Jiangnan sizhu.** Wikipedia: https://en.wikipedia.org/wiki/Jiangnan_sizhu
+  - Useful for: the erhu, dizi, pipa and yangqin ensemble; ornamented variants of older tunes such as Lao Liu Ban.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Chinese pentatonic and silk-and-bamboo.
+- **S408 - Javanese gamelan structure.** Wikipedia: https://en.wikipedia.org/wiki/Colotomy, https://en.wikipedia.org/wiki/Gatra_(music), https://en.wikipedia.org/wiki/Balungan, https://en.wikipedia.org/wiki/Irama
+  - Useful for: gong, kenong, kempul, ketuk nesting; lancaran 16 and ladrang 32 beats; end-weighted gatra and seleh; balungan; irama density levels.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Javanese and Balinese gamelan.
+- **S409 - Kotekan.** Wikipedia: https://en.wikipedia.org/wiki/Kotekan
+  - Useful for: polos and sangsih interlocking at four or eight times the core melody; nyog cag, telu, empat.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Javanese and Balinese gamelan.
+- **S410 - Pelog and slendro.** Wikipedia: https://en.wikipedia.org/wiki/Pelog, https://en.wikipedia.org/wiki/Slendro
+  - Useful for: seven unequal versus five near-equal steps; pathet subsets; tuning varying between sets; Western notation as approximation only.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): Javanese and Balinese gamelan.
+- **S411 - Bal-musette.** Wikipedia: https://en.wikipedia.org/wiki/Bal-musette
+  - Useful for: 1880s Paris origin, cabrette then accordion, valse-musette and java, the link to gypsy jazz.
+  - Applied in: [style atlas: folk and world traditions](styles/folk-and-world.md): French bal-musette (optional extra).
+
+Licence note: Music Theory for the 21st-Century Classroom (S1-S7, S9-S10, S18-S24, S40-S44, S144-S146) is © 2017 Robert Hutchinson and distributed under the GNU Free Documentation License, version 1.2 or later. Open Music Theory (S8, S8a, S14, S25, S45-S48, S113-S114, S124, S127, S271, S276, S279, S281-S282, S285, S288, S298, S307-S312, S338-S340) is CC BY-SA. The project cites both for verification and does not reproduce their text.
 
 ## Chords (v3.3)
 

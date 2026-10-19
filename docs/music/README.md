@@ -41,6 +41,42 @@ These three documents are implementation policy derived from the [master specifi
 
 These are research, not settled policy: their proposals wait for the v3 spec sessions. Their sources are in [research sources](research-sources.md) and their terms in the [lexicon](lexicon.md).
 
+## v4 research (2026-10-11)
+
+- [Arranging and accompaniment roles](arranging-and-roles.md): how arrangers give parts distinct jobs, a catalogue of accompaniment roles, the owner's three roles mapped onto it, minimum voice-leading rules, density, and the endgame mapping.
+- [Accompaniment systems and adaptive music](accompaniment-systems.md): existing accompaniment software, technique families, answering a live player, adaptive game music, and showing several voices on the score.
+- [Sound library survey](../sound-library-survey.md): Tone.js and the alternatives for v4's system-voice timbres and drums, with a recommendation and a spike plan.
+
+Where the two music documents differ, the v4 spec session decides:
+
+- **Comping** is a foundation role (harmony support) in the arranging research and the closest real-world model of a responding accompanist in the systems research. Both readings are sourced: comping supports the harmony and reacts to the soloist's gaps.
+- **The first roles to build**: the arranging research suggests one role per family (foundation, highlight, contrast, respond); the systems research suggests a single responding voice that fills the lead's rests, as the smallest step.
+
+These are research, not settled policy: their proposals wait for the v4 spec session. Their music sources are in [research sources](research-sources.md) (the survey keeps its software sources to itself) and their terms in the [lexicon](lexicon.md).
+
+## Endgame research: musical identity (2026-10-11)
+
+- [Musical identity](musical-identity.md): what makes a style, a character, a place or an event recognisable in music, a catalogue of identity constituents with what the app can express today, how few notes recognition takes, combining identities, status effects and worked examples.
+- [Identity modelling](identity-modelling.md): how an identity could become generation weights: representations of style, hard constraints and soft weights, where each weight would act in today's pipeline, signature motifs, combining layers, a draft identity schema, learning and explaining identities.
+- [Phrase-generation breadth review](generation-breadth-review.md): what generation methods were proposed, built, narrowed or lost over the versions, how style is expressed today, and whether to regroup configurations into style packs. It is an internal review of the repository's history (specs, decisions, code and commits), not web research.
+
+Where these documents differ, the endgame spec sessions decide:
+
+- **Layer order.** The breadth review stacks style pack, preset, character, then situation (location and event) modifiers on top; the identity modelling draft puts location and event below the speaker's (character's) identity, with status effects on top; the musical-identity research sees a division of labour rather than a strict ranking.
+- **Whether an identity adds vocabulary.** The breadth review recommends that a character only restrict and weight its style pack, never unlock vocabulary; the musical-identity worked examples (register spikes, a signature progression, trills) and the identity schema's stored motifs need devices that today's generator lacks.
+
+These are research, not settled policy: their proposals wait for the endgame spec sessions. The two web-research documents' sources are in [research sources](research-sources.md) and their terms in the [lexicon](lexicon.md).
+
+## Style atlas (2026-10-11)
+
+- [Style atlas](styles/README.md): the synthesis. An index of every style described, a normalised capability vocabulary, a style × capability matrix, a capability ranking that doubles as a roadmap hint, a sketch of the style layer, the conflicts with current decisions, the inconsistencies between the family files and the open questions.
+- [Western art music](styles/art-music.md): Gregorian chant to minimalism and modernism, with march, waltz and chorale.
+- [Blues, jazz, gospel and soul](styles/jazz-blues-soul.md): Delta and Chicago blues, boogie-woogie, ragtime, the jazz styles from New Orleans to modal and hard bop, gospel, soul, funk and early rock and roll.
+- [Popular, electronic and game music](styles/popular-electronic-game.md): pop, rock, punk, metal, country, reggae and hip-hop; house, techno, synthwave, ambient and lo-fi; chiptune, the JRPG contexts (town, field, dungeon, battle, boss, victory) and epic trailer music.
+- [Folk and world traditions](styles/folk-and-world.md): Celtic, Appalachian, Nordic, Balkan, klezmer, flamenco, tango, Afro-Cuban, Brazilian, Andean and West African styles, maqam, raga, Japanese and Chinese scales, gamelan and bal-musette, as approximations a twelve-note generator could sketch.
+
+Each family file describes its styles in the same terms: how to recognise them, the closest settings today, what a style layer would tune, restrict and manipulate, the v4 accompaniment roles, the capabilities needed and an honest fidelity rating. These are research, not settled policy: their proposals wait for the endgame spec sessions. Their sources are in [research sources](research-sources.md) and their terms in the [lexicon](lexicon.md).
+
 ## v3.3 research (2026-10-12)
 
 - [Chord research](chord-research.md): seventh, sixth, suspended, extended and altered chords; the seventh chord on each degree of the seven modes, with available extensions and avoid notes; style plausibility; chord symbols and MusicXML kinds; how melodies treat sevenths; where a fourth chord note meets the code and atoms; facts for O165–O173 and O175. Groundwork for v3.3 richer chords (D261, D262), not settled policy.
