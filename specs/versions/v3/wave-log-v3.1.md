@@ -380,3 +380,24 @@ On `v3.1-w2` at 90b9945. `npm run quality`: exit 0. Code health 0 errors (724 wa
 `atd:check` pass. `npm run test:sweep` (placed by chunks 6 and 7): exit 0, 5 files, 16 tests,
 116 s. **Bundle: entry chunk 227,702 B**, −2,907 B on wave 1's 230,609 B (−1,444 B on v3.0's
 229,146 B), 79,498 B under the 300 KiB budget.
+
+### Wave sync and report
+
+`documentalist` post-task sync over `8e327bb..v3.1-w2` (ae4b2b3): 18 atoms, contract stays
+7.0.0. Part J's chunk 9 half applied (D363); `module_on_device_database` 0.5 resolves the drift
+from D364/D367. `rule_join_tense_note_resolution` 0.3 per D368. Chunk 6's draw recorded
+(domain `infinite-flow/figure-draw/v1`, shares). `module_pitch_planner` 1.2: "no candidate
+retried" became "no search entry retried" (D369 tries a free tone twice). Part J applied
+differently from its wording in seven listed places (in the change set's "Applied at wave 2's
+sync" paragraph); the material one: sessions are carried over at open only, until O233. Finding:
+a request failing inside the upgrade (a full device) rolls it back and gives an unavailable port,
+so every visit starts from the defaults until space is freed; no test covers that path. No drift
+unresolved. No status advanced; proposed DRAFT → REVIEW: `module_favored_figure_draw`,
+`module_kept_session_upgrade_step`, `module_stored_profile_to_levels` (with wave 1's
+`module_figure_levels`, `module_preset_model`).
+
+Report to the owner (2026-10-19, end of day): chunks 6, 7, 9 merged, none moved; gate passed;
+entry chunk 227,702 B; sync applied part J in full. Open for the owner: O233 (gate M3H, before the
+release gate; recommended (a) accept), the five DRAFT → REVIEW proposals, whether to test or file
+the full-device path, merging `v3.1-w2` into `main`, v3.1 H3 in Edge. Next for a fresh driver:
+wave 3 (chunks 11, 12, 15, 16, 22) after the merge; T1 is asked again before wave 4.
