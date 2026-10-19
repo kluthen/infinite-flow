@@ -40,3 +40,19 @@ Open for the owner, not blocking wave 0: **O231**, the entry chunk's 230 B of he
 224 KiB budget, due before wave 1's gate; **T1**, asked again before wave 4.
 
 ### Chunks
+
+- **Chunk 0, intent re-sync: done, 60fe7d8** (`documentalist`, spec ingestion on the wave branch).
+  It checked Part B v1.1 against the `release-v3.1` atoms (now 40: two added,
+  `rule_player_preset_may_hold_unsupported_rhythm` and `rule_presets_read_at_start_up`), the
+  `changes-in-v3.1` atoms (now 20: three REVIEW atoms tagged) and CONTRACT 6.3.1, whose CONTRACT 3.0
+  wordings all still hold. It revised `rule_presets_load_tolerantly` and
+  `rule_earlier_kept_sessions_carried_over` to 0.2, and recorded the check as part I of the change
+  set. `atd:lint` and `atd:check` pass. No status advanced.
+  - Questions for the owner (change set I3): may the `changes-in-v3.1` tag go on the STABLE
+    `rule_saved_settings_load_tolerantly` (metadata only); do v3.1's revisions of v3.0's STABLE
+    atoms on the contract take a MINOR or a MAJOR contract bump (two weaken a guarantee:
+    `rule_settings_saved_on_change` and `rule_saved_settings_load_tolerantly`), due before the
+    first wave sync that revises one; and an optional rewording of `rule_open_phrase_ending`.
+  - For `spec-writer` (I4): B11 and B12 still count four STABLE changes, from before CONTRACT 6.3,
+    and miss four atoms. For the chunk that revises `rule_pregeneration_discarded_on_change`:
+    `settingsKeyOf` keys on the profile selection, against B8.3 (part F).

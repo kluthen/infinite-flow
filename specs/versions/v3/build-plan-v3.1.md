@@ -288,7 +288,7 @@ The owner runs these on the Travel Sax over USB and the reference machine.
 
 ### Chunk 0 — Intent re-sync
 
-Status: in progress
+Status: merged (w0, 60fe7d8)
 Wave: 0
 Depends on: R0 (it checks the atoms against the state v3.0's release gate left)
 Architecture capture: none
@@ -315,6 +315,8 @@ Architecture capture: none
   `npm run atd:check` pass; the change set file records what changed, if anything.
 - **Verification:** `documentalist`'s ingestion report; chunk checks.
 - **Split rule:** none needed.
+
+Record: 60fe7d8, `documentalist` on `v3.1-w0` (atoms only). Two atoms revised (B7, B9), two added (B6.1, B7), three REVIEW atoms tagged `changes-in-v3.1`; change set part I. Owner points in part I3 (a STABLE tag, the contract bump for v3.0's STABLE atoms that v3.1 revises); `spec-writer` points in part I4.
 
 ### Chunk 1 — Token-source pass, part 1 (v3.1)
 
