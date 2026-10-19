@@ -262,3 +262,23 @@ On `v3.1-w1` at 85c538a. `npm run quality`: exit 0. Code health 0 errors (720 wa
 a key), 57 passed, 107 passed and 4 skipped; `atd:lint` and `atd:check` pass. `npm run
 test:sweep` (placed by chunks 4 and 5): exit 0, 5 files, 16 tests, 113 s. **Bundle: entry chunk
 230,609 B**, +1,463 B on v3.0's 229,146 B, 76,591 B under the 300 KiB budget.
+
+### Wave sync and close
+
+`documentalist` post-task sync over `b5f46da..v3.1-w1` (cc9aa6f): 20 atoms. **CONTRACT 6.3.1 →
+7.0.0** (MAJOR) with part J6's paragraph; part J's chunk 8 half applied to
+`rule_kept_session_content` 0.4, `entity_kept_session_record` 0.5, `module_kept_session_codec`
+0.4 (D363); chunk 9's half (preset label, data version 2) waits, and takes the next version of
+each. `module_phrase_replay_key` 0.6 records the `ifk3.` tuple. Chunks 4, 5 and 10's revisions
+applied (`rule_levels_govern_free_figures_only` now says "do not reorder", B5.4's wording); one
+`@spec-link` for `rule_jazz_chromatic_resolution` restored above `chromaticApproachPaths`. No
+status advanced. Unresolved drift: `module_on_device_database`, until chunk 9 (D364, D367).
+Applied differently from J3's text: "request and intent" applied to the intent only (the resolved
+request never held a profile); the both-fields rule sits in the codec's interface.
+
+For the owner: DRAFT → REVIEW for `module_figure_levels` and `module_preset_model` (built,
+tested); the J3 deviation above. For chunk 9's sync: the J3/J5 second half, the
+`module_on_device_database` drift, `module_stored_profile_to_levels`'s "not built yet" caveat.
+
+Owner, 2026-10-19: "you may merge into main, you may work on the next wave, but that will be the
+last for the day." Wave 1 merged into `main`, not pushed; wave 2 is the last wave today.
