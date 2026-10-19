@@ -234,3 +234,9 @@ with no owner; chunk 8's drift list and size; chunk 10's key labels) and a v3.0 
   figure" where B5.4 says "does not reorder" (the binding can differ when one fails). Sent to
   `spec-writer`: whether the carry-in phrase's settleable tense ending should follow the passing
   or neighbor tone's level (ungated today; B5 is silent).
+- **Plan v9 (f928c99, `spec-writer`): O232 opened**, for the owner, due before wave 2's
+  preflight: should the figure levels reach a carry-in phrase's tense ending (ungated today)?
+  Options: (a) leave it, (b) gate it like a free scale note there by the passing/accented passing
+  and neighbor tone levels (recommended; the work goes on chunk 7), (c) gate it exactly across the
+  join (too large). Chunk 11's section now records chunk 5's 6 Lift `no_legal_pitch_plan` cases
+  and says its runs are made with O232's answer in place. Put to the owner 2026-10-19.
