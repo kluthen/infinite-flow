@@ -106,3 +106,22 @@ before); unit 446 files, 6,735 tests passed; `verify:boundaries` passed (entry b
 Playwright 454 + 454 + 57 + 107 passed, 4 skipped; `atd:lint` and `atd:check` pass. No sweep (no
 wave 0 chunk places it). **Bundle: entry chunk 229,146 B**, unchanged from v3.0 (no `src/` change
 in the wave), 78,054 B under the 300 KiB budget.
+
+### Wave sync and close
+
+`documentalist` post-task sync over `b2ddec2..v3.1-w0` (67ede41): change set part J marked
+confirmed by the owner (D363), none of it applied yet (wave 1's sync, chunk 8, applies it under
+CONTRACT 7.0.0); the D360 tag confirmed in place; chunk 2's missing `@test-link` deferred to
+chunk 8; chunk 3 and the budget change need no atom (no atom states a KiB figure). No atom edited,
+no status advanced, no drift. For `spec-writer`, optional: part J's heading still reads "for the
+owner's sign-off … not applied"; `decisions.md` D363 links to its anchor.
+
+Report to the owner (2026-10-19): chunks 0, 2 and 3 merged, none moved; gate passed; entry chunk
+229,146 B; sync clean; nothing waiting on the owner for wave 1 (T1 is asked again before wave 4).
+Merged into `main` on the owner's leave ("once you're done with wave 0 you may proceed to wave
+1"), not pushed.
+
+Left for wave 1: the preflight raises the data-version risk between chunks 8 and 9 (see the
+rulings entry above); chunk 8's brief says to remove the `@lint-ignore-atd` line in
+`phrase-replay-key-v30-corpus.spec.ts` and apply part J under CONTRACT 7.0.0; chunk 4's brief
+notes that `measure:figures` and `measure:cost` take a `{label, apply}` setting list.
