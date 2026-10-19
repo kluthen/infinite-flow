@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.109
+Status: draft v2.110
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -21,14 +21,15 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and each milestone
 folder's README, such as [archive/v3/README.md](archive/v3/README.md)). Numbering continues from
-**D364**.
+**D373**.
 
 Live here: D228–D251 (v3.1 and v3.2, not built yet), D259–D260 (style packs, planned with no
 version, and the sound ban; merged from branch `v4-accompaniment-research`), D261–D288 (v3.3, not
 built yet; D263–D288 merged from branch `v3.3-chord-research`), D344–D348 (the v3.0 release and
 its follow-ups) and D349–D358 (the v3.1–v3.3 plan migrations, merged from branch
 `plan-migration` as D339–D341, the v3.1 plan's gates and approval, and B12's code check) and
-D359–D363 (the owner's rulings during v3.1's wave 0). D289 is unused.
+D359–D363 (the owner's rulings during v3.1's wave 0) and D364–D372 (the v3.1 build's rulings and
+preflight corrections). D289 is unused.
 
 ## Decision Log
 
@@ -773,3 +774,32 @@ D359–D363 (the owner's rulings during v3.1's wave 0). D289 is unused.
   join. Not adopted: (a) ungated; (c) carrying the direction across the join. Now in:
   [B5.4](versions/v3/master-spec.md#b54-free-figures-and-tensions-scheduled-figure),
   [chunk 7](versions/v3/build-plan-v3.1.md#chunk-7--two-new-free-figures-the-appoggiatura-and-the-diatonic-enclosure).
+
+- **D369 (2026-10-19): a favored free scale tone is tried first as the drawn figure, and keeps its
+  usual place.** Each candidate names the free figures it may start; at a note where one is drawn,
+  a free scale tone is tried before the chord tones held to that figure's resolution (a drawn
+  passing tone is never written there as a neighbor tone), higher level first, then again after
+  the chord tones, unheld. B5.2 "tries it"; holding alone would remove phrases, against B5.6 and
+  `rule_figure_level_never_a_quota`. Not adopted: only moving the tone ahead, unheld. Now in:
+  [chunk 6](versions/v3/build-plan-v3.1.md#chunk-6--favored-levels-order-the-search).
+
+- **D370 (2026-10-19): each kept-session shape keeps its own data version; played notes stay at 1.** At data version 2 the summary and the body move to 2; the played-notes shape does not
+  change, so its records keep 1 (STABLE `module_on_device_database`); one shared constant at 2
+  would make every session with played notes unreadable. Change set J3's "the shapes are at data
+  version 2" is applied as the summary and the body. Not adopted: rewriting played notes to 2.
+  Now in: [chunk 9](versions/v3/build-plan-v3.1.md#chunk-9--kept-sessions-hold-the-levels-and-the-preset-label).
+
+- **D371 (2026-10-19): a new session's preset label is written in B9's form from chunk 9 on.**
+  "Neutral", "Jazz" or "Custom, based on Jazz", through one function the version 2 step shares,
+  never v3.0's "Custom (Jazz grammar)": a stored label is kept for good. Chunk 12 routes
+  `control-summary` through it. Now in:
+  [chunk 9](versions/v3/build-plan-v3.1.md#chunk-9--kept-sessions-hold-the-levels-and-the-preset-label),
+  [chunk 12](versions/v3/build-plan-v3.1.md#chunk-12--presets-replace-the-musical-profile).
+
+- **D372 (2026-10-19): wave 2's preflight corrections, plan v11.** Chunk 6's files, drift checks,
+  split rule and tense-note exclusion follow the code; chunk 7 names its figures for the draw;
+  chunk 9 adds its storage files and owner notes, and drops the label fallback to phrase 1: every
+  readable summary holds the customized flag, and chunk 8's phrases hold no profile (B9, Part B
+  v1.4). Now in: [chunk 6](versions/v3/build-plan-v3.1.md#chunk-6--favored-levels-order-the-search),
+  [chunk 7](versions/v3/build-plan-v3.1.md#chunk-7--two-new-free-figures-the-appoggiatura-and-the-diatonic-enclosure),
+  [B9](versions/v3/master-spec.md#b9-the-generation-request-the-replay-key-and-kept-sessions).

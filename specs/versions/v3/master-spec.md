@@ -42,8 +42,10 @@ Status: this file holds four parts.
   `rule_open_phrase_ending` reworded under it (B11, item 23; spec D361, D362), B11 lists the four
   entries it missed, and the entry budget is 300 KiB (B12; spec D359); no behaviour changes. v1.3
   (2026-10-19) writes in the owner's ruling of that day: the tense note a joined phrase may end
-  on is offered only when the levels allow a free scale note there (B5.4, B11; spec D368). Its
-  sections are numbered B1 to B16.
+  on is offered only when the levels allow a free scale note there (B5.4, B11; spec D368). v1.4
+  (2026-10-19) says that a v3.0 session's label reads the customized flag from the selection its
+  record holds, the one phrase 1 held (B9; spec D372); no behaviour changes. Its sections are
+  numbered B1 to B16.
 - **[Part C — v3.2](#part-c--v32), Jam, the key and mode suggestion and the rhythm lock:**
   master spec v1.0 (2026-10-08), consolidated from the approved v3.2 drafts; approved by the
   product owner (2026-10-08). The owner confirmed the exact wording of the contract
@@ -1815,11 +1817,11 @@ force, and choosing a preset identical in values and restriction, discard nothin
   the profile. It is a snapshot: renaming or deleting the preset later does not change it.
 - **Sessions kept by v3.0** are migrated when the database opens: their phrases' profile names map
   to the levels of B5.3, and their label is the musical profile they recorded, in the same form
-  (Neutral, Jazz, or Custom based on one of them); whether it was customized is read from phrase 1's
-  reproduction inputs, which hold the session's start state. Their generated timelines are kept as
-  they are. If rewriting every v3.0 session when the database opens does not fit the start-up
-  read's time limit (Part A), each is mapped the same way when it is read instead; the player sees
-  no difference.
+  (Neutral, Jazz, or Custom based on one of them); whether it was customized is read from the
+  selection their record holds, phrase 1's, the session's start state. Their generated timelines
+  are kept as they are. If rewriting every v3.0 session when the database opens does not fit the
+  start-up read's time limit (Part A), each is mapped the same way when it is read instead; the
+  player sees no difference.
 
 ## B10. For the interface design
 
