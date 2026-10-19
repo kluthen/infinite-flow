@@ -5,6 +5,7 @@ tags: [v3, release-v3.1, storage, review, presets]
 parents:
   - [[req_kept_sessions]]
 dependents:
+  - [[module_kept_session_upgrade_step]]
   - [[module_stored_profile_to_levels]]
 version: 0.2
 type: RULE

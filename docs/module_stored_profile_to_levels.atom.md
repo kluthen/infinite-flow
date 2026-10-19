@@ -6,7 +6,8 @@ tags: [v3, release-v3.1, storage, review, figures]
 parents:
   - [[module_figure_levels]]
   - [[rule_earlier_kept_sessions_carried_over]]
-dependents: []
+dependents:
+  - [[module_kept_session_upgrade_step]]
 layer: ARCHITECTURE
 version: 0.2
 priority: 1

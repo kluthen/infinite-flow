@@ -6,6 +6,7 @@ layer: BUSINESS
 version: 0.1
 human_name: Figure Draws Reproduce Everywhere
 dependents:
+  - [[module_favored_figure_draw]]
   - [[module_generation_request_construction]]
   - [[module_phrase_replay_key]]
 priority: 1
