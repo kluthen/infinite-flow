@@ -82,3 +82,8 @@ Open for the owner, not blocking wave 0: **O231**, the entry chunk's 230 B of he
 - **Entry budget 300 KiB (fa76c8b, `coding-executor`):** `entryChunkByteBudget = 300 * 1024`, the
   README's checks table; `verify:boundaries` passes with the entry chunk at 229,146 B. The two
   present-tense 224 KiB lines in `docs/controller-connection.md` marked as history.
+- **CS cleared (d2311c2, `spec-writer`, plan v6):** the owner agreed the part J wordings
+  ("Agreed to the change in the wording."), recorded as D363; gate CS done, out of wave 1's
+  Waits-for. The wave sync marks part J confirmed. Next free ids D364, O232.
+- **Owner, 2026-10-19:** "once you're done with wave 0 you may proceed to wave 1", read as leave to
+  close wave 0 (gate, sync, merge into `main`, unpushed) and start wave 1 without a further stop.
