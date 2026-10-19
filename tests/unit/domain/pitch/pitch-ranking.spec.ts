@@ -152,7 +152,7 @@ describe('pitch-ranking', () => {
         candidates: mixed(),
         priorMidi: 60,
         key,
-      })
+      }).map((entry) => entry.candidate)
     }
 
     it.each<ArpeggioChaos>(['Predictable', 'Chaotic', 'Varied'])(
@@ -200,7 +200,7 @@ describe('pitch-ranking', () => {
         candidates,
         priorMidi: 60,
         key,
-      })
+      }).map((entry) => entry.candidate)
       expect(ordered.map((entry) => entry.identity)).toEqual(['chord_tone/x', 'chord_tone/y'])
 
       const reversedKey: PitchTieKeyFactory = (subject) =>
@@ -212,7 +212,7 @@ describe('pitch-ranking', () => {
         candidates,
         priorMidi: 60,
         key: reversedKey,
-      })
+      }).map((entry) => entry.candidate)
       expect(reversed.map((entry) => entry.identity)).toEqual(['chord_tone/y', 'chord_tone/x'])
     })
   })

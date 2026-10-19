@@ -30,6 +30,16 @@ import { makeSeed } from '@/domain/random/seed'
 import { makeRhythmCandidateDomain } from '@/domain/rhythm/rhythm-planner'
 
 const PINNED_HASH = 765058683
+/**
+ * The same plan's hash with the figures each candidate names (a field added after the pin, outside
+ * the candidate's identity) included; with them left out it is still PINNED_HASH.
+ */
+const PINNED_HASH_WITH_FIGURES = 1628130814
+
+/** JSON of a value without the `figures` fields, as the plan serialized before they existed. */
+function jsonWithoutFigures(value: unknown): string {
+  return JSON.stringify(value, (key, field: unknown) => (key === 'figures' ? undefined : field))
+}
 
 /** The first Gentle-diatonic Jazz harmony candidate over its first Eighth/Conversational rhythm. */
 function pinnedInput() {
@@ -93,6 +103,7 @@ describe('pitch planner: a pinned Jazz case actually selects a chromatic figure'
     const roles = result.phrase.assignments.map((assignment) => assignment.candidate.role)
     expect(roles).toContain('chromatic_enclosure_lower')
     expect(roles).toContain('chromatic_enclosure_upper')
-    expect(fnv1a32(JSON.stringify(result))).toBe(PINNED_HASH)
+    expect(fnv1a32(jsonWithoutFigures(result))).toBe(PINNED_HASH)
+    expect(fnv1a32(JSON.stringify(result))).toBe(PINNED_HASH_WITH_FIGURES)
   })
 })
