@@ -21,14 +21,14 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and each milestone
 folder's README, such as [archive/v3/README.md](archive/v3/README.md)). Numbering continues from
-**D363**.
+**D364**.
 
 Live here: D228–D251 (v3.1 and v3.2, not built yet), D259–D260 (style packs, planned with no
 version, and the sound ban; merged from branch `v4-accompaniment-research`), D261–D288 (v3.3, not
 built yet; D263–D288 merged from branch `v3.3-chord-research`), D344–D348 (the v3.0 release and
 its follow-ups) and D349–D358 (the v3.1–v3.3 plan migrations, merged from branch
 `plan-migration` as D339–D341, the v3.1 plan's gates and approval, and B12's code check) and
-D359–D362 (the owner's rulings during v3.1's wave 0). D289 is unused.
+D359–D363 (the owner's rulings during v3.1's wave 0). D289 is unused.
 
 ## Decision Log
 
@@ -726,3 +726,10 @@ D359–D362 (the owner's rulings during v3.1's wave 0). D289 is unused.
   names no profile, since chromatic figures come from any preset; its guarantee is unchanged. Under
   D361's bump and gate CS; chunk 12 revises it. Now in:
   [chunk 12](versions/v3/build-plan-v3.1.md#chunk-12--presets-replace-the-musical-profile).
+
+- **D363 (2026-10-19): gate CS is cleared; the owner confirms every wording of change set part J.**
+  His words: "Agreed to the change in the wording." That includes the two that weaken a guarantee
+  (`rule_settings_saved_on_change`, `rule_saved_settings_load_tolerantly`), CONTRACT 7.0.0, and one
+  MAJOR bump at wave 1's sync (chunk 8), the later syncs (chunks 9, 12, 16, 17, 18) applying the rest
+  under 7.0.0. Now in: [Gates](versions/v3/build-plan-v3.1.md#gates),
+  [change set part J](../docs/release/v3.1-v3.2-intent-change-set.md#j-cs-contract-wordings-for-the-owners-sign-off-drafted-2026-10-19-not-applied).
