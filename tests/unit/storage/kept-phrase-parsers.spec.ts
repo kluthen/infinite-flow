@@ -5,6 +5,11 @@ import {
   makeGenerationControls,
 } from '@/domain/controls/generation-controls'
 import { PROFILE_BUNDLES } from '@/domain/controls/profile-selection'
+import {
+  FigureLevelsError,
+  JAZZ_FIGURE_LEVELS,
+  NEUTRAL_FIGURE_LEVELS,
+} from '@/domain/figures/figure-levels'
 import { CarryInError } from '@/domain/generation/carry-in/carry-in'
 import {
   createGenerationIntent,
@@ -371,5 +376,62 @@ describe('parseKeptIntent', () => {
   it('reports an error that is not a refusal of the stored value as no refusal', () => {
     expect(isKeptPhraseRefusal(new TypeError('defect'))).toBe(false)
     expect(isKeptPhraseRefusal('text')).toBe(false)
+  })
+})
+
+/** Intent: the first recorded phrase intent of the given musical profile. */
+function intentOfProfile(musicalProfile: 'Neutral' | 'Jazz'): GenerationIntent {
+  const record = records.find(
+    (entry) => entry.intent.musicalProfile.musicalProfile === musicalProfile,
+  )
+  if (record === undefined) throw new Error(`No ${musicalProfile} phrase recorded.`)
+  return record.intent
+}
+
+// @test-link [[module_kept_session_codec]]
+describe('parseKeptIntent: figure levels', () => {
+  it.each([
+    ['Neutral', NEUTRAL_FIGURE_LEVELS],
+    ['Jazz', JAZZ_FIGURE_LEVELS],
+  ] as const)(
+    "reads a v3.0-shaped %s intent, which holds no levels, with its profile's levels",
+    (musicalProfile, levels) => {
+      const intent = intentOfProfile(musicalProfile)
+      const input = edited(intent, ['figureLevels'], REMOVE)
+      expect('figureLevels' in (input as Record<string, unknown>)).toBe(false)
+
+      const parsed = parseKeptIntent(input)
+
+      expect(parsed.figureLevels).toStrictEqual(levels)
+      expect(parsed).toEqual(intent)
+      expect(Object.keys(parsed)).toEqual(Object.keys(intent))
+    },
+  )
+
+  it('reads stored levels back, keys in the order the factory gives', () => {
+    const intent = intentOfProfile('Jazz')
+    const parsed = parseKeptIntent(stored(intent))
+
+    expect(parsed.figureLevels).toStrictEqual(JAZZ_FIGURE_LEVELS)
+    expect(Object.keys(parsed)).toEqual(Object.keys(intent))
+  })
+
+  it('refuses an intent whose levels disagree with its musical profile', () => {
+    const input = edited(intentOfProfile('Neutral'), ['figureLevels'], { ...JAZZ_FIGURE_LEVELS })
+
+    expect(() => parseKeptIntent(input)).toThrow(KeptRecordError)
+    expect(isKeptPhraseRefusal(catchError(() => parseKeptIntent(input)))).toBe(true)
+  })
+
+  it.each([
+    ['a missing figure', ['figureLevels', 'appoggiatura'], REMOVE],
+    ['an unknown figure', ['figureLevels', 'blueNote'], 'off'],
+    ['an unknown level', ['figureLevels', 'passingTone'], 'often'],
+    ['levels that are not an object', ['figureLevels'], 'asToday'],
+  ] as const)('refuses levels with %s as unreadable', (_, path, replacement) => {
+    const input = edited(intentOfProfile('Neutral'), path, replacement)
+
+    expect(() => parseKeptIntent(input)).toThrow(FigureLevelsError)
+    expect(isKeptPhraseRefusal(catchError(() => parseKeptIntent(input)))).toBe(true)
   })
 })

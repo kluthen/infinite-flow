@@ -6,6 +6,7 @@ import {
   makeGenerationControls,
 } from '../controls/generation-controls'
 import type { ProfileSelection } from '../controls/profile-selection'
+import { levelsForProfile, type FigureLevels } from '../figures/figure-levels'
 import {
   MY_INSTRUMENT_ID,
   findBuiltInInstrumentProfile,
@@ -26,8 +27,11 @@ import {
  * The outer request accepted by Step 7 orchestration; its register intent may still be Varying.
  * `controls.tonalCenter` is always the concert-pitch tonal center the generator consumes;
  * `writtenTonalCenter` is the player's written-pitch selection it was converted from.
+ * `figureLevels` are the seven figure levels the generator may read what it writes from; while the
+ * player's choice is still a musical profile selection they are that profile's levels.
  */
 // @spec-link [[module_generation_request_construction]]
+// @spec-link [[module_figure_levels]]
 export interface GenerationIntent {
   readonly requestId: RequestId
   readonly seed: Seed
@@ -36,6 +40,7 @@ export interface GenerationIntent {
   readonly controls: GenerationControls
   readonly writtenTonalCenter: PitchClass
   readonly musicalProfile: ProfileSelection
+  readonly figureLevels: FigureLevels
   readonly instrumentProfile: InstrumentProfile
   readonly registerIntent: RegisterIntent
   /** What the session phrase before hands forward; absent for a phrase generated without one. */
@@ -168,7 +173,8 @@ export function writtenToConcertTonalCenter(
  * `resolveInstrumentProfile`: the built-in table for a built-in id, the supplied profile for
  * `my-instrument`. An input that still holds a carry-in is a caller bug and is refused, never
  * silently dropped: such an intent is built by `makeCarryInGenerationIntent`, which checks the
- * carry-in against it.
+ * carry-in against it. The figure levels come from the musical profile selection through
+ * `levelsForProfile`, whatever its customized mark.
  */
 // @spec-link [[module_generation_request_construction]]
 export function makeGenerationIntent(input: GenerationIntentInput): GenerationIntent {
@@ -197,6 +203,7 @@ export function makeGenerationIntent(input: GenerationIntentInput): GenerationIn
     controls,
     writtenTonalCenter,
     musicalProfile: { ...input.musicalProfile },
+    figureLevels: levelsForProfile(input.musicalProfile.musicalProfile),
     instrumentProfile,
     registerIntent,
   })

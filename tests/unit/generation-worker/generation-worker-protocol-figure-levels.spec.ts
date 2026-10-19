@@ -1,0 +1,127 @@
+/**
+ * The figure levels cross the generation worker boundary inside the intent posted to the worker,
+ * for a generate request and a prewarm message alike, and are re-validated from untrusted
+ * structured-clone input: well formed, and the levels the intent's musical profile gives.
+ */
+
+import { describe, expect, it } from 'vitest'
+
+import { makeGenerationControls } from '@/domain/controls/generation-controls'
+import { JAZZ_FIGURE_LEVELS, NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
+import {
+  createGenerationIntent,
+  type GenerationIntent,
+} from '@/domain/generation/generation-intent'
+import { makeRequestId } from '@/domain/generation/generation-request'
+import { makeSeed } from '@/domain/random/seed'
+import {
+  parseGenerationWorkerPrewarm,
+  parseGenerationWorkerRequest,
+} from '@/generation-worker/generation-worker-inbound'
+import { GenerationWorkerProtocolError } from '@/generation-worker/generation-worker-protocol'
+
+/** Intent: one real cheap-to-search intent for the given musical profile. */
+function intentFor(musicalProfile: 'Neutral' | 'Jazz'): GenerationIntent {
+  return createGenerationIntent({
+    requestId: makeRequestId(`figure-levels-${musicalProfile}`),
+    seed: makeSeed(3),
+    controls: makeGenerationControls({
+      tempo: 90,
+      tonalCenter: 'C',
+      collection: 'Major',
+      harmonicMotion: 'Gentle diatonic',
+      tension: 'Settled',
+      noteDensity: 'Quarter',
+      rhythmicVariety: 'Strict',
+      syncopation: 'Straight',
+      silenceDensity: 'Sparse',
+      contour: 'Arch',
+      register: 'Middle',
+      leapiness: 'Shaped',
+      arpeggioChaos: 'Predictable',
+      instrumentProfileId: 'c-keyboard',
+    }),
+    musicalProfile: { musicalProfile, isCustom: false },
+  })
+}
+
+/** Intent: a structured clone of a Neutral intent with its figure levels replaced by `levels`. */
+function neutralWireIntentWith(levels: unknown): Record<string, unknown> {
+  return { ...structuredClone(intentFor('Neutral')), figureLevels: levels }
+}
+
+/** Intent: a structured clone of a Neutral intent with no figure levels field at all. */
+function neutralWireIntentWithoutLevels(): Record<string, unknown> {
+  const { figureLevels, ...rest } = structuredClone(intentFor('Neutral'))
+  void figureLevels
+  return rest
+}
+
+const { appoggiatura, ...missingFigure } = NEUTRAL_FIGURE_LEVELS
+void appoggiatura
+
+const REFUSED: readonly { readonly name: string; readonly intent: () => unknown }[] = [
+  { name: 'levels missing a figure', intent: () => neutralWireIntentWith(missingFigure) },
+  {
+    name: 'levels naming an unknown figure',
+    intent: () => neutralWireIntentWith({ ...NEUTRAL_FIGURE_LEVELS, blueNote: 'off' }),
+  },
+  {
+    name: 'levels holding an unknown level',
+    intent: () => neutralWireIntentWith({ ...NEUTRAL_FIGURE_LEVELS, passingTone: 'often' }),
+  },
+  { name: 'levels that are not an object', intent: () => neutralWireIntentWith('asToday') },
+  { name: 'the levels field absent', intent: neutralWireIntentWithoutLevels },
+  {
+    name: "Jazz's levels on a Neutral intent",
+    intent: () => neutralWireIntentWith(structuredClone(JAZZ_FIGURE_LEVELS)),
+  },
+]
+
+// @test-link [[module_generation_worker_protocol]]
+describe('generation worker protocol with figure levels', () => {
+  it.each(['Neutral', 'Jazz'] as const)(
+    'round-trips a %s intent with its levels in a request and a prewarm',
+    (musicalProfile) => {
+      const intent = intentFor(musicalProfile)
+      const request = parseGenerationWorkerRequest(
+        structuredClone({ type: 'generate', id: 5, intent }),
+      )
+      const prewarm = parseGenerationWorkerPrewarm(structuredClone({ type: 'prewarm', intent }))
+      const levels = musicalProfile === 'Neutral' ? NEUTRAL_FIGURE_LEVELS : JAZZ_FIGURE_LEVELS
+      for (const parsed of [request.intent, prewarm.intent]) {
+        expect(parsed).toStrictEqual(intent)
+        expect(parsed.figureLevels).toStrictEqual(levels)
+      }
+    },
+  )
+
+  it.each(REFUSED)('refuses a request whose intent has $name', ({ intent }) => {
+    expect(() =>
+      parseGenerationWorkerRequest({ type: 'generate', id: 6, intent: intent() }),
+    ).toThrow(GenerationWorkerProtocolError)
+  })
+
+  it.each(REFUSED)('refuses a prewarm whose intent has $name', ({ intent }) => {
+    expect(() => parseGenerationWorkerPrewarm({ type: 'prewarm', intent: intent() })).toThrow(
+      GenerationWorkerProtocolError,
+    )
+  })
+
+  it('names the figure levels field and the cause of a malformed value', () => {
+    expect(() =>
+      parseGenerationWorkerRequest({
+        type: 'generate',
+        id: 7,
+        intent: neutralWireIntentWith(missingFigure),
+      }),
+    ).toThrow(/GenerationWorkerRequest\.intent\.figureLevels.*missing the figure "appoggiatura"/u)
+    expect(() =>
+      parseGenerationWorkerRequest({
+        type: 'generate',
+        id: 8,
+        intent: neutralWireIntentWithoutLevels(),
+      }),
+    ).toThrow(/GenerationWorkerRequest\.intent\.figureLevels is missing/u)
+  })
+})
