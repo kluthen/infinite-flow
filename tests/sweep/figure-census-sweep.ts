@@ -1,7 +1,8 @@
 /**
  * The figure census sweep's plumbing (measurement tooling, run by `npm run measure:figures`): the
- * census population, the settings a population is measured under, one census per case, and the
- * per-setting aggregate the sweep prints and writes.
+ * census population, the settings a population is measured under (the musical profiles, every
+ * figure as today, and each figure off in turn), one census per case, and the per-setting
+ * aggregate the sweep prints and writes.
  */
 
 import { cpus, loadavg, release } from 'node:os'
@@ -9,10 +10,18 @@ import { cpus, loadavg, release } from 'node:os'
 import {
   COLLECTIONS,
   MUSICAL_PROFILES,
+  TENSION_ARCS,
   makeGenerationControls,
   type GenerationControls,
   type MusicalProfile,
+  type TensionArc,
 } from '@/domain/controls/generation-controls'
+import {
+  FIGURE_IDS,
+  type FigureId,
+  type FigureLevel,
+  type FigureLevels,
+} from '@/domain/figures/figure-levels'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import { buildIntent } from '../unit/domain/generation/carry-in/carry-in-fixture'
 import type { SweepCase } from '../unit/session/deadline-sweep'
@@ -31,17 +40,21 @@ const CENSUS_TEMPO = 120
 /** The most unexplained instances an aggregate keeps as examples to replay. */
 const MAX_UNEXPLAINED_EXAMPLES = 20
 
-/** One phrase to take the census of: the controls, profile and seed it is generated with. */
+/**
+ * One phrase to take the census of: the controls, profile and seed it is generated with, and the
+ * figure levels it is generated with in place of its profile's, when set.
+ */
 export interface CensusCase {
   readonly label: string
   readonly seed: number
   readonly controls: GenerationControls
   readonly musicalProfile: MusicalProfile
+  readonly figureLevels?: FigureLevels
 }
 
 /**
- * One setting a population is measured under: a label and the change it makes to each case. The
- * settings today are the two musical profiles; a later setting may also set figure levels.
+ * One setting a population is measured under: a label and the change it makes to each case: a
+ * musical profile, or figure levels in place of the case's profile's.
  */
 export interface CensusSetting {
   readonly label: string
@@ -53,6 +66,33 @@ export const PROFILE_SETTINGS: readonly CensusSetting[] = MUSICAL_PROFILES.map((
   label: profile,
   apply: (censusCase: CensusCase): CensusCase => ({ ...censusCase, musicalProfile: profile }),
 }))
+
+/** Intent: every figure at `level`, except the figures named in `off`, which are off. */
+function levelsWith(level: FigureLevel, off: readonly FigureId[]): FigureLevels {
+  return Object.fromEntries(
+    FIGURE_IDS.map((figure) => [figure, off.includes(figure) ? 'off' : level]),
+  ) as FigureLevels
+}
+
+/** Intent: the setting giving every case the levels `figureLevels`, keeping its profile. */
+function levelsSetting(label: string, figureLevels: FigureLevels): CensusSetting {
+  return {
+    label,
+    apply: (censusCase: CensusCase): CensusCase => ({ ...censusCase, figureLevels }),
+  }
+}
+
+/** The base the figure-off settings are compared with: every figure as today. */
+export const ALL_AS_TODAY: CensusSetting = levelsSetting(
+  'every figure as today',
+  levelsWith('asToday', []),
+)
+
+/** Each figure off in turn, every other figure as today, then every figure off. */
+export const FIGURE_OFF_SETTINGS: readonly CensusSetting[] = [
+  ...FIGURE_IDS.map((figure) => levelsSetting(`${figure} off`, levelsWith('asToday', [figure]))),
+  levelsSetting('every figure off', levelsWith('off', FIGURE_IDS)),
+]
 
 /**
  * Intent: the census population of some sweep cases: each case under each of the nine
@@ -73,14 +113,19 @@ export function censusPopulation(cases: readonly SweepCase[]): readonly CensusCa
   )
 }
 
-/** Intent: generate the standalone phrase of one case and take its census. */
+/**
+ * Intent: generate the standalone phrase of one case and take its census, with the case's figure
+ * levels in place of its profile's when it has them.
+ */
 export function runCensusCase(censusCase: CensusCase): PhraseCensus | FailedCensus {
-  const intent = buildIntent({
+  const built = buildIntent({
     controls: censusCase.controls,
     musicalProfile: censusCase.musicalProfile,
     seed: censusCase.seed,
     label: 'figure-census',
   })
+  const { figureLevels } = censusCase
+  const intent = figureLevels === undefined ? built : { ...built, figureLevels }
   return censusOfOutcome(intent, generatePhrase(intent))
 }
 
@@ -102,6 +147,12 @@ export interface UnexplainedExample {
   readonly instance: FigureInstance
 }
 
+/** Per tension arc: the generated phrases, and how many hold Tension's scheduled figure. */
+export interface ArcScheduledTally {
+  readonly phrases: number
+  readonly holdingScheduled: number
+}
+
 /** The census aggregate of one setting. */
 export interface SettingAggregate {
   readonly label: string
@@ -113,6 +164,7 @@ export interface SettingAggregate {
   }
   readonly figures: Readonly<Record<CensusFigure, FigureStats>>
   readonly scheduledByKind: Readonly<Record<string, number>>
+  readonly scheduledByArc: Readonly<Record<TensionArc, ArcScheduledTally>>
   readonly unexplainedExamples: readonly UnexplainedExample[]
 }
 
@@ -132,6 +184,10 @@ export class CensusTally {
   private readonly censuses: PhraseCensus[] = []
   private readonly failures: Record<string, number> = {}
   private readonly scheduled: Record<string, number> = {}
+  private readonly arcs = Object.fromEntries(
+    TENSION_ARCS.map((arc) => [arc, { phrases: 0, holdingScheduled: 0 }]),
+  ) as Record<TensionArc, { phrases: number; holdingScheduled: number }>
+  private readonly holding = new Set<string>()
   private readonly examples: UnexplainedExample[] = []
 
   /** Intent: start the tally of the setting named `label`. */
@@ -145,11 +201,22 @@ export class CensusTally {
       return
     }
     this.censuses.push(census)
+    const arc = this.arcs[censusCase.controls.tension]
+    arc.phrases += 1
+    if (census.counts.tension_scheduled > 0) {
+      arc.holdingScheduled += 1
+      this.holding.add(censusCase.label)
+    }
     for (const instance of census.instances) {
       if (instance.figureKind !== undefined) bump(this.scheduled, instance.figureKind)
       if (instance.figure === 'unexplained' && this.examples.length < MAX_UNEXPLAINED_EXAMPLES)
         this.examples.push({ censusCase, instance })
     }
+  }
+
+  /** Intent: the labels of the cases whose phrase holds Tension's scheduled figure. */
+  casesHoldingScheduled(): ReadonlySet<string> {
+    return new Set(this.holding)
   }
 
   /** Intent: the statistics of one label over the generated phrases. */
@@ -179,6 +246,9 @@ export class CensusTally {
         CENSUS_FIGURES.map((figure) => [figure, this.stats(figure)]),
       ) as Record<CensusFigure, FigureStats>,
       scheduledByKind: { ...this.scheduled },
+      scheduledByArc: Object.fromEntries(
+        TENSION_ARCS.map((arc) => [arc, { ...this.arcs[arc] }]),
+      ) as Record<TensionArc, ArcScheduledTally>,
       unexplainedExamples: [...this.examples],
     }
   }
@@ -202,11 +272,16 @@ export function tableLines(aggregate: SettingAggregate): readonly string[] {
   const scheduled = Object.entries(aggregate.scheduledByKind)
     .map(([kind, count]) => `${kind} ${count}`)
     .join(', ')
+  const byArc = TENSION_ARCS.map((arc) => {
+    const tally = aggregate.scheduledByArc[arc]
+    return `${arc} ${tally.holdingScheduled}/${tally.phrases}`
+  }).join(', ')
   return [
     `${aggregate.phrases} phrases of ${aggregate.cases} cases, ${failed.total} failed generations ${JSON.stringify(failed.byCode)}`,
     header,
     ...rows,
     `scheduled figures by kind: ${scheduled === '' ? 'none' : scheduled}`,
+    `phrases holding a scheduled figure by tension arc: ${byArc}`,
   ].map((line) => `${prefix} ${line}`)
 }
 

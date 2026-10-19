@@ -1,4 +1,9 @@
-import { allowsChromaticNotes } from '../../figures/figure-levels'
+import {
+  allowsChromaticNotes,
+  allowsFreeFigure,
+  type FigureId,
+  type FigureLevels,
+} from '../../figures/figure-levels'
 import { isOwedTenseEnding } from './join-rules'
 import { collectionStep, contiguous } from './phrase-facts'
 import type { AbstractTensionRequirement as TensionRequirement } from '../../harmony/harmony-types'
@@ -38,15 +43,35 @@ function tightGroup(group: readonly SoundingFact[]): boolean {
   )
 }
 
-/** Free diatonic passing tone or neighbor around attack `index`, judged only from MIDI values. */
+/**
+ * The free diatonic figure around attack `index`, judged only from MIDI values, or undefined: a
+ * passing tone (collection step in and out, same direction, onto a chord tone; accented on a
+ * strong onset) or a neighbor tone (collection step in and out, from a chord tone back to the same
+ * MIDI).
+ */
 // @spec-link [[module_pitch_domain_validation]]
-function freelyExplained(attacks: readonly SoundingFact[], index: number): boolean {
+function freeDiatonicFigure(
+  attacks: readonly SoundingFact[],
+  index: number,
+): Extract<FigureId, 'passingTone' | 'accentedPassingTone' | 'neighborTone'> | undefined {
   const [before, note, after] = [attacks[index - 1], attacks[index]!, attacks[index + 1]]
   if (!before || !after || !collectionStep(before, note) || !collectionStep(note, after))
-    return false
-  const passing = sameDirection(before, note, after) && after.chordTone
-  const neighbor = before.chordTone && after.midi === before.midi
-  return passing || neighbor
+    return undefined
+  if (sameDirection(before, note, after) && after.chordTone)
+    return note.strongOnset ? 'accentedPassingTone' : 'passingTone'
+  if (before.chordTone && after.midi === before.midi) return 'neighborTone'
+  return undefined
+}
+
+/** Free diatonic passing tone or neighbor around attack `index`, whatever the figure levels. */
+// @spec-link [[module_pitch_domain_validation]]
+function freelyExplained(attacks: readonly SoundingFact[], index: number): boolean {
+  return freeDiatonicFigure(attacks, index) !== undefined
+}
+
+/** True when the levels let the free figure found, if any, explain its note. */
+function allowedFreeFigure(levels: FigureLevels, figure: FigureId | undefined): boolean {
+  return figure !== undefined && allowsFreeFigure(levels, figure)
 }
 
 /**
@@ -145,17 +170,23 @@ function chromaticOrnament(
 }
 
 /**
- * Explain every non-chord tone. Pitches stay in the collection unless the figure levels allow
- * chromatic notes, in which case an out-of-collection pitch must belong to a complete chromatic
- * approach or enclosure. The bound figure must be structurally sound and
- * realized by its MIDI path. Remaining diatonic non-chord tones must be free passing tones or
- * neighbors, except a tense final note a phrase generated with carry-in may leave for its next
+ * Explain every non-chord tone by the figures the levels allow. Pitches stay in the collection
+ * unless the levels allow chromatic notes, in which case an out-of-collection pitch must belong to
+ * a complete chromatic approach or enclosure whose own level is not Off. The bound figure must be
+ * structurally sound and realized by its MIDI path, whatever the levels. Remaining diatonic
+ * non-chord tones must be free passing tones, accented passing tones or neighbors whose level is
+ * not Off, except a tense final note a phrase generated with carry-in may leave for its next
  * phrase to resolve.
  */
 // @spec-link [[module_pitch_domain_validation]]
 // @spec-link [[module_musical_profile_capabilities]]
+// @spec-link [[rule_chromatic_notes_need_a_chromatic_figure]]
+// @spec-link [[rule_figure_level_orders_search]]
+// @spec-link [[rule_levels_govern_free_figures_only]]
+// @spec-link [[rule_figures_resolve_onto_chord_tones]]
 export function figureFailures(facts: PhraseFacts): readonly PitchValidationFailure[] {
   const failures: PitchValidationFailure[] = []
+  const levels = facts.context.policy.figureLevels
   const binding = facts.context.tensionBinding
   const bound = new Set(binding.attackIndices)
   const anchor = binding.attackIndices[0]
@@ -170,12 +201,17 @@ export function figureFailures(facts: PhraseFacts): readonly PitchValidationFail
   const chromatic = new Set<number>()
   for (const attack of facts.attacks) {
     if (attack.inCollection) continue
-    if (!allowsChromaticNotes(facts.context.policy.figureLevels)) {
+    if (!allowsChromaticNotes(levels)) {
       failures.push({ code: 'out_of_collection', attackIndex: attack.index })
       continue
     }
     const members = chromaticOrnament(facts.attacks, attack.index)
-    if (!members || members.some((member) => bound.has(member)))
+    const ornament = members?.length === 2 ? 'chromaticEnclosure' : 'chromaticApproach'
+    if (
+      !members ||
+      members.some((member) => bound.has(member)) ||
+      !allowsFreeFigure(levels, ornament)
+    )
       failures.push({ code: 'invalid_chromatic_ornament', attackIndex: attack.index })
     else members.forEach((member) => chromatic.add(member))
   }
@@ -186,7 +222,7 @@ export function figureFailures(facts: PhraseFacts): readonly PitchValidationFail
       !attack.inCollection ||
       chromatic.has(attack.index) ||
       bound.has(attack.index) ||
-      freelyExplained(facts.attacks, attack.index) ||
+      allowedFreeFigure(levels, freeDiatonicFigure(facts.attacks, attack.index)) ||
       isOwedTenseEnding(facts, attack)
     if (!explained) failures.push({ code: 'unexplained_non_chord_tone', attackIndex: attack.index })
   }

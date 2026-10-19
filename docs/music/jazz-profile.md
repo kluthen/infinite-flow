@@ -4,7 +4,7 @@ Status: curated profile summary
 
 ## Player Promise
 
-The initial jazz profile keeps the neutral profile's diatonic harmonic plan and phrase construction. Its only added vocabulary is a brief chromatic approach or enclosure resolving to a chord tone. It does not yet add altered dominants, secondary dominants, tritone substitutions, borrowed harmony, or modulation.
+The initial jazz profile keeps the neutral profile's diatonic harmonic plan and phrase construction. Its only added vocabulary is a brief chromatic approach or enclosure resolving to a chord tone. It does not yet add altered dominants, secondary dominants, tritone substitutions, borrowed harmony, or modulation. Jazz's figure levels set the chromatic approach and the chromatic enclosure As today; the two figures are not Jazz's own, since any figure levels with one of them not Off allow it (see [Figure levels gate the free figures](pitch-planner-validation.md#figure-levels-gate-the-free-figures-v31)).
 
 ## Chromatic Approaches
 

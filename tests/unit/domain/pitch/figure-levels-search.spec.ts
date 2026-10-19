@@ -4,7 +4,8 @@
  * under chosen figure levels and classified by the figure census. A figure set Off is never
  * written as a free figure, while the same grid under the levels it starts from does write it;
  * with every level Off a phrase holds no free figure and no chromatic note, and Tension's
- * scheduled figure, which reads no level, is still written wherever Tension requires it.
+ * scheduled figure, which reads no level, is still written wherever Tension requires it, and
+ * under Settled and Lift wherever Neutral's levels place it.
  */
 
 import { describe, expect, it } from 'vitest'
@@ -41,9 +42,12 @@ const ARPEGGIO_CHAOS: readonly ArpeggioChaos[] = ['Varied', 'Chaotic']
 const DENSITIES: readonly NoteDensity[] = ['Quarter', 'Eighth', 'Sixteenth']
 const COLLECTIONS: readonly Collection[] = ['Major', 'Dorian']
 const TENSIONS: readonly TensionArc[] = ['Settled', 'Lift', 'Build', 'Edge']
+/** The grid is generated cold once per levels value; a loaded machine can take several times its ~2 s. */
+const GRID_TIMEOUT_MS = 30_000
 
 /** One grid point's generated phrase, kept with its intent, its controls and its census. */
 interface GridPhrase {
+  readonly point: GridPoint
   readonly seed: number
   readonly tension: TensionArc
   readonly intent: GenerationIntent
@@ -92,7 +96,7 @@ function phraseAt(point: GridPoint, figureLevels: FigureLevels): GridPhrase | un
   if (outcome.kind !== 'generation_success') return undefined
   const census = censusOfOutcome(intent, outcome)
   if ('kind' in census) throw new Error(`census failed: ${census.code}`)
-  return { seed, tension, intent, outcome, census }
+  return { point, seed, tension, intent, outcome, census }
 }
 
 const grids = new Map<string, readonly GridPhrase[]>()
@@ -134,50 +138,61 @@ function holdsScheduledFigure(phrase: GridPhrase): boolean {
 // @test-link [[rule_chromatic_notes_need_a_chromatic_figure]]
 describe('the search writes no free figure whose level is off', () => {
   for (const [figureId, label] of GATED)
-    it(`writes no free ${label} with ${figureId} off, though the base levels do`, () => {
-      const base = gridUnder(ALL_AS_TODAY)
-      expect(base.some((phrase) => phrase.census.counts[label] > 0)).toBe(true)
-      const gated = gridUnder({ ...ALL_AS_TODAY, [figureId]: 'off' })
-      expect(gated.length).toBeGreaterThan(0)
-      for (const phrase of gated) {
-        expect(phrase.census.counts[label]).toBe(0)
-        expect(phrase.census.counts.unexplained).toBe(0)
-      }
-    })
+    it(
+      `writes no free ${label} with ${figureId} off, though the base levels do`,
+      () => {
+        const base = gridUnder(ALL_AS_TODAY)
+        expect(base.some((phrase) => phrase.census.counts[label] > 0)).toBe(true)
+        const gated = gridUnder({ ...ALL_AS_TODAY, [figureId]: 'off' })
+        expect(gated.length).toBeGreaterThan(0)
+        for (const phrase of gated) {
+          expect(phrase.census.counts[label]).toBe(0)
+          expect(phrase.census.counts.unexplained).toBe(0)
+        }
+      },
+      GRID_TIMEOUT_MS,
+    )
 })
 
 // @test-link [[rule_levels_govern_free_figures_only]]
 // @test-link [[rule_chromatic_notes_need_a_chromatic_figure]]
 describe('every level off', () => {
-  it("writes no free figure and no chromatic note, yet keeps Tension's scheduled figure", () => {
-    const phrases = gridUnder(ALL_OFF)
-    for (const tension of TENSIONS)
-      expect(phrases.some((phrase) => phrase.tension === tension)).toBe(true)
-    for (const phrase of phrases) {
-      for (const figure of FREE_FIGURES) expect(phrase.census.counts[figure]).toBe(0)
-      expect(phrase.census.counts.unexplained).toBe(0)
-      expect(chromaticNotes(phrase)).toEqual([])
-      if (phrase.tension === 'Edge' || phrase.tension === 'Build')
-        expect(holdsScheduledFigure(phrase)).toBe(true)
-    }
-  })
+  it(
+    "writes no free figure and no chromatic note, yet keeps Tension's scheduled figure",
+    () => {
+      const phrases = gridUnder(ALL_OFF)
+      for (const tension of TENSIONS)
+        expect(phrases.some((phrase) => phrase.tension === tension)).toBe(true)
+      for (const phrase of phrases) {
+        for (const figure of FREE_FIGURES) expect(phrase.census.counts[figure]).toBe(0)
+        expect(phrase.census.counts.unexplained).toBe(0)
+        expect(chromaticNotes(phrase)).toEqual([])
+        if (phrase.tension === 'Edge' || phrase.tension === 'Build')
+          expect(holdsScheduledFigure(phrase)).toBe(true)
+      }
+    },
+    GRID_TIMEOUT_MS,
+  )
 
-  it("records how many Settled and Lift phrases hold a scheduled figure, Neutral's levels vs all off", () => {
-    const rows = (['Settled', 'Lift'] as const).flatMap((tension) =>
-      SEEDS.map((seed) => {
-        /** The scheduled-figure count and the phrase count of this tension and seed. */
-        const count = (figureLevels: FigureLevels) => {
-          const phrases = gridUnder(figureLevels).filter(
-            (phrase) => phrase.tension === tension && phrase.seed === seed,
-          )
-          return `${phrases.filter(holdsScheduledFigure).length}/${phrases.length}`
+  it(
+    "keeps Settled's and Lift's scheduled figure wherever Neutral's levels place one",
+    () => {
+      const neutral = gridUnder(NEUTRAL_FIGURE_LEVELS)
+      const allOff = new Map(gridUnder(ALL_OFF).map((phrase) => [phrase.point, phrase]))
+      for (const tension of ['Settled', 'Lift'] as const) {
+        const neutralPhrases = neutral.filter((phrase) => phrase.tension === tension)
+        expect(neutralPhrases.length).toBeGreaterThan(0)
+        expect([...allOff.values()].some((phrase) => phrase.tension === tension)).toBe(true)
+        for (const phrase of neutralPhrases.filter(holdsScheduledFigure)) {
+          const off = allOff.get(phrase.point)
+          expect(
+            off,
+            `${tension} seed ${phrase.seed} generates no phrase with every level off`,
+          ).toBeDefined()
+          if (off) expect(holdsScheduledFigure(off)).toBe(true)
         }
-        return `${tension} seed ${seed}: Neutral ${count(NEUTRAL_FIGURE_LEVELS)}, all off ${count(ALL_OFF)}`
-      }),
-    )
-    console.info(
-      `Scheduled figures (phrases holding one / successful phrases):\n${rows.join('\n')}`,
-    )
-    expect(rows).toHaveLength(4)
-  })
+      }
+    },
+    GRID_TIMEOUT_MS,
+  )
 })
