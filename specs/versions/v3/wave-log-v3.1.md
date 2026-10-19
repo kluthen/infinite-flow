@@ -163,3 +163,27 @@ re-encoding; the goldens' factory input; the summary's profile source; the stale
 with no owner; chunk 8's drift list and size; chunk 10's key labels) and a v3.0 mismatch
 (`rule_stale_phrase_prompt_at_start` vs. the codec's summary profile after "Use it") sent to
 `spec-writer` before the first chunk.
+
+### Plan v7 (0ba6e5e, `spec-writer`), before the first chunk
+
+- **D364, the data-version risk:** chunk 9 stays in wave 2 (moving it would change a wave after
+  its preflight and make a three-chunk chain 4 → 8 → 9). Instead chunk 9's version 2 step reads
+  both version 1 shapes with chunk 8's reader and never throws on a stored value, leaving an
+  unreadable record for the codec to report; its Done when opens a version 1 database holding a
+  v3.0 session, a wave 1 session and one damaged record. Chunk 8's Done when adds that a session
+  kept by its code reopens with identical review and exports. Chunk 8's drift check names
+  `module_on_device_database` as known drift until chunk 9.
+- **Chunk 4 grew:** it now removes the profile from the pitch policy, the validation context and
+  the harmony planner (with its three callers), so chunks 5 and 8 share no file; 4a/4b split rule;
+  Revision of `module_harmony_candidate_domain`. Files gain `window-search.ts`,
+  `figure-census.ts`, `validation-fixtures.ts`.
+- **Chunk 8:** the "Never" row now names the fixtures and replay assertions, not the spec files;
+  re-encode cases replaced; goldens' factory input keeps the profile until chunk 12; **D365** the
+  summary's profile comes from the session history (fixing v3.0's "Use it" mismatch); it owns the
+  stale prompt's labels (interim wording until chunk 14, never released); Revisions gain
+  `module_session_carry_in_after_change` and `service_session_history`; Files name the test
+  readers beyond its folders.
+- **Chunk 5:** census added to Files. **Chunk 10:** the restriction in words takes display labels
+  as input; `rule_preset_management_actions` not added (chunk 17's).
+- D366 records the rest. Next ids D367, O232. A `documentalist` peek over chunk 4's and chunk 8's
+  added files runs before chunk 4.
