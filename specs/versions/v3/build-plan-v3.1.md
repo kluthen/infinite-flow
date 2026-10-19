@@ -25,7 +25,7 @@ on d007b27); where code moves again before a wave starts, the wave preflight fol
 
 > Neutral and Jazz must keep generating exactly what v3.0 generates, note for note, while the idea
 > they are built on (a named "musical profile" the generator looks up) is taken out of about
-> thirty-five source files. A corpus recorded on v3.0 before any change
+> fifty source files (48 on d007b27, about ten of them in the generator and the validator). A corpus recorded on v3.0 before any change
 > ([chunk 2](#chunk-2--baselines-the-v30-phrase-corpus-and-the-bundle)) guards every generator
 > chunk.
 
@@ -308,7 +308,8 @@ Architecture capture: none
 - **Spec sections:** [Part B](master-spec.md#part-b--v31). No item directly; every later wave's
   preflight relies on it.
 - **Atoms:** every atom tagged `release-v3.1` or `changes-in-v3.1`;
-  `contract_infinite_flow_first_release` (3.0).
+  `contract_infinite_flow_first_release`, now at 6.3.1 (it moved through 4.0, 5.0, 6.0 and the
+  D347 trim during v3.0): the CONTRACT 3.0 wordings (the change set's part A) still hold in it.
 - **Revisions:** none.
 - **Done when:** each Part B behaviour is stated by an atom (still DRAFT); `npm run atd:lint` and
   `npm run atd:check` pass; the change set file records what changed, if anything.
@@ -369,8 +370,9 @@ Architecture capture: none
     the stored timeline byte for byte. It sits beside the `ifk1-v2.0.json` corpus, which stays.
   - The entry chunk's size after `npm run build` on the tag ([M4](#m4--the-first-load-bundle)).
 - **Files:** `tests/fixtures/replay-keys/v3.0-neutral-jazz.json` (new),
-  `tests/unit/generation-worker/phrase-replay-key-v30-corpus.spec.ts` (new), a generator script
-  under `scripts/` (tooling), `docs/testing.md`.
+  `tests/unit/generation-worker/phrase-replay-key-v30-corpus.spec.ts` (new), the recorder
+  `scripts/record-replay-key-corpus.mjs` (it wrote v2.0's `ifk1.` corpus), extended for the v3.0
+  cases, or a new recorder beside it (tooling), `docs/testing.md`.
 - **Spec sections:** [B5.3](master-spec.md#b53-neutral-and-jazz-sound-as-before),
   [B9](master-spec.md#b9-the-generation-request-the-replay-key-and-kept-sessions); items 2 and 19
   (as the guard for chunks 4–9 and 12).
