@@ -240,3 +240,16 @@ with no owner; chunk 8's drift list and size; chunk 10's key labels) and a v3.0 
   and neighbor tone levels (recommended; the work goes on chunk 7), (c) gate it exactly across the
   join (too large). Chunk 11's section now records chunk 5's 6 Lift `no_legal_pitch_plan` cases
   and says its runs are made with O232's answer in place. Put to the owner 2026-10-19.
+- **Owner ruling on O232 (2026-10-19): (b)**, gate the tense ending like a free scale note at
+  that place (passing/accented passing or neighbor tone not Off); the work goes on chunk 7. Sent
+  to `spec-writer` to record (D368).
+- **Chunk 8, replay key `ifk3.`: merged ebeeab9** (35fafd0). Done when met item by item (12
+  items); on the merged tree generation-worker and scripts 190, domain/generation 857, session
+  762, storage 426, components 1,423, composables 195 tests pass; Playwright on its specs 38
+  passed, 1 skipped (the key test, which passed given a key). The `ifk3.` tuple order and the
+  built-in `null` marker are in the plan's Record line, for the sync to record in
+  `module_phrase_replay_key`. In-browser replay test built; its Edge run is **v3.1 H3**, the
+  owner's (`HARDWARE-CHECKLIST.md`). For the sync: part J's three contract atoms (chunk 8 half;
+  CONTRACT 7.0.0), `module_on_device_database` known drift until chunk 9, the drift-check and
+  Revision atoms listed in the chunk report. Left alone: the two corpus recorder scripts still
+  label output `ifk1`/`ifk2` (re-recording only; fixtures never change).

@@ -705,7 +705,7 @@ Architecture capture: none (it builds on chunk 6's)
 
 ### Chunk 8 — Replay key `ifk3.`; the profile leaves the request
 
-Status: in progress (w1, 2026-10-19)
+Status: merged (w1, ebeeab9)
 Wave: 1
 Depends on: 4
 Architecture capture: the `ifk3.` format (a revision of `module_phrase_replay_key`): what `ifk2.`
@@ -851,6 +851,8 @@ replay:phrase` replays all three. Code fact: the `ifk1.` payload is the unpadded
   format: the encoder cannot write `ifk1.` once the request has no profile. The chunk owner
   decomposes it into units in the chunk's worktree (the key and its specs; the request and the
   session; storage and the summary's source; the stale prompt), one commit at the end.
+
+Record: 35fafd0, merged as ebeeab9 (55 files; built in parallel with chunks 5 and 10). `ifk3.` = `ifk3.` + unpadded base64url of the UTF-8 JSON of a 7-entry tuple: [request id, seed, the 14 controls in `PHRASE_REPLAY_KEY_CONTROL_ORDER`, the figure levels as an object keyed by the seven figure ids in `FIGURE_IDS` order, phrase number, carry-in or `null`, My instrument `[displayName, minMidi, maxMidi, chromatic, diatonic]` or `null` for a built-in]. A built-in key holding an instrument entry, or a My instrument key holding `null`, is refused. No intent, key or kept phrase holds a profile; the kept reader takes all three version 1 shapes through `profile-to-levels.ts` (the only storage caller of `levelsForProfile`); the summary's profile comes from `SessionHistory.profileSelection`. Corpus guard passed, fixtures byte-identical; the v3.0 corpus spec carries its tags. `GenerationIntentLevelsInput` added beside `GenerationIntentInput` (the goldens stay untouched). In-browser replay test built (`deterministic-replay.spec.ts`, 12 v3.0 + 6 v2.0 cases); its Edge run is the owner's, "v3.1 H3" in `HARDWARE-CHECKLIST.md`. Known drift until chunk 9: `module_on_device_database`.
 
 ### Chunk 9 — Kept sessions hold the levels and the preset label
 
