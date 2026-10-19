@@ -125,3 +125,41 @@ Left for wave 1: the preflight raises the data-version risk between chunks 8 and
 rulings entry above); chunk 8's brief says to remove the `@lint-ignore-atd` line in
 `phrase-replay-key-v30-corpus.spec.ts` and apply part J under CONTRACT 7.0.0; chunk 4's brief
 notes that `measure:figures` and `measure:cost` take a `{label, apply}` setting list.
+
+## Wave 1 (2026-10-19)
+
+Chunks 4 (figure levels in the request), 5 (levels gate the figures), 8 (replay key `ifk3.`) and
+10 (preset model). Branch `v3.1-w1`, worktree `../infinite_flow-v3.1-w1`, cut from `main` b5f46da
+(wave 0 merged), on the owner's leave to go on from wave 0.
+
+### Preflight
+
+`documentalist` (517527b), without `atd audit`. `atd lint` and `atd check` pass.
+
+| Chunk | Verdict                                | Captures                                                                                                                                |
+| ----- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| 4     | PROCEED                                | `module_figure_levels` 0.1 (new); `module_musical_profile_capabilities` 0.2; `module_generation_request_construction` 0.5 (end of wave) |
+| 5     | PROCEED                                | none (its three Revisions are REVIEW atoms off the contract)                                                                            |
+| 8     | PROCEED, sign-off given (part J, D363) | `module_phrase_replay_key` 0.5 (`ifk3.`); `module_stored_profile_to_levels` 0.1 (new, `src/storage/records/profile-to-levels.ts`)       |
+| 10    | PROCEED                                | `module_preset_model` 0.1 (new, `src/domain/presets/`)                                                                                  |
+
+Left to chunk 8 and recorded at the sync: the order of the `ifk3.` tuple's entries, and how a
+built-in phrase's tuple marks that it has no My instrument profile (permanent once keys are
+emitted). Chunk 8's corpus spec links: the replay case takes `rule_seeded_phrase_reproduction`,
+`rule_neutral_and_jazz_figure_levels` and `module_phrase_replay_key`; the decode case takes
+`module_phrase_replay_key`; remove the `@lint-ignore-atd` line.
+
+**Data-version risk (raised at wave 0):** no atom or plan line covers it, and it is worse than
+first thought. A version 2 step that expects a profile in every version 1 phrase throws on a
+phrase written by chunk 8, the upgrade rolls back and every later open of that development
+database fails. Chunk 8 also contradicts the STABLE `module_on_device_database` (a record's data
+version is the one its current shape was introduced at) until chunk 9 lands. Proposed:
+chunk 9 moves into wave 1 after chunk 8; chunk 9's step reads both shapes and never throws on a
+stored value; chunk 8's Done when adds "a session kept by this chunk's code reopens and exports
+identically". Fallback: clear development kept sessions before a wave 2 build.
+
+Ten plan corrections (Files lines of chunks 4, 5, 8; the Read-first "Never" row against `ifk3.`
+re-encoding; the goldens' factory input; the summary's profile source; the stale prompt's labels
+with no owner; chunk 8's drift list and size; chunk 10's key labels) and a v3.0 mismatch
+(`rule_stale_phrase_prompt_at_start` vs. the codec's summary profile after "Use it") sent to
+`spec-writer` before the first chunk.
