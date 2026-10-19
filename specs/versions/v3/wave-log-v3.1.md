@@ -98,3 +98,11 @@ Open for the owner, not blocking wave 0: **O231**, the entry chunk's 230 B of he
   at 60 and 120 BPM (v3.0 behaviour; `test:sweep` plays it as Neutral). `test:sweep` now also runs
   the census's 4 fast tests. Risk for chunks 5–7: the census mirrors the validator's free-figure
   rules and must follow any change to them.
+
+### Wave gate (2026-10-19, 16:40 CEST, reference machine, idle)
+
+`npm run quality` on `v3.1-w0` at a3ab504: exit 0. Code health 0 errors (705 warnings, as
+before); unit 446 files, 6,735 tests passed; `verify:boundaries` passed (entry budget 300 kB);
+Playwright 454 + 454 + 57 + 107 passed, 4 skipped; `atd:lint` and `atd:check` pass. No sweep (no
+wave 0 chunk places it). **Bundle: entry chunk 229,146 B**, unchanged from v3.0 (no `src/` change
+in the wave), 78,054 B under the 300 KiB budget.
