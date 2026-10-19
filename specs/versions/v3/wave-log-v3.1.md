@@ -212,3 +212,9 @@ with no owner; chunk 8's drift list and size; chunk 10's key labels) and a v3.0 
   unreadable) and routes the parser's `levelsForProfile` call through `profile-to-levels.ts`, with
   two Done when items for that. Chunk 9's version 1 database in its Done when holds four records,
   one per shape plus a damaged one. Next ids D368, O232.
+- **Owner, 2026-10-19:** "you are allowed to parallelize some chunks if possible. this is
+  temporary for this session": κ raised for this session only. Chunks 8 and 10 dispatched beside
+  chunk 5: their Files lines share no file (5 in the pitch search and census, 8 in the replay key,
+  storage, session and stale prompt, 10 in new `src/domain/presets/` files). Each owner re-runs
+  typecheck and its tests on the merged tree if the wave branch moved, and stops on any file of
+  another running chunk.

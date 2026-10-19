@@ -539,7 +539,7 @@ Record: d06205b (4a, the figures module, `figureLevels` in the intent, the worke
 
 ### Chunk 5 — Levels gate the figures
 
-Status: planned
+Status: in progress (w1, 2026-10-19)
 Wave: 1
 Depends on: 3 (the census its Done when runs), 4
 Architecture capture: none
@@ -700,7 +700,7 @@ Architecture capture: none (it builds on chunk 6's)
 
 ### Chunk 8 — Replay key `ifk3.`; the profile leaves the request
 
-Status: planned
+Status: in progress (w1, 2026-10-19)
 Wave: 1
 Depends on: 4
 Architecture capture: the `ifk3.` format (a revision of `module_phrase_replay_key`): what `ifk2.`
@@ -923,7 +923,7 @@ tested on its own and a development database is never left half-migrated.
 
 ### Chunk 10 — The preset model
 
-Status: planned
+Status: in progress (w1, 2026-10-19)
 Wave: 1
 Depends on: 4 (the level type)
 Architecture capture: the preset model, pure rules in `src/domain/presets/`: the restriction (two
