@@ -131,9 +131,10 @@ function confirmPath(
 }
 
 /**
- * Check how a figure path is entered. An appoggiatura needs a 3+ semitone approach; a bound passing
- * tone or neighbor needs a collection-step preparation that its fixed target continues or returns
- * to; approaches and Jazz ornaments carry no entry constraint.
+ * Check how a figure path is entered. An appoggiatura, bound or free, needs a 3+ semitone approach
+ * from the note before it; a bound passing tone or neighbor needs a collection-step preparation
+ * that its fixed target continues or returns to; two-note diatonic approaches, the chromatic
+ * approach, and enclosures, diatonic or chromatic, carry no entry constraint.
  */
 function entryError(reservation: PitchReservation, step: FigureStep): string | undefined {
   if (step.isFinal) return 'figure_starts_on_final'

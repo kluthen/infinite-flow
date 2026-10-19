@@ -74,6 +74,8 @@ const GATED: readonly (readonly [FigureId, FreeFigure])[] = [
   ['passingTone', 'passing_tone'],
   ['accentedPassingTone', 'accented_passing_tone'],
   ['neighborTone', 'neighbor_tone'],
+  ['appoggiatura', 'appoggiatura'],
+  ['diatonicEnclosure', 'diatonic_enclosure'],
   ['chromaticApproach', 'chromatic_approach'],
   ['chromaticEnclosure', 'chromatic_enclosure'],
 ]

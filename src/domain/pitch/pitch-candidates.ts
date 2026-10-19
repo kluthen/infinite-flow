@@ -264,6 +264,121 @@ function enclosureOffered(facts: DomainFacts, index: number): boolean {
 }
 
 /**
+ * True when a free appoggiatura on the attack at `index`, resolving onto the next attack, is
+ * offered: the member is free of the bound figure, neither the phrase's first nor its final
+ * attack, falls on beat 1 or 3, and its target sounds under the same harmony event (a rest may
+ * come between them). Its leap entry is checked when the search reaches it.
+ */
+// @spec-link [[rule_embellishment_figures_defined]]
+function appoggiaturaOffered(facts: DomainFacts, index: number): boolean {
+  const member = facts.attacks[index]
+  const next = facts.attacks[index + 1]
+  return (
+    member !== undefined &&
+    next !== undefined &&
+    index > 0 &&
+    !member.isFinal &&
+    isFree(facts, index) &&
+    (member.startTick === 0 || member.startTick === 8) &&
+    next.harmonyIndex === member.harmonyIndex
+  )
+}
+
+/**
+ * True when a diatonic enclosure with members at `index` and `index + 1` around the attack after
+ * them is offered: both members are free of the bound figure and all three sound back to back
+ * under one harmony event. Unlike the chromatic enclosure, no member length is limited.
+ */
+// @spec-link [[rule_embellishment_figures_defined]]
+function diatonicEnclosureOffered(facts: DomainFacts, index: number): boolean {
+  const member = facts.attacks[index]
+  const next = facts.attacks[index + 1]
+  const target = facts.attacks[index + 2]
+  return (
+    member !== undefined &&
+    next !== undefined &&
+    target !== undefined &&
+    isFree(facts, index) &&
+    isFree(facts, index + 1) &&
+    tight([member, next, target])
+  )
+}
+
+/**
+ * Free appoggiatura paths: a diatonic non-chord member one collection step from a chord tone of
+ * the next attack, which it resolves onto.
+ */
+function appoggiaturaPaths(
+  facts: DomainFacts,
+  member: PitchAttack,
+  target: PitchAttack,
+): readonly FigurePath[] {
+  const paths: FigurePath[] = []
+  for (const goal of chordMidis(facts, target))
+    for (const tone of diatonicNonChord(facts, member))
+      if (isCollectionStep(facts, tone, goal))
+        paths.push({
+          kind: 'appoggiatura',
+          attackIndices: [member.attackIndex],
+          targetAttackIndex: target.attackIndex,
+          roles: ['appoggiatura'],
+          midis: [tone, goal],
+        })
+  return paths
+}
+
+/**
+ * The playable collection note one collection step from `goal` in `direction` (+1 above, -1
+ * below) that is not a chord tone of `attack`, if any. The collections are diatonic modes, so
+ * there is exactly one collection step on each side.
+ */
+function enclosingStep(
+  facts: DomainFacts,
+  attack: PitchAttack,
+  goal: number,
+  direction: 1 | -1,
+): number | undefined {
+  return [goal + direction, goal + 2 * direction].find(
+    (midi) =>
+      isCollectionStep(facts, midi, goal) &&
+      facts.playable.includes(midi) &&
+      !attack.chordPitchClasses.includes(pc(midi)),
+  )
+}
+
+/**
+ * Diatonic enclosure paths: the non-chord collection notes one step above and one step below a
+ * chord tone of the target, in either order, then the target.
+ */
+function diatonicEnclosurePaths(
+  facts: DomainFacts,
+  group: readonly PitchAttack[],
+): readonly FigurePath[] {
+  const paths: FigurePath[] = []
+  const [first, second, target] = [group[0]!, group[1]!, group[2]!]
+  for (const goal of chordMidis(facts, target)) {
+    const upper = enclosingStep(facts, first, goal, 1)
+    const lower = enclosingStep(facts, first, goal, -1)
+    if (upper === undefined || lower === undefined) continue
+    for (const [start, end] of [
+      [upper, lower],
+      [lower, upper],
+    ] as const)
+      paths.push({
+        kind: 'diatonic_enclosure',
+        attackIndices: [first.attackIndex, second.attackIndex],
+        targetAttackIndex: target.attackIndex,
+        roles: [
+          start > goal ? 'diatonic_enclosure_upper' : 'diatonic_enclosure_lower',
+          end > goal ? 'diatonic_enclosure_upper' : 'diatonic_enclosure_lower',
+        ],
+        midis: [start, end, goal],
+      })
+  }
+  return paths
+}
+
+/**
  * Chromatic approach and enclosure ornament paths whose first member's attack index lies in
  * `first..last`, in attack order: at every such attack whose members are free of the bound
  * figure, sound back to back with their target under one harmony event, and last no longer than
@@ -296,23 +411,76 @@ function chromaticApproachPaths(
   return paths
 }
 
+/**
+ * Free appoggiatura and diatonic enclosure paths whose first member's attack index lies in
+ * `first..last`, in attack order, each figure offered only when its own level is not off and
+ * where `appoggiaturaOffered` or `diatonicEnclosureOffered` allows it. They need no chromatic note.
+ */
+// @spec-link [[rule_embellishment_figures_defined]]
+// @spec-link [[rule_figure_level_orders_search]]
+// @spec-link [[rule_levels_govern_free_figures_only]]
+function diatonicFreeFigurePaths(
+  facts: DomainFacts,
+  first: number,
+  last: number,
+): readonly FigurePath[] {
+  const levels = facts.input.policy.figureLevels
+  const appoggiaturaAllowed = allowsFreeFigure(levels, 'appoggiatura')
+  const enclosureAllowed = allowsFreeFigure(levels, 'diatonicEnclosure')
+  if (!appoggiaturaAllowed && !enclosureAllowed) return []
+  const paths: FigurePath[] = []
+  const { attacks } = facts
+  for (let index = Math.max(first, 0); index <= last; index += 1) {
+    if (appoggiaturaAllowed && appoggiaturaOffered(facts, index))
+      paths.push(...appoggiaturaPaths(facts, attacks[index]!, attacks[index + 1]!))
+    if (enclosureAllowed && diatonicEnclosureOffered(facts, index))
+      paths.push(
+        ...diatonicEnclosurePaths(facts, [
+          attacks[index]!,
+          attacks[index + 1]!,
+          attacks[index + 2]!,
+        ]),
+      )
+  }
+  return paths
+}
+
+/**
+ * Every free figure path whose first member's attack index lies in `first..last`: the free
+ * appoggiaturas and diatonic enclosures, then the chromatic approaches and enclosures, each
+ * figure offered only when its own level is not off.
+ */
+// @spec-link [[rule_embellishment_figures_defined]]
+// @spec-link [[rule_figure_level_orders_search]]
+function freeFigurePaths(facts: DomainFacts, first: number, last: number): readonly FigurePath[] {
+  return [
+    ...diatonicFreeFigurePaths(facts, first, last),
+    ...chromaticApproachPaths(facts, first, last),
+  ]
+}
+
 /** Stable path identity: kind, binding, attacks, and the complete MIDI path. */
 function pathIdentity(path: FigurePath): string {
   const prefix = path.bindingIdentity === undefined ? '' : `${path.bindingIdentity}/`
   return `${prefix}${path.kind}/${path.attackIndices.join('-')}/${path.targetAttackIndex}/${path.midis.join('.')}`
 }
 
-/** The figure a free chromatic approach's or enclosure's first member names. */
+/** The figure a free path's first member names: an appoggiatura, an enclosure, an approach. */
+const APPOGGIATURA_FIGURES: readonly FigureId[] = deepFreeze(['appoggiatura'])
+const DIATONIC_ENCLOSURE_FIGURES: readonly FigureId[] = deepFreeze(['diatonicEnclosure'])
 const CHROMATIC_APPROACH_FIGURES: readonly FigureId[] = deepFreeze(['chromaticApproach'])
 const CHROMATIC_ENCLOSURE_FIGURES: readonly FigureId[] = deepFreeze(['chromaticEnclosure'])
 
 /**
- * The free figure a path's first member may start: its own, for a chromatic approach or enclosure
- * path; none for a path of Tension's scheduled figure, whose notes no draw may move.
+ * The free figure a path's first member may start: its own, for a free appoggiatura, diatonic
+ * enclosure, chromatic approach or chromatic enclosure path; none for a path of Tension's
+ * scheduled figure, whose notes no draw may move.
  */
 // @spec-link [[module_favored_figure_draw]]
 function pathFigures(path: FigurePath): readonly FigureId[] | undefined {
   if (path.bindingIdentity !== undefined) return undefined
+  if (path.kind === 'appoggiatura') return APPOGGIATURA_FIGURES
+  if (path.kind === 'diatonic_enclosure') return DIATONIC_ENCLOSURE_FIGURES
   if (path.kind === 'chromatic_approach') return CHROMATIC_APPROACH_FIGURES
   if (path.kind === 'chromatic_enclosure') return CHROMATIC_ENCLOSURE_FIGURES
   return undefined
@@ -320,7 +488,7 @@ function pathFigures(path: FigurePath): readonly FigureId[] | undefined {
 
 /**
  * Spread every path into one reserved raw candidate per member attack; the first member of a free
- * chromatic path names its figure, later members name none.
+ * path names its figure, later members name none.
  */
 // @spec-link [[module_favored_figure_draw]]
 function pathCandidates(paths: readonly FigurePath[]): Map<number, RawCandidate[]> {
@@ -355,16 +523,20 @@ function pathCandidates(paths: readonly FigurePath[]): Map<number, RawCandidate[
 
 /**
  * Tense endings of a phrase generated with carry-in: free diatonic tones on the final attack that
- * the next phrase's first note can resolve by step onto its tonic triad inside the window. Empty
- * for a phrase that may not end owing a resolution, and on a first attack, which nothing prepares.
+ * the next phrase's first note can resolve by step onto its tonic triad inside the window. Offered
+ * only when the figure levels allow a free scale note on that attack (the passing figure for its
+ * beat, or the neighbor tone). Empty for a phrase that may not end owing a resolution, and on a
+ * first attack, which nothing prepares.
  */
 // @spec-link [[rule_join_tense_note_resolution]]
+// @spec-link [[rule_levels_govern_free_figures_only]]
 function tenseEndingCandidates(facts: DomainFacts, attack: PitchAttack): readonly RawCandidate[] {
   const request = facts.input.request
   const allowed = phraseEndingDebtAllowance(request.carryIn !== undefined).tenseNote
   if (!allowed || !attack.isFinal || attack.attackIndex === 0) return []
-  // These tones name no figure: a free `passing_or_neighbor` tone here would otherwise let a draw
-  // favor the tense ending, which the figure levels do not yet gate.
+  if (allowedFreeToneFigures(facts.input.policy.figureLevels, attack).length === 0) return []
+  // The levels gate these tones, but they name no figure and carry no resolution: a named figure
+  // would let a Favored draw try the tense ending before the chord tones.
   return diatonicNonChord(facts, attack)
     .filter((midi) => tenseNoteCanSettle(midi, facts.collection, request.registerWindow))
     .map((midi): RawCandidate => ({
@@ -520,11 +692,14 @@ function memoFits(
 
 /**
  * Index of a free attack's domain within one phrase: its attack index and, when chromatic
- * ornaments are offered, whether the attacks before and after it are bound, the only binding
- * facts its ornament members depend on.
+ * ornaments or the diatonic enclosure are offered, whether the attacks before and after it are
+ * bound, the only binding facts their two-member paths depend on (a free appoggiatura reads only
+ * its own attack, which is free).
  */
 function domainMemoKey(facts: DomainFacts, attackIndex: number): number {
-  if (!allowsChromaticNotes(facts.input.policy.figureLevels)) return attackIndex * 4
+  const levels = facts.input.policy.figureLevels
+  if (!allowsChromaticNotes(levels) && !allowsFreeFigure(levels, 'diatonicEnclosure'))
+    return attackIndex * 4
   const before = facts.boundAttacks.has(attackIndex - 1) ? 1 : 0
   const after = facts.boundAttacks.has(attackIndex + 1) ? 2 : 0
   return attackIndex * 4 + before + after
@@ -534,9 +709,9 @@ function domainMemoKey(facts: DomainFacts, attackIndex: number): number {
  * Key of a free attack's domain across phrases: every fact its candidates read beyond the store's
  * request, collection and free-figure allowance. That is the attack's index, identity (which holds
  * its onset, so whether it falls on beat 1 or 3, and so which passing figure a free tone names),
- * finality and chord; which allowed chromatic ornaments land on it (an enclosure from the attack
- * before, an approach or an enclosure from itself); and the chords of the targets those ornaments
- * resolve to.
+ * finality and chord; which allowed free figure paths land on it (a chromatic or diatonic
+ * enclosure from the attack before; a free appoggiatura, a chromatic approach, or a chromatic or
+ * diatonic enclosure from itself); and the chords of the targets those paths resolve to.
  */
 function freeDomainKey(facts: DomainFacts, attack: PitchAttack): string {
   const index = attack.attackIndex
@@ -545,24 +720,40 @@ function freeDomainKey(facts: DomainFacts, attack: PitchAttack): string {
   const levels = facts.input.policy.figureLevels
   const approachAllowed = allowsFreeFigure(levels, 'chromaticApproach')
   const enclosureAllowed = allowsFreeFigure(levels, 'chromaticEnclosure')
+  const appoggiaturaAllowed = allowsFreeFigure(levels, 'appoggiatura')
+  const diatonicAllowed = allowsFreeFigure(levels, 'diatonicEnclosure')
   const enclosedFromBefore = enclosureAllowed && enclosureOffered(facts, index - 1)
   const approach = approachAllowed && approachOffered(facts, index)
   const enclosure = enclosureAllowed && enclosureOffered(facts, index)
+  const appoggiatura = appoggiaturaAllowed && appoggiaturaOffered(facts, index)
+  const diatonicFromBefore = diatonicAllowed && diatonicEnclosureOffered(facts, index - 1)
+  const diatonic = diatonicAllowed && diatonicEnclosureOffered(facts, index)
+  const offered = [
+    enclosedFromBefore,
+    approach,
+    enclosure,
+    appoggiatura,
+    diatonicFromBefore,
+    diatonic,
+  ]
+  const nextTarget = enclosedFromBefore || approach || appoggiatura || diatonicFromBefore
   return [
     index,
     attack.identity,
     Number(attack.isFinal),
     chord(index),
-    `${Number(enclosedFromBefore)}${Number(approach)}${Number(enclosure)}`,
-    enclosedFromBefore || approach ? chord(index + 1) : '',
-    enclosure ? chord(index + 2) : '',
+    offered.map(Number).join(''),
+    nextTarget ? chord(index + 1) : '',
+    enclosure || diatonic ? chord(index + 2) : '',
   ].join('|')
 }
 
 /**
  * Enumerate every attack's canonical candidate domain. Bound member attacks hold only concrete
- * bound-path members; other attacks hold chord tones, and the free diatonic tones and chromatic
- * ornament members the figure levels allow. Every MIDI value lies inside both the active range and the register window.
+ * bound-path members; other attacks hold chord tones, and the free diatonic tones and the members
+ * of the free figure paths (free appoggiaturas, diatonic enclosures, chromatic approaches and
+ * enclosures) the figure levels allow. Every MIDI value lies inside both the active range and the
+ * register window.
  */
 // @spec-link [[entity_pitch_candidate_domain]]
 // @spec-link [[rule_neutral_profile_diatonic_pitches]]
@@ -594,9 +785,9 @@ export function buildCandidateDomains(
     const key = freeDomainKey(facts, attack)
     let domain = store.domains.get(key)
     if (!domain) {
-      const ornaments = pathCandidates(chromaticApproachPaths(facts, index - 1, index))
+      const figurePaths = pathCandidates(freeFigurePaths(facts, index - 1, index))
       domain = retainedDomain(
-        canonical([...ordinaryCandidates(facts, attack), ...(ornaments.get(index) ?? [])]),
+        canonical([...ordinaryCandidates(facts, attack), ...(figurePaths.get(index) ?? [])]),
       )
       store.domains.set(key, domain)
     }

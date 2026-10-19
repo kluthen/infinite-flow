@@ -29,10 +29,17 @@ export type PitchRole =
   | 'chromatic_approach'
   | 'chromatic_enclosure_upper'
   | 'chromatic_enclosure_lower'
+  | 'diatonic_enclosure_upper'
+  | 'diatonic_enclosure_lower'
 
-/** Every figure a reservation can realize: the bound tension kinds plus the Jazz ornaments. */
+/**
+ * Every figure a reservation can realize: the bound tension kinds (an `appoggiatura` reservation
+ * is also a free appoggiatura when it carries no binding identity), the free diatonic enclosure,
+ * and the chromatic approach and enclosure.
+ */
 // @spec-link [[entity_pitch_candidate_domain]]
-export type PitchFigureKind = TensionFigureKind | 'chromatic_approach' | 'chromatic_enclosure'
+export type PitchFigureKind =
+  TensionFigureKind | 'diatonic_enclosure' | 'chromatic_approach' | 'chromatic_enclosure'
 
 // @spec-link [[entity_pitch_candidate_domain]]
 export interface PitchPolicy {
@@ -132,7 +139,9 @@ export interface PitchCandidate {
   readonly freeResolution?: FreeToneResolution
   /**
    * The free figures this candidate may start, among those the figure levels allow, in FIGURE_IDS
-   * order; absent when it may start none (chord tones, later notes of a figure path, the notes of
+   * order: its own figure on the first member of a free path (an appoggiatura, a diatonic
+   * enclosure, a chromatic approach or enclosure), the figures of its beat on a free diatonic tone;
+   * absent when it may start none (chord tones, later notes of a figure path, the notes of
    * Tension's scheduled figure, the tense note a joined phrase may end on). Read by the search's
    * ordering; not part of the identity.
    */

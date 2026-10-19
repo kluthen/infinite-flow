@@ -54,7 +54,9 @@ Each of the seven figures has a level in the generation request (`figureLevels`:
 - A free diatonic tone is told apart when it resolves: a passing tone off beats 1 and 3 needs the passing tone allowed, one on beat 1 or 3 the accented passing tone, and a neighbor tone (either beat) the neighbor tone. The search offers a free tone only where the levels allow one of its resolutions and refuses a resolution they do not allow; the validator reports a free tone whose figure is Off as `unexplained_non_chord_tone`.
 - A chromatic approach and a chromatic enclosure are each offered only when their own level is not Off. With both Off, the validator refuses any pitch outside the collection (`out_of_collection`); with one of them Off, a pitch only that figure would explain is `invalid_chromatic_ornament`.
 - **Tension's scheduled figure reads no level.** The binding domain, the bound figure's paths and the validator's binding checks are unchanged, so every Tension value keeps its scheduled figure with every level Off.
-- The free appoggiatura and the diatonic enclosure are not written yet, whatever their level.
+- A **free appoggiatura** is a scale note outside the chord that lands on a strong beat and then steps onto a chord tone. The generator writes one only on beat 1 or 3, never on the phrase's first or final note, entered by a leap of 3 or more half steps, and resolved by one scale step onto the next note, a chord tone under the same chord; a rest may come between the two. It is offered, and accepted, only when the appoggiatura is not Off.
+- A **diatonic enclosure** surrounds a chord tone before landing on it: the scale notes just above and just below that chord tone, in either order, then the chord tone itself, as three back-to-back notes under one chord. Unlike the free appoggiatura it may open the phrase. It is offered, and accepted, only when the diatonic enclosure is not Off.
+- **The tense ending of a joined phrase follows the levels** (D368). A phrase generated with carry-in may end on a tense note only when the levels allow a free scale note on its last note: the passing tone (the accented passing tone when that note starts on beat 1 or 3) or the neighbor tone is not Off. With all of those Off for that beat, no joined phrase ends on a tense note (see [Joins between session phrases](#joins-between-session-phrases-v2)).
 
 Neutral's and Jazz's levels hold only As today and Off, so they generate exactly what v3.0 generated.
 
@@ -63,7 +65,7 @@ Neutral's and Jazz's levels hold only As today and Off, so they generate exactly
 A level above As today changes only the order in which the search tries candidates, never what it may write:
 
 - **The draw.** At each note, a figure at Favored or Strongly favored is drawn or not by `isFigureDrawn` (`src/domain/pitch/figure-draw.ts`): the FNV-1a 32-bit hash of `infinite-flow/figure-draw/v1|seed|note|figure`, where the note is the attack's `bar:tick` identity, is drawn when its top 16 bits fall under the level's share, `FAVORED_SHARE` (16,384 of 65,536, 1 in 4) or `STRONGLY_FAVORED_SHARE` (32,768, 1 in 2). Integer operations only; at Off and As today no hash is computed.
-- **The figures a candidate names.** A free diatonic tone names the passing figure for its beat (the accented passing tone on beats 1 and 3, the passing tone elsewhere) and the neighbor tone, among those the levels allow; the first note of a chromatic approach or enclosure names that figure. Chord tones, later notes of a figure, the notes of Tension's scheduled figure and the tense note a joined phrase may end on name none, so no draw moves them.
+- **The figures a candidate names.** A free diatonic tone names the passing figure for its beat (the accented passing tone on beats 1 and 3, the passing tone elsewhere) and the neighbor tone, among those the levels allow; the first note of a free appoggiatura, a diatonic enclosure, a chromatic approach or a chromatic enclosure names that figure, so at Favored or Strongly favored the search tries it first. Chord tones, later notes of a figure, the notes of Tension's scheduled figure and the tense note a joined phrase may end on name none, so no draw moves them.
 - **The order.** Where a named figure is drawn, its candidates go first, before the chord tones even on beat 1: a free diatonic tone held to that figure's resolution (a drawn passing tone must go on by step in the same direction, a drawn neighbor tone must step back), then tried again unheld in its usual place; a chromatic figure's first note simply moves ahead. Several drawn figures go higher level first, then by a tie key seeded over the candidate and the figure. While a figure path is in progress no draw is made. Where nothing is drawn the order is v3.0's.
 - **Never a quota.** A favored entry that dead-ends is backed out of like any other. Since the dead-state key holds the held resolution, a held entry's dead end never prunes the unheld tone, so wherever the search found a phrase before it still finds one, fuel allowing, though not always the same one; nothing rejects or retries a phrase for lacking a figure.
 
@@ -197,7 +199,12 @@ request and seed, and owes nothing at its end.
   by a collection step). It may end owing only what the next phrase can settle inside the carried
   window: a tone of the tonic triad 1-4 semitones back against the leap, or a tonic-triad tone one
   collection step from the tense note. When it ends on a tense note, that note replaces the open
-  endpoint chord tone; the phrase still never closes on the tonic.
+  endpoint chord tone; the phrase still never closes on the tonic. Since v3.1 (D368) the tense
+  ending is offered by the generator, and accepted by the validator, only when the figure levels
+  allow a free scale note on that last note: the passing tone (the accented passing tone if the
+  note starts on beat 1 or 3) or the neighbor tone is not Off. It names no figure, so a Favored
+  level never makes the search try it before the chord tones. Neutral and Jazz keep those three
+  at As today, so their joined phrases are unchanged.
 - **The next phrase settles the debt on its first note, never later.** An owed recovery is repaid
   by the first interval (opposite direction, 1-4 semitones). A tense carried note is resolved by
   the first note: a collection step onto a tone of the first chord.

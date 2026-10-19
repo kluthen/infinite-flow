@@ -1,4 +1,5 @@
 import { NEUTRAL_FIGURE_LEVELS, type FigureLevels } from '@/domain/figures/figure-levels'
+import type { CarryIn } from '@/domain/generation/carry-in/carry-in'
 import { makeHarmonyCollection } from '@/domain/harmony/collection'
 import type {
   AbstractTensionRequirement,
@@ -102,9 +103,10 @@ interface ContextOverrides {
   readonly requirement?: Partial<AbstractTensionRequirement>
   readonly binding?: ConcreteTensionBinding
   readonly window?: readonly [number, number]
+  readonly carryIn?: CarryIn
 }
 
-/** C major, quarter notes, tonic every bar, static open endpoint, no bound figure. */
+/** C major, quarter notes, tonic every bar, static open endpoint, no bound figure, no carry-in. */
 // @test-link [[module_pitch_domain_validation]]
 export function context(overrides: ContextOverrides = {}): PitchValidationContext {
   const [minMidi, maxMidi] = overrides.window ?? [55, 79]
@@ -112,6 +114,7 @@ export function context(overrides: ContextOverrides = {}): PitchValidationContex
     request: {
       activeConcertRange: { kind: 'ActiveConcertRange', minMidi: 48, maxMidi: 84 },
       registerWindow: { minMidi, maxMidi },
+      ...(overrides.carryIn === undefined ? {} : { carryIn: overrides.carryIn }),
     } as PitchValidationContext['request'],
     policy: {
       collection: 'Major',

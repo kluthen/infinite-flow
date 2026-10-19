@@ -5,9 +5,11 @@
  * The carried pitch is the note before the phrase's first attack: interval, chain and recovery
  * rules judge the join exactly as they judge two consecutive notes of one phrase. A tense carried
  * pitch must be resolved by the first attack. And a phrase generated with carry-in may end owing
- * a large leap's recovery or a tense note's resolution that its own next phrase can settle.
+ * a large leap's recovery or, when the levels allow a free scale note on its final note, a tense
+ * note's resolution, that its own next phrase can settle.
  */
 
+import { allowsFreeFigure } from '../../figures/figure-levels'
 import { carriedPitchIsTense, carriedPitchOnCarriedChord } from '../../generation/carry-in/carry-in'
 import {
   owedRecoveryCanSettle,
@@ -90,9 +92,21 @@ export function finalRecoveryMayStayOwed(
 }
 
 /**
+ * Intent: true when the figure levels allow a free scale note on `attack`: the passing figure for
+ * its beat (an accented passing tone on beats 1 and 3, a passing tone elsewhere) or the neighbor
+ * tone is not Off.
+ */
+// @spec-link [[rule_levels_govern_free_figures_only]]
+function levelsAllowFreeScaleNote(facts: PhraseFacts, attack: SoundingFact): boolean {
+  const levels = facts.context.policy.figureLevels
+  const passing = attack.strongOnset ? 'accentedPassingTone' : 'passingTone'
+  return allowsFreeFigure(levels, passing) || allowsFreeFigure(levels, 'neighborTone')
+}
+
+/**
  * Intent: true when `attack` is the final note and a tense ending the phrase may owe: a scale
  * tone outside its chord, prepared by a step from the note before, that the next phrase's first
- * note can resolve inside the window.
+ * note can resolve inside the window, on a note where the levels allow a free scale note.
  */
 // @spec-link [[rule_join_tense_note_resolution]]
 // @spec-link [[rule_open_phrase_ending]]
@@ -109,7 +123,8 @@ export function isOwedTenseEnding(facts: PhraseFacts, attack: SoundingFact): boo
       attack.midi,
       facts.collectionPitchClasses,
       facts.context.request.registerWindow,
-    )
+    ) &&
+    levelsAllowFreeScaleNote(facts, attack)
   )
 }
 

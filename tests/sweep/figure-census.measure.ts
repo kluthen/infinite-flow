@@ -18,8 +18,8 @@
  * free instance; that with every figure off no free figure appears while every Edge and Build
  * phrase still holds Tension's scheduled figure; that each figure's share never falls from off to
  * as today to Favored to Strongly favored, and rises strictly from as today to Strongly favored
- * for the five written free figures; and that the free appoggiatura and the diatonic enclosure,
- * not written yet, appear in no setting.
+ * for all seven figures; and that the free appoggiatura's and the diatonic enclosure's shares also
+ * rise strictly from as today to Favored.
  *
  * Env: `FIGURES_OUT` writes the full aggregate JSON (with the machine, the date and the run
  * duration) to that path; `FIGURES_LIMIT` keeps only the first N sweep cases, for a quick run.
@@ -67,17 +67,8 @@ const FREE_LABEL: Readonly<Record<FigureId, FreeFigure>> = {
   chromaticEnclosure: 'chromatic_enclosure',
 }
 
-/** The five written free figures, whose share must rise strictly when Strongly favored. */
-const WRITTEN_FIGURES: readonly FigureId[] = [
-  'passingTone',
-  'accentedPassingTone',
-  'neighborTone',
-  'chromaticApproach',
-  'chromaticEnclosure',
-]
-
-/** The free figures not written yet, which no setting may give a free instance of. */
-const UNWRITTEN_LABELS: readonly FreeFigure[] = ['appoggiatura', 'diatonic_enclosure']
+/** The figures whose share must also rise strictly from as today to Favored. */
+const FAVORED_RISE_FIGURES: readonly FigureId[] = ['appoggiatura', 'diatonicEnclosure']
 
 /** The tension arcs whose scheduled figure is optional, and those that always schedule one. */
 const OPTIONAL_ARCS = ['Settled', 'Lift'] as const
@@ -248,18 +239,14 @@ describe('figure census sweep (M1)', () => {
         `${ladder.figure} ladder never falls: ${rungs.map(percent).join(' / ')}`,
       ).toBe(true)
     }
-    for (const ladder of ladders.filter(({ figure }) => WRITTEN_FIGURES.includes(figure)))
+    for (const ladder of ladders)
       expect(
         ladder.stronglyFavored,
         `${ladder.figure} rises from as today to strongly favored`,
       ).toBeGreaterThan(ladder.asToday)
-    const unwritten = settings.flatMap((aggregate) =>
-      UNWRITTEN_LABELS.map((label) => [
-        aggregate.label,
-        label,
-        aggregate.figures[label].totalInstances,
-      ]),
-    )
-    expect(unwritten).toEqual(unwritten.map(([setting, label]) => [setting, label, 0]))
+    for (const ladder of ladders.filter(({ figure }) => FAVORED_RISE_FIGURES.includes(figure)))
+      expect(ladder.favored, `${ladder.figure} rises from as today to favored`).toBeGreaterThan(
+        ladder.asToday,
+      )
   })
 })
