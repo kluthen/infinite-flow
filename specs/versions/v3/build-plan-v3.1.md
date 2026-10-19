@@ -726,7 +726,7 @@ Record: c7bc4ae (6a, the draw and the figures a candidate names) and 1fed56c (6b
 
 ### Chunk 7 — Two new free figures: the appoggiatura and the diatonic enclosure
 
-Status: in progress (w2, 2026-10-19)
+Status: merged (w2, d4c9985)
 Wave: 2
 Depends on: 6
 Architecture capture: none (it builds on chunk 6's)
@@ -800,6 +800,8 @@ Architecture capture: none (it builds on chunk 6's)
 - **Verification:** chunk checks with the corpus guard; M1; the carry-in matrix; the sweep at the
   wave gate.
 - **Split rule:** none needed (five source files, one of them a type, and the census).
+
+Record: b3f4d6c, merged as d4c9985 (built beside chunk 9). The free appoggiatura and the diatonic enclosure are path candidates whose first member names its figure (no new free-tone hold; `pitch-ranking.ts` and `pitch-advance.ts` unchanged); validator rules equal the census's. D368: `tenseEndingCandidates` and `isOwedTenseEnding` read the levels (no tag, carry-in unchanged). Corpus guard passed; Neutral and Jazz hold both new figures Off and are unchanged. Carry-in matrix with passing, accented passing and neighbor Off: 96 cells, 480 of 480 joins, 0 tense endings. M1, 2026-10-19 22:02 CEST, reference machine, load 1.5–4.9, Off / As today / Favored / Strongly favored: appoggiatura 0 / 10.4 / 47.3 / 61.2 %, diatonic enclosure 0 / 7.5 / 67.0 / 77.2 %; every figure rises; the diatonic enclosure at Favored gives the most cut-offs (9 more `search_limit_exceeded` than the base, of 5,112), for chunk 11's M2. Choices inside the spec: the free appoggiatura's resolution under the same harmony event (a rest may come between); the diatonic enclosure has no duration limit and may start on attack 0.
 
 ### Chunk 8 — Replay key `ifk3.`; the profile leaves the request
 

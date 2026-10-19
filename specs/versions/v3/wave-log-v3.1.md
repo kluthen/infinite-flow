@@ -363,3 +363,11 @@ C6-3, C6-4, C7-1, C9-4.
   of about 13 minutes) overrun the start-up wait once (recommended), or build read-time
   conversion; D375 files **ISS-013** (Low), `parseConcertEventTimeline` accepting holes. Next
   ids D376, O234.
+- **Chunk 7, the free appoggiatura, the diatonic enclosure and D368: merged d4c9985** (b3f4d6c).
+  Done when met item by item; 2,241 tests on the merged tree (its paths, session, corpus guard);
+  carry-in matrix 480 of 480 joins, 0 tense endings with the three tones Off. M1 (load 1.5–4.9):
+  both new figures rise from 0 at Off to 61.2 % and 77.2 % at Strongly favored; Neutral and Jazz
+  equal v3.0. For chunk 11's M2: the diatonic enclosure at Favored adds the most cut-offs. Stale
+  for the sync: `rule_join_tense_note_resolution` (D368), `module_favored_figure_draw` (lists the
+  two new figures; "not built yet"), `entity_pitch_candidate_domain`,
+  `module_pitch_domain_validation`.
