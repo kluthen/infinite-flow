@@ -923,7 +923,7 @@ tested on its own and a development database is never left half-migrated.
 
 ### Chunk 10 — The preset model
 
-Status: in progress (w1, 2026-10-19)
+Status: merged (w1, 1567d0e)
 Wave: 1
 Depends on: 4 (the level type)
 Architecture capture: the preset model, pure rules in `src/domain/presets/`: the restriction (two
@@ -980,6 +980,8 @@ storage or the interface.
     blocks a new save, 60 too.
 - **Verification:** chunk checks.
 - **Split rule:** none needed (five new pure modules).
+
+Record: f92a9c4, merged as 1567d0e (built in parallel with chunks 5 and 8, owner's leave for the session). Five pure modules under `src/domain/presets/` (restriction, built-ins, selection, names, save choices), new files only; a purity spec keeps out components, storage, session, worker code, `Math.random` and `Date`. Built-ins checked field by field against B6.5 and as supported rhythm settings; B6.3's five examples; Custom tested against a reference model over random action sequences; every name refusal with its reason; the four save-choice rows. `restrictionInWords` takes its labels as input (D366). For the interface chunks: each change is stated by its kind with the key and collection after it; the module never compares values. For the sync: `module_preset_model`'s refusal list lacks `tooLong` (checked after `empty`, per `rule_player_preset_names`).
 
 ### Chunk 11 — The cost guard, first run
 

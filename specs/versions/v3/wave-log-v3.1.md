@@ -218,3 +218,7 @@ with no owner; chunk 8's drift list and size; chunk 10's key labels) and a v3.0 
   storage, session and stale prompt, 10 in new `src/domain/presets/` files). Each owner re-runs
   typecheck and its tests on the merged tree if the wave branch moved, and stops on any file of
   another running chunk.
+- **Chunk 10, preset model: merged 1567d0e** (f92a9c4). New files only, under
+  `src/domain/presets/` and its tests; Done when met item by item (164 tests on its paths). For
+  the interface chunks: each change is reported by its kind, with the key and collection after
+  it. For the sync: `module_preset_model`'s refusal list adds `tooLong`.
