@@ -28,6 +28,9 @@
  * app's, as the browser hides the page right after `pagehide`, in the same task, and shows it
  * again itself.
  *
+ * From v3.1 chunk 9, a session v3.0 kept, carried over to data version 2 at the open, is checked
+ * in kept-sessions-carried-over.spec.ts (its own file: this one links enough atoms already).
+ *
  * A pinned session and a damaged one are seeded through the harness's storage seam.
  */
 import { expect, test, type Locator, type Page } from '@playwright/test'

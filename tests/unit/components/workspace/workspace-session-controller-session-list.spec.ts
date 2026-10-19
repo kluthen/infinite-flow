@@ -8,7 +8,11 @@
 import { describe, expect, it, vi } from 'vitest'
 
 import type { KeptSessionsSeam } from '@/components/workspace/workspace-session-controller-types'
-import { encodeKeptSession, type KeptSessionFacts } from '@/storage/records/kept-session-record'
+import {
+  encodeKeptSession,
+  KEPT_SESSION_SUMMARY_DATA_VERSION,
+  type KeptSessionFacts,
+} from '@/storage/records/kept-session-record'
 import type { KeptChangeOutcome, KeptRefusal, SessionChanges } from '@/storage/save-policy'
 import { StorageError, type StoredEntry } from '@/storage/storage-port'
 import type { StoredKeptSession } from '@/storage/records/kept-session-record'
@@ -381,7 +385,10 @@ describe('session controller: opening a kept session by its key', () => {
         'newer',
         {
           ...recordsAt(4_000),
-          summary: { ...(recordsAt(4_000).summary as object), dataVersion: 2 },
+          summary: {
+            ...(recordsAt(4_000).summary as object),
+            dataVersion: KEPT_SESSION_SUMMARY_DATA_VERSION + 1,
+          },
         } as StoredKeptSession,
       ],
     ])
@@ -514,7 +521,10 @@ describe('session controller: a pin, an unpin and Delete session from a row, not
         'newer',
         {
           ...newer,
-          summary: { ...(newer.summary as object), dataVersion: 2 },
+          summary: {
+            ...(newer.summary as object),
+            dataVersion: KEPT_SESSION_SUMMARY_DATA_VERSION + 1,
+          },
         } as StoredKeptSession,
       ],
     ])

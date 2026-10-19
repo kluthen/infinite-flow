@@ -5,6 +5,11 @@
  *
  * - `?storageLoad=held` holds the load until `window.__workspaceHarnessHeldLoad.release()`, so a
  *   spec can see the page before the load ends: only its background;
+ * - `window.__workspaceHarnessHeldLoad.seedVersionOneSessions` (version-one-seams.ts), only while
+ *   the load is held, opens the database as a v3.0 tab would, at data version 1, and writes
+ *   copies of a kept session given as raw data version 1 values, each under its own key and
+ *   start, keeping that port open as a v3.0 tab left open: the load's open then upgrades them (the
+ *   upgrade measurement, M3, and the carried-over sessions' browser check);
  * - `seedSettings` writes settings records through the settings codec, valid or not, for the next
  *   load (the spec reloads the page); `records` reads a store back;
  * - `seedMyInstrument` writes the my-instrument record through its codec, valid or not, for the
@@ -43,7 +48,11 @@ import {
 } from '../../../src/storage-bootstrap'
 import { DATABASE_NAME, PRODUCTION_MIGRATIONS } from '../../../src/storage/database'
 import { APP_VERSION } from '../../../src/storage/app-version'
-import { KEPT_SESSION_DATA_VERSION } from '../../../src/storage/records/kept-reading'
+import {
+  KEPT_PLAYED_NOTES_DATA_VERSION,
+  KEPT_SESSION_BODY_DATA_VERSION,
+  KEPT_SESSION_SUMMARY_DATA_VERSION,
+} from '../../../src/storage/records/kept-reading'
 import { readAudioMixDesign } from '../../../src/audio/audio-mix'
 import {
   decodeSettings,
@@ -66,6 +75,7 @@ import {
   type StoragePort,
   type StoreName,
 } from '../../../src/storage/storage-port'
+import { createVersionOneSeed } from './version-one-seams'
 
 /** How the harness runs the load: at once, or held until the spec releases it. */
 export type HarnessStorageLoadMode = 'immediate' | 'held'
@@ -161,13 +171,13 @@ const TIMING_BATCH = 50
 /** Intent: a sized kept session for the start-up read measurement: its summary and its body. */
 function timingSession(index: number, bodyBytes: number): StorageChange[] {
   const key = `timing-${String(index).padStart(4, '0')}`
-  const versions = { dataVersion: KEPT_SESSION_DATA_VERSION, appVersion: APP_VERSION }
   const summary = {
-    ...versions,
+    dataVersion: KEPT_SESSION_SUMMARY_DATA_VERSION,
+    appVersion: APP_VERSION,
     startedAt: Date.UTC(2026, 0, 1) + index * 60_000,
     lengthSeconds: 600,
     phraseCount: 75,
-    musicalProfile: { musicalProfile: 'Jazz', isCustom: false },
+    presetLabel: 'Jazz',
     instrument: { id: 'bb-tenor', displayName: 'B-flat tenor saxophone' },
     startingTempo: 120,
     tempoReached: 120,
@@ -178,7 +188,11 @@ function timingSession(index: number, bodyBytes: number): StorageChange[] {
     recordedByAppVersion: APP_VERSION,
     sessionSeed: index,
   }
-  const body = { ...versions, phrases: ['x'.repeat(bodyBytes)] }
+  const body = {
+    dataVersion: KEPT_SESSION_BODY_DATA_VERSION,
+    appVersion: APP_VERSION,
+    phrases: ['x'.repeat(bodyBytes)],
+  }
   return [
     { kind: 'write', store: 'sessionSummaries', key, record: summary },
     { kind: 'write', store: 'sessionBodies', key, record: body },
@@ -270,6 +284,9 @@ export function createHarnessStorage(
   let loaded: SavedDataLoad | null = null
   let policyState: (() => SavingState) | null = null
   let loadMs: number | null = null
+  let held = mode === 'held'
+  // Refused once the load is released or the app's port has opened.
+  const seedVersionOneSessions = createVersionOneSeed(() => held && port === null)
 
   /** Intent: the port the load opened; throws before it has opened. */
   function openedPort(): StoragePort {
@@ -283,11 +300,16 @@ export function createHarnessStorage(
     return loaded
   }
 
-  /** Intent: wait for the spec's release, publishing it, when the load is held. */
+  /** Intent: wait for the spec's release, publishing it and the held-load seed, when held. */
   function released(): Promise<void> {
     if (mode === 'immediate') return Promise.resolve()
     return new Promise((resolve) => {
-      window.__workspaceHarnessHeldLoad = { release: () => resolve() }
+      /** Intent: end the hold, so the version 1 seed is refused from now on, and run the load. */
+      const release = (): void => {
+        held = false
+        resolve()
+      }
+      window.__workspaceHarnessHeldLoad = { release, seedVersionOneSessions }
     })
   }
 
@@ -368,13 +390,14 @@ export function createHarnessStorage(
 
   /** Intent: a kept session under `key` whose session-wide record no codec reads, and a body. */
   async function seedUnreadableKeptSession(key: string): Promise<void> {
-    const versions = { dataVersion: KEPT_SESSION_DATA_VERSION, appVersion: APP_VERSION }
     const summary: RecordVersions & { readonly startedAt: string } = {
-      ...versions,
+      dataVersion: KEPT_SESSION_SUMMARY_DATA_VERSION,
+      appVersion: APP_VERSION,
       startedAt: 'not a time',
     }
     const body: RecordVersions & { readonly phrases: readonly unknown[] } = {
-      ...versions,
+      dataVersion: KEPT_SESSION_BODY_DATA_VERSION,
+      appVersion: APP_VERSION,
       phrases: [],
     }
     await openedPort().apply([
@@ -389,10 +412,10 @@ export function createHarnessStorage(
    */
   async function seedPlayedNotes(key: string): Promise<void> {
     const target = openedPort()
-    const versions = { dataVersion: KEPT_SESSION_DATA_VERSION, appVersion: APP_VERSION }
     const note = { pitch: 60, velocity: 64, onset: 0.5, release: 0.8 }
     const playedNotes: RecordVersions & { readonly notes: readonly unknown[] } = {
-      ...versions,
+      dataVersion: KEPT_PLAYED_NOTES_DATA_VERSION,
+      appVersion: APP_VERSION,
       notes: [note],
     }
     const changes: StorageChange[] = [
@@ -403,7 +426,8 @@ export function createHarnessStorage(
       // A seed at the running app's version, over the summary as stored.
       const kept: RecordVersions & { readonly playedNotesKept: true } = {
         ...summary,
-        ...versions,
+        dataVersion: KEPT_SESSION_SUMMARY_DATA_VERSION,
+        appVersion: APP_VERSION,
         playedNotesKept: true,
       }
       changes.push({ kind: 'write', store: 'sessionSummaries', key, record: kept })
@@ -434,10 +458,16 @@ export function createHarnessStorage(
     ) {
       throw new Error(`Workspace harness: no kept session is stored under "${from}"`)
     }
-    const version = newer ? { dataVersion: KEPT_SESSION_DATA_VERSION + 1 } : {}
+    const summaryVersion = newer ? { dataVersion: KEPT_SESSION_SUMMARY_DATA_VERSION + 1 } : {}
+    const bodyVersion = newer ? { dataVersion: KEPT_SESSION_BODY_DATA_VERSION + 1 } : {}
     const unknownField = newer ? { keptByNewerVersion: 'a field this version does not know' } : {}
-    const copiedSummary = { ...(summary as RecordVersions), ...version, ...unknownField, startedAt }
-    const copiedBody = { ...(body as RecordVersions), ...version }
+    const copiedSummary = {
+      ...(summary as RecordVersions),
+      ...summaryVersion,
+      ...unknownField,
+      startedAt,
+    }
+    const copiedBody = { ...(body as RecordVersions), ...bodyVersion }
     if (newer) {
       await writeRaw([
         { store: 'sessionSummaries', key, record: copiedSummary },

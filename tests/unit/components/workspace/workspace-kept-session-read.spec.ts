@@ -152,7 +152,7 @@ describe('reading the most recent session for its Review', () => {
       { ...stored, body: undefined },
       { ...stored, summary: undefined },
       // The summary says no played notes are kept, yet a played-notes record is stored.
-      { ...stored, playedNotes: stored.body },
+      { ...stored, playedNotes: codecOf.encodeKeptPlayedNotes(history, APP_VERSION) },
     ]
 
     for (const records of damaged) {

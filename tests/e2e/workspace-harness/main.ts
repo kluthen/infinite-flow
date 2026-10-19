@@ -75,7 +75,8 @@
  *   run before the app mounts, as src/main.ts runs it; `window.__workspaceHarness` is published
  *   once the app has mounted, so waiting for it also waits for the load. `storage.seedSettings`
  *   seeds settings for the next load, `storage.seedMyInstrument` my instrument, and
- *   `?storageLoad=held` holds the load until `window.__workspaceHarnessHeldLoad.release()`;
+ *   `?storageLoad=held` holds the load until `window.__workspaceHarnessHeldLoad.release()`
+ *   (its `seedVersionOneSessions` seeds kept sessions as v3.0 kept them, for the load to upgrade);
  *   `?storageRead=fail|slow` fails or delays the app's reads, `storage.refuseSaves` refuses its
  *   saves (`?storageRefuse=quota|other` from the load on), `storage.portChanges` counts them and
  *   `storage.openNewerVersion` outdates the tab as a newer version would; `storage.keyedRecords`

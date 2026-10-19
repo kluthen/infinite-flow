@@ -6,12 +6,19 @@
 
 import { IDBFactory } from 'fake-indexeddb'
 
-import { PRODUCTION_MIGRATIONS, type MigrationStep } from '@/storage/database'
+import {
+  DATABASE_DATA_VERSION,
+  PRODUCTION_MIGRATIONS,
+  type MigrationStep,
+} from '@/storage/database'
 import type { RecordVersions } from '@/storage/record-envelope'
 import type { StorageManagerLike } from '@/storage/storage-port'
 
 /** The app version the tests write records with. */
 export const TEST_APP_VERSION = '3.0.0-test'
+
+/** The data version one above the code's: the version a newer app upgrades the database to. */
+export const NEWER_DATA_VERSION = DATABASE_DATA_VERSION + 1
 
 /** The database name the port opens by default. */
 export const DATABASE = 'infinite-flow'

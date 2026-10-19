@@ -7,6 +7,7 @@ import {
   decodeKeptSession,
   decodeKeptSessionSummary,
   encodeKeptSession,
+  rewriteKeptSummary,
   type KeptSessionFacts,
   type KeptSessionRecords,
   type KeptSessionSummary,
@@ -60,7 +61,7 @@ describe('the session-wide record of a kept session, stored and read back', () =
       lengthSeconds:
         last.startedAt + PHRASE_MEASURE_COUNT * measureSeconds(last.tempo) - first.startedAt,
       phraseCount: 5,
-      musicalProfile: history.profileSelection,
+      presetLabel: 'Custom, based on Neutral',
       instrument: { id: 'eb-alto', displayName: 'E-flat alto saxophone' },
       startingTempo: 240,
       tempoReached: 240,
@@ -71,6 +72,7 @@ describe('the session-wide record of a kept session, stored and read back', () =
       recordedByAppVersion: APP_VERSION,
       sessionSeed: history.sessionSeed,
     })
+    expect(history.profileSelection).toEqual({ musicalProfile: 'Neutral', isCustom: true })
     expect(history.sessionSeed).toBe(DEFAULT_SESSION_SEED)
   })
 
@@ -101,18 +103,25 @@ describe('the session-wide record of a kept session, stored and read back', () =
     expect(decodedSummary(rewritten).recordedByAppVersion).toBe(APP_VERSION)
   })
 
-  // @test-link [[entity_kept_session_record]]
-  it('keeps a profile selection as the selection itself, customized or not', () => {
-    const custom = edited(records.summary, ['musicalProfile'], {
-      musicalProfile: 'Jazz',
-      isCustom: true,
-    })
+  // @test-link [[rule_preset_label_kept_with_session]]
+  it('keeps the preset label as the label itself, customized or not', () => {
+    const custom = edited(records.summary, ['presetLabel'], 'Custom, based on Jazz')
 
-    expect(decodedSummary(custom).musicalProfile).toEqual({
-      musicalProfile: 'Jazz',
-      isCustom: true,
-    })
+    expect(decodedSummary(custom).presetLabel).toBe('Custom, based on Jazz')
+    expect(decodedSummary(edited(records.summary, ['presetLabel'], 'Jazz')).presetLabel).toBe(
+      'Jazz',
+    )
     expect(isDeepFrozen(decodedSummary(custom))).toBe(true)
+  })
+
+  // @test-link [[rule_preset_label_kept_with_session]]
+  it('keeps the stored preset label when a later change rewrites the record', () => {
+    const stored = edited(structuredClone(records.summary), ['presetLabel'], 'Jazz')
+
+    const rewritten = rewriteKeptSummary(stored, { pinned: false, comment: 'Later.' }, '3.1.1')
+
+    expect(rewritten?.presetLabel).toBe('Jazz')
+    expect(decodedSummary(structuredClone(rewritten)).presetLabel).toBe('Jazz')
   })
 })
 
@@ -129,10 +138,10 @@ describe('decodeKeptSessionSummary of newer or invalid stored values', () => {
 
   // @test-link [[rule_outdated_tab_reads_what_it_can]]
   it('reports a newer record as newer, even one this app could not read', () => {
-    expect(decodeKeptSessionSummary(edited(summary, ['dataVersion'], 2))).toEqual({
+    expect(decodeKeptSessionSummary(edited(summary, ['dataVersion'], 3))).toEqual({
       reading: 'newer',
     })
-    expect(decodeKeptSessionSummary({ dataVersion: 2, appVersion: '9.0.0' })).toEqual({
+    expect(decodeKeptSessionSummary({ dataVersion: 3, appVersion: '9.0.0' })).toEqual({
       reading: 'newer',
     })
   })
@@ -147,11 +156,27 @@ describe('decodeKeptSessionSummary of newer or invalid stored values', () => {
     ['a comment over 500 characters', edited(summary, ['comment'], 'y'.repeat(501))],
     ['an unknown instrument', edited(summary, ['instrument', 'id'], 'flute')],
     ['an empty display name', edited(summary, ['instrument', 'displayName'], ' ')],
-    ['an unknown profile', edited(summary, ['musicalProfile', 'musicalProfile'], 'Bebop')],
+    ['an empty preset label', edited(summary, ['presetLabel'], ' ')],
+    ['a preset label that is no string', edited(summary, ['presetLabel'], 1)],
     ['more favorites than phrases', edited(summary, ['favoritesCount'], 3)],
     ['a zero tempo', edited(summary, ['tempoReached'], 0)],
     ['a pinned flag that is no boolean', edited(summary, ['pinned'], 1)],
   ])('reports %s as unreadable', (_, value) => {
     expect(decodeKeptSessionSummary(value)).toEqual({ reading: 'unreadable' })
+  })
+
+  // @test-link [[entity_kept_session_record]]
+  it('reports a record at data version 1, or holding a v3.0 profile selection, as unreadable', () => {
+    const { presetLabel, ...rest } = summary as Record<string, unknown>
+    void presetLabel
+    const v30Shaped = { ...rest, musicalProfile: { musicalProfile: 'Jazz', isCustom: false } }
+
+    expect(decodeKeptSessionSummary(edited(summary, ['dataVersion'], 1))).toEqual({
+      reading: 'unreadable',
+    })
+    expect(decodeKeptSessionSummary({ ...v30Shaped, dataVersion: 1 })).toEqual({
+      reading: 'unreadable',
+    })
+    expect(decodeKeptSessionSummary(v30Shaped)).toEqual({ reading: 'unreadable' })
   })
 })

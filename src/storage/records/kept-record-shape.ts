@@ -43,16 +43,27 @@ export function exactRecord(
   return value
 }
 
-/** Intent: a stored array with at least one entry. */
+/**
+ * Intent: whether every index of an array holds an entry. A stored array with a hole is refused:
+ * the array methods the readers map it with skip a hole, so it would be read as a shorter list.
+ */
+function isDense(value: readonly unknown[]): boolean {
+  for (let index = 0; index < value.length; index++) if (!Object.hasOwn(value, index)) return false
+  return true
+}
+
+/** Intent: a stored array with at least one entry and no hole. */
 export function nonEmptyArray(value: unknown, context: string): readonly unknown[] {
   if (!Array.isArray(value) || value.length === 0)
     throw new KeptRecordError(`${context} must be a non-empty array.`)
+  if (!isDense(value)) throw new KeptRecordError(`${context} must have no hole.`)
   return value
 }
 
-/** Intent: a stored array, empty or not. */
+/** Intent: a stored array, empty or not, with no hole. */
 export function anyArray(value: unknown, context: string): readonly unknown[] {
   if (!Array.isArray(value)) throw new KeptRecordError(`${context} must be an array.`)
+  if (!isDense(value)) throw new KeptRecordError(`${context} must have no hole.`)
   return value
 }
 

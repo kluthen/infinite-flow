@@ -29,6 +29,12 @@ const SEVEN_STORES = [
   'settings',
 ]
 
+/** The production migration steps of v3.0: step 1 only, a database at data version 1. */
+const V3_0_MIGRATIONS = PRODUCTION_MIGRATIONS.slice(0, 1)
+
+/** The number of production migration steps, the code's data version. */
+const STEP_COUNT = PRODUCTION_MIGRATIONS.length
+
 /** Intent: the production step 1, recorded in `ran` before it runs. */
 function recordedStepOne(ran: number[]): MigrationStep {
   const [stepOne] = PRODUCTION_MIGRATIONS
@@ -44,24 +50,24 @@ function recordedStepOne(ran: number[]): MigrationStep {
 
 describe('the database data version', () => {
   // @test-link [[module_on_device_database]]
-  it('is 1 in v3.0, the number of production migration steps', () => {
-    expect(DATABASE_DATA_VERSION).toBe(1)
-    expect(PRODUCTION_MIGRATIONS.map((step) => step.toVersion)).toEqual([1])
+  it('is 2 from v3.1, the number of production migration steps', () => {
+    expect(DATABASE_DATA_VERSION).toBe(2)
+    expect(PRODUCTION_MIGRATIONS.map((step) => step.toVersion)).toEqual([1, 2])
   })
 })
 
 describe('opening a database at data version 0', () => {
   // @test-link [[module_on_device_database]]
-  it('migrates it to 1: the seven stores exist and meta holds the data and app versions', async () => {
+  it('migrates it to 2: the seven stores exist and meta holds the data and app versions', async () => {
     const factory = freshFactory()
     const port = await openStoragePort({ factory, appVersion: TEST_APP_VERSION })
 
     expect(port.status()).toBe('ready')
     await withRawDatabase(factory, async (database) => {
-      expect(database.version).toBe(1)
+      expect(database.version).toBe(2)
       expect([...database.objectStoreNames].sort()).toEqual(SEVEN_STORES)
       expect(await rawGet(database, 'meta', 'database')).toEqual({
-        dataVersion: 1,
+        dataVersion: 2,
         appVersion: TEST_APP_VERSION,
       })
     })
@@ -110,7 +116,7 @@ describe('opening a database at data version 1 with a step 1 -> 2', () => {
   // @test-link [[module_on_device_database]]
   it('runs only step 2 and raises meta to 2, written by the upgrading app', async () => {
     const factory = freshFactory()
-    await openStoragePort({ factory, appVersion: '3.0.0' })
+    await openStoragePort({ factory, appVersion: '3.0.0', migrations: V3_0_MIGRATIONS })
     const ran: number[] = []
 
     await openStoragePort({
@@ -131,13 +137,17 @@ describe('opening a database at data version 1 with a step 1 -> 2', () => {
   // @test-link [[module_on_device_database]]
   it('leaves the records of a store the step does not change at their own data version', async () => {
     const factory = freshFactory()
-    const older = await openStoragePort({ factory, appVersion: TEST_APP_VERSION })
+    const older = await openStoragePort({
+      factory,
+      appVersion: TEST_APP_VERSION,
+      migrations: V3_0_MIGRATIONS,
+    })
     await older.write('settings', 'theme', sampleRecord('Dark'))
 
     const newer = await openStoragePort({
       factory,
       appVersion: '3.1.0',
-      migrations: [...PRODUCTION_MIGRATIONS, syntheticStep(2)],
+      migrations: [...V3_0_MIGRATIONS, syntheticStep(2)],
     })
 
     expect(await newer.read('settings', 'theme')).toEqual(sampleRecord('Dark'))
@@ -151,8 +161,8 @@ describe('migration steps with a gap', () => {
     const gaps: readonly (readonly MigrationStep[])[] = [
       [],
       [syntheticStep(2)],
-      [...PRODUCTION_MIGRATIONS, syntheticStep(3)],
-      [...PRODUCTION_MIGRATIONS, syntheticStep(2), syntheticStep(2)],
+      [...PRODUCTION_MIGRATIONS, syntheticStep(STEP_COUNT + 2)],
+      [...PRODUCTION_MIGRATIONS, syntheticStep(STEP_COUNT + 1), syntheticStep(STEP_COUNT + 1)],
     ]
 
     for (const migrations of gaps) {
@@ -167,7 +177,7 @@ describe('migration steps with a gap', () => {
   it('a step that throws makes the open fail as a defect, rolling the upgrade back', async () => {
     const factory = freshFactory()
     const throwing: MigrationStep = {
-      toVersion: 2,
+      toVersion: STEP_COUNT + 1,
       migrate: () => {
         throw new TypeError('broken step')
       },
@@ -179,7 +189,7 @@ describe('migration steps with a gap', () => {
         appVersion: TEST_APP_VERSION,
         migrations: [...PRODUCTION_MIGRATIONS, throwing],
       }),
-    ).rejects.toThrow(/migration step to data version 2/)
+    ).rejects.toThrow(`migration step to data version ${STEP_COUNT + 1}`)
     expect(await databaseNames(factory)).toEqual([])
   })
 

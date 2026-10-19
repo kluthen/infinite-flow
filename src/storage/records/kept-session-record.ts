@@ -9,6 +9,7 @@
  * no record.
  */
 
+import { presetLabel } from '@/domain/controls/preset-label'
 import { deepFreeze } from '@/domain/events/deep-freeze'
 import { PHRASE_MEASURE_COUNT } from '@/domain/generation/generation-request'
 import type {
@@ -25,7 +26,14 @@ import {
   parseKeptPlayedNotes,
   type KeptPlayedNotesRecord,
 } from './kept-played-notes'
-import { readKept, type KeptReading } from './kept-reading'
+import {
+  KEPT_PLAYED_NOTES_DATA_VERSION,
+  KEPT_SESSION_BODY_DATA_VERSION,
+  KEPT_SESSION_SUMMARY_DATA_VERSION,
+  readKept,
+  type KeptReading,
+  type KeptStoredValue,
+} from './kept-reading'
 import { KeptRecordError } from './kept-record-shape'
 import {
   keptSessionBodyRecord,
@@ -47,7 +55,12 @@ export {
   type KeptSessionSummary,
   type KeptSummaryEdit,
 } from './kept-session-summary'
-export { KEPT_SESSION_DATA_VERSION, type KeptReading } from './kept-reading'
+export {
+  KEPT_PLAYED_NOTES_DATA_VERSION,
+  KEPT_SESSION_BODY_DATA_VERSION,
+  KEPT_SESSION_SUMMARY_DATA_VERSION,
+  type KeptReading,
+} from './kept-reading'
 export type { KeptSessionBodyRecord, KeptPhraseRecord } from './kept-session-body'
 export type { KeptPlayedNotesRecord, KeptPlayedNote } from './kept-played-notes'
 export type { KeptSessionSummaryRecord } from './kept-session-summary'
@@ -134,10 +147,12 @@ function sessionLengthSeconds(first: SessionHistoryRecord, last: SessionHistoryR
 
 /**
  * Intent: the records of a finished session: the session-wide record (its facts from the history,
- * the musical profile selection of the session's settings at its start from the history, the
- * instrument's display name from phrase 1's intent, the starting tempo from phrase 1 and the tempo reached from the last phrase), the body, and the
- * played notes only when they are kept, each written by `appVersion` at data version 1, every
- * field copied by name and every time in seconds from phrase 1's scheduled start. Throws, as a
+ * the preset label of the musical profile selection the history keeps from the session's start,
+ * the instrument's display name from phrase 1's intent, the starting tempo from phrase 1 and the
+ * tempo reached from the last phrase), the body, and the played notes only when they are kept,
+ * each written by `appVersion`, the session-wide record and the body at data version 2, the played
+ * notes at data version 1, every field copied by name and every time in seconds from phrase 1's
+ * scheduled start. Throws, as a
  * caller defect, on a history with no phrase, an empty app version, a comment over 500
  * characters, an unknown or repeated favorite, or a phrase played on another instrument than the
  * session's. Every phrase keeps the clef the history recorded it in.
@@ -145,6 +160,7 @@ function sessionLengthSeconds(first: SessionHistoryRecord, last: SessionHistoryR
 // @spec-link [[module_kept_session_codec]]
 // @spec-link [[rule_kept_session_content]]
 // @spec-link [[rule_kept_session_holds_no_acknowledgements]]
+// @spec-link [[rule_preset_label_kept_with_session]]
 export function encodeKeptSession(
   history: KeptSessionHistory,
   facts: KeptSessionFacts,
@@ -161,7 +177,7 @@ export function encodeKeptSession(
       startedAt: history.startedAt,
       lengthSeconds: sessionLengthSeconds(first, last),
       phraseCount: records.length,
-      musicalProfile: history.profileSelection,
+      presetLabel: presetLabel(history.profileSelection),
       instrument: {
         id: history.instrumentProfileId,
         displayName: first.intent.instrumentProfile.displayName,
@@ -231,7 +247,9 @@ export function rewriteKeptBodyFavorite(
   appVersion: string,
 ): RewrittenKeptBody | null {
   if (stored === undefined) return null
-  const reading = readKept([stored], () => parseKeptSessionBody(stored))
+  const reading = readKept([{ value: stored, shapeVersion: KEPT_SESSION_BODY_DATA_VERSION }], () =>
+    parseKeptSessionBody(stored),
+  )
   if (reading.reading !== 'current') return null
   const phrases = reading.value
   if (!phrases.some((phrase) => phrase.phraseNumber === phraseNumber))
@@ -324,9 +342,11 @@ function keptSession(stored: StoredKeptSession): KeptSession {
 // @spec-link [[module_kept_session_codec]]
 // @spec-link [[rule_outdated_tab_reads_what_it_can]]
 export function decodeKeptSession(stored: StoredKeptSession): KeptReading<KeptSession> {
-  const values =
-    stored.playedNotes === undefined
-      ? [stored.summary, stored.body]
-      : [stored.summary, stored.body, stored.playedNotes]
+  const values: KeptStoredValue[] = [
+    { value: stored.summary, shapeVersion: KEPT_SESSION_SUMMARY_DATA_VERSION },
+    { value: stored.body, shapeVersion: KEPT_SESSION_BODY_DATA_VERSION },
+  ]
+  if (stored.playedNotes !== undefined)
+    values.push({ value: stored.playedNotes, shapeVersion: KEPT_PLAYED_NOTES_DATA_VERSION })
   return readKept(values, () => keptSession(stored))
 }

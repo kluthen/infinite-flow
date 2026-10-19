@@ -7,7 +7,7 @@
  * storage access, no clock, no seed draw.
  */
 
-import type { ProfileSelection } from '@/domain/controls/profile-selection'
+import { presetLabel } from '@/domain/controls/preset-label'
 import { deepFreeze } from '@/domain/events/deep-freeze'
 import {
   isBuiltInInstrumentProfileId,
@@ -20,7 +20,7 @@ import type { RecordVersions } from '../record-envelope'
 import { isKeptPhraseRefusal, parseKeptProfileSelection } from './kept-phrase-parsers'
 import {
   assertKeptAppVersion,
-  KEPT_SESSION_DATA_VERSION,
+  KEPT_SESSION_SUMMARY_DATA_VERSION,
   readKept,
   type KeptReading,
 } from './kept-reading'
@@ -48,7 +48,7 @@ export interface KeptSessionInstrument {
 /**
  * A kept session's own facts, as the session list and the review read them: its wall-clock start
  * (epoch milliseconds), its length in seconds from phrase 1's scheduled start to the end of its
- * last phrase, its phrase count, the musical profile selected at Start, its instrument, its
+ * last phrase, its phrase count, the preset label recorded at Start, its instrument, its
  * starting tempo and the tempo it reached, whether it is pinned, its favorites count, its comment,
  * whether its played notes are kept, the app version that recorded it and its session seed.
  */
@@ -58,7 +58,11 @@ export interface KeptSessionSummary {
   readonly startedAt: number
   readonly lengthSeconds: number
   readonly phraseCount: number
-  readonly musicalProfile: ProfileSelection
+  /**
+   * The preset label recorded at the session's start, in the kept-session form ("Neutral",
+   * "Jazz", "Custom, based on Neutral", "Custom, based on Jazz"): a snapshot nothing later changes.
+   */
+  readonly presetLabel: string
   readonly instrument: KeptSessionInstrument
   readonly startingTempo: number
   readonly tempoReached: number
@@ -90,7 +94,7 @@ export const KEPT_SESSION_SUMMARY_KEYS = Object.freeze([
   'startedAt',
   'lengthSeconds',
   'phraseCount',
-  'musicalProfile',
+  'presetLabel',
   'instrument',
   'startingTempo',
   'tempoReached',
@@ -111,7 +115,7 @@ function assertCommentLength(comment: string): void {
 }
 
 /**
- * Intent: the session-wide record of the given facts, written at data version 1 by the app version
+ * Intent: the session-wide record of the given facts, written at data version 2 by the app version
  * given, which is also recorded as the version that recorded the session. Every field is copied by
  * name onto a fresh record. Throws on an empty app version or a comment over 500 characters.
  */
@@ -125,8 +129,8 @@ export function keptSessionSummaryRecord(
 
 /**
  * Intent: the session-wide record of the given facts, recorded by `recordedBy` and written by
- * `appVersion` at data version 1, every field copied by name onto a fresh record. Throws on an
- * empty app version or a comment over 500 characters.
+ * `appVersion` at the session-wide record's data version (2), every field copied by name onto a
+ * fresh record. Throws on an empty app version or a comment over 500 characters.
  */
 function summaryRecord(
   facts: KeptSessionSummaryFacts,
@@ -136,15 +140,12 @@ function summaryRecord(
   assertKeptAppVersion(appVersion)
   assertCommentLength(facts.comment)
   return {
-    dataVersion: KEPT_SESSION_DATA_VERSION,
+    dataVersion: KEPT_SESSION_SUMMARY_DATA_VERSION,
     appVersion,
     startedAt: facts.startedAt,
     lengthSeconds: facts.lengthSeconds,
     phraseCount: facts.phraseCount,
-    musicalProfile: {
-      musicalProfile: facts.musicalProfile.musicalProfile,
-      isCustom: facts.musicalProfile.isCustom,
-    },
+    presetLabel: facts.presetLabel,
     instrument: { id: facts.instrument.id, displayName: facts.instrument.displayName },
     startingTempo: facts.startingTempo,
     tempoReached: facts.tempoReached,
@@ -155,6 +156,21 @@ function summaryRecord(
     recordedByAppVersion: recordedBy,
     sessionSeed: facts.sessionSeed,
   }
+}
+
+/**
+ * Intent: the session-wide record of a read summary at the record's data version (2), written by
+ * `appVersion`, the app version that recorded the session kept as read. Throws on an empty app
+ * version or a comment over 500 characters.
+ */
+// @spec-link [[module_kept_session_codec]]
+// @spec-link [[module_kept_session_upgrade_step]]
+export function rewrittenKeptSummaryRecord(
+  summary: KeptSessionSummary,
+  appVersion: string,
+): KeptSessionSummaryRecord {
+  const { recordedByAppVersion, ...facts } = summary
+  return summaryRecord(facts, recordedByAppVersion, appVersion)
 }
 
 /**
@@ -183,8 +199,7 @@ export function rewriteKeptSummary(
   if (stored === undefined) return null
   const reading = decodeKeptSessionSummary(stored)
   if (reading.reading !== 'current') return null
-  const { recordedByAppVersion, ...facts } = reading.value
-  return summaryRecord({ ...facts, ...edit }, recordedByAppVersion, appVersion)
+  return rewrittenKeptSummaryRecord({ ...reading.value, ...edit }, appVersion)
 }
 
 /** Intent: a stored instrument: exactly a known instrument id and a non-empty display name. */
@@ -216,13 +231,19 @@ function parseSessionSeed(value: unknown): Seed {
 }
 
 /**
- * Intent: read a current session-wide record's facts, with exactly its allowlisted keys and each
- * field valid; the envelope's versions are not part of the facts. Returns a fresh deep-frozen
- * value; throws a refusal for anything invalid, never repairing it.
+ * Every key a data version 1 session-wide record holds: the musical profile selection where data
+ * version 2 holds the preset label.
  */
-// @spec-link [[module_kept_session_codec]]
-export function parseKeptSessionSummary(value: unknown): KeptSessionSummary {
-  const record = exactRecord(value, KEPT_SESSION_SUMMARY_KEYS, 'Kept session')
+const KEPT_SESSION_SUMMARY_V1_KEYS: readonly string[] = Object.freeze(
+  KEPT_SESSION_SUMMARY_KEYS.map((key) => (key === 'presetLabel' ? 'musicalProfile' : key)),
+)
+
+/**
+ * Intent: a stored session-wide record's facts, the record's keys already checked, each field
+ * valid, with the preset label read by the caller. Returns a fresh deep-frozen value; throws a
+ * refusal for anything invalid, never repairing it.
+ */
+function summaryFacts(record: Record<string, unknown>, label: string): KeptSessionSummary {
   const phraseCount = integerIn(
     record.phraseCount,
     1,
@@ -233,7 +254,7 @@ export function parseKeptSessionSummary(value: unknown): KeptSessionSummary {
     startedAt: finiteAtLeast(record.startedAt, 0, 'Kept session.startedAt'),
     lengthSeconds: positiveFinite(record.lengthSeconds, 'Kept session.lengthSeconds'),
     phraseCount,
-    musicalProfile: parseKeptProfileSelection(record.musicalProfile, 'Kept session.musicalProfile'),
+    presetLabel: label,
     instrument: parseInstrument(record.instrument),
     startingTempo: positiveFinite(record.startingTempo, 'Kept session.startingTempo'),
     tempoReached: positiveFinite(record.tempoReached, 'Kept session.tempoReached'),
@@ -250,13 +271,41 @@ export function parseKeptSessionSummary(value: unknown): KeptSessionSummary {
 }
 
 /**
+ * Intent: read a current (data version 2) session-wide record's facts, with exactly its
+ * allowlisted keys and each field valid; the envelope's versions are not part of the facts.
+ * Returns a fresh deep-frozen value; throws a refusal for anything invalid, never repairing it.
+ */
+// @spec-link [[module_kept_session_codec]]
+export function parseKeptSessionSummary(value: unknown): KeptSessionSummary {
+  const record = exactRecord(value, KEPT_SESSION_SUMMARY_KEYS, 'Kept session')
+  return summaryFacts(record, nonEmptyString(record.presetLabel, 'Kept session.presetLabel'))
+}
+
+/**
+ * Intent: read a data version 1 session-wide record's facts, as the upgrade step to data version
+ * 2 reads it: exactly that version's keys, every field as `parseKeptSessionSummary` reads it, and
+ * its musical profile selection (a known profile and a boolean) recorded as the preset label it
+ * names. Returns a fresh deep-frozen value; throws a refusal for anything invalid, never
+ * repairing it.
+ */
+// @spec-link [[module_kept_session_upgrade_step]]
+// @spec-link [[rule_preset_label_kept_with_session]]
+export function parseKeptSessionSummaryV1(value: unknown): KeptSessionSummary {
+  const record = exactRecord(value, KEPT_SESSION_SUMMARY_V1_KEYS, 'Kept session')
+  const selection = parseKeptProfileSelection(record.musicalProfile, 'Kept session.musicalProfile')
+  return summaryFacts(record, presetLabel(selection))
+}
+
+/**
  * Intent: a stored session-wide record as the session list reads it: its facts when current and
  * valid, `newer` when a newer app wrote it (left unread), `unreadable` otherwise.
  */
 // @spec-link [[module_kept_session_codec]]
 // @spec-link [[rule_outdated_tab_reads_what_it_can]]
 export function decodeKeptSessionSummary(value: unknown): KeptReading<KeptSessionSummary> {
-  return readKept([value], () => parseKeptSessionSummary(value))
+  return readKept([{ value, shapeVersion: KEPT_SESSION_SUMMARY_DATA_VERSION }], () =>
+    parseKeptSessionSummary(value),
+  )
 }
 
 /**
@@ -271,7 +320,7 @@ export type NewerKeptSummaryFacts = Partial<
     | 'startedAt'
     | 'lengthSeconds'
     | 'phraseCount'
-    | 'musicalProfile'
+    | 'presetLabel'
     | 'instrument'
     | 'pinned'
     | 'favoritesCount'
@@ -287,7 +336,7 @@ const NEWER_FACT_READERS: {
   startedAt: (value) => finiteAtLeast(value, 0, 'Kept session.startedAt'),
   lengthSeconds: (value) => positiveFinite(value, 'Kept session.lengthSeconds'),
   phraseCount: (value) => integerIn(value, 1, Number.MAX_SAFE_INTEGER, 'Kept session.phraseCount'),
-  musicalProfile: (value) => parseKeptProfileSelection(value, 'Kept session.musicalProfile'),
+  presetLabel: (value) => nonEmptyString(value, 'Kept session.presetLabel'),
   instrument: parseInstrument,
   pinned: (value) => booleanValue(value, 'Kept session.pinned'),
   favoritesCount: (value) =>

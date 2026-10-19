@@ -8,9 +8,10 @@
  * parser covers (a whole harmony, an intent's outer shape, its register intent) is checked here
  * against the domain types. An intent's instrument profile is read from the data it holds, never
  * looked up or rebuilt from its id, so a kept My instrument phrase reads back as it was played.
- * An intent's figure levels are read from any of data version 1's three shapes (levels only, a
- * v3.0 musical profile only, or both), a stored profile mapped through `profile-to-levels.ts`; a
- * read intent never holds a musical profile.
+ * A data version 2 intent holds its figure levels only, never a musical profile. The data version
+ * 1 reader, which the upgrade step to data version 2 reads earlier bodies with, takes any of that
+ * version's three shapes (levels only, a v3.0 musical profile only, or both), a stored profile
+ * mapped through `profile-to-levels.ts`; a read intent never holds a musical profile.
  *
  * Pure: no storage access. The kept-session codec calls these and reports any refusal as an
  * unreadable record.
@@ -503,23 +504,38 @@ const INTENT_FIELDS = [
 ] as const
 
 /**
- * Intent: read a kept phrase's stored generation intent back into the intent it was generated
- * from, without rebuilding it: each field through the domain's own parser (request id, seed,
- * meter, controls, written tonal center, figure levels, instrument profile from its stored data,
- * carry-in), the rest against the intent's shape, with exactly its keys (`carryIn` only when one
- * was handed forward), then its parts checked against each other. Its figure levels are read from
- * any of data version 1's three shapes (levels only; a v3.0 musical profile only, read as that
- * profile's levels; or both, which must agree), and the intent returned holds no musical profile.
- * Returns a fresh deep-frozen intent; throws a KeptRecordError or the domain parser's own error
- * for anything invalid, never repairing it.
+ * How one data version's intent is read: the keys it always holds, the ones it may hold, and how
+ * its figure levels are read from the stored record.
  */
-// @spec-link [[module_kept_session_codec]]
-export function parseKeptIntent(input: unknown): GenerationIntent {
-  const record = exactRecord(input, INTENT_FIELDS, 'Kept intent', [
-    'figureLevels',
-    'musicalProfile',
-    'carryIn',
-  ])
+interface IntentShape {
+  readonly keys: readonly string[]
+  readonly optional: readonly string[]
+  readonly figureLevels: (record: Record<string, unknown>) => FigureLevels
+}
+
+/** Data version 1's intent: its levels, a v3.0 musical profile, or both, and `carryIn` maybe. */
+const INTENT_V1: IntentShape = {
+  keys: INTENT_FIELDS,
+  optional: ['figureLevels', 'musicalProfile', 'carryIn'],
+  figureLevels: parseStoredFigureLevels,
+}
+
+/** Data version 2's intent: its figure levels always, `carryIn` maybe, never a musical profile. */
+const INTENT_V2: IntentShape = {
+  keys: [...INTENT_FIELDS, 'figureLevels'],
+  optional: ['carryIn'],
+  figureLevels: (record) => parseFigureLevels(record.figureLevels),
+}
+
+/**
+ * Intent: read a stored intent of the given shape back into the intent it was generated from,
+ * without rebuilding it: each field through the domain's own parser (request id, seed, meter,
+ * controls, written tonal center, figure levels, instrument profile from its stored data,
+ * carry-in), the rest against the intent's shape, with exactly the shape's keys, then its parts
+ * checked against each other.
+ */
+function parseIntentOfShape(input: unknown, shape: IntentShape): GenerationIntent {
+  const record = exactRecord(input, shape.keys, 'Kept intent', shape.optional)
   const requestId = parseRequestId(record.requestId)
   const seed = parseStoredSeed(record.seed)
   if (record.measureCount !== PHRASE_MEASURE_COUNT)
@@ -531,7 +547,7 @@ export function parseKeptIntent(input: unknown): GenerationIntent {
     record.writtenTonalCenter,
     'Kept intent written tonal center',
   )
-  const figureLevels = parseStoredFigureLevels(record)
+  const figureLevels = shape.figureLevels(record)
   const instrumentProfile = parseStoredProfile(record.instrumentProfile)
   assertIntentCoherent(controls, writtenTonalCenter, instrumentProfile)
   const registerIntent = parseRegisterIntent(record.registerIntent, instrumentProfile, controls)
@@ -548,4 +564,33 @@ export function parseKeptIntent(input: unknown): GenerationIntent {
     registerIntent,
     ...carried,
   })
+}
+
+/**
+ * Intent: read a data version 1 kept phrase's stored generation intent, as the upgrade step to
+ * data version 2 reads it: every field as `parseKeptIntent` reads it, `carryIn` only when one was
+ * handed forward, its figure levels from any of data version 1's three shapes (levels only; a
+ * v3.0 musical profile only, read as that profile's levels; or both, which must agree), and the
+ * intent returned holds no musical profile. Returns a fresh deep-frozen intent; throws a
+ * KeptRecordError or the domain parser's own error for anything invalid, never repairing it.
+ */
+// @spec-link [[module_kept_session_codec]]
+// @spec-link [[module_kept_session_upgrade_step]]
+export function parseKeptIntentV1(input: unknown): GenerationIntent {
+  return parseIntentOfShape(input, INTENT_V1)
+}
+
+/**
+ * Intent: read a kept phrase's stored generation intent (data version 2) back into the intent it
+ * was generated from, without rebuilding it: each field through the domain's own parser (request
+ * id, seed, meter, controls, written tonal center, figure levels, instrument profile from its
+ * stored data, carry-in), the rest against the intent's shape, with exactly its keys (its figure
+ * levels always, `carryIn` only when one was handed forward, a musical profile refused as an
+ * unknown field), then its parts checked against each other. Returns a fresh deep-frozen intent;
+ * throws a KeptRecordError or the domain parser's own error for anything invalid, never
+ * repairing it.
+ */
+// @spec-link [[module_kept_session_codec]]
+export function parseKeptIntent(input: unknown): GenerationIntent {
+  return parseIntentOfShape(input, INTENT_V2)
 }
