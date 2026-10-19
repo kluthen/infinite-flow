@@ -111,7 +111,10 @@ describe("the session's save batch", () => {
 
   it('also deletes every kept session whose summary is damaged, pinned or not, never one a newer app wrote', () => {
     const damaged = { key: 'session-4-4', value: { dataVersion: 1, appVersion: 'x' } }
-    const newer = { key: 'session-5-5', value: { dataVersion: 2, appVersion: '3.1.0' } }
+    const newer = {
+      key: 'session-5-5',
+      value: { dataVersion: codec.KEPT_SESSION_SUMMARY_DATA_VERSION + 1, appVersion: '3.2.0' },
+    }
 
     expect(
       described(keptSessionChanges(codec, history, NOT_KEPT, [damaged, newer], APP_VERSION)),
@@ -179,7 +182,10 @@ describe('saving the session that ended', () => {
       keptSummary(recordedKeptSession('eb-alto', 2), 'session-1-1', false),
       { key: 'session-2-2', value: { dataVersion: 1, appVersion: 'x' } },
       { key: 'session-3-3', value: 'not a record' },
-      { key: 'session-4-4', value: { dataVersion: 2, appVersion: '3.1.0' } },
+      {
+        key: 'session-4-4',
+        value: { dataVersion: codec.KEPT_SESSION_SUMMARY_DATA_VERSION + 1, appVersion: '3.2.0' },
+      },
     ]
     /** Intent: saves that build the batch from `kept`, then resolve `outcome`. */
     const savesResolving = (outcome: SessionSaveOutcome) => ({

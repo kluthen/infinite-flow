@@ -253,6 +253,7 @@ defineExpose({ focusReviewTitle: focus.title })
     ref="reviewPanel"
     :records="review.records.value"
     :instrument-name="review.instrumentName.value"
+    :preset-label="review.presetLabel.value"
     :started-at="reviewSession.startedAt"
     :most-recent="review.mostRecent.value"
     :keeping="reviewSession.keeping"

@@ -29,6 +29,7 @@ import {
   KeptRecordError,
   parseKeptHarmony,
   parseKeptIntent,
+  parseKeptIntentV1,
 } from '@/storage/records/kept-phrase-parsers'
 
 import { idlePhraseOne, recordRunnerSession } from '../session/history-recording'
@@ -420,7 +421,8 @@ const SELECTIONS: readonly (readonly [ProfileSelection, FigureLevels])[] = [
 ]
 
 // @test-link [[module_kept_session_codec]]
-describe("parseKeptIntent: figure levels, in each of data version 1's three shapes", () => {
+// @test-link [[module_kept_session_upgrade_step]]
+describe('parseKeptIntentV1, the data version 1 reader: figure levels, in each of its three shapes', () => {
   // @test-link [[module_kept_session_codec]]
   // @test-link [[rule_kept_session_content]]
   it.each(['Neutral', 'Jazz'] as const)(
@@ -429,7 +431,7 @@ describe("parseKeptIntent: figure levels, in each of data version 1's three shap
       const intent = intentOfProfile(musicalProfile)
       expect('musicalProfile' in intent).toBe(false)
 
-      const parsed = parseKeptIntent(stored(intent))
+      const parsed = parseKeptIntentV1(stored(intent))
 
       expect(parsed.figureLevels).toStrictEqual(PROFILE_LEVELS[musicalProfile])
       expect(parsed).toEqual(intent)
@@ -447,7 +449,7 @@ describe("parseKeptIntent: figure levels, in each of data version 1's three shap
       const input = v30Shaped(intent, selection)
       expect('figureLevels' in input).toBe(false)
 
-      const parsed = parseKeptIntent(input)
+      const parsed = parseKeptIntentV1(input)
 
       expect(parsed.figureLevels).toStrictEqual(levels)
       expect(parsed).toEqual(intent)
@@ -462,7 +464,7 @@ describe("parseKeptIntent: figure levels, in each of data version 1's three shap
     (selection, levels) => {
       const intent = intentOfProfile(selection.musicalProfile)
 
-      const parsed = parseKeptIntent(chunk4Shaped(intent, selection))
+      const parsed = parseKeptIntentV1(chunk4Shaped(intent, selection))
 
       expect(parsed.figureLevels).toStrictEqual(levels)
       expect(parsed).toEqual(intent)
@@ -479,8 +481,8 @@ describe("parseKeptIntent: figure levels, in each of data version 1's three shap
     (_, generatedUnder, selection) => {
       const input = chunk4Shaped(intentOfProfile(generatedUnder), selection)
 
-      expect(() => parseKeptIntent(input)).toThrow(KeptRecordError)
-      expect(isKeptPhraseRefusal(catchError(() => parseKeptIntent(input)))).toBe(true)
+      expect(() => parseKeptIntentV1(input)).toThrow(KeptRecordError)
+      expect(isKeptPhraseRefusal(catchError(() => parseKeptIntentV1(input)))).toBe(true)
     },
   )
 
@@ -488,8 +490,8 @@ describe("parseKeptIntent: figure levels, in each of data version 1's three shap
   it('refuses an intent holding neither levels nor a musical profile as unreadable', () => {
     const input = edited(intentOfProfile('Neutral'), ['figureLevels'], REMOVE)
 
-    expect(() => parseKeptIntent(input)).toThrow(KeptRecordError)
-    expect(isKeptPhraseRefusal(catchError(() => parseKeptIntent(input)))).toBe(true)
+    expect(() => parseKeptIntentV1(input)).toThrow(KeptRecordError)
+    expect(isKeptPhraseRefusal(catchError(() => parseKeptIntentV1(input)))).toBe(true)
   })
 
   // @test-link [[module_kept_session_codec]]
@@ -504,7 +506,7 @@ describe("parseKeptIntent: figure levels, in each of data version 1's three shap
     for (const shaped of [v30Shaped(intent, selection), chunk4Shaped(intent, selection)]) {
       const input = edited(shaped, path, value)
 
-      expect(() => parseKeptIntent(input)).toThrow(KeptRecordError)
+      expect(() => parseKeptIntentV1(input)).toThrow(KeptRecordError)
     }
   })
 
@@ -517,7 +519,51 @@ describe("parseKeptIntent: figure levels, in each of data version 1's three shap
   ] as const)('refuses levels with %s as unreadable', (_, path, replacement) => {
     const input = edited(intentOfProfile('Neutral'), path, replacement)
 
-    expect(() => parseKeptIntent(input)).toThrow(FigureLevelsError)
+    expect(() => parseKeptIntentV1(input)).toThrow(FigureLevelsError)
+    expect(isKeptPhraseRefusal(catchError(() => parseKeptIntentV1(input)))).toBe(true)
+  })
+})
+
+// @test-link [[module_kept_session_codec]]
+describe('parseKeptIntent, the data version 2 reader: figure levels only', () => {
+  // @test-link [[module_kept_session_codec]]
+  it.each(['Neutral', 'Jazz'] as const)(
+    'reads a %s intent holding its levels only back, with no musical profile',
+    (musicalProfile) => {
+      const intent = intentOfProfile(musicalProfile)
+
+      const parsed = parseKeptIntent(stored(intent))
+
+      expect(parsed.figureLevels).toStrictEqual(PROFILE_LEVELS[musicalProfile])
+      expect(parsed).toEqual(intent)
+      expect('musicalProfile' in parsed).toBe(false)
+    },
+  )
+
+  // @test-link [[module_kept_session_codec]]
+  it.each(SELECTIONS)(
+    'refuses an intent holding the musical profile %j, with or without its levels',
+    (selection) => {
+      const intent = intentOfProfile(selection.musicalProfile)
+      for (const input of [v30Shaped(intent, selection), chunk4Shaped(intent, selection)]) {
+        expect(() => parseKeptIntent(input)).toThrow(KeptRecordError)
+        expect(isKeptPhraseRefusal(catchError(() => parseKeptIntent(input)))).toBe(true)
+      }
+    },
+  )
+
+  // @test-link [[module_kept_session_codec]]
+  it('refuses an intent holding no levels as unreadable', () => {
+    const input = edited(intentOfProfile('Jazz'), ['figureLevels'], REMOVE)
+
+    expect(() => parseKeptIntent(input)).toThrow(KeptRecordError)
     expect(isKeptPhraseRefusal(catchError(() => parseKeptIntent(input)))).toBe(true)
+  })
+
+  // @test-link [[module_kept_session_codec]]
+  it('refuses levels with an unknown level as unreadable', () => {
+    const input = edited(intentOfProfile('Neutral'), ['figureLevels', 'passingTone'], 'often')
+
+    expect(() => parseKeptIntent(input)).toThrow(FigureLevelsError)
   })
 })

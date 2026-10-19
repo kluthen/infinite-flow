@@ -65,6 +65,12 @@ export interface ReviewArea extends ReviewPlayedNotes, ReviewSessionTools {
    */
   // @spec-link [[req_kept_session_review]]
   readonly instrumentName: ComputedRef<string>
+  /**
+   * The showing Review's preset label, the one the session recorded at its start (never rebuilt
+   * from the current settings); empty while none shows.
+   */
+  // @spec-link [[rule_preset_label_kept_with_session]]
+  readonly presetLabel: ComputedRef<string>
   /** The showing Review's session start, epoch milliseconds; null while none shows. */
   // @spec-link [[req_kept_session_review]]
   readonly startedAt: ComputedRef<number | null>
@@ -126,6 +132,8 @@ export function useReviewArea(deps: ReviewAreaDependencies): ReviewArea {
   // @spec-link [[req_last_session_review]]
   // @spec-link [[req_kept_session_review]]
   const instrumentName = computed(() => host.shownReview.value?.instrumentName ?? '')
+  // @spec-link [[rule_preset_label_kept_with_session]]
+  const presetLabel = computed(() => host.shownReview.value?.presetLabel ?? '')
   const startedAt = computed(() => shownHistory.value?.startedAt ?? null)
   const keeping = computed(() => host.shownReview.value?.keeping ?? null)
   /** Intent: whether the showing Review draws the most recent session (titled "Last session"). */
@@ -250,6 +258,7 @@ export function useReviewArea(deps: ReviewAreaDependencies): ReviewArea {
   return {
     records,
     instrumentName,
+    presetLabel,
     startedAt,
     keeping,
     mostRecent,

@@ -34,6 +34,7 @@ const STARTED_AT = new Date(2026, 9, 6, 18, 42).getTime()
 interface PanelOptions {
   readonly records?: readonly SessionHistoryRecord[]
   readonly instrumentName?: string
+  readonly presetLabel?: string
   readonly startedAt?: number
   readonly mostRecent?: boolean
   readonly keeping?: SessionKeeping
@@ -52,6 +53,7 @@ function mountPanel(options: PanelOptions = {}) {
     props: {
       records: options.records ?? recordedRecords(),
       instrumentName: options.instrumentName ?? 'B-flat tenor saxophone',
+      presetLabel: options.presetLabel ?? 'Neutral',
       startedAt: options.startedAt ?? STARTED_AT,
       mostRecent: options.mostRecent ?? true,
       keeping: options.keeping ?? 'not-pinned',
@@ -133,7 +135,7 @@ describe('the review panel markup', () => {
     const wrapper = mountPanel()
     expect(wrapper.get('.review-title').text()).toBe('Last session')
     expect(wrapper.get('p.review-summary').text()).toBe(
-      `${sessionDate(STARTED_AT)} · 3 phrases · B-flat tenor saxophone · No favorites`,
+      `${sessionDate(STARTED_AT)} · 3 phrases · B-flat tenor saxophone · Neutral · No favorites`,
     )
   })
 
@@ -142,15 +144,29 @@ describe('the review panel markup', () => {
     const wrapper = mountPanel({ mostRecent: false })
     expect(wrapper.get('.review-title').text()).toBe(sessionDate(STARTED_AT))
     expect(wrapper.get('p.review-summary').text()).toBe(
-      '3 phrases · B-flat tenor saxophone · No favorites',
+      '3 phrases · B-flat tenor saxophone · Neutral · No favorites',
     )
   })
+
+  // @test-link [[rule_preset_label_kept_with_session]]
+  it.each([
+    [true, `${sessionDate(STARTED_AT)} · `],
+    [false, ''],
+  ])(
+    'writes the preset label the session recorded between the instrument and the favorites (most recent: %s)',
+    (mostRecent, datePart) => {
+      const wrapper = mountPanel({ mostRecent, presetLabel: 'Custom, based on Jazz' })
+      expect(wrapper.get('p.review-summary').text()).toBe(
+        `${datePart}3 phrases · B-flat tenor saxophone · Custom, based on Jazz · No favorites`,
+      )
+    },
+  )
 
   // @test-link [[req_last_session_review]]
   it('says "1 phrase" for a one-phrase session', () => {
     const wrapper = mountPanel({ records: recordedRecords().slice(0, 1), instrumentName: 'Piano' })
     expect(wrapper.get('.review-summary').text()).toBe(
-      `${sessionDate(STARTED_AT)} · 1 phrase · Piano · No favorites`,
+      `${sessionDate(STARTED_AT)} · 1 phrase · Piano · Neutral · No favorites`,
     )
   })
 

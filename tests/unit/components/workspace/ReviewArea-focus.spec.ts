@@ -63,7 +63,7 @@ function summaryAt(startedAt: number): KeptSessionSummary {
     startedAt,
     lengthSeconds: 250,
     phraseCount: 2,
-    musicalProfile: { musicalProfile: 'Neutral', isCustom: false },
+    presetLabel: 'Neutral',
     instrument: { id: 'bb-tenor', displayName: 'B-flat tenor saxophone' },
     startingTempo: 90,
     tempoReached: 90,

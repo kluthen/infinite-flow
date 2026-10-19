@@ -72,6 +72,8 @@ const props = withDefaults(
     records: readonly ReviewedPhrase[]
     /** The session's instrument, by the name it had at the session. */
     instrumentName: string
+    /** The preset label the session recorded at its start, as the session list writes it. */
+    presetLabel: string
     /** The session's start, epoch milliseconds. */
     startedAt: number
     /** Whether the session is the most recent one, titled "Last session". */
@@ -238,9 +240,10 @@ const date = computed(() => sessionDate(props.startedAt))
 const title = computed(() => (props.mostRecent ? 'Last session' : date.value))
 
 /**
- * Intent: "{session date} · {n} phrases · {instrument} · {favorites}", the date left out when it
- * is the title, "1 phrase" for one, the favorites as "No favorites", "1 favorite" or "{k}
- * favorites", changing in place as a star is pressed; a review is never empty.
+ * Intent: "{session date} · {n} phrases · {instrument} · {preset} · {favorites}", the date left
+ * out when it is the title, "1 phrase" for one, the preset as the session list's detail line
+ * writes it (the label the session recorded at its start), the favorites as "No favorites", "1
+ * favorite" or "{k} favorites", changing in place as a star is pressed; a review is never empty.
  */
 // @spec-link [[req_last_session_review]]
 // @spec-link [[req_kept_session_review]]
@@ -251,7 +254,7 @@ const summary = computed(() => {
   const marked = props.favorites.length
   const favorites =
     marked === 0 ? 'No favorites' : marked === 1 ? '1 favorite' : `${marked} favorites`
-  const parts = [phrases, props.instrumentName, favorites]
+  const parts = [phrases, props.instrumentName, props.presetLabel, favorites]
   return (props.mostRecent ? [date.value, ...parts] : parts).join(' · ')
 })
 

@@ -64,6 +64,7 @@ describe('session controller: the Review opens at a session end', () => {
     expect(review).toEqual({
       history: lastHistory,
       instrumentName: nameOf(lastHistory),
+      presetLabel: 'Custom, based on Neutral',
       tempoReached: RIG_TEMPO,
       keeping: 'not-pinned',
       key: keptSessionKey(lastHistory!),
@@ -80,6 +81,7 @@ describe('session controller: the Review opens at a session end', () => {
       session: {
         history: lastHistory,
         instrumentName: nameOf(lastHistory),
+        presetLabel: 'Custom, based on Neutral',
         tempoReached: RIG_TEMPO,
         keeping: 'not-pinned',
         key: keptSessionKey(lastHistory!),
@@ -207,6 +209,7 @@ describe('session controller: closing and showing the Review again', () => {
     const drawn = {
       history,
       instrumentName: nameOf(history),
+      presetLabel: 'Custom, based on Neutral',
       tempoReached: RIG_TEMPO,
       keeping: 'not-pinned',
       key: keptSessionKey(history!),

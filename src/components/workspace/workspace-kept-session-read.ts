@@ -40,12 +40,14 @@ export function mostRecentKept(summaries: readonly StoredEntry[]): MostRecentSes
 
 /**
  * Intent: the session a decoded kept session's Review draws: its phrases and start, the
- * instrument's name its summary holds (never looked up by id), the tempo it reached, whether it
+ * instrument's name and the preset label its summary holds (never looked up by id or rebuilt from
+ * the current settings), the tempo it reached, whether it
  * is pinned, the key it was read by, whether its played notes are kept, its favorite phrases and
  * its comment.
  */
 // @spec-link [[req_kept_session_review]]
 // @spec-link [[module_kept_session_codec]]
+// @spec-link [[rule_preset_label_kept_with_session]]
 function keptReviewedSession({ summary, phrases }: KeptSession, key: string): ReviewedSession {
   const history = Object.freeze({
     phrases: () => phrases,
@@ -55,6 +57,7 @@ function keptReviewedSession({ summary, phrases }: KeptSession, key: string): Re
   return Object.freeze({
     history,
     instrumentName: summary.instrument.displayName,
+    presetLabel: summary.presetLabel,
     tempoReached: summary.tempoReached,
     keeping: summary.pinned ? 'pinned' : 'not-pinned',
     key,

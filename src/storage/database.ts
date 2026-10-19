@@ -11,6 +11,7 @@
  * in-memory one in tests.
  */
 
+import { KEPT_SESSIONS_V2 } from './migrations/kept-sessions-v2'
 import { readEnvelope } from './record-envelope'
 
 /** The database's name; the browser scopes it to the site's origin. */
@@ -38,11 +39,16 @@ export const DATA_STORES = [
 // @spec-link [[module_on_device_database]]
 export type StoreName = (typeof DATA_STORES)[number]
 
-/** What a migration step works with: the database being upgraded and its upgrade transaction. */
+/**
+ * What a migration step works with: the database being upgraded, its upgrade transaction and the
+ * app version upgrading it.
+ */
 // @spec-link [[module_on_device_database]]
 export interface MigrationUpgrade {
   readonly database: IDBDatabase
   readonly transaction: IDBTransaction
+  /** The app version the database is opened with, for the envelopes a step rewrites. */
+  readonly appVersion: string
 }
 
 /**
@@ -65,7 +71,10 @@ const CREATE_STORES: MigrationStep = {
 
 /** The production migration steps, from data version 1 up to the code's. */
 // @spec-link [[module_on_device_database]]
-export const PRODUCTION_MIGRATIONS: readonly MigrationStep[] = Object.freeze([CREATE_STORES])
+export const PRODUCTION_MIGRATIONS: readonly MigrationStep[] = Object.freeze([
+  CREATE_STORES,
+  KEPT_SESSIONS_V2,
+])
 
 /**
  * Intent: the data version a list of migration steps brings the database to, its last step's.
@@ -80,7 +89,7 @@ export function migrationsDataVersion(steps: readonly MigrationStep[]): number {
   return steps.length
 }
 
-/** The code's data version: 1 in v3.0. */
+/** The code's data version: 1 in v3.0, 2 from v3.1. */
 // @spec-link [[module_on_device_database]]
 export const DATABASE_DATA_VERSION: number = migrationsDataVersion(PRODUCTION_MIGRATIONS)
 
@@ -167,7 +176,11 @@ function openAtDataVersion(opening: DatabaseOpening): Promise<IDBDatabase> {
       const transaction = request.transaction
       if (transaction === null) throw new Error('database: an upgrade without its transaction')
       try {
-        runMigrations({ database: request.result, transaction }, event.oldVersion, opening)
+        runMigrations(
+          { database: request.result, transaction, appVersion: opening.appVersion },
+          event.oldVersion,
+          opening,
+        )
       } catch (error) {
         upgradeFailure = error
         transaction.abort()

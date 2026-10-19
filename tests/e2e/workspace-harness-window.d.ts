@@ -841,11 +841,34 @@ interface WorkspaceHarnessStorageApi {
 }
 
 /**
+ * A kept session as data version 1 (v3.0) stored it, as raw values: its session-wide record,
+ * its body and, when kept, its played notes.
+ */
+interface WorkspaceHarnessVersionOneSession {
+  readonly summary: unknown
+  readonly body: unknown
+  readonly playedNotes?: unknown
+}
+
+/**
  * Published before the load only with `?storageLoad=held`: the load does not start, so the page
  * shows only its background, until `release()`.
  */
 interface WorkspaceHarnessHeldLoad {
   release: () => void
+  /**
+   * Before `release()` only (throws after it, or once the app's port has opened): open the
+   * database as a v3.0 tab would, at data version 1 (`ready`, or this throws), and write `count`
+   * copies of `template`, in batches of 50, copy `i` under `session-{startedAt}-{i}`, its
+   * session-wide record's `startedAt` the template's plus `i` minutes and its `sessionSeed` `i`,
+   * its body and played notes as given. The values are written as given, never through the save
+   * policy or a codec. The v3.0 port stays open, as a v3.0 tab left open: the load's upgrade to
+   * data version 2 closes it.
+   */
+  seedVersionOneSessions: (
+    template: WorkspaceHarnessVersionOneSession,
+    count: number,
+  ) => Promise<void>
 }
 
 interface Window {

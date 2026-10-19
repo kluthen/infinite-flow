@@ -168,7 +168,7 @@ export interface StoredSummary {
   readonly lengthSeconds: number
   readonly phraseCount: number
   readonly instrument: { readonly displayName: string }
-  readonly musicalProfile: { readonly musicalProfile: string; readonly isCustom: boolean }
+  readonly presetLabel: string
   readonly favoritesCount: number
   readonly playedNotesKept: boolean
   readonly pinned: boolean
@@ -186,16 +186,13 @@ export async function storedSummary(page: Page, key: string): Promise<StoredSumm
 export function expectedLines(summary: StoredSummary): string[] {
   const { lengthSeconds, phraseCount, favoritesCount } = summary
   const length = lengthSeconds < 30 ? 'Under 1 min' : `${Math.round(lengthSeconds / 60)} min`
-  const profile = summary.musicalProfile.isCustom
-    ? `Custom (${summary.musicalProfile.musicalProfile} grammar)`
-    : summary.musicalProfile.musicalProfile
   const favorites =
     favoritesCount === 0
       ? 'No favorites'
       : `${favoritesCount} ${favoritesCount === 1 ? 'favorite' : 'favorites'}`
   const phrases = `${phraseCount} ${phraseCount === 1 ? 'phrase' : 'phrases'}`
   return [
-    `session-row-meta: ${length} · ${phrases} · ${summary.instrument.displayName} · ${profile}`,
+    `session-row-meta: ${length} · ${phrases} · ${summary.instrument.displayName} · ${summary.presetLabel}`,
     `session-row-meta: ${[
       favorites,
       ...(summary.playedNotesKept ? ['Played notes kept'] : []),

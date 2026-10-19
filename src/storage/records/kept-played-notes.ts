@@ -11,7 +11,7 @@ import { deepFreeze } from '@/domain/events/deep-freeze'
 import type { RecordedPlayedNote, ReviewedPhrase } from '@/session/session-history'
 
 import type { RecordVersions } from '../record-envelope'
-import { assertKeptAppVersion, KEPT_SESSION_DATA_VERSION } from './kept-reading'
+import { assertKeptAppVersion, KEPT_PLAYED_NOTES_DATA_VERSION } from './kept-reading'
 import {
   anyArray,
   exactRecord,
@@ -75,7 +75,7 @@ export function keptPlayedNotesRecord(
   )
   // Array.prototype.sort is stable, so equal onsets keep their session order.
   notes.sort((a, b) => a.onset - b.onset)
-  return { dataVersion: KEPT_SESSION_DATA_VERSION, appVersion, notes }
+  return { dataVersion: KEPT_PLAYED_NOTES_DATA_VERSION, appVersion, notes }
 }
 
 /** Intent: one stored played note, as a session note in session seconds, or a refusal. */

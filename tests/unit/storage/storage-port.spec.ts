@@ -11,6 +11,7 @@ import {
   failingPutFactory,
   freshFactory,
   migrationsUpTo,
+  NEWER_DATA_VERSION,
   rawGet,
   recordingManager,
   sampleRecord,
@@ -79,7 +80,7 @@ describe('writing and reading records', () => {
       { dataVersion: 1, payload: 1 },
       { dataVersion: 1, appVersion: '', payload: 1 },
       { dataVersion: 0, appVersion: TEST_APP_VERSION, payload: 1 },
-      { dataVersion: 2, appVersion: TEST_APP_VERSION, payload: 1 },
+      { dataVersion: NEWER_DATA_VERSION, appVersion: TEST_APP_VERSION, payload: 1 },
     ]
 
     for (const record of invalid) {

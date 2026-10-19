@@ -24,6 +24,7 @@ const ReviewPanelStub = defineComponent({
   props: {
     records: { type: Array as PropType<readonly SessionHistoryRecord[]>, required: true },
     instrumentName: { type: String, required: true },
+    presetLabel: { type: String, required: true },
     viewport: { type: Object as PropType<StaffViewport | null>, default: null },
     noRoom: { type: Boolean, required: true },
     format: { type: String as PropType<GeneratedNotesFormat>, required: true },

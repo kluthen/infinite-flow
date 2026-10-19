@@ -22,8 +22,8 @@ import { isInstrumentClef, type InstrumentClef } from '@/domain/profile/instrume
 import type { SessionHistoryRecord } from '@/session/session-history'
 
 import type { RecordVersions } from '../record-envelope'
-import { parseKeptHarmony, parseKeptIntent } from './kept-phrase-parsers'
-import { assertKeptAppVersion, KEPT_SESSION_DATA_VERSION } from './kept-reading'
+import { parseKeptHarmony, parseKeptIntent, parseKeptIntentV1 } from './kept-phrase-parsers'
+import { assertKeptAppVersion, KEPT_SESSION_BODY_DATA_VERSION } from './kept-reading'
 import {
   booleanValue,
   exactRecord,
@@ -132,9 +132,9 @@ function keptPhraseRecord(
 }
 
 /**
- * Intent: the body of a session's recorded phrases, each marked a favorite when its number is in
- * `favorites`, with every start rebased to seconds from phrase 1's scheduled start. Throws for an
- * empty app version.
+ * Intent: the body of a session's recorded phrases, written at the body's data version (2), each
+ * marked a favorite when its number is in `favorites`, with every start rebased to seconds from
+ * phrase 1's scheduled start. Throws for an empty app version.
  */
 // @spec-link [[module_kept_session_codec]]
 export function keptSessionBodyRecord(
@@ -145,7 +145,7 @@ export function keptSessionBodyRecord(
   assertKeptAppVersion(appVersion)
   const origin = records[0]!.startedAt
   return {
-    dataVersion: KEPT_SESSION_DATA_VERSION,
+    dataVersion: KEPT_SESSION_BODY_DATA_VERSION,
     appVersion,
     phrases: records.map((record) =>
       keptPhraseRecord(record, origin, favorites.has(record.phraseNumber)),
@@ -156,8 +156,8 @@ export function keptSessionBodyRecord(
 /**
  * Intent: the body of phrases read back from a stored body, each copied by name as it was read
  * (its start as `startsAt`), with the favorite mark `favorite` gives it by its number, written by
- * `appVersion` at data version 1: a stored body encoded again after the session's save. Throws for
- * an empty app version.
+ * `appVersion` at the body's data version (2): a stored body encoded again after the session's
+ * save, or a data version 1 body the upgrade step read. Throws for an empty app version.
  */
 // @spec-link [[module_kept_session_codec]]
 // @spec-link [[module_kept_session_changes]]
@@ -168,7 +168,7 @@ export function rewrittenKeptBodyRecord(
 ): KeptSessionBodyRecord {
   assertKeptAppVersion(appVersion)
   return {
-    dataVersion: KEPT_SESSION_DATA_VERSION,
+    dataVersion: KEPT_SESSION_BODY_DATA_VERSION,
     appVersion,
     phrases: phrases.map((phrase) => ({
       phraseNumber: phrase.phraseNumber,
@@ -212,8 +212,14 @@ function assertRequestMatchesIntent(
     throw new KeptRecordError(`${context} request and intent disagree on the request id or seed.`)
 }
 
-/** Intent: one stored phrase read back through the domain's parsers, or a refusal. */
-function parsePhrase(value: unknown, context: string): ParsedKeptPhrase {
+/** How a body's phrases read their stored intent: data version 2's reader or version 1's. */
+type IntentReader = (input: unknown) => GenerationIntent
+
+/**
+ * Intent: one stored phrase read back through the domain's parsers, its intent through
+ * `readIntent`, or a refusal.
+ */
+function parsePhrase(value: unknown, context: string, readIntent: IntentReader): ParsedKeptPhrase {
   const record = exactRecord(value, KEPT_PHRASE_KEYS, context, ['repeatOf'])
   const phraseNumber = integerIn(
     record.phraseNumber,
@@ -222,7 +228,7 @@ function parsePhrase(value: unknown, context: string): ParsedKeptPhrase {
     `${context}.phraseNumber`,
   )
   const request = parseGenerationRequest(record.request)
-  const intent = parseKeptIntent(record.intent)
+  const intent = readIntent(record.intent)
   assertRequestMatchesIntent(request, intent, context)
   const { clef } = record
   if (!isInstrumentClef(clef)) throw new KeptRecordError(`${context}.clef is unknown.`)
@@ -252,19 +258,35 @@ function assertSoundingOrder(phrases: readonly ParsedKeptPhrase[]): void {
   })
 }
 
-/**
- * Intent: read a current body back into its phrases, in sounding order: exactly its keys, at least
- * one phrase, each through the domain's parsers (request, timeline, harmony, intent with its
- * profile from its data) with its request and intent agreeing, and numbers and starts strictly
- * increasing from the first phrase at 0. Returns a fresh deep-frozen list; throws a refusal for
- * anything invalid, never repairing it.
- */
-// @spec-link [[module_kept_session_codec]]
-export function parseKeptSessionBody(value: unknown): readonly ParsedKeptPhrase[] {
+/** Intent: a stored body's phrases, their intents through `readIntent`, or a refusal. */
+function parseBody(value: unknown, readIntent: IntentReader): readonly ParsedKeptPhrase[] {
   const record = exactRecord(value, KEPT_SESSION_BODY_KEYS, 'Kept session body')
   const phrases = nonEmptyArray(record.phrases, 'Kept session body.phrases').map((phrase, index) =>
-    parsePhrase(phrase, `Kept session body.phrases[${index}]`),
+    parsePhrase(phrase, `Kept session body.phrases[${index}]`, readIntent),
   )
   assertSoundingOrder(phrases)
   return deepFreeze(phrases)
+}
+
+/**
+ * Intent: read a current (data version 2) body back into its phrases, in sounding order: exactly
+ * its keys, at least one phrase, each through the domain's parsers (request, timeline, harmony,
+ * intent with its figure levels and its profile from its data) with its request and intent
+ * agreeing, and numbers and starts strictly increasing from the first phrase at 0. Returns a
+ * fresh deep-frozen list; throws a refusal for anything invalid, never repairing it.
+ */
+// @spec-link [[module_kept_session_codec]]
+export function parseKeptSessionBody(value: unknown): readonly ParsedKeptPhrase[] {
+  return parseBody(value, parseKeptIntent)
+}
+
+/**
+ * Intent: read a data version 1 body back into its phrases, as the upgrade step to data version 2
+ * reads it: the same reading as `parseKeptSessionBody`, each phrase's intent in any of data
+ * version 1's three shapes. Returns a fresh deep-frozen list; throws a refusal for anything
+ * invalid, never repairing it.
+ */
+// @spec-link [[module_kept_session_upgrade_step]]
+export function parseKeptSessionBodyV1(value: unknown): readonly ParsedKeptPhrase[] {
+  return parseBody(value, parseKeptIntentV1)
 }

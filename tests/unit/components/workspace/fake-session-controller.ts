@@ -28,6 +28,7 @@ import type {
   SessionReview,
 } from '@/components/workspace/workspace-session-controller-types'
 import type { StalePhrasePrompt } from '@/components/workspace/workspace-stale-phrase'
+import { presetLabel } from '@/domain/controls/preset-label'
 import { getInstrumentProfile } from '@/domain/generation/generation-intent'
 import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import type { SessionHistory, SessionHistoryRecord } from '@/session/session-history'
@@ -115,8 +116,9 @@ export function fakeReviewHistory(
 
 /**
  * Intent: a frozen Review of `history`, showing or kept, its instrument named after the built-in
- * profile of the history's id, at tempo 90, not pinned unless `keeping` says otherwise, under the
- * fake key, its played notes not kept unless `playedNotesKept` says so.
+ * profile of the history's id, its preset label the history's start selection's, at tempo 90, not
+ * pinned unless `keeping` says otherwise, under the fake key, its played notes not kept unless
+ * `playedNotesKept` says so.
  */
 // @test-link [[req_last_session_review]]
 export function fakeReview(
@@ -128,6 +130,7 @@ export function fakeReview(
   return Object.freeze({
     history: history as ReviewedHistory,
     instrumentName: getInstrumentProfile(history.instrumentProfileId).displayName,
+    presetLabel: presetLabel(history.profileSelection),
     tempoReached: 90,
     keeping,
     key: FAKE_REVIEW_KEY,
@@ -149,6 +152,7 @@ export function heldSessionOf(review: SessionReview): MostRecentSession {
     session: Object.freeze({
       history,
       instrumentName,
+      presetLabel: review.presetLabel,
       tempoReached,
       keeping,
       key,
