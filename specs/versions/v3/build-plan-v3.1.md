@@ -1,6 +1,9 @@
 # Infinite Flow v3.1 — Build Plan
 
-Status: v7 (2026-10-19): wave 1's preflight corrections, before its first chunk: chunk 9's step
+Status: v8 (2026-10-19): from chunk 4's report, version 1 holds a third phrase shape (both the
+profile and the levels): chunk 8 reads it and routes chunk 4's mapping through
+`profile-to-levels.ts`, chunk 9's step reads all three (spec D367).
+v7 (2026-10-19): wave 1's preflight corrections, before its first chunk: chunk 9's step
 reads both shapes and stays in wave 2; the kept summary's profile comes from the session history;
 chunk 4 takes the profile out of the pitch policy and the harmony planner; chunk 8 owns the
 replay-key specs and the stale prompt's labels (spec D364–D366).
@@ -63,9 +66,10 @@ pair (item 22).
 and Jazz only, through the old two-segment control, and the seven levels have no control yet (chunk
 14, wave 5); every rule holds, only the list is short. From chunk 8 (wave 1) the stale-phrase prompt
 names a Neutral–Jazz change by the labels of the two chromatic figures, whose controls come with
-chunk 14 (wave 5). Between waves 1 and 2, data version 1's kept sessions hold two phrase shapes,
-a profile (v3.0) or the levels (chunk 8), both read; chunk 9's version 2 step (wave 2) carries both
-over (spec D364). Waves 0–3 may merge into `main` in that state and `main` may stay in it while T1
+chunk 14 (wave 5). Between chunks 4 (wave 1) and 9 (wave 2), data version 1's kept sessions hold
+up to three phrase shapes, all read: a profile only (v3.0), the profile and its levels (kept from
+chunk 4 until chunk 8), or the levels only (chunk 8); chunk 9's version 2 step (wave 2) carries all
+three over (spec D364, D367). Waves 0–3 may merge into `main` in that state and `main` may stay in it while T1
 waits, but no release is cut before wave 5 has merged.
 
 ## Gates
@@ -702,10 +706,10 @@ Depends on: 4
 Architecture capture: the `ifk3.` format (a revision of `module_phrase_replay_key`): what `ifk2.`
 carries less the musical profile's name and its customized flag, plus the seven levels by figure
 id; a built-in instrument by its id (as `ifk1.`), my instrument inline (as `ifk2.`) (B9, spec
-D250). The generation request without a musical profile. And the reading of a v3.0 kept phrase (a
-profile, no levels) through one mapping function, `src/storage/records/profile-to-levels.ts` (a
-profile name to B5.3's levels, whatever its customized flag), which chunk 9's upgrade step reuses
-in wave 2 (spec D364).
+D250). The generation request without a musical profile. And the reading of a kept phrase that
+holds a profile (v3.0's, or chunk 4's with its levels) through one mapping function,
+`src/storage/records/profile-to-levels.ts` (a profile name to B5.3's levels, whatever its
+customized flag), which chunk 9's upgrade step reuses in wave 2 (spec D364, D367).
 
 - **Goal:** write `ifk3.` for every phrase, holding the levels by figure and no name, while every
   `ifk1.` and `ifk2.` key keeps decoding to the same phrase; and take the musical profile out of
@@ -743,9 +747,14 @@ replay:phrase` replays all three. Code fact: the `ifk1.` payload is the unpadded
     1's. Chunk 9 makes the preset label from the same source (spec D365).
   - **Kept sessions keep reading:** v3.0's kept-session codec stores the request's shape
     (`parseKeptIntent` and `parseKeptProfileSelection` in `kept-phrase-parsers.ts`), so it now
-    writes levels, still at data version 1, and reads a version 1 phrase in either shape: its
-    levels, or a v3.0 profile through `profile-to-levels.ts`. Chunk 9's version 2 step reuses that
-    reader (spec D364).
+    writes levels, still at data version 1, and reads a version 1 phrase in any of its three
+    shapes: its levels only; a v3.0 profile only, mapped through `profile-to-levels.ts`; or both,
+    kept by chunk 4's code, where the stored levels must equal the profile's mapped levels or the
+    record is unreadable, as chunk 4's parser rules today (the levels read are then the same
+    either way). Code fact: chunk 4's `parseStoredFigureLevels` (`kept-phrase-parsers.ts`) calls
+    `levelsForProfile` directly; this chunk routes that call through `profile-to-levels.ts`, so
+    storage maps a stored profile in one place only (`module_stored_profile_to_levels`). Chunk 9's
+    version 2 step reuses that reader (spec D364, D367).
   - **The stale-phrase prompt's labels:** `StalePhrasePrompt.vue`'s label table drops Musical
     profile preset and adds the seven figure labels after Arpeggio chaos, per the design; until
     chunk 14 a Neutral–Jazz change is named by the two chromatic figures (the transitional
@@ -818,6 +827,10 @@ replay:phrase` replays all three. Code fact: the `ifk1.` payload is the unpadded
     an `ifk4.` key as an unsupported version.
   - No intent, key or kept phrase holds a profile or preset name (a test over each one's keys).
   - A v3.0-shaped kept session (seeded) still opens, its phrases read with its profile's levels.
+  - A session kept in chunk 4's shape (seeded: each phrase holds the profile and its levels) still
+    opens with those levels; a phrase in that shape whose levels differ from its profile's is read
+    as unreadable.
+  - No storage file but `profile-to-levels.ts` calls `levelsForProfile`.
   - A session kept by this chunk's code reopens, and its review and both exports are identical to
     those at its save.
   - After Use it, the kept session's summary names the session's profile, not phrase 1's.
@@ -844,11 +857,12 @@ Architecture capture: data version 2, inside v3.0's
 `DATABASE_DATA_VERSION` 1, its one step `CREATE_STORES` in `PRODUCTION_MIGRATIONS`,
 `src/storage/database.ts`, which refuses a gap in the steps): one upgrade step, in a new
 `src/storage/migrations/` and appended to that list, that rewrites the version 1 kept sessions,
-v3.0's and those kept by wave 1's code alike: it reads each phrase with chunk 8's reader (levels
-kept, a profile mapped through `profile-to-levels.ts`), and each summary's musical profile becomes
+v3.0's and those kept by wave 1's code alike, in all three phrase shapes: it reads each phrase with
+chunk 8's reader (levels only, kept; a profile only, mapped through `profile-to-levels.ts`; both,
+kept by chunk 4's code, kept when they agree), and each summary's musical profile becomes
 the session's preset label, a stored string. A record it cannot read is left as it is, for the codec
 to report as unreadable: the step never throws on a stored value, since a throwing step rolls the
-upgrade back and every later open rejects (`MigrationStepError`; spec D364). One data version per
+upgrade back and every later open rejects (`MigrationStepError`; spec D364, D367). One data version per
 stored shape that changes, each with its own step (v3.1 writes 2 and 3), so each migration is
 tested on its own and a development database is never left half-migrated.
 
@@ -894,9 +908,10 @@ tested on its own and a development database is never left half-migrated.
     notes, favorites, a comment) opens at data version 2: each phrase holds its profile's levels,
     each summary its label, and the review's notation and both exports are byte-identical to
     before.
-  - A version 1 database holding a v3.0-shaped session, a session kept by wave 1's code and one
-    damaged record opens at version 2: both sessions carried over, the damaged record left and read
-    as unreadable, the open never rejected.
+  - A version 1 database holding a v3.0-shaped session, a session in chunk 4's shape (profile and
+    levels), one kept by chunk 8's code (levels only) and one damaged record opens at version 2:
+    the three sessions carried over, each phrase holding its levels only, the damaged record left
+    and read as unreadable, the open never rejected.
   - A v3.0 tab open meanwhile becomes outdated by v3.0's own rule.
   - A new session's summary holds the label at its start, as a stored string: a later change of
     selection does not rewrite it.

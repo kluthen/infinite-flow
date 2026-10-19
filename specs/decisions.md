@@ -757,3 +757,11 @@ D359–D363 (the owner's rulings during v3.1's wave 0). D289 is unused.
   taking `rule_preset_management_actions` (chunk 17's). Now in:
   [Read first](versions/v3/build-plan-v3.1.md#read-first-what-v31-changes-in-v30-and-v2),
   [chunk 4](versions/v3/build-plan-v3.1.md#chunk-4--figure-levels-in-the-generation-request).
+
+- **D367 (2026-10-19): version 1 holds a third phrase shape; chunks 8 and 9 read it.** Chunk 4's
+  kept-intent parser stores `figureLevels` beside the profile, so phrases kept until chunk 8 hold
+  both. In that shape the levels must equal the profile's mapped levels, else the record is
+  unreadable (chunk 4's rule kept); chunk 8 routes the mapping through `profile-to-levels.ts`.
+  Now in: [Read first](versions/v3/build-plan-v3.1.md#read-first-what-v31-changes-in-v30-and-v2),
+  [chunk 8](versions/v3/build-plan-v3.1.md#chunk-8--replay-key-ifk3-the-profile-leaves-the-request),
+  [chunk 9](versions/v3/build-plan-v3.1.md#chunk-9--kept-sessions-hold-the-levels-and-the-preset-label).
