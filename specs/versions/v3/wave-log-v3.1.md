@@ -355,3 +355,11 @@ C6-3, C6-4, C7-1, C9-4.
   `module_on_device_database` incl. `MigrationUpgrade.appVersion`),
   `rule_earlier_kept_sessions_carried_over` (reads the mark from the summary, no phrase 1),
   `module_kept_session_upgrade_step`'s "not built yet".
+- **Plan v12 (af72dc2, `spec-writer`), D373–D375:** D373 inserts **chunk 22** (the review's
+  summary gives the session's length, from the same function as the stored `lengthSeconds`) into
+  wave 3, after chunk 12 (wave 3 not yet preflighted, so its preflight covers it); D374 records
+  M3 (the plan's method settles chunk 9's point) and opens **O233** for the owner with a new gate
+  **M3H** blocking only the release gate: accept that very long pinned v3.0 sessions (about 220+
+  of about 13 minutes) overrun the start-up wait once (recommended), or build read-time
+  conversion; D375 files **ISS-013** (Low), `parseConcertEventTimeline` accepting holes. Next
+  ids D376, O234.
