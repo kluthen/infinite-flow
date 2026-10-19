@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import {
+  JAZZ_FIGURE_LEVELS,
+  NEUTRAL_FIGURE_LEVELS,
+  type FigureLevels,
+} from '@/domain/figures/figure-levels'
+import {
   FOUR_FOUR_METER,
   makeGenerationRequest,
   makeRequestId,
@@ -278,7 +283,7 @@ describe('pitch-search-equivalence: orderCandidates', () => {
   it('matches the be9128b reference ordering over candidates from real compiled contexts', () => {
     const inputs = [
       fixtureInput({ seed: 1 }),
-      fixtureInput({ seed: 31, profile: 'Jazz' }),
+      fixtureInput({ seed: 31, figureLevels: JAZZ_FIGURE_LEVELS }),
       fixtureInput({ seed: 47, leapiness: 'Angular' }),
     ]
     const keys = keyFactories()
@@ -320,7 +325,7 @@ describe('pitch-search-equivalence: orderCandidates', () => {
 function fixtureInput(
   options: Partial<{
     seed: number
-    profile: 'Neutral' | 'Jazz'
+    figureLevels: FigureLevels
     contour: Contour
     leapiness: Leapiness
     arpeggioChaos: ArpeggioChaos
@@ -333,7 +338,6 @@ function fixtureInput(
     collection: 'Major',
     harmonicMotion: 'Static',
     tensionArc: 'Settled',
-    profile: 'Neutral',
   })
   if (harmony.kind !== 'harmony_candidate_domain') throw new Error('fixture harmony missing')
   const rhythms = makeRhythmCandidateDomain({
@@ -357,7 +361,7 @@ function fixtureInput(
       registerWindow: makeRegisterWindow(48, 72),
     }),
     policy: makePitchPolicy({
-      profile: options.profile ?? 'Neutral',
+      figureLevels: options.figureLevels ?? NEUTRAL_FIGURE_LEVELS,
       collection: 'Major',
       tonalCenter: 'C',
       contour: options.contour ?? 'Wandering',
@@ -444,8 +448,8 @@ describe('pitch-search-equivalence: advanceSearchStep vs advance', () => {
     const inputs = [
       fixtureInput({ seed: 1 }),
       fixtureInput({ seed: 19 }),
-      fixtureInput({ seed: 31, profile: 'Jazz' }),
-      fixtureInput({ seed: 31, profile: 'Jazz', withAppoggiatura: true }),
+      fixtureInput({ seed: 31, figureLevels: JAZZ_FIGURE_LEVELS }),
+      fixtureInput({ seed: 31, figureLevels: JAZZ_FIGURE_LEVELS, withAppoggiatura: true }),
       fixtureInput({ seed: 47, leapiness: 'Shaped' }),
       fixtureInput({ seed: 59, contour: 'Arch' }),
       fixtureInput({ seed: 61, arpeggioChaos: 'Chaotic' }),
@@ -622,8 +626,8 @@ describe('pitch-search-equivalence: searchPitchPlan', () => {
     const inputs: BoundPitchPlannerInput[] = [
       fixtureInput({ seed: 1 }),
       fixtureInput({ seed: 19 }),
-      fixtureInput({ seed: 31, profile: 'Jazz' }),
-      fixtureInput({ seed: 31, profile: 'Jazz', withAppoggiatura: true }),
+      fixtureInput({ seed: 31, figureLevels: JAZZ_FIGURE_LEVELS }),
+      fixtureInput({ seed: 31, figureLevels: JAZZ_FIGURE_LEVELS, withAppoggiatura: true }),
       fixtureInput({ seed: 47, leapiness: 'Shaped' }),
       fixtureInput({ seed: 57, contour: 'Wandering' }),
       fixtureInput({ seed: 59, contour: 'Arch' }),
@@ -635,7 +639,7 @@ describe('pitch-search-equivalence: searchPitchPlan', () => {
       // way in both implementations.
       fixtureInput({ seed: 1, fuel: 3 }),
       fixtureInput({ seed: 19, fuel: 5 }),
-      fixtureInput({ seed: 31, profile: 'Jazz', fuel: 10 }),
+      fixtureInput({ seed: 31, figureLevels: JAZZ_FIGURE_LEVELS, fuel: 10 }),
       fixtureInput({ seed: 47, leapiness: 'Shaped', fuel: 25 }),
       fixtureInput({ seed: 61, arpeggioChaos: 'Chaotic', fuel: 50 }),
     ]

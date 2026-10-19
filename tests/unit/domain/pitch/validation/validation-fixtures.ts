@@ -1,4 +1,8 @@
-import { MUSICAL_PROFILE_CAPABILITIES } from '@/domain/controls/profile-selection'
+import {
+  NEUTRAL_FIGURE_LEVELS,
+  generatorCapabilities,
+  type FigureLevels,
+} from '@/domain/figures/figure-levels'
 import { makeHarmonyCollection } from '@/domain/harmony/collection'
 import type {
   AbstractTensionRequirement,
@@ -93,7 +97,7 @@ export function figure(
 }
 
 interface ContextOverrides {
-  readonly profile?: 'Neutral' | 'Jazz'
+  readonly figureLevels?: FigureLevels
   readonly contour?: 'Rising' | 'Falling' | 'Arch' | 'Wandering'
   readonly leapiness?: 'Smooth' | 'Shaped' | 'Leaping' | 'Angular'
   readonly bars?: readonly RhythmBar[]
@@ -102,7 +106,7 @@ interface ContextOverrides {
   readonly requirement?: Partial<AbstractTensionRequirement>
   readonly binding?: ConcreteTensionBinding
   readonly window?: readonly [number, number]
-  /** Test-only override so a capability set can be exercised independent of the profile name. */
+  /** Test-only override so a capability set can be exercised independent of the figure levels. */
   readonly capabilities?: { readonly allowsChromaticApproach: boolean }
 }
 
@@ -110,19 +114,18 @@ interface ContextOverrides {
 // @test-link [[module_pitch_domain_validation]]
 export function context(overrides: ContextOverrides = {}): PitchValidationContext {
   const [minMidi, maxMidi] = overrides.window ?? [55, 79]
-  const profile = overrides.profile ?? 'Neutral'
+  const figureLevels = overrides.figureLevels ?? NEUTRAL_FIGURE_LEVELS
   return {
     request: {
       activeConcertRange: { kind: 'ActiveConcertRange', minMidi: 48, maxMidi: 84 },
       registerWindow: { minMidi, maxMidi },
     } as PitchValidationContext['request'],
     policy: {
-      profile,
       collection: 'Major',
       tonalCenter: 'C',
       contour: overrides.contour ?? 'Wandering',
       leapiness: overrides.leapiness ?? 'Leaping',
-      capabilities: overrides.capabilities ?? MUSICAL_PROFILE_CAPABILITIES[profile],
+      capabilities: overrides.capabilities ?? generatorCapabilities(figureLevels),
     },
     harmony: {
       identity: 'fixture-harmony',

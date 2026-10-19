@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import {
+  JAZZ_FIGURE_LEVELS,
+  NEUTRAL_FIGURE_LEVELS,
+  type FigureLevels,
+} from '@/domain/figures/figure-levels'
+import {
   FOUR_FOUR_METER,
   makeGenerationRequest,
   makeRequestId,
@@ -15,7 +20,6 @@ import { collectionPitchClasses } from '@/domain/pitch/pitch-harmony'
 import { bindTensionRequirement, makePitchPolicy } from '@/domain/pitch/pitch-policy'
 import { makeBoundPitchPlannerInput } from '@/domain/pitch/pitch-types'
 import type { BoundPitchPlannerInput, ConcreteTensionBinding } from '@/domain/pitch/pitch-types'
-import type { MusicalProfile } from '@/domain/controls/generation-controls'
 
 /** Plain UTF-16 code-unit order of two strings, independent of the runtime's locale. */
 function codeUnitOrder(a: string, b: string): number {
@@ -25,7 +29,7 @@ function codeUnitOrder(a: string, b: string): number {
 /** Build a realistic bound pitch-planner input over a static C-major tonic phrase. */
 function fixtureInput(
   input: {
-    readonly profile?: MusicalProfile
+    readonly figureLevels?: FigureLevels
     readonly tensionBinding?: ConcreteTensionBinding
     readonly window?: readonly [number, number]
     readonly capabilities?: { readonly allowsChromaticApproach: boolean }
@@ -36,7 +40,6 @@ function fixtureInput(
     collection: 'Major',
     harmonicMotion: 'Static',
     tensionArc: 'Settled',
-    profile: 'Neutral',
   })
   if (harmony.kind !== 'harmony_candidate_domain') throw new Error('fixture harmony missing')
   const tonic = harmony.candidates[0]
@@ -65,7 +68,7 @@ function fixtureInput(
       registerWindow: makeRegisterWindow(minMidi, maxMidi),
     }),
     policy: makePitchPolicy({
-      profile: input.profile ?? 'Neutral',
+      figureLevels: input.figureLevels ?? NEUTRAL_FIGURE_LEVELS,
       collection: 'Major',
       tonalCenter: 'C',
       contour: 'Wandering',
@@ -113,7 +116,7 @@ describe('pitch-candidates: buildCandidateDomains', () => {
 
   // @test-link [[rule_neutral_profile_diatonic_pitches]]
   it('never yields an out-of-collection pitch under the Neutral profile', () => {
-    const input = fixtureInput({ profile: 'Neutral' })
+    const input = fixtureInput({ figureLevels: NEUTRAL_FIGURE_LEVELS })
     const { domains, collection } = domainsFor(input)
     expect(collection).toEqual([0, 2, 4, 5, 7, 9, 11])
     for (const domain of domains) expect(domain.length).toBeGreaterThan(0)
@@ -123,9 +126,9 @@ describe('pitch-candidates: buildCandidateDomains', () => {
 
   // @test-link [[rule_jazz_chromatic_resolution]]
   it('admits out-of-collection Jazz chromatic candidates that a Neutral profile never produces', () => {
-    const neutral = domainsFor(fixtureInput({ profile: 'Neutral' })).domains
-    const jazz = domainsFor(fixtureInput({ profile: 'Jazz' })).domains
-    const { collection } = domainsFor(fixtureInput({ profile: 'Jazz' }))
+    const neutral = domainsFor(fixtureInput({ figureLevels: NEUTRAL_FIGURE_LEVELS })).domains
+    const jazz = domainsFor(fixtureInput({ figureLevels: JAZZ_FIGURE_LEVELS })).domains
+    const { collection } = domainsFor(fixtureInput({ figureLevels: JAZZ_FIGURE_LEVELS }))
     const neutralOutOfCollection = neutral
       .flat()
       .some((candidate) => !collection.includes(candidate.pitchClass))
@@ -139,12 +142,20 @@ describe('pitch-candidates: buildCandidateDomains', () => {
   // @test-link [[module_musical_profile_capabilities]]
   // @test-link [[rule_jazz_chromatic_resolution]]
   it('gates chromatic candidates on the declared capability, not the profile name', () => {
-    const { collection: neutralCollection } = domainsFor(fixtureInput({ profile: 'Neutral' }))
+    const { collection: neutralCollection } = domainsFor(
+      fixtureInput({ figureLevels: NEUTRAL_FIGURE_LEVELS }),
+    )
     const neutralWithCapability = domainsFor(
-      fixtureInput({ profile: 'Neutral', capabilities: { allowsChromaticApproach: true } }),
+      fixtureInput({
+        figureLevels: NEUTRAL_FIGURE_LEVELS,
+        capabilities: { allowsChromaticApproach: true },
+      }),
     ).domains
     const jazzWithoutCapability = domainsFor(
-      fixtureInput({ profile: 'Jazz', capabilities: { allowsChromaticApproach: false } }),
+      fixtureInput({
+        figureLevels: JAZZ_FIGURE_LEVELS,
+        capabilities: { allowsChromaticApproach: false },
+      }),
     ).domains
     expect(
       neutralWithCapability
@@ -195,7 +206,7 @@ describe('pitch-candidates: buildCandidateDomains', () => {
 
   // @test-link [[entity_pitch_candidate_domain]]
   it('keeps candidate identities unique within every attack domain', () => {
-    const { domains } = domainsFor(fixtureInput({ profile: 'Jazz' }))
+    const { domains } = domainsFor(fixtureInput({ figureLevels: JAZZ_FIGURE_LEVELS }))
     for (const domain of domains) {
       const identities = domain.map((candidate) => candidate.identity)
       expect(new Set(identities).size).toBe(identities.length)
@@ -204,7 +215,7 @@ describe('pitch-candidates: buildCandidateDomains', () => {
 
   // @test-link [[entity_pitch_candidate_domain]]
   it('freezes each domain in canonical order (role, obligation, pitch class, octave) with enumerationIndex = position', () => {
-    const { domains } = domainsFor(fixtureInput({ profile: 'Jazz' }))
+    const { domains } = domainsFor(fixtureInput({ figureLevels: JAZZ_FIGURE_LEVELS }))
     for (const domain of domains) {
       expect(Object.isFrozen(domain)).toBe(true)
       expect(domain.map((candidate) => candidate.enumerationIndex)).toEqual(

@@ -1,3 +1,7 @@
+// @vitest-environment node
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { join, relative } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -13,6 +17,38 @@ import {
   parseFigureLevels,
   type FigureLevels,
 } from '@/domain/figures/figure-levels'
+
+const REPO_ROOT = fileURLToPath(new URL('../../../../', import.meta.url))
+
+/** The generator and validator folders, which decide notes from the figure levels alone. */
+const DECIDING_FOLDERS = [
+  'src/domain/pitch',
+  'src/domain/harmony',
+  'src/domain/rhythm',
+  'src/domain/generation',
+  'src/domain/validation',
+  'src/domain/backing',
+]
+
+/**
+ * The one file in those folders allowed to read the selection's profile name: it maps the musical
+ * profile selection to the request's figure levels through levelsForProfile, a mapping and not a
+ * decision.
+ */
+const PROFILE_MAPPING_FILE = 'src/domain/generation/generation-intent.ts'
+
+/** A profile name compared or read where a note is decided. */
+const PROFILE_DECISION =
+  /['"](?:Jazz|Neutral)['"]|musicalProfile\s*[!=]==|\.musicalProfile\.musicalProfile/u
+
+/** Intent: every source file under one repo folder, as a repo-relative path and its text. */
+function sourceFiles(folder: string): readonly { path: string; text: string }[] {
+  const root = join(REPO_ROOT, folder)
+  return readdirSync(root, { recursive: true, encoding: 'utf8' })
+    .filter((entry) => /\.(?:ts|vue)$/u.test(entry))
+    .map((entry) => join(root, entry))
+    .map((path) => ({ path: relative(REPO_ROOT, path), text: readFileSync(path, 'utf8') }))
+}
 
 /** Intent: Neutral's levels with one figure's level replaced. */
 function neutralWith(changes: Partial<FigureLevels>): FigureLevels {
@@ -152,5 +188,32 @@ describe('parseFigureLevels', () => {
     for (const value of [null, undefined, 'asToday', 3, [...FIGURE_IDS]]) {
       expect(() => parseFigureLevels(value)).toThrow(FigureLevelsError)
     }
+  })
+})
+
+// @test-link [[module_figure_levels]]
+// @test-link [[module_musical_profile_capabilities]]
+describe('no generator or validator decision reads a profile name', () => {
+  it('keeps no table of capabilities keyed by a musical profile anywhere in the source', () => {
+    const mentions = sourceFiles('src')
+      .filter(({ text }) => text.includes('MUSICAL_PROFILE_CAPABILITIES'))
+      .map(({ path }) => path)
+    expect(mentions).toEqual([])
+  })
+
+  it('compares no profile name in the generator and validator folders', () => {
+    const folders = DECIDING_FOLDERS.filter((folder) => existsSync(join(REPO_ROOT, folder)))
+    expect(folders.length).toBeGreaterThan(0)
+    const readers = folders
+      .flatMap(sourceFiles)
+      .filter(({ path }) => path !== PROFILE_MAPPING_FILE)
+      .flatMap(({ path, text }) =>
+        text
+          .split('\n')
+          .map((line, index) => ({ line, at: `${path}:${index + 1}` }))
+          .filter(({ line }) => PROFILE_DECISION.test(line))
+          .map(({ at, line }) => `${at}: ${line.trim()}`),
+      )
+    expect(readers).toEqual([])
   })
 })

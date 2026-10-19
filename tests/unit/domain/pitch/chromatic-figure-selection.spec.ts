@@ -10,6 +10,7 @@
 
 import { describe, expect, it } from 'vitest'
 
+import { JAZZ_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import {
   FOUR_FOUR_METER,
   makeGenerationRequest,
@@ -37,7 +38,6 @@ function pinnedInput() {
     collection: 'Major',
     harmonicMotion: 'Gentle diatonic',
     tensionArc: 'Settled',
-    profile: 'Jazz',
   })
   if (harmony.kind !== 'harmony_candidate_domain') throw new Error('fixture harmony missing')
   const harmonyCandidate = harmony.candidates[0]
@@ -68,7 +68,7 @@ function pinnedInput() {
       registerWindow: makeRegisterWindow(48, 84),
     }),
     policy: makePitchPolicy({
-      profile: 'Jazz',
+      figureLevels: JAZZ_FIGURE_LEVELS,
       collection: 'Major',
       tonalCenter: 'C',
       contour: 'Wandering',

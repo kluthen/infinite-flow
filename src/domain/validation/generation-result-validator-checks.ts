@@ -319,7 +319,6 @@ export function harmonyProvenanceFailures(
     collection: intent.controls.collection,
     harmonicMotion: intent.controls.harmonicMotion,
     tensionArc: intent.controls.tension,
-    profile: intent.musicalProfile.musicalProfile,
   })
   if (domain.kind !== 'harmony_candidate_domain')
     return [{ code: 'harmony_provenance_mismatch', detail: 'no_legal_harmony_plan' }]

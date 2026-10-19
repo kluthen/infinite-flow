@@ -90,7 +90,6 @@ function noHarmonyPlan(intent: GenerationIntent): NoLegalHarmonyPlan {
       collection,
       harmonicMotion,
       tensionArc: tension,
-      profile: intent.musicalProfile.musicalProfile,
     },
   }
 }

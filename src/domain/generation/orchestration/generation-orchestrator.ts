@@ -66,7 +66,6 @@ export function buildHarmonyDomain(intent: GenerationIntent): HarmonyPlanResult 
     collection: intent.controls.collection,
     harmonicMotion: intent.controls.harmonicMotion,
     tensionArc: intent.controls.tension,
-    profile: intent.musicalProfile.musicalProfile,
   })
 }
 

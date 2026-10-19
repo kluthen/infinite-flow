@@ -21,7 +21,6 @@ function baseHarmony(): HarmonyCandidate {
     collection: 'Major',
     harmonicMotion: 'Static',
     tensionArc: 'Settled',
-    profile: 'Neutral',
   })
   if (domain.kind !== 'harmony_candidate_domain') throw new Error('fixture harmony missing')
   const candidate = domain.candidates[0]
@@ -137,7 +136,6 @@ function validatorAccepts(
       registerWindow: { minMidi: 0, maxMidi: 127 },
     } as PitchValidationContext['request'],
     policy: {
-      profile: 'Neutral',
       collection: 'Major',
       tonalCenter: 'C',
       contour: 'Wandering',

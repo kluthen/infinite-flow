@@ -89,7 +89,6 @@ export function buildWindowSearchFixture(seed: Seed = makeSeed(7)): WindowSearch
     collection: controls.collection,
     harmonicMotion: controls.harmonicMotion,
     tensionArc: controls.tension,
-    profile: musicalProfile.musicalProfile,
   })
   if (harmonyResult.kind !== 'harmony_candidate_domain')
     throw new Error('Fixture setup: no legal harmony plan.')

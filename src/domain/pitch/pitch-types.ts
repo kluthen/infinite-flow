@@ -3,16 +3,15 @@ import type {
   Collection,
   Contour,
   Leapiness,
-  MusicalProfile,
   PitchClass,
 } from '../controls/generation-controls'
 import { deepFreeze } from '../events/deep-freeze'
 import type { ConcertPitch } from '../events/concert-pitch'
+import type { GeneratorCapabilities } from '../figures/figure-levels'
 import type { PhraseEndingDebtAllowance } from '../generation/carry-in/phrase-ending-debt'
 import type { GenerationRequest } from '../generation/generation-request'
 import type { HarmonyCandidate, TensionFigureKind } from '../harmony/harmony-types'
 import type { RhythmCandidate } from '../rhythm/rhythm-types'
-import type { MusicalProfileCapabilities } from '../controls/profile-selection'
 import type { ContourPlan, ContourState } from './pitch-contour'
 import type { FigureState } from './pitch-figures'
 import type { MotionLimits, MotionState } from './pitch-motion'
@@ -37,15 +36,15 @@ export type PitchFigureKind = TensionFigureKind | 'chromatic_approach' | 'chroma
 // @spec-link [[entity_pitch_candidate_domain]]
 export interface PitchPolicy {
   readonly version: PitchSearchPolicyVersion
-  readonly profile: MusicalProfile
   readonly collection: Collection
   readonly tonalCenter: PitchClass
   readonly contour: Contour
   readonly leapiness: Leapiness
   readonly arpeggioChaos: ArpeggioChaos
   readonly searchFuel: number
+  /** What the request's figure levels allow the generator to write; no musical profile is held. */
   // @spec-link [[module_musical_profile_capabilities]]
-  readonly capabilities: MusicalProfileCapabilities
+  readonly capabilities: GeneratorCapabilities
 }
 
 // @spec-link [[entity_pitch_candidate_domain]]

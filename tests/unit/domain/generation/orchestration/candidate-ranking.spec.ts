@@ -17,7 +17,6 @@ function harmonyDomain(): readonly HarmonyCandidate[] {
     collection: 'Major',
     harmonicMotion: 'Active diatonic',
     tensionArc: 'Settled',
-    profile: 'Neutral',
   })
   if (isNoLegalHarmonyPlan(result)) throw new Error('Unexpected empty harmony domain.')
   return result.candidates

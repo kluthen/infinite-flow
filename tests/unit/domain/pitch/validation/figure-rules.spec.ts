@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { JAZZ_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { validatePitchMidis } from '@/domain/pitch/validation/pitch-phrase-validator'
 import { BASELINE, QUARTERS, bar, chord, context, figure, withMidis } from './validation-fixtures'
 
@@ -9,7 +10,7 @@ function failures(midis: readonly number[], overrides: Overrides = {}) {
   return result.kind === 'valid_pitch_phrase' ? [] : result.failures
 }
 
-const JAZZ = { profile: 'Jazz' } as const
+const JAZZ = { figureLevels: JAZZ_FIGURE_LEVELS } as const
 const REQUIRED = { requirement: { requiredFigureCount: 1, allowedBars: [1, 2] } } as const
 
 // @test-link [[module_pitch_domain_validation]]

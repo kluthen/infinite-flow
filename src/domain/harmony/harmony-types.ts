@@ -1,7 +1,6 @@
 import type {
   Collection,
   HarmonicMotion,
-  MusicalProfile,
   PitchClass,
   TensionArc,
 } from '../controls/generation-controls'
@@ -32,7 +31,6 @@ export interface HarmonyPlannerInput {
   readonly collection: Collection
   readonly harmonicMotion: HarmonicMotion
   readonly tensionArc: TensionArc
-  readonly profile: MusicalProfile
 }
 
 export interface BarRole {
