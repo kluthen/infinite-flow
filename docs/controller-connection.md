@@ -113,7 +113,7 @@ reactive status, the badge, the sheet's host and the close-focus rule. Everythin
 its reducer, the check and its copy, and the replay announcements) loads on demand. Without moving
 the replay announcements out, the entry chunk would have needed more.
 
-The budget is still 224 KiB. To give the entry chunk room for MIDI in the session, the session
+The budget was still 224 KiB then (300 KiB since v3.1, spec D359). To give the entry chunk room for MIDI in the session, the session
 runner (the engine and its failure ladder) now loads with the session controller, through
 `WorkspaceSession.loadSessionRunner()`: the entry chunk went from 228,797 bytes to about
 210.7 kB (see
@@ -470,7 +470,8 @@ are in [Technical choices made in chunk 13](midi-input.md#technical-choices-made
 - **The sheet is its own lazy chunk, warmed after mount,** and the profile list is passed in by
   the host so no shared startup chunk appears.
 - **The replay announcements load on demand,** with their console order kept.
-- **The entry budget is 224 KiB,** up from 220 KiB, for the header's status.
+- **The entry budget was 224 KiB,** up from 220 KiB, for the header's status (raised to 300 KiB
+  in v3.1, spec D359).
 - **The header form is frozen for the whole session,** count-in included. The flow handoff asks
   this for a late "block" answer; it is applied to every form change, so the header never changes
   shape while the player reads.

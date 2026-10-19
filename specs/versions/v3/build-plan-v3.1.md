@@ -1,8 +1,12 @@
 # Infinite Flow v3.1 — Build Plan
 
-Status: v4 (2026-10-19): gates D0 and R0 cleared, T1 not given, waves re-formed around it, code
-facts refreshed, design links on the frozen v3.1 design (spec D353–D356, ux D324). Ready for owner
-approval; not approved.
+Status: v6 (2026-10-19): gate CS cleared, wave 1 no longer waits on it (spec D363).
+v5 (2026-10-19): entry budget 300 KiB, gate CS for the MAJOR contract bump (it blocks wave 1's
+sync), the contract atoms each chunk revises, chunk 8 removes chunk 2's lint exception (spec
+D359–D362).
+v4 (2026-10-19): gates D0 and R0 cleared, T1 not given, waves re-formed around it, code facts
+refreshed, design links on the frozen v3.1 design (spec D353–D356, ux D324). Approved by the owner
+on 2026-10-19 (spec D357), with the transitional interface below.
 
 Embellishment figures and presets, written from [master spec Part B](master-spec.md#part-b--v31)
 (v1.0, approved 2026-10-08, with spec D250 written in) and the v3.1 design, frozen at
@@ -25,7 +29,7 @@ on d007b27); where code moves again before a wave starts, the wave preflight fol
 
 > Neutral and Jazz must keep generating exactly what v3.0 generates, note for note, while the idea
 > they are built on (a named "musical profile" the generator looks up) is taken out of about
-> thirty-five source files. A corpus recorded on v3.0 before any change
+> fifty source files (48 on d007b27, about ten of them in the generator and the validator). A corpus recorded on v3.0 before any change
 > ([chunk 2](#chunk-2--baselines-the-v30-phrase-corpus-and-the-bundle)) guards every generator
 > chunk.
 
@@ -33,20 +37,20 @@ on d007b27); where code moves again before a wave starts, the wave preflight fol
 purpose. Each enforcement point changes in exactly one chunk, never "along the way". Test titles are
 as on `main` (d007b27); a chunk finds each one by its title, not its line.
 
-| What holds today | Changed in | Becomes |
-| --- | --- | --- |
-| Contract guarantees `rule_mutation_profile_flip_keeps_controls` (removed), `rule_mutation_marks_profile_customized` 0.3, `rule_mutation_setting_scales` 0.2, `rule_mutation_reverts_at_session_end` 0.2 | **Applied** 2026-10-08 (CONTRACT 3.0, D246) | The new wordings hold for v3.0 and v3.1 alike. The flip atom itself is deleted at [chunk 12](#chunk-12--presets-replace-the-musical-profile)'s wave sync. |
-| The chromatic capability looked up from the profile's name: `MUSICAL_PROFILE_CAPABILITIES` (`src/domain/controls/profile-selection.ts:40-45`), read in `makePitchPolicy` (`src/domain/pitch/pitch-policy.ts:60`) and `melodicFailures` (`src/domain/validation/generation-result-validator.ts:141`) | [4](#chunk-4--figure-levels-in-the-generation-request) | Derived from the figure levels the request carries; no code reads a profile or preset name to decide a note. |
-| "Neutral is entirely diatonic", a project policy in [pitch-planner-validation.md](../../../docs/music/pitch-planner-validation.md#authority-and-ownership) and `rule_neutral_profile_diatonic_pitches` | [5](#chunk-5--levels-gate-the-figures) | A property of Neutral's levels: a chromatic note is refused only when both chromatic figures are Off. |
-| The profile flip in Vary settings: `tests/unit/session/settings-mutation-scales.spec.ts` › 'flips Neutral and Jazz, keeps every control and marks the profile customized', › 'marks the profile customized after a profile-controlled step, keeping its identity', › 'leaves the customized mark as it was after a step of a value the profile does not control', › 'classifies every eligible setting as profile-controlled, free, or the profile itself', › 'holds one scale per eligible setting…'; `tests/unit/session/settings-mutation.spec.ts` › 'changes exactly one eligible setting by one step, never tempo or the instrument' (its `musicalProfile` branch); `tests/e2e/session/session-vary-settings.spec.ts` › 'a profile flip shows in place at its phrase with nothing moving, and a hidden tab restores it'; the `VARIED` fixture of `tests/unit/components/workspace/WorkspaceShell-vary-settings.spec.ts` | [12](#chunk-12--presets-replace-the-musical-profile) | The figure step in the profile's place in the draw; Tension, Leapiness, Arpeggio chaos and the levels mark Custom. |
-| A profile sets seven controls and leaves Tension alone: `tests/unit/domain/controls/generation-controls.spec.ts` › 'applies each complete immutable bundle and reselecting replaces arbitrary custom values', › 'retains grammar identity on controlled custom edits and never mutates preset definitions', › 'does not mark a profile custom after a non-profile-controlled edit'; `tests/e2e/release/defaults-and-controls.spec.ts` › 'the Neutral preset sets its seven controlled values', › 'the Jazz preset sets its seven controlled values', › 'manually editing a preset-controlled value clears the preset selection to custom'; `tests/unit/composables/use-generation-session.spec.ts` › 'marks the applied preset custom after a manual rhythmic-variety edit, the same as any other preset field' | [12](#chunk-12--presets-replace-the-musical-profile) | A preset sets ten controls and seven levels; Custom names its base. |
-| The "Custom (Jazz grammar)" and "grammar retained" copy: `tests/unit/components/controls/control-options.spec.ts` › 'shows the retained grammar in parentheses during a custom edit'; `tests/unit/components/controls/ControlPanel.spec.ts` › 'shows the control-summary line and recomputes it…', › 'shows the retained-grammar custom status text and clears the preset selection', › 'holds both preset status texts in one cell…'; `WorkspaceShell-vary-settings.spec.ts` › 'shows the controller's settings during a session, and the player's own again at its end'; `session-vary-settings.spec.ts` › 'a register stepped from Varying is Varying again after Stop, and the flag is set in the Review' | 12 (summary copy), [13](#chunk-13--the-preset-bar-and-the-key-and-mode-marks) (the status line goes) | "Custom, based on {name}" in the box and the summary; the status line is removed. |
-| Replay keys encode the profile name and its customized flag: `tests/unit/generation-worker/phrase-replay-key.spec.ts` (the `tupleOf` helper, › 'round-trips a custom Jazz profile', › 'is one line of the ifk1 prefix and unpadded base64url', › 'rejects a payload that is not a 7-entry array', › 'rejects a slot of the wrong type and names it', › 'refuses a key that is not one well-formed ifk1 key'); the `ifk1`-bound cases of `phrase-replay.spec.ts` and `tests/unit/scripts/replay-phrase-script.spec.ts` | [8](#chunk-8--replay-key-ifk3-the-profile-leaves-the-request) | Encoding writes `ifk3.` for every phrase; every `ifk1.` and `ifk2.` decoding test stays (`ifk2.`'s in `phrase-replay-key-ifk2.spec.ts` and the replay script's spec). |
-| The worker refuses any extra field in the profile selection (`parseProfileSelection`, `PROFILE_SELECTION_ALLOWED_KEYS`, `src/generation-worker/generation-worker-inbound.ts:41-58`). No test covers that refusal today. | 8 | The intent has no profile selection; the worker checks the seven levels instead, refusing an unknown figure or level, with a test. |
-| v3.0's settings record holds the musical profile selection (the `profileSelection` record of `src/storage/records/settings-record.ts`, [v3.0 chunk 6](build-plan.md#chunk-6--tolerant-settings-codec)) | [16](#chunk-16--presets-and-levels-on-the-device) | The preset selection and seven level records, migrated at open (data version 3). |
-| v3.0's kept phrases hold the profile in their reproduction inputs (`parseKeptIntent`, `src/storage/records/kept-phrase-parsers.ts`); the summary holds the musical profile with its customized flag (`src/storage/records/kept-session-summary.ts`) ([v3.0 chunk 9](build-plan.md#chunk-9--kept-session-record)) | 8 (read), [9](#chunk-9--kept-sessions-hold-the-levels-and-the-preset-label) (migrated) | The seven levels, and the session's preset label, migrated at open (data version 2). |
-| v3.0's pre-generation discards on a change of the profile, part of its queue key (`settingsKeyOf`, `src/components/workspace/workspace-pregeneration.ts`; [v3.0 chunk 24](build-plan.md#chunk-24--pre-generation-at-idle)) | 12, 15, [19](#chunk-19--pre-generation-discards) | A preset choice that changes something, a level, or the restriction in force (B8.3). |
-| The cold-generation goldens (`tests/unit/domain/generation/orchestration/cold-generation-golden/`), `generation-outcome-golden.spec.ts`, the `ifk1.` corpus recorded on v2.0 (`tests/fixtures/replay-keys/ifk1-v2.0.json`, read by `phrase-replay-key-corpus.spec.ts`) and v3.0's `ifk2.` tests (`phrase-replay-key-ifk2.spec.ts`; v3.0 recorded no `ifk2.` corpus) | **Never** | They stay byte-identical: Neutral and Jazz reproduce v3.0 (item 2). A chunk that needs to touch one is wrong. |
+| What holds today                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | Changed in                                                                                           | Becomes                                                                                                                                                               |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Contract guarantees `rule_mutation_profile_flip_keeps_controls` (removed), `rule_mutation_marks_profile_customized` 0.3, `rule_mutation_setting_scales` 0.2, `rule_mutation_reverts_at_session_end` 0.2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | **Applied** 2026-10-08 (CONTRACT 3.0, D246)                                                          | The new wordings hold for v3.0 and v3.1 alike. The flip atom itself is deleted at [chunk 12](#chunk-12--presets-replace-the-musical-profile)'s wave sync.             |
+| The chromatic capability looked up from the profile's name: `MUSICAL_PROFILE_CAPABILITIES` (`src/domain/controls/profile-selection.ts:40-45`), read in `makePitchPolicy` (`src/domain/pitch/pitch-policy.ts:60`) and `melodicFailures` (`src/domain/validation/generation-result-validator.ts:141`)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | [4](#chunk-4--figure-levels-in-the-generation-request)                                               | Derived from the figure levels the request carries; no code reads a profile or preset name to decide a note.                                                          |
+| "Neutral is entirely diatonic", a project policy in [pitch-planner-validation.md](../../../docs/music/pitch-planner-validation.md#authority-and-ownership) and `rule_neutral_profile_diatonic_pitches`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | [5](#chunk-5--levels-gate-the-figures)                                                               | A property of Neutral's levels: a chromatic note is refused only when both chromatic figures are Off.                                                                 |
+| The profile flip in Vary settings: `tests/unit/session/settings-mutation-scales.spec.ts` › 'flips Neutral and Jazz, keeps every control and marks the profile customized', › 'marks the profile customized after a profile-controlled step, keeping its identity', › 'leaves the customized mark as it was after a step of a value the profile does not control', › 'classifies every eligible setting as profile-controlled, free, or the profile itself', › 'holds one scale per eligible setting…'; `tests/unit/session/settings-mutation.spec.ts` › 'changes exactly one eligible setting by one step, never tempo or the instrument' (its `musicalProfile` branch); `tests/e2e/session/session-vary-settings.spec.ts` › 'a profile flip shows in place at its phrase with nothing moving, and a hidden tab restores it'; the `VARIED` fixture of `tests/unit/components/workspace/WorkspaceShell-vary-settings.spec.ts` | [12](#chunk-12--presets-replace-the-musical-profile)                                                 | The figure step in the profile's place in the draw; Tension, Leapiness, Arpeggio chaos and the levels mark Custom.                                                    |
+| A profile sets seven controls and leaves Tension alone: `tests/unit/domain/controls/generation-controls.spec.ts` › 'applies each complete immutable bundle and reselecting replaces arbitrary custom values', › 'retains grammar identity on controlled custom edits and never mutates preset definitions', › 'does not mark a profile custom after a non-profile-controlled edit'; `tests/e2e/release/defaults-and-controls.spec.ts` › 'the Neutral preset sets its seven controlled values', › 'the Jazz preset sets its seven controlled values', › 'manually editing a preset-controlled value clears the preset selection to custom'; `tests/unit/composables/use-generation-session.spec.ts` › 'marks the applied preset custom after a manual rhythmic-variety edit, the same as any other preset field'                                                                                                              | [12](#chunk-12--presets-replace-the-musical-profile)                                                 | A preset sets ten controls and seven levels; Custom names its base.                                                                                                   |
+| The "Custom (Jazz grammar)" and "grammar retained" copy: `tests/unit/components/controls/control-options.spec.ts` › 'shows the retained grammar in parentheses during a custom edit'; `tests/unit/components/controls/ControlPanel.spec.ts` › 'shows the control-summary line and recomputes it…', › 'shows the retained-grammar custom status text and clears the preset selection', › 'holds both preset status texts in one cell…'; `WorkspaceShell-vary-settings.spec.ts` › 'shows the controller's settings during a session, and the player's own again at its end'; `session-vary-settings.spec.ts` › 'a register stepped from Varying is Varying again after Stop, and the flag is set in the Review'                                                                                                                                                                                                                | 12 (summary copy), [13](#chunk-13--the-preset-bar-and-the-key-and-mode-marks) (the status line goes) | "Custom, based on {name}" in the box and the summary; the status line is removed.                                                                                     |
+| Replay keys encode the profile name and its customized flag: `tests/unit/generation-worker/phrase-replay-key.spec.ts` (the `tupleOf` helper, › 'round-trips a custom Jazz profile', › 'is one line of the ifk1 prefix and unpadded base64url', › 'rejects a payload that is not a 7-entry array', › 'rejects a slot of the wrong type and names it', › 'refuses a key that is not one well-formed ifk1 key'); the `ifk1`-bound cases of `phrase-replay.spec.ts` and `tests/unit/scripts/replay-phrase-script.spec.ts`                                                                                                                                                                                                                                                                                                                                                                                                        | [8](#chunk-8--replay-key-ifk3-the-profile-leaves-the-request)                                        | Encoding writes `ifk3.` for every phrase; every `ifk1.` and `ifk2.` decoding test stays (`ifk2.`'s in `phrase-replay-key-ifk2.spec.ts` and the replay script's spec). |
+| The worker refuses any extra field in the profile selection (`parseProfileSelection`, `PROFILE_SELECTION_ALLOWED_KEYS`, `src/generation-worker/generation-worker-inbound.ts:41-58`). No test covers that refusal today.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | 8                                                                                                    | The intent has no profile selection; the worker checks the seven levels instead, refusing an unknown figure or level, with a test.                                    |
+| v3.0's settings record holds the musical profile selection (the `profileSelection` record of `src/storage/records/settings-record.ts`, [v3.0 chunk 6](build-plan.md#chunk-6--tolerant-settings-codec))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | [16](#chunk-16--presets-and-levels-on-the-device)                                                    | The preset selection and seven level records, migrated at open (data version 3).                                                                                      |
+| v3.0's kept phrases hold the profile in their reproduction inputs (`parseKeptIntent`, `src/storage/records/kept-phrase-parsers.ts`); the summary holds the musical profile with its customized flag (`src/storage/records/kept-session-summary.ts`) ([v3.0 chunk 9](build-plan.md#chunk-9--kept-session-record))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | 8 (read), [9](#chunk-9--kept-sessions-hold-the-levels-and-the-preset-label) (migrated)               | The seven levels, and the session's preset label, migrated at open (data version 2).                                                                                  |
+| v3.0's pre-generation discards on a change of the profile, part of its queue key (`settingsKeyOf`, `src/components/workspace/workspace-pregeneration.ts`; [v3.0 chunk 24](build-plan.md#chunk-24--pre-generation-at-idle))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | 12, 15, [19](#chunk-19--pre-generation-discards)                                                     | A preset choice that changes something, a level, or the restriction in force (B8.3).                                                                                  |
+| The cold-generation goldens (`tests/unit/domain/generation/orchestration/cold-generation-golden/`), `generation-outcome-golden.spec.ts`, the `ifk1.` corpus recorded on v2.0 (`tests/fixtures/replay-keys/ifk1-v2.0.json`, read by `phrase-replay-key-corpus.spec.ts`) and v3.0's `ifk2.` tests (`phrase-replay-key-ifk2.spec.ts`; v3.0 recorded no `ifk2.` corpus)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | **Never**                                                                                            | They stay byte-identical: Neutral and Jazz reproduce v3.0 (item 2). A chunk that needs to touch one is wrong.                                                         |
 
 Every replaced test gets its v3.1 counterpart in the same chunk, and the release gate lists each
 pair (item 22).
@@ -58,26 +62,27 @@ and `main` may stay in it while T1 waits, but no release is cut before wave 5 ha
 
 ## Gates
 
-| Gate | What | Cleared by | Blocks | Status |
-| --- | --- | --- | --- | --- |
-| **R0** | v3.0 is released: the [v3.0 release gate](build-plan.md#chunk-26--v30-release-gate) passed and `3.0.0` is tagged, so chunk 2's corpus is recorded on the code v3.0 ships. | The owner, at v3.0's release | Chunks 0 and 2, and through them every chunk | done (2026-10-16, tag `v3.0.0`; spec D354) |
-| **D0** | The owner approves the v3.1 design; `ux-writer` copies it into [`ui_ux/versions/v3.1/`](../../../ui_ux/versions/v3.1/README.md); `spec-writer` repoints this plan's design links there. | The owner; `ux-writer`; `spec-writer` | Chunks 1 and 15, and through 1 the interface chunks (13, 14, 17, 18, 20) | done (2026-10-19, spec D353; frozen by ux D324), v3.1 only |
-| **T1** | The owner allows one `ux-writer` pass on `src/styles/theme.css` and `components.css` for v3.1's token additions ([`token-source-v3.1.md`](../../../ui_ux/versions/v3.1/token-source-v3.1.md), part 1 of the root's `token-source-v3.1-v3.2.md`), as he did for v3.0 (ux Q66). | The owner | Chunk 1, and through it 13, 14 and 17–20 (waves 4 and 5) and the release gate | not given (2026-10-19, spec D355): asked again before wave 4 |
-| **DP** | The [cost-guard decision](#decision-point-the-passing-and-neighbor-rule), from chunk 11's M2 run. | The owner is told the figures and the outcome; `spec-writer` records it; `documentalist` records the atom | Chunk 20 (built, or dropped) | open (after chunk 11) |
-| **L1** | The owner's listening check of the figure levels ([H1](#hand-checks)); the shares are tuned from it. | The owner | The release gate's final M1 and M2 runs | open (after chunk 14) |
-| **L2** | The owner's listening check of the eight built-in presets ([H2](#hand-checks)). | The owner | The release gate | open (after chunk 14) |
-| **Contract** | B11's four guarantee changes confirmed and applied (CONTRACT 3.0). | The owner; `documentalist` | Nothing; the release gate checks the record (item 23) | done (2026-10-08, spec D246) |
+| Gate         | What                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | Cleared by                                                                                                | Blocks                                                                                                                                                                                                                      | Status                                                       |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| **R0**       | v3.0 is released: the [v3.0 release gate](build-plan.md#chunk-26--v30-release-gate) passed and `3.0.0` is tagged, so chunk 2's corpus is recorded on the code v3.0 ships.                                                                                                                                                                                                                                                                                                                                                                                                            | The owner, at v3.0's release                                                                              | Chunks 0 and 2, and through them every chunk                                                                                                                                                                                | done (2026-10-16, tag `v3.0.0`; spec D354)                   |
+| **D0**       | The owner approves the v3.1 design; `ux-writer` copies it into [`ui_ux/versions/v3.1/`](../../../ui_ux/versions/v3.1/README.md); `spec-writer` repoints this plan's design links there.                                                                                                                                                                                                                                                                                                                                                                                              | The owner; `ux-writer`; `spec-writer`                                                                     | Chunks 1 and 15, and through 1 the interface chunks (13, 14, 17, 18, 20)                                                                                                                                                    | done (2026-10-19, spec D353; frozen by ux D324), v3.1 only   |
+| **T1**       | The owner allows one `ux-writer` pass on `src/styles/theme.css` and `components.css` for v3.1's token additions ([`token-source-v3.1.md`](../../../ui_ux/versions/v3.1/token-source-v3.1.md), part 1 of the root's `token-source-v3.1-v3.2.md`), as he did for v3.0 (ux Q66).                                                                                                                                                                                                                                                                                                        | The owner                                                                                                 | Chunk 1, and through it 13, 14 and 17–20 (waves 4 and 5) and the release gate                                                                                                                                               | not given (2026-10-19, spec D355): asked again before wave 4 |
+| **DP**       | The [cost-guard decision](#decision-point-the-passing-and-neighbor-rule), from chunk 11's M2 run.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | The owner is told the figures and the outcome; `spec-writer` records it; `documentalist` records the atom | Chunk 20 (built, or dropped)                                                                                                                                                                                                | open (after chunk 11)                                        |
+| **L1**       | The owner's listening check of the figure levels ([H1](#hand-checks)); the shares are tuned from it.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | The owner                                                                                                 | The release gate's final M1 and M2 runs                                                                                                                                                                                     | open (after chunk 14)                                        |
+| **L2**       | The owner's listening check of the eight built-in presets ([H2](#hand-checks)).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | The owner                                                                                                 | The release gate                                                                                                                                                                                                            | open (after chunk 14)                                        |
+| **Contract** | B11's four guarantee changes confirmed and applied (CONTRACT 3.0).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | The owner; `documentalist`                                                                                | Nothing; the release gate checks the record (item 23)                                                                                                                                                                       | done (2026-10-08, spec D246)                                 |
+| **CS**       | The MAJOR contract bump for v3.0's STABLE contract atoms that v3.1 revises (the twelve of the change set's [part I3](../../../docs/release/v3.1-v3.2-intent-change-set.md#i3-for-the-owner-not-applied)) and for `rule_open_phrase_ending` ([B11](master-spec.md#b11-what-v31-changes-in-v30-and-in-v2s-guarantees); spec D361, D362): `documentalist` drafts their new wordings, the three "to decide" rows first (two weaken a guarantee); the owner confirms them all at once. The chunks that revise them say "(contract, CS)" in their Revisions line: 8, 9, 12, 16, 17 and 18. | `documentalist` drafts; the owner confirms                                                                | The sync of wave 1, the first wave whose chunks revise one (chunk 8: `rule_kept_session_content`, `entity_kept_session_record`, `module_kept_session_codec`); its chunks may be built and merged into the wave branch first | done (2026-10-19, spec D363)                                 |
 
 ## Waves
 
-| Wave | Chunks | Waits for | Status |
-| --- | --- | --- | --- |
-| 0 | 0 Intent re-sync · 2 Baselines · 3 Measurement tools | Nothing (R0 done). Chunk 3 records its baselines on v3.0's code: nothing in this wave changes the generator. | planned |
-| 1 | 4 Figure levels in the request · 5 Levels gate the figures · 8 Replay key `ifk3.` · 10 Preset model | Wave 0. In-wave 4 → 5, 4 → 8 and 4 → 10: chunk 4's capture fixes the figure ids, the level type and the request's `figureLevels`. | planned |
-| 2 | 6 Favored levels order the search · 7 Two new free figures · 9 Kept sessions hold the levels | Wave 1. In-wave 6 → 7: chunk 6's capture fixes the draw and the candidate's figure. | planned |
-| 3 | 11 Cost guard, first run · 12 Presets replace the musical profile · 15 Vary settings inside the restriction · 16 Presets on the device | Wave 2. In-wave 12 → 15 and 12 → 16: chunk 12's capture fixes the session settings and the routing point. DP opens at its end. | planned |
-| 4 | 1 Token-source pass · 13 Preset bar and marks | Wave 3; **T1** (not given, D355). Two chunks: every other chunk T1 holds needs both 1 and 13, which would make a chain of three, and every chunk T1 does not hold is in waves 0–3 so that it need not wait. | blocked (on T1) |
-| 5 | 14 Embellishments group · 17 Preset management · 18 Your data · 19 Pre-generation discards · 20 Passing and neighbor never both Off (**conditional**) | Wave 4; DP (20). In-wave 14 → 19 and 14 → 20: chunk 14's capture fixes the level controls' option model and their change path; 17 → 18 and 17 → 19: chunk 17's capture fixes the player-presets composable. L1 and L2 open at its end. Four chunks if DP drops 20. | planned |
+| Wave | Chunks                                                                                                                                                | Waits for                                                                                                                                                                                                                                                          | Status              |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------- |
+| 0    | 0 Intent re-sync · 2 Baselines · 3 Measurement tools                                                                                                  | Nothing (R0 done). Chunk 3 records its baselines on v3.0's code: nothing in this wave changes the generator.                                                                                                                                                       | merged (2026-10-19) |
+| 1    | 4 Figure levels in the request · 5 Levels gate the figures · 8 Replay key `ifk3.` · 10 Preset model                                                   | Wave 0. In-wave 4 → 5, 4 → 8 and 4 → 10: chunk 4's capture fixes the figure ids, the level type and the request's `figureLevels`.                                                                                                                                  | planned             |
+| 2    | 6 Favored levels order the search · 7 Two new free figures · 9 Kept sessions hold the levels                                                          | Wave 1. In-wave 6 → 7: chunk 6's capture fixes the draw and the candidate's figure.                                                                                                                                                                                | planned             |
+| 3    | 11 Cost guard, first run · 12 Presets replace the musical profile · 15 Vary settings inside the restriction · 16 Presets on the device                | Wave 2. In-wave 12 → 15 and 12 → 16: chunk 12's capture fixes the session settings and the routing point. DP opens at its end.                                                                                                                                     | planned             |
+| 4    | 1 Token-source pass · 13 Preset bar and marks                                                                                                         | Wave 3; **T1** (not given, D355). Two chunks: every other chunk T1 holds needs both 1 and 13, which would make a chain of three, and every chunk T1 does not hold is in waves 0–3 so that it need not wait.                                                        | blocked (on T1)     |
+| 5    | 14 Embellishments group · 17 Preset management · 18 Your data · 19 Pre-generation discards · 20 Passing and neighbor never both Off (**conditional**) | Wave 4; DP (20). In-wave 14 → 19 and 14 → 20: chunk 14's capture fixes the level controls' option model and their change path; 17 → 18 and 17 → 19: chunk 17's capture fixes the player-presets composable. L1 and L2 open at its end. Four chunks if DP drops 20. | planned             |
 
 The [release gate](#chunk-21--v31-release-gate) (chunk 21) follows wave 5, with L1 and L2. κ is 1
 ([build workflow](build-workflow.md#concurrency-and-order)). If the owner gives T1 before wave 3's
@@ -182,13 +187,15 @@ The [build workflow](build-workflow.md) holds for v3.1 with release name `v3.1`.
 - **Intent**: the DRAFT atoms are tagged `release-v3.1`, the atoms to revise `changes-in-v3.1`;
   revisions are part E and drift checks part F of the
   [v3.1–v3.2 intent change set](../../../docs/release/v3.1-v3.2-intent-change-set.md). Chunks 2, 3
-  and 11 add no atom.
+  and 11 add no atom. A revision marked "(contract, CS)" changes a STABLE contract atom: it is
+  part of one MAJOR contract bump whose wordings the owner confirms first (gate [CS](#gates)).
 - **Chunks 0 and 1 are not coding chunks**: the driver hands chunk 0 to `documentalist` (spec
   ingestion, milestone refinement) and chunk 1 to `ux-writer`.
 - **Area documents**: `docs/session-engine.md`, `docs/phrase-workspace.md`,
   `docs/generation-latency.md`, [`docs/music/`](../../../docs/music/README.md); the lexicon entries
   B11 lists.
-- **Entry budget**: 224 kB, unchanged ([M4](#m4--the-first-load-bundle)).
+- **Entry budget**: 300 KiB (307,200 B), raised from 224 KiB in wave 0
+  ([M4](#m4--the-first-load-bundle)).
 - **Hand checks** go into a new "v3.1 hand checks" part of
   [`HARDWARE-CHECKLIST.md`](../../../HARDWARE-CHECKLIST.md), written by the chunk the
   [table](#hand-checks) names. The file's v3.0 part already uses H2–H9, so the v3.1 part names its
@@ -259,25 +266,28 @@ Gate DP: whether B5.6's rule (the passing tone and the neighbor tone may not bot
 
 ### M4 — The first-load bundle
 
-- **What:** the entry chunk stays within its 224 kB budget (`entryChunkByteBudget`). v3.0 left
-  little headroom; the combo box, the seven level controls and the built-in table add code (B12).
+- **What:** the entry chunk stays within its 300 KiB budget, 307,200 B (`entryChunkByteBudget`,
+  `scripts/verify-boundaries.mjs`): the owner's "300kb", read in the unit of v3.0's 224 KiB budget
+  (spec D359). v3.0 left 230 bytes of that one; the combo box, the seven level controls and the
+  built-in table add code (B12).
   The preset sheet and Your data's Presets section load on demand; the built-in table, the preset
   bar and the seven level controls are in the entry chunk.
-- **Run by:** chunk 2 (the baseline on the v3.0 release); every wave gate; the release gate
-  (`npm run verify:boundaries`, budget unchanged).
+- **Run by:** chunk 2 (the baseline on the v3.0 release, 229,146 B); every wave gate; the release
+  gate (`npm run verify:boundaries` at 300 KiB). The constant's raise lands in wave 0, made by the
+  driver.
 - **Recorded:** the wave log and each wave's merge commit message; the release notes.
 
 ### Hand checks
 
 The owner runs these on the Travel Sax over USB and the reference machine.
 
-| Check | Written by | Run at | What the owner does |
-| --- | --- | --- | --- |
-| H1 Listening: the levels (L1) | 14 | After wave 5; used by the release gate | For each figure, at a few settings that leave it room (Eighth and Sixteenth, Heavily varied), regenerate a handful of phrases at Rarely, Often and Very often; say whether Often is clearly heard and Very often not overwhelming. The shares are tuned from it, then M1 and M2 re-run. |
-| H2 Listening: the built-ins (L2) | 14 | After wave 5; used by the release gate | Choose each of the eight presets, regenerate a few phrases, play a short session; say whether each sounds as its description says (Reel in Mixolydian, Bebop's chromatic lines, Pop song's familiar chords, Modal (Dorian)'s color note). Neutral and Jazz should sound exactly as in v3.0. |
-| H3 Same phrase in Edge | 8 | Chunk 8 | Run chunk 8's in-browser replay test once with Playwright's Microsoft Edge channel (`msedge`), and replay one `ifk3.` key copied from a Chrome session in Edge; the phrases match. Item 7's "Chrome and Edge" half. |
-| H4 Vary settings under a preset | 15 | Chunk 15 | With the Travel Sax, Vary settings on, Reel chosen from C Ionian: a long session moves the mode only between Mixolydian and Dorian, the box turns to "Custom, based on Reel" when a setting moves, and Stop brings back Reel and its settings. Repeat under Modal (Dorian): the mode never moves. |
-| H5 v3.0 data carried over | 16 | The release gate | In the installed app and a plain Chrome tab that used v3.0 (settings changed, a pinned session, a Jazz selection with a changed Tension), update to v3.1: the settings come back, the box shows "Custom, based on Jazz", the pinned session opens with its label and plays back the same notes. |
+| Check                            | Written by | Run at                                 | What the owner does                                                                                                                                                                                                                                                                               |
+| -------------------------------- | ---------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| H1 Listening: the levels (L1)    | 14         | After wave 5; used by the release gate | For each figure, at a few settings that leave it room (Eighth and Sixteenth, Heavily varied), regenerate a handful of phrases at Rarely, Often and Very often; say whether Often is clearly heard and Very often not overwhelming. The shares are tuned from it, then M1 and M2 re-run.           |
+| H2 Listening: the built-ins (L2) | 14         | After wave 5; used by the release gate | Choose each of the eight presets, regenerate a few phrases, play a short session; say whether each sounds as its description says (Reel in Mixolydian, Bebop's chromatic lines, Pop song's familiar chords, Modal (Dorian)'s color note). Neutral and Jazz should sound exactly as in v3.0.       |
+| H3 Same phrase in Edge           | 8          | Chunk 8                                | Run chunk 8's in-browser replay test once with Playwright's Microsoft Edge channel (`msedge`), and replay one `ifk3.` key copied from a Chrome session in Edge; the phrases match. Item 7's "Chrome and Edge" half.                                                                               |
+| H4 Vary settings under a preset  | 15         | Chunk 15                               | With the Travel Sax, Vary settings on, Reel chosen from C Ionian: a long session moves the mode only between Mixolydian and Dorian, the box turns to "Custom, based on Reel" when a setting moves, and Stop brings back Reel and its settings. Repeat under Modal (Dorian): the mode never moves. |
+| H5 v3.0 data carried over        | 16         | The release gate                       | In the installed app and a plain Chrome tab that used v3.0 (settings changed, a pinned session, a Jazz selection with a changed Tension), update to v3.1: the settings come back, the box shows "Custom, based on Jazz", the pinned session opens with its label and plays back the same notes.   |
 
 ## Chunks
 
@@ -286,7 +296,7 @@ The owner runs these on the Travel Sax over USB and the reference machine.
 
 ### Chunk 0 — Intent re-sync
 
-Status: planned
+Status: merged (w0, 60fe7d8)
 Wave: 0
 Depends on: R0 (it checks the atoms against the state v3.0's release gate left)
 Architecture capture: none
@@ -306,12 +316,15 @@ Architecture capture: none
 - **Spec sections:** [Part B](master-spec.md#part-b--v31). No item directly; every later wave's
   preflight relies on it.
 - **Atoms:** every atom tagged `release-v3.1` or `changes-in-v3.1`;
-  `contract_infinite_flow_first_release` (3.0).
+  `contract_infinite_flow_first_release`, now at 6.3.1 (it moved through 4.0, 5.0, 6.0 and the
+  D347 trim during v3.0): the CONTRACT 3.0 wordings (the change set's part A) still hold in it.
 - **Revisions:** none.
 - **Done when:** each Part B behaviour is stated by an atom (still DRAFT); `npm run atd:lint` and
   `npm run atd:check` pass; the change set file records what changed, if anything.
 - **Verification:** `documentalist`'s ingestion report; chunk checks.
 - **Split rule:** none needed.
+
+Record: 60fe7d8, `documentalist` on `v3.1-w0` (atoms only). Two atoms revised (B7, B9), two added (B6.1, B7), three REVIEW atoms tagged `changes-in-v3.1`; change set part I. Owner points in part I3 (a STABLE tag, the contract bump for v3.0's STABLE atoms that v3.1 revises); `spec-writer` points in part I4.
 
 ### Chunk 1 — Token-source pass, part 1 (v3.1)
 
@@ -348,7 +361,7 @@ Architecture capture: none
 
 ### Chunk 2 — Baselines: the v3.0 phrase corpus and the bundle
 
-Status: planned
+Status: merged (w0, 392cdc9)
 Wave: 0
 Depends on: R0
 Architecture capture: none
@@ -367,8 +380,9 @@ Architecture capture: none
     the stored timeline byte for byte. It sits beside the `ifk1-v2.0.json` corpus, which stays.
   - The entry chunk's size after `npm run build` on the tag ([M4](#m4--the-first-load-bundle)).
 - **Files:** `tests/fixtures/replay-keys/v3.0-neutral-jazz.json` (new),
-  `tests/unit/generation-worker/phrase-replay-key-v30-corpus.spec.ts` (new), a generator script
-  under `scripts/` (tooling), `docs/testing.md`.
+  `tests/unit/generation-worker/phrase-replay-key-v30-corpus.spec.ts` (new), the recorder
+  `scripts/record-replay-key-corpus.mjs` (it wrote v2.0's `ifk1.` corpus), extended for the v3.0
+  cases, or a new recorder beside it (tooling), `docs/testing.md`.
 - **Spec sections:** [B5.3](master-spec.md#b53-neutral-and-jazz-sound-as-before),
   [B9](master-spec.md#b9-the-generation-request-the-replay-key-and-kept-sessions); items 2 and 19
   (as the guard for chunks 4–9 and 12).
@@ -379,9 +393,11 @@ Architecture capture: none
 - **Verification:** chunk checks; the corpus test is red if any timeline is changed by hand.
 - **Split rule:** none needed.
 
+Record: 99d6233, merged as 392cdc9. 210 cases (126 `ifk1.`, 84 `ifk2.`), 677,547 B, recorded on the tag (`src/` identical to `v3.0.0`); entry chunk 229,146 B, 230 B under the 224 KiB budget. 21 rotated cases the workspace blocks (`UNSUPPORTED_RHYTHM_SETTINGS`) take the workspace's own nearest supported syncopation. The new spec carries a temporary `// @lint-ignore-atd` line naming chunk 8, which removes it when it adds the test links. New `.prettierignore` (the fixture only).
+
 ### Chunk 3 — Measurement tools: the figure census and the cost runner
 
-Status: planned
+Status: merged (w0, 6e9f36c)
 Wave: 0
 Depends on: R0 (its baselines are v3.0's; no chunk of its wave changes the generator)
 Architecture capture: none
@@ -416,6 +432,8 @@ Architecture capture: none
 - **Verification:** chunk checks (the census's own unit test); the baseline runs (M1, M2: this
   chunk's point).
 - **Split rule:** none needed (tooling, two scripts).
+
+Record: d976392, merged as 6e9f36c. `src/` identical to `v3.0.0`, so both baselines are v3.0's; reference machine (Ryzen 5 PRO 8640HS, not a VM), 2026-10-19, idle. M1 over the 568 sweep cases × 9 collections (5,112 phrases per profile): Neutral/Jazz phrase shares passing 2.3/1.9 %, accented passing 5.3/4.0 %, neighbor 22.7/16.7 %, free appoggiatura and diatonic enclosure 0/0, chromatic approach 0/10.6 %, chromatic enclosure 0/7.9 %, Tension's scheduled figure 50.0/49.9 %, unexplained 0. M2: phrases 2–6 generated at 60 and 120 BPM 100.0/99.96 %, at 240 BPM 100/100 %; 95th percentile 0.022/0.019 s; slowest success 0.408/0.570 s; 240 BPM fallback share 21.2/21.0 % over phrases 2–6, 1.5/1.2 % over 3–6. Figures in `docs/generation-latency.md`. Scripts `measure:figures`, `measure:cost` take a `{label, apply}` setting list for chunks 4 and 11. Finding: sweep case #542 played as Jazz repeats phrase 5 at its deadline at 60 and 120 BPM (v3.0 behaviour, recorded in the doc, no issue filed). The cost runner peaks near 1.57 GB heap.
 
 ### Chunk 4 — Figure levels in the generation request
 
@@ -524,7 +542,9 @@ Architecture capture: none
   `rule_levels_govern_free_figures_only`, `rule_chromatic_notes_need_a_chromatic_figure`,
   `rule_figures_resolve_onto_chord_tones`; (v2) `rule_neutral_profile_diatonic_harmony`. Drift
   check: `service_generation_result_validation`, `module_musical_profile_capabilities`.
-- **Revisions:** revise `rule_neutral_profile_diatonic_pitches`, `rule_jazz_chromatic_resolution`.
+- **Revisions:** revise `rule_neutral_profile_diatonic_pitches`, `rule_jazz_chromatic_resolution`,
+  `rule_tension_resolution_delay_permits_rests` (chromatic approaches and enclosures under any
+  preset's levels, not only Jazz's; its no-rest rule unchanged).
 - **Done when:**
   - With a figure Off, the census over the M1 sweep finds it only as Tension's scheduled figure
     (for the three figures Tension can schedule) or not at all, for each of the seven in turn.
@@ -654,7 +674,7 @@ in the same wave.
     accepts all three versions: an `ifk1.` or `ifk2.` key's profile name maps to B5.3's levels
     whatever its customized flag; an `ifk3.` key naming a figure v3.1 does not know is refused with
     the reason; a later prefix is refused as an unsupported version, as today. `npm run
-    replay:phrase` replays all three. Code fact: the `ifk1.` payload is the unpadded base64url of a
+replay:phrase` replays all three. Code fact: the `ifk1.` payload is the unpadded base64url of a
     JSON 7-tuple whose first entry is the request id (a string such as `"replay-12"`).
   - **The request.** `GenerationIntent` loses `musicalProfile`; the worker's
     `parseProfileSelection` and `PROFILE_SELECTION_ALLOWED_KEYS` go. The readers that only checked
@@ -672,6 +692,9 @@ in the same wave.
     writes levels; a stored v3.0 phrase is read through `profile-to-levels.ts`.
   - An in-browser replay test (workspace harness) replays a slice of the corpus through the worker,
     for H3.
+  - **Chunk 2's lint exception goes:** chunk 2 left a temporary `// @lint-ignore-atd` line (line 2)
+    in `tests/unit/generation-worker/phrase-replay-key-v30-corpus.spec.ts`; this chunk removes it
+    when it adds that spec's `@test-link` tags.
 - **Files:** `src/generation-worker/phrase-replay-key.ts`, `phrase-replay-key-decode.ts`,
   `phrase-replay.ts`, `phrase-replay-report.ts`, `generation-worker-inbound.ts`,
   `scripts/replay-phrase.mjs`, `src/domain/generation/generation-intent.ts`, the five name readers
@@ -684,10 +707,15 @@ in the same wave.
 - **Spec sections:** [B9](master-spec.md#b9-the-generation-request-the-replay-key-and-kept-sessions),
   Part A §7.4; items 19, 7 (the key reproduces; H3 for Edge), 20 (reading v3.0 phrases).
 - **Atoms:** `rule_figure_draws_reproducible`, `rule_neutral_and_jazz_figure_levels`; (v2)
-  `rule_seeded_phrase_reproduction`, `rule_neutral_profile_diatonic_harmony`. Drift check:
+  `rule_seeded_phrase_reproduction`, `rule_neutral_profile_diatonic_harmony`; (v3.0)
+  `rule_kept_session_content`, `rule_stale_phrase_prompt_at_start`. Drift check:
   `module_phrase_replay_key`, `module_generation_worker_protocol`,
   `module_generation_request_construction`.
-- **Revisions:** revise `rule_seeded_phrase_reproduction` (figure levels in the request).
+- **Revisions:** revise `rule_seeded_phrase_reproduction` (figure levels in the request);
+  `rule_stale_phrase_prompt_at_start` (the levels count where the profile did); (contract, CS)
+  `rule_kept_session_content` (each phrase's inputs hold the levels in place of the profile; chunk 9
+  adds the label), `entity_kept_session_record` and `module_kept_session_codec` (a kept phrase's
+  intent holds no profile, so the summary's profile no longer comes from phrase 1's intent).
 - **Done when:**
   - Every phrase's key is `ifk3.`; encoding then decoding returns an equal intent, and replaying it
     gives the same timeline, for built-in and player-made instruments.
@@ -698,6 +726,8 @@ in the same wave.
   - No intent, key or kept phrase holds a profile or preset name (a test over each one's keys).
   - A v3.0-shaped kept session (seeded) still opens, its phrases read with its profile's levels.
   - `npm run replay:phrase` replays one key of each version.
+  - `phrase-replay-key-v30-corpus.spec.ts` carries its `@test-link` tags and no `@lint-ignore-atd`
+    line; `npm run atd:lint` passes.
 - **Verification:** chunk checks with the corpus guard; `npm run replay:phrase -- <key>` for each
   version by hand; H3.
 - **Split rule:** none: wide but mechanical (about fifteen files, most a removed field). It cannot be
@@ -751,7 +781,10 @@ string). One data version per stored shape that changes, each with its own step 
   (`review-summary`).
 - **Atoms:** `rule_earlier_kept_sessions_carried_over`, `rule_preset_label_kept_with_session`;
   (v3.0) `rule_kept_session_content`, `rule_kept_session_holds_no_acknowledgements`.
-- **Revisions:** revise `rule_kept_session_content`, `req_kept_session_list`.
+- **Revisions:** (contract, CS) revise `rule_kept_session_content` (the preset label),
+  `req_kept_session_list`, `entity_kept_session_record`, `module_kept_session_codec` (the label in
+  the summary), `module_kept_session_reach` (the rows' label), `module_on_device_database` (data
+  version 2 and its step).
 - **Done when:**
   - A database seeded with v3.0 sessions (Neutral, Jazz, customized Jazz, my instrument, played
     notes, favorites, a comment) opens at data version 2: each phrase holds its profile's levels,
@@ -942,7 +975,10 @@ settings and the draw) and 16 (the state it loads into) build on it in the same 
   `module_generative_profile_selection`, `module_session_vary_settings_flag`.
 - **Revisions:** revise `user_story_controlled_phrase_generation`,
   `rule_selectable_generative_profiles`, `rule_profile_presets_apply_defined_controls`,
-  `rule_profile_control_customization`, `rule_mutation_draws_setting_then_direction`. Delete
+  `rule_profile_control_customization`, `rule_mutation_draws_setting_then_direction`,
+  `rule_stale_phrase_prompt_at_start` (the preset selection shown from the start); (contract, CS)
+  `rule_open_phrase_ending` (no "jazz" approaches and enclosures, no "profile-approved"
+  continuation; spec D362). Delete
   `rule_mutation_profile_flip_keeps_controls` (the documentalist's escalation): move its
   `@spec-link` (`src/session/settings-mutation-scales.ts`) and `@test-link`s
   (`tests/unit/session/settings-mutation-scales.spec.ts`,
@@ -1178,7 +1214,11 @@ levels, restriction; data and app version) and its tolerant codec.
   `rule_saved_settings_load_tolerantly`, `rule_saved_setting_is_players_choice`,
   `rule_no_save_during_session`, `rule_outdated_tab_stops_saving`,
   `rule_failed_read_offers_only_delete_everything`.
-- **Revisions:** revise `rule_settings_saved_on_change`.
+- **Revisions:** (contract, CS) revise `rule_settings_saved_on_change`,
+  `rule_saved_settings_load_tolerantly` (Custom based on the preset in place of its grammar; a key
+  and mode outside the restriction load as Custom; tagged `changes-in-v3.1` by spec D360),
+  `module_on_device_database` (data version 3, the `presets` store), `module_saved_data_loader`
+  (the levels, the selection and the presets read with the settings).
 - **Done when:**
   - The seven levels and the selection survive a reload (one e2e test per level, and for a
     built-in, a player preset and Custom with and without a base).
@@ -1257,7 +1297,9 @@ Chunks 18 and 19 build on it in the same wave.
   `rule_refused_preset_save_told`, `rule_presets_in_visits_that_save_nothing`,
   `rule_no_preset_leaves_device`; (v3.0) `rule_failed_save_never_disturbs_session`,
   `rule_outdated_tab_stops_saving`.
-- **Revisions:** revise `rule_persistent_storage_requested`.
+- **Revisions:** revise `rule_unsupported_rhythm_settings_block_generation` (a player preset may
+  hold an unsupported combination; eight built-ins); (contract, CS)
+  `rule_persistent_storage_requested`.
 - **Done when:**
   - Save as new from a built-in, a player preset and each Custom state: the three restriction
     choices (merged as the design says), "as now" by default; from Custom based on Reel "as now"
@@ -1315,7 +1357,7 @@ Architecture capture: none (it builds on chunk 17's)
   (Deleting from Your data).
 - **Atoms:** `rule_deleting_base_preset_leaves_custom`, `rule_presets_in_visits_that_save_nothing`;
   (v3.0) `rule_failed_read_offers_only_delete_everything`.
-- **Revisions:** revise `req_your_data`, `rule_delete_everything`.
+- **Revisions:** (contract, CS) revise `req_your_data`, `rule_delete_everything`.
 - **Done when:**
   - Seeded with three player presets and one unreadable record: the section lists three, counts
     three; deleting the selected one leaves "Custom" with the same values; deleting another leaves
@@ -1406,11 +1448,11 @@ The release gate, not a wave; it keeps its chunk number because other plans link
 - The v3.0 corpus, the `ifk1.` corpus, the `ifk2.` tests and the goldens re-run; the privacy spy
   (`tests/e2e/review/review-privacy.spec.ts`, network half) with player presets saved (no preset
   leaves the device).
-- `npm run verify:boundaries` with the 224 kB entry budget unchanged (M4).
+- `npm run verify:boundaries` with the 300 KiB entry budget (M4).
 - Hand checks v3.1 H1–H5 done.
 - `documentalist`'s post-task sync over every `release-v3.1` atom, promoting those the owner agrees
   to; every `changes-in-v3.1` atom revised; part F's drift checks done; the contract's item 23
-  record checked (D246, in the CONTRACT 3.0 notes). The lexicon entries B11 lists no longer say
+  record checked (D246, in the CONTRACT 3.0 notes, and gate CS's MAJOR bump, spec D361). The lexicon entries B11 lists no longer say
   "planned". Atoms: every atom tagged `release-v3.1`; `contract_infinite_flow_first_release`,
   `vision_infinite_flow_first_release`, `specification_behavioral_quality_gates`.
 - `ux-writer` confirms no v3.1 handoff names a class missing from `src/styles/`.
@@ -1421,28 +1463,28 @@ owner says go.
 
 ### Definition-of-done coverage
 
-| Item | Proved in | Verified by |
-| --- | --- | --- |
-| 1 Seven levels: set at Idle, locked in a session, saved, held by every preset | 4, 14, 16, 10 | intent test of the levels; e2e level controls and read-only in a session; reload e2e per level; built-in table test |
-| 2 Neutral and Jazz reproduce v3.0 | 2, guarded in 4–9 and 12, 21 | the v3.0 corpus (every mode) and the cold-generation goldens, unchanged |
-| 3 Levels audible and ordered; shares recorded | 6, 7, 11, 21 | census property over the M1 sweep; M1 final shares |
-| 4 No quota | 6 | instrumented run: no rejection or retry tied to a level |
-| 5 New figures; validator exact; chromatic refused when both Off | 5, 7 | census; figure-rule unit tests per figure and level |
-| 6 Tension's figure with every level Off | 5 | fixed-seed tests over the four Tension values |
-| 7 Deterministic in Chrome and Edge; pre-generated equal with any levels | 6, 8, 15 | integer-only draw test; `ifk3.` round trip; in-browser replay; H3 (Edge); pre-generation identity with levels and a restriction |
-| 8 Cost guard measured, met, decision recorded (and the rule if adopted) | 11, 20, 21 | M2 tables; DP record; chunk 20's tests if built |
-| 9 Eight built-ins exact; supported at Sixteenth and Eighth; generate in every allowed mode | 10, 11, 13 | table test; rhythm support test; M2 built-in sweep; e2e per preset |
-| 10 Choosing a preset | 10, 12, 13 | B6.3 table test; e2e: ten controls and seven levels set, tempo, instrument and options kept, phrase kept |
-| 11 Custom | 10, 12, 13, 14 | property tests on action sequences; e2e for controls, levels, key and mode |
-| 12 The highlight | 13 | e2e marks and notes under each built-in; every segment selectable; a11y |
-| 13 Vary settings | 12, 15 | seeded session properties; e2e Custom during and restore after; H4 |
-| 14 Player presets | 10, 17, 18 | name, limit and restriction-choice tests; e2e management; none during a session |
-| 15 Persistence and migration | 16, 17 | reload e2e; values-win and tolerant-loading tests; v3.0 settings migration test |
-| 16 Visits that save nothing; refused save; Delete everything; Your data | 16, 17, 18 | injected failed read and newer data; refusal e2e; Delete everything e2e |
-| 17 Persistent storage | 17 | persist spy |
-| 18 Pre-generation discards | 14, 15, 19 | the B8.3 matrix |
-| 19 Replay keys | 2, 8 | `ifk3.` round trip; `ifk1.`/`ifk2.` corpora; unknown figure refused; replay tool on all three |
-| 20 Kept sessions | 8, 9, 12 | version 2 migration test with byte-identical exports; label snapshot test |
-| 21 Acknowledgement and exports unchanged; no preset leaves the device | 7, 17, 21 | acknowledgement tests on figure notes; export byte scan; network privacy spy |
-| 22 v3.0 and v2 otherwise unchanged | every wave gate | `npm run quality`; the replaced-tests table of [Read first](#read-first-what-v31-changes-in-v30-and-v2) |
-| 23 Contract | done (D246), 21 | the confirmation in the CONTRACT 3.0 atom's notes |
+| Item                                                                                       | Proved in                    | Verified by                                                                                                                     |
+| ------------------------------------------------------------------------------------------ | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| 1 Seven levels: set at Idle, locked in a session, saved, held by every preset              | 4, 14, 16, 10                | intent test of the levels; e2e level controls and read-only in a session; reload e2e per level; built-in table test             |
+| 2 Neutral and Jazz reproduce v3.0                                                          | 2, guarded in 4–9 and 12, 21 | the v3.0 corpus (every mode) and the cold-generation goldens, unchanged                                                         |
+| 3 Levels audible and ordered; shares recorded                                              | 6, 7, 11, 21                 | census property over the M1 sweep; M1 final shares                                                                              |
+| 4 No quota                                                                                 | 6                            | instrumented run: no rejection or retry tied to a level                                                                         |
+| 5 New figures; validator exact; chromatic refused when both Off                            | 5, 7                         | census; figure-rule unit tests per figure and level                                                                             |
+| 6 Tension's figure with every level Off                                                    | 5                            | fixed-seed tests over the four Tension values                                                                                   |
+| 7 Deterministic in Chrome and Edge; pre-generated equal with any levels                    | 6, 8, 15                     | integer-only draw test; `ifk3.` round trip; in-browser replay; H3 (Edge); pre-generation identity with levels and a restriction |
+| 8 Cost guard measured, met, decision recorded (and the rule if adopted)                    | 11, 20, 21                   | M2 tables; DP record; chunk 20's tests if built                                                                                 |
+| 9 Eight built-ins exact; supported at Sixteenth and Eighth; generate in every allowed mode | 10, 11, 13                   | table test; rhythm support test; M2 built-in sweep; e2e per preset                                                              |
+| 10 Choosing a preset                                                                       | 10, 12, 13                   | B6.3 table test; e2e: ten controls and seven levels set, tempo, instrument and options kept, phrase kept                        |
+| 11 Custom                                                                                  | 10, 12, 13, 14               | property tests on action sequences; e2e for controls, levels, key and mode                                                      |
+| 12 The highlight                                                                           | 13                           | e2e marks and notes under each built-in; every segment selectable; a11y                                                         |
+| 13 Vary settings                                                                           | 12, 15                       | seeded session properties; e2e Custom during and restore after; H4                                                              |
+| 14 Player presets                                                                          | 10, 17, 18                   | name, limit and restriction-choice tests; e2e management; none during a session                                                 |
+| 15 Persistence and migration                                                               | 16, 17                       | reload e2e; values-win and tolerant-loading tests; v3.0 settings migration test                                                 |
+| 16 Visits that save nothing; refused save; Delete everything; Your data                    | 16, 17, 18                   | injected failed read and newer data; refusal e2e; Delete everything e2e                                                         |
+| 17 Persistent storage                                                                      | 17                           | persist spy                                                                                                                     |
+| 18 Pre-generation discards                                                                 | 14, 15, 19                   | the B8.3 matrix                                                                                                                 |
+| 19 Replay keys                                                                             | 2, 8                         | `ifk3.` round trip; `ifk1.`/`ifk2.` corpora; unknown figure refused; replay tool on all three                                   |
+| 20 Kept sessions                                                                           | 8, 9, 12                     | version 2 migration test with byte-identical exports; label snapshot test                                                       |
+| 21 Acknowledgement and exports unchanged; no preset leaves the device                      | 7, 17, 21                    | acknowledgement tests on figure notes; export byte scan; network privacy spy                                                    |
+| 22 v3.0 and v2 otherwise unchanged                                                         | every wave gate              | `npm run quality`; the replaced-tests table of [Read first](#read-first-what-v31-changes-in-v30-and-v2)                         |
+| 23 Contract                                                                                | done (D246), CS, 21          | the confirmations in the CONTRACT 3.0 atom's notes and in the MAJOR bump's (gate CS)                                            |

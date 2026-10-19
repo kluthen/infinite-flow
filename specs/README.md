@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.73
+Status: draft v0.76
 
 ## Status Snapshot
 
@@ -33,8 +33,11 @@ Status: draft v0.73
 - **Next: the rest of v3** ([v3](versions/v3/README.md#releases-d211)):
   - **v3.1:** embellishment flags and presets. Master spec
     [Part B](versions/v3/master-spec.md#part-b--v31), approved (D239); design approved (D353);
-    build plan [v3.1](versions/v3/build-plan-v3.1.md), v4, ready for owner approval: waves 0–3 go
-    ahead, waves 4 and 5 wait for the token-source pass the owner has not allowed yet (D355).
+    build plan [v3.1](versions/v3/build-plan-v3.1.md), v5 (v4 approved, D357): waves 0–3 go
+    ahead and may merge into `main`, waves 4 and 5 wait for the token-source pass the owner has not
+    allowed yet (D355); no release before wave 5 merges. Entry budget 300 KiB (D359); v3.0's
+    contract atoms v3.1 revises take a MAJOR bump, its wordings confirmed before wave 1's sync
+    (D361, D362).
   - **v3.2:** Jam, the key and mode suggestion, the rhythm lock and its mutation option. Master
     spec [Part C](versions/v3/master-spec.md#part-c--v32), approved (D239); build plan
     [v3.2](versions/v3/build-plan-v3.2.md), v3, not approved. The contract wording v3.1 and
@@ -49,7 +52,8 @@ Status: draft v0.73
 - **Open:** 12 questions: O48 and O49 (later and governance), O100–O102 (v4 rhythm), O115 and
   O116 (v3.x learning), O176 (style packs and the chord level), O180 (octave signs, later), O183
   (pre-generation's cancellation cost), O190 (a newer version's database whose read-only
-  reopening fails) and O230 (a stale replay-key wording in a STABLE atom). See the [register](open-questions.md).
+  reopening fails) and O230 (a stale replay-key wording in a STABLE atom). See the
+  [register](open-questions.md).
 - The snapshots this index kept through v2's design and build and through v3.0's are archived
   verbatim at [archive/v2/readme-status-snapshot.md](archive/v2/readme-status-snapshot.md) and
   [archive/v3/readme-status-snapshot.md](archive/v3/readme-status-snapshot.md).
@@ -63,7 +67,7 @@ Status: draft v0.73
 - [Versions](versions/README.md): one folder per version (v1, v2, v3, v4, v5+) holding its scope,
   dependencies and version-specific open questions. Also holds the cross-version
   [prerequisites](versions/prerequisites.md). v3's build plans: [v3.0](versions/v3/build-plan.md) (complete; chunk 26 is the release gate's
-  record), [v3.1](versions/v3/build-plan-v3.1.md) (v4, ready for owner approval; on the
+  record), [v3.1](versions/v3/build-plan-v3.1.md) (v5; v4 approved, D357; on the
   build-plan model with the shared [v3 build workflow](versions/v3/build-workflow.md), D349,
   D356), [v3.2](versions/v3/build-plan-v3.2.md) (v3, on the build-plan model, D350; not approved)
   and [v3.3](versions/v3/build-plan-v3.3.md) (v3, on the build-plan model, D351; not approved;

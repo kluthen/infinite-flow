@@ -6,7 +6,7 @@ layer: BUSINESS
 version: 0.4
 type: RULE
 priority: 1
-tags: [player-controls, rhythm, generation, v2, release-v2.0, revised-for-v2]
+tags: [player-controls, rhythm, generation, v2, release-v2.0, revised-for-v2, changes-in-v3.1]
 parents:
   - [[user_story_controlled_phrase_generation]]
 dependents:
@@ -14,6 +14,7 @@ dependents:
   - [[module_idle_generation_error_recovery]]
   - [[module_idle_window_width_density]]
   - [[module_rhythm_variety_grammar]]
+  - [[rule_player_preset_may_hold_unsupported_rhythm]]
   - [[rule_unsupported_rhythm_gives_way_to_no_phrase]]
 ---
 

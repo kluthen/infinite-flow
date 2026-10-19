@@ -4,7 +4,8 @@ status: DRAFT
 layer: BUSINESS
 version: 0.1
 tags: [v3, release-v3.1, player-controls, presets]
-dependents: []
+dependents:
+  - [[rule_player_preset_may_hold_unsupported_rhythm]]
 type: RULE
 priority: 1
 human_name: What a Preset Holds

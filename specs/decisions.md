@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.105
+Status: draft v2.108
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -21,13 +21,14 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and each milestone
 folder's README, such as [archive/v3/README.md](archive/v3/README.md)). Numbering continues from
-**D357**.
+**D364**.
 
 Live here: D228–D251 (v3.1 and v3.2, not built yet), D259–D260 (style packs, planned with no
 version, and the sound ban; merged from branch `v4-accompaniment-research`), D261–D288 (v3.3, not
 built yet; D263–D288 merged from branch `v3.3-chord-research`), D344–D348 (the v3.0 release and
-its follow-ups) and D349–D356 (the v3.1–v3.3 plan migrations, merged from branch
-`plan-migration` as D339–D341, and the v3.1 plan's gates). D289 is unused.
+its follow-ups) and D349–D358 (the v3.1–v3.3 plan migrations, merged from branch
+`plan-migration` as D339–D341, the v3.1 plan's gates and approval, and B12's code check) and
+D359–D363 (the owner's rulings during v3.1's wave 0). D289 is unused.
 
 ## Decision Log
 
@@ -686,3 +687,49 @@ its follow-ups) and D349–D356 (the v3.1–v3.3 plan migrations, merged from br
   can share its wave, and chunk 16 waits on chunk 9 (data version 2 first). The code facts are
   checked against `main` (d007b27); the design links point at the frozen v3.1 design (ux D324).
   Status: ready for owner approval. Now in: [build-plan-v3.1.md](versions/v3/build-plan-v3.1.md#waves).
+
+- **D357 (2026-10-19): the owner approves v3.1's build plan v4, transitional state included.**
+  Waves 0–3 may merge into `main` and stay there while T1 waits: `main` keeps offering Neutral and
+  Jazz through the old control, and no release is cut before wave 5 merges. T1 stays not given and
+  is asked again before wave 4; wave 0 starts now. Now in:
+  [build-plan-v3.1.md](versions/v3/build-plan-v3.1.md#read-first-what-v31-changes-in-v30-and-v2).
+
+- **D358 (2026-10-19): master spec Part B v1.1: B12's code facts checked against v3.0.** Facts
+  only, following the code (`d007b27`); no behaviour changes. The routing point is not the only
+  path (the instrument switch and Vary settings take their own), pre-generation discards on a
+  change, storage exists, and v3.0 left 230 bytes of entry-chunk budget, which opens
+  [O231](open-questions.md). Now in: [B12](versions/v3/master-spec.md#b12-existing-code-and-risks).
+
+- **D359 (2026-10-19): v3.1's entry budget is raised to 300 KiB (closes O231).** The owner wrote
+  "raise to 300kb"; read in the unit the 224 KiB budget uses (`entryChunkByteBudget = 224 * 1024`,
+  `scripts/verify-boundaries.mjs`), that is 307,200 B. The driver's change to the constant lands in
+  wave 0. Not adopted: raising it chunk by chunk by measured growth (O231's proposal). Now in:
+  [M4](versions/v3/build-plan-v3.1.md#m4--the-first-load-bundle),
+  [B12](versions/v3/master-spec.md#b12-existing-code-and-risks).
+
+- **D360 (2026-10-19): the STABLE `rule_saved_settings_load_tolerantly` may take the
+  `changes-in-v3.1` tag.** The owner allows `documentalist` the STABLE guard's override for this tag,
+  metadata only ([change set part I3](../docs/release/v3.1-v3.2-intent-change-set.md#i3-for-the-owner-not-applied));
+  its wording changes under D361. Now in:
+  [chunk 16](versions/v3/build-plan-v3.1.md#chunk-16--presets-and-levels-on-the-device).
+
+- **D361 (2026-10-19): v3.1's revisions of v3.0's STABLE contract atoms take a MAJOR contract
+  bump.** The twelve atoms of change set part I3; `documentalist` drafts their new wordings and the
+  owner confirms them, the "to decide" rows included, before the first wave sync that revises one:
+  gate CS, which blocks wave 1's sync, since chunk 8 already changes what a kept phrase stores. B11
+  and B12 now count them, and B11 lists the four entries it missed (part I4). Now in:
+  [Gates](versions/v3/build-plan-v3.1.md#gates),
+  [B11](versions/v3/master-spec.md#b11-what-v31-changes-in-v30-and-in-v2s-guarantees).
+
+- **D362 (2026-10-19): the STABLE `rule_open_phrase_ending` is reworded with v3.1.** Its "jazz
+  approaches, and jazz enclosures" and "profile-approved" continuation give way to wording that
+  names no profile, since chromatic figures come from any preset; its guarantee is unchanged. Under
+  D361's bump and gate CS; chunk 12 revises it. Now in:
+  [chunk 12](versions/v3/build-plan-v3.1.md#chunk-12--presets-replace-the-musical-profile).
+
+- **D363 (2026-10-19): gate CS is cleared; the owner confirms every wording of change set part J.**
+  His words: "Agreed to the change in the wording." That includes the two that weaken a guarantee
+  (`rule_settings_saved_on_change`, `rule_saved_settings_load_tolerantly`), CONTRACT 7.0.0, and one
+  MAJOR bump at wave 1's sync (chunk 8), the later syncs (chunks 9, 12, 16, 17, 18) applying the rest
+  under 7.0.0. Now in: [Gates](versions/v3/build-plan-v3.1.md#gates),
+  [change set part J](../docs/release/v3.1-v3.2-intent-change-set.md#j-cs-contract-wordings-for-the-owners-sign-off-drafted-2026-10-19-not-applied).

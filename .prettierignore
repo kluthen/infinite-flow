@@ -1,0 +1,2 @@
+# The v3.0 replay-key corpus is a read-only recorded baseline, one compact case per line.
+tests/fixtures/replay-keys/v3.0-neutral-jazz.json
