@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.103
+Status: draft v2.104
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -21,13 +21,12 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and each milestone
 folder's README, such as [archive/v3/README.md](archive/v3/README.md)). Numbering continues from
-**D349**.
+**D353**.
 
 Live here: D228–D251 (v3.1 and v3.2, not built yet), D261–D288 (v3.3, not built yet; D263–D288
-merged from branch `v3.3-chord-research`) and D344–D348 (the v3.0 release and its follow-ups).
-D259 and D260 are on branch `v4-accompaniment-research`, not merged yet. D289 is unused. Branch
-`plan-migration`, not merged, numbers its own entries D339–D341, which `main` already uses; they
-need new numbers if it is merged.
+merged from branch `v3.3-chord-research`), D344–D348 (the v3.0 release and its follow-ups) and
+D349–D352 (the v3.1–v3.3 plan migrations, merged from branch `plan-migration` as D339–D341). D259 and D260 are on branch `v4-accompaniment-research`, not merged yet.
+D289 is unused.
 
 ## Decision Log
 
@@ -621,3 +620,29 @@ need new numbers if it is merged.
   drafts and the storage grounding move verbatim to [archive/v3/](archive/v3/README.md). The
   master spec, the v3.0 build plan and the v3 README stay in place. Live: D228–D251 (v3.1, v3.2),
   D261–D288 (v3.3) and D344–D347. No question was decided; the v3.0.x notes stay live.
+
+- **D349 (2026-10-16): v3.1's build plan moves to the build-plan model, with one shared v3 build
+  workflow and its waves re-formed.** Chunk IDs and Done-when statements are kept; the four
+  drifting §3 copies give way to one workflow document, and the eleven waves become six. Why: thin
+  waves paid a full preflight and gate each. Numbered D339 on branch `plan-migration` (D352). Now
+  in: [build-workflow.md](versions/v3/build-workflow.md),
+  [build-plan-v3.1.md](versions/v3/build-plan-v3.1.md#waves).
+
+- **D350 (2026-10-16): v3.2's build plan moves to the build-plan model, under the shared v3 build
+  workflow, its waves re-formed.** Chunk IDs and Done-when statements are kept; twelve waves become
+  seven, the release gate no wave; chunk 20 now follows chunk 19, whose dependent control it uses.
+  Why: thin waves paid a full preflight and gate each, and old wave 3 held the chain 8 → LD → 20.
+  Numbered D340 on branch `plan-migration` (D352). Now in:
+  [build-plan-v3.2.md](versions/v3/build-plan-v3.2.md#waves).
+
+- **D351 (2026-10-16): v3.3's build plan moves to the build-plan model, under the shared v3 build
+  workflow, its waves re-formed.** Eight waves become six; chunk 7 now follows chunks 5 and 6, whose
+  chord-tone facts its run rule reads; the owner's four questions become gates A0, C1, R0 and I0
+  and [O230](open-questions.md). Why: thin waves, and old wave 2 held 5, 6 and 7 with no path
+  between them. Numbered D341 on branch `plan-migration` (D352). Now in:
+  [build-plan-v3.3.md](versions/v3/build-plan-v3.3.md#waves).
+
+- **D352 (2026-10-19): branch `plan-migration` is merged, renumbered.** The owner: merge it,
+  renumbered. Its D339, D340 and D341 collided with `main`'s v3.0 gate entries and became D349,
+  D350 and D351; its O177 became [O230](open-questions.md). `main`'s v3.0 release and archive state
+  wins every conflict in the registers and indexes. Not an approval of any of the three plans.
