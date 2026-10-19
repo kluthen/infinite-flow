@@ -16,6 +16,9 @@ generation after each step a settings mutation can take is in
 [Settings-mutation transitions (chunk 24, 2026-10-03)](#settings-mutation-transitions-chunk-24-2026-10-03).
 How often phrase 2 joins phrase 1 with a carry-in at 240 BPM once phrases are pre-generated at
 Idle is in [Phrase 2 after pre-generation (M4, 2026-10-12)](#phrase-2-after-pre-generation-m4-2026-10-12).
+How often each embellishment figure appears (M1) is in [Embellishment figures](#embellishment-figures),
+and what the figures cost the pitch search (M2) in
+[Embellishment figures: the cost guard](#embellishment-figures-the-cost-guard).
 The newest whole-catalog generation figures are in
 [Validator-free fast enumeration on the reference machine (2026-09-30)](#validator-free-fast-enumeration-on-the-reference-machine-2026-09-30),
 after the [cold-generation speed-up](#cold-generation-speed-up-on-the-reference-machine-2026-09-30);
@@ -192,6 +195,136 @@ before chunk 24.
 the tablet on battery, is not measured here: it is hand check H6 (start several 240 BPM sessions
 right after phrase 1 appears and after waiting a few seconds, and note the tablet's battery
 cost), for information.
+
+## Embellishment figures
+
+Measurement M1 (v3.1 build plan, chunk 3): for each embellishment figure of master spec B5.1, the
+share of phrases holding it as a free figure and its count per phrase. This section holds the
+baseline on v3.0, before any figure level exists, so it is per profile (Neutral and Jazz, whose
+v3.1 defaults are As today or Off: master spec B5.3). The chunks that add the levels add their
+rows here.
+
+**Method.** `npm run measure:figures` (`vitest.measure-sweep.config.ts`, outside `test:unit`,
+`test:sweep` and `quality`) first runs the census's own tests, then
+`tests/sweep/figure-census.measure.ts`: one standalone phrase (no carry-in, tempo 120) for each of
+the deadline sweep's 568 cases (every supported rhythm setting with seeds 7 and 13, the other
+controls assigned round-robin) in each of the nine collections (Major, Minor and the seven modes),
+with the case's profile replaced by the measured one: 5,112 phrases per profile. The census
+(`tests/sweep/figure-census.ts`) labels every non-chord note: Tension's scheduled figure from the
+generator's own record of it (the outcome's `provenance.tensionBinding`), every other one from
+B5.1's definitions (beats 1 and 3 strong, steps in the collection, half steps, back to back under
+one chord), kept equal to the result validator's figure rules. The search's own figure state
+(free obligations, written figure paths) is not kept on the outcome, so it is not read. A note no
+rule explains is counted as unexplained. "Share" is the share of generated phrases holding the
+figure at least once; "per phrase" is its mean count over all generated phrases.
+
+**Machine and date.** Run by Claude on 2026-10-19 at 15:51 CEST on branch
+`v3.1-c3-measurement-tools` (`src/` identical to `v3.0.0`), on the reference machine: AMD Ryzen 5
+PRO 8640HS (6 cores, 12 threads), 11 GiB RAM, not a VM (`systemd-detect-virt` answers `none`),
+Debian 13 (Linux 6.12.111), Node 22.23.3. 1-minute load average 0.18 before, 1.12 after. The run
+took 90 s. The census's figures do not depend on the machine.
+
+| Figure (B5.1)              | Neutral: share | Neutral: per phrase | Jazz: share | Jazz: per phrase |
+| -------------------------- | -------------- | ------------------- | ----------- | ---------------- |
+| 1 Passing tone             | 2.3 %          | 0.023               | 1.9 %       | 0.019            |
+| 2 Accented passing tone    | 5.3 %          | 0.057               | 4.0 %       | 0.043            |
+| 3 Neighbor tone            | 22.7 %         | 0.258               | 16.7 %      | 0.184            |
+| 4 Appoggiatura (free)      | 0.0 %          | 0                   | 0.0 %       | 0                |
+| 5 Diatonic enclosure       | 0.0 %          | 0                   | 0.0 %       | 0                |
+| 6 Chromatic approach       | 0.0 %          | 0                   | 10.6 %      | 0.119            |
+| 7 Chromatic enclosure      | 0.0 %          | 0                   | 7.9 %       | 0.083            |
+| Tension's scheduled figure | 50.0 %         | 0.500               | 49.9 %      | 0.499            |
+| Unexplained                | 0              | 0                   | 0           | 0                |
+
+Phrases generated: Neutral 5,111 of 5,112 (one `search_limit_exceeded`), Jazz 5,106 of 5,112 (six
+`search_limit_exceeded`). A phrase holding a figure holds it 1.03 to 1.13 times on average.
+Tension's scheduled figures, Neutral and Jazz: 1,277 two-note diatonic approaches (Build), 1,147
+and 1,142 diatonic passing or neighbor tones, 131 appoggiaturas.
+
+These make master spec B12's estimates exact for v3.0: free passing tones are in 2.3 % of Neutral
+phrases (1.9 % in Jazz), accented ones in 5.3 % (4.0 %), Jazz's chromatic approaches in 10.6 % and
+its chromatic enclosures in 7.9 %, and the free appoggiatura and the diatonic enclosure in none.
+The free neighbor tone, which B12 does not count, is the one common free figure: 22.7 % of Neutral
+phrases. To re-run: `FIGURES_OUT=<file.json> npm run measure:figures` (`FIGURES_LIMIT=n` keeps the
+first n cases for a quick check).
+
+## Embellishment figures: the cost guard
+
+Measurement M2 (v3.1 build plan, chunk 3; master spec B5.6): the pitch search's cost at three
+figure settings, against B5.6's acceptance (against the baseline, at most 2 percentage points more
+fallbacks at 240 BPM and at most 2 points fewer phrases generated at any swept setting). The search
+allowance stays `DEFAULT_WINDOW_SEARCH_FUEL` and `CARRY_IN_WINDOW_SEARCH_FUEL`
+(`src/domain/generation/orchestration/search-ledger.ts`). This section holds the baseline on v3.0,
+per profile (Neutral and Jazz); the "every figure Strongly favored" and "every diatonic figure Off"
+runs come with the levels.
+
+**Method.** `npm run measure:cost` runs `tests/sweep/cost-guard.measure.ts`: the deadline sweep of
+`npm run test:sweep` (568 six-phrase sessions at 60, 120 and 240 BPM through the real session
+runner, each attempt charged its measured `generatePhrase` time plus 100 ms), with every case's
+profile replaced by the measured one, one outcome cache per note density as in the sweep's specs.
+"Generated" is the share of phrases 2 to 6 that the generator produced, with or without carry-in
+(a repeat is not generated). The times are `generatePhrase` wall times without the 100 ms, over
+the distinct intents generated (each timed once) and over the attempts the sessions made; the
+95th percentile is the nearest rank. "Fallback" is the share of phrases generated without the
+join (any standalone production) at 240 BPM; without pre-generation, phrase 2 at 240 BPM is always
+requested standalone first (see [Phrase 2 after pre-generation](#phrase-2-after-pre-generation-m4-2026-10-12)),
+so the share over phrases 3 to 6 is given too. The 240 BPM session figures are the sweep's 240 BPM
+sessions.
+
+**Machine and date.** Run by Claude on 2026-10-19 at 16:26 CEST, same branch and reference
+machine as [Embellishment figures](#embellishment-figures), nothing else running; 1-minute load
+average 0.31 before, 1.36 after. The run took 133 s (Neutral 67 s, Jazz 66 s). These are a
+baseline for comparison on the same machine; the owner runs the deciding runs.
+
+| Figure                                         | Neutral                 | Jazz                    |
+| ---------------------------------------------- | ----------------------- | ----------------------- |
+| Phrases 2 to 6 generated, 60 and 120 BPM       | 100.0 % (2,840 / 2,840) | 99.96 % (2,839 / 2,840) |
+| Phrases 2 to 6 generated, 240 BPM              | 100.0 % (2,840 / 2,840) | 100.0 % (2,840 / 2,840) |
+| Attempts succeeded, 60 and 120 BPM             | 98.9 % (3,408 / 3,447)  | 98.7 % (3,407 / 3,452)  |
+| Attempts succeeded, 240 BPM                    | 99.1 % (3,408 / 3,438)  | 99.0 % (3,408 / 3,442)  |
+| Distinct intents (failed)                      | 7,439 (68)              | 7,450 (77)              |
+| Slowest generation, distinct intents           | 1.307 s (a failure)     | 0.980 s (a failure)     |
+| 95th percentile, distinct intents              | 0.022 s                 | 0.019 s                 |
+| 95th percentile, successes / failures          | 0.019 s / 0.789 s       | 0.017 s / 0.570 s       |
+| Slowest success                                | 0.408 s                 | 0.570 s                 |
+| 95th percentile, attempts at 60 and 120 BPM    | 0.024 s                 | 0.020 s                 |
+| 95th percentile, attempts at 240 BPM           | 0.017 s                 | 0.019 s                 |
+| Fallback at 240 BPM, phrases 2 to 6            | 21.2 % (602 / 2,840)    | 21.0 % (596 / 2,840)    |
+| Fallback at 240 BPM, phrases 3 to 6            | 1.5 % (34 / 2,272)      | 1.2 % (28 / 2,272)      |
+| Missed deadlines (60 / 120 / 240 BPM)          | 0 / 0 / 0               | 1 / 1 / 0               |
+
+Failures by code over the distinct intents: Neutral 50 `no_legal_pitch_plan` and 18
+`search_limit_exceeded`, Jazz 40 and 37. The fallbacks at 240 BPM after phrase 2, Neutral and
+Jazz: 21 and 17 standalone after a `no_legal_pitch_plan`, 12 and 10 because the carry-in could not
+be used, 1 and 0 after a cutover cancel, 0 and 1 after three retries.
+
+Every phrase was generated in every case with every profile but one: case #542 (Sixteenth, Heavily
+varied, Conversational, Active displacement, Edge; seed 7; E♭ alto, Low register, B Lydian),
+which the sweep plays as Neutral, repeats phrase 5 at its deadline at 60 and 120 BPM when played
+as Jazz, after 5 attempts. `npm run test:sweep` never meets it, because its cases keep their
+round-robin profile. Per rhythm setting, the generated counts are in the run's JSON
+(`generatedByRhythmSetting`). To re-run: `COST_OUT=<file.json> npm run measure:cost`
+(`COST_LIMIT=n` keeps the first n cases); run it idle.
+
+### Carry-in attempts before the 2026-10-07 fix
+
+Moved from the record of the slow failed carry-in attempts
+([issue](../issues/Ref_20261006_failed_carry_in_attempts_slow.md), "Extra Data"), measured on
+2026-10-06, before the fix, in Node with the real generator, load average about 1.5; kept here as
+the history the cost guard guards against.
+
+- Every attempt of the 568 cases in six-phrase sessions at 60 BPM: 2,612 attempts, 2,520 succeeded
+  and 92 failed (80 `window_exhausted`, 12 `window_search_limit_exceeded`). Successes took 280 ms
+  at most (p99 68 ms) and used at most 71,551 fuel units (p99 5,606). Failures took p50 83 ms; 16
+  took more than 1 s, four attempts in each of four sequences: #344 (4 × 12.8 s,
+  `search_limit_exceeded`), #349 (4 × 5.9 s `exhausted`, and 4 × 12.8 s `search_limit_exceeded`),
+  #354 (4 × 6.8 s, `exhausted`). #205 and #407 took about 0.5 s per attempt and met every deadline.
+  The four attempts of a sequence took the same time to within about 2 %.
+- The same day's real-cost sweep (each attempt charged its measured time plus 0.1 s, load average
+  2 to 4): seven of the 568 cases missed at least one deadline, all at Eighth or Sixteenth density
+  (#344, #349, #354, #498, #527, #466, #474), the slowest attempt taking 27.96 s
+  (`search_limit_exceeded`). Every Quarter case met every deadline. The case-by-case table is in
+  the issue.
 
 ## My instrument ranges (2026-10-11)
 
