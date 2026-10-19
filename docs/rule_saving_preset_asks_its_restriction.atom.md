@@ -10,6 +10,7 @@ human_name: Save as New Asks for the Restriction
 parents:
   - [[rule_key_and_mode_restriction]]
 dependents:
+  - [[module_preset_model]]
   - [[rule_save_changes_restriction]]
 ---
 

@@ -7,7 +7,7 @@
 
 import { describe, expect, it, vi, type Mock } from 'vitest'
 
-import type { GenerationControls } from '@/domain/controls/generation-controls'
+import type { GenerationControls, MusicalProfile } from '@/domain/controls/generation-controls'
 import { makeSeed, type Seed } from '@/domain/random/seed'
 import {
   SessionHistoryError,
@@ -184,6 +184,37 @@ describe("the session's start time", () => {
       ).toThrow(SessionHistoryError)
     },
   )
+})
+
+// @test-link [[service_session_history]]
+describe("the session's musical profile selection", () => {
+  // @test-link [[service_session_history]]
+  it("keeps a frozen copy of the settings' selection at the start, whatever phrase 1 was generated under", () => {
+    const neutral = sessionSettings({ tempo: 240 })
+    const selection: { musicalProfile: MusicalProfile; isCustom: boolean } = {
+      musicalProfile: 'Jazz',
+      isCustom: true,
+    }
+    const settings = { ...neutral, musicalProfile: selection }
+    const driver = new SessionDriver({
+      at: 0,
+      settings,
+      phraseOne: phraseOneFor(neutral),
+      phraseOneSettings: neutral,
+    })
+    driver.countInOver(1)
+    driver.end(2)
+
+    const history = createSessionHistory(settings, fixedWallClock, DEFAULT_SESSION_SEED, 'treble')
+    for (const output of driver.log) history.record(output)
+    selection.musicalProfile = 'Neutral'
+    selection.isCustom = false
+
+    expect(history.phraseCount).toBe(1)
+    expect(history.profileSelection).toEqual({ musicalProfile: 'Jazz', isCustom: true })
+    expect(history.profileSelection).not.toBe(settings.musicalProfile)
+    expect(Object.isFrozen(history.profileSelection)).toBe(true)
+  })
 })
 
 // @test-link [[module_session_seed_plan]]

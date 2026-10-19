@@ -16,6 +16,7 @@ import {
   type ProfileSelection,
 } from '@/domain/controls/profile-selection'
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
+import { levelsForProfile } from '@/domain/figures/figure-levels'
 import { makeRequestId } from '@/domain/generation/generation-request'
 import { makeSeed } from '@/domain/random/seed'
 import { alwaysFitsStaff } from './fake-staff-fit'
@@ -76,7 +77,9 @@ describe('createGenerationSession: the settings it starts from', () => {
     expect(prewarm).toHaveBeenCalledOnce()
     // The intent carries the sounding key, so only the rhythm and tempo are compared here.
     expect(prewarm.mock.calls[0]?.[0].controls).toMatchObject({ noteDensity: 'Eighth', tempo: 120 })
-    expect(prewarm.mock.calls[0]?.[0].musicalProfile).toEqual(LOADED_PROFILE)
+    expect(prewarm.mock.calls[0]?.[0].figureLevels).toEqual(
+      levelsForProfile(LOADED_PROFILE.musicalProfile),
+    )
     created.dispose()
   })
 

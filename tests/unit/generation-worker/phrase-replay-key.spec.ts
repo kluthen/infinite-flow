@@ -5,6 +5,7 @@ import {
   makeGenerationControls,
   REGISTER_CHOICES,
 } from '@/domain/controls/generation-controls'
+import { JAZZ_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { CarryInError } from '@/domain/generation/carry-in/carry-in'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { makeSeed, SeedConstructionError } from '@/domain/random/seed'
@@ -14,6 +15,7 @@ import {
   encodePhraseReplayKey,
   PHRASE_REPLAY_KEY_CONTROL_ORDER,
   PHRASE_REPLAY_KEY_PREFIX,
+  PHRASE_REPLAY_KEY_V3_PREFIX,
   PhraseReplayKeyError,
   phraseReplayKeyLine,
 } from '@/generation-worker/phrase-replay-key'
@@ -38,6 +40,22 @@ function rawKey(payload: unknown): string {
   return `${PHRASE_REPLAY_KEY_PREFIX}${base64Url(new TextEncoder().encode(JSON.stringify(payload)))}`
 }
 
+/** Intent: encode any JSON value as an `ifk3.` key, bypassing the codec's own encoder. */
+function rawIfk3Key(payload: unknown): string {
+  return `${PHRASE_REPLAY_KEY_V3_PREFIX}${base64Url(new TextEncoder().encode(JSON.stringify(payload)))}`
+}
+
+/** Intent: the JSON payload of a key, read back without the codec's decoder. */
+function payloadOf(key: string): unknown[] {
+  const payload = key
+    .slice(key.indexOf('.') + 1)
+    .replace(/-/gu, '+')
+    .replace(/_/gu, '/')
+  const binary = atob(payload.padEnd(Math.ceil(payload.length / 4) * 4, '='))
+  const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0))
+  return JSON.parse(new TextDecoder().decode(bytes)) as unknown[]
+}
+
 /** Intent: unpadded base64url of raw bytes, for hand-built malformed payloads. */
 function base64Url(bytes: Uint8Array): string {
   let binary = ''
@@ -45,7 +63,10 @@ function base64Url(bytes: Uint8Array): string {
   return btoa(binary).replace(/\+/gu, '-').replace(/\//gu, '_').replace(/=+$/u, '')
 }
 
-/** Intent: the 7-tuple an intent and phrase number encode to, as a mutable array to corrupt. */
+/**
+ * Intent: the `ifk1.` 7-tuple v3.0 wrote for an intent and phrase number, its profile slots
+ * holding the customized Neutral buildIntent builds with, as a mutable array to corrupt.
+ */
 function tupleOf(intent: GenerationIntent, phraseNumber: number): unknown[] {
   return [
     intent.requestId,
@@ -53,14 +74,14 @@ function tupleOf(intent: GenerationIntent, phraseNumber: number): unknown[] {
     PHRASE_REPLAY_KEY_CONTROL_ORDER.map((key) =>
       key === 'tonalCenter' ? intent.writtenTonalCenter : intent.controls[key],
     ),
-    intent.musicalProfile.musicalProfile,
-    intent.musicalProfile.isCustom,
+    'Neutral',
+    true,
     phraseNumber,
     intent.carryIn ?? null,
   ]
 }
 
-/** Intent: the valid 7-tuple of a plain intent without a carry-in. */
+/** Intent: the valid `ifk1.` 7-tuple of a plain intent without a carry-in. */
 function validTuple(): unknown[] {
   return tupleOf(buildIntent({ seed: 5, label: 'tuple' }), 1)
 }
@@ -81,10 +102,17 @@ function tupleWithControl(key: string, value: unknown): unknown[] {
   return tuple
 }
 
-/** Intent: assert encode→decode yields the original intent and phrase number exactly. */
+/** Intent: the valid `ifk3.` 7-tuple the encoder writes for a plain built-in intent. */
+function validIfk3Tuple(): unknown[] {
+  return payloadOf(encodePhraseReplayKey(buildIntent({ seed: 5, label: 'tuple' }), 1))
+}
+
+/** Intent: assert encode→decode yields an `ifk3` key and the original intent and number exactly. */
 function expectRoundTrip(intent: GenerationIntent, phraseNumber: number): void {
-  const decoded = decodePhraseReplayKey(encodePhraseReplayKey(intent, phraseNumber))
-  expect(decoded.keyVersion).toBe('ifk1')
+  const key = encodePhraseReplayKey(intent, phraseNumber)
+  expect(key.startsWith('ifk3.')).toBe(true)
+  const decoded = decodePhraseReplayKey(key)
+  expect(decoded.keyVersion).toBe('ifk3')
   expect(decoded.phraseNumber).toBe(phraseNumber)
   expect(decoded.intent).toEqual(intent)
   expect(JSON.stringify(decoded.intent)).toBe(JSON.stringify(intent))
@@ -107,9 +135,9 @@ describe('phrase replay key round trip', () => {
     }
   })
 
-  it('round-trips a custom Jazz profile', () => {
+  it("round-trips a custom Jazz phrase's levels", () => {
     const intent = buildIntent({ seed: 9, musicalProfile: 'Jazz' })
-    expect(intent.musicalProfile).toEqual({ musicalProfile: 'Jazz', isCustom: true })
+    expect(intent.figureLevels).toStrictEqual(JAZZ_FIGURE_LEVELS)
     expectRoundTrip(intent, 1)
   })
 
@@ -127,10 +155,12 @@ describe('phrase replay key round trip', () => {
     expectRoundTrip(intent, 2)
   })
 
-  it('decodes an otherwise valid key whose carry-in slot is null', () => {
-    const decoded = decodePhraseReplayKey(rawKey(validTuple()))
-    expect(decoded.intent).toEqual(buildIntent({ seed: 5, label: 'tuple' }))
-    expect('carryIn' in decoded.intent).toBe(false)
+  it('decodes an otherwise valid ifk1 or ifk3 key whose carry-in slot is null', () => {
+    for (const key of [rawKey(validTuple()), rawIfk3Key(validIfk3Tuple())]) {
+      const decoded = decodePhraseReplayKey(key)
+      expect(decoded.intent).toEqual(buildIntent({ seed: 5, label: 'tuple' }))
+      expect('carryIn' in decoded.intent).toBe(false)
+    }
   })
 })
 
@@ -150,6 +180,19 @@ const PRE_NULL_HARMONY_KEY = [
   'ncmVlX2ZpdmVfY2hvcmRfdG9uZSIsImRlZ3JlZSI6NX19LCJwaHJhc2VOdW1iZXIiOjF9XQ',
 ].join('')
 
+/**
+ * The `ifk1.` key v3.0 wrote for `keyChangeIntent(12, 'replay')`, phrase 2, whose carry-in
+ * dropped its harmony (an explicit null). Frozen here, never regenerated.
+ */
+const NULL_HARMONY_IFK1_KEY = [
+  'ifk1.WyJyZXBsYXktMTIiLDEyLFs5MCwiRiMiLCJEb3JpYW4iLCJHZW50bGUgZGlhdG9uaWMiLCJTZXR0bGVkIiw',
+  'iUXVhcnRlciIsIlNsaWdodGx5IHZhcmllZCIsIlN0cmFpZ2h0IiwiU3BhcnNlIiwiV2FuZGVyaW5nIiwiTWlkZGx',
+  'lIiwiTGVhcGluZyIsIlByZWRpY3RhYmxlIiwiYy1rZXlib2FyZCJdLCJOZXV0cmFsIix0cnVlLDIseyJsYXN0UGl',
+  '0Y2giOnsibWlkaSI6NjQsImFycml2aW5nSW50ZXJ2YWwiOjQsInJlY292ZXJ5Ijp7ImtpbmQiOiJzZXR0bGVkIn1',
+  '9LCJyZWdpc3RlcldpbmRvdyI6eyJraW5kIjoiUmVnaXN0ZXJXaW5kb3ciLCJtaW5NaWRpIjo1NCwibWF4TWlkaSI',
+  '6NjZ9LCJmaW5hbEhhcm1vbnkiOm51bGwsInBocmFzZU51bWJlciI6MX1d',
+].join('')
+
 // @test-link [[rule_key_change_drops_harmonic_carry_in]]
 // @test-link [[module_phrase_replay_key]]
 describe('phrase replay key with a carry-in whose harmony was dropped', () => {
@@ -162,31 +205,51 @@ describe('phrase replay key with a carry-in whose harmony was dropped', () => {
     )
   })
 
-  it('rejects a key whose carry-in has no harmony field at all', () => {
-    const tuple = tupleOf(keyChangeIntent(12, 'replay'), 2)
-    const carryIn = { ...(tuple[6] as Record<string, unknown>) }
-    delete carryIn.finalHarmony
-    tuple[6] = carryIn
-    expect(() => decodePhraseReplayKey(rawKey(tuple))).toThrow(CarryInError)
+  it('rejects an ifk1 or ifk3 key whose carry-in has no harmony field at all', () => {
+    const intent = keyChangeIntent(12, 'replay')
+    const ifk1 = tupleOf(intent, 2)
+    const ifk3 = payloadOf(encodePhraseReplayKey(intent, 2))
+    for (const [tuple, slot, encode] of [
+      [ifk1, 6, rawKey],
+      [ifk3, 5, rawIfk3Key],
+    ] as const) {
+      const carryIn = { ...(tuple[slot] as Record<string, unknown>) }
+      delete carryIn.finalHarmony
+      tuple[slot] = carryIn
+      expect(() => decodePhraseReplayKey(encode(tuple))).toThrow(CarryInError)
+    }
   })
 
   it('still decodes a key encoded with the full carried harmony, unchanged', () => {
     const decoded = decodePhraseReplayKey(PRE_NULL_HARMONY_KEY)
     const intent = carryInIntent()
+    expect(decoded.keyVersion).toBe('ifk1')
     expect(decoded.phraseNumber).toBe(2)
     expect(decoded.intent).toEqual(intent)
     expect(JSON.stringify(decoded.intent)).toBe(JSON.stringify(intent))
     expect(decoded.intent.carryIn?.finalHarmony?.triad.degree).toBe(5)
-    expect(encodePhraseReplayKey(decoded.intent, 2)).toBe(PRE_NULL_HARMONY_KEY)
+    const reEncoded = decodePhraseReplayKey(encodePhraseReplayKey(decoded.intent, 2))
+    expect(reEncoded.keyVersion).toBe('ifk3')
+    expect(reEncoded.intent).toEqual(intent)
+  })
+
+  it('still decodes an ifk1 key whose carry-in dropped its harmony, unchanged', () => {
+    const decoded = decodePhraseReplayKey(NULL_HARMONY_IFK1_KEY)
+    const intent = keyChangeIntent(12, 'replay')
+    expect(decoded.keyVersion).toBe('ifk1')
+    expect(decoded.phraseNumber).toBe(2)
+    expect(decoded.intent.carryIn?.finalHarmony).toBeNull()
+    expect(JSON.stringify(decoded.intent)).toBe(JSON.stringify(intent))
+    expect(decodePhraseReplayKey(encodePhraseReplayKey(decoded.intent, 2)).intent).toEqual(intent)
   })
 })
 
 // @test-link [[module_phrase_replay_key]]
 describe('phrase replay key format', () => {
-  it('is one line of the ifk1 prefix and unpadded base64url', () => {
+  it('is one line of the ifk3 prefix and unpadded base64url', () => {
     const key = encodePhraseReplayKey(carryInIntent(), 2)
-    expect(key.startsWith('ifk1.')).toBe(true)
-    expect(key).toMatch(/^ifk1\.[A-Za-z0-9_-]+$/u)
+    expect(key.startsWith('ifk3.')).toBe(true)
+    expect(key).toMatch(/^ifk3\.[A-Za-z0-9_-]+$/u)
     expect(key.split('\n')).toHaveLength(1)
   })
 
@@ -225,9 +288,13 @@ describe('phrase replay key decoding rejects malformed keys', () => {
   })
 
   it('rejects an unsupported key version by name', () => {
-    const key = rawKey(validTuple()).replace(/^ifk1\./u, 'ifk3.')
-    expect(() => decodePhraseReplayKey(key)).toThrow(/unsupported key version "ifk3"/u)
-    expect(() => decodePhraseReplayKey(key)).toThrow(PhraseReplayKeyError)
+    for (const version of ['ifk0', 'ifk4', 'ifk12']) {
+      const key = rawIfk3Key(validIfk3Tuple()).replace(/^ifk3\./u, `${version}.`)
+      expect(() => decodePhraseReplayKey(key)).toThrow(
+        new RegExp(`unsupported key version "${version}"; only "ifk1", "ifk2" and "ifk3"`, 'u'),
+      )
+      expect(() => decodePhraseReplayKey(key)).toThrow(PhraseReplayKeyError)
+    }
   })
 
   it('rejects a payload that is not strict unpadded base64url', () => {
@@ -294,8 +361,13 @@ describe('phrase replay key decoding rejects malformed keys', () => {
     expect(() => decodePhraseReplayKey(rawKey(tupleWithControl('tonalCenter', 'H')))).toThrow(
       GenerationWorkerProtocolError,
     )
-    expect(() => decodePhraseReplayKey(rawKey(tupleWith(3, 'Bebop')))).toThrow(
-      GenerationWorkerProtocolError,
+  })
+
+  it('rejects an ifk1 key naming no musical profile, naming its slot', () => {
+    const key = rawKey(tupleWith(3, 'Bebop'))
+    expect(() => decodePhraseReplayKey(key)).toThrow(PhraseReplayKeyError)
+    expect(() => decodePhraseReplayKey(key)).toThrow(
+      /slot 3 \(musicalProfile\) must be one of \["Neutral","Jazz"\], got "Bebop"/u,
     )
   })
 
@@ -320,11 +392,16 @@ describe('phrase replay key decoding rejects malformed keys', () => {
 
   it("rejects a phrase number other than its carry-in's plus one", () => {
     const intent = carryInIntent()
-    expect(rawKey(tupleOf(intent, 2))).toBe(encodePhraseReplayKey(intent, 2))
+    expect(decodePhraseReplayKey(rawKey(tupleOf(intent, 2))).intent).toEqual(intent)
     for (const phraseNumber of [1, 3, 5])
       expect(() => decodePhraseReplayKey(rawKey(tupleOf(intent, phraseNumber)))).toThrow(
         /plus one/u,
       )
+    const ifk3 = payloadOf(encodePhraseReplayKey(intent, 2))
+    for (const phraseNumber of [1, 3]) {
+      ifk3[4] = phraseNumber
+      expect(() => decodePhraseReplayKey(rawIfk3Key(ifk3))).toThrow(/plus one/u)
+    }
   })
 })
 
@@ -352,10 +429,15 @@ describe('phrase replay key console line', () => {
     )
   })
 
-  it('refuses a key that is not one well-formed ifk1 key', () => {
-    expect(() => phraseReplayKeyLine(`${key}\nmore`, { source: 'workspace' }, seed)).toThrow(
-      PhraseReplayKeyError,
+  it('accepts an ifk3 key and refuses a key that is not one well-formed ifk1-ifk3 key', () => {
+    const ifk3 = rawIfk3Key(validIfk3Tuple())
+    expect(phraseReplayKeyLine(ifk3, { source: 'workspace' }, seed)).toBe(
+      `[Infinite Flow] phrase replay key · workspace phrase · seed1-0000002a · ${ifk3}`,
     )
+    for (const bad of [`${key}\nmore`, ifk3.replace(/^ifk3\./u, 'ifk4.')])
+      expect(() => phraseReplayKeyLine(bad, { source: 'workspace' }, seed)).toThrow(
+        PhraseReplayKeyError,
+      )
   })
 
   it('announces a workspace phrase once as phrase 1', () => {
@@ -392,7 +474,7 @@ describe('phrase replay key console line', () => {
     )
     expect(log).toHaveBeenCalledTimes(1)
     expect(log.mock.calls[0]![0]).toContain(
-      '· session phrase 6 (standalone) · seed1-0000000d · ifk1.',
+      '· session phrase 6 (standalone) · seed1-0000000d · ifk3.',
     )
   })
 

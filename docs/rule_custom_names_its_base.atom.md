@@ -9,7 +9,8 @@ parents:
   - [[rule_custom_selection]]
 layer: BUSINESS
 human_name: Custom Names the Preset It Is Based On
-dependents: []
+dependents:
+  - [[module_preset_model]]
 ---
 
 # Custom Names the Preset It Is Based On

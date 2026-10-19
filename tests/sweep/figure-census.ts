@@ -8,7 +8,6 @@
  * search, so free figures are classified from their definitions, by the census's own rules.
  */
 
-import { MUSICAL_PROFILE_CAPABILITIES } from '@/domain/controls/profile-selection'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
 import type { TensionFigureKind } from '@/domain/harmony/harmony-types'
@@ -68,9 +67,10 @@ export interface FailedCensus {
 const APPOGGIATURA_LEAP = 3
 
 /*
- * The v3.0 validator's figure helpers (figure-rules.ts: `sameDirection`, `tightGroup`,
- * `freelyExplained` and `chromaticOrnament`) are private to it, so the census reimplements them
- * here, rule for rule, rather than importing them.
+ * The validator's figure helpers (figure-rules.ts: `sameDirection`, `tightGroup`,
+ * `freeDiatonicFigure` and `chromaticOrnament`) are private to it, so the census reimplements them
+ * here, rule for rule, rather than importing them. The census's rules stay level-blind: it reports
+ * what a phrase holds, whatever figure levels it was generated with.
  */
 
 /** Intent: true when two consecutive moves go the same non-zero direction. */
@@ -151,8 +151,8 @@ function appoggiatura(attacks: readonly SoundingFact[], index: number): boolean 
 }
 
 /**
- * Intent: the free diatonic figure of a single non-chord attack `index`, split from the
- * validator's `freelyExplained`: a passing tone (collection step in and out, same direction, onto
+ * Intent: the free diatonic figure of a single non-chord attack `index`, mirroring the
+ * validator's `freeDiatonicFigure`: a passing tone (collection step in and out, same direction, onto
  * a chord tone; accented on a strong onset) or a neighbor tone (collection step in and out, from a
  * chord tone back to the same MIDI); otherwise unexplained.
  */
@@ -273,12 +273,11 @@ function contextOf(
       ...(request.carryIn === undefined ? {} : { carryIn: request.carryIn }),
     },
     policy: {
-      profile: intent.musicalProfile.musicalProfile,
       collection: intent.controls.collection,
       tonalCenter: intent.controls.tonalCenter,
       contour: intent.controls.contour,
       leapiness: intent.controls.leapiness,
-      capabilities: MUSICAL_PROFILE_CAPABILITIES[intent.musicalProfile.musicalProfile],
+      figureLevels: intent.figureLevels,
     },
     harmony: provenance.harmony,
     rhythm: provenance.rhythm,

@@ -82,6 +82,9 @@
  *   reads a store with its keys, `storage.pinKeptSession` pins a saved session,
  *   `storage.seedUnreadableKeptSession` seeds one no codec reads and
  *   `storage.seedDamagedKeptBody` damages a saved session's body.
+ * - the in-browser phrase replay (replay-seams.ts): `replay.replayKey` decodes a phrase replay key
+ *   in the page and replays it through the real browser worker, on a worker client of its own that
+ *   never prewarms, and `replay.reEncodeKey` gives the key's `ifk3.` re-encoding.
  *
  * The lazy VexFlow engraver, the real generation Worker, real notation, the real `matchMedia`
  * window-width provider and the real window-shape probe all run for real (a spec moves the window
@@ -130,6 +133,7 @@ import {
   harnessStorageRefusal,
 } from './storage-seams'
 import { armNextExportFailure, exportsBuilt } from './export-loader-seam'
+import { createHarnessReplay } from './replay-seams'
 import {
   armNextNotationFailure,
   engravingCount,
@@ -344,7 +348,7 @@ async function harnessGenerate(
   const record: GenerationRecord = {
     writtenTonalCenter: intent.writtenTonalCenter,
     controls: { ...intent.controls },
-    musicalProfile: { ...intent.musicalProfile },
+    figureLevels: { ...intent.figureLevels },
     instrumentProfile: instrumentProfileOf(intent),
     carryIn: intent.carryIn !== undefined,
     seed: intent.seed,
@@ -510,6 +514,7 @@ function shownHarmony(): readonly HarmonyEvent[] {
 }
 
 const harnessApi: WorkspaceHarnessApi = {
+  replay: createHarnessReplay(),
   queueSeeds: (seeds) => seedProvider.queueSeeds(seeds),
   holdGeneration: () => gate.hold(),
   releaseGeneration: () => gate.release(),

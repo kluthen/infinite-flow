@@ -132,7 +132,7 @@ describe('a generation with my instrument crosses the worker', () => {
       requestId: makeRequestId('my-instrument-carry-in'),
       seed: makeSeed(8),
       controls: { ...first.controls, tonalCenter: first.writtenTonalCenter },
-      musicalProfile: first.musicalProfile,
+      figureLevels: first.figureLevels,
       instrumentProfile: first.instrumentProfile,
       carryIn,
     })

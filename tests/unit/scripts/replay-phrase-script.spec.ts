@@ -1,9 +1,10 @@
 // @vitest-environment node
 /**
  * The `replay:phrase` command line: run as a real Node process from the repository root, it
- * prints the full JSON report for a key given as its argument, on stdin or inside a whole copied
- * console line, and rejects a malformed or unsupported key with exit code 1, a stderr message and
- * nothing on stdout.
+ * prints the full JSON report for a key of any supported version (an `ifk3.` key the encoder
+ * writes today, and the `ifk1.` and `ifk2.` keys v3.0 wrote, recorded here as fixed strings) given
+ * as its argument, on stdin or inside a whole copied console line, and rejects a malformed or
+ * unsupported key with exit code 1, a stderr message and nothing on stdout.
  */
 
 import { spawnSync, type SpawnSyncReturns } from 'node:child_process'
@@ -14,7 +15,6 @@ import { describe, expect, it } from 'vitest'
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
 import { createGenerationIntent } from '@/domain/generation/generation-intent'
 import { makeRequestId } from '@/domain/generation/generation-request'
-import { makeMyInstrument } from '@/domain/profile/my-instrument'
 import { makeSeed } from '@/domain/random/seed'
 import { encodePhraseReplayKey } from '@/generation-worker/phrase-replay-key'
 
@@ -32,13 +32,13 @@ const INTENT_FIELDS = [
   'meter',
   'controls',
   'writtenTonalCenter',
-  'musicalProfile',
+  'figureLevels',
   'instrumentProfile',
   'registerIntent',
   'carryIn',
 ]
 
-/** A real key: a transposing profile, seed 42, workspace phrase. */
+/** A real `ifk3.` key: a transposing profile, seed 42, workspace phrase. */
 const KEY = encodePhraseReplayKey(
   createGenerationIntent({
     requestId: makeRequestId('script-42'),
@@ -64,38 +64,26 @@ const KEY = encodePhraseReplayKey(
   1,
 )
 
-/** A real `ifk2.` key: my instrument sounding a minor third lower, seed 42, workspace phrase. */
-const MY_INSTRUMENT_KEY = encodePhraseReplayKey(
-  createGenerationIntent({
-    requestId: makeRequestId('script-my-instrument-42'),
-    seed: makeSeed(42),
-    controls: makeGenerationControls({
-      tempo: 90,
-      tonalCenter: 'D',
-      collection: 'Major',
-      harmonicMotion: 'Gentle diatonic',
-      tension: 'Settled',
-      noteDensity: 'Quarter',
-      rhythmicVariety: 'Slightly varied',
-      syncopation: 'Straight',
-      silenceDensity: 'Sparse',
-      contour: 'Wandering',
-      register: 'Middle',
-      leapiness: 'Leaping',
-      arpeggioChaos: 'Predictable',
-      instrumentProfileId: 'my-instrument',
-    }),
-    musicalProfile: { musicalProfile: 'Neutral', isCustom: true },
-    instrumentProfile: makeMyInstrument({
-      template: 'c-keyboard',
-      name: 'My horn in A',
-      clef: 'treble',
-      writtenRange: { minMidi: 48, maxMidi: 84 },
-      transposition: { octaves: 0, semitones: 3, direction: 'lower' },
-    }).profile,
-  }),
-  1,
-)
+/**
+ * The `ifk1.` key v3.0 wrote for KEY's phrase (the same intent, built from a customized Neutral).
+ * Frozen here, never regenerated.
+ */
+const RECORDED_IFK1_KEY = [
+  'ifk1.WyJzY3JpcHQtNDIiLDQyLFs5MCwiRiIsIk1ham9yIiwiR2VudGxlIGRpYXRvbmljIiwiU2V0dGxlZCIsIlF',
+  '1YXJ0ZXIiLCJTbGlnaHRseSB2YXJpZWQiLCJTdHJhaWdodCIsIlNwYXJzZSIsIldhbmRlcmluZyIsIk1pZGRsZSI',
+  'sIkxlYXBpbmciLCJQcmVkaWN0YWJsZSIsImJiLXRlbm9yIl0sIk5ldXRyYWwiLHRydWUsMSxudWxsXQ',
+].join('')
+
+/**
+ * The `ifk2.` key v3.0 wrote for my instrument written C3 to C6 sounding a minor third lower
+ * (concert 45-81), seed 42, workspace phrase. Frozen here, never regenerated.
+ */
+const RECORDED_IFK2_KEY = [
+  'ifk2.WyJzY3JpcHQtbXktaW5zdHJ1bWVudC00MiIsNDIsWzkwLCJEIiwiTWFqb3IiLCJHZW50bGUgZGlhdG9uaWM',
+  'iLCJTZXR0bGVkIiwiUXVhcnRlciIsIlNsaWdodGx5IHZhcmllZCIsIlN0cmFpZ2h0IiwiU3BhcnNlIiwiV2FuZGV',
+  'yaW5nIiwiTWlkZGxlIiwiTGVhcGluZyIsIlByZWRpY3RhYmxlIiwibXktaW5zdHJ1bWVudCJdLCJOZXV0cmFsIix',
+  '0cnVlLDEsbnVsbCxbIk15IGhvcm4gaW4gQSIsNDUsODEsMywyXV0',
+].join('')
 
 /** Intent: run the script with the given arguments and stdin, capturing its output. */
 function runScript(args: readonly string[], input?: string): SpawnSyncReturns<string> {
@@ -114,6 +102,7 @@ function expectCompleteReport(run: SpawnSyncReturns<string>): string {
   const report = JSON.parse(run.stdout) as Record<string, Record<string, unknown>>
   expect(Object.keys(report)).toEqual(['key', 'keyVersion', 'phraseNumber', 'input', 'output'])
   expect(report.key).toBe(KEY)
+  expect(report.keyVersion).toBe('ifk3')
   for (const field of INTENT_FIELDS) expect(report.input).toHaveProperty(field)
   expect(report.input!.workerRequest).toMatchObject({ type: 'generate', id: 1 })
   expect(report.output!.kind).toBe('generation_success')
@@ -140,13 +129,32 @@ describe('npm run replay:phrase', () => {
   // @test-link [[service_headless_phrase_replay]]
   // @test-link [[module_phrase_replay_key]]
   it(
-    'replays an ifk2 key made with my instrument, its profile in the printed input',
+    'replays an ifk1 key v3.0 wrote to the same phrase as its ifk3 key',
     () => {
-      const run = runScript([MY_INSTRUMENT_KEY])
+      const recorded = runScript([RECORDED_IFK1_KEY])
+      const current = runScript([KEY])
+      expect(recorded.stderr).toBe('')
+      expect(recorded.status).toBe(0)
+      const recordedReport = JSON.parse(recorded.stdout) as Record<string, unknown>
+      const currentReport = JSON.parse(current.stdout) as Record<string, unknown>
+      expect(recordedReport.keyVersion).toBe('ifk1')
+      expect(currentReport.keyVersion).toBe('ifk3')
+      expect(recordedReport.input).toEqual(currentReport.input)
+      expect(JSON.stringify(recordedReport.output)).toBe(JSON.stringify(currentReport.output))
+    },
+    TIMEOUT_MS,
+  )
+
+  // @test-link [[service_headless_phrase_replay]]
+  // @test-link [[module_phrase_replay_key]]
+  it(
+    'replays an ifk2 key v3.0 wrote with my instrument, its profile in the printed input',
+    () => {
+      const run = runScript([RECORDED_IFK2_KEY])
       expect(run.stderr).toBe('')
       expect(run.status).toBe(0)
       const report = JSON.parse(run.stdout) as Record<string, Record<string, unknown>>
-      expect(report.key).toBe(MY_INSTRUMENT_KEY)
+      expect(report.key).toBe(RECORDED_IFK2_KEY)
       expect(report.keyVersion).toBe('ifk2')
       expect(report.input!.instrumentProfile).toMatchObject({
         id: 'my-instrument',
@@ -177,10 +185,10 @@ describe('npm run replay:phrase', () => {
   it(
     'rejects an unsupported key version with exit 1',
     () => {
-      const run = runScript(['ifk3.xxx'])
+      const run = runScript(['ifk4.xxx'])
       expect(run.status).toBe(1)
       expect(run.stdout).toBe('')
-      expect(run.stderr).toMatch(/unsupported key version "ifk3"/u)
+      expect(run.stderr).toMatch(/unsupported key version "ifk4"/u)
     },
     TIMEOUT_MS,
   )

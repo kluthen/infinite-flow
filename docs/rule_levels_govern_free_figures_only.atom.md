@@ -2,7 +2,7 @@
 id: rule_levels_govern_free_figures_only
 status: DRAFT
 type: RULE
-version: 0.1
+version: 0.2
 priority: 1
 dependents: []
 layer: BUSINESS
@@ -25,4 +25,4 @@ The figure levels order free-figure candidates only; Tension's scheduled figure 
 
 ## EXPECTATION
 - With every figure level Off, every Tension value still places its scheduled figure.
-- Changing a figure level never changes which scheduled figure Tension chooses.
+- The figure levels do not reorder Tension's choices: its scheduled figure's placements are tried in the same order whatever the levels.

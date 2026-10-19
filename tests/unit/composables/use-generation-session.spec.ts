@@ -2,6 +2,7 @@ import { isReadonly } from 'vue'
 import { describe, expect, it } from 'vitest'
 
 import { createGenerationSession } from '@/composables/use-generation-session'
+import { NEUTRAL_FIGURE_LEVELS, type FigureLevels } from '@/domain/figures/figure-levels'
 import { makeRequestId } from '@/domain/generation/generation-request'
 import { makeSeed } from '@/domain/random/seed'
 import { alwaysFitsStaff } from './fake-staff-fit'
@@ -241,8 +242,7 @@ describe('createGenerationSession', () => {
       readonly seed: number
       readonly requestId: string
       readonly tempo: number
-      readonly profile: string
-      readonly custom: boolean
+      readonly levels: FigureLevels
     }[] = []
     const session = createGenerationSession({
       saveSettings: () => undefined,
@@ -256,8 +256,7 @@ describe('createGenerationSession', () => {
           seed: intent.seed,
           requestId: intent.requestId,
           tempo: intent.controls.tempo,
-          profile: intent.musicalProfile.musicalProfile,
-          custom: intent.musicalProfile.isCustom,
+          levels: intent.figureLevels,
         })
         return intent.requestId
       },
@@ -271,9 +270,10 @@ describe('createGenerationSession', () => {
     await session.actions.regenerate()
 
     expect(intents).toEqual([
-      { seed: 1, requestId: 'request-1', tempo: 90, profile: 'Neutral', custom: false },
-      { seed: 2, requestId: 'request-2', tempo: 100, profile: 'Neutral', custom: true },
+      { seed: 1, requestId: 'request-1', tempo: 90, levels: NEUTRAL_FIGURE_LEVELS },
+      { seed: 2, requestId: 'request-2', tempo: 100, levels: NEUTRAL_FIGURE_LEVELS },
     ])
+    expect(session.state.profileSelection).toEqual({ musicalProfile: 'Neutral', isCustom: true })
     expect(session.state.presentation.theme).toBe('Dark')
     expect(tracked.counts()).toEqual({ id: 2, seed: 2 })
   })

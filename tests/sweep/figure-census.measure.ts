@@ -3,9 +3,17 @@
  * The figure census sweep (v3.1 measurement M1), manual only, never in `npm run quality`: run via
  * `npm run measure:figures`. Every case of the look-ahead deadline sweep (each supported rhythm
  * setting with seeds 7 and 13) under each of the nine collections gives one standalone phrase per
- * setting (today each musical profile, Neutral and Jazz), at 120 BPM with the case's tension arc
- * and seed. Each phrase's figures are counted by the figure census; per setting, the sweep prints
- * each figure's share of phrases and mean count per phrase as `FIGURE-CENSUS` lines.
+ * setting, at 120 BPM with the case's tension arc and seed. The settings are each musical profile
+ * (Neutral and Jazz), every figure as today (the base), each of the seven figures off in turn with
+ * the others as today, and every figure off. Each phrase's figures are counted by the figure
+ * census; per setting, the sweep prints each figure's share of phrases and mean count per phrase,
+ * and per tension arc how many phrases hold Tension's scheduled figure, as `FIGURE-CENSUS` lines,
+ * then how many Settled and Lift cases holding one under Neutral hold none with every figure off.
+ *
+ * It asserts, in every setting, that no attack is unexplained and that no generation failed its
+ * result validation (only search outcomes may fail a generation); that a figure turned off has no
+ * free instance; and that with every figure off no free figure appears while every Edge and Build
+ * phrase still holds Tension's scheduled figure.
  *
  * Env: `FIGURES_OUT` writes the full aggregate JSON (with the machine, the date and the run
  * duration) to that path; `FIGURES_LIMIT` keeps only the first N sweep cases, for a quick run.
@@ -15,9 +23,13 @@ import { writeFileSync } from 'node:fs'
 import { performance } from 'node:perf_hooks'
 import { describe, expect, it } from 'vitest'
 
+import type { FigureId } from '@/domain/figures/figure-levels'
 import { sweepCases } from '../unit/session/deadline-sweep'
+import { FREE_FIGURES, type FreeFigure } from './figure-census'
 import {
+  ALL_AS_TODAY,
   CensusTally,
+  FIGURE_OFF_SETTINGS,
   PROFILE_SETTINGS,
   censusPopulation,
   machineBlock,
@@ -27,6 +39,30 @@ import {
   type CensusSetting,
   type SettingAggregate,
 } from './figure-census-sweep'
+
+/** The generation failure codes a search outcome gives; a failed result validation is not one. */
+const SEARCH_OUTCOME_CODES: readonly string[] = [
+  'no_legal_harmony_plan',
+  'no_legal_rhythm_plan',
+  'no_legal_pitch_plan',
+  'no_eligible_register_window',
+  'search_limit_exceeded',
+]
+
+/** The census label of each figure's free instances. */
+const FREE_LABEL: Readonly<Record<FigureId, FreeFigure>> = {
+  passingTone: 'passing_tone',
+  accentedPassingTone: 'accented_passing_tone',
+  neighborTone: 'neighbor_tone',
+  appoggiatura: 'appoggiatura',
+  diatonicEnclosure: 'diatonic_enclosure',
+  chromaticApproach: 'chromatic_approach',
+  chromaticEnclosure: 'chromatic_enclosure',
+}
+
+/** The tension arcs whose scheduled figure is optional, and those that always schedule one. */
+const OPTIONAL_ARCS = ['Settled', 'Lift'] as const
+const REQUIRED_ARCS = ['Build', 'Edge'] as const
 
 /** Intent: the case limit `FIGURES_LIMIT` sets, or none; anything but a positive integer fails. */
 function caseLimit(raw: string | undefined): number | undefined {
@@ -38,16 +74,48 @@ function caseLimit(raw: string | undefined): number | undefined {
 }
 
 /** Intent: take the census of every case of a population under one setting. */
-function measureSetting(
-  setting: CensusSetting,
-  population: readonly CensusCase[],
-): SettingAggregate {
+function measureSetting(setting: CensusSetting, population: readonly CensusCase[]): CensusTally {
   const tally = new CensusTally(setting.label)
   for (const censusCase of population) {
     const applied = setting.apply(censusCase)
     tally.add(applied, runCensusCase(applied))
   }
-  return tally.aggregate()
+  return tally
+}
+
+/**
+ * Intent: per optional tension arc, how many cases hold Tension's scheduled figure in the `from`
+ * tally but not in the `to` tally, pairing cases by label.
+ */
+function scheduledLost(
+  population: readonly CensusCase[],
+  from: CensusTally,
+  to: CensusTally,
+): Readonly<Record<(typeof OPTIONAL_ARCS)[number], number>> {
+  const [held, kept] = [from.casesHoldingScheduled(), to.casesHoldingScheduled()]
+  const lost = population.filter(
+    (censusCase) => held.has(censusCase.label) && !kept.has(censusCase.label),
+  )
+  return Object.fromEntries(
+    OPTIONAL_ARCS.map((arc) => [
+      arc,
+      lost.filter((censusCase) => censusCase.controls.tension === arc).length,
+    ]),
+  ) as Record<(typeof OPTIONAL_ARCS)[number], number>
+}
+
+/** Intent: the tally of the setting labelled `label`, which the sweep must have measured. */
+function tallyNamed(tallies: ReadonlyMap<string, CensusTally>, label: string): CensusTally {
+  const found = tallies.get(label)
+  if (found === undefined) throw new Error(`No setting labelled "${label}" was measured.`)
+  return found
+}
+
+/** Intent: the aggregate of the setting labelled `label`, which the sweep must have measured. */
+function settingNamed(settings: readonly SettingAggregate[], label: string): SettingAggregate {
+  const found = settings.find((aggregate) => aggregate.label === label)
+  if (found === undefined) throw new Error(`No setting labelled "${label}" was measured.`)
+  return found
 }
 
 describe('figure census sweep (M1)', () => {
@@ -58,8 +126,20 @@ describe('figure census sweep (M1)', () => {
     const limit = caseLimit(process.env.FIGURES_LIMIT)
     const cases = sweepCases().slice(0, limit)
     const population = censusPopulation(cases)
-    const settings = PROFILE_SETTINGS.map((setting) => measureSetting(setting, population))
+    const measured = [...PROFILE_SETTINGS, ALL_AS_TODAY, ...FIGURE_OFF_SETTINGS]
+    const tallies = new Map(
+      measured.map((setting) => [setting.label, measureSetting(setting, population)]),
+    )
+    const settings = [...tallies.values()].map((tally) => tally.aggregate())
     for (const aggregate of settings) console.log(tableLines(aggregate).join('\n'))
+    const lostWithEveryFigureOff = scheduledLost(
+      population,
+      tallyNamed(tallies, 'Neutral'),
+      tallyNamed(tallies, 'every figure off'),
+    )
+    console.log(
+      `FIGURE-CENSUS cases holding a scheduled figure under Neutral but none with every figure off: ${OPTIONAL_ARCS.map((arc) => `${arc} ${lostWithEveryFigureOff[arc]}`).join(', ')}`,
+    )
 
     const report = {
       date,
@@ -67,11 +147,37 @@ describe('figure census sweep (M1)', () => {
       machine,
       population: { sweepCases: cases.length, censusCases: population.length },
       settings,
+      scheduledLostWithEveryFigureOff: lostWithEveryFigureOff,
     }
     const outPath = process.env.FIGURES_OUT
     if (outPath !== undefined) writeFileSync(outPath, JSON.stringify(report, null, 2))
     expect(settings.map((aggregate) => aggregate.cases)).toEqual(
       settings.map(() => population.length),
     )
+    expect(
+      settings.map((aggregate) => [aggregate.label, aggregate.figures.unexplained.totalInstances]),
+    ).toEqual(settings.map((aggregate) => [aggregate.label, 0]))
+    const validationFailures = settings.map((aggregate) => [
+      aggregate.label,
+      Object.keys(aggregate.failedGenerations.byCode).filter(
+        (code) => !SEARCH_OUTCOME_CODES.includes(code),
+      ),
+    ])
+    expect(validationFailures).toEqual(settings.map((aggregate) => [aggregate.label, []]))
+    const offFigures = (Object.keys(FREE_LABEL) as FigureId[]).map((figure) => {
+      const label = FREE_LABEL[figure]
+      return [label, settingNamed(settings, `${figure} off`).figures[label].totalInstances]
+    })
+    expect(offFigures).toEqual(offFigures.map(([label]) => [label, 0]))
+    const everyOff = settingNamed(settings, 'every figure off')
+    expect(FREE_FIGURES.map((label) => [label, everyOff.figures[label].totalInstances])).toEqual(
+      FREE_FIGURES.map((label) => [label, 0]),
+    )
+    for (const arc of REQUIRED_ARCS) {
+      const tally = everyOff.scheduledByArc[arc]
+      expect(tally.holdingScheduled, `${arc} phrases holding a scheduled figure`).toBe(
+        tally.phrases,
+      )
+    }
   })
 })

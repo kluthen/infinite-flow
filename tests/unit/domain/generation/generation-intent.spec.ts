@@ -4,9 +4,17 @@ import {
   DEFAULT_GENERATION_CONTROLS,
   DEFAULT_PROFILE_SELECTION,
 } from '@/domain/controls/profile-selection'
+import type { MusicalProfile } from '@/domain/controls/generation-controls'
+import {
+  FIGURE_IDS,
+  JAZZ_FIGURE_LEVELS,
+  NEUTRAL_FIGURE_LEVELS,
+  type FigureLevels,
+} from '@/domain/figures/figure-levels'
 import {
   GenerationIntentError,
   createGenerationIntent,
+  makeGenerationIntent,
   getInstrumentProfile,
   regenerateGenerationIntent,
   resolveInstrumentProfile,
@@ -21,6 +29,7 @@ import {
   deriveRegisterWindowCandidates,
 } from '@/domain/profile/register-window-derivation'
 import { makeSeed } from '@/domain/random/seed'
+import { buildIntent, carryInAfter, generateSuccess } from './carry-in/carry-in-fixture'
 
 /**
  * Two open, fabricated test-only instrument profiles -- neither transposition any shipped
@@ -169,7 +178,7 @@ describe('GenerationIntent', () => {
   })
 
   // @test-link [[rule_seeded_phrase_reproduction]]
-  it('regenerates with fresh injected identity and seed while preserving controls/profile', () => {
+  it('regenerates with fresh injected identity and seed while preserving controls and levels', () => {
     const regenerated = regenerateGenerationIntent(first, {
       nextRequestId: () => makeRequestId('request-2'),
       nextSeed: () => makeSeed(2),
@@ -177,7 +186,7 @@ describe('GenerationIntent', () => {
     expect(regenerated.requestId).toBe('request-2')
     expect(regenerated.seed).toBe(2)
     expect(regenerated.controls).toEqual(first.controls)
-    expect(regenerated.musicalProfile).toEqual(first.musicalProfile)
+    expect(regenerated.figureLevels).toEqual(first.figureLevels)
   })
 })
 
@@ -295,5 +304,110 @@ describe('GenerationIntent: my instrument travels as data beside the controls', 
 
   it('refuses to look my instrument up by id alone', () => {
     expect(() => getInstrumentProfile('my-instrument')).toThrow(GenerationIntentError)
+  })
+})
+
+const LEVELS_OF: Readonly<Record<MusicalProfile, FigureLevels>> = {
+  Neutral: NEUTRAL_FIGURE_LEVELS,
+  Jazz: JAZZ_FIGURE_LEVELS,
+}
+
+const PROFILE_SELECTIONS = (['Neutral', 'Jazz'] as const).flatMap((musicalProfile) =>
+  [false, true].map((isCustom) => ({ musicalProfile, isCustom })),
+)
+
+// @test-link [[module_generation_request_construction]]
+// @test-link [[module_figure_levels]]
+// @test-link [[rule_neutral_and_jazz_figure_levels]]
+describe('GenerationIntent: the figure levels come from the musical profile selection', () => {
+  it.each(PROFILE_SELECTIONS)(
+    "$musicalProfile (customized: $isCustom) carries its profile's levels when built and regenerated",
+    (musicalProfile) => {
+      const intent = makeGenerationIntent({
+        requestId: makeRequestId('request-levels'),
+        seed: makeSeed(7),
+        controls: DEFAULT_GENERATION_CONTROLS,
+        musicalProfile,
+      })
+      expect(intent.figureLevels).toStrictEqual(LEVELS_OF[musicalProfile.musicalProfile])
+      expect(Object.isFrozen(intent.figureLevels)).toBe(true)
+      const regenerated = regenerateGenerationIntent(intent, {
+        nextRequestId: () => makeRequestId('request-levels-2'),
+        nextSeed: () => makeSeed(8),
+      })
+      expect(regenerated.figureLevels).toStrictEqual(LEVELS_OF[musicalProfile.musicalProfile])
+    },
+  )
+
+  it.each(['Neutral', 'Jazz'] as const)(
+    "a %s intent receiving a carry-in carries its profile's levels",
+    (musicalProfile) => {
+      const first = buildIntent({ seed: 11, musicalProfile, label: 'levels' })
+      expect(first.figureLevels).toStrictEqual(LEVELS_OF[musicalProfile])
+      const carryIn = carryInAfter(first, generateSuccess(first), 1)
+      const second = buildIntent({ seed: 12, musicalProfile, carryIn, label: 'levels' })
+      expect(second.carryIn).toBeDefined()
+      expect(second.figureLevels).toStrictEqual(LEVELS_OF[musicalProfile])
+    },
+  )
+
+  it.each(PROFILE_SELECTIONS)(
+    'a $musicalProfile (customized: $isCustom) intent holds no musical profile, only its levels',
+    (musicalProfile) => {
+      const intent = createGenerationIntent({
+        requestId: makeRequestId('request-levels-keys'),
+        seed: makeSeed(9),
+        controls: DEFAULT_GENERATION_CONTROLS,
+        musicalProfile,
+      })
+      const keys = Object.keys(intent)
+      expect(keys).not.toContain('musicalProfile')
+      expect(keys[keys.indexOf('writtenTonalCenter') + 1]).toBe('figureLevels')
+      expect(JSON.stringify(intent)).not.toMatch(/Neutral|Jazz|isCustom/u)
+      expect(intent.figureLevels).toStrictEqual(LEVELS_OF[musicalProfile.musicalProfile])
+    },
+  )
+})
+
+/** Levels no musical profile gives, listed out of FIGURE_IDS order. */
+const GIVEN_LEVELS: FigureLevels = {
+  chromaticEnclosure: 'off',
+  passingTone: 'favored',
+  appoggiatura: 'stronglyFavored',
+  accentedPassingTone: 'off',
+  neighborTone: 'asToday',
+  diatonicEnclosure: 'favored',
+  chromaticApproach: 'asToday',
+}
+
+// @test-link [[module_generation_request_construction]]
+// @test-link [[module_figure_levels]]
+describe('GenerationIntent: the figure levels given as levels', () => {
+  /** Intent: an intent built from the given levels rather than a musical profile selection. */
+  function levelsIntent(): ReturnType<typeof createGenerationIntent> {
+    return createGenerationIntent({
+      requestId: makeRequestId('request-given-levels'),
+      seed: makeSeed(10),
+      controls: DEFAULT_GENERATION_CONTROLS,
+      figureLevels: GIVEN_LEVELS,
+    })
+  }
+
+  it('holds the given levels as a fresh frozen copy in figure order, and no profile', () => {
+    const intent = levelsIntent()
+    expect(intent.figureLevels).toStrictEqual(GIVEN_LEVELS)
+    expect(intent.figureLevels).not.toBe(GIVEN_LEVELS)
+    expect(Object.keys(intent.figureLevels)).toEqual([...FIGURE_IDS])
+    expect(Object.isFrozen(intent.figureLevels)).toBe(true)
+    expect(Object.keys(intent)).not.toContain('musicalProfile')
+  })
+
+  it('regenerates with the previous levels kept, never remapped through a profile', () => {
+    const regenerated = regenerateGenerationIntent(levelsIntent(), {
+      nextRequestId: () => makeRequestId('request-given-levels-2'),
+      nextSeed: () => makeSeed(11),
+    })
+    expect(regenerated.figureLevels).toStrictEqual(GIVEN_LEVELS)
+    expect(regenerated.seed).toBe(11)
   })
 })

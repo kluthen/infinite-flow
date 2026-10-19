@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.73
+Status: draft v0.75
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -197,3 +197,6 @@ Opened 2026-10-19 by `spec-writer` when master spec B12 was checked against v3.0
 
 - O231 (v3.1's entry-chunk budget) was closed by [D359](decisions.md) on 2026-10-19: the budget is
   300 KiB.
+
+- O232 (does a figure level reach the tense note a joined phrase may end on?) was closed by
+  [D368](decisions.md) on 2026-10-19: it follows the levels like a free scale note.

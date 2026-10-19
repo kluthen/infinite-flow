@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { makeHarmonyCandidateDomain } from '@/domain/harmony/harmony-planner'
 import type {
   AbstractTensionRequirement,
@@ -21,7 +22,6 @@ function baseHarmony(): HarmonyCandidate {
     collection: 'Major',
     harmonicMotion: 'Static',
     tensionArc: 'Settled',
-    profile: 'Neutral',
   })
   if (domain.kind !== 'harmony_candidate_domain') throw new Error('fixture harmony missing')
   const candidate = domain.candidates[0]
@@ -137,12 +137,11 @@ function validatorAccepts(
       registerWindow: { minMidi: 0, maxMidi: 127 },
     } as PitchValidationContext['request'],
     policy: {
-      profile: 'Neutral',
       collection: 'Major',
       tonalCenter: 'C',
       contour: 'Wandering',
       leapiness: 'Leaping',
-      capabilities: { allowsChromaticApproach: false },
+      figureLevels: NEUTRAL_FIGURE_LEVELS,
     },
     harmony: {
       identity: harmony.identity,

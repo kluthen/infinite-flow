@@ -179,7 +179,6 @@ function harmonyDomain(
     collection,
     harmonicMotion,
     tensionArc: 'Settled',
-    profile: 'Neutral',
   })
   if (isNoLegalHarmonyPlan(result)) throw new Error(`no harmony for ${tonalCenter} ${collection}`)
   return result

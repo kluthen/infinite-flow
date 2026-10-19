@@ -24,7 +24,11 @@ import type { RegisterId } from '../domain/profile/register-id'
 import type { RegisterChoice } from '../domain/profile/register-intent'
 import type { RegisterWindowCandidate } from '../domain/profile/register-window-derivation'
 import { registerWindowContainsPitch, type RegisterWindow } from '../domain/profile/register-window'
-import { resolvedRegister, sessionInstrumentProfile } from './session-intents'
+import {
+  figuresWithChangedLevels,
+  resolvedRegister,
+  sessionInstrumentProfile,
+} from './session-intents'
 import { SessionEngineError, type SessionSettings } from './session-types'
 
 /**
@@ -57,9 +61,9 @@ const KEY_CONTROLS = [
 ] as const satisfies readonly (keyof GenerationControls)[]
 
 /**
- * The controls the harmony-fit check reads, the key among them; it also reads the musical profile.
- * Tempo, note density, rhythm, syncopation, silence, contour, leapiness and arpeggio chaos never
- * matter here.
+ * The controls the harmony-fit check reads, the key among them; a change of the figure levels
+ * counts with them, where a change of the musical profile did. Tempo, note density, rhythm,
+ * syncopation, silence, contour, leapiness and arpeggio chaos never matter here.
  */
 const HARMONY_CONTROLS = [
   ...KEY_CONTROLS,
@@ -76,12 +80,15 @@ function controlsDiffer(
   return keys.some((key) => before.controls[key] !== after.controls[key])
 }
 
-/** Intent: true when a setting the harmony-fit check reads differs between the two settings. */
+/**
+ * Intent: true when a setting the harmony check counts differs between the two settings: one of
+ * its controls, or the level of any figure. A change of the customized mark alone changes neither.
+ */
 // @spec-link [[rule_harmony_change_drops_unfit_harmonic_carry_in]]
 function harmonySettingsDiffer(before: SessionSettings, after: SessionSettings): boolean {
   return (
     controlsDiffer(before, after, HARMONY_CONTROLS) ||
-    before.musicalProfile.musicalProfile !== after.musicalProfile.musicalProfile
+    figuresWithChangedLevels(before, after).length > 0
   )
 }
 
@@ -91,14 +98,13 @@ function harmonySettingsDiffer(before: SessionSettings, after: SessionSettings):
  * instrument's transposition read from the profile the settings carry.
  */
 // @spec-link [[entity_my_instrument]]
-function receiverFor(after: SessionSettings): Pick<CarryInReceiver, 'controls' | 'musicalProfile'> {
+function receiverFor(after: SessionSettings): Pick<CarryInReceiver, 'controls'> {
   const instrument = sessionInstrumentProfile(after)
   return {
     controls: {
       ...after.controls,
       tonalCenter: writtenToConcertTonalCenter(after.controls.tonalCenter, instrument),
     },
-    musicalProfile: after.musicalProfile,
   }
 }
 
@@ -122,7 +128,7 @@ function registerWindowOf(
 // @spec-link [[rule_harmony_change_drops_unfit_harmonic_carry_in]]
 function adaptedHarmony(
   input: CarryInAdaptationInput,
-  receiver: Pick<CarryInReceiver, 'controls' | 'musicalProfile'>,
+  receiver: Pick<CarryInReceiver, 'controls'>,
 ): CarriedHarmony | null {
   const harmony = input.carryIn.finalHarmony
   if (harmony === null || controlsDiffer(input.before, input.after, KEY_CONTROLS)) return null

@@ -98,7 +98,6 @@ export function computeRankedDomains(intent: GenerationIntent): RankedDomains {
     collection: intent.controls.collection,
     harmonicMotion: intent.controls.harmonicMotion,
     tensionArc: intent.controls.tension,
-    profile: intent.musicalProfile.musicalProfile,
   })
   if (harmonyResult.kind !== 'harmony_candidate_domain')
     throw new Error('Fixture setup: no legal harmony plan.')

@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import {
+  JAZZ_FIGURE_LEVELS,
+  NEUTRAL_FIGURE_LEVELS,
+  type FigureLevels,
+} from '@/domain/figures/figure-levels'
+import {
   makeGenerationRequest,
   makeRequestId,
   FOUR_FOUR_METER,
@@ -32,13 +37,12 @@ function codeUnitOrder(a: string, b: string): number {
   return a < b ? -1 : a > b ? 1 : 0
 }
 
-function input(seed = 1, profile: 'Neutral' | 'Jazz' = 'Neutral', fuel = 20_000) {
+function input(seed = 1, figureLevels: FigureLevels = NEUTRAL_FIGURE_LEVELS, fuel = 20_000) {
   const harmony = makeHarmonyCandidateDomain({
     tonalCenter: 'C',
     collection: 'Major',
     harmonicMotion: 'Static',
     tensionArc: 'Settled',
-    profile: 'Neutral',
   })
   if (harmony.kind !== 'harmony_candidate_domain') throw new Error('fixture harmony missing')
   const rhythms = makeRhythmCandidateDomain({
@@ -64,7 +68,7 @@ function input(seed = 1, profile: 'Neutral' | 'Jazz' = 'Neutral', fuel = 20_000)
       registerWindow: makeRegisterWindow(48, 72),
     }),
     policy: makePitchPolicy({
-      profile,
+      figureLevels,
       collection: 'Major',
       tonalCenter: 'C',
       contour: 'Wandering',
@@ -115,7 +119,7 @@ function withLeapiness(
 ): BoundPitchPlannerInput {
   return makeBoundPitchPlannerInput({
     ...base,
-    policy: makePitchPolicy({ ...base.policy, leapiness }),
+    policy: makePitchPolicy({ ...base.policy, figureLevels: NEUTRAL_FIGURE_LEVELS, leapiness }),
   })
 }
 
@@ -179,8 +183,8 @@ describe('pitch planner slice A', () => {
   })
 
   it('keeps Neutral collection-only while Jazz admits only reserved chromatic approaches', () => {
-    const neutral = enumeratePitchCandidates(input(1, 'Neutral'), 0)
-    const jazz = enumeratePitchCandidates(input(1, 'Jazz'), 0)
+    const neutral = enumeratePitchCandidates(input(1, NEUTRAL_FIGURE_LEVELS), 0)
+    const jazz = enumeratePitchCandidates(input(1, JAZZ_FIGURE_LEVELS), 0)
     expect(
       neutral.every((candidate) => [0, 2, 4, 5, 7, 9, 11].includes(candidate.pitchClass)),
     ).toBe(true)
@@ -192,7 +196,7 @@ describe('pitch planner slice A', () => {
   })
 
   it('enumerates every vocabulary role only when its complete local reservation fits', () => {
-    const base = input(1, 'Neutral')
+    const base = input(1, NEUTRAL_FIGURE_LEVELS)
     const withBinding = (tensionBinding: typeof base.tensionBinding) =>
       makeBoundPitchPlannerInput({
         request: base.request,
@@ -215,7 +219,7 @@ describe('pitch planner slice A', () => {
       attackIndices: [1, 2],
       targetAttackIndex: 3,
     })
-    const jazz = input(1, 'Jazz')
+    const jazz = input(1, JAZZ_FIGURE_LEVELS)
 
     expect(
       enumeratePitchCandidates(base, 1).some(({ role }) => role === 'passing_or_neighbor'),
@@ -252,7 +256,6 @@ describe('pitch planner slice A', () => {
       collection: 'Major',
       harmonicMotion: 'Static',
       tensionArc: 'Build',
-      profile: 'Neutral',
     })
     if (build.kind !== 'harmony_candidate_domain') throw new Error('fixture harmony missing')
     const sourceRhythm = input().rhythm
@@ -282,7 +285,7 @@ describe('pitch planner slice A', () => {
   })
 
   it('pairs both enclosure orders across their two attacks with one reservation identity', () => {
-    const jazz = input(1, 'Jazz')
+    const jazz = input(1, JAZZ_FIGURE_LEVELS)
     const first = enumeratePitchCandidates(jazz, 0)
     const second = enumeratePitchCandidates(jazz, 1)
     for (const firstRole of ['chromatic_enclosure_upper', 'chromatic_enclosure_lower'] as const) {
@@ -302,7 +305,7 @@ describe('pitch planner slice A', () => {
   })
 
   it('does not let same-side or cross-order enclosure members satisfy one reservation', () => {
-    const jazz = input(1, 'Jazz')
+    const jazz = input(1, JAZZ_FIGURE_LEVELS)
     const first = enumeratePitchCandidates(jazz, 0)
     const second = enumeratePitchCandidates(jazz, 1)
     const upperFirst = first.find(({ role }) => role === 'chromatic_enclosure_upper')
@@ -369,7 +372,7 @@ describe('pitch planner slice A', () => {
   })
 
   it('assigns canonical indices after source role, obligation, pitch class, and octave', () => {
-    const candidates = enumeratePitchCandidates(input(4, 'Jazz'), 0)
+    const candidates = enumeratePitchCandidates(input(4, JAZZ_FIGURE_LEVELS), 0)
     expect(candidates.map(({ enumerationIndex }) => enumerationIndex)).toEqual(
       candidates.map((_, index) => index),
     )
@@ -386,7 +389,7 @@ describe('pitch planner slice A', () => {
   })
 
   it('distinguishes natural exhaustion from deterministic fuel refusal', () => {
-    expect(planPitchPhrase(input(1, 'Neutral', 1)).kind).toBe('search_limit_exceeded')
+    expect(planPitchPhrase(input(1, NEUTRAL_FIGURE_LEVELS, 1)).kind).toBe('search_limit_exceeded')
     const result = planPitchPhrase(input())
     expect(['pitch_plan', 'no_legal_pitch_plan']).toContain(result.kind)
   })
@@ -413,7 +416,7 @@ describe('pitch planner slice A', () => {
     ] as const) {
       const configured = makeBoundPitchPlannerInput({
         ...base,
-        policy: makePitchPolicy({ ...base.policy, contour }),
+        policy: makePitchPolicy({ ...base.policy, figureLevels: NEUTRAL_FIGURE_LEVELS, contour }),
       })
       const assignments = values.map((midi, index) => {
         const attack = pitchAttacks(configured).filter(({ isCheckpoint }) => isCheckpoint)[index]!
@@ -456,7 +459,7 @@ describe('pitch planner slice A', () => {
   })
 
   it('does not let a Jazz chromatic reservation consume an appoggiatura binding in DFS', () => {
-    const base = input(31, 'Jazz')
+    const base = input(31, JAZZ_FIGURE_LEVELS)
     const requiredAppoggiatura = makeBoundPitchPlannerInput({
       ...base,
       tensionBinding: {
@@ -566,7 +569,11 @@ describe('pitch planner slice A', () => {
     const base = input(57)
     const modal = makeBoundPitchPlannerInput({
       ...base,
-      policy: makePitchPolicy({ ...base.policy, collection: 'Dorian' }),
+      policy: makePitchPolicy({
+        ...base.policy,
+        figureLevels: NEUTRAL_FIGURE_LEVELS,
+        collection: 'Dorian',
+      }),
       harmony: { ...base.harmony, endpoint: { kind: 'modal_non_tonic_chord_tone', degree: 5 } },
     })
     const attack = pitchAttacks(modal).at(-1)!
@@ -603,7 +610,11 @@ describe('pitch planner slice A', () => {
       const base = input(61)
       const configured = makeBoundPitchPlannerInput({
         ...base,
-        policy: makePitchPolicy({ ...base.policy, arpeggioChaos }),
+        policy: makePitchPolicy({
+          ...base.policy,
+          figureLevels: NEUTRAL_FIGURE_LEVELS,
+          arpeggioChaos,
+        }),
       })
       const result = planPitchPhraseWithTieKeyFactory(configured, preferNonChord)
       expect(result.kind).toBe('pitch_plan')

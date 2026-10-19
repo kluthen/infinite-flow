@@ -16,6 +16,7 @@ import {
   DEFAULT_GENERATION_CONTROLS,
   DEFAULT_PROFILE_SELECTION,
 } from '@/domain/controls/profile-selection'
+import { FIGURE_IDS } from '@/domain/figures/figure-levels'
 import { createGenerationIntent } from '@/domain/generation/generation-intent'
 import { makeRequestId } from '@/domain/generation/generation-request'
 import { makeMyInstrument, type MyInstrument } from '@/domain/profile/my-instrument'
@@ -27,6 +28,7 @@ import {
   phraseOneSettings,
   phraseOneSettingsAtStart,
   staleSettingsOf,
+  type StaleSetting,
 } from '@/session/stale-phrase-one'
 
 /** Intent: settings on the first-load defaults, with these controls changed. */
@@ -63,7 +65,7 @@ interface CountedChange {
   readonly current: SessionSettings
 }
 
-/** Every generation control master spec §16 counts, each changed alone, and the profile. */
+/** Every generation control master spec §16 counts, each changed alone, and the figure levels. */
 const COUNTED: readonly CountedChange[] = [
   { name: 'Written key', current: settingsWith({ tonalCenter: 'F#' }) },
   { name: 'Collection', current: settingsWith({ collection: 'Major' }) },
@@ -113,6 +115,7 @@ describe('the stale check', () => {
 
     expect(isPhraseOneStale(settingsWith(), settingsWith({ tempo: 240 }))).toBe(false)
     expect(isPhraseOneStale(settingsWith(), custom)).toBe(false)
+    expect(staleSettingsOf(settingsWith(), custom)).toEqual([])
   })
 
   // @test-link [[rule_stale_phrase_prompt_at_start]]
@@ -204,33 +207,53 @@ describe("phrase 1's settings", () => {
   })
 })
 
-/** The setting each counted change names. */
-const NAMED: readonly string[] = [
-  'tonalCenter',
-  'collection',
-  'harmonicMotion',
-  'tension',
-  'noteDensity',
-  'rhythmicVariety',
-  'syncopation',
-  'silenceDensity',
-  'contour',
-  'register',
-  'leapiness',
-  'arpeggioChaos',
-  'instrumentProfileId',
-  'musicalProfile',
+/** The settings each counted change names: a Neutral–Jazz change, by its two chromatic figures. */
+const NAMED: readonly (readonly StaleSetting[])[] = [
+  ['tonalCenter'],
+  ['collection'],
+  ['harmonicMotion'],
+  ['tension'],
+  ['noteDensity'],
+  ['rhythmicVariety'],
+  ['syncopation'],
+  ['silenceDensity'],
+  ['contour'],
+  ['register'],
+  ['leapiness'],
+  ['arpeggioChaos'],
+  ['instrumentProfileId'],
+  ['chromaticApproach', 'chromaticEnclosure'],
 ]
 
 // @test-link [[rule_stale_phrase_prompt_at_start]]
 describe('the settings a stale phrase 1 differs in', () => {
   // @test-link [[rule_stale_phrase_prompt_at_start]]
-  it.each(COUNTED.map((change, index) => ({ ...change, setting: NAMED[index] })))(
-    'names $setting alone after a change of $name',
-    ({ current, setting }) => {
-      expect(staleSettingsOf(settingsWith(), current)).toEqual([setting])
+  it.each(COUNTED.map((change, index) => ({ ...change, settings: NAMED[index] })))(
+    'names $settings alone after a change of $name',
+    ({ current, settings }) => {
+      expect(staleSettingsOf(settingsWith(), current)).toEqual(settings)
     },
   )
+
+  // @test-link [[rule_stale_phrase_prompt_at_start]]
+  it('names a Neutral–Jazz change, either way, by exactly the two chromatic figures, never the profile', () => {
+    const neutral = settingsWith()
+    const jazz = {
+      ...settingsWith(),
+      musicalProfile: { musicalProfile: 'Jazz' as const, isCustom: true },
+    }
+    const chromatic = FIGURE_IDS.filter((figure) => figure.startsWith('chromatic'))
+
+    expect(chromatic).toEqual(['chromaticApproach', 'chromaticEnclosure'])
+    for (const [before, after] of [
+      [neutral, jazz],
+      [jazz, neutral],
+    ] as const) {
+      const named: readonly string[] = staleSettingsOf(before, after)
+      expect(named).toEqual(chromatic)
+      expect(named).not.toContain('musicalProfile')
+    }
+  })
 
   // @test-link [[rule_stale_phrase_prompt_at_start]]
   it("names the instrument after a change of my instrument's range, and nothing for its name", () => {
@@ -252,7 +275,8 @@ describe('the settings a stale phrase 1 differs in', () => {
     expect(staleSettingsOf(settingsWith(), current)).toEqual([
       'tonalCenter',
       'register',
-      'musicalProfile',
+      'chromaticApproach',
+      'chromaticEnclosure',
     ])
     expect(staleSettingsOf(settingsWith(), settingsWith({ tempo: 200 }))).toEqual([])
     for (const { current: each } of COUNTED)

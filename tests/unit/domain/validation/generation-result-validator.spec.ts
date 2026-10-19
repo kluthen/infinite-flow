@@ -83,7 +83,6 @@ function buildFixture(): GenerationResultValidationInput {
     collection: controls.collection,
     harmonicMotion: controls.harmonicMotion,
     tensionArc: controls.tension,
-    profile: musicalProfile.musicalProfile,
   })
   if (harmonyResult.kind !== 'harmony_candidate_domain')
     throw new Error('Fixture setup: no legal harmony plan.')
@@ -99,7 +98,7 @@ function buildFixture(): GenerationResultValidationInput {
     throw new Error('Fixture setup: no legal rhythm plan.')
 
   const policy = makePitchPolicy({
-    profile: musicalProfile.musicalProfile,
+    figureLevels: intent.figureLevels,
     collection: controls.collection,
     tonalCenter: controls.tonalCenter,
     contour: controls.contour,

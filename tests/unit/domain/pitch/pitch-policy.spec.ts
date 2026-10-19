@@ -18,7 +18,6 @@ function settledHarmony(): HarmonyCandidate {
     collection: 'Major',
     harmonicMotion: 'Static',
     tensionArc: 'Settled',
-    profile: 'Neutral',
   })
   if (domain.kind !== 'harmony_candidate_domain') throw new Error('fixture harmony missing')
   const candidate = domain.candidates[0]

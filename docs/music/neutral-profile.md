@@ -4,7 +4,7 @@ Status: curated profile summary
 
 ## Player Promise
 
-The neutral profile makes a four-measure phrase from one selected key and scale or mode. It stays inside that collection, moves through mostly diatonic harmony, and uses rhythm, shape, space, and resolving scale notes to create movement. It does not introduce jazz substitutions, altered dominants, chromatic approaches, or chromatic enclosures.
+The neutral profile makes a four-measure phrase from one selected key and scale or mode. It stays inside that collection, moves through mostly diatonic harmony, and uses rhythm, shape, space, and resolving scale notes to create movement. It does not introduce jazz substitutions, altered dominants, chromatic approaches, or chromatic enclosures. Staying inside the collection is a property of Neutral's figure levels, which keep the chromatic approach and the chromatic enclosure Off; with either one on, a phrase may hold that figure's chromatic note (see [Figure levels gate the free figures](pitch-planner-validation.md#figure-levels-gate-the-free-figures-v31)).
 
 ## Four-Measure Harmonic Plan
 

@@ -6,7 +6,8 @@ human_name: Player Preset Names
 tags: [v3, release-v3.1, player-controls, presets]
 parents:
   - [[rule_preset_management_actions]]
-dependents: []
+dependents:
+  - [[module_preset_model]]
 type: RULE
 layer: BUSINESS
 priority: 1

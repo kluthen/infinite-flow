@@ -225,7 +225,10 @@ const KEY_CHANGES: readonly KeyChange[] = [
         'true',
       )
     },
-    expectCarried: (request) => expect(request.musicalProfile.musicalProfile).toBe('Jazz'),
+    expectCarried: (request) => {
+      expect(request.figureLevels.chromaticApproach).toBe('asToday')
+      expect(request.figureLevels.chromaticEnclosure).toBe('asToday')
+    },
     stale: true,
   },
   {

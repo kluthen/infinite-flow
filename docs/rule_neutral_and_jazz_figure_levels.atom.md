@@ -5,7 +5,8 @@ version: 0.1
 priority: 1
 human_name: Neutral and Jazz Keep Their Sound
 tags: [v3, release-v3.1, generation, figures, presets, determinism]
-dependents: []
+dependents:
+  - [[module_figure_levels]]
 type: RULE
 layer: BUSINESS
 parents:

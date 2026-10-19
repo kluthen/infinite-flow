@@ -15,6 +15,7 @@ import {
   makeGenerationRequest,
   makeRequestId,
 } from '@/domain/generation/generation-request'
+import { levelsForProfile } from '@/domain/figures/figure-levels'
 import { makeHarmonyCandidateDomain } from '@/domain/harmony/harmony-planner'
 import type { HarmonyCandidate } from '@/domain/harmony/harmony-types'
 import { makeActiveConcertRange } from '@/domain/profile/active-concert-range'
@@ -177,7 +178,6 @@ function runCase(spec: CaseSpec): MatrixOutcome {
     collection: spec.collection,
     harmonicMotion: spec.harmonicMotion,
     tensionArc: spec.tensionArc,
-    profile: spec.profile,
   })
   if (harmonyResult.kind !== 'harmony_candidate_domain') return emptyOutcome(spec.leapiness)
 
@@ -213,7 +213,7 @@ function runCase(spec: CaseSpec): MatrixOutcome {
 
       for (const tensionBinding of bindingResult.bindings.slice(0, CANDIDATE_SAMPLE_SIZE)) {
         const policy = makePitchPolicy({
-          profile: spec.profile,
+          figureLevels: levelsForProfile(spec.profile),
           collection: spec.collection,
           tonalCenter: 'C',
           contour: spec.contour,

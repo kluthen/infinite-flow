@@ -18,6 +18,12 @@ import {
   resolveInstrumentProfile,
   type GenerationIntent,
 } from '../domain/generation/generation-intent'
+import {
+  FIGURE_IDS,
+  levelsForProfile,
+  type FigureId,
+  type FigureLevels,
+} from '../domain/figures/figure-levels'
 import type { InstrumentProfile } from '../domain/profile/instrument-profile'
 import { MY_INSTRUMENT_ID } from '../domain/profile/instrument-profiles'
 import type { RegisterId } from '../domain/profile/register-id'
@@ -75,6 +81,32 @@ export interface BuiltIntent {
 // @spec-link [[service_session_engine]]
 export function sessionInstrumentProfile(settings: SessionSettings): InstrumentProfile {
   return resolveInstrumentProfile(settings.controls.instrumentProfileId, settings.instrumentProfile)
+}
+
+/**
+ * Intent: the figure levels the settings generate with: until presets replace it, the levels of
+ * the settings' musical profile through `levelsForProfile`, whatever its customized mark, as the
+ * intent factory maps them.
+ */
+// @spec-link [[module_session_carry_in_after_change]]
+// @spec-link [[rule_stale_phrase_prompt_at_start]]
+export function sessionFigureLevels(settings: SessionSettings): FigureLevels {
+  return levelsForProfile(settings.musicalProfile.musicalProfile)
+}
+
+/**
+ * Intent: every figure whose level differs between the two settings' levels, in FIGURE_IDS order;
+ * none when the levels are equal, as after a change of the customized mark alone.
+ */
+// @spec-link [[module_session_carry_in_after_change]]
+// @spec-link [[rule_stale_phrase_prompt_at_start]]
+export function figuresWithChangedLevels(
+  before: SessionSettings,
+  after: SessionSettings,
+): readonly FigureId[] {
+  const was = sessionFigureLevels(before)
+  const is = sessionFigureLevels(after)
+  return FIGURE_IDS.filter((figure) => was[figure] !== is[figure])
 }
 
 /**

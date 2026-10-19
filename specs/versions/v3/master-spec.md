@@ -40,7 +40,9 @@ Status: this file holds four parts.
   v3.0's released code; no behaviour changes. v1.2 (2026-10-19) writes in the owner's rulings of
   that day: v3.0's contract atoms that v3.1 revises take a MAJOR contract bump, with
   `rule_open_phrase_ending` reworded under it (B11, item 23; spec D361, D362), B11 lists the four
-  entries it missed, and the entry budget is 300 KiB (B12; spec D359); no behaviour changes. Its
+  entries it missed, and the entry budget is 300 KiB (B12; spec D359); no behaviour changes. v1.3
+  (2026-10-19) writes in the owner's ruling of that day: the tense note a joined phrase may end
+  on is offered only when the levels allow a free scale note there (B5.4, B11; spec D368). Its
   sections are numbered B1 to B16.
 - **[Part C — v3.2](#part-c--v32), Jam, the key and mode suggestion and the rhythm lock:**
   master spec v1.0 (2026-10-08), consolidated from the approved v3.2 drafts; approved by the
@@ -1392,6 +1394,18 @@ Build (a two-note approach in the key) and Edge (a passing tone, neighbor tone o
   player would get no phrase, or a Tension that silently does nothing.
 - **The levels do not reorder Tension's choices.** The scheduled appoggiatura stays as rare as
   before; raising the appoggiatura's level adds free appoggiaturas.
+- **The tense note a joined phrase may end on follows the levels like a free scale note.** In a
+  session, a phrase generated with carry-in may end on a tense note (a scale note outside its
+  chord, reached by a step) that the next phrase's first note resolves by a step
+  (`rule_join_tense_note_resolution`). It is none of the seven figures, since it spans the join,
+  but it sounds like a passing or neighbor tone across it, so it is offered, and accepted by the
+  check of the result, only when the levels would allow a free scale note on that last note: the
+  passing tone (the accented passing tone if the note falls on beat 1 or 3) or the neighbor tone
+  is not Off. With both Off, no joined phrase ends on a tense note. The next phrase chooses which
+  of the two it becomes, so with only one of them Off the join may still sound like that one;
+  carrying the allowed direction across the join is not done. The levels do not reorder it: it is
+  tried after the chord tones, as before. Neutral and Jazz keep both at As today, so no existing
+  phrase changes.
 
 ### B5.5 Determinism
 
@@ -1878,6 +1892,10 @@ build step that revises one, spec D361):
   preset; the guarantee (every figure resolves before the last event) is unchanged (spec D362).
 
 **Other v2 rules and entries that change:**
+
+- **The tense note a joined phrase may end on** (`rule_join_tense_note_resolution`): offered only
+  when the levels allow a free scale note on that last note (B5.4); with the passing, accented
+  passing and neighbor tones as Neutral and Jazz hold them, nothing changes.
 
 - **Wording that names Jazz or the profile** (`rule_tension_resolution_delay_permits_rests`: its
   "Jazz chromatic approaches or enclosures" come from any preset, its no-rest rule unchanged;

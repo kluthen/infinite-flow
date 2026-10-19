@@ -13,6 +13,7 @@ import {
   mutationFlagFor,
   startWorkspaceSessionRunner,
 } from '@/components/workspace/workspace-session-runner'
+import { levelsForProfile } from '@/domain/figures/figure-levels'
 import { makeSeed } from '@/domain/random/seed'
 import { phraseAttemptSeed, settingsMutationSeed } from '@/session/session-seed-plan'
 import type { SessionOutput, SessionSettings } from '@/session/session-types'
@@ -163,7 +164,9 @@ describe('the workspace session runner', () => {
       tonalCenter: request.intent.writtenTonalCenter,
     })
     expect(writtenControls(mutated)).toEqual(changed.controls)
-    expect(mutated.intent.musicalProfile).toEqual(changed.musicalProfile)
+    expect(mutated.intent.figureLevels).toEqual(
+      levelsForProfile(changed.musicalProfile.musicalProfile),
+    )
     expect(writtenControls(before)).toEqual(rig.settings.controls)
     expect(changed).not.toEqual(rig.settings)
   })

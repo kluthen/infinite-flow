@@ -89,11 +89,14 @@ type StepResult =
       readonly identity: ResolvedIdentity
     }
 
-/** Intent: build the pitch policy for one binding attempt from the request's outer controls. */
+/**
+ * Intent: build the pitch policy for one binding attempt from the request's outer controls and
+ * figure levels.
+ */
 function bindingPitchPolicy(input: WindowSearchInput, searchFuel: number) {
   const controls = input.intent.controls
   return makePitchPolicy({
-    profile: input.intent.musicalProfile.musicalProfile,
+    figureLevels: input.intent.figureLevels,
     collection: controls.collection,
     tonalCenter: controls.tonalCenter,
     contour: controls.contour,

@@ -5,7 +5,8 @@ type: RULE
 human_name: Deleting the Selected Preset Leaves Custom
 parents:
   - [[rule_preset_management_actions]]
-dependents: []
+dependents:
+  - [[module_preset_model]]
 layer: BUSINESS
 version: 0.1
 priority: 1

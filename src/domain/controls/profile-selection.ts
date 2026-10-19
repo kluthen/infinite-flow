@@ -27,23 +27,6 @@ export interface ProfileSelection {
   readonly isCustom: boolean
 }
 
-/** Named capabilities a musical profile declares as data, read by planner and validator checks. */
-export interface MusicalProfileCapabilities {
-  readonly allowsChromaticApproach: boolean
-}
-
-/**
- * Each musical profile's declared capabilities. Adding a profile or capability means adding a data
- * entry here; no planner or validator code should compare a profile's name instead.
- */
-// @spec-link [[module_musical_profile_capabilities]]
-export const MUSICAL_PROFILE_CAPABILITIES: Readonly<
-  Record<MusicalProfile, MusicalProfileCapabilities>
-> = deepFreeze({
-  Neutral: { allowsChromaticApproach: false },
-  Jazz: { allowsChromaticApproach: true },
-})
-
 /** Complete, immutable bundles; callers receive replacement values and cannot mutate a preset. */
 // @spec-link [[module_generative_profile_selection]]
 export const PROFILE_BUNDLES: Readonly<Record<MusicalProfile, ProfileControlledValues>> =

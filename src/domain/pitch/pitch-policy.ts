@@ -3,14 +3,10 @@ import type {
   Collection,
   Contour,
   Leapiness,
-  MusicalProfile,
   PitchClass,
 } from '../controls/generation-controls'
-import {
-  MUSICAL_PROFILE_CAPABILITIES,
-  type MusicalProfileCapabilities,
-} from '../controls/profile-selection'
 import { deepFreeze } from '../events/deep-freeze'
+import type { FigureLevels } from '../figures/figure-levels'
 import type {
   AbstractTensionRequirement,
   HarmonyCandidate,
@@ -37,27 +33,27 @@ import type {
 export const DEFAULT_PITCH_SEARCH_FUEL = 20_000
 
 /**
- * Freeze a versioned pitch policy, filling the default search fuel when none is given and
- * resolving the profile's declared capabilities. `capabilities` may be overridden for tests, since
- * `MusicalProfile` is a closed union and a test-only profile name would require widening it.
+ * Freeze a versioned pitch policy, filling the default search fuel when none is given and keeping
+ * the request's figure levels as they are. Nothing else is derived from them: the search reads
+ * what it may write from the levels through the figures module's allowance.
  */
 // @spec-link [[mechanic_pitch_search_policy]]
 // @spec-link [[module_musical_profile_capabilities]]
 export function makePitchPolicy(input: {
-  readonly profile: MusicalProfile
+  readonly figureLevels: FigureLevels
   readonly collection: Collection
   readonly tonalCenter: PitchClass
   readonly contour: Contour
   readonly leapiness: Leapiness
   readonly arpeggioChaos: ArpeggioChaos
   readonly searchFuel?: number
-  readonly capabilities?: MusicalProfileCapabilities
 }): PitchPolicy {
+  const { figureLevels, ...controls } = input
   return deepFreeze({
     version: 'pitch-search-v1' as const,
-    ...input,
+    ...controls,
     searchFuel: input.searchFuel ?? DEFAULT_PITCH_SEARCH_FUEL,
-    capabilities: input.capabilities ?? MUSICAL_PROFILE_CAPABILITIES[input.profile],
+    figureLevels,
   })
 }
 

@@ -5,7 +5,8 @@ type: RULE
 layer: BUSINESS
 version: 0.1
 priority: 1
-dependents: []
+dependents:
+  - [[module_preset_model]]
 human_name: Save Changes Asks for the Restriction Only Outside It
 tags: [v3, release-v3.1, player-controls, presets]
 parents:

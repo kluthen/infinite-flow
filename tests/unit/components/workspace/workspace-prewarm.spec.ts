@@ -24,6 +24,7 @@ import { createCanonicalRhythmDomainMemo } from '@/domain/generation/orchestrati
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
 import { DEFAULT_PROFILE_SELECTION } from '@/domain/controls/profile-selection'
+import { JAZZ_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { makeSeed } from '@/domain/random/seed'
 import { createGenerationWorkerClient } from '@/generation-worker/generation-worker-client'
 import {
@@ -240,7 +241,7 @@ describe('workspace prewarm: policy and triggers', () => {
       'Quarter|Slightly varied|Sparse|Straight|Lift',
       'Eighth|Slightly varied|Conversational|Occasional offbeats|Lift',
     ])
-    expect(prewarms[1]!.musicalProfile).toEqual({ musicalProfile: 'Jazz', isCustom: false })
+    expect(prewarms[1]!.figureLevels).toEqual(JAZZ_FIGURE_LEVELS)
   })
 
   // @test-link [[module_generation_prewarm]]

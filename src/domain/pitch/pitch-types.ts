@@ -3,16 +3,15 @@ import type {
   Collection,
   Contour,
   Leapiness,
-  MusicalProfile,
   PitchClass,
 } from '../controls/generation-controls'
 import { deepFreeze } from '../events/deep-freeze'
 import type { ConcertPitch } from '../events/concert-pitch'
+import type { FigureLevels } from '../figures/figure-levels'
 import type { PhraseEndingDebtAllowance } from '../generation/carry-in/phrase-ending-debt'
 import type { GenerationRequest } from '../generation/generation-request'
 import type { HarmonyCandidate, TensionFigureKind } from '../harmony/harmony-types'
 import type { RhythmCandidate } from '../rhythm/rhythm-types'
-import type { MusicalProfileCapabilities } from '../controls/profile-selection'
 import type { ContourPlan, ContourState } from './pitch-contour'
 import type { FigureState } from './pitch-figures'
 import type { MotionLimits, MotionState } from './pitch-motion'
@@ -37,15 +36,18 @@ export type PitchFigureKind = TensionFigureKind | 'chromatic_approach' | 'chroma
 // @spec-link [[entity_pitch_candidate_domain]]
 export interface PitchPolicy {
   readonly version: PitchSearchPolicyVersion
-  readonly profile: MusicalProfile
   readonly collection: Collection
   readonly tonalCenter: PitchClass
   readonly contour: Contour
   readonly leapiness: Leapiness
   readonly arpeggioChaos: ArpeggioChaos
   readonly searchFuel: number
+  /**
+   * The request's figure levels. The search and the validator read what may be written from them
+   * through the figures module's allowance; no musical profile is held.
+   */
   // @spec-link [[module_musical_profile_capabilities]]
-  readonly capabilities: MusicalProfileCapabilities
+  readonly figureLevels: FigureLevels
 }
 
 // @spec-link [[entity_pitch_candidate_domain]]
@@ -108,6 +110,10 @@ export interface PitchAttack {
   readonly isFinal: boolean
 }
 
+/** How a free diatonic tone is explained: as a passing tone or as a neighbor tone. */
+// @spec-link [[entity_pitch_candidate_domain]]
+export type FreeToneResolution = 'passing' | 'neighbor'
+
 // @spec-link [[entity_pitch_candidate_domain]]
 export interface PitchCandidate {
   readonly identity: string
@@ -118,6 +124,11 @@ export interface PitchCandidate {
   readonly obligationIdentity: string
   readonly enumerationIndex: number
   readonly reservation?: PitchReservation
+  /**
+   * On a free diatonic tone whose figure levels allow only one of its two resolutions: that one;
+   * absent when both are allowed and on every other candidate. Not part of the identity.
+   */
+  readonly freeResolution?: FreeToneResolution
 }
 
 /**

@@ -8,13 +8,16 @@
 
 import {
   makeGenerationControls,
-  MUSICAL_PROFILES,
   PITCH_CLASSES,
   type GenerationControls,
   type PitchClass,
 } from '../domain/controls/generation-controls'
-import type { ProfileSelection } from '../domain/controls/profile-selection'
 import { deepEqual } from '../domain/events/deep-equal'
+import {
+  FigureLevelsError,
+  parseFigureLevels,
+  type FigureLevels,
+} from '../domain/figures/figure-levels'
 import { parseCarryIn } from '../domain/generation/carry-in/carry-in'
 import { makeCarryInGenerationIntent } from '../domain/generation/carry-in/carry-in-intent'
 import { makeGenerationIntent, type GenerationIntent } from '../domain/generation/generation-intent'
@@ -37,26 +40,6 @@ import {
   type GenerationWorkerPrewarm,
   type GenerationWorkerRequest,
 } from './generation-worker-protocol'
-
-const PROFILE_SELECTION_ALLOWED_KEYS = new Set(['musicalProfile', 'isCustom'])
-
-/** Intent: parse an untrusted wire ProfileSelection, rejecting an unknown profile or extra field. */
-function parseProfileSelection(input: unknown): ProfileSelection {
-  const record = asPlainRecord(input, 'GenerationIntent.musicalProfile')
-  requireAllowedKeys(record, PROFILE_SELECTION_ALLOWED_KEYS, 'GenerationIntent.musicalProfile')
-  const { musicalProfile, isCustom } = record
-  if (typeof musicalProfile !== 'string' || !MUSICAL_PROFILES.includes(musicalProfile as never)) {
-    throw new GenerationWorkerProtocolError(
-      `GenerationIntent.musicalProfile.musicalProfile must be one of ${JSON.stringify(MUSICAL_PROFILES)}, got ${JSON.stringify(musicalProfile)}.`,
-    )
-  }
-  if (typeof isCustom !== 'boolean') {
-    throw new GenerationWorkerProtocolError(
-      'GenerationIntent.musicalProfile.isCustom must be a boolean.',
-    )
-  }
-  return { musicalProfile: musicalProfile as ProfileSelection['musicalProfile'], isCustom }
-}
 
 const MY_INSTRUMENT_PROFILE_CONTEXT = 'GenerationWorkerRequest.intent.instrumentProfile'
 const MY_INSTRUMENT_PROFILE_ALLOWED_KEYS = new Set([
@@ -165,15 +148,40 @@ const GENERATION_INTENT_ALLOWED_KEYS = new Set([
   'meter',
   'controls',
   'writtenTonalCenter',
-  'musicalProfile',
+  'figureLevels',
   'instrumentProfile',
   'registerIntent',
   'carryIn',
 ])
 
+const FIGURE_LEVELS_CONTEXT = 'GenerationWorkerRequest.intent.figureLevels'
+
+/**
+ * Intent: parse an untrusted wire intent's figure levels through the domain's parser: a missing
+ * field or any FigureLevelsError (a missing or unknown figure, an unknown level, a non-object) is
+ * a GenerationWorkerProtocolError naming the field and the cause.
+ */
+// @spec-link [[module_generation_worker_protocol]]
+// @spec-link [[module_figure_levels]]
+function parseWireFigureLevels(record: Record<string, unknown>): FigureLevels {
+  if (!Object.hasOwn(record, 'figureLevels')) {
+    throw new GenerationWorkerProtocolError(`${FIGURE_LEVELS_CONTEXT} is missing.`)
+  }
+  try {
+    return parseFigureLevels(record.figureLevels)
+  } catch (error) {
+    if (error instanceof FigureLevelsError) {
+      throw new GenerationWorkerProtocolError(
+        `${FIGURE_LEVELS_CONTEXT} is invalid: ${error.message}`,
+      )
+    }
+    throw error
+  }
+}
+
 /**
  * Intent: validate the owning fields of an untrusted GenerationIntent record (requestId, seed,
- * writtenTonalCenter, controls, musicalProfile and an optional carryIn) through the existing domain
+ * writtenTonalCenter, controls, figureLevels and an optional carryIn) through the existing domain
  * constructors and rebuild the full intent via `makeGenerationIntent`, or `makeCarryInGenerationIntent`
  * when the record holds a carry-in, with no default for a missing or invalid field. Both builders
  * take the player's written-pitch tonal center (never the record's already-converted concert
@@ -184,7 +192,9 @@ const GENERATION_INTENT_ALLOWED_KEYS = new Set([
  * (dropped by a key or collection change), never missing. Shared by the worker request parser and
  * the phrase replay key decoder so neither keeps a parallel schema. A built-in's profile is
  * resolved from its id; my instrument's, which its id alone cannot give, is read from the record's
- * `instrumentProfile` through `parseMyInstrumentProfile`.
+ * `instrumentProfile` through `parseMyInstrumentProfile`. The `figureLevels` are required and read
+ * through the domain's figure-levels parser, then handed to the factory as the intent's levels; a
+ * record holds no musical profile, so none is read.
  */
 // @spec-link [[module_generation_worker_protocol]]
 // @spec-link [[module_phrase_replay_key]]
@@ -215,13 +225,13 @@ export function rebuildGenerationWorkerIntent(record: Record<string, unknown>): 
     ...(wireControls as unknown as GenerationControls),
     tonalCenter: writtenTonalCenter,
   })
-  const musicalProfile = parseProfileSelection(record.musicalProfile)
+  const figureLevels = parseWireFigureLevels(record)
   const carryIn = 'carryIn' in record ? parseCarryIn(record.carryIn) : undefined
   const suppliedProfile =
     controls.instrumentProfileId === MY_INSTRUMENT_ID
       ? { instrumentProfile: parseMyInstrumentProfile(record.instrumentProfile) }
       : {}
-  const input = { requestId, seed, controls, musicalProfile, ...suppliedProfile }
+  const input = { requestId, seed, controls, figureLevels, ...suppliedProfile }
 
   return carryIn === undefined
     ? makeGenerationIntent(input)
@@ -229,13 +239,15 @@ export function rebuildGenerationWorkerIntent(record: Record<string, unknown>): 
 }
 
 /**
- * Intent: parse one untrusted wire GenerationIntent by rejecting any unknown field, rebuilding the
- * intent from its owning fields via `rebuildGenerationWorkerIntent`, then asserting the rebuilt
- * intent deep-equals the received record field-for-field. A built-in's `instrumentProfile` and
- * every `registerIntent` are derived deterministically from those owning fields (my instrument's
- * profile is itself an owning field, validated as data), so this both validates them and proves
- * the wire value was not tampered with or corrupted in transit; an intent without a carry-in must
- * have no such field.
+ * Intent: parse one untrusted wire GenerationIntent by rejecting any unknown field (a
+ * `musicalProfile` among them: the intent holds none), rebuilding the intent from its owning
+ * fields via `rebuildGenerationWorkerIntent` (which requires the `figureLevels` and parses them
+ * through the domain's figure-levels parser), then asserting the rebuilt intent deep-equals the
+ * received record field-for-field. A built-in's `instrumentProfile` and every `registerIntent` are
+ * derived deterministically from those owning fields (my instrument's profile and the figure levels
+ * are themselves owning fields, validated as data), so this both validates them and proves the
+ * wire value was not tampered with or corrupted in transit. An intent without a carry-in must have
+ * no such field.
  */
 // @spec-link [[service_workspace_session_runner_factory]]
 // @spec-link [[entity_phrase_carry_in]]

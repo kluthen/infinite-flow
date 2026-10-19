@@ -9,7 +9,6 @@
  */
 
 import type { GenerationControls } from '../../controls/generation-controls'
-import type { ProfileSelection } from '../../controls/profile-selection'
 import { makeHarmonyCollection } from '../../harmony/collection'
 import { carriedHarmonyEndsDomain, type CarriedHarmony } from '../../harmony/harmony-join'
 import { makeHarmonyCandidateDomain } from '../../harmony/harmony-planner'
@@ -24,7 +23,6 @@ import {
 /** The parts of a generation intent a carry-in is checked against; controls are in concert pitch. */
 export interface CarryInReceiver {
   readonly controls: GenerationControls
-  readonly musicalProfile: ProfileSelection
   readonly registerIntent: RegisterIntent
 }
 
@@ -55,7 +53,7 @@ function assertWindowFits(carryIn: CarryIn, receiver: CarryInReceiver): void {
 // @spec-link [[rule_harmony_change_drops_unfit_harmonic_carry_in]]
 export function carriedHarmonyFits(
   harmony: CarriedHarmony,
-  receiver: Pick<CarryInReceiver, 'controls' | 'musicalProfile'>,
+  receiver: Pick<CarryInReceiver, 'controls'>,
 ): boolean {
   const { controls } = receiver
   const domain = makeHarmonyCandidateDomain({
@@ -63,7 +61,6 @@ export function carriedHarmonyFits(
     collection: controls.collection,
     harmonicMotion: controls.harmonicMotion,
     tensionArc: controls.tension,
-    profile: receiver.musicalProfile.musicalProfile,
   })
   return domain.kind === 'harmony_candidate_domain' && carriedHarmonyEndsDomain(domain, harmony)
 }

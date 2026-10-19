@@ -15,7 +15,7 @@ dependents:
   - [[rule_session_history_keeps_timeline_and_inputs]]
   - [[rule_tempo_never_affects_generation]]
   - [[service_headless_phrase_replay]]
-version: 0.1
+version: 0.2
 priority: 1
 tags: [seed, determinism, regeneration, changes-in-v3.1, changes-in-v3.2]
 parents:
@@ -29,12 +29,11 @@ parents:
 Make a generated phrase reproducible from its complete request and seed.
 
 ## THE RULE / LOGIC
-Phrase generation is deterministic for a given complete request and seed. The complete request includes the selected musical values, profile preset, tension arc, and leapiness. Explicit regeneration creates a new random seed while preserving the active controls, and the result retains that seed for internal reproduction. Applying a presentation theme is not a generation request and cannot alter the phrase. Switching the selected instrument profile is a distinct, automatic regeneration path with its own fresh seed, not a same-seed reproduction of the prior request.
+Phrase generation is deterministic for a given complete request and seed. The complete request includes the selected musical values, the seven figure levels, tension arc, and leapiness, and never a musical profile's or a preset's name. Explicit regeneration creates a new random seed while preserving the active controls and figure levels, and the result retains that seed for internal reproduction. Applying a presentation theme is not a generation request and cannot alter the phrase. Switching the selected instrument profile is a distinct, automatic regeneration path with its own fresh seed, not a same-seed reproduction of the prior request.
 
 ## TECHNICAL INTERFACE
 
 Generation accepts a complete request and seed and returns the seed associated with the result.
 
 ## EXPECTATION
-
-Supplying the same complete request and seed reproduces the same phrase. Explicit regeneration changes the seed without changing selected controls. Changing the theme never changes the phrase; switching the selected instrument profile always draws a fresh seed and regenerates, rather than reproducing the prior phrase.
+Supplying the same complete request and seed reproduces the same phrase. Explicit regeneration changes the seed without changing selected controls or figure levels. Changing the theme never changes the phrase; switching the selected instrument profile always draws a fresh seed and regenerates, rather than reproducing the prior phrase.

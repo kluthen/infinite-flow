@@ -4,6 +4,7 @@ import {
   advanceFigure,
   collectionStep,
   figureSettled,
+  freeToneResolution,
   freeToneResolves,
   initialFigureState,
   requiredMidi,
@@ -11,7 +12,12 @@ import {
   type FigureState,
   type FigureStep,
 } from '@/domain/pitch/pitch-figures'
-import type { PitchCandidate, PitchNoteFacts, PitchReservation } from '@/domain/pitch/pitch-types'
+import type {
+  FreeToneResolution,
+  PitchCandidate,
+  PitchNoteFacts,
+  PitchReservation,
+} from '@/domain/pitch/pitch-types'
 
 /** A sounding-note fact; defaults represent an in-collection non-chord tone. */
 function fact(midi: number, overrides: Partial<PitchNoteFacts> = {}): PitchNoteFacts {
@@ -564,5 +570,74 @@ describe('pitch-figures', () => {
       })
       expect(result).toEqual({ kind: 'rejected', reason: 'free_tone_unresolved' })
     })
+  })
+})
+
+/** The chord tone C4 a free tone leaves from, and the free tone D4 approached by step from it. */
+const FROM_C = fact(60, { chordTone: true, inCollection: true })
+
+/** Open a free obligation on D4, from C4, with the candidate tagged by `freeResolution`. */
+function openTagged(freeResolution: FreeToneResolution): FigureState {
+  const opened = advanceFigure(
+    { boundFulfilled: true },
+    {
+      attackIndex: 1,
+      isFinal: false,
+      prior: FROM_C,
+      note: fact(62, { chordTone: false, inCollection: true }),
+      candidate: { ...plainCandidate(62, 'passing_or_neighbor'), freeResolution },
+    },
+  )
+  if (opened.kind !== 'accepted') throw new Error('free tone did not open')
+  return opened.state
+}
+
+/** Discharge the open free obligation on D4 with the chord tone `midi`. */
+function resolveWith(state: FigureState, midi: number) {
+  return advanceFigure(state, {
+    attackIndex: 2,
+    isFinal: false,
+    prior: fact(62, { chordTone: false, inCollection: true }),
+    note: fact(midi, { chordTone: true, inCollection: true }),
+    candidate: plainCandidate(midi),
+  })
+}
+
+// @test-link [[rule_figure_level_orders_search]]
+// @test-link [[rule_levels_govern_free_figures_only]]
+describe('pitch-figures: a free tone resolves only as its levels allow', () => {
+  it('names how a free tone resolves: passing, neighbor, or not at all', () => {
+    const tone = fact(62, { inCollection: true })
+    expect(freeToneResolution(FROM_C, tone, fact(64, { chordTone: true }))).toBe('passing')
+    expect(freeToneResolution(FROM_C, tone, fact(60, { chordTone: true }))).toBe('neighbor')
+    expect(freeToneResolution(FROM_C, tone, fact(64, { chordTone: false }))).toBeUndefined()
+    expect(freeToneResolution(FROM_C, fact(64), fact(65, { chordTone: true }))).toBeUndefined()
+  })
+
+  it('keeps the only allowed resolution on the open obligation', () => {
+    expect(openTagged('neighbor').free).toEqual({ before: FROM_C, midi: 62, only: 'neighbor' })
+  })
+
+  it('rejects a free tone tagged neighbor that passes on, and accepts it returning', () => {
+    const state = openTagged('neighbor')
+    expect(resolveWith(state, 64)).toEqual({ kind: 'rejected', reason: 'free_figure_off' })
+    expect(resolveWith(state, 60)).toEqual({ kind: 'accepted', state: { boundFulfilled: true } })
+  })
+
+  it('rejects a free tone tagged passing that returns, and accepts it passing on', () => {
+    const state = openTagged('passing')
+    expect(resolveWith(state, 60)).toEqual({ kind: 'rejected', reason: 'free_figure_off' })
+    expect(resolveWith(state, 64)).toEqual({ kind: 'accepted', state: { boundFulfilled: true } })
+  })
+
+  it('still rejects a tagged free tone that does not resolve as free_tone_unresolved', () => {
+    const result = advanceFigure(openTagged('passing'), {
+      attackIndex: 2,
+      isFinal: false,
+      prior: fact(62, { chordTone: false, inCollection: true }),
+      note: fact(64, { chordTone: false, inCollection: true }),
+      candidate: plainCandidate(64, 'passing_or_neighbor'),
+    })
+    expect(result).toEqual({ kind: 'rejected', reason: 'free_tone_unresolved' })
   })
 })

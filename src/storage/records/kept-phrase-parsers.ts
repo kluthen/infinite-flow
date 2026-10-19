@@ -8,6 +8,9 @@
  * parser covers (a whole harmony, an intent's outer shape, its register intent) is checked here
  * against the domain types. An intent's instrument profile is read from the data it holds, never
  * looked up or rebuilt from its id, so a kept My instrument phrase reads back as it was played.
+ * An intent's figure levels are read from any of data version 1's three shapes (levels only, a
+ * v3.0 musical profile only, or both), a stored profile mapped through `profile-to-levels.ts`; a
+ * read intent never holds a musical profile.
  *
  * Pure: no storage access. The kept-session codec calls these and reports any refusal as an
  * unreadable record.
@@ -16,7 +19,6 @@
 import {
   GenerationControlError,
   makeGenerationControls,
-  MUSICAL_PROFILES,
   PITCH_CLASSES,
   REGISTER_CHOICES,
   TENSION_ARCS,
@@ -27,6 +29,11 @@ import type { ProfileSelection } from '@/domain/controls/profile-selection'
 import { ConcertPitchError } from '@/domain/events/concert-pitch'
 import { deepEqual } from '@/domain/events/deep-equal'
 import { deepFreeze } from '@/domain/events/deep-freeze'
+import {
+  FigureLevelsError,
+  parseFigureLevels,
+  type FigureLevels,
+} from '@/domain/figures/figure-levels'
 import { CarryInError, parseCarryIn } from '@/domain/generation/carry-in/carry-in'
 import {
   writtenToConcertTonalCenter,
@@ -76,6 +83,7 @@ import {
   oneOfNumbers,
   type Catalog,
 } from './kept-record-shape'
+import { parseStoredProfileSelection, storedProfileLevels } from './profile-to-levels'
 
 export { KeptRecordError }
 
@@ -91,6 +99,7 @@ const REFUSALS: readonly (abstract new (message: string) => Error)[] = [
   GenerationControlError,
   InstrumentProfileParseError,
   CarryInError,
+  FigureLevelsError,
   TimelineParseError,
   ConcertPitchError,
 ]
@@ -329,18 +338,13 @@ function parseStoredSeed(value: unknown): Seed {
 }
 
 /**
- * Intent: a stored musical profile selection: exactly a known profile and a boolean, as an intent
- * and a kept session's session-wide record hold it.
+ * Intent: a stored musical profile selection: exactly a known profile and a boolean, as a v3.0
+ * intent and a kept session's session-wide record hold it, read by storage's profile-to-levels
+ * module.
  */
 // @spec-link [[module_kept_session_codec]]
 export function parseKeptProfileSelection(value: unknown, context: string): ProfileSelection {
-  const record = exactRecord(value, ['musicalProfile', 'isCustom'], context)
-  const musicalProfile = MUSICAL_PROFILES.find((profile) => profile === record.musicalProfile)
-  if (musicalProfile === undefined)
-    throw new KeptRecordError(`${context}.musicalProfile is unknown.`)
-  if (typeof record.isCustom !== 'boolean')
-    throw new KeptRecordError(`${context}.isCustom must be a boolean.`)
-  return { musicalProfile, isCustom: record.isCustom }
+  return parseStoredProfileSelection(value, context)
 }
 
 /**
@@ -463,6 +467,30 @@ function assertIntentCoherent(
     )
 }
 
+/**
+ * Intent: the figure levels of a stored data version 1 intent, in any of its three shapes: its
+ * levels only (kept by this version), through the domain's parser; a musical profile only (kept
+ * by v3.0), as the levels that profile stands for through storage's profile-to-levels module; or
+ * both (kept by chunk 4's code), where the stored levels must equal the profile's levels, so the
+ * levels read are the same either way. Levels that disagree with the profile beside them, or
+ * neither field, are refused, never reconciled.
+ */
+function parseStoredFigureLevels(record: Record<string, unknown>): FigureLevels {
+  const hasLevels = Object.hasOwn(record, 'figureLevels')
+  if (!Object.hasOwn(record, 'musicalProfile')) {
+    if (!hasLevels)
+      throw new KeptRecordError('Kept intent holds neither figureLevels nor musicalProfile.')
+    return parseFigureLevels(record.figureLevels)
+  }
+  const selection = parseStoredProfileSelection(record.musicalProfile, 'Kept intent.musicalProfile')
+  const profileLevels = storedProfileLevels(selection)
+  if (hasLevels && !deepEqual(parseFigureLevels(record.figureLevels), profileLevels))
+    throw new KeptRecordError(
+      `Kept intent.figureLevels are not the levels of its musical profile "${selection.musicalProfile}".`,
+    )
+  return profileLevels
+}
+
 const INTENT_FIELDS = [
   'requestId',
   'seed',
@@ -470,7 +498,6 @@ const INTENT_FIELDS = [
   'meter',
   'controls',
   'writtenTonalCenter',
-  'musicalProfile',
   'instrumentProfile',
   'registerIntent',
 ] as const
@@ -478,15 +505,21 @@ const INTENT_FIELDS = [
 /**
  * Intent: read a kept phrase's stored generation intent back into the intent it was generated
  * from, without rebuilding it: each field through the domain's own parser (request id, seed,
- * meter, controls, written tonal center, instrument profile from its stored data, carry-in), the
- * rest against the intent's shape, with exactly its keys (`carryIn` only when one was handed
- * forward), then its parts checked against each other. Returns a fresh deep-frozen intent equal
- * to the one stored; throws a KeptRecordError or the domain parser's own error for anything
- * invalid, never repairing it.
+ * meter, controls, written tonal center, figure levels, instrument profile from its stored data,
+ * carry-in), the rest against the intent's shape, with exactly its keys (`carryIn` only when one
+ * was handed forward), then its parts checked against each other. Its figure levels are read from
+ * any of data version 1's three shapes (levels only; a v3.0 musical profile only, read as that
+ * profile's levels; or both, which must agree), and the intent returned holds no musical profile.
+ * Returns a fresh deep-frozen intent; throws a KeptRecordError or the domain parser's own error
+ * for anything invalid, never repairing it.
  */
 // @spec-link [[module_kept_session_codec]]
 export function parseKeptIntent(input: unknown): GenerationIntent {
-  const record = exactRecord(input, INTENT_FIELDS, 'Kept intent', ['carryIn'])
+  const record = exactRecord(input, INTENT_FIELDS, 'Kept intent', [
+    'figureLevels',
+    'musicalProfile',
+    'carryIn',
+  ])
   const requestId = parseRequestId(record.requestId)
   const seed = parseStoredSeed(record.seed)
   if (record.measureCount !== PHRASE_MEASURE_COUNT)
@@ -498,10 +531,7 @@ export function parseKeptIntent(input: unknown): GenerationIntent {
     record.writtenTonalCenter,
     'Kept intent written tonal center',
   )
-  const musicalProfile = parseKeptProfileSelection(
-    record.musicalProfile,
-    'Kept intent.musicalProfile',
-  )
+  const figureLevels = parseStoredFigureLevels(record)
   const instrumentProfile = parseStoredProfile(record.instrumentProfile)
   assertIntentCoherent(controls, writtenTonalCenter, instrumentProfile)
   const registerIntent = parseRegisterIntent(record.registerIntent, instrumentProfile, controls)
@@ -513,7 +543,7 @@ export function parseKeptIntent(input: unknown): GenerationIntent {
     meter,
     controls,
     writtenTonalCenter,
-    musicalProfile,
+    figureLevels,
     instrumentProfile,
     registerIntent,
     ...carried,

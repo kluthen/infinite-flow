@@ -1,9 +1,16 @@
 import { beforeAll, describe, expect, it } from 'vitest'
 
+import type { ProfileSelection } from '@/domain/controls/profile-selection'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import { buildGeneratedNotesFile, type GeneratedNotesRequest } from '@/export/generated-notes-file'
 import { buildPlayedNotesFile } from '@/export/played-notes-file'
-import type { SessionHistory, SessionHistoryRecord } from '@/session/session-history'
+import {
+  createSessionHistory,
+  type SessionHistory,
+  type SessionHistoryRecord,
+} from '@/session/session-history'
+import type { SessionSettings } from '@/session/session-types'
 import {
   decodeKeptSession,
   encodeKeptSession,
@@ -24,6 +31,13 @@ import {
   storedRecords,
   type Step,
 } from './kept-session-fixtures'
+import {
+  DEFAULT_SESSION_SEED,
+  SessionDriver,
+  fixedWallClock,
+  phraseOneFor,
+  sessionSettings,
+} from '../session/session-harness'
 
 /** Every request the generated-notes export offers: both formats, backing off and on. */
 const EVERY_REQUEST: readonly GeneratedNotesRequest[] = [
@@ -55,6 +69,53 @@ function decoded(stored: StoredKeptSession): KeptSession {
 /** Intent: the decoded session as the exports read a history. */
 function exportable(session: KeptSession) {
   return { phrases: () => session.phrases, startedAt: session.summary.startedAt }
+}
+
+/** The keys a kept phrase's intent holds: the request's, levels and no profile. */
+const INTENT_KEYS = [
+  'requestId',
+  'seed',
+  'measureCount',
+  'meter',
+  'controls',
+  'writtenTonalCenter',
+  'figureLevels',
+  'instrumentProfile',
+  'registerIntent',
+]
+
+/** Intent: the stored intent of every phrase of a stored body. */
+function storedIntents(body: unknown): readonly Record<string, unknown>[] {
+  return (body as { phrases: readonly { intent: Record<string, unknown> }[] }).phrases.map(
+    (phrase) => phrase.intent,
+  )
+}
+
+/**
+ * Intent: a stored body with every phrase's intent edited by `reshape`, as a session kept by
+ * earlier code at data version 1 holds it.
+ */
+function reshapedBody(
+  body: unknown,
+  reshape: (intent: Record<string, unknown>, index: number) => Record<string, unknown>,
+): unknown {
+  const copy = structuredClone(body) as { phrases: { intent: Record<string, unknown> }[] }
+  copy.phrases.forEach((phrase, index) => {
+    phrase.intent = reshape(phrase.intent, index)
+  })
+  return copy
+}
+
+/** Intent: a stored intent as v3.0 kept it: a profile selection in place of its levels. */
+function v30Intent(intent: Record<string, unknown>, selection: ProfileSelection) {
+  const { figureLevels, ...rest } = intent
+  void figureLevels
+  return { ...rest, musicalProfile: { ...selection } }
+}
+
+/** Intent: a stored intent as chunk 4's code kept it: its levels and a profile selection. */
+function chunk4Intent(intent: Record<string, unknown>, selection: ProfileSelection) {
+  return { ...intent, musicalProfile: { ...selection } }
 }
 
 // @test-link [[entity_kept_session_record]]
@@ -171,8 +232,13 @@ describe('decodeKeptSession of a stored session, for each built-in instrument', 
   // @test-link [[module_kept_session_codec]]
   it.each(INSTRUMENTS)('%s: exports byte-identical MusicXML, MIDI and played-notes MIDI', (id) => {
     const history = recordedKeptSession(id, 6)
-    const session = decoded(storedRecords(encodeKeptSession(history, KEPT_FACTS, APP_VERSION)))
+    const stored = storedRecords(encodeKeptSession(history, KEPT_FACTS, APP_VERSION))
+    const session = decoded(stored)
 
+    for (const intent of storedIntents(stored.body)) {
+      expect(Object.hasOwn(intent, 'figureLevels')).toBe(true)
+      expect(Object.hasOwn(intent, 'musicalProfile')).toBe(false)
+    }
     for (const request of EVERY_REQUEST) {
       expect(
         buildGeneratedNotesFile(exportable(session), request),
@@ -257,6 +323,114 @@ describe('decodeKeptSession of a stored session, for each built-in instrument', 
 
     for (const phrase of session.phrases)
       expect(phrase.intent.instrumentProfile.displayName).toBe('My old tenor')
+  })
+})
+
+// @test-link [[module_kept_session_codec]]
+// @test-link [[rule_kept_session_content]]
+describe('what a kept phrase holds in place of the musical profile', () => {
+  // @test-link [[rule_kept_session_content]]
+  it('holds no profile or preset name in any phrase intent of a freshly encoded body', () => {
+    const records = encodeKeptSession(recordedKeptSession('eb-alto', 4), KEPT_FACTS, APP_VERSION)
+    const intents = storedIntents(storedRecords(records).body)
+
+    expect(intents).toHaveLength(4)
+    for (const intent of intents) {
+      const keys = Object.keys(intent).filter((key) => key !== 'carryIn')
+      expect(keys.sort()).toEqual([...INTENT_KEYS].sort())
+      const nested = allKeys(intent)
+      for (const forbidden of ['musicalProfile', 'isCustom', 'preset', 'presetLabel'])
+        expect(nested.has(forbidden), forbidden).toBe(false)
+    }
+  })
+})
+
+// @test-link [[module_kept_session_codec]]
+// @test-link [[module_stored_profile_to_levels]]
+describe('decodeKeptSession of sessions kept by earlier code at data version 1', () => {
+  let history: SessionHistory
+  let stored: StoredKeptSession
+
+  beforeAll(() => {
+    history = recordedKeptSession('eb-alto', 4)
+    stored = storedRecords(encodeKeptSession(history, KEPT_FACTS, APP_VERSION))
+  })
+
+  /** Intent: the decoded session's review and both exports equal the live history's. */
+  function expectReviewAndExportsAsSaved(session: KeptSession): void {
+    const records = history.phrases()
+    session.phrases.forEach((phrase, index) => {
+      expect(phrase.intent).toEqual(records[index]!.intent)
+      expect(phrase.intent.figureLevels).toStrictEqual(NEUTRAL_FIGURE_LEVELS)
+      expect(Object.hasOwn(phrase.intent, 'musicalProfile')).toBe(false)
+      expect(phrase.outcome.result).toEqual(records[index]!.outcome.result)
+    })
+    for (const request of EVERY_REQUEST) {
+      expect(
+        buildGeneratedNotesFile(exportable(session), request),
+        `${request.format}, backing ${request.backingTrack}`,
+      ).toEqual(buildGeneratedNotesFile(history, request))
+    }
+    expect(buildPlayedNotesFile(exportable(session))).toEqual(buildPlayedNotesFile(history))
+  }
+
+  // @test-link [[module_kept_session_codec]]
+  // @test-link [[module_stored_profile_to_levels]]
+  it("opens a v3.0-shaped session, each phrase with its profile's levels, review and exports as saved", () => {
+    const body = reshapedBody(stored.body, (intent) => v30Intent(intent, history.profileSelection))
+    for (const intent of storedIntents(body))
+      expect(Object.hasOwn(intent, 'figureLevels')).toBe(false)
+
+    expectReviewAndExportsAsSaved(decoded({ ...stored, body }))
+  })
+
+  // @test-link [[module_kept_session_codec]]
+  it('opens a chunk-4-shaped session, each phrase with its profile and those levels', () => {
+    const body = reshapedBody(stored.body, (intent) =>
+      chunk4Intent(intent, history.profileSelection),
+    )
+
+    expectReviewAndExportsAsSaved(decoded({ ...stored, body }))
+  })
+
+  // @test-link [[module_kept_session_codec]]
+  it("reads a chunk-4-shaped session as unreadable when one phrase's levels differ from its profile", () => {
+    const jazz: ProfileSelection = { musicalProfile: 'Jazz', isCustom: false }
+    const body = reshapedBody(stored.body, (intent, index) =>
+      chunk4Intent(intent, index === 2 ? jazz : history.profileSelection),
+    )
+
+    expect(decodeKeptSession({ ...stored, body })).toEqual({ reading: 'unreadable' })
+  })
+})
+
+// @test-link [[rule_kept_session_content]]
+describe('the summary of a session started with Use it on phrase 1 of other settings', () => {
+  // @test-link [[rule_kept_session_content]]
+  // @test-link [[module_kept_session_codec]]
+  it("names the session's musical profile, not the one phrase 1 was generated under", () => {
+    const neutral = sessionSettings({ tempo: 240, instrumentProfileId: 'bb-tenor' })
+    const settings: SessionSettings = {
+      ...neutral,
+      musicalProfile: { musicalProfile: 'Jazz', isCustom: false },
+    }
+    const driver = new SessionDriver({
+      at: 0,
+      settings,
+      phraseOne: phraseOneFor(neutral),
+      phraseOneSettings: neutral,
+    })
+    driver.accept(0.5)
+    driver.countInOver(1)
+    driver.sounding(5, 2)
+    driver.end(6)
+    const history = createSessionHistory(settings, fixedWallClock, DEFAULT_SESSION_SEED, 'treble')
+    for (const output of driver.log) history.record(output)
+
+    const records = encodeKeptSession(history, { ...KEPT_FACTS, favorites: [1] }, APP_VERSION)
+
+    expect(history.phrases()[0]!.intent.figureLevels).toStrictEqual(NEUTRAL_FIGURE_LEVELS)
+    expect(records.summary.musicalProfile).toEqual({ musicalProfile: 'Jazz', isCustom: false })
   })
 })
 
@@ -413,7 +587,8 @@ describe('the size of a 30-minute 240 BPM Jazz Sixteenth session', () => {
   // @test-link [[entity_kept_session_record]]
   it('stays within the measured bound for its session-wide record and body', async () => {
     const records = await longJazzSixteenthRecords(450, 12)
-    const kept = encodeKeptSession(historyOf(records, 'eb-alto'), KEPT_FACTS, APP_VERSION)
+    const jazz = { musicalProfile: 'Jazz', isCustom: false } as const
+    const kept = encodeKeptSession(historyOf(records, 'eb-alto', jazz), KEPT_FACTS, APP_VERSION)
     const sessionBytes = utf8Bytes(kept.summary) + utf8Bytes(kept.body)
 
     expect(kept.summary.lengthSeconds).toBe(1800)

@@ -4,7 +4,14 @@ import {
   GenerationControlError,
   makeGenerationControls,
 } from '@/domain/controls/generation-controls'
-import { PROFILE_BUNDLES } from '@/domain/controls/profile-selection'
+import { PROFILE_BUNDLES, type ProfileSelection } from '@/domain/controls/profile-selection'
+import { deepEqual } from '@/domain/events/deep-equal'
+import {
+  FigureLevelsError,
+  JAZZ_FIGURE_LEVELS,
+  NEUTRAL_FIGURE_LEVELS,
+  type FigureLevels,
+} from '@/domain/figures/figure-levels'
 import { CarryInError } from '@/domain/generation/carry-in/carry-in'
 import {
   createGenerationIntent,
@@ -231,9 +238,6 @@ const INTENT_REFUSALS: readonly Refusal[] = [
     'C',
     KeptRecordError,
   ],
-  ['an unknown musical profile', ['musicalProfile', 'musicalProfile'], 'Rock', KeptRecordError],
-  ['a customized flag as text', ['musicalProfile', 'isCustom'], 'yes', KeptRecordError],
-  ['an extra profile selection field', ['musicalProfile', 'label'], 'x', KeptRecordError],
   [
     "an instrument id unlike the profile's",
     ['controls', 'instrumentProfileId'],
@@ -291,9 +295,9 @@ describe('parseKeptIntent', () => {
   it('reads back every real intent it was stored from, carry-ins included', () => {
     const instruments = new Set(records.map((record) => record.intent.controls.instrumentProfileId))
     expect([...instruments].sort()).toEqual(['bb-tenor', 'c-keyboard', 'eb-alto'])
-    expect(records.some((record) => record.intent.musicalProfile.musicalProfile === 'Jazz')).toBe(
-      true,
-    )
+    expect(
+      records.some((record) => deepEqual(record.intent.figureLevels, JAZZ_FIGURE_LEVELS)),
+    ).toBe(true)
     expect(records.filter((record) => record.intent.carryIn !== undefined).length).toBeGreaterThan(
       0,
     )
@@ -371,5 +375,149 @@ describe('parseKeptIntent', () => {
   it('reports an error that is not a refusal of the stored value as no refusal', () => {
     expect(isKeptPhraseRefusal(new TypeError('defect'))).toBe(false)
     expect(isKeptPhraseRefusal('text')).toBe(false)
+  })
+})
+
+/** The levels each musical profile stands for. */
+const PROFILE_LEVELS: Readonly<Record<'Neutral' | 'Jazz', FigureLevels>> = {
+  Neutral: NEUTRAL_FIGURE_LEVELS,
+  Jazz: JAZZ_FIGURE_LEVELS,
+}
+
+/** Intent: the first recorded phrase intent generated with the given musical profile's levels. */
+function intentOfProfile(musicalProfile: 'Neutral' | 'Jazz'): GenerationIntent {
+  const record = records.find((entry) =>
+    deepEqual(entry.intent.figureLevels, PROFILE_LEVELS[musicalProfile]),
+  )
+  if (record === undefined) throw new Error(`No ${musicalProfile} phrase recorded.`)
+  return record.intent
+}
+
+/**
+ * Intent: a stored copy of an intent as v3.0 kept it: its musical profile selection in place of
+ * its levels.
+ */
+function v30Shaped(intent: GenerationIntent, selection: ProfileSelection): Record<string, unknown> {
+  const { figureLevels, ...rest } = stored(intent)
+  void figureLevels
+  return { ...rest, musicalProfile: { ...selection } }
+}
+
+/** Intent: a stored copy of an intent as chunk 4's code kept it: its levels and a profile. */
+function chunk4Shaped(
+  intent: GenerationIntent,
+  selection: ProfileSelection,
+): Record<string, unknown> {
+  return { ...stored(intent), musicalProfile: { ...selection } }
+}
+
+/** Each stored profile selection, customized or not, and the levels it stands for. */
+const SELECTIONS: readonly (readonly [ProfileSelection, FigureLevels])[] = [
+  [{ musicalProfile: 'Neutral', isCustom: false }, NEUTRAL_FIGURE_LEVELS],
+  [{ musicalProfile: 'Neutral', isCustom: true }, NEUTRAL_FIGURE_LEVELS],
+  [{ musicalProfile: 'Jazz', isCustom: false }, JAZZ_FIGURE_LEVELS],
+  [{ musicalProfile: 'Jazz', isCustom: true }, JAZZ_FIGURE_LEVELS],
+]
+
+// @test-link [[module_kept_session_codec]]
+describe("parseKeptIntent: figure levels, in each of data version 1's three shapes", () => {
+  // @test-link [[module_kept_session_codec]]
+  // @test-link [[rule_kept_session_content]]
+  it.each(['Neutral', 'Jazz'] as const)(
+    'reads a %s intent holding its levels only back, with no musical profile',
+    (musicalProfile) => {
+      const intent = intentOfProfile(musicalProfile)
+      expect('musicalProfile' in intent).toBe(false)
+
+      const parsed = parseKeptIntent(stored(intent))
+
+      expect(parsed.figureLevels).toStrictEqual(PROFILE_LEVELS[musicalProfile])
+      expect(parsed).toEqual(intent)
+      expect(Object.keys(parsed)).toEqual(Object.keys(intent))
+      expect('musicalProfile' in parsed).toBe(false)
+    },
+  )
+
+  // @test-link [[module_kept_session_codec]]
+  // @test-link [[module_stored_profile_to_levels]]
+  it.each(SELECTIONS)(
+    "reads a v3.0-shaped intent of %j, which holds no levels, with its profile's levels",
+    (selection, levels) => {
+      const intent = intentOfProfile(selection.musicalProfile)
+      const input = v30Shaped(intent, selection)
+      expect('figureLevels' in input).toBe(false)
+
+      const parsed = parseKeptIntent(input)
+
+      expect(parsed.figureLevels).toStrictEqual(levels)
+      expect(parsed).toEqual(intent)
+      expect(Object.keys(parsed)).toEqual(Object.keys(intent))
+      expect('musicalProfile' in parsed).toBe(false)
+    },
+  )
+
+  // @test-link [[module_kept_session_codec]]
+  it.each(SELECTIONS)(
+    'reads a chunk-4-shaped intent of %j holding its profile and equal levels with those levels',
+    (selection, levels) => {
+      const intent = intentOfProfile(selection.musicalProfile)
+
+      const parsed = parseKeptIntent(chunk4Shaped(intent, selection))
+
+      expect(parsed.figureLevels).toStrictEqual(levels)
+      expect(parsed).toEqual(intent)
+      expect('musicalProfile' in parsed).toBe(false)
+    },
+  )
+
+  // @test-link [[module_kept_session_codec]]
+  it.each([
+    ["Neutral with Jazz's levels", 'Jazz', { musicalProfile: 'Neutral', isCustom: false }],
+    ["Jazz with Neutral's levels", 'Neutral', { musicalProfile: 'Jazz', isCustom: true }],
+  ] as const)(
+    'refuses a chunk-4-shaped intent naming %s as unreadable',
+    (_, generatedUnder, selection) => {
+      const input = chunk4Shaped(intentOfProfile(generatedUnder), selection)
+
+      expect(() => parseKeptIntent(input)).toThrow(KeptRecordError)
+      expect(isKeptPhraseRefusal(catchError(() => parseKeptIntent(input)))).toBe(true)
+    },
+  )
+
+  // @test-link [[module_kept_session_codec]]
+  it('refuses an intent holding neither levels nor a musical profile as unreadable', () => {
+    const input = edited(intentOfProfile('Neutral'), ['figureLevels'], REMOVE)
+
+    expect(() => parseKeptIntent(input)).toThrow(KeptRecordError)
+    expect(isKeptPhraseRefusal(catchError(() => parseKeptIntent(input)))).toBe(true)
+  })
+
+  // @test-link [[module_kept_session_codec]]
+  it.each([
+    ['an unknown musical profile', ['musicalProfile', 'musicalProfile'], 'Rock'],
+    ['a customized flag as text', ['musicalProfile', 'isCustom'], 'yes'],
+    ['a missing customized flag', ['musicalProfile', 'isCustom'], REMOVE],
+    ['an extra profile selection field', ['musicalProfile', 'label'], 'x'],
+  ] as const)('refuses a stored profile selection with %s, in either shape', (_, path, value) => {
+    const intent = intentOfProfile('Neutral')
+    const selection: ProfileSelection = { musicalProfile: 'Neutral', isCustom: false }
+    for (const shaped of [v30Shaped(intent, selection), chunk4Shaped(intent, selection)]) {
+      const input = edited(shaped, path, value)
+
+      expect(() => parseKeptIntent(input)).toThrow(KeptRecordError)
+    }
+  })
+
+  // @test-link [[module_kept_session_codec]]
+  it.each([
+    ['a missing figure', ['figureLevels', 'appoggiatura'], REMOVE],
+    ['an unknown figure', ['figureLevels', 'blueNote'], 'off'],
+    ['an unknown level', ['figureLevels', 'passingTone'], 'often'],
+    ['levels that are not an object', ['figureLevels'], 'asToday'],
+  ] as const)('refuses levels with %s as unreadable', (_, path, replacement) => {
+    const input = edited(intentOfProfile('Neutral'), path, replacement)
+
+    expect(() => parseKeptIntent(input)).toThrow(FigureLevelsError)
+    expect(isKeptPhraseRefusal(catchError(() => parseKeptIntent(input)))).toBe(true)
   })
 })

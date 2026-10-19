@@ -501,3 +501,36 @@ On the reference machine, production build or `npm run dev`. ISS-011's steps, wh
       nothing. `Close`: back at Idle, the starting-note line back.
 
 **Result (2026-10-16):** ISS-011's steps passed on the owner's word (spec D340).
+
+---
+
+# v3.1 hand checks
+
+Build plan [Hand checks](specs/versions/v3/build-plan-v3.1.md#hand-checks): each check is written
+here by the chunk that needs it. This part holds H3 for now; H1, H2 (chunk 14), H4 (chunk 15) and
+H5 (chunk 16) are written by later chunks.
+
+## v3.1 H3. Same phrase in Edge (chunk 8; about 10 min)
+
+The reference machine, from the repo, in a worktree holding chunk 8. Edge must make the same
+phrase as Chrome from the same replay key. The spec run below replays a slice of the recorded
+v2.0 and v3.0 keys in Edge's own generation worker, and replays your Chrome key in Edge, checking
+it against the headless replay of the same key.
+
+- [ ] Once: install Microsoft Edge, from its website or with `npx playwright install msedge`
+      (it may ask for your password).
+- [ ] `npm run build`, then `npm run preview` and open the address it prints in Chrome. Generate a
+      phrase. Open the console (F12, Console tab) and copy the whole line
+      `[Infinite Flow] phrase replay key · workspace phrase · seed1-… · ifk3.…` (the line from a
+      session phrase works too). The key starts with `ifk3.`. Stop the preview (Ctrl+C): the
+      tests need its port.
+- [ ] Run, pasting the copied line between the single quotes:
+
+      ```sh
+      INFINITE_FLOW_BROWSER_CHANNEL=msedge INFINITE_FLOW_REPLAY_KEY='<the copied line>' npx playwright test tests/e2e/release/deterministic-replay.spec.ts
+      ```
+
+- [ ] Pass: `5 passed`, none skipped and none failed. A skipped test means the key was not given;
+      "msedge is not found" means Edge is not installed.
+
+**Result:** not run yet.

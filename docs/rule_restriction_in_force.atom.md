@@ -4,6 +4,7 @@ status: DRAFT
 type: RULE
 priority: 1
 dependents:
+  - [[module_preset_model]]
   - [[rule_restriction_highlight_never_blocks]]
   - [[rule_vary_settings_stays_inside_restriction]]
 layer: BUSINESS
