@@ -125,6 +125,16 @@ describe('adapting a carry-in when no relevant setting changed', () => {
     })
     expect(keptCarryIn(adapt(phrase, MIDDLE, after))).toBe(phrase.carryIn)
   })
+
+  // @test-link [[module_session_carry_in_after_change]]
+  it("returns the very same carry-in after a change of the profile's customized mark alone", () => {
+    const phrase = phraseOne(MIDDLE_HIGH_PITCH_SEED, MIDDLE)
+    const after: SessionSettings = {
+      ...MIDDLE,
+      musicalProfile: { musicalProfile: 'Neutral', isCustom: false },
+    }
+    expect(keptCarryIn(adapt(phrase, MIDDLE, after))).toBe(phrase.carryIn)
+  })
 })
 
 // @test-link [[rule_key_change_drops_harmonic_carry_in]]
@@ -178,6 +188,20 @@ describe('adapting a carry-in after a harmony setting change', () => {
     const adapted = keptCarryIn(adapt(phrase, MIDDLE, after))
     expect(adapted).toStrictEqual(phrase.carryIn)
     expect(receive(after, adapted).carryIn).toStrictEqual(adapted)
+  })
+
+  // @test-link [[module_session_carry_in_after_change]]
+  it('re-checks the carry-in after a Neutral–Jazz change, whose levels differ, keeping a chord that still fits', () => {
+    const phrase = phraseOne(MIDDLE_HIGH_PITCH_SEED, MIDDLE)
+    for (const [before, after] of [
+      [MIDDLE, settings({}, 'Jazz')],
+      [settings({}, 'Jazz'), MIDDLE],
+    ] as const) {
+      const adapted = keptCarryIn(adapt(phrase, before, after))
+      expect(adapted).not.toBe(phrase.carryIn)
+      expect(adapted).toStrictEqual(phrase.carryIn)
+      expect(receive(after, adapted).carryIn).toStrictEqual(adapted)
+    }
   })
 })
 

@@ -168,7 +168,7 @@ test('a profile flip shows in place at its phrase with nothing moving, and a hid
   expect(await checkedIn(page, 'Vary settings')).toBe('On')
 
   const fresh = await requestAfter(page, requestsAtEnd)
-  expect(fresh.musicalProfile).toEqual(idleRequest.musicalProfile)
+  expect(fresh.figureLevels).toEqual(idleRequest.figureLevels)
   expect(fresh.controls).toEqual(idleRequest.controls)
   expect(fresh.carryIn).toBe(false)
 })
@@ -202,7 +202,8 @@ test('a register stepped from Varying is Varying again after Stop, and the flag 
   await expect(presetStatus(page)).toHaveText(/^Jazz preset applied/)
   const fresh = await requestAfter(page, requestsAtEnd)
   expect(fresh.controls.register).toBe('Varying')
-  expect(fresh.musicalProfile).toEqual({ musicalProfile: 'Jazz', isCustom: false })
+  expect(fresh.figureLevels.chromaticApproach).toBe('asToday')
+  expect(fresh.figureLevels.chromaticEnclosure).toBe('asToday')
 
   expect((await sessionState(page)).review?.showing).toBe(true)
   await expect(radiogroup(page, 'Vary settings')).not.toHaveAttribute('aria-readonly', 'true')

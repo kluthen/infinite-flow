@@ -157,7 +157,7 @@ describe('composeWorkspaceSession replay keys with Idle pre-generation', () => {
     expect(deps.generateMock.mock.calls).toHaveLength(callsBeforeStart)
     expect(deps.replayKeyLines).toHaveLength(2)
     expect(deps.replayKeyLines[1]).toContain('session phrase 2 (carry-in)')
-    const key = /(ifk1\.[A-Za-z0-9_-]+)$/u.exec(deps.replayKeyLines[1]!)![1]!
+    const key = /(ifk3\.[A-Za-z0-9_-]+)$/u.exec(deps.replayKeyLines[1]!)![1]!
     const decoded = decodePhraseReplayKey(key)
     expect(decoded.phraseNumber).toBe(2)
     expect(background).toContainEqual(decoded.intent)

@@ -9,7 +9,6 @@
  */
 
 import type { GenerationControls } from '../../controls/generation-controls'
-import type { ProfileSelection } from '../../controls/profile-selection'
 import { makeHarmonyCollection } from '../../harmony/collection'
 import { carriedHarmonyEndsDomain, type CarriedHarmony } from '../../harmony/harmony-join'
 import { makeHarmonyCandidateDomain } from '../../harmony/harmony-planner'
@@ -24,7 +23,6 @@ import {
 /** The parts of a generation intent a carry-in is checked against; controls are in concert pitch. */
 export interface CarryInReceiver {
   readonly controls: GenerationControls
-  readonly musicalProfile: ProfileSelection
   readonly registerIntent: RegisterIntent
 }
 

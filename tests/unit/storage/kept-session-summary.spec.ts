@@ -60,7 +60,7 @@ describe('the session-wide record of a kept session, stored and read back', () =
       lengthSeconds:
         last.startedAt + PHRASE_MEASURE_COUNT * measureSeconds(last.tempo) - first.startedAt,
       phraseCount: 5,
-      musicalProfile: first.intent.musicalProfile,
+      musicalProfile: history.profileSelection,
       instrument: { id: 'eb-alto', displayName: 'E-flat alto saxophone' },
       startingTempo: 240,
       tempoReached: 240,

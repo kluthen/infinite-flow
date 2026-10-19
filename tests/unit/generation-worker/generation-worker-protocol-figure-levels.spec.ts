@@ -1,13 +1,19 @@
 /**
  * The figure levels cross the generation worker boundary inside the intent posted to the worker,
  * for a generate request and a prewarm message alike, and are re-validated from untrusted
- * structured-clone input: well formed, and the levels the intent's musical profile gives.
+ * structured-clone input: required and well formed. The intent holds no musical profile: levels no
+ * profile gives cross unchanged, and a wire intent holding a profile is refused as an unknown
+ * field.
  */
 
 import { describe, expect, it } from 'vitest'
 
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
-import { JAZZ_FIGURE_LEVELS, NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
+import {
+  JAZZ_FIGURE_LEVELS,
+  NEUTRAL_FIGURE_LEVELS,
+  type FigureLevels,
+} from '@/domain/figures/figure-levels'
 import {
   createGenerationIntent,
   type GenerationIntent,
@@ -45,6 +51,22 @@ function intentFor(musicalProfile: 'Neutral' | 'Jazz'): GenerationIntent {
   })
 }
 
+/** Intent: one real intent built from levels no musical profile gives. */
+function intentWithOwnLevels(): GenerationIntent {
+  const levels: FigureLevels = {
+    ...NEUTRAL_FIGURE_LEVELS,
+    appoggiatura: 'favored',
+    diatonicEnclosure: 'stronglyFavored',
+  }
+  const { requestId, seed, controls, writtenTonalCenter } = intentFor('Neutral')
+  return createGenerationIntent({
+    requestId,
+    seed,
+    controls: { ...controls, tonalCenter: writtenTonalCenter },
+    figureLevels: levels,
+  })
+}
+
 /** Intent: a structured clone of a Neutral intent with its figure levels replaced by `levels`. */
 function neutralWireIntentWith(levels: unknown): Record<string, unknown> {
   return { ...structuredClone(intentFor('Neutral')), figureLevels: levels }
@@ -73,8 +95,11 @@ const REFUSED: readonly { readonly name: string; readonly intent: () => unknown 
   { name: 'levels that are not an object', intent: () => neutralWireIntentWith('asToday') },
   { name: 'the levels field absent', intent: neutralWireIntentWithoutLevels },
   {
-    name: "Jazz's levels on a Neutral intent",
-    intent: () => neutralWireIntentWith(structuredClone(JAZZ_FIGURE_LEVELS)),
+    name: 'a musical profile field',
+    intent: () => ({
+      ...structuredClone(intentFor('Neutral')),
+      musicalProfile: { musicalProfile: 'Neutral', isCustom: false },
+    }),
   },
 ]
 
@@ -95,6 +120,19 @@ describe('generation worker protocol with figure levels', () => {
       }
     },
   )
+
+  it('round-trips an intent whose levels no musical profile gives, holding no profile', () => {
+    const intent = intentWithOwnLevels()
+    expect(Object.keys(intent)).not.toContain('musicalProfile')
+    const request = parseGenerationWorkerRequest(
+      structuredClone({ type: 'generate', id: 9, intent }),
+    )
+    const prewarm = parseGenerationWorkerPrewarm(structuredClone({ type: 'prewarm', intent }))
+    for (const parsed of [request.intent, prewarm.intent]) {
+      expect(parsed).toStrictEqual(intent)
+      expect(parsed.figureLevels.diatonicEnclosure).toBe('stronglyFavored')
+    }
+  })
 
   it.each(REFUSED)('refuses a request whose intent has $name', ({ intent }) => {
     expect(() =>
@@ -123,5 +161,26 @@ describe('generation worker protocol with figure levels', () => {
         intent: neutralWireIntentWithoutLevels(),
       }),
     ).toThrow(/GenerationWorkerRequest\.intent\.figureLevels is missing/u)
+    expect(() =>
+      parseGenerationWorkerRequest({
+        type: 'generate',
+        id: 10,
+        intent: neutralWireIntentWith({ ...NEUTRAL_FIGURE_LEVELS, blueNote: 'off' }),
+      }),
+    ).toThrow(/GenerationWorkerRequest\.intent\.figureLevels.*unknown figure "blueNote"/u)
+    expect(() =>
+      parseGenerationWorkerRequest({
+        type: 'generate',
+        id: 11,
+        intent: neutralWireIntentWith({ ...NEUTRAL_FIGURE_LEVELS, passingTone: 'often' }),
+      }),
+    ).toThrow(/GenerationWorkerRequest\.intent\.figureLevels.*unknown level "often"/u)
+  })
+
+  it('refuses an intent holding a musical profile as an unknown field', () => {
+    const intent = { ...structuredClone(intentFor('Jazz')), musicalProfile: 'Jazz' }
+    expect(() => parseGenerationWorkerRequest({ type: 'generate', id: 12, intent })).toThrow(
+      /GenerationWorkerRequest\.intent has unknown field "musicalProfile"/u,
+    )
   })
 })

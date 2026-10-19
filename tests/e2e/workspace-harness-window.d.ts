@@ -520,7 +520,8 @@ interface WorkspaceHarnessGenerationRequest {
   readonly writtenTonalCenter: string
   /** The intent's controls (its tonal center in concert pitch). */
   readonly controls: Readonly<Record<string, string | number>>
-  readonly musicalProfile: { readonly musicalProfile: string; readonly isCustom: boolean }
+  /** The intent's figure levels: each figure id to its level id. */
+  readonly figureLevels: Readonly<Record<string, string>>
   /** The instrument profile the intent carries: a built-in's from its id, or my instrument's own. */
   readonly instrumentProfile: WorkspaceHarnessInstrumentProfile
   /** Whether the request carried a carry-in (a session look-ahead joining the phrase before). */
@@ -557,7 +558,32 @@ interface WorkspaceHarnessBackgroundGeneration {
   readonly rejected: number
 }
 
+/**
+ * What an in-browser replay answered: the concert timeline (`JSON.stringify`, as
+ * `snapshot().timeline`), or a plain description of the generation failure the worker answered.
+ */
+type WorkspaceHarnessReplayAnswer =
+  | { readonly kind: 'timeline'; readonly timeline: string }
+  | { readonly kind: 'failure'; readonly description: string }
+
+/**
+ * The in-browser phrase replay (replay-seams.ts): a key decoded in the page by the app's own
+ * decoder and replayed through the real browser generation worker, on a worker client of its own
+ * that never prewarms; the workspace session never sees it.
+ */
+interface WorkspaceHarnessReplayApi {
+  /**
+   * Replay a phrase replay key (any version the decoder reads): its decoded intent through the
+   * real browser worker. A malformed key, or a worker crash, rejects with its error's message.
+   */
+  replayKey: (key: string) => Promise<WorkspaceHarnessReplayAnswer>
+  /** The key's `ifk3.` re-encoding: its decoded intent and phrase number, encoded again. */
+  reEncodeKey: (key: string) => string
+}
+
 interface WorkspaceHarnessApi {
+  /** The in-browser phrase replay (see `WorkspaceHarnessReplayApi`). */
+  replay: WorkspaceHarnessReplayApi
   /** Append deterministic seeds to the queue `nextSeed()` draws from first, in call order. */
   queueSeeds: (seeds: readonly number[]) => void
   /** Hold every subsequent `generate` call before it reaches the real worker, until released. */

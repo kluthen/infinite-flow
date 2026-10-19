@@ -8,8 +8,10 @@
 
 import type { IdlePhraseSettings } from '../composables/workspace-session-result'
 import type { GenerationControls } from '../domain/controls/generation-controls'
+import type { FigureId } from '../domain/figures/figure-levels'
 import type { GenerationIntent } from '../domain/generation/generation-intent'
 import {
+  figuresWithChangedLevels,
   freezeSessionSettings,
   sessionInstrumentProfile,
   sessionSettingsAtStart,
@@ -85,28 +87,29 @@ function instrumentDiffers(before: SessionSettings, after: SessionSettings): boo
 /**
  * Intent: whether phrase 1 is stale: a setting the generation reads has a different value now
  * than when phrase 1 was generated. Values are compared, not edits. Every generation control
- * counts but the tempo, the musical profile counts but not its customized mark, and the instrument
- * counts as the generation reads it; the session options, the mix, the theme and the window never
- * reach either side.
+ * counts but the tempo, each figure's level counts (a change of the customized mark alone changes
+ * none), and the instrument counts as the generation reads it; the session options, the mix, the
+ * theme and the window never reach either side.
  */
 // @spec-link [[rule_stale_phrase_prompt_at_start]]
 export function isPhraseOneStale(phraseOne: SessionSettings, current: SessionSettings): boolean {
   return (
     controlsDiffer(phraseOne.controls, current.controls) ||
-    phraseOne.musicalProfile.musicalProfile !== current.musicalProfile.musicalProfile ||
+    figuresWithChangedLevels(phraseOne, current).length > 0 ||
     instrumentDiffers(phraseOne, current)
   )
 }
 
-/** A setting that can make phrase 1 stale: a generation control but the tempo, or the profile. */
+/** A setting that can make phrase 1 stale: a generation control but the tempo, or a figure. */
 // @spec-link [[rule_stale_phrase_prompt_at_start]]
-export type StaleSetting = Exclude<keyof GenerationControls, 'tempo'> | 'musicalProfile'
+export type StaleSetting = Exclude<keyof GenerationControls, 'tempo'> | FigureId
 
 /**
  * Intent: every setting whose value differs from phrase 1's, over what the generation reads, as
  * `isPhraseOneStale` compares them, for the prompt to name: each generation control but the
- * tempo, the instrument's control also when my instrument's range or transposition differs, and
- * the musical profile (Neutral or Jazz). None when phrase 1 is not stale.
+ * tempo, the instrument's control also when my instrument's range or transposition differs, then
+ * each figure whose level differs, in FIGURE_IDS order (until presets replace the profile, a
+ * Neutral–Jazz change names the two chromatic figures). None when phrase 1 is not stale.
  */
 // @spec-link [[rule_stale_phrase_prompt_at_start]]
 export function staleSettingsOf(
@@ -120,7 +123,5 @@ export function staleSettingsOf(
   )
   if (!changed.includes('instrumentProfileId') && instrumentDiffers(phraseOne, current))
     changed.push('instrumentProfileId')
-  const profileChanged =
-    phraseOne.musicalProfile.musicalProfile !== current.musicalProfile.musicalProfile
-  return profileChanged ? [...changed, 'musicalProfile'] : changed
+  return [...changed, ...figuresWithChangedLevels(phraseOne, current)]
 }

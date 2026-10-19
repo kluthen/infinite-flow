@@ -6,7 +6,7 @@ import {
   makeGenerationControls,
 } from '../controls/generation-controls'
 import type { ProfileSelection } from '../controls/profile-selection'
-import { levelsForProfile, type FigureLevels } from '../figures/figure-levels'
+import { levelsForProfile, parseFigureLevels, type FigureLevels } from '../figures/figure-levels'
 import {
   MY_INSTRUMENT_ID,
   findBuiltInInstrumentProfile,
@@ -27,8 +27,9 @@ import {
  * The outer request accepted by Step 7 orchestration; its register intent may still be Varying.
  * `controls.tonalCenter` is always the concert-pitch tonal center the generator consumes;
  * `writtenTonalCenter` is the player's written-pitch selection it was converted from.
- * `figureLevels` are the seven figure levels the generator may read what it writes from; while the
- * player's choice is still a musical profile selection they are that profile's levels.
+ * `figureLevels` are the seven figure levels the generator may read what it writes from. The
+ * intent holds no musical profile: where the player's choice is still a musical profile selection,
+ * the factory turns it into that profile's levels.
  */
 // @spec-link [[module_generation_request_construction]]
 // @spec-link [[module_figure_levels]]
@@ -39,7 +40,6 @@ export interface GenerationIntent {
   readonly meter: Meter
   readonly controls: GenerationControls
   readonly writtenTonalCenter: PitchClass
-  readonly musicalProfile: ProfileSelection
   readonly figureLevels: FigureLevels
   readonly instrumentProfile: InstrumentProfile
   readonly registerIntent: RegisterIntent
@@ -48,19 +48,50 @@ export interface GenerationIntent {
 }
 
 /**
- * `controls.tonalCenter` here is the player's written-pitch selection, not concert pitch. It holds
- * no carry-in: an intent that receives one is built by `makeCarryInGenerationIntent`, which checks
- * the carry-in against the intent. `instrumentProfile` is my instrument's profile, given as data
- * exactly when the controls name `my-instrument`; a built-in is resolved from its id.
+ * The fields every intent input holds. `controls.tonalCenter` here is the player's written-pitch
+ * selection, not concert pitch. It holds no carry-in: an intent that receives one is built by
+ * `makeCarryInGenerationIntent`, which checks the carry-in against the intent. `instrumentProfile`
+ * is my instrument's profile, given as data exactly when the controls name `my-instrument`; a
+ * built-in is resolved from its id.
  */
 // @spec-link [[entity_my_instrument]]
-export interface GenerationIntentInput {
+interface GenerationIntentCommonInput {
   readonly requestId: RequestId
   readonly seed: Seed
   readonly controls: GenerationControls
-  readonly musicalProfile: ProfileSelection
   readonly instrumentProfile?: InstrumentProfile
 }
+
+/**
+ * The intent input whose figure levels come from a musical profile selection, mapped to that
+ * profile's levels through `levelsForProfile` whatever its customized mark: the player's choice
+ * until it becomes levels. It cannot also give levels.
+ */
+// @spec-link [[module_generation_request_construction]]
+// @spec-link [[entity_my_instrument]]
+export interface GenerationIntentInput extends GenerationIntentCommonInput {
+  readonly musicalProfile: ProfileSelection
+  readonly figureLevels?: never
+}
+
+/**
+ * The intent input that gives the figure levels themselves, holding no profile: regenerate, the
+ * worker rebuild and the replay decoder build their intents from it. It cannot also give a musical
+ * profile.
+ */
+// @spec-link [[module_generation_request_construction]]
+// @spec-link [[module_figure_levels]]
+export interface GenerationIntentLevelsInput extends GenerationIntentCommonInput {
+  readonly figureLevels: FigureLevels
+  readonly musicalProfile?: never
+}
+
+/**
+ * What the intent factory takes: the common fields plus exactly one source of figure levels, a
+ * musical profile selection or the levels. Giving both, or neither, is a type error.
+ */
+// @spec-link [[module_generation_request_construction]]
+export type GenerationIntentFactoryInput = GenerationIntentInput | GenerationIntentLevelsInput
 
 // @spec-link [[module_generation_request_construction]]
 export class GenerationIntentError extends Error {
@@ -140,6 +171,19 @@ export function selectedInstrumentProfile(
   return resolveInstrumentProfile(id, id === MY_INSTRUMENT_ID ? myInstrument?.profile : undefined)
 }
 
+/**
+ * Intent: the figure levels an input gives: its musical profile's levels through
+ * `levelsForProfile`, whatever the customized mark, or a fresh frozen copy of the levels it holds,
+ * keys in FIGURE_IDS order (an invalid value is refused as a FigureLevelsError).
+ */
+// @spec-link [[module_generation_request_construction]]
+// @spec-link [[module_figure_levels]]
+function inputFigureLevels(input: GenerationIntentFactoryInput): FigureLevels {
+  return input.musicalProfile === undefined
+    ? parseFigureLevels(input.figureLevels)
+    : levelsForProfile(input.musicalProfile.musicalProfile)
+}
+
 /** Intent: reduce an integer pitch-class arithmetic result into the closed 0..11 index range. */
 function pcIndexMod12(value: number): number {
   return ((value % 12) + 12) % 12
@@ -173,11 +217,12 @@ export function writtenToConcertTonalCenter(
  * `resolveInstrumentProfile`: the built-in table for a built-in id, the supplied profile for
  * `my-instrument`. An input that still holds a carry-in is a caller bug and is refused, never
  * silently dropped: such an intent is built by `makeCarryInGenerationIntent`, which checks the
- * carry-in against it. The figure levels come from the musical profile selection through
- * `levelsForProfile`, whatever its customized mark.
+ * carry-in against it. The figure levels come from the input's musical profile selection through
+ * `levelsForProfile`, whatever its customized mark, or are the input's own levels; the intent never
+ * holds the profile.
  */
 // @spec-link [[module_generation_request_construction]]
-export function makeGenerationIntent(input: GenerationIntentInput): GenerationIntent {
+export function makeGenerationIntent(input: GenerationIntentFactoryInput): GenerationIntent {
   if ('carryIn' in input && input.carryIn !== undefined) {
     throw new GenerationIntentError(
       'makeGenerationIntent builds an intent without a carry-in; use makeCarryInGenerationIntent.',
@@ -202,8 +247,7 @@ export function makeGenerationIntent(input: GenerationIntentInput): GenerationIn
     meter: FOUR_FOUR_METER,
     controls,
     writtenTonalCenter,
-    musicalProfile: { ...input.musicalProfile },
-    figureLevels: levelsForProfile(input.musicalProfile.musicalProfile),
+    figureLevels: inputFigureLevels(input),
     instrumentProfile,
     registerIntent,
   })
@@ -217,12 +261,12 @@ export interface GenerationIntentProviders {
 
 /** Explicit generation consumes the caller's supplied identity and seed. */
 // @spec-link [[module_generation_request_construction]]
-export function createGenerationIntent(input: GenerationIntentInput): GenerationIntent {
+export function createGenerationIntent(input: GenerationIntentFactoryInput): GenerationIntent {
   return makeGenerationIntent(input)
 }
 
 /**
- * Regeneration retains active controls/profile grammar and obtains a fresh injected seed and
+ * Regeneration retains the active controls and figure levels and obtains a fresh injected seed and
  * identity. My instrument's profile is handed on as data, since its id alone resolves nothing; a
  * built-in is resolved from its id again.
  */
@@ -241,7 +285,7 @@ export function regenerateGenerationIntent(
     requestId: providers.nextRequestId(),
     seed: providers.nextSeed(),
     controls: { ...previous.controls, tonalCenter: previous.writtenTonalCenter },
-    musicalProfile: previous.musicalProfile,
+    figureLevels: previous.figureLevels,
     ...suppliedProfile,
   })
 }

@@ -44,7 +44,7 @@ const INTENT_FIELDS = [
   'meter',
   'controls',
   'writtenTonalCenter',
-  'musicalProfile',
+  'figureLevels',
   'instrumentProfile',
   'registerIntent',
   'carryIn',
@@ -120,8 +120,12 @@ function successOf(report: PhraseReplayReport): PhraseReplaySuccessOutput {
   return report.output
 }
 
-/** Intent: assert the input section holds every intent field verbatim plus the envelope. */
+/**
+ * Intent: assert the input section holds every intent field verbatim plus the envelope, and no
+ * musical profile.
+ */
 function expectCompleteInput(report: PhraseReplayReport, intent: GenerationIntent): void {
+  expect(report.input).not.toHaveProperty('musicalProfile')
   for (const field of INTENT_FIELDS) {
     expect(report.input).toHaveProperty(field)
     expect(JSON.stringify(report.input[field])).toBe(JSON.stringify(intent[field] ?? null))
@@ -185,6 +189,7 @@ describe('replayPhraseKey reproduces generation', () => {
         for (const seed of SEEDS) {
           const intent = settingIntent(setting, seed)
           const report = replayPhraseKey(encodePhraseReplayKey(intent, 1))
+          expect(report.keyVersion).toBe('ifk3')
           expectReplayEqualsGeneration(report, intent)
           expectCompleteInput(report, intent)
           const output = successOf(report)
@@ -312,7 +317,7 @@ describe('reading a key', () => {
   it('rejects a malformed or unsupported key with a typed error before generating', () => {
     expect(() => replayPhraseKey('ifk1.!!')).toThrow(PhraseReplayKeyError)
     expect(() => replayPhraseKey('ifk1.AAAA')).toThrow(PhraseReplayKeyError)
-    expect(() => replayPhraseKey('ifk3.AAAA')).toThrow(/unsupported key version/u)
+    expect(() => replayPhraseKey('ifk4.AAAA')).toThrow(/unsupported key version/u)
     expect(() => replayDecodedPhraseKey(key, decodePhraseReplayKey(key))).not.toThrow()
   })
 })

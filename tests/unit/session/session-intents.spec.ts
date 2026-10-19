@@ -68,7 +68,7 @@ describe('settings locked at start', () => {
       expect(request.intent.writtenTonalCenter).toBe('D')
       expect(request.intent.controls.tonalCenter).toBe(phraseOne.intent.controls.tonalCenter)
       expect(request.intent.controls.tempo).toBe(60)
-      expect(request.intent.musicalProfile).toEqual({ musicalProfile: 'Neutral', isCustom: true })
+      expect(request.intent.figureLevels).toEqual(NEUTRAL_FIGURE_LEVELS)
       expect(request.intent.controls.instrumentProfileId).toBe('bb-tenor')
     }
     expect(driver.lastRequest().deadline).toBe(32)
