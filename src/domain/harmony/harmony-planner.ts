@@ -1,7 +1,6 @@
 import {
   COLLECTIONS,
   HARMONIC_MOTIONS,
-  MUSICAL_PROFILES,
   PITCH_CLASSES,
   TENSION_ARCS,
 } from '../controls/generation-controls'
@@ -75,11 +74,6 @@ function validateInput(input: HarmonyPlannerInput): HarmonyPlannerInput {
   if (!TENSION_ARCS.includes(input.tensionArc)) {
     throw new HarmonyPlannerInputError(
       `Unsupported tension arc ${JSON.stringify(input.tensionArc)}.`,
-    )
-  }
-  if (!MUSICAL_PROFILES.includes(input.profile)) {
-    throw new HarmonyPlannerInputError(
-      `Unsupported musical profile ${JSON.stringify(input.profile)}.`,
     )
   }
   return deepFreeze({ ...input })

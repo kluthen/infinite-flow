@@ -8,6 +8,7 @@
 
 import { describe, expect, it } from 'vitest'
 
+import { JAZZ_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import { buildIntent } from '../unit/domain/generation/carry-in/carry-in-fixture'
 import { QUARTERS, bar, context, figure } from '../unit/domain/pitch/validation/validation-fixtures'
@@ -39,7 +40,7 @@ function census(midis: readonly number[], overrides: Parameters<typeof context>[
 describe('figure census on hand-written phrases', () => {
   it('names one of each of the seven figures and the Tension scheduled figure', () => {
     const result = census(EVERY_FIGURE, {
-      profile: 'Jazz',
+      figureLevels: JAZZ_FIGURE_LEVELS,
       bars: EIGHTHS,
       binding: figure('diatonic_passing_or_neighbor', [25]),
     })

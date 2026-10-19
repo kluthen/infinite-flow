@@ -28,7 +28,6 @@ function domainFor(input: Partial<HarmonyPlannerInput>): HarmonyCandidateDomain 
     collection: 'Major',
     harmonicMotion: 'Gentle diatonic',
     tensionArc: 'Lift',
-    profile: 'Neutral',
     ...input,
   })
   if (domain.kind !== 'harmony_candidate_domain') throw new Error('Expected a harmony domain.')

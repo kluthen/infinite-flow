@@ -33,7 +33,6 @@ export function twoPhraseHarmonies(): readonly [readonly HarmonyEvent[], readonl
     collection: 'Major',
     harmonicMotion: 'Active diatonic',
     tensionArc: 'Settled',
-    profile: 'Neutral',
   })
   if (isNoLegalHarmonyPlan(domain)) throw new Error('no harmony for C major')
   const split = domain.candidates.find((candidate) => hasTwoChordMeasure(candidate.events))

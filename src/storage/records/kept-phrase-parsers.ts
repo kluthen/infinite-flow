@@ -27,6 +27,12 @@ import type { ProfileSelection } from '@/domain/controls/profile-selection'
 import { ConcertPitchError } from '@/domain/events/concert-pitch'
 import { deepEqual } from '@/domain/events/deep-equal'
 import { deepFreeze } from '@/domain/events/deep-freeze'
+import {
+  FigureLevelsError,
+  levelsForProfile,
+  parseFigureLevels,
+  type FigureLevels,
+} from '@/domain/figures/figure-levels'
 import { CarryInError, parseCarryIn } from '@/domain/generation/carry-in/carry-in'
 import {
   writtenToConcertTonalCenter,
@@ -91,6 +97,7 @@ const REFUSALS: readonly (abstract new (message: string) => Error)[] = [
   GenerationControlError,
   InstrumentProfileParseError,
   CarryInError,
+  FigureLevelsError,
   TimelineParseError,
   ConcertPitchError,
 ]
@@ -463,6 +470,26 @@ function assertIntentCoherent(
     )
 }
 
+/**
+ * Intent: the figure levels a stored intent holds beside its musical profile, or, for an intent
+ * stored before the levels existed (v3.0 and earlier), the levels its profile stands for. Stored
+ * levels go through the domain's parser and must be the stored profile's levels: an intent whose
+ * levels and profile disagree is refused, never reconciled.
+ */
+function parseStoredFigureLevels(
+  record: Record<string, unknown>,
+  musicalProfile: ProfileSelection,
+): FigureLevels {
+  const profileLevels = levelsForProfile(musicalProfile.musicalProfile)
+  if (!Object.hasOwn(record, 'figureLevels')) return profileLevels
+  const stored = parseFigureLevels(record.figureLevels)
+  if (!deepEqual(stored, profileLevels))
+    throw new KeptRecordError(
+      `Kept intent.figureLevels are not the levels of its musical profile "${musicalProfile.musicalProfile}".`,
+    )
+  return stored
+}
+
 const INTENT_FIELDS = [
   'requestId',
   'seed',
@@ -478,15 +505,16 @@ const INTENT_FIELDS = [
 /**
  * Intent: read a kept phrase's stored generation intent back into the intent it was generated
  * from, without rebuilding it: each field through the domain's own parser (request id, seed,
- * meter, controls, written tonal center, instrument profile from its stored data, carry-in), the
- * rest against the intent's shape, with exactly its keys (`carryIn` only when one was handed
- * forward), then its parts checked against each other. Returns a fresh deep-frozen intent equal
- * to the one stored; throws a KeptRecordError or the domain parser's own error for anything
- * invalid, never repairing it.
+ * meter, controls, written tonal center, figure levels, instrument profile from its stored data,
+ * carry-in), the rest against the intent's shape, with exactly its keys (`carryIn` only when one
+ * was handed forward; `figureLevels` absent from an intent stored before the levels existed, which
+ * reads back with its profile's levels), then its parts checked against each other. Returns a
+ * fresh deep-frozen intent equal to the one stored; throws a KeptRecordError or the domain
+ * parser's own error for anything invalid, never repairing it.
  */
 // @spec-link [[module_kept_session_codec]]
 export function parseKeptIntent(input: unknown): GenerationIntent {
-  const record = exactRecord(input, INTENT_FIELDS, 'Kept intent', ['carryIn'])
+  const record = exactRecord(input, INTENT_FIELDS, 'Kept intent', ['figureLevels', 'carryIn'])
   const requestId = parseRequestId(record.requestId)
   const seed = parseStoredSeed(record.seed)
   if (record.measureCount !== PHRASE_MEASURE_COUNT)
@@ -502,6 +530,7 @@ export function parseKeptIntent(input: unknown): GenerationIntent {
     record.musicalProfile,
     'Kept intent.musicalProfile',
   )
+  const figureLevels = parseStoredFigureLevels(record, musicalProfile)
   const instrumentProfile = parseStoredProfile(record.instrumentProfile)
   assertIntentCoherent(controls, writtenTonalCenter, instrumentProfile)
   const registerIntent = parseRegisterIntent(record.registerIntent, instrumentProfile, controls)
@@ -514,6 +543,7 @@ export function parseKeptIntent(input: unknown): GenerationIntent {
     controls,
     writtenTonalCenter,
     musicalProfile,
+    figureLevels,
     instrumentProfile,
     registerIntent,
     ...carried,

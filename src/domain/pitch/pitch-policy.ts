@@ -3,14 +3,14 @@ import type {
   Collection,
   Contour,
   Leapiness,
-  MusicalProfile,
   PitchClass,
 } from '../controls/generation-controls'
-import {
-  MUSICAL_PROFILE_CAPABILITIES,
-  type MusicalProfileCapabilities,
-} from '../controls/profile-selection'
 import { deepFreeze } from '../events/deep-freeze'
+import {
+  generatorCapabilities,
+  type FigureLevels,
+  type GeneratorCapabilities,
+} from '../figures/figure-levels'
 import type {
   AbstractTensionRequirement,
   HarmonyCandidate,
@@ -37,27 +37,29 @@ import type {
 export const DEFAULT_PITCH_SEARCH_FUEL = 20_000
 
 /**
- * Freeze a versioned pitch policy, filling the default search fuel when none is given and
- * resolving the profile's declared capabilities. `capabilities` may be overridden for tests, since
- * `MusicalProfile` is a closed union and a test-only profile name would require widening it.
+ * Freeze a versioned pitch policy, filling the default search fuel when none is given and working
+ * out the generator's capabilities from the request's figure levels. The levels themselves are not
+ * kept: the policy holds only the capabilities they give. `capabilities` may be overridden for
+ * tests, to exercise a capability no figure-levels value gives on its own.
  */
 // @spec-link [[mechanic_pitch_search_policy]]
 // @spec-link [[module_musical_profile_capabilities]]
 export function makePitchPolicy(input: {
-  readonly profile: MusicalProfile
+  readonly figureLevels: FigureLevels
   readonly collection: Collection
   readonly tonalCenter: PitchClass
   readonly contour: Contour
   readonly leapiness: Leapiness
   readonly arpeggioChaos: ArpeggioChaos
   readonly searchFuel?: number
-  readonly capabilities?: MusicalProfileCapabilities
+  readonly capabilities?: GeneratorCapabilities
 }): PitchPolicy {
+  const { figureLevels, capabilities, ...controls } = input
   return deepFreeze({
     version: 'pitch-search-v1' as const,
-    ...input,
+    ...controls,
     searchFuel: input.searchFuel ?? DEFAULT_PITCH_SEARCH_FUEL,
-    capabilities: input.capabilities ?? MUSICAL_PROFILE_CAPABILITIES[input.profile],
+    capabilities: capabilities ?? generatorCapabilities(figureLevels),
   })
 }
 

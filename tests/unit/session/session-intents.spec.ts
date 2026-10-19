@@ -7,6 +7,7 @@
 import { describe, expect, it } from 'vitest'
 
 import type { GenerationControls } from '@/domain/controls/generation-controls'
+import { JAZZ_FIGURE_LEVELS, NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import type { SessionSettings } from '@/session/session-types'
 import { BASE_CONTROLS } from '../domain/generation/carry-in/carry-in-fixture'
 import { SessionDriver, fakeViewport, phraseOneFor, sessionSettings } from './session-harness'
@@ -84,6 +85,28 @@ describe('settings locked at start', () => {
       expect(built).toEqual(chosen)
       expect(request.intent.writtenTonalCenter).toBe(tonalCenter)
       expect(concert).toBe(tonalCenter)
+    }
+  })
+})
+
+// @test-link [[module_generation_request_construction]]
+describe("every attempt carries the settings' profile's figure levels", () => {
+  it.each([
+    ['Neutral', false, NEUTRAL_FIGURE_LEVELS],
+    ['Jazz', false, JAZZ_FIGURE_LEVELS],
+    ['Jazz', true, JAZZ_FIGURE_LEVELS],
+  ] as const)('%s (customized: %s)', (profile, isCustom, levels) => {
+    const settings: SessionSettings = {
+      ...sessionSettings({ tempo: 60 }),
+      musicalProfile: { musicalProfile: profile, isCustom },
+    }
+    const driver = new SessionDriver({ at: 0, settings, phraseOne: phraseOneFor(settings) })
+    reachPhraseThree(driver)
+    driver.fail(20.5)
+
+    expect(driver.requests().length).toBeGreaterThan(1)
+    for (const request of driver.requests()) {
+      expect(request.intent.figureLevels).toStrictEqual(levels)
     }
   })
 })

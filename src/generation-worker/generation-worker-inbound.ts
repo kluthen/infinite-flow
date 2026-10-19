@@ -15,6 +15,11 @@ import {
 } from '../domain/controls/generation-controls'
 import type { ProfileSelection } from '../domain/controls/profile-selection'
 import { deepEqual } from '../domain/events/deep-equal'
+import {
+  FigureLevelsError,
+  parseFigureLevels,
+  type FigureLevels,
+} from '../domain/figures/figure-levels'
 import { parseCarryIn } from '../domain/generation/carry-in/carry-in'
 import { makeCarryInGenerationIntent } from '../domain/generation/carry-in/carry-in-intent'
 import { makeGenerationIntent, type GenerationIntent } from '../domain/generation/generation-intent'
@@ -166,10 +171,36 @@ const GENERATION_INTENT_ALLOWED_KEYS = new Set([
   'controls',
   'writtenTonalCenter',
   'musicalProfile',
+  'figureLevels',
   'instrumentProfile',
   'registerIntent',
   'carryIn',
 ])
+
+const FIGURE_LEVELS_CONTEXT = 'GenerationWorkerRequest.intent.figureLevels'
+
+/**
+ * Intent: parse an untrusted wire intent's figure levels through the domain's parser: a missing
+ * field or any FigureLevelsError (a missing or unknown figure, an unknown level, a non-object) is
+ * a GenerationWorkerProtocolError naming the field and the cause.
+ */
+// @spec-link [[module_generation_worker_protocol]]
+// @spec-link [[module_figure_levels]]
+function parseWireFigureLevels(record: Record<string, unknown>): FigureLevels {
+  if (!Object.hasOwn(record, 'figureLevels')) {
+    throw new GenerationWorkerProtocolError(`${FIGURE_LEVELS_CONTEXT} is missing.`)
+  }
+  try {
+    return parseFigureLevels(record.figureLevels)
+  } catch (error) {
+    if (error instanceof FigureLevelsError) {
+      throw new GenerationWorkerProtocolError(
+        `${FIGURE_LEVELS_CONTEXT} is invalid: ${error.message}`,
+      )
+    }
+    throw error
+  }
+}
 
 /**
  * Intent: validate the owning fields of an untrusted GenerationIntent record (requestId, seed,
@@ -184,7 +215,8 @@ const GENERATION_INTENT_ALLOWED_KEYS = new Set([
  * (dropped by a key or collection change), never missing. Shared by the worker request parser and
  * the phrase replay key decoder so neither keeps a parallel schema. A built-in's profile is
  * resolved from its id; my instrument's, which its id alone cannot give, is read from the record's
- * `instrumentProfile` through `parseMyInstrumentProfile`.
+ * `instrumentProfile` through `parseMyInstrumentProfile`. It reads no `figureLevels`: the rebuilt
+ * intent derives them from its musical profile, since the replay key's records hold none.
  */
 // @spec-link [[module_generation_worker_protocol]]
 // @spec-link [[module_phrase_replay_key]]
@@ -229,19 +261,22 @@ export function rebuildGenerationWorkerIntent(record: Record<string, unknown>): 
 }
 
 /**
- * Intent: parse one untrusted wire GenerationIntent by rejecting any unknown field, rebuilding the
- * intent from its owning fields via `rebuildGenerationWorkerIntent`, then asserting the rebuilt
- * intent deep-equals the received record field-for-field. A built-in's `instrumentProfile` and
- * every `registerIntent` are derived deterministically from those owning fields (my instrument's
- * profile is itself an owning field, validated as data), so this both validates them and proves
- * the wire value was not tampered with or corrupted in transit; an intent without a carry-in must
- * have no such field.
+ * Intent: parse one untrusted wire GenerationIntent by rejecting any unknown field, parsing its
+ * `figureLevels` (required) through the domain's figure-levels parser, rebuilding the intent from
+ * its owning fields via `rebuildGenerationWorkerIntent`, then asserting the rebuilt intent
+ * deep-equals the received record field-for-field. A built-in's `instrumentProfile`, every
+ * `registerIntent` and the `figureLevels` are derived deterministically from those owning fields
+ * (my instrument's profile is itself an owning field, validated as data), so this both validates
+ * them and proves the wire value was not tampered with or corrupted in transit: levels other than
+ * those the musical profile gives are refused. An intent without a carry-in must have no such
+ * field.
  */
 // @spec-link [[service_workspace_session_runner_factory]]
 // @spec-link [[entity_phrase_carry_in]]
 export function parseGenerationWorkerIntent(input: unknown): GenerationIntent {
   const record = asPlainRecord(input, 'GenerationWorkerRequest.intent')
   requireAllowedKeys(record, GENERATION_INTENT_ALLOWED_KEYS, 'GenerationWorkerRequest.intent')
+  parseWireFigureLevels(record)
 
   const rebuilt = rebuildGenerationWorkerIntent(record)
 

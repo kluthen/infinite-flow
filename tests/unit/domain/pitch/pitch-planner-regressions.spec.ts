@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import {
+  JAZZ_FIGURE_LEVELS,
+  NEUTRAL_FIGURE_LEVELS,
+  type FigureLevels,
+} from '@/domain/figures/figure-levels'
+import {
   FOUR_FOUR_METER,
   makeGenerationRequest,
   makeRequestId,
@@ -26,7 +31,7 @@ import { validatePitchPhrase } from '@/domain/pitch/validation/pitch-phrase-vali
 function fixture(
   options: Partial<{
     seed: number
-    profile: 'Neutral' | 'Jazz'
+    figureLevels: FigureLevels
     density: 'Quarter' | 'Sixteenth'
     contour: 'Wandering' | 'Arch'
     leapiness: 'Smooth' | 'Shaped' | 'Leaping' | 'Angular'
@@ -38,7 +43,6 @@ function fixture(
     collection: 'Major',
     harmonicMotion: 'Static',
     tensionArc: 'Settled',
-    profile: 'Neutral',
   })
   const rhythms = makeRhythmCandidateDomain({
     noteDensity: options.density ?? 'Quarter',
@@ -62,7 +66,7 @@ function fixture(
       registerWindow: makeRegisterWindow(48, 72),
     }),
     policy: makePitchPolicy({
-      profile: options.profile ?? 'Neutral',
+      figureLevels: options.figureLevels ?? NEUTRAL_FIGURE_LEVELS,
       collection: 'Major',
       tonalCenter: 'C',
       contour: options.contour ?? 'Wandering',
@@ -147,7 +151,7 @@ describe('pitch planner regressions', () => {
   })
 
   it('starts an enclosure after attack zero and rejects incomplete, same-side, and crossed paths', () => {
-    const input = fixture({ profile: 'Jazz' })
+    const input = fixture({ figureLevels: JAZZ_FIGURE_LEVELS })
     const attacks = pitchAttacks(input)
     const first = enumeratePitchCandidates(input, 1).find(
       (item) => item.role === 'chromatic_enclosure_upper' && item.reservation?.memberPosition === 0,
@@ -277,7 +281,11 @@ describe('pitch planner regressions', () => {
       const input = makeBoundPitchPlannerInput({
         ...base,
         harmony: changedHarmony,
-        policy: makePitchPolicy({ ...base.policy, arpeggioChaos }),
+        policy: makePitchPolicy({
+          ...base.policy,
+          figureLevels: NEUTRAL_FIGURE_LEVELS,
+          arpeggioChaos,
+        }),
       })
       const plan = expectValidPlan(input)
       for (const assignment of plan.phrase.assignments) {

@@ -55,7 +55,7 @@ function assertWindowFits(carryIn: CarryIn, receiver: CarryInReceiver): void {
 // @spec-link [[rule_harmony_change_drops_unfit_harmonic_carry_in]]
 export function carriedHarmonyFits(
   harmony: CarriedHarmony,
-  receiver: Pick<CarryInReceiver, 'controls' | 'musicalProfile'>,
+  receiver: Pick<CarryInReceiver, 'controls'>,
 ): boolean {
   const { controls } = receiver
   const domain = makeHarmonyCandidateDomain({
@@ -63,7 +63,6 @@ export function carriedHarmonyFits(
     collection: controls.collection,
     harmonicMotion: controls.harmonicMotion,
     tensionArc: controls.tension,
-    profile: receiver.musicalProfile.musicalProfile,
   })
   return domain.kind === 'harmony_candidate_domain' && carriedHarmonyEndsDomain(domain, harmony)
 }

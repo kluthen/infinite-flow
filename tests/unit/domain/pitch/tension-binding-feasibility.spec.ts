@@ -56,7 +56,6 @@ function harmonyCandidatesFor(
     collection: 'Major',
     harmonicMotion,
     tensionArc,
-    profile: 'Neutral',
   })
   if (domain.kind !== 'harmony_candidate_domain')
     throw new Error(`no legal harmony plan for ${harmonicMotion}/${tensionArc}`)

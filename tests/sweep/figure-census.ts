@@ -8,7 +8,7 @@
  * search, so free figures are classified from their definitions, by the census's own rules.
  */
 
-import { MUSICAL_PROFILE_CAPABILITIES } from '@/domain/controls/profile-selection'
+import { generatorCapabilities } from '@/domain/figures/figure-levels'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
 import type { TensionFigureKind } from '@/domain/harmony/harmony-types'
@@ -273,12 +273,11 @@ function contextOf(
       ...(request.carryIn === undefined ? {} : { carryIn: request.carryIn }),
     },
     policy: {
-      profile: intent.musicalProfile.musicalProfile,
       collection: intent.controls.collection,
       tonalCenter: intent.controls.tonalCenter,
       contour: intent.controls.contour,
       leapiness: intent.controls.leapiness,
-      capabilities: MUSICAL_PROFILE_CAPABILITIES[intent.musicalProfile.musicalProfile],
+      capabilities: generatorCapabilities(intent.figureLevels),
     },
     harmony: provenance.harmony,
     rhythm: provenance.rhythm,
