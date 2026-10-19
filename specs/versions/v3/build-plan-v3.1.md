@@ -1,13 +1,14 @@
 # Infinite Flow v3.1 — Build Plan
 
 Status: v4 (2026-10-19): gates D0 and R0 cleared, T1 not given, waves re-formed around it, code
-facts refreshed (spec D353–D356). Ready for owner approval; not approved.
+facts refreshed, design links on the frozen v3.1 design (spec D353–D356, ux D324). Ready for owner
+approval; not approved.
 
 Embellishment figures and presets, written from [master spec Part B](master-spec.md#part-b--v31)
-(v1.0, approved 2026-10-08, with spec D250 written in) and the v3.1 design at the root of
-[`ui_ux/`](../../../ui_ux/README.md) (ux D225–D251, approved by the owner on 2026-10-19: gate D0):
-everything marked `[v3.1 new]`, `[v3.1 changed]` or with a `_v3.1 …:_` change-block line, the v3.2
-marks ignored. The frozen v3.0 design is [`ui_ux/versions/v3.0/`](../../../ui_ux/versions/v3.0/README.md).
+(v1.0, approved 2026-10-08, with spec D250 written in) and the v3.1 design, frozen at
+[`ui_ux/versions/v3.1/`](../../../ui_ux/versions/v3.1/README.md) (ux D225–D251, approved by the
+owner on 2026-10-19: gate D0; frozen by ux D324): everything marked `[v3.1 new]`, `[v3.1 changed]`
+or with a `_v3.1 …:_` change-block line. The frozen v3.0 design is [`ui_ux/versions/v3.0/`](../../../ui_ux/versions/v3.0/README.md).
 Code facts: [embellishment-flags.md](embellishment-flags.md) and [presets.md](presets.md), written
 against `main` (bcf0cfb) on 2026-10-08; every file and symbol this plan names was checked again
 against `main` (d007b27, v3.0 released) on 2026-10-19, and the plan follows the code where the two
@@ -60,8 +61,8 @@ and `main` may stay in it while T1 waits, but no release is cut before wave 5 ha
 | Gate | What | Cleared by | Blocks | Status |
 | --- | --- | --- | --- | --- |
 | **R0** | v3.0 is released: the [v3.0 release gate](build-plan.md#chunk-26--v30-release-gate) passed and `3.0.0` is tagged, so chunk 2's corpus is recorded on the code v3.0 ships. | The owner, at v3.0's release | Chunks 0 and 2, and through them every chunk | done (2026-10-16, tag `v3.0.0`; spec D354) |
-| **D0** | The owner approves the v3.1 design ([`ui_ux/todo.md`](../../../ui_ux/todo.md), Next Unit); `ux-writer` copies it into `ui_ux/versions/v3.1/`; `spec-writer` repoints this plan's design links there. | The owner; `ux-writer`; `spec-writer` | Chunks 1 and 15, and through 1 the interface chunks (13, 14, 17, 18, 20) | approved (2026-10-19, spec D353), v3.1 only; the copy and the repointed links pending |
-| **T1** | The owner allows one `ux-writer` pass on `src/styles/theme.css` and `components.css` for part 1 of [`token-source-v3.1-v3.2.md`](../../../ui_ux/token-source-v3.1-v3.2.md), as he did for v3.0 (ux Q66). | The owner | Chunk 1, and through it 13, 14 and 17–20 (waves 4 and 5) and the release gate | not given (2026-10-19, spec D355): asked again before wave 4 |
+| **D0** | The owner approves the v3.1 design; `ux-writer` copies it into [`ui_ux/versions/v3.1/`](../../../ui_ux/versions/v3.1/README.md); `spec-writer` repoints this plan's design links there. | The owner; `ux-writer`; `spec-writer` | Chunks 1 and 15, and through 1 the interface chunks (13, 14, 17, 18, 20) | done (2026-10-19, spec D353; frozen by ux D324), v3.1 only |
+| **T1** | The owner allows one `ux-writer` pass on `src/styles/theme.css` and `components.css` for v3.1's token additions ([`token-source-v3.1.md`](../../../ui_ux/versions/v3.1/token-source-v3.1.md), part 1 of the root's `token-source-v3.1-v3.2.md`), as he did for v3.0 (ux Q66). | The owner | Chunk 1, and through it 13, 14 and 17–20 (waves 4 and 5) and the release gate | not given (2026-10-19, spec D355): asked again before wave 4 |
 | **DP** | The [cost-guard decision](#decision-point-the-passing-and-neighbor-rule), from chunk 11's M2 run. | The owner is told the figures and the outcome; `spec-writer` records it; `documentalist` records the atom | Chunk 20 (built, or dropped) | open (after chunk 11) |
 | **L1** | The owner's listening check of the figure levels ([H1](#hand-checks)); the shares are tuned from it. | The owner | The release gate's final M1 and M2 runs | open (after chunk 14) |
 | **L2** | The owner's listening check of the eight built-in presets ([H2](#hand-checks)). | The owner | The release gate | open (after chunk 14) |
@@ -321,8 +322,9 @@ Architecture capture: none
 
 - **Goal:** write v3.1's new tokens and component classes into the canonical token source, so every
   interface chunk can style its components without inventing a value.
-- **Scope:** `ux-writer`, not a coding executor. Everything in part 1 of
-  [`token-source-v3.1-v3.2.md`](../../../ui_ux/token-source-v3.1-v3.2.md), under `v3.1 new` /
+- **Scope:** `ux-writer`, not a coding executor. Everything in the frozen
+  [`token-source-v3.1.md`](../../../ui_ux/versions/v3.1/token-source-v3.1.md) (part 1 of the root's
+  `token-source-v3.1-v3.2.md`), under `v3.1 new` /
   `v3.1 changed` comments: the tokens `--preset-select-inline-size` and `--segment-mark-size`; the
   classes `preset-bar`, `preset-select` (its read-only state), `preset-actions`,
   `segment.is-marked`, `control-group-figures`, `control-group-intro`, `choice-list`,
@@ -332,8 +334,8 @@ Architecture capture: none
   in it.
 - **Files:** `src/styles/theme.css`, `src/styles/components.css`;
   `ui_ux/token-source-v3.1-v3.2.md`.
-- **Design docs:** [`ui_ux/token-source-v3.1-v3.2.md`](../../../ui_ux/token-source-v3.1-v3.2.md)
-  (part 1), [`ui_ux/README.md`](../../../ui_ux/README.md). No item directly; it unblocks 13, 14,
+- **Design docs:** [`ui_ux/versions/v3.1/token-source-v3.1.md`](../../../ui_ux/versions/v3.1/token-source-v3.1.md),
+  [`ui_ux/versions/v3.1/README.md`](../../../ui_ux/versions/v3.1/README.md). No item directly; it unblocks 13, 14,
   17, 18 and 20.
 - **Atoms:** none (styling is not business behaviour).
 - **Revisions:** none.
@@ -742,10 +744,10 @@ string). One data version per stored shape that changes, each with its own step 
   `tests/e2e/storage/kept-session.spec.ts` (extended).
 - **Spec sections:** [B9](master-spec.md#b9-the-generation-request-the-replay-key-and-kept-sessions),
   Part A §5.2, §5.4; items 20, 2 (old sessions' notes unchanged).
-- **Design docs:** [`flows/kept-sessions/handoff.md`](../../../ui_ux/flows/kept-sessions/handoff.md)
-  (Terms: Preset label), [`flows/review-and-export/handoff.md`](../../../ui_ux/flows/review-and-export/handoff.md)
-  (Saving the Session), [`screens/session-list/handoff.md`](../../../ui_ux/screens/session-list/handoff.md)
-  (Detail line), [`screens/last-session-review/handoff.md`](../../../ui_ux/screens/last-session-review/handoff.md)
+- **Design docs:** [`flows/kept-sessions/handoff.md`](../../../ui_ux/versions/v3.1/flows/kept-sessions/handoff.md)
+  (Terms: Preset label), [`flows/review-and-export/handoff.md`](../../../ui_ux/versions/v3.1/flows/review-and-export/handoff.md)
+  (Saving the Session), [`screens/session-list/handoff.md`](../../../ui_ux/versions/v3.1/screens/session-list/handoff.md)
+  (Detail line), [`screens/last-session-review/handoff.md`](../../../ui_ux/versions/v3.1/screens/last-session-review/handoff.md)
   (`review-summary`).
 - **Atoms:** `rule_earlier_kept_sessions_carried_over`, `rule_preset_label_kept_with_session`;
   (v3.0) `rule_kept_session_content`, `rule_kept_session_holds_no_acknowledgements`.
@@ -796,9 +798,9 @@ storage or the interface.
 - **Spec sections:** [B6](master-spec.md#b6-presets) (B6.1 to B6.6),
   [B4](master-spec.md#b4-words-used-in-this-part); items 9 (values, restrictions, rhythm support),
   10, 11, 14 (the rules), each proved again in the workspace by its interface chunk.
-- **Design docs:** [`flows/presets/handoff.md`](../../../ui_ux/flows/presets/handoff.md) (Choosing,
+- **Design docs:** [`flows/presets/handoff.md`](../../../ui_ux/versions/v3.1/flows/presets/handoff.md) (Choosing,
   Custom and the Restriction; Routing Rules: names, the limit, Save as new, Save changes),
-  [`screens/preset-sheet/handoff.md`](../../../ui_ux/screens/preset-sheet/handoff.md) (Key and mode,
+  [`screens/preset-sheet/handoff.md`](../../../ui_ux/versions/v3.1/screens/preset-sheet/handoff.md) (Key and mode,
   `name-alert`).
 - **Atoms:** `req_presets`, `rule_preset_contents`, `rule_key_and_mode_restriction`,
   `rule_built_in_preset_values`, `rule_choosing_preset_sets_its_settings`,
@@ -923,11 +925,11 @@ settings and the draw) and 16 (the state it loads into) build on it in the same 
   [B8.1](master-spec.md#b81-vary-settings), [B8.2](master-spec.md#b82-tension-across-phrases),
   [B11](master-spec.md#b11-what-v31-changes-in-v30-and-in-v2s-guarantees); items 10, 11, 13 (the
   figure step, Custom, restore, Tension across phrases), 20 (the label), 2 (guarded).
-- **Design docs:** [`flows/presets/handoff.md`](../../../ui_ux/flows/presets/handoff.md) (Choosing,
+- **Design docs:** [`flows/presets/handoff.md`](../../../ui_ux/versions/v3.1/flows/presets/handoff.md) (Choosing,
   Custom and the Restriction; Routing Rules: Choosing a preset, The phrase stays, Custom begins,
-  Opting out, During a session), [`flows/play-session/handoff.md`](../../../ui_ux/flows/play-session/handoff.md)
-  (Vary settings and presets), [`flows/generate-phrase/handoff.md`](../../../ui_ux/flows/generate-phrase/handoff.md)
-  (Choosing a preset), [`screens/phrase-workspace/handoff.md`](../../../ui_ux/screens/phrase-workspace/handoff.md)
+  Opting out, During a session), [`flows/play-session/handoff.md`](../../../ui_ux/versions/v3.1/flows/play-session/handoff.md)
+  (Vary settings and presets), [`flows/generate-phrase/handoff.md`](../../../ui_ux/versions/v3.1/flows/generate-phrase/handoff.md)
+  (Choosing a preset), [`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.1/screens/phrase-workspace/handoff.md)
   (`control-summary`; Custom; The preset during a session).
 - **Atoms:** `rule_choosing_preset_sets_its_settings`,
   `rule_choosing_preset_keeps_allowed_key_and_mode`, `rule_custom_selection`,
@@ -1008,10 +1010,10 @@ option and description, derived from the selection.
 - **Spec sections:** [B6.3](master-spec.md#b63-choosing-a-preset),
   [B6.4](master-spec.md#b64-the-selection-custom-and-the-highlight),
   [B10](master-spec.md#b10-for-the-interface-design); items 10, 11, 12.
-- **Design docs:** [`screens/phrase-workspace/handoff.md`](../../../ui_ux/screens/phrase-workspace/handoff.md)
+- **Design docs:** [`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.1/screens/phrase-workspace/handoff.md)
   (Layout Tree; The preset bar; The key and mode marks; Responsive Behavior; States: Custom,
-  Loading, during a session), [`flows/presets/handoff.md`](../../../ui_ux/flows/presets/handoff.md)
-  (The list, The highlight, Focus, Nothing is announced), [`ui_ux/motion.md`](../../../ui_ux/motion.md).
+  Loading, during a session), [`flows/presets/handoff.md`](../../../ui_ux/versions/v3.1/flows/presets/handoff.md)
+  (The list, The highlight, Focus, Nothing is announced), [`ui_ux/versions/v3.1/motion.md`](../../../ui_ux/versions/v3.1/motion.md).
 - **Atoms:** `req_presets`, `rule_restriction_highlight_never_blocks`, `rule_restriction_in_force`,
   `rule_custom_names_its_base`, `rule_built_in_preset_values`.
 - **Revisions:** none.
@@ -1058,7 +1060,7 @@ the levels in the pre-generation queue key (chunk 12) discard the prepared phras
 - **Spec sections:** [B5.2](master-spec.md#b52-four-levels),
   [B10](master-spec.md#b10-for-the-interface-design), [B8.3](master-spec.md#b83-pre-generation);
   items 1 (set at Idle, locked during a session), 11, 18 (a level change discards).
-- **Design docs:** [`screens/phrase-workspace/handoff.md`](../../../ui_ux/screens/phrase-workspace/handoff.md)
+- **Design docs:** [`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.1/screens/phrase-workspace/handoff.md)
   (Embellishments; Responsive Behavior: `control-group-figures`).
 - **Atoms:** `req_embellishment_figure_levels`, `rule_custom_selection`; (v3.0)
   `rule_pregeneration_discarded_on_change`.
@@ -1107,8 +1109,8 @@ Architecture capture: none
   [B8.3](master-spec.md#b83-pre-generation), [B12](master-spec.md#b12-existing-code-and-risks)
   (the redraw bound); items 13 (inside the restriction; none in force unbounded), 7 (pre-generated
   phrases equal the session's with any levels and a restriction), 18 (the restriction's half).
-- **Design docs:** [`flows/play-session/handoff.md`](../../../ui_ux/flows/play-session/handoff.md)
-  (Vary settings and presets: Key and mode moves), [`flows/generate-phrase/handoff.md`](../../../ui_ux/flows/generate-phrase/handoff.md)
+- **Design docs:** [`flows/play-session/handoff.md`](../../../ui_ux/versions/v3.1/flows/play-session/handoff.md)
+  (Vary settings and presets: Key and mode moves), [`flows/generate-phrase/handoff.md`](../../../ui_ux/versions/v3.1/flows/generate-phrase/handoff.md)
   (Prepared phrases and presets).
 - **Atoms:** `rule_vary_settings_stays_inside_restriction`, `rule_restriction_in_force`; (v3.0)
   `rule_pregenerated_phrase_matches_session`. Drift check: `module_settings_mutation`.
@@ -1165,10 +1167,10 @@ levels, restriction; data and app version) and its tolerant codec.
 - **Spec sections:** [B7](master-spec.md#b7-saving-on-the-device), Part A §4.2–§4.4; items 1
   (saved and restored), 15 (renaming is chunk 17's), 16 (writes nothing in both visits; lists as
   specified).
-- **Design docs:** [`flows/saved-data/handoff.md`](../../../ui_ux/flows/saved-data/handoff.md) (What
+- **Design docs:** [`flows/saved-data/handoff.md`](../../../ui_ux/versions/v3.1/flows/saved-data/handoff.md) (What
   Is Saved; Load: Player presets, The values win, Tolerant, Settings saved by v3.0; Presets while
-  saving is off), [`flows/presets/handoff.md`](../../../ui_ux/flows/presets/handoff.md) (At load,
-  Saving off), [`screens/phrase-workspace/handoff.md`](../../../ui_ux/screens/phrase-workspace/handoff.md)
+  saving is off), [`flows/presets/handoff.md`](../../../ui_ux/versions/v3.1/flows/presets/handoff.md) (At load,
+  Saving off), [`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.1/screens/phrase-workspace/handoff.md)
   (Saved settings).
 - **Atoms:** `rule_player_presets_saved_on_device`, `rule_preset_load_values_win`,
   `rule_presets_load_tolerantly`, `rule_saved_profile_becomes_preset`,
@@ -1242,12 +1244,12 @@ Chunks 18 and 19 build on it in the same wave.
   [B8.4](master-spec.md#b84-acknowledgement-exports-phone-width-and-the-instrument), Part A §4.5;
   items 14, 15 (rename keeps the selection), 16 (refused save, no deletion while saving is off),
   17, 21 (exports).
-- **Design docs:** [`flows/presets/handoff.md`](../../../ui_ux/flows/presets/handoff.md) (Saving,
+- **Design docs:** [`flows/presets/handoff.md`](../../../ui_ux/versions/v3.1/flows/presets/handoff.md) (Saving,
   Renaming and Deleting; Routing Rules: The actions row, Save as new, Save changes, Rename, Delete,
   Names, The limit, A refused save, Saving off, Persistent storage, Two tabs, Focus),
-  [`screens/preset-sheet/handoff.md`](../../../ui_ux/screens/preset-sheet/handoff.md),
-  [`flows/saved-data/handoff.md`](../../../ui_ux/flows/saved-data/handoff.md) (Notices: Preset not
-  saved; Asking for protection), [`screens/phrase-workspace/handoff.md`](../../../ui_ux/screens/phrase-workspace/handoff.md)
+  [`screens/preset-sheet/handoff.md`](../../../ui_ux/versions/v3.1/screens/preset-sheet/handoff.md),
+  [`flows/saved-data/handoff.md`](../../../ui_ux/versions/v3.1/flows/saved-data/handoff.md) (Notices: Preset not
+  saved; Asking for protection), [`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.1/screens/phrase-workspace/handoff.md)
   (`preset-actions`).
 - **Atoms:** `rule_preset_management_actions`, `rule_saving_preset_asks_its_restriction`,
   `rule_save_changes_restriction`, `rule_player_preset_names`, `rule_player_preset_limit`,
@@ -1307,9 +1309,9 @@ Architecture capture: none (it builds on chunk 17's)
 - **Spec sections:** [B7](master-spec.md#b7-saving-on-the-device),
   [B16](master-spec.md#b16-access-model), Part A §4.1; items 16 (Delete everything, Your data), 14
   (deleting).
-- **Design docs:** [`screens/your-data/handoff.md`](../../../ui_ux/screens/your-data/handoff.md),
-  [`flows/saved-data/handoff.md`](../../../ui_ux/flows/saved-data/handoff.md) (Your Data: the
-  deletions, After a preset's deletion), [`flows/presets/handoff.md`](../../../ui_ux/flows/presets/handoff.md)
+- **Design docs:** [`screens/your-data/handoff.md`](../../../ui_ux/versions/v3.1/screens/your-data/handoff.md),
+  [`flows/saved-data/handoff.md`](../../../ui_ux/versions/v3.1/flows/saved-data/handoff.md) (Your Data: the
+  deletions, After a preset's deletion), [`flows/presets/handoff.md`](../../../ui_ux/versions/v3.1/flows/presets/handoff.md)
   (Deleting from Your data).
 - **Atoms:** `rule_deleting_base_preset_leaves_custom`, `rule_presets_in_visits_that_save_nothing`;
   (v3.0) `rule_failed_read_offers_only_delete_everything`.
@@ -1347,8 +1349,8 @@ Architecture capture: none (it builds on chunks 14's and 17's)
   `tests/unit/components/workspace/workspace-pregeneration-discard.spec.ts` (extended),
   `tests/e2e/workspace/pregeneration.spec.ts` (extended).
 - **Spec sections:** [B8.3](master-spec.md#b83-pre-generation), Part A §8; item 18.
-- **Design docs:** [`flows/generate-phrase/handoff.md`](../../../ui_ux/flows/generate-phrase/handoff.md)
-  (Prepared phrases and presets), [`flows/presets/handoff.md`](../../../ui_ux/flows/presets/handoff.md)
+- **Design docs:** [`flows/generate-phrase/handoff.md`](../../../ui_ux/versions/v3.1/flows/generate-phrase/handoff.md)
+  (Prepared phrases and presets), [`flows/presets/handoff.md`](../../../ui_ux/versions/v3.1/flows/presets/handoff.md)
   (Prepared phrases).
 - **Atoms:** (v3.0) `req_idle_pregeneration`, `rule_pregenerated_phrase_matches_session`.
 - **Revisions:** revise `rule_pregeneration_discarded_on_change`.
@@ -1377,9 +1379,9 @@ Architecture capture: none (it builds on chunk 14's)
   `src/storage/records/preset-record.ts`; tests in each area.
 - **Spec sections:** [B5.6](master-spec.md#b56-the-cost-guard); item 8 (if adopted, the rule holds
   in the controls, Vary settings and loading).
-- **Design docs:** [`screens/phrase-workspace/handoff.md`](../../../ui_ux/screens/phrase-workspace/handoff.md)
+- **Design docs:** [`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.1/screens/phrase-workspace/handoff.md)
   (Embellishments: Passing tone and neighbor tone never both off),
-  [`flows/play-session/handoff.md`](../../../ui_ux/flows/play-session/handoff.md) (The figure step).
+  [`flows/play-session/handoff.md`](../../../ui_ux/versions/v3.1/flows/play-session/handoff.md) (The figure step).
 - **Atoms:** the new atom; `rule_vary_settings_figure_step`, `rule_presets_load_tolerantly`.
 - **Revisions:** none.
 - **Done when:** each of the three places holds the rule (a control test, a seeded Vary settings

@@ -663,6 +663,7 @@ D289 is unused.
 
 - **D356 (2026-10-19): v3.1's plan v4: waves re-formed around T1, code facts refreshed.** Waves 0–3
   hold every chunk T1 does not block, waves 4 and 5 the rest; chunk 3 no longer waits on chunk 2
-  (an order-only edge: wave 0 changes no generator code), and chunk 14 gains a capture so 19 and 20
-  can share its wave. The code facts are checked against `main` (d007b27). Status: ready for owner
-  approval. Now in: [build-plan-v3.1.md](versions/v3/build-plan-v3.1.md#waves).
+  (an order-only edge: wave 0 changes no generator code), chunk 14 gains a capture so 19 and 20
+  can share its wave, and chunk 16 waits on chunk 9 (data version 2 first). The code facts are
+  checked against `main` (d007b27); the design links point at the frozen v3.1 design (ux D324).
+  Status: ready for owner approval. Now in: [build-plan-v3.1.md](versions/v3/build-plan-v3.1.md#waves).
