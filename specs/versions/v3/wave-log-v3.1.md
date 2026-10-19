@@ -206,3 +206,9 @@ with no owner; chunk 8's drift list and size; chunk 10's key labels) and a v3.0 
   reader). Chunk 8 routes that parser's `levelsForProfile` call through `profile-to-levels.ts`
   (`module_stored_profile_to_levels`). For the sync: `module_harmony_candidate_domain` no longer
   consumes a profile.
+- **Plan v8 (6b26988, `spec-writer`, D367):** version 1 holds up to three phrase shapes between
+  chunks 4 and 9 (profile only, profile and its levels, levels only). Chunk 8's reader takes all
+  three (in the both-fields shape the levels must equal the profile's, or the record is
+  unreadable) and routes the parser's `levelsForProfile` call through `profile-to-levels.ts`, with
+  two Done when items for that. Chunk 9's version 1 database in its Done when holds four records,
+  one per shape plus a damaged one. Next ids D368, O232.
