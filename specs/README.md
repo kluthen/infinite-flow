@@ -33,11 +33,11 @@ Status: draft v0.76
 - **Next: the rest of v3** ([v3](versions/v3/README.md#releases-d211)):
   - **v3.1:** embellishment flags and presets. Master spec
     [Part B](versions/v3/master-spec.md#part-b--v31), approved (D239); design approved (D353);
-    build plan [v3.1](versions/v3/build-plan-v3.1.md), v5 (v4 approved, D357): waves 0–3 go
+    build plan [v3.1](versions/v3/build-plan-v3.1.md), v7 (v4 approved, D357): waves 0–3 go
     ahead and may merge into `main`, waves 4 and 5 wait for the token-source pass the owner has not
     allowed yet (D355); no release before wave 5 merges. Entry budget 300 KiB (D359); v3.0's
-    contract atoms v3.1 revises take a MAJOR bump, its wordings confirmed before wave 1's sync
-    (D361, D362).
+    contract atoms v3.1 revises take a MAJOR bump, its wordings confirmed (D361–D363); wave 0
+    merged, wave 1's preflight corrections written in (D364–D366).
   - **v3.2:** Jam, the key and mode suggestion, the rhythm lock and its mutation option. Master
     spec [Part C](versions/v3/master-spec.md#part-c--v32), approved (D239); build plan
     [v3.2](versions/v3/build-plan-v3.2.md), v3, not approved. The contract wording v3.1 and
@@ -67,7 +67,7 @@ Status: draft v0.76
 - [Versions](versions/README.md): one folder per version (v1, v2, v3, v4, v5+) holding its scope,
   dependencies and version-specific open questions. Also holds the cross-version
   [prerequisites](versions/prerequisites.md). v3's build plans: [v3.0](versions/v3/build-plan.md) (complete; chunk 26 is the release gate's
-  record), [v3.1](versions/v3/build-plan-v3.1.md) (v5; v4 approved, D357; on the
+  record), [v3.1](versions/v3/build-plan-v3.1.md) (v7; v4 approved, D357; on the
   build-plan model with the shared [v3 build workflow](versions/v3/build-workflow.md), D349,
   D356), [v3.2](versions/v3/build-plan-v3.2.md) (v3, on the build-plan model, D350; not approved)
   and [v3.3](versions/v3/build-plan-v3.3.md) (v3, on the build-plan model, D351; not approved;

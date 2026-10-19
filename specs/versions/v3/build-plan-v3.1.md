@@ -1,6 +1,10 @@
 # Infinite Flow v3.1 — Build Plan
 
-Status: v6 (2026-10-19): gate CS cleared, wave 1 no longer waits on it (spec D363).
+Status: v7 (2026-10-19): wave 1's preflight corrections, before its first chunk: chunk 9's step
+reads both shapes and stays in wave 2; the kept summary's profile comes from the session history;
+chunk 4 takes the profile out of the pitch policy and the harmony planner; chunk 8 owns the
+replay-key specs and the stale prompt's labels (spec D364–D366).
+v6 (2026-10-19): gate CS cleared, wave 1 no longer waits on it (spec D363).
 v5 (2026-10-19): entry budget 300 KiB, gate CS for the MAJOR contract bump (it blocks wave 1's
 sync), the contract atoms each chunk revises, chunk 8 removes chunk 2's lint exception (spec
 D359–D362).
@@ -37,28 +41,32 @@ on d007b27); where code moves again before a wave starts, the wave preflight fol
 purpose. Each enforcement point changes in exactly one chunk, never "along the way". Test titles are
 as on `main` (d007b27); a chunk finds each one by its title, not its line.
 
-| What holds today                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | Changed in                                                                                           | Becomes                                                                                                                                                               |
-| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Contract guarantees `rule_mutation_profile_flip_keeps_controls` (removed), `rule_mutation_marks_profile_customized` 0.3, `rule_mutation_setting_scales` 0.2, `rule_mutation_reverts_at_session_end` 0.2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | **Applied** 2026-10-08 (CONTRACT 3.0, D246)                                                          | The new wordings hold for v3.0 and v3.1 alike. The flip atom itself is deleted at [chunk 12](#chunk-12--presets-replace-the-musical-profile)'s wave sync.             |
-| The chromatic capability looked up from the profile's name: `MUSICAL_PROFILE_CAPABILITIES` (`src/domain/controls/profile-selection.ts:40-45`), read in `makePitchPolicy` (`src/domain/pitch/pitch-policy.ts:60`) and `melodicFailures` (`src/domain/validation/generation-result-validator.ts:141`)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | [4](#chunk-4--figure-levels-in-the-generation-request)                                               | Derived from the figure levels the request carries; no code reads a profile or preset name to decide a note.                                                          |
-| "Neutral is entirely diatonic", a project policy in [pitch-planner-validation.md](../../../docs/music/pitch-planner-validation.md#authority-and-ownership) and `rule_neutral_profile_diatonic_pitches`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | [5](#chunk-5--levels-gate-the-figures)                                                               | A property of Neutral's levels: a chromatic note is refused only when both chromatic figures are Off.                                                                 |
-| The profile flip in Vary settings: `tests/unit/session/settings-mutation-scales.spec.ts` › 'flips Neutral and Jazz, keeps every control and marks the profile customized', › 'marks the profile customized after a profile-controlled step, keeping its identity', › 'leaves the customized mark as it was after a step of a value the profile does not control', › 'classifies every eligible setting as profile-controlled, free, or the profile itself', › 'holds one scale per eligible setting…'; `tests/unit/session/settings-mutation.spec.ts` › 'changes exactly one eligible setting by one step, never tempo or the instrument' (its `musicalProfile` branch); `tests/e2e/session/session-vary-settings.spec.ts` › 'a profile flip shows in place at its phrase with nothing moving, and a hidden tab restores it'; the `VARIED` fixture of `tests/unit/components/workspace/WorkspaceShell-vary-settings.spec.ts` | [12](#chunk-12--presets-replace-the-musical-profile)                                                 | The figure step in the profile's place in the draw; Tension, Leapiness, Arpeggio chaos and the levels mark Custom.                                                    |
-| A profile sets seven controls and leaves Tension alone: `tests/unit/domain/controls/generation-controls.spec.ts` › 'applies each complete immutable bundle and reselecting replaces arbitrary custom values', › 'retains grammar identity on controlled custom edits and never mutates preset definitions', › 'does not mark a profile custom after a non-profile-controlled edit'; `tests/e2e/release/defaults-and-controls.spec.ts` › 'the Neutral preset sets its seven controlled values', › 'the Jazz preset sets its seven controlled values', › 'manually editing a preset-controlled value clears the preset selection to custom'; `tests/unit/composables/use-generation-session.spec.ts` › 'marks the applied preset custom after a manual rhythmic-variety edit, the same as any other preset field'                                                                                                              | [12](#chunk-12--presets-replace-the-musical-profile)                                                 | A preset sets ten controls and seven levels; Custom names its base.                                                                                                   |
-| The "Custom (Jazz grammar)" and "grammar retained" copy: `tests/unit/components/controls/control-options.spec.ts` › 'shows the retained grammar in parentheses during a custom edit'; `tests/unit/components/controls/ControlPanel.spec.ts` › 'shows the control-summary line and recomputes it…', › 'shows the retained-grammar custom status text and clears the preset selection', › 'holds both preset status texts in one cell…'; `WorkspaceShell-vary-settings.spec.ts` › 'shows the controller's settings during a session, and the player's own again at its end'; `session-vary-settings.spec.ts` › 'a register stepped from Varying is Varying again after Stop, and the flag is set in the Review'                                                                                                                                                                                                                | 12 (summary copy), [13](#chunk-13--the-preset-bar-and-the-key-and-mode-marks) (the status line goes) | "Custom, based on {name}" in the box and the summary; the status line is removed.                                                                                     |
-| Replay keys encode the profile name and its customized flag: `tests/unit/generation-worker/phrase-replay-key.spec.ts` (the `tupleOf` helper, › 'round-trips a custom Jazz profile', › 'is one line of the ifk1 prefix and unpadded base64url', › 'rejects a payload that is not a 7-entry array', › 'rejects a slot of the wrong type and names it', › 'refuses a key that is not one well-formed ifk1 key'); the `ifk1`-bound cases of `phrase-replay.spec.ts` and `tests/unit/scripts/replay-phrase-script.spec.ts`                                                                                                                                                                                                                                                                                                                                                                                                        | [8](#chunk-8--replay-key-ifk3-the-profile-leaves-the-request)                                        | Encoding writes `ifk3.` for every phrase; every `ifk1.` and `ifk2.` decoding test stays (`ifk2.`'s in `phrase-replay-key-ifk2.spec.ts` and the replay script's spec). |
-| The worker refuses any extra field in the profile selection (`parseProfileSelection`, `PROFILE_SELECTION_ALLOWED_KEYS`, `src/generation-worker/generation-worker-inbound.ts:41-58`). No test covers that refusal today.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | 8                                                                                                    | The intent has no profile selection; the worker checks the seven levels instead, refusing an unknown figure or level, with a test.                                    |
-| v3.0's settings record holds the musical profile selection (the `profileSelection` record of `src/storage/records/settings-record.ts`, [v3.0 chunk 6](build-plan.md#chunk-6--tolerant-settings-codec))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | [16](#chunk-16--presets-and-levels-on-the-device)                                                    | The preset selection and seven level records, migrated at open (data version 3).                                                                                      |
-| v3.0's kept phrases hold the profile in their reproduction inputs (`parseKeptIntent`, `src/storage/records/kept-phrase-parsers.ts`); the summary holds the musical profile with its customized flag (`src/storage/records/kept-session-summary.ts`) ([v3.0 chunk 9](build-plan.md#chunk-9--kept-session-record))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | 8 (read), [9](#chunk-9--kept-sessions-hold-the-levels-and-the-preset-label) (migrated)               | The seven levels, and the session's preset label, migrated at open (data version 2).                                                                                  |
-| v3.0's pre-generation discards on a change of the profile, part of its queue key (`settingsKeyOf`, `src/components/workspace/workspace-pregeneration.ts`; [v3.0 chunk 24](build-plan.md#chunk-24--pre-generation-at-idle))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | 12, 15, [19](#chunk-19--pre-generation-discards)                                                     | A preset choice that changes something, a level, or the restriction in force (B8.3).                                                                                  |
-| The cold-generation goldens (`tests/unit/domain/generation/orchestration/cold-generation-golden/`), `generation-outcome-golden.spec.ts`, the `ifk1.` corpus recorded on v2.0 (`tests/fixtures/replay-keys/ifk1-v2.0.json`, read by `phrase-replay-key-corpus.spec.ts`) and v3.0's `ifk2.` tests (`phrase-replay-key-ifk2.spec.ts`; v3.0 recorded no `ifk2.` corpus)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | **Never**                                                                                            | They stay byte-identical: Neutral and Jazz reproduce v3.0 (item 2). A chunk that needs to touch one is wrong.                                                         |
+| What holds today                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | Changed in                                                                                           | Becomes                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Contract guarantees `rule_mutation_profile_flip_keeps_controls` (removed), `rule_mutation_marks_profile_customized` 0.3, `rule_mutation_setting_scales` 0.2, `rule_mutation_reverts_at_session_end` 0.2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | **Applied** 2026-10-08 (CONTRACT 3.0, D246)                                                          | The new wordings hold for v3.0 and v3.1 alike. The flip atom itself is deleted at [chunk 12](#chunk-12--presets-replace-the-musical-profile)'s wave sync.                                                                                                                                                                                                                                                                                                                  |
+| The chromatic capability looked up from the profile's name: `MUSICAL_PROFILE_CAPABILITIES` (`src/domain/controls/profile-selection.ts:40-45`), read in `makePitchPolicy` (`src/domain/pitch/pitch-policy.ts:60`) and `melodicFailures` (`src/domain/validation/generation-result-validator.ts:141`)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | [4](#chunk-4--figure-levels-in-the-generation-request)                                               | Derived from the figure levels the request carries; no code reads a profile or preset name to decide a note.                                                                                                                                                                                                                                                                                                                                                               |
+| "Neutral is entirely diatonic", a project policy in [pitch-planner-validation.md](../../../docs/music/pitch-planner-validation.md#authority-and-ownership) and `rule_neutral_profile_diatonic_pitches`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | [5](#chunk-5--levels-gate-the-figures)                                                               | A property of Neutral's levels: a chromatic note is refused only when both chromatic figures are Off.                                                                                                                                                                                                                                                                                                                                                                      |
+| The profile flip in Vary settings: `tests/unit/session/settings-mutation-scales.spec.ts` › 'flips Neutral and Jazz, keeps every control and marks the profile customized', › 'marks the profile customized after a profile-controlled step, keeping its identity', › 'leaves the customized mark as it was after a step of a value the profile does not control', › 'classifies every eligible setting as profile-controlled, free, or the profile itself', › 'holds one scale per eligible setting…'; `tests/unit/session/settings-mutation.spec.ts` › 'changes exactly one eligible setting by one step, never tempo or the instrument' (its `musicalProfile` branch); `tests/e2e/session/session-vary-settings.spec.ts` › 'a profile flip shows in place at its phrase with nothing moving, and a hidden tab restores it'; the `VARIED` fixture of `tests/unit/components/workspace/WorkspaceShell-vary-settings.spec.ts` | [12](#chunk-12--presets-replace-the-musical-profile)                                                 | The figure step in the profile's place in the draw; Tension, Leapiness, Arpeggio chaos and the levels mark Custom.                                                                                                                                                                                                                                                                                                                                                         |
+| A profile sets seven controls and leaves Tension alone: `tests/unit/domain/controls/generation-controls.spec.ts` › 'applies each complete immutable bundle and reselecting replaces arbitrary custom values', › 'retains grammar identity on controlled custom edits and never mutates preset definitions', › 'does not mark a profile custom after a non-profile-controlled edit'; `tests/e2e/release/defaults-and-controls.spec.ts` › 'the Neutral preset sets its seven controlled values', › 'the Jazz preset sets its seven controlled values', › 'manually editing a preset-controlled value clears the preset selection to custom'; `tests/unit/composables/use-generation-session.spec.ts` › 'marks the applied preset custom after a manual rhythmic-variety edit, the same as any other preset field'                                                                                                              | [12](#chunk-12--presets-replace-the-musical-profile)                                                 | A preset sets ten controls and seven levels; Custom names its base.                                                                                                                                                                                                                                                                                                                                                                                                        |
+| The "Custom (Jazz grammar)" and "grammar retained" copy: `tests/unit/components/controls/control-options.spec.ts` › 'shows the retained grammar in parentheses during a custom edit'; `tests/unit/components/controls/ControlPanel.spec.ts` › 'shows the control-summary line and recomputes it…', › 'shows the retained-grammar custom status text and clears the preset selection', › 'holds both preset status texts in one cell…'; `WorkspaceShell-vary-settings.spec.ts` › 'shows the controller's settings during a session, and the player's own again at its end'; `session-vary-settings.spec.ts` › 'a register stepped from Varying is Varying again after Stop, and the flag is set in the Review'                                                                                                                                                                                                                | 12 (summary copy), [13](#chunk-13--the-preset-bar-and-the-key-and-mode-marks) (the status line goes) | "Custom, based on {name}" in the box and the summary; the status line is removed.                                                                                                                                                                                                                                                                                                                                                                                          |
+| Replay keys encode the profile name and its customized flag: `tests/unit/generation-worker/phrase-replay-key.spec.ts` (the `tupleOf` helper, › 'round-trips a custom Jazz profile', › 'is one line of the ifk1 prefix and unpadded base64url', › 'rejects a payload that is not a 7-entry array', › 'rejects a slot of the wrong type and names it', › 'refuses a key that is not one well-formed ifk1 key'); the `ifk1`-bound cases of `phrase-replay.spec.ts` and `tests/unit/scripts/replay-phrase-script.spec.ts`                                                                                                                                                                                                                                                                                                                                                                                                        | [8](#chunk-8--replay-key-ifk3-the-profile-leaves-the-request)                                        | Encoding writes `ifk3.` for every phrase; every `ifk1.` and `ifk2.` decoding test stays (`ifk2.`'s in `phrase-replay-key-ifk2.spec.ts` and the replay script's spec).                                                                                                                                                                                                                                                                                                      |
+| The worker refuses any extra field in the profile selection (`parseProfileSelection`, `PROFILE_SELECTION_ALLOWED_KEYS`, `src/generation-worker/generation-worker-inbound.ts:41-58`). No test covers that refusal today.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | 8                                                                                                    | The intent has no profile selection; the worker checks the seven levels instead, refusing an unknown figure or level, with a test.                                                                                                                                                                                                                                                                                                                                         |
+| v3.0's settings record holds the musical profile selection (the `profileSelection` record of `src/storage/records/settings-record.ts`, [v3.0 chunk 6](build-plan.md#chunk-6--tolerant-settings-codec))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | [16](#chunk-16--presets-and-levels-on-the-device)                                                    | The preset selection and seven level records, migrated at open (data version 3).                                                                                                                                                                                                                                                                                                                                                                                           |
+| v3.0's kept phrases hold the profile in their reproduction inputs (`parseKeptIntent`, `src/storage/records/kept-phrase-parsers.ts`); the summary holds the musical profile with its customized flag (`src/storage/records/kept-session-summary.ts`) ([v3.0 chunk 9](build-plan.md#chunk-9--kept-session-record))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | 8 (read), [9](#chunk-9--kept-sessions-hold-the-levels-and-the-preset-label) (migrated)               | The seven levels, and the session's preset label, migrated at open (data version 2).                                                                                                                                                                                                                                                                                                                                                                                       |
+| v3.0's pre-generation discards on a change of the profile, part of its queue key (`settingsKeyOf`, `src/components/workspace/workspace-pregeneration.ts`; [v3.0 chunk 24](build-plan.md#chunk-24--pre-generation-at-idle))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | 12, 15, [19](#chunk-19--pre-generation-discards)                                                     | A preset choice that changes something, a level, or the restriction in force (B8.3).                                                                                                                                                                                                                                                                                                                                                                                       |
+| The recorded fixtures: the cold-generation goldens (`cold-generation-golden/*.golden.v1.json`), the cases and hashes of `generation-outcome-golden.v3.ts`, the `ifk1.` corpus recorded on v2.0 (`tests/fixtures/replay-keys/ifk1-v2.0.json`) and chunk 2's v3.0 corpus (`v3.0-neutral-jazz.json`, the first holding `ifk2.` keys); and the replay assertions over them: each key decodes and replays to its recorded phrase, each golden case gives its recorded outcome                                                                                                                                                                                                                                                                                                                                                                                                                                                     | **Never**                                                                                            | They stay byte-identical and every such assertion passes as written: Neutral and Jazz reproduce v3.0 (item 2). A chunk that needs to change one is wrong. The spec files around them may change only to pass the same inputs in a new form: chunk 8 replaces the re-encode cases (re-encoding now writes `ifk3.`) and reads a key's profile from its raw tuple; a chunk that drops the profile from the intent factory's input passes `levelsForProfile(profile)` instead. |
 
 Every replaced test gets its v3.1 counterpart in the same chunk, and the release gate lists each
 pair (item 22).
 
 **The transitional interface.** Between chunks 12 (wave 3) and 13 (wave 4) the box offers Neutral
 and Jazz only, through the old two-segment control, and the seven levels have no control yet (chunk
-14, wave 5); every rule holds, only the list is short. Waves 0–3 may merge into `main` in that state
-and `main` may stay in it while T1 waits, but no release is cut before wave 5 has merged.
+14, wave 5); every rule holds, only the list is short. From chunk 8 (wave 1) the stale-phrase prompt
+names a Neutral–Jazz change by the labels of the two chromatic figures, whose controls come with
+chunk 14 (wave 5). Between waves 1 and 2, data version 1's kept sessions hold two phrase shapes,
+a profile (v3.0) or the levels (chunk 8), both read; chunk 9's version 2 step (wave 2) carries both
+over (spec D364). Waves 0–3 may merge into `main` in that state and `main` may stay in it while T1
+waits, but no release is cut before wave 5 has merged.
 
 ## Gates
 
@@ -181,8 +189,8 @@ The [build workflow](build-workflow.md) holds for v3.1 with release name `v3.1`.
 - **Corpus guard** (a chunk check): chunks 4–9, 12, 15 and 20 run chunk 2's v3.0 corpus
   (`tests/unit/generation-worker/phrase-replay-key-v30-corpus.spec.ts`, the first corpus holding
   `ifk2.` keys), the `ifk1-v2.0.json` corpus (`phrase-replay-key-corpus.spec.ts`), the `ifk2.`
-  tests and the cold-generation goldens unchanged. Red means Neutral or Jazz no longer reproduces
-  v3.0.
+  decoding tests and the cold-generation goldens, their fixtures and replay assertions unchanged
+  (the Read-first table's **Never** row). Red means Neutral or Jazz no longer reproduces v3.0.
 - **Sweep at the wave gate**: chunks 4, 5, 6, 7, 12 and 15 place it there, so waves 1–3 run it.
 - **Intent**: the DRAFT atoms are tagged `release-v3.1`, the atoms to revise `changes-in-v3.1`;
   revisions are part E and drift checks part F of the
@@ -461,17 +469,41 @@ wave.
     `buildAttemptIntent` passes it through unchanged.
   - `makePitchPolicy` and `melodicFailures` stop looking up `MUSICAL_PROFILE_CAPABILITIES` by name:
     `allowsChromaticApproach` becomes "the chromatic approach or the chromatic enclosure is not
-    Off". These are the only two lookups by name (`window-search.ts` only passes the name,
-    `generation-intent.ts` only carries it). Out: the seven other reads of that flag (five in
+    Off". These are the only two lookups by name in the app (`generation-intent.ts` only carries
+    the name). The pitch policy takes the levels in place of the profile, which it read only for
+    that lookup: `PitchPolicy` (`pitch-types.ts`) and the validation context's policy
+    (`pitch-validation-types.ts`) lose `profile`, and `makePitchPolicy`'s one call
+    (`bindingPitchPolicy`, `window-search.ts`) passes `intent.figureLevels`. So chunk 8, which has no
+    path to chunk 5 in this wave, touches no pitch-search file. The test-side readers of the table
+    follow: the figure census's `contextOf` (`tests/sweep/figure-census.ts`, which `test:sweep` runs
+    through `figure-census.spec.ts`) and `validation-fixtures.ts`, with the pitch tests'
+    `makePitchPolicy({ profile })` calls. Out: the seven other reads of that flag (five in
     `pitch-candidates.ts`, one each in `pitch-context.ts` and `figure-rules.ts`), which are chunk
     5's per-figure gating.
+  - **The harmony planner reads no profile.** `makeHarmonyCandidateDomain` only checks that the
+    profile it is given is known (`harmony-planner.ts`); its input (`HarmonyPlannerInput`,
+    `harmony-types.ts`) loses `profile`, and its three callers (`buildHarmonyDomain` in
+    `generation-orchestrator.ts`, `harmonyProvenanceFailures` in
+    `generation-result-validator-checks.ts`, `carriedHarmonyFits` in `carry-in-fit.ts`) stop
+    passing it, with their test call sites. It is here rather than in chunk 8 because about ten
+    specs under `tests/unit/domain/pitch/` build a harmony domain, and chunk 5 edits that folder.
   - The worker's inbound parser validates `figureLevels` (exactly the seven ids, each a known
     level, no extra field) and rebuilds it; the prewarm and the cancellation paths carry it.
 - **Files:** `src/domain/figures/figure-levels.ts` (new),
   `src/domain/generation/generation-intent.ts`, `src/domain/pitch/pitch-policy.ts`,
+  `src/domain/pitch/pitch-types.ts`, `src/domain/pitch/validation/pitch-validation-types.ts`,
+  `src/domain/generation/orchestration/window-search.ts`,
   `src/domain/validation/generation-result-validator.ts`, `src/domain/controls/profile-selection.ts`
-  (the capability table goes), `src/generation-worker/generation-worker-inbound.ts`; tests under
-  `tests/unit/domain/figures/`, `tests/unit/generation-worker/`.
+  (the capability table goes), `src/generation-worker/generation-worker-inbound.ts`,
+  `src/domain/harmony/harmony-planner.ts`, `src/domain/harmony/harmony-types.ts`,
+  `src/domain/generation/orchestration/generation-orchestrator.ts`,
+  `src/domain/validation/generation-result-validator-checks.ts`,
+  `src/domain/generation/carry-in/carry-in-fit.ts`; `tests/sweep/figure-census.ts`; tests under
+  `tests/unit/domain/figures/`, `tests/unit/generation-worker/`, and the policy's and the harmony
+  planner's call sites under `tests/unit/domain/pitch/` (`validation/validation-fixtures.ts` among
+  them), `tests/unit/domain/harmony/`, `tests/unit/domain/validation/`,
+  `tests/unit/domain/backing/`, `tests/unit/audio/backing-harmony.ts` and
+  `tests/unit/domain/generation/orchestration/candidate-ranking.spec.ts`.
 - **Spec sections:** [B5.1](master-spec.md#b51-the-seven-figures),
   [B5.3](master-spec.md#b53-neutral-and-jazz-sound-as-before),
   [B9](master-spec.md#b9-the-generation-request-the-replay-key-and-kept-sessions),
@@ -481,7 +513,7 @@ wave.
   `rule_jazz_chromatic_resolution`, `rule_neutral_profile_diatonic_harmony`. Drift check:
   `module_musical_profile_capabilities`, `module_generation_request_construction`,
   `module_generation_worker_protocol`.
-- **Revisions:** none.
+- **Revisions:** revise `module_harmony_candidate_domain` (it consumes no musical profile).
 - **Done when:**
   - Every intent built for Neutral carries B5.3's Neutral levels, every Jazz intent Jazz's,
     customized or not.
@@ -490,10 +522,14 @@ wave.
     the test of the module).
   - The worker refuses an intent whose levels miss a figure, name an unknown one, or hold an unknown
     level, with the typed protocol error.
-  - The v3.0 corpus, the cold-generation goldens and every v2 and v3.0 generation test pass
-    unchanged.
+  - The v3.0 corpus, the cold-generation goldens and every v2 and v3.0 generation test pass, their
+    assertions unchanged (only the policy's and the planner's inputs lose the profile).
 - **Verification:** chunk checks with the corpus guard; the sweep and the bundle at the wave gate.
-- **Split rule:** none needed (six source files, most a few lines).
+- **Split rule:** if the brief passes about five source files, 4a the figures module, the intent's
+  `figureLevels` and the worker (`figure-levels.ts`, `generation-intent.ts`,
+  `generation-worker-inbound.ts`), 4b the allowance read from the levels and the harmony planner's
+  profile (the policy, its types, `window-search.ts`, the validator, the table, the planner and its
+  callers, the census and the test call sites).
 
 ### Chunk 5 — Levels gate the figures
 
@@ -529,7 +565,8 @@ Architecture capture: none
   `src/domain/pitch/validation/pitch-validation-types.ts`, `src/domain/pitch/pitch-context.ts`;
   tests under `tests/unit/domain/pitch/` (`validation/figure-rules.spec.ts`,
   `validation/binding-agreement.spec.ts`, `validation/validation-fixtures.ts` and
-  `pitch-candidates.spec.ts` read the capability today);
+  `pitch-candidates.spec.ts` read the capability today); `tests/sweep/figure-census.ts` (its
+  `contextOf` builds the validator's context, so it follows the policy's per-figure shape);
   [`docs/music/pitch-planner-validation.md`](../../../docs/music/pitch-planner-validation.md),
   [`docs/music/neutral-profile.md`](../../../docs/music/neutral-profile.md),
   [`docs/music/jazz-profile.md`](../../../docs/music/jazz-profile.md).
@@ -544,7 +581,9 @@ Architecture capture: none
   check: `service_generation_result_validation`, `module_musical_profile_capabilities`.
 - **Revisions:** revise `rule_neutral_profile_diatonic_pitches`, `rule_jazz_chromatic_resolution`,
   `rule_tension_resolution_delay_permits_rests` (chromatic approaches and enclosures under any
-  preset's levels, not only Jazz's; its no-rest rule unchanged).
+  preset's levels, not only Jazz's; its no-rest rule unchanged). Chunk 4 already makes
+  `rule_jazz_chromatic_resolution`'s gating sentence stale (the capability is worked out from the
+  levels, not declared by the profile); if chunk 5 leaves wave 1, that revision moves to chunk 4.
 - **Done when:**
   - With a figure Off, the census over the M1 sweep finds it only as Tension's scheduled figure
     (for the three figures Tension can schedule) or not at all, for each of the seven in turn.
@@ -664,7 +703,7 @@ id; a built-in instrument by its id (as `ifk1.`), my instrument inline (as `ifk2
 D250). The generation request without a musical profile. And the reading of a v3.0 kept phrase (a
 profile, no levels) through one mapping function, `src/storage/records/profile-to-levels.ts` (a
 profile name to B5.3's levels, whatever its customized flag), which chunk 9's upgrade step reuses
-in the same wave.
+in wave 2 (spec D364).
 
 - **Goal:** write `ifk3.` for every phrase, holding the levels by figure and no name, while every
   `ifk1.` and `ifk2.` key keeps decoding to the same phrase; and take the musical profile out of
@@ -675,65 +714,123 @@ in the same wave.
     whatever its customized flag; an `ifk3.` key naming a figure v3.1 does not know is refused with
     the reason; a later prefix is refused as an unsupported version, as today. `npm run
 replay:phrase` replays all three. Code fact: the `ifk1.` payload is the unpadded base64url of a
-    JSON 7-tuple whose first entry is the request id (a string such as `"replay-12"`).
+    JSON 7-tuple whose first entry is the request id (a string such as `"replay-12"`). The order
+    of the `ifk3.` tuple's entries, and how a built-in phrase's tuple marks that it has no my
+    instrument, are this chunk's owner's to state, in the codec and its tests; they are permanent
+    once a key is emitted, and the wave sync records them in `module_phrase_replay_key`.
   - **The request.** `GenerationIntent` loses `musicalProfile`; the worker's
-    `parseProfileSelection` and `PROFILE_SELECTION_ALLOWED_KEYS` go. The readers that only checked
-    the name is known (`harmony-planner.ts`, `harmony-types.ts`, `buildHarmonyDomain` in
-    `generation-orchestrator.ts`, `harmonyProvenanceFailures` in
-    `generation-result-validator-checks.ts`, `carriedHarmonyFits` in `carry-in-fit.ts`) drop it. At
-    the session level, `harmonySettingsDiffer` (`src/session/carry-in-adaptation.ts`) treats a
-    change of levels where it treated a change of profile, so a v2 session's join checks are
-    unchanged; so does the stale-phrase-1 check (`src/session/stale-phrase-one.ts`, v3.0) and the
-    session settings' profile field (`src/session/session-types.ts`).
-  - **Where the levels come from until chunk 12:** the idle state still holds a musical profile
-    selection; the request builder maps it to levels with `levelsForProfile`.
+    `parseProfileSelection` and `PROFILE_SELECTION_ALLOWED_KEYS` go, and so does the carry-in
+    receiver's profile (`CarryInReceiver`, `carry-in-fit.ts`). The pitch policy and the harmony
+    planner already read none (chunk 4). At the session level, `harmonySettingsDiffer`
+    (`src/session/carry-in-adaptation.ts`) treats a change of levels where it treated a change of
+    profile, so a v2 session's join checks are unchanged; so does the stale-phrase-1 check
+    (`src/session/stale-phrase-one.ts`, v3.0), whose `StaleSetting` names the seven figures in
+    place of `musicalProfile`.
+  - **Where the levels come from until chunk 12:** the idle state and the session settings
+    (`SessionSettings`, `src/session/session-types.ts`) still hold a musical profile selection,
+    and so does the intent factory's input (`GenerationIntentInput`): `makeGenerationIntent` maps
+    it to levels with `levelsForProfile`, and the intent holds none. So the goldens, the corpora's
+    case builders and every test that builds an intent through the factory build it as today.
+  - **The kept summary's profile.** `encodeKeptSession` takes the summary's musical profile from
+    phrase 1's intent (`first.intent.musicalProfile`, `kept-session-record.ts`), which no longer
+    holds one. It takes it from the session history instead: `SessionHistory`
+    (`src/session/session-history.ts`) keeps the profile selection of the settings it is created
+    with, the session's settings at its start, and `KeptSessionHistory` picks it. `HeldSessionFacts`
+    stays as it is (STABLE `module_kept_session_save`). The record then names the session's
+    settings after Use it, as `rule_stale_phrase_prompt_at_start` says, where v3.0 named phrase
+    1's. Chunk 9 makes the preset label from the same source (spec D365).
   - **Kept sessions keep reading:** v3.0's kept-session codec stores the request's shape
     (`parseKeptIntent` and `parseKeptProfileSelection` in `kept-phrase-parsers.ts`), so it now
-    writes levels; a stored v3.0 phrase is read through `profile-to-levels.ts`.
+    writes levels, still at data version 1, and reads a version 1 phrase in either shape: its
+    levels, or a v3.0 profile through `profile-to-levels.ts`. Chunk 9's version 2 step reuses that
+    reader (spec D364).
+  - **The stale-phrase prompt's labels:** `StalePhrasePrompt.vue`'s label table drops Musical
+    profile preset and adds the seven figure labels after Arpeggio chaos, per the design; until
+    chunk 14 a Neutral–Jazz change is named by the two chromatic figures (the transitional
+    interface).
   - An in-browser replay test (workspace harness) replays a slice of the corpus through the worker,
     for H3.
+  - **The replay-key specs.** Re-encoding a decoded `ifk1.` or `ifk2.` key now writes `ifk3.`. In
+    `phrase-replay-key-corpus.spec.ts` and `phrase-replay-key-v30-corpus.spec.ts`, 'decodes every
+    key and re-encodes it to the same key' gives way to a case that decodes every key and checks
+    that its `ifk3.` re-encoding decodes to an equal intent; the v3.0 corpus spec's coverage
+    (`selectionOf`) reads each key's profile from its raw tuple or its case label, not from the
+    intent. In `phrase-replay-key-ifk2.spec.ts`, the cases that encode (about ten
+    `encodePhraseReplayKey` calls, `startsWith('ifk2.')`, 'still encodes a built-in phrase as an
+    ifk1 key of seven entries') become fixed `ifk2.` and `ifk1.` key strings that still decode,
+    each with an `ifk3.` counterpart. The fixtures and the replay assertions stay (the Read-first
+    table's **Never** row).
   - **Chunk 2's lint exception goes:** chunk 2 left a temporary `// @lint-ignore-atd` line (line 2)
     in `tests/unit/generation-worker/phrase-replay-key-v30-corpus.spec.ts`; this chunk removes it
-    when it adds that spec's `@test-link` tags.
+    and adds that spec's `@test-link` tags: the replay case to `rule_seeded_phrase_reproduction`,
+    `rule_neutral_and_jazz_figure_levels` and `module_phrase_replay_key`, the decode case to
+    `module_phrase_replay_key`.
 - **Files:** `src/generation-worker/phrase-replay-key.ts`, `phrase-replay-key-decode.ts`,
   `phrase-replay.ts`, `phrase-replay-report.ts`, `generation-worker-inbound.ts`,
-  `scripts/replay-phrase.mjs`, `src/domain/generation/generation-intent.ts`, the five name readers
-  above, `src/session/session-intents.ts`, `src/session/carry-in-adaptation.ts`,
-  `src/session/stale-phrase-one.ts`, `src/session/session-types.ts`,
-  `src/storage/records/kept-session-record.ts`, `src/storage/records/kept-phrase-parsers.ts`,
-  `src/storage/records/profile-to-levels.ts` (new); tests under `tests/unit/generation-worker/`,
-  `tests/unit/scripts/`, `tests/unit/storage/`, `tests/e2e/release/deterministic-replay.spec.ts`
-  (new replay-key tests in a v1 file that holds no key test yet).
+  `scripts/replay-phrase.mjs`, `src/domain/generation/generation-intent.ts`,
+  `src/domain/generation/carry-in/carry-in-fit.ts`, `src/session/session-intents.ts`,
+  `src/session/carry-in-adaptation.ts`, `src/session/stale-phrase-one.ts`,
+  `src/session/session-types.ts`, `src/session/session-history.ts`,
+  `src/components/workspace/StalePhrasePrompt.vue`, `src/storage/records/kept-session-record.ts`,
+  `src/storage/records/kept-phrase-parsers.ts`, `src/storage/records/profile-to-levels.ts` (new);
+  tests under `tests/unit/generation-worker/`, `tests/unit/scripts/`, `tests/unit/storage/`,
+  `tests/e2e/release/deterministic-replay.spec.ts` (new replay-key tests in a v1 file that holds no
+  key test yet); and about twenty test files beyond those folders that read the intent's profile
+  or the session's stale settings: under `tests/unit/session/` (`history-recording.ts`,
+  `session-intents.spec.ts`, `session-engine-mutation.spec.ts`, `carry-in-adaptation.spec.ts`,
+  `stale-phrase-one.spec.ts`, `deadline-sweep.ts`),
+  `tests/unit/composables/use-generation-session.spec.ts`,
+  `tests/unit/components/workspace/` (`workspace-session-runner.spec.ts`,
+  `StalePhrasePrompt.spec.ts`), `tests/unit/domain/generation/orchestration/`
+  (`generation-orchestrator-fixture.ts`, `rhythm-domain-prewarm.spec.ts`; never the goldens'),
+  the carry-in specs (`tests/unit/domain/generation/carry-in/`), and `tests/e2e/`
+  (`workspace-harness/main.ts`,
+  `review/session-list-helpers.ts`, `workspace/pregeneration.spec.ts`). The type checker lists the
+  rest.
 - **Spec sections:** [B9](master-spec.md#b9-the-generation-request-the-replay-key-and-kept-sessions),
   Part A §7.4; items 19, 7 (the key reproduces; H3 for Edge), 20 (reading v3.0 phrases).
+- **Design docs:** [`screens/stale-phrase-prompt/handoff.md`](../../../ui_ux/versions/v3.1/screens/stale-phrase-prompt/handoff.md)
+  ({changed settings}, [v3.1 changed]).
 - **Atoms:** `rule_figure_draws_reproducible`, `rule_neutral_and_jazz_figure_levels`; (v2)
   `rule_seeded_phrase_reproduction`, `rule_neutral_profile_diatonic_harmony`; (v3.0)
   `rule_kept_session_content`, `rule_stale_phrase_prompt_at_start`. Drift check:
   `module_phrase_replay_key`, `module_generation_worker_protocol`,
-  `module_generation_request_construction`.
+  `module_generation_request_construction`; at the sync, `service_session_engine` and
+  `module_session_shown_settings`; and `module_on_device_database`, a known drift until chunk 9:
+  kept sessions change shape at data version 1 (spec D364).
 - **Revisions:** revise `rule_seeded_phrase_reproduction` (figure levels in the request);
-  `rule_stale_phrase_prompt_at_start` (the levels count where the profile did); (contract, CS)
-  `rule_kept_session_content` (each phrase's inputs hold the levels in place of the profile; chunk 9
-  adds the label), `entity_kept_session_record` and `module_kept_session_codec` (a kept phrase's
-  intent holds no profile, so the summary's profile no longer comes from phrase 1's intent).
+  `rule_stale_phrase_prompt_at_start` (the levels count where the profile did, named by the
+  figures' labels); `module_session_carry_in_after_change` (its harmony check reads the levels
+  where it read the profile); `service_session_history` (the history keeps the session's profile
+  selection from its start); (contract, CS) `rule_kept_session_content` (each phrase's inputs hold
+  the levels in place of the profile; chunk 9 adds the label), `entity_kept_session_record` and
+  `module_kept_session_codec` (a kept phrase's intent holds no profile; the summary's profile comes
+  from the session history).
 - **Done when:**
   - Every phrase's key is `ifk3.`; encoding then decoding returns an equal intent, and replaying it
     gives the same timeline, for built-in and player-made instruments.
-  - Chunk 2's corpus and v3.0's `ifk1-v2.0.json` corpus pass unchanged: every `ifk1.` and `ifk2.`
-    key decodes to the same phrase, a customized Jazz key to Jazz's levels.
+  - Chunk 2's corpus and v2.0's `ifk1-v2.0.json` corpus pass, their fixtures and replay assertions
+    unchanged: every `ifk1.` and `ifk2.` key decodes to the same phrase, a customized Jazz key to
+    Jazz's levels, and its `ifk3.` re-encoding decodes to an equal intent.
   - An `ifk3.` key naming an unknown figure, or with an unknown level, is refused with the reason;
     an `ifk4.` key as an unsupported version.
   - No intent, key or kept phrase holds a profile or preset name (a test over each one's keys).
   - A v3.0-shaped kept session (seeded) still opens, its phrases read with its profile's levels.
+  - A session kept by this chunk's code reopens, and its review and both exports are identical to
+    those at its save.
+  - After Use it, the kept session's summary names the session's profile, not phrase 1's.
+  - The stale-phrase prompt names a changed level by its figure's label and never Musical profile
+    preset.
   - `npm run replay:phrase` replays one key of each version.
   - `phrase-replay-key-v30-corpus.spec.ts` carries its `@test-link` tags and no `@lint-ignore-atd`
     line; `npm run atd:lint` passes.
 - **Verification:** chunk checks with the corpus guard; `npm run replay:phrase -- <key>` for each
   version by hand; H3.
-- **Split rule:** none: wide but mechanical (about fifteen files, most a removed field). It cannot be
-  split without a throwaway key format: the encoder cannot write `ifk1.` once the request has no
-  profile. If the brief is too large for one executor, the chunk owner decomposes it into units in
-  the chunk's worktree, one commit at the end.
+- **Split rule:** none: wide but mechanical (about seventeen source files, most a removed field,
+  and about twenty test files beyond its own folders). It cannot be split without a throwaway key
+  format: the encoder cannot write `ifk1.` once the request has no profile. The chunk owner
+  decomposes it into units in the chunk's worktree (the key and its specs; the request and the
+  session; storage and the summary's source; the stale prompt), one commit at the end.
 
 ### Chunk 9 — Kept sessions hold the levels and the preset label
 
@@ -744,10 +841,14 @@ Architecture capture: data version 2, inside v3.0's
 [storage design](build-plan.md#the-storage-design-the-chunks-build-on) (today
 `DATABASE_DATA_VERSION` 1, its one step `CREATE_STORES` in `PRODUCTION_MIGRATIONS`,
 `src/storage/database.ts`, which refuses a gap in the steps): one upgrade step, in a new
-`src/storage/migrations/` and appended to that list, that rewrites v3.0's kept sessions (each phrase's reproduction inputs get its profile's levels through
-chunk 8's mapping; each summary's musical profile becomes the session's preset label, a stored
-string). One data version per stored shape that changes, each with its own step (v3.1 writes 2 and
-3), so each migration is tested on its own and a development database is never left half-migrated.
+`src/storage/migrations/` and appended to that list, that rewrites the version 1 kept sessions,
+v3.0's and those kept by wave 1's code alike: it reads each phrase with chunk 8's reader (levels
+kept, a profile mapped through `profile-to-levels.ts`), and each summary's musical profile becomes
+the session's preset label, a stored string. A record it cannot read is left as it is, for the codec
+to report as unreadable: the step never throws on a stored value, since a throwing step rolls the
+upgrade back and every later open rejects (`MigrationStepError`; spec D364). One data version per
+stored shape that changes, each with its own step (v3.1 writes 2 and 3), so each migration is
+tested on its own and a development database is never left half-migrated.
 
 - **Goal:** migrate the sessions v3.0 kept, and record with each new session the preset label it
   started with.
@@ -759,8 +860,9 @@ string). One data version per stored shape that changes, each with its own step 
     fallback to phrase 1's reproduction inputs (spec D250) is never needed on v3.0's own data; the
     step keeps it for a summary that lacks the flag. The records' own versions
     (`KEPT_SESSION_DATA_VERSION`, `kept-reading.ts`) move with it.
-  - **New sessions** record the preset label at their start, as `control-summary` writes it. Until
-    chunk 12 that is the musical profile's display; chunk 12 switches the source to the preset
+  - **New sessions** record the preset label at their start, as `control-summary` writes it, from
+    the profile selection the session history keeps (chunk 8). Until chunk 12 that is the musical
+    profile's display; chunk 12 switches the source to the preset
     selection. A snapshot: nothing later changes it.
   - The session list's detail line (`detailLine` in `src/components/review/session-row-text.ts`,
     through `profileSelectionLabel`) shows the label where it showed the profile. The review's
@@ -790,6 +892,9 @@ string). One data version per stored shape that changes, each with its own step 
     notes, favorites, a comment) opens at data version 2: each phrase holds its profile's levels,
     each summary its label, and the review's notation and both exports are byte-identical to
     before.
+  - A version 1 database holding a v3.0-shaped session, a session kept by wave 1's code and one
+    damaged record opens at version 2: both sessions carried over, the damaged record left and read
+    as unreadable, the open never rejected.
   - A v3.0 tab open meanwhile becomes outdated by v3.0's own rule.
   - A new session's summary holds the label at its start, as a stored string: a later change of
     selection does not rewrite it.
@@ -824,7 +929,9 @@ storage or the interface.
     restriction, as the preset sheet shows them; when save changes asks; names, the "My preset"
     numbering and the 50-preset limit.
   - **The restriction in words**, as the sheet and the description line write it ("Mixolydian or
-    Dorian in any key", "only G Dorian").
+    Dorian in any key", "only G Dorian"), taking the key's and the collection's display labels as
+    input ("F-sharp/G-flat" is the interface's, `src/components/controls/control-options.ts`;
+    the interface chunks pass them), so the module imports no interface code.
 - **Files:** `src/domain/presets/key-and-mode-restriction.ts`, `built-in-presets.ts`,
   `preset-selection.ts`, `preset-names.ts`, `preset-save-choices.ts` (all new); tests under
   `tests/unit/domain/presets/`.

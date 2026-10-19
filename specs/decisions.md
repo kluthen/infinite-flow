@@ -733,3 +733,27 @@ D359–D363 (the owner's rulings during v3.1's wave 0). D289 is unused.
   MAJOR bump at wave 1's sync (chunk 8), the later syncs (chunks 9, 12, 16, 17, 18) applying the rest
   under 7.0.0. Now in: [Gates](versions/v3/build-plan-v3.1.md#gates),
   [change set part J](../docs/release/v3.1-v3.2-intent-change-set.md#j-cs-contract-wordings-for-the-owners-sign-off-drafted-2026-10-19-not-applied).
+
+- **D364 (2026-10-19): chunk 9 stays in wave 2; its version 2 step reads both version 1 shapes and
+  never throws on a stored value.** Chunk 8 writes levels at data version 1, so a step expecting a
+  profile in every phrase would throw, roll the upgrade back and make every later open reject. Not
+  adopted: moving chunk 9 into wave 1, since wave 1's membership froze at its preflight and 4 → 8 →
+  9 is a three-chunk chain the in-wave rule forbids. Only development data is exposed (no release
+  before wave 5); `module_on_device_database` is a known drift until chunk 9. Now in:
+  [chunk 9](versions/v3/build-plan-v3.1.md#chunk-9--kept-sessions-hold-the-levels-and-the-preset-label),
+  [chunk 8](versions/v3/build-plan-v3.1.md#chunk-8--replay-key-ifk3-the-profile-leaves-the-request).
+
+- **D365 (2026-10-19): a kept session's summary takes its profile from the session history.** Once
+  the intent holds no profile, `encodeKeptSession` cannot read phrase 1's; the history keeps the
+  profile of the settings the session started with. It also fixes v3.0 naming phrase 1's profile
+  after Use it, against `rule_stale_phrase_prompt_at_start`. Not adopted: `HeldSessionFacts`, which
+  would change the STABLE `module_kept_session_save` outside change set part J. Now in:
+  [chunk 8](versions/v3/build-plan-v3.1.md#chunk-8--replay-key-ifk3-the-profile-leaves-the-request).
+
+- **D366 (2026-10-19): wave 1's preflight corrections, plan v7.** The **Never** row guards the
+  fixtures and replay assertions, not the spec files around them; chunk 4 also takes the profile
+  out of the pitch policy and the harmony planner, so chunks 5 and 8 (no path between them) share
+  no file; chunk 8 owns the replay-key specs and the stale prompt's labels. Not adopted: chunk 10
+  taking `rule_preset_management_actions` (chunk 17's). Now in:
+  [Read first](versions/v3/build-plan-v3.1.md#read-first-what-v31-changes-in-v30-and-v2),
+  [chunk 4](versions/v3/build-plan-v3.1.md#chunk-4--figure-levels-in-the-generation-request).
