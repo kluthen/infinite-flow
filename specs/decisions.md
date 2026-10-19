@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.108
+Status: draft v2.109
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -765,3 +765,11 @@ D359–D363 (the owner's rulings during v3.1's wave 0). D289 is unused.
   Now in: [Read first](versions/v3/build-plan-v3.1.md#read-first-what-v31-changes-in-v30-and-v2),
   [chunk 8](versions/v3/build-plan-v3.1.md#chunk-8--replay-key-ifk3-the-profile-leaves-the-request),
   [chunk 9](versions/v3/build-plan-v3.1.md#chunk-9--kept-sessions-hold-the-levels-and-the-preset-label).
+
+- **D368 (2026-10-19): the tense note a joined phrase may end on follows the levels like a free
+  scale note (closes O232).** The owner chose (b), "Gate it like a free note": offered and accepted
+  only when the passing tone (the accented passing tone on beats 1 and 3) or the neighbor tone is
+  not Off; with both Off, no tense ending at the join. It sounds like those figures across the
+  join. Not adopted: (a) ungated; (c) carrying the direction across the join. Now in:
+  [B5.4](versions/v3/master-spec.md#b54-free-figures-and-tensions-scheduled-figure),
+  [chunk 7](versions/v3/build-plan-v3.1.md#chunk-7--two-new-free-figures-the-appoggiatura-and-the-diatonic-enclosure).

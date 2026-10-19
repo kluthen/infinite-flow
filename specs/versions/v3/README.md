@@ -236,8 +236,8 @@ key and mode restriction (D229–D231); and player presets saved with v3.0's sto
 open; the figure shares and the cost guard are measured before the gate. The notes below are the
 background those drafts started from.
 
-**Build plan:** [build-plan-v3.1.md](build-plan-v3.1.md), v9 (2026-10-19; v4 approved by the
-owner on 2026-10-19, D357; v5–v8 write in D359–D367; v9 opens O232). It plans v3.1 on top of the [v3.0 build plan](build-plan.md) on the build-plan model: 21
+**Build plan:** [build-plan-v3.1.md](build-plan-v3.1.md), v10 (2026-10-19; v4 approved by the
+owner on 2026-10-19, D357; v5–v10 write in D359–D368). It plans v3.1 on top of the [v3.0 build plan](build-plan.md) on the build-plan model: 21
 chunks in six waves, then the release gate, under the shared [v3 build workflow](build-workflow.md)
 (D349). The design is approved (D353); waves 4 and 5 wait for the token-source pass (gate T1), which
 the owner has not allowed yet (D355, D356); waves 0–3 may merge into `main` meanwhile, with no

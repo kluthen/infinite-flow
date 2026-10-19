@@ -1,6 +1,9 @@
 # Infinite Flow v3.1 — Build Plan
 
-Status: v9 (2026-10-19): from chunk 5's report, O232 is open (does a figure level reach the
+Status: v10 (2026-10-19): the owner's answer to O232 (spec D368): chunk 7 also gates the tense
+note a joined phrase may end on by the passing, accented passing and neighbor tones' levels;
+chunk 11's runs carry it.
+v9 (2026-10-19): from chunk 5's report, O232 is open (does a figure level reach the
 tense note a joined phrase may end on?), to rule before wave 2's preflight; chunk 11 also reports
 the Lift phrases that every figure Off left without a pitch plan in chunk 5's M1.
 v8 (2026-10-19): from chunk 4's report, version 1 holds a third phrase shape (both the
@@ -670,7 +673,8 @@ Depends on: 6
 Architecture capture: none (it builds on chunk 6's)
 
 - **Goal:** let the search write a free appoggiatura and a diatonic enclosure when their level
-  allows them, under every existing figure rule.
+  allows them, under every existing figure rule; and let the levels reach the tense note a joined
+  phrase may end on (spec D368).
 - **Scope:**
   - **Free appoggiatura:** a collection note outside the chord, entered by a leap of 3 half steps
     or more, on beat 1 or 3, resolved by one scale step onto a chord tone (the shape
@@ -684,15 +688,33 @@ Architecture capture: none (it builds on chunk 6's)
     the search finds when it backs up past the chord tones, which is why B5.3 keeps new figures
     Off.
   - The validator accepts each only when its level allows it; the census recognises both.
+  - **The tense note a joined phrase may end on**
+    ([B5.4](master-spec.md#b54-free-figures-and-tensions-scheduled-figure)): offered and accepted
+    only when the levels allow a free scale note on that last note, the same test chunk 5 applies
+    to a free diatonic tone inside the phrase (`allowedFreeResolutions`): the passing tone, or the
+    accented passing tone when the note starts on beat 1 or 3, or the neighbor tone, not Off. Code
+    fact: today `ordinaryCandidates` adds `tenseEndingCandidates` on the final attack without
+    reading the levels (`src/domain/pitch/pitch-candidates.ts`), and the validator explains such a
+    note through `isOwedTenseEnding` (`src/domain/pitch/validation/join-rules.ts`, called from
+    `figure-rules.ts` and `contour-endpoint-rules.ts`), which reads no level either. The tense note
+    carries no `freeResolution` tag: the next phrase decides its direction, and nothing about it
+    is added to the carry-in. It stays after the chord tones; chunk 6's draw never favors it.
 - **Files:** `src/domain/pitch/pitch-candidates.ts`, `src/domain/pitch/pitch-figures.ts` (the
-  enclosure's path confirmation), `src/domain/pitch/validation/figure-rules.ts`, chunk 3's census;
-  tests under `tests/unit/domain/pitch/`.
+  enclosure's path confirmation), `src/domain/pitch/validation/figure-rules.ts`,
+  `src/domain/pitch/validation/join-rules.ts` (the tense note), chunk 3's census; tests under
+  `tests/unit/domain/pitch/` and `tests/unit/domain/generation/carry-in/`.
 - **Spec sections:** [B5.1](master-spec.md#b51-the-seven-figures),
-  [B5.6](master-spec.md#b56-the-cost-guard) (new figures enlarge the search); items 5 (the new
+  [B5.4](master-spec.md#b54-free-figures-and-tensions-scheduled-figure) (the tense note),
+  [B5.6](master-spec.md#b56-the-cost-guard) (new figures enlarge the search),
+  [B11](master-spec.md#b11-what-v31-changes-in-v30-and-in-v2s-guarantees); items 5 (the new
   figures), 3, 21 (acknowledgement for the new figures).
 - **Atoms:** `rule_embellishment_figures_defined`, `rule_figures_resolve_onto_chord_tones`,
-  `req_embellishment_figure_levels`. Drift check: `service_generation_result_validation`.
-- **Revisions:** none.
+  `req_embellishment_figure_levels`, `rule_levels_govern_free_figures_only`; (v2)
+  `rule_join_tense_note_resolution`, `rule_open_phrase_ending`. Drift check:
+  `service_generation_result_validation`.
+- **Revisions:** revise `rule_join_tense_note_resolution` (the tense note is offered only when the
+  levels allow a free scale note on the last note; spec D368). `rule_open_phrase_ending`'s "may
+  instead end on a tense note" still holds: no revision.
 - **Done when:**
   - With either figure Favored, the census finds it in a share of phrases that rises from As today;
     with it Off, never.
@@ -700,8 +722,17 @@ Architecture capture: none (it builds on chunk 6's)
     validator refuses each one when its level is Off (unit tests with hand-written phrases).
   - The v3.0 corpus and goldens pass; an acknowledgement test lights a free appoggiatura's and an
     enclosure's notes at their exact pitches only.
-- **Verification:** chunk checks with the corpus guard; M1; the sweep at the wave gate.
-- **Split rule:** none needed (three source files and the census).
+  - The tense note at the join, in the generator and the checker alike: with the passing, accented
+    passing and neighbor tones all Off, no phrase generated with carry-in ends on a tense note
+    (over the carry-in seed matrix, `tests/unit/domain/generation/carry-in/carry-in-matrix.ts`,
+    with those three Off), and the validator refuses a hand-written carry-in phrase ending on one
+    (`unexplained_non_chord_tone`); with only the passing tone, only the accented passing tone or
+    only the neighbor tone allowed, it is offered and accepted where that figure fits the last
+    note's beat (the accented passing tone on beats 1 and 3, the passing tone elsewhere, the
+    neighbor tone on either), and refused where it does not (unit tests per case).
+- **Verification:** chunk checks with the corpus guard; M1; the carry-in matrix; the sweep at the
+  wave gate.
+- **Split rule:** none needed (four source files and the census).
 
 ### Chunk 8 — Replay key `ifk3.`; the profile leaves the request
 
@@ -1011,9 +1042,10 @@ Architecture capture: none
     ([`docs/generation-latency.md`](../../../docs/generation-latency.md#each-figure-off-v31-chunk-5)).
     Report, per Tension value, the phrases each setting leaves ungenerated and why; they count
     against the acceptance like any failure.
-  - The runs are made with [O232](../../open-questions.md)'s answer built in (the tense note a
-    joined phrase may end on): under "every diatonic figure Off" it decides whether a joined
-    phrase can still end on one.
+  - The runs carry spec D368, built by chunk 7: the tense note a joined phrase may end on is
+    offered only when the passing, accented passing or neighbor tone allows a free scale note
+    there, so under "every diatonic figure Off" no joined phrase ends on one, which may add failed
+    joins and fallbacks at 240 BPM; they count against the acceptance like any other.
 - **Files:** `src/domain/pitch/figure-draw.ts` (constants only, if tuned),
   `docs/generation-latency.md`.
 - **Spec sections:** [B5.6](master-spec.md#b56-the-cost-guard),
