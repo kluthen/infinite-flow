@@ -311,3 +311,13 @@ played notes stay at 1, per the STABLE database rule; option b: rewrite played n
 needs the owner); C9-2 the label new sessions write until chunk 12 ("Custom (Jazz grammar)" today
 vs. "Custom, based on Jazz"); C9-3 the phrase 1 fallback; Files and drift-check corrections C6-2,
 C6-3, C6-4, C7-1, C9-4.
+
+- **Plan v11 (c948f8f, `spec-writer`), D369–D372, no owner question:** D369 a favored free scale
+  tone names the figures it may become and is tried held to the drawn figure ahead of the chord
+  tones, then again unheld in its usual place (never a quota); D370 each kept shape keeps its own
+  data version (summary and body to 2, played notes stay at 1; J3's "the shapes are at data
+  version 2" applied to summary and body); D371 new sessions store the label in B9's form
+  ("Custom, based on Jazz") from chunk 9 on, through one label function outside `src/storage/`,
+  which chunk 12 routes the summary through; D372 the rest (fallback dropped, Part B v1.4; chunk
+  6 Files and a 6a/6b split rule; drift checks; chunk 7 Atoms; chunk 9 Files, owner notes and
+  Done when). Captures to amend to D369 and D372 before chunks 6 and 9 start.
