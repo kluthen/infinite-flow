@@ -184,17 +184,137 @@ describe('pitch validation: free figures gated by the figure levels', () => {
     ])
   })
 
-  it('refuses a free appoggiatura and a free diatonic enclosure even when they are favored', () => {
+  // @test-link [[rule_embellishment_figures_defined]]
+  it('accepts a free appoggiatura and a free diatonic enclosure when they are favored, and refuses them when off', () => {
     const favored = {
       figureLevels: levels('asToday', { appoggiatura: 'favored', diatonicEnclosure: 'favored' }),
     }
-    expect(failures(withMidis({ 4: 69, 5: 67 }, CHORD_TONES), favored)).toEqual([
+    const off = {
+      figureLevels: levels('asToday', { appoggiatura: 'off', diatonicEnclosure: 'off' }),
+    }
+    // E then a leap up to A on bar 1's beat 1, resolving down to G.
+    const appoggiatura = withMidis({ 4: 69, 5: 67 }, CHORD_TONES)
+    // F and D around E. The D on beat 3, entered by a leap from F, is also an appoggiatura.
+    const enclosure = withMidis({ 1: 65, 2: 62 }, CHORD_TONES)
+    expect(failures(appoggiatura, favored)).toEqual([])
+    expect(failures(enclosure, favored)).toEqual([])
+    expect(failures(appoggiatura, off)).toEqual([
       { code: 'unexplained_non_chord_tone', attackIndex: 4 },
     ])
-    expect(failures(withMidis({ 1: 65, 2: 62 }, CHORD_TONES), favored)).toEqual([
+    expect(failures(enclosure, off)).toEqual([
       { code: 'unexplained_non_chord_tone', attackIndex: 1 },
       { code: 'unexplained_non_chord_tone', attackIndex: 2 },
     ])
+  })
+})
+
+/** One tonic over the whole phrase, so a figure may cross a bar line under one chord. */
+const ONE_TONIC = [chord(1, 0, 16)]
+
+/** E then a leap up to A on bar 1's beat 1, resolving down to G: a free appoggiatura. */
+const APPOGGIATURA = withMidis({ 4: 69, 5: 67 }, CHORD_TONES)
+
+/**
+ * F and D, then D and F, around the E on bar 1's beat 1: a diatonic enclosure in each order. Their
+ * first note is entered by step and their second falls off beats 1 and 3, so neither can pass for
+ * an appoggiatura.
+ */
+const UPPER_FIRST = withMidis({ 2: 65, 3: 62, 4: 64 }, CHORD_TONES)
+const LOWER_FIRST = withMidis({ 2: 62, 3: 65, 4: 64 }, CHORD_TONES)
+
+/** The free figure under test as today and every other figure off, so nothing else explains it. */
+const APPOGGIATURA_ONLY = { figureLevels: levels('off', { appoggiatura: 'asToday' }) }
+const ENCLOSURE_ONLY = { figureLevels: levels('off', { diatonicEnclosure: 'asToday' }) }
+
+/** The phrase's chords with bar 1 on the dominant (G B D) or on the submediant (A C E). */
+const DOMINANT_BAR_ONE = [chord(1, 0, 4), chord(5, 4, 4), chord(1, 8, 8)]
+const SUBMEDIANT_BAR_ONE = [chord(1, 0, 4), chord(6, 4, 4), chord(1, 8, 8)]
+
+/** Unexplained-note failures at the given attacks. */
+function unexplained(...attackIndices: number[]) {
+  return attackIndices.map((attackIndex) => ({
+    code: 'unexplained_non_chord_tone',
+    attackIndex,
+  }))
+}
+
+// @test-link [[rule_embellishment_figures_defined]]
+// @test-link [[rule_figures_resolve_onto_chord_tones]]
+// @test-link [[req_embellishment_figure_levels]]
+// @test-link [[rule_levels_govern_free_figures_only]]
+describe('pitch validation: the free appoggiatura and the diatonic enclosure', () => {
+  const cases = [
+    { name: 'a free appoggiatura', figure: 'appoggiatura', midis: APPOGGIATURA, members: [4] },
+    {
+      name: 'a diatonic enclosure, upper note first',
+      figure: 'diatonicEnclosure',
+      midis: UPPER_FIRST,
+      members: [2, 3],
+    },
+    {
+      name: 'a diatonic enclosure, lower note first',
+      figure: 'diatonicEnclosure',
+      midis: LOWER_FIRST,
+      members: [2, 3],
+    },
+  ] as const
+
+  for (const { name, figure, midis, members } of cases) {
+    it(`accepts ${name} at every level but Off`, () => {
+      for (const level of ['asToday', 'favored', 'stronglyFavored'] as const)
+        expect(
+          failures(midis, {
+            events: ONE_TONIC,
+            figureLevels: levels('asToday', { [figure]: level }),
+          }),
+        ).toEqual([])
+    })
+
+    it(`refuses ${name} at each member when its level is Off`, () => {
+      const off = { events: ONE_TONIC, figureLevels: levels('asToday', { [figure]: 'off' }) }
+      expect(failures(midis, off)).toEqual(unexplained(...members))
+    })
+  }
+
+  it('refuses an appoggiatura entered by step', () => {
+    const stepped = withMidis({ 4: 65, 5: 64 }, CHORD_TONES)
+    expect(failures(APPOGGIATURA, APPOGGIATURA_ONLY)).toEqual([])
+    expect(failures(stepped, APPOGGIATURA_ONLY)).toEqual(unexplained(4))
+  })
+
+  it('refuses an appoggiatura off beats 1 and 3', () => {
+    const weak = withMidis({ 4: 64, 5: 69, 6: 67, 7: 67 }, CHORD_TONES)
+    expect(failures(weak, APPOGGIATURA_ONLY)).toEqual(unexplained(5))
+  })
+
+  it('refuses an appoggiatura whose chord changes before its resolution', () => {
+    // Bar 0: E E, then A on beat 3 as a half note; it resolves onto the G of bar 1's beat 1.
+    const bars = [bar(0, 'q q h'), ...QUARTERS.slice(1)]
+    const midis = [64, 64, 69, 67, 67, 67, 67, 60, 64, 64, 64, 64, 64, 67, 67]
+    expect(failures(midis, { ...APPOGGIATURA_ONLY, bars, events: ONE_TONIC })).toEqual([])
+    expect(failures(midis, { ...APPOGGIATURA_ONLY, bars, events: DOMINANT_BAR_ONE })).toEqual(
+      unexplained(2),
+    )
+  })
+
+  it('refuses a diatonic enclosure split from its target by a rest', () => {
+    const bars = [bar(0, 'q q q e r:e'), ...QUARTERS.slice(1)]
+    for (const midis of [UPPER_FIRST, LOWER_FIRST]) {
+      expect(failures(midis, { ...ENCLOSURE_ONLY, events: ONE_TONIC })).toEqual([])
+      expect(failures(midis, { ...ENCLOSURE_ONLY, bars, events: ONE_TONIC })).toEqual(
+        unexplained(2, 3),
+      )
+    }
+  })
+
+  it('refuses a diatonic enclosure whose chord changes before its target', () => {
+    // Bar 1's E stays a chord tone of A C E, so only the chord change breaks the enclosure.
+    for (const midis of [UPPER_FIRST, LOWER_FIRST]) {
+      expect(failures(midis, { ...ENCLOSURE_ONLY, events: ONE_TONIC })).toEqual([])
+      expect(failures(midis, { ...ENCLOSURE_ONLY, events: SUBMEDIANT_BAR_ONE })).toEqual(
+        unexplained(2, 3),
+      )
+    }
   })
 })
 

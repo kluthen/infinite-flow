@@ -328,6 +328,46 @@ extra cut-offs (at most 9, 0.18 points) are the cost master spec B5.6 expects of
 ordering, a favored tone's dead end spending search work; the cost guard (M2) measures it at the
 wave gate.
 
+### The free appoggiatura and the diatonic enclosure (v3.1 chunk 7)
+
+Chunk 7 writes the two new figures as free figures when their level is not Off
+([pitch-planner-validation.md](music/pitch-planner-validation.md#figure-levels-gate-the-free-figures-v31)),
+and the validator accepts them only then. The sweep's settings are unchanged; it now fails if
+either new figure does not rise from As today to Favored, and from As today to Strongly favored,
+like the other five (the earlier "appear in no setting" check is gone).
+
+**Machine and date.** Run by Claude on 2026-10-19 from 22:02 to 22:20 CEST on branch
+`v3.1-c7-new-free-figures`, on the reference machine (AMD Ryzen 5 PRO 8640HS, 12 threads, Node
+22.23.3, Linux 6.12.111), shared with other builds: 1-minute load average 4.87 before, 1.45 after.
+The run took 1,056 s. Shares do not depend on the load.
+
+Neutral's and Jazz's rows are the v3.0 baseline above, digit for digit: both hold the two new
+figures at Off. Every other setting moves, as master spec B5.3 says it must once the new figures
+are As today or above: they are now candidates the search tries when it backs up past the chord
+tones. With every figure As today the free appoggiatura is in 10.4 % of phrases and the diatonic
+enclosure in 7.5 %, and the five older figures fall (the neighbor tone from 16.7 % to 13.1 %).
+Share of phrases holding each figure along its own ladder, and its mean count per phrase at
+Strongly favored:
+
+| Figure                | Off | As today | Favored | Strongly favored | Per phrase, Strongly favored |
+| --------------------- | --- | -------- | ------- | ---------------- | ---------------------------- |
+| Passing tone          | 0   | 1.3 %    | 67.1 %  | 83.6 %           | 4.100                        |
+| Accented passing tone | 0   | 2.0 %    | 53.3 %  | 65.9 %           | 1.247                        |
+| Neighbor tone         | 0   | 13.1 %   | 91.7 %  | 96.7 %           | 6.682                        |
+| Appoggiatura          | 0   | 10.4 %   | 47.3 %  | 61.2 %           | 0.873                        |
+| Diatonic enclosure    | 0   | 7.5 %    | 67.0 %  | 77.2 %           | 2.943                        |
+| Chromatic approach    | 0   | 9.0 %    | 74.5 %  | 88.1 %           | 4.616                        |
+| Chromatic enclosure   | 0   | 4.5 %    | 59.1 %  | 69.2 %           | 2.674                        |
+
+Unexplained notes: 0 in every setting; no phrase was refused by the result validator. Phrases
+generated (of 5,112), every one not generated being `search_limit_exceeded` except with every
+figure Off (unchanged: 6 `no_legal_pitch_plan`, 2 `search_limit_exceeded`): 5,106 with every
+figure As today, 5,097 with the diatonic enclosure Favored and with it Strongly favored (the most
+cut-offs of any setting, 9 more than the base, 0.18 points), 5,104 to 5,111 everywhere else.
+Turning the appoggiatura or the diatonic enclosure Off gives 5,107 and 5,111. With every figure
+Off, Tension's scheduled figure is still in every Build and Edge phrase. The cost guard (M2)
+measures the search work at the wave gate.
+
 ## Embellishment figures: the cost guard
 
 Measurement M2 (v3.1 build plan, chunk 3; master spec B5.6): the pitch search's cost at three

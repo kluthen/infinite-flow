@@ -63,7 +63,8 @@ export function contourFailures(facts: PhraseFacts): readonly PitchValidationFai
  * The final sounding attack must be an open continuation: a chord tone of the final degree-5
  * harmony (tonal gentle/active), collection degree 5 (tonal static), or a non-tonic chord tone
  * (modal). A trailing rest is irrelevant because only sounding attacks are examined. A phrase
- * generated with carry-in may instead end on a tense note its next phrase resolves.
+ * generated with carry-in may instead end on a tense note its next phrase resolves, when the
+ * levels allow a free scale note there.
  */
 // @spec-link [[module_pitch_domain_validation]]
 // @spec-link [[rule_open_phrase_ending]]
