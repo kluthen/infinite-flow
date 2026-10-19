@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.73
+Status: draft v0.74
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -197,3 +197,50 @@ Opened 2026-10-19 by `spec-writer` when master spec B12 was checked against v3.0
 
 - O231 (v3.1's entry-chunk budget) was closed by [D359](decisions.md) on 2026-10-19: the budget is
   300 KiB.
+
+- **O232 - Does a figure level reach the tense note a joined phrase may end on?** _(opened
+  2026-10-19 from chunk 5's report; master spec
+  [B5.1](versions/v3/master-spec.md#b51-the-seven-figures),
+  [B5.2](versions/v3/master-spec.md#b52-four-levels),
+  [B5.4](versions/v3/master-spec.md#b54-free-figures-and-tensions-scheduled-figure),
+  [B5.6](versions/v3/master-spec.md#b56-the-cost-guard); `rule_join_tense_note_resolution`,
+  `rule_open_phrase_ending`; build plan v3.1,
+  [chunk 7](versions/v3/build-plan-v3.1.md#chunk-7--two-new-free-figures-the-appoggiatura-and-the-diatonic-enclosure)
+  and [chunk 11](versions/v3/build-plan-v3.1.md#chunk-11--the-cost-guard-first-run))_.
+  - **The case, plainly.** In a session, a phrase generated with **carry-in** (it continues the
+    phrase before it, joining it smoothly) may end on a **tense note**: a scale note outside the
+    chord under it, reached by one step from the note before. The next phrase **resolves** it: its
+    first note moves one step onto a note of its opening chord, so the tension settles. Heard across
+    the join, that is the shape of a passing tone (C–D, then E) or of a neighbor tone (E–F, then E),
+    with the phrase boundary, and usually a chord change, in the middle. v2 decided it; B5 names it
+    nowhere. Since chunk 5 no level reaches it: with every figure Off, a joined phrase may still end
+    on one (code: `tenseEndingCandidates`, `src/domain/pitch/pitch-candidates.ts`; the validator
+    accepts it through `isOwedTenseEnding`, `src/domain/pitch/validation/join-rules.ts`).
+  - **Why the record does not settle it.** By B5.1's definitions it is none of the seven figures
+    (no figure spans a chord change; the figures that look across one are out of v3.1), so Off does
+    not literally forbid it, and B5.4's exemption names only Tension's scheduled figure. But the
+    design shows Passing tone `Off` beside "A scale note filling the gap between two notes, like
+    C–D–E", and Neighbor tone `Off` beside "A step away from a note and straight back", and that is
+    what the player may hear at a join. Neutral and Jazz are not concerned: both keep the passing
+    and neighbor tones at As today, so no answer changes an existing phrase.
+  - **(a) Leave it ungated**, a phrase-boundary device like Tension's scheduled figure; B5.4 gains
+    one sentence, no code. Price: a player with both tones Off still hears a stepwise decoration
+    at some joins (sessions only, at most one per phrase, on its last note).
+  - **(b) Gate it like a free scale note at that place (proposed)**: offered only when the levels
+    would allow a free scale note on that last note, that is when the passing tone (the accented
+    passing tone if the note falls on beat 1 or 3) or the neighbor tone is not Off. The next phrase
+    decides which of the two it becomes, so with only one of them Off the join may still sound like
+    that one. Small: one condition in the planner and the same in the validator. Price: with both
+    Off, a joined phrase has one way fewer to end, so a join may fail more often at 240 BPM.
+  - **(c) Gate it exactly**: carry into the next phrase which way its first note may move, so the
+    join obeys each level as a note inside the phrase does. The fullest promise, but the carry-in
+    grows (`rule_join_carry_in_limited`, and the replay and kept-session inputs with it): too much
+    for a case this rare.
+  - **Recommendation: (b).** Off then keeps what the player reads in the case that matters, both
+    tones Off and no outside scale note anywhere, for one condition and no change to Neutral or
+    Jazz. It interacts with gate DP: B5.6's "every diatonic figure Off" setting has both tones Off,
+    so under (b) chunk 11 measures more failed joins there, and if the passing-and-neighbor rule
+    then ships, both can never be Off and (b) changes nothing a player can set.
+  - **When.** Before wave 2's preflight, so that (b) can go to chunk 7, which already changes the
+    candidates and the validator; in any case before chunk 11's run, whose 240 BPM session
+    measures the joins.

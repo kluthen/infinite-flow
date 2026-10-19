@@ -1,6 +1,9 @@
 # Infinite Flow v3.1 — Build Plan
 
-Status: v8 (2026-10-19): from chunk 4's report, version 1 holds a third phrase shape (both the
+Status: v9 (2026-10-19): from chunk 5's report, O232 is open (does a figure level reach the
+tense note a joined phrase may end on?), to rule before wave 2's preflight; chunk 11 also reports
+the Lift phrases that every figure Off left without a pitch plan in chunk 5's M1.
+v8 (2026-10-19): from chunk 4's report, version 1 holds a third phrase shape (both the
 profile and the levels): chunk 8 reads it and routes chunk 4's mapping through
 `profile-to-levels.ts`, chunk 9's step reads all three (spec D367).
 v7 (2026-10-19): wave 1's preflight corrections, before its first chunk: chunk 9's step
@@ -1000,6 +1003,15 @@ Architecture capture: none
   (Dorian) in Dorian), using chunk 10's built-in table. M1. Tune `FAVORED_SHARE` or
   `STRONGLY_FAVORED_SHARE` down if Strongly favored fails acceptance. Report the decision to the
   owner and `spec-writer`.
+  - **Known before the run:** chunk 5's M1 with all seven figures Off (stricter than B5.6's
+    "every diatonic figure Off") left 6 of the 1,278 Lift phrases with no pitch plan
+    (`no_legal_pitch_plan`, standalone phrases), beside 2 `search_limit_exceeded`
+    ([`docs/generation-latency.md`](../../../docs/generation-latency.md#each-figure-off-v31-chunk-5)).
+    Report, per Tension value, the phrases each setting leaves ungenerated and why; they count
+    against the acceptance like any failure.
+  - The runs are made with [O232](../../open-questions.md)'s answer built in (the tense note a
+    joined phrase may end on): under "every diatonic figure Off" it decides whether a joined
+    phrase can still end on one.
 - **Files:** `src/domain/pitch/figure-draw.ts` (constants only, if tuned),
   `docs/generation-latency.md`.
 - **Spec sections:** [B5.6](master-spec.md#b56-the-cost-guard),
