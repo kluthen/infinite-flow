@@ -76,6 +76,11 @@ export type SessionKeeping = 'pinned' | 'not-pinned' | 'not-saved'
 export interface ReviewedSession {
   readonly history: ReviewedHistory
   readonly instrumentName: string
+  /**
+   * The preset label the session recorded at its start, as the session list writes it ("Neutral",
+   * "Jazz", "Custom, based on Jazz"); a snapshot, never rebuilt from the current settings.
+   */
+  readonly presetLabel: string
   /** The last sounded phrase's tempo, in BPM: the highest the session reached. */
   readonly tempoReached: number
   readonly keeping: SessionKeeping

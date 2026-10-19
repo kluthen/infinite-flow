@@ -1115,6 +1115,32 @@ its profile; the operating system's file cache may still hold the database. Hand
 the measurement on the reference machine, and the tablet if at hand
 ([`HARDWARE-CHECKLIST.md`](../HARDWARE-CHECKLIST.md#h2-start-up-wait-chunk-7-about-10-min)).
 
+## The upgrade to data version 2 (M3)
+
+`npm run measure:kept-session-upgrade` times v3.1's first open of a database at data version 1
+holding v3.0's kept sessions, the upgrade included, as the start-up read sees it (`loadMs` on the
+workspace harness in Chromium, the same load M2 times). Each database holds 10, 100 or 500
+v3.0-shaped kept sessions, all pinned, each a session-wide record with a 500-character comment and
+a readable body of real phrases cycled to about 100 kB (15 phrases), as M2's bodies; the cold
+figure is the first load after the browser starts on the profile, the one that upgrades, then
+three warm reloads.
+
+Measured on 2026-10-19 on the AMD Ryzen 5 PRO 8640HS laptop (12 threads, no virtual machine),
+headless Chromium through Playwright, load average about 2 to 3 with no other test running; two
+runs, in milliseconds:
+
+| Kept sessions | Upgrade load (cold) | Warm, slowest |
+| ------------- | ------------------- | ------------- |
+| 10            | 38.8 / 45.7         | 3.3 / 3.0     |
+| 100           | 170.0 / 181.9       | 14.6 / 15.9   |
+| 500           | 726.9 / 750.3       | 12.6 / 13.3   |
+
+The upgrade fits inside the 2 s start-up wait at every count, at most about 38 % of it with 500
+sessions. It grows with the phrases kept: with bodies of about 650 kB (97 phrases, a session of
+about 13 minutes at 120 BPM) the same run measured 901.5 ms for 100 sessions, and 500 sessions
+passed the wait (that visit starts from the defaults; the upgrade still completes, and the next
+visit reads normally). The owner repeats the deciding runs on the reference machine.
+
 ## The app version
 
 `src/storage/app-version.ts` exports `APP_VERSION`, the compile-time constant `__APP_VERSION__`

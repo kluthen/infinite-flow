@@ -5,7 +5,8 @@
  * tempo, engraved from the stored timeline; a phrase only drawn as read-ahead is not in it, a
  * repeat looks like any other phrase, and no played note is drawn although the history holds
  * them. Meanwhile the hidden staff stays laid out (ux D149) and a fresh phrase is generated at
- * Idle, which the next session starts with. A Review inflated to 2 000 phrases lists them all.
+ * Idle, which the next session starts with. Its summary names the preset selected at Start. A
+ * Review inflated to 2 000 phrases lists them all.
  * Nothing in the Review, control or text, grades or scores the playing, its favorites included.
  */
 import { expect, test, type Locator, type Page } from '@playwright/test'
@@ -39,6 +40,7 @@ import {
   phraseStartsAt,
   tap,
 } from '../session/session-midi-helpers'
+import { radio } from '../workspace/helpers'
 import {
   expectIdleReady,
   expectReviewShowing,
@@ -161,10 +163,10 @@ test.describe('the Review a session end opens', () => {
       ['Phrase 1', '90 BPM'],
       ['Phrase 2', '90 BPM'],
     ])
-    // The session date (en-US here), then the phrases, the instrument and the favorites; the
-    // keep line under it.
+    // The session date (en-US here), then the phrases, the instrument, the preset (the default
+    // one) and the favorites; the keep line under it.
     await expect(reviewPanel(page).locator('.review-summary')).toHaveText(
-      /^\w{3}, \w{3} \d{1,2}, \d{4}, \d{1,2}:\d{2}\s[AP]M · 2 phrases · B-flat tenor saxophone · No favorites$/u,
+      /^\w{3}, \w{3} \d{1,2}, \d{4}, \d{1,2}:\d{2}\s[AP]M · 2 phrases · B-flat tenor saxophone · Neutral · No favorites$/u,
     )
     await expect(reviewPanel(page).locator('.review-keep-line')).toHaveText(
       'Not pinned: deleted when your next session is saved.',
@@ -281,6 +283,26 @@ test.describe('the next phrase', () => {
     const [phraseOne] = (await sessionState(page)).lastHistoryPhrases ?? []
     expect(phraseOne?.timeline).toBe(fresh.timeline)
   })
+})
+
+// @test-link [[rule_preset_label_kept_with_session]]
+test('the summary names the preset selected at Start', async ({ page }) => {
+  test.setTimeout(90_000)
+  await gotoSessionHarness(page)
+  await radio(page, 'Musical profile preset', 'Jazz').click()
+  await expect(radio(page, 'Musical profile preset', 'Jazz')).toHaveAttribute(
+    'aria-checked',
+    'true',
+  )
+  await readyToStart(page)
+  await startSession(page)
+  await toRunning(page)
+  await sessionAction(page).click()
+
+  await expectReviewShowing(page, 1)
+  await expect(reviewPanel(page).locator('.review-summary')).toHaveText(
+    / · 1 phrase · B-flat tenor saxophone · Jazz · No favorites$/,
+  )
 })
 
 // @test-link [[req_last_session_review]]

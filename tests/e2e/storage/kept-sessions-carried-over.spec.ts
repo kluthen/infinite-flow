@@ -4,7 +4,8 @@
  * IndexedDB: a Jazz session played and kept by this version, turned in Node into the shapes v3.0
  * kept it in (data version 1) and seeded in a fresh browser context through the harness's v3.0
  * seam while the load is held, is upgraded by the load's open: its records are rewritten at data
- * version 2, the session list shows its preset label and its Review exports the same files.
+ * version 2, the session list and its Review's summary show its preset label, and its Review
+ * exports the same files.
  */
 import { expect, test, type Page } from '@playwright/test'
 
@@ -13,6 +14,7 @@ import {
   collectDownloads,
   exportOnce,
   pickFormat,
+  reviewPanel,
   reviewTitle,
   type DownloadedFile,
 } from '../review/review-helpers'
@@ -112,6 +114,9 @@ test('a session kept by v3.0 is carried over at the open: the list and the Revie
     await rowOpen(fresh, date).click()
     await expect(reviewTitle(fresh)).toBeFocused()
     expect((await sessionState(fresh)).review).toEqual({ showing: true, phraseCount: 2 })
+    await expect(reviewPanel(fresh).locator('.review-summary')).toHaveText(
+      new RegExp(` · 2 phrases · .+ · ${V30_PRESET_LABEL} · No favorites$`),
+    )
     await fresh.screenshot({ path: V30_REVIEW_SCREENSHOT })
 
     const after = await exportBoth(fresh)

@@ -1,8 +1,8 @@
 /**
  * The most recent session after a reload, and its read for `Review last session`: from the kept
  * summaries the load read, the readable one with the latest start, under its key; read back by
- * that key into what its Review draws (its decoded phrases, its start, the instrument's name the
- * summary holds, how it is kept), or told apart: damaged (the codec reads its records as
+ * that key into what its Review draws (its decoded phrases, its start, the instrument's name and
+ * the preset label the summary holds, how it is kept), or told apart: damaged (the codec reads its records as
  * unreadable, a missing body included) or not read (the device refused the read, its records are
  * all absent, or a newer version wrote them). Beside them, the batches that delete damaged
  * sessions: the load's clean-up, which re-reads the summaries at the change, and an opening's.
@@ -120,6 +120,19 @@ describe('reading the most recent session for its Review', () => {
     const reading = await readKeptReviewedSession(() => Promise.resolve(stored), 'k')
 
     expect(reading.kind === 'read' && reading.session.keeping).toBe('not-pinned')
+  })
+
+  // @test-link [[rule_preset_label_kept_with_session]]
+  it('carries the preset label its summary stores', async () => {
+    const customJazz = {
+      ...history,
+      profileSelection: { musicalProfile: 'Jazz', isCustom: true },
+    } as const
+    const stored = kept(customJazz, history.startedAt)
+
+    const reading = await readKeptReviewedSession(() => Promise.resolve(stored), 'k')
+
+    expect(reading.kind === 'read' && reading.session.presetLabel).toBe('Custom, based on Jazz')
   })
 
   // @test-link [[req_kept_session_review]]
