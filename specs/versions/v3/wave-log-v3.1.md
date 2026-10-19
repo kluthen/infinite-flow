@@ -253,3 +253,12 @@ with no owner; chunk 8's drift list and size; chunk 10's key labels) and a v3.0 
   CONTRACT 7.0.0), `module_on_device_database` known drift until chunk 9, the drift-check and
   Revision atoms listed in the chunk report. Left alone: the two corpus recorder scripts still
   label output `ifk1`/`ifk2` (re-recording only; fixtures never change).
+
+### Wave gate (2026-10-19, 19:30 CEST, reference machine, idle)
+
+On `v3.1-w1` at 85c538a. `npm run quality`: exit 0. Code health 0 errors (720 warnings, from
+705: link-count and table-arrow warnings on the new files); unit 457 files, 6,979 tests passed;
+`verify:boundaries` passed; Playwright 456 + 456 passed (1 skipped each, the H3 key test without
+a key), 57 passed, 107 passed and 4 skipped; `atd:lint` and `atd:check` pass. `npm run
+test:sweep` (placed by chunks 4 and 5): exit 0, 5 files, 16 tests, 113 s. **Bundle: entry chunk
+230,609 B**, +1,463 B on v3.0's 229,146 B, 76,591 B under the 300 KiB budget.
