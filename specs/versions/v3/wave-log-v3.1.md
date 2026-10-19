@@ -341,3 +341,17 @@ C6-3, C6-4, C7-1, C9-4.
   Stale for the sync: `module_named_stream_pseudorandomness`, `module_pitch_search_transition`,
   `mechanic_pitch_tie_break_ordering`, `entity_pitch_candidate_domain`,
   `module_favored_figure_draw`'s "not built yet".
+- **Chunk 9, kept sessions hold the levels and the preset label: merged dee61a7** (9a 5cf4798,
+  9b 2750de7; `reviewer` OKAY on the step). Done when met item by item; 2,167 tests on the merged
+  tree (chunk tests and corpus guard), 101 Playwright tests on its specs; new e2e spec
+  `kept-sessions-carried-over.spec.ts` added to `test:e2e`; new script
+  `measure:kept-session-upgrade`. M3 (reference machine, alone): 500 sessions of 100 kB in about
+  0.75 s, inside the 2 s wait, so the step stays at open; with 650 kB bodies 500 sessions run past
+  the wait (one visit from the defaults). **For the owner.** Sent to `spec-writer`: the review
+  summary's missing {length} (both designs show it, no chunk owns it); the M3 heavy-body figure;
+  `parseConcertEventTimeline` accepting a hole in `timeline.measures`. Stale for the sync: part
+  J's chunk 9 half (`rule_kept_session_content`, `entity_kept_session_record`,
+  `module_kept_session_codec`, `module_kept_session_reach`, `req_kept_session_list`,
+  `module_on_device_database` incl. `MigrationUpgrade.appVersion`),
+  `rule_earlier_kept_sessions_carried_over` (reads the mark from the summary, no phrase 1),
+  `module_kept_session_upgrade_step`'s "not built yet".

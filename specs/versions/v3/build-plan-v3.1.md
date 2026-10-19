@@ -938,7 +938,7 @@ Record: 35fafd0, merged as ebeeab9 (55 files; built in parallel with chunks 5 an
 
 ### Chunk 9 — Kept sessions hold the levels and the preset label
 
-Status: in progress (w2, 2026-10-19)
+Status: merged (w2, dee61a7)
 Wave: 2
 Depends on: 8
 Architecture capture: data version 2, inside v3.0's
@@ -1039,6 +1039,8 @@ shape does not change, stay at 1 (spec D370).
 - **Split rule:** if the brief passes about five source files, 9a the records, their versions, the
   label function and data version 2 (`src/storage/` and the label function), 9b the label in the
   session list and the review.
+
+Record: 5cf4798 (9a, records, per-shape versions, the label function, the step, M3 spec) and 2750de7 (9b, the review summary's preset label, M3 in `docs/storage.md`), merged as dee61a7 (built beside chunks 6 and 7); `reviewer` OKAY on the step. `KEPT_SESSIONS_V2` appended, `DATABASE_DATA_VERSION` 2; `KEPT_SESSION_SUMMARY_DATA_VERSION` 2, `KEPT_SESSION_BODY_DATA_VERSION` 2, `KEPT_PLAYED_NOTES_DATA_VERSION` 1; `MigrationUpgrade.appVersion` added; the summary holds `presetLabel` from `presetLabel` in `src/domain/controls/preset-label.ts`. Version 1 database with a v3.0, a chunk 4 and a chunk 8 session and a damaged record opens at version 2; 37 malformed values never make the step throw; exports byte-identical before and after. Kept arrays with holes are now refused. M3, 2026-10-19, reference machine, alone (load 2–3), 100 kB bodies as M2's, cold upgrade: 10 sessions 39–46 ms, 100 sessions 170–182 ms, 500 sessions 727–750 ms, inside the 2 s wait, so no read-time mapping. With 650 kB bodies, 100 sessions 902 ms and 500 past the wait (that visit starts from the defaults; the next reads normally): reported to the owner. Not done here: {length} in the review summary (both designs show it; sent to `spec-writer`); two `@spec-link`s for `rule_preset_label_kept_with_session` left off by the 10-atoms-per-file health limit.
 
 ### Chunk 10 — The preset model
 
