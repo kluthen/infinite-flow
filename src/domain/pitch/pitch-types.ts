@@ -7,7 +7,7 @@ import type {
 } from '../controls/generation-controls'
 import { deepFreeze } from '../events/deep-freeze'
 import type { ConcertPitch } from '../events/concert-pitch'
-import type { FigureLevels } from '../figures/figure-levels'
+import type { FigureId, FigureLevels } from '../figures/figure-levels'
 import type { PhraseEndingDebtAllowance } from '../generation/carry-in/phrase-ending-debt'
 import type { GenerationRequest } from '../generation/generation-request'
 import type { HarmonyCandidate, TensionFigureKind } from '../harmony/harmony-types'
@@ -129,6 +129,14 @@ export interface PitchCandidate {
    * absent when both are allowed and on every other candidate. Not part of the identity.
    */
   readonly freeResolution?: FreeToneResolution
+  /**
+   * The free figures this candidate may start, among those the figure levels allow, in FIGURE_IDS
+   * order; absent when it may start none (chord tones, later notes of a figure path, the notes of
+   * Tension's scheduled figure, the tense note a joined phrase may end on). Read by the search's
+   * ordering; not part of the identity.
+   */
+  // @spec-link [[module_favored_figure_draw]]
+  readonly figures?: readonly FigureId[]
 }
 
 /**

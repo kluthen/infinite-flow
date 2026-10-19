@@ -4,6 +4,7 @@ import {
   allowsChromaticNotes,
   allowsFreeFigure,
   FIGURE_IDS,
+  type FigureId,
   type FigureLevels,
 } from '../figures/figure-levels'
 import {
@@ -27,6 +28,7 @@ interface RawCandidate {
   readonly obligation: string
   readonly reservation?: PitchReservation
   readonly freeResolution?: FreeToneResolution
+  readonly figures?: readonly FigureId[]
 }
 
 /** A concrete figure: member attacks, target attack, member roles, and every MIDI value. */
@@ -300,11 +302,32 @@ function pathIdentity(path: FigurePath): string {
   return `${prefix}${path.kind}/${path.attackIndices.join('-')}/${path.targetAttackIndex}/${path.midis.join('.')}`
 }
 
-/** Spread every path into one reserved raw candidate per member attack. */
+/** The figure a free chromatic approach's or enclosure's first member names. */
+const CHROMATIC_APPROACH_FIGURES: readonly FigureId[] = deepFreeze(['chromaticApproach'])
+const CHROMATIC_ENCLOSURE_FIGURES: readonly FigureId[] = deepFreeze(['chromaticEnclosure'])
+
+/**
+ * The free figure a path's first member may start: its own, for a chromatic approach or enclosure
+ * path; none for a path of Tension's scheduled figure, whose notes no draw may move.
+ */
+// @spec-link [[module_favored_figure_draw]]
+function pathFigures(path: FigurePath): readonly FigureId[] | undefined {
+  if (path.bindingIdentity !== undefined) return undefined
+  if (path.kind === 'chromatic_approach') return CHROMATIC_APPROACH_FIGURES
+  if (path.kind === 'chromatic_enclosure') return CHROMATIC_ENCLOSURE_FIGURES
+  return undefined
+}
+
+/**
+ * Spread every path into one reserved raw candidate per member attack; the first member of a free
+ * chromatic path names its figure, later members name none.
+ */
+// @spec-link [[module_favored_figure_draw]]
 function pathCandidates(paths: readonly FigurePath[]): Map<number, RawCandidate[]> {
   const byAttack = new Map<number, RawCandidate[]>()
   for (const path of paths) {
     const identity = pathIdentity(path)
+    const figures = pathFigures(path)
     path.attackIndices.forEach((attackIndex, memberPosition) => {
       const reservation: PitchReservation = {
         identity,
@@ -322,6 +345,7 @@ function pathCandidates(paths: readonly FigurePath[]): Map<number, RawCandidate[
         midi: path.midis[memberPosition]!,
         obligation: identity,
         reservation,
+        ...(memberPosition === 0 && figures !== undefined ? { figures } : {}),
       })
       byAttack.set(attackIndex, list)
     })
@@ -339,6 +363,8 @@ function tenseEndingCandidates(facts: DomainFacts, attack: PitchAttack): readonl
   const request = facts.input.request
   const allowed = phraseEndingDebtAllowance(request.carryIn !== undefined).tenseNote
   if (!allowed || !attack.isFinal || attack.attackIndex === 0) return []
+  // These tones name no figure: a free `passing_or_neighbor` tone here would otherwise let a draw
+  // favor the tense ending, which the figure levels do not yet gate.
   return diatonicNonChord(facts, attack)
     .filter((midi) => tenseNoteCanSettle(midi, facts.collection, request.registerWindow))
     .map((midi): RawCandidate => ({
@@ -348,28 +374,40 @@ function tenseEndingCandidates(facts: DomainFacts, attack: PitchAttack): readonl
     }))
 }
 
+/** One free figure a free diatonic tone may become, with the resolution that writes it. */
+interface FreeToneFigure {
+  readonly figure: FigureId
+  readonly resolution: FreeToneResolution
+}
+
 /**
- * The resolutions the figure levels allow a free diatonic tone at an attack: as a passing tone
- * (an accented passing tone on beats 1 and 3, a passing tone elsewhere) and as a neighbor tone.
+ * The free figures the levels allow a free diatonic tone at an attack, each with its resolution,
+ * in FIGURE_IDS order: the passing figure for its beat (an accented passing tone on beats 1 and 3,
+ * a passing tone elsewhere), then the neighbor tone.
  */
-function allowedFreeResolutions(
+// @spec-link [[module_favored_figure_draw]]
+function allowedFreeToneFigures(
   levels: FigureLevels,
   attack: PitchAttack,
-): readonly FreeToneResolution[] {
+): readonly FreeToneFigure[] {
   const strong = attack.startTick === 0 || attack.startTick === 8
-  const passing = allowsFreeFigure(levels, strong ? 'accentedPassingTone' : 'passingTone')
-  const neighbor = allowsFreeFigure(levels, 'neighborTone')
-  return [...(passing ? ['passing' as const] : []), ...(neighbor ? ['neighbor' as const] : [])]
+  const figures: readonly FreeToneFigure[] = [
+    { figure: strong ? 'accentedPassingTone' : 'passingTone', resolution: 'passing' },
+    { figure: 'neighborTone', resolution: 'neighbor' },
+  ]
+  return figures.filter(({ figure }) => allowsFreeFigure(levels, figure))
 }
 
 /**
  * Ordinary candidates: chord tones everywhere, free diatonic tones away from the phrase ends, and
  * on the final attack of a phrase that may end owing a resolution, its settleable tense tones.
  * Free diatonic tones are offered only when the figure levels allow at least one of their two
- * resolutions; when they allow exactly one, each free tone carries it as `freeResolution`.
+ * resolutions; when they allow exactly one, each free tone carries it as `freeResolution`. Each
+ * free diatonic tone names the free figures it may start.
  */
 // @spec-link [[rule_figure_level_orders_search]]
 // @spec-link [[rule_levels_govern_free_figures_only]]
+// @spec-link [[module_favored_figure_draw]]
 function ordinaryCandidates(facts: DomainFacts, attack: PitchAttack): readonly RawCandidate[] {
   const chord = chordMidis(facts, attack).map((midi): RawCandidate => ({
     role: 'chord_tone',
@@ -378,14 +416,16 @@ function ordinaryCandidates(facts: DomainFacts, attack: PitchAttack): readonly R
   }))
   if (attack.attackIndex === 0 || attack.isFinal)
     return [...chord, ...tenseEndingCandidates(facts, attack)]
-  const resolutions = allowedFreeResolutions(facts.input.policy.figureLevels, attack)
-  if (resolutions.length === 0) return chord
-  const only = resolutions.length === 1 ? resolutions[0] : undefined
+  const allowed = allowedFreeToneFigures(facts.input.policy.figureLevels, attack)
+  if (allowed.length === 0) return chord
+  const only = allowed.length === 1 ? allowed[0]!.resolution : undefined
+  const figures = allowed.map(({ figure }) => figure)
   const free = diatonicNonChord(facts, attack).map((midi): RawCandidate => ({
     role: 'passing_or_neighbor',
     midi,
     obligation: `free:${attack.identity}`,
     ...(only === undefined ? {} : { freeResolution: only }),
+    figures,
   }))
   return [...chord, ...free]
 }
@@ -405,7 +445,10 @@ function compareCanonical(a: RawCandidate, b: RawCandidate): number {
   )
 }
 
-/** Freeze candidates in canonical order: role, obligation, pitch class, octave. */
+/**
+ * Freeze candidates in canonical order: role, obligation, pitch class, octave. The resolution and
+ * the figures a candidate names are carried only when present, outside its identity.
+ */
 function canonical(raw: readonly RawCandidate[]): readonly PitchCandidate[] {
   const sorted = [...raw].sort(compareCanonical)
   return deepFreeze(
@@ -421,6 +464,7 @@ function canonical(raw: readonly RawCandidate[]): readonly PitchCandidate[] {
         enumerationIndex,
         ...(value.reservation ? { reservation: value.reservation } : {}),
         ...(value.freeResolution === undefined ? {} : { freeResolution: value.freeResolution }),
+        ...(value.figures === undefined ? {} : { figures: value.figures }),
       }
     }),
   )
@@ -489,9 +533,10 @@ function domainMemoKey(facts: DomainFacts, attackIndex: number): number {
 /**
  * Key of a free attack's domain across phrases: every fact its candidates read beyond the store's
  * request, collection and free-figure allowance. That is the attack's index, identity (which holds
- * its onset, so whether it falls on beat 1 or 3), finality and chord; which allowed chromatic
- * ornaments land on it (an enclosure from the attack before, an approach or an enclosure from
- * itself); and the chords of the targets those ornaments resolve to.
+ * its onset, so whether it falls on beat 1 or 3, and so which passing figure a free tone names),
+ * finality and chord; which allowed chromatic ornaments land on it (an enclosure from the attack
+ * before, an approach or an enclosure from itself); and the chords of the targets those ornaments
+ * resolve to.
  */
 function freeDomainKey(facts: DomainFacts, attack: PitchAttack): string {
   const index = attack.attackIndex
