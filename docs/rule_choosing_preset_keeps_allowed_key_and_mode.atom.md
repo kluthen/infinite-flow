@@ -5,7 +5,8 @@ layer: BUSINESS
 version: 0.1
 parents:
   - [[rule_key_and_mode_restriction]]
-dependents: []
+dependents:
+  - [[module_preset_model]]
 type: RULE
 priority: 1
 human_name: Choosing a Preset Keeps the Key and Mode When It Can

@@ -1,10 +1,12 @@
 ---
 id: module_musical_profile_capabilities
 status: REVIEW
-human_name: Musical Profile Capabilities
+human_name: Generator Capabilities From the Figure Levels
 layer: ARCHITECTURE
-version: 0.1
+version: 0.2
 parents:
+  - [[module_figure_levels]]
+  - [[rule_chromatic_notes_need_a_chromatic_figure]]
   - [[rule_jazz_chromatic_resolution]]
 type: MODULE
 priority: 2
@@ -12,20 +14,16 @@ tags: musical-profile,capability,jazz-profile
 dependents: []
 ---
 
-# Musical Profile Capabilities
+# Generator Capabilities From the Figure Levels
 
 ## INTENT
-
-Let a musical profile declare named capabilities as data so planner and validator behavior is gated by a declared capability, never by comparing a musical-profile name.
+Gate every planner and validator decision that varies with what may be written on what the generation request's figure levels allow, never on a musical profile's or a preset's name.
 
 ## THE RULE / LOGIC
-
-Each musical profile (first-release: neutral, jazz; later presets and characters) declares its own set of named capabilities as data alongside its other profile data. The first-release capability is chromatic approach and enclosure figures allowed: the jazz profile declares it and the neutral profile does not. Any planner or validator decision that varies by profile must read a declared capability's presence, never compare the profile's name or identity. Adding a musical profile means declaring its capabilities in one data entry; it requires no planner or validator code change. Moving planner and validator checks from profile-name comparison to capability declaration leaves every generated result unchanged.
+No musical profile or preset declares capabilities. The capability the pitch policy and the result validator carry, whether chromatic approaches and enclosures may be written, is worked out from the generation request's figure levels through the figures module's allowance: it holds exactly when the chromatic approach or the chromatic enclosure is not off. Neutral's levels give no such capability and Jazz's give it, so every generated result is unchanged. Any planner or validator decision that varies with what may be written reads the allowance, never a musical profile's or a preset's name or identity, nor a table keyed by one; a new preset needs only its levels, with no planner or validator change.
 
 ## TECHNICAL INTERFACE
-
-The musical-profile data structure exposes a set of declared named capabilities per profile. Planner and validator code reads whether a specific named capability is declared on the active profile and branches on that boolean, never on the profile's name or identity.
+The pitch policy (makePitchPolicy, src/domain/pitch/pitch-policy.ts) and the result validator (src/domain/validation/generation-result-validator.ts) build their capabilities from the intent's figureLevels through the allowance of src/domain/figures/figure-levels.ts (module_figure_levels). No table of capabilities keyed by a musical profile's name exists.
 
 ## EXPECTATION
-
-No planner or validator code path compares a musical-profile name to decide behavior; each such decision instead checks a declared capability. Adding a new musical profile or capability requires only a new data entry, with no change to planner or validator code. Golden fixtures and existing generated results are unchanged after the capability read replaces a name comparison.
+No planner or validator code path reads a musical profile's or a preset's name, or a table keyed by one, to decide a note; each such decision reads the allowance worked out from the request's figure levels. Neutral's levels allow no chromatic approach or enclosure and Jazz's allow both, and the golden fixtures, the replay-key corpora and existing generated results are unchanged.

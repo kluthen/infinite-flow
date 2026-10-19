@@ -4,7 +4,8 @@ status: DRAFT
 version: 0.1
 parents:
   - [[req_presets]]
-dependents: []
+dependents:
+  - [[module_preset_model]]
 type: RULE
 layer: BUSINESS
 priority: 1

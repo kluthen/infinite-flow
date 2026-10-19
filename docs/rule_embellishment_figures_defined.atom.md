@@ -7,7 +7,8 @@ version: 0.1
 priority: 1
 parents:
   - [[req_embellishment_figure_levels]]
-dependents: []
+dependents:
+  - [[module_figure_levels]]
 type: RULE
 human_name: The Seven Embellishment Figures
 ---

@@ -1,7 +1,9 @@
 ---
 id: rule_chromatic_notes_need_a_chromatic_figure
 status: DRAFT
-dependents: []
+dependents:
+  - [[module_figure_levels]]
+  - [[module_musical_profile_capabilities]]
 layer: BUSINESS
 priority: 1
 type: RULE

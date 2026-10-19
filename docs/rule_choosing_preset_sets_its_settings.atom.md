@@ -3,7 +3,8 @@ id: rule_choosing_preset_sets_its_settings
 status: DRAFT
 parents:
   - [[req_presets]]
-dependents: []
+dependents:
+  - [[module_preset_model]]
 type: RULE
 version: 0.1
 human_name: Choosing a Preset Sets All Its Settings

@@ -5,7 +5,9 @@ type: RULE
 layer: BUSINESS
 version: 0.1
 human_name: Figure Draws Reproduce Everywhere
-dependents: []
+dependents:
+  - [[module_generation_request_construction]]
+  - [[module_phrase_replay_key]]
 priority: 1
 tags: [v3, release-v3.1, generation, figures, determinism]
 parents:

@@ -4,7 +4,8 @@ status: DRAFT
 type: RULE
 human_name: At Most 50 Player Presets
 tags: [v3, release-v3.1, player-controls, presets]
-dependents: []
+dependents:
+  - [[module_preset_model]]
 layer: BUSINESS
 version: 0.1
 priority: 1

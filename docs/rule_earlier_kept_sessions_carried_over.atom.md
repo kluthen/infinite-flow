@@ -4,7 +4,8 @@ status: DRAFT
 tags: [v3, release-v3.1, storage, review, presets]
 parents:
   - [[req_kept_sessions]]
-dependents: []
+dependents:
+  - [[module_stored_profile_to_levels]]
 version: 0.2
 type: RULE
 layer: BUSINESS

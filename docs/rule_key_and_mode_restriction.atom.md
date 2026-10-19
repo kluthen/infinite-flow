@@ -10,6 +10,7 @@ tags: [v3, release-v3.1, player-controls, presets]
 parents:
   - [[req_presets]]
 dependents:
+  - [[module_preset_model]]
   - [[rule_choosing_preset_keeps_allowed_key_and_mode]]
   - [[rule_restriction_in_force]]
   - [[rule_saving_preset_asks_its_restriction]]
