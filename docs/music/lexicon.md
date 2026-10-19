@@ -1483,9 +1483,9 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** inverted chord, first inversion, second inversion, root position
 - **popup:** A chord with a note other than its root in the bass, such as C major with E at the bottom.
 - **definition:** A chord is in root position when its root is the lowest note: C–E–G for C major. When another chord note is the lowest, the chord is inverted. With the third at the bottom (E–G–C) it is in first inversion; with the fifth at the bottom (G–C–E), second inversion. An inverted chord keeps its name and function but sounds lighter or less settled, and inversions let a bass line move by step.
-- **in_infinite_flow:** Not built: every chord is in root position, and the backing's bass plays the root. The backing's block chords already use inversions above that bass, to keep their top note at or below E4. A seventh chord has a third inversion too, with the seventh in the bass.
-- **related:** `chord`, `root`, `voicing`, `triad`
-- **sources:** S14, S416, src/domain/backing/backing-renderer.ts
+- **in_infinite_flow:** Not built: every chord is in root position, and the backing's bass plays the root. The backing's block chords already use inversions above that bass, to keep their top note at or below E4. A seventh chord has a third inversion too, with the seventh in the bass. Style atlas research: several style entries (Baroque, Classical, chorale) ask for inversions in the bass (docs/music/styles/art-music.md).
+- **related:** `chord`, `root`, `voicing`, `triad`, `basso-continuo`
+- **sources:** S14, S276, S416, src/domain/backing/backing-renderer.ts, docs/music/styles/art-music.md
 
 ### Chord progression
 
@@ -1954,8 +1954,8 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **popup:** Which exact notes of a chord are played, in which octaves and in what order from low to high.
 - **definition:** A chord names a set of notes, but a voicing is one particular way to play them: which octave each note is in, which note is on top, whether a note is doubled or left out, and how close together they sit. In close position the notes are packed inside an octave; in open position they are spread wider. Jazz players often leave out the root and the fifth and keep the third and the seventh.
 - **in_infinite_flow:** The backing plays close-position triads with the top note at or below E4 (MIDI 64).
-- **related:** `chord`, `triad`, `root`, `chord-inversion`
-- **sources:** S418, S427, src/domain/backing/backing-renderer.ts
+- **related:** `chord`, `triad`, `root`, `chord-inversion`, `guide-tone`, `voice-leading`, `comping`
+- **sources:** S131, S146, S418, S427, src/domain/backing/backing-renderer.ts
 
 ## Scales and modes
 
