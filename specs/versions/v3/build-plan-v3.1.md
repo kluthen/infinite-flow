@@ -618,7 +618,7 @@ Record: 7afa187 (5a, the search) and 8ab76c9 (5b, the validator, M1, docs), merg
 
 ### Chunk 6 — Favored levels order the search
 
-Status: planned
+Status: in progress (w2, 2026-10-19)
 Wave: 2
 Depends on: 5
 Architecture capture: the favored draw, `isFigureDrawn(seed, noteIdentity, figureId, level)` in
@@ -936,7 +936,7 @@ Record: 35fafd0, merged as ebeeab9 (55 files; built in parallel with chunks 5 an
 
 ### Chunk 9 — Kept sessions hold the levels and the preset label
 
-Status: planned
+Status: in progress (w2, 2026-10-19)
 Wave: 2
 Depends on: 8
 Architecture capture: data version 2, inside v3.0's

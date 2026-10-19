@@ -321,3 +321,9 @@ C6-3, C6-4, C7-1, C9-4.
   which chunk 12 routes the summary through; D372 the rest (fallback dropped, Part B v1.4; chunk
   6 Files and a 6a/6b split rule; drift checks; chunk 7 Atoms; chunk 9 Files, owner notes and
   Done when). Captures to amend to D369 and D372 before chunks 6 and 9 start.
+- **Captures amended (afbafd3, `documentalist`):** `module_favored_figure_draw` 0.2 (D369) and
+  `module_kept_session_upgrade_step` 0.2 (D370–D372). For the sync: the migration step now
+  receives the app version (a STABLE interface detail under J3's "data version 2 and its step");
+  check what the open does after a callback abort.
+- **Chunks 6 and 9 dispatched in parallel** (no shared file; chunk 7 follows 6). Chunk 9, a data
+  migration, has a `reviewer` check its step before merging.
