@@ -371,3 +371,12 @@ C6-3, C6-4, C7-1, C9-4.
   for the sync: `rule_join_tense_note_resolution` (D368), `module_favored_figure_draw` (lists the
   two new figures; "not built yet"), `entity_pitch_candidate_domain`,
   `module_pitch_domain_validation`.
+
+### Wave gate (2026-10-19, 22:24 CEST, reference machine, load 3.4 falling, nothing else running)
+
+On `v3.1-w2` at 90b9945. `npm run quality`: exit 0. Code health 0 errors (724 warnings); unit
+471 files, 7,248 tests passed; `verify:boundaries` passed (48 JS chunks, from 42); Playwright
+458 + 458 passed (1 skipped each), 57 passed, 107 passed and 4 skipped; `atd:lint` and
+`atd:check` pass. `npm run test:sweep` (placed by chunks 6 and 7): exit 0, 5 files, 16 tests,
+116 s. **Bundle: entry chunk 227,702 B**, −2,907 B on wave 1's 230,609 B (−1,444 B on v3.0's
+229,146 B), 79,498 B under the 300 KiB budget.
