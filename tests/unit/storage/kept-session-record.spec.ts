@@ -11,6 +11,8 @@ import {
   type SessionHistoryRecord,
 } from '@/session/session-history'
 import type { SessionSettings } from '@/session/session-types'
+import { upgradedKeptBody, upgradedKeptSummary } from '@/storage/migrations/kept-sessions-v2'
+import type { RecordVersions } from '@/storage/record-envelope'
 import {
   decodeKeptSession,
   encodeKeptSession,
@@ -31,6 +33,14 @@ import {
   storedRecords,
   type Step,
 } from './kept-session-fixtures'
+import {
+  chunk4Intent,
+  reshapedBody,
+  storedIntents,
+  v1Body,
+  v1Summary,
+  v30Intent,
+} from './kept-sessions-v1-fixtures'
 import {
   DEFAULT_SESSION_SEED,
   SessionDriver,
@@ -84,39 +94,8 @@ const INTENT_KEYS = [
   'registerIntent',
 ]
 
-/** Intent: the stored intent of every phrase of a stored body. */
-function storedIntents(body: unknown): readonly Record<string, unknown>[] {
-  return (body as { phrases: readonly { intent: Record<string, unknown> }[] }).phrases.map(
-    (phrase) => phrase.intent,
-  )
-}
-
-/**
- * Intent: a stored body with every phrase's intent edited by `reshape`, as a session kept by
- * earlier code at data version 1 holds it.
- */
-function reshapedBody(
-  body: unknown,
-  reshape: (intent: Record<string, unknown>, index: number) => Record<string, unknown>,
-): unknown {
-  const copy = structuredClone(body) as { phrases: { intent: Record<string, unknown> }[] }
-  copy.phrases.forEach((phrase, index) => {
-    phrase.intent = reshape(phrase.intent, index)
-  })
-  return copy
-}
-
-/** Intent: a stored intent as v3.0 kept it: a profile selection in place of its levels. */
-function v30Intent(intent: Record<string, unknown>, selection: ProfileSelection) {
-  const { figureLevels, ...rest } = intent
-  void figureLevels
-  return { ...rest, musicalProfile: { ...selection } }
-}
-
-/** Intent: a stored intent as chunk 4's code kept it: its levels and a profile selection. */
-function chunk4Intent(intent: Record<string, unknown>, selection: ProfileSelection) {
-  return { ...intent, musicalProfile: { ...selection } }
-}
+/** The Neutral preset's selection, not customized. */
+const NEUTRAL: ProfileSelection = { musicalProfile: 'Neutral', isCustom: false }
 
 // @test-link [[entity_kept_session_record]]
 // @test-link [[rule_kept_session_holds_no_acknowledgements]]
@@ -147,7 +126,7 @@ describe('encodeKeptSession on a five-phrase session with played notes and ackno
         'startedAt',
         'lengthSeconds',
         'phraseCount',
-        'musicalProfile',
+        'presetLabel',
         'instrument',
         'startingTempo',
         'tempoReached',
@@ -159,10 +138,7 @@ describe('encodeKeptSession on a five-phrase session with played notes and ackno
         'sessionSeed',
       ].sort(),
     )
-    expect(Object.keys(records.summary.musicalProfile).sort()).toEqual([
-      'isCustom',
-      'musicalProfile',
-    ])
+    expect(typeof records.summary.presetLabel).toBe('string')
     expect(Object.keys(records.summary.instrument).sort()).toEqual(['displayName', 'id'])
     expect(Object.keys(records.body).sort()).toEqual(['appVersion', 'dataVersion', 'phrases'])
     const phraseKeys = [
@@ -194,11 +170,12 @@ describe('encodeKeptSession on a five-phrase session with played notes and ackno
   })
 
   // @test-link [[entity_kept_session_record]]
-  it('writes every record at data version 1 by the app version given, the clef treble', () => {
-    for (const record of [records.summary, records.body, records.playedNotes!]) {
-      expect(record.dataVersion).toBe(1)
+  it('writes the summary and body at data version 2, the played notes at 1, by the app version given, the clef treble', () => {
+    expect(records.summary.dataVersion).toBe(2)
+    expect(records.body.dataVersion).toBe(2)
+    expect(records.playedNotes!.dataVersion).toBe(1)
+    for (const record of [records.summary, records.body, records.playedNotes!])
       expect(record.appVersion).toBe(APP_VERSION)
-    }
     expect(records.body.phrases.every((phrase) => phrase.clef === 'treble')).toBe(true)
   })
 
@@ -345,9 +322,18 @@ describe('what a kept phrase holds in place of the musical profile', () => {
   })
 })
 
+/** Intent: a stored session's data version 1 records carried over by the upgrade step's rewrites. */
+function upgraded(stored: StoredKeptSession, summary: unknown, body: unknown): StoredKeptSession {
+  return {
+    ...stored,
+    summary: upgradedKeptSummary(summary, APP_VERSION) ?? summary,
+    body: upgradedKeptBody(body, APP_VERSION) ?? body,
+  }
+}
+
 // @test-link [[module_kept_session_codec]]
 // @test-link [[module_stored_profile_to_levels]]
-describe('decodeKeptSession of sessions kept by earlier code at data version 1', () => {
+describe('decodeKeptSession of sessions kept by earlier code at data version 1, once upgraded', () => {
   let history: SessionHistory
   let stored: StoredKeptSession
 
@@ -377,30 +363,37 @@ describe('decodeKeptSession of sessions kept by earlier code at data version 1',
   // @test-link [[module_kept_session_codec]]
   // @test-link [[module_stored_profile_to_levels]]
   it("opens a v3.0-shaped session, each phrase with its profile's levels, review and exports as saved", () => {
-    const body = reshapedBody(stored.body, (intent) => v30Intent(intent, history.profileSelection))
+    const body = v1Body(stored.body, (intent) => v30Intent(intent, history.profileSelection))
     for (const intent of storedIntents(body))
       expect(Object.hasOwn(intent, 'figureLevels')).toBe(false)
 
-    expectReviewAndExportsAsSaved(decoded({ ...stored, body }))
+    const session = decoded(
+      upgraded(stored, v1Summary(stored.summary, history.profileSelection), body),
+    )
+
+    expectReviewAndExportsAsSaved(session)
+    expect(session.summary.presetLabel).toBe('Custom, based on Neutral')
   })
 
   // @test-link [[module_kept_session_codec]]
   it('opens a chunk-4-shaped session, each phrase with its profile and those levels', () => {
-    const body = reshapedBody(stored.body, (intent) =>
-      chunk4Intent(intent, history.profileSelection),
-    )
+    const body = v1Body(stored.body, (intent) => chunk4Intent(intent, history.profileSelection))
 
-    expectReviewAndExportsAsSaved(decoded({ ...stored, body }))
+    expectReviewAndExportsAsSaved(
+      decoded(upgraded(stored, v1Summary(stored.summary, history.profileSelection), body)),
+    )
   })
 
   // @test-link [[module_kept_session_codec]]
   it("reads a chunk-4-shaped session as unreadable when one phrase's levels differ from its profile", () => {
     const jazz: ProfileSelection = { musicalProfile: 'Jazz', isCustom: false }
-    const body = reshapedBody(stored.body, (intent, index) =>
+    const body = v1Body(stored.body, (intent, index) =>
       chunk4Intent(intent, index === 2 ? jazz : history.profileSelection),
     )
 
-    expect(decodeKeptSession({ ...stored, body })).toEqual({ reading: 'unreadable' })
+    expect(upgradedKeptBody(body, APP_VERSION)).toBeNull()
+    const session = upgraded(stored, v1Summary(stored.summary, history.profileSelection), body)
+    expect(decodeKeptSession(session)).toEqual({ reading: 'unreadable' })
   })
 })
 
@@ -430,7 +423,33 @@ describe('the summary of a session started with Use it on phrase 1 of other sett
     const records = encodeKeptSession(history, { ...KEPT_FACTS, favorites: [1] }, APP_VERSION)
 
     expect(history.phrases()[0]!.intent.figureLevels).toStrictEqual(NEUTRAL_FIGURE_LEVELS)
-    expect(records.summary.musicalProfile).toEqual({ musicalProfile: 'Jazz', isCustom: false })
+    expect(records.summary.presetLabel).toBe('Jazz')
+  })
+})
+
+// @test-link [[rule_preset_label_kept_with_session]]
+describe("the preset label a new session's summary records", () => {
+  let records: readonly SessionHistoryRecord[]
+
+  beforeAll(() => {
+    records = recordedKeptSession('bb-tenor', 3).phrases()
+  })
+
+  // @test-link [[rule_preset_label_kept_with_session]]
+  it.each([
+    [{ musicalProfile: 'Neutral', isCustom: false }, 'Neutral'],
+    [{ musicalProfile: 'Jazz', isCustom: false }, 'Jazz'],
+    [{ musicalProfile: 'Jazz', isCustom: true }, 'Custom, based on Jazz'],
+  ] as const)('records %j as "%s", at data version 2', (selection, label) => {
+    const kept = encodeKeptSession(
+      historyOf(records, 'bb-tenor', selection),
+      { ...KEPT_FACTS, favorites: [1] },
+      APP_VERSION,
+    )
+
+    expect(kept.summary.presetLabel).toBe(label)
+    expect(kept.summary.dataVersion).toBe(2)
+    expect(decoded(storedRecords(kept)).summary.presetLabel).toBe(label)
   })
 })
 
@@ -449,7 +468,8 @@ describe('decodeKeptSession of newer or invalid stored values', () => {
   it.each(['summary', 'body', 'playedNotes'] as const)(
     'reports a newer %s record as newer and reads nothing, whatever else is stored',
     (which) => {
-      const newer = { ...stored, [which]: edited(stored[which], ['dataVersion'], 2) }
+      const version = (stored[which] as RecordVersions).dataVersion
+      const newer = { ...stored, [which]: edited(stored[which], ['dataVersion'], version + 1) }
 
       expect(decodeKeptSession(newer)).toEqual({ reading: 'newer' })
       expect(
@@ -500,12 +520,14 @@ describe('decodeKeptSession of newer or invalid stored values', () => {
     ['phrase 1 not starting at 0', 'body', ['phrases', 0, 'startsAt'], 0.5],
     ['starts out of order', 'body', ['phrases', 2, 'startsAt'], 1],
     ['no phrase', 'body', ['phrases'], []],
+    ['phrases with a hole', 'body', ['phrases', 1], REMOVE],
     ['a note velocity of 0', 'playedNotes', ['notes', 0, 'velocity'], 0],
     ['a note pitch above MIDI', 'playedNotes', ['notes', 0, 'pitch'], 128],
     ['a note released before its onset', 'playedNotes', ['notes', 0, 'release'], 0],
     ['a note before phrase 1', 'playedNotes', ['notes', 0, 'onset'], -0.1],
     ['notes out of onset order', 'playedNotes', ['notes', 1, 'onset'], 0],
     ['a note with an extra key', 'playedNotes', ['notes', 0, 'channel'], 1],
+    ['notes with a hole', 'playedNotes', ['notes', 1], REMOVE],
   ]
 
   // @test-link [[module_kept_session_codec]]
@@ -515,6 +537,32 @@ describe('decodeKeptSession of newer or invalid stored values', () => {
       const invalid = { ...stored, [which]: edited(stored[which], path, replacement) }
 
       expect(decodeKeptSession(invalid)).toEqual({ reading: 'unreadable' })
+    },
+  )
+
+  // @test-link [[entity_kept_session_record]]
+  it('reads a session whose played notes are at data version 1 and its summary and body at 2', () => {
+    expect((stored.playedNotes as RecordVersions).dataVersion).toBe(1)
+    expect(decodeKeptSession(stored).reading).toBe('current')
+  })
+
+  // @test-link [[entity_kept_session_record]]
+  it.each(['summary', 'body'] as const)('reports a %s at data version 1 as unreadable', (which) => {
+    const older = { ...stored, [which]: edited(stored[which], ['dataVersion'], 1) }
+
+    expect(decodeKeptSession(older)).toEqual({ reading: 'unreadable' })
+  })
+
+  // @test-link [[module_kept_session_codec]]
+  it.each([
+    ['in place of its levels', (intent: Record<string, unknown>) => v30Intent(intent, NEUTRAL)],
+    ['beside its levels', (intent: Record<string, unknown>) => chunk4Intent(intent, NEUTRAL)],
+  ])(
+    'reports a body at data version 2 whose intents hold a musical profile %s as unreadable',
+    (_, reshape) => {
+      const body = reshapedBody(stored.body, reshape)
+
+      expect(decodeKeptSession({ ...stored, body })).toEqual({ reading: 'unreadable' })
     },
   )
 

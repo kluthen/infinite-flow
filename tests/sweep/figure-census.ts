@@ -68,8 +68,9 @@ const APPOGGIATURA_LEAP = 3
 
 /*
  * The validator's figure helpers (figure-rules.ts: `sameDirection`, `tightGroup`,
- * `freeDiatonicFigure` and `chromaticOrnament`) are private to it, so the census reimplements them
- * here, rule for rule, rather than importing them. The census's rules stay level-blind: it reports
+ * `freeDiatonicFigure`, `chromaticOrnament`, `diatonicNonChord`, `freeAppoggiatura` and
+ * `diatonicEnclosureMembers`) are private to it, so the census reimplements them here, rule for
+ * rule, rather than importing them. The census's rules stay level-blind: it reports
  * what a phrase holds, whatever figure levels it was generated with.
  */
 
@@ -261,7 +262,7 @@ export function censusOfContext(
  * Intent: the validation context of a successful outcome, built field for field as the whole-result
  * validator's `melodicFailures` builds it (that function is private, so it is mirrored here).
  */
-function contextOf(
+export function contextOf(
   intent: GenerationIntent,
   outcome: Extract<GenerationOutcome, { kind: 'generation_success' }>,
 ): PitchValidationContext {

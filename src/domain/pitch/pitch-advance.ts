@@ -16,6 +16,7 @@ import {
 import { advanceMotion, motionSettled, reachBound } from './pitch-motion'
 import { pitchRank } from './pitch-ranking'
 import type {
+  FavoredEntry,
   PitchAdvanceResult,
   PitchAttack,
   PitchCandidate,
@@ -167,9 +168,23 @@ export function indexedDomainMember(context: PitchSearchContext): DomainMemberLo
 const UNREAD_RANKING_FACTS: readonly number[] = deepFreeze([])
 
 /**
+ * Why a favored entry cannot be tried with its domain member, if it cannot: the member must name
+ * the entry's figure, and a hold must come exactly with a free diatonic tone (a candidate without
+ * a reservation), since a figure path's first member is already held by its path.
+ */
+function favoredError(candidate: PitchCandidate, favored: FavoredEntry): string | undefined {
+  if (candidate.figures?.includes(favored.figure) !== true) return 'favored_figure_not_named'
+  if ((favored.hold !== undefined) !== (candidate.reservation === undefined))
+    return 'favored_hold_mismatch'
+  return undefined
+}
+
+/**
  * The thin transition shared by `advance` and `advanceSearchStep`. `published` results carry
  * their ranking facts and are deep-frozen; internal search steps skip both because the search only
- * reads `kind` and `nextState`, and never exposes or mutates either.
+ * reads `kind` and `nextState`, and never exposes or mutates either. A `favored` entry tries the
+ * candidate as its drawn figure: the figure reducer reads a held free tone with the entry's hold
+ * as its one allowed resolution, and the ranking facts rank it as the search does.
  */
 function transition(
   context: PitchSearchContext,
@@ -177,6 +192,7 @@ function transition(
   proposed: PitchCandidate,
   member: DomainMemberLookup,
   published: boolean,
+  favored: FavoredEntry | undefined,
 ): PitchAdvanceResult {
   const finish = (result: PitchAdvanceResult): PitchAdvanceResult =>
     published ? deepFreeze(result) : result
@@ -184,6 +200,8 @@ function transition(
   if (!attack) return finish({ kind: 'rejected', reason: 'no_remaining_attack' })
   const candidate = member(attack, proposed)
   if (!candidate) return finish({ kind: 'rejected', reason: 'candidate_outside_domain' })
+  const favoredReason = favored === undefined ? undefined : favoredError(candidate, favored)
+  if (favoredReason) return finish({ kind: 'rejected', reason: favoredReason })
   const note = noteFacts(context, attack, candidate.midi)
   if (attack.isFinal && !context.finalMidis.includes(candidate.midi))
     return finish({ kind: 'rejected', reason: 'open_endpoint_violation' })
@@ -194,7 +212,8 @@ function transition(
     isFinal: attack.isFinal,
     ...(state.prior ? { prior: state.prior } : {}),
     note,
-    candidate,
+    candidate:
+      favored?.hold === undefined ? candidate : { ...candidate, freeResolution: favored.hold },
     ...(attack.isFinal && context.endingDebt.tenseNote ? { mayOweResolution: true } : {}),
   })
   if (figure.kind === 'rejected') return figure
@@ -223,7 +242,13 @@ function transition(
   const terminal = attack.isFinal ? terminalError(context, nextState, candidate.midi) : undefined
   if (terminal) return finish({ kind: 'rejected', reason: terminal })
   const rankingFacts = published
-    ? pitchRank(context.input.policy.arpeggioChaos, attack, candidate, priorSoundingMidi(state))
+    ? pitchRank(
+        context.input.policy.arpeggioChaos,
+        attack,
+        candidate,
+        priorSoundingMidi(state),
+        favored,
+      )
     : UNREAD_RANKING_FACTS
   return finish({ kind: 'accepted', nextState, rankingFacts })
 }
@@ -231,12 +256,16 @@ function transition(
 /**
  * The thin transition: compose the figure, motion, and contour reducers for one candidate on the
  * next attack, then apply the open-endpoint and terminal checks. It never rescans the prefix.
+ * With `favored`, the candidate is tried as that drawn figure (a free diatonic tone held to the
+ * entry's resolution), and rejected when it does not name the figure or the hold does not fit it.
  */
 // @spec-link [[module_pitch_search_transition]]
+// @spec-link [[module_favored_figure_draw]]
 export function advance(
   context: PitchSearchContext,
   state: PitchSearchState,
   proposed: PitchCandidate,
+  favored?: FavoredEntry,
 ): PitchAdvanceResult {
   return transition(
     context,
@@ -244,22 +273,26 @@ export function advance(
     proposed,
     (attack, candidate) => domainMember(context, attack, candidate),
     true,
+    favored,
   )
 }
 
 /**
  * `advance` as `searchPitchPlan`'s inner step: the same acceptance, rejection reason, and
  * `nextState`, resolved through the search run's `indexedDomainMember` lookup, without the unread
- * ranking facts or the defensive freeze. It is charged one unit of fuel exactly like `advance`.
+ * ranking facts or the defensive freeze. It is charged one unit of fuel exactly like `advance`,
+ * and takes the same optional favored entry.
  */
 // @spec-link [[module_pitch_search_transition]]
+// @spec-link [[module_favored_figure_draw]]
 export function advanceSearchStep(
   context: PitchSearchContext,
   state: PitchSearchState,
   proposed: PitchCandidate,
   member: DomainMemberLookup,
+  favored?: FavoredEntry,
 ): PitchAdvanceResult {
-  return transition(context, state, proposed, member, false)
+  return transition(context, state, proposed, member, false, favored)
 }
 
 /** Exact memo key: every field that can influence the rest of the search. */

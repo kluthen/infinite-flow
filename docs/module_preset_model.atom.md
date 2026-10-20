@@ -1,6 +1,6 @@
 ---
 id: module_preset_model
-status: DRAFT
+status: REVIEW
 dependents: []
 layer: ARCHITECTURE
 priority: 1

@@ -1,6 +1,17 @@
 # Infinite Flow v3.1 — Build Plan
 
-Status: v10 (2026-10-19): the owner's answer to O232 (spec D368): chunk 7 also gates the tense
+Status: v13 (2026-10-20): the owner's answer to O233 (spec D376): v3.0's sessions are carried
+over at open only, the rare overrun of the start-up wait is accepted and B9 states it; gate M3H
+is done and the release gate no longer waits for it.
+v12 (2026-10-19): from chunk 9's report: chunk 22 joins wave 3 after chunk 12, {length}
+in the review's summary (spec D373); M3's version 2 result, the step stays at open, and the
+heavy-body case goes to the owner as O233, gate M3H (spec D374); a hole in a timeline's measures
+goes to ISS-013 (spec D375).
+v11 (2026-10-19): wave 2's preflight corrections, before its first chunk: a favored free
+scale tone is tried first as the drawn figure and keeps its usual place (chunk 6); each kept shape
+keeps its own data version, played notes at 1, and new sessions write the label in B9's form
+(chunk 9); files, atoms and owner notes follow the code (spec D369–D372).
+v10 (2026-10-19): the owner's answer to O232 (spec D368): chunk 7 also gates the tense
 note a joined phrase may end on by the passing, accented passing and neighbor tones' levels;
 chunk 11's runs carry it.
 v9 (2026-10-19): from chunk 5's report, O232 is open (does a figure level reach the
@@ -89,18 +100,19 @@ waits, but no release is cut before wave 5 has merged.
 | **L1**       | The owner's listening check of the figure levels ([H1](#hand-checks)); the shares are tuned from it.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | The owner                                                                                                 | The release gate's final M1 and M2 runs                                                                                                                                                                                     | open (after chunk 14)                                        |
 | **L2**       | The owner's listening check of the eight built-in presets ([H2](#hand-checks)).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | The owner                                                                                                 | The release gate                                                                                                                                                                                                            | open (after chunk 14)                                        |
 | **Contract** | B11's four guarantee changes confirmed and applied (CONTRACT 3.0).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | The owner; `documentalist`                                                                                | Nothing; the release gate checks the record (item 23)                                                                                                                                                                       | done (2026-10-08, spec D246)                                 |
+| **M3H**      | The owner's answer to [O233](../../open-questions.md): kept sessions with long phrase lists upgraded past the start-up wait (accept it, B9 saying so; or convert the phrase lists when a session is opened).                                                                                                                                                                                                                                                                                                                                                                         | The owner; `spec-writer` records it                                                                       | The release gate                                                                                                                                                                                                            | done (2026-10-20, spec D376): accepted, B9 says so           |
 | **CS**       | The MAJOR contract bump for v3.0's STABLE contract atoms that v3.1 revises (the twelve of the change set's [part I3](../../../docs/release/v3.1-v3.2-intent-change-set.md#i3-for-the-owner-not-applied)) and for `rule_open_phrase_ending` ([B11](master-spec.md#b11-what-v31-changes-in-v30-and-in-v2s-guarantees); spec D361, D362): `documentalist` drafts their new wordings, the three "to decide" rows first (two weaken a guarantee); the owner confirms them all at once. The chunks that revise them say "(contract, CS)" in their Revisions line: 8, 9, 12, 16, 17 and 18. | `documentalist` drafts; the owner confirms                                                                | The sync of wave 1, the first wave whose chunks revise one (chunk 8: `rule_kept_session_content`, `entity_kept_session_record`, `module_kept_session_codec`); its chunks may be built and merged into the wave branch first | done (2026-10-19, spec D363)                                 |
 
 ## Waves
 
-| Wave | Chunks                                                                                                                                                | Waits for                                                                                                                                                                                                                                                          | Status              |
-| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------- |
-| 0    | 0 Intent re-sync · 2 Baselines · 3 Measurement tools                                                                                                  | Nothing (R0 done). Chunk 3 records its baselines on v3.0's code: nothing in this wave changes the generator.                                                                                                                                                       | merged (2026-10-19) |
-| 1    | 4 Figure levels in the request · 5 Levels gate the figures · 8 Replay key `ifk3.` · 10 Preset model                                                   | Wave 0. In-wave 4 → 5, 4 → 8 and 4 → 10: chunk 4's capture fixes the figure ids, the level type and the request's `figureLevels`.                                                                                                                                  | merged (2026-10-19) |
-| 2    | 6 Favored levels order the search · 7 Two new free figures · 9 Kept sessions hold the levels                                                          | Wave 1. In-wave 6 → 7: chunk 6's capture fixes the draw and the candidate's figure.                                                                                                                                                                                | planned             |
-| 3    | 11 Cost guard, first run · 12 Presets replace the musical profile · 15 Vary settings inside the restriction · 16 Presets on the device                | Wave 2. In-wave 12 → 15 and 12 → 16: chunk 12's capture fixes the session settings and the routing point. DP opens at its end.                                                                                                                                     | planned             |
-| 4    | 1 Token-source pass · 13 Preset bar and marks                                                                                                         | Wave 3; **T1** (not given, D355). Two chunks: every other chunk T1 holds needs both 1 and 13, which would make a chain of three, and every chunk T1 does not hold is in waves 0–3 so that it need not wait.                                                        | blocked (on T1)     |
-| 5    | 14 Embellishments group · 17 Preset management · 18 Your data · 19 Pre-generation discards · 20 Passing and neighbor never both Off (**conditional**) | Wave 4; DP (20). In-wave 14 → 19 and 14 → 20: chunk 14's capture fixes the level controls' option model and their change path; 17 → 18 and 17 → 19: chunk 17's capture fixes the player-presets composable. L1 and L2 open at its end. Four chunks if DP drops 20. | planned             |
+| Wave | Chunks                                                                                                                                                              | Waits for                                                                                                                                                                                                                                                          | Status              |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------- |
+| 0    | 0 Intent re-sync · 2 Baselines · 3 Measurement tools                                                                                                                | Nothing (R0 done). Chunk 3 records its baselines on v3.0's code: nothing in this wave changes the generator.                                                                                                                                                       | merged (2026-10-19) |
+| 1    | 4 Figure levels in the request · 5 Levels gate the figures · 8 Replay key `ifk3.` · 10 Preset model                                                                 | Wave 0. In-wave 4 → 5, 4 → 8 and 4 → 10: chunk 4's capture fixes the figure ids, the level type and the request's `figureLevels`.                                                                                                                                  | merged (2026-10-19) |
+| 2    | 6 Favored levels order the search · 7 Two new free figures · 9 Kept sessions hold the levels                                                                        | Wave 1. In-wave 6 → 7: chunk 6's capture fixes the draw and the figures a candidate names.                                                                                                                                                                         | merged (2026-10-20) |
+| 3    | 11 Cost guard, first run · 12 Presets replace the musical profile · 15 Vary settings inside the restriction · 16 Presets on the device · 22 Review summary's length | Wave 2. In-wave 12 → 15, 12 → 16 and 12 → 22: chunk 12's capture fixes the session settings and the routing point; chunk 22 follows 12 because both may change the kept-session record. DP opens at its end.                                                       | planned             |
+| 4    | 1 Token-source pass · 13 Preset bar and marks                                                                                                                       | Wave 3; **T1** (not given, D355). Two chunks: every other chunk T1 holds needs both 1 and 13, which would make a chain of three, and every chunk T1 does not hold is in waves 0–3 so that it need not wait.                                                        | blocked (on T1)     |
+| 5    | 14 Embellishments group · 17 Preset management · 18 Your data · 19 Pre-generation discards · 20 Passing and neighbor never both Off (**conditional**)               | Wave 4; DP (20). In-wave 14 → 19 and 14 → 20: chunk 14's capture fixes the level controls' option model and their change path; 17 → 18 and 17 → 19: chunk 17's capture fixes the player-presets composable. L1 and L2 open at its end. Four chunks if DP drops 20. | planned             |
 
 The [release gate](#chunk-21--v31-release-gate) (chunk 21) follows wave 5, with L1 and L2. κ is 1
 ([build workflow](build-workflow.md#concurrency-and-order)). If the owner gives T1 before wave 3's
@@ -133,6 +145,7 @@ flowchart LR
     C12[12 Presets replace the profile]
     C15[15 Vary inside restriction]
     C16[16 Presets on the device]
+    C22[22 Review summary length]
   end
   subgraph W4[Wave 4]
     C1[1 Token pass]
@@ -165,6 +178,7 @@ flowchart LR
   C10 --> C12
   C12 --> C15
   C12 --> C16
+  C12 --> C22
   C9 --> C16
   C1 --> C13
   C12 --> C13
@@ -186,6 +200,7 @@ flowchart LR
   C18 --> C21
   C19 --> C21
   C20 --> C21
+  C22 --> C21
   L --> C21
 ```
 
@@ -277,9 +292,17 @@ Gate DP: whether B5.6's rule (the passing tone and the neighbor tone may not bot
   version 3 upgrade, and the start-up read on a seeded database with 0, 50 and 60 player presets,
   60 written from two tabs, and 0, 10, 100 and 500 kept sessions, cold and warm). The owner repeats
   the deciding runs on the reference machine.
-- **Acceptance:** each, upgrade included, well under the start-up wait constant. If the
-  kept-session upgrade does not fit with many pinned sessions, chunk 9 maps each v3.0 body when it
-  is read instead (B9, spec D250), decided before chunk 9 merges.
+- **Acceptance:** each, upgrade included, well under the start-up wait constant, by this plan's
+  method (M2's 100 kB bodies for the version 2 upgrade). The kept-session upgrade runs at open
+  only; no v3.0 body is mapped when it is read (B9, spec D376).
+- **Version 2, chunk 9** (spec D374, D376; figures in [`docs/storage.md`](../../../docs/storage.md#the-upgrade-to-data-version-2-m3),
+  2026-10-19, reference machine): by this plan's method, 10, 100 and 500 pinned v3.0 sessions
+  with M2's 100 kB bodies (15 phrases), the upgrading load takes at most 750 ms, about 38 % of
+  the 2 s wait. That is the decision above: the step stays at open, with no mapping when read.
+  Beyond the method, with 650 kB bodies (97 phrases), 100 sessions take 902 ms and 500 pass the
+  wait: that first visit is a failed-read visit (Part A §4.4), the upgrade completes, the next
+  visit reads normally. The owner accepted this case and B9 states it (spec D376, gate
+  [M3H](#gates) done).
 - **Recorded:** `docs/storage.md`.
 
 ### M4 — The first-load bundle
@@ -614,60 +637,99 @@ Record: 7afa187 (5a, the search) and 8ab76c9 (5b, the validator, M1, docs), merg
 
 ### Chunk 6 — Favored levels order the search
 
-Status: planned
+Status: merged (w2, e307449)
 Wave: 2
 Depends on: 5
 Architecture capture: the favored draw, `isFigureDrawn(seed, noteIdentity, figureId, level)` in
 `src/domain/pitch/figure-draw.ts`: `fnv1a32` (`src/domain/random/hash32.ts`) of the seed, the
-note's identity and the figure id, kept when it falls under the level's share (a numerator over a
-power of two, `FAVORED_SHARE` and `STRONGLY_FAVORED_SHARE`, starting at 1/4 and 1/2); integer
-operations only (`Math.imul`, `>>> 0`, a mask), so every browser draws the same; never computed at
-Off or As today. The pitch search already orders by FNV-1a tie keys (`pitchTieKey`,
-`src/domain/pitch/pitch-tie-key.ts`), not by a
+note's identity and the figure id, under a versioned hash domain string of its own (the chunk owner
+states it; the wave sync records it in `module_named_stream_pseudorandomness`), kept when it falls
+under the level's share (a numerator over a power of two, `FAVORED_SHARE` and
+`STRONGLY_FAVORED_SHARE`, starting at 1/4 and 1/2); integer operations only (`Math.imul`, `>>> 0`,
+a mask), so every browser draws the same; never computed at Off or As today. The pitch search
+already orders by FNV-1a tie keys (`pitchTieKey`, `src/domain/pitch/pitch-tie-key.ts`), not by a
 pseudorandom stream; the named-stream registry (`deriveNamedStream`) has no caller. And each pitch
-candidate names the figure it starts, which the ranking reads. Chunk 7 builds on both in the same
-wave.
+candidate names the free figures it may start, which the ordering reads; a favored free scale tone
+is tried first as the drawn figure and keeps its usual place (spec D369). Chunk 7 builds on both
+in the same wave. Captured as `module_favored_figure_draw` 0.1; `documentalist` brings it to D369
+(the figures a candidate names, the held entry) before this chunk starts.
 
 - **Goal:** at about 1 in 4 (Favored) or 1 in 2 (Strongly favored) of the notes where a figure
   could start, try it before the chord tones; never require it.
 - **Scope:**
   - `figure-draw.ts` (new), computed only for Favored and Strongly favored.
-  - `pitchRank` (`src/domain/pitch/pitch-ranking.ts`) puts a candidate that starts a drawn figure
-    before the chord tones; where several figures are drawn at one note, the higher level first,
-    then the seed's usual tie key. Everything else keeps today's order, so a phrase whose levels
-    are all Off or As today is searched in exactly v3.0's order.
+  - **The figures a candidate names** (`PitchCandidate`, `src/domain/pitch/pitch-types.ts`; not
+    part of its identity, like chunk 5's `freeResolution`), among those the levels allow: a free
+    diatonic tone names the passing tone (the accented passing tone on beats 1 and 3) and the
+    neighbor tone, since only the next note's resolution decides which it becomes; the first note
+    of a chromatic approach or a chromatic enclosure names that figure. A chord tone, a later note
+    of a figure and a note of Tension's scheduled figure name none, and so does the tense note a
+    joined phrase may end on: today it is a `passing_or_neighbor` free tone
+    (`tenseEndingCandidates`, `src/domain/pitch/pitch-candidates.ts`), so this chunk makes it name
+    none, or the draw would favor it until chunk 7 gates it.
+  - **The order** (spec D369). At a note where a figure is drawn, each candidate that may start it
+    is tried first as that figure, before the chord tones: a free diatonic tone held to that
+    figure's resolution, as chunk 5's `freeResolution` holds it (a drawn passing tone must go on
+    by step in the same direction, a drawn neighbor tone must step back), a chromatic figure's
+    first note as its path already holds it. The free diatonic tone also keeps its usual place
+    after the chord tones, unheld, so favoring never takes a phrase away (B5.6); a path candidate
+    may simply move ahead. Where several figures are drawn at one note, the higher level first,
+    then a seeded tie key over the candidate and the figure. Everything else keeps today's order,
+    so a phrase whose levels are all Off or As today is searched in exactly v3.0's order. Code
+    fact: `orderCandidates` (`src/domain/pitch/pitch-ranking.ts`) has one caller, `searchPitchPlan`
+    (`src/domain/pitch/pitch-search.ts`, about line 60), which passes it the levels; `pitchRank`'s
+    second caller, the published ranking facts in `src/domain/pitch/pitch-advance.ts` (about line
+    226), ranks the same way.
   - A favored candidate that dead-ends is backed out of like any other; no phrase is rejected or
-    retried for lacking a figure. The search's candidate memo (`CandidateDomainMemo` and
-    `memoFits` in `src/domain/pitch/pitch-candidates.ts`, its key built in
-    `src/domain/pitch/pitch-advance.ts`) stays correct: the draw depends only on the seed and the
-    note, and the memo already keys on the chromatic allowance.
-- **Files:** `src/domain/pitch/figure-draw.ts` (new), `src/domain/pitch/pitch-ranking.ts`,
-  `src/domain/pitch/pitch-candidates.ts` (each candidate names the figure it starts),
-  `src/domain/pitch/pitch-advance.ts` (if the memo key needs the levels); tests under
+    retried for lacking a figure. The candidate domains and their memo (`CandidateDomainMemo`,
+    `memoFits`, `domainMemoKey` and `freeDomainKey`, all in `pitch-candidates.ts`) stay correct:
+    the draw depends only on the seed and the note and changes no domain, and the figures a
+    candidate names follow from its attack and the free-figure allowance the store already keys
+    on. Code fact: the dead-state set keys on the whole figure state, the held resolution
+    included (`pitchStateKey`, `pitch-advance.ts`), so a held entry's dead end never marks the
+    unheld tone dead; once the next note resolves the tone, both reach the same states and the set
+    prunes the repeat.
+- **Files:** `src/domain/pitch/figure-draw.ts` (new), `src/domain/pitch/pitch-types.ts` (the
+  candidate's figures), `src/domain/pitch/pitch-candidates.ts` (each candidate names its figures;
+  the tense note names none), `src/domain/pitch/pitch-ranking.ts`,
+  `src/domain/pitch/pitch-search.ts` (the held entries; the levels passed to the ordering),
+  `src/domain/pitch/pitch-advance.ts` (the published ranking facts); tests under
   `tests/unit/domain/pitch/`.
 - **Spec sections:** [B5.2](master-spec.md#b52-four-levels), [B5.5](master-spec.md#b55-determinism),
+  [B5.6](master-spec.md#b56-the-cost-guard) (levels as ordering),
   [B13](master-spec.md#b13-architectural-decisions-and-their-reasons); items 3, 4, 7 (the draws
   are integer-only), 2 (guarded).
 - **Atoms:** `rule_figure_level_orders_search`, `rule_figure_level_never_a_quota`,
-  `rule_figure_draws_reproducible`. Drift check: `mechanic_pitch_search_policy` and the pitch
-  search modules, `module_named_stream_pseudorandomness` (its hash tie keys),
-  `module_ranked_candidate_ordering`.
+  `rule_figure_draws_reproducible`, `module_favored_figure_draw`. Drift check:
+  `mechanic_pitch_search_policy` and the pitch search modules, `mechanic_pitch_tie_break_ordering`,
+  `entity_pitch_candidate_domain`, `module_named_stream_pseudorandomness` (its seeded keys gain the
+  draw's hash domain string).
 - **Revisions:** none.
 - **Done when:**
   - The census's share of each figure never decreases from Off to As today to Favored to Strongly
     favored, and rises at the rhythm settings that leave it room (property over the M1 sweep).
   - A phrase is never refused for lacking a favored figure: an instrumented run counts zero
     rejections or retries tied to a level.
+  - At a note where the passing tone is drawn and the neighbor tone is not, a free tone tried
+    before the chord tones is written only as a passing tone, and the same tone is still found as
+    a neighbor tone after the chord tones (unit tests on hand-built attacks); likewise for the
+    neighbor tone and the accented passing tone.
+  - The tense note a joined phrase may end on, a chord tone, a later note of a figure and
+    Tension's scheduled figure are never moved by a draw.
   - No floating-point operation in the draw (a unit test over the module's source, plus golden
     draws for a fixed seed list).
   - With Neutral's and Jazz's levels the v3.0 corpus and the goldens pass: no draw is made.
   - M1 recorded at the starting shares.
 - **Verification:** chunk checks with the corpus guard; M1; the sweep at the wave gate.
-- **Split rule:** none needed (four source files).
+- **Split rule:** if the brief passes about five source files (six named), 6a the draw and the
+  figures a candidate names (`figure-draw.ts`, `pitch-types.ts`, `pitch-candidates.ts`; no order
+  changes), 6b the order (`pitch-ranking.ts`, `pitch-search.ts`, `pitch-advance.ts`).
+
+Record: c7bc4ae (6a, the draw and the figures a candidate names) and 1fed56c (6b, the order), merged as e307449 (built beside chunk 9). Draw: `fnv1a32("infinite-flow/figure-draw/v1|<seed>|<bar:tick>|<figureId>")`, drawn when `((hash >>> 16) & 0xffff) < share`; `FAVORED_SHARE = 0x4000` (1/4), `STRONGLY_FAVORED_SHARE = 0x8000` (1/2); no hash at Off or As today; no draw at a later note of a figure in progress. `PitchCandidate.figures?` outside the identity; `orderCandidates` returns entries, v3.0's order exactly where nothing is drawn. Corpus guard passed; Neutral and Jazz never call the draw. M1, 2026-10-19 20:54 CEST, reference machine, load 4–10 from chunk 9 (shares do not depend on load), shares As today → Favored → Strongly favored: passing 1.9 → 67.8 → 84.0 %, accented passing 4.0 → 55.2 → 67.7 %, neighbor 16.7 → 92.0 → 97.0 %, chromatic approach 10.6 → 75.1 → 88.4 %, chromatic enclosure 7.9 → 60.2 → 70.0 %; `search_limit_exceeded` up to 15 (neighbor Strongly favored) against 6, for chunk 11's M2. For chunk 7: `freeToneHold` throws for free-tone figures other than passing and neighbor (extend `FREE_TONE_HOLDS` or use path candidates); turn the census's "stay 0" assertion for the two new figures into the strict-rise check.
 
 ### Chunk 7 — Two new free figures: the appoggiatura and the diatonic enclosure
 
-Status: planned
+Status: merged (w2, d4c9985)
 Wave: 2
 Depends on: 6
 Architecture capture: none (it builds on chunk 6's)
@@ -688,6 +750,10 @@ Architecture capture: none (it builds on chunk 6's)
     the search finds when it backs up past the chord tones, which is why B5.3 keeps new figures
     Off.
   - The validator accepts each only when its level allows it; the census recognises both.
+  - **Favored like the others:** the first note of each names its figure (`appoggiatura`,
+    `diatonicEnclosure`, chunk 6's field), so chunk 6's draw tries it before the chord tones at
+    Favored and Strongly favored; `PitchFigureKind` (`src/domain/pitch/pitch-types.ts`), which
+    already holds the appoggiatura, gains the diatonic enclosure.
   - **The tense note a joined phrase may end on**
     ([B5.4](master-spec.md#b54-free-figures-and-tensions-scheduled-figure)): offered and accepted
     only when the levels allow a free scale note on that last note, the same test chunk 5 applies
@@ -700,7 +766,8 @@ Architecture capture: none (it builds on chunk 6's)
     carries no `freeResolution` tag: the next phrase decides its direction, and nothing about it
     is added to the carry-in. It stays after the chord tones; chunk 6's draw never favors it.
 - **Files:** `src/domain/pitch/pitch-candidates.ts`, `src/domain/pitch/pitch-figures.ts` (the
-  enclosure's path confirmation), `src/domain/pitch/validation/figure-rules.ts`,
+  enclosure's path confirmation), `src/domain/pitch/pitch-types.ts` (the diatonic enclosure's
+  figure kind and roles), `src/domain/pitch/validation/figure-rules.ts`,
   `src/domain/pitch/validation/join-rules.ts` (the tense note), chunk 3's census; tests under
   `tests/unit/domain/pitch/` and `tests/unit/domain/generation/carry-in/`.
 - **Spec sections:** [B5.1](master-spec.md#b51-the-seven-figures),
@@ -709,15 +776,18 @@ Architecture capture: none (it builds on chunk 6's)
   [B11](master-spec.md#b11-what-v31-changes-in-v30-and-in-v2s-guarantees); items 5 (the new
   figures), 3, 21 (acknowledgement for the new figures).
 - **Atoms:** `rule_embellishment_figures_defined`, `rule_figures_resolve_onto_chord_tones`,
-  `req_embellishment_figure_levels`, `rule_levels_govern_free_figures_only`; (v2)
-  `rule_join_tense_note_resolution`, `rule_open_phrase_ending`. Drift check:
-  `service_generation_result_validation`.
+  `req_embellishment_figure_levels`, `rule_levels_govern_free_figures_only`,
+  `rule_figure_level_orders_search`, `rule_figure_draws_reproducible`, `module_favored_figure_draw`
+  (Favored shares of the new figures); (v2) `rule_join_tense_note_resolution`,
+  `rule_open_phrase_ending`. Drift check: `service_generation_result_validation`; at the sync,
+  `module_pitch_domain_validation`, `entity_pitch_candidate_domain`, `module_figure_levels`.
 - **Revisions:** revise `rule_join_tense_note_resolution` (the tense note is offered only when the
   levels allow a free scale note on the last note; spec D368). `rule_open_phrase_ending`'s "may
   instead end on a tense note" still holds: no revision.
 - **Done when:**
   - With either figure Favored, the census finds it in a share of phrases that rises from As today;
-    with it Off, never.
+    with it Off, never. At a note where it is drawn, it is tried before the chord tones (unit
+    test).
   - Every generated instance resolves once, onto a chord tone, and spans no chord change; the
     validator refuses each one when its level is Off (unit tests with hand-written phrases).
   - The v3.0 corpus and goldens pass; an acknowledgement test lights a free appoggiatura's and an
@@ -732,7 +802,9 @@ Architecture capture: none (it builds on chunk 6's)
     neighbor tone on either), and refused where it does not (unit tests per case).
 - **Verification:** chunk checks with the corpus guard; M1; the carry-in matrix; the sweep at the
   wave gate.
-- **Split rule:** none needed (four source files and the census).
+- **Split rule:** none needed (five source files, one of them a type, and the census).
+
+Record: b3f4d6c, merged as d4c9985 (built beside chunk 9). The free appoggiatura and the diatonic enclosure are path candidates whose first member names its figure (no new free-tone hold; `pitch-ranking.ts` and `pitch-advance.ts` unchanged); validator rules equal the census's. D368: `tenseEndingCandidates` and `isOwedTenseEnding` read the levels (no tag, carry-in unchanged). Corpus guard passed; Neutral and Jazz hold both new figures Off and are unchanged. Carry-in matrix with passing, accented passing and neighbor Off: 96 cells, 480 of 480 joins, 0 tense endings. M1, 2026-10-19 22:02 CEST, reference machine, load 1.5–4.9, Off / As today / Favored / Strongly favored: appoggiatura 0 / 10.4 / 47.3 / 61.2 %, diatonic enclosure 0 / 7.5 / 67.0 / 77.2 %; every figure rises; the diatonic enclosure at Favored gives the most cut-offs (9 more `search_limit_exceeded` than the base, of 5,112), for chunk 11's M2. Choices inside the spec: the free appoggiatura's resolution under the same harmony event (a rest may come between); the diatonic enclosure has no duration limit and may start on attack 0.
 
 ### Chunk 8 — Replay key `ifk3.`; the profile leaves the request
 
@@ -887,7 +959,7 @@ Record: 35fafd0, merged as ebeeab9 (55 files; built in parallel with chunks 5 an
 
 ### Chunk 9 — Kept sessions hold the levels and the preset label
 
-Status: planned
+Status: merged (w2, dee61a7)
 Wave: 2
 Depends on: 8
 Architecture capture: data version 2, inside v3.0's
@@ -902,31 +974,53 @@ the session's preset label, a stored string. A record it cannot read is left as 
 to report as unreadable: the step never throws on a stored value, since a throwing step rolls the
 upgrade back and every later open rejects (`MigrationStepError`; spec D364, D367). One data version per
 stored shape that changes, each with its own step (v3.1 writes 2 and 3), so each migration is
-tested on its own and a development database is never left half-migrated.
+tested on its own and a development database is never left half-migrated. Each kept shape holds
+its own data version: the session-wide record and the body move to 2, the played notes, whose
+shape does not change, stay at 1 (spec D370).
 
 - **Goal:** migrate the sessions v3.0 kept, and record with each new session the preset label it
   started with.
 - **Scope:**
   - **Data version 2**, an upgrade step in the migration runner of
     [v3.0 chunk 4](build-plan.md#chunk-4--database-core): the preset label takes the same form
-    ("Neutral", "Jazz", "Custom, based on Jazz"). Generated timelines are not touched. Code fact:
-    v3.0's summary holds the profile with its customized flag (`kept-session-summary.ts`), so B9's
-    fallback to phrase 1's reproduction inputs (spec D250) is never needed on v3.0's own data; the
-    step keeps it for a summary that lacks the flag. The records' own versions
-    (`KEPT_SESSION_DATA_VERSION`, `kept-reading.ts`) move with it.
-  - **New sessions** record the preset label at their start, as `control-summary` writes it, from
-    the profile selection the session history keeps (chunk 8). Until chunk 12 that is the musical
-    profile's display; chunk 12 switches the source to the preset
-    selection. A snapshot: nothing later changes it.
+    ("Neutral", "Jazz", "Custom, based on Jazz"). Generated timelines are not touched. Whether the
+    selection was customized is read from the summary's own selection (B9): every readable
+    version 1 summary holds it with its customized flag (`parseStoredProfileSelection`,
+    `profile-to-levels.ts`), v3.0's taken from phrase 1 and wave 1's from the session history, so
+    there is no fallback to phrase 1, whose phrases kept by chunk 8's code hold no profile; a
+    summary without the flag is a record the step cannot read, left as it is (spec D372).
+  - **The versions** (spec D370). Code fact: `KEPT_SESSION_DATA_VERSION` (`kept-reading.ts`) is
+    one constant for the three shapes, and `decodeKeptSession` (`kept-session-record.ts`, about
+    line 331) checks all three against it, a version below it reading unreadable. It becomes one
+    version per shape: the summary's and the body's 2, the played notes' 1, so a played-notes
+    record the step leaves alone still reads.
+  - **New sessions** record the preset label at their start, in B9's form ("Neutral", "Jazz",
+    "Custom, based on Jazz"), from the profile selection the session history keeps (chunk 8),
+    through one label function the step uses too (spec D371). Code fact: `profileSelectionLabel`
+    (`src/components/controls/control-options.ts`, about line 190) writes "Custom (Jazz grammar)"
+    until chunk 12, which routes `control-summary` through the same function; a stored label is
+    kept for good, so it is never written in the old form. The chunk owner places the function
+    outside `src/storage/`, where `control-summary` can call it. Chunk 12 switches the source to
+    the preset selection. A snapshot: nothing later changes it.
   - The session list's detail line (`detailLine` in `src/components/review/session-row-text.ts`,
-    through `profileSelectionLabel`) shows the label where it showed the profile. The review's
+    today through `profileSelectionLabel`) shows the stored label where it showed the profile. The review's
     summary (`summary` in `src/components/review/ReviewPanel.vue`) shows no profile today, although
     the v3.0 design said it did; it gains `{preset}` where the v3.1 design places it.
   - M3's upgrade timing.
+  - **Notes for the chunk owner.** `MigrationStep.migrate` is synchronous and gets the upgrade
+    transaction (`MigrationUpgrade`, `database.ts`); a throw inside a cursor callback comes after
+    `migrate` has returned, escapes `runMigrations`' `MigrationStepError` catch and aborts the
+    upgrade, so "never throws on a stored value" must hold inside those callbacks too. A
+    rewritten record's envelope `appVersion` is the upgrading app's (the envelope's STABLE
+    definition: the app that wrote it); `MigrationUpgrade` carries no app version today, so the
+    step gets `DatabaseOpening.appVersion`. The summary's `recordedByAppVersion` is kept.
 - **Files:** `src/storage/records/kept-session-record.ts`, `kept-session-summary.ts`,
-  `kept-reading.ts`, `src/storage/migrations/kept-sessions-v2.ts` (new), its registration in
-  `PRODUCTION_MIGRATIONS` (`src/storage/database.ts`), `src/components/review/session-row-text.ts`
-  (v3.0 chunk 14b), `src/components/review/ReviewPanel.vue`; tests under `tests/unit/storage/`,
+  `kept-reading.ts` (one version per shape), `kept-session-body.ts` (the body at version 2),
+  `kept-played-notes.ts` (its own version, 1), `kept-phrase-parsers.ts` (exposes the version 1
+  phrase reader the step reads with), `src/storage/migrations/kept-sessions-v2.ts` (new), its
+  registration in `PRODUCTION_MIGRATIONS` and the app version it gets (`src/storage/database.ts`),
+  the label function (new), `src/components/review/session-row-text.ts` (v3.0 chunk 14b),
+  `src/components/review/ReviewPanel.vue`; tests under `tests/unit/storage/`,
   `tests/e2e/storage/kept-session.spec.ts` (extended).
 - **Spec sections:** [B9](master-spec.md#b9-the-generation-request-the-replay-key-and-kept-sessions),
   Part A §5.2, §5.4; items 20, 2 (old sessions' notes unchanged).
@@ -935,12 +1029,15 @@ tested on its own and a development database is never left half-migrated.
   (Saving the Session), [`screens/session-list/handoff.md`](../../../ui_ux/versions/v3.1/screens/session-list/handoff.md)
   (Detail line), [`screens/last-session-review/handoff.md`](../../../ui_ux/versions/v3.1/screens/last-session-review/handoff.md)
   (`review-summary`).
-- **Atoms:** `rule_earlier_kept_sessions_carried_over`, `rule_preset_label_kept_with_session`;
-  (v3.0) `rule_kept_session_content`, `rule_kept_session_holds_no_acknowledgements`.
+- **Atoms:** `rule_earlier_kept_sessions_carried_over`, `rule_preset_label_kept_with_session`,
+  `module_kept_session_upgrade_step` (the capture; `documentalist` drops its fallback to phrase 1
+  before this chunk starts, spec D372); (v3.0) `rule_kept_session_content`,
+  `rule_kept_session_holds_no_acknowledgements`.
 - **Revisions:** (contract, CS) revise `rule_kept_session_content` (the preset label),
-  `req_kept_session_list`, `entity_kept_session_record`, `module_kept_session_codec` (the label in
-  the summary), `module_kept_session_reach` (the rows' label), `module_on_device_database` (data
-  version 2 and its step).
+  `req_kept_session_list`, `entity_kept_session_record` (change set J3's "the shapes are at data
+  version 2" applied as the session-wide record and the body; the played notes stay at 1, spec
+  D370), `module_kept_session_codec` (the label in the summary), `module_kept_session_reach` (the
+  rows' label), `module_on_device_database` (data version 2 and its step).
 - **Done when:**
   - A database seeded with v3.0 sessions (Neutral, Jazz, customized Jazz, my instrument, played
     notes, favorites, a comment) opens at data version 2: each phrase holds its profile's levels,
@@ -950,14 +1047,21 @@ tested on its own and a development database is never left half-migrated.
     levels), one kept by chunk 8's code (levels only) and one damaged record opens at version 2:
     the three sessions carried over, each phrase holding its levels only, the damaged record left
     and read as unreadable, the open never rejected.
+  - A carried-over session with played notes opens with them, its played-notes record still at
+    data version 1.
+  - No stored value makes the step throw, inside its cursor callbacks included: a database seeded
+    with malformed summaries and bodies, and a summary lacking the customized flag, opens.
   - A v3.0 tab open meanwhile becomes outdated by v3.0's own rule.
-  - A new session's summary holds the label at its start, as a stored string: a later change of
-    selection does not rewrite it.
+  - A new session's summary holds the label at its start, as a stored string in B9's form ("Custom,
+    based on Jazz" after a customized Jazz start): a later change of selection does not rewrite it.
   - M3's version 2 timing recorded.
 - **Verification:** chunk checks with the corpus guard; M3 (the upgrade half); a debug run opening
   a kept v3.0 session.
-- **Split rule:** if the brief passes about five source files, 9a the record, summary and data
-  version 2, 9b the label in the session list and the review.
+- **Split rule:** if the brief passes about five source files, 9a the records, their versions, the
+  label function and data version 2 (`src/storage/` and the label function), 9b the label in the
+  session list and the review.
+
+Record: 5cf4798 (9a, records, per-shape versions, the label function, the step, M3 spec) and 2750de7 (9b, the review summary's preset label, M3 in `docs/storage.md`), merged as dee61a7 (built beside chunks 6 and 7); `reviewer` OKAY on the step. `KEPT_SESSIONS_V2` appended, `DATABASE_DATA_VERSION` 2; `KEPT_SESSION_SUMMARY_DATA_VERSION` 2, `KEPT_SESSION_BODY_DATA_VERSION` 2, `KEPT_PLAYED_NOTES_DATA_VERSION` 1; `MigrationUpgrade.appVersion` added; the summary holds `presetLabel` from `presetLabel` in `src/domain/controls/preset-label.ts`. Version 1 database with a v3.0, a chunk 4 and a chunk 8 session and a damaged record opens at version 2; 37 malformed values never make the step throw; exports byte-identical before and after. Kept arrays with holes are now refused. M3, 2026-10-19, reference machine, alone (load 2–3), 100 kB bodies as M2's, cold upgrade: 10 sessions 39–46 ms, 100 sessions 170–182 ms, 500 sessions 727–750 ms, inside the 2 s wait, so no read-time mapping. With 650 kB bodies, 100 sessions 902 ms and 500 past the wait (that visit starts from the defaults; the next reads normally): reported to the owner. Not done here: {length} in the review summary (both designs show it; sent to `spec-writer`); two `@spec-link`s for `rule_preset_label_kept_with_session` left off by the 10-atoms-per-file health limit.
 
 ### Chunk 10 — The preset model
 
@@ -1097,7 +1201,8 @@ settings and the draw) and 16 (the state it loads into) build on it in the same 
   - **The interface, minimally.** The existing two-segment control chooses the Neutral and Jazz
     built-ins (its `select-musical-profile` event in `ControlPanel.vue`, handled by
     `handleSelectMusicalProfile` in `WorkspaceShell.vue`); `control-summary` (`controlSummaryText`
-    and `profileSelectionLabel`, `control-options.ts`) reads `… · Custom, based on Jazz · …`. Out: the full box (chunk
+    and `profileSelectionLabel`, `control-options.ts`) reads `… · Custom, based on Jazz · …`,
+    through chunk 9's label function (spec D371). Out: the full box (chunk
     13); the other six built-ins are reachable through the harness until then.
   - **Vary settings.** The figure step takes the musical profile's one place in the draw
     (the `musicalProfile` entry of `MUTATION_SCALES` and its slot in `MUTABLE_SETTINGS`,
@@ -1605,6 +1710,52 @@ Architecture capture: none (it builds on chunk 14's)
   diatonic figure Off" is no longer reachable from the controls.
 - **Verification:** chunk checks with the corpus guard.
 - **Split rule:** none needed (five source files).
+
+### Chunk 22 — The review's summary gives the session's length
+
+Status: planned
+Wave: 3
+Depends on: 9 (the summary's {preset}), 12 (it may change the kept-session record and the
+review state this chunk reads)
+Architecture capture: none (one length function shared by the save and the review)
+
+- **Goal:** the review's summary gives the session's length, as both the v3.0 and the v3.1
+  designs write it; v3.0 shipped without it and chunk 9 added only {preset} (spec D373).
+- **Scope:**
+  - `review-summary` reads "{session date} · {length} · {phrases} · {instrument} · {preset} ·
+    {favorites}", the session date left out when it is the title; {length} written exactly as the
+    session list's detail line writes it (`sessionLengthText`, `session-row-text.ts`: "{m} min"
+    rounded to the nearest minute, "Under 1 min" below 30 seconds).
+  - One length for a session wherever it is shown: the review's comes from the same function as
+    the stored `lengthSeconds` (`sessionLengthSeconds`, `kept-session-record.ts`, private today:
+    phrase 1's scheduled start to the end of the last phrase that sounded), for a kept session and
+    for the session that just ended, its save failed included. The chunk owner places the function
+    within the boundary rules (exported, or moved out of `src/storage/` with the record importing
+    it).
+  - Nothing else in the summary changes: still not rendered below `bp-tablet-landscape`, and no
+    figure about how the player played.
+- **Files:** `src/components/review/ReviewPanel.vue` (`summary`, the length prop),
+  `src/components/workspace/use-review-area.ts` (the length of the shown Review),
+  `src/components/workspace/ReviewArea.vue` (passes it), `src/storage/records/kept-session-record.ts`
+  (the shared length function); tests `tests/unit/components/review/ReviewPanel.spec.ts`, and the
+  e2e specs that read `review-summary` (`tests/e2e/review/review-opens.spec.ts`,
+  `review-favorites.spec.ts`, `tests/e2e/storage/kept-sessions-carried-over.spec.ts`,
+  `my-instrument.spec.ts`), updated to the full line.
+- **Spec sections:** Part A [§5.4](master-spec.md#54-reaching-earlier-sessions).
+- **Design docs:** [`screens/last-session-review/handoff.md`](../../../ui_ux/versions/v3.1/screens/last-session-review/handoff.md)
+  (`review-summary`), [`screens/session-list/handoff.md`](../../../ui_ux/versions/v3.1/screens/session-list/handoff.md)
+  (Detail line: {length}).
+- **Atoms:** `req_last_session_review`, `req_kept_session_review`, `req_kept_session_list`.
+- **Revisions:** none.
+- **Done when:**
+  - The summary of the session that just ended and of a kept session read in the full form, the
+    date only when it is not the title, at a length under 30 seconds ("Under 1 min") and over.
+  - A kept session's review gives the same {length} as its row in the session list (one seeded
+    session, both read).
+  - The session that just ended gives the length its kept summary records; after a failed save,
+    the length that summary would have recorded.
+- **Verification:** chunk checks.
+- **Split rule:** none needed (four source files).
 
 ## Chunk 21 — v3.1 release gate
 

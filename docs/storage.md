@@ -96,12 +96,14 @@ caller defect.
 
 One numbering covers the whole database:
 
-- **The database's data version** is one integer, `DATABASE_DATA_VERSION`, 1 in v3.0. It is the
-  IndexedDB version the database is opened with, the `dataVersion` held in `meta`, and the number
-  of migration steps.
+- **The database's data version** is one integer, `DATABASE_DATA_VERSION`: 1 in v3.0, 2 from
+  v3.1. It is the IndexedDB version the database is opened with, the `dataVersion` held in `meta`,
+  and the number of migration steps.
 - **A record's data version** is the data version at which its store's current record shape was
   introduced, so it is never above the database's. Each codec owns that number for its store
-  (`SETTINGS_DATA_VERSION` for the settings); in v3.0 every one is 1.
+  (`SETTINGS_DATA_VERSION` for the settings); in v3.0 every one is 1. From v3.1 the kept
+  session-wide record and the body are at 2, and every other shape, the kept played notes
+  included, still at 1 (see [Kept sessions](#kept-sessions)).
 - **A migration to data version N rewrites only the stores whose shape changes at N**, giving
   their records data version N. The records of every other store keep their number, so an older
   tab still reads them.
@@ -166,12 +168,16 @@ defect of the caller, and nothing is written.
 ## Migrations
 
 A migration step is `{ toVersion, migrate(upgrade) }`, where `upgrade` gives the database being
-upgraded and its upgrade transaction. When opening finds a stored version below the code's, the
+upgraded, its upgrade transaction and the app version the database is opened with, which a step
+writes into the envelopes it rewrites. When opening finds a stored version below the code's, the
 runner, inside the upgrade transaction, runs in order every step whose `toVersion` is above the
 stored version, then writes `meta` with the code's data version and the running app's version.
 
-- **Step 1**, from an empty database, creates the seven stores. `PRODUCTION_MIGRATIONS` holds it
+- **Step 1**, from an empty database, creates the seven stores. `PRODUCTION_MIGRATIONS` held it
   alone in v3.0.
+- **Step 2** (v3.1, `src/storage/migrations/kept-sessions-v2.ts`) carries the kept sessions over
+  to their data version 2 shapes (see
+  [The upgrade to data version 2](#the-upgrade-to-data-version-2)).
 - **The steps must run 1, 2, … N without a gap.** `migrationsDataVersion` checks the list when the
   port opens and throws otherwise, before any database is created: a configuration defect.
 - **A step that throws** rolls the upgrade back and makes the open reject with a
@@ -274,18 +280,20 @@ session's save (`keptSessionKey`). It is in no record, and no code reads a fact 
 `decodeKeptSession(stored)` reads them back. It is pure: it never opens the database, reads a
 clock or draws a seed.
 
-All three shapes are at data version 1 (`KEPT_SESSION_DATA_VERSION`). Every time in them is in
-seconds from phrase 1's scheduled start, never on the audio clock.
+Each shape holds its own data version (`kept-reading.ts`): the session-wide record
+(`KEPT_SESSION_SUMMARY_DATA_VERSION`) and the body (`KEPT_SESSION_BODY_DATA_VERSION`) are at 2
+from v3.1, the played notes (`KEPT_PLAYED_NOTES_DATA_VERSION`), whose shape did not change, at 1.
+Every time in them is in seconds from phrase 1's scheduled start, never on the audio clock.
 
 ### What each record holds
 
 Each record holds the envelope's two versions, then exactly these keys, and no other:
 
-| Record       | Keys                                                                                                                                                                                                           |
-| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Session-wide | `startedAt`, `lengthSeconds`, `phraseCount`, `musicalProfile`, `instrument`, `startingTempo`, `tempoReached`, `pinned`, `favoritesCount`, `comment`, `playedNotesKept`, `recordedByAppVersion`, `sessionSeed`. |
-| Body         | `phrases`, in sounding order, each with `phraseNumber`, `startsAt`, `request`, `timeline`, `harmony`, `intent`, `tempo`, `isRepeat`, `repeatOf` (only on a repeat), `favorite`, `clef`.                        |
-| Played notes | `notes`, in onset order, each with `pitch`, `velocity`, `onset`, `release`.                                                                                                                                    |
+| Record       | Keys                                                                                                                                                                                                        |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Session-wide | `startedAt`, `lengthSeconds`, `phraseCount`, `presetLabel`, `instrument`, `startingTempo`, `tempoReached`, `pinned`, `favoritesCount`, `comment`, `playedNotesKept`, `recordedByAppVersion`, `sessionSeed`. |
+| Body         | `phrases`, in sounding order, each with `phraseNumber`, `startsAt`, `request`, `timeline`, `harmony`, `intent`, `tempo`, `isRepeat`, `repeatOf` (only on a repeat), `favorite`, `clef`.                     |
+| Played notes | `notes`, in onset order, each with `pitch`, `velocity`, `onset`, `release`.                                                                                                                                 |
 
 The session-wide record holds what a list row shows:
 
@@ -293,7 +301,11 @@ The session-wide record holds what a list row shows:
 - `lengthSeconds`: from phrase 1's scheduled start to the end of the last phrase that sounded
   (four measures at its tempo).
 - `phraseCount` and `favoritesCount`.
-- `musicalProfile`: the selection at Start, the profile and whether it was customized.
+- `presetLabel`: the preset label of the selection at Start, a stored string: "Neutral", "Jazz",
+  or "Custom, based on Neutral" / "Custom, based on Jazz" when it was customized. It is written by
+  `presetLabel` (`src/domain/controls/preset-label.ts`), the one label function the upgrade to
+  data version 2 uses too, from the profile selection the session history keeps from its start.
+  A snapshot: nothing later rewrites it.
 - `instrument`: its `id` and its `displayName` as shown then.
 - `startingTempo`, phrase 1's, and `tempoReached`, the last phrase's.
 - `pinned`, `comment` (at most 500 characters, empty until written) and `playedNotesKept`.
@@ -337,7 +349,9 @@ Current records are then validated, and anything invalid or inconsistent makes t
 `unreadable`. Nothing is repaired, defaulted or partly read. Every field is checked by the domain's
 own parser where one exists: `parseGenerationRequest`, `parseConcertEventTimeline` and
 `parseConcertPitch`, with `isInstrumentClef` for the clef. `kept-phrase-parsers.ts` adds
-`parseKeptHarmony` and `parseKeptIntent` for what no domain parser covers. An intent's instrument
+`parseKeptHarmony` and `parseKeptIntent` for what no domain parser covers. A data version 2
+intent holds the seven figure levels (`figureLevels`) and no musical profile; one holding a
+`musicalProfile` is refused. An intent's instrument
 profile is read from the data it holds, through the domain's profile parser, and never rebuilt from
 its id, so a phrase reads back as it was played.
 
@@ -370,6 +384,32 @@ phrase the review and the exports read. `SessionHistoryRecord` extends `Reviewed
 review components, the export modules and `ExportableHistory` take the narrower type. So a decoded
 kept session reviews and exports exactly as the live history did, byte for byte.
 `src/session/` and `src/export/` still never import `src/storage/`.
+
+### The upgrade to data version 2
+
+Step 2, `KEPT_SESSIONS_V2` (`src/storage/migrations/kept-sessions-v2.ts`), runs once, inside the
+upgrade transaction, when v3.1 first opens a database at data version 1. It walks
+`sessionSummaries`, then `sessionBodies`, and rewrites each record it can read:
+
+- a version 1 session-wide record, read by `parseKeptSessionSummaryV1`, is written back at 2 with
+  its `musicalProfile` selection replaced by its `presetLabel` ("Neutral", "Jazz", or "Custom,
+  based on …" when the selection was customized, read from the record's own selection: there is
+  no fallback to phrase 1); its `recordedByAppVersion` is kept;
+- a version 1 body, read by `parseKeptSessionBodyV1`, is written back at 2 with each phrase's
+  intent holding its figure levels only. The version 1 reader takes the three phrase shapes data
+  version 1 holds: the levels only, a musical profile only (v3.0's, mapped to that profile's levels through `profile-to-levels.ts`), or both (kept by v3.1's development builds before data version 2), kept when the levels are the profile's. Timelines and every other field are copied as
+  read, so a carried-over session reviews and exports byte for byte as before.
+
+Each rewritten envelope's `appVersion` is the upgrading app's (`MigrationUpgrade.appVersion`, the
+opening's). The played notes, and every other store, are left alone.
+
+A record the step cannot read (a damaged value, a selection without its customized mark, levels
+that disagree with the profile beside them) is left as it is, at data version 1, and the codec
+then reads its session as unreadable. The step never throws for a stored value, in its cursor
+callbacks either: a throw there would escape the runner's `MigrationStepError` guard, abort the
+upgrade, and make every later open fail on the same record. A failing request (a quota error, say)
+is not caught: it aborts the upgrade, and the next open runs it again. An older tab open meanwhile
+is closed by the version change and turns outdated.
 
 ### Size
 
@@ -897,7 +937,7 @@ the failed-to-open path at an opening).
   once the session controller is built, so in the controller's chunk, never the entry chunk): only
   when a summary the load read is damaged (`damagedSummaryKeys`), so a visit with nothing damaged
   opens no transaction for it. One change through the kept-change line, `changeKept(changes,
-  'caller')`, never `save()`: `damagedSessionsCleanUp()` (`workspace-kept-session-read.ts`)
+'caller')`, never `save()`: `damagedSessionsCleanUp()` (`workspace-kept-session-read.ts`)
   re-reads `sessionSummaries` at the change and deletes every session damaged then, one damaged
   since the load included; with none, the batch is empty and nothing is told. Queued like every
   kept change, it runs after the session saves asked for before it and waits for a running
@@ -975,7 +1015,7 @@ and the generator-facing profile are derived again at each load.
   clef (`instrumentClefOf`). `App.vue` sizes the staff's shared system positions from its written
   range in its clef.
 - **Saved** by the player, from the My instrument sheet or the connection sheet's `Use for my
-  instrument`. A save that erases nothing (creating my instrument, a change of its name or clef,
+instrument`. A save that erases nothing (creating my instrument, a change of its name or clef,
   or a change of its range or transposition while it has no kept session) is the plain write:
   `saveMyInstrument` writes the record whole (`src/storage/my-instrument-saves.ts`, part of the
   visit's saves), one batch through the save policy, so held during a session, refused in an
@@ -1027,10 +1067,10 @@ state and failure report; and from the reports of the deletions of damaged kept 
 the remembered controller's store, and the shell hands to `useAppNotices` as `damagedSessions`).
 The copy and the rules are the saved-data flow's (Notices).
 
-| Saving state     | Notice                                                                                                                                       |
-| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `off-outdated`   | Outdated tab: the saved-data wording when the load outcome is `saved-data-read`, the defaults wording when it is `started-from-defaults`.    |
-| `off-unreadable` | Unusable data.                                                                                                                               |
+| Saving state     | Notice                                                                                                                                                                                            |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `off-outdated`   | Outdated tab: the saved-data wording when the load outcome is `saved-data-read`, the defaults wording when it is `started-from-defaults`.                                                         |
+| `off-unreadable` | Unusable data.                                                                                                                                                                                    |
 | `on`             | The save-problem notice once a save failed: Storage full for `quota`, Save failed for `other`, switched in place to the latest one reported; or the apology for damaged sessions deleted (below). |
 
 Before a late-opening port hands its policy over, a visit started from the defaults shows Unusable
@@ -1074,6 +1114,32 @@ ceiling, and well above every read measured. "Cold" is the first load after the 
 its profile; the operating system's file cache may still hold the database. Hand check H2 repeats
 the measurement on the reference machine, and the tablet if at hand
 ([`HARDWARE-CHECKLIST.md`](../HARDWARE-CHECKLIST.md#h2-start-up-wait-chunk-7-about-10-min)).
+
+## The upgrade to data version 2 (M3)
+
+`npm run measure:kept-session-upgrade` times v3.1's first open of a database at data version 1
+holding v3.0's kept sessions, the upgrade included, as the start-up read sees it (`loadMs` on the
+workspace harness in Chromium, the same load M2 times). Each database holds 10, 100 or 500
+v3.0-shaped kept sessions, all pinned, each a session-wide record with a 500-character comment and
+a readable body of real phrases cycled to about 100 kB (15 phrases), as M2's bodies; the cold
+figure is the first load after the browser starts on the profile, the one that upgrades, then
+three warm reloads.
+
+Measured on 2026-10-19 on the AMD Ryzen 5 PRO 8640HS laptop (12 threads, no virtual machine),
+headless Chromium through Playwright, load average about 2 to 3 with no other test running; two
+runs, in milliseconds:
+
+| Kept sessions | Upgrade load (cold) | Warm, slowest |
+| ------------- | ------------------- | ------------- |
+| 10            | 38.8 / 45.7         | 3.3 / 3.0     |
+| 100           | 170.0 / 181.9       | 14.6 / 15.9   |
+| 500           | 726.9 / 750.3       | 12.6 / 13.3   |
+
+The upgrade fits inside the 2 s start-up wait at every count, at most about 38 % of it with 500
+sessions. It grows with the phrases kept: with bodies of about 650 kB (97 phrases, a session of
+about 13 minutes at 120 BPM) the same run measured 901.5 ms for 100 sessions, and 500 sessions
+passed the wait (that visit starts from the defaults; the upgrade still completes, and the next
+visit reads normally). The owner repeats the deciding runs on the reference machine.
 
 ## The app version
 

@@ -53,6 +53,7 @@ function mountPanel(
     props: {
       records,
       instrumentName: 'B-flat tenor saxophone',
+      presetLabel: 'Neutral',
       startedAt: 0,
       mostRecent: true,
       keeping: 'not-pinned',

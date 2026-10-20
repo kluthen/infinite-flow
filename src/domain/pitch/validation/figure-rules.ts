@@ -74,6 +74,58 @@ function allowedFreeFigure(levels: FigureLevels, figure: FigureId | undefined): 
   return figure !== undefined && allowsFreeFigure(levels, figure)
 }
 
+/** The smallest leap, in half steps, that enters an appoggiatura. */
+const APPOGGIATURA_LEAP = 3
+
+/**
+ * True when attack `index` is a free appoggiatura: entered by a leap of 3 half steps or more from
+ * the attack before, on a strong onset, resolved by one collection step onto the next attack, a
+ * chord tone under the same harmony.
+ */
+// @spec-link [[module_pitch_domain_validation]]
+// @spec-link [[rule_embellishment_figures_defined]]
+function freeAppoggiatura(attacks: readonly SoundingFact[], index: number): boolean {
+  const [before, note, after] = [attacks[index - 1], attacks[index]!, attacks[index + 1]]
+  return (
+    before !== undefined &&
+    after !== undefined &&
+    Math.abs(note.midi - before.midi) >= APPOGGIATURA_LEAP &&
+    note.strongOnset &&
+    collectionStep(note, after) &&
+    after.chordTone &&
+    after.harmony === note.harmony
+  )
+}
+
+/** True for an in-collection attack outside its chord. */
+function diatonicNonChord(attack: SoundingFact | undefined): attack is SoundingFact {
+  return attack !== undefined && attack.inCollection && !attack.chordTone
+}
+
+/**
+ * The member indices of a diatonic enclosure holding attack `index`, trying `[index, index + 1]`
+ * then `[index - 1, index]`, or undefined: two in-collection non-chord attacks, one a collection
+ * step above and one a collection step below the chord-tone attack after them, in either order,
+ * the three back to back under one harmony.
+ */
+// @spec-link [[module_pitch_domain_validation]]
+// @spec-link [[rule_embellishment_figures_defined]]
+function diatonicEnclosureMembers(
+  attacks: readonly SoundingFact[],
+  index: number,
+): readonly number[] | undefined {
+  for (const start of [index, index - 1]) {
+    const [first, second, target] = [attacks[start], attacks[start + 1], attacks[start + 2]]
+    if (!diatonicNonChord(first) || !diatonicNonChord(second) || !target?.chordTone) continue
+    const surrounds =
+      collectionStep(first, target) &&
+      collectionStep(second, target) &&
+      Math.sign(first.midi - target.midi) === -Math.sign(second.midi - target.midi)
+    if (surrounds && tightGroup([first, second, target])) return [start, start + 1]
+  }
+  return undefined
+}
+
 /**
  * Re-derive the concrete binding's structural claims from rhythm and harmony: permitted kind and
  * region, member count, consecutive attacks under one harmony (rests allowed) with each member and
@@ -174,11 +226,13 @@ function chromaticOrnament(
  * unless the levels allow chromatic notes, in which case an out-of-collection pitch must belong to
  * a complete chromatic approach or enclosure whose own level is not Off. The bound figure must be
  * structurally sound and realized by its MIDI path, whatever the levels. Remaining diatonic
- * non-chord tones must be free passing tones, accented passing tones or neighbors whose level is
- * not Off, except a tense final note a phrase generated with carry-in may leave for its next
- * phrase to resolve.
+ * non-chord tones must be free passing tones, accented passing tones, neighbors, appoggiaturas, or
+ * members of a diatonic enclosure with no bound member, each figure's level not Off, except a
+ * tense final note a phrase generated with carry-in may leave for its next phrase to resolve,
+ * when the levels allow a free scale note there.
  */
 // @spec-link [[module_pitch_domain_validation]]
+// @spec-link [[rule_embellishment_figures_defined]]
 // @spec-link [[module_musical_profile_capabilities]]
 // @spec-link [[rule_chromatic_notes_need_a_chromatic_figure]]
 // @spec-link [[rule_figure_level_orders_search]]
@@ -216,6 +270,9 @@ export function figureFailures(facts: PhraseFacts): readonly PitchValidationFail
     else members.forEach((member) => chromatic.add(member))
   }
 
+  /** True when a diatonic enclosure with no bound member holds the attack at `index`. */
+  const freelyEnclosed = (index: number): boolean =>
+    diatonicEnclosureMembers(facts.attacks, index)?.every((member) => !bound.has(member)) === true
   for (const attack of facts.attacks) {
     const explained =
       attack.chordTone ||
@@ -223,6 +280,8 @@ export function figureFailures(facts: PhraseFacts): readonly PitchValidationFail
       chromatic.has(attack.index) ||
       bound.has(attack.index) ||
       allowedFreeFigure(levels, freeDiatonicFigure(facts.attacks, attack.index)) ||
+      (allowsFreeFigure(levels, 'appoggiatura') && freeAppoggiatura(facts.attacks, attack.index)) ||
+      (allowsFreeFigure(levels, 'diatonicEnclosure') && freelyEnclosed(attack.index)) ||
       isOwedTenseEnding(facts, attack)
     if (!explained) failures.push({ code: 'unexplained_non_chord_tone', attackIndex: attack.index })
   }

@@ -1,16 +1,17 @@
 ---
 id: module_figure_levels
-status: DRAFT
+status: REVIEW
 type: MODULE
 priority: 1
 human_name: Figures and Their Levels
 dependents:
+  - [[module_favored_figure_draw]]
   - [[module_generation_request_construction]]
   - [[module_musical_profile_capabilities]]
   - [[module_phrase_replay_key]]
   - [[module_stored_profile_to_levels]]
 layer: ARCHITECTURE
-version: 0.2
+version: 0.3
 tags: [v3, release-v3.1, generation, figures]
 parents:
   - [[req_embellishment_figure_levels]]
@@ -35,7 +36,7 @@ The allowance is what the levels let the generator write, worked out from the le
 The module is pure data and functions: it reads no storage, interface, clock or random source.
 
 ## TECHNICAL INTERFACE
-src/domain/figures/figure-levels.ts exports the seven figure ids in their order, the four level ids in their order, the FigureLevels type (one level per figure id), NEUTRAL_FIGURE_LEVELS and JAZZ_FIGURE_LEVELS, frozen, levelsForProfile(profile), parseFigureLevels(value), which reads an untrusted value as exactly one known level per figure or throws a FigureLevelsError naming the cause, and the allowance helpers allowsFreeFigure(levels, figure) and allowsChromaticNotes(levels). makePitchPolicy (src/domain/pitch/pitch-policy.ts) keeps the request's levels in the pitch policy and the result validator (src/domain/validation/generation-result-validator.ts) puts them in its validation context; the pitch search (src/domain/pitch/pitch-candidates.ts) and the validator's figure rules (src/domain/pitch/validation/figure-rules.ts) call the helpers. The generation request carries the levels as figureLevels (module_generation_request_construction).
+src/domain/figures/figure-levels.ts exports the seven figure ids in their order, the four level ids in their order, the FigureLevels type (one level per figure id), NEUTRAL_FIGURE_LEVELS and JAZZ_FIGURE_LEVELS, frozen, levelsForProfile(profile), parseFigureLevels(value), which reads an untrusted value as exactly one known level per figure or throws a FigureLevelsError naming the cause, and the allowance helpers allowsFreeFigure(levels, figure) and allowsChromaticNotes(levels). makePitchPolicy (src/domain/pitch/pitch-policy.ts) keeps the request's levels in the pitch policy and the result validator (src/domain/validation/generation-result-validator.ts) puts them in its validation context; the pitch search (src/domain/pitch/pitch-candidates.ts) and the validator's figure rules and the tense ending a joined phrase may owe (src/domain/pitch/validation/figure-rules.ts and join-rules.ts) call the helpers. The generation request carries the levels as figureLevels (module_generation_request_construction).
 
 ## EXPECTATION
 - There are exactly seven figure ids and four level ids, in the orders above, and a figure-levels value holds each of the seven exactly once.

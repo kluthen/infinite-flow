@@ -5,15 +5,21 @@
  * setting with seeds 7 and 13) under each of the nine collections gives one standalone phrase per
  * setting, at 120 BPM with the case's tension arc and seed. The settings are each musical profile
  * (Neutral and Jazz), every figure as today (the base), each of the seven figures off in turn with
- * the others as today, and every figure off. Each phrase's figures are counted by the figure
+ * the others as today, every figure off, and each of the seven figures Favored and then Strongly
+ * favored in turn with the others as today. Each phrase's figures are counted by the figure
  * census; per setting, the sweep prints each figure's share of phrases and mean count per phrase,
  * and per tension arc how many phrases hold Tension's scheduled figure, as `FIGURE-CENSUS` lines,
- * then how many Settled and Lift cases holding one under Neutral hold none with every figure off.
+ * then how many Settled and Lift cases holding one under Neutral hold none with every figure off,
+ * then one `FIGURE-CENSUS ladder` line per figure: its share of phrases off, as today (every
+ * figure as today), Favored and Strongly favored.
  *
  * It asserts, in every setting, that no attack is unexplained and that no generation failed its
  * result validation (only search outcomes may fail a generation); that a figure turned off has no
- * free instance; and that with every figure off no free figure appears while every Edge and Build
- * phrase still holds Tension's scheduled figure.
+ * free instance; that with every figure off no free figure appears while every Edge and Build
+ * phrase still holds Tension's scheduled figure; that each figure's share never falls from off to
+ * as today to Favored to Strongly favored, and rises strictly from as today to Strongly favored
+ * for all seven figures; and that the free appoggiatura's and the diatonic enclosure's shares also
+ * rise strictly from as today to Favored.
  *
  * Env: `FIGURES_OUT` writes the full aggregate JSON (with the machine, the date and the run
  * duration) to that path; `FIGURES_LIMIT` keeps only the first N sweep cases, for a quick run.
@@ -29,6 +35,7 @@ import { FREE_FIGURES, type FreeFigure } from './figure-census'
 import {
   ALL_AS_TODAY,
   CensusTally,
+  FIGURE_FAVORED_SETTINGS,
   FIGURE_OFF_SETTINGS,
   PROFILE_SETTINGS,
   censusPopulation,
@@ -59,6 +66,9 @@ const FREE_LABEL: Readonly<Record<FigureId, FreeFigure>> = {
   chromaticApproach: 'chromatic_approach',
   chromaticEnclosure: 'chromatic_enclosure',
 }
+
+/** The figures whose share must also rise strictly from as today to Favored. */
+const FAVORED_RISE_FIGURES: readonly FigureId[] = ['appoggiatura', 'diatonicEnclosure']
 
 /** The tension arcs whose scheduled figure is optional, and those that always schedule one. */
 const OPTIONAL_ARCS = ['Settled', 'Lift'] as const
@@ -118,6 +128,38 @@ function settingNamed(settings: readonly SettingAggregate[], label: string): Set
   return found
 }
 
+/** One figure's share of phrases at each rung of its ladder. */
+interface FigureLadder {
+  readonly figure: FigureId
+  readonly off: number
+  readonly asToday: number
+  readonly favored: number
+  readonly stronglyFavored: number
+}
+
+/** Intent: the share of a setting's phrases holding the figure's free instances; fails with none. */
+function shareIn(settings: readonly SettingAggregate[], label: string, figure: FigureId): number {
+  const share = settingNamed(settings, label).figures[FREE_LABEL[figure]].share
+  if (share === null) throw new Error(`Setting "${label}" generated no phrase.`)
+  return share
+}
+
+/** Intent: each figure's ladder: off, as today (every figure as today), Favored, Strongly favored. */
+function figureLadders(settings: readonly SettingAggregate[]): readonly FigureLadder[] {
+  return (Object.keys(FREE_LABEL) as FigureId[]).map((figure) => ({
+    figure,
+    off: shareIn(settings, `${figure} off`, figure),
+    asToday: shareIn(settings, ALL_AS_TODAY.label, figure),
+    favored: shareIn(settings, `${figure} favored`, figure),
+    stronglyFavored: shareIn(settings, `${figure} strongly favored`, figure),
+  }))
+}
+
+/** Intent: a share as a percentage with one decimal. */
+function percent(share: number): string {
+  return `${(share * 100).toFixed(1)} %`
+}
+
 describe('figure census sweep (M1)', () => {
   it('reports, per setting, the share of phrases holding each figure and its count per phrase', () => {
     const startedAt = performance.now()
@@ -126,7 +168,12 @@ describe('figure census sweep (M1)', () => {
     const limit = caseLimit(process.env.FIGURES_LIMIT)
     const cases = sweepCases().slice(0, limit)
     const population = censusPopulation(cases)
-    const measured = [...PROFILE_SETTINGS, ALL_AS_TODAY, ...FIGURE_OFF_SETTINGS]
+    const measured = [
+      ...PROFILE_SETTINGS,
+      ALL_AS_TODAY,
+      ...FIGURE_OFF_SETTINGS,
+      ...FIGURE_FAVORED_SETTINGS,
+    ]
     const tallies = new Map(
       measured.map((setting) => [setting.label, measureSetting(setting, population)]),
     )
@@ -140,6 +187,12 @@ describe('figure census sweep (M1)', () => {
     console.log(
       `FIGURE-CENSUS cases holding a scheduled figure under Neutral but none with every figure off: ${OPTIONAL_ARCS.map((arc) => `${arc} ${lostWithEveryFigureOff[arc]}`).join(', ')}`,
     )
+
+    const ladders = figureLadders(settings)
+    for (const ladder of ladders)
+      console.log(
+        `FIGURE-CENSUS ladder ${ladder.figure}: off ${percent(ladder.off)} / as today ${percent(ladder.asToday)} / favored ${percent(ladder.favored)} / strongly favored ${percent(ladder.stronglyFavored)}`,
+      )
 
     const report = {
       date,
@@ -179,5 +232,21 @@ describe('figure census sweep (M1)', () => {
         tally.phrases,
       )
     }
+    for (const ladder of ladders) {
+      const rungs = [ladder.off, ladder.asToday, ladder.favored, ladder.stronglyFavored]
+      expect(
+        rungs.every((share, index) => index === 0 || rungs[index - 1]! <= share),
+        `${ladder.figure} ladder never falls: ${rungs.map(percent).join(' / ')}`,
+      ).toBe(true)
+    }
+    for (const ladder of ladders)
+      expect(
+        ladder.stronglyFavored,
+        `${ladder.figure} rises from as today to strongly favored`,
+      ).toBeGreaterThan(ladder.asToday)
+    for (const ladder of ladders.filter(({ figure }) => FAVORED_RISE_FIGURES.includes(figure)))
+      expect(ladder.favored, `${ladder.figure} rises from as today to favored`).toBeGreaterThan(
+        ladder.asToday,
+      )
   })
 })

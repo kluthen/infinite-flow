@@ -7,11 +7,12 @@ import type {
 } from '../controls/generation-controls'
 import { deepFreeze } from '../events/deep-freeze'
 import type { ConcertPitch } from '../events/concert-pitch'
-import type { FigureLevels } from '../figures/figure-levels'
+import type { FigureId, FigureLevels } from '../figures/figure-levels'
 import type { PhraseEndingDebtAllowance } from '../generation/carry-in/phrase-ending-debt'
 import type { GenerationRequest } from '../generation/generation-request'
 import type { HarmonyCandidate, TensionFigureKind } from '../harmony/harmony-types'
 import type { RhythmCandidate } from '../rhythm/rhythm-types'
+import type { FavoredLevel } from './figure-draw'
 import type { ContourPlan, ContourState } from './pitch-contour'
 import type { FigureState } from './pitch-figures'
 import type { MotionLimits, MotionState } from './pitch-motion'
@@ -28,10 +29,17 @@ export type PitchRole =
   | 'chromatic_approach'
   | 'chromatic_enclosure_upper'
   | 'chromatic_enclosure_lower'
+  | 'diatonic_enclosure_upper'
+  | 'diatonic_enclosure_lower'
 
-/** Every figure a reservation can realize: the bound tension kinds plus the Jazz ornaments. */
+/**
+ * Every figure a reservation can realize: the bound tension kinds (an `appoggiatura` reservation
+ * is also a free appoggiatura when it carries no binding identity), the free diatonic enclosure,
+ * and the chromatic approach and enclosure.
+ */
 // @spec-link [[entity_pitch_candidate_domain]]
-export type PitchFigureKind = TensionFigureKind | 'chromatic_approach' | 'chromatic_enclosure'
+export type PitchFigureKind =
+  TensionFigureKind | 'diatonic_enclosure' | 'chromatic_approach' | 'chromatic_enclosure'
 
 // @spec-link [[entity_pitch_candidate_domain]]
 export interface PitchPolicy {
@@ -129,6 +137,34 @@ export interface PitchCandidate {
    * absent when both are allowed and on every other candidate. Not part of the identity.
    */
   readonly freeResolution?: FreeToneResolution
+  /**
+   * The free figures this candidate may start, among those the figure levels allow, in FIGURE_IDS
+   * order: its own figure on the first member of a free path (an appoggiatura, a diatonic
+   * enclosure, a chromatic approach or enclosure), the figures of its beat on a free diatonic tone;
+   * absent when it may start none (chord tones, later notes of a figure path, the notes of
+   * Tension's scheduled figure, the tense note a joined phrase may end on). Read by the search's
+   * ordering; not part of the identity.
+   */
+  // @spec-link [[module_favored_figure_draw]]
+  readonly figures?: readonly FigureId[]
+}
+
+/**
+ * A candidate tried first as a drawn figure: the figure, its level, and, for a free diatonic tone,
+ * the resolution it is held to.
+ */
+// @spec-link [[module_favored_figure_draw]]
+export interface FavoredEntry {
+  readonly figure: FigureId
+  readonly level: FavoredLevel
+  readonly hold?: FreeToneResolution
+}
+
+/** One entry of an attack's search order: a candidate, tried first as a drawn figure when `favored` is set. */
+// @spec-link [[module_favored_figure_draw]]
+export interface PitchSearchEntry {
+  readonly candidate: PitchCandidate
+  readonly favored?: FavoredEntry
 }
 
 /**

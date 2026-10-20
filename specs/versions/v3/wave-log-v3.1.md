@@ -282,3 +282,134 @@ tested); the J3 deviation above. For chunk 9's sync: the J3/J5 second half, the
 
 Owner, 2026-10-19: "you may merge into main, you may work on the next wave, but that will be the
 last for the day." Wave 1 merged into `main`, not pushed; wave 2 is the last wave today.
+
+## Wave 2 (2026-10-19)
+
+Chunks 6 (favored levels order the search), 7 (two new free figures, plus D368's tense ending)
+and 9 (kept sessions hold the levels and the preset label). Branch `v3.1-w2`, worktree
+`../infinite_flow-v3.1-w2`, cut from `main` 8e327bb (wave 1 merged). The owner's last wave for
+2026-10-19.
+
+### Preflight
+
+`documentalist` (787241d), without `atd audit`. `atd lint` and `atd check` pass.
+
+| Chunk | Verdict                                    | Captures                                                                                |
+| ----- | ------------------------------------------ | --------------------------------------------------------------------------------------- |
+| 6     | PROCEED after C6-1                         | `module_favored_figure_draw` 0.1 (`isFigureDrawn` in `src/domain/pitch/figure-draw.ts`) |
+| 7     | PROCEED, sign-off given (D368), after C6-1 | none (builds on chunk 6's)                                                              |
+| 9     | PROCEED, sign-off given (part J, D363)     | `module_kept_session_upgrade_step` 0.1 (`src/storage/migrations/kept-sessions-v2.ts`)   |
+
+Part J covers every chunk 9 Revision, `module_on_device_database` included (J3), so the contract
+stays 7.0.0. Chunk 9 shares no file with 6 or 7, so it may run beside them.
+
+Sent to `spec-writer` before the first chunk: **C6-1** (blocks 6 and 7) which figure a free
+diatonic tone "starts" and whether a favored one is held to the drawn figure's resolution;
+**C9-1** one `KEPT_SESSION_DATA_VERSION` for summary, body and played notes, so moving it to 2
+would make every session with played notes unreadable (option a: each shape its own version,
+played notes stay at 1, per the STABLE database rule; option b: rewrite played notes too, which
+needs the owner); C9-2 the label new sessions write until chunk 12 ("Custom (Jazz grammar)" today
+vs. "Custom, based on Jazz"); C9-3 the phrase 1 fallback; Files and drift-check corrections C6-2,
+C6-3, C6-4, C7-1, C9-4.
+
+- **Plan v11 (c948f8f, `spec-writer`), D369–D372, no owner question:** D369 a favored free scale
+  tone names the figures it may become and is tried held to the drawn figure ahead of the chord
+  tones, then again unheld in its usual place (never a quota); D370 each kept shape keeps its own
+  data version (summary and body to 2, played notes stay at 1; J3's "the shapes are at data
+  version 2" applied to summary and body); D371 new sessions store the label in B9's form
+  ("Custom, based on Jazz") from chunk 9 on, through one label function outside `src/storage/`,
+  which chunk 12 routes the summary through; D372 the rest (fallback dropped, Part B v1.4; chunk
+  6 Files and a 6a/6b split rule; drift checks; chunk 7 Atoms; chunk 9 Files, owner notes and
+  Done when). Captures to amend to D369 and D372 before chunks 6 and 9 start.
+- **Captures amended (afbafd3, `documentalist`):** `module_favored_figure_draw` 0.2 (D369) and
+  `module_kept_session_upgrade_step` 0.2 (D370–D372). For the sync: the migration step now
+  receives the app version (a STABLE interface detail under J3's "data version 2 and its step");
+  check what the open does after a callback abort.
+- **Chunks 6 and 9 dispatched in parallel** (no shared file; chunk 7 follows 6). Chunk 9, a data
+  migration, has a `reviewer` check its step before merging.
+
+### Chunks
+
+- **Chunk 6, favored order: merged e307449** (6a c7bc4ae, 6b 1fed56c). Done when met item by
+  item; 764 tests on its paths plus the corpus guard, 679 on orchestration and validation. Hash
+  domain `infinite-flow/figure-draw/v1`, shares 1/4 and 1/2 (in the Record line, for the sync).
+  M1 (load 4–10 from chunk 9; shares do not depend on it): each written figure rises strictly
+  from As today to Strongly favored, for example neighbor tone 16.7 → 92.0 → 97.0 % of phrases.
+  **For the owner when listening:** at 1 note in 4, a favored figure appears in most phrases;
+  tuning is one constant in `figure-draw.ts`. Favoring adds a few `search_limit_exceeded` (up to
+  15 against 6 of 5,112), well under B5.6's 2-point limit; chunk 11's M2 confirms at 240 BPM.
+  Stale for the sync: `module_named_stream_pseudorandomness`, `module_pitch_search_transition`,
+  `mechanic_pitch_tie_break_ordering`, `entity_pitch_candidate_domain`,
+  `module_favored_figure_draw`'s "not built yet".
+- **Chunk 9, kept sessions hold the levels and the preset label: merged dee61a7** (9a 5cf4798,
+  9b 2750de7; `reviewer` OKAY on the step). Done when met item by item; 2,167 tests on the merged
+  tree (chunk tests and corpus guard), 101 Playwright tests on its specs; new e2e spec
+  `kept-sessions-carried-over.spec.ts` added to `test:e2e`; new script
+  `measure:kept-session-upgrade`. M3 (reference machine, alone): 500 sessions of 100 kB in about
+  0.75 s, inside the 2 s wait, so the step stays at open; with 650 kB bodies 500 sessions run past
+  the wait (one visit from the defaults). **For the owner.** Sent to `spec-writer`: the review
+  summary's missing {length} (both designs show it, no chunk owns it); the M3 heavy-body figure;
+  `parseConcertEventTimeline` accepting a hole in `timeline.measures`. Stale for the sync: part
+  J's chunk 9 half (`rule_kept_session_content`, `entity_kept_session_record`,
+  `module_kept_session_codec`, `module_kept_session_reach`, `req_kept_session_list`,
+  `module_on_device_database` incl. `MigrationUpgrade.appVersion`),
+  `rule_earlier_kept_sessions_carried_over` (reads the mark from the summary, no phrase 1),
+  `module_kept_session_upgrade_step`'s "not built yet".
+- **Plan v12 (af72dc2, `spec-writer`), D373–D375:** D373 inserts **chunk 22** (the review's
+  summary gives the session's length, from the same function as the stored `lengthSeconds`) into
+  wave 3, after chunk 12 (wave 3 not yet preflighted, so its preflight covers it); D374 records
+  M3 (the plan's method settles chunk 9's point) and opens **O233** for the owner with a new gate
+  **M3H** blocking only the release gate: accept that very long pinned v3.0 sessions (about 220+
+  of about 13 minutes) overrun the start-up wait once (recommended), or build read-time
+  conversion; D375 files **ISS-013** (Low), `parseConcertEventTimeline` accepting holes. Next
+  ids D376, O234.
+- **Chunk 7, the free appoggiatura, the diatonic enclosure and D368: merged d4c9985** (b3f4d6c).
+  Done when met item by item; 2,241 tests on the merged tree (its paths, session, corpus guard);
+  carry-in matrix 480 of 480 joins, 0 tense endings with the three tones Off. M1 (load 1.5–4.9):
+  both new figures rise from 0 at Off to 61.2 % and 77.2 % at Strongly favored; Neutral and Jazz
+  equal v3.0. For chunk 11's M2: the diatonic enclosure at Favored adds the most cut-offs. Stale
+  for the sync: `rule_join_tense_note_resolution` (D368), `module_favored_figure_draw` (lists the
+  two new figures; "not built yet"), `entity_pitch_candidate_domain`,
+  `module_pitch_domain_validation`.
+
+### Wave gate (2026-10-19, 22:24 CEST, reference machine, load 3.4 falling, nothing else running)
+
+On `v3.1-w2` at 90b9945. `npm run quality`: exit 0. Code health 0 errors (724 warnings); unit
+471 files, 7,248 tests passed; `verify:boundaries` passed (48 JS chunks, from 42); Playwright
+458 + 458 passed (1 skipped each), 57 passed, 107 passed and 4 skipped; `atd:lint` and
+`atd:check` pass. `npm run test:sweep` (placed by chunks 6 and 7): exit 0, 5 files, 16 tests,
+116 s. **Bundle: entry chunk 227,702 B**, −2,907 B on wave 1's 230,609 B (−1,444 B on v3.0's
+229,146 B), 79,498 B under the 300 KiB budget.
+
+### Wave sync and report
+
+`documentalist` post-task sync over `8e327bb..v3.1-w2` (ae4b2b3): 18 atoms, contract stays
+7.0.0. Part J's chunk 9 half applied (D363); `module_on_device_database` 0.5 resolves the drift
+from D364/D367. `rule_join_tense_note_resolution` 0.3 per D368. Chunk 6's draw recorded
+(domain `infinite-flow/figure-draw/v1`, shares). `module_pitch_planner` 1.2: "no candidate
+retried" became "no search entry retried" (D369 tries a free tone twice). Part J applied
+differently from its wording in seven listed places (in the change set's "Applied at wave 2's
+sync" paragraph); the material one: sessions are carried over at open only, until O233. Finding:
+a request failing inside the upgrade (a full device) rolls it back and gives an unavailable port,
+so every visit starts from the defaults until space is freed; no test covers that path. No drift
+unresolved. No status advanced; proposed DRAFT → REVIEW: `module_favored_figure_draw`,
+`module_kept_session_upgrade_step`, `module_stored_profile_to_levels` (with wave 1's
+`module_figure_levels`, `module_preset_model`).
+
+Report to the owner (2026-10-19, end of day): chunks 6, 7, 9 merged, none moved; gate passed;
+entry chunk 227,702 B; sync applied part J in full. Open for the owner: O233 (gate M3H, before the
+release gate; recommended (a) accept), the five DRAFT → REVIEW proposals, whether to test or file
+the full-device path, merging `v3.1-w2` into `main`, v3.1 H3 in Edge. Next for a fresh driver:
+wave 3 (chunks 11, 12, 15, 16, 22) after the merge; T1 is asked again before wave 4.
+
+### Owner answers and merge (2026-10-20)
+
+The owner answered: merge `v3.1-w2` into `main` and push; O233 (a), accept the rare overrun and
+say so; all five DRAFT → REVIEW proposals; the full-device path: leave it. `spec-writer`
+recorded D376 (2e25145, plan v13): O233 closed, B9 states the limit, gate M3H done, the
+full-device rollback accepted with no test; wave 3's sync aligns
+`rule_earlier_kept_sessions_carried_over` and change set J3 with the new B9. `documentalist`
+committed the owner sign-off (51392cb): `module_figure_levels`, `module_preset_model`,
+`module_favored_figure_draw`, `module_kept_session_upgrade_step`, `module_stored_profile_to_levels`
+to REVIEW. Wave 2 merged into `main` and pushed. The owner then said to go on with wave 3 in
+this session (κ > 1 still allowed for it).

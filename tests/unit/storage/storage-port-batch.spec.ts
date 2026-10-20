@@ -3,6 +3,7 @@ import { IDBDatabase } from 'fake-indexeddb'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { RecordVersions } from '@/storage/record-envelope'
+import { DATABASE_DATA_VERSION } from '@/storage/database'
 import {
   openStoragePort,
   StorageError,
@@ -17,6 +18,7 @@ import {
   failingPutFactory,
   freshFactory,
   migrationsUpTo,
+  NEWER_DATA_VERSION,
   rawGet,
   rawPut,
   sampleRecord,
@@ -184,8 +186,12 @@ describe('a batch on a port that may not save', () => {
   async function raiseMeta(factory: IDBFactory): Promise<void> {
     await withRawDatabase(
       factory,
-      (database) => rawPut(database, 'meta', 'database', { dataVersion: 2, appVersion: '3.1.0' }),
-      1,
+      (database) =>
+        rawPut(database, 'meta', 'database', {
+          dataVersion: NEWER_DATA_VERSION,
+          appVersion: '3.2.0',
+        }),
+      DATABASE_DATA_VERSION,
     )
   }
 
@@ -216,7 +222,7 @@ describe('a batch on a port that may not save', () => {
     const newer = await openStoragePort({
       factory,
       appVersion: '3.1.0',
-      migrations: migrationsUpTo(2),
+      migrations: migrationsUpTo(NEWER_DATA_VERSION),
     })
     await newer.write('settings', 'theme', sampleRecord('Dark'))
     const older = await openStoragePort({ factory, appVersion: '3.0.0' })
@@ -256,7 +262,15 @@ describe('a defective batch', () => {
       [],
       [valid, { kind: 'delete', store: 'meta' as StoreName, key: 'database' }],
       [valid, { kind: 'move', store: 'settings', key: 'theme' } as unknown as StorageChange],
-      [valid, { kind: 'write', store: 'settings', key: 'theme', record: sampleRecord('Light', 2) }],
+      [
+        valid,
+        {
+          kind: 'write',
+          store: 'settings',
+          key: 'theme',
+          record: sampleRecord('Light', NEWER_DATA_VERSION),
+        },
+      ],
       [
         valid,
         {

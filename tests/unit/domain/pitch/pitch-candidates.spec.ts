@@ -9,9 +9,11 @@ import {
   makeGenerationRequest,
   makeRequestId,
 } from '@/domain/generation/generation-request'
+import { makeCarryIn, type CarryIn } from '@/domain/generation/carry-in/carry-in'
 import { makeHarmonyCandidateDomain } from '@/domain/harmony/harmony-planner'
 import { makeActiveConcertRange } from '@/domain/profile/active-concert-range'
 import { makeRegisterWindow } from '@/domain/profile/register-window'
+import { makeConcertPitch } from '@/domain/events/concert-pitch'
 import { makeSeed } from '@/domain/random/seed'
 import { makeRhythmCandidateDomain } from '@/domain/rhythm/rhythm-planner'
 import { buildCandidateDomains } from '@/domain/pitch/pitch-candidates'
@@ -32,6 +34,7 @@ function fixtureInput(
     readonly figureLevels?: FigureLevels
     readonly tensionBinding?: ConcreteTensionBinding
     readonly window?: readonly [number, number]
+    readonly carryIn?: CarryIn
   } = {},
 ): BoundPitchPlannerInput {
   const harmony = makeHarmonyCandidateDomain({
@@ -65,6 +68,7 @@ function fixtureInput(
       activeConcertRange: makeActiveConcertRange(40, 84),
       register: 'Middle',
       registerWindow: makeRegisterWindow(minMidi, maxMidi),
+      ...(input.carryIn === undefined ? {} : { carryIn: input.carryIn }),
     }),
     policy: makePitchPolicy({
       figureLevels: input.figureLevels ?? NEUTRAL_FIGURE_LEVELS,
@@ -321,5 +325,119 @@ describe('pitch-candidates: free diatonic tones tagged by the resolutions their 
     expect(weak.length).toBeGreaterThan(0)
     for (const { candidate } of strong) expect(candidate.freeResolution).toBeUndefined()
     for (const { candidate } of weak) expect(candidate.freeResolution).toBe('neighbor')
+  })
+})
+
+/** A carry-in over the fixture's default window, with no carried chord, so nothing is owed. */
+function plainCarryIn(): CarryIn {
+  return makeCarryIn({
+    lastPitch: {
+      midi: makeConcertPitch(60),
+      arrivingInterval: null,
+      recovery: { kind: 'settled' },
+    },
+    registerWindow: makeRegisterWindow(48, 72),
+    finalHarmony: null,
+    phraseNumber: 1,
+  })
+}
+
+/** The free tones of a fixture split by beat: on beat 1 or 3, and off them. */
+function freeTonesByBeat(figureLevels: FigureLevels) {
+  const tones = freeTonesOf(figureLevels)
+  const strong = tones.filter(({ attack }) => onStrongBeat(attack))
+  const weak = tones.filter(({ attack }) => !onStrongBeat(attack))
+  expect(strong.length).toBeGreaterThan(0)
+  expect(weak.length).toBeGreaterThan(0)
+  return { strong, weak }
+}
+
+/** Every reserved candidate of a fixture's domains whose path is of `kind`, at `memberPosition`. */
+function pathMembers(input: BoundPitchPlannerInput, kind: string, memberPosition: number) {
+  const members = domainsFor(input)
+    .domains.flat()
+    .filter(
+      (candidate) =>
+        candidate.reservation?.figureKind === kind &&
+        candidate.reservation.memberPosition === memberPosition,
+    )
+  expect(members.length).toBeGreaterThan(0)
+  return members
+}
+
+// @test-link [[module_favored_figure_draw]]
+describe('pitch-candidates: each candidate names the free figures it may start', () => {
+  it("names the passing figure for its beat, then the neighbor tone, under Neutral's levels", () => {
+    const { strong, weak } = freeTonesByBeat(NEUTRAL_FIGURE_LEVELS)
+    for (const { candidate } of weak)
+      expect(candidate.figures).toEqual(['passingTone', 'neighborTone'])
+    for (const { candidate } of strong)
+      expect(candidate.figures).toEqual(['accentedPassingTone', 'neighborTone'])
+  })
+
+  it('names only the neighbor tone off beats 1 and 3 when the passing tone is off', () => {
+    const { strong, weak } = freeTonesByBeat({ ...NEUTRAL_FIGURE_LEVELS, passingTone: 'off' })
+    for (const { candidate } of weak) expect(candidate.figures).toEqual(['neighborTone'])
+    for (const { candidate } of strong)
+      expect(candidate.figures).toEqual(['accentedPassingTone', 'neighborTone'])
+  })
+
+  it('names only the passing figure for its beat when the neighbor tone is off', () => {
+    const { strong, weak } = freeTonesByBeat({ ...NEUTRAL_FIGURE_LEVELS, neighborTone: 'off' })
+    for (const { candidate } of weak) expect(candidate.figures).toEqual(['passingTone'])
+    for (const { candidate } of strong) expect(candidate.figures).toEqual(['accentedPassingTone'])
+  })
+
+  it('names no figure on a chord tone', () => {
+    for (const figureLevels of [NEUTRAL_FIGURE_LEVELS, JAZZ_FIGURE_LEVELS]) {
+      const chordTones = domainsFor(fixtureInput({ figureLevels }))
+        .domains.flat()
+        .filter((candidate) => candidate.role === 'chord_tone')
+      expect(chordTones.length).toBeGreaterThan(0)
+      for (const candidate of chordTones) expect(candidate).not.toHaveProperty('figures')
+    }
+  })
+
+  it("names its figure on a chromatic approach's and enclosure's first member under Jazz's levels", () => {
+    const input = fixtureInput({ figureLevels: JAZZ_FIGURE_LEVELS })
+    for (const candidate of pathMembers(input, 'chromatic_approach', 0))
+      expect(candidate.figures).toEqual(['chromaticApproach'])
+    for (const candidate of pathMembers(input, 'chromatic_enclosure', 0))
+      expect(candidate.figures).toEqual(['chromaticEnclosure'])
+  })
+
+  it("names no figure on a chromatic enclosure's second member", () => {
+    const input = fixtureInput({ figureLevels: JAZZ_FIGURE_LEVELS })
+    for (const candidate of pathMembers(input, 'chromatic_enclosure', 1))
+      expect(candidate).not.toHaveProperty('figures')
+  })
+
+  it("names no figure on a member of Tension's scheduled figure", () => {
+    const kinds = ['appoggiatura', 'diatonic_passing_or_neighbor'] as const
+    for (const figureKind of kinds) {
+      const binding: ConcreteTensionBinding = {
+        identity: `fixture/${figureKind}/2/3`,
+        bindingIndex: 0,
+        figureKind,
+        attackIndices: [2],
+        targetAttackIndex: 3,
+      }
+      const input = fixtureInput({ figureLevels: JAZZ_FIGURE_LEVELS, tensionBinding: binding })
+      const members = pathMembers(input, figureKind, 0)
+      for (const candidate of members) {
+        expect(candidate.reservation?.bindingIdentity).toBe(binding.identity)
+        expect(candidate).not.toHaveProperty('figures')
+      }
+    }
+  })
+
+  it('names no figure on a tense note a joined phrase may end on', () => {
+    const input = fixtureInput({ carryIn: plainCarryIn() })
+    const { attacks, domains } = domainsFor(input)
+    const tense = domains[attacks.at(-1)!.attackIndex]!.filter(
+      (candidate) => candidate.role === 'passing_or_neighbor',
+    )
+    expect(tense.length).toBeGreaterThan(0)
+    for (const candidate of tense) expect(candidate).not.toHaveProperty('figures')
   })
 })

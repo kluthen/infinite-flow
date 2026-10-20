@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest'
 
+import { DATABASE_DATA_VERSION } from '@/storage/database'
 import {
   openStoragePort,
   StorageError,
@@ -13,6 +14,7 @@ import {
   DATABASE,
   freshFactory,
   migrationsUpTo,
+  NEWER_DATA_VERSION,
   rawGet,
   rawPut,
   sampleRecord,
@@ -45,7 +47,7 @@ function countOutdated(port: StoragePort): { readonly count: () => number } {
   return { count: () => count }
 }
 
-/** Intent: an older port at data version 1 holding a saved theme, and its outdated counter. */
+/** Intent: an older port at the code's data version holding a saved theme, and its outdated counter. */
 async function olderTabWithTheme(factory: IDBFactory) {
   const older = await openStoragePort({ factory, appVersion: '3.0.0' })
   await older.write('settings', 'theme', sampleRecord('Dark'))
@@ -61,7 +63,7 @@ describe('a newer tab upgrading the database while an older tab is open', () => 
     const newer = await openStoragePort({
       factory,
       appVersion: '3.1.0',
-      migrations: migrationsUpTo(2),
+      migrations: migrationsUpTo(NEWER_DATA_VERSION),
     })
 
     expect(newer.status()).toBe('ready')
@@ -79,7 +81,7 @@ describe('a newer tab upgrading the database while an older tab is open', () => 
     const newer = await openStoragePort({
       factory,
       appVersion: '3.1.0',
-      migrations: migrationsUpTo(2),
+      migrations: migrationsUpTo(NEWER_DATA_VERSION),
     })
     await newer.write('settings', 'mix.clickOn', sampleRecord(false))
 
@@ -91,13 +93,17 @@ describe('a newer tab upgrading the database while an older tab is open', () => 
   it('tells the listeners only once, though later upgrades close the reopened connection too', async () => {
     const factory = freshFactory()
     const { older, notices } = await olderTabWithTheme(factory)
-    await openStoragePort({ factory, appVersion: '3.1.0', migrations: migrationsUpTo(2) })
+    await openStoragePort({
+      factory,
+      appVersion: '3.1.0',
+      migrations: migrationsUpTo(NEWER_DATA_VERSION),
+    })
     await older.read('settings', 'theme')
 
     const newest = await openStoragePort({
       factory,
       appVersion: '3.2.0',
-      migrations: migrationsUpTo(3),
+      migrations: migrationsUpTo(NEWER_DATA_VERSION + 1),
     })
 
     expect(newest.status()).toBe('ready')
@@ -115,7 +121,11 @@ describe('a newer tab upgrading the database while an older tab is open', () => 
     })
 
     unsubscribe()
-    await openStoragePort({ factory, appVersion: '3.1.0', migrations: migrationsUpTo(2) })
+    await openStoragePort({
+      factory,
+      appVersion: '3.1.0',
+      migrations: migrationsUpTo(NEWER_DATA_VERSION),
+    })
 
     expect(older.status()).toBe('outdated')
     expect(told).toBe(0)
@@ -145,8 +155,12 @@ describe('a newer tab raising the data version in meta without an upgrade', () =
   async function raiseMeta(factory: IDBFactory): Promise<void> {
     await withRawDatabase(
       factory,
-      (database) => rawPut(database, 'meta', 'database', { dataVersion: 2, appVersion: '3.1.0' }),
-      1,
+      (database) =>
+        rawPut(database, 'meta', 'database', {
+          dataVersion: NEWER_DATA_VERSION,
+          appVersion: '3.2.0',
+        }),
+      DATABASE_DATA_VERSION,
     )
   }
 
@@ -202,7 +216,7 @@ describe('opening a database a newer app already upgraded', () => {
     const newer = await openStoragePort({
       factory,
       appVersion: '3.1.0',
-      migrations: migrationsUpTo(2),
+      migrations: migrationsUpTo(NEWER_DATA_VERSION),
     })
     await newer.write('settings', 'theme', sampleRecord('Dark'))
 

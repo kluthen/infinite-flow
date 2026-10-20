@@ -6,6 +6,7 @@
  * kept; its played notes are kept after its save, or deleted, from memory too. Each transition returns a new frozen value; one asked for out of turn throws. Pure; the
  * controller holds the current Review and the most recent session in its state.
  */
+import { presetLabel } from '@/domain/controls/preset-label'
 import type { SessionHistory } from '@/session/session-history'
 import type { SessionSaveOutcome } from '@/storage/save-policy'
 import type { EndedSessionSave } from './workspace-session-save'
@@ -21,15 +22,19 @@ import {
 /**
  * Intent: the session a session end gives its Review: its closed history, the instrument's name
  * from phrase 1's own intent (the profile the session was played with, my instrument's included,
- * never looked up by id), the tempo it reached (its last sounded phrase's), how it is kept, and
- * the key and played-notes fact its save was asked for with, nothing pinned, chosen or commented
- * yet; a history in which no phrase sounded gives none and throws.
+ * never looked up by id), the preset label of the profile selection the session started with
+ * (its history's, never the current settings'), the tempo it reached (its last sounded phrase's),
+ * how it is kept, and the key and played-notes fact its save was asked for with, nothing pinned,
+ * chosen or commented yet; a history in which no phrase sounded gives none and throws.
  */
 // @spec-link [[req_last_session_review]]
 // @spec-link [[rule_adaptive_tempo_resets_after_session]]
 // @spec-link [[module_kept_session_save]]
 export function endedSession(
-  history: Pick<SessionHistory, 'phrases' | 'phraseCount' | 'startedAt' | 'tempoReached'>,
+  history: Pick<
+    SessionHistory,
+    'phrases' | 'phraseCount' | 'startedAt' | 'tempoReached' | 'profileSelection'
+  >,
   keeping: SessionKeeping,
   saving: EndedSessionSave,
 ): ReviewedSession {
@@ -43,6 +48,7 @@ export function endedSession(
   return Object.freeze({
     history,
     instrumentName,
+    presetLabel: presetLabel(history.profileSelection),
     tempoReached,
     keeping,
     key,

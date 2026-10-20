@@ -7,7 +7,8 @@ priority: 1
 tags: [v3, release-v3.1, generation, figures]
 parents:
   - [[rule_figure_level_orders_search]]
-dependents: []
+dependents:
+  - [[module_favored_figure_draw]]
 type: RULE
 human_name: A Figure Level Is Never a Quota
 ---

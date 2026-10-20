@@ -10,17 +10,10 @@
 
 import { describe, expect, it } from 'vitest'
 
-import type {
-  ArpeggioChaos,
-  Collection,
-  NoteDensity,
-  TensionArc,
-} from '@/domain/controls/generation-controls'
+import type { TensionArc } from '@/domain/controls/generation-controls'
 import {
-  FIGURE_IDS,
   NEUTRAL_FIGURE_LEVELS,
   type FigureId,
-  type FigureLevel,
   type FigureLevels,
 } from '@/domain/figures/figure-levels'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
@@ -34,14 +27,9 @@ import {
   type FreeFigure,
   type PhraseCensus,
 } from '../../../sweep/figure-census'
-import { buildIntent, type SuccessOutcome } from '../generation/carry-in/carry-in-fixture'
+import type { SuccessOutcome } from '../generation/carry-in/carry-in-fixture'
+import { GRID, TENSIONS, everyFigureAt, gridIntent, type GridPoint } from './figure-levels-grid'
 
-const SEEDS = [7, 13] as const
-/** Varied and Chaotic arpeggio chaos: Predictable keeps almost every note a chord tone. */
-const ARPEGGIO_CHAOS: readonly ArpeggioChaos[] = ['Varied', 'Chaotic']
-const DENSITIES: readonly NoteDensity[] = ['Quarter', 'Eighth', 'Sixteenth']
-const COLLECTIONS: readonly Collection[] = ['Major', 'Dorian']
-const TENSIONS: readonly TensionArc[] = ['Settled', 'Lift', 'Build', 'Edge']
 /** The grid is generated cold once per levels value; a loaded machine can take several times its ~2 s. */
 const GRID_TIMEOUT_MS = 30_000
 
@@ -55,43 +43,13 @@ interface GridPhrase {
   readonly census: PhraseCensus
 }
 
-/** Levels giving every figure the same level. */
-function everyFigureAt(level: FigureLevel): FigureLevels {
-  return Object.fromEntries(FIGURE_IDS.map((figure) => [figure, level])) as FigureLevels
-}
-
 const ALL_AS_TODAY = everyFigureAt('asToday')
 const ALL_OFF = everyFigureAt('off')
 
-/** One grid point: a seed and the controls it is generated with. */
-interface GridPoint {
-  readonly seed: number
-  readonly arpeggioChaos: ArpeggioChaos
-  readonly noteDensity: NoteDensity
-  readonly collection: Collection
-  readonly tension: TensionArc
-}
-
-/** Every grid point, seed first and Tension last. */
-const GRID: readonly GridPoint[] = SEEDS.flatMap((seed) =>
-  ARPEGGIO_CHAOS.flatMap((arpeggioChaos) =>
-    DENSITIES.flatMap((noteDensity) =>
-      COLLECTIONS.flatMap((collection) =>
-        TENSIONS.map((tension) => ({ seed, arpeggioChaos, noteDensity, collection, tension })),
-      ),
-    ),
-  ),
-)
-
 /** The phrase of one grid point under the levels, or undefined when it generates none. */
 function phraseAt(point: GridPoint, figureLevels: FigureLevels): GridPhrase | undefined {
-  const { seed, tension, ...controls } = point
-  const built = buildIntent({
-    seed,
-    controls: { ...controls, tension },
-    label: 'figure-levels-search',
-  })
-  const intent: GenerationIntent = { ...built, figureLevels }
+  const { seed, tension } = point
+  const intent: GenerationIntent = gridIntent(point, figureLevels, 'figure-levels-search')
   const outcome: GenerationOutcome = generatePhrase(intent)
   if (outcome.kind !== 'generation_success') return undefined
   const census = censusOfOutcome(intent, outcome)
@@ -116,6 +74,8 @@ const GATED: readonly (readonly [FigureId, FreeFigure])[] = [
   ['passingTone', 'passing_tone'],
   ['accentedPassingTone', 'accented_passing_tone'],
   ['neighborTone', 'neighbor_tone'],
+  ['appoggiatura', 'appoggiatura'],
+  ['diatonicEnclosure', 'diatonic_enclosure'],
   ['chromaticApproach', 'chromatic_approach'],
   ['chromaticEnclosure', 'chromatic_enclosure'],
 ]

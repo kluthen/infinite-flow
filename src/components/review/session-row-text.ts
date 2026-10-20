@@ -1,12 +1,11 @@
 /**
  * What one row of the session list writes: its title (the session date, " · Last session" on the
  * most recent session's row), the detail line ("{length} · {n} phrases · {instrument} ·
- * {profile}"), the status line ("{favorites} · Played notes kept · {keeping}"), the comment's
+ * {preset}"), the status line ("{favorites} · Played notes kept · {keeping}"), the comment's
  * first line and the row's note. A row saved by a newer version writes what can be read of it: a
  * line whose facts cannot all be read is omitted, and its title falls back when its start cannot be
  * read. No line or count says how the player played. Pure.
  */
-import { profileSelectionLabel } from '@/components/controls/control-options'
 import type { KeptSessionRow } from '@/components/workspace/use-kept-sessions'
 import type { NewerKeptSummaryFacts } from '@/storage/records/kept-session-summary'
 import { sessionDate } from './session-date'
@@ -38,19 +37,19 @@ export function sessionLengthText(seconds: number): string {
 
 /** Intent: the detail line, or null when one of its facts cannot be read. */
 function detailLine(facts: NewerKeptSummaryFacts): string | null {
-  const { lengthSeconds, phraseCount, instrument, musicalProfile } = facts
+  const { lengthSeconds, phraseCount, instrument, presetLabel } = facts
   if (
     lengthSeconds === undefined ||
     phraseCount === undefined ||
     instrument === undefined ||
-    musicalProfile === undefined
+    presetLabel === undefined
   )
     return null
   return [
     sessionLengthText(lengthSeconds),
     counted(phraseCount, 'phrase', 'phrases'),
     instrument.displayName,
-    profileSelectionLabel(musicalProfile),
+    presetLabel,
   ].join(' · ')
 }
 

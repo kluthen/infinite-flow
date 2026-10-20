@@ -286,6 +286,88 @@ Tension's scheduled figure; in this sweep no Settled or Lift phrase holds one, a
 Turning a figure Off moves the search's fallbacks to the others (with the neighbor tone Off, the
 chromatic approach rises from 10.6 % to 14.3 %).
 
+### Each figure Favored and Strongly favored (v3.1 chunk 6)
+
+Chunk 6 makes Favored and Strongly favored order the search: at a note where the figure is drawn
+(`isFigureDrawn`, at the starting shares `FAVORED_SHARE` 1 in 4 and `STRONGLY_FAVORED_SHARE` 1 in
+2 of the notes where it could start), its candidates are tried before the chord tones
+([pitch-planner-validation.md](music/pitch-planner-validation.md#favored-levels-order-the-search-v31)).
+The sweep now also runs each of the seven figures Favored, then Strongly favored, every other figure
+As today (`FIGURE_FAVORED_SETTINGS`). It prints, per figure, the ladder Off / As today / Favored /
+Strongly favored, and fails if a figure's share ever falls along it, if one of the five figures
+written today does not rise from As today to Strongly favored, or if the free appoggiatura or the
+diatonic enclosure appear (they are not written yet).
+
+**Machine and date.** Run by Claude on 2026-10-19 from 20:54 to 21:17 CEST on branch
+`v3.1-c6-favored-order`, on the reference machine (AMD Ryzen 5 PRO 8640HS, 12 threads, Node
+22.23.3, Linux 6.12.111), shared with another chunk build: 1-minute load average 10.30 before, 4.22
+after. The run took 1,365 s. Shares do not depend on the load.
+
+Every row of the chunk 5 table above is unchanged, digit for digit. Share of phrases holding each
+figure along its own ladder, and its mean count per phrase at Strongly favored:
+
+| Figure                | Off | As today | Favored | Strongly favored | Per phrase, Strongly favored |
+| --------------------- | --- | -------- | ------- | ---------------- | ---------------------------- |
+| Passing tone          | 0   | 1.9 %    | 67.8 %  | 84.0 %           | 4.152                        |
+| Accented passing tone | 0   | 4.0 %    | 55.2 %  | 67.7 %           | 1.278                        |
+| Neighbor tone         | 0   | 16.7 %   | 92.0 %  | 97.0 %           | 6.776                        |
+| Appoggiatura          | 0   | 0        | 0       | 0                | 0                            |
+| Diatonic enclosure    | 0   | 0        | 0       | 0                | 0                            |
+| Chromatic approach    | 0   | 10.6 %   | 75.1 %  | 88.4 %           | 4.663                        |
+| Chromatic enclosure   | 0   | 7.9 %    | 60.2 %  | 70.0 %           | 2.705                        |
+
+The share is of phrases holding the figure at least once; a phrase has many notes where a figure
+could start, so 1 note in 4 already puts it in most phrases. Favoring one figure also moves the
+others (with the neighbor tone Strongly favored, the chromatic approach falls from 10.6 % to 6.6 %
+and the accented passing tone rises from 4.0 % to 18.2 %). Unexplained notes: 0 in every setting;
+no phrase was refused by the result validator. Phrases generated (of 5,112, against 5,106 with
+every figure As today), every one not generated being `search_limit_exceeded`: 5,101 and 5,097
+with the neighbor tone Favored and Strongly favored, 5,101 with the passing tone Strongly favored,
+5,105 with the chromatic enclosure Strongly favored, 5,106 in every other favored setting. The
+extra cut-offs (at most 9, 0.18 points) are the cost master spec B5.6 expects of levels as
+ordering, a favored tone's dead end spending search work; the cost guard (M2) measures it at the
+wave gate.
+
+### The free appoggiatura and the diatonic enclosure (v3.1 chunk 7)
+
+Chunk 7 writes the two new figures as free figures when their level is not Off
+([pitch-planner-validation.md](music/pitch-planner-validation.md#figure-levels-gate-the-free-figures-v31)),
+and the validator accepts them only then. The sweep's settings are unchanged; it now fails if
+either new figure does not rise from As today to Favored, and from As today to Strongly favored,
+like the other five (the earlier "appear in no setting" check is gone).
+
+**Machine and date.** Run by Claude on 2026-10-19 from 22:02 to 22:20 CEST on branch
+`v3.1-c7-new-free-figures`, on the reference machine (AMD Ryzen 5 PRO 8640HS, 12 threads, Node
+22.23.3, Linux 6.12.111), shared with other builds: 1-minute load average 4.87 before, 1.45 after.
+The run took 1,056 s. Shares do not depend on the load.
+
+Neutral's and Jazz's rows are the v3.0 baseline above, digit for digit: both hold the two new
+figures at Off. Every other setting moves, as master spec B5.3 says it must once the new figures
+are As today or above: they are now candidates the search tries when it backs up past the chord
+tones. With every figure As today the free appoggiatura is in 10.4 % of phrases and the diatonic
+enclosure in 7.5 %, and the five older figures fall (the neighbor tone from 16.7 % to 13.1 %).
+Share of phrases holding each figure along its own ladder, and its mean count per phrase at
+Strongly favored:
+
+| Figure                | Off | As today | Favored | Strongly favored | Per phrase, Strongly favored |
+| --------------------- | --- | -------- | ------- | ---------------- | ---------------------------- |
+| Passing tone          | 0   | 1.3 %    | 67.1 %  | 83.6 %           | 4.100                        |
+| Accented passing tone | 0   | 2.0 %    | 53.3 %  | 65.9 %           | 1.247                        |
+| Neighbor tone         | 0   | 13.1 %   | 91.7 %  | 96.7 %           | 6.682                        |
+| Appoggiatura          | 0   | 10.4 %   | 47.3 %  | 61.2 %           | 0.873                        |
+| Diatonic enclosure    | 0   | 7.5 %    | 67.0 %  | 77.2 %           | 2.943                        |
+| Chromatic approach    | 0   | 9.0 %    | 74.5 %  | 88.1 %           | 4.616                        |
+| Chromatic enclosure   | 0   | 4.5 %    | 59.1 %  | 69.2 %           | 2.674                        |
+
+Unexplained notes: 0 in every setting; no phrase was refused by the result validator. Phrases
+generated (of 5,112), every one not generated being `search_limit_exceeded` except with every
+figure Off (unchanged: 6 `no_legal_pitch_plan`, 2 `search_limit_exceeded`): 5,106 with every
+figure As today, 5,097 with the diatonic enclosure Favored and with it Strongly favored (the most
+cut-offs of any setting, 9 more than the base, 0.18 points), 5,104 to 5,111 everywhere else.
+Turning the appoggiatura or the diatonic enclosure Off gives 5,107 and 5,111. With every figure
+Off, Tension's scheduled figure is still in every Build and Edge phrase. The cost guard (M2)
+measures the search work at the wave gate.
+
 ## Embellishment figures: the cost guard
 
 Measurement M2 (v3.1 build plan, chunk 3; master spec B5.6): the pitch search's cost at three
@@ -314,22 +396,22 @@ machine as [Embellishment figures](#embellishment-figures), nothing else running
 average 0.31 before, 1.36 after. The run took 133 s (Neutral 67 s, Jazz 66 s). These are a
 baseline for comparison on the same machine; the owner runs the deciding runs.
 
-| Figure                                         | Neutral                 | Jazz                    |
-| ---------------------------------------------- | ----------------------- | ----------------------- |
-| Phrases 2 to 6 generated, 60 and 120 BPM       | 100.0 % (2,840 / 2,840) | 99.96 % (2,839 / 2,840) |
-| Phrases 2 to 6 generated, 240 BPM              | 100.0 % (2,840 / 2,840) | 100.0 % (2,840 / 2,840) |
-| Attempts succeeded, 60 and 120 BPM             | 98.9 % (3,408 / 3,447)  | 98.7 % (3,407 / 3,452)  |
-| Attempts succeeded, 240 BPM                    | 99.1 % (3,408 / 3,438)  | 99.0 % (3,408 / 3,442)  |
-| Distinct intents (failed)                      | 7,439 (68)              | 7,450 (77)              |
-| Slowest generation, distinct intents           | 1.307 s (a failure)     | 0.980 s (a failure)     |
-| 95th percentile, distinct intents              | 0.022 s                 | 0.019 s                 |
-| 95th percentile, successes / failures          | 0.019 s / 0.789 s       | 0.017 s / 0.570 s       |
-| Slowest success                                | 0.408 s                 | 0.570 s                 |
-| 95th percentile, attempts at 60 and 120 BPM    | 0.024 s                 | 0.020 s                 |
-| 95th percentile, attempts at 240 BPM           | 0.017 s                 | 0.019 s                 |
-| Fallback at 240 BPM, phrases 2 to 6            | 21.2 % (602 / 2,840)    | 21.0 % (596 / 2,840)    |
-| Fallback at 240 BPM, phrases 3 to 6            | 1.5 % (34 / 2,272)      | 1.2 % (28 / 2,272)      |
-| Missed deadlines (60 / 120 / 240 BPM)          | 0 / 0 / 0               | 1 / 1 / 0               |
+| Figure                                      | Neutral                 | Jazz                    |
+| ------------------------------------------- | ----------------------- | ----------------------- |
+| Phrases 2 to 6 generated, 60 and 120 BPM    | 100.0 % (2,840 / 2,840) | 99.96 % (2,839 / 2,840) |
+| Phrases 2 to 6 generated, 240 BPM           | 100.0 % (2,840 / 2,840) | 100.0 % (2,840 / 2,840) |
+| Attempts succeeded, 60 and 120 BPM          | 98.9 % (3,408 / 3,447)  | 98.7 % (3,407 / 3,452)  |
+| Attempts succeeded, 240 BPM                 | 99.1 % (3,408 / 3,438)  | 99.0 % (3,408 / 3,442)  |
+| Distinct intents (failed)                   | 7,439 (68)              | 7,450 (77)              |
+| Slowest generation, distinct intents        | 1.307 s (a failure)     | 0.980 s (a failure)     |
+| 95th percentile, distinct intents           | 0.022 s                 | 0.019 s                 |
+| 95th percentile, successes / failures       | 0.019 s / 0.789 s       | 0.017 s / 0.570 s       |
+| Slowest success                             | 0.408 s                 | 0.570 s                 |
+| 95th percentile, attempts at 60 and 120 BPM | 0.024 s                 | 0.020 s                 |
+| 95th percentile, attempts at 240 BPM        | 0.017 s                 | 0.019 s                 |
+| Fallback at 240 BPM, phrases 2 to 6         | 21.2 % (602 / 2,840)    | 21.0 % (596 / 2,840)    |
+| Fallback at 240 BPM, phrases 3 to 6         | 1.5 % (34 / 2,272)      | 1.2 % (28 / 2,272)      |
+| Missed deadlines (60 / 120 / 240 BPM)       | 0 / 0 / 0               | 1 / 1 / 0               |
 
 Failures by code over the distinct intents: Neutral 50 `no_legal_pitch_plan` and 18
 `search_limit_exceeded`, Jazz 40 and 37. The fallbacks at 240 BPM after phrase 2, Neutral and
@@ -383,15 +465,15 @@ clef, both ends included. The two-octave middle case and the four-octave case li
 treble bound; the other cases can no longer be saved, and stay as evidence that the generator
 does not fail even at the extremes of the MIDI note range:
 
-| Range case | Written range | Generations | Failures | Share | Failures by code |
-| --- | --- | --- | --- | --- | --- |
-| Two octaves, low | 12–36 | 568 | 0 | 0.0 % | none |
-| Two octaves, middle | 54–78 | 568 | 0 | 0.0 % | none |
-| Two octaves, high | 91–115 | 568 | 0 | 0.0 % | none |
-| Two octaves, lowest possible | 0–24 | 568 | 0 | 0.0 % | none |
-| Two octaves, highest possible | 103–127 | 568 | 0 | 0.0 % | none |
-| Four octaves | 36–84 | 568 | 0 | 0.0 % | none |
-| Five octaves | 30–90 | 568 | 0 | 0.0 % | none |
+| Range case                    | Written range | Generations | Failures | Share | Failures by code |
+| ----------------------------- | ------------- | ----------- | -------- | ----- | ---------------- |
+| Two octaves, low              | 12–36         | 568         | 0        | 0.0 % | none             |
+| Two octaves, middle           | 54–78         | 568         | 0        | 0.0 % | none             |
+| Two octaves, high             | 91–115        | 568         | 0        | 0.0 % | none             |
+| Two octaves, lowest possible  | 0–24          | 568         | 0        | 0.0 % | none             |
+| Two octaves, highest possible | 103–127       | 568         | 0        | 0.0 % | none             |
+| Four octaves                  | 36–84         | 568         | 0        | 0.0 % | none             |
+| Five octaves                  | 30–90         | 568         | 0        | 0.0 % | none             |
 
 No range case fails: the generator places every phrase inside the derived register windows
 whatever their position or width. The written-range bound for the staff height is the other half
@@ -464,28 +546,28 @@ throughout. A busy machine can only make these figures worse, not better.
 **Playhead band against the heard barline** (`npm run measure:rolling`; ms; 120 BPM, 150 barlines
 over five minutes; only the figures below were recorded from this run):
 
-| Run        | 1-min load before → after | Band time         | max \|diff\| | p95 \|diff\| | median \|diff\| | mean          | range         | over 20 ms |
-| ---------- | ------------------------- | ----------------- | ------------ | ------------ | --------------- | ------------- | ------------- | ---------- |
-| 2026-10-06 | 1.38 → not recorded       | observer callback | 14.5         | 12.1         | 6.7             | not recorded  | -11.2 to 14.5 | 0          |
-|            |                           | frame start       | not recorded | not recorded | not recorded    | not recorded  | not recorded  | not recorded |
-|            |                           | next frame        | 30.4         | not recorded | not recorded    | not recorded  | not recorded  | 94         |
+| Run        | 1-min load before → after | Band time         | max \|diff\| | p95 \|diff\| | median \|diff\| | mean         | range         | over 20 ms   |
+| ---------- | ------------------------- | ----------------- | ------------ | ------------ | --------------- | ------------ | ------------- | ------------ |
+| 2026-10-06 | 1.38 → not recorded       | observer callback | 14.5         | 12.1         | 6.7             | not recorded | -11.2 to 14.5 | 0            |
+|            |                           | frame start       | not recorded | not recorded | not recorded    | not recorded | not recorded  | not recorded |
+|            |                           | next frame        | 30.4         | not recorded | not recorded    | not recorded | not recorded  | 94           |
 
 **Main thread at 240 BPM, densest setting** (same command; ms; the window from the Start click to
 60 s into the running session; at 1920 × 1080, 16 engravings, the session still running at the
 end with phrase 17 readied, audio output latency 40 ms as read during the run):
 
-| Viewport    | Run        | 1-min load before → after | Window (s)   | Longest `longtask` | Tasks ≥ 50 ms | Longest long animation frame (top script) | Longest heartbeat gap |
-| ----------- | ---------- | ------------------------- | ------------ | ------------------ | ------------- | ----------------------------------------- | --------------------- |
+| Viewport    | Run        | 1-min load before → after   | Window (s)   | Longest `longtask` | Tasks ≥ 50 ms | Longest long animation frame (top script) | Longest heartbeat gap |
+| ----------- | ---------- | --------------------------- | ------------ | ------------------ | ------------- | ----------------------------------------- | --------------------- |
 | 2560 × 1440 | 2026-10-06 | 1.38 → 1.47 (whole command) | not recorded | none ≥ 50          | 0             | none ≥ 50                                 | 36.1                  |
-| 1920 × 1080 | 2026-10-06 |                           | 61.2         | none ≥ 50          | 0             | none ≥ 50                                 | 33.5                  |
+| 1920 × 1080 | 2026-10-06 |                             | 61.2         | none ≥ 50          | 0             | none ≥ 50                                 | 33.5                  |
 
 **Main-thread engraving** (`npm run measure:engraving`; the densest setting, 64 notes and rests on
 the staff; ms):
 
-| Viewport (staff size)        | First generation: longest task (heartbeat gap) | 12 regenerations: tasks ≥ 50 ms | Engraving callback, max                     | Heartbeat gap, max (median) | 10 resize redraws: heartbeat gap, max (median) |
-| ---------------------------- | ---------------------------------------------- | ------------------------------- | ------------------------------------------- | --------------------------- | ---------------------------------------------- |
-| 2560 × 1440 (2,462 × 192 px) | under 50 (49.3)                                | none                            | under 50                                    | 27.2 (25.1)                 | 21.7 (17.1)                                    |
-| 1920 × 1080 (1,822 × 192 px) | under 50 (52.8)                                | none                            | under 50 (25, in the first generation)      | 28.2 (22.3)                 | 21.6 (15.4)                                    |
+| Viewport (staff size)        | First generation: longest task (heartbeat gap) | 12 regenerations: tasks ≥ 50 ms | Engraving callback, max                | Heartbeat gap, max (median) | 10 resize redraws: heartbeat gap, max (median) |
+| ---------------------------- | ---------------------------------------------- | ------------------------------- | -------------------------------------- | --------------------------- | ---------------------------------------------- |
+| 2560 × 1440 (2,462 × 192 px) | under 50 (49.3)                                | none                            | under 50                               | 27.2 (25.1)                 | 21.7 (17.1)                                    |
+| 1920 × 1080 (1,822 × 192 px) | under 50 (52.8)                                | none                            | under 50 (25, in the first generation) | 28.2 (22.3)                 | 21.6 (15.4)                                    |
 
 The click-to-ready cycle was 59.1 and 61.5 ms for the first generation, and at most 49.1 and
 47.2 ms (median 44.3 and 44.1) for the regenerations.
@@ -494,23 +576,23 @@ The click-to-ready cycle was 59.1 and 61.5 ms for the first generation, and at m
 "Phrase ready", in-page figures, with the wall-clock figure in brackets; both include the Worker
 round trip and the engraving.
 
-| Scenario                                                                       | Cold (ms)    | Warm (ms)   |
-| ------------------------------------------------------------------------------ | ------------ | ----------- |
-| Default (Quarter / Slightly varied / Straight / Sparse / Lift)                 | 42.1 (145)   | 37.6 (71)   |
-| Worst case (Sixteenth / Heavily varied / Sparse / Active displacement / Build) | 277.2 (321)  | 77.3 (111)  |
-| Straight / Edge (Sixteenth / Heavily varied / Sparse / Straight / Edge)        | 254.5 (318)  | 63.2 (110)  |
+| Scenario                                                                       | Cold (ms)   | Warm (ms)  |
+| ------------------------------------------------------------------------------ | ----------- | ---------- |
+| Default (Quarter / Slightly varied / Straight / Sparse / Lift)                 | 42.1 (145)  | 37.6 (71)  |
+| Worst case (Sixteenth / Heavily varied / Sparse / Active displacement / Build) | 277.2 (321) | 77.3 (111) |
+| Straight / Edge (Sixteenth / Heavily varied / Sparse / Straight / Edge)        | 254.5 (318) | 63.2 (110) |
 
 During the worst-case cold generation a click on the theme control applied in 36 ms.
 
-| Starting setting → worst case (control changed)          | Warm-up (ms)  | After the change (ms) |
-| -------------------------------------------------------- | ------------- | --------------------- |
-| Note density: Eighth → Sixteenth                         | 143.1 (217)   | 228.7 (317)           |
-| Rhythmic variety: Slightly varied → Heavily varied       | 101.3 (138)   | 210.0 (326)           |
-| Silence density: Conversational → Sparse                 | 77.9 (114)    | 208.2 (321)           |
-| Syncopation: Occasional offbeats → Active displacement   | 237.9 (317)   | 206.7 (320)           |
-| Tension: Lift → Build                                    | 133.1 (218)   | 229.4 (318)           |
-| Register: Middle → High (worst-case rhythm kept)         | 245.2 (311)   | 61.1 (112)            |
-| Written key: C → C-sharp/D-flat (worst-case rhythm kept) | 229.0 (317)   | 59.4 (122)            |
+| Starting setting → worst case (control changed)          | Warm-up (ms) | After the change (ms) |
+| -------------------------------------------------------- | ------------ | --------------------- |
+| Note density: Eighth → Sixteenth                         | 143.1 (217)  | 228.7 (317)           |
+| Rhythmic variety: Slightly varied → Heavily varied       | 101.3 (138)  | 210.0 (326)           |
+| Silence density: Conversational → Sparse                 | 77.9 (114)   | 208.2 (321)           |
+| Syncopation: Occasional offbeats → Active displacement   | 237.9 (317)  | 206.7 (320)           |
+| Tension: Lift → Build                                    | 133.1 (218)  | 229.4 (318)           |
+| Register: Middle → High (worst-case rhythm kept)         | 245.2 (311)  | 61.1 (112)            |
+| Written key: C → C-sharp/D-flat (worst-case rhythm kept) | 229.0 (317)  | 59.4 (122)            |
 
 ### Verdicts (v2.0 gate)
 

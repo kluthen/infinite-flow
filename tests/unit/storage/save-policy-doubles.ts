@@ -8,6 +8,7 @@ import { IDBDatabase } from 'fake-indexeddb'
 import { vi } from 'vitest'
 
 import type { SaveFailureKind, SavePolicy, SavingState } from '@/storage/save-policy'
+import { DATABASE_DATA_VERSION } from '@/storage/database'
 import {
   openStoragePort,
   StorageError,
@@ -19,6 +20,7 @@ import {
 import {
   blockedOpenFactory,
   migrationsUpTo,
+  NEWER_DATA_VERSION,
   rawPut,
   recordingManager,
   sampleRecord,
@@ -46,9 +48,13 @@ export async function filledPort(
   return port
 }
 
-/** Intent: open a newer app's port over `factory`, upgrading the database to data version 2. */
+/** Intent: open a newer app's port over `factory`, upgrading the database one data version up. */
 export function openNewerTab(factory: IDBFactory): Promise<StoragePort> {
-  return openStoragePort({ factory, appVersion: '3.1.0', migrations: migrationsUpTo(2) })
+  return openStoragePort({
+    factory,
+    appVersion: '3.1.0',
+    migrations: migrationsUpTo(NEWER_DATA_VERSION),
+  })
 }
 
 /** Intent: a port opened outdated, over a database a newer app upgraded first. */
@@ -74,8 +80,12 @@ export async function unavailablePort(
 export async function raiseMeta(factory: IDBFactory): Promise<void> {
   await withRawDatabase(
     factory,
-    (database) => rawPut(database, 'meta', 'database', { dataVersion: 2, appVersion: '3.1.0' }),
-    1,
+    (database) =>
+      rawPut(database, 'meta', 'database', {
+        dataVersion: NEWER_DATA_VERSION,
+        appVersion: '3.2.0',
+      }),
+    DATABASE_DATA_VERSION,
   )
 }
 

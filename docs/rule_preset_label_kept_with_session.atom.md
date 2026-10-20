@@ -5,7 +5,8 @@ version: 0.1
 tags: [v3, release-v3.1, storage, review, presets]
 parents:
   - [[req_kept_sessions]]
-dependents: []
+dependents:
+  - [[module_kept_session_upgrade_step]]
 layer: BUSINESS
 priority: 1
 human_name: A Kept Session Keeps Its Preset Label

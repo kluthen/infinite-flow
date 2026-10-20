@@ -631,7 +631,7 @@ describe('pitch planner slice A', () => {
           candidates: enumeratePitchCandidates(configured, attack.attackIndex),
           priorMidi: result.phrase.assignments[index - 1]?.candidate.midi,
           key: preferNonChord,
-        })
+        }).map((entry) => entry.candidate)
         const roles = ordered.map(({ role }) => role)
         const firstNonChord = roles.findIndex((role) => role !== 'chord_tone')
         if (firstNonChord >= 0) expect(roles.lastIndexOf('chord_tone')).toBeLessThan(firstNonChord)

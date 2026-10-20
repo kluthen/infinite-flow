@@ -18,7 +18,7 @@ const SUMMARY: KeptSessionSummary = {
   startedAt: STARTED_AT,
   lengthSeconds: 250,
   phraseCount: 3,
-  musicalProfile: { musicalProfile: 'Jazz', isCustom: false },
+  presetLabel: 'Jazz',
   instrument: { id: 'bb-tenor', displayName: 'B-flat tenor saxophone' },
   startingTempo: 90,
   tempoReached: 104,
@@ -79,10 +79,10 @@ describe('a session list row', () => {
   })
 
   // @test-link [[req_kept_session_list]]
-  it('names a custom profile by its grammar', () => {
-    const custom = row({ musicalProfile: { musicalProfile: 'Neutral', isCustom: true } })
+  it('writes a custom preset by the label recorded with the session', () => {
+    const custom = row({ presetLabel: 'Custom, based on Neutral' })
     expect(sessionRowText(custom, false, false).detail).toBe(
-      '4 min · 3 phrases · B-flat tenor saxophone · Custom (Neutral grammar)',
+      '4 min · 3 phrases · B-flat tenor saxophone · Custom, based on Neutral',
     )
   })
 

@@ -8,7 +8,11 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { keptSessionRow, useKeptSessions } from '@/components/workspace/use-kept-sessions'
 import type { ReviewedSession } from '@/components/workspace/workspace-session-controller-types'
-import { encodeKeptSession, type KeptSessionFacts } from '@/storage/records/kept-session-record'
+import {
+  encodeKeptSession,
+  KEPT_SESSION_SUMMARY_DATA_VERSION,
+  type KeptSessionFacts,
+} from '@/storage/records/kept-session-record'
 import type { PageGoingAway, SessionChanges, SessionSaveOutcome } from '@/storage/save-policy'
 import type { StorageChange, StoredEntry } from '@/storage/storage-port'
 
@@ -33,11 +37,20 @@ function summaryAt(startedAt: number, facts: Partial<KeptSessionFacts> = {}): un
 
 /** Intent: `summary` as a newer version would write it: a newer data version and a new field. */
 function newer(summary: unknown, edit: Record<string, unknown> = {}): unknown {
-  return { ...(summary as object), dataVersion: 2, mood: 'bright', ...edit }
+  return {
+    ...(summary as object),
+    dataVersion: KEPT_SESSION_SUMMARY_DATA_VERSION + 1,
+    mood: 'bright',
+    ...edit,
+  }
 }
 
 /** A summary this version refuses: a start that is not a time. */
-const UNREADABLE = { dataVersion: 1, appVersion: APP_VERSION, startedAt: 'not a time' }
+const UNREADABLE = {
+  dataVersion: KEPT_SESSION_SUMMARY_DATA_VERSION,
+  appVersion: APP_VERSION,
+  startedAt: 'not a time',
+}
 
 /** Intent: the keys of the rows, in order. */
 function keysOf(rows: readonly { readonly key: string }[]): string[] {

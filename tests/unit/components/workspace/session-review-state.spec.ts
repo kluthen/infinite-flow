@@ -71,6 +71,7 @@ describe('the Review transitions', () => {
     const drawn = {
       history: held,
       instrumentName: 'C MIDI keyboard',
+      presetLabel: 'Custom, based on Neutral',
       tempoReached: 240,
       keeping: 'not-pinned',
       key: 'session-1-1',
@@ -129,6 +130,28 @@ describe("the instrument's name in the Review", () => {
     const session = endedSession(myInstrumentHistory('Grandpa’s tenor'), 'not-saved', SAVE)
 
     expect(session.instrumentName).toBe('Grandpa’s tenor')
+  })
+})
+
+// @test-link [[rule_preset_label_kept_with_session]]
+describe('the preset label in the Review', () => {
+  // @test-link [[rule_preset_label_kept_with_session]]
+  it("reads the selection the session started with, never a later change's", () => {
+    const customJazz = {
+      ...sessionSettings({ tempo: 240 }),
+      musicalProfile: { musicalProfile: 'Jazz', isCustom: true },
+    } as const
+    const driver = new SessionDriver({ at: 0, settings: customJazz })
+    driver.countInOver(1)
+    driver.change(1.5, {
+      ...sessionSettings({ tempo: 240 }),
+      musicalProfile: { musicalProfile: 'Neutral', isCustom: false },
+    })
+    driver.end(2)
+
+    const session = endedSession(historyOf(driver), 'not-pinned', SAVE)
+
+    expect(session.presetLabel).toBe('Custom, based on Jazz')
   })
 })
 

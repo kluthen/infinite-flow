@@ -9,6 +9,7 @@ type: RULE
 human_name: What Each Figure Level Does
 tags: [v3, release-v3.1, generation, figures]
 dependents:
+  - [[module_favored_figure_draw]]
   - [[module_figure_levels]]
   - [[rule_figure_draws_reproducible]]
   - [[rule_figure_level_never_a_quota]]
