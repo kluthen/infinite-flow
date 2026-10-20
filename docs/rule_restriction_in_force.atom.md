@@ -1,6 +1,6 @@
 ---
 id: rule_restriction_in_force
-status: DRAFT
+status: REVIEW
 type: RULE
 priority: 1
 dependents:

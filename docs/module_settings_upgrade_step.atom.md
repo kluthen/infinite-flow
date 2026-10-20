@@ -1,6 +1,6 @@
 ---
 id: module_settings_upgrade_step
-status: DRAFT
+status: REVIEW
 version: 0.2
 tags: [v3, release-v3.1, storage, database, versioning, presets]
 parents:

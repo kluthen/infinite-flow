@@ -1,6 +1,6 @@
 ---
 id: rule_choosing_preset_keeps_allowed_key_and_mode
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 version: 0.1
 parents:

@@ -1,6 +1,6 @@
 ---
 id: rule_presets_read_at_start_up
-status: DRAFT
+status: REVIEW
 version: 0.1
 human_name: Player Presets Are Read With the Saved Settings
 tags: [v3, release-v3.1, player-controls, presets, storage]

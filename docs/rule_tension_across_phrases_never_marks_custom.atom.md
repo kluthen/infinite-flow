@@ -1,6 +1,6 @@
 ---
 id: rule_tension_across_phrases_never_marks_custom
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 priority: 1

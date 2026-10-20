@@ -1,6 +1,6 @@
 ---
 id: rule_saved_profile_becomes_preset
-status: DRAFT
+status: REVIEW
 priority: 1
 human_name: Earlier Saved Settings Become a Preset Selection
 layer: BUSINESS

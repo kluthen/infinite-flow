@@ -1,6 +1,6 @@
 ---
 id: entity_player_preset_record
-status: DRAFT
+status: REVIEW
 type: ENTITY
 version: 0.2
 priority: 1

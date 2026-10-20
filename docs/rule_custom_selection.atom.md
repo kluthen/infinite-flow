@@ -1,6 +1,6 @@
 ---
 id: rule_custom_selection
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 human_name: When the Selection Becomes Custom

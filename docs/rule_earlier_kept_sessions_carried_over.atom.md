@@ -1,6 +1,6 @@
 ---
 id: rule_earlier_kept_sessions_carried_over
-status: DRAFT
+status: REVIEW
 tags: [v3, release-v3.1, storage, review, presets]
 parents:
   - [[req_kept_sessions]]
