@@ -1,8 +1,8 @@
 /**
  * v3.0's musical-profile shape and bundles, and the first-load controls. The session no longer
  * holds a musical profile (it holds controls, figure levels and a preset selection); v3.0's shape
- * stays here only for the storage code that reads and upgrades v3.0's data, until data version 3
- * (chunk 16). No profile switch and no customized edit is offered.
+ * stays here only for the storage code that reads and upgrades v3.0's data: the kept-session codec
+ * and the step to data version 3. No profile switch and no customized edit is offered.
  */
 
 import { deepFreeze } from '../events/deep-freeze'
@@ -73,7 +73,7 @@ export const DEFAULT_GENERATION_CONTROLS: GenerationControls = makeGenerationCon
   ...PROFILE_BUNDLES.Neutral,
 })
 
-/** v3.0's first-load selection, the default its stored settings record falls back to. */
+/** v3.0's first-load selection, the default its stored settings record fell back to. */
 export const DEFAULT_PROFILE_SELECTION: ProfileSelection = deepFreeze({
   musicalProfile: 'Neutral',
   isCustom: false,

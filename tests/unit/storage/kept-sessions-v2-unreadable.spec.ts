@@ -11,6 +11,7 @@
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import type { ProfileSelection } from '@/domain/controls/profile-selection'
+import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import type { PresetSelection } from '@/domain/presets/preset-selection'
 import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { upgradedKeptBody, upgradedKeptSummary } from '@/storage/migrations/kept-sessions-v2'
@@ -59,6 +60,7 @@ const FACTS: KeptSessionFacts = {
   favorites: [2],
   comment: 'A take.',
   playedNotesKept: true,
+  presets: BUILT_IN_PRESETS,
 }
 
 /** Intent: a three-phrase Neutral tenor session's values as data version 1 kept them in `shape`. */

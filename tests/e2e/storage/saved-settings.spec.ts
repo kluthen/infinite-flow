@@ -3,7 +3,8 @@
  * browser's real IndexedDB: each test starts from an empty browser context, changes settings
  * through the controls as the player does, waits until the change is stored, reloads, and checks
  * what the page shows, and where useful what is stored. One test per row of the master spec's
- * §4.2 table outside a session: the 14 controls and the profile selection (a chosen `Sixteenth`
+ * §4.2 table outside a session: the 14 controls, the preset selection and the figure levels a
+ * preset choice sets (a chosen `Sixteenth`
  * stays `Sixteenth` below the tablet-landscape width), the theme, the audio mix, and the three
  * "During a session" options, each back on only if the player turned it on. The session rows
  * (the review's preferences, what a session sets, the hold) are in saved-settings-session.spec.ts.
@@ -54,7 +55,7 @@ function slider(page: Page, name: 'Backing volume' | 'Click volume'): Locator {
 
 // @test-link [[rule_settings_saved_on_change]]
 // @test-link [[rule_saved_setting_is_players_choice]]
-test('the controls and the profile selection the player changed come back after a reload, a picked preset checked', async ({
+test('the controls and the preset selection the player changed come back after a reload, a picked preset checked', async ({
   page,
 }) => {
   await gotoStorageHarness(page)
@@ -70,7 +71,7 @@ test('the controls and the profile selection the player changed come back after 
     'controls.collection': 'Dorian',
     'controls.register': 'Low',
     'controls.instrumentProfileId': 'eb-alto',
-    profileSelection: { musicalProfile: 'Neutral', isCustom: true },
+    presetSelection: { kind: 'custom', baseId: 'neutral' },
   })
 
   await reloadHarness(page)
@@ -91,7 +92,9 @@ test('the controls and the profile selection the player changed come back after 
   // A preset picked, not customized: it comes back checked, with its own values.
   await radio(page, 'Musical profile preset', 'Jazz').click()
   await untilStored(page, {
-    profileSelection: { musicalProfile: 'Jazz', isCustom: false },
+    presetSelection: { kind: 'preset', presetId: 'jazz' },
+    'figureLevels.chromaticApproach': 'asToday',
+    'figureLevels.chromaticEnclosure': 'asToday',
     'controls.register': 'Varying',
   })
   await reloadHarness(page)
@@ -99,6 +102,10 @@ test('the controls and the profile selection the player changed come back after 
   await expect(presetStatus(page)).toHaveText(/^Jazz preset applied/)
   await expect(page.locator('.control-summary')).toHaveText('D Dorian · Jazz · Lift · Shaped')
   await expectChecked(page, 'Register', 'Varying')
+  expect((await harnessSnapshot(page)).figureLevels).toMatchObject({
+    chromaticApproach: 'asToday',
+    chromaticEnclosure: 'asToday',
+  })
   await expect(tempoStepper(page)).toHaveAttribute('aria-valuenow', '110')
   await expectChecked(page, 'Written key', 'D')
   await expectChecked(page, 'Collection', 'Dorian')

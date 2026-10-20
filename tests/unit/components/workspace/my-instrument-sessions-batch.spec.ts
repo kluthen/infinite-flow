@@ -9,6 +9,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { keptSessionsDeletes } from '@/components/workspace/kept-session-review-changes'
 import { keptSessionKey } from '@/components/workspace/workspace-session-save'
+import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import { makeMyInstrument } from '@/domain/profile/my-instrument'
 import type { SessionHistory } from '@/session/session-history'
 import { APP_VERSION } from '@/storage/app-version'
@@ -43,7 +44,7 @@ const TENOR = 'tenor-1'
 function keptRecords(history: SessionHistory, key: string): StorageChange[] {
   const records = encodeKeptSession(
     history,
-    { pinned: false, favorites: [], comment: '', playedNotesKept: true },
+    { pinned: false, favorites: [], comment: '', playedNotesKept: true, presets: BUILT_IN_PRESETS },
     APP_VERSION,
   )
   const changes: StorageChange[] = [

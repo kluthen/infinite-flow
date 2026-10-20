@@ -16,7 +16,6 @@ import type { GenerationSessionState } from '@/composables/use-generation-sessio
 import type { PregenerationSlot } from '@/composables/generation-session-pregeneration'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import { FIGURE_IDS } from '@/domain/figures/figure-levels'
-import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import { restrictionInForce } from '@/domain/presets/preset-selection'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
@@ -60,7 +59,7 @@ export interface PregenerationWorkspaceSeams extends PregenerationSeams {
 
 /**
  * What the session controller binds: the Idle state (phrase 1, the controls, the figure levels,
- * the preset selection and the note-density context), its start blocker (the run conditions), its two session flags,
+ * the preset selection, the presets it knows and the note-density context), its start blocker (the run conditions), its two session flags,
  * the window's shape, the staff's latest layout inputs and their observer, the staff planner's
  * loader, and where a programming error is reported.
  */
@@ -140,13 +139,13 @@ function atTempo(readyPhrases: readonly ReadyPhrase[], tempo: number): readonly 
 function settingsKeyOf(deps: PregenerationControllerSeams): string {
   const { tempo, ...controls } = deps.idle.controls
   void tempo
-  const { figureLevels, selection } = deps.idle
+  const { figureLevels, selection, presets } = deps.idle
   return JSON.stringify([
     controls,
     FIGURE_IDS.map((figure) => figureLevels[figure]),
     deps.varySettings(),
     deps.tensionAcrossPhrases(),
-    restrictionInForce(selection, controls.tonalCenter, controls.collection, BUILT_IN_PRESETS),
+    restrictionInForce(selection, controls.tonalCenter, controls.collection, presets),
   ])
 }
 
@@ -199,7 +198,7 @@ export function createWorkspacePregeneration(
           { controls: idle.controls, figureLevels: idle.figureLevels, selection: idle.selection },
           phraseOne.intent,
         ),
-        BUILT_IN_PRESETS,
+        idle.presets,
       ),
       phraseOne: { intent: phraseOne.intent, outcome: phraseOne.outcome },
       phraseOneSettings: phraseOneSettings(

@@ -12,6 +12,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { endedSession, openedReview } from '@/components/workspace/session-review-state'
 import { readKeptReviewedSession } from '@/components/workspace/workspace-kept-session-read'
 import type { SessionReview } from '@/components/workspace/workspace-session-controller-types'
+import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import { WHOLE_SESSION } from '@/export/export-file'
 import { loadGeneratedNotesExport, type ExportFile } from '@/export/load-generated-notes-export'
 import type { SessionHistoryRecord } from '@/session/session-history'
@@ -116,6 +117,7 @@ describe('useReviewArea', () => {
       endedSession(myInstrumentHistory('My tenor'), 'not-pinned', {
         key: 'session-1-1',
         playedNotesKept: false,
+        presets: BUILT_IN_PRESETS,
       }),
     )
     const fake = createFakeSessionController({ review, mostRecent: heldSessionOf(review) })
@@ -147,7 +149,13 @@ describe('useReviewArea', () => {
 // @test-link [[req_kept_session_review]]
 describe("useReviewArea: the session's length", () => {
   /** The facts the session is kept with: nothing pinned, chosen or commented. */
-  const FACTS = { pinned: false, favorites: [], comment: '', playedNotesKept: false }
+  const FACTS = {
+    pinned: false,
+    favorites: [],
+    comment: '',
+    playedNotesKept: false,
+    presets: BUILT_IN_PRESETS,
+  }
 
   // @test-link [[req_last_session_review]]
   it('gives the length the kept record stores for the session that just ended, and that it would have stored after a failed save', () => {

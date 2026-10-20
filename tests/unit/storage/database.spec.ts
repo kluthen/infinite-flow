@@ -2,6 +2,7 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  DATA_STORES,
   DATABASE_DATA_VERSION,
   PRODUCTION_MIGRATIONS,
   type MigrationStep,
@@ -18,7 +19,7 @@ import {
   withRawDatabase,
 } from './storage-test-doubles'
 
-/** The seven stores the first step creates, `meta` included, in name order. */
+/** The seven stores the first step creates, v3.0's, `meta` included, in name order. */
 const SEVEN_STORES = [
   'controller',
   'instrument',
@@ -28,6 +29,9 @@ const SEVEN_STORES = [
   'sessionSummaries',
   'settings',
 ]
+
+/** Every store of the code's data version, in name order: v3.0's and `presets`. */
+const EIGHT_STORES = [...SEVEN_STORES, 'presets'].sort()
 
 /** The production migration steps of v3.0: step 1 only, a database at data version 1. */
 const V3_0_MIGRATIONS = PRODUCTION_MIGRATIONS.slice(0, 1)
@@ -50,26 +54,51 @@ function recordedStepOne(ran: number[]): MigrationStep {
 
 describe('the database data version', () => {
   // @test-link [[module_on_device_database]]
-  it('is 2 from v3.1, the number of production migration steps', () => {
-    expect(DATABASE_DATA_VERSION).toBe(2)
-    expect(PRODUCTION_MIGRATIONS.map((step) => step.toVersion)).toEqual([1, 2])
+  it('is 3 from v3.1, the number of production migration steps', () => {
+    expect(DATABASE_DATA_VERSION).toBe(3)
+    expect(PRODUCTION_MIGRATIONS.map((step) => step.toVersion)).toEqual([1, 2, 3])
+  })
+
+  // @test-link [[module_on_device_database]]
+  it('keeps the data in seven stores, the player presets in the last', () => {
+    expect(DATA_STORES).toEqual([
+      'settings',
+      'instrument',
+      'controller',
+      'sessionSummaries',
+      'sessionBodies',
+      'playedNotes',
+      'presets',
+    ])
   })
 })
 
 describe('opening a database at data version 0', () => {
   // @test-link [[module_on_device_database]]
-  it('migrates it to 2: the seven stores exist and meta holds the data and app versions', async () => {
+  it('migrates it to 3: the eight stores exist and meta holds the data and app versions', async () => {
     const factory = freshFactory()
     const port = await openStoragePort({ factory, appVersion: TEST_APP_VERSION })
 
     expect(port.status()).toBe('ready')
     await withRawDatabase(factory, async (database) => {
-      expect(database.version).toBe(2)
-      expect([...database.objectStoreNames].sort()).toEqual(SEVEN_STORES)
+      expect(database.version).toBe(3)
+      expect([...database.objectStoreNames].sort()).toEqual(EIGHT_STORES)
       expect(await rawGet(database, 'meta', 'database')).toEqual({
-        dataVersion: 2,
+        dataVersion: 3,
         appVersion: TEST_APP_VERSION,
       })
+    })
+  })
+
+  // @test-link [[module_on_device_database]]
+  // @test-link [[module_settings_upgrade_step]]
+  it('creates only the v3.0 stores in step 1, the presets store coming from step 3', async () => {
+    const factory = freshFactory()
+    await openStoragePort({ factory, appVersion: TEST_APP_VERSION, migrations: V3_0_MIGRATIONS })
+
+    await withRawDatabase(factory, (database) => {
+      expect(database.version).toBe(1)
+      expect([...database.objectStoreNames].sort()).toEqual(SEVEN_STORES)
     })
   })
 

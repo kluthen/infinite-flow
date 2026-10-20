@@ -2,6 +2,8 @@ import { beforeAll, describe, expect, it } from 'vitest'
 
 import type { ProfileSelection } from '@/domain/controls/profile-selection'
 import { JAZZ_FIGURE_LEVELS, NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
+import { BUILT_IN_PRESETS, builtInPreset } from '@/domain/presets/built-in-presets'
+import { makePreset } from '@/domain/presets/preset-selection'
 import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import { buildGeneratedNotesFile, type GeneratedNotesRequest } from '@/export/generated-notes-file'
 import { buildPlayedNotesFile } from '@/export/played-notes-file'
@@ -63,6 +65,7 @@ const KEPT_FACTS: KeptSessionFacts = {
   favorites: [3, 1],
   comment: 'Swung the second half.',
   playedNotesKept: true,
+  presets: BUILT_IN_PRESETS,
 }
 
 /** Keys no kept record may hold anywhere. */
@@ -456,6 +459,27 @@ describe("the preset label a new session's summary records", () => {
 
     expect(kept.summary.presetLabel).toBe(label)
     expect(kept.summary.dataVersion).toBe(2)
+    expect(decoded(storedRecords(kept)).summary.presetLabel).toBe(label)
+  })
+
+  // @test-link [[rule_preset_label_kept_with_session]]
+  it.each([
+    [{ kind: 'preset', presetId: 'player-1' }, 'Late night'],
+    [{ kind: 'custom', baseId: 'player-1' }, 'Custom, based on Late night'],
+  ] as const)('records %j as "%s" from the presets the session knew', (selection, label) => {
+    const lateNight = makePreset({
+      ...builtInPreset('jazz'),
+      id: 'player-1',
+      name: 'Late night',
+      kind: 'player',
+    })
+    const kept = encodeKeptSession(
+      historyOf(records, 'bb-tenor', selection),
+      { ...KEPT_FACTS, favorites: [1], presets: [...BUILT_IN_PRESETS, lateNight] },
+      APP_VERSION,
+    )
+
+    expect(kept.summary.presetLabel).toBe(label)
     expect(decoded(storedRecords(kept)).summary.presetLabel).toBe(label)
   })
 })

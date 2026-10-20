@@ -8,7 +8,6 @@
  * generated under, which a stale phrase 1 used as it is differs in (./workspace-stale-phrase.ts). Once the locks are asked for,
  * a start is all or nothing: any later throw undoes it (./workspace-session-ends.ts).
  */
-import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import { createAudioTimeAgenda } from '@/session/session-agenda'
 import { createSessionHistory } from '@/session/session-history'
 import { sessionSettingsAtStart } from '@/session/session-intents'
@@ -88,7 +87,7 @@ export function createSessionStart(
         },
         phraseOne.intent,
       ),
-      BUILT_IN_PRESETS,
+      idle.state.presets,
     )
     const tempo = settings.controls.tempo
     const phraseOneOwn = phraseOneSettings(phraseOne.settings, phraseOne.intent, tempo)

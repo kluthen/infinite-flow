@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
 
-import { readAudioMixDesign, type AudioMixDesign } from '@/audio/audio-mix'
 import { resolveGeneratedControls } from '@/domain/controls/generated-note-density'
 import {
   ARPEGGIO_CHAOS_VALUES,
@@ -9,7 +8,6 @@ import {
   HARMONIC_MOTIONS,
   INSTRUMENT_PROFILE_IDS,
   LEAPINESS_VALUES,
-  MUSICAL_PROFILES,
   NOTE_DENSITIES,
   PITCH_CLASSES,
   REGISTER_CHOICES,
@@ -19,61 +17,38 @@ import {
   TEMPO_VALUES,
   TENSION_ARCS,
 } from '@/domain/controls/generation-controls'
-import { PROFILE_BUNDLES, type ProfileSelection } from '@/domain/controls/profile-selection'
+import { FIGURE_IDS, FIGURE_LEVEL_IDS } from '@/domain/figures/figure-levels'
+import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
+import { allowsKeyAndMode } from '@/domain/presets/key-and-mode-restriction'
+import {
+  findPreset,
+  PRESET_HELD_CONTROL_KEYS,
+  type PresetSelection,
+} from '@/domain/presets/preset-selection'
 import { createMulberry32 } from '@/domain/random/prng'
-import { defaultSettings, type SavedSettings } from '@/storage/records/setting-defaults'
+import type { SavedSettings } from '@/storage/records/setting-defaults'
 import {
   decodeSettings,
   encodeSettingRecord,
   encodeSettings,
   MY_INSTRUMENT_ID,
+  PRESET_SETTINGS_DATA_VERSION,
   SETTING_KEYS,
+  settingDataVersion,
   SETTINGS_DATA_VERSION,
   type SettingKey,
-  type SettingsDecodeContext,
 } from '@/storage/records/settings-record'
 
-/** The mix design as the stylesheet's `--mix-*` tokens give it today. */
-const MIX_DESIGN: AudioMixDesign = readAudioMixDesign({
-  getPropertyValue: (name: string) =>
-    ({
-      '--mix-click-volume-default': '0.8',
-      '--mix-backing-volume-default': '0.8',
-      '--mix-click-volume-min': '0.2',
-      '--mix-backing-volume-min': '0',
-      '--mix-volume-max': '1',
-    })[name] ?? '',
-})
-
-const CONTEXT: SettingsDecodeContext = { mixDesign: MIX_DESIGN, myInstrumentLoaded: false }
-const APP_VERSION = '3.0.0-test'
-const DEFAULTS = defaultSettings(MIX_DESIGN.defaults)
-
-/** A full set of settings in which every value differs from that setting's default. */
-const NON_DEFAULT: SavedSettings = {
-  controls: {
-    tempo: 150,
-    tonalCenter: 'F#',
-    collection: 'Dorian',
-    harmonicMotion: 'Active diatonic',
-    tension: 'Edge',
-    noteDensity: 'Sixteenth',
-    rhythmicVariety: 'Heavily varied',
-    syncopation: 'Active displacement',
-    silenceDensity: 'Breath-heavy',
-    contour: 'Falling',
-    register: 'High',
-    leapiness: 'Angular',
-    arpeggioChaos: 'Chaotic',
-    instrumentProfileId: 'eb-alto',
-  },
-  profileSelection: { musicalProfile: 'Jazz', isCustom: true },
-  theme: 'Dark',
-  mix: { clickOn: false, clickVolume: 0.35, backingOn: false, backingVolume: 0.15 },
-  sessionOptions: { varySettings: true, tensionAcrossPhrases: true, risingTempo: true },
-  review: { format: 'midi', backingTrack: true, playedNotesShown: true },
-  keepPlayedNotes: true,
-}
+import {
+  APP_VERSION,
+  CONTEXT,
+  corrupt,
+  DEFAULTS,
+  NON_DEFAULT,
+  rawRecords,
+  settingAt,
+  type RawRecord,
+} from './settings-record-fixtures'
 
 /** Every record key the codec writes: one per setting, and nothing else. */
 const EXPECTED_KEYS: readonly SettingKey[] = [
@@ -91,7 +66,14 @@ const EXPECTED_KEYS: readonly SettingKey[] = [
   'controls.leapiness',
   'controls.arpeggioChaos',
   'controls.instrumentProfileId',
-  'profileSelection',
+  'figureLevels.passingTone',
+  'figureLevels.accentedPassingTone',
+  'figureLevels.neighborTone',
+  'figureLevels.appoggiatura',
+  'figureLevels.diatonicEnclosure',
+  'figureLevels.chromaticApproach',
+  'figureLevels.chromaticEnclosure',
+  'presetSelection',
   'theme',
   'mix.clickOn',
   'mix.clickVolume',
@@ -106,55 +88,36 @@ const EXPECTED_KEYS: readonly SettingKey[] = [
   'keepPlayedNotes',
 ]
 
-/** Intent: read one setting's value out of a full set, by its record key. */
-function settingAt(settings: SavedSettings, key: SettingKey): unknown {
-  const [group, field] = key.split('.') as [string, string | undefined]
-  const top = (settings as unknown as Record<string, unknown>)[group]
-  return field === undefined ? top : (top as Record<string, unknown>)[field]
-}
-
-type RawRecord = Record<string, unknown>
-
-/** Intent: the encoded records of a full set, as plain mutable copies a test may corrupt. */
-function rawRecords(settings: SavedSettings): RawRecord[] {
-  return encodeSettings(settings, APP_VERSION).map((record) => ({ ...record }))
-}
-
-/** Intent: replace the record of `key` in `records` with what `change` makes of a copy of it. */
-function corrupt(
-  records: readonly unknown[],
-  key: SettingKey,
-  change: (record: RawRecord) => unknown,
-): unknown[] {
-  return records.map((record) =>
-    (record as RawRecord).key === key ? change({ ...(record as RawRecord) }) : record,
-  )
-}
-
 /**
  * Intent: what `other` decodes to when only the record of `key` in NON_DEFAULT is unreadable: its
- * default for `key`, the saved value for every other setting. NON_DEFAULT's controlled values are
- * not Neutral's, so a fallen-back selection (Neutral) loads customized.
+ * default for `key`, the saved value for every other setting. NON_DEFAULT's values are not
+ * Neutral's, so a fallen-back selection (Neutral) loads as Custom based on Neutral.
  */
 function afterOneFallback(key: SettingKey, other: SettingKey): unknown {
   if (other !== key) return settingAt(NON_DEFAULT, other)
-  if (key === 'profileSelection') return { musicalProfile: 'Neutral', isCustom: true }
+  if (key === 'presetSelection') return { kind: 'custom', baseId: 'neutral' }
   return settingAt(DEFAULTS, other)
 }
 
 /**
- * Intent: the selection a load gives for `selection` over the loaded `controls`: a preset not
- * customized whose seven controlled values are not all its own loads customized.
+ * Intent: the selection a load gives for `selection` over the loaded settings, the values winning:
+ * a built-in whose controls, levels or restriction the loaded values do not match loads as
+ * Custom based on it.
  */
-function loadedSelection(
-  selection: ProfileSelection,
-  controls: SavedSettings['controls'],
-): ProfileSelection {
-  const bundle = PROFILE_BUNDLES[selection.musicalProfile]
-  const own = Object.entries(bundle).every(
-    ([field, value]) => (controls as unknown as Record<string, unknown>)[field] === value,
-  )
-  return selection.isCustom || own ? selection : { ...selection, isCustom: true }
+function loadedSelection(selection: PresetSelection, loaded: SavedSettings): PresetSelection {
+  if (selection.kind === 'custom') return selection
+  const preset = findPreset(BUILT_IN_PRESETS, selection.presetId)!
+  const { controls, figureLevels } = loaded
+  const own =
+    PRESET_HELD_CONTROL_KEYS.every((key) => controls[key] === preset.controls[key]) &&
+    FIGURE_IDS.every((figure) => figureLevels[figure] === preset.levels[figure]) &&
+    allowsKeyAndMode(preset.restriction, controls.tonalCenter, controls.collection)
+  return own ? selection : { kind: 'custom', baseId: preset.id }
+}
+
+/** Intent: whether a record key is one of the seven figure levels'. */
+function isLevelKey(key: SettingKey): boolean {
+  return key.startsWith('figureLevels.')
 }
 
 const BOOLEAN_KEYS = new Set<SettingKey>([
@@ -198,16 +161,26 @@ function invalidValues(key: SettingKey): readonly unknown[] {
   if (key === 'controls.tempo') return [50, 250, 95, 90.5, -90, Number.NaN, Infinity, '90', null]
   if (key === 'mix.clickVolume') return [0, 0.1, -0.1, 1.01, Number.NaN, Infinity, '0.5', null]
   if (key === 'mix.backingVolume') return [-0.01, 1.5, Number.NaN, -Infinity, '0.5', true]
-  if (key === 'profileSelection') {
+  if (key === 'presetSelection') {
     return [
-      { musicalProfile: 'Blues', isCustom: false },
-      { musicalProfile: 'Jazz' },
-      { musicalProfile: 'Jazz', isCustom: 'yes' },
-      { musicalProfile: 'Jazz', isCustom: false, extra: 1 },
-      'Jazz',
+      { kind: 'preset' },
+      { kind: 'preset', presetId: '' },
+      { kind: 'preset', presetId: 7 },
+      { kind: 'preset', presetId: 'jazz', extra: 1 },
+      { kind: 'preset', baseId: 'jazz' },
+      { kind: 'custom' },
+      { kind: 'custom', baseId: '' },
+      { kind: 'custom', baseId: 7 },
+      { kind: 'custom', baseId: null, presetId: 'jazz' },
+      { kind: 'Custom', baseId: null },
+      { musicalProfile: 'Jazz', isCustom: true },
+      'jazz',
       null,
       [],
     ]
+  }
+  if (isLevelKey(key)) {
+    return ['Off', 'favoured', 'asToday ', 'none', ...WRONG_TYPES.filter((v) => v !== 'text')]
   }
   const unknown = ['Unknown', '', 'quarter', 'Sixteenth ', 'C♯']
   const extra = key === 'controls.instrumentProfileId' ? [MY_INSTRUMENT_ID] : []
@@ -242,15 +215,22 @@ function randomValue(key: SettingKey, next: () => number): unknown {
   if (BOOLEAN_KEYS.has(key)) return next() < 0.5
   if (key === 'mix.clickVolume') return Math.round((0.2 + next() * 0.8) * 100) / 100
   if (key === 'mix.backingVolume') return Math.round(next() * 100) / 100
-  if (key === 'profileSelection') {
-    return { musicalProfile: pick(MUSICAL_PROFILES), isCustom: next() < 0.5 }
+  if (isLevelKey(key)) return pick(FIGURE_LEVEL_IDS)
+  if (key === 'presetSelection') {
+    const id = pick(BUILT_IN_PRESETS).id
+    return pick<PresetSelection>([
+      { kind: 'preset', presetId: id },
+      { kind: 'custom', baseId: id },
+      { kind: 'custom', baseId: null },
+    ])
   }
   throw new Error(`no random value for ${key}`)
 }
 
 /**
  * Intent: a random full set of valid settings, built through the codec's own key table. A preset
- * picked and not customized holds its own seven controlled values, as the app saves it.
+ * selected holds its own ten controls and seven levels, and a written key and mode it allows, as
+ * the app saves it.
  */
 function randomSettings(next: () => number): SavedSettings {
   const grouped: Record<string, unknown> = {}
@@ -261,9 +241,21 @@ function randomSettings(next: () => number): SavedSettings {
     else grouped[group] = { ...(grouped[group] as object), [field]: value }
   }
   const settings = grouped as unknown as SavedSettings
-  const { musicalProfile, isCustom } = settings.profileSelection
-  if (isCustom) return settings
-  return { ...settings, controls: { ...settings.controls, ...PROFILE_BUNDLES[musicalProfile] } }
+  const selection = settings.presetSelection
+  if (selection.kind === 'custom') return settings
+  const preset = findPreset(BUILT_IN_PRESETS, selection.presetId)!
+  const { keys, modes } = preset.restriction
+  const { tonalCenter, collection } = settings.controls
+  return {
+    ...settings,
+    controls: {
+      ...settings.controls,
+      ...preset.controls,
+      tonalCenter: keys === 'any' || keys.includes(tonalCenter) ? tonalCenter : keys[0],
+      collection: modes === 'any' || modes.includes(collection) ? collection : modes[0],
+    },
+    figureLevels: preset.levels,
+  }
 }
 
 describe('settings record keys', () => {
@@ -274,14 +266,16 @@ describe('settings record keys', () => {
     expect(SETTING_KEYS).toEqual(EXPECTED_KEYS)
     expect(records.map((record) => record.key)).toEqual(EXPECTED_KEYS)
     for (const record of records) {
+      const introducedAtVersion3 = record.key === 'presetSelection' || isLevelKey(record.key)
       expect(record).toEqual({
         key: record.key,
-        dataVersion: SETTINGS_DATA_VERSION,
+        dataVersion: introducedAtVersion3 ? 3 : 1,
         appVersion: APP_VERSION,
         value: settingAt(NON_DEFAULT, record.key),
       })
     }
     expect(SETTINGS_DATA_VERSION).toBe(1)
+    expect(PRESET_SETTINGS_DATA_VERSION).toBe(3)
   })
 
   // @test-link [[rule_settings_saved_on_change]]
@@ -292,13 +286,19 @@ describe('settings record keys', () => {
     expect(encodeSettingRecord('mix.clickVolume', 0.35, APP_VERSION)).toEqual(
       full.find((record) => record.key === 'mix.clickVolume'),
     )
-    expect(
-      encodeSettingRecord('profileSelection', { musicalProfile: 'Jazz', isCustom: true }, '9'),
-    ).toEqual({
-      key: 'profileSelection',
-      dataVersion: 1,
+    expect(encodeSettingRecord('presetSelection', { kind: 'custom', baseId: 'jazz' }, '9')).toEqual(
+      {
+        key: 'presetSelection',
+        dataVersion: 3,
+        appVersion: '9',
+        value: { kind: 'custom', baseId: 'jazz' },
+      },
+    )
+    expect(encodeSettingRecord('figureLevels.appoggiatura', 'favored', '9')).toEqual({
+      key: 'figureLevels.appoggiatura',
+      dataVersion: 3,
       appVersion: '9',
-      value: { musicalProfile: 'Jazz', isCustom: true },
+      value: 'favored',
     })
   })
 
@@ -397,9 +397,7 @@ describe('decodeSettings', () => {
         const expected = corrupted.has(key) ? DEFAULTS : saved
         const value = settingAt(expected, key)
         const loaded =
-          key === 'profileSelection'
-            ? loadedSelection(value as ProfileSelection, decoded.controls)
-            : value
+          key === 'presetSelection' ? loadedSelection(value as PresetSelection, decoded) : value
         expect(settingAt(decoded, key), `round ${round}: ${key}`).toEqual(loaded)
       }
     }
@@ -461,7 +459,7 @@ describe('a record written by a newer version', () => {
     for (const key of EXPECTED_KEYS) {
       const records = corrupt(rawRecords(NON_DEFAULT), key, (record) => ({
         ...record,
-        dataVersion: SETTINGS_DATA_VERSION + 1,
+        dataVersion: settingDataVersion(key) + 1,
       }))
       const decoded = decodeSettings(records, CONTEXT)
 
@@ -491,51 +489,5 @@ describe('the chosen note density', () => {
     const density = records.find((record) => record.key === 'controls.noteDensity')
     expect(density?.value).toBe('Sixteenth')
     expect(decodeSettings(records, CONTEXT).controls.noteDensity).toBe('Sixteenth')
-  })
-})
-
-/** A full set saved with Jazz picked and not customized: Jazz's seven values with it. */
-const SAVED_JAZZ: SavedSettings = {
-  ...NON_DEFAULT,
-  controls: { ...NON_DEFAULT.controls, ...PROFILE_BUNDLES.Jazz },
-  profileSelection: { musicalProfile: 'Jazz', isCustom: false },
-}
-
-describe('the loaded profile selection', () => {
-  // @test-link [[rule_saved_settings_load_tolerantly]]
-  // @test-link [[rule_profile_control_customization]]
-  it('loads a preset whose controlled value fell back as customized, that preset kept', () => {
-    const records = corrupt(rawRecords(SAVED_JAZZ), 'controls.register', (record) => ({
-      ...record,
-      value: 'Nowhere',
-    }))
-    const decoded = decodeSettings(records, CONTEXT)
-
-    expect(decoded.profileSelection).toEqual({ musicalProfile: 'Jazz', isCustom: true })
-    expect(decoded.controls.register).toBe(DEFAULTS.controls.register)
-    expect(decoded.controls.register).toBe('Middle')
-    expect(decoded.controls).toEqual({ ...SAVED_JAZZ.controls, register: 'Middle' })
-  })
-
-  // @test-link [[rule_saved_settings_load_tolerantly]]
-  // @test-link [[rule_profile_control_customization]]
-  it('keeps a preset whose seven controlled values all loaded as its own', () => {
-    const decoded = decodeSettings(rawRecords(SAVED_JAZZ), CONTEXT)
-
-    expect(decoded.profileSelection).toEqual({ musicalProfile: 'Jazz', isCustom: false })
-    expect(decoded).toEqual(SAVED_JAZZ)
-  })
-
-  // @test-link [[rule_saved_settings_load_tolerantly]]
-  // @test-link [[rule_profile_control_customization]]
-  it('loads an unreadable selection as customized Neutral, the saved values kept', () => {
-    const records = corrupt(rawRecords(SAVED_JAZZ), 'profileSelection', (record) => ({
-      ...record,
-      value: { musicalProfile: 'Bebop', isCustom: false },
-    }))
-    const decoded = decodeSettings(records, CONTEXT)
-
-    expect(decoded.profileSelection).toEqual({ musicalProfile: 'Neutral', isCustom: true })
-    expect(decoded.controls).toEqual(SAVED_JAZZ.controls)
   })
 })

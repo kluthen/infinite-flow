@@ -6,6 +6,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
+import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import { buildPlayedNotesFile } from '@/export/played-notes-file'
 import type { SessionHistoryRecord } from '@/session/session-history'
 import {
@@ -51,7 +52,13 @@ describe('a kept session with very short played notes', () => {
     const records = sessionWithVeryShortNotes()
     const kept = encodeKeptSession(
       historyOf(records, 'bb-tenor'),
-      { pinned: false, favorites: [], comment: '', playedNotesKept: true },
+      {
+        pinned: false,
+        favorites: [],
+        comment: '',
+        playedNotesKept: true,
+        presets: BUILT_IN_PRESETS,
+      },
       APP_VERSION,
     )
 

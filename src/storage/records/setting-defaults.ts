@@ -3,10 +3,12 @@
  * catalog in the domain, and each setting's default: the value it takes on a first visit, and the
  * value a saved setting falls back to when it cannot be read. Pure data, no storage access.
  *
- * Where each default comes from in the running app: the 14 generation controls and the musical
- * profile selection from `src/domain/controls/profile-selection.ts`; the theme from the generation
- * session's first state (`System`); the audio mix from the design tokens, read at start-up, so it
- * is passed in; the three "During a session" options from the session controller's flags, all off;
+ * Where each default comes from in the running app: the 14 generation controls from
+ * `src/domain/controls/profile-selection.ts`; the seven figure levels, Neutral's, from
+ * `src/domain/figures/figure-levels.ts`; the preset selection, Neutral, from
+ * `src/domain/presets/built-in-presets.ts`; the theme from the generation session's first state
+ * (`System`); the audio mix from the design tokens, read at start-up, so it is passed in; the
+ * three "During a session" options from the session controller's flags, all off;
  * the review's preferences from the review host (MusicXML, no backing track, Played notes hidden);
  * `Keep my played notes` is off, as the player's played notes are kept only after they opt in.
  */
@@ -16,11 +18,10 @@ import type { GeneratedNotesFormat } from '@/components/review/review-types'
 import type { ThemePreference } from '@/composables/generation-session-types'
 import { deepFreeze } from '@/domain/events/deep-freeze'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
-import {
-  DEFAULT_GENERATION_CONTROLS,
-  DEFAULT_PROFILE_SELECTION,
-  type ProfileSelection,
-} from '@/domain/controls/profile-selection'
+import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
+import { NEUTRAL_FIGURE_LEVELS, type FigureLevels } from '@/domain/figures/figure-levels'
+import { DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
+import type { PresetSelection } from '@/domain/presets/preset-selection'
 
 /** The three "During a session" options, each the player's own opt-in. */
 // @spec-link [[rule_settings_saved_on_change]]
@@ -39,14 +40,16 @@ export interface ReviewPreferences {
 }
 
 /**
- * Every saved setting, each the value the player chose: the chosen controls (never the ones a
- * phrase was generated with), and no tempo a Rising-tempo session reached.
+ * Every saved setting, each the value the player chose: the chosen controls and figure levels
+ * (never the ones a phrase was generated with), the preset selection, and no tempo a Rising-tempo
+ * session reached.
  */
 // @spec-link [[rule_settings_saved_on_change]]
 // @spec-link [[rule_saved_setting_is_players_choice]]
 export interface SavedSettings {
   readonly controls: GenerationControls
-  readonly profileSelection: ProfileSelection
+  readonly figureLevels: FigureLevels
+  readonly presetSelection: PresetSelection
   readonly theme: ThemePreference
   readonly mix: AudioMix
   readonly sessionOptions: SessionOptionChoices
@@ -112,7 +115,8 @@ export const DEFAULT_KEEP_PLAYED_NOTES = false
 export function defaultSettings(mixDefaults: AudioMix): SavedSettings {
   return deepFreeze({
     controls: DEFAULT_GENERATION_CONTROLS,
-    profileSelection: DEFAULT_PROFILE_SELECTION,
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
+    presetSelection: DEFAULT_PRESET_SELECTION,
     theme: DEFAULT_THEME,
     mix: { ...mixDefaults },
     sessionOptions: DEFAULT_SESSION_OPTIONS,

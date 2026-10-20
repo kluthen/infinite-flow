@@ -10,10 +10,15 @@
  *   copies of a kept session given as raw data version 1 values, each under its own key and
  *   start, keeping that port open as a v3.0 tab left open: the load's open then upgrades them (the
  *   upgrade measurement, M3, and the carried-over sessions' browser check);
+ *   `seedVersionOneSettings`, through the same port, writes raw v3.0 settings records (the
+ *   controls and v3.0's `profileSelection`), which the load's open carries over to data version 3;
  * - `seedSettings` writes settings records through the settings codec, valid or not, for the next
  *   load (the spec reloads the page); `records` reads a store back;
  * - `seedMyInstrument` writes the my-instrument record through its codec, valid or not, for the
  *   next load;
+ * - `seedPresets` writes player preset records through the preset codec, each preset checked by
+ *   the preset model, and `seedRawPresets` writes raw records (damaged, under another id, or a
+ *   newer version's) straight to IndexedDB, for the next load;
  * - `seedTimingSessions` writes sized kept-session records for the start-up read measurement (M2);
  * - `keyedRecords` reads a store back with each record's key; `pinKeptSession` pins a kept session
  *   the app saved, as the review's pin will, `seedUnreadableKeptSession` writes a kept session
@@ -24,7 +29,7 @@
  *   the codec reads it as unreadable;
  * - `settingsNotReadBack` names each stored settings record the settings codec does not read back
  *   as the value it holds, read as a load reads them all (with the mix design of the page's tokens,
- *   and my instrument not loaded);
+ *   my instrument not loaded, and the built-ins and the stored player presets);
  * - `loadOutcome`, `savingState` and `loadMs` report the load;
  * - `?storageRead=fail` makes every read of the app's port fail, and `?storageRead=slow` delays
  *   each past the start-up wait, so the visit starts from the defaults;
@@ -54,6 +59,9 @@ import {
   KEPT_SESSION_SUMMARY_DATA_VERSION,
 } from '../../../src/storage/records/kept-reading'
 import { readAudioMixDesign } from '../../../src/audio/audio-mix'
+import { BUILT_IN_PRESETS } from '../../../src/domain/presets/built-in-presets'
+import { makePreset, type Preset } from '../../../src/domain/presets/preset-selection'
+import { decodePlayerPresets, encodePresetRecord } from '../../../src/storage/records/preset-record'
 import {
   decodeSettings,
   encodeSettingRecord,
@@ -75,7 +83,7 @@ import {
   type StoragePort,
   type StoreName,
 } from '../../../src/storage/storage-port'
-import { createVersionOneSeed } from './version-one-seams'
+import { createVersionOneSeeds } from './version-one-seams'
 
 /** How the harness runs the load: at once, or held until the spec releases it. */
 export type HarnessStorageLoadMode = 'immediate' | 'held'
@@ -250,13 +258,15 @@ function decodedAt(settings: object, key: string): unknown {
 
 /**
  * Intent: the key of each settings record the codec does not read back as the value it holds:
- * the records are decoded together, as a load decodes them, and each record's value compared with
- * the decoded value at its key. A record with no string key is reported as `(no key)`.
+ * the records are decoded together, as a load decodes them, the preset selection judged against
+ * the built-ins and `playerPresets`, and each record's value compared with the decoded value at
+ * its key. A record with no string key is reported as `(no key)`.
  */
-function notReadBack(records: readonly unknown[]): string[] {
+function notReadBack(records: readonly unknown[], playerPresets: readonly Preset[]): string[] {
   const decoded = decodeSettings(records, {
     mixDesign: readAudioMixDesign(getComputedStyle(document.documentElement)),
     myInstrumentLoaded: false,
+    presets: [...BUILT_IN_PRESETS, ...playerPresets],
   })
   return records.flatMap((record) => {
     const { key, value } = (record ?? {}) as { key?: unknown; value?: unknown }
@@ -286,7 +296,7 @@ export function createHarnessStorage(
   let loadMs: number | null = null
   let held = mode === 'held'
   // Refused once the load is released or the app's port has opened.
-  const seedVersionOneSessions = createVersionOneSeed(() => held && port === null)
+  const versionOneSeeds = createVersionOneSeeds(() => held && port === null)
 
   /** Intent: the port the load opened; throws before it has opened. */
   function openedPort(): StoragePort {
@@ -309,7 +319,7 @@ export function createHarnessStorage(
         held = false
         resolve()
       }
-      window.__workspaceHarnessHeldLoad = { release, seedVersionOneSessions }
+      window.__workspaceHarnessHeldLoad = { release, ...versionOneSeeds }
     })
   }
 
@@ -356,6 +366,25 @@ export function createHarnessStorage(
   async function seedMyInstrument(input: WorkspaceHarnessMyInstrumentInput): Promise<void> {
     const record = encodeMyInstrumentRecord(input, APP_VERSION)
     await openedPort().write('instrument', MY_INSTRUMENT_RECORD_KEY, record)
+  }
+
+  /**
+   * Intent: write one player preset record per preset through the preset codec, under its id,
+   * each preset first built by the preset model, which refuses an invalid one.
+   */
+  async function seedPresets(presets: readonly WorkspaceHarnessPresetInput[]): Promise<void> {
+    const changes = presets.map((input): StorageChange => {
+      // Plain JSON from the spec, checked field by field by the preset model.
+      const preset = makePreset(input as unknown as Preset)
+      const record = encodePresetRecord(preset, APP_VERSION)
+      return { kind: 'write', store: 'presets', key: preset.id, record }
+    })
+    await openedPort().apply(changes)
+  }
+
+  /** Intent: write `entries` to the `presets` store as given, straight to IndexedDB. */
+  async function seedRawPresets(entries: readonly WorkspaceHarnessRawRecord[]): Promise<void> {
+    await writeRaw(entries.map(({ key, record }) => ({ store: 'presets', key, record })))
   }
 
   /** Intent: write `count` sized kept sessions, in batches. */
@@ -504,6 +533,8 @@ export function createHarnessStorage(
       seedSettings,
       seedDamagedKeptBody,
       seedMyInstrument,
+      seedPresets,
+      seedRawPresets,
       seedTimingSessions,
       pinKeptSession,
       seedUnreadableKeptSession,
@@ -519,7 +550,13 @@ export function createHarnessStorage(
         ),
       records: async (store) => [...(await openedPort().readAll(store))],
       keyedRecords: async (store) => [...(await openedPort().readKeyed(store))],
-      settingsNotReadBack: async () => notReadBack(await openedPort().readAll('settings')),
+      settingsNotReadBack: async () => {
+        const [records, presets] = await Promise.all([
+          openedPort().readAll('settings'),
+          openedPort().readKeyed('presets'),
+        ])
+        return notReadBack(records, decodePlayerPresets(presets))
+      },
       refuseSaves: (kind) => {
         injections.refusal = kind
       },

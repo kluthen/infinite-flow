@@ -5,6 +5,7 @@
  */
 import { beforeAll, describe, expect, it } from 'vitest'
 
+import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import type { SessionHistory } from '@/session/session-history'
 import {
   decodeKeptSession,
@@ -24,6 +25,7 @@ const FRESH: KeptSessionFacts = {
   favorites: [],
   comment: '',
   playedNotesKept: false,
+  presets: BUILT_IN_PRESETS,
 }
 
 /** The app version that rewrites the record, after the one that recorded the session. */

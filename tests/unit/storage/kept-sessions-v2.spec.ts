@@ -11,6 +11,7 @@
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import type { ProfileSelection } from '@/domain/controls/profile-selection'
+import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import type { PresetSelection } from '@/domain/presets/preset-selection'
 import {
   JAZZ_FIGURE_LEVELS,
@@ -90,6 +91,7 @@ const PLAIN: KeptSessionFacts = {
   favorites: [],
   comment: '',
   playedNotesKept: false,
+  presets: BUILT_IN_PRESETS,
 }
 
 /** Every request the generated-notes export offers: both formats, backing off and on. */

@@ -38,7 +38,7 @@ import { createBrowserAudioTransport } from '@/audio/browser-audio-transport'
 import type { SavedDataLoad } from '@/storage-bootstrap'
 import { APP_VERSION } from '@/storage/app-version'
 import { decodeRememberedController } from '@/storage/records/controller-record'
-import { createVisitSaves, presetChoiceOfSavedProfile } from '@/storage/settings-saver'
+import { createVisitSaves } from '@/storage/settings-saver'
 import { createMidiController } from '@/midi/midi-controller'
 import { createWebMidiAccessProvider } from '@/midi/web-midi-access'
 import { createBrowserWakeTimerWorker, createWorkerWakeTimer } from '@/audio/worker-wake-timer'
@@ -86,9 +86,10 @@ export const WORKSPACE_SESSION_FACTORY: InjectionKey<
  * those prewarms land in the same worker's memo the runner's phrases read. Under the
  * pre-generation policy, the session controller's Idle pre-generation queue runs its background
  * attempts on that same seam, after the prewarm, through the Idle background slot, which every
- * Idle request yields to first. Idle starts from the loaded settings' controls, the preset
- * selection and figure levels their saved v3.0 selection loads as, and theme, and my instrument
- * when it loaded (each phrase drawn in its instrument's clef), and each session controller's flags
+ * Idle request yields to first. Idle starts from the loaded settings' controls, figure levels,
+ * preset selection and theme, the player presets the load read (listed after the built-ins), and
+ * my instrument when it loaded (each phrase drawn in its instrument's clef), and each session
+ * controller's flags
  * from its "During a session" choices, so the workspace is first drawn with them; the load itself is exposed unchanged. The visit's saves go
  * through the loaded save policy: Idle's control actions and the screen's change handlers save the
  * player's changes through them, and each session controller holds them while a session runs. The
@@ -130,8 +131,13 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
 
   const connectionSheetOpen = shallowRef(false)
   const slot = createPregenerationSlot()
-  const { controls, profileSelection, theme, sessionOptions } = deps.savedData.settings
-  const { selection, figureLevels } = presetChoiceOfSavedProfile(profileSelection, controls)
+  const {
+    controls,
+    figureLevels,
+    presetSelection: selection,
+    theme,
+    sessionOptions,
+  } = deps.savedData.settings
   const saves = createVisitSaves(deps.savedData.savePolicy, APP_VERSION)
   // Built with the workspace, before the controller's chunk loads, so the notices hear it from
   // the first draw.
@@ -156,6 +162,7 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
       controls,
       figureLevels,
       selection,
+      playerPresets: deps.savedData.playerPresets,
       theme,
       myInstrument: deps.savedData.myInstrument,
     },

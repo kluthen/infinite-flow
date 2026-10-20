@@ -24,7 +24,7 @@ import {
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import { presetLabel } from '@/domain/controls/preset-label'
 import { builtInPreset } from '@/domain/presets/built-in-presets'
-import type { PresetSelection } from '@/domain/presets/preset-selection'
+import type { Preset, PresetSelection } from '@/domain/presets/preset-selection'
 import { ADOPTED_INSTRUMENT_PROFILES, MY_INSTRUMENT_ID } from '@/domain/profile/instrument-profiles'
 import type { SegmentedControlOption } from './segmented-control-option'
 
@@ -192,20 +192,21 @@ function labelFor(options: readonly SegmentedControlOption[], value: string): st
 
 /**
  * Intent: the muted `control-summary` copy per D25 -- tonal center and collection labels
- * separated by a plain space, then the preset label of the selection (the preset's name, or
- * `Custom, based on {name}` naming Custom's base, or `Custom` alone with none), tension arc, and
- * leapiness, each segment separated by ` · `.
+ * separated by a plain space, then the preset label of the selection, named from the presets the
+ * session knows (the preset's name, or `Custom, based on {name}` naming Custom's base, or `Custom`
+ * alone with none), tension arc, and leapiness, each segment separated by ` · `.
  */
 // @spec-link [[module_generation_control_catalog]]
 // @spec-link [[rule_custom_names_its_base]]
 export function controlSummaryText(
   controls: GenerationControls,
   selection: PresetSelection,
+  presets: readonly Preset[],
 ): string {
   const tonalCenterLabel = labelFor(tonalCenterOptions(), controls.tonalCenter)
   const collectionLabel = labelFor(collectionOptions(), controls.collection)
   const tensionLabel = labelFor(tensionOptions(), controls.tension)
   const leapinessLabel = labelFor(leapinessOptions(), controls.leapiness)
-  const selectionLabel = presetLabel(selection)
+  const selectionLabel = presetLabel(selection, presets)
   return `${tonalCenterLabel} ${collectionLabel} · ${selectionLabel} · ${tensionLabel} · ${leapinessLabel}`
 }

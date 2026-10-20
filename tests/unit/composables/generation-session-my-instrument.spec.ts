@@ -75,6 +75,7 @@ function session(controls = MINE_SELECTED, myInstrument: MyInstrument | null = L
       controls,
       figureLevels: NEUTRAL_FIGURE_LEVELS,
       selection: DEFAULT_PRESET_SELECTION,
+      playerPresets: [],
       theme: 'System',
       myInstrument,
     },

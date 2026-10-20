@@ -56,7 +56,10 @@ export interface ControlActionDependencies<TResult> {
   readonly afterGenerationSettingChange: () => void
   /** Save the settings a player's change changed. */
   readonly saveSettings: SaveSettings
-  /** The presets the session knows, chosen from and judged against: the built-ins for now. */
+  /**
+   * The presets the session knows, chosen from and judged against: the built-ins, then the
+   * player presets the load read.
+   */
   readonly presets: () => readonly Preset[]
 }
 
@@ -121,11 +124,15 @@ export function createControlActions<TResult>(
     figureLevels: FigureLevels,
     selection: PresetSelection,
   ): void {
-    const before = { controls: state.controls, selection: state.selection }
+    const before = {
+      controls: state.controls,
+      figureLevels: state.figureLevels,
+      selection: state.selection,
+    }
     state.controls = controls
     state.figureLevels = figureLevels
     state.selection = selection
-    deps.saveSettings(chosenControlChanges(before, { controls, selection }))
+    deps.saveSettings(chosenControlChanges(before, { controls, figureLevels, selection }))
   }
 
   /**

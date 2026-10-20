@@ -17,7 +17,12 @@ import {
 } from '@/domain/figures/figure-levels'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { BUILT_IN_PRESETS, builtInPreset } from '@/domain/presets/built-in-presets'
-import { PRESET_HELD_CONTROL_KEYS, type PresetSelection } from '@/domain/presets/preset-selection'
+import {
+  makePreset,
+  PRESET_HELD_CONTROL_KEYS,
+  type Preset,
+  type PresetSelection,
+} from '@/domain/presets/preset-selection'
 import { createFitSession, flushAsync, type FitSessionOptions } from './fit-session-harness'
 
 /** Intent: the ten preset-held controls of a set of controls, in the presets' order. */
@@ -26,11 +31,12 @@ function heldControls(controls: object): Record<string, unknown> {
   return Object.fromEntries(PRESET_HELD_CONTROL_KEYS.map((key) => [key, values[key]]))
 }
 
-/** Intent: a fit session started from these controls, levels and selection. */
+/** Intent: a fit session started from these controls, levels and selection, and player presets. */
 function sessionFrom(
   controls: Partial<typeof DEFAULT_GENERATION_CONTROLS>,
   selection: PresetSelection,
   options: FitSessionOptions = {},
+  playerPresets: readonly Preset[] = [],
 ) {
   return createFitSession({
     ...options,
@@ -38,6 +44,7 @@ function sessionFrom(
       controls: makeGenerationControls({ ...DEFAULT_GENERATION_CONTROLS, ...controls }),
       figureLevels: NEUTRAL_FIGURE_LEVELS,
       selection,
+      playerPresets,
       theme: 'System',
       myInstrument: null,
     },
@@ -45,6 +52,67 @@ function sessionFrom(
 }
 
 const REEL: PresetSelection = { kind: 'preset', presetId: 'reel' }
+
+/** A player preset as a load reads one: Jazz's controls with Tension at Build, Dorian only. */
+const LATE_NIGHT: Preset = makePreset({
+  id: 'player-1',
+  name: 'Late night',
+  controls: { ...builtInPreset('jazz').controls, tension: 'Build' },
+  levels: { ...NEUTRAL_FIGURE_LEVELS, chromaticApproach: 'favored' },
+  restriction: { keys: 'any', modes: ['Dorian'] },
+  kind: 'player',
+})
+
+// @test-link [[rule_presets_read_at_start_up]]
+// @test-link [[rule_player_presets_saved_on_device]]
+describe('createGenerationSession: the presets it knows', () => {
+  // @test-link [[rule_presets_read_at_start_up]]
+  it('knows the built-ins only when given no player preset', () => {
+    expect(createFitSession().session.state.presets).toEqual(BUILT_IN_PRESETS)
+  })
+
+  // @test-link [[rule_presets_read_at_start_up]]
+  it('knows the built-ins first, then the player presets it starts with', () => {
+    const { session } = sessionFrom({}, { kind: 'preset', presetId: 'neutral' }, {}, [LATE_NIGHT])
+
+    expect(session.state.presets).toEqual([...BUILT_IN_PRESETS, LATE_NIGHT])
+  })
+
+  // @test-link [[rule_choosing_preset_sets_its_settings]]
+  // @test-link [[rule_settings_saved_on_change]]
+  it('chooses a player preset it knows: its controls and levels set, the choice saved', () => {
+    const { session, saves } = sessionFrom(
+      { tonalCenter: 'D', collection: 'Dorian' },
+      { kind: 'preset', presetId: 'neutral' },
+      {},
+      [LATE_NIGHT],
+    )
+
+    expect(session.actions.selectPreset('player-1')).toBe(true)
+
+    expect(heldControls(session.state.controls)).toEqual(LATE_NIGHT.controls)
+    expect(session.state.figureLevels).toEqual(LATE_NIGHT.levels)
+    expect(session.state.selection).toEqual({ kind: 'preset', presetId: 'player-1' })
+    expect(saves.at(-1)).toMatchObject({
+      presetSelection: { kind: 'preset', presetId: 'player-1' },
+    })
+  })
+
+  // @test-link [[rule_restriction_in_force]]
+  it("judges a mode against a player preset's restriction: one outside it makes Custom based on it", () => {
+    const { session } = sessionFrom(
+      { ...LATE_NIGHT.controls, tonalCenter: 'D', collection: 'Dorian' },
+      { kind: 'preset', presetId: 'player-1' },
+      {},
+      [LATE_NIGHT],
+    )
+
+    expect(session.actions.setControl('tonalCenter', 'G')).toBe(true)
+    expect(session.state.selection).toEqual({ kind: 'preset', presetId: 'player-1' })
+    expect(session.actions.setControl('collection', 'Ionian')).toBe(true)
+    expect(session.state.selection).toEqual({ kind: 'custom', baseId: 'player-1' })
+  })
+})
 
 // @test-link [[module_generative_profile_selection]]
 describe('createGenerationSession: choosing a preset', () => {
@@ -76,7 +144,10 @@ describe('createGenerationSession: choosing a preset', () => {
     expect(built.generated).toHaveLength(generatedBefore)
     expect(
       Object.keys(built.saves[0]!).every(
-        (key) => key.startsWith('controls.') || key === 'profileSelection',
+        (key) =>
+          key.startsWith('controls.') ||
+          key.startsWith('figureLevels.') ||
+          key === 'presetSelection',
       ),
     ).toBe(true)
   })
@@ -277,7 +348,7 @@ describe('createGenerationSession: when the selection becomes Custom', () => {
 // @test-link [[rule_settings_saved_on_change]]
 // @test-link [[module_profile_control_customization]]
 describe('createGenerationSession: what a preset choice or a key edit saves', () => {
-  it('saves a Reel choice as the controls it changed, writing no selection', () => {
+  it('saves a Reel choice as the controls and levels it changed and Reel selected', () => {
     const { session, saves } = sessionFrom(
       { tonalCenter: 'A', collection: 'Aeolian' },
       { kind: 'preset', presetId: 'neutral' },
@@ -291,20 +362,25 @@ describe('createGenerationSession: what a preset choice or a key edit saves', ()
         'controls.tension': 'Settled',
         'controls.noteDensity': 'Eighth',
         'controls.rhythmicVariety': 'Strict',
+        'figureLevels.passingTone': 'favored',
+        'figureLevels.neighborTone': 'favored',
+        presetSelection: { kind: 'preset', presetId: 'reel' },
       },
     ])
   })
 
-  it('saves a mode leaving Reel as the mode alone, Custom based on Reel writing no selection', () => {
+  it('saves a mode leaving Reel as the mode and the Custom selection based on Reel', () => {
     const { session, saves } = sessionFrom({ tonalCenter: 'A', collection: 'Dorian' }, REEL)
 
     expect(session.actions.setControl('collection', 'Ionian')).toBe(true)
 
     expect(session.state.selection).toEqual({ kind: 'custom', baseId: 'reel' })
-    expect(saves).toEqual([{ 'controls.collection': 'Ionian' }])
+    expect(saves).toEqual([
+      { 'controls.collection': 'Ionian', presetSelection: { kind: 'custom', baseId: 'reel' } },
+    ])
   })
 
-  it('saves choosing the base from Custom as the selection, the values unchanged', () => {
+  it('saves choosing the base from Custom as the selection and the level it puts back', () => {
     const { session, saves } = createFitSession()
     expect(session.actions.setFigureLevel('passingTone', 'off')).toBe(true)
     saves.length = 0
@@ -312,6 +388,11 @@ describe('createGenerationSession: what a preset choice or a key edit saves', ()
     expect(session.actions.selectPreset('neutral')).toBe(true)
 
     expect(session.state.figureLevels).toEqual(NEUTRAL_FIGURE_LEVELS)
-    expect(saves).toEqual([{ profileSelection: { musicalProfile: 'Neutral', isCustom: false } }])
+    expect(saves).toEqual([
+      {
+        'figureLevels.passingTone': 'asToday',
+        presetSelection: { kind: 'preset', presetId: 'neutral' },
+      },
+    ])
   })
 })

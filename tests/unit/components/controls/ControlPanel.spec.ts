@@ -3,8 +3,12 @@ import { mount } from '@vue/test-utils'
 
 import ControlPanel from '@/components/controls/ControlPanel.vue'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
-import { DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
-import type { PresetSelection } from '@/domain/presets/preset-selection'
+import {
+  BUILT_IN_PRESETS,
+  builtInPreset,
+  DEFAULT_PRESET_SELECTION,
+} from '@/domain/presets/built-in-presets'
+import { makePreset, type Preset, type PresetSelection } from '@/domain/presets/preset-selection'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import {
   UNSUPPORTED_RHYTHM_SETTINGS,
@@ -15,11 +19,13 @@ function mountPanel(
   controls: GenerationControls = DEFAULT_GENERATION_CONTROLS,
   selection: PresetSelection = DEFAULT_PRESET_SELECTION,
   readonly = false,
+  presets: readonly Preset[] = BUILT_IN_PRESETS,
 ) {
   return mount(ControlPanel, {
     props: {
       controls,
       selection,
+      presets,
       readonly,
       noteDensityContext: { belowTabletLandscape: false, sessionSteppedDown: false },
       risingTempo: false,
@@ -165,6 +171,38 @@ describe('ControlPanel', () => {
     ).toBe(true)
   })
 
+  // @test-link [[rule_custom_names_its_base]]
+  // @test-link [[rule_presets_read_at_start_up]]
+  it('names a player preset it is given in the summary and the preset status', () => {
+    const presets = [
+      ...BUILT_IN_PRESETS,
+      makePreset({ ...builtInPreset('jazz'), id: 'player-1', name: 'Late night', kind: 'player' }),
+    ]
+    const selected = mountPanel(
+      DEFAULT_GENERATION_CONTROLS,
+      { kind: 'preset', presetId: 'player-1' },
+      false,
+      presets,
+    )
+    expect(selected.get('.control-summary').text()).toBe('C Ionian · Late night · Lift · Shaped')
+    expect(selected.get('.preset-status-text:not(.is-reserve)').text()).toBe(
+      'Late night preset applied. All seven preset-controlled values were replaced.',
+    )
+
+    const custom = mountPanel(
+      DEFAULT_GENERATION_CONTROLS,
+      { kind: 'custom', baseId: 'player-1' },
+      false,
+      presets,
+    )
+    expect(custom.get('.control-summary').text()).toBe(
+      'C Ionian · Custom, based on Late night · Lift · Shaped',
+    )
+    expect(custom.get('.preset-status-text:not(.is-reserve)').text()).toBe(
+      'Custom configuration - Late night grammar retained. Choosing Neutral or Jazz replaces all seven preset-controlled values.',
+    )
+  })
+
   // @test-link [[rule_unsupported_rhythm_settings_block_generation]]
   it.each(UNSUPPORTED_RHYTHM_SETTINGS)(
     'shows the unsupported-rhythm message and live region for %j',
@@ -256,6 +294,7 @@ describe('ControlPanel', () => {
       props: {
         controls: DEFAULT_GENERATION_CONTROLS,
         selection: DEFAULT_PRESET_SELECTION,
+        presets: BUILT_IN_PRESETS,
         readonly: true,
         noteDensityContext: { belowTabletLandscape: false, sessionSteppedDown: false },
         risingTempo: false,

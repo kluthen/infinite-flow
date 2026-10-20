@@ -4,10 +4,10 @@
  * instrument and the phrase on screen stay, and a preset that restricts the mode keeps the key and
  * moves the mode only when it must. Editing a setting a preset holds, or leaving the restriction
  * in force, makes the selection Custom, and `control-summary` names its base; the tempo, the
- * instrument and a key or mode inside the restriction never do. Until the preset storage lands
- * (spec D377), the selection is saved as v3.0's musical profile selection: Neutral, Jazz and
- * Custom based on either come back after a reload, any other preset writes no selection, and a
- * saved Jazz whose controls are not Jazz's loads as Custom based on Jazz with Jazz's levels.
+ * instrument and a key or mode inside the restriction never do. The selection and the levels are
+ * saved on change (spec D377): Jazz, Custom based on Jazz and Reel come back after a reload with
+ * their levels, and a saved Jazz whose controls are not Jazz's loads as Custom based on Jazz with
+ * Jazz's levels.
  *
  * The two-segment control offers Neutral and Jazz; the other built-ins are chosen through the
  * harness's `selectPreset`, as the preset box will offer them.
@@ -293,13 +293,18 @@ test('under Reel a key, a mode inside its restriction, the tempo and the instrum
   await expectTempo(page, 100)
 })
 
-// @test-link [[rule_saved_profile_becomes_preset]]
-test('until the preset storage lands, Jazz and Custom based on Jazz come back after a reload with Jazz levels', async ({
+// @test-link [[rule_player_presets_saved_on_device]]
+// @test-link [[rule_settings_saved_on_change]]
+test('Jazz and Custom based on Jazz come back after a reload with Jazz levels', async ({
   page,
 }) => {
   await gotoStorageHarness(page)
   await presetSegment(page, 'Jazz').click()
-  await untilStored(page, { profileSelection: { musicalProfile: 'Jazz', isCustom: false } })
+  await untilStored(page, {
+    presetSelection: { kind: 'preset', presetId: 'jazz' },
+    'figureLevels.chromaticApproach': 'asToday',
+    'figureLevels.chromaticEnclosure': 'asToday',
+  })
   await reloadHarness(page)
   await expectChecked(page, 'Musical profile preset', 'Jazz')
   await expectControls(page, JAZZ_CONTROLS)
@@ -311,7 +316,7 @@ test('until the preset storage lands, Jazz and Custom based on Jazz come back af
 
   await radio(page, 'Contour', 'Falling').click()
   await untilStored(page, {
-    profileSelection: { musicalProfile: 'Jazz', isCustom: true },
+    presetSelection: { kind: 'custom', baseId: 'jazz' },
     'controls.contour': 'Falling',
   })
   await reloadHarness(page)
@@ -324,13 +329,15 @@ test('until the preset storage lands, Jazz and Custom based on Jazz come back af
   })
 })
 
-// @test-link [[rule_saved_profile_becomes_preset]]
+// @test-link [[rule_preset_load_values_win]]
 test('a Jazz saved with Jazz controls loads as Jazz, and one saved with Tension at Build loads as Custom based on Jazz with Jazz levels', async ({
   page,
 }) => {
-  /** Jazz's controls as stored, those that differ from the defaults. */
+  /** Jazz selected with its levels and its controls as stored, those that differ from the defaults. */
   const jazzStored = {
-    profileSelection: { musicalProfile: 'Jazz', isCustom: false },
+    presetSelection: { kind: 'preset', presetId: 'jazz' },
+    'figureLevels.chromaticApproach': 'asToday',
+    'figureLevels.chromaticEnclosure': 'asToday',
     'controls.noteDensity': 'Eighth',
     'controls.syncopation': 'Occasional offbeats',
     'controls.silenceDensity': 'Conversational',
@@ -358,13 +365,14 @@ test('a Jazz saved with Jazz controls loads as Jazz, and one saved with Tension 
   })
 })
 
-// @test-link [[rule_saved_profile_becomes_preset]]
-test('until the preset storage lands, choosing Reel writes no selection: after a reload its controls show as Custom based on the saved Jazz', async ({
+// @test-link [[rule_player_presets_saved_on_device]]
+// @test-link [[rule_settings_saved_on_change]]
+test('choosing Reel saves it selected: after a reload Reel is selected, with its controls and levels', async ({
   page,
 }) => {
   await gotoStorageHarness(page)
   await presetSegment(page, 'Jazz').click()
-  await untilStored(page, { profileSelection: { musicalProfile: 'Jazz', isCustom: false } })
+  await untilStored(page, { presetSelection: { kind: 'preset', presetId: 'jazz' } })
 
   expect(await selectPreset(page, 'reel')).toBe(true)
   await untilStored(page, {
@@ -372,16 +380,20 @@ test('until the preset storage lands, choosing Reel writes no selection: after a
     'controls.tension': 'Settled',
     'controls.rhythmicVariety': 'Strict',
     'controls.register': 'Middle',
-    profileSelection: { musicalProfile: 'Jazz', isCustom: false },
+    'figureLevels.passingTone': 'favored',
+    'figureLevels.neighborTone': 'favored',
+    'figureLevels.chromaticApproach': 'off',
+    'figureLevels.chromaticEnclosure': 'off',
+    presetSelection: { kind: 'preset', presetId: 'reel' },
   })
 
   await reloadHarness(page)
   await expectControls(page, REEL_CONTROLS)
   await expectChecked(page, 'Collection', 'Mixolydian')
   await expectNoSegmentChecked(page)
-  await expectSummary(page, 'C Mixolydian · Custom, based on Jazz · Settled · Shaped')
+  await expectSummary(page, 'C Mixolydian · Reel · Settled · Shaped')
   expect(await chosenPreset(page)).toEqual({
-    selection: { kind: 'custom', baseId: 'jazz' },
-    figureLevels: JAZZ_LEVELS,
+    selection: { kind: 'preset', presetId: 'reel' },
+    figureLevels: REEL_LEVELS,
   })
 })

@@ -13,7 +13,7 @@ import type {
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
-import { DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
+import { BUILT_IN_PRESETS, DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
 import { buildWorkspaceSessionResult } from '../../workspace-test-fixtures'
 
 /** The Idle state, writable by the test. */
@@ -38,6 +38,7 @@ export function fakeGenerationSession(overrides: Partial<FakeIdleState> = {}): {
     controls: DEFAULT_GENERATION_CONTROLS,
     figureLevels: NEUTRAL_FIGURE_LEVELS,
     selection: DEFAULT_PRESET_SELECTION,
+    presets: BUILT_IN_PRESETS,
     presentation: { theme: 'System' },
     myInstrument: null,
     latestIntent: null,

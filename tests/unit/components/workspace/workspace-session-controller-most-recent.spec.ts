@@ -8,6 +8,7 @@
  */
 import { describe, expect, it, vi } from 'vitest'
 
+import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import type { SessionHistory } from '@/session/session-history'
 import { encodeKeptSession } from '@/storage/records/kept-session-record'
 import type { SessionSaveOutcome } from '@/storage/save-policy'
@@ -142,7 +143,7 @@ function reloadedKept(sessions: readonly LoadedKept[]) {
       storedRecords(
         encodeKeptSession(
           { ...history, phrases: () => history.phrases(), startedAt },
-          { pinned, favorites: [], comment: '', playedNotesKept: false },
+          { pinned, favorites: [], comment: '', playedNotesKept: false, presets: BUILT_IN_PRESETS },
           APP_VERSION,
         ),
       ),

@@ -12,10 +12,10 @@
  */
 
 import type { GenerationControls } from '@/domain/controls/generation-controls'
+import { FIGURE_IDS, type FigureLevels } from '@/domain/figures/figure-levels'
 import type { PresetSelection } from '@/domain/presets/preset-selection'
 
 import { createMyInstrumentSaves, type MyInstrumentSaves } from './my-instrument-saves'
-import { savedProfileOf } from './saved-profile-bridge'
 import {
   CONTROLLER_RECORD_KEY,
   encodeControllerRecord,
@@ -56,8 +56,6 @@ export type SettingChanges = { readonly [K in SettingKey]?: SettingValue<K> }
 export type SaveSettings = (changes: SettingChanges) => void
 
 export type { MyInstrumentSaves } from './my-instrument-saves'
-/** What v3.0's stored selection loads as: the read side of the interim bridge, until chunk 16. */
-export { presetChoiceOfSavedProfile } from './saved-profile-bridge'
 
 /**
  * Hold every save while a session runs, and release them, in one transaction, when it ends; then,
@@ -218,21 +216,25 @@ export function createVisitSaves(policy: Promise<SavePolicy>, appVersion: string
   }
 }
 
-/** A player's control choices, as the generation session holds them (the levels are not saved yet). */
+/** A player's control choices, as the generation session holds them. */
 interface ControlChoices {
   readonly controls: GenerationControls
+  readonly figureLevels: FigureLevels
   readonly selection: PresetSelection
 }
 
 const CONTROL_PREFIX = 'controls.'
 
+/** Intent: whether two preset selections are the same: the same kind naming the same preset. */
+function sameSelection(left: PresetSelection, right: PresetSelection): boolean {
+  if (left.kind === 'preset') return right.kind === 'preset' && right.presetId === left.presetId
+  return right.kind === 'custom' && right.baseId === left.baseId
+}
+
 /**
- * Intent: the settings a player's control change changed: each control whose value differs, and
- * the selection, written as v3.0's stored selection, when it is Neutral, Jazz or Custom based on
- * either and that stored value differs from the one before (or the selection before had none).
- * Any other selection writes no selection. The interim bridge to v3.0's settings record, until
- * chunk 16 replaces the record (spec D377). For the player's change handlers only, never for a
- * watcher of control values.
+ * Intent: the settings a player's control change changed: each control whose value differs, each
+ * figure level that differs, and the preset selection when it differs. For the player's change
+ * handlers only, never for a watcher of control values.
  */
 // @spec-link [[rule_settings_saved_on_change]]
 // @spec-link [[rule_saved_setting_is_players_choice]]
@@ -248,15 +250,13 @@ export function chosenControlChanges(
       changed.push([key, after.controls[field]])
     }
   }
-  const saved = savedProfileOf(after.selection)
-  const savedBefore = savedProfileOf(before.selection)
-  if (
-    saved !== null &&
-    (savedBefore === null ||
-      savedBefore.musicalProfile !== saved.musicalProfile ||
-      savedBefore.isCustom !== saved.isCustom)
-  ) {
-    changed.push(['profileSelection', saved])
+  for (const figure of FIGURE_IDS) {
+    if (before.figureLevels[figure] !== after.figureLevels[figure]) {
+      changed.push([`figureLevels.${figure}`, after.figureLevels[figure]])
+    }
+  }
+  if (!sameSelection(before.selection, after.selection)) {
+    changed.push(['presetSelection', after.selection])
   }
   return Object.fromEntries(changed) as SettingChanges
 }

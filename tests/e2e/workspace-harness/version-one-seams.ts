@@ -1,10 +1,10 @@
 /**
- * The workspace harness's data version 1 seed: kept sessions written as v3.0 kept them, through a
- * port opened as a v3.0 tab opens the database (at data version 1), before the held load runs, so
- * the load's open upgrades them to data version 2 (`storage-seams.ts` publishes it on
- * `window.__workspaceHarnessHeldLoad`). The values are written as given, never through the save
- * policy or a codec; the v3.0 port stays open, as a v3.0 tab left open, until the upgrade's
- * version change closes it.
+ * The workspace harness's data version 1 seeds: kept sessions and settings records written as
+ * v3.0 kept them, through a port opened as a v3.0 tab opens the database (at data version 1),
+ * before the held load runs, so the load's open upgrades them (to data version 2, then 3)
+ * (`storage-seams.ts` publishes them on `window.__workspaceHarnessHeldLoad`). The values are
+ * written as given, never through the save policy or a codec; the v3.0 port, shared by both
+ * seeds, stays open, as a v3.0 tab left open, until the upgrade's version change closes it.
  */
 import { PRODUCTION_MIGRATIONS } from '../../../src/storage/database'
 import type { RecordVersions } from '../../../src/storage/record-envelope'
@@ -18,17 +18,24 @@ import {
 /** The data version 1 migrations: the database a v3.0 tab opens. */
 const VERSION_ONE_MIGRATIONS = PRODUCTION_MIGRATIONS.slice(0, 1)
 
-/** The app version of the v3.0 tab that seeds the data version 1 kept sessions. */
+/** The app version of the v3.0 tab that seeds the data version 1 kept sessions and settings. */
 const VERSION_ONE_APP_VERSION = '3.0.0'
 
 /** How many kept sessions one seeding batch writes. */
 const SEED_BATCH = 50
 
-/** The data version 1 seed: `count` copies of `template`, while seeding is allowed. */
-export type VersionOneSeed = (
-  template: WorkspaceHarnessVersionOneSession,
-  count: number,
-) => Promise<void>
+/** The data version 1 seeds, while seeding is allowed. */
+export interface VersionOneSeeds {
+  /** Write `count` copies of the kept session `template`. */
+  readonly seedVersionOneSessions: (
+    template: WorkspaceHarnessVersionOneSession,
+    count: number,
+  ) => Promise<void>
+  /** Write each settings record under its own `key`, as v3.0 stored it. */
+  readonly seedVersionOneSettings: (
+    records: readonly WorkspaceHarnessVersionOneSetting[],
+  ) => Promise<void>
+}
 
 /** Intent: a raw seeded value as a stored record; throws when it is not an object. */
 function seededRecord(value: unknown, what: string): RecordVersions {
@@ -81,20 +88,20 @@ function versionOneCopy(
 }
 
 /**
- * Intent: the data version 1 seed: it writes `count` copies of a data version 1 kept session
- * through a port opened as a v3.0 tab opens it (once, on the first seed), in batches, keeping that
- * port open; it throws when `allowed()` is false (the load released, or the app's port opened), for
- * an invalid count, and when the v3.0 port does not open `ready`.
+ * Intent: the data version 1 seeds: each writes through a port opened as a v3.0 tab opens it
+ * (once, on the first seed, and shared by both), keeping that port open: `count` copies of a data
+ * version 1 kept session, in batches, or settings records, each under its own key, in one batch.
+ * Each throws when `allowed()` is false (the load released, or the app's port opened), for an
+ * invalid count or a record with no string key, and when the v3.0 port does not open `ready`.
  */
-export function createVersionOneSeed(allowed: () => boolean): VersionOneSeed {
+export function createVersionOneSeeds(allowed: () => boolean): VersionOneSeeds {
   // The v3.0 tab's port, kept open; the upgrade closes it.
   let versionOnePort: StoragePort | null = null
-  return async (template, count) => {
+
+  /** Intent: the v3.0 tab's port, opened on the first seed; throws once seeding is over. */
+  async function openedVersionOnePort(seed: string): Promise<StoragePort> {
     if (!allowed()) {
-      throw new Error('Workspace harness: seedVersionOneSessions runs only while the load is held')
-    }
-    if (!Number.isInteger(count) || count < 0) {
-      throw new Error(`Workspace harness: seedVersionOneSessions(${count}) is invalid`)
+      throw new Error(`Workspace harness: ${seed} runs only while the load is held`)
     }
     versionOnePort ??= await openStoragePort({
       ...browserStorage(),
@@ -104,13 +111,34 @@ export function createVersionOneSeed(allowed: () => boolean): VersionOneSeed {
     if (versionOnePort.status() !== 'ready') {
       throw new Error(`Workspace harness: the v3.0 port opened ${versionOnePort.status()}`)
     }
-    for (let first = 0; first < count; first += SEED_BATCH) {
-      const last = Math.min(count, first + SEED_BATCH)
-      const changes: StorageChange[] = []
-      for (let index = first; index < last; index++) {
-        changes.push(...versionOneCopy(template, index))
+    return versionOnePort
+  }
+
+  return {
+    seedVersionOneSessions: async (template, count) => {
+      if (!Number.isInteger(count) || count < 0) {
+        throw new Error(`Workspace harness: seedVersionOneSessions(${count}) is invalid`)
       }
-      await versionOnePort.apply(changes)
-    }
+      const port = await openedVersionOnePort('seedVersionOneSessions')
+      for (let first = 0; first < count; first += SEED_BATCH) {
+        const last = Math.min(count, first + SEED_BATCH)
+        const changes: StorageChange[] = []
+        for (let index = first; index < last; index++) {
+          changes.push(...versionOneCopy(template, index))
+        }
+        await port.apply(changes)
+      }
+    },
+    seedVersionOneSettings: async (records) => {
+      const changes = records.map((record): StorageChange => {
+        const { key } = record as { readonly key?: unknown }
+        if (typeof key !== 'string') {
+          throw new Error('Workspace harness: a seeded v3.0 settings record has no string key')
+        }
+        return { kind: 'write', store: 'settings', key, record: seededRecord(record, key) }
+      })
+      const port = await openedVersionOnePort('seedVersionOneSettings')
+      await port.apply(changes)
+    },
   }
 }

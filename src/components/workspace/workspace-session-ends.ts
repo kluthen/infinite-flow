@@ -10,6 +10,7 @@
  * most recent one, kept as its save's outcome says once it is known (not saved when the page went
  * away before the save finished: a reload or close), or not saved at once while saving is off.
  */
+import type { Preset } from '@/domain/presets/preset-selection'
 import type { SessionHistory } from '@/session/session-history'
 import type { SessionEndCause } from '@/session/session-types'
 import { endedSession, openedReview, settledKeeping } from './session-review-state'
@@ -91,7 +92,7 @@ export function createSessionEnds(
   core: SessionControllerCore,
   adaptiveTempo: Pick<AdaptiveTempoFlag, 'sessionEnded'>,
   keepPlayedNotes: () => boolean,
-  saveRefused: (key: string, history: SessionHistory) => void,
+  saveRefused: (key: string, history: SessionHistory, presets: readonly Preset[]) => void,
   rows: Pick<KeptSessionRows, 'savingThrough'>,
 ): SessionEnds {
   const { audio, idle } = core.deps
@@ -104,7 +105,9 @@ export function createSessionEnds(
    * then the session is torn down and summed up. Once phrase 1 has sounded, the Review opens over
    * the closed history and that session becomes the most recent one, not pinned, or not saved at
    * once while saving is off, under the key minted for its save, its played notes kept when
-   * `Keep my played notes` is on, saving is on and it holds one; the session's own save is asked
+   * `Keep my played notes` is on, saving is on and it holds one, its preset label named from the
+   * presets the session knew (Idle's, which never change during a session); the session's own
+   * save is asked
    * for after the release (never
    * awaited, so the end is not delayed; its outcome settles how the session is kept, and the
    * damaged kept sessions its batch deleted are told once it is saved) and, the
@@ -137,7 +140,11 @@ export function createSessionEnds(
     state.lastHistory = session.history
     if (ended.soundedPhraseCount === 0) return
     const savingOff = core.deps.keptSessions.savingOff()
-    const save = endedSessionSave(session.history, !savingOff && keepPlayedNotes())
+    const save = endedSessionSave(
+      session.history,
+      !savingOff && keepPlayedNotes(),
+      idle.state.presets,
+    )
     const reviewed = endedSession(session.history, savingOff ? 'not-saved' : 'not-pinned', save)
     state.review = openedReview(reviewed)
     state.mostRecent = Object.freeze({ kind: 'held', session: reviewed })
@@ -146,7 +153,7 @@ export function createSessionEnds(
     if (!savingOff) {
       void saving.then((outcome) => {
         settleKeeping(reviewed, outcome)
-        if (outcome.status === 'refused') saveRefused(reviewed.key, session.history)
+        if (outcome.status === 'refused') saveRefused(reviewed.key, session.history, save.presets)
         tellDamagedDeleted(core.deps.keptSessions.reports, outcome)
       })
     }

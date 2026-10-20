@@ -14,6 +14,7 @@ import type {
   ReviewedSession,
   SessionReview,
 } from '@/components/workspace/workspace-session-controller-types'
+import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import { encodeKeptSession } from '@/storage/records/kept-session-record'
 import type {
   KeptChangeOutcome,
@@ -337,7 +338,13 @@ describe('session controller: a kept session read back', () => {
     const history = recordedKeptSession('bb-tenor', 2)
     const records = encodeKeptSession(
       history,
-      { pinned: false, favorites: [], comment: '', playedNotesKept: true },
+      {
+        pinned: false,
+        favorites: [],
+        comment: '',
+        playedNotesKept: true,
+        presets: BUILT_IN_PRESETS,
+      },
       APP_VERSION,
     )
     const rig = controllerRig(undefined, undefined, {

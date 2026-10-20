@@ -175,7 +175,9 @@ test("after a session in which Vary settings changed a setting and Rising tempo 
   // The queued session seed is the one drawn with the phrase 1 the session starts from.
   expect(await sessionSeedsDrawn(page)).toBe(1)
   await untilStored(page, {
-    profileSelection: { musicalProfile: 'Jazz', isCustom: false },
+    presetSelection: { kind: 'preset', presetId: 'jazz' },
+    'figureLevels.chromaticApproach': 'asToday',
+    'figureLevels.chromaticEnclosure': 'asToday',
     'controls.register': 'Varying',
     'sessionOptions.varySettings': true,
     'sessionOptions.risingTempo': true,

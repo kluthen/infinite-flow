@@ -7,7 +7,7 @@ import type { GenerationSession } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
-import { DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
+import { BUILT_IN_PRESETS, DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import type { SessionController } from '@/components/workspace/workspace-session-controller-types'
 import type { ControllerStatusForm } from '@/midi/controller-status'
@@ -56,6 +56,7 @@ function fakeSession(overrides: Partial<GenerationSession<WorkspaceSessionResult
       controls: DEFAULT_GENERATION_CONTROLS,
       figureLevels: NEUTRAL_FIGURE_LEVELS,
       selection: DEFAULT_PRESET_SELECTION,
+      presets: BUILT_IN_PRESETS,
       presentation: { theme: 'System' },
       myInstrument: null,
       latestIntent: null,
