@@ -18,10 +18,12 @@ parents:
   - [[rule_saved_data_belongs_to_browser_profile]]
 dependents:
   - [[entity_my_instrument_record]]
+  - [[entity_player_preset_record]]
   - [[entity_remembered_controller_record]]
   - [[module_kept_session_changes]]
   - [[module_kept_session_upgrade_step]]
   - [[module_save_policy]]
+  - [[module_settings_upgrade_step]]
 ---
 
 # On-Device Database

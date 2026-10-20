@@ -11,6 +11,7 @@ priority: 1
 tags: [v3, release-v3.1, player-controls, presets]
 dependents:
   - [[module_preset_model]]
+  - [[module_profile_control_customization]]
   - [[rule_custom_names_its_base]]
 ---
 

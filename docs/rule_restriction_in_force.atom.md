@@ -5,6 +5,7 @@ type: RULE
 priority: 1
 dependents:
   - [[module_preset_model]]
+  - [[module_profile_control_customization]]
   - [[rule_restriction_highlight_never_blocks]]
   - [[rule_vary_settings_stays_inside_restriction]]
 layer: BUSINESS

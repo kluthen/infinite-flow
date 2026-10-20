@@ -1,7 +1,10 @@
 ---
 id: module_preset_model
 status: REVIEW
-dependents: []
+dependents:
+  - [[entity_player_preset_record]]
+  - [[module_generative_profile_selection]]
+  - [[module_profile_control_customization]]
 layer: ARCHITECTURE
 priority: 1
 human_name: The Preset Model

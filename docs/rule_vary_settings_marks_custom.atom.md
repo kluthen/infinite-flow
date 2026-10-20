@@ -1,7 +1,8 @@
 ---
 id: rule_vary_settings_marks_custom
 status: DRAFT
-dependents: []
+dependents:
+  - [[module_settings_mutation]]
 type: RULE
 layer: BUSINESS
 version: 0.1

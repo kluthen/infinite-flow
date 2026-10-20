@@ -3,7 +3,8 @@ id: rule_vary_settings_figure_step
 status: DRAFT
 type: RULE
 layer: BUSINESS
-dependents: []
+dependents:
+  - [[module_settings_mutation]]
 version: 0.1
 priority: 1
 human_name: Vary Settings Moves One Figure One Level

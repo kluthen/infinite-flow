@@ -2,30 +2,37 @@
 id: module_generative_profile_selection
 status: REVIEW
 priority: 1
-version: 1.1
+version: 1.2
 dependents: []
-tags: profile
+tags: [v3, release-v3.1, presets, player-controls, profile]
 parents:
+  - [[module_preset_model]]
+  - [[rule_choosing_preset_keeps_allowed_key_and_mode]]
+  - [[rule_choosing_preset_sets_its_settings]]
+  - [[rule_preset_contents]]
   - [[rule_selectable_generative_profiles]]
-human_name: Generative Profile Selection
+human_name: Preset Choice in the Session State
 type: MODULE
 layer: ARCHITECTURE
 ---
 
-# Generative Profile Selection
+# Preset Choice in the Session State
 
 ## INTENT
-
-Replace every profile-controlled value when a player selects a generative profile.
+Hold the player's generation settings as controls, figure levels and a preset selection, and let choosing a preset replace them in one step, so no musical profile is held anywhere in the session.
 
 ## THE RULE / LOGIC
+The workspace's Idle generation session holds the player's generation settings in three parts: the controls (the generation controls, the written key and the collection among them), the seven figure levels, and the preset selection, a preset named by its id or Custom naming the preset it is based on, or none, as the preset model defines it (module_preset_model). No musical profile and no customized mark is held. A session's settings have the same three parts, frozen at Start, beside my instrument's profile when the controls name it; Tension, Leapiness and Arpeggio chaos are among the ten preset-held controls, so they are held, marked and restored with the rest. The generation request takes its figure levels from these settings, never from a profile's or a preset's name. A kept session's preset label is taken from the selection the session started with.
 
-A profile-selection transition reads the selected immutable Neutral or Jazz seven-control bundle and replaces all seven profile-controlled values (harmonic motion, note density, rhythmic variety, syncopation, silence density, contour, and register) in the pending configuration. It never partially applies a bundle, retains a previous controlled value, or mutates the selected bundle. Reselecting either profile repeats the full replacement.
+Choosing a preset at Idle is one action in place of the musical-profile switch. It applies the preset model's choice to the current settings: the ten preset-held controls and the seven levels take the preset's values; each half of its restriction keeps the current written key, or collection, when it allows it and otherwise sets its first listed value; the tempo, the instrument and the session options never change; and the selection becomes that preset. Choosing the preset already selected, outside Custom, changes nothing; from Custom, choosing its base applies it. The phrase on screen stays. What the choice changed is saved, as any edit's change is (module_profile_control_customization), and a choice that changes a setting the phrase is generated from reacts as any such edit does: a prewarm when the rhythm setting changed, and under the too-many-notes or no-room notice a round or a room check.
+
+The presets the session chooses from are the eight built-ins, and the player presets once they are read with the settings. Until the preset bar, the existing two-segment control chooses the Neutral and Jazz built-ins through this action, and the other built-ins are reached through the harness.
 
 ## TECHNICAL INTERFACE
-
-The transition accepts one selected profile identity and its immutable seven-control bundle, and returns pending controls with all seven profile-controlled values replaced.
+src/composables/generation-session-types.ts: GenerationSessionState and InitialGenerationSettings hold controls, figureLevels and selection (PresetSelection, src/domain/presets/preset-selection.ts) in place of profileSelection, and GenerationSessionActions offers selectPreset in place of selectMusicalProfile, implemented in src/composables/generation-session-control-actions.ts over the preset model's choosePreset and applied through the one routing point's applyChosen. src/session/session-types.ts: SessionSettings is { controls, figureLevels, selection, instrumentProfile? }, frozen by freezeSessionSettings (src/session/session-intents.ts). src/domain/controls/profile-selection.ts no longer offers a profile switch or a customized edit (applyMusicalProfile and applyControlledCustomValue go); it keeps the first-load controls, and v3.0's profile shape and bundles only for the storage code that reads and upgrades v3.0's data, until data version 3.
 
 ## EXPECTATION
-
-After selecting or reselecting Neutral or Jazz, each of the seven profile-controlled values exactly matches that profile bundle and the bundle remains unchanged.
+- Choosing Neutral or Jazz sets the ten preset-held controls and the seven levels to that preset's values: from Tension at Build, Neutral sets Lift; the tempo, the instrument and the session options never change; the phrase on screen stays.
+- Choosing Reel from A Aeolian lands on A Mixolydian; from A Dorian nothing moves.
+- Choosing the preset already selected, outside Custom, changes nothing; from Custom, choosing its base applies it.
+- Neither the Idle state nor a session's settings hold a musical profile or a customized mark, and the request's figure levels are the settings' own.
