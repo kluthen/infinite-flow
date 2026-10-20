@@ -1,6 +1,9 @@
 # Infinite Flow v3.1 — Build Plan
 
-Status: v16 (2026-10-20): the owner gives T1 (spec D382, reversing D355): gate T1 is done and
+Status: v17 (2026-10-20): wave 4's preflight corrections, before chunk 13: during a session the
+marks, their notes and the description come from the session's start settings (spec D384); chunk
+13's files, atoms, Revisions and split rule follow the code and the captures of e965269.
+v16 (2026-10-20): the owner gives T1 (spec D382, reversing D355): gate T1 is done and
 wave 4 waits for wave 3 only.
 v15 (2026-10-20): the owner's DP ruling (spec D378): the passing-and-neighbor rule does
 not ship, chunk 20 is dropped, wave 5 is four chunks, gate DP is done; M1 and M2 say what chunk 11
@@ -1360,9 +1363,12 @@ Status: planned
 Wave: 4
 Depends on: 1, 12
 Architecture capture: the segmented control's option model gains a `marked` flag beside `disabled`
-and `describedBy` (`segmented-control-option.ts`), which chunk 14's level controls build on in the
-same wave; and the preset bar model (`preset-bar-model.ts`): the box's options, groups, Custom
-option and description, derived from the selection.
+and `describedBy` (`segmented-control-option.ts`), whose option model chunk 14's level controls
+build on in wave 5 (they use neither `disabled` nor `marked`, DP being rejected, spec D378); and the
+preset bar model (`preset-bar-model.ts`): the box's options, groups, Custom option and description,
+derived from the selection. Both captured in e965269 (`ui_segmented_control_marked_option`,
+`module_preset_bar_model`, DRAFT 0.1). Where the marks and the description take their state during
+a session (spec D384) is captured before the chunk starts.
 
 - **Goal:** the preset combo box at the top of the controls, its description line, and the marks
   on Written key and Collection that show the restriction in force.
@@ -1380,6 +1386,14 @@ option and description, derived from the selection.
     half that is a list, with its `field-note` named by the radiogroup's `aria-describedby`;
     nothing marked under "any" or none; no segment ever disabled for a restriction; marks frozen
     during a session. `SegmentedControl.vue` gains the `marked` option flag.
+  - **Where the marks come from** (spec D384): at Idle and in the review mode, `restrictionInForce`
+    for the player's own selection, written key and collection; during a session, the session's
+    start settings, never the shown key, mode or selection (with a stale phrase 1 those are
+    phrase 1's): the marked values from their `restriction` (absent for none or any), the notes'
+    `{preset}` and the description's selection from their `selection`. One pure function in
+    `control-options.ts`, of a restriction (or none) and the preset's name, gives each control's
+    marked values and its note in the control's own labels and the design's wording. The session
+    controller exposes the start settings, read-only, null with no session.
   - Every radiogroup has a checked segment again (v3.0's Custom state had none).
   - Nothing announced on choosing; focus stays on the box.
   - **The harmony failure alert** no longer names the musical profile: `no_legal_harmony_plan`'s
@@ -1387,13 +1401,32 @@ option and description, derived from the selection.
 - **Files:** `src/components/controls/PresetBar.vue` (new),
   `src/components/controls/preset-bar-model.ts` (new), `ControlPanel.vue`,
   `FoundationControls.vue`, `src/components/workspace/WorkspaceShell.vue` (the box's choice in
-  place of the profile handler), `SegmentedControl.vue`, `segmented-control-option.ts`,
-  `control-options.ts`, `src/composables/generation-failure-alert.ts` (one string);
-  `src/styles/components.css` (`ux-writer`); tests
-  `tests/unit/components/controls/PresetBar.spec.ts`, `tests/e2e/workspace/preset-bar.spec.ts`,
-  `tests/e2e/workspace/key-and-mode-marks.spec.ts`, the rewritten `ControlPanel.spec.ts` status
-  tests, and the harmony alert's string in `tests/unit/composables/generation-failure-alert.spec.ts`,
-  `tests/unit/components/workspace/ScorePanel.spec.ts` and `tests/e2e/release/errors-and-retry.spec.ts`.
+  place of the profile handler; its `:preset-status-live` prop goes),
+  `src/components/workspace/use-shown-settings.ts` (`presetStatusLive` and its two watchers go
+  with the status line), `SegmentedControl.vue`, `segmented-control-option.ts`,
+  `control-options.ts`, `src/composables/generation-failure-alert.ts` (one string); the session
+  controller's start settings (D384): `workspace-session-controller-types.ts`, set and cleared
+  beside `shownSettings` in `workspace-session-controller.ts`, `workspace-session-begin.ts` and
+  `workspace-session-ends.ts`; `src/styles/components.css` (`ux-writer`).
+  - **Unit tests:** `tests/unit/components/controls/PresetBar.spec.ts` (new), the rewritten
+    `ControlPanel.spec.ts` status tests, `FoundationControls-my-instrument.spec.ts` (the
+    `presetStatusLive` prop), `tests/unit/components/workspace/WorkspaceShell.spec.ts` (the
+    `[aria-label="Musical profile preset"]` lookup), `WorkspaceShell-vary-settings.spec.ts`,
+    `workspace-session-controller-stale-phrase.spec.ts` and `fake-session-controller.ts` (the
+    start settings); the harmony alert's string in
+    `tests/unit/composables/generation-failure-alert.spec.ts` and
+    `tests/unit/components/workspace/ScorePanel.spec.ts`.
+  - **E2e tests:** `tests/e2e/workspace/preset-bar.spec.ts` and
+    `tests/e2e/workspace/key-and-mode-marks.spec.ts` (new); `tests/e2e/release/errors-and-retry.spec.ts`
+    (the alert's string); and every file that drives the "Musical profile preset" radiogroup or reads
+    `.preset-status-text`: `tests/e2e/release/` `defaults-and-controls.spec.ts`,
+    `concurrent-operation-prevention.spec.ts` (`SAMPLE_READONLY_GROUPS`),
+    `optional-scope-absence.spec.ts`, `persistence-absence.spec.ts`;
+    `tests/e2e/review/review-opens.spec.ts`; `tests/e2e/session/session-vary-settings.spec.ts`;
+    `tests/e2e/storage/` `kept-session-v1-helpers.ts`, `presets-load.spec.ts`,
+    `saved-settings.spec.ts`, `saved-settings-session.spec.ts`; `tests/e2e/workspace/`
+    `pregeneration.spec.ts`, `presets-choose.spec.ts`, `unsupported-rhythm.spec.ts`.
+    `StalePhrasePrompt.spec.ts` only checks the field's absence and stays as it is.
 - **Spec sections:** [B6.3](master-spec.md#b63-choosing-a-preset),
   [B6.4](master-spec.md#b64-the-selection-custom-and-the-highlight),
   [B10](master-spec.md#b10-for-the-interface-design); items 10, 11, 12.
@@ -1403,9 +1436,21 @@ option and description, derived from the selection.
   [`flows/presets/handoff.md`](../../../ui_ux/versions/v3.1/flows/presets/handoff.md)
   (The list, The highlight, Focus, Nothing is announced), [`ui_ux/versions/v3.1/motion.md`](../../../ui_ux/versions/v3.1/motion.md).
 - **Atoms:** `req_presets`, `rule_restriction_highlight_never_blocks`, `rule_restriction_in_force`,
-  `rule_custom_names_its_base`, `rule_built_in_preset_values`; (v3.0)
-  `rule_generation_failure_alert_copy` (it names no string, so no revision).
-- **Revisions:** none.
+  `rule_custom_names_its_base`, `rule_built_in_preset_values`,
+  `rule_choosing_preset_sets_its_settings` (the box is read-only in Loading and in a session),
+  `rule_custom_selection` (the box shows Custom; every radiogroup has a checked segment),
+  `rule_player_preset_names` (duplicate names are listed as they are),
+  `rule_vary_settings_marks_custom` (the box may turn Custom during a session; the marks never
+  change), `rule_automatic_change_updates_controls_quietly` (the box is not a live region; nothing
+  shifts), `rule_selectable_generative_profiles` (linked on the handler the box replaces); (v3.0)
+  `rule_generation_failure_alert_copy` (it names no string, so no revision). Architecture:
+  `module_generative_profile_selection`, `module_preset_model`,
+  `rule_readonly_controls_keep_contrast`, `ui_segmented_control_marked_option` and
+  `module_preset_bar_model` (DRAFT 0.1, e965269), and D384's capture.
+- **Revisions:** `module_generative_profile_selection` (REVIEW, not contract): its sentence "Until
+  the preset bar, the existing two-segment control chooses the Neutral and Jazz built-ins through
+  this action, and the other built-ins are reached through the harness." becomes "The preset bar's
+  box chooses any of the presets through this action."
 - **Done when:**
   - The box lists the eight built-ins in their two groups; choosing each sets B6.5's values (e2e
     per preset, reading the controls).
@@ -1416,14 +1461,23 @@ option and description, derived from the selection.
   - The marks are a shape (an `::after` dot) plus the note, never colour alone; a screen reader
     reads the note through `aria-describedby` (accessibility spec).
   - During a session the box is read-only and a keyboard change is reverted; the description and
-    the marks keep their start state.
+    the marks keep their start state. With a stale phrase 1 used as it is, whose key or mode lies
+    outside the restriction in force at Start, the marks and the notes through the count-in and
+    phrase 1 are those Start showed (spec D384).
   - Phone landscape: the bar stacks and loses nothing.
   - No player-facing string of the workspace names the musical profile: the harmony failure
     alert reads the design's wording (its unit and e2e tests).
 - **Verification:** chunk checks; the accessibility checks of what it adds; phone and desktop debug
   runs; the bundle at the wave gate.
-- **Split rule:** if the brief passes about five source files, 13a the preset bar (bar, model,
-  panel, foundation, the harmony alert's string), 13b the marks (segmented control, its option, control options).
+- **Split rule:** if the brief passes about five source files, which this Files list does (ten,
+  and the session controller's four small edits), 13a then 13b, in this order:
+  - **13a the preset bar:** the bar, its model, the panel, the foundation group, the shell and
+    `use-shown-settings.ts` (the status line's removal), the session controller's start settings
+    (the description's source during a session, D384), the harmony alert's string; their unit
+    tests, and every e2e file above that drives the old radiogroup or reads its status line.
+  - **13b the marks:** the segmented control, its option, the marks function in
+    `control-options.ts`, their wiring in the foundation group from 13a's start settings during a
+    session; `key-and-mode-marks.spec.ts`.
 
 ### Chunk 14 — The Embellishments group
 
