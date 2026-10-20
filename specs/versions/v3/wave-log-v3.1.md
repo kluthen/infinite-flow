@@ -444,3 +444,19 @@ Jazz selections saved as v3.0's, the rest unsaved until 16; adds `settings-saver
 (drift check list); C15-1 (the restriction reaches the draw through the start settings and
 `session-mutation-step.ts`, not the seed plan); C16-1 (atoms line); C16-2 (J3 without the
 read-time clause, per D376); C22-1 (two tests that assert the whole summary line).
+
+### Plan v14 (6947bca, `spec-writer`), before the first chunk
+
+All nine corrections applied; D377 records C12-2 (storage until chunk 16: Neutral, Jazz and
+Custom based on one saved as v3.0's selection; the other built-ins and the levels unsaved until
+16; no owner needed, as wave 3 does not merge between 12 and 16). The change set's J3 is left
+to `documentalist` at chunk 16's sync.
+
+### Chunks
+
+Order changed from the plan's tie-by-number: chunk 11's M2 charges each attempt its measured
+time, so it runs alone on an idle machine, after 12, 15, 16 and 22 have merged and before the
+wave gate. Chunk 12 first (15, 16 and 22 wait on it), then 15, 16 and 22 beside each other.
+
+- Chunk 12: dispatched 2026-10-20 (`../infinite_flow-v3.1-c12`, branch
+  `v3.1-c12-presets-replace-profile`).
