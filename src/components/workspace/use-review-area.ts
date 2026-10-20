@@ -2,12 +2,13 @@
  * The review area's side of the Review (./ReviewArea.vue, loaded on demand with the Review's
  * code): what the lazily loaded `ReviewPanel` is given beyond what the page keeps in the Review
  * host (./use-review-host.ts). That is the session's phrases, start and instrument as the session
- * holds them, how it is kept and whether it is the most recent session; the export scope (`Whole
- * session` at every Review, back to it when the last favorite goes, never saved), which both
- * exports read; the generated-notes export's file action; whether the session holds a played note,
- * and the played-notes export as the host's `Include very short notes` and the scope ask, with the
- * reason it would hold no note. Its played-notes side (./use-review-played-notes.ts)
- * gives `Keep my played notes`, `Delete played notes` and the confirmation open over the Review;
+ * holds them, its length as its kept record stores it, how it is kept and whether it is the most
+ * recent session; the export scope (`Whole session` at every Review, back to it when the last
+ * favorite goes, never saved), which both exports read; the generated-notes export's file action;
+ * whether the session holds a played note, and the played-notes export as the host's `Include very
+ * short notes` and the scope ask, with the reason it would hold no note. Its played-notes side
+ * (./use-review-played-notes.ts) gives `Keep my played notes`, `Delete played notes` and the
+ * confirmation open over the Review;
  * its session tools (./use-review-session-tools.ts) give each phrase's favorite star, `Pin` /
  * `Unpin`, `Delete session` and the comment.
  */
@@ -20,6 +21,7 @@ import type {
 } from '@/components/review/review-types'
 import { WHOLE_SESSION, type ExportScope } from '@/export/export-file'
 import type { ReviewedPhrase } from '@/session/session-history'
+import { sessionLengthSeconds } from '@/session/session-timing'
 import type { SaveSettings } from '@/storage/settings-saver'
 import {
   exportGeneratedNotes,
@@ -74,6 +76,12 @@ export interface ReviewArea extends ReviewPlayedNotes, ReviewSessionTools {
   /** The showing Review's session start, epoch milliseconds; null while none shows. */
   // @spec-link [[req_kept_session_review]]
   readonly startedAt: ComputedRef<number | null>
+  /**
+   * The showing Review's session length in seconds, the one its kept record stores (or would have
+   * stored, its save failed); null while none shows.
+   */
+  // @spec-link [[req_kept_session_review]]
+  readonly lengthSeconds: ComputedRef<number | null>
   /** How the showing Review's session is kept; null while none shows. */
   // @spec-link [[module_kept_session_save]]
   readonly keeping: ComputedRef<SessionKeeping | null>
@@ -135,6 +143,14 @@ export function useReviewArea(deps: ReviewAreaDependencies): ReviewArea {
   // @spec-link [[rule_preset_label_kept_with_session]]
   const presetLabel = computed(() => host.shownReview.value?.presetLabel ?? '')
   const startedAt = computed(() => shownHistory.value?.startedAt ?? null)
+  /** Intent: the showing Review's length, by the function its kept record is stored with. */
+  // @spec-link [[req_kept_session_review]]
+  const lengthSeconds = computed(() => {
+    const phrases = records.value
+    const first = phrases[0]
+    const last = phrases.at(-1)
+    return first === undefined || last === undefined ? null : sessionLengthSeconds(first, last)
+  })
   const keeping = computed(() => host.shownReview.value?.keeping ?? null)
   /** Intent: whether the showing Review draws the most recent session (titled "Last session"). */
   const mostRecent = computed(() => {
@@ -260,6 +276,7 @@ export function useReviewArea(deps: ReviewAreaDependencies): ReviewArea {
     instrumentName,
     presetLabel,
     startedAt,
+    lengthSeconds,
     keeping,
     mostRecent,
     scope,

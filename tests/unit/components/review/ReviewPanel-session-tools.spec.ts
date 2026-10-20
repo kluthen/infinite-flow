@@ -28,6 +28,7 @@ function mountPanel(options: ToolOptions = {}) {
       records: recordedRecords(),
       instrumentName: 'B-flat tenor saxophone',
       presetLabel: 'Neutral',
+      lengthSeconds: 240,
       startedAt: 0,
       mostRecent: false,
       keeping: 'not-pinned',
@@ -107,7 +108,7 @@ describe('the favorite stars', () => {
   it('are counted in the summary: none, one, several', async () => {
     const wrapper = mountPanel()
     expect(wrapper.get('.review-summary').text()).toBe(
-      '3 phrases · B-flat tenor saxophone · Neutral · No favorites',
+      '4 min · 3 phrases · B-flat tenor saxophone · Neutral · No favorites',
     )
     await wrapper.setProps({ favorites: [1] })
     expect(wrapper.get('.review-summary').text()).toMatch(/ · 1 favorite$/)

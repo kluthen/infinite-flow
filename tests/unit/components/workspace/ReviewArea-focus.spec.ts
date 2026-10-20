@@ -18,6 +18,7 @@ import type { SessionDeletion } from '@/components/workspace/workspace-session-c
 import { makeSeed } from '@/domain/random/seed'
 import type { KeptSessionSummary } from '@/storage/records/kept-session-summary'
 import { transportRig } from '../../audio/transport-rig'
+import { recordedRecords } from '../review/review-fixtures'
 import {
   createFakeSessionController,
   FAKE_REVIEW_KEY,
@@ -101,7 +102,7 @@ function deferred<T>(): Deferred<T> {
  * other rows; its `Delete session` waits on `deletion`, then does as the controller does.
  */
 function showingListedReview(deletion: Deferred<SessionDeletion>): FakeSessionController {
-  const review = fakeReview(fakeReviewHistory(), true)
+  const review = fakeReview(fakeReviewHistory(recordedRecords()), true)
   const fake = createFakeSessionController({
     canStart: false,
     startBlocker: 'review_showing',

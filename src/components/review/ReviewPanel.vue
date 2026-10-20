@@ -47,6 +47,7 @@ import ReviewScope from './ReviewScope.vue'
 import ReviewSessionTools from './ReviewSessionTools.vue'
 import { playedNotesPitchScale } from './played-notes-lane-geometry'
 import { sessionDate } from './session-date'
+import { sessionLengthText } from './session-row-text'
 import {
   createReviewEngravingWindow,
   type ReviewEngravingOutcome,
@@ -76,6 +77,8 @@ const props = withDefaults(
     presetLabel: string
     /** The session's start, epoch milliseconds. */
     startedAt: number
+    /** The session's length in seconds, as its kept record stores it. */
+    lengthSeconds: number
     /** Whether the session is the most recent one, titled "Last session". */
     mostRecent: boolean
     /** How the session is kept, for the keep line. */
@@ -240,10 +243,11 @@ const date = computed(() => sessionDate(props.startedAt))
 const title = computed(() => (props.mostRecent ? 'Last session' : date.value))
 
 /**
- * Intent: "{session date} · {n} phrases · {instrument} · {preset} · {favorites}", the date left
- * out when it is the title, "1 phrase" for one, the preset as the session list's detail line
- * writes it (the label the session recorded at its start), the favorites as "No favorites", "1
- * favorite" or "{k} favorites", changing in place as a star is pressed; a review is never empty.
+ * Intent: "{session date} · {length} · {n} phrases · {instrument} · {preset} · {favorites}", the
+ * date left out when it is the title, the length and the preset as the session list's detail line
+ * writes them ("{m} min" or "Under 1 min"; the label the session recorded at its start), "1
+ * phrase" for one, the favorites as "No favorites", "1 favorite" or "{k} favorites", changing in
+ * place as a star is pressed; a review is never empty.
  */
 // @spec-link [[req_last_session_review]]
 // @spec-link [[req_kept_session_review]]
@@ -254,7 +258,8 @@ const summary = computed(() => {
   const marked = props.favorites.length
   const favorites =
     marked === 0 ? 'No favorites' : marked === 1 ? '1 favorite' : `${marked} favorites`
-  const parts = [phrases, props.instrumentName, props.presetLabel, favorites]
+  const length = sessionLengthText(props.lengthSeconds)
+  const parts = [length, phrases, props.instrumentName, props.presetLabel, favorites]
   return (props.mostRecent ? [date.value, ...parts] : parts).join(' · ')
 })
 
