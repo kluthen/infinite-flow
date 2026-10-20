@@ -1,7 +1,8 @@
 /**
  * Shared workspace-spec helpers: navigation, the primary phrase-action button, one named
- * radiogroup's radio, and a `generation-status` observer that records every text value the live
- * region takes on so a fast (or slow) generation is asserted deterministically rather than by race.
+ * radiogroup's radio, the preset box and its description line, and a `generation-status` observer
+ * that records every text value the live region takes on so a fast (or slow) generation is
+ * asserted deterministically rather than by race.
  */
 import { type Locator, type Page, expect } from '@playwright/test'
 
@@ -36,6 +37,35 @@ export function radio(page: Page, groupLabel: string, optionLabel: string): Loca
   return page
     .getByRole('radiogroup', { name: groupLabel })
     .getByRole('radio', { name: optionLabel, exact: true })
+}
+
+/** Intent: the preset bar's "Preset" box, a native select, by its accessible name. */
+export function presetBox(page: Page): Locator {
+  return page.getByRole('combobox', { name: 'Preset', exact: true })
+}
+
+/** Intent: the preset bar's description line, the `field-note` the box names as its description. */
+export function presetDescription(page: Page): Locator {
+  return page.locator('.preset-bar .field-note')
+}
+
+/**
+ * Intent: the box shows `text`, as the player reads it: its selected option's text (a preset's
+ * name, "Custom, based on {name}" or "Custom") and its `title`, which holds the full text.
+ */
+export async function expectPresetShown(page: Page, text: string): Promise<void> {
+  await expect(presetBox(page)).toHaveAttribute('title', text)
+  await expect(presetBox(page).locator('option:checked')).toHaveText(text)
+}
+
+/**
+ * Intent: choose a preset by its name through the box, as the player does at Idle or in the
+ * review mode, and wait until the box shows it. A refused choice (Loading, a session) fails here:
+ * drive the box directly to prove a refusal.
+ */
+export async function choosePreset(page: Page, name: string): Promise<void> {
+  await presetBox(page).selectOption({ label: name })
+  await expectPresetShown(page, name)
 }
 
 /**

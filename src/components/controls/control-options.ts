@@ -23,7 +23,12 @@ import {
 } from '@/domain/controls/generation-controls'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import { presetLabel } from '@/domain/controls/preset-label'
-import { builtInPreset } from '@/domain/presets/built-in-presets'
+import { deepFreeze } from '@/domain/events/deep-freeze'
+import {
+  listInWords,
+  type KeyAndModeRestriction,
+  type RestrictionHalf,
+} from '@/domain/presets/key-and-mode-restriction'
 import type { Preset, PresetSelection } from '@/domain/presets/preset-selection'
 import { ADOPTED_INSTRUMENT_PROFILES, MY_INSTRUMENT_ID } from '@/domain/profile/instrument-profiles'
 import type { SegmentedControlOption } from './segmented-control-option'
@@ -96,19 +101,6 @@ export function profileRangeSummaryText(profile: InstrumentProfile): string {
   }
   const range = profile.concertRange
   return `Active range ${range.minMidi}-${range.maxMidi}. Whole-phrase windows: Low ${windowOf('Low')}, Middle ${windowOf('Middle')}, High ${windowOf('High')}.`
-}
-
-/**
- * Intent: build the two-segment preset control's options, until the preset box replaces it: the
- * Neutral and Jazz built-ins, each valued by its preset id and labelled by its name.
- */
-// @spec-link [[module_generation_control_catalog]]
-// @spec-link [[module_generative_profile_selection]]
-export function presetSegmentOptions(): readonly SegmentedControlOption[] {
-  return [builtInPreset('neutral'), builtInPreset('jazz')].map((preset) => ({
-    value: preset.id,
-    label: preset.name,
-  }))
 }
 
 /** Intent: build the harmonic-motion options; every catalog value is already its own label. */
@@ -209,4 +201,71 @@ export function controlSummaryText(
   const leapinessLabel = labelFor(leapinessOptions(), controls.leapiness)
   const selectionLabel = presetLabel(selection, presets)
   return `${tonalCenterLabel} ${collectionLabel} · ${selectionLabel} · ${tensionLabel} · ${leapinessLabel}`
+}
+
+/** The marks of one control: the option values marked, and the note saying what they mean. */
+// @spec-link [[module_key_and_mode_marks]]
+export interface ControlMarks {
+  readonly marked: readonly string[]
+  readonly note: string | null
+}
+
+/** The key and mode marks: those of Written key and those of Collection. */
+// @spec-link [[module_key_and_mode_marks]]
+export interface KeyAndModeMarks {
+  readonly writtenKey: ControlMarks
+  readonly collection: ControlMarks
+}
+
+/**
+ * Intent: one control's marks from one half of a restriction: "any" marks nothing and gives no
+ * note; a list marks exactly its values and gives the note naming the preset and the list, in the
+ * control's own labels, `what` naming what any value of the control is ("key", "mode").
+ */
+function halfMarks(
+  half: RestrictionHalf<string>,
+  options: readonly SegmentedControlOption[],
+  presetName: string,
+  what: 'key' | 'mode',
+): ControlMarks {
+  if (half === 'any') return { marked: [], note: null }
+  const list = listInWords(half.map((value) => labelFor(options, value)))
+  return {
+    marked: [...half],
+    note: `${presetName} is meant for ${list}, marked. Any ${what} works; another one makes your settings Custom.`,
+  }
+}
+
+/**
+ * Intent: the key and mode marks, a pure function of a restriction, or none, and the name of the
+ * preset the notes name. The keys half marks Written key and the modes half Collection: a list
+ * marks exactly its values, with that control's note; "any", or no restriction, marks nothing and
+ * gives no note. It never disables an option and decides nothing else about the controls.
+ */
+// @spec-link [[module_key_and_mode_marks]]
+// @spec-link [[rule_restriction_highlight_never_blocks]]
+export function keyAndModeMarks(
+  restriction: KeyAndModeRestriction | null,
+  presetName: string,
+): KeyAndModeMarks {
+  return deepFreeze({
+    writtenKey: halfMarks(restriction?.keys ?? 'any', tonalCenterOptions(), presetName, 'key'),
+    collection: halfMarks(restriction?.modes ?? 'any', collectionOptions(), presetName, 'mode'),
+  })
+}
+
+/**
+ * Intent: a control's options with the segmented control's `marked` flag on the marked values,
+ * every option kept and none disabled; with nothing marked, the options as they are.
+ */
+// @spec-link [[module_key_and_mode_marks]]
+// @spec-link [[rule_restriction_highlight_never_blocks]]
+export function withMarks(
+  options: readonly SegmentedControlOption[],
+  marked: readonly string[],
+): readonly SegmentedControlOption[] {
+  if (marked.length === 0) return options
+  return options.map((option) =>
+    marked.includes(option.value) ? { ...option, marked: true } : option,
+  )
 }

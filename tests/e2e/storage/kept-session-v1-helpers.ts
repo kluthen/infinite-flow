@@ -6,10 +6,10 @@
  * intent, no preset label, no figure levels), and a held load seeded with copies of it through
  * the harness's v3.0 seam before the upgrading load runs.
  */
-import { expect, type Page } from '@playwright/test'
+import type { Page } from '@playwright/test'
 
 import { WORKSPACE_HARNESS_URL } from '../release/harness-helpers'
-import { radio } from '../workspace/helpers'
+import { choosePreset } from '../workspace/helpers'
 import { sessionAt } from '../review/session-list-helpers'
 import { keyedRecords } from '../review/review-tools-helpers'
 
@@ -34,11 +34,7 @@ type StoredPhrase = Record<string, unknown> & { intent: StoredIntent }
 
 /** Intent: select Jazz, then play a two-phrase session started at `startedAt`: the Review shows. */
 export async function playJazzSession(page: Page, startedAt: number): Promise<void> {
-  await radio(page, 'Musical profile preset', 'Jazz').click()
-  await expect(radio(page, 'Musical profile preset', 'Jazz')).toHaveAttribute(
-    'aria-checked',
-    'true',
-  )
+  await choosePreset(page, 'Jazz')
   await sessionAt(page, startedAt)
 }
 

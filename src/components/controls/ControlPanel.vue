@@ -1,10 +1,12 @@
 <script setup lang="ts">
 /**
- * The full below-score control sheet: the Foundation, Rhythm, Melodic shape, and Character groups
- * from the phrase-workspace handoff, then the "During a session" group, each delegated to its own
- * group component. Props-in/events-out only -- no session import. This component owns no control
- * state itself; it only forwards each group's typed events upward unchanged. The values it shows
- * are the ones it is given: during a session, what the phrase now sounding was generated with.
+ * The full below-score control sheet: the preset bar first, then the Foundation, Rhythm, Melodic
+ * shape, and Character groups from the phrase-workspace handoff, then the "During a session"
+ * group, each delegated to its own component. Props-in/events-out only -- no session import. This
+ * component owns no control state itself; it only forwards each part's typed events upward
+ * unchanged. The values it shows are the ones it is given: during a session, what the phrase now
+ * sounding was generated with, the preset box included, while the preset bar's description line
+ * and the key and mode marks keep what the session's start settings give.
  */
 import { computed } from 'vue'
 
@@ -13,11 +15,13 @@ import type { GenerationControls } from '@/domain/controls/generation-controls'
 import type { Preset, PresetId, PresetSelection } from '@/domain/presets/preset-selection'
 import type { MyInstrument } from '@/domain/profile/my-instrument'
 import FoundationControls from './FoundationControls.vue'
+import PresetBar from './PresetBar.vue'
 import RhythmControls from './RhythmControls.vue'
 import MelodicShapeControls from './MelodicShapeControls.vue'
 import CharacterControls from './CharacterControls.vue'
 import SessionOptionsControls from './SessionOptionsControls.vue'
 import { controlSummaryText } from './control-options'
+import type { SessionStartSettings } from './preset-bar-model'
 import type { SetControlPayload } from './set-control-event'
 
 const props = defineProps<{
@@ -40,8 +44,8 @@ const props = defineProps<{
   varySettings: boolean
   /** Whether the "During a session" options are read-only. */
   sessionOptionsReadonly: boolean
-  /** The preset status's live announcement: `polite`, or `off` while a session runs. */
-  presetStatusLive: 'polite' | 'off'
+  /** The session's start settings during a session; null with no session. */
+  startSettings: SessionStartSettings | null
   /** The player's own instrument, while it exists: the instrument control's fourth choice. */
   myInstrument: MyInstrument | null
   /** Whether `instrument-actions` is disabled: during a session and during Loading. */
@@ -68,7 +72,7 @@ function forwardInstrumentProfile(id: GenerationControls['instrumentProfileId'])
   emit('select-instrument-profile', id)
 }
 
-/** Intent: forward the preset group's selection event upward unchanged. */
+/** Intent: forward the preset bar's choice upward unchanged. */
 function forwardSelectPreset(id: PresetId): void {
   emit('select-preset', id)
 }
@@ -107,20 +111,26 @@ const controlSummary = computed(() =>
       above.
     </p>
     <p class="control-summary">{{ controlSummary }}</p>
+    <PresetBar
+      :presets="presets"
+      :selection="selection"
+      :description-selection="startSettings?.selection ?? selection"
+      :readonly="readonly"
+      @select-preset="forwardSelectPreset"
+    />
     <div class="control-group-row">
       <FoundationControls
         :controls="controls"
         :selection="selection"
         :presets="presets"
         :readonly="readonly"
-        :preset-status-live="presetStatusLive"
         :last-session-reached-tempo="lastSessionReachedTempo"
         :my-instrument="myInstrument"
         :instrument-actions-disabled="instrumentActionsDisabled"
+        :start-settings="startSettings"
         @open-my-instrument="emit('open-my-instrument')"
         @set-control="forwardSetControl"
         @select-instrument-profile="forwardInstrumentProfile"
-        @select-preset="forwardSelectPreset"
       />
       <RhythmControls
         :controls="controls"

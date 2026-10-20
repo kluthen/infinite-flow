@@ -1,12 +1,13 @@
 /**
  * The unsupported-rhythm-setting block: Generate/Regenerate disables, the prior score stays
  * visible, the calm message appears next to the rhythm controls and in a polite live region, the
- * controls stay selectable, a supported syncopation re-enables Generate, and every preset lands on
- * a supported setting.
+ * controls stay selectable, a supported syncopation re-enables Generate, and each of the eight
+ * built-in presets, chosen in the preset box from a blocked combination, lands on a supported
+ * setting.
  */
 import { expect, test } from '@playwright/test'
 
-import { generateAndAwaitReady, gotoWorkspace, primaryButton, radio } from './helpers'
+import { choosePreset, generateAndAwaitReady, gotoWorkspace, primaryButton, radio } from './helpers'
 
 // @test-link [[rule_unsupported_rhythm_settings_block_generation]]
 test('an unsupported rhythm combination blocks Generate, keeps the score, and explains why', async ({
@@ -42,13 +43,28 @@ test('an unsupported rhythm combination blocks Generate, keeps the score, and ex
 })
 
 // @test-link [[rule_profile_presets_apply_defined_controls]]
-test('choosing any musical-profile preset never lands on an unsupported rhythm setting', async ({
+test('choosing any of the eight built-in presets never lands on an unsupported rhythm setting', async ({
   page,
 }) => {
   await gotoWorkspace(page)
 
-  for (const preset of ['Neutral', 'Jazz'] as const) {
-    await radio(page, 'Musical profile preset', preset).click()
-    await expect(primaryButton(page)).toBeEnabled()
+  for (const preset of [
+    'Neutral',
+    'Gentle',
+    'Speed drill',
+    'Jazz',
+    'Bebop',
+    'Pop song',
+    'Reel',
+    'Modal (Dorian)',
+  ] as const) {
+    // From a blocked combination, so the preset itself has to land on a supported one.
+    await radio(page, 'Rhythmic variety', 'Slightly varied').click()
+    await radio(page, 'Note density', 'Sixteenth').click()
+    await radio(page, 'Silence density', 'Breath-heavy').click()
+    await radio(page, 'Syncopation', 'Active displacement').click()
+    await expect(primaryButton(page)).toBeDisabled()
+    await choosePreset(page, preset)
+    await expect(primaryButton(page), preset).toBeEnabled()
   }
 })

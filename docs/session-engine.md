@@ -1350,9 +1350,8 @@ profile selection: it reads them at its start and changes only what it shows. Ev
 sets `shownSettings` back to null, before the end asks Idle for its fresh phrase, so the controls
 show the player's own settings again, a `Varying` register and the profile's customized marking
 included, and the fresh phrase is generated from them. The flag's own choice is untouched. The
-preset status's live region is `aria-live="off"` from the start, before the count-in renders, and
-polite again only once the player's values have rendered back, so neither a change nor the return
-is announced.
+preset bar is no live region, so neither a change nor the return is announced, and its description
+line reads the session's `startSettings` (null again at every end) rather than `shownSettings`.
 
 ## Multi-phrase tension arc
 

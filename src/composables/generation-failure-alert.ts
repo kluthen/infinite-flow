@@ -27,7 +27,7 @@ export function generationFailureAlertText(error: Error): string {
 function alertTextForFailureCode(code: GenerationFailureCode): string {
   switch (code) {
     case 'no_legal_harmony_plan':
-      return "This combination of written key, collection, harmonic motion, tension, and musical profile can't produce a phrase. Try a different written key, collection, harmonic motion, tension, or profile."
+      return "This combination of written key, collection, harmonic motion, and tension can't produce a phrase. Try a different written key, collection, harmonic motion, or tension."
     case 'no_legal_rhythm_plan':
       return "This combination of note density, syncopation, and silence can't form a four-bar phrase. Try a different note density, syncopation, or silence setting."
     case 'no_legal_pitch_plan':

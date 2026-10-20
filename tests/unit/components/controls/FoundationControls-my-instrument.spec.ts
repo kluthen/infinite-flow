@@ -39,7 +39,7 @@ function mountPanel(
       varySettings: false,
       tensionAcrossPhrases: false,
       sessionOptionsReadonly: false,
-      presetStatusLive: 'polite',
+      startSettings: null,
       myInstrument,
       instrumentActionsDisabled: false,
     },

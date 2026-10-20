@@ -180,6 +180,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     sessionStaff: null as SessionStaff | null,
     latestReady: null as number | null,
     shownSettings: null as SessionSettings | null,
+    startSettings: null as SessionSettings | null,
     stalePhrasePrompt: null as StalePhrasePrompt | null,
     get canStart(): boolean {
       return startBlocker.value === null

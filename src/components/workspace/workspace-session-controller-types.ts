@@ -282,6 +282,13 @@ export interface SessionControllerState {
    */
   readonly shownSettings: SessionSettings | null
   /**
+   * The settings the session was started with: the player's own at the accepted Start, with the
+   * restriction in force then frozen in `restriction`; never phrase 1's, even when a stale phrase 1
+   * is used as it is. What the preset description line and the key and mode marks read during a
+   * session; null with no session.
+   */
+  readonly startSettings: SessionSettings | null
+  /**
    * The stale-phrase prompt while it shows: what opened it (Start or the starting note) and the
    * settings phrase 1 differs in; null otherwise. Never during a session.
    */

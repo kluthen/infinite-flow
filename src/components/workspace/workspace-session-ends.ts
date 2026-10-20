@@ -50,8 +50,9 @@ export interface SessionEnds {
  * last, the end watchers stopped, which hands the staff's reports back to the Idle machinery and
  * re-applies the latest of them. A start that failed
  * part-way passes the session only once it was built, and may not have started the timer or
- * the watchers yet: only what was set up is undone. The shown settings go with the session, so
- * the controls show the player's own choices again, before anything asks Idle for a phrase.
+ * the watchers yet: only what was set up is undone. The shown and start settings go with the
+ * session, so the controls show the player's own choices again, before anything asks Idle for a
+ * phrase.
  */
 // @spec-link [[rule_stop_ends_session]]
 // @spec-link [[rule_screen_wake_lock_during_session]]
@@ -75,6 +76,7 @@ function tearDown(core: SessionControllerCore, session: ActiveSession | null): v
   state.sessionStaff = null
   state.latestReady = null
   state.shownSettings = null
+  state.startSettings = null
   core.deps.saveHold.release()
   session?.midi?.stop()
   session?.watch?.stop()

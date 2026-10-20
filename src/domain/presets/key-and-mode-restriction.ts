@@ -164,7 +164,7 @@ export interface RestrictionLabels {
 }
 
 /** Intent: a list read as "A", "A or B", "A, B or C". */
-function listInWords(items: readonly string[]): string {
+export function listInWords(items: readonly string[]): string {
   const last = items.at(-1) ?? ''
   if (items.length <= 1) return last
   return `${items.slice(0, -1).join(', ')} or ${last}`

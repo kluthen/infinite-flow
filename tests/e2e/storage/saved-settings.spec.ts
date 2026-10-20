@@ -14,7 +14,7 @@ import { expect, test, type Locator, type Page } from '@playwright/test'
 import { harnessSnapshot } from '../release/harness-helpers'
 import { KEYS, connectDevice } from '../session/session-midi-helpers'
 import { setRisingTempo } from '../session/session-helpers'
-import { radio } from '../workspace/helpers'
+import { choosePreset, expectPresetShown, presetDescription, radio } from '../workspace/helpers'
 import { gotoStorageHarness, reloadHarness, storedSettings, untilStored } from './storage-helpers'
 
 /** A landscape phone, below bp-tablet-landscape (64rem = 1024 px). */
@@ -30,11 +30,6 @@ async function expectChecked(page: Page, group: string, option: string): Promise
 /** Intent: the tempo stepper. */
 function tempoStepper(page: Page): Locator {
   return page.getByRole('spinbutton', { name: 'Tempo' })
-}
-
-/** Intent: the preset status's text in use. */
-function presetStatus(page: Page): Locator {
-  return page.locator('.preset-status-text:not(.is-reserve)')
 }
 
 /** Intent: the toolbar toggle of one mix channel. */
@@ -55,7 +50,7 @@ function slider(page: Page, name: 'Backing volume' | 'Click volume'): Locator {
 
 // @test-link [[rule_settings_saved_on_change]]
 // @test-link [[rule_saved_setting_is_players_choice]]
-test('the controls and the preset selection the player changed come back after a reload, a picked preset checked', async ({
+test('the controls and the preset selection the player changed come back after a reload, a picked preset shown in the box', async ({
   page,
 }) => {
   await gotoStorageHarness(page)
@@ -80,17 +75,14 @@ test('the controls and the preset selection the player changed come back after a
   await expectChecked(page, 'Collection', 'Dorian')
   await expectChecked(page, 'Register', 'Low')
   await expectChecked(page, 'Instrument profile', 'E-flat alto saxophone')
-  await expect(presetStatus(page)).toHaveText(/^Custom configuration - Neutral grammar retained/)
+  await expectPresetShown(page, 'Custom, based on Neutral')
+  await expect(presetDescription(page)).toHaveText(/^Changed from Neutral\. /)
   await expect(page.locator('.control-summary')).toHaveText(
     'D Dorian · Custom, based on Neutral · Lift · Shaped',
   )
-  await expect(radio(page, 'Musical profile preset', 'Neutral')).toHaveAttribute(
-    'aria-checked',
-    'false',
-  )
 
-  // A preset picked, not customized: it comes back checked, with its own values.
-  await radio(page, 'Musical profile preset', 'Jazz').click()
+  // A preset picked, not customized: it comes back selected, with its own values.
+  await choosePreset(page, 'Jazz')
   await untilStored(page, {
     presetSelection: { kind: 'preset', presetId: 'jazz' },
     'figureLevels.chromaticApproach': 'asToday',
@@ -98,8 +90,10 @@ test('the controls and the preset selection the player changed come back after a
     'controls.register': 'Varying',
   })
   await reloadHarness(page)
-  await expectChecked(page, 'Musical profile preset', 'Jazz')
-  await expect(presetStatus(page)).toHaveText(/^Jazz preset applied/)
+  await expectPresetShown(page, 'Jazz')
+  await expect(presetDescription(page)).toHaveText(
+    'Eighth notes and offbeats, now and then with a short note from outside the key.',
+  )
   await expect(page.locator('.control-summary')).toHaveText('D Dorian · Jazz · Lift · Shaped')
   await expectChecked(page, 'Register', 'Varying')
   expect((await harnessSnapshot(page)).figureLevels).toMatchObject({

@@ -11,7 +11,7 @@
 import { expect, test, type Page } from '@playwright/test'
 
 import { databaseSettings } from '../storage/storage-helpers'
-import { generateAndAwaitReady, gotoWorkspace, radio } from '../workspace/helpers'
+import { choosePreset, generateAndAwaitReady, gotoWorkspace, radio } from '../workspace/helpers'
 import { failNextGeneration, gotoWorkspaceHarness, queueSeeds } from './harness-helpers'
 
 /** Intent: the Web Storage areas' lengths and the IndexedDB databases this origin holds. */
@@ -56,7 +56,7 @@ test('customized controls and the instrument profile come back after a reload, a
   page,
 }) => {
   await gotoWorkspace(page)
-  await radio(page, 'Musical profile preset', 'Jazz').click()
+  await choosePreset(page, 'Jazz')
   await radio(page, 'Register', 'Low').click()
   await generateAndAwaitReady(page)
   await radio(page, 'Instrument profile', 'E-flat alto saxophone').click()

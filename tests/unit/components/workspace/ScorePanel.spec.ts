@@ -105,7 +105,7 @@ describe('ScorePanel', () => {
 
     const alertText = wrapper.get('.alert-error').text()
     expect(alertText).toBe(
-      "This combination of written key, collection, harmonic motion, tension, and musical profile can't produce a phrase. Try a different written key, collection, harmonic motion, tension, or profile.",
+      "This combination of written key, collection, harmonic motion, and tension can't produce a phrase. Try a different written key, collection, harmonic motion, or tension.",
     )
     expect(alertText).not.toContain('Generation failed')
     expect(alertText).not.toContain('no_legal_harmony_plan')

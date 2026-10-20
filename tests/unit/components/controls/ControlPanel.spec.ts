@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 
 import ControlPanel from '@/components/controls/ControlPanel.vue'
+import type { SessionStartSettings } from '@/components/controls/preset-bar-model'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import {
   BUILT_IN_PRESETS,
@@ -20,6 +21,7 @@ function mountPanel(
   selection: PresetSelection = DEFAULT_PRESET_SELECTION,
   readonly = false,
   presets: readonly Preset[] = BUILT_IN_PRESETS,
+  startSettings: SessionStartSettings | null = null,
 ) {
   return mount(ControlPanel, {
     props: {
@@ -34,7 +36,7 @@ function mountPanel(
       varySettings: false,
       tensionAcrossPhrases: false,
       sessionOptionsReadonly: readonly,
-      presetStatusLive: 'polite',
+      startSettings,
       myInstrument: null,
       instrumentActionsDisabled: false,
     },
@@ -59,11 +61,11 @@ describe('ControlPanel', () => {
     const wrapper = mountPanel()
     const labels = wrapper.findAll('.field-label').map((l) => l.text())
     expect(labels).toEqual([
+      'Preset',
       'Tempo',
       'Written key',
       'Collection',
       'Instrument profile',
-      'Musical profile preset',
       'Harmonic motion',
       'Tension',
       'Note density',
@@ -121,59 +123,81 @@ describe('ControlPanel', () => {
 
   // @test-link [[rule_selectable_generative_profiles]]
   // @test-link [[rule_choosing_preset_sets_its_settings]]
-  it('emits select-preset with the Neutral or Jazz built-in id for the preset group', async () => {
+  it('emits select-preset with the preset id chosen in the preset box', async () => {
     const wrapper = mountPanel(DEFAULT_GENERATION_CONTROLS, { kind: 'custom', baseId: 'neutral' })
-    const group = wrapper
-      .findAll('[role="radiogroup"]')
-      .find((g) => g.attributes('aria-label') === 'Musical profile preset')!
-    const radios = group.findAll('[role="radio"]')
-    expect(radios.map((radio) => radio.text())).toEqual(['Neutral', 'Jazz'])
-    await radios[1]!.trigger('click')
-    await radios[0]!.trigger('click')
-    expect(wrapper.emitted('select-preset')).toEqual([['jazz'], ['neutral']])
+    const box = wrapper.get('select.preset-select')
+    await box.setValue('jazz')
+    await box.setValue('speed-drill')
+    expect(wrapper.emitted('select-preset')).toEqual([['jazz'], ['speed-drill']])
   })
 
-  it('checks the Jazz segment while Jazz is selected, and none for another preset', () => {
-    const segment = (selection: PresetSelection) =>
-      mountPanel(DEFAULT_GENERATION_CONTROLS, selection)
-        .findAll('[role="radiogroup"]')
-        .find((g) => g.attributes('aria-label') === 'Musical profile preset')!
-        .findAll('[role="radio"]')
-        .map((radio) => radio.attributes('aria-checked'))
-    expect(segment({ kind: 'preset', presetId: 'jazz' })).toEqual(['false', 'true'])
-    expect(segment({ kind: 'preset', presetId: 'reel' })).toEqual(['false', 'false'])
+  it("selects the selected preset's own option in the preset box", () => {
+    /** Intent: the preset box's DOM value over `selection`. */
+    const shown = (selection: PresetSelection) =>
+      (
+        mountPanel(DEFAULT_GENERATION_CONTROLS, selection).get('select.preset-select')
+          .element as HTMLSelectElement
+      ).value
+    expect(shown({ kind: 'preset', presetId: 'jazz' })).toBe('jazz')
+    expect(shown({ kind: 'preset', presetId: 'reel' })).toBe('reel')
   })
 
   // @test-link [[rule_profile_presets_apply_defined_controls]]
-  it('shows the applied-preset status text by default', () => {
+  it('shows Neutral in the preset box and its description by default', () => {
     const wrapper = mountPanel()
-    const inUse = wrapper.get('.preset-status-text:not(.is-reserve)')
-    expect(inUse.text()).toBe(
-      'Neutral preset applied. All seven preset-controlled values were replaced.',
+    const box = wrapper.get('select.preset-select')
+    expect((box.element as HTMLSelectElement).value).toBe('neutral')
+    expect(box.attributes('title')).toBe('Neutral')
+    expect(wrapper.get('.preset-bar .field-note').text()).toBe(
+      "Plain lines in the key, in quarter notes: the app's starting point.",
     )
-    expect(inUse.classes()).not.toContain('is-custom')
   })
 
   // @test-link [[rule_custom_selection]]
   // @test-link [[rule_custom_names_its_base]]
-  it("shows Custom's status text naming its base and checks no preset segment", () => {
+  it('shows Custom naming its base in the preset box, with its description', () => {
     const wrapper = mountPanel(DEFAULT_GENERATION_CONTROLS, { kind: 'custom', baseId: 'jazz' })
-    const inUse = wrapper.get('.preset-status-text:not(.is-reserve)')
-    expect(inUse.text()).toBe(
-      'Custom configuration - Jazz grammar retained. Choosing Neutral or Jazz replaces all seven preset-controlled values.',
+    const box = wrapper.get('select.preset-select')
+    expect((box.element as HTMLSelectElement).selectedOptions[0]!.text).toBe(
+      'Custom, based on Jazz',
     )
-    expect(inUse.classes()).toContain('is-custom')
-    const presetGroup = wrapper
-      .findAll('[role="radiogroup"]')
-      .find((g) => g.attributes('aria-label') === 'Musical profile preset')!
-    expect(
-      presetGroup.findAll('[role="radio"]').every((r) => r.attributes('aria-checked') === 'false'),
-    ).toBe(true)
+    expect(box.attributes('title')).toBe('Custom, based on Jazz')
+    expect(wrapper.get('.preset-bar .field-note').text()).toBe(
+      'Changed from Jazz. Save as a new preset to keep these settings under a name.',
+    )
+  })
+
+  // @test-link [[rule_custom_selection]]
+  it('keeps a checked segment in every radiogroup in Custom', () => {
+    const wrapper = mountPanel(DEFAULT_GENERATION_CONTROLS, { kind: 'custom', baseId: 'jazz' })
+    const groups = wrapper.findAll('[role="radiogroup"]')
+    expect(groups.length).toBeGreaterThan(0)
+    for (const group of groups) {
+      const checked = group
+        .findAll('[role="radio"]')
+        .filter((radio) => radio.attributes('aria-checked') === 'true')
+      expect(checked, group.attributes('aria-label')).toHaveLength(1)
+    }
+  })
+
+  // @test-link [[module_preset_bar_model]]
+  it('renders the preset bar as the first row of the control section, before the groups', () => {
+    const wrapper = mountPanel()
+    const children = Array.from(wrapper.get('.control-section').element.children).map(
+      (child) => child.className,
+    )
+    expect(children).toEqual([
+      'control-section-title',
+      'control-section-copy',
+      'control-summary',
+      'preset-bar',
+      'control-group-row',
+    ])
   })
 
   // @test-link [[rule_custom_names_its_base]]
   // @test-link [[rule_presets_read_at_start_up]]
-  it('names a player preset it is given in the summary and the preset status', () => {
+  it('names a player preset it is given in the summary and the preset box', () => {
     const presets = [
       ...BUILT_IN_PRESETS,
       makePreset({ ...builtInPreset('jazz'), id: 'player-1', name: 'Late night', kind: 'player' }),
@@ -185,9 +209,8 @@ describe('ControlPanel', () => {
       presets,
     )
     expect(selected.get('.control-summary').text()).toBe('C Ionian · Late night · Lift · Shaped')
-    expect(selected.get('.preset-status-text:not(.is-reserve)').text()).toBe(
-      'Late night preset applied. All seven preset-controlled values were replaced.',
-    )
+    expect(selected.get('select.preset-select').attributes('title')).toBe('Late night')
+    expect(selected.get('.preset-bar .field-note').text()).toBe('Your preset.')
 
     const custom = mountPanel(
       DEFAULT_GENERATION_CONTROLS,
@@ -198,8 +221,8 @@ describe('ControlPanel', () => {
     expect(custom.get('.control-summary').text()).toBe(
       'C Ionian · Custom, based on Late night · Lift · Shaped',
     )
-    expect(custom.get('.preset-status-text:not(.is-reserve)').text()).toBe(
-      'Custom configuration - Late night grammar retained. Choosing Neutral or Jazz replaces all seven preset-controlled values.',
+    expect(custom.get('select.preset-select').attributes('title')).toBe(
+      'Custom, based on Late night',
     )
   })
 
@@ -246,6 +269,7 @@ describe('ControlPanel', () => {
       expect(group.attributes('aria-readonly')).toBe('true')
     }
     expect(wrapper.get('[role="spinbutton"]').attributes('aria-readonly')).toBe('true')
+    expect(wrapper.get('select.preset-select').attributes('aria-readonly')).toBe('true')
     const fieldGroups = wrapper.findAll('.field-group')
     expect(fieldGroups.length).toBeGreaterThan(0)
     for (const fieldGroup of fieldGroups) {
@@ -254,61 +278,61 @@ describe('ControlPanel', () => {
   })
 
   // @test-link [[rule_automatic_change_updates_controls_quietly]]
-  it('holds both preset status texts in one cell for a preset selection, the other one invisible, emphasis on the custom one', () => {
-    const preset = mountPanel()
-    const presetReserve = preset.get('.preset-status-text.is-reserve')
-    expect(presetReserve.attributes('aria-hidden')).toBe('true')
-    expect(presetReserve.text()).toBe(
-      'Custom configuration - Neutral grammar retained. Choosing Neutral or Jazz replaces all seven preset-controlled values.',
+  it("keeps the start settings' description while the preset box follows the shown selection", () => {
+    const wrapper = mountPanel(
+      DEFAULT_GENERATION_CONTROLS,
+      { kind: 'custom', baseId: 'reel' },
+      true,
+      BUILT_IN_PRESETS,
+      { selection: { kind: 'preset', presetId: 'reel' } },
     )
-    expect(presetReserve.classes()).toContain('is-custom')
-    expect(preset.get('.preset-status').classes()).not.toContain('is-custom')
+    expect(wrapper.get('select.preset-select').attributes('title')).toBe('Custom, based on Reel')
+    expect(wrapper.get('.preset-bar .field-note').text()).toBe(
+      'A fast folk dance in steady eighth notes, in Mixolydian or Dorian. Also try it in Ionian (a major key).',
+    )
+  })
 
-    const custom = mountPanel(DEFAULT_GENERATION_CONTROLS, { kind: 'custom', baseId: 'jazz' })
-    const customReserve = custom.get('.preset-status-text.is-reserve')
-    expect(customReserve.text()).toBe(
-      'Jazz preset applied. All seven preset-controlled values were replaced.',
+  it('forwards the start settings to the key and mode marks, whatever the shown settings', () => {
+    const wrapper = mountPanel(
+      DEFAULT_GENERATION_CONTROLS,
+      { kind: 'custom', baseId: 'reel' },
+      true,
+      BUILT_IN_PRESETS,
+      {
+        selection: { kind: 'preset', presetId: 'reel' },
+        restriction: builtInPreset('reel').restriction,
+      },
     )
-    expect(customReserve.classes()).not.toContain('is-custom')
-    expect(custom.findAll('.preset-status-text')).toHaveLength(2)
+    const marked = wrapper
+      .get('[role="radiogroup"][aria-label="Collection"]')
+      .findAll('.segment.is-marked')
+      .map((segment) => segment.text())
+    expect(marked).toEqual(['Dorian', 'Mixolydian'])
   })
 
   // @test-link [[rule_custom_names_its_base]]
-  it('names the selected preset in the status, and no base for Custom with none', () => {
+  it('names the selected preset in the box, and Custom alone with no base', () => {
     const reel = mountPanel(DEFAULT_GENERATION_CONTROLS, { kind: 'preset', presetId: 'reel' })
-    expect(reel.get('.preset-status-text:not(.is-reserve)').text()).toBe(
-      'Reel preset applied. All seven preset-controlled values were replaced.',
-    )
+    expect(reel.get('select.preset-select').attributes('title')).toBe('Reel')
     const noBase = mountPanel(DEFAULT_GENERATION_CONTROLS, { kind: 'custom', baseId: null })
-    const inUse = noBase.get('.preset-status-text:not(.is-reserve)')
-    expect(inUse.text()).toBe(
-      'Custom configuration. Choosing Neutral or Jazz replaces all seven preset-controlled values.',
+    expect(
+      (noBase.get('select.preset-select').element as HTMLSelectElement).selectedOptions[0]!.text,
+    ).toBe('Custom')
+    expect(noBase.get('.preset-bar .field-note').text()).toBe(
+      'Your own settings. Save them as a preset to keep them under a name.',
     )
-    expect(inUse.classes()).toContain('is-custom')
   })
 
   // @test-link [[rule_automatic_change_updates_controls_quietly]]
-  it('announces the preset status politely, or not at all when told so', () => {
-    expect(mountPanel().get('.preset-status').attributes('aria-live')).toBe('polite')
-    const quiet = mount(ControlPanel, {
-      props: {
-        controls: DEFAULT_GENERATION_CONTROLS,
-        selection: DEFAULT_PRESET_SELECTION,
-        presets: BUILT_IN_PRESETS,
-        readonly: true,
-        noteDensityContext: { belowTabletLandscape: false, sessionSteppedDown: false },
-        risingTempo: false,
-        risingTempoAvailable: false,
-        lastSessionReachedTempo: null,
-        varySettings: false,
-        tensionAcrossPhrases: false,
-        sessionOptionsReadonly: true,
-        presetStatusLive: 'off',
-        myInstrument: null,
-        instrumentActionsDisabled: false,
-      },
-    })
-    expect(quiet.get('.preset-status').attributes('aria-live')).toBe('off')
-    expect(quiet.get('.preset-status').attributes('role')).toBe('status')
+  it('announces nothing in the preset bar, editable or read-only', () => {
+    for (const readonly of [false, true]) {
+      const bar = mountPanel(
+        DEFAULT_GENERATION_CONTROLS,
+        { kind: 'custom', baseId: 'jazz' },
+        readonly,
+      ).get('.preset-bar')
+      expect(bar.find('[aria-live]').exists()).toBe(false)
+      expect(bar.find('[role="status"]').exists()).toBe(false)
+    }
   })
 })
