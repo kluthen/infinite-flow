@@ -97,12 +97,19 @@ export function attemptPlan(
 /**
  * Intent: the settings a settings change puts in effect, frozen: the instrument and the tempo
  * never change during a session (tempo has its own adaptive-tempo source), so a change to either
- * is a caller bug and throws.
+ * is a caller bug and throws. The restriction frozen at the session's start stays the one in
+ * effect, whatever the change carries: it is fixed for the session.
  */
 // @spec-link [[rule_session_settings_locked]]
 // @spec-link [[module_session_settings_change]]
 export function changedSettings(inEffect: SessionSettings, next: SessionSettings): SessionSettings {
-  const settings = freezeSessionSettings(next)
+  const { restriction: carried, ...changed } = next
+  void carried
+  const settings = freezeSessionSettings(
+    inEffect.restriction === undefined
+      ? changed
+      : { ...changed, restriction: inEffect.restriction },
+  )
   const { instrumentProfileId, tempo } = inEffect.controls
   if (settings.controls.instrumentProfileId !== instrumentProfileId)
     throw new SessionEngineError(
