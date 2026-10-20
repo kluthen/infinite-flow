@@ -840,3 +840,32 @@ preflight corrections). D289 is unused.
   selection, and nothing of the other built-ins or the levels. Interim inside wave 3, which does
   not merge to `main` between chunks 12 and 16, so not put to the owner.
   Now in: [chunk 12](versions/v3/build-plan-v3.1.md#chunk-12--presets-replace-the-musical-profile).
+
+- **D378 (2026-10-20): the passing-and-neighbor rule does not ship (gate DP, the owner's
+  "reject").** Chunk 11 met B5.6's acceptance at all three settings: every phrase 2 to 6 generated
+  at 60, 120 and 240 BPM, fallbacks at 240 BPM below the baseline, every built-in generating in
+  every allowed mode, no share tuned. Chunk 20 is dropped and every level stays selectable; the
+  release gate re-checks, and DP reopens only if "every diatonic figure Off" fails then.
+  Now in: [B5.6](versions/v3/master-spec.md#b56-the-cost-guard),
+  [DP](versions/v3/build-plan-v3.1.md#decision-point-the-passing-and-neighbor-rule),
+  [chunk 20](versions/v3/build-plan-v3.1.md#chunk-20--passing-and-neighbor-never-both-off-conditional),
+  [waves](versions/v3/build-plan-v3.1.md#waves).
+
+- **D379 (2026-10-20): the cost guard's settings are the ones chunk 11 ran; M1 runs no
+  all-raised setting.** "Every diatonic figure Off" is Jazz's levels with figures 1 to 5 Off,
+  against Jazz; a built-in is swept as chosen, with its own rhythm. Chunk 11's extra runs (every
+  figure Off; each built-in's levels on the sweep's rhythm) are recorded beside, outside the
+  acceptance. Item 3 rests on one figure's ladder, and all raised costs what M2's "every figure
+  Strongly favored" measures. Now in: [B5.6, B14 item 9](versions/v3/master-spec.md#b56-the-cost-guard),
+  [M1](versions/v3/build-plan-v3.1.md#m1--figure-shares), [M2](versions/v3/build-plan-v3.1.md#m2--the-cost-guard).
+
+- **D380 (2026-10-20): the settings codec's throw on a stored BigInt or circular control value
+  goes to the issue tracker (ISS-014).** A v3.0 defect found by chunk 16, whose own reader guards
+  against it; no v3.1 chunk owns the control parsers. Not adopted: a v3.1 chunk. Now in:
+  [ISS-014](../issues/Ref_20261020_settings_codec_throws_on_bigint.md).
+
+- **D381 (2026-10-20): the two strings that still say "musical profile" go to chunks 13 and 18.**
+  The harmony failure alert to chunk 13, with the rest of the workspace's profile copy; Your
+  data's Settings line to chunk 18, which owns the sheet's copy. Both take the frozen v3.1 design's
+  wording. Now in: [chunk 13](versions/v3/build-plan-v3.1.md#chunk-13--the-preset-bar-and-the-key-and-mode-marks),
+  [chunk 18](versions/v3/build-plan-v3.1.md#chunk-18--your-data-and-delete-everything).
