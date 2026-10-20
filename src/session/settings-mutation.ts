@@ -9,6 +9,12 @@ import type { GenerationControls } from '../domain/controls/generation-controls'
 import { isRhythmSettingBlocked } from '../domain/controls/unsupported-rhythm-settings'
 import { deepFreeze } from '../domain/events/deep-freeze'
 import { FIGURE_IDS, type FigureId } from '../domain/figures/figure-levels'
+import {
+  allowsKeyAndMode,
+  isAnyKeyAndMode,
+  makeKeyAndModeRestriction,
+} from '../domain/presets/key-and-mode-restriction'
+import { restrictionInForce, type Preset } from '../domain/presets/preset-selection'
 import type { Seed } from '../domain/random/seed'
 import { deriveIndexedStream, type IndexedStream } from '../domain/random/streams'
 import { freezeSessionSettings } from './session-intents'
@@ -82,15 +88,49 @@ export interface SettingsMutationResult {
   readonly settings: SessionSettings
 }
 
-/** One step the draw may land on, and whether the generator supports where it lands. */
+/**
+ * One step the draw may land on, and whether it may land there: the generator supports it, and a
+ * key or mode step stays inside the restriction frozen at the session's start.
+ */
 // @spec-link [[module_settings_mutation]]
 // @spec-link [[rule_mutation_rerolls_unsupported_combination]]
+// @spec-link [[rule_vary_settings_stays_inside_restriction]]
 export interface MutationCandidate extends SettingsMutationResult {
   readonly supported: boolean
 }
 
 /** Upper bound on redraws, far beyond any real need; reaching it means the stream is broken. */
 const MAX_MUTATION_DRAWS = 10_000
+
+/**
+ * Told, once a mutation is drawn, how many draws it took, the first included: 1 when the first
+ * draw landed on a supported step, more for each redraw. An injected seam: the draw is the same
+ * with or without it.
+ */
+// @spec-link [[rule_mutation_rerolls_unsupported_combination]]
+// @spec-link [[rule_vary_settings_stays_inside_restriction]]
+export type MutationDrawsObserver = (draws: number) => void
+
+/**
+ * Intent: the session's start settings with the restriction in force frozen into them, worked out
+ * from their selection, written key and collection against the presets the session knows: the
+ * selected preset's, or Custom's base's, while the key and mode are inside it. None in force, or
+ * one that allows every key and mode, leaves the settings without one, so a session started there
+ * is not bounded. Any restriction the settings already carried is replaced.
+ */
+// @spec-link [[rule_vary_settings_stays_inside_restriction]]
+// @spec-link [[rule_restriction_in_force]]
+export function withRestrictionAtStart(
+  settings: SessionSettings,
+  presets: readonly Preset[],
+): SessionSettings {
+  const { restriction: carried, ...rest } = settings
+  void carried
+  const { selection, controls } = settings
+  const inForce = restrictionInForce(selection, controls.tonalCenter, controls.collection, presets)
+  if (inForce === null || isAnyKeyAndMode(inForce)) return rest
+  return { ...rest, restriction: makeKeyAndModeRestriction(inForce) }
+}
 
 /** Intent: crash on a number that cannot be a mutation or phrase number (an integer from 1). */
 function requirePositiveInteger(value: number, name: string): void {
@@ -137,12 +177,26 @@ export function mutationIndexLandingOn(seed: Seed, phraseNumber: number): number
 }
 
 /**
- * Intent: whether the generator supports where a step lands: its rhythm combination, judged on
- * the density generated with, is not blocked, and a note-density step does not land on
- * `Sixteenth` while it is unavailable (below the width, or once the session stepped down; D177).
+ * Intent: whether a key or mode step lands outside the restriction frozen at the session's start.
+ * Settings carrying none bound nothing; no other step moves the key or the mode.
+ */
+// @spec-link [[rule_vary_settings_stays_inside_restriction]]
+function leavesRestriction(setting: MutableSetting, settings: SessionSettings): boolean {
+  if (settings.restriction === undefined) return false
+  if (setting !== 'tonalCenter' && setting !== 'collection') return false
+  const { tonalCenter, collection } = settings.controls
+  return !allowsKeyAndMode(settings.restriction, tonalCenter, collection)
+}
+
+/**
+ * Intent: whether a step may land where it does: its rhythm combination, judged on the density
+ * generated with, is not blocked, a note-density step does not land on `Sixteenth` while it is
+ * unavailable (below the width, or once the session stepped down; D177), and a key or mode step
+ * stays inside the restriction frozen at the session's start. A step that may not is drawn again.
  */
 // @spec-link [[rule_mutation_rerolls_unsupported_combination]]
 // @spec-link [[rule_mutation_sixteenth_blocked_after_step_down]]
+// @spec-link [[rule_vary_settings_stays_inside_restriction]]
 function isSupportedStep(
   setting: MutableSetting,
   to: string,
@@ -151,6 +205,7 @@ function isSupportedStep(
 ): boolean {
   const sixteenthUnavailable = context.belowTabletLandscape || context.sessionSteppedDown
   if (setting === 'noteDensity' && to === 'Sixteenth' && sixteenthUnavailable) return false
+  if (leavesRestriction(setting, settings)) return false
   return !isRhythmSettingBlocked(settings.controls, context)
 }
 
@@ -269,16 +324,20 @@ function resultOf(step: MutationCandidate): SettingsMutationResult {
  * Intent: draw mutation k from its candidates: one setting uniformly among those with a step;
  * for the figure levels, one figure uniformly among those with a step; then one of its steps
  * uniformly; all redrawn from the same (seed, k) stream while the step lands on something
- * unsupported. Crashes up front when no candidate is supported, rather than looping.
+ * unsupported, or outside the restriction frozen at the session's start. Crashes up front when no
+ * candidate is supported, rather than looping. `observe`, when given, is told how many draws it
+ * took.
  */
 // @spec-link [[rule_mutation_draws_setting_then_direction]]
 // @spec-link [[rule_mutation_rerolls_unsupported_combination]]
 // @spec-link [[rule_vary_settings_figure_step]]
+// @spec-link [[rule_vary_settings_stays_inside_restriction]]
 // @spec-link [[module_settings_mutation]]
 export function drawMutation(
   candidates: readonly MutationCandidate[],
   seed: Seed,
   k: number,
+  observe?: MutationDrawsObserver,
 ): SettingsMutationResult {
   requirePositiveInteger(k, 'A mutation number')
   if (!candidates.some((candidate) => candidate.supported))
@@ -292,7 +351,10 @@ export function drawMutation(
     const ofSetting = candidates.filter((candidate) => candidate.setting === setting)
     const steps = setting === 'figureLevels' ? drawnFigureSteps(stream, ofSetting) : ofSetting
     const step = drawFrom(stream, steps)
-    if (step.supported) return resultOf(step)
+    if (step.supported) {
+      observe?.(draw + 1)
+      return resultOf(step)
+    }
   }
   throw new SettingsMutationError(`No supported mutation came up in ${MAX_MUTATION_DRAWS} draws.`)
 }
@@ -300,23 +362,27 @@ export function drawMutation(
 /**
  * Intent: decide mutation k of a session: from the settings in effect, change exactly one eligible
  * setting by one grade (a figure step, one figure by one level), never tempo or the instrument,
- * landing on a supported combination; a step of a preset-held setting marks the selection Custom.
- * The result is a pure function of its inputs. Settings that are unsupported to begin with are a
- * caller bug and throw.
+ * landing on a supported combination, a key or mode step inside the restriction the settings
+ * carry from the session's start (none bounds nothing); a step of a preset-held setting marks the
+ * selection Custom, a key or mode step never does. The result is a pure function of its inputs;
+ * `observe`, when given, is told how many draws it took. Settings that are unsupported to begin
+ * with are a caller bug and throw.
  */
 // @spec-link [[module_settings_mutation]]
 // @spec-link [[rule_mutation_draws_setting_then_direction]]
 // @spec-link [[rule_mutation_rerolls_unsupported_combination]]
+// @spec-link [[rule_vary_settings_stays_inside_restriction]]
 // @spec-link [[req_settings_mutation_flag]]
 export function mutateSettings(
   settings: SessionSettings,
   context: MutationContext,
   seed: Seed,
   k: number,
+  observe?: MutationDrawsObserver,
 ): SettingsMutationResult {
   requirePositiveInteger(k, 'A mutation number')
   const current = freezeSessionSettings(settings)
   if (isRhythmSettingBlocked(current.controls, context))
     throw new SettingsMutationError('The settings to mutate are already unsupported.')
-  return drawMutation(mutationCandidates(current, context), seed, k)
+  return drawMutation(mutationCandidates(current, context), seed, k, observe)
 }

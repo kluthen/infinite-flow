@@ -13,6 +13,7 @@ import type {
   GenerationIntentProviders,
 } from '../domain/generation/generation-intent'
 import type { GenerationOutcome } from '../domain/generation/orchestration/orchestration-types'
+import type { KeyAndModeRestriction } from '../domain/presets/key-and-mode-restriction'
 import type { PresetSelection } from '../domain/presets/preset-selection'
 import type { InstrumentProfile } from '../domain/profile/instrument-profile'
 import type { Seed } from '../domain/random/seed'
@@ -57,7 +58,11 @@ export type SuccessfulOutcome = Extract<GenerationOutcome, { kind: 'generation_s
  * naming its base, which a Vary settings step of a preset-held setting marks Custom for the
  * session. No musical profile is held. `instrumentProfile` is my instrument's profile, carried as
  * data exactly when the controls name `my-instrument` (taken at Start from phrase 1's intent); a
- * built-in's is resolved from its id, so built-in settings hold none.
+ * built-in's is resolved from its id, so built-in settings hold none. `restriction` is the
+ * restriction in force at the session's start, frozen there for the whole session: Vary
+ * settings' key and mode moves stay inside it. It is absent when none was in force, or when the
+ * one in force allows every key and mode, so nothing is drawn again for a restriction's sake. No
+ * phrase is generated from it.
  */
 // @spec-link [[service_session_engine]]
 // @spec-link [[rule_session_settings_locked]]
@@ -66,6 +71,7 @@ export interface SessionSettings {
   readonly figureLevels: FigureLevels
   readonly selection: PresetSelection
   readonly instrumentProfile?: InstrumentProfile
+  readonly restriction?: KeyAndModeRestriction
 }
 
 /**

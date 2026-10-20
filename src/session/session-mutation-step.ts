@@ -23,7 +23,9 @@ export interface MutationLanding {
 /**
  * Intent: the mutation landing on a phrase about to be requested, or undefined when the flag is
  * off or no mutation is scheduled there. The mutation context is read only when one lands, so a
- * session with the flag off reads nothing more than before.
+ * session with the flag off reads nothing more than before. The restriction frozen at the
+ * session's start travels in the settings, which every mutation's settings keep: a key or mode
+ * move stays inside it for the whole session.
  */
 // @spec-link [[rule_mutation_lands_on_scheduled_phrase]]
 // @spec-link [[req_settings_mutation_flag]]

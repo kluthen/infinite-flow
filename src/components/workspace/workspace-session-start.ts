@@ -8,6 +8,7 @@
  * generated under, which a stale phrase 1 used as it is differs in (./workspace-stale-phrase.ts). Once the locks are asked for,
  * a start is all or nothing: any later throw undoes it (./workspace-session-ends.ts).
  */
+import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import { createAudioTimeAgenda } from '@/session/session-agenda'
 import { createSessionHistory } from '@/session/session-history'
 import { sessionSettingsAtStart } from '@/session/session-intents'
@@ -15,6 +16,7 @@ import { phraseOneSettings } from '@/session/stale-phrase-one'
 import type { SessionStartBlocker } from '@/session/session-start-conditions'
 import type { SessionSettings } from '@/session/session-types'
 import { sessionLayoutAtStart } from '@/session/session-window'
+import { withRestrictionAtStart } from '@/session/settings-mutation'
 import type {
   ActiveSession,
   SessionControllerCore,
@@ -45,7 +47,8 @@ export function createSessionStart(
    * unlock the audio, hold the player's saves until the session ends, ask for the wake lock and the
    * landscape lock (a refusal changes nothing, so their outcomes are ignored), start the transport
    * and queue phrase 1's backing; then lock the current settings (my instrument's profile taken
-   * from phrase 1's intent, which embeds it), beside the settings phrase 1 was generated under at
+   * from phrase 1's intent, which embeds it, and the restriction in force frozen in them for the
+   * session, so Vary settings' key and mode moves stay inside it), beside the settings phrase 1 was generated under at
    * the session's tempo (phrase 2 joins phrase 1 as after a change from them, and the controls show
    * them, the preset selection as the player's at Start, through the count-in and phrase 1; equal ones
    * change nothing), hold the staff layout the
@@ -76,13 +79,16 @@ export function createSessionStart(
       throw new SessionControllerError(`session controller: a session cannot start: ${blocker}`)
     }
     state.review = null
-    const settings: SessionSettings = sessionSettingsAtStart(
-      {
-        controls: idle.state.controls,
-        figureLevels: idle.state.figureLevels,
-        selection: idle.state.selection,
-      },
-      phraseOne.intent,
+    const settings: SessionSettings = withRestrictionAtStart(
+      sessionSettingsAtStart(
+        {
+          controls: idle.state.controls,
+          figureLevels: idle.state.figureLevels,
+          selection: idle.state.selection,
+        },
+        phraseOne.intent,
+      ),
+      BUILT_IN_PRESETS,
     )
     const tempo = settings.controls.tempo
     const phraseOneOwn = phraseOneSettings(phraseOne.settings, phraseOne.intent, tempo)

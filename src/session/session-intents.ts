@@ -24,6 +24,10 @@ import {
   type FigureId,
   type FigureLevels,
 } from '../domain/figures/figure-levels'
+import {
+  makeKeyAndModeRestriction,
+  type KeyAndModeRestriction,
+} from '../domain/presets/key-and-mode-restriction'
 import type { PresetSelection } from '../domain/presets/preset-selection'
 import type { InstrumentProfile } from '../domain/profile/instrument-profile'
 import { MY_INSTRUMENT_ID } from '../domain/profile/instrument-profiles'
@@ -121,6 +125,15 @@ function suppliedProfileOf(
     : { instrumentProfile: settings.instrumentProfile }
 }
 
+/** Intent: a validated, frozen copy of the settings' restriction, when they carry one. */
+function restrictionOf(
+  settings: SessionSettings,
+): { readonly restriction: KeyAndModeRestriction } | Record<string, never> {
+  return settings.restriction === undefined
+    ? {}
+    : { restriction: makeKeyAndModeRestriction(settings.restriction) }
+}
+
 /** Intent: a fresh plain copy of a selection, holding only the fields its kind has. */
 function selectionCopy(selection: PresetSelection): PresetSelection {
   return selection.kind === 'preset'
@@ -133,7 +146,7 @@ function selectionCopy(selection: PresetSelection): PresetSelection {
  * its own objects after the start can reach the session. The controls and the figure levels are
  * validated on the way, the selection is copied as a plain value, and my instrument's profile,
  * when the settings carry it, is kept: settings whose profile does not match their instrument are
- * refused.
+ * refused. The restriction frozen at the session's start, when they carry one, is kept, validated.
  */
 // @spec-link [[rule_session_settings_locked]]
 // @spec-link [[entity_my_instrument]]
@@ -145,6 +158,7 @@ export function freezeSessionSettings(settings: SessionSettings): SessionSetting
     figureLevels: parseFigureLevels(settings.figureLevels),
     selection: selectionCopy(settings.selection),
     ...suppliedProfileOf(settings),
+    ...restrictionOf(settings),
   })
 }
 
