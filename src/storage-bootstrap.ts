@@ -21,6 +21,7 @@
  */
 
 import { readAudioMixDesign, type AudioMixDesign } from '@/audio/audio-mix'
+import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import type { MyInstrument } from '@/domain/profile/my-instrument'
 import { APP_VERSION } from '@/storage/app-version'
 import { defaultSettings, type SavedSettings } from '@/storage/records/setting-defaults'
@@ -181,7 +182,11 @@ export async function loadSavedData(deps: SavedDataLoadDependencies): Promise<Sa
   const myInstrumentLoaded = read.myInstrument !== null
   return {
     outcome: 'saved-data-read',
-    settings: decodeSettings(read.settings, { mixDesign, myInstrumentLoaded }),
+    settings: decodeSettings(read.settings, {
+      mixDesign,
+      myInstrumentLoaded,
+      presets: BUILT_IN_PRESETS,
+    }),
     myInstrument: read.myInstrument,
     keptSessionSummaries: read.keptSessionSummaries,
     rememberedController: read.rememberedController,

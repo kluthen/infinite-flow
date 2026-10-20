@@ -168,9 +168,16 @@ export async function seedRaw(
   })
 }
 
-/** Intent: the database opened with the production migrations, as the upgrading v3.1 tab opens it. */
+/**
+ * Intent: the database opened with the production migrations up to the kept-session step, at data
+ * version 2, as the upgrading v3.1 tab runs them; the later steps change no kept session.
+ */
 export function openUpgraded(factory: IDBFactory): Promise<StoragePort> {
-  return openStoragePort({ factory, appVersion: UPGRADING_APP_VERSION })
+  return openStoragePort({
+    factory,
+    appVersion: UPGRADING_APP_VERSION,
+    migrations: PRODUCTION_MIGRATIONS.slice(0, 2),
+  })
 }
 
 /** Intent: a session's stored values, read raw; `playedNotes` undefined when none is stored. */

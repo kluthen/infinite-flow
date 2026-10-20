@@ -76,7 +76,10 @@ describe('createGenerationSession: choosing a preset', () => {
     expect(built.generated).toHaveLength(generatedBefore)
     expect(
       Object.keys(built.saves[0]!).every(
-        (key) => key.startsWith('controls.') || key === 'profileSelection',
+        (key) =>
+          key.startsWith('controls.') ||
+          key.startsWith('figureLevels.') ||
+          key === 'presetSelection',
       ),
     ).toBe(true)
   })
@@ -277,7 +280,7 @@ describe('createGenerationSession: when the selection becomes Custom', () => {
 // @test-link [[rule_settings_saved_on_change]]
 // @test-link [[module_profile_control_customization]]
 describe('createGenerationSession: what a preset choice or a key edit saves', () => {
-  it('saves a Reel choice as the controls it changed, writing no selection', () => {
+  it('saves a Reel choice as the controls and levels it changed and Reel selected', () => {
     const { session, saves } = sessionFrom(
       { tonalCenter: 'A', collection: 'Aeolian' },
       { kind: 'preset', presetId: 'neutral' },
@@ -291,20 +294,25 @@ describe('createGenerationSession: what a preset choice or a key edit saves', ()
         'controls.tension': 'Settled',
         'controls.noteDensity': 'Eighth',
         'controls.rhythmicVariety': 'Strict',
+        'figureLevels.passingTone': 'favored',
+        'figureLevels.neighborTone': 'favored',
+        presetSelection: { kind: 'preset', presetId: 'reel' },
       },
     ])
   })
 
-  it('saves a mode leaving Reel as the mode alone, Custom based on Reel writing no selection', () => {
+  it('saves a mode leaving Reel as the mode and the Custom selection based on Reel', () => {
     const { session, saves } = sessionFrom({ tonalCenter: 'A', collection: 'Dorian' }, REEL)
 
     expect(session.actions.setControl('collection', 'Ionian')).toBe(true)
 
     expect(session.state.selection).toEqual({ kind: 'custom', baseId: 'reel' })
-    expect(saves).toEqual([{ 'controls.collection': 'Ionian' }])
+    expect(saves).toEqual([
+      { 'controls.collection': 'Ionian', presetSelection: { kind: 'custom', baseId: 'reel' } },
+    ])
   })
 
-  it('saves choosing the base from Custom as the selection, the values unchanged', () => {
+  it('saves choosing the base from Custom as the selection and the level it puts back', () => {
     const { session, saves } = createFitSession()
     expect(session.actions.setFigureLevel('passingTone', 'off')).toBe(true)
     saves.length = 0
@@ -312,6 +320,11 @@ describe('createGenerationSession: what a preset choice or a key edit saves', ()
     expect(session.actions.selectPreset('neutral')).toBe(true)
 
     expect(session.state.figureLevels).toEqual(NEUTRAL_FIGURE_LEVELS)
-    expect(saves).toEqual([{ profileSelection: { musicalProfile: 'Neutral', isCustom: false } }])
+    expect(saves).toEqual([
+      {
+        'figureLevels.passingTone': 'asToday',
+        presetSelection: { kind: 'preset', presetId: 'neutral' },
+      },
+    ])
   })
 })

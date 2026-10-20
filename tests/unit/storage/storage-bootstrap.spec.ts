@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { readAudioMixDesign, type AudioMixDesign } from '@/audio/audio-mix'
+import { builtInPreset } from '@/domain/presets/built-in-presets'
 import {
   loadSavedData,
   type SavedDataLoad,
@@ -38,7 +39,8 @@ const SAVED: SavedSettings = {
     register: 'Low',
     instrumentProfileId: 'eb-alto',
   },
-  profileSelection: { musicalProfile: 'Jazz', isCustom: true },
+  figureLevels: { ...DEFAULTS.figureLevels, appoggiatura: 'favored', chromaticApproach: 'asToday' },
+  presetSelection: { kind: 'custom', baseId: 'jazz' },
   theme: 'Dark',
   mix: { clickOn: false, clickVolume: 0.5, backingOn: false, backingVolume: 0.3 },
   sessionOptions: { varySettings: true, tensionAcrossPhrases: true, risingTempo: true },
@@ -172,6 +174,23 @@ describe('loadSavedData: a read within the start-up wait', () => {
     expect(load.settings).toEqual(SAVED)
     expect(load.outcome).toBe('saved-data-read')
     expect(await savingState(load)).toBe('on')
+  })
+
+  // @test-link [[rule_preset_load_values_win]]
+  it('judges the saved preset selection against the built-in presets', async () => {
+    const reel = builtInPreset('reel')
+    const savedReel: SavedSettings = {
+      ...SAVED,
+      controls: { ...SAVED.controls, ...reel.controls, collection: 'Mixolydian' },
+      figureLevels: reel.levels,
+      presetSelection: { kind: 'preset', presetId: 'reel' },
+    }
+    const factory = freshFactory()
+    await seedSettings(await readyPort(factory), savedReel)
+
+    const load = await loadSavedData(dependencies(() => readyPort(factory)))
+
+    expect(load.settings).toEqual(savedReel)
   })
 
   // @test-link [[rule_saved_settings_load_tolerantly]]

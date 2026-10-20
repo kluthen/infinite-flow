@@ -1,7 +1,7 @@
 /**
  * The Idle generation session saves the player's changes as they make them: each control action
- * that applies saves exactly the settings it changed (the controls, and the preset selection as
- * v3.0's stored selection while the record is v3.0's), the theme when it changed, and the
+ * that applies saves exactly the settings it changed (the controls, the figure levels and the
+ * preset selection), the theme when it changed, and the
  * instrument at once, before any fit run it starts. An action that applies nothing saves nothing.
  */
 import { describe, expect, it } from 'vitest'
@@ -20,12 +20,12 @@ describe('createGenerationSession: saving the player changes', () => {
     expect(saves).toEqual([
       {
         'controls.syncopation': 'Occasional offbeats',
-        profileSelection: { musicalProfile: 'Neutral', isCustom: true },
+        presetSelection: { kind: 'custom', baseId: 'neutral' },
       },
     ])
   })
 
-  it('saves a preset choice as the controls it changed and the new selection', () => {
+  it('saves a preset choice as the controls and levels it changed and the new selection', () => {
     const { session, saves } = createFitSession()
 
     expect(session.actions.selectPreset('jazz')).toBe(true)
@@ -37,7 +37,9 @@ describe('createGenerationSession: saving the player changes', () => {
         'controls.silenceDensity': 'Conversational',
         'controls.contour': 'Wandering',
         'controls.register': 'Varying',
-        profileSelection: { musicalProfile: 'Jazz', isCustom: false },
+        'figureLevels.chromaticApproach': 'asToday',
+        'figureLevels.chromaticEnclosure': 'asToday',
+        presetSelection: { kind: 'preset', presetId: 'jazz' },
       },
     ])
   })
@@ -51,13 +53,19 @@ describe('createGenerationSession: saving the player changes', () => {
   })
 
   // @test-link [[module_profile_control_customization]]
-  it('saves a level edit as the Custom selection it makes, the levels not saved yet', () => {
+  it('saves a level edit as that level and the Custom selection it makes', () => {
     const { session, saves } = createFitSession()
 
     expect(session.actions.setFigureLevel('neighborTone', 'favored')).toBe(true)
     expect(session.actions.setFigureLevel('passingTone', 'off')).toBe(true)
 
-    expect(saves).toEqual([{ profileSelection: { musicalProfile: 'Neutral', isCustom: true } }, {}])
+    expect(saves).toEqual([
+      {
+        'figureLevels.neighborTone': 'favored',
+        presetSelection: { kind: 'custom', baseId: 'neutral' },
+      },
+      { 'figureLevels.passingTone': 'off' },
+    ])
   })
 
   // @test-link [[module_generative_profile_selection]]

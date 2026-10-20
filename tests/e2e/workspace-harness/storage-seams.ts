@@ -54,6 +54,7 @@ import {
   KEPT_SESSION_SUMMARY_DATA_VERSION,
 } from '../../../src/storage/records/kept-reading'
 import { readAudioMixDesign } from '../../../src/audio/audio-mix'
+import { BUILT_IN_PRESETS } from '../../../src/domain/presets/built-in-presets'
 import {
   decodeSettings,
   encodeSettingRecord,
@@ -257,6 +258,7 @@ function notReadBack(records: readonly unknown[]): string[] {
   const decoded = decodeSettings(records, {
     mixDesign: readAudioMixDesign(getComputedStyle(document.documentElement)),
     myInstrumentLoaded: false,
+    presets: BUILT_IN_PRESETS,
   })
   return records.flatMap((record) => {
     const { key, value } = (record ?? {}) as { key?: unknown; value?: unknown }

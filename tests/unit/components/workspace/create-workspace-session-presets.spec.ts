@@ -1,8 +1,8 @@
 /**
- * The preset selection across the workspace's load: the saved v3.0 selection the composition root
- * starts Idle from loads as a preset or Custom based on it, with that built-in's levels, and the
- * selection the player chooses survives a save and a reload through the saver's writes and the
- * settings record's decode.
+ * The preset selection across the workspace's load: the composition root starts Idle from the
+ * preset selection and levels the settings record's decode loads, the saved values winning over a
+ * preset they no longer match, and the selection the player chooses survives a save and a reload
+ * through the saver's writes and that decode.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -10,7 +10,7 @@ import { composeWorkspaceSession } from '@/components/workspace/create-workspace
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import { JAZZ_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
-import { builtInPreset } from '@/domain/presets/built-in-presets'
+import { BUILT_IN_PRESETS, builtInPreset } from '@/domain/presets/built-in-presets'
 import { defaultSettings, type SavedSettings } from '@/storage/records/setting-defaults'
 import { decodeSettings, encodeSettings } from '@/storage/records/settings-record'
 import { themeDesign } from '../../audio/transport-rig'
@@ -64,21 +64,25 @@ function reloaded(settings: SavedSettings, calls: readonly PolicyCall[]): SavedS
   return decodeSettings(recordsAfterSaves(settings, calls), {
     mixDesign: themeDesign(),
     myInstrumentLoaded: false,
+    presets: BUILT_IN_PRESETS,
   })
 }
 
-// @test-link [[rule_saved_profile_becomes_preset]]
+// @test-link [[rule_preset_load_values_win]]
 // @test-link [[rule_settings_saved_on_change]]
 describe('composeWorkspaceSession: the preset selection across a reload', () => {
   it('loads Jazz saved with Tension at Build as Custom based on Jazz, with Jazz levels', () => {
-    const savedData = fakeSavedData({
+    const saved: SavedSettings = {
+      ...defaultSettings(themeDesign().defaults),
       controls: makeGenerationControls({
         ...DEFAULT_GENERATION_CONTROLS,
         ...builtInPreset('jazz').controls,
         tension: 'Build',
       }),
-      profileSelection: { musicalProfile: 'Jazz', isCustom: false },
-    })
+      figureLevels: JAZZ_FIGURE_LEVELS,
+      presetSelection: { kind: 'preset', presetId: 'jazz' },
+    }
+    const savedData = fakeSavedData(reloaded(saved, []))
     const workspace = composeWorkspaceSession({ ...fakeDependencies(), savedData })
 
     expect(workspace.session.state.selection).toEqual({ kind: 'custom', baseId: 'jazz' })
