@@ -246,6 +246,7 @@ test('a mark is a dot the size of --segment-mark-size drawn as the segment’s :
 
 // @test-link [[module_key_and_mode_marks]]
 // @test-link [[rule_restriction_in_force]]
+// @test-link [[rule_restriction_highlight_never_blocks]]
 test('during a session started under Reel at C Mixolydian the marks and the note keep their start state through the count-in and the running session, and after Stop follow the player’s settings again', async ({
   page,
 }) => {
@@ -275,6 +276,7 @@ test('during a session started under Reel at C Mixolydian the marks and the note
 
 // @test-link [[module_key_and_mode_marks]]
 // @test-link [[rule_restriction_in_force]]
+// @test-link [[rule_restriction_highlight_never_blocks]]
 test('after Start with this phrase, phrase 1 made at C Ionian under Neutral shows Ionian checked through the count-in and phrase 1 while Reel’s marks and note stay as Start showed them', async ({
   page,
 }) => {

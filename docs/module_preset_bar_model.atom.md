@@ -1,6 +1,6 @@
 ---
 id: module_preset_bar_model
-status: DRAFT
+status: REVIEW
 priority: 1
 parents:
   - [[module_preset_model]]
