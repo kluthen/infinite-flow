@@ -17,6 +17,12 @@ values are two sizes.
 
 ## Part 1: v3.1
 
+**Applied.** v3.1's token-source pass has written this part into `src/styles/theme.css` and
+`components.css`, under `v3.1 new` / `v3.1 changed` comments; those two files are the source of
+truth for it from now on, and it stays here only until part 2 is in too. One item waits: the
+classes under Removed Classes stay in `components.css` until the build takes the status line
+out of the controls, which removes them there.
+
 ### New Tokens
 
 | Token | Value | Use |

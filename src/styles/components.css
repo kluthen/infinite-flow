@@ -739,11 +739,19 @@
      "(in use)"), hover, focus-visible, active, disabled. A vertical list of plain buttons with
      one roving tab stop; arrow keys only move focus, Enter/Space/click chooses -- see
      `screens/controller-connection/handoff.md`. Visually modeled on `.segment`. */
-  .device-picker {
+  /* v3.1 changed -- `choice-list` and `choice-option` share these rules exactly. States:
+     default, hover, focus-visible, active, selected (`aria-checked="true"` and `is-selected`:
+     the accent fill), disabled. A vertical radiogroup of full-width options inside a sheet (the
+     preset sheet's Key and mode choice): `role="radiogroup"` on the list, `role="radio"` and
+     `aria-checked` on each option, with the roving tab stop and arrow keys of
+     `segmented-control`, which script provides. */
+  .device-picker,
+  .choice-list {
     display: grid;
     gap: var(--spacing-2);
   }
-  .device-option {
+  .device-option,
+  .choice-option {
     background: var(--color-surface-muted);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
@@ -754,22 +762,28 @@
     padding: var(--spacing-2) var(--spacing-3);
     text-align: start;
   }
-  .device-option:hover {
+  .device-option:hover,
+  .choice-option:hover {
     border-color: var(--color-accent);
   }
-  .device-option:focus-visible {
+  .device-option:focus-visible,
+  .choice-option:focus-visible {
     box-shadow: var(--shadow-focus);
     outline: none;
   }
-  .device-option:active {
+  .device-option:active,
+  .choice-option:active {
     background: var(--color-surface);
   }
-  .device-option.is-selected {
+  .device-option.is-selected,
+  .choice-option.is-selected,
+  .choice-option[aria-checked='true'] {
     background: var(--color-accent);
     border-color: var(--color-accent);
     color: var(--color-accent-text);
   }
-  .device-option:disabled {
+  .device-option:disabled,
+  .choice-option:disabled {
     cursor: not-allowed;
     opacity: 0.55;
   }
@@ -1350,7 +1364,14 @@
      `--control-group-min-inline-size` (see the bp-tablet-landscape block below), so an `Off`/`On`
      control keeps a field's usual width instead of stretching across the row. Each field carries
      its own states (a `segmented-control` and its `field-note`s). */
-  .control-group-session > h3 {
+  /* v3.1 changed -- `control-group-figures`, the Embellishments group, takes this layout
+     unchanged, and sits before `control-group-session`: below bp-tablet-landscape it stacks after
+     the groups before it; from bp-tablet-landscape up it takes a row of its own, its heading and
+     `control-group-intro` across the top and its seven fields in columns of at least
+     `--control-group-min-inline-size`, wrapping into further rows. States: none of its own; it
+     takes the read-only ring like every group (on its fields). */
+  .control-group-session > h3,
+  .control-group-figures > h3 {
     grid-column: 1 / -1;
   }
   /* States: none (static text). The tempo as "{tempo} BPM", in the header's `tempo-readout` and
@@ -1856,6 +1877,182 @@
   }
   /* end v3 new */
 
+  /* v3.1 new -- from here to "end v3.1 new": the preset bar (`preset-bar`, `preset-select`,
+     `preset-actions`), the key and mode mark (`segment.is-marked`), the Embellishments group's
+     intro (`control-group-intro`), the preset sheet's name alert (`name-alert`) and Your data's
+     list of player presets (`sheet-list`, `sheet-list-row`). `choice-list` and `choice-option`
+     share `device-picker`'s and `device-option`'s rules, and `control-group-figures`
+     `control-group-session`'s, where those are written. Every interactive class here is
+     composed with `btn` or `segment`, or is a native form field, so its states are those
+     classes' own unless its comment says otherwise. */
+
+  /* States: none of its own (layout only). The first row of `control-section`, after
+     `control-summary` and before `control-group-row`: the Preset `field-group` (its
+     `field-label`, `preset-select`, then the description `field-note`), then `preset-actions`.
+     Below bp-tablet-landscape the two stack, `--spacing-4` apart; from bp-tablet-landscape up
+     they share one row (see the block at the end of this part). `--spacing-5` before
+     `control-group-row`. The field group drops its own bottom margin: the bar spaces it. */
+  .preset-bar {
+    display: grid;
+    gap: var(--spacing-4);
+    margin-block-end: var(--spacing-5);
+  }
+  .preset-bar > .field-group {
+    margin-block-end: 0;
+    min-inline-size: 0;
+  }
+  /* States: default, hover, focus-visible and open, read-only, disabled. A native `select`
+     with its `optgroup`s and `option`s, the browser's own arrow and list (the page's
+     `color-scheme` follows the theme, so the open list matches it). One inline size whatever it
+     shows, capped at its field: a longer text is cut with an ellipsis by the box, and its
+     `title` holds the full text. Hover: the accent border. Focus-visible and open:
+     `--shadow-focus` (`:open` sits in `:is()`, whose forgiving list ignores it in a browser
+     that lacks it; there the open select is focused and shows the ring only when focused by
+     keyboard). Read-only (`is-readonly` with `aria-readonly="true"`, in Loading and during a
+     session): the dashed `--readonly-ring`, as `segmented-control.is-readonly`, full-strength
+     text, pointer events off, still focusable; script refuses a keyboard change. Disabled: as
+     `.btn` (unused by v3.1's design, defined for completeness). The Custom option is
+     `disabled hidden` in markup: shown as the box's value, never in the list. The 44px minimum
+     block size is the `btn`'s. */
+  .preset-select {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text);
+    font-family: var(--font-ui);
+    font-size: var(--text-md);
+    inline-size: min(100%, var(--preset-select-inline-size));
+    min-block-size: 2.75rem;
+    overflow: hidden;
+    padding: var(--spacing-2) var(--spacing-3);
+    text-overflow: ellipsis;
+    transition: border-color var(--duration-feedback) var(--ease-out-fast);
+    white-space: nowrap;
+  }
+  .preset-select:hover:not(:disabled, .is-readonly) {
+    border-color: var(--color-accent);
+  }
+  .preset-select:is(:focus-visible, :open) {
+    box-shadow: var(--shadow-focus);
+    outline: none;
+  }
+  .preset-select.is-readonly {
+    outline: var(--readonly-ring);
+    outline-offset: var(--spacing-1);
+    pointer-events: none;
+  }
+  /* Drawn once: a read-only `field-group` around it already carries the ring. */
+  .field-group.is-readonly .preset-select.is-readonly {
+    outline: none;
+  }
+  .preset-select:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+  /* States: none of its own; its buttons carry `.btn`'s, disabled included. A row of plain
+     `btn`s (`Save as new preset`, `Save changes`, `Rename preset`, `Delete preset`, each present
+     by the selection), `--spacing-2` apart, wrapping, each at its own width. Its `field-note`,
+     shown while `Save as new preset` is disabled at the limit, takes a line of its own after the
+     buttons. */
+  .preset-actions {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+    min-inline-size: 0;
+  }
+  .preset-actions > .field-note {
+    flex-basis: 100%;
+  }
+
+  /* States: marked, marked and selected; kept in every other state of the segment (hover,
+     focus-visible, active, read-only), never combined with disabled (a restriction never
+     disables). A segment the key and mode restriction in force allows: a filled dot,
+     `--segment-mark-size` across, at its top inline-end corner, `--spacing-1` from both edges.
+     The dot is an `::after`, so it adds no accessible text; it is a shape, so colour is never
+     the only signal, and the words are in the control's `field-note`. `--color-accent` on an
+     unselected segment, `--color-accent-text` on the selected one: both meet 3:1 against the fill
+     under them in both themes. The same at every breakpoint, a segment wrapped onto a second
+     line included. */
+  .segment.is-marked {
+    position: relative;
+  }
+  .segment.is-marked::after {
+    background: var(--color-accent);
+    block-size: var(--segment-mark-size);
+    border-radius: 50%;
+    content: '';
+    inline-size: var(--segment-mark-size);
+    inset-block-start: var(--spacing-1);
+    inset-inline-end: var(--spacing-1);
+    pointer-events: none;
+    position: absolute;
+  }
+  .segment.is-marked:is(.is-selected, [aria-checked='true'])::after {
+    background: var(--color-accent-text);
+  }
+
+  /* States: default only (static). One muted line under a control group's `h3` (the
+     Embellishments group's), in `field-note`'s type and colour, spanning every column of the
+     group's grid from bp-tablet-landscape up. */
+  .control-group-intro {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    grid-column: 1 / -1;
+    margin: 0 0 var(--spacing-3);
+  }
+
+  /* States: absent, shown. Composed as `inline-alert alert-notice name-alert`, under the
+     preset sheet's name field: the reason a name is refused, present only while it applies, a
+     polite live region (`role="status"`), as `range-alert` is in the My instrument sheet. Never
+     error-toned. */
+  .name-alert {
+    margin: 0;
+  }
+
+  /* States: none of their own; the row's button carries `.btn`'s. A list of named items inside
+     a `sheet-section` (Your data's player presets): `sheet-list` a `ul` with no markers, its rows
+     `--spacing-2` apart; each `sheet-list-row` the item's name, in the sheet's body type, at the
+     inline start and one plain `btn` at the inline end, the button wrapping under the name, at
+     the inline start, when the row cannot hold both. */
+  .sheet-list {
+    display: grid;
+    gap: var(--spacing-2);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .sheet-list-row {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+    justify-content: space-between;
+    min-inline-size: 0;
+  }
+
+  /* From bp-tablet-landscape up (the query of the bp-tablet-landscape block below): the preset
+     bar is one row, the Preset field at the inline start at `--preset-select-inline-size` (its
+     description line wrapping within that width) and `preset-actions` after it, aligned to the
+     select's block start (offset by the field label's line and the field group's gap), the
+     whole row of buttons wrapping under the field when the width runs out, where it keeps that
+     offset. */
+  @media (min-width: 64rem) and (orientation: landscape) {
+    .preset-bar {
+      align-items: flex-start;
+      display: flex;
+      flex-wrap: wrap;
+    }
+    .preset-bar > .field-group {
+      flex: 0 1 var(--preset-select-inline-size);
+    }
+    .preset-bar > .preset-actions {
+      flex: 1 1 auto;
+      margin-block-start: calc(var(--text-sm) * var(--leading-base) + var(--spacing-2));
+    }
+  }
+  /* end v3.1 new */
+
   @keyframes staff-fade-in {
     from {
       opacity: 0;
@@ -1905,8 +2102,10 @@
     }
     /* The "During a session" group takes a row of its own: the whole flex line here,
        the whole grid row at bp-desktop (`grid-column`), its fields side by side. The doubled class
-       outweighs the `.control-group-row > .control-group` flex rule above. */
-    .control-group-row > .control-group.control-group-session {
+       outweighs the `.control-group-row > .control-group` flex rule above.
+       v3.1 changed -- the Embellishments group (`control-group-figures`) takes the same row. */
+    .control-group-row > .control-group.control-group-session,
+    .control-group-row > .control-group.control-group-figures {
       align-items: start;
       column-gap: var(--spacing-4);
       display: grid;
