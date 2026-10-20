@@ -1,6 +1,10 @@
 # Infinite Flow v3.1 — Build Plan
 
-Status: v13 (2026-10-20): the owner's answer to O233 (spec D376): v3.0's sessions are carried
+Status: v14 (2026-10-20): wave 3's preflight corrections, before its first chunk: what chunk 12
+saves and loads until chunk 16 (spec D377); the session's start settings carry chunk 15's
+restriction; files, atoms, drift checks and Revisions follow the code and the captures of 866f761
+(chunks 11, 12, 15, 16, 22).
+v13 (2026-10-20): the owner's answer to O233 (spec D376): v3.0's sessions are carried
 over at open only, the rare overrun of the start-up wait is accepted and B9 states it; gate M3H
 is done and the release gate no longer waits for it.
 v12 (2026-10-19): from chunk 9's report: chunk 22 joins wave 3 after chunk 12, {length}
@@ -1155,8 +1159,11 @@ Architecture capture: none
 - **Spec sections:** [B5.6](master-spec.md#b56-the-cost-guard),
   [B5.2](master-spec.md#b52-four-levels), [B6.5](master-spec.md#b65-the-built-in-presets); items 8
   (first measurement and decision), 9 (generates on the sweep), 3.
-- **Atoms:** none (measurement); the decision feeds `documentalist` through DP.
-- **Revisions:** none.
+- **Atoms:** none (measurement); the decision feeds `documentalist` through DP. If a share is
+  tuned: `module_favored_figure_draw`, `rule_figure_level_orders_search`.
+- **Revisions:** none if no share is tuned. If `FAVORED_SHARE` or `STRONGLY_FAVORED_SHARE` is
+  tuned, revise `module_favored_figure_draw` (its 0x4000 and 0x8000) and
+  `rule_figure_level_orders_search` (its "about 1 in 4" and "about 1 in 2") to the new shares.
 - **Done when:** M2's table is recorded for the three settings and the eight built-ins, on the
   reference machine for the deciding runs; every built-in generates in every allowed mode; the
   decision is recorded by `spec-writer`; M1 is recorded at the shares in force.
@@ -1188,7 +1195,26 @@ settings and the draw) and 16 (the state it loads into) build on it in the same 
     (`settings-record.ts`, `setting-defaults.ts`, `settings-saver.ts`, `kept-session-summary.ts`,
     `kept-phrase-parsers.ts`), and chunk 16 rewrites the settings half after this chunk merges, so
     `profile-selection.ts` keeps v3.0's profile shape and bundles for those readers (the v3.0 data
-    they read and upgrade) until chunk 16; the app works after each merge.
+    they read and upgrade) until chunk 16; the app works after each merge (what is saved and loaded
+    meanwhile: the next bullet). The `musicalProfile` variant of `GenerationIntentInput`
+    (`src/domain/generation/generation-intent.ts`) goes; the goldens' spec files, which kept the
+    profile as the factory's input until this chunk (spec D365), pass `levelsForProfile(profile)`
+    instead, the fixtures byte-identical ([Read first](#read-first-what-v31-changes-in-v30-and-v2)).
+    Code fact: `MUSICAL_PROFILES` (`generation-controls.ts`) stays, read by the `ifk1.`/`ifk2.`
+    decoder (`phrase-replay-key-decode.ts`), `profile-to-levels.ts` and `settings-record.ts`; this
+    chunk removes only its uses in the interface.
+  - **Storage until chunk 16** (spec D377). The settings record and the saver keep v3.0's
+    `profileSelection` (`{ musicalProfile, isCustom }`, written through `chosenControlChanges`,
+    `src/storage/settings-saver.ts`; read into the state by `create-workspace-session.ts`) until
+    chunk 16 replaces it. On load, a saved Neutral or Jazz selection becomes that built-in, or
+    Custom based on it, with that built-in's levels, and the saved values win, as
+    `rule_saved_profile_becomes_preset` states (Jazz saved with Tension at Build loads as Custom
+    based on Jazz). On save, Neutral, Jazz, or Custom based on either, is written as v3.0's
+    selection; the controls are saved as in v3.0. The other six built-ins (reached only through the
+    harness), Custom based on one of them, and the seven levels are not saved until chunk 16: the
+    saved selection stays the last one written, so a reload shows it, or Custom based on it when
+    the saved controls differ from its values. Wave 3 does not merge to `main` between chunks 12
+    and 16.
   - **The routing point.** `setControl` (`src/composables/generation-session-control-actions.ts`)
     makes Custom for the ten controls; for the written key and the collection it makes Custom only
     outside the restriction in force (opting out). `setFigureLevel` makes Custom. The instrument
@@ -1202,7 +1228,10 @@ settings and the draw) and 16 (the state it loads into) build on it in the same 
     built-ins (its `select-musical-profile` event in `ControlPanel.vue`, handled by
     `handleSelectMusicalProfile` in `WorkspaceShell.vue`); `control-summary` (`controlSummaryText`
     and `profileSelectionLabel`, `control-options.ts`) reads `… · Custom, based on Jazz · …`,
-    through chunk 9's label function (spec D371). Out: the full box (chunk
+    through chunk 9's label function (spec D371). The review state
+    (`src/components/workspace/session-review-state.ts`) and the stale-phrase prompt
+    (`src/components/workspace/workspace-stale-phrase.ts`, `src/session/stale-phrase-one.ts`) read
+    the preset selection in the profile's place. Out: the full box (chunk
     13); the other six built-ins are reachable through the harness until then.
   - **Vary settings.** The figure step takes the musical profile's one place in the draw
     (the `musicalProfile` entry of `MUTATION_SCALES` and its slot in `MUTABLE_SETTINGS`,
@@ -1215,7 +1244,14 @@ settings and the draw) and 16 (the state it loads into) build on it in the same 
     Tension across phrases never marks Custom. Code fact: Vary settings' indexed stream draws with
     `Math.floor(stream.nextFloat() * items.length)`, which B5.2's integer rule (about the figure draws) does not
     cover.
-  - **Kept sessions:** the preset label comes from the selection at the session's start.
+  - **Kept sessions:** the preset label comes from the selection at the session's start. The
+    session history's `profileSelection` (`src/session/session-history.ts`) becomes the preset
+    selection; the kept record (`src/storage/records/kept-session-record.ts`: the
+    `KeptSessionHistory` pick, the label at the save) labels it through `presetLabel`
+    (`src/domain/controls/preset-label.ts`), the one label function (spec D371), which labels the
+    preset selection and still labels a v3.0 profile selection in the same form, for the data
+    version 2 upgrade (`kept-session-summary.ts`, `src/storage/migrations/kept-sessions-v2.ts`).
+    Chunk 22 edits `kept-session-record.ts` after this chunk.
   - **Pre-generation:** a preset choice that changes a value discards as a control change does;
     v3.0's "profile change" test becomes a preset-change test. Code fact: v3.0's queue key
     (`settingsKeyOf`, `src/components/workspace/workspace-pregeneration.ts`) holds the profile
@@ -1229,8 +1265,12 @@ settings and the draw) and 16 (the state it loads into) build on it in the same 
   `settings-mutation.ts`, `src/components/workspace/use-shown-settings.ts`,
   `workspace-session-start.ts`, `workspace-pregeneration.ts`, `WorkspaceShell.vue`,
   `src/composables/workspace-session-result.ts`, `src/domain/controls/generation-controls.ts`
-  (`MUSICAL_PROFILES`), `src/components/controls/control-options.ts`, `ControlPanel.vue`,
-  `FoundationControls.vue`; the tests of [Read first](#read-first-what-v31-changes-in-v30-and-v2)
+  (`MUSICAL_PROFILES` stays), `src/components/controls/control-options.ts`, `ControlPanel.vue`,
+  `FoundationControls.vue`, `src/session/session-history.ts`, `src/session/stale-phrase-one.ts`,
+  `src/domain/controls/preset-label.ts`, `src/domain/generation/generation-intent.ts`,
+  `src/storage/records/kept-session-record.ts`, `src/storage/settings-saver.ts`,
+  `src/components/workspace/session-review-state.ts`, `workspace-stale-phrase.ts`,
+  `create-workspace-session.ts` (chunk 16 edits it after this chunk); the tests of [Read first](#read-first-what-v31-changes-in-v30-and-v2)
   rewritten; `tests/e2e/workspace/presets-choose.spec.ts` (new).
 - **Spec sections:** [B6.3](master-spec.md#b63-choosing-a-preset),
   [B6.4](master-spec.md#b64-the-selection-custom-and-the-highlight),
@@ -1249,9 +1289,19 @@ settings and the draw) and 16 (the state it loads into) build on it in the same 
   `rule_preset_label_kept_with_session`, `rule_vary_settings_figure_step`,
   `rule_vary_settings_marks_custom`, `rule_tension_across_phrases_never_marks_custom`; (v2, STABLE)
   `rule_mutation_marks_profile_customized`, `rule_mutation_setting_scales`,
-  `rule_mutation_reverts_at_session_end`, `rule_session_settings_locked`. Drift check:
+  `rule_mutation_reverts_at_session_end`, `rule_session_settings_locked`. Captures (866f761):
+  `module_generative_profile_selection` 1.2, `module_profile_control_customization` 1.2,
+  `module_settings_mutation` 0.3. Drift check:
   `module_settings_mutation`, `module_profile_control_customization`,
-  `module_generative_profile_selection`, `module_session_vary_settings_flag`.
+  `module_generative_profile_selection`, `module_session_vary_settings_flag`,
+  `service_idle_generation_session`, `service_session_engine` (it names
+  `SessionSettings { controls, musicalProfile, instrumentProfile? }`), `service_session_start`,
+  `service_session_history`, `module_session_shown_settings`, `module_session_pregeneration_plan`,
+  `module_idle_pregeneration_queue`, `module_session_carry_in_after_change`,
+  `module_generation_request_construction`, `module_kept_session_upgrade_step` (the one label
+  function), `module_kept_session_codec` (interface wording only, under change set J3). Known
+  drift, accepted: `rule_pregeneration_discarded_on_change` says "the musical profile" until chunk
+  19 revises it.
 - **Revisions:** revise `user_story_controlled_phrase_generation`,
   `rule_selectable_generative_profiles`, `rule_profile_presets_apply_defined_controls`,
   `rule_profile_control_customization`, `rule_mutation_draws_setting_then_direction`,
@@ -1264,7 +1314,8 @@ settings and the draw) and 16 (the state it loads into) build on it in the same 
   `tests/e2e/session/session-vary-settings.spec.ts`) to `rule_vary_settings_figure_step`, each
   directly above the figure step's function and its tests; remove it from
   `module_settings_mutation`'s parents and from the dependents of `req_settings_mutation_flag` and
-  `rule_profile_control_customization`.
+  `rule_profile_control_customization`; the area doc `docs/session-engine.md` (its D181
+  paragraph) stops naming it.
 - **Done when:**
   - Choosing Neutral or Jazz sets ten controls and seven levels: from a state with Tension at Build,
     Neutral sets Lift; the tempo, the instrument and the session options never change; the phrase on
@@ -1277,7 +1328,11 @@ settings and the draw) and 16 (the state it loads into) build on it in the same 
     count unchanged), a Tension, Leapiness, Arpeggio chaos or level move shows Custom at the instant
     its phrase starts sounding, Stop restores the selection and every setting, Tension across
     phrases never shows Custom.
-  - A kept session started from Custom based on Jazz carries that label.
+  - A kept session started from Custom based on Jazz carries that label; a v3.0 profile selection
+    still gets the same label through the one label function.
+  - Until chunk 16 (D377): Jazz, and Custom based on Jazz, survive a reload; Jazz saved with
+    Tension at Build loads as Custom based on Jazz with Jazz's levels; choosing Reel (harness)
+    writes no selection.
   - The v3.0 corpus passes; every rewritten test has its counterpart.
 - **Verification:** chunk checks with the corpus guard; a debug run of a Vary settings session; the
   sweep at the wave gate (session draws).
@@ -1407,12 +1462,15 @@ Architecture capture: none
   restriction's sake. The redraw bound (`MAX_MUTATION_DRAWS`, 10,000) is checked against the worst
   restriction (a one-pair player preset); it and `isSupportedStep` are private to
   `settings-mutation.ts`, so the count the test reads comes through an injected seam, never a
-  test-only branch. The session seed plan
-  ([v3.0 chunk 23](build-plan.md#chunk-23--session-seed-plan)) takes the restriction, so a
-  pre-generated phrase equals the session's; **a change of the restriction in force at Idle
+  test-only branch. The session's start settings, which the pre-generation plan's start
+  (`PregenerationStart.settings`) copies, carry the restriction frozen at Start, and the draw
+  reads it from them (`landingMutation`, `src/session/session-mutation-step.ts`, which calls
+  `mutateSettings`); the session seed plan
+  ([v3.0 chunk 23](build-plan.md#chunk-23--session-seed-plan)) only derives seeds and is
+  unchanged. So a pre-generated phrase equals the session's; **a change of the restriction in force at Idle
   discards the pre-generated phrases** whether Vary settings is on or not (opting out, coming back
   inside). Out: saves and deletions that change it (chunks 17 and 19).
-- **Files:** `src/session/settings-mutation.ts`, `src/session/session-seed-plan.ts` (v3.0),
+- **Files:** `src/session/settings-mutation.ts`, `src/session/session-mutation-step.ts` (v3.0),
   `src/session/session-types.ts`, `src/components/workspace/workspace-session-start.ts`,
   `src/session/session-pregeneration.ts` (`createPregenerationPlan`, v3.0),
   `src/components/workspace/workspace-pregeneration.ts` (the queue key gains the restriction in
@@ -1428,7 +1486,9 @@ Architecture capture: none
   (Vary settings and presets: Key and mode moves), [`flows/generate-phrase/handoff.md`](../../../ui_ux/versions/v3.1/flows/generate-phrase/handoff.md)
   (Prepared phrases and presets).
 - **Atoms:** `rule_vary_settings_stays_inside_restriction`, `rule_restriction_in_force`; (v3.0)
-  `rule_pregenerated_phrase_matches_session`. Drift check: `module_settings_mutation`.
+  `rule_pregenerated_phrase_matches_session`. Drift check: `module_settings_mutation`,
+  `module_session_mutation_step`, `module_session_pregeneration_plan`,
+  `module_idle_pregeneration_queue`.
 - **Revisions:** revise `rule_mutation_rerolls_unsupported_combination`.
 - **Done when:**
   - Over many seeded sessions: under Reel the mode moves only between Mixolydian and Dorian; under
@@ -1467,8 +1527,8 @@ levels, restriction; data and app version) and its tolerant codec.
     the key or the mode. A failed presets read makes the visit a failed-read visit as a whole,
     which lists the built-ins only; an outdated tab lists the player presets it read. Neither saves.
   - **Save on change**, under the save policy (v3.0 chunk 5): a level, the selection; never during a
-    session (the hold), never what Vary settings moved. Out: the player-preset write itself (chunk
-    17).
+    session (the hold), never what Vary settings moved. This replaces chunk 12's interim save and
+    load of v3.0's selection (spec D377). Out: the player-preset write itself (chunk 17).
   - M3's start-up timing and version 3 upgrade.
 - **Files:** `src/storage/records/preset-record.ts` (new), `src/storage/records/settings-record.ts`,
   `src/storage/records/setting-defaults.ts`, `src/storage/settings-saver.ts` (save on change),
@@ -1489,15 +1549,21 @@ levels, restriction; data and app version) and its tolerant codec.
   (Saved settings).
 - **Atoms:** `rule_player_presets_saved_on_device`, `rule_preset_load_values_win`,
   `rule_presets_load_tolerantly`, `rule_saved_profile_becomes_preset`,
-  `rule_presets_in_visits_that_save_nothing` (its loading half); (v3.0)
-  `rule_saved_settings_load_tolerantly`, `rule_saved_setting_is_players_choice`,
+  `rule_presets_in_visits_that_save_nothing` (its loading half), `rule_presets_read_at_start_up`
+  (DRAFT); (v3.0) `rule_saved_settings_load_tolerantly`, `rule_saved_setting_is_players_choice`,
   `rule_no_save_during_session`, `rule_outdated_tab_stops_saving`,
-  `rule_failed_read_offers_only_delete_everything`.
+  `rule_failed_read_offers_only_delete_everything`, and, unchanged (STABLE),
+  `rule_first_phrase_waits_for_saved_settings`, `rule_outdated_tab_reads_what_it_can`. Captures
+  (866f761, DRAFT, new): `module_settings_upgrade_step` 0.1, `entity_player_preset_record` 0.1.
+  Drift check: `module_save_policy`.
 - **Revisions:** (contract, CS) revise `rule_settings_saved_on_change`,
   `rule_saved_settings_load_tolerantly` (Custom based on the preset in place of its grammar; a key
   and mode outside the restriction load as Custom; tagged `changes-in-v3.1` by spec D360),
   `module_on_device_database` (data version 3, the `presets` store), `module_saved_data_loader`
-  (the levels, the selection and the presets read with the settings).
+  (the levels, the selection and the presets read with the settings). `module_on_device_database`
+  takes change set J3 without its clause "(each when it is read instead, if rewriting them all at
+  the upgrade does not fit the start-up read's time limit)", since step 2 runs at open only (spec
+  D376); J3's step-3 sentence and "brought to 3 … through steps 1, 2 and 3" go in as drafted.
 - **Done when:**
   - The seven levels and the selection survive a reload (one e2e test per level, and for a
     built-in, a player preset and Custom with and without a base).
@@ -1739,8 +1805,9 @@ Architecture capture: none (one length function shared by the save and the revie
   `src/components/workspace/ReviewArea.vue` (passes it), `src/storage/records/kept-session-record.ts`
   (the shared length function); tests `tests/unit/components/review/ReviewPanel.spec.ts`, and the
   e2e specs that read `review-summary` (`tests/e2e/review/review-opens.spec.ts`,
-  `review-favorites.spec.ts`, `tests/e2e/storage/kept-sessions-carried-over.spec.ts`,
-  `my-instrument.spec.ts`), updated to the full line.
+  `review-favorites.spec.ts`, `review-long.spec.ts`,
+  `tests/e2e/storage/kept-sessions-carried-over.spec.ts`, `my-instrument.spec.ts`), and
+  `tests/unit/components/review/ReviewPanel-session-tools.spec.ts`, each updated to the full line.
 - **Spec sections:** Part A [§5.4](master-spec.md#54-reaching-earlier-sessions).
 - **Design docs:** [`screens/last-session-review/handoff.md`](../../../ui_ux/versions/v3.1/screens/last-session-review/handoff.md)
   (`review-summary`), [`screens/session-list/handoff.md`](../../../ui_ux/versions/v3.1/screens/session-list/handoff.md)

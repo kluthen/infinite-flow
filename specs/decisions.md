@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.110
+Status: draft v2.111
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -21,14 +21,14 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and each milestone
 folder's README, such as [archive/v3/README.md](archive/v3/README.md)). Numbering continues from
-**D376**.
+**D378**.
 
 Live here: D228–D251 (v3.1 and v3.2, not built yet), D259–D260 (style packs, planned with no
 version, and the sound ban; merged from branch `v4-accompaniment-research`), D261–D288 (v3.3, not
 built yet; D263–D288 merged from branch `v3.3-chord-research`), D344–D348 (the v3.0 release and
 its follow-ups) and D349–D358 (the v3.1–v3.3 plan migrations, merged from branch
 `plan-migration` as D339–D341, the v3.1 plan's gates and approval, and B12's code check) and
-D359–D363 (the owner's rulings during v3.1's wave 0) and D364–D375 (the v3.1 build's rulings and
+D359–D363 (the owner's rulings during v3.1's wave 0) and D364–D377 (the v3.1 build's rulings and
 preflight corrections). D289 is unused.
 
 ## Decision Log
@@ -833,3 +833,10 @@ preflight corrections). D289 is unused.
   (DRAFT) still keeps B9's old read-time clause, and change set J3 says "or when it is read";
   both follow the new B9. Now in: [B9](versions/v3/master-spec.md#b9-the-generation-request-the-replay-key-and-kept-sessions),
   [M3](versions/v3/build-plan-v3.1.md#m3--the-start-up-read-and-the-migrations), [gates](versions/v3/build-plan-v3.1.md#gates).
+
+- **D377 (2026-10-20): until chunk 16, the device keeps v3.0's selection (wave 3's preflight).**
+  Chunk 12 loads a saved Neutral or Jazz selection as that built-in, or Custom based on it, with
+  its levels, the values winning; it saves Neutral, Jazz, or Custom based on either, as v3.0's
+  selection, and nothing of the other built-ins or the levels. Interim inside wave 3, which does
+  not merge to `main` between chunks 12 and 16, so not put to the owner.
+  Now in: [chunk 12](versions/v3/build-plan-v3.1.md#chunk-12--presets-replace-the-musical-profile).

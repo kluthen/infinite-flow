@@ -33,7 +33,7 @@ Status: draft v0.77
 - **Next: the rest of v3** ([v3](versions/v3/README.md#releases-d211)):
   - **v3.1:** embellishment flags and presets. Master spec
     [Part B](versions/v3/master-spec.md#part-b--v31), approved (D239); design approved (D353);
-    build plan [v3.1](versions/v3/build-plan-v3.1.md), v13 (v4 approved, D357): waves 0–3 go
+    build plan [v3.1](versions/v3/build-plan-v3.1.md), v14 (v4 approved, D357): waves 0–3 go
     ahead and may merge into `main`, waves 4 and 5 wait for the token-source pass the owner has not
     allowed yet (D355); no release before wave 5 merges. Entry budget 300 KiB (D359); v3.0's
     contract atoms v3.1 revises take a MAJOR bump, its wordings confirmed (D361–D363); wave 0
@@ -44,7 +44,8 @@ Status: draft v0.77
     the review's summary (D373), the heavy-body upgrade case went to the owner as O233 (D374),
     and a hole in a timeline goes to ISS-013 (D375); the owner accepts that case: v3.0's sessions
     are carried over at open only, and B9 states the rare overrun of the start-up wait (D376, Part B
-    v1.5).
+    v1.5); wave 3's preflight corrections: chunk 12 keeps v3.0's saved selection until chunk 16
+    (D377).
   - **v3.2:** Jam, the key and mode suggestion, the rhythm lock and its mutation option. Master
     spec [Part C](versions/v3/master-spec.md#part-c--v32), approved (D239); build plan
     [v3.2](versions/v3/build-plan-v3.2.md), v3, not approved. The contract wording v3.1 and
