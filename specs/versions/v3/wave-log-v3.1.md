@@ -478,3 +478,6 @@ wave gate. Chunk 12 first (15, 16 and 22 wait on it), then 15, 16 and 22 beside 
   player presets load into the session and feed every place chunk 15 named. M3 inside the wait
   (500 sessions 735–767 ms). Found: `decodeSettings` can throw on a stored BigInt or circular
   control value (v3.0 defect), to file as an issue.
+- Chunk 11: dispatched 2026-10-20 after chunk 16's merge, alone on the reference machine
+  (`../infinite_flow-v3.1-c11`); timed runs only below a 1-minute load of about 1.5. It
+  proposes DP's decision; the driver takes it to the owner and `spec-writer`.
