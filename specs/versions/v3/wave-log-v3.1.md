@@ -471,3 +471,6 @@ wave gate. Chunk 12 first (15, 16 and 22 wait on it), then 15, 16 and 22 beside 
   machine.
 - Chunk 22: merged as 983d6bb (fedbe14); chunk checks pass. `sessionLengthSeconds` now in
   `src/session/session-timing.ts`. No revisions; the sync confirms its new links.
+- Chunk 15: merged as 43cb17c (ed24231); chunk checks and corpus guard pass. The restriction is
+  frozen at Start from `BUILT_IN_PRESETS`; told chunk 16's owner (still running) that every place
+  fed the built-ins needs the full list once player presets load.

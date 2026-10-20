@@ -1450,7 +1450,7 @@ the levels in the pre-generation queue key (chunk 12) discard the prepared phras
 
 ### Chunk 15 — Vary settings inside the restriction
 
-Status: planned
+Status: merged (w3, 43cb17c)
 Wave: 3
 Depends on: 12, D0 (approved)
 Architecture capture: none
@@ -1503,6 +1503,8 @@ Architecture capture: none
   - Key and mode moves never mark Custom.
 - **Verification:** chunk checks with the corpus guard; H4; the sweep at the wave gate.
 - **Split rule:** none needed (five source files).
+
+Record: ed24231, merged as 43cb17c (built beside chunks 16 and 22). `SessionSettings` gains an optional `restriction`, absent when none is in force or it allows every key and mode, so the no-restriction case stays byte-identical to v3.0 (the 800-draw fixture replays). `withRestrictionAtStart` in `settings-mutation.ts` freezes `restrictionInForce` at Start, called from the session start and the pre-generation queue, today with `BUILT_IN_PRESETS`: the chunks that bring player presets pass the full list in both places. A key or mode step outside the restriction is unsupported and drawn again; 10,872 mutations under a one-pair restriction took at most 6 redraws against the 10,000 bound. The queue key gains the restriction in force. 120 seeds × 60 phrases under Reel, Modal (Dorian), Pop song, Bebop and a one-pair preset; pre-generated and live phrases identical under Reel. v3.1 H4 entered in `HARDWARE-CHECKLIST.md` (not run, at the release gate). For the sync: `rule_mutation_rerolls_unsupported_combination` now also covers moves outside the restriction; drift on `module_settings_mutation`, `module_idle_pregeneration_queue`.
 
 ### Chunk 16 — Presets and levels on the device
 
