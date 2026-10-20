@@ -7,6 +7,7 @@ tags: [v3, release-v3.1, player-controls, presets]
 parents:
   - [[rule_preset_management_actions]]
 dependents:
+  - [[module_preset_bar_model]]
   - [[module_preset_model]]
 type: RULE
 layer: BUSINESS
