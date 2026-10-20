@@ -205,7 +205,7 @@ test.describe('a 2 000-phrase Review', () => {
     await expectReviewShowing(page, 1)
     await expect(reviewItems(page)).toHaveCount(PHRASE_COUNT)
     await expect(reviewPanel(page).locator('.review-summary')).toHaveText(
-      / · 2000 phrases · B-flat tenor saxophone · Neutral · No favorites$/,
+      /^\w{3}, \w{3} \d{1,2}, \d{4}, \d{1,2}:\d{2}\s[AP]M · Under 1 min · 2000 phrases · B-flat tenor saxophone · Neutral · No favorites$/u,
     )
     await expect(reviewItems(page).first().locator('.review-phrase-title')).toHaveText('Phrase 1')
     await expect(reviewItems(page).last().locator('.review-phrase-title')).toHaveText('Phrase 2000')

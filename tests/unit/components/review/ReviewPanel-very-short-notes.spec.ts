@@ -36,6 +36,7 @@ function mountPanel(records: readonly SessionHistoryRecord[], options: PanelOpti
       records,
       instrumentName: 'B-flat tenor saxophone',
       presetLabel: 'Neutral',
+      lengthSeconds: 240,
       startedAt: 0,
       mostRecent: true,
       keeping: 'not-pinned',

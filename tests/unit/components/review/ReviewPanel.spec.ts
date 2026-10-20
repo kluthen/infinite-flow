@@ -36,6 +36,7 @@ interface PanelOptions {
   readonly instrumentName?: string
   readonly presetLabel?: string
   readonly startedAt?: number
+  readonly lengthSeconds?: number
   readonly mostRecent?: boolean
   readonly keeping?: SessionKeeping
   readonly viewport?: StaffViewport | null
@@ -55,6 +56,7 @@ function mountPanel(options: PanelOptions = {}) {
       instrumentName: options.instrumentName ?? 'B-flat tenor saxophone',
       presetLabel: options.presetLabel ?? 'Neutral',
       startedAt: options.startedAt ?? STARTED_AT,
+      lengthSeconds: options.lengthSeconds ?? 240,
       mostRecent: options.mostRecent ?? true,
       keeping: options.keeping ?? 'not-pinned',
       viewport: options.viewport === undefined ? ONE_SYSTEM : options.viewport,
@@ -131,11 +133,11 @@ describe('the review panel markup', () => {
 
   // @test-link [[req_last_session_review]]
   // @test-link [[req_kept_session_review]]
-  it('titles the most recent session "Last session" and sums it up from its date', () => {
+  it('titles the most recent session "Last session" and sums it up from its date and length', () => {
     const wrapper = mountPanel()
     expect(wrapper.get('.review-title').text()).toBe('Last session')
     expect(wrapper.get('p.review-summary').text()).toBe(
-      `${sessionDate(STARTED_AT)} · 3 phrases · B-flat tenor saxophone · Neutral · No favorites`,
+      `${sessionDate(STARTED_AT)} · 4 min · 3 phrases · B-flat tenor saxophone · Neutral · No favorites`,
     )
   })
 
@@ -144,9 +146,28 @@ describe('the review panel markup', () => {
     const wrapper = mountPanel({ mostRecent: false })
     expect(wrapper.get('.review-title').text()).toBe(sessionDate(STARTED_AT))
     expect(wrapper.get('p.review-summary').text()).toBe(
-      '3 phrases · B-flat tenor saxophone · Neutral · No favorites',
+      '4 min · 3 phrases · B-flat tenor saxophone · Neutral · No favorites',
     )
   })
+
+  // @test-link [[req_last_session_review]]
+  // @test-link [[req_kept_session_review]]
+  it.each([
+    [true, 29, `${sessionDate(STARTED_AT)} · Under 1 min · `],
+    [false, 29, 'Under 1 min · '],
+    [true, 30, `${sessionDate(STARTED_AT)} · 1 min · `],
+    [false, 89, '1 min · '],
+    [true, 90, `${sessionDate(STARTED_AT)} · 2 min · `],
+    [false, 1830, '31 min · '],
+  ])(
+    'writes the length as the session list does, after the date when it is not the title (most recent: %s, %d s)',
+    (mostRecent, lengthSeconds, lead) => {
+      const wrapper = mountPanel({ mostRecent, lengthSeconds })
+      expect(wrapper.get('p.review-summary').text()).toBe(
+        `${lead}3 phrases · B-flat tenor saxophone · Neutral · No favorites`,
+      )
+    },
+  )
 
   // @test-link [[rule_preset_label_kept_with_session]]
   it.each([
@@ -157,7 +178,7 @@ describe('the review panel markup', () => {
     (mostRecent, datePart) => {
       const wrapper = mountPanel({ mostRecent, presetLabel: 'Custom, based on Jazz' })
       expect(wrapper.get('p.review-summary').text()).toBe(
-        `${datePart}3 phrases · B-flat tenor saxophone · Custom, based on Jazz · No favorites`,
+        `${datePart}4 min · 3 phrases · B-flat tenor saxophone · Custom, based on Jazz · No favorites`,
       )
     },
   )
@@ -166,7 +187,7 @@ describe('the review panel markup', () => {
   it('says "1 phrase" for a one-phrase session', () => {
     const wrapper = mountPanel({ records: recordedRecords().slice(0, 1), instrumentName: 'Piano' })
     expect(wrapper.get('.review-summary').text()).toBe(
-      `${sessionDate(STARTED_AT)} · 1 phrase · Piano · Neutral · No favorites`,
+      `${sessionDate(STARTED_AT)} · 4 min · 1 phrase · Piano · Neutral · No favorites`,
     )
   })
 

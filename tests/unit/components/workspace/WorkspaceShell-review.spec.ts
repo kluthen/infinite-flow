@@ -17,6 +17,7 @@ import {
 import type { GenerationSession } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import { transportRig } from '../../audio/transport-rig'
+import { recordedRecords } from '../review/review-fixtures'
 import { createControllerRig } from '../../midi/midi-controller-rig'
 import {
   createFakeSessionController,
@@ -83,7 +84,7 @@ function showingReview(
   const fake = createFakeSessionController({
     canStart: false,
     startBlocker: 'review_showing',
-    ...showingWith(fakeReview(fakeReviewHistory(), true)),
+    ...showingWith(fakeReview(fakeReviewHistory(recordedRecords()), true)),
   })
   const close = fake.closeReview.getMockImplementation()
   fake.closeReview.mockImplementation(() => {

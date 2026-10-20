@@ -67,6 +67,7 @@ async function exportBoth(page: Page): Promise<{ musicXml: DownloadedFile; midi:
 
 // @test-link [[rule_earlier_kept_sessions_carried_over]]
 // @test-link [[rule_preset_label_kept_with_session]]
+// @test-link [[req_kept_session_review]]
 test('a session kept by v3.0 is carried over at the open: the list and the Review show its label, its export unchanged', async ({
   page,
   browser,
@@ -114,8 +115,12 @@ test('a session kept by v3.0 is carried over at the open: the list and the Revie
     await rowOpen(fresh, date).click()
     await expect(reviewTitle(fresh)).toBeFocused()
     expect((await sessionState(fresh)).review).toEqual({ showing: true, phraseCount: 2 })
+    // The Review's length is its row's: the session date (it is titled "Last session"), the
+    // row's detail line, then the favorites.
+    const detail = row?.lines[0]?.replace(/^session-row-meta: /u, '')
+    expect(detail).toMatch(/^(?:Under 1 min|\d+ min) · 2 phrases · /u)
     await expect(reviewPanel(fresh).locator('.review-summary')).toHaveText(
-      new RegExp(` · 2 phrases · .+ · ${V30_PRESET_LABEL} · No favorites$`),
+      `${date} · ${detail} · No favorites`,
     )
     await fresh.screenshot({ path: V30_REVIEW_SCREENSHOT })
 

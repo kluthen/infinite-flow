@@ -61,12 +61,18 @@ const review = useReviewArea({
   exportPorts: () => props.exportPorts ?? pageExportPorts,
   saveSettings: injectSaveSettings(),
 })
-/** Intent: the showing Review's session start and keeping, for its panel; null while none shows. */
+/**
+ * Intent: the showing Review's session start, length and keeping, for its panel; null while none
+ * shows.
+ */
 // @spec-link [[req_last_session_review]]
 const reviewSession = computed(() => {
   const startedAt = review.startedAt.value
+  const lengthSeconds = review.lengthSeconds.value
   const keeping = review.keeping.value
-  return startedAt === null || keeping === null ? null : { startedAt, keeping }
+  return startedAt === null || lengthSeconds === null || keeping === null
+    ? null
+    : { startedAt, lengthSeconds, keeping }
 })
 
 const list = useSessionList({
@@ -255,6 +261,7 @@ defineExpose({ focusReviewTitle: focus.title })
     :instrument-name="review.instrumentName.value"
     :preset-label="review.presetLabel.value"
     :started-at="reviewSession.startedAt"
+    :length-seconds="reviewSession.lengthSeconds"
     :most-recent="review.mostRecent.value"
     :keeping="reviewSession.keeping"
     :viewport="host.viewport.value"
