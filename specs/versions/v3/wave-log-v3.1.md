@@ -566,3 +566,9 @@ restriction on `SessionSettings`, never the shown key and mode).
 
 - Chunk 1: dispatched 2026-10-20 to `ux-writer` (`../infinite_flow-v3.1-c1`), beside the plan
   revision (it touches no plan text chunk 1 reads); also records the T1 allowance on the ux side.
+- Plan v17 (a3676aa, `spec-writer`): the five corrections applied; D384 settles the marks'
+  session source (the session's start settings, never the shown ones; the controller exposes
+  them); chunk 13 splits into 13a (the preset bar) and 13b (the marks). `documentalist`
+  dispatched to capture D384 before chunk 13.
+- Chunk 1: merged as d8698cb (f63b385, ux D325). Every handoff class and token exists;
+  `test:notation` unchanged.

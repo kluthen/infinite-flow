@@ -385,7 +385,7 @@ Record: 60fe7d8, `documentalist` on `v3.1-w0` (atoms only). Two atoms revised (B
 
 ### Chunk 1 — Token-source pass, part 1 (v3.1)
 
-Status: planned
+Status: merged (w4, d8698cb)
 Wave: 4
 Depends on: T1 (given, spec D382), D0 (done)
 Architecture capture: none
@@ -415,6 +415,8 @@ Architecture capture: none
 - **Verification:** chunk checks; `npm run test:notation` (this chunk's area); a `grep` of each v3.1
   handoff's class names against `src/styles/`.
 - **Split rule:** none needed.
+
+Record: f63b385 (`ux-writer`, ux D325 records the T1 allowance), merged as d8698cb. `--preset-select-inline-size` and `--segment-mark-size` in `theme.css`; the part 1 classes in `components.css` under `v3.1 new` / `v3.1 changed` (`choice-list` and `choice-option` join the device picker's rules; `control-group-figures` joins the session group's). Every class and token named in the 16 v3.1 handoffs exists in `src/styles/` (`preset-status` kept until chunk 13); `test:notation` 107 passed with no snapshot change; build passes. `segment.is-marked` is an `::after` dot kept in every state; `preset-select.is-readonly` uses the dashed ring, no dimming, and stays focusable (script refuses a keyboard change). For chunk 13: the markup the CSS expects is in ux D325; chunk 13 deletes `preset-status` and `preset-status-text` and notes the removal in the token source's part 1. Also changed: one map line in `ui_ux/README.md`.
 
 ### Chunk 2 — Baselines: the v3.0 phrase corpus and the bundle
 
