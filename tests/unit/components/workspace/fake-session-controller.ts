@@ -92,7 +92,7 @@ function closed(): never {
 
 /**
  * Intent: a closed session history for a Review: `records` as its phrases, the fixed test start
- * time, the harness's session settings' musical profile selection, and the session's instrument
+ * time, the harness's session settings' preset selection, and the session's instrument
  * profile (the B-flat tenor unless given).
  */
 // @test-link [[req_last_session_review]]
@@ -109,7 +109,7 @@ export function fakeReviewHistory(
     phraseCount: records.length,
     startedAt: SESSION_START_EPOCH_MS,
     instrumentProfileId,
-    profileSelection: sessionSettings().musicalProfile,
+    selection: sessionSettings().selection,
     sessionSeed: DEFAULT_SESSION_SEED,
   }
 }
@@ -130,7 +130,7 @@ export function fakeReview(
   return Object.freeze({
     history: history as ReviewedHistory,
     instrumentName: getInstrumentProfile(history.instrumentProfileId).displayName,
-    presetLabel: presetLabel(history.profileSelection),
+    presetLabel: presetLabel(history.selection),
     tempoReached: 90,
     keeping,
     key: FAKE_REVIEW_KEY,

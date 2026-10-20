@@ -9,7 +9,6 @@
 import { describe, expect, it } from 'vitest'
 
 import { deriveCarryIn } from '@/domain/generation/carry-in/carry-in-derivation'
-import { levelsForProfile } from '@/domain/figures/figure-levels'
 import { makeSeed } from '@/domain/random/seed'
 import { resolvedRegister } from '@/session/session-intents'
 import {
@@ -70,9 +69,7 @@ describe('a session with the settings-mutation flag off', () => {
       expect(driver.requests().length).toBeGreaterThanOrEqual(14)
       for (const request of driver.requests()) {
         expect(request.intent.controls).toEqual({ ...settings.controls, noteDensity: generated })
-        expect(request.intent.figureLevels).toEqual(
-          levelsForProfile(settings.musicalProfile.musicalProfile),
-        )
+        expect(request.intent.figureLevels).toEqual(settings.figureLevels)
       }
       expect(settingsChanges(driver)).toEqual([])
       expect(driver.all('phrase-discarded')).toEqual([])
@@ -119,9 +116,7 @@ describe('mutations landing on their scheduled phrases', () => {
       for (const request of driver.requests()) {
         const settings = settingsFor(driver, request)
         expect(request.intent.controls).toEqual(settings.controls)
-        expect(request.intent.figureLevels).toEqual(
-          levelsForProfile(settings.musicalProfile.musicalProfile),
-        )
+        expect(request.intent.figureLevels).toEqual(settings.figureLevels)
       }
       expect(driver.all('phrase-discarded')).toEqual([])
     },

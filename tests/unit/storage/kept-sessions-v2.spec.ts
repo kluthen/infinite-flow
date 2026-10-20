@@ -11,6 +11,7 @@
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import type { ProfileSelection } from '@/domain/controls/profile-selection'
+import type { PresetSelection } from '@/domain/presets/preset-selection'
 import {
   JAZZ_FIGURE_LEVELS,
   NEUTRAL_FIGURE_LEVELS,
@@ -65,6 +66,24 @@ const NEUTRAL: ProfileSelection = { musicalProfile: 'Neutral', isCustom: false }
 const JAZZ: ProfileSelection = { musicalProfile: 'Jazz', isCustom: false }
 const CUSTOM_JAZZ: ProfileSelection = { musicalProfile: 'Jazz', isCustom: true }
 
+/**
+ * Intent: a v3.0 selection in v3.1's form, as the session histories hold it: Neutral or Jazz, or
+ * Custom based on either.
+ */
+function presetSelectionOf(selection: ProfileSelection): PresetSelection {
+  const presetId = selection.musicalProfile === 'Jazz' ? 'jazz' : 'neutral'
+  return selection.isCustom ? { kind: 'custom', baseId: presetId } : { kind: 'preset', presetId }
+}
+
+/** Intent: the v3.0 selection a v3.0 tab stored for a session's v3.1 selection. */
+function v30Selection(selection: PresetSelection): ProfileSelection {
+  const id = selection.kind === 'preset' ? selection.presetId : selection.baseId
+  return {
+    musicalProfile: id === 'jazz' ? 'Jazz' : 'Neutral',
+    isCustom: selection.kind === 'custom',
+  }
+}
+
 /** The facts of a kept session with no favorite, no comment and its played notes not kept. */
 const PLAIN: KeptSessionFacts = {
   pinned: false,
@@ -98,7 +117,11 @@ function session(
   selection: ProfileSelection,
   facts: Partial<KeptSessionFacts> = {},
 ): Omit<V30Session, 'levels' | 'label'> {
-  return { key, history: historyOf(phrases, instrument, selection), facts: { ...PLAIN, ...facts } }
+  return {
+    key,
+    history: historyOf(phrases, instrument, presetSelectionOf(selection)),
+    facts: { ...PLAIN, ...facts },
+  }
 }
 
 /**
@@ -198,7 +221,7 @@ describe('a data version 1 database of v3.0 kept sessions, opened by v3.1', () =
         key,
         v1Session(
           encodeKeptSession(history, facts, V30_APP_VERSION),
-          history.profileSelection,
+          v30Selection(history.selection),
           'v3.0',
         ),
       ]),
@@ -402,7 +425,7 @@ describe('a customized Jazz session kept after the upgrade', () => {
       playedNotes: [],
     }))
     const kept = encodeKeptSession(
-      historyOf(records, 'eb-alto', CUSTOM_JAZZ),
+      historyOf(records, 'eb-alto', presetSelectionOf(CUSTOM_JAZZ)),
       PLAIN,
       UPGRADING_APP_VERSION,
     )

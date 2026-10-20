@@ -21,6 +21,7 @@ import { isNoLegalRhythmPlan, makeRhythmCandidateDomain } from '@/domain/rhythm/
 import { densityTicks } from '@/domain/rhythm/rhythm-variety'
 import { makeSeed } from '@/domain/random/seed'
 import type { RhythmBar, RhythmCandidate, RhythmExpansionInput } from '@/domain/rhythm/rhythm-types'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 
 /**
  * The review §1 resulting nominal attack value sets, in ticks (1 = sixteenth, 2 = eighth,
@@ -239,7 +240,7 @@ function buildIntent(
     ),
     seed,
     controls,
-    musicalProfile: { musicalProfile: 'Neutral', isCustom: true },
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
   })
 }
 

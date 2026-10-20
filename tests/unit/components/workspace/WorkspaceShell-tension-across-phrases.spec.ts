@@ -14,6 +14,8 @@ import type { SessionController } from '@/components/workspace/workspace-session
 import type { GenerationSession } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
+import { DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
 import type { SessionSettings } from '@/session/session-types'
 import { transportRig } from '../../audio/transport-rig'
 import { createControllerRig } from '../../midi/midi-controller-rig'
@@ -74,10 +76,11 @@ function checked(wrapper: ReturnType<typeof mountShell>, name: string): string |
   return segment === undefined ? null : segment.text()
 }
 
-/** Settings a session could show once `Vary settings` has moved Tension to Build. */
+/** Settings a session could show once `Vary settings` has moved Tension to Build: Custom. */
 const VARIED_TENSION: SessionSettings = {
   controls: { ...DEFAULT_GENERATION_CONTROLS, tension: 'Build' },
-  musicalProfile: { musicalProfile: 'Neutral', isCustom: true },
+  figureLevels: NEUTRAL_FIGURE_LEVELS,
+  selection: { kind: 'custom', baseId: 'neutral' },
 }
 
 // @test-link [[req_multi_phrase_tension_arc]]
@@ -137,17 +140,20 @@ describe('WorkspaceShell: the Tension across phrases control', () => {
 
   // @test-link [[req_multi_phrase_tension_arc]]
   // @test-link [[rule_automatic_change_updates_controls_quietly]]
-  it('during a session with it on, the Tension control shows the tension in effect the controller gives', async () => {
+  // @test-link [[rule_tension_across_phrases_never_marks_custom]]
+  it('during a session with it on, the Tension control shows the tension in effect the controller gives, the summary never Custom from it', async () => {
     const fake = createFakeSessionController({ tensionAcrossPhrases: true })
     const wrapper = mountShell(fakeGenerationSession(readyState()).session, fake.controller)
     await wrapper.get('.header-actions > button.session-action').trigger('click')
     fake.state.phase = 'running'
     fake.state.shownSettings = {
       controls: DEFAULT_GENERATION_CONTROLS,
-      musicalProfile: { musicalProfile: 'Neutral', isCustom: false },
+      figureLevels: NEUTRAL_FIGURE_LEVELS,
+      selection: DEFAULT_PRESET_SELECTION,
     }
     await nextTick()
     expect(checked(wrapper, 'Tension')).toBe('Lift')
+    expect(wrapper.get('.control-summary').text()).toBe('C Ionian · Neutral · Lift · Shaped')
 
     fake.state.shownSettings = VARIED_TENSION
     await nextTick()
@@ -156,6 +162,7 @@ describe('WorkspaceShell: the Tension across phrases control', () => {
     fake.stop()
     await nextTick()
     expect(checked(wrapper, 'Tension')).toBe('Lift')
+    expect(wrapper.get('.control-summary').text()).toBe('C Ionian · Neutral · Lift · Shaped')
     expect(checked(wrapper, 'Tension across phrases')).toBe('On')
   })
 })

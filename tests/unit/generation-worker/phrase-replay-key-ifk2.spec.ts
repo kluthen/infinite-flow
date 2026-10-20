@@ -36,6 +36,7 @@ import {
   PhraseReplayKeyError,
 } from '@/generation-worker/phrase-replay-key'
 import { decodePhraseReplayKey } from '@/generation-worker/phrase-replay-key-decode'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import {
   BASE_CONTROLS,
   buildIntent,
@@ -88,7 +89,7 @@ function myInstrumentIntent(
       tonalCenter: 'D',
       instrumentProfileId: 'my-instrument',
     }),
-    musicalProfile: { musicalProfile: 'Neutral' as const, isCustom: true },
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
     instrumentProfile: instrument.profile,
   }
   return carryIn === undefined

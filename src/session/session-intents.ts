@@ -20,10 +20,11 @@ import {
 } from '../domain/generation/generation-intent'
 import {
   FIGURE_IDS,
-  levelsForProfile,
+  parseFigureLevels,
   type FigureId,
   type FigureLevels,
 } from '../domain/figures/figure-levels'
+import type { PresetSelection } from '../domain/presets/preset-selection'
 import type { InstrumentProfile } from '../domain/profile/instrument-profile'
 import { MY_INSTRUMENT_ID } from '../domain/profile/instrument-profiles'
 import type { RegisterId } from '../domain/profile/register-id'
@@ -84,19 +85,18 @@ export function sessionInstrumentProfile(settings: SessionSettings): InstrumentP
 }
 
 /**
- * Intent: the figure levels the settings generate with: until presets replace it, the levels of
- * the settings' musical profile through `levelsForProfile`, whatever its customized mark, as the
- * intent factory maps them.
+ * Intent: the figure levels the settings generate with: the settings' own seven levels, never
+ * taken from the selection's name, whatever the selection is.
  */
 // @spec-link [[module_session_carry_in_after_change]]
 // @spec-link [[rule_stale_phrase_prompt_at_start]]
 export function sessionFigureLevels(settings: SessionSettings): FigureLevels {
-  return levelsForProfile(settings.musicalProfile.musicalProfile)
+  return settings.figureLevels
 }
 
 /**
  * Intent: every figure whose level differs between the two settings' levels, in FIGURE_IDS order;
- * none when the levels are equal, as after a change of the customized mark alone.
+ * none when the levels are equal, as after a change of the selection alone.
  */
 // @spec-link [[module_session_carry_in_after_change]]
 // @spec-link [[rule_stale_phrase_prompt_at_start]]
@@ -121,11 +121,19 @@ function suppliedProfileOf(
     : { instrumentProfile: settings.instrumentProfile }
 }
 
+/** Intent: a fresh plain copy of a selection, holding only the fields its kind has. */
+function selectionCopy(selection: PresetSelection): PresetSelection {
+  return selection.kind === 'preset'
+    ? { kind: 'preset', presetId: selection.presetId }
+    : { kind: 'custom', baseId: selection.baseId }
+}
+
 /**
  * Intent: an independent, deep-frozen copy of the chosen settings, so nothing the caller does to
- * its own objects after the start can reach the session. The controls are validated on the way,
- * and my instrument's profile, when the settings carry it, is kept: settings whose profile does
- * not match their instrument are refused.
+ * its own objects after the start can reach the session. The controls and the figure levels are
+ * validated on the way, the selection is copied as a plain value, and my instrument's profile,
+ * when the settings carry it, is kept: settings whose profile does not match their instrument are
+ * refused.
  */
 // @spec-link [[rule_session_settings_locked]]
 // @spec-link [[entity_my_instrument]]
@@ -134,29 +142,28 @@ export function freezeSessionSettings(settings: SessionSettings): SessionSetting
   sessionInstrumentProfile({ ...settings, controls })
   return deepFreeze({
     controls,
-    musicalProfile: {
-      musicalProfile: settings.musicalProfile.musicalProfile,
-      isCustom: settings.musicalProfile.isCustom,
-    },
+    figureLevels: parseFigureLevels(settings.figureLevels),
+    selection: selectionCopy(settings.selection),
     ...suppliedProfileOf(settings),
   })
 }
 
 /**
- * Intent: the settings a session starts with: the chosen controls and musical profile, and, when
- * the controls name my instrument, its profile as phrase 1's intent embeds it, so the session
- * generates with the very profile phrase 1 was generated with.
+ * Intent: the settings a session starts with: the chosen controls, figure levels and selection,
+ * and, when the controls name my instrument, its profile as phrase 1's intent embeds it, so the
+ * session generates with the very profile phrase 1 was generated with.
  */
 // @spec-link [[service_session_engine]]
 // @spec-link [[entity_my_instrument]]
 export function sessionSettingsAtStart(
-  chosen: Pick<SessionSettings, 'controls' | 'musicalProfile'>,
+  chosen: Pick<SessionSettings, 'controls' | 'figureLevels' | 'selection'>,
   phraseOne: GenerationIntent,
 ): SessionSettings {
   const mine = chosen.controls.instrumentProfileId === MY_INSTRUMENT_ID
   return {
     controls: chosen.controls,
-    musicalProfile: chosen.musicalProfile,
+    figureLevels: chosen.figureLevels,
+    selection: chosen.selection,
     ...(mine ? { instrumentProfile: phraseOne.instrumentProfile } : {}),
   }
 }
@@ -213,7 +220,7 @@ export function buildAttemptIntent(
     requestId: seams.providers.nextRequestId(),
     seed: phraseAttemptSeed(seams.sessionSeed, slot.phraseNumber, slot.rung),
     controls: { ...chosen, noteDensity, register },
-    musicalProfile: settings.musicalProfile,
+    figureLevels: sessionFigureLevels(settings),
     ...suppliedProfileOf(settings),
   }
   const intent =

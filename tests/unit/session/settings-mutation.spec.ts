@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -7,11 +9,16 @@ import {
   SYNCOPATIONS,
   type GenerationControls,
 } from '@/domain/controls/generation-controls'
-import {
-  DEFAULT_GENERATION_CONTROLS,
-  DEFAULT_PROFILE_SELECTION,
-} from '@/domain/controls/profile-selection'
+import { DEFAULT_GENERATION_CONTROLS, PROFILE_BUNDLES } from '@/domain/controls/profile-selection'
 import { isRhythmSettingBlocked } from '@/domain/controls/unsupported-rhythm-settings'
+import {
+  FIGURE_IDS,
+  FIGURE_LEVEL_IDS,
+  NEUTRAL_FIGURE_LEVELS,
+  type FigureLevels,
+} from '@/domain/figures/figure-levels'
+import { builtInPreset, DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
+import type { PresetSelection } from '@/domain/presets/preset-selection'
 import { makeSeed, type Seed } from '@/domain/random/seed'
 import {
   MUTABLE_SETTINGS,
@@ -38,10 +45,15 @@ const CONTEXTS: readonly MutationContext[] = [false, true].flatMap((belowTabletL
   })),
 )
 
-function settingsWith(controls: Partial<GenerationControls>): SessionSettings {
+function settingsWith(
+  controls: Partial<GenerationControls>,
+  selection: PresetSelection = DEFAULT_PRESET_SELECTION,
+  figureLevels: FigureLevels = NEUTRAL_FIGURE_LEVELS,
+): SessionSettings {
   return {
     controls: { ...DEFAULT_GENERATION_CONTROLS, ...controls },
-    musicalProfile: DEFAULT_PROFILE_SELECTION,
+    figureLevels,
+    selection,
   }
 }
 
@@ -122,7 +134,8 @@ describe('mutateSettings draw', () => {
     const result = mutateSettings(settings, WIDE, makeSeed(9), 1)
     expect(Object.isFrozen(result)).toBe(true)
     expect(Object.isFrozen(result.settings.controls)).toBe(true)
-    expect(Object.isFrozen(result.settings.musicalProfile)).toBe(true)
+    expect(Object.isFrozen(result.settings.figureLevels)).toBe(true)
+    expect(Object.isFrozen(result.settings.selection)).toBe(true)
     expect(settings).toStrictEqual(snapshot)
   })
 
@@ -134,13 +147,20 @@ describe('mutateSettings draw', () => {
         const result = mutateSettings(settings, WIDE, seed, k)
         drawn.add(result.setting)
         const changed = changedControls(settings.controls, result.settings.controls)
-        if (result.setting === 'musicalProfile') {
+        if (result.setting === 'figureLevels') {
+          const figure = result.figure
+          if (figure === undefined) throw new Error('A figure step names its figure.')
           expect(changed).toStrictEqual([])
-          expect(result.settings.musicalProfile.musicalProfile).toBe(result.to)
-          expect(result.to).not.toBe(settings.musicalProfile.musicalProfile)
+          expect(result.settings.figureLevels).toStrictEqual({
+            ...settings.figureLevels,
+            [figure]: result.to,
+          })
+          expect(result.from).toBe(settings.figureLevels[figure])
         } else {
           expect(changed).toStrictEqual([result.setting])
           expect(result.settings.controls[result.setting]).toBe(result.to)
+          expect(result.settings.figureLevels).toStrictEqual(settings.figureLevels)
+          expect(Object.hasOwn(result, 'figure')).toBe(false)
         }
         expect(result.settings.controls.tempo).toBe(settings.controls.tempo)
         expect(result.settings.controls.instrumentProfileId).toBe(
@@ -149,7 +169,8 @@ describe('mutateSettings draw', () => {
         const steps = mutationCandidates(settings, WIDE).filter(
           (candidate) => candidate.setting === result.setting && candidate.supported,
         )
-        expect(steps.map(({ from, to }) => ({ from, to }))).toContainEqual({
+        expect(steps.map(({ figure, from, to }) => ({ figure, from, to }))).toContainEqual({
+          figure: result.figure,
           from: result.from,
           to: result.to,
         })
@@ -256,5 +277,149 @@ describe('mutateSettings note density (D177)', () => {
         expect(result.from).toBe('Eighth')
         expect(result.to).toBe('Quarter')
       }
+  })
+})
+
+/** One recorded v3.0 draw: the start, the seed number, k, and the setting, from and to drawn. */
+type RecordedDraw = readonly [
+  start: 'neutral' | 'jazz',
+  seed: number,
+  k: number,
+  setting: string,
+  from: string,
+  to: string,
+]
+
+/** The v3.0 draws recorded before the figure step replaced the profile flip. */
+const V30_DRAWS: {
+  readonly context: MutationContext
+  readonly rows: readonly RecordedDraw[]
+} = JSON.parse(readFileSync('tests/fixtures/vary-settings/v3.0-mutation-draws.json', 'utf8'))
+
+/** Intent: the v3.1 form of a recorded start: the preset's controls, levels and selection. */
+function recordedStart(start: 'neutral' | 'jazz'): SessionSettings {
+  const preset = builtInPreset(start)
+  const controls =
+    start === 'neutral'
+      ? DEFAULT_GENERATION_CONTROLS
+      : { ...DEFAULT_GENERATION_CONTROLS, ...preset.controls }
+  return settingsWith(controls, { kind: 'preset', presetId: start }, preset.levels)
+}
+
+// @test-link [[rule_vary_settings_figure_step]]
+// @test-link [[module_settings_mutation]]
+describe('mutateSettings figure step', () => {
+  // @test-link [[rule_vary_settings_figure_step]]
+  // @test-link [[module_settings_mutation]]
+  it('draws every other setting exactly as v3.0 did, and a figure step where v3.0 flipped the profile', () => {
+    expect({ ...DEFAULT_GENERATION_CONTROLS, ...PROFILE_BUNDLES.Jazz }).toStrictEqual(
+      recordedStart('jazz').controls,
+    )
+    expect(V30_DRAWS.rows.length).toBeGreaterThan(0)
+    let flips = 0
+    for (const [start, seed, k, setting, from, to] of V30_DRAWS.rows) {
+      const label = `${start} seed ${seed} k ${k}`
+      const result = mutateSettings(recordedStart(start), V30_DRAWS.context, makeSeed(seed), k)
+      if (setting === 'musicalProfile') {
+        flips += 1
+        expect(result.setting, label).toBe('figureLevels')
+      } else {
+        expect({ setting: result.setting, from: result.from, to: result.to }, label).toStrictEqual({
+          setting,
+          from,
+          to,
+        })
+      }
+    }
+    expect(flips).toBeGreaterThan(0)
+  })
+
+  // @test-link [[rule_vary_settings_figure_step]]
+  it('moves one figure one level over many seeds, reaching every figure both ways', () => {
+    const settings = settingsWith({})
+    const reached = new Set<string>()
+    for (let seed = 0; seed < 3000; seed += 1) {
+      const result = mutateSettings(settings, WIDE, makeSeed(seed), 1)
+      if (result.setting !== 'figureLevels') continue
+      const figure = result.figure
+      if (figure === undefined) throw new Error('A figure step names its figure.')
+      const from = FIGURE_LEVEL_IDS.indexOf(settings.figureLevels[figure])
+      const to = FIGURE_LEVEL_IDS.indexOf(result.settings.figureLevels[figure])
+      expect(Math.abs(to - from), `seed ${seed}`).toBe(1)
+      expect(result.settings.controls).toStrictEqual(settings.controls)
+      reached.add(`${figure} ${to > from ? 'up' : 'down'}`)
+    }
+    const offFigures = FIGURE_IDS.filter((figure) => settings.figureLevels[figure] === 'off')
+    const expected = FIGURE_IDS.flatMap((figure) =>
+      offFigures.includes(figure) ? [`${figure} up`] : [`${figure} up`, `${figure} down`],
+    )
+    expect([...reached].sort()).toStrictEqual(expected.sort())
+  })
+
+  // @test-link [[rule_vary_settings_figure_step]]
+  it('never moves a figure past Off or Strongly favored', () => {
+    const levels: FigureLevels = {
+      ...NEUTRAL_FIGURE_LEVELS,
+      passingTone: 'stronglyFavored',
+      appoggiatura: 'off',
+    }
+    const settings = settingsWith({}, DEFAULT_PRESET_SELECTION, levels)
+    const moved = new Set<string>()
+    for (let seed = 0; seed < 3000; seed += 1) {
+      const result = mutateSettings(settings, WIDE, makeSeed(seed), 2)
+      if (result.setting !== 'figureLevels' || result.figure === undefined) continue
+      if (result.figure === 'passingTone') {
+        moved.add('passingTone')
+        expect(result.to).toBe('favored')
+      }
+      if (result.figure === 'appoggiatura') {
+        moved.add('appoggiatura')
+        expect(result.to).toBe('asToday')
+      }
+      for (const figure of FIGURE_IDS)
+        expect(FIGURE_LEVEL_IDS).toContain(result.settings.figureLevels[figure])
+    }
+    expect([...moved].sort()).toStrictEqual(['appoggiatura', 'passingTone'])
+  })
+})
+
+// @test-link [[rule_vary_settings_marks_custom]]
+// @test-link [[rule_mutation_marks_profile_customized]]
+describe('mutateSettings Custom mark', () => {
+  /** Intent: the drawn mutations k = 1 of these settings over many seeds. */
+  function drawn(settings: SessionSettings): readonly SettingsMutationResult[] {
+    return Array.from({ length: 600 }, (_, seed) =>
+      mutateSettings(settings, WIDE, makeSeed(seed), 1),
+    )
+  }
+
+  // @test-link [[rule_vary_settings_marks_custom]]
+  // @test-link [[rule_mutation_marks_profile_customized]]
+  it('marks Custom based on the selected preset after a Tension, Leapiness, Arpeggio chaos or level move, never after a key or mode move', () => {
+    const settings = settingsWith({}, { kind: 'preset', presetId: 'jazz' })
+    const results = drawn(settings)
+    const marking = ['tension', 'leapiness', 'arpeggioChaos', 'figureLevels']
+    for (const setting of [...marking, 'tonalCenter', 'collection'])
+      expect(
+        results.some((result) => result.setting === setting),
+        setting,
+      ).toBe(true)
+    for (const result of results) {
+      const expected =
+        result.setting === 'tonalCenter' || result.setting === 'collection'
+          ? settings.selection
+          : { kind: 'custom', baseId: 'jazz' }
+      expect(result.settings.selection, result.setting).toStrictEqual(expected)
+    }
+  })
+
+  // @test-link [[rule_vary_settings_marks_custom]]
+  it('keeps Custom as Custom with its base whatever moves', () => {
+    for (const selection of [
+      { kind: 'custom', baseId: 'reel' },
+      { kind: 'custom', baseId: null },
+    ] as const)
+      for (const result of drawn(settingsWith({}, selection)))
+        expect(result.settings.selection, result.setting).toStrictEqual(selection)
   })
 })

@@ -73,7 +73,8 @@ function jazzSettings(): SessionSettings {
       ...PROFILE_BUNDLES.Jazz,
       instrumentProfileId: 'eb-alto',
     }),
-    musicalProfile: { musicalProfile: 'Jazz', isCustom: false },
+    figureLevels: JAZZ_FIGURE_LEVELS,
+    selection: { kind: 'preset', presetId: 'jazz' },
   }
 }
 
@@ -338,7 +339,7 @@ describe('parseKeptIntent', () => {
         ...sessionSettings().controls,
         instrumentProfileId: 'my-instrument',
       }),
-      musicalProfile: { musicalProfile: 'Neutral', isCustom: false },
+      figureLevels: NEUTRAL_FIGURE_LEVELS,
       instrumentProfile: mine.profile,
     })
 

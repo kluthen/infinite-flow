@@ -1,7 +1,8 @@
 /**
- * The Idle pre-generation queue's key and window re-check: a change of a control, the musical
- * profile, the instrument, phrase 1, Vary settings or Tension across phrases empties the queue and
- * starts again from the new phrase 1; tempo keeps it, its phrases then carrying the new tempo; a
+ * The Idle pre-generation queue's key and window re-check: a change of a control, a figure level,
+ * a chosen preset whose values differ, the instrument, phrase 1, Vary settings or Tension across
+ * phrases empties the queue and starts again from the new phrase 1; tempo keeps it, its phrases
+ * then carrying the new tempo, and so does a change of the preset selection alone; a
  * width crossing re-derives the queue and truncates it from the first phrase whose density
  * changed; a staff layout report, or an explicit re-check, truncates it from the first phrase that
  * no longer fits, and pre-generation resumes from there. None of these re-checks runs during a
@@ -12,6 +13,8 @@ import { makeMyInstrument } from '@/domain/profile/my-instrument'
 import { describe, expect, it } from 'vitest'
 
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
+import { builtInPreset } from '@/domain/presets/built-in-presets'
+import { choosePreset } from '@/domain/presets/preset-selection'
 import {
   answer,
   answerAll,
@@ -39,9 +42,23 @@ const KEY_CHANGES: readonly KeyChange[] = [
     },
   },
   {
-    name: 'the musical profile',
+    name: 'a chosen preset whose values differ (Gentle)',
     apply: (rig) => {
-      rig.idle.profileSelection = { musicalProfile: 'Jazz', isCustom: false }
+      const chosen = choosePreset(
+        { controls: rig.idle.controls, levels: rig.idle.figureLevels },
+        rig.idle.selection,
+        builtInPreset('gentle'),
+      )
+      rig.idle.controls = chosen.settings.controls
+      rig.idle.figureLevels = chosen.settings.levels
+      rig.idle.selection = chosen.selection
+    },
+  },
+  {
+    name: 'a figure level',
+    apply: (rig) => {
+      rig.idle.figureLevels = { ...rig.idle.figureLevels, appoggiatura: 'favored' }
+      rig.idle.selection = { kind: 'custom', baseId: 'neutral' }
     },
   },
   {
@@ -100,6 +117,19 @@ describe('Idle pre-generation queue: discards', () => {
       expect(rig.queue.take('one-system')).toEqual([])
     })
   }
+
+  // @test-link [[rule_pregeneration_discarded_on_change]]
+  it('keeps the queue on a change of the selection alone, the same controls and levels', async () => {
+    const rig = await fullRig()
+    const before = rig.queue.take('one-system')
+    expect(rig.idle.selection).toEqual({ kind: 'custom', baseId: 'neutral' })
+
+    rig.idle.selection = { kind: 'preset', presetId: 'neutral' }
+    await flush()
+
+    expect(rig.calls).toHaveLength(4)
+    expect(rig.queue.take('one-system')).toEqual(before)
+  })
 
   // @test-link [[rule_pregeneration_discarded_on_change]]
   it('drops the queue as phrase 1 leaves, so a report right after re-checks nothing', async () => {

@@ -48,6 +48,7 @@ export function landingMutation(
       settings: mutation.settings,
       cause: 'mutation',
       setting: mutation.setting,
+      ...(mutation.figure === undefined ? {} : { figure: mutation.figure }),
       from: mutation.from,
       to: mutation.to,
     },

@@ -12,6 +12,7 @@ import {
   makeGenerationControls,
   type GenerationControls,
 } from '@/domain/controls/generation-controls'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import {
   createGenerationIntent,
   type GenerationIntent,
@@ -24,6 +25,7 @@ import { makeSeed } from '@/domain/random/seed'
 import { adaptCarryIn } from '@/session/carry-in-adaptation'
 import { mutationCandidates } from '@/session/settings-mutation'
 import type { SessionSettings, SessionStart } from '@/session/session-types'
+import { sessionFigureLevels } from '@/session/session-intents'
 import {
   BASE_CONTROLS,
   carryInAfter,
@@ -60,7 +62,8 @@ function mySettings(
       instrumentProfileId: 'my-instrument',
       ...controls,
     }),
-    musicalProfile: { musicalProfile: 'Neutral', isCustom: true },
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
+    selection: { kind: 'custom', baseId: 'neutral' },
     instrumentProfile: profile,
   }
 }
@@ -71,7 +74,7 @@ function myPhraseOne(settings: SessionSettings, seed = 11): SessionStart['phrase
     requestId: makeRequestId(`my-phrase-1-${seed}`),
     seed: makeSeed(seed),
     controls: settings.controls,
-    musicalProfile: settings.musicalProfile,
+    figureLevels: sessionFigureLevels(settings),
     ...(settings.instrumentProfile === undefined
       ? {}
       : { instrumentProfile: settings.instrumentProfile }),
@@ -184,7 +187,8 @@ describe('the carry-in receiver converts the tonal center with my instrument’s
         instrumentProfileId: 'eb-alto',
         ...controls,
       }),
-      musicalProfile: { musicalProfile: 'Neutral', isCustom: true },
+      figureLevels: NEUTRAL_FIGURE_LEVELS,
+      selection: { kind: 'custom', baseId: 'neutral' },
     }
   }
 
@@ -256,6 +260,7 @@ function altoBuiltIn(): SessionSettings {
       tonalCenter: 'D',
       instrumentProfileId: 'eb-alto',
     }),
-    musicalProfile: { musicalProfile: 'Neutral', isCustom: true },
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
+    selection: { kind: 'custom', baseId: 'neutral' },
   }
 }

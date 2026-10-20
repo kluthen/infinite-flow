@@ -80,6 +80,9 @@ test('the controls and the profile selection the player changed come back after 
   await expectChecked(page, 'Register', 'Low')
   await expectChecked(page, 'Instrument profile', 'E-flat alto saxophone')
   await expect(presetStatus(page)).toHaveText(/^Custom configuration - Neutral grammar retained/)
+  await expect(page.locator('.control-summary')).toHaveText(
+    'D Dorian · Custom, based on Neutral · Lift · Shaped',
+  )
   await expect(radio(page, 'Musical profile preset', 'Neutral')).toHaveAttribute(
     'aria-checked',
     'false',
@@ -94,6 +97,7 @@ test('the controls and the profile selection the player changed come back after 
   await reloadHarness(page)
   await expectChecked(page, 'Musical profile preset', 'Jazz')
   await expect(presetStatus(page)).toHaveText(/^Jazz preset applied/)
+  await expect(page.locator('.control-summary')).toHaveText('D Dorian · Jazz · Lift · Shaped')
   await expectChecked(page, 'Register', 'Varying')
   await expect(tempoStepper(page)).toHaveAttribute('aria-valuenow', '110')
   await expectChecked(page, 'Written key', 'D')

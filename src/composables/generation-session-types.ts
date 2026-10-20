@@ -4,15 +4,16 @@
  * no behaviour: the root composable and its sibling modules share these shapes from here.
  */
 
-import type { GenerationControls, MusicalProfile } from '@/domain/controls/generation-controls'
-import type { ProfileSelection } from '@/domain/controls/profile-selection'
+import type { GenerationControls } from '@/domain/controls/generation-controls'
 import type { NoteDensityContext } from '@/domain/controls/generated-note-density'
+import type { FigureId, FigureLevel, FigureLevels } from '@/domain/figures/figure-levels'
 import type {
   GenerationIntent,
   GenerationIntentProviders,
 } from '@/domain/generation/generation-intent'
 import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import type { MyInstrument } from '@/domain/profile/my-instrument'
+import type { PresetId, PresetSelection } from '@/domain/presets/preset-selection'
 import type { Seed } from '@/domain/random/seed'
 import type { MyInstrumentSaves, SaveSettings } from '@/storage/settings-saver'
 import type {
@@ -37,9 +38,17 @@ export interface PresentationSettings {
   readonly theme: ThemePreference
 }
 
+/**
+ * The Idle session's state. The player's generation settings are held in three parts: the
+ * controls, the seven figure levels and the preset selection (a preset, or Custom naming its
+ * base); no musical profile and no customized mark is held.
+ */
 export interface GenerationSessionState<TResult> {
   readonly controls: GenerationControls
-  readonly profileSelection: ProfileSelection
+  /** The seven figure levels every phrase built at Idle is generated with. */
+  readonly figureLevels: FigureLevels
+  /** The preset selected, or Custom based on the preset it came from (or on none). */
+  readonly selection: PresetSelection
   readonly presentation: PresentationSettings
   /**
    * The player's own instrument, while it exists: its profile is what every intent built while the
@@ -83,7 +92,18 @@ export interface GenerationSessionActions {
     key: K,
     value: GenerationControls[K],
   ) => boolean
-  readonly selectMusicalProfile: (profile: MusicalProfile) => boolean
+  /**
+   * Choose a preset, at Idle only (false otherwise): its ten preset-held controls and seven levels
+   * replace the current ones, the key and mode kept when its restriction allows them, and the
+   * selection becomes it. Choosing the preset already selected changes nothing. An id no known
+   * preset has is a defect: SessionUsageError.
+   */
+  readonly selectPreset: (id: PresetId) => boolean
+  /**
+   * Set one figure's level, at Idle only (false otherwise); with a preset selected the selection
+   * becomes Custom based on it. A figure or level that is not one is a defect: SessionUsageError.
+   */
+  readonly setFigureLevel: (figure: FigureId, level: FigureLevel) => boolean
   readonly selectInstrumentProfile: (id: InstrumentProfileId) => Promise<ProfileSelectionOutcome>
   /**
    * Save my instrument, made or changed: its record is written at once, or, for a change of range
@@ -140,7 +160,7 @@ export interface GenerationSession<TResult> {
 }
 
 /**
- * The settings the Idle session starts from: the player's saved controls, musical profile
+ * The settings the Idle session starts from: the player's saved controls, figure levels, preset
  * selection and theme, and my instrument when it loaded, loaded before the workspace is first
  * drawn. Controls naming `my-instrument` come only with my instrument.
  */
@@ -149,7 +169,8 @@ export interface GenerationSession<TResult> {
 // @spec-link [[entity_my_instrument_record]]
 export interface InitialGenerationSettings {
   readonly controls: GenerationControls
-  readonly profileSelection: ProfileSelection
+  readonly figureLevels: FigureLevels
+  readonly selection: PresetSelection
   readonly theme: ThemePreference
   readonly myInstrument: MyInstrument | null
 }
@@ -203,13 +224,14 @@ export interface CreateGenerationSessionOptions<TResult, TGenerated = TResult> {
   readonly onPhraseAccepted?: (intent: GenerationIntent) => void
   /**
    * The settings the session starts from, so the workspace is first drawn with them and its
-   * creation prewarm warms them. Absent means the first-load values (the default controls and
-   * profile selection, theme `System`): the app always supplies the loaded ones.
+   * creation prewarm warms them. Absent means the first-load values (the default controls, the
+   * Neutral levels and the Neutral selection, theme `System`): the app always supplies the loaded
+   * ones.
    */
   // @spec-link [[rule_first_phrase_waits_for_saved_settings]]
   readonly initialSettings?: InitialGenerationSettings
   /**
-   * Where the player's changes to the controls, the profile selection and the theme are saved:
+   * Where the player's changes to the controls, the preset selection and the theme are saved:
    * each control action that applies saves exactly the settings it changed. The actions are called
    * from the player's change handlers only, so what the app changes by itself is never saved.
    */

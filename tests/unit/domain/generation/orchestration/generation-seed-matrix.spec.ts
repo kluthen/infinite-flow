@@ -35,6 +35,7 @@ import { makeSeed, type Seed } from '@/domain/random/seed'
 import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import type { RegisterChoice } from '@/domain/profile/register-intent'
 import type { Measure } from '@/domain/events/measure'
+import { levelsForProfile } from '@/domain/figures/figure-levels'
 
 /** One representative, fast-to-search control set covering a distinct corner of the grammar. */
 interface ControlSetSpec {
@@ -158,7 +159,7 @@ function buildCellIntent(cell: MatrixCell): GenerationIntent {
     ),
     seed: cell.seed,
     controls,
-    musicalProfile: { musicalProfile: cell.set.musicalProfile, isCustom: true },
+    figureLevels: levelsForProfile(cell.set.musicalProfile),
   })
 }
 

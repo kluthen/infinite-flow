@@ -77,7 +77,7 @@ test('customized controls and the instrument profile come back after a reload, a
   await page.reload()
 
   await expect(page.locator('.control-summary')).toHaveText(
-    'C Ionian · Custom (Jazz grammar) · Lift · Shaped',
+    'C Ionian · Custom, based on Jazz · Lift · Shaped',
   )
   await expect(radio(page, 'Register', 'Low')).toHaveAttribute('aria-checked', 'true')
   await expect(radio(page, 'Instrument profile', 'E-flat alto saxophone')).toHaveAttribute(

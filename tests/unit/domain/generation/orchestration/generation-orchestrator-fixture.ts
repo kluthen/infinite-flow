@@ -39,6 +39,7 @@ import { makeRhythmCandidateDomain } from '@/domain/rhythm/rhythm-planner'
 import { makeSeed, type Seed } from '@/domain/random/seed'
 import type { RegisterId } from '@/domain/profile/register-id'
 import type { RegisterChoice } from '@/domain/profile/register-intent'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 
 /** The cheap, deliberately-inexpensive rhythm/harmony controls every fixture intent starts from. */
 const CHEAP_CONTROLS: GenerationControls = makeGenerationControls({
@@ -58,8 +59,6 @@ const CHEAP_CONTROLS: GenerationControls = makeGenerationControls({
   instrumentProfileId: 'c-keyboard',
 })
 
-const MUSICAL_PROFILE = { musicalProfile: 'Neutral' as const, isCustom: true }
-
 /**
  * Intent: build a real, cheap-to-search GenerationIntent for one register choice and seed,
  * overriding only the register-affecting control and any explicitly supplied overrides on top of
@@ -75,7 +74,7 @@ export function buildOrchestratorIntent(
     requestId: makeRequestId(`orchestrator-fixture-${register}-${seed}`),
     seed,
     controls,
-    musicalProfile: MUSICAL_PROFILE,
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
   })
 }
 

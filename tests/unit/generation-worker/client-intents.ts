@@ -13,6 +13,7 @@ import {
 } from '@/domain/generation/generation-intent'
 import { makeRequestId } from '@/domain/generation/generation-request'
 import { makeSeed } from '@/domain/random/seed'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 
 const CHEAP_CONTROLS: GenerationControls = makeGenerationControls({
   tempo: 90,
@@ -37,6 +38,6 @@ export function buildIntent(requestId: string, seed: number): GenerationIntent {
     requestId: makeRequestId(requestId),
     seed: makeSeed(seed),
     controls: CHEAP_CONTROLS,
-    musicalProfile: { musicalProfile: 'Neutral', isCustom: true },
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
   })
 }

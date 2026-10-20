@@ -9,6 +9,7 @@
 import { expect } from 'vitest'
 
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
+import { levelsForProfile } from '@/domain/figures/figure-levels'
 import { PHRASE_MEASURE_COUNT } from '@/domain/generation/generation-request'
 import { makeSeed } from '@/domain/random/seed'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
@@ -37,7 +38,10 @@ import {
   type FakeViewport,
 } from './session-harness'
 
-/** Intent: the settings a session of one seed-matrix cell starts from. */
+/**
+ * Intent: the settings a session of one seed-matrix cell starts from: the cell's profile's figure
+ * levels, the selection Custom based on the preset of that name.
+ */
 export function settingsForCell(cell: MatrixCell): SessionSettings {
   return {
     controls: makeGenerationControls({
@@ -45,7 +49,8 @@ export function settingsForCell(cell: MatrixCell): SessionSettings {
       register: cell.register,
       instrumentProfileId: cell.instrumentProfileId,
     }),
-    musicalProfile: { musicalProfile: cell.set.musicalProfile, isCustom: true },
+    figureLevels: levelsForProfile(cell.set.musicalProfile),
+    selection: { kind: 'custom', baseId: cell.set.musicalProfile === 'Jazz' ? 'jazz' : 'neutral' },
   }
 }
 
@@ -60,7 +65,7 @@ export function idlePhraseOne(
 ): SessionStart['phraseOne'] {
   const intent = buildIntent({
     controls: { ...settings.controls, noteDensity },
-    musicalProfile: settings.musicalProfile.musicalProfile,
+    figureLevels: settings.figureLevels,
     seed,
     label: 'history-phrase-1',
   })

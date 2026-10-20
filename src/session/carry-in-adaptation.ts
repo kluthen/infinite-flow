@@ -82,7 +82,7 @@ function controlsDiffer(
 
 /**
  * Intent: true when a setting the harmony check counts differs between the two settings: one of
- * its controls, or the level of any figure. A change of the customized mark alone changes neither.
+ * its controls, or the level of any figure. A change of the preset selection alone changes neither.
  */
 // @spec-link [[rule_harmony_change_drops_unfit_harmonic_carry_in]]
 function harmonySettingsDiffer(before: SessionSettings, after: SessionSettings): boolean {

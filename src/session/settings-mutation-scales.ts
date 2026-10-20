@@ -1,8 +1,10 @@
 /**
  * The settings-mutation scale table: for every setting a mutation may change, the scale saying
  * which values are one grade away from the current one, where a step starts from, and how a step
- * is applied to the session settings. The scales are data, so a new value for a setting (a future
- * `Custom` note density, D175) is an edit of its catalog or entry here, not new code.
+ * is applied to the session settings, the selection after it included. The seven figure levels
+ * share one entry, whose step moves one figure one level. The scales are data, so a new value for
+ * a setting (a future `Custom` note density, D175) is an edit of its catalog or entry here, not
+ * new code.
  */
 
 import {
@@ -10,7 +12,7 @@ import {
   CONTOURS,
   HARMONIC_MOTIONS,
   LEAPINESS_VALUES,
-  MUSICAL_PROFILES,
+  makeGenerationControls,
   NOTE_DENSITIES,
   PITCH_CLASSES,
   RHYTHMIC_VARIETIES,
@@ -19,16 +21,17 @@ import {
   TENSION_ARCS,
   type Collection,
   type GenerationControls,
-  type MusicalProfile,
 } from '../domain/controls/generation-controls'
 import { resolveGeneratedNoteDensity } from '../domain/controls/generated-note-density'
-import {
-  applyControlledCustomValue,
-  applyNonProfileControlValue,
-  type ProfileControlledValues,
-  type ProfileSelection,
-} from '../domain/controls/profile-selection'
 import { deepFreeze } from '../domain/events/deep-freeze'
+import {
+  FIGURE_IDS,
+  FIGURE_LEVEL_IDS,
+  type FigureId,
+  type FigureLevel,
+} from '../domain/figures/figure-levels'
+import { BUILT_IN_PRESETS } from '../domain/presets/built-in-presets'
+import { selectionAfterChange, type PresetHeldControlKey } from '../domain/presets/preset-selection'
 import { CANONICAL_REGISTER_ORDER, type RegisterId } from '../domain/profile/register-id'
 import type { SessionSettings } from './session-types'
 
@@ -43,17 +46,25 @@ export class SettingsMutationError extends Error {
   }
 }
 
-/** Every generation setting except tempo and the instrument, plus the musical-profile identity. */
+/** Every generation control a mutation may step: all of them but tempo and the instrument. */
 // @spec-link [[module_settings_mutation]]
 // @spec-link [[req_settings_mutation_flag]]
-export type MutableSetting =
-  Exclude<keyof GenerationControls, 'tempo' | 'instrumentProfileId'> | 'musicalProfile'
+export type MutableControl = Exclude<keyof GenerationControls, 'tempo' | 'instrumentProfileId'>
 
-/** The value type of one mutable setting. */
+/**
+ * Every setting a mutation may change: each mutable control, and the seven figure levels as one
+ * setting, in the place the musical profile had.
+ */
+// @spec-link [[module_settings_mutation]]
+// @spec-link [[req_settings_mutation_flag]]
+// @spec-link [[rule_vary_settings_figure_step]]
+export type MutableSetting = MutableControl | 'figureLevels'
+
+/** The value type of one mutable setting: a control's value, or one figure's level. */
 // @spec-link [[module_settings_mutation]]
 export type MutableValue<K extends MutableSetting> = K extends keyof GenerationControls
   ? GenerationControls[K]
-  : MusicalProfile
+  : FigureLevel
 
 /** What the session knows, when a mutation is decided, that the chosen settings do not say. */
 // @spec-link [[module_settings_mutation]]
@@ -78,7 +89,7 @@ export type MutationScale<T extends string> =
   | { readonly kind: 'separate'; readonly groups: readonly (readonly T[])[] }
   | { readonly kind: 'nominal'; readonly values: readonly T[] }
 
-/** One setting's scale, the value a step starts from, and how a step is applied. */
+/** One control's scale, the value a step starts from, and how a step is applied. */
 // @spec-link [[module_settings_mutation]]
 export interface MutationScaleEntry<T extends string> {
   readonly scale: MutationScale<T>
@@ -86,11 +97,33 @@ export interface MutationScaleEntry<T extends string> {
   readonly apply: (settings: SessionSettings, value: T) => SessionSettings
 }
 
-/** One entry per mutable setting; a missing or extra setting is a type error. */
+/**
+ * The figure levels' one entry: the levels' scale, the figures a step may move in the order a
+ * draw lists them, the level a figure's step starts from, and how setting one figure's level is
+ * applied.
+ */
 // @spec-link [[module_settings_mutation]]
-export type MutationScaleTable = {
-  readonly [K in MutableSetting]: MutationScaleEntry<MutableValue<K>>
+// @spec-link [[rule_vary_settings_figure_step]]
+export interface FigureStepEntry {
+  readonly scale: MutationScale<FigureLevel>
+  readonly figures: readonly FigureId[]
+  readonly from: (settings: SessionSettings, figure: FigureId) => FigureLevel
+  readonly apply: (
+    settings: SessionSettings,
+    figure: FigureId,
+    level: FigureLevel,
+  ) => SessionSettings
 }
+
+/** One entry per mutable control; a missing or extra control is a type error. */
+// @spec-link [[module_settings_mutation]]
+export type ControlScaleTable = {
+  readonly [K in MutableControl]: MutationScaleEntry<GenerationControls[K]>
+}
+
+/** One entry per mutable setting, the figure levels' one included; a missing one is a type error. */
+// @spec-link [[module_settings_mutation]]
+export type MutationScaleTable = ControlScaleTable & { readonly figureLevels: FigureStepEntry }
 
 /** Intent: the value at an index of a scale, crashing on an index the scale does not hold. */
 function valueAt<T>(values: readonly T[], index: number): T {
@@ -146,53 +179,80 @@ export function scaleNeighbours<T extends string>(scale: MutationScale<T>, value
   }
 }
 
-/**
- * Intent: the settings with the pair the profile-selection edits return; the rest of the settings
- * (my instrument's profile, when they carry it) is kept as it is.
- */
-function settingsOf(
+/** Intent: the settings with one control stepped to a value, the controls validated again. */
+function withControl<K extends MutableControl>(
   settings: SessionSettings,
-  [controls, musicalProfile]: readonly [GenerationControls, ProfileSelection],
-): SessionSettings {
-  return { ...settings, controls, musicalProfile }
+  key: K,
+  value: GenerationControls[K],
+): GenerationControls {
+  return makeGenerationControls({ ...settings.controls, [key]: value })
 }
 
-/** Intent: an entry for a value the musical profile does not control: the selection is kept. */
-function freeEntry<
-  K extends Exclude<MutableSetting, keyof ProfileControlledValues | 'musicalProfile'>,
->(key: K, scale: MutationScale<GenerationControls[K]>): MutationScaleEntry<GenerationControls[K]> {
+/**
+ * Intent: an entry for the written key or the collection: a step changes the control and keeps
+ * the selection as it is, so a key or mode move never marks Custom.
+ */
+function keyOrModeEntry<K extends 'tonalCenter' | 'collection'>(
+  key: K,
+  scale: MutationScale<GenerationControls[K]>,
+): MutationScaleEntry<GenerationControls[K]> {
   return {
     scale,
     from: (settings) => settings.controls[key],
-    apply: (settings, value) =>
-      settingsOf(
-        settings,
-        applyNonProfileControlValue(settings.controls, settings.musicalProfile, key, value),
-      ),
+    apply: (settings, value) => ({ ...settings, controls: withControl(settings, key, value) }),
   }
 }
 
-/** Intent: the chosen controls seen as the values a musical profile controls. */
-function controlledValues(settings: SessionSettings): ProfileControlledValues {
-  return settings.controls
-}
-
-/** Intent: an entry for a value the musical profile controls: a step marks the profile customized. */
-function profileControlledEntry<K extends keyof ProfileControlledValues>(
+/**
+ * Intent: an entry for one of the ten preset-held controls: a step changes the control and makes
+ * the selection Custom based on the selected preset; Custom stays Custom with its base.
+ */
+// @spec-link [[rule_vary_settings_marks_custom]]
+// @spec-link [[rule_mutation_marks_profile_customized]]
+function presetHeldEntry<K extends PresetHeldControlKey>(
   key: K,
-  scale: MutationScale<ProfileControlledValues[K]>,
-  from: (settings: SessionSettings, context: MutationContext) => ProfileControlledValues[K] = (
+  scale: MutationScale<GenerationControls[K]>,
+  from: (settings: SessionSettings, context: MutationContext) => GenerationControls[K] = (
     settings,
-  ) => controlledValues(settings)[key],
-): MutationScaleEntry<ProfileControlledValues[K]> {
+  ) => settings.controls[key],
+): MutationScaleEntry<GenerationControls[K]> {
   return {
     scale,
     from,
-    apply: (settings, value) =>
-      settingsOf(
-        settings,
-        applyControlledCustomValue(settings.controls, settings.musicalProfile, key, value),
+    apply: (settings, value) => ({
+      ...settings,
+      controls: withControl(settings, key, value),
+      selection: selectionAfterChange(
+        settings.selection,
+        { kind: 'presetHeldControl', control: key },
+        BUILT_IN_PRESETS,
       ),
+    }),
+  }
+}
+
+/**
+ * Intent: the figure levels' one entry: one figure's level steps one level on the ordered scale
+ * Off, As today, Favored, Strongly favored, never past either end; every other level stays, and
+ * the step makes the selection Custom based on the selected preset, as a preset-held control's
+ * does. The figures are listed in FIGURE_IDS order.
+ */
+// @spec-link [[rule_vary_settings_figure_step]]
+// @spec-link [[rule_vary_settings_marks_custom]]
+function figureStepEntry(): FigureStepEntry {
+  return {
+    scale: ordered(FIGURE_LEVEL_IDS),
+    figures: FIGURE_IDS,
+    from: (settings, figure) => settings.figureLevels[figure],
+    apply: (settings, figure, level) => ({
+      ...settings,
+      figureLevels: { ...settings.figureLevels, [figure]: level },
+      selection: selectionAfterChange(
+        settings.selection,
+        { kind: 'figureLevel', figure },
+        BUILT_IN_PRESETS,
+      ),
+    }),
   }
 }
 
@@ -219,55 +279,49 @@ const MODES_BY_BRIGHTNESS: readonly Collection[] = [
  * Intent: the scale of every mutable setting, as data. The ordered settings follow the catalog
  * order the settings controls show. Note density steps from the density the session generates
  * with (D177); a `Varying` register steps from the register the session resolved, and the scale
- * holds no `Varying`, so a step always lands on a concrete register. The musical profile is
- * nominal, so with two profiles a step flips Neutral and Jazz; the flip changes the identity only,
- * keeps every control, never applies a bundle and marks the profile customized.
+ * holds no `Varying`, so a step always lands on a concrete register. A step of any of the ten
+ * preset-held controls (Tension, Leapiness and Arpeggio chaos among them) marks the selection
+ * Custom; a key or mode step never does. The seven figure levels hold one entry, in the place the
+ * musical profile had: a step moves one figure one level.
  */
 // @spec-link [[rule_mutation_setting_scales]]
-// @spec-link [[rule_mutation_profile_flip_keeps_controls]]
-// @spec-link [[rule_mutation_marks_profile_customized]]
+// @spec-link [[rule_vary_settings_figure_step]]
+// @spec-link [[rule_vary_settings_marks_custom]]
 // @spec-link [[rule_density_mutation_steps_from_generated_density]]
 // @spec-link [[module_settings_mutation]]
 export const MUTATION_SCALES: MutationScaleTable = deepFreeze({
-  tonalCenter: freeEntry('tonalCenter', {
+  tonalCenter: keyOrModeEntry('tonalCenter', {
     kind: 'circular',
     values: PITCH_CLASSES,
     step: CIRCLE_OF_FIFTHS_STEP,
   }),
-  collection: freeEntry('collection', {
+  collection: keyOrModeEntry('collection', {
     kind: 'separate',
     groups: [['Major', 'Minor'], MODES_BY_BRIGHTNESS],
   }),
-  harmonicMotion: profileControlledEntry('harmonicMotion', ordered(HARMONIC_MOTIONS)),
-  tension: freeEntry('tension', ordered(TENSION_ARCS)),
-  noteDensity: profileControlledEntry('noteDensity', ordered(NOTE_DENSITIES), (settings, context) =>
+  harmonicMotion: presetHeldEntry('harmonicMotion', ordered(HARMONIC_MOTIONS)),
+  tension: presetHeldEntry('tension', ordered(TENSION_ARCS)),
+  noteDensity: presetHeldEntry('noteDensity', ordered(NOTE_DENSITIES), (settings, context) =>
     resolveGeneratedNoteDensity(settings.controls.noteDensity, context),
   ),
-  rhythmicVariety: profileControlledEntry('rhythmicVariety', ordered(RHYTHMIC_VARIETIES)),
-  syncopation: profileControlledEntry('syncopation', ordered(SYNCOPATIONS)),
-  silenceDensity: profileControlledEntry('silenceDensity', ordered(SILENCE_DENSITIES)),
-  contour: profileControlledEntry('contour', { kind: 'nominal', values: CONTOURS }),
-  register: profileControlledEntry(
-    'register',
-    ordered(CANONICAL_REGISTER_ORDER),
-    (settings, context) =>
-      settings.controls.register === 'Varying'
-        ? context.resolvedRegister
-        : settings.controls.register,
+  rhythmicVariety: presetHeldEntry('rhythmicVariety', ordered(RHYTHMIC_VARIETIES)),
+  syncopation: presetHeldEntry('syncopation', ordered(SYNCOPATIONS)),
+  silenceDensity: presetHeldEntry('silenceDensity', ordered(SILENCE_DENSITIES)),
+  contour: presetHeldEntry('contour', { kind: 'nominal', values: CONTOURS }),
+  register: presetHeldEntry('register', ordered(CANONICAL_REGISTER_ORDER), (settings, context) =>
+    settings.controls.register === 'Varying'
+      ? context.resolvedRegister
+      : settings.controls.register,
   ),
-  leapiness: freeEntry('leapiness', ordered(LEAPINESS_VALUES)),
-  arpeggioChaos: freeEntry('arpeggioChaos', ordered(ARPEGGIO_CHAOS_VALUES)),
-  musicalProfile: {
-    scale: { kind: 'nominal', values: MUSICAL_PROFILES },
-    from: (settings) => settings.musicalProfile.musicalProfile,
-    apply: (settings, musicalProfile) => ({
-      ...settings,
-      musicalProfile: { musicalProfile, isCustom: true },
-    }),
-  },
+  leapiness: presetHeldEntry('leapiness', ordered(LEAPINESS_VALUES)),
+  arpeggioChaos: presetHeldEntry('arpeggioChaos', ordered(ARPEGGIO_CHAOS_VALUES)),
+  figureLevels: figureStepEntry(),
 })
 
-/** Intent: the mutable settings in the order a draw lists them: catalog order, then the profile. */
+/**
+ * Intent: the mutable settings in the order a draw lists them: catalog order, then the figure
+ * levels, in the musical profile's former place, so the draw keeps its 13 places.
+ */
 // @spec-link [[module_settings_mutation]]
 // @spec-link [[req_settings_mutation_flag]]
 export const MUTABLE_SETTINGS: readonly MutableSetting[] = deepFreeze([
@@ -283,5 +337,5 @@ export const MUTABLE_SETTINGS: readonly MutableSetting[] = deepFreeze([
   'register',
   'leapiness',
   'arpeggioChaos',
-  'musicalProfile',
+  'figureLevels',
 ])

@@ -20,8 +20,9 @@ import { SessionEngineError, type SessionSettings } from './session-types'
 
 /**
  * Intent: the session settings phrase 1 was generated under, as a session takes them: the
- * recorded controls at the session's `tempo` (the tempo never affects generation) and the recorded
- * profile selection, my instrument's profile taken from phrase 1's intent, which embeds it.
+ * recorded controls at the session's `tempo` (the tempo never affects generation), the recorded
+ * figure levels and selection, my instrument's profile taken from phrase 1's intent, which embeds
+ * it.
  */
 // @spec-link [[service_session_engine]]
 // @spec-link [[rule_stale_phrase_prompt_at_start]]
@@ -31,7 +32,11 @@ export function phraseOneSettings(
   tempo: number,
 ): SessionSettings {
   return sessionSettingsAtStart(
-    { controls: { ...recorded.controls, tempo }, musicalProfile: recorded.profileSelection },
+    {
+      controls: { ...recorded.controls, tempo },
+      figureLevels: recorded.figureLevels,
+      selection: recorded.selection,
+    },
     phraseOne,
   )
 }
@@ -87,7 +92,7 @@ function instrumentDiffers(before: SessionSettings, after: SessionSettings): boo
 /**
  * Intent: whether phrase 1 is stale: a setting the generation reads has a different value now
  * than when phrase 1 was generated. Values are compared, not edits. Every generation control
- * counts but the tempo, each figure's level counts (a change of the customized mark alone changes
+ * counts but the tempo, each figure's level counts (a change of the selection alone changes
  * none), and the instrument counts as the generation reads it; the session options, the mix, the
  * theme and the window never reach either side.
  */
@@ -108,8 +113,8 @@ export type StaleSetting = Exclude<keyof GenerationControls, 'tempo'> | FigureId
  * Intent: every setting whose value differs from phrase 1's, over what the generation reads, as
  * `isPhraseOneStale` compares them, for the prompt to name: each generation control but the
  * tempo, the instrument's control also when my instrument's range or transposition differs, then
- * each figure whose level differs, in FIGURE_IDS order (until presets replace the profile, a
- * Neutral–Jazz change names the two chromatic figures). None when phrase 1 is not stale.
+ * each figure whose level differs, in FIGURE_IDS order, the selection never named. None when
+ * phrase 1 is not stale.
  */
 // @spec-link [[rule_stale_phrase_prompt_at_start]]
 export function staleSettingsOf(

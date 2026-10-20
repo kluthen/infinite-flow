@@ -12,6 +12,7 @@ import {
   makeGenerationControls,
   type GenerationControls,
 } from '@/domain/controls/generation-controls'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import type {
   GenerationIntent,
   GenerationIntentProviders,
@@ -131,7 +132,8 @@ export const UNREAD_DISPLAY: SessionDisplayReading = Object.freeze({
 export function sessionSettings(overrides: Partial<GenerationControls> = {}): SessionSettings {
   return {
     controls: makeGenerationControls({ ...BASE_CONTROLS, ...overrides }),
-    musicalProfile: { musicalProfile: 'Neutral', isCustom: true },
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
+    selection: { kind: 'custom', baseId: 'neutral' },
   }
 }
 

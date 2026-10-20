@@ -126,7 +126,7 @@ describe('reading the most recent session for its Review', () => {
   it('carries the preset label its summary stores', async () => {
     const customJazz = {
       ...history,
-      profileSelection: { musicalProfile: 'Jazz', isCustom: true },
+      selection: { kind: 'custom', baseId: 'jazz' },
     } as const
     const stored = kept(customJazz, history.startedAt)
 

@@ -5,13 +5,13 @@ import {
   resolveCoreRequests,
   selectVaryingRegister,
 } from '@/domain/generation/orchestration/request-resolution'
-import { DEFAULT_PROFILE_SELECTION } from '@/domain/controls/profile-selection'
 import { createGenerationIntent } from '@/domain/generation/generation-intent'
 import { makeRequestId } from '@/domain/generation/generation-request'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import type { RegisterId } from '@/domain/profile/register-id'
 import { makeSeed, type Seed } from '@/domain/random/seed'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 
 const PROFILE_WINDOWS = {
   'c-keyboard': { Low: [48, 60], Middle: [54, 66], High: [60, 72] },
@@ -39,7 +39,7 @@ describe('request-resolution', () => {
             requestId: makeRequestId(`request-${profileId}-${register}`),
             seed: makeSeed(1),
             controls: controlsFor(profileId, register),
-            musicalProfile: DEFAULT_PROFILE_SELECTION,
+            figureLevels: NEUTRAL_FIGURE_LEVELS,
           })
           const requests = resolveCoreRequests(intent)
           expect(requests).toHaveLength(1)
@@ -60,7 +60,7 @@ describe('request-resolution', () => {
         requestId: makeRequestId('request-varying'),
         seed: makeSeed(1),
         controls: controlsFor('bb-tenor', 'Varying'),
-        musicalProfile: DEFAULT_PROFILE_SELECTION,
+        figureLevels: NEUTRAL_FIGURE_LEVELS,
       })
       const requests = resolveCoreRequests(intent)
       expect(requests).toHaveLength(3)
@@ -77,7 +77,7 @@ describe('request-resolution', () => {
       requestId: makeRequestId('request-select'),
       seed: makeSeed(7),
       controls: controlsFor('bb-tenor', 'Varying'),
-      musicalProfile: DEFAULT_PROFILE_SELECTION,
+      figureLevels: NEUTRAL_FIGURE_LEVELS,
     })
 
     const ALL: readonly RegisterId[] = ['Low', 'Middle', 'High']
@@ -119,7 +119,7 @@ describe('request-resolution', () => {
           requestId: makeRequestId('request-seed-sweep'),
           seed,
           controls: controlsFor('bb-tenor', 'Varying'),
-          musicalProfile: DEFAULT_PROFILE_SELECTION,
+          figureLevels: NEUTRAL_FIGURE_LEVELS,
         })
         return selectVaryingRegister(seededIntent, ALL)
       })

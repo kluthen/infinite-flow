@@ -8,6 +8,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { composeWorkspaceSession } from '@/components/workspace/create-workspace-session'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { NotationError } from '@/notation/notation-error'
 import { resetFakeEngraver } from '../../notation/fake-vexflow-engraver-loader'
 import {
@@ -216,10 +217,8 @@ describe('composeWorkspaceSession: the saved data', () => {
 
     expect(workspace.savedData).toBe(savedData)
     expect(workspace.session.state.controls).toEqual(CHEAP_CONTROLS)
-    expect(workspace.session.state.profileSelection).toEqual({
-      musicalProfile: 'Neutral',
-      isCustom: true,
-    })
+    expect(workspace.session.state.selection).toEqual({ kind: 'custom', baseId: 'neutral' })
+    expect(workspace.session.state.figureLevels).toEqual(NEUTRAL_FIGURE_LEVELS)
     expect(workspace.session.state.presentation.theme).toBe('Light')
 
     const controller = await workspace.createSessionController()

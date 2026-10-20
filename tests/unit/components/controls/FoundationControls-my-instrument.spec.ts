@@ -8,10 +8,8 @@ import { describe, expect, it } from 'vitest'
 
 import ControlPanel from '@/components/controls/ControlPanel.vue'
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
-import {
-  DEFAULT_GENERATION_CONTROLS,
-  DEFAULT_PROFILE_SELECTION,
-} from '@/domain/controls/profile-selection'
+import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
+import { DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
 import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import { makeMyInstrument, type MyInstrument } from '@/domain/profile/my-instrument'
 
@@ -31,7 +29,7 @@ function mountPanel(
   return mount(ControlPanel, {
     props: {
       controls: makeGenerationControls({ ...DEFAULT_GENERATION_CONTROLS, instrumentProfileId }),
-      profileSelection: DEFAULT_PROFILE_SELECTION,
+      selection: DEFAULT_PRESET_SELECTION,
       readonly: false,
       noteDensityContext: { belowTabletLandscape: false, sessionSteppedDown: false },
       risingTempo: false,

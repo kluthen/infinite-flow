@@ -14,6 +14,7 @@ import {
   GenerationWorkerProtocolError,
   parseGenerationWorkerResponse,
 } from '@/generation-worker/generation-worker-protocol'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 
 /** Intent: one real GenerationWorkerRequest wire envelope, exactly as the session posts it. */
 function requestFixture() {
@@ -36,7 +37,7 @@ function requestFixture() {
       arpeggioChaos: 'Predictable',
       instrumentProfileId: 'bb-tenor',
     }),
-    musicalProfile: { musicalProfile: 'Neutral', isCustom: true },
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
   })
   return structuredClone({ type: 'generate', id: 1, intent })
 }
@@ -62,7 +63,7 @@ function successOutcome() {
       arpeggioChaos: 'Predictable',
       instrumentProfileId: 'c-keyboard',
     }),
-    musicalProfile: { musicalProfile: 'Neutral', isCustom: true },
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
   })
   const outcome = generatePhrase(intent)
   if (outcome.kind !== 'generation_success') throw new Error('fixture outcome must succeed')

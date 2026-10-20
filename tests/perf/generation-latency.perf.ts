@@ -59,6 +59,9 @@ import {
   type MutableSetting,
   type MutationContext,
 } from '@/session/settings-mutation'
+import { presetLabel } from '@/domain/controls/preset-label'
+import { FIGURE_IDS, levelsForProfile, NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
+import { sessionFigureLevels } from '@/session/session-intents'
 
 interface SettingMeasurement {
   readonly noteDensity: string
@@ -126,7 +129,7 @@ function measureSetting(
     requestId: makeRequestId(`perf-${name}-cold`),
     seed: makeSeed(1),
     controls,
-    musicalProfile: { musicalProfile: 'Neutral', isCustom: true },
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
   })
   const coldStart = performance.now()
   const coldOutcome = generatePhrase(coldIntent, { rhythmDomainMemo: memo })
@@ -136,7 +139,7 @@ function measureSetting(
     requestId: makeRequestId(`perf-${name}-warm`),
     seed: makeSeed(2),
     controls,
-    musicalProfile: { musicalProfile: 'Neutral', isCustom: true },
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
   })
   const warmStart = performance.now()
   const warmOutcome = generatePhrase(warmIntent, { rhythmDomainMemo: memo })
@@ -353,17 +356,18 @@ function allStartSettings(): SessionSettings[] {
       arpeggioChaos: arpeggioChaoses[index]!,
       instrumentProfileId: 'bb-tenor',
     }),
-    musicalProfile: { musicalProfile: profiles[index]!, isCustom: true },
+    figureLevels: levelsForProfile(profiles[index]!),
+    selection: { kind: 'custom', baseId: profiles[index] === 'Jazz' ? 'jazz' : 'neutral' },
   }))
 }
 
 /** Intent: a compact, stable display name for one session setting. */
-function settingName({ controls, musicalProfile }: SessionSettings): string {
+function settingName({ controls, figureLevels, selection }: SessionSettings): string {
   const rhythm = `${controls.noteDensity}/${controls.rhythmicVariety}/${controls.silenceDensity}/${controls.syncopation}/${controls.tension}`
   return (
     `${rhythm} (${controls.tonalCenter} ${controls.collection}, ${controls.harmonicMotion}, ` +
     `${controls.contour}, ${controls.register}, ${controls.leapiness}, ${controls.arpeggioChaos}, ` +
-    `${musicalProfile.musicalProfile})`
+    `${presetLabel(selection)}, ${FIGURE_IDS.map((figure) => figureLevels[figure]).join('/')})`
   )
 }
 
@@ -381,7 +385,7 @@ function timedGeneration(
     requestId: makeRequestId(`perf-change-${changeRequestCount}-${seed}`),
     seed: makeSeed(seed),
     controls: settings.controls,
-    musicalProfile: settings.musicalProfile,
+    figureLevels: sessionFigureLevels(settings),
   })
   const start = performance.now()
   const outcome = generatePhrase(intent, { rhythmDomainMemo: memo })

@@ -202,7 +202,8 @@ function snapshotOf(state: SessionControllerState): WorkspaceHarnessSessionState
         ? null
         : {
             controls: { ...state.shownSettings.controls },
-            musicalProfile: { ...state.shownSettings.musicalProfile },
+            figureLevels: { ...state.shownSettings.figureLevels },
+            selection: { ...state.shownSettings.selection },
           },
     ...rollingDisplayOf(state),
     latestReady: state.latestReady,

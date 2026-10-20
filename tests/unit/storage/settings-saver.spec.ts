@@ -1,18 +1,17 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  applyControlledCustomValue,
-  applyMusicalProfile,
-  applyNonProfileControlValue,
-  DEFAULT_GENERATION_CONTROLS,
-  DEFAULT_PROFILE_SELECTION,
-} from '@/domain/controls/profile-selection'
+import { makeGenerationControls } from '@/domain/controls/generation-controls'
+import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
+import { JAZZ_FIGURE_LEVELS, NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
+import { builtInPreset, DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
+import type { PresetSelection } from '@/domain/presets/preset-selection'
 import { CONTROLLER_RECORD_KEY, encodeControllerRecord } from '@/storage/records/controller-record'
 import { SETTINGS_DATA_VERSION } from '@/storage/records/settings-record'
 import type { SavePolicy } from '@/storage/save-policy'
 import {
   chosenControlChanges,
   createVisitSaves,
+  presetChoiceOfSavedProfile,
   type SettingChanges,
 } from '@/storage/settings-saver'
 import type { StorageChange } from '@/storage/storage-port'
@@ -240,62 +239,147 @@ describe('the changes to kept sessions', () => {
   })
 })
 
+/** The first-load controls with a built-in preset's ten controls. */
+function controlsOf(presetId: 'neutral' | 'jazz' | 'reel') {
+  return makeGenerationControls({
+    ...DEFAULT_GENERATION_CONTROLS,
+    ...builtInPreset(presetId).controls,
+  })
+}
+
+const JAZZ: PresetSelection = { kind: 'preset', presetId: 'jazz' }
+const REEL: PresetSelection = { kind: 'preset', presetId: 'reel' }
+
 // @test-link [[module_saved_data_loader]]
+// @test-link [[rule_settings_saved_on_change]]
+// @test-link [[rule_saved_setting_is_players_choice]]
 describe('chosenControlChanges', () => {
   const before = {
     controls: DEFAULT_GENERATION_CONTROLS,
-    profileSelection: DEFAULT_PROFILE_SELECTION,
+    selection: DEFAULT_PRESET_SELECTION,
   }
 
-  // @test-link [[rule_settings_saved_on_change]]
-  // @test-link [[rule_saved_setting_is_players_choice]]
   it('is empty when nothing changed', () => {
     expect(chosenControlChanges(before, { ...before })).toEqual({})
   })
 
-  // @test-link [[rule_settings_saved_on_change]]
-  // @test-link [[rule_saved_setting_is_players_choice]]
-  it('holds only the control a non-profile edit changed', () => {
-    const [controls, profileSelection] = applyNonProfileControlValue(
-      before.controls,
-      before.profileSelection,
-      'tempo',
-      120,
-    )
+  it('holds only the control a tempo edit changed', () => {
+    const controls = makeGenerationControls({ ...before.controls, tempo: 120 })
 
-    expect(chosenControlChanges(before, { controls, profileSelection })).toEqual({
+    expect(chosenControlChanges(before, { controls, selection: before.selection })).toEqual({
       'controls.tempo': 120,
     })
   })
 
-  // @test-link [[rule_settings_saved_on_change]]
-  // @test-link [[rule_saved_setting_is_players_choice]]
-  it('holds the edited profile-controlled value and the now customized selection', () => {
-    const [controls, profileSelection] = applyControlledCustomValue(
-      before.controls,
-      before.profileSelection,
-      'register',
-      'High',
-    )
+  it("holds the edited preset-held control and the Custom selection, written as v3.0's customized selection", () => {
+    const controls = makeGenerationControls({ ...before.controls, register: 'High' })
+    const selection: PresetSelection = { kind: 'custom', baseId: 'neutral' }
 
-    expect(chosenControlChanges(before, { controls, profileSelection })).toEqual({
+    expect(chosenControlChanges(before, { controls, selection })).toEqual({
       'controls.register': 'High',
       profileSelection: { musicalProfile: 'Neutral', isCustom: true },
     })
   })
 
-  // @test-link [[rule_settings_saved_on_change]]
-  // @test-link [[rule_saved_setting_is_players_choice]]
-  it('holds the controlled values a preset switch changed and the new selection', () => {
-    const [controls, profileSelection] = applyMusicalProfile(before.controls, 'Jazz')
+  it("holds the controls a Jazz choice changed and Jazz written as v3.0's selection", () => {
+    expect(chosenControlChanges(before, { controls: controlsOf('jazz'), selection: JAZZ })).toEqual(
+      {
+        'controls.noteDensity': 'Eighth',
+        'controls.syncopation': 'Occasional offbeats',
+        'controls.silenceDensity': 'Conversational',
+        'controls.contour': 'Wandering',
+        'controls.register': 'Varying',
+        profileSelection: { musicalProfile: 'Jazz', isCustom: false },
+      },
+    )
+  })
 
-    expect(chosenControlChanges(before, { controls, profileSelection })).toEqual({
-      'controls.noteDensity': 'Eighth',
-      'controls.syncopation': 'Occasional offbeats',
-      'controls.silenceDensity': 'Conversational',
-      'controls.contour': 'Wandering',
-      'controls.register': 'Varying',
-      profileSelection: { musicalProfile: 'Jazz', isCustom: false },
+  it("writes Custom based on Jazz as v3.0's customized Jazz, once", () => {
+    const jazz = { controls: controlsOf('jazz'), selection: JAZZ }
+    const custom = {
+      controls: jazz.controls,
+      selection: { kind: 'custom', baseId: 'jazz' } as PresetSelection,
+    }
+
+    expect(chosenControlChanges(jazz, custom)).toEqual({
+      profileSelection: { musicalProfile: 'Jazz', isCustom: true },
     })
+    expect(chosenControlChanges(custom, { ...custom })).toEqual({})
+  })
+
+  it('writes no selection for a Reel choice, for Custom based on Reel, or for Custom with no base', () => {
+    const reel = { controls: controlsOf('reel'), selection: REEL }
+    /** Intent: whether a batch writes a selection. */
+    const writesSelection = (changes: SettingChanges) => 'profileSelection' in changes
+
+    expect(writesSelection(chosenControlChanges(before, reel))).toBe(false)
+    expect(
+      writesSelection(
+        chosenControlChanges(reel, { ...reel, selection: { kind: 'custom', baseId: 'reel' } }),
+      ),
+    ).toBe(false)
+    expect(
+      writesSelection(
+        chosenControlChanges(before, { ...before, selection: { kind: 'custom', baseId: null } }),
+      ),
+    ).toBe(false)
+  })
+
+  it('writes the selection when the one before had no form v3.0 can hold', () => {
+    const reel = { controls: controlsOf('reel'), selection: REEL }
+
+    expect(chosenControlChanges(reel, { ...before }).profileSelection).toEqual({
+      musicalProfile: 'Neutral',
+      isCustom: false,
+    })
+  })
+})
+
+// @test-link [[rule_saved_profile_becomes_preset]]
+describe('presetChoiceOfSavedProfile', () => {
+  it("loads Jazz saved with Tension at Build as Custom based on Jazz, with Jazz's levels", () => {
+    const controls = makeGenerationControls({ ...controlsOf('jazz'), tension: 'Build' })
+
+    expect(
+      presetChoiceOfSavedProfile({ musicalProfile: 'Jazz', isCustom: false }, controls),
+    ).toEqual({ selection: { kind: 'custom', baseId: 'jazz' }, figureLevels: JAZZ_FIGURE_LEVELS })
+  })
+
+  it("loads Jazz saved with Jazz's values as Jazz", () => {
+    expect(
+      presetChoiceOfSavedProfile({ musicalProfile: 'Jazz', isCustom: false }, controlsOf('jazz')),
+    ).toEqual({ selection: JAZZ, figureLevels: JAZZ_FIGURE_LEVELS })
+  })
+
+  it("loads a customized saved selection as Custom based on its built-in, even with the built-in's values", () => {
+    expect(
+      presetChoiceOfSavedProfile({ musicalProfile: 'Jazz', isCustom: true }, controlsOf('jazz')),
+    ).toEqual({ selection: { kind: 'custom', baseId: 'jazz' }, figureLevels: JAZZ_FIGURE_LEVELS })
+    expect(
+      presetChoiceOfSavedProfile(
+        { musicalProfile: 'Neutral', isCustom: true },
+        DEFAULT_GENERATION_CONTROLS,
+      ),
+    ).toEqual({
+      selection: { kind: 'custom', baseId: 'neutral' },
+      figureLevels: NEUTRAL_FIGURE_LEVELS,
+    })
+  })
+
+  it("loads Neutral with the first-load controls as Neutral, the levels always the built-in's", () => {
+    expect(
+      presetChoiceOfSavedProfile(
+        { musicalProfile: 'Neutral', isCustom: false },
+        DEFAULT_GENERATION_CONTROLS,
+      ),
+    ).toEqual({ selection: DEFAULT_PRESET_SELECTION, figureLevels: NEUTRAL_FIGURE_LEVELS })
+    const keyMoved = makeGenerationControls({
+      ...DEFAULT_GENERATION_CONTROLS,
+      tonalCenter: 'G',
+      tempo: 150,
+    })
+    expect(
+      presetChoiceOfSavedProfile({ musicalProfile: 'Neutral', isCustom: false }, keyMoved),
+    ).toEqual({ selection: DEFAULT_PRESET_SELECTION, figureLevels: NEUTRAL_FIGURE_LEVELS })
   })
 })

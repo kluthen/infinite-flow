@@ -47,7 +47,7 @@ export function createSessionStart(
    * and queue phrase 1's backing; then lock the current settings (my instrument's profile taken
    * from phrase 1's intent, which embeds it), beside the settings phrase 1 was generated under at
    * the session's tempo (phrase 2 joins phrase 1 as after a change from them, and the controls show
-   * them, the profile selection as the player's, through the count-in and phrase 1; equal ones
+   * them, the preset selection as the player's at Start, through the count-in and phrase 1; equal ones
    * change nothing), hold the staff layout the
    * window's width selects, take the phrases the Idle pre-generation queue has ready that fit it
    * (aborting its attempt in flight, never waiting for it), open the history with the session seed
@@ -77,7 +77,11 @@ export function createSessionStart(
     }
     state.review = null
     const settings: SessionSettings = sessionSettingsAtStart(
-      { controls: idle.state.controls, musicalProfile: idle.state.profileSelection },
+      {
+        controls: idle.state.controls,
+        figureLevels: idle.state.figureLevels,
+        selection: idle.state.selection,
+      },
       phraseOne.intent,
     )
     const tempo = settings.controls.tempo
@@ -115,7 +119,7 @@ export function createSessionStart(
         display: null,
         midi: null,
         shown: createSessionShownSettings(
-          { ...phraseOneOwn, musicalProfile: settings.musicalProfile },
+          { ...phraseOneOwn, selection: settings.selection },
           settings,
         ),
       }

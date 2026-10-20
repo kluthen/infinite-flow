@@ -27,6 +27,7 @@ import { makeGenerationRequest, makeRequestId } from '@/domain/generation/genera
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import { makeSeed } from '@/domain/random/seed'
 import { validateGenerationResult } from '@/domain/validation/generation-result-validator'
+import { levelsForProfile } from '@/domain/figures/figure-levels'
 import { attackMidis, carryInAfter, type SuccessOutcome } from './carry-in-fixture'
 import { buildMatrix, type MatrixCell } from './carry-in-matrix'
 
@@ -69,7 +70,7 @@ function phraseIntent(cell: MatrixCell, phraseNumber: number, carryIn?: CarryIn)
       register: cell.register,
       instrumentProfileId: cell.instrumentProfileId,
     }),
-    musicalProfile: { musicalProfile: cell.set.musicalProfile, isCustom: true },
+    figureLevels: levelsForProfile(cell.set.musicalProfile),
   }
   return carryIn === undefined
     ? createGenerationIntent(input)

@@ -12,7 +12,8 @@
 import { describe, expect, it } from 'vitest'
 
 import { SessionControllerError } from '@/components/workspace/workspace-session-controller-types'
-import { applyMusicalProfile } from '@/domain/controls/profile-selection'
+import { builtInPreset } from '@/domain/presets/built-in-presets'
+import { choosePreset } from '@/domain/presets/preset-selection'
 import { NotationError } from '@/notation/notation-error'
 import { settingsMutationSeed } from '@/session/session-seed-plan'
 import { mutationPhrase } from '@/session/settings-mutation'
@@ -49,18 +50,24 @@ function withLeapiness(rig: ControllerRig): SessionSettings {
   const leapiness = rig.settings.controls.leapiness === 'Angular' ? 'Smooth' : 'Angular'
   return {
     ...sessionSettings({ tempo: 240, leapiness }),
-    musicalProfile: rig.settings.musicalProfile,
+    figureLevels: rig.settings.figureLevels,
+    selection: rig.settings.selection,
   }
 }
 
 /**
- * Intent: the player picked the Neutral profile at Idle and changed nothing since, so the profile
- * is not marked customized; the rig's phrase 1 stays as it is.
+ * Intent: the player chose the Neutral preset at Idle and changed nothing since, so Neutral is
+ * selected, not Custom; the rig's phrase 1 stays as it is.
  */
 function playerChoseNeutral(rig: ControllerRig): void {
-  const [controls, profileSelection] = applyMusicalProfile(rig.idle.controls, 'Neutral')
-  rig.idle.controls = controls
-  rig.idle.profileSelection = profileSelection
+  const chosen = choosePreset(
+    { controls: rig.idle.controls, levels: rig.idle.figureLevels },
+    rig.idle.selection,
+    builtInPreset('neutral'),
+  )
+  rig.idle.controls = chosen.settings.controls
+  rig.idle.figureLevels = chosen.settings.levels
+  rig.idle.selection = chosen.selection
 }
 
 /** Intent: tap one note (not the starting note's pitch) now. */
@@ -186,18 +193,19 @@ describe('session controller: the settings the controls show', () => {
   // @test-link [[rule_mutation_reverts_at_session_end]]
   // @test-link [[rule_session_end_generates_next_phrase_one]]
   it.each(VARIED_ENDS.map((end) => [end.name, end] as const))(
-    "gives the player's settings back at an end by %s, the customized marking included, before Idle is asked for its fresh phrase",
+    "gives the player's settings back at an end by %s, their selection and levels included, before Idle is asked for its fresh phrase",
     async (_name, { cause, before, trigger }) => {
       const { rig, landsOn } = await startedVarying(async (rig) => {
         playerChoseNeutral(rig)
         await before?.(rig)
       })
       const playersControls = rig.idle.controls
-      const playersProfile = rig.idle.profileSelection
+      const playersLevels = rig.idle.figureLevels
+      const playersSelection = rig.idle.selection
       await playTo(rig, phraseStart(landsOn) + 0.05)
       const change = outputsOf(rig, 'settings-changed')[0]!
       expect(rig.controller.state.shownSettings).toEqual(change.settings)
-      expect(change.settings.musicalProfile.isCustom).toBe(true)
+      expect(change.settings.selection).toEqual({ kind: 'custom', baseId: 'neutral' })
 
       await trigger(rig)
 
@@ -207,8 +215,9 @@ describe('session controller: the settings the controls show', () => {
       expect(rig.freshPhraseRequests).toHaveLength(1)
       expect(rig.freshPhraseRequests[0]).toMatchObject({ phase: 'idle', shownSettings: null })
       expect(rig.idle.controls).toBe(playersControls)
-      expect(rig.idle.profileSelection).toBe(playersProfile)
-      expect(rig.idle.profileSelection).toEqual({ musicalProfile: 'Neutral', isCustom: false })
+      expect(rig.idle.figureLevels).toBe(playersLevels)
+      expect(rig.idle.selection).toBe(playersSelection)
+      expect(rig.idle.selection).toEqual({ kind: 'preset', presetId: 'neutral' })
       expect(rig.controller.state.varySettings).toBe(true)
     },
   )

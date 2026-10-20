@@ -11,6 +11,7 @@ import { describe, expect, it } from 'vitest'
 
 import { SessionControllerError } from '@/components/workspace/workspace-session-controller-types'
 import type { TensionArc } from '@/domain/controls/generation-controls'
+import { DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
 import { controllerRig, outputsOf, playTo, type ControllerRig } from './session-controller-rig'
 
 /** Intent: when phrase `n` of a 240 BPM rig session starts sounding. */
@@ -101,5 +102,26 @@ describe('session controller: a session with Tension across phrases on', () => {
     ])
     expect(outputsOf(rig, 'settings-changed')).toEqual([])
     expect(rig.idle.controls.tension).toBe('Settled')
+  })
+
+  // @test-link [[rule_tension_across_phrases_never_marks_custom]]
+  it('never marks the selected preset Custom, and generates every phrase with the same levels', async () => {
+    const rig = controllerRig()
+    rig.idle.selection = DEFAULT_PRESET_SELECTION
+    const levels = rig.idle.figureLevels
+    rig.controller.setTensionAcrossPhrases(true)
+    rig.controller.start()
+
+    for (const n of [2, 3, 4, 5, 6]) {
+      await playTo(rig, phraseStart(n) + 0.05)
+      expect(rig.controller.state.shownSettings?.selection).toEqual(DEFAULT_PRESET_SELECTION)
+      expect(rig.controller.state.shownSettings?.figureLevels).toEqual(levels)
+    }
+
+    expect(new Set(requestedTension(rig).values()).size).toBeGreaterThan(1)
+    for (const request of outputsOf(rig, 'request-generation'))
+      expect(request.intent.figureLevels).toEqual(levels)
+    expect(outputsOf(rig, 'settings-changed')).toEqual([])
+    expect(rig.idle.selection).toEqual(DEFAULT_PRESET_SELECTION)
   })
 })

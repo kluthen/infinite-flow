@@ -15,6 +15,7 @@ import { watch } from 'vue'
 import type { GenerationSessionState } from '@/composables/use-generation-session'
 import type { PregenerationSlot } from '@/composables/generation-session-pregeneration'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
+import { FIGURE_IDS } from '@/domain/figures/figure-levels'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
 import { instrumentClefOf, type InstrumentClef } from '@/domain/profile/instrument-clef'
@@ -55,8 +56,8 @@ export interface PregenerationWorkspaceSeams extends PregenerationSeams {
 }
 
 /**
- * What the session controller binds: the Idle state (phrase 1, the controls, the profile selection
- * and the note-density context), its start blocker (the run conditions), its two session flags,
+ * What the session controller binds: the Idle state (phrase 1, the controls, the figure levels,
+ * the preset selection and the note-density context), its start blocker (the run conditions), its two session flags,
  * the window's shape, the staff's latest layout inputs and their observer, the staff planner's
  * loader, and where a programming error is reported.
  */
@@ -124,17 +125,19 @@ function atTempo(readyPhrases: readonly ReadyPhrase[], tempo: number): readonly 
 }
 
 /**
- * Intent: the queue's key besides phrase 1: the generation controls except tempo, the profile
- * selection (the instrument is a control), Vary settings and Tension across phrases.
+ * Intent: the queue's key besides phrase 1: the generation controls except tempo (the instrument
+ * is a control), the seven figure levels in FIGURE_IDS order, Vary settings and Tension across
+ * phrases. Never the preset selection: no phrase is generated from it, so a change of the
+ * selection alone (the same controls and levels) keeps the ready phrases.
  */
 // @spec-link [[rule_pregeneration_discarded_on_change]]
 function settingsKeyOf(deps: PregenerationControllerSeams): string {
   const { tempo, ...controls } = deps.idle.controls
   void tempo
-  const { profileSelection } = deps.idle
+  const { figureLevels } = deps.idle
   return JSON.stringify([
     controls,
-    profileSelection,
+    FIGURE_IDS.map((figure) => figureLevels[figure]),
     deps.varySettings(),
     deps.tensionAcrossPhrases(),
   ])
@@ -183,7 +186,7 @@ export function createWorkspacePregeneration(
   function startOf(phraseOne: WorkspaceSessionResult): PregenerationStart {
     return {
       settings: sessionSettingsAtStart(
-        { controls: idle.controls, musicalProfile: idle.profileSelection },
+        { controls: idle.controls, figureLevels: idle.figureLevels, selection: idle.selection },
         phraseOne.intent,
       ),
       phraseOne: { intent: phraseOne.intent, outcome: phraseOne.outcome },

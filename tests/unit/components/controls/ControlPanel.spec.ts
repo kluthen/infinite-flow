@@ -2,11 +2,9 @@ import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 
 import ControlPanel from '@/components/controls/ControlPanel.vue'
-import {
-  DEFAULT_GENERATION_CONTROLS,
-  DEFAULT_PROFILE_SELECTION,
-} from '@/domain/controls/profile-selection'
-import type { ProfileSelection } from '@/domain/controls/profile-selection'
+import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
+import { DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
+import type { PresetSelection } from '@/domain/presets/preset-selection'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import {
   UNSUPPORTED_RHYTHM_SETTINGS,
@@ -15,13 +13,13 @@ import {
 
 function mountPanel(
   controls: GenerationControls = DEFAULT_GENERATION_CONTROLS,
-  profileSelection: ProfileSelection = DEFAULT_PROFILE_SELECTION,
+  selection: PresetSelection = DEFAULT_PRESET_SELECTION,
   readonly = false,
 ) {
   return mount(ControlPanel, {
     props: {
       controls,
-      profileSelection,
+      selection,
       readonly,
       noteDensityContext: { belowTabletLandscape: false, sessionSteppedDown: false },
       risingTempo: false,
@@ -76,16 +74,17 @@ describe('ControlPanel', () => {
     ])
   })
 
-  it('shows the control-summary line and recomputes it on a control or profile-selection change', async () => {
+  // @test-link [[rule_custom_names_its_base]]
+  it('shows the control-summary line with the preset label and recomputes it on a control or selection change', async () => {
     const wrapper = mountPanel()
     expect(wrapper.get('.control-summary').text()).toBe('C Ionian · Neutral · Lift · Shaped')
     const edited: GenerationControls = { ...DEFAULT_GENERATION_CONTROLS, tension: 'Edge' }
     await wrapper.setProps({
       controls: edited,
-      profileSelection: { musicalProfile: 'Neutral', isCustom: true },
+      selection: { kind: 'custom', baseId: 'jazz' },
     })
     expect(wrapper.get('.control-summary').text()).toBe(
-      'C Ionian · Custom (Neutral grammar) · Edge · Shaped',
+      'C Ionian · Custom, based on Jazz · Edge · Shaped',
     )
   })
 
@@ -115,13 +114,28 @@ describe('ControlPanel', () => {
   })
 
   // @test-link [[rule_selectable_generative_profiles]]
-  it('emits select-musical-profile for the preset group', async () => {
-    const wrapper = mountPanel()
+  // @test-link [[rule_choosing_preset_sets_its_settings]]
+  it('emits select-preset with the Neutral or Jazz built-in id for the preset group', async () => {
+    const wrapper = mountPanel(DEFAULT_GENERATION_CONTROLS, { kind: 'custom', baseId: 'neutral' })
     const group = wrapper
       .findAll('[role="radiogroup"]')
       .find((g) => g.attributes('aria-label') === 'Musical profile preset')!
-    await group.findAll('[role="radio"]')[1]!.trigger('click')
-    expect(wrapper.emitted('select-musical-profile')).toEqual([['Jazz']])
+    const radios = group.findAll('[role="radio"]')
+    expect(radios.map((radio) => radio.text())).toEqual(['Neutral', 'Jazz'])
+    await radios[1]!.trigger('click')
+    await radios[0]!.trigger('click')
+    expect(wrapper.emitted('select-preset')).toEqual([['jazz'], ['neutral']])
+  })
+
+  it('checks the Jazz segment while Jazz is selected, and none for another preset', () => {
+    const segment = (selection: PresetSelection) =>
+      mountPanel(DEFAULT_GENERATION_CONTROLS, selection)
+        .findAll('[role="radiogroup"]')
+        .find((g) => g.attributes('aria-label') === 'Musical profile preset')!
+        .findAll('[role="radio"]')
+        .map((radio) => radio.attributes('aria-checked'))
+    expect(segment({ kind: 'preset', presetId: 'jazz' })).toEqual(['false', 'true'])
+    expect(segment({ kind: 'preset', presetId: 'reel' })).toEqual(['false', 'false'])
   })
 
   // @test-link [[rule_profile_presets_apply_defined_controls]]
@@ -134,11 +148,10 @@ describe('ControlPanel', () => {
     expect(inUse.classes()).not.toContain('is-custom')
   })
 
-  it('shows the retained-grammar custom status text and clears the preset selection', () => {
-    const wrapper = mountPanel(DEFAULT_GENERATION_CONTROLS, {
-      musicalProfile: 'Jazz',
-      isCustom: true,
-    })
+  // @test-link [[rule_custom_selection]]
+  // @test-link [[rule_custom_names_its_base]]
+  it("shows Custom's status text naming its base and checks no preset segment", () => {
+    const wrapper = mountPanel(DEFAULT_GENERATION_CONTROLS, { kind: 'custom', baseId: 'jazz' })
     const inUse = wrapper.get('.preset-status-text:not(.is-reserve)')
     expect(inUse.text()).toBe(
       'Custom configuration - Jazz grammar retained. Choosing Neutral or Jazz replaces all seven preset-controlled values.',
@@ -188,7 +201,7 @@ describe('ControlPanel', () => {
   })
 
   it('propagates readonly to every control group', () => {
-    const wrapper = mountPanel(DEFAULT_GENERATION_CONTROLS, DEFAULT_PROFILE_SELECTION, true)
+    const wrapper = mountPanel(DEFAULT_GENERATION_CONTROLS, DEFAULT_PRESET_SELECTION, true)
     const groups = wrapper.findAll('[role="radiogroup"]')
     expect(groups.length).toBeGreaterThan(0)
     for (const group of groups) {
@@ -203,7 +216,7 @@ describe('ControlPanel', () => {
   })
 
   // @test-link [[rule_automatic_change_updates_controls_quietly]]
-  it('holds both preset status texts in one cell, the other one invisible, emphasis on the custom one', () => {
+  it('holds both preset status texts in one cell for a preset selection, the other one invisible, emphasis on the custom one', () => {
     const preset = mountPanel()
     const presetReserve = preset.get('.preset-status-text.is-reserve')
     expect(presetReserve.attributes('aria-hidden')).toBe('true')
@@ -213,10 +226,7 @@ describe('ControlPanel', () => {
     expect(presetReserve.classes()).toContain('is-custom')
     expect(preset.get('.preset-status').classes()).not.toContain('is-custom')
 
-    const custom = mountPanel(DEFAULT_GENERATION_CONTROLS, {
-      musicalProfile: 'Jazz',
-      isCustom: true,
-    })
+    const custom = mountPanel(DEFAULT_GENERATION_CONTROLS, { kind: 'custom', baseId: 'jazz' })
     const customReserve = custom.get('.preset-status-text.is-reserve')
     expect(customReserve.text()).toBe(
       'Jazz preset applied. All seven preset-controlled values were replaced.',
@@ -225,13 +235,27 @@ describe('ControlPanel', () => {
     expect(custom.findAll('.preset-status-text')).toHaveLength(2)
   })
 
+  // @test-link [[rule_custom_names_its_base]]
+  it('names the selected preset in the status, and no base for Custom with none', () => {
+    const reel = mountPanel(DEFAULT_GENERATION_CONTROLS, { kind: 'preset', presetId: 'reel' })
+    expect(reel.get('.preset-status-text:not(.is-reserve)').text()).toBe(
+      'Reel preset applied. All seven preset-controlled values were replaced.',
+    )
+    const noBase = mountPanel(DEFAULT_GENERATION_CONTROLS, { kind: 'custom', baseId: null })
+    const inUse = noBase.get('.preset-status-text:not(.is-reserve)')
+    expect(inUse.text()).toBe(
+      'Custom configuration. Choosing Neutral or Jazz replaces all seven preset-controlled values.',
+    )
+    expect(inUse.classes()).toContain('is-custom')
+  })
+
   // @test-link [[rule_automatic_change_updates_controls_quietly]]
   it('announces the preset status politely, or not at all when told so', () => {
     expect(mountPanel().get('.preset-status').attributes('aria-live')).toBe('polite')
     const quiet = mount(ControlPanel, {
       props: {
         controls: DEFAULT_GENERATION_CONTROLS,
-        profileSelection: DEFAULT_PROFILE_SELECTION,
+        selection: DEFAULT_PRESET_SELECTION,
         readonly: true,
         noteDensityContext: { belowTabletLandscape: false, sessionSteppedDown: false },
         risingTempo: false,
