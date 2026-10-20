@@ -540,3 +540,14 @@ Gate re-run on 0dad768 (13:38 CEST, reference machine, load 0.91): `npm run qual
 479 files, 7,390 tests; Playwright 488 + 488 (1 skipped each), 57, 107 (4 skipped). Entry chunk
 246,866 B (49 JS chunks). The sweep was not re-run (the fix touches only the settings codec).
 Wave 3 merged into `main` and pushed.
+
+## Wave 4 (2026-10-20)
+
+Chunks 1 (token-source pass, part 1, `ux-writer`) and 13 (the preset bar and the key and mode
+marks), in the order 1 → 13. Branch `v3.1-w4`, worktree `../infinite_flow-v3.1-w4`, cut from
+`main` a63590a (wave 3 merged and pushed). T1 given (D382). The owner said to go on with the
+next wave in this session.
+
+### Preflight
+
+`documentalist` dispatched on `v3.1-w4`.
