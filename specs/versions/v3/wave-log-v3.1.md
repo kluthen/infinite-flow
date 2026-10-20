@@ -578,3 +578,8 @@ restriction on `SessionSettings`, never the shown key and mode).
   design and D384 freeze them at Start); a business sentence would need the owner's sign-off.
 - Chunk 13: dispatched 2026-10-20 (`../infinite_flow-v3.1-c13`, branch `v3.1-c13-preset-bar`),
   13a then 13b.
+- Chunk 13: merged as 878fb9f (3b1283f 13a, 192e235 13b). Every Done-when item met; no deviation
+  from the spec, the design or the intent. For the sync: `module_generative_profile_selection`'s
+  revision and `startSettings` in `service_session_controller`'s readonly state; three links left
+  out for the 10-atom cap (listed in the Record). Leftovers: `your-data-copy.ts:38` ("the musical
+  profile", Your data sheet) and `docs/phrase-workspace.md` ~936 (stale-phrase labels). Gate next.

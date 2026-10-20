@@ -124,7 +124,7 @@ and 5 have merged, and no release is cut before wave 5 has merged.
 | 1    | 4 Figure levels in the request · 5 Levels gate the figures · 8 Replay key `ifk3.` · 10 Preset model                                                                 | Wave 0. In-wave 4 → 5, 4 → 8 and 4 → 10: chunk 4's capture fixes the figure ids, the level type and the request's `figureLevels`.                                                                                                                               | merged (2026-10-19) |
 | 2    | 6 Favored levels order the search · 7 Two new free figures · 9 Kept sessions hold the levels                                                                        | Wave 1. In-wave 6 → 7: chunk 6's capture fixes the draw and the figures a candidate names.                                                                                                                                                                      | merged (2026-10-20) |
 | 3    | 11 Cost guard, first run · 12 Presets replace the musical profile · 15 Vary settings inside the restriction · 16 Presets on the device · 22 Review summary's length | Wave 2. In-wave 12 → 15, 12 → 16 and 12 → 22: chunk 12's capture fixes the session settings and the routing point; chunk 22 follows 12 because both may change the kept-session record. Gate DP is taken from chunk 11 (spec D378).                             | merged (2026-10-20) |
-| 4    | 1 Token-source pass · 13 Preset bar and marks                                                                                                                       | Wave 3. Two chunks: every other chunk T1 held (given, spec D382) needs both 1 and 13, which would make a chain of three.                                                                                                                                        | planned             |
+| 4    | 1 Token-source pass · 13 Preset bar and marks                                                                                                                       | Wave 3. Two chunks: every other chunk T1 held (given, spec D382) needs both 1 and 13, which would make a chain of three.                                                                                                                                        | gate (2026-10-20)   |
 | 5    | 14 Embellishments group · 17 Preset management · 18 Your data · 19 Pre-generation discards                                                                          | Wave 4. In-wave 14 → 19: chunk 14's capture fixes the level controls' option model and their change path; 17 → 18 and 17 → 19: chunk 17's capture fixes the player-presets composable. L1 and L2 open at its end. Chunk 20 is dropped (DP rejected, spec D378). | planned             |
 
 The [release gate](#chunk-21--v31-release-gate) (chunk 21) follows wave 5, with L1 and L2. κ is 1
@@ -1361,7 +1361,7 @@ Record: 51aadb7, merged as f0228f7 (five units). `selectPreset` built on `choose
 
 ### Chunk 13 — The preset bar and the key and mode marks
 
-Status: planned
+Status: merged (w4, 878fb9f)
 Wave: 4
 Depends on: 1, 12
 Architecture capture: the segmented control's option model gains a `marked` flag beside `disabled`
@@ -1480,6 +1480,8 @@ a session (spec D384) is captured before the chunk starts.
   - **13b the marks:** the segmented control, its option, the marks function in
     `control-options.ts`, their wiring in the foundation group from 13a's start settings during a
     session; `key-and-mode-marks.spec.ts`.
+
+Record: 3b1283f (13a, the preset bar) and 192e235 (13b, the marks), merged as 878fb9f; units A1–A3, B1, B2, `ux-writer` removed `preset-status` / `preset-status-text` and noted it in the token source's part 1. `preset-bar.spec.ts` (15) and `key-and-mode-marks.spec.ts` added to `test:e2e`; the eight built-ins checked against B6.5; Reel's marks, Custom, every segment selectable; the marks frozen at Start with a stale phrase 1 (D384); 800x400 and 1600x900 layouts; `test:a11y` 59 (Light and Dark scans with marks). The harmony alert reads D381's wording. The controller's readonly state gains `startSettings` (set in `beginSession`, cleared in `tearDown`). `listInWords` exported; `describedBy` widened to `string | undefined`. Links left out for the 10-atom cap: `rule_vary_settings_marks_custom` (ControlPanel.spec, preset-bar.spec), `rule_player_preset_names` (preset-bar.spec), `ui_segmented_control_marked_option` (accessibility.spec). For the sync: `module_generative_profile_selection`'s revision; `startSettings` in `service_session_controller`. Leftovers: `your-data-copy.ts:38` still says "the musical profile" (Your data sheet, not this chunk's); `docs/phrase-workspace.md` ~936 lists "Musical profile preset" among the stale-phrase prompt's labels (wrong before this chunk). Chunk checks only; `quality` at the wave gate.
 
 ### Chunk 14 — The Embellishments group
 
