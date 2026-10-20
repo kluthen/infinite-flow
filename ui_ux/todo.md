@@ -87,8 +87,11 @@ spec gaps for `spec-writer`: Q70-Q73 (provisional answers designed).
 - **Validation.** `ux-critic` on v3.1 and on v3.2: DRIFT both, findings fixed (ux D249, D250); recheck: two small slips, fixed (ux D251). Validated for the owner's review.
 - **v3.1 approved and frozen** (2026-10-19, ux D324): the owner approved the v3.1 design (the
   v3.1 build plan's gate D0); `versions/v3.1/` taken from the root without the v3.2 and v3.3
-  parts, with `token-source-v3.1.md`. The token-source pass (T1) is not allowed yet. v3.2 still
-  waits for the owner's review.
+  parts, with `token-source-v3.1.md`. v3.2 still waits for the owner's review.
+- **v3.1 token-source pass (T1)** (2026-10-20, ux D325): allowed by the owner (spec D382);
+  applied as the v3.1 build plan's chunk 1, part 1 of `token-source-v3.1-v3.2.md` written into
+  `src/styles/theme.css` and `components.css` and marked applied there. `preset-status` and
+  `preset-status-text` stay until chunk 13 removes them.
 
 ## Remaining
 
@@ -124,8 +127,7 @@ would move, also comes back here (ux D258, D264).
 
 v3.1: approved and frozen in [`versions/v3.1/`](versions/v3.1/README.md) (ux D324); its build reads
 that copy. A correction to match what v3.1 ships goes into both the copy and the root, recorded in
-`decisions.md`. The token-source pass (T1: `src/styles/theme.css` and `components.css`) waits for
-the owner's go.
+`decisions.md`. Its token-source pass is applied (ux D325).
 
 v3.2: the owner's review of the v3.2 design (ux D225-D251, its `v3.2` marks), and `spec-writer`'s
 answers to Q73-Q75. Once approved, take `versions/v3.2/` the same way, from the root without the
