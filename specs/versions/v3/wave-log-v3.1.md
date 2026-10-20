@@ -572,3 +572,9 @@ restriction on `SessionSettings`, never the shown key and mode).
   dispatched to capture D384 before chunk 13.
 - Chunk 1: merged as d8698cb (f63b385, ux D325). Every handoff class and token exists;
   `test:notation` unchanged.
+- D384 captured (add49d0): `module_key_and_mode_marks` 0.1 (new), `module_preset_bar_model` 0.2,
+  `ui_segmented_control_marked_option` 0.2. Open for the owner at the report: B6.4 and
+  `rule_restriction_highlight_never_blocks` say nothing of the marks during a session (only the
+  design and D384 freeze them at Start); a business sentence would need the owner's sign-off.
+- Chunk 13: dispatched 2026-10-20 (`../infinite_flow-v3.1-c13`, branch `v3.1-c13-preset-bar`),
+  13a then 13b.
