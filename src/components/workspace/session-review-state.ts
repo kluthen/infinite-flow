@@ -23,7 +23,8 @@ import {
  * Intent: the session a session end gives its Review: its closed history, the instrument's name
  * from phrase 1's own intent (the profile the session was played with, my instrument's included,
  * never looked up by id), the preset label of the preset selection the session started with
- * (its history's, never the current settings'), the tempo it reached (its last sounded phrase's),
+ * (its history's, never the current settings'), named from the presets the session knew, which
+ * its save keeps, the tempo it reached (its last sounded phrase's),
  * how it is kept, and the key and played-notes fact its save was asked for with, nothing pinned,
  * chosen or commented yet; a history in which no phrase sounded gives none and throws.
  */
@@ -48,7 +49,7 @@ export function endedSession(
   return Object.freeze({
     history,
     instrumentName,
-    presetLabel: presetLabel(history.selection),
+    presetLabel: presetLabel(history.selection, saving.presets),
     tempoReached,
     keeping,
     key,

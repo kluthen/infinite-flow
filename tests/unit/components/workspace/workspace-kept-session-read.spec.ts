@@ -16,6 +16,7 @@ import {
   mostRecentKept,
   readKeptReviewedSession,
 } from '@/components/workspace/workspace-kept-session-read'
+import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import type { KeptRecordsReader } from '@/storage/save-policy'
 import type { SessionHistory } from '@/session/session-history'
 import * as codecOf from '@/storage/records/kept-session-record'
@@ -37,6 +38,7 @@ const FRESH: KeptSessionFacts = {
   favorites: [],
   comment: '',
   playedNotesKept: false,
+  presets: BUILT_IN_PRESETS,
 }
 
 /** Intent: `history` as kept with `facts`, its start moved to `startedAt`. */

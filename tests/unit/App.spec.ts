@@ -6,6 +6,7 @@ import type { GenerationSession } from '../../src/composables/use-generation-ses
 import type { WorkspaceSessionResult } from '../../src/composables/workspace-session-result'
 import { DEFAULT_GENERATION_CONTROLS } from '../../src/domain/controls/profile-selection'
 import type { WrittenPhrase } from '../../src/domain/notation/written-phrase-types'
+import { BUILT_IN_PRESETS } from '../../src/domain/presets/built-in-presets'
 import type {
   SessionOperation,
   ThemePreference,
@@ -48,6 +49,7 @@ function fakeWorkspaceSession(savedData: SavedDataLoad = fakeSavedData()) {
     controls,
     figureLevels,
     selection: presetSelection,
+    presets: [...BUILT_IN_PRESETS, ...savedData.playerPresets],
     presentation: { theme: savedData.settings.theme } as {
       theme: ThemePreference
     },

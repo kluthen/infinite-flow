@@ -28,8 +28,12 @@ import {
 import { selectedInstrumentProfile } from '@/domain/generation/generation-intent'
 import { MY_INSTRUMENT_ID, type InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import type { MyInstrument } from '@/domain/profile/my-instrument'
-import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
-import { findPreset, type PresetId, type PresetSelection } from '@/domain/presets/preset-selection'
+import {
+  findPreset,
+  type Preset,
+  type PresetId,
+  type PresetSelection,
+} from '@/domain/presets/preset-selection'
 import SegmentedControl from './SegmentedControl.vue'
 import TempoStepper from './TempoStepper.vue'
 import type { SetControlPayload } from './set-control-event'
@@ -47,6 +51,8 @@ const props = defineProps<{
   controls: GenerationControls
   /** The preset selection: a preset, or Custom naming its base. */
   selection: PresetSelection
+  /** The presets the session knows, which name the selection: the built-ins, then the player's. */
+  presets: readonly Preset[]
   readonly: boolean
   /** The preset status's live announcement: `polite`, or `off` while a session runs. */
   presetStatusLive: 'polite' | 'off'
@@ -159,13 +165,13 @@ const presetModelValue = computed<string | null>(() => {
 })
 
 /**
- * Intent: the name the preset status gives: the selected preset's, or Custom's base's; none for
- * Custom with no base found.
+ * Intent: the name the preset status gives, from the presets the session knows: the selected
+ * preset's, or Custom's base's; none for Custom with no base found.
  */
 // @spec-link [[rule_custom_names_its_base]]
 function statusPresetName(selection: PresetSelection): string | null {
   const id = selection.kind === 'preset' ? selection.presetId : selection.baseId
-  return id === null ? null : (findPreset(BUILT_IN_PRESETS, id)?.name ?? null)
+  return id === null ? null : (findPreset(props.presets, id)?.name ?? null)
 }
 
 /** Intent: the preset status's custom copy, naming the base retained, if any. */

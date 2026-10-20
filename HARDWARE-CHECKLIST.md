@@ -507,8 +507,8 @@ On the reference machine, production build or `npm run dev`. ISS-011's steps, wh
 # v3.1 hand checks
 
 Build plan [Hand checks](specs/versions/v3/build-plan-v3.1.md#hand-checks): each check is written
-here by the chunk that needs it. This part holds H3 and H4 for now; H1, H2 (chunk 14) and H5
-(chunk 16) are written by later chunks.
+here by the chunk that needs it. This part holds H3, H4 and H5 for now; H1 and H2 (chunk 14) are
+written by a later chunk.
 
 ## v3.1 H3. Same phrase in Edge (chunk 8; about 10 min)
 
@@ -555,5 +555,57 @@ and Jazz: run this check once the box lists Reel and Modal (Dorian), at the rele
       Collection control shows Dorian the whole time; the mode never moves. Stop: Modal (Dorian)
       and its settings come back.
 - [ ] Pass: every step above holds.
+
+**Result:** not run yet.
+
+## v3.1 H5. v3.0 data carried over (chunk 16; about 25 min)
+
+The reference machine, from the repo, in plain Chrome, then the installed app if one is
+installed. Data that v3.0 saved on the device must come back after the update to v3.1: the
+settings, the selection as "Custom, based on Jazz", and a pinned session that opens with its label
+and plays back the same notes. v3.0 and v3.1 must be served at the same address
+(`http://localhost:4173`), so they share one IndexedDB. Use a Chrome profile whose data at that
+address you can lose: the first step may clear it.
+
+- [ ] Get v3.0 (tag v3.0.0, commit e288d98), from the repo:
+
+      ```sh
+      git worktree add ../infinite_flow-v3.0.0 v3.0.0
+      cd ../infinite_flow-v3.0.0
+      npm ci && npm run build && npm run preview -- --port 4173 --strictPort
+      ```
+
+      Open `http://localhost:4173` in Chrome; the header shows v3.0.0. If this address already
+      holds data from another build, clear it first (F12, Application tab, Storage, `Clear site
+      data`), then reload.
+- [ ] In v3.0: choose Jazz in `Musical profile preset`, leave its other controls as they are,
+      press Start and play a short session (a few phrases), then Stop. In its review, press
+      `Pin`. Note the first two phrases' notes (a screenshot of the review's notation).
+- [ ] Still in v3.0, at Idle: set Tension to Build (the preset now shows as customized Jazz),
+      then change a few other controls and note each: Tempo 150, Written key F, Collection
+      Dorian, and the theme. Reload the page: v3.0 shows all of them back. Close the tab and stop
+      the preview (Ctrl+C).
+- [ ] Get v3.1 at the same address, from the v3.1 checkout:
+
+      ```sh
+      npm run build && npm run preview -- --port 4173 --strictPort
+      ```
+
+      Open `http://localhost:4173` in the same Chrome. The header shows v3.1's version; if it
+      still shows v3.0.0, reload once more (the service worker updates).
+- [ ] Every control you changed in v3.0 is back: Tension Build, Tempo 150, Written key F,
+      Collection Dorian, the theme. The selection is Custom, based on Jazz: the summary line
+      under `Shape the next phrase` reads "F Dorian · Custom, based on Jazz · …". Until chunk 13
+      the preset box is the transitional two-segment control, so the summary line is the check;
+      from chunk 13 the box itself shows "Custom, based on Jazz".
+- [ ] The session list lists the pinned session, pinned, with the label "Jazz". Open it: its
+      first two phrases show the same notes as your v3.0 screenshot, and playing them back
+      sounds the same notes.
+- [ ] If the v3.0 app is installed (PWA) on this machine: open it before updating, check it holds
+      a pinned session and a customized Jazz, then update it to v3.1 (open it while the v3.1
+      preview runs at its address, and reopen it once the update is offered or applied). Repeat
+      the two checks above in the installed app.
+- [ ] Afterwards: `git worktree remove ../infinite_flow-v3.0.0`.
+- [ ] Pass: every check above holds, in Chrome and, if installed, in the app.
 
 **Result:** not run yet.

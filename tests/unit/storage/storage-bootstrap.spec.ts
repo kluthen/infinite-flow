@@ -2,11 +2,13 @@ import { describe, expect, it } from 'vitest'
 
 import { readAudioMixDesign, type AudioMixDesign } from '@/audio/audio-mix'
 import { builtInPreset } from '@/domain/presets/built-in-presets'
+import { makePreset, type Preset } from '@/domain/presets/preset-selection'
 import {
   loadSavedData,
   type SavedDataLoad,
   type SavedDataLoadDependencies,
 } from '@/storage-bootstrap'
+import { encodePresetRecord } from '@/storage/records/preset-record'
 import { defaultSettings, type SavedSettings } from '@/storage/records/setting-defaults'
 import { encodeSettingRecord, encodeSettings } from '@/storage/records/settings-record'
 import type { SavePolicy } from '@/storage/save-policy'
@@ -52,6 +54,42 @@ const SAVED: SavedSettings = {
 async function seedSettings(port: StoragePort, settings: SavedSettings): Promise<void> {
   for (const record of encodeSettings(settings, TEST_APP_VERSION)) {
     await port.write('settings', record.key, record)
+  }
+}
+
+/** A player preset: Jazz's controls with Tension at Build, Dorian only. */
+const LATE_NIGHT: Preset = makePreset({
+  id: 'player-1',
+  name: 'Late night',
+  controls: { ...builtInPreset('jazz').controls, tension: 'Build' },
+  levels: { ...DEFAULTS.figureLevels, chromaticApproach: 'favored' },
+  restriction: { keys: 'any', modes: ['Dorian'] },
+  kind: 'player',
+})
+
+/** The saved settings of a visit that chose `LATE_NIGHT` in F-sharp Dorian. */
+const SAVED_LATE_NIGHT: SavedSettings = {
+  ...SAVED,
+  controls: { ...SAVED.controls, ...LATE_NIGHT.controls },
+  figureLevels: LATE_NIGHT.levels,
+  presetSelection: { kind: 'preset', presetId: 'player-1' },
+}
+
+/** Intent: write each of `presets` through `port`, one player preset record under its id. */
+async function seedPresets(port: StoragePort, presets: readonly Preset[]): Promise<void> {
+  for (const preset of presets) {
+    await port.write('presets', preset.id, encodePresetRecord(preset, TEST_APP_VERSION))
+  }
+}
+
+/** Intent: `port` with only its keyed read of the `presets` store refused as a storage failure. */
+function failingPresetReads(port: StoragePort): StoragePort {
+  return {
+    ...port,
+    readKeyed: (store) =>
+      store === 'presets'
+        ? Promise.reject(new StorageError('other', 'the presets read failed'))
+        : port.readKeyed(store),
   }
 }
 
@@ -123,6 +161,21 @@ function heldReads(port: StoragePort): { port: StoragePort; release: () => void 
   }
 }
 
+/** Intent: `port` with only its keyed read of `presets` held until the release is called. */
+function heldPresetReads(port: StoragePort): { port: StoragePort; release: () => void } {
+  const gate = deferred<void>()
+  return {
+    port: {
+      ...port,
+      readKeyed: async (store) => {
+        if (store === 'presets') await gate.promise
+        return port.readKeyed(store)
+      },
+    },
+    release: () => gate.resolve(),
+  }
+}
+
 /** Intent: a port opened outdated over `factory`, a newer app having upgraded it after `seed`. */
 async function outdatedAfter(
   factory: IDBFactory,
@@ -159,6 +212,7 @@ describe('loadSavedData: a read within the start-up wait', () => {
     const load = await loadSavedData(dependencies(() => readyPort(factory)))
 
     expect(load.settings).toEqual(DEFAULTS)
+    expect(load.playerPresets).toEqual([])
     expect(load.outcome).toBe('saved-data-read')
     expect(await savingState(load)).toBe('on')
   })
@@ -191,6 +245,75 @@ describe('loadSavedData: a read within the start-up wait', () => {
     const load = await loadSavedData(dependencies(() => readyPort(factory)))
 
     expect(load.settings).toEqual(savedReel)
+  })
+
+  // @test-link [[rule_presets_read_at_start_up]]
+  // @test-link [[rule_player_presets_saved_on_device]]
+  it('reads the player presets with the saved settings, and keeps a player preset selected while its values match', async () => {
+    const factory = freshFactory()
+    const port = await readyPort(factory)
+    await seedSettings(port, SAVED_LATE_NIGHT)
+    await seedPresets(port, [LATE_NIGHT])
+
+    const load = await loadSavedData(dependencies(() => readyPort(factory)))
+
+    expect(load.playerPresets).toEqual([LATE_NIGHT])
+    expect(load.settings).toEqual(SAVED_LATE_NIGHT)
+    expect(load.outcome).toBe('saved-data-read')
+    expect(await savingState(load)).toBe('on')
+  })
+
+  // @test-link [[rule_preset_load_values_win]]
+  it('loads a player preset changed elsewhere as Custom based on it, every saved value kept', async () => {
+    const factory = freshFactory()
+    const port = await readyPort(factory)
+    await seedSettings(port, SAVED_LATE_NIGHT)
+    const changedElsewhere = makePreset({
+      ...LATE_NIGHT,
+      controls: { ...LATE_NIGHT.controls, tension: 'Settled' },
+    })
+    await seedPresets(port, [changedElsewhere])
+
+    const load = await loadSavedData(dependencies(() => readyPort(factory)))
+
+    expect(load.playerPresets).toEqual([changedElsewhere])
+    expect(load.settings).toEqual({
+      ...SAVED_LATE_NIGHT,
+      presetSelection: { kind: 'custom', baseId: 'player-1' },
+    })
+  })
+
+  // @test-link [[rule_preset_load_values_win]]
+  it('loads a player preset outside whose restriction the saved key and mode lie as Custom based on it, the key and mode unmoved', async () => {
+    const factory = freshFactory()
+    const port = await readyPort(factory)
+    const ionian: SavedSettings = {
+      ...SAVED_LATE_NIGHT,
+      controls: { ...SAVED_LATE_NIGHT.controls, collection: 'Ionian' },
+    }
+    await seedSettings(port, ionian)
+    await seedPresets(port, [LATE_NIGHT])
+
+    const load = await loadSavedData(dependencies(() => readyPort(factory)))
+
+    expect(load.settings).toEqual({
+      ...ionian,
+      presetSelection: { kind: 'custom', baseId: 'player-1' },
+    })
+  })
+
+  // @test-link [[rule_preset_load_values_win]]
+  it('loads a selection naming a player preset that no longer exists as Custom with no base', async () => {
+    const factory = freshFactory()
+    await seedSettings(await readyPort(factory), SAVED_LATE_NIGHT)
+
+    const load = await loadSavedData(dependencies(() => readyPort(factory)))
+
+    expect(load.playerPresets).toEqual([])
+    expect(load.settings).toEqual({
+      ...SAVED_LATE_NIGHT,
+      presetSelection: { kind: 'custom', baseId: null },
+    })
   })
 
   // @test-link [[rule_saved_settings_load_tolerantly]]
@@ -247,6 +370,24 @@ describe('loadSavedData: a read within the start-up wait', () => {
     expect(load.outcome).toBe('saved-data-read')
     expect(await savingState(load)).toBe('off-outdated')
   })
+
+  // @test-link [[rule_presets_in_visits_that_save_nothing]]
+  // @test-link [[rule_outdated_tab_reads_what_it_can]]
+  it('a port that opened outdated and read: the player presets it read listed, the selection kept, off-outdated', async () => {
+    const factory = freshFactory()
+    const port = await outdatedAfter(factory, async (ready) => {
+      await seedSettings(ready, SAVED_LATE_NIGHT)
+      await seedPresets(ready, [LATE_NIGHT])
+    })
+    expect(port.status()).toBe('outdated')
+
+    const load = await loadSavedData(dependencies(() => Promise.resolve(port)))
+
+    expect(load.playerPresets).toEqual([LATE_NIGHT])
+    expect(load.settings).toEqual(SAVED_LATE_NIGHT)
+    expect(load.outcome).toBe('saved-data-read')
+    expect(await savingState(load)).toBe('off-outdated')
+  })
 })
 
 // @test-link [[rule_first_phrase_waits_for_saved_settings]]
@@ -264,8 +405,51 @@ describe('loadSavedData: a read that fails or outlasts the start-up wait', () =>
     expect(load.settings).toEqual(DEFAULTS)
     expect(load.outcome).toBe('started-from-defaults')
     expect(await savingState(load)).toBe('off-unreadable')
+    expect(load.playerPresets).toEqual([])
     expect(load.keptSessionSummaries).toEqual([])
     expect(load.rememberedController).toEqual([])
+  })
+
+  // @test-link [[rule_presets_read_at_start_up]]
+  // @test-link [[rule_presets_in_visits_that_save_nothing]]
+  it('a refused read of the player presets alone: the whole visit from the defaults, the built-ins only, saving off-unreadable', async () => {
+    const factory = freshFactory()
+    const ready = await readyPort(factory)
+    await seedSettings(ready, SAVED_LATE_NIGHT)
+    await seedPresets(ready, [LATE_NIGHT])
+    await ready.write('sessionSummaries', 's1', sampleRecord({ startedAt: 1 }))
+
+    const load = await loadSavedData(
+      dependencies(async () => failingPresetReads(await readyPort(factory))),
+    )
+
+    expect(load.settings).toEqual(DEFAULTS)
+    expect(load.playerPresets).toEqual([])
+    expect(load.keptSessionSummaries).toEqual([])
+    expect(load.outcome).toBe('started-from-defaults')
+    expect(await savingState(load)).toBe('off-unreadable')
+  })
+
+  // @test-link [[rule_presets_read_at_start_up]]
+  it('a read of the player presets slower than the start-up wait: the defaults, the built-ins only, saving off', async () => {
+    const factory = freshFactory()
+    const ready = await readyPort(factory)
+    await seedSettings(ready, SAVED_LATE_NIGHT)
+    await seedPresets(ready, [LATE_NIGHT])
+    const held = heldPresetReads(await readyPort(factory))
+    const wait = controlledWait()
+
+    const loading = loadSavedData(dependencies(() => Promise.resolve(held.port), wait.wait))
+    expect(await hasSettled(loading)).toBe(false)
+    wait.end()
+    const load = await loading
+    held.release()
+    await new Promise((resolve) => setTimeout(resolve, 0))
+
+    expect(load.settings).toEqual(DEFAULTS)
+    expect(load.playerPresets).toEqual([])
+    expect(load.outcome).toBe('started-from-defaults')
+    expect(await savingState(load)).toBe('off-unreadable')
   })
 
   // @test-link [[rule_first_phrase_waits_for_saved_settings]]

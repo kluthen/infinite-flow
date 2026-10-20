@@ -8,6 +8,7 @@
 import { describe, expect, it, vi } from 'vitest'
 
 import type { KeptSessionsSeam } from '@/components/workspace/workspace-session-controller-types'
+import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import {
   encodeKeptSession,
   KEPT_SESSION_SUMMARY_DATA_VERSION,
@@ -32,6 +33,7 @@ const FRESH: KeptSessionFacts = {
   favorites: [],
   comment: '',
   playedNotesKept: false,
+  presets: BUILT_IN_PRESETS,
 }
 
 /** Intent: the stored records of the recorded session started at `startedAt`, with `facts`. */

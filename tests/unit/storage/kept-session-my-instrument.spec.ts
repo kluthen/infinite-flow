@@ -7,6 +7,7 @@
 
 import { beforeAll, describe, expect, it } from 'vitest'
 
+import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import { buildGeneratedNotesFile } from '@/export/generated-notes-file'
 import type { SessionHistory } from '@/session/session-history'
 import {
@@ -26,6 +27,7 @@ const FACTS: KeptSessionFacts = {
   favorites: [2],
   comment: '',
   playedNotesKept: false,
+  presets: BUILT_IN_PRESETS,
 }
 
 /** Intent: the session the stored records decode to, failing unless they read as current. */

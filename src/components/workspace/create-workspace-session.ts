@@ -87,8 +87,9 @@ export const WORKSPACE_SESSION_FACTORY: InjectionKey<
  * pre-generation policy, the session controller's Idle pre-generation queue runs its background
  * attempts on that same seam, after the prewarm, through the Idle background slot, which every
  * Idle request yields to first. Idle starts from the loaded settings' controls, figure levels,
- * preset selection and theme, and my instrument when it loaded (each phrase drawn in its
- * instrument's clef), and each session controller's flags
+ * preset selection and theme, the player presets the load read (listed after the built-ins), and
+ * my instrument when it loaded (each phrase drawn in its instrument's clef), and each session
+ * controller's flags
  * from its "During a session" choices, so the workspace is first drawn with them; the load itself is exposed unchanged. The visit's saves go
  * through the loaded save policy: Idle's control actions and the screen's change handlers save the
  * player's changes through them, and each session controller holds them while a session runs. The
@@ -161,6 +162,7 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
       controls,
       figureLevels,
       selection,
+      playerPresets: deps.savedData.playerPresets,
       theme,
       myInstrument: deps.savedData.myInstrument,
     },

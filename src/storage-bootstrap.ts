@@ -1,14 +1,19 @@
 /**
  * The load of the saved data, before the workspace is first drawn: it opens the storage port,
- * creates the visit's save policy and reads, through the port, the settings, my instrument, the
- * kept sessions' summaries and the remembered controller's record, under the start-up wait. The page shows only
- * its background until the load ends; the workspace is then drawn once, from what it gives.
+ * creates the visit's save policy and reads, through the port, the settings, the player presets,
+ * my instrument, the kept sessions' summaries and the remembered controller's record, under the
+ * start-up wait. The page shows only its background until the load ends; the workspace is then
+ * drawn once, from what it gives.
  *
- * A read within the wait gives the saved settings, each checked on its own by the settings codec.
- * A read that fails, or has not finished when the wait ends, gives the defaults and stops saving
- * for the visit (`stopSavingUnreadable()`), so a failed read never overwrites what is kept; a read
- * that finishes later is ignored. A port that opens only after the wait gets its policy then, and
- * `stopSavingUnreadable()` at once; one that opened outdated keeps its policy `off-outdated`.
+ * A read within the wait gives the saved settings, each checked on its own by the settings codec,
+ * and the player presets, each record read on its own by the preset codec; the saved preset
+ * selection is judged against the built-ins and those player presets, the saved values winning.
+ * A read that fails, the presets' read included, or has not finished when the wait ends, gives
+ * the defaults (the built-in presets only) and stops saving for the visit
+ * (`stopSavingUnreadable()`), so a failed read never overwrites what is kept; a read that
+ * finishes later is ignored. A port that opens only after the wait gets its policy then, and
+ * `stopSavingUnreadable()` at once; one that opened outdated keeps its policy `off-outdated`, and
+ * a read through it gives the player presets it could read.
  *
  * My instrument's record is decoded by its own codec, within the wait. That codec's read side
  * (./storage/records/my-instrument-record-read.ts), with building my instrument, is loaded on
@@ -22,8 +27,10 @@
 
 import { readAudioMixDesign, type AudioMixDesign } from '@/audio/audio-mix'
 import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
+import type { Preset } from '@/domain/presets/preset-selection'
 import type { MyInstrument } from '@/domain/profile/my-instrument'
 import { APP_VERSION } from '@/storage/app-version'
+import { decodePlayerPresets } from '@/storage/records/preset-record'
 import { defaultSettings, type SavedSettings } from '@/storage/records/setting-defaults'
 import { decodeSettings } from '@/storage/records/settings-record'
 import { createSavePolicy, type SavePolicy } from '@/storage/save-policy'
@@ -54,12 +61,20 @@ export type LoadOutcome = 'saved-data-read' | 'started-from-defaults'
 /** What the load gives the app before its first draw. */
 // @spec-link [[rule_first_phrase_waits_for_saved_settings]]
 // @spec-link [[rule_saved_settings_load_tolerantly]]
+// @spec-link [[rule_presets_read_at_start_up]]
+// @spec-link [[rule_presets_in_visits_that_save_nothing]]
 // @spec-link [[module_saved_data_loader]]
 export interface SavedDataLoad {
   /** Whether the visit started from the saved data read or from the defaults. */
   readonly outcome: LoadOutcome
   /** Every setting the workspace is first drawn with: saved, or its default. */
   readonly settings: SavedSettings
+  /**
+   * The player presets read, in key order, each record that could be read (none when the visit
+   * started from defaults, which so lists the built-ins only; an outdated tab gives the ones it
+   * read).
+   */
+  readonly playerPresets: readonly Preset[]
   /** My instrument, when its record loaded; none otherwise, and in a visit started from defaults. */
   readonly myInstrument: MyInstrument | null
   /**
@@ -91,6 +106,7 @@ export interface SavedDataLoadDependencies {
 /** The raw records the load reads. */
 interface SavedRecords {
   readonly settings: readonly unknown[]
+  readonly presets: readonly StoredEntry[]
   readonly myInstrument: MyInstrument | null
   readonly keptSessionSummaries: readonly StoredEntry[]
   readonly rememberedController: readonly unknown[]
@@ -115,25 +131,33 @@ const WAIT_ENDED: unique symbol = Symbol('the start-up wait ended')
 const READ_FAILED: unique symbol = Symbol('the read failed')
 
 /**
- * Intent: read every record the load needs, in parallel, my instrument's decoded. A refusal of the
- * port is a failed read; any other error is a defect and rejects.
+ * Intent: read every record the load needs, in parallel, my instrument's decoded and the player
+ * presets with their keys. A refusal of the port, of any one read (the presets' included), is a
+ * failed read of the whole visit; any other error is a defect and rejects.
  */
+// @spec-link [[rule_presets_read_at_start_up]]
 async function readSavedRecords(port: StoragePort): Promise<SavedRecords | typeof READ_FAILED> {
   try {
-    const [settings, myInstrument, keptSessionSummaries, rememberedController] = await Promise.all([
-      port.readAll('settings'),
-      port.readAll('instrument').then(loadMyInstrument),
-      port.readKeyed('sessionSummaries'),
-      port.readAll('controller'),
-    ])
-    return { settings, myInstrument, keptSessionSummaries, rememberedController }
+    const [settings, presets, myInstrument, keptSessionSummaries, rememberedController] =
+      await Promise.all([
+        port.readAll('settings'),
+        port.readKeyed('presets'),
+        port.readAll('instrument').then(loadMyInstrument),
+        port.readKeyed('sessionSummaries'),
+        port.readAll('controller'),
+      ])
+    return { settings, presets, myInstrument, keptSessionSummaries, rememberedController }
   } catch (error) {
     if (error instanceof StorageError) return READ_FAILED
     throw error
   }
 }
 
-/** Intent: a visit started from the defaults, read nothing, with the given policy. */
+/**
+ * Intent: a visit started from the defaults, read nothing, with the given policy: no player
+ * preset, so it lists the built-ins only.
+ */
+// @spec-link [[rule_presets_in_visits_that_save_nothing]]
 function fromDefaults(
   deps: SavedDataLoadDependencies,
   savePolicy: Promise<SavePolicy>,
@@ -141,6 +165,7 @@ function fromDefaults(
   return {
     outcome: 'started-from-defaults',
     settings: defaultSettings(deps.mixDesign().defaults),
+    playerPresets: [],
     myInstrument: null,
     keptSessionSummaries: [],
     rememberedController: [],
@@ -156,12 +181,18 @@ function lateOpenedPolicy(port: StoragePort): SavePolicy {
 }
 
 /**
- * Intent: load the saved data under the start-up wait. Resolves with the saved settings when the
- * port opens and reads within the wait; with the defaults and saving off when the read fails or
- * the wait ends first. Rejects only for a defect, of the open or of the read.
+ * Intent: load the saved data under the start-up wait. Resolves with the saved settings and the
+ * player presets when the port opens and reads within the wait, the saved preset selection
+ * judged against the built-ins and those player presets (the saved values win); with the
+ * defaults, the built-ins only and saving off when the read (the presets' included) fails or the
+ * wait ends first. Rejects only for a defect, of the open or of the read.
  */
 // @spec-link [[rule_first_phrase_waits_for_saved_settings]]
 // @spec-link [[rule_saved_settings_load_tolerantly]]
+// @spec-link [[rule_presets_read_at_start_up]]
+// @spec-link [[rule_presets_in_visits_that_save_nothing]]
+// @spec-link [[rule_preset_load_values_win]]
+// @spec-link [[rule_player_presets_saved_on_device]]
 // @spec-link [[rule_outdated_tab_reads_what_it_can]]
 // @spec-link [[module_save_policy]]
 // @spec-link [[module_saved_data_loader]]
@@ -180,13 +211,15 @@ export async function loadSavedData(deps: SavedDataLoadDependencies): Promise<Sa
   }
   const mixDesign = deps.mixDesign()
   const myInstrumentLoaded = read.myInstrument !== null
+  const playerPresets = decodePlayerPresets(read.presets)
   return {
     outcome: 'saved-data-read',
     settings: decodeSettings(read.settings, {
       mixDesign,
       myInstrumentLoaded,
-      presets: BUILT_IN_PRESETS,
+      presets: [...BUILT_IN_PRESETS, ...playerPresets],
     }),
+    playerPresets,
     myInstrument: read.myInstrument,
     keptSessionSummaries: read.keptSessionSummaries,
     rememberedController: read.rememberedController,

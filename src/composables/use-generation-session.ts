@@ -80,6 +80,7 @@ const FIRST_LOAD_SETTINGS: InitialGenerationSettings = {
   controls: DEFAULT_GENERATION_CONTROLS,
   figureLevels: NEUTRAL_FIGURE_LEVELS,
   selection: DEFAULT_PRESET_SELECTION,
+  playerPresets: [],
   theme: 'System',
   myInstrument: null,
 }
@@ -91,8 +92,8 @@ const FIRST_LOAD_SETTINGS: InitialGenerationSettings = {
  * for it. Its state starts from the given initial settings (the saved ones the app loaded before
  * its first draw), or from the first-load values when none are given. The player's changes to the
  * controls, the figure levels, the preset selection and the theme go through the one routing
- * point, which saves what they changed through `saveSettings`; the presets chosen from are the
- * built-ins.
+ * point, which saves what they changed through `saveSettings`; the presets it knows, chosen from,
+ * judged against and named from, are the built-ins, then the player presets it was given.
  * While the controls name my instrument, every intent it builds carries my instrument's profile as
  * data; starting with them naming it and no my instrument given is a caller defect and throws.
  * Saving and deleting my instrument load their actions on demand, at first use; the My instrument
@@ -113,6 +114,7 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
     controls: initial.controls,
     figureLevels: initial.figureLevels,
     selection: initial.selection,
+    presets: [...BUILT_IN_PRESETS, ...initial.playerPresets],
     presentation: { theme: initial.theme },
     myInstrument: initial.myInstrument,
     latestIntent: null,
@@ -196,7 +198,7 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
       prewarmCurrentRhythmSetting,
       afterGenerationSettingChange: () => roomNotice.afterGenerationSettingChange(),
       saveSettings: options.saveSettings,
-      presets: () => BUILT_IN_PRESETS,
+      presets: () => state.presets,
     })
 
   const {

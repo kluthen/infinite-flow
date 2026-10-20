@@ -56,7 +56,10 @@ export interface ControlActionDependencies<TResult> {
   readonly afterGenerationSettingChange: () => void
   /** Save the settings a player's change changed. */
   readonly saveSettings: SaveSettings
-  /** The presets the session knows, chosen from and judged against: the built-ins for now. */
+  /**
+   * The presets the session knows, chosen from and judged against: the built-ins, then the
+   * player presets the load read.
+   */
   readonly presets: () => readonly Preset[]
 }
 

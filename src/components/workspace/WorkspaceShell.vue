@@ -468,6 +468,7 @@ function handleSelectPreset(id: PresetId): void {
       <ControlPanel
         :controls="shownSettings.controls"
         :selection="shownSettings.selection"
+        :presets="state.presets"
         :readonly="controlsReadonly"
         :note-density-context="state.noteDensityContext"
         :rising-tempo="risingTempo.on.value"

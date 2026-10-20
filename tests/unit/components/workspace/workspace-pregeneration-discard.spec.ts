@@ -18,7 +18,7 @@ import { describe, expect, it } from 'vitest'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { mutationFlagFor } from '@/components/workspace/workspace-session-runner'
 import { BUILT_IN_PRESETS, builtInPreset } from '@/domain/presets/built-in-presets'
-import { choosePreset } from '@/domain/presets/preset-selection'
+import { choosePreset, makePreset } from '@/domain/presets/preset-selection'
 import { makeSeed } from '@/domain/random/seed'
 import { withRestrictionAtStart } from '@/session/settings-mutation'
 import type { SessionSettings } from '@/session/session-types'
@@ -491,5 +491,46 @@ describe('Idle pre-generation queue under a restriction in force', () => {
     expect(rig.calls).toHaveLength(full + 1)
     expect(inFlight(rig).intent.carryIn?.phraseNumber).toBe(1)
     expect(rig.queue.take('one-system')).toEqual([])
+  })
+
+  // @test-link [[rule_pregenerated_phrase_matches_session]]
+  // @test-link [[rule_restriction_in_force]]
+  it("plans with a player preset's restriction in force, from the presets Idle knows, as Start does", async () => {
+    const myReel = makePreset({
+      ...builtInPreset('reel'),
+      id: 'player-1',
+      name: 'My reel',
+      kind: 'player',
+    })
+    const mine: SessionSettings = {
+      ...reelSettings(),
+      selection: { kind: 'preset', presetId: 'player-1' },
+    }
+    const rig = pregenerationRig({ controls: mine.controls })
+    rig.idle.presets = [...BUILT_IN_PRESETS, myReel]
+    rig.idle.figureLevels = mine.figureLevels
+    rig.idle.selection = mine.selection
+    rig.idle.result = { ...idlePhraseFor(mine.controls, 11, REEL_SESSION_SEED), settings: mine }
+    rig.varySettings.value = true
+    await flush()
+    await answerAll(rig)
+    expect(rig.failures).toEqual([])
+
+    const bounded = withRestrictionAtStart(mine, rig.idle.presets)
+    expect(bounded.restriction).toStrictEqual(myReel.restriction)
+    const phraseOne = rig.idle.result
+    const planned = plannedReadyPhrases(
+      planSeams(),
+      planStart({
+        settings: bounded,
+        phraseOne: { intent: phraseOne.intent, outcome: phraseOne.outcome },
+        phraseOneSettings: mine,
+        sessionSeed: REEL_SESSION_SEED,
+        mutation: mutationFlagFor(true, REEL_SESSION_SEED),
+      }),
+    )
+    expect(withoutRequestIds(rig.queue.take('one-system').map((ready) => ready.intent))).toEqual(
+      withoutRequestIds(planned.map((ready) => ready.intent)),
+    )
   })
 })

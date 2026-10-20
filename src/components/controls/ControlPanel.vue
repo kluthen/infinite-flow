@@ -10,7 +10,7 @@ import { computed } from 'vue'
 
 import type { NoteDensityContext } from '@/domain/controls/generated-note-density'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
-import type { PresetId, PresetSelection } from '@/domain/presets/preset-selection'
+import type { Preset, PresetId, PresetSelection } from '@/domain/presets/preset-selection'
 import type { MyInstrument } from '@/domain/profile/my-instrument'
 import FoundationControls from './FoundationControls.vue'
 import RhythmControls from './RhythmControls.vue'
@@ -24,6 +24,8 @@ const props = defineProps<{
   controls: GenerationControls
   /** The preset selection: a preset, or Custom naming its base. */
   selection: PresetSelection
+  /** The presets the session knows, which name the selection: the built-ins, then the player's. */
+  presets: readonly Preset[]
   readonly: boolean
   noteDensityContext: NoteDensityContext
   /** The page's `Rising tempo` choice, kept even while it is unavailable. */
@@ -92,7 +94,9 @@ function forwardVarySettings(on: boolean): void {
  */
 // @spec-link [[module_generation_control_catalog]]
 // @spec-link [[rule_custom_names_its_base]]
-const controlSummary = computed(() => controlSummaryText(props.controls, props.selection))
+const controlSummary = computed(() =>
+  controlSummaryText(props.controls, props.selection, props.presets),
+)
 </script>
 
 <template>
@@ -107,6 +111,7 @@ const controlSummary = computed(() => controlSummaryText(props.controls, props.s
       <FoundationControls
         :controls="controls"
         :selection="selection"
+        :presets="presets"
         :readonly="readonly"
         :preset-status-live="presetStatusLive"
         :last-session-reached-tempo="lastSessionReachedTempo"

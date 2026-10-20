@@ -13,7 +13,7 @@ import type {
 } from '@/domain/generation/generation-intent'
 import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import type { MyInstrument } from '@/domain/profile/my-instrument'
-import type { PresetId, PresetSelection } from '@/domain/presets/preset-selection'
+import type { Preset, PresetId, PresetSelection } from '@/domain/presets/preset-selection'
 import type { Seed } from '@/domain/random/seed'
 import type { MyInstrumentSaves, SaveSettings } from '@/storage/settings-saver'
 import type {
@@ -49,6 +49,12 @@ export interface GenerationSessionState<TResult> {
   readonly figureLevels: FigureLevels
   /** The preset selected, or Custom based on the preset it came from (or on none). */
   readonly selection: PresetSelection
+  /**
+   * The presets the session knows, built-ins first, then the player presets the load read: the
+   * ones the selection is chosen from, judged against and named from. It never changes during a
+   * session.
+   */
+  readonly presets: readonly Preset[]
   readonly presentation: PresentationSettings
   /**
    * The player's own instrument, while it exists: its profile is what every intent built while the
@@ -161,8 +167,9 @@ export interface GenerationSession<TResult> {
 
 /**
  * The settings the Idle session starts from: the player's saved controls, figure levels, preset
- * selection and theme, and my instrument when it loaded, loaded before the workspace is first
- * drawn. Controls naming `my-instrument` come only with my instrument.
+ * selection and theme, the player presets the load read, and my instrument when it loaded, loaded
+ * before the workspace is first drawn. Controls naming `my-instrument` come only with my
+ * instrument.
  */
 // @spec-link [[rule_first_phrase_waits_for_saved_settings]]
 // @spec-link [[rule_settings_saved_on_change]]
@@ -171,6 +178,8 @@ export interface InitialGenerationSettings {
   readonly controls: GenerationControls
   readonly figureLevels: FigureLevels
   readonly selection: PresetSelection
+  /** The player presets the load read, listed after the built-ins (none from the defaults). */
+  readonly playerPresets: readonly Preset[]
   readonly theme: ThemePreference
   readonly myInstrument: MyInstrument | null
 }
@@ -225,8 +234,8 @@ export interface CreateGenerationSessionOptions<TResult, TGenerated = TResult> {
   /**
    * The settings the session starts from, so the workspace is first drawn with them and its
    * creation prewarm warms them. Absent means the first-load values (the default controls, the
-   * Neutral levels and the Neutral selection, theme `System`): the app always supplies the loaded
-   * ones.
+   * Neutral levels and the Neutral selection, no player preset, theme `System`): the app always
+   * supplies the loaded ones.
    */
   // @spec-link [[rule_first_phrase_waits_for_saved_settings]]
   readonly initialSettings?: InitialGenerationSettings

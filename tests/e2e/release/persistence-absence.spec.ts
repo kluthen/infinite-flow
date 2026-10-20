@@ -64,7 +64,9 @@ test('customized controls and the instrument profile come back after a reload, a
   await expect
     .poll(() => databaseSettings(page))
     .toMatchObject({
-      profileSelection: { musicalProfile: 'Jazz', isCustom: true },
+      presetSelection: { kind: 'custom', baseId: 'jazz' },
+      'figureLevels.chromaticApproach': 'asToday',
+      'figureLevels.chromaticEnclosure': 'asToday',
       'controls.register': 'Low',
       'controls.instrumentProfileId': 'eb-alto',
     })

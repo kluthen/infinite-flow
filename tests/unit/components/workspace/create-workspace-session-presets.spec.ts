@@ -11,6 +11,7 @@ import { makeGenerationControls } from '@/domain/controls/generation-controls'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import { JAZZ_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { BUILT_IN_PRESETS, builtInPreset } from '@/domain/presets/built-in-presets'
+import { makePreset } from '@/domain/presets/preset-selection'
 import { defaultSettings, type SavedSettings } from '@/storage/records/setting-defaults'
 import { decodeSettings, encodeSettings } from '@/storage/records/settings-record'
 import { themeDesign } from '../../audio/transport-rig'
@@ -88,6 +89,25 @@ describe('composeWorkspaceSession: the preset selection across a reload', () => 
     expect(workspace.session.state.selection).toEqual({ kind: 'custom', baseId: 'jazz' })
     expect(workspace.session.state.figureLevels).toEqual(JAZZ_FIGURE_LEVELS)
     expect(workspace.session.state.controls.tension).toBe('Build')
+    workspace.dispose()
+  })
+
+  // @test-link [[rule_presets_read_at_start_up]]
+  it('starts Idle knowing the built-ins, then the player presets the load read, one selected', () => {
+    const lateNight = makePreset({
+      ...builtInPreset('jazz'),
+      id: 'player-1',
+      name: 'Late night',
+      kind: 'player',
+    })
+    const savedData = {
+      ...fakeSavedData({ presetSelection: { kind: 'preset', presetId: 'player-1' } }),
+      playerPresets: [lateNight],
+    }
+    const workspace = composeWorkspaceSession({ ...fakeDependencies(), savedData })
+
+    expect(workspace.session.state.presets).toEqual([...BUILT_IN_PRESETS, lateNight])
+    expect(workspace.session.state.selection).toEqual({ kind: 'preset', presetId: 'player-1' })
     workspace.dispose()
   })
 

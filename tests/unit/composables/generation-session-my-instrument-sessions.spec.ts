@@ -115,6 +115,7 @@ async function withPhrase(
       controls,
       figureLevels: NEUTRAL_FIGURE_LEVELS,
       selection: DEFAULT_PRESET_SELECTION,
+      playerPresets: [],
       theme: 'System',
       myInstrument: LOW_TENOR,
     },

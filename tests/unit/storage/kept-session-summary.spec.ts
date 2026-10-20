@@ -1,6 +1,7 @@
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import { PHRASE_MEASURE_COUNT } from '@/domain/generation/generation-request'
+import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import type { SessionHistory } from '@/session/session-history'
 import { measureSeconds } from '@/session/session-timing'
 import {
@@ -28,6 +29,7 @@ const FACTS: KeptSessionFacts = {
   favorites: [4, 2],
   comment: 'Felt the tritone resolve. Try faster next time.',
   playedNotesKept: true,
+  presets: BUILT_IN_PRESETS,
 }
 
 /** Intent: a decoded session-wide record, failing the test unless it reads as current. */

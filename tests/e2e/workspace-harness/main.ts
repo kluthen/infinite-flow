@@ -76,7 +76,8 @@
  *   once the app has mounted, so waiting for it also waits for the load. `storage.seedSettings`
  *   seeds settings for the next load, `storage.seedMyInstrument` my instrument, and
  *   `?storageLoad=held` holds the load until `window.__workspaceHarnessHeldLoad.release()`
- *   (its `seedVersionOneSessions` seeds kept sessions as v3.0 kept them, for the load to upgrade);
+ *   (its `seedVersionOneSessions` and `seedVersionOneSettings` seed kept sessions and settings as
+ *   v3.0 kept them, for the load to upgrade);
  *   `?storageRead=fail|slow` fails or delays the app's reads, `storage.refuseSaves` refuses its
  *   saves (`?storageRefuse=quota|other` from the load on), `storage.portChanges` counts them and
  *   `storage.openNewerVersion` outdates the tab as a newer version would; `storage.keyedRecords`
@@ -472,7 +473,7 @@ let workspace: WorkspaceSession | null = null
 
 /**
  * Intent: the latest session state's requestId/seed/timeline/operation/mode, for replay/isolation
- * assertions, plus the room notice's state, the player's figure levels and preset selection. `requestId`/`seed` are the result's, which a fit run
+ * assertions, plus the room notice's state, the player's figure levels and preset selection and the names of the presets the session knows. `requestId`/`seed` are the result's, which a fit run
  * sets only for the attempt it draws; `latestSeed` is the latest attempt's, drawn or not.
  */
 function snapshot(): WorkspaceHarnessSnapshot {
@@ -497,6 +498,7 @@ function snapshot(): WorkspaceHarnessSnapshot {
     roomNoticeAnnouncements: state.roomNoticeAnnouncements,
     figureLevels: { ...state.figureLevels },
     selection: { ...state.selection },
+    presetNames: state.presets.map((preset) => preset.name),
   }
 }
 

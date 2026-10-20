@@ -11,6 +11,7 @@
  */
 import { describe, expect, it, vi } from 'vitest'
 
+import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import { APP_VERSION } from '@/storage/app-version'
 import { encodeKeptSession } from '@/storage/records/kept-session-record'
 import {
@@ -120,7 +121,13 @@ describe('session controller: a session cut short by the page going away', () =>
     const port = await readyPort(freshFactory())
     const older = encodeKeptSession(
       recordedKeptSession('eb-alto', 2),
-      { pinned: false, favorites: [], comment: '', playedNotesKept: false },
+      {
+        pinned: false,
+        favorites: [],
+        comment: '',
+        playedNotesKept: false,
+        presets: BUILT_IN_PRESETS,
+      },
       APP_VERSION,
     )
     await port.write('sessionSummaries', 'session-1-5', structuredClone(older.summary))

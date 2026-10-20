@@ -13,6 +13,8 @@ import {
   keptSessionKey,
   saveEndedSession,
 } from '@/components/workspace/workspace-session-save'
+import { BUILT_IN_PRESETS, builtInPreset } from '@/domain/presets/built-in-presets'
+import { makePreset } from '@/domain/presets/preset-selection'
 import type { Seed } from '@/domain/random/seed'
 import type { PageLeaving } from '@/session/session-browser-ports'
 import type { SessionHistory } from '@/session/session-history'
@@ -28,7 +30,13 @@ import { recordedKeptSession } from '../../storage/kept-session-fixtures'
 const PAGE_STAYS: PageLeaving = { watch: () => () => false }
 
 /** The facts a session ended now is saved with: nothing pinned, chosen or kept yet. */
-const FRESH = { pinned: false, favorites: [], comment: '', playedNotesKept: false } as const
+const FRESH = {
+  pinned: false,
+  favorites: [],
+  comment: '',
+  playedNotesKept: false,
+  presets: BUILT_IN_PRESETS,
+} as const
 
 /** Intent: a kept session's summary as stored, pinned or not, under `key`. */
 function keptSummary(history: SessionHistory, key: string, pinned: boolean): StoredEntry {
@@ -56,7 +64,7 @@ describe("the session's save batch", () => {
   const history = recordedKeptSession('bb-tenor', 3)
   const key = keptSessionKey(history)
   const other = recordedKeptSession('eb-alto', 2)
-  const NOT_KEPT = endedSessionSave(history, false)
+  const NOT_KEPT = endedSessionSave(history, false, BUILT_IN_PRESETS)
 
   it('writes the session-wide record and the body under the new key, and no played notes', () => {
     const changes = keptSessionChanges(codec, history, NOT_KEPT, [], APP_VERSION)
@@ -92,7 +100,7 @@ describe("the session's save batch", () => {
     const changes = keptSessionChanges(
       codec,
       history,
-      endedSessionSave(history, true),
+      endedSessionSave(history, true, BUILT_IN_PRESETS),
       [],
       APP_VERSION,
     )
@@ -131,19 +139,43 @@ describe("the session's save batch", () => {
 // @test-link [[module_kept_session_save]]
 // @test-link [[rule_played_notes_kept_only_after_opt_in]]
 describe('how the session that ended is saved', () => {
-  it('under the key minted once, its played notes kept only when the setting is on and it holds one', () => {
+  it('under the key minted once, its played notes kept only when the setting is on and it holds one, with the presets the session knew', () => {
     const played = recordedKeptSession('bb-tenor', 2)
     const silent = {
       ...played,
       phrases: () => played.phrases().map((p) => ({ ...p, playedNotes: [] })),
     }
 
-    expect(endedSessionSave(played, true)).toEqual({
+    expect(endedSessionSave(played, true, BUILT_IN_PRESETS)).toEqual({
       key: keptSessionKey(played),
       playedNotesKept: true,
+      presets: BUILT_IN_PRESETS,
     })
-    expect(endedSessionSave(played, false).playedNotesKept).toBe(false)
-    expect(endedSessionSave(silent, true).playedNotesKept).toBe(false)
+    expect(endedSessionSave(played, false, BUILT_IN_PRESETS).playedNotesKept).toBe(false)
+    expect(endedSessionSave(silent, true, BUILT_IN_PRESETS).playedNotesKept).toBe(false)
+  })
+})
+
+// @test-link [[rule_preset_label_kept_with_session]]
+describe("the preset label the session's save keeps", () => {
+  // @test-link [[rule_preset_label_kept_with_session]]
+  // @test-link [[rule_presets_read_at_start_up]]
+  it('names a player preset the session started with from the presets the session knew', () => {
+    const lateNight = makePreset({
+      ...builtInPreset('jazz'),
+      id: 'player-1',
+      name: 'Late night',
+      kind: 'player',
+    })
+    const history = {
+      ...recordedKeptSession('bb-tenor', 2),
+      selection: { kind: 'preset', presetId: 'player-1' },
+    } as const
+    const saving = endedSessionSave(history, false, [...BUILT_IN_PRESETS, lateNight])
+
+    const [summary] = keptSessionChanges(codec, history, saving, [], APP_VERSION)
+
+    expect(summary).toMatchObject({ record: { presetLabel: 'Late night' } })
   })
 })
 
@@ -151,7 +183,7 @@ describe('how the session that ended is saved', () => {
 describe('saving the session that ended', () => {
   it("hands the visit's saves the batch for the summaries read at the save, and resolves its outcome", async () => {
     const history = recordedKeptSession('bb-tenor', 2)
-    const NOT_KEPT = endedSessionSave(history, false)
+    const NOT_KEPT = endedSessionSave(history, false, BUILT_IN_PRESETS)
     const refused: SessionSaveOutcome = { status: 'refused', kind: 'other' }
     const page = createFakePageLeaving()
     const asked: SessionChanges[] = []
@@ -194,7 +226,7 @@ describe('saving the session that ended', () => {
         return Promise.resolve(outcome)
       },
     })
-    const saving = endedSessionSave(history, false)
+    const saving = endedSessionSave(history, false, BUILT_IN_PRESETS)
 
     expect(
       await saveEndedSession(savesResolving({ status: 'saved' }), PAGE_STAYS, history, saving),
@@ -218,7 +250,12 @@ describe('saving the session that ended', () => {
       },
     }
 
-    const saving = saveEndedSession(saves, page, history, endedSessionSave(history, false))
+    const saving = saveEndedSession(
+      saves,
+      page,
+      history,
+      endedSessionSave(history, false, BUILT_IN_PRESETS),
+    )
     page.leave()
 
     expect(await saving).toEqual({ status: 'abandoned' })
@@ -238,7 +275,12 @@ describe('saving the session that ended', () => {
       },
     }
 
-    const saving = saveEndedSession(saves, page, history, endedSessionSave(history, false))
+    const saving = saveEndedSession(
+      saves,
+      page,
+      history,
+      endedSessionSave(history, false, BUILT_IN_PRESETS),
+    )
     page.leave()
     page.comeBack()
 
@@ -252,7 +294,7 @@ describe('saving the session that ended', () => {
 describe("the retry of a refused session's save", () => {
   it('is the same batch under the same key, with the facts held in memory then', () => {
     const history = recordedKeptSession('bb-tenor', 3)
-    const saving = endedSessionSave(history, false)
+    const saving = endedSessionSave(history, false, BUILT_IN_PRESETS)
     const held = { pinned: true, favorites: [1, 3], comment: 'Steady.' }
 
     const changes = keptSessionChanges(codec, history, saving, [], APP_VERSION, held)
@@ -266,7 +308,7 @@ describe("the retry of a refused session's save", () => {
 
   it("reads the sessions to delete at the retry, through the visit's saves", async () => {
     const history = recordedKeptSession('bb-tenor', 2)
-    const saving = endedSessionSave(history, false)
+    const saving = endedSessionSave(history, false, BUILT_IN_PRESETS)
     const held = { pinned: false, favorites: [], comment: 'Again.' }
     const asked: SessionChanges[] = []
     const saves = {

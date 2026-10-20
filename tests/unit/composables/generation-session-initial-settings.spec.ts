@@ -67,6 +67,7 @@ describe('createGenerationSession: the settings it starts from', () => {
       controls: LOADED_CONTROLS,
       figureLevels: JAZZ_FIGURE_LEVELS,
       selection: LOADED_SELECTION,
+      playerPresets: [],
       theme: 'Dark',
       myInstrument: null,
     })

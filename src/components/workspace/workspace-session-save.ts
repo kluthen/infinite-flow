@@ -12,6 +12,7 @@
  * going away, the save stops before its next step (after the codec loads, then before each of the
  * policy's transactions), abandoned, with nothing read or written.
  */
+import type { Preset } from '@/domain/presets/preset-selection'
 import type { PageLeaving } from '@/session/session-browser-ports'
 import type { SessionHistory } from '@/session/session-history'
 import { APP_VERSION } from '@/storage/app-version'
@@ -43,29 +44,39 @@ export function keptSessionKey(history: Pick<SessionHistory, 'startedAt' | 'sess
 }
 
 /**
- * How the session that ended is saved: under the key minted for it once, and whether its played
- * notes go with it.
+ * How the session that ended is saved: under the key minted for it once, whether its played
+ * notes go with it, and the presets the session knew at its end, which its preset label names its
+ * selection from, so a later rename or deletion of a preset never changes that label.
  */
 // @spec-link [[module_kept_session_save]]
 // @spec-link [[rule_played_notes_kept_only_after_opt_in]]
+// @spec-link [[rule_preset_label_kept_with_session]]
 export interface EndedSessionSave {
   readonly key: string
   readonly playedNotesKept: boolean
+  readonly presets: readonly Preset[]
 }
 
 /**
- * Intent: how the session that ended is saved: its key minted once, and its played notes kept
+ * Intent: how the session that ended is saved: its key minted once, its played notes kept
  * exactly when `Keep my played notes` is on at its end and it holds a played note in a phrase (a
- * session without one has none to keep).
+ * session without one has none to keep), and the presets the session knew, `presets`, kept with
+ * it.
  */
 // @spec-link [[module_kept_session_save]]
 // @spec-link [[rule_played_notes_kept_only_after_opt_in]]
+// @spec-link [[rule_preset_label_kept_with_session]]
 export function endedSessionSave(
   history: Pick<SessionHistory, 'startedAt' | 'sessionSeed' | 'phrases'>,
   keepPlayedNotes: boolean,
+  presets: readonly Preset[],
 ): EndedSessionSave {
   const holdsPlayedNote = history.phrases().some((phrase) => phrase.playedNotes.length > 0)
-  return { key: keptSessionKey(history), playedNotesKept: keepPlayedNotes && holdsPlayedNote }
+  return {
+    key: keptSessionKey(history),
+    playedNotesKept: keepPlayedNotes && holdsPlayedNote,
+    presets,
+  }
 }
 
 /**
@@ -138,6 +149,7 @@ export function keptSessionChanges(
     favorites: held.favorites,
     comment: held.comment,
     playedNotesKept: saving.playedNotesKept,
+    presets: saving.presets,
   }
   const records = codec.encodeKeptSession(history, facts, appVersion)
   const { key } = saving
