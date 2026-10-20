@@ -460,3 +460,8 @@ wave gate. Chunk 12 first (15, 16 and 22 wait on it), then 15, 16 and 22 beside 
 
 - Chunk 12: dispatched 2026-10-20 (`../infinite_flow-v3.1-c12`, branch
   `v3.1-c12-presets-replace-profile`).
+  Merged as f0228f7 (51aadb7); chunk checks pass, corpus guard unchanged. New
+  `src/storage/saved-profile-bridge.ts` holds D377's interim mapping (chunk 16 deletes it). For
+  the sync: delete `rule_mutation_profile_flip_keeps_controls`; `service_session_engine`'s
+  settings wording. Copy still saying "musical profile" (`your-data-copy.ts`,
+  `generation-failure-alert.ts`) noted for chunk 13 or `ux-writer`.

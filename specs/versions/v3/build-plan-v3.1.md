@@ -1173,7 +1173,7 @@ Architecture capture: none
 
 ### Chunk 12 — Presets replace the musical profile
 
-Status: planned
+Status: merged (w3, f0228f7)
 Wave: 3
 Depends on: 8, 9, 10
 Architecture capture: the session settings become `{ controls, figureLevels, selection }`, with
@@ -1340,6 +1340,8 @@ settings and the draw) and 16 (the state it loads into) build on it in the same 
   has nothing to flip, so the figure step lands in the same commit. If the brief is too large for
   one executor, the chunk owner decomposes it into units in the chunk's worktree, one commit at the
   end.
+
+Record: 51aadb7, merged as f0228f7 (five units). `selectPreset` built on `choosePreset`; session settings `{ controls, figureLevels, selection, instrumentProfile? }`; the routing point ends in `applyChosen`. Vary settings: 800 draws recorded with v3.0's code replay exactly (13 slots), every former profile flip now a figure step. `presetLabel` takes a preset selection and still labels a v3.0 one. D377's interim mapping lives in a new `src/storage/saved-profile-bridge.ts` (re-exported from `settings-saver.ts`, for the 10-atom-link health limit): chunk 16 deletes it. The two-segment control's event is now `select-preset`; its label and status copy keep v3.0's wording until chunk 13. Corpus guard unchanged, no fixture or golden changed; 5,485 unit and 120 Playwright tests in touched areas pass. For the sync: delete `rule_mutation_profile_flip_keeps_controls` (links gone; `docs/session-engine.md` D181 still names it); `service_session_engine`'s `SessionSettings` wording. Left: copy still saying "musical profile" in `your-data-copy.ts` and `generation-failure-alert.ts`; key and mode moves are bounded by the restriction only in chunk 15.
 
 ### Chunk 13 — The preset bar and the key and mode marks
 
