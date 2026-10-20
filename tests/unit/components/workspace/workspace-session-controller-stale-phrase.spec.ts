@@ -214,3 +214,67 @@ describe('session controller: a stale phrase 1 at the starting note', () => {
     rig.controller.stop()
   })
 })
+
+/**
+ * Intent: a rig whose player chose F♯ Dorian in Custom from Modal (Dorian) at Idle after phrase 1
+ * was generated in C Major from Neutral, so the restriction in force at Start is Dorian's.
+ */
+function staleDorianRig(): ControllerRig {
+  const rig = controllerRig()
+  rig.idle.controls = { ...rig.idle.controls, tonalCenter: 'F#', collection: 'Dorian' }
+  rig.idle.selection = { kind: 'custom', baseId: 'modal-dorian' }
+  return rig
+}
+
+// @test-link [[module_key_and_mode_marks]]
+describe("session controller: the session's start settings", () => {
+  // @test-link [[module_key_and_mode_marks]]
+  it('holds none before any start', () => {
+    expect(staleDorianRig().controller.state.startSettings).toBeNull()
+  })
+
+  // @test-link [[module_key_and_mode_marks]]
+  it("holds the player's own settings and the restriction frozen at Start, never phrase 1's", async () => {
+    const rig = staleDorianRig()
+    rig.controller.start()
+    rig.controller.useStalePhrase()
+
+    const { startSettings, shownSettings } = rig.controller.state
+    expect(startSettings?.controls.tonalCenter).toBe('F#')
+    expect(startSettings?.controls.collection).toBe('Dorian')
+    expect(startSettings?.selection).toEqual({ kind: 'custom', baseId: 'modal-dorian' })
+    expect(startSettings?.restriction).toEqual({ keys: 'any', modes: ['Dorian'] })
+    expect(shownSettings?.controls.tonalCenter).toBe(rig.settings.controls.tonalCenter)
+    expect(shownSettings?.controls.collection).toBe(rig.settings.controls.collection)
+    await playTo(rig, phraseStart(2) - 0.1)
+    expect(rig.controller.state.startSettings).toBe(startSettings)
+    rig.controller.stop()
+  })
+
+  // @test-link [[module_key_and_mode_marks]]
+  it('holds none again after a Stop during the count-in', async () => {
+    const rig = staleDorianRig()
+    rig.controller.start()
+    rig.controller.useStalePhrase()
+    await playTo(rig, rig.audioRig.now() + 0.4)
+    expect(rig.controller.state.phase).toBe('count-in')
+
+    rig.controller.stop()
+
+    expect(rig.controller.state.startSettings).toBeNull()
+  })
+
+  // @test-link [[module_key_and_mode_marks]]
+  it('holds none again after a hidden tab ends the running session', async () => {
+    const rig = staleDorianRig()
+    rig.controller.start()
+    rig.controller.useStalePhrase()
+    await playTo(rig, phraseStart(1) + 0.5)
+    expect(rig.controller.state.startSettings?.controls.tonalCenter).toBe('F#')
+
+    rig.browser.pageVisibility.setHidden(true)
+
+    expect(rig.controller.state.lastEnd?.cause).toBe('hidden-tab')
+    expect(rig.controller.state.startSettings).toBeNull()
+  })
+})

@@ -30,7 +30,7 @@ test('an initial generation failure shows the empty workspace with an error, and
   await page.getByRole('button', { name: 'Generate phrase' }).click()
   await expect(statusRegion(page)).toHaveText('Generation failed. Try again.')
   await expect(page.locator('.inline-alert.alert-error')).toHaveText(
-    "This combination of written key, collection, harmonic motion, tension, and musical profile can't produce a phrase. Try a different written key, collection, harmonic motion, tension, or profile.",
+    "This combination of written key, collection, harmonic motion, and tension can't produce a phrase. Try a different written key, collection, harmonic motion, or tension.",
   )
   await expect(page.locator('.staff-frame')).toHaveClass(/staff-empty/)
   await expect(page.getByText('Generate a phrase to begin.')).toBeVisible()

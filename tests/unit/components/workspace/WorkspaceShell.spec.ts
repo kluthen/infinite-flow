@@ -132,12 +132,11 @@ describe('WorkspaceShell', () => {
     expect(actions.selectInstrumentProfile).toHaveBeenCalledExactlyOnceWith('bb-tenor')
   })
 
-  it('forwards choosing Jazz in the preset control to session.actions.selectPreset, the phrase staying', async () => {
+  it('forwards choosing Jazz in the preset box to session.actions.selectPreset, the phrase staying', async () => {
     const { session, actions } = fakeSession(READY)
     const wrapper = mountShell(session)
 
-    const presetGroup = wrapper.get('[aria-label="Musical profile preset"]')
-    await presetGroup.findAll('button')[1]!.trigger('click')
+    await wrapper.get('select.preset-select').setValue('jazz')
 
     expect(actions.selectPreset).toHaveBeenCalledExactlyOnceWith('jazz')
     expect(actions.generate).not.toHaveBeenCalled()

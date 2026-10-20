@@ -21,7 +21,7 @@ import {
   toRunning,
 } from '../session/session-helpers'
 import { databaseRecords } from '../storage/storage-helpers'
-import { radio } from './helpers'
+import { choosePreset, radio } from './helpers'
 import {
   QUEUE_SIZE,
   backgroundCounts,
@@ -218,13 +218,9 @@ const KEY_CHANGES: readonly KeyChange[] = [
   {
     name: 'a profile change',
     sessionSeed: SESSION_SEED,
-    apply: async (page) => {
-      await radio(page, 'Musical profile preset', 'Jazz').click()
-      await expect(radio(page, 'Musical profile preset', 'Jazz')).toHaveAttribute(
-        'aria-checked',
-        'true',
-      )
-    },
+    /** Intent: choose Jazz in the preset box, which waits until the box shows it. */
+    apply: (page) => choosePreset(page, 'Jazz'),
+    /** Intent: the request carries Jazz's levels, the chromatic approach and enclosure as today. */
     expectCarried: (request) => {
       expect(request.figureLevels.chromaticApproach).toBe('asToday')
       expect(request.figureLevels.chromaticEnclosure).toBe('asToday')

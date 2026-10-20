@@ -40,7 +40,7 @@ import {
   phraseStartsAt,
   tap,
 } from '../session/session-midi-helpers'
-import { radio } from '../workspace/helpers'
+import { choosePreset } from '../workspace/helpers'
 import {
   expectIdleReady,
   expectReviewShowing,
@@ -290,11 +290,7 @@ test.describe('the next phrase', () => {
 test('the summary names the preset selected at Start', async ({ page }) => {
   test.setTimeout(90_000)
   await gotoSessionHarness(page)
-  await radio(page, 'Musical profile preset', 'Jazz').click()
-  await expect(radio(page, 'Musical profile preset', 'Jazz')).toHaveAttribute(
-    'aria-checked',
-    'true',
-  )
+  await choosePreset(page, 'Jazz')
   await readyToStart(page)
   await startSession(page)
   await toRunning(page)

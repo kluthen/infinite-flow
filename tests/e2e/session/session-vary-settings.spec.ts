@@ -6,7 +6,9 @@
  * end, by a hidden tab or by Stop, the controls show the player's own settings again (the preset
  * selection, the figure levels and a `Varying` register included) and the fresh phrase is
  * generated from them. A step of a setting a preset holds, a figure level or one of the ten
- * controls, Tension included, shows the selection as Custom based on the preset. A settings change made while the next phrase is partly drawn as read-ahead leaves that
+ * controls, Tension included, shows the selection as Custom based on the preset: the preset box
+ * turns Custom while its description keeps the text it had at Start, and nothing in the preset bar
+ * is a live region. A settings change made while the next phrase is partly drawn as read-ahead leaves that
  * phrase as drawn and first shows in the phrase after it. v3.1 chunk 15: the key and mode moves
  * stay inside the restriction of the preset in force at Start, a move outside it drawn again as
  * another step, and a key or mode move never shows Custom.
@@ -15,7 +17,7 @@
  * as the inverse of the wanted mutation seed: from Neutral, mutation seed 12 steps the accented
  * passing tone from as today to favored on phrase 3 and mutation seed 11 steps Tension from Lift
  * to Settled on phrase 3; from Jazz, mutation seed 25 steps the register on phrase 3 (spec D181
- * scales, v3.1's figure step). Reel and Modal (Dorian), chosen through the harness from C Ionian,
+ * scales, v3.1's figure step). Reel and Modal (Dorian), chosen in the preset box from C Ionian,
  * restrict the mode to Mixolydian and Dorian, and to Dorian: under Reel mutation seed 40 moves
  * the mode to Dorian on phrase 3, and mutation seed 44, whose move to Ionian is drawn again, steps
  * a figure there; under Modal (Dorian) mutation seed 40, whose move to Aeolian is drawn again,
@@ -29,6 +31,7 @@ import {
   sessionSeedsDrawn,
   settingsMutationSeed,
 } from '../release/harness-helpers'
+import { choosePreset, expectPresetShown, presetBox, presetDescription } from '../workspace/helpers'
 import { clockTo } from './session-midi-helpers'
 import { drawnKeys, settledStaff, toBarline, untilReady } from './rolling-helpers'
 import {
@@ -75,16 +78,31 @@ async function checkedIn(page: Page, name: string): Promise<string | null> {
   return (await checked.count()) === 0 ? null : checked.innerText()
 }
 
-/** Intent: the preset status's text in use. */
-function presetStatus(page: Page): Locator {
-  return page.locator('.preset-status-text:not(.is-reserve)')
+/** Neutral's description line. */
+const NEUTRAL_DESCRIPTION = "Plain lines in the key, in quarter notes: the app's starting point."
+/** Jazz's description line. */
+const JAZZ_DESCRIPTION =
+  'Eighth notes and offbeats, now and then with a short note from outside the key.'
+/** Reel's description line. */
+const REEL_DESCRIPTION =
+  'A fast folk dance in steady eighth notes, in Mixolydian or Dorian. Also try it in Ionian (a major key).'
+/** Modal (Dorian)'s description line. */
+const MODAL_DESCRIPTION =
+  'A steady two-chord bed in Dorian, so its color note is heard in the melody.'
+
+/** Intent: the preset box shows `text` and its description line reads `description`. */
+async function expectPreset(page: Page, text: string, description: string): Promise<void> {
+  await expectPresetShown(page, text)
+  await expect(presetDescription(page)).toHaveText(description)
 }
 
-/** Intent: choose a built-in through the harness, as the player will in the preset box. */
-async function selectPreset(page: Page, id: string): Promise<void> {
-  expect(
-    await page.evaluate((presetId) => window.__workspaceHarness.selectPreset(presetId), id),
-  ).toBe(true)
+/** Intent: nothing in the preset bar is a live region, so no change of it is announced. */
+async function expectPresetBarSilent(page: Page): Promise<void> {
+  await expect(
+    page.locator(
+      '.preset-bar [aria-live], .preset-bar [role="status"], .preset-bar [role="alert"], .preset-bar [role="log"]',
+    ),
+  ).toHaveCount(0)
 }
 
 /** Intent: turn `Vary settings` on with a click on its `On` segment. */
@@ -113,15 +131,17 @@ async function clockToReadied(page: Page, n: number, offset: number): Promise<vo
 
 /**
  * Intent: the box of every element of the control section, in document order (its classes may
- * change, its geometry may not), the page's scroll and the animations running in the section,
- * read in one task.
+ * change, its geometry may not), but a select's options and groups, which the select draws and
+ * which take no box (Custom's option comes and goes inside the preset box), the page's scroll and
+ * the animations running in the section, read in one task.
  */
 function controlSectionLayout(page: Page) {
   return page.evaluate(() => {
     const section = document.querySelector('.control-section')
     if (section === null) throw new Error('no control section')
     return {
-      boxes: [section, ...section.querySelectorAll('*')].map((element) => {
+      // A select's options and groups are drawn by the select, never laid out: its box is.
+      boxes: [section, ...section.querySelectorAll(':not(option, optgroup)')].map((element) => {
         const box = element.getBoundingClientRect()
         return `${element.tagName} ${box.x},${box.y} ${box.width}x${box.height}`
       }),
@@ -186,12 +206,11 @@ test('a figure step shows Custom in place at its phrase with nothing moving, and
 
   await startSession(page)
   await expect(radiogroup(page, 'Vary settings')).toHaveAttribute('aria-readonly', 'true')
-  await expect(page.locator('.preset-status')).toHaveAttribute('aria-live', 'off')
+  await expectPresetBarSilent(page)
 
   const phraseThree = await phraseStart(page, 3)
   await clockTo(page, phraseThree - 0.1)
-  await expect(presetStatus(page)).toHaveText(/^Neutral preset applied/)
-  expect(await checkedIn(page, 'Musical profile preset')).toBe('Neutral')
+  await expectPreset(page, 'Neutral', NEUTRAL_DESCRIPTION)
   const shownBefore = (await sessionState(page)).shownSettings
   expect(shownBefore).toMatchObject({
     figureLevels: NEUTRAL_LEVELS,
@@ -200,13 +219,11 @@ test('a figure step shows Custom in place at its phrase with nothing moving, and
   const before = await controlSectionLayout(page)
 
   await clockTo(page, phraseThree + 0.1)
-  await expect(presetStatus(page)).toHaveText(
-    'Custom configuration - Neutral grammar retained. Choosing Neutral or Jazz replaces all seven preset-controlled values.',
-  )
+  // The box turns Custom; its description keeps the text it had at Start.
+  await expectPreset(page, 'Custom, based on Neutral', NEUTRAL_DESCRIPTION)
   await expect(page.locator('.control-summary')).toHaveText(
     'C Ionian · Custom, based on Neutral · Lift · Shaped',
   )
-  expect(await checkedIn(page, 'Musical profile preset')).toBeNull()
   expect(await checkedIn(page, 'Leapiness')).toBe('Shaped')
   // One figure, one level: the accented passing tone from as today to favored, nothing else.
   const shown = (await sessionState(page)).shownSettings
@@ -216,15 +233,15 @@ test('a figure step shows Custom in place at its phrase with nothing moving, and
   const after = await controlSectionLayout(page)
   expect(after).toEqual(before)
   expect(after.animations).toBe(0)
-  await expect(page.locator('.preset-status')).toHaveAttribute('aria-live', 'off')
+  await expectPresetBarSilent(page)
 
   const requestsAtEnd = await requestCount(page)
   await page.evaluate(() => window.__workspaceHarness.page.setHidden(true))
   expect((await sessionState(page)).lastEnd?.cause).toBe('hidden-tab')
-  await expect(presetStatus(page)).toHaveText(/^Neutral preset applied/)
-  expect(await checkedIn(page, 'Musical profile preset')).toBe('Neutral')
+  await expectPreset(page, 'Neutral', NEUTRAL_DESCRIPTION)
   await expect(page.locator('.control-summary')).toHaveText('C Ionian · Neutral · Lift · Shaped')
-  await expect(page.locator('.preset-status')).toHaveAttribute('aria-live', 'polite')
+  await expect(presetBox(page)).not.toHaveAttribute('aria-readonly')
+  await expectPresetBarSilent(page)
   expect(await checkedIn(page, 'Vary settings')).toBe('On')
   const restored = await harnessSnapshot(page)
   expect(restored.selection).toEqual({ kind: 'preset', presetId: 'neutral' })
@@ -257,7 +274,7 @@ test('a Tension move shows Custom based on Neutral at its phrase, and Stop gives
     'C Ionian · Custom, based on Neutral · Settled · Shaped',
   )
   expect(await checkedIn(page, 'Tension')).toBe('Settled')
-  expect(await checkedIn(page, 'Musical profile preset')).toBeNull()
+  await expectPreset(page, 'Custom, based on Neutral', NEUTRAL_DESCRIPTION)
   expect((await sessionState(page)).shownSettings?.selection).toEqual({
     kind: 'custom',
     baseId: 'neutral',
@@ -267,7 +284,7 @@ test('a Tension move shows Custom based on Neutral at its phrase, and Stop gives
   expect((await sessionState(page)).lastEnd?.cause).toBe('stop')
   await expect(page.locator('.control-summary')).toHaveText('C Ionian · Neutral · Lift · Shaped')
   expect(await checkedIn(page, 'Tension')).toBe('Lift')
-  expect(await checkedIn(page, 'Musical profile preset')).toBe('Neutral')
+  await expectPreset(page, 'Neutral', NEUTRAL_DESCRIPTION)
   expect((await harnessSnapshot(page)).selection).toEqual({ kind: 'preset', presetId: 'neutral' })
 })
 
@@ -279,7 +296,7 @@ test('a register stepped from Varying is Varying again after Stop, and the flag 
 }) => {
   test.setTimeout(90_000)
   await gotoSessionHarness(page, DESKTOP)
-  await radiogroup(page, 'Musical profile preset').getByRole('radio', { name: 'Jazz' }).click()
+  await choosePreset(page, 'Jazz')
   await queueMutationSeed(page, REGISTER_ON_PHRASE_3)
   await readyToStart(page)
   expect(await checkedIn(page, 'Register')).toBe('Varying')
@@ -290,7 +307,7 @@ test('a register stepped from Varying is Varying again after Stop, and the flag 
   await startSession(page)
   await clockTo(page, (await phraseStart(page, 3)) + 0.1)
   await expect.poll(async () => checkedIn(page, 'Register')).toMatch(/^(Low|Middle|High)$/)
-  await expect(presetStatus(page)).toHaveText(/^Custom configuration - Jazz grammar retained/)
+  await expectPreset(page, 'Custom, based on Jazz', JAZZ_DESCRIPTION)
   await expect(page.locator('.control-summary')).toHaveText(
     'C Ionian · Custom, based on Jazz · Lift · Shaped',
   )
@@ -299,8 +316,7 @@ test('a register stepped from Varying is Varying again after Stop, and the flag 
   await sessionAction(page).click()
   expect((await sessionState(page)).lastEnd?.cause).toBe('stop')
   expect(await checkedIn(page, 'Register')).toBe('Varying')
-  expect(await checkedIn(page, 'Musical profile preset')).toBe('Jazz')
-  await expect(presetStatus(page)).toHaveText(/^Jazz preset applied/)
+  await expectPreset(page, 'Jazz', JAZZ_DESCRIPTION)
   await expect(page.locator('.control-summary')).toHaveText('C Ionian · Jazz · Lift · Shaped')
   const fresh = await requestAfter(page, requestsAtEnd)
   expect(fresh.controls.register).toBe('Varying')
@@ -376,7 +392,7 @@ test('under Reel a mode move to Dorian shows at its phrase and keeps Reel, and S
 }) => {
   test.setTimeout(90_000)
   await gotoSessionHarness(page, DESKTOP)
-  await selectPreset(page, 'reel')
+  await choosePreset(page, 'Reel')
   await queueMutationSeed(page, REEL_MODE_ON_PHRASE_3)
   await readyToStart(page)
   await expect(page.locator('.control-summary')).toHaveText(
@@ -392,6 +408,7 @@ test('under Reel a mode move to Dorian shows at its phrase and keeps Reel, and S
   await clockTo(page, (await phraseStart(page, 3)) + 0.1)
   await expect(page.locator('.control-summary')).toHaveText('C Dorian · Reel · Settled · Shaped')
   expect(await checkedIn(page, 'Collection')).toBe('Dorian')
+  await expectPreset(page, 'Reel', REEL_DESCRIPTION)
   const shown = (await sessionState(page)).shownSettings
   expect(shown?.controls.collection).toBe('Dorian')
   expect(shown?.figureLevels).toEqual(REEL_LEVELS)
@@ -404,6 +421,7 @@ test('under Reel a mode move to Dorian shows at its phrase and keeps Reel, and S
     'C Mixolydian · Reel · Settled · Shaped',
   )
   expect(await checkedIn(page, 'Collection')).toBe('Mixolydian')
+  await expectPreset(page, 'Reel', REEL_DESCRIPTION)
   const restored = await harnessSnapshot(page)
   expect(restored.selection).toEqual({ kind: 'preset', presetId: 'reel' })
   expect(restored.figureLevels).toEqual(REEL_LEVELS)
@@ -417,7 +435,7 @@ test('under Reel a mode move to Ionian is drawn again as a figure step, Custom b
 }) => {
   test.setTimeout(90_000)
   await gotoSessionHarness(page, DESKTOP)
-  await selectPreset(page, 'reel')
+  await choosePreset(page, 'Reel')
   await queueMutationSeed(page, REEL_REDRAWN_ON_PHRASE_3)
   await readyToStart(page)
   await turnVarySettingsOn(page)
@@ -433,6 +451,7 @@ test('under Reel a mode move to Ionian is drawn again as a figure step, Custom b
     'C Mixolydian · Custom, based on Reel · Settled · Shaped',
   )
   expect(await checkedIn(page, 'Collection')).toBe('Mixolydian')
+  await expectPreset(page, 'Custom, based on Reel', REEL_DESCRIPTION)
   const shown = (await sessionState(page)).shownSettings
   expect(shown?.selection).toEqual({ kind: 'custom', baseId: 'reel' })
   expect(shown?.controls).toEqual(shownBefore?.controls)
@@ -443,6 +462,7 @@ test('under Reel a mode move to Ionian is drawn again as a figure step, Custom b
   await expect(page.locator('.control-summary')).toHaveText(
     'C Mixolydian · Reel · Settled · Shaped',
   )
+  await expectPreset(page, 'Reel', REEL_DESCRIPTION)
   const restored = await harnessSnapshot(page)
   expect(restored.selection).toEqual({ kind: 'preset', presetId: 'reel' })
   expect(restored.figureLevels).toEqual(REEL_LEVELS)
@@ -455,7 +475,7 @@ test('under Modal (Dorian) the mode never moves: a move to Aeolian is drawn agai
 }) => {
   test.setTimeout(120_000)
   await gotoSessionHarness(page, DESKTOP)
-  await selectPreset(page, 'modal-dorian')
+  await choosePreset(page, 'Modal (Dorian)')
   await queueMutationSeed(page, MODAL_REDRAWN_ON_PHRASE_3)
   await readyToStart(page)
   await expect(page.locator('.control-summary')).toHaveText(
@@ -470,6 +490,7 @@ test('under Modal (Dorian) the mode never moves: a move to Aeolian is drawn agai
   await expect(page.locator('.control-summary')).toHaveText(
     'C Dorian · Custom, based on Modal (Dorian) · Lift · Leaping',
   )
+  await expectPreset(page, 'Custom, based on Modal (Dorian)', MODAL_DESCRIPTION)
   expect(await checkedIn(page, 'Collection')).toBe('Dorian')
   expect(await checkedIn(page, 'Rhythmic variety')).toBe('Heavily varied')
   const shown = (await sessionState(page)).shownSettings

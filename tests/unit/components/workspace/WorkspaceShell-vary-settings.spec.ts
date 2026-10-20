@@ -3,12 +3,12 @@
  * session" group's `Off`/`On` control (off at load, set at Idle and in the Review through the
  * controller, read-only during a session and while the controller loads); the controls showing
  * what the controller says the sounding phrase was generated with, then the player's own again at
- * the end; and the preset status's announcement off for the whole session, polite again only
- * after the player's values have rendered back.
+ * the end; the preset box turning Custom while the description line keeps the start settings'
+ * text; and nothing in the preset bar announced, before, during or after a session.
  */
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
-import { nextTick, watch } from 'vue'
+import { nextTick } from 'vue'
 
 import WorkspaceShell from '@/components/workspace/WorkspaceShell.vue'
 import type { SessionController } from '@/components/workspace/workspace-session-controller-types'
@@ -86,9 +86,24 @@ function checked(wrapper: ReturnType<typeof mountShell>, name: string): string |
   return segment === undefined ? null : segment.text()
 }
 
-/** Intent: the preset status text in use. */
-function presetStatus(wrapper: ReturnType<typeof mountShell>): string {
-  return wrapper.get('.preset-status-text:not(.is-reserve)').text()
+/** Intent: the text the preset box shows: its selected option's. */
+function presetBox(wrapper: ReturnType<typeof mountShell>): string {
+  const select = wrapper.get('select.preset-select').element as HTMLSelectElement
+  return select.selectedOptions[0]?.text.trim() ?? ''
+}
+
+/** Intent: the preset bar's description line. */
+function presetDescription(wrapper: ReturnType<typeof mountShell>): string {
+  return wrapper.get('.preset-bar .field-note').text()
+}
+
+const NEUTRAL_DESCRIPTION = "Plain lines in the key, in quarter notes: the app's starting point."
+
+/** The settings a session starts with from the player's defaults: Neutral, C Ionian. */
+const START: SessionSettings = {
+  controls: DEFAULT_GENERATION_CONTROLS,
+  figureLevels: NEUTRAL_FIGURE_LEVELS,
+  selection: { kind: 'preset', presetId: 'neutral' },
 }
 
 // @test-link [[req_settings_mutation_flag]]
@@ -147,7 +162,10 @@ describe("WorkspaceShell: a session's automatic changes", () => {
     const idle = fakeGenerationSession(readyState())
     const wrapper = mountShell(idle.session, fake.controller)
     await wrapper.get('.header-actions > button.session-action').trigger('click')
+    fake.state.startSettings = START
+    await nextTick()
     expect(checked(wrapper, 'Tension')).toBe('Lift')
+    expect(presetBox(wrapper)).toBe('Neutral')
     expect(wrapper.get('.control-summary').text()).toBe('C Ionian · Neutral · Lift · Shaped')
 
     // The instant the moved phrase starts sounding, the controller shows the settings it was
@@ -155,8 +173,9 @@ describe("WorkspaceShell: a session's automatic changes", () => {
     fake.state.shownSettings = VARIED
     await nextTick()
     expect(checked(wrapper, 'Tension')).toBe('Build')
-    expect(checked(wrapper, 'Musical profile preset')).toBeNull()
-    expect(presetStatus(wrapper)).toMatch(/^Custom configuration - Neutral grammar retained/)
+    expect(presetBox(wrapper)).toBe('Custom, based on Neutral')
+    expect(wrapper.get('select.preset-select').attributes('aria-readonly')).toBe('true')
+    expect(presetDescription(wrapper)).toBe(NEUTRAL_DESCRIPTION)
     expect(wrapper.get('.control-summary').text()).toBe(
       'C Ionian · Custom, based on Neutral · Build · Shaped',
     )
@@ -165,42 +184,34 @@ describe("WorkspaceShell: a session's automatic changes", () => {
     fake.stop()
     await nextTick()
     expect(checked(wrapper, 'Tension')).toBe('Lift')
-    expect(checked(wrapper, 'Musical profile preset')).toBe('Neutral')
-    expect(presetStatus(wrapper)).toMatch(/^Neutral preset applied/)
+    expect(presetBox(wrapper)).toBe('Neutral')
+    expect(presetDescription(wrapper)).toBe(NEUTRAL_DESCRIPTION)
     expect(wrapper.get('.control-summary').text()).toBe('C Ionian · Neutral · Lift · Shaped')
     expect(idle.state.selection).toEqual({ kind: 'preset', presetId: 'neutral' })
     expect(idle.state.figureLevels).toEqual(NEUTRAL_FIGURE_LEVELS)
   })
 
   // @test-link [[rule_automatic_change_updates_controls_quietly]]
-  it('turns the preset announcement off at the start, and on only after the end has rendered', async () => {
+  it('announces nothing in the preset bar before, during and after a session', async () => {
     const fake = createFakeSessionController()
     const wrapper = mountShell(fakeGenerationSession(readyState()).session, fake.controller)
-    const status = wrapper.get('.preset-status')
-    expect(status.attributes('aria-live')).toBe('polite')
+    /** Intent: whether the preset bar holds no live region and no status role. */
+    const silent = () =>
+      !wrapper.get('.preset-bar').find('[aria-live]').exists() &&
+      !wrapper.get('.preset-bar').find('[role="status"]').exists()
+    expect(silent()).toBe(true)
 
     await wrapper.get('.header-actions > button.session-action').trigger('click')
-    expect(status.attributes('aria-live')).toBe('off')
-    expect(status.attributes('role')).toBe('status')
+    fake.state.startSettings = START
     fake.state.shownSettings = VARIED
     await nextTick()
-    expect(status.attributes('aria-live')).toBe('off')
+    expect(presetBox(wrapper)).toBe('Custom, based on Neutral')
+    expect(silent()).toBe(true)
 
-    // A post-flush watcher of the test's own runs after the shell's, in the flush that renders
-    // the end: the player's values are on screen then, and the status is still silent.
-    const atEndRender: string[] = []
-    const stopWatching = watch(
-      () => fake.state.phase,
-      () => atEndRender.push(`${status.attributes('aria-live')} | ${presetStatus(wrapper)}`),
-      { flush: 'post' },
-    )
     fake.state.phase = 'running'
     fake.stop()
     await nextTick()
-    await nextTick()
-    stopWatching()
-
-    expect(atEndRender.at(-1)).toMatch(/^off \| Neutral preset applied/)
-    expect(status.attributes('aria-live')).toBe('polite')
+    expect(presetBox(wrapper)).toBe('Neutral')
+    expect(silent()).toBe(true)
   })
 })

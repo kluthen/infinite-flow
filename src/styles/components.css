@@ -514,29 +514,6 @@
     opacity: 0.55;
   }
 
-  /* States: default, loading, error. Custom feedback is informational, not interactive.
-     The status holds both of its texts in one grid cell: `preset-status-text` (the
-     text in use) and `preset-status-text is-reserve` (the other text, invisible and
-     `aria-hidden`), so its block size is the longer text's at every width and never changes when
-     a manual edit, a preset choice or, during a session, an automatic change swaps them. The
-     custom emphasis (`is-custom`) sits on the custom text, not on the status, so the reserve copy
-     is measured in the weight it would be shown in. */
-  .preset-status {
-    color: var(--color-text-muted);
-    display: grid;
-    font-size: var(--text-sm);
-  }
-  .preset-status-text {
-    grid-area: 1 / 1;
-  }
-  .preset-status-text.is-custom {
-    color: var(--color-text);
-    font-weight: 700;
-  }
-  .preset-status-text.is-reserve {
-    visibility: hidden;
-  }
-
   /* States: ready, loading, error. These semantic statuses are visually hidden but remain
      exposed to assistive technology. */
   .generation-status,

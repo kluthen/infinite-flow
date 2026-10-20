@@ -23,7 +23,6 @@ import {
 } from '@/domain/controls/generation-controls'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import { presetLabel } from '@/domain/controls/preset-label'
-import { builtInPreset } from '@/domain/presets/built-in-presets'
 import type { Preset, PresetSelection } from '@/domain/presets/preset-selection'
 import { ADOPTED_INSTRUMENT_PROFILES, MY_INSTRUMENT_ID } from '@/domain/profile/instrument-profiles'
 import type { SegmentedControlOption } from './segmented-control-option'
@@ -96,19 +95,6 @@ export function profileRangeSummaryText(profile: InstrumentProfile): string {
   }
   const range = profile.concertRange
   return `Active range ${range.minMidi}-${range.maxMidi}. Whole-phrase windows: Low ${windowOf('Low')}, Middle ${windowOf('Middle')}, High ${windowOf('High')}.`
-}
-
-/**
- * Intent: build the two-segment preset control's options, until the preset box replaces it: the
- * Neutral and Jazz built-ins, each valued by its preset id and labelled by its name.
- */
-// @spec-link [[module_generation_control_catalog]]
-// @spec-link [[module_generative_profile_selection]]
-export function presetSegmentOptions(): readonly SegmentedControlOption[] {
-  return [builtInPreset('neutral'), builtInPreset('jazz')].map((preset) => ({
-    value: preset.id,
-    label: preset.name,
-  }))
 }
 
 /** Intent: build the harmonic-motion options; every catalog value is already its own label. */

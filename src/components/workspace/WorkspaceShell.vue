@@ -17,17 +17,17 @@
  * controller counts. It also runs the last session's Review from the screen: `Close review` and
  * `Review last session`, each scrolling the page to its top and moving focus. While a session runs,
  * the read-only controls show what the controller says the phrase now sounding was generated with,
- * and the preset status announces nothing; at the end they show the player's own choices again, and
- * the status announces again once those have rendered. The page's `Vary settings`, `Tension across
- * phrases` and `Rising tempo` choices go to the controller and, once it accepts them, are saved;
- * the Tension control never shows a phrase's step across phrases. During a session the tempo
- * control shows the exact tempo in effect, and the tempo field notes the tempo a rising-tempo
- * session reached (./use-rising-tempo-control.ts). It sets the staff's one shared system-position
- * size from the saved my instrument's written range, for the staff and the Review alike. The saved
- * review preferences and "During a session" choices it is given are where the Review's export
- * choices and the options (while the controller loads) start from. It shows the notice row over the
- * load's outcome and save policy, and the reports of the deletions of damaged kept sessions it is
- * given (./use-app-notices.ts): `Dismiss` sends focus to the first enabled
+ * the preset bar's description line keeping the text of the session's start settings, and nothing
+ * is announced; at the end they show the player's own choices again. The page's `Vary settings`,
+ * `Tension across phrases` and `Rising tempo` choices go to the controller and, once it accepts
+ * them, are saved; the Tension control never shows a phrase's step across phrases. During a
+ * session the tempo control shows the exact tempo in effect, and the tempo field notes the tempo a
+ * rising-tempo session reached (./use-rising-tempo-control.ts). It sets the staff's one shared
+ * system-position size from the saved my instrument's written range, for the staff and the Review
+ * alike. The saved review preferences and "During a session" choices it is given are where the
+ * Review's export choices and the options (while the controller loads) start from. It shows the
+ * notice row over the load's outcome and save policy, and the reports of the deletions of damaged
+ * kept sessions it is given (./use-app-notices.ts): `Dismiss` sends focus to the first enabled
  * of the session action, the phrase action and `controller-status`; `Reload` reloads the page. It
  * ends with the page footer and hosts the Your data sheet (./use-your-data.ts), opened from the
  * footer, the session list's header and the storage-full notice, loaded on demand.
@@ -180,9 +180,8 @@ const sessionActive = computed(
   () => props.controller !== null && props.controller.state.phase !== 'idle',
 )
 
-// What the musical controls show, and the preset status's announcement. Its watchers of a
-// session's start and end are registered first, so each runs before the others of its flush.
-const { controlsReadonly, shownSettings, presetStatusLive } = useShownSettings({
+// What the musical controls show, and the session's start settings for the preset bar.
+const { controlsReadonly, shownSettings, startSettings } = useShownSettings({
   idle: () => state.value,
   controller: () => props.controller,
   sessionActive: () => sessionActive.value,
@@ -356,7 +355,6 @@ function focusTarget(target: SessionEndFocusTarget): void {
 }
 
 // Where focus goes at a session's end, when a late room notice lands, and when the sheet closes.
-// Its watcher of a session's end is registered after the preset status's, so it runs after it.
 const workspaceFocus = useWorkspaceFocus({
   controller: requireController,
   idle: () => state.value,
@@ -477,7 +475,7 @@ function handleSelectPreset(id: PresetId): void {
         :tension-across-phrases="tensionAcrossPhrases"
         :vary-settings="varySettings"
         :session-options-readonly="sessionOptionsReadonly"
-        :preset-status-live="presetStatusLive"
+        :start-settings="startSettings"
         :my-instrument="state.myInstrument"
         :instrument-actions-disabled="controlsReadonly || state.operation !== 'idle'"
         @open-my-instrument="myInstrumentSheet.open"
