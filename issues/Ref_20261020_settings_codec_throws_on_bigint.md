@@ -4,7 +4,7 @@
 **Ref:** `ISS-014`
 **Date:** 2026-10-20
 **Severity:** Low
-**Status:** Open
+**Status:** Resolved
 **Component:** `src/storage/records/settings-record.ts`
 **Affects:** `src/storage-bootstrap.ts` (`loadSavedData`), `src/main.ts` (the app's mount)
 
@@ -111,3 +111,16 @@ settings codec's control parsers. The atom it breaks is `rule_saved_settings_loa
 - `src/storage-bootstrap.ts`
 - `src/main.ts`
 - [v3.1 build plan, chunk 16](../specs/versions/v3/build-plan-v3.1.md#chunk-16--presets-and-levels-on-the-device)
+
+---
+
+## Change Log
+
+- **2026-10-20**: Resolved before v3.1 wave 3's merge, the owner's "Fix before merging" (spec
+  D383), in e4c6a9b on `v3.1-w3`, outside any chunk. `controlValue`
+  (`src/storage/records/settings-record.ts`), and through it `readInstrument`, refuses any value
+  that is not a string before calling `validateControlValue`, the same guard as chunk 16's
+  `heldControl`, so that control falls back to its first-load value and every other setting still
+  loads. Unit tests in `tests/unit/storage/settings-record-unserializable.spec.ts`: a stored BigInt
+  and a circular value, every control holding one at once, and `loadSavedData` resolving. The
+  medium- and long-term fixes are not taken.

@@ -869,3 +869,13 @@ preflight corrections). D289 is unused.
   data's Settings line to chunk 18, which owns the sheet's copy. Both take the frozen v3.1 design's
   wording. Now in: [chunk 13](versions/v3/build-plan-v3.1.md#chunk-13--the-preset-bar-and-the-key-and-mode-marks),
   [chunk 18](versions/v3/build-plan-v3.1.md#chunk-18--your-data-and-delete-everything).
+
+- **D382 (2026-10-20): gate T1 is given; reverses D355.** The owner's "Give T1", asked before
+  wave 4: one `ux-writer` pass on `src/styles/theme.css` and `components.css` for v3.1's token
+  additions (part 1 of the token source), as for v3.0 (ux Q66). Chunk 1 may run, and wave 4 waits
+  for wave 3 only. Plan v16. Now in: [gates](versions/v3/build-plan-v3.1.md#gates),
+  [waves](versions/v3/build-plan-v3.1.md#waves), [chunk 1](versions/v3/build-plan-v3.1.md#chunk-1--token-source-pass-part-1-v31).
+
+- **D383 (2026-10-20): ISS-014 is fixed on wave 3's branch, before its merge (follow-up to D380).**
+  The owner's "Fix before merging": still no v3.1 chunk, a fix commit on `v3.1-w3` (e4c6a9b).
+  Now in: [ISS-014](../issues/Ref_20261020_settings_codec_throws_on_bigint.md#change-log).
