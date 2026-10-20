@@ -171,10 +171,17 @@ function refusedAs<T>(
   }
 }
 
-/** Intent: a parser accepting only a value of one control's closed catalog. */
+/**
+ * Intent: a parser accepting only a value of one control's closed catalog. Every catalog holds
+ * strings only, so any other stored value, a BigInt or a circular object included (which the
+ * validator's refusal could not even write), is unreadable before the validator sees it.
+ */
+// @spec-link [[rule_saved_settings_load_tolerantly]]
 function controlValue<T extends string>(catalog: readonly T[], name: string): Parse<T> {
-  return (value) =>
-    refusedAs(() => validateControlValue(catalog, value, name), GenerationControlError)
+  return (value) => {
+    if (typeof value !== 'string') return UNREADABLE
+    return refusedAs(() => validateControlValue(catalog, value, name), GenerationControlError)
+  }
 }
 
 /** Intent: a parser accepting only a member of a closed catalog that has no domain validator. */
