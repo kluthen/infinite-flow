@@ -506,3 +506,18 @@ passed; Playwright 488 + 488 passed (1 skipped each), 57 passed, 107 passed and 
 `verify:boundaries`, `atd:lint`, `atd:check` pass. **Bundle: entry chunk 246,844 B** (49 JS
 chunks), +19,142 B on wave 2's 227,702 B (+17,698 B on v3.0's 229,146 B), 60,356 B under the
 300 KiB budget.
+
+### Wave sync and report
+
+`documentalist` post-task sync over `1650ab4..v3.1-w3` (7b6868b); contract stays 7.0.0. Part J:
+J1, J2, J5 as worded; J3 without the read-time clause (D376), plus each shape's data version, and
+`KeptSessionFacts.presets` applied to `module_kept_session_codec` under J3 (for the owner to
+confirm); the change set's J1–J3 marked applied, J4 left for chunks 17 and 18. Chunk 12's
+Revisions applied, `rule_mutation_profile_flip_keeps_controls` deleted; chunk 15's and 16's
+drift aligned; `rule_earlier_kept_sessions_carried_over` 0.4 per D376;
+`req_embellishment_figure_levels` 0.2 per D378 (every figure Off selectable; no rule atom; change
+set part H records the rejection). Unresolved: ISS-014 against `rule_saved_settings_load_tolerantly`;
+STABLE `module_kept_session_save`'s interface lacks the `presets` argument (1.1 proposed);
+`docs/session-engine.md` still speaks of the profile in several places (coding side); copy until
+chunk 13. Proposed DRAFT → REVIEW: `module_settings_upgrade_step`, `entity_player_preset_record`
+and 13 business rules built and tested in this wave.
