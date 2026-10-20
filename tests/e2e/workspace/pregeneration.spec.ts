@@ -354,7 +354,7 @@ test('pre-generation writes nothing to storage', async ({ page }) => {
 
   // The app's database may exist (it is opened at every load); the queue filling changes no
   // record in any of its stores, and the other storage areas stay empty.
-  expect(Object.keys(recordsBefore)).toHaveLength(7)
+  expect(Object.keys(recordsBefore)).toHaveLength(8)
   expect(await databaseRecords(page)).toEqual(recordsBefore)
   expect(await otherStorageNow(page)).toEqual(otherBefore)
   expect(otherBefore).toEqual({ localStorage: [], sessionStorage: [], caches: [], cookie: '' })
