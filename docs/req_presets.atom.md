@@ -7,6 +7,7 @@ version: 0.1
 human_name: Presets
 tags: [v3, release-v3.1, player-controls, presets]
 dependents:
+  - [[module_preset_bar_model]]
   - [[module_preset_model]]
   - [[rule_built_in_preset_values]]
   - [[rule_choosing_preset_sets_its_settings]]

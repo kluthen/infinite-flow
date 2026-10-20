@@ -9,6 +9,7 @@ const OPTIONS = [
   { value: 'c', label: 'Option C' },
 ]
 
+/** Intent: mount the three-option group with `modelValue` checked. */
 function mountControl(modelValue: string | null, readonly = false) {
   return mount(SegmentedControl, {
     props: { label: 'Test group', options: OPTIONS, modelValue, readonly },
@@ -112,6 +113,7 @@ describe('SegmentedControl', () => {
       { value: 'c', label: 'Option C', disabled: true, describedBy: 'c-note' },
     ]
 
+    /** Intent: mount the group whose third option is unavailable. */
     function mountWithDisabled(modelValue: string | null, readonly = false) {
       return mount(SegmentedControl, {
         props: { label: 'Test group', options: WITH_DISABLED, modelValue, readonly },
@@ -166,6 +168,102 @@ describe('SegmentedControl', () => {
 
     it('can never be the checked option', () => {
       expect(() => mountWithDisabled('c')).toThrow(/unavailable option/)
+    })
+  })
+
+  // @test-link [[ui_segmented_control_marked_option]]
+  describe('a marked option', () => {
+    const WITH_MARKED = [
+      { value: 'a', label: 'Option A', marked: true },
+      { value: 'b', label: 'Option B' },
+      { value: 'c', label: 'Option C', marked: true },
+    ]
+
+    /** Intent: mount the group whose first and third options are marked, its note named. */
+    function mountWithMarked(modelValue: string | null, readonly = false) {
+      return mount(SegmentedControl, {
+        props: {
+          label: 'Test group',
+          options: WITH_MARKED,
+          modelValue,
+          readonly,
+          describedBy: 'marks-note',
+        },
+        attachTo: document.body,
+      })
+    }
+
+    /** Intent: whether each segment carries the mark, in option order. */
+    function marks(wrapper: ReturnType<typeof mountWithMarked>): boolean[] {
+      return wrapper.findAll('[role="radio"]').map((radio) => radio.classes().includes('is-marked'))
+    }
+
+    // @test-link [[ui_segmented_control_marked_option]]
+    it('carries is-marked on marked segments only, unselected, selected and read-only', () => {
+      expect(marks(mountWithMarked('b'))).toEqual([true, false, true])
+      const selected = mountWithMarked('a')
+      expect(marks(selected)).toEqual([true, false, true])
+      expect(selected.findAll('[role="radio"]')[0]!.classes()).toContain('is-selected')
+      expect(marks(mountWithMarked('c', true))).toEqual([true, false, true])
+    })
+
+    // @test-link [[ui_segmented_control_marked_option]]
+    it('is selected by click exactly as an unmarked option', async () => {
+      const wrapper = mountWithMarked('b')
+      const radios = wrapper.findAll('[role="radio"]')
+      await radios[0]!.trigger('click')
+      await radios[1]!.trigger('click')
+      await radios[2]!.trigger('click')
+      expect(wrapper.emitted('update:modelValue')).toEqual([['a'], ['b'], ['c']])
+    })
+
+    // @test-link [[ui_segmented_control_marked_option]]
+    it('is reached by the arrow keys, Home and End exactly as an unmarked option', async () => {
+      const wrapper = mountWithMarked('a')
+      const radios = wrapper.findAll('[role="radio"]')
+      await radios[0]!.trigger('keydown', { key: 'ArrowRight' })
+      await radios[1]!.trigger('keydown', { key: 'ArrowRight' })
+      await radios[2]!.trigger('keydown', { key: 'ArrowLeft' })
+      await radios[1]!.trigger('keydown', { key: 'End' })
+      await radios[2]!.trigger('keydown', { key: 'Home' })
+      expect(wrapper.emitted('update:modelValue')).toEqual([['b'], ['c'], ['b'], ['c'], ['a']])
+    })
+
+    // @test-link [[ui_segmented_control_marked_option]]
+    it('never disables an option, marked or not', () => {
+      const radios = mountWithMarked('b').findAll('[role="radio"]')
+      expect(radios.map((radio) => radio.attributes('disabled'))).toEqual([
+        undefined,
+        undefined,
+        undefined,
+      ])
+    })
+
+    // @test-link [[ui_segmented_control_marked_option]]
+    it("names the marks' meaning once, through the radiogroup's aria-describedby", () => {
+      const wrapper = mountWithMarked('b')
+      expect(wrapper.get('[role="radiogroup"]').attributes('aria-describedby')).toBe('marks-note')
+      const radios = wrapper.findAll('[role="radio"]')
+      expect(radios.map((radio) => radio.attributes('aria-describedby'))).toEqual([
+        undefined,
+        undefined,
+        undefined,
+      ])
+    })
+
+    // @test-link [[ui_segmented_control_marked_option]]
+    it('renders exactly as before with no marked option', () => {
+      const unflagged = mountControl('b').html()
+      const allUnmarked = mount(SegmentedControl, {
+        props: {
+          label: 'Test group',
+          options: OPTIONS.map((option) => ({ ...option, marked: false })),
+          modelValue: 'b',
+          readonly: false,
+        },
+      })
+      expect(allUnmarked.html()).toBe(unflagged)
+      expect(unflagged).not.toContain('is-marked')
     })
   })
 })

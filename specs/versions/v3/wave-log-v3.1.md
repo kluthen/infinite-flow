@@ -540,3 +540,83 @@ Gate re-run on 0dad768 (13:38 CEST, reference machine, load 0.91): `npm run qual
 479 files, 7,390 tests; Playwright 488 + 488 (1 skipped each), 57, 107 (4 skipped). Entry chunk
 246,866 B (49 JS chunks). The sweep was not re-run (the fix touches only the settings codec).
 Wave 3 merged into `main` and pushed.
+
+## Wave 4 (2026-10-20)
+
+Chunks 1 (token-source pass, part 1, `ux-writer`) and 13 (the preset bar and the key and mode
+marks), in the order 1 → 13. Branch `v3.1-w4`, worktree `../infinite_flow-v3.1-w4`, cut from
+`main` a63590a (wave 3 merged and pushed). T1 given (D382). The owner said to go on with the
+next wave in this session.
+
+### Preflight
+
+`documentalist` (e965269), without `atd audit`. Chunk 1: PROCEED (styling only; the frozen
+token source already meets `rule_restriction_highlight_never_blocks` and
+`rule_readonly_controls_keep_contrast`). Chunk 13: PROCEED, DRAFT → REVIEW proposals at the sync
+only; captures `ui_segmented_control_marked_option` 0.1 and `module_preset_bar_model` 0.1. No
+STABLE or contract atom in reach.
+
+Sent to `spec-writer` before chunk 13: chunk 14 builds on the option model in wave 5; missing
+Files (`use-shown-settings.ts`, three unit specs, thirteen e2e files); missing Atoms (six business,
+five architecture); Revisions name `module_generative_profile_selection`; and an uncaptured
+decision: where a session's marks get their frozen restriction from (proposed: the start
+restriction on `SessionSettings`, never the shown key and mode).
+
+### Chunks
+
+- Chunk 1: dispatched 2026-10-20 to `ux-writer` (`../infinite_flow-v3.1-c1`), beside the plan
+  revision (it touches no plan text chunk 1 reads); also records the T1 allowance on the ux side.
+- Plan v17 (a3676aa, `spec-writer`): the five corrections applied; D384 settles the marks'
+  session source (the session's start settings, never the shown ones; the controller exposes
+  them); chunk 13 splits into 13a (the preset bar) and 13b (the marks). `documentalist`
+  dispatched to capture D384 before chunk 13.
+- Chunk 1: merged as d8698cb (f63b385, ux D325). Every handoff class and token exists;
+  `test:notation` unchanged.
+- D384 captured (add49d0): `module_key_and_mode_marks` 0.1 (new), `module_preset_bar_model` 0.2,
+  `ui_segmented_control_marked_option` 0.2. Open for the owner at the report: B6.4 and
+  `rule_restriction_highlight_never_blocks` say nothing of the marks during a session (only the
+  design and D384 freeze them at Start); a business sentence would need the owner's sign-off.
+- Chunk 13: dispatched 2026-10-20 (`../infinite_flow-v3.1-c13`, branch `v3.1-c13-preset-bar`),
+  13a then 13b.
+- Chunk 13: merged as 878fb9f (3b1283f 13a, 192e235 13b). Every Done-when item met; no deviation
+  from the spec, the design or the intent. For the sync: `module_generative_profile_selection`'s
+  revision and `startSettings` in `service_session_controller`'s readonly state; three links left
+  out for the 10-atom cap (listed in the Record). Leftovers: `your-data-copy.ts:38` ("the musical
+  profile", Your data sheet) and `docs/phrase-workspace.md` ~936 (stale-phrase labels). Gate next.
+
+### Gate
+
+- Run 1 (1613693, 15:21–15:27, load rising to 8): `quality` exit 1. Two harness-load timeouts
+  (`session-locks.spec.ts:173`, `pregeneration.spec.ts:319`) passed on rerun; one deterministic
+  failure, `controller-connection-layout.spec.ts:137` (landscape sheet `scrollTop` 0).
+  `coding-executor` traced it to chunk 13a: with a `<select>` in the document, Chromium forces a
+  layout as the focused Continue is removed, which drops the scroll the test was reading, left over
+  from the previous state (Disconnect was already in view, so the test never scrolled). Fix 4ff267a
+  (test only): reset the sheet, wheel-scroll it, poll `scrollTop > 0`. The app is unchanged.
+- Run 2 (4ff267a, 15:43–15:50, start load 1.98), AMD Ryzen 5 PRO 8640HS: `quality` exit 0. Unit
+  482 files, 7,450 tests; Playwright 516 + 516 (1 skipped each), a11y 59, notation 107 (4
+  skipped). Entry chunk 250,721 B (wave 3: 246,866; budget 307,200). No sweep or measurement placed
+  in this wave.
+
+### Sync
+
+`documentalist` 5bc6ca2 (no `atd audit`): `module_generative_profile_selection` 1.4 (chunk 13's
+Revision), `service_session_controller` 0.6 (`startSettings`; "profile selection" → "preset
+selection"), `module_preset_bar_model` 0.3, `ui_segmented_control_marked_option` 0.3; five links
+placed; links left out for the 10-atom cap listed in the report. `atd:check` 19/19 OK. For the
+owner: DRAFT → REVIEW for `rule_restriction_highlight_never_blocks`, `rule_custom_names_its_base`,
+`ui_segmented_control_marked_option`, `module_preset_bar_model`, `module_key_and_mode_marks`; the
+rewording of `rule_custom_names_its_base`'s last LOGIC sentence (present tense); the optional
+sentence on the marks during a session (`rule_restriction_highlight_never_blocks` 0.2 and B6.4).
+Leftovers: `your-data-copy.ts` `SETTINGS_LINE` is chunk 18's (D381); `docs/phrase-workspace.md`
+~938 and `docs/session-engine.md` (profile wording) remain for a coding pass; the
+`@lint-ignore-atd` on `segmented-control-option.ts` stays (the atom is linked through the control).
+
+### Owner answers and merge
+
+2026-10-20: merge and push; every sign-off given (spec D385, bbce423): the five atoms to REVIEW,
+`rule_custom_names_its_base` 0.2 reworded, and the marks keep their Start state during a session as
+a business rule (B6.4 v1.7; `rule_restriction_highlight_never_blocks` 0.2, two e2e links;
+`documentalist` fc895ce). Wave 5 (14, 17, 18, 19) starts in a fresh session. Open for later: the
+profile wording in `docs/session-engine.md` and `docs/phrase-workspace.md` ~938 (a coding pass);
+`your-data-copy.ts` `SETTINGS_LINE` is chunk 18's. Wave 4 merged into `main`.

@@ -2,7 +2,7 @@
 id: module_generative_profile_selection
 status: REVIEW
 priority: 1
-version: 1.3
+version: 1.4
 dependents: []
 tags: [v3, release-v3.1, presets, player-controls, profile]
 parents:
@@ -26,7 +26,7 @@ The workspace's Idle generation session holds the player's generation settings i
 
 Choosing a preset at Idle is one action in place of the musical-profile switch. It applies the preset model's choice to the current settings: the ten preset-held controls and the seven levels take the preset's values; each half of its restriction keeps the current written key, or collection, when it allows it and otherwise sets its first listed value; the tempo, the instrument and the session options never change; and the selection becomes that preset. Choosing the preset already selected, outside Custom, changes nothing; from Custom, choosing its base applies it. The phrase on screen stays. What the choice changed is saved, as any edit's change is (module_profile_control_customization), and a choice that changes a setting the phrase is generated from reacts as any such edit does: a prewarm when the rhythm setting changed, and under the too-many-notes or no-room notice a round or a room check.
 
-The presets the session chooses from are the eight built-ins, then the player presets read with the settings at start-up; the list never changes during a session. Until the preset bar, the existing two-segment control chooses the Neutral and Jazz built-ins through this action, and the other built-ins are reached through the harness.
+The presets the session chooses from are the eight built-ins, then the player presets read with the settings at start-up; the list never changes during a session. The preset bar's box chooses any of the presets through this action.
 
 ## TECHNICAL INTERFACE
 src/composables/generation-session-types.ts: GenerationSessionState and InitialGenerationSettings hold controls, figureLevels and selection (PresetSelection, src/domain/presets/preset-selection.ts) in place of profileSelection, GenerationSessionState also the presets the session knows (presets, the built-ins then InitialGenerationSettings.playerPresets), and GenerationSessionActions offers selectPreset in place of selectMusicalProfile, implemented in src/composables/generation-session-control-actions.ts over the preset model's choosePreset and applied through the one routing point's applyChosen. src/session/session-types.ts: SessionSettings is { controls, figureLevels, selection, instrumentProfile?, restriction? }, frozen by freezeSessionSettings (src/session/session-intents.ts). src/domain/controls/profile-selection.ts no longer offers a profile switch or a customized edit (applyMusicalProfile and applyControlledCustomValue go); it keeps the first-load controls, and v3.0's profile shape and bundles only for the storage code that reads and upgrades v3.0's data: the kept-session codec's data version 1 readers and the step to data version 3.

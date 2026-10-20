@@ -12,4 +12,11 @@ export interface SegmentedControlOption {
   readonly disabled?: boolean
   /** The id of the element giving the reason a disabled option can't be chosen. */
   readonly describedBy?: string
+  /**
+   * A guidance in force points to this option: its segment is drawn with a small dot, a shape and
+   * not colour alone, in every state of the segment, read-only included. Independent of `disabled`
+   * and `describedBy`, it changes nothing about choosing the option. What the marks mean is said
+   * once for the whole group, by the element the group's `describedBy` names.
+   */
+  readonly marked?: boolean
 }

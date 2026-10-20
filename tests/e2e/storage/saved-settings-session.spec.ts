@@ -42,7 +42,7 @@ import {
   toRunning,
 } from '../session/session-helpers'
 import { KEYS, clockTo, connectDevice, phraseStartsAt } from '../session/session-midi-helpers'
-import { radio } from '../workspace/helpers'
+import { choosePreset, expectPresetShown, presetDescription, radio } from '../workspace/helpers'
 import {
   reloadHarness,
   shownControls,
@@ -58,6 +58,10 @@ function measure(bpm: number): number {
 
 /** The Vary settings mutation seed that steps a Jazz `Varying` register on phrase 3. */
 const REGISTER_ON_PHRASE_3 = 25
+
+/** Jazz's description line, which a session keeps from its start. */
+const JAZZ_DESCRIPTION =
+  'Eighth notes and offbeats, now and then with a short note from outside the key.'
 
 /** Intent: whether a radio is the checked option of its group. */
 async function expectChecked(page: Page, group: string, option: string): Promise<void> {
@@ -166,7 +170,7 @@ test("after a session in which Vary settings changed a setting and Rising tempo 
 }) => {
   test.setTimeout(90_000)
   await gotoSessionHarness(page)
-  await radio(page, 'Musical profile preset', 'Jazz').click()
+  await choosePreset(page, 'Jazz')
   await queueSessionSeeds(page, [await settingsMutationSeed(page, REGISTER_ON_PHRASE_3)])
   await readyToStart(page)
   await connectDevice(page, KEYS)
@@ -192,9 +196,9 @@ test("after a session in which Vary settings changed a setting and Rising tempo 
   await expect
     .poll(async () => radio(page, 'Register', 'Varying').getAttribute('aria-checked'))
     .toBe('false')
-  await expect(page.locator('.preset-status-text:not(.is-reserve)')).toHaveText(
-    /^Custom configuration - Jazz grammar retained/,
-  )
+  // The box turns Custom; its description keeps Jazz's text from the start.
+  await expectPresetShown(page, 'Custom, based on Jazz')
+  await expect(presetDescription(page)).toHaveText(JAZZ_DESCRIPTION)
   await expect(page.locator('.control-summary')).toHaveText(
     'C Ionian · Custom, based on Jazz · Lift · Shaped',
   )
@@ -202,14 +206,15 @@ test("after a session in which Vary settings changed a setting and Rising tempo 
   await sessionAction(page).click()
   expect((await sessionState(page)).lastEnd?.cause).toBe('stop')
   await expectChecked(page, 'Register', 'Varying')
-  await expectChecked(page, 'Musical profile preset', 'Jazz')
+  await expectPresetShown(page, 'Jazz')
   await afterEarlierSaves(page)
   expect(await storedSettings(page)).toEqual({ ...chosen, theme: 'Dark' })
 
   await reloadHarness(page)
   await expect(tempoFieldNotes(page)).toHaveCount(0)
   expect(comparedControls(await shownControls(page))).toEqual(players)
-  await expectChecked(page, 'Musical profile preset', 'Jazz')
+  await expectPresetShown(page, 'Jazz')
+  await expect(presetDescription(page)).toHaveText(JAZZ_DESCRIPTION)
   await expect(tempoStepper(page)).toHaveAttribute('aria-valuenow', '90')
 })
 

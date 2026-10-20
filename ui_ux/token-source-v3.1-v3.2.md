@@ -17,12 +17,18 @@ values are two sizes.
 
 ## Part 1: v3.1
 
+**Applied.** v3.1's token-source pass has written this part into `src/styles/theme.css` and
+`components.css`, under `v3.1 new` / `v3.1 changed` comments; those two files are the source of
+truth for it from now on, and it stays here only until part 2 is in too. Removed: chunk 13
+took the musical profile's status line out of the controls and, with it, removed
+`preset-status`, `preset-status-text`, `is-reserve` and `is-custom` from `components.css`.
+
 ### New Tokens
 
-| Token | Value | Use |
-| --- | --- | --- |
-| `--preset-select-inline-size` | `22rem` | `preset-select`'s inline size (capped at 100 % of its field): one size whatever it shows, "Custom, based on Modal (Dorian)" or a 40-character player preset name, so a change of selection never moves anything; a longer text is cut with an ellipsis by the box. |
-| `--segment-mark-size` | `0.375rem` | The diameter of `is-marked`'s dot on a `segment`. |
+| Token                         | Value      | Use                                                                                                                                                                                                                                                                |
+| ----------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `--preset-select-inline-size` | `22rem`    | `preset-select`'s inline size (capped at 100 % of its field): one size whatever it shows, "Custom, based on Modal (Dorian)" or a 40-character player preset name, so a change of selection never moves anything; a longer text is cut with an ellipsis by the box. |
+| `--segment-mark-size`         | `0.375rem` | The diameter of `is-marked`'s dot on a `segment`.                                                                                                                                                                                                                  |
 
 ### Removed Classes
 
@@ -52,8 +58,8 @@ native form field, so its states are those classes' own unless stated.
   refuses a keyboard change); disabled (as `btn`, unused by v3.1's design but defined). The
   Custom option is `disabled hidden`: shown as the box's value, never in the list.
 - **`preset-actions`** — a row of plain `btn`s (`Save as new preset`, `Save changes`, `Rename
-  preset`, `Delete preset`), `--spacing-2` apart, wrapping. Its `field-note`, when `Save as new
-  preset` is disabled at the limit, follows the row. States: none of its own; the buttons carry
+preset`, `Delete preset`), `--spacing-2` apart, wrapping. Its `field-note`, when `Save as new
+preset` is disabled at the limit, follows the row. States: none of its own; the buttons carry
   `btn`'s, disabled included.
 - **`segment.is-marked`** — a segment the key and mode restriction in force allows: a filled dot,
   `--segment-mark-size` across, at the segment's top inline-end corner, inset `--spacing-1` from

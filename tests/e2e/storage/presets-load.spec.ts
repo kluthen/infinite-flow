@@ -34,7 +34,7 @@ import {
   sessionTimeline,
   startSession,
 } from '../session/session-helpers'
-import { radio } from '../workspace/helpers'
+import { choosePreset, expectPresetShown, radio } from '../workspace/helpers'
 import { gotoHeldLoad, releaseHeldLoad } from './kept-session-v1-helpers'
 import {
   databaseRecords,
@@ -187,13 +187,6 @@ async function expectSummary(page: Page, text: string): Promise<void> {
   await expect(page.locator('.control-summary')).toHaveText(text)
 }
 
-/** Intent: choose a preset by its id through the harness, as the player will in the preset box. */
-async function selectPreset(page: Page, id: string): Promise<void> {
-  expect(
-    await page.evaluate((presetId) => window.__workspaceHarness.selectPreset(presetId), id),
-  ).toBe(true)
-}
-
 /** Intent: open the harness at `search` (an injected read, say), the load ended and mounted. */
 async function gotoWith(page: Page, search: string): Promise<void> {
   await page.goto(`${WORKSPACE_HARNESS_URL}${search}`)
@@ -238,7 +231,7 @@ for (const [figure, level] of Object.entries(NON_DEFAULT_LEVELS)) {
 // @test-link [[rule_settings_saved_on_change]]
 test('a built-in chosen, and Custom based on it, come back after a reload', async ({ page }) => {
   await gotoStorageHarness(page)
-  await radio(page, 'Musical profile preset', 'Jazz').click()
+  await choosePreset(page, 'Jazz')
   await untilStored(page, { presetSelection: { kind: 'preset', presetId: 'jazz' } })
   expect(await storedRecord(page, 'presetSelection')).toMatchObject({ dataVersion: 3 })
   await reloadHarness(page)
@@ -247,6 +240,7 @@ test('a built-in chosen, and Custom based on it, come back after a reload', asyn
     figureLevels: JAZZ_LEVELS,
   })
   await expectSummary(page, 'C Ionian · Jazz · Lift · Shaped')
+  await expectPresetShown(page, 'Jazz')
 
   await radio(page, 'Contour', 'Falling').click()
   await untilStored(page, { presetSelection: { kind: 'custom', baseId: 'jazz' } })
@@ -254,6 +248,7 @@ test('a built-in chosen, and Custom based on it, come back after a reload', asyn
   expect((await harnessSnapshot(page)).selection).toEqual({ kind: 'custom', baseId: 'jazz' })
   await expectChecked(page, 'Contour', 'Falling')
   await expectSummary(page, 'C Ionian · Custom, based on Jazz · Lift · Shaped')
+  await expectPresetShown(page, 'Custom, based on Jazz')
 })
 
 // @test-link [[rule_player_presets_saved_on_device]]
@@ -269,6 +264,7 @@ test('a player preset selected, and Custom with no base, come back after a reloa
     figureLevels: LATE_NIGHT.levels,
   })
   await expectSummary(page, 'C Ionian · Late night · Build · Shaped')
+  await expectPresetShown(page, 'Late night')
 
   await seedSettings(page, { presetSelection: { kind: 'custom', baseId: null } })
   await reloadHarness(page)
@@ -277,6 +273,7 @@ test('a player preset selected, and Custom with no base, come back after a reloa
     figureLevels: LATE_NIGHT.levels,
   })
   await expectSummary(page, 'C Ionian · Custom · Build · Shaped')
+  await expectPresetShown(page, 'Custom')
 })
 
 // @test-link [[rule_presets_read_at_start_up]]
@@ -342,7 +339,7 @@ test("a key and mode saved outside the selected preset's restriction load unmove
   page,
 }) => {
   await gotoStorageHarness(page)
-  await selectPreset(page, 'reel')
+  await choosePreset(page, 'Reel')
   await untilStored(page, {
     presetSelection: { kind: 'preset', presetId: 'reel' },
     'controls.collection': 'Mixolydian',
@@ -463,7 +460,7 @@ for (const read of ['fail', 'slow'] as const) {
       saving: 'off-unreadable',
     })
 
-    await radio(page, 'Musical profile preset', 'Jazz').click()
+    await choosePreset(page, 'Jazz')
     await expectSummary(page, 'C Ionian · Jazz · Lift · Shaped')
     await page.waitForTimeout(300)
     expect(await portChanges(page)).toBe(0)
@@ -487,7 +484,7 @@ test('an outdated tab lists the player presets it read, keeps their selection, a
     presetNames: [...BUILT_IN_NAMES, 'Late night', 'Early morning'],
   })
 
-  await selectPreset(page, 'player-2')
+  await choosePreset(page, 'Early morning')
   await expectSummary(page, 'C Ionian · Early morning · Lift · Shaped')
   await page.waitForTimeout(300)
   expect(await portChanges(page)).toBe(0)

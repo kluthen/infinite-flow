@@ -154,6 +154,16 @@
   /* The star in `favorite-toggle`, at every breakpoint. */
   --favorite-icon-size: 1.25rem;
   /* end v3 new */
+  /* v3.1 new -- from here to "end v3.1 new": the preset box and the key and mode mark. */
+  /* The inline size of `preset-select`, capped at 100 % of its field: one size whatever it
+     shows, "Custom, based on Modal (Dorian)" or a 40-character player preset name, so a change
+     of selection never moves anything beside or under it. A longer text is cut with an
+     ellipsis by the box; the select's `title` holds the full text. */
+  --preset-select-inline-size: 22rem;
+  /* The diameter of the dot `is-marked` draws on a `segment` (a key or mode the restriction
+     in force allows), the same at every breakpoint and whatever the segment's size. */
+  --segment-mark-size: 0.375rem;
+  /* end v3.1 new */
 
   --shadow-panel: 0 0.5rem 1.5rem rgb(31 29 24 / 0.12);
   --shadow-focus: 0 0 0 0.1875rem var(--color-focus-ring);

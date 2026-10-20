@@ -76,8 +76,9 @@ export interface SessionBeginning {
  * show its count-in and its staff (phrase 1, the very phrase Idle shows), schedule the count-in's
  * end, start the wake-ups, the display's frame loop, the runner (from phrase 1 and its session
  * seed and the ready phrases Start took, checking fits through the display, reading it for what
- * is on screen, with the page's `Vary settings` choice) and the end watchers; the controls show the start settings. `start`
- * undoes it all if any of it throws.
+ * is on screen, with the page's `Vary settings` choice) and the end watchers; the controls show the
+ * start settings, and the state holds the settings the session was started with. `start` undoes it
+ * all if any of it throws.
  */
 // @spec-link [[req_settings_mutation_flag]]
 // @spec-link [[rule_count_in_shown_on_screen]]
@@ -86,6 +87,7 @@ export interface SessionBeginning {
 // @spec-link [[rule_look_ahead_phrase_must_fit_staff]]
 // @spec-link [[module_session_rolling_display]]
 // @spec-link [[module_session_seed_plan]]
+// @spec-link [[module_key_and_mode_marks]]
 export function beginSession(
   core: SessionControllerCore,
   sides: SessionControllerSides,
@@ -104,6 +106,7 @@ export function beginSession(
   state.heldLayout = heldLayout
   state.strugglingNotice = false
   state.shownSettings = session.shown.current()
+  state.startSettings = settings
   session.midi = sessionMidi.beginSession({
     startingTempo,
     phraseOne: phraseOne.outcome.result.timeline,

@@ -1,14 +1,22 @@
 /**
  * Step 10 release journey (1/8): the empty workspace's default state, and every discrete control
- * group's keyboard and pointer selection behavior, including the two selectable presets and the
- * Custom selection a manual edit of a preset-held control produces, its summary naming the base.
+ * group's keyboard and pointer selection behavior, the Preset box's included, choosing Neutral and
+ * Jazz through it, and the Custom selection a manual edit of a preset-held control produces, the
+ * box, its description and the summary naming the base.
  * Runs against the production preview build (port 4173), except the preset tests, which read the
  * seven figure levels and the selection from the workspace harness's snapshot (port 4175); no
  * assertion depends on a particular generated phrase.
  */
 import { type Locator, type Page, expect, test } from '@playwright/test'
 
-import { gotoWorkspace, radio } from '../workspace/helpers'
+import {
+  choosePreset,
+  expectPresetShown,
+  gotoWorkspace,
+  presetBox,
+  presetDescription,
+  radio,
+} from '../workspace/helpers'
 import { gotoWorkspaceHarness, harnessSnapshot } from './harness-helpers'
 
 /** Intent: every accessible radiogroup label this workspace renders, in on-page order. */
@@ -16,7 +24,6 @@ const RADIOGROUP_LABELS = [
   'Written key',
   'Collection',
   'Instrument profile',
-  'Musical profile preset',
   'Harmonic motion',
   'Tension',
   'Note density',
@@ -93,10 +100,8 @@ test('the empty workspace shows the spec-default control summary and empty-state
   await expect(page.getByText('Generate a phrase to begin.')).toBeVisible()
   await expect(radio(page, 'Written key', 'C')).toHaveAttribute('aria-checked', 'true')
   await expect(radio(page, 'Collection', 'Ionian')).toHaveAttribute('aria-checked', 'true')
-  await expect(radio(page, 'Musical profile preset', 'Neutral')).toHaveAttribute(
-    'aria-checked',
-    'true',
-  )
+  await expectPresetShown(page, 'Neutral')
+  await expect(presetBox(page)).toHaveValue('neutral')
   await expect(radio(page, 'Instrument profile', 'B-flat tenor saxophone')).toHaveAttribute(
     'aria-checked',
     'true',
@@ -106,6 +111,39 @@ test('the empty workspace shows the spec-default control summary and empty-state
     'true',
   )
   await expect(radio(page, 'Arpeggio chaos', 'Varied')).toHaveAttribute('aria-checked', 'true')
+})
+
+/** The built-ins in the box's order, as the keyboard walks them. */
+const BOX_ORDER = [
+  'Neutral',
+  'Gentle',
+  'Speed drill',
+  'Jazz',
+  'Bebop',
+  'Pop song',
+  'Reel',
+  'Modal (Dorian)',
+] as const
+
+// @test-link [[user_story_controlled_phrase_generation]]
+test('the Preset box supports keyboard and pointer selection of every built-in', async ({
+  page,
+}) => {
+  await gotoWorkspace(page)
+  for (const name of BOX_ORDER) await choosePreset(page, name)
+
+  const box = presetBox(page)
+  await choosePreset(page, 'Neutral')
+  await box.focus()
+  for (const name of BOX_ORDER.slice(1)) {
+    await page.keyboard.press('ArrowDown')
+    await expectPresetShown(page, name)
+  }
+  for (const name of [...BOX_ORDER].reverse().slice(1)) {
+    await page.keyboard.press('ArrowUp')
+    await expectPresetShown(page, name)
+  }
+  await expect(box).toBeFocused()
 })
 
 for (const groupLabel of RADIOGROUP_LABELS) {
@@ -190,13 +228,13 @@ async function expectControls(
 test('the Neutral preset sets its ten controls and its seven levels', async ({ page }) => {
   await gotoWorkspaceHarness(page)
 
-  await radio(page, 'Musical profile preset', 'Jazz').click()
+  await choosePreset(page, 'Jazz')
   await radio(page, 'Harmonic motion', 'Active diatonic').click()
   await radio(page, 'Tension', 'Build').click()
   await radio(page, 'Rhythmic variety', 'Heavily varied').click()
   await radio(page, 'Leapiness', 'Angular').click()
   await radio(page, 'Arpeggio chaos', 'Chaotic').click()
-  await radio(page, 'Musical profile preset', 'Neutral').click()
+  await choosePreset(page, 'Neutral')
 
   await expectControls(page, {
     'Harmonic motion': 'Gentle diatonic',
@@ -226,7 +264,7 @@ test('the Jazz preset sets its ten controls and its seven levels', async ({ page
   await radio(page, 'Rhythmic variety', 'Strict').click()
   await radio(page, 'Leapiness', 'Smooth').click()
   await radio(page, 'Arpeggio chaos', 'Predictable').click()
-  await radio(page, 'Musical profile preset', 'Jazz').click()
+  await choosePreset(page, 'Jazz')
 
   await expectControls(page, {
     'Harmonic motion': 'Gentle diatonic',
@@ -257,10 +295,9 @@ test('manually editing a preset-held control makes Custom based on the preset, t
 
   await radio(page, 'Contour', 'Falling').click()
 
-  const presetGroup = page.getByRole('radiogroup', { name: 'Musical profile preset' })
-  await expect(presetGroup.getByRole('radio', { checked: true })).toHaveCount(0)
-  await expect(page.locator('.preset-status-text:not(.is-reserve)')).toHaveText(
-    'Custom configuration - Neutral grammar retained. Choosing Neutral or Jazz replaces all seven preset-controlled values.',
+  await expectPresetShown(page, 'Custom, based on Neutral')
+  await expect(presetDescription(page)).toHaveText(
+    'Changed from Neutral. Save as a new preset to keep these settings under a name.',
   )
   await expect(page.locator('.control-summary')).toHaveText(
     'C Ionian · Custom, based on Neutral · Lift · Shaped',
@@ -273,10 +310,10 @@ test('manually editing a preset-held control makes Custom based on the preset, t
     ['Leapiness', 'Smooth'],
     ['Arpeggio chaos', 'Chaotic'],
   ] as const) {
-    await radio(page, 'Musical profile preset', 'Jazz').click()
-    await expect(presetGroup.getByRole('radio', { checked: true })).toHaveText('Jazz')
+    await choosePreset(page, 'Jazz')
     await radio(page, group, option).click()
-    await expect(presetGroup.getByRole('radio', { checked: true })).toHaveCount(0)
+    await expectPresetShown(page, 'Custom, based on Jazz')
+    await expect(presetDescription(page)).toHaveText(/^Changed from Jazz\. /)
     await expect(page.locator('.control-summary')).toContainText(' · Custom, based on Jazz · ')
     expect((await harnessSnapshot(page)).selection).toEqual({ kind: 'custom', baseId: 'jazz' })
   }

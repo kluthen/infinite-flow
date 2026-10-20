@@ -217,6 +217,7 @@ export function createFakeSessionController(
     varySettings: false,
     tensionAcrossPhrases: false,
     shownSettings: null,
+    startSettings: null,
     stalePhrasePrompt: null,
     keepPlayedNotes: false,
     savingOff: false,
@@ -269,6 +270,7 @@ export function createFakeSessionController(
     state.sessionStaff = null
     state.latestReady = null
     state.shownSettings = null
+    state.startSettings = null
     state.canStart = true
     state.startBlocker = null
     state.lastEnd = { cause: 'stop', phase, soundedPhraseCount: phase === 'running' ? 1 : 0 }

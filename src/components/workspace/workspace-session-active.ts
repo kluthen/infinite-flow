@@ -78,6 +78,7 @@ type WritableStateKey =
   | 'sessionStaff'
   | 'latestReady'
   | 'shownSettings'
+  | 'startSettings'
 
 /** The controller's reactive state as its parts write it. */
 // @spec-link [[service_session_controller]]

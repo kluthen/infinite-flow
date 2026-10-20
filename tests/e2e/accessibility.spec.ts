@@ -14,7 +14,15 @@ import {
   sheetAction,
   unplug,
 } from './controller/controller-helpers'
-import { generateAndAwaitReady, gotoWorkspace, primaryButton, radio } from './workspace/helpers'
+import {
+  choosePreset,
+  expectPresetShown,
+  generateAndAwaitReady,
+  gotoWorkspace,
+  presetBox,
+  primaryButton,
+  radio,
+} from './workspace/helpers'
 import {
   failNextGeneration,
   failNextNotation,
@@ -124,6 +132,44 @@ test('has no detectable axe violations in the unsupported-rhythm-setting state',
   const results = await new AxeBuilder({ page }).analyze()
   expect(results.violations, describeViolations(results.violations)).toEqual([])
 })
+
+// The key and mode marks (v3.1 chunk 13), in both themes: Reel chosen, Mixolydian and Dorian
+// marked with the note under Collection, then Custom, based on Reel, the box showing its hidden
+// option while the marks stay.
+for (const theme of ['Light', 'Dark'] as const) {
+  test(`has no detectable axe violations with the key and mode marks, under Reel and in Custom, ${theme} theme`, async ({
+    page,
+  }) => {
+    await gotoWorkspace(page)
+    await radio(page, 'Presentation theme', theme).click()
+    const collection = page.getByRole('radiogroup', { name: 'Collection', exact: true })
+
+    await choosePreset(page, 'Reel')
+    await expect(collection.locator('[role="radio"].is-marked')).toHaveCount(2)
+    await expect(collection).toHaveAccessibleDescription(/^Reel is meant for Mixolydian or Dorian/)
+    await page.waitForFunction(() =>
+      document.getAnimations().every((animation) => !(animation instanceof CSSTransition)),
+    )
+    const underReel = await new AxeBuilder({ page }).analyze()
+    expect(
+      underReel.violations,
+      `Reel, ${theme} theme:\n${describeViolations(underReel.violations)}`,
+    ).toEqual([])
+
+    await radio(page, 'Contour', 'Falling').click()
+    await expectPresetShown(page, 'Custom, based on Reel')
+    await expect(presetBox(page).locator('option:checked')).toHaveAttribute('hidden', '')
+    await expect(collection.locator('[role="radio"].is-marked')).toHaveCount(2)
+    await page.waitForFunction(() =>
+      document.getAnimations().every((animation) => !(animation instanceof CSSTransition)),
+    )
+    const inCustom = await new AxeBuilder({ page }).analyze()
+    expect(
+      inCustom.violations,
+      `Custom, ${theme} theme:\n${describeViolations(inCustom.violations)}`,
+    ).toEqual([])
+  })
+}
 
 // The remaining states below need the real generation/notation failure seams the workspace harness
 // (port 4175) exposes -- the production build (port 4173) has no way to force them deterministically.

@@ -1,12 +1,12 @@
 /**
  * Step 10 release journey (8/8): while a generation is in flight, every control group is
- * read-only, the primary action is disabled, and a second attempt to start a generation never
+ * read-only, the Preset box included, the primary action is disabled, and a second attempt to start a generation never
  * starts a second request. Runs against the workspace harness (port 4175) so the request can be
  * held open deterministically with `holdGeneration()`.
  */
 import { expect, test } from '@playwright/test'
 
-import { primaryButton, statusRegion } from '../workspace/helpers'
+import { presetBox, primaryButton, statusRegion } from '../workspace/helpers'
 import {
   gotoWorkspaceHarness,
   harnessSnapshot,
@@ -15,7 +15,7 @@ import {
   releaseGeneration,
 } from './harness-helpers'
 
-const SAMPLE_READONLY_GROUPS = ['Written key', 'Register', 'Musical profile preset'] as const
+const SAMPLE_READONLY_GROUPS = ['Written key', 'Register'] as const
 
 // @test-link [[user_story_controlled_phrase_generation]]
 test('every control group is read-only, and the primary action is disabled, while a generation is gated', async ({
@@ -35,6 +35,7 @@ test('every control group is read-only, and the primary action is disabled, whil
       'true',
     )
   }
+  await expect(presetBox(page)).toHaveAttribute('aria-readonly', 'true')
 
   await releaseGeneration(page)
   await expect(statusRegion(page)).toHaveText('Phrase ready', { timeout: 30_000 })

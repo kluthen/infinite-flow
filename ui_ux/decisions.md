@@ -12,7 +12,7 @@ Append-only record of settled UI/UX decisions. Earlier logs are archived verbati
 
 Archived IDs keep their meaning; a citation to one by ID elsewhere in this repository stays valid
 through this header. D225–D264 (v3.1, v3.2 and v3.3, not yet released) stay here; D265–D279 were
-never used. Numbering continues from D325.
+never used. Numbering continues from D326.
 
 ## v3.1 (presets and embellishment figures) and v3.2 (Jam) design, 2026-10-08
 
@@ -554,3 +554,15 @@ Part D changes what it rests on.
   paths adjusted; `token-source-v3.1.md` holds the v3.1 part of the token source document. The
   root and its marks are unchanged (cleared with v4, D225). Not allowed: the token pass (T1).
   The v3.1 build plan's links should point at `versions/v3.1/` (spec-writer, on its branch).
+
+## The v3.1 build, 2026-10-20
+
+- **D325 — v3.1's token-source pass allowed and applied (2026-10-20; the owner's ruling, spec
+  D382, reversing spec D355; the v3.1 build plan's gate T1 and chunk 1).** As for v3.0 (Q66, D218,
+  D220): part 1 of `token-source-v3.1-v3.2.md` is in `src/styles/theme.css` and `components.css`
+  under `v3.1 new` / `v3.1 changed` comments, and marked applied there. Unchanged: v3.0's `v3 new`
+  comments (cleared with v4) and `preset-status` (chunk 13 removes it). `choice-*` and
+  `control-group-figures` join the selectors of the rules they copy, so the copies cannot drift.
+  Settled while writing it: the row's `preset-actions` sits a label line plus the field gap
+  lower, and keeps that offset if it wraps under the field; `control-group-intro` takes
+  `--spacing-3` below it, as the group's `h3`.

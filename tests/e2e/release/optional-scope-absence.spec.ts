@@ -8,6 +8,7 @@
 import { type Page, expect, test } from '@playwright/test'
 
 import {
+  choosePreset,
   generateAndAwaitReady,
   gotoWorkspace,
   observeGenerationStatus,
@@ -79,7 +80,7 @@ async function exerciseCurrentInteractions(page: Page): Promise<void> {
   await generateAndAwaitReady(page)
   await radio(page, 'Written key', 'D').click()
   await radio(page, 'Register', 'Low').click()
-  await radio(page, 'Musical profile preset', 'Jazz').click()
+  await choosePreset(page, 'Jazz')
   await expect(primaryButton(page)).toHaveText('Regenerate phrase')
   await generateAndAwaitReady(page)
 

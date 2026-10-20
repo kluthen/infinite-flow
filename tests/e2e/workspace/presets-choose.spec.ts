@@ -9,8 +9,8 @@
  * their levels, and a saved Jazz whose controls are not Jazz's loads as Custom based on Jazz with
  * Jazz's levels.
  *
- * The two-segment control offers Neutral and Jazz; the other built-ins are chosen through the
- * harness's `selectPreset`, as the preset box will offer them.
+ * Every preset is chosen in the preset box, as the player does, and the box shows the selection:
+ * the preset's name, or "Custom, based on {name}".
  */
 import { expect, test, type Page } from '@playwright/test'
 
@@ -21,7 +21,7 @@ import {
   seedSettings,
   untilStored,
 } from '../storage/storage-helpers'
-import { generateAndAwaitReady, radio } from './helpers'
+import { choosePreset, expectPresetShown, generateAndAwaitReady, radio } from './helpers'
 
 /** The ten preset-held controls as the controls show them: each radiogroup's checked label. */
 type ShownPresetControls = Readonly<Record<string, string>>
@@ -107,20 +107,6 @@ async function expectControls(page: Page, controls: ShownPresetControls): Promis
   for (const [group, option] of Object.entries(controls)) await expectChecked(page, group, option)
 }
 
-/** Intent: the two-segment preset control's checked segment, by its label. */
-function presetSegment(page: Page, label: 'Neutral' | 'Jazz') {
-  return radio(page, 'Musical profile preset', label)
-}
-
-/** Intent: no segment of the two-segment preset control is checked. */
-async function expectNoSegmentChecked(page: Page): Promise<void> {
-  await expect(
-    page
-      .getByRole('radiogroup', { name: 'Musical profile preset' })
-      .getByRole('radio', { checked: true }),
-  ).toHaveCount(0)
-}
-
 /** Intent: the control summary's text. */
 async function expectSummary(page: Page, text: string): Promise<void> {
   await expect(page.locator('.control-summary')).toHaveText(text)
@@ -130,11 +116,6 @@ async function expectSummary(page: Page, text: string): Promise<void> {
 async function chosenPreset(page: Page) {
   const { selection, figureLevels } = await harnessSnapshot(page)
   return { selection, figureLevels }
-}
-
-/** Intent: choose a built-in through the harness, as the player will in the preset box. */
-async function selectPreset(page: Page, id: string): Promise<boolean> {
-  return page.evaluate((presetId) => window.__workspaceHarness.selectPreset(presetId), id)
 }
 
 /** Intent: the tempo stepper's value. */
@@ -167,9 +148,9 @@ test('choosing Jazz then Neutral sets the ten controls and the seven levels, and
   await radio(page, 'Arpeggio chaos', 'Chaotic').click()
   await radio(page, 'Silence density', 'Breath-heavy').click()
 
-  await presetSegment(page, 'Jazz').click()
+  await choosePreset(page, 'Jazz')
   await expectControls(page, JAZZ_CONTROLS)
-  await expectChecked(page, 'Musical profile preset', 'Jazz')
+  await expectPresetShown(page, 'Jazz')
   expect(await chosenPreset(page)).toEqual({
     selection: { kind: 'preset', presetId: 'jazz' },
     figureLevels: JAZZ_LEVELS,
@@ -178,9 +159,9 @@ test('choosing Jazz then Neutral sets the ten controls and the seven levels, and
 
   await radio(page, 'Tension', 'Build').click()
   await expectSummary(page, 'D Dorian · Custom, based on Jazz · Build · Shaped')
-  await presetSegment(page, 'Neutral').click()
+  await choosePreset(page, 'Neutral')
   await expectControls(page, NEUTRAL_CONTROLS)
-  await expectChecked(page, 'Musical profile preset', 'Neutral')
+  await expectPresetShown(page, 'Neutral')
   expect(await chosenPreset(page)).toEqual({
     selection: { kind: 'preset', presetId: 'neutral' },
     figureLevels: NEUTRAL_LEVELS,
@@ -209,21 +190,21 @@ test('choosing Reel from A Aeolian lands on A Mixolydian, and from A Dorian move
   await radio(page, 'Written key', 'A').click()
   await radio(page, 'Collection', 'Aeolian').click()
 
-  expect(await selectPreset(page, 'reel')).toBe(true)
+  await choosePreset(page, 'Reel')
   await expectChecked(page, 'Written key', 'A')
   await expectChecked(page, 'Collection', 'Mixolydian')
   await expectControls(page, REEL_CONTROLS)
-  await expectNoSegmentChecked(page)
+  await expectPresetShown(page, 'Reel')
   expect(await chosenPreset(page)).toEqual({
     selection: { kind: 'preset', presetId: 'reel' },
     figureLevels: REEL_LEVELS,
   })
   await expectSummary(page, 'A Mixolydian · Reel · Settled · Shaped')
 
-  await presetSegment(page, 'Neutral').click()
+  await choosePreset(page, 'Neutral')
   await radio(page, 'Collection', 'Dorian').click()
   await expectSummary(page, 'A Dorian · Neutral · Lift · Shaped')
-  expect(await selectPreset(page, 'reel')).toBe(true)
+  await choosePreset(page, 'Reel')
   await expectChecked(page, 'Written key', 'A')
   await expectChecked(page, 'Collection', 'Dorian')
   await expectSummary(page, 'A Dorian · Reel · Settled · Shaped')
@@ -235,12 +216,12 @@ test('editing a control Jazz holds makes Custom based on Jazz, and changing it b
   page,
 }) => {
   await gotoWorkspaceHarness(page)
-  await presetSegment(page, 'Jazz').click()
+  await choosePreset(page, 'Jazz')
   await expectSummary(page, 'C Ionian · Jazz · Lift · Shaped')
 
   await radio(page, 'Contour', 'Falling').click()
   await expectSummary(page, 'C Ionian · Custom, based on Jazz · Lift · Shaped')
-  await expectNoSegmentChecked(page)
+  await expectPresetShown(page, 'Custom, based on Jazz')
   expect(await chosenPreset(page)).toEqual({
     selection: { kind: 'custom', baseId: 'jazz' },
     figureLevels: JAZZ_LEVELS,
@@ -250,11 +231,11 @@ test('editing a control Jazz holds makes Custom based on Jazz, and changing it b
   await radio(page, 'Contour', 'Wandering').click()
   await expectControls(page, JAZZ_CONTROLS)
   await expectSummary(page, 'C Ionian · Custom, based on Jazz · Lift · Shaped')
-  await expectNoSegmentChecked(page)
+  await expectPresetShown(page, 'Custom, based on Jazz')
   expect((await harnessSnapshot(page)).selection).toEqual({ kind: 'custom', baseId: 'jazz' })
 
   // Only choosing a preset leaves Custom.
-  await presetSegment(page, 'Jazz').click()
+  await choosePreset(page, 'Jazz')
   await expectSummary(page, 'C Ionian · Jazz · Lift · Shaped')
   expect((await harnessSnapshot(page)).selection).toEqual({ kind: 'preset', presetId: 'jazz' })
 })
@@ -266,7 +247,7 @@ test('under Reel a key, a mode inside its restriction, the tempo and the instrum
   page,
 }) => {
   await gotoWorkspaceHarness(page)
-  expect(await selectPreset(page, 'reel')).toBe(true)
+  await choosePreset(page, 'Reel')
   await expectSummary(page, 'C Mixolydian · Reel · Settled · Shaped')
 
   for (const key of ['G', 'F-sharp/G-flat', 'D']) {
@@ -285,7 +266,7 @@ test('under Reel a key, a mode inside its restriction, the tempo and the instrum
   await radio(page, 'Collection', 'Ionian').click()
   await expectSummary(page, 'D Ionian · Custom, based on Reel · Settled · Shaped')
   await expectControls(page, REEL_CONTROLS)
-  await expectNoSegmentChecked(page)
+  await expectPresetShown(page, 'Custom, based on Reel')
   expect(await chosenPreset(page)).toEqual({
     selection: { kind: 'custom', baseId: 'reel' },
     figureLevels: REEL_LEVELS,
@@ -299,14 +280,14 @@ test('Jazz and Custom based on Jazz come back after a reload with Jazz levels', 
   page,
 }) => {
   await gotoStorageHarness(page)
-  await presetSegment(page, 'Jazz').click()
+  await choosePreset(page, 'Jazz')
   await untilStored(page, {
     presetSelection: { kind: 'preset', presetId: 'jazz' },
     'figureLevels.chromaticApproach': 'asToday',
     'figureLevels.chromaticEnclosure': 'asToday',
   })
   await reloadHarness(page)
-  await expectChecked(page, 'Musical profile preset', 'Jazz')
+  await expectPresetShown(page, 'Jazz')
   await expectControls(page, JAZZ_CONTROLS)
   await expectSummary(page, 'C Ionian · Jazz · Lift · Shaped')
   expect(await chosenPreset(page)).toEqual({
@@ -320,7 +301,7 @@ test('Jazz and Custom based on Jazz come back after a reload with Jazz levels', 
     'controls.contour': 'Falling',
   })
   await reloadHarness(page)
-  await expectNoSegmentChecked(page)
+  await expectPresetShown(page, 'Custom, based on Jazz')
   await expectChecked(page, 'Contour', 'Falling')
   await expectSummary(page, 'C Ionian · Custom, based on Jazz · Lift · Shaped')
   expect(await chosenPreset(page)).toEqual({
@@ -347,7 +328,7 @@ test('a Jazz saved with Jazz controls loads as Jazz, and one saved with Tension 
   await gotoStorageHarness(page)
   await seedSettings(page, jazzStored)
   await reloadHarness(page)
-  await expectChecked(page, 'Musical profile preset', 'Jazz')
+  await expectPresetShown(page, 'Jazz')
   await expectSummary(page, 'C Ionian · Jazz · Lift · Shaped')
   expect(await chosenPreset(page)).toEqual({
     selection: { kind: 'preset', presetId: 'jazz' },
@@ -357,7 +338,7 @@ test('a Jazz saved with Jazz controls loads as Jazz, and one saved with Tension 
   await seedSettings(page, { ...jazzStored, 'controls.tension': 'Build' })
   await reloadHarness(page)
   await expectControls(page, { ...JAZZ_CONTROLS, Tension: 'Build' })
-  await expectNoSegmentChecked(page)
+  await expectPresetShown(page, 'Custom, based on Jazz')
   await expectSummary(page, 'C Ionian · Custom, based on Jazz · Build · Shaped')
   expect(await chosenPreset(page)).toEqual({
     selection: { kind: 'custom', baseId: 'jazz' },
@@ -371,10 +352,10 @@ test('choosing Reel saves it selected: after a reload Reel is selected, with its
   page,
 }) => {
   await gotoStorageHarness(page)
-  await presetSegment(page, 'Jazz').click()
+  await choosePreset(page, 'Jazz')
   await untilStored(page, { presetSelection: { kind: 'preset', presetId: 'jazz' } })
 
-  expect(await selectPreset(page, 'reel')).toBe(true)
+  await choosePreset(page, 'Reel')
   await untilStored(page, {
     'controls.collection': 'Mixolydian',
     'controls.tension': 'Settled',
@@ -390,7 +371,7 @@ test('choosing Reel saves it selected: after a reload Reel is selected, with its
   await reloadHarness(page)
   await expectControls(page, REEL_CONTROLS)
   await expectChecked(page, 'Collection', 'Mixolydian')
-  await expectNoSegmentChecked(page)
+  await expectPresetShown(page, 'Reel')
   await expectSummary(page, 'C Mixolydian · Reel · Settled · Shaped')
   expect(await chosenPreset(page)).toEqual({
     selection: { kind: 'preset', presetId: 'reel' },

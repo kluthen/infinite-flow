@@ -1,16 +1,18 @@
 /**
  * What the workspace shell's musical controls show, for the shell: whether they are read-only, the
  * settings they show (the player's own, or during a session those of the phrase now sounding), and
- * whether the preset status announces. A session never writes the player's own settings, so every
- * end shows them, the starting tempo included, again.
+ * the session's start settings, which the preset bar's description line keeps for the whole
+ * session. A session never writes the player's own settings, so every end shows them, the
+ * starting tempo included, again.
  */
-import { computed, ref, watch, type ComputedRef, type Ref } from 'vue'
+import { computed, type ComputedRef } from 'vue'
 
 import type { GenerationSessionState } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import type { FigureLevels } from '@/domain/figures/figure-levels'
 import type { PresetSelection } from '@/domain/presets/preset-selection'
+import type { SessionSettings } from '@/session/session-types'
 import type { SessionController } from './workspace-session-controller-types'
 
 /** What the controls' readings follow; every getter is read reactively. */
@@ -40,14 +42,11 @@ export interface ShownSettings {
 export interface ShownSettingsView {
   readonly controlsReadonly: ComputedRef<boolean>
   readonly shownSettings: ComputedRef<ShownSettings>
-  readonly presetStatusLive: Readonly<Ref<'polite' | 'off'>>
+  /** The settings the session started with during a session; null with no session. */
+  readonly startSettings: ComputedRef<SessionSettings | null>
 }
 
-/**
- * Intent: the controls' readings over `deps`, for as long as the calling scope lives (a
- * component's setup). The preset status's two watchers follow `sessionActive` from here, so the
- * caller registers this before any other watcher of a session's start or end.
- */
+/** Intent: the controls' readings over `deps`, all computed from them. */
 // @spec-link [[rule_session_settings_locked]]
 // @spec-link [[rule_automatic_change_updates_controls_quietly]]
 // @spec-link [[rule_mutation_reverts_at_session_end]]
@@ -87,27 +86,12 @@ export function useShownSettings(deps: ShownSettingsDeps): ShownSettingsView {
   })
 
   /**
-   * The preset status's live announcement: off from a session's start, before its count-in renders
-   * (a sync watcher), so no automatic change is announced; polite again only once the screen has
-   * rendered the player's own values back at its end (a post-flush watcher), so neither is the
-   * return.
+   * The settings the session started with, as the controller holds them: what the preset bar's
+   * description line reads for the whole session, so it keeps its text; null with no session.
    */
   // @spec-link [[rule_automatic_change_updates_controls_quietly]]
-  const presetStatusLive = ref<'polite' | 'off'>('polite')
-  watch(
-    deps.sessionActive,
-    (active) => {
-      if (active) presetStatusLive.value = 'off'
-    },
-    { flush: 'sync' },
-  )
-  watch(
-    deps.sessionActive,
-    (active, wasActive) => {
-      if (!active && wasActive) presetStatusLive.value = 'polite'
-    },
-    { flush: 'post' },
-  )
+  // @spec-link [[module_preset_bar_model]]
+  const startSettings = computed(() => deps.controller()?.state.startSettings ?? null)
 
-  return { controlsReadonly, shownSettings, presetStatusLive }
+  return { controlsReadonly, shownSettings, startSettings }
 }

@@ -879,3 +879,22 @@ preflight corrections). D289 is unused.
 - **D383 (2026-10-20): ISS-014 is fixed on wave 3's branch, before its merge (follow-up to D380).**
   The owner's "Fix before merging": still no v3.1 chunk, a fix commit on `v3.1-w3` (e4c6a9b).
   Now in: [ISS-014](../issues/Ref_20261020_settings_codec_throws_on_bigint.md#change-log).
+
+- **D384 (2026-10-20): during a session the key and mode marks come from the session's start
+  settings, never from the shown ones.** The marked values from their restriction
+  (`SessionSettings.restriction`, absent for none or any: nothing marked); the notes' and the
+  description's preset from their selection. At Idle and in review, `restrictionInForce` for the
+  player's own. One pure function in `control-options.ts` gives the marks and notes; the session
+  controller exposes the start settings. Why: with a stale phrase 1 the shown key and mode are
+  phrase 1's, and the marks must keep what Start showed, Vary settings' own bound (B6.4, B8.1; the
+  frozen design's marks). Now in: [chunk 13](versions/v3/build-plan-v3.1.md#chunk-13--the-preset-bar-and-the-key-and-mode-marks).
+
+- **D385 (2026-10-20): at wave 4's report the owner signs off five atoms and one rewording, and
+  makes the marks' session behaviour a business rule.** (a) DRAFT→REVIEW:
+  `rule_restriction_highlight_never_blocks`, `rule_custom_names_its_base`,
+  `ui_segmented_control_marked_option`, `module_preset_bar_model`, `module_key_and_mode_marks`.
+  (b) `rule_custom_names_its_base`'s last LOGIC sentence becomes "No status line names a retained
+  grammar: no hidden set of figures exists, since the figures are visible settings." (c) "During a
+  session the marks do not change: they show the restriction in force at Start for the whole
+  session, whatever key, mode or selection the read-only controls show." Until now only the design
+  and D384 said it. Now in: [B6.4](versions/v3/master-spec.md#b64-the-selection-custom-and-the-highlight).
