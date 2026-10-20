@@ -401,3 +401,15 @@ entry chunk 227,702 B; sync applied part J in full. Open for the owner: O233 (ga
 release gate; recommended (a) accept), the five DRAFT → REVIEW proposals, whether to test or file
 the full-device path, merging `v3.1-w2` into `main`, v3.1 H3 in Edge. Next for a fresh driver:
 wave 3 (chunks 11, 12, 15, 16, 22) after the merge; T1 is asked again before wave 4.
+
+### Owner answers and merge (2026-10-20)
+
+The owner answered: merge `v3.1-w2` into `main` and push; O233 (a), accept the rare overrun and
+say so; all five DRAFT → REVIEW proposals; the full-device path: leave it. `spec-writer`
+recorded D376 (2e25145, plan v13): O233 closed, B9 states the limit, gate M3H done, the
+full-device rollback accepted with no test; wave 3's sync aligns
+`rule_earlier_kept_sessions_carried_over` and change set J3 with the new B9. `documentalist`
+committed the owner sign-off (51392cb): `module_figure_levels`, `module_preset_model`,
+`module_favored_figure_draw`, `module_kept_session_upgrade_step`, `module_stored_profile_to_levels`
+to REVIEW. Wave 2 merged into `main` and pushed. The owner then said to go on with wave 3 in
+this session (κ > 1 still allowed for it).
