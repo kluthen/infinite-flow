@@ -413,3 +413,34 @@ committed the owner sign-off (51392cb): `module_figure_levels`, `module_preset_m
 `module_favored_figure_draw`, `module_kept_session_upgrade_step`, `module_stored_profile_to_levels`
 to REVIEW. Wave 2 merged into `main` and pushed. The owner then said to go on with wave 3 in
 this session (κ > 1 still allowed for it).
+
+## Wave 3 (2026-10-20)
+
+Chunks 11 (cost guard, first run), 12 (presets replace the musical profile), 15 (vary settings
+inside the restriction), 16 (presets and levels on the device) and 22 (the review's summary
+gives the session's length). Branch `v3.1-w3`, worktree `../infinite_flow-v3.1-w3`, cut from
+`main` 1650ab4 (wave 2 merged and pushed). T1 not given, so chunk 1 stays in wave 4. The owner
+said to go on with this wave in the same session as wave 2's merge; κ > 1 still allowed.
+
+### Preflight
+
+`documentalist` (866f761), without `atd audit`. `atd lint` passes; `atd check --full` 408 atoms,
+313 with code, 316 with tests.
+
+| Chunk | Verdict                                            | Captures                                                                                                              |
+| ----- | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| 11    | PROCEED (C11-1 if a share is tuned)                | none                                                                                                                  |
+| 12    | PROCEED, sign-off given (J5, D363), after C12-*    | `module_generative_profile_selection` 1.2, `module_profile_control_customization` 1.2, `module_settings_mutation` 0.3 |
+| 15    | PROCEED after C15-1                                | none                                                                                                                  |
+| 16    | PROCEED, sign-off given (J1–J3, D363), after C16-* | `module_settings_upgrade_step` 0.1, `entity_player_preset_record` 0.1 (new, DRAFT)                                    |
+| 22    | PROCEED after C22-1                                | none (the length's definition is in `entity_kept_session_record`)                                                     |
+
+No new owner sign-off; contract stays 7.0.0. No wave 3 chunk changes
+`rule_earlier_kept_sessions_carried_over`; the sync aligns it and J3 with D376's B9.
+
+Sent to `spec-writer` before the first chunk: C11-1 (revise the draw atoms if a share is tuned);
+C12-1 (files that still read the profile); C12-2 (storage between chunks 12 and 16: Neutral and
+Jazz selections saved as v3.0's, the rest unsaved until 16; adds `settings-saver.ts`); C12-3
+(drift check list); C15-1 (the restriction reaches the draw through the start settings and
+`session-mutation-step.ts`, not the seed plan); C16-1 (atoms line); C16-2 (J3 without the
+read-time clause, per D376); C22-1 (two tests that assert the whole summary line).
