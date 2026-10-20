@@ -133,8 +133,13 @@ test('on a landscape phone the sheet fits, stacks its actions and scrolls only v
   expect(extents.pageScrollWidth).toBeLessThanOrEqual(PHONE.width)
   expect(extents.overflowY).toBe('auto')
   expect(extents.sheetScrollHeight).toBeGreaterThan(extents.sheetClientHeight)
-  await sheetAction(page, 'Disconnect').scrollIntoViewIfNeeded()
-  expect(await sheet(page).evaluate((panel) => panel.scrollTop)).toBeGreaterThan(0)
+  // Scrolled from the top, wherever the state change left it: the overflow can be only the
+  // sheet's end padding, Disconnect already in view, so scrolling Disconnect into view proves
+  // nothing. A wheel over the sheet scrolls the sheet itself.
+  await sheet(page).evaluate((panel) => panel.scrollTo({ top: 0 }))
+  await sheet(page).hover()
+  await page.mouse.wheel(0, 200)
+  await expect.poll(() => sheet(page).evaluate((panel) => panel.scrollTop)).toBeGreaterThan(0)
   await expect(sheetAction(page, 'Disconnect')).toBeInViewport()
 })
 
