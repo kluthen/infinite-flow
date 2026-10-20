@@ -1,6 +1,6 @@
 ---
 id: module_favored_figure_draw
-status: DRAFT
+status: REVIEW
 version: 0.3
 priority: 1
 dependents: []
