@@ -120,8 +120,8 @@ and 5 have merged, and no release is cut before wave 5 has merged.
 | 0    | 0 Intent re-sync · 2 Baselines · 3 Measurement tools                                                                                                                | Nothing (R0 done). Chunk 3 records its baselines on v3.0's code: nothing in this wave changes the generator.                                                                                                                                                    | merged (2026-10-19) |
 | 1    | 4 Figure levels in the request · 5 Levels gate the figures · 8 Replay key `ifk3.` · 10 Preset model                                                                 | Wave 0. In-wave 4 → 5, 4 → 8 and 4 → 10: chunk 4's capture fixes the figure ids, the level type and the request's `figureLevels`.                                                                                                                               | merged (2026-10-19) |
 | 2    | 6 Favored levels order the search · 7 Two new free figures · 9 Kept sessions hold the levels                                                                        | Wave 1. In-wave 6 → 7: chunk 6's capture fixes the draw and the figures a candidate names.                                                                                                                                                                      | merged (2026-10-20) |
-| 3    | 11 Cost guard, first run · 12 Presets replace the musical profile · 15 Vary settings inside the restriction · 16 Presets on the device · 22 Review summary's length | Wave 2. In-wave 12 → 15, 12 → 16 and 12 → 22: chunk 12's capture fixes the session settings and the routing point; chunk 22 follows 12 because both may change the kept-session record. Gate DP is taken from chunk 11 (spec D378).                             | planned             |
-| 4    | 1 Token-source pass · 13 Preset bar and marks                                                                                                                       | Wave 3. Two chunks: every other chunk T1 held (given, spec D382) needs both 1 and 13, which would make a chain of three.                                                                                                                                        | blocked (on T1)     |
+| 3    | 11 Cost guard, first run · 12 Presets replace the musical profile · 15 Vary settings inside the restriction · 16 Presets on the device · 22 Review summary's length | Wave 2. In-wave 12 → 15, 12 → 16 and 12 → 22: chunk 12's capture fixes the session settings and the routing point; chunk 22 follows 12 because both may change the kept-session record. Gate DP is taken from chunk 11 (spec D378).                             | merged (2026-10-20) |
+| 4    | 1 Token-source pass · 13 Preset bar and marks                                                                                                                       | Wave 3. Two chunks: every other chunk T1 held (given, spec D382) needs both 1 and 13, which would make a chain of three.                                                                                                                                        | planned             |
 | 5    | 14 Embellishments group · 17 Preset management · 18 Your data · 19 Pre-generation discards                                                                          | Wave 4. In-wave 14 → 19: chunk 14's capture fixes the level controls' option model and their change path; 17 → 18 and 17 → 19: chunk 17's capture fixes the player-presets composable. L1 and L2 open at its end. Chunk 20 is dropped (DP rejected, spec D378). | planned             |
 
 The [release gate](#chunk-21--v31-release-gate) (chunk 21) follows wave 5, with L1 and L2. κ is 1
@@ -382,7 +382,7 @@ Record: 60fe7d8, `documentalist` on `v3.1-w0` (atoms only). Two atoms revised (B
 
 ### Chunk 1 — Token-source pass, part 1 (v3.1)
 
-Status: blocked (on T1)
+Status: planned
 Wave: 4
 Depends on: T1 (given, spec D382), D0 (done)
 Architecture capture: none
@@ -1356,7 +1356,7 @@ Record: 51aadb7, merged as f0228f7 (five units). `selectPreset` built on `choose
 
 ### Chunk 13 — The preset bar and the key and mode marks
 
-Status: blocked (on T1, through 1)
+Status: planned
 Wave: 4
 Depends on: 1, 12
 Architecture capture: the segmented control's option model gains a `marked` flag beside `disabled`
@@ -1427,7 +1427,7 @@ option and description, derived from the selection.
 
 ### Chunk 14 — The Embellishments group
 
-Status: blocked (on T1, through 1)
+Status: planned
 Wave: 5
 Depends on: 1, 13
 Architecture capture: the figure level controls' option model, `figure-level-options.ts`:
@@ -1610,7 +1610,7 @@ Record: 12d6422 (16a, the records and the data version 3 upgrade) and adff353 (1
 
 ### Chunk 17 — Preset management: the actions and the preset sheet
 
-Status: blocked (on T1, through 1)
+Status: planned
 Wave: 5
 Depends on: 1, 13, 16
 Architecture capture: the player presets composable, `use-player-presets.ts`: the list, save as
@@ -1699,7 +1699,7 @@ Chunks 18 and 19 build on it in the same wave.
 
 ### Chunk 18 — Your data and Delete everything
 
-Status: blocked (on T1, through 17)
+Status: planned
 Wave: 5
 Depends on: 17
 Architecture capture: none (it builds on chunk 17's)
@@ -1744,7 +1744,7 @@ Architecture capture: none (it builds on chunk 17's)
 
 ### Chunk 19 — Pre-generation discards
 
-Status: blocked (on T1, through 14 and 17)
+Status: planned
 Wave: 5
 Depends on: 14 (its level-change trigger), 15, 17
 Architecture capture: none (it builds on chunks 14's and 17's)

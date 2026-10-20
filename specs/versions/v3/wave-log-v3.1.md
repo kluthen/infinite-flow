@@ -521,3 +521,22 @@ STABLE `module_kept_session_save`'s interface lacks the `presets` argument (1.1 
 `docs/session-engine.md` still speaks of the profile in several places (coding side); copy until
 chunk 13. Proposed DRAFT → REVIEW: `module_settings_upgrade_step`, `entity_player_preset_record`
 and 13 business rules built and tested in this wave.
+
+### Owner answers and merge (2026-10-20)
+
+The owner answered: merge `v3.1-w3` into `main` and push; fix ISS-014 before merging; all the
+sync's sign-offs; give T1. ISS-014 fixed by a `coding-executor` (e4c6a9b: `controlValue` refuses
+a non-string stored value, as chunk 16's `heldControl` does; four tests). `documentalist`
+committed the owner sign-off (547c632): `module_settings_upgrade_step`,
+`entity_player_preset_record` and 13 business rules DRAFT → REVIEW; STABLE
+`module_kept_session_save` 1.1 (interface wording, the `presets` argument); the J3 reading of
+`KeptSessionFacts.presets` confirmed. `spec-writer` (0dad768, plan v16): D382 (T1 given,
+reversing D355; gate T1 done), D383 (ISS-014 resolved). Chunks 1, 13, 14, 17, 18 and 19 are no
+longer blocked; wave 4 is planned. Left for `ux-writer` at wave 4: record the T1 allowance as a
+ux decision and update `ui_ux/todo.md` (line 90); for `documentalist`'s next sync: ISS-014 no
+longer stands against `rule_saved_settings_load_tolerantly`.
+
+Gate re-run on 0dad768 (13:38 CEST, reference machine, load 0.91): `npm run quality` exit 0; unit
+479 files, 7,390 tests; Playwright 488 + 488 (1 skipped each), 57, 107 (4 skipped). Entry chunk
+246,866 B (49 JS chunks). The sweep was not re-run (the fix touches only the settings codec).
+Wave 3 merged into `main` and pushed.
