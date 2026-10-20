@@ -481,3 +481,7 @@ wave gate. Chunk 12 first (15, 16 and 22 wait on it), then 15, 16 and 22 beside 
 - Chunk 11: dispatched 2026-10-20 after chunk 16's merge, alone on the reference machine
   (`../infinite_flow-v3.1-c11`); timed runs only below a 1-minute load of about 1.5. It
   proposes DP's decision; the driver takes it to the owner and `spec-writer`.
+- Chunk 11: merged as 138a9da (b1a4427). M2 meets B5.6's acceptance in all three settings (no
+  phrase lost; fallbacks at or below the baseline); every built-in generates in every allowed
+  mode; no share tuned. Proposed DP: reject the passing-and-neighbor rule (chunk 20 dropped).
+  Taken to the owner.

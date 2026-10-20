@@ -1131,7 +1131,7 @@ Record: f92a9c4, merged as 1567d0e (built in parallel with chunks 5 and 8, owner
 
 ### Chunk 11 — The cost guard, first run
 
-Status: planned
+Status: merged (w3, 138a9da)
 Wave: 3
 Depends on: 3, 7, 10
 Architecture capture: none
@@ -1170,6 +1170,8 @@ Architecture capture: none
 - **Verification:** the runs themselves (M1, M2: this chunk's point); chunk checks if a constant
   changed (the corpus is unaffected: Neutral and Jazz make no draw).
 - **Split rule:** none needed.
+
+Record: b1a4427, merged as 138a9da (run alone, after chunks 12, 15, 16 and 22). Reference machine, 2026-10-20 11:07–11:51 CEST, each M2 setting started below a 1-minute load of 1.5, code at 6c0af77. M2: phrases 2–6 generated 100.0 % at 60, 120 and 240 BPM in all three settings; fallback at 240 BPM, phrases 2–6: Strongly favored 20.8 %, every diatonic figure Off 20.4 %, every figure Off 20.5 %, against Neutral 21.2 % and Jazz 21.0 %; no phrase left ungenerated in any Tension value. Every built-in generated 2,840 of 2,840 phrases in every allowed mode, no missed deadline. M1 at 0x4000 / 0x8000 equals chunk 7's digit for digit; no share tuned. Chunk 3's cost tooling extended (settings selector, per-mode and per-Tension tallies, cases carrying levels and a restriction; a density group above 216 cases measured in parts, after an out-of-memory). Readings to confirm: "every diatonic figure Off" keeps the chromatic approach and enclosure at As today; a built-in runs with its own rhythm (also run over the sweep's). Proposed DP: reject the rule.
 
 ### Chunk 12 — Presets replace the musical profile
 
