@@ -550,4 +550,19 @@ next wave in this session.
 
 ### Preflight
 
-`documentalist` dispatched on `v3.1-w4`.
+`documentalist` (e965269), without `atd audit`. Chunk 1: PROCEED (styling only; the frozen
+token source already meets `rule_restriction_highlight_never_blocks` and
+`rule_readonly_controls_keep_contrast`). Chunk 13: PROCEED, DRAFT → REVIEW proposals at the sync
+only; captures `ui_segmented_control_marked_option` 0.1 and `module_preset_bar_model` 0.1. No
+STABLE or contract atom in reach.
+
+Sent to `spec-writer` before chunk 13: chunk 14 builds on the option model in wave 5; missing
+Files (`use-shown-settings.ts`, three unit specs, thirteen e2e files); missing Atoms (six business,
+five architecture); Revisions name `module_generative_profile_selection`; and an uncaptured
+decision: where a session's marks get their frozen restriction from (proposed: the start
+restriction on `SessionSettings`, never the shown key and mode).
+
+### Chunks
+
+- Chunk 1: dispatched 2026-10-20 to `ux-writer` (`../infinite_flow-v3.1-c1`), beside the plan
+  revision (it touches no plan text chunk 1 reads); also records the T1 allowance on the ux side.
