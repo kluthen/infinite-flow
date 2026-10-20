@@ -93,6 +93,7 @@ import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import { loadVexflowEngraver, type VexflowEngraverModule } from '@/notation/vexflow-engraver-loader'
 import { resolveGlyphIdentities } from '@/notation/note-identity'
 import { NO_SCORE_OVERLAYS, ScoreOverlayError, type ScoreOverlays } from '@/notation/score-overlays'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import '@/styles/index.css'
 import { resolveFixture } from './fixtures'
 import { notationCheckNoteHook } from './check-note'
@@ -443,7 +444,7 @@ function buildHarnessIntent(
     requestId: makeRequestId(`notation-harness-${seed}`),
     seed,
     controls,
-    musicalProfile: { musicalProfile: 'Neutral', isCustom: true },
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
     ...(myInstrument === null ? {} : { instrumentProfile: myInstrument.profile }),
   })
 }

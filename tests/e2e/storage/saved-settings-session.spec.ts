@@ -193,6 +193,9 @@ test("after a session in which Vary settings changed a setting and Rising tempo 
   await expect(page.locator('.preset-status-text:not(.is-reserve)')).toHaveText(
     /^Custom configuration - Jazz grammar retained/,
   )
+  await expect(page.locator('.control-summary')).toHaveText(
+    'C Ionian · Custom, based on Jazz · Lift · Shaped',
+  )
 
   await sessionAction(page).click()
   expect((await sessionState(page)).lastEnd?.cause).toBe('stop')

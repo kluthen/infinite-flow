@@ -104,7 +104,7 @@ export function idlePhraseFor(
   const settings = { ...sessionSettings(), controls }
   return {
     ...phraseOneFor(settings, { seed }),
-    settings: { controls, profileSelection: settings.musicalProfile },
+    settings: { controls, figureLevels: settings.figureLevels, selection: settings.selection },
     sessionSeed,
   }
 }
@@ -151,7 +151,8 @@ export function pregenerationRig(options: PregenerationRigOptions = {}): Pregene
   const settings = sessionSettings({ tempo: 60, ...options.controls })
   const idle = shallowReactive<MutableGenerationSessionState<WorkspaceSessionResult>>({
     controls: settings.controls,
-    profileSelection: settings.musicalProfile,
+    figureLevels: settings.figureLevels,
+    selection: settings.selection,
     presentation: { theme: 'System' },
     myInstrument: null,
     latestIntent: null,

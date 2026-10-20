@@ -10,17 +10,16 @@ import { deepFreeze } from '../../events/deep-freeze'
 import {
   makeGenerationIntent,
   type GenerationIntent,
-  type GenerationIntentFactoryInput,
+  type GenerationIntentInput,
 } from '../generation-intent'
 import type { CarryIn } from './carry-in'
 import { assertCarryInFitsIntent } from './carry-in-fit'
 
 /**
  * The intent input of a phrase that receives what the session phrase before hands forward: a plain
- * intent input, its figure levels from a musical profile selection or given as levels, plus the
- * carry-in.
+ * intent input plus the carry-in.
  */
-export type CarryInGenerationIntentInput = GenerationIntentFactoryInput & {
+export type CarryInGenerationIntentInput = GenerationIntentInput & {
   readonly carryIn: CarryIn
 }
 

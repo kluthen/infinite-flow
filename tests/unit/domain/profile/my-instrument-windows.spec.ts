@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  DEFAULT_GENERATION_CONTROLS,
-  DEFAULT_PROFILE_SELECTION,
-} from '@/domain/controls/profile-selection'
+import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import { createGenerationIntent } from '@/domain/generation/generation-intent'
 import { makeRequestId } from '@/domain/generation/generation-request'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
@@ -24,6 +21,7 @@ import { deriveRegisterWindowCandidates } from '@/domain/profile/register-window
 import type { MyInstrumentDirection } from '@/domain/profile/transposition-interval'
 import { createMulberry32 } from '@/domain/random/prng'
 import { makeSeed } from '@/domain/random/seed'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 
 // @test-link [[entity_my_instrument]]
 describe('my instrument from a built-in template, unchanged', () => {
@@ -56,7 +54,7 @@ function myInstrumentIntent(instrument: MyInstrument, requestId: string, seed: n
     requestId: makeRequestId(requestId),
     seed: makeSeed(seed),
     controls: { ...DEFAULT_GENERATION_CONTROLS, instrumentProfileId: 'my-instrument' },
-    musicalProfile: DEFAULT_PROFILE_SELECTION,
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
     instrumentProfile: instrument.profile,
   })
 }

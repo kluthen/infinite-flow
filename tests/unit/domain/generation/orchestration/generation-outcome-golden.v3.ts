@@ -29,12 +29,12 @@
  */
 
 import type { GenerationControls } from '@/domain/controls/generation-controls'
-import type { GenerationIntentInput } from '@/domain/generation/generation-intent'
+import type { ProfileSelection } from '@/domain/controls/profile-selection'
 
 export interface GoldenCase {
   readonly name: string
   readonly seed: number
-  readonly musicalProfile: GenerationIntentInput['musicalProfile']
+  readonly musicalProfile: ProfileSelection
   readonly controls: GenerationControls
   readonly expectedKind: 'generation_success' | 'generation_failure'
   readonly expectedCode?: string

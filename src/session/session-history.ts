@@ -5,19 +5,19 @@
  * internal repeat mark, and the acknowledgements and played notes that fall inside it, placed on
  * read (see session-history-played-notes). The tempo the session reached is the last recorded
  * phrase's. It also keeps when the session started, read once from an injected wall clock, the
- * instrument profile and the musical profile selection of the locked settings and the session seed
+ * instrument profile and the preset selection of the locked settings and the session seed
  * the session started with; nothing derived from that seed is kept beside it. Every phrase carries the clef the session's instrument
  * was drawn in at its start, as display data beside the phrase, never in its intent. It never reads
  * the system time, touches no browser API and stores nothing outside memory.
  */
 
 import type { ExpectedNoteIdentity } from '../domain/acknowledgement/expected-note'
-import type { ProfileSelection } from '../domain/controls/profile-selection'
 import type { ConcertPitch } from '../domain/events/concert-pitch'
 import { deepFreeze } from '../domain/events/deep-freeze'
 import type { GenerationIntent } from '../domain/generation/generation-intent'
 import type { GenerationResult } from '../domain/generation/generation-result'
 import type { GenerationProvenance } from '../domain/generation/orchestration/orchestration-types'
+import type { PresetSelection } from '../domain/presets/preset-selection'
 import {
   BUILT_IN_INSTRUMENT_CLEF,
   isInstrumentClef,
@@ -102,8 +102,8 @@ export interface SessionHistoryRecord extends ReviewedPhrase {
  * release already latency-compensated, in release order) and every acknowledgement, read back as
  * one ordered list, with the tempo the session reached (the last recorded phrase's, null before
  * phrase 1 sounds), the session's start time (epoch milliseconds, read once from the wall clock at
- * creation), the instrument profile id and the musical profile selection of its locked settings and
- * its session seed.
+ * creation), the instrument profile id and the preset selection of its locked settings and its
+ * session seed.
  */
 // @spec-link [[service_session_history]]
 // @spec-link [[rule_session_settings_locked]]
@@ -119,10 +119,12 @@ export interface SessionHistory {
   readonly startedAt: number
   readonly instrumentProfileId: InstrumentProfileId
   /**
-   * The musical profile selection of the session's settings at its start, frozen: what a kept
-   * session's summary names, whatever profile phrase 1's intent was generated under.
+   * The preset selection of the session's settings at its start, frozen: what a kept session's
+   * preset label is made from (the preset's name, or Custom naming its base), whatever a Vary
+   * settings step marked later in the session.
    */
-  readonly profileSelection: ProfileSelection
+  // @spec-link [[rule_preset_label_kept_with_session]]
+  readonly selection: PresetSelection
   /** The session seed every seed of the session after phrase 1 derives from; nothing derived. */
   // @spec-link [[module_session_seed_plan]]
   readonly sessionSeed: Seed
@@ -348,8 +350,8 @@ function recordOf(output: SoundingOutput, clef: InstrumentClef): SessionHistoryR
 
 /**
  * Intent: an empty history for one session, created at its start from the settings locked at that
- * start (whose tempo, the starting tempo, must be usable but is never a record's, and whose musical
- * profile selection it keeps as a frozen copy), an injected wall clock, read exactly once here for
+ * start (whose tempo, the starting tempo, must be usable but is never a record's, and whose preset
+ * selection it keeps as a frozen copy), an injected wall clock, read exactly once here for
  * the start time, and the session seed taken with phrase 1 from
  * the Idle result (one that is no seed throws), kept as it is, and the clef the instrument's
  * written phrase was drawn in at that start, which every record carries (a clef that is none, or a
@@ -377,10 +379,11 @@ export function createSessionHistory(
   const checkedClef = sessionClef(instrumentProfileId, clef)
   const checkedSeed = checkedSessionSeed(sessionSeed)
   const startedAt = sessionStartTime(wallClock)
-  const profileSelection: ProfileSelection = deepFreeze({
-    musicalProfile: settings.musicalProfile.musicalProfile,
-    isCustom: settings.musicalProfile.isCustom,
-  })
+  const selection: PresetSelection = deepFreeze(
+    settings.selection.kind === 'preset'
+      ? { kind: 'preset', presetId: settings.selection.presetId }
+      : { kind: 'custom', baseId: settings.selection.baseId },
+  )
   const records: SessionHistoryRecord[] = []
   const playedNotes: RecordedPlayedNote[] = []
   const acknowledgements: ExpectedNoteIdentity[] = []
@@ -406,7 +409,7 @@ export function createSessionHistory(
   return Object.freeze({
     startedAt,
     instrumentProfileId,
-    profileSelection,
+    selection,
     sessionSeed: checkedSeed,
     /** Intent: take one engine output, in the order the engine gave it. */
     record(output: SessionOutput): void {

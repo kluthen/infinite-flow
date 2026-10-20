@@ -472,7 +472,7 @@ let workspace: WorkspaceSession | null = null
 
 /**
  * Intent: the latest session state's requestId/seed/timeline/operation/mode, for replay/isolation
- * assertions, plus the room notice's state. `requestId`/`seed` are the result's, which a fit run
+ * assertions, plus the room notice's state, the player's figure levels and preset selection. `requestId`/`seed` are the result's, which a fit run
  * sets only for the attempt it draws; `latestSeed` is the latest attempt's, drawn or not.
  */
 function snapshot(): WorkspaceHarnessSnapshot {
@@ -495,7 +495,21 @@ function snapshot(): WorkspaceHarnessSnapshot {
     roomNotice: state.roomNotice,
     retriesRunning: state.retriesRunning,
     roomNoticeAnnouncements: state.roomNoticeAnnouncements,
+    figureLevels: { ...state.figureLevels },
+    selection: { ...state.selection },
   }
+}
+
+/**
+ * Intent: choose a preset by its id through the session's own `selectPreset`, the way a spec
+ * reaches the built-ins the two-segment control does not offer, until the preset box does. Throws
+ * before the session mounts, and as the session does on an id no preset has.
+ */
+function selectPreset(id: string): boolean {
+  if (workspace === null) {
+    throw new Error('Workspace harness: selectPreset() was called before the session mounted.')
+  }
+  return workspace.session.actions.selectPreset(id)
 }
 
 /**
@@ -541,6 +555,7 @@ const harnessApi: WorkspaceHarnessApi = {
   failNextExport: armNextExportFailure,
   exportsBuilt,
   snapshot,
+  selectPreset,
   prewarmCount: () => prewarmsPosted,
   prewarmInstrumentProfiles: () => prewarmInstrumentProfiles.map((profile) => ({ ...profile })),
   audio: harnessAudio.api,

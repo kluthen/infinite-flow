@@ -115,7 +115,7 @@ describe('session controller: a stale phrase 1 at Start', () => {
     expect(rig.controller.state.shownSettings?.controls.tonalCenter).toBe(
       rig.settings.controls.tonalCenter,
     )
-    expect(rig.controller.state.shownSettings?.musicalProfile).toEqual(rig.idle.profileSelection)
+    expect(rig.controller.state.shownSettings?.selection).toEqual(rig.idle.selection)
     await playTo(rig, phraseStart(2) - 0.1)
     expect(rig.controller.state.shownSettings?.controls.tonalCenter).toBe(
       rig.settings.controls.tonalCenter,

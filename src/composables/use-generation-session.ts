@@ -1,19 +1,18 @@
 import { readonly, shallowReactive } from 'vue'
 
 import { PITCH_CLASSES } from '@/domain/controls/generation-controls'
-import {
-  DEFAULT_GENERATION_CONTROLS,
-  DEFAULT_PROFILE_SELECTION,
-} from '@/domain/controls/profile-selection'
+import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import {
   resolveGeneratedControls,
   type NoteDensityContext,
 } from '@/domain/controls/generated-note-density'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import {
   type GenerationIntent,
   createGenerationIntent,
 } from '@/domain/generation/generation-intent'
 import type { PitchClassNumber } from '@/domain/harmony/harmony-types'
+import { BUILT_IN_PRESETS, DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
 import type { InstrumentProfile } from '@/domain/profile/instrument-profile'
 import { MY_INSTRUMENT_ID } from '@/domain/profile/instrument-profiles'
 import type { MyInstrument } from '@/domain/profile/my-instrument'
@@ -79,7 +78,8 @@ const NO_MY_INSTRUMENT_SAVES: MyInstrumentSaves = {
 /** The settings a session given none starts from: the first-load values. */
 const FIRST_LOAD_SETTINGS: InitialGenerationSettings = {
   controls: DEFAULT_GENERATION_CONTROLS,
-  profileSelection: DEFAULT_PROFILE_SELECTION,
+  figureLevels: NEUTRAL_FIGURE_LEVELS,
+  selection: DEFAULT_PRESET_SELECTION,
   theme: 'System',
   myInstrument: null,
 }
@@ -90,7 +90,9 @@ const FIRST_LOAD_SETTINGS: InitialGenerationSettings = {
  * Each phrase 1 a fit run publishes is the generated phrase joined with the session seed drawn
  * for it. Its state starts from the given initial settings (the saved ones the app loaded before
  * its first draw), or from the first-load values when none are given. The player's changes to the
- * controls, the profile selection and the theme are saved through `saveSettings` as they apply.
+ * controls, the figure levels, the preset selection and the theme go through the one routing
+ * point, which saves what they changed through `saveSettings`; the presets chosen from are the
+ * built-ins.
  * While the controls name my instrument, every intent it builds carries my instrument's profile as
  * data; starting with them naming it and no my instrument given is a caller defect and throws.
  * Saving and deleting my instrument load their actions on demand, at first use; the My instrument
@@ -109,7 +111,8 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
   }
   const state = shallowReactive<MutableGenerationSessionState<TResult>>({
     controls: initial.controls,
-    profileSelection: initial.profileSelection,
+    figureLevels: initial.figureLevels,
+    selection: initial.selection,
     presentation: { theme: initial.theme },
     myInstrument: initial.myInstrument,
     latestIntent: null,
@@ -169,7 +172,7 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
     if (rhythmPrewarm === undefined) return
     rhythmPrewarm(
       resolveGeneratedControls(state.controls, readNoteDensityContext()),
-      state.profileSelection,
+      state.figureLevels,
       suppliedInstrumentProfile(),
     )
   }
@@ -186,13 +189,14 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
     fitRunner.stopIfBlocked()
   }
 
-  const { isBlockedByUnsupportedRhythm, setControl, selectMusicalProfile, setTheme } =
+  const { isBlockedByUnsupportedRhythm, setControl, setFigureLevel, selectPreset, setTheme } =
     createControlActions<TResult>({
       state,
       readNoteDensityContext,
       prewarmCurrentRhythmSetting,
       afterGenerationSettingChange: () => roomNotice.afterGenerationSettingChange(),
       saveSettings: options.saveSettings,
+      presets: () => BUILT_IN_PRESETS,
     })
 
   const {
@@ -209,8 +213,8 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
   })
 
   /**
-   * Build a fresh, freshly identified/seeded intent from the current controls and profile
-   * selection, with the note density the window's width gives now: the intent carries that plain
+   * Build a fresh, freshly identified/seeded intent from the current controls and figure levels,
+   * with the note density the window's width gives now: the intent carries that plain
    * density, never the width itself, while `state.controls` keeps the chosen value. My instrument's
    * profile goes in as data while the controls name it.
    */
@@ -223,7 +227,7 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
       requestId: options.providers.nextRequestId(),
       seed: options.providers.nextSeed(),
       controls: resolveGeneratedControls(state.controls, readNoteDensityContext()),
-      musicalProfile: state.profileSelection,
+      figureLevels: state.figureLevels,
       ...(instrumentProfile === undefined ? {} : { instrumentProfile }),
     })
   }
@@ -255,7 +259,7 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
   }
 
   /**
-   * Retry builds a brand-new intent from the current controls/profile with a fresh seed and
+   * Retry builds a brand-new intent from the current controls and levels with a fresh seed and
    * identity -- the same construction as `regenerate()` -- rather than replaying the failed
    * `state.latestIntent` unchanged. This is so a deterministic failure is never a dead end: since
    * configuration edits are permitted while idle after an error, an edit made after the failure
@@ -375,7 +379,8 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
     state: readonly(state) as Readonly<GenerationSessionState<TResult>>,
     actions: {
       setControl,
-      selectMusicalProfile,
+      setFigureLevel,
+      selectPreset,
       selectInstrumentProfile,
       saveMyInstrument,
       saveAndSelectMyInstrument,

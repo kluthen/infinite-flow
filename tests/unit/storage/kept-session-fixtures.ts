@@ -7,8 +7,10 @@
  */
 
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
-import { PROFILE_BUNDLES, type ProfileSelection } from '@/domain/controls/profile-selection'
+import { PROFILE_BUNDLES } from '@/domain/controls/profile-selection'
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
+import { JAZZ_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
+import type { PresetSelection } from '@/domain/presets/preset-selection'
 import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import {
   createSessionHistory,
@@ -124,18 +126,18 @@ export function recordedKeptSession(
 
 /**
  * Intent: a history-shaped value over given records, as the encoder reads one, its session's
- * musical profile selection the harness settings' unless given.
+ * preset selection the harness settings' unless given.
  */
 export function historyOf(
   records: readonly SessionHistoryRecord[],
   instrumentProfileId: InstrumentProfileId,
-  profileSelection: ProfileSelection = sessionSettings().musicalProfile,
+  selection: PresetSelection = sessionSettings().selection,
 ): KeptSessionHistory {
   return {
     phrases: () => records,
     startedAt: SESSION_START_EPOCH_MS,
     instrumentProfileId,
-    profileSelection,
+    selection,
     sessionSeed: DEFAULT_SESSION_SEED,
   }
 }
@@ -150,7 +152,8 @@ function jazzSixteenthSettings(): SessionSettings {
       tempo: 240,
       instrumentProfileId: 'eb-alto',
     }),
-    musicalProfile: { musicalProfile: 'Jazz', isCustom: false },
+    figureLevels: JAZZ_FIGURE_LEVELS,
+    selection: { kind: 'preset', presetId: 'jazz' },
   }
 }
 

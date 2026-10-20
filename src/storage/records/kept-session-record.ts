@@ -88,7 +88,7 @@ export interface KeptSessionRecords {
 /** What the encoder reads from a finished session's history. */
 export type KeptSessionHistory = Pick<
   SessionHistory,
-  'phrases' | 'startedAt' | 'instrumentProfileId' | 'profileSelection' | 'sessionSeed'
+  'phrases' | 'startedAt' | 'instrumentProfileId' | 'selection' | 'sessionSeed'
 >
 
 /**
@@ -147,7 +147,7 @@ function sessionLengthSeconds(first: SessionHistoryRecord, last: SessionHistoryR
 
 /**
  * Intent: the records of a finished session: the session-wide record (its facts from the history,
- * the preset label of the musical profile selection the history keeps from the session's start,
+ * the preset label of the preset selection the history keeps from the session's start,
  * the instrument's display name from phrase 1's intent, the starting tempo from phrase 1 and the
  * tempo reached from the last phrase), the body, and the played notes only when they are kept,
  * each written by `appVersion`, the session-wide record and the body at data version 2, the played
@@ -177,7 +177,7 @@ export function encodeKeptSession(
       startedAt: history.startedAt,
       lengthSeconds: sessionLengthSeconds(first, last),
       phraseCount: records.length,
-      presetLabel: presetLabel(history.profileSelection),
+      presetLabel: presetLabel(history.selection),
       instrument: {
         id: history.instrumentProfileId,
         displayName: first.intent.instrumentProfile.displayName,

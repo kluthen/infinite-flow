@@ -31,6 +31,7 @@ import {
   makeRhythmCandidateDomain,
 } from '@/domain/rhythm/rhythm-planner'
 import type { RhythmExpansionInput } from '@/domain/rhythm/rhythm-types'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 
 const CHEAP_RHYTHM_INPUT: RhythmExpansionInput = {
   noteDensity: 'Quarter',
@@ -63,7 +64,7 @@ function buildCheapIntent(seed: number) {
     requestId: makeRequestId(`canonical-rhythm-domain-fixture-${seed}`),
     seed: makeSeed(seed),
     controls: makeGenerationControls(CHEAP_CONTROLS),
-    musicalProfile: { musicalProfile: 'Neutral', isCustom: true },
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
   })
 }
 

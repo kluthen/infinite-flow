@@ -2,12 +2,31 @@ import { isReadonly } from 'vue'
 import { describe, expect, it } from 'vitest'
 
 import { createGenerationSession } from '@/composables/use-generation-session'
+import type { GenerationControls } from '@/domain/controls/generation-controls'
 import { NEUTRAL_FIGURE_LEVELS, type FigureLevels } from '@/domain/figures/figure-levels'
+import {
+  PRESET_HELD_CONTROL_KEYS,
+  type PresetHeldControlKey,
+} from '@/domain/presets/preset-selection'
 import { makeRequestId } from '@/domain/generation/generation-request'
 import { makeSeed } from '@/domain/random/seed'
 import { alwaysFitsStaff } from './fake-staff-fit'
 import { countingSessionSeeds } from './fake-session-seed'
 import { createFakeViewportWidth } from './fake-viewport-width'
+
+/** For each preset-held control, a value Jazz does not hold. */
+const OTHER_THAN_JAZZ: { readonly [K in PresetHeldControlKey]: GenerationControls[K] } = {
+  harmonicMotion: 'Static',
+  tension: 'Build',
+  noteDensity: 'Quarter',
+  rhythmicVariety: 'Heavily varied',
+  syncopation: 'Straight',
+  silenceDensity: 'Sparse',
+  contour: 'Arch',
+  register: 'Low',
+  leapiness: 'Smooth',
+  arpeggioChaos: 'Chaotic',
+}
 
 function createDeferred<T>() {
   let resolve: (value: T) => void = () => undefined
@@ -72,7 +91,8 @@ describe('createGenerationSession', () => {
     expect(session.state.operation).toBe('generating')
     expect(tracked.counts()).toEqual({ id: 1, seed: 1 })
     expect(session.actions.setControl('tempo', 100)).toBe(false)
-    expect(session.actions.selectMusicalProfile('Jazz')).toBe(false)
+    expect(session.actions.selectPreset('jazz')).toBe(false)
+    expect(session.actions.setFigureLevel('neighborTone', 'off')).toBe(false)
     expect(session.actions.setTheme('Dark')).toBe(true)
     await expect(session.actions.generate()).resolves.toBe(false)
     await expect(session.actions.regenerate()).resolves.toBe(false)
@@ -149,26 +169,32 @@ describe('createGenerationSession', () => {
 
   // @test-link [[module_profile_control_customization]]
   // @test-link [[module_rhythm_variety_grammar]]
-  it('marks the applied preset custom after a manual rhythmic-variety edit, the same as any other preset field', () => {
-    const tracked = trackedProviders()
-    const session = createGenerationSession({
-      saveSettings: () => undefined,
-      ...alwaysFitsStaff(),
-      viewport: createFakeViewportWidth(),
-      providers: tracked.providers,
-      nextSessionSeed: countingSessionSeeds(),
-      withSessionSeed: (generated) => generated,
-      generate: async () => 'result',
-      notate: async () => undefined,
-    })
+  // @test-link [[rule_custom_selection]]
+  it('marks the chosen preset Custom based on it after an edit of any of the ten preset-held controls or of a level', () => {
+    const edits: readonly ((session: ReturnType<typeof createGenerationSession>) => boolean)[] = [
+      ...PRESET_HELD_CONTROL_KEYS.map(
+        (key) => (session: ReturnType<typeof createGenerationSession>) =>
+          session.actions.setControl(key, OTHER_THAN_JAZZ[key]),
+      ),
+      (session) => session.actions.setFigureLevel('chromaticApproach', 'off'),
+    ]
+    for (const edit of edits) {
+      const session = createGenerationSession({
+        saveSettings: () => undefined,
+        ...alwaysFitsStaff(),
+        viewport: createFakeViewportWidth(),
+        providers: trackedProviders().providers,
+        nextSessionSeed: countingSessionSeeds(),
+        withSessionSeed: (generated) => generated,
+        generate: async () => 'result',
+        notate: async () => undefined,
+      })
+      expect(session.actions.selectPreset('jazz')).toBe(true)
+      expect(session.state.selection).toEqual({ kind: 'preset', presetId: 'jazz' })
 
-    expect(session.actions.selectMusicalProfile('Jazz')).toBe(true)
-    expect(session.state.profileSelection).toEqual({ musicalProfile: 'Jazz', isCustom: false })
-    expect(session.state.controls.rhythmicVariety).toBe('Slightly varied')
-
-    expect(session.actions.setControl('rhythmicVariety', 'Heavily varied')).toBe(true)
-    expect(session.state.controls.rhythmicVariety).toBe('Heavily varied')
-    expect(session.state.profileSelection).toEqual({ musicalProfile: 'Jazz', isCustom: true })
+      expect(edit(session)).toBe(true)
+      expect(session.state.selection).toEqual({ kind: 'custom', baseId: 'jazz' })
+    }
   })
 
   // @test-link [[rule_unsupported_rhythm_settings_block_generation]]
@@ -236,7 +262,7 @@ describe('createGenerationSession', () => {
   // @test-link [[module_profile_control_customization]]
   // @test-link [[rule_profile_control_customization]]
   // @test-link [[rule_seeded_phrase_reproduction]]
-  it('regenerates from current controls/profile with fresh providers and keeps presentation outside generation', async () => {
+  it('regenerates from current controls and levels with fresh providers and keeps presentation outside generation', async () => {
     const tracked = trackedProviders()
     const intents: {
       readonly seed: number
@@ -273,7 +299,7 @@ describe('createGenerationSession', () => {
       { seed: 1, requestId: 'request-1', tempo: 90, levels: NEUTRAL_FIGURE_LEVELS },
       { seed: 2, requestId: 'request-2', tempo: 100, levels: NEUTRAL_FIGURE_LEVELS },
     ])
-    expect(session.state.profileSelection).toEqual({ musicalProfile: 'Neutral', isCustom: true })
+    expect(session.state.selection).toEqual({ kind: 'custom', baseId: 'neutral' })
     expect(session.state.presentation.theme).toBe('Dark')
     expect(tracked.counts()).toEqual({ id: 2, seed: 2 })
   })

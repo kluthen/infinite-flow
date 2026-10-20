@@ -18,6 +18,7 @@ import {
   SessionControllerError,
   type MostRecentSession,
 } from '@/components/workspace/workspace-session-controller-types'
+import { JAZZ_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { createSessionHistory, type SessionHistory } from '@/session/session-history'
 import {
   DEFAULT_SESSION_SEED,
@@ -139,13 +140,14 @@ describe('the preset label in the Review', () => {
   it("reads the selection the session started with, never a later change's", () => {
     const customJazz = {
       ...sessionSettings({ tempo: 240 }),
-      musicalProfile: { musicalProfile: 'Jazz', isCustom: true },
+      figureLevels: JAZZ_FIGURE_LEVELS,
+      selection: { kind: 'custom', baseId: 'jazz' },
     } as const
     const driver = new SessionDriver({ at: 0, settings: customJazz })
     driver.countInOver(1)
     driver.change(1.5, {
       ...sessionSettings({ tempo: 240 }),
-      musicalProfile: { musicalProfile: 'Neutral', isCustom: false },
+      selection: { kind: 'preset', presetId: 'neutral' },
     })
     driver.end(2)
 

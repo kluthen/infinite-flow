@@ -31,6 +31,7 @@ import {
   type MusicalProfile,
 } from '@/domain/controls/generation-controls'
 import { isRhythmSettingBlocked } from '@/domain/controls/unsupported-rhythm-settings'
+import { levelsForProfile } from '@/domain/figures/figure-levels'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { PHRASE_MEASURE_COUNT } from '@/domain/generation/generation-request'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
@@ -196,11 +197,18 @@ export function sweepCases(): readonly SweepCase[] {
   )
 }
 
-/** Intent: the chosen settings of a case at one tempo. */
+/**
+ * Intent: the chosen settings of a case at one tempo: the case's profile's figure levels, the
+ * selection Custom based on the preset of that name.
+ */
 function caseSettings(sweepCase: SweepCase, tempo: number): SessionSettings {
   return {
     controls: makeGenerationControls({ ...sweepCase.controls, tempo }),
-    musicalProfile: { musicalProfile: sweepCase.musicalProfile, isCustom: true },
+    figureLevels: levelsForProfile(sweepCase.musicalProfile),
+    selection: {
+      kind: 'custom',
+      baseId: sweepCase.musicalProfile === 'Jazz' ? 'jazz' : 'neutral',
+    },
   }
 }
 
@@ -371,7 +379,7 @@ function phraseOneAtIdle(
   for (let seed = sweepCase.seed; seed < sweepCase.seed + IDLE_GENERATIONS; seed++) {
     const intent = buildIntent({
       controls: settings.controls,
-      musicalProfile: settings.musicalProfile.musicalProfile,
+      figureLevels: settings.figureLevels,
       seed,
       label: 'sweep-phrase-1',
     })

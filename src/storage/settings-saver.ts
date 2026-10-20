@@ -12,9 +12,10 @@
  */
 
 import type { GenerationControls } from '@/domain/controls/generation-controls'
-import type { ProfileSelection } from '@/domain/controls/profile-selection'
+import type { PresetSelection } from '@/domain/presets/preset-selection'
 
 import { createMyInstrumentSaves, type MyInstrumentSaves } from './my-instrument-saves'
+import { savedProfileOf } from './saved-profile-bridge'
 import {
   CONTROLLER_RECORD_KEY,
   encodeControllerRecord,
@@ -55,6 +56,8 @@ export type SettingChanges = { readonly [K in SettingKey]?: SettingValue<K> }
 export type SaveSettings = (changes: SettingChanges) => void
 
 export type { MyInstrumentSaves } from './my-instrument-saves'
+/** What v3.0's stored selection loads as: the read side of the interim bridge, until chunk 16. */
+export { presetChoiceOfSavedProfile } from './saved-profile-bridge'
 
 /**
  * Hold every save while a session runs, and release them, in one transaction, when it ends; then,
@@ -215,18 +218,21 @@ export function createVisitSaves(policy: Promise<SavePolicy>, appVersion: string
   }
 }
 
-/** A player's control choices, as the generation session holds them. */
+/** A player's control choices, as the generation session holds them (the levels are not saved yet). */
 interface ControlChoices {
   readonly controls: GenerationControls
-  readonly profileSelection: ProfileSelection
+  readonly selection: PresetSelection
 }
 
 const CONTROL_PREFIX = 'controls.'
 
 /**
  * Intent: the settings a player's control change changed: each control whose value differs, and
- * the profile selection when its profile or its customized flag differs. For the player's change
- * handlers only, never for a watcher of control values.
+ * the selection, written as v3.0's stored selection, when it is Neutral, Jazz or Custom based on
+ * either and that stored value differs from the one before (or the selection before had none).
+ * Any other selection writes no selection. The interim bridge to v3.0's settings record, until
+ * chunk 16 replaces the record (spec D377). For the player's change handlers only, never for a
+ * watcher of control values.
  */
 // @spec-link [[rule_settings_saved_on_change]]
 // @spec-link [[rule_saved_setting_is_players_choice]]
@@ -242,12 +248,15 @@ export function chosenControlChanges(
       changed.push([key, after.controls[field]])
     }
   }
-  const { musicalProfile, isCustom } = after.profileSelection
+  const saved = savedProfileOf(after.selection)
+  const savedBefore = savedProfileOf(before.selection)
   if (
-    before.profileSelection.musicalProfile !== musicalProfile ||
-    before.profileSelection.isCustom !== isCustom
+    saved !== null &&
+    (savedBefore === null ||
+      savedBefore.musicalProfile !== saved.musicalProfile ||
+      savedBefore.isCustom !== saved.isCustom)
   ) {
-    changed.push(['profileSelection', { musicalProfile, isCustom }])
+    changed.push(['profileSelection', saved])
   }
   return Object.fromEntries(changed) as SettingChanges
 }

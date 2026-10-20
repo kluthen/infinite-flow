@@ -10,8 +10,13 @@
 import { describe, expect, it } from 'vitest'
 
 import type { TensionArc } from '@/domain/controls/generation-controls'
+import { JAZZ_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { createSessionEngine } from '@/session/session-engine'
-import { SessionEngineError, type SessionPhrase } from '@/session/session-types'
+import {
+  SessionEngineError,
+  type SessionPhrase,
+  type SessionSettings,
+} from '@/session/session-types'
 import {
   SessionDriver,
   fakeDisplay,
@@ -154,6 +159,37 @@ describe('a session with the multi-phrase tension arc on', () => {
         expect(request.intent.controls.tension, label).toBe(expected[request.phraseNumber - 1])
       }
       expect(settingsChanges(driver)).toEqual([])
+    },
+  )
+})
+
+// @test-link [[rule_tension_across_phrases_never_marks_custom]]
+describe('the selection under the multi-phrase tension arc', () => {
+  // @test-link [[rule_tension_across_phrases_never_marks_custom]]
+  it.each(CHOSEN_ARCS)(
+    'never changes the selection nor the figure levels with Vary settings off, Jazz selected (%s)',
+    (tension) => {
+      const settings: SessionSettings = {
+        ...sessionSettings({ tempo: FAST_TEMPO, tension }),
+        figureLevels: JAZZ_FIGURE_LEVELS,
+        selection: { kind: 'preset', presetId: 'jazz' },
+      }
+      const driver = new SessionDriver({
+        at: 0,
+        settings,
+        phraseOne: phraseOneFor(settings),
+        multiPhraseTensionArc: true,
+      })
+      driveSession(driver, SOUNDED)
+      const stepped = driver
+        .requests()
+        .filter((request) => request.intent.controls.tension !== tension)
+      expect(stepped.length, 'the arc stepped some phrase').toBeGreaterThan(0)
+      expect(settingsChanges(driver)).toEqual([])
+      for (const request of driver.requests())
+        expect(request.intent.figureLevels).toEqual(JAZZ_FIGURE_LEVELS)
+      for (const phrase of generatedPhrases(driver))
+        expect(phrase.intent.figureLevels).toEqual(JAZZ_FIGURE_LEVELS)
     },
   )
 })

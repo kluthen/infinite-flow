@@ -22,7 +22,7 @@ import {
 /**
  * Intent: the session a session end gives its Review: its closed history, the instrument's name
  * from phrase 1's own intent (the profile the session was played with, my instrument's included,
- * never looked up by id), the preset label of the profile selection the session started with
+ * never looked up by id), the preset label of the preset selection the session started with
  * (its history's, never the current settings'), the tempo it reached (its last sounded phrase's),
  * how it is kept, and the key and played-notes fact its save was asked for with, nothing pinned,
  * chosen or commented yet; a history in which no phrase sounded gives none and throws.
@@ -33,7 +33,7 @@ import {
 export function endedSession(
   history: Pick<
     SessionHistory,
-    'phrases' | 'phraseCount' | 'startedAt' | 'tempoReached' | 'profileSelection'
+    'phrases' | 'phraseCount' | 'startedAt' | 'tempoReached' | 'selection'
   >,
   keeping: SessionKeeping,
   saving: EndedSessionSave,
@@ -48,7 +48,7 @@ export function endedSession(
   return Object.freeze({
     history,
     instrumentName,
-    presetLabel: presetLabel(history.profileSelection),
+    presetLabel: presetLabel(history.selection),
     tempoReached,
     keeping,
     key,

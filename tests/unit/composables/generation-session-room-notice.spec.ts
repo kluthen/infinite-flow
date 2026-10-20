@@ -145,13 +145,36 @@ describe('too-many-notes notice: what starts a round', () => {
     expect(built.session.state.roomNotice).toBeNull()
   })
 
-  it('starts a round on a musical-profile switch', async () => {
+  // @test-link [[module_generative_profile_selection]]
+  it('starts a round on a preset choice that changes a setting', async () => {
     const built = await afterFailedRound()
 
-    built.session.actions.selectMusicalProfile('Jazz')
+    built.session.actions.selectPreset('jazz')
     await flushAsync()
 
     expect(built.counts.seed).toBe(5)
+  })
+
+  // @test-link [[module_generative_profile_selection]]
+  it('starts nothing on choosing the preset already selected', async () => {
+    const built = await afterFailedRound()
+
+    expect(built.session.actions.selectPreset('neutral')).toBe(true)
+    await flushAsync()
+
+    expect(built.counts.seed).toBe(4)
+    expect(built.session.state.roomNotice).toBe('notes_too_wide')
+  })
+
+  // @test-link [[module_profile_control_customization]]
+  it('starts a round on a figure-level change', async () => {
+    const built = await afterFailedRound()
+
+    expect(built.session.actions.setFigureLevel('neighborTone', 'off')).toBe(true)
+    await flushAsync()
+
+    expect(built.counts.seed).toBe(5)
+    expect(built.generated[4]!.figureLevels.neighborTone).toBe('off')
   })
 
   it('starts nothing on a tempo change or a theme change', async () => {
@@ -306,7 +329,25 @@ describe('no-room notice and layout failures of the phrase on screen', () => {
     expect(built.session.state.roomNotice).toBeNull()
   })
 
-  it('only changes the selection on an instrument-profile switch', async () => {
+  // @test-link [[module_generative_profile_selection]]
+  it('runs a room check on a preset choice that changes a setting, and none on a no-op choice', async () => {
+    const built = await underNoRoomNotice()
+    const checksBefore = built.staff.roomChecks.length
+
+    expect(built.session.actions.selectPreset('neutral')).toBe(true)
+    await flushAsync()
+    expect(built.staff.roomChecks).toHaveLength(checksBefore)
+
+    built.staff.setRoom(ROOM)
+    expect(built.session.actions.selectPreset('jazz')).toBe(true)
+    await flushAsync()
+
+    expect(built.staff.roomChecks.length).toBeGreaterThan(checksBefore)
+    expect(built.counts.seed).toBe(2)
+    expect(built.session.state.roomNotice).toBeNull()
+  })
+
+  it('only changes the instrument on an instrument-profile switch', async () => {
     const built = await underNoRoomNotice()
 
     await expect(built.session.actions.selectInstrumentProfile('eb-alto')).resolves.toBe('applied')

@@ -61,7 +61,8 @@ describe('composeWorkspaceSession session runner', () => {
         at: 0,
         settings: {
           controls: workspace.session.state.controls,
-          musicalProfile: workspace.session.state.profileSelection,
+          figureLevels: workspace.session.state.figureLevels,
+          selection: workspace.session.state.selection,
         },
         phraseOne: { intent: idle!.intent, outcome: idle!.outcome },
         sessionSeed: idle!.sessionSeed,
@@ -106,7 +107,8 @@ describe('composeWorkspaceSession session runner', () => {
         at: 0,
         settings: {
           controls: workspace.session.state.controls,
-          musicalProfile: workspace.session.state.profileSelection,
+          figureLevels: workspace.session.state.figureLevels,
+          selection: workspace.session.state.selection,
         },
         phraseOne: { intent: idle.intent, outcome: idle.outcome },
         sessionSeed: idle.sessionSeed,
@@ -186,7 +188,8 @@ describe('composeWorkspaceSession phrase replay key', () => {
         at: 0,
         settings: {
           controls: workspace.session.state.controls,
-          musicalProfile: workspace.session.state.profileSelection,
+          figureLevels: workspace.session.state.figureLevels,
+          selection: workspace.session.state.selection,
         },
         phraseOne: { intent: idle.intent, outcome: idle.outcome },
         sessionSeed: idle.sessionSeed,

@@ -22,6 +22,7 @@ import { makeRequestId } from '@/domain/generation/generation-request'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import { makeSeed } from '@/domain/random/seed'
+import { levelsForProfile } from '@/domain/figures/figure-levels'
 
 /** One corpus case: a label naming it, its intent and the phrase number its key carries. */
 export interface ReplayKeyCorpusCase {
@@ -137,7 +138,7 @@ function corpusIntent(options: {
     requestId: makeRequestId(`corpus-${options.label}`),
     seed: makeSeed(options.seed),
     controls: makeGenerationControls(options.controls),
-    musicalProfile: options.profile,
+    figureLevels: levelsForProfile(options.profile.musicalProfile),
   }
   return options.carryIn === undefined
     ? createGenerationIntent(input)

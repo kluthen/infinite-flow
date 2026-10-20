@@ -10,9 +10,13 @@ import { describe, expect, it } from 'vitest'
 import {
   makeGenerationControls,
   type GenerationControls,
-  type MusicalProfile,
 } from '@/domain/controls/generation-controls'
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
+import {
+  JAZZ_FIGURE_LEVELS,
+  NEUTRAL_FIGURE_LEVELS,
+  type FigureLevels,
+} from '@/domain/figures/figure-levels'
 import { CarryInError, makeCarryIn, type CarryIn } from '@/domain/generation/carry-in/carry-in'
 import { owedRecoveryCanSettle } from '@/domain/generation/carry-in/phrase-ending-debt'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
@@ -33,14 +37,18 @@ interface PhraseOne {
   readonly carryIn: CarryIn
 }
 
-/** Intent: session settings from the fixture's base controls with some of them changed. */
+/**
+ * Intent: session settings from the fixture's base controls with some of them changed, the
+ * figure levels Neutral's unless given, the selection Custom based on Neutral.
+ */
 function settings(
   controls: Partial<GenerationControls> = {},
-  musicalProfile: MusicalProfile = 'Neutral',
+  figureLevels: FigureLevels = NEUTRAL_FIGURE_LEVELS,
 ): SessionSettings {
   return {
     controls: makeGenerationControls({ ...BASE_CONTROLS, ...controls }),
-    musicalProfile: { musicalProfile, isCustom: true },
+    figureLevels,
+    selection: { kind: 'custom', baseId: 'neutral' },
   }
 }
 
@@ -49,7 +57,7 @@ function phraseOne(seed: number, before: SessionSettings): PhraseOne {
   const intent = buildIntent({
     seed,
     controls: before.controls,
-    musicalProfile: before.musicalProfile.musicalProfile,
+    figureLevels: before.figureLevels,
     label: 'adaptation',
   })
   return { intent, carryIn: carryInAfter(intent, generateSuccess(intent), 1) }
@@ -70,7 +78,7 @@ function receive(after: SessionSettings, carryIn: CarryIn): GenerationIntent {
   return buildIntent({
     seed: 99,
     controls: after.controls,
-    musicalProfile: after.musicalProfile.musicalProfile,
+    figureLevels: after.figureLevels,
     label: 'adaptation-receiver',
     carryIn,
   })
@@ -127,11 +135,12 @@ describe('adapting a carry-in when no relevant setting changed', () => {
   })
 
   // @test-link [[module_session_carry_in_after_change]]
-  it("returns the very same carry-in after a change of the profile's customized mark alone", () => {
+  it('returns the very same carry-in after a change of the preset selection alone', () => {
     const phrase = phraseOne(MIDDLE_HIGH_PITCH_SEED, MIDDLE)
     const after: SessionSettings = {
       ...MIDDLE,
-      musicalProfile: { musicalProfile: 'Neutral', isCustom: false },
+      figureLevels: NEUTRAL_FIGURE_LEVELS,
+      selection: { kind: 'preset', presetId: 'neutral' },
     }
     expect(keptCarryIn(adapt(phrase, MIDDLE, after))).toBe(phrase.carryIn)
   })
@@ -191,11 +200,11 @@ describe('adapting a carry-in after a harmony setting change', () => {
   })
 
   // @test-link [[module_session_carry_in_after_change]]
-  it('re-checks the carry-in after a Neutral–Jazz change, whose levels differ, keeping a chord that still fits', () => {
+  it("re-checks the carry-in after a change from Neutral's figure levels to Jazz's and back, keeping a chord that still fits", () => {
     const phrase = phraseOne(MIDDLE_HIGH_PITCH_SEED, MIDDLE)
     for (const [before, after] of [
-      [MIDDLE, settings({}, 'Jazz')],
-      [settings({}, 'Jazz'), MIDDLE],
+      [MIDDLE, settings({}, JAZZ_FIGURE_LEVELS)],
+      [settings({}, JAZZ_FIGURE_LEVELS), MIDDLE],
     ] as const) {
       const adapted = keptCarryIn(adapt(phrase, before, after))
       expect(adapted).not.toBe(phrase.carryIn)

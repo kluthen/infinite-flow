@@ -5,8 +5,10 @@
  * and the mutation's number, and gets the same answer for the same inputs every time.
  */
 
+import type { GenerationControls } from '../domain/controls/generation-controls'
 import { isRhythmSettingBlocked } from '../domain/controls/unsupported-rhythm-settings'
 import { deepFreeze } from '../domain/events/deep-freeze'
+import { FIGURE_IDS, type FigureId } from '../domain/figures/figure-levels'
 import type { Seed } from '../domain/random/seed'
 import { deriveIndexedStream, type IndexedStream } from '../domain/random/streams'
 import { freezeSessionSettings } from './session-intents'
@@ -16,8 +18,9 @@ import {
   MUTATION_SCALES,
   SettingsMutationError,
   scaleNeighbours,
+  type ControlScaleTable,
+  type MutableControl,
   type MutableSetting,
-  type MutableValue,
   type MutationContext,
   type MutationScaleEntry,
 } from './settings-mutation-scales'
@@ -27,6 +30,9 @@ export {
   MUTATION_SCALES,
   SettingsMutationError,
   scaleNeighbours,
+  type ControlScaleTable,
+  type FigureStepEntry,
+  type MutableControl,
   type MutableSetting,
   type MutableValue,
   type MutationContext,
@@ -61,11 +67,16 @@ export const SETTINGS_MUTATION_OFF: SettingsMutationFlag = deepFreeze<SettingsMu
 // @spec-link [[req_settings_mutation_flag]]
 export const SETTINGS_MUTATION_DEFAULT: SettingsMutationFlag = SETTINGS_MUTATION_OFF
 
-/** A decided mutation: the setting changed, the value it stepped from and to, and the new settings. */
+/**
+ * A decided mutation: the setting changed, the value it stepped from and to, and the new settings.
+ * A figure step names the figure it moved, and its from and to are that figure's levels; no other
+ * step has a figure.
+ */
 // @spec-link [[module_settings_mutation]]
 // @spec-link [[rule_mutation_draws_setting_then_direction]]
 export interface SettingsMutationResult {
   readonly setting: MutableSetting
+  readonly figure?: FigureId
   readonly from: string
   readonly to: string
   readonly settings: SessionSettings
@@ -143,29 +154,67 @@ function isSupportedStep(
   return !isRhythmSettingBlocked(settings.controls, context)
 }
 
-/** Intent: every step of one setting from its current value, each with its landed settings. */
-function settingCandidates<K extends MutableSetting>(
+/** Intent: one step landing on `settings`, frozen and marked supported or not, figure kept. */
+function candidateOf(
+  step: { readonly setting: MutableSetting; readonly figure?: FigureId },
+  from: string,
+  to: string,
+  settings: SessionSettings,
+  context: MutationContext,
+): MutationCandidate {
+  const landed = freezeSessionSettings(settings)
+  return {
+    setting: step.setting,
+    ...(step.figure === undefined ? {} : { figure: step.figure }),
+    from,
+    to,
+    settings: landed,
+    supported: isSupportedStep(step.setting, to, landed, context),
+  }
+}
+
+/** Intent: every step of one control from its current value, each with its landed settings. */
+function controlCandidates<K extends MutableControl>(
   setting: K,
   settings: SessionSettings,
   context: MutationContext,
 ): readonly MutationCandidate[] {
-  const entry: MutationScaleEntry<MutableValue<K>> = MUTATION_SCALES[setting]
+  const table: ControlScaleTable = MUTATION_SCALES
+  const entry: MutationScaleEntry<GenerationControls[K]> = table[setting]
   const from = entry.from(settings, context)
-  return scaleNeighbours(entry.scale, from).map((to) => {
-    const landed = freezeSessionSettings(entry.apply(settings, to))
-    return {
-      setting,
-      from,
-      to,
-      settings: landed,
-      supported: isSupportedStep(setting, to, landed, context),
-    }
+  return scaleNeighbours(entry.scale, from).map((to) =>
+    candidateOf({ setting }, from, to, entry.apply(settings, to), context),
+  )
+}
+
+/**
+ * Intent: every figure step from the current levels, figure by figure in FIGURE_IDS order and
+ * level by level: one figure one level up or down, never past Off or Strongly favored.
+ */
+// @spec-link [[rule_vary_settings_figure_step]]
+function figureCandidates(
+  settings: SessionSettings,
+  context: MutationContext,
+): readonly MutationCandidate[] {
+  const entry = MUTATION_SCALES.figureLevels
+  return entry.figures.flatMap((figure) => {
+    const from = entry.from(settings, figure)
+    return scaleNeighbours(entry.scale, from).map((to) =>
+      candidateOf(
+        { setting: 'figureLevels', figure },
+        from,
+        to,
+        entry.apply(settings, figure, to),
+        context,
+      ),
+    )
   })
 }
 
 /**
  * Intent: every step a mutation of these settings could take, setting by setting in
- * `MUTABLE_SETTINGS` order and neighbour by neighbour, each marked supported or not. Unsupported
+ * `MUTABLE_SETTINGS` order and neighbour by neighbour (the figure levels' figure by figure), each
+ * marked supported or not. Unsupported
  * steps are listed too: the draw lands on them and redraws.
  */
 // @spec-link [[rule_mutation_draws_setting_then_direction]]
@@ -175,7 +224,11 @@ export function mutationCandidates(
   settings: SessionSettings,
   context: MutationContext,
 ): readonly MutationCandidate[] {
-  return MUTABLE_SETTINGS.flatMap((setting) => settingCandidates(setting, settings, context))
+  return MUTABLE_SETTINGS.flatMap((setting) =>
+    setting === 'figureLevels'
+      ? figureCandidates(settings, context)
+      : controlCandidates(setting, settings, context),
+  )
 }
 
 /** Intent: one item drawn uniformly from a non-empty list. */
@@ -186,12 +239,41 @@ function drawFrom<T>(stream: IndexedStream, items: readonly T[]): T {
 }
 
 /**
- * Intent: draw mutation k from its candidates: one setting uniformly among those with a step, then
- * one of its steps uniformly, redrawn both from the same (seed, k) stream while the step lands on
- * something unsupported. Crashes up front when no candidate is supported, rather than looping.
+ * Intent: the figure steps a draw chooses among: one figure drawn uniformly among the figures
+ * with a step, then that figure's steps. Only a figure-levels draw calls it, so every other
+ * setting's draw takes exactly the floats it took when the musical profile held this place.
+ */
+// @spec-link [[rule_vary_settings_figure_step]]
+function drawnFigureSteps(
+  stream: IndexedStream,
+  steps: readonly MutationCandidate[],
+): readonly MutationCandidate[] {
+  const figures = FIGURE_IDS.filter((figure) => steps.some((step) => step.figure === figure))
+  const figure = drawFrom(stream, figures)
+  return steps.filter((step) => step.figure === figure)
+}
+
+/** Intent: the result a drawn step gives: the step without its support mark, frozen. */
+function resultOf(step: MutationCandidate): SettingsMutationResult {
+  const { setting, from, to, settings } = step
+  return deepFreeze({
+    setting,
+    ...(step.figure === undefined ? {} : { figure: step.figure }),
+    from,
+    to,
+    settings,
+  })
+}
+
+/**
+ * Intent: draw mutation k from its candidates: one setting uniformly among those with a step;
+ * for the figure levels, one figure uniformly among those with a step; then one of its steps
+ * uniformly; all redrawn from the same (seed, k) stream while the step lands on something
+ * unsupported. Crashes up front when no candidate is supported, rather than looping.
  */
 // @spec-link [[rule_mutation_draws_setting_then_direction]]
 // @spec-link [[rule_mutation_rerolls_unsupported_combination]]
+// @spec-link [[rule_vary_settings_figure_step]]
 // @spec-link [[module_settings_mutation]]
 export function drawMutation(
   candidates: readonly MutationCandidate[],
@@ -207,20 +289,19 @@ export function drawMutation(
   const stream = deriveIndexedStream(seed, 'settings-mutation', k)
   for (let draw = 0; draw < MAX_MUTATION_DRAWS; draw += 1) {
     const setting = drawFrom(stream, eligible)
-    const step = drawFrom(
-      stream,
-      candidates.filter((candidate) => candidate.setting === setting),
-    )
-    if (step.supported)
-      return deepFreeze({ setting, from: step.from, to: step.to, settings: step.settings })
+    const ofSetting = candidates.filter((candidate) => candidate.setting === setting)
+    const steps = setting === 'figureLevels' ? drawnFigureSteps(stream, ofSetting) : ofSetting
+    const step = drawFrom(stream, steps)
+    if (step.supported) return resultOf(step)
   }
   throw new SettingsMutationError(`No supported mutation came up in ${MAX_MUTATION_DRAWS} draws.`)
 }
 
 /**
  * Intent: decide mutation k of a session: from the settings in effect, change exactly one eligible
- * setting by one grade, never tempo or the instrument, landing on a supported combination. The
- * result is a pure function of its inputs. Settings that are unsupported to begin with are a
+ * setting by one grade (a figure step, one figure by one level), never tempo or the instrument,
+ * landing on a supported combination; a step of a preset-held setting marks the selection Custom.
+ * The result is a pure function of its inputs. Settings that are unsupported to begin with are a
  * caller bug and throw.
  */
 // @spec-link [[module_settings_mutation]]

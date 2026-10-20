@@ -11,7 +11,7 @@ import type {
   ThemePreference,
 } from '../../src/composables/use-generation-session'
 import type { SavedDataLoad } from '../../src/storage-bootstrap'
-import type { SettingChanges } from '../../src/storage/settings-saver'
+import { presetChoiceOfSavedProfile, type SettingChanges } from '../../src/storage/settings-saver'
 import { fakeSavedData } from './components/workspace/fake-workspace-dependencies'
 
 let lastGenerate: ReturnType<typeof vi.fn> | null = null
@@ -31,8 +31,8 @@ let controllerLoad: { promise: Promise<void>; resolve: () => void } | null = nul
 /**
  * Intent: a minimal idle-state session double so App.spec.ts never constructs the real
  * `createWorkspaceSession` factory, which would spin up a real browser `Worker` -- unavailable
- * and unwanted in jsdom. It starts from the given saved data's controls, profile selection and
- * theme, as the real one does. `setTheme` genuinely mutates its own reactive presentation state,
+ * and unwanted in jsdom. It starts from the given saved data's controls, the preset selection and
+ * levels its saved selection loads as, and theme, as the real one does. `setTheme` genuinely mutates its own reactive presentation state,
  * so a test can assert App.vue's DOM theme-application watcher reacts to a real state change.
  * Its saver records every batch in `lastSaves`.
  */
@@ -43,9 +43,10 @@ function fakeWorkspaceSession(savedData: SavedDataLoad = fakeSavedData()) {
   lastSaves = saves
   const damagedSessionReports = createDamagedSessionReports()
   lastDamagedReports = damagedSessionReports
+  const { controls, profileSelection } = savedData.settings
   const state = reactive({
-    controls: savedData.settings.controls,
-    profileSelection: savedData.settings.profileSelection,
+    controls,
+    ...presetChoiceOfSavedProfile(profileSelection, controls),
     presentation: { theme: savedData.settings.theme } as {
       theme: ThemePreference
     },
@@ -65,7 +66,8 @@ function fakeWorkspaceSession(savedData: SavedDataLoad = fakeSavedData()) {
     state,
     actions: {
       setControl: () => false,
-      selectMusicalProfile: () => false,
+      selectPreset: () => false,
+      setFigureLevel: () => false,
       selectInstrumentProfile: async () => 'rejected',
       saveMyInstrument: async () => 'rejected',
       saveAndSelectMyInstrument: async () => 'rejected',

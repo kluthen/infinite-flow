@@ -266,7 +266,11 @@ export function controllerRig(
   const settings = sessionSettings({ tempo: options.tempo ?? RIG_TEMPO })
   const phraseOne: WorkspaceSessionResult = {
     ...phraseOneFor(settings),
-    settings: { controls: settings.controls, profileSelection: settings.musicalProfile },
+    settings: {
+      controls: settings.controls,
+      figureLevels: settings.figureLevels,
+      selection: settings.selection,
+    },
     sessionSeed: RIG_SESSION_SEED,
   }
   const idleWritten = transformToWrittenPhrase(
@@ -277,7 +281,8 @@ export function controllerRig(
   const planner = createFakePlanner()
   const idle = shallowReactive<MutableGenerationSessionState<WorkspaceSessionResult>>({
     controls: settings.controls,
-    profileSelection: settings.musicalProfile,
+    figureLevels: settings.figureLevels,
+    selection: settings.selection,
     presentation: { theme: 'System' },
     myInstrument: null,
     latestIntent: phraseOne.intent,

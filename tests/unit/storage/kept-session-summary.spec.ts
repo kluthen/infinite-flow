@@ -72,7 +72,7 @@ describe('the session-wide record of a kept session, stored and read back', () =
       recordedByAppVersion: APP_VERSION,
       sessionSeed: history.sessionSeed,
     })
-    expect(history.profileSelection).toEqual({ musicalProfile: 'Neutral', isCustom: true })
+    expect(history.selection).toEqual({ kind: 'custom', baseId: 'neutral' })
     expect(history.sessionSeed).toBe(DEFAULT_SESSION_SEED)
   })
 

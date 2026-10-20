@@ -12,10 +12,9 @@ import {
   createGenerationSession,
   type MyInstrumentSessions,
 } from '@/composables/use-generation-session'
-import {
-  DEFAULT_GENERATION_CONTROLS,
-  DEFAULT_PROFILE_SELECTION,
-} from '@/domain/controls/profile-selection'
+import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
+import { DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
 import { makeRequestId } from '@/domain/generation/generation-request'
 import { makeMyInstrument, type MyInstrument } from '@/domain/profile/my-instrument'
@@ -114,7 +113,8 @@ async function withPhrase(
     notate: async () => {},
     initialSettings: {
       controls,
-      profileSelection: DEFAULT_PROFILE_SELECTION,
+      figureLevels: NEUTRAL_FIGURE_LEVELS,
+      selection: DEFAULT_PRESET_SELECTION,
       theme: 'System',
       myInstrument: LOW_TENOR,
     },

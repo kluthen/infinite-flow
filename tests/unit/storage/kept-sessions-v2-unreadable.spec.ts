@@ -11,6 +11,7 @@
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import type { ProfileSelection } from '@/domain/controls/profile-selection'
+import type { PresetSelection } from '@/domain/presets/preset-selection'
 import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { upgradedKeptBody, upgradedKeptSummary } from '@/storage/migrations/kept-sessions-v2'
 import { isKeptPhraseRefusal } from '@/storage/records/kept-phrase-parsers'
@@ -47,6 +48,9 @@ import { freshFactory, rawGet, withRawDatabase } from './storage-test-doubles'
 
 /** The selections the sessions were kept with. */
 const NEUTRAL: ProfileSelection = { musicalProfile: 'Neutral', isCustom: false }
+
+/** The same selection in v3.1's form, as a session history holds it. */
+const NEUTRAL_PRESET: PresetSelection = { kind: 'preset', presetId: 'neutral' }
 const JAZZ: ProfileSelection = { musicalProfile: 'Jazz', isCustom: false }
 
 /** The facts of a kept session with one favorite and its played notes kept. */
@@ -60,7 +64,11 @@ const FACTS: KeptSessionFacts = {
 /** Intent: a three-phrase Neutral tenor session's values as data version 1 kept them in `shape`. */
 function neutralSession(shape: V1Shape): StoredKeptSession {
   const phrases = recordedKeptSession('bb-tenor', 3).phrases()
-  const records = encodeKeptSession(historyOf(phrases, 'bb-tenor', NEUTRAL), FACTS, V30_APP_VERSION)
+  const records = encodeKeptSession(
+    historyOf(phrases, 'bb-tenor', NEUTRAL_PRESET),
+    FACTS,
+    V30_APP_VERSION,
+  )
   return v1Session(records, NEUTRAL, shape)
 }
 
@@ -170,7 +178,7 @@ function malformedSummaries(summary: unknown): readonly (readonly [string, unkno
 function malformedBodies(body: unknown): readonly (readonly [string, unknown])[] {
   const disagreeing = v1Session(
     encodeKeptSession(
-      historyOf(recordedKeptSession('bb-tenor', 3).phrases(), 'bb-tenor', NEUTRAL),
+      historyOf(recordedKeptSession('bb-tenor', 3).phrases(), 'bb-tenor', NEUTRAL_PRESET),
       FACTS,
       V30_APP_VERSION,
     ),

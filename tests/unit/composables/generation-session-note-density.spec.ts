@@ -53,13 +53,13 @@ describe('generation session: the density a phrase is generated with', () => {
   it('generates a chosen Sixteenth as Eighth below bp-tablet-landscape and keeps it chosen', async () => {
     const { session, intents } = densitySession(true)
     session.actions.setControl('noteDensity', 'Sixteenth')
-    const selectionBefore = session.state.profileSelection
+    const selectionBefore = session.state.selection
 
     await expect(session.actions.generate()).resolves.toBe(true)
 
     expect(intents[0]!.controls.noteDensity).toBe('Eighth')
     expect(session.state.controls.noteDensity).toBe('Sixteenth')
-    expect(session.state.profileSelection).toBe(selectionBefore)
+    expect(session.state.selection).toBe(selectionBefore)
   })
 
   it('applies the chosen Sixteenth again to the next phrase generated at or above the width', async () => {

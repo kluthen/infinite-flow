@@ -25,9 +25,6 @@ import {
   DEFAULT_GENERATION_CONTROLS,
   DEFAULT_PROFILE_SELECTION,
   PROFILE_BUNDLES,
-  applyControlledCustomValue,
-  applyMusicalProfile,
-  applyNonProfileControlValue,
 } from '@/domain/controls/profile-selection'
 
 // @test-link [[module_generation_control_catalog]]
@@ -137,52 +134,5 @@ describe('the instrument control names my instrument by its fixed id', () => {
           instrumentProfileId: id as 'my-instrument',
         }),
       ).toThrow(GenerationControlError)
-  })
-})
-
-// @test-link [[module_profile_control_customization]]
-describe('profile bundle replacement and customization', () => {
-  // @test-link [[module_generative_profile_selection]]
-  // @test-link [[rule_selectable_generative_profiles]]
-  // @test-link [[rule_profile_presets_apply_defined_controls]]
-  it('applies each complete immutable bundle and reselecting replaces arbitrary custom values', () => {
-    let [controls, selection] = applyMusicalProfile(DEFAULT_GENERATION_CONTROLS, 'Jazz')
-    expect(controls).toMatchObject(PROFILE_BUNDLES.Jazz)
-    expect(selection).toEqual({ musicalProfile: 'Jazz', isCustom: false })
-
-    ;[controls, selection] = applyControlledCustomValue(controls, selection, 'register', 'Low')
-    ;[controls, selection] = applyControlledCustomValue(controls, selection, 'contour', 'Falling')
-    expect(selection).toEqual({ musicalProfile: 'Jazz', isCustom: true })
-    expect(controls).toMatchObject({ register: 'Low', contour: 'Falling' })
-
-    ;[controls, selection] = applyMusicalProfile(controls, 'Neutral')
-    expect(controls).toMatchObject(PROFILE_BUNDLES.Neutral)
-    expect(selection).toEqual({ musicalProfile: 'Neutral', isCustom: false })
-  })
-
-  // @test-link [[rule_profile_control_customization]]
-  it('retains grammar identity on controlled custom edits and never mutates preset definitions', () => {
-    const before = JSON.stringify(PROFILE_BUNDLES)
-    const [controls, selection] = applyControlledCustomValue(
-      DEFAULT_GENERATION_CONTROLS,
-      DEFAULT_PROFILE_SELECTION,
-      'noteDensity',
-      'Sixteenth',
-    )
-
-    expect(selection).toEqual({ musicalProfile: 'Neutral', isCustom: true })
-    expect(controls.noteDensity).toBe('Sixteenth')
-    expect(JSON.stringify(PROFILE_BUNDLES)).toBe(before)
-    expect(Object.isFrozen(PROFILE_BUNDLES.Neutral)).toBe(true)
-  })
-
-  it('does not mark a profile custom after a non-profile-controlled edit', () => {
-    const [, selection] = applyNonProfileControlValue(
-      DEFAULT_GENERATION_CONTROLS,
-      DEFAULT_PROFILE_SELECTION,
-      'tempo',
-      100,
-    )
-    expect(selection).toBe(DEFAULT_PROFILE_SELECTION)
   })
 })

@@ -46,6 +46,10 @@ interface WorkspaceHarnessSnapshot {
   readonly retriesRunning: boolean
   /** How many times the notice has had to be announced since the page loaded. */
   readonly roomNoticeAnnouncements: number
+  /** The player's seven figure levels: each figure id to its level id. */
+  readonly figureLevels: Readonly<Record<string, string>>
+  /** The player's preset selection: a preset, or Custom naming its base. */
+  readonly selection: WorkspaceHarnessPresetSelection
 }
 
 /** Where the harness's audio runs: the fake audio rig (the default) or `?audio=real`. */
@@ -501,10 +505,19 @@ interface WorkspaceHarnessSessionApi {
   changeSettings: (controls: Readonly<Record<string, string>>) => void
 }
 
-/** Session settings as plain JSON: the generation controls and the musical profile selection. */
+/** A preset selection as plain JSON: a preset by its id, or Custom naming its base's id (or none). */
+type WorkspaceHarnessPresetSelection =
+  | { readonly kind: 'preset'; readonly presetId: string }
+  | { readonly kind: 'custom'; readonly baseId: string | null }
+
+/**
+ * Session settings as plain JSON: the generation controls, the seven figure levels (each figure
+ * id to its level id) and the preset selection.
+ */
 interface WorkspaceHarnessSettings {
   readonly controls: Readonly<Record<string, string | number>>
-  readonly musicalProfile: { readonly musicalProfile: string; readonly isCustom: boolean }
+  readonly figureLevels: Readonly<Record<string, string>>
+  readonly selection: WorkspaceHarnessPresetSelection
 }
 
 /** The instrument profile an intent carries, as plain JSON: its id, name and concert range. */
@@ -685,6 +698,12 @@ interface WorkspaceHarnessApi {
   exportsBuilt: () => number
   /** The current workspace session snapshot. */
   snapshot: () => WorkspaceHarnessSnapshot
+  /**
+   * Choose a preset by its id through the session's `selectPreset`, as the player would: any of
+   * the eight built-ins, the six the two-segment control does not offer included. Returns the
+   * session's answer (false when not at Idle); an id no preset has throws.
+   */
+  selectPreset: (id: string) => boolean
   /**
    * How many rhythm-domain prewarms the workspace has posted to the real worker since the page
    * loaded; always 0 with `?prewarm=off`.

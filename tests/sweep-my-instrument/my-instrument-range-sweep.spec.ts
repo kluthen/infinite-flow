@@ -12,16 +12,14 @@
 
 import { describe, expect, it } from 'vitest'
 
-import {
-  DEFAULT_GENERATION_CONTROLS,
-  DEFAULT_PROFILE_SELECTION,
-} from '@/domain/controls/profile-selection'
+import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import { createGenerationIntent } from '@/domain/generation/generation-intent'
 import { makeRequestId } from '@/domain/generation/generation-request'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import type { GenerationFailureCode } from '@/domain/generation/orchestration/orchestration-types'
 import { makeMyInstrument, type WrittenRange } from '@/domain/profile/my-instrument'
 import { makeSeed } from '@/domain/random/seed'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { SEEDS } from '../unit/domain/generation/carry-in/carry-in-matrix'
 import type { RhythmSetting } from '../unit/domain/generation/orchestration/cold-generation-golden/cold-generation-golden-fixture'
 import { supportedRhythmSettings } from '../unit/session/deadline-sweep'
@@ -80,7 +78,7 @@ function generateOnce(
       silenceDensity: rhythm.silenceDensity,
       instrumentProfileId: 'my-instrument',
     },
-    musicalProfile: { ...DEFAULT_PROFILE_SELECTION, isCustom: true },
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
     instrumentProfile: instrument.profile,
   })
   return generatePhrase(intent)

@@ -12,6 +12,7 @@ import { makeRequestId } from '@/domain/generation/generation-request'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import { makeSeed } from '@/domain/random/seed'
 import { handleGenerationWorkerMessage } from '@/generation-worker/generation-worker-handler'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 
 /** The same deliberately inexpensive control values used across the orchestrator's own fixtures. */
 const CHEAP_CONTROLS: GenerationControls = makeGenerationControls({
@@ -41,7 +42,7 @@ function buildIntent(
     requestId: makeRequestId(requestId),
     seed: makeSeed(seed),
     controls: makeGenerationControls({ ...CHEAP_CONTROLS, ...controlOverrides }),
-    musicalProfile: { musicalProfile: 'Neutral', isCustom: true },
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
   })
 }
 

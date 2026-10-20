@@ -23,6 +23,7 @@ import { createCanonicalRhythmDomainMemo } from '@/domain/generation/orchestrati
 import { validateGenerationResult } from '@/domain/validation/generation-result-validator'
 import { soundingSpans } from '@/domain/pitch/pitch-harmony'
 import { makeSeed } from '@/domain/random/seed'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 
 /** One of the six settings that moved from `no_legal_pitch_plan` to success under the fix. */
 interface RegressionCase {
@@ -104,7 +105,7 @@ function buildIntent(testCase: RegressionCase) {
     ),
     seed: makeSeed(1),
     controls,
-    musicalProfile: { musicalProfile: 'Neutral', isCustom: true },
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
   })
 }
 

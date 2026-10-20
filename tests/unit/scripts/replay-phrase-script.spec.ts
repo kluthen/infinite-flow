@@ -17,6 +17,7 @@ import { createGenerationIntent } from '@/domain/generation/generation-intent'
 import { makeRequestId } from '@/domain/generation/generation-request'
 import { makeSeed } from '@/domain/random/seed'
 import { encodePhraseReplayKey } from '@/generation-worker/phrase-replay-key'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 
 /** The repository root the script runs from. */
 const REPO_ROOT = fileURLToPath(new URL('../../../', import.meta.url))
@@ -59,7 +60,7 @@ const KEY = encodePhraseReplayKey(
       arpeggioChaos: 'Predictable',
       instrumentProfileId: 'bb-tenor',
     }),
-    musicalProfile: { musicalProfile: 'Neutral', isCustom: true },
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
   }),
   1,
 )

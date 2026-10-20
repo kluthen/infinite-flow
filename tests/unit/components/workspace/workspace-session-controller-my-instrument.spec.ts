@@ -52,7 +52,7 @@ describe('session controller: Start with my instrument', () => {
       requestId: makeRequestId('my-instrument-idle'),
       seed: makeSeed(11),
       controls,
-      musicalProfile: rig.idle.profileSelection,
+      figureLevels: rig.idle.figureLevels,
       instrumentProfile: MY_PROFILE,
     })
     rig.idle.controls = controls
@@ -61,7 +61,7 @@ describe('session controller: Start with my instrument', () => {
     rig.idle.result = {
       intent,
       outcome: generateSuccess(intent),
-      settings: { controls, profileSelection: rig.idle.profileSelection },
+      settings: { controls, figureLevels: rig.idle.figureLevels, selection: rig.idle.selection },
       sessionSeed: RIG_SESSION_SEED,
     }
 
@@ -90,7 +90,7 @@ describe('session controller: Start with my instrument', () => {
       requestId: makeRequestId('my-bass-idle'),
       seed: makeSeed(11),
       controls,
-      musicalProfile: rig.idle.profileSelection,
+      figureLevels: rig.idle.figureLevels,
       instrumentProfile: horn.profile,
     })
     const outcome = generateSuccess(intent)
@@ -100,7 +100,7 @@ describe('session controller: Start with my instrument', () => {
     rig.idle.result = {
       intent,
       outcome,
-      settings: { controls, profileSelection: rig.idle.profileSelection },
+      settings: { controls, figureLevels: rig.idle.figureLevels, selection: rig.idle.selection },
       sessionSeed: RIG_SESSION_SEED,
     }
     rig.showIdleWritten(transformToWrittenPhrase(notationInputFromOutcome(outcome, intent, 'bass')))

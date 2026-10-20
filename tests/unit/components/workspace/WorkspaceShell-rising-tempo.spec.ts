@@ -15,10 +15,9 @@ import WorkspaceShell from '@/components/workspace/WorkspaceShell.vue'
 import type { SessionController } from '@/components/workspace/workspace-session-controller-types'
 import type { GenerationSession } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
-import {
-  DEFAULT_GENERATION_CONTROLS,
-  DEFAULT_PROFILE_SELECTION,
-} from '@/domain/controls/profile-selection'
+import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
+import { DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
 import { transportRig } from '../../audio/transport-rig'
 import { createControllerRig } from '../../midi/midi-controller-rig'
 import { createFakeSessionController, type FakeSessionController } from './fake-session-controller'
@@ -112,7 +111,8 @@ async function startSession(wrapper: Shell, fake: FakeSessionController, hasCont
   fake.state.sessionHasController = hasController
   fake.state.shownSettings = {
     controls: DEFAULT_GENERATION_CONTROLS,
-    musicalProfile: DEFAULT_PROFILE_SELECTION,
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
+    selection: DEFAULT_PRESET_SELECTION,
   }
   await nextTick()
 }

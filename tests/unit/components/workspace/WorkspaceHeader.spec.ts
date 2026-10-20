@@ -5,10 +5,9 @@ import WorkspaceHeader from '@/components/workspace/WorkspaceHeader.vue'
 import { APP_COMMIT } from '@/components/workspace/build-id'
 import type { GenerationSession } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
-import {
-  DEFAULT_GENERATION_CONTROLS,
-  DEFAULT_PROFILE_SELECTION,
-} from '@/domain/controls/profile-selection'
+import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
+import { DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import type { SessionController } from '@/components/workspace/workspace-session-controller-types'
 import type { ControllerStatusForm } from '@/midi/controller-status'
@@ -37,7 +36,8 @@ function fakeSession(overrides: Partial<GenerationSession<WorkspaceSessionResult
 } {
   const actions: GenerationSession<WorkspaceSessionResult>['actions'] = {
     setControl: vi.fn(() => true),
-    selectMusicalProfile: vi.fn(() => true),
+    selectPreset: vi.fn(() => true),
+    setFigureLevel: vi.fn(() => true),
     selectInstrumentProfile: vi.fn(async () => 'applied' as const),
     saveMyInstrument: vi.fn(async () => 'saved' as const),
     saveAndSelectMyInstrument: vi.fn(async () => 'saved' as const),
@@ -54,7 +54,8 @@ function fakeSession(overrides: Partial<GenerationSession<WorkspaceSessionResult
   const session: GenerationSession<WorkspaceSessionResult> = {
     state: {
       controls: DEFAULT_GENERATION_CONTROLS,
-      profileSelection: DEFAULT_PROFILE_SELECTION,
+      figureLevels: NEUTRAL_FIGURE_LEVELS,
+      selection: DEFAULT_PRESET_SELECTION,
       presentation: { theme: 'System' },
       myInstrument: null,
       latestIntent: null,

@@ -125,7 +125,8 @@ describe('the settings a session phrase is generated under', () => {
     expect(stepped).toEqual({ ...before, controls: { ...before.controls, tension: 'Edge' } })
     expect(Object.isFrozen(stepped)).toBe(true)
     expect(Object.isFrozen(stepped.controls)).toBe(true)
-    expect(Object.isFrozen(stepped.musicalProfile)).toBe(true)
+    expect(Object.isFrozen(stepped.figureLevels)).toBe(true)
+    expect(Object.isFrozen(stepped.selection)).toBe(true)
     expect(settings).toEqual(before)
   })
 

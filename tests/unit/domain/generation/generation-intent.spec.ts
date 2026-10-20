@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  DEFAULT_GENERATION_CONTROLS,
-  DEFAULT_PROFILE_SELECTION,
-} from '@/domain/controls/profile-selection'
+import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import type { MusicalProfile } from '@/domain/controls/generation-controls'
 import {
   FIGURE_IDS,
@@ -65,7 +62,7 @@ describe('GenerationIntent', () => {
     requestId: makeRequestId('request-1'),
     seed: makeSeed(1),
     controls: DEFAULT_GENERATION_CONTROLS,
-    musicalProfile: DEFAULT_PROFILE_SELECTION,
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
   })
 
   it('is complete, serializable, immutable, and reuses the selected Step 3 profile policy', () => {
@@ -100,7 +97,7 @@ describe('GenerationIntent', () => {
         tonalCenter: 'C',
         instrumentProfileId: 'bb-tenor',
       },
-      musicalProfile: DEFAULT_PROFILE_SELECTION,
+      figureLevels: NEUTRAL_FIGURE_LEVELS,
     })
     expect(tenor.writtenTonalCenter).toBe('C')
     expect(tenor.controls.tonalCenter).toBe('A#')
@@ -113,7 +110,7 @@ describe('GenerationIntent', () => {
         tonalCenter: 'C',
         instrumentProfileId: 'eb-alto',
       },
-      musicalProfile: DEFAULT_PROFILE_SELECTION,
+      figureLevels: NEUTRAL_FIGURE_LEVELS,
     })
     expect(alto.writtenTonalCenter).toBe('C')
     expect(alto.controls.tonalCenter).toBe('D#')
@@ -126,7 +123,7 @@ describe('GenerationIntent', () => {
         tonalCenter: 'C',
         instrumentProfileId: 'c-keyboard',
       },
-      musicalProfile: DEFAULT_PROFILE_SELECTION,
+      figureLevels: NEUTRAL_FIGURE_LEVELS,
     })
     expect(keyboard.writtenTonalCenter).toBe('C')
     expect(keyboard.controls.tonalCenter).toBe('C')
@@ -143,7 +140,7 @@ describe('GenerationIntent', () => {
         collection: 'Dorian',
         instrumentProfileId: 'bb-tenor',
       },
-      musicalProfile: DEFAULT_PROFILE_SELECTION,
+      figureLevels: NEUTRAL_FIGURE_LEVELS,
     })
     expect(dorian.writtenTonalCenter).toBe('D')
     expect(dorian.controls.tonalCenter).toBe('C')
@@ -155,7 +152,7 @@ describe('GenerationIntent', () => {
       requestId: makeRequestId('request-varying'),
       seed: makeSeed(2),
       controls: { ...DEFAULT_GENERATION_CONTROLS, register: 'Varying' },
-      musicalProfile: DEFAULT_PROFILE_SELECTION,
+      figureLevels: NEUTRAL_FIGURE_LEVELS,
     })
     expect(varying.registerIntent.requestedRegister).toBe('Varying')
     expect(varying.registerIntent.candidates.map((candidate) => candidate.id)).toEqual([
@@ -230,7 +227,7 @@ function myInstrumentInput(instrumentProfile?: InstrumentProfile) {
     requestId: makeRequestId('request-mine'),
     seed: makeSeed(3),
     controls: MY_INSTRUMENT_CONTROLS,
-    musicalProfile: DEFAULT_PROFILE_SELECTION,
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
     ...(instrumentProfile === undefined ? {} : { instrumentProfile }),
   }
 }
@@ -312,35 +309,35 @@ const LEVELS_OF: Readonly<Record<MusicalProfile, FigureLevels>> = {
   Jazz: JAZZ_FIGURE_LEVELS,
 }
 
-const PROFILE_SELECTIONS = (['Neutral', 'Jazz'] as const).flatMap((musicalProfile) =>
-  [false, true].map((isCustom) => ({ musicalProfile, isCustom })),
-)
+const NAMED_LEVELS = (['Neutral', 'Jazz'] as const).map((name) => ({
+  name,
+  levels: LEVELS_OF[name],
+}))
 
 // @test-link [[module_generation_request_construction]]
 // @test-link [[module_figure_levels]]
-// @test-link [[rule_neutral_and_jazz_figure_levels]]
-describe('GenerationIntent: the figure levels come from the musical profile selection', () => {
-  it.each(PROFILE_SELECTIONS)(
-    "$musicalProfile (customized: $isCustom) carries its profile's levels when built and regenerated",
-    (musicalProfile) => {
+describe('GenerationIntent: the figure levels are the levels the input gives', () => {
+  it.each(NAMED_LEVELS)(
+    'holds the $name levels it was given when built and regenerated',
+    ({ levels }) => {
       const intent = makeGenerationIntent({
         requestId: makeRequestId('request-levels'),
         seed: makeSeed(7),
         controls: DEFAULT_GENERATION_CONTROLS,
-        musicalProfile,
+        figureLevels: levels,
       })
-      expect(intent.figureLevels).toStrictEqual(LEVELS_OF[musicalProfile.musicalProfile])
+      expect(intent.figureLevels).toStrictEqual(levels)
       expect(Object.isFrozen(intent.figureLevels)).toBe(true)
       const regenerated = regenerateGenerationIntent(intent, {
         nextRequestId: () => makeRequestId('request-levels-2'),
         nextSeed: () => makeSeed(8),
       })
-      expect(regenerated.figureLevels).toStrictEqual(LEVELS_OF[musicalProfile.musicalProfile])
+      expect(regenerated.figureLevels).toStrictEqual(levels)
     },
   )
 
   it.each(['Neutral', 'Jazz'] as const)(
-    "a %s intent receiving a carry-in carries its profile's levels",
+    'an intent receiving a carry-in holds the %s levels it was given',
     (musicalProfile) => {
       const first = buildIntent({ seed: 11, musicalProfile, label: 'levels' })
       expect(first.figureLevels).toStrictEqual(LEVELS_OF[musicalProfile])
@@ -351,20 +348,20 @@ describe('GenerationIntent: the figure levels come from the musical profile sele
     },
   )
 
-  it.each(PROFILE_SELECTIONS)(
-    'a $musicalProfile (customized: $isCustom) intent holds no musical profile, only its levels',
-    (musicalProfile) => {
+  it.each(NAMED_LEVELS)(
+    'an intent given the $name levels holds no musical profile, only the levels',
+    ({ levels }) => {
       const intent = createGenerationIntent({
         requestId: makeRequestId('request-levels-keys'),
         seed: makeSeed(9),
         controls: DEFAULT_GENERATION_CONTROLS,
-        musicalProfile,
+        figureLevels: levels,
       })
       const keys = Object.keys(intent)
       expect(keys).not.toContain('musicalProfile')
       expect(keys[keys.indexOf('writtenTonalCenter') + 1]).toBe('figureLevels')
       expect(JSON.stringify(intent)).not.toMatch(/Neutral|Jazz|isCustom/u)
-      expect(intent.figureLevels).toStrictEqual(LEVELS_OF[musicalProfile.musicalProfile])
+      expect(intent.figureLevels).toStrictEqual(levels)
     },
   )
 })
@@ -383,7 +380,7 @@ const GIVEN_LEVELS: FigureLevels = {
 // @test-link [[module_generation_request_construction]]
 // @test-link [[module_figure_levels]]
 describe('GenerationIntent: the figure levels given as levels', () => {
-  /** Intent: an intent built from the given levels rather than a musical profile selection. */
+  /** Intent: an intent built from levels no musical profile gives. */
   function levelsIntent(): ReturnType<typeof createGenerationIntent> {
     return createGenerationIntent({
       requestId: makeRequestId('request-given-levels'),

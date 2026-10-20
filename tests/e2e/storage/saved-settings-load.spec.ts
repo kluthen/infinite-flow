@@ -88,7 +88,7 @@ test('every seeded setting loads, the workspace is first drawn with it, and no c
     expect(drawn.radiogroups.some((group) => group.startsWith(line))).toBe(true)
   }
   expect(drawn.toggles).toEqual(expect.arrayContaining(['Backing off: false', 'Click off: false']))
-  await expect(page.locator('.control-summary')).toContainText('Custom (Jazz grammar)')
+  await expect(page.locator('.control-summary')).toContainText('Custom, based on Jazz')
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
 
   await page.getByRole('button', { name: 'Volume' }).first().click()

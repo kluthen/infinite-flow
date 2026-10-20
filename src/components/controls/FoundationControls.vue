@@ -1,8 +1,8 @@
 <script setup lang="ts">
 /**
  * The "Foundation" control group: tempo, tonal center, collection, instrument profile (with its
- * range summary), musical profile preset (with its status region), harmonic motion, and tension.
- * Props-in/events-out only; every value shown is exactly the `controls`/`profileSelection` props
+ * range summary), the Neutral/Jazz preset control (with its status region), harmonic motion, and
+ * tension. Props-in/events-out only; every value shown is exactly the `controls`/`selection` props
  * this component receives, and every change is reported upward rather than applied locally. The
  * preset status holds both of its texts, the one in use and the other one invisible, so a change
  * between them never moves the fields below; whether it announces is the parent's to say (off for
@@ -15,7 +15,6 @@
 import { computed } from 'vue'
 
 import {
-  MUSICAL_PROFILES,
   PITCH_CLASSES,
   TEMPO_VALUES,
   COLLECTIONS,
@@ -26,10 +25,11 @@ import {
   validateControlValue,
   type GenerationControls,
 } from '@/domain/controls/generation-controls'
-import type { ProfileSelection } from '@/domain/controls/profile-selection'
 import { selectedInstrumentProfile } from '@/domain/generation/generation-intent'
 import { MY_INSTRUMENT_ID, type InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import type { MyInstrument } from '@/domain/profile/my-instrument'
+import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
+import { findPreset, type PresetId, type PresetSelection } from '@/domain/presets/preset-selection'
 import SegmentedControl from './SegmentedControl.vue'
 import TempoStepper from './TempoStepper.vue'
 import type { SetControlPayload } from './set-control-event'
@@ -37,7 +37,7 @@ import {
   collectionOptions,
   harmonicMotionOptions,
   instrumentChoiceOptions,
-  musicalProfileOptions,
+  presetSegmentOptions,
   profileRangeSummaryText,
   tensionOptions,
   tonalCenterOptions,
@@ -45,7 +45,8 @@ import {
 
 const props = defineProps<{
   controls: GenerationControls
-  profileSelection: ProfileSelection
+  /** The preset selection: a preset, or Custom naming its base. */
+  selection: PresetSelection
   readonly: boolean
   /** The preset status's live announcement: `polite`, or `off` while a session runs. */
   presetStatusLive: 'polite' | 'off'
@@ -60,7 +61,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   'set-control': [payload: SetControlPayload]
   'select-instrument-profile': [id: GenerationControls['instrumentProfileId']]
-  'select-musical-profile': [profile: (typeof MUSICAL_PROFILES)[number]]
+  'select-preset': [id: PresetId]
   /** `instrument-actions` was pressed: open the My instrument sheet. */
   'open-my-instrument': []
 }>()
@@ -134,46 +135,70 @@ function handleInstrumentProfile(value: string): void {
   )
 }
 
+/** The two segments' preset ids: the Neutral and Jazz built-ins. */
+const SEGMENT_PRESET_IDS: readonly PresetId[] = presetSegmentOptions().map((option) => option.value)
+
 /**
- * Intent: report a preset choice by its validated musical-profile identity. Applying the chosen
- * preset's complete bundle -- and clearing it back to "custom" on any later manual edit -- is
+ * Intent: report a preset choice by its validated preset id. Applying the chosen preset's
+ * settings -- and marking the selection Custom on any later edit of a setting it holds -- is
  * session policy the parent owns; this only reports which preset the player picked.
  */
 // @spec-link [[rule_selectable_generative_profiles]]
-// @spec-link [[rule_profile_presets_apply_defined_controls]]
-function handleMusicalProfile(value: string): void {
-  emit(
-    'select-musical-profile',
-    validateControlValue(MUSICAL_PROFILES, value, 'Musical profile preset'),
-  )
+// @spec-link [[rule_choosing_preset_sets_its_settings]]
+function handleSelectPreset(value: string): void {
+  emit('select-preset', validateControlValue(SEGMENT_PRESET_IDS, value, 'Musical profile preset'))
 }
 
-const presetModelValue = computed<string | null>(() =>
-  props.profileSelection.isCustom ? null : props.profileSelection.musicalProfile,
-)
+/** Intent: the segment checked: Neutral's or Jazz's while selected, none otherwise (Custom included). */
+// @spec-link [[rule_custom_selection]]
+const presetModelValue = computed<string | null>(() => {
+  const { selection } = props
+  return selection.kind === 'preset' && SEGMENT_PRESET_IDS.includes(selection.presetId)
+    ? selection.presetId
+    : null
+})
 
-/** Intent: the preset status's custom copy, naming the grammar retained. */
-function customStatusText(musicalProfile: (typeof MUSICAL_PROFILES)[number]): string {
-  return `Custom configuration - ${musicalProfile} grammar retained. Choosing Neutral or Jazz replaces all seven preset-controlled values.`
+/**
+ * Intent: the name the preset status gives: the selected preset's, or Custom's base's; none for
+ * Custom with no base found.
+ */
+// @spec-link [[rule_custom_names_its_base]]
+function statusPresetName(selection: PresetSelection): string | null {
+  const id = selection.kind === 'preset' ? selection.presetId : selection.baseId
+  return id === null ? null : (findPreset(BUILT_IN_PRESETS, id)?.name ?? null)
+}
+
+/** Intent: the preset status's custom copy, naming the base retained, if any. */
+function customStatusText(name: string | null): string {
+  const retained = name === null ? '' : ` - ${name} grammar retained`
+  return `Custom configuration${retained}. Choosing Neutral or Jazz replaces all seven preset-controlled values.`
 }
 
 /** Intent: the preset status's applied-preset copy. */
-function presetStatusCopy(musicalProfile: (typeof MUSICAL_PROFILES)[number]): string {
-  return `${musicalProfile} preset applied. All seven preset-controlled values were replaced.`
+function presetStatusCopy(name: string): string {
+  return `${name} preset applied. All seven preset-controlled values were replaced.`
 }
 
 /**
- * Intent: the preset status's two texts for the current state, with the same profile name: the
+ * Intent: the preset status's two texts for the current state, with the same preset name: the
  * one in use (the custom text, emphasized, during the custom state; the preset text otherwise)
  * and the other one, kept invisible so the status always takes the longer one's block size.
+ * Custom with no base names nothing, so its reserve is its own text.
  */
 // @spec-link [[rule_automatic_change_updates_controls_quietly]]
+// @spec-link [[rule_custom_names_its_base]]
 const presetStatusTexts = computed(() => {
-  const { musicalProfile, isCustom } = props.profileSelection
-  const custom = customStatusText(musicalProfile)
-  const preset = presetStatusCopy(musicalProfile)
-  return isCustom ? { inUse: custom, reserve: preset } : { inUse: preset, reserve: custom }
+  const name = statusPresetName(props.selection)
+  const custom = customStatusText(name)
+  if (name === null) return { inUse: custom, reserve: custom }
+  const preset = presetStatusCopy(name)
+  return props.selection.kind === 'custom'
+    ? { inUse: custom, reserve: preset }
+    : { inUse: preset, reserve: custom }
 })
+
+/** Intent: whether the selection is Custom, which the status emphasizes. */
+const isCustom = computed(() => props.selection.kind === 'custom')
 
 /** Intent: the selected instrument's profile: my instrument's own, given as data, or a built-in's. */
 // @spec-link [[req_my_instrument]]
@@ -242,18 +267,18 @@ const profileRangeSummary = computed(() => profileRangeSummaryText(activeInstrum
       <span class="field-label">Musical profile preset</span>
       <SegmentedControl
         label="Musical profile preset"
-        :options="musicalProfileOptions()"
+        :options="presetSegmentOptions()"
         :model-value="presetModelValue"
         :readonly="readonly"
-        @update:model-value="handleMusicalProfile"
+        @update:model-value="handleSelectPreset"
       />
       <p class="preset-status" role="status" :aria-live="presetStatusLive">
-        <span class="preset-status-text" :class="{ 'is-custom': profileSelection.isCustom }">{{
+        <span class="preset-status-text" :class="{ 'is-custom': isCustom }">{{
           presetStatusTexts.inUse
         }}</span
         ><span
           class="preset-status-text is-reserve"
-          :class="{ 'is-custom': !profileSelection.isCustom }"
+          :class="{ 'is-custom': !isCustom }"
           aria-hidden="true"
           >{{ presetStatusTexts.reserve }}</span
         >

@@ -15,6 +15,7 @@ import type { SessionController } from '@/components/workspace/workspace-session
 import type { GenerationSession } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import type { SessionSettings } from '@/session/session-types'
 import { transportRig } from '../../audio/transport-rig'
 import { createControllerRig } from '../../midi/midi-controller-rig'
@@ -36,10 +37,14 @@ afterEach(() => {
   document.body.innerHTML = ''
 })
 
-/** Settings a session could show after a profile flip and a leapiness step: Jazz, customized. */
+/**
+ * Settings a session could show after a figure step and a Tension move from Neutral: the
+ * appoggiatura from Off to As today, Tension from Lift to Build, Custom based on Neutral.
+ */
 const VARIED: SessionSettings = {
-  controls: { ...DEFAULT_GENERATION_CONTROLS, leapiness: 'Angular' },
-  musicalProfile: { musicalProfile: 'Jazz', isCustom: true },
+  controls: { ...DEFAULT_GENERATION_CONTROLS, tension: 'Build' },
+  figureLevels: { ...NEUTRAL_FIGURE_LEVELS, appoggiatura: 'asToday' },
+  selection: { kind: 'custom', baseId: 'neutral' },
 }
 
 /** Intent: mount the shell over `session` and `controller` (null while it loads). */
@@ -135,30 +140,36 @@ describe('WorkspaceShell: the Vary settings control', () => {
 // @test-link [[rule_mutation_reverts_at_session_end]]
 describe("WorkspaceShell: a session's automatic changes", () => {
   // @test-link [[rule_automatic_change_updates_controls_quietly]]
+  // @test-link [[rule_vary_settings_marks_custom]]
   // @test-link [[rule_mutation_reverts_at_session_end]]
-  it("shows the controller's settings during a session, and the player's own again at its end", async () => {
+  it("shows the controller's settings during a session, Custom once a step moved, and the player's own again at its end", async () => {
     const fake = createFakeSessionController()
     const idle = fakeGenerationSession(readyState())
     const wrapper = mountShell(idle.session, fake.controller)
     await wrapper.get('.header-actions > button.session-action').trigger('click')
-    expect(checked(wrapper, 'Leapiness')).toBe('Shaped')
+    expect(checked(wrapper, 'Tension')).toBe('Lift')
+    expect(wrapper.get('.control-summary').text()).toBe('C Ionian · Neutral · Lift · Shaped')
 
+    // The instant the moved phrase starts sounding, the controller shows the settings it was
+    // generated with.
     fake.state.shownSettings = VARIED
     await nextTick()
-    expect(checked(wrapper, 'Leapiness')).toBe('Angular')
+    expect(checked(wrapper, 'Tension')).toBe('Build')
     expect(checked(wrapper, 'Musical profile preset')).toBeNull()
-    expect(presetStatus(wrapper)).toMatch(/^Custom configuration - Jazz grammar retained/)
+    expect(presetStatus(wrapper)).toMatch(/^Custom configuration - Neutral grammar retained/)
     expect(wrapper.get('.control-summary').text()).toBe(
-      'C Ionian · Custom (Jazz grammar) · Lift · Angular',
+      'C Ionian · Custom, based on Neutral · Build · Shaped',
     )
 
     fake.state.phase = 'running'
     fake.stop()
     await nextTick()
-    expect(checked(wrapper, 'Leapiness')).toBe('Shaped')
+    expect(checked(wrapper, 'Tension')).toBe('Lift')
     expect(checked(wrapper, 'Musical profile preset')).toBe('Neutral')
     expect(presetStatus(wrapper)).toMatch(/^Neutral preset applied/)
     expect(wrapper.get('.control-summary').text()).toBe('C Ionian · Neutral · Lift · Shaped')
+    expect(idle.state.selection).toEqual({ kind: 'preset', presetId: 'neutral' })
+    expect(idle.state.figureLevels).toEqual(NEUTRAL_FIGURE_LEVELS)
   })
 
   // @test-link [[rule_automatic_change_updates_controls_quietly]]
