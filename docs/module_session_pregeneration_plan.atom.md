@@ -14,7 +14,7 @@ parents:
 dependents:
   - [[module_idle_pregeneration_queue]]
   - [[module_session_ready_phrases]]
-version: 0.2
+version: 0.3
 layer: ARCHITECTURE
 ---
 
@@ -24,7 +24,7 @@ layer: ARCHITECTURE
 Build, purely and with no deadline, the phrases 2 to 5 a session would generate after a given phrase 1, so that what pre-generation makes at Idle is exactly what the session would have asked for at each place.
 
 ## THE RULE / LOGIC
-A pure, deadline-free pre-generation plan in the session layer, which reads no clock, touches no page and posts nothing, builds the phrases that would follow a phrase 1 in a session, one at a time, from phrase 2 to phrase 5 at most. Its inputs are phrase 1 (the Idle result's intent and successful outcome), the session seed published with that phrase 1, the settings phrase 1 was generated under (recorded with the Idle result), the chosen settings (generation controls and musical-profile selection), the Vary settings choice (off, or on with the mutation seed the session seed plan derives from the session seed, derived at Idle), the Tension across phrases choice, the window-width reading and the page-wide request-identity provider. Its caller steps it: the plan gives the next attempt to request and takes back that attempt's result, a generation outcome and, for a success, whether it fits.
+A pure, deadline-free pre-generation plan in the session layer, which reads no clock, touches no page and posts nothing, builds the phrases that would follow a phrase 1 in a session, one at a time, from phrase 2 to phrase 5 at most. Its inputs are phrase 1 (the Idle result's intent and successful outcome), the session seed published with that phrase 1, the settings phrase 1 was generated under (recorded with the Idle result), the chosen settings (generation controls, figure levels and preset selection, with the restriction in force at Start frozen in them as the session's are, so the plan's mutations stay inside it), the Vary settings choice (off, or on with the mutation seed the session seed plan derives from the session seed, derived at Idle), the Tension across phrases choice, the window-width reading and the page-wide request-identity provider. Its caller steps it: the plan gives the next attempt to request and takes back that attempt's result, a generation outcome and, for a success, whether it fits.
 
 The plan builds each request through the very functions the session engine uses, never a copy of them: the mutation landing on its scheduled phrase, the tension-arc cycle step, the look-ahead basis and the carry-in from the phrase before, and the attempt intent built with the seed the session seed plan derives for that phrase and ladder rung. So each pre-generated request is the one the session would build at that place from the same inputs, and the density step-down memory follows exactly as building those requests would.
 

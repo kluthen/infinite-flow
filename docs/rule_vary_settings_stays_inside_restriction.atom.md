@@ -4,7 +4,8 @@ status: DRAFT
 parents:
   - [[req_settings_mutation_flag]]
   - [[rule_restriction_in_force]]
-dependents: []
+dependents:
+  - [[module_settings_mutation]]
 type: RULE
 layer: BUSINESS
 version: 0.1

@@ -11,7 +11,6 @@ dependents:
   - [[rule_mutation_draws_setting_then_direction]]
   - [[rule_mutation_lands_on_scheduled_phrase]]
   - [[rule_mutation_marks_profile_customized]]
-  - [[rule_mutation_profile_flip_keeps_controls]]
   - [[rule_mutation_rerolls_unsupported_combination]]
   - [[rule_mutation_reverts_at_session_end]]
   - [[rule_mutation_setting_scales]]

@@ -1144,7 +1144,7 @@ from brightest (Lydian) to darkest (Locrian), each mode differs from the next by
 
 The scales marked D181 were proposed by the coding leader and accepted by the owner on
 2026-10-03 (spec D181): `rule_mutation_setting_scales` (tonal center, collection, contour,
-register), `rule_mutation_profile_flip_keeps_controls` and `rule_mutation_marks_profile_customized`.
+register) and `rule_mutation_marks_profile_customized`.
 A step of a value the musical profile controls marks the profile customized; a step of a value it
 does not control leaves the mark as it was. `rule_mutation_sixteenth_blocked_after_step_down`
 (below) was accepted with them.

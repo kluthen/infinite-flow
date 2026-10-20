@@ -6,7 +6,7 @@ human_name: Embellishment Figures, Each With a Level
 parents:
   - [[user_story_controlled_phrase_generation]]
 layer: BUSINESS
-version: 0.1
+version: 0.2
 priority: 1
 tags: [v3, release-v3.1, generation, player-controls, figures]
 dependents:
@@ -26,7 +26,7 @@ dependents:
 Let the player choose which decorations the melody uses, and how often, so decorations are actually heard.
 
 ## THE RULE / LOGIC
-An embellishment (a decoration) is a note, or a small group of notes, that decorates a more important note without changing the chord underneath. From v3.1 the generator can write seven kinds, called figures, as ordinary notes, and the player sets a level for each one: Off, As today, Favored or Strongly favored. A level is a preference that changes the order in which the generator tries notes; it is never a quota. The seven levels are generation settings of the Idle screen like the controls: set at Idle, the review included, locked while a session runs, saved and restored after a reload, held by every preset, and part of what every phrase is generated from. Their first-load values are the Neutral preset's.
+An embellishment (a decoration) is a note, or a small group of notes, that decorates a more important note without changing the chord underneath. From v3.1 the generator can write seven kinds, called figures, as ordinary notes, and the player sets a level for each one: Off, As today, Favored or Strongly favored. A level is a preference that changes the order in which the generator tries notes; it is never a quota. The seven levels are generation settings of the Idle screen like the controls: set at Idle, the review included, locked while a session runs, saved and restored after a reload, held by every preset, and part of what every phrase is generated from. Their first-load values are the Neutral preset's. Every level of every figure is selectable in any combination, every figure Off included: no level is refused in the controls, in a Vary settings step or when a saved setting or preset loads.
 
 ## TECHNICAL INTERFACE
 Seven figure-level controls, four levels each, sit with the generation controls at Idle and in the review.
@@ -34,4 +34,5 @@ Seven figure-level controls, four levels each, sit with the generation controls 
 ## EXPECTATION
 - Each of the seven figures has a level of Off, As today, Favored or Strongly favored.
 - The levels can be changed at Idle and in the review, never during a session.
+- Any combination of levels can be set, every figure Off included.
 - After a reload the levels are those the player last set; at first load they are Neutral's.

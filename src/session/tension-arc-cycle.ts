@@ -78,6 +78,7 @@ export function requireTensionArcFlag(multiPhraseTensionArc: unknown): boolean {
 // @spec-link [[rule_multi_phrase_tension_arc_cycle]]
 // @spec-link [[req_multi_phrase_tension_arc]]
 // @spec-link [[module_session_tension_arc_step]]
+// @spec-link [[rule_tension_across_phrases_never_marks_custom]]
 export function settingsGeneratedUnder(
   multiPhraseTensionArc: boolean,
   phraseNumber: number,

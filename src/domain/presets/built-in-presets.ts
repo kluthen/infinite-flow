@@ -34,6 +34,7 @@ export type BuiltInPresetId = (typeof BUILT_IN_PRESET_IDS)[number]
  */
 // @spec-link [[rule_built_in_preset_values]]
 // @spec-link [[rule_preset_contents]]
+// @spec-link [[rule_profile_presets_apply_defined_controls]]
 export const BUILT_IN_PRESETS: readonly Preset[] = deepFreeze([
   makePreset({
     id: 'neutral',
