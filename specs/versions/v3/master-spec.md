@@ -50,8 +50,10 @@ Status: this file holds four parts.
   many very long sessions is accepted and stated (B9; spec D376). v1.6 (2026-10-20) writes in the
   owner's ruling of that day: the passing-and-neighbor rule was measured and does not ship, every
   level stays selectable; B5.6 says which levels "every diatonic figure Off" measures, and item 9
-  that a built-in is swept as the player chooses it (B5.6, B14, B15; spec D378, D379). Its
-  sections are numbered B1 to B16.
+  that a built-in is swept as the player chooses it (B5.6, B14, B15; spec D378, D379). v1.7
+  (2026-10-20) states the owner's ruling of that day, as the design and the build already do:
+  during a session the key and mode marks keep the restriction in force at Start (B6.4; spec D385);
+  no behaviour changes. Its sections are numbered B1 to B16.
 - **[Part C — v3.2](#part-c--v32), Jam, the key and mode suggestion and the rhythm lock:**
   master spec v1.0 (2026-10-08), consolidated from the approved v3.2 drafts; approved by the
   product owner (2026-10-08). The owner confirmed the exact wording of the contract
@@ -1575,7 +1577,9 @@ preset it is **based on**, or none.
   the selection and the two controls, never stored.
 - **The highlight:** the key and mode controls mark the values the restriction in force allows,
   **not by colour alone**. With none in force, or with "any", nothing is marked. **Nothing is ever
-  blocked**: every key and mode stays selectable.
+  blocked**: every key and mode stays selectable. During a session the marks do not change: they
+  show the restriction in force at Start for the whole session, whatever key, mode or selection the
+  read-only controls show (spec D385).
 - **Opting out:** choosing a key or mode outside the restriction in force turns a selected preset
   into Custom based on it (Custom stays Custom); the restriction is no longer in force, so the
   highlight goes; no other setting changes. Choosing a key and mode back inside by hand brings the
