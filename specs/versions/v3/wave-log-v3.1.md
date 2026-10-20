@@ -474,3 +474,7 @@ wave gate. Chunk 12 first (15, 16 and 22 wait on it), then 15, 16 and 22 beside 
 - Chunk 15: merged as 43cb17c (ed24231); chunk checks and corpus guard pass. The restriction is
   frozen at Start from `BUILT_IN_PRESETS`; told chunk 16's owner (still running) that every place
   fed the built-ins needs the full list once player presets load.
+- Chunk 16: merged as b6e21f3 (12d6422, adff353; `reviewer` OKAY on step 3). Data version 3;
+  player presets load into the session and feed every place chunk 15 named. M3 inside the wait
+  (500 sessions 735–767 ms). Found: `decodeSettings` can throw on a stored BigInt or circular
+  control value (v3.0 defect), to file as an issue.

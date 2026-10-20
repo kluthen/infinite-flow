@@ -1508,7 +1508,7 @@ Record: ed24231, merged as 43cb17c (built beside chunks 16 and 22). `SessionSett
 
 ### Chunk 16 — Presets and levels on the device
 
-Status: planned
+Status: merged (w3, b6e21f3)
 Wave: 3
 Depends on: 9 (data version 2, which version 3 follows), 12 (the state)
 Architecture capture: data version 3, inside v3.0's
@@ -1586,6 +1586,8 @@ levels, restriction; data and app version) and its tolerant codec.
   release gate.
 - **Split rule:** if the brief passes about five source files, 16a the records and the version 3
   upgrade, 16b the load and the save on change.
+
+Record: 12d6422 (16a, the records and the data version 3 upgrade) and adff353 (16b, the load, the presets in the session, the e2e, M3, H5), merged as b6e21f3 (built beside chunks 15 and 22); `reviewer` OKAY on the step. `DATABASE_DATA_VERSION` 3; the `presetSelection` and `figureLevels.<id>` records at data version 3 (`PRESET_SETTINGS_DATA_VERSION`), every other setting record at 1. Step 3 deletes `profileSelection` only once read. D377's bridge deleted. `state.presets` is the built-ins then the player presets read, and feeds the control actions, `withRestrictionAtStart`, the pre-generation key and start, the summary text and the kept session's label. A v3.0 database with Jazz and Tension at Build opens as Custom based on Jazz; 400 seeded corruptions never make the read throw. M3, 2026-10-20, reference machine, load 0.7–1.6: upgrade to 3 (100 kB bodies, cold) 10 sessions 42–51 ms, 100 179–186 ms, 500 735–767 ms; start-up read with up to 60 presets and 500 sessions at most 36 ms cold. v3.1 H5 entered in `HARDWARE-CHECKLIST.md`. For the sync: J1–J3 (`module_on_device_database` without the read-time clause), `module_saved_data_loader`; drift `module_kept_session_codec`, `module_kept_session_save`. Found, outside the chunk: the settings codec can still throw on a stored BigInt or circular control value.
 
 ### Chunk 17 — Preset management: the actions and the preset sheet
 
