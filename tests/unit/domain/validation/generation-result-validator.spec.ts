@@ -33,6 +33,7 @@ import {
   validateGenerationResult,
   type GenerationResultValidationInput,
 } from '@/domain/validation/generation-result-validator'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 
 const TICKS_PER_BAR = 16
 
@@ -54,13 +55,11 @@ function buildFixture(): GenerationResultValidationInput {
     arpeggioChaos: 'Predictable',
     instrumentProfileId: 'c-keyboard',
   })
-  const musicalProfile = { musicalProfile: 'Neutral' as const, isCustom: true }
-
   const intent = createGenerationIntent({
     requestId: makeRequestId('fixture-request'),
     seed: makeSeed(7),
     controls,
-    musicalProfile,
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
   })
 
   const middleCandidate = intent.registerIntent.candidates.find(

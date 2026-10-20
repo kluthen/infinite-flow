@@ -7,6 +7,7 @@
  */
 
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { createGenerationIntent } from '@/domain/generation/generation-intent'
 import { makeRequestId } from '@/domain/generation/generation-request'
 import type { InstrumentClef } from '@/domain/profile/instrument-clef'
@@ -14,6 +15,7 @@ import { makeMyInstrument, type MyInstrument } from '@/domain/profile/my-instrum
 import { makeSeed } from '@/domain/random/seed'
 import type { SessionHistory } from '@/session/session-history'
 import type { SessionSettings, SessionStart } from '@/session/session-types'
+import { sessionFigureLevels } from '@/session/session-intents'
 import { BASE_CONTROLS, generateSuccess } from '../domain/generation/carry-in/carry-in-fixture'
 import { recordRunnerSession } from './history-recording'
 
@@ -36,7 +38,8 @@ export function myInstrumentSettings(instrument: MyInstrument): SessionSettings 
       tempo: 120,
       instrumentProfileId: 'my-instrument',
     }),
-    musicalProfile: { musicalProfile: 'Neutral', isCustom: true },
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
+    selection: { kind: 'custom', baseId: 'neutral' },
     instrumentProfile: instrument.profile,
   }
 }
@@ -50,7 +53,7 @@ export function myInstrumentPhraseOne(
     requestId: makeRequestId(`my-instrument-phrase-1-${seed}`),
     seed: makeSeed(seed),
     controls: settings.controls,
-    musicalProfile: settings.musicalProfile,
+    figureLevels: sessionFigureLevels(settings),
     ...(settings.instrumentProfile === undefined
       ? {}
       : { instrumentProfile: settings.instrumentProfile }),

@@ -21,7 +21,8 @@ player's settings as they change, and the notices that tell the player about sav
 - **Data version**: an integer naming a stored shape. The database has one; each store's record
   shape has its own.
 - **Codec**: the pure code that turns one kind of record into stored values and back
-  (`src/storage/records/`: the settings codec and the kept-session codec so far).
+  (`src/storage/records/`: the settings codec, the player preset codec and the kept-session codec
+  so far).
 - **Kept session**: a finished session stored on the device, as up to three records under one key.
 - **Outdated tab**: a tab running an older app than the one that last wrote the data. It still
   reads, and never writes.
@@ -54,6 +55,7 @@ any relative path into a `storage` directory.
 | `record-envelope.ts`              | `RecordVersions`, the two version fields every record carries, the envelope reader `readEnvelope` and the write check `assertWritableVersions`.                                                                              |
 | `app-version.ts`                  | `APP_VERSION`, the running app's package version.                                                                                                                                                                            |
 | `records/settings-record.ts`      | The settings codec, which reads its records through the envelope.                                                                                                                                                            |
+| `records/preset-record.ts`        | The player preset codec: `encodePresetRecord` and `decodePlayerPresets`, which reads the `presets` store tolerantly, record by record.                                                                                       |
 | `records/kept-session-record.ts`  | The kept-session codec: `encodeKeptSession`, `decodeKeptSession`, the decoded `KeptSession` and `KeptPhrase`, and the facts and records they take and give.                                                                  |
 | `records/kept-session-summary.ts` | The session-wide record, its allowlist of keys, and `decodeKeptSessionSummary`, which reads it alone.                                                                                                                        |
 | `records/kept-session-body.ts`    | The body record and the allowlist of a kept phrase's keys.                                                                                                                                                                   |
@@ -82,28 +84,33 @@ browser profile; the code adds nothing for that.
 | `sessionSummaries` | What a list row and Your data's counts show for each kept session.                          |
 | `sessionBodies`    | A kept session's phrases, read only when the session is opened.                             |
 | `playedNotes`      | One record per session, in a store of its own so the opt-in and the deletions are provable. |
+| `presets`          | One record per player preset, under its id; the built-in presets are never stored.          |
 
 Keys are strings the caller supplies, kept outside the record (out-of-line keys). No store has an
-index: any ordering, such as kept sessions by date, is done in memory over the summaries. The set
-of stores is fixed at data version 1; a store added later needs its own migration step.
+index: any ordering, such as kept sessions by date, is done in memory over the summaries. Data
+version 1 has the first seven stores; `presets` is added at data version 3 by its own migration
+step (step 3). A store added later needs its own migration step too.
 
 `meta` holds the database's data version and the version of the app that last upgraded the
 database. The port never exposes it: `read`, `readAll`, `readKeyed`, `readKeys`, `write`, `delete` and each
-change of a batch take one of the six data stores (`StoreName`), and any other name throws a plain `Error`, a
+change of a batch take one of the seven data stores (`StoreName`), and any other name throws a plain `Error`, a
 caller defect.
 
 ## Data versions
 
 One numbering covers the whole database:
 
-- **The database's data version** is one integer, `DATABASE_DATA_VERSION`: 1 in v3.0, 2 from
-  v3.1. It is the IndexedDB version the database is opened with, the `dataVersion` held in `meta`,
+- **The database's data version** is one integer, `DATABASE_DATA_VERSION`: 1 in v3.0, 3 from
+  v3.1 (step 2 for the kept sessions, step 3 for the presets and the levels). It is the IndexedDB version the database is opened with, the `dataVersion` held in `meta`,
   and the number of migration steps.
 - **A record's data version** is the data version at which its store's current record shape was
   introduced, so it is never above the database's. Each codec owns that number for its store
   (`SETTINGS_DATA_VERSION` for the settings); in v3.0 every one is 1. From v3.1 the kept
-  session-wide record and the body are at 2, and every other shape, the kept played notes
-  included, still at 1 (see [Kept sessions](#kept-sessions)).
+  session-wide record and the body are at 2 (see [Kept sessions](#kept-sessions)); the player
+  preset record (`PRESET_RECORD_DATA_VERSION`) and, in `settings`, the `presetSelection` record
+  and the seven `figureLevels.*` records (`PRESET_SETTINGS_DATA_VERSION`, by
+  `settingDataVersion(key)`) are at 3; every other shape, the kept played notes and every other
+  setting included, still at 1.
 - **A migration to data version N rewrites only the stores whose shape changes at N**, giving
   their records data version N. The records of every other store keep their number, so an older
   tab still reads them.
@@ -173,11 +180,16 @@ writes into the envelopes it rewrites. When opening finds a stored version below
 runner, inside the upgrade transaction, runs in order every step whose `toVersion` is above the
 stored version, then writes `meta` with the code's data version and the running app's version.
 
-- **Step 1**, from an empty database, creates the seven stores. `PRODUCTION_MIGRATIONS` held it
-  alone in v3.0.
+- **Step 1**, from an empty database, creates data version 1's seven stores (`meta` and every
+  data store but `presets`). `PRODUCTION_MIGRATIONS` held it alone in v3.0.
 - **Step 2** (v3.1, `src/storage/migrations/kept-sessions-v2.ts`) carries the kept sessions over
   to their data version 2 shapes (see
   [The upgrade to data version 2](#the-upgrade-to-data-version-2)).
+- **Step 3** (v3.1, `SETTINGS_V3`, `src/storage/migrations/settings-v3.ts`) creates the
+  `presets` store, empty, and carries v3.0's musical-profile selection over (see
+  [The upgrade to data version 3](#the-upgrade-to-data-version-3)).
+- **Every step runs at the open only**, inside the upgrade transaction, once per database: a
+  record is never mapped to a newer shape when it is read.
 - **The steps must run 1, 2, … N without a gap.** `migrationsDataVersion` checks the list when the
   port opens and throws otherwise, before any database is created: a configuration defect.
 - **A step that throws** rolls the upgrade back and makes the open reject with a
@@ -411,6 +423,27 @@ upgrade, and make every later open fail on the same record. A failing request (a
 is not caught: it aborts the upgrade, and the next open runs it again. An older tab open meanwhile
 is closed by the version change and turns outdated.
 
+### The upgrade to data version 3
+
+Step 3, `SETTINGS_V3` (`src/storage/migrations/settings-v3.ts`), runs once, inside the upgrade
+transaction, when v3.1 first opens a database below data version 3, after step 2 when the
+database is at data version 1. It creates the `presets` store, empty (out-of-line keys, no
+index), then reads v3.0's musical-profile selection record (`profileSelection`) from `settings`:
+
+- when it can read it, it writes the seven `figureLevels.*` records, the levels of the profile's
+  built-in preset (Neutral's or Jazz's, the ones v3.0's profile generated with), and the
+  `presetSelection` record, that built-in selected or, when v3.0's selection was customized,
+  Custom based on it, all at data version 3 with the upgrading app's `appVersion`; then it deletes
+  `profileSelection`;
+- when it cannot read it (missing or damaged), it writes nothing and leaves the record as it is:
+  the load then gives the first-load selection and levels.
+
+The step compares no saved control with the preset's: the load's "the saved values win" rule
+does that at every load, so a v3.0 Jazz selection with a changed Tension opens as Custom based on
+Jazz. Every other settings record, the controls included, and every other store are left alone.
+Like step 2, it never throws for a stored value; a failing request aborts the upgrade, and the
+next open runs it again.
+
 ### Size
 
 A 30-minute session at 240 BPM in Jazz with Sixteenth density measures 4.07 MB (UTF-8 JSON) for
@@ -558,12 +591,18 @@ player asks, as before. The workspace harness runs the same loader (see
 
 `loadSavedData(dependencies)` opens the port, creates the visit's save policy over it, and reads,
 in parallel, every record of `settings`, `instrument` and `controller`, and every entry of
-`sessionSummaries` with its key (the keyed read). The settings go
+`presets` and of `sessionSummaries` with its key (the keyed read). The player presets go through
+the player preset codec (`decodePlayerPresets`, `records/preset-record.ts`), each record and each
+field on its own: a record it cannot read at all is left in the store and not listed. A refused
+or late read of `presets` is a failed read of the whole visit, like one of the settings: the
+visit starts from the defaults and lists the built-in presets only. The settings go
 through the settings codec (`decodeSettings`), each checked on its own: an unknown or no longer
 valid value takes its setting's default, silently, and every other value is kept. My instrument's
 record is decoded by its own codec (see [My instrument](#my-instrument)), and whether it loaded is
 given to the settings codec, so a saved selection of my instrument holds only when my instrument
-loaded and falls back to the default instrument otherwise. The summaries,
+loaded and falls back to the default instrument otherwise. The saved preset selection is then
+judged against the built-in presets and the player presets read (see
+[The loaded preset selection](#the-loaded-preset-selection)). The summaries,
 with their keys, and the controller's records are handed on raw, for the session list, the most
 recent session and the remembered controller to decode.
 
@@ -603,6 +642,7 @@ in the visit turns the policy `off-outdated` through `onOutdated`, whatever the 
 | `outcome`              | The load outcome, `LoadOutcome`: `'saved-data-read'` or `'started-from-defaults'`.                                                            |
 | `settings`             | Every setting the workspace is first drawn with (`SavedSettings`): saved, or its default.                                                     |
 | `myInstrument`         | My instrument (`MyInstrument`) when its record loaded; null otherwise, and when the visit started from the defaults.                          |
+| `playerPresets`        | The player presets read (`Preset[]`, in key order); empty when the visit started from the defaults. An outdated tab lists the ones it read.   |
 | `keptSessionSummaries` | The kept sessions' summaries as `StoredEntry` values, key and raw value, in key order; empty when the visit started from the defaults.        |
 | `rememberedController` | The remembered controller's records, raw; empty when the visit started from the defaults.                                                     |
 | `savePolicy`           | `Promise<SavePolicy>`: settled before the first draw when the port opened within the wait; otherwise once the port opens, saving already off. |
@@ -617,29 +657,30 @@ session's `savedData` (`composeWorkspaceSession` passes it on unchanged).
 Each place gains its initial value; the saves come from the player's change handlers (see
 [Saving the player's settings](#saving-the-players-settings)).
 
-| Setting                                                   | Enters at                                                                                                                                              |
-| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| The 14 controls, the musical profile selection, the theme | The Idle generation session's first state (`initialSettings`); `App.vue` applies the theme from that state before the first draw.                      |
-| My instrument                                             | The Idle generation session's first state (`initialSettings.myInstrument`), from which `App.vue` sizes the staff and the screen reads its profile.     |
-| The audio mix                                             | The audio transport's `loadedMix`, read on its first use, its volumes checked against the design's range.                                              |
-| The three "During a session" options                      | The session controller's creation (`savedSessionOptions`), never through its actions; until its chunk has loaded, the controls show the loaded values. |
-| The review's preferences                                  | The review host's first values (`WorkspaceShell` and `ScorePanel`'s `savedReviewPreferences`).                                                         |
-| `Keep my played notes`                                    | Decoded, not used yet.                                                                                                                                 |
+| Setting                                                             | Enters at                                                                                                                                                                      |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| The 14 controls, the figure levels, the preset selection, the theme | The Idle generation session's first state (`initialSettings`); `App.vue` applies the theme from that state before the first draw.                                              |
+| The player presets                                                  | The Idle generation session's `presets` (the built-ins, then `initialSettings.playerPresets`), which the selection, its label and the restriction in force are judged against. |
+| My instrument                                                       | The Idle generation session's first state (`initialSettings.myInstrument`), from which `App.vue` sizes the staff and the screen reads its profile.                             |
+| The audio mix                                                       | The audio transport's `loadedMix`, read on its first use, its volumes checked against the design's range.                                                                      |
+| The three "During a session" options                                | The session controller's creation (`savedSessionOptions`), never through its actions; until its chunk has loaded, the controls show the loaded values.                         |
+| The review's preferences                                            | The review host's first values (`WorkspaceShell` and `ScorePanel`'s `savedReviewPreferences`).                                                                                 |
+| `Keep my played notes`                                              | Decoded, not used yet.                                                                                                                                                         |
 
 A saved `Rising tempo` `On` loads even with no MIDI controller attached, which is the usual state
 at load: the controller's flag holds the stored `On`, the option shows `Off` and disabled while it
 is unavailable, and `On` again as soon as a controller attaches.
 
-### The loaded profile selection
+### The loaded preset selection
 
-The settings codec decodes the musical profile selection and the seven values a preset controls
-(harmonic motion, note density, rhythmic variety, syncopation, silence density, contour and
-register) each on its own, so one of them can fall back to its default alone. After decoding, a
-preset selection that is not customized, whose seven values are not all that preset's own, loads
-customized with that preset's grammar, the state a manual edit of one of them leaves; a preset
-whose seven values are all its own stays checked (spec D302). An unreadable selection falls back
-to Neutral, so with Jazz's seven values it loads as a customized Neutral. Silent, like every
-fallback of the load.
+The settings codec decodes the preset selection, the 14 controls and the seven figure levels each
+on its own, so one of them can fall back to its default alone. Then the values win (B7): a
+selected preset whose ten controls or seven levels differ from the loaded ones, or whose
+restriction leaves out the loaded written key and collection, loads as Custom based on it; a
+selected preset, or Custom's base, that no longer exists loads as Custom with no base. Loading
+never moves a control, the key and the mode included. An unreadable selection falls back to
+Neutral, judged by the same rule, so with Jazz's values it loads as Custom based on Neutral.
+Silent, like every fallback of the load.
 
 ## Saving the player's settings
 
@@ -657,13 +698,13 @@ reach the policy at once, so the hold takes effect inside the Start click.
 `composeWorkspaceSession` builds it once; `App.vue` provides `saveSettings` to the components
 (`SAVE_SETTINGS`, `src/components/workspace/save-settings-injection.ts`).
 
-| Setting                                | Saved from                                                                                                                                      |
-| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| The 14 controls, the profile selection | The generation session's `setControl`, `selectMusicalProfile` and `selectInstrumentProfile`: what each change changed (`chosenControlChanges`). |
-| The theme                              | The generation session's `setTheme`, when the theme changed.                                                                                    |
-| The audio mix                          | `MixControls` (each on/off) and `MixVolumePanel` (each volume, on the slider's release: its `change` event, not each `input`).                  |
-| The three "During a session" options   | `useSessionOptions`, once the session controller accepted the change.                                                                           |
-| The review's preferences               | The review host's `setFormat`, `setBackingTrack` and `setPlayedNotesShown`.                                                                     |
+| Setting                                                  | Saved from                                                                                                                                                |
+| -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The 14 controls, the figure levels, the preset selection | The generation session's `setControl`, `setFigureLevel`, `selectPreset` and `selectInstrumentProfile`: what each change changed (`chosenControlChanges`). |
+| The theme                                                | The generation session's `setTheme`, when the theme changed.                                                                                              |
+| The audio mix                                            | `MixControls` (each on/off) and `MixVolumePanel` (each volume, on the slider's release: its `change` event, not each `input`).                            |
+| The three "During a session" options                     | `useSessionOptions`, once the session controller accepted the change.                                                                                     |
+| The review's preferences                                 | The review host's `setFormat`, `setBackingTrack` and `setPlayedNotesShown`.                                                                               |
 
 The values saved are the player's choices: a chosen `Sixteenth` below `bp-tablet-landscape` is
 saved as `Sixteenth`, though phrases are generated with `Eighth` there. The tempo a Rising-tempo
@@ -1141,6 +1182,60 @@ about 13 minutes at 120 BPM) the same run measured 901.5 ms for 100 sessions, an
 passed the wait (that visit starts from the defaults; the upgrade still completes, and the next
 visit reads normally). The owner repeats the deciding runs on the reference machine.
 
+## The upgrade to data version 3 and the start-up read with player presets (M3)
+
+Chunk 16 runs both measurements again, on v3.1 with the player presets and the levels:
+
+- `npm run measure:kept-session-upgrade` now seeds the data version 1 database with v3.0's
+  settings as well (Jazz selected and customized, Tension at Build, and six other controls
+  changed), so the timed first open runs step 2 and step 3: the upgrade to data version 3. After
+  the cold load it checks the settings were carried over (`presetSelection`, Custom based on Jazz,
+  and the seven `figureLevels.*` records at data version 3, `profileSelection` gone). The kept
+  sessions are chunk 9's: 10, 100 or 500, pinned, M2's 100 kB bodies (15 phrases).
+- `npm run measure:startup-read` now seeds 0, 50 or 60 player presets, crossed with M2's 0, 10,
+  100 and 500 kept sessions (100 kB bodies). 60 is above the limit of 50, as two tabs saving at
+  once can leave it: the first 50 are written from one tab, the other 10 from a second tab. The
+  presets have names of up to 40 characters, varied controls and levels, and a key and mode
+  restriction on two in three. Each load is checked to have listed every player preset.
+
+Measured on 2026-10-20 on this worktree's machine: Linux 6.12.111+deb13-amd64 (Debian), AMD
+Ryzen 5 PRO 8640HS w/ Radeon 760M Graphics (12 threads), 11 GiB of RAM, no virtual machine,
+headless Chromium through Playwright 1.63.0, no other test running. Two runs of each, each started
+once the 1-minute load average was below 1.5; in milliseconds, first run / second run.
+
+The upgrade to data version 3 (load average, 1 minute, before → after: 0.79 → 1.44, then
+1.22 → 1.18):
+
+| Kept sessions | Upgrade load (cold) | Warm, slowest of three |
+| ------------- | ------------------- | ---------------------- |
+| 10            | 42.1 / 50.9         | 2.1 / 1.4              |
+| 100           | 178.5 / 185.6       | 15.3 / 3.7             |
+| 500           | 734.9 / 767.1       | 12.5 / 14.3            |
+
+The start-up read with player presets (load average, 1 minute, before → after: 0.67 → 0.83,
+then 1.49 → 1.59):
+
+| Player presets | Kept sessions | Cold        | Warm, fastest of five | Warm, slowest of five |
+| -------------- | ------------- | ----------- | --------------------- | --------------------- |
+| 0              | 0             | 6.1 / 10.9  | 1.3 / 1.0             | 4.7 / 1.6             |
+| 0              | 10            | 6.7 / 16.6  | 1.2 / 1.3             | 2.5 / 3.6             |
+| 0              | 100           | 17.2 / 16.9 | 2.7 / 2.6             | 3.3 / 5.8             |
+| 0              | 500           | 32.6 / 25.8 | 6.6 / 13.1            | 14.2 / 14.7           |
+| 50             | 0             | 18.0 / 11.7 | 2.2 / 2.3             | 3.3 / 3.6             |
+| 50             | 10            | 18.1 / 11.7 | 2.5 / 2.6             | 3.6 / 3.8             |
+| 50             | 100           | 24.5 / 20.1 | 3.5 / 3.6             | 4.6 / 4.5             |
+| 50             | 500           | 32.4 / 29.0 | 13.8 / 14.2           | 15.7 / 15.9           |
+| 60             | 0             | 18.7 / 21.1 | 2.7 / 3.3             | 4.0 / 4.5             |
+| 60             | 10            | 16.4 / 18.0 | 3.0 / 2.5             | 3.9 / 4.3             |
+| 60             | 100           | 15.4 / 23.8 | 3.6 / 4.0             | 4.7 / 5.5             |
+| 60             | 500           | 31.6 / 36.4 | 8.4 / 14.7            | 15.2 / 17.4           |
+
+Verdict: every load is well under the 2 s start-up wait. The upgrade to data version 3 takes at
+most 767 ms, about 38 % of the wait with 500 sessions, as chunk 9's upgrade to data version 2
+alone did (step 3 adds little); the start-up read with 60 player presets and 500 kept sessions
+takes at most 36 ms, under 2 % of it. The owner repeats the deciding runs on the reference
+machine.
+
 ## The app version
 
 `src/storage/app-version.ts` exports `APP_VERSION`, the compile-time constant `__APP_VERSION__`
@@ -1181,7 +1276,7 @@ kept-session codec's need no database (see
 | `save-policy-kept-session-read.spec.ts` | The read of one kept session's records by its key, raw, in an outdated tab too, and its refusal.                                                                                                    |
 | `save-policy-session.spec.ts`           | The session's own save: the keyed read at the save, its order after the flush, waiting for a hold, one save after the other, each outcome, the failure listener for `quota` only, and saving off.   |
 | `app-version.spec.ts`                   | `APP_VERSION` is `package.json`'s version.                                                                                                                                                          |
-| `settings-record.spec.ts`               | The settings codec, whose version check is the envelope's, and the loaded profile selection.                                                                                                        |
+| `settings-record.spec.ts`               | The settings codec, whose version check is the envelope's, and the loaded preset selection (with `settings-preset-selection.spec.ts`).                                                              |
 | `settings-saver.spec.ts`                | The saves of the player's settings: one batch per change, the order kept before and after the policy loads, the hold, and `chosenControlChanges`.                                                   |
 | `storage-bootstrap.spec.ts`             | The load before the first draw: the saved settings, an invalid value's default, each failing, late and outdated case with its settings, saving state and load outcome, and the defects that reject. |
 | `kept-phrase-parsers.spec.ts`           | The harmony and intent validators: real values read back, frozen copies, each refusal, and an intent's profile read from its data.                                                                  |

@@ -9,7 +9,8 @@ import { computed, ref, watch, type ComputedRef, type Ref } from 'vue'
 import type { GenerationSessionState } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
-import type { ProfileSelection } from '@/domain/controls/profile-selection'
+import type { FigureLevels } from '@/domain/figures/figure-levels'
+import type { PresetSelection } from '@/domain/presets/preset-selection'
 import type { SessionController } from './workspace-session-controller-types'
 
 /** What the controls' readings follow; every getter is read reactively. */
@@ -22,11 +23,15 @@ export interface ShownSettingsDeps {
   readonly sessionActive: () => boolean
 }
 
-/** The settings the controls show, as `ControlPanel` takes them. */
+/**
+ * The settings the controls show, as `ControlPanel` takes them: the controls, the seven figure
+ * levels and the preset selection (a preset, or Custom naming its base).
+ */
 // @spec-link [[rule_automatic_change_updates_controls_quietly]]
 export interface ShownSettings {
   readonly controls: GenerationControls
-  readonly profileSelection: ProfileSelection
+  readonly figureLevels: FigureLevels
+  readonly selection: PresetSelection
 }
 
 /** The controls' readings, all reactive. */
@@ -58,19 +63,27 @@ export function useShownSettings(deps: ShownSettingsDeps): ShownSettingsView {
   /**
    * The settings the controls show: during a session, those the controller says the phrase now
    * sounding was generated with, at the exact tempo in effect (off the tempo control's list once a
-   * rising tempo has moved it); otherwise the player's own, which a session never writes, so every
-   * end shows the starting tempo again.
+   * rising tempo has moved it), with their levels and selection (Custom once a Vary settings step
+   * moved a preset-held setting); otherwise the player's own, which a session never writes, so
+   * every end shows the starting tempo, the player's levels and selection again.
    */
   // @spec-link [[rule_automatic_change_updates_controls_quietly]]
   // @spec-link [[rule_mutation_reverts_at_session_end]]
   // @spec-link [[rule_adaptive_tempo_resets_after_session]]
-  const shownSettings = computed(() => {
+  // @spec-link [[rule_vary_settings_marks_custom]]
+  const shownSettings = computed((): ShownSettings => {
     const session = deps.controller()?.state.shownSettings ?? null
-    if (session === null)
-      return { controls: deps.idle().controls, profileSelection: deps.idle().profileSelection }
+    if (session === null) {
+      const { controls, figureLevels, selection } = deps.idle()
+      return { controls, figureLevels, selection }
+    }
     const tempo = deps.controller()?.state.sessionTempo ?? null
     if (tempo === null) throw new Error('workspace shell: a session shows settings but no tempo')
-    return { controls: { ...session.controls, tempo }, profileSelection: session.musicalProfile }
+    return {
+      controls: { ...session.controls, tempo },
+      figureLevels: session.figureLevels,
+      selection: session.selection,
+    }
   })
 
   /**

@@ -1,7 +1,9 @@
 /**
  * The settings records: what is written for each saved setting, and how a load reads it back.
  * Each setting is its own record, so each loads, and fails to load, on its own. Every record
- * carries the data version of its shape (1) and the version of the app that wrote it.
+ * carries the data version of its own shape and the version of the app that wrote it: 1 for the
+ * settings v3.0 already saved, 3 for the preset selection and the figure levels, introduced at
+ * data version 3.
  *
  * Reading is tolerant, setting by setting, and this codec is the one place the app's "no silent
  * fallback" rule gives way: a saved value that is unknown, of the wrong type or out of range, a
@@ -10,7 +12,12 @@
  * saved setting keeps its value. Each value is checked by the validator the app itself uses for
  * that setting; an error those validators do not raise for a bad value is a defect and still
  * crashes. The decoded controls then go through the strict control builder once, so the app only
- * ever runs controls that builder accepts.
+ * ever runs controls that builder accepts, and the saved preset selection is read against the
+ * decoded values: when they no longer match the selected preset, the values win and the selection
+ * loads as Custom.
+ *
+ * It also keeps a reader of v3.0's musical-profile selection record, at data version 1, for the
+ * step that carries that record over to data version 3; the load itself never reads that record.
  *
  * Pure: no storage access. The caller reads the records and writes the ones this module encodes.
  */
@@ -43,8 +50,16 @@ import {
   type GenerationControls,
   type MusicalProfile,
 } from '@/domain/controls/generation-controls'
-import { PROFILE_BUNDLES, type ProfileSelection } from '@/domain/controls/profile-selection'
+import type { ProfileSelection } from '@/domain/controls/profile-selection'
 import { deepFreeze } from '@/domain/events/deep-freeze'
+import { FIGURE_IDS, FIGURE_LEVEL_IDS, type FigureLevels } from '@/domain/figures/figure-levels'
+import { allowsKeyAndMode } from '@/domain/presets/key-and-mode-restriction'
+import {
+  findPreset,
+  PRESET_HELD_CONTROL_KEYS,
+  type Preset,
+  type PresetSelection,
+} from '@/domain/presets/preset-selection'
 import { MY_INSTRUMENT_ID } from '@/domain/profile/instrument-profiles'
 import { readEnvelope, type RecordVersions } from '@/storage/record-envelope'
 
@@ -57,24 +72,43 @@ import {
   type SessionOptionChoices,
 } from './setting-defaults'
 
-/** The data version of the settings records' shape; a higher one was written by a newer app. */
+/**
+ * The data version of the shape of every setting record v3.0 already saved; a higher one was
+ * written by a newer app.
+ */
 // @spec-link [[rule_outdated_tab_reads_what_it_can]]
 export const SETTINGS_DATA_VERSION = 1
+
+/**
+ * The data version of the preset selection's and the figure levels' records, the shape introduced
+ * at data version 3; a higher one was written by a newer app.
+ */
+// @spec-link [[rule_outdated_tab_reads_what_it_can]]
+// @spec-link [[module_settings_upgrade_step]]
+export const PRESET_SETTINGS_DATA_VERSION = 3
+
+/** The key of v3.0's musical-profile selection record, read only to carry it over. */
+// @spec-link [[module_settings_upgrade_step]]
+export const V30_PROFILE_SELECTION_KEY = 'profileSelection'
 
 /** My instrument's fixed id, re-exported for the settings records' readers. */
 export { MY_INSTRUMENT_ID }
 
 /** The settings stored as one record per field; the others are one record each. */
-type SettingGroup = 'controls' | 'mix' | 'sessionOptions' | 'review'
+type SettingGroup = 'controls' | 'figureLevels' | 'mix' | 'sessionOptions' | 'review'
 
-/** The record key of each field of a group: `controls.tempo`, `mix.clickOn` and so on. */
+/**
+ * The record key of each field of a group: `controls.tempo`, `figureLevels.passingTone`,
+ * `mix.clickOn` and so on.
+ */
 type FieldKey<G extends SettingGroup> = `${G}.${keyof SavedSettings[G] & string}`
 
 /** The key of one setting's record. There is one record per setting, and no other. */
 // @spec-link [[rule_settings_saved_on_change]]
 export type SettingKey =
   | FieldKey<'controls'>
-  | 'profileSelection'
+  | FieldKey<'figureLevels'>
+  | 'presetSelection'
   | 'theme'
   | FieldKey<'mix'>
   | FieldKey<'sessionOptions'>
@@ -107,6 +141,8 @@ export interface SettingsDecodeContext {
   readonly mixDesign: AudioMixDesign
   /** Whether my instrument itself loaded; a saved selection of it is kept only then. */
   readonly myInstrumentLoaded: boolean
+  /** The presets the saved preset selection is judged against: the built-ins and the player's. */
+  readonly presets: readonly Preset[]
 }
 
 /** What a value that cannot be read decodes to, before its setting takes its default. */
@@ -135,10 +171,17 @@ function refusedAs<T>(
   }
 }
 
-/** Intent: a parser accepting only a value of one control's closed catalog. */
+/**
+ * Intent: a parser accepting only a value of one control's closed catalog. Every catalog holds
+ * strings only, so any other stored value, a BigInt or a circular object included (which the
+ * validator's refusal could not even write), is unreadable before the validator sees it.
+ */
+// @spec-link [[rule_saved_settings_load_tolerantly]]
 function controlValue<T extends string>(catalog: readonly T[], name: string): Parse<T> {
-  return (value) =>
-    refusedAs(() => validateControlValue(catalog, value, name), GenerationControlError)
+  return (value) => {
+    if (typeof value !== 'string') return UNREADABLE
+    return refusedAs(() => validateControlValue(catalog, value, name), GenerationControlError)
+  }
 }
 
 /** Intent: a parser accepting only a member of a closed catalog that has no domain validator. */
@@ -193,9 +236,9 @@ function hasExactKeys(record: Record<string, unknown>, keys: readonly string[]):
 /**
  * Intent: the tolerant twin of the generation worker's strict musical profile parser: the same
  * shape (exactly a known profile and a boolean "customized"), read as unreadable instead of
- * rejected.
+ * rejected. Only v3.0's record of it is read, to carry it over.
  */
-const readProfileSelection: Parse<ProfileSelection> = (value) => {
+function readProfileSelection(value: unknown): ProfileSelection | Unreadable {
   if (!isPlainRecord(value) || !hasExactKeys(value, ['musicalProfile', 'isCustom'])) {
     return UNREADABLE
   }
@@ -203,6 +246,28 @@ const readProfileSelection: Parse<ProfileSelection> = (value) => {
   if (!MUSICAL_PROFILES.includes(musicalProfile as MusicalProfile)) return UNREADABLE
   if (typeof isCustom !== 'boolean') return UNREADABLE
   return { musicalProfile: musicalProfile as MusicalProfile, isCustom }
+}
+
+/** Intent: whether a value is a non-empty string, as a preset id is. */
+function isPresetId(value: unknown): value is string {
+  return typeof value === 'string' && value !== ''
+}
+
+/**
+ * Intent: read a saved preset selection: exactly a preset by its non-empty id, or exactly Custom
+ * with a non-empty base id or none. Whether the id names a known preset is the load's to judge.
+ */
+// @spec-link [[rule_saved_settings_load_tolerantly]]
+const readPresetSelection: Parse<PresetSelection> = (value) => {
+  if (!isPlainRecord(value)) return UNREADABLE
+  if (value.kind === 'preset' && hasExactKeys(value, ['kind', 'presetId'])) {
+    return isPresetId(value.presetId) ? { kind: 'preset', presetId: value.presetId } : UNREADABLE
+  }
+  if (value.kind === 'custom' && hasExactKeys(value, ['kind', 'baseId'])) {
+    const { baseId } = value
+    if (baseId === null || isPresetId(baseId)) return { kind: 'custom', baseId }
+  }
+  return UNREADABLE
 }
 
 /** Each control's parser, through the control catalog's own validators. */
@@ -222,6 +287,11 @@ const CONTROL_PARSERS: GroupParsers<GenerationControls> = {
   arpeggioChaos: controlValue(ARPEGGIO_CHAOS_VALUES, 'Arpeggio chaos'),
   instrumentProfileId: readInstrument,
 }
+
+/** Each figure's level parser, in FIGURE_IDS order: one of the four known levels. */
+const LEVEL_PARSERS: GroupParsers<FigureLevels> = Object.fromEntries(
+  FIGURE_IDS.map((figure) => [figure, oneOf(FIGURE_LEVEL_IDS)]),
+) as GroupParsers<FigureLevels>
 
 /** Each audio mix control's parser: two switches and two volumes. */
 const MIX_PARSERS: GroupParsers<AudioMix> = {
@@ -258,7 +328,8 @@ function fieldKeys<G extends SettingGroup>(group: G, parsers: object): FieldKey<
 // @spec-link [[rule_saved_setting_is_players_choice]]
 export const SETTING_KEYS: readonly SettingKey[] = deepFreeze([
   ...fieldKeys('controls', CONTROL_PARSERS),
-  'profileSelection',
+  ...fieldKeys('figureLevels', LEVEL_PARSERS),
+  'presetSelection',
   'theme',
   ...fieldKeys('mix', MIX_PARSERS),
   ...fieldKeys('sessionOptions', SESSION_OPTION_PARSERS),
@@ -267,6 +338,20 @@ export const SETTING_KEYS: readonly SettingKey[] = deepFreeze([
 ] as const)
 
 const SETTING_KEY_SET: ReadonlySet<string> = new Set(SETTING_KEYS)
+
+const LEVEL_KEY_PREFIX = 'figureLevels.'
+
+/**
+ * Intent: the data version of one setting's record shape: 3 for the preset selection and each
+ * figure level, introduced at data version 3; 1 for every setting v3.0 already saved.
+ */
+// @spec-link [[module_settings_upgrade_step]]
+// @spec-link [[rule_outdated_tab_reads_what_it_can]]
+export function settingDataVersion(key: SettingKey): number {
+  return key === 'presetSelection' || key.startsWith(LEVEL_KEY_PREFIX)
+    ? PRESET_SETTINGS_DATA_VERSION
+    : SETTINGS_DATA_VERSION
+}
 
 /**
  * Intent: the record of one setting, holding the value the player chose and the versions it is
@@ -280,7 +365,7 @@ export function encodeSettingRecord<K extends SettingKey>(
   appVersion: string,
 ): SettingRecord<K> {
   if (appVersion === '') throw new Error('settings record: the app version must not be empty')
-  return { key, dataVersion: SETTINGS_DATA_VERSION, appVersion, value }
+  return { key, dataVersion: settingDataVersion(key), appVersion, value }
 }
 
 /** Intent: the value one setting holds in a full set, read by its record key. */
@@ -319,15 +404,30 @@ function indexRecords(
 const RECORD_FIELDS = ['key', 'dataVersion', 'appVersion', 'value'] as const
 
 /**
- * Intent: the stored value of a well-formed record of this data version. A record written by a
- * newer data version is left unread, as this version cannot know what its value means; a record
- * with a missing, extra or ill-typed field, or an older data version than any this app wrote, is
- * damaged. Both are unreadable.
+ * Intent: the stored value of a well-formed record at its setting's own data version. A record
+ * written by a newer data version is left unread, as this version cannot know what its value
+ * means; a record with a missing, extra or ill-typed field, or an older data version than its
+ * setting's shape, is damaged. Both are unreadable.
  */
-function storedValue(record: Record<string, unknown>): unknown {
+function storedValue(record: Record<string, unknown>, dataVersion: number): unknown {
   if (!hasExactKeys(record, RECORD_FIELDS)) return UNREADABLE
-  if (readEnvelope(record, SETTINGS_DATA_VERSION) !== 'current') return UNREADABLE
+  if (readEnvelope(record, dataVersion) !== 'current') return UNREADABLE
   return record.value
+}
+
+/**
+ * Intent: v3.0's musical-profile selection from its stored record, for the step that carries it
+ * over to data version 3: exactly the four record fields, its key, data version 1 and a readable
+ * selection; null for anything else, a newer record included. Never throws for what was stored.
+ */
+// @spec-link [[module_settings_upgrade_step]]
+// @spec-link [[rule_saved_profile_becomes_preset]]
+export function decodeV30ProfileSelectionRecord(stored: unknown): ProfileSelection | null {
+  if (!isPlainRecord(stored) || stored.key !== V30_PROFILE_SELECTION_KEY) return null
+  const value = storedValue(stored, SETTINGS_DATA_VERSION)
+  if (value === UNREADABLE) return null
+  const selection = readProfileSelection(value)
+  return selection === UNREADABLE ? null : selection
 }
 
 /** Reads one setting from the indexed records, its default when it cannot. */
@@ -349,35 +449,57 @@ function decodeGroup<G extends SettingGroup>(
 }
 
 /**
- * Intent: the profile selection a load gives, read against the loaded controls. A preset picked
- * and not customized whose seven profile-controlled values are not all that preset's own (one of
- * them fell back to its default, or the selection itself did) loads customized, that preset's
- * grammar kept: the state a manual edit of one of them leaves. Silent, like every fallback here.
+ * Intent: whether the loaded values still match a preset: its ten preset-held controls, its seven
+ * levels, and the loaded written key and mode inside its restriction.
  */
-// @spec-link [[rule_saved_settings_load_tolerantly]]
-// @spec-link [[rule_profile_control_customization]]
-function loadedProfileSelection(
-  selection: ProfileSelection,
-  controls: GenerationControls,
-): ProfileSelection {
-  if (selection.isCustom) return selection
-  const bundle = PROFILE_BUNDLES[selection.musicalProfile]
-  const keptPreset = (Object.keys(bundle) as (keyof typeof bundle)[]).every(
-    (field) => controls[field] === bundle[field],
+function matchesPreset(preset: Preset, controls: GenerationControls, levels: FigureLevels) {
+  return (
+    PRESET_HELD_CONTROL_KEYS.every((key) => controls[key] === preset.controls[key]) &&
+    FIGURE_IDS.every((figure) => levels[figure] === preset.levels[figure]) &&
+    allowsKeyAndMode(preset.restriction, controls.tonalCenter, controls.collection)
   )
-  return keptPreset ? selection : { musicalProfile: selection.musicalProfile, isCustom: true }
+}
+
+/**
+ * Intent: the preset selection a load gives, judged against the loaded values: the values win. A
+ * selected preset that no longer exists loads as Custom with no base; one whose values or
+ * restriction the loaded values no longer match (a value fell back, a built-in was retuned, a
+ * player preset changed in another tab) loads as Custom based on it. Custom keeps its base while
+ * that preset exists, and has none otherwise. It never changes a control or a level, so loading
+ * never moves the key or mode. Silent, like every fallback here.
+ */
+// @spec-link [[rule_preset_load_values_win]]
+// @spec-link [[rule_saved_settings_load_tolerantly]]
+function loadedPresetSelection(
+  selection: PresetSelection,
+  controls: GenerationControls,
+  figureLevels: FigureLevels,
+  presets: readonly Preset[],
+): PresetSelection {
+  if (selection.kind === 'custom') {
+    if (selection.baseId === null || findPreset(presets, selection.baseId) !== undefined) {
+      return selection
+    }
+    return { kind: 'custom', baseId: null }
+  }
+  const preset = findPreset(presets, selection.presetId)
+  if (preset === undefined) return { kind: 'custom', baseId: null }
+  return matchesPreset(preset, controls, figureLevels)
+    ? selection
+    : { kind: 'custom', baseId: preset.id }
 }
 
 /**
  * Intent: every saved setting from the stored records, each read on its own: a missing,
  * damaged, newer or invalid record gives that setting its default, silently, and never disturbs
  * another setting. Never throws for what was stored. The decoded controls are rebuilt by the
- * strict control builder, so what the app runs is still guarded by it, and the profile selection
- * is then read against them: a preset whose controlled values did not all load loads customized.
+ * strict control builder, so what the app runs is still guarded by it, and the preset selection
+ * is then judged against them and the decoded levels: a preset they no longer match loads Custom.
  */
 // @spec-link [[rule_saved_settings_load_tolerantly]]
 // @spec-link [[rule_outdated_tab_reads_what_it_can]]
 // @spec-link [[rule_played_notes_kept_only_after_opt_in]]
+// @spec-link [[rule_preset_load_values_win]]
 export function decodeSettings(
   records: readonly unknown[],
   context: SettingsDecodeContext,
@@ -388,18 +510,22 @@ export function decodeSettings(
   const read: ReadSetting = (key, parse, fallback) => {
     const record = byKey.get(key)
     if (record === undefined || record === UNREADABLE) return fallback
-    const stored = storedValue(record)
+    const stored = storedValue(record, settingDataVersion(key))
     const parsed = stored === UNREADABLE ? UNREADABLE : parse(stored, context)
     return parsed === UNREADABLE ? fallback : parsed
   }
   const controls = makeGenerationControls(
     decodeGroup('controls', CONTROL_PARSERS, defaults.controls, read),
   )
+  const figureLevels = decodeGroup('figureLevels', LEVEL_PARSERS, defaults.figureLevels, read)
   return deepFreeze({
     controls,
-    profileSelection: loadedProfileSelection(
-      read('profileSelection', readProfileSelection, defaults.profileSelection),
+    figureLevels,
+    presetSelection: loadedPresetSelection(
+      read('presetSelection', readPresetSelection, defaults.presetSelection),
       controls,
+      figureLevels,
+      context.presets,
     ),
     theme: read('theme', oneOf(THEME_PREFERENCES), defaults.theme),
     mix: decodeGroup('mix', MIX_PARSERS, defaults.mix, read),

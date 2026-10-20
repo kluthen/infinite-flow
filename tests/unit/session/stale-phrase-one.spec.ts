@@ -2,7 +2,7 @@
  * Phrase 1's settings and the stale check: the session settings phrase 1 was generated under,
  * built from what the Idle result recorded with the session's tempo; and whether phrase 1 is stale,
  * compared by value over what the generation reads. Every setting master spec §16 counts makes it
- * stale; the tempo, the session options, the profile's customized mark, my instrument's clef and
+ * stale; the tempo, the session options, the preset selection, my instrument's clef and
  * name, the window and a setting changed and changed back never do.
  */
 
@@ -12,13 +12,15 @@ import {
   makeGenerationControls,
   type GenerationControls,
 } from '@/domain/controls/generation-controls'
+import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import {
-  DEFAULT_GENERATION_CONTROLS,
-  DEFAULT_PROFILE_SELECTION,
-} from '@/domain/controls/profile-selection'
-import { FIGURE_IDS } from '@/domain/figures/figure-levels'
+  FIGURE_IDS,
+  JAZZ_FIGURE_LEVELS,
+  NEUTRAL_FIGURE_LEVELS,
+} from '@/domain/figures/figure-levels'
 import { createGenerationIntent } from '@/domain/generation/generation-intent'
 import { makeRequestId } from '@/domain/generation/generation-request'
+import { DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
 import { makeMyInstrument, type MyInstrument } from '@/domain/profile/my-instrument'
 import { MY_INSTRUMENT_ID } from '@/domain/profile/instrument-profiles'
 import { makeSeed } from '@/domain/random/seed'
@@ -35,7 +37,8 @@ import {
 function settingsWith(overrides: Partial<GenerationControls> = {}): SessionSettings {
   return {
     controls: makeGenerationControls({ ...DEFAULT_GENERATION_CONTROLS, ...overrides }),
-    musicalProfile: DEFAULT_PROFILE_SELECTION,
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
+    selection: DEFAULT_PRESET_SELECTION,
   }
 }
 
@@ -81,8 +84,20 @@ const COUNTED: readonly CountedChange[] = [
   { name: 'Arpeggio chaos', current: settingsWith({ arpeggioChaos: 'Chaotic' }) },
   { name: 'the instrument', current: settingsWith({ instrumentProfileId: 'c-keyboard' }) },
   {
-    name: 'the musical profile',
-    current: { ...settingsWith(), musicalProfile: { musicalProfile: 'Jazz', isCustom: false } },
+    name: "the figure levels, Neutral's to Jazz's",
+    current: {
+      ...settingsWith(),
+      figureLevels: JAZZ_FIGURE_LEVELS,
+      selection: { kind: 'preset', presetId: 'jazz' },
+    },
+  },
+  {
+    name: 'one figure level',
+    current: {
+      ...settingsWith(),
+      figureLevels: { ...NEUTRAL_FIGURE_LEVELS, appoggiatura: 'favored' },
+      selection: { kind: 'custom', baseId: 'neutral' },
+    },
   },
 ]
 
@@ -107,15 +122,21 @@ describe('the stale check', () => {
 
   // @test-link [[rule_stale_phrase_prompt_at_start]]
   // @test-link [[rule_tempo_never_affects_generation]]
-  it('never counts the tempo, nor the profile’s customized mark', () => {
-    const custom = {
+  it('never counts the tempo, nor the selection alone', () => {
+    const custom: SessionSettings = {
       ...settingsWith(),
-      musicalProfile: { musicalProfile: 'Neutral' as const, isCustom: true },
+      selection: { kind: 'custom', baseId: 'neutral' },
+    }
+    const otherPreset: SessionSettings = {
+      ...settingsWith(),
+      selection: { kind: 'preset', presetId: 'jazz' },
     }
 
     expect(isPhraseOneStale(settingsWith(), settingsWith({ tempo: 240 }))).toBe(false)
-    expect(isPhraseOneStale(settingsWith(), custom)).toBe(false)
-    expect(staleSettingsOf(settingsWith(), custom)).toEqual([])
+    for (const current of [custom, otherPreset]) {
+      expect(isPhraseOneStale(settingsWith(), current)).toBe(false)
+      expect(staleSettingsOf(settingsWith(), current)).toEqual([])
+    }
   })
 
   // @test-link [[rule_stale_phrase_prompt_at_start]]
@@ -140,13 +161,14 @@ describe('the stale check', () => {
   it('never counts the window: a Sixteenth chosen below the tablet-landscape width is the chosen Sixteenth', () => {
     const recorded = {
       controls: settingsWith({ noteDensity: 'Sixteenth' }).controls,
-      profileSelection: DEFAULT_PROFILE_SELECTION,
+      figureLevels: NEUTRAL_FIGURE_LEVELS,
+      selection: DEFAULT_PRESET_SELECTION,
     }
     const narrowIntent = createGenerationIntent({
       requestId: makeRequestId('narrow'),
       seed: makeSeed(5),
       controls: { ...recorded.controls, noteDensity: 'Eighth' },
-      musicalProfile: DEFAULT_PROFILE_SELECTION,
+      figureLevels: NEUTRAL_FIGURE_LEVELS,
     })
 
     const phraseOne = phraseOneSettings(recorded, narrowIntent, 90)
@@ -160,7 +182,7 @@ describe('the stale check', () => {
 describe("phrase 1's settings", () => {
   // @test-link [[service_session_engine]]
   // @test-link [[service_idle_generation_session]]
-  it("are the recorded controls at the session's tempo, my instrument's profile taken from phrase 1", () => {
+  it("are the recorded controls at the session's tempo, with the recorded levels and selection, my instrument's profile taken from phrase 1", () => {
     const instrument = mine()
     const controls = makeGenerationControls({
       ...DEFAULT_GENERATION_CONTROLS,
@@ -171,18 +193,17 @@ describe("phrase 1's settings", () => {
       requestId: makeRequestId('mine'),
       seed: makeSeed(6),
       controls,
-      musicalProfile: DEFAULT_PROFILE_SELECTION,
+      figureLevels: NEUTRAL_FIGURE_LEVELS,
       instrumentProfile: instrument.profile,
     })
 
-    const settings = phraseOneSettings(
-      { controls, profileSelection: DEFAULT_PROFILE_SELECTION },
-      intent,
-      150,
-    )
+    const figureLevels = { ...NEUTRAL_FIGURE_LEVELS, neighborTone: 'favored' as const }
+    const selection = { kind: 'custom' as const, baseId: 'neutral' }
+    const settings = phraseOneSettings({ controls, figureLevels, selection }, intent, 150)
 
     expect(settings.controls).toEqual({ ...controls, tempo: 150 })
-    expect(settings.musicalProfile).toEqual(DEFAULT_PROFILE_SELECTION)
+    expect(settings.figureLevels).toEqual(figureLevels)
+    expect(settings.selection).toEqual(selection)
     expect(settings.instrumentProfile).toEqual(instrument.profile)
   })
 
@@ -207,7 +228,10 @@ describe("phrase 1's settings", () => {
   })
 })
 
-/** The settings each counted change names: a Neutral–Jazz change, by its two chromatic figures. */
+/**
+ * The settings each counted change names: Neutral's levels to Jazz's, by its two chromatic
+ * figures; one figure's level, by that figure.
+ */
 const NAMED: readonly (readonly StaleSetting[])[] = [
   ['tonalCenter'],
   ['collection'],
@@ -223,6 +247,7 @@ const NAMED: readonly (readonly StaleSetting[])[] = [
   ['arpeggioChaos'],
   ['instrumentProfileId'],
   ['chromaticApproach', 'chromaticEnclosure'],
+  ['appoggiatura'],
 ]
 
 // @test-link [[rule_stale_phrase_prompt_at_start]]
@@ -236,11 +261,12 @@ describe('the settings a stale phrase 1 differs in', () => {
   )
 
   // @test-link [[rule_stale_phrase_prompt_at_start]]
-  it('names a Neutral–Jazz change, either way, by exactly the two chromatic figures, never the profile', () => {
+  it("names a change between Neutral's levels and Jazz's, either way, by exactly the two chromatic figures, never the selection", () => {
     const neutral = settingsWith()
-    const jazz = {
+    const jazz: SessionSettings = {
       ...settingsWith(),
-      musicalProfile: { musicalProfile: 'Jazz' as const, isCustom: true },
+      figureLevels: JAZZ_FIGURE_LEVELS,
+      selection: { kind: 'custom', baseId: 'jazz' },
     }
     const chromatic = FIGURE_IDS.filter((figure) => figure.startsWith('chromatic'))
 
@@ -251,7 +277,8 @@ describe('the settings a stale phrase 1 differs in', () => {
     ] as const) {
       const named: readonly string[] = staleSettingsOf(before, after)
       expect(named).toEqual(chromatic)
-      expect(named).not.toContain('musicalProfile')
+      expect(named).not.toContain('selection')
+      expect(named).not.toContain('figureLevels')
     }
   })
 
@@ -269,7 +296,8 @@ describe('the settings a stale phrase 1 differs in', () => {
   it('names several changes, none for the tempo, and agrees with the stale check', () => {
     const current = {
       ...settingsWith({ tonalCenter: 'G', register: 'Low', tempo: 200 }),
-      musicalProfile: { musicalProfile: 'Jazz' as const, isCustom: true },
+      figureLevels: JAZZ_FIGURE_LEVELS,
+      selection: { kind: 'custom' as const, baseId: 'jazz' },
     }
 
     expect(staleSettingsOf(settingsWith(), current)).toEqual([

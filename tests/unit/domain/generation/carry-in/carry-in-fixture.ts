@@ -9,6 +9,7 @@ import {
   type MusicalProfile,
 } from '@/domain/controls/generation-controls'
 import type { Measure } from '@/domain/events/measure'
+import { levelsForProfile, type FigureLevels } from '@/domain/figures/figure-levels'
 import { deriveCarryIn } from '@/domain/generation/carry-in/carry-in-derivation'
 import { makeCarryIn, type CarryIn } from '@/domain/generation/carry-in/carry-in'
 import { makeCarryInGenerationIntent } from '@/domain/generation/carry-in/carry-in-intent'
@@ -42,10 +43,14 @@ export const BASE_CONTROLS: GenerationControls = makeGenerationControls({
   instrumentProfileId: 'c-keyboard',
 })
 
-/** Intent: build one real intent for written controls, a seed and an optional carry-in. */
+/**
+ * Intent: build one real intent for written controls, a seed and an optional carry-in, with the
+ * given figure levels, or else the given profile's (Neutral's by default).
+ */
 export function buildIntent(options: {
   readonly controls?: Partial<GenerationControls>
   readonly musicalProfile?: MusicalProfile
+  readonly figureLevels?: FigureLevels
   readonly seed: number
   readonly carryIn?: CarryIn
   readonly label?: string
@@ -56,7 +61,7 @@ export function buildIntent(options: {
     requestId: makeRequestId(`${label}-${options.seed}`),
     seed: makeSeed(options.seed),
     controls,
-    musicalProfile: { musicalProfile: options.musicalProfile ?? 'Neutral', isCustom: true },
+    figureLevels: options.figureLevels ?? levelsForProfile(options.musicalProfile ?? 'Neutral'),
   }
   return options.carryIn === undefined
     ? createGenerationIntent(input)

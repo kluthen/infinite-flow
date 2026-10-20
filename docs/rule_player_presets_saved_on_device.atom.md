@@ -11,6 +11,8 @@ parents:
   - [[req_on_device_storage]]
   - [[req_presets]]
 dependents:
+  - [[entity_player_preset_record]]
+  - [[module_settings_upgrade_step]]
   - [[rule_preset_load_values_win]]
   - [[rule_presets_in_visits_that_save_nothing]]
   - [[rule_presets_load_tolerantly]]

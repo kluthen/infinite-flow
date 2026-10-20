@@ -27,6 +27,20 @@ export function measureSeconds(tempo: number): number {
 }
 
 /**
+ * Intent: a session's length in seconds, from phrase 1's scheduled start to the end of the last
+ * phrase that sounded (four measures at its tempo), from its phrases alone: the length its kept
+ * record stores and its Review gives, whether its phrases' starts are audio times or seconds from
+ * phrase 1's start.
+ */
+// @spec-link [[entity_kept_session_record]]
+export function sessionLengthSeconds(
+  first: { readonly startedAt: AudioTime },
+  last: { readonly startedAt: AudioTime; readonly tempo: number },
+): number {
+  return last.startedAt + PHRASE_MEASURE_COUNT * measureSeconds(last.tempo) - first.startedAt
+}
+
+/**
  * Intent: phrase 2's deadline: the end of the count-in, one measure after the session starts, so
  * phrase 2 is ready as read-ahead from the moment phrase 1 starts sounding.
  */

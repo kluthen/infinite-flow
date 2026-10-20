@@ -1,19 +1,22 @@
 /**
  * The review area's side of the Review, over the page's Review host: nothing is given while no
  * Review shows, and an export of either content asked for then is refused as the defect it is;
- * the showing Review's phrases, instrument, start, keeping and whether it is the most recent
- * session; whether the session holds a played note, and the played-notes export; and the export
- * scope, `Whole session` at every Review and back to it when the last favorite goes, which both
- * exports read, the played-notes export saying why it would hold no note under it, and no comment
- * in any file.
+ * the showing Review's phrases, instrument, start, length (its kept record's, its save failed
+ * included), keeping and whether it is the most recent session; whether the session holds a
+ * played note, and the played-notes export; and the export scope, `Whole session` at every Review
+ * and back to it when the last favorite goes, which both exports read, the played-notes export
+ * saying why it would hold no note under it, and no comment in any file.
  */
 import { describe, expect, it, vi } from 'vitest'
 
 import { endedSession, openedReview } from '@/components/workspace/session-review-state'
+import { readKeptReviewedSession } from '@/components/workspace/workspace-kept-session-read'
 import type { SessionReview } from '@/components/workspace/workspace-session-controller-types'
+import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import { WHOLE_SESSION } from '@/export/export-file'
 import { loadGeneratedNotesExport, type ExportFile } from '@/export/load-generated-notes-export'
 import type { SessionHistoryRecord } from '@/session/session-history'
+import { encodeKeptSession } from '@/storage/records/kept-session-record'
 import { DISTINCTIVE_COMMENT, sevenPhraseRecords } from '../../export/favorites-fixtures'
 import { recordedRecords } from '../review/review-fixtures'
 import {
@@ -114,6 +117,7 @@ describe('useReviewArea', () => {
       endedSession(myInstrumentHistory('My tenor'), 'not-pinned', {
         key: 'session-1-1',
         playedNotesKept: false,
+        presets: BUILT_IN_PRESETS,
       }),
     )
     const fake = createFakeSessionController({ review, mostRecent: heldSessionOf(review) })
@@ -137,6 +141,52 @@ describe('useReviewArea', () => {
     expect(area.mostRecent.value).toBe(false)
     fake.controller.closeReview()
     expect([area.startedAt.value, area.keeping.value]).toEqual([null, null])
+    stop()
+  })
+})
+
+// @test-link [[req_last_session_review]]
+// @test-link [[req_kept_session_review]]
+describe("useReviewArea: the session's length", () => {
+  /** The facts the session is kept with: nothing pinned, chosen or commented. */
+  const FACTS = {
+    pinned: false,
+    favorites: [],
+    comment: '',
+    playedNotesKept: false,
+    presets: BUILT_IN_PRESETS,
+  }
+
+  // @test-link [[req_last_session_review]]
+  it('gives the length the kept record stores for the session that just ended, and that it would have stored after a failed save', () => {
+    const history = fakeReviewHistory(recordedRecords())
+    const stored = encodeKeptSession(history, FACTS, '3.1.0').summary.lengthSeconds
+    expect(stored).toBeGreaterThan(0)
+
+    for (const keeping of ['not-pinned', 'not-saved'] as const) {
+      const review = fakeReview(history, true, keeping)
+      const fake = createFakeSessionController({ review, mostRecent: heldSessionOf(review) })
+      const { area, stop } = reviewAreaRig(fake)
+      expect(area.lengthSeconds.value).toBe(stored)
+      fake.controller.closeReview()
+      expect(area.lengthSeconds.value).toBeNull()
+      stop()
+    }
+  })
+
+  // @test-link [[req_kept_session_review]]
+  it('gives a kept session read back the length its record stores', async () => {
+    const records = encodeKeptSession(fakeReviewHistory(recordedRecords()), FACTS, '3.1.0')
+    const read = await readKeptReviewedSession(
+      () =>
+        Promise.resolve({ summary: records.summary, body: records.body, playedNotes: undefined }),
+      'session-1-1',
+    )
+    if (read.kind !== 'read') throw new Error(`Expected the kept session read, got ${read.kind}.`)
+    const fake = createFakeSessionController({ review: openedReview(read.session) })
+    const { area, stop } = reviewAreaRig(fake)
+
+    expect(area.lengthSeconds.value).toBe(records.summary.lengthSeconds)
     stop()
   })
 })

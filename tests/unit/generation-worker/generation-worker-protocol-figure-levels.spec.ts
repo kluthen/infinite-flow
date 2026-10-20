@@ -13,6 +13,7 @@ import {
   JAZZ_FIGURE_LEVELS,
   NEUTRAL_FIGURE_LEVELS,
   type FigureLevels,
+  levelsForProfile,
 } from '@/domain/figures/figure-levels'
 import {
   createGenerationIntent,
@@ -47,7 +48,7 @@ function intentFor(musicalProfile: 'Neutral' | 'Jazz'): GenerationIntent {
       arpeggioChaos: 'Predictable',
       instrumentProfileId: 'c-keyboard',
     }),
-    musicalProfile: { musicalProfile, isCustom: false },
+    figureLevels: levelsForProfile(musicalProfile),
   })
 }
 

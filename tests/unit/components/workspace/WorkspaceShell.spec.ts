@@ -6,10 +6,9 @@ import WorkspaceShell from '@/components/workspace/WorkspaceShell.vue'
 import type { GenerationSession } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
-import {
-  DEFAULT_GENERATION_CONTROLS,
-  DEFAULT_PROFILE_SELECTION,
-} from '@/domain/controls/profile-selection'
+import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
+import { BUILT_IN_PRESETS, DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
 import type { SessionController } from '@/components/workspace/workspace-session-controller-types'
 import type { SessionJumpView } from '@/components/workspace/session-start-jump'
 import { createTestWorkspace, PHRASE_SCORE_STUB } from './test-workspace'
@@ -40,7 +39,8 @@ function fakeSession(overrides: Partial<GenerationSession<WorkspaceSessionResult
 } {
   const actions: GenerationSession<WorkspaceSessionResult>['actions'] = {
     setControl: vi.fn(() => true),
-    selectMusicalProfile: vi.fn(() => true),
+    selectPreset: vi.fn(() => true),
+    setFigureLevel: vi.fn(() => true),
     selectInstrumentProfile: vi.fn(async () => 'applied' as const),
     saveMyInstrument: vi.fn(async () => 'saved' as const),
     saveAndSelectMyInstrument: vi.fn(async () => 'saved' as const),
@@ -57,7 +57,9 @@ function fakeSession(overrides: Partial<GenerationSession<WorkspaceSessionResult
   const session: GenerationSession<WorkspaceSessionResult> = {
     state: {
       controls: DEFAULT_GENERATION_CONTROLS,
-      profileSelection: DEFAULT_PROFILE_SELECTION,
+      figureLevels: NEUTRAL_FIGURE_LEVELS,
+      selection: DEFAULT_PRESET_SELECTION,
+      presets: BUILT_IN_PRESETS,
       presentation: { theme: 'System' },
       myInstrument: null,
       latestIntent: null,
@@ -130,14 +132,18 @@ describe('WorkspaceShell', () => {
     expect(actions.selectInstrumentProfile).toHaveBeenCalledExactlyOnceWith('bb-tenor')
   })
 
-  it('forwards a select-musical-profile event to session.actions.selectMusicalProfile', async () => {
-    const { session, actions } = fakeSession()
+  it('forwards choosing Jazz in the preset control to session.actions.selectPreset, the phrase staying', async () => {
+    const { session, actions } = fakeSession(READY)
     const wrapper = mountShell(session)
 
     const presetGroup = wrapper.get('[aria-label="Musical profile preset"]')
     await presetGroup.findAll('button')[1]!.trigger('click')
 
-    expect(actions.selectMusicalProfile).toHaveBeenCalledExactlyOnceWith('Jazz')
+    expect(actions.selectPreset).toHaveBeenCalledExactlyOnceWith('jazz')
+    expect(actions.generate).not.toHaveBeenCalled()
+    expect(actions.regenerate).not.toHaveBeenCalled()
+    expect(actions.startFreshPhrase).not.toHaveBeenCalled()
+    expect(wrapper.find('.phrase-score-stub').exists()).toBe(true)
   })
 
   it('marks the control panel read-only while an operation is running', () => {

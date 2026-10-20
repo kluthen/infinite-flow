@@ -7,6 +7,7 @@
  * `generateAndEngrave` must mock `@/notation/vexflow-engraver-loader` with the fake engraver loader,
  * since the fit check plans through it.
  */
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { countingSessionSeeds } from '../../composables/fake-session-seed'
 import { expect, vi } from 'vitest'
 
@@ -18,10 +19,7 @@ import type {
   WorkspacePregenerationPolicy,
   WorkspacePrewarmPolicy,
 } from '@/components/workspace/prewarm-policy'
-import {
-  DEFAULT_GENERATION_CONTROLS,
-  DEFAULT_PROFILE_SELECTION,
-} from '@/domain/controls/profile-selection'
+import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import {
   createGenerationIntent,
   type GenerationIntent,
@@ -73,6 +71,7 @@ export function fakeSavedData(settings: Partial<SavedSettings> = {}): SavedDataL
   return {
     outcome: 'saved-data-read',
     settings: { ...defaultSettings(themeDesign().defaults), ...settings },
+    playerPresets: [],
     myInstrument: null,
     keptSessionSummaries: [],
     rememberedController: [],
@@ -86,7 +85,7 @@ function cheapOutcome(requestId: string, seed: number): GenerationOutcome {
     requestId: makeRequestId(requestId),
     seed: makeSeed(seed),
     controls: CHEAP_CONTROLS,
-    musicalProfile: DEFAULT_PROFILE_SELECTION,
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
   })
   return generatePhrase(intent)
 }

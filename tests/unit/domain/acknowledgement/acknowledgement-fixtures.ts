@@ -22,6 +22,7 @@ import { makeRequestId } from '@/domain/generation/generation-request'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import { makeRational } from '@/domain/time/rational'
 import { makeSeed } from '@/domain/random/seed'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 
 /** Duration tokens in sixteenth-note ticks; a trailing `.` makes the value dotted. */
 const TOKEN_TICKS: Readonly<Record<string, number>> = {
@@ -150,7 +151,7 @@ function generatedFixture(
         harmonicMotion: 'Gentle diatonic',
         tension: 'Settled',
       }),
-      musicalProfile: { musicalProfile: 'Neutral', isCustom: false },
+      figureLevels: NEUTRAL_FIGURE_LEVELS,
     }),
   )
   if (outcome.kind !== 'generation_success') {

@@ -11,6 +11,7 @@ layer: BUSINESS
 human_name: Custom Names the Preset It Is Based On
 dependents:
   - [[module_preset_model]]
+  - [[module_profile_control_customization]]
 ---
 
 # Custom Names the Preset It Is Based On

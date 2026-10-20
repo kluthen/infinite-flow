@@ -53,7 +53,8 @@ import { requireTensionArcFlag } from './tension-arc-cycle'
 export type PregenerationSeams = Pick<SessionEngineDependencies, 'providers' | 'viewport'>
 
 /**
- * What the plan starts from, as a session would: the chosen settings, phrase 1 (the Idle result's
+ * What the plan starts from, as a session would: the chosen settings (the restriction in force at
+ * Start frozen in them, as the session's, so the plan's mutations stay inside it), phrase 1 (the Idle result's
  * intent and successful outcome) and the settings it was generated under, the session seed
  * published with it, the settings-mutation flag (the workspace builds it from the Vary settings
  * choice and the session seed) and the multi-phrase tension arc flag. Tempo and Rising tempo
@@ -61,6 +62,7 @@ export type PregenerationSeams = Pick<SessionEngineDependencies, 'providers' | '
  */
 // @spec-link [[module_session_pregeneration_plan]]
 // @spec-link [[req_idle_pregeneration]]
+// @spec-link [[rule_pregenerated_phrase_matches_session]]
 export interface PregenerationStart {
   readonly settings: SessionSettings
   readonly phraseOne: SessionStart['phraseOne']

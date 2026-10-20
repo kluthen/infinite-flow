@@ -76,7 +76,8 @@
  *   once the app has mounted, so waiting for it also waits for the load. `storage.seedSettings`
  *   seeds settings for the next load, `storage.seedMyInstrument` my instrument, and
  *   `?storageLoad=held` holds the load until `window.__workspaceHarnessHeldLoad.release()`
- *   (its `seedVersionOneSessions` seeds kept sessions as v3.0 kept them, for the load to upgrade);
+ *   (its `seedVersionOneSessions` and `seedVersionOneSettings` seed kept sessions and settings as
+ *   v3.0 kept them, for the load to upgrade);
  *   `?storageRead=fail|slow` fails or delays the app's reads, `storage.refuseSaves` refuses its
  *   saves (`?storageRefuse=quota|other` from the load on), `storage.portChanges` counts them and
  *   `storage.openNewerVersion` outdates the tab as a newer version would; `storage.keyedRecords`
@@ -472,7 +473,7 @@ let workspace: WorkspaceSession | null = null
 
 /**
  * Intent: the latest session state's requestId/seed/timeline/operation/mode, for replay/isolation
- * assertions, plus the room notice's state. `requestId`/`seed` are the result's, which a fit run
+ * assertions, plus the room notice's state, the player's figure levels and preset selection and the names of the presets the session knows. `requestId`/`seed` are the result's, which a fit run
  * sets only for the attempt it draws; `latestSeed` is the latest attempt's, drawn or not.
  */
 function snapshot(): WorkspaceHarnessSnapshot {
@@ -495,7 +496,22 @@ function snapshot(): WorkspaceHarnessSnapshot {
     roomNotice: state.roomNotice,
     retriesRunning: state.retriesRunning,
     roomNoticeAnnouncements: state.roomNoticeAnnouncements,
+    figureLevels: { ...state.figureLevels },
+    selection: { ...state.selection },
+    presetNames: state.presets.map((preset) => preset.name),
   }
+}
+
+/**
+ * Intent: choose a preset by its id through the session's own `selectPreset`, the way a spec
+ * reaches the built-ins the two-segment control does not offer, until the preset box does. Throws
+ * before the session mounts, and as the session does on an id no preset has.
+ */
+function selectPreset(id: string): boolean {
+  if (workspace === null) {
+    throw new Error('Workspace harness: selectPreset() was called before the session mounted.')
+  }
+  return workspace.session.actions.selectPreset(id)
 }
 
 /**
@@ -541,6 +557,7 @@ const harnessApi: WorkspaceHarnessApi = {
   failNextExport: armNextExportFailure,
   exportsBuilt,
   snapshot,
+  selectPreset,
   prewarmCount: () => prewarmsPosted,
   prewarmInstrumentProfiles: () => prewarmInstrumentProfiles.map((profile) => ({ ...profile })),
   audio: harnessAudio.api,

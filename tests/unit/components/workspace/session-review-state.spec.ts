@@ -18,6 +18,9 @@ import {
   SessionControllerError,
   type MostRecentSession,
 } from '@/components/workspace/workspace-session-controller-types'
+import { JAZZ_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
+import { BUILT_IN_PRESETS, builtInPreset } from '@/domain/presets/built-in-presets'
+import { makePreset } from '@/domain/presets/preset-selection'
 import { createSessionHistory, type SessionHistory } from '@/session/session-history'
 import {
   DEFAULT_SESSION_SEED,
@@ -33,8 +36,11 @@ import {
 } from '../../session/tempo-session'
 import { myInstrumentHistory } from './my-instrument-history'
 
-/** How each ended session here is saved: under a fixed key, its played notes not kept. */
-const SAVE = { key: 'session-1-1', playedNotesKept: false } as const
+/**
+ * How each ended session here is saved: under a fixed key, its played notes not kept, the session
+ * knowing the built-in presets only.
+ */
+const SAVE = { key: 'session-1-1', playedNotesKept: false, presets: BUILT_IN_PRESETS } as const
 
 /** Intent: the closed history of a driven session, fed every output the driver logged. */
 function historyOf(driver: SessionDriver): SessionHistory {
@@ -139,19 +145,48 @@ describe('the preset label in the Review', () => {
   it("reads the selection the session started with, never a later change's", () => {
     const customJazz = {
       ...sessionSettings({ tempo: 240 }),
-      musicalProfile: { musicalProfile: 'Jazz', isCustom: true },
+      figureLevels: JAZZ_FIGURE_LEVELS,
+      selection: { kind: 'custom', baseId: 'jazz' },
     } as const
     const driver = new SessionDriver({ at: 0, settings: customJazz })
     driver.countInOver(1)
     driver.change(1.5, {
       ...sessionSettings({ tempo: 240 }),
-      musicalProfile: { musicalProfile: 'Neutral', isCustom: false },
+      selection: { kind: 'preset', presetId: 'neutral' },
     })
     driver.end(2)
 
     const session = endedSession(historyOf(driver), 'not-pinned', SAVE)
 
     expect(session.presetLabel).toBe('Custom, based on Jazz')
+  })
+
+  // @test-link [[rule_preset_label_kept_with_session]]
+  // @test-link [[rule_presets_read_at_start_up]]
+  it('names a player preset the session started with from the presets the session knew', () => {
+    const lateNight = makePreset({
+      ...builtInPreset('jazz'),
+      id: 'player-1',
+      name: 'Late night',
+      kind: 'player',
+    })
+    const driver = new SessionDriver({
+      at: 0,
+      settings: {
+        ...sessionSettings({ tempo: 240 }),
+        figureLevels: JAZZ_FIGURE_LEVELS,
+        selection: { kind: 'preset', presetId: 'player-1' },
+      },
+    })
+    driver.countInOver(1)
+    driver.end(2)
+
+    const session = endedSession(historyOf(driver), 'not-pinned', {
+      ...SAVE,
+      presets: [...BUILT_IN_PRESETS, lateNight],
+    })
+
+    expect(session.presetLabel).toBe('Late night')
   })
 })
 

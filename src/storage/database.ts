@@ -12,6 +12,7 @@
  */
 
 import { KEPT_SESSIONS_V2 } from './migrations/kept-sessions-v2'
+import { SETTINGS_V3 } from './migrations/settings-v3'
 import { readEnvelope } from './record-envelope'
 
 /** The database's name; the browser scopes it to the site's origin. */
@@ -24,7 +25,7 @@ const META_STORE = 'meta'
 /** The key of the one `meta` record. */
 const META_KEY = 'database'
 
-/** The six stores the app's data lives in, one per kind of record. */
+/** The seven stores the app's data lives in, one per kind of record. */
 // @spec-link [[module_on_device_database]]
 export const DATA_STORES = [
   'settings',
@@ -33,6 +34,7 @@ export const DATA_STORES = [
   'sessionSummaries',
   'sessionBodies',
   'playedNotes',
+  'presets',
 ] as const
 
 /** The name of one of the stores the app's data lives in. */
@@ -61,11 +63,25 @@ export interface MigrationStep {
   readonly migrate: (upgrade: MigrationUpgrade) => void
 }
 
-/** Step 1, from an empty database: the seven stores, with out-of-line keys and no index. */
+/**
+ * The stores data version 1 holds: `meta` and v3.0's six data stores. A store added later is
+ * created by the step that introduces it.
+ */
+const VERSION_1_STORES = [
+  META_STORE,
+  'settings',
+  'instrument',
+  'controller',
+  'sessionSummaries',
+  'sessionBodies',
+  'playedNotes',
+] as const satisfies readonly (StoreName | typeof META_STORE)[]
+
+/** Step 1, from an empty database: data version 1's seven stores, out-of-line keys, no index. */
 const CREATE_STORES: MigrationStep = {
   toVersion: 1,
   migrate: ({ database }) => {
-    for (const name of [META_STORE, ...DATA_STORES]) database.createObjectStore(name)
+    for (const name of VERSION_1_STORES) database.createObjectStore(name)
   },
 }
 
@@ -74,6 +90,7 @@ const CREATE_STORES: MigrationStep = {
 export const PRODUCTION_MIGRATIONS: readonly MigrationStep[] = Object.freeze([
   CREATE_STORES,
   KEPT_SESSIONS_V2,
+  SETTINGS_V3,
 ])
 
 /**
@@ -89,7 +106,10 @@ export function migrationsDataVersion(steps: readonly MigrationStep[]): number {
   return steps.length
 }
 
-/** The code's data version: 1 in v3.0, 2 from v3.1. */
+/**
+ * The code's data version: 1 in v3.0, 3 from v3.1, reached by the step to version 2 (the kept
+ * sessions) and the step to version 3 (the settings and the `presets` store).
+ */
 // @spec-link [[module_on_device_database]]
 export const DATABASE_DATA_VERSION: number = migrationsDataVersion(PRODUCTION_MIGRATIONS)
 

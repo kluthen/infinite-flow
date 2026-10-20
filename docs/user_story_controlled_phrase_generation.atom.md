@@ -3,7 +3,7 @@ id: user_story_controlled_phrase_generation
 status: REVIEW
 human_name: Controlled Phrase Generation
 layer: BUSINESS
-version: 0.2
+version: 0.3
 parents:
   - [[req_four_measure_phrase]]
 type: USER_STORY
@@ -42,12 +42,10 @@ dependents:
 Enable a player to configure the musical character of a generated phrase and explicitly request a new variation.
 
 ## THE RULE / LOGIC
-
-The player selects a stable tempo from 60 through 240 BPM in 10-BPM increments; one tonal center and a separately labeled major, minor, or church-mode collection, read and selected in the selected instrument profile's written pitch (request construction converts the written tonal center to the concert tonal center by removing the profile's transposition); harmonic motion; tension arc; note density; rhythmic variety; syncopation; silence density; contour; register; leapiness; arpeggio chaos; and either the neutral or jazz profile preset. The first-load selections are 90 BPM, written C Ionian on the B-flat tenor saxophone (concert B-flat Ionian), the neutral profile, Slightly varied rhythmic variety, Lift tension, and Shaped leapiness. Regeneration applies the selected controls to all four measures.
+The player selects a stable tempo from 60 through 240 BPM in 10-BPM increments; one tonal center and a separately labeled major, minor, or church-mode collection, read and selected in the selected instrument profile's written pitch (request construction converts the written tonal center to the concert tonal center by removing the profile's transposition); harmonic motion; tension arc; note density; rhythmic variety; syncopation; silence density; contour; register; leapiness; arpeggio chaos; the seven embellishment figure levels; and a preset, which sets the preset-held controls and the figure levels in one step. The first-load selections are 90 BPM, written C Ionian on the B-flat tenor saxophone (concert B-flat Ionian), the Neutral preset with its figure levels, Slightly varied rhythmic variety, Lift tension, and Shaped leapiness. Regeneration applies the selected controls to all four measures.
 
 ## TECHNICAL INTERFACE
-
-Controls expose the stated musical choices, profile preset, and an explicit regeneration action that requests a whole new phrase.
+Controls expose the stated musical choices, the figure levels, a preset choice, and an explicit regeneration action that requests a whole new phrase.
 
 ## EXPECTATION
 

@@ -6,7 +6,7 @@
  */
 
 import type { GenerationControls } from '@/domain/controls/generation-controls'
-import type { ProfileSelection } from '@/domain/controls/profile-selection'
+import type { FigureLevels } from '@/domain/figures/figure-levels'
 import {
   createGenerationIntent,
   type GenerationIntent,
@@ -30,12 +30,12 @@ export type PostPrewarm = (intent: GenerationIntent) => void
 
 /**
  * Called with the controls a phrase would be generated with right now (note density already
- * resolved against the window's width), the current profile selection, and my instrument's
- * profile as data when the controls name it (undefined for a built-in, which resolves by id).
+ * resolved against the window's width), the current figure levels, and my instrument's profile as
+ * data when the controls name it (undefined for a built-in, which resolves by id).
  */
 export type RhythmPrewarmTrigger = (
   generatedControls: GenerationControls,
-  musicalProfile: ProfileSelection,
+  figureLevels: FigureLevels,
   instrumentProfile: InstrumentProfile | undefined,
 ) => void
 
@@ -66,12 +66,12 @@ export function rhythmSettingKeyOf(intent: GenerationIntent): string {
 // @spec-link [[entity_my_instrument]]
 export function createRhythmPrewarmTrigger(post: PostPrewarm): RhythmPrewarmTrigger {
   let lastPostedKey: string | undefined
-  return (generatedControls, musicalProfile, instrumentProfile) => {
+  return (generatedControls, figureLevels, instrumentProfile) => {
     const intent = createGenerationIntent({
       requestId: PREWARM_REQUEST_ID,
       seed: PREWARM_SEED,
       controls: generatedControls,
-      musicalProfile,
+      figureLevels,
       ...(instrumentProfile === undefined ? {} : { instrumentProfile }),
     })
     const key = rhythmSettingKeyOf(intent)

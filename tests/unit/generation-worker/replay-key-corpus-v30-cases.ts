@@ -48,6 +48,7 @@ import type { InstrumentProfile } from '@/domain/profile/instrument-profile'
 import type { BuiltInInstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import { makeMyInstrument } from '@/domain/profile/my-instrument'
 import { makeSeed } from '@/domain/random/seed'
+import { levelsForProfile } from '@/domain/figures/figure-levels'
 
 /** One corpus case: a label naming it, its intent and the phrase number its key carries. */
 export interface ReplayKeyCorpusV30Case {
@@ -143,7 +144,7 @@ function corpusIntent(options: {
       ...options.controls,
       instrumentProfileId: instrument.instrumentProfileId,
     }),
-    musicalProfile: options.profile,
+    figureLevels: levelsForProfile(options.profile.musicalProfile),
     ...(instrument.instrumentProfile === undefined
       ? {}
       : { instrumentProfile: instrument.instrumentProfile }),

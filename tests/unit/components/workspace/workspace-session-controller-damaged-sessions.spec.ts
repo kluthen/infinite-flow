@@ -14,6 +14,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { KeptSessionsSeam } from '@/components/workspace/workspace-session-controller-types'
 import type { DamagedSessionsReport } from '@/components/workspace/workspace-kept-sessions-seam'
+import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import { encodeKeptSession, type KeptSessionFacts } from '@/storage/records/kept-session-record'
 import type { StoredKeptSession } from '@/storage/records/kept-session-record'
 import type {
@@ -42,6 +43,7 @@ const FRESH: KeptSessionFacts = {
   favorites: [],
   comment: '',
   playedNotesKept: false,
+  presets: BUILT_IN_PRESETS,
 }
 
 /** Intent: the stored records of the recorded session started at `startedAt`, with `facts`. */

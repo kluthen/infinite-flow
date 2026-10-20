@@ -8,6 +8,7 @@ parents:
   - [[rule_earlier_kept_sessions_carried_over]]
 dependents:
   - [[module_kept_session_upgrade_step]]
+  - [[module_settings_upgrade_step]]
 layer: ARCHITECTURE
 version: 0.3
 priority: 1

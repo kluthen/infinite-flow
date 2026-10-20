@@ -12,7 +12,8 @@
  */
 
 import type { GenerationControls } from '@/domain/controls/generation-controls'
-import type { ProfileSelection } from '@/domain/controls/profile-selection'
+import { FIGURE_IDS, type FigureLevels } from '@/domain/figures/figure-levels'
+import type { PresetSelection } from '@/domain/presets/preset-selection'
 
 import { createMyInstrumentSaves, type MyInstrumentSaves } from './my-instrument-saves'
 import {
@@ -218,14 +219,21 @@ export function createVisitSaves(policy: Promise<SavePolicy>, appVersion: string
 /** A player's control choices, as the generation session holds them. */
 interface ControlChoices {
   readonly controls: GenerationControls
-  readonly profileSelection: ProfileSelection
+  readonly figureLevels: FigureLevels
+  readonly selection: PresetSelection
 }
 
 const CONTROL_PREFIX = 'controls.'
 
+/** Intent: whether two preset selections are the same: the same kind naming the same preset. */
+function sameSelection(left: PresetSelection, right: PresetSelection): boolean {
+  if (left.kind === 'preset') return right.kind === 'preset' && right.presetId === left.presetId
+  return right.kind === 'custom' && right.baseId === left.baseId
+}
+
 /**
- * Intent: the settings a player's control change changed: each control whose value differs, and
- * the profile selection when its profile or its customized flag differs. For the player's change
+ * Intent: the settings a player's control change changed: each control whose value differs, each
+ * figure level that differs, and the preset selection when it differs. For the player's change
  * handlers only, never for a watcher of control values.
  */
 // @spec-link [[rule_settings_saved_on_change]]
@@ -242,12 +250,13 @@ export function chosenControlChanges(
       changed.push([key, after.controls[field]])
     }
   }
-  const { musicalProfile, isCustom } = after.profileSelection
-  if (
-    before.profileSelection.musicalProfile !== musicalProfile ||
-    before.profileSelection.isCustom !== isCustom
-  ) {
-    changed.push(['profileSelection', { musicalProfile, isCustom }])
+  for (const figure of FIGURE_IDS) {
+    if (before.figureLevels[figure] !== after.figureLevels[figure]) {
+      changed.push([`figureLevels.${figure}`, after.figureLevels[figure]])
+    }
+  }
+  if (!sameSelection(before.selection, after.selection)) {
+    changed.push(['presetSelection', after.selection])
   }
   return Object.fromEntries(changed) as SettingChanges
 }

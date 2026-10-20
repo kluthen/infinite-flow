@@ -11,7 +11,7 @@
 
 import { presetLabel } from '@/domain/controls/preset-label'
 import { deepFreeze } from '@/domain/events/deep-freeze'
-import { PHRASE_MEASURE_COUNT } from '@/domain/generation/generation-request'
+import type { Preset } from '@/domain/presets/preset-selection'
 import type {
   RecordedPlayedNote,
   ReviewedPhrase,
@@ -19,7 +19,7 @@ import type {
   SessionHistoryRecord,
 } from '@/session/session-history'
 import { withPlayedNotes } from '@/session/session-history-played-notes'
-import { measureSeconds } from '@/session/session-timing'
+import { sessionLengthSeconds } from '@/session/session-timing'
 
 import {
   keptPlayedNotesRecord,
@@ -67,14 +67,18 @@ export type { KeptSessionSummaryRecord } from './kept-session-summary'
 
 /**
  * The facts of a session its history does not hold: whether it is pinned, the numbers of its
- * favorite phrases, its comment (at most 500 characters) and whether its played notes are kept.
+ * favorite phrases, its comment (at most 500 characters), whether its played notes are kept, and
+ * the presets the session knew, which its preset label names its selection from.
  */
 // @spec-link [[entity_kept_session_record]]
+// @spec-link [[rule_preset_label_kept_with_session]]
 export interface KeptSessionFacts {
   readonly pinned: boolean
   readonly favorites: readonly number[]
   readonly comment: string
   readonly playedNotesKept: boolean
+  /** The presets the session knew at its end: the built-ins, then the player's. */
+  readonly presets: readonly Preset[]
 }
 
 /** The records a kept session is stored as; `playedNotes` is null unless they are kept. */
@@ -88,7 +92,7 @@ export interface KeptSessionRecords {
 /** What the encoder reads from a finished session's history. */
 export type KeptSessionHistory = Pick<
   SessionHistory,
-  'phrases' | 'startedAt' | 'instrumentProfileId' | 'profileSelection' | 'sessionSeed'
+  'phrases' | 'startedAt' | 'instrumentProfileId' | 'selection' | 'sessionSeed'
 >
 
 /**
@@ -138,24 +142,18 @@ function checkedFavorites(
 }
 
 /**
- * Intent: the session's length in seconds, from phrase 1's scheduled start to the end of the last
- * phrase that sounded (four measures at its tempo), from the history alone.
- */
-function sessionLengthSeconds(first: SessionHistoryRecord, last: SessionHistoryRecord): number {
-  return last.startedAt + PHRASE_MEASURE_COUNT * measureSeconds(last.tempo) - first.startedAt
-}
-
-/**
  * Intent: the records of a finished session: the session-wide record (its facts from the history,
- * the preset label of the musical profile selection the history keeps from the session's start,
+ * the preset label of the preset selection the history keeps from the session's start, named from
+ * the presets the session knew,
  * the instrument's display name from phrase 1's intent, the starting tempo from phrase 1 and the
  * tempo reached from the last phrase), the body, and the played notes only when they are kept,
  * each written by `appVersion`, the session-wide record and the body at data version 2, the played
  * notes at data version 1, every field copied by name and every time in seconds from phrase 1's
  * scheduled start. Throws, as a
  * caller defect, on a history with no phrase, an empty app version, a comment over 500
- * characters, an unknown or repeated favorite, or a phrase played on another instrument than the
- * session's. Every phrase keeps the clef the history recorded it in.
+ * characters, an unknown or repeated favorite, a selected preset none of the given presets has, or
+ * a phrase played on another instrument than the session's. Every phrase keeps the clef the
+ * history recorded it in.
  */
 // @spec-link [[module_kept_session_codec]]
 // @spec-link [[rule_kept_session_content]]
@@ -177,7 +175,7 @@ export function encodeKeptSession(
       startedAt: history.startedAt,
       lengthSeconds: sessionLengthSeconds(first, last),
       phraseCount: records.length,
-      presetLabel: presetLabel(history.profileSelection),
+      presetLabel: presetLabel(history.selection, facts.presets),
       instrument: {
         id: history.instrumentProfileId,
         displayName: first.intent.instrumentProfile.displayName,

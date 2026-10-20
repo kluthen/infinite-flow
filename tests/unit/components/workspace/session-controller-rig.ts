@@ -33,6 +33,7 @@ import {
   type WorkspacePregenerationFactory,
 } from '@/components/workspace/workspace-pregeneration'
 import { createPregenerationSlot } from '@/composables/generation-session-pregeneration'
+import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import type { NotationError } from '@/notation/notation-error'
 import type { StaffFixedParts, StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { MutableGenerationSessionState } from '@/composables/use-generation-session'
@@ -266,7 +267,11 @@ export function controllerRig(
   const settings = sessionSettings({ tempo: options.tempo ?? RIG_TEMPO })
   const phraseOne: WorkspaceSessionResult = {
     ...phraseOneFor(settings),
-    settings: { controls: settings.controls, profileSelection: settings.musicalProfile },
+    settings: {
+      controls: settings.controls,
+      figureLevels: settings.figureLevels,
+      selection: settings.selection,
+    },
     sessionSeed: RIG_SESSION_SEED,
   }
   const idleWritten = transformToWrittenPhrase(
@@ -277,7 +282,9 @@ export function controllerRig(
   const planner = createFakePlanner()
   const idle = shallowReactive<MutableGenerationSessionState<WorkspaceSessionResult>>({
     controls: settings.controls,
-    profileSelection: settings.musicalProfile,
+    figureLevels: settings.figureLevels,
+    selection: settings.selection,
+    presets: BUILT_IN_PRESETS,
     presentation: { theme: 'System' },
     myInstrument: null,
     latestIntent: phraseOne.intent,

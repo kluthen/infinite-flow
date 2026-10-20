@@ -1,7 +1,9 @@
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import type { ProfileSelection } from '@/domain/controls/profile-selection'
-import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
+import { JAZZ_FIGURE_LEVELS, NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
+import { BUILT_IN_PRESETS, builtInPreset } from '@/domain/presets/built-in-presets'
+import { makePreset } from '@/domain/presets/preset-selection'
 import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import { buildGeneratedNotesFile, type GeneratedNotesRequest } from '@/export/generated-notes-file'
 import { buildPlayedNotesFile } from '@/export/played-notes-file'
@@ -63,6 +65,7 @@ const KEPT_FACTS: KeptSessionFacts = {
   favorites: [3, 1],
   comment: 'Swung the second half.',
   playedNotesKept: true,
+  presets: BUILT_IN_PRESETS,
 }
 
 /** Keys no kept record may hold anywhere. */
@@ -96,6 +99,12 @@ const INTENT_KEYS = [
 
 /** The Neutral preset's selection, not customized. */
 const NEUTRAL: ProfileSelection = { musicalProfile: 'Neutral', isCustom: false }
+
+/**
+ * The harness sessions' selection, Custom based on Neutral, in v3.0's shape: what a v3.0 tab
+ * stored with such a session.
+ */
+const V30_CUSTOM_NEUTRAL: ProfileSelection = { musicalProfile: 'Neutral', isCustom: true }
 
 // @test-link [[entity_kept_session_record]]
 // @test-link [[rule_kept_session_holds_no_acknowledgements]]
@@ -363,13 +372,11 @@ describe('decodeKeptSession of sessions kept by earlier code at data version 1, 
   // @test-link [[module_kept_session_codec]]
   // @test-link [[module_stored_profile_to_levels]]
   it("opens a v3.0-shaped session, each phrase with its profile's levels, review and exports as saved", () => {
-    const body = v1Body(stored.body, (intent) => v30Intent(intent, history.profileSelection))
+    const body = v1Body(stored.body, (intent) => v30Intent(intent, V30_CUSTOM_NEUTRAL))
     for (const intent of storedIntents(body))
       expect(Object.hasOwn(intent, 'figureLevels')).toBe(false)
 
-    const session = decoded(
-      upgraded(stored, v1Summary(stored.summary, history.profileSelection), body),
-    )
+    const session = decoded(upgraded(stored, v1Summary(stored.summary, V30_CUSTOM_NEUTRAL), body))
 
     expectReviewAndExportsAsSaved(session)
     expect(session.summary.presetLabel).toBe('Custom, based on Neutral')
@@ -377,10 +384,10 @@ describe('decodeKeptSession of sessions kept by earlier code at data version 1, 
 
   // @test-link [[module_kept_session_codec]]
   it('opens a chunk-4-shaped session, each phrase with its profile and those levels', () => {
-    const body = v1Body(stored.body, (intent) => chunk4Intent(intent, history.profileSelection))
+    const body = v1Body(stored.body, (intent) => chunk4Intent(intent, V30_CUSTOM_NEUTRAL))
 
     expectReviewAndExportsAsSaved(
-      decoded(upgraded(stored, v1Summary(stored.summary, history.profileSelection), body)),
+      decoded(upgraded(stored, v1Summary(stored.summary, V30_CUSTOM_NEUTRAL), body)),
     )
   })
 
@@ -388,11 +395,11 @@ describe('decodeKeptSession of sessions kept by earlier code at data version 1, 
   it("reads a chunk-4-shaped session as unreadable when one phrase's levels differ from its profile", () => {
     const jazz: ProfileSelection = { musicalProfile: 'Jazz', isCustom: false }
     const body = v1Body(stored.body, (intent, index) =>
-      chunk4Intent(intent, index === 2 ? jazz : history.profileSelection),
+      chunk4Intent(intent, index === 2 ? jazz : V30_CUSTOM_NEUTRAL),
     )
 
     expect(upgradedKeptBody(body, APP_VERSION)).toBeNull()
-    const session = upgraded(stored, v1Summary(stored.summary, history.profileSelection), body)
+    const session = upgraded(stored, v1Summary(stored.summary, V30_CUSTOM_NEUTRAL), body)
     expect(decodeKeptSession(session)).toEqual({ reading: 'unreadable' })
   })
 })
@@ -401,11 +408,12 @@ describe('decodeKeptSession of sessions kept by earlier code at data version 1, 
 describe('the summary of a session started with Use it on phrase 1 of other settings', () => {
   // @test-link [[rule_kept_session_content]]
   // @test-link [[module_kept_session_codec]]
-  it("names the session's musical profile, not the one phrase 1 was generated under", () => {
+  it("names the session's preset, not the settings phrase 1 was generated under", () => {
     const neutral = sessionSettings({ tempo: 240, instrumentProfileId: 'bb-tenor' })
     const settings: SessionSettings = {
       ...neutral,
-      musicalProfile: { musicalProfile: 'Jazz', isCustom: false },
+      figureLevels: JAZZ_FIGURE_LEVELS,
+      selection: { kind: 'preset', presetId: 'jazz' },
     }
     const driver = new SessionDriver({
       at: 0,
@@ -437,9 +445,11 @@ describe("the preset label a new session's summary records", () => {
 
   // @test-link [[rule_preset_label_kept_with_session]]
   it.each([
-    [{ musicalProfile: 'Neutral', isCustom: false }, 'Neutral'],
-    [{ musicalProfile: 'Jazz', isCustom: false }, 'Jazz'],
-    [{ musicalProfile: 'Jazz', isCustom: true }, 'Custom, based on Jazz'],
+    [{ kind: 'preset', presetId: 'neutral' }, 'Neutral'],
+    [{ kind: 'preset', presetId: 'jazz' }, 'Jazz'],
+    [{ kind: 'preset', presetId: 'reel' }, 'Reel'],
+    [{ kind: 'custom', baseId: 'jazz' }, 'Custom, based on Jazz'],
+    [{ kind: 'custom', baseId: null }, 'Custom'],
   ] as const)('records %j as "%s", at data version 2', (selection, label) => {
     const kept = encodeKeptSession(
       historyOf(records, 'bb-tenor', selection),
@@ -450,6 +460,52 @@ describe("the preset label a new session's summary records", () => {
     expect(kept.summary.presetLabel).toBe(label)
     expect(kept.summary.dataVersion).toBe(2)
     expect(decoded(storedRecords(kept)).summary.presetLabel).toBe(label)
+  })
+
+  // @test-link [[rule_preset_label_kept_with_session]]
+  it.each([
+    [{ kind: 'preset', presetId: 'player-1' }, 'Late night'],
+    [{ kind: 'custom', baseId: 'player-1' }, 'Custom, based on Late night'],
+  ] as const)('records %j as "%s" from the presets the session knew', (selection, label) => {
+    const lateNight = makePreset({
+      ...builtInPreset('jazz'),
+      id: 'player-1',
+      name: 'Late night',
+      kind: 'player',
+    })
+    const kept = encodeKeptSession(
+      historyOf(records, 'bb-tenor', selection),
+      { ...KEPT_FACTS, favorites: [1], presets: [...BUILT_IN_PRESETS, lateNight] },
+      APP_VERSION,
+    )
+
+    expect(kept.summary.presetLabel).toBe(label)
+    expect(decoded(storedRecords(kept)).summary.presetLabel).toBe(label)
+  })
+})
+
+// @test-link [[rule_preset_label_kept_with_session]]
+describe('the preset label of a session started from Custom', () => {
+  // @test-link [[rule_preset_label_kept_with_session]]
+  it('records "Custom, based on Jazz" for a session started from Custom based on Jazz', () => {
+    const settings: SessionSettings = {
+      ...sessionSettings({ tempo: 240, instrumentProfileId: 'bb-tenor' }),
+      figureLevels: JAZZ_FIGURE_LEVELS,
+      selection: { kind: 'custom', baseId: 'jazz' },
+    }
+    const driver = new SessionDriver({ at: 0, settings, phraseOne: phraseOneFor(settings) })
+    driver.accept(0.5)
+    driver.countInOver(1)
+    driver.sounding(5, 2)
+    driver.end(6)
+    const history = createSessionHistory(settings, fixedWallClock, DEFAULT_SESSION_SEED, 'treble')
+    for (const output of driver.log) history.record(output)
+
+    const records = encodeKeptSession(history, { ...KEPT_FACTS, favorites: [1] }, APP_VERSION)
+
+    expect(history.selection).toStrictEqual({ kind: 'custom', baseId: 'jazz' })
+    expect(records.summary.presetLabel).toBe('Custom, based on Jazz')
+    expect(decoded(storedRecords(records)).summary.presetLabel).toBe('Custom, based on Jazz')
   })
 })
 
@@ -635,7 +691,7 @@ describe('the size of a 30-minute 240 BPM Jazz Sixteenth session', () => {
   // @test-link [[entity_kept_session_record]]
   it('stays within the measured bound for its session-wide record and body', async () => {
     const records = await longJazzSixteenthRecords(450, 12)
-    const jazz = { musicalProfile: 'Jazz', isCustom: false } as const
+    const jazz = { kind: 'preset', presetId: 'jazz' } as const
     const kept = encodeKeptSession(historyOf(records, 'eb-alto', jazz), KEPT_FACTS, APP_VERSION)
     const sessionBytes = utf8Bytes(kept.summary) + utf8Bytes(kept.body)
 

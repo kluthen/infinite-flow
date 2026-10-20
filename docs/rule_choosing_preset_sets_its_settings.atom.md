@@ -1,9 +1,10 @@
 ---
 id: rule_choosing_preset_sets_its_settings
-status: DRAFT
+status: REVIEW
 parents:
   - [[req_presets]]
 dependents:
+  - [[module_generative_profile_selection]]
   - [[module_preset_model]]
 type: RULE
 version: 0.1

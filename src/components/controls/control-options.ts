@@ -13,7 +13,6 @@ import {
   CONTOURS,
   HARMONIC_MOTIONS,
   LEAPINESS_VALUES,
-  MUSICAL_PROFILES,
   NOTE_DENSITIES,
   PITCH_CLASSES,
   REGISTER_CHOICES,
@@ -23,7 +22,9 @@ import {
   TENSION_ARCS,
 } from '@/domain/controls/generation-controls'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
-import type { ProfileSelection } from '@/domain/controls/profile-selection'
+import { presetLabel } from '@/domain/controls/preset-label'
+import { builtInPreset } from '@/domain/presets/built-in-presets'
+import type { Preset, PresetSelection } from '@/domain/presets/preset-selection'
 import { ADOPTED_INSTRUMENT_PROFILES, MY_INSTRUMENT_ID } from '@/domain/profile/instrument-profiles'
 import type { SegmentedControlOption } from './segmented-control-option'
 
@@ -97,10 +98,17 @@ export function profileRangeSummaryText(profile: InstrumentProfile): string {
   return `Active range ${range.minMidi}-${range.maxMidi}. Whole-phrase windows: Low ${windowOf('Low')}, Middle ${windowOf('Middle')}, High ${windowOf('High')}.`
 }
 
-/** Intent: build the Neutral/Jazz musical-profile-preset options. */
+/**
+ * Intent: build the two-segment preset control's options, until the preset box replaces it: the
+ * Neutral and Jazz built-ins, each valued by its preset id and labelled by its name.
+ */
 // @spec-link [[module_generation_control_catalog]]
-export function musicalProfileOptions(): readonly SegmentedControlOption[] {
-  return MUSICAL_PROFILES.map((value) => ({ value, label: value }))
+// @spec-link [[module_generative_profile_selection]]
+export function presetSegmentOptions(): readonly SegmentedControlOption[] {
+  return [builtInPreset('neutral'), builtInPreset('jazz')].map((preset) => ({
+    value: preset.id,
+    label: preset.name,
+  }))
 }
 
 /** Intent: build the harmonic-motion options; every catalog value is already its own label. */
@@ -183,30 +191,22 @@ function labelFor(options: readonly SegmentedControlOption[], value: string): st
 }
 
 /**
- * Intent: the musical-profile state as `control-summary` writes it: the preset name, or
- * `Custom ({grammar} grammar)` during a custom edit.
- */
-// @spec-link [[module_generation_control_catalog]]
-export function profileSelectionLabel(profileSelection: ProfileSelection): string {
-  return profileSelection.isCustom
-    ? `Custom (${profileSelection.musicalProfile} grammar)`
-    : profileSelection.musicalProfile
-}
-
-/**
  * Intent: the muted `control-summary` copy per D25 -- tonal center and collection labels
- * separated by a plain space, then the musical-profile state (preset name, or `Custom ({grammar}
- * grammar)` during a custom edit), tension arc, and leapiness, each segment separated by ` · `.
+ * separated by a plain space, then the preset label of the selection, named from the presets the
+ * session knows (the preset's name, or `Custom, based on {name}` naming Custom's base, or `Custom`
+ * alone with none), tension arc, and leapiness, each segment separated by ` · `.
  */
 // @spec-link [[module_generation_control_catalog]]
+// @spec-link [[rule_custom_names_its_base]]
 export function controlSummaryText(
   controls: GenerationControls,
-  profileSelection: ProfileSelection,
+  selection: PresetSelection,
+  presets: readonly Preset[],
 ): string {
   const tonalCenterLabel = labelFor(tonalCenterOptions(), controls.tonalCenter)
   const collectionLabel = labelFor(collectionOptions(), controls.collection)
   const tensionLabel = labelFor(tensionOptions(), controls.tension)
   const leapinessLabel = labelFor(leapinessOptions(), controls.leapiness)
-  const profileLabel = profileSelectionLabel(profileSelection)
-  return `${tonalCenterLabel} ${collectionLabel} · ${profileLabel} · ${tensionLabel} · ${leapinessLabel}`
+  const selectionLabel = presetLabel(selection, presets)
+  return `${tonalCenterLabel} ${collectionLabel} · ${selectionLabel} · ${tensionLabel} · ${leapinessLabel}`
 }

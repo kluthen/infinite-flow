@@ -1,13 +1,13 @@
 ---
 id: rule_selectable_generative_profiles
 status: REVIEW
-human_name: Selectable Generative Profiles
+human_name: Selectable Presets
 priority: 1
 parents:
   - [[user_story_controlled_phrase_generation]]
 type: RULE
 layer: BUSINESS
-version: 0.1
+version: 0.2
 tags: [profile, controls, configuration, changes-in-v3.1]
 dependents:
   - [[module_generative_profile_selection]]
@@ -15,16 +15,16 @@ dependents:
   - [[rule_profile_presets_apply_defined_controls]]
 ---
 
-# Selectable Generative Profiles
+# Selectable Presets
 
 ## INTENT
-Allow a player to select a generative profile with a defined configuration.
+Allow a player to select a preset with a defined configuration.
 
 ## THE RULE / LOGIC
-Each selectable generative profile defines a complete configuration for its profile-controlled values. Selecting a generative profile makes that profile's configuration current.
+Each selectable preset defines a complete configuration of the settings a preset holds. Selecting a preset makes that preset's configuration current. Neutral and Jazz, the two musical profiles of earlier versions, are two of the built-in presets.
 
 ## TECHNICAL INTERFACE
-The player selects one generative profile.
+The player selects one preset.
 
 ## EXPECTATION
-The selected generative profile supplies its defined configuration as the current profile-controlled values.
+The selected preset supplies its defined configuration as the current preset-held settings.

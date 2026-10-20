@@ -10,7 +10,7 @@ import { computed } from 'vue'
 
 import type { NoteDensityContext } from '@/domain/controls/generated-note-density'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
-import type { ProfileSelection } from '@/domain/controls/profile-selection'
+import type { Preset, PresetId, PresetSelection } from '@/domain/presets/preset-selection'
 import type { MyInstrument } from '@/domain/profile/my-instrument'
 import FoundationControls from './FoundationControls.vue'
 import RhythmControls from './RhythmControls.vue'
@@ -22,7 +22,10 @@ import type { SetControlPayload } from './set-control-event'
 
 const props = defineProps<{
   controls: GenerationControls
-  profileSelection: ProfileSelection
+  /** The preset selection: a preset, or Custom naming its base. */
+  selection: PresetSelection
+  /** The presets the session knows, which name the selection: the built-ins, then the player's. */
+  presets: readonly Preset[]
   readonly: boolean
   noteDensityContext: NoteDensityContext
   /** The page's `Rising tempo` choice, kept even while it is unavailable. */
@@ -48,7 +51,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   'set-control': [payload: SetControlPayload]
   'select-instrument-profile': [id: GenerationControls['instrumentProfileId']]
-  'select-musical-profile': [profile: ProfileSelection['musicalProfile']]
+  'select-preset': [id: PresetId]
   'set-rising-tempo': [on: boolean]
   'set-tension-across-phrases': [on: boolean]
   'set-vary-settings': [on: boolean]
@@ -66,8 +69,8 @@ function forwardInstrumentProfile(id: GenerationControls['instrumentProfileId'])
 }
 
 /** Intent: forward the preset group's selection event upward unchanged. */
-function forwardMusicalProfile(profile: ProfileSelection['musicalProfile']): void {
-  emit('select-musical-profile', profile)
+function forwardSelectPreset(id: PresetId): void {
+  emit('select-preset', id)
 }
 
 /** Intent: forward the player's `Rising tempo` choice upward unchanged. */
@@ -86,11 +89,14 @@ function forwardVarySettings(on: boolean): void {
 }
 
 /**
- * Intent: the muted control-summary line, restating the chosen tonal center, collection, profile
- * state, tension arc and leapiness at a glance, recomputed on every relevant control change.
+ * Intent: the muted control-summary line, restating the chosen tonal center, collection, preset
+ * label (Custom naming its base), tension arc and leapiness at a glance, recomputed on every relevant control change.
  */
 // @spec-link [[module_generation_control_catalog]]
-const controlSummary = computed(() => controlSummaryText(props.controls, props.profileSelection))
+// @spec-link [[rule_custom_names_its_base]]
+const controlSummary = computed(() =>
+  controlSummaryText(props.controls, props.selection, props.presets),
+)
 </script>
 
 <template>
@@ -104,7 +110,8 @@ const controlSummary = computed(() => controlSummaryText(props.controls, props.p
     <div class="control-group-row">
       <FoundationControls
         :controls="controls"
-        :profile-selection="profileSelection"
+        :selection="selection"
+        :presets="presets"
         :readonly="readonly"
         :preset-status-live="presetStatusLive"
         :last-session-reached-tempo="lastSessionReachedTempo"
@@ -113,7 +120,7 @@ const controlSummary = computed(() => controlSummaryText(props.controls, props.p
         @open-my-instrument="emit('open-my-instrument')"
         @set-control="forwardSetControl"
         @select-instrument-profile="forwardInstrumentProfile"
-        @select-musical-profile="forwardMusicalProfile"
+        @select-preset="forwardSelectPreset"
       />
       <RhythmControls
         :controls="controls"

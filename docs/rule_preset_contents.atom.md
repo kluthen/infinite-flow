@@ -5,6 +5,7 @@ layer: BUSINESS
 version: 0.1
 tags: [v3, release-v3.1, player-controls, presets]
 dependents:
+  - [[module_generative_profile_selection]]
   - [[module_preset_model]]
   - [[rule_player_preset_may_hold_unsupported_rhythm]]
 type: RULE

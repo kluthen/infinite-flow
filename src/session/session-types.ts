@@ -7,12 +7,14 @@
 
 import type { ViewportWidthProvider } from '../composables/viewport-width'
 import type { GenerationControls } from '../domain/controls/generation-controls'
-import type { ProfileSelection } from '../domain/controls/profile-selection'
+import type { FigureId, FigureLevels } from '../domain/figures/figure-levels'
 import type {
   GenerationIntent,
   GenerationIntentProviders,
 } from '../domain/generation/generation-intent'
 import type { GenerationOutcome } from '../domain/generation/orchestration/orchestration-types'
+import type { KeyAndModeRestriction } from '../domain/presets/key-and-mode-restriction'
+import type { PresetSelection } from '../domain/presets/preset-selection'
 import type { InstrumentProfile } from '../domain/profile/instrument-profile'
 import type { Seed } from '../domain/random/seed'
 import type { ReadyPhrase } from './session-ready-phrases'
@@ -51,17 +53,25 @@ export type SuccessfulOutcome = Extract<GenerationOutcome, { kind: 'generation_s
 /**
  * Session settings: those the player chose when the session started, which the player cannot edit
  * during it, or those an automatic source put in effect at a phrase boundary since. The controls
- * hold the written tonal center and the chosen note density. `instrumentProfile` is my
- * instrument's profile, carried as data exactly when the controls name `my-instrument` (taken at
- * Start from phrase 1's intent); a built-in's is resolved from its id, so built-in settings hold
- * none.
+ * hold the written tonal center and the chosen note density; the figure levels are the seven
+ * figures' levels every phrase is generated with; the selection is the preset selected, or Custom
+ * naming its base, which a Vary settings step of a preset-held setting marks Custom for the
+ * session. No musical profile is held. `instrumentProfile` is my instrument's profile, carried as
+ * data exactly when the controls name `my-instrument` (taken at Start from phrase 1's intent); a
+ * built-in's is resolved from its id, so built-in settings hold none. `restriction` is the
+ * restriction in force at the session's start, frozen there for the whole session: Vary
+ * settings' key and mode moves stay inside it. It is absent when none was in force, or when the
+ * one in force allows every key and mode, so nothing is drawn again for a restriction's sake. No
+ * phrase is generated from it.
  */
 // @spec-link [[service_session_engine]]
 // @spec-link [[rule_session_settings_locked]]
 export interface SessionSettings {
   readonly controls: GenerationControls
-  readonly musicalProfile: ProfileSelection
+  readonly figureLevels: FigureLevels
+  readonly selection: PresetSelection
   readonly instrumentProfile?: InstrumentProfile
+  readonly restriction?: KeyAndModeRestriction
 }
 
 /**
@@ -203,7 +213,8 @@ export type SessionOutput =
 
 /**
  * New settings in effect from a phrase on: from the engine's own mutation, which names the one
- * setting it stepped and the values it stepped from and to, or from an automatic settings change.
+ * setting it stepped (and, for a figure step, the figure) and the values it stepped from and to,
+ * or from an automatic settings change.
  */
 // @spec-link [[service_session_engine]]
 // @spec-link [[rule_session_change_applies_at_phrase_boundary]]
@@ -215,6 +226,7 @@ export type SettingsChangedOutput =
       readonly settings: SessionSettings
       readonly cause: 'mutation'
       readonly setting: MutableSetting
+      readonly figure?: FigureId
       readonly from: string
       readonly to: string
     }

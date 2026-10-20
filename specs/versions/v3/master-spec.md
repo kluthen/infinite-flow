@@ -47,8 +47,11 @@ Status: this file holds four parts.
   record holds, the one phrase 1 held (B9; spec D372); no behaviour changes. v1.5 (2026-10-20)
   writes in the owner's ruling of that day: v3.0's sessions are carried over when the database
   first opens and never when read, and the one visit that runs past the start-up wait with very
-  many very long sessions is accepted and stated (B9; spec D376). Its sections are numbered B1 to
-  B16.
+  many very long sessions is accepted and stated (B9; spec D376). v1.6 (2026-10-20) writes in the
+  owner's ruling of that day: the passing-and-neighbor rule was measured and does not ship, every
+  level stays selectable; B5.6 says which levels "every diatonic figure Off" measures, and item 9
+  that a built-in is swept as the player chooses it (B5.6, B14, B15; spec D378, D379). Its
+  sections are numbered B1 to B16.
 - **[Part C — v3.2](#part-c--v32), Jam, the key and mode suggestion and the rhythm lock:**
   master spec v1.0 (2026-10-08), consolidated from the approved v3.2 drafts; approved by the
   product owner (2026-10-08). The owner confirmed the exact wording of the contract
@@ -1440,20 +1443,27 @@ The guard:
 - **The search allowance is not raised**: 250,000 units of search work for a phrase generated on
   its own, 160,000 for an attempt that joins the previous phrase.
 - **Measured before the gate**, at three figure settings: the Neutral and Jazz defaults (the
-  baseline), every figure Strongly favored, and every diatonic figure (1 to 5) Off. Each is run on
-  the deadline sweep of v2's definition of done (its settings and seeds at 60, 120 and 240 BPM,
-  `npm run test:sweep`) and in a 240 BPM session. Recorded for each: the share of phrases
-  generated, the slowest and the 95th-percentile generation time, and at 240 BPM the share of
-  phrases that fall back to being generated without the join.
+  baseline), every figure Strongly favored, and every diatonic figure (1 to 5) Off. "Every
+  diatonic figure Off" leaves the chromatic approach and the chromatic enclosure at As today: it is
+  Jazz's levels with figures 1 to 5 Off, and is compared with Jazz. Beside it, and not part of the
+  acceptance, every figure Off (Neutral's levels with figures 1 to 5 Off) is measured and recorded
+  against Neutral. Each is run on the deadline sweep of v2's definition of done (its settings and
+  seeds at 60, 120 and 240 BPM, `npm run test:sweep`) and in a 240 BPM session. Recorded for each:
+  the share of phrases generated, the slowest and the 95th-percentile generation time, and at
+  240 BPM the share of phrases that fall back to being generated without the join.
 - **Acceptance:** against the baseline, at most 2 percentage points more fallbacks at 240 BPM, and
   at most 2 percentage points fewer phrases generated at any swept setting. A level that costs more
   is tuned down (a smaller share) before the gate.
-- **If "every diatonic figure Off" fails that test**, v3.1 keeps one escape route rather than
-  refusing the player's choice outright: **the passing tone and the neighbor tone may not both be
-  Off.** The pair is then handled like an unsupported rhythm combination: the level control refuses
-  the second of the two, saying why; a Vary settings step that would land on it is drawn again; a
-  saved setting or preset holding it loads with the neighbor tone at As today. The measurement
-  decides whether this rule ships; if the test passes, it does not.
+- **The passing-and-neighbor rule was measured and is not needed.** Had "every diatonic figure
+  Off" failed that test, v3.1 would have kept one escape route: the passing tone and the neighbor
+  tone could not both have been Off. It passes: on the complete generator, on 2026-10-20, all three
+  settings generated every phrase 2 to 6 at 60, 120 and 240 BPM, with fewer fallbacks at 240 BPM
+  than the baseline (figures in
+  [the latency record](../../../docs/generation-latency.md#first-run-on-the-complete-generator-v31-chunk-11)).
+  So the rule does not ship: every level of every figure stays selectable, in the controls, in a
+  Vary settings step and when a saved setting or preset loads, and a player may set every figure
+  Off. The final measurement before the gate checks this again; only if "every diatonic figure
+  Off" then fails the test does the question go back to the owner.
 - Pre-generation helps only phrases 2 to 5 of a session; the deadlines after them are v2's, so the
   240 BPM measurement is what matters.
 
@@ -2104,12 +2114,13 @@ v3.1 ships when every item holds, each verified by a named test or a recorded ha
    level Off.
 7. **Deterministic.** The same `ifk3.` key gives the same phrase in Chrome and Edge, on any machine;
    pre-generated phrases equal the session's with any levels.
-8. **The cost guard** of B5.6 is measured on the three settings, recorded, and met; whether the
-   passing-and-neighbor rule is needed is decided from it and recorded, and if adopted it holds in
-   the controls, Vary settings and loading.
+8. **The cost guard** of B5.6 is measured on the three settings, recorded, and met; the
+   passing-and-neighbor rule, measured and not needed, stays out, and the final measurement still
+   meets the acceptance with "every diatonic figure Off".
 9. **Eight built-in presets** have exactly B6.5's values and restrictions; each is a supported
    rhythm setting at Sixteenth and stepped down to Eighth, and generates on the cost guard's sweep
-   in every mode its restriction allows.
+   in every mode its restriction allows, chosen as the player chooses it: its own ten controls,
+   its own rhythm settings included, and its levels, on every case of the sweep.
 10. **Choosing a preset** sets all ten controls and seven levels, from any state; moves the key and
     mode by B6.3's rule, and only then; never changes the tempo, the instrument or the session
     options; leaves the phrase on screen; and Neutral and Jazz never move the key or mode.
@@ -2162,8 +2173,8 @@ v3.1 ships when every item holds, each verified by a named test or a recorded ha
 ## B15. Deferred and open
 
 - **Measured before the gate, not open questions:** the Favored and Strongly favored shares,
-  starting at about 1 in 4 and 1 in 2 (B5.2); the cost guard's figures, and from them whether the
-  passing-and-neighbor rule ships (B5.6).
+  starting at about 1 in 4 and 1 in 2 (B5.2); the cost guard's figures (B5.6). The
+  passing-and-neighbor rule was measured on the complete generator and does not ship (B5.6).
 - **From the owner:** nothing more. Part B was approved, and B11's four contract changes were
   confirmed word for word, on 2026-10-08.
 - **For `documentalist`:** the declared-intent changes of B11, and the lexicon entries it lists.

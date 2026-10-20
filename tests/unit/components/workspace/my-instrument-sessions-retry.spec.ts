@@ -114,7 +114,7 @@ async function playedWithMyInstrument(rig: ControllerRig): Promise<void> {
     requestId: makeRequestId('mine-idle'),
     seed: makeSeed(11),
     controls,
-    musicalProfile: rig.idle.profileSelection,
+    figureLevels: rig.idle.figureLevels,
     instrumentProfile: HORN.profile,
   })
   rig.idle.controls = controls
@@ -123,7 +123,7 @@ async function playedWithMyInstrument(rig: ControllerRig): Promise<void> {
   rig.idle.result = {
     intent,
     outcome: generateSuccess(intent),
-    settings: { controls, profileSelection: rig.idle.profileSelection },
+    settings: { controls, figureLevels: rig.idle.figureLevels, selection: rig.idle.selection },
     sessionSeed: RIG_SESSION_SEED,
   }
   rig.controller.start()

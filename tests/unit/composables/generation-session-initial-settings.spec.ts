@@ -1,7 +1,7 @@
 /**
- * The Idle generation session's first state: the saved settings it is given (controls, musical
- * profile selection, theme) when the app loaded them before the first draw, the first-load values
- * otherwise; and the creation prewarm, which warms the controls the session starts from.
+ * The Idle generation session's first state: the saved settings it is given (controls, figure
+ * levels, preset selection, theme) when the app loaded them before the first draw, the first-load
+ * values otherwise; and the creation prewarm, which warms the controls the session starts from.
  */
 import { describe, expect, it, vi } from 'vitest'
 
@@ -10,13 +10,11 @@ import {
   type InitialGenerationSettings,
 } from '@/composables/use-generation-session'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
-import {
-  DEFAULT_GENERATION_CONTROLS,
-  DEFAULT_PROFILE_SELECTION,
-  type ProfileSelection,
-} from '@/domain/controls/profile-selection'
+import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
-import { levelsForProfile } from '@/domain/figures/figure-levels'
+import { JAZZ_FIGURE_LEVELS, NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
+import { DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
+import type { PresetSelection } from '@/domain/presets/preset-selection'
 import { makeRequestId } from '@/domain/generation/generation-request'
 import { makeSeed } from '@/domain/random/seed'
 import { alwaysFitsStaff } from './fake-staff-fit'
@@ -31,8 +29,8 @@ const LOADED_CONTROLS = makeGenerationControls({
   noteDensity: 'Eighth',
 })
 
-/** A saved, customised Jazz selection. */
-const LOADED_PROFILE: ProfileSelection = { musicalProfile: 'Jazz', isCustom: true }
+/** A loaded selection: Custom based on Jazz. */
+const LOADED_SELECTION: PresetSelection = { kind: 'custom', baseId: 'jazz' }
 
 /** Intent: a session on fakes, with `initialSettings` when given, posting prewarms to `prewarm`. */
 function session(
@@ -62,24 +60,26 @@ function session(
 describe('createGenerationSession: the settings it starts from', () => {
   // @test-link [[rule_first_phrase_waits_for_saved_settings]]
   // @test-link [[rule_settings_saved_on_change]]
-  it('starts from the loaded controls, profile selection and theme, and prewarms them', () => {
+  // @test-link [[module_generative_profile_selection]]
+  it('starts from the loaded controls, levels, preset selection and theme, and prewarms them', () => {
     const prewarm = vi.fn<(intent: GenerationIntent) => void>()
     const created = session(prewarm, {
       controls: LOADED_CONTROLS,
-      profileSelection: LOADED_PROFILE,
+      figureLevels: JAZZ_FIGURE_LEVELS,
+      selection: LOADED_SELECTION,
+      playerPresets: [],
       theme: 'Dark',
       myInstrument: null,
     })
 
     expect(created.state.controls).toEqual(LOADED_CONTROLS)
-    expect(created.state.profileSelection).toEqual(LOADED_PROFILE)
+    expect(created.state.figureLevels).toEqual(JAZZ_FIGURE_LEVELS)
+    expect(created.state.selection).toEqual(LOADED_SELECTION)
     expect(created.state.presentation).toEqual({ theme: 'Dark' })
     expect(prewarm).toHaveBeenCalledOnce()
     // The intent carries the sounding key, so only the rhythm and tempo are compared here.
     expect(prewarm.mock.calls[0]?.[0].controls).toMatchObject({ noteDensity: 'Eighth', tempo: 120 })
-    expect(prewarm.mock.calls[0]?.[0].figureLevels).toEqual(
-      levelsForProfile(LOADED_PROFILE.musicalProfile),
-    )
+    expect(prewarm.mock.calls[0]?.[0].figureLevels).toEqual(JAZZ_FIGURE_LEVELS)
     created.dispose()
   })
 
@@ -89,7 +89,8 @@ describe('createGenerationSession: the settings it starts from', () => {
     const created = session(prewarm)
 
     expect(created.state.controls).toEqual(DEFAULT_GENERATION_CONTROLS)
-    expect(created.state.profileSelection).toEqual(DEFAULT_PROFILE_SELECTION)
+    expect(created.state.figureLevels).toEqual(NEUTRAL_FIGURE_LEVELS)
+    expect(created.state.selection).toEqual(DEFAULT_PRESET_SELECTION)
     expect(created.state.presentation).toEqual({ theme: 'System' })
     expect(created.state.myInstrument).toBeNull()
     expect(prewarm.mock.calls[0]?.[0].controls).toMatchObject({ noteDensity: 'Quarter', tempo: 90 })

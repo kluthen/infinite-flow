@@ -9,6 +9,7 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
 import ReviewPhrase from '@/components/review/ReviewPhrase.vue'
 import type { ReviewStaffReservation } from '@/components/review/review-types'
+import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import type { StaffViewport } from '@/notation/notation-layout-policy'
 import type { ReviewedPhrase, SessionHistory } from '@/session/session-history'
 import { decodeKeptSession, encodeKeptSession } from '@/storage/records/kept-session-record'
@@ -62,7 +63,13 @@ describe('the clef a review phrase is drawn in', () => {
   // @test-link [[req_last_session_review]]
   // @test-link [[module_kept_session_codec]]
   it('is the bass clef of a decoded kept phrase played with my instrument in bass clef', async () => {
-    const facts = { pinned: false, favorites: [], comment: '', playedNotesKept: false }
+    const facts = {
+      pinned: false,
+      favorites: [],
+      comment: '',
+      playedNotesKept: false,
+      presets: BUILT_IN_PRESETS,
+    }
     const reading = decodeKeptSession(storedRecords(encodeKeptSession(history, facts, APP_VERSION)))
     if (reading.reading !== 'current') throw new Error(`Read as ${reading.reading}.`)
 

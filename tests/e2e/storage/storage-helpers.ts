@@ -144,7 +144,7 @@ export async function untilStored(
 }
 
 /**
- * Intent: every record of every store of the app's database (its six data stores and `meta`), by
+ * Intent: every record of every store of the app's database (its seven data stores and `meta`), by
  * store name, read in the page straight from IndexedDB.
  */
 export function databaseRecords(page: Page): Promise<Record<string, unknown[]>> {

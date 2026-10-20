@@ -17,6 +17,7 @@ import { generatePhrase } from '@/domain/generation/orchestration/generation-orc
 import { createCanonicalRhythmDomainMemo } from '@/domain/generation/orchestration/canonical-rhythm-domain'
 import { fnv1a32 } from '@/domain/random/hash32'
 import { makeSeed } from '@/domain/random/seed'
+import { levelsForProfile } from '@/domain/figures/figure-levels'
 import { GENERATION_OUTCOME_GOLDEN_V3, type GoldenCase } from './generation-outcome-golden.v3'
 
 /**
@@ -45,7 +46,7 @@ function buildGoldenIntent(goldenCase: GoldenCase, seed: number = goldenCase.see
     requestId: makeRequestId(requestId),
     seed: makeSeed(seed),
     controls: makeGenerationControls({ ...goldenCase.controls, tonalCenter: writtenTonalCenter }),
-    musicalProfile: goldenCase.musicalProfile,
+    figureLevels: levelsForProfile(goldenCase.musicalProfile.musicalProfile),
   })
 }
 

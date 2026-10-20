@@ -40,6 +40,15 @@ import {
 } from '../session/session-helpers'
 import { gotoStorageHarness, reloadHarness } from '../storage/storage-helpers'
 
+/** The session date as the summary writes it (en-US here). */
+const SESSION_DATE = String.raw`\w{3}, \w{3} \d{1,2}, \d{4}, \d{1,2}:\d{2}\s[AP]M`
+
+/**
+ * The summary's facts of the session `playSession` plays, the date and favorites aside: two
+ * 4-measure phrases at 90 BPM (under 30 seconds), on the default instrument and preset.
+ */
+const SUMMARY_FACTS = 'Under 1 min · 2 phrases · B-flat tenor saxophone · Neutral'
+
 let expectNoPageErrors: () => void
 
 test.beforeEach(({ page }) => {
@@ -79,14 +88,18 @@ test.describe('favorites', () => {
     const [key] = await untilKept(page, 1)
     await expect(keepLine(page)).toHaveText(NOT_PINNED)
     await expect(pinButton(page)).toHaveText('Pin')
-    await expect(reviewPanel(page).locator('.review-summary')).toHaveText(/ · No favorites$/)
+    await expect(reviewPanel(page).locator('.review-summary')).toHaveText(
+      new RegExp(`^${SESSION_DATE} · ${SUMMARY_FACTS} · No favorites$`, 'u'),
+    )
 
     await star(page, 2).click()
     await expect(star(page, 2)).toHaveAttribute('aria-pressed', 'true')
     await expect(star(page, 2)).toBeFocused()
     await expect(keepLine(page)).toHaveText(PINNED)
     await expect(pinButton(page)).toHaveText('Unpin')
-    await expect(reviewPanel(page).locator('.review-summary')).toHaveText(/ · 1 favorite$/)
+    await expect(reviewPanel(page).locator('.review-summary')).toHaveText(
+      new RegExp(`^${SESSION_DATE} · ${SUMMARY_FACTS} · 1 favorite$`, 'u'),
+    )
     await expect.poll(() => favoriteMarks(page, key!)).toEqual([false, true])
     expect(await summaryOf(page, key!)).toMatchObject({ pinned: true, favoritesCount: 1 })
 
@@ -127,7 +140,9 @@ test.describe('favorites', () => {
     await expect(star(page, 2)).toHaveAttribute('aria-pressed', 'false')
     await expect(keepLine(page)).toHaveText(PINNED)
     await expect(pinButton(page)).toHaveText('Unpin')
-    await expect(reviewPanel(page).locator('.review-summary')).toHaveText(/ · 1 favorite$/)
+    await expect(reviewPanel(page).locator('.review-summary')).toHaveText(
+      new RegExp(`^${SESSION_DATE} · ${SUMMARY_FACTS} · 1 favorite$`, 'u'),
+    )
   })
 
   // @test-link [[rule_new_session_never_asks_about_favorites]]

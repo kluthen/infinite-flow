@@ -15,6 +15,7 @@ import {
   deleteKeptSession,
 } from '@/components/workspace/kept-session-review-changes'
 import { keptSessionKey } from '@/components/workspace/workspace-session-save'
+import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import type { SessionHistory } from '@/session/session-history'
 import { APP_VERSION } from '@/storage/app-version'
 import {
@@ -44,6 +45,7 @@ const FRESH: KeptSessionFacts = {
   favorites: [],
   comment: '',
   playedNotesKept: true,
+  presets: BUILT_IN_PRESETS,
 }
 
 /** Intent: the batch that stores `history` kept with `facts`, under its key or `key`. */

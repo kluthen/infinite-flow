@@ -65,7 +65,8 @@ export function changeSettings(controls: Readonly<Record<string, string>>): void
   if (latest === null) throw new Error('Workspace harness: changeSettings() with no session runner')
   const settings: SessionSettings = Object.freeze({
     controls: makeGenerationControls(Object.assign({}, latest.settings.controls, controls)),
-    musicalProfile: latest.settings.musicalProfile,
+    figureLevels: latest.settings.figureLevels,
+    selection: latest.settings.selection,
   })
   latest.runner.dispatch({ kind: 'settings-change', at: latest.now(), settings })
 }

@@ -1,7 +1,11 @@
 /**
- * The Idle pre-generation queue's key and window re-check: a change of a control, the musical
- * profile, the instrument, phrase 1, Vary settings or Tension across phrases empties the queue and
- * starts again from the new phrase 1; tempo keeps it, its phrases then carrying the new tempo; a
+ * The Idle pre-generation queue's key and window re-check: a change of a control, a figure level,
+ * a chosen preset whose values differ, the instrument, phrase 1, Vary settings or Tension across
+ * phrases empties the queue and starts again from the new phrase 1, and so does a change of the
+ * restriction in force (opting out, coming back inside), Vary settings on or off; tempo keeps it,
+ * its phrases then carrying the new tempo, and so does a change of the preset selection alone
+ * that leaves the restriction in force as it was. Under a restriction in force, the queue plans
+ * with it frozen into the start settings, as Start does, so its phrases are the session's; a
  * width crossing re-derives the queue and truncates it from the first phrase whose density
  * changed; a staff layout report, or an explicit re-check, truncates it from the first phrase that
  * no longer fits, and pre-generation resumes from there. None of these re-checks runs during a
@@ -12,6 +16,12 @@ import { makeMyInstrument } from '@/domain/profile/my-instrument'
 import { describe, expect, it } from 'vitest'
 
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
+import { mutationFlagFor } from '@/components/workspace/workspace-session-runner'
+import { BUILT_IN_PRESETS, builtInPreset } from '@/domain/presets/built-in-presets'
+import { choosePreset, makePreset } from '@/domain/presets/preset-selection'
+import { makeSeed } from '@/domain/random/seed'
+import { withRestrictionAtStart } from '@/session/settings-mutation'
+import type { SessionSettings } from '@/session/session-types'
 import {
   answer,
   answerAll,
@@ -39,9 +49,23 @@ const KEY_CHANGES: readonly KeyChange[] = [
     },
   },
   {
-    name: 'the musical profile',
+    name: 'a chosen preset whose values differ (Gentle)',
     apply: (rig) => {
-      rig.idle.profileSelection = { musicalProfile: 'Jazz', isCustom: false }
+      const chosen = choosePreset(
+        { controls: rig.idle.controls, levels: rig.idle.figureLevels },
+        rig.idle.selection,
+        builtInPreset('gentle'),
+      )
+      rig.idle.controls = chosen.settings.controls
+      rig.idle.figureLevels = chosen.settings.levels
+      rig.idle.selection = chosen.selection
+    },
+  },
+  {
+    name: 'a figure level',
+    apply: (rig) => {
+      rig.idle.figureLevels = { ...rig.idle.figureLevels, appoggiatura: 'favored' }
+      rig.idle.selection = { kind: 'custom', baseId: 'neutral' }
     },
   },
   {
@@ -100,6 +124,19 @@ describe('Idle pre-generation queue: discards', () => {
       expect(rig.queue.take('one-system')).toEqual([])
     })
   }
+
+  // @test-link [[rule_pregeneration_discarded_on_change]]
+  it('keeps the queue on a change of the selection alone, the same controls and levels', async () => {
+    const rig = await fullRig()
+    const before = rig.queue.take('one-system')
+    expect(rig.idle.selection).toEqual({ kind: 'custom', baseId: 'neutral' })
+
+    rig.idle.selection = { kind: 'preset', presetId: 'neutral' }
+    await flush()
+
+    expect(rig.calls).toHaveLength(4)
+    expect(rig.queue.take('one-system')).toEqual(before)
+  })
 
   // @test-link [[rule_pregeneration_discarded_on_change]]
   it('drops the queue as phrase 1 leaves, so a report right after re-checks nothing', async () => {
@@ -337,5 +374,163 @@ describe('Idle pre-generation queue: a stale phrase 1', () => {
       withoutRequestIds(planned.map((ready) => ready.intent)),
     )
     expect(takenNumbers(rig)).toEqual([2, 3, 4, 5])
+  })
+})
+
+/**
+ * The session seed of the Reel rig: with Vary settings on, an unbounded session would move the
+ * mode from Mixolydian to Ionian on phrase 3; under Reel the key moves there instead.
+ */
+const REEL_SESSION_SEED = makeSeed(69)
+
+/** Intent: the Idle settings after choosing Reel from the base settings: C Mixolydian. */
+function reelSettings(): SessionSettings {
+  const base = sessionSettings({ tempo: 60 })
+  const chosen = choosePreset(
+    { controls: base.controls, levels: base.figureLevels },
+    base.selection,
+    builtInPreset('reel'),
+  )
+  return {
+    controls: chosen.settings.controls,
+    figureLevels: chosen.settings.levels,
+    selection: chosen.selection,
+  }
+}
+
+/**
+ * Intent: a rig at Idle under Reel, phrase 1 generated under it with the Reel session seed, Vary
+ * settings as asked, its queue holding phrases 2 to 5, nothing in flight.
+ */
+async function reelRig(varySettings: boolean): Promise<PregenerationRig> {
+  const reel = reelSettings()
+  const rig = pregenerationRig({ controls: reel.controls })
+  rig.idle.figureLevels = reel.figureLevels
+  rig.idle.selection = reel.selection
+  rig.idle.result = {
+    ...idlePhraseFor(reel.controls, 11, REEL_SESSION_SEED),
+    settings: reel,
+  }
+  rig.varySettings.value = varySettings
+  await flush()
+  await answerAll(rig)
+  expect(rig.failures).toEqual([])
+  expect(takenNumbers(rig)).toEqual([2, 3, 4, 5])
+  return rig
+}
+
+// @test-link [[rule_pregeneration_discarded_on_change]]
+// @test-link [[rule_vary_settings_stays_inside_restriction]]
+describe('Idle pre-generation queue under a restriction in force', () => {
+  // @test-link [[rule_pregenerated_phrase_matches_session]]
+  // @test-link [[rule_vary_settings_stays_inside_restriction]]
+  // @test-link [[module_idle_pregeneration_queue]]
+  it('plans with the restriction in force frozen in, as Start does, Vary settings on', async () => {
+    const rig = await reelRig(true)
+    const reel = reelSettings()
+    const phraseOne = rig.idle.result!
+    /** Intent: the plan's start from Reel's phrase 1, as the queue builds it, with these settings. */
+    const startFrom = (settings: SessionSettings) =>
+      planStart({
+        settings,
+        phraseOne: { intent: phraseOne.intent, outcome: phraseOne.outcome },
+        phraseOneSettings: reel,
+        sessionSeed: REEL_SESSION_SEED,
+        mutation: mutationFlagFor(true, REEL_SESSION_SEED),
+      })
+    const bounded = withRestrictionAtStart(reel, BUILT_IN_PRESETS)
+    expect(bounded.restriction).toStrictEqual(builtInPreset('reel').restriction)
+    const planned = plannedReadyPhrases(planSeams(), startFrom(bounded))
+    const unbounded = plannedReadyPhrases(planSeams(), startFrom(reel))
+    const taken = rig.queue.take('one-system')
+    expect(withoutRequestIds(taken.map((ready) => ready.intent))).toEqual(
+      withoutRequestIds(planned.map((ready) => ready.intent)),
+    )
+    expect(withoutRequestIds(taken.map((ready) => ready.intent))).not.toEqual(
+      withoutRequestIds(unbounded.map((ready) => ready.intent)),
+    )
+    for (const ready of taken)
+      expect(['Mixolydian', 'Dorian']).toContain(ready.intent.controls.collection)
+  })
+
+  for (const varySettings of [true, false]) {
+    // @test-link [[rule_pregeneration_discarded_on_change]]
+    // @test-link [[rule_restriction_in_force]]
+    // @test-link [[module_idle_pregeneration_queue]]
+    it(`empties the queue on opting out at Idle, and again on coming back inside (Vary settings ${varySettings ? 'on' : 'off'})`, async () => {
+      const rig = await reelRig(varySettings)
+      const full = rig.calls.length
+
+      rig.idle.controls = { ...rig.idle.controls, collection: 'Ionian' }
+      rig.idle.selection = { kind: 'custom', baseId: 'reel' }
+      await flush()
+      expect(rig.calls).toHaveLength(full + 1)
+      expect(inFlight(rig).intent.carryIn?.phraseNumber).toBe(1)
+      expect(rig.queue.take('one-system')).toEqual([])
+
+      await answerAll(rig)
+      expect(takenNumbers(rig)).toEqual([2, 3, 4, 5])
+      const before = rig.calls.length
+      rig.idle.controls = { ...rig.idle.controls, collection: 'Dorian' }
+      await flush()
+      expect(rig.calls).toHaveLength(before + 1)
+      expect(inFlight(rig).intent.carryIn?.phraseNumber).toBe(1)
+      expect(rig.queue.take('one-system')).toEqual([])
+    })
+  }
+
+  // @test-link [[rule_pregeneration_discarded_on_change]]
+  // @test-link [[rule_restriction_in_force]]
+  it('empties the queue on a change of the restriction in force alone, the same controls and levels', async () => {
+    const rig = await reelRig(false)
+    const full = rig.calls.length
+
+    rig.idle.selection = { kind: 'custom', baseId: null }
+    await flush()
+
+    expect(rig.calls).toHaveLength(full + 1)
+    expect(inFlight(rig).intent.carryIn?.phraseNumber).toBe(1)
+    expect(rig.queue.take('one-system')).toEqual([])
+  })
+
+  // @test-link [[rule_pregenerated_phrase_matches_session]]
+  // @test-link [[rule_restriction_in_force]]
+  it("plans with a player preset's restriction in force, from the presets Idle knows, as Start does", async () => {
+    const myReel = makePreset({
+      ...builtInPreset('reel'),
+      id: 'player-1',
+      name: 'My reel',
+      kind: 'player',
+    })
+    const mine: SessionSettings = {
+      ...reelSettings(),
+      selection: { kind: 'preset', presetId: 'player-1' },
+    }
+    const rig = pregenerationRig({ controls: mine.controls })
+    rig.idle.presets = [...BUILT_IN_PRESETS, myReel]
+    rig.idle.figureLevels = mine.figureLevels
+    rig.idle.selection = mine.selection
+    rig.idle.result = { ...idlePhraseFor(mine.controls, 11, REEL_SESSION_SEED), settings: mine }
+    rig.varySettings.value = true
+    await flush()
+    await answerAll(rig)
+    expect(rig.failures).toEqual([])
+
+    const bounded = withRestrictionAtStart(mine, rig.idle.presets)
+    expect(bounded.restriction).toStrictEqual(myReel.restriction)
+    const phraseOne = rig.idle.result
+    const planned = plannedReadyPhrases(
+      planSeams(),
+      planStart({
+        settings: bounded,
+        phraseOne: { intent: phraseOne.intent, outcome: phraseOne.outcome },
+        phraseOneSettings: mine,
+        sessionSeed: REEL_SESSION_SEED,
+        mutation: mutationFlagFor(true, REEL_SESSION_SEED),
+      }),
+    )
+    expect(withoutRequestIds(rig.queue.take('one-system').map((ready) => ready.intent))).toEqual(
+      withoutRequestIds(planned.map((ready) => ready.intent)),
+    )
   })
 })

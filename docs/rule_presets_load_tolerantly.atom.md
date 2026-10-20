@@ -1,10 +1,11 @@
 ---
 id: rule_presets_load_tolerantly
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 version: 0.2
-dependents: []
+dependents:
+  - [[entity_player_preset_record]]
 priority: 1
 human_name: Presets Load Tolerantly
 tags: [v3, release-v3.1, player-controls, presets, storage]

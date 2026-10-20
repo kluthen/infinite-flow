@@ -8,7 +8,11 @@
  * every intent the fit run reports accepted lands in `accepted`, and every batch of settings the
  * session saves lands in `saves`.
  */
-import { createGenerationSession } from '@/composables/use-generation-session'
+import {
+  createGenerationSession,
+  type InitialGenerationSettings,
+} from '@/composables/use-generation-session'
+import type { PostPrewarm } from '@/composables/generation-session-prewarm'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { makeRequestId } from '@/domain/generation/generation-request'
 import { makeSeed, type Seed } from '@/domain/random/seed'
@@ -52,6 +56,10 @@ export interface FitSessionOptions {
   readonly notate?: (result: GenerationIntent) => Promise<void> | undefined
   /** Be told each batch of settings the session saves, as it saves it, besides `saves`. */
   readonly onSave?: (changes: SettingChanges) => void
+  /** The settings the session starts from; absent means the first-load values. */
+  readonly initialSettings?: InitialGenerationSettings
+  /** Where the session posts its prewarms; absent means prewarm is off. */
+  readonly prewarm?: PostPrewarm
 }
 
 /** Intent: build one fit session and the fakes and log that observe it. */
@@ -107,6 +115,8 @@ export function createFitSession(options: FitSessionOptions = {}) {
       saves.push(changes)
       options.onSave?.(changes)
     },
+    ...(options.initialSettings === undefined ? {} : { initialSettings: options.initialSettings }),
+    ...(options.prewarm === undefined ? {} : { prewarm: options.prewarm }),
   })
   return {
     session,

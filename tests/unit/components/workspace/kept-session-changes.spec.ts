@@ -13,6 +13,7 @@ import {
   keepSessionPlayedNotes,
 } from '@/components/workspace/kept-session-changes'
 import { keptSessionKey } from '@/components/workspace/workspace-session-save'
+import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import type { SessionHistory } from '@/session/session-history'
 import { APP_VERSION } from '@/storage/app-version'
 import { encodeKeptSession, type KeptSessionFacts } from '@/storage/records/kept-session-record'
@@ -36,6 +37,7 @@ const FACTS: KeptSessionFacts = {
   favorites: [2],
   comment: 'Steady.',
   playedNotesKept: true,
+  presets: BUILT_IN_PRESETS,
 }
 
 /** Intent: the batch that stores `history` kept with `facts`, under its key or `key`. */

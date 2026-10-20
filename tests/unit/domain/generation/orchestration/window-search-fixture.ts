@@ -27,6 +27,7 @@ import { makeHarmonyCandidateDomain } from '@/domain/harmony/harmony-planner'
 import type { HarmonyCandidate } from '@/domain/harmony/harmony-types'
 import { makeRhythmCandidateDomain } from '@/domain/rhythm/rhythm-planner'
 import { makeSeed, type Seed } from '@/domain/random/seed'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 
 /** The complete, already-ranked inputs one searchWindow call needs, built from a real fixture. */
 export interface WindowSearchFixture {
@@ -60,13 +61,11 @@ export function buildWindowSearchFixture(seed: Seed = makeSeed(7)): WindowSearch
     arpeggioChaos: 'Predictable',
     instrumentProfileId: 'c-keyboard',
   })
-  const musicalProfile = { musicalProfile: 'Neutral' as const, isCustom: true }
-
   const intent = createGenerationIntent({
     requestId: makeRequestId('window-search-fixture'),
     seed,
     controls,
-    musicalProfile,
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
   })
 
   const middleCandidate = intent.registerIntent.candidates.find(

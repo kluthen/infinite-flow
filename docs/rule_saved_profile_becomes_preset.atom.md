@@ -1,6 +1,6 @@
 ---
 id: rule_saved_profile_becomes_preset
-status: DRAFT
+status: REVIEW
 priority: 1
 human_name: Earlier Saved Settings Become a Preset Selection
 layer: BUSINESS
@@ -8,7 +8,8 @@ version: 0.1
 tags: [v3, release-v3.1, player-controls, presets, storage]
 parents:
   - [[rule_player_presets_saved_on_device]]
-dependents: []
+dependents:
+  - [[module_settings_upgrade_step]]
 type: RULE
 ---
 

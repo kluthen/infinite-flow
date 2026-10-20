@@ -1,11 +1,12 @@
 ---
 id: rule_choosing_preset_keeps_allowed_key_and_mode
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 version: 0.1
 parents:
   - [[rule_key_and_mode_restriction]]
 dependents:
+  - [[module_generative_profile_selection]]
   - [[module_preset_model]]
 type: RULE
 priority: 1

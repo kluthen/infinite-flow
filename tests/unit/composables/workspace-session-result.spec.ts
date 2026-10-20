@@ -15,6 +15,7 @@ import { makeRequestId } from '@/domain/generation/generation-request'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
 import { makeSeed } from '@/domain/random/seed'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 
 /** Intent: build a real generation intent from cheap, deliberately-inexpensive controls so tests stay fast. */
 function cheapIntent(
@@ -34,14 +35,18 @@ function cheapIntent(
       instrumentProfileId: 'bb-tenor',
       ...overrides,
     },
-    musicalProfile: { musicalProfile: 'Neutral', isCustom: true },
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
   })
 }
 
-/** The settings a test's fit run is built from: the chosen controls and the profile selection. */
+/**
+ * The settings a test's fit run is built from: the chosen controls, the figure levels and the
+ * preset selection.
+ */
 const CHOSEN: IdlePhraseSettings = {
   controls: { ...DEFAULT_GENERATION_CONTROLS, noteDensity: 'Sixteenth' },
-  profileSelection: { musicalProfile: 'Neutral', isCustom: true },
+  figureLevels: NEUTRAL_FIGURE_LEVELS,
+  selection: { kind: 'custom', baseId: 'neutral' },
 }
 
 // @test-link [[service_idle_generation_session]]

@@ -28,6 +28,7 @@ import {
   parseGenerationWorkerResponse,
 } from '@/generation-worker/generation-worker-protocol'
 import { createGenerationWorkerRuntime } from '@/generation-worker/generation-worker-runtime'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import {
   BASE_CONTROLS,
   carryInAfter,
@@ -56,7 +57,7 @@ function myInstrumentIntent(
       tonalCenter: 'D',
       instrumentProfileId: 'my-instrument',
     }),
-    musicalProfile: { musicalProfile: 'Neutral', isCustom: true },
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
     instrumentProfile: profile,
   })
 }
@@ -236,7 +237,7 @@ describe('the worker refuses a malformed my-instrument profile with a typed erro
       requestId: makeRequestId('tenor'),
       seed: makeSeed(7),
       controls: makeGenerationControls({ ...BASE_CONTROLS, instrumentProfileId: 'bb-tenor' }),
-      musicalProfile: { musicalProfile: 'Neutral', isCustom: true },
+      figureLevels: NEUTRAL_FIGURE_LEVELS,
     }).instrumentProfile
     expect(() =>
       parseGenerationWorkerRequest(withProfile(message, structuredClone(tenor))),
@@ -251,7 +252,7 @@ describe('a built-in profile is still rebuilt from its id and compared', () => {
       requestId: makeRequestId('tenor'),
       seed: makeSeed(7),
       controls: makeGenerationControls({ ...BASE_CONTROLS, instrumentProfileId: 'bb-tenor' }),
-      musicalProfile: { musicalProfile: 'Neutral', isCustom: true },
+      figureLevels: NEUTRAL_FIGURE_LEVELS,
     }),
   )
 

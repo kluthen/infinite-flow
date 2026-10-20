@@ -12,6 +12,7 @@ import { afterEach, beforeAll, describe, expect, it } from 'vitest'
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
 import { createGenerationIntent } from '@/domain/generation/generation-intent'
 import { makeRequestId } from '@/domain/generation/generation-request'
+import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import { makeSeed } from '@/domain/random/seed'
 import type { SessionHistory } from '@/session/session-history'
 import { encodeKeptSession } from '@/storage/records/kept-session-record'
@@ -45,7 +46,13 @@ beforeAll(async () => {
 /** Intent: the stored summary of `history` started at `startedAt`, kept under `key`. */
 function summaryAt(history: SessionHistory, key: string, startedAt: number): StoredEntry {
   const shifted = { ...history, phrases: () => history.phrases(), startedAt }
-  const facts = { pinned: false, favorites: [], comment: '', playedNotesKept: false }
+  const facts = {
+    pinned: false,
+    favorites: [],
+    comment: '',
+    playedNotesKept: false,
+    presets: BUILT_IN_PRESETS,
+  }
   const records = storedRecords(encodeKeptSession(shifted, facts, APP_VERSION))
   return { key, value: records.summary as never }
 }
@@ -112,7 +119,7 @@ async function playedWithMyInstrument(rig: ControllerRig): Promise<void> {
     requestId: makeRequestId('mine-idle'),
     seed: makeSeed(11),
     controls,
-    musicalProfile: rig.idle.profileSelection,
+    figureLevels: rig.idle.figureLevels,
     instrumentProfile: HORN.profile,
   })
   rig.idle.controls = controls
@@ -121,7 +128,7 @@ async function playedWithMyInstrument(rig: ControllerRig): Promise<void> {
   rig.idle.result = {
     intent,
     outcome: generateSuccess(intent),
-    settings: { controls, profileSelection: rig.idle.profileSelection },
+    settings: { controls, figureLevels: rig.idle.figureLevels, selection: rig.idle.selection },
     sessionSeed: RIG_SESSION_SEED,
   }
   rig.controller.start()

@@ -14,6 +14,7 @@ import { makeRequestId } from '@/domain/generation/generation-request'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import { fnv1a32 } from '@/domain/random/hash32'
 import { makeSeed } from '@/domain/random/seed'
+import { levelsForProfile } from '@/domain/figures/figure-levels'
 import {
   GENERATION_OUTCOME_GOLDEN_V3,
   type GoldenCase,
@@ -33,7 +34,7 @@ function goldenIntent(goldenCase: GoldenCase) {
     requestId: makeRequestId(`golden-${goldenCase.name}`),
     seed: makeSeed(goldenCase.seed),
     controls: makeGenerationControls({ ...goldenCase.controls, tonalCenter: written }),
-    musicalProfile: goldenCase.musicalProfile,
+    figureLevels: levelsForProfile(goldenCase.musicalProfile.musicalProfile),
   })
 }
 

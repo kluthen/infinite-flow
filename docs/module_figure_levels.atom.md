@@ -11,7 +11,7 @@ dependents:
   - [[module_phrase_replay_key]]
   - [[module_stored_profile_to_levels]]
 layer: ARCHITECTURE
-version: 0.3
+version: 0.4
 tags: [v3, release-v3.1, generation, figures]
 parents:
   - [[req_embellishment_figure_levels]]
@@ -29,7 +29,7 @@ Give the seven figures and their four levels one fixed internal vocabulary, whic
 ## THE RULE / LOGIC
 The seven figures have fixed internal ids, in a fixed order that every value, key and record listing them follows: passingTone, accentedPassingTone, neighborTone, appoggiatura, diatonicEnclosure, chromaticApproach, chromaticEnclosure. The four levels have fixed internal ids, in increasing order: off, asToday, favored, stronglyFavored. These ids are internal and never change, since replay keys and stored records hold them; the interface's labels (Off, Rarely, Often, Very often) and the spec's working names (Off, As today, Favored, Strongly favored) can change without touching them. A figure-levels value gives exactly one level to each of the seven figures, no more and no fewer.
 
-Neutral's levels are passingTone, accentedPassingTone and neighborTone asToday, every other figure off. Jazz's levels are the same with chromaticApproach and chromaticEnclosure asToday. levelsForProfile is the one mapping from a musical profile to levels: Neutral gives Neutral's levels and Jazz gives Jazz's, whatever the profile's customized mark, since being customized never changed the figures. It serves wherever a musical profile still stands for the levels: the musical profile selection the request is built from, and what earlier versions recorded (the profile in a replay key of version 1 or 2, or in a kept phrase).
+Neutral's levels are passingTone, accentedPassingTone and neighborTone asToday, every other figure off. Jazz's levels are the same with chromaticApproach and chromaticEnclosure asToday. levelsForProfile is the one mapping from a musical profile to levels: Neutral gives Neutral's levels and Jazz gives Jazz's, whatever the profile's customized mark, since being customized never changed the figures. It serves wherever a musical profile still stands for the levels, which is only in what earlier versions recorded: the profile in a replay key of version 1 or 2, in a kept phrase, or in v3.0's saved settings. The request is built from the Idle session's own levels.
 
 The allowance is what the levels let the generator write, worked out from the levels alone: a figure may be written as a free figure exactly when its level is not off, and a note from outside the key and mode exactly when the chromatic approach or the chromatic enclosure is not off. The pitch search and the result validator read the allowance from the generation request's figure levels, which the pitch policy and the validation context carry; no generator or validator code reads a musical profile's or a preset's name, or a table keyed by one, to decide a note. Neutral's levels allow no chromatic note and Jazz's allow it, so with them the generator writes exactly what it wrote before the levels existed.
 

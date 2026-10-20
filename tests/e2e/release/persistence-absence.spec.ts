@@ -64,7 +64,9 @@ test('customized controls and the instrument profile come back after a reload, a
   await expect
     .poll(() => databaseSettings(page))
     .toMatchObject({
-      profileSelection: { musicalProfile: 'Jazz', isCustom: true },
+      presetSelection: { kind: 'custom', baseId: 'jazz' },
+      'figureLevels.chromaticApproach': 'asToday',
+      'figureLevels.chromaticEnclosure': 'asToday',
       'controls.register': 'Low',
       'controls.instrumentProfileId': 'eb-alto',
     })
@@ -77,7 +79,7 @@ test('customized controls and the instrument profile come back after a reload, a
   await page.reload()
 
   await expect(page.locator('.control-summary')).toHaveText(
-    'C Ionian · Custom (Jazz grammar) · Lift · Shaped',
+    'C Ionian · Custom, based on Jazz · Lift · Shaped',
   )
   await expect(radio(page, 'Register', 'Low')).toHaveAttribute('aria-checked', 'true')
   await expect(radio(page, 'Instrument profile', 'E-flat alto saxophone')).toHaveAttribute(

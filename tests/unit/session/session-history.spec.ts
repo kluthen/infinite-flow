@@ -7,7 +7,8 @@
 
 import { describe, expect, it, vi, type Mock } from 'vitest'
 
-import type { GenerationControls, MusicalProfile } from '@/domain/controls/generation-controls'
+import type { GenerationControls } from '@/domain/controls/generation-controls'
+import { JAZZ_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { makeSeed, type Seed } from '@/domain/random/seed'
 import {
   SessionHistoryError,
@@ -187,15 +188,12 @@ describe("the session's start time", () => {
 })
 
 // @test-link [[service_session_history]]
-describe("the session's musical profile selection", () => {
+describe("the session's preset selection", () => {
   // @test-link [[service_session_history]]
   it("keeps a frozen copy of the settings' selection at the start, whatever phrase 1 was generated under", () => {
     const neutral = sessionSettings({ tempo: 240 })
-    const selection: { musicalProfile: MusicalProfile; isCustom: boolean } = {
-      musicalProfile: 'Jazz',
-      isCustom: true,
-    }
-    const settings = { ...neutral, musicalProfile: selection }
+    const selection: { kind: 'custom'; baseId: string | null } = { kind: 'custom', baseId: 'jazz' }
+    const settings = { ...neutral, figureLevels: JAZZ_FIGURE_LEVELS, selection }
     const driver = new SessionDriver({
       at: 0,
       settings,
@@ -207,13 +205,12 @@ describe("the session's musical profile selection", () => {
 
     const history = createSessionHistory(settings, fixedWallClock, DEFAULT_SESSION_SEED, 'treble')
     for (const output of driver.log) history.record(output)
-    selection.musicalProfile = 'Neutral'
-    selection.isCustom = false
+    selection.baseId = 'neutral'
 
     expect(history.phraseCount).toBe(1)
-    expect(history.profileSelection).toEqual({ musicalProfile: 'Jazz', isCustom: true })
-    expect(history.profileSelection).not.toBe(settings.musicalProfile)
-    expect(Object.isFrozen(history.profileSelection)).toBe(true)
+    expect(history.selection).toEqual({ kind: 'custom', baseId: 'jazz' })
+    expect(history.selection).not.toBe(settings.selection)
+    expect(Object.isFrozen(history.selection)).toBe(true)
   })
 })
 

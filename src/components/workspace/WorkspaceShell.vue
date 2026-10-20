@@ -38,7 +38,8 @@ import type { GenerationSession } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import ControlPanel from '@/components/controls/ControlPanel.vue'
 import type { SettableControlKey } from '@/components/controls/set-control-event'
-import type { GenerationControls, MusicalProfile } from '@/domain/controls/generation-controls'
+import type { GenerationControls } from '@/domain/controls/generation-controls'
+import type { PresetId } from '@/domain/presets/preset-selection'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { NotationError } from '@/notation/notation-error'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
@@ -418,9 +419,10 @@ function handleSelectInstrumentProfile(id: GenerationControls['instrumentProfile
   void props.session.actions.selectInstrumentProfile(id)
 }
 
-/** Intent: forward a musical-profile preset selection onto the session's own action. */
-function handleSelectMusicalProfile(profile: MusicalProfile): void {
-  props.session.actions.selectMusicalProfile(profile)
+/** Intent: forward a preset choice onto the session's own action; the phrase on screen stays. */
+// @spec-link [[rule_choosing_preset_sets_its_settings]]
+function handleSelectPreset(id: PresetId): void {
+  props.session.actions.selectPreset(id)
 }
 </script>
 
@@ -465,7 +467,8 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
       />
       <ControlPanel
         :controls="shownSettings.controls"
-        :profile-selection="shownSettings.profileSelection"
+        :selection="shownSettings.selection"
+        :presets="state.presets"
         :readonly="controlsReadonly"
         :note-density-context="state.noteDensityContext"
         :rising-tempo="risingTempo.on.value"
@@ -480,7 +483,7 @@ function handleSelectMusicalProfile(profile: MusicalProfile): void {
         @open-my-instrument="myInstrumentSheet.open"
         @set-control="handleSetControl"
         @select-instrument-profile="handleSelectInstrumentProfile"
-        @select-musical-profile="handleSelectMusicalProfile"
+        @select-preset="handleSelectPreset"
         @set-rising-tempo="handleSetRisingTempo"
         @set-tension-across-phrases="handleSetTensionAcrossPhrases"
         @set-vary-settings="handleSetVarySettings"

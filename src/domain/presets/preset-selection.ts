@@ -260,6 +260,7 @@ export type SettingChange =
  */
 // @spec-link [[rule_custom_selection]]
 // @spec-link [[rule_restriction_in_force]]
+// @spec-link [[rule_profile_control_customization]]
 export function selectionAfterChange(
   selection: PresetSelection,
   change: SettingChange,

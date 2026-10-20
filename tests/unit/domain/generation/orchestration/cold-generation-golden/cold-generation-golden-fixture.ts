@@ -39,6 +39,7 @@ import {
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import { makeSeed } from '@/domain/random/seed'
 import { isNoLegalRhythmPlan } from '@/domain/rhythm/rhythm-planner'
+import { levelsForProfile } from '@/domain/figures/figure-levels'
 import { buildIntent, carryInAfter, generateSuccess } from '../../carry-in/carry-in-fixture'
 
 /** The five rhythm-relevant controls: one point of the 3 x 3 x 3 x 3 x 4 rhythm catalog. */
@@ -142,7 +143,7 @@ export function buildVariationIntent(
     requestId: makeRequestId(`cold-golden-${variation.name}-${settingKey(setting)}-${seed}`),
     seed: makeSeed(seed),
     controls: buildControls(setting, variation.controls),
-    musicalProfile: { musicalProfile: variation.musicalProfile ?? 'Neutral', isCustom: true },
+    figureLevels: levelsForProfile(variation.musicalProfile ?? 'Neutral'),
   })
 }
 

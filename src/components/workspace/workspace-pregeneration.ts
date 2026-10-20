@@ -15,6 +15,8 @@ import { watch } from 'vue'
 import type { GenerationSessionState } from '@/composables/use-generation-session'
 import type { PregenerationSlot } from '@/composables/generation-session-pregeneration'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
+import { FIGURE_IDS } from '@/domain/figures/figure-levels'
+import { restrictionInForce } from '@/domain/presets/preset-selection'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
 import { instrumentClefOf, type InstrumentClef } from '@/domain/profile/instrument-clef'
@@ -39,6 +41,7 @@ import type { ReadyPhrase } from '@/session/session-ready-phrases'
 import type { SessionStartBlocker } from '@/session/session-start-conditions'
 import { sessionLayoutAtStart } from '@/session/session-window'
 import { phraseOneSettings } from '@/session/stale-phrase-one'
+import { withRestrictionAtStart } from '@/session/settings-mutation'
 import { fitsHeldLayout, writtenPhraseOf } from './held-layout-fit'
 import type { IdleLayoutPort } from './idle-layout-gate'
 import type { WorkspacePregenerationPolicy } from './prewarm-policy'
@@ -55,8 +58,8 @@ export interface PregenerationWorkspaceSeams extends PregenerationSeams {
 }
 
 /**
- * What the session controller binds: the Idle state (phrase 1, the controls, the profile selection
- * and the note-density context), its start blocker (the run conditions), its two session flags,
+ * What the session controller binds: the Idle state (phrase 1, the controls, the figure levels,
+ * the preset selection, the presets it knows and the note-density context), its start blocker (the run conditions), its two session flags,
  * the window's shape, the staff's latest layout inputs and their observer, the staff planner's
  * loader, and where a programming error is reported.
  */
@@ -124,19 +127,25 @@ function atTempo(readyPhrases: readonly ReadyPhrase[], tempo: number): readonly 
 }
 
 /**
- * Intent: the queue's key besides phrase 1: the generation controls except tempo, the profile
- * selection (the instrument is a control), Vary settings and Tension across phrases.
+ * Intent: the queue's key besides phrase 1: the generation controls except tempo (the instrument
+ * is a control), the seven figure levels in FIGURE_IDS order, Vary settings, Tension across
+ * phrases and the restriction in force, whose change discards whether Vary settings is on or not
+ * (opting out, or coming back inside). Never the preset selection itself: no phrase is generated
+ * from it, so a change of the selection alone (the same controls, levels and restriction in
+ * force) keeps the ready phrases.
  */
 // @spec-link [[rule_pregeneration_discarded_on_change]]
+// @spec-link [[rule_restriction_in_force]]
 function settingsKeyOf(deps: PregenerationControllerSeams): string {
   const { tempo, ...controls } = deps.idle.controls
   void tempo
-  const { profileSelection } = deps.idle
+  const { figureLevels, selection, presets } = deps.idle
   return JSON.stringify([
     controls,
-    profileSelection,
+    FIGURE_IDS.map((figure) => figureLevels[figure]),
     deps.varySettings(),
     deps.tensionAcrossPhrases(),
+    restrictionInForce(selection, controls.tonalCenter, controls.collection, presets),
   ])
 }
 
@@ -175,16 +184,21 @@ export function createWorkspacePregeneration(
 
   /**
    * Intent: the plan's start from phrase 1 and the Idle choices as a session would take them, my
-   * instrument's profile taken from phrase 1's intent, as Start takes it, with the settings phrase
-   * 1 was generated under, as the stale-phrase prompt's Use it passes them.
+   * instrument's profile taken from phrase 1's intent and the restriction in force frozen in, as
+   * Start takes them, with the settings phrase 1 was generated under, as the stale-phrase prompt's
+   * Use it passes them.
    */
   // @spec-link [[entity_my_instrument]]
   // @spec-link [[rule_pregenerated_phrase_matches_session]]
+  // @spec-link [[rule_vary_settings_stays_inside_restriction]]
   function startOf(phraseOne: WorkspaceSessionResult): PregenerationStart {
     return {
-      settings: sessionSettingsAtStart(
-        { controls: idle.controls, musicalProfile: idle.profileSelection },
-        phraseOne.intent,
+      settings: withRestrictionAtStart(
+        sessionSettingsAtStart(
+          { controls: idle.controls, figureLevels: idle.figureLevels, selection: idle.selection },
+          phraseOne.intent,
+        ),
+        idle.presets,
       ),
       phraseOne: { intent: phraseOne.intent, outcome: phraseOne.outcome },
       phraseOneSettings: phraseOneSettings(

@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.110
+Status: draft v2.111
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -21,14 +21,14 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and each milestone
 folder's README, such as [archive/v3/README.md](archive/v3/README.md)). Numbering continues from
-**D376**.
+**D378**.
 
 Live here: D228–D251 (v3.1 and v3.2, not built yet), D259–D260 (style packs, planned with no
 version, and the sound ban; merged from branch `v4-accompaniment-research`), D261–D288 (v3.3, not
 built yet; D263–D288 merged from branch `v3.3-chord-research`), D344–D348 (the v3.0 release and
 its follow-ups) and D349–D358 (the v3.1–v3.3 plan migrations, merged from branch
 `plan-migration` as D339–D341, the v3.1 plan's gates and approval, and B12's code check) and
-D359–D363 (the owner's rulings during v3.1's wave 0) and D364–D375 (the v3.1 build's rulings and
+D359–D363 (the owner's rulings during v3.1's wave 0) and D364–D377 (the v3.1 build's rulings and
 preflight corrections). D289 is unused.
 
 ## Decision Log
@@ -833,3 +833,49 @@ preflight corrections). D289 is unused.
   (DRAFT) still keeps B9's old read-time clause, and change set J3 says "or when it is read";
   both follow the new B9. Now in: [B9](versions/v3/master-spec.md#b9-the-generation-request-the-replay-key-and-kept-sessions),
   [M3](versions/v3/build-plan-v3.1.md#m3--the-start-up-read-and-the-migrations), [gates](versions/v3/build-plan-v3.1.md#gates).
+
+- **D377 (2026-10-20): until chunk 16, the device keeps v3.0's selection (wave 3's preflight).**
+  Chunk 12 loads a saved Neutral or Jazz selection as that built-in, or Custom based on it, with
+  its levels, the values winning; it saves Neutral, Jazz, or Custom based on either, as v3.0's
+  selection, and nothing of the other built-ins or the levels. Interim inside wave 3, which does
+  not merge to `main` between chunks 12 and 16, so not put to the owner.
+  Now in: [chunk 12](versions/v3/build-plan-v3.1.md#chunk-12--presets-replace-the-musical-profile).
+
+- **D378 (2026-10-20): the passing-and-neighbor rule does not ship (gate DP, the owner's
+  "reject").** Chunk 11 met B5.6's acceptance at all three settings: every phrase 2 to 6 generated
+  at 60, 120 and 240 BPM, fallbacks at 240 BPM below the baseline, every built-in generating in
+  every allowed mode, no share tuned. Chunk 20 is dropped and every level stays selectable; the
+  release gate re-checks, and DP reopens only if "every diatonic figure Off" fails then.
+  Now in: [B5.6](versions/v3/master-spec.md#b56-the-cost-guard),
+  [DP](versions/v3/build-plan-v3.1.md#decision-point-the-passing-and-neighbor-rule),
+  [chunk 20](versions/v3/build-plan-v3.1.md#chunk-20--passing-and-neighbor-never-both-off-conditional),
+  [waves](versions/v3/build-plan-v3.1.md#waves).
+
+- **D379 (2026-10-20): the cost guard's settings are the ones chunk 11 ran; M1 runs no
+  all-raised setting.** "Every diatonic figure Off" is Jazz's levels with figures 1 to 5 Off,
+  against Jazz; a built-in is swept as chosen, with its own rhythm. Chunk 11's extra runs (every
+  figure Off; each built-in's levels on the sweep's rhythm) are recorded beside, outside the
+  acceptance. Item 3 rests on one figure's ladder, and all raised costs what M2's "every figure
+  Strongly favored" measures. Now in: [B5.6, B14 item 9](versions/v3/master-spec.md#b56-the-cost-guard),
+  [M1](versions/v3/build-plan-v3.1.md#m1--figure-shares), [M2](versions/v3/build-plan-v3.1.md#m2--the-cost-guard).
+
+- **D380 (2026-10-20): the settings codec's throw on a stored BigInt or circular control value
+  goes to the issue tracker (ISS-014).** A v3.0 defect found by chunk 16, whose own reader guards
+  against it; no v3.1 chunk owns the control parsers. Not adopted: a v3.1 chunk. Now in:
+  [ISS-014](../issues/Ref_20261020_settings_codec_throws_on_bigint.md).
+
+- **D381 (2026-10-20): the two strings that still say "musical profile" go to chunks 13 and 18.**
+  The harmony failure alert to chunk 13, with the rest of the workspace's profile copy; Your
+  data's Settings line to chunk 18, which owns the sheet's copy. Both take the frozen v3.1 design's
+  wording. Now in: [chunk 13](versions/v3/build-plan-v3.1.md#chunk-13--the-preset-bar-and-the-key-and-mode-marks),
+  [chunk 18](versions/v3/build-plan-v3.1.md#chunk-18--your-data-and-delete-everything).
+
+- **D382 (2026-10-20): gate T1 is given; reverses D355.** The owner's "Give T1", asked before
+  wave 4: one `ux-writer` pass on `src/styles/theme.css` and `components.css` for v3.1's token
+  additions (part 1 of the token source), as for v3.0 (ux Q66). Chunk 1 may run, and wave 4 waits
+  for wave 3 only. Plan v16. Now in: [gates](versions/v3/build-plan-v3.1.md#gates),
+  [waves](versions/v3/build-plan-v3.1.md#waves), [chunk 1](versions/v3/build-plan-v3.1.md#chunk-1--token-source-pass-part-1-v31).
+
+- **D383 (2026-10-20): ISS-014 is fixed on wave 3's branch, before its merge (follow-up to D380).**
+  The owner's "Fix before merging": still no v3.1 chunk, a fix commit on `v3.1-w3` (e4c6a9b).
+  Now in: [ISS-014](../issues/Ref_20261020_settings_codec_throws_on_bigint.md#change-log).

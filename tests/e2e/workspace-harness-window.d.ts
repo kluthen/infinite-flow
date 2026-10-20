@@ -46,6 +46,12 @@ interface WorkspaceHarnessSnapshot {
   readonly retriesRunning: boolean
   /** How many times the notice has had to be announced since the page loaded. */
   readonly roomNoticeAnnouncements: number
+  /** The player's seven figure levels: each figure id to its level id. */
+  readonly figureLevels: Readonly<Record<string, string>>
+  /** The player's preset selection: a preset, or Custom naming its base. */
+  readonly selection: WorkspaceHarnessPresetSelection
+  /** The name of each preset the session knows, in order: the built-ins, then the player's. */
+  readonly presetNames: readonly string[]
 }
 
 /** Where the harness's audio runs: the fake audio rig (the default) or `?audio=real`. */
@@ -501,10 +507,19 @@ interface WorkspaceHarnessSessionApi {
   changeSettings: (controls: Readonly<Record<string, string>>) => void
 }
 
-/** Session settings as plain JSON: the generation controls and the musical profile selection. */
+/** A preset selection as plain JSON: a preset by its id, or Custom naming its base's id (or none). */
+type WorkspaceHarnessPresetSelection =
+  | { readonly kind: 'preset'; readonly presetId: string }
+  | { readonly kind: 'custom'; readonly baseId: string | null }
+
+/**
+ * Session settings as plain JSON: the generation controls, the seven figure levels (each figure
+ * id to its level id) and the preset selection.
+ */
 interface WorkspaceHarnessSettings {
   readonly controls: Readonly<Record<string, string | number>>
-  readonly musicalProfile: { readonly musicalProfile: string; readonly isCustom: boolean }
+  readonly figureLevels: Readonly<Record<string, string>>
+  readonly selection: WorkspaceHarnessPresetSelection
 }
 
 /** The instrument profile an intent carries, as plain JSON: its id, name and concert range. */
@@ -686,6 +701,12 @@ interface WorkspaceHarnessApi {
   /** The current workspace session snapshot. */
   snapshot: () => WorkspaceHarnessSnapshot
   /**
+   * Choose a preset by its id through the session's `selectPreset`, as the player would: any of
+   * the eight built-ins, the six the two-segment control does not offer included. Returns the
+   * session's answer (false when not at Idle); an id no preset has throws.
+   */
+  selectPreset: (id: string) => boolean
+  /**
    * How many rhythm-domain prewarms the workspace has posted to the real worker since the page
    * loaded; always 0 with `?prewarm=off`.
    */
@@ -719,7 +740,36 @@ type WorkspaceHarnessSavingState = 'on' | 'off-outdated' | 'off-unreadable'
 
 /** The stores of the app's database. */
 type WorkspaceHarnessStoreName =
-  'settings' | 'instrument' | 'controller' | 'sessionSummaries' | 'sessionBodies' | 'playedNotes'
+  | 'settings'
+  | 'presets'
+  | 'instrument'
+  | 'controller'
+  | 'sessionSummaries'
+  | 'sessionBodies'
+  | 'playedNotes'
+
+/**
+ * A player preset as plain JSON (src/domain/presets/preset-selection.ts's `Preset`): its id,
+ * name, ten preset-held controls, seven figure levels by figure id, its key and mode restriction
+ * (`'any'` or a list for each half) and its kind, `player`.
+ */
+interface WorkspaceHarnessPresetInput {
+  readonly id: string
+  readonly name: string
+  readonly controls: Readonly<Record<string, string>>
+  readonly levels: Readonly<Record<string, string>>
+  readonly restriction: {
+    readonly keys: 'any' | readonly string[]
+    readonly modes: 'any' | readonly string[]
+  }
+  readonly kind: 'player'
+}
+
+/** A raw record and the key it is stored under. */
+interface WorkspaceHarnessRawRecord {
+  readonly key: string
+  readonly record: unknown
+}
 
 /**
  * What my instrument is built from (src/domain/profile/my-instrument.ts's `MyInstrumentInput`):
@@ -756,6 +806,18 @@ interface WorkspaceHarnessStorageApi {
    * refuse (a range under two octaves, a blank name, ...).
    */
   seedMyInstrument: (input: WorkspaceHarnessMyInstrumentInput) => Promise<void>
+  /**
+   * Write one player preset record per preset, encoded by the preset codec, in the `presets`
+   * store under its id, in one batch. Each preset is first built by the preset model, so an
+   * invalid one throws: `seedRawPresets` seeds the records a load must refuse.
+   */
+  seedPresets: (presets: readonly WorkspaceHarnessPresetInput[]) => Promise<void>
+  /**
+   * Write each record as given in the `presets` store under its key, straight to IndexedDB (the
+   * port refuses a newer version's record) without upgrading the database, so this tab stays
+   * current: a record that is not one, under another id, damaged or a newer version's.
+   */
+  seedRawPresets: (entries: readonly WorkspaceHarnessRawRecord[]) => Promise<void>
   /**
    * Write `count` kept sessions, each a session-wide record (a 500-character comment, the
    * longest allowed) and a body of about `bodyBytes` bytes, for the start-up read measurement
@@ -810,7 +872,8 @@ interface WorkspaceHarnessStorageApi {
   /**
    * The key of each stored settings record the settings codec does not read back as the value it
    * holds, all records decoded together as a load decodes them (the page's mix design, my
-   * instrument not loaded); empty when every record reads back.
+   * instrument not loaded, the preset selection judged against the built-ins and the player
+   * presets stored); empty when every record reads back.
    */
   settingsNotReadBack: () => Promise<string[]>
   /**
@@ -851,6 +914,17 @@ interface WorkspaceHarnessVersionOneSession {
 }
 
 /**
+ * A settings record as data version 1 (v3.0) stored it, as a raw value under its own `key`: a
+ * control's (`controls.tension`, ...) or v3.0's `profileSelection`.
+ */
+interface WorkspaceHarnessVersionOneSetting {
+  readonly key: string
+  readonly dataVersion: number
+  readonly appVersion: string
+  readonly value: unknown
+}
+
+/**
  * Published before the load only with `?storageLoad=held`: the load does not start, so the page
  * shows only its background, until `release()`.
  */
@@ -869,6 +943,12 @@ interface WorkspaceHarnessHeldLoad {
     template: WorkspaceHarnessVersionOneSession,
     count: number,
   ) => Promise<void>
+  /**
+   * Before `release()` only, as `seedVersionOneSessions` (through the same v3.0 port): write each
+   * settings record as given in the `settings` store under its `key`, in one batch, so the load's
+   * open carries v3.0's settings over to data version 3.
+   */
+  seedVersionOneSettings: (records: readonly WorkspaceHarnessVersionOneSetting[]) => Promise<void>
 }
 
 interface Window {

@@ -3,7 +3,7 @@ id: rule_open_phrase_ending
 status: STABLE
 human_name: Open Phrase Ending
 type: RULE
-version: 0.3
+version: 0.4
 priority: 2
 layer: BUSINESS
 tags: phrase-ending,continuation
@@ -20,7 +20,7 @@ dependents:
 End every generated phrase with an open continuation rather than a closed tonic cadence.
 
 ## THE RULE / LOGIC
-The four-bar phrase ends open so the player can continue playing. Local dissonances, appoggiaturas, jazz approaches, and jazz enclosures resolve before the final sounding event. When generated tonal motion ends on dominant, the final event is a dominant chord tone. With static tonic prolongation or modal material, the final event is a profile-approved non-final tonic-area continuation such as scale degree 5, never an asserted tonic closure. In a session, a phrase generated with carry-in may instead end on a tense note (a scale tone outside the final chord) whose resolution the next phrase generated with that carry-in makes on its first note. If no phrase generated with that carry-in follows (the session ends, or the next phrase is a standalone or repeated phrase), the tense note stays unresolved.
+The four-bar phrase ends open so the player can continue playing. Local dissonances, appoggiaturas, approaches and enclosures, diatonic or chromatic, resolve before the final sounding event, whichever preset or figure level brought them. When generated tonal motion ends on dominant, the final event is a dominant chord tone. With static tonic prolongation or modal material, the final event is a non-final tonic-area continuation such as scale degree 5, never an asserted tonic closure. In a session, a phrase generated with carry-in may instead end on a tense note (a scale tone outside the final chord) whose resolution the next phrase generated with that carry-in makes on its first note. If no phrase generated with that carry-in follows (the session ends, or the next phrase is a standalone or repeated phrase), the tense note stays unresolved.
 
 ## TECHNICAL INTERFACE
 Generated phrase endings are rendered as part of the final measure.

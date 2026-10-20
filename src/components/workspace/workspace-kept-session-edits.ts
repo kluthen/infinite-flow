@@ -15,6 +15,7 @@
  * kept session not held in memory, by its row's key, through the same change path, never reading
  * its body.
  */
+import type { Preset } from '@/domain/presets/preset-selection'
 import type { SessionHistory } from '@/session/session-history'
 import { KEPT_SESSION_COMMENT_MAX_LENGTH } from '@/storage/records/kept-session-summary'
 import type { KeptChangeOutcome } from '@/storage/save-policy'
@@ -40,8 +41,11 @@ export interface KeptSessionEdits {
   readonly setPinned: (key: string, pinned: boolean) => Promise<void>
   readonly setComment: (key: string, comment: string) => Promise<void>
   readonly deleteSession: (key: string) => Promise<SessionDeletion>
-  /** The own save of the session under `key` was refused: hold its history for the retry. */
-  readonly saveRefused: (key: string, history: SessionHistory) => void
+  /**
+   * The own save of the session under `key` was refused: hold its history and the presets the
+   * session knew at its end for the retry.
+   */
+  readonly saveRefused: (key: string, history: SessionHistory, presets: readonly Preset[]) => void
   /** A batch erasing the sessions under `keys` is applied: no retry of their saves writes. */
   readonly holdRetries: (keys: readonly string[]) => void
   /** That batch is saved: the sessions left memory, and the retries of their saves go too. */
@@ -100,8 +104,15 @@ export function createKeptSessionEdits(
 ): KeptSessionEdits {
   const { state } = core
   const kept = core.deps.keptSessions
-  /** The session whose own save was refused, with the history its retry saves. */
-  let unsaved: { readonly key: string; readonly history: SessionHistory } | null = null
+  /**
+   * The session whose own save was refused, with the history its retry saves and the presets the
+   * session knew at its end, which name its selection as its Review does.
+   */
+  let unsaved: {
+    readonly key: string
+    readonly history: SessionHistory
+    readonly presets: readonly Preset[]
+  } | null = null
   /** The retry under way; a change made meanwhile waits for it. */
   let retrying: Promise<void> | null = null
   /** The sessions a batch erasing them holds back from a retry of their save while it applies. */
@@ -192,7 +203,7 @@ export function createKeptSessionEdits(
       },
       core.deps.browser.pageLeaving,
       pending.history,
-      { key, playedNotesKept },
+      { key, playedNotesKept, presets: pending.presets },
       { pinned, favorites, comment },
     )
     tellDamagedDeleted(kept.reports, outcome)
@@ -347,8 +358,8 @@ export function createKeptSessionEdits(
     setPinned,
     setComment,
     deleteSession,
-    saveRefused: (key, history) => {
-      unsaved = { key, history }
+    saveRefused: (key, history, presets) => {
+      unsaved = { key, history, presets }
     },
     holdRetries: (keys) => {
       for (const key of keys) erasing.add(key)

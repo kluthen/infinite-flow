@@ -6,10 +6,9 @@
 import { describe, expect, it, vi } from 'vitest'
 
 import { createGenerationSession } from '@/composables/use-generation-session'
-import {
-  DEFAULT_GENERATION_CONTROLS,
-  DEFAULT_PROFILE_SELECTION,
-} from '@/domain/controls/profile-selection'
+import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
+import { DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { makeRequestId } from '@/domain/generation/generation-request'
@@ -74,7 +73,9 @@ function session(controls = MINE_SELECTED, myInstrument: MyInstrument | null = L
     prewarm,
     initialSettings: {
       controls,
-      profileSelection: DEFAULT_PROFILE_SELECTION,
+      figureLevels: NEUTRAL_FIGURE_LEVELS,
+      selection: DEFAULT_PRESET_SELECTION,
+      playerPresets: [],
       theme: 'System',
       myInstrument,
     },

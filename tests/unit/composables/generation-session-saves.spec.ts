@@ -1,8 +1,8 @@
 /**
  * The Idle generation session saves the player's changes as they make them: each control action
- * that applies saves exactly the settings it changed (the controls and the profile selection), the
- * theme when it changed, and the instrument at once, before any fit run it starts. An action that
- * applies nothing saves nothing.
+ * that applies saves exactly the settings it changed (the controls, the figure levels and the
+ * preset selection), the theme when it changed, and the
+ * instrument at once, before any fit run it starts. An action that applies nothing saves nothing.
  */
 import { describe, expect, it } from 'vitest'
 
@@ -12,7 +12,7 @@ import { createDeferred, createFitSession, flushAsync } from './fit-session-harn
 // @test-link [[rule_settings_saved_on_change]]
 // @test-link [[rule_saved_setting_is_players_choice]]
 describe('createGenerationSession: saving the player changes', () => {
-  it('saves a profile-controlled edit with the selection it makes customized', () => {
+  it('saves a preset-held control edit with the Custom selection it makes', () => {
     const { session, saves } = createFitSession()
 
     expect(session.actions.setControl('syncopation', 'Occasional offbeats')).toBe(true)
@@ -20,15 +20,15 @@ describe('createGenerationSession: saving the player changes', () => {
     expect(saves).toEqual([
       {
         'controls.syncopation': 'Occasional offbeats',
-        profileSelection: { musicalProfile: 'Neutral', isCustom: true },
+        presetSelection: { kind: 'custom', baseId: 'neutral' },
       },
     ])
   })
 
-  it('saves a preset switch as the controlled values it changed and the new selection', () => {
+  it('saves a preset choice as the controls and levels it changed and the new selection', () => {
     const { session, saves } = createFitSession()
 
-    expect(session.actions.selectMusicalProfile('Jazz')).toBe(true)
+    expect(session.actions.selectPreset('jazz')).toBe(true)
 
     expect(saves).toEqual([
       {
@@ -37,17 +37,44 @@ describe('createGenerationSession: saving the player changes', () => {
         'controls.silenceDensity': 'Conversational',
         'controls.contour': 'Wandering',
         'controls.register': 'Varying',
-        profileSelection: { musicalProfile: 'Jazz', isCustom: false },
+        'figureLevels.chromaticApproach': 'asToday',
+        'figureLevels.chromaticEnclosure': 'asToday',
+        presetSelection: { kind: 'preset', presetId: 'jazz' },
       },
     ])
   })
 
-  it('saves a control outside the profile alone', () => {
+  it('saves a control no preset holds alone', () => {
     const { session, saves } = createFitSession()
 
     expect(session.actions.setControl('tempo', 120)).toBe(true)
 
     expect(saves).toEqual([{ 'controls.tempo': 120 }])
+  })
+
+  // @test-link [[module_profile_control_customization]]
+  it('saves a level edit as that level and the Custom selection it makes', () => {
+    const { session, saves } = createFitSession()
+
+    expect(session.actions.setFigureLevel('neighborTone', 'favored')).toBe(true)
+    expect(session.actions.setFigureLevel('passingTone', 'off')).toBe(true)
+
+    expect(saves).toEqual([
+      {
+        'figureLevels.neighborTone': 'favored',
+        presetSelection: { kind: 'custom', baseId: 'neutral' },
+      },
+      { 'figureLevels.passingTone': 'off' },
+    ])
+  })
+
+  // @test-link [[module_generative_profile_selection]]
+  it('saves nothing for choosing the preset already selected', () => {
+    const { session, saves } = createFitSession()
+
+    expect(session.actions.selectPreset('neutral')).toBe(true)
+
+    expect(saves).toEqual([])
   })
 
   it('saves nothing for an edit refused while a phrase is generating', async () => {
@@ -56,7 +83,8 @@ describe('createGenerationSession: saving the player changes', () => {
     const run = session.actions.generate()
 
     expect(session.actions.setControl('tempo', 120)).toBe(false)
-    expect(session.actions.selectMusicalProfile('Jazz')).toBe(false)
+    expect(session.actions.selectPreset('jazz')).toBe(false)
+    expect(session.actions.setFigureLevel('neighborTone', 'off')).toBe(false)
     await expect(session.actions.selectInstrumentProfile('eb-alto')).resolves.toBe('rejected')
     expect(saves).toEqual([])
 

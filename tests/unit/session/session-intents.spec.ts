@@ -7,10 +7,21 @@
 import { describe, expect, it } from 'vitest'
 
 import type { GenerationControls } from '@/domain/controls/generation-controls'
-import { JAZZ_FIGURE_LEVELS, NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
+import {
+  JAZZ_FIGURE_LEVELS,
+  NEUTRAL_FIGURE_LEVELS,
+  type FigureId,
+  type FigureLevel,
+} from '@/domain/figures/figure-levels'
+import type { PresetSelection } from '@/domain/presets/preset-selection'
 import type { SessionSettings } from '@/session/session-types'
 import { BASE_CONTROLS } from '../domain/generation/carry-in/carry-in-fixture'
 import { SessionDriver, fakeViewport, phraseOneFor, sessionSettings } from './session-harness'
+
+/** The selections the figure-level cases start from. */
+const NEUTRAL: PresetSelection = { kind: 'preset', presetId: 'neutral' }
+const JAZZ: PresetSelection = { kind: 'preset', presetId: 'jazz' }
+const CUSTOM_JAZZ: PresetSelection = { kind: 'custom', baseId: 'jazz' }
 
 /** Intent: the densities of every request made so far for one phrase. */
 function densitiesOf(driver: SessionDriver, phraseNumber: number): readonly string[] {
@@ -51,15 +62,20 @@ describe('settings locked at start', () => {
       instrumentProfileId: 'bb-tenor',
       tonalCenter: 'D',
     }
-    const musicalProfile = { musicalProfile: 'Neutral' as const, isCustom: true }
-    const settings: SessionSettings = { controls, musicalProfile }
+    const figureLevels: { -readonly [F in FigureId]: FigureLevel } = { ...NEUTRAL_FIGURE_LEVELS }
+    const selection: { kind: 'custom'; baseId: string | null } = {
+      kind: 'custom',
+      baseId: 'neutral',
+    }
+    const settings: SessionSettings = { controls, figureLevels, selection }
     const phraseOne = phraseOneFor(settings)
     const driver = new SessionDriver({ at: 0, settings, phraseOne })
 
     controls.collection = 'Minor'
     controls.tonalCenter = 'F'
     controls.tempo = 120
-    musicalProfile.isCustom = false
+    figureLevels.chromaticApproach = 'stronglyFavored'
+    selection.baseId = 'jazz'
     reachPhraseThree(driver)
     driver.fail(20.5)
 
@@ -90,15 +106,17 @@ describe('settings locked at start', () => {
 })
 
 // @test-link [[module_generation_request_construction]]
-describe("every attempt carries the settings' profile's figure levels", () => {
+describe("every attempt carries the settings' own figure levels, whatever the selection", () => {
   it.each([
-    ['Neutral', false, NEUTRAL_FIGURE_LEVELS],
-    ['Jazz', false, JAZZ_FIGURE_LEVELS],
-    ['Jazz', true, JAZZ_FIGURE_LEVELS],
-  ] as const)('%s (customized: %s)', (profile, isCustom, levels) => {
+    ["Neutral's levels, Neutral selected", NEUTRAL_FIGURE_LEVELS, NEUTRAL],
+    ["Jazz's levels, Jazz selected", JAZZ_FIGURE_LEVELS, JAZZ],
+    ["Jazz's levels, Custom based on Jazz", JAZZ_FIGURE_LEVELS, CUSTOM_JAZZ],
+    ["Jazz's levels, Neutral selected", JAZZ_FIGURE_LEVELS, NEUTRAL],
+  ] as const)('%s', (_name, levels, selection) => {
     const settings: SessionSettings = {
       ...sessionSettings({ tempo: 60 }),
-      musicalProfile: { musicalProfile: profile, isCustom },
+      figureLevels: levels,
+      selection,
     }
     const driver = new SessionDriver({ at: 0, settings, phraseOne: phraseOneFor(settings) })
     reachPhraseThree(driver)

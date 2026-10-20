@@ -5,6 +5,7 @@
  * fresh session starts with. Every workspace/coordinator spec that needs a real generated phrase
  * without paying for an expensive control combination should build it from here.
  */
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import type { WorkspaceSessionResult } from '../../src/composables/workspace-session-result'
 import type { GenerationControls } from '../../src/domain/controls/generation-controls'
 import { createGenerationIntent } from '../../src/domain/generation/generation-intent'
@@ -23,8 +24,8 @@ export const CHEAP_CONTROLS: GenerationControls = {
   tension: 'Settled',
 }
 
-/** The profile selection the fixture's phrases are generated with. */
-const PROFILE_SELECTION = { musicalProfile: 'Neutral', isCustom: false } as const
+/** The preset selection the fixture's phrases are generated under. */
+const SELECTION = { kind: 'preset', presetId: 'neutral' } as const
 
 /** Intent: run one real, cheap generation and return its successful WorkspaceSessionResult. */
 export function buildWorkspaceSessionResult(
@@ -36,12 +37,16 @@ export function buildWorkspaceSessionResult(
     requestId: makeRequestId(requestId),
     seed: makeSeed(seed),
     controls: CHEAP_CONTROLS,
-    musicalProfile: PROFILE_SELECTION,
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
   })
   const outcome = generatePhrase(intent)
   if (outcome.kind !== 'generation_success') {
     throw new Error(`Fixture setup: expected generation_success, got "${outcome.kind}".`)
   }
-  const settings = { controls: CHEAP_CONTROLS, profileSelection: PROFILE_SELECTION }
+  const settings = {
+    controls: CHEAP_CONTROLS,
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
+    selection: SELECTION,
+  }
   return { outcome, intent, settings, sessionSeed: makeSeed(sessionSeed) }
 }

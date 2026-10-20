@@ -1,14 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  applyControlledCustomValue,
-  applyMusicalProfile,
-  applyNonProfileControlValue,
-  DEFAULT_GENERATION_CONTROLS,
-  DEFAULT_PROFILE_SELECTION,
-} from '@/domain/controls/profile-selection'
+import { makeGenerationControls } from '@/domain/controls/generation-controls'
+import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
+import { JAZZ_FIGURE_LEVELS, NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
+import { builtInPreset, DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
+import type { PresetSelection } from '@/domain/presets/preset-selection'
 import { CONTROLLER_RECORD_KEY, encodeControllerRecord } from '@/storage/records/controller-record'
-import { SETTINGS_DATA_VERSION } from '@/storage/records/settings-record'
+import { settingDataVersion, type SettingKey } from '@/storage/records/settings-record'
 import type { SavePolicy } from '@/storage/save-policy'
 import {
   chosenControlChanges,
@@ -43,7 +41,12 @@ function settingWrite(key: string, value: unknown): StorageChange {
     kind: 'write',
     store: 'settings',
     key,
-    record: { key, dataVersion: SETTINGS_DATA_VERSION, appVersion: APP_VERSION, value },
+    record: {
+      key,
+      dataVersion: settingDataVersion(key as SettingKey),
+      appVersion: APP_VERSION,
+      value,
+    },
   } as StorageChange
 }
 
@@ -63,7 +66,8 @@ describe('saveSettings', () => {
 
     saves.saveSettings({
       'controls.register': 'High',
-      profileSelection: { musicalProfile: 'Jazz', isCustom: true },
+      'figureLevels.appoggiatura': 'favored',
+      presetSelection: { kind: 'custom', baseId: 'jazz' },
     })
 
     expect(calls).toEqual([
@@ -71,7 +75,8 @@ describe('saveSettings', () => {
         method: 'save',
         changes: [
           settingWrite('controls.register', 'High'),
-          settingWrite('profileSelection', { musicalProfile: 'Jazz', isCustom: true }),
+          settingWrite('figureLevels.appoggiatura', 'favored'),
+          settingWrite('presetSelection', { kind: 'custom', baseId: 'jazz' }),
         ],
       },
     ])
@@ -240,62 +245,106 @@ describe('the changes to kept sessions', () => {
   })
 })
 
+/** The first-load controls with a built-in preset's ten controls. */
+function controlsOf(presetId: 'neutral' | 'jazz' | 'reel') {
+  return makeGenerationControls({
+    ...DEFAULT_GENERATION_CONTROLS,
+    ...builtInPreset(presetId).controls,
+  })
+}
+
+const JAZZ: PresetSelection = { kind: 'preset', presetId: 'jazz' }
+const REEL: PresetSelection = { kind: 'preset', presetId: 'reel' }
+
 // @test-link [[module_saved_data_loader]]
+// @test-link [[rule_settings_saved_on_change]]
+// @test-link [[rule_saved_setting_is_players_choice]]
 describe('chosenControlChanges', () => {
   const before = {
     controls: DEFAULT_GENERATION_CONTROLS,
-    profileSelection: DEFAULT_PROFILE_SELECTION,
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
+    selection: DEFAULT_PRESET_SELECTION,
   }
 
-  // @test-link [[rule_settings_saved_on_change]]
-  // @test-link [[rule_saved_setting_is_players_choice]]
   it('is empty when nothing changed', () => {
     expect(chosenControlChanges(before, { ...before })).toEqual({})
   })
 
-  // @test-link [[rule_settings_saved_on_change]]
-  // @test-link [[rule_saved_setting_is_players_choice]]
-  it('holds only the control a non-profile edit changed', () => {
-    const [controls, profileSelection] = applyNonProfileControlValue(
-      before.controls,
-      before.profileSelection,
-      'tempo',
-      120,
-    )
+  it('holds only the control a tempo edit changed', () => {
+    const controls = makeGenerationControls({ ...before.controls, tempo: 120 })
 
-    expect(chosenControlChanges(before, { controls, profileSelection })).toEqual({
+    expect(chosenControlChanges(before, { ...before, controls })).toEqual({
       'controls.tempo': 120,
     })
   })
 
-  // @test-link [[rule_settings_saved_on_change]]
-  // @test-link [[rule_saved_setting_is_players_choice]]
-  it('holds the edited profile-controlled value and the now customized selection', () => {
-    const [controls, profileSelection] = applyControlledCustomValue(
-      before.controls,
-      before.profileSelection,
-      'register',
-      'High',
-    )
+  it('holds the edited preset-held control and the Custom selection based on Neutral', () => {
+    const controls = makeGenerationControls({ ...before.controls, register: 'High' })
+    const selection: PresetSelection = { kind: 'custom', baseId: 'neutral' }
 
-    expect(chosenControlChanges(before, { controls, profileSelection })).toEqual({
+    expect(chosenControlChanges(before, { ...before, controls, selection })).toEqual({
       'controls.register': 'High',
-      profileSelection: { musicalProfile: 'Neutral', isCustom: true },
+      presetSelection: { kind: 'custom', baseId: 'neutral' },
     })
   })
 
-  // @test-link [[rule_settings_saved_on_change]]
-  // @test-link [[rule_saved_setting_is_players_choice]]
-  it('holds the controlled values a preset switch changed and the new selection', () => {
-    const [controls, profileSelection] = applyMusicalProfile(before.controls, 'Jazz')
+  it('holds each figure level a level edit changed, keyed by its figure', () => {
+    const figureLevels = { ...NEUTRAL_FIGURE_LEVELS, appoggiatura: 'favored' } as const
+    const selection: PresetSelection = { kind: 'custom', baseId: 'neutral' }
 
-    expect(chosenControlChanges(before, { controls, profileSelection })).toEqual({
+    expect(chosenControlChanges(before, { ...before, figureLevels, selection })).toEqual({
+      'figureLevels.appoggiatura': 'favored',
+      presetSelection: { kind: 'custom', baseId: 'neutral' },
+    })
+  })
+
+  it('holds the controls and levels a Jazz choice changed, and Jazz selected', () => {
+    const jazz = { controls: controlsOf('jazz'), figureLevels: JAZZ_FIGURE_LEVELS, selection: JAZZ }
+
+    expect(chosenControlChanges(before, jazz)).toEqual({
       'controls.noteDensity': 'Eighth',
       'controls.syncopation': 'Occasional offbeats',
       'controls.silenceDensity': 'Conversational',
       'controls.contour': 'Wandering',
       'controls.register': 'Varying',
-      profileSelection: { musicalProfile: 'Jazz', isCustom: false },
+      'figureLevels.chromaticApproach': 'asToday',
+      'figureLevels.chromaticEnclosure': 'asToday',
+      presetSelection: JAZZ,
     })
+  })
+
+  it('writes Custom based on Jazz once, when the selection becomes it', () => {
+    const jazz = { controls: controlsOf('jazz'), figureLevels: JAZZ_FIGURE_LEVELS, selection: JAZZ }
+    const custom = { ...jazz, selection: { kind: 'custom', baseId: 'jazz' } as PresetSelection }
+
+    expect(chosenControlChanges(jazz, custom)).toEqual({
+      presetSelection: { kind: 'custom', baseId: 'jazz' },
+    })
+    expect(chosenControlChanges(custom, { ...custom })).toEqual({})
+  })
+
+  it('writes any preset or Custom selection that differs, Reel and Custom with no base included', () => {
+    const reel = { ...before, controls: controlsOf('reel'), selection: REEL }
+    const customReel = { ...reel, selection: { kind: 'custom', baseId: 'reel' } as PresetSelection }
+    const noBase = { ...before, selection: { kind: 'custom', baseId: null } as PresetSelection }
+
+    expect(chosenControlChanges(before, reel).presetSelection).toEqual(REEL)
+    expect(chosenControlChanges(reel, customReel)).toEqual({
+      presetSelection: customReel.selection,
+    })
+    expect(chosenControlChanges(before, noBase)).toEqual({ presetSelection: noBase.selection })
+    expect(chosenControlChanges(noBase, before)).toEqual({ presetSelection: before.selection })
+  })
+
+  it('compares the selection by its kind and the preset it names', () => {
+    const custom = {
+      ...before,
+      selection: { kind: 'custom', baseId: 'neutral' } as PresetSelection,
+    }
+    const sameAgain = { ...before, selection: { kind: 'preset', presetId: 'neutral' } as const }
+
+    expect(chosenControlChanges(before, sameAgain)).toEqual({})
+    expect(chosenControlChanges(custom, before)).toEqual({ presetSelection: before.selection })
+    expect(chosenControlChanges(before, custom)).toEqual({ presetSelection: custom.selection })
   })
 })

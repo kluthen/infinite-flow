@@ -15,6 +15,7 @@ import { phraseOneSettings } from '@/session/stale-phrase-one'
 import type { SessionStartBlocker } from '@/session/session-start-conditions'
 import type { SessionSettings } from '@/session/session-types'
 import { sessionLayoutAtStart } from '@/session/session-window'
+import { withRestrictionAtStart } from '@/session/settings-mutation'
 import type {
   ActiveSession,
   SessionControllerCore,
@@ -45,9 +46,10 @@ export function createSessionStart(
    * unlock the audio, hold the player's saves until the session ends, ask for the wake lock and the
    * landscape lock (a refusal changes nothing, so their outcomes are ignored), start the transport
    * and queue phrase 1's backing; then lock the current settings (my instrument's profile taken
-   * from phrase 1's intent, which embeds it), beside the settings phrase 1 was generated under at
+   * from phrase 1's intent, which embeds it, and the restriction in force frozen in them for the
+   * session, so Vary settings' key and mode moves stay inside it), beside the settings phrase 1 was generated under at
    * the session's tempo (phrase 2 joins phrase 1 as after a change from them, and the controls show
-   * them, the profile selection as the player's, through the count-in and phrase 1; equal ones
+   * them, the preset selection as the player's at Start, through the count-in and phrase 1; equal ones
    * change nothing), hold the staff layout the
    * window's width selects, take the phrases the Idle pre-generation queue has ready that fit it
    * (aborting its attempt in flight, never waiting for it), open the history with the session seed
@@ -76,9 +78,16 @@ export function createSessionStart(
       throw new SessionControllerError(`session controller: a session cannot start: ${blocker}`)
     }
     state.review = null
-    const settings: SessionSettings = sessionSettingsAtStart(
-      { controls: idle.state.controls, musicalProfile: idle.state.profileSelection },
-      phraseOne.intent,
+    const settings: SessionSettings = withRestrictionAtStart(
+      sessionSettingsAtStart(
+        {
+          controls: idle.state.controls,
+          figureLevels: idle.state.figureLevels,
+          selection: idle.state.selection,
+        },
+        phraseOne.intent,
+      ),
+      idle.state.presets,
     )
     const tempo = settings.controls.tempo
     const phraseOneOwn = phraseOneSettings(phraseOne.settings, phraseOne.intent, tempo)
@@ -115,7 +124,7 @@ export function createSessionStart(
         display: null,
         midi: null,
         shown: createSessionShownSettings(
-          { ...phraseOneOwn, musicalProfile: settings.musicalProfile },
+          { ...phraseOneOwn, selection: settings.selection },
           settings,
         ),
       }

@@ -24,6 +24,7 @@ import type { WorkspaceSessionResult } from '@/composables/workspace-session-res
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
+import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import { makeSeed } from '@/domain/random/seed'
 import { GenerationCancelledError } from '@/generation-worker/generation-worker-client'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
@@ -104,7 +105,7 @@ export function idlePhraseFor(
   const settings = { ...sessionSettings(), controls }
   return {
     ...phraseOneFor(settings, { seed }),
-    settings: { controls, profileSelection: settings.musicalProfile },
+    settings: { controls, figureLevels: settings.figureLevels, selection: settings.selection },
     sessionSeed,
   }
 }
@@ -151,7 +152,9 @@ export function pregenerationRig(options: PregenerationRigOptions = {}): Pregene
   const settings = sessionSettings({ tempo: 60, ...options.controls })
   const idle = shallowReactive<MutableGenerationSessionState<WorkspaceSessionResult>>({
     controls: settings.controls,
-    profileSelection: settings.musicalProfile,
+    figureLevels: settings.figureLevels,
+    selection: settings.selection,
+    presets: BUILT_IN_PRESETS,
     presentation: { theme: 'System' },
     myInstrument: null,
     latestIntent: null,

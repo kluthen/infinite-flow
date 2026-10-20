@@ -15,12 +15,11 @@ import {
   makeGenerationControls,
   type GenerationControls,
 } from '@/domain/controls/generation-controls'
-import {
-  DEFAULT_GENERATION_CONTROLS,
-  DEFAULT_PROFILE_SELECTION,
-} from '@/domain/controls/profile-selection'
+import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { CarryInError } from '@/domain/generation/carry-in/carry-in'
 import { deriveCarryIn } from '@/domain/generation/carry-in/carry-in-derivation'
+import { DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
 import { adaptCarryIn } from '@/session/carry-in-adaptation'
 import { measureSeconds } from '@/session/session-timing'
 import type { SessionSettings, SessionStart } from '@/session/session-types'
@@ -38,7 +37,8 @@ function soundingAt(phraseNumber: number): number {
 function defaultsWith(overrides: Partial<GenerationControls> = {}): SessionSettings {
   return {
     controls: makeGenerationControls({ ...DEFAULT_GENERATION_CONTROLS, ...overrides }),
-    musicalProfile: DEFAULT_PROFILE_SELECTION,
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
+    selection: DEFAULT_PRESET_SELECTION,
   }
 }
 

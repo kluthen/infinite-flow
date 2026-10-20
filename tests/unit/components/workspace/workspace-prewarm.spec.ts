@@ -1,7 +1,7 @@
 /**
  * The workspace's rhythm-domain prewarm, through `composeWorkspaceSession`: the policy (disabled
  * posts nothing), the triggers (session start, then one post per change of the width-resolved
- * rhythm setting through a control edit, a musical-profile switch or a width crossing), the dedupe
+ * rhythm setting through a control edit, a preset choice or a width crossing), the dedupe
  * of every other change, the fixed prewarm identity that never draws a seed or request id, and a
  * generated outcome identical with and without prewarm when real prewarm slices run in between.
  */
@@ -23,8 +23,7 @@ import { makeRequestId } from '@/domain/generation/generation-request'
 import { createCanonicalRhythmDomainMemo } from '@/domain/generation/orchestration/canonical-rhythm-domain'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
-import { DEFAULT_PROFILE_SELECTION } from '@/domain/controls/profile-selection'
-import { JAZZ_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
+import { JAZZ_FIGURE_LEVELS, NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { makeSeed } from '@/domain/random/seed'
 import { createGenerationWorkerClient } from '@/generation-worker/generation-worker-client'
 import {
@@ -157,7 +156,7 @@ describe('workspace prewarm: policy and triggers', () => {
 
     actions.setControl('noteDensity', 'Sixteenth')
     actions.setControl('syncopation', 'Active displacement')
-    actions.selectMusicalProfile('Jazz')
+    actions.selectPreset('jazz')
     viewport.cross(true)
 
     expect(prewarms).toEqual([])
@@ -175,7 +174,7 @@ describe('workspace prewarm: policy and triggers', () => {
         requestId: PREWARM_REQUEST_ID,
         seed: PREWARM_SEED,
         controls: workspace.session.state.controls,
-        musicalProfile: DEFAULT_PROFILE_SELECTION,
+        figureLevels: NEUTRAL_FIGURE_LEVELS,
       }).controls,
     )
   })
@@ -228,15 +227,15 @@ describe('workspace prewarm: policy and triggers', () => {
   })
 
   // @test-link [[module_generation_prewarm]]
-  it('posts one prewarm for a profile switch that changes the rhythm setting, none otherwise', () => {
+  it('posts one prewarm for a preset choice that changes the rhythm setting, none otherwise', () => {
     const { workspace, prewarms } = prewarmRig('enabled')
     const { actions } = workspace.session
 
     actions.setControl('contour', 'Wandering')
-    actions.selectMusicalProfile('Neutral')
+    actions.selectPreset('neutral')
     expect(prewarms).toHaveLength(1)
 
-    actions.selectMusicalProfile('Jazz')
+    actions.selectPreset('jazz')
     expect(prewarms.map(rhythmOf)).toEqual([
       'Quarter|Slightly varied|Sparse|Straight|Lift',
       'Eighth|Slightly varied|Conversational|Occasional offbeats|Lift',
@@ -280,7 +279,7 @@ describe('workspace prewarm: policy and triggers', () => {
 
 /**
  * Intent: one scripted walk through the workspace: rhythm and non-rhythm edits, a crossing, a
- * profile switch, Generate, another edit and Regenerate, returning the identities generate drew.
+ * preset choice, Generate, another edit and Regenerate, returning the identities generate drew.
  */
 async function walkThroughWorkspace(rig: PrewarmRig): Promise<string[]> {
   const { actions } = rig.workspace.session
@@ -288,7 +287,7 @@ async function walkThroughWorkspace(rig: PrewarmRig): Promise<string[]> {
   actions.setControl('tonalCenter', 'G')
   actions.setControl('noteDensity', 'Sixteenth')
   rig.viewport.cross(true)
-  actions.selectMusicalProfile('Neutral')
+  actions.selectPreset('neutral')
   expect(await generateAndEngrave(rig.workspace)).toBe(true)
   actions.setControl('syncopation', 'Occasional offbeats')
   const regenerating = actions.regenerate()

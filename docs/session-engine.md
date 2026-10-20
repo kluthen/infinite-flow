@@ -1144,7 +1144,7 @@ from brightest (Lydian) to darkest (Locrian), each mode differs from the next by
 
 The scales marked D181 were proposed by the coding leader and accepted by the owner on
 2026-10-03 (spec D181): `rule_mutation_setting_scales` (tonal center, collection, contour,
-register), `rule_mutation_profile_flip_keeps_controls` and `rule_mutation_marks_profile_customized`.
+register) and `rule_mutation_marks_profile_customized`.
 A step of a value the musical profile controls marks the profile customized; a step of a value it
 does not control leaves the mark as it was. `rule_mutation_sixteenth_blocked_after_step_down`
 (below) was accepted with them.
@@ -1161,9 +1161,21 @@ resolved.
   them. A step is unsupported when its rhythm setting is blocked, judged on the density generated
   with, or when it is a note-density step to Sixteenth while Sixteenth is unavailable: below the
   width, or at any point after the session stepped down (D177).
+- From v3.1, a key or mode step that lands outside the restriction the settings carry is marked
+  unsupported too, so it is drawn again in the same way. The session freezes the
+  [restriction in force](music/lexicon.md#key-and-mode-restriction) at Start into its start settings
+  (`withRestrictionAtStart`, `SessionSettings.restriction`), the pre-generation plan's start copies
+  them, and every mutation's and settings change's settings keep it: the bound is fixed for the
+  session. None in force, or one allowing every key and mode, leaves the field out and bounds
+  nothing, so those draws are v3.0's. A half with no allowed value one step away simply never
+  moves (under Reel the mode moves only between Mixolydian and Dorian; under Pop song it never
+  moves). A key or mode step never marks Custom.
 - `drawMutation` draws one setting uniformly among those with a step, then one of its steps
   uniformly, and draws both again from the same stream while the step is unsupported. No cycle is
-  skipped. With no supported candidate it throws at once rather than loop.
+  skipped. With no supported candidate it throws at once rather than loop. An optional observer
+  (`MutationDrawsObserver`) is told how many draws a mutation took; the bound is 10,000, and the
+  worst restriction (one key and one mode) needed at most 6 redraws over 10,872 property-test
+  mutations.
 - Settings that are unsupported to begin with are a caller bug and throw.
 
 ### The seeded cadence

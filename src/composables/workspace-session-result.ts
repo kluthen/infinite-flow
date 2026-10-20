@@ -6,24 +6,26 @@
  */
 
 import type { GenerationControls } from '@/domain/controls/generation-controls'
-import type { ProfileSelection } from '@/domain/controls/profile-selection'
+import type { FigureLevels } from '@/domain/figures/figure-levels'
 import { type GenerationIntent } from '@/domain/generation/generation-intent'
 import {
   type GenerationFailureCode,
   type GenerationOutcome,
 } from '@/domain/generation/orchestration/orchestration-types'
+import type { PresetSelection } from '@/domain/presets/preset-selection'
 import type { Seed } from '@/domain/random/seed'
 
 /**
  * The settings an Idle phrase's fit run was built from: the chosen controls (the note density as
- * the player chose it, never the one the window's width gave the intent) and the musical-profile
- * selection. A stale phrase 1 is told by them.
+ * the player chose it, never the one the window's width gave the intent), the seven figure levels
+ * and the preset selection. A stale phrase 1 is told by them.
  */
 // @spec-link [[service_idle_generation_session]]
 // @spec-link [[rule_stale_phrase_prompt_at_start]]
 export interface IdlePhraseSettings {
   readonly controls: GenerationControls
-  readonly profileSelection: ProfileSelection
+  readonly figureLevels: FigureLevels
+  readonly selection: PresetSelection
 }
 
 /**

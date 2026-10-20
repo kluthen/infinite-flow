@@ -413,3 +413,130 @@ committed the owner sign-off (51392cb): `module_figure_levels`, `module_preset_m
 `module_favored_figure_draw`, `module_kept_session_upgrade_step`, `module_stored_profile_to_levels`
 to REVIEW. Wave 2 merged into `main` and pushed. The owner then said to go on with wave 3 in
 this session (κ > 1 still allowed for it).
+
+## Wave 3 (2026-10-20)
+
+Chunks 11 (cost guard, first run), 12 (presets replace the musical profile), 15 (vary settings
+inside the restriction), 16 (presets and levels on the device) and 22 (the review's summary
+gives the session's length). Branch `v3.1-w3`, worktree `../infinite_flow-v3.1-w3`, cut from
+`main` 1650ab4 (wave 2 merged and pushed). T1 not given, so chunk 1 stays in wave 4. The owner
+said to go on with this wave in the same session as wave 2's merge; κ > 1 still allowed.
+
+### Preflight
+
+`documentalist` (866f761), without `atd audit`. `atd lint` passes; `atd check --full` 408 atoms,
+313 with code, 316 with tests.
+
+| Chunk | Verdict                                            | Captures                                                                                                              |
+| ----- | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| 11    | PROCEED (C11-1 if a share is tuned)                | none                                                                                                                  |
+| 12    | PROCEED, sign-off given (J5, D363), after C12-*    | `module_generative_profile_selection` 1.2, `module_profile_control_customization` 1.2, `module_settings_mutation` 0.3 |
+| 15    | PROCEED after C15-1                                | none                                                                                                                  |
+| 16    | PROCEED, sign-off given (J1–J3, D363), after C16-* | `module_settings_upgrade_step` 0.1, `entity_player_preset_record` 0.1 (new, DRAFT)                                    |
+| 22    | PROCEED after C22-1                                | none (the length's definition is in `entity_kept_session_record`)                                                     |
+
+No new owner sign-off; contract stays 7.0.0. No wave 3 chunk changes
+`rule_earlier_kept_sessions_carried_over`; the sync aligns it and J3 with D376's B9.
+
+Sent to `spec-writer` before the first chunk: C11-1 (revise the draw atoms if a share is tuned);
+C12-1 (files that still read the profile); C12-2 (storage between chunks 12 and 16: Neutral and
+Jazz selections saved as v3.0's, the rest unsaved until 16; adds `settings-saver.ts`); C12-3
+(drift check list); C15-1 (the restriction reaches the draw through the start settings and
+`session-mutation-step.ts`, not the seed plan); C16-1 (atoms line); C16-2 (J3 without the
+read-time clause, per D376); C22-1 (two tests that assert the whole summary line).
+
+### Plan v14 (6947bca, `spec-writer`), before the first chunk
+
+All nine corrections applied; D377 records C12-2 (storage until chunk 16: Neutral, Jazz and
+Custom based on one saved as v3.0's selection; the other built-ins and the levels unsaved until
+16; no owner needed, as wave 3 does not merge between 12 and 16). The change set's J3 is left
+to `documentalist` at chunk 16's sync.
+
+### Chunks
+
+Order changed from the plan's tie-by-number: chunk 11's M2 charges each attempt its measured
+time, so it runs alone on an idle machine, after 12, 15, 16 and 22 have merged and before the
+wave gate. Chunk 12 first (15, 16 and 22 wait on it), then 15, 16 and 22 beside each other.
+
+- Chunk 12: dispatched 2026-10-20 (`../infinite_flow-v3.1-c12`, branch
+  `v3.1-c12-presets-replace-profile`).
+  Merged as f0228f7 (51aadb7); chunk checks pass, corpus guard unchanged. New
+  `src/storage/saved-profile-bridge.ts` holds D377's interim mapping (chunk 16 deletes it). For
+  the sync: delete `rule_mutation_profile_flip_keeps_controls`; `service_session_engine`'s
+  settings wording. Copy still saying "musical profile" (`your-data-copy.ts`,
+  `generation-failure-alert.ts`) noted for chunk 13 or `ux-writer`.
+- Chunks 15, 16 and 22: dispatched together 2026-10-20 after chunk 12's merge
+  (`../infinite_flow-v3.1-c15`, `-c16`, `-c22`); they share only `HARDWARE-CHECKLIST.md` on
+  paper. Chunk 16 asked for a `reviewer` pass on its upgrade step and for M3 only on a quiet
+  machine.
+- Chunk 22: merged as 983d6bb (fedbe14); chunk checks pass. `sessionLengthSeconds` now in
+  `src/session/session-timing.ts`. No revisions; the sync confirms its new links.
+- Chunk 15: merged as 43cb17c (ed24231); chunk checks and corpus guard pass. The restriction is
+  frozen at Start from `BUILT_IN_PRESETS`; told chunk 16's owner (still running) that every place
+  fed the built-ins needs the full list once player presets load.
+- Chunk 16: merged as b6e21f3 (12d6422, adff353; `reviewer` OKAY on step 3). Data version 3;
+  player presets load into the session and feed every place chunk 15 named. M3 inside the wait
+  (500 sessions 735–767 ms). Found: `decodeSettings` can throw on a stored BigInt or circular
+  control value (v3.0 defect), to file as an issue.
+- Chunk 11: dispatched 2026-10-20 after chunk 16's merge, alone on the reference machine
+  (`../infinite_flow-v3.1-c11`); timed runs only below a 1-minute load of about 1.5. It
+  proposes DP's decision; the driver takes it to the owner and `spec-writer`.
+- Chunk 11: merged as 138a9da (b1a4427). M2 meets B5.6's acceptance in all three settings (no
+  phrase lost; fallbacks at or below the baseline); every built-in generates in every allowed
+  mode; no share tuned. Proposed DP: reject the passing-and-neighbor rule (chunk 20 dropped).
+  Taken to the owner.
+
+### Owner ruling during the wave (2026-10-20)
+
+Gate DP: the owner chose "Reject the rule (Recommended)". `spec-writer` (c6e5407, plan v15, Part
+B v1.6): D378 (DP rejected, chunk 20 dropped, wave 5 is 14, 17, 18, 19), D379 (chunk 11's two
+readings hold), D380 (ISS-014: a stored BigInt or circular control value makes `decodeSettings`
+throw, and the app then never mounts; Low, Medium argued), D381 (chunk 12's leftover "musical
+profile" copy goes to chunks 13 and 18, worded by the frozen design set).
+
+### Wave gate (2026-10-20, 12:50 CEST, reference machine, load 0.86, nothing else running)
+
+First run on 51fcef7 (11:57): `npm run quality` failed in the Playwright run on one test,
+`pregeneration.spec.ts` "pre-generation writes nothing to storage", still counting 7 stores after
+chunk 16 added `presets`; fixed by a `coding-executor` in 3fb7919 (test expectation only).
+`npm run test:sweep` (placed by chunk 12): exit 0, 5 files, 16 tests.
+
+Second run on `v3.1-w3` at c6e5407: `npm run quality` exit 0. Unit 478 files, 7,386 tests
+passed; Playwright 488 + 488 passed (1 skipped each), 57 passed, 107 passed and 4 skipped;
+`verify:boundaries`, `atd:lint`, `atd:check` pass. **Bundle: entry chunk 246,844 B** (49 JS
+chunks), +19,142 B on wave 2's 227,702 B (+17,698 B on v3.0's 229,146 B), 60,356 B under the
+300 KiB budget.
+
+### Wave sync and report
+
+`documentalist` post-task sync over `1650ab4..v3.1-w3` (7b6868b); contract stays 7.0.0. Part J:
+J1, J2, J5 as worded; J3 without the read-time clause (D376), plus each shape's data version, and
+`KeptSessionFacts.presets` applied to `module_kept_session_codec` under J3 (for the owner to
+confirm); the change set's J1–J3 marked applied, J4 left for chunks 17 and 18. Chunk 12's
+Revisions applied, `rule_mutation_profile_flip_keeps_controls` deleted; chunk 15's and 16's
+drift aligned; `rule_earlier_kept_sessions_carried_over` 0.4 per D376;
+`req_embellishment_figure_levels` 0.2 per D378 (every figure Off selectable; no rule atom; change
+set part H records the rejection). Unresolved: ISS-014 against `rule_saved_settings_load_tolerantly`;
+STABLE `module_kept_session_save`'s interface lacks the `presets` argument (1.1 proposed);
+`docs/session-engine.md` still speaks of the profile in several places (coding side); copy until
+chunk 13. Proposed DRAFT → REVIEW: `module_settings_upgrade_step`, `entity_player_preset_record`
+and 13 business rules built and tested in this wave.
+
+### Owner answers and merge (2026-10-20)
+
+The owner answered: merge `v3.1-w3` into `main` and push; fix ISS-014 before merging; all the
+sync's sign-offs; give T1. ISS-014 fixed by a `coding-executor` (e4c6a9b: `controlValue` refuses
+a non-string stored value, as chunk 16's `heldControl` does; four tests). `documentalist`
+committed the owner sign-off (547c632): `module_settings_upgrade_step`,
+`entity_player_preset_record` and 13 business rules DRAFT → REVIEW; STABLE
+`module_kept_session_save` 1.1 (interface wording, the `presets` argument); the J3 reading of
+`KeptSessionFacts.presets` confirmed. `spec-writer` (0dad768, plan v16): D382 (T1 given,
+reversing D355; gate T1 done), D383 (ISS-014 resolved). Chunks 1, 13, 14, 17, 18 and 19 are no
+longer blocked; wave 4 is planned. Left for `ux-writer` at wave 4: record the T1 allowance as a
+ux decision and update `ui_ux/todo.md` (line 90); for `documentalist`'s next sync: ISS-014 no
+longer stands against `rule_saved_settings_load_tolerantly`.
+
+Gate re-run on 0dad768 (13:38 CEST, reference machine, load 0.91): `npm run quality` exit 0; unit
+479 files, 7,390 tests; Playwright 488 + 488 (1 skipped each), 57, 107 (4 skipped). Entry chunk
+246,866 B (49 JS chunks). The sweep was not re-run (the fix touches only the settings codec).
+Wave 3 merged into `main` and pushed.
