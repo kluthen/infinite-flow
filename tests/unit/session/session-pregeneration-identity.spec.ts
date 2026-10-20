@@ -3,7 +3,8 @@
  * audio clock, a generator that answers instantly, every phrase fitting), a workspace session's
  * decided phrases and settings changes are identical, request ids aside, whether it starts with
  * the phrases the pre-generation plan made for the same phrase 1 and session seed or with none,
- * Vary settings and Tension across phrases on or off.
+ * Vary settings and Tension across phrases on or off, and under a preset whose restriction is in
+ * force at Start, which both freeze into their start settings.
  */
 
 import { describe, expect, it } from 'vitest'
@@ -12,7 +13,15 @@ import {
   mutationFlagFor,
   startWorkspaceSessionRunner,
 } from '@/components/workspace/workspace-session-runner'
+import {
+  BUILT_IN_PRESETS,
+  builtInPreset,
+  type BuiltInPresetId,
+} from '@/domain/presets/built-in-presets'
+import { allowsKeyAndMode } from '@/domain/presets/key-and-mode-restriction'
+import { choosePreset } from '@/domain/presets/preset-selection'
 import { makeSeed, type Seed } from '@/domain/random/seed'
+import { withRestrictionAtStart } from '@/session/settings-mutation'
 import type { ReadyPhrase } from '@/session/session-ready-phrases'
 import { measureSeconds } from '@/session/session-timing'
 import type { SessionOutput, SessionSettings } from '@/session/session-types'
@@ -59,6 +68,26 @@ interface SessionCase {
    * then starts on a stale phrase 1, used as it is (Use it), with phrase 1's own settings.
    */
   readonly changedAtIdle?: Partial<GenerationControls>
+  /** A preset chosen at Idle from the base settings, its restriction frozen in at Start. */
+  readonly preset?: BuiltInPresetId
+}
+
+/** Intent: the base settings at 60 BPM after choosing `preset`, as Start takes them. */
+function settingsUnder(preset: BuiltInPresetId): SessionSettings {
+  const base = sessionSettings({ tempo: TEMPO })
+  const chosen = choosePreset(
+    { controls: base.controls, levels: base.figureLevels },
+    base.selection,
+    builtInPreset(preset),
+  )
+  return withRestrictionAtStart(
+    {
+      controls: chosen.settings.controls,
+      figureLevels: chosen.settings.levels,
+      selection: chosen.selection,
+    },
+    BUILT_IN_PRESETS,
+  )
 }
 
 /**
@@ -69,7 +98,8 @@ function caseSettings(options: SessionCase): {
   readonly phraseOne: SessionSettings
   readonly session: SessionSettings
 } {
-  const phraseOne = sessionSettings({ tempo: TEMPO })
+  const phraseOne =
+    options.preset === undefined ? sessionSettings({ tempo: TEMPO }) : settingsUnder(options.preset)
   if (options.changedAtIdle === undefined) return { phraseOne, session: phraseOne }
   return { phraseOne, session: sessionSettings({ tempo: TEMPO, ...options.changedAtIdle }) }
 }
@@ -91,7 +121,8 @@ async function runSession(
   const clock = { at: 0 }
   const log: SessionOutput[] = []
   const errors: unknown[] = []
-  const { changedAtIdle, ...flags } = options
+  const { changedAtIdle, preset, ...flags } = options
+  void preset
   const settings = caseSettings(options)
   const runner = startWorkspaceSessionRunner(
     {
@@ -245,6 +276,53 @@ describe('a session on a stale phrase 1, with and without pre-generation', () =>
       expect(outputsOf(withReady, 'settings-changed')).toEqual(
         outputsOf(without, 'settings-changed'),
       )
+      const requested = outputsOf(withReady, 'request-generation').map(
+        (request) => request.phraseNumber,
+      )
+      expect(requested.every((phraseNumber) => phraseNumber >= 6)).toBe(true)
+    },
+    SESSIONS_TIMEOUT_MS,
+  )
+})
+
+/**
+ * Reel chosen at Idle, its restriction (any key, Mixolydian or Dorian) in force at Start, with
+ * Vary settings on: on session seed 69 an unbounded session would move the mode to Ionian on
+ * phrase 3, so the key moves there instead; on session seed 126 the mode moves to Dorian.
+ */
+const RESTRICTED_CASES: readonly SessionCase[] = [
+  { sessionSeed: makeSeed(69), multiPhraseTensionArc: false },
+  { sessionSeed: makeSeed(126), multiPhraseTensionArc: true },
+].map((options) => ({ ...options, varySettings: true, preset: 'reel' }))
+
+// @test-link [[rule_pregenerated_phrase_matches_session]]
+// @test-link [[rule_vary_settings_stays_inside_restriction]]
+// @test-link [[module_session_pregeneration_plan]]
+describe('a session under a restriction in force, with and without pre-generation', () => {
+  // @test-link [[rule_pregenerated_phrase_matches_session]]
+  // @test-link [[rule_vary_settings_stays_inside_restriction]]
+  // @test-link [[module_session_pregeneration_plan]]
+  it.each(RESTRICTED_CASES)(
+    'decides the phrases the plan made, every key and mode move inside Reel (Tension $multiPhraseTensionArc, seed $sessionSeed)',
+    async (options) => {
+      const ready = readyFor(options)
+      expect(ready.map((entry) => entry.phraseNumber)).toEqual([2, 3, 4, 5])
+      const without = await runSession(options, undefined)
+      const withReady = await runSession(options, ready)
+      expect(decidedPhrases(withReady)).toEqual(decidedPhrases(without))
+      const changes = outputsOf(without, 'settings-changed')
+      expect(outputsOf(withReady, 'settings-changed')).toEqual(changes)
+      const keyOrMode = changes.filter(
+        (change) =>
+          change.cause === 'mutation' &&
+          (change.setting === 'tonalCenter' || change.setting === 'collection'),
+      )
+      expect(keyOrMode.length).toBeGreaterThan(0)
+      const reel = builtInPreset('reel').restriction
+      for (const change of changes) {
+        const { tonalCenter, collection } = change.settings.controls
+        expect(allowsKeyAndMode(reel, tonalCenter, collection)).toBe(true)
+      }
       const requested = outputsOf(withReady, 'request-generation').map(
         (request) => request.phraseNumber,
       )

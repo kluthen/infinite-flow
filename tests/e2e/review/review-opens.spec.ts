@@ -163,10 +163,11 @@ test.describe('the Review a session end opens', () => {
       ['Phrase 1', '90 BPM'],
       ['Phrase 2', '90 BPM'],
     ])
-    // The session date (en-US here), then the phrases, the instrument, the preset (the default
-    // one) and the favorites; the keep line under it.
+    // The session date (en-US here), then the length (two 4-measure phrases at 90 BPM, under 30
+    // seconds), the phrases, the instrument, the preset (the default one) and the favorites; the
+    // keep line under it.
     await expect(reviewPanel(page).locator('.review-summary')).toHaveText(
-      /^\w{3}, \w{3} \d{1,2}, \d{4}, \d{1,2}:\d{2}\s[AP]M · 2 phrases · B-flat tenor saxophone · Neutral · No favorites$/u,
+      /^\w{3}, \w{3} \d{1,2}, \d{4}, \d{1,2}:\d{2}\s[AP]M · Under 1 min · 2 phrases · B-flat tenor saxophone · Neutral · No favorites$/u,
     )
     await expect(reviewPanel(page).locator('.review-keep-line')).toHaveText(
       'Not pinned: deleted when your next session is saved.',
@@ -301,7 +302,7 @@ test('the summary names the preset selected at Start', async ({ page }) => {
 
   await expectReviewShowing(page, 1)
   await expect(reviewPanel(page).locator('.review-summary')).toHaveText(
-    / · 1 phrase · B-flat tenor saxophone · Jazz · No favorites$/,
+    /^\w{3}, \w{3} \d{1,2}, \d{4}, \d{1,2}:\d{2}\s[AP]M · Under 1 min · 1 phrase · B-flat tenor saxophone · Jazz · No favorites$/u,
   )
 })
 
@@ -313,7 +314,10 @@ test('a Review inflated to 2 000 phrases lists every one, numbered in order', as
   await sessionEndedAfter(page, 1)
 
   await expect(reviewItems(page)).toHaveCount(2000)
-  await expect(reviewPanel(page).locator('.review-summary')).toHaveText(/ · 2000 phrases · /)
+  // Every inflated phrase is the one real phrase, at its start: the length is that phrase's.
+  await expect(reviewPanel(page).locator('.review-summary')).toHaveText(
+    /^\w{3}, \w{3} \d{1,2}, \d{4}, \d{1,2}:\d{2}\s[AP]M · Under 1 min · 2000 phrases · B-flat tenor saxophone · Neutral · No favorites$/u,
+  )
   await expect(reviewItems(page).last().locator('.review-phrase-title')).toHaveText('Phrase 2000')
   await untilEngraved(page, 1)
   // Only the controller's view is inflated: its history is the session's own.

@@ -469,3 +469,8 @@ wave gate. Chunk 12 first (15, 16 and 22 wait on it), then 15, 16 and 22 beside 
   (`../infinite_flow-v3.1-c15`, `-c16`, `-c22`); they share only `HARDWARE-CHECKLIST.md` on
   paper. Chunk 16 asked for a `reviewer` pass on its upgrade step and for M3 only on a quiet
   machine.
+- Chunk 22: merged as 983d6bb (fedbe14); chunk checks pass. `sessionLengthSeconds` now in
+  `src/session/session-timing.ts`. No revisions; the sync confirms its new links.
+- Chunk 15: merged as 43cb17c (ed24231); chunk checks and corpus guard pass. The restriction is
+  frozen at Start from `BUILT_IN_PRESETS`; told chunk 16's owner (still running) that every place
+  fed the built-ins needs the full list once player presets load.

@@ -11,7 +11,6 @@
 
 import { presetLabel } from '@/domain/controls/preset-label'
 import { deepFreeze } from '@/domain/events/deep-freeze'
-import { PHRASE_MEASURE_COUNT } from '@/domain/generation/generation-request'
 import type {
   RecordedPlayedNote,
   ReviewedPhrase,
@@ -19,7 +18,7 @@ import type {
   SessionHistoryRecord,
 } from '@/session/session-history'
 import { withPlayedNotes } from '@/session/session-history-played-notes'
-import { measureSeconds } from '@/session/session-timing'
+import { sessionLengthSeconds } from '@/session/session-timing'
 
 import {
   keptPlayedNotesRecord,
@@ -135,14 +134,6 @@ function checkedFavorites(
     chosen.add(favorite)
   }
   return chosen
-}
-
-/**
- * Intent: the session's length in seconds, from phrase 1's scheduled start to the end of the last
- * phrase that sounded (four measures at its tempo), from the history alone.
- */
-function sessionLengthSeconds(first: SessionHistoryRecord, last: SessionHistoryRecord): number {
-  return last.startedAt + PHRASE_MEASURE_COUNT * measureSeconds(last.tempo) - first.startedAt
 }
 
 /**

@@ -12,6 +12,7 @@ import {
   STANDALONE_RESERVE_SECONDS,
   WORKER_RESPAWN_SECONDS,
   cutoverAt,
+  sessionLengthSeconds,
   standaloneDue,
 } from '@/session/session-timing'
 import type { SessionOutput } from '@/session/session-types'
@@ -200,5 +201,17 @@ describe('the standalone reserve before each deadline', () => {
     expect(standaloneDue(0, measureAt(120))).toBe(false)
     expect(standaloneDue(0, measureAt(60))).toBe(false)
     expect(standaloneDue(0, 3 * measureAt(240))).toBe(false)
+  })
+})
+
+// @test-link [[entity_kept_session_record]]
+describe("a session's length", () => {
+  // @test-link [[entity_kept_session_record]]
+  it("runs from phrase 1's start to the end of the last phrase at its tempo, wherever time starts", () => {
+    // Four measures at 120 BPM last 8 s.
+    expect(sessionLengthSeconds({ startedAt: 2.5 }, { startedAt: 22.5, tempo: 120 })).toBe(28)
+    expect(sessionLengthSeconds({ startedAt: 0 }, { startedAt: 20, tempo: 120 })).toBe(28)
+    // One phrase at 60 BPM: its four measures, 16 s.
+    expect(sessionLengthSeconds({ startedAt: 4 }, { startedAt: 4, tempo: 60 })).toBe(16)
   })
 })

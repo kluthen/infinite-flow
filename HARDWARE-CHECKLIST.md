@@ -507,8 +507,8 @@ On the reference machine, production build or `npm run dev`. ISS-011's steps, wh
 # v3.1 hand checks
 
 Build plan [Hand checks](specs/versions/v3/build-plan-v3.1.md#hand-checks): each check is written
-here by the chunk that needs it. This part holds H3 for now; H1, H2 (chunk 14), H4 (chunk 15) and
-H5 (chunk 16) are written by later chunks.
+here by the chunk that needs it. This part holds H3 and H4 for now; H1, H2 (chunk 14) and H5
+(chunk 16) are written by later chunks.
 
 ## v3.1 H3. Same phrase in Edge (chunk 8; about 10 min)
 
@@ -532,5 +532,28 @@ it against the headless replay of the same key.
 
 - [ ] Pass: `5 passed`, none skipped and none failed. A skipped test means the key was not given;
       "msedge is not found" means Edge is not installed.
+
+**Result:** not run yet.
+
+## v3.1 H4. Vary settings under a preset (chunk 15; about 10 min)
+
+The reference machine, production build or `npm run dev`, with the Travel Sax. With `Vary
+settings` on, a preset that allows only some modes keeps the session's mode moves among them;
+Stop brings back the preset and its settings. Until chunk 13 the preset box offers only Neutral
+and Jazz: run this check once the box lists Reel and Modal (Dorian), at the release gate.
+
+- [ ] At Idle, Written key C, Collection Ionian. Choose Reel in the preset box: the summary line
+      under `Shape the next phrase` starts `C Mixolydian · Reel`.
+- [ ] Turn `Vary settings` on, press Start and play a long session (at least twenty phrases).
+      Watch the Collection control (it shows the mode): the mode moves only between Mixolydian
+      and Dorian, never to another mode. The key may move.
+- [ ] When the mode or the key moves, the summary line still reads Reel. When any other setting
+      moves, it reads "Custom, based on Reel".
+- [ ] Stop: the summary line reads Reel again, the Collection control shows Mixolydian, and every
+      other setting is back to what it was before Start.
+- [ ] At Idle, choose Modal (Dorian) and play another long session with `Vary settings` on: the
+      Collection control shows Dorian the whole time; the mode never moves. Stop: Modal (Dorian)
+      and its settings come back.
+- [ ] Pass: every step above holds.
 
 **Result:** not run yet.

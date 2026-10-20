@@ -7,13 +7,19 @@
  * selection, the figure levels and a `Varying` register included) and the fresh phrase is
  * generated from them. A step of a setting a preset holds, a figure level or one of the ten
  * controls, Tension included, shows the selection as Custom based on the preset. A settings change made while the next phrase is partly drawn as read-ahead leaves that
- * phrase as drawn and first shows in the phrase after it.
+ * phrase as drawn and first shows in the phrase after it. v3.1 chunk 15: the key and mode moves
+ * stay inside the restriction of the preset in force at Start, a move outside it drawn again as
+ * another step, and a key or mode move never shows Custom.
  *
  * Each session's mutation seed derives from the session seed drawn with its phrase 1, queued here
  * as the inverse of the wanted mutation seed: from Neutral, mutation seed 12 steps the accented
  * passing tone from as today to favored on phrase 3 and mutation seed 11 steps Tension from Lift
  * to Settled on phrase 3; from Jazz, mutation seed 25 steps the register on phrase 3 (spec D181
- * scales, v3.1's figure step).
+ * scales, v3.1's figure step). Reel and Modal (Dorian), chosen through the harness from C Ionian,
+ * restrict the mode to Mixolydian and Dorian, and to Dorian: under Reel mutation seed 40 moves
+ * the mode to Dorian on phrase 3, and mutation seed 44, whose move to Ionian is drawn again, steps
+ * a figure there; under Modal (Dorian) mutation seed 40, whose move to Aeolian is drawn again,
+ * steps Rhythmic variety to Heavily varied on phrase 3.
  */
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
@@ -46,6 +52,12 @@ const FIGURE_STEP_ON_PHRASE_3 = 12
 const TENSION_ON_PHRASE_3 = 11
 /** The mutation seed that steps the register on phrase 3. */
 const REGISTER_ON_PHRASE_3 = 25
+/** From Reel, the mutation seed that moves the mode from Mixolydian to Dorian on phrase 3. */
+const REEL_MODE_ON_PHRASE_3 = 40
+/** From Reel, the mutation seed whose move to Ionian on phrase 3 is drawn again as a figure step. */
+const REEL_REDRAWN_ON_PHRASE_3 = 44
+/** From Modal (Dorian), the mutation seed whose move to Aeolian on phrase 3 is drawn again. */
+const MODAL_REDRAWN_ON_PHRASE_3 = 40
 
 /** Intent: queue the session seed whose Vary settings mutation seed is `mutationSeed`. */
 async function queueMutationSeed(page: Page, mutationSeed: number): Promise<void> {
@@ -68,6 +80,13 @@ function presetStatus(page: Page): Locator {
   return page.locator('.preset-status-text:not(.is-reserve)')
 }
 
+/** Intent: choose a built-in through the harness, as the player will in the preset box. */
+async function selectPreset(page: Page, id: string): Promise<void> {
+  expect(
+    await page.evaluate((presetId) => window.__workspaceHarness.selectPreset(presetId), id),
+  ).toBe(true)
+}
+
 /** Intent: turn `Vary settings` on with a click on its `On` segment. */
 async function turnVarySettingsOn(page: Page): Promise<void> {
   await radiogroup(page, 'Vary settings').getByRole('radio', { name: 'On' }).click()
@@ -77,6 +96,19 @@ async function turnVarySettingsOn(page: Page): Promise<void> {
 /** Intent: when phrase `n` starts sounding, at the default 90 BPM. */
 async function phraseStart(page: Page, n: number): Promise<number> {
   return (await sessionTimeline(page)).countInEndsAt + 4 * (n - 1) * MEASURE
+}
+
+/**
+ * Intent: move the clock phrase by phrase to `offset` seconds from phrase `n`'s start, holding it
+ * at each phrase's start until the session has readied the next: a generation slower than the
+ * fake clock would otherwise be cancelled before its phrase sounds.
+ */
+async function clockToReadied(page: Page, n: number, offset: number): Promise<void> {
+  for (let k = 2; k <= n; k += 1) {
+    await clockTo(page, (await phraseStart(page, k - 1)) + 0.1)
+    await untilReady(page, k)
+  }
+  await clockTo(page, (await phraseStart(page, n)) + offset)
 }
 
 /**
@@ -323,4 +355,136 @@ test('a change while the next phrase is partly drawn leaves it as drawn and show
   for (const request of afterChange) expect(request.controls.leapiness).toBe('Angular')
   for (const request of requests.slice(0, requestsBefore))
     expect(request.controls.leapiness).toBe('Shaped')
+})
+
+/** Reel's seven figure levels, the player's own in the Reel tests. */
+const REEL_LEVELS = {
+  passingTone: 'favored',
+  accentedPassingTone: 'asToday',
+  neighborTone: 'favored',
+  appoggiatura: 'off',
+  diatonicEnclosure: 'off',
+  chromaticApproach: 'off',
+  chromaticEnclosure: 'off',
+} as const
+
+// @test-link [[rule_vary_settings_stays_inside_restriction]]
+// @test-link [[rule_vary_settings_marks_custom]]
+// @test-link [[rule_mutation_reverts_at_session_end]]
+test('under Reel a mode move to Dorian shows at its phrase and keeps Reel, and Stop gives back Mixolydian', async ({
+  page,
+}) => {
+  test.setTimeout(90_000)
+  await gotoSessionHarness(page, DESKTOP)
+  await selectPreset(page, 'reel')
+  await queueMutationSeed(page, REEL_MODE_ON_PHRASE_3)
+  await readyToStart(page)
+  await expect(page.locator('.control-summary')).toHaveText(
+    'C Mixolydian · Reel · Settled · Shaped',
+  )
+  await turnVarySettingsOn(page)
+  expect(await sessionSeedsDrawn(page)).toBe(1)
+
+  await startSession(page)
+  await clockToReadied(page, 3, -0.1)
+  expect((await sessionState(page)).shownSettings?.controls.collection).toBe('Mixolydian')
+
+  await clockTo(page, (await phraseStart(page, 3)) + 0.1)
+  await expect(page.locator('.control-summary')).toHaveText('C Dorian · Reel · Settled · Shaped')
+  expect(await checkedIn(page, 'Collection')).toBe('Dorian')
+  const shown = (await sessionState(page)).shownSettings
+  expect(shown?.controls.collection).toBe('Dorian')
+  expect(shown?.figureLevels).toEqual(REEL_LEVELS)
+  // A mode move never marks Custom.
+  expect(shown?.selection).toEqual({ kind: 'preset', presetId: 'reel' })
+
+  await sessionAction(page).click()
+  expect((await sessionState(page)).lastEnd?.cause).toBe('stop')
+  await expect(page.locator('.control-summary')).toHaveText(
+    'C Mixolydian · Reel · Settled · Shaped',
+  )
+  expect(await checkedIn(page, 'Collection')).toBe('Mixolydian')
+  const restored = await harnessSnapshot(page)
+  expect(restored.selection).toEqual({ kind: 'preset', presetId: 'reel' })
+  expect(restored.figureLevels).toEqual(REEL_LEVELS)
+})
+
+// @test-link [[rule_vary_settings_stays_inside_restriction]]
+// @test-link [[rule_vary_settings_marks_custom]]
+// @test-link [[rule_mutation_reverts_at_session_end]]
+test('under Reel a mode move to Ionian is drawn again as a figure step, Custom based on Reel in Mixolydian, and Stop gives back Reel', async ({
+  page,
+}) => {
+  test.setTimeout(90_000)
+  await gotoSessionHarness(page, DESKTOP)
+  await selectPreset(page, 'reel')
+  await queueMutationSeed(page, REEL_REDRAWN_ON_PHRASE_3)
+  await readyToStart(page)
+  await turnVarySettingsOn(page)
+  expect(await sessionSeedsDrawn(page)).toBe(1)
+
+  await startSession(page)
+  await clockToReadied(page, 3, -0.1)
+  const shownBefore = (await sessionState(page)).shownSettings
+  expect(shownBefore?.selection).toEqual({ kind: 'preset', presetId: 'reel' })
+
+  await clockTo(page, (await phraseStart(page, 3)) + 0.1)
+  await expect(page.locator('.control-summary')).toHaveText(
+    'C Mixolydian · Custom, based on Reel · Settled · Shaped',
+  )
+  expect(await checkedIn(page, 'Collection')).toBe('Mixolydian')
+  const shown = (await sessionState(page)).shownSettings
+  expect(shown?.selection).toEqual({ kind: 'custom', baseId: 'reel' })
+  expect(shown?.controls).toEqual(shownBefore?.controls)
+  expect(shown?.figureLevels).toEqual({ ...REEL_LEVELS, diatonicEnclosure: 'asToday' })
+
+  await sessionAction(page).click()
+  expect((await sessionState(page)).lastEnd?.cause).toBe('stop')
+  await expect(page.locator('.control-summary')).toHaveText(
+    'C Mixolydian · Reel · Settled · Shaped',
+  )
+  const restored = await harnessSnapshot(page)
+  expect(restored.selection).toEqual({ kind: 'preset', presetId: 'reel' })
+  expect(restored.figureLevels).toEqual(REEL_LEVELS)
+})
+
+// @test-link [[rule_vary_settings_stays_inside_restriction]]
+// @test-link [[rule_vary_settings_marks_custom]]
+test('under Modal (Dorian) the mode never moves: a move to Aeolian is drawn again as Heavily varied, and every phrase is Dorian', async ({
+  page,
+}) => {
+  test.setTimeout(120_000)
+  await gotoSessionHarness(page, DESKTOP)
+  await selectPreset(page, 'modal-dorian')
+  await queueMutationSeed(page, MODAL_REDRAWN_ON_PHRASE_3)
+  await readyToStart(page)
+  await expect(page.locator('.control-summary')).toHaveText(
+    'C Dorian · Modal (Dorian) · Lift · Leaping',
+  )
+  await turnVarySettingsOn(page)
+  expect(await sessionSeedsDrawn(page)).toBe(1)
+  const requestsAtStart = await requestCount(page)
+
+  await startSession(page)
+  await clockToReadied(page, 3, 0.1)
+  await expect(page.locator('.control-summary')).toHaveText(
+    'C Dorian · Custom, based on Modal (Dorian) · Lift · Leaping',
+  )
+  expect(await checkedIn(page, 'Collection')).toBe('Dorian')
+  expect(await checkedIn(page, 'Rhythmic variety')).toBe('Heavily varied')
+  const shown = (await sessionState(page)).shownSettings
+  expect(shown?.controls.collection).toBe('Dorian')
+  expect(shown?.selection).toEqual({ kind: 'custom', baseId: 'modal-dorian' })
+
+  // More mutations land by phrase 12; none of them moves the mode.
+  await clockToReadied(page, 12, 0.1)
+  expect((await sessionState(page)).phase).toBe('running')
+  const requests = (
+    await page.evaluate(() => window.__workspaceHarness.generationRequests())
+  ).slice(requestsAtStart)
+  expect(requests.length).toBeGreaterThanOrEqual(11)
+  expect(new Set(requests.map((request) => JSON.stringify(request.controls))).size).toBeGreaterThan(
+    2,
+  )
+  for (const request of requests) expect(request.controls.collection).toBe('Dorian')
 })
