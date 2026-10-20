@@ -31,12 +31,14 @@ import {
   type MusicalProfile,
 } from '@/domain/controls/generation-controls'
 import { isRhythmSettingBlocked } from '@/domain/controls/unsupported-rhythm-settings'
-import { levelsForProfile } from '@/domain/figures/figure-levels'
+import { levelsForProfile, type FigureLevels } from '@/domain/figures/figure-levels'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { PHRASE_MEASURE_COUNT } from '@/domain/generation/generation-request'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
+import type { KeyAndModeRestriction } from '@/domain/presets/key-and-mode-restriction'
+import type { PresetSelection } from '@/domain/presets/preset-selection'
 import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import { makeSeed } from '@/domain/random/seed'
@@ -119,6 +121,14 @@ export interface SweepCase {
   readonly varySettings: boolean
   /** The "Tension across phrases" flag: the multi-phrase tension arc. */
   readonly tensionAcrossPhrases: boolean
+  /**
+   * What a measured setting puts in place of the case's profile (the cost runner, M2): the figure
+   * levels, the selection and the restriction in force at the session's start. Unset, the case runs
+   * with its profile's levels, Custom based on the preset of that name, and no restriction.
+   */
+  readonly figureLevels?: FigureLevels
+  readonly selection?: PresetSelection
+  readonly restriction?: KeyAndModeRestriction
 }
 
 /** Intent: every rhythm setting of the 324-setting catalog that does not block generation. */
@@ -199,16 +209,18 @@ export function sweepCases(): readonly SweepCase[] {
 
 /**
  * Intent: the chosen settings of a case at one tempo: the case's profile's figure levels, the
- * selection Custom based on the preset of that name.
+ * selection Custom based on the preset of that name, unless the case sets its own levels,
+ * selection and restriction in force.
  */
 function caseSettings(sweepCase: SweepCase, tempo: number): SessionSettings {
   return {
     controls: makeGenerationControls({ ...sweepCase.controls, tempo }),
-    figureLevels: levelsForProfile(sweepCase.musicalProfile),
-    selection: {
+    figureLevels: sweepCase.figureLevels ?? levelsForProfile(sweepCase.musicalProfile),
+    selection: sweepCase.selection ?? {
       kind: 'custom',
       baseId: sweepCase.musicalProfile === 'Jazz' ? 'jazz' : 'neutral',
     },
+    ...(sweepCase.restriction === undefined ? {} : { restriction: sweepCase.restriction }),
   }
 }
 
