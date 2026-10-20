@@ -90,6 +90,7 @@ export function useShownSettings(deps: ShownSettingsDeps): ShownSettingsView {
    * description line reads for the whole session, so it keeps its text; null with no session.
    */
   // @spec-link [[rule_automatic_change_updates_controls_quietly]]
+  // @spec-link [[module_preset_bar_model]]
   const startSettings = computed(() => deps.controller()?.state.startSettings ?? null)
 
   return { controlsReadonly, shownSettings, startSettings }

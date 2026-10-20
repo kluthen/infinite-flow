@@ -157,6 +157,7 @@ describe("WorkspaceShell: a session's automatic changes", () => {
   // @test-link [[rule_automatic_change_updates_controls_quietly]]
   // @test-link [[rule_vary_settings_marks_custom]]
   // @test-link [[rule_mutation_reverts_at_session_end]]
+  // @test-link [[module_preset_bar_model]]
   it("shows the controller's settings during a session, Custom once a step moved, and the player's own again at its end", async () => {
     const fake = createFakeSessionController()
     const idle = fakeGenerationSession(readyState())

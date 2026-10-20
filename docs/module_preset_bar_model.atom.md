@@ -10,7 +10,7 @@ parents:
 dependents: []
 type: MODULE
 layer: ARCHITECTURE
-version: 0.2
+version: 0.3
 human_name: The Preset Bar Model
 tags: [v3, release-v3.1, player-controls, presets]
 ---
@@ -30,7 +30,7 @@ The description, by selection: each built-in its own fixed sentence, keyed by it
 The model takes the selection it is given and holds none: during a session the box follows the selection shown, which may turn Custom, while the description is given the selection of the session's start settings, which the session controller exposes, never the selection shown, so it keeps its text and nothing under it moves. It reads no storage, renders nothing and announces nothing.
 
 ## TECHNICAL INTERFACE
-src/components/controls/preset-bar-model.ts (new): pure functions over Preset and PresetSelection (src/domain/presets/preset-selection.ts), the preset label (src/domain/controls/preset-label.ts) and the restriction in words (src/domain/presets/key-and-mode-restriction.ts), giving the box's groups and options, the Custom option or none, the full text and the description. src/components/controls/PresetBar.vue (new), the first row of the control section, renders them as a native select with optgroups and the description field-note.
+src/components/controls/preset-bar-model.ts: pure functions over Preset and PresetSelection (src/domain/presets/preset-selection.ts), the preset label (src/domain/controls/preset-label.ts) and the restriction in words (src/domain/presets/key-and-mode-restriction.ts), giving the box's groups and options, the Custom option or none, the full text and the description. src/components/controls/PresetBar.vue, the first row of the control section, renders them as a native select with optgroups and the description field-note.
 
 ## EXPECTATION
 - The groups hold the built-ins in their listed order by id, and Your presets sorted ignoring case, duplicates kept, absent while empty.

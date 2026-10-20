@@ -156,6 +156,7 @@ function createIdlePregeneration(
 // @spec-link [[rule_session_start_conditions]]
 // @spec-link [[rule_midi_never_blocks_session]]
 // @spec-link [[rule_phrase_one_is_idle_phrase]]
+// @spec-link [[module_key_and_mode_marks]]
 export function createSessionController(deps: SessionControllerDependencies): SessionController {
   const { idle, audio, browser } = deps
   const windowShape = shallowRef(browser.windowShape.read())

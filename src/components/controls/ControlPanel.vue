@@ -111,6 +111,7 @@ const controlSummary = computed(() =>
       above.
     </p>
     <p class="control-summary">{{ controlSummary }}</p>
+    <!-- @spec-link [[module_preset_bar_model]] -->
     <PresetBar
       :presets="presets"
       :selection="selection"

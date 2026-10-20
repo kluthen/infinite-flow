@@ -278,6 +278,7 @@ describe('ControlPanel', () => {
   })
 
   // @test-link [[rule_automatic_change_updates_controls_quietly]]
+  // @test-link [[module_preset_bar_model]]
   it("keeps the start settings' description while the preset box follows the shown selection", () => {
     const wrapper = mountPanel(
       DEFAULT_GENERATION_CONTROLS,
