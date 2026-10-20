@@ -611,3 +611,12 @@ sentence on the marks during a session (`rule_restriction_highlight_never_blocks
 Leftovers: `your-data-copy.ts` `SETTINGS_LINE` is chunk 18's (D381); `docs/phrase-workspace.md`
 ~938 and `docs/session-engine.md` (profile wording) remain for a coding pass; the
 `@lint-ignore-atd` on `segmented-control-option.ts` stays (the atom is linked through the control).
+
+### Owner answers and merge
+
+2026-10-20: merge and push; every sign-off given (spec D385, bbce423): the five atoms to REVIEW,
+`rule_custom_names_its_base` 0.2 reworded, and the marks keep their Start state during a session as
+a business rule (B6.4 v1.7; `rule_restriction_highlight_never_blocks` 0.2, two e2e links;
+`documentalist` fc895ce). Wave 5 (14, 17, 18, 19) starts in a fresh session. Open for later: the
+profile wording in `docs/session-engine.md` and `docs/phrase-workspace.md` ~938 (a coding pass);
+`your-data-copy.ts` `SETTINGS_LINE` is chunk 18's. Wave 4 merged into `main`.
