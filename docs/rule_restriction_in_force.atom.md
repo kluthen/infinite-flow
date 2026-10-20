@@ -4,6 +4,7 @@ status: REVIEW
 type: RULE
 priority: 1
 dependents:
+  - [[module_key_and_mode_marks]]
   - [[module_preset_model]]
   - [[module_profile_control_customization]]
   - [[module_settings_mutation]]

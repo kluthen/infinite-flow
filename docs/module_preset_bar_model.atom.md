@@ -10,7 +10,7 @@ parents:
 dependents: []
 type: MODULE
 layer: ARCHITECTURE
-version: 0.1
+version: 0.2
 human_name: The Preset Bar Model
 tags: [v3, release-v3.1, player-controls, presets]
 ---
@@ -27,7 +27,7 @@ In Custom the model gives one Custom option, the box's value but never in its li
 
 The description, by selection: each built-in its own fixed sentence, keyed by its id; a player preset, Your preset., followed, unless its restriction is any, by Meant for and the restriction in words; Custom based on a built-in, Changed from {name}. Save as a new preset to keep these settings under a name.; Custom based on a player preset, Changed from {name}. Save as a new preset to keep these settings under a name, or save the changes into {name}.; Custom with no base, Your own settings. Save them as a preset to keep them under a name.
 
-The model takes the selection it is given and holds none: during a session the box follows the selection shown, which may turn Custom, while the description is given the selection at the session's start, so it keeps its text and nothing under it moves. It reads no storage, renders nothing and announces nothing.
+The model takes the selection it is given and holds none: during a session the box follows the selection shown, which may turn Custom, while the description is given the selection of the session's start settings, which the session controller exposes, never the selection shown, so it keeps its text and nothing under it moves. It reads no storage, renders nothing and announces nothing.
 
 ## TECHNICAL INTERFACE
 src/components/controls/preset-bar-model.ts (new): pure functions over Preset and PresetSelection (src/domain/presets/preset-selection.ts), the preset label (src/domain/controls/preset-label.ts) and the restriction in words (src/domain/presets/key-and-mode-restriction.ts), giving the box's groups and options, the Custom option or none, the full text and the description. src/components/controls/PresetBar.vue (new), the first row of the control section, renders them as a native select with optgroups and the description field-note.

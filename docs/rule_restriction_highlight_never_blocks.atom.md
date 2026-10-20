@@ -2,6 +2,7 @@
 id: rule_restriction_highlight_never_blocks
 status: DRAFT
 dependents:
+  - [[module_key_and_mode_marks]]
   - [[ui_segmented_control_marked_option]]
 priority: 1
 tags: [v3, release-v3.1, player-controls, presets]

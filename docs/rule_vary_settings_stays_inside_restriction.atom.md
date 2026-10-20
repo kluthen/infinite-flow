@@ -5,6 +5,7 @@ parents:
   - [[req_settings_mutation_flag]]
   - [[rule_restriction_in_force]]
 dependents:
+  - [[module_key_and_mode_marks]]
   - [[module_settings_mutation]]
 type: RULE
 layer: BUSINESS
