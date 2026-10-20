@@ -3,11 +3,13 @@
  * A generic, presentational single-select radiogroup used by every discrete generation control.
  * Props-in/events-out only: no session or domain import, no internal notion of which musical
  * catalog it renders. Supports one deliberate exception to "always has a selection": a null
- * `modelValue` renders the group with no checked segment (the custom musical-preset state), with
- * its first option acting as the roving tab stop until a selection exists. An option can be marked
- * unavailable (`disabled`): natively disabled, named by the element that says why, never checked,
- * and skipped by keyboard selection. The group can name an element describing it as a whole
- * (`describedBy`), such as a session option's note.
+ * `modelValue` renders the group with no checked segment, with its first available option acting
+ * as the roving tab stop until a selection exists. An option can be made unavailable
+ * (`disabled`): natively disabled, named by the element that says why, never checked, and skipped
+ * by keyboard selection. An option can be marked (`marked`) when a guidance in force points to it:
+ * its segment takes `is-marked` and nothing else changes, choosing it included. The group can name
+ * an element describing it as a whole (`describedBy`), such as a session option's note or what the
+ * marks mean.
  */
 import { computed, ref, watch } from 'vue'
 
@@ -18,8 +20,11 @@ const props = defineProps<{
   options: readonly SegmentedControlOption[]
   modelValue: string | null
   readonly: boolean
-  /** The id of an element describing the whole group, named by its `aria-describedby`. */
-  describedBy?: string
+  /**
+   * The id of an element describing the whole group, named by its `aria-describedby`; none
+   * (absent or undefined) names nothing.
+   */
+  describedBy?: string | undefined
 }>()
 
 const emit = defineEmits<{
@@ -138,12 +143,13 @@ function focusOption(index: number): void {
     :aria-readonly="readonly ? 'true' : undefined"
     :aria-describedby="describedBy"
   >
+    <!-- @spec-link [[ui_segmented_control_marked_option]] -->
     <button
       v-for="(option, index) in options"
       :key="option.value"
       :ref="(el) => (optionRefs[index] = el as HTMLButtonElement | null)"
       class="segment"
-      :class="{ 'is-selected': index === checkedIndex }"
+      :class="{ 'is-selected': index === checkedIndex, 'is-marked': option.marked === true }"
       type="button"
       role="radio"
       :aria-checked="index === checkedIndex ? 'true' : 'false'"

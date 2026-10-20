@@ -292,6 +292,24 @@ describe('ControlPanel', () => {
     )
   })
 
+  it('forwards the start settings to the key and mode marks, whatever the shown settings', () => {
+    const wrapper = mountPanel(
+      DEFAULT_GENERATION_CONTROLS,
+      { kind: 'custom', baseId: 'reel' },
+      true,
+      BUILT_IN_PRESETS,
+      {
+        selection: { kind: 'preset', presetId: 'reel' },
+        restriction: builtInPreset('reel').restriction,
+      },
+    )
+    const marked = wrapper
+      .get('[role="radiogroup"][aria-label="Collection"]')
+      .findAll('.segment.is-marked')
+      .map((segment) => segment.text())
+    expect(marked).toEqual(['Dorian', 'Mixolydian'])
+  })
+
   // @test-link [[rule_custom_names_its_base]]
   it('names the selected preset in the box, and Custom alone with no base', () => {
     const reel = mountPanel(DEFAULT_GENERATION_CONTROLS, { kind: 'preset', presetId: 'reel' })

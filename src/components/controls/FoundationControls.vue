@@ -8,10 +8,12 @@
  * reached. While my instrument exists, the instrument control offers it as a fourth choice,
  * labelled with its name, and states its range and windows, from its profile given as data, as for
  * a built-in profile. `instrument-actions` under it reads `Create my instrument` or `Edit my
- * instrument` and asks for the My instrument sheet. The selection and the presets are given for
- * the key and mode marks, which the group does not show yet.
+ * instrument` and asks for the My instrument sheet. Written key and Collection carry the key and
+ * mode marks, each with its note under the control: at Idle and in the review mode from the
+ * restriction in force for the shown selection, key and mode; during a session from the session's
+ * start settings, never from what is shown. No segment is ever disabled for a restriction.
  */
-import { computed } from 'vue'
+import { computed, useId } from 'vue'
 
 import {
   PITCH_CLASSES,
@@ -27,17 +29,25 @@ import {
 import { selectedInstrumentProfile } from '@/domain/generation/generation-intent'
 import { MY_INSTRUMENT_ID, type InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import type { MyInstrument } from '@/domain/profile/my-instrument'
-import type { Preset, PresetSelection } from '@/domain/presets/preset-selection'
+import {
+  findPreset,
+  restrictionInForce,
+  type Preset,
+  type PresetSelection,
+} from '@/domain/presets/preset-selection'
 import SegmentedControl from './SegmentedControl.vue'
 import TempoStepper from './TempoStepper.vue'
+import type { SessionStartSettings } from './preset-bar-model'
 import type { SetControlPayload } from './set-control-event'
 import {
   collectionOptions,
   harmonicMotionOptions,
   instrumentChoiceOptions,
+  keyAndModeMarks,
   profileRangeSummaryText,
   tensionOptions,
   tonalCenterOptions,
+  withMarks,
 } from './control-options'
 
 const props = defineProps<{
@@ -53,6 +63,8 @@ const props = defineProps<{
   myInstrument: MyInstrument | null
   /** Whether `instrument-actions` is disabled: during a session and during Loading. */
   instrumentActionsDisabled: boolean
+  /** The session's start settings during a session; null with no session. */
+  startSettings: SessionStartSettings | null
 }>()
 
 const emit = defineEmits<{
@@ -73,6 +85,51 @@ const reachedTempoNote = computed(() =>
     ? null
     : `Last session reached ${props.lastSessionReachedTempo} BPM.`,
 )
+
+/** Intent: the name of the selected preset, or in Custom of its base; null when none is found. */
+function presetNameOf(selection: PresetSelection): string | null {
+  const id = selection.kind === 'preset' ? selection.presetId : selection.baseId
+  return (id === null ? undefined : findPreset(props.presets, id))?.name ?? null
+}
+
+/**
+ * Intent: the key and mode marks and their notes. With no session (Idle and the review mode),
+ * from the restriction in force for the shown selection, key and mode, naming the selected preset
+ * or Custom's base. During a session, from the start settings only, their frozen restriction and
+ * the preset named from their selection, so the marks keep what Start showed whatever the shown
+ * key, mode and selection become. No preset name found: no marks.
+ */
+// @spec-link [[module_key_and_mode_marks]]
+// @spec-link [[rule_restriction_in_force]]
+// @spec-link [[rule_restriction_highlight_never_blocks]]
+// @spec-link [[rule_vary_settings_marks_custom]]
+const marks = computed(() => {
+  const start = props.startSettings
+  const restriction =
+    start === null
+      ? restrictionInForce(
+          props.selection,
+          props.controls.tonalCenter,
+          props.controls.collection,
+          props.presets,
+        )
+      : (start.restriction ?? null)
+  const presetName = presetNameOf(start === null ? props.selection : start.selection)
+  return presetName === null ? keyAndModeMarks(null, '') : keyAndModeMarks(restriction, presetName)
+})
+
+/** Written key's options, its marked values flagged; never one disabled. */
+const writtenKeyOptions = computed(() =>
+  withMarks(tonalCenterOptions(), marks.value.writtenKey.marked),
+)
+
+/** Collection's options, its marked values flagged; never one disabled. */
+const collectionChoiceOptions = computed(() =>
+  withMarks(collectionOptions(), marks.value.collection.marked),
+)
+
+const writtenKeyNoteId = useId()
+const collectionNoteId = useId()
 
 /** Intent: report a tempo change, re-validating against the tempo catalog before it leaves. */
 function handleTempo(value: number): void {
@@ -157,21 +214,29 @@ const profileRangeSummary = computed(() => profileRangeSummaryText(activeInstrum
       <span class="field-label">Written key</span>
       <SegmentedControl
         label="Written key"
-        :options="tonalCenterOptions()"
+        :options="writtenKeyOptions"
         :model-value="controls.tonalCenter"
         :readonly="readonly"
+        :described-by="marks.writtenKey.note === null ? undefined : writtenKeyNoteId"
         @update:model-value="handleTonalCenter"
       />
+      <p v-if="marks.writtenKey.note !== null" :id="writtenKeyNoteId" class="field-note">
+        {{ marks.writtenKey.note }}
+      </p>
     </div>
     <div class="field-group" :class="{ 'is-readonly': readonly }">
       <span class="field-label">Collection</span>
       <SegmentedControl
         label="Collection"
-        :options="collectionOptions()"
+        :options="collectionChoiceOptions"
         :model-value="controls.collection"
         :readonly="readonly"
+        :described-by="marks.collection.note === null ? undefined : collectionNoteId"
         @update:model-value="handleCollection"
       />
+      <p v-if="marks.collection.note !== null" :id="collectionNoteId" class="field-note">
+        {{ marks.collection.note }}
+      </p>
     </div>
     <div class="field-group" :class="{ 'is-readonly': readonly }">
       <span class="field-label">Instrument profile</span>

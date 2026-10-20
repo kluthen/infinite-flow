@@ -6,7 +6,7 @@
  * component owns no control state itself; it only forwards each part's typed events upward
  * unchanged. The values it shows are the ones it is given: during a session, what the phrase now
  * sounding was generated with, the preset box included, while the preset bar's description line
- * keeps the text of the session's start settings.
+ * and the key and mode marks keep what the session's start settings give.
  */
 import { computed } from 'vue'
 
@@ -127,6 +127,7 @@ const controlSummary = computed(() =>
         :last-session-reached-tempo="lastSessionReachedTempo"
         :my-instrument="myInstrument"
         :instrument-actions-disabled="instrumentActionsDisabled"
+        :start-settings="startSettings"
         @open-my-instrument="emit('open-my-instrument')"
         @set-control="forwardSetControl"
         @select-instrument-profile="forwardInstrumentProfile"
