@@ -822,3 +822,14 @@ preflight corrections). D289 is unused.
   domain parser accepts it and yields a timeline with a missing measure; no v3.1 chunk owns the
   parser, and the fix is not v3.1 behaviour. Not adopted: a v3.1 chunk. Now in:
   [ISS-013](../issues/Ref_20261019_timeline_parser_accepts_holes.md).
+
+- **D376 (2026-10-20): v3.0's sessions are carried over at open only; the rare overrun is
+  accepted (closes O233, the owner's (a)).** About 220 or more pinned v3.0 sessions of about 13
+  minutes run the upgrade past the 2 s wait once: that visit starts from the defaults and keeps
+  nothing; the upgrade completes and the next visit is normal. No conversion when read is built.
+  Also accepted, with no test ("Leave it"): a request failing inside the upgrade (a full device)
+  rolls it back and leaves the port unavailable, so every visit starts from the defaults until
+  space is freed. For wave 3's sync (`documentalist`): `rule_earlier_kept_sessions_carried_over`
+  (DRAFT) still keeps B9's old read-time clause, and change set J3 says "or when it is read";
+  both follow the new B9. Now in: [B9](versions/v3/master-spec.md#b9-the-generation-request-the-replay-key-and-kept-sessions),
+  [M3](versions/v3/build-plan-v3.1.md#m3--the-start-up-read-and-the-migrations), [gates](versions/v3/build-plan-v3.1.md#gates).

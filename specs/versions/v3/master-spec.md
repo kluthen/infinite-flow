@@ -44,8 +44,11 @@ Status: this file holds four parts.
   (2026-10-19) writes in the owner's ruling of that day: the tense note a joined phrase may end
   on is offered only when the levels allow a free scale note there (B5.4, B11; spec D368). v1.4
   (2026-10-19) says that a v3.0 session's label reads the customized flag from the selection its
-  record holds, the one phrase 1 held (B9; spec D372); no behaviour changes. Its sections are
-  numbered B1 to B16.
+  record holds, the one phrase 1 held (B9; spec D372); no behaviour changes. v1.5 (2026-10-20)
+  writes in the owner's ruling of that day: v3.0's sessions are carried over when the database
+  first opens and never when read, and the one visit that runs past the start-up wait with very
+  many very long sessions is accepted and stated (B9; spec D376). Its sections are numbered B1 to
+  B16.
 - **[Part C — v3.2](#part-c--v32), Jam, the key and mode suggestion and the rhythm lock:**
   master spec v1.0 (2026-10-08), consolidated from the approved v3.2 drafts; approved by the
   product owner (2026-10-08). The owner confirmed the exact wording of the contract
@@ -1819,9 +1822,14 @@ force, and choosing a preset identical in values and restriction, discard nothin
   to the levels of B5.3, and their label is the musical profile they recorded, in the same form
   (Neutral, Jazz, or Custom based on one of them); whether it was customized is read from the
   selection their record holds, phrase 1's, the session's start state. Their generated timelines
-  are kept as they are. If rewriting every v3.0 session when the database opens does not fit the
-  start-up read's time limit (Part A), each is mapped the same way when it is read instead; the
-  player sees no difference.
+  are kept as they are. This happens once, when v3.1 first opens the database, and only then: no
+  session is mapped when it is read.
+- **The limit of that one-time upgrade, accepted by the owner.** With very many very long sessions
+  kept by v3.0, from about 220 sessions of about 13 minutes each (about 97 phrases at 120 BPM),
+  the upgrade runs past the start-up read's time limit (Part A §4.4). That one visit starts from
+  the defaults and keeps nothing, the session played in it included; the upgrade still completes,
+  and the next visit reads normally. With shorter sessions (about 15 phrases), 500 of them fit
+  well inside the limit.
 
 ## B10. For the interface design
 

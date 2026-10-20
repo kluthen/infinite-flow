@@ -1,6 +1,9 @@
 # Infinite Flow v3.1 — Build Plan
 
-Status: v12 (2026-10-19): from chunk 9's report: chunk 22 joins wave 3 after chunk 12, {length}
+Status: v13 (2026-10-20): the owner's answer to O233 (spec D376): v3.0's sessions are carried
+over at open only, the rare overrun of the start-up wait is accepted and B9 states it; gate M3H
+is done and the release gate no longer waits for it.
+v12 (2026-10-19): from chunk 9's report: chunk 22 joins wave 3 after chunk 12, {length}
 in the review's summary (spec D373); M3's version 2 result, the step stays at open, and the
 heavy-body case goes to the owner as O233, gate M3H (spec D374); a hole in a timeline's measures
 goes to ISS-013 (spec D375).
@@ -97,7 +100,7 @@ waits, but no release is cut before wave 5 has merged.
 | **L1**       | The owner's listening check of the figure levels ([H1](#hand-checks)); the shares are tuned from it.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | The owner                                                                                                 | The release gate's final M1 and M2 runs                                                                                                                                                                                     | open (after chunk 14)                                        |
 | **L2**       | The owner's listening check of the eight built-in presets ([H2](#hand-checks)).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | The owner                                                                                                 | The release gate                                                                                                                                                                                                            | open (after chunk 14)                                        |
 | **Contract** | B11's four guarantee changes confirmed and applied (CONTRACT 3.0).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | The owner; `documentalist`                                                                                | Nothing; the release gate checks the record (item 23)                                                                                                                                                                       | done (2026-10-08, spec D246)                                 |
-| **M3H**      | The owner's answer to [O233](../../open-questions.md): kept sessions with long phrase lists upgraded past the start-up wait (accept it, B9 saying so; or convert the phrase lists when a session is opened).                                                                                                                                                                                                                                                                                                                                                                         | The owner; `spec-writer` records it                                                                       | The release gate; if converting when opened is chosen, the chunk inserted for it                                                                                                                                            | open (from chunk 9, spec D374)                               |
+| **M3H**      | The owner's answer to [O233](../../open-questions.md): kept sessions with long phrase lists upgraded past the start-up wait (accept it, B9 saying so; or convert the phrase lists when a session is opened).                                                                                                                                                                                                                                                                                                                                                                         | The owner; `spec-writer` records it                                                                       | The release gate                                                                                                                                                                                                            | done (2026-10-20, spec D376): accepted, B9 says so           |
 | **CS**       | The MAJOR contract bump for v3.0's STABLE contract atoms that v3.1 revises (the twelve of the change set's [part I3](../../../docs/release/v3.1-v3.2-intent-change-set.md#i3-for-the-owner-not-applied)) and for `rule_open_phrase_ending` ([B11](master-spec.md#b11-what-v31-changes-in-v30-and-in-v2s-guarantees); spec D361, D362): `documentalist` drafts their new wordings, the three "to decide" rows first (two weaken a guarantee); the owner confirms them all at once. The chunks that revise them say "(contract, CS)" in their Revisions line: 8, 9, 12, 16, 17 and 18. | `documentalist` drafts; the owner confirms                                                                | The sync of wave 1, the first wave whose chunks revise one (chunk 8: `rule_kept_session_content`, `entity_kept_session_record`, `module_kept_session_codec`); its chunks may be built and merged into the wave branch first | done (2026-10-19, spec D363)                                 |
 
 ## Waves
@@ -289,17 +292,17 @@ Gate DP: whether B5.6's rule (the passing tone and the neighbor tone may not bot
   version 3 upgrade, and the start-up read on a seeded database with 0, 50 and 60 player presets,
   60 written from two tabs, and 0, 10, 100 and 500 kept sessions, cold and warm). The owner repeats
   the deciding runs on the reference machine.
-- **Acceptance:** each, upgrade included, well under the start-up wait constant. If the
-  kept-session upgrade does not fit with many pinned sessions, chunk 9 maps each v3.0 body when it
-  is read instead (B9, spec D250), decided before chunk 9 merges.
-- **Version 2, chunk 9** (spec D374; figures in [`docs/storage.md`](../../../docs/storage.md#the-upgrade-to-data-version-2-m3),
+- **Acceptance:** each, upgrade included, well under the start-up wait constant, by this plan's
+  method (M2's 100 kB bodies for the version 2 upgrade). The kept-session upgrade runs at open
+  only; no v3.0 body is mapped when it is read (B9, spec D376).
+- **Version 2, chunk 9** (spec D374, D376; figures in [`docs/storage.md`](../../../docs/storage.md#the-upgrade-to-data-version-2-m3),
   2026-10-19, reference machine): by this plan's method, 10, 100 and 500 pinned v3.0 sessions
   with M2's 100 kB bodies (15 phrases), the upgrading load takes at most 750 ms, about 38 % of
   the 2 s wait. That is the decision above: the step stays at open, with no mapping when read.
   Beyond the method, with 650 kB bodies (97 phrases), 100 sessions take 902 ms and 500 pass the
   wait: that first visit is a failed-read visit (Part A §4.4), the upgrade completes, the next
-  visit reads normally. B9 promises no difference, so this case is the owner's: O233, gate
-  [M3H](#gates).
+  visit reads normally. The owner accepted this case and B9 states it (spec D376, gate
+  [M3H](#gates) done).
 - **Recorded:** `docs/storage.md`.
 
 ### M4 — The first-load bundle
