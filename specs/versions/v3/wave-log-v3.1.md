@@ -583,3 +583,31 @@ restriction on `SessionSettings`, never the shown key and mode).
   revision and `startSettings` in `service_session_controller`'s readonly state; three links left
   out for the 10-atom cap (listed in the Record). Leftovers: `your-data-copy.ts:38` ("the musical
   profile", Your data sheet) and `docs/phrase-workspace.md` ~936 (stale-phrase labels). Gate next.
+
+### Gate
+
+- Run 1 (1613693, 15:21–15:27, load rising to 8): `quality` exit 1. Two harness-load timeouts
+  (`session-locks.spec.ts:173`, `pregeneration.spec.ts:319`) passed on rerun; one deterministic
+  failure, `controller-connection-layout.spec.ts:137` (landscape sheet `scrollTop` 0).
+  `coding-executor` traced it to chunk 13a: with a `<select>` in the document, Chromium forces a
+  layout as the focused Continue is removed, which drops the scroll the test was reading, left over
+  from the previous state (Disconnect was already in view, so the test never scrolled). Fix 4ff267a
+  (test only): reset the sheet, wheel-scroll it, poll `scrollTop > 0`. The app is unchanged.
+- Run 2 (4ff267a, 15:43–15:50, start load 1.98), AMD Ryzen 5 PRO 8640HS: `quality` exit 0. Unit
+  482 files, 7,450 tests; Playwright 516 + 516 (1 skipped each), a11y 59, notation 107 (4
+  skipped). Entry chunk 250,721 B (wave 3: 246,866; budget 307,200). No sweep or measurement placed
+  in this wave.
+
+### Sync
+
+`documentalist` 5bc6ca2 (no `atd audit`): `module_generative_profile_selection` 1.4 (chunk 13's
+Revision), `service_session_controller` 0.6 (`startSettings`; "profile selection" → "preset
+selection"), `module_preset_bar_model` 0.3, `ui_segmented_control_marked_option` 0.3; five links
+placed; links left out for the 10-atom cap listed in the report. `atd:check` 19/19 OK. For the
+owner: DRAFT → REVIEW for `rule_restriction_highlight_never_blocks`, `rule_custom_names_its_base`,
+`ui_segmented_control_marked_option`, `module_preset_bar_model`, `module_key_and_mode_marks`; the
+rewording of `rule_custom_names_its_base`'s last LOGIC sentence (present tense); the optional
+sentence on the marks during a session (`rule_restriction_highlight_never_blocks` 0.2 and B6.4).
+Leftovers: `your-data-copy.ts` `SETTINGS_LINE` is chunk 18's (D381); `docs/phrase-workspace.md`
+~938 and `docs/session-engine.md` (profile wording) remain for a coding pass; the
+`@lint-ignore-atd` on `segmented-control-option.ts` stays (the atom is linked through the control).
