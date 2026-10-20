@@ -465,3 +465,7 @@ wave gate. Chunk 12 first (15, 16 and 22 wait on it), then 15, 16 and 22 beside 
   the sync: delete `rule_mutation_profile_flip_keeps_controls`; `service_session_engine`'s
   settings wording. Copy still saying "musical profile" (`your-data-copy.ts`,
   `generation-failure-alert.ts`) noted for chunk 13 or `ux-writer`.
+- Chunks 15, 16 and 22: dispatched together 2026-10-20 after chunk 12's merge
+  (`../infinite_flow-v3.1-c15`, `-c16`, `-c22`); they share only `HARDWARE-CHECKLIST.md` on
+  paper. Chunk 16 asked for a `reviewer` pass on its upgrade step and for M3 only on a quiet
+  machine.
