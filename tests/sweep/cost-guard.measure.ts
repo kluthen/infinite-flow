@@ -3,14 +3,17 @@
  * The cost runner (v3.1 measurement M2), manual only, never in `npm run quality`: run via `npm run
  * measure:cost`. The real-cost look-ahead deadline sweep (every supported rhythm setting with seeds
  * 7 and 13, a six-phrase session at 60, 120 and 240 BPM, each attempt charged its measured
- * `generatePhrase` time plus the round trip and engraving), played once per setting (today each
- * musical profile, Neutral and Jazz, on every case). Per setting it reports the share of phrases
+ * `generatePhrase` time plus the round trip and engraving), played once per setting (by default
+ * each musical profile, Neutral and Jazz, on every case; or the settings `COST_SETTINGS` names: the
+ * figure settings of master spec B5.6 and the built-in presets). Per setting it reports the share of phrases
  * generated, the slowest and 95th-percentile generation times, the 240 BPM fallback share and the
  * deadline shortfalls, and prints a summary as `COST-GUARD` lines. A missed deadline is reported,
  * never failed on. The result depends on the machine: run it idle.
  *
  * Env: `COST_OUT` writes the full figures JSON (with the machine, the date and the run duration)
- * to that path; `COST_LIMIT` keeps only the first N sweep cases, for a quick run.
+ * to that path; `COST_LIMIT` keeps only the first N sweep cases, for a quick run;
+ * `COST_SETTINGS` names the settings to measure, comma-separated (`all` for every one, in
+ * `COST_SETTINGS`' run order; unset, the two profiles).
  */
 
 import { writeFileSync } from 'node:fs'
@@ -19,7 +22,7 @@ import { describe, expect, it } from 'vitest'
 
 import { SEEDS } from '../unit/domain/generation/carry-in/carry-in-matrix'
 import { SWEEP_PHRASE_COUNT, SWEEP_TEMPOS, sweepCases } from '../unit/session/deadline-sweep'
-import { PROFILE_SETTINGS, measureSetting, settingSummaryLines } from './cost-guard'
+import { measureSetting, selectedSettings, settingSummaryLines } from './cost-guard'
 import { machineBlock } from './figure-census-sweep'
 
 /** Intent: the case limit `COST_LIMIT` sets, or none; anything but a positive integer fails. */
@@ -38,7 +41,7 @@ describe('cost runner (M2)', () => {
     const machine = machineBlock()
     const cases = sweepCases().slice(0, caseLimit(process.env.COST_LIMIT))
     const settings = []
-    for (const setting of PROFILE_SETTINGS) {
+    for (const setting of selectedSettings(process.env.COST_SETTINGS)) {
       const figures = await measureSetting(setting, cases, SWEEP_TEMPOS)
       console.log(settingSummaryLines(figures).join('\n'))
       settings.push(figures)
