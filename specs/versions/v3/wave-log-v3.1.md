@@ -485,3 +485,24 @@ wave gate. Chunk 12 first (15, 16 and 22 wait on it), then 15, 16 and 22 beside 
   phrase lost; fallbacks at or below the baseline); every built-in generates in every allowed
   mode; no share tuned. Proposed DP: reject the passing-and-neighbor rule (chunk 20 dropped).
   Taken to the owner.
+
+### Owner ruling during the wave (2026-10-20)
+
+Gate DP: the owner chose "Reject the rule (Recommended)". `spec-writer` (c6e5407, plan v15, Part
+B v1.6): D378 (DP rejected, chunk 20 dropped, wave 5 is 14, 17, 18, 19), D379 (chunk 11's two
+readings hold), D380 (ISS-014: a stored BigInt or circular control value makes `decodeSettings`
+throw, and the app then never mounts; Low, Medium argued), D381 (chunk 12's leftover "musical
+profile" copy goes to chunks 13 and 18, worded by the frozen design set).
+
+### Wave gate (2026-10-20, 12:50 CEST, reference machine, load 0.86, nothing else running)
+
+First run on 51fcef7 (11:57): `npm run quality` failed in the Playwright run on one test,
+`pregeneration.spec.ts` "pre-generation writes nothing to storage", still counting 7 stores after
+chunk 16 added `presets`; fixed by a `coding-executor` in 3fb7919 (test expectation only).
+`npm run test:sweep` (placed by chunk 12): exit 0, 5 files, 16 tests.
+
+Second run on `v3.1-w3` at c6e5407: `npm run quality` exit 0. Unit 478 files, 7,386 tests
+passed; Playwright 488 + 488 passed (1 skipped each), 57 passed, 107 passed and 4 skipped;
+`verify:boundaries`, `atd:lint`, `atd:check` pass. **Bundle: entry chunk 246,844 B** (49 JS
+chunks), +19,142 B on wave 2's 227,702 B (+17,698 B on v3.0's 229,146 B), 60,356 B under the
+300 KiB budget.
