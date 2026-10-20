@@ -469,3 +469,5 @@ wave gate. Chunk 12 first (15, 16 and 22 wait on it), then 15, 16 and 22 beside 
   (`../infinite_flow-v3.1-c15`, `-c16`, `-c22`); they share only `HARDWARE-CHECKLIST.md` on
   paper. Chunk 16 asked for a `reviewer` pass on its upgrade step and for M3 only on a quiet
   machine.
+- Chunk 22: merged as 983d6bb (fedbe14); chunk checks pass. `sessionLengthSeconds` now in
+  `src/session/session-timing.ts`. No revisions; the sync confirms its new links.

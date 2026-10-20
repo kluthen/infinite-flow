@@ -1781,7 +1781,7 @@ Architecture capture: none (it builds on chunk 14's)
 
 ### Chunk 22 — The review's summary gives the session's length
 
-Status: planned
+Status: merged (w3, 983d6bb)
 Wave: 3
 Depends on: 9 (the summary's {preset}), 12 (it may change the kept-session record and the
 review state this chunk reads)
@@ -1825,6 +1825,8 @@ Architecture capture: none (one length function shared by the save and the revie
     the length that summary would have recorded.
 - **Verification:** chunk checks.
 - **Split rule:** none needed (four source files).
+
+Record: fedbe14, merged as 983d6bb (built beside chunks 15 and 16). The summary reads "{date} · {length} · {phrases} · {instrument} · {preset} · {favorites}", the date left out when it is the title. `sessionLengthSeconds` moved from the kept-session codec to `src/session/session-timing.ts` (exported, so the Review area does not pull the dynamically imported codec), linked to `entity_kept_session_record`; the Review computes it from the shown phrases and writes it with `sessionLengthText`, as the session list does. A kept session's Review matches its row exactly; the just-ended session matches its kept summary, a failed save included. 1,703 unit and 36 Playwright tests in touched areas pass. For the sync: confirm the new links on `use-review-area.ts`'s `lengthSeconds` and the carried-over spec.
 
 ## Chunk 21 — v3.1 release gate
 
