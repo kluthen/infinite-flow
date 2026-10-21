@@ -548,7 +548,8 @@ release gate uses the result.
       figure that fails is not a failed build: write down which and how, and the shares behind
       the levels are tuned from your answers (then the measurements M1 and M2 run again).
 
-**Result:** not run yet.
+**Result (2026-10-21):** passed on the owner's word (spec D391), from a partial run with a
+positive result, not the full checklist; the shares were not tuned.
 
 ## v3.1 H2. Listening: the built-in presets (chunk 14; gate L2; about 30 min)
 
@@ -567,7 +568,8 @@ built-in presets should sound as its description line (under the preset box) say
 - [ ] Pass: every preset sounds as its description says, and Neutral and Jazz as in v3.0. Write
       down any preset that does not, and how.
 
-**Result:** not run yet.
+**Result (2026-10-21):** passed on the owner's word (spec D391), from a partial run with a
+positive result, not the full checklist.
 
 ## v3.1 H3. Same phrase in Edge (chunk 8; about 10 min)
 

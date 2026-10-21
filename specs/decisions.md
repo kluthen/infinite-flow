@@ -937,3 +937,17 @@ preflight corrections and sign-offs) and D389 (v3.4 opened). D289 is unused.
   `rule_player_preset_may_hold_unsupported_rhythm`, `rule_no_preset_leaves_device`. (b)
   `module_save_policy`'s rewording, naming the preset saves. Applied by `documentalist`. L1 and L2
   stay open for H1 and H2. Now in: [gates](versions/v3/build-plan-v3.1.md#gates).
+
+- **D391 (2026-10-21): v3.1 H1 and H2 are passed on the owner's word; gates L1 and L2 are done,
+  with no tuning.** From a partial listening with a positive result, not the full checklist runs:
+  "consider H1 and H2 passed, as these will take far more time than expected from my pov. I've
+  tried some with positive result. you may proceed to chunk 21". The figure shares stay as chunk 11
+  measured them; the release gate's final M1 and M2 run with them. Chunk 21 no longer waits on L1
+  and L2. Now in: [gates](versions/v3/build-plan-v3.1.md#gates),
+  [chunk 21](versions/v3/build-plan-v3.1.md#chunk-21--v31-release-gate) (plan v21).
+
+- **D392 (2026-10-21): the release gate's automated part runs now; v3.1 H3, H4 and H5 stay open
+  and the owner runs them later.** The owner: "You'll run them later". Chunk 21 runs everything
+  but those three checks; the owner's go and the `3.1.0` tag wait on them. Now in:
+  [hand checks](versions/v3/build-plan-v3.1.md#hand-checks),
+  [chunk 21](versions/v3/build-plan-v3.1.md#chunk-21--v31-release-gate) (plan v21).

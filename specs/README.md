@@ -33,7 +33,7 @@ Status: draft v0.78
 - **Next: the rest of v3** ([v3](versions/v3/README.md#releases-d211)):
   - **v3.1:** embellishment flags and presets. Master spec
     [Part B](versions/v3/master-spec.md#part-b--v31), approved (D239); design approved (D353);
-    build plan [v3.1](versions/v3/build-plan-v3.1.md), v20 (v4 approved, D357): waves 0–3 went
+    build plan [v3.1](versions/v3/build-plan-v3.1.md), v21 (v4 approved, D357): waves 0–3 went
     ahead first and may merge into `main`; the owner has allowed the token-source pass (gate T1,
     D382, reversing D355), so waves 4 and 5 wait only for the waves before them; no release before
     wave 5 merges. Entry budget 300 KiB (D359); v3.0's
@@ -51,7 +51,8 @@ Status: draft v0.78
     strings go to chunks 13 and 18 (D381); ISS-014 (D380) is fixed before wave 3 merges (D383); choosing again the option a control already
     shows makes Custom and may discard the pre-generated phrases, accepted by the owner (D388,
     Part B v1.8); at wave 5's report the owner approves the sync's sign-offs and asks for its
-    merge (D390).
+    merge (D390); H1 and H2 passed on the owner's word, L1 and L2 done with no tuning (D391); the
+    release gate's automated part runs now, H3–H5 and the `3.1.0` tag wait on the owner (D392).
   - **v3.2:** Jam, the key and mode suggestion, the rhythm lock and its mutation option. Master
     spec [Part C](versions/v3/master-spec.md#part-c--v32), approved (D239); build plan
     [v3.2](versions/v3/build-plan-v3.2.md), v3, not approved. The contract wording v3.1 and
