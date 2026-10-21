@@ -35,3 +35,12 @@ Plan corrections, sent to `spec-writer` before chunk 0 starts:
 2. Chunk 2's **Atoms** line names the atoms its new tests link to.
 3. The lexicon entries move from chunk 0 (`documentalist`) to `spec-writer`, whose document the
    lexicon is.
+
+`spec-writer` applied all three (plan v7, f6970fc). It also updated the lexicon (v1.8): Jam,
+Doodle, Drift, Rhythm lock, Starting note and Key and mode suggestion now follow Part C v1.2, and
+Collection and Written key no longer say v1.0's "Use it" sets them. No decision recorded: a
+preflight correction needs none.
+
+### Chunks
+
+- Chunk 0 dispatched to `documentalist` (spec ingestion, milestone refinement), on `v3.2-w0`.

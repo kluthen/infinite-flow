@@ -509,7 +509,7 @@ reused.
 
 ### Chunk 0 — Intent re-sync and the contract drafts
 
-Status: planned
+Status: in progress
 Wave: 0
 Depends on: none
 Architecture capture: none
