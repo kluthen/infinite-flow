@@ -1,8 +1,14 @@
 # v3.1 — Embellishment Flags
 
+> **Archived 2026-10-21.** v3.1 is released as version 3.1.0; this approved draft was
+> consolidated into the v3 master spec (D233, D235). Live summary:
+> [master spec B5](../../versions/v3/master-spec.md#b5-embellishment-figures-and-their-levels).
+> Relative links were written from `specs/versions/v3/`; the paths of those to files that stayed
+> there were repaired on 2026-10-21 so they resolve from this folder.
+
 Status: draft v3 (2026-10-08; terms aligned with D237 and D238 the same day, no behaviour changed).
 Approved by the owner as proposed (D233). Consolidated for building into the [v3 master spec, Part
-B](master-spec.md#part-b--v31); where the two differ, the master spec wins.
+B](../../versions/v3/master-spec.md#part-b--v31); where the two differ, the master spec wins.
 
 **Changes from draft v1.** The owner approved every proposal (D233), so each is now stated as
 settled. spec-writer's consolidation pass added four precisions, written in where they belong:
@@ -18,7 +24,7 @@ and how much it favors each, "many ways to support or alter in minor ways what's
 played". Settled so far: weights are preferences, not quotas ("ish", D210); figures written as
 ordinary notes come first (D210, D216); ornaments are notated symbols with playback expansion, and
 only their main note is checked for acknowledgement (D216, closing O47). Background:
-[v3 README](README.md#embellishment-flags). Research:
+[v3 README](../../versions/v3/README.md#embellishment-flags). Research:
 [embellishment catalogue](../../../docs/music/embellishment-catalogue.md) (31 figures). Presets,
 which carry these settings, are in [presets.md](presets.md).
 
@@ -34,7 +40,7 @@ Checked in the code on 2026-10-07 (paths relative to the repository root):
 > **As of 2026-10-07, before v3.0 was built.** Line numbers and the "not built yet" statements below
 > (storage, `ifk2.`, pre-generation) are out of date: v3.0 built them. The code facts v3.1 is built
 > on were checked again on 2026-10-19 (`main` d007b27) and live in the
-> [v3.1 build plan](build-plan-v3.1.md); where the two differ, the plan follows the code (D356).
+> [v3.1 build plan](../../versions/v3/build-plan-v3.1.md); where the two differ, the plan follows the code (D356).
 
 - **Chord tones are always tried first.** At each note the pitch search orders its candidates by
   a rank that puts chord tones before every decorating note
@@ -69,7 +75,7 @@ Checked in the code on 2026-10-07 (paths relative to the repository root):
   attempts that took seconds, is resolved (2026-10-07); its price is that at 240 BPM phrase 2 is
   always generated without the join
   ([issue](../../../issues/Ref_20261006_failed_carry_in_attempts_slow.md)), which v3.0's
-  pre-generation repairs ([v3.0 master spec §8](master-spec.md#8-pre-generating-phrases-at-idle)).
+  pre-generation repairs ([v3.0 master spec §8](../../versions/v3/master-spec.md#8-pre-generating-phrases-at-idle)).
 
 ## 2. Which figures v3.1 exposes
 
@@ -156,11 +162,11 @@ four steps (names are `ux-writer`'s; the meanings are fixed here):
 ### 3.2 Where the levels sit
 
 The seven figure levels are generation settings, saved like the 14 controls
-([v3.0 master spec §4.2](master-spec.md#42-what-is-saved-automatically)), held by every preset
+([v3.0 master spec §4.2](../../versions/v3/master-spec.md#42-what-is-saved-automatically)), held by every preset
 ([presets.md](presets.md) §2), and carried in every phrase's generation request (§5). Their
 first-load values are Neutral's (§3.3). They are settings of the Idle screen: like every
 generation control, they are locked while a session runs
-([v2 master spec §5](../v2/master-spec.md#5-control-changes-during-a-session)).
+([v2 master spec §5](../../versions/v2/master-spec.md#5-control-changes-during-a-session)).
 
 ### 3.3 Neutral and Jazz sound as today
 
@@ -212,7 +218,7 @@ phrase was made.
   (`src/generation-worker/phrase-replay-key.ts:15, 112-128`). The decoder refuses any other
   prefix (`src/generation-worker/phrase-replay-key-decode.ts:124-137`).
 - **`ifk2.`** is v3.0's, to carry "my instrument" inline
-  ([v3.0 master spec §7.4](master-spec.md#74-phrase-replay-key)). It is specified but not built
+  ([v3.0 master spec §7.4](../../versions/v3/master-spec.md#74-phrase-replay-key)). It is specified but not built
   yet.
 - **A new key version, `ifk3.`** (D233), which carries the seven figure levels explicitly, by
   figure, and everything `ifk2.` carries except the profile name and its Custom flag, which the
@@ -286,7 +292,7 @@ direction, so every other setting is drawn as often as before (spec-writer's cal
 consolidation). It replaces the name flip, which has no meaning once figures are settings.
 It marks the selection Custom for the session, and every level returns to the player's own when
 the session ends, as every mutated setting does today
-([v2 master spec §5](../v2/master-spec.md#5-control-changes-during-a-session)). A figure step never
+([v2 master spec §5](../../versions/v2/master-spec.md#5-control-changes-during-a-session)). A figure step never
 lands on an unsupported rhythm combination, since levels do not affect rhythm.
 
 This changes a v2 rule and two declared-intent atoms
@@ -317,7 +323,7 @@ holds: no grading, scoring or wrong-note signal, so a missed decoration is never
 - **Phone width:** unchanged. Below the tablet-landscape width Sixteenth generates as Eighth, which
   leaves enclosures fewer places to go; levels are kept as chosen.
 - **Jam:** figures found in the player's doodle could be favored for the phrases that continue it
-  ([v3 README](README.md#embellishment-flags)). First placed in v3.2, it is deferred beyond v3.2
+  ([v3 README](../../versions/v3/README.md#embellishment-flags)). First placed in v3.2, it is deferred beyond v3.2
   (D238).
 
 ## 8. Personas served

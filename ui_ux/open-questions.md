@@ -1,7 +1,7 @@
 # Open Questions
 
 Only questions that are truly open appear here, with the closed questions of releases not yet
-shipped (Q70-Q72 for v3.1 and v3.2, Q77 for v3.3), which are archived at their own release. IDs
+shipped (Q70 and Q72 for v3.2, Q77 for v3.3), which are archived at their own release. IDs
 are stable; numbering continues from Q81 (Q65, Q78 and Q79 were never used). Closed questions are
 archived verbatim:
 
@@ -11,6 +11,7 @@ archived verbatim:
 - v3.0 (released as version 3.0.0): [Q66–Q69](archive/v3.0/open-questions-Q66-Q69.md),
   [Q76](archive/v3.0/open-questions-Q76.md) and [Q80](archive/v3.0/open-questions-Q80.md), every
   one closed; each entry names what closed it.
+- v3.1 (released as version 3.1.0): [Q71](archive/v3.1/open-questions-Q71.md), closed by D249.
 
 Decision IDs cited here (D37, D100, …) refer to this tree's decision log; archived ones resolve
 through the header of [`decisions.md`](decisions.md).
@@ -34,6 +35,8 @@ through the header of [`decisions.md`](decisions.md).
 
 ## v3.1 and v3.2, for `spec-writer` (raised 2026-10-08)
 
+Q71, the one v3.1 question, is archived with v3.1's release (see the list above).
+
 Each is a gap or contradiction in master spec Part B or Part C. The design is built on the
 recommended answer, marked provisional in `decisions.md`; the tier documents state it as designed
 and change only if `spec-writer` settles otherwise.
@@ -49,18 +52,6 @@ and change only if `spec-writer` settles otherwise.
   rule that at Idle only an instrument switch generates by itself, and costs one click. Applies to
   every way Jam mode leaves at Idle: the switch turned off, a controller lost, and a held doodle
   dropped while Jam is out of effect. Provisional design: ux D236.
-- **Q71 — What does `Save changes` do to a player preset's key and mode restriction?** **Closed 2026-10-08 by ux D249** (spec D242, master spec updated: as recommended). §B6.6
-  says "Saving asks for the restriction" under a table covering both save actions, while §B10
-  lists the restriction choice for save as new only, and save changes as "replacing its values;
-  no confirmation". When the player has opted out of the preset's restriction (key or mode
-  outside it, so the selection is Custom based on it), keeping the old restriction would save a
-  preset whose own key and mode lie outside it: it would show as selected now, but load as Custom
-  after a reload under §B7's "values win" rule. Recommended: **`Save changes` asks nothing and
-  keeps the preset's restriction while the key and mode are inside it** (the restriction in force
-  is the preset's own, so "as now" is unchanged); **when they are outside it, `Save changes` asks
-  the restriction with §B6.6's choices** ("as now", which is then any key and mode, the default,
-  or "only this key and mode"), and the answer replaces the old restriction. Provisional design:
-  ux D231.
 - **Q72 — Does a held doodle stay held after the Jam played on it ends?** **Closed 2026-10-08 by ux D249** (spec D244, master spec updated: as recommended). §C5.11 lists what drops
   a held doodle (a change that discards pre-generated phrases, a lost controller, a reload) and
   says a session's end generates the next phrase; it does not say whether a Jam started from a held

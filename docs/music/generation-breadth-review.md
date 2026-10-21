@@ -211,7 +211,7 @@ precursor's vocabulary tiers ([`precusor.md`](../../precusor.md) §2.2).
 The [preset catalogue's gap table](preset-catalogue.md#what-no-setting-can-express-today) is the
 clearest single statement of what is missing: almost every row is a silently lost v1 exclusion.
 v3.1 itself admits its presets are "not styles in full"
-([presets §3.3](../../specs/versions/v3/presets.md#33-what-the-list-is-not)).
+([presets §3.3](../../specs/archive/v3/presets.md#33-what-the-list-is-not)).
 
 ## Today's style seam
 

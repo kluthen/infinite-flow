@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.78
+Status: draft v0.79
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -11,24 +11,27 @@ work are recorded in the archived logs:
 [D72–D108](archive/v2/decisions-D72-D108.md),
 [D109–D207](archive/v2/decisions-D109-D207.md),
 [D208–D227](archive/v3/decisions-D208-D227.md),
-[D252–D258](archive/v3/decisions-D252-D258.md) and
-[D290–D343](archive/v3/decisions-D290-D343.md). The notes this register kept on the questions
+[D252–D258](archive/v3/decisions-D252-D258.md),
+[D290–D343](archive/v3/decisions-D290-D343.md),
+[D228–D231](archive/v3/decisions-D228-D231.md),
+[D353–D388](archive/v3/decisions-D353-D388.md) and
+[D390–D391](archive/v3/decisions-D390-D391.md). The notes this register kept on the questions
 closed during v2 (O24, O50–O99 and O104–O106, apart from O86) are archived verbatim in
-[archive/v2/open-questions-history.md](archive/v2/open-questions-history.md), and those on the
+[archive/v2/open-questions-history.md](archive/v2/open-questions-history.md), those on the
 questions closed during v3.0 (O163, O164, O181, O182, O200, O201, O210, O211 and O220) in
-[archive/v3/open-questions-history.md](archive/v3/open-questions-history.md); each archive's
+[archive/v3/open-questions-history.md](archive/v3/open-questions-history.md), and those on the
+questions closed during v3.1 (O231–O233) in
+[archive/v3/open-questions-O231-O233.md](archive/v3/open-questions-O231-O233.md); each archive's
 README says where each answer now lives.
 
-Open on 2026-10-20: O48 and O49 (later and governance), O100–O102 (v4 rhythm ratios and editor),
+Open on 2026-10-21: O48 and O49 (later and governance), O100–O102 (v4 rhythm ratios and editor),
 O115 and O116 (v3.x learning), O176 (style packs and the chord level), O180 (octave signs, later),
 O183 (the warm worker lost when pre-generation is cancelled), O190 (a newer version's database
 whose read-only reopening fails), O230 (a stale replay-key wording in a STABLE atom, opened with
-D351; numbered O177 on branch `plan-migration`, D352) and, opened 2026-10-21 with v3.4 (D389),
-O234–O238 (the structural review) and, the same day, O239–O246 (v3.4's lexicon page, D393). D359 closed O231 (v3.1's entry-chunk
-budget, opened with D358) on 2026-10-19, and D376 closed O233 (kept sessions with long phrase
-lists upgraded past the start-up wait, opened with D374) on 2026-10-20. New questions take IDs
-from **O247**; the IDs reserved for v3.0's waves and left unused stay unused, and O177 stays
-unused.
+D351; numbered O177 on branch `plan-migration`, D352), O234–O238 (v3.4's structural review, D389)
+and O239–O246 (v3.4's lexicon page, D393). v3.1 is released and none of its questions is open.
+New questions take IDs from **O247**; the IDs reserved for v3.0's waves and left unused stay
+unused, and O177 stays unused.
 
 Opened on 2026-10-12 with v3.3 (D261): O165–O175, richer chords. D262 closed O174 the same day.
 D264–D273 settled the rest the same day in master spec Part D, as proposed for the owner's
@@ -193,20 +196,6 @@ version that upgrades the saved data.
   `src/storage/database.ts` and `src/storage/storage-port.ts`, with a unit test), in a chunk of the
   wave driver's choosing before the v3.0 gate; chunk 8 needs nothing more, since it shows the
   notice from the saving state and the load outcome.
-
-## v3.1 build (O231+)
-
-Opened 2026-10-19 by `spec-writer` when master spec B12 was checked against v3.0's code (D358).
-
-- O231 (v3.1's entry-chunk budget) was closed by [D359](decisions.md) on 2026-10-19: the budget is
-  300 KiB.
-
-- O232 (does a figure level reach the tense note a joined phrase may end on?) was closed by
-  [D368](decisions.md) on 2026-10-19: it follows the levels like a free scale note.
-
-- O233 (kept sessions with long phrase lists upgraded past the start-up wait) was closed by
-  [D376](decisions.md) on 2026-10-20: the owner accepts it, the upgrade stays at open and B9
-  states the limit.
 
 ## v3.4 structural review (O234+)
 

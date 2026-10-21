@@ -296,7 +296,7 @@ Settled by D234 (O146).
 - **Default: all six on**, which is Vary settings as it stands. The groups are saved with the
   option, and set only at Idle or in the review, like every setting.
 - **Under a v3.1 preset with a key and mode restriction**, the Key and mode group's moves stay
-  inside it, as the [v3.1 presets draft](presets.md) settles (D231, D233).
+  inside it, as the [v3.1 presets draft](../../archive/v3/presets.md) settles (D231, D233).
 - **The legal-move check** (D216). When Vary settings is on, the allowed groups must offer at least
   one move from the current settings onto a supported combination. If they do not, Vary settings
   cannot be turned on with those groups, and the app says why. The Rhythm group does not count
