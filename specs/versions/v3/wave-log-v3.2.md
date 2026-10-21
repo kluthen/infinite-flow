@@ -44,3 +44,14 @@ preflight correction needs none.
 ### Chunks
 
 - Chunk 0 dispatched to `documentalist` (spec ingestion, milestone refinement), on `v3.2-w0`.
+- Chunk 0 done (f3b4abe, `documentalist`): 48 DRAFT atoms revised, 14 of them restating a retired
+  v1.0 rule under the same id (no id renamed: four ids still say "held", their text says "kept");
+  26 added; none retired. `release-v3.2` holds 93 DRAFT atoms; 19 rows of change-set part E
+  rewritten for v1.2. `atd:lint`, `atd:check`, `lint:links` pass; `atd crawl --gaps` shows no
+  orphaned STABLE atom. CS drafts in change-set part M (M1–M21), in the owner's report.
+  Findings (part L2), sent to `spec-writer`:
+  1. `rule_start_while_controller_away` (STABLE) relied on v1.0's "without a controller Jam is out
+     of effect"; C13 doesn't name it. Wording drafted (M2); C13 must add it.
+  2. `module_session_seed_plan` (STABLE) says phrase 1 is the Idle phrase and nothing in a session
+     draws a seed; Part C doesn't say where a fresh Jam's phrase 1 seed comes from.
+  3. Not v3.2: the vision still names Chromium-based browsers, where D399 says Chrome.

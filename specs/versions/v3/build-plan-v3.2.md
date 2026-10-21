@@ -509,7 +509,8 @@ reused.
 
 ### Chunk 0 — Intent re-sync and the contract drafts
 
-Status: in progress
+Status: done (w0, f3b4abe)
+Record: 48 DRAFT atoms revised (14 restate a retired rule under the same id), 26 added, 0 retired; `release-v3.2` now 93 DRAFT; change set parts L (re-sync) and M (CS drafts M1–M21) with the owner.
 Wave: 0
 Depends on: none
 Architecture capture: none
