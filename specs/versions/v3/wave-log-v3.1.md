@@ -671,3 +671,10 @@ states the passing-and-neighbor rule that DP rejected (D378); chunk 14 does not 
 - Owner, 2026-10-21: re-clicking the checked segment (a preset turns Custom, the queue is
   discarded although nothing changed) is acceptable behaviour; no change. For `spec-writer` to
   record with its next revision.
+- Chunk 17: merged as 8402c33 (334171e 17a, 76cbf64 17b). Every Done-when item met; no
+  deviation from the spec or the design. The preset-list action is `replacePlayerPresets`. The
+  D387 reload after a refused Save as new is proven at unit level only. For the sync: both
+  Revisions (`rule_unsupported_rhythm_settings_block_generation`; `rule_persistent_storage_requested`,
+  contract, CS); `service_idle_generation_session` names the action; `module_player_presets`' API
+  grew. For the gate: the bundle (the sheet loads on demand); the new required `presetStore` prop
+  touched many test mounts, which only the full suite covers.
