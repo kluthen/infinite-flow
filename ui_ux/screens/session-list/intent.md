@@ -5,7 +5,7 @@
 > **Changes since v3.0**
 >
 > - _v3.1 changed:_ a row names the preset the session started with ([Focal Point](#focal-point))
-> - _v3.2 new:_ a Jam session's row says "Jam" ([Focal Point](#focal-point))
+> - _v3.2 new:_ a Jam session's row says "Jam" and names no preset ([Focal Point](#focal-point))
 
 ## What This Screen Is
 
@@ -40,7 +40,9 @@ on the row, which records what was played.
 **[v3.2 new]** A Jam session's first line starts with the word "Jam", so a player looking for the
 session where they grew their own idea finds it at a glance. A word rather than an icon, because a
 word needs no legend and reads the same to a screen reader; and only that word, since the row's
-title, the date, is still how a session is told apart.
+title, the date, is still how a session is told apart. The line names no preset for a Jam, since
+Jam mode has none. Sessions of both modes share one list, in one order: a Jam is a session like
+any other, and the list is where the player finds what they played, whichever mode it was in.
 
 The row's two buttons, `Pin` or `Unpin` and `Delete`, sit at the row's end, plain and equal.
 Neither is the page's primary action: that stays `Close review` in the header, the way back for

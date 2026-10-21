@@ -206,4 +206,4 @@ None.
 `cue-label-wide`, `cue-label-narrow`, `review-phrase-header`, `review-staff`, `review-phrase-note`,
 `played-notes-lane`, `segmented-control` (Drift, Rhythm lock, Embellishments in Jam mode),
 `input-stepper` (Jam mode's tempo, 60 to 180 BPM), `control-group`, `control-group-intro`,
-`app-notice` (Jam mode's load failure, the notice row's fifth notice), `field-note`, `btn`.
+`app-notice` (Jam mode's load failure, one more notice in the notice row), `field-note`, `btn`.

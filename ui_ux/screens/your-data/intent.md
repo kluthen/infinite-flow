@@ -6,6 +6,7 @@
 >
 > - _v3.1 new:_ the player's presets counted and listed by name, each with its own `Delete`
 >   ([Focal Point](#focal-point), [Deleting](#deleting))
+> - _v3.2 new:_ the Settings line names Jam's settings ([Focal Point](#focal-point))
 > - _v3.2 new:_ Jam sessions counted with the others; deleting played notes keeps the doodles as
 >   the app wrote them ([Deleting](#deleting))
 
@@ -63,6 +64,11 @@ workspace changes but the label, when the deleted preset was the one in use. The
 inventory: names and deletions only, no renaming and no choosing, which remain the controls' job.
 All of them go at once with `Delete everything`. The line naming the settings now says "the
 preset" where it said "the musical profile", since that is what the controls now call it.
+
+**[v3.2 new]** Jam mode keeps settings of its own, apart from session mode's, so the line
+naming the settings names them too, "your Jam settings", and `Delete everything` returns them to
+their defaults with the rest. They are not listed one by one: like every other setting, they are
+changed where they are set, in Jam mode's controls.
 
 The settings have no delete of their own. Resetting one setting is changing it back; resetting
 all of them, with nothing else, is a need no persona has. `Delete everything` covers the rare

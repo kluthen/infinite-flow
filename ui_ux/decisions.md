@@ -16,7 +16,7 @@ Append-only record of settled UI/UX decisions. Earlier logs are archived verbati
 
 Archived IDs keep their meaning; a citation to one by ID elsewhere in this repository stays valid
 through this header. D225, D226, D235–D264 and D328 on (v3.2 and v3.3, not yet released, and the
-entries v3.1 shares with v3.2) stay here; D265–D279 were never used. Numbering continues from D345.
+entries v3.1 shares with v3.2) stay here; D265–D279 were never used. Numbering continues from D346.
 
 ## v3.1 (presets and embellishment figures) and v3.2 (Jam) design, 2026-10-08
 
@@ -558,3 +558,19 @@ Nothing in `src/` is edited; the token pass waits for the owner's go (gate T2). 
   `flows/presets/`, `flows/controller-connection/`, and **C** the review side
   (`screens/last-session-review/`, `flows/review-and-export/`, `screens/session-list/`,
   `flows/kept-sessions/`, `flows/saved-data/`, `screens/your-data/`).
+- **D345 — Details settled while writing units A, B and C (2026-10-21; minor, D119's standing
+  rule).** A fresh Jam ended by a lost controller puts focus on `controller-status` (the badge,
+  since `Connect controller` never returns once a controller has connected), correcting D337.
+  While Jam mode shows, session mode keeps its prepared phrases and prepares no new ones. A
+  reading "(default)" shows session mode's first-visit value for that control. The load-failure
+  notice's `Try again` acts as a press of `Jam`, and the notice sits beside the saving notices,
+  neither replacing the other. During **Opening Jam mode** the preset box is read-only and its
+  actions behave as in **Loading**; deleting a player preset from Your data while Jam mode shows
+  acts on session mode's selection, out of sight. A Jam session records no preset label, so its
+  summary and list row have no preset part. An export pressed while Jam's code loads waits in
+  `is-loading`; if the load fails both exports are disabled, the failure sentence as each one's
+  `field-note`. After `Jam again on this doodle` onto another doodle, focus moves to
+  `mode-switch`'s checked segment (both header actions are disabled while phrase 1 is written);
+  from the review of the Jam just played it is `Close review`'s, focus included. Until Jam mode
+  first opens, Jam's key and mode are session mode's current ones, so `Jam in {answer}` from a
+  review before then starts Jam's record from them.

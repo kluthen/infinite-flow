@@ -109,12 +109,13 @@ waits for the owner's go.
 - **Tier 1, Tier 2 and the registers.** `strategy.md`, `motion.md`, `README.md`,
   `token-source-v3.1-v3.2.md` part 2, `decisions.md`, `open-questions.md`; spec D399's browser
   cleanup (ux D343). Written 2026-10-21.
-- **Unit A** (delegated): `flows/jam/`, `screens/phrase-workspace/`. In progress.
+- **Unit A** (delegated): `flows/jam/`, `screens/phrase-workspace/`. Written 2026-10-21.
 - **Unit B** (delegated, after A): `flows/play-session/`, `flows/generate-phrase/`,
-  `screens/stale-phrase-prompt/`, `flows/presets/`, `flows/controller-connection/`. Not started.
+  `screens/stale-phrase-prompt/`, `flows/presets/`, `flows/controller-connection/`. Written
+  2026-10-21.
 - **Unit C** (delegated, after A): `screens/last-session-review/`, `flows/review-and-export/`,
   `screens/session-list/`, `flows/kept-sessions/`, `flows/saved-data/`, `screens/your-data/`.
-  Not started.
+  Written 2026-10-21. Details settled while writing A, B and C: ux D345.
 - **Validation** by `ux-critic` (`ux-validate`) once A, B and C are written. Not started.
 
 ## Remaining

@@ -22,13 +22,16 @@
 > - _v3.1 changed:_ the summary names the preset the session started with
 >   ([The Header: Which Session, and How It Is Kept](#the-header-which-session-and-how-it-is-kept),
 >   [What Is Deliberately Left Out](#what-is-deliberately-left-out))
-> - _v3.2 new:_ a Jam's review opens with its doodle ([What This Screen Is](#what-this-screen-is),
->   [The Doodle](#the-doodle))
-> - _v3.2 new:_ the summary says "Jam"
+> - _v3.2 new:_ a Jam's review opens with its doodle, and the review shows over either mode
+>   ([What This Screen Is](#what-this-screen-is), [The Doodle](#the-doodle))
+> - _v3.2 new:_ the doodle waits for Jam's part of the app, and what shows when it cannot load
+>   ([The Doodle](#the-doodle))
+> - _v3.2 new:_ the summary says "Jam" and names no preset
 >   ([The Header: Which Session, and How It Is Kept](#the-header-which-session-and-how-it-is-kept))
-> - _v3.2 new:_ the key and mode suggestion
+> - _v3.2 new:_ the key and mode suggestion, about Jam's key and mode
 >   ([The Key and Mode Suggestion](#the-key-and-mode-suggestion)) and
->   `Jam again on this doodle` ([Jam Again on This Doodle](#jam-again-on-this-doodle))
+>   `Jam again on this doodle`, with or without a controller
+>   ([Jam Again on This Doodle](#jam-again-on-this-doodle))
 > - _v3.2 new:_ the doodle on a phone ([On a Phone](#on-a-phone))
 
 ## What This Screen Is
@@ -51,6 +54,13 @@ for the most recent session, the one most players open. It now covers every kept
 that doodle, written out as the app heard it, before the phrases that continued it. It is also
 where the app may suggest the key and mode the doodle sounds in, and where the player can jam
 again on the same doodle (see [The Doodle](#the-doodle) and after).
+
+**[v3.2 new]** The app has two modes, session mode and Jam mode, and the review shows over
+either: over the mode the session was played in at a session's end, and over the mode the player
+was in when they open a review from above the staff or from the list. The mode switch in the
+header cannot be pressed while it shows, and `Close review` returns to that mode, as it was. A
+Jam's review can show over session mode, and an ordinary session's over Jam mode: the review is
+the record of the session, whichever mode is underneath.
 
 It is written first for the Fledgling Composer (P3), who wants to look back at a session (P3.C1)
 and take it out to other tools (P3.C2). Personas are defined in
@@ -96,7 +106,8 @@ of what was played.
 
 **[v3.2 new]** For a Jam, that line starts with the word "Jam", as the session's row in the list
 does, so the player can tell the sessions that began with their own idea from the others. A
-word rather than an icon: it reads the same to everyone, a screen reader included.
+word rather than an icon: it reads the same to everyone, a screen reader included. It names no
+preset, since Jam mode has none.
 
 **[v3 new]** A second quiet line says how the session is kept, in words: "Pinned: kept until you
 unpin or delete it.", or "Not pinned: deleted when your next session is saved." This replaces
@@ -245,26 +256,37 @@ measures take, from the start of the line, and the rest of the line stays empty.
 across the whole width would make a short idea look like a long one and make its notes look
 slower than the phrase under it.
 
+The doodle section belongs to Jam's part of the app, which is not loaded with the page so that a
+player who never jams never waits for it. After a Jam it is already there; a kept Jam session
+opened in a visit that has not used Jam yet fetches it first. Meanwhile the section says
+"Loading your doodle." in its staff's place, a moment at most, and the rest of the review is
+ready at once. If it cannot load (offline before the app's files were kept), the section says
+so, and what to do: "Your doodle can't be shown: part of the app didn't load. Check that you're
+online, then open this session again." Without the doodle there is no suggestion and no jamming
+again, and the session's two exports are unavailable for the same reason, since every file of a
+Jam opens with its doodle and a file without it would lose what the phrases continue. Everything
+else in the review works: the phrases, the favorites, the comment, pinning and deleting. Nothing
+is error-toned: nothing the player did is wrong, and the review of the music is still there.
+
 ## The Key and Mode Suggestion
 
 **[v3.2 new]** After a Jam, the app may say which key and mode the doodle sounds in, under the written-out doodle:
-"Your doodle sounds like G Dorian." It never acts on its own. Two buttons say what each choice
-does, by name: `Use G Dorian` sets the key and the mode, exactly as choosing them in the controls
-would, and `Keep C Major` keeps the player's own. Naming the result rather than writing "Use it"
-and "Keep mine" means a beginner never has to work out what "it" and "mine" are, and the key the
-player is in right now is in front of them, beside the one suggested.
+"Your doodle sounds like G Dorian." It never acts on its own. The suggestion is about Jam's key
+and mode, the ones Jam mode keeps for itself, since it serves the next Jam on that doodle. Two
+buttons say what each choice does, by name: `Jam in G Dorian` sets Jam's key and mode, and
+`Keep C Major` keeps Jam's own. Naming the result rather than writing "Use it" and "Keep mine"
+means a beginner never has to work out what "it" and "mine" are, and Jam's key right now is in
+front of them, beside the one suggested. `Jam in` says which key it changes: session mode's key
+and mode never move, whichever mode the review shows over.
 
-The answer is named in the player's own family of choices. A player in Major or Minor hears
-"Major" or "Minor", never "Ionian" or "Aeolian", which hold the same notes but would read as
-something new; a player already working in modes hears the mode's name.
-
-When the player's preset is meant for other keys or modes, a quiet second line says that using
-the suggestion makes their settings Custom, in the words the controls already use for that. It
-is told before the press, not discovered after it.
+The answer is named in the player's own family of choices. A player whose Jam is in Major or
+Minor hears "Major" or "Minor", never "Ionian" or "Aeolian", which hold the same notes but would
+read as something new; a player already working in modes hears the mode's name.
 
 `Keep` declines the suggestion for good: the same doodle always gives the same answer, so offering
-it again would only nag. The decline stays with the kept session. After `Use`, the row says the
-key and mode are set, since the controls are out of sight below the review.
+it again would only nag. The decline stays with the kept session. After `Jam in`, the row says
+"Jams now play in G Dorian.", since Jam's controls are out of sight below the review, or not
+shown at all over session mode.
 
 When the doodle uses notes none of the app's keys and modes hold (a blue note, a harmonic-minor
 turn), the review says so once, plainly, and suggests nothing. It never names a "wrong" note: the
@@ -272,19 +294,24 @@ doodle was the player's idea, and nothing in the review judges it. When the dood
 tell, or already fits the player's key and mode, nothing is said at all: a short doodle is normal,
 and agreeing with the player needs no message.
 
-A kept Jam's review works the suggestion out again, against the key and mode the player has now,
+A kept Jam's review works the suggestion out again, against Jam's key and mode as they are now,
 so it is offered only when it would change something.
 
 ## Jam Again on This Doodle
 
-**[v3.2 new]** At the end of the doodle's line, where per-phrase tools go, `Jam again on this doodle` takes the
-player back to the staff with that doodle held, ready to be continued again without playing it a
-second time. It sits with the doodle because it acts on the doodle, and it is a plain button,
-since `Close review` stays the page's one emphasised action. It does not answer the suggestion: a
-player can jam again and still decide on the key later.
+**[v3.2 new]** At the end of the doodle's line, where per-phrase tools go, `Jam again on this doodle` leaves the
+review for Jam mode with that doodle kept, its first phrase written from it again, ready to be
+continued without playing it a second time. It works from a review over either mode, and it
+replaces a doodle Jam mode was already keeping. From the review of the Jam just played, whose
+doodle Jam mode already keeps, it simply closes the review. It sits with the doodle because it
+acts on the doodle, and it is a plain button, since `Close review` stays the page's one
+emphasised action. It does not answer the suggestion: a player can jam again and still decide on
+the key later.
 
-A Jam needs a controller, so without one the button is unavailable and says why, as the Jam switch
-does. Like the rest of the review, it never asks anything.
+It works without a controller too: Jam mode opens without one, and the player can prepare the
+next Jam, its key included, before plugging in; Jam mode then says a controller is needed to
+start. Only a doodle that could not be shown makes it unavailable. Like the rest of the review,
+it never asks anything.
 
 ## The Notes the Player Played
 
