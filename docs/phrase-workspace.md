@@ -576,10 +576,13 @@ settings mutation landed on the cancelled phrase, its rhythm setting is phrase 1
 player's request and the restarted pre-generation both use.
 
 **Discards and re-checks.** The queue belongs to one key: phrase 1 (the Idle result, and so its
-session seed), the generation controls except tempo, the musical-profile selection, the instrument
-included, `Vary settings` and `Tension across phrases`. The orchestrator watches that key; any
-change aborts the attempt in flight, empties the queue and starts again from the new phrase 1 once
-the change is over. A change of tempo or `Rising tempo` discards nothing: tempo never reaches a
+session seed), the generation controls except tempo, the instrument included, the seven figure
+levels, `Vary settings`, `Tension across phrases` and the
+[restriction in force](music/lexicon.md#key-and-mode-restriction), none in force and one allowing
+every key and mode counting as one, as Start takes them; never the preset selection itself, so
+saving, renaming or deleting a preset, or choosing one, that changes none of these keeps the
+queue. The orchestrator watches that key; any change aborts the attempt in flight, empties the
+queue and starts again from the new phrase 1 once the change is over. A change of tempo or `Rising tempo` discards nothing: tempo never reaches a
 request, so a ready phrase's intent is only stamped with the tempo of the start. On every staff
 layout report at Idle (a passive observer on the Idle layout gate's port) and on every crossing of
 the `bp-tablet-landscape` width, the orchestrator re-checks the ready phrases in order: each must
