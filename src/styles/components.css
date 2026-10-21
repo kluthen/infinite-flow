@@ -2030,6 +2030,348 @@
   }
   /* end v3.1 new */
 
+  /* v3.2 new -- from here to "end v3.2 new": Jam mode and the session options' dependents. The
+     header's mode switch (`mode-switch`); Jam's controls (`tap-tempo`, `doodle-readings`); Jam's
+     cue row (`jam-needs-controller`, `jam-capture`, `jam-writing`); Jam's staff (`staff-jam`,
+     `jam-instruction`, `jam-notice`); the kept doodle's bar (`jam-bar`) and the key and mode
+     suggestion (`suggestion-row`); the review's doodle section (`review-doodle`); and the
+     options that depend on a switch (`toggle-list`, `field-dependent`). No new token value:
+     every value below is an existing token. Every interactive class here is composed with `btn`,
+     `segmented-control` or `toggle-button`, so its hover, focus-visible, active and disabled
+     states are those classes' own unless its comment says otherwise. Nothing here animates
+     except `.btn`'s own feedback (`motion.md`). */
+
+  /* States: `segment`'s own (default, selected, hover, focus-visible, active); read-only
+     (`is-readonly` with `aria-readonly="true"`, during Loading, a session and the review mode:
+     `segmented-control.is-readonly`'s dashed `--readonly-ring`, full strength, focusable, pointer
+     events off; script refuses an arrow key); loading (`is-loading` with `aria-busy="true"`,
+     while Jam's code loads after the first press of `Jam`: `segmented-control.is-loading`'s
+     dimming and the `wait` cursor, and no `pointer-events: none`, since `Session` stays
+     pressable and cancels). No disabled state: the switch is never unavailable, only read-only.
+     Composed as `segmented-control mode-switch`: the header's radiogroup "Mode", segments
+     `Session` then `Jam`, a child of `layout-header` after `brand`. Below bp-desktop, where
+     `header-actions` takes a row of its own, it shares the brand row at its trailing end; from
+     bp-desktop up (the block at the end of this part) it sits in the header's one row between
+     `brand` and `header-actions`. It never wraps inside itself and never shrinks: two short
+     labels fit at every named breakpoint, and no state (checked segment, loading, read-only)
+     changes its size, so nothing in the header moves. */
+  .mode-switch {
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
+    margin-inline-start: auto;
+  }
+  .mode-switch.is-loading,
+  .mode-switch.is-loading .segment {
+    cursor: wait;
+  }
+
+  /* States: `btn`'s own (default, hover, focus-visible, active, disabled during Loading and a
+     session), and listening (`is-listening`, from a tap until listening ends). Composed as `btn
+     tap-tempo`: "Tap tempo", after the tempo stepper in Jam mode's Tempo field. Listening draws a
+     2px `--color-accent` border, the hover border made solid: the 1px border in the accent plus
+     a 1px inset ring of it, so the button keeps its size. Colour is never the only signal: the
+     `field-note` under it changes words too. No `aria-pressed`: a press is a tap, never a
+     toggle. The border comes and goes with `.btn`'s `--duration-feedback` feedback. */
+  .tap-tempo {
+    flex: 0 0 auto;
+    transition:
+      background-color var(--duration-feedback) var(--ease-out-fast),
+      border-color var(--duration-feedback) var(--ease-out-fast),
+      box-shadow var(--duration-feedback) var(--ease-out-fast),
+      color var(--duration-feedback) var(--ease-out-fast);
+  }
+  .tap-tempo.is-listening {
+    border-color: var(--color-accent);
+    box-shadow: inset 0 0 0 1px var(--color-accent);
+  }
+  .tap-tempo.is-listening:focus-visible {
+    box-shadow:
+      var(--shadow-focus),
+      inset 0 0 0 1px var(--color-accent);
+  }
+  /* Layout only: the Tempo field holding `tap-tempo` (Jam mode's) is one wrapping row,
+     `--spacing-2` apart as the field's grid is: its `field-label` across the top, then the
+     stepper and `tap-tempo` on one row when they fit, the button under the stepper otherwise,
+     then the `field-note` under both. Session mode's Tempo field has no `tap-tempo` and keeps the
+     field's grid. */
+  .field-group:has(> .tap-tempo) {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .field-group:has(> .tap-tempo) > :not(.input-stepper, .tap-tempo) {
+    flex: 1 1 100%;
+  }
+
+  /* States: filled (a kept doodle, and from a fresh Jam's phrase 1 entering), absent (no doodle:
+     not rendered, the group's `field-note` in its place). Static text: not interactive, not a
+     live region, and never ringed when the controls are read-only. A `dl` in Jam mode's "From
+     your doodle" group, after its `control-group-intro`: seven rows, each a `div` holding a `dt`
+     (`field-label`'s type) over its `dd` (`--text-md`, `--color-text`), rows `--spacing-2`
+     apart; one column below bp-tablet-landscape and two from it up (the block at the end of this
+     part). A value the doodle does not show reads "{value} (default)", and a Note density used
+     as Eighth on a small screen "Eighth (Sixteenth on larger screens)": the bracketed words are
+     the `dd`'s `span`, in `--color-text-muted`. Fills and empties at once, with no animation. */
+  .doodle-readings {
+    display: grid;
+    gap: var(--spacing-2) var(--spacing-4);
+    grid-template-columns: minmax(0, 1fr);
+    margin: 0;
+  }
+  .doodle-readings > div {
+    display: grid;
+    min-inline-size: 0;
+  }
+  .doodle-readings dt {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    font-weight: 700;
+  }
+  .doodle-readings dd {
+    color: var(--color-text);
+    font-size: var(--text-md);
+    margin: 0;
+  }
+  .doodle-readings dd span {
+    color: var(--color-text-muted);
+  }
+
+  /* States: shown, absent (no animation). A `session-cue-row` child at Jam mode's Idle while no
+     controller is connected, in `start-note-line`'s place and type: `cue-label-wide` "A Jam needs
+     a connected controller. Connect one to start." from bp-tablet-landscape up,
+     `cue-label-narrow` "Connect a controller to start." below it, so it fits beside
+     `review-link` and `sessions-link`. Named by `Start Jam`'s `aria-describedby`. Static text;
+     never a live region. */
+  .jam-needs-controller {
+    color: var(--color-text);
+    font-size: var(--text-md);
+    margin: 0;
+    min-inline-size: 0;
+  }
+  /* States: as `count-in` (each beat upcoming, current or past, lit on the audio clock with no
+     transition). A `session-cue-row` child during a fresh Jam's capture: its label
+     (`cue-label-wide` "Your doodle", `cue-label-narrow` "Doodle", as `review-link`'s two labels)
+     in `start-note-line`'s type, then a `count-in` `ol` of four `count-in-beat` items reading 1
+     to 4, one per doodle measure. Not interactive. */
+  .jam-capture {
+    align-items: center;
+    color: var(--color-text);
+    display: flex;
+    font-size: var(--text-md);
+    gap: var(--spacing-4);
+    min-inline-size: 0;
+  }
+  /* States: shown, absent. A `session-cue-row` child during a fresh Jam's generation measure and
+     any extended wait: one static line in neutral text at `--text-md`, `cue-label-wide` "Writing
+     your first phrase" or `cue-label-narrow` "Writing". No animation of any kind: no dots, no
+     pulse, nothing that suggests a measured progress. */
+  .jam-writing {
+    color: var(--color-text);
+    font-size: var(--text-md);
+    margin: 0;
+    min-inline-size: 0;
+  }
+
+  /* States: shown (Jam mode at Idle without a kept doodle; a fresh Jam's count-in, capture,
+     writing and read-in until phrase 1 enters), absent. A `staff-frame` state, beside
+     `staff-empty`, `staff-ready` and the others; the frame keeps its block size. The top system
+     position holds one `staff-content` unit that the notation pipeline engraves as an empty
+     system (the clef, the key signature of Jam's written key and collection, 4/4, the staff
+     lines to the system's end, no barline, no measure). The bottom system position (the
+     notation layout's `[data-system-position='bottom']`, no class of its own) holds
+     `jam-instruction` and, when it applies, `jam-notice`, centred in its block. The empty system
+     appears, is redrawn and leaves with no entrance animation; it keeps the `is-fading-out` exit
+     at the read-in, where the frame leaves `staff-jam` as phrase 1 enters with its usual
+     entrance. Not interactive. */
+  .staff-jam .staff-content:not(.is-fading-out) {
+    animation: none;
+  }
+  .staff-jam [data-system-position='bottom'] {
+    align-content: center;
+    display: grid;
+    gap: var(--spacing-2);
+    justify-items: center;
+    text-align: center;
+  }
+  /* States: shown, absent (below bp-tablet-landscape while `jam-notice` shows). Static. "After
+     the count-in, play your doodle: one to four measures. The app continues it.", centred in the
+     bottom system position, wrapping within its width. */
+  .jam-instruction {
+    color: var(--color-text-muted);
+    font-size: var(--text-md);
+    margin: 0;
+  }
+  /* States: absent, shown (after a Jam whose phrase 1 could not be written, until the next start,
+     a change to a Jam setting, or leaving Jam mode). Composed as `inline-alert alert-notice
+     jam-notice`, after `jam-instruction` in the same block. Never error-toned and not a live
+     region (`Start Jam` names it with `aria-describedby`). Below bp-tablet-landscape, where the
+     bottom system position is shortest, `jam-instruction` is not rendered while it shows, and it
+     takes the instruction's place (the width-only block at the end of this part). */
+  .jam-notice {
+    margin: 0;
+  }
+
+  /* States: absent, shown, held (during a session started from the kept doodle: unchanged, its
+     buttons disabled with `btn`'s disabled look). A row in `score-panel` between `score-toolbar`
+     and the generation-failure banner's place, present only in Jam mode while a doodle is kept;
+     hidden (`hidden`) with the banner while the review mode shows. A `--color-surface-muted`
+     box with a 1px `--color-border` border, `--radius-md`, `--spacing-3` padding, its children
+     `--spacing-2` apart: its `p`, then at the first row's inline end the `New doodle` `btn`, the
+     button wrapping under the sentence, still at the inline end, when they do not fit; then,
+     when there is one, `suggestion-row` across the bar. `--spacing-3` under it, as under
+     `score-toolbar`. Its `p` and `suggestion-row`'s set sentence carry `tabindex="-1"` (focus is
+     moved there after either suggestion button, never in the tab order) and take
+     `--shadow-focus` when focused, as `room-notice` does. Not a live region. Appears and leaves
+     with no animation. */
+  .jam-bar {
+    align-items: center;
+    background: var(--color-surface-muted);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+    margin-block-end: var(--spacing-3);
+    min-inline-size: 0;
+    padding: var(--spacing-3);
+  }
+  .jam-bar > p {
+    flex: 1 1 var(--control-group-min-inline-size);
+    margin: 0;
+    min-inline-size: 0;
+  }
+  .jam-bar > .btn {
+    flex: 0 0 auto;
+    margin-inline-start: auto;
+  }
+  .jam-bar > .suggestion-row {
+    flex: 1 1 100%;
+  }
+  .jam-bar p:focus-visible {
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-focus);
+    outline: none;
+  }
+  /* States: offering (the sentence and its two plain `btn`s, `Jam in {answer}` then `Keep {key}
+     {mode}`, neither primary), set (one sentence, no button: "Jams now play in {answer}."),
+     no-fit (one sentence, no button; the review only), absent. The key and mode suggestion, in
+     `jam-bar` and in `review-doodle`: a `p` and its buttons at the inline end, one row that
+     wraps, the buttons wrapping together under the sentence, still at the inline end, when they
+     do not fit. Its buttons carry `.btn`'s states. Appears and leaves with no animation. */
+  .suggestion-row {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2) var(--spacing-3);
+    justify-content: flex-end;
+    min-inline-size: 0;
+  }
+  .suggestion-row > p {
+    flex: 1 1 var(--control-group-min-inline-size);
+    margin: 0;
+    min-inline-size: 0;
+  }
+  .suggestion-row > .btn {
+    flex: 0 0 auto;
+  }
+
+  /* States: none of its own (its parts carry theirs). The doodle section of a Jam's review: a
+     `section` in `review-panel` before `review-list`, spaced from it as one `review-phrase` is
+     from the next (`--spacing-3`, a `--color-border` hairline, `--spacing-3`). In order: a
+     `review-phrase-header` (its `review-phrase-title`, its `review-phrase-tempo`, then the
+     `Jam again on this doodle` `btn` at the trailing end, where per-phrase tools go; disabled,
+     it is named by the section's `review-phrase-note`); a `review-staff` (the doodle's measures
+     at a phrase's measure width from the system's start, a played-notes lane under each system
+     position while `Played notes` is on, `review-phrase-note` in place of the doodle while Jam's
+     code loads or when it could not load); then `suggestion-row`, `--spacing-3` below the staff.
+     Replaced, with `review-list`, by `room-notice` while the staff has no room. Drawn like a
+     phrase, with no fade. */
+  .review-doodle {
+    min-inline-size: 0;
+    padding-block-end: var(--spacing-3);
+  }
+  .review-doodle + .review-list {
+    border-block-start: 1px solid var(--color-border);
+    margin-block-start: 0;
+    padding-block-start: var(--spacing-3);
+  }
+  .review-doodle .review-phrase-header > .btn {
+    flex: 0 0 auto;
+    margin-inline-start: auto;
+  }
+  .review-doodle > .suggestion-row {
+    margin-block-start: var(--spacing-3);
+  }
+
+  /* States: default; read-only (`is-readonly`, during Loading and a session, as every control:
+     the toggles keep their words, their `on` bar and full strength and stay focusable, pointer
+     events are off, and script refuses activation by Space, Enter or click, as
+     `segmented-control.is-readonly` refuses an arrow key). The dashed `--readonly-ring` is drawn
+     once, by the nearest read-only `field-group`, never on the list. Each toggle otherwise
+     carries `toggle-button`'s states (off, on, hover, focus-visible, active), disabled included.
+     A wrapping row of `btn toggle-button`s, `--spacing-2` apart, after a `field-label` naming
+     the list (`role="group"`): Allowed rhythm changes (session mode and Jam mode), What may
+     vary. It wraps within its field at every breakpoint; no toggle is cut. */
+  .toggle-list {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+    min-inline-size: 0;
+  }
+  .toggle-list.is-readonly {
+    pointer-events: none;
+  }
+
+  /* States: absent, shown (at once, with no animation; only at Idle and in the review mode).
+     Read-only with the field it sits in. A nested `field-group` inside a field, holding the
+     option that depends on that field's switch: Allowed rhythm changes under the rhythm lock (in
+     both modes), What may vary under Vary settings. `--spacing-3` above it (the field's
+     `--spacing-2` gap plus this margin), a 2px `--color-border` rule along its inline start and
+     `--spacing-3` padding there, so it reads as part of the switch above. Its field group drops
+     its own bottom margin. When the switch's `field-group` is read-only, the dependent and
+     everything in it are read-only too, and the dashed ring is drawn once, around the outer
+     `field-group`: a nested `field-group`, `segmented-control` or `toggle-list` inside a
+     read-only `field-group` draws none of its own (the segmented control's rule is with
+     `field-group` above). */
+  .field-dependent {
+    border-inline-start: 2px solid var(--color-border);
+    margin-block-start: calc(var(--spacing-3) - var(--spacing-2));
+    min-inline-size: 0;
+    padding-inline-start: var(--spacing-3);
+  }
+  .field-dependent > .field-group {
+    margin-block-end: 0;
+  }
+  .field-group.is-readonly .field-group.is-readonly {
+    outline: none;
+  }
+
+  /* Below bp-tablet-landscape (width-only, the same query as the notation layout's split layout
+     and the cue row's shorter labels): `jam-notice` takes `jam-instruction`'s place while it
+     shows. */
+  @media (max-width: 63.9375rem) {
+    .jam-instruction:has(~ .jam-notice) {
+      display: none;
+    }
+  }
+  /* From bp-tablet-landscape up (the query of the bp-tablet-landscape block below): the doodle
+     readings take two columns. */
+  @media (min-width: 64rem) and (orientation: landscape) {
+    .doodle-readings {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  /* From bp-desktop up (the query of the bp-desktop block below): the header is one row, and the
+     mode switch sits between `brand` and `header-actions`, spaced by the header's own
+     `space-between`. */
+  @media (min-width: 90rem) and (orientation: landscape) {
+    .mode-switch {
+      margin-inline-start: 0;
+    }
+  }
+  /* end v3.2 new */
+
   @keyframes staff-fade-in {
     from {
       opacity: 0;

@@ -85,7 +85,7 @@ no release is cut before wave 7 has merged.
 | --- | --- | --- | --- | --- |
 | **R0** | v3.1 is released: the [v3.1 release gate](build-plan-v3.1.md#chunk-21--v31-release-gate) passed and `3.1.0` is tagged, so chunk 2's corpora are recorded on the code v3.1 ships. | The owner, at v3.1's release | Chunk 2, and through wave 0 every later wave | done (2026-10-21, tag `v3.1.0`; spec D397) |
 | **D0** | The owner approves the v3.2 design, reworked for Jam as its own mode (ux D328–D346, `ux-critic` validated). | The owner | Chunk 1, and through it every interface chunk | done (2026-10-21, spec D412) |
-| **T2** | The owner allows one `ux-writer` pass on `src/styles/theme.css` and `components.css` for part 2 of [`token-source-v3.1-v3.2.md`](../../../ui_ux/token-source-v3.1-v3.2.md), adding the classes `mode-switch`, `tap-tempo`, `doodle-readings` and `jam-needs-controller` with the rest of part 2; no new token value. | The owner | Chunk 1 | done (2026-10-21, spec D412) |
+| **T2** | The owner allows one `ux-writer` pass on `src/styles/theme.css` and `components.css` for part 2 of [`token-source-v3.1-v3.2.md`](../../../src/styles/components.css), adding the classes `mode-switch`, `tap-tempo`, `doodle-readings` and `jam-needs-controller` with the rest of part 2; no new token value. | The owner | Chunk 1 | done (2026-10-21, spec D412) |
 | **CS** | The MAJOR contract bump for C13's guarantee changes: `documentalist` drafts the re-scoped wording of every STABLE contract atom v3.2 revises, and of the two v1.0 lines in the STABLE vision (`vision_infinite_flow_first_release` 0.9) (chunk 0), then of the three items C13 added after chunk 0 (`rule_start_while_controller_away`, `module_session_seed_plan`, and the vision's out-of-scope browsers, spec D418–D420); the owner confirms them all at once, CONTRACT 7.2.0 to 8.0.0. The chunks that revise one say "(contract, CS)" in their **Revisions** line. | `documentalist` drafts; the owner confirms | The sync of wave 3, the first wave whose chunks revise one (chunk 19: `rule_settings_saved_on_change`, `rule_saved_settings_load_tolerantly`); its chunks may be built and merged into the wave branch first | open (drafts in wave 0) |
 | **LD** | The owner ranks a handful of rhythm pairs by ear on drift's distance scale ([v3.2 H1](#v32-h1--drifts-scale-by-ear-ld)), before the scale drives the steering block's band ([C8](master-spec.md#c8-jams-drift)). A ranking that disagrees with the scale goes to `spec-writer` before chunk 8. | The owner; `spec-writer` if the ranking disagrees | Chunk 8 (wave 4) | open (after wave 2: chunks 3 and 5) |
 | **L3** | The owner's listening check of the allowed rhythm changes ([v3.2 H2](#v32-h2--allowed-rhythm-changes-l3), item 13); the change shares are tuned from it. | The owner | The release gate's final M2 run | open (after wave 3) |
@@ -558,7 +558,7 @@ Architecture capture: none
 - **Goal:** write v3.2's component classes into the canonical token source, so every interface
   chunk styles its components without inventing a value.
 - **Scope:** `ux-writer`, not a coding executor. Everything in part 2 of
-  [`token-source-v3.1-v3.2.md`](../../../ui_ux/token-source-v3.1-v3.2.md), under `v3.2 new`
+  [`token-source-v3.1-v3.2.md`](../../../src/styles/components.css), under `v3.2 new`
   comments (ux D342): no new token value; among the classes `mode-switch`, `tap-tempo`,
   `doodle-readings`, `jam-needs-controller`, `staff-jam`, `jam-capture`, `jam-writing`, `jam-bar`
   with its button, `suggestion-row` without the restriction line, `review-doodle`, `toggle-list`
@@ -567,7 +567,7 @@ Architecture capture: none
   included; archived documents' paths only).
 - **Files:** `src/styles/theme.css`, `src/styles/components.css`;
   `ui_ux/token-source-v3.1-v3.2.md` (deleted), the documents linking to it.
-- **Design docs:** [`ui_ux/token-source-v3.1-v3.2.md`](../../../ui_ux/token-source-v3.1-v3.2.md)
+- **Design docs:** [`ui_ux/token-source-v3.1-v3.2.md`](../../../src/styles/components.css)
   (part 2). No item directly; it unblocks 19, 20, 21, 23, 24, 31 and 32.
 - **Atoms:** none (styling).
 - **Revisions:** none.

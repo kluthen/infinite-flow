@@ -16,7 +16,7 @@ Append-only record of settled UI/UX decisions. Earlier logs are archived verbati
 
 Archived IDs keep their meaning; a citation to one by ID elsewhere in this repository stays valid
 through this header. D225, D226, D235–D264 and D328 on (v3.2 and v3.3, not yet released, and the
-entries v3.1 shares with v3.2) stay here; D265–D279 were never used. Numbering continues from D349.
+entries v3.1 shares with v3.2) stay here; D265–D279 were never used. Numbering continues from D350.
 
 ## v3.1 (presets and embellishment figures) and v3.2 (Jam) design, 2026-10-08
 
@@ -597,3 +597,13 @@ Nothing in `src/` is edited; the token pass waits for the owner's go (gate T2). 
   design already says "the kept doodle"; "held doodle" in D236–D264 and the closed questions is
   Part C's earlier term, left as written. D414 restates D119's phone rule and adds that a
   capability may be reduced on a phone; now in `strategy.md`, Context of Use, Device.
+
+## v3.2's token-source pass, 2026-10-21
+
+- **D349 — Part 2 applied; the document deleted (2026-10-21; build plan v3.2 chunk 1, gate T2).**
+  D342's classes are in `src/styles/components.css` under `v3.2 new`; `theme.css` is unchanged (no
+  token value). `token-source-v3.1-v3.2.md` is deleted as it said (D226), the build plan's links
+  repointed at the token source. Two details settled there: `doodle-readings` takes two columns
+  from `bp-tablet-landscape` up as the phrase-workspace handoff says (an `auto-fill` grid gave one
+  in a group's width), each row a `div` holding its `dt` and `dd`; `review-doodle`'s disabled
+  button is named by `review-phrase-note`, as its handoff says, with no `field-note`.
