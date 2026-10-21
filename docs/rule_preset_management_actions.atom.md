@@ -9,6 +9,7 @@ dependents:
   - [[rule_deleting_base_preset_leaves_custom]]
   - [[rule_player_preset_limit]]
   - [[rule_player_preset_names]]
+  - [[service_idle_generation_session]]
 parents:
   - [[req_presets]]
 type: RULE
