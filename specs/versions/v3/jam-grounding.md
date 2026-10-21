@@ -1,8 +1,12 @@
 # Jam — grounding research
 
-Status: research v2 (2026-10-07, re-checked against the code on 2026-10-08). Its code facts predate v3.0 and v3.1; the ones the Jam re-scope (spec D400–D405) relies on are
-re-checked against v3.1.0 in [jam-mode.md](jam-mode.md#4-the-generator-seam), and this file takes a
-facts-only refresh with the v3.2 plan's rewrite.
+Status: research v3 (2026-10-07, re-checked against the code on 2026-10-08, refreshed against
+version 3.1.0 on 2026-10-21, spec D409). The facts the Jam re-scope relies on are in
+[jam-mode.md §4](jam-mode.md#4-the-generator-seam); the facts that moved between the 2026-10-08
+re-check and version 3.1.0 are corrected in place, each marked "(refreshed 2026-10-21)", and
+listed in [section E](#e-refresh-at-v310-2026-10-21). Sections B and C, precedent and options,
+are kept as written: they record what the spec session weighed, and
+[master spec Part C](master-spec.md#part-c--v32) records what was decided.
 
 The facts that moved between v1 and the re-check are corrected in place, each marked
 "(re-checked 2026-10-08)", and listed in [section D](#d-re-check-2026-10-08). The v3.2 drafts use
@@ -40,6 +44,7 @@ Plain words used below:
 - [C. Options for the spec session (proposed)](#c-options-for-the-spec-session-proposed)
 - [Gaps and follow-ups noticed](#gaps-and-follow-ups-noticed)
 - [D. Re-check (2026-10-08)](#d-re-check-2026-10-08)
+- [E. Refresh at v3.1.0 (2026-10-21)](#e-refresh-at-v310-2026-10-21)
 
 ## Summary: what matters most
 
@@ -74,7 +79,9 @@ Plain words used below:
 
 - **Two request types.** `GenerationIntent` (`src/domain/generation/generation-intent.ts`) is the
   player-facing request: id, seed, four measures, 4/4, the controls, the written tonal center, the
-  musical profile, the instrument profile, the register intent and an optional `carryIn`.
+  figure levels, the instrument profile, the register intent and an optional `carryIn`; it holds no
+  musical profile since v3.1, the instrument travelling as its id among the controls and its
+  resolved profile (refreshed 2026-10-21).
   `GenerationRequest` (`generation-request.ts`) is the resolved core: id, seed,
   `measureCount: 4`, meter, active concert range, register, register window and optional
   `carryIn`.
@@ -82,7 +89,9 @@ Plain words used below:
   `GenerationRequestError` ([generator contract](../../generator-contract.md#generation-requests)).
   A doodle field is therefore not an "optional extension": it is a contract amendment on both
   types, the worker protocol (`rebuildGenerationWorkerIntent` in
-  `src/generation-worker/generation-worker-inbound.ts`) and the replay key.
+  `src/generation-worker/generation-worker-inbound.ts`, which checks the ten fields against
+  `GENERATION_INTENT_ALLOWED_KEYS` and requires its rebuild to equal what arrived; refreshed
+  2026-10-21) and the replay key.
 - **The result.** `GenerationResult` holds only the id, the seed and a `ConcertEventTimeline` of
   exactly four measures (a fixed 4-tuple in `src/domain/events/timeline.ts`). Harmony, rhythm and
   tension binding travel beside it as `GenerationProvenance`. Each note and rest has an empty,
@@ -257,8 +266,9 @@ Facts that shape the choice:
   1. a time origin and a tempo: a count-in and click while recording (the tempo control already
      exists at Idle), or tempo and downbeat inference from free playing (much harder, and a short
      doodle often does not decide it);
-  2. the stray-note filter, a minimum duration for a note to count (v3.0.1, threshold not
-     decided; [stray notes](README.md#stray-notes-from-controllers));
+  2. the stray-note filter, a minimum duration for a note to count (shipped with v3.0: 38 ms,
+     `src/domain/played-notes/stray-notes.ts`, applied on reading; refreshed 2026-10-21;
+     [stray notes](README.md#stray-notes-from-controllers));
   3. a monophonic reduction rule for overlaps and chords;
   4. snapping onsets and releases to ticks (a sixteenth is 62.5 ms at 240 BPM, 250 ms at 60 BPM),
      with a rule for notes that collide on one tick;
@@ -277,13 +287,18 @@ Facts that shape the choice:
   identity (`harmonyTieKey`, `rhythmTieKey`, the pitch and register tie keys). The named streams
   of `module_named_stream_pseudorandomness` (`deriveNamedStream`) have no production caller; only
   the indexed streams of the same module are used, by Vary settings
-  (`src/session/settings-mutation.ts`). Each attempt's seed is a fresh random value
-  (`crypto.getRandomValues`, drawn in `session-intents.ts`). The only session-level seed is
-  Vary settings' own, drawn when the option is on; there is no session seed.
+  (`src/session/settings-mutation.ts`). Seeds (refreshed 2026-10-21): phrase 1's attempts at Idle
+  draw a fresh random seed each (`crypto.getRandomValues`); the session seed is fixed when phrase 1
+  is published at Idle (`generation-session-fit-round.ts`), and every later attempt's seed and
+  Vary settings' seed derive from it (`src/session/session-seed-plan.ts`), so pre-generation knows
+  them before Start.
 - **The replay key** ([`module_phrase_replay_key`](../../../docs/module_phrase_replay_key.atom.md);
-  `src/generation-worker/phrase-replay-key.ts`, `phrase-replay-key-decode.ts`): `ifk1.` + base64url
-  of a 7-tuple (request id, seed, the 14 controls, profile, custom flag, phrase number, carry-in or
-  null). The atom says the key "holds no played notes". It is printed to the console only, never
+  `src/generation-worker/phrase-replay-key.ts`, `phrase-replay-key-decode.ts`): the code writes
+  `ifk3.` + base64url of a 7-tuple (request id, seed, the 14 controls, the figure levels, phrase
+  number, carry-in or null, my instrument's entry or null) and decodes `ifk1.` (profile and custom
+  flag in place of the levels), `ifk2.` (the same plus my instrument) and `ifk3.`; both directions
+  check that the phrase number is a positive whole number, one more than the carry-in's (refreshed
+  2026-10-21). The atom says the key "holds no played notes". It is printed to the console only, never
   sent or stored.
 - **What a reproducible Jam session needs.** A doodle is a generation input, so every phrase it
   shapes must carry it, and the key must too: either an 8th slot (a new `ifk2.` version; the atom
@@ -344,9 +359,10 @@ Facts that shape the choice:
   - _A doodle-specific rhythm domain_ (new grammar path): a memo miss per doodle, a cold build
     (the worst setting's cold generation is 277.2 ms in the v2.0 gate run, re-checked 2026-10-08); it could be prewarmed when the doodle is
     accepted, at Idle, before Start.
-- **Pre-generation at Idle** (v3.0.1, [O107–O111](../../decisions.md))
-  would remove deadline pressure from the first Jam phrases: a doodle recorded at Idle could be
-  continued with no deadline before Start.
+- **Pre-generation at Idle** (shipped with v3.0; refreshed 2026-10-21) removes deadline pressure
+  from phrases written at Idle: a held doodle's phrases are pre-generated before Start, a fresh
+  doodle's cannot be. Its queue is discarded through `settingsKeyOf`
+  (`src/components/workspace/workspace-pregeneration.ts`).
 
 ## B. Precedent
 
@@ -642,3 +658,35 @@ kind, either alone in one measure or as the same edit in measure k and k + 2.
   browser sweep confirms).
 - Not verified: why Active displacement at Settled concentrates its one-measure changes in measure
   4, and whether a candidate's index survives a tension change (the bar key makes it irrelevant).
+
+## E. Refresh at v3.1.0 (2026-10-21)
+
+Re-verified against the code at version 3.1.0 (`main` at 5ef47a0, `src/` unchanged since 55364e7)
+by `codebase-explorer`, read-only, for master spec Part C v1.1 (spec D409). Where a fact above
+moved, it is corrected in place and marked "(refreshed 2026-10-21)"; the table lists every fact
+that moved since section D, and the facts Part C v1.1 newly relies on.
+
+| # | Section D or v1 said | The code says (3.1.0) | Evidence |
+| --- | --- | --- | --- |
+| 1 | The request holds the musical profile | No musical profile since v3.1; the request's ten fields are id, seed, four measures, meter, controls (the instrument's id among them), written tonal center, figure levels, the resolved instrument profile, the register intent and the optional carry-in. The worker checks them against an exact key list | `src/domain/generation/generation-intent.ts`, `generation-worker-inbound.ts` (`GENERATION_INTENT_ALLOWED_KEYS`) |
+| 2 | The replay key is `ifk1.` only; `ifk2.` not in code | Writes `ifk3.` (seven slots: id, seed, the 14 controls, figure levels, phrase number, carry-in, my instrument's entry); decodes `ifk1.`, `ifk2.`, `ifk3.`; the replay tool reads all three. The "phrase number is the carry-in's plus one" check runs on encoding and decoding | `phrase-replay-key.ts` (`requireConsistentPhraseNumber`), `phrase-replay-key-decode.ts`, `scripts/replay-phrase.mjs` |
+| 3 | No stray-note filter in code | Shipped: 38 ms, a note strictly shorter is very short; applied on reading by the review lane and the exports | `src/domain/played-notes/stray-notes.ts` |
+| 4 | Each attempt's seed is random; no session seed | Phrase 1's attempts at Idle are random; the session seed is fixed when phrase 1 is published, and later seeds derive from it | `generation-session-fit-round.ts`, `session-seed-plan.ts`, `session-intents.ts` |
+| 5 | `makeCarryIn` refuses nine things | Five groups: a pitch outside the window; a missing harmony; a malformed chord; an inconsistent leap state (interval over an octave, an owed recovery without a fitting arriving interval, a tense note not reached by a step); a phrase number that is not a positive whole number. The wire parser also refuses missing or extra keys | `src/domain/generation/carry-in/carry-in.ts` |
+| 6 | Pre-generation at Idle is v3.0.1 | Shipped; its queue's settings key is the controls without tempo, the figure levels, Vary settings, Tension across phrases and the restriction in force; a change empties the queue | `src/components/workspace/workspace-pregeneration.ts` (`settingsKeyOf`) |
+| 7 | (not covered) | Every stored record carries its own data version; older records upgrade only when the database opens; kept-session summary and body are at data version 2, played notes 1, settings 1 (one record per setting) | `src/storage/record-envelope.ts`, `src/storage/records/kept-reading.ts`, `src/storage/migrations/kept-sessions-v2.ts` |
+| 8 | (not covered) | Entry chunk budget 300 KiB (307,200 B; 265,431 B used at 3.1.0), other chunks 100 KiB, the worker's 150 KiB | `scripts/verify-boundaries.mjs` |
+| 9 | (not covered) | No router: `App.vue` renders one `WorkspaceShell` over one workspace; lazy parts load through memoized `import()` or `defineAsyncComponent`; the session engine's `no_phrase` start blocker | `src/App.vue`, `src/session/session-start-conditions.ts` |
+| 10 | (not covered) | Vary settings has a fixed list of movable settings and no run-time exclusion; it throws when no move lands on a supported combination | `src/session/settings-mutation.ts`, `settings-mutation-scales.ts` |
+| 11 | (not covered) | The candidate identity holds the whole structure (controls, bars, recurrence, transforms) and serves deduplication and the tie key; no key compares bars from one phrase to the next | `src/domain/rhythm/rhythm-identity.ts`, `rhythm-planner.ts` |
+| 12 | (not covered) | `TEMPO_VALUES`: 60 to 240 BPM in steps of 10, default 90 | `src/domain/controls/generation-controls.ts`, `profile-selection.ts` |
+
+Unchanged since section D: the rhythm memo key (grammar version, the four rhythm controls and
+tension), the prewarm in 8 ms slices, the pitch rank before the seeded tie key, the standalone
+reserve of 1.075 s, no quantizer, and MIDI at Idle heard only for the starting note.
+
+Timing: v3.1's final run at its release gate (2026-10-21, Node, reference machine) generated
+every phrase 2 to 6 at 60, 120 and 240 BPM; an attempt's 95th percentile was about 0.02 s, the
+slowest success 0.75 s, failed attempts up to about 1.9 s
+([generation latency](../../../docs/generation-latency.md#final-run-at-the-release-gate-v31-chunk-21)).
+The browser figures of section D (the reserve's basis) were not re-measured.

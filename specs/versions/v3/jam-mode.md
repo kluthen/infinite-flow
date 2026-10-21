@@ -3,10 +3,11 @@
 Status: draft v2 (2026-10-21), settled. Opened by the owner's direction of 2026-10-21
 (D400–D405) and settled by the owner's answers the same day (D406–D408): every question is
 closed. Four answers are provisional until the owner's checks confirm them (D406, §3.1).
-[Master spec Part C](master-spec.md#part-c--v32) stays the record until
-this re-scope settles and is consolidated into it (D405); the three v3.2 drafts
+Consolidated into [master spec Part C](master-spec.md#part-c--v32) v1.1 on 2026-10-21 (D409),
+awaiting the owner's approval; from then on Part C is the record, and the item numbers this
+document cites from Part C §C16 are v1.0's. The three v3.2 drafts
 ([Jam](jam.md), [key and mode suggestion](key-and-mode-suggestion.md),
-[rhythm lock](rhythm-lock.md)) change where this document differs.
+[rhythm lock](rhythm-lock.md)) change where this document differs (D405).
 
 Serves P3, the Fledgling Composer, C3 "grow an idea"
 ([personas](../../personas.md#p3--the-fledgling-composer-secondary-d61)), as Part C's Jam did.

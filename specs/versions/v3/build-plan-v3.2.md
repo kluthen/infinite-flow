@@ -1,10 +1,13 @@
 # Infinite Flow v3.2 — Build Plan
 
 Status: v3 (2026-10-16): migrated to the build-plan model and waves re-formed (spec D350); not
-approved. **Stale, not to be built from:** v3.2 is being re-scoped around Jam as its own mode (spec
-D400–D405, [jam-mode.md](jam-mode.md)), and this plan is rewritten once the re-scope settles. The
-corrections against v3.1 found on 2026-10-21 are listed in
-[jam-mode.md §6](jam-mode.md#6-blast-radius) and apply at that rewrite.
+approved. **Stale, not to be built from (spec D405):** v3.2 was re-scoped around Jam as its own
+mode (spec D400–D408, [jam-mode.md](jam-mode.md)) and consolidated into
+[master spec Part C v1.1](master-spec.md#part-c--v32) (spec D409, awaiting the owner's approval);
+this plan still describes v1.0's Jam switch. It is rewritten from Part C v1.1 as plan v4 once the
+v3.2 design is approved (gate D0). The corrections against v3.1 found on 2026-10-21 are listed in
+[jam-mode.md §6](jam-mode.md#6-blast-radius) and apply at that rewrite; only "nine modes" is
+corrected here ahead of it.
 
 Jam, the key and mode suggestion, the rhythm lock, Jam's drift and Vary settings' allowed groups,
 written from [master spec Part C](master-spec.md#part-c--v32) (v1.0, approved 2026-10-08, with spec
@@ -409,7 +412,7 @@ Architecture capture: none
   and the entry chunk's size.
 - **Scope:**
   - **The phrase corpus**, generated from the `3.1.0` tag before any v3.2 change: the eight
-    built-in presets and a spread of figure levels × **every one of the nine modes** × the three
+    built-in presets and a spread of figure levels × **every one of the nine collections** × the three
     built-in instruments and two player-made ones × a spread of the other controls (every Tension
     value, Eighth and Sixteenth with Heavily varied, Strict variety with Straight syncopation) ×
     several seeds, with and without carry-in (a carry-in with a null harmony included). Each case
@@ -1401,7 +1404,7 @@ Architecture capture: none (it builds on chunk 19's)
   `src/storage/records/settings-record.ts`; tests
   `tests/unit/notation/empty-system-engraving.spec.ts`, `tests/e2e/workspace/jam-mode-idle.spec.ts`
   (new).
-- **Spec sections:** [C5.1](master-spec.md#c51-the-jam-switch), [C5.2](master-spec.md#c52-starting-a-jam),
+- **Spec sections:** [C5.1](master-spec.md#c51-jam-mode), [C5.2](master-spec.md#c52-starting-a-jam),
   [C8](master-spec.md#c8-jams-drift), [C10.2](master-spec.md#c102-saving-the-new-settings-v30-storage),
   [C10.5](master-spec.md#c105-pre-generation-v30), [C12](master-spec.md#c12-for-the-interface-design);
   items 1, 2, 3 (Idle half), 34 (two of the five), 35 (no pre-generation in Jam mode).
@@ -1421,7 +1424,7 @@ Architecture capture: none (it builds on chunk 19's)
   - The switch is off at first; without a controller On is disabled with its note, the stored On
     kept and back when a controller attaches; Idle and Start then behave as with Jam off.
   - Turning Jam on discards the phrase on screen and every prepared phrase (spy on the queue);
-    `staff-jam` shows the key signature of each of the nine modes in two keys; turning it off shows
+    `staff-jam` shows the key signature of each of the nine collections in two keys; turning it off shows
     Empty and generates nothing.
   - `start-note-line` names the home note with its octave for each built-in instrument; `Start
     Jam` disabled under the unsupported-rhythm alert, Needs more room and Notation error.

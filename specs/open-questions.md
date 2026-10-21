@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.81
+Status: draft v0.82
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -31,8 +31,8 @@ whose read-only reopening fails), O230 (a stale replay-key wording in a STABLE a
 D351; numbered O177 on branch `plan-migration`, D352), O234–O238 (v3.4's structural review, D389) and
 O239–O246 (v3.4's lexicon page, D393). v3.1 is released and none of its questions is open. O247–O259, the v3.2 Jam re-scope, were
 opened (D400–D405) and closed (D406–D408) on 2026-10-21; [Jam mode](versions/v3/jam-mode.md) states
-the answers.
-New questions take IDs from **O260**; the IDs reserved for v3.0's waves and left unused stay
+the answers. O260–O266 (v3.2 Part C v1.1, D409) are open.
+New questions take IDs from **O267**; the IDs reserved for v3.0's waves and left unused stay
 unused, and O177 stays unused.
 
 Opened on 2026-10-12 with v3.3 (D261): O165–O175, richer chords. D262 closed O174 the same day.
@@ -99,6 +99,36 @@ by D234.
   it leans toward, and resets it; whether what it learned is kept across sessions (local
   persistence, opt-in like played notes). Proposed: off by default, one visible switch, a reset,
   and nothing kept across sessions without the player's opt-in.
+
+## v3.2 Part C v1.1 (O260+)
+
+Opened 2026-10-21 by consolidating the Jam re-scope into master spec Part C v1.1 (D409): choices
+the re-scope left open, each with a proposed answer, stated in full in
+[Part C §C17](versions/v3/master-spec.md#c17-deferred-and-open). O260 is a contract wording, signed
+off with the rest of C13. O261–O265 are needed before the Jam half is planned; O266 before the
+first half ships.
+
+- **O260 - The replay key carries the steering block, not the doodle** _(D408, contract)_: proposed:
+  yes; the key holds what the generator read and reproduces the phrase, and the played-notes
+  guarantee needs no exception for the key.
+- **O261 - Jam's "few or fixed" levels, arpeggio chaos and Jam's first values** _(D406)_: proposed:
+  each Jam's own with its usual choices; every Jam setting starts from session mode's value the
+  first time (tempo capped at 180 BPM), drift Near, lock and changes off; how many show is
+  `ux-writer`'s.
+- **O262 - The doodle-to-controls mapping** _(D406)_: proposed: each control takes the value nearest
+  what the doodle shows, a control it cannot show keeps Jam's value, an unsupported combination
+  moves to the nearest supported one; thresholds written into Part C before the Jam half is
+  planned, tested by the listening check.
+- **O263 - Which controller notes tap the tempo** _(D406)_: proposed: any note but the starting
+  note; only four even taps in a row set a tempo; very short notes do not count; the on-screen tap
+  stays.
+- **O264 - A shared setting changed in Jam mode** _(D400, D406)_: proposed: it acts on session mode
+  exactly as the same change made there, and on Jam as any Jam setting the generation reads.
+- **O265 - A fresh doodle's cold rhythm domain** _(D404, D406)_: proposed: accept; prewarm the
+  domain of the controls last taken from a doodle; the Jam sweep measures a cold domain at 180 BPM.
+- **O266 - The split's versions** _(D408)_: proposed: one release, 3.2.0, built in two halves; if
+  numbered apart, the first half's `ifk4.` and data version already hold Jam's slot, and one
+  contract sign-off precedes the first release.
 
 ## v3.3 richer chords (O165+)
 

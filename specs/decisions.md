@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.120
+Status: draft v2.121
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -27,7 +27,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and each milestone
 folder's README, such as [archive/v3/README.md](archive/v3/README.md)). Numbering continues from
-**D409**.
+**D410**.
 
 Live here: D232–D251 (v3.2, not built yet), with v3.1's D233, D235, D242 and D250 interleaved
 among them and D237, D239 and D246 ruling both releases, kept until v3.2's archive closes the
@@ -748,3 +748,11 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   list, one review), O256 (v3.2 split, session-mode work first), O257 (one MAJOR bump, from
   CONTRACT 7.2.0 to 8.0.0), O258 (bundle policy) and O259 (scripted checks). Now in:
   [Jam mode](versions/v3/jam-mode.md).
+
+- **D409 (2026-10-21): master spec Part C is rebuilt as v1.1 from the settled Jam re-scope, with a
+  facts-only refresh against 3.1.0; it awaits the owner's approval.** No behaviour beyond
+  D400–D408. Where the re-scope left a choice open, v1.1 proposes an answer and opens O260–O266
+  (the replay key carrying the steering block, Jam's levels, the doodle-to-controls mapping, tap-in
+  on the controller, shared settings changed in Jam mode, a cold rhythm domain, the split's
+  versions). Now in: [Part C](versions/v3/master-spec.md#part-c--v32),
+  [Jam grounding §E](versions/v3/jam-grounding.md#e-refresh-at-v310-2026-10-21).

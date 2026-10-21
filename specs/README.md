@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.84
+Status: draft v0.85
 
 ## Status Snapshot
 
@@ -45,11 +45,12 @@ Status: draft v0.84
     becomes its own mode, entered by a button at Idle, needing a MIDI controller, with its own
     settings, loaded on demand, its generator steering at the edges, its tempo set before the
     doodle in 60–180 BPM; v3.2 splits into session-mode work, then Jam (D400–D408;
-    [draft](versions/v3/jam-mode.md), settled, four answers provisional until the owner's checks;
-    Part C not yet consolidated from it). Build plan
-    [v3.2](versions/v3/build-plan-v3.2.md), v3, stale, rewritten after the re-scope; its design
-    not approved (D353 approved v3.1's only). The contract wording v3.1 and v3.2 change was confirmed by the owner
-    (D246).
+    [draft](versions/v3/jam-mode.md), settled, four answers provisional until the owner's checks),
+    consolidated as **Part C v1.1, awaiting the owner's approval** (D409), with seven choices
+    proposed for the owner (O260–O266) and one sign-off on its re-scoped contract wording
+    (CONTRACT 7.2.0 to 8.0.0). Build plan [v3.2](versions/v3/build-plan-v3.2.md), v3, stale
+    (D405), rewritten as v4 after the design's approval; its design not approved (D353 approved
+    v3.1's only).
   - **v3.3:** richer chords, opt-in: one Seventh chords level, Off by default, diatonic sevenths
     only. Master spec [Part D](versions/v3/master-spec.md#part-d--v33), awaiting owner approval
     (D264–D275); build plan [v3.3](versions/v3/build-plan-v3.3.md), v3, not approved, after
