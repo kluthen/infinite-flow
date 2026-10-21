@@ -668,3 +668,6 @@ states the passing-and-neighbor rule that DP rejected (D378); chunk 14 does not 
   owner at the report. v3.1 H1 and H2 are written; L1 and L2 open at the wave's end.
 - Chunk 17: dispatched 2026-10-21 (`../infinite_flow-v3.1-c17`, branch
   `v3.1-c17-preset-management`), 17a then 17b, on plan v19.
+- Owner, 2026-10-21: re-clicking the checked segment (a preset turns Custom, the queue is
+  discarded although nothing changed) is acceptable behaviour; no change. For `spec-writer` to
+  record with its next revision.
