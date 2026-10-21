@@ -1,6 +1,8 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v8 (2026-10-21): v7 with chunk 0's three findings settled (spec D418–D420, master spec
+Status: v9 (2026-10-21): v8 with chunk 2's report written in: the Vary settings draws corpus
+compares only `SessionSettings`' v3.1.0 keys once a chunk adds fields to it (the corpus guard,
+chunks 15 and 16). v8: v7 with chunk 0's three findings settled (spec D418–D420, master spec
 Part C v1.3): gate CS also takes `rule_start_while_controller_away` (chunk 20),
 `module_session_seed_plan` (chunks 17 and 18 build a fresh Jam's seeds, chunk 24 checks the kept
 doodle's) and the vision's out-of-scope browser line. v7: v6 with wave 0's preflight corrections (chunk 0 also drafts the vision's
@@ -267,7 +269,13 @@ The [build workflow](build-workflow.md) holds for v3.2 with release name `v3.2`:
   generation or the session's draws, run chunk 2's two corpora (the `ifk3.` phrase corpus and the
   Vary settings draws), v3.1's `v3.0-neutral-jazz.json` corpus, v3.0's `ifk1-v2.0.json` corpus and
   the cold-generation goldens unchanged. Red means a request with none of the new fields, or Vary
-  settings with all six groups on, no longer reproduces v3.1.
+  settings with all six groups on, no longer reproduces v3.1. The fixtures are never regenerated.
+  The Vary settings corpus stores each start's full `SessionSettings` and a hash of each landing's,
+  so a chunk that adds a field to `SessionSettings` (chunk 15, and chunk 16 if the lock's state
+  lands there) changes its spec, and only so: the starts check and the hash compare the settings
+  projected onto the keys `SessionSettings` had in v3.1.0 (`controls`, `figureLevels`, `selection`,
+  `instrumentProfile`, `restriction`, each with only its v3.1.0 keys), the projection written out
+  in the spec, and every row's move, draw count and selection are still compared as recorded.
 - **Session tests on the fake clock**: the session and the Jam engine run on the injected audio
   clock with a fake MIDI port and the held-generation harness; a test never waits for real time.
 - **Sweep at the wave gate**: chunks 6, 8–11, 15–18 place it there, so waves 1–5 run it; wave 5's
@@ -1117,7 +1125,8 @@ call at Idle (chunk 19).
 - **Files:** `src/session/settings-mutation-scales.ts`, `settings-mutation.ts`,
   `session-mutation-step.ts`, `session-types.ts`, `session-seed-plan.ts`, `session-history.ts`;
   tests under `tests/unit/session/` (the four tests of [Read first](#read-first-what-v32-changes-in-v2-v30-and-v31)
-  rewritten).
+  rewritten), `settings-mutation-v31-draws.spec.ts` and `vary-settings-draws-v31-cases.ts` (the
+  projection below), the Vary settings draws corpus section of `docs/testing.md`.
 - **Spec sections:** [C9](master-spec.md#c9-vary-settings-allowed-groups),
   [C7.7](master-spec.md#c77-what-the-lock-meets); item 7.
 - **Atoms:** `rule_vary_settings_allowed_groups`, `rule_vary_settings_needs_legal_move`,
@@ -1126,7 +1135,13 @@ call at Idle (chunk 19).
 - **Revisions:** revise `req_settings_mutation_flag`,
   `rule_mutation_rerolls_unsupported_combination`, `rule_mutation_draws_setting_then_direction`.
 - **Done when:**
-  - With all six groups on, chunk 2's Vary settings corpus passes byte for byte.
+  - With all six groups on, chunk 2's Vary settings corpus passes, its fixture untouched: every
+    row's move, draw count and selection exactly as recorded (the draw count is what proves the
+    stream is consumed exactly as v3.1's), and the starts and each landing's settings hash compared
+    on the settings projected onto `SessionSettings`' v3.1.0 keys (`controls`, `figureLevels`,
+    `selection`, `instrumentProfile`, `restriction`, each with only its v3.1.0 keys), since the
+    groups and the lock state are new keys. The spec states the projection explicitly and
+    `docs/testing.md` describes it; the fixture is never regenerated.
   - With any subset, every move over many seeded sessions is of an allowed group; under the lock
     the Rhythm group never moves.
   - The legal-move check is false exactly when no move exists (property); a session started then
@@ -1182,7 +1197,9 @@ re-lock, no change available). Chunks 13 and 19 build on it.
   - A seeded step-down: the first Eighth phrase's bars are locked from then on.
   - With pre-generation (fake clock, instant generator), the session's phrases are identical with
     it on and off, changes included.
-  - With the lock off, the corpora pass.
+  - With the lock off, the corpora pass; if the lock's state is added to `SessionSettings`, the
+    Vary settings corpus keeps comparing through chunk 15's projection onto the v3.1.0 keys,
+    and its fixture is never regenerated.
 - **Verification:** chunk checks with the corpus guard; the sweep at the wave gate.
 - **Split rule:** if the brief passes about five source files, 16a the lock in the session's
   requests (intents, runner, ladder, types, the lock module, the history), 16b pre-generation
