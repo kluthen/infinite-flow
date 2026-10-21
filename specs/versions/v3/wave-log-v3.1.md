@@ -620,3 +620,29 @@ a business rule (B6.4 v1.7; `rule_restriction_highlight_never_blocks` 0.2, two e
 `documentalist` fc895ce). Wave 5 (14, 17, 18, 19) starts in a fresh session. Open for later: the
 profile wording in `docs/session-engine.md` and `docs/phrase-workspace.md` ~938 (a coding pass);
 `your-data-copy.ts` `SETTINGS_LINE` is chunk 18's. Wave 4 merged into `main`.
+
+## Wave 5 (2026-10-21)
+
+Chunks 14 (the Embellishments group), 17 (preset management), 18 (Your data and Delete everything)
+and 19 (pre-generation discards), in the order 14 → 17 → 18 → 19. Branch `v3.1-w5`, worktree
+`../infinite_flow-v3.1-w5`, cut from `main` 031d678 (wave 4 merged and pushed). κ = 1. Started in
+a fresh session, as the owner asked.
+
+### Preflight
+
+`documentalist` (497200c), without `atd audit`. Every chunk: PROCEED with corrections; no halt,
+no new sign-off. Chunk 14: `req_embellishment_figure_levels`, `rule_custom_selection`,
+`rule_pregeneration_discarded_on_change`. Chunk 17: its ten DRAFT rules, two STABLE rules kept
+true; the revisions of `rule_unsupported_rhythm_settings_block_generation` and
+`rule_persistent_storage_requested` (contract, already approved through CS, D363). Chunk 18:
+`rule_failed_read_offers_only_delete_everything` (STABLE) kept true; the revisions of `req_your_data` and
+`rule_delete_everything` (contract, CS). Chunk 19: `req_idle_pregeneration`,
+`rule_pregenerated_phrase_matches_session`. Captures: `module_figure_level_options` 0.1 (chunk
+14) and `module_player_presets` 0.1 (chunk 17).
+
+Sent to `spec-writer` before chunk 14: Files and Atoms for all four chunks; chunk 17's session
+action, preset saves in `VisitSaves`, the lazy preset sheet and its 17a/17b split; one
+uncaptured decision (the preset actions stay enabled during Loading: the session action is blocked
+only by a running session); chunks 18 and 19 are mostly wording and tests; chunk 19's revision drops
+"the musical profile". Design residue for `ux-writer`: the frozen Embellishments handoff still
+states the passing-and-neighbor rule that DP rejected (D378); chunk 14 does not build it.
