@@ -6,6 +6,7 @@ dependents:
   - [[entity_my_instrument_record]]
   - [[module_kept_session_changes]]
   - [[module_kept_session_save]]
+  - [[module_player_presets]]
   - [[module_saved_data_loader]]
 type: MODULE
 version: 0.6

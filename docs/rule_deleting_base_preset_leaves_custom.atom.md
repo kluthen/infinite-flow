@@ -6,6 +6,7 @@ human_name: Deleting the Selected Preset Leaves Custom
 parents:
   - [[rule_preset_management_actions]]
 dependents:
+  - [[module_player_presets]]
   - [[module_preset_model]]
 layer: BUSINESS
 version: 0.1

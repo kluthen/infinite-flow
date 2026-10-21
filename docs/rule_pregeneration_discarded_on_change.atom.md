@@ -10,7 +10,9 @@ version: 0.3
 priority: 1
 human_name: Pre-Generated Phrases Discarded on Change
 dependents:
+  - [[module_figure_level_options]]
   - [[module_idle_pregeneration_queue]]
+  - [[module_player_presets]]
 ---
 
 # Pre-Generated Phrases Discarded on Change

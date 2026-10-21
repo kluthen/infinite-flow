@@ -12,7 +12,8 @@ parents:
   - [[rule_presets_load_tolerantly]]
 layer: ARCHITECTURE
 tags: [v3, release-v3.1, storage, presets]
-dependents: []
+dependents:
+  - [[module_player_presets]]
 ---
 
 # Player Preset Record

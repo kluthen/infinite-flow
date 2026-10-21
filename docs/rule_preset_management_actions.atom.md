@@ -5,6 +5,7 @@ priority: 1
 human_name: Saving, Renaming and Deleting Presets
 tags: [v3, release-v3.1, player-controls, presets]
 dependents:
+  - [[module_player_presets]]
   - [[rule_deleting_base_preset_leaves_custom]]
   - [[rule_player_preset_limit]]
   - [[rule_player_preset_names]]

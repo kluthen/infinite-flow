@@ -8,7 +8,8 @@ version: 0.1
 priority: 1
 parents:
   - [[rule_player_presets_saved_on_device]]
-dependents: []
+dependents:
+  - [[module_player_presets]]
 type: RULE
 ---
 

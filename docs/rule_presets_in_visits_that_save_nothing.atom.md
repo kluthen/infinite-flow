@@ -7,7 +7,8 @@ priority: 1
 tags: [v3, release-v3.1, player-controls, presets, storage]
 parents:
   - [[rule_player_presets_saved_on_device]]
-dependents: []
+dependents:
+  - [[module_player_presets]]
 layer: BUSINESS
 human_name: Presets in a Visit That Saves Nothing
 ---

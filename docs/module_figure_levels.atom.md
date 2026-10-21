@@ -6,6 +6,7 @@ priority: 1
 human_name: Figures and Their Levels
 dependents:
   - [[module_favored_figure_draw]]
+  - [[module_figure_level_options]]
   - [[module_generation_request_construction]]
   - [[module_musical_profile_capabilities]]
   - [[module_phrase_replay_key]]

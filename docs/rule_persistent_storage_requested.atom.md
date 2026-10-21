@@ -7,6 +7,7 @@ dependents:
   - [[entity_my_instrument_record]]
   - [[module_kept_session_reach]]
   - [[module_on_device_database]]
+  - [[module_player_presets]]
   - [[module_save_policy]]
 layer: BUSINESS
 version: 0.2

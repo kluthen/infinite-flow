@@ -10,6 +10,7 @@ version: 0.2
 priority: 1
 tags: [v3, release-v3.1, generation, player-controls, figures]
 dependents:
+  - [[module_figure_level_options]]
   - [[module_figure_levels]]
   - [[rule_chromatic_notes_need_a_chromatic_figure]]
   - [[rule_embellishment_figures_defined]]
