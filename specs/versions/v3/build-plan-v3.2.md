@@ -550,7 +550,7 @@ Architecture capture: none
 
 ### Chunk 1 — Token-source pass, part 2 (v3.2)
 
-Status: ready
+Status: in progress
 Wave: 0
 Depends on: D0, T2 (both done)
 Architecture capture: none

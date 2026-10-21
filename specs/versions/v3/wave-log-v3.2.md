@@ -55,3 +55,10 @@ preflight correction needs none.
   2. `module_session_seed_plan` (STABLE) says phrase 1 is the Idle phrase and nothing in a session
      draws a seed; Part C doesn't say where a fresh Jam's phrase 1 seed comes from.
   3. Not v3.2: the vision still names Chromium-based browsers, where D399 says Chrome.
+- `spec-writer` settled the three findings (ab8e223; Part C v1.3, plan v8): D418 adds
+  `rule_start_while_controller_away` to C13; D419 has a fresh Jam draw its session seed once at
+  Start and derive each phrase 1 attempt's seed under new `jam-phrase-one` labels, so
+  `module_session_seed_plan` joins C13 (chunks 17, 18 and 24 name it in their drift checks);
+  D420 puts the vision's browser line (Chrome, after D399) into the CS redraft. `documentalist`
+  drafts the three added CS items in the change set.
+- Chunk 1 dispatched to `ux-writer`, on `v3.2-w0`.
