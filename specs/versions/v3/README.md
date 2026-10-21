@@ -4,7 +4,8 @@ Status: v3.0 released as version 3.0.0 on 2026-10-16 (tag `v3.0.0` at e288d98, d
 D348); v3.1 and v3.2 consolidated as master spec Parts B and C, approved (D239), the v3.1 design
 approved (D353), v3.1's build plan approved (D357), v3.2's not approved; v3.3 in
 master spec Part D, awaiting owner approval (D264–D275), its build plan not approved (D276–D288,
-D351); v3.x direction only. The Status paragraph this README kept
+D351); v3.4, a structural review before v4, opened as a scoping draft (D389); v3.x direction
+only. The Status paragraph this README kept
 until the v3.0 release is archived verbatim in
 [archive/v3/v3-readme-status.md](../../archive/v3/v3-readme-status.md).
 
@@ -19,6 +20,7 @@ Also every tester on an instrument v1 doesn't ship. See [personas](../../persona
 | **v3.1** | Generation choices              | [Embellishment flags](#embellishment-flags), [presets](#presets)                                                                                                                                                                                                                                                                        |
 | **v3.2** | Jam                             | [Jam](#jam-growing-the-players-doodle), the [key and mode suggestion](#key-and-mode-suggestion), the [rhythm lock and mutation](#rhythm-lock-and-mutation)                                                                                                                                                                              |
 | **v3.3** | Richer chords (optional) (D261) | [Richer chords](#v33--richer-chords-optional), opt-in, after a [research phase](#research-first) (D262)                                                                                                                                                                                                                                 |
+| **v3.4** | Structural review (D389)        | [Structural review](#v34--structural-review): no player-facing change; a clear view of the code before v4 ([scoping draft](structural-review.md))                                                                                                                                                                                       |
 | **v3.x** | Kept, likely to move or go      | [Learning from positive signals](#v3x--learning-from-positive-signals)                                                                                                                                                                                                                                                                  |
 
 - **v3.0 master spec:** [master-spec.md](master-spec.md) (D217), consolidated from the approved
@@ -48,6 +50,10 @@ Also every tester on an instrument v1 doesn't ship. See [personas](../../persona
   owner's confirmation. O176 (style packs and the level) stays open for later.
 - **v3.3 build plan:** [build-plan-v3.3.md](build-plan-v3.3.md), v3 (2026-10-16), not
   approved; depends on owner approval of Part D. Planning answers D276–D288.
+- **v3.4 is added after v3.3** (D389), the owner's request of 2026-10-21: an overall structural
+  review of the app before v4's endgame work, with no player-facing change. It is the last v3
+  milestone, after v3.3; the owner sees no need to run it earlier (D389). Scoping draft:
+  [structural-review.md](structural-review.md).
 - **v3.0.1 is merged into v3.0** (D212), the owner: "v3.0.1 could very well be just included
   into v3.0". This also settles where keeping sessions goes: with the review of earlier sessions
   that needs it.
@@ -236,8 +242,8 @@ key and mode restriction (D229–D231); and player presets saved with v3.0's sto
 open; the figure shares and the cost guard are measured before the gate. The notes below are the
 background those drafts started from.
 
-**Build plan:** [build-plan-v3.1.md](build-plan-v3.1.md), v19 (2026-10-21; v4 approved by the
-owner on 2026-10-19, D357; v5–v19 write in D359–D387). It plans v3.1 on top of the [v3.0 build plan](build-plan.md) on the build-plan model: 21
+**Build plan:** [build-plan-v3.1.md](build-plan-v3.1.md), v20 (2026-10-21; v4 approved by the
+owner on 2026-10-19, D357; v5–v20 write in D359–D390). It plans v3.1 on top of the [v3.0 build plan](build-plan.md) on the build-plan model: 21
 chunks in six waves, then the release gate, under the shared [v3 build workflow](build-workflow.md)
 (D349). The design is approved (D353); the waves were re-formed around the token-source pass (gate T1)
 while the owner had not allowed it (D355, D356), and he has now (D382), so waves 4 and 5 wait only
@@ -687,6 +693,20 @@ changes none of them. Each one is an open question.
   `entity_phrase_carry_in`, `module_phrase_replay_key`, and the vision's scope, which lists every
   release through v3.2. The owner approved updating the vision now (D262); it is at 0.9, its
   wording confirmed (D263).
+
+## v3.4 — Structural review
+
+Recorded 2026-10-21 (D389), the owner's request, in their words: "objective there is to do an
+overall structural analysis of our app, are we still sound for expansion? can/should we reduce our
+initial footprint (currently set to a max of 300kb), do we have refactoring opportunities that are
+worth taking. starting v4 we truly begin working on endgame and it's got a lot to do, we might even
+consider splitting the app in multiple libs. this "milestone" is meant to have a clear view of our
+current setup."
+
+No player-facing behaviour. Its scope, the questions it must answer, its deliverables and who does
+what are in the scoping draft, [structural-review.md](structural-review.md). It is the last v3
+milestone, after v3.3 and before v4; the owner: "leave it for the last milestone of v3, there is no
+need to run it prior" (D389). Open: O234–O238 ([register](../../open-questions.md#v34-structural-review-o234)).
 
 ## v3.x — Learning from positive signals
 

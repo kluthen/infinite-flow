@@ -17,7 +17,8 @@ v3.0.1 merged into v3.0 and played signal patterns tied to learning, D212; style
 as planned, version not yet assigned, 2026-10-11, D259, merged from branch
 `v4-accompaniment-research` 2026-10-19; v3.3, richer chords, added after v3.2 2026-10-12, D261;
 its chord research started as a separate item, D262; v3.3 master spec Part D, awaiting owner
-approval, 2026-10-12, D264–D274; v3.0 released as 3.0.0 2026-10-16, D348)
+approval, 2026-10-12, D264–D274; v3.0 released as 3.0.0 2026-10-16, D348; v3.4, a structural
+review, added as the last v3 milestone 2026-10-21, D389)
 
 This is an ordered timeline with no dates. Each version's scope lives in its folder under
 [versions/](versions/README.md). The principles every version follows are in the
@@ -106,6 +107,9 @@ record is archived at [archive/v2/](archive/v2/README.md).
     [style packs](#planned-version-not-yet-assigned--style-packs) D259 plans. **v3.3 master
     spec: [Part D](versions/v3/master-spec.md#part-d--v33), awaiting owner approval** (D264–D274):
     one Seventh chords level, Off by default, diatonic sevenths only. Open: O176, for style packs.
+  - **v3.4, structural review (D389):** the last v3 milestone, after v3.3: a clear view of the code
+    before v4 (soundness for expansion, the entry budget, refactors worth taking, a split into
+    libraries), with no player-facing change. [Scoping draft](versions/v3/structural-review.md).
   - **v3.x:** learning from positive signals, tied to recognising played signal patterns (cues,
     D212; mandatory for the endgame); kept for now, likely to be removed or moved later.
   - Dropped (D211): the end-of-measure chord-fit check, review tooling, and the two

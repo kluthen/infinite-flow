@@ -53,7 +53,10 @@ Status: this file holds four parts.
   that a built-in is swept as the player chooses it (B5.6, B14, B15; spec D378, D379). v1.7
   (2026-10-20) states the owner's ruling of that day, as the design and the build already do:
   during a session the key and mode marks keep the restriction in force at Start (B6.4; spec D385);
-  no behaviour changes. Its sections are numbered B1 to B16.
+  no behaviour changes. v1.8 (2026-10-21) states the owner's acceptance of that day, as the
+  build already does: choosing again the option a control already shows makes Custom, and may or
+  may not discard the pre-generated phrases (B6.4, B8.3; spec D388); no behaviour changes. Its
+  sections are numbered B1 to B16.
 - **[Part C — v3.2](#part-c--v32), Jam, the key and mode suggestion and the rhythm lock:**
   master spec v1.0 (2026-10-08), consolidated from the approved v3.2 drafts; approved by the
   product owner (2026-10-08). The owner confirmed the exact wording of the contract
@@ -1566,7 +1569,8 @@ preset it is **based on**, or none.
   chooses a key or mode outside the restriction in force. Values are not compared with the
   preset's: changing a setting back by hand stays Custom. **Only choosing a preset leaves Custom.**
   Changing the tempo or the instrument never makes Custom, nor does choosing a key or mode inside
-  the restriction.
+  the restriction. Choosing again the option a preset-held control already shows counts as a
+  change: it makes Custom too, which the owner accepts (spec D388).
 - **What Custom means:** the current preset-held settings are not a saved preset, or the key and
   mode left the preset's restriction; saving them would make a preset. It is the only state in
   which "save changes" or "save as new" has something new to save.
@@ -1786,7 +1790,9 @@ moves the key or mode; changing any figure level; and any change of the restrict
 (choosing outside it, or a save or deletion that changes it) discard the pre-generated phrases.
 A change of the restriction discards them whether Vary settings is on or not, which is simpler and
 rare. Saving, renaming or deleting a preset that changes neither a setting nor the restriction in
-force, and choosing a preset identical in values and restriction, discard nothing.
+force, and choosing a preset identical in values and restriction, discard nothing. Choosing again
+the option a control already shows changes no value; whether it discards the pre-generated
+phrases is the build's call, and either outcome is accepted (spec D388).
 
 ### B8.4 Acknowledgement, exports, phone width and the instrument
 

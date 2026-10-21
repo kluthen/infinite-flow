@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.113
+Status: draft v2.114
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -21,15 +21,15 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and each milestone
 folder's README, such as [archive/v3/README.md](archive/v3/README.md)). Numbering continues from
-**D388**.
+**D391**.
 
 Live here: D228–D251 (v3.1 and v3.2, not built yet), D259–D260 (style packs, planned with no
 version, and the sound ban; merged from branch `v4-accompaniment-research`), D261–D288 (v3.3, not
 built yet; D263–D288 merged from branch `v3.3-chord-research`), D344–D348 (the v3.0 release and
 its follow-ups) and D349–D358 (the v3.1–v3.3 plan migrations, merged from branch
 `plan-migration` as D339–D341, the v3.1 plan's gates and approval, and B12's code check) and
-D359–D363 (the owner's rulings during v3.1's wave 0) and D364–D387 (the v3.1 build's rulings and
-preflight corrections). D289 is unused.
+D359–D363 (the owner's rulings during v3.1's wave 0), D364–D388 and D390 (the v3.1 build's rulings,
+preflight corrections and sign-offs) and D389 (v3.4 opened). D289 is unused.
 
 ## Decision Log
 
@@ -912,3 +912,28 @@ preflight corrections). D289 is unused.
   base for the selection or the base); a refused write still saves it, and the reload loads Custom
   with no base. Why: B7 saves a selection change at once and loading's "values win" covers the
   missing record (a minor call, owner delegation). Now in: [chunk 17](versions/v3/build-plan-v3.1.md#chunk-17--preset-management-the-actions-and-the-preset-sheet).
+
+- **D388 (2026-10-21): choosing again the option a control already shows is accepted as it
+  behaves; no change.** The owner, at wave 5 (chunk 14's finding): a preset turns Custom, and the
+  pre-generated phrases may be discarded although nothing changed. Chunk 19 found that through the
+  queue key such a choice may discard nothing; the acceptance stands either way. Now in:
+  [B6.4](versions/v3/master-spec.md#b64-the-selection-custom-and-the-highlight),
+  [B8.3](versions/v3/master-spec.md#b83-pre-generation) (Part B v1.8).
+
+- **D389 (2026-10-21): v3.4, a structural review, is the last v3 milestone, after v3.3 and before
+  v4.** The owner asked for "an overall structural analysis of our app" before v4's endgame work:
+  soundness for expansion, the 300 KiB entry budget, refactors worth taking, a split into
+  libraries. No player-facing behaviour. Asked whether it should run before v3.2 and v3.3: "leave it
+  for the last milestone of v3, there is no need to run it prior". Opens O234–O238. Now in:
+  [v3.4](versions/v3/README.md#v34--structural-review), [scoping draft](versions/v3/structural-review.md).
+
+- **D390 (2026-10-21): at wave 5's report the owner approves every sign-off the sync proposed,
+  and asks for wave 5's merge into `main` and its push.** (a) DRAFT→REVIEW, 14 atoms:
+  `module_figure_level_options`, `module_player_presets`, `req_embellishment_figure_levels`,
+  `rule_preset_management_actions`, `rule_player_preset_names`, `rule_player_preset_limit`,
+  `rule_saving_preset_asks_its_restriction`, `rule_save_changes_restriction`,
+  `rule_player_presets_saved_on_device`, `rule_refused_preset_save_told`,
+  `rule_presets_in_visits_that_save_nothing`, `rule_deleting_base_preset_leaves_custom`,
+  `rule_player_preset_may_hold_unsupported_rhythm`, `rule_no_preset_leaves_device`. (b)
+  `module_save_policy`'s rewording, naming the preset saves. Applied by `documentalist`. L1 and L2
+  stay open for H1 and H2. Now in: [gates](versions/v3/build-plan-v3.1.md#gates).
