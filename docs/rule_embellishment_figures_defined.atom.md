@@ -1,6 +1,6 @@
 ---
 id: rule_embellishment_figures_defined
-status: DRAFT
+status: REVIEW
 tags: [v3, release-v3.1, generation, figures]
 layer: BUSINESS
 version: 0.1

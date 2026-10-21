@@ -1,6 +1,6 @@
 ---
 id: rule_figures_resolve_onto_chord_tones
-status: DRAFT
+status: REVIEW
 version: 0.1
 human_name: Every Figure Resolves Once Onto a Chord Tone
 tags: [v3, release-v3.1, generation, figures]

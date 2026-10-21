@@ -1,10 +1,11 @@
 # Infinite Flow v3.1 — Build Plan
 
-Status: v20 (2026-10-21): at wave 5's report the owner approves every sign-off the sync proposed
-(spec D390) and accepts that choosing again an option already shown makes Custom (spec D388);
-gates L1 and L2 stay open for his hand checks H1 and H2. Approved by the owner on 2026-10-19
-(spec D357, plan v4), with the transitional interface below; the revisions since write in spec
-D359–D390.
+Status: v23 (2026-10-21): the owner gives his go, so `3.1.0` is tagged on `main` once
+`v3.1-release` is merged and pushed (spec D397); the release gate's automated part has passed and
+the owner accepts every proposal of its sync (spec D396); hand checks v3.1 H1 and H2 passed on the
+owner's word, gates L1 and L2 done with no tuning (spec D391); H3, H4 and H5 stay the owner's, run
+after the release (spec D392, D397). Approved by the owner on 2026-10-19 (spec D357, plan v4), with
+the transitional interface below; the revisions since write in spec D359–D392, D396 and D397.
 
 Embellishment figures and presets, written from [master spec Part B](master-spec.md#part-b--v31)
 (v1.0, approved 2026-10-08, with spec D250 written in) and the v3.1 design, frozen at
@@ -71,8 +72,8 @@ and 5 have merged, and no release is cut before wave 5 has merged.
 | **D0**       | The owner approves the v3.1 design; `ux-writer` copies it into [`ui_ux/versions/v3.1/`](../../../ui_ux/versions/v3.1/README.md); `spec-writer` repoints this plan's design links there.                                                                                                                                                                                                                                                                                                                                                                                              | The owner; `ux-writer`; `spec-writer`                                                                     | Chunks 1 and 15, and through 1 the interface chunks (13, 14, 17, 18, 20)                                                                                                                                                    | done (2026-10-19, spec D353; frozen by ux D324), v3.1 only |
 | **T1**       | The owner allows one `ux-writer` pass on `src/styles/theme.css` and `components.css` for v3.1's token additions ([`token-source-v3.1.md`](../../../ui_ux/versions/v3.1/token-source-v3.1.md), part 1 of the root's `token-source-v3.1-v3.2.md`), as he did for v3.0 (ux Q66).                                                                                                                                                                                                                                                                                                        | The owner                                                                                                 | Chunk 1, and through it 13, 14 and 17–19 (waves 4 and 5) and the release gate                                                                                                                                               | done (2026-10-20, spec D382): given, reversing D355        |
 | **DP**       | The [cost-guard decision](#decision-point-the-passing-and-neighbor-rule), from chunk 11's M2 run.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | The owner is told the figures and the outcome; `spec-writer` records it; `documentalist` records the atom | Chunk 20 (built, or dropped)                                                                                                                                                                                                | done (2026-10-20, spec D378): rejected, chunk 20 dropped   |
-| **L1**       | The owner's listening check of the figure levels ([H1](#hand-checks)); the shares are tuned from it.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | The owner                                                                                                 | The release gate's final M1 and M2 runs                                                                                                                                                                                     | open: the owner's H1 (spec D390)                           |
-| **L2**       | The owner's listening check of the eight built-in presets ([H2](#hand-checks)).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | The owner                                                                                                 | The release gate                                                                                                                                                                                                            | open: the owner's H2 (spec D390)                           |
+| **L1**       | The owner's listening check of the figure levels ([H1](#hand-checks)); the shares could be tuned from it.                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | The owner                                                                                                 | The release gate's final M1 and M2 runs                                                                                                                                                                                     | done (2026-10-21, spec D391): partial run, no tuning       |
+| **L2**       | The owner's listening check of the eight built-in presets ([H2](#hand-checks)).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | The owner                                                                                                 | The release gate                                                                                                                                                                                                            | done (2026-10-21, spec D391): partial run                  |
 | **Contract** | B11's four guarantee changes confirmed and applied (CONTRACT 3.0).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | The owner; `documentalist`                                                                                | Nothing; the release gate checks the record (item 23)                                                                                                                                                                       | done (2026-10-08, spec D246)                               |
 | **M3H**      | The owner's answer to [O233](../../open-questions.md): kept sessions with long phrase lists upgraded past the start-up wait (accept it, B9 saying so; or convert the phrase lists when a session is opened).                                                                                                                                                                                                                                                                                                                                                                         | The owner; `spec-writer` records it                                                                       | The release gate                                                                                                                                                                                                            | done (2026-10-20, spec D376): accepted, B9 says so         |
 | **CS**       | The MAJOR contract bump for v3.0's STABLE contract atoms that v3.1 revises (the twelve of the change set's [part I3](../../../docs/release/v3.1-v3.2-intent-change-set.md#i3-for-the-owner-not-applied)) and for `rule_open_phrase_ending` ([B11](master-spec.md#b11-what-v31-changes-in-v30-and-in-v2s-guarantees); spec D361, D362): `documentalist` drafts their new wordings, the three "to decide" rows first (two weaken a guarantee); the owner confirms them all at once. The chunks that revise them say "(contract, CS)" in their Revisions line: 8, 9, 12, 16, 17 and 18. | `documentalist` drafts; the owner confirms                                                                | The sync of wave 1, the first wave whose chunks revise one (chunk 8: `rule_kept_session_content`, `entity_kept_session_record`, `module_kept_session_codec`); its chunks may be built and merged into the wave branch first | done (2026-10-19, spec D363)                               |
@@ -88,13 +89,13 @@ and 5 have merged, and no release is cut before wave 5 has merged.
 | 4    | 1 Token-source pass · 13 Preset bar and marks                                                                                                                       | Wave 3. Two chunks: every other chunk T1 held (given, spec D382) needs both 1 and 13, which would make a chain of three.                                                                                                                                                                 | merged (2026-10-20) |
 | 5    | 14 Embellishments group · 17 Preset management · 18 Your data · 19 Pre-generation discards                                                                          | Wave 4. In-wave 14 → 19: chunk 14's capture fixes the level controls' option model and their change path; 17 → 18 and 17 → 19: chunk 17's capture fixes the player-presets composable; 17 runs as 17a then 17b. L1 and L2 open at its end. Chunk 20 is dropped (DP rejected, spec D378). | merged (2026-10-21) |
 
-The [release gate](#chunk-21--v31-release-gate) (chunk 21) follows wave 5, with L1 and L2. κ is 1
-([build workflow](build-workflow.md#concurrency-and-order)).
+The [release gate](#chunk-21--v31-release-gate) (chunk 21) follows wave 5; L1 and L2 are done
+(spec D391). κ is 1 ([build workflow](build-workflow.md#concurrency-and-order)).
 
 ```mermaid
 flowchart LR
   T1{{T1: token pass allowed, given}}
-  L{{L1, L2: listening}}
+  L{{L1, L2: listening, done}}
   subgraph W0[Wave 0]
     C0[0 Intent re-sync]
     C2[2 Baselines]
@@ -207,15 +208,15 @@ a measurement: it passes, or the chunk stops.
 
 - **What:** for each figure and level, the share of phrases holding it as a free figure and its
   count per phrase, in the order [B5.2](master-spec.md#b52-four-levels) requires (item 3). Favored
-  and Strongly favored start at about 1 in 4 and 1 in 2 of the notes where the figure could start,
-  tuned by H1 and M2.
+  and Strongly favored are about 1 in 4 and 1 in 2 of the notes where the figure could start, the
+  shares chunk 11 measured; H1 passed with no tuning (spec D391), and M2 may still tune one down.
 - **How:** chunk 3's census over a fixed seed sweep (the deadline sweep's 568 rhythm settings × two
   seeds, in each of the nine collections: Major, Minor and the seven modes), one figure raised at a
   time from the Neutral defaults, and each figure Off from every figure As today (chunk 11's
   table). The census does not run every figure raised at once: item 3's order is one figure's
   ladder, and that setting's cost is M2's "every figure Strongly favored" (spec D379).
 - **Run by:** chunk 3 (the As today baseline, on v3.0); chunks 5, 6 and 7, as a chunk check (the
-  census is their acceptance test); chunk 11; the release gate, after L1's tuning.
+  census is their acceptance test); chunk 11; the release gate, at the shares in force (spec D391).
 - **Recorded:** a new "Embellishment figures" section of `docs/generation-latency.md`, with the
   final shares; the constants carry a comment pointing there.
 
@@ -239,7 +240,8 @@ a measurement: it passes, or the chunk stops.
     levels over the sweep's own rhythm settings (`<name> levels`) are run and recorded beside it.
   - The release gate runs the same settings with `COST_SETTINGS=all`.
 - **Run by:** chunk 3 (baseline); chunk 11 (first run and [DP](#decision-point-the-passing-and-neighbor-rule));
-  the release gate, after L1's tuning. The owner runs the deciding runs on the reference machine.
+  the release gate, at the shares in force (spec D391). The owner runs the deciding runs on the
+  reference machine.
 - **Recorded:** `docs/generation-latency.md` ("Embellishment figures: the cost guard"), beside the
   568-case sweep figures v3.0 already records there ("Phrase 2 after pre-generation"); the
   carry-in figures still kept only in the
@@ -303,9 +305,9 @@ The owner runs these on the Travel Sax over USB and the reference machine.
 | -------------------------------- | ---------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | H1 Listening: the levels (L1)    | 14         | After wave 5; used by the release gate | For each figure, at a few settings that leave it room (Eighth and Sixteenth, Heavily varied), regenerate a handful of phrases at Rarely, Often and Very often; say whether Often is clearly heard and Very often not overwhelming. The shares are tuned from it, then M1 and M2 re-run.           |
 | H2 Listening: the built-ins (L2) | 14         | After wave 5; used by the release gate | Choose each of the eight presets, regenerate a few phrases, play a short session; say whether each sounds as its description says (Reel in Mixolydian, Bebop's chromatic lines, Pop song's familiar chords, Modal (Dorian)'s color note). Neutral and Jazz should sound exactly as in v3.0.       |
-| H3 Same phrase in Edge           | 8          | Chunk 8                                | Run chunk 8's in-browser replay test once with Playwright's Microsoft Edge channel (`msedge`), and replay one `ifk3.` key copied from a Chrome session in Edge; the phrases match. Item 7's "Chrome and Edge" half.                                                                               |
-| H4 Vary settings under a preset  | 15         | Chunk 15                               | With the Travel Sax, Vary settings on, Reel chosen from C Ionian: a long session moves the mode only between Mixolydian and Dorian, the box turns to "Custom, based on Reel" when a setting moves, and Stop brings back Reel and its settings. Repeat under Modal (Dorian): the mode never moves. |
-| H5 v3.0 data carried over        | 16         | The release gate                       | In the installed app and a plain Chrome tab that used v3.0 (settings changed, a pinned session, a Jazz selection with a changed Tension), update to v3.1: the settings come back, the box shows "Custom, based on Jazz", the pinned session opens with its label and plays back the same notes.   |
+| H3 Same phrase in Edge           | 8          | After the release (spec D397)          | Run chunk 8's in-browser replay test once with Playwright's Microsoft Edge channel (`msedge`), and replay one `ifk3.` key copied from a Chrome session in Edge; the phrases match. Item 7's "Chrome and Edge" half.                                                                               |
+| H4 Vary settings under a preset  | 15         | After the release (spec D397)          | With the Travel Sax, Vary settings on, Reel chosen from C Ionian: a long session moves the mode only between Mixolydian and Dorian, the box turns to "Custom, based on Reel" when a setting moves, and Stop brings back Reel and its settings. Repeat under Modal (Dorian): the mode never moves. |
+| H5 v3.0 data carried over        | 16         | After the release (spec D397)          | In the installed app and a plain Chrome tab that used v3.0 (settings changed, a pinned session, a Jazz selection with a changed Tension), update to v3.1: the settings come back, the box shows "Custom, based on Jazz", the pinned session opens with its label and plays back the same notes.   |
 
 ## Chunks
 
@@ -1983,8 +1985,8 @@ Record: fedbe14, merged as 983d6bb (built beside chunks 15 and 16). The summary 
 
 ## Chunk 21 — v3.1 release gate
 
-Status: blocked (on L1, L2)
-Depends on: every chunk but 20 (dropped, spec D378), L1, L2
+Status: merged (release, tagged `v3.1.0`; H3–H5 after the release, spec D397)
+Depends on: every chunk but 20 (dropped, spec D378), L1, L2 (both done, spec D391)
 
 The release gate, not a wave; it keeps its chunk number because other plans link it. It runs the
 [build workflow's release gate](build-workflow.md#release-gate), plus:
@@ -1993,14 +1995,17 @@ The release gate, not a wave; it keeps its chunk number because other plans link
   replaced test and its v3.1 counterpart (item 22, from
   [Read first](#read-first-what-v31-changes-in-v30-and-v2)), then M1–M4 with their figures and
   the DP outcome.
-- **Final M1 and M2** after L1's tuning, on the reference machine, against B5.6's acceptance, at
-  the settings [M1](#m1--figure-shares) and [M2](#m2--the-cost-guard) name (chunk 11's, spec
-  D379); DP reopens only as its [section](#decision-point-the-passing-and-neighbor-rule) says.
+- **Final M1 and M2** at the shares in force (chunk 11's; L1 brought no tuning, spec D391), on the
+  reference machine, against B5.6's acceptance, at the settings [M1](#m1--figure-shares) and
+  [M2](#m2--the-cost-guard) name (chunk 11's, spec D379); DP reopens only as its
+  [section](#decision-point-the-passing-and-neighbor-rule) says.
 - The v3.0 corpus, the `ifk1.` corpus, the `ifk2.` tests and the goldens re-run; the privacy spy
   (`tests/e2e/review/review-privacy.spec.ts`, network half) with player presets saved (no preset
   leaves the device).
 - `npm run verify:boundaries` with the 300 KiB entry budget (M4).
-- Hand checks v3.1 H1–H5 done.
+- Hand checks: v3.1 H1 and H2 passed on the owner's word (spec D391); v3.1 H3, H4 and H5 are the
+  owner's, run after the release (spec D392, D397). The release notes list them as open until he
+  records them.
 - `documentalist`'s post-task sync over every `release-v3.1` atom, promoting those the owner agrees
   to; every `changes-in-v3.1` atom revised; part F's drift checks done; the contract's item 23
   record checked (D246, in the CONTRACT 3.0 notes, and gate CS's MAJOR bump, spec D361). The lexicon entries B11 lists no longer say
@@ -2010,7 +2015,11 @@ The release gate, not a wave; it keeps its chunk number because other plans link
 - `package.json` version `3.1.0`.
 
 **Done when:** every item of B14 has a row with evidence; every measurement has its figure; the
-owner says go.
+owner has accepted the sync's proposals (spec D396), the promotions are committed, the release
+branch is merged into `main` and pushed, and the `3.1.0` tag is put on `main` on the owner's go
+(spec D397). v3.1 H3, H4 and H5 come after the release: the owner runs them later; a finding
+becomes an issue or a 3.1.x fix, and each passing check releases its waiting promotions (11
+REVIEW→STABLE, 2 DRAFT→REVIEW) (spec D392, D397).
 
 ### Definition-of-done coverage
 

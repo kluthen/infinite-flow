@@ -1,6 +1,6 @@
 ---
 id: module_generative_profile_selection
-status: REVIEW
+status: STABLE
 priority: 1
 version: 1.4
 dependents: []

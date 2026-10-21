@@ -6,7 +6,7 @@ layer: BUSINESS
 version: 0.5
 type: RULE
 priority: 1
-tags: [player-controls, rhythm, generation, v2, release-v2.0, revised-for-v2, changes-in-v3.1]
+tags: [player-controls, rhythm, generation, v2, release-v2.0, revised-for-v2]
 parents:
   - [[user_story_controlled_phrase_generation]]
 dependents:

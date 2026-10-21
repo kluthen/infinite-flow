@@ -1,6 +1,6 @@
 ---
 id: req_embellishment_figure_levels
-status: REVIEW
+status: STABLE
 type: REQUIREMENT
 human_name: Embellishment Figures, Each With a Level
 parents:

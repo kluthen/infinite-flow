@@ -1,7 +1,7 @@
 ---
 id: rule_figure_level_orders_search
-status: DRAFT
-version: 0.1
+status: REVIEW
+version: 0.2
 priority: 1
 parents:
   - [[req_embellishment_figure_levels]]
@@ -29,7 +29,7 @@ A figure's level decides when the generator tries that figure as a free figure, 
 - Favored: at about 1 in 4 of the notes where the figure could start, tried before the chord tones;
 - Strongly favored: the same at about 1 in 2 of those notes.
 
-The shares 1 in 4 and 1 in 2 are starting values, tuned by listening and by measuring generation cost before v3.1 ships; what is fixed is the order: each level up never makes the figure rarer. Where several figures are drawn at the same note, the one with the higher level is tried first.
+The shares are 1 in 4 and 1 in 2; what is fixed is the order: each level up never makes the figure rarer. Where several figures are drawn at the same note, the one with the higher level is tried first.
 
 ## TECHNICAL INTERFACE
 Each figure's level is part of the generation request and orders the candidates of the pitch search.

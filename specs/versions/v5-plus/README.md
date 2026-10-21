@@ -26,6 +26,12 @@ v6. A staff-only session view was placed in v5 2026-09-28 (D133).
     rule, so the rule has to be revisited for this view. Not designed here; `ux-writer` owns the
     view itself.
 
+## Here or in v4: the lexicon API (D395)
+
+Planned for v4 or v5, the version decided later: the music lexicon as "a proper API" (the owner,
+2026-10-21), after v3.4's [lexicon page](../v3/lexicon-page.md). Its record is in the
+[roadmap](../../roadmap.md#planned-v4-or-v5--the-lexicon-api).
+
 ## Candidates (not committed)
 
 - **Cross-device review by export, then import (no earlier than v6).** Recorded 2026-09-28

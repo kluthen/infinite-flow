@@ -18,12 +18,18 @@ export const FIGURE_DRAW_SHARE_BITS = 16
 /** The mask keeping exactly the draw's FIGURE_DRAW_SHARE_BITS bits. */
 const SHARE_MASK = 0xffff
 
-/** Intent: Favored's share of notes, 16384 / 65536 = 1/4. Never above Strongly favored's. */
+/**
+ * Intent: Favored's share of notes, 16384 / 65536 = 1/4. Never above Strongly favored's.
+ * Measured shares: docs/generation-latency.md, "Embellishment figures" (M1).
+ */
 // @spec-link [[module_favored_figure_draw]]
 // @spec-link [[rule_figure_draws_reproducible]]
 export const FAVORED_SHARE = 0x4000
 
-/** Intent: Strongly favored's share of notes, 32768 / 65536 = 1/2. Never below Favored's. */
+/**
+ * Intent: Strongly favored's share of notes, 32768 / 65536 = 1/2. Never below Favored's.
+ * Measured shares: docs/generation-latency.md, "Embellishment figures" (M1).
+ */
 // @spec-link [[module_favored_figure_draw]]
 // @spec-link [[rule_figure_draws_reproducible]]
 export const STRONGLY_FAVORED_SHARE = 0x8000

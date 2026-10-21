@@ -2,7 +2,7 @@
 id: rule_delete_everything
 status: STABLE
 priority: 1
-tags: [v3, release-v3.0, storage, privacy, changes-in-v3.1, changes-in-v3.2]
+tags: [v3, release-v3.0, storage, privacy, changes-in-v3.2]
 type: RULE
 layer: BUSINESS
 version: 0.3

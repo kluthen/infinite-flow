@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.77
+Status: draft v0.78
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -24,10 +24,10 @@ O115 and O116 (v3.x learning), O176 (style packs and the chord level), O180 (oct
 O183 (the warm worker lost when pre-generation is cancelled), O190 (a newer version's database
 whose read-only reopening fails), O230 (a stale replay-key wording in a STABLE atom, opened with
 D351; numbered O177 on branch `plan-migration`, D352) and, opened 2026-10-21 with v3.4 (D389),
-O234–O238 (the structural review). D359 closed O231 (v3.1's entry-chunk
+O234–O238 (the structural review) and, the same day, O239–O246 (v3.4's lexicon page, D393). D359 closed O231 (v3.1's entry-chunk
 budget, opened with D358) on 2026-10-19, and D376 closed O233 (kept sessions with long phrase
 lists upgraded past the start-up wait, opened with D374) on 2026-10-20. New questions take IDs
-from **O239**; the IDs reserved for v3.0's waves and left unused stay unused, and O177 stays
+from **O247**; the IDs reserved for v3.0's waves and left unused stay unused, and O177 stays
 unused.
 
 Opened on 2026-10-12 with v3.3 (D261): O165–O175, richer chords. D262 closed O174 the same day.
@@ -238,4 +238,52 @@ Opened 2026-10-21 by `spec-writer` with v3.4 (D389). The scoping draft is
   the existing tests? May it move code across many files, moving atom links with it (atom IDs
   unchanged)? Is there a time budget before v4? Proposed: behaviour-preserving only, atom IDs
   unchanged and links moved with the code, no new dependencies without the owner; the owner sets the
-  time once the ranked list is in front of him.
+  time once the ranked list is in front of him. Since D393 the lexicon page ships code in v3.4 whatever the review
+  recommends, which bears on the tag.
+
+## v3.4 lexicon page (O239+)
+
+Opened 2026-10-21 by `spec-writer` with the lexicon page (D393). The scoping draft is
+[lexicon-page.md](versions/v3/lexicon-page.md); none of these blocks v3.1, v3.2 or v3.3, nor the
+structural review.
+
+- **O239 - Are the Internal entries shown?** _(D393)_: the owner asks for "all words"; the lexicon
+  says its 16 "Internal (no popup)" entries (forced bend, grammar and others) are "never shown in
+  the UI". Proposed: leave them out, as the lexicon says; the page states how many words it holds.
+- **O240 - What one entry shows** _(D393)_: proposed: the word, its other names, the popup line
+  first, the definition, the app meaning under a plain heading ("In Infinite Flow") when there is
+  one, the related words as links within the page, and the group as a small label, which tells
+  apart the four words listed twice (Contour, Register, Syncopation, Tempo: the music word and the
+  app control). Not shown: the `id` and the `sources`.
+- **O241 - App meanings written for developers** _(D393, D394)_: 59 app meanings cite spec
+  decisions ("spec decision D214"), about 45 describe things planned or not built, a few name code
+  files. The page may not keep a second, cleaned copy (D394). Show them as written, hide parts by
+  a rule, or reword the lexicon itself? Proposed: show them as written in step one; the owner reads
+  them on the built page, and if they jar, a docs-only pass rewords those lines in the lexicon.
+- **O242 - How the text reaches the page, and its download cost** _(D394, D359, O235)_: the app
+  may not download anything while running (`verify:boundaries` forbids `fetch`), so the text goes
+  into a built file; the service worker then downloads it for every visitor at install or update,
+  page opened or not: about 300 KB, roughly 85–90 KB compressed. That is three times the 100 KiB
+  any extra file may weigh, so it needs its own budget, and a budget that a lexicon edit can
+  overflow makes a docs edit fail the build. Proposed: parse at build time and ship only the shown
+  fields (Internal entries left out), in a file of its own with a named budget of 448 KiB, room for
+  the lexicon to grow by half; the owner accepts the extra download; the structural review counts
+  it with the rest (O235).
+- **O243 - How the page is reached, and what kind of page it is** _(D393)_: the app has no router
+  and no second page; everything else is the workspace and its sheets. Proposed: a "Lexicon" link
+  in the footer beside "Your data", opening a full-screen view built like a sheet (loaded on
+  first use, closed by a Close button or Escape, the focus back on the link), not available while
+  a session runs, with no web address of its own. The alternative is the app's first real page,
+  with its own address (for example `#/lexicon`) and the browser's Back button: a new pattern,
+  more work and more design.
+- **O244 - What the search matches** _(D393)_: proposed: the word and its other names, anywhere in
+  them, ignoring case and accents ("compas" finds Compás, "semitone" finds Half step), results as
+  the player types. The popup line is not searched in step one: searching it finds many words
+  that merely mention the term. Should it be?
+- **O245 - Its order in v3.4** _(D389, D393, O234)_: proposed: its own small part of v3.4 (master
+  spec Part E, one design, a one-wave build plan of two chunks), built before the structural
+  review's measurement pass so the review measures the app with it. It depends on nothing in v3.2
+  or v3.3, so the owner may pull it earlier. v3.4 then ships code, which bears on O234's tag.
+- **O246 - Which goal the page serves** _(D393; [personas](personas.md))_: proposed: P1's G1
+  ("get to know the possibilities rather than study theory"), between sessions: a word met in the
+  controls, a preset or the review can be looked up without going online. No new persona goal.

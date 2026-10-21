@@ -42,6 +42,9 @@
  *   one whose body is damaged. A second visit reads it all, opens Your data, the session list and a
  *   kept session's Review, exports it in every way, then plays and exports a new session with
  *   played notes: still nothing but the app's own static files is fetched, no WebSocket opens.
+ *   Two player presets are saved there too, through the preset bar, one meant only for the key and
+ *   mode in force, and the sessions play under one of them (v3.1 release gate, definition of done
+ *   item 21): none is sent.
  */
 import {
   expect,
@@ -71,7 +74,16 @@ import {
   untilStored,
 } from '../storage/storage-helpers'
 import { LOW_TENOR, closeWithDone, openYourData } from '../storage/your-data-helpers'
-import { radio } from '../workspace/helpers'
+import { expectPresetShown, radio } from '../workspace/helpers'
+import {
+  keyAndModeOptions,
+  nameField,
+  openSheet,
+  presetSheet,
+  saveAsNew,
+  sheetButton,
+  yourPresetNames,
+} from '../workspace/preset-management-helpers'
 import {
   HELD_NOTE_SECONDS,
   STEM,
@@ -443,9 +455,15 @@ const UNREADABLE_KEY = 'session-1-1'
 /** The key of the seeded kept session whose body is damaged. */
 const DAMAGED_BODY_KEY = 'session-copy-damaged'
 
+/** The player preset saved with the sheet's default key and mode choice. */
+const EVENING_PRESET = 'Evening practice'
+/** The player preset saved meant only for the key and mode in force; the sessions play under it. */
+const ONLY_HERE_PRESET = 'Only here'
+
 /** Every store of the app's database the harness reads. */
 const STORES: readonly WorkspaceHarnessStoreName[] = [
   'settings',
+  'presets',
   'instrument',
   'controller',
   'sessionSummaries',
@@ -590,6 +608,7 @@ test.describe('a session under a network and storage spy', () => {
 
   // @test-link [[rule_session_data_never_sent_or_stored]]
   // @test-link [[rule_optional_midi_privacy]]
+  // @test-link [[rule_no_preset_leaves_device]]
   test('with every kind of record stored, a visit reading them, opening kept sessions, playing a session with played notes and every export sends nothing', async ({
     context,
     page,
@@ -619,6 +638,18 @@ test.describe('a session under a network and storage spy', () => {
       'aria-checked',
       'true',
     )
+    // Two player presets saved as a player does, through the preset bar: one with the sheet's
+    // default choice, one meant only for the key and mode in force, which stays selected.
+    await saveAsNew(page, EVENING_PRESET)
+    await openSheet(page, 'Save as new preset', 'Save as a new preset')
+    await nameField(page).fill(ONLY_HERE_PRESET)
+    const onlyChoice = keyAndModeOptions(page).filter({ hasText: /^\s*Only / })
+    await onlyChoice.click()
+    await expect(onlyChoice).toHaveAttribute('aria-checked', 'true')
+    await sheetButton(page, 'Save').click()
+    await expect(presetSheet(page)).toHaveCount(0)
+    await expectPresetShown(page, ONLY_HERE_PRESET)
+    await expect.poll(async () => (await storeCounts(page)).presets).toBe(2)
 
     // Three sessions played with my instrument, each with a played note kept: the first with a
     // favorite (which pins it) and a comment, the second pinned, the third the most recent.
@@ -648,11 +679,13 @@ test.describe('a session under a network and storage spy', () => {
       UNREADABLE_KEY,
     )
 
-    // Every store holds records: the settings, my instrument, the remembered controller, five
-    // kept sessions (two damaged) and the three readable ones' played notes.
+    // Every store holds records: the settings, the two player presets, my instrument, the
+    // remembered controller, five kept sessions (two damaged) and the three readable ones' played
+    // notes.
     await expect
       .poll(() => storeCounts(page))
       .toMatchObject({
+        presets: 2,
         instrument: 1,
         controller: 1,
         sessionSummaries: 5,
@@ -667,8 +700,8 @@ test.describe('a session under a network and storage spy', () => {
     }
     expect(await summaryOf(page, third)).toMatchObject({ pinned: false })
 
-    // The second visit reads that full database: the controller reattaches, my instrument and the
-    // theme come back, and the unreadable session goes at load.
+    // The second visit reads that full database: the controller reattaches, my instrument, the
+    // theme and the player presets come back, and the unreadable session goes at load.
     await expectNoNetworkCall(page)
     await page.reload()
     await harnessReady(page)
@@ -679,6 +712,8 @@ test.describe('a session under a network and storage spy', () => {
       'true',
     )
     await expect.poll(() => keptKeys(page)).toEqual([first, second, third, DAMAGED_BODY_KEY].sort())
+    await expectPresetShown(page, ONLY_HERE_PRESET)
+    expect((await yourPresetNames(page)).sort()).toEqual([EVENING_PRESET, ONLY_HERE_PRESET].sort())
 
     // Your data, then the session list: the damaged body's row leaves once opened.
     await openYourData(page)

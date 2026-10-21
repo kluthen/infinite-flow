@@ -1,6 +1,6 @@
 ---
 id: rule_custom_names_its_base
-status: REVIEW
+status: STABLE
 type: RULE
 version: 0.2
 priority: 1

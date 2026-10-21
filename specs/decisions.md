@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.114
+Status: draft v2.116
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -21,7 +21,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and each milestone
 folder's README, such as [archive/v3/README.md](archive/v3/README.md)). Numbering continues from
-**D391**.
+**D397**.
 
 Live here: D228–D251 (v3.1 and v3.2, not built yet), D259–D260 (style packs, planned with no
 version, and the sound ban; merged from branch `v4-accompaniment-research`), D261–D288 (v3.3, not
@@ -29,7 +29,8 @@ built yet; D263–D288 merged from branch `v3.3-chord-research`), D344–D348 (t
 its follow-ups) and D349–D358 (the v3.1–v3.3 plan migrations, merged from branch
 `plan-migration` as D339–D341, the v3.1 plan's gates and approval, and B12's code check) and
 D359–D363 (the owner's rulings during v3.1's wave 0), D364–D388 and D390 (the v3.1 build's rulings,
-preflight corrections and sign-offs) and D389 (v3.4 opened). D289 is unused.
+preflight corrections and sign-offs), D389 (v3.4 opened), D391–D392, D396 and D397 (v3.1's release gate) and
+D393–D395 (the lexicon page in v3.4, its single source, the lexicon API later). D289 is unused.
 
 ## Decision Log
 
@@ -937,3 +938,54 @@ preflight corrections and sign-offs) and D389 (v3.4 opened). D289 is unused.
   `rule_player_preset_may_hold_unsupported_rhythm`, `rule_no_preset_leaves_device`. (b)
   `module_save_policy`'s rewording, naming the preset saves. Applied by `documentalist`. L1 and L2
   stay open for H1 and H2. Now in: [gates](versions/v3/build-plan-v3.1.md#gates).
+
+- **D391 (2026-10-21): v3.1 H1 and H2 are passed on the owner's word; gates L1 and L2 are done,
+  with no tuning.** From a partial listening with a positive result, not the full checklist runs:
+  "consider H1 and H2 passed, as these will take far more time than expected from my pov. I've
+  tried some with positive result. you may proceed to chunk 21". The figure shares stay as chunk 11
+  measured them; the release gate's final M1 and M2 run with them. Chunk 21 no longer waits on L1
+  and L2. Now in: [gates](versions/v3/build-plan-v3.1.md#gates),
+  [chunk 21](versions/v3/build-plan-v3.1.md#chunk-21--v31-release-gate) (plan v21).
+
+- **D392 (2026-10-21): the release gate's automated part runs now; v3.1 H3, H4 and H5 stay open
+  and the owner runs them later.** The owner: "You'll run them later". Chunk 21 runs everything
+  but those three checks; the owner's go and the `3.1.0` tag wait on them. Now in:
+  [hand checks](versions/v3/build-plan-v3.1.md#hand-checks),
+  [chunk 21](versions/v3/build-plan-v3.1.md#chunk-21--v31-release-gate) (plan v21).
+
+- **D393 (2026-10-21): v3.4 also builds a lexicon page, step one of a side project; D389 is
+  amended.** The owner: "have a side page to our app reference all words in there, it must allow
+  alphabetical exploration, simple search … That's for step one (include it in 3.4)". Lazy-loaded,
+  offline, `src/styles/` only, keyboard use; out: editing, word popups, the API. D389's "no
+  player-facing behaviour" now describes the structural review only. Opens O239–O246. Now in:
+  [lexicon page](versions/v3/lexicon-page.md#2-settled), [v3.4](versions/v3/README.md#the-lexicon-page-d393).
+
+- **D394 (2026-10-21): the lexicon page's only source is `docs/music/lexicon.md`.** The owner: "it
+  must use existing md files and not duplicate information". Read at build time; no hand-copied
+  list, no second list, no generated file committed; a lexicon edit shows with no other change,
+  and a check proves it. Now in: [lexicon page §5](versions/v3/lexicon-page.md#5-the-single-source-d394).
+
+- **D395 (2026-10-21): the lexicon becomes "a proper API" in v4 or v5, the version decided
+  later.** The owner: "For later (v4 or v5 depending on how they goes) we will turn this in a
+  proper API." Not specced. Now in:
+  [roadmap](roadmap.md#planned-v4-or-v5--the-lexicon-api).
+
+- **D396 (2026-10-21): the owner accepts every proposal of the v3.1 release sync; `v3.1-release`
+  merges into `main` now and the `3.1.0` tag follows H3–H5.** The owner: "go with the proposals for
+  all of them". The gate's automated part passed (chunk 21, merged as 6a25f27; final M1 and M2 at
+  chunk 11's counts, DP stays closed; entry chunk 265,431 B); sync 1fa0bdf, 9dcc031. Promotions,
+  applied by `documentalist`: 11 DRAFT→REVIEW (`rule_figure_level_orders_search` reworded, shares
+  kept per D391), 30 REVIEW→STABLE, CONTRACT 7.0.0→7.1.0 (MINOR), MODULE and ENTITY atoms as at
+  v3.0, `changes-in-v3.1` removed from 7 STABLE atoms. Still on the owner (D392): H3–H5, 11
+  REVIEW→STABLE and 2 DRAFT→REVIEW promotions, his go, the tag on `main`. Now in:
+  [chunk 21](versions/v3/build-plan-v3.1.md#chunk-21--v31-release-gate) (plan v22).
+
+- **D397 (2026-10-21): the owner gives his go; `3.1.0` is tagged on `main` now, and v3.1 H3, H4
+  and H5 become post-release hand checks; D392 and D396 are amended.** The owner: "you may tag when
+  everything is done", then, asked about H3–H5, "Tag now, H3–H5 later". The tag follows the
+  committed sync promotions (1bb3257, CONTRACT 7.1.0) and the merge into `main`, pushed. A finding
+  from H3–H5 becomes an issue or a 3.1.x fix; as each check passes, its waiting promotions follow
+  (11 REVIEW→STABLE, 2 DRAFT→REVIEW). D396's MODULE and ENTITY atoms: the nine new ones go on the
+  contract surface, as all twelve v3.0 ones did, within the owner's "go with the proposals for all
+  of them". Now in: [hand checks](versions/v3/build-plan-v3.1.md#hand-checks),
+  [chunk 21](versions/v3/build-plan-v3.1.md#chunk-21--v31-release-gate) (plan v23).

@@ -4,7 +4,7 @@ status: STABLE
 version: 0.5
 priority: 1
 human_name: What a Kept Session Holds
-tags: [v3, release-v3.0, storage, review, changes-in-v3.1, changes-in-v3.2]
+tags: [v3, release-v3.0, storage, review, changes-in-v3.2]
 parents:
   - [[req_kept_sessions]]
   - [[rule_session_history_keeps_timeline_and_inputs]]

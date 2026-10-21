@@ -1,6 +1,6 @@
 ---
 id: rule_restriction_highlight_never_blocks
-status: REVIEW
+status: STABLE
 dependents:
   - [[module_key_and_mode_marks]]
   - [[ui_segmented_control_marked_option]]

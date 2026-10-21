@@ -1,6 +1,6 @@
 ---
 id: ui_segmented_control_marked_option
-status: REVIEW
+status: STABLE
 version: 0.3
 priority: 1
 tags: [v3, release-v3.1, player-controls, presets, accessibility]

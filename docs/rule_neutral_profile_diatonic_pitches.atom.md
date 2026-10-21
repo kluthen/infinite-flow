@@ -5,7 +5,7 @@ human_name: Neutral Profile Diatonic Pitches
 type: RULE
 layer: BUSINESS
 version: 0.2
-tags: [neutral-profile, diatonic, pitch-policy, changes-in-v3.1]
+tags: [neutral-profile, diatonic, pitch-policy]
 parents:
   - [[req_four_measure_phrase]]
 dependents: []

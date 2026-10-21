@@ -1,6 +1,6 @@
 ---
 id: module_key_and_mode_marks
-status: REVIEW
+status: STABLE
 layer: ARCHITECTURE
 version: 0.1
 priority: 1

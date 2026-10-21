@@ -101,6 +101,10 @@ cancellation flag between windows. Then a dropped attempt no longer delays the n
 
 ## Extra Data
 
+These figures are also kept in
+[the latency record](../docs/generation-latency.md#carry-in-attempts-before-the-2026-10-07-fix),
+with the cost guard they are the history of.
+
 On 2026-10-06 every attempt of the item-1 sweep was timed: the 568 cases (all 284 supported rhythm
 settings × seeds 7 and 13, other controls round-robin), six-phrase sessions at 60 BPM, real
 generator in Node, load average about 1.5.

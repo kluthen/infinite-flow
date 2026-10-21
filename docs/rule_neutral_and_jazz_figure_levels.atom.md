@@ -1,6 +1,6 @@
 ---
 id: rule_neutral_and_jazz_figure_levels
-status: DRAFT
+status: REVIEW
 version: 0.1
 priority: 1
 human_name: Neutral and Jazz Keep Their Sound

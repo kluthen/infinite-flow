@@ -2,7 +2,7 @@
 id: rule_tension_resolution_delay_permits_rests
 status: REVIEW
 type: RULE
-tags: tension,melody,harmony,rhythm,controls,changes-in-v3.1
+tags: tension,melody,harmony,rhythm,controls
 parents:
   - [[req_four_measure_phrase]]
 human_name: Tension Resolution Delay Permits Rests

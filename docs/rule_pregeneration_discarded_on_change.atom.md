@@ -2,7 +2,7 @@
 id: rule_pregeneration_discarded_on_change
 status: REVIEW
 type: RULE
-tags: [v3, release-v3.0, idle, generation, changes-in-v3.1, changes-in-v3.2]
+tags: [v3, release-v3.0, idle, generation, changes-in-v3.2]
 parents:
   - [[req_idle_pregeneration]]
 layer: BUSINESS

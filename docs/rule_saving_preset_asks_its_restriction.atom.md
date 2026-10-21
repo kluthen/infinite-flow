@@ -1,6 +1,6 @@
 ---
 id: rule_saving_preset_asks_its_restriction
-status: REVIEW
+status: STABLE
 type: RULE
 priority: 1
 tags: [v3, release-v3.1, player-controls, presets]

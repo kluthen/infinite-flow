@@ -1,6 +1,6 @@
 ---
 id: rule_player_preset_limit
-status: REVIEW
+status: STABLE
 type: RULE
 human_name: At Most 50 Player Presets
 tags: [v3, release-v3.1, player-controls, presets]

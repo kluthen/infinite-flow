@@ -2,7 +2,7 @@
 id: rule_profile_control_customization
 status: REVIEW
 priority: 1
-tags: [profile, controls, customization, changes-in-v3.1]
+tags: [profile, controls, customization]
 type: RULE
 layer: BUSINESS
 parents:

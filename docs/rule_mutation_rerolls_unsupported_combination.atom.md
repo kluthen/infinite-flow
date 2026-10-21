@@ -11,7 +11,7 @@ dependents:
   - [[module_settings_mutation]]
   - [[rule_mutation_sixteenth_blocked_after_step_down]]
 layer: BUSINESS
-tags: [v2, release-v2.0, part-v2.1, session, rhythm, changes-in-v3.1, changes-in-v3.2]
+tags: [v2, release-v2.0, part-v2.1, session, rhythm, changes-in-v3.2]
 ---
 
 # Mutation Never Lands on an Unsupported Combination

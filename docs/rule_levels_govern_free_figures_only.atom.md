@@ -1,6 +1,6 @@
 ---
 id: rule_levels_govern_free_figures_only
-status: DRAFT
+status: REVIEW
 type: RULE
 version: 0.2
 priority: 1

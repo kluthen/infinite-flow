@@ -1,6 +1,6 @@
 ---
 id: rule_presets_in_visits_that_save_nothing
-status: REVIEW
+status: STABLE
 type: RULE
 version: 0.1
 priority: 1
