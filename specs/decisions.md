@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.118
+Status: draft v2.119
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -27,7 +27,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and each milestone
 folder's README, such as [archive/v3/README.md](archive/v3/README.md)). Numbering continues from
-**D400**.
+**D406**.
 
 Live here: D232–D251 (v3.2, not built yet), with v3.1's D233, D235, D242 and D250 interleaved
 among them and D237, D239 and D246 ruling both releases, kept until v3.2's archive closes the
@@ -695,3 +695,37 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   tested. H5: the v3.0 upgrade code and its tests stay. The Edge checks of the v3.2 and v3.3 plans go
   at their next revision. Now in: [v3.1.x notes](versions/v3/README.md#v31x-notes-after-the-tag),
   [hand checks](versions/v3/build-plan-v3.1.md#hand-checks), [context of use](personas.md#context-of-use).
+
+- **D400 (2026-10-21): Jam is its own mode, apart from the usual session mode; the app opens in
+  session mode, and a button switches to Jam mode.** The owner: "consider the jam mode something
+  that is distinctly different from usual session (website load on start the current session mode,
+  click a button to switch in jam mode) … moving jam as separate from session should prevent much
+  of the colision ui wise." Replaces Part C's Jam switch among the session options (C5.1). Opens
+  O251. Now in: [Jam mode §2](versions/v3/jam-mode.md#2-two-modes).
+
+- **D401 (2026-10-21): Jam has its own settings set.** The owner: "settings related to jam are
+  probably a bit different (the app will follow what has been provided and will iterate and mutate
+  over the provided motif)." Which settings it holds, shares or drops is O247, O248 and O253. Now in:
+  [Jam mode §3](versions/v3/jam-mode.md#3-jams-settings-set).
+
+- **D402 (2026-10-21): Jam's code loads on demand, outside the first-load (entry) chunk.** The
+  owner: "This may reduce initial load cost." The entry chunk carries only the button that opens
+  Jam mode. Bundle policy: O258. Now in: [Jam mode §2](versions/v3/jam-mode.md#2-two-modes).
+
+- **D403 (2026-10-21): Jam's footprint in the generator is kept as small as possible: one shared
+  generator, Jam's steering at its edges.** The owner: "we must aim at reducing impact of jam on
+  generator work as much as possible, but it is inescapable." The seam is proposed in
+  [Jam mode §4](versions/v3/jam-mode.md#4-the-generator-seam) (O252).
+
+- **D404 (2026-10-21): Jam's tempo target is 120 to 180 BPM; 240 BPM is best effort, worked on
+  last, and may be dropped.** The owner: "working at 240 bpm should be considered best effort
+  (leave it for last). aim for 120 to 180 at maximum. None of our persona are expert at these
+  level. (i'll accept the sacrifice of 240bpm should it come up)." How the tempo is set is O249;
+  the exact ceiling O250. Now in: [Jam mode §5](versions/v3/jam-mode.md#5-tempo-in-jam).
+
+- **D405 (2026-10-21): v3.2 is re-scoped around D400–D404; Part C's Jam is reopened, and the
+  v3.2 build plan's rewrite waits for the re-scope.** Part C (approved by D239) stays the record
+  until the re-scope is settled and consolidated into it; where [Jam mode](versions/v3/jam-mode.md) differs, Part C is
+  to change. The plan's corrections found against v3.1 still apply at the rewrite. The rhythm lock
+  and Vary settings' allowed groups are not reopened beyond what the mode split touches. Now in:
+  [Jam mode §6](versions/v3/jam-mode.md#6-blast-radius).

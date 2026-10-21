@@ -41,9 +41,12 @@ Status: draft v0.83
   while playing.
 - **Next: the rest of v3** ([v3](versions/v3/README.md#releases-d211)):
   - **v3.2:** Jam, the key and mode suggestion, the rhythm lock and its mutation option. Master
-    spec [Part C](versions/v3/master-spec.md#part-c--v32), approved (D239); build plan
-    [v3.2](versions/v3/build-plan-v3.2.md), v3, not approved; its design not approved (D353
-    approved v3.1's only). The contract wording v3.1 and v3.2 change was confirmed by the owner
+    spec [Part C](versions/v3/master-spec.md#part-c--v32), approved (D239), **being re-scoped**:
+    Jam becomes its own mode, entered by a button, with its own settings, loaded on demand, its
+    generator steering at the edges, its tempo target 120–180 BPM (D400–D405;
+    [draft](versions/v3/jam-mode.md); open O247–O259). Build plan
+    [v3.2](versions/v3/build-plan-v3.2.md), v3, stale, rewritten after the re-scope; its design
+    not approved (D353 approved v3.1's only). The contract wording v3.1 and v3.2 change was confirmed by the owner
     (D246).
   - **v3.3:** richer chords, opt-in: one Seventh chords level, Off by default, diatonic sevenths
     only. Master spec [Part D](versions/v3/master-spec.md#part-d--v33), awaiting owner approval

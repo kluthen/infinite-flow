@@ -1,6 +1,6 @@
 # v3.2 — Jam
 
-Status: draft v2 (2026-10-08; terms aligned with D237 and D238 the same day, no behaviour changed; refined by D240, D241, D243 and D244, written into the master spec only).
+Status: draft v2 (2026-10-08; terms aligned with D237 and D238 the same day, no behaviour changed; refined by D240, D241, D243 and D244, written into the master spec only). **Re-scope (2026-10-21, spec D400–D405):** Jam becomes its own mode; where [jam-mode.md](jam-mode.md) differs, this draft is to change.
 Approved by the owner as proposed (D234), with the rhythm lock reshaped by D232. Every item below is
 settled and cites its decision; the gaps closed while settling the draft cite "draft v2". One
 wording still waits for the owner: the change to the declared-intent contract that O144 brings

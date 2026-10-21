@@ -1,7 +1,10 @@
 # Infinite Flow v3.2 — Build Plan
 
 Status: v3 (2026-10-16): migrated to the build-plan model and waves re-formed (spec D350); not
-approved.
+approved. **Stale, not to be built from:** v3.2 is being re-scoped around Jam as its own mode (spec
+D400–D405, [jam-mode.md](jam-mode.md)), and this plan is rewritten once the re-scope settles. The
+corrections against v3.1 found on 2026-10-21 are listed in
+[jam-mode.md §6](jam-mode.md#6-blast-radius) and apply at that rewrite.
 
 Jam, the key and mode suggestion, the rhythm lock, Jam's drift and Vary settings' allowed groups,
 written from [master spec Part C](master-spec.md#part-c--v32) (v1.0, approved 2026-10-08, with spec

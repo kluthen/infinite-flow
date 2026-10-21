@@ -3,7 +3,8 @@
 Status: v3.0 released as version 3.0.0 on 2026-10-16 (tag `v3.0.0` at e288d98, deployed;
 D348); v3.1 released as version 3.1.0 on 2026-10-21 (tag `v3.1.0` at 55364e7; D397), its hand
 checks after the tag closed (D399; [v3.1.x notes](#v31x-notes-after-the-tag)); v3.2 consolidated as
-master spec Part C, approved (D239), its design and build plan not approved; v3.3 in master spec
+master spec Part C, approved (D239), now being re-scoped with Jam as its own mode (D400–D405;
+[draft](jam-mode.md)), its design and build plan not approved; v3.3 in master spec
 Part D, awaiting owner approval (D264–D275), its build plan not approved (D276–D288, D351); v3.4,
 a structural review before v4, opened as a scoping draft (D389), with a lexicon page added as its
 one player-facing item (D393); v3.x direction only. The Status paragraphs this README kept until
@@ -364,6 +365,12 @@ three are closed (D399):
   reworded to Chrome as it is promoted.
 
 ## v3.2 — Jam and the rhythm lock
+
+**Re-scope opened 2026-10-21 (D400–D405): [Jam as its own mode](jam-mode.md)**, draft v1. Jam
+leaves the session options for a mode of its own, entered by a button, with its own settings, its
+code loaded on demand, its steering kept at the generator's edges, and a tempo target of 120 to
+180 BPM. Part C below stays the record until the re-scope settles; the build plan's rewrite waits
+for it. Open: O247–O259.
 
 **Consolidated 2026-10-08: [master spec, Part C](master-spec.md#part-c--v32)** (master spec v1.0,
 awaiting the owner's approval of the consolidation and the owner's confirmation of the contract

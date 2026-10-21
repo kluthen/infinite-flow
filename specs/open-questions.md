@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.79
+Status: draft v0.80
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -28,9 +28,10 @@ Open on 2026-10-21: O48 and O49 (later and governance), O100–O102 (v4 rhythm r
 O115 and O116 (v3.x learning), O176 (style packs and the chord level), O180 (octave signs, later),
 O183 (the warm worker lost when pre-generation is cancelled), O190 (a newer version's database
 whose read-only reopening fails), O230 (a stale replay-key wording in a STABLE atom, opened with
-D351; numbered O177 on branch `plan-migration`, D352), O234–O238 (v3.4's structural review, D389)
-and O239–O246 (v3.4's lexicon page, D393). v3.1 is released and none of its questions is open.
-New questions take IDs from **O247**; the IDs reserved for v3.0's waves and left unused stay
+D351; numbered O177 on branch `plan-migration`, D352), O234–O238 (v3.4's structural review, D389),
+O239–O246 (v3.4's lexicon page, D393) and O247–O259 (the v3.2 Jam re-scope,
+D400–D405). v3.1 is released and none of its questions is open.
+New questions take IDs from **O260**; the IDs reserved for v3.0's waves and left unused stay
 unused, and O177 stays unused.
 
 Opened on 2026-10-12 with v3.3 (D261): O165–O175, richer chords. D262 closed O174 the same day.
@@ -97,6 +98,65 @@ by D234.
   it leans toward, and resets it; whether what it learned is kept across sessions (local
   persistence, opt-in like played notes). Proposed: off by default, one visible switch, a reset,
   and nothing kept across sessions without the player's opt-in.
+
+## v3.2 Jam re-scope (O247+)
+
+Opened 2026-10-21 with the owner's direction that Jam is its own mode (D400–D405); the draft is
+[Jam mode](versions/v3/jam-mode.md). **Blocking** (answered before `ux-writer` is briefed): O247, O248, O249, O253.
+The others carry a proposed answer the design and the plan can work from until the owner confirms.
+
+- **O247 - Jam's settings set** _(D401; blocking)_: which settings Jam has of its own, which it
+  shares with session mode, which it drops. Proposed ([table](versions/v3/jam-mode.md#3-jams-settings-set)): shared:
+  instrument, controller, audio mix, theme; Jam's own: key and mode, tempo, drift, rhythm lock and
+  allowed changes, harmonic motion, tension and figure levels (few or fixed); not in Jam: presets,
+  Vary settings and its allowed groups, Tension across phrases, Rising tempo.
+- **O248 - Does the doodle set Jam's generation controls?** _(D401; blocking)_: Part C has the
+  doodle change no setting and only order what the player's controls allow. The owner's "the app
+  will follow what has been provided" suggests the doodle sets them. Proposed: in Jam, note
+  density, rhythmic variety, syncopation and silence density, and contour, leapiness and register
+  where the doodle shows them, are taken from the doodle on Jam's side, before the request; no
+  generator work.
+- **O249 - How Jam's tempo is set** _(D404; blocking)_: set before the doodle with a count-in;
+  tap-in; inferred from a freely played doodle; or a hybrid ([options](versions/v3/jam-mode.md#5-tempo-in-jam)).
+  Proposed: set before the doodle, with a count-in, Jam's own tempo control, and tap-in at Jam's
+  Idle as a way to set it (droppable to later); inference stays out.
+- **O250 - Jam's tempo range** _(D404)_: "aim for 120 to 180 at maximum" read as: Jam's timing
+  holds up to 180 BPM. Proposed: Jam's control 60–180 BPM in steps of 10; the sweep at 60, 120 and
+  180; 240 tried last, and if dropped the control stops at 180. Session mode keeps 60–240.
+- **O251 - Switching modes** _(D400)_: proposed ([Jam mode §2](versions/v3/jam-mode.md#2-two-modes)): at Idle only;
+  leaving Jam returns session mode as it was (phrase and pre-generated phrases kept); a reload
+  always opens session mode; Jam mode opens without a controller, its Start unavailable and saying
+  why; a controller arriving or leaving never switches the mode.
+- **O252 - The generator seam** _(D403)_: proposed ([Jam mode §4](versions/v3/jam-mode.md#4-the-generator-seam)): one
+  optional steering block in the request (target rhythm with a band, melodic moves with a
+  strength), read at two ordering points; the rest on Jam's side; the session engine met at
+  phrase 1. Settled with the code at the plan's rewrite unless the owner objects.
+- **O253 - The rhythm lock and drift across the two modes** _(D401; blocking)_: Part C has one
+  lock switch for both. Proposed: the lock and its allowed rhythm changes stay a session-mode
+  setting; Jam has its own values of both beside the drift. Alternative: in Jam, fold the three
+  into one "how close to my doodle" control.
+- **O254 - The doodle Jam mode keeps** _(D400)_: replaces the held doodle and "Jam again on this
+  doodle". Proposed: Jam mode keeps its current doodle (its phrase 1 written at Idle, pre-generation
+  for it) until a new one is captured, the player leaves Jam mode, or its kept session is deleted;
+  memory only. "Jam again on this doodle" in a kept Jam session's review opens Jam mode with it.
+  Reframes ux Q73 and Q74.
+- **O255 - Kept Jam sessions, the review and exports** _(D400, D402)_: proposed: one session list,
+  Jam sessions marked; one review, its doodle section and the suggestion loaded from Jam's chunk
+  when a Jam session's review opens; exports as Part C §C5.15 says.
+- **O256 - Splitting v3.2** _(D405)_: proposed: two releases, session-mode work first (rhythm lock,
+  allowed rhythm changes, Vary settings' allowed groups, with the generator's lock work), then Jam
+  mode. The version numbers are the owner's call.
+- **O257 - The contract change** _(D405)_: the eight `changes-in-v3.2` atoms are STABLE and the
+  wording the owner confirmed on 2026-10-08 (D246) speaks of a Jam switch. Proposed: one MAJOR
+  bump, CONTRACT 8.0.0, its wording confirmed once on the re-scoped Part C; weigh whether the
+  replay key carries the steering block instead of the quantized doodle
+  ([Jam mode §4](versions/v3/jam-mode.md#4-the-generator-seam)).
+- **O258 - Bundle policy with Jam on demand** _(D402)_: proposed: the entry budget stays 300 KiB;
+  a boundary check fails when a Jam module is reachable from the entry chunk; Jam's chunks fall
+  under the existing 100 KiB per-chunk budget; the service worker keeps them for offline use.
+- **O259 - Shorter, scripted hand checks** _(D399, D404)_: proposed: each check a numbered script
+  of at most ten minutes; no Edge check; Jam's on-instrument check at 60, 120 and 180 BPM, 240 only
+  if it is kept.
 
 ## v3.3 richer chords (O165+)
 

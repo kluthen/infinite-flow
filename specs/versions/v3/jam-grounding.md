@@ -1,6 +1,8 @@
 # Jam — grounding research
 
-Status: research v2 (2026-10-07, re-checked against the code on 2026-10-08)
+Status: research v2 (2026-10-07, re-checked against the code on 2026-10-08). Its code facts predate v3.0 and v3.1; the ones the Jam re-scope (spec D400–D405) relies on are
+re-checked against v3.1.0 in [jam-mode.md](jam-mode.md#4-the-generator-seam), and this file takes a
+facts-only refresh with the v3.2 plan's rewrite.
 
 The facts that moved between v1 and the re-check are corrected in place, each marked
 "(re-checked 2026-10-08)", and listed in [section D](#d-re-check-2026-10-08). The v3.2 drafts use
