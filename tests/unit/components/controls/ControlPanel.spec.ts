@@ -1,75 +1,17 @@
 import { describe, expect, it } from 'vitest'
-import { mount } from '@vue/test-utils'
 
-import ControlPanel from '@/components/controls/ControlPanel.vue'
-import type { PresetActionsRow, SessionStartSettings } from '@/components/controls/preset-bar-model'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
-import {
-  BUILT_IN_PRESETS,
-  builtInPreset,
-  DEFAULT_PRESET_SELECTION,
-} from '@/domain/presets/built-in-presets'
-import { makePreset, type Preset, type PresetSelection } from '@/domain/presets/preset-selection'
+import { BUILT_IN_PRESETS, builtInPreset } from '@/domain/presets/built-in-presets'
+import { makePreset, type PresetSelection } from '@/domain/presets/preset-selection'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import {
   UNSUPPORTED_RHYTHM_SETTINGS,
   UNSUPPORTED_RHYTHM_SETTING_MESSAGE,
 } from '@/domain/controls/unsupported-rhythm-settings'
-import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 
-/** The actions row of a built-in selection: Save as new preset alone. */
-const NO_PRESET_ACTIONS: PresetActionsRow = {
-  saveChanges: false,
-  rename: false,
-  delete: false,
-  limitReached: false,
-}
-
-function mountPanel(
-  controls: GenerationControls = DEFAULT_GENERATION_CONTROLS,
-  selection: PresetSelection = DEFAULT_PRESET_SELECTION,
-  readonly = false,
-  presets: readonly Preset[] = BUILT_IN_PRESETS,
-  startSettings: SessionStartSettings | null = null,
-) {
-  return mount(ControlPanel, {
-    props: {
-      controls,
-      figureLevels: NEUTRAL_FIGURE_LEVELS,
-      selection,
-      presets,
-      readonly,
-      noteDensityContext: { belowTabletLandscape: false, sessionSteppedDown: false },
-      risingTempo: false,
-      risingTempoAvailable: false,
-      lastSessionReachedTempo: null,
-      varySettings: false,
-      tensionAcrossPhrases: false,
-      sessionOptionsReadonly: readonly,
-      startSettings,
-      myInstrument: null,
-      instrumentActionsDisabled: false,
-      presetActions: NO_PRESET_ACTIONS,
-      presetActionsDisabled: false,
-    },
-  })
-}
+import { mountPanel } from './control-panel-mount'
 
 describe('ControlPanel', () => {
-  // @test-link [[req_embellishment_figure_levels]]
-  it('renders the control groups with their handoff headings, Embellishments before "During a session"', () => {
-    const wrapper = mountPanel()
-    const headings = wrapper.findAll('.control-group h3').map((h) => h.text())
-    expect(headings).toEqual([
-      'Foundation',
-      'Rhythm',
-      'Melodic shape',
-      'Character',
-      'Embellishments',
-      'During a session',
-    ])
-  })
-
   // @test-link [[module_generation_control_catalog]]
   it('renders every field label the handoff defines', () => {
     const wrapper = mountPanel()
@@ -131,21 +73,6 @@ describe('ControlPanel', () => {
       .find((group) => group.attributes('aria-label') === 'Tension')!
     await tensionGroup.findAll('[role="radio"]')[2]!.trigger('click')
     expect(wrapper.emitted('set-control')).toEqual([[{ key: 'tension', value: 'Build' }]])
-  })
-
-  // @test-link [[module_figure_level_options]]
-  // @test-link [[req_embellishment_figure_levels]]
-  it('shows the figure levels it is given and forwards a level change as set-figure-level', async () => {
-    const wrapper = mountPanel()
-    const group = wrapper
-      .findAll('[role="radiogroup"]')
-      .find((candidate) => candidate.attributes('aria-label') === 'Diatonic enclosure')!
-    expect(group.get('[role="radio"][aria-checked="true"]').text()).toBe('Off')
-    await group.findAll('[role="radio"]')[3]!.trigger('click')
-    expect(wrapper.emitted('set-figure-level')).toEqual([
-      [{ figure: 'diatonicEnclosure', level: 'stronglyFavored' }],
-    ])
-    expect(wrapper.emitted('set-control')).toBeUndefined()
   })
 
   it('emits select-instrument-profile for the instrument profile group', async () => {
@@ -295,24 +222,6 @@ describe('ControlPanel', () => {
     const controls: GenerationControls = { ...DEFAULT_GENERATION_CONTROLS, ...setting }
     const wrapper = mountPanel(controls)
     expect(wrapper.emitted('set-control')).toBeUndefined()
-  })
-
-  // @test-link [[rule_readonly_controls_keep_contrast]]
-  it('propagates readonly to every control group', () => {
-    const wrapper = mountPanel(DEFAULT_GENERATION_CONTROLS, DEFAULT_PRESET_SELECTION, true)
-    const groups = wrapper.findAll('[role="radiogroup"]')
-    expect(groups.length).toBeGreaterThan(0)
-    expect(wrapper.findAll('.control-group-figures [role="radiogroup"]')).toHaveLength(7)
-    for (const group of groups) {
-      expect(group.attributes('aria-readonly')).toBe('true')
-    }
-    expect(wrapper.get('[role="spinbutton"]').attributes('aria-readonly')).toBe('true')
-    expect(wrapper.get('select.preset-select').attributes('aria-readonly')).toBe('true')
-    const fieldGroups = wrapper.findAll('.field-group')
-    expect(fieldGroups.length).toBeGreaterThan(0)
-    for (const fieldGroup of fieldGroups) {
-      expect(fieldGroup.classes()).toContain('is-readonly')
-    }
   })
 
   // @test-link [[rule_automatic_change_updates_controls_quietly]]

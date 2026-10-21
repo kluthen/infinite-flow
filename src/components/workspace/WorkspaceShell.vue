@@ -39,10 +39,6 @@ import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue'
 import type { GenerationSession } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import ControlPanel from '@/components/controls/ControlPanel.vue'
-import type { SettableControlKey } from '@/components/controls/set-control-event'
-import type { GenerationControls } from '@/domain/controls/generation-controls'
-import type { FigureId, FigureLevel } from '@/domain/figures/figure-levels'
-import type { PresetId } from '@/domain/presets/preset-selection'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { NotationError } from '@/notation/notation-error'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
@@ -72,6 +68,7 @@ import {
   useControllerConnection,
   type RememberedControllerStore,
 } from './use-controller-connection'
+import { useControlPanelActions } from './use-control-panel-actions'
 import { useReviewNavigation } from './use-review-navigation'
 import { useSessionOptions } from './use-session-options'
 import { injectSaveSettings } from './save-settings-injection'
@@ -428,38 +425,8 @@ watch(
   },
 )
 
-/** Intent: forward one control-group's validated set-control event onto the session's own action. */
-function handleSetControl<K extends SettableControlKey>(payload: {
-  readonly key: K
-  readonly value: GenerationControls[K]
-}): void {
-  props.session.actions.setControl(payload.key, payload.value)
-}
-
-/**
- * Intent: forward a figure level change onto the session's one figure-level action, which makes
- * Custom and, through the queue's key, discards the pre-generated phrases; the phrase on screen
- * stays.
- */
-// @spec-link [[module_figure_level_options]]
-// @spec-link [[rule_custom_selection]]
-function handleSetFigureLevel(payload: {
-  readonly figure: FigureId
-  readonly level: FigureLevel
-}): void {
-  props.session.actions.setFigureLevel(payload.figure, payload.level)
-}
-
-/** Intent: forward an instrument-profile selection onto the session's dedicated action. */
-function handleSelectInstrumentProfile(id: GenerationControls['instrumentProfileId']): void {
-  void props.session.actions.selectInstrumentProfile(id)
-}
-
-/** Intent: forward a preset choice onto the session's own action; the phrase on screen stays. */
-// @spec-link [[rule_choosing_preset_sets_its_settings]]
-function handleSelectPreset(id: PresetId): void {
-  props.session.actions.selectPreset(id)
-}
+// The control panel's setting events, forwarded onto the session's own actions.
+const controlPanelActions = useControlPanelActions(props.session)
 </script>
 
 <template>
@@ -521,10 +488,10 @@ function handleSelectPreset(id: PresetId): void {
         :preset-actions-disabled="sessionActive"
         @open-my-instrument="myInstrumentSheet.open"
         @preset-action="presetSheet.act"
-        @set-control="handleSetControl"
-        @set-figure-level="handleSetFigureLevel"
-        @select-instrument-profile="handleSelectInstrumentProfile"
-        @select-preset="handleSelectPreset"
+        @set-control="controlPanelActions.setControl"
+        @set-figure-level="controlPanelActions.setFigureLevel"
+        @select-instrument-profile="controlPanelActions.selectInstrumentProfile"
+        @select-preset="controlPanelActions.selectPreset"
         @set-rising-tempo="handleSetRisingTempo"
         @set-tension-across-phrases="handleSetTensionAcrossPhrases"
         @set-vary-settings="handleSetVarySettings"
