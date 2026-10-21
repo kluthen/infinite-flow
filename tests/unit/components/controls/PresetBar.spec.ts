@@ -8,6 +8,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
 
 import PresetBar from '@/components/controls/PresetBar.vue'
+import type { PresetActionsRow } from '@/components/controls/preset-bar-model'
 import { BUILT_IN_PRESETS, builtInPreset } from '@/domain/presets/built-in-presets'
 import { makePreset, type Preset, type PresetSelection } from '@/domain/presets/preset-selection'
 
@@ -18,6 +19,14 @@ const PRESETS: readonly Preset[] = [
 ]
 
 const NEUTRAL: PresetSelection = { kind: 'preset', presetId: 'neutral' }
+
+/** The actions row of a built-in selection: Save as new preset alone. */
+const NO_PRESET_ACTIONS: PresetActionsRow = {
+  saveChanges: false,
+  rename: false,
+  delete: false,
+  limitReached: false,
+}
 
 afterEach(() => {
   document.body.innerHTML = ''
@@ -34,6 +43,8 @@ function mountBar(
       selection,
       descriptionSelection: options.descriptionSelection ?? selection,
       readonly: options.readonly ?? false,
+      actions: NO_PRESET_ACTIONS,
+      actionsDisabled: false,
     },
     attachTo: document.body,
   })

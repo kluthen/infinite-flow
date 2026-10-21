@@ -19,6 +19,7 @@ import type { SavedDataLoad } from '@/storage-bootstrap'
 import type { SaveSettings } from '@/storage/settings-saver'
 import type { RememberedControllerStore } from './use-controller-connection'
 import type { DamagedSessionReports } from './workspace-kept-sessions-seam'
+import type { PresetStore } from './use-preset-sheet'
 import type { WorkspaceSessionRunnerStarter } from './workspace-session-dependencies'
 import type { SessionController } from './workspace-session-controller-types'
 
@@ -112,6 +113,11 @@ export interface WorkspaceSession {
    * the visit's save policy; the shell hands it to the controller's side, which reselects it.
    */
   readonly rememberedController: RememberedControllerStore
+  /**
+   * Where the player presets are kept: their saves through the visit's save policy, in line with
+   * every other save, and the source of a new one's id; the shell's preset actions use it.
+   */
+  readonly presetStore: PresetStore
   /**
    * The reports of the deletions of damaged kept sessions, built with the workspace: the session
    * controller tells each one through its kept-sessions seam, and the shell hands the channel to

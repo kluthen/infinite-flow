@@ -108,6 +108,7 @@ function fakeWorkspaceSession(savedData: SavedDataLoad = fakeSavedData()) {
     savedData,
     saveSettings: (changes: SettingChanges) => void saves.push(changes),
     rememberedController: noRememberedController(),
+    presetStore: quietPresetStore(),
     damagedSessionReports,
     dispose: () => {},
   }
@@ -141,7 +142,7 @@ import {
 import { loadConnectionSheet } from '../../src/components/controller-connection/load-connection-sheet'
 import { transportRig } from './audio/transport-rig'
 import { createControllerRig } from './midi/midi-controller-rig'
-import { noRememberedController } from './components/workspace/quiet-saved-data'
+import { noRememberedController, quietPresetStore } from './components/workspace/quiet-saved-data'
 import { PHRASE_SCORE_STUB } from './components/workspace/test-workspace'
 import {
   createFakeSessionController,

@@ -586,6 +586,8 @@ function composeHarnessWorkspace(saved: SavedDataLoad): WorkspaceSession {
   const composed = composeWorkspaceSession({
     providers: { nextRequestId: requestIdProvider, nextSeed: seedProvider.nextSeed },
     nextSessionSeed: sessionSeedProvider.nextSeed,
+    // The browser's random UUIDs, as in the app: a new player preset's id is opaque.
+    nextPresetId: () => crypto.randomUUID(),
     viewport: createBrowserViewportWidth(),
     generate: harnessGenerate,
     prewarmPolicy: harnessPrewarmPolicy,

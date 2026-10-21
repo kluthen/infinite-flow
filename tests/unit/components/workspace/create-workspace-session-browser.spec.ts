@@ -6,6 +6,7 @@
  * until a port is used.
  */
 import { countingSessionSeeds } from '../../composables/fake-session-seed'
+import { countingPresetIds } from './quiet-saved-data'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import {
@@ -79,6 +80,7 @@ describe('composeWorkspaceSession: the session browser ports', () => {
         nextSeed: () => makeSeed(++counter),
       },
       nextSessionSeed: countingSessionSeeds(),
+      nextPresetId: countingPresetIds(),
       viewport: createFakeViewportWidth(),
       generate: vi.fn(),
       prewarmPolicy: 'disabled',

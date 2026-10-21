@@ -30,7 +30,9 @@
  * kept sessions it is given (./use-app-notices.ts): `Dismiss` sends focus to the first enabled
  * of the session action, the phrase action and `controller-status`; `Reload` reloads the page. It
  * ends with the page footer and hosts the Your data sheet (./use-your-data.ts), opened from the
- * footer, the session list's header and the storage-full notice, loaded on demand.
+ * footer, the session list's header and the storage-full notice, loaded on demand. It hosts the
+ * preset bar's actions and the preset sheet (./use-preset-sheet.ts), loaded on demand, whose
+ * refused saves the notice row tells.
  */
 import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue'
 
@@ -73,11 +75,12 @@ import {
 import { useReviewNavigation } from './use-review-navigation'
 import { useSessionOptions } from './use-session-options'
 import { injectSaveSettings } from './save-settings-injection'
-import { useAppNotices } from './use-app-notices'
+import { createRefusedPresetSaves, useAppNotices } from './use-app-notices'
 import type { DamagedSessionReports } from './workspace-kept-sessions-seam'
 import { useShownSettings } from './use-shown-settings'
 import { useWorkspaceFocus } from './use-workspace-focus'
 import { useMyInstrumentSheet } from './use-my-instrument-sheet'
+import { usePresetSheet, type PresetStore } from './use-preset-sheet'
 import { useYourData } from './use-your-data'
 
 // The stale-phrase prompt, in its own chunk: only a stale phrase 1 at a start needs it.
@@ -101,6 +104,8 @@ const props = withDefaults(
     savedData: Pick<SavedDataLoad, 'outcome' | 'savePolicy'>
     /** The controller remembered from an earlier visit, and its saves; reselected at setup. */
     rememberedController: RememberedControllerStore
+    /** Where the player presets are kept: their saves and a new one's id source. */
+    presetStore: PresetStore
     /**
      * The reports of the deletions of damaged kept sessions, which the notice row apologises for
      * or tells refused; none by default.
@@ -188,6 +193,9 @@ const { controlsReadonly, shownSettings, startSettings } = useShownSettings({
   sessionActive: () => sessionActive.value,
 })
 
+// The player presets' refused saves, which the preset actions tell and the notice row hears.
+const refusedPresetSaves = createRefusedPresetSaves()
+
 // The notice row's notice, held still while a session runs.
 const {
   notice: appNotice,
@@ -197,6 +205,7 @@ const {
   source: props.savedData,
   sessionActive: () => sessionActive.value,
   ...(props.damagedSessionReports === null ? {} : { damagedSessions: props.damagedSessionReports }),
+  refusedPresetSaves,
 })
 
 // The "During a session" options and the player's changes to them.
@@ -218,9 +227,10 @@ const {
 
 const emit = defineEmits<{
   /**
-   * The connection sheet, the My instrument sheet or the Your data sheet opened or closed (also
-   * once at setup, closed): whether any is open, emitted synchronously inside the change, so the
-   * workspace's flag, which keeps a MIDI note from starting a session, never lags the sheets.
+   * The connection sheet, the My instrument sheet, the Your data sheet or the preset sheet opened
+   * or closed (also once at setup, closed): whether any is open, emitted synchronously inside the
+   * change, so the workspace's flag, which keeps a MIDI note from starting a session, never lags
+   * the sheets.
    */
   'connection-sheet-open-change': [open: boolean]
 }>()
@@ -239,14 +249,27 @@ const myInstrumentSheet = useMyInstrumentSheet({
 // notice; it returns focus to its opener itself, else to the workspace's fallback.
 // @spec-link [[req_your_data]]
 const yourData = useYourData(() => sessionActive.value)
+// The preset bar's actions and the preset sheet; focus returns to its opener or the preset box.
+const presetSheet = usePresetSheet({
+  session: props.session,
+  controllerPhase: () => props.controller?.state.phase ?? null,
+  savedData: props.savedData,
+  store: props.presetStore,
+  tellRefusedSave: refusedPresetSaves.tell,
+  root: () => layoutRoot.value,
+})
 let connectionSheetShown = false
 /** Intent: tell the workspace whether any of its sheets is open now. */
 function reportSheetsOpen(): void {
-  const open = myInstrumentSheet.sheetOpen.value || yourData.sheet.value !== null
+  const open =
+    myInstrumentSheet.sheetOpen.value ||
+    yourData.sheet.value !== null ||
+    presetSheet.sheetOpen.value
   emit('connection-sheet-open-change', connectionSheetShown || open)
 }
 watch(myInstrumentSheet.sheetOpen, reportSheetsOpen)
 watch(yourData.sheet, reportSheetsOpen, { flush: 'sync' })
+watch(presetSheet.sheetOpen, reportSheetsOpen, { flush: 'sync' })
 
 // The header's `controller-status` and the connection sheet it opens.
 const {
@@ -494,7 +517,10 @@ function handleSelectPreset(id: PresetId): void {
         :start-settings="startSettings"
         :my-instrument="state.myInstrument"
         :instrument-actions-disabled="controlsReadonly || state.operation !== 'idle'"
+        :preset-actions="presetSheet.row.value"
+        :preset-actions-disabled="sessionActive"
         @open-my-instrument="myInstrumentSheet.open"
+        @preset-action="presetSheet.act"
         @set-control="handleSetControl"
         @set-figure-level="handleSetFigureLevel"
         @select-instrument-profile="handleSelectInstrumentProfile"
@@ -537,6 +563,15 @@ function handleSelectPreset(id: PresetId): void {
     :reload-page="reloadPage"
     :focus-fallback="focusFallback"
     @close="yourData.close"
+  />
+  <component
+    :is="presetSheet.sheetComponent.value"
+    v-if="presetSheet.sheetComponent.value !== null && presetSheet.sheetProps.value !== null"
+    v-bind="presetSheet.sheetProps.value"
+    @save-as-new="presetSheet.saveAsNew"
+    @save-changes="presetSheet.saveChanges"
+    @rename="presetSheet.rename"
+    @close="presetSheet.close"
   />
   <StalePhrasePrompt
     v-if="controller?.state.stalePhrasePrompt"

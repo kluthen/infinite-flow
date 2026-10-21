@@ -31,6 +31,23 @@ export interface SessionStartSettings {
   readonly restriction?: KeyAndModeRestriction
 }
 
+/** One of the four preset actions of `preset-actions`, which the button pressed asks for. */
+// @spec-link [[module_preset_bar_model]]
+export type PresetActionKind = 'save-as-new' | 'save-changes' | 'rename' | 'delete'
+
+/**
+ * The buttons `preset-actions` holds besides `Save as new preset`, always there: whether it offers
+ * `Save changes`, `Rename preset` and `Delete preset`, and whether 50 or more player presets are
+ * kept, which disables `Save as new preset` and shows its note.
+ */
+// @spec-link [[module_preset_bar_model]]
+export interface PresetActionsRow {
+  readonly saveChanges: boolean
+  readonly rename: boolean
+  readonly delete: boolean
+  readonly limitReached: boolean
+}
+
 /** One option of the box: a preset, valued by its id and labelled by its name. */
 // @spec-link [[module_preset_bar_model]]
 export interface PresetBarOption {
@@ -128,8 +145,12 @@ export function presetBarFullText(selection: PresetSelection, presets: readonly 
   return presetLabel(selection, presets)
 }
 
-/** The controls' own written-key and mode labels, which the restriction in words uses. */
-const RESTRICTION_LABELS: RestrictionLabels = {
+/**
+ * The controls' own written-key and mode labels, which the restriction in words uses here and in
+ * the preset sheet.
+ */
+// @spec-link [[module_preset_bar_model]]
+export const RESTRICTION_LABELS: RestrictionLabels = {
   key: (key) => labelOf(tonalCenterOptions(), key),
   mode: (mode) => labelOf(collectionOptions(), mode),
 }

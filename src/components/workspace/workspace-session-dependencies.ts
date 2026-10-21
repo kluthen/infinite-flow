@@ -9,6 +9,7 @@ import type {
   GenerationIntentProviders,
 } from '@/domain/generation/generation-intent'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
+import type { PresetIdSource } from '@/domain/presets/preset-save-choices'
 import type { Seed } from '@/domain/random/seed'
 import type { ViewportWidthProvider } from '@/composables/viewport-width'
 import type { SessionRunner, SessionRunnerDependencies } from '@/session/session-runner'
@@ -63,6 +64,11 @@ export interface WorkspaceSessionDependencies {
    */
   // @spec-link [[module_session_seed_plan]]
   readonly nextSessionSeed: () => Seed
+  /**
+   * Where a new player preset's id comes from (production: the browser's random UUIDs), passed
+   * through as `WorkspaceSession.presetStore.nextPresetId`.
+   */
+  readonly nextPresetId: PresetIdSource
   readonly viewport: ViewportWidthProvider
   /**
    * The one generation seam; a session runner and the Idle pre-generation queue pass each
