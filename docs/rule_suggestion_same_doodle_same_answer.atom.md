@@ -5,7 +5,7 @@ tags: [v3, release-v3.2, jam, key-and-mode-suggestion, determinism]
 dependents: []
 type: RULE
 layer: BUSINESS
-version: 0.1
+version: 0.2
 priority: 1
 human_name: The Same Doodle Always Gives the Same Suggestion
 parents:
@@ -24,4 +24,4 @@ When several candidates are kept, the suggestion is a weighted draw among them, 
 The suggestion's draw is seeded by a hash of the quantized doodle.
 
 ## EXPECTATION
-- The same quantized doodle gives the same suggestion in Chrome and Edge, on any machine, across sessions and reloads.
+- The same quantized doodle gives the same suggestion in Chrome, on any machine, across sessions and reloads.

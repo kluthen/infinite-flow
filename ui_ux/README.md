@@ -14,8 +14,10 @@ the player's own instrument, the remembered controller and, on request, the note
 played. It extends the same screen again: kept sessions live inside the review, "Your data" and
 "My instrument" are sheets. v3 ships in three releases, each built on the one before: v3.0
 (Storage), v3.1 (presets and embellishment figures: a preset dropdown at the top of the controls,
-a group of seven figure levels) and v3.2 (Jam: a session begun by a doodle the player plays, the
-key and mode suggestion, the rhythm lock, Jam's drift and what Vary settings may move). v3.3
+a group of seven figure levels) and v3.2 (Jam mode: a second mode, switched in the header, where
+a session begins from a doodle the player plays and continues it, with its own small set of
+controls and the key and mode suggestion; in session mode, the rhythm lock and what Vary settings
+may move). v3.3
 (richer chords, master spec Part D) follows them: a Seventh chords level beside Harmonic motion,
 and the longer chord symbols it brings.
 
@@ -23,8 +25,9 @@ and the longer chord symbols it brings.
 its design is frozen in `versions/v3.0/` and its working record is in `archive/v3.0/`. v3.1 is
 released as version 3.1.0 (tag `v3.1.0` at 55364e7, 2026-10-21); its design is frozen in
 `versions/v3.1/` and its working record is in `archive/v3.1/`. The root now works toward v3.2 and
-v3.3, neither built yet; both wait for the owner's review. See `todo.md` for where the work
-stands.
+v3.3, neither built yet; both wait for the owner's review. v3.2 was re-scoped on 2026-10-21 (Jam
+from a session option to a mode of its own), and its design was reworked in place. See `todo.md`
+for where the work stands.
 
 ## Released versions and work in progress
 
@@ -67,7 +70,7 @@ stands.
 - `motion.md` defines the limited motion policy.
 - `versions/v1/mockups/` contains the interactive v1 phrase-workspace review prototype, styled from the frozen `versions/v1/ui_common.css` reference.
 - `flows/generate-phrase/` specifies the four-measure generation journey between sessions: the phrase the player asks for, the replacements the app makes when a phrase does not fit the window, and every idle state on the way to a phrase a session can start from.
-- `screens/phrase-workspace/` specifies the shared workspace screen, including the options a session runs with (rising tempo, tension across phrases, varying settings), set before a session and only shown during it.
+- `screens/phrase-workspace/` specifies the shared workspace screen, including the mode switch in its header, the options a session runs with (the rhythm lock, rising tempo, tension across phrases, varying settings), set before a session and only shown during it, and Jam mode's own controls.
 - `flows/controller-connection/` specifies the MIDI controller connection and transposition-check journey.
 - `screens/controller-connection/` specifies the connection sheet screen that flow traverses.
 - `flows/play-session/` specifies the continuous session: starting (Start or the starting note), the count-in, the rolling two-system display, acknowledgement, the audio mix, and every way a session ends, up to the review opening. It runs on `screens/phrase-workspace/`, whose session states it names.
@@ -95,9 +98,10 @@ stands.
   saving, renaming and deleting the player's own presets; `screens/preset-sheet/` the sheet those
   are done in. The preset dropdown and the embellishment levels sit in
   `screens/phrase-workspace/`.
-- `flows/jam/` specifies a Jam: the Jam mode at idle, the count-in, the doodle, the first phrase
-  written from it, a held doodle, and the key and mode suggestion. The rhythm lock, drift and
-  what Vary settings may move are session options, in `screens/phrase-workspace/`.
+- `flows/jam/` specifies Jam mode: entering and leaving it, its idle with or without the doodle
+  it keeps, tap-in, the count-in, the doodle, the first phrase written from it, and the key and
+  mode suggestion. Jam mode's controls, and session mode's rhythm lock and what Vary settings may
+  move, are in `screens/phrase-workspace/`.
 - `open-questions.md`, `decisions.md`, and `todo.md` are working registers. Read `todo.md` before extending this set.
 - `versions/v2/` holds the v2 design as it shipped in version 2.0.0, frozen, with a summary of the
   decisions worth keeping.

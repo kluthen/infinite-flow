@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.82
+Status: draft v0.86
 
 ## Status Snapshot
 
@@ -10,10 +10,10 @@ Status: draft v0.82
   with the evidence in the [release notes](../docs/release/v3.1-release-notes.md). Master spec
   [Part B](versions/v3/master-spec.md#part-b--v31), embellishment figures and presets, is with
   Part A the contract for the running code; the milestone's working record is in
-  [archive/v3/](archive/v3/README.md) (D398). Still to come after the tag, as v3.1.x notes: the
-  owner's hand checks v3.1 H3 (Edge), H4 (Vary settings under a preset) and H5 (v3.0 data carried
-  over), then the 13 promotions waiting on them
-  ([v3.1.x notes](versions/v3/README.md#v31x-notes-after-the-tag)).
+  [archive/v3/](archive/v3/README.md) (D398). Its hand checks after the tag are closed (D399): H4
+  passed on the owner's word, H3 (Edge) and H5 (v3.0 data carried over) waived, since Chrome is
+  the one supported browser and v3.0 had no live users; the 13 promotions that waited on them
+  are applied (5618971, CONTRACT 7.2.0) ([v3.1.x notes](versions/v3/README.md#v31x-notes-after-the-tag)).
 - **v3.0 is released as version 3.0.0** (2026-10-16, D348), tagged `v3.0.0` at e288d98 and
   deployed. Master spec [Part A](versions/v3/master-spec.md#part-a--v30) states it. Still to come
   as v3.0.x notes: hand check H8, the played-notes-export half of H5 and the later promotion of
@@ -37,13 +37,20 @@ Status: draft v0.82
   [far vision](vision/far-vision.md).
 - **Personas:** P1, the Curious Improviser (primary); P2, the Speed Builder; P3, the Fledgling
   Composer. A shared [context of use](personas.md#context-of-use) covers all three: a laptop or
-  desktop in Chrome or Edge first, at music-stand distance, no click while playing.
+  desktop in Chrome first (the one supported browser, D399), at music-stand distance, no click
+  while playing.
 - **Next: the rest of v3** ([v3](versions/v3/README.md#releases-d211)):
-  - **v3.2:** Jam, the key and mode suggestion, the rhythm lock and its mutation option. Master
-    spec [Part C](versions/v3/master-spec.md#part-c--v32), approved (D239); build plan
-    [v3.2](versions/v3/build-plan-v3.2.md), v3, not approved; its design not approved (D353
-    approved v3.1's only). The contract wording v3.1 and v3.2 change was confirmed by the owner
-    (D246).
+  - **v3.2:** Jam, the key and mode suggestion, the rhythm lock and its mutation option. Jam is
+    its own mode, entered by a button at Idle, needing a MIDI controller, with its own settings,
+    loaded on demand, its generator steering at the edges, its tempo set before the doodle in
+    60–180 BPM (D400–D408; [draft](versions/v3/jam-mode.md)). Master spec
+    [Part C](versions/v3/master-spec.md#part-c--v32) **v1.2, approved** (D410), with the design's
+    behaviour answers (D411), the doodle-to-controls thresholds (D415) and "the kept doodle"
+    (D413); its contract wording (CONTRACT 7.2.0 to 8.0.0) still waits for the owner's one
+    sign-off. The design is approved (gate D0) and its token pass allowed (T2) (D412). Phones are
+    a third-rate client (D414). Build plan [v3.2](versions/v3/build-plan-v3.2.md) **v5, written,
+    awaiting the owner's approval** (D416; v5 corrected against the design at `ux-writer`'s
+    review): 32 chunks in eight waves, session mode first, one release, 3.2.0.
   - **v3.3:** richer chords, opt-in: one Seventh chords level, Off by default, diatonic sevenths
     only. Master spec [Part D](versions/v3/master-spec.md#part-d--v33), awaiting owner approval
     (D264–D275); build plan [v3.3](versions/v3/build-plan-v3.3.md), v3, not approved, after
@@ -82,7 +89,7 @@ Status: draft v0.82
   [prerequisites](versions/prerequisites.md). v3's build plans: [v3.0](versions/v3/build-plan.md) (complete; chunk 26 is the release gate's
   record), [v3.1](versions/v3/build-plan-v3.1.md) (v23, complete; chunk 21 is the release gate's
   record, and its hand checks H3–H5 follow the tag; on the build-plan model with the shared
-  [v3 build workflow](versions/v3/build-workflow.md), D349; its [wave log](versions/v3/wave-log-v3.1.md)), [v3.2](versions/v3/build-plan-v3.2.md) (v3, on the build-plan model, D350; not approved)
+  [v3 build workflow](versions/v3/build-workflow.md), D349; its [wave log](versions/v3/wave-log-v3.1.md)), [v3.2](versions/v3/build-plan-v3.2.md) (v5, rewritten for Jam as its own mode, D416, then corrected against the design; not approved)
   and [v3.3](versions/v3/build-plan-v3.3.md) (v3, on the build-plan model, D351; not approved;
   depends on owner approval of Part D). Every build plan runs wave by
   wave (D252): one intent preflight and one full wave gate per wave; a chunk checks only its own

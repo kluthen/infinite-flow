@@ -2,8 +2,10 @@
 
 Status: v3.0 released as version 3.0.0 on 2026-10-16 (tag `v3.0.0` at e288d98, deployed;
 D348); v3.1 released as version 3.1.0 on 2026-10-21 (tag `v3.1.0` at 55364e7; D397), its hand
-checks H3–H5 still to run ([v3.1.x notes](#v31x-notes-after-the-tag)); v3.2 consolidated as
-master spec Part C, approved (D239), its design and build plan not approved; v3.3 in master spec
+checks after the tag closed (D399; [v3.1.x notes](#v31x-notes-after-the-tag)); v3.2 consolidated as
+master spec Part C v1.0, approved (D239), re-scoped with Jam as its own mode (D400–D408;
+[draft](jam-mode.md), settled) and consolidated from it as Part C v1.1 (D409), approved as v1.2
+(D410), its design approved (D412) and its build plan v4 written, awaiting approval (D416); v3.3 in master spec
 Part D, awaiting owner approval (D264–D275), its build plan not approved (D276–D288, D351); v3.4,
 a structural review before v4, opened as a scoping draft (D389), with a lexicon page added as its
 one player-facing item (D393); v3.x direction only. The Status paragraphs this README kept until
@@ -351,26 +353,42 @@ D229–D231; consolidated in [master spec Part B](master-spec.md#b6-presets).
 ### v3.1.x notes (after the tag)
 
 These follow the `3.1.0` tag (D397). The checks are written in the v3.1 build plan's
-[hand checks](build-plan-v3.1.md#hand-checks) and in `HARDWARE-CHECKLIST.md`, v3.1 part; their
-results go to the [release notes](../../../docs/release/v3.1-release-notes.md) when they run. A
-finding becomes an issue or a 3.1.x fix (D397).
+[hand checks](build-plan-v3.1.md#hand-checks) and in `HARDWARE-CHECKLIST.md`, v3.1 part. All
+three are closed (D399):
 
-- **v3.1 H3, the same phrase in Edge:** item 7's Edge half.
-- **v3.1 H4, Vary settings under a preset.**
-- **v3.1 H5, v3.0 data carried over.**
-- **The waiting promotions** (D396, D397): 11 REVIEW→STABLE and 2 DRAFT→REVIEW atoms, by
-  `documentalist` with the owner, each once the check it waits on passes.
+- **v3.1 H3, the same phrase in Edge:** waived. Chrome is the one supported browser; Edge, like
+  any other Chromium-based browser, is not tested. Item 7 promises the same phrase in Chrome.
+- **v3.1 H4, Vary settings under a preset:** passed on the owner's word.
+- **v3.1 H5, v3.0 data carried over:** waived. v3.0 had no live users, so carrying v3.0's data
+  over is not checked by hand; the upgrade code and its automated tests stay.
+- **The waiting promotions** (D396, D397, D399): 11 REVIEW→STABLE and 2 DRAFT→REVIEW atoms, are
+  applied (5618971, CONTRACT 7.2.0), the atoms that promised the same result "in Chrome and Edge"
+  reworded to Chrome.
 
 ## v3.2 — Jam and the rhythm lock
 
-**Consolidated 2026-10-08: [master spec, Part C](master-spec.md#part-c--v32)** (master spec v1.0,
-awaiting the owner's approval of the consolidation and the owner's confirmation of the contract
-wording it lists).
+**Re-scope opened 2026-10-21 (D400–D405): [Jam as its own mode](jam-mode.md)**, draft v1. Jam
+leaves the session options for a mode of its own, entered by a button, with its own settings, its
+code loaded on demand, its steering kept at the generator's edges, and a tempo target of 120 to
+180 BPM. Settled the same day (D406–D408; four answers provisional until the owner's checks):
+Jam's own settings with the rhythm and shape controls taken from the doodle, the tempo set before
+the doodle with tap-in, the mode switched only at Idle, a MIDI controller required, and v3.2 split
+into session-mode work first, then Jam mode. Consolidated into Part C v1.1 on 2026-10-21 (D409),
+approved as v1.2 the same day (D410); the build plan is rewritten as v4 (D416).
 
-**Build plan:** [build-plan-v3.2.md](build-plan-v3.2.md), v3 (2026-10-16), not approved; for the
-owner to review with the v3.2 design. It plans v3.2 on top of the [v3.0](build-plan.md) and
-[v3.1](build-plan-v3.1.md) build plans on the build-plan model: 27 chunks in seven waves, then the
-release gate, under the shared [v3 build workflow](build-workflow.md) (D350).
+**Consolidated: [master spec, Part C](master-spec.md#part-c--v32).** v1.0 (2026-10-08) was approved
+by the owner on 2026-10-08, with the contract wording it lists confirmed the same day (D239).
+v1.1 (2026-10-21) was rebuilt from the re-scope (D409). **v1.2 (2026-10-21) is approved by the
+owner** (D410): v1.1's seven proposed answers (O260–O266), the design's behaviour answers (D411),
+the doodle-to-controls thresholds (D415) and "the kept doodle" (D413) written in. One sign-off on
+its re-scoped contract wording (CONTRACT 7.2.0 to 8.0.0) is still to come, as the build plan's
+gate CS.
+
+**Build plan:** [build-plan-v3.2.md](build-plan-v3.2.md), **v4 (2026-10-21), written, awaiting
+the owner's approval** (D416), from Part C v1.2 and the approved design (gate D0, D412). It plans
+v3.2 on top of the [v3.1](build-plan-v3.1.md) build plan on the build-plan model: 32 chunks in eight
+waves, the session-mode half first (waves 0–3), then Jam mode (waves 4–7), one release, then the
+release gate, under the shared [v3 build workflow](build-workflow.md).
 
 **Drafts** (2026-10-08, draft v2, approved by the owner: D232 for the rhythm lock, D234 for the
 rest): [Jam](jam.md), [key and mode suggestion](key-and-mode-suggestion.md),

@@ -6,8 +6,9 @@
 >
 > - _v3.1 changed:_ a row names the preset the session started with, as it was then
 >   ([The List](#the-list))
-> - _v3.2 new:_ Jam sessions in the list, kept and deleted like any, and sessions kept before
->   v3.2 ([Jam Sessions](#jam-sessions))
+> - _v3.2 new:_ Jam sessions in the list, kept and deleted like any, with no preset; deleting
+>   one lets go the doodle Jam mode keeps from it; sessions kept before v3.2
+>   ([Jam Sessions](#jam-sessions))
 
 ## Whose Flow This Is
 
@@ -160,15 +161,24 @@ it was played with, by the name it had then.
 **[v3.2 new]** A Jam is kept like any session, by the same rule: once its first phrase has
 sounded, it is saved at its end, kept as the most recent session, and kept for good when pinned or
 when the player marks a favorite. Its row says "Jam" at the start of its detail line, so the
-sessions that began with the player's own idea are easy to find. A Jam that ends before its first
-phrase sounds keeps nothing and replaces nothing, as a session stopped during its count-in: there
-is no music to keep.
+sessions that began with the player's own idea are easy to find; it names no preset, since Jam
+mode has none. A Jam that ends before its first phrase sounds keeps nothing and replaces nothing,
+as a session stopped during its count-in: there is no music to keep.
 
 **[v3.2 new]** A kept Jam session holds its doodle as the app wrote it, without the player having
 to switch anything on: it is part of the music, the idea the phrases continue. The notes as the
 player actually played them are played notes, kept only with "Keep my played notes" on. Deleting a
 Jam session deletes both. Deleting its played notes, from its review or from Your data, deletes
 the notes as played and keeps the written-out doodle, so the review still opens with the idea.
+
+**[v3.2 new]** After a Jam, Jam mode keeps its doodle for the next Jam, in memory only, and its
+review's `Jam again on this doodle` brings it back the same way. Deleting the Jam session it came
+from lets that doodle go too, whichever way the session is deleted, since deleted means gone, the
+doodle included. Nothing else here touches it: opening, pinning, favoriting or commenting the
+session, or deleting its played notes, keeps it. A Jam session's review shows over either mode,
+like any session's, and its doodle comes with Jam's part of the app, which a visit that has not
+used Jam yet loads when the review opens (see
+[`flows/review-and-export/`](../review-and-export/intent.md#a-jams-review)).
 
 **[v3.2 new]** Sessions kept before v3.2 have no doodle; they open exactly as before. A Jam
 session written by a newer version of the app is listed and cannot be opened, as any such session.

@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.117
+Status: draft v2.123
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -27,7 +27,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and each milestone
 folder's README, such as [archive/v3/README.md](archive/v3/README.md)). Numbering continues from
-**D399**.
+**D410**.
 
 Live here: D232–D251 (v3.2, not built yet), with v3.1's D233, D235, D242 and D250 interleaved
 among them and D237, D239 and D246 ruling both releases, kept until v3.2's archive closes the
@@ -686,3 +686,113 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   README. Master spec Part B, the v3.1 build plan and its wave log stay in place. Still live: v3.1
   H3–H5 and their 13 waiting promotions ([v3.1.x notes](versions/v3/README.md#v31x-notes-after-the-tag)).
   No question was decided.
+
+- **D399 (2026-10-21): v3.1's hand checks after the tag close: H4 passed, H3 and H5 waived; the 13
+  waiting promotions proceed; Chrome is the one supported browser.** The owner: "edge isn't
+  supported anyway so who cares. v3.0 has no live customer so we may forget about migration issue.
+  otherwise everything run fine." The spec had named Edge (Chromium-based browsers, "Chrome or
+  Edge"); it now says Chrome is supported and other Chromium-based browsers, Edge included, are not
+  tested. H5: the v3.0 upgrade code and its tests stay. The Edge checks of the v3.2 and v3.3 plans go
+  at their next revision. Now in: [v3.1.x notes](versions/v3/README.md#v31x-notes-after-the-tag),
+  [hand checks](versions/v3/build-plan-v3.1.md#hand-checks), [context of use](personas.md#context-of-use).
+
+- **D400 (2026-10-21): Jam is its own mode, apart from the usual session mode; the app opens in
+  session mode, and a button switches to Jam mode.** The owner: "consider the jam mode something
+  that is distinctly different from usual session (website load on start the current session mode,
+  click a button to switch in jam mode) … moving jam as separate from session should prevent much
+  of the colision ui wise." Replaces Part C's Jam switch among the session options (C5.1). Opens
+  O251. Now in: [Jam mode §2](versions/v3/jam-mode.md#2-two-modes).
+
+- **D401 (2026-10-21): Jam has its own settings set.** The owner: "settings related to jam are
+  probably a bit different (the app will follow what has been provided and will iterate and mutate
+  over the provided motif)." Which settings it holds, shares or drops is O247, O248 and O253. Now in:
+  [Jam mode §3](versions/v3/jam-mode.md#3-jams-settings-set).
+
+- **D402 (2026-10-21): Jam's code loads on demand, outside the first-load (entry) chunk.** The
+  owner: "This may reduce initial load cost." The entry chunk carries only the button that opens
+  Jam mode. Bundle policy: O258. Now in: [Jam mode §2](versions/v3/jam-mode.md#2-two-modes).
+
+- **D403 (2026-10-21): Jam's footprint in the generator is kept as small as possible: one shared
+  generator, Jam's steering at its edges.** The owner: "we must aim at reducing impact of jam on
+  generator work as much as possible, but it is inescapable." The seam is proposed in
+  [Jam mode §4](versions/v3/jam-mode.md#4-the-generator-seam) (O252).
+
+- **D404 (2026-10-21): Jam's tempo target is 120 to 180 BPM; 240 BPM is best effort, worked on
+  last, and may be dropped.** The owner: "working at 240 bpm should be considered best effort
+  (leave it for last). aim for 120 to 180 at maximum. None of our persona are expert at these
+  level. (i'll accept the sacrifice of 240bpm should it come up)." How the tempo is set is O249;
+  the exact ceiling O250. Now in: [Jam mode §5](versions/v3/jam-mode.md#5-tempo-in-jam).
+
+- **D405 (2026-10-21): v3.2 is re-scoped around D400–D404; Part C's Jam is reopened, and the
+  v3.2 build plan's rewrite waits for the re-scope.** Part C (approved by D239) stays the record
+  until the re-scope is settled and consolidated into it; where [Jam mode](versions/v3/jam-mode.md) differs, Part C is
+  to change. The plan's corrections found against v3.1 still apply at the rewrite. The rhythm lock
+  and Vary settings' allowed groups are not reopened beyond what the mode split touches. Now in:
+  [Jam mode §6](versions/v3/jam-mode.md#6-blast-radius).
+
+- **D406 (2026-10-21): Jam's settings, its controls taken from the doodle, its tempo and its
+  rhythm lock are settled as proposed, provisionally until the owner's checks.** The owner: "your
+  propositions seem nice, will need testing to be sure." Closes O247, O248, O249 and O253 as
+  [Jam mode §3](versions/v3/jam-mode.md#3-jams-settings-set) and [§5](versions/v3/jam-mode.md#5-tempo-in-jam) say, with the check that
+  confirms each in [§3.1](versions/v3/jam-mode.md#31-what-confirms-them). A failed check comes back as a ruling for the
+  owner; nothing changes silently.
+
+- **D407 (2026-10-21): the mode switches only at Idle, never while playing, and Jam requires a
+  MIDI controller.** The owner: "indeed you can't switch session/jam mode while playing. Jam
+  requires a controller. ok for the rest." Without a controller, Jam mode opens and its Start is
+  unavailable, saying why. Closes O251 with the rest as proposed. Now in:
+  [Jam mode §2](versions/v3/jam-mode.md#2-two-modes).
+
+- **D408 (2026-10-21): the remaining re-scope proposals are accepted.** The owner: "ok for the
+  rest." Closes O250 (60–180 BPM), O252 (the seam), O254 (the doodle Jam mode keeps), O255 (one
+  list, one review), O256 (v3.2 split, session-mode work first), O257 (one MAJOR bump, from
+  CONTRACT 7.2.0 to 8.0.0), O258 (bundle policy) and O259 (scripted checks). Now in:
+  [Jam mode](versions/v3/jam-mode.md).
+
+- **D409 (2026-10-21): master spec Part C is rebuilt as v1.1 from the settled Jam re-scope, with a
+  facts-only refresh against 3.1.0; it awaits the owner's approval.** No behaviour beyond
+  D400–D408. Where the re-scope left a choice open, v1.1 proposes an answer and opens O260–O266
+  (the replay key carrying the steering block, Jam's levels, the doodle-to-controls mapping, tap-in
+  on the controller, shared settings changed in Jam mode, a cold rhythm domain, the split's
+  versions). Now in: [Part C](versions/v3/master-spec.md#part-c--v32),
+  [Jam grounding §E](versions/v3/jam-grounding.md#e-refresh-at-v310-2026-10-21).
+
+- **D410 (2026-10-21): the owner approves master spec Part C v1.1 with its seven proposed answers;
+  O260–O266 close as proposed.** The owner: "approved, go with the proposals." Part C becomes v1.2,
+  the answers written in; O263's tap-in takes the design's form (D411). The contract wording's one
+  sign-off (C13) is still to come. Now in: [Part C §C17](versions/v3/master-spec.md#c17-deferred-and-open),
+  [§C5.16](versions/v3/master-spec.md#c516-jams-settings), [§C5.17](versions/v3/master-spec.md#c517-tempo-in-jam-and-tap-in).
+
+- **D411 (2026-10-21): ux Q81–Q87 are answered as `ux-writer` recommended.** The same approval.
+  Where they met a proposal: Jam's first values are Q83's (session mode's first-visit values, the
+  tempo kept in 60–180, Embellishments Rarely) with O261's drift Near, lock and changes off; tap-in
+  is ux D335's (taps only after the button; then controller notes too; unevenness never judged).
+  Now in: [Part C §C5.11](versions/v3/master-spec.md#c511-the-kept-doodle-and-jam-again-on-this-doodle),
+  [§C5.16](versions/v3/master-spec.md#c516-jams-settings), [§C10.5](versions/v3/master-spec.md#c105-pre-generation-v30), [Part D §D8.4](versions/v3/master-spec.md#d84-pre-generation-jam-and-the-key-and-mode-suggestion).
+
+- **D412 (2026-10-21): design gate D0 is granted and token pass T2 allowed.** The same approval:
+  the reworked v3.2 design (ux D328–D346, `ux-critic` validated), and one pass adding the classes
+  `mode-switch`, `tap-tempo`, `doodle-readings` and `jam-needs-controller`, no new token value.
+  Now in: [build plan v3.2, gates](versions/v3/build-plan-v3.2.md#gates).
+
+- **D413 (2026-10-21): "the held doodle" becomes "the kept doodle".** One term per concept (D237),
+  as the re-scope (D408) and the approved design say it; the lexicon entry is renamed, its id
+  `kept-doodle`. Now in: [Part C §C4](versions/v3/master-spec.md#c4-words-used-in-this-part),
+  [lexicon](../docs/music/lexicon.md#kept-doodle).
+
+- **D414 (2026-10-21): phones are a third-rate client; reducing a capability on a phone is
+  acceptable.** The owner: "treat the phone as third rate client, it's okay if we reduce capabilities
+  for it." A standing policy (ux D119), restated. Now in: [context of use](personas.md#context-of-use),
+  [Part C §C10.8](versions/v3/master-spec.md#c108-other-session-rules).
+
+- **D415 (2026-10-21): the doodle-to-controls thresholds.** `spec-writer`'s, under D410's O262: each
+  control the nearest value the quantized doodle shows, in integers; an unsupported combination
+  raises rhythmic variety only. The listening check confirms them; a correction is a ruling. Now in:
+  [Part C §C5.16.1](versions/v3/master-spec.md#c5161-the-doodle-to-controls-mapping).
+
+- **D416 (2026-10-21): build plan v3.2 is rewritten as v4 from Part C v1.2 and the approved design;
+  it awaits the owner's approval.** Two halves, one release: waves 0–3 session mode (with the whole
+  request, `ifk4.` and kept-session shape, so each is taken once), waves 4–7 Jam mode; Jam's code
+  under `src/jam/`, kept out of the entry chunk by a new boundary check; chunk 26 folded into 19;
+  new chunks 28–33, 240 BPM last behind ruling J240; nine scripted hand checks, none on Edge or a
+  phone. Now in: [build plan v3.2](versions/v3/build-plan-v3.2.md).

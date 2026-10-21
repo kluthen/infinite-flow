@@ -1,6 +1,6 @@
 ---
 id: rule_vary_settings_stays_inside_restriction
-status: REVIEW
+status: STABLE
 parents:
   - [[req_settings_mutation_flag]]
   - [[rule_restriction_in_force]]

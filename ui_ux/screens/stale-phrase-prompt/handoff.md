@@ -6,7 +6,8 @@
 >
 > - _v3.1 changed:_ the named settings lose Musical profile preset and gain the seven figure
 >   levels ([Components and Content](#components-and-content))
-> - _v3.2 new:_ never in Jam mode ([States](#states))
+> - _v3.2 new:_ never in Jam mode; in session mode it compares session mode's settings only
+>   ([States](#states))
 > - _v3.3 changed:_ the named settings gain Seventh chords
 >   ([Components and Content](#components-and-content))
 
@@ -123,6 +124,10 @@ sheet-backdrop
 - **Never during a session, never in the review mode, never over another sheet.** The session
   action reads `Close review` while the review shows and no note starts anything then, and no
   start is possible while another sheet is open.
-- **[v3.2 new]** **Never in Jam mode.** `Start Jam` and the home note never open it: a fresh Jam
-  has no phrase 1 on screen, and a held doodle is let go by any change of a setting phrases are
-  made from, so its phrase 1 is never out of date.
+- **[v3.2 new]** **Never in Jam mode.** `Start Jam`, the home note and phrase 1's first note never open
+  it: a fresh Jam has no phrase 1 on screen, and with a kept doodle a change
+  of any of Jam's settings but the tempo writes phrase 1 again from the doodle at once
+  (`flows/jam/handoff.md`, Routing Rules), so its phrase 1 is never out of date. In session mode
+  the comparison reads session mode's settings only: nothing set in Jam mode is ever named, and an
+  instrument changed there has already replaced session mode's phrase 1 on the way back
+  (`flows/generate-phrase/handoff.md`, Jam mode).

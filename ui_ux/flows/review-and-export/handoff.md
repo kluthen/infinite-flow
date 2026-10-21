@@ -24,15 +24,21 @@
 >   [frozen copy](../../versions/v2/flows/review-and-export/handoff.md))
 > - _v3.1 changed:_ the session is saved with its preset label, a snapshot, in place of its
 >   musical profile ([Saving the Session](#saving-the-session))
-> - _v3.2 new:_ `Use`, `Keep` and `Jam again on this doodle` in a Jam's review; a Jam ended
->   before phrase 1 sounds opens no review ([Flow](#flow),
+> - _v3.2 new:_ `Jam in {answer}`, `Keep` and `Jam again on this doodle` in a Jam's review; a Jam
+>   ended before phrase 1 sounds opens no review; the review over either mode ([Flow](#flow),
 >   [Screens and Conditions](#screens-and-conditions))
-> - _v3.2 new:_ the hidden workspace's next phrase in Jam mode, and the held doodle's bar hidden
->   while the review shows ([Showing](#showing))
-> - _v3.2 new:_ what a Jam session's save adds ([Saving the Session](#saving-the-session))
-> - _v3.2 new:_ a Jam's review, the suggestion's actions and what they change, and
->   `Jam again on this doodle` ([The Doodle and the Suggestion](#the-doodle-and-the-suggestion))
-> - _v3.2 new:_ both exports open with the doodle, and still line up ([Export](#export))
+> - _v3.2 new:_ the mode switch read-only while the review shows; the hidden workspace after a
+>   Jam, Jam mode's Idle with the kept doodle; the kept doodle's bar hidden while the review
+>   shows ([Showing](#showing))
+> - _v3.2 new:_ `Close review` returns to the mode the review showed over
+>   ([Leaving and Coming Back](#leaving-and-coming-back))
+> - _v3.2 new:_ what a Jam session's save adds, and no preset label
+>   ([Saving the Session](#saving-the-session))
+> - _v3.2 new:_ a Jam's review, its doodle loaded with Jam's code, the suggestion's actions and
+>   what they change, and `Jam again on this doodle`
+>   ([The Doodle and the Suggestion](#the-doodle-and-the-suggestion))
+> - _v3.2 new:_ both exports open with the doodle, still line up, and wait for Jam's code
+>   ([Export](#export))
 > - _v3.2 changed:_ the raw doodle notes are played notes, in the lane and the played-notes export
 >   ([Played Notes](#played-notes))
 > - _v3.2 new:_ the doodle's two forms ([Privacy](#privacy))
@@ -54,6 +60,8 @@ flowchart TD
   SV -.->|"Save fails: the session stays in memory; keep line 'Not saved on this device'"| RV
   RV["Review showing: review-panel in the staff area's place; toolbar, mix and controls still usable; session action reads Close review, primary; phrase action disabled; title Last session or the session date"]
   RV -.->|"Meanwhile, hidden (after a session end only): session systems cleared; next phrase generated from the current controls (fresh seed, no carry-in, idle fit retries), or none while the staff has no room"| RV
+  %% v3.2 new: after a Jam, Jam mode's Idle with the kept doodle, under the review
+  RV -.->|"Meanwhile, hidden, after a Jam's end: Jam mode keeps the doodle; phrase 1 written again from it (fresh seed); jam-bar kept, hidden"| RV
   RV -->|"Start session is not offered; no MIDI note starts a session"| RV
   %% v3 new: the other ways in (flows/kept-sessions/)
   WS["phrase-workspace idle: review-link"] -->|"Review last session: the most recent session; focus review-title"| RV
@@ -66,10 +74,12 @@ flowchart TD
   RV -->|"Delete session, confirmed (never while saving is off)"| SLE["session-list, its empty state included; focus on its title"]
   RV -->|"Keep my played notes on; off (with kept notes, not while saving is off: confirmation, Delete them or Keep them)"| RV
   RV -->|"Delete played notes, confirmed (never while saving is off): lane, view row and played-notes export leave"| RV
-  %% v3.2 new: a Jam's review (review-doodle)
-  RV -->|"Use answer (suggestion offered): key and mode set as by hand; row reads Key and mode set to ..."| RV
-  RV -->|"Keep current key and mode: declined for good, kept with the session; row leaves"| RV
-  RV -->|"Jam again on this doodle (controller connected): review mode left; Jam turned on if off"| JI["Idle in Jam mode with that doodle held: flows/jam/"]
+  %% v3.2 new: a Jam's review (review-doodle), with Jam's code
+  RV -->|"A Jam session's review, Jam's code not loaded yet: Loading your doodle; loaded: doodle and suggestion; failed: doodle, suggestion, Jam again and both exports unavailable"| RV
+  RV -->|"Jam in answer (suggestion offered): Jam's key and mode set, saved as Jam's; row reads Jams now play in ..."| RV
+  RV -->|"Keep Jam's key and mode: declined for good, kept with the session; row leaves"| RV
+  RV -->|"Jam again on this doodle (its doodle loaded): review mode left; Jam mode, opened if needed"| JI["Jam mode with that doodle kept, phrase 1 written from it through Loading: flows/jam/"]
+  RV -->|"Jam again on this doodle, in the review of the Jam just played: as Close review"| LV
   %% v3 changed: saved choices; v3 new: scope, very short notes
   RV -->|"Format: MusicXML or MIDI; Backing track (MIDI only); saved"| RV
   RV -->|"Export scope: Whole session or Favorites only; Include very short notes"| RV
@@ -80,8 +90,9 @@ flowchart TD
   X -->|Fails| XE["review-export-error: 'The file couldn't be made. Try again.'"]
   DL --> RV
   XE --> RV
-  RV -->|Close review| LV["Review mode left: the workspace returns in its idle state; review-link and sessions-link by their rules"]
-  LV -->|"Ready: focus stays on the session action, now Start session"| RD[phrase-workspace: Ready]
+  %% v3.2 changed: the mode the review showed over
+  RV -->|Close review| LV["Review mode left: the workspace returns in its idle state, in the mode the review showed over; review-link and sessions-link by their rules"]
+  LV -->|"Ready: focus stays on the session action, now Start session (Start Jam in Jam mode)"| RD[phrase-workspace: Ready]
   LV -->|"Needs more room: focus on room-notice"| NM[phrase-workspace: Needs more room]
   LV -->|"Any other idle state: focus on the phrase action if enabled, else controller-status"| OT["phrase-workspace: Loading, Initial generation error, Empty"]
   RD -->|"Start session, or the starting note (idle rules): nothing asked"| ST["review-link and sessions-link removed"]
@@ -108,8 +119,12 @@ flowchart TD
   changes nothing kept.
 - **[v3.2 new]** **A Jam that ends before phrase 1 sounds** (no doodle note in time, Stop, a lost
   controller, a hidden tab, no staff, or phrase 1 never written) ends as a count-in end: no
-  Review, nothing kept, the doodle not held (`flows/jam/`). A Jam whose phrase 1 sounded has a
-  Review like any session, opening with its doodle (The Doodle and the Suggestion).
+  Review, nothing kept, no doodle kept by Jam mode (`flows/jam/`). A Jam whose phrase 1 sounded
+  has a Review like any session, opening with its doodle (The Doodle and the Suggestion).
+- **[v3.2 new]** **Over either mode.** A Review shows over the mode the workspace is in: at a
+  session end, the mode the session was played in; from `Review last session` or the list, the
+  mode the player was in. A Jam session's Review can show over session mode and any other
+  session's over Jam mode; nothing in the Review differs.
 - **[v3 new]** **Title.** `review-title` reads "Last session" for the most recent session and the
   session date (`flows/kept-sessions/handoff.md`, Terms) for any other.
 
@@ -129,9 +144,12 @@ flowchart TD
   action reading `Close review`, primary. `generation-status` and `notation-status` are emptied
   when the Review opens and stay silent while it shows, as during a session; the hidden staff's
   state is what the player finds on leaving.
-- **[v3.2 new]** **The held doodle's bar.** While a doodle is held, `jam-bar` is hidden with the
-  generation-failure banner while the review mode shows, keeping its state, and is seen again on
-  leaving it (`screens/phrase-workspace/`).
+- **[v3.2 new]** **The mode switch** (`mode-switch`) is read-only while the review mode shows (a
+  Review or the list), with no note; `control-section` holds the controls of the mode underneath,
+  editable as at that mode's Idle.
+- **[v3.2 new]** **The kept doodle's bar.** While Jam mode keeps a doodle, `jam-bar` is hidden
+  with the generation-failure banner while the review mode shows, keeping its state, and is seen
+  again on leaving it (`screens/phrase-workspace/`).
 - **No start while showing.** No session starts while the Review shows: `Start session` is not
   offered (its slot reads `Close review`), and no MIDI note, the starting note included, starts a
   session. `start-note-line` and `start-note-marker` are hidden with the staff. Notes played into
@@ -149,11 +167,13 @@ flowchart TD
   its no-room sentence, the phrase coming when the notice clears. Whatever the workspace holds when
   the player leaves the Review is what they see; it becomes the next session's phrase 1 only by the
   ordinary idle start.
-- **[v3.2 new]** **The next phrase in Jam mode.** While Jam mode is in effect at the session's
-  end, the hidden workspace takes Jam mode's Idle instead, out of sight and silently: without a
-  held doodle no phrase is generated and the empty Jam staff waits; with a held doodle (one a Jam
-  was played on stays held), phrase 1 is generated from it, with a fresh seed, through the idle
-  attempt budget. The Idle side is specified in `flows/jam/`.
+- **[v3.2 new]** **The hidden workspace after a Jam.** At a Jam's end (phrase 1 having sounded)
+  the hidden workspace is Jam mode's Idle with the kept doodle, not a fresh phrase from the
+  controls: Jam mode keeps that Jam's doodle (a fresh Jam's, or the doodle a Jam on the kept
+  doodle was played on), and phrase 1 is written from it again, with a fresh seed, through the
+  idle attempts from the doodle, out of sight and silently; `jam-bar` is kept, hidden, and
+  `doodle-readings` holds the doodle's readings. Session mode, set aside, is untouched. The Idle
+  side is specified in `flows/jam/handoff.md`, The Kept Doodle.
 - **Focus at the end.** Focus moves to the session action, which now reads `Close review` and is
   always enabled while the Review shows.
 
@@ -167,6 +187,10 @@ flowchart TD
   enabled (`Start session` in **Ready**); otherwise moves once to `room-notice` in **Needs more
   room**, whichever its cause, else to the phrase action if enabled, else to
   `controller-status`. The Review is kept, not discarded.
+- **[v3.2 new]** **Close review returns to the mode the Review showed over**, in that mode's idle
+  state; `mode-switch` is pressable again. In Jam mode the session action reads `Start Jam` (focus
+  stays on it when enabled, so a Jam on the kept doodle starts with Space); without a connected
+  controller it is disabled and focus follows the rule above.
 - **[v3 changed]** **Review last session** (`review-link`, idle only, while the most recent session
   can be opened): shows its Review as above, the page scrolled instantly to its top as on
   `Close review`, then focus on `review-title`; the session action reads `Close review` again.
@@ -192,7 +216,8 @@ flowchart TD
   phrase count, preset label, instrument, starting and reached tempo, pinned state, comment and
   app version; its played notes only while `Keep my played notes` is on. The preset label is the
   selection at the session's start, as `control-summary` writes it ("Bebop", "Custom, based on
-  Bebop", "Custom"): a snapshot that a later rename or deletion of the preset never changes. Never acknowledgements. The same save deletes every unpinned kept session
+  Bebop", "Custom"): a snapshot that a later rename or deletion of the preset never changes.
+  Never acknowledgements. The same save deletes every unpinned kept session
   (`flows/kept-sessions/handoff.md`, Keeping at a Session's End). Nothing is shown on success.
 - **[v3.3 new]** Each phrase's reproduction inputs also hold the Seventh chords level, and its chord
   symbols are kept exactly as displayed, seventh chords included. Sessions kept before v3.3 open as
@@ -214,10 +239,12 @@ flowchart TD
   (`flows/saved-data/handoff.md`).
 - **[v3.2 new]** **A Jam session's save** also holds that it is a Jam, the quantized doodle with
   the tempo it was played at, and, once answered, the suggestion's decline; each phrase's
-  reproduction inputs hold the doodle, the drift and the rhythm-lock data (master spec §C11). The
-  raw doodle notes are played notes, saved with the others only while `Keep my played notes` is
-  on. `Keep {key} {mode}` saves the decline into the session when pressed, as a favorite is saved;
-  in a session held in memory, or while saving is off, the decline lasts for the visit.
+  reproduction inputs hold the request's new fields, the rhythm lock's and what the app read from
+  the doodle to steer the phrase (master spec §C11). It holds no preset label: Jam mode has no
+  presets, so the summary and the list's row have no preset part. The raw doodle notes are played
+  notes, saved with the others only while `Keep my played notes` is on. `Keep {key} {mode}` saves
+  the decline into the session when pressed, as a favorite is saved; in a session held in memory,
+  or while saving is off, the decline lasts for the visit.
 
 ## The Doodle and the Suggestion
 
@@ -227,40 +254,59 @@ flowchart TD
   as the app heard it, its header ("Your doodle", the tempo it was played at,
   `Jam again on this doodle`), its played-notes lane when `Played notes` is on, then the
   suggestion when there is one (`screens/last-session-review/handoff.md`). It is the same in the
-  review of the Jam that just ended and of a kept Jam session. A session kept before v3.2 has no
-  doodle and opens as before.
-- **When the suggestion is offered.** Worked out from the quantized doodle and judged against the
-  current key, mode and restriction in force, whenever the review opens and whenever one of them
-  changes while it shows. Offered while the current key and mode are not among the close answers
-  and the player has not declined it for this doodle; the "no fit" sentence when under 80 % of the
-  doodle fits the best answer; nothing otherwise. Never offered during a session.
-- **`Use {answer}`** sets Written key and Collection exactly as a change by hand in the controls
-  does: saved like any setting (in memory only while saving is off), pre-generated phrases
-  discarded, the selection becoming Custom, based on the preset, when the restriction in force
-  excludes the answer (the second line said so beforehand). An answer outside the Major and Minor
-  group moves the Collection to the modes; the player's press is what allows it. The hidden
-  workspace takes the change as at Idle: in Jam mode without a held doodle its empty staff takes
-  the new key signature; with Jam off the phrase on the staff stays until the player asks for
-  another. With a held doodle, `Use` keeps it only when it is this review's doodle: phrase 1 is
-  then written again from it in the new key and mode, out of sight (`flows/jam/`); a held doodle
-  from another session is let go, as by any key or mode change. The row then reads "Key and mode
-  set to {answer}." until the review closes or the key or mode is changed again. `Use` does not
-  close the review.
+  review of the Jam that just ended and of a kept Jam session, over either mode. A session kept
+  before v3.2 has no doodle and opens as before.
+- **Jam's code.** The doodle section, the suggestion and the doodle's part of both exports come
+  with Jam's code, loaded on demand (`flows/jam/handoff.md`, Opening Jam mode), never with the
+  page. Already loaded in the review of the Jam just played, and wherever Jam mode has opened or
+  a Jam session's review has loaded it in the visit. Otherwise the Review opens at once with
+  "Loading your doodle." in the doodle's place and `Jam again on this doodle` disabled; once
+  loaded, the doodle is engraved and the suggestion judged, silently. **If it cannot load**
+  (offline before the app's files were kept): "Your doodle can't be shown: part of the app
+  didn't load. Check that you're online, then open this session again." in the doodle's place,
+  `Jam again on this doodle` disabled with that reason, no suggestion, and both exports of that
+  session unavailable with the same reason. Everything else in the Review works. The next opening
+  of a Jam session's Review, or a press of `Jam`, tries the load again.
+- **When the suggestion is offered.** Worked out from the quantized doodle and judged against
+  Jam's key and mode (Jam's own Written key and Collection; session mode's current ones while Jam
+  mode has never opened on this device), whenever the review opens (once Jam's code has loaded)
+  and whenever Jam's key or mode changes while it shows. Offered while Jam's key and mode are not
+  among the close answers and the player has not declined it for this doodle; the "no fit"
+  sentence when under 80 % of the doodle fits the best answer; nothing otherwise. Never offered
+  during a session.
+- **`Jam in {answer}`** sets Jam's Written key and Collection only, from a Review over either
+  mode: saved as Jam's settings (in memory only while saving is off); session mode's key, mode,
+  preset and prepared phrases untouched. An answer outside the Major and Minor group moves Jam's
+  Collection to the modes; the player's press is what allows it. Under a Review over Jam mode the
+  hidden workspace takes the change as at Jam's Idle: without a kept doodle its empty staff takes
+  the new key signature; with one, phrase 1 is written again from it in the new key and mode,
+  through **Loading**, out of sight, whichever session the kept doodle came from
+  (`flows/jam/handoff.md`, A Jam setting changed with a kept doodle). Under a Review over session
+  mode nothing on the hidden staff changes; Jam mode opens in the new key and mode. The row then
+  reads "Jams now play in {answer}." until the review closes or Jam's key or mode is changed
+  again. `Jam in {answer}` does not close the review.
 - **`Keep {key} {mode}`** changes no setting. The row leaves, and this doodle's suggestion is
-  never offered again: not in this review, not in the kept session's review later, not at Idle
-  for a doodle held from it. The decline is saved with the session (see Saving the Session).
-- **`Jam again on this doodle`** (enabled only with a connected controller): leaves the review
-  mode exactly as `Close review` does (the staff area back, the page at its top, the cue-row links
-  by their rules, focus by `Close review`'s rule), turns the Jam switch on if it was off (saved as
-  a change by hand), and holds this doodle at Idle, replacing any doodle already held. The Idle
-  that follows, phrase 1 written from the held doodle, and its suggestion bar are specified in
-  `flows/jam/`. It does not answer the suggestion: a suggestion still offered here is offered
-  again at Idle.
-- **A Jam played on a held doodle.** Its review shows the held doodle as its doodle, with the
+  never offered again: not in this review, not in the kept session's review later, not at Jam
+  mode's Idle for the doodle kept from it. The decline is saved with the session (see Saving the
+  Session).
+- **`Jam again on this doodle`** (enabled once the doodle has loaded, with or without a connected
+  controller): leaves the review mode exactly as `Close review` does (the staff area back, the
+  page at its top, the cue-row links by their rules), onto Jam mode with this doodle kept,
+  replacing a doodle Jam mode already kept. Over session mode, Jam mode is opened first, as a
+  press of `Jam` (its code is already loaded, since the doodle shows); session mode is kept as it
+  was, as whenever Jam mode opens. Phrase 1 is then written from the doodle through **Loading**,
+  `jam-bar` shown, its suggestion offered again when this review left it unanswered; without a
+  connected controller `Start Jam` is disabled with Jam mode's reason. Focus moves to
+  `jam-bar`'s sentence (`tabindex="-1"`), since both header actions are disabled while phrase 1
+  is written, and never to `mode-switch`, where an arrow key would leave Jam mode; the sentence
+  says where the player now is. From the review of the Jam just played, whose
+  doodle Jam mode already keeps, it does exactly what `Close review` does, focus included. The Idle that follows is specified in
+  `flows/jam/handoff.md`, The Kept Doodle. It does not answer the suggestion.
+- **A Jam played on the kept doodle.** Its review shows the kept doodle as its doodle, with the
   tempo it was first played at. Its raw notes belong to the session it was first played in, so
   this Review's `Played notes` lane under the doodle is empty and its played-notes export holds no
   doodle note. A suggestion declined for that doodle stays declined in this session too. Its
-  `Jam again on this doodle` holds the same doodle again.
+  `Jam again on this doodle` closes the review, the doodle being kept already.
 
 ## Favorites, Comment, Pin and Delete
 
@@ -325,12 +371,16 @@ flowchart TD
   - the played-notes file opens with the raw doodle notes in the same section, very short notes
     following `Include very short notes`; every other note played before phrase 1 (the count-in,
     the measures while phrase 1 is written and read in, an extended wait) is still left out. In a
-    Jam on a held doodle the section is there, with no note in it;
+    Jam on the kept doodle the section is there, with no note in it;
   - **both files still line up:** the doodle section starts at time zero in each, as many
     measures long as the doodle, at the tempo it was played at; the first exported phrase follows
     at the next barline, and the waiting measures between them are not written. A raw note
     running past the section's end stops there.
     Details: `screens/last-session-review/handoff.md`, Components and Content.
+- **[v3.2 new]** **A Jam's exports wait for Jam's code.** An export pressed while it loads waits
+  in its `is-loading` state; when it could not load, both exports of that session are disabled
+  with the doodle's failure sentence as their reason, and never reach `review-export-error` for
+  that cause (`screens/last-session-review/handoff.md`, Components and Content).
 - **[v3.2 changed]** In a Jam, `Export played notes` and `review-view` are rendered when the
   session holds a played note in a phrase or in its doodle. Under `Favorites only`,
   `Export played notes` is disabled only when neither a favorite phrase nor the doodle holds one.

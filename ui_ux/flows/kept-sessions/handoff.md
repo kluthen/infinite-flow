@@ -5,13 +5,16 @@
 > **Changes since v3.0**
 >
 > - _v3.1 new:_ the preset label ([Terms](#terms))
-> - _v3.2 new:_ a Jam session ([Terms](#terms)); a Jam ended before phrase 1 sounds changes
->   nothing ([Terms](#terms), [Keeping at a Session's End](#keeping-at-a-sessions-end))
-> - _v3.2 new:_ opening a Jam session, and sessions kept before v3.2
->   ([Opening a Session](#opening-a-session))
-> - _v3.2 new:_ deleting a Jam session deletes its doodle in both forms
->   ([Deleting a Session](#deleting-a-session)); deleting played notes keeps the written-out
->   doodle ([Deletions Made Elsewhere](#deletions-made-elsewhere))
+> - _v3.2 new:_ a Jam session, with no preset label ([Terms](#terms)); a Jam ended before
+>   phrase 1 sounds changes nothing ([Terms](#terms),
+>   [Keeping at a Session's End](#keeping-at-a-sessions-end))
+> - _v3.2 new:_ opening a Jam session, its doodle loaded with Jam's code, and sessions kept before
+>   v3.2 ([Opening a Session](#opening-a-session))
+> - _v3.2 new:_ deleting a Jam session deletes its doodle in both forms and lets go the doodle
+>   Jam mode keeps from it ([Deleting a Session](#deleting-a-session)); deleting played notes
+>   keeps the written-out doodle; every other deletion of a Jam session by the player lets the
+>   kept doodle go too, never the save that replaces an unpinned session
+>   ([Deletions Made Elsewhere](#deletions-made-elsewhere))
 > - _v3.2 new:_ a Jam while saving is off ([While Saving Is Off](#while-saving-is-off))
 
 ## Flow
@@ -73,6 +76,8 @@ flowchart TD
   v3.0 carries its musical profile in the same form ("Neutral", "Jazz", "Custom, based on Jazz").
   A snapshot: renaming or deleting a preset never changes it. Shown in the list's detail line and
   the review's summary.
+- **[v3.2 new]** A Jam session has no preset label: Jam mode has no presets, so its detail line
+  and summary have no preset part.
 - **[v3.2 new]** **Jam session:** a kept session begun in Jam mode, whose phrase 1 sounded. It
   holds, beyond any session, the quantized doodle with the tempo it was played at, whether its
   key and mode suggestion was declined, and, only while `Keep my played notes` was on, the raw
@@ -148,11 +153,15 @@ Drawn in `screens/phrase-workspace/` (`session-cue-row`); routed here.
 - **Damaged:** the session is deleted and its row leaves; see A Damaged Session.
 - **Saved by a newer version** (known from the row itself): `session-row-open` is disabled from
   the start; see `screens/session-list/handoff.md`, States.
-- **[v3.2 new]** **A Jam session** opens like any session: its review starts with the doodle
-  section (`flows/review-and-export/handoff.md`, The Doodle and the Suggestion), offering its
-  suggestion, unless declined, against the current key and mode, and `Jam again on this doodle`.
-  A session kept before v3.2 has no doodle and opens exactly as before. A Jam session saved by a
-  newer version is listed as such and does not open, like any such session.
+- **[v3.2 new]** **A Jam session** opens like any session, over whichever mode the workspace is
+  in: its review starts with the doodle section (`flows/review-and-export/handoff.md`, The Doodle
+  and the Suggestion), offering its suggestion, unless declined, against Jam's key and mode, and
+  `Jam again on this doodle`. Reading the session is all `session-row-open`'s `is-loading`
+  covers: when Jam's code is not loaded yet, the review shows at once and its doodle section says
+  "Loading your doodle." until it has, or says the doodle can't be shown when it could not load
+  (the rest of the review working). A session kept before v3.2 has no doodle and opens exactly
+  as before. A Jam session saved by a newer version is listed as such and does not open, like any
+  such session.
 
 ## A Damaged Session
 
@@ -231,9 +240,13 @@ From a row (`session-row-actions`) or a review (`review-session-tools`), the sam
   line leaves when it does. The session stays as it was.
 - **[v3.2 new]** **A Jam session** is deleted with its doodle in both forms: the written-out
   doodle and, when kept, the raw doodle notes. The confirmation is the same; "its played notes"
-  covers the raw doodle notes. A doodle held at Idle from that session is let go with it, as any
-  setting change lets it go: deleted means gone, the doodle included. The Idle side is in
-  `flows/jam/`.
+  covers the raw doodle notes. The doodle Jam mode keeps from that session, if any, is let go
+  with it, with its suggestion, silently: deleted means gone, the doodle included. The doodle comes
+  from the latest session played on it: a Jam played on the kept doodle is saved holding it, and
+  the save at its end, which deletes the unpinned session the doodle came from before (Keeping at
+  a Session's End), never lets it go. Jam mode's
+  Idle, hidden under the review mode, then shows its empty staff (`staff-jam`) when the player
+  leaves it; the Idle side is in `flows/jam/handoff.md`, The Kept Doodle.
 
 ## The Confirmation Pattern
 
@@ -269,7 +282,8 @@ sheet tells a refusal: what was to go still shows, with the action that deletes 
   and the links return by their rules.
 - **[v3.2 new]** A Jam is kept like any session once phrase 1 has sounded: saved once at its end,
   the most recent automatically, pinned for good, a favorite pinning it. A Jam that ends before
-  phrase 1 sounds saves and deletes nothing, as a count-in end. A held doodle is never saved.
+  phrase 1 sounds saves and deletes nothing, as a count-in end. The doodle Jam mode keeps after
+  a Jam is never saved: it lives in memory for the visit, and the kept session holds it.
 - A save that fails deletes nothing; the session stays in memory as the most recent one, until
   the next session ends with a review or the page closes. Its review's keep line says it is not
   saved; it has no row.
@@ -303,9 +317,9 @@ written by a newer version is known (master spec §4.4). While saving is off:
   the session held in memory included (`screens/last-session-review/`).
 - **`Keep my played notes`** still turns on and off, for this visit only: nothing is saved, no
   played notes are kept, and turning it off opens no confirmation.
-- **[v3.2 new]** **A Jam** runs, ends and is reviewed as usual: `Use {answer}`,
-  `Keep {key} {mode}` and `Jam again on this doodle` work in memory for the visit; nothing is
-  saved, the decline included. The deletions above stay absent.
+- **[v3.2 new]** **A Jam** runs, ends and is reviewed as usual: Jam's settings,
+  `Jam in {answer}`, `Keep {key} {mode}` and `Jam again on this doodle` work in memory for the
+  visit; nothing is saved, the decline included. The deletions above stay absent.
 - **My instrument** offers no deletion and no range or transposition change in an outdated tab
   while it has kept sessions, here or through the check (`flows/my-instrument/handoff.md`); in a
   visit started from the defaults it has none, so its changes erase nothing, and the session held
@@ -333,8 +347,8 @@ From `Your data` (`screens/your-data/`), opened from the list's header or the pa
   export at once (`screens/last-session-review/handoff.md`).
 - **[v3.2 new]** In a Jam session, `Delete all played notes` deletes the raw doodle notes with the
   rest and keeps the written-out doodle: its review keeps the doodle section, its suggestion and
-  `Jam again on this doodle`. `Delete every session` deletes every Jam session with its doodle in
-  both forms.
+  `Jam again on this doodle`, and the doodle Jam mode keeps stays. `Delete every session`
+  deletes every Jam session with its doodle in both forms, and lets go the doodle Jam mode keeps.
 - **`Delete everything`:** the page reloads into its first visit; nothing here needs routing.
 
 From my instrument's sheet or the transposition check (`flows/my-instrument/handoff.md`):
@@ -348,3 +362,5 @@ From my instrument's sheet or the transposition check (`flows/my-instrument/hand
   and returns by that sheet's rule when it closes; each link follows its rule. Sessions played
   with a built-in profile are never touched, nor are my instrument's sessions by a change of its
   name or clef.
+- **[v3.2 new]** When a Jam session erased that way is the one Jam mode keeps a doodle from, that
+  doodle is let go with it, as after `Delete session`.

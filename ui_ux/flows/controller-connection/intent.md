@@ -19,6 +19,8 @@
 >   [Whose flow this is](#whose-flow-this-is))
 > - _Removed:_ "It does not remember a detected offset or offer a custom profile" (v2 in the
 >   [frozen copy](../../versions/v2/flows/controller-connection/intent.md#why-the-transposition-check-is-framed-as-a-diagnostic-not-a-passfail-test))
+> - _v3.2 new:_ Jam mode needs a controller to start, never switches mode with one, and a Jam
+>   losing it before phrase 1 ends at once ([A controller and Jam mode](#a-controller-and-jam-mode))
 
 Connecting a MIDI controller is a separate concern from generating or reading a phrase, not a
 variant state of either. Generating a phrase is about musical content: what the player wants to
@@ -360,6 +362,28 @@ unplugged between sessions (see "A controller unplugged between sessions").
 This flow's sheet never opens during any of this. Reconnecting mid-session is the device coming
 back, not the player going through a connection step, and a modal over a running session would
 hide the Stop button and the staff at the very moment the player needs them.
+
+## A controller and Jam mode
+
+**[v3.2 new]** A Jam is played on the controller: the doodle the app grows phrases from is what
+the player plays into it (see [`flows/jam/`](../jam/intent.md)). So Jam mode needs a controller to
+start, but not to open. Without one, Jam mode still opens, every one of its settings can be set,
+and a doodle it keeps stays; only `Start Jam` waits, disabled, and the row above the staff, where
+the starting note would be named, says that a Jam needs a connected controller. A player can set
+up a Jam before plugging in, and is told plainly why it will not start yet.
+
+**[v3.2 new]** A controller arriving or leaving never switches the mode. The player chose the mode
+with the switch in the header, and a mode that changed because a cable moved would change the
+staff, the controls and the start under their eyes for a reason they did not choose. Plugging in
+at Jam mode's Idle simply makes `Start Jam` available; unplugging there makes it wait again.
+
+**[v3.2 new]** A controller lost during a Jam before its first phrase sounds, while the app is
+still listening to the doodle or writing phrase 1 from it, ends the Jam at once, with no
+countdown: without the controller there is no doodle to finish, and a 30-second wait would only
+keep the click going over nothing. The Jam ends as a session stopped during its count-in, back at
+Jam mode's Idle, with focus on the controller status, where the player reconnects. From phrase 1
+on, a Jam is a session like any other, and a lost controller shows the banner and its countdown as
+above.
 
 ## During a session, the header element is status only
 

@@ -594,7 +594,8 @@ it against the headless replay of the same key.
 - [ ] Pass: `5 passed`, none skipped and none failed. A skipped test means the key was not given;
       "msedge is not found" means Edge is not installed.
 
-**Result:** not run yet.
+**Result (2026-10-21):** waived, not run (spec D399). Chrome is the one supported browser; Edge,
+like any other Chromium-based browser, is not tested.
 
 ## v3.1 H4. Vary settings under a preset (chunk 15; about 10 min)
 
@@ -617,7 +618,7 @@ and Jazz: run this check once the box lists Reel and Modal (Dorian), at the rele
       and its settings come back.
 - [ ] Pass: every step above holds.
 
-**Result:** not run yet.
+**Result (2026-10-21):** passed on the owner's word (spec D399).
 
 ## v3.1 H5. v3.0 data carried over (chunk 16; about 25 min)
 
@@ -671,4 +672,5 @@ address you can lose: the first step may clear it.
 - [ ] Afterwards: `git worktree remove ../infinite_flow-v3.0.0`.
 - [ ] Pass: every check above holds, in Chrome and, if installed, in the app.
 
-**Result:** not run yet.
+**Result (2026-10-21):** waived, not run (spec D399). v3.0 had no live users, so its data is not
+carried over by hand; the upgrade code and its automated tests stay.

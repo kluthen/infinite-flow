@@ -14,12 +14,16 @@
 > - _v3.1 new:_ the save-problem notice's preset wording ([Notices](#notices))
 > - _v3.1 new:_ Delete everything removes every player preset; the other deletions leave them;
 >   one preset deleted from its row in Your data ([Your Data](#your-data))
-> - _v3.2 new:_ the five new saved settings, a Jam session's doodle and the suggestion's decline;
->   the held doodle never saved; a Jam while saving is off
->   ([What Is Saved, and When](#what-is-saved-and-when))
-> - _v3.2 new:_ loading the new settings, and sessions kept before v3.2 ([Load](#load))
-> - _v3.2 new:_ what the deletions remove of a Jam session, and Delete everything
->   ([Your Data](#your-data))
+> - _v3.2 new:_ session mode's three new saved settings; Jam's settings, a saved record of their
+>   own; a Jam session's doodle and the suggestion's decline; the mode and the kept doodle never
+>   saved; Jam mode while saving is off ([What Is Saved, and When](#what-is-saved-and-when))
+> - _v3.2 new:_ loading the new settings and Jam's first values, and sessions kept before v3.2
+>   ([Load](#load))
+> - _v3.2 new:_ Jam mode's load-failure notice beside the saving notices ([Notices](#notices))
+> - _v3.2 new:_ what the deletions remove of a Jam session and of the kept doodle, and Delete
+>   everything resetting Jam's settings ([Your Data](#your-data))
+> - _v3.3 new:_ Jam's own Seventh chords level in Jam's settings
+>   ([What Is Saved, and When](#what-is-saved-and-when), [Load](#load))
 > - _v3.3 new:_ the Seventh chords level in the settings and in every player preset, and how it
 >   loads ([What Is Saved, and When](#what-is-saved-and-when), [Load](#load))
 
@@ -46,7 +50,9 @@ Saving shows nothing, ever: no message, no indicator, no announcement.
 | The three "During a session" options                                                                                                          | The player changes one                                                                                                                         | Each comes back on only if the player turned it on.                                                                                                                                                                                                                                                                   |
 | The review's preferences (format, backing track in the MIDI file, `Played notes`)                                                             | The player changes one                                                                                                                         | Not the export scope or `Include very short notes`, which are never saved.                                                                                                                                                                                                                                            |
 | `Keep my played notes`                                                                                                                        | The player changes it                                                                                                                          | Off by default.                                                                                                                                                                                                                                                                                                       |
-| **[v3.2 new]** Jam, Drift, Rhythm lock, Allowed rhythm changes, What may vary                                                                 | The player changes one (Jam also when `Jam again on this doodle` turns it on)                                                                  | Defaults: Jam off, Drift Near, Rhythm lock off, every allowed rhythm change off, all six groups on. Jam and the lock come back on only if the player turned them on. No preset holds them.                                                                                                                            |
+| **[v3.2 new]** Session mode's Rhythm lock, Allowed rhythm changes and What may vary                                                           | The player changes one                                                                                                                         | Defaults: Rhythm lock off, every allowed rhythm change off, all six groups on. The lock comes back on only if the player turned it on. No preset holds them.                                                                                                                                                          |
+| **[v3.2 new]** Jam's settings, a record of their own: Jam's tempo, written key and collection, Harmonic motion, Tension, Embellishments, Drift, Rhythm lock and Allowed rhythm changes | The player changes one in Jam mode (by hand, or the tempo by `Tap tempo`), or `Jam in {answer}` sets Jam's key and mode (from a review over either mode) | Apart from session mode's: nothing in Jam mode is written into session mode's settings, nor the reverse. Defaults: Jam's written key, collection and tempo take session mode's current values when Jam mode first opens (the tempo kept within 60 to 180 BPM), Harmonic motion `Gentle diatonic`, Tension `Lift`, Embellishments `Rarely`, Drift `Near`, the lock off and every allowed rhythm change off. The instrument, the theme and the audio mix are shared, saved once as above. |
+| **[v3.3 new]** Jam's own Seventh chords level, in Jam's record                                                                                | The player changes it in Jam mode                                                                                                              | Default `Off`; apart from session mode's level.                                                                                                                                                                                                                                                                      |
 | A session                                                                                                                                     | Once, at its end, as its review opens                                                                                                          | Never during it; one that ends during its count-in saves nothing. Saving it deletes every unpinned older session. Its played notes go with it only while `Keep my played notes` is on.                                                                                                                                |
 | Pin, unpin, a favorite, a comment                                                                                                             | The player makes the change (a comment: on `Done`, when the field loses focus, and when the review is left or replaced)                        |                                                                                                                                                                                                                                                                                                                       |
 | **[v3.2 new]** A Jam session's doodle, and its suggestion's decline                                                                           | The doodle with its session, at its end; the decline when the player presses `Keep {key} {mode}` in its review                                 | The quantized doodle and the tempo it was played at are saved with every Jam session, whatever `Keep my played notes` says; the raw doodle notes are played notes and follow that setting.                                                                                                                            |
@@ -60,10 +66,11 @@ during a session; anything written between Start and the session's end (the app 
 in that time); the tempo a
 Rising-tempo session reached; pre-generated phrases; the export scope; `Include very short notes`.
 
-**[v3.2 new]** **Never saved either:** a held doodle, which lives in memory only and is gone after
-a reload (the kept Jam session's review offers it again); the suggestion itself, which is worked
-out again from the doodle whenever it is shown. A Jam that ends before phrase 1 sounds saves
-nothing, as a session ended during its count-in.
+**[v3.2 new]** **Never saved either:** being in Jam mode (every load opens session mode); the
+doodle Jam mode keeps after a Jam and its readings, which live in memory only and are gone after a
+reload (the kept Jam session's review offers the doodle again); the suggestion itself, which is
+worked out again from the doodle whenever it is shown. A Jam that ends before phrase 1 sounds
+saves nothing, as a session ended during its count-in.
 
 **Saving is off for the whole visit** in an outdated tab (from the moment it is outdated) and in
 a visit started from the defaults because the saved data couldn't be read, or not within the
@@ -85,9 +92,11 @@ preset deletion: `Delete preset` is absent (`flows/presets/`), and Your data has
 section. A visit started from the defaults lists the built-in presets only; an outdated tab lists
 the player presets it could read.
 
-**[v3.2 new]** **A Jam while saving is off.** Jam, its review, the suggestion's `Use` and `Keep`,
-and `Jam again on this doodle` work in memory for the visit; nothing is saved, the decline
-included, and the visit's deletion rules are unchanged (master spec §C10.4).
+**[v3.2 new]** **Jam mode while saving is off.** Jam mode, Jam's settings, a Jam, its review, the
+suggestion's `Jam in {answer}` and `Keep {key} {mode}`, and `Jam again on this doodle` work in
+memory for the visit; nothing is saved, Jam's settings and the decline included, and the visit's
+deletion rules are unchanged (master spec §C10.4). A visit started from the defaults starts Jam's
+settings from their defaults too, as on a first visit.
 
 **Newer data wins over a failed read.** A tab is outdated from the moment data written by a newer
 version is known to exist, whether the saved data was read or not: found at load, revealed by a
@@ -177,12 +186,18 @@ flowchart TD
   figure levels; then the values win, so a Jazz selection saved with Tension at Build loads as
   "Custom, based on Jazz". Sessions kept by v3.0 keep their musical profile as their preset label
   (`flows/kept-sessions/handoff.md`, Terms).
-- **[v3.2 new]** **The five new settings** load tolerantly too: an unknown or invalid value takes
-  its default (Jam off, Drift Near, Rhythm lock off, every allowed rhythm change off, all six groups
-  on), every other setting still loading; settings saved by v3.0 or v3.1 load with those defaults.
-  Sessions kept before v3.2 are migrated with no doodle and open as before. No held doodle ever
-  comes back at load.
+- **[v3.2 new]** **Session mode's three new settings** load tolerantly too: an unknown or invalid
+  value takes its default (Rhythm lock off, every allowed rhythm change off, all six groups on),
+  every other setting still loading; settings saved by v3.0 or v3.1 load with those defaults.
+- **[v3.2 new]** **Jam's settings** load with the rest, inside the same load wait, and tolerantly:
+  each unknown or invalid value takes its default alone (see What Is Saved, and When), every other
+  setting still loading. With no record yet (a first visit, settings saved by v3.0 or v3.1, after
+  `Delete everything`), Jam's written key, collection and tempo are taken from session mode's
+  values when Jam mode first opens, not at load, and saved then. Being in Jam mode never comes
+  back: every load opens session mode, and no doodle is kept.
+- **[v3.2 new]** Sessions kept before v3.2 are migrated with no doodle and open as before.
 - **[v3.3 new]** **The Seventh chords level** loads tolerantly too: a settings record or player preset written before v3.3 has none and loads at `Off`, and an unknown or invalid value loads at `Off`, every other setting still loading. The values win as for every preset-held setting: a saved level that differs from the selected preset's loads as Custom based on it. Sessions kept before v3.3 migrate with their phrases' level at `Off` and open as before.
+- **[v3.3 new]** Jam's own Seventh chords level loads the same way, at `Off` when Jam's record has none or an invalid one; no preset is involved.
 
 ## Notices
 
@@ -212,6 +227,11 @@ Drawn in `app-notice-row`, at the top of `layout-workspace` before `score-panel`
   tab can tell that another tab ran `Delete everything` (see below); with saving off, no
   save-problem notice and no apology can arise. Outdated tab, in any wording, is never replaced:
   an apology whose deletion commits once the tab is outdated is not shown.
+- **[v3.2 new]** **Jam mode's load-failure notice** is not one of this flow's: its copy, actions
+  and lifetime are in `flows/jam/handoff.md` (Opening Jam mode). The row holds it beside any
+  notice above, after it, `--spacing-2` apart; the rules of one notice at a time govern the
+  saving notices only, and neither kind replaces the other. Like them it is calm and held still
+  during a session.
 - **After `Dismiss`,** the save-problem notice comes back only when a save fails again after a
   save has succeeded since; a run of refusals with no success between them shows it once. The
   apology comes back only with a new deletion of damaged sessions, counting that one alone. The
@@ -322,9 +342,13 @@ flowchart TD
     _Delete all played notes_ leave the presets as they are.
   - **[v3.2 new]** _Delete every session_ deletes every Jam session with its doodle in both forms.
     _Delete all played notes_ deletes the raw doodle notes with every other kept played note and
-    keeps each Jam session's written-out doodle. _Delete everything_ removes both and resets Jam,
-    Drift, Rhythm lock, Allowed rhythm changes and What may vary to their defaults with every
-    other setting; a held doodle goes with the reload.
+    keeps each Jam session's written-out doodle, and the doodle Jam mode keeps stays. _Delete
+    every session_ also lets go the doodle Jam mode keeps, its session being gone, silently
+    (`flows/jam/handoff.md`, The Kept Doodle). _Delete everything_ removes both, resets session
+    mode's Rhythm lock, Allowed rhythm changes and What may vary with every other setting, and
+    deletes Jam's settings record, so Jam's key, mode and tempo are taken from session mode's
+    again when Jam mode next opens; the kept doodle goes with the reload, and the page opens in
+    session mode.
 - **After a deletion that doesn't reload,** the sheet returns to its overview with its counts
   updated. When the sheet closes, the page beneath reflects it: a review of a deleted session gives
   way to the session list, in its empty state if nothing is left (`screens/session-list/`); the

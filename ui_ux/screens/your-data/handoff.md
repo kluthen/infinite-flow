@@ -12,6 +12,7 @@
 > - _v3.1 changed:_ the Settings line names the preset; Delete everything's confirmation names the
 >   presets ([Overview copy](#overview-copy), [Confirmations](#confirmations))
 > - _v3.1 changed:_ a visit that saves nothing hides the Presets section too ([States](#states))
+> - _v3.2 changed:_ the Settings line names Jam's settings ([Overview copy](#overview-copy))
 > - _v3.2 new:_ Jam sessions counted with the sessions; the played-notes confirmation says the
 >   written-out doodles stay ([Overview copy](#overview-copy), [Confirmations](#confirmations))
 
@@ -84,6 +85,10 @@ sheet-backdrop
 - **[v3.1 changed]** **Settings.** `p`: "The phrase controls, the preset, the instrument choice,
   the theme, the audio mix, the During a session options and the review's choices. They come back
   as you left them." `sheet-hint`: "Delete everything returns them to their defaults."
+- **[v3.2 changed]** In v3.2 the Settings `p` reads instead: "The phrase controls, the preset,
+  the instrument choice, the theme, the audio mix, the During a session options, your Jam
+  settings and the review's choices. They come back as you left them." The `sheet-hint` is
+  unchanged: Delete everything returns Jam's settings to their defaults too.
 - **My instrument.** `p`: "{name}, made from the {template}." or "None." `sheet-hint`: "Change or
   delete it with Edit my instrument, in the controls." or, with none, "Make one with Create my
   instrument, in the controls."

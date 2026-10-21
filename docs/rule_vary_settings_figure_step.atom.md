@@ -1,6 +1,6 @@
 ---
 id: rule_vary_settings_figure_step
-status: REVIEW
+status: STABLE
 type: RULE
 layer: BUSINESS
 dependents:

@@ -4,6 +4,9 @@
 
 > **Changes since v3.1**
 >
+> - _v3.2 new:_ presets are session mode's: Jam mode has no preset bar, and neither Jam's settings,
+>   the rhythm lock, its allowed rhythm changes nor What may vary is held by a preset
+>   ([Routing Rules](#routing-rules))
 > - _v3.3 changed:_ every preset also holds the Seventh chords level, every built-in at `Off`;
 >   changing it makes Custom and discards the prepared phrases
 >   ([Routing Rules](#routing-rules))
@@ -243,6 +246,18 @@ flowchart TD
   **[v3.3 changed]** Any change of the Seventh chords level discards them too, as a figure level
   does.
 
+- **[v3.2 new]** **Presets and Jam mode** (`flows/jam/`). Presets are session mode's alone. In
+  Jam mode `control-section` holds Jam's controls, with no preset bar and no key and mode marks:
+  no preset is chosen, saved or renamed there, and none of Jam's settings is preset-held, so no
+  change in Jam mode makes Custom or touches session mode's selection, its restriction in force or
+  its prepared phrases. `Jam in {answer}`, the suggestion's answer, sets Jam's written key and
+  collection only. The footer's `Your data` stays usable in Jam mode, and deleting a player preset
+  there acts on session mode's selection as it does anywhere, out of sight until session mode
+  returns. While Jam mode is opening (the first press of `Jam` in a visit), session mode is held as
+  in **Loading**: `preset-select` is read-only and a choice is refused.
+  - In session mode, the rhythm lock, its allowed rhythm changes and What may vary are "During a
+    session" options: a preset never sets them, changing them never makes Custom, and they never
+    count as a change of the restriction in force.
 - **Persistent storage.** Saving a player preset, as new or by `Save changes`, also asks the
   browser to protect the kept data, once per visit unless already granted; nothing shows the
   request (`flows/saved-data/`).

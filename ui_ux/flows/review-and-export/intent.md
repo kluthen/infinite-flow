@@ -38,10 +38,14 @@
 >   ([What Happens When a Session Ends](#what-happens-when-a-session-ends))
 > - _v3.2 new:_ the flow serves the Fledgling Composer's idea grown by a Jam
 >   ([Whose Flow This Is](#whose-flow-this-is))
-> - _v3.2 new:_ a Jam that ends before phrase 1 sounds has no review
+> - _v3.2 new:_ the review shows over either mode, and leaving returns to that mode
+>   ([Leaving and Coming Back](#leaving-and-coming-back))
+> - _v3.2 new:_ a Jam that ends before phrase 1 sounds has no review; after a Jam, Jam mode keeps
+>   its doodle under the review; a Jam session records no preset
 >   ([What Happens When a Session Ends](#what-happens-when-a-session-ends))
-> - _v3.2 new:_ a Jam's review opens with the doodle, the key and mode suggestion, and jamming
->   again on the same doodle ([A Jam's Review](#a-jams-review))
+> - _v3.2 new:_ a Jam's review opens with the doodle, loaded with Jam's part of the app, the key
+>   and mode suggestion about Jam's key and mode, and jamming again on the same doodle
+>   ([A Jam's Review](#a-jams-review))
 > - _v3.2 new:_ the doodle in the exports, and its two forms
 >   ([Taking It Out](#taking-it-out))
 
@@ -115,6 +119,13 @@ For a keyboard player the route is the same key twice. A session ends with focus
 player who stopped with Space is already there): Space closes the review, the workspace comes back
 with focus still on the same button, now `Start session`, and Space starts the next session.
 
+**[v3.2 new]** The app has two modes, session mode and Jam mode, and the review shows over
+whichever the player is in: the mode the session was played in, at its end, or the mode they were
+in when they opened a review from above the staff or from the list. The mode switch in the header
+cannot be pressed while the review shows, since the mode is chosen between sessions, at idle, and
+`Close review` is in view; leaving returns to that mode, where the session button reads
+`Start session` or `Start Jam`.
+
 **[v3 changed]** Leaving does not throw the review away. The session is kept on the device, so it
 survives a reload as well as a closed review, and `Review last session`, in the row above the
 staff, brings it back in one press. What ends it is the next session: when that one is saved, the
@@ -154,7 +165,15 @@ played, and a label that changed under it would describe a setup the player neve
 **[v3.2 new]** A Jam that ends before its first phrase sounds (the player never played a doodle,
 stopped, lost the controller, or the app could not write phrase 1) has nothing to review: like a
 session stopped during its count-in, it opens no review and changes nothing kept. Once phrase 1
-has sounded, a Jam ends and is saved like any session, its doodle with it.
+has sounded, a Jam ends and is saved like any session, its doodle with it. It records no preset,
+since Jam mode has none: its summary says "Jam" instead.
+
+**[v3.2 new]** After a Jam, what waits under the review is Jam mode's idle, not a fresh phrase
+from the controls: Jam mode keeps the doodle just played, and writes phrase 1 from it again, with
+a fresh seed, out of sight. Leaving the review, the player finds the bar saying they are jamming
+again on their doodle and a phrase 1 that continues it, ready to go round again without playing
+the idea a second time; `New doodle` is there for a new idea. Session mode, set aside before the
+Jam, is untouched. The reasoning is in [`flows/jam/`](../jam/intent.md).
 
 ## Looking Back
 
@@ -201,28 +220,43 @@ favorite star. Then come the phrases that continued it, so the review reads in t
 session sounded, idea first. The reasoning for the section's look is in
 [`screens/last-session-review/intent.md`](../../screens/last-session-review/intent.md#the-doodle).
 
+**[v3.2 new]** The doodle section, the suggestion and the doodle's part of the exports belong to
+Jam's part of the app, loaded only when it is first needed. After a Jam it is there already; a
+kept Jam session opened in a visit that has not used Jam yet says "Loading your doodle." for a
+moment while it comes. If it cannot come, because the device went offline before the app's files
+were kept, the section says the doodle can't be shown and asks the player to check they are
+online and open the session again; there is then no suggestion and no jamming again, and the two
+exports wait too, since every file of a Jam opens with its doodle. The phrases, favorites, comment
+and the rest still work: losing one part of the review never takes the rest with it.
+
 **[v3.2 new]** The written-out doodle is the doodle as the app used it, snapped to the beat grid,
 one line. The notes as the player actually played them stay what they always were, played notes:
 behind the `Played notes` switch, in a lane under the doodle, kept only if the player asked. A Jam
-played again on a held doodle shows that doodle too, but its lane is empty: the notes that made
-it were played in an earlier session and belong to it.
+played again on the doodle Jam mode kept shows that doodle too, but its lane is empty: the notes
+that made it were played in an earlier session and belong to it.
 
 **[v3.2 new]** **The suggestion waits for the review.** A running session never asks anything,
 so the key and mode the doodle sounds in is offered only once the Jam is over, under the doodle.
-The player either uses it, which sets the key and mode exactly as choosing them in the controls
-would, or keeps their own, which declines it for good: the same doodle always gives the same
-answer, so asking again would only nag, and the decline is kept with the session. The Jam that
-produced the doodle always continued in the player's own key and mode; the suggestion serves the
-next Jam. A kept Jam's review works it out again against the player's current key and mode, so
-it is offered only while it would change something. When the doodle uses notes the app's keys and
-modes do not have, the review says so once, plainly, naming no note.
+It is about Jam's key and mode, the ones Jam mode keeps for itself: the Jam that produced the
+doodle always continued in them, and the suggestion serves the next Jam. The player either takes
+it with `Jam in G Dorian`, which sets Jam's key and mode and nothing else, or keeps Jam's own,
+which declines it for good: the same doodle always gives the same answer, so asking again would
+only nag, and the decline is kept with the session. Session mode's key and mode never move, from
+a review over either mode, so a player who looks back at a Jam in the middle of a practice
+sitting goes back to their practice exactly as they left it. With a doodle kept in Jam mode, its
+phrase 1 is written again in the new key, out of sight. A kept Jam's review works the suggestion
+out again against Jam's key and mode as they are now, so it is offered only while it would change
+something. When the doodle uses notes the app's keys and modes do not have, the review says so
+once, plainly, naming no note.
 
-**[v3.2 new]** **Jamming again.** `Jam again on this doodle` leaves the review for the staff with
-the doodle held, its first phrase already written from it, ready to start; Jam turns on if it was
-off. It sits on the doodle's own line, where per-phrase tools go, and needs a controller, like
-every Jam. A player can go round as many times as they like, perhaps after using the suggestion,
-without ever playing the idea again. What the staff then shows is in
-`flows/jam/`.
+**[v3.2 new]** **Jamming again.** `Jam again on this doodle` leaves the review for Jam mode with
+that doodle kept, its first phrase written from it, ready to start, from a review over either
+mode; a doodle Jam mode was already keeping gives way to it. From the review of the Jam just
+played, whose doodle Jam mode already keeps, it simply closes the review. It sits on the doodle's
+own line, where per-phrase tools go, and works without a controller too: Jam mode opens without
+one, so the player can prepare the next Jam and plug in afterwards. A player can go round as many
+times as they like, perhaps after using the suggestion, without ever playing the idea again. What
+Jam mode then shows is in [`flows/jam/`](../jam/intent.md).
 
 ## Marking Favorites
 

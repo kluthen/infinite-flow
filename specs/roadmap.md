@@ -1,6 +1,6 @@
 # Infinite Flow Roadmap
 
-Status: draft v1.15 (rewritten 2026-09-25 after the persona and vision session; browser scope
+Status: draft v1.16 (rewritten 2026-09-25 after the persona and vision session; browser scope
 added 2026-09-28, D127; review candidates added 2026-09-28, D128; session-keeping candidates and
 export by content added 2026-09-28, D129; favorites moved to v3 2026-09-28, D130; staff-only
 session view placed in v5 2026-09-28, D133; v2 replanned 2026-10-03: real-hardware checks as
@@ -19,7 +19,8 @@ as planned, version not yet assigned, 2026-10-11, D259, merged from branch
 its chord research started as a separate item, D262; v3.3 master spec Part D, awaiting owner
 approval, 2026-10-12, D264–D274; v3.0 released as 3.0.0 2026-10-16, D348; v3.4, a structural
 review, added as the last v3 milestone 2026-10-21, D389; the lexicon page added to v3.4 and the
-lexicon API planned for v4 or v5, 2026-10-21, D393–D395; v3.1 released as 3.1.0 2026-10-21, D397)
+lexicon API planned for v4 or v5, 2026-10-21, D393–D395; v3.1 released as 3.1.0 2026-10-21, D397; Chrome named the one supported browser
+2026-10-21, D399)
 
 This is an ordered timeline with no dates. Each version's scope lives in its folder under
 [versions/](versions/README.md). The principles every version follows are in the
@@ -246,8 +247,9 @@ record is archived at [archive/v2/](archive/v2/README.md).
   [`rule_unsupported_rhythm_settings_block_generation`](../docs/rule_unsupported_rhythm_settings_block_generation.atom.md).
 - **Listening-test calibration** continues. See
   [`docs/release/deferred-scope.md`](../docs/release/deferred-scope.md).
-- **Browser scope: wider support at v4 or v5 (which one is open).** v1 and v2 run in Chromium
-  browsers only (Chrome, Edge), because Web MIDI works reliably only there
+- **Browser scope: wider support at v4 or v5 (which one is open).** v1 to v3 support Chrome only
+  (D399; other Chromium-based browsers, Edge included, are not tested), because Web MIDI works
+  reliably only in Chromium browsers
   ([v2 master spec §8](versions/v2/master-spec.md#8-midi-input-and-note-acknowledgement)). In
   particular, v2 has no iPad support (D127). The owner places widening support to the three major
   engines (Chromium, Firefox and Safari's WebKit) at v4 or v5; the version is not decided.

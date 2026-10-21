@@ -1,7 +1,7 @@
 ---
 id: module_favored_figure_draw
-status: REVIEW
-version: 0.3
+status: STABLE
+version: 0.4
 priority: 1
 dependents: []
 human_name: The Favored Figure Draw
@@ -33,7 +33,7 @@ Never a quota. A first entry that leads to a dead end is backed out of like any 
 src/domain/pitch/figure-draw.ts exports isFigureDrawn(seed, noteIdentity, figureId, level), the hash domain FIGURE_DRAW_DOMAIN, FIGURE_DRAW_SHARE_BITS (16), the two shares, FAVORED_SHARE (0x4000) and STRONGLY_FAVORED_SHARE (0x8000), and isFavoredLevel, hashing `${FIGURE_DRAW_DOMAIN}|${seed}|${noteIdentity}|${figureId}` with fnv1a32 from src/domain/random/hash32.ts and drawing when `((hash >>> 16) & 0xffff) < share`; figureId and level are the ids of src/domain/figures/figure-levels.ts, and the note identity is the attack's identity (`bar:tick`). The figures a candidate names are PitchCandidate.figures (src/domain/pitch/pitch-types.ts), in figure-id order, outside its identity, filled where the candidates are built (src/domain/pitch/pitch-candidates.ts). orderCandidates (src/domain/pitch/pitch-ranking.ts) takes the request's figure levels, which the pitch policy carries, and returns PitchSearchEntry values, each a candidate with an optional FavoredEntry (the figure, its level and, for a free diatonic tone, the hold); the pitch search (searchPitchPlan, src/domain/pitch/pitch-search.ts) passes the levels only where no figure path is under way, and tries each entry through the search transition with its favored entry. pitchRank ranks a favored entry first, Strongly favored before Favored; the ranking facts the search transition publishes (src/domain/pitch/pitch-advance.ts) rank the same way.
 
 ## EXPECTATION
-- The same seed, note identity, figure and level always give the same draw, in Chrome and Edge, on any machine; golden draws for a fixed list of seeds pin it.
+- The same seed, note identity, figure and level always give the same draw, in Chrome, on any machine; golden draws for a fixed list of seeds pin it.
 - The draw holds no floating-point operation.
 - At Off and As today no draw is computed: with Neutral's and Jazz's levels, or any levels all Off or As today, the search order is the one used before the levels existed, and the replay-key corpora and the cold-generation goldens are unchanged.
 - At a note where a figure is drawn, a candidate that may start it is tried as that figure before every chord tone; where several are drawn, the higher level first.

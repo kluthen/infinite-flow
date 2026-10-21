@@ -9,8 +9,13 @@
 > - _v3.1 changed:_ saving a preset asks the browser for protection
 >   ([Asking the browser to protect the data](#asking-the-browser-to-protect-the-data))
 > - _v3.1 changed:_ Delete everything removes the presets ([Your data](#your-data))
-> - _v3.2 new:_ the Jam settings kept, a doodle kept with its session in one form and not the
->   other, the held doodle never kept ([Jam](#jam))
+> - _v3.2 new:_ session mode's new settings and Jam's own settings kept, each apart; the mode and
+>   the doodle Jam mode keeps never kept; a doodle kept with its session in one form and not the
+>   other ([Jam](#jam))
+> - _v3.2 new:_ Jam mode's load failure shares the notice row
+>   ([Telling a saving problem](#telling-a-saving-problem))
+> - _v3.2 changed:_ Chrome named as the one supported browser
+>   ([Asking the browser to protect the data](#asking-the-browser-to-protect-the-data))
 
 Up to v2, every visit started from the defaults and forgot everything when the page closed. v3.0
 keeps things on the player's device: settings, the last session and the sessions the player
@@ -66,9 +71,9 @@ review and changes nothing that is kept.
 
 ## Asking the browser to protect the data
 
-A browser may clear a site's data when the device runs short of space, without warning, unless
-the site has asked for its storage to be protected and the browser agreed. Chrome and Edge answer
-silently, by their own rules, with no prompt to the player. So the app asks at the moment the
+**[v3.2 changed]** A browser may clear a site's data when the device runs short of space, without
+warning, unless the site has asked for its storage to be protected and the browser agreed. Chrome,
+the one supported browser, answers silently, by its own rules, with no prompt to the player. So the app asks at the moment the
 player first keeps something they would miss (a pin, a favorite, a saved instrument), not at load:
 a site that asks on its first visit, before the player has kept anything, is more likely to be
 refused, and nothing yet would be lost. The request shows nothing. Its answer appears in one
@@ -168,9 +173,23 @@ not be read.
 
 ## Jam
 
-**[v3.2 new]** The Jam switch and the options that go with it (the drift, the rhythm lock, its
-allowed changes, what Vary settings may move) are settings like the others: kept when changed,
-back as the player left them. Jam and the lock come back on only if the player turned them on.
+**[v3.2 new]** Session mode's new options (the rhythm lock, its allowed changes, what Vary
+settings may move) are settings like the others: kept when changed, back as the player left them.
+The lock comes back on only if the player turned it on.
+
+**[v3.2 new]** Jam mode keeps its own settings, saved apart from session mode's, so that nothing
+done in a Jam moves the player's practice setup, nor the reverse: Jam's key and mode, its tempo,
+the drift, its own rhythm lock and allowed changes, and its harmony and embellishment settings.
+The first time Jam mode opens, its key, mode and tempo start from session mode's (the tempo kept
+within a Jam's range), so the first Jam is in the key the player was already practising in; the
+rest start from quiet defaults: the lock off, Harmonic motion at `Gentle diatonic`, Tension at
+`Lift`, Embellishments at `Rarely` and Drift at `Near`, the phrases staying near the doodle.
+Taking the suggestion's key in a review is a change to Jam's settings and is kept like one. The
+instrument, the audio mix and the theme are shared by both modes and kept once.
+`Delete everything` resets Jam's settings with every other one.
+
+**[v3.2 new]** Being in Jam mode is not kept: every visit opens in session mode, since which mode
+the player is in describes what they are doing right now, not how they like the app set up.
 
 **[v3.2 new]** A Jam session is kept like any session. Its doodle comes in two forms, and they
 are kept by different rules (master spec §C5.14). The doodle as the app wrote it is part of the
@@ -180,8 +199,9 @@ when the player switched on "Keep my played notes". Deleting the session deletes
 played notes deletes only the second. The player's "keep mine" answer to a key and mode
 suggestion is kept with the session too, so the same suggestion is never offered again.
 
-**[v3.2 new]** A doodle held for another Jam is never kept: it lives in memory, and a reload lets
-it go. The kept Jam session's review offers it again, so nothing is lost by that.
+**[v3.2 new]** The doodle Jam mode keeps for the next Jam is never kept on the device: it lives
+in memory, and a reload lets it go. The kept Jam session's review offers it again, so nothing is
+lost by that.
 
 ## Telling a saving problem
 
@@ -243,6 +263,12 @@ would describe a change the player never made.
 A session whose own save failed is the one exception: the player is already looking at its review,
 and the review's line about how the session is kept says it was not saved and is best exported.
 A notice above the review saying the same thing again would be redundant.
+
+**[v3.2 new]** The same row also holds one notice that is not about saving: Jam mode couldn't
+open, the first time it was asked for, because part of the app didn't load. It lives with the mode
+switch ([`flows/jam/`](../jam/intent.md#opening-jam-mode-the-first-time)), follows the row's
+rules (calm, held still during a session), and sits beside a saving notice rather than replacing
+one, since the two say unrelated things.
 
 ## Your data
 
