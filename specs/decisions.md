@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.123
+Status: draft v2.124
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -802,3 +802,24 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   v3.1 H5: the earlier version had no live users. Chunk 22's automated step-4 upgrade tests on
   seeded v3.1 data and M3 stay. IDs H1–H8 keep their numbers. Now in:
   [build plan v3.2, hand checks](versions/v3/build-plan-v3.2.md#hand-checks).
+
+- **D418 (2026-10-21): `rule_start_while_controller_away` joins C13, for the CS sign-off.**
+  `spec-writer`'s, under the owner's delegation of minor calls; found by chunk 0's re-sync (change
+  set L2). It held for a Jam only under v1.0; since D407 Jam mode needs a controller. Session mode
+  keeps it whole; in Jam mode Start is unavailable while the controller is away (draft M2). Revised
+  by chunk 20. Now in: [Part C §C13](versions/v3/master-spec.md#c13-what-v32-changes-in-v2-v30-and-v31-guarantees-and-atoms),
+  [build plan v3.2, gates](versions/v3/build-plan-v3.2.md#gates).
+
+- **D419 (2026-10-21): a fresh Jam draws its session seed once at Start; phrase 1's attempts take
+  seeds derived from it by labels of their own.** `spec-writer`'s, under the same delegation (L2).
+  It keeps every seed fixed before the Jam runs, a fresh Jam reproducible, and every v3.1 seed as
+  it is; a kept doodle's phrase 1 at Idle draws as any Idle phrase 1. `module_session_seed_plan`'s
+  wording changes, so it joins C13 for CS; chunks 17 and 18 build it. Now in:
+  [Part C §C11](versions/v3/master-spec.md#c11-the-generation-request-the-replay-key-and-kept-sessions),
+  [§C15](versions/v3/master-spec.md#c15-architectural-decisions-and-their-reasons),
+  [build plan v3.2, chunk 18](versions/v3/build-plan-v3.2.md#chunk-18--jam-engine-part-2-from-the-doodle-to-phrase-1).
+
+- **D420 (2026-10-21): the vision's out-of-scope "browsers other than Chromium-based ones" follows
+  D399 in the CS redraft.** `spec-writer`'s, under the same delegation: browsers other than Chrome
+  are out of scope, other Chromium-based ones untested. It goes in the vision's one redraft and
+  sign-off. Now in: [Part C §C13](versions/v3/master-spec.md#c13-what-v32-changes-in-v2-v30-and-v31-guarantees-and-atoms).

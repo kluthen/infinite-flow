@@ -382,10 +382,12 @@ v1.1 (2026-10-21) was rebuilt from the re-scope (D409). **v1.2 (2026-10-21) is a
 owner** (D410): v1.1's seven proposed answers (O260–O266), the design's behaviour answers (D411),
 the doodle-to-controls thresholds (D415) and "the kept doodle" (D413) written in. One sign-off on
 its re-scoped contract wording (CONTRACT 7.2.0 to 8.0.0) is still to come, as the build plan's
-gate CS.
+gate CS. v1.3 (2026-10-21) settles the three findings of the build's intent re-sync (D418–D420): a
+fresh Jam's seeds, and two atoms and a vision line more for that sign-off.
 
-**Build plan:** [build-plan-v3.2.md](build-plan-v3.2.md), **v6 (2026-10-21), approved by the
-owner** (D416, D417; hand check H9 waived), from Part C v1.2 and the approved design (gate D0, D412). It plans
+**Build plan:** [build-plan-v3.2.md](build-plan-v3.2.md), **v8 (2026-10-21)**, from v6, **approved
+by the owner** (D416, D417; hand check H9 waived), with wave 0's corrections (v7) and chunk 0's
+findings (v8, D418–D420), from Part C v1.3 and the approved design (gate D0, D412). It plans
 v3.2 on top of the [v3.1](build-plan-v3.1.md) build plan on the build-plan model: 32 chunks in eight
 waves, the session-mode half first (waves 0–3), then Jam mode (waves 4–7), one release, then the
 release gate, under the shared [v3 build workflow](build-workflow.md).

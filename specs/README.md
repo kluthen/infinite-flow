@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.86
+Status: draft v0.87
 
 ## Status Snapshot
 
@@ -46,11 +46,12 @@ Status: draft v0.86
     60–180 BPM (D400–D408; [draft](versions/v3/jam-mode.md)). Master spec
     [Part C](versions/v3/master-spec.md#part-c--v32) **v1.2, approved** (D410), with the design's
     behaviour answers (D411), the doodle-to-controls thresholds (D415) and "the kept doodle"
-    (D413); its contract wording (CONTRACT 7.2.0 to 8.0.0) still waits for the owner's one
-    sign-off. The design is approved (gate D0) and its token pass allowed (T2) (D412). Phones are
-    a third-rate client (D414). Build plan [v3.2](versions/v3/build-plan-v3.2.md) **v6, approved
-    by the owner** (D416, D417; v5 corrected against the design at `ux-writer`'s review, v6 waives
-    hand check H9): 32 chunks in eight waves, session mode first, one release, 3.2.0.
+    (D413); v1.3 settles chunk 0's three findings: a fresh Jam's seeds, and two atoms and a vision
+    line more for the sign-off (D418–D420). Its contract wording (CONTRACT 7.2.0 to 8.0.0) still
+    waits for the owner's one sign-off. The design is approved (gate D0) and its token pass allowed (T2) (D412). Phones are
+    a third-rate client (D414). Build plan [v3.2](versions/v3/build-plan-v3.2.md) **v8**, from v6,
+    **approved by the owner** (D416, D417; v5 corrected against the design at `ux-writer`'s review,
+    v6 waives hand check H9, v7 takes wave 0's preflight corrections, v8 chunk 0's findings): 32 chunks in eight waves, session mode first, one release, 3.2.0.
   - **v3.3:** richer chords, opt-in: one Seventh chords level, Off by default, diatonic sevenths
     only. Master spec [Part D](versions/v3/master-spec.md#part-d--v33), awaiting owner approval
     (D264–D275); build plan [v3.3](versions/v3/build-plan-v3.3.md), v3, not approved, after
