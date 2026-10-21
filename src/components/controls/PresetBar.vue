@@ -3,8 +3,9 @@
  * The preset bar, the first row of the control section: the "Preset" box, a native select listing
  * the built-ins in Practice and Styles and the player's own under Your presets, showing Custom
  * through a first option that is its value but never in its list, and the description line under
- * it. The box follows `selection`; the description is worked out from `descriptionSelection`, the
- * session's start selection during a session, so it keeps its text. Props-in/events-out only:
+ * it, then the actions row (./PresetActions.vue). The box follows `selection`; the description is
+ * worked out from `descriptionSelection`, the session's start selection during a session, so it
+ * keeps its text. Props-in/events-out only: an action pressed is reported upward, and
  * choosing reports the preset id upward, and the box always shows its props again afterwards, so a
  * choice the parent refuses never sticks. Read-only (Loading, a session), it stays focusable and a
  * keyboard change is refused and reverted at once. Nothing is announced and focus never moves.
@@ -13,11 +14,14 @@ import { computed, nextTick, ref, useId, watch } from 'vue'
 
 import { validateControlValue } from '@/domain/controls/generation-controls'
 import type { Preset, PresetId, PresetSelection } from '@/domain/presets/preset-selection'
+import PresetActions from './PresetActions.vue'
 import {
   presetBarCustomOption,
   presetBarFullText,
   presetBarGroups,
   presetDescription,
+  type PresetActionKind,
+  type PresetActionsRow,
 } from './preset-bar-model'
 
 const props = defineProps<{
@@ -28,10 +32,15 @@ const props = defineProps<{
   /** The selection the description line is worked out from. */
   descriptionSelection: PresetSelection
   readonly: boolean
+  /** The buttons the actions row holds. */
+  actions: PresetActionsRow
+  /** Every action disabled: during a session. */
+  actionsDisabled: boolean
 }>()
 
 const emit = defineEmits<{
   'select-preset': [id: PresetId]
+  'preset-action': [action: PresetActionKind]
 }>()
 
 const selectId = useId()
@@ -121,5 +130,10 @@ function handleChange(event: Event): void {
       </select>
       <p :id="descriptionId" class="field-note">{{ description }}</p>
     </div>
+    <PresetActions
+      :row="actions"
+      :disabled="actionsDisabled"
+      @preset-action="emit('preset-action', $event)"
+    />
   </div>
 </template>

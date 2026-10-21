@@ -10,7 +10,8 @@ parents:
   - [[rule_profile_control_customization]]
   - [[rule_restriction_in_force]]
 version: 1.2
-dependents: []
+dependents:
+  - [[module_figure_level_options]]
 human_name: The Routing Point That Decides Custom
 layer: ARCHITECTURE
 tags: [v3, release-v3.1, presets, player-controls, profile]

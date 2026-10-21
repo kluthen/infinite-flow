@@ -176,12 +176,13 @@ The engine counts repeats in a row, in the order phrases are decided.
 
 ## Settings lock and density step-down
 
-- **Locked settings.** The chosen settings (`controls` and `musicalProfile`, with the written tonal
-  center) are copied and deep-frozen at start. Every attempt's intent is built from that copy, so a
-  change the caller makes to its own objects later cannot reach the session. The player cannot
-  edit them during a session. From v2.1 the settings in effect can still change, but only at a
-  phrase boundary, through the engine's own mutations or a `settings-change` event (see
-  [Settings mutation and changes at a phrase boundary](#settings-mutation-and-changes-at-a-phrase-boundary)).
+- **Locked settings.** The chosen settings (`controls`, with the written tonal center, the seven
+  `figureLevels` and the preset `selection`, plus the restriction in force at Start as
+  `restriction`) are copied and deep-frozen at start. Every attempt's intent is built from that
+  copy, so a change the caller makes to its own objects later cannot reach the session. The player
+  cannot edit them during a session. From v2.1 the settings in effect can still change, but only at
+  a phrase boundary, through the engine's own mutations or a `settings-change` event (see [Settings
+  mutation and changes at a phrase boundary](#settings-mutation-and-changes-at-a-phrase-boundary)).
 - **Density only steps down.** [Note density](music/lexicon.md#note-density) is the main note
   length of the phrase. Sixteenth notes are not generated below the tablet-landscape width (see
   [Note density below `bp-tablet-landscape`](phrase-workspace.md#note-density-below-bp-tablet-landscape)), so each
@@ -668,14 +669,14 @@ the kept Review, if any, before anything else changes. Then, in order, it:
    ends the session, so a drop then is not followed up. The orientation lock is never asked for
    again;
 2. queues phrase 1's backing with the Idle phrase's harmony;
-3. locks the settings (the Idle controls and musical profile), with the settings phrase 1 was
-   generated under beside them (`phraseOneSettings` from the Idle result's recorded settings at
-   the session's tempo; see [Phrase 1's own settings](#phrase-1s-own-settings)), chooses the held layout from the
-   window's width alone (`sessionLayoutAtStart`: split below `bp-tablet-landscape`, one system
-   from it up), takes the phrases the Idle pre-generation queue has ready that fit the held layout
-   (aborting its attempt in flight, never waiting for it; see
-   [Pre-generation at Idle](phrase-workspace.md#pre-generation-at-idle)), opens a history stamped
-   with the wall clock;
+3. locks the settings (the Idle controls, figure levels and preset selection, with the restriction
+   in force frozen into them by `withRestrictionAtStart`), with the settings phrase 1 was generated
+   under beside them (`phraseOneSettings` from the Idle result's recorded settings at the session's
+   tempo; see [Phrase 1's own settings](#phrase-1s-own-settings)), chooses the held layout from the
+   window's width alone (`sessionLayoutAtStart`: split below `bp-tablet-landscape`, one system from
+   it up), takes the phrases the Idle pre-generation queue has ready that fit the held layout
+   (aborting its attempt in flight, never waiting for it; see [Pre-generation at
+   Idle](phrase-workspace.md#pre-generation-at-idle)), opens a history stamped with the wall clock;
 4. begins the session's MIDI side, with or without the controller, fixed now (see
    [The session controller's MIDI side](#the-session-controllers-midi-side));
 5. shows the count-in and the session's staff (phrase 1, the very written phrase Idle shows, in
@@ -684,7 +685,7 @@ the kept Review, if any, before anything else changes. Then, in order, it:
    fit check is the display's, and the end watchers. The runner runs adaptive tempo when the flag
    is on and step 4 found the controller attached (`sessionHasController`); a session started
    with the selected controller away, or with none, runs without it. The controls show phrase 1's
-   own settings through the count-in and phrase 1, the profile selection as the player's (showing
+   own settings through the count-in and phrase 1, the preset selection as the player's (showing
    them is no edit), then the session's from the first phrase generated under them
    (`createSessionShownSettings(phraseOne, session)`).
 
@@ -696,8 +697,8 @@ that differ from the current ones (master spec §16). `createStalePhraseStart`
 controller's `start()` (the Start click) and the starting note both go through its
 `request(opener)`. Once every start condition holds, it compares phrase 1's own settings with the
 current ones (`staleSettingsOf` in `src/session/stale-phrase-one.ts`: every control but the tempo,
-the musical profile without its customized mark, my instrument's range and transposition as saved
-now). With a difference it starts nothing, no sound, no lock, no count-in, and publishes
+each figure's level, never the preset selection alone, my instrument's range and transposition as
+saved now). With a difference it starts nothing, no sound, no lock, no count-in, and publishes
 `state.stalePhrasePrompt`, `{ opener: 'start' | 'note', changed }`, the changed settings fixed as it
 opens; `start()` then returns `'asked'` instead of `'started'`, and returns it again, changing
 nothing, while the prompt shows (a second press before its sheet has loaded). (A starting note
@@ -1106,10 +1107,10 @@ settings, and the event says from which phrase the new ones apply.
 ### The scale table
 
 `MUTATION_SCALES` (`settings-mutation-scales.ts`) holds one entry per mutable setting: every
-generation control except tempo and the instrument, plus the musical profile's identity
-(`MutableSetting`). An entry is data: its scale, the value a step starts from (`from`) and how a
-step is applied (`apply`). Its type, `MutationScaleTable`, makes a missing or extra setting a type
-error. A scale is one of four kinds:
+generation control except tempo and the instrument, plus the seven figure levels as one setting, in
+the place the musical profile had before v3.1 (`MutableSetting`). An entry is data: its scale, the
+value a step starts from (`from`) and how a step is applied (`apply`). Its type,
+`MutationScaleTable`, makes a missing or extra setting a type error. A scale is one of four kinds:
 
 - **ordered:** a list with no wrap, so a value at either end has one neighbour;
 - **circular:** a list stepped `step` places either way, wrapping;
@@ -1134,7 +1135,7 @@ the note-density catalog the scale reads.
 | Collection                     | separate: Major and Minor; the modes from brightest to darkest, Lydian to Locrian         | D181    |
 | Contour                        | nominal: Rising, Falling, Arch, Wandering                                                 | D181    |
 | Register                       | ordered: Low, Middle, High, never Varying; from Varying, steps from the resolved register | D181    |
-| Musical profile                | nominal: Neutral and Jazz flip; every control kept, no bundle applied, marked customized  | D181    |
+| Figure levels                  | ordered, per figure: Off, As today, Favored, Strongly favored; one figure, one level      | B8.1    |
 
 The **circle of fifths** orders the keys a perfect fifth (seven semitones) apart, so two keys next
 to one another differ by one sharp or flat in the
@@ -1145,8 +1146,12 @@ from brightest (Lydian) to darkest (Locrian), each mode differs from the next by
 The scales marked D181 were proposed by the coding leader and accepted by the owner on
 2026-10-03 (spec D181): `rule_mutation_setting_scales` (tonal center, collection, contour,
 register) and `rule_mutation_marks_profile_customized`.
-A step of a value the musical profile controls marks the profile customized; a step of a value it
-does not control leaves the mark as it was. `rule_mutation_sixteenth_blocked_after_step_down`
+From v3.1 (`rule_vary_settings_marks_custom`), a step of one of the ten preset-held controls or of
+a figure level makes the selection Custom based on the selected preset (Custom stays Custom, with
+its base); a written key or collection step never does, and stays inside the restriction in force
+(below). A figure step moves one figure one level up or down, never past Off or Strongly favored
+(shown as Off and Very often), every other level kept (`rule_vary_settings_figure_step`); it
+replaces v3.0's flip between Neutral and Jazz. `rule_mutation_sixteenth_blocked_after_step_down`
 (below) was accepted with them.
 
 ### The draw
@@ -1257,7 +1262,7 @@ the two settings are the same object, and otherwise asks `adaptCarryIn`
 - **A change to a fixed register:** the carried window becomes the new register's.
 - **A key or collection change:** the harmonic part is dropped. `CarryIn.finalHarmony` is then an
   explicit `null`; a missing field is still refused.
-- **A harmonic motion, tension or profile change:** the carried chord is dropped when the new
+- **A harmonic motion, tension or figure-level change:** the carried chord is dropped when the new
   settings never end a phrase on it with that endpoint class
   (`rule_harmony_change_drops_unfit_harmonic_carry_in`, accepted by the owner, spec D181).
 - **The pitch part is then re-checked:** the carried pitch must lie in the window, and what it owes
@@ -1291,11 +1296,11 @@ for its initial course, so its phrases stay the session's.
 
 `stale-phrase-one.ts` also holds the pure pieces the workspace uses around it:
 `phraseOneSettings(recorded, phraseOneIntent, tempo)` builds phrase 1's settings from what the Idle
-result recorded (the chosen controls and profile selection) at the session's tempo, my instrument's
-profile taken from phrase 1's intent; `isPhraseOneStale(phraseOne, current)` compares them by value
-with the current settings over what the generation reads: every control but the tempo, the musical
-profile but not its customized mark, and the instrument's concert range and transposition (never
-its display name or clef).
+result recorded (the chosen controls, figure levels and preset selection) at the session's tempo, my
+instrument's profile taken from phrase 1's intent; `isPhraseOneStale(phraseOne, current)` compares
+them by value with the current settings over what the generation reads: every control but the tempo,
+each figure's level (a change of the preset selection alone counts for nothing), and the
+instrument's concert range and transposition (never its display name or clef).
 
 ### Replay from the inputs
 
@@ -1345,13 +1350,14 @@ that instant; a repeat shows nothing new, so a change landing on a repeat first 
 generated phrase. When several are due at once the latest reported wins. The shell renders the
 controls from it, and from the player's Idle settings when it is null.
 
-**The restore at the end (spec D182).** The session never writes the player's Idle controls or
-profile selection: it reads them at its start and changes only what it shows. Every end's teardown
-sets `shownSettings` back to null, before the end asks Idle for its fresh phrase, so the controls
-show the player's own settings again, a `Varying` register and the profile's customized marking
-included, and the fresh phrase is generated from them. The flag's own choice is untouched. The
-preset bar is no live region, so neither a change nor the return is announced, and its description
-line reads the session's `startSettings` (null again at every end) rather than `shownSettings`.
+**The restore at the end (spec D182).** The session never writes the player's Idle controls, figure
+levels or preset selection: it reads them at its start and changes only what it shows. Every end's
+teardown sets `shownSettings` back to null, before the end asks Idle for its fresh phrase, so the
+controls show the player's own settings again, a `Varying` register and the selection as it was (a
+preset, or Custom) included, and the fresh phrase is generated from them. The flag's own choice is
+untouched. The preset bar is no live region, so neither a change nor the return is announced, and
+its description line reads the session's `startSettings` (null again at every end) rather than
+`shownSettings`.
 
 ## Multi-phrase tension arc
 
@@ -1652,11 +1658,11 @@ The rolling display's choices were made in chunk 16:
 The settings-mutation control's choices were made in chunk 25:
 
 - **The session shows its settings; it never writes the player's.** The controls render from the
-  controller's `shownSettings` while a session runs, and the Idle controls and profile selection
-  are never touched. The restore at the end (spec D182) is then the teardown dropping what the
-  session showed: nothing can be left half-restored, a `Varying` register and the profile's
-  customized marking come back as they were, and the fresh phrase reads the player's settings
-  because they never changed. The tempo control already worked this way.
+  controller's `shownSettings` while a session runs, and the Idle controls, figure levels and preset
+  selection are never touched. The restore at the end (spec D182) is then the teardown dropping what
+  the session showed: nothing can be left half-restored, a `Varying` register and the preset
+  selection come back as they were, and the fresh phrase reads the player's settings because they
+  never changed. The tempo control already worked this way.
 - **A change shows at the phrase that sounds with it, not when it is decided.** The engine reports
   a mutation one phrase ahead; the controller keeps it until that phrase, or a later generated one
   after a repeat, starts sounding on the audio clock (ux D157, D170).

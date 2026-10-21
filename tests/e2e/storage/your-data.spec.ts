@@ -3,7 +3,8 @@
  * harness (port 4175) over the browser's real IndexedDB, each test from an empty browser context:
  *
  * - its counts, the space line and the protection line from a stubbed storage manager, and the
- *   empty overview of a first visit; its three openers, focus returning to each;
+ *   empty overview of a first visit, its Presets section reading "None." with no list; its three
+ *   openers, focus returning to each;
  * - Delete everything: the page reloads into a first visit, a remembered controller not reattached;
  * - its openers are disabled during a session, and no MIDI note starts one while it is open;
  * - a failed read offers Delete everything only; data a newer version wrote, known at load or
@@ -11,7 +12,8 @@
  * - two tabs: after Delete everything in one, the other saves nothing, offers no deletion and
  *   shows the outdated notice in the newer version's wording (spec D300, D331).
  *
- * The deletions made in place (every session, every played note) are in ./your-data-deletions.spec.ts.
+ * The deletions made in place (every session, every played note) are in ./your-data-deletions.spec.ts,
+ * the Presets section and the player presets' deletions in ./your-data-presets.spec.ts.
  */
 import { expect, test } from '@playwright/test'
 
@@ -42,10 +44,12 @@ import {
 import {
   INTRO,
   LOW_TENOR,
+  NO_PRESETS,
   NOT_PROTECTED,
   OUTDATED_DEFAULTS_NOTICE,
   OUTDATED_NOTICE,
   OUTDATED_ROW_NOTICE,
+  OVERVIEW_HEADINGS,
   PROTECTED,
   UNREADABLE_NOTICE,
   askConfirmation,
@@ -54,6 +58,7 @@ import {
   footerYourData,
   listYourData,
   openYourData,
+  presetRowNames,
   savingState,
   sectionHeadings,
   sectionLines,
@@ -86,20 +91,14 @@ test('the counts, the space and the protection as designed; the empty overview o
   await gotoStorageHarness(page)
 
   await openYourData(page)
-  expect(await sectionHeadings(page)).toEqual([
-    'Settings',
-    'My instrument',
-    'Controller',
-    'Sessions',
-    'Played notes',
-    'Space used',
-    'Protection',
-  ])
+  expect(await sectionHeadings(page)).toEqual(OVERVIEW_HEADINGS)
   await expect(yourDataSheet(page).locator('.sheet-body > p').first()).toHaveText(INTRO)
   expect(await sectionLines(page, 'My instrument')).toEqual([
     'None.',
     'Make one with Create my instrument, in the controls.',
   ])
+  expect(await sectionLines(page, 'Presets')).toEqual(NO_PRESETS)
+  expect(await presetRowNames(page)).toEqual([])
   expect(await sectionLines(page, 'Controller')).toEqual(['None remembered.'])
   expect((await sectionLines(page, 'Sessions'))[0]).toBe('No sessions kept yet.')
   expect((await sectionLines(page, 'Played notes'))[1]).toBe('None kept.')

@@ -93,7 +93,8 @@ export const WORKSPACE_SESSION_FACTORY: InjectionKey<
  * from its "During a session" choices, so the workspace is first drawn with them; the load itself is exposed unchanged. The visit's saves go
  * through the loaded save policy: Idle's control actions and the screen's change handlers save the
  * player's changes through them, and each session controller holds them while a session runs. The
- * controller remembered from an earlier visit is decoded from the load and saved through them too.
+ * controller remembered from an earlier visit is decoded from the load and saved through them too,
+ * and the player presets are saved through them, a new one's id drawn from `nextPresetId`.
  */
 // @spec-link [[service_workspace_session_flow]]
 // @spec-link [[service_session_runner]]
@@ -276,6 +277,14 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
       remember: saves.rememberController,
       forget: saves.forgetController,
     },
+    presetStore: {
+      saves: {
+        savePreset: saves.savePreset,
+        saveRenamedPreset: saves.saveRenamedPreset,
+        deletePreset: saves.deletePreset,
+      },
+      nextPresetId: deps.nextPresetId,
+    },
     dispose: () => {
       created.dispose()
       deps.dispose()
@@ -343,8 +352,8 @@ export interface ProductionWorkspaceSessionOptions {
  * generation seam, its client loaded on demand, one browser worker at a time replaced on a
  * session's cancellation and then re-warmed under the given prewarm policy, and its prewarm under
  * that policy, the cryptographic
- * seed provider (for phrase seeds and, drawn separately, session seeds), a monotonic request-id
- * provider, the window's own `matchMedia` width provider, the Web Audio transport, still locked: no
+ * seed provider (for phrase seeds and, drawn separately, session seeds), the browser's random UUIDs
+ * for new player presets' ids, a monotonic request-id provider, the window's own `matchMedia` width provider, the Web Audio transport, still locked: no
  * audio context exists until a player click unlocks it, the Web MIDI controller on that transport's
  * clock, which requests no MIDI access until `connect()`, and the browser adapters of the session's
  * wake lock, orientation lock, page visibility and window shape, none of which asks or listens for
@@ -384,6 +393,7 @@ export function createWorkspaceSession(
       nextSeed: nextCryptoSeed,
     },
     nextSessionSeed: nextCryptoSeed,
+    nextPresetId: () => crypto.randomUUID(),
     viewport: createBrowserViewportWidth(),
     generate: client.generate,
     prewarmPolicy: options.prewarmPolicy,

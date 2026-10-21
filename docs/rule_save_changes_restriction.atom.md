@@ -1,6 +1,6 @@
 ---
 id: rule_save_changes_restriction
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 version: 0.1

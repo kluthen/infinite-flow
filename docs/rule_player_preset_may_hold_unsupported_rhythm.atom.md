@@ -1,6 +1,6 @@
 ---
 id: rule_player_preset_may_hold_unsupported_rhythm
-status: DRAFT
+status: REVIEW
 tags: [v3, release-v3.1, player-controls, presets, rhythm]
 type: RULE
 layer: BUSINESS

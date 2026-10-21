@@ -50,6 +50,7 @@ function fakeSession(overrides: Partial<GenerationSession<WorkspaceSessionResult
     reportNotationFailure: vi.fn(() => true),
     reportNotationRecovered: vi.fn(() => true),
     startFreshPhrase: vi.fn(async () => true),
+    replacePlayerPresets: vi.fn(),
   }
   const session: GenerationSession<WorkspaceSessionResult> = {
     state: {

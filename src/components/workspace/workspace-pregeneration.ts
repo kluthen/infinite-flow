@@ -16,6 +16,7 @@ import type { GenerationSessionState } from '@/composables/use-generation-sessio
 import type { PregenerationSlot } from '@/composables/generation-session-pregeneration'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import { FIGURE_IDS } from '@/domain/figures/figure-levels'
+import { ANY_KEY_AND_MODE } from '@/domain/presets/key-and-mode-restriction'
 import { restrictionInForce } from '@/domain/presets/preset-selection'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
@@ -130,9 +131,10 @@ function atTempo(readyPhrases: readonly ReadyPhrase[], tempo: number): readonly 
  * Intent: the queue's key besides phrase 1: the generation controls except tempo (the instrument
  * is a control), the seven figure levels in FIGURE_IDS order, Vary settings, Tension across
  * phrases and the restriction in force, whose change discards whether Vary settings is on or not
- * (opting out, or coming back inside). Never the preset selection itself: no phrase is generated
- * from it, so a change of the selection alone (the same controls, levels and restriction in
- * force) keeps the ready phrases.
+ * (opting out, or coming back inside). No restriction in force and an "any" restriction count as
+ * one, as Start takes them. Never the preset selection itself: no phrase is generated from it, so
+ * a change of the selection alone (the same controls, levels and restriction in force) keeps the
+ * ready phrases.
  */
 // @spec-link [[rule_pregeneration_discarded_on_change]]
 // @spec-link [[rule_restriction_in_force]]
@@ -145,7 +147,8 @@ function settingsKeyOf(deps: PregenerationControllerSeams): string {
     FIGURE_IDS.map((figure) => figureLevels[figure]),
     deps.varySettings(),
     deps.tensionAcrossPhrases(),
-    restrictionInForce(selection, controls.tonalCenter, controls.collection, presets),
+    restrictionInForce(selection, controls.tonalCenter, controls.collection, presets) ??
+      ANY_KEY_AND_MODE,
   ])
 }
 

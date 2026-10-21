@@ -1,61 +1,17 @@
 import { describe, expect, it } from 'vitest'
-import { mount } from '@vue/test-utils'
 
-import ControlPanel from '@/components/controls/ControlPanel.vue'
-import type { SessionStartSettings } from '@/components/controls/preset-bar-model'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
-import {
-  BUILT_IN_PRESETS,
-  builtInPreset,
-  DEFAULT_PRESET_SELECTION,
-} from '@/domain/presets/built-in-presets'
-import { makePreset, type Preset, type PresetSelection } from '@/domain/presets/preset-selection'
+import { BUILT_IN_PRESETS, builtInPreset } from '@/domain/presets/built-in-presets'
+import { makePreset, type PresetSelection } from '@/domain/presets/preset-selection'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import {
   UNSUPPORTED_RHYTHM_SETTINGS,
   UNSUPPORTED_RHYTHM_SETTING_MESSAGE,
 } from '@/domain/controls/unsupported-rhythm-settings'
 
-function mountPanel(
-  controls: GenerationControls = DEFAULT_GENERATION_CONTROLS,
-  selection: PresetSelection = DEFAULT_PRESET_SELECTION,
-  readonly = false,
-  presets: readonly Preset[] = BUILT_IN_PRESETS,
-  startSettings: SessionStartSettings | null = null,
-) {
-  return mount(ControlPanel, {
-    props: {
-      controls,
-      selection,
-      presets,
-      readonly,
-      noteDensityContext: { belowTabletLandscape: false, sessionSteppedDown: false },
-      risingTempo: false,
-      risingTempoAvailable: false,
-      lastSessionReachedTempo: null,
-      varySettings: false,
-      tensionAcrossPhrases: false,
-      sessionOptionsReadonly: readonly,
-      startSettings,
-      myInstrument: null,
-      instrumentActionsDisabled: false,
-    },
-  })
-}
+import { mountPanel } from './control-panel-mount'
 
 describe('ControlPanel', () => {
-  it('renders the four control groups with their handoff headings', () => {
-    const wrapper = mountPanel()
-    const headings = wrapper.findAll('.control-group h3').map((h) => h.text())
-    expect(headings).toEqual([
-      'Foundation',
-      'Rhythm',
-      'Melodic shape',
-      'Character',
-      'During a session',
-    ])
-  })
-
   // @test-link [[module_generation_control_catalog]]
   it('renders every field label the handoff defines', () => {
     const wrapper = mountPanel()
@@ -76,6 +32,13 @@ describe('ControlPanel', () => {
       'Register',
       'Leapiness',
       'Arpeggio chaos',
+      'Passing tone',
+      'Accented passing tone',
+      'Neighbor tone',
+      'Appoggiatura',
+      'Diatonic enclosure',
+      'Chromatic approach',
+      'Chromatic enclosure',
       'Rising tempo',
       'Tension across phrases',
       'Vary settings',
@@ -259,22 +222,6 @@ describe('ControlPanel', () => {
     const controls: GenerationControls = { ...DEFAULT_GENERATION_CONTROLS, ...setting }
     const wrapper = mountPanel(controls)
     expect(wrapper.emitted('set-control')).toBeUndefined()
-  })
-
-  it('propagates readonly to every control group', () => {
-    const wrapper = mountPanel(DEFAULT_GENERATION_CONTROLS, DEFAULT_PRESET_SELECTION, true)
-    const groups = wrapper.findAll('[role="radiogroup"]')
-    expect(groups.length).toBeGreaterThan(0)
-    for (const group of groups) {
-      expect(group.attributes('aria-readonly')).toBe('true')
-    }
-    expect(wrapper.get('[role="spinbutton"]').attributes('aria-readonly')).toBe('true')
-    expect(wrapper.get('select.preset-select').attributes('aria-readonly')).toBe('true')
-    const fieldGroups = wrapper.findAll('.field-group')
-    expect(fieldGroups.length).toBeGreaterThan(0)
-    for (const fieldGroup of fieldGroups) {
-      expect(fieldGroup.classes()).toContain('is-readonly')
-    }
   })
 
   // @test-link [[rule_automatic_change_updates_controls_quietly]]

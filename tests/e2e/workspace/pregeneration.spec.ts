@@ -5,8 +5,10 @@
  * harness's call records and held at its background gate, so each case is deterministic: a
  * session spends the ready phrases instead of requesting them, a player request or Start cancels
  * a held attempt and never waits for it, a change of the queue's key discards the ready phrases
- * (a tempo change keeps them), a window crossing that steps the density down discards the
- * phrases made at the wider density, nothing runs while a review shows, and no record is stored.
+ * (a Reel choice, which moves the mode and puts its restriction in force, among them), a tempo
+ * change and a rename of the selected preset keep them, a window crossing that steps the density
+ * down discards the phrases made at the wider density, nothing runs while a review shows, and no
+ * record is stored.
  */
 import { expect, test, type Page } from '@playwright/test'
 
@@ -21,7 +23,8 @@ import {
   toRunning,
 } from '../session/session-helpers'
 import { databaseRecords } from '../storage/storage-helpers'
-import { choosePreset, radio } from './helpers'
+import { choosePreset, expectPresetShown, radio } from './helpers'
+import { LATE_NIGHT, nameField, openSheet, seedAndReload } from './preset-management-helpers'
 import {
   QUEUE_SIZE,
   backgroundCounts,
@@ -228,6 +231,15 @@ const KEY_CHANGES: readonly KeyChange[] = [
     stale: true,
   },
   {
+    name: 'a Reel choice',
+    sessionSeed: SESSION_SEED,
+    /** Intent: choose Reel in the preset box, which moves C Ionian to C Mixolydian. */
+    apply: (page) => choosePreset(page, 'Reel'),
+    /** Intent: the request carries the mode Reel moved to, inside its restriction. */
+    expectCarried: (request) => expect(request.controls.collection).toBe('Mixolydian'),
+    stale: true,
+  },
+  {
     name: 'an instrument change',
     sessionSeed: NEXT_SESSION_SEED,
     apply: (page) => switchAndRegenerate(page, 'Instrument profile', 'E-flat alto saxophone'),
@@ -288,6 +300,27 @@ test('a tempo change keeps the ready phrases', async ({ page }) => {
   const state = await sessionState(page)
   expect(state.sessionTempo).toBeGreaterThan(90)
   expect(state.latestReady).toBeGreaterThanOrEqual(2)
+  expect(await generationRecords(page).then((records) => records.slice(from))).toEqual([])
+})
+
+// @test-link [[rule_pregeneration_discarded_on_change]]
+test('a rename of the selected preset keeps the ready phrases', async ({ page }) => {
+  test.setTimeout(90_000)
+  await gotoPregenerationHarness(page)
+  await seedAndReload(page, [LATE_NIGHT], LATE_NIGHT)
+  await expectPresetShown(page, 'Late night')
+  await readyWithSessionSeed(page, SESSION_SEED)
+  await untilQueueFull(page)
+  const from = (await generationRecords(page)).length
+
+  await openSheet(page, 'Rename preset', 'Rename “Late night”')
+  await nameField(page).fill('Afterhours')
+  await nameField(page).press('Enter')
+  await expectPresetShown(page, 'Afterhours')
+
+  expect(await generationRecords(page).then((records) => records.slice(from))).toEqual([])
+  await startSession(page)
+  expect((await sessionState(page)).latestReady).toBeGreaterThanOrEqual(2)
   expect(await generationRecords(page).then((records) => records.slice(from))).toEqual([])
 })
 

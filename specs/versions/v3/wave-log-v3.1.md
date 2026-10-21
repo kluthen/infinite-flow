@@ -620,3 +620,121 @@ a business rule (B6.4 v1.7; `rule_restriction_highlight_never_blocks` 0.2, two e
 `documentalist` fc895ce). Wave 5 (14, 17, 18, 19) starts in a fresh session. Open for later: the
 profile wording in `docs/session-engine.md` and `docs/phrase-workspace.md` ~938 (a coding pass);
 `your-data-copy.ts` `SETTINGS_LINE` is chunk 18's. Wave 4 merged into `main`.
+
+## Wave 5 (2026-10-21)
+
+Chunks 14 (the Embellishments group), 17 (preset management), 18 (Your data and Delete everything)
+and 19 (pre-generation discards), in the order 14 → 17 → 18 → 19. Branch `v3.1-w5`, worktree
+`../infinite_flow-v3.1-w5`, cut from `main` 031d678 (wave 4 merged and pushed). κ = 1. Started in
+a fresh session, as the owner asked.
+
+### Preflight
+
+`documentalist` (497200c), without `atd audit`. Every chunk: PROCEED with corrections; no halt,
+no new sign-off. Chunk 14: `req_embellishment_figure_levels`, `rule_custom_selection`,
+`rule_pregeneration_discarded_on_change`. Chunk 17: its ten DRAFT rules, two STABLE rules kept
+true; the revisions of `rule_unsupported_rhythm_settings_block_generation` and
+`rule_persistent_storage_requested` (contract, already approved through CS, D363). Chunk 18:
+`rule_failed_read_offers_only_delete_everything` (STABLE) kept true; the revisions of `req_your_data` and
+`rule_delete_everything` (contract, CS). Chunk 19: `req_idle_pregeneration`,
+`rule_pregenerated_phrase_matches_session`. Captures: `module_figure_level_options` 0.1 (chunk
+14) and `module_player_presets` 0.1 (chunk 17).
+
+Sent to `spec-writer` before chunk 14: Files and Atoms for all four chunks; chunk 17's session
+action, preset saves in `VisitSaves`, the lazy preset sheet and its 17a/17b split; one
+uncaptured decision (the preset actions stay enabled during Loading: the session action is blocked
+only by a running session); chunks 18 and 19 are mostly wording and tests; chunk 19's revision drops
+"the musical profile". Design residue for `ux-writer`: the frozen Embellishments handoff still
+states the passing-and-neighbor rule that DP rejected (D378); chunk 14 does not build it.
+- Plan v18 (fb0080b, `spec-writer`): every correction applied; D386 settles the preset actions
+  during Loading; chunk 17 splits into 17a (state and storage, not yet visible) and 17b (the
+  actions row, the bar, the sheet). The frozen handoff's passing-and-neighbor rule stays as is;
+  chunk 14's text says not to build it.
+- D386 captured (01bff1a): `service_idle_generation_session` 0.7 (the preset-list action),
+  `module_player_presets` 0.2. It raised what that action saves; `spec-writer` settled it as D387
+  (447ec7a, plan v19: the selection it changes, and nothing else); captured in daad9e9
+  (`service_idle_generation_session` 0.8, `module_player_presets` 0.3).
+
+### Chunks
+
+- Chunk 14: dispatched 2026-10-21 (`../infinite_flow-v3.1-c14`, branch
+  `v3.1-c14-embellishments`), on plan v18.
+- Chunk 14: merged as cacc073 (540fd96). Every Done-when item met; no deviation from the spec,
+  the design or the intent; the passing-and-neighbor rule not built (D378). Also changed beyond
+  Files: `WorkspaceShell.vue` routes the level change. For the sync: `module_figure_level_options`
+  names ControlPanel where WorkspaceShell calls `setFigureLevel`. Left for the wave: the lexicon's
+  figure entries still say "planned, not built". Seen: clicking an already checked segment turns a
+  preset Custom and discards the queue (every control group does it today); to raise with the
+  owner at the report. v3.1 H1 and H2 are written; L1 and L2 open at the wave's end.
+- Chunk 17: dispatched 2026-10-21 (`../infinite_flow-v3.1-c17`, branch
+  `v3.1-c17-preset-management`), 17a then 17b, on plan v19.
+- Owner, 2026-10-21: re-clicking the checked segment (a preset turns Custom, the queue is
+  discarded although nothing changed) is acceptable behaviour; no change. For `spec-writer` to
+  record with its next revision.
+- Chunk 17: merged as 8402c33 (334171e 17a, 76cbf64 17b). Every Done-when item met; no
+  deviation from the spec or the design. The preset-list action is `replacePlayerPresets`. The
+  D387 reload after a refused Save as new is proven at unit level only. For the sync: both
+  Revisions (`rule_unsupported_rhythm_settings_block_generation`; `rule_persistent_storage_requested`,
+  contract, CS); `service_idle_generation_session` names the action; `module_player_presets`' API
+  grew. For the gate: the bundle (the sheet loads on demand); the new required `presetStore` prop
+  touched many test mounts, which only the full suite covers.
+- Chunk 18: merged as 57c23e1 (c8d2f00). Every Done-when item met; no deviation from the spec
+  or the design; its e2e in a new `your-data-presets.spec.ts`. For the sync: both Revisions
+  (`req_your_data`, `rule_delete_everything`; contract, CS). For the gate: the lazy Your data
+  sheet now imports `preset-sheet-copy.ts` (expected in a shared lazy chunk).
+- Chunk 19: merged as c3400b8 (10869c1). Every matrix row is a test; one gap fixed in
+  `settingsKeyOf` (no restriction in force and an "any" restriction now count as one, as Start
+  takes them), which made four keep rows discard. For the sync: the revision of
+  `rule_pregeneration_discarded_on_change` and the none = any equivalence. Note: through the queue
+  key a re-click of the level already set changes nothing, so it may not discard after all; the
+  owner's acceptance stands either way.
+
+### Gate
+
+- Run 1 (5b4880e, 09:32): `quality` exit 1 at `lint:health`: `WorkspaceShell.vue` linked 12
+  distinct atoms and `ControlPanel.spec.ts` 13 (limit 10; both at 10 on `main`, pushed over by
+  chunks 14, 17b and 18). Fix 10a16e6 (`coding-executor`, no behaviour change): the four control
+  panel forwarders move word for word, links with them, into `use-control-panel-actions.ts`
+  (shell at 9 atoms); the three Embellishments tests move into `ControlPanel-embellishments.spec.ts`
+  with a shared `control-panel-mount.ts` (spec at 10).
+- Run 2 (10a16e6, 09:36–09:43): unit 491 files, 7,550 tests; Playwright pass 1 557 (1 skipped);
+  pass 2 (pre-generation on) one deterministic failure, `embellishment-levels.spec.ts:200`: the
+  "phrase on screen stays" check counted every generation request, background ones included,
+  which each level change rightly restarts (B8.3). Fix 25f8e0e (test only): count player and
+  session requests only, as `pregeneration.spec.ts` does; `regenerate()` reads the last player
+  request. The app is unchanged.
+- Run 3 (25f8e0e, 09:46–09:55), AMD Ryzen 5 PRO 8640HS: `quality` exit 0. Unit 491 files, 7,550
+  tests; Playwright 557 + 557 (1 skipped each), a11y 59, notation 107 (4 skipped); `atd:lint` and
+  `atd:check` pass. Entry chunk 265,431 B (wave 4: 250,721, +14,710; budget 307,200). No sweep or
+  measurement placed in this wave.
+
+### Sync
+
+`documentalist` 1b4b2a6 (no `atd audit`): Revisions applied: chunk 17's
+`rule_unsupported_rhythm_settings_block_generation` 0.5 and `rule_persistent_storage_requested`
+0.3 (contract, CS), with `module_saved_data_loader` 0.6 (change set J3, left by wave 3 for chunk
+17); chunk 18's `rule_delete_everything` 0.3 and `req_your_data` 0.2 (contract, CS; J4 marked
+confirmed and applied; CONTRACT stays 7.0.0); chunk 19's `rule_pregeneration_discarded_on_change`
+0.4. Drift fixed: `service_idle_generation_session` 0.9, `module_player_presets` 0.4,
+`module_preset_bar_model` 0.4, `module_idle_pregeneration_queue` 0.7 (none = any in the key),
+`module_figure_level_options` 0.2 (`use-control-panel-actions.ts`; choosing the level already held
+discards nothing). No links needed; `atd:lint`, `atd:check`, `lint:health` (0 errors) pass. For the
+owner: DRAFT → REVIEW for 14 atoms; `module_save_policy` (STABLE) wording to name the preset
+saves. Later: `rule_custom_selection` / `module_profile_control_customization` on the re-click
+(after D388), a split of `rule_pregeneration_discarded_on_change`, a present-tense rewording of
+`rule_unsupported_rhythm_settings_block_generation`. Docs leftovers (lexicon figure entries,
+"musical profile" in `docs/session-engine.md` and `docs/phrase-workspace.md`) sent to a
+`coding-executor`.
+- Docs leftovers, c3eae74 (`coding-executor`): the lexicon's figure and v3.1 preset entries
+  marked built with the app's labels; "musical profile" replaced in `docs/session-engine.md`,
+  `docs/phrase-workspace.md` (also its replay-key section, now `ifk3.`) and `docs/testing.md`.
+  Still stale, for a later pass: the lexicon's Count-in and Starting note entries call the
+  stale-phrase question "planned"; the Collection entry's "planned as" wording.
+
+### Owner answers and merge
+
+2026-10-21: merge and push; every sign-off given (spec D390): the 14 atoms to REVIEW and
+`module_save_policy` 0.7 (`documentalist` cebeb27). The re-click behaviour accepted (D388). v3.4
+opened as a structural review, the last v3 milestone (D389, O234–O238; spec-writer 5497b64). L1
+and L2 stay open for the owner's v3.1 H1 and H2; then the release gate (chunk 21). Wave 5 merged
+into `main`.

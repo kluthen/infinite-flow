@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.77
+Status: draft v0.78
 
 ## Status Snapshot
 
@@ -33,7 +33,7 @@ Status: draft v0.77
 - **Next: the rest of v3** ([v3](versions/v3/README.md#releases-d211)):
   - **v3.1:** embellishment flags and presets. Master spec
     [Part B](versions/v3/master-spec.md#part-b--v31), approved (D239); design approved (D353);
-    build plan [v3.1](versions/v3/build-plan-v3.1.md), v16 (v4 approved, D357): waves 0–3 went
+    build plan [v3.1](versions/v3/build-plan-v3.1.md), v20 (v4 approved, D357): waves 0–3 went
     ahead first and may merge into `main`; the owner has allowed the token-source pass (gate T1,
     D382, reversing D355), so waves 4 and 5 wait only for the waves before them; no release before
     wave 5 merges. Entry budget 300 KiB (D359); v3.0's
@@ -48,7 +48,10 @@ Status: draft v0.77
     v1.5); wave 3's preflight corrections: chunk 12 keeps v3.0's saved selection until chunk 16
     (D377); the owner rejects the passing-and-neighbor rule, chunk 20 is dropped (gate DP, D378),
     the cost guard's settings are the ones chunk 11 ran (D379), the last "musical profile"
-    strings go to chunks 13 and 18 (D381); ISS-014 (D380) is fixed before wave 3 merges (D383).
+    strings go to chunks 13 and 18 (D381); ISS-014 (D380) is fixed before wave 3 merges (D383); choosing again the option a control already
+    shows makes Custom and may discard the pre-generated phrases, accepted by the owner (D388,
+    Part B v1.8); at wave 5's report the owner approves the sync's sign-offs and asks for its
+    merge (D390).
   - **v3.2:** Jam, the key and mode suggestion, the rhythm lock and its mutation option. Master
     spec [Part C](versions/v3/master-spec.md#part-c--v32), approved (D239); build plan
     [v3.2](versions/v3/build-plan-v3.2.md), v3, not approved. The contract wording v3.1 and
@@ -57,13 +60,18 @@ Status: draft v0.77
     only. Master spec [Part D](versions/v3/master-spec.md#part-d--v33), awaiting owner approval
     (D264–D275); build plan [v3.3](versions/v3/build-plan-v3.3.md), v3, not approved, after
     v3.2's release (D276–D288).
+  - **v3.4:** a structural review before v4, with no player-facing change: soundness for
+    expansion, the entry budget, refactors worth taking, a split into libraries. The last v3
+    milestone, after v3.3 (D389); [scoping draft](versions/v3/structural-review.md), the analysis
+    not started.
   - **v3.x:** learning from positive signals, with recognising played signals (D213, D214);
     likely to move or go. Rhythm ratios and the rhythm editor are v4; the chord-fit check, review
     tooling and the two controller-connection ideas are dropped (D211).
-- **Open:** 12 questions: O48 and O49 (later and governance), O100–O102 (v4 rhythm), O115 and
+- **Open:** 17 questions: O48 and O49 (later and governance), O100–O102 (v4 rhythm), O115 and
   O116 (v3.x learning), O176 (style packs and the chord level), O180 (octave signs, later), O183
   (pre-generation's cancellation cost), O190 (a newer version's database whose read-only
-  reopening fails) and O230 (a stale replay-key wording in a STABLE atom). See the
+  reopening fails), O230 (a stale replay-key wording in a STABLE atom) and O234–O238 (v3.4's
+  structural review). See the
   [register](open-questions.md).
 - The snapshots this index kept through v2's design and build and through v3.0's are archived
   verbatim at [archive/v2/readme-status-snapshot.md](archive/v2/readme-status-snapshot.md) and

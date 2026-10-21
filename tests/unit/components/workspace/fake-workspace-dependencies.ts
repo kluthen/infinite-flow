@@ -9,6 +9,7 @@
  */
 import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { countingSessionSeeds } from '../../composables/fake-session-seed'
+import { countingPresetIds } from './quiet-saved-data'
 import { expect, vi } from 'vitest'
 
 import type {
@@ -130,6 +131,7 @@ export function fakeDependencies(
       nextSeed: () => makeSeed(++seedCounter),
     },
     nextSessionSeed: countingSessionSeeds(),
+    nextPresetId: countingPresetIds(),
     viewport: createFakeViewportWidth(),
     generate: generateMock,
     prewarmPolicy,

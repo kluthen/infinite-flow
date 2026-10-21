@@ -18,7 +18,7 @@ import { createTestWorkspace, PHRASE_SCORE_STUB } from './test-workspace'
 import { createFakeSessionController } from './fake-session-controller'
 import { createControllerRig, KEYS_A, PAD_B } from '../../midi/midi-controller-rig'
 import { provideSaveSettings } from './recording-save-settings'
-import { noRememberedController, quietSavedData } from './quiet-saved-data'
+import { noRememberedController, quietSavedData, quietPresetStore } from './quiet-saved-data'
 
 // The opened sheet engraves its check note; jsdom has no fonts nor canvas for VexFlow.
 vi.mock(
@@ -77,6 +77,7 @@ function mountShell(
     props: {
       savedData: quietSavedData(),
       rememberedController: noRememberedController(),
+      presetStore: quietPresetStore(),
       session,
       pendingPhrase: null,
       handleEngraved: () => {},

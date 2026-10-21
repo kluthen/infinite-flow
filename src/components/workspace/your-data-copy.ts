@@ -1,19 +1,21 @@
 /**
  * The words of the Your data sheet (ui_ux screens/your-data): its Overview's lines, the notices of
- * a visit that saves nothing, the space and protection lines, and its four confirmations. Pure;
- * loaded on demand with the sheet (./YourDataSheet.vue), never by the first draw.
+ * a visit that saves nothing, the space and protection lines, and its five confirmations, the
+ * preset's in the preset sheet's words (./preset-sheet-copy.ts). Pure; loaded on demand with the
+ * sheet (./YourDataSheet.vue), never by the first draw.
  */
 import { findBuiltInInstrumentProfile } from '@/domain/profile/instrument-profiles'
 import type { MyInstrument } from '@/domain/profile/my-instrument'
+import { DELETE_PARAGRAPHS, presetSheetTitle } from './preset-sheet-copy'
 
 /** Which form the sheet takes: the Overview, or one of a visit that saves nothing. */
 // @spec-link [[req_your_data]]
 export type YourDataForm = 'overview' | 'unreadable' | 'outdated' | 'outdated-defaults'
 
-/** The four confirmations the sheet opens in place of its Overview. */
+/** The five confirmations the sheet opens in place of its Overview. */
 // @spec-link [[req_your_data]]
 export type YourDataConfirmationKind =
-  'every-session' | 'all-played-notes' | 'kept-played-notes' | 'everything'
+  'every-session' | 'all-played-notes' | 'kept-played-notes' | 'preset' | 'everything'
 
 /** The space line's reading: being measured, measured in bytes, or not measurable. */
 export type SpaceReading =
@@ -35,7 +37,7 @@ export interface YourDataConfirmationCopy {
 export const INTRO =
   'Everything here is kept on this device, in this browser only, for anyone who opens the app in it. Nothing is ever sent anywhere.'
 export const SETTINGS_LINE =
-  "The phrase controls, the musical profile, the instrument choice, the theme, the audio mix, the During a session options and the review's choices. They come back as you left them."
+  "The phrase controls, the preset, the instrument choice, the theme, the audio mix, the During a session options and the review's choices. They come back as you left them."
 export const SETTINGS_HINT = 'Delete everything returns them to their defaults.'
 export const SESSIONS_HINT =
   'Your most recent session is kept until the next one is saved. Pinned sessions stay until you unpin or delete them.'
@@ -78,6 +80,37 @@ export function myInstrumentLines(instrument: MyInstrument | null): readonly [st
     `${instrument.name}, made from the ${template}.`,
     'Change or delete it with Edit my instrument, in the controls.',
   ]
+}
+
+/**
+ * Intent: the Presets section's two lines, from the player presets the preset box lists: how many,
+ * the singular for one, or none, with how to delete one or save one.
+ */
+// @spec-link [[req_your_data]]
+export function presetsLines(count: number): readonly [string, string] {
+  if (count === 0) return ['None.', 'Save one with Save as new preset, in the controls.']
+  return [
+    `${counted(count, 'preset', 'presets')} of your own.`,
+    'Delete one here, or with Delete preset in the controls. Delete everything removes them all.',
+  ]
+}
+
+/** Intent: the accessible name of a Presets row's `Delete`, naming its preset. */
+// @spec-link [[req_your_data]]
+export function presetDeleteLabel(name: string): string {
+  return `Delete preset ${name}`
+}
+
+/** Intent: the words of a preset's confirmation, those of the preset sheet's Delete. */
+// @spec-link [[req_your_data]]
+// @spec-link [[rule_deleting_base_preset_leaves_custom]]
+export function presetConfirmationCopy(name: string): YourDataConfirmationCopy {
+  return {
+    title: presetSheetTitle('delete', name),
+    paragraphs: DELETE_PARAGRAPHS,
+    confirmLabel: 'Delete preset',
+    cancelLabel: 'Cancel',
+  }
 }
 
 /** Intent: the Controller section's line, for the remembered controller's name or none. */
@@ -137,14 +170,14 @@ export function protectionLine(protection: ProtectionReading): string {
 }
 
 /**
- * Intent: the words of a confirmation, `count` being the sessions it concerns (kept sessions, or
- * sessions whose played notes are kept; unused for Delete everything).
+ * Intent: the words of a confirmation but a preset's, `count` being the sessions it concerns (kept
+ * sessions, or sessions whose played notes are kept; unused for Delete everything).
  */
 // @spec-link [[req_your_data]]
 // @spec-link [[rule_delete_everything]]
 // @spec-link [[rule_kept_played_notes_deletable]]
 export function confirmationCopy(
-  kind: YourDataConfirmationKind,
+  kind: Exclude<YourDataConfirmationKind, 'preset'>,
   count: number,
 ): YourDataConfirmationCopy {
   if (kind === 'every-session') {
@@ -186,7 +219,7 @@ export function confirmationCopy(
   return {
     title: 'Delete everything?',
     paragraphs: [
-      'This deletes everything the app keeps on this device: your settings, your instrument, the remembered controller and every kept session, with its favorite phrases, comments and played notes. The page then reloads and starts as on a first visit.',
+      'This deletes everything the app keeps on this device: your settings, your presets, your instrument, the remembered controller and every kept session, with its favorite phrases, comments and played notes. The page then reloads and starts as on a first visit.',
       CANNOT_BE_UNDONE,
     ],
     confirmLabel: 'Delete everything',

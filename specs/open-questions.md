@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.76
+Status: draft v0.77
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -22,11 +22,12 @@ README says where each answer now lives.
 Open on 2026-10-20: O48 and O49 (later and governance), O100–O102 (v4 rhythm ratios and editor),
 O115 and O116 (v3.x learning), O176 (style packs and the chord level), O180 (octave signs, later),
 O183 (the warm worker lost when pre-generation is cancelled), O190 (a newer version's database
-whose read-only reopening fails) and O230 (a stale replay-key wording in a STABLE atom, opened with
-D351; numbered O177 on branch `plan-migration`, D352). D359 closed O231 (v3.1's entry-chunk
+whose read-only reopening fails), O230 (a stale replay-key wording in a STABLE atom, opened with
+D351; numbered O177 on branch `plan-migration`, D352) and, opened 2026-10-21 with v3.4 (D389),
+O234–O238 (the structural review). D359 closed O231 (v3.1's entry-chunk
 budget, opened with D358) on 2026-10-19, and D376 closed O233 (kept sessions with long phrase
 lists upgraded past the start-up wait, opened with D374) on 2026-10-20. New questions take IDs
-from **O234**; the IDs reserved for v3.0's waves and left unused stay unused, and O177 stays
+from **O239**; the IDs reserved for v3.0's waves and left unused stay unused, and O177 stays
 unused.
 
 Opened on 2026-10-12 with v3.3 (D261): O165–O175, richer chords. D262 closed O174 the same day.
@@ -206,3 +207,35 @@ Opened 2026-10-19 by `spec-writer` when master spec B12 was checked against v3.0
 - O233 (kept sessions with long phrase lists upgraded past the start-up wait) was closed by
   [D376](decisions.md) on 2026-10-20: the owner accepts it, the upgrade stays at open and B9
   states the limit.
+
+## v3.4 structural review (O234+)
+
+Opened 2026-10-21 by `spec-writer` with v3.4 (D389). The scoping draft is
+[structural-review.md](versions/v3/structural-review.md); none of these blocks v3.1, v3.2 or v3.3.
+
+- **O234 - What v3.4 delivers** _(D389)_: a report with ranked recommendations only, or also the
+  refactors the owner takes, built as a v3.4 build plan before v4 starts? And is v3.4 a release with
+  its own tag, or a milestone with no tag? Proposed: the report and the owner's rulings close the
+  analysis; any refactor taken becomes a v3.4 build plan, approved separately; a tag (3.4.0) only if
+  code ships.
+- **O235 - What the entry budget should measure, and its target** _(D359, D389)_: the budget counts
+  the minified entry file on disk (307,200 B), not the compressed bytes a browser downloads, nor the
+  time until the app is usable. Which matters most to the owner? Proposed: the time until the app is
+  usable, with the phone on a mobile connection as the hard case; the review reports all three and
+  proposes options; the 300 KiB budget stays until the owner rules.
+- **O236 - Is the endgame the same app, or another app using Infinite Flow's generator?**
+  _(D389; [endgame](vision/endgame.md))_: the endgame calls Infinite Flow "the music factory" of a
+  game. If the game is a separate app, a generation-core library has a second consumer and a split
+  pays off; if it grows inside this app, a split mostly buys clearer boundaries. Proposed: the
+  owner states the intent, even as a guess; the review weighs a split against it.
+- **O237 - Which v4 the review plans for** _(D389; [v4](versions/v4/README.md))_: the owner says
+  "starting v4 we truly begin working on endgame". The v4 folder holds accompaniment with roles, a
+  sound library, the whole-file seed and the rhythm ratios and editor; style packs have no version.
+  Does v4 grow toward the endgame beyond that? Proposed: plan for the v4 folder as written, plus
+  style packs and the endgame's companions as the far horizon, and say where the answer would
+  change.
+- **O238 - How far a recommended refactor may go** _(D389)_: behaviour-preserving only, guarded by
+  the existing tests? May it move code across many files, moving atom links with it (atom IDs
+  unchanged)? Is there a time budget before v4? Proposed: behaviour-preserving only, atom IDs
+  unchanged and links moved with the code, no new dependencies without the owner; the owner sets the
+  time once the ranked list is in front of him.

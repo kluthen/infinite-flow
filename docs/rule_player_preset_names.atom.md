@@ -1,6 +1,6 @@
 ---
 id: rule_player_preset_names
-status: DRAFT
+status: REVIEW
 version: 0.1
 human_name: Player Preset Names
 tags: [v3, release-v3.1, player-controls, presets]

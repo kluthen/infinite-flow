@@ -31,6 +31,23 @@ export interface SessionStartSettings {
   readonly restriction?: KeyAndModeRestriction
 }
 
+/** One of the four preset actions of `preset-actions`, which the button pressed asks for. */
+// @spec-link [[module_preset_bar_model]]
+export type PresetActionKind = 'save-as-new' | 'save-changes' | 'rename' | 'delete'
+
+/**
+ * The buttons `preset-actions` holds besides `Save as new preset`, always there: whether it offers
+ * `Save changes`, `Rename preset` and `Delete preset`, and whether 50 or more player presets are
+ * kept, which disables `Save as new preset` and shows its note.
+ */
+// @spec-link [[module_preset_bar_model]]
+export interface PresetActionsRow {
+  readonly saveChanges: boolean
+  readonly rename: boolean
+  readonly delete: boolean
+  readonly limitReached: boolean
+}
+
 /** One option of the box: a preset, valued by its id and labelled by its name. */
 // @spec-link [[module_preset_bar_model]]
 export interface PresetBarOption {
@@ -85,6 +102,18 @@ function requireBuiltIn(presets: readonly Preset[], id: BuiltInPresetId): Preset
 }
 
 /**
+ * Intent: the player presets in the box's Your presets order: alphabetical ignoring case, duplicate
+ * names kept in their given order (a stable sort), every built-in left out. Your data lists them so.
+ */
+// @spec-link [[module_preset_bar_model]]
+// @spec-link [[rule_player_preset_names]]
+export function playerPresetsInBoxOrder(presets: readonly Preset[]): readonly Preset[] {
+  return presets
+    .filter((preset) => preset.kind === 'player')
+    .sort((left, right) => left.name.localeCompare(right.name, 'en', { sensitivity: 'accent' }))
+}
+
+/**
  * Intent: the box's groups in order: Practice and Styles, their built-ins placed by fixed id,
  * never by name; then Your presets, every player preset alphabetical ignoring case, duplicate
  * names kept in their given order (a stable sort), the group absent while there are none.
@@ -97,9 +126,7 @@ export function presetBarGroups(presets: readonly Preset[]): readonly PresetBarG
     label,
     options: ids.map((id) => optionOf(requireBuiltIn(presets, id))),
   }))
-  const players = presets
-    .filter((preset) => preset.kind === 'player')
-    .sort((left, right) => left.name.localeCompare(right.name, 'en', { sensitivity: 'accent' }))
+  const players = playerPresetsInBoxOrder(presets)
   const groups =
     players.length === 0
       ? builtIns
@@ -128,8 +155,12 @@ export function presetBarFullText(selection: PresetSelection, presets: readonly 
   return presetLabel(selection, presets)
 }
 
-/** The controls' own written-key and mode labels, which the restriction in words uses. */
-const RESTRICTION_LABELS: RestrictionLabels = {
+/**
+ * The controls' own written-key and mode labels, which the restriction in words uses here and in
+ * the preset sheet.
+ */
+// @spec-link [[module_preset_bar_model]]
+export const RESTRICTION_LABELS: RestrictionLabels = {
   key: (key) => labelOf(tonalCenterOptions(), key),
   mode: (mode) => labelOf(collectionOptions(), mode),
 }

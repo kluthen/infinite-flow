@@ -9,6 +9,7 @@ import { describe, expect, it } from 'vitest'
 import ControlPanel from '@/components/controls/ControlPanel.vue'
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { BUILT_IN_PRESETS, DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
 import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import { makeMyInstrument, type MyInstrument } from '@/domain/profile/my-instrument'
@@ -29,6 +30,7 @@ function mountPanel(
   return mount(ControlPanel, {
     props: {
       controls: makeGenerationControls({ ...DEFAULT_GENERATION_CONTROLS, instrumentProfileId }),
+      figureLevels: NEUTRAL_FIGURE_LEVELS,
       selection: DEFAULT_PRESET_SELECTION,
       presets: BUILT_IN_PRESETS,
       readonly: false,
@@ -42,6 +44,8 @@ function mountPanel(
       startSettings: null,
       myInstrument,
       instrumentActionsDisabled: false,
+      presetActions: { saveChanges: false, rename: false, delete: false, limitReached: false },
+      presetActionsDisabled: false,
     },
   })
 }

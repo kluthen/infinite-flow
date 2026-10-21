@@ -1,6 +1,6 @@
 ---
 id: rule_refused_preset_save_told
-status: DRAFT
+status: REVIEW
 human_name: A Refused Preset Save Is Told at Once
 tags: [v3, release-v3.1, player-controls, presets, storage]
 layer: BUSINESS
@@ -8,7 +8,8 @@ version: 0.1
 priority: 1
 parents:
   - [[rule_player_presets_saved_on_device]]
-dependents: []
+dependents:
+  - [[module_player_presets]]
 type: RULE
 ---
 

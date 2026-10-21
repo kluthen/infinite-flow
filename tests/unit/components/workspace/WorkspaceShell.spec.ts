@@ -17,7 +17,7 @@ import { buildWorkspaceSessionResult } from '../../workspace-test-fixtures'
 import { themeMixTokens, transportRig } from '../../audio/transport-rig'
 import { createControllerRig } from '../../midi/midi-controller-rig'
 import { provideSaveSettings } from './recording-save-settings'
-import { noRememberedController, quietSavedData } from './quiet-saved-data'
+import { noRememberedController, quietSavedData, quietPresetStore } from './quiet-saved-data'
 
 // A session end once phrase 1 has sounded opens the Review: its lazy panel is swapped for a stand-in.
 vi.mock('@/components/review/ReviewPanel.vue', () => import('./review-panel-stub'))
@@ -53,6 +53,7 @@ function fakeSession(overrides: Partial<GenerationSession<WorkspaceSessionResult
     reportNotationFailure: vi.fn(() => true),
     reportNotationRecovered: vi.fn(() => true),
     startFreshPhrase: vi.fn(async () => true),
+    replacePlayerPresets: vi.fn(),
   }
   const session: GenerationSession<WorkspaceSessionResult> = {
     state: {
@@ -90,6 +91,7 @@ function mountShell(
     props: {
       savedData: quietSavedData(),
       rememberedController: noRememberedController(),
+      presetStore: quietPresetStore(),
       session,
       pendingPhrase: null,
       handleEngraved: () => {},
@@ -244,6 +246,7 @@ describe('WorkspaceShell', () => {
       props: {
         savedData: quietSavedData(),
         rememberedController: noRememberedController(),
+        presetStore: quietPresetStore(),
         session: workspace.session,
         pendingPhrase: workspace.pendingPhrase.value,
         handleEngraved: workspace.handleEngraved,

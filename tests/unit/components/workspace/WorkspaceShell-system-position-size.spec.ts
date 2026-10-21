@@ -18,7 +18,7 @@ import { createControllerRig } from '../../midi/midi-controller-rig'
 import { fakeGenerationSession, readyState } from './fake-generation-session'
 import { PHRASE_SCORE_STUB } from './test-workspace'
 import { provideSaveSettings } from './recording-save-settings'
-import { noRememberedController, quietSavedData } from './quiet-saved-data'
+import { noRememberedController, quietSavedData, quietPresetStore } from './quiet-saved-data'
 
 vi.mock('@/components/review/ReviewPanel.vue', () => import('./review-panel-stub'))
 
@@ -40,6 +40,7 @@ function mountShell(savedMyInstrumentRangeInClef?: WrittenRangeInClef | null) {
     props: {
       savedData: quietSavedData(),
       rememberedController: noRememberedController(),
+      presetStore: quietPresetStore(),
       session: fakeGenerationSession(readyState()).session,
       pendingPhrase: null,
       handleEngraved: () => {},

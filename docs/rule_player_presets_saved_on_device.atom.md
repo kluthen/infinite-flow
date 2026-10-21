@@ -1,6 +1,6 @@
 ---
 id: rule_player_presets_saved_on_device
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 priority: 1
@@ -12,6 +12,7 @@ parents:
   - [[req_presets]]
 dependents:
   - [[entity_player_preset_record]]
+  - [[module_player_presets]]
   - [[module_settings_upgrade_step]]
   - [[rule_preset_load_values_win]]
   - [[rule_presets_in_visits_that_save_nothing]]
