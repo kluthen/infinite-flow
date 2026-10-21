@@ -39,6 +39,7 @@ import type { WorkspaceSessionResult } from '@/composables/workspace-session-res
 import ControlPanel from '@/components/controls/ControlPanel.vue'
 import type { SettableControlKey } from '@/components/controls/set-control-event'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
+import type { FigureId, FigureLevel } from '@/domain/figures/figure-levels'
 import type { PresetId } from '@/domain/presets/preset-selection'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { NotationError } from '@/notation/notation-error'
@@ -412,6 +413,20 @@ function handleSetControl<K extends SettableControlKey>(payload: {
   props.session.actions.setControl(payload.key, payload.value)
 }
 
+/**
+ * Intent: forward a figure level change onto the session's one figure-level action, which makes
+ * Custom and, through the queue's key, discards the pre-generated phrases; the phrase on screen
+ * stays.
+ */
+// @spec-link [[module_figure_level_options]]
+// @spec-link [[rule_custom_selection]]
+function handleSetFigureLevel(payload: {
+  readonly figure: FigureId
+  readonly level: FigureLevel
+}): void {
+  props.session.actions.setFigureLevel(payload.figure, payload.level)
+}
+
 /** Intent: forward an instrument-profile selection onto the session's dedicated action. */
 function handleSelectInstrumentProfile(id: GenerationControls['instrumentProfileId']): void {
   void props.session.actions.selectInstrumentProfile(id)
@@ -465,6 +480,7 @@ function handleSelectPreset(id: PresetId): void {
       />
       <ControlPanel
         :controls="shownSettings.controls"
+        :figure-levels="shownSettings.figureLevels"
         :selection="shownSettings.selection"
         :presets="state.presets"
         :readonly="controlsReadonly"
@@ -480,6 +496,7 @@ function handleSelectPreset(id: PresetId): void {
         :instrument-actions-disabled="controlsReadonly || state.operation !== 'idle'"
         @open-my-instrument="myInstrumentSheet.open"
         @set-control="handleSetControl"
+        @set-figure-level="handleSetFigureLevel"
         @select-instrument-profile="handleSelectInstrumentProfile"
         @select-preset="handleSelectPreset"
         @set-rising-tempo="handleSetRisingTempo"
