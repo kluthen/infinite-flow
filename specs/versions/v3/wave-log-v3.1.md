@@ -707,3 +707,21 @@ states the passing-and-neighbor rule that DP rejected (D378); chunk 14 does not 
   tests; Playwright 557 + 557 (1 skipped each), a11y 59, notation 107 (4 skipped); `atd:lint` and
   `atd:check` pass. Entry chunk 265,431 B (wave 4: 250,721, +14,710; budget 307,200). No sweep or
   measurement placed in this wave.
+
+### Sync
+
+`documentalist` 1b4b2a6 (no `atd audit`): Revisions applied: chunk 17's
+`rule_unsupported_rhythm_settings_block_generation` 0.5 and `rule_persistent_storage_requested`
+0.3 (contract, CS), with `module_saved_data_loader` 0.6 (change set J3, left by wave 3 for chunk
+17); chunk 18's `rule_delete_everything` 0.3 and `req_your_data` 0.2 (contract, CS; J4 marked
+confirmed and applied; CONTRACT stays 7.0.0); chunk 19's `rule_pregeneration_discarded_on_change`
+0.4. Drift fixed: `service_idle_generation_session` 0.9, `module_player_presets` 0.4,
+`module_preset_bar_model` 0.4, `module_idle_pregeneration_queue` 0.7 (none = any in the key),
+`module_figure_level_options` 0.2 (`use-control-panel-actions.ts`; choosing the level already held
+discards nothing). No links needed; `atd:lint`, `atd:check`, `lint:health` (0 errors) pass. For the
+owner: DRAFT → REVIEW for 14 atoms; `module_save_policy` (STABLE) wording to name the preset
+saves. Later: `rule_custom_selection` / `module_profile_control_customization` on the re-click
+(after D388), a split of `rule_pregeneration_discarded_on_change`, a present-tense rewording of
+`rule_unsupported_rhythm_settings_block_generation`. Docs leftovers (lexicon figure entries,
+"musical profile" in `docs/session-engine.md` and `docs/phrase-workspace.md`) sent to a
+`coding-executor`.
