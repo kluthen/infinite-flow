@@ -659,3 +659,12 @@ states the passing-and-neighbor rule that DP rejected (D378); chunk 14 does not 
 
 - Chunk 14: dispatched 2026-10-21 (`../infinite_flow-v3.1-c14`, branch
   `v3.1-c14-embellishments`), on plan v18.
+- Chunk 14: merged as cacc073 (540fd96). Every Done-when item met; no deviation from the spec,
+  the design or the intent; the passing-and-neighbor rule not built (D378). Also changed beyond
+  Files: `WorkspaceShell.vue` routes the level change. For the sync: `module_figure_level_options`
+  names ControlPanel where WorkspaceShell calls `setFigureLevel`. Left for the wave: the lexicon's
+  figure entries still say "planned, not built". Seen: clicking an already checked segment turns a
+  preset Custom and discards the queue (every control group does it today); to raise with the
+  owner at the report. v3.1 H1 and H2 are written; L1 and L2 open at the wave's end.
+- Chunk 17: dispatched 2026-10-21 (`../infinite_flow-v3.1-c17`, branch
+  `v3.1-c17-preset-management`), 17a then 17b, on plan v19.
