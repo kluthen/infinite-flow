@@ -550,7 +550,8 @@ Architecture capture: none
 
 ### Chunk 1 — Token-source pass, part 2 (v3.2)
 
-Status: in progress
+Status: done (w0, c241b22)
+Record: part 2's 15 classes in one `v3.2 new` block of `components.css`, no new token; the token-source document deleted (ux D349, which follows the handoffs on `doodle-readings`' columns and `review-doodle`'s note).
 Wave: 0
 Depends on: D0, T2 (both done)
 Architecture capture: none
@@ -580,7 +581,7 @@ Architecture capture: none
 
 ### Chunk 2 — Baselines: the v3.1 corpus, the Vary settings draws and the bundle
 
-Status: ready
+Status: in progress
 Wave: 0
 Depends on: R0 (done)
 Architecture capture: none

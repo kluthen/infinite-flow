@@ -66,3 +66,13 @@ preflight correction needs none.
   `module_session_seed_plan` 0.2 → 0.3 (extends), M20 gains the browser line (no contract
   promise weakened), M21's 8.0.0 summary updated. Proposed, not applied: add
   `rule_jam_phrase_one_failure_ladder` to M22's parents.
+- Chunk 1 done (c241b22, `ux-writer`, ux D349): part 2's 15 classes in one `v3.2 new` block of
+  `src/styles/components.css`, no new token; the token-source document deleted, the plan's three
+  links repointed. `test:notation` 107 passed, no snapshot change (it needs `npm run build` first:
+  `vite preview` serves `dist/`); `lint:links` passes. Markup the interface chunks must respect:
+  `jam-notice` follows `jam-instruction` as a sibling; the tempo row uses
+  `.field-group:has(> .tap-tempo)`; `staff-jam` centres on `[data-system-position='bottom']`.
+  Prose mentions of the deleted file remain in `jam-mode.md` and `build-plan-v3.1.md`
+  (`spec-writer`'s, harmless).
+- Chunk 2 dispatched to `coding-leader` (worktree `../infinite_flow-v3.2-c2`, branch
+  `v3.2-c2-baselines`).
