@@ -559,6 +559,7 @@ function handleSelectPreset(id: PresetId): void {
     :controller="controller"
     :saved-data="savedData"
     :my-instrument="state.myInstrument"
+    :presets="presetSheet.playerPresets"
     :midi="midi"
     :reload-page="reloadPage"
     :focus-fallback="focusFallback"

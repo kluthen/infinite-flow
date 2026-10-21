@@ -102,6 +102,18 @@ function requireBuiltIn(presets: readonly Preset[], id: BuiltInPresetId): Preset
 }
 
 /**
+ * Intent: the player presets in the box's Your presets order: alphabetical ignoring case, duplicate
+ * names kept in their given order (a stable sort), every built-in left out. Your data lists them so.
+ */
+// @spec-link [[module_preset_bar_model]]
+// @spec-link [[rule_player_preset_names]]
+export function playerPresetsInBoxOrder(presets: readonly Preset[]): readonly Preset[] {
+  return presets
+    .filter((preset) => preset.kind === 'player')
+    .sort((left, right) => left.name.localeCompare(right.name, 'en', { sensitivity: 'accent' }))
+}
+
+/**
  * Intent: the box's groups in order: Practice and Styles, their built-ins placed by fixed id,
  * never by name; then Your presets, every player preset alphabetical ignoring case, duplicate
  * names kept in their given order (a stable sort), the group absent while there are none.
@@ -114,9 +126,7 @@ export function presetBarGroups(presets: readonly Preset[]): readonly PresetBarG
     label,
     options: ids.map((id) => optionOf(requireBuiltIn(presets, id))),
   }))
-  const players = presets
-    .filter((preset) => preset.kind === 'player')
-    .sort((left, right) => left.name.localeCompare(right.name, 'en', { sensitivity: 'accent' }))
+  const players = playerPresetsInBoxOrder(presets)
   const groups =
     players.length === 0
       ? builtIns

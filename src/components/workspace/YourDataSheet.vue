@@ -4,16 +4,19 @@
  * uses and whether the browser protects it, with every all-at-once deletion. One modal dialog over
  * a dimming backdrop, its body the Overview or one Confirmation in its place, never both; a visit
  * that saves nothing shows its notice, the space and the protection only, with Delete everything
- * where it is still offered. Its model is ./use-your-data-sheet.ts and its words
- * ./your-data-copy.ts. Loaded on demand (./use-your-data.ts); the host shows it and hides it.
+ * where it is still offered. Its model is ./use-your-data-sheet.ts, its words ./your-data-copy.ts
+ * and its Presets section ./YourDataPresets.vue, each row's `Delete` opening that preset's
+ * Confirmation. Loaded on demand (./use-your-data.ts); the host shows it and hides it.
  * Focus moves to `Done` on open, to the way back when a Confirmation opens, back to the control
- * that opened it on the way back, and stays trapped in the sheet; Escape, the backdrop and Close
+ * that opened it on the way back (after a deletion, to `Done` when that control has left, as a
+ * deleted preset's row has), and stays trapped in the sheet; Escape, the backdrop and Close
  * close the sheet from the Overview, go back from a Confirmation, and do nothing while a deletion
  * runs. Once the sheet has left, focus returns to its opener while that is still shown and
  * enabled, else to the workspace's fallback.
  */
 import { computed, nextTick, onBeforeUnmount, onMounted, onUnmounted, ref, useId } from 'vue'
 
+import type { Preset } from '@/domain/presets/preset-selection'
 import type { MyInstrument } from '@/domain/profile/my-instrument'
 import type { MidiController } from '@/midi/midi-controller-state'
 import type { SavedDataLoad } from '@/storage-bootstrap'
@@ -26,6 +29,7 @@ import {
   INTRO,
   myInstrumentLines,
   PLAYED_NOTES_HINT,
+  presetConfirmationCopy,
   playedNotesLine,
   protectionLine,
   savingOffNotice,
@@ -36,7 +40,9 @@ import {
   spaceLine,
   type YourDataConfirmationKind,
 } from './your-data-copy'
+import type { PlayerPresets } from './use-player-presets'
 import { useYourDataSheet } from './use-your-data-sheet'
+import YourDataPresets from './YourDataPresets.vue'
 import type { SessionController } from './workspace-session-controller-types'
 
 // @spec-link [[req_your_data]]
@@ -45,6 +51,8 @@ const props = defineProps<{
   savedData: Pick<SavedDataLoad, 'outcome' | 'savePolicy'>
   /** My instrument, as the workspace holds it; null with none. */
   myInstrument: MyInstrument | null
+  /** The player presets, as the preset box lists them, and their deletion. */
+  presets: Pick<PlayerPresets, 'presets' | 'deletePreset'>
   /** The app's MIDI controller, whose remembered controller the sheet names. */
   midi: Pick<MidiController, 'change'>
   /** Reload the page, after Delete everything. */
@@ -58,8 +66,14 @@ const emit = defineEmits<{
   close: []
 }>()
 
-/** The Overview's controls a Confirmation can be opened from, and `Done`. */
-type Opener = 'every-session' | 'all-played-notes' | 'keep-played-notes' | 'everything' | 'done'
+/** The Overview's controls a Confirmation can be opened from (a preset's row by its id), and `Done`. */
+type Opener =
+  | 'every-session'
+  | 'all-played-notes'
+  | 'keep-played-notes'
+  | 'everything'
+  | 'done'
+  | `preset:${string}`
 
 // The opener still holds focus while the sheet sets up: focus returns to it once the sheet leaves.
 const opener = document.activeElement instanceof HTMLButtonElement ? document.activeElement : null
@@ -75,19 +89,31 @@ const model = useYourDataSheet({
   controller: props.controller,
   savedData: props.savedData,
   saveSettings: injectSaveSettings(),
+  presets: props.presets,
   reloadPage: () => props.reloadPage(),
   forcedBack: () => focusAfterUpdate('done'),
 })
-const { form, sessions, playedNotesCount, keepPlayedNotes, space, protection, confirmation } = model
+const {
+  form,
+  sessions,
+  playedNotesCount,
+  keepPlayedNotes,
+  playerPresets,
+  space,
+  protection,
+  confirmation,
+} = model
 
 const instrumentLines = computed(() => myInstrumentLines(props.myInstrument))
 const notice = computed(() => savingOffNotice(form.value))
 const deleteEverythingOffered = computed(() => !form.value.startsWith('outdated'))
-const copy = computed(() =>
-  confirmation.value === null
-    ? null
-    : confirmationCopy(confirmation.value.kind, model.confirmationCount.value),
-)
+const copy = computed(() => {
+  const open = confirmation.value
+  if (open === null) return null
+  if (open.kind !== 'preset') return confirmationCopy(open.kind, model.confirmationCount.value)
+  if (open.preset === null) throw new Error("your data: a preset's confirmation names none")
+  return presetConfirmationCopy(open.preset.name)
+})
 const title = computed(() => copy.value?.title ?? 'Your data')
 
 /** Intent: keep the Overview's button `opener` to move focus to, or forget it once it leaves. */
@@ -106,9 +132,17 @@ function focusAfterUpdate(opener: Opener): void {
 }
 
 /** Intent: open the Confirmation `kind` from its Overview button; focus goes to its way back. */
-function ask(kind: Exclude<YourDataConfirmationKind, 'kept-played-notes'>): void {
+function ask(kind: Exclude<YourDataConfirmationKind, 'kept-played-notes' | 'preset'>): void {
   openedFrom = kind
   model.ask(kind)
+  void nextTick(() => wayBackButton.value?.focus())
+}
+
+/** Intent: open `preset`'s Confirmation from its row's `Delete`; focus goes to its way back. */
+// @spec-link [[rule_deleting_base_preset_leaves_custom]]
+function askToDelete(preset: Preset): void {
+  openedFrom = `preset:${preset.id}`
+  model.askToDelete(preset)
   void nextTick(() => wayBackButton.value?.focus())
 }
 
@@ -218,6 +252,11 @@ onUnmounted(() => {
             <p>{{ instrumentLines[0] }}</p>
             <p class="sheet-hint">{{ instrumentLines[1] }}</p>
           </section>
+          <YourDataPresets
+            :presets="playerPresets"
+            :register="(id, element) => keep(`preset:${id}`, element)"
+            @delete="askToDelete"
+          />
           <section class="sheet-section">
             <h3>Controller</h3>
             <p>{{ controllerLine(rememberedControllerName) }}</p>

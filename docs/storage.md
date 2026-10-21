@@ -573,9 +573,20 @@ still shown and enabled, else to the workspace's fallback.
   browser that gives no `usageDetails` gets "Couldn't be measured." **Protection** is
   `persisted()`; a refusal reads as not protected. Both are read when the sheet opens and again
   after each deletion that does not reload.
-- **Its deletions** go through the controller (`deleteEverySession`, `deleteEveryKeptPlayedNote`)
-  or the save policy (`deleteEverything`, then the page reloads). A refusal keeps the confirmation
-  open with its error line, the confirming action trying again.
+- **Its Presets section** (`YourDataPresets.vue`) lists the player presets the preset box lists,
+  in its Your presets order (`playerPresetsInBoxOrder`, `preset-bar-model.ts`), from the same
+  player presets composable the preset bar uses (`usePresetSheet` hands it on as `playerPresets`);
+  a record the load could not read is neither counted nor listed. A row's `Delete` opens the
+  preset's confirmation, and its deletion goes through `deletePreset` (`use-player-presets.ts`)
+  exactly like Delete preset: the record is deleted first, then the preset leaves the list, and a
+  selection that was it, or based on it, becomes Custom with no base, its values kept. The section
+  is absent while saving is off. Delete everything removes the `presets` store with the whole
+  database, an unreadable record included.
+- **Its deletions**, one per confirmation (five: every session, all played notes, the played notes
+  already kept, a preset, everything), go through the controller (`deleteEverySession`,
+  `deleteEveryKeptPlayedNote`), the player presets (`deletePreset`) or the save policy
+  (`deleteEverything`, then the page reloads). A refusal keeps the confirmation open with its
+  error line, the confirming action trying again.
 
 ## The load before the first draw
 
