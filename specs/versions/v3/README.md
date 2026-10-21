@@ -384,8 +384,8 @@ the doodle-to-controls thresholds (D415) and "the kept doodle" (D413) written in
 its re-scoped contract wording (CONTRACT 7.2.0 to 8.0.0) is still to come, as the build plan's
 gate CS.
 
-**Build plan:** [build-plan-v3.2.md](build-plan-v3.2.md), **v4 (2026-10-21), written, awaiting
-the owner's approval** (D416), from Part C v1.2 and the approved design (gate D0, D412). It plans
+**Build plan:** [build-plan-v3.2.md](build-plan-v3.2.md), **v6 (2026-10-21), approved by the
+owner** (D416, D417; hand check H9 waived), from Part C v1.2 and the approved design (gate D0, D412). It plans
 v3.2 on top of the [v3.1](build-plan-v3.1.md) build plan on the build-plan model: 32 chunks in eight
 waves, the session-mode half first (waves 0–3), then Jam mode (waves 4–7), one release, then the
 release gate, under the shared [v3 build workflow](build-workflow.md).

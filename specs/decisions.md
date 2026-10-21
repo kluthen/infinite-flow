@@ -796,3 +796,9 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   under `src/jam/`, kept out of the entry chunk by a new boundary check; chunk 26 folded into 19;
   new chunks 28–33, 240 BPM last behind ruling J240; nine scripted hand checks, none on Edge or a
   phone. Now in: [build plan v3.2](versions/v3/build-plan-v3.2.md).
+
+- **D417 (2026-10-21): build plan v3.2 v5 is approved; hand check v3.2 H9 is waived.** The owner:
+  "wave [waive] H9. I approve you may proceed." H9 (v3.1 data carried over) is waived on D399's ground for
+  v3.1 H5: the earlier version had no live users. Chunk 22's automated step-4 upgrade tests on
+  seeded v3.1 data and M3 stay. IDs H1–H8 keep their numbers. Now in:
+  [build plan v3.2, hand checks](versions/v3/build-plan-v3.2.md#hand-checks).

@@ -1,8 +1,8 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v5 (2026-10-21): v4 (rewritten from master spec Part C v1.2 and the approved v3.2 design,
-Jam as its own mode, spec D416) corrected against the design at `ux-writer`'s review (chunks 1, 23,
-24, 25, 30); **written, awaiting the owner's approval.**
+Status: v6 (2026-10-21): v5 **approved by the owner** (spec D417), hand check v3.2 H9 waived (spec
+D417). v5 was v4 (rewritten from master spec Part C v1.2 and the approved v3.2 design, Jam as its
+own mode, spec D416) corrected against the design at `ux-writer`'s review (chunks 1, 23, 24, 25, 30).
 
 Jam mode, the key and mode suggestion, the rhythm lock, Jam's drift and Vary settings' allowed
 groups, written from [master spec Part C](master-spec.md#part-c--v32) v1.2 (approved by the owner on
@@ -296,8 +296,8 @@ The [build workflow](build-workflow.md) holds for v3.2 with release name `v3.2`:
 - **Hand checks** go into a new "v3.2 hand checks" part of
   [`HARDWARE-CHECKLIST.md`](../../../HARDWARE-CHECKLIST.md), written by the chunk the
   [list](#hand-checks) names, as numbered scripts of at most ten minutes, run in Chrome on the
-  reference machine with the Travel Sax over USB; their names are "v3.2 H1" to "v3.2 H9". None runs
-  in Edge (spec D399).
+  reference machine with the Travel Sax over USB; their names are "v3.2 H1" to "v3.2 H8" (H9 waived,
+  spec D417). None runs in Edge (spec D399).
 
 ## Measurements and hand checks
 
@@ -494,14 +494,11 @@ Written by chunk 25; run after wave 7. About 5 minutes.
 2. Open the MusicXML in MuseScore: a "Doodle" section first, then phrase 1 at the next barline.
 3. Open both MIDI files in a DAW: the doodle at time zero in both, phrase 1 at the same bar in both.
 
-#### v3.2 H9 — v3.1 data carried over
+#### v3.2 H9 — waived
 
-Written by chunk 22; run at the release gate. About 5 minutes.
-
-1. In the installed app on a Chrome profile that used v3.1 (settings changed, a pinned session,
-   played notes kept), update to v3.2.
-2. The settings come back as left, with the lock off and every group on.
-3. The pinned session opens as before, with no doodle and no "Jam" mark; its exports are unchanged.
+Waived by the owner (spec D417), on the ground of v3.1 H5's waiver (spec D399): v3.1 had no live
+users. Chunk 22's upgrade tests on seeded v3.1 data and M3 cover the carried data. The ID is not
+reused.
 
 ## Chunks
 
@@ -1563,7 +1560,7 @@ and are otherwise unchanged. Chunk 30 writes the Jam parts.
 - **Files:** `src/storage/records/kept-reading.ts`, `kept-session-body.ts`,
   `kept-phrase-parsers.ts`, `kept-session-record.ts` (and its summary module),
   `src/storage/migrations/kept-sessions-v4.ts` (new), `src/storage/database.ts`; tests under
-  `tests/unit/storage/`, `HARDWARE-CHECKLIST.md` (v3.2 H9).
+  `tests/unit/storage/`.
 - **Spec sections:** [C10.3](master-spec.md#c103-kept-sessions-and-played-notes),
   [C11](master-spec.md#c11-the-generation-request-the-replay-key-and-kept-sessions); item 12.
 - **Atoms:** `rule_quantized_doodle_is_generation_input`; (v3.0) `rule_most_recent_session_kept`.
@@ -1574,7 +1571,7 @@ and are otherwise unchanged. Chunk 30 writes the Jam parts.
     4; each session opens as before, exports byte-identical, no Jam part.
   - A session with locked and changed phrases round-trips through the codec and replays each phrase.
   - A record with a lower shape version read later is unreadable, a higher one newer, as v3.1's.
-  - M3 recorded; v3.2 H9 written.
+  - M3 recorded.
 - **Verification:** chunk checks; M3 (this chunk's point).
 - **Split rule:** if the brief passes about five source files, 22a the intent and the body with the
   upgrade (parsers, body, migration, database), 22b the summary and the reading envelope (summary,
@@ -2063,8 +2060,8 @@ The release gate, not a wave; it keeps its chunk number because other plans link
 - The v3.1 corpus, every earlier corpus, the Vary settings corpus and the goldens re-run; the
   privacy spy (network half) with Jam sessions kept, raw notes kept and not (nothing sent).
 - `npm run verify:boundaries` with the 300 KiB entry budget and the Jam boundary (M4).
-- Hand checks v3.2 H1–H9 done, each a numbered script of at most ten minutes, none on Edge or a
-  phone.
+- Hand checks v3.2 H1–H8 done (H9 waived, spec D417), each a numbered script of at most ten
+  minutes, none on Edge or a phone.
 - `documentalist`'s post-task sync over every `release-v3.2` atom, promoting those the owner agrees
   to; every `changes-in-v3.2` atom revised; part F's drift checks done; the vision's v3.2 scope
   checked; CS's record checked (CONTRACT 8.0.0, the owner's one sign-off, item 49). The lexicon
@@ -2093,7 +2090,7 @@ owner says go.
 | 9 Unchanged without the new inputs | 2, guarded in 6, 8–12, 15, 16, 18; 27 | the corpora and goldens, unchanged |
 | 10 The session sweep | 3, 13, 27 | M5 tables |
 | 11 Replay keys | 2, 12, 13 | `ifk4.` round trip; earlier corpora; replay tool on four versions |
-| 12 Kept sessions, lock data, upgrade | 22 | step-4 upgrade on seeded v3.1 data; M3; v3.2 H9 |
+| 12 Kept sessions, lock data, upgrade | 22 | step-4 upgrade on seeded v3.1 data; M3 |
 | 13 Rhythm-change listening | 19 (H2), 27 | the owner's recorded check |
 | 14 Jam mode | 20, 31 | e2e switch at Idle only, session mode as left, instrument on return, never saved |
 | 15 A controller needed | 20 | e2e `jam-needs-controller`; no mode change on plug or unplug |
