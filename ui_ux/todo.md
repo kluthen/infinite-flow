@@ -84,7 +84,7 @@ Q77 closed by spec D275 as recommended (ux D264). No `src/` edits; no new token 
 first, and the root keeps v3.0's marks with v3.1's and v3.2's layered on them (ux D225). Owner's
 standing delegation: settle and record; one full review at the end. Implementation is paused: no
 `src/` edits; tokens in `token-source-v3.1-v3.2.md` (ux D226). Settled decisions: ux D225-D245;
-spec gaps for `spec-writer`: Q70-Q73 (provisional answers designed). v3.1 shipped as version
+spec gaps for `spec-writer`: Q70-Q73, all since closed (ux D249, D341). v3.1 shipped as version
 3.1.0 on 2026-10-21; its own items (unit P, its approval, its token-source pass, its release gate)
 are archived in [`archive/v3.1/todo.md`](archive/v3.1/todo.md). The items below are shared with
 v3.2 or are v3.2's.
@@ -102,9 +102,8 @@ v3.2 or are v3.2's.
 **v3.2 re-scope: Jam as its own mode** (2026-10-21), from `specs/versions/v3/jam-mode.md` (spec
 D400–D408; §8 is the brief), which wins over master spec Part C until Part C is rebuilt from it.
 The v3.2 design above is reworked in place under its `v3.2` marks (ux D328). Settled decisions:
-ux D328–D344. Q70 moot, Q73–Q75 closed (ux D341); behaviour gaps Q81–Q87 logged for
-`spec-writer`, designed on their recommended answers. No `src/` edits: the token pass (gate T2)
-waits for the owner's go.
+ux D328–D346. Q70 moot, Q73–Q75 closed (ux D341); behaviour gaps Q81–Q87, designed on their
+recommended answers, closed by spec D411 as recommended (ux D347). No `src/` edits here.
 
 - **Tier 1, Tier 2 and the registers.** `strategy.md`, `motion.md`, `README.md`,
   `token-source-v3.1-v3.2.md` part 2, `decisions.md`, `open-questions.md`; spec D399's browser
@@ -119,6 +118,9 @@ waits for the owner's go.
 - **Validation.** `ux-critic` on the re-scope: DRIFT, five findings, all fixed (ux D346), Q87
   logged for `spec-writer`; recheck: one stale diagram label, fixed. Validated for the owner's
   review.
+- **Owner's approval** (2026-10-21): design gate D0 granted and token pass T2 allowed (spec D412,
+  ux D347); master spec Part C is v1.2, approved. "The kept doodle" is the spec's term too (spec
+  D413); phones a third-rate client, now in `strategy.md` (spec D414, ux D348).
 
 ## Remaining
 
@@ -130,7 +132,9 @@ Standing working rules (ux D119, D135, archived; still in force):
   acceptable phone behaviour is enough, and the larger screen wins a conflict; every device still
   gets the review's functions, the phone's review being their plain baseline. During a session
   the player is never expected to act; any problem ends it as Stop does, after the 30-second
-  window if it can be put right, at once if not.
+  window if it can be put right, at once if not. Restated 2026-10-21 (spec D414, ux D348): phones
+  are a third-rate client, and a capability may be reduced on a phone when keeping it there costs
+  more than it is worth.
 - The Review stays simple: no side tools; per-phrase tools at the end of each phrase's line,
   whole-session tools beside the export.
 
@@ -152,7 +156,9 @@ D254, D264): after the first measurement, before the control is built, and on th
 the release gate. A symbol calibration failure, or a triad layout that counting the symbols' widths
 would move, also comes back here (ux D258, D264).
 
-v3.2: the owner's
-review of the v3.2 design (gate D0: ux D225-D251 as amended by D328-D344, its `v3.2` marks) and
-`spec-writer`'s answers to Q81-Q87. The token pass (gate T2) only on the owner's go. Once
-approved, take `versions/v3.2/` the same way, from the root without the v3.3 parts.
+v3.2: approved (gate D0 granted, T2 allowed; ux D347). Two items remain:
+
+- **The token-source pass** (gate T2): `token-source-v3.1-v3.2.md`'s v3.2 part applied to
+  `src/styles/`, adding D342's classes, no new token value. It runs as build plan v3.2's chunk 1,
+  under the wave driver, not before.
+- **`versions/v3.2/`**: take it from the root without the v3.3 parts, as D324 did for v3.1.

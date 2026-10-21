@@ -16,7 +16,7 @@ Append-only record of settled UI/UX decisions. Earlier logs are archived verbati
 
 Archived IDs keep their meaning; a citation to one by ID elsewhere in this repository stays valid
 through this header. D225, D226, D235–D264 and D328 on (v3.2 and v3.3, not yet released, and the
-entries v3.1 shares with v3.2) stay here; D265–D279 were never used. Numbering continues from D347.
+entries v3.1 shares with v3.2) stay here; D265–D279 were never used. Numbering continues from D349.
 
 ## v3.1 (presets and embellishment figures) and v3.2 (Jam) design, 2026-10-08
 
@@ -585,3 +585,15 @@ Nothing in `src/` is edited; the token pass waits for the owner's go (gate T2). 
   defaults for the controls a doodle leaves unsaid, recommended as session mode's first-visit
   values, now part of Q83. (4) `strategy.md`'s Device tag moved to the start of its bullet.
   (5) In the review, `Jam in {answer}` moves focus to the set sentence, as at Idle.
+
+## The owner's approval of the v3.2 design, 2026-10-21
+
+- **D347 — Q81–Q87 closed as recommended; gate D0 granted, T2 allowed (2026-10-21; spec D411,
+  D412).** The provisional marks on D333, D336 and D346 no longer apply; the tier documents
+  already state these as designed. Jam's first values are Q83's with Drift `Near`, the lock and
+  its changes off (master spec §C5.16). The token pass adds D342's classes, no new token value; it
+  runs as build plan v3.2's chunk 1, not in this pass.
+- **D348 — "The kept doodle"; phones a third-rate client (2026-10-21; spec D413, D414).** The
+  design already says "the kept doodle"; "held doodle" in D236–D264 and the closed questions is
+  Part C's earlier term, left as written. D414 restates D119's phone rule and adds that a
+  capability may be reduced on a phone; now in `strategy.md`, Context of Use, Device.
