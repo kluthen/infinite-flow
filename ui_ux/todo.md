@@ -93,8 +93,8 @@ spec gaps for `spec-writer`: Q70-Q73 (provisional answers designed).
   `src/styles/theme.css` and `components.css` and marked applied there. `preset-status` and
   `preset-status-text` stay until chunk 13 removes them.
 - **v3.1 release gate, class check** (2026-10-21, ux D326, chunk 21): confirmed, nothing missing.
-  Pending: the recorded correction ux D326 proposes (stale `preset-status` wording and the
-  rejected passing-and-neighbor rule), in both `versions/v3.1/` and the root, once allowed.
+  Its recorded correction (stale `preset-status` wording, the rejected passing-and-neighbor rule)
+  is applied in both `versions/v3.1/` and the root.
 
 ## Remaining
 

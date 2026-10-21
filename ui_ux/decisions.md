@@ -571,6 +571,8 @@ Part D changes what it rests on.
   (2026-10-21; the v3.1 build plan's chunk 21).** Every class and token in `versions/v3.1/`'s
   handoffs and `token-source-v3.1.md` is in `theme.css` or `components.css`, and so is every class
   the components use (chunks 13, 14, 17, 18 included); `preset-status` is gone from `src/`.
-  Correction proposed, not applied: the copy and the root still name `preset-status` and the
-  musical profile's `radiogroup` in "After `Start with this phrase`" (`screens/phrase-workspace/`,
-  `flows/play-session/` handoffs), and the passing-and-neighbor rule spec D378 rejected.
+  Recorded correction, in `versions/v3.1/` and the root alike (allowed by the wave driver): the
+  preset during "After `Start with this phrase`" now names `preset-select`, not `preset-status` and
+  the musical profile's `radiogroup` (`screens/phrase-workspace/`, `flows/play-session/`
+  handoffs), and the passing-and-neighbor rule spec D378 rejected is gone: every level is always
+  selectable (the Embellishments section and change block, the figure step).
