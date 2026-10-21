@@ -8,7 +8,12 @@
 import { describe, expect, it } from 'vitest'
 import { effectScope, nextTick, shallowRef } from 'vue'
 
-import { useAppNotices, type AppNoticeKind } from '@/components/workspace/use-app-notices'
+import {
+  createRefusedPresetSaves,
+  useAppNotices,
+  type AppNoticeKind,
+  type RefusedPresetSaves,
+} from '@/components/workspace/use-app-notices'
 import {
   createDamagedSessionReports,
   type DamagedSessionReports,
@@ -29,6 +34,7 @@ function notices(
   outcome: LoadOutcome,
   policy: Promise<SavePolicy>,
   damagedSessions?: DamagedSessionReports,
+  refusedPresetSaves?: RefusedPresetSaves,
 ) {
   const sessionActive = shallowRef(false)
   const scope = effectScope()
@@ -37,6 +43,7 @@ function notices(
       source: { outcome, savePolicy: policy },
       sessionActive: () => sessionActive.value,
       ...(damagedSessions === undefined ? {} : { damagedSessions }),
+      ...(refusedPresetSaves === undefined ? {} : { refusedPresetSaves }),
     }),
   )
   if (built === undefined) throw new Error('the effect scope did not run')
@@ -358,6 +365,94 @@ describe('the deletions of damaged kept sessions', () => {
 
     row.scope.stop()
     reports.tell({ status: 'deleted', count: 1 })
+
+    expect(row.notice.value).toBeNull()
+  })
+})
+
+/** Intent: the notices over a refusable ready policy, hearing the presets' refused saves. */
+async function withPresetRefusals() {
+  const ready = await refusable()
+  const refused = createRefusedPresetSaves()
+  const row = notices('saved-data-read', Promise.resolve(ready.policy), undefined, refused)
+  await settle()
+  /** Intent: a preset's save refused by the policy with `kind`, then told by its name. */
+  const refusePresetSave = async (name: string, kind: 'quota' | 'other') => {
+    ready.refuse(kind)
+    await ready.policy.write('presets', 'player-1', sampleRecord(name))
+    refused.tell(name)
+  }
+  return { ...ready, refused, row, refusePresetSave }
+}
+
+/** Intent: the preset wording of the save-problem notice for the preset named `name`. */
+function presetNotSaved(name: string): string {
+  return `Your preset “${name}” couldn't be saved on this device. You can use it until this page closes.`
+}
+
+// @test-link [[rule_refused_preset_save_told]]
+describe("a player preset's refused save", () => {
+  // @test-link [[rule_refused_preset_save_told]]
+  it('shows the save-problem notice at once in its preset wording, naming the preset, with Dismiss only', async () => {
+    const { row, refusePresetSave } = await withPresetRefusals()
+
+    await refusePresetSave('Late night', 'other')
+
+    expect(row.notice.value).toEqual({
+      kind: 'preset-not-saved',
+      text: presetNotSaved('Late night'),
+      action: null,
+      dismissable: true,
+    })
+  })
+
+  // @test-link [[rule_refused_preset_save_told]]
+  it('shows the storage-full wording when storage is full', async () => {
+    const { row, refusePresetSave } = await withPresetRefusals()
+
+    await refusePresetSave('Late night', 'quota')
+
+    expect(row.kind()).toBe('storage-full')
+    expect(row.notice.value?.action).toBe('your-data')
+  })
+
+  // @test-link [[rule_refused_preset_save_told]]
+  // @test-link [[rule_failed_save_never_disturbs_session]]
+  it('switches in place to the latest cause: another preset, storage full, then a preset again', async () => {
+    const { row, refusePresetSave } = await withPresetRefusals()
+
+    await refusePresetSave('Late night', 'other')
+    await refusePresetSave('Warm-up', 'other')
+    expect(row.notice.value?.text).toBe(presetNotSaved('Warm-up'))
+
+    await refusePresetSave('Reel in G', 'quota')
+    expect(row.kind()).toBe('storage-full')
+
+    await refusePresetSave('Reel in D', 'other')
+    expect(row.notice.value?.text).toBe(presetNotSaved('Reel in D'))
+  })
+
+  // @test-link [[rule_refused_preset_save_told]]
+  // @test-link [[rule_failed_save_never_disturbs_session]]
+  it('stays dismissed for the rest of the run, and shows again after a success', async () => {
+    const { refuse, policy, row, refusePresetSave } = await withPresetRefusals()
+    await refusePresetSave('Late night', 'other')
+
+    row.dismiss()
+    await refusePresetSave('Warm-up', 'other')
+    expect(row.notice.value).toBeNull()
+
+    refuse(null)
+    await policy.write('settings', 'theme', sampleRecord('Light'))
+    await refusePresetSave('Warm-up', 'other')
+    expect(row.notice.value?.text).toBe(presetNotSaved('Warm-up'))
+  })
+
+  it('stop being heard when the scope ends', async () => {
+    const { refused, row } = await withPresetRefusals()
+
+    row.scope.stop()
+    refused.tell('Late night')
 
     expect(row.notice.value).toBeNull()
   })

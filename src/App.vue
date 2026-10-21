@@ -117,6 +117,7 @@ onUnmounted(() => {
     :saved-review-preferences="savedData.settings.review"
     :saved-session-options="savedData.settings.sessionOptions"
     :remembered-controller="workspace.rememberedController"
+    :preset-store="workspace.presetStore"
     :damaged-session-reports="workspace.damagedSessionReports"
     @connection-sheet-open-change="handleConnectionSheetOpenChange"
   />

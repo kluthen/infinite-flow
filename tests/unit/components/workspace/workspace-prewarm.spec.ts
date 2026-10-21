@@ -6,6 +6,7 @@
  * generated outcome identical with and without prewarm when real prewarm slices run in between.
  */
 import { countingSessionSeeds } from '../../composables/fake-session-seed'
+import { countingPresetIds } from './quiet-saved-data'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
@@ -107,6 +108,7 @@ function prewarmRig(
       nextSeed: () => makeSeed(seedQueue.shift() ?? ++seedCounter),
     },
     nextSessionSeed: countingSessionSeeds(),
+    nextPresetId: countingPresetIds(),
     viewport,
     generate: async (intent) => {
       generated.push(intent)
@@ -346,6 +348,7 @@ function workerRig(policy: WorkspacePrewarmPolicy): WorkerRig {
       nextSeed: () => makeSeed(4000 + counter),
     },
     nextSessionSeed: countingSessionSeeds(),
+    nextPresetId: countingPresetIds(),
     viewport: createFakeViewportWidth(false),
     generate: client.generate,
     prewarmPolicy: policy,

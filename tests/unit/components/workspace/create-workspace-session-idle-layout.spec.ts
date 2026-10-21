@@ -10,6 +10,7 @@
  * has room, 60-unit fixed parts, unless a test says otherwise) and a transport on the fake clock.
  */
 import { countingSessionSeeds } from '../../composables/fake-session-seed'
+import { countingPresetIds } from './quiet-saved-data'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
@@ -100,6 +101,7 @@ async function readyRig(): Promise<Rig> {
       nextSeed: () => makeSeed(++counter),
     },
     nextSessionSeed: countingSessionSeeds(),
+    nextPresetId: countingPresetIds(),
     viewport: createFakeViewportWidth(),
     generate,
     prewarmPolicy: 'disabled',

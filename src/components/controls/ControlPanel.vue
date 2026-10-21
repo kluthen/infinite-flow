@@ -23,7 +23,7 @@ import CharacterControls from './CharacterControls.vue'
 import EmbellishmentControls from './EmbellishmentControls.vue'
 import SessionOptionsControls from './SessionOptionsControls.vue'
 import { controlSummaryText } from './control-options'
-import type { SessionStartSettings } from './preset-bar-model'
+import type { PresetActionKind, PresetActionsRow, SessionStartSettings } from './preset-bar-model'
 import type { SetControlPayload } from './set-control-event'
 
 const props = defineProps<{
@@ -54,6 +54,10 @@ const props = defineProps<{
   myInstrument: MyInstrument | null
   /** Whether `instrument-actions` is disabled: during a session and during Loading. */
   instrumentActionsDisabled: boolean
+  /** The buttons the preset bar's actions row holds. */
+  presetActions: PresetActionsRow
+  /** Whether every preset action is disabled: during a session. */
+  presetActionsDisabled: boolean
 }>()
 
 const emit = defineEmits<{
@@ -65,6 +69,7 @@ const emit = defineEmits<{
   'set-tension-across-phrases': [on: boolean]
   'set-vary-settings': [on: boolean]
   'open-my-instrument': []
+  'preset-action': [action: PresetActionKind]
 }>()
 
 /** Intent: forward a group's set-control event upward unchanged. */
@@ -131,7 +136,10 @@ const controlSummary = computed(() =>
       :selection="selection"
       :description-selection="startSettings?.selection ?? selection"
       :readonly="readonly"
+      :actions="presetActions"
+      :actions-disabled="presetActionsDisabled"
       @select-preset="forwardSelectPreset"
+      @preset-action="emit('preset-action', $event)"
     />
     <div class="control-group-row">
       <FoundationControls

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 
 import ControlPanel from '@/components/controls/ControlPanel.vue'
-import type { SessionStartSettings } from '@/components/controls/preset-bar-model'
+import type { PresetActionsRow, SessionStartSettings } from '@/components/controls/preset-bar-model'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import {
   BUILT_IN_PRESETS,
@@ -16,6 +16,14 @@ import {
   UNSUPPORTED_RHYTHM_SETTING_MESSAGE,
 } from '@/domain/controls/unsupported-rhythm-settings'
 import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
+
+/** The actions row of a built-in selection: Save as new preset alone. */
+const NO_PRESET_ACTIONS: PresetActionsRow = {
+  saveChanges: false,
+  rename: false,
+  delete: false,
+  limitReached: false,
+}
 
 function mountPanel(
   controls: GenerationControls = DEFAULT_GENERATION_CONTROLS,
@@ -41,6 +49,8 @@ function mountPanel(
       startSettings,
       myInstrument: null,
       instrumentActionsDisabled: false,
+      presetActions: NO_PRESET_ACTIONS,
+      presetActionsDisabled: false,
     },
   })
 }

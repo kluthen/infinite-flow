@@ -1,6 +1,6 @@
 /**
- * What the app saves the player's changes, my instrument and the remembered controller, and
- * holds a session's saves, through, over the visit's save policy. The loader hands the policy over as a promise; calls made before it settles wait,
+ * What the app saves the player's changes, my instrument, the player presets and the remembered
+ * controller, and holds a session's saves, through, over the visit's save policy. The loader hands the policy over as a promise; calls made before it settles wait,
  * in order, and every call reaches the policy in the order it was made. Once the policy has
  * loaded, calls reach it at once, so a hold made when a session starts takes effect right there.
  *
@@ -16,6 +16,7 @@ import { FIGURE_IDS, type FigureLevels } from '@/domain/figures/figure-levels'
 import type { PresetSelection } from '@/domain/presets/preset-selection'
 
 import { createMyInstrumentSaves, type MyInstrumentSaves } from './my-instrument-saves'
+import { createPresetSaves, type PresetSaves } from './preset-saves'
 import {
   CONTROLLER_RECORD_KEY,
   encodeControllerRecord,
@@ -56,6 +57,7 @@ export type SettingChanges = { readonly [K in SettingKey]?: SettingValue<K> }
 export type SaveSettings = (changes: SettingChanges) => void
 
 export type { MyInstrumentSaves } from './my-instrument-saves'
+export type { PresetSaves } from './preset-saves'
 
 /**
  * Hold every save while a session runs, and release them, in one transaction, when it ends; then,
@@ -108,10 +110,11 @@ export interface ControllerSaves {
 
 /**
  * The visit's saves of the player's settings, the hold of a session's saves, the changes to kept
- * sessions after their save, and the saves of my instrument and of the remembered controller.
+ * sessions after their save, and the saves of my instrument, of the player presets and of the
+ * remembered controller.
  */
 export interface VisitSaves
-  extends SessionSaveHold, KeptSessionChanges, MyInstrumentSaves, ControllerSaves {
+  extends SessionSaveHold, KeptSessionChanges, MyInstrumentSaves, PresetSaves, ControllerSaves {
   readonly saveSettings: SaveSettings
 }
 
@@ -193,6 +196,7 @@ export function createVisitSaves(policy: Promise<SavePolicy>, appVersion: string
     changeKept,
     readKept: (read, refusal) => resolved((target) => target.readKept(read, refusal)),
     ...createMyInstrumentSaves(submit, changeKept, appVersion),
+    ...createPresetSaves(submit, appVersion),
     // @spec-link [[rule_last_controller_remembered]]
     rememberController: (device) => {
       const record = encodeControllerRecord(device, appVersion)
@@ -226,7 +230,8 @@ interface ControlChoices {
 const CONTROL_PREFIX = 'controls.'
 
 /** Intent: whether two preset selections are the same: the same kind naming the same preset. */
-function sameSelection(left: PresetSelection, right: PresetSelection): boolean {
+// @spec-link [[rule_settings_saved_on_change]]
+export function sameSelection(left: PresetSelection, right: PresetSelection): boolean {
   if (left.kind === 'preset') return right.kind === 'preset' && right.presetId === left.presetId
   return right.kind === 'custom' && right.baseId === left.baseId
 }

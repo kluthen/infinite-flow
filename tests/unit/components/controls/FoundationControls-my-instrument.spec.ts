@@ -44,6 +44,8 @@ function mountPanel(
       startSettings: null,
       myInstrument,
       instrumentActionsDisabled: false,
+      presetActions: { saveChanges: false, rename: false, delete: false, limitReached: false },
+      presetActionsDisabled: false,
     },
   })
 }
