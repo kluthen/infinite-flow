@@ -646,3 +646,16 @@ uncaptured decision (the preset actions stay enabled during Loading: the session
 only by a running session); chunks 18 and 19 are mostly wording and tests; chunk 19's revision drops
 "the musical profile". Design residue for `ux-writer`: the frozen Embellishments handoff still
 states the passing-and-neighbor rule that DP rejected (D378); chunk 14 does not build it.
+- Plan v18 (fb0080b, `spec-writer`): every correction applied; D386 settles the preset actions
+  during Loading; chunk 17 splits into 17a (state and storage, not yet visible) and 17b (the
+  actions row, the bar, the sheet). The frozen handoff's passing-and-neighbor rule stays as is;
+  chunk 14's text says not to build it.
+- D386 captured (01bff1a): `service_idle_generation_session` 0.7 (the preset-list action),
+  `module_player_presets` 0.2. It raised what that action saves; `spec-writer` settled it as D387
+  (447ec7a, plan v19: the selection it changes, and nothing else); captured in daad9e9
+  (`service_idle_generation_session` 0.8, `module_player_presets` 0.3).
+
+### Chunks
+
+- Chunk 14: dispatched 2026-10-21 (`../infinite_flow-v3.1-c14`, branch
+  `v3.1-c14-embellishments`), on plan v18.
