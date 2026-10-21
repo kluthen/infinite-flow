@@ -678,3 +678,7 @@ states the passing-and-neighbor rule that DP rejected (D378); chunk 14 does not 
   contract, CS); `service_idle_generation_session` names the action; `module_player_presets`' API
   grew. For the gate: the bundle (the sheet loads on demand); the new required `presetStore` prop
   touched many test mounts, which only the full suite covers.
+- Chunk 18: merged as 57c23e1 (c8d2f00). Every Done-when item met; no deviation from the spec
+  or the design; its e2e in a new `your-data-presets.spec.ts`. For the sync: both Revisions
+  (`req_your_data`, `rule_delete_everything`; contract, CS). For the gate: the lazy Your data
+  sheet now imports `preset-sheet-copy.ts` (expected in a shared lazy chunk).
