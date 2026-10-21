@@ -608,6 +608,7 @@ test.describe('a session under a network and storage spy', () => {
 
   // @test-link [[rule_session_data_never_sent_or_stored]]
   // @test-link [[rule_optional_midi_privacy]]
+  // @test-link [[rule_no_preset_leaves_device]]
   test('with every kind of record stored, a visit reading them, opening kept sessions, playing a session with played notes and every export sends nothing', async ({
     context,
     page,

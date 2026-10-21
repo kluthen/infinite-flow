@@ -2,7 +2,7 @@
 id: rule_stale_phrase_prompt_at_start
 status: REVIEW
 priority: 1
-tags: [v3, release-v3.0, session, session-start, midi, changes-in-v3.1]
+tags: [v3, release-v3.0, session, session-start, midi]
 dependents:
   - [[module_idle_pregeneration_queue]]
   - [[module_session_pregeneration_plan]]

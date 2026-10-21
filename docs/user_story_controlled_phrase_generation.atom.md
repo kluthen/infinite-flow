@@ -8,7 +8,7 @@ parents:
   - [[req_four_measure_phrase]]
 type: USER_STORY
 priority: 1
-tags: [player-controls, generation, changes-in-v3.1]
+tags: [player-controls, generation]
 dependents:
   - [[api_rhythm_domain_expansion]]
   - [[entity_generation_diagnostics]]

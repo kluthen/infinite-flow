@@ -2,7 +2,7 @@
 id: rule_jazz_chromatic_resolution
 status: REVIEW
 priority: 1
-tags: [jazz-profile, chromatic, resolution, changes-in-v3.1]
+tags: [jazz-profile, chromatic, resolution]
 human_name: Chromatic Figures Resolve at Once
 layer: BUSINESS
 version: 0.3

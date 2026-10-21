@@ -8,7 +8,7 @@ parents:
 type: RULE
 layer: BUSINESS
 version: 0.2
-tags: [profile, controls, configuration, changes-in-v3.1]
+tags: [profile, controls, configuration]
 dependents:
   - [[module_generative_profile_selection]]
   - [[rule_profile_control_customization]]
