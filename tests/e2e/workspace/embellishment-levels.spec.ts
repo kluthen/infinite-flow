@@ -113,13 +113,16 @@ async function requestCount(page: Page): Promise<number> {
   return (await generationRecords(page)).length
 }
 
-/** Intent: regenerate phrase 1 with `seed` and return the request it was made from. */
+/**
+ * Intent: regenerate phrase 1 with `seed` and return the player request it was made from, never a
+ * background attempt the harness's pre-generation mode may have made meanwhile.
+ */
 async function regenerate(page: Page, seed: number): Promise<WorkspaceHarnessGenerationRequest> {
   const from = await requestCount(page)
   await queueSeeds(page, [seed])
   await generateAndAwaitReady(page)
-  const records = await generationRecords(page)
-  expect(records.length).toBeGreaterThan(from)
+  const records = await playerOrSessionRecordsFrom(page, from)
+  expect(records.length).toBeGreaterThan(0)
   return records.at(-1)!
 }
 
@@ -196,8 +199,9 @@ test("the seven controls show Neutral's levels on a first visit and set each fig
     'Chromatic approach': 'Very often',
     'Chromatic enclosure': 'Often',
   })
-  // The phrase on screen stays: no level change regenerates it.
-  expect(await requestCount(page)).toBe(before)
+  // The phrase on screen stays: no level change makes a player request (with pre-generation on,
+  // each change rightly restarts the background queue, so only player requests are counted).
+  expect(await playerOrSessionRecordsFrom(page, before)).toHaveLength(0)
   expect((await harnessSnapshot(page)).timeline).toBe(timeline)
   await expectPresetShown(page, 'Custom, based on Neutral')
 
