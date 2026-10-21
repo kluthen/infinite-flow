@@ -45,7 +45,8 @@ const midi = await navigator.requestMIDIAccess()
 for (const input of midi.inputs.values())
   input.addEventListener('midimessage', (e) => {
     const [status, note, velocity] = e.data
-    if ((status & 0xf0) === 0x90 && velocity > 0) console.log(input.name, 'note', note, 'velocity', velocity)
+    if ((status & 0xf0) === 0x90 && velocity > 0)
+      console.log(input.name, 'note', note, 'velocity', velocity)
   })
 ```
 
@@ -71,21 +72,21 @@ fingering again, and note the new MIDI note. Put the octave setting back afterwa
 
 The app expects (a match):
 
-| App profile           | Note shown (written) | Expected MIDI note (concert) |
-| --------------------- | -------------------- | ---------------------------- |
-| C MIDI keyboard       | C4                   | 60                           |
-| B♭ tenor saxophone    | C5                   | 58                           |
-| E♭ alto saxophone     | C5                   | 63                           |
+| App profile        | Note shown (written) | Expected MIDI note (concert) |
+| ------------------ | -------------------- | ---------------------------- |
+| C MIDI keyboard    | C4                   | 60                           |
+| B♭ tenor saxophone | C5                   | 58                           |
+| E♭ alto saxophone  | C5                   | 63                           |
 
-| Device transpose setting | App profile    | MIDI note sent | Velocity | App verdict (match / octaves / semitones + suggestion) | Note after octave change |
-| ------------------------ | -------------- | -------------- | -------- | ------------------------------------------------------ | ------------------------ |
-| 0 (C), the default       | B♭ tenor sax   | 60 (inferred from the rows below, not played) | — | expected "2 semitones higher" (not played) | not tested |
-| −2 (B♭)                  | B♭ tenor sax   | 58             | 80       | **match**                                              | not tested               |
-| −9                       | B♭ tenor sax   | 51 (computed)  |          | "7 semitones lower … transpose 7 semitones higher" (correct) | not tested |
-| −14                      | B♭ tenor sax   | 46 (computed)  |          | "1 octave lower … octave setting 1 octave higher" (correct) | not tested |
-| +3                       | B♭ tenor sax   | 63 (computed)  |          | "5 semitones higher … transpose 5 semitones lower", and suggests the E♭ alto profile (correct: alto expects 63) | not tested |
-| +3                       | E♭ alto sax    | 63 (computed)  |          | **match** ("Nothing to change — you're ready to play.") | not tested               |
-| +12                      | B♭ tenor sax   | 72 (computed)  |          | "14 semitones (1 octave and 2) higher … transpose 14 semitones lower", and suggests the C MIDI keyboard profile (correct: at +12 the device plays at written pitch) | — |
+| Device transpose setting | App profile  | MIDI note sent                                | Velocity | App verdict (match / octaves / semitones + suggestion)                                                                                                              | Note after octave change |
+| ------------------------ | ------------ | --------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| 0 (C), the default       | B♭ tenor sax | 60 (inferred from the rows below, not played) | —        | expected "2 semitones higher" (not played)                                                                                                                          | not tested               |
+| −2 (B♭)                  | B♭ tenor sax | 58                                            | 80       | **match**                                                                                                                                                           | not tested               |
+| −9                       | B♭ tenor sax | 51 (computed)                                 |          | "7 semitones lower … transpose 7 semitones higher" (correct)                                                                                                        | not tested               |
+| −14                      | B♭ tenor sax | 46 (computed)                                 |          | "1 octave lower … octave setting 1 octave higher" (correct)                                                                                                         | not tested               |
+| +3                       | B♭ tenor sax | 63 (computed)                                 |          | "5 semitones higher … transpose 5 semitones lower", and suggests the E♭ alto profile (correct: alto expects 63)                                                     | not tested               |
+| +3                       | E♭ alto sax  | 63 (computed)                                 |          | **match** ("Nothing to change — you're ready to play.")                                                                                                             | not tested               |
+| +12                      | B♭ tenor sax | 72 (computed)                                 |          | "14 semitones (1 octave and 2) higher … transpose 14 semitones lower", and suggests the C MIDI keyboard profile (correct: at +12 the device plays at written pitch) | —                        |
 
 Results, 2026-10-06, TravelSax2 (port name "TravelSax2 MIDI 1"), over USB, Debian's Chrome on the Linux machine (dev server on localhost):
 
@@ -130,9 +131,11 @@ Do B1–B3 with the breath controller, then again with the USB keyboard.
 - [ ] Second opinion:
 
 ```js
-const probe = new AudioContext(); await probe.resume()
+const probe = new AudioContext()
+await probe.resume()
 await new Promise((done) => setTimeout(done, 1000))
-console.log('base', probe.baseLatency * 1000, 'output', probe.outputLatency * 1000); await probe.close()
+console.log('base', probe.baseLatency * 1000, 'output', probe.outputLatency * 1000)
+await probe.close()
 ```
 
 → base 10.7 ms, output 32 ms (2026-10-06, Debian's Chrome on the Linux machine)
@@ -185,26 +188,38 @@ Just report what you saw.
 
 ```js
 const { deriveExpectedNotes } = await import('/src/domain/acknowledgement/expected-note.ts')
-const { placeAcknowledgementWindows } = await import('/src/domain/acknowledgement/acknowledgement-window.ts')
+const { placeAcknowledgementWindows } =
+  await import('/src/domain/acknowledgement/acknowledgement-window.ts')
 const key = (id) => `${id.phraseNumber}:${id.measureIndex}:${id.eventIndex}`
 const rows = []
 for (const record of app.sessionController.state.lastHistory.phrases()) {
   const beat = 60 / record.tempo
   const expected = deriveExpectedNotes(record.outcome.result.timeline, {
-    phraseNumber: record.phraseNumber, startSeconds: record.startedAt, tempoBpm: record.tempo,
+    phraseNumber: record.phraseNumber,
+    startSeconds: record.startedAt,
+    tempoBpm: record.tempo,
   })
   const lit = new Set(record.acknowledgements.map(key))
   const windows = placeAcknowledgementWindows(expected)
   for (const note of record.playedNotes) {
     const sincePhrase = note.onsetAt - record.startedAt
-    const nearest = expected.filter((c) => c.pitch === note.pitch)
-      .sort((a, b) => Math.abs(a.onsetSeconds - note.onsetAt) - Math.abs(b.onsetSeconds - note.onsetAt))[0]
+    const nearest = expected
+      .filter((c) => c.pitch === note.pitch)
+      .sort(
+        (a, b) => Math.abs(a.onsetSeconds - note.onsetAt) - Math.abs(b.onsetSeconds - note.onsetAt),
+      )[0]
     // The expected note whose window holds this onset, if any; else the nearest of that pitch.
-    const holder = windows.find((c) => c.pitch === note.pitch
-      && c.window.opensAtSeconds <= note.onsetAt && note.onsetAt <= c.window.closesAtSeconds)
+    const holder = windows.find(
+      (c) =>
+        c.pitch === note.pitch &&
+        c.window.opensAtSeconds <= note.onsetAt &&
+        note.onsetAt <= c.window.closesAtSeconds,
+    )
     const target = holder ?? nearest
     rows.push({
-      phrase: record.phraseNumber, pitch: note.pitch, velocity: note.velocity,
+      phrase: record.phraseNumber,
+      pitch: note.pitch,
+      velocity: note.velocity,
       beatOffsetMs: Math.round((sincePhrase - Math.round(sincePhrase / beat) * beat) * 1000),
       noteOffsetMs: target ? Math.round((note.onsetAt - target.onsetSeconds) * 1000) : null,
       inWindow: Boolean(holder),
@@ -215,8 +230,10 @@ for (const record of app.sessionController.state.lastHistory.phrases()) {
 console.table(rows)
 const offsets = rows.map((r) => r.beatOffsetMs).sort((a, b) => a - b)
 const at = (q) => offsets[Math.min(offsets.length - 1, Math.floor(q * offsets.length))]
-console.log(`Click offsets: ${offsets.length} notes, median ${at(0.5)} ms,`,
-  `middle 80 % from ${at(0.1)} to ${at(0.9)} ms, extremes ${offsets[0]} to ${offsets.at(-1)} ms`)
+console.log(
+  `Click offsets: ${offsets.length} notes, median ${at(0.5)} ms,`,
+  `middle 80 % from ${at(0.1)} to ${at(0.9)} ms, extremes ${offsets[0]} to ${offsets.at(-1)} ms`,
+)
 ```
 
 The last line printed under the table is the B2 summary: the median and spread to write down
@@ -228,11 +245,11 @@ it, and give it to Claude.
 
 ### Results
 
-| Device           | Output delay (B1) | Median click offset (B2) | Spread (B2) | Unlit-but-in-time / lit-but-off (B3) | Notes |
-| ---------------- | ----------------- | ------------------------ | ----------- | ------------------------------------ | ----- |
-| Breath ctrl, USB | 32 ms (base 10.7)  | +9 ms (run 1, 90 BPM), +2 ms (run 2) | −19 to +61 / −48 to +28 ms (middle 80 %) | none unlit in the data; late notes lit up to ~+530 ms on long notes (by rule) | 2026-10-06, Debian Chrome: no change to the delay constants |
-| Breath ctrl, Bluetooth LE | — | ~+80 ms (first 5 single-pitch notes) | coarse: notes arrive in batches | not run | 2026-10-06, Debian Chrome; see part C |
-| USB keyboard     |                   |                          |             |                                      | pending: no USB keyboard at hand yet |
+| Device                    | Output delay (B1) | Median click offset (B2)             | Spread (B2)                              | Unlit-but-in-time / lit-but-off (B3)                                          | Notes                                                       |
+| ------------------------- | ----------------- | ------------------------------------ | ---------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| Breath ctrl, USB          | 32 ms (base 10.7) | +9 ms (run 1, 90 BPM), +2 ms (run 2) | −19 to +61 / −48 to +28 ms (middle 80 %) | none unlit in the data; late notes lit up to ~+530 ms on long notes (by rule) | 2026-10-06, Debian Chrome: no change to the delay constants |
+| Breath ctrl, Bluetooth LE | —                 | ~+80 ms (first 5 single-pitch notes) | coarse: notes arrive in batches          | not run                                                                       | 2026-10-06, Debian Chrome; see part C                       |
+| USB keyboard              |                   |                                      |                                          |                                                                               | pending: no USB keyboard at hand yet                        |
 
 ---
 
@@ -336,7 +353,7 @@ how long the first draw waits for the saved data before starting from the defaul
 2 s (`STARTUP_WAIT_MS` in `src/storage-bootstrap.ts`) and must stay well above the slowest read.
 
 - [ ] On the reference machine, idle (no `atd audit`, no other test run): `npm run
-      measure:startup-read`. It times the load cold (first load after a browser start) and warm,
+    measure:startup-read`. It times the load cold (first load after a browser start) and warm,
       with 0, 10, 100 and 500 kept sessions, and prints a table.
 - [ ] Copy the table, with the machine and the date, into
       [`docs/storage.md`](docs/storage.md#the-start-up-wait-m2). If the slowest figure is above
@@ -507,8 +524,50 @@ On the reference machine, production build or `npm run dev`. ISS-011's steps, wh
 # v3.1 hand checks
 
 Build plan [Hand checks](specs/versions/v3/build-plan-v3.1.md#hand-checks): each check is written
-here by the chunk that needs it. This part holds H3, H4 and H5 for now; H1 and H2 (chunk 14) are
-written by a later chunk.
+here by the chunk that needs it. This part holds H1 to H5.
+
+## v3.1 H1. Listening: the levels (chunk 14; gate L1; about 30 min)
+
+The reference machine, production build or `npm run dev`, with the Travel Sax or the laptop's
+speakers. Each of the seven controls under **Embellishments** sets how often the app decorates
+the melody with one figure (a small pattern of notes around the chord notes): `Off`, `Rarely`,
+`Often`, `Very often`. This check says whether the levels can be heard. Run it after wave 5; the
+release gate uses the result.
+
+- [ ] At Idle, choose Neutral in the preset box. Set Note density to `Eighth notes` (on a laptop
+      or a wide window, also try `Sixteenth`) and Rhythmic variety to `Heavily varied`: these
+      leave a figure room to fit.
+- [ ] For each figure in turn (Passing tone, Accented passing tone, Neighbor tone, Appoggiatura,
+      Diatonic enclosure, Chromatic approach, Chromatic enclosure), set the other six to `Off`,
+      then set it to `Rarely`, regenerate a handful of phrases (about five) and listen; then the
+      same at `Often`, then at `Very often`. Each field's note says what the figure sounds like
+      and what rhythm it needs.
+- [ ] For each figure, note two answers: is `Often` clearly heard (more often than `Rarely`)? Is
+      `Very often` still musical, not overwhelming?
+- [ ] Pass: `Often` is clearly heard and `Very often` is not overwhelming, for every figure. A
+      figure that fails is not a failed build: write down which and how, and the shares behind
+      the levels are tuned from your answers (then the measurements M1 and M2 run again).
+
+**Result:** not run yet.
+
+## v3.1 H2. Listening: the built-in presets (chunk 14; gate L2; about 30 min)
+
+The reference machine, production build or `npm run dev`, with the Travel Sax. Each of the eight
+built-in presets should sound as its description line (under the preset box) says.
+
+- [ ] For each preset in the box (Neutral, Gentle, Speed drill, Jazz, Bebop, Pop song, Reel,
+      Modal (Dorian)): choose it, regenerate a few phrases, then play a short session (about
+      eight phrases) and press Stop.
+- [ ] Say whether each sounds as its description says. Listen in particular for: Reel in
+      Mixolydian (its default mode, a major key with a lowered 7th note), Bebop's chromatic lines
+      (notes from outside the key circling chord notes), Pop song's familiar chords, and Modal
+      (Dorian)'s color note (the raised 6th note that sets Dorian apart from a minor key).
+- [ ] Neutral and Jazz should sound exactly as they did in v3.0: if you still have v3.0 to hand,
+      compare a few phrases by ear.
+- [ ] Pass: every preset sounds as its description says, and Neutral and Jazz as in v3.0. Write
+      down any preset that does not, and how.
+
+**Result:** not run yet.
 
 ## v3.1 H3. Same phrase in Edge (chunk 8; about 10 min)
 
@@ -578,6 +637,7 @@ address you can lose: the first step may clear it.
       Open `http://localhost:4173` in Chrome; the header shows v3.0.0. If this address already
       holds data from another build, clear it first (F12, Application tab, Storage, `Clear site
       data`), then reload.
+
 - [ ] In v3.0: choose Jazz in `Musical profile preset`, leave its other controls as they are,
       press Start and play a short session (a few phrases), then Stop. In its review, press
       `Pin`. Note the first two phrases' notes (a screenshot of the review's notation).
@@ -593,6 +653,7 @@ address you can lose: the first step may clear it.
 
       Open `http://localhost:4173` in the same Chrome. The header shows v3.1's version; if it
       still shows v3.0.0, reload once more (the service worker updates).
+
 - [ ] Every control you changed in v3.0 is back: Tension Build, Tempo 150, Written key F,
       Collection Dorian, the theme. The selection is Custom, based on Jazz: the summary line
       under `Shape the next phrase` reads "F Dorian · Custom, based on Jazz · …". Until chunk 13
