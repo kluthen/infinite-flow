@@ -1,7 +1,9 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v6 (2026-10-21): v5 **approved by the owner** (spec D417), hand check v3.2 H9 waived (spec
-D417). v5 was v4 (rewritten from master spec Part C v1.2 and the approved v3.2 design, Jam as its
+Status: v7 (2026-10-21): v6 with wave 0's preflight corrections (chunk 0 also drafts the vision's
+two v1.0 lines for CS and no longer edits the lexicon, whose v3.2 entries `spec-writer` brought to
+Part C v1.2; chunk 2's **Atoms** name its tests' links). v6: v5 **approved by the owner** (spec
+D417), hand check v3.2 H9 waived (spec D417). v5 was v4 (rewritten from master spec Part C v1.2 and the approved v3.2 design, Jam as its
 own mode, spec D416) corrected against the design at `ux-writer`'s review (chunks 1, 23, 24, 25, 30).
 
 Jam mode, the key and mode suggestion, the rhythm lock, Jam's drift and Vary settings' allowed
@@ -80,7 +82,7 @@ no release is cut before wave 7 has merged.
 | **R0** | v3.1 is released: the [v3.1 release gate](build-plan-v3.1.md#chunk-21--v31-release-gate) passed and `3.1.0` is tagged, so chunk 2's corpora are recorded on the code v3.1 ships. | The owner, at v3.1's release | Chunk 2, and through wave 0 every later wave | done (2026-10-21, tag `v3.1.0`; spec D397) |
 | **D0** | The owner approves the v3.2 design, reworked for Jam as its own mode (ux D328–D346, `ux-critic` validated). | The owner | Chunk 1, and through it every interface chunk | done (2026-10-21, spec D412) |
 | **T2** | The owner allows one `ux-writer` pass on `src/styles/theme.css` and `components.css` for part 2 of [`token-source-v3.1-v3.2.md`](../../../ui_ux/token-source-v3.1-v3.2.md), adding the classes `mode-switch`, `tap-tempo`, `doodle-readings` and `jam-needs-controller` with the rest of part 2; no new token value. | The owner | Chunk 1 | done (2026-10-21, spec D412) |
-| **CS** | The MAJOR contract bump for C13's guarantee changes: `documentalist` drafts the re-scoped wording of every STABLE contract atom v3.2 revises (chunk 0), the owner confirms them all at once, CONTRACT 7.2.0 to 8.0.0. The chunks that revise one say "(contract, CS)" in their **Revisions** line. | `documentalist` drafts; the owner confirms | The sync of wave 3, the first wave whose chunks revise one (chunk 19: `rule_settings_saved_on_change`, `rule_saved_settings_load_tolerantly`); its chunks may be built and merged into the wave branch first | open (drafts in wave 0) |
+| **CS** | The MAJOR contract bump for C13's guarantee changes: `documentalist` drafts the re-scoped wording of every STABLE contract atom v3.2 revises, and of the two v1.0 lines in the STABLE vision (`vision_infinite_flow_first_release` 0.9) (chunk 0), the owner confirms them all at once, CONTRACT 7.2.0 to 8.0.0. The chunks that revise one say "(contract, CS)" in their **Revisions** line. | `documentalist` drafts; the owner confirms | The sync of wave 3, the first wave whose chunks revise one (chunk 19: `rule_settings_saved_on_change`, `rule_saved_settings_load_tolerantly`); its chunks may be built and merged into the wave branch first | open (drafts in wave 0) |
 | **LD** | The owner ranks a handful of rhythm pairs by ear on drift's distance scale ([v3.2 H1](#v32-h1--drifts-scale-by-ear-ld)), before the scale drives the steering block's band ([C8](master-spec.md#c8-jams-drift)). A ranking that disagrees with the scale goes to `spec-writer` before chunk 8. | The owner; `spec-writer` if the ranking disagrees | Chunk 8 (wave 4) | open (after wave 2: chunks 3 and 5) |
 | **L3** | The owner's listening check of the allowed rhythm changes ([v3.2 H2](#v32-h2--allowed-rhythm-changes-l3), item 13); the change shares are tuned from it. | The owner | The release gate's final M2 run | open (after wave 3) |
 | **L1** | The owner's listening check of Jam ([v3.2 H4](#v32-h4--jam-listening-settings-drift-and-lock-l1) and [H5](#v32-h5--jam-listening-the-doodle-to-controls-mapping-l1), item 32); it confirms or sends back three of D406's provisional answers ([below](#what-confirms-d406s-provisional-answers)). | The owner; a failed answer becomes a ruling | The release gate | open (after wave 6) |
@@ -514,27 +516,30 @@ Architecture capture: none
 
 - **Goal:** bring the declared intent in line with Part C v1.2 before the first chunk relies on
   it, and draft the re-scoped contract wording the owner signs off once (gate CS).
-- **Scope:** `documentalist`, spec ingestion (milestone refinement); atoms and the lexicon, no
-  code.
+- **Scope:** `documentalist`, spec ingestion (milestone refinement); atoms only, no code. The
+  lexicon's v3.2 entries already follow v1.2 (`spec-writer`'s, plan v7).
   - The 67 DRAFT `release-v3.2` atoms, written from v1.0: those v1.1 retired (the Jam switch, a
     controller switching the mode, the kept doodle's dropping list, the doodle in the request)
     revised or replaced; new ones for what v1.1 and v1.2 add (Jam mode and its switch at Idle,
     Jam's code on demand, Jam's own settings and first values, the doodle-to-controls mapping, the
     steering block, tap-in, the kept doodle's rules).
   - The 33 `changes-in-v3.2` atoms: their notes name the v1.2 change.
-  - **The CS drafts**: the re-scoped wording of every STABLE contract atom C13 names, in one list
-    for the owner, the weakening ones first.
-  - The lexicon entries for v3.2's terms (C4) that still describe v1.0 (Jam, Doodle, Drift, Rhythm
-    lock, Starting note, Key and mode suggestion) follow v1.2; the Kept doodle entry is already
-    v1.2's (spec D413).
-- **Files:** `docs/*.atom.md`; [the change set](../../../docs/release/v3.1-v3.2-intent-change-set.md);
-  `docs/music/lexicon.md`.
+  - **The vision's v3.2 lines**: `vision_infinite_flow_first_release` (STABLE 0.9) still says v1.0
+    in two places, "from v3.2, the Jam switch and its drift" (a control v1.1 retired: Jam mode, its
+    mode button and Jam's own settings) and "without ever changing a setting" (the doodle sets
+    Jam's rhythm and shape controls, C5.16). A redraft of both, in Part C v1.2's terms.
+  - **The CS drafts**: the re-scoped wording of every STABLE contract atom C13 names, and the
+    vision's redrafted lines, in one list for the owner, the weakening ones first.
+- **Files:** `docs/*.atom.md`, among them `docs/vision_infinite_flow_first_release.atom.md`;
+  [the change set](../../../docs/release/v3.1-v3.2-intent-change-set.md).
 - **Spec sections:** [Part C](master-spec.md#part-c--v32), C13; no item directly.
 - **Atoms:** every atom tagged `release-v3.2` or `changes-in-v3.2`;
-  `contract_infinite_flow_first_release` (7.2.0).
-- **Revisions:** none (the contract bump is CS's).
+  `contract_infinite_flow_first_release` (7.2.0); `vision_infinite_flow_first_release` (STABLE
+  0.9).
+- **Revisions:** none (the contract bump and the vision's lines are CS's).
 - **Done when:** each Part C v1.2 behaviour is stated by an atom (DRAFT); no atom states a retired
-  v1.0 behaviour; `npm run atd:lint` and `npm run atd:check` pass; the CS list is with the owner.
+  v1.0 behaviour; `npm run atd:lint` and `npm run atd:check` pass; the CS list, the vision's lines
+  included, is with the owner.
 - **Verification:** `documentalist`'s ingestion report; chunk checks.
 - **Split rule:** none needed.
 
@@ -598,7 +603,12 @@ Architecture capture: none
 - **Spec sections:** [C11](master-spec.md#c11-the-generation-request-the-replay-key-and-kept-sessions),
   [C9](master-spec.md#c9-vary-settings-allowed-groups); items 9 and 7 (the guard), 11 (`ifk3.`
   decoding).
-- **Atoms:** none (test plumbing).
+- **Atoms:** none revised. The new tests `@test-link` the atoms the corpora they extend link: the
+  phrase corpus to (v2) `module_phrase_replay_key` and (v1) `rule_seeded_phrase_reproduction`, as
+  `phrase-replay-key-v30-corpus.spec.ts` does; the Vary settings corpus to (v3.1)
+  `rule_vary_settings_figure_step` and `rule_vary_settings_stays_inside_restriction` and (v2)
+  `module_settings_mutation`, as the tests replaying `v3.0-mutation-draws.json` in
+  `settings-mutation.spec.ts` and `settings-mutation-restriction.spec.ts` do.
 - **Revisions:** none.
 - **Done when:** both corpus tests pass on the tag and on `main`; the baseline size is recorded in
   `docs/testing.md`.
