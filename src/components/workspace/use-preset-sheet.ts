@@ -7,7 +7,8 @@
  * saves at once, with no sheet. What the sheet reports is applied through the player presets, and
  * it closes once applied; a deletion closes it once deleted, a failed one leaving it open. When it
  * closes, or after a one-click save, focus goes to the button that opened it if it is still shown
- * and enabled, else to `preset-select`.
+ * and enabled, else to `preset-select`. The same player presets are handed to the Your data sheet,
+ * which lists and deletes them through them.
  */
 import {
   computed,
@@ -36,7 +37,11 @@ import {
   type PresetSheetOpening,
   type PresetSheetProps,
 } from './load-preset-sheet'
-import { usePlayerPresets, type PresetActionOutcome } from './use-player-presets'
+import {
+  usePlayerPresets,
+  type PlayerPresets,
+  type PresetActionOutcome,
+} from './use-player-presets'
 import type { SessionControllerPhase } from './workspace-session-controller-types'
 
 /** Where the player presets are kept: the visit's preset saves, and where a new one's id comes from. */
@@ -60,8 +65,10 @@ export interface PresetSheetDeps {
   readonly root: () => HTMLElement | null
 }
 
-/** The actions row, the sheet's host state and the reports that drive it. */
+/** The actions row, the sheet's host state and the reports that drive it, and the player presets. */
 export interface PresetSheetHost {
+  /** The player presets the row and the sheet act through, which Your data lists and deletes. */
+  readonly playerPresets: PlayerPresets
   readonly row: ComputedRef<PresetActionsRow>
   readonly sheetComponent: Readonly<ShallowRef<Component | null>>
   readonly sheetProps: ComputedRef<PresetSheetProps | null>
@@ -200,6 +207,7 @@ export function usePresetSheet(deps: PresetSheetDeps): PresetSheetHost {
   })
 
   return {
+    playerPresets: presets,
     row: computed(() => (presets.sessionActive.value ? heldRow.value : liveRow.value)),
     sheetComponent,
     sheetProps,

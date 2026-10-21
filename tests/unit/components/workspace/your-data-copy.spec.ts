@@ -1,8 +1,9 @@
 // @vitest-environment node
 /**
  * The Your data sheet's words (ui_ux screens/your-data): the counts in the singular for one, the
- * space line's rounding, the notice of each form that saves nothing, and the four confirmations;
- * and the form the sheet takes from the load's outcome and the saving state.
+ * space line's rounding, the Settings line, the Presets lines and each row's Delete name, the notice
+ * of each form that saves nothing, and the five confirmations; and the form the sheet takes from
+ * the load's outcome and the saving state.
  */
 import { describe, expect, it } from 'vitest'
 
@@ -11,9 +12,13 @@ import {
   confirmationCopy,
   controllerLine,
   playedNotesLine,
+  presetConfirmationCopy,
+  presetDeleteLabel,
+  presetsLines,
   protectionLine,
   savingOffNotice,
   sessionsLine,
+  SETTINGS_LINE,
   spaceLine,
 } from '@/components/workspace/your-data-copy'
 
@@ -51,6 +56,31 @@ describe('the Overview lines', () => {
     expect(protectionLine('checking')).toBe('Checking…')
     expect(protectionLine('protected')).toMatch(/^Protected\. /)
     expect(protectionLine('not-protected')).toMatch(/^Not protected\. /)
+  })
+})
+
+// @test-link [[req_your_data]]
+describe('the Settings and Presets sections', () => {
+  // @test-link [[req_your_data]]
+  it('name the preset among the settings', () => {
+    expect(SETTINGS_LINE).toBe(
+      "The phrase controls, the preset, the instrument choice, the theme, the audio mix, the During a session options and the review's choices. They come back as you left them.",
+    )
+    expect(SETTINGS_LINE).not.toContain('musical profile')
+  })
+
+  // @test-link [[req_your_data]]
+  it('count the player presets, the singular for one, and say how to save one with none', () => {
+    const hint =
+      'Delete one here, or with Delete preset in the controls. Delete everything removes them all.'
+    expect(presetsLines(0)).toEqual(['None.', 'Save one with Save as new preset, in the controls.'])
+    expect(presetsLines(1)).toEqual(['1 preset of your own.', hint])
+    expect(presetsLines(3)).toEqual(['3 presets of your own.', hint])
+  })
+
+  // @test-link [[req_your_data]]
+  it("name each row's Delete by its preset", () => {
+    expect(presetDeleteLabel('Late night')).toBe('Delete preset Late night')
   })
 })
 
@@ -98,5 +128,28 @@ describe('the confirmations', () => {
       'everything',
     ] as const)
       expect(confirmationCopy(kind, 2).paragraphs[1]).toBe("This can't be undone.")
+  })
+})
+
+// @test-link [[req_your_data]]
+describe("the preset's confirmation", () => {
+  // @test-link [[req_your_data]]
+  it("asks in the preset sheet's words, its settings staying", () => {
+    expect(presetConfirmationCopy('Late night')).toEqual({
+      title: 'Delete the preset “Late night”?',
+      paragraphs: ['Your settings stay as they are.', "This can't be undone."],
+      confirmLabel: 'Delete preset',
+      cancelLabel: 'Cancel',
+    })
+  })
+})
+
+// @test-link [[rule_delete_everything]]
+describe("Delete everything's confirmation", () => {
+  // @test-link [[rule_delete_everything]]
+  it('names the presets among what goes', () => {
+    expect(confirmationCopy('everything', 0).paragraphs[0]).toBe(
+      'This deletes everything the app keeps on this device: your settings, your presets, your instrument, the remembered controller and every kept session, with its favorite phrases, comments and played notes. The page then reloads and starts as on a first visit.',
+    )
   })
 })

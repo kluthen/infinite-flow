@@ -6,6 +6,7 @@ import {
   presetBarFullText,
   presetBarGroups,
   presetDescription,
+  playerPresetsInBoxOrder,
   type SessionStartSettings,
 } from '@/components/controls/preset-bar-model'
 import { presetLabel } from '@/domain/controls/preset-label'
@@ -84,6 +85,27 @@ describe('presetBarGroups', () => {
     expect(presetBarGroups(renamed)[1]!.options[0]).toEqual({ value: 'jazz', label: 'Swing' })
     const withoutReel = BUILT_IN_PRESETS.filter((preset) => preset.id !== 'reel')
     expect(() => presetBarGroups(withoutReel)).toThrow(/reel/)
+  })
+})
+
+// @test-link [[module_preset_bar_model]]
+describe('playerPresetsInBoxOrder', () => {
+  // @test-link [[module_preset_bar_model]]
+  // @test-link [[rule_player_preset_names]]
+  it('gives the player presets alphabetical ignoring case, duplicates in their given order, no built-in', () => {
+    expect(playerPresetsInBoxOrder(PRESETS).map((preset) => preset.id)).toEqual([
+      'p-alpha',
+      'p-beta',
+      'p-late-1',
+      'p-late-2',
+      'p-zed',
+    ])
+    const swapped = [...BUILT_IN_PRESETS, PLAYER_PRESETS[4]!, PLAYER_PRESETS[2]!]
+    expect(playerPresetsInBoxOrder(swapped).map((preset) => preset.id)).toEqual([
+      'p-late-2',
+      'p-late-1',
+    ])
+    expect(playerPresetsInBoxOrder(BUILT_IN_PRESETS)).toEqual([])
   })
 })
 

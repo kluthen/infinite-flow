@@ -1,7 +1,7 @@
 /**
- * Shared steps of the Your data specs (./your-data.spec.ts, ./your-data-deletions.spec.ts): the
- * sheet, its openers, its sections'
- * lines and actions, a stub of the browser's storage manager (the space used, whether the data is
+ * Shared steps of the Your data specs (./your-data.spec.ts, ./your-data-deletions.spec.ts,
+ * ./your-data-presets.spec.ts): the sheet, its openers, its sections' lines and actions, the
+ * Presets section's rows, a stub of the browser's storage manager (the space used, whether the data is
  * persistent) installed by an init script, and the kept-session stores read back through the
  * harness's storage seam.
  */
@@ -22,6 +22,26 @@ export const OUTDATED_NOTICE =
   "A newer version of the app saved this data, so it isn't listed here, and nothing can be deleted until the page is reloaded. Reload the page to see it."
 export const OUTDATED_DEFAULTS_NOTICE =
   "Your saved data couldn't be read in this visit, so it isn't listed here. A newer version of the app has also saved data on this device, so nothing can be deleted until the page is reloaded. Reload the page to use the newer version."
+/** The Settings section's line (spec D381). */
+export const SETTINGS_LINE =
+  "The phrase controls, the preset, the instrument choice, the theme, the audio mix, the During a session options and the review's choices. They come back as you left them."
+/** The Presets section's lines with no player preset. */
+export const NO_PRESETS = ['None.', 'Save one with Save as new preset, in the controls.']
+/** The Presets section's hint with at least one player preset. */
+export const PRESETS_HINT =
+  'Delete one here, or with Delete preset in the controls. Delete everything removes them all.'
+/** The Overview's section headings, in order. */
+export const OVERVIEW_HEADINGS = [
+  'Settings',
+  'My instrument',
+  'Presets',
+  'Controller',
+  'Sessions',
+  'Played notes',
+  'Space used',
+  'Protection',
+]
+
 /** The notice row's outdated wording when the tab read its saved data (spec D300, D331). */
 export const OUTDATED_ROW_NOTICE =
   'A newer version of Infinite Flow has saved data on this device. Reload this page to use it; until then, nothing here is saved.'
@@ -104,6 +124,16 @@ export function sectionLines(page: Page, heading: string): Promise<string[]> {
 /** Intent: the headings of the sheet's sections, in order. */
 export function sectionHeadings(page: Page): Promise<string[]> {
   return yourDataSheet(page).locator('.sheet-section > h3').allInnerTexts()
+}
+
+/** Intent: the names the Presets section lists, one per row, in order. */
+export function presetRowNames(page: Page): Promise<string[]> {
+  return section(page, 'Presets').locator('.sheet-list-row > span').allInnerTexts()
+}
+
+/** Intent: the `Delete` of the Presets row of the preset named `name`, by its accessible name. */
+export function presetDelete(page: Page, name: string): Locator {
+  return sheetButton(page, `Delete preset ${name}`)
 }
 
 /** Intent: the sheet's buttons' names, in order. */
