@@ -3,27 +3,27 @@ id: rule_held_doodle_dropped_on_change
 status: DRAFT
 dependents: []
 layer: BUSINESS
-human_name: What Drops a Held Doodle
+human_name: How Long Jam Mode Keeps a Doodle
 tags: [v3, release-v3.2, session, jam, idle]
 parents:
   - [[rule_jam_again_on_this_doodle]]
 type: RULE
-version: 0.2
+version: 0.3
 priority: 1
 ---
 
-# What Drops a Held Doodle
+# How Long Jam Mode Keeps a Doodle
 
 ## INTENT
-Keep a held doodle only while the phrases prepared from it still match the settings.
+Keep the player's doodle ready for another Jam until they choose otherwise.
 
 ## THE RULE / LOGIC
-Regenerate, Use it and the end of a Jam played on the held doodle keep it held. Every other change that discards the pre-generated phrases drops it, and its key and mode suggestion with it: a control, a figure level, a preset choice, the instrument, the Jam switch turned off, the rhythm lock, its allowed rhythm changes, the drift, Vary settings and its allowed groups, and Tension across phrases. The tempo, Rising tempo, the audio mix and the theme do not drop it. A controller lost at Idle drops it, since Jam mode leaves with it. Idle then shows what Jam mode shows without a held doodle or, with Jam out of effect, the empty workspace, as at first load: nothing is generated until the player asks for a phrase.
+After every Jam that reached phrase 1, Jam mode keeps that Jam's doodle, the kept doodle, for the next Jam. The kept doodle goes only when the player asks for a new doodle, an explicit action at Jam mode's Idle, after which Idle shows no phrase and the next Jam captures a new doodle; when the player leaves Jam mode; or when the player deletes the kept Jam session it comes from, one session or by Delete everything, since deleted data is gone and a later Jam cannot put it back into a kept session. The session a kept doodle comes from is the latest session played on it: a Jam on the kept doodle keeps the same doodle in its own session, so when that Jam's session replaces an earlier unpinned one, the doodle stays. Every other change keeps it. Its key and mode suggestion goes with it.
 
 ## TECHNICAL INTERFACE
-Changes at Idle that discard pre-generated phrases also clear the held doodle.
+A new-doodle action at Jam mode's Idle lets the kept doodle go.
 
 ## EXPECTATION
-- Any discarding change other than Regenerate and Use it drops the held doodle and its suggestion.
-- The tempo, Rising tempo, the audio mix and the theme leave it held, and so does the end of a Jam played on it.
-- A held doodle dropped with Jam out of effect leaves the workspace empty until the player asks for a phrase.
+- After a Jam that reached phrase 1, its doodle is kept at Jam mode's Idle.
+- The kept doodle goes only on a new doodle, on leaving Jam mode, or when the player deletes the latest kept session played on it.
+- When a Jam on the kept doodle replaces an earlier unpinned session, the doodle stays kept.

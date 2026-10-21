@@ -7,22 +7,22 @@ layer: BUSINESS
 priority: 1
 parents:
   - [[req_jam]]
-version: 0.1
-human_name: Jam Needs a Controller
+version: 0.2
+human_name: Starting a Jam Needs a Controller
 tags: [v3, release-v3.2, session, jam, midi]
 ---
 
-# Jam Needs a Controller
+# Starting a Jam Needs a Controller
 
 ## INTENT
-Offer Jam only when the doodle can be played, without losing the player's choice.
+Let the player enter Jam mode and set it up at any time, and start a Jam only when the doodle can be played.
 
 ## THE RULE / LOGIC
-Jam needs a controller attached, that is, a selected controller that is connected. Without one, the Jam switch is unavailable and says why, as Rising tempo does, and the player's choice is kept: while no controller is attached, Idle and Start behave exactly as with Jam off. A controller attaching at Idle puts Jam mode in effect, exactly as turning the switch on does; a controller lost at Idle takes it out, exactly as turning the switch off does.
+A Jam needs a MIDI controller attached, that is, a selected controller that is connected, since the doodle is played on it. Without one, Jam mode still opens and its settings can be set, but its Start is unavailable and says why, as Rising tempo does without a controller. A controller attaching or leaving never switches the mode: a mode the player chose with a button never changes by itself.
 
 ## TECHNICAL INTERFACE
-Jam mode is in effect while the switch is on and a controller is attached.
+Jam mode's Start is unavailable, with its reason, while no controller is attached.
 
 ## EXPECTATION
-- Without a controller attached the switch is unavailable with its reason, the choice is kept, and Start runs a session as with Jam off.
-- A controller attaching or being lost at Idle puts Jam mode in or out of effect as turning the switch on or off would.
+- Without a controller attached, Jam mode opens, its settings can be changed, and its Start is unavailable and states why.
+- A controller attaching or being lost never switches between session mode and Jam mode.

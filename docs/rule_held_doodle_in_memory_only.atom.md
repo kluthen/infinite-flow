@@ -8,20 +8,20 @@ priority: 1
 dependents: []
 type: RULE
 layer: BUSINESS
-version: 0.1
-human_name: A Held Doodle Lives in Memory Only
+version: 0.2
+human_name: A Kept Doodle Lives in Memory Only
 ---
 
-# A Held Doodle Lives in Memory Only
+# A Kept Doodle Lives in Memory Only
 
 ## INTENT
-Keep the held doodle a short-lived convenience, not something saved.
+Keep the kept doodle a convenience of the visit, not something saved.
 
 ## THE RULE / LOGIC
-A held doodle is never saved. After a reload Idle holds none; the kept Jam session's review offers it again.
+A kept doodle is never saved. After a reload the app opens in session mode and keeps no doodle; a kept Jam session's review offers its doodle again through Jam again on this doodle.
 
 ## TECHNICAL INTERFACE
-The held doodle is page state only.
+The kept doodle is page state only.
 
 ## EXPECTATION
-- After a reload no doodle is held, and the kept Jam session's review offers Jam again on this doodle.
+- After a reload no doodle is kept, and a kept Jam session's review offers Jam again on this doodle.

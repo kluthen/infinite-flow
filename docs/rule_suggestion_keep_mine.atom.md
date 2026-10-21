@@ -4,7 +4,7 @@ status: DRAFT
 type: RULE
 layer: BUSINESS
 human_name: Keep Mine Declines the Suggestion for Good
-version: 0.1
+version: 0.2
 priority: 1
 tags: [v3, release-v3.2, jam, key-and-mode-suggestion]
 parents:
@@ -18,7 +18,7 @@ dependents: []
 Respect a declined suggestion: never offer it again for that doodle.
 
 ## THE RULE / LOGIC
-Keep mine changes nothing, and that doodle's suggestion is not offered again, since the same doodle would give the same answer. The decline is kept with the kept Jam session, so its review, and a doodle held from it, do not offer it again, after a reload included.
+Keep mine changes nothing, and that doodle's suggestion is not offered again, since the same doodle would give the same answer. The decline is kept with the kept Jam session, so its review, and a doodle Jam mode keeps from it, do not offer it again, after a reload included.
 
 ## TECHNICAL INTERFACE
 A decline is stored with the kept Jam session.

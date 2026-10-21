@@ -9,7 +9,7 @@ tags: [v3, release-v3.2, session, jam, privacy, storage]
 parents:
   - [[rule_raw_doodle_notes_are_played_notes]]
 dependents: []
-version: 0.1
+version: 0.2
 ---
 
 # Deleting Played Notes Keeps the Quantized Doodle
@@ -18,7 +18,7 @@ version: 0.1
 Let the player remove their playing without breaking the music it generated.
 
 ## THE RULE / LOGIC
-Deleting a kept Jam session deletes its doodle in both forms. Deleting a session's played notes, for one session or every session, deletes the raw doodle notes and keeps the quantized doodle, which belongs to the music.
+Deleting a kept Jam session deletes its doodle in both forms, and lets go a doodle Jam mode kept from it. Deleting a session's played notes, for one session or every session, deletes the raw doodle notes and keeps the quantized doodle, which belongs to the music.
 
 ## TECHNICAL INTERFACE
 Deletion of played notes removes raw doodle notes only.

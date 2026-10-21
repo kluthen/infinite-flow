@@ -7,7 +7,7 @@ tags: [v3, release-v3.2, session, jam, review]
 parents:
   - [[req_jam]]
 type: RULE
-version: 0.2
+version: 0.3
 human_name: Jam Again on This Doodle
 dependents:
   - [[rule_held_doodle_dropped_on_change]]
@@ -19,15 +19,15 @@ dependents:
 # Jam Again on This Doodle
 
 ## INTENT
-Let the player go round again on the same idea, as often as they like.
+Let the player go round again on the idea of a kept Jam session, after a reload too.
 
 ## THE RULE / LOGIC
-Jam again on this doodle is offered in the review of the Jam that just ended and in the review of any kept Jam session. Choosing it leaves the review for Idle with that doodle held, and turns the Jam switch on if it was off. Like the switch, it needs a controller: without one it is unavailable and says why. Choosing it does not answer a key and mode suggestion. It is the only way a doodle becomes held: a doodle captured by a fresh Jam, one started without a held doodle, is never held by itself.
+Jam again on this doodle is offered in the review of a kept Jam session opened from the session list, in either mode. Choosing it leaves the review for Jam mode's Idle, entering Jam mode if needed, with that session's doodle kept in place of any other. Without a controller it still opens Jam mode with the doodle kept, and Jam's Start says why it is unavailable. Choosing it does not answer a key and mode suggestion. The review that follows a Jam does not offer it: Jam mode keeps that Jam's doodle already.
 
 ## TECHNICAL INTERFACE
-The review of a Jam offers Jam again on this doodle.
+The review of a kept Jam session opened from the session list offers Jam again on this doodle.
 
 ## EXPECTATION
-- Jam again on this doodle appears in the review of the Jam just ended and of every kept Jam session, and is unavailable with its reason without a controller.
-- Choosing it leads to Idle with the doodle held and Jam on.
-- After a fresh Jam, Idle holds no doodle unless the player chooses Jam again on this doodle.
+- Jam again on this doodle appears in the review of every kept Jam session opened from the session list, in session mode and in Jam mode.
+- Choosing it leads to Jam mode's Idle with that doodle kept, entering Jam mode if needed, with or without a controller.
+- Choosing it leaves a key and mode suggestion unanswered.

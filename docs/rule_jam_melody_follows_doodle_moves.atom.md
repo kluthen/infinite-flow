@@ -1,7 +1,7 @@
 ---
 id: rule_jam_melody_follows_doodle_moves
 status: DRAFT
-version: 0.1
+version: 0.2
 priority: 1
 dependents: []
 type: RULE
@@ -18,7 +18,7 @@ layer: BUSINESS
 Give the phrases the same ups and downs as the doodle.
 
 ## THE RULE / LOGIC
-Pitch candidates are ordered to follow the doodle's moves: for each note of a phrase, the next move of the doodle (up, down or the same note; a step of 1 or 2 half steps, a skip of 3 or 4, or a leap of 5 or more), cycled in order. The drift position decides how much: direction and size at Close, direction only at Near, nothing at Free. The preference orders candidates within each rank of the existing order (chord tones first, and favored figures where they are drawn), never across ranks.
+Pitch candidates are ordered to follow the doodle's moves, which the steering block carries as a list in the doodle's order: for each note of a phrase, the next move (up, down or the same note; a step of 1 or 2 half steps, a skip of 3 or 4, or a leap of 5 or more), cycled in order. The block's strength, set by the drift position, decides how much: direction and size at Close, direction only at Near, nothing at Free. The preference orders candidates within each rank of the existing order (chord tones first, and favored figures where they are drawn), never across ranks.
 
 ## TECHNICAL INTERFACE
 Pitch candidates are ordered by agreement with the doodle's next move within each existing rank.
