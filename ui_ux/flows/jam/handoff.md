@@ -77,7 +77,7 @@ flowchart TD
   HR -->|"Start Jam, or phrase 1's first note: a start as from Ready, no capture"| JS["flows/play-session/ (jam-bar held still, its buttons disabled)"]
   JS -->|"Session end: the review opens; the doodle still kept; out of sight a new phrase 1 from it, fresh seed"| RJ
   JS -->|"Ended before phrase 1 sounds: the doodle still kept"| HR
-  HR & HE -->|"New doodle"| JI["Jam mode at Idle, no kept doodle (staff-jam); focus on Start Jam, or on mode-switch when Start Jam is disabled"]
+  HR & HE -->|"New doodle"| JI["Jam mode at Idle, no kept doodle (staff-jam); focus on Start Jam, or on controller-status when Start Jam is disabled"]
   HR & HE -->|"Its kept session deleted, or Delete everything"| JI
   HR & HE -->|"Session pressed: Jam mode left, the doodle let go"| SM["Session mode exactly as left"]
   HR -->|"Page reloaded"| GONE["Session mode at load; no doodle kept"]

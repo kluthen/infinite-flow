@@ -117,7 +117,8 @@ waits for the owner's go.
   `screens/session-list/`, `flows/kept-sessions/`, `flows/saved-data/`, `screens/your-data/`.
   Written 2026-10-21. Details settled while writing A, B and C: ux D345.
 - **Validation.** `ux-critic` on the re-scope: DRIFT, five findings, all fixed (ux D346), Q87
-  logged for `spec-writer`.
+  logged for `spec-writer`; recheck: one stale diagram label, fixed. Validated for the owner's
+  review.
 
 ## Remaining
 
