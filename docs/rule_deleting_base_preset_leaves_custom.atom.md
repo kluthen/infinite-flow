@@ -1,6 +1,6 @@
 ---
 id: rule_deleting_base_preset_leaves_custom
-status: DRAFT
+status: REVIEW
 type: RULE
 human_name: Deleting the Selected Preset Leaves Custom
 parents:

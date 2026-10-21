@@ -1,6 +1,6 @@
 ---
 id: module_player_presets
-status: DRAFT
+status: REVIEW
 layer: ARCHITECTURE
 version: 0.4
 priority: 1

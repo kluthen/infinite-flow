@@ -1,6 +1,6 @@
 ---
 id: rule_refused_preset_save_told
-status: DRAFT
+status: REVIEW
 human_name: A Refused Preset Save Is Told at Once
 tags: [v3, release-v3.1, player-controls, presets, storage]
 layer: BUSINESS
