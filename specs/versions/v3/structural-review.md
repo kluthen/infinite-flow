@@ -1,6 +1,6 @@
 # v3.4 — Structural Review
 
-Status: draft v1 (2026-10-21; scoping only, D389). Nothing here is decided beyond the milestone's
+Status: draft v1.1 (2026-10-21; scoping only, D389; the lexicon page noted, D393). Nothing here is decided beyond the milestone's
 existence and its placement. The analysis itself has not started; this draft frames the
 questions it must answer and does not answer them.
 
@@ -29,7 +29,10 @@ ranked recommendations the owner can take, defer or drop.
 
 ## 3. What it is not
 
-- **No new player-facing behaviour.** Nothing a player sees or hears changes because of v3.4.
+- **No new player-facing behaviour.** Nothing a player sees or hears changes because of the
+  review. v3.4's one player-facing item, the [lexicon page](lexicon-page.md) (D393, amending
+  D389), is a separate small build; the review measures the app with it, its own size budget
+  included (O242, O245).
 - **Not a rewrite.** The analysis reads and measures; it changes no code. Any refactor it
   recommends is built later, only once the owner chooses it, as ordinary build-plan chunks.
 - **Not a re-decision of settled product rules.** The master spec parts and the declared intent

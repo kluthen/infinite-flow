@@ -4,7 +4,8 @@ Status: v3.0 released as version 3.0.0 on 2026-10-16 (tag `v3.0.0` at e288d98, d
 D348); v3.1 and v3.2 consolidated as master spec Parts B and C, approved (D239), the v3.1 design
 approved (D353), v3.1's build plan approved (D357), v3.2's not approved; v3.3 in
 master spec Part D, awaiting owner approval (D264–D275), its build plan not approved (D276–D288,
-D351); v3.4, a structural review before v4, opened as a scoping draft (D389); v3.x direction
+D351); v3.4, a structural review before v4, opened as a scoping draft (D389), with a lexicon page added
+as its one player-facing item (D393); v3.x direction
 only. The Status paragraph this README kept
 until the v3.0 release is archived verbatim in
 [archive/v3/v3-readme-status.md](../../archive/v3/v3-readme-status.md).
@@ -20,7 +21,7 @@ Also every tester on an instrument v1 doesn't ship. See [personas](../../persona
 | **v3.1** | Generation choices              | [Embellishment flags](#embellishment-flags), [presets](#presets)                                                                                                                                                                                                                                                                        |
 | **v3.2** | Jam                             | [Jam](#jam-growing-the-players-doodle), the [key and mode suggestion](#key-and-mode-suggestion), the [rhythm lock and mutation](#rhythm-lock-and-mutation)                                                                                                                                                                              |
 | **v3.3** | Richer chords (optional) (D261) | [Richer chords](#v33--richer-chords-optional), opt-in, after a [research phase](#research-first) (D262)                                                                                                                                                                                                                                 |
-| **v3.4** | Structural review (D389)        | [Structural review](#v34--structural-review): no player-facing change; a clear view of the code before v4 ([scoping draft](structural-review.md))                                                                                                                                                                                       |
+| **v3.4** | Structural review (D389)        | [Structural review](#v34--structural-review): a clear view of the code before v4, no player-facing change ([scoping draft](structural-review.md)); the [lexicon page](#the-lexicon-page-d393), every lexicon word A–Z and by search (D393; [scoping draft](lexicon-page.md))                                                            |
 | **v3.x** | Kept, likely to move or go      | [Learning from positive signals](#v3x--learning-from-positive-signals)                                                                                                                                                                                                                                                                  |
 
 - **v3.0 master spec:** [master-spec.md](master-spec.md) (D217), consolidated from the approved
@@ -54,6 +55,10 @@ Also every tester on an instrument v1 doesn't ship. See [personas](../../persona
   review of the app before v4's endgame work, with no player-facing change. It is the last v3
   milestone, after v3.3; the owner sees no need to run it earlier (D389). Scoping draft:
   [structural-review.md](structural-review.md).
+- **v3.4 also builds a lexicon page** (D393), the owner's side project of 2026-10-21: a page
+  listing every lexicon word, A–Z and by search, read from the lexicon file alone (D394). It is
+  v3.4's one player-facing item, so D389's "no player-facing change" now holds for the review only.
+  Scoping draft: [lexicon-page.md](lexicon-page.md). Its second step, an API, is v4 or v5 (D395).
 - **v3.0.1 is merged into v3.0** (D212), the owner: "v3.0.1 could very well be just included
   into v3.0". This also settles where keeping sessions goes: with the review of earlier sessions
   that needs it.
@@ -707,6 +712,21 @@ No player-facing behaviour. Its scope, the questions it must answer, its deliver
 what are in the scoping draft, [structural-review.md](structural-review.md). It is the last v3
 milestone, after v3.3 and before v4; the owner: "leave it for the last milestone of v3, there is no
 need to run it prior" (D389). Open: O234–O238 ([register](../../open-questions.md#v34-structural-review-o234)).
+
+### The lexicon page (D393)
+
+Recorded 2026-10-21 (D393), the owner's side project, in their words: "shape a side project that
+shouldn't be too onerous: we have a lexicon that sits mostly idle here, have a side page to our
+app reference all words in there, it must allow alphabetical exploration, simple search. Note it
+must use existing md files and not duplicate information. That's for step one (include it in 3.4).
+For later (v4 or v5 depending on how they goes) we will turn this in a proper API."
+
+v3.4's one player-facing item, independent of the structural review (D393 amends D389). Its only
+source is [`docs/music/lexicon.md`](../../../docs/music/lexicon.md), read when the app is built
+(D394). Its scope, what the code requires of it, and who does what are in its own scoping draft,
+[lexicon-page.md](lexicon-page.md), kept apart from the review's draft because it is built, not
+analysed. The API is v4 or v5 (D395). Open: O239–O246
+([register](../../open-questions.md#v34-lexicon-page-o239)).
 
 ## v3.x — Learning from positive signals
 

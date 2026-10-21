@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.114
+Status: draft v2.115
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -21,7 +21,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and each milestone
 folder's README, such as [archive/v3/README.md](archive/v3/README.md)). Numbering continues from
-**D391**.
+**D396**.
 
 Live here: D228–D251 (v3.1 and v3.2, not built yet), D259–D260 (style packs, planned with no
 version, and the sound ban; merged from branch `v4-accompaniment-research`), D261–D288 (v3.3, not
@@ -29,7 +29,8 @@ built yet; D263–D288 merged from branch `v3.3-chord-research`), D344–D348 (t
 its follow-ups) and D349–D358 (the v3.1–v3.3 plan migrations, merged from branch
 `plan-migration` as D339–D341, the v3.1 plan's gates and approval, and B12's code check) and
 D359–D363 (the owner's rulings during v3.1's wave 0), D364–D388 and D390 (the v3.1 build's rulings,
-preflight corrections and sign-offs) and D389 (v3.4 opened). D289 is unused.
+preflight corrections and sign-offs), D389 (v3.4 opened), D391–D392 (v3.1's release gate) and
+D393–D395 (the lexicon page in v3.4, its single source, the lexicon API later). D289 is unused.
 
 ## Decision Log
 
@@ -951,3 +952,20 @@ preflight corrections and sign-offs) and D389 (v3.4 opened). D289 is unused.
   but those three checks; the owner's go and the `3.1.0` tag wait on them. Now in:
   [hand checks](versions/v3/build-plan-v3.1.md#hand-checks),
   [chunk 21](versions/v3/build-plan-v3.1.md#chunk-21--v31-release-gate) (plan v21).
+
+- **D393 (2026-10-21): v3.4 also builds a lexicon page, step one of a side project; D389 is
+  amended.** The owner: "have a side page to our app reference all words in there, it must allow
+  alphabetical exploration, simple search … That's for step one (include it in 3.4)". Lazy-loaded,
+  offline, `src/styles/` only, keyboard use; out: editing, word popups, the API. D389's "no
+  player-facing behaviour" now describes the structural review only. Opens O239–O246. Now in:
+  [lexicon page](versions/v3/lexicon-page.md#2-settled), [v3.4](versions/v3/README.md#the-lexicon-page-d393).
+
+- **D394 (2026-10-21): the lexicon page's only source is `docs/music/lexicon.md`.** The owner: "it
+  must use existing md files and not duplicate information". Read at build time; no hand-copied
+  list, no second list, no generated file committed; a lexicon edit shows with no other change,
+  and a check proves it. Now in: [lexicon page §5](versions/v3/lexicon-page.md#5-the-single-source-d394).
+
+- **D395 (2026-10-21): the lexicon becomes "a proper API" in v4 or v5, the version decided
+  later.** The owner: "For later (v4 or v5 depending on how they goes) we will turn this in a
+  proper API." Not specced. Now in:
+  [roadmap](roadmap.md#planned-v4-or-v5--the-lexicon-api).

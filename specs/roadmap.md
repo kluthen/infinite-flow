@@ -1,6 +1,6 @@
 # Infinite Flow Roadmap
 
-Status: draft v1.13 (rewritten 2026-09-25 after the persona and vision session; browser scope
+Status: draft v1.14 (rewritten 2026-09-25 after the persona and vision session; browser scope
 added 2026-09-28, D127; review candidates added 2026-09-28, D128; session-keeping candidates and
 export by content added 2026-09-28, D129; favorites moved to v3 2026-09-28, D130; staff-only
 session view placed in v5 2026-09-28, D133; v2 replanned 2026-10-03: real-hardware checks as
@@ -18,7 +18,8 @@ as planned, version not yet assigned, 2026-10-11, D259, merged from branch
 `v4-accompaniment-research` 2026-10-19; v3.3, richer chords, added after v3.2 2026-10-12, D261;
 its chord research started as a separate item, D262; v3.3 master spec Part D, awaiting owner
 approval, 2026-10-12, D264–D274; v3.0 released as 3.0.0 2026-10-16, D348; v3.4, a structural
-review, added as the last v3 milestone 2026-10-21, D389)
+review, added as the last v3 milestone 2026-10-21, D389; the lexicon page added to v3.4 and the
+lexicon API planned for v4 or v5, 2026-10-21, D393–D395)
 
 This is an ordered timeline with no dates. Each version's scope lives in its folder under
 [versions/](versions/README.md). The principles every version follows are in the
@@ -110,6 +111,10 @@ record is archived at [archive/v2/](archive/v2/README.md).
   - **v3.4, structural review (D389):** the last v3 milestone, after v3.3: a clear view of the code
     before v4 (soundness for expansion, the entry budget, refactors worth taking, a split into
     libraries), with no player-facing change. [Scoping draft](versions/v3/structural-review.md).
+    v3.4 also builds the **lexicon page** (D393): every word of the music lexicon, A–Z and by
+    search, read from the lexicon file alone (D394); v3.4's one player-facing item.
+    [Scoping draft](versions/v3/lexicon-page.md). Its second step is the
+    [lexicon API](#planned-v4-or-v5--the-lexicon-api).
   - **v3.x:** learning from positive signals, tied to recognising played signal patterns (cues,
     D212; mandatory for the endgame); kept for now, likely to be removed or moved later.
   - Dropped (D211): the end-of-measure chord-fit check, review tooling, and the two
@@ -191,6 +196,21 @@ record is archived at [archive/v2/](archive/v2/README.md).
   [identity modelling](../docs/music/identity-modelling.md),
   [music reference](../docs/music/README.md),
   [sound library survey](../docs/sound-library-survey.md).
+
+### Planned, v4 or v5 — The lexicon API
+
+- **Status:** planned for v4 or v5, the version decided later (D395). Not specced.
+- **The owner's words** (2026-10-21): "For later (v4 or v5 depending on how they goes) we will turn
+  this in a proper API."
+- **Builds on:** v3.4's [lexicon page](versions/v3/lexicon-page.md), step one, which reads
+  [`docs/music/lexicon.md`](../docs/music/lexicon.md) at build time as its only source (D394).
+  Proposed, not a requirement: step one's parser is a plain module with no browser or build-tool
+  code, so the API can reuse it.
+- **To settle when it is specced:** who calls the API (the app's own word popups, the endgame's
+  game, outside tools); whether it is a code library, a static data file served with the app, or a
+  service with a server, the last of which would be the app's first server and goes against
+  "nothing is sent" and the browser-only rule (`req_browser_only_first_release`). Not yet in the
+  open-questions register.
 
 ### 4. v5+ — Library and microphone
 

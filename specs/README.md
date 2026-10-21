@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.78
+Status: draft v0.79
 
 ## Status Snapshot
 
@@ -64,15 +64,19 @@ Status: draft v0.78
   - **v3.4:** a structural review before v4, with no player-facing change: soundness for
     expansion, the entry budget, refactors worth taking, a split into libraries. The last v3
     milestone, after v3.3 (D389); [scoping draft](versions/v3/structural-review.md), the analysis
-    not started.
+    not started. v3.4 also builds a **lexicon page**, its one player-facing item (D393, amending
+    D389): every lexicon word, A–Z and by search, read from `docs/music/lexicon.md` alone (D394);
+    [scoping draft](versions/v3/lexicon-page.md), a separate draft because it is built, not
+    analysed. Its second step, the lexicon as an API, is planned for v4 or v5 (D395,
+    [roadmap](roadmap.md#planned-v4-or-v5--the-lexicon-api)).
   - **v3.x:** learning from positive signals, with recognising played signals (D213, D214);
     likely to move or go. Rhythm ratios and the rhythm editor are v4; the chord-fit check, review
     tooling and the two controller-connection ideas are dropped (D211).
-- **Open:** 17 questions: O48 and O49 (later and governance), O100–O102 (v4 rhythm), O115 and
+- **Open:** 25 questions: O48 and O49 (later and governance), O100–O102 (v4 rhythm), O115 and
   O116 (v3.x learning), O176 (style packs and the chord level), O180 (octave signs, later), O183
   (pre-generation's cancellation cost), O190 (a newer version's database whose read-only
-  reopening fails), O230 (a stale replay-key wording in a STABLE atom) and O234–O238 (v3.4's
-  structural review). See the
+  reopening fails), O230 (a stale replay-key wording in a STABLE atom), O234–O238 (v3.4's
+  structural review) and O239–O246 (v3.4's lexicon page). See the
   [register](open-questions.md).
 - The snapshots this index kept through v2's design and build and through v3.0's are archived
   verbatim at [archive/v2/readme-status-snapshot.md](archive/v2/readme-status-snapshot.md) and

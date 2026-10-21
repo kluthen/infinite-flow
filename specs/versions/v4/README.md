@@ -56,6 +56,12 @@ Status: direction (2026-09-25; the rhythm ratios and the rhythm editor moved her
   - Related: O57, the backing's voicing and timbre listening test
     ([open questions](../../open-questions.md)).
 
+## Here or in v5: the lexicon API (D395)
+
+The owner, 2026-10-21: "For later (v4 or v5 depending on how they goes) we will turn this in a
+proper API." Built on v3.4's [lexicon page](../v3/lexicon-page.md). Which version takes it is
+decided later; its record is in the [roadmap](../../roadmap.md#planned-v4-or-v5--the-lexicon-api).
+
 ## Depends on
 
 - v2's backing and audio timing, and v3's continuation from outside material.
