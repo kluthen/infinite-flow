@@ -738,3 +738,26 @@ saves. Later: `rule_custom_selection` / `module_profile_control_customization` o
 opened as a structural review, the last v3 milestone (D389, O234–O238; spec-writer 5497b64). L1
 and L2 stay open for the owner's v3.1 H1 and H2; then the release gate (chunk 21). Wave 5 merged
 into `main`.
+
+## Release gate (chunk 21, 2026-10-21)
+
+Branch `v3.1-release`, worktree `../infinite_flow-v3.1-release`, cut from `main` 0425fe6. The
+owner passed v3.1 H1 and H2 on his word (D391: gates L1 and L2 done, no tuning) and keeps H3, H4
+and H5 for later; the go and the `3.1.0` tag wait on them (D392). Plan v21 (0f1a8c1).
+
+- `ux-writer` (5abdf50, ux D326): no v3.1 handoff names a class missing from `src/styles/`; the
+  frozen set corrected to what ships (56aea52: `preset-status` wording, the rejected rule).
+- Automated part, `coding-leader`, merged as 6a25f27 (0a7ff07): release notes with 23 rows; final
+  M2 (15:11–15:27, `COST_SETTINGS=all`) and M1 (15:30–15:47) on the reference machine (AMD Ryzen 5
+  PRO 8640HS), every count equal to chunk 11's, acceptance met, DP closed; sweep 16 tests; corpora
+  and goldens 454 tests, fixtures unchanged; privacy spy extended with saved player presets; entry
+  265,431 B (budget 307,200); `quality` run 1 (15:57) two load timeouts (`session-ends`,
+  `presets-load`; load above 9, another session's job running), pass alone, run 2 (16:06–16:14)
+  green: unit 7,550, Playwright 557 + 557, a11y 59, notation 107. Lexicon "planned" leftovers
+  fixed; `package.json` 3.1.0.
+- Release sync, `documentalist` 1fa0bdf and 9dcc031 (notes paragraph): every `changes-in-v3.1`
+  atom revised; `service_generation_result_validation` 0.4; the tag removed from 13 non-STABLE
+  atoms (7 STABLE keep it until the owner allows `--force`); change set part K; item 23's record
+  found (contract notes; the numbers in the change set). For the owner: promotions (11 DRAFT →
+  REVIEW now, one with a rewording; 41 REVIEW → STABLE, of which 11 wait on H3–H5, with CONTRACT
+  7.1.0), and whether MODULE and ENTITY atoms join the contract.
