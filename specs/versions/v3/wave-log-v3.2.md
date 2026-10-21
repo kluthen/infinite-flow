@@ -85,3 +85,20 @@ preflight correction needs none.
   Risk sent to `spec-writer` for chunk 15: the draws corpus hashes the full `SessionSettings`;
   when chunk 15 adds fields, the test must compare the v3.1 keys only (all six groups on), and the
   fixture is never regenerated.
+- `spec-writer` wrote chunk 2's risk into the plan (v9, 80abdaa): chunk 15's Done when compares the
+  draws corpus on `SessionSettings`' v3.1.0 keys only, with each row's move, draw count and
+  selection exact; chunk 16 likewise if its lock state lands in `SessionSettings`; the corpus
+  guard bullet says the fixtures are never regenerated.
+
+### Wave gate (2026-10-21, on 80abdaa)
+
+`npm run quality` on the reference machine, idle (no intent audit): exit 0.
+
+- Unit: 493 files, 7,566 tests passed.
+- `lint:health`: 0 errors (746 warnings, as before).
+- `verify:boundaries`: passed (422 source files, 52 JS chunks within budget).
+- End to end: 557 passed, 1 skipped (2.0 min); pregeneration: 557 passed, 1 skipped (2.1 min);
+  a11y: 59 passed; notation: 107 passed, 4 skipped.
+- `atd:lint` and `atd:check` pass.
+- **Entry chunk: 265,431 B** of 307,200 B (unchanged from 3.1.0; chunk 1's CSS is outside it).
+  No Jam chunk yet.
