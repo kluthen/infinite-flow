@@ -4,8 +4,8 @@ Status: v3.0 released as version 3.0.0 on 2026-10-16 (tag `v3.0.0` at e288d98, d
 D348); v3.1 released as version 3.1.0 on 2026-10-21 (tag `v3.1.0` at 55364e7; D397), its hand
 checks after the tag closed (D399; [v3.1.x notes](#v31x-notes-after-the-tag)); v3.2 consolidated as
 master spec Part C v1.0, approved (D239), re-scoped with Jam as its own mode (D400–D408;
-[draft](jam-mode.md), settled) and consolidated from it as Part C v1.1, awaiting the owner's
-approval (D409), its design and build plan not approved; v3.3 in master spec
+[draft](jam-mode.md), settled) and consolidated from it as Part C v1.1 (D409), approved as v1.2
+(D410), its design approved (D412) and its build plan v4 written, awaiting approval (D416); v3.3 in master spec
 Part D, awaiting owner approval (D264–D275), its build plan not approved (D276–D288, D351); v3.4,
 a structural review before v4, opened as a scoping draft (D389), with a lexicon page added as its
 one player-facing item (D393); v3.x direction only. The Status paragraphs this README kept until
@@ -373,20 +373,22 @@ code loaded on demand, its steering kept at the generator's edges, and a tempo t
 180 BPM. Settled the same day (D406–D408; four answers provisional until the owner's checks):
 Jam's own settings with the rhythm and shape controls taken from the doodle, the tempo set before
 the doodle with tap-in, the mode switched only at Idle, a MIDI controller required, and v3.2 split
-into session-mode work first, then Jam mode. Consolidated into Part C v1.1 on 2026-10-21 (D409);
-the build plan is rewritten after the v3.2 design is approved.
+into session-mode work first, then Jam mode. Consolidated into Part C v1.1 on 2026-10-21 (D409),
+approved as v1.2 the same day (D410); the build plan is rewritten as v4 (D416).
 
 **Consolidated: [master spec, Part C](master-spec.md#part-c--v32).** v1.0 (2026-10-08) was approved
 by the owner on 2026-10-08, with the contract wording it lists confirmed the same day (D239).
-**v1.1 (2026-10-21), rebuilt from the re-scope, awaits the owner's approval** and one sign-off on
-its re-scoped contract wording (CONTRACT 7.2.0 to 8.0.0); seven choices wait for the owner, each
-with a proposed answer (O260–O266; [Part C §C17](master-spec.md#c17-deferred-and-open)).
+v1.1 (2026-10-21) was rebuilt from the re-scope (D409). **v1.2 (2026-10-21) is approved by the
+owner** (D410): v1.1's seven proposed answers (O260–O266), the design's behaviour answers (D411),
+the doodle-to-controls thresholds (D415) and "the kept doodle" (D413) written in. One sign-off on
+its re-scoped contract wording (CONTRACT 7.2.0 to 8.0.0) is still to come, as the build plan's
+gate CS.
 
-**Build plan:** [build-plan-v3.2.md](build-plan-v3.2.md), v3 (2026-10-16), not approved and
-**stale, not to be built from** (D405): it plans v1.0's Jam switch, and is rewritten from Part C
-v1.1 as plan v4 once the v3.2 design is approved (gate D0). It plans v3.2 on top of the [v3.0](build-plan.md) and
-[v3.1](build-plan-v3.1.md) build plans on the build-plan model: 27 chunks in seven waves, then the
-release gate, under the shared [v3 build workflow](build-workflow.md) (D350).
+**Build plan:** [build-plan-v3.2.md](build-plan-v3.2.md), **v4 (2026-10-21), written, awaiting
+the owner's approval** (D416), from Part C v1.2 and the approved design (gate D0, D412). It plans
+v3.2 on top of the [v3.1](build-plan-v3.1.md) build plan on the build-plan model: 32 chunks in eight
+waves, the session-mode half first (waves 0–3), then Jam mode (waves 4–7), one release, then the
+release gate, under the shared [v3 build workflow](build-workflow.md).
 
 **Drafts** (2026-10-08, draft v2, approved by the owner: D232 for the rhythm lock, D234 for the
 rest): [Jam](jam.md), [key and mode suggestion](key-and-mode-suggestion.md),

@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.122
+Status: draft v2.123
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -789,3 +789,10 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   control the nearest value the quantized doodle shows, in integers; an unsupported combination
   raises rhythmic variety only. The listening check confirms them; a correction is a ruling. Now in:
   [Part C §C5.16.1](versions/v3/master-spec.md#c5161-the-doodle-to-controls-mapping).
+
+- **D416 (2026-10-21): build plan v3.2 is rewritten as v4 from Part C v1.2 and the approved design;
+  it awaits the owner's approval.** Two halves, one release: waves 0–3 session mode (with the whole
+  request, `ifk4.` and kept-session shape, so each is taken once), waves 4–7 Jam mode; Jam's code
+  under `src/jam/`, kept out of the entry chunk by a new boundary check; chunk 26 folded into 19;
+  new chunks 28–33, 240 BPM last behind ruling J240; nine scripted hand checks, none on Edge or a
+  phone. Now in: [build plan v3.2](versions/v3/build-plan-v3.2.md).
