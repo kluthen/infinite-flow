@@ -688,3 +688,22 @@ states the passing-and-neighbor rule that DP rejected (D378); chunk 14 does not 
   `rule_pregeneration_discarded_on_change` and the none = any equivalence. Note: through the queue
   key a re-click of the level already set changes nothing, so it may not discard after all; the
   owner's acceptance stands either way.
+
+### Gate
+
+- Run 1 (5b4880e, 09:32): `quality` exit 1 at `lint:health`: `WorkspaceShell.vue` linked 12
+  distinct atoms and `ControlPanel.spec.ts` 13 (limit 10; both at 10 on `main`, pushed over by
+  chunks 14, 17b and 18). Fix 10a16e6 (`coding-executor`, no behaviour change): the four control
+  panel forwarders move word for word, links with them, into `use-control-panel-actions.ts`
+  (shell at 9 atoms); the three Embellishments tests move into `ControlPanel-embellishments.spec.ts`
+  with a shared `control-panel-mount.ts` (spec at 10).
+- Run 2 (10a16e6, 09:36–09:43): unit 491 files, 7,550 tests; Playwright pass 1 557 (1 skipped);
+  pass 2 (pre-generation on) one deterministic failure, `embellishment-levels.spec.ts:200`: the
+  "phrase on screen stays" check counted every generation request, background ones included,
+  which each level change rightly restarts (B8.3). Fix 25f8e0e (test only): count player and
+  session requests only, as `pregeneration.spec.ts` does; `regenerate()` reads the last player
+  request. The app is unchanged.
+- Run 3 (25f8e0e, 09:46–09:55), AMD Ryzen 5 PRO 8640HS: `quality` exit 0. Unit 491 files, 7,550
+  tests; Playwright 557 + 557 (1 skipped each), a11y 59, notation 107 (4 skipped); `atd:lint` and
+  `atd:check` pass. Entry chunk 265,431 B (wave 4: 250,721, +14,710; budget 307,200). No sweep or
+  measurement placed in this wave.
