@@ -581,7 +581,8 @@ Architecture capture: none
 
 ### Chunk 2 — Baselines: the v3.1 corpus, the Vary settings draws and the bundle
 
-Status: in progress
+Status: merged (w0, bdd382c)
+Record: phrase corpus 250 `ifk3.` cases, Vary settings corpus 240 sessions (2,400 landings), both green on `v3.1.0` and on the wave branch; entry chunk 265,431 B on ec221b1; corpus guard command in `docs/testing.md` (12 files, 425 tests, about 15 s).
 Wave: 0
 Depends on: R0 (done)
 Architecture capture: none

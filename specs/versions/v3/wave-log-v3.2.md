@@ -76,3 +76,12 @@ preflight correction needs none.
   (`spec-writer`'s, harmless).
 - Chunk 2 dispatched to `coding-leader` (worktree `../infinite_flow-v3.2-c2`, branch
   `v3.2-c2-baselines`).
+- Chunk 2 merged (66aea49, merge bdd382c, `coding-leader`): phrase corpus 250 `ifk3.` cases
+  (865 kB, 6 tests, about 5 s), Vary settings corpus 240 sessions, 2,400 landings (296 kB, 10
+  tests, about 2 s); both 16/16 on `v3.1.0` (55364e7) and green on the branch; each goes red on a
+  value changed by hand. Entry chunk 265,431 B after `npm run build` on ec221b1 (matches M4;
+  41,769 B headroom). The corpus guard is one command in `docs/testing.md`. Beyond the Files line:
+  a cases module per corpus, two recorder scripts, `.prettierignore` entries.
+  Risk sent to `spec-writer` for chunk 15: the draws corpus hashes the full `SessionSettings`;
+  when chunk 15 adds fields, the test must compare the v3.1 keys only (all six groups on), and the
+  fixture is never regenerated.
