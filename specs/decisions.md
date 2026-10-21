@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.112
+Status: draft v2.113
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -21,14 +21,14 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and each milestone
 folder's README, such as [archive/v3/README.md](archive/v3/README.md)). Numbering continues from
-**D387**.
+**D388**.
 
 Live here: D228–D251 (v3.1 and v3.2, not built yet), D259–D260 (style packs, planned with no
 version, and the sound ban; merged from branch `v4-accompaniment-research`), D261–D288 (v3.3, not
 built yet; D263–D288 merged from branch `v3.3-chord-research`), D344–D348 (the v3.0 release and
 its follow-ups) and D349–D358 (the v3.1–v3.3 plan migrations, merged from branch
 `plan-migration` as D339–D341, the v3.1 plan's gates and approval, and B12's code check) and
-D359–D363 (the owner's rulings during v3.1's wave 0) and D364–D386 (the v3.1 build's rulings and
+D359–D363 (the owner's rulings during v3.1's wave 0) and D364–D387 (the v3.1 build's rulings and
 preflight corrections). D289 is unused.
 
 ## Decision Log
@@ -905,3 +905,10 @@ preflight corrections). D289 is unused.
   during Loading; the player presets composable refuses every action while a session runs. Why:
   saving, renaming and deleting change no setting, and the frozen design keeps `preset-actions`
   enabled during Loading (a minor call, owner delegation). Now in: [chunk 17](versions/v3/build-plan-v3.1.md#chunk-17--preset-management-the-actions-and-the-preset-sheet).
+
+- **D387 (2026-10-21): the preset-list action saves the selection it changes, and only it.**
+  Through `saveSettings`, when the selection given differs from the current one: save as new and
+  save changes from Custom save it, rename never, delete once the record is deleted (Custom with no
+  base for the selection or the base); a refused write still saves it, and the reload loads Custom
+  with no base. Why: B7 saves a selection change at once and loading's "values win" covers the
+  missing record (a minor call, owner delegation). Now in: [chunk 17](versions/v3/build-plan-v3.1.md#chunk-17--preset-management-the-actions-and-the-preset-sheet).

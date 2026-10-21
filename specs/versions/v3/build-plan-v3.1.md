@@ -1,10 +1,8 @@
 # Infinite Flow v3.1 — Build Plan
 
-Status: v18 (2026-10-21): wave 5's preflight corrections, before chunk 14: chunk 17's session
-action is refused only while a session runs (spec D386), and chunk 17 splits into 17a and 17b;
-chunks 14, 17, 18 and 19's files, scope, atoms and Revisions follow the code and the captures of
-497200c. Approved by the owner on 2026-10-19 (spec D357, plan v4), with the transitional interface
-below; the revisions since write in spec D359–D386.
+Status: v19 (2026-10-21): chunk 17's session action saves the selection it changes, and only it
+(spec D387). Approved by the owner on 2026-10-19 (spec D357, plan v4), with the transitional
+interface below; the revisions since write in spec D359–D387.
 
 Embellishment figures and presets, written from [master spec Part B](master-spec.md#part-b--v31)
 (v1.0, approved 2026-10-08, with spec D250 written in) and the v3.1 design, frozen at
@@ -1649,7 +1647,8 @@ Architecture capture: the player presets composable, `use-player-presets.ts`: th
 new, save changes, rename and delete, each writing one whole preset through the save policy (the
 last write wins), and how a save or a deletion reports that it changed the restriction in force.
 Chunks 18 and 19 build on it in the same wave. Captured in 497200c (`module_player_presets`, DRAFT
-0.1). Still to capture before 17a starts: D386's session action (below).
+0.1); D386's session action in 01bff1a (`service_idle_generation_session` 0.7,
+`module_player_presets` 0.2). Still to revise before 17a starts: what the action saves (D387).
 
 - **Goal:** save as new, save changes, rename and delete player presets, from the preset bar, with
   their refusals, their notice and their storage.
@@ -1664,7 +1663,19 @@ Chunks 18 and 19 build on it in the same wave. Captured in 497200c (`module_play
     setting. It checks no operation (not `canChangeConfiguration`, which refuses while a generation
     or a drawing is in flight), so the actions work during Loading; the player presets composable
     refuses every action while a session runs (the controller's phase, as `sessionActive` in
-    `WorkspaceShell.vue`).
+    `WorkspaceShell.vue`). **What it saves** (spec D387): the selection, and only it, through
+    `saveSettings` (the `presetSelection` setting), when the one it is given differs from the
+    current one (`sameSelection`, as `chosenControlChanges` judges it); the preset list is no
+    setting, and the records are `preset-saves.ts`'s. So save as new saves the new preset as the
+    selection; save changes saves its base as the selection when it was Custom, nothing when the
+    base was already selected; rename saves no setting (the selection names the id); delete, once
+    the record is deleted, saves Custom with no base when the preset was the selection or Custom's
+    base, and nothing otherwise; a failed deletion calls no action and saves nothing. A save
+    applies whatever becomes of its write (`module_player_presets`), so a refused write still saves
+    the selection: a reload then finds a selection naming no preset and loads Custom with no base,
+    the same values (B7, "the values win"). A visit that saves nothing writes nothing, as for
+    every setting. Its name is the chunk owner's (the session's actions are verb-object:
+    `selectPreset`, `setFigureLevel`); the atoms call it the preset-list action.
   - **Preset storage:** `src/storage/preset-saves.ts`, part of `VisitSaves`
     (`src/storage/settings-saver.ts`) as my instrument's saves (`my-instrument-saves.ts`) are:
     write one whole preset record (the `preset-record.ts` codec) or delete one through the visit's
@@ -1747,6 +1758,10 @@ Chunks 18 and 19 build on it in the same wave. Captured in 497200c (`module_play
     with its note; 60 seeded are all listed and still block.
   - Rename keeps the selection and Custom's base, and leaves every kept session's label as it was;
     a case-only change is a rename; after a reload the renamed preset is still selected.
+  - A settings-saver spy (D387) sees `presetSelection` alone after save as new, after save changes
+    from Custom and after deleting the selection or Custom's base; no setting after a rename, a
+    save changes of the selected preset, deleting another preset or a failed deletion; after a
+    refused Save as new, a reload loads Custom with no base and the same values.
   - Delete leaves "Custom" with the same values; a failed deletion keeps the confirmation.
   - Save as new under an unsupported rhythm combination stores it unchanged; choosing that preset
     later sets it and shows the unsupported-rhythm alert.

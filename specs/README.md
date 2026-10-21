@@ -33,7 +33,7 @@ Status: draft v0.77
 - **Next: the rest of v3** ([v3](versions/v3/README.md#releases-d211)):
   - **v3.1:** embellishment flags and presets. Master spec
     [Part B](versions/v3/master-spec.md#part-b--v31), approved (D239); design approved (D353);
-    build plan [v3.1](versions/v3/build-plan-v3.1.md), v18 (v4 approved, D357): waves 0–3 went
+    build plan [v3.1](versions/v3/build-plan-v3.1.md), v19 (v4 approved, D357): waves 0–3 went
     ahead first and may merge into `main`; the owner has allowed the token-source pass (gate T1,
     D382, reversing D355), so waves 4 and 5 wait only for the waves before them; no release before
     wave 5 merges. Entry budget 300 KiB (D359); v3.0's
