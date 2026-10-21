@@ -12,8 +12,9 @@
 >   v3.2 ([Opening a Session](#opening-a-session))
 > - _v3.2 new:_ deleting a Jam session deletes its doodle in both forms and lets go the doodle
 >   Jam mode keeps from it ([Deleting a Session](#deleting-a-session)); deleting played notes
->   keeps the written-out doodle; every other deletion of a Jam session lets the kept doodle go
->   too ([Deletions Made Elsewhere](#deletions-made-elsewhere))
+>   keeps the written-out doodle; every other deletion of a Jam session by the player lets the
+>   kept doodle go too, never the save that replaces an unpinned session
+>   ([Deletions Made Elsewhere](#deletions-made-elsewhere))
 > - _v3.2 new:_ a Jam while saving is off ([While Saving Is Off](#while-saving-is-off))
 
 ## Flow
@@ -240,7 +241,10 @@ From a row (`session-row-actions`) or a review (`review-session-tools`), the sam
 - **[v3.2 new]** **A Jam session** is deleted with its doodle in both forms: the written-out
   doodle and, when kept, the raw doodle notes. The confirmation is the same; "its played notes"
   covers the raw doodle notes. The doodle Jam mode keeps from that session, if any, is let go
-  with it, with its suggestion, silently: deleted means gone, the doodle included. Jam mode's
+  with it, with its suggestion, silently: deleted means gone, the doodle included. The doodle comes
+  from the latest session played on it: a Jam played on the kept doodle is saved holding it, and
+  the save at its end, which deletes the unpinned session the doodle came from before (Keeping at
+  a Session's End), never lets it go. Jam mode's
   Idle, hidden under the review mode, then shows its empty staff (`staff-jam`) when the player
   leaves it; the Idle side is in `flows/jam/handoff.md`, The Kept Doodle.
 

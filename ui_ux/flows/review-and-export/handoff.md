@@ -297,8 +297,9 @@ flowchart TD
   was, as whenever Jam mode opens. Phrase 1 is then written from the doodle through **Loading**,
   `jam-bar` shown, its suggestion offered again when this review left it unanswered; without a
   connected controller `Start Jam` is disabled with Jam mode's reason. Focus moves to
-  `mode-switch`'s checked segment, `Jam`, since both header actions are disabled while phrase 1
-  is written; it says where the player now is. From the review of the Jam just played, whose
+  `jam-bar`'s sentence (`tabindex="-1"`), since both header actions are disabled while phrase 1
+  is written, and never to `mode-switch`, where an arrow key would leave Jam mode; the sentence
+  says where the player now is. From the review of the Jam just played, whose
   doodle Jam mode already keeps, it does exactly what `Close review` does, focus included. The Idle that follows is specified in
   `flows/jam/handoff.md`, The Kept Doodle. It does not answer the suggestion.
 - **A Jam played on the kept doodle.** Its review shows the kept doodle as its doodle, with the

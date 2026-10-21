@@ -615,11 +615,14 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
   while it shows; a generation that ends after `Close review` is announced as at idle.
 - **[v3 new]** No change made in the Review (a favorite, the keep line, a pin, a saved comment)
   is announced: each control's own state (`aria-pressed`, its label) carries it.
-- **[v3.2 new]** `Jam in {answer}` and `Keep {key} {mode}` take the suggestion's buttons away, so
+- **[v3.2 new]** `Jam in {answer}` and `Keep {key} {mode}` take the suggestion's buttons away.
+  After `Jam in {answer}`, focus moves to the row's set sentence, "Jams now play in {answer}."
+  (`tabindex="-1"`, never in the tab order, taking the `:focus-visible` ring), so a screen reader
+  reads the confirmation, as at Jam mode's Idle. After `Keep {key} {mode}` the row leaves and
   focus moves to `Jam again on this doodle` when it is enabled, else to `review-title`. Nothing is
-  announced: the row's sentence carries the change.
+  announced.
 - **[v3.2 new]** `Jam again on this doodle` leaves the review mode onto Jam mode, focus moving to
-  `mode-switch`'s checked segment while phrase 1 is written; from the review of the Jam just
+  `jam-bar`'s sentence (`tabindex="-1"`) while phrase 1 is written; from the review of the Jam just
   played it acts as `Close review`, focus included (`flows/review-and-export/handoff.md`).
 - **[v3.2 new]** When a control of `review-doodle` that has focus goes away or becomes disabled
   (`room-notice` replacing the section, or the suggestion's buttons leaving after a change of

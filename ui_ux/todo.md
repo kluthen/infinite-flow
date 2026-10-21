@@ -102,7 +102,7 @@ v3.2 or are v3.2's.
 **v3.2 re-scope: Jam as its own mode** (2026-10-21), from `specs/versions/v3/jam-mode.md` (spec
 D400–D408; §8 is the brief), which wins over master spec Part C until Part C is rebuilt from it.
 The v3.2 design above is reworked in place under its `v3.2` marks (ux D328). Settled decisions:
-ux D328–D344. Q70 moot, Q73–Q75 closed (ux D341); behaviour gaps Q81–Q86 logged for
+ux D328–D344. Q70 moot, Q73–Q75 closed (ux D341); behaviour gaps Q81–Q87 logged for
 `spec-writer`, designed on their recommended answers. No `src/` edits: the token pass (gate T2)
 waits for the owner's go.
 
@@ -116,7 +116,8 @@ waits for the owner's go.
 - **Unit C** (delegated, after A): `screens/last-session-review/`, `flows/review-and-export/`,
   `screens/session-list/`, `flows/kept-sessions/`, `flows/saved-data/`, `screens/your-data/`.
   Written 2026-10-21. Details settled while writing A, B and C: ux D345.
-- **Validation** by `ux-critic` (`ux-validate`) once A, B and C are written. Not started.
+- **Validation.** `ux-critic` on the re-scope: DRIFT, five findings, all fixed (ux D346), Q87
+  logged for `spec-writer`.
 
 ## Remaining
 
@@ -150,7 +151,7 @@ D254, D264): after the first measurement, before the control is built, and on th
 the release gate. A symbol calibration failure, or a triad layout that counting the symbols' widths
 would move, also comes back here (ux D258, D264).
 
-v3.2: finish the re-scope's write-up (units A, B, C) and its `ux-critic` pass; then the owner's
+v3.2: the owner's
 review of the v3.2 design (gate D0: ux D225-D251 as amended by D328-D344, its `v3.2` marks) and
-`spec-writer`'s answers to Q81-Q86. The token pass (gate T2) only on the owner's go. Once
+`spec-writer`'s answers to Q81-Q87. The token pass (gate T2) only on the owner's go. Once
 approved, take `versions/v3.2/` the same way, from the root without the v3.3 parts.

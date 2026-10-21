@@ -2,7 +2,7 @@
 
 Only questions that are truly open appear here, with the closed questions of releases not yet
 shipped (Q70 and Q72–Q75 for v3.2, Q77 for v3.3), which are archived at their own release. IDs
-are stable; numbering continues from Q87 (Q65, Q78 and Q79 were never used). Closed questions are
+are stable; numbering continues from Q88 (Q65, Q78 and Q79 were never used). Closed questions are
 archived verbatim:
 
 - First release (v1.0): [Q15](archive/v1/open-questions-Q15.md), closed by D37.
@@ -109,6 +109,10 @@ designed and change only if `spec-writer` settles otherwise.
   off with no rhythm change allowed; Harmonic motion `Gentle diatonic`; Tension `Lift`;
   Embellishments `Rarely`** (one level for all seven figures, ux D333), the same values the
   session's defaults use where one exists. Designed in `flows/saved-data/` and the workspace.
+  Also "Jam's defaults" for the controls taken from the doodle where it does not show them
+  (§3: contour, leapiness, register, and any other of the seven a doodle may leave unsaid):
+  recommended **session mode's first-visit values** (Arch, Shaped, Middle, and so on), shown in
+  the readings as "{value} (default)" (ux D346).
 - **Q84 — A doodle read as Sixteenth note density on a phone.** Below `bp-tablet-landscape`
   session mode never offers Sixteenth (the staff would not fit). Taken from the doodle (D406), the
   density could be Sixteenth there. Recommended: **taken as Eighth below `bp-tablet-landscape`**,
@@ -125,6 +129,15 @@ designed and change only if `spec-writer` settles otherwise.
   absent. Recommended: **Jam's own level, after Harmonic motion in Jam's Foundation, default
   `Off`**, as Harmonic motion is Jam's own. Designed as a `v3.3 new` paragraph in
   `screens/phrase-workspace/`.
+
+- **Q87 — Which kept session the kept doodle "comes from" once a Jam has been played on it.**
+  D408 lets the doodle go when "the kept session it came from is deleted"; every session end
+  deletes the unpinned sessions before it, so a Jam on the kept doodle would delete the session it
+  came from and, read literally, let the doodle go after the second round. Recommended: **the
+  doodle comes from the latest session played on it** (that session holds the same doodle as its
+  own), so the save's replacement of an unpinned session never lets it go, and only the player's
+  deletion of that latest session (or `Delete everything`) does. Designed in `flows/jam/` (What
+  lets the kept doodle go) and `flows/kept-sessions/` (Deleting a Session); ux D346.
 
 ## v3.3, for `spec-writer` (raised 2026-10-12)
 

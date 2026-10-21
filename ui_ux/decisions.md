@@ -16,7 +16,7 @@ Append-only record of settled UI/UX decisions. Earlier logs are archived verbati
 
 Archived IDs keep their meaning; a citation to one by ID elsewhere in this repository stays valid
 through this header. D225, D226, D235–D264 and D328 on (v3.2 and v3.3, not yet released, and the
-entries v3.1 shares with v3.2) stay here; D265–D279 were never used. Numbering continues from D346.
+entries v3.1 shares with v3.2) stay here; D265–D279 were never used. Numbering continues from D347.
 
 ## v3.1 (presets and embellishment figures) and v3.2 (Jam) design, 2026-10-08
 
@@ -574,3 +574,14 @@ Nothing in `src/` is edited; the token pass waits for the owner's go (gate T2). 
   from the review of the Jam just played it is `Close review`'s, focus included. Until Jam mode
   first opens, Jam's key and mode are session mode's current ones, so `Jam in {answer}` from a
   review before then starts Jam's record from them.
+- **D346 — `ux-critic`'s pass on the re-scope: DRIFT, five findings, all resolved (2026-10-21).**
+  (1) **(spec, provisional, Q87)** The kept doodle comes from the latest session played on it, so
+  the save that replaces an unpinned session never lets it go; only the player's deletion of that
+  session, or `Delete everything`, does (`flows/jam/handoff.md`, What lets the kept doodle go;
+  `flows/kept-sessions/handoff.md`, Deleting a Session). (2) Focus never lands on `mode-switch`,
+  where an arrow key would leave Jam mode and drop the doodle: after `Jam again on this doodle` it
+  goes to `jam-bar`'s sentence; after `New doodle`, to `Start Jam`, else `controller-status`
+  (correcting D345). (3) **(spec, provisional, Q83)** The readings' "(default)" values are Jam's
+  defaults for the controls a doodle leaves unsaid, recommended as session mode's first-visit
+  values, now part of Q83. (4) `strategy.md`'s Device tag moved to the start of its bullet.
+  (5) In the review, `Jam in {answer}` moves focus to the set sentence, as at Idle.

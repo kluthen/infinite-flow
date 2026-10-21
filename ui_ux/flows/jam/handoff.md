@@ -274,17 +274,20 @@ flowchart TD
   theme and the audio mix rewrite nothing. A change made while the review mode shows takes effect
   the same way, out of sight.
 - **What lets the kept doodle go,** with its suggestion, and nothing else: `New doodle`; leaving
-  Jam mode; deleting the kept session it came from, or `Delete everything` (`flows/kept-sessions/`,
-  `flows/saved-data/`); `Jam again on this doodle` on another doodle, which replaces it; a reload.
-  A setting change, a lost or attached controller, a viewport change, a Jam on it (ended before
-  phrase 1 or not) and opening, pinning, favoriting or commenting a kept session or deleting its
+  Jam mode; the player deleting the kept session it now comes from, or `Delete everything`
+  (`flows/kept-sessions/`, `flows/saved-data/`); `Jam again on this doodle` on another doodle, which replaces it; a reload.
+  The session it comes from is the latest session played on it: a Jam on the kept doodle that
+  reaches phrase 1 is saved holding the same doodle, and from then on the doodle comes from it.
+  So the save at that session's end, which deletes the unpinned session the doodle came from
+  before, never lets it go. A setting change, a lost or attached controller, a viewport change, a
+  Jam on it (ended before phrase 1 or not) and opening, pinning, favoriting or commenting a kept session or deleting its
   played notes keep it. Letting it go announces nothing.
 - **`New doodle`** (plain `btn` at `jam-bar`'s inline end, at Idle; disabled in **Loading** and
   held disabled during a session) asks for no confirmation: the kept session still holds the
   doodle. The doodle and its suggestion go, a generation from it in flight is cancelled, prepared
   phrases are discarded, `jam-bar` leaves, `staff-jam` returns, `doodle-readings` empties, and
-  focus moves to `Start Jam`, or to `mode-switch`'s checked segment when `Start Jam` is disabled.
-  Nothing is announced.
+  focus moves to `Start Jam`, or to `controller-status` when `Start Jam` is disabled (never to
+  `mode-switch`, where an arrow key would leave Jam mode). Nothing is announced.
 - **`jam-bar`** sits between `score-toolbar` and the generation-failure banner's place while a
   doodle is kept: its sentence, "Jamming again on your doodle: phrase 1 continues it. Leaving Jam
   mode lets it go.", `New doodle` at its inline end, then `suggestion-row` when there is a
