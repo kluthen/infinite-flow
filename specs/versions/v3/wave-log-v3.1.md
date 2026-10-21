@@ -725,3 +725,16 @@ saves. Later: `rule_custom_selection` / `module_profile_control_customization` o
 `rule_unsupported_rhythm_settings_block_generation`. Docs leftovers (lexicon figure entries,
 "musical profile" in `docs/session-engine.md` and `docs/phrase-workspace.md`) sent to a
 `coding-executor`.
+- Docs leftovers, c3eae74 (`coding-executor`): the lexicon's figure and v3.1 preset entries
+  marked built with the app's labels; "musical profile" replaced in `docs/session-engine.md`,
+  `docs/phrase-workspace.md` (also its replay-key section, now `ifk3.`) and `docs/testing.md`.
+  Still stale, for a later pass: the lexicon's Count-in and Starting note entries call the
+  stale-phrase question "planned"; the Collection entry's "planned as" wording.
+
+### Owner answers and merge
+
+2026-10-21: merge and push; every sign-off given (spec D390): the 14 atoms to REVIEW and
+`module_save_policy` 0.7 (`documentalist` cebeb27). The re-click behaviour accepted (D388). v3.4
+opened as a structural review, the last v3 milestone (D389, O234–O238; spec-writer 5497b64). L1
+and L2 stay open for the owner's v3.1 H1 and H2; then the release gate (chunk 21). Wave 5 merged
+into `main`.
