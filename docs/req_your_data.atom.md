@@ -2,7 +2,7 @@
 id: req_your_data
 status: STABLE
 human_name: Your Data
-tags: [v3, release-v3.0, storage, privacy, changes-in-v3.1]
+tags: [v3, release-v3.0, storage, privacy]
 dependents:
   - [[module_kept_session_changes]]
   - [[module_kept_session_reach]]

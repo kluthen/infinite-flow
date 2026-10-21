@@ -14,7 +14,7 @@ version: 0.3
 priority: 1
 type: RULE
 human_name: Persistent Storage Requested When Something Is Worth Keeping
-tags: [v3, release-v3.0, storage, changes-in-v3.1]
+tags: [v3, release-v3.0, storage]
 ---
 
 # Persistent Storage Requested When Something Is Worth Keeping

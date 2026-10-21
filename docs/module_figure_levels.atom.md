@@ -1,6 +1,6 @@
 ---
 id: module_figure_levels
-status: REVIEW
+status: STABLE
 type: MODULE
 priority: 1
 human_name: Figures and Their Levels

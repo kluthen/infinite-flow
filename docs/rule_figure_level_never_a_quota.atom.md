@@ -1,6 +1,6 @@
 ---
 id: rule_figure_level_never_a_quota
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 version: 0.1
 priority: 1

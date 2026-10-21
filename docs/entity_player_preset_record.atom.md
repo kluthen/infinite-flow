@@ -1,6 +1,6 @@
 ---
 id: entity_player_preset_record
-status: REVIEW
+status: STABLE
 type: ENTITY
 version: 0.2
 priority: 1

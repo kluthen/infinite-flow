@@ -1,6 +1,6 @@
 ---
 id: rule_key_and_mode_restriction
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 priority: 1
 human_name: A Preset's Key and Mode Restriction

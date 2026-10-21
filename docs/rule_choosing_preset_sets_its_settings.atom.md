@@ -1,6 +1,6 @@
 ---
 id: rule_choosing_preset_sets_its_settings
-status: REVIEW
+status: STABLE
 parents:
   - [[req_presets]]
 dependents:

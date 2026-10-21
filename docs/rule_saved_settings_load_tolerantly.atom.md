@@ -10,7 +10,7 @@ dependents:
   - [[entity_my_instrument_record]]
 type: RULE
 version: 0.3
-tags: [v3, release-v3.0, storage, player-controls, changes-in-v3.1, changes-in-v3.2]
+tags: [v3, release-v3.0, storage, player-controls, changes-in-v3.2]
 ---
 
 # Saved Settings Load One by One

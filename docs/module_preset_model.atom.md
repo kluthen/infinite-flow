@@ -1,6 +1,6 @@
 ---
 id: module_preset_model
-status: REVIEW
+status: STABLE
 dependents:
   - [[entity_player_preset_record]]
   - [[module_generative_profile_selection]]

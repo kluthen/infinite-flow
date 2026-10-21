@@ -1,6 +1,6 @@
 ---
 id: rule_no_preset_leaves_device
-status: REVIEW
+status: STABLE
 layer: BUSINESS
 version: 0.1
 human_name: No Preset Leaves the Device

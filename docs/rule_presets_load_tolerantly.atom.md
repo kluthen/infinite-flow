@@ -1,6 +1,6 @@
 ---
 id: rule_presets_load_tolerantly
-status: REVIEW
+status: STABLE
 type: RULE
 layer: BUSINESS
 version: 0.2

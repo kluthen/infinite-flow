@@ -1,6 +1,6 @@
 ---
 id: rule_chromatic_notes_need_a_chromatic_figure
-status: DRAFT
+status: REVIEW
 dependents:
   - [[module_figure_levels]]
   - [[module_musical_profile_capabilities]]

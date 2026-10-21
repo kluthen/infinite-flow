@@ -1,6 +1,6 @@
 ---
 id: rule_player_presets_saved_on_device
-status: REVIEW
+status: STABLE
 type: RULE
 layer: BUSINESS
 priority: 1

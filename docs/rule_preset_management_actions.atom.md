@@ -1,6 +1,6 @@
 ---
 id: rule_preset_management_actions
-status: REVIEW
+status: STABLE
 priority: 1
 human_name: Saving, Renaming and Deleting Presets
 tags: [v3, release-v3.1, player-controls, presets]

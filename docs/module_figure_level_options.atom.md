@@ -1,6 +1,6 @@
 ---
 id: module_figure_level_options
-status: REVIEW
+status: STABLE
 tags: [v3, release-v3.1, player-controls, figures]
 dependents: []
 type: MODULE

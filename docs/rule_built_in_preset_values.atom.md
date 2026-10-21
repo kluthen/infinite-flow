@@ -1,6 +1,6 @@
 ---
 id: rule_built_in_preset_values
-status: DRAFT
+status: REVIEW
 version: 0.1
 parents:
   - [[req_presets]]
