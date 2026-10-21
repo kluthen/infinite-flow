@@ -566,3 +566,11 @@ Part D changes what it rests on.
   Settled while writing it: the row's `preset-actions` sits a label line plus the field gap
   lower, and keeps that offset if it wraps under the field; `control-group-intro` takes
   `--spacing-3` below it, as the group's `h3`.
+
+- **D326 — v3.1 release gate: no v3.1 handoff names a class or token missing from `src/styles/`
+  (2026-10-21; the v3.1 build plan's chunk 21).** Every class and token in `versions/v3.1/`'s
+  handoffs and `token-source-v3.1.md` is in `theme.css` or `components.css`, and so is every class
+  the components use (chunks 13, 14, 17, 18 included); `preset-status` is gone from `src/`.
+  Correction proposed, not applied: the copy and the root still name `preset-status` and the
+  musical profile's `radiogroup` in "After `Start with this phrase`" (`screens/phrase-workspace/`,
+  `flows/play-session/` handoffs), and the passing-and-neighbor rule spec D378 rejected.
