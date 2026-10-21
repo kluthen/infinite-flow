@@ -1,49 +1,10 @@
 # Infinite Flow v3.1 — Build Plan
 
-Status: v17 (2026-10-20): wave 4's preflight corrections, before chunk 13: during a session the
-marks, their notes and the description come from the session's start settings (spec D384); chunk
-13's files, atoms, Revisions and split rule follow the code and the captures of e965269.
-v16 (2026-10-20): the owner gives T1 (spec D382, reversing D355): gate T1 is done and
-wave 4 waits for wave 3 only.
-v15 (2026-10-20): the owner's DP ruling (spec D378): the passing-and-neighbor rule does
-not ship, chunk 20 is dropped, wave 5 is four chunks, gate DP is done; M1 and M2 say what chunk 11
-measured, which the release gate repeats (spec D379); chunk 13 rewords the harmony failure alert
-and chunk 18 Your data's Settings line (spec D381).
-v14 (2026-10-20): wave 3's preflight corrections, before its first chunk: what chunk 12
-saves and loads until chunk 16 (spec D377); the session's start settings carry chunk 15's
-restriction; files, atoms, drift checks and Revisions follow the code and the captures of 866f761
-(chunks 11, 12, 15, 16, 22).
-v13 (2026-10-20): the owner's answer to O233 (spec D376): v3.0's sessions are carried
-over at open only, the rare overrun of the start-up wait is accepted and B9 states it; gate M3H
-is done and the release gate no longer waits for it.
-v12 (2026-10-19): from chunk 9's report: chunk 22 joins wave 3 after chunk 12, {length}
-in the review's summary (spec D373); M3's version 2 result, the step stays at open, and the
-heavy-body case goes to the owner as O233, gate M3H (spec D374); a hole in a timeline's measures
-goes to ISS-013 (spec D375).
-v11 (2026-10-19): wave 2's preflight corrections, before its first chunk: a favored free
-scale tone is tried first as the drawn figure and keeps its usual place (chunk 6); each kept shape
-keeps its own data version, played notes at 1, and new sessions write the label in B9's form
-(chunk 9); files, atoms and owner notes follow the code (spec D369–D372).
-v10 (2026-10-19): the owner's answer to O232 (spec D368): chunk 7 also gates the tense
-note a joined phrase may end on by the passing, accented passing and neighbor tones' levels;
-chunk 11's runs carry it.
-v9 (2026-10-19): from chunk 5's report, O232 is open (does a figure level reach the
-tense note a joined phrase may end on?), to rule before wave 2's preflight; chunk 11 also reports
-the Lift phrases that every figure Off left without a pitch plan in chunk 5's M1.
-v8 (2026-10-19): from chunk 4's report, version 1 holds a third phrase shape (both the
-profile and the levels): chunk 8 reads it and routes chunk 4's mapping through
-`profile-to-levels.ts`, chunk 9's step reads all three (spec D367).
-v7 (2026-10-19): wave 1's preflight corrections, before its first chunk: chunk 9's step
-reads both shapes and stays in wave 2; the kept summary's profile comes from the session history;
-chunk 4 takes the profile out of the pitch policy and the harmony planner; chunk 8 owns the
-replay-key specs and the stale prompt's labels (spec D364–D366).
-v6 (2026-10-19): gate CS cleared, wave 1 no longer waits on it (spec D363).
-v5 (2026-10-19): entry budget 300 KiB, gate CS for the MAJOR contract bump (it blocks wave 1's
-sync), the contract atoms each chunk revises, chunk 8 removes chunk 2's lint exception (spec
-D359–D362).
-v4 (2026-10-19): gates D0 and R0 cleared, T1 not given, waves re-formed around it, code facts
-refreshed, design links on the frozen v3.1 design (spec D353–D356, ux D324). Approved by the owner
-on 2026-10-19 (spec D357), with the transitional interface below.
+Status: v18 (2026-10-21): wave 5's preflight corrections, before chunk 14: chunk 17's session
+action is refused only while a session runs (spec D386), and chunk 17 splits into 17a and 17b;
+chunks 14, 17, 18 and 19's files, scope, atoms and Revisions follow the code and the captures of
+497200c. Approved by the owner on 2026-10-19 (spec D357, plan v4), with the transitional interface
+below; the revisions since write in spec D359–D386.
 
 Embellishment figures and presets, written from [master spec Part B](master-spec.md#part-b--v31)
 (v1.0, approved 2026-10-08, with spec D250 written in) and the v3.1 design, frozen at
@@ -118,14 +79,14 @@ and 5 have merged, and no release is cut before wave 5 has merged.
 
 ## Waves
 
-| Wave | Chunks                                                                                                                                                              | Waits for                                                                                                                                                                                                                                                       | Status              |
-| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
-| 0    | 0 Intent re-sync · 2 Baselines · 3 Measurement tools                                                                                                                | Nothing (R0 done). Chunk 3 records its baselines on v3.0's code: nothing in this wave changes the generator.                                                                                                                                                    | merged (2026-10-19) |
-| 1    | 4 Figure levels in the request · 5 Levels gate the figures · 8 Replay key `ifk3.` · 10 Preset model                                                                 | Wave 0. In-wave 4 → 5, 4 → 8 and 4 → 10: chunk 4's capture fixes the figure ids, the level type and the request's `figureLevels`.                                                                                                                               | merged (2026-10-19) |
-| 2    | 6 Favored levels order the search · 7 Two new free figures · 9 Kept sessions hold the levels                                                                        | Wave 1. In-wave 6 → 7: chunk 6's capture fixes the draw and the figures a candidate names.                                                                                                                                                                      | merged (2026-10-20) |
-| 3    | 11 Cost guard, first run · 12 Presets replace the musical profile · 15 Vary settings inside the restriction · 16 Presets on the device · 22 Review summary's length | Wave 2. In-wave 12 → 15, 12 → 16 and 12 → 22: chunk 12's capture fixes the session settings and the routing point; chunk 22 follows 12 because both may change the kept-session record. Gate DP is taken from chunk 11 (spec D378).                             | merged (2026-10-20) |
-| 4    | 1 Token-source pass · 13 Preset bar and marks                                                                                                                       | Wave 3. Two chunks: every other chunk T1 held (given, spec D382) needs both 1 and 13, which would make a chain of three.                                                                                                                                        | merged (2026-10-20) |
-| 5    | 14 Embellishments group · 17 Preset management · 18 Your data · 19 Pre-generation discards                                                                          | Wave 4. In-wave 14 → 19: chunk 14's capture fixes the level controls' option model and their change path; 17 → 18 and 17 → 19: chunk 17's capture fixes the player-presets composable. L1 and L2 open at its end. Chunk 20 is dropped (DP rejected, spec D378). | planned             |
+| Wave | Chunks                                                                                                                                                              | Waits for                                                                                                                                                                                                                                                                                | Status              |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
+| 0    | 0 Intent re-sync · 2 Baselines · 3 Measurement tools                                                                                                                | Nothing (R0 done). Chunk 3 records its baselines on v3.0's code: nothing in this wave changes the generator.                                                                                                                                                                             | merged (2026-10-19) |
+| 1    | 4 Figure levels in the request · 5 Levels gate the figures · 8 Replay key `ifk3.` · 10 Preset model                                                                 | Wave 0. In-wave 4 → 5, 4 → 8 and 4 → 10: chunk 4's capture fixes the figure ids, the level type and the request's `figureLevels`.                                                                                                                                                        | merged (2026-10-19) |
+| 2    | 6 Favored levels order the search · 7 Two new free figures · 9 Kept sessions hold the levels                                                                        | Wave 1. In-wave 6 → 7: chunk 6's capture fixes the draw and the figures a candidate names.                                                                                                                                                                                               | merged (2026-10-20) |
+| 3    | 11 Cost guard, first run · 12 Presets replace the musical profile · 15 Vary settings inside the restriction · 16 Presets on the device · 22 Review summary's length | Wave 2. In-wave 12 → 15, 12 → 16 and 12 → 22: chunk 12's capture fixes the session settings and the routing point; chunk 22 follows 12 because both may change the kept-session record. Gate DP is taken from chunk 11 (spec D378).                                                      | merged (2026-10-20) |
+| 4    | 1 Token-source pass · 13 Preset bar and marks                                                                                                                       | Wave 3. Two chunks: every other chunk T1 held (given, spec D382) needs both 1 and 13, which would make a chain of three.                                                                                                                                                                 | merged (2026-10-20) |
+| 5    | 14 Embellishments group · 17 Preset management · 18 Your data · 19 Pre-generation discards                                                                          | Wave 4. In-wave 14 → 19: chunk 14's capture fixes the level controls' option model and their change path; 17 → 18 and 17 → 19: chunk 17's capture fixes the player-presets composable; 17 runs as 17a then 17b. L1 and L2 open at its end. Chunk 20 is dropped (DP rejected, spec D378). | planned             |
 
 The [release gate](#chunk-21--v31-release-gate) (chunk 21) follows wave 5, with L1 and L2. κ is 1
 ([build workflow](build-workflow.md#concurrency-and-order)).
@@ -1492,7 +1453,8 @@ Architecture capture: the figure level controls' option model, `figure-level-opt
 per figure, its four options (`off`, `asToday`, `favored`, `stronglyFavored`, labelled Off, Rarely,
 Often, Very often), and the change path: a level change goes through `setFigureLevel` (chunk 12), which makes Custom, and
 the levels in the pre-generation queue key (chunk 12) discard the prepared phrases. Every segment
-is always selectable (DP rejected, spec D378). Chunk 19 builds on it in the same wave.
+is always selectable (DP rejected, spec D378). Chunk 19 builds on it in the same wave. Captured in
+497200c (`module_figure_level_options`, DRAFT 0.1).
 
 - **Goal:** seven figure level controls the player sets at Idle.
 - **Scope:** `control-group control-group-figures` after the character group and before "During a
@@ -1502,20 +1464,32 @@ is always selectable (DP rejected, spec D378). Chunk 19 builds on it in the same
   Loading and a session (where a figure step shows in place); a change makes Custom, discards the
   pre-generated phrases and never regenerates the phrase on screen. First visit: Neutral's levels.
   "During a session" moves after the group. Then the owner's H1 and H2 (gates L1, L2).
-- **Files:** `src/components/controls/EmbellishmentControls.vue` (new), `figure-level-options.ts`
-  (new), `ControlPanel.vue`; tests `tests/unit/components/controls/EmbellishmentControls.spec.ts`,
-  `tests/e2e/workspace/embellishment-levels.spec.ts`; the v3.1 H1 and H2 entries of
-  `HARDWARE-CHECKLIST.md`.
+  - **Out: the passing-and-neighbor rule.** The frozen design's Embellishments section still holds
+    its conditional "Passing tone and neighbor tone never both off" (disabled `Off` segments, a
+    second `field-note`, both Off loading with the neighbor tone at `Rarely`). Gate DP rejected
+    it (spec D378): build none of it; no segment is ever disabled and no level is changed on
+    loading.
+- **Files:** `src/components/controls/EmbellishmentControls.vue` (new),
+  `src/components/controls/figure-level-options.ts` (new, beside `control-options.ts`),
+  `ControlPanel.vue`; tests `tests/unit/components/controls/EmbellishmentControls.spec.ts` and
+  `figure-level-options.spec.ts` (new), `tests/e2e/workspace/embellishment-levels.spec.ts`; the
+  v3.1 H1 and H2 entries of `HARDWARE-CHECKLIST.md`.
 - **Spec sections:** [B5.2](master-spec.md#b52-four-levels),
   [B10](master-spec.md#b10-for-the-interface-design), [B8.3](master-spec.md#b83-pre-generation);
   items 1 (set at Idle, locked during a session), 11, 18 (a level change discards).
 - **Design docs:** [`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.1/screens/phrase-workspace/handoff.md)
   (Embellishments; Responsive Behavior: `control-group-figures`).
-- **Atoms:** `req_embellishment_figure_levels`, `rule_custom_selection`; (v3.0)
-  `rule_pregeneration_discarded_on_change`.
+- **Atoms:** `req_embellishment_figure_levels`, `rule_custom_selection`,
+  `rule_vary_settings_figure_step` (the figure step shown in place),
+  `rule_readonly_controls_keep_contrast` (read-only in Loading and a session); (v3.0)
+  `rule_pregeneration_discarded_on_change`. Architecture: `module_figure_level_options` (DRAFT
+  0.1, 497200c); kept true (drift checks): `module_profile_control_customization` (the routing
+  point, `setFigureLevel`) and `module_idle_pregeneration_queue` (the levels in the queue key).
 - **Revisions:** none.
 - **Done when:**
   - Each level control sets its figure's level in the next request (harness reads the intent).
+  - Every segment of every figure stays selectable in any combination, every figure Off included
+    (unit tests on the option model and the controls).
   - A level change with a preset selected makes "Custom, based on {name}"; it discards every
     pre-generated phrase; the phrase on screen stays.
   - During a session the group is read-only; a figure step shows as that figure's level changing in
@@ -1674,7 +1648,8 @@ Depends on: 1, 13, 16
 Architecture capture: the player presets composable, `use-player-presets.ts`: the list, save as
 new, save changes, rename and delete, each writing one whole preset through the save policy (the
 last write wins), and how a save or a deletion reports that it changed the restriction in force.
-Chunks 18 and 19 build on it in the same wave.
+Chunks 18 and 19 build on it in the same wave. Captured in 497200c (`module_player_presets`, DRAFT
+0.1). Still to capture before 17a starts: D386's session action (below).
 
 - **Goal:** save as new, save changes, rename and delete player presets, from the preset bar, with
   their refusals, their notice and their storage.
@@ -1683,30 +1658,58 @@ Chunks 18 and 19 build on it in the same wave.
     selection exactly as the design's table says; enabled at Idle, in the review mode and during
     Loading; disabled for a whole session, keeping the buttons it held at Start; `Delete preset`
     absent while saving is off; `Save as new preset` disabled at 50 or more with its note.
-  - **The preset sheet**, loaded on demand, in four modes (Save as new: name and Key and mode; Save
+  - **The session action** (spec D386): nothing replaces the session's preset list or selection
+    today (`state.presets` is set only at load, in `use-generation-session.ts`). One new session
+    action replaces the list and, where the rules say, the selection, and changes no generation
+    setting. It checks no operation (not `canChangeConfiguration`, which refuses while a generation
+    or a drawing is in flight), so the actions work during Loading; the player presets composable
+    refuses every action while a session runs (the controller's phase, as `sessionActive` in
+    `WorkspaceShell.vue`).
+  - **Preset storage:** `src/storage/preset-saves.ts`, part of `VisitSaves`
+    (`src/storage/settings-saver.ts`) as my instrument's saves (`my-instrument-saves.ts`) are:
+    write one whole preset record (the `preset-record.ts` codec) or delete one through the visit's
+    save policy, each resolving its outcome (the policy's `save` resolves a `SaveOutcome`), so the
+    composable can tell a refused save in the preset wording and keep a failed deletion's
+    confirmation.
+  - **The preset sheet**, loaded on demand (`load-preset-sheet.ts`, on the pattern of
+    `load-my-instrument-sheet.ts`), in four modes (Save as new: name and Key and mode; Save
     changes: the reason and Key and mode; Rename; Delete confirmation, on the shared confirmation
     pattern, `ConfirmationSheet.vue`, of v3.0 chunk 11b): `name-alert` as a polite live region with the first reason; the main
     action disabled while it shows; `choice-list` radiogroup; focus on open and on close as the
-    design says; no MIDI note starts a session while it is open.
+    design says; no MIDI note starts a session while it is open (`WorkspaceShell.vue` adds it to
+    the open sheets it reports, `reportSheetsOpen`, as it does My instrument's and Your data's).
   - **What each does:** the rules of chunk 10; a one-click `Save changes` inside the base's
     restriction; the new or overwritten preset becomes the selection; rename keeps the selection and
     the base, and moves the preset in the list; delete leaves Custom with no base and the same
-    values. Nothing regenerates.
+    values. Nothing regenerates. Save as new may store an unsupported rhythm combination, kept as
+    it is; choosing that preset shows the unsupported-rhythm alert.
   - **A refused save** keeps the result for the visit and raises the save-problem notice at once in
     its preset wording, or its storage-full wording (v3.0's notice row, `NOTICES` in
     `use-app-notices.ts` and `AppNoticeRow.vue`, gains the third wording). A failed deletion keeps the confirmation with its error line.
   - **Persistent storage:** Save as new and Save changes join the triggers of v3.0's once-per-visit
-    request (`requestProtection`, `src/storage/save-policy-requests.ts`, today called for my
-    instrument and kept sessions); rename and delete do not.
+    request (`requestProtection`, `src/storage/save-policy-requests.ts`), called in
+    `preset-saves.ts` as `my-instrument-saves.ts` calls it for my instrument; rename and delete do
+    not.
   - **Saving off:** presets made, changed or renamed last for the page, under the visit's notice.
   - **Exports and privacy:** no export file carries a preset's name or restriction.
-- **Files:** `src/components/controls/PresetActions.vue` (new),
-  `src/components/workspace/PresetSheet.vue` (new), `src/components/workspace/use-player-presets.ts`
-  (new), `src/components/controls/PresetBar.vue`, `src/components/workspace/use-app-notices.ts`
-  and `AppNoticeRow.vue` (v3.0), `src/storage/save-policy-requests.ts` (v3.0, called from the new
-  composable); tests
-  `tests/unit/components/workspace/PresetSheet.spec.ts`,
-  `tests/e2e/workspace/preset-management.spec.ts`, `tests/e2e/storage/presets-saving.spec.ts`.
+- **Files:**
+  - **17a:** `src/composables/generation-session-control-actions.ts`,
+    `generation-session-types.ts` and `use-generation-session.ts` (the session action, D386);
+    `src/storage/preset-saves.ts` (new) and `src/storage/settings-saver.ts` (`VisitSaves`);
+    `src/components/workspace/use-player-presets.ts` (new);
+    `src/components/workspace/use-app-notices.ts` and `AppNoticeRow.vue` (v3.0, the third
+    wording); unit tests `tests/unit/storage/preset-saves.spec.ts` and
+    `tests/unit/components/workspace/use-player-presets.spec.ts` (new),
+    `tests/unit/storage/settings-saver.spec.ts`,
+    `tests/unit/composables/generation-session-presets.spec.ts`,
+    `tests/unit/components/workspace/use-app-notices.spec.ts`, and the session fake
+    `tests/unit/components/workspace/fake-generation-session.ts`.
+  - **17b:** `src/components/controls/PresetActions.vue` (new),
+    `src/components/controls/PresetBar.vue`, `src/components/workspace/PresetSheet.vue` (new),
+    `src/components/workspace/load-preset-sheet.ts` (new),
+    `src/components/workspace/WorkspaceShell.vue` (the composable, the lazy sheet, the open
+    sheets); tests `tests/unit/components/workspace/PresetSheet.spec.ts`,
+    `tests/e2e/workspace/preset-management.spec.ts`, `tests/e2e/storage/presets-saving.spec.ts`.
 - **Spec sections:** [B6.6](master-spec.md#b66-player-presets),
   [B7](master-spec.md#b7-saving-on-the-device),
   [B8.4](master-spec.md#b84-acknowledgement-exports-phone-width-and-the-instrument), Part A §4.5;
@@ -1723,11 +1726,16 @@ Chunks 18 and 19 build on it in the same wave.
   `rule_save_changes_restriction`, `rule_player_preset_names`, `rule_player_preset_limit`,
   `rule_deleting_base_preset_leaves_custom`, `rule_player_presets_saved_on_device`,
   `rule_refused_preset_save_told`, `rule_presets_in_visits_that_save_nothing`,
-  `rule_no_preset_leaves_device`; (v3.0) `rule_failed_save_never_disturbs_session`,
-  `rule_outdated_tab_stops_saving`.
+  `rule_no_preset_leaves_device`, `rule_player_preset_may_hold_unsupported_rhythm` (DRAFT: Save
+  as new can store an unsupported rhythm), `rule_custom_names_its_base` (Custom's base after a
+  rename or a deletion), `rule_restriction_in_force` (what a save or a deletion changes); (v3.0)
+  `rule_failed_save_never_disturbs_session`, `rule_outdated_tab_stops_saving`. Architecture:
+  `module_player_presets` (DRAFT 0.1, 497200c) and D386's capture; kept true (drift checks):
+  `module_preset_model`, `module_preset_bar_model`, `module_save_policy`,
+  `entity_player_preset_record`.
 - **Revisions:** revise `rule_unsupported_rhythm_settings_block_generation` (a player preset may
-  hold an unsupported combination; eight built-ins); (contract, CS)
-  `rule_persistent_storage_requested`.
+  hold an unsupported combination, which `rule_player_preset_may_hold_unsupported_rhythm` states;
+  eight built-ins); (contract, CS) `rule_persistent_storage_requested`.
 - **Done when:**
   - Save as new from a built-in, a player preset and each Custom state: the three restriction
     choices (merged as the design says), "as now" by default; from Custom based on Reel "as now"
@@ -1740,6 +1748,10 @@ Chunks 18 and 19 build on it in the same wave.
   - Rename keeps the selection and Custom's base, and leaves every kept session's label as it was;
     a case-only change is a rename; after a reload the renamed preset is still selected.
   - Delete leaves "Custom" with the same values; a failed deletion keeps the confirmation.
+  - Save as new under an unsupported rhythm combination stores it unchanged; choosing that preset
+    later sets it and shows the unsupported-rhythm alert.
+  - During Loading every action works, changes no setting and leaves the generation in flight to
+    finish (D386).
   - An injected refusal keeps the preset usable and shows the preset notice at once; storage full
     shows its wording.
   - A persist spy sees one request at the first Save as new or Save changes of a visit, none for a
@@ -1752,8 +1764,16 @@ Chunks 18 and 19 build on it in the same wave.
     player preset hold neither its name nor its restriction (byte scan).
 - **Verification:** chunk checks; the accessibility checks of what it adds; phone and desktop debug
   runs; the bundle at the wave gate (the sheet is lazy).
-- **Split rule:** if the brief passes about five source files, 17a the actions, the composable's
-  storage and the notice, 17b the sheet and its four modes.
+- **Split rule:** the brief passes about five source files (thirteen), so 17a then 17b, in this
+  order, each leaving the app working:
+  - **17a the presets' state and storage**, which the player does not see yet: the session action
+    (D386), `preset-saves.ts` in `VisitSaves` with the protection request, the player presets
+    composable and its four actions, the notice's preset and storage-full wordings; their unit
+    tests (the composable's against a fake session and fake saves: every rule of the Done when
+    list that needs no sheet).
+  - **17b the actions and the sheet:** the actions row in the preset bar, the lazy preset sheet
+    and its four modes, the shell's wiring (the composable, the open sheets, focus); the sheet's
+    unit tests and the two e2e files.
 
 ### Chunk 18 — Your data and Delete everything
 
@@ -1769,14 +1789,19 @@ Architecture capture: none (it builds on chunk 17's)
   preset confirmation (the fifth confirmation); absent while saving is off. Deleting from there
   changes no setting, key or mode, and leaves the selection Custom with no base when it was the
   selection or the base, which the box shows when the sheet closes; focus as the design says. The
-  Settings line names the preset. Delete everything's confirmation names the presets and removes
-  every player preset, an unreadable record included; the page reloads with the built-ins only.
-  Delete every session and Delete all played notes leave the presets.
+  Settings line names the preset. Delete everything's confirmation names the presets. Delete
+  everything already removes every player preset, an unreadable record included, with no storage
+  change: it deletes the whole database (`deleteEverything` → `deleteDatabase`,
+  `src/storage/storage-port.ts`), the `presets` store with it; the chunk adds the confirmation's
+  wording and the tests that prove it. The page reloads with the built-ins only. Delete every
+  session and Delete all played notes leave the presets.
 - **Files:** `src/components/workspace/YourDataSheet.vue` (v3.0; it draws its own
   confirmations), `use-your-data-sheet.ts` (v3.0: the sheet's model, deletions and Delete
   everything), `your-data-copy.ts` (v3.0: the confirmation kinds, four today, gain the fifth;
-  `SETTINGS_LINE` names the preset, spec D381),
-  `src/components/workspace/YourDataPresets.vue` (new); tests `tests/e2e/storage/your-data.spec.ts` (extended).
+  `SETTINGS_LINE` names the preset, spec D381; Delete everything's confirmation names the
+  presets), `src/components/workspace/YourDataPresets.vue` (new); the deletion goes through chunk
+  17's `use-player-presets.ts`; no storage file changes; tests
+  `tests/e2e/storage/your-data.spec.ts` (extended).
 - **Spec sections:** [B7](master-spec.md#b7-saving-on-the-device),
   [B16](master-spec.md#b16-access-model), Part A §4.1; items 16 (Delete everything, Your data), 14
   (deleting).
@@ -1784,8 +1809,10 @@ Architecture capture: none (it builds on chunk 17's)
   [`flows/saved-data/handoff.md`](../../../ui_ux/versions/v3.1/flows/saved-data/handoff.md) (Your Data: the
   deletions, After a preset's deletion), [`flows/presets/handoff.md`](../../../ui_ux/versions/v3.1/flows/presets/handoff.md)
   (Deleting from Your data).
-- **Atoms:** `rule_deleting_base_preset_leaves_custom`, `rule_presets_in_visits_that_save_nothing`;
-  (v3.0) `rule_failed_read_offers_only_delete_everything`.
+- **Atoms:** `rule_deleting_base_preset_leaves_custom`, `rule_presets_in_visits_that_save_nothing`,
+  `rule_custom_names_its_base` (Custom with no base after the deletion); (v3.0)
+  `rule_failed_read_offers_only_delete_everything`. Architecture: `module_player_presets` (DRAFT
+  0.1, 497200c); kept true (drift check): `module_save_policy`.
 - **Revisions:** (contract, CS) revise `req_your_data`, `rule_delete_everything`.
 - **Done when:**
   - Seeded with three player presets and one unreadable record: the section lists three, counts
@@ -1809,24 +1836,39 @@ Architecture capture: none (it builds on chunks 14's and 17's)
 
 - **Goal:** prove, in one place, every case of B8.3: what discards the pre-generated phrases, and
   what does not.
-- **Scope:** most triggers are already wired by chunks 12, 14 and 15; this chunk adds the two that
-  need saving and deleting (a save whose restriction choice changes the restriction in force; the
-  deletion of the preset that supplied it) and pins the whole matrix: discards on choosing a preset
+- **Scope:** every trigger is already wired: the queue key (`settingsKeyOf`,
+  `workspace-pregeneration.ts`) holds the seven levels and the restriction in force, worked out
+  from the session's selection and preset list, and its watch discards on its own when the key
+  changes (chunks 12, 14 and 15); chunk 17's session action replaces that list and selection, so a
+  save whose restriction choice changes the restriction in force, or the deletion of the preset
+  that supplied it, discards with no call to the queue (`module_player_presets`). This chunk is
+  mostly tests: `use-player-presets.ts` and the queue may stay unchanged, and change only where a
+  test finds a gap. It pins the whole matrix: discards on choosing a preset
   whose values differ or that moves the key or mode, on any level change, on any change of the
   restriction in force (opting out, coming back inside, a save or deletion that changes it) with
   Vary settings on or off; no discard on saving, renaming or deleting that changes neither a
   setting nor the restriction, nor on choosing a preset identical in values and restriction. None
   of it shows.
 - **Files:** `src/components/workspace/workspace-pregeneration.ts` (v3.0, the queue key and its
-  discard), `src/components/workspace/use-player-presets.ts`; tests in
+  discard) and `src/components/workspace/use-player-presets.ts` (chunk 17), both expected
+  unchanged; tests in
   `tests/unit/components/workspace/workspace-pregeneration-discard.spec.ts` (extended),
   `tests/e2e/workspace/pregeneration.spec.ts` (extended).
 - **Spec sections:** [B8.3](master-spec.md#b83-pre-generation), Part A §8; item 18.
 - **Design docs:** [`flows/generate-phrase/handoff.md`](../../../ui_ux/versions/v3.1/flows/generate-phrase/handoff.md)
   (Prepared phrases and presets), [`flows/presets/handoff.md`](../../../ui_ux/versions/v3.1/flows/presets/handoff.md)
   (Prepared phrases).
-- **Atoms:** (v3.0) `req_idle_pregeneration`, `rule_pregenerated_phrase_matches_session`.
-- **Revisions:** revise `rule_pregeneration_discarded_on_change`.
+- **Atoms:** `rule_restriction_in_force`; (v3.0) `req_idle_pregeneration`,
+  `rule_pregenerated_phrase_matches_session`. Architecture: `module_figure_level_options` and
+  `module_player_presets` (DRAFT 0.1, 497200c); kept true (drift check):
+  `module_idle_pregeneration_queue`.
+- **Revisions:** revise `rule_pregeneration_discarded_on_change` (0.3), as the change set's row
+  says (presets, levels, restriction): "the musical profile" goes from its list of discarding
+  changes, replaced by choosing a preset whose values differ, a figure level change, and any change
+  of the restriction in force (opting out, coming back inside, a save or a deletion that changes
+  it), with Vary settings on or off; saving, renaming or deleting that changes neither a setting
+  nor the restriction, and choosing a preset identical in values and restriction, discard nothing.
+  The discard on a restriction change, wired by chunk 15, is stated by no atom yet.
 - **Done when:** each row of the matrix above is a test (unit, with a spy on the pre-generation
   queue), and an e2e test shows the ready phrases dropped on a Reel choice and kept on a rename.
 - **Verification:** chunk checks.
