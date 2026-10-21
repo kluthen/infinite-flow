@@ -2,7 +2,7 @@
 
 Status: v3.0 released as version 3.0.0 on 2026-10-16 (tag `v3.0.0` at e288d98, deployed;
 D348); v3.1 released as version 3.1.0 on 2026-10-21 (tag `v3.1.0` at 55364e7; D397), its hand
-checks H3–H5 still to run ([v3.1.x notes](#v31x-notes-after-the-tag)); v3.2 consolidated as
+checks after the tag closed (D399; [v3.1.x notes](#v31x-notes-after-the-tag)); v3.2 consolidated as
 master spec Part C, approved (D239), its design and build plan not approved; v3.3 in master spec
 Part D, awaiting owner approval (D264–D275), its build plan not approved (D276–D288, D351); v3.4,
 a structural review before v4, opened as a scoping draft (D389), with a lexicon page added as its
@@ -351,15 +351,17 @@ D229–D231; consolidated in [master spec Part B](master-spec.md#b6-presets).
 ### v3.1.x notes (after the tag)
 
 These follow the `3.1.0` tag (D397). The checks are written in the v3.1 build plan's
-[hand checks](build-plan-v3.1.md#hand-checks) and in `HARDWARE-CHECKLIST.md`, v3.1 part; their
-results go to the [release notes](../../../docs/release/v3.1-release-notes.md) when they run. A
-finding becomes an issue or a 3.1.x fix (D397).
+[hand checks](build-plan-v3.1.md#hand-checks) and in `HARDWARE-CHECKLIST.md`, v3.1 part. All
+three are closed (D399):
 
-- **v3.1 H3, the same phrase in Edge:** item 7's Edge half.
-- **v3.1 H4, Vary settings under a preset.**
-- **v3.1 H5, v3.0 data carried over.**
-- **The waiting promotions** (D396, D397): 11 REVIEW→STABLE and 2 DRAFT→REVIEW atoms, by
-  `documentalist` with the owner, each once the check it waits on passes.
+- **v3.1 H3, the same phrase in Edge:** waived. Chrome is the one supported browser; Edge, like
+  any other Chromium-based browser, is not tested. Item 7 promises the same phrase in Chrome.
+- **v3.1 H4, Vary settings under a preset:** passed on the owner's word.
+- **v3.1 H5, v3.0 data carried over:** waived. v3.0 had no live users, so carrying v3.0's data
+  over is not checked by hand; the upgrade code and its automated tests stay.
+- **The waiting promotions** (D396, D397, D399): 11 REVIEW→STABLE and 2 DRAFT→REVIEW atoms,
+  applied by `documentalist`. An atom that promises the same result "in Chrome and Edge" is
+  reworded to Chrome as it is promoted.
 
 ## v3.2 — Jam and the rhythm lock
 

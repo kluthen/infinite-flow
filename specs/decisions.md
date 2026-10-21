@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.117
+Status: draft v2.118
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -27,7 +27,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and each milestone
 folder's README, such as [archive/v3/README.md](archive/v3/README.md)). Numbering continues from
-**D399**.
+**D400**.
 
 Live here: D232–D251 (v3.2, not built yet), with v3.1's D233, D235, D242 and D250 interleaved
 among them and D237, D239 and D246 ruling both releases, kept until v3.2's archive closes the
@@ -686,3 +686,12 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   README. Master spec Part B, the v3.1 build plan and its wave log stay in place. Still live: v3.1
   H3–H5 and their 13 waiting promotions ([v3.1.x notes](versions/v3/README.md#v31x-notes-after-the-tag)).
   No question was decided.
+
+- **D399 (2026-10-21): v3.1's hand checks after the tag close: H4 passed, H3 and H5 waived; the 13
+  waiting promotions proceed; Chrome is the one supported browser.** The owner: "edge isn't
+  supported anyway so who cares. v3.0 has no live customer so we may forget about migration issue.
+  otherwise everything run fine." The spec had named Edge (Chromium-based browsers, "Chrome or
+  Edge"); it now says Chrome is supported and other Chromium-based browsers, Edge included, are not
+  tested. H5: the v3.0 upgrade code and its tests stay. The Edge checks of the v3.2 and v3.3 plans go
+  at their next revision. Now in: [v3.1.x notes](versions/v3/README.md#v31x-notes-after-the-tag),
+  [hand checks](versions/v3/build-plan-v3.1.md#hand-checks), [context of use](personas.md#context-of-use).

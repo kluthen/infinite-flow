@@ -31,12 +31,14 @@ Status: this file holds four parts.
   selected, and is not offered when its transposition would make my instrument's written range
   sound outside MIDI notes 0 to 127 (§7.2; spec D335); v1.24 states, as the build already does,
   that after Use it the musical profile selection shows the player's selection from the start,
-  never phrase 1's (§16; spec D339). No contract wording it needs waits for the
-  owner any more (§10).
+  never phrase 1's (§16; spec D339); v1.25 (2026-10-21) names Chrome as the one supported browser
+  in the context of use (§3; spec D399). No contract wording it needs waits for the owner any
+  more (§10).
 - **[Part B — v3.1](#part-b--v31), embellishment figures and presets:** master spec v1.0
   (2026-10-08), consolidated from the v3.1 drafts the owner approved; approved by the product
   owner (2026-10-08); built and released as version 3.1.0 on 2026-10-21 (spec D397), the contract
-  for the running code with Part A; its hand checks H3–H5 follow the tag (spec D397). The owner confirmed the exact wording of the contract
+  for the running code with Part A; its hand checks H3–H5 followed the tag and are closed (spec
+  D397, D399). The owner confirmed the exact wording of the contract
   guarantees it changes (B11) the same day. v1.1 (2026-10-19) checks B12's code facts against
   v3.0's released code; no behaviour changes. v1.2 (2026-10-19) writes in the owner's rulings of
   that day: v3.0's contract atoms that v3.1 revises take a MAJOR contract bump, with
@@ -56,16 +58,20 @@ Status: this file holds four parts.
   during a session the key and mode marks keep the restriction in force at Start (B6.4; spec D385);
   no behaviour changes. v1.8 (2026-10-21) states the owner's acceptance of that day, as the
   build already does: choosing again the option a control already shows makes Custom, and may or
-  may not discard the pre-generated phrases (B6.4, B8.3; spec D388); no behaviour changes. Its
-  sections are numbered B1 to B16.
+  may not discard the pre-generated phrases (B6.4, B8.3; spec D388); no behaviour changes. v1.9
+  (2026-10-21): Chrome is the one supported browser, so determinism is promised in Chrome (B5.5,
+  item 7; spec D399). Its sections are numbered B1 to B16.
 - **[Part C — v3.2](#part-c--v32), Jam, the key and mode suggestion and the rhythm lock:**
   master spec v1.0 (2026-10-08), consolidated from the approved v3.2 drafts; approved by the
   product owner (2026-10-08). The owner confirmed the exact wording of the contract
-  guarantees it changes (C13) the same day. Its sections are numbered C1 to C18.
+  guarantees it changes (C13) the same day. v1.1 (2026-10-21): Chrome is the one supported
+  browser, so determinism is promised in Chrome (C11, item 21; spec D399). Its sections are
+  numbered C1 to C18.
 - **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.1
   (2026-10-12), consolidated from the v3.3 direction and the chord research; **awaiting the
   owner's approval**. The contract wording it changes (§D12) needs the owner's confirmation
-  separately. Its sections are numbered D1 to D17.
+  separately. v1.2 (2026-10-21): Chrome is the one supported browser (D15, item 18; spec D399).
+  Its sections are numbered D1 to D17.
 
 Part A's history follows.
 
@@ -209,7 +215,7 @@ grades, ranks or scores the player, and anything that adapts is opt-in and visib
 ## 3. Personas and goals served
 
 The full personas are in [personas.md](../../personas.md), with a shared context of use: a laptop
-or desktop in Chrome or Edge first, a Chromium tablet on the music stand, a landscape phone
+or desktop in Chrome first, a tablet in Chrome on the music stand, a landscape phone
 occasionally; hands, and the mouth on a wind controller, busy on the instrument; no click while
 playing.
 
@@ -1426,7 +1432,7 @@ Build (a two-note approach in the key) and Edge (a passing tone, neighbor tone o
 Every figure level is part of what a phrase is generated from, so a phrase reproduces from its
 inputs, a pre-generated phrase equals the one the session would generate (Part A §8), and a kept
 session's inputs say how each phrase was made. The draws of B5.2 come from the phrase's seed; the
-same inputs give the same phrase in Chrome and Edge, on any machine. The replay key is in B9.
+same inputs give the same phrase in Chrome, on any machine. The replay key is in B9.
 
 ### B5.6 The cost guard
 
@@ -2123,7 +2129,7 @@ v3.1 ships when every item holds, each verified by a named test or a recorded ha
    refuses a chromatic note when both chromatic figures are Off.
 6. **Tension's figure.** Every Tension value still places its scheduled figure with every figure
    level Off.
-7. **Deterministic.** The same `ifk3.` key gives the same phrase in Chrome and Edge, on any machine;
+7. **Deterministic.** The same `ifk3.` key gives the same phrase in Chrome, on any machine;
    pre-generated phrases equal the session's with any levels.
 8. **The cost guard** of B5.6 is measured on the three settings, recorded, and met; the
    passing-and-neighbor rule, measured and not needed, stays out, and the final measurement still
@@ -3168,9 +3174,9 @@ the kept sessions; it lists nothing new.
   no allowed change, to the same phrase as in the version that wrote it. A later prefix is refused
   as an unsupported version, as today. The replay tool (`npm run replay:phrase`) decodes all four
   versions.
-- **Determinism.** The same request and seed give the same phrase in Chrome and Edge, on any
-  machine. New orderings break ties by the existing seeded key, then by index, in code-unit order
-  (the rule adopted after the
+- **Determinism.** The same request and seed give the same phrase in Chrome, on any machine. New
+  orderings break ties by the existing seeded key, then by index, in code-unit order (the rule
+  adopted after the
   [locale-dependent order issue](../../../issues/Ref_20261007_locale_dependent_candidate_order.md)).
   Which ladder rung produced phrase 1 can depend on the machine's speed, as v2 accepts; what each
   rung generates never does.
@@ -3494,8 +3500,8 @@ v3.2 ships when every item holds, each verified by a named test or a recorded ha
 
 **The key and mode suggestion**
 
-21. **Deterministic**: the same quantized doodle gives the same answer in Chrome and Edge, on any
-    machine, across sessions and reloads, with integer arithmetic only.
+21. **Deterministic**: the same quantized doodle gives the same answer in Chrome, on any machine,
+    across sessions and reloads, with integer arithmetic only.
 22. **Nothing is suggested** below the thresholds, when the selection is among the kept candidates,
     or when under 80 % of the doodle fits; the last case is said in one plain sentence, in every review of that
     Jam, with no "wrong" note.
@@ -4287,9 +4293,9 @@ v3.3 ships when every item holds, each verified by a named test or a recorded ha
 17. **The join across phrases**: a carried seventh chord is accepted and compared by its triad; a key
     or mode change still drops it.
 18. **Replay keys:** v3.3 writes `ifk5.` for every phrase, holding the level by capability name and a
-    four-note carried chord when there is one; the same `ifk5.` key gives the same phrase in Chrome
-    and Edge; a key naming an unknown capability is refused with the reason; the replay tool decodes
-    all five versions and names the four qualities.
+    four-note carried chord when there is one; the same `ifk5.` key gives the same phrase in Chrome;
+    a key naming an unknown capability is refused with the reason; the replay tool decodes all five
+    versions and names the four qualities.
 19. **Kept sessions:** each kept phrase's inputs hold the level and its symbols as displayed;
     sessions kept before v3.3 migrate at Off with their timelines untouched.
 20. **The generation worker** re-validates the level from untrusted input.

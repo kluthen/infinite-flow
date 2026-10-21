@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.82
+Status: draft v0.83
 
 ## Status Snapshot
 
@@ -10,10 +10,10 @@ Status: draft v0.82
   with the evidence in the [release notes](../docs/release/v3.1-release-notes.md). Master spec
   [Part B](versions/v3/master-spec.md#part-b--v31), embellishment figures and presets, is with
   Part A the contract for the running code; the milestone's working record is in
-  [archive/v3/](archive/v3/README.md) (D398). Still to come after the tag, as v3.1.x notes: the
-  owner's hand checks v3.1 H3 (Edge), H4 (Vary settings under a preset) and H5 (v3.0 data carried
-  over), then the 13 promotions waiting on them
-  ([v3.1.x notes](versions/v3/README.md#v31x-notes-after-the-tag)).
+  [archive/v3/](archive/v3/README.md) (D398). Its hand checks after the tag are closed (D399): H4
+  passed on the owner's word, H3 (Edge) and H5 (v3.0 data carried over) waived, since Chrome is
+  the one supported browser and v3.0 had no live users; the 13 promotions that waited on them
+  proceed ([v3.1.x notes](versions/v3/README.md#v31x-notes-after-the-tag)).
 - **v3.0 is released as version 3.0.0** (2026-10-16, D348), tagged `v3.0.0` at e288d98 and
   deployed. Master spec [Part A](versions/v3/master-spec.md#part-a--v30) states it. Still to come
   as v3.0.x notes: hand check H8, the played-notes-export half of H5 and the later promotion of
@@ -37,7 +37,8 @@ Status: draft v0.82
   [far vision](vision/far-vision.md).
 - **Personas:** P1, the Curious Improviser (primary); P2, the Speed Builder; P3, the Fledgling
   Composer. A shared [context of use](personas.md#context-of-use) covers all three: a laptop or
-  desktop in Chrome or Edge first, at music-stand distance, no click while playing.
+  desktop in Chrome first (the one supported browser, D399), at music-stand distance, no click
+  while playing.
 - **Next: the rest of v3** ([v3](versions/v3/README.md#releases-d211)):
   - **v3.2:** Jam, the key and mode suggestion, the rhythm lock and its mutation option. Master
     spec [Part C](versions/v3/master-spec.md#part-c--v32), approved (D239); build plan

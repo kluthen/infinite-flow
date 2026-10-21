@@ -1,8 +1,8 @@
 # Personas
 
-Status: draft v0.14
+Status: draft v0.15
 
-Personas are the user's decisions. Anything not yet confirmed is tagged `(proposed)`. Settled 2026-09-25. The decisions behind this document (D48–D50, D54, D61) are in the [2026-09-25 archive](archive/2026-09-25-personas-and-vision/decisions-D47-D71.md). The shared context of use was added 2026-09-28 (D127, now in the [v2 archive](archive/v2/decisions-D109-D207.md)); the phone review pointer and the review candidates followed the same day (D128), then export by content and the session-keeping candidates (D129), then favorites moving to v3 (D130). On 2026-09-29 the session start and end wording was corrected to match the v2 master spec §6–§7 (a correction, no new decision). On 2026-10-07 "Who is not a target" was added, stating D117 here, and the audio-mix note was brought up to date (D188). The same day the review tooling was dropped and keeping sessions placed in v3.0 (D211, D212).
+Personas are the user's decisions. Anything not yet confirmed is tagged `(proposed)`. Settled 2026-09-25. The decisions behind this document (D48–D50, D54, D61) are in the [2026-09-25 archive](archive/2026-09-25-personas-and-vision/decisions-D47-D71.md). The shared context of use was added 2026-09-28 (D127, now in the [v2 archive](archive/v2/decisions-D109-D207.md)); the phone review pointer and the review candidates followed the same day (D128), then export by content and the session-keeping candidates (D129), then favorites moving to v3 (D130). On 2026-09-29 the session start and end wording was corrected to match the v2 master spec §6–§7 (a correction, no new decision). On 2026-10-07 "Who is not a target" was added, stating D117 here, and the audio-mix note was brought up to date (D188). The same day the review tooling was dropped and keeping sessions placed in v3.0 (D211, D212). On 2026-10-21 Chrome was named the one supported browser (D399).
 
 | Persona                     | Role      | Core want                                  | Served mainly by                       |
 | --------------------------- | --------- | ------------------------------------------ | -------------------------------------- |
@@ -19,9 +19,10 @@ P1, so it carries the same bias P1 does (see [P1 — Who](#who)). P2's and P3's 
 assumed to match until an outside tester shows otherwise.
 
 - **Devices.**
-  - **Main:** a laptop or desktop, in Chrome or Edge.
-  - **Tablet:** a tablet on the music stand is a good candidate. For v2 this means a Chromium
-    tablet: the owner's own tablet is an iPad, and v2 does not run on iPad (WebKit has no Web
+  - **Main:** a laptop or desktop, in Chrome. Chrome is the one supported browser (D399): other
+    Chromium-based browsers, Edge included, are not tested and may or may not work.
+  - **Tablet:** a tablet on the music stand is a good candidate. For v2 this means an Android
+    tablet in Chrome: the owner's own tablet is an iPad, and v2 does not run on iPad (WebKit has no Web
     MIDI; see [browser scope](roadmap.md#engineering-carry-overs-not-tied-to-one-version)).
   - **Phone, occasionally:** a landscape phone (the owner's Samsung Galaxy S20 FE), used outside
     with the Travel Sax. The owner calls this "probably not ideal".
