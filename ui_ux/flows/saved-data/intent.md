@@ -11,6 +11,8 @@
 > - _v3.1 changed:_ Delete everything removes the presets ([Your data](#your-data))
 > - _v3.2 new:_ the Jam settings kept, a doodle kept with its session in one form and not the
 >   other, the held doodle never kept ([Jam](#jam))
+> - _v3.2 changed:_ Chrome named as the one supported browser
+>   ([Asking the browser to protect the data](#asking-the-browser-to-protect-the-data))
 
 Up to v2, every visit started from the defaults and forgot everything when the page closed. v3.0
 keeps things on the player's device: settings, the last session and the sessions the player
@@ -66,9 +68,9 @@ review and changes nothing that is kept.
 
 ## Asking the browser to protect the data
 
-A browser may clear a site's data when the device runs short of space, without warning, unless
-the site has asked for its storage to be protected and the browser agreed. Chrome and Edge answer
-silently, by their own rules, with no prompt to the player. So the app asks at the moment the
+**[v3.2 changed]** A browser may clear a site's data when the device runs short of space, without
+warning, unless the site has asked for its storage to be protected and the browser agreed. Chrome,
+the one supported browser, answers silently, by its own rules, with no prompt to the player. So the app asks at the moment the
 player first keeps something they would miss (a pin, a favorite, a saved instrument), not at load:
 a site that asks on its first visit, before the player has kept anything, is more likely to be
 refused, and nothing yet would be lost. The request shows nothing. Its answer appears in one

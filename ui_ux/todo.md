@@ -99,6 +99,24 @@ v3.2 or are v3.2's.
   `flows/play-session/` and `flows/generate-phrase/` for v3.2. Governing: ux D235-D244, D246, D247. Written 2026-10-08 (details: ux D248).
 - **Validation.** `ux-critic` on v3.1 and on v3.2: DRIFT both, findings fixed (ux D249, D250); recheck: two small slips, fixed (ux D251). Validated for the owner's review.
 
+**v3.2 re-scope: Jam as its own mode** (2026-10-21), from `specs/versions/v3/jam-mode.md` (spec
+D400–D408; §8 is the brief), which wins over master spec Part C until Part C is rebuilt from it.
+The v3.2 design above is reworked in place under its `v3.2` marks (ux D328). Settled decisions:
+ux D328–D344. Q70 moot, Q73–Q75 closed (ux D341); behaviour gaps Q81–Q86 logged for
+`spec-writer`, designed on their recommended answers. No `src/` edits: the token pass (gate T2)
+waits for the owner's go.
+
+- **Tier 1, Tier 2 and the registers.** `strategy.md`, `motion.md`, `README.md`,
+  `token-source-v3.1-v3.2.md` part 2, `decisions.md`, `open-questions.md`; spec D399's browser
+  cleanup (ux D343). Written 2026-10-21.
+- **Unit A** (delegated): `flows/jam/`, `screens/phrase-workspace/`. In progress.
+- **Unit B** (delegated, after A): `flows/play-session/`, `flows/generate-phrase/`,
+  `screens/stale-phrase-prompt/`, `flows/presets/`, `flows/controller-connection/`. Not started.
+- **Unit C** (delegated, after A): `screens/last-session-review/`, `flows/review-and-export/`,
+  `screens/session-list/`, `flows/kept-sessions/`, `flows/saved-data/`, `screens/your-data/`.
+  Not started.
+- **Validation** by `ux-critic` (`ux-validate`) once A, B and C are written. Not started.
+
 ## Remaining
 
 Standing working rules (ux D119, D135, archived; still in force):
@@ -112,13 +130,6 @@ Standing working rules (ux D119, D135, archived; still in force):
   window if it can be put right, at once if not.
 - The Review stays simple: no side tools; per-phrase tools at the end of each phrase's line,
   whole-session tools beside the export.
-
-After the v3.1 release:
-
-- **The owner's hand checks v3.1 H3, H4 and H5** (`specs/versions/v3/build-plan-v3.1.md`, chunk
-  21; spec D397): the same phrase in Edge, Vary settings under a preset, v3.0 data carried over.
-  A finding that changes the design is corrected in `versions/v3.1/` and at the root alike,
-  recorded in `decisions.md`.
 
 Carried forward from v3.0:
 
@@ -138,6 +149,7 @@ D254, D264): after the first measurement, before the control is built, and on th
 the release gate. A symbol calibration failure, or a triad layout that counting the symbols' widths
 would move, also comes back here (ux D258, D264).
 
-v3.2: the owner's review of the v3.2 design (ux D225-D251, its `v3.2` marks), and `spec-writer`'s
-answers to Q73-Q75. Once approved, take `versions/v3.2/` the same way, from the root without the
-v3.3 parts.
+v3.2: finish the re-scope's write-up (units A, B, C) and its `ux-critic` pass; then the owner's
+review of the v3.2 design (gate D0: ux D225-D251 as amended by D328-D344, its `v3.2` marks) and
+`spec-writer`'s answers to Q81-Q86. The token pass (gate T2) only on the owner's go. Once
+approved, take `versions/v3.2/` the same way, from the root without the v3.3 parts.

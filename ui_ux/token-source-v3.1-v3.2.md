@@ -3,8 +3,8 @@
 > **New in v3.1.** Part 2 is new in v3.2.
 
 The token source is `src/styles/theme.css` (tokens) and `src/styles/components.css` (component
-classes). The new tokens and classes of v3.1 (presets and embellishment figures) and v3.2 (Jam,
-the key and mode suggestion, the rhythm lock, drift and Vary settings' allowed groups) are
+classes). The new tokens and classes of v3.1 (presets and embellishment figures) and v3.2 (Jam
+mode, the key and mode suggestion, the rhythm lock, drift and Vary settings' allowed groups) are
 specified here, in the same terms, until each release's token-source pass writes them into those
 two files. The two parts are applied separately, v3.1 first: each pass writes its own part under
 `v3.1 new` / `v3.1 changed` (or `v3.2 …`) comments, and the document is deleted once both parts
@@ -111,10 +111,40 @@ None.
 
 ### New Classes
 
+- **`mode-switch`** — composed as `segmented-control mode-switch`: the header's two-segment
+  radiogroup, accessible name "Mode", segments `Session` and `Jam`. A child of `layout-header`,
+  after `brand`. Below `bp-desktop` it shares the brand row and sits at its trailing end
+  (`margin-inline-start: auto`), `header-actions` keeping its own row; from `bp-desktop` up it sits
+  between `brand` and `header-actions` in the header's one row. It never wraps inside itself
+  (`flex-wrap: nowrap`): two short labels fit at every named breakpoint. States: `segment`'s own
+  (default, selected, hover, focus-visible, active); read-only (`is-readonly`, the dashed
+  `--readonly-ring`, during **Loading**, a session and the review mode); loading (`is-loading` with
+  `aria-busy="true"`, while Jam's code loads after the first press: the existing
+  `.segmented-control.is-loading` dimming and a `wait` cursor, the `Session` segment still
+  pressable, so it never takes `pointer-events: none`). No disabled state: the switch is never
+  unavailable, only read-only.
+- **`tap-tempo`** — composed as `btn tap-tempo`: `Tap tempo`, after the tempo stepper in Jam mode's
+  Tempo field, on the stepper's row when it fits, under it otherwise. States: `btn`'s (default,
+  hover, focus-visible, active, disabled during **Loading** and a session); listening
+  (`is-listening`, from a tap until listening ends: a 2px `--color-accent` border, as the hover
+  border made solid, so the state reads without colour alone because the `field-note` under it
+  changes words too). No `aria-pressed`: a press is a tap, never a toggle.
+- **`doodle-readings`** — a `dl` in Jam mode's **From your doodle** group, after its
+  `control-group-intro`: seven rows, each a `dt` (`field-label`'s type) and its `dd`
+  (`--text-md`, `--color-text`), in one column below `bp-tablet-landscape` and in two from it up
+  (`grid-template-columns: repeat(auto-fill, minmax(var(--control-group-min-inline-size), 1fr))`),
+  rows `--spacing-2` apart. A value the doodle does not show reads "{value} (default)", the
+  bracketed word in `--color-text-muted`. Static text: not interactive, not a live region, never
+  ringed when the controls are read-only. States: filled (a kept doodle), absent (no doodle: the
+  group's `field-note` stands in its place).
+- **`jam-needs-controller`** — a `session-cue-row` child at Jam mode's Idle while no controller is
+  connected, in `start-note-line`'s place and type: `cue-label-wide` "A Jam needs a connected
+  controller. Connect one to start." and `cue-label-narrow` "Connect a controller to start." below
+  `bp-tablet-landscape`. Named by `Start Jam`'s `aria-describedby`. States: shown, absent.
 - **`staff-jam`** — a `staff-frame` state, beside `staff-empty`, `staff-ready` and the others:
-  Jam mode at Idle without a held doodle, and a Jam before phrase 1 enters. The top system position
-  holds one `staff-content` unit that the notation pipeline engraves as an empty system: the
-  clef, the key signature of the selected written key and collection, and the 4/4 signature, the
+  Jam mode at Idle without a kept doodle, and a fresh Jam before phrase 1 enters. The top system
+  position holds one `staff-content` unit that the notation pipeline engraves as an empty system:
+  the clef, the key signature of Jam's written key and collection, and the 4/4 signature, the
   staff lines running to the system's end, no barline and no measure. The bottom system position
   holds `jam-instruction` and, when it applies, `jam-notice`. The frame keeps its block size.
   States: shown (Idle, count-in, capture, writing, read-in until phrase 1 enters), absent.
@@ -133,42 +163,47 @@ None.
   wait: one static line in neutral text at `--text-md`, `cue-label-wide` "Writing your first
   phrase" or `cue-label-narrow` "Writing". No animation of any kind. States: shown, absent.
 - **`jam-bar`** — a row in `score-panel` between `score-toolbar` and the generation-failure
-  banner's place, present only while a doodle is held: `--color-surface-muted` fill, a 1px
-  `--color-border` border, `--radius-md`, `--spacing-3` padding, its children `--spacing-2`
-  apart; a `p` then, when there is one, `suggestion-row`. Its `p` and `suggestion-row`'s set
-  sentence carry `tabindex="-1"` (focus is moved there after `Keep` or `Use`) and take
-  `--shadow-focus` when focused, as `room-notice` does. States: absent, shown, held (during a
-  session started from it: unchanged, its buttons disabled with `btn`'s disabled look).
+  banner's place, present only in Jam mode while a doodle is kept: `--color-surface-muted` fill, a
+  1px `--color-border` border, `--radius-md`, `--spacing-3` padding, its children `--spacing-2`
+  apart; a first row holding its `p` and, at the inline end, the `New doodle` `btn` (one row that
+  wraps, the button wrapping under the sentence when they do not fit), then, when there is one,
+  `suggestion-row`. Its `p` and `suggestion-row`'s set sentence carry `tabindex="-1"` (focus is
+  moved there after either suggestion button) and take `--shadow-focus` when focused, as `room-notice` does. States:
+  absent, shown, held (during a session started from it: unchanged, its buttons disabled with
+  `btn`'s disabled look).
 - **`suggestion-row`** — the key and mode suggestion, in `jam-bar` and in `review-doodle`: a `p`
-  (the sentence) and its two plain `btn`s at the inline end, one row that wraps; then, when the
-  answer is outside the restriction in force, a second `p` at `--text-sm`, `--color-text-muted`.
-  States: offering (sentence and buttons), set (one sentence, no button: "Key and mode set to …"),
-  no-fit (one sentence, no button), absent.
+  (the sentence) and its two plain `btn`s at the inline end, one row that wraps. States: offering
+  (sentence and buttons), set (one sentence, no button: "Jams now play in …"), no-fit (one
+  sentence, no button), absent.
 - **`review-doodle`** — a `section` in `review-panel` before `review-list`, spaced from it as one
   `review-phrase` is from the next: a `review-phrase-header` (its title, its tempo, and the
   `Jam again on this doodle` `btn` at the trailing end, where per-phrase tools go, followed by its
   `field-note` when disabled), a `review-staff` (the doodle's measures at a phrase's measure width,
-  from the system's start; the played-notes lane under it when shown), then `suggestion-row`.
-  States: none of its own.
+  from the system's start; the played-notes lane under it when shown; `review-phrase-note` in its
+  place while Jam's code loads or when it could not load), then `suggestion-row`. States: none of
+  its own.
 - **`toggle-list`** — a wrapping row of `btn toggle-button`s, `--spacing-2` apart, after a
-  `field-label` naming the list: Allowed rhythm changes, What may vary. States: default;
-  read-only (`is-readonly`, during **Loading** and a session, as every control: the toggles keep
-  their words, their `on` bar and full strength and stay focusable, pointer events are off, and
-  script refuses activation by Space, Enter or click, as `segmented-control.is-readonly` refuses
-  an arrow key; the dashed `--readonly-ring` is drawn once, by the nearest read-only
-  `field-group`, never on the list). Each toggle otherwise carries `toggle-button`'s states (its
-  `on` bar and words), disabled included.
-- **`field-dependent`** — a nested `field-group` inside a "During a session" field, holding the
-  option that depends on its switch (Drift, Allowed rhythm changes, What may vary): `--spacing-3`
-  above it, a 2px `--color-border` rule along its inline start and `--spacing-3` padding there, so
-  it reads as part of the switch above. States: absent, shown. When the switch's `field-group` is read-only,
-  `field-dependent` and everything in it are read-only too, and the dashed ring is drawn once,
-  around the outer `field-group`: a nested `field-group`, `segmented-control` or `toggle-list`
-  inside a read-only `field-group` draws none of its own (the rule the token source already
-  applies to a segmented control inside a read-only field).
+  `field-label` naming the list: Allowed rhythm changes (session mode and Jam mode), What may vary.
+  States: default; read-only (`is-readonly`, during **Loading** and a session, as every control:
+  the toggles keep their words, their `on` bar and full strength and stay focusable, pointer
+  events are off, and script refuses activation by Space, Enter or click, as
+  `segmented-control.is-readonly` refuses an arrow key; the dashed `--readonly-ring` is drawn
+  once, by the nearest read-only `field-group`, never on the list). Each toggle otherwise carries
+  `toggle-button`'s states (its `on` bar and words), disabled included.
+- **`field-dependent`** — a nested `field-group` inside a field, holding the option that depends on
+  its switch (Allowed rhythm changes under the rhythm lock, in both modes; What may vary under Vary
+  settings): `--spacing-3` above it, a 2px `--color-border` rule along its inline start and
+  `--spacing-3` padding there, so it reads as part of the switch above. States: absent, shown.
+  When the switch's `field-group` is read-only, `field-dependent` and everything in it are
+  read-only too, and the dashed ring is drawn once, around the outer `field-group`: a nested
+  `field-group`, `segmented-control` or `toggle-list` inside a read-only `field-group` draws none
+  of its own (the rule the token source already applies to a segmented control inside a read-only
+  field).
 
 ### Reused Without Change
 
 `session-action` ("Start Jam" fits `--session-action-inline-size`), `count-in`, `count-in-beat`,
-`cue-label-wide`, `cue-label-narrow`, `review-phrase-header`, `review-staff`, `played-notes-lane`,
-`segmented-control` (Jam, Drift, Rhythm lock), `field-note`, `btn`.
+`cue-label-wide`, `cue-label-narrow`, `review-phrase-header`, `review-staff`, `review-phrase-note`,
+`played-notes-lane`, `segmented-control` (Drift, Rhythm lock, Embellishments in Jam mode),
+`input-stepper` (Jam mode's tempo, 60 to 180 BPM), `control-group`, `control-group-intro`,
+`app-notice` (Jam mode's load failure, the notice row's fifth notice), `field-note`, `btn`.
