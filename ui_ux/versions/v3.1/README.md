@@ -1,12 +1,15 @@
 # v3.1 — Presets and Embellishment Figures: UI/UX Design
 
-Status: **approved by the owner on 2026-10-19, not built yet.** This folder is the v3.1 design as
-approved, frozen on 2026-10-19 so that the v3.1 build reads a design that no longer moves while
-v3.2 and v3.3 are still being reviewed at the `ui_ux/` root. It is never edited again, except to
+Status: **released as version 3.1.0** (tag `v3.1.0` at 55364e7, 2026-10-21). The working record
+that produced this design (decision log, closed questions, work tracker) is in
+[`archive/v3.1/`](../../archive/v3.1/README.md), with the entries v3.1 shares with v3.2 still in
+the root's live registers. Approved by the owner on 2026-10-19, this folder is the v3.1 design as
+approved, frozen on 2026-10-19 so that the v3.1 build read a design that no longer moved while
+v3.2 and v3.3 were still being reviewed at the `ui_ux/` root. It is never edited again, except to
 correct it to match what v3.1 actually ships (each such correction is recorded in the root
-`decisions.md`, and the same correction is applied at the root). The working record that produced
-this design (decision log, open questions, work tracker) is still in the live registers at the
-root, and goes to `archive/` when v3.1 is released. The product scope is Part B of
+`decisions.md`, and the same correction is applied at the root). Corrected on 2026-10-21, at the
+release gate, for the preset shown after `Start with this phrase` and for the passing-and-neighbor
+rule, which v3.1 does not have: every figure level is always selectable. The product scope is Part B of
 [`specs/versions/v3/master-spec.md`](../../../specs/versions/v3/master-spec.md#part-b--v31). The
 v3.0 design it extends is in [`versions/v3.0/`](../v3.0/README.md).
 
@@ -28,7 +31,8 @@ unprefixed **Changes since v2** items, show what v3.0 changed from v2; a `[v3.1 
 The v3.1 token-source additions are in [`token-source-v3.1.md`](token-source-v3.1.md), the v3.1
 part of the root's `token-source-v3.1-v3.2.md`. They are written into `src/styles/theme.css` and
 `components.css` by v3.1's token-source pass; once v3.1 ships, the shipped state of those two
-files is the release tag's.
+files is the release tag's. Since 3.1.0 shipped, the handoffs here cite the token source alone:
+every class and token they name is in it.
 
 ## What v3.1 is
 

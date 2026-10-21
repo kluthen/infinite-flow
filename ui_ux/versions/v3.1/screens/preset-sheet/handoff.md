@@ -113,8 +113,8 @@ sheet-backdrop
   does nothing. If it fails, the confirmation stays open with `inline-alert alert-error`, "That
   couldn't be deleted. Try again.", under the paragraphs; nothing changes, and `Delete preset`
   tries again, the line leaving as it starts.
-- No raw value: every visual value comes from `src/styles/theme.css`, `src/styles/components.css`
-  and `ui_ux/versions/v3.1/token-source-v3.1.md` through the classes above.
+- No raw value: every visual value comes from `src/styles/theme.css` and
+  `src/styles/components.css` through the classes above.
 
 ## What the Main Action Does
 
