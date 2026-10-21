@@ -103,7 +103,7 @@ preflight does not run and no chunk carries a **Data** line
 
 | Wave | Chunks | Waits for | Status |
 | --- | --- | --- | --- |
-| 0 | 0 Intent re-sync and the contract drafts · 1 Token-source pass · 2 Baselines | Nothing (R0, D0, T2 done). | planned |
+| 0 | 0 Intent re-sync and the contract drafts · 1 Token-source pass · 2 Baselines | Nothing (R0, D0, T2 done). | gated (cd93eaf), awaiting merge |
 | 1 | 4 The quantized doodle · 5 Rhythm bars, distance and change kinds · 6 The request carries v3.2's inputs · 15 Vary settings' allowed groups | Wave 0. | planned |
 | 2 | 3 Measurement tools · 10 The rhythm lock in the generator · 11 Allowed rhythm changes · 12 Replay key `ifk4.` · 22 v3.2's kept-session shape | Wave 1. In-wave 10 → 11: chunk 10's capture fixes the ordering seam and the lock's order the draw slots into. LD opens at its end. | planned |
 | 3 | 16 The rhythm lock in a session · 13 Session measurements · 19 The lock and What may vary in the controls | Wave 2; CS before its sync. In-wave 16 → 13 and 16 → 19: chunk 16's capture fixes the session's lock state and what the session history records. Three chunks: the session half ends here, and every other session chunk is done. L3 opens at its end. | planned |

@@ -102,3 +102,19 @@ preflight correction needs none.
 - `atd:lint` and `atd:check` pass.
 - **Entry chunk: 265,431 B** of 307,200 B (unchanged from 3.1.0; chunk 1's CSS is outside it).
   No Jam chunk yet.
+
+### Wave sync
+
+`documentalist`, over `cb6e6e6..v3.2-w0`: no change, no drift. Chunk 2's five `@test-link`s
+resolve and sit directly above their `describe`/`it`; `atd check --full` 438 atoms, 334 OK, 104
+NO_IMPL (the v3.2 drafts and the vision). Part M stays unapplied until the owner signs off at CS.
+Optional for the owner: `module_phrase_replay_key`, `rule_seeded_phrase_reproduction` and
+`module_settings_mutation` to STABLE (the corpora add evidence).
+
+### Report to the owner
+
+Chunks 0, 1 and 2 done, none moved; gate passed; entry chunk 265,431 B. Asked for: the CS sign-off
+(change set part M, M1–M22; needed before wave 3's sync), the merge of `v3.2-w0` into `main` and the
+push. Open for the next driver: CS (owner); wave 1 (chunks 4, 5, 6, 15) in a fresh session, chunk
+15's brief carrying the draws corpus projection (plan v9); test:notation needs `npm run build`
+first in a fresh worktree.
