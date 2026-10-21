@@ -1,6 +1,6 @@
 ---
 id: module_kept_session_upgrade_step
-status: REVIEW
+status: STABLE
 type: MODULE
 layer: ARCHITECTURE
 tags: [v3, release-v3.1, storage, database, versioning, review]

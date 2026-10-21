@@ -1,6 +1,6 @@
 ---
 id: module_stored_profile_to_levels
-status: REVIEW
+status: STABLE
 human_name: A Stored Musical Profile Read as Figure Levels
 tags: [v3, release-v3.1, storage, review, figures]
 parents:

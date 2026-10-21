@@ -1,6 +1,6 @@
 ---
 id: rule_vary_settings_marks_custom
-status: REVIEW
+status: STABLE
 dependents:
   - [[module_settings_mutation]]
 type: RULE

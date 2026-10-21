@@ -1,9 +1,9 @@
 ---
 id: rule_figure_draws_reproducible
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
-version: 0.1
+version: 0.2
 human_name: Figure Draws Reproduce Everywhere
 dependents:
   - [[module_favored_figure_draw]]
@@ -28,5 +28,5 @@ Which notes a Favored or Strongly favored figure is tried first at is drawn from
 The figure levels travel in every phrase's generation request; the draws are computed inside generation from the seed.
 
 ## EXPECTATION
-- The same request, figure levels included, and the same seed give the same phrase in Chrome and Edge, on any machine.
+- The same request, figure levels included, and the same seed give the same phrase in Chrome, on any machine.
 - A pre-generated phrase equals the session's phrase whatever the levels.

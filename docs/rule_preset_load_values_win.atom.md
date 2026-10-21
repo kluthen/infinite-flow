@@ -1,6 +1,6 @@
 ---
 id: rule_preset_load_values_win
-status: REVIEW
+status: STABLE
 type: RULE
 version: 0.1
 priority: 1

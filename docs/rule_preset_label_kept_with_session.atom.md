@@ -1,6 +1,6 @@
 ---
 id: rule_preset_label_kept_with_session
-status: DRAFT
+status: REVIEW
 version: 0.1
 tags: [v3, release-v3.1, storage, review, presets]
 parents:
