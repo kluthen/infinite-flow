@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.80
+Status: draft v0.81
 
 ## Status Snapshot
 
@@ -54,7 +54,8 @@ Status: draft v0.80
     merge (D390); H1 and H2 passed on the owner's word, L1 and L2 done with no tuning (D391); the
     release gate's automated part runs now, H3–H5 and the `3.1.0` tag wait on the owner (D392);
     the automated part passed and the owner accepts the sync's proposals, so `v3.1-release` merges
-    into `main` now, the `3.1.0` tag following H3–H5 on `main` (D396).
+    into `main` now (D396); the owner gives his go, so `3.1.0` is tagged on `main` once the merge is
+    pushed, and H3–H5 become post-release hand checks he runs later (D397).
   - **v3.2:** Jam, the key and mode suggestion, the rhythm lock and its mutation option. Master
     spec [Part C](versions/v3/master-spec.md#part-c--v32), approved (D239); build plan
     [v3.2](versions/v3/build-plan-v3.2.md), v3, not approved. The contract wording v3.1 and

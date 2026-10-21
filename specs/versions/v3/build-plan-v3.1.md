@@ -1,12 +1,11 @@
 # Infinite Flow v3.1 — Build Plan
 
-Status: v22 (2026-10-21): the release gate's automated part has passed and the owner accepts
-every proposal of its sync, so `v3.1-release` merges into `main` now (spec D396); hand checks v3.1
-H1 and H2 passed on the owner's word, gates L1 and L2 done with no tuning (spec D391); H3, H4 and
-H5 stay the owner's, and his go and the `3.1.0` tag, put on `main`, wait on them (spec D392,
-D396). Approved by the owner
-on 2026-10-19 (spec D357, plan v4), with the transitional interface below; the revisions since
-write in spec D359–D392 and D396.
+Status: v23 (2026-10-21): the owner gives his go, so `3.1.0` is tagged on `main` once
+`v3.1-release` is merged and pushed (spec D397); the release gate's automated part has passed and
+the owner accepts every proposal of its sync (spec D396); hand checks v3.1 H1 and H2 passed on the
+owner's word, gates L1 and L2 done with no tuning (spec D391); H3, H4 and H5 stay the owner's, run
+after the release (spec D392, D397). Approved by the owner on 2026-10-19 (spec D357, plan v4), with
+the transitional interface below; the revisions since write in spec D359–D392, D396 and D397.
 
 Embellishment figures and presets, written from [master spec Part B](master-spec.md#part-b--v31)
 (v1.0, approved 2026-10-08, with spec D250 written in) and the v3.1 design, frozen at
@@ -306,9 +305,9 @@ The owner runs these on the Travel Sax over USB and the reference machine.
 | -------------------------------- | ---------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | H1 Listening: the levels (L1)    | 14         | After wave 5; used by the release gate | For each figure, at a few settings that leave it room (Eighth and Sixteenth, Heavily varied), regenerate a handful of phrases at Rarely, Often and Very often; say whether Often is clearly heard and Very often not overwhelming. The shares are tuned from it, then M1 and M2 re-run.           |
 | H2 Listening: the built-ins (L2) | 14         | After wave 5; used by the release gate | Choose each of the eight presets, regenerate a few phrases, play a short session; say whether each sounds as its description says (Reel in Mixolydian, Bebop's chromatic lines, Pop song's familiar chords, Modal (Dorian)'s color note). Neutral and Jazz should sound exactly as in v3.0.       |
-| H3 Same phrase in Edge           | 8          | Before the 3.1.0 tag (spec D392)       | Run chunk 8's in-browser replay test once with Playwright's Microsoft Edge channel (`msedge`), and replay one `ifk3.` key copied from a Chrome session in Edge; the phrases match. Item 7's "Chrome and Edge" half.                                                                               |
-| H4 Vary settings under a preset  | 15         | Before the 3.1.0 tag (spec D392)       | With the Travel Sax, Vary settings on, Reel chosen from C Ionian: a long session moves the mode only between Mixolydian and Dorian, the box turns to "Custom, based on Reel" when a setting moves, and Stop brings back Reel and its settings. Repeat under Modal (Dorian): the mode never moves. |
-| H5 v3.0 data carried over        | 16         | Before the 3.1.0 tag (spec D392)       | In the installed app and a plain Chrome tab that used v3.0 (settings changed, a pinned session, a Jazz selection with a changed Tension), update to v3.1: the settings come back, the box shows "Custom, based on Jazz", the pinned session opens with its label and plays back the same notes.   |
+| H3 Same phrase in Edge           | 8          | After the release (spec D397)          | Run chunk 8's in-browser replay test once with Playwright's Microsoft Edge channel (`msedge`), and replay one `ifk3.` key copied from a Chrome session in Edge; the phrases match. Item 7's "Chrome and Edge" half.                                                                               |
+| H4 Vary settings under a preset  | 15         | After the release (spec D397)          | With the Travel Sax, Vary settings on, Reel chosen from C Ionian: a long session moves the mode only between Mixolydian and Dorian, the box turns to "Custom, based on Reel" when a setting moves, and Stop brings back Reel and its settings. Repeat under Modal (Dorian): the mode never moves. |
+| H5 v3.0 data carried over        | 16         | After the release (spec D397)          | In the installed app and a plain Chrome tab that used v3.0 (settings changed, a pinned session, a Jazz selection with a changed Tension), update to v3.1: the settings come back, the box shows "Custom, based on Jazz", the pinned session opens with its label and plays back the same notes.   |
 
 ## Chunks
 
@@ -2005,8 +2004,8 @@ The release gate, not a wave; it keeps its chunk number because other plans link
   leaves the device).
 - `npm run verify:boundaries` with the 300 KiB entry budget (M4).
 - Hand checks: v3.1 H1 and H2 passed on the owner's word (spec D391); v3.1 H3, H4 and H5 are the
-  owner's, run after the gate's automated part (spec D392). The release notes list them as open
-  until he records them.
+  owner's, run after the release (spec D392, D397). The release notes list them as open until he
+  records them.
 - `documentalist`'s post-task sync over every `release-v3.1` atom, promoting those the owner agrees
   to; every `changes-in-v3.1` atom revised; part F's drift checks done; the contract's item 23
   record checked (D246, in the CONTRACT 3.0 notes, and gate CS's MAJOR bump, spec D361). The lexicon entries B11 lists no longer say
@@ -2016,9 +2015,11 @@ The release gate, not a wave; it keeps its chunk number because other plans link
 - `package.json` version `3.1.0`.
 
 **Done when:** every item of B14 has a row with evidence; every measurement has its figure; the
-owner says go, once he has run v3.1 H3, H4 and H5 (spec D392). The release branch merges into
-`main` before that, once the automated part has passed and the owner has accepted the sync's
-proposals (spec D396); the `3.1.0` tag waits on the go and is put on `main`.
+owner has accepted the sync's proposals (spec D396), the promotions are committed, the release
+branch is merged into `main` and pushed, and the `3.1.0` tag is put on `main` on the owner's go
+(spec D397). v3.1 H3, H4 and H5 come after the release: the owner runs them later; a finding
+becomes an issue or a 3.1.x fix, and each passing check releases its waiting promotions (11
+REVIEW→STABLE, 2 DRAFT→REVIEW) (spec D392, D397).
 
 ### Definition-of-done coverage
 

@@ -29,7 +29,7 @@ built yet; D263–D288 merged from branch `v3.3-chord-research`), D344–D348 (t
 its follow-ups) and D349–D358 (the v3.1–v3.3 plan migrations, merged from branch
 `plan-migration` as D339–D341, the v3.1 plan's gates and approval, and B12's code check) and
 D359–D363 (the owner's rulings during v3.1's wave 0), D364–D388 and D390 (the v3.1 build's rulings,
-preflight corrections and sign-offs), D389 (v3.4 opened), D391–D392 and D396 (v3.1's release gate) and
+preflight corrections and sign-offs), D389 (v3.4 opened), D391–D392, D396 and D397 (v3.1's release gate) and
 D393–D395 (the lexicon page in v3.4, its single source, the lexicon API later). D289 is unused.
 
 ## Decision Log
@@ -979,3 +979,13 @@ D393–D395 (the lexicon page in v3.4, its single source, the lexicon API later)
   v3.0, `changes-in-v3.1` removed from 7 STABLE atoms. Still on the owner (D392): H3–H5, 11
   REVIEW→STABLE and 2 DRAFT→REVIEW promotions, his go, the tag on `main`. Now in:
   [chunk 21](versions/v3/build-plan-v3.1.md#chunk-21--v31-release-gate) (plan v22).
+
+- **D397 (2026-10-21): the owner gives his go; `3.1.0` is tagged on `main` now, and v3.1 H3, H4
+  and H5 become post-release hand checks; D392 and D396 are amended.** The owner: "you may tag when
+  everything is done", then, asked about H3–H5, "Tag now, H3–H5 later". The tag follows the
+  committed sync promotions (1bb3257, CONTRACT 7.1.0) and the merge into `main`, pushed. A finding
+  from H3–H5 becomes an issue or a 3.1.x fix; as each check passes, its waiting promotions follow
+  (11 REVIEW→STABLE, 2 DRAFT→REVIEW). D396's MODULE and ENTITY atoms: the nine new ones go on the
+  contract surface, as all twelve v3.0 ones did, within the owner's "go with the proposals for all
+  of them". Now in: [hand checks](versions/v3/build-plan-v3.1.md#hand-checks),
+  [chunk 21](versions/v3/build-plan-v3.1.md#chunk-21--v31-release-gate) (plan v23).
