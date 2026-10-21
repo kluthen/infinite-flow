@@ -16,6 +16,8 @@
 >   ([Routing rules](#routing-rules))
 > - _Removed:_ "There is no other audio-unlock step." (v2 in the
 >   [frozen copy](../../versions/v2/flows/controller-connection/handoff.md#routing-rules))
+> - _v3.2 new:_ Jam mode: a controller never switches the mode; `Start Jam` waits for one; a
+>   controller lost before a fresh Jam's phrase 1 ends the Jam at once ([Routing rules](#routing-rules))
 
 ## Entry and exit
 
@@ -233,3 +235,18 @@ flowchart TD
 - A session started with no controller (none ever connected, or the selected one away) stays
   controller-less until it ends; only Stop ends it, apart from a hidden tab or a window that can
   no longer show the staff.
+- **[v3.2 new]** **Jam mode** (`flows/jam/handoff.md`, Routing Rules). A controller attaching,
+  reattaching or going away never switches the mode, at Idle, in the review mode or in a session;
+  only `mode-switch` does. In Jam mode, while no controller is connected (none selected, or the
+  selected one away), `Start Jam` is disabled and `session-cue-row` holds `jam-needs-controller`;
+  every one of Jam's settings can still be set, and a kept doodle stays, its phrase 1 still
+  shown. A controller attaching enables `Start Jam` (the other start conditions permitting) and
+  `start-note-line` takes `jam-needs-controller`'s place; nothing else changes. So a Jam is never
+  controller-less, and on every dismiss path in Jam mode without a controller focus lands on
+  `controller-status`, both header actions being disabled.
+  - A controller lost during a fresh Jam before its phrase 1 sounds (count-in, capture, writing or
+    read-in measure) ends the Jam at once as a count-in end, with no banner and no countdown: Jam
+    mode's Idle, `Start Jam` disabled, `jam-needs-controller`, focus on `controller-status`. From
+    phrase 1 on, and from the start of a Jam on the kept doodle, a loss is handled as in any
+    session (Mid-session controller loss, above), and a controller away at the session's end
+    changes nothing in what Jam mode keeps.

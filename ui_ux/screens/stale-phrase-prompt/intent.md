@@ -46,8 +46,11 @@ controls the preset moved, up to three, or the first two and a count of the rest
 the prompt is about the preset they just chose.
 
 **[v3.2 new]** A Jam never meets the prompt. A fresh Jam has no phrase on screen to be out of
-date, and a held doodle is let go by any change of a setting phrases are made from, so its phrase
-1 is always made under the current settings.
+date, and when Jam mode keeps a doodle, a change to any of Jam's settings but the tempo writes
+phrase 1 again from it at once, so its phrase 1 is always made under the current settings. In Jam
+mode the point is to go round again on the same idea quickly, and a question at every Start after
+trying a setting would get in the way of that. Session mode's phrase is compared with session
+mode's settings only, since Jam's settings never reach it.
 
 ## The Words
 

@@ -4,6 +4,10 @@
 
 > **Changes since v3.1**
 >
+> - _v3.2 new:_ presets belong to session mode; Jam mode has none
+>   ([Presets and Jam Mode](#presets-and-jam-mode))
+> - _v3.2 removed:_ "how presets meet v3.2's Jam" among what was left out, now settled (v3.1
+>   in the [frozen copy](../../versions/v3.1/flows/presets/intent.md#what-was-left-out))
 > - _v3.3 new:_ every preset holds the Seventh chords level, each built-in at Off, and three
 >   built-ins suggest raising it ([Choosing a Preset](#choosing-a-preset))
 
@@ -240,6 +244,22 @@ an embellishment level, and any change to which keys and modes are in force disc
 session would no longer play them; saving, renaming or deleting that changes neither a setting nor
 the guidance in force keeps them. None of this shows.
 
+## Presets and Jam Mode
+
+**[v3.2 new]** Presets are session mode's tool, and Jam mode has none. A preset is a named
+starting point for the many settings a generator reads; a Jam reads few of its own, and takes the
+rest from the player's doodle, so there would be little for a preset to set, and steering variety
+is what the doodle and the drift do there (see [`flows/jam/`](../jam/intent.md#a-mode-of-its-own)).
+So Jam's controls have no preset box, no key and mode marks, and nothing set in Jam mode turns
+session mode's preset to Custom. When the app suggests a key and mode for a doodle and the player
+takes it, only Jam's own key and mode change: the preset the player chose for their practice, and
+the keys and modes it is meant for, wait for them in session mode untouched.
+
+**[v3.2 new]** In session mode the new choices of the "During a session" group, the rhythm lock with the
+rhythm changes it allows, and which groups of settings Vary settings may move, are not held by a
+preset, like the other session options: they shape how a session's phrases follow one another,
+not what one phrase is made from, so choosing a preset never changes them and changing them never makes Custom.
+
 ## What Was Left Out
 
 From [master spec B2](../../../specs/versions/v3/master-spec.md#out-of-v31):
@@ -252,6 +272,5 @@ From [master spec B2](../../../specs/versions/v3/master-spec.md#out-of-v31):
   that restricts keys.
 - Exporting or sharing a preset, saving "this phrase's settings" from the review, and hiding a
   built-in preset.
-- How presets meet v3.2's Jam, its key and mode suggestion and its rhythm lock: v3.2's matter.
 - A confirmation before choosing a preset over unsaved Custom changes: choosing is how a player
   explores, and the Custom label and its sentence already say saving is possible.
