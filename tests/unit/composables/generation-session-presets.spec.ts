@@ -23,7 +23,12 @@ import {
   type Preset,
   type PresetSelection,
 } from '@/domain/presets/preset-selection'
-import { createFitSession, flushAsync, type FitSessionOptions } from './fit-session-harness'
+import {
+  createDeferred,
+  createFitSession,
+  flushAsync,
+  type FitSessionOptions,
+} from './fit-session-harness'
 
 /** Intent: the ten preset-held controls of a set of controls, in the presets' order. */
 function heldControls(controls: object): Record<string, unknown> {
@@ -394,5 +399,101 @@ describe('createGenerationSession: what a preset choice or a key edit saves', ()
         presetSelection: { kind: 'preset', presetId: 'neutral' },
       },
     ])
+  })
+})
+
+/** A second player preset, as a save as new makes one: Neutral's values, any key and mode. */
+const WARM_UP: Preset = makePreset({
+  id: 'player-2',
+  name: 'Warm-up',
+  controls: builtInPreset('neutral').controls,
+  levels: NEUTRAL_FIGURE_LEVELS,
+  restriction: { keys: 'any', modes: 'any' },
+  kind: 'player',
+})
+
+// @test-link [[service_idle_generation_session]]
+describe('createGenerationSession: the preset-list action', () => {
+  // @test-link [[service_idle_generation_session]]
+  it('replaces the player presets after the built-ins, and the selection when given one, saving the selection alone', () => {
+    const { session, saves } = sessionFrom({}, { kind: 'preset', presetId: 'neutral' }, {}, [
+      LATE_NIGHT,
+    ])
+    const controls = session.state.controls
+    const levels = session.state.figureLevels
+
+    session.actions.replacePlayerPresets([LATE_NIGHT, WARM_UP], {
+      kind: 'preset',
+      presetId: 'player-2',
+    })
+
+    expect(session.state.presets).toEqual([...BUILT_IN_PRESETS, LATE_NIGHT, WARM_UP])
+    expect(session.state.selection).toEqual({ kind: 'preset', presetId: 'player-2' })
+    expect(session.state.controls).toBe(controls)
+    expect(session.state.figureLevels).toBe(levels)
+    expect(saves).toEqual([{ presetSelection: { kind: 'preset', presetId: 'player-2' } }])
+  })
+
+  // @test-link [[service_idle_generation_session]]
+  it('saves no setting when given no selection, or the selection already current', () => {
+    const { session, saves } = sessionFrom({}, { kind: 'custom', baseId: 'player-1' }, {}, [
+      LATE_NIGHT,
+    ])
+    const renamed = makePreset({ ...LATE_NIGHT, name: 'Late night blues' })
+
+    session.actions.replacePlayerPresets([renamed])
+    session.actions.replacePlayerPresets([renamed, WARM_UP], { kind: 'custom', baseId: 'player-1' })
+
+    expect(session.state.presets).toEqual([...BUILT_IN_PRESETS, renamed, WARM_UP])
+    expect(session.state.selection).toEqual({ kind: 'custom', baseId: 'player-1' })
+    expect(saves).toEqual([])
+  })
+
+  // @test-link [[service_idle_generation_session]]
+  it('applies while a phrase is being generated, starting nothing and leaving that generation to finish', async () => {
+    const pending = createDeferred<GenerationIntent>()
+    const { session, generated, saves } = createFitSession({
+      generate: () => pending.promise,
+    })
+    const generating = session.actions.generate()
+    expect(session.state.operation).toBe('generating')
+
+    session.actions.replacePlayerPresets([WARM_UP], { kind: 'preset', presetId: 'player-2' })
+
+    expect(session.state.presets).toEqual([...BUILT_IN_PRESETS, WARM_UP])
+    expect(session.state.selection).toEqual({ kind: 'preset', presetId: 'player-2' })
+    expect(saves).toEqual([{ presetSelection: { kind: 'preset', presetId: 'player-2' } }])
+    expect(generated).toHaveLength(1)
+    const [intent] = generated
+    if (intent === undefined) throw new Error('no generation started')
+    pending.resolve(intent)
+    await expect(generating).resolves.toBe(true)
+    await flushAsync()
+    expect(session.state.result).toBe(intent)
+    expect(generated).toHaveLength(1)
+  })
+
+  // @test-link [[service_idle_generation_session]]
+  it('refuses a built-in, an id twice, or a selection naming no preset of the new list, replacing nothing', () => {
+    const { session, saves } = sessionFrom({}, { kind: 'preset', presetId: 'neutral' }, {}, [
+      LATE_NIGHT,
+    ])
+
+    expect(() => session.actions.replacePlayerPresets([builtInPreset('jazz')])).toThrow(
+      SessionUsageError,
+    )
+    expect(() => session.actions.replacePlayerPresets([LATE_NIGHT, LATE_NIGHT])).toThrow(
+      SessionUsageError,
+    )
+    expect(() =>
+      session.actions.replacePlayerPresets([WARM_UP], { kind: 'preset', presetId: 'player-1' }),
+    ).toThrow(SessionUsageError)
+    expect(() =>
+      session.actions.replacePlayerPresets([WARM_UP], { kind: 'custom', baseId: 'player-1' }),
+    ).toThrow(SessionUsageError)
+
+    expect(session.state.presets).toEqual([...BUILT_IN_PRESETS, LATE_NIGHT])
+    expect(session.state.selection).toEqual({ kind: 'preset', presetId: 'neutral' })
+    expect(saves).toEqual([])
   })
 })

@@ -1,7 +1,8 @@
 /**
  * A hand-driven Idle session double for the workspace component specs of the Review: a reactive
  * state a test edits directly (as the Idle rules running underneath the Review would), and spies
- * for every action. The real Idle machinery is covered by the composable specs.
+ * for every action; the preset-list action's spy also replaces the player presets and the
+ * selection in that state. The real Idle machinery is covered by the composable specs.
  */
 import { shallowReactive } from 'vue'
 import { vi } from 'vitest'
@@ -59,6 +60,10 @@ export function fakeGenerationSession(overrides: Partial<FakeIdleState> = {}): {
       setControl: vi.fn(() => true),
       selectPreset: vi.fn(() => true),
       setFigureLevel: vi.fn(() => true),
+      replacePlayerPresets: vi.fn((playerPresets, selection) => {
+        state.presets = [...BUILT_IN_PRESETS, ...playerPresets]
+        if (selection !== undefined) state.selection = selection
+      }),
       selectInstrumentProfile: vi.fn(async () => 'applied' as const),
       saveMyInstrument: vi.fn(async () => 'saved' as const),
       saveAndSelectMyInstrument: vi.fn(async () => 'saved' as const),

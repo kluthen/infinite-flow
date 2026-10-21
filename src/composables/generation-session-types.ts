@@ -50,9 +50,10 @@ export interface GenerationSessionState<TResult> {
   /** The preset selected, or Custom based on the preset it came from (or on none). */
   readonly selection: PresetSelection
   /**
-   * The presets the session knows, built-ins first, then the player presets the load read: the
-   * ones the selection is chosen from, judged against and named from. It never changes during a
-   * session.
+   * The presets the session knows, built-ins first, then the player presets: the ones the
+   * selection is chosen from, judged against and named from. The player presets are the ones the
+   * load read until the preset-list action (`replacePlayerPresets`) replaces them; nothing else
+   * changes them.
    */
   readonly presets: readonly Preset[]
   readonly presentation: PresentationSettings
@@ -110,6 +111,20 @@ export interface GenerationSessionActions {
    * becomes Custom based on it. A figure or level that is not one is a defect: SessionUsageError.
    */
   readonly setFigureLevel: (figure: FigureId, level: FigureLevel) => boolean
+  /**
+   * The preset-list action: replace the player presets the session lists after the built-ins
+   * and, when one is given, the preset selection. It checks no operation, so it applies while a
+   * phrase is being generated or drawn as at rest; it changes no generation setting and starts
+   * no generation. It saves the selection (`presetSelection`) only when the one given differs
+   * from the current one, and no other setting; it never writes a preset record. A preset that is
+   * not a player preset, two presets sharing an id, or a selection naming no preset of the new
+   * list is a defect: SessionUsageError, nothing replaced.
+   */
+  // @spec-link [[service_idle_generation_session]]
+  readonly replacePlayerPresets: (
+    playerPresets: readonly Preset[],
+    selection?: PresetSelection,
+  ) => void
   readonly selectInstrumentProfile: (id: InstrumentProfileId) => Promise<ProfileSelectionOutcome>
   /**
    * Save my instrument, made or changed: its record is written at once, or, for a change of range
@@ -241,7 +256,8 @@ export interface CreateGenerationSessionOptions<TResult, TGenerated = TResult> {
   readonly initialSettings?: InitialGenerationSettings
   /**
    * Where the player's changes to the controls, the preset selection and the theme are saved:
-   * each control action that applies saves exactly the settings it changed. The actions are called
+   * each control action that applies saves exactly the settings it changed (the preset-list
+   * action, `presetSelection` alone, when it changed it). The actions are called
    * from the player's change handlers only, so what the app changes by itself is never saved.
    */
   // @spec-link [[rule_settings_saved_on_change]]

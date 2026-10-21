@@ -8,9 +8,11 @@
  * refusals). The apology (Damaged sessions deleted) shows once a deletion of damaged sessions has
  * committed, saying how many went, a further one adding its count while it shows; a refused one
  * shows the save-problem notice instead, in its Damaged session not deleted wording (Storage full
- * for lack of space), at every refusal, even after `Dismiss`. The apology and the save-problem
- * notice, the dismissible ones, replace each other in place, the latest shown; an apology whose
- * deletion commits once the tab is outdated is not shown.
+ * for lack of space), at every refusal, even after `Dismiss`. A player preset's refused save is
+ * told at once in the save-problem notice's preset wording (Preset not saved, naming it), or
+ * Storage full for lack of space, under the save-problem notice's rules. The apology and the
+ * save-problem notice, the dismissible ones, replace each other in place, the latest shown; an
+ * apology whose deletion commits once the tab is outdated is not shown.
  *
  * A notice never appears, changes or leaves during a session: the one showing at Start stays as it
  * is, its actions disabled, and whatever arose meanwhile shows once the session ends. Nothing here
@@ -26,6 +28,7 @@ import type { DamagedSessionReports, DamagedSessionsReport } from './workspace-k
 /** Which notice shows. */
 export type AppNoticeKind =
   | 'save-failed'
+  | 'preset-not-saved'
   | 'storage-full'
   | 'damaged-sessions-deleted'
   | 'damaged-session-not-deleted'
@@ -36,7 +39,7 @@ export type AppNoticeKind =
 /** The notices whose sentence is the same whatever happened. */
 type FixedNoticeKind = Exclude<
   AppNoticeKind,
-  'damaged-sessions-deleted' | 'damaged-session-not-deleted'
+  'damaged-sessions-deleted' | 'damaged-session-not-deleted' | 'preset-not-saved'
 >
 
 /** One notice: its sentence, its one action (if any) and whether it has `Dismiss`. */
@@ -105,24 +108,75 @@ function damagedNotice(
 }
 
 /**
+ * Intent: the save-problem notice's preset wording, for a refused save of the player preset
+ * saved under `name`, with `Dismiss` only; the name as the player wrote it, in typographic quotes.
+ */
+// @spec-link [[rule_refused_preset_save_told]]
+function presetNotSavedNotice(name: string): AppNotice {
+  return {
+    kind: 'preset-not-saved',
+    text: `Your preset “${name}” couldn't be saved on this device. You can use it until this page closes.`,
+    action: null,
+    dismissable: true,
+  }
+}
+
+/**
  * The dismissible notice of the moment, when one is raised and not dismissed: the save-problem
- * notice with its latest cause (a failed save's kind, or a refused deletion of `count` damaged
- * sessions), or the apology for `count` damaged sessions deleted.
+ * notice with its latest cause (a failed save's kind, a refused save of the player preset named
+ * `name`, or a refused deletion of `count` damaged sessions), or the apology for `count` damaged
+ * sessions deleted.
  */
 type Dismissible =
   | { readonly kind: 'save-problem'; readonly cause: SaveFailureKind }
+  | { readonly kind: 'preset-not-saved'; readonly name: string }
   | { readonly kind: 'damaged-not-deleted'; readonly count: number }
   | { readonly kind: 'apology'; readonly count: number }
 
 /**
- * What the notices read: the load's outcome and its save policy, whether a session runs, and the
- * reports of the deletions of damaged kept sessions (none heard without them).
+ * The channel a player preset's refused save (a save as new, a save of changes or a rename)
+ * reaches the notices by, told the name the preset was saved under, once the save policy has
+ * resolved the write as failed (and so has already told its failure listener).
+ */
+// @spec-link [[rule_refused_preset_save_told]]
+export interface RefusedPresetSaves {
+  /** Tell every listener now that the save of the preset named `name` was refused. */
+  readonly tell: (name: string) => void
+  /** Hear every refusal told from now on; returns the way to stop. */
+  readonly listen: (listener: (name: string) => void) => () => void
+}
+
+/**
+ * Intent: the channel of the player presets' refused saves, one per workspace: a refusal reaches
+ * the listeners attached when it is told, and nothing keeps it after.
+ */
+// @spec-link [[rule_refused_preset_save_told]]
+export function createRefusedPresetSaves(): RefusedPresetSaves {
+  const listeners = new Set<(name: string) => void>()
+  return {
+    tell: (name) => {
+      for (const listener of [...listeners]) listener(name)
+    },
+    listen: (listener) => {
+      listeners.add(listener)
+      return () => {
+        listeners.delete(listener)
+      }
+    },
+  }
+}
+
+/**
+ * What the notices read: the load's outcome and its save policy, whether a session runs, the
+ * reports of the deletions of damaged kept sessions and the player presets' refused saves (none
+ * heard without them).
  */
 export interface AppNoticeDependencies {
   readonly source: Pick<SavedDataLoad, 'outcome' | 'savePolicy'>
   /** True while a session runs, count-in included. */
   readonly sessionActive: () => boolean
   readonly damagedSessions?: Pick<DamagedSessionReports, 'listen'>
+  readonly refusedPresetSaves?: Pick<RefusedPresetSaves, 'listen'>
 }
 
 /** The notice the row shows, whether its actions are disabled, and its `Dismiss`. */
@@ -139,6 +193,7 @@ function dismissibleNotice(shown: Dismissible): AppNotice {
   if (shown.kind === 'apology') return damagedNotice('damaged-sessions-deleted', shown.count)
   if (shown.kind === 'damaged-not-deleted')
     return damagedNotice('damaged-session-not-deleted', shown.count)
+  if (shown.kind === 'preset-not-saved') return presetNotSavedNotice(shown.name)
   return NOTICES[shown.cause === 'quota' ? 'storage-full' : 'save-failed']
 }
 
@@ -175,14 +230,36 @@ function afterDamagedReport(shown: Dismissible | null, report: DamagedSessionsRe
 }
 
 /**
- * Intent: the notice row's notice over the visit's load and the deletions of damaged kept
- * sessions, held still while a session runs.
+ * Intent: the dismissible notice after the refused save of the player preset named `name`, over
+ * `shown`. The policy has already told its failure listener of that refusal, unless it continued
+ * a run under the kind last told: so the save-problem notice shows, with the refusal's kind, just
+ * when this refusal is to be told. Its Save failed wording, or an earlier preset's, then takes
+ * this preset's wording in place; Storage full stays, being the wording of a preset save refused
+ * for lack of space; anything else (none, dismissed, the apology) stays as it is.
+ */
+// @spec-link [[rule_refused_preset_save_told]]
+function afterRefusedPresetSave(shown: Dismissible | null, name: string): Dismissible | null {
+  const toldInPresetWording =
+    shown?.kind === 'preset-not-saved' ||
+    (shown?.kind === 'save-problem' && shown.cause === 'other')
+  return toldInPresetWording ? { kind: 'preset-not-saved', name } : shown
+}
+
+/** Intent: whether `shown` is the save-problem notice in a save's wording, preset or not. */
+function isSaveProblem(shown: Dismissible | null): boolean {
+  return shown?.kind === 'save-problem' || shown?.kind === 'preset-not-saved'
+}
+
+/**
+ * Intent: the notice row's notice over the visit's load, the deletions of damaged kept sessions
+ * and the player presets' refused saves, held still while a session runs.
  */
 // @spec-link [[rule_failed_save_never_disturbs_session]]
 // @spec-link [[rule_outdated_tab_stops_saving]]
 // @spec-link [[rule_failed_read_told_to_player]]
 // @spec-link [[module_save_policy]]
 // @spec-link [[module_kept_session_save]]
+// @spec-link [[rule_refused_preset_save_told]]
 export function useAppNotices(deps: AppNoticeDependencies): AppNotices {
   const { outcome, savePolicy } = deps.source
   // Until the policy arrives: a visit started from the defaults saves nothing; one that read its
@@ -204,6 +281,13 @@ export function useAppNotices(deps: AppNoticeDependencies): AppNotices {
       }),
     )
   }
+  if (deps.refusedPresetSaves !== undefined) {
+    unsubscribes.push(
+      deps.refusedPresetSaves.listen((name) => {
+        dismissible.value = afterRefusedPresetSave(dismissible.value, name)
+      }),
+    )
+  }
   void savePolicy.then((policy) => {
     if (disposed) return
     saving.value = policy.state()
@@ -212,7 +296,7 @@ export function useAppNotices(deps: AppNoticeDependencies): AppNotices {
         saving.value = state
       }),
       policy.onFailure((kind, startsRun) => {
-        if (startsRun || dismissible.value?.kind === 'save-problem')
+        if (startsRun || isSaveProblem(dismissible.value))
           dismissible.value = { kind: 'save-problem', cause: kind }
       }),
     )

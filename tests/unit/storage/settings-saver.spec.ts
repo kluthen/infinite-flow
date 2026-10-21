@@ -4,8 +4,9 @@ import { makeGenerationControls } from '@/domain/controls/generation-controls'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import { JAZZ_FIGURE_LEVELS, NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { builtInPreset, DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
-import type { PresetSelection } from '@/domain/presets/preset-selection'
+import { makePreset, type PresetSelection } from '@/domain/presets/preset-selection'
 import { CONTROLLER_RECORD_KEY, encodeControllerRecord } from '@/storage/records/controller-record'
+import { encodePresetRecord } from '@/storage/records/preset-record'
 import { settingDataVersion, type SettingKey } from '@/storage/records/settings-record'
 import type { SavePolicy } from '@/storage/save-policy'
 import {
@@ -209,6 +210,45 @@ describe('the order calls reach the policy in', () => {
       { method: 'hold' },
       { method: 'release' },
       { method: 'saveSession', changes, pageGoingAway: PAGE_STAYS },
+    ])
+  })
+})
+
+// @test-link [[module_player_presets]]
+describe('the player presets among the visit saves', () => {
+  // @test-link [[module_player_presets]]
+  it('queue in call order, a record before the selection naming it, and resolve the outcomes', async () => {
+    const { policy, calls } = recordingPolicy()
+    const pending = pendingPolicy(policy)
+    const saves = createVisitSaves(pending.promise, APP_VERSION)
+    const selection: PresetSelection = { kind: 'preset', presetId: 'player-1' }
+    const preset = makePreset({ ...builtInPreset('jazz'), id: 'player-1', kind: 'player' })
+
+    const saved = saves.savePreset(preset)
+    saves.saveSettings({ presetSelection: selection })
+    const deleted = saves.deletePreset('player-1')
+    await flushPromises()
+    expect(calls).toEqual([])
+
+    pending.resolve()
+
+    expect(await saved).toBe('saved')
+    expect(await deleted).toBe('saved')
+    expect(calls).toEqual([
+      {
+        method: 'save',
+        changes: [
+          {
+            kind: 'write',
+            store: 'presets',
+            key: 'player-1',
+            record: encodePresetRecord(preset, APP_VERSION),
+          },
+        ],
+      },
+      { method: 'requestProtection' },
+      { method: 'save', changes: [settingWrite('presetSelection', selection)] },
+      { method: 'save', changes: [{ kind: 'delete', store: 'presets', key: 'player-1' }] },
     ])
   })
 })

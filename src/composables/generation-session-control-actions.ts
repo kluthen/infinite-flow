@@ -1,11 +1,12 @@
 /**
  * The workspace session's control actions, split out of use-generation-session.ts: the routing
  * point every edit of a generation setting at Idle goes through (a control, a figure level, a
- * preset choice), the presentation theme, and the unsupported-rhythm block that judges the current
- * controls. This module owns no session state of its own: it reads and writes the shared session
- * state object the root composable constructs and passes in. Each action that applies saves the
- * settings it changed: the actions are the player's change handlers' way in, so what they change
- * is the player's choice.
+ * preset choice), the presentation theme, the preset-list action that replaces the player presets
+ * and, where the preset rules say, the selection, and the unsupported-rhythm block that judges the
+ * current controls. This module owns no session state of its own: it reads and writes the shared
+ * session state object the root composable constructs and passes in. Each action that applies
+ * saves the settings it changed: the actions are the player's change handlers' way in, so what
+ * they change is the player's choice.
  */
 
 import {
@@ -33,7 +34,7 @@ import {
   type PresetSelection,
   type SettingChange,
 } from '@/domain/presets/preset-selection'
-import { chosenControlChanges, type SaveSettings } from '@/storage/settings-saver'
+import { chosenControlChanges, sameSelection, type SaveSettings } from '@/storage/settings-saver'
 import {
   SessionUsageError,
   type GenerationSessionActions,
@@ -66,7 +67,7 @@ export interface ControlActionDependencies<TResult> {
 /** The control actions, plus the rhythm block the rest of the session judges generation by. */
 export type ControlActions = Pick<
   GenerationSessionActions,
-  'setControl' | 'setFigureLevel' | 'selectPreset' | 'setTheme'
+  'setControl' | 'setFigureLevel' | 'selectPreset' | 'setTheme' | 'replacePlayerPresets'
 > & {
   /** Whether the current controls' rhythm combination blocks generation at the width now. */
   readonly isBlockedByUnsupportedRhythm: () => boolean
@@ -261,5 +262,56 @@ export function createControlActions<TResult>(
     return true
   }
 
-  return { isBlockedByUnsupportedRhythm, setControl, setFigureLevel, selectPreset, setTheme }
+  /**
+   * Intent: refuse a player preset list or selection that breaks the preset-list action's
+   * contract: a preset not the player's, an id twice, a selection naming no preset of the list.
+   */
+  function checkReplacement(presets: readonly Preset[], selection?: PresetSelection): void {
+    const ids = new Set<PresetId>()
+    for (const preset of presets) {
+      if (ids.has(preset.id)) {
+        throw new SessionUsageError(`replacePlayerPresets: the id ${preset.id} is listed twice.`)
+      }
+      ids.add(preset.id)
+    }
+    if (selection === undefined) return
+    const named = selection.kind === 'preset' ? selection.presetId : selection.baseId
+    if (named !== null && findPreset(presets, named) === undefined) {
+      throw new SessionUsageError(`replacePlayerPresets: the selection names no preset ${named}.`)
+    }
+  }
+
+  /**
+   * The preset-list action: the player presets after the built-ins become the given ones, and the
+   * selection the given one, if any. It checks no operation and changes no generation setting,
+   * so nothing reacts to it; the restriction in force follows from the state it changes. It
+   * saves the selection when it changed, and nothing else: the player presets are no setting.
+   */
+  // @spec-link [[service_idle_generation_session]]
+  // @spec-link [[rule_settings_saved_on_change]]
+  function replacePlayerPresets(
+    playerPresets: readonly Preset[],
+    selection?: PresetSelection,
+  ): void {
+    const notPlayer = playerPresets.find((preset) => preset.kind !== 'player')
+    if (notPlayer !== undefined) {
+      throw new SessionUsageError(`replacePlayerPresets: ${notPlayer.id} is not a player preset.`)
+    }
+    const builtIns = deps.presets().filter((preset) => preset.kind === 'builtIn')
+    const presets = deepFreeze([...builtIns, ...playerPresets])
+    checkReplacement(presets, selection)
+    state.presets = presets
+    if (selection === undefined || sameSelection(state.selection, selection)) return
+    state.selection = selection
+    deps.saveSettings({ presetSelection: selection })
+  }
+
+  return {
+    isBlockedByUnsupportedRhythm,
+    setControl,
+    setFigureLevel,
+    selectPreset,
+    setTheme,
+    replacePlayerPresets,
+  }
 }

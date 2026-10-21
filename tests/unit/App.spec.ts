@@ -86,6 +86,7 @@ function fakeWorkspaceSession(savedData: SavedDataLoad = fakeSavedData()) {
       reportNotationFailure: () => false,
       reportNotationRecovered: () => false,
       startFreshPhrase: async () => false,
+      replacePlayerPresets: () => {},
     },
     dispose: () => {},
   }

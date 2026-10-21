@@ -191,15 +191,21 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
     fitRunner.stopIfBlocked()
   }
 
-  const { isBlockedByUnsupportedRhythm, setControl, setFigureLevel, selectPreset, setTheme } =
-    createControlActions<TResult>({
-      state,
-      readNoteDensityContext,
-      prewarmCurrentRhythmSetting,
-      afterGenerationSettingChange: () => roomNotice.afterGenerationSettingChange(),
-      saveSettings: options.saveSettings,
-      presets: () => state.presets,
-    })
+  const {
+    isBlockedByUnsupportedRhythm,
+    setControl,
+    setFigureLevel,
+    selectPreset,
+    setTheme,
+    replacePlayerPresets,
+  } = createControlActions<TResult>({
+    state,
+    readNoteDensityContext,
+    prewarmCurrentRhythmSetting,
+    afterGenerationSettingChange: () => roomNotice.afterGenerationSettingChange(),
+    saveSettings: options.saveSettings,
+    presets: () => state.presets,
+  })
 
   const {
     retryNotation,
@@ -383,6 +389,7 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
       setControl,
       setFigureLevel,
       selectPreset,
+      replacePlayerPresets,
       selectInstrumentProfile,
       saveMyInstrument,
       saveAndSelectMyInstrument,
