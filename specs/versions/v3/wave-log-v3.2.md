@@ -62,3 +62,7 @@ preflight correction needs none.
   D420 puts the vision's browser line (Chrome, after D399) into the CS redraft. `documentalist`
   drafts the three added CS items in the change set.
 - Chunk 1 dispatched to `ux-writer`, on `v3.2-w0`.
+- `documentalist` drafted the three added CS items (58b6b03): M2 now on C13 (weakens), new M22
+  `module_session_seed_plan` 0.2 → 0.3 (extends), M20 gains the browser line (no contract
+  promise weakened), M21's 8.0.0 summary updated. Proposed, not applied: add
+  `rule_jam_phrase_one_failure_ladder` to M22's parents.
