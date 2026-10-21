@@ -404,6 +404,38 @@ With every figure Off, the 8 phrases not generated (of 5,112) are all Lift: 6
 every Settled, Build and Edge phrase is generated, and every Build and Edge phrase holds Tension's
 scheduled figure.
 
+### Final census at the release gate (v3.1 chunk 21)
+
+The census re-run on the v3.1 release candidate (wave 5 merged), at the same shares in force:
+`FAVORED_SHARE` 0x4000 (1 in 4) and `STRONGLY_FAVORED_SHARE` 0x8000 (1 in 2), not tuned (H1 passed
+with no tuning, spec D391).
+
+**Machine and date.** Run by Claude on 2026-10-21 from 15:30 to 15:47 CEST on branch
+`v3.1-c21-release-gate` at 60aff5a (`src/` identical to `v3.1-release`), on the reference machine
+(AMD Ryzen 5 PRO 8640HS, 12 threads, 11 GiB RAM, not a VM, Node 22.23.3, Linux 6.12.113), nothing
+else running: 1-minute load average 1.18 before, 1.34 after. The run took 1,058 s; its tests
+passed (5 of 5).
+
+Every figure's ladder (Off, As today, Favored, Strongly favored) and its count per phrase at
+Strongly favored equal the [chunk 7 table](#the-free-appoggiatura-and-the-diatonic-enclosure-v31-chunk-7)
+and chunk 11's run digit for digit, and so do the phrases generated per setting. Each row of the
+[each figure Off table](#at-the-shares-in-force-v31-chunk-11) is unchanged, with every figure Off
+still 5,104 phrases generated (6 `no_legal_pitch_plan` and 2 `search_limit_exceeded`, all Lift),
+and Neutral's and Jazz's rows are still the v3.0 baseline. Unexplained notes: 0 in every setting;
+no phrase was refused by the result validator. The final shares, as B14 item 3 asks to record them
+(share of phrases holding each figure along its own ladder, and its mean count per phrase at
+Strongly favored):
+
+| Figure                | Off | As today | Favored | Strongly favored | Per phrase, Strongly favored |
+| --------------------- | --- | -------- | ------- | ---------------- | ---------------------------- |
+| Passing tone          | 0   | 1.3 %    | 67.1 %  | 83.6 %           | 4.100                        |
+| Accented passing tone | 0   | 2.0 %    | 53.3 %  | 65.9 %           | 1.247                        |
+| Neighbor tone         | 0   | 13.1 %   | 91.7 %  | 96.7 %           | 6.682                        |
+| Appoggiatura          | 0   | 10.4 %   | 47.3 %  | 61.2 %           | 0.873                        |
+| Diatonic enclosure    | 0   | 7.5 %    | 67.0 %  | 77.2 %           | 2.943                        |
+| Chromatic approach    | 0   | 9.0 %    | 74.5 %  | 88.1 %           | 4.616                        |
+| Chromatic enclosure   | 0   | 4.5 %    | 59.1 %  | 69.2 %           | 2.674                        |
+
 ## Embellishment figures: the cost guard
 
 Measurement M2 (v3.1 build plan, chunk 3; master spec B5.6): the pitch search's cost at three
@@ -413,7 +445,8 @@ allowance stays `DEFAULT_WINDOW_SEARCH_FUEL` and `CARRY_IN_WINDOW_SEARCH_FUEL`
 (`src/domain/generation/orchestration/search-ledger.ts`). This section holds the baseline on v3.0,
 per profile (Neutral and Jazz); the "every figure Strongly favored" and "every diatonic figure Off"
 runs, and the built-in presets, are in
-[First run on the complete generator](#first-run-on-the-complete-generator-v31-chunk-11).
+[First run on the complete generator](#first-run-on-the-complete-generator-v31-chunk-11) and the
+[release gate's final run](#final-run-at-the-release-gate-v31-chunk-21).
 
 **Method.** `npm run measure:cost` runs `tests/sweep/cost-guard.measure.ts`: the deadline sweep of
 `npm run test:sweep` (568 six-phrase sessions at 60, 120 and 240 BPM through the real session
@@ -603,6 +636,95 @@ setting at a time by its label.
 the passing-and-neighbor rule is not needed. The owner decides; `spec-writer` records the
 decision.
 
+### Final run at the release gate (v3.1 chunk 21)
+
+B5.6's three settings and the eight built-in presets again, on the v3.1 release candidate (wave 5
+merged), at the same shares in force (`FAVORED_SHARE` 1 in 4, `STRONGLY_FAVORED_SHARE` 1 in 2,
+not tuned).
+
+**Machine and date.** Run by Claude on 2026-10-21 from 15:11 to 15:27 CEST on branch
+`v3.1-c21-release-gate` at 60aff5a (`src/` identical to `v3.1-release`), on the reference machine
+(AMD Ryzen 5 PRO 8640HS, 12 threads, 11 GiB RAM, not a VM, Node 22.23.3, Linux 6.12.113), nothing
+else running: 1-minute load average 0.72 before, 1.11 after. `COST_SETTINGS=all`, Speed drill
+first; the run took 975 s. A setting took 7.2 s (built-in Gentle) to 143.1 s (built-in Speed
+drill): Neutral 71.9 s, Jazz 74.0 s, every figure Strongly favored 67.1 s, every diatonic figure
+Off 41.3 s, every figure Off 42.3 s.
+
+| Figure                                      | Neutral                 | Jazz                    | Every figure Strongly favored | Every diatonic figure Off | Every figure Off        |
+| ------------------------------------------- | ----------------------- | ----------------------- | ----------------------------- | ------------------------- | ----------------------- |
+| Phrases 2 to 6 generated, 60 and 120 BPM    | 100.0 % (2,840 / 2,840) | 99.96 % (2,839 / 2,840) | 100.0 % (2,840 / 2,840)       | 100.0 % (2,840 / 2,840)   | 100.0 % (2,840 / 2,840) |
+| Phrases 2 to 6 generated, 240 BPM           | 100.0 % (2,840 / 2,840) | 100.0 % (2,840 / 2,840) | 100.0 % (2,840 / 2,840)       | 100.0 % (2,840 / 2,840)   | 100.0 % (2,840 / 2,840) |
+| Attempts succeeded, 60 and 120 BPM          | 98.8 % (3,408 / 3,448)  | 98.7 % (3,407 / 3,452)  | 99.2 % (3,408 / 3,436)        | 100.0 % (3,408 / 3,408)   | 99.9 % (3,408 / 3,411)  |
+| Attempts succeeded, 240 BPM                 | 99.1 % (3,408 / 3,439)  | 99.0 % (3,408 / 3,442)  | 99.3 % (3,408 / 3,431)        | 100.0 % (3,408 / 3,408)   | 99.9 % (3,408 / 3,412)  |
+| Distinct intents (failed)                   | 7,440 (69)              | 7,450 (77)              | 7,418 (51)                    | 7,384 (0)                 | 7,391 (7)               |
+| Slowest generation, distinct intents        | 1.702 s (a failure)     | 1.110 s (a failure)     | 1.361 s (a failure)           | 0.365 s                   | 1.733 s (a failure)     |
+| 95th percentile, distinct intents           | 0.022 s                 | 0.021 s                 | 0.020 s                       | 0.014 s                   | 0.013 s                 |
+| 95th percentile, successes / failures       | 0.020 s / 0.818 s       | 0.019 s / 0.641 s       | 0.020 s / 0.519 s             | 0.014 s / -               | 0.012 s / 1.733 s       |
+| Slowest success                             | 0.463 s                 | 0.750 s                 | 0.487 s                       | 0.365 s                   | 0.507 s                 |
+| 95th percentile, attempts at 60 and 120 BPM | 0.024 s                 | 0.021 s                 | 0.020 s                       | 0.014 s                   | 0.013 s                 |
+| 95th percentile, attempts at 240 BPM        | 0.019 s                 | 0.020 s                 | 0.020 s                       | 0.014 s                   | 0.012 s                 |
+| Fallback at 240 BPM, phrases 2 to 6         | 21.2 % (602 / 2,840)    | 21.0 % (596 / 2,840)    | 20.8 % (591 / 2,840)          | 20.4 % (578 / 2,840)      | 20.5 % (581 / 2,840)    |
+| Fallback at 240 BPM, phrases 3 to 6         | 1.5 % (34 / 2,272)      | 1.2 % (28 / 2,272)      | 1.0 % (23 / 2,272)            | 0.4 % (10 / 2,272)        | 0.6 % (13 / 2,272)      |
+| Missed deadlines (60 / 120 / 240 BPM)       | 0 / 0 / 0               | 1 / 1 / 0               | 0 / 0 / 0                     | 0 / 0 / 0                 | 0 / 0 / 0               |
+
+The slowest success is from the run's JSON (`distinctIntents.seconds.successes`). Every count
+equals [chunk 11's run](#first-run-on-the-complete-generator-v31-chunk-11): the phrases generated,
+the attempts, the distinct intents and their failures (by code and by Tension value), the fallbacks
+and the missed deadlines (Jazz's one at 60 and one at 120 BPM is still case #542's phrase 5, a
+repeat after four carry-in attempts and one standalone attempt, each `search_limit_exceeded`). Only
+the times differ.
+
+**Acceptance (B5.6): met by all three settings.** Against the baseline (each setting against the
+profile whose levels it starts from, and every figure Strongly favored against both):
+
+- **Fallbacks at 240 BPM** (at most 2 points more): every figure Strongly favored 20.8 % against
+  21.2 % and 21.0 % (0.4 and 0.2 points fewer); every diatonic figure Off 20.4 % against Jazz's
+  21.0 % (0.6 fewer); every figure Off 20.5 % against Neutral's 21.2 % (0.7 fewer).
+- **Phrases generated** (at most 2 points fewer at any swept setting): 100.0 % at every tempo,
+  note density, rhythm setting and mode in all three, against the baseline's 100.0 % (Neutral) and
+  99.96 % (Jazz).
+
+**The built-in presets.** Each built-in as the player gets it, in every mode its restriction
+allows: every phrase 2 to 6 generated, at every tempo and in every mode. The mode column counts the
+phrases 2 to 6 of one tempo in each mode, the same at each tempo.
+
+| Built-in       | Modes (phrases per tempo)      | Generated, every tempo and mode | Distinct intents (failed, by Tension value) | Slowest / 95th percentile | Fallback at 240 BPM, phrases 2 to 6 / 3 to 6 | Missed deadlines |
+| -------------- | ------------------------------ | ------------------------------- | ------------------------------------------- | ------------------------- | -------------------------------------------- | ---------------- |
+| Speed drill    | all nine (301 to 328 each)     | 2,840 of 2,840                  | 7,222 (2: Build 2 `search_limit_exceeded`)  | 0.354 s / 0.030 s         | 20.5 % / 0.6 %                               | 0 / 0 / 0        |
+| Neutral        | all nine (301 to 328 each)     | 2,840 of 2,840                  | 7,255 (50: Settled 4, Lift 38, Build 8)     | 0.169 s / 0.001 s         | 21.1 % / 1.3 %                               | 0 / 0 / 0        |
+| Jazz           | all nine (299 to 330 each)     | 2,840 of 2,840                  | 7,224 (4: Lift 4)                           | 0.602 s / 0.006 s         | 20.6 % / 0.7 %                               | 0 / 0 / 0        |
+| Gentle         | all nine (301 to 328 each)     | 2,840 of 2,840                  | 7,235 (15: Settled 13, Lift 2)              | 0.040 s / 0.001 s         | 20.8 % / 1.0 %                               | 0 / 0 / 0        |
+| Reel           | Mixolydian 1,427, Dorian 1,413 | 2,840 of 2,840                  | 6,928 (76: Settled 65, Lift 7, Build 4)     | 0.439 s / 0.002 s         | 21.2 % / 1.5 %                               | 0 / 0 / 0        |
+| Bebop          | Major 2,840                    | 2,840 of 2,840                  | 6,888 (0)                                   | 0.144 s / 0.007 s         | 20.5 % / 0.7 %                               | 0 / 0 / 0        |
+| Pop song       | Major 2,840                    | 2,840 of 2,840                  | 6,889 (3: Lift 3)                           | 1.514 s / 0.006 s         | 20.3 % / 0.4 %                               | 0 / 0 / 0        |
+| Modal (Dorian) | Dorian 2,840                   | 2,840 of 2,840                  | 6,890 (2: Lift 2)                           | 0.405 s / 0.004 s         | 20.7 % / 0.9 %                               | 0 / 0 / 0        |
+
+The built-ins' failed intents are all `no_legal_pitch_plan` except Speed drill's two. Every count
+equals chunk 11's; only the times differ.
+
+Each built-in's levels on the sweep's own rhythm settings (`<name> levels`), in its modes: every
+phrase 2 to 6 generated at every tempo and in every mode, and every count equal to chunk 11's.
+
+| Levels of      | Distinct intents (failed) | Slowest / 95th percentile | Fallback at 240 BPM, phrases 2 to 6 / 3 to 6 | Missed deadlines |
+| -------------- | ------------------------- | ------------------------- | -------------------------------------------- | ---------------- |
+| Gentle         | 7,432 (64)                | 1.725 s / 0.020 s         | 21.2 % / 1.5 %                               | 0 / 0 / 0        |
+| Speed drill    | 7,424 (54)                | 1.918 s / 0.020 s         | 20.8 % / 1.1 %                               | 0 / 0 / 0        |
+| Reel           | 7,437 (63)                | 1.338 s / 0.019 s         | 21.1 % / 1.4 %                               | 0 / 0 / 0        |
+| Bebop          | 7,417 (36)                | 0.582 s / 0.019 s         | 20.6 % / 0.7 %                               | 0 / 0 / 0        |
+| Pop song       | 7,422 (67)                | 0.801 s / 0.015 s         | 21.3 % / 1.7 %                               | 0 / 0 / 0        |
+| Modal (Dorian) | 7,435 (57)                | 1.243 s / 0.019 s         | 21.1 % / 1.3 %                               | 0 / 0 / 0        |
+
+**Decision point (DP) at the release gate.** Every diatonic figure Off still meets the acceptance,
+so the rejection of the passing-and-neighbor rule (spec D378) stands and no share is tuned.
+
+**The deadline sweep.** Run by Claude on 2026-10-21 from 15:27:59 to 15:29:56 CEST, same branch,
+commit and machine (1-minute load average 0.94 before, 1.52 after): `npm run test:sweep`, 5 files,
+16 tests passed in 116 s. Every phrase after the first was generated before its deadline at 60, 120
+and 240 BPM at each note density, and the `SWEEP-SKIPS` lines show 0 repeats and 0 undecided at
+every density and tempo. The pre-generation sweep (M4): at 240 BPM, all 568 cases (Quarter 184,
+Eighth 216, Sixteenth 168) played phrase 2 by carry-in (100.0 %), each with 4 phrases ready, 0
+ready phrases refused, 0 shortfalls (every deadline met, no repeat).
+
 ### Carry-in attempts before the 2026-10-07 fix
 
 Moved from the record of the slow failed carry-in attempts
@@ -620,8 +742,29 @@ the history the cost guard guards against.
 - The same day's real-cost sweep (each attempt charged its measured time plus 0.1 s, load average
   2 to 4): seven of the 568 cases missed at least one deadline, all at Eighth or Sixteenth density
   (#344, #349, #354, #498, #527, #466, #474), the slowest attempt taking 27.96 s
-  (`search_limit_exceeded`). Every Quarter case met every deadline. The case-by-case table is in
-  the issue.
+  (`search_limit_exceeded`). Every Quarter case met every deadline. The case-by-case table is
+  below.
+
+The real-cost sweep, case by case:
+
+| Case | Tempos       | Phrase numbers repeated at their deadline | Slow attempts                                                                      |
+| ---- | ------------ | ----------------------------------------- | ---------------------------------------------------------------------------------- |
+| #344 | 60, 120, 240 | 6                                         | 12.25 s, `search_limit_exceeded`                                                   |
+| #349 | 60, 120, 240 | 3 to 6                                    | 5.8 s and 2.7 s `no_legal_pitch_plan`, then 12.3 to 14.6 s `search_limit_exceeded` |
+| #354 | 60, 120, 240 | 6                                         | 5.8 to 6.7 s, `no_legal_pitch_plan`                                                |
+| #498 | 60; 120, 240 | 3 and 4; 3 to 6                           | one attempt of 27.96 s, `search_limit_exceeded`                                    |
+| #527 | 60, 120, 240 | 5 and 6                                   | 6.2 to 6.5 s, `no_legal_pitch_plan`                                                |
+| #466 | 120, 240     | 4 to 6                                    | 2.1 to 6.1 s, `no_legal_pitch_plan`                                                |
+| #474 | 240          | 4                                         | three of 0.84 to 0.92 s, `search_limit_exceeded`, over the 3 s window              |
+
+The settings of #344, #349 and #354:
+
+- #344: Eighth, Heavily varied, Sparse, Active displacement, Settled tension; seed 7; E♭ alto; Low
+  register; C Mixolydian; Neutral profile; no session flags.
+- #349: Eighth, Heavily varied, Sparse, Active displacement, Build; seed 13; C keyboard; Varying
+  register; F♯ Ionian; Jazz; Vary settings and Tension across phrases on.
+- #354: Eighth, Heavily varied, Conversational, Straight, Lift; seed 7; B♭ tenor; High register; B
+  Major; Neutral; both flags on.
 
 ## My instrument ranges (2026-10-11)
 
