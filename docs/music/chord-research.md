@@ -616,7 +616,7 @@ decorating note is bound to resolve (inference from S449 and S436).
   version in the replay key.
 - The evidence on how often sevenths occur differs by style (O165's facts), which a level can carry
   and a switch cannot.
-- v3.1's figure levels are carried by value in `ifk3.` (`specs/versions/v3/embellishment-flags.md`).
+- v3.1's figure levels are carried by value in `ifk3.` (`specs/archive/v3/embellishment-flags.md`).
 - **Recommendation:** yes to the shape: one named capability per chord family, using the atlas's
   ids (`seventh-chords` first), stored by value in saved settings, presets and the replay key, never
   tied to a preset's name. Precedence between a player's flag and a pack waits for style packs.

@@ -35,7 +35,8 @@ Status: this file holds four parts.
   owner any more (§10).
 - **[Part B — v3.1](#part-b--v31), embellishment figures and presets:** master spec v1.0
   (2026-10-08), consolidated from the v3.1 drafts the owner approved; approved by the product
-  owner (2026-10-08). The owner confirmed the exact wording of the contract
+  owner (2026-10-08); built and released as version 3.1.0 on 2026-10-21 (spec D397), the contract
+  for the running code with Part A; its hand checks H3–H5 follow the tag (spec D397). The owner confirmed the exact wording of the contract
   guarantees it changes (B11) the same day. v1.1 (2026-10-19) checks B12's code facts against
   v3.0's released code; no behaviour changes. v1.2 (2026-10-19) writes in the owner's rulings of
   that day: v3.0's contract atoms that v3.1 revises take a MAJOR contract bump, with
@@ -1181,8 +1182,8 @@ most tempos (ISS-011). From v3.0 the app says so and asks.
 
 Generation choices: embellishment figures and presets. Master spec v1.1 (B12's code facts
 checked against v3.0, 2026-10-19; v1.0 2026-10-08), consolidated
-from the approved drafts [embellishment-flags.md](embellishment-flags.md) and
-[presets.md](presets.md), which keep the code references line by line. Approved by the owner on 2026-10-08; the owner confirmed the contract wording
+from the approved drafts [embellishment-flags.md](../../archive/v3/embellishment-flags.md) and
+[presets.md](../../archive/v3/presets.md), which keep the code references line by line. Approved by the owner on 2026-10-08; the owner confirmed the contract wording
 (B11) the same day. v3.1 is built on v3.0 (Part A): its storage, its settings record,
 its tolerant loading and its `ifk2.` replay key must exist first.
 

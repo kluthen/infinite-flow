@@ -12,7 +12,7 @@ Embellishment figures and presets, written from [master spec Part B](master-spec
 [`ui_ux/versions/v3.1/`](../../../ui_ux/versions/v3.1/README.md) (ux D225–D251, approved by the
 owner on 2026-10-19: gate D0; frozen by ux D324): everything marked `[v3.1 new]`, `[v3.1 changed]`
 or with a `_v3.1 …:_` change-block line. The frozen v3.0 design is [`ui_ux/versions/v3.0/`](../../../ui_ux/versions/v3.0/README.md).
-Code facts: [embellishment-flags.md](embellishment-flags.md) and [presets.md](presets.md), written
+Code facts: [embellishment-flags.md](../../archive/v3/embellishment-flags.md) and [presets.md](../../archive/v3/presets.md), written
 against `main` (bcf0cfb) on 2026-10-08; every file and symbol this plan names was checked again
 against `main` (d007b27, v3.0 released) on 2026-10-19, and the plan follows the code where the two
 drafts are older. The plan follows the build-plan model

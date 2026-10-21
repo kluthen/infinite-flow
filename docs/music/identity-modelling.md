@@ -41,7 +41,7 @@ Nothing here is decided. Conventions, as in the other research notes:
   breaks it is invalid ("never play G"). A **soft constraint**, also called a **preference** or a
   **weight**, is something the generator tries to satisfy but may give up ("prefer low notes").
 - **Weight**: a number saying how strongly something is preferred. "Weights are preferences, not
-  quotas" is already project policy (D210, D216; [embellishment flags](../../specs/versions/v3/embellishment-flags.md)):
+  quotas" is already project policy (D210, D216; [embellishment flags](../../specs/archive/v3/embellishment-flags.md)):
   a weight changes the order in which the generator tries things, never a count it must reach.
 - **Candidate**: one option the generator may choose at a decision point, such as one possible
   pitch for one note.
@@ -81,8 +81,8 @@ Nothing here is decided. Conventions, as in the other research notes:
   [preset-catalogue.md](preset-catalogue.md),
   [accompaniment-systems.md](accompaniment-systems.md) (§2, §3, §8) and
   [arranging-and-roles.md](arranging-and-roles.md); and the v3.1 and v4 specs
-  ([presets](../../specs/versions/v3/presets.md),
-  [embellishment flags](../../specs/versions/v3/embellishment-flags.md),
+  ([presets](../../specs/archive/v3/presets.md),
+  [embellishment flags](../../specs/archive/v3/embellishment-flags.md),
   [v4 README](../../specs/versions/v4/README.md)).
 - **Web research** (2026-10-11) on style representation, constraint programming, probability
   pooling, game-audio middleware, style file formats and live-coding pattern languages. Papers
@@ -131,7 +131,7 @@ Two planned features already add weights in this style:
   in 4 of the notes where it could start; which notes is decided "from the phrase's seed and the
   note's position, with integer arithmetic only"; "As today" consumes no draw, so old phrases and
   replay keys reproduce note for note
-  ([embellishment flags §3.1](../../specs/versions/v3/embellishment-flags.md#31-four-levels-d233)).
+  ([embellishment flags §3.1](../../specs/archive/v3/embellishment-flags.md#31-four-levels-d233)).
 - **v3.2 key and mode suggestion**: a weighted draw from a precomputed **integer** weight table
   ([build plan v3.2](../../specs/versions/v3/build-plan-v3.2.md)), because floating-point maths
   functions such as `Math.log` and `Math.pow` are "implementation-approximated" in JavaScript and
@@ -507,7 +507,7 @@ The endgame's examples (blindness, tone deaf, pitch scare) are undefined
 | **Ableton Live 12 MIDI generators**     | Rhythm, Seed, Shape, Stacks and Euclidean generators; Seed "randomly generates notes within specified pitch, length and velocity ranges", with a density setting; with a clip scale on, pitch parameters "use scale degrees instead of semitones"                     | Random within ranges; some devices have explicit re-roll buttons                                            | S262                                             |
 | **Strudel and TidalCycles patterns**    | Live-coded pattern expressions; `wchoose` picks from a list "by giving a probability to each element"; `degradeBy` removes events by an amount; `sometimesBy` applies a function with a probability                                                                   | Tidal's randomness is "deterministic. At a certain cycle time, you will always get the same number"         | S263                                             |
 | **MySong**                              | Two beginner sliders, a "happy factor" and a "jazz factor", bias a chord-choosing model                                                                                                                                                                               | Weights exposed as two sliders                                                                              | S174                                             |
-| **Infinite Flow v3.1 preset** (planned) | Ten controls, seven figure levels, a key and mode restriction (two halves, each "any" or an ordered list), a name                                                                                                                                                     | Figure levels as seeded integer draws                                                                       | [presets.md](../../specs/versions/v3/presets.md) |
+| **Infinite Flow v3.1 preset** (planned) | Ten controls, seven figure levels, a key and mode restriction (two halves, each "any" or an ordered list), a name                                                                                                                                                     | Figure levels as seeded integer draws                                                                       | [presets.md](../../specs/archive/v3/presets.md) |
 
 Lessons **(inference)**:
 

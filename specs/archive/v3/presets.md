@@ -1,8 +1,14 @@
 # v3.1 — Presets
 
+> **Archived 2026-10-21.** v3.1 is released as version 3.1.0; this approved draft was
+> consolidated into the v3 master spec (D233, D235). Live summary:
+> [master spec B6](../../versions/v3/master-spec.md#b6-presets).
+> Relative links were written from `specs/versions/v3/`; the paths of those to files that stayed
+> there were repaired on 2026-10-21 so they resolve from this folder.
+
 Status: draft v3 (2026-10-08; terms aligned with D237 and D238 the same day, no behaviour changed; refined by D242, written into the master spec only).
 Approved by the owner as proposed (D233). Consolidated for building into the [v3 master spec, Part
-B](master-spec.md#part-b--v31); where the two differ, the master spec wins.
+B](../../versions/v3/master-spec.md#part-b--v31); where the two differ, the master spec wins.
 
 **Changes from draft v2.** The owner approved every proposal (D233), so each is now stated as
 settled. spec-writer's consolidation pass corrected one statement against the code and added
@@ -48,7 +54,7 @@ player creates and saves. D228 sets the frame, amended by D229–D231 for key an
   ([endgame](../../vision/endgame.md)). The key and mode restriction moved from this list into
   v3.1 (D229).
 
-Background: [v3 README](README.md#presets). Research:
+Background: [v3 README](../../versions/v3/README.md#presets). Research:
 [preset catalogue](../../../docs/music/preset-catalogue.md). The figure levels a preset carries
 are in [embellishment-flags.md](embellishment-flags.md). Terms:
 [built-in preset](../../../docs/music/lexicon.md#built-in-preset),
@@ -69,7 +75,7 @@ Checked in the code on 2026-10-07:
 > **As of 2026-10-07, before v3.0 was built.** Line numbers and the "not built yet" statements below
 > (storage, `ifk2.`, pre-generation) are out of date: v3.0 built them. The code facts v3.1 is built
 > on were checked again on 2026-10-19 (`main` d007b27) and live in the
-> [v3.1 build plan](build-plan-v3.1.md); where the two differ, the plan follows the code (D356).
+> [v3.1 build plan](../../versions/v3/build-plan-v3.1.md); where the two differ, the plan follows the code (D356).
 
 - **14 generation controls** (`src/domain/controls/generation-controls.ts:83-98`): tempo, written
   key, collection, harmonic motion, tension, note density, rhythmic variety, syncopation, silence
@@ -466,7 +472,7 @@ remembers the preset it was **based on** (or none).
   few hundred bytes; the limit keeps the combo box usable, not the storage. More than 50 loaded
   (from two tabs) are all listed; saving a new one stays refused while there are 50 or more.
 - **When:** at Idle or in the Review only. The settings are locked while a session runs
-  ([v2 master spec §5](../v2/master-spec.md#5-control-changes-during-a-session)), and a running
+  ([v2 master spec §5](../../versions/v2/master-spec.md#5-control-changes-during-a-session)), and a running
   session never asks the player for anything. Choosing a preset, like any control, also waits
   while a phrase is being generated; saving, renaming and deleting do not, since they change no
   setting (spec-writer's call at consolidation).
@@ -477,7 +483,7 @@ remembers the preset it was **based on** (or none).
 ## 5. Saving on the device
 
 Player presets follow v3.0's storage rules
-([v3.0 master spec §4](master-spec.md#4-saving-on-the-device)):
+([v3.0 master spec §4](../../versions/v3/master-spec.md#4-saving-on-the-device)):
 
 - **Saved automatically when made, changed, renamed or deleted**, in the one storage directory,
   each preset a record with a data version and the app version that wrote it. A player preset is
@@ -533,7 +539,7 @@ A mutation of a preset-held setting (a control or, with
 [embellishment-flags.md](embellishment-flags.md) §7.1, a figure level) marks the selection Custom
 for that session, and the selection returns to the player's own when the session ends, exactly as
 the profile's "customized" marking does today
-([v2 master spec §5](../v2/master-spec.md#5-control-changes-during-a-session)). Key and mode moves
+([v2 master spec §5](../../versions/v2/master-spec.md#5-control-changes-during-a-session)). Key and mode moves
 stay inside the restriction in force at the session's start, so they never mark Custom (§2.7).
 Vary settings never switches to another preset. Saving what a session drifted to as a preset
 ("save this phrase's settings", from the review) is a later candidate, not v3.1.

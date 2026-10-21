@@ -1,15 +1,15 @@
 # v3 — Player Material and "My Instrument"
 
 Status: v3.0 released as version 3.0.0 on 2026-10-16 (tag `v3.0.0` at e288d98, deployed;
-D348); v3.1 and v3.2 consolidated as master spec Parts B and C, approved (D239), the v3.1 design
-approved (D353), v3.1's build plan approved (D357), its release gate's automated part passed and its release
-branch merging into `main` now and the `3.1.0` tag put on `main` on the owner's go, hand checks H3–H5 after the release (D396, D397), v3.2's not approved; v3.3 in
-master spec Part D, awaiting owner approval (D264–D275), its build plan not approved (D276–D288,
-D351); v3.4, a structural review before v4, opened as a scoping draft (D389), with a lexicon page added
-as its one player-facing item (D393); v3.x direction
-only. The Status paragraph this README kept
-until the v3.0 release is archived verbatim in
-[archive/v3/v3-readme-status.md](../../archive/v3/v3-readme-status.md).
+D348); v3.1 released as version 3.1.0 on 2026-10-21 (tag `v3.1.0` at 55364e7; D397), its hand
+checks H3–H5 still to run ([v3.1.x notes](#v31x-notes-after-the-tag)); v3.2 consolidated as
+master spec Part C, approved (D239), its design and build plan not approved; v3.3 in master spec
+Part D, awaiting owner approval (D264–D275), its build plan not approved (D276–D288, D351); v3.4,
+a structural review before v4, opened as a scoping draft (D389), with a lexicon page added as its
+one player-facing item (D393); v3.x direction only. The Status paragraphs this README kept until
+the v3.0 and v3.1 releases are archived verbatim in
+[archive/v3/v3-readme-status.md](../../archive/v3/v3-readme-status.md) and
+[archive/v3/v3-readme-status-v3.1.md](../../archive/v3/v3-readme-status-v3.1.md).
 
 **Serves:** P3, the Fledgling Composer: "I liked that gimmick, I play it, and see where it goes."
 Also every tester on an instrument v1 doesn't ship. See [personas](../../personas.md).
@@ -34,6 +34,13 @@ Also every tester on an instrument v1 doesn't ship. See [personas](../../persona
   [my instrument](../../archive/v3/my-instrument.md),
   [pre-generation at Idle](../../archive/v3/pre-generation.md),
   [stray notes](../../archive/v3/stray-notes.md).
+- **v3.1 master spec:** [Part B](master-spec.md#part-b--v31) (D239), consolidated from the
+  approved drafts; built from the [v3.1 build plan](build-plan-v3.1.md) and released as version
+  3.1.0 on 2026-10-21 (D397). What follows the tag is in
+  [v3.1.x notes](#v31x-notes-after-the-tag).
+- **v3.1 drafts** (2026-10-08, draft v3, approved as proposed, D233), archived at the v3.1
+  release: [embellishment flags](../../archive/v3/embellishment-flags.md),
+  [presets](../../archive/v3/presets.md).
 - **Research:** [storage grounding](../../archive/v3/storage-grounding.md) (archived), [Jam grounding](jam-grounding.md);
   music research in `docs/music/`: [embellishment catalogue](../../../docs/music/embellishment-catalogue.md),
   [mutation catalogue](../../../docs/music/mutation-catalogue.md),
@@ -237,24 +244,16 @@ Settled at the release, nothing to do:
 
 ## v3.1 — Embellishment flags and presets
 
-**Consolidated 2026-10-08: [master spec, Part B](master-spec.md#part-b--v31)** (master spec v1.0,
-awaiting the owner's approval of the consolidation), from the drafts the owner approved as
-proposed (D233): [embellishment flags](embellishment-flags.md) and [presets](presets.md), both
-draft v3 (2026-10-08). Settled: ornaments written as symbols wait for a release of their own after
-v3.2; seven figures written as ordinary notes, each with one four-step level, as preferences,
-never quotas; a new replay key version `ifk3.`; eight built-in presets (Neutral, Jazz, Gentle,
-Speed drill, Reel, Bebop, Pop song, Modal (Dorian)) holding ten controls, the figure levels and a
-key and mode restriction (D229–D231); and player presets saved with v3.0's storage. Nothing is
-open; the figure shares and the cost guard are measured before the gate. The notes below are the
-background those drafts started from.
+**Released as version 3.1.0 on 2026-10-21** (D397). What v3.1 does is stated in
+[master spec Part B](master-spec.md#part-b--v31), consolidated from the drafts the owner approved
+as proposed (D233), [embellishment flags](../../archive/v3/embellishment-flags.md) and
+[presets](../../archive/v3/presets.md), archived at the release (D398). The subsections below are
+the direction recorded before it was specced; where they leave a point open, Part B settles it.
 
-**Build plan:** [build-plan-v3.1.md](build-plan-v3.1.md), v23 (2026-10-21; v4 approved by the
-owner on 2026-10-19, D357; v5–v23 write in D359–D392, D396 and D397). It plans v3.1 on top of the [v3.0 build plan](build-plan.md) on the build-plan model: 21
-chunks in six waves, then the release gate, under the shared [v3 build workflow](build-workflow.md)
-(D349). The design is approved (D353); the waves were re-formed around the token-source pass (gate T1)
-while the owner had not allowed it (D355, D356), and he has now (D382), so waves 4 and 5 wait only
-for the waves before them; waves 0–3 may merge into `main` first, with no release before wave 5
-merges (D357).
+**Build plan:** [build-plan-v3.1.md](build-plan-v3.1.md), v23, complete; chunk 21 is the release
+gate's record. 21 chunks in six waves, then the release gate, under the shared
+[v3 build workflow](build-workflow.md) (D349); the wave driver's [wave log](wave-log-v3.1.md)
+records each wave. What follows the tag is in the [v3.1.x notes](#v31x-notes-after-the-tag).
 
 ### Embellishment flags
 
@@ -264,7 +263,7 @@ to support or alter in minor ways what's expected to be played", for example pas
 [appoggiaturas](../../../docs/music/lexicon.md#appoggiatura)) and surrounding a note with one note
 above and one below (an [enclosure](../../../docs/music/lexicon.md#enclosure)). It was already
 expected "in v2 or v3" ([v2 direction](../v2/README.md#direction-not-yet-scoped)). **Drafted in
-[embellishment-flags.md](embellishment-flags.md)** (draft v3, approved by D233, which closed
+[embellishment-flags.md](../../archive/v3/embellishment-flags.md)** (draft v3, approved by D233, which closed
 O127–O134), consolidated in [master spec Part B](master-spec.md#b5-embellishment-figures-and-their-levels).
 
 - **What exists today.** The generator already writes
@@ -318,7 +317,7 @@ O127–O134), consolidated in [master spec Part B](master-spec.md#b5-embellishme
 ### Presets
 
 Recorded 2026-10-07 (D210), the owner: "Presets! that's the last but not least feature of v3."
-Placed with the embellishment flags in v3.1 (D211). **Drafted in [presets.md](presets.md)** (draft v3,
+Placed with the embellishment flags in v3.1 (D211). **Drafted in [presets.md](../../archive/v3/presets.md)** (draft v3,
 approved by D233, which closed O135–O139, O161 and O162), within D228's frame as amended by
 D229–D231; consolidated in [master spec Part B](master-spec.md#b6-presets).
 
@@ -344,10 +343,23 @@ D229–D231; consolidated in [master spec Part B](master-spec.md#b6-presets).
   today; without it only Gentle and Speed drill keep their character (O126, closed by D228: a preset never sets the collection). And until weights
   exist, Jazz-grammar chromatic notes are only about 1–1.5 % of notes, so jazz-flavoured presets
   sound nearly diatonic.
-- **Settled by D228 or proposed in [presets.md](presets.md):** what a preset holds (the generation settings only, or also
+- **Settled by D228 or proposed in [presets.md](../../archive/v3/presets.md):** what a preset holds (the generation settings only, or also
   tempo, the audio mix, embellishment flags and weights, the instrument); whether built-in presets
   can be edited or only copied; renaming and deleting; how a player preset is exported or shared,
   if at all; and how presets meet [my instrument](#my-instrument), which is saved separately.
+
+### v3.1.x notes (after the tag)
+
+These follow the `3.1.0` tag (D397). The checks are written in the v3.1 build plan's
+[hand checks](build-plan-v3.1.md#hand-checks) and in `HARDWARE-CHECKLIST.md`, v3.1 part; their
+results go to the [release notes](../../../docs/release/v3.1-release-notes.md) when they run. A
+finding becomes an issue or a 3.1.x fix (D397).
+
+- **v3.1 H3, the same phrase in Edge:** item 7's Edge half.
+- **v3.1 H4, Vary settings under a preset.**
+- **v3.1 H5, v3.0 data carried over.**
+- **The waiting promotions** (D396, D397): 11 REVIEW→STABLE and 2 DRAFT→REVIEW atoms, by
+  `documentalist` with the owner, each once the check it waits on passes.
 
 ## v3.2 — Jam and the rhythm lock
 
@@ -526,7 +538,7 @@ chord. This section says "richer chords" for any chord beyond a triad.
   ([archived](../../archive/v1/decisions-D1-D46.md)); how v3.3 stands toward each is
   [below](#relation-to-v1s-decisions-and-to-style-packs). The
   [preset catalogue](../../../docs/music/preset-catalogue.md#what-no-setting-can-express-today) and
-  [presets §3.3](presets.md#33-what-the-list-is-not) list richer chords among what Blues, Bebop,
+  [presets §3.3](../../archive/v3/presets.md#33-what-the-list-is-not) list richer chords among what Blues, Bebop,
   Modal jazz and Bossa lack.
 - **What it is.** The generator may use chords richer than triads, but only those the player
   allows. [Seventh chords](../../../docs/music/lexicon.md#seventh-chord), which add a fourth note
