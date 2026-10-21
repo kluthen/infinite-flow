@@ -761,3 +761,10 @@ and H5 for later; the go and the `3.1.0` tag wait on them (D392). Plan v21 (0f1a
   found (contract notes; the numbers in the change set). For the owner: promotions (11 DRAFT →
   REVIEW now, one with a rewording; 41 REVIEW → STABLE, of which 11 wait on H3–H5, with CONTRACT
   7.1.0), and whether MODULE and ENTITY atoms join the contract.
+- Owner, 2026-10-21: every proposal of the release sync accepted (D396); `documentalist` 1bb3257:
+  11 atoms to REVIEW (`rule_figure_level_orders_search` 0.2), 30 to STABLE, CONTRACT 7.1.0 (the
+  nine new MODULE and ENTITY atoms on the surface, as v3.0's), `changes-in-v3.1` off the 7 STABLE
+  atoms; release notes row 23 Verified. Then the go: tag now, H3–H5 after the release (D397,
+  34403e5). `v3.1-release` merged into `main`, pushed, and tagged `v3.1.0`. Open after the release:
+  v3.1 H3, H4, H5 (the owner), then their 11 REVIEW → STABLE and 2 DRAFT → REVIEW promotions; the
+  milestone archive.

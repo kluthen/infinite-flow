@@ -1985,7 +1985,7 @@ Record: fedbe14, merged as 983d6bb (built beside chunks 15 and 16). The summary 
 
 ## Chunk 21 — v3.1 release gate
 
-Status: in progress (automated part; H3–H5 open, spec D392)
+Status: merged (release, tagged `v3.1.0`; H3–H5 after the release, spec D397)
 Depends on: every chunk but 20 (dropped, spec D378), L1, L2 (both done, spec D391)
 
 The release gate, not a wave; it keeps its chunk number because other plans link it. It runs the
