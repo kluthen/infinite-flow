@@ -682,3 +682,9 @@ states the passing-and-neighbor rule that DP rejected (D378); chunk 14 does not 
   or the design; its e2e in a new `your-data-presets.spec.ts`. For the sync: both Revisions
   (`req_your_data`, `rule_delete_everything`; contract, CS). For the gate: the lazy Your data
   sheet now imports `preset-sheet-copy.ts` (expected in a shared lazy chunk).
+- Chunk 19: merged as c3400b8 (10869c1). Every matrix row is a test; one gap fixed in
+  `settingsKeyOf` (no restriction in force and an "any" restriction now count as one, as Start
+  takes them), which made four keep rows discard. For the sync: the revision of
+  `rule_pregeneration_discarded_on_change` and the none = any equivalence. Note: through the queue
+  key a re-click of the level already set changes nothing, so it may not discard after all; the
+  owner's acceptance stands either way.
