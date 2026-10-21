@@ -203,10 +203,10 @@ control actions (`generation-session-control-actions.ts`) and the drawing of the
 | `retriesRunning` / `roomNoticeAnnouncements`                        | `retriesRunning` is true while a run's fresh-seed retries run; the session controller reads it to block `Start session`. `roomNoticeAnnouncements` goes up each time the notice must be announced; `ScorePanel` then empties `notation-status` and sets the visible sentence again, so a screen reader hears the same sentence twice. See [State for the session screen](#state-for-the-session-screen).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | `presentation.theme`                                                | In-memory only: `setTheme` never touches `result`, `latestIntent`, or any generation/notation field, and `applyThemePreference` is a pure DOM side effect (`data-theme` on `document.documentElement`) that never regenerates or redraws the phrase.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 
-Every `set-control`/`select-musical-profile`/`select-instrument-profile` request is rejected
-(returns `false`/`'rejected'`) whenever `state.operation !== 'idle'`, which is what makes the
-control groups' read-only visual state match the session's actual acceptance behavior rather than
-being a purely cosmetic lock.
+Every `set-control`/`set-figure-level`/`select-preset`/`select-instrument-profile` request is
+rejected (returns `false`/`'rejected'`) whenever `state.operation !== 'idle'`, which is what makes
+the control groups' read-only visual state match the session's actual acceptance behavior rather
+than being a purely cosmetic lock.
 
 ## Generation Worker protocol
 
@@ -279,7 +279,7 @@ app. It is a debugging aid for the generator.
 One console line is printed per accepted phrase, in production builds too:
 
 ```text
-[Infinite Flow] phrase replay key · <context> · seed1-xxxxxxxx · ifk1.…
+[Infinite Flow] phrase replay key · <context> · seed1-xxxxxxxx · ifk3.…
 ```
 
 `<context>` is `workspace phrase`, `session phrase N (carry-in)` or `session phrase N
@@ -309,19 +309,10 @@ network or stored.
 ### Key format
 
 A key is a version prefix followed by the unpadded base64url encoding of the UTF-8 JSON of a
-fixed-length tuple. The phrase's instrument chooses the version. A built-in instrument's key is
-`ifk1.` over a 7-tuple:
+fixed-length tuple. From v3.1 only `ifk3.` is written, for every phrase, over a 7-tuple:
 
 ```text
-[requestId, seed, controls, musicalProfile, isCustom, phraseNumber, carryIn]
-```
-
-My instrument's key is `ifk2.` over an 8-tuple: the same seven entries, unchanged in order and
-meaning, then my instrument's owning profile fields as the intent's profile holds them:
-
-```text
-[requestId, seed, controls, musicalProfile, isCustom, phraseNumber, carryIn,
-  [displayName, concertMinMidi, concertMaxMidi, chromatic, diatonic]]
+[requestId, seed, controls, figureLevels, phraseNumber, carryIn, myInstrument]
 ```
 
 - `requestId` is kept because it appears in the generation result, which a byte-identical replay
@@ -330,7 +321,9 @@ meaning, then my instrument's owning profile fields as the intent's profile hold
 - `controls` is an array of the 14 generation controls in the fixed order
   `PHRASE_REPLAY_KEY_CONTROL_ORDER`. Its tonal-center slot holds the **written** tonal center, the
   form the generation intent takes as input; the concert tonal center is rebuilt from it.
-- `musicalProfile` and `isCustom` are the musical profile selection.
+- `figureLevels` is a JSON object holding exactly the seven figure ids, written in `FIGURE_IDS`
+  order, each mapped to its level id (`off`, `asToday`, `favored`, `stronglyFavored`). No preset's
+  name is stored: the levels are what the generation reads, whichever preset gave them.
 - `phraseNumber` is replay context, not a generation input: 1 for a workspace phrase, the session
   phrase number for a session phrase. It only serves to derive the phrase's carry-out. With a
   carry-in it must equal the carry-in's own phrase number plus one.
@@ -338,36 +331,45 @@ meaning, then my instrument's owning profile fields as the intent's profile hold
   explicit `null` when a settings change dropped the harmonic part: a key or collection change,
   or a chord the new harmony settings never end a phrase on (see
   [The carry-in after a change](session-engine.md#the-carry-in-after-a-change)). A carry-in
-  without the field is refused. The format stays `ifk1.`: a key encoded before chunk 24, which
-  always holds a chord, still decodes to the same intent.
-- The eighth `ifk2.` entry is my instrument's display name, its concert range (lowest and highest
-  MIDI note) and its transposition (chromatic and diatonic counts). Its id is not stored, the
-  controls already naming `my-instrument`; its register windows are rebuilt from the concert range
-  by the built-in window policy. The clef, the template, the written range as entered and the
-  input kind are not part of the generator-facing profile and are never stored, so two phrases
-  that differ only by my instrument's clef have the same key.
+  without the field is refused.
+- `myInstrument` is `null` for a built-in instrument, whose profile the controls name by its id.
+  For my instrument it is `[displayName, concertMinMidi, concertMaxMidi, chromatic, diatonic]`:
+  its display name, its concert range (lowest and highest MIDI note) and its transposition
+  (chromatic and diatonic counts). Its id is not stored, the controls already naming
+  `my-instrument`; its register windows are rebuilt from the concert range by the built-in window
+  policy. The clef, the template, the written range as entered and the input kind are not part of
+  the generator-facing profile and are never stored, so two phrases that differ only by my
+  instrument's clef have the same key.
 
-A built-in phrase's key is `ifk1.`, byte-identical to the key written before `ifk2.` existed; the
-[replay-key corpus](testing.md#replay-key-corpus) holds that.
+The older versions are decoded only, never written. `ifk1.` (a built-in phrase's key before v3.1)
+is a 7-tuple `[requestId, seed, controls, musicalProfile, isCustom, phraseNumber, carryIn]`, and
+`ifk2.` (my instrument's key in v3.0) the same seven entries then my instrument's entry. Their
+`musicalProfile` slot holds v3.0's profile name, `Neutral` or `Jazz`, which decoding turns into
+that profile's figure levels (`levelsForProfile`), whatever `isCustom` says. The
+[replay-key corpus](testing.md#replay-key-corpus) of `ifk1.` keys recorded on v2.0.0 holds that an
+old key still plays the same phrase.
 
 The key stores only owning inputs: a built-in's instrument profile, the register intent, the
 concert tonal center, the measure count and the meter are rebuilt from them. It holds no played
-notes and nothing beyond the controls and, in `ifk2.`, my instrument's owning profile fields; no
-worker message id (replay always uses id 1, which never affects the outcome), and no app version
-or commit, so a later generator change may replay an older key differently.
+notes and nothing beyond the controls, the figure levels and my instrument's owning profile
+fields; no worker message id (replay always uses id 1, which never affects the outcome), and no
+app version or commit, so a later generator change may replay an older key differently.
 
 `encodePhraseReplayKey` and `announcePhraseReplayKey`
 (`src/generation-worker/phrase-replay-key.ts`) build the key and its console line; that module also
-owns both prefixes, the control order and `PhraseReplayKeyError`.
+owns the three prefixes, the control order and `PhraseReplayKeyError`.
 
 ### Decoding
 
 `decodePhraseReplayKey` (`src/generation-worker/phrase-replay-key-decode.ts`) checks the prefix and
-version first, accepting `ifk1.` and `ifk2.` and rejecting any other version, such as `ifk3.`. A
-payload that is not strict, canonical, unpadded base64url, not UTF-8, not JSON, or not its
-version's tuple with the right slot types throws a typed `PhraseReplayKeyError`, as does an
-`ifk1.` key naming `my-instrument` or an `ifk2.` key naming a built-in. An `ifk2.` key's profile is
-rebuilt from its stored fields by `deriveMyInstrumentProfile`
+version first, accepting `ifk1.`, `ifk2.` and `ifk3.` and rejecting any other version. A payload
+that is not strict, canonical, unpadded base64url, not UTF-8, not JSON, or not its version's tuple
+with the right slot types throws a typed `PhraseReplayKeyError`, as do an `ifk3.` key's levels
+with a missing or unknown figure or an unknown level (read through the figure-levels parser), an
+`ifk1.` or `ifk2.` key whose profile name is no musical profile, an `ifk1.` key naming
+`my-instrument`, an `ifk2.` key naming a built-in, and an `ifk3.` key whose `myInstrument` slot
+disagrees with the instrument its controls name. My instrument's profile is rebuilt from its
+stored fields by `deriveMyInstrumentProfile`
 (`src/generation-worker/generation-worker-inbound.ts`), the derivation the worker's inbound parser
 checks a my-instrument profile with, taking no clef; a profile no my instrument can have is refused
 by its own typed error (`MyInstrumentError`, `TranspositionIntervalError`). The owning fields are
@@ -381,7 +383,7 @@ rejected, never repaired.
 ### Replaying a key
 
 ```sh
-npm run replay:phrase -- 'ifk1.…'   # or 'ifk2.…', a phrase made with my instrument
+npm run replay:phrase -- 'ifk3.…'   # or an older 'ifk1.…' or 'ifk2.…' key
 npm run replay:phrase < console-line.txt   # the key, or a whole copied console line, on stdin
 ```
 
@@ -494,8 +496,8 @@ to one on a cold memo.
   client's `prewarm` only when the policy is `enabled`; `disabled` posts nothing at all.
 - **Triggers.** `createGenerationSession` (`use-generation-session.ts`) posts a pre-warm for the
   controls a phrase would be generated with right now (note density already resolved against the
-  window's width): once when the session is created, after every `setControl`, after a
-  musical-profile switch, and after a width crossing.
+  window's width): once when the session is created, after every applied `setControl`,
+  `setFigureLevel` or `selectPreset`, and after a width crossing.
 - **Dedupe.** `createRhythmPrewarmTrigger` (`src/composables/generation-session-prewarm.ts`) posts
   only when the width-resolved rhythm setting differs from the last one it posted. Its key,
   `rhythmSettingKeyOf`, is the same five controls the memo is keyed by, so an edit to a non-rhythm
@@ -687,8 +689,8 @@ generated at or above the width. The pieces, and why they are built this way:
 - **The intent stays free of browser state.** The intent receives the resolved controls: its
   `controls.noteDensity` is a plain `Eighth` or `Sixteenth`, and nothing about the window reaches
   `createGenerationIntent`, the Worker or the generator. `state.controls.noteDensity` keeps the
-  chosen value; the substitution is not a manual edit, so it never marks the musical profile
-  preset custom.
+  chosen value; the substitution is not a manual edit, so it never makes the preset selection
+  Custom.
 - **A crossing never regenerates.** Neither the provider's crossing handler nor anything reading
   `noteDensityContext` starts a generation; only the player's actions do. A crossing can stop one:
   when it makes the rhythm combination blocked while a fit run is retrying or shows no score, the
@@ -831,9 +833,9 @@ from the current written tonal center and collection (`currentKeySignature`), be
 leading width: seven sharps take more room than none. The check runs on:
 
 - every change of the staff's layout inputs, that is every `layout-inputs` report;
-- every change to a setting the phrase is generated from, a musical-profile switch included, but
-  not an instrument-profile switch. Tempo, the audio mix and the theme change nothing the notes
-  depend on, so they run nothing.
+- every change to a setting the phrase is generated from, a figure level or a preset choice that
+  changes one included, but not an instrument-profile switch. Tempo, the audio mix and the theme
+  change nothing the notes depend on, so they run nothing.
 
 Once there is room, the notice clears and a run starts with no score shown; if the rhythm
 combination blocks generation by then, no phrase shows, with the unsupported-rhythm alert, and
@@ -941,9 +943,12 @@ When Start, or the starting note, meets a stale phrase 1 (master spec §16; the 
 sheet: an `alertdialog` titled "This phrase is from before your changes", named by its title and
 described by its body, with the starting note's paragraph first and its hint last when the note
 opened it. It names the changed settings by their controls' labels in page order (Written key,
-Collection, Instrument profile, Musical profile preset, Harmonic motion, Tension, Note density,
-Rhythmic variety, Syncopation, Silence density, Contour, Register, Leapiness, Arpeggio chaos): one,
-"A and B", "A, B and C", or the first two and "{n} other settings".
+Collection, Instrument profile, Harmonic motion, Tension, Note density, Rhythmic variety,
+Syncopation, Silence density, Contour, Register, Leapiness, Arpeggio chaos, then the Embellishments
+group's figures: Passing tone, Accented passing tone, Neighbor tone, Appoggiatura, Diatonic
+enclosure, Chromatic approach, Chromatic enclosure): one, "A and B", "A, B and C", or the first two
+and "{n} other settings". A figure is named when its level differs; the preset selection is never
+named, since a change of selection alone changes no setting the generation reads.
 
 - **On open** it closes the volume popover (the shell's start preparation) and puts focus on
   `Regenerate phrase`; Tab and Shift+Tab stay in the sheet.
