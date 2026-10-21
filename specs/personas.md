@@ -2,7 +2,7 @@
 
 Status: draft v0.15
 
-Personas are the user's decisions. Anything not yet confirmed is tagged `(proposed)`. Settled 2026-09-25. The decisions behind this document (D48–D50, D54, D61) are in the [2026-09-25 archive](archive/2026-09-25-personas-and-vision/decisions-D47-D71.md). The shared context of use was added 2026-09-28 (D127, now in the [v2 archive](archive/v2/decisions-D109-D207.md)); the phone review pointer and the review candidates followed the same day (D128), then export by content and the session-keeping candidates (D129), then favorites moving to v3 (D130). On 2026-09-29 the session start and end wording was corrected to match the v2 master spec §6–§7 (a correction, no new decision). On 2026-10-07 "Who is not a target" was added, stating D117 here, and the audio-mix note was brought up to date (D188). The same day the review tooling was dropped and keeping sessions placed in v3.0 (D211, D212). On 2026-10-21 Chrome was named the one supported browser (D399).
+Personas are the user's decisions. Anything not yet confirmed is tagged `(proposed)`. Settled 2026-09-25. The decisions behind this document (D48–D50, D54, D61) are in the [2026-09-25 archive](archive/2026-09-25-personas-and-vision/decisions-D47-D71.md). The shared context of use was added 2026-09-28 (D127, now in the [v2 archive](archive/v2/decisions-D109-D207.md)); the phone review pointer and the review candidates followed the same day (D128), then export by content and the session-keeping candidates (D129), then favorites moving to v3 (D130). On 2026-09-29 the session start and end wording was corrected to match the v2 master spec §6–§7 (a correction, no new decision). On 2026-10-07 "Who is not a target" was added, stating D117 here, and the audio-mix note was brought up to date (D188). The same day the review tooling was dropped and keeping sessions placed in v3.0 (D211, D212). On 2026-10-21 Chrome was named the one supported browser (D399). The same day the phone policy was restated: phones are a third-rate client (D414).
 
 | Persona                     | Role      | Core want                                  | Served mainly by                       |
 | --------------------------- | --------- | ------------------------------------------ | -------------------------------------- |
@@ -29,6 +29,9 @@ assumed to match until an outside tester shows otherwise.
     - On the phone the Review is the plain baseline: the functions the spec gives it on every
       device, and nothing more (D128, ux D64). A player who wants a real review of a phone
       session exports it and moves to a larger screen. Its layout is `ux-writer`'s.
+    - **Phones are a third-rate client** (D414, the owner's standing policy, first stated for the
+      design as ux D119 and restated on 2026-10-21): the larger screen wins every conflict, and
+      reducing a capability on a phone is acceptable when keeping it costs more than it is worth.
 - **Distance and posture.** The screen is read at music-stand distance, often while standing.
 - **During a session.** The hands, and the mouth on a sax or Travel Sax, are on the instrument.
   The player expects to click nothing while playing. Consequence: nothing the player has to do

@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.121
+Status: draft v2.122
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -756,3 +756,36 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   on the controller, shared settings changed in Jam mode, a cold rhythm domain, the split's
   versions). Now in: [Part C](versions/v3/master-spec.md#part-c--v32),
   [Jam grounding §E](versions/v3/jam-grounding.md#e-refresh-at-v310-2026-10-21).
+
+- **D410 (2026-10-21): the owner approves master spec Part C v1.1 with its seven proposed answers;
+  O260–O266 close as proposed.** The owner: "approved, go with the proposals." Part C becomes v1.2,
+  the answers written in; O263's tap-in takes the design's form (D411). The contract wording's one
+  sign-off (C13) is still to come. Now in: [Part C §C17](versions/v3/master-spec.md#c17-deferred-and-open),
+  [§C5.16](versions/v3/master-spec.md#c516-jams-settings), [§C5.17](versions/v3/master-spec.md#c517-tempo-in-jam-and-tap-in).
+
+- **D411 (2026-10-21): ux Q81–Q87 are answered as `ux-writer` recommended.** The same approval.
+  Where they met a proposal: Jam's first values are Q83's (session mode's first-visit values, the
+  tempo kept in 60–180, Embellishments Rarely) with O261's drift Near, lock and changes off; tap-in
+  is ux D335's (taps only after the button; then controller notes too; unevenness never judged).
+  Now in: [Part C §C5.11](versions/v3/master-spec.md#c511-the-kept-doodle-and-jam-again-on-this-doodle),
+  [§C5.16](versions/v3/master-spec.md#c516-jams-settings), [§C10.5](versions/v3/master-spec.md#c105-pre-generation-v30), [Part D §D8.4](versions/v3/master-spec.md#d84-pre-generation-jam-and-the-key-and-mode-suggestion).
+
+- **D412 (2026-10-21): design gate D0 is granted and token pass T2 allowed.** The same approval:
+  the reworked v3.2 design (ux D328–D346, `ux-critic` validated), and one pass adding the classes
+  `mode-switch`, `tap-tempo`, `doodle-readings` and `jam-needs-controller`, no new token value.
+  Now in: [build plan v3.2, gates](versions/v3/build-plan-v3.2.md#gates).
+
+- **D413 (2026-10-21): "the held doodle" becomes "the kept doodle".** One term per concept (D237),
+  as the re-scope (D408) and the approved design say it; the lexicon entry is renamed, its id
+  `kept-doodle`. Now in: [Part C §C4](versions/v3/master-spec.md#c4-words-used-in-this-part),
+  [lexicon](../docs/music/lexicon.md#kept-doodle).
+
+- **D414 (2026-10-21): phones are a third-rate client; reducing a capability on a phone is
+  acceptable.** The owner: "treat the phone as third rate client, it's okay if we reduce capabilities
+  for it." A standing policy (ux D119), restated. Now in: [context of use](personas.md#context-of-use),
+  [Part C §C10.8](versions/v3/master-spec.md#c108-other-session-rules).
+
+- **D415 (2026-10-21): the doodle-to-controls thresholds.** `spec-writer`'s, under D410's O262: each
+  control the nearest value the quantized doodle shows, in integers; an unsupported combination
+  raises rhythmic variety only. The listening check confirms them; a correction is a ruling. Now in:
+  [Part C §C5.16.1](versions/v3/master-spec.md#c5161-the-doodle-to-controls-mapping).

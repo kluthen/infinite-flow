@@ -1,10 +1,11 @@
 # v3.2 re-scope — Jam as its own mode
 
-Status: draft v2 (2026-10-21), settled. Opened by the owner's direction of 2026-10-21
+Status: draft v3 (2026-10-21), settled; v3 points at Part C v1.2. Opened by the owner's direction of 2026-10-21
 (D400–D405) and settled by the owner's answers the same day (D406–D408): every question is
 closed. Four answers are provisional until the owner's checks confirm them (D406, §3.1).
-Consolidated into [master spec Part C](master-spec.md#part-c--v32) v1.1 on 2026-10-21 (D409),
-awaiting the owner's approval; from then on Part C is the record, and the item numbers this
+Consolidated into [master spec Part C](master-spec.md#part-c--v32) v1.1 on 2026-10-21 (D409);
+Part C v1.2, approved by the owner the same day (D410), writes in the seven answers v1.1 proposed
+and the design's seven (D411). Part C is the record; where this document differs, Part C wins, and the item numbers this
 document cites from Part C §C16 are v1.0's. The three v3.2 drafts
 ([Jam](jam.md), [key and mode suggestion](key-and-mode-suggestion.md),
 [rhythm lock](rhythm-lock.md)) change where this document differs (D405).
@@ -85,7 +86,8 @@ Settled: D400, D402, D407 and D408.
   that drop it: after a Jam, Jam mode keeps that Jam's doodle, with its phrase 1 written at Idle
   and pre-generation for it, so Start goes round again without a new capture. It goes when a new
   doodle is captured (an explicit "new doodle" action at Idle, its form `ux-writer`'s), when the
-  player leaves Jam mode, or when the kept session it came from is deleted. A Jam on it that ends
+  player leaves Jam mode, or when the kept session it came from is deleted, that session being the
+  latest one played on it (D411; Part C §C5.11). A Jam on it that ends
   before phrase 1 keeps it. Memory only: a reload keeps none. "Jam again on this doodle", in a kept
   Jam session's review, opens Jam mode with that doodle kept.
 
@@ -104,8 +106,12 @@ generator:
 | Rhythm lock and allowed rhythm changes | **Jam's own values**, apart from session mode's (D406) | "Iterate and mutate over the provided motif" is what these two do in Jam |
 | Note density, rhythmic variety, syncopation, silence density | **Taken from the doodle** (D406) | "The app will follow what has been provided" |
 | Contour, leapiness, register | **Taken from the doodle** where it shows them, else Jam's defaults (D406) | Same |
-| Harmonic motion, tension, figure levels | **Jam's own**, few or fixed (D406) | The doodle says little about them |
+| Harmonic motion, tension, figure levels | **Jam's own**, few or fixed (D406); settled as harmonic motion and tension with their usual choices and one Embellishments level for all seven figures, arpeggio chaos held at its default (D410, D411; Part C §C5.16) | The doodle says little about them |
 | Presets, Vary settings and its allowed groups, Tension across phrases, Rising tempo | **Not in Jam** (D406) | Session tools for steering variety; in Jam the doodle and the drift do that job |
+
+The first values and the doodle-to-controls mapping, with its thresholds, are in
+[Part C §C5.16](master-spec.md#c516-jams-settings) and
+[§C5.16.1](master-spec.md#c5161-the-doodle-to-controls-mapping) (D410, D411, D415).
 
 Consequences:
 
@@ -262,7 +268,9 @@ the click (consistently ahead means "faster").
 
 ### Settled (D406, D408)
 
-**Option A, with tap-in (B1) as a way of setting Jam's tempo control at Idle.** The tempo is
+**Option A, with tap-in (B1) as a way of setting Jam's tempo control at Idle**, tap-in in the
+design's form: taps count only after the tap button is pressed, then controller notes too
+(D410; [Part C §C5.17](master-spec.md#c517-tempo-in-jam-and-tap-in)). The tempo is
 locked before the doodle, so capture, quantizing, the end rule and the budget stay as Part C
 specified and testable. Tap-in costs little (a few hundred lines on Jam's side, no generator
 work), serves the player who hears their idea at a speed, and can slip to after v3.2 without
@@ -410,5 +418,6 @@ distance); nothing asked or offered while a Jam runs; never grading or naming a 
 
 ## 9. Open
 
-None. O247–O259 were opened and closed on 2026-10-21 (D400–D408). Four answers stay provisional
-until the checks of §3.1.
+None. O247–O259 were opened and closed on 2026-10-21 (D400–D408); O260–O266, opened by Part C v1.1
+(D409), were closed by the owner's approval (D410). Four answers stay provisional until the checks
+of §3.1.
