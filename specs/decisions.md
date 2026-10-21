@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.115
+Status: draft v2.116
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -21,7 +21,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and each milestone
 folder's README, such as [archive/v3/README.md](archive/v3/README.md)). Numbering continues from
-**D396**.
+**D397**.
 
 Live here: D228–D251 (v3.1 and v3.2, not built yet), D259–D260 (style packs, planned with no
 version, and the sound ban; merged from branch `v4-accompaniment-research`), D261–D288 (v3.3, not
@@ -29,7 +29,7 @@ built yet; D263–D288 merged from branch `v3.3-chord-research`), D344–D348 (t
 its follow-ups) and D349–D358 (the v3.1–v3.3 plan migrations, merged from branch
 `plan-migration` as D339–D341, the v3.1 plan's gates and approval, and B12's code check) and
 D359–D363 (the owner's rulings during v3.1's wave 0), D364–D388 and D390 (the v3.1 build's rulings,
-preflight corrections and sign-offs), D389 (v3.4 opened), D391–D392 (v3.1's release gate) and
+preflight corrections and sign-offs), D389 (v3.4 opened), D391–D392 and D396 (v3.1's release gate) and
 D393–D395 (the lexicon page in v3.4, its single source, the lexicon API later). D289 is unused.
 
 ## Decision Log
@@ -969,3 +969,13 @@ D393–D395 (the lexicon page in v3.4, its single source, the lexicon API later)
   later.** The owner: "For later (v4 or v5 depending on how they goes) we will turn this in a
   proper API." Not specced. Now in:
   [roadmap](roadmap.md#planned-v4-or-v5--the-lexicon-api).
+
+- **D396 (2026-10-21): the owner accepts every proposal of the v3.1 release sync; `v3.1-release`
+  merges into `main` now and the `3.1.0` tag follows H3–H5.** The owner: "go with the proposals for
+  all of them". The gate's automated part passed (chunk 21, merged as 6a25f27; final M1 and M2 at
+  chunk 11's counts, DP stays closed; entry chunk 265,431 B); sync 1fa0bdf, 9dcc031. Promotions,
+  applied by `documentalist`: 11 DRAFT→REVIEW (`rule_figure_level_orders_search` reworded, shares
+  kept per D391), 30 REVIEW→STABLE, CONTRACT 7.0.0→7.1.0 (MINOR), MODULE and ENTITY atoms as at
+  v3.0, `changes-in-v3.1` removed from 7 STABLE atoms. Still on the owner (D392): H3–H5, 11
+  REVIEW→STABLE and 2 DRAFT→REVIEW promotions, his go, the tag on `main`. Now in:
+  [chunk 21](versions/v3/build-plan-v3.1.md#chunk-21--v31-release-gate) (plan v22).

@@ -1,11 +1,12 @@
 # Infinite Flow v3.1 — Build Plan
 
-Status: v21 (2026-10-21): the owner passes hand checks v3.1 H1 and H2 on his word, from a partial
-listening, so gates L1 and L2 are done and the figure shares stay as chunk 11 measured them (spec
-D391); the release gate's automated part runs now, and H3, H4 and H5 stay open for the owner to
-run later, the owner's go and the `3.1.0` tag waiting on them (spec D392). Approved by the owner
+Status: v22 (2026-10-21): the release gate's automated part has passed and the owner accepts
+every proposal of its sync, so `v3.1-release` merges into `main` now (spec D396); hand checks v3.1
+H1 and H2 passed on the owner's word, gates L1 and L2 done with no tuning (spec D391); H3, H4 and
+H5 stay the owner's, and his go and the `3.1.0` tag, put on `main`, wait on them (spec D392,
+D396). Approved by the owner
 on 2026-10-19 (spec D357, plan v4), with the transitional interface below; the revisions since
-write in spec D359–D392.
+write in spec D359–D392 and D396.
 
 Embellishment figures and presets, written from [master spec Part B](master-spec.md#part-b--v31)
 (v1.0, approved 2026-10-08, with spec D250 written in) and the v3.1 design, frozen at
@@ -2015,7 +2016,9 @@ The release gate, not a wave; it keeps its chunk number because other plans link
 - `package.json` version `3.1.0`.
 
 **Done when:** every item of B14 has a row with evidence; every measurement has its figure; the
-owner says go, once he has run v3.1 H3, H4 and H5 (spec D392). The `3.1.0` tag waits on that go.
+owner says go, once he has run v3.1 H3, H4 and H5 (spec D392). The release branch merges into
+`main` before that, once the automated part has passed and the owner has accepted the sync's
+proposals (spec D396); the `3.1.0` tag waits on the go and is put on `main`.
 
 ### Definition-of-done coverage
 
