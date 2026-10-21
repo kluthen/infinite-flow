@@ -1,8 +1,9 @@
 # v3.2 re-scope — Jam as its own mode
 
-Status: draft v1 (2026-10-21). Opened by the owner's direction of 2026-10-21 (D400–D405); not
-approved. Items citing a decision are settled; everything else is `(proposed)` and waits on the
-open question it names. [Master spec Part C](master-spec.md#part-c--v32) stays the record until
+Status: draft v2 (2026-10-21), settled. Opened by the owner's direction of 2026-10-21
+(D400–D405) and settled by the owner's answers the same day (D406–D408): every question is
+closed. Four answers are provisional until the owner's checks confirm them (D406, §3.1).
+[Master spec Part C](master-spec.md#part-c--v32) stays the record until
 this re-scope settles and is consolidated into it (D405); the three v3.2 drafts
 ([Jam](jam.md), [key and mode suggestion](key-and-mode-suggestion.md),
 [rhythm lock](rhythm-lock.md)) change where this document differs.
@@ -41,7 +42,7 @@ Recorded as:
 - **Jam's tempo target is 120 to 180 BPM**; 240 BPM is best effort, worked on last, and may be
   dropped (D404).
 
-What stays from Part C, unless a question below reopens it: the doodle (one to four measures,
+What stays from Part C: the doodle (one to four measures,
 captured after a count-in, ended by a silent measure or after four measures), its quantizing, the
 generation and read-in measures and the fallback ladder before phrase 1, matching by shape (never
 quoting), the doodle's two forms (the quantized doodle travels with the music, the raw notes stay
@@ -50,13 +51,13 @@ authoritative".
 
 ## 2. Two modes
 
-Settled: D400 and D402. The rest is `(proposed)`, O251.
+Settled: D400, D402, D407 and D408.
 
 - **Session mode** is the app as v3.1 ships it, plus v3.2's session features: the rhythm lock,
-  its allowed rhythm changes and Vary settings' allowed groups (O253). It is what loads, every
+  its allowed rhythm changes and Vary settings' allowed groups (D406). It is what loads, every
   time, after a reload too.
-- **Jam mode** is entered by one button, at Idle only (never during a session, nor while a review
-  is shown, as every Idle setting). It has its own screen state: its own settings (§3), its own
+- **Jam mode** is entered by one button, at Idle only: never while playing (D407), nor while a
+  review is shown, as every Idle setting. It has its own screen state: its own settings (§3), its own
   Idle (the staff with the key signature, the starting note named), its own capture and its own
   path to phrase 1. From phrase 1 on, a Jam plays as a session does (rolling phrases,
   acknowledgement, look-ahead, the failure ladder, Stop), through the same session engine.
@@ -65,8 +66,8 @@ Settled: D400 and D402. The rest is `(proposed)`, O251.
   settings. Part C's "turning Jam off leaves the workspace empty" (ux Q70) no longer applies.
 - **The mode is not remembered across reloads** (D400: the app opens in session mode). Jam's
   settings are saved (§3); being in Jam mode is not.
-- **Jam needs a controller to start**, not to be entered: without one, Jam mode opens, its
-  settings can be set, and its Start is unavailable, saying why. Part C's rule that a controller
+- **Jam requires a MIDI controller** (D407): without one, Jam mode opens and its settings can be
+  set, but its Start is unavailable, saying why. Part C's rule that a controller
   attaching or leaving switches the mode in and out goes: a mode the player chose by a button does
   not switch by itself.
 - **On demand** (D402): the button is the only Jam code in the entry chunk; at the top of the
@@ -74,19 +75,24 @@ Settled: D400 and D402. The rest is `(proposed)`, O251.
   one shared workspace (worker, audio, MIDI, saving). The first press loads
   Jam's chunk (capture, quantizing, Jam's Idle and settings, the path to phrase 1, the suggestion,
   the review's doodle section, the exports' doodle section). The service worker keeps it for
-  offline use like every other file (bundle policy: O258).
+  offline use like every other file (bundle policy: D408).
 - **Starting a Jam by the home note stays**, in Jam mode only: no phrase is on screen there, so
   the home note is the hands-free start, as Part C §C5.2 has it. The collision Part C solved with a
-  switch (two starts competing for one note) cannot happen across modes. Depends on O249: with a
-  tempo captured from the player, the start changes.
+  switch (two starts competing for one note) cannot happen across modes. Tap-in (§5) only sets the
+  tempo at Idle; it starts nothing.
+- **The doodle Jam mode keeps** (D408), replacing Part C's held doodle and its list of changes
+  that drop it: after a Jam, Jam mode keeps that Jam's doodle, with its phrase 1 written at Idle
+  and pre-generation for it, so Start goes round again without a new capture. It goes when a new
+  doodle is captured (an explicit "new doodle" action at Idle, its form `ux-writer`'s), when the
+  player leaves Jam mode, or when the kept session it came from is deleted. A Jam on it that ends
+  before phrase 1 keeps it. Memory only: a reload keeps none. "Jam again on this doodle", in a kept
+  Jam session's review, opens Jam mode with that doodle kept.
 
 ## 3. Jam's settings set
 
-Settled: D401, Jam has its own settings set. What it holds is open: O247 (own, shared or absent),
-O248 (whether the doodle sets the generation controls), O253 (the rhythm lock and drift).
-
-The `(proposed)` default, a small set for a player who wants to hear their idea grown, not to
-tune a generator:
+Settled: D401, Jam has its own settings set, and D406, what it holds, provisionally until the
+checks of §3.1. A small set, for a player who wants to hear their idea grown, not to tune a
+generator:
 
 | Setting | In Jam mode | Why |
 | --- | --- | --- |
@@ -94,13 +100,13 @@ tune a generator:
 | Written key and Collection (the key and mode) | **Jam's own**, starting from the session's values the first time | The suggestion's Use it then changes Jam's key and mode only; session mode never moves under the player |
 | Tempo | **Jam's own** (§5) | Jam's range differs (D404); a doodle has its own speed |
 | Drift | **Jam's own** (Close, Near, Free) | Jam-only already |
-| Rhythm lock and allowed rhythm changes | **Jam's own values**, apart from session mode's (O253) | "Iterate and mutate over the provided motif" is what these two do in Jam |
-| Note density, rhythmic variety, syncopation, silence density | **Taken from the doodle** (O248) | "The app will follow what has been provided" |
-| Contour, leapiness, register | **Taken from the doodle** where it shows them, else Jam's defaults (O248) | Same |
-| Harmonic motion, tension, figure levels | **Jam's own**, few or fixed (O247) | The doodle says little about them |
-| Presets, Vary settings and its allowed groups, Tension across phrases, Rising tempo | **Not in Jam** (O247) | Session tools for steering variety; in Jam the doodle and the drift do that job |
+| Rhythm lock and allowed rhythm changes | **Jam's own values**, apart from session mode's (D406) | "Iterate and mutate over the provided motif" is what these two do in Jam |
+| Note density, rhythmic variety, syncopation, silence density | **Taken from the doodle** (D406) | "The app will follow what has been provided" |
+| Contour, leapiness, register | **Taken from the doodle** where it shows them, else Jam's defaults (D406) | Same |
+| Harmonic motion, tension, figure levels | **Jam's own**, few or fixed (D406) | The doodle says little about them |
+| Presets, Vary settings and its allowed groups, Tension across phrases, Rising tempo | **Not in Jam** (D406) | Session tools for steering variety; in Jam the doodle and the drift do that job |
 
-Consequences of the default, for the questions:
+Consequences:
 
 - **Saving**: the settings store already keeps one record per setting (`group.field`), so Jam's
   settings are a new `jam.*` group in it: no new store, no database migration, and session mode's
@@ -113,9 +119,22 @@ Consequences of the default, for the questions:
   from happening at all. It changes Part C's "the doodle changes no setting": in Jam, the doodle
   is where those settings come from.
 
+### 3.1 What confirms them
+
+D406 settles four answers on the owner's "will need testing to be sure". Each is confirmed by one
+of the owner's checks in the v3.2 plan; a check that fails comes back to the owner as a ruling
+(the spec and plan then change by decision), never as a silent change in the build.
+
+| Answer (D406) | Confirmed by | If it fails |
+| --- | --- | --- |
+| Jam's settings set (closed O247) | The Jam listening check (Part C item 14, gate L1): a handful of doodles at each drift position, lock off and on, "does it sound like my doodle?" | The owner rules which setting comes back into Jam, or goes |
+| The doodle sets the rhythm and shape controls (closed O248) | The same listening check, with doodles chosen to test the mapping (a sparse one, a busy one, a leaping one) | The owner rules between a corrected mapping and Part C's "the doodle changes no setting" |
+| Tempo set before the doodle, with tap-in (closed O249) | The Jam check on the instrument (Part C's hand check of a Jam on the Travel Sax) at 60, 120 and 180 BPM, with tap-in | Tap-in may slip to later by ruling; set-before stays unless the owner rules otherwise |
+| Lock and drift: session lock apart, Jam's own lock, changes and drift (closed O253) | Drift's scale by ear (gate LD), then the Jam listening check | The owner rules on folding them into one "how close to my doodle" control |
+
 ## 4. The generator seam
 
-Settled: D403. The seam itself is `(proposed)`, O252, grounded in the code at v3.1.0 below.
+Settled: D403, and the seam below by D408, grounded in the code at v3.1.0.
 
 Code facts, read at v3.1.0 (5ef47a0; the code is unchanged since 55364e7):
 
@@ -144,7 +163,7 @@ Code facts, read at v3.1.0 (5ef47a0; the code is unchanged since 55364e7):
   (worker, audio, MIDI, saving). Lazy parts load through a memoized `import()` or
   `defineAsyncComponent`, as the review and the presets sheet already do.
 
-The seam `(proposed)`, so that the generator learns as little as possible about Jam:
+The seam, so that the generator learns as little as possible about Jam:
 
 1. **The generator never hears of a doodle, a drift or Jam.** The request gains **one optional
    steering block**, plain data: a target rhythm (note starts per measure, in ticks, laid over the
@@ -158,16 +177,16 @@ The seam `(proposed)`, so that the generator learns as little as possible about 
    worker. The rhythm distance it uses is the rhythm lock's (forced bend, narrow-window step-down),
    which v3.2 needs anyway: shared, not Jam's.
 3. **Everything else stays on Jam's side** (Jam's chunk, main thread): capture, quantizing, the
-   doodle's analysis, the controls taken from the doodle (O248), the register window holding the
+   doodle's analysis, the controls taken from the doodle (D406), the register window holding the
    doodle's last note (passed as today's register input), the join (today's `CarryIn`, "no chord"
    form), the suggestion, the tempo.
-4. **The session engine meets Jam at phrase 1 `(proposed)`**: Jam's chunk runs the count-in, the
+4. **The session engine meets Jam at phrase 1**: Jam's chunk runs the count-in, the
    capture and the generation measure itself; once phrase 1 is ready, it starts an ordinary session
    with that phrase on screen, the read-in measure playing the part of v2's count-in, at the
    barline the click has reached. The engine then needs only to accept a start time on a running
    click, so most of its "phrase 1 exists before Start" assumptions hold unchanged. The doodle's
    section is added in front of the review and the exports by Jam's code.
-5. **Privacy, a consequence to weigh (O257)**: the steering block holds rhythm and move classes,
+5. **Privacy, to settle with the contract wording (D408)**: the steering block holds rhythm and move classes,
    not the doodle's pitches, apart from the joined last note. If the replay key carries the block
    rather than the quantized doodle, the key holds much less of what the player played, and the
    contract change for the key shrinks. Kept Jam sessions still hold the quantized doodle for the
@@ -179,8 +198,8 @@ are session-mode work that Jam reuses.
 
 ## 5. Tempo in Jam
 
-Settled: D404, a target of 120 to 180 BPM, 240 BPM best effort and last. How the tempo is set is
-O249; the exact range O250.
+Settled: D404, a target of 120 to 180 BPM, 240 BPM best effort and last. How the tempo is set:
+D406, provisionally (§3.1); the range: D408.
 
 Why tempo matters more in Jam: the doodle's end rule (a silent measure), its quantizing (a grid of
 sixteenth notes) and the two measures before phrase 1 all need a beat grid. In session mode the
@@ -240,7 +259,7 @@ the click (consistently ahead means "faster").
   faster tempo; following them rewards unsteadiness and can run away over several Jams.
 - **Generator and timing**: nothing for the generator; the budget must hold at the band's top.
 
-### Recommendation `(proposed)`
+### Settled (D406, D408)
 
 **Option A, with tap-in (B1) as a way of setting Jam's tempo control at Idle.** The tempo is
 locked before the doodle, so capture, quantizing, the end rule and the budget stay as Part C
@@ -251,9 +270,9 @@ fails worst for the players Jam is for. C is not recommended.
 
 Today's tempo control runs 60 to 240 BPM in steps of 10, default 90 (`TEMPO_VALUES`); tap-in
 would round to those steps. With the tempo locked before the doodle, D404 applies as a range:
-Jam's tempo control runs from 60 to 180 BPM (O250); the Jam sweep and hand checks run at 60, 120 and 180 BPM;
+Jam's tempo control runs from 60 to 180 BPM (D408); the Jam sweep and hand checks run at 60, 120 and 180 BPM;
 240 BPM is tried last and, if it costs more than it is worth, Jam's control stops at 180. Rising
-tempo is not in Jam (O247).
+tempo is not in Jam (D406).
 
 ## 6. Blast radius
 
@@ -263,32 +282,32 @@ both, one implementation.
 
 ### 6.1 Part C and the drafts, item by item
 
-| Part C | Today | After the re-scope `(proposed)` |
+| Part C | Today | After the re-scope (D406–D408) |
 | --- | --- | --- |
 | C5.1 The Jam switch | A session option, saved, off by default; needs a controller, which switches the mode in and out; Idle in Jam shows no phrase; on/off discards the phrase and pre-generation | **Replaced** by the Jam button and Jam mode (§2). Nothing discarded in session mode; the controller no longer switches modes. ux Q70 moot |
-| C5.2 Starting by Start or the home note | The home note starts a Jam when the switch is on | **Jam**, unchanged in substance; depends on O249 (tap-in) |
-| C5.3 Count-in and click | One measure; click through to phrase 1 whatever the Click switch says | **Jam**; depends on O249 |
+| C5.2 Starting by Start or the home note | The home note starts a Jam when the switch is on | **Jam**, unchanged in substance; tap-in sets the tempo at Idle and starts nothing (D406) |
+| C5.3 Count-in and click | One measure; click through to phrase 1 whatever the Click switch says | **Jam**, unchanged: the tempo is set before the doodle (D406) |
 | C5.4–C5.5 Capture, quantizing | As drafted | **Jam**, unchanged |
-| C5.6–C5.8 Measures before phrase 1, extended wait, budget | Budget sized for 240 BPM | **Jam**; budget sized for 180 BPM, 240 last (D404, O250) |
-| C5.9 What the doodle feeds the generator | Orders the candidates the player's controls allow; changes no setting | **Changed**: the doodle also sets Jam's rhythm and shape controls (O248); the ordering goes through the seam (§4, O252) |
+| C5.6–C5.8 Measures before phrase 1, extended wait, budget | Budget sized for 240 BPM | **Jam**; budget sized for 180 BPM, 240 last (D404, D408) |
+| C5.9 What the doodle feeds the generator | Orders the candidates the player's controls allow; changes no setting | **Changed**: the doodle also sets Jam's rhythm and shape controls (D406); the ordering goes through the seam (§4, D408) |
 | C5.10 Planner authority | No stage revises another | **Unchanged**; the seam keeps it |
-| C5.11 Held doodle, "Jam again on this doodle" | Held at Idle in session's workspace, with a long list of changes that drop it | **Simplified**: Jam mode keeps its current doodle until a new one is captured or the player leaves Jam mode (O254). ux Q73 and Q74 become questions about that, mostly moot |
-| C5.12 During the Jam | Vary settings, Tension across phrases, Rising tempo count from phrase 1 | **Jam**, without those three (O247) |
+| C5.11 Held doodle, "Jam again on this doodle" | Held at Idle in session's workspace, with a long list of changes that drop it | **Simplified**: Jam mode keeps its current doodle until a new one is captured or the player leaves Jam mode (D408). ux Q73 and Q74 become questions about that, mostly moot |
+| C5.12 During the Jam | Vary settings, Tension across phrases, Rising tempo count from phrase 1 | **Jam**, without those three (D406) |
 | C5.13 Edge cases before phrase 1 | As drafted | **Jam**, unchanged |
-| C5.14 The doodle's two forms | Quantized doodle travels with the music | **Unchanged** in substance; the contract wording is confirmed again (O257) |
-| C5.15 Review and exports | The review opens with the doodle; both exports open with a Doodle section; the session list marks Jam sessions | **Shared** review and exports, the doodle parts in Jam's chunk, loaded when a Jam session's review opens (O255). One session list, Jam sessions marked |
-| C6 Key and mode suggestion | After a Jam, in its review and with a held doodle; Use it sets the session's key and mode | **Jam**; Use it sets Jam's key and mode only (§3); a preset's restriction no longer meets it, since presets are not in Jam (O247) |
-| C7 Rhythm lock, allowed rhythm changes | One switch for sessions and Jams; Jam locks the rhythm nearest the doodle | **Session** setting as drafted; in Jam, its own value (O253). The lock's generator work (locked bars, forced bend, changes) is **Shared** and not Jam's footprint |
+| C5.14 The doodle's two forms | Quantized doodle travels with the music | **Unchanged** in substance; the contract wording is confirmed again (D408) |
+| C5.15 Review and exports | The review opens with the doodle; both exports open with a Doodle section; the session list marks Jam sessions | **Shared** review and exports, the doodle parts in Jam's chunk, loaded when a Jam session's review opens (D408). One session list, Jam sessions marked |
+| C6 Key and mode suggestion | After a Jam, in its review and with a held doodle; Use it sets the session's key and mode | **Jam**; Use it sets Jam's key and mode only (§3); a preset's restriction no longer meets it, since presets are not in Jam (D406) |
+| C7 Rhythm lock, allowed rhythm changes | One switch for sessions and Jams; Jam locks the rhythm nearest the doodle | **Session** setting as drafted; in Jam, its own value (D406). The lock's generator work (locked bars, forced bend, changes) is **Shared** and not Jam's footprint |
 | C8 Drift | Shown only while Jam is on | **Jam** setting |
-| C9 Vary settings' allowed groups ("What may vary") | One more session option | **Session** only (O247) |
-| C10.1 Presets | Hold none of v3.2's settings | **Session** only; Jam has none (O247) |
+| C9 Vary settings' allowed groups ("What may vary") | One more session option | **Session** only (D406) |
+| C10.1 Presets | Hold none of v3.2's settings | **Session** only; Jam has none (D406) |
 | C10.2 Saving | Jam switch, drift, lock, changes, groups join the saved settings | Lock, changes and groups join session settings; **Jam's settings are their own record** (§3) |
-| C10.3 Kept sessions | A Jam session is kept like any, with a new data version | Unchanged (O255) |
-| C10.5 Pre-generation | Five new settings discard it; none in Jam without a held doodle | Session: lock, changes and groups discard it. Jam: its settings never touch session pre-generation; Jam pre-generates only for its current doodle (O254) |
-| C10.8 Other session rules | Rising tempo starts from the doodle's tempo | Not in Jam (O247) |
+| C10.3 Kept sessions | A Jam session is kept like any, with a new data version | Unchanged (D408) |
+| C10.5 Pre-generation | Five new settings discard it; none in Jam without a held doodle | Session: lock, changes and groups discard it. Jam: its settings never touch session pre-generation; Jam pre-generates only for its current doodle (D408) |
+| C10.8 Other session rules | Rising tempo starts from the doodle's tempo | Not in Jam (D406) |
 | C11 Request, `ifk4.`, kept sessions | Request gains the doodle, drift, lock, changes, tenser flag | Request gains the lock fields (Session and Shared) and **one optional steering block** (§4); `ifk4.` still needed |
 | C12 For the interface design | Jam switch in the session options | Redesigned (§8) |
-| C13 Contract changes | Confirmed 2026-10-08 (D246) | Wording to confirm again after the re-scope, once (O257) |
+| C13 Contract changes | Confirmed 2026-10-08 (D246) | Wording to confirm again after the re-scope, once (D408) |
 | C14 Existing code and risks | Facts at c65152b | Facts-only refresh at v3.1.0 with the plan's rewrite |
 | C16 Definition of done | Items for a Jam switch; sweep at 60, 120, 240 BPM | Rewritten for the mode; sweep at 60, 120, 180, 240 last; items 21 and 37 already say Chrome (D399) |
 | C2 Out: tempo inferred from a freely played doodle | Later | Option B2 of §5, still recommended out |
@@ -299,14 +318,16 @@ both, one implementation.
 Its rewrite waits for this re-scope (D405). The corrections found on 2026-10-21 against v3.1 still
 apply: gate R0 is met; the entry budget is 300 KiB (307,200 B) with 265,431 B used, not "224 kB"
 (M4); the contract gate needs a MAJOR sign-off like v3.1's gate CS, since the eight
-`changes-in-v3.2` atoms are now STABLE (O257); pre-generation's discard goes through the queue key
+`changes-in-v3.2` atoms are now STABLE (D408); pre-generation's discard goes through the queue key
 `settingsKeyOf` in `src/components/workspace/workspace-pregeneration.ts`; kept sessions upgrade at
 open only (D376), each record with its own data version (D370); the code facts were checked
 against c65152b and need a facts-only refresh; "nine modes" reads "nine collections"; H6 (Edge)
 goes (D399). The re-scope adds: chunks 17, 18, 20, 21 and 24 (Jam engine, Jam at Idle, a fresh
 Jam, the held doodle) become Jam-mode chunks in Jam's chunk; chunk 19's controls are
 session-mode only; chunk 26 (pre-generation) shrinks; M4 gains a check that no Jam module is in
-the entry chunk, Jam's chunks under the existing 100 KiB per-chunk budget; H5 runs at 60, 120 and 180 BPM; and the plan may split in two (O256).
+the entry chunk, Jam's chunks under the existing 100 KiB per-chunk budget; H5 runs at 60, 120 and
+180 BPM; and the plan splits in two, session-mode work first, then Jam mode (D408). The contract
+bump starts from CONTRACT 7.2.0 (`documentalist`'s 5618971) and goes to 8.0.0 (D408).
 
 ### 6.3 The v3.2 design (`ui_ux/`, `ux-writer`'s)
 
@@ -314,45 +335,79 @@ Built on the Jam switch: `flows/jam/` (intent and handoff), `screens/phrase-work
 switch among the session options, Idle in Jam, the cue row), `flows/play-session/` (Jam's
 start), `screens/last-session-review/` and `flows/review-and-export/` (the doodle section, the
 suggestion), `screens/session-list/` (the Jam mark), `flows/saved-data/` (the saved Jam switch),
-and part 2 of `token-source-v3.1-v3.2.md`. ux Q70 is moot, Q73 and Q74 change with O254, Q75
-stands (the "no mode fits" sentence in every review of that Jam), as Part C §C6.3 and §C12 already
-say. What `ux-writer` redesigns is §8.
+and part 2 of `token-source-v3.1-v3.2.md`. What `ux-writer` redesigns is §8; where its open
+questions stand is §8.3.
 
 ## 7. Today's review questions after the re-scope
 
 | Question | After the re-scope |
 | --- | --- |
-| One MAJOR contract bump, 8.0.0 | **Stands**, and is easier: one sign-off on the re-scoped wording (O257) |
-| Scripted, shorter hand checks | **Stands**; Edge is gone (D399) and Jam's tempo checks shrink to 60, 120, 180 (O259) |
-| Bundle policy | **Changes**: Jam leaves the entry chunk (D402); the question becomes the Jam chunk's own budget and the check that keeps Jam out of the entry (O258) |
-| Splitting v3.2 | **Stands, along a clearer seam**: session-mode work first, Jam second (O256) |
-| ux Q73–Q75 | Q73 and Q74 change with O254; Q75 stands as Part C already words it; Q70 moot |
+| One MAJOR contract bump | **Settled** (D408): one sign-off on the re-scoped wording, CONTRACT 7.2.0 to 8.0.0 |
+| Scripted, shorter hand checks | **Settled** (D408): numbered scripts of at most ten minutes; no Edge (D399); Jam's at 60, 120, 180 BPM, 240 only if kept |
+| Bundle policy | **Settled** (D402, D408): entry budget 300 KiB unchanged; a boundary check keeps Jam out of the entry chunk; Jam's chunks under the 100 KiB per-chunk budget; kept offline by the service worker |
+| Splitting v3.2 | **Settled** (D408): session-mode work first, then Jam mode; version numbers the owner's call |
+| ux Q70, Q73–Q75 | §8.3 |
 
 ## 8. For the interface design
 
-What `ux-writer` redesigns once the owner answers the blocking questions. Behaviour only; layout,
-placement and wording stay `ux-writer`'s.
+What `ux-writer` redesigns, from this document as settled (D400–D408). Behaviour only; layout,
+placement and wording stay `ux-writer`'s. Where this document and Part C differ, this document
+wins until Part C is consolidated from it.
 
-- **Jam mode as its own screen state**: what changes on screen when the player is in Jam mode
-  (header, staff, controls), how the player always knows which mode they are in, and Idle in Jam
-  (the empty staff with the key signature, the starting note named; with a current doodle, its
-  phrase 1).
-- **The switch button**: in session mode, entering Jam; in Jam mode, back to session mode; at
-  Idle only; its state while a session runs or a review shows; the first press loading Jam's
-  chunk (a short wait at most, and what shows if it fails offline).
-- **Jam's settings**: the set O247, O248 and O253 settle (key and mode, tempo with tap-in if O249
-  takes it, drift, the lock and allowed rhythm changes, whatever else stays), and how a control
-  "taken from the doodle" shows what the app took.
-- **Jam's Start without a controller**: unavailable, saying why (§2).
-- **The current doodle in Jam mode** (O254), replacing the held doodle and "Jam again on this
-  doodle" in the session workspace.
-- **The suggestion** in Jam mode and in a Jam's review; **the review and the session list** for
-  Jam sessions, opened from session mode (O255).
-- **Removed**: the Jam switch among the session options, the controller switching the mode, the
-  drift shown "only while Jam is on" in session mode.
+### 8.1 What to design
+
+- **Jam mode as its own screen state**, over the same workspace: how the player always knows which
+  mode they are in; Jam's Idle (the empty staff with the key signature and the home note named as
+  the starting note; with a kept doodle, its phrase 1 on screen); Jam's cue row through the
+  count-in, the doodle's measures (one to four), "writing" in the generation measure and any
+  extended wait, and the read-in measure. The live view never shows the doodle's notes.
+- **The mode button**: in session mode it enters Jam mode, in Jam mode it returns. At Idle only,
+  never while playing, nor while a review is shown (D407). The first press loads Jam's code: what
+  shows during that short wait, and if it fails (offline before the files were kept).
+- **Jam's settings** (§3): key and mode, tempo (60–180 BPM in steps of 10) with tap-in at Idle,
+  drift (Close, Near, Free), the rhythm lock and its allowed rhythm changes (Jam's own values),
+  harmonic motion, tension and figure levels (few or fixed); and how the controls taken from the
+  doodle (density, variety, syncopation, silence, contour, leapiness, register) show what the app
+  took from it. Not in Jam: presets, Vary settings and its allowed groups, Tension across phrases,
+  Rising tempo.
+- **Tap-in** (§5): the player taps even beats at Idle (on the controller or a button); the tempo
+  control shows the result; re-tapping corrects it. It starts nothing.
+- **Jam requires a MIDI controller** (D407): without one, Jam mode opens and its settings can be
+  set, but Start is unavailable, saying why. A controller arriving or leaving never switches the
+  mode.
+- **The doodle Jam mode keeps** (§2): after a Jam, Start goes round again on it; an explicit "new
+  doodle" action at Idle; it goes on leaving Jam mode or deleting its kept session.
+- **The suggestion** (Use it sets Jam's key and mode only; Keep mine) in a Jam's review and at
+  Jam's Idle with a kept doodle; **"Jam again on this doodle"** in a kept Jam session's review,
+  opening Jam mode.
+- **Shared, with Jam's parts**: one session list with Jam sessions marked; one review whose doodle
+  section and suggestion load from Jam's code; both exports opening with the doodle section.
+- **Session mode gains** the rhythm lock, its allowed rhythm changes and Vary settings' allowed
+  groups ("What may vary"), as Part C §C7 and §C9 have them.
+- **Removed**: the Jam switch among the session options; the controller switching the mode; Idle
+  in Jam inside session mode's workspace; the drift shown in session mode.
+
+### 8.2 Constraints
+
+The context of use (hands and mouth on the instrument, nothing clicked while playing, music-stand
+distance); nothing asked or offered while a Jam runs; never grading or naming a wrong note;
+`src/styles/` only; the entry chunk carries the mode button and nothing else of Jam's (D402).
+
+### 8.3 The design's open questions (ux Q70, Q73–Q75)
+
+- **Q70** (leaving Jam mode leaves the workspace empty): **moot**. Leaving Jam mode returns
+  session mode as it was (§2).
+- **Q73** (deleting a Jam session lets go a doodle held from it): **answered yes** by D408: the
+  doodle Jam mode keeps goes when its kept session is deleted (§2). `ux-writer` closes it.
+- **Q74** (a Jam on a held doodle ending in its count-in keeps it): **answered yes** by D408: a
+  Jam on the kept doodle that ends before phrase 1 keeps it (§2). `ux-writer` closes it.
+- **Q75** (the "no mode fits" sentence once or in every review): **stands as Part C words it**,
+  one sentence in every review of that Jam (C6.3, C12); `ux-writer` closes it as recommended.
+- **Still `ux-writer`'s**: how the mode shows, where the mode button sits, the loading and offline
+  states of the first press, tap-in's look, how controls taken from the doodle show, the "new
+  doodle" action, and every label.
 
 ## 9. Open
 
-O247–O259, in the [register](../../open-questions.md#v32-jam-re-scope-o247). Blocking (the owner
-answers before `ux-writer` is briefed): O247, O248, O249, O253. The others carry a proposed answer
-`ux-writer` and the plan can work from until the owner confirms.
+None. O247–O259 were opened and closed on 2026-10-21 (D400–D408). Four answers stay provisional
+until the checks of §3.1.

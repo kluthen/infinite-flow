@@ -3,8 +3,8 @@
 Status: v3.0 released as version 3.0.0 on 2026-10-16 (tag `v3.0.0` at e288d98, deployed;
 D348); v3.1 released as version 3.1.0 on 2026-10-21 (tag `v3.1.0` at 55364e7; D397), its hand
 checks after the tag closed (D399; [v3.1.x notes](#v31x-notes-after-the-tag)); v3.2 consolidated as
-master spec Part C, approved (D239), now being re-scoped with Jam as its own mode (D400–D405;
-[draft](jam-mode.md)), its design and build plan not approved; v3.3 in master spec
+master spec Part C, approved (D239), re-scoped with Jam as its own mode (D400–D408;
+[draft](jam-mode.md), settled, Part C not yet consolidated from it), its design and build plan not approved; v3.3 in master spec
 Part D, awaiting owner approval (D264–D275), its build plan not approved (D276–D288, D351); v3.4,
 a structural review before v4, opened as a scoping draft (D389), with a lexicon page added as its
 one player-facing item (D393); v3.x direction only. The Status paragraphs this README kept until
@@ -360,17 +360,20 @@ three are closed (D399):
 - **v3.1 H4, Vary settings under a preset:** passed on the owner's word.
 - **v3.1 H5, v3.0 data carried over:** waived. v3.0 had no live users, so carrying v3.0's data
   over is not checked by hand; the upgrade code and its automated tests stay.
-- **The waiting promotions** (D396, D397, D399): 11 REVIEW→STABLE and 2 DRAFT→REVIEW atoms,
-  applied by `documentalist`. An atom that promises the same result "in Chrome and Edge" is
-  reworded to Chrome as it is promoted.
+- **The waiting promotions** (D396, D397, D399): 11 REVIEW→STABLE and 2 DRAFT→REVIEW atoms, are
+  applied (5618971, CONTRACT 7.2.0), the atoms that promised the same result "in Chrome and Edge"
+  reworded to Chrome.
 
 ## v3.2 — Jam and the rhythm lock
 
 **Re-scope opened 2026-10-21 (D400–D405): [Jam as its own mode](jam-mode.md)**, draft v1. Jam
 leaves the session options for a mode of its own, entered by a button, with its own settings, its
 code loaded on demand, its steering kept at the generator's edges, and a tempo target of 120 to
-180 BPM. Part C below stays the record until the re-scope settles; the build plan's rewrite waits
-for it. Open: O247–O259.
+180 BPM. Settled the same day (D406–D408; four answers provisional until the owner's checks):
+Jam's own settings with the rhythm and shape controls taken from the doodle, the tempo set before
+the doodle with tap-in, the mode switched only at Idle, a MIDI controller required, and v3.2 split
+into session-mode work first, then Jam mode. Part C below stays the record until it is
+consolidated from the draft; the build plan is rewritten after it.
 
 **Consolidated 2026-10-08: [master spec, Part C](master-spec.md#part-c--v32)** (master spec v1.0,
 awaiting the owner's approval of the consolidation and the owner's confirmation of the contract

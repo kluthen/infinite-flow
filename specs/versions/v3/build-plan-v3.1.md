@@ -2019,7 +2019,8 @@ The release gate, not a wave; it keeps its chunk number because other plans link
 owner has accepted the sync's proposals (spec D396), the promotions are committed, the release
 branch is merged into `main` and pushed, and the `3.1.0` tag is put on `main` on the owner's go
 (spec D397). After the release, v3.1 H4 passed and H3 and H5 were waived, so the 13 promotions
-that waited on them (11 REVIEW→STABLE, 2 DRAFT→REVIEW) proceed (spec D399).
+that waited on them (11 REVIEW→STABLE, 2 DRAFT→REVIEW) are applied (5618971, CONTRACT 7.2.0; spec
+D399).
 
 ### Definition-of-done coverage
 

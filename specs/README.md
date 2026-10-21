@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.83
+Status: draft v0.84
 
 ## Status Snapshot
 
@@ -13,7 +13,7 @@ Status: draft v0.83
   [archive/v3/](archive/v3/README.md) (D398). Its hand checks after the tag are closed (D399): H4
   passed on the owner's word, H3 (Edge) and H5 (v3.0 data carried over) waived, since Chrome is
   the one supported browser and v3.0 had no live users; the 13 promotions that waited on them
-  proceed ([v3.1.x notes](versions/v3/README.md#v31x-notes-after-the-tag)).
+  are applied (5618971, CONTRACT 7.2.0) ([v3.1.x notes](versions/v3/README.md#v31x-notes-after-the-tag)).
 - **v3.0 is released as version 3.0.0** (2026-10-16, D348), tagged `v3.0.0` at e288d98 and
   deployed. Master spec [Part A](versions/v3/master-spec.md#part-a--v30) states it. Still to come
   as v3.0.x notes: hand check H8, the played-notes-export half of H5 and the later promotion of
@@ -41,10 +41,12 @@ Status: draft v0.83
   while playing.
 - **Next: the rest of v3** ([v3](versions/v3/README.md#releases-d211)):
   - **v3.2:** Jam, the key and mode suggestion, the rhythm lock and its mutation option. Master
-    spec [Part C](versions/v3/master-spec.md#part-c--v32), approved (D239), **being re-scoped**:
-    Jam becomes its own mode, entered by a button, with its own settings, loaded on demand, its
-    generator steering at the edges, its tempo target 120–180 BPM (D400–D405;
-    [draft](versions/v3/jam-mode.md); open O247–O259). Build plan
+    spec [Part C](versions/v3/master-spec.md#part-c--v32), approved (D239), **re-scoped**: Jam
+    becomes its own mode, entered by a button at Idle, needing a MIDI controller, with its own
+    settings, loaded on demand, its generator steering at the edges, its tempo set before the
+    doodle in 60–180 BPM; v3.2 splits into session-mode work, then Jam (D400–D408;
+    [draft](versions/v3/jam-mode.md), settled, four answers provisional until the owner's checks;
+    Part C not yet consolidated from it). Build plan
     [v3.2](versions/v3/build-plan-v3.2.md), v3, stale, rewritten after the re-scope; its design
     not approved (D353 approved v3.1's only). The contract wording v3.1 and v3.2 change was confirmed by the owner
     (D246).

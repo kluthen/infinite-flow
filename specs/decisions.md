@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.119
+Status: draft v2.120
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -27,7 +27,7 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and each milestone
 folder's README, such as [archive/v3/README.md](archive/v3/README.md)). Numbering continues from
-**D406**.
+**D409**.
 
 Live here: D232–D251 (v3.2, not built yet), with v3.1's D233, D235, D242 and D250 interleaved
 among them and D237, D239 and D246 ruling both releases, kept until v3.2's archive closes the
@@ -729,3 +729,22 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   to change. The plan's corrections found against v3.1 still apply at the rewrite. The rhythm lock
   and Vary settings' allowed groups are not reopened beyond what the mode split touches. Now in:
   [Jam mode §6](versions/v3/jam-mode.md#6-blast-radius).
+
+- **D406 (2026-10-21): Jam's settings, its controls taken from the doodle, its tempo and its
+  rhythm lock are settled as proposed, provisionally until the owner's checks.** The owner: "your
+  propositions seem nice, will need testing to be sure." Closes O247, O248, O249 and O253 as
+  [Jam mode §3](versions/v3/jam-mode.md#3-jams-settings-set) and [§5](versions/v3/jam-mode.md#5-tempo-in-jam) say, with the check that
+  confirms each in [§3.1](versions/v3/jam-mode.md#31-what-confirms-them). A failed check comes back as a ruling for the
+  owner; nothing changes silently.
+
+- **D407 (2026-10-21): the mode switches only at Idle, never while playing, and Jam requires a
+  MIDI controller.** The owner: "indeed you can't switch session/jam mode while playing. Jam
+  requires a controller. ok for the rest." Without a controller, Jam mode opens and its Start is
+  unavailable, saying why. Closes O251 with the rest as proposed. Now in:
+  [Jam mode §2](versions/v3/jam-mode.md#2-two-modes).
+
+- **D408 (2026-10-21): the remaining re-scope proposals are accepted.** The owner: "ok for the
+  rest." Closes O250 (60–180 BPM), O252 (the seam), O254 (the doodle Jam mode keeps), O255 (one
+  list, one review), O256 (v3.2 split, session-mode work first), O257 (one MAJOR bump, from
+  CONTRACT 7.2.0 to 8.0.0), O258 (bundle policy) and O259 (scripted checks). Now in:
+  [Jam mode](versions/v3/jam-mode.md).
