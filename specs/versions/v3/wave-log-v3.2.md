@@ -168,3 +168,15 @@ the sync of the wave that builds it, so `main` never holds code that disagrees w
 Sent to `spec-writer`: the preflight's plan corrections 1–13 (chunks 4, 5, 6, 15, the gates table,
 the build workflow's sign-off wording, chunk 12's revisions) and the open points (chunk 6's
 encoder refusal, the skipped mutation's record, the draw bound's typed error).
+
+`spec-writer` (edde017): plan v11, D422 (a MAJOR contract bump per changed STABLE guarantee, at the
+sync of the wave that builds it: gate CN, part N, before chunk 15's merge; gate CK before chunk
+12's), D423 (chunk 6's `ifk3.` encoder refuses an intent it cannot encode until chunk 12; the
+skipped mutation is in the in-memory history only; N1's draw bound stays a typed error); build
+workflow v2 (sign-off recorded in the change set and the applying commit); Part C v1.5. For the wave
+1 sync: check whether `module_phrase_replay_key` 0.6 needs a word for the refusal (spec-writer
+thinks not). Gate CN asked of the owner.
+
+### Chunks
+
+- Chunk 4: dispatched to `coding-leader`, branch `v3.2-c4-quantized-doodle`.

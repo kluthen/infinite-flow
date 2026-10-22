@@ -685,7 +685,7 @@ Architecture capture: none
 
 ### Chunk 4 — The quantized doodle
 
-Status: planned
+Status: in progress (w1)
 Wave: 1
 Depends on: 0
 Architecture capture: the quantized doodle, `src/domain/doodle/quantized-doodle.ts`: one to four
