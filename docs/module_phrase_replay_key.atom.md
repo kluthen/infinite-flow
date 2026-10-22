@@ -1,6 +1,6 @@
 ---
 id: module_phrase_replay_key
-status: REVIEW
+status: STABLE
 layer: ARCHITECTURE
 human_name: Phrase Replay Key
 version: 0.6

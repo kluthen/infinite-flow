@@ -1,6 +1,6 @@
 ---
 id: rule_seeded_phrase_reproduction
-status: REVIEW
+status: STABLE
 human_name: Seeded Phrase Reproduction
 type: RULE
 layer: BUSINESS
