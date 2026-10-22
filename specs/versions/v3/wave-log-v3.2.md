@@ -328,4 +328,16 @@ thinks not). Gate CN asked of the owner.
   - Code health has one error on the branch, from chunk 5
     (`rhythm-bars-domain.spec.ts:171`, nesting). It is fixed before the gate.
 
+- `spec-writer` D426 (06c8061; Part C v1.8, plan v14). C9 now says a mid-session dead end cannot
+  happen under today's rules and that the skip is a defensive guarantee. Chunk 15's Done-when item 4
+  matches the test's trigger. For the wave 1 sync, reword `rule_vary_settings_skips_dead_end`
+  (DRAFT):
+  - INTENT becomes "Keep a session running should Vary settings ever be left with no move."
+  - THE RULE / LOGIC becomes:
+
+    > During a session a reached setting can always step back to where it came from, and the
+    > narrow-window step-down never removes the last move, so under today's rules a dead end
+    > cannot occur. Should one occur all the same, that move is skipped and recorded in the session
+    > history, and the next one is drawn as usual. Nothing stops or fails.
+
 ### Gate
