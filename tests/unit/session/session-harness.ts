@@ -26,7 +26,11 @@ import type {
 import { makeSeed, type Seed } from '@/domain/random/seed'
 import { createSessionEngine } from '@/session/session-engine'
 import type { ReadyPhrase } from '@/session/session-ready-phrases'
-import { SETTINGS_MUTATION_OFF, type SettingsMutationFlag } from '@/session/settings-mutation'
+import {
+  ALL_GROUPS_ALLOWED,
+  SETTINGS_MUTATION_OFF,
+  type SettingsMutationFlag,
+} from '@/session/settings-mutation'
 import type {
   AudioTime,
   SessionDisplayReading,
@@ -134,6 +138,8 @@ export function sessionSettings(overrides: Partial<GenerationControls> = {}): Se
     controls: makeGenerationControls({ ...BASE_CONTROLS, ...overrides }),
     figureLevels: NEUTRAL_FIGURE_LEVELS,
     selection: { kind: 'custom', baseId: 'neutral' },
+    allowedGroups: ALL_GROUPS_ALLOWED,
+    rhythmLockOn: false,
   }
 }
 

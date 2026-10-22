@@ -9,6 +9,7 @@
  */
 import { describe, expect, it } from 'vitest'
 
+import { isPhraseCarryIn, type CarryIn } from '@/domain/generation/carry-in/carry-in'
 import {
   GenerationWorkerCrashError,
   GenerationWorkerTransportError,
@@ -24,10 +25,17 @@ import {
   type PregenerationRig,
 } from './pregeneration-rig'
 
+/** Intent: the number of the phrase a carry-in comes from; the queue only hands on such ones. */
+function carriedPhraseNumber(carryIn: CarryIn | undefined): number | undefined {
+  if (carryIn !== undefined && !isPhraseCarryIn(carryIn))
+    throw new Error('The queue handed on a carry-in from no phrase.')
+  return carryIn?.phraseNumber
+}
+
 /** Intent: the phrase and carry-in source of the attempt in flight. */
 function inFlightPlace(rig: PregenerationRig): { phrase: number | undefined; standalone: boolean } {
   const { carryIn } = inFlight(rig).intent
-  return { phrase: carryIn?.phraseNumber, standalone: carryIn === undefined }
+  return { phrase: carriedPhraseNumber(carryIn), standalone: carryIn === undefined }
 }
 
 // @test-link [[module_idle_pregeneration_queue]]
@@ -112,9 +120,9 @@ describe('Idle pre-generation queue: running', () => {
     await flush()
 
     expect(inFlightPlace(rig).standalone).toBe(true)
-    expect(rig.calls.slice(0, 4).every((call) => call.intent.carryIn?.phraseNumber === 1)).toBe(
-      true,
-    )
+    expect(
+      rig.calls.slice(0, 4).every((call) => carriedPhraseNumber(call.intent.carryIn) === 1),
+    ).toBe(true)
     expect(new Set(rig.calls.map((call) => call.intent.seed)).size).toBe(5)
     await answer(rig)
     expect(inFlightPlace(rig).phrase).toBe(2)
@@ -160,7 +168,7 @@ describe('Idle pre-generation queue: running', () => {
     expect(takenNumbers(rig)).toEqual([])
     rig.tensionAcrossPhrases.value = true
     await flush()
-    expect(inFlight(rig).intent.carryIn?.phraseNumber).toBe(1)
+    expect(inFlight(rig).intent.carryIn).toMatchObject({ phraseNumber: 1 })
   })
 
   // @test-link [[module_idle_pregeneration_queue]]
@@ -203,7 +211,7 @@ describe('Idle pre-generation queue: yielding to the player', () => {
     rig.blocker.value = null
     await flush()
     expect(rig.calls).toHaveLength(3)
-    expect(rig.calls[2]!.intent.carryIn?.phraseNumber).toBe(2)
+    expect(rig.calls[2]!.intent.carryIn).toMatchObject({ phraseNumber: 2 })
     expect(rig.calls[2]!.intent.seed).toBe(phraseThree.intent.seed)
   })
 })

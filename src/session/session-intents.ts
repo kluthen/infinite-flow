@@ -36,6 +36,7 @@ import type { RegisterChoice } from '../domain/profile/register-intent'
 import type { RegisterWindowCandidate } from '../domain/profile/register-window-derivation'
 import type { Seed } from '../domain/random/seed'
 import { phraseAttemptSeed } from './session-seed-plan'
+import { VARY_SETTINGS_GROUPS, type AllowedGroups } from './settings-mutation-scales'
 import {
   SessionEngineError,
   type SessionEngineDependencies,
@@ -142,11 +143,49 @@ function selectionCopy(selection: PresetSelection): PresetSelection {
 }
 
 /**
+ * Intent: a fresh plain copy of Vary settings' allowed groups, refused unless they hold exactly
+ * the six groups, each on or off.
+ */
+function allowedGroupsCopy(allowedGroups: AllowedGroups): AllowedGroups {
+  const value: unknown = allowedGroups
+  if (typeof value !== 'object' || value === null || Array.isArray(value))
+    throw new SessionEngineError('The allowed groups must be an object of the six groups.')
+  const keys = Object.keys(value)
+  const known = new Set<string>(VARY_SETTINGS_GROUPS)
+  const unknown = keys.filter((key) => !known.has(key))
+  if (unknown.length > 0 || keys.length !== VARY_SETTINGS_GROUPS.length)
+    throw new SessionEngineError(
+      `The allowed groups must hold exactly ${VARY_SETTINGS_GROUPS.join(', ')}; got ${keys.join(', ')}.`,
+    )
+  for (const group of VARY_SETTINGS_GROUPS)
+    if (typeof allowedGroups[group] !== 'boolean')
+      throw new SessionEngineError(`The allowed group ${group} must be on or off (a boolean).`)
+  return {
+    keyAndMode: allowedGroups.keyAndMode,
+    harmony: allowedGroups.harmony,
+    tension: allowedGroups.tension,
+    rhythm: allowedGroups.rhythm,
+    melodyShape: allowedGroups.melodyShape,
+    figures: allowedGroups.figures,
+  }
+}
+
+/** Intent: the rhythm lock's state, refused unless it is a boolean. */
+function rhythmLockOnOf(settings: SessionSettings): boolean {
+  const value: unknown = settings.rhythmLockOn
+  if (typeof value !== 'boolean')
+    throw new SessionEngineError(`Whether the rhythm lock is on must be a boolean, not ${value}.`)
+  return value
+}
+
+/**
  * Intent: an independent, deep-frozen copy of the chosen settings, so nothing the caller does to
  * its own objects after the start can reach the session. The controls and the figure levels are
  * validated on the way, the selection is copied as a plain value, and my instrument's profile,
  * when the settings carry it, is kept: settings whose profile does not match their instrument are
  * refused. The restriction frozen at the session's start, when they carry one, is kept, validated.
+ * Vary settings' allowed groups and whether the rhythm lock is on are kept, validated: settings
+ * without exactly the six groups, each a boolean, or without a boolean lock state are refused.
  */
 // @spec-link [[rule_session_settings_locked]]
 // @spec-link [[entity_my_instrument]]
@@ -159,18 +198,24 @@ export function freezeSessionSettings(settings: SessionSettings): SessionSetting
     selection: selectionCopy(settings.selection),
     ...suppliedProfileOf(settings),
     ...restrictionOf(settings),
+    allowedGroups: allowedGroupsCopy(settings.allowedGroups),
+    rhythmLockOn: rhythmLockOnOf(settings),
   })
 }
 
 /**
  * Intent: the settings a session starts with: the chosen controls, figure levels and selection,
- * and, when the controls name my instrument, its profile as phrase 1's intent embeds it, so the
- * session generates with the very profile phrase 1 was generated with.
+ * Vary settings' allowed groups and whether the rhythm lock is on, and, when the controls name my
+ * instrument, its profile as phrase 1's intent embeds it, so the session generates with the very
+ * profile phrase 1 was generated with.
  */
 // @spec-link [[service_session_engine]]
 // @spec-link [[entity_my_instrument]]
 export function sessionSettingsAtStart(
-  chosen: Pick<SessionSettings, 'controls' | 'figureLevels' | 'selection'>,
+  chosen: Pick<
+    SessionSettings,
+    'controls' | 'figureLevels' | 'selection' | 'allowedGroups' | 'rhythmLockOn'
+  >,
   phraseOne: GenerationIntent,
 ): SessionSettings {
   const mine = chosen.controls.instrumentProfileId === MY_INSTRUMENT_ID
@@ -179,6 +224,8 @@ export function sessionSettingsAtStart(
     figureLevels: chosen.figureLevels,
     selection: chosen.selection,
     ...(mine ? { instrumentProfile: phraseOne.instrumentProfile } : {}),
+    allowedGroups: chosen.allowedGroups,
+    rhythmLockOn: chosen.rhythmLockOn,
   }
 }
 

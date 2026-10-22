@@ -1,7 +1,8 @@
 /**
  * The workspace's session runner: the player's `Vary settings` choice becomes the engine's
  * settings-mutation flag, its seed derived from the start's session seed (and nothing derived
- * when it is off), no seed drawn from any provider; the multi-phrase tension arc flag is passed
+ * when it is off), no seed drawn from any provider, and off when the start settings have no legal
+ * move under the start's mutation context; the multi-phrase tension arc flag is passed
  * on as it is;
  * the display reading the caller passes is the one the engine reads for a settings change; every
  * output, a settings change's included, reaches the caller.
@@ -13,10 +14,13 @@ import {
   mutationFlagFor,
   startWorkspaceSessionRunner,
 } from '@/components/workspace/workspace-session-runner'
+import { CANONICAL_REGISTER_ORDER } from '@/domain/profile/register-id'
+import { createMulberry32 } from '@/domain/random/prng'
 import { makeSeed } from '@/domain/random/seed'
+import { mutationContextAtStart } from '@/session/session-mutation-step'
 import { phraseAttemptSeed, settingsMutationSeed } from '@/session/session-seed-plan'
 import type { SessionOutput, SessionSettings } from '@/session/session-types'
-import { mutationPhrase, SETTINGS_MUTATION_OFF } from '@/session/settings-mutation'
+import { hasLegalMove, mutationPhrase, SETTINGS_MUTATION_OFF } from '@/session/settings-mutation'
 import {
   fakeDisplay,
   fakeViewport,
@@ -26,11 +30,16 @@ import {
   sessionSettings,
   UNREAD_DISPLAY,
 } from '../../session/session-harness'
+import { groupsOn, pick, specMarkedCandidates } from '../../session/vary-settings-groups-cases'
+import { randomSettings } from '../../session/vary-settings-random-settings'
 
 /** Intent: let every settled seam promise run its continuation. */
 function settle(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0))
 }
+
+/** The random starts the flag property checks. */
+const FLAG_TRIALS = 1500
 
 /** The session seed every rig starts from. */
 const SESSION_SEED = makeSeed(0x51ed5eed)
@@ -42,10 +51,15 @@ function phraseStart(phraseNumber: number): number {
 
 /**
  * Intent: a 240 BPM workspace runner on real generation, its outputs and errors logged, with the
- * multi-phrase tension arc as `multiPhraseTensionArc` says (off unless given).
+ * multi-phrase tension arc as `multiPhraseTensionArc` says (off unless given), from `settings`
+ * (the harness settings at 240 BPM unless given).
  */
-function runnerRig(varySettings: boolean, display = UNREAD_DISPLAY, multiPhraseTensionArc = false) {
-  const settings = sessionSettings({ tempo: 240 })
+function runnerRig(
+  varySettings: boolean,
+  display = UNREAD_DISPLAY,
+  multiPhraseTensionArc = false,
+  settings: SessionSettings = sessionSettings({ tempo: 240 }),
+) {
   const clock = { at: 0 }
   const outputs: SessionOutput[] = []
   const errors: unknown[] = []
@@ -93,11 +107,76 @@ describe('the workspace session runner', () => {
   // @test-link [[req_settings_mutation_flag]]
   // @test-link [[module_session_seed_plan]]
   it("maps the choice to the flag, on with the session seed's planned mutation seed", () => {
-    expect(mutationFlagFor(false, SESSION_SEED)).toBe(SETTINGS_MUTATION_OFF)
-    expect(mutationFlagFor(true, SESSION_SEED)).toEqual({
+    const settings = sessionSettings({ tempo: 240 })
+    const context = mutationContextAtStart(phraseOneFor(settings), false)
+    expect(mutationFlagFor(false, SESSION_SEED, settings, context)).toBe(SETTINGS_MUTATION_OFF)
+    expect(mutationFlagFor(true, SESSION_SEED, settings, context)).toEqual({
       kind: 'on',
       seed: settingsMutationSeed(SESSION_SEED),
     })
+  })
+
+  // @test-link [[rule_vary_settings_needs_legal_move]]
+  // @test-link [[req_settings_mutation_flag]]
+  it('is off with the choice on when the start settings have no legal move: every group off, or only Rhythm under the lock', () => {
+    const settings = sessionSettings({ tempo: 240 })
+    const context = mutationContextAtStart(phraseOneFor(settings), false)
+    const everyGroupOff = { ...settings, allowedGroups: groupsOn([]) }
+    const onlyRhythmLocked = {
+      ...settings,
+      allowedGroups: groupsOn(['rhythm']),
+      rhythmLockOn: true,
+    }
+    for (const stuck of [everyGroupOff, onlyRhythmLocked]) {
+      expect(hasLegalMove(stuck, context)).toBe(false)
+      expect(mutationFlagFor(true, SESSION_SEED, stuck, context)).toBe(SETTINGS_MUTATION_OFF)
+    }
+    const onlyRhythm = { ...onlyRhythmLocked, rhythmLockOn: false }
+    expect(mutationFlagFor(true, SESSION_SEED, onlyRhythm, context)).toEqual({
+      kind: 'on',
+      seed: settingsMutationSeed(SESSION_SEED),
+    })
+  })
+
+  // @test-link [[rule_vary_settings_needs_legal_move]]
+  it('is on exactly when the choice is on and a legal move exists, over random settings, groups, lock and width', () => {
+    const random = createMulberry32(0x0f1a_6015)
+    const seen = { on: 0, offByChoice: 0, offByNoMove: 0 }
+    for (let trial = 0; trial < FLAG_TRIALS; trial += 1) {
+      const settings = randomSettings(random)
+      const varySettings = random.nextFloat() < 0.75
+      const context = {
+        belowTabletLandscape: random.nextFloat() < 0.5,
+        sessionSteppedDown: false,
+        resolvedRegister: pick(CANONICAL_REGISTER_ORDER, random.nextFloat()),
+      }
+      const sessionSeed = makeSeed(random.nextUint32())
+      const legal = specMarkedCandidates(settings, context).some((step) => step.supported)
+      const flag = mutationFlagFor(varySettings, sessionSeed, settings, context)
+      const label = `trial ${trial}`
+      if (varySettings && legal) {
+        expect(flag, label).toEqual({ kind: 'on', seed: settingsMutationSeed(sessionSeed) })
+        seen.on += 1
+      } else {
+        expect(flag, label).toBe(SETTINGS_MUTATION_OFF)
+        seen[varySettings ? 'offByNoMove' : 'offByChoice'] += 1
+      }
+    }
+    for (const [kind, count] of Object.entries(seen)) expect(count, kind).toBeGreaterThan(0)
+  })
+
+  // @test-link [[rule_vary_settings_needs_legal_move]]
+  it('runs a session started with the choice on but no legal move without Vary settings: nothing moves, nothing is skipped', async () => {
+    const settings = { ...sessionSettings({ tempo: 240 }), allowedGroups: groupsOn([]) }
+    const rig = runnerRig(true, UNREAD_DISPLAY, false, settings)
+    const landsOn = mutationPhrase(settingsMutationSeed(SESSION_SEED), 1)
+    await playTo(rig, landsOn + 4)
+    expect(rig.errors).toEqual([])
+    const kinds = rig.outputs.map((output) => output.kind)
+    expect(kinds).not.toContain('settings-changed')
+    expect(kinds).not.toContain('mutation-skipped')
+    const requests = rig.outputs.filter((output) => output.kind === 'request-generation')
+    for (const request of requests) expect(request.intent.controls).toEqual(settings.controls)
   })
 
   // @test-link [[req_settings_mutation_flag]]

@@ -23,7 +23,7 @@ import type { InstrumentProfile } from '@/domain/profile/instrument-profile'
 import { makeMyInstrument, myInstrumentDraftFromTemplate } from '@/domain/profile/my-instrument'
 import { makeSeed } from '@/domain/random/seed'
 import { adaptCarryIn } from '@/session/carry-in-adaptation'
-import { mutationCandidates } from '@/session/settings-mutation'
+import { ALL_GROUPS_ALLOWED, mutationCandidates } from '@/session/settings-mutation'
 import type { SessionSettings, SessionStart } from '@/session/session-types'
 import { sessionFigureLevels } from '@/session/session-intents'
 import {
@@ -64,6 +64,8 @@ function mySettings(
     }),
     figureLevels: NEUTRAL_FIGURE_LEVELS,
     selection: { kind: 'custom', baseId: 'neutral' },
+    allowedGroups: ALL_GROUPS_ALLOWED,
+    rhythmLockOn: false,
     instrumentProfile: profile,
   }
 }
@@ -189,6 +191,8 @@ describe('the carry-in receiver converts the tonal center with my instrument’s
       }),
       figureLevels: NEUTRAL_FIGURE_LEVELS,
       selection: { kind: 'custom', baseId: 'neutral' },
+      allowedGroups: ALL_GROUPS_ALLOWED,
+      rhythmLockOn: false,
     }
   }
 
@@ -262,5 +266,7 @@ function altoBuiltIn(): SessionSettings {
     }),
     figureLevels: NEUTRAL_FIGURE_LEVELS,
     selection: { kind: 'custom', baseId: 'neutral' },
+    allowedGroups: ALL_GROUPS_ALLOWED,
+    rhythmLockOn: false,
   }
 }

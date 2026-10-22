@@ -3,7 +3,8 @@
  * in the session's history, a phrase starting to sound placed at its scheduled start, then acted
  * on: a readied phrase is shown and kept, scheduled once its tempo is fixed, or taken back when
  * discarded (./workspace-session-phrases.ts); a settings change waits for the phrase it applies
- * to; a phrase starting to sound sets the tempo and settings shown; the struggling notice shows or
+ * to; a mutation skipped at a dead end is only recorded; a phrase starting to sound sets the
+ * tempo and settings shown; the struggling notice shows or
  * hides; a wake-up request is scheduled on the audio clock; and the `ended` output is kept for the
  * end that asked for it.
  */
@@ -52,7 +53,8 @@ function onSounding(
 /**
  * Intent: record one runner output in the history, a sounding phrase at its scheduled start,
  * then act on it: a phrase is shown when ready and scheduled at its tempo, and a discarded one
- * taken back before its tempo; a settings change is kept until the phrase it applies to sounds.
+ * taken back before its tempo; a settings change is kept until the phrase it applies to sounds; a
+ * mutation skipped at a dead end goes to the history and nowhere else, so nothing shown changes.
  */
 // @spec-link [[rule_struggling_generator_notice]]
 // @spec-link [[rule_session_history_records_played_notes]]

@@ -9,7 +9,11 @@ import { describe, expect, it } from 'vitest'
 
 import type { Leapiness } from '@/domain/controls/generation-controls'
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
-import { makeCarryIn, type CarryIn } from '@/domain/generation/carry-in/carry-in'
+import {
+  makeCarryIn,
+  type CarryIn,
+  type PhraseCarryIn,
+} from '@/domain/generation/carry-in/carry-in'
 import {
   owedRecoveryCanSettle,
   recoveryLandsOn,
@@ -63,7 +67,11 @@ function chordTones(carryIn: CarryIn): readonly number[] {
 }
 
 /** Intent: the donor carry-in with its last pitch and leap state replaced. */
-function reshaped(donor: CarryIn, midi: number, leap: Partial<CarryIn['lastPitch']>): CarryIn {
+function reshaped(
+  donor: PhraseCarryIn,
+  midi: number,
+  leap: Partial<CarryIn['lastPitch']>,
+): CarryIn {
   return makeCarryIn({
     ...donor,
     lastPitch: { ...donor.lastPitch, ...leap, midi: makeConcertPitch(midi) },

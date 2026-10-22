@@ -2,6 +2,7 @@
 id: rule_vary_settings_allowed_groups
 status: DRAFT
 dependents:
+  - [[module_settings_mutation]]
   - [[rule_vary_settings_needs_legal_move]]
   - [[rule_vary_settings_skips_dead_end]]
 type: RULE

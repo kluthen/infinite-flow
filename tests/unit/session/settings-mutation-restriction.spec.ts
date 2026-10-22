@@ -38,11 +38,12 @@ import { landingMutation } from '@/session/session-mutation-step'
 import { changedSettings } from '@/session/session-settings-change'
 import type { SessionSettings } from '@/session/session-types'
 import {
-  mutateSettings,
+  ALL_GROUPS_ALLOWED,
   withRestrictionAtStart,
   type MutationContext,
   type SettingsMutationResult,
 } from '@/session/settings-mutation'
+import { mutatedMove } from './settings-mutation-moves'
 
 const WIDE: MutationContext = {
   belowTabletLandscape: false,
@@ -85,6 +86,8 @@ function cIonian(
     controls: { ...DEFAULT_GENERATION_CONTROLS, ...controls },
     figureLevels: NEUTRAL_FIGURE_LEVELS,
     selection,
+    allowedGroups: ALL_GROUPS_ALLOWED,
+    rhythmLockOn: false,
   }
 }
 
@@ -101,6 +104,8 @@ function startUnder(preset: Preset, controls: Partial<GenerationControls> = {}):
       controls: chosen.settings.controls,
       figureLevels: chosen.settings.levels,
       selection: chosen.selection,
+      allowedGroups: ALL_GROUPS_ALLOWED,
+      rhythmLockOn: false,
     },
     PRESETS,
   )
@@ -129,7 +134,8 @@ function sessionMoves(start: SessionSettings, seed: ReturnType<typeof makeSeed>)
     const landing = landingMutation({ kind: 'on', seed }, phraseNumber, settings, () => WIDE)
     if (landing === undefined) continue
     const { output } = landing
-    if (output.cause !== 'mutation') throw new Error('A mutation landing reports a mutation.')
+    if (output.kind !== 'settings-changed' || output.cause !== 'mutation')
+      throw new Error('A mutation landing reports a mutation.')
     moves.push({
       result: {
         setting: output.setting,
@@ -319,7 +325,7 @@ describe('Vary settings with no restriction in force', () => {
     expect(V30_DRAWS.rows.length).toBeGreaterThan(0)
     for (const [start, seed, k, setting, from, to] of V30_DRAWS.rows) {
       if (setting === 'musicalProfile') continue
-      const result = mutateSettings(starts[start], V30_DRAWS.context, makeSeed(seed), k)
+      const result = mutatedMove(starts[start], V30_DRAWS.context, makeSeed(seed), k)
       expect(
         { setting: result.setting, from: result.from, to: result.to },
         `${start} ${seed}/${k}`,
@@ -365,7 +371,7 @@ describe('the redraw bound under the worst restriction', () => {
             for (const k of [1, 2, 3]) {
               nextSeed += 1
               const seed = makeSeed(nextSeed)
-              const result = mutateSettings(settings, context, seed, k, (draws) => {
+              const result = mutatedMove(settings, context, seed, k, (draws) => {
                 mostRedraws = Math.max(mostRedraws, draws - 1)
               })
               mutations += 1

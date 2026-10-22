@@ -15,6 +15,7 @@ import { BUILT_IN_PRESETS, builtInPreset } from '@/domain/presets/built-in-prese
 import { onlyKeyAndMode } from '@/domain/presets/key-and-mode-restriction'
 import { makePreset, type Preset, type PresetSelection } from '@/domain/presets/preset-selection'
 import type { SessionSettings } from '@/session/session-types'
+import { ALL_GROUPS_ALLOWED } from '@/session/settings-mutation'
 
 /** Intent: a player preset with `id` and `name`, Jazz's values, and an "any" restriction. */
 function playerPreset(id: string, name: string, restriction = builtInPreset('jazz').restriction) {
@@ -229,6 +230,8 @@ describe('presetDescription', () => {
       controls: DEFAULT_GENERATION_CONTROLS,
       figureLevels: builtInPreset('neutral').levels,
       selection: { kind: 'preset', presetId: 'neutral' },
+      allowedGroups: ALL_GROUPS_ALLOWED,
+      rhythmLockOn: false,
     }
     const start: SessionStartSettings = settings
     expect(presetDescription(start.selection, PRESETS)).toBe(

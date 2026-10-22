@@ -10,6 +10,7 @@ tags: [v3, release-v3.2, session, rhythm, rhythm-lock]
 parents:
   - [[req_rolling_practice_session]]
 dependents:
+  - [[entity_request_rhythm_lock]]
   - [[rule_allowed_rhythm_changes]]
   - [[rule_forced_bend]]
   - [[rule_locked_rhythm_is_phrase_one]]

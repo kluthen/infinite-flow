@@ -16,6 +16,7 @@ import { builtInPreset } from '@/domain/presets/built-in-presets'
 import { makePreset, type Preset } from '@/domain/presets/preset-selection'
 import { makeSeed } from '@/domain/random/seed'
 import type { SessionSettings } from '@/session/session-types'
+import { ALL_GROUPS_ALLOWED } from '@/session/settings-mutation'
 import {
   answerAll,
   flush,
@@ -55,6 +56,8 @@ export function settingsOf(
       .controls,
     figureLevels: preset.levels,
     selection,
+    allowedGroups: ALL_GROUPS_ALLOWED,
+    rhythmLockOn: false,
   }
 }
 
@@ -125,7 +128,7 @@ export async function expectDiscarded(rig: PregenerationRig, change: () => unkno
   await flush()
   expect(rig.failures).toEqual([])
   expect(rig.calls).toHaveLength(full + 1)
-  expect(inFlight(rig).intent.carryIn?.phraseNumber).toBe(1)
+  expect(inFlight(rig).intent.carryIn).toMatchObject({ phraseNumber: 1 })
   expect(rig.queue.take('one-system')).toEqual([])
 }
 

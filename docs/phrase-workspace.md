@@ -238,7 +238,13 @@ session and one long-lived `Worker`:
   so a profile no my instrument can have (a span under two octaves, a range sounding outside MIDI,
   letter steps off the interval table, windows set by hand) is a `GenerationWorkerProtocolError`.
   The session engine carries the same profile in its settings, taken at Start from phrase 1's
-  intent, into every attempt's intent. The response side
+  intent, into every attempt's intent. v3.2's two optional request groups, the rhythm lock group
+  (`rhythmLock`, `src/domain/generation/request-rhythm-lock.ts`) and the steering block
+  (`steering`, `src/domain/generation/steering-block.ts`), are rebuilt through their own parsers
+  when their key is present, an unknown value refused as a `GenerationWorkerProtocolError`; any
+  other extra field is still refused, and an intent without them is exactly v3.1's. Until the
+  `ifk4.` key exists, `encodePhraseReplayKey` refuses an intent holding either group. The response
+  side
   stays in `generation-worker-protocol.ts`, the only half the main thread loads at start-up, so the
   carry-in checks the worker-bound side needs stay out of the entry chunk. `GenerationProvenance` and
   `GenerationDiagnostics` have no existing boundary parser (nothing upstream ever accepted them as

@@ -1,7 +1,8 @@
 ---
 id: rule_locked_rhythm_is_phrase_one
 status: DRAFT
-dependents: []
+dependents:
+  - [[entity_request_rhythm_lock]]
 layer: BUSINESS
 version: 0.2
 human_name: The Locked Rhythm Is Phrase 1's

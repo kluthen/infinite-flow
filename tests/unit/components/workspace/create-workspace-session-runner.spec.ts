@@ -13,6 +13,7 @@ import { encodeSeed } from '@/domain/random/seed'
 import { decodePhraseReplayKey } from '@/generation-worker/phrase-replay-key-decode'
 import { phraseAttemptSeed } from '@/session/session-seed-plan'
 import type { SessionOutput } from '@/session/session-types'
+import { ALL_GROUPS_ALLOWED } from '@/session/settings-mutation'
 import { resetFakeEngraver } from '../../notation/fake-vexflow-engraver-loader'
 import {
   chooseCheapControls,
@@ -63,6 +64,8 @@ describe('composeWorkspaceSession session runner', () => {
           controls: workspace.session.state.controls,
           figureLevels: workspace.session.state.figureLevels,
           selection: workspace.session.state.selection,
+          allowedGroups: ALL_GROUPS_ALLOWED,
+          rhythmLockOn: false,
         },
         phraseOne: { intent: idle!.intent, outcome: idle!.outcome },
         sessionSeed: idle!.sessionSeed,
@@ -80,7 +83,7 @@ describe('composeWorkspaceSession session runner', () => {
 
     expect(deps.generateMock).toHaveBeenCalledTimes(2)
     const phraseTwoIntent = deps.generateMock.mock.calls[1]![0] as GenerationIntent
-    expect(phraseTwoIntent.carryIn?.phraseNumber).toBe(1)
+    expect(phraseTwoIntent.carryIn).toMatchObject({ phraseNumber: 1 })
     expect(outputs[0]).toMatchObject({
       kind: 'request-generation',
       phraseNumber: 2,
@@ -109,6 +112,8 @@ describe('composeWorkspaceSession session runner', () => {
           controls: workspace.session.state.controls,
           figureLevels: workspace.session.state.figureLevels,
           selection: workspace.session.state.selection,
+          allowedGroups: ALL_GROUPS_ALLOWED,
+          rhythmLockOn: false,
         },
         phraseOne: { intent: idle.intent, outcome: idle.outcome },
         sessionSeed: idle.sessionSeed,
@@ -190,6 +195,8 @@ describe('composeWorkspaceSession phrase replay key', () => {
           controls: workspace.session.state.controls,
           figureLevels: workspace.session.state.figureLevels,
           selection: workspace.session.state.selection,
+          allowedGroups: ALL_GROUPS_ALLOWED,
+          rhythmLockOn: false,
         },
         phraseOne: { intent: idle.intent, outcome: idle.outcome },
         sessionSeed: idle.sessionSeed,

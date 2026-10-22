@@ -113,6 +113,14 @@ const storageImportPattern = {
   message: 'src/session/ and src/export/ stay storage-free: they never import src/storage/.',
 }
 
+// Imports of the doodle quantizer, by alias or by relative path: forbidden everywhere in src/
+// outside src/jam/ (see the block near the end, which ignores src/jam/).
+// @spec-link [[module_doodle_quantizer]]
+const doodleQuantizerImportPattern = {
+  group: ['@/jam/doodle-quantizer', '**/jam/doodle-quantizer'],
+  message: 'Only src/jam/ may import the doodle quantizer (src/jam/doodle-quantizer.ts).',
+}
+
 /**
  * Intent: the no-restricted-globals / no-restricted-properties rule pair for one part of src/,
  * given the directory-scoped globals and properties still forbidden there. The forbidden
@@ -231,6 +239,21 @@ export default [
       'no-restricted-imports': [
         'error',
         { patterns: [vexflowImportPattern, storageImportPattern] },
+      ],
+    },
+  },
+  // Nothing outside src/jam/ imports the doodle quantizer: Jam's code alone turns a capture into
+  // a quantized doodle. The typescript-eslint variant of the rule is used on purpose: it is a
+  // separate rule, so this block does not replace the core no-restricted-imports options of the
+  // vexflow and storage blocks above.
+  // @spec-link [[module_doodle_quantizer]]
+  {
+    files: ['src/**/*.{js,mjs,ts,vue}'],
+    ignores: ['src/jam/**'],
+    rules: {
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        { patterns: [doodleQuantizerImportPattern] },
       ],
     },
   },

@@ -17,12 +17,15 @@ import {
   sessionSettingsAtStart,
 } from './session-intents'
 import { SessionEngineError, type SessionSettings } from './session-types'
+import { ALL_GROUPS_ALLOWED } from './settings-mutation-scales'
 
 /**
  * Intent: the session settings phrase 1 was generated under, as a session takes them: the
  * recorded controls at the session's `tempo` (the tempo never affects generation), the recorded
  * figure levels and selection, my instrument's profile taken from phrase 1's intent, which embeds
- * it.
+ * it. The Idle record holds no allowed groups or lock state; phrase 1's settings carry every group
+ * on and the lock off, which nothing reads: they are only compared with the session's over what
+ * the generation reads, and Vary settings never draws from them.
  */
 // @spec-link [[service_session_engine]]
 // @spec-link [[rule_stale_phrase_prompt_at_start]]
@@ -36,6 +39,8 @@ export function phraseOneSettings(
       controls: { ...recorded.controls, tempo },
       figureLevels: recorded.figureLevels,
       selection: recorded.selection,
+      allowedGroups: ALL_GROUPS_ALLOWED,
+      rhythmLockOn: false,
     },
     phraseOne,
   )

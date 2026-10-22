@@ -20,9 +20,11 @@ import { deriveIndexedStream, type IndexedStream } from '../domain/random/stream
 import { freezeSessionSettings } from './session-intents'
 import type { SessionSettings } from './session-types'
 import {
+  MUTABLE_SETTING_GROUPS,
   MUTABLE_SETTINGS,
   MUTATION_SCALES,
   SettingsMutationError,
+  isGroupAllowed,
   scaleNeighbours,
   type ControlScaleTable,
   type MutableControl,
@@ -32,10 +34,15 @@ import {
 } from './settings-mutation-scales'
 
 export {
+  ALL_GROUPS_ALLOWED,
+  MUTABLE_SETTING_GROUPS,
   MUTABLE_SETTINGS,
   MUTATION_SCALES,
   SettingsMutationError,
+  VARY_SETTINGS_GROUPS,
+  isGroupAllowed,
   scaleNeighbours,
+  type AllowedGroups,
   type ControlScaleTable,
   type FigureStepEntry,
   type MutableControl,
@@ -45,6 +52,7 @@ export {
   type MutationScale,
   type MutationScaleEntry,
   type MutationScaleTable,
+  type VarySettingsGroup,
 } from './settings-mutation-scales'
 
 /** The fewest phrases between two mutations, and before the first one (D176). */
@@ -89,14 +97,37 @@ export interface SettingsMutationResult {
 }
 
 /**
- * One step the draw may land on, and whether it may land there: the generator supports it, and a
- * key or mode step stays inside the restriction frozen at the session's start.
+ * One step the draw may land on, and whether it may land there: the generator supports it, a key
+ * or mode step stays inside the restriction frozen at the session's start, and its setting's group
+ * is allowed (the Rhythm group not while the rhythm lock is on).
  */
 // @spec-link [[module_settings_mutation]]
 // @spec-link [[rule_mutation_rerolls_unsupported_combination]]
 // @spec-link [[rule_vary_settings_stays_inside_restriction]]
 export interface MutationCandidate extends SettingsMutationResult {
   readonly supported: boolean
+}
+
+/**
+ * A mutation with no move to make: no step of the settings is a supported one inside the allowed
+ * groups. The module returns it instead of a result and throws nothing; the session skips that
+ * mutation.
+ */
+// @spec-link [[module_settings_mutation]]
+export interface MutationDeadEnd {
+  readonly kind: 'dead-end'
+}
+
+/** Intent: the one dead end every mutation with no move returns, the same for the same inputs. */
+// @spec-link [[module_settings_mutation]]
+export const MUTATION_DEAD_END: MutationDeadEnd = deepFreeze<MutationDeadEnd>({ kind: 'dead-end' })
+
+/** Intent: whether a drawn mutation is the dead end rather than a move. */
+// @spec-link [[module_settings_mutation]]
+export function isMutationDeadEnd(
+  drawn: SettingsMutationResult | MutationDeadEnd,
+): drawn is MutationDeadEnd {
+  return 'kind' in drawn && drawn.kind === 'dead-end'
 }
 
 /** Upper bound on redraws, far beyond any real need; reaching it means the stream is broken. */
@@ -189,10 +220,12 @@ function leavesRestriction(setting: MutableSetting, settings: SessionSettings): 
 }
 
 /**
- * Intent: whether a step may land where it does: its rhythm combination, judged on the density
- * generated with, is not blocked, a note-density step does not land on `Sixteenth` while it is
- * unavailable (below the width, or once the session stepped down; D177), and a key or mode step
- * stays inside the restriction frozen at the session's start. A step that may not is drawn again.
+ * Intent: whether a step may land where it does: its setting's group is allowed (the Rhythm group
+ * not while the rhythm lock is on), its rhythm combination, judged on the density generated with,
+ * is not blocked, a note-density step does not land on `Sixteenth` while it is unavailable (below
+ * the width, or once the session stepped down; D177), and a key or mode step stays inside the
+ * restriction frozen at the session's start. A step that may not is drawn again, a step of a group
+ * not allowed by the same route as an unsupported landing, so the stream is consumed alike.
  */
 // @spec-link [[rule_mutation_rerolls_unsupported_combination]]
 // @spec-link [[rule_mutation_sixteenth_blocked_after_step_down]]
@@ -203,6 +236,7 @@ function isSupportedStep(
   settings: SessionSettings,
   context: MutationContext,
 ): boolean {
+  if (!isGroupAllowed(MUTABLE_SETTING_GROUPS[setting], settings)) return false
   const sixteenthUnavailable = context.belowTabletLandscape || context.sessionSteppedDown
   if (setting === 'noteDensity' && to === 'Sixteenth' && sixteenthUnavailable) return false
   if (leavesRestriction(setting, settings)) return false
@@ -324,9 +358,12 @@ function resultOf(step: MutationCandidate): SettingsMutationResult {
  * Intent: draw mutation k from its candidates: one setting uniformly among those with a step;
  * for the figure levels, one figure uniformly among those with a step; then one of its steps
  * uniformly; all redrawn from the same (seed, k) stream while the step lands on something
- * unsupported, or outside the restriction frozen at the session's start. Crashes up front when no
- * candidate is supported, rather than looping. `observe`, when given, is told how many draws it
- * took.
+ * unsupported, outside the restriction frozen at the session's start, or moves a setting whose
+ * group is not allowed (each marked unsupported among the candidates, so every setting with a step
+ * keeps its place in the draw). When no candidate is supported, the mutation is a dead end: the
+ * dead end is returned up front, nothing drawn, `observe` not told and nothing thrown. No supported
+ * draw within a fixed bound of draws throws rather than looping. `observe`, when given, is told
+ * how many draws a move took.
  */
 // @spec-link [[rule_mutation_draws_setting_then_direction]]
 // @spec-link [[rule_mutation_rerolls_unsupported_combination]]
@@ -338,10 +375,9 @@ export function drawMutation(
   seed: Seed,
   k: number,
   observe?: MutationDrawsObserver,
-): SettingsMutationResult {
+): SettingsMutationResult | MutationDeadEnd {
   requirePositiveInteger(k, 'A mutation number')
-  if (!candidates.some((candidate) => candidate.supported))
-    throw new SettingsMutationError('No mutation of these settings lands on a supported one.')
+  if (!candidates.some((candidate) => candidate.supported)) return MUTATION_DEAD_END
   const eligible = MUTABLE_SETTINGS.filter((setting) =>
     candidates.some((candidate) => candidate.setting === setting),
   )
@@ -363,10 +399,13 @@ export function drawMutation(
  * Intent: decide mutation k of a session: from the settings in effect, change exactly one eligible
  * setting by one grade (a figure step, one figure by one level), never tempo or the instrument,
  * landing on a supported combination, a key or mode step inside the restriction the settings
- * carry from the session's start (none bounds nothing); a step of a preset-held setting marks the
- * selection Custom, a key or mode step never does. The result is a pure function of its inputs;
- * `observe`, when given, is told how many draws it took. Settings that are unsupported to begin
- * with are a caller bug and throw.
+ * carry from the session's start (none bounds nothing), and only a setting of an allowed group,
+ * never the Rhythm group while the rhythm lock is on; a step of a preset-held setting marks the
+ * selection Custom, a key or mode step never does. When no step is a supported one inside the
+ * allowed groups (exactly when `hasLegalMove` is false), the mutation is a dead end, returned
+ * instead of a move, throwing nothing. The result, move or dead end, is a pure function of its
+ * inputs; `observe`, when given, is told how many draws a move took. Settings that are
+ * unsupported to begin with are a caller bug and throw.
  */
 // @spec-link [[module_settings_mutation]]
 // @spec-link [[rule_mutation_draws_setting_then_direction]]
@@ -379,10 +418,26 @@ export function mutateSettings(
   seed: Seed,
   k: number,
   observe?: MutationDrawsObserver,
-): SettingsMutationResult {
+): SettingsMutationResult | MutationDeadEnd {
   requirePositiveInteger(k, 'A mutation number')
   const current = freezeSessionSettings(settings)
   if (isRhythmSettingBlocked(current.controls, context))
     throw new SettingsMutationError('The settings to mutate are already unsupported.')
   return drawMutation(mutationCandidates(current, context), seed, k, observe)
+}
+
+/**
+ * Intent: the legal-move check: whether at least one step from the settings in effect lands on a
+ * supported combination inside the allowed groups, under this mutation context. The Rhythm group
+ * does not count while the rhythm lock is on, and a key or mode step counts only inside the
+ * restriction the settings carry. False exactly when a mutation of these settings is a dead end.
+ * Settings unsupported to begin with are judged by their steps like any others: a rhythm step
+ * leading out of the block counts.
+ */
+// @spec-link [[rule_vary_settings_needs_legal_move]]
+// @spec-link [[module_settings_mutation]]
+export function hasLegalMove(settings: SessionSettings, context: MutationContext): boolean {
+  return mutationCandidates(freezeSessionSettings(settings), context).some(
+    (candidate) => candidate.supported,
+  )
 }

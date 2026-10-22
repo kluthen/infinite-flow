@@ -75,8 +75,15 @@ Status: this file holds four parts.
   (2026-10-21): three findings of the v3.2 build's intent re-sync settled (spec D418–D420): where
   a fresh Jam's seeds come from (C11), and two more atoms and one more vision line for the same
   sign-off (C13). v1.4 (2026-10-22): the owner signed off the re-scoped contract wording, CONTRACT
-  7.2.0 to 8.0.0 (C13; spec D421). Its sections are numbered C1 to C18; what v1.1 to v1.4 change
-  is listed at the top of Part C and marked in each section they touch.
+  7.2.0 to 8.0.0 (C13; spec D421). v1.5 (2026-10-22): the three atoms promoted to STABLE at 8.1.0
+  take MAJOR bumps of their own, one at the sync of each wave that changes them (C13; spec D422).
+  v1.6 (2026-10-22): the five kinds of rhythm change defined exactly, "repeated" the identical
+  edit, their shares and the known limit re-measured, and the lock's costs restated (C7.3, C7.6;
+  spec D424). v1.7 (2026-10-22): the steering block's target rhythm holds rest starts beside note
+  starts, a doodle measure's starts are defined, and the doodle is compared as heard (C5.9, C8,
+  C11; spec D425). v1.8 (2026-10-22): a dead end mid-session is unreachable under today's rules,
+  and its skip a defensive guarantee (C9; spec D426). Its sections are numbered C1 to C18; what
+  v1.1 to v1.8 change is listed at the top of Part C and marked in each section they touch.
 - **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.1
   (2026-10-12), consolidated from the v3.3 direction and the chord research; **awaiting the
   owner's approval**. The contract wording it changes (§D12) needs the owner's confirmation
@@ -2232,7 +2239,18 @@ Delete everything removes them. No preset leaves the device.
 
 ## Part C — v3.2
 
-Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.4 (2026-10-22)**: v1.3
+Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.8 (2026-10-22)**: v1.7
+with C9 stating that a dead end mid-session cannot happen under today's rules, so its skip is a
+defensive guarantee, and what could make it reachable (D426); it adds no behaviour. v1.7
+(2026-10-22): v1.6 with the steering block's target rhythm stated as built, note starts and rest starts, a doodle
+measure's starts defined, and a candidate compared with the doodle as heard (C5.9, C8, C11; D425);
+the only behaviour it adds is that a silence written as two rests is no edit from the doodle's
+silence. v1.6 (2026-10-22): v1.5
+with the five kinds of rhythm change defined exactly, as built, and their shares re-measured (C7.3,
+C7.6; D424); the only behaviour it adds is a rest change under Strict variety, Straight
+syncopation, Sixteenth and Sparse silence, which v1.5 said did not exist. v1.5 (2026-10-22): v1.4
+with the later contract bumps the three 8.1.0 promotions bring (C13, C16; D422); it adds no
+behaviour. v1.4 (2026-10-22): v1.3
 with the owner's sign-off on C13's re-scoped contract wording recorded (D421); it adds no
 behaviour. v1.3 (2026-10-21): v1.2
 with three findings of the build's intent re-sync settled by `spec-writer` under the owner's
@@ -2256,6 +2274,44 @@ the code.
 
 Music terms are explained the first time they appear; the project's
 [lexicon](../../../docs/music/lexicon.md) has one entry per term.
+
+### What v1.8 changes against v1.7
+
+Each section v1.8 changes opens with a line in italics, _Changed in v1.8:_, under the earlier lines.
+
+- **A dead end mid-session is unreachable today** (D426): the build's exhaustive search found that
+  the narrow-window step-down never leaves Vary settings without a move, and nothing else changes
+  the settings, the lock or the groups during a session. The skip stays, as a defensive guarantee;
+  C9 names what could make a dead end reachable later. No behaviour changes.
+
+### What v1.7 changes against v1.6
+
+Each section v1.7 changes opens with a line in italics, _Changed in v1.7:_, under the earlier lines.
+
+- **The steering block's target rhythm, as built** (D425): each of its four measures holds note
+  starts and rest starts, since C8's distance compares both; a doodle measure's starts are what is
+  heard in it, one rest start per silence (C5.9). Against the doodle a candidate is read as heard,
+  a rest right after a rest starting nothing; against the locked rhythm, as written (C8). The
+  replay key's block is four measures of starts, and a join from no phrase is phrase 1's (C11).
+
+### What v1.6 changes against v1.5
+
+Each section v1.6 changes opens with a line in italics, _Changed in v1.6:_, under the earlier lines.
+
+- **The five kinds, exactly** (D424): each kind's definition as the build reads it from the
+  written bars; "repeated" is the identical edit in measures k and k + 2 (same kind, place and
+  shift); the shares re-measured with those definitions, and the known limit corrected: under
+  Strict variety and Straight syncopation, Sixteenth with Sparse silence offers adding or removing
+  a rest (20 % of its rhythms) (C7.3). The lock's costs restated from the build's measures (C7.6).
+
+### What v1.5 changes against v1.4
+
+Each section v1.5 changes opens with a line in italics, _Changed in v1.5:_, under the earlier lines.
+
+- **Later contract bumps** (D422): three atoms v3.2 still changes went to STABLE on the contract
+  with the sign-off (CONTRACT 8.1.0), so their changes take MAJOR bumps of their own, each signed
+  off by the owner and applied at the sync of the wave that builds it: 9.0.0 for Vary settings'
+  allowed groups, one more for the `ifk4.` replay key (C13, C16 item 49). No behaviour changes.
 
 ### What v1.4 changes against v1.3
 
@@ -2793,6 +2849,8 @@ _Changed in v1.2:_ the cold domain is accepted and measured (D410).
 _Changed in v1.1:_ the doodle also sets Jam's rhythm and shape controls (C5.16); everything it
 steers reaches the generator through one optional steering block, built on Jam's side, so the
 generator never hears of a doodle, a drift or Jam.
+_Changed in v1.7:_ the target rhythm holds each measure's rest starts beside its note starts, as
+C8's distance needs, and a doodle measure's starts are defined (D425).
 
 **Principles.**
 
@@ -2811,10 +2869,18 @@ generator never hears of a doodle, a drift or Jam.
 
 **The steering block.** Built from the quantized doodle and the drift:
 
-- **a target rhythm**: note starts per measure, in ticks, laid over the four measures of a phrase,
-  with a **band**, how far a candidate may be and still count as near (the drift's, C8);
+- **a target rhythm**: the doodle's measures laid over the four measures of a phrase (below), each
+  as its **note starts and rest starts** in ticks, with a **band**, how far a candidate may be and
+  still count as near (the drift's, C8);
 - **a list of melodic moves**: up, down or the same note; a step, a skip or a leap, in the doodle's
   order, with a **strength**: size and direction, direction only, or none (the drift's, C8).
+
+**A doodle measure's starts** are what is heard in it: a note start where each note starts; a rest
+start wherever a silence begins, where a note ends and no note starts, and at tick 0 when the
+measure opens in silence (a silence crossing a barline starts again in the next measure, as a rest
+is never tied); a note held across a barline starts nothing in the next measure, which may then
+hold no start. The rest starts are needed because C8's distance compares both kinds of start and
+counts turning a note into a rest as one edit.
 
 It holds no pitch. The generator reads it at two points only (C5.10): a re-ordering of the rhythm
 candidates right after their seeded ranking, and one more preference in the pitch order, below the
@@ -3301,37 +3367,52 @@ phrases meet it in session mode only.
 
 ### C7.3 The five kinds, and the known limit
 
+_Changed in v1.6:_ each kind defined exactly, "repeated" is the identical edit, and the shares and
+the known limit re-measured with those definitions (D424).
+
 **One change** is one edit of an allowed kind, made in one measure, or made in a gesture measure
 (1 or 2) and repeated in its answer measure (3 or 4). The second form is needed because the rhythm
 grammar builds measures 3–4 as a varied copy of measures 1–2: a split, a merge or a note turned into
 a rest in the gesture always comes back in the answer, and the grammar cannot write it alone.
 Repeated that way, a change keeps the phrase's gesture and answer and stays, measure by measure, a
-Close or Near edit. Rhythms are compared by their written bars.
+Close or Near edit. **Repeated means the identical edit**: the same kind, at the same place in the
+measure, by the same shift. The same kind at another place or by another shift is two edits, so
+never one change. Rhythms are compared by their written bars, through each measure's note starts
+and rest starts (a tie continues a note and starts nothing); the notes an edit touches may be
+written with other ties, but a tie added or removed anywhere else makes the pair more than one
+change (C7.4).
 
 Each kind is a Close or Near entry of the
 [mutation catalogue](../../../docs/music/mutation-catalogue.md#rhythm-mutations) that the grammar can
-write as one of its own rhythms. The shares are the measured share of locked rhythms that have at
-least one such change available, over all supported settings.
+write as one of its own rhythms. Only adding or removing a rest changes how much of the phrase is
+silent; the other four keep it. The shares are the share of rhythm candidates with at least one
+such change available among the other candidates of their own settings and tension, pooled over
+every supported setting and tension (284 domains, 51,312 candidates); the shares by group are in
+[jam-grounding §D.2](jam-grounding.md#d2-what-the-rhythm-domain-offers-a-locked-rhythm).
 
-| Kind | What it does | Distance | Where the grammar offers it |
+| Kind | Exactly | Distance | Where the grammar offers it |
 | --- | --- | --- | --- |
-| **Move a note start** by a sixteenth or an eighth | Pushes or pulls one note's start, which also covers dotting or undotting a note; the number of notes stays, so the eye finds the same notes | Close (Near on beat 1 or 3) | In one measure, from a second answer change (tension Build or Edge) and from Occasional offbeats; repeated in measures k and k+2 under most settings. The widest of the five: 11–93 % depending on settings |
-| **Move a rest** | The rest keeps its length and the phrase its silence; only its place moves | Close (Near off the density's grid) | In one measure under Occasional offbeats and Active displacement, and at Build and Edge; repeated under Active displacement |
-| **Split a note** | One note becomes two | Close (Near on beat 3) | Only repeated in k and k+2; never under Strict variety. Common where it exists (about 70 % of locked rhythms under Straight with Slightly or Heavily varied) |
-| **Merge two notes** | Two notes become one | Close (Near when the removed start was on beat 1 or 3) | Only repeated in k and k+2; never under Strict variety (7–19 %) |
-| **Add or remove a rest** | A note becomes a rest, or a rest a note | Close (Near on beat 1 or 3) | Only repeated, in measures 2 and 4 or 1 and 3; 5–18 % |
+| **Move a note start** by a sixteenth or an eighth | The start of a note that follows another note moves a sixteenth or an eighth earlier or later: the note before it gets longer or shorter by as much, and the moved note the reverse. It covers dotting or undotting a note; the number of notes stays, so the eye finds the same notes | Close (Near on beat 1 or 3) | In one measure from a second answer change (tension Build or Edge), Occasional offbeats and Active displacement; repeated in about a third of the domains. The widest of the five, 69.5 % pooled, most at Build and Edge |
+| **Move a rest** | A rest between two notes, with the note after it, moves a sixteenth or an eighth: the rest keeps its length, the note before it gets longer or shorter by as much, the note after it the reverse | Close (Near off the density's grid) | In one measure under Occasional offbeats and Active displacement, and at Build and Edge; repeated mostly under Active displacement. 28.7 % pooled; never at Settled or Lift with Straight syncopation |
+| **Split a note** | A note start is added inside a note: one note becomes two | Close (Near on beat 3) | Only repeated in k and k+2; never under Strict variety nor Active displacement. 25.6 % pooled; about 70 % under Straight syncopation |
+| **Merge two notes** | The start of a note that follows another note is removed: two notes become one | Close (Near when the removed start was on beat 1 or 3) | Only repeated in k and k+2; never under Strict variety nor Active displacement. 6.4 % pooled, at most 29 % for one setting and tension |
+| **Add or remove a rest** | A note becomes a rest of the same length, or a rest a note, at the same place | Close (Near on beat 1 or 3) | Only repeated, in measures 1 and 3 or 2 and 4. 13.7 % pooled, at most 31 % for one setting and tension |
 
 Left out, with the reason: a tie added or removed (it changes how a rhythm is written, not how it
 sounds: nothing for the ear, a cost for the eye); a note and the rest beside it trading places (not a
-catalogue entry of its own, rare, measure 2 only); a density step on one beat, regrouping into
-3 + 3 + 2, an anticipation held across the beat (the grammar cannot write them as one edit); a
-repeat with a changed ending (every phrase already does it); Related and Loose entries (far beyond
-"small", mostly not writable). Wider options are v4.
+catalogue entry of its own, rare, measure 2 only); the start of a note after a rest moved, or a rest
+whose start moves alone (each changes a rest's length, so how much of the phrase is silent, which
+only adding or removing a rest may do); a density step on one beat, regrouping into 3 + 3 + 2, an
+anticipation held across the beat (the grammar cannot write them as one edit); a repeat with a
+changed ending (every phrase already does it); Related and Loose entries (far beyond "small",
+mostly not writable). Wider options are v4.
 
-**The known limit.** Which changes exist depends on the rhythm settings. **Under Strict variety
-with Straight syncopation the grammar offers almost no allowed rhythm change**: with Eighth, only
-adding or removing a rest; with Sixteenth, none; Quarter with Strict and Straight has a single
-rhythm, so nothing to change to. Strict variety never offers a split or a merge. A list that finds
+**The known limit.** Which changes exist depends on the rhythm settings, and an allowed kind
+happens only when the locked rhythm offers it. **Under Strict variety with Straight syncopation the
+grammar offers almost no allowed rhythm change**: only adding or removing a rest, with Eighth only
+under Conversational silence (30 % of its rhythms), with Sixteenth only under Sparse silence
+(20 %); Quarter with Strict and Straight has one or two rhythms, neither a change of the other.
+Strict variety never offers a split or a merge, nor does Active displacement. A list that finds
 nothing simply leaves the lock strict (C7.4). Widening this is grammar work, v4. The option's
 description tells the player that what it offers depends on the rhythm settings.
 
@@ -3396,10 +3477,15 @@ The rules:
   forced bend's order. This is an order inside the rhythm stage and the search, not a constraint: every
   phrase possible today stays possible, and no stage revises another.
 - **Every rung of the failure ladder keeps the lock**, the standalone attempt included.
-- **Cost at 240 BPM**: keying a domain of up to 2,932 candidates by bars takes about 10 ms once per
-  domain; finding the locked rhythm and its one-change candidates takes under a millisecond per
-  phrase (Node figures). The browser sweep confirms it against the standalone reserve and the
-  phrase deadlines, which are unchanged.
+- **Cost at 240 BPM** (Node figures, largest domain, 2,932 candidates; _changed in v1.6_, D424):
+  keying a domain by bars takes about 15 ms once per domain. The one-change candidates are found
+  among the candidates that share the other measures' bars, grouped once per domain when a kind is
+  allowed (about 13 ms); then finding the locked rhythm and its one-change candidates takes under
+  a millisecond per phrase at the median, a few at most (a scan of the whole domain would take
+  about 38 ms). Ordering every candidate by total edits from one rhythm (the forced bend's order,
+  and a Jam's steering block, C8) takes about 27 ms, once per request and only when it is needed.
+  The browser sweep confirms it against the standalone reserve and the phrase deadlines, which are
+  unchanged.
 
 ### C7.7 What the lock meets
 
@@ -3418,6 +3504,8 @@ The rules:
 
 _Changed in v1.1:_ a Jam-mode setting, saved with Jam's settings; it reaches the generator as the
 steering block's band and strength (C5.9).
+_Changed in v1.7:_ a candidate is compared with the doodle as heard: a rest written right after
+another rest starts nothing (D425).
 
 - **Three positions, closest first: Close, Near (the default), Free.** A Jam-mode setting: shown
   in Jam mode only, set at Jam's Idle, saved with Jam's settings (C5.16); presets neither hold nor
@@ -3436,7 +3524,11 @@ steering block's band and strength (C5.9).
 - **The distance, measure by measure.** Compare a candidate's measure with the doodle's measure
   laid over it (C5.9), as two lists of note starts and rest starts in ticks. An **edit** adds one
   start, removes one, moves one by at most an eighth note, or turns a note start into a rest start
-  at the same tick or back (one edit, not two). Ties are not starts. No edit is **Same**. One edit away
+  at the same tick or back (one edit, not two). Ties are not starts. **Against the doodle, a
+  candidate's measure is read as heard**: a rest start right after another rest is dropped, since
+  one silence written as two rests (18 % of the candidates, pooled, write some) sounds as one, and the
+  doodle's measure holds one rest start per silence (C5.9). Against the locked rhythm, every start
+  counts, as written (C7.3). No edit is **Same**. One edit away
   from ticks 0 and 8 (beats 1 and 3) is **Close**. One edit touching tick 0 or 8, or two Close
   edits, is **Near**. Anything more is beyond.
 - **Within a position's band** (every measure inside it), candidates keep their seeded order, so
@@ -3454,6 +3546,9 @@ steering block's band and strength (C5.9).
 ## C9. Vary settings' allowed groups
 
 _Changed in v1.1:_ session mode only, as Vary settings is; the comparison with the Jam switch goes.
+
+_Changed in v1.8:_ a dead end mid-session is unreachable under today's rules; the skip is a
+defensive guarantee (D426).
 
 - **Six groups**, each switching its settings on or off together:
   - **Key and mode**: written key, collection.
@@ -3474,10 +3569,20 @@ _Changed in v1.1:_ session mode only, as Vary settings is; the comparison with t
   the lock, a preset, a setting) leaves none, Vary settings becomes unavailable and says why, the
   player's choice kept, as Rising tempo does without a controller; it comes back as soon as a
   move exists again. A session started meanwhile runs without it.
-- **During a session**, a reached setting can always step back to where it came from, so a dead end
-  can only appear after the narrow-window rule changed what is supported. That mutation is then
+- **During a session, a dead end cannot happen under today's rules.** A reached setting can always
+  step back to where it came from. The lock, the allowed groups and the key and mode restriction
+  are fixed for the session, and the only other change to the settings is v2's narrow-window
+  step-down from Sixteenth to Eighth, which never leaves Vary settings without a move: no rhythm
+  combination without a move uses Eighth, and the step-down only opens moves for the other groups.
+  The build checked this exhaustively (every rhythm combination with every group subset, the lock
+  on and off, with and without a restriction) and found no dead end.
+- **The skip is a defensive guarantee.** Should a dead end occur all the same, that mutation is
   skipped and recorded in the session history, and the next one is drawn as usual: a narrow
-  exception to v2's "a mutation cycle is never silently skipped". Nothing throws.
+  exception to v2's "a mutation cycle is never silently skipped". Nothing throws. The test reaches
+  it by changing the settings mid-session, which no part of the app does today. A later version
+  could make it reachable by letting the lock, the allowed groups or the restriction change during
+  a session, by adding another automatic change to the settings mid-session, or by changing what is
+  supported (the narrow-window rule, or the supported combinations).
 
 ## C10. How v3.2 meets v3.0 and v3.1
 
@@ -3619,6 +3724,8 @@ versions are per record.
 _Changed in v1.2:_ the key carries the steering block; one release, so one key version and one data
 version (D410).
 _Changed in v1.3:_ a fresh Jam's seeds (D419).
+_Changed in v1.7:_ the steering block's size restated: four measures of note and rest starts; a
+join from no phrase is phrase 1's (D425).
 
 - **The generation request** gains, on both the player-facing request and the resolved core
   request, and across the generation worker (re-validated there from untrusted input like every
@@ -3631,7 +3738,8 @@ _Changed in v1.3:_ a fresh Jam's seeds (D419).
 
   The controls taken from the doodle are ordinary control values. The doodle's join into phrase 1
   travels as a join (carry-in) of the "no chord, no arriving interval, no owed recovery" form, from
-  no phrase. The capture tempo is not part of the request. Every ordering and draw derived from
+  no phrase; only phrase 1 takes such a join, so a replay key that pairs one with any other
+  phrase number is refused. The capture tempo is not part of the request. Every ordering and draw derived from
   these is computed inside generation, so the generator stays a pure function of its request and a
   replay key replays without the app's state. With none of the new fields, a request gives v3.1's
   phrase byte for byte.
@@ -3639,8 +3747,8 @@ _Changed in v1.3:_ a fresh Jam's seeds (D419).
   the request's new fields above. A new version rather than an extension, so that a v3.1 app
   meeting a v3.2 key refuses it instead of replaying a different phrase without saying so. The key
   carries the steering block, as the generator read it, and not the quantized doodle (D410); the
-  block is small (one to four measures' note starts in ticks and a few dozen move classes) and
-  holds no pitch. The key is still printed to the console only, never sent or stored. v3.2 is one
+  block is small (four measures of note starts and rest starts in ticks, the doodle's measures
+  laid over the phrase, and at most 63 move classes) and holds no pitch. The key is still printed to the console only, never sent or stored. v3.2 is one
   release (C2), so `ifk4.` is written once, with every field above.
 - **Older keys keep decoding.** An `ifk1.`, `ifk2.` or `ifk3.` key decodes as no steering block, no
   lock and no allowed change, to the same phrase as in the version that wrote it. A later prefix is
@@ -3761,6 +3869,7 @@ _Changed in v1.3:_ a Start click with the controller away (D418) and the session
 join the guarantees that change; the vision's out-of-scope browsers follow D399 (D420). All three
 go in the same sign-off.
 _Changed in v1.4:_ the owner signed off the wording (D421).
+_Changed in v1.5:_ the three atoms promoted at 8.1.0 take later bumps of their own (D422).
 
 Each change is intended. Where a declared-intent entry is named, `documentalist` prepares the
 change.
@@ -3774,6 +3883,15 @@ so it is confirmed again, once. v3.2 is one release (C2), so the bump is taken o
 signed it off on 2026-10-22** (D421): the 22 wordings of the
 [change set](../../../docs/release/v3.1-v3.2-intent-change-set.md)'s part M as drafted, the
 vision's lines (0.9 to 0.10) among them.
+
+**Later bumps** (D422). With that sign-off the owner promoted three atoms v3.2 still changes to
+STABLE on the contract (CONTRACT 8.1.0): `module_settings_mutation`, `module_phrase_replay_key` and
+`rule_seeded_phrase_reproduction` (listed below under "Other atoms that change"). Their changes are
+no longer covered by the one bump: each takes its own wording sign-off by the owner and is applied
+at the sync of the wave that builds it, so the released contract never disagrees with the code
+beside it. CONTRACT 9.0.0 (MAJOR) comes at the sync of the wave that builds Vary settings' allowed
+groups (the settings mutation), and one more MAJOR bump at the sync of the wave that builds the
+`ifk4.` replay key (the replay key and seeded reproduction). v3.2 so takes three MAJOR bumps in all.
 
 **Contract guarantees that change** (STABLE atoms on the contract surface):
 
@@ -3850,7 +3968,8 @@ vision's lines (0.9 to 0.10) among them.
   never generation inputs); `rule_repeat_phrase_marked_internally_only` (forced bends and rhythm
   changes are likewise never shown).
 
-**Other atoms that change** (REVIEW, apart from the vision, which is STABLE):
+**Other atoms that change** (REVIEW, apart from the vision, which is STABLE, and the three atoms
+promoted at 8.1.0, which take the later bumps above):
 
 - **The replay key** (`module_phrase_replay_key`): `ifk4.`; it holds the lock fields and the
   steering block, not the doodle (D410); its "holds no played notes" wording stays true.
@@ -4100,6 +4219,7 @@ _Changed in v1.1:_ rewritten for Jam mode and split into the two halves; items r
 sweep and checks run at 60, 120 and 180 BPM, 240 last; hand checks are short scripts.
 _Changed in v1.2:_ items 14, 17, 18, 19, 33 and 38 follow the settled answers (D410, D411).
 _Changed in v1.3:_ item 39 checks a fresh Jam's seeds (D419).
+_Changed in v1.5:_ item 49 names the later contract bumps (D422).
 
 v3.2 ships when every item holds, each verified by a named test or a recorded hand check. **Every
 hand check is a numbered script of at most ten minutes**, run in Chrome (Edge is not supported);
@@ -4254,8 +4374,9 @@ Jam's run at 60, 120 and 180 BPM, and at 240 BPM only if Jam keeps it (C5.17).
     resets session mode's and Jam's settings.
 48. **v3.1, v3.0 and v2 behaviour otherwise unchanged**: their test suites pass, apart from the tests
     C13 lists as changing, each replaced by its v3.2 counterpart.
-49. **The declared-intent contract** reflects C13's guarantee changes at CONTRACT 8.0.0, with the
-    owner's one sign-off on their wording recorded.
+49. **The declared-intent contract** reflects C13's guarantee changes: CONTRACT 8.0.0 with the
+    owner's sign-off on their wording recorded, then each later MAJOR bump C13 names, its own
+    sign-off recorded.
 
 ## C17. Deferred and open
 

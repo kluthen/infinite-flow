@@ -9,7 +9,8 @@ tags: [v3, release-v3.2, rhythm, jam, rhythm-lock]
 parents:
   - [[req_jam]]
   - [[req_rhythm_lock]]
-dependents: []
+dependents:
+  - [[entity_rhythm_candidate_domain]]
 type: RULE
 ---
 

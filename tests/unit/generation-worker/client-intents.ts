@@ -14,6 +14,8 @@ import {
 import { makeRequestId } from '@/domain/generation/generation-request'
 import { makeSeed } from '@/domain/random/seed'
 import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
+import type { RequestRhythmLock } from '@/domain/generation/request-rhythm-lock'
+import type { SteeringBlock } from '@/domain/generation/steering-block'
 
 const CHEAP_CONTROLS: GenerationControls = makeGenerationControls({
   tempo: 90,
@@ -32,12 +34,20 @@ const CHEAP_CONTROLS: GenerationControls = makeGenerationControls({
   instrumentProfileId: 'c-keyboard',
 })
 
-/** Intent: build one real cheap-to-search GenerationIntent, distinguished by requestId/seed. */
-export function buildIntent(requestId: string, seed: number): GenerationIntent {
+/**
+ * Intent: build one real cheap-to-search GenerationIntent, distinguished by requestId/seed,
+ * holding the given rhythm lock group and steering block, if any.
+ */
+export function buildIntent(
+  requestId: string,
+  seed: number,
+  groups: { readonly rhythmLock?: RequestRhythmLock; readonly steering?: SteeringBlock } = {},
+): GenerationIntent {
   return createGenerationIntent({
     requestId: makeRequestId(requestId),
     seed: makeSeed(seed),
     controls: CHEAP_CONTROLS,
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    ...groups,
   })
 }

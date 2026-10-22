@@ -18,6 +18,7 @@ import {
   parseFigureLevels,
   type FigureLevels,
 } from '../domain/figures/figure-levels'
+import { parsePhraseCarryIn } from '../domain/generation/carry-in/carry-in'
 import type { GenerationIntent } from '../domain/generation/generation-intent'
 import { MY_INSTRUMENT_ID } from '../domain/profile/instrument-profiles'
 import {
@@ -353,8 +354,9 @@ function suppliedInstrumentProfile(
  * then whether the my-instrument entry agrees with the instrument the controls name; my
  * instrument's profile is rebuilt from its stored fields; the owning fields are then validated and
  * the intent rebuilt, with the levels and no profile, by the generation worker protocol's own
- * intent validation, whose domain errors propagate unchanged. Nothing missing or invalid is ever
- * defaulted or repaired.
+ * intent validation, whose domain errors propagate unchanged. A key's carry-in is read through
+ * `parsePhraseCarryIn`, v3.1's exact form, so a carry-in from no phrase (an `origin` key) is
+ * refused as v3.1 refuses it. Nothing missing or invalid is ever defaulted or repaired.
  */
 // @spec-link [[module_phrase_replay_key]]
 // @spec-link [[req_my_instrument]]
@@ -368,15 +370,18 @@ export function decodePhraseReplayKey(key: string): DecodedPhraseReplayKey {
       fields.controlValues[index],
     ]),
   )
-  const intent = rebuildGenerationWorkerIntent({
-    requestId: fields.requestId,
-    seed: fields.seed,
-    writtenTonalCenter: controls.tonalCenter,
-    controls,
-    figureLevels: fields.figureLevels,
-    ...suppliedInstrumentProfile(version, controls.instrumentProfileId, fields.myInstrument),
-    ...(fields.carryIn === null ? {} : { carryIn: fields.carryIn }),
-  })
+  const intent = rebuildGenerationWorkerIntent(
+    {
+      requestId: fields.requestId,
+      seed: fields.seed,
+      writtenTonalCenter: controls.tonalCenter,
+      controls,
+      figureLevels: fields.figureLevels,
+      ...suppliedInstrumentProfile(version, controls.instrumentProfileId, fields.myInstrument),
+      ...(fields.carryIn === null ? {} : { carryIn: fields.carryIn }),
+    },
+    parsePhraseCarryIn,
+  )
   requireConsistentPhraseNumber(intent, fields.phraseNumber)
   return { keyVersion: version, intent, phraseNumber: fields.phraseNumber }
 }

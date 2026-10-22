@@ -15,7 +15,7 @@ import { phraseOneSettings } from '@/session/stale-phrase-one'
 import type { SessionStartBlocker } from '@/session/session-start-conditions'
 import type { SessionSettings } from '@/session/session-types'
 import { sessionLayoutAtStart } from '@/session/session-window'
-import { withRestrictionAtStart } from '@/session/settings-mutation'
+import { ALL_GROUPS_ALLOWED, withRestrictionAtStart } from '@/session/settings-mutation'
 import type {
   ActiveSession,
   SessionControllerCore,
@@ -84,6 +84,9 @@ export function createSessionStart(
           controls: idle.state.controls,
           figureLevels: idle.state.figureLevels,
           selection: idle.state.selection,
+          // The saved allowed groups arrive with chunk 19, the session's rhythm lock with chunk 16.
+          allowedGroups: ALL_GROUPS_ALLOWED,
+          rhythmLockOn: false,
         },
         phraseOne.intent,
       ),

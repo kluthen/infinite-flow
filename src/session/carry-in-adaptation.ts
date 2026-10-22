@@ -11,7 +11,7 @@
  */
 
 import type { GenerationControls } from '../domain/controls/generation-controls'
-import { makeCarryIn, type CarryIn } from '../domain/generation/carry-in/carry-in'
+import { isPhraseCarryIn, makeCarryIn, type CarryIn } from '../domain/generation/carry-in/carry-in'
 import {
   carriedDebtProblem,
   carriedHarmonyFits,
@@ -153,7 +153,8 @@ function pitchPartFits(adapted: CarryIn, receiver: Pick<CarryInReceiver, 'contro
  * otherwise the window becomes the new register's, the harmony is dropped when the key or
  * collection changed or it no longer fits, and the pitch part is re-checked. A pitch part that no
  * longer fits gives a standalone phrase pinned to the new fixed register, or to the session's
- * resolved register when Varying stays selected. Refuses settings for two different instruments.
+ * resolved register when Varying stays selected. A carry-in keeps its origin: one from no phrase
+ * stays one, its harmony null throughout. Refuses settings for two different instruments.
  */
 // @spec-link [[rule_key_change_drops_harmonic_carry_in]]
 // @spec-link [[rule_harmony_change_drops_unfit_harmonic_carry_in]]
@@ -174,15 +175,18 @@ export function adaptCarryIn(input: CarryInAdaptationInput): CarryInAdaptation {
   if (registerChanged && afterRegister === 'Varying')
     return deepFreeze<CarryInAdaptation>({ kind: 'standalone', register: 'Varying' })
   const receiver = receiverFor(after)
-  const adapted: CarryIn = {
-    lastPitch: carryIn.lastPitch,
-    registerWindow:
-      registerChanged && afterRegister !== 'Varying'
-        ? registerWindowOf(afterRegister, candidates)
-        : carryIn.registerWindow,
-    finalHarmony: adaptedHarmony(input, receiver),
-    phraseNumber: carryIn.phraseNumber,
-  }
+  const registerWindow =
+    registerChanged && afterRegister !== 'Varying'
+      ? registerWindowOf(afterRegister, candidates)
+      : carryIn.registerWindow
+  const adapted: CarryIn = isPhraseCarryIn(carryIn)
+    ? {
+        lastPitch: carryIn.lastPitch,
+        registerWindow,
+        finalHarmony: adaptedHarmony(input, receiver),
+        phraseNumber: carryIn.phraseNumber,
+      }
+    : { origin: 'none', lastPitch: carryIn.lastPitch, registerWindow, finalHarmony: null }
   if (!pitchPartFits(adapted, receiver))
     return deepFreeze<CarryInAdaptation>({
       kind: 'standalone',

@@ -9,6 +9,7 @@ parents:
 type: RULE
 layer: BUSINESS
 dependents:
+  - [[entity_request_rhythm_lock]]
   - [[rule_rhythm_change_kinds]]
   - [[rule_rhythm_change_lasts_one_phrase]]
   - [[rule_rhythm_change_share]]

@@ -80,10 +80,16 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   and the MIDI export; see [`docs/audio-transport.md`](docs/audio-transport.md#the-backing)), the
   controller transposition check (`src/domain/controller-check/`: the written note the check
   shows, the expected concert pitch and the verdict on the played note, with its wording; see
-  [`docs/controller-connection.md`](docs/controller-connection.md#the-transposition-check)), and
-  the very-short-note filter (`src/domain/played-notes/`: the threshold under which a played note
-  is a stray in-between note, left out where played notes are read for the review's lane and the
-  played-notes export; see [`docs/midi-tuning.md`](docs/midi-tuning.md#very-short-notes-m1)).
+  [`docs/controller-connection.md`](docs/controller-connection.md#the-transposition-check)), the
+  very-short-note filter (`src/domain/played-notes/`: the threshold under which a played note is a
+  stray in-between note, left out where played notes are read for the review's lane, the
+  played-notes export and Jam's doodle; see
+  [`docs/midi-tuning.md`](docs/midi-tuning.md#very-short-notes-m1)), and the quantized doodle
+  (`src/domain/doodle/`: the type of a Jam's doodle once quantized, one line of one to four
+  measures in whole ticks with no tempo, its validating constructor and its parser).
+- `src/jam/` — Jam mode's code; for now the doodle quantizer (`doodle-quantizer.ts`), which turns
+  a capture's raw played notes into the quantized doodle with integer arithmetic. Nothing outside
+  `src/jam/` imports the quantizer (enforced by ESLint).
 - `src/generation-worker/` — the typed request/response protocol and handler that run generation
   inside a dedicated module Web Worker, off the main thread.
 - `src/notation/` — the concert-to-written transformation types and the VexFlow engraving adapter,
@@ -379,8 +385,11 @@ UI (Vue components, props-in/events-out)
   with its leap state, the register window, the final chord with its endpoint class, and the phrase
   number, derived from the phrase before by `deriveCarryIn`. The pitch search starts from the
   carried pitch, the harmony from the carried chord, and the one carried window is searched; the
-  join is validated like the inside of a phrase. Without a carry-in the output is byte-identical
-  to v1. See [joins between session phrases](docs/music/pitch-planner-validation.md#joins-between-session-phrases-v2).
+  join is validated like the inside of a phrase. A carry-in has an origin: a phrase (as above) or
+  none, the doodle's join into a Jam's phrase 1, which holds only the pitch and the window (no
+  chord, no arriving interval, no owed recovery) and is accepted only beside a steering block;
+  nothing makes one before Jam's engine. Without a carry-in the output is byte-identical to v1.
+  See [joins between session phrases](docs/music/pitch-planner-validation.md#joins-between-session-phrases-v2).
 - **Notation.** A successful outcome's concert-pitch timeline is transformed into a `WrittenPhrase`
   for the selected display convention (Concert / B-flat / E-flat), then engraved by a lazily loaded
   VexFlow adapter (`src/notation/vexflow-engraver-loader.ts` is the sole static importer of the

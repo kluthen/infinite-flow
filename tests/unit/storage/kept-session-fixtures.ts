@@ -19,6 +19,7 @@ import {
   type SessionHistoryRecord,
 } from '@/session/session-history'
 import type { SessionSettings } from '@/session/session-types'
+import { ALL_GROUPS_ALLOWED } from '@/session/settings-mutation'
 import type {
   KeptSessionHistory,
   KeptSessionRecords,
@@ -154,6 +155,8 @@ function jazzSixteenthSettings(): SessionSettings {
     }),
     figureLevels: JAZZ_FIGURE_LEVELS,
     selection: { kind: 'preset', presetId: 'jazz' },
+    allowedGroups: ALL_GROUPS_ALLOWED,
+    rhythmLockOn: false,
   }
 }
 

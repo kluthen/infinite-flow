@@ -17,10 +17,11 @@ import { describe, expect, it } from 'vitest'
 
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { mutationFlagFor } from '@/components/workspace/workspace-session-runner'
+import { mutationContextAtStart } from '@/session/session-mutation-step'
 import { BUILT_IN_PRESETS, builtInPreset } from '@/domain/presets/built-in-presets'
 import { choosePreset, makePreset } from '@/domain/presets/preset-selection'
 import { makeSeed } from '@/domain/random/seed'
-import { withRestrictionAtStart } from '@/session/settings-mutation'
+import { ALL_GROUPS_ALLOWED, withRestrictionAtStart } from '@/session/settings-mutation'
 import type { SessionSettings } from '@/session/session-types'
 import {
   answer,
@@ -120,7 +121,7 @@ describe('Idle pre-generation queue: discards', () => {
       await flush()
 
       expect(rig.calls).toHaveLength(5)
-      expect(inFlight(rig).intent.carryIn?.phraseNumber).toBe(1)
+      expect(inFlight(rig).intent.carryIn).toMatchObject({ phraseNumber: 1 })
       expect(rig.queue.take('one-system')).toEqual([])
     })
   }
@@ -164,7 +165,7 @@ describe('Idle pre-generation queue: discards', () => {
     await flush()
 
     expect(phraseThree.signal.aborted).toBe(true)
-    expect(inFlight(rig).intent.carryIn?.phraseNumber).toBe(1)
+    expect(inFlight(rig).intent.carryIn).toMatchObject({ phraseNumber: 1 })
     expect(inFlight(rig).intent.controls.contour).toBe('Falling')
   })
 
@@ -201,7 +202,7 @@ describe('Idle pre-generation queue: window changes', () => {
     await flush()
 
     expect(rig.calls).toHaveLength(5)
-    expect(inFlight(rig).intent.carryIn?.phraseNumber).toBe(1)
+    expect(inFlight(rig).intent.carryIn).toMatchObject({ phraseNumber: 1 })
     expect(inFlight(rig).intent.controls.noteDensity).toBe('Eighth')
     expect(rig.queue.take('one-system')).toEqual([])
   })
@@ -239,7 +240,7 @@ describe('Idle pre-generation queue: window changes', () => {
     rig.queue.recheck()
     await flush()
 
-    expect(inFlight(rig).intent.carryIn?.phraseNumber).toBe(4)
+    expect(inFlight(rig).intent.carryIn).toMatchObject({ phraseNumber: 4 })
     expect(inFlight(rig).intent.controls.noteDensity).toBe('Sixteenth')
     await answerAll(rig)
     expect(takenNumbers(rig)).toEqual([2, 3, 4, 5])
@@ -256,7 +257,7 @@ describe('Idle pre-generation queue: window changes', () => {
     await flush()
 
     expect(rig.planner.plans.at(-1)?.containerWidthPx).toBe(700)
-    expect(inFlight(rig).intent.carryIn?.phraseNumber).toBe(2)
+    expect(inFlight(rig).intent.carryIn).toMatchObject({ phraseNumber: 2 })
     expect(intentsFrom(rig, 4)[0]!.seed).toBe(rig.calls[1]!.intent.seed)
     await answerAll(rig)
     expect(takenNumbers(rig)).toEqual([2, 3, 4, 5])
@@ -279,7 +280,7 @@ describe('Idle pre-generation queue: window changes', () => {
     await flush()
 
     expect(rig.planner.plans.length).toBeGreaterThan(plansBefore)
-    expect(inFlight(rig).intent.carryIn?.phraseNumber).toBe(2)
+    expect(inFlight(rig).intent.carryIn).toMatchObject({ phraseNumber: 2 })
     await answerAll(rig)
     expect(takenNumbers(rig)).toEqual([2, 3, 4, 5])
   })
@@ -324,7 +325,7 @@ describe('Idle pre-generation queue: window changes', () => {
     await flush()
 
     expect(rig.planner.plans.at(-1)?.containerWidthPx).toBe(700)
-    expect(inFlight(rig).intent.carryIn?.phraseNumber).toBe(2)
+    expect(inFlight(rig).intent.carryIn).toMatchObject({ phraseNumber: 2 })
     await answerAll(rig)
     expect(takenNumbers(rig)).toEqual([2, 3, 4, 5])
   })
@@ -357,7 +358,7 @@ describe('Idle pre-generation queue: a stale phrase 1', () => {
     expect(rig.failures).toEqual([])
     expect(rig.calls).toHaveLength(8)
     const replanned = intentsFrom(rig, 4)
-    expect(replanned[0]!.carryIn?.phraseNumber).toBe(1)
+    expect(replanned[0]!.carryIn).toMatchObject({ phraseNumber: 1 })
     expect(replanned[0]!.carryIn?.finalHarmony).toBeNull()
     expect(replanned.every((intent) => intent.controls.tonalCenter === 'F#')).toBe(true)
     const session = sessionSettings({ tempo: 60, tonalCenter: 'F#' })
@@ -395,6 +396,8 @@ function reelSettings(): SessionSettings {
     controls: chosen.settings.controls,
     figureLevels: chosen.settings.levels,
     selection: chosen.selection,
+    allowedGroups: ALL_GROUPS_ALLOWED,
+    rhythmLockOn: false,
   }
 }
 
@@ -429,6 +432,7 @@ describe('Idle pre-generation queue under a restriction in force', () => {
     const rig = await reelRig(true)
     const reel = reelSettings()
     const phraseOne = rig.idle.result!
+    const atStart = mutationContextAtStart(phraseOne, false)
     /** Intent: the plan's start from Reel's phrase 1, as the queue builds it, with these settings. */
     const startFrom = (settings: SessionSettings) =>
       planStart({
@@ -436,7 +440,7 @@ describe('Idle pre-generation queue under a restriction in force', () => {
         phraseOne: { intent: phraseOne.intent, outcome: phraseOne.outcome },
         phraseOneSettings: reel,
         sessionSeed: REEL_SESSION_SEED,
-        mutation: mutationFlagFor(true, REEL_SESSION_SEED),
+        mutation: mutationFlagFor(true, REEL_SESSION_SEED, settings, atStart),
       })
     const bounded = withRestrictionAtStart(reel, BUILT_IN_PRESETS)
     expect(bounded.restriction).toStrictEqual(builtInPreset('reel').restriction)
@@ -465,7 +469,7 @@ describe('Idle pre-generation queue under a restriction in force', () => {
       rig.idle.selection = { kind: 'custom', baseId: 'reel' }
       await flush()
       expect(rig.calls).toHaveLength(full + 1)
-      expect(inFlight(rig).intent.carryIn?.phraseNumber).toBe(1)
+      expect(inFlight(rig).intent.carryIn).toMatchObject({ phraseNumber: 1 })
       expect(rig.queue.take('one-system')).toEqual([])
 
       await answerAll(rig)
@@ -474,7 +478,7 @@ describe('Idle pre-generation queue under a restriction in force', () => {
       rig.idle.controls = { ...rig.idle.controls, collection: 'Dorian' }
       await flush()
       expect(rig.calls).toHaveLength(before + 1)
-      expect(inFlight(rig).intent.carryIn?.phraseNumber).toBe(1)
+      expect(inFlight(rig).intent.carryIn).toMatchObject({ phraseNumber: 1 })
       expect(rig.queue.take('one-system')).toEqual([])
     })
   }
@@ -489,7 +493,7 @@ describe('Idle pre-generation queue under a restriction in force', () => {
     await flush()
 
     expect(rig.calls).toHaveLength(full + 1)
-    expect(inFlight(rig).intent.carryIn?.phraseNumber).toBe(1)
+    expect(inFlight(rig).intent.carryIn).toMatchObject({ phraseNumber: 1 })
     expect(rig.queue.take('one-system')).toEqual([])
   })
 
@@ -519,6 +523,7 @@ describe('Idle pre-generation queue under a restriction in force', () => {
     const bounded = withRestrictionAtStart(mine, rig.idle.presets)
     expect(bounded.restriction).toStrictEqual(myReel.restriction)
     const phraseOne = rig.idle.result
+    const atStart = mutationContextAtStart(phraseOne, false)
     const planned = plannedReadyPhrases(
       planSeams(),
       planStart({
@@ -526,7 +531,7 @@ describe('Idle pre-generation queue under a restriction in force', () => {
         phraseOne: { intent: phraseOne.intent, outcome: phraseOne.outcome },
         phraseOneSettings: mine,
         sessionSeed: REEL_SESSION_SEED,
-        mutation: mutationFlagFor(true, REEL_SESSION_SEED),
+        mutation: mutationFlagFor(true, REEL_SESSION_SEED, bounded, atStart),
       }),
     )
     expect(withoutRequestIds(rig.queue.take('one-system').map((ready) => ready.intent))).toEqual(

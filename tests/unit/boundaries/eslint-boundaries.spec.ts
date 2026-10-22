@@ -284,3 +284,48 @@ describe('eslint.config.js keeps src/session/ and src/export/ from importing src
     expectRestrictedImport(messages, vexflowImport)
   })
 })
+
+describe('eslint.config.js keeps the doodle quantizer inside src/jam/', () => {
+  const quantizerOutsideJam =
+    /Only src\/jam\/ may import the doodle quantizer \(src\/jam\/doodle-quantizer\.ts\)\./
+
+  const quantizerImportsFromOutside = [
+    "import { quantizeDoodle } from '@/jam/doodle-quantizer'",
+    "import { quantizeDoodle } from '../jam/doodle-quantizer'",
+  ]
+  const quantizerImportsFromJam = [
+    "import { quantizeDoodle } from '@/jam/doodle-quantizer'",
+    "import { quantizeDoodle } from './doodle-quantizer'",
+  ]
+
+  /** Intent: lint a probe file that makes `importStatement` and re-exports what it imported. */
+  async function lintImport(
+    relativePath: string,
+    importStatement: string,
+  ): Promise<Linter.LintMessage[]> {
+    return lintAsSource(relativePath, `${importStatement}\nexport const probe = quantizeDoodle\n`)
+  }
+
+  /** Intent: assert exactly one typescript-eslint no-restricted-imports error for the quantizer. */
+  function expectRestrictedQuantizerImport(messages: Linter.LintMessage[]): void {
+    expect(messages).toHaveLength(1)
+    const [message] = messages
+    expect(message?.ruleId).toBe('@typescript-eslint/no-restricted-imports')
+    expect(message?.severity).toBe(2)
+    expect(message?.message).toMatch(quantizerOutsideJam)
+  }
+
+  // @test-link [[module_doodle_quantizer]]
+  test.each(
+    ['session', 'export', 'components', 'domain', 'midi'].flatMap((directory) =>
+      quantizerImportsFromOutside.map((importStatement) => ({ directory, importStatement })),
+    ),
+  )('$importStatement is rejected in src/$directory/', async ({ directory, importStatement }) => {
+    expectRestrictedQuantizerImport(await lintImport(`${directory}/x.ts`, importStatement))
+  })
+
+  // @test-link [[module_doodle_quantizer]]
+  test.each(quantizerImportsFromJam)('%s is allowed in src/jam/', async (importStatement) => {
+    expect(await lintImport('jam/x.ts', importStatement)).toEqual([])
+  })
+})

@@ -15,6 +15,7 @@ import { makeMyInstrument, type MyInstrument } from '@/domain/profile/my-instrum
 import { makeSeed } from '@/domain/random/seed'
 import type { SessionHistory } from '@/session/session-history'
 import type { SessionSettings, SessionStart } from '@/session/session-types'
+import { ALL_GROUPS_ALLOWED } from '@/session/settings-mutation'
 import { sessionFigureLevels } from '@/session/session-intents'
 import { BASE_CONTROLS, generateSuccess } from '../domain/generation/carry-in/carry-in-fixture'
 import { recordRunnerSession } from './history-recording'
@@ -41,6 +42,8 @@ export function myInstrumentSettings(instrument: MyInstrument): SessionSettings 
     figureLevels: NEUTRAL_FIGURE_LEVELS,
     selection: { kind: 'custom', baseId: 'neutral' },
     instrumentProfile: instrument.profile,
+    allowedGroups: ALL_GROUPS_ALLOWED,
+    rhythmLockOn: false,
   }
 }
 

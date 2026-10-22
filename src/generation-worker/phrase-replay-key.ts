@@ -25,6 +25,7 @@
 
 import type { GenerationControls } from '../domain/controls/generation-controls'
 import { FIGURE_IDS, type FigureLevels } from '../domain/figures/figure-levels'
+import { isPhraseCarryIn } from '../domain/generation/carry-in/carry-in'
 import type { GenerationIntent } from '../domain/generation/generation-intent'
 import { MY_INSTRUMENT_ID } from '../domain/profile/instrument-profiles'
 import { encodeSeed, type Seed } from '../domain/random/seed'
@@ -113,18 +114,29 @@ function requirePositivePhraseNumber(phraseNumber: number): void {
 }
 
 /**
- * Intent: enforce the phrase-number rules: a positive integer, and, when a carry-in is present,
- * exactly one more than the number of the phrase that produced that carry-in.
+ * Intent: enforce the phrase-number rules: a positive integer, and, when a carry-in from a phrase
+ * is present, exactly one more than the number of the phrase that produced that carry-in. A
+ * carry-in from no phrase (the doodle has no number) joins into phrase 1, so the number is 1.
  */
 // @spec-link [[module_phrase_replay_key]]
+// @spec-link [[rule_jam_phrase_one_joins_doodle]]
 export function requireConsistentPhraseNumber(
   intent: GenerationIntent,
   phraseNumber: number,
 ): void {
   requirePositivePhraseNumber(phraseNumber)
-  if (intent.carryIn !== undefined && phraseNumber !== intent.carryIn.phraseNumber + 1) {
+  const { carryIn } = intent
+  if (carryIn === undefined) return
+  if (!isPhraseCarryIn(carryIn)) {
+    if (phraseNumber !== 1)
+      throw new PhraseReplayKeyError(
+        `Phrase replay key phrase number ${phraseNumber} must be 1: a carry-in from no phrase joins the doodle into phrase 1.`,
+      )
+    return
+  }
+  if (phraseNumber !== carryIn.phraseNumber + 1) {
     throw new PhraseReplayKeyError(
-      `Phrase replay key phrase number ${phraseNumber} must be its carry-in's phrase number plus one (${intent.carryIn.phraseNumber + 1}).`,
+      `Phrase replay key phrase number ${phraseNumber} must be its carry-in's phrase number plus one (${carryIn.phraseNumber + 1}).`,
     )
   }
 }
@@ -159,6 +171,26 @@ function figureLevelsEntry(levels: FigureLevels): Record<string, string> {
   return Object.fromEntries(FIGURE_IDS.map((figure) => [figure, levels[figure]]))
 }
 
+/** The intent fields an `ifk3.` key has no entry for: an intent holding one cannot be encoded. */
+const FIELDS_AN_IFK3_KEY_CANNOT_CARRY = ['rhythmLock', 'steering'] as const
+
+/**
+ * Intent: refuse an intent an `ifk3.` key cannot carry, rather than write a key that would lose
+ * part of it and replay a different phrase: first one whose carry-in is from no phrase (the key
+ * holds only v3.1's carry-in form), then one holding a field the key has no entry for.
+ */
+function refuseFieldsAnIfk3KeyCannotCarry(intent: GenerationIntent): void {
+  if (intent.carryIn !== undefined && !isPhraseCarryIn(intent.carryIn))
+    throw new PhraseReplayKeyError(
+      `An ${PHRASE_REPLAY_KEY_V3_PREFIX} key cannot carry a carry-in from no phrase: it holds only a carry-in from a phrase.`,
+    )
+  for (const field of FIELDS_AN_IFK3_KEY_CANNOT_CARRY)
+    if (Object.hasOwn(intent, field))
+      throw new PhraseReplayKeyError(
+        `An ${PHRASE_REPLAY_KEY_V3_PREFIX} key cannot carry the intent's ${field}: the key would lose it.`,
+      )
+}
+
 /**
  * Intent: encode one generation intent and its phrase number into an `ifk3.` phrase replay key,
  * whatever its instrument, over the 7-tuple the file header states: request id, seed, the controls
@@ -166,11 +198,14 @@ function figureLevelsEntry(levels: FigureLevels): Record<string, string> {
  * levels by figure id, the phrase number, the carry-in or null, and my instrument's owning profile
  * fields or null for a built-in. No musical profile and no derived field is ever stored. A phrase
  * number that is not a positive integer, or not its carry-in's number plus one, is rejected rather
- * than stored.
+ * than stored. Before anything else, an intent whose carry-in is from no phrase, or holding the
+ * rhythm lock group or the steering block, is refused: the key has no entry for either and would
+ * lose it.
  */
 // @spec-link [[module_phrase_replay_key]]
 // @spec-link [[req_my_instrument]]
 export function encodePhraseReplayKey(intent: GenerationIntent, phraseNumber: number): string {
+  refuseFieldsAnIfk3KeyCannotCarry(intent)
   requireConsistentPhraseNumber(intent, phraseNumber)
   const controls = PHRASE_REPLAY_KEY_CONTROL_ORDER.map((key) =>
     key === 'tonalCenter' ? intent.writtenTonalCenter : intent.controls[key],

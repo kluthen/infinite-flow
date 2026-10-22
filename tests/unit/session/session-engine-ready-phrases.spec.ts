@@ -9,6 +9,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { mutationFlagFor } from '@/components/workspace/workspace-session-runner'
+import { mutationContextAtStart } from '@/session/session-mutation-step'
 import { makeSeed } from '@/domain/random/seed'
 import type { PregenerationResult } from '@/session/session-pregeneration'
 import type { ReadyPhrase } from '@/session/session-ready-phrases'
@@ -34,6 +35,7 @@ import {
   failureOutcome,
   fakeViewport,
   kinds,
+  phraseOneFor,
   sessionSettings,
   withoutRequestIds,
 } from './session-harness'
@@ -141,7 +143,8 @@ describe('a session spending ready phrases', () => {
   // @test-link [[rule_mutation_lands_on_scheduled_phrase]]
   it('reports a mutation landing on a spent phrase first, then the phrase', () => {
     const settings = sessionSettings({ tempo: SLOW })
-    const mutation = mutationFlagFor(true, DEFAULT_SESSION_SEED)
+    const context = mutationContextAtStart(phraseOneFor(settings), false)
+    const mutation = mutationFlagFor(true, DEFAULT_SESSION_SEED, settings, context)
     if (mutation.kind !== 'on') throw new Error('Vary settings is on.')
     const landing = mutationPhrase(mutation.seed, 1)
     const ready = readyFor(settings, mutation)

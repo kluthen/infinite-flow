@@ -830,3 +830,49 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   `v3.2-w0`. `module_phrase_replay_key`, `rule_seeded_phrase_reproduction` and
   `module_settings_mutation` are promoted to STABLE. Now in: [Part C §C13](versions/v3/master-spec.md#c13-what-v32-changes-in-v2-v30-and-v31-guarantees-and-atoms),
   [build plan v3.2, gates](versions/v3/build-plan-v3.2.md#gates).
+
+- **D422 (2026-10-22): each STABLE guarantee v3.2 changes after gate CS is applied at the sync of
+  the wave that builds it, with its own MAJOR contract bump and owner sign-off.** The wave driver's,
+  under the owner's standing delegation; it follows the three 8.1.0 promotions (D421), so `main`
+  never holds code that disagrees with a STABLE atom. CONTRACT 9.0.0 at wave 1's sync (change set
+  part N, gate CN, blocks chunk 15's merge); another MAJOR at wave 2's for chunk 12's
+  `module_phrase_replay_key` and `rule_seeded_phrase_reproduction` (gate CK, blocks chunk 12's
+  merge). C13's "one bump" is superseded. Now in: [Part C §C13](versions/v3/master-spec.md#c13-what-v32-changes-in-v2-v30-and-v31-guarantees-and-atoms),
+  [build plan v3.2, gates](versions/v3/build-plan-v3.2.md#gates).
+
+- **D423 (2026-10-22): three wave 1 preflight points.** The wave driver's, same delegation. Until
+  chunk 12's `ifk4.`, the `ifk3.` encoder refuses an intent with the lock group, the steering block
+  or a carry-in from no phrase with a typed error rather than write a lossy key (chunk 6). Chunk
+  15's skipped mutation is recorded in the in-memory session history only; the kept record does not
+  change. N1's fixed draw bound stays a typed error; the dead end is the only no-throw outcome. Now
+  in: [build plan v3.2, chunk 6](versions/v3/build-plan-v3.2.md#chunk-6--the-request-carries-v32s-inputs),
+  [chunk 15](versions/v3/build-plan-v3.2.md#chunk-15--vary-settings-allowed-groups).
+
+- **D424 (2026-10-22): C7.3's five kinds are the ones chunk 5 built; "repeated" is the identical
+  edit; the shares and the known limit follow a re-measured census.** `spec-writer`'s, under the
+  owner's delegation of minor calls, at the wave driver's request. The built kinds match C7.3 and
+  the catalogue (a moved start or rest sits between two notes, so only adding or removing a rest
+  changes the silence). The 2026-10-08 script was not kept and several of its shares do not
+  reproduce, among them "with Sixteenth, none" under Strict and Straight: Sparse offers a rest
+  change (20 %). Rejected: "repeated" as the same kind only (two edits at two places are two
+  changes, against C7.4), and fitting the code to the old figures. Keying about 15 ms, not 10, is
+  accepted. Now in: [Part C §C7.3](versions/v3/master-spec.md#c73-the-five-kinds-and-the-known-limit), [§C7.6](versions/v3/master-spec.md#c76-how-the-search-holds-the-lock),
+  [jam-grounding §D.2](versions/v3/jam-grounding.md#d2-what-the-rhythm-domain-offers-a-locked-rhythm), [build plan v3.2, chunk 5](versions/v3/build-plan-v3.2.md#chunk-5--rhythm-bars-distance-and-change-kinds) (and chunks 8, 10, 11, M2, H2).
+
+- **D425 (2026-10-22): the steering block's target rhythm holds note starts and rest starts, and
+  the doodle is compared as heard.** `spec-writer`'s, under the owner's delegation of minor calls,
+  at the wave driver's request after chunk 6. C8's distance needs both kinds; chunk 6 built them. A
+  doodle measure holds one rest start per silence; against it a candidate's rest right after a rest
+  starts nothing (18 % of candidates write a silence as two rests); the locked rhythm stays written.
+  Rejected: comparing the doodle with written rests (a rhythm sounding like it would be an edit
+  away, Near at beat 3). Now in: [Part C §C5.9](versions/v3/master-spec.md#c59-what-the-doodle-feeds-the-generator),
+  [§C8](versions/v3/master-spec.md#c8-jams-drift), [§C11](versions/v3/master-spec.md#c11-the-generation-request-the-replay-key-and-kept-sessions),
+  [build plan v3.2, chunks 6, 8 and 28](versions/v3/build-plan-v3.2.md#chunk-6--the-request-carries-v32s-inputs).
+
+- **D426 (2026-10-22): a dead end mid-session is unreachable under today's rules; its skip is a
+  defensive guarantee.** `spec-writer`'s, under the owner's delegation of minor calls, at the wave
+  driver's request after chunk 15. The build's exhaustive search found that the narrow-window
+  step-down never leaves Vary settings without a move, so C9's "only after the narrow-window rule"
+  overstated a cause; the signed N1 wording only says what happens if one occurs. Now in:
+  [Part C §C9](versions/v3/master-spec.md#c9-vary-settings-allowed-groups),
+  [build plan v3.2, chunk 15](versions/v3/build-plan-v3.2.md#chunk-15--vary-settings-allowed-groups).

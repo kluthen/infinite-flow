@@ -7,8 +7,9 @@
  * phrase's. It also keeps when the session started, read once from an injected wall clock, the
  * instrument profile and the preset selection of the locked settings and the session seed
  * the session started with; nothing derived from that seed is kept beside it. Every phrase carries the clef the session's instrument
- * was drawn in at its start, as display data beside the phrase, never in its intent. It never reads
- * the system time, touches no browser API and stores nothing outside memory.
+ * was drawn in at its start, as display data beside the phrase, never in its intent. Beside the
+ * phrases it keeps the mutations the session skipped at a dead end, which no kept session holds.
+ * It never reads the system time, touches no browser API and stores nothing outside memory.
  */
 
 import type { ExpectedNoteIdentity } from '../domain/acknowledgement/expected-note'
@@ -29,7 +30,13 @@ import {
 } from '../domain/profile/instrument-profiles'
 import type { Seed } from '../domain/random/seed'
 import { withPlayedNotes } from './session-history-played-notes'
-import type { AudioTime, SessionOutput, SessionSettings, SuccessfulOutcome } from './session-types'
+import type {
+  AudioTime,
+  MutationSkippedOutput,
+  SessionOutput,
+  SessionSettings,
+  SuccessfulOutcome,
+} from './session-types'
 
 /** A note the player played during a phrase: its concert pitch, velocity and audio-clock span. */
 // @spec-link [[rule_session_history_records_played_notes]]
@@ -98,6 +105,16 @@ export interface SessionHistoryRecord extends ReviewedPhrase {
 }
 
 /**
+ * A scheduled mutation the session skipped: it met a dead end on the phrase it would have landed
+ * on. Kept in memory only; no kept session record holds it.
+ */
+// @spec-link [[rule_vary_settings_skips_dead_end]]
+export interface SkippedMutation {
+  readonly phraseNumber: number
+  readonly mutationNumber: number
+}
+
+/**
  * A session's history: fed every engine output in order, every finished played note (onset and
  * release already latency-compensated, in release order) and every acknowledgement, read back as
  * one ordered list, with the tempo the session reached (the last recorded phrase's, null before
@@ -113,6 +130,8 @@ export interface SessionHistory {
   recordPlayedNote(note: RecordedPlayedNote): void
   recordAcknowledgement(identity: ExpectedNoteIdentity): void
   phrases(): readonly SessionHistoryRecord[]
+  // @spec-link [[rule_vary_settings_skips_dead_end]]
+  skippedMutations(): readonly SkippedMutation[]
   // @spec-link [[rule_adaptive_tempo_resets_after_session]]
   tempoReached(): number | null
   readonly phraseCount: number
@@ -150,6 +169,20 @@ type SoundingOutput = Extract<SessionOutput, { kind: 'phrase-sounding' }>
 
 /** An ended output, which closes the history. */
 type EndedOutput = Extract<SessionOutput, { kind: 'ended' }>
+
+/**
+ * Intent: the frozen skip a mutation-skipped output reports, or a SessionHistoryError when it
+ * names no phrase or no mutation (each an integer from 1).
+ */
+// @spec-link [[rule_vary_settings_skips_dead_end]]
+function checkedSkip(output: MutationSkippedOutput): SkippedMutation {
+  const { phraseNumber, mutationNumber } = output
+  if (!Number.isSafeInteger(phraseNumber) || phraseNumber < 1)
+    throw new SessionHistoryError(`A skipped mutation must name a phrase, got ${phraseNumber}.`)
+  if (!Number.isSafeInteger(mutationNumber) || mutationNumber < 1)
+    throw new SessionHistoryError(`A skipped mutation must name a mutation, got ${mutationNumber}.`)
+  return deepFreeze({ phraseNumber, mutationNumber })
+}
 
 /** Intent: refuse a tempo that is not a finite positive BPM, which no session runs at. */
 function assertTempo(tempo: number, what: string): void {
@@ -357,7 +390,9 @@ function recordOf(output: SoundingOutput, clef: InstrumentClef): SessionHistoryR
  * written phrase was drawn in at that start, which every record carries (a clef that is none, or a
  * built-in instrument in any clef but treble, throws). `record` takes every engine output
  * in order: a phrase-sounding output adds the next record at its own tempo, `ended` closes the
- * history, and every other kind (read-ahead included) is ignored. `recordPlayedNote` and
+ * history, a mutation-skipped output is kept in memory beside the records (never in a phrase,
+ * nor in any kept session), and every other kind (read-ahead included) is ignored. A skip that
+ * names no phrase or mutation throws a SessionHistoryError. `recordPlayedNote` and
  * `recordAcknowledgement` take the player's finished notes and acknowledgements, placed in the
  * records on read. An output, note or acknowledgement after the end, a phrase out of order, for
  * another instrument profile or at an unusable tempo, an end that disagrees with the records, an
@@ -388,6 +423,7 @@ export function createSessionHistory(
   const playedNotes: RecordedPlayedNote[] = []
   const acknowledgements: ExpectedNoteIdentity[] = []
   const acknowledgedKeys = new Set<string>()
+  const skips: SkippedMutation[] = []
   let snapshot: readonly SessionHistoryRecord[] | undefined
   let ended = false
 
@@ -415,6 +451,7 @@ export function createSessionHistory(
     record(output: SessionOutput): void {
       assertOpen(`A ${output.kind} output`)
       if (output.kind === 'phrase-sounding') addSounding(output)
+      else if (output.kind === 'mutation-skipped') skips.push(checkedSkip(output))
       else if (output.kind === 'ended') {
         assertEndMatches(output, records.length)
         ended = true
@@ -446,6 +483,11 @@ export function createSessionHistory(
     phrases(): readonly SessionHistoryRecord[] {
       snapshot ??= Object.freeze(withPlayedNotes(records, playedNotes, acknowledgements))
       return snapshot
+    },
+    /** Intent: every mutation the session skipped at a dead end, in record order, frozen. */
+    // @spec-link [[rule_vary_settings_skips_dead_end]]
+    skippedMutations(): readonly SkippedMutation[] {
+      return Object.freeze([...skips])
     },
     /**
      * Intent: the tempo the session reached: the last recorded phrase's, also its highest, since

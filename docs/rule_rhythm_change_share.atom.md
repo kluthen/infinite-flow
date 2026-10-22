@@ -1,7 +1,8 @@
 ---
 id: rule_rhythm_change_share
 status: DRAFT
-dependents: []
+dependents:
+  - [[entity_request_rhythm_lock]]
 type: RULE
 layer: BUSINESS
 version: 0.2

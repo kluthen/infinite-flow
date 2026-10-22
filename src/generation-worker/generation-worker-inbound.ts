@@ -18,10 +18,20 @@ import {
   parseFigureLevels,
   type FigureLevels,
 } from '../domain/figures/figure-levels'
-import { parseCarryIn } from '../domain/generation/carry-in/carry-in'
+import { parseCarryIn, type CarryIn } from '../domain/generation/carry-in/carry-in'
 import { makeCarryInGenerationIntent } from '../domain/generation/carry-in/carry-in-intent'
 import { makeGenerationIntent, type GenerationIntent } from '../domain/generation/generation-intent'
 import { makeRequestId } from '../domain/generation/generation-request'
+import {
+  parseRequestRhythmLock,
+  RequestRhythmLockError,
+  type RequestRhythmLock,
+} from '../domain/generation/request-rhythm-lock'
+import {
+  parseSteeringBlock,
+  SteeringBlockError,
+  type SteeringBlock,
+} from '../domain/generation/steering-block'
 import {
   parseInstrumentProfile,
   type InstrumentProfile,
@@ -152,6 +162,8 @@ const GENERATION_INTENT_ALLOWED_KEYS = new Set([
   'instrumentProfile',
   'registerIntent',
   'carryIn',
+  'rhythmLock',
+  'steering',
 ])
 
 const FIGURE_LEVELS_CONTEXT = 'GenerationWorkerRequest.intent.figureLevels'
@@ -180,6 +192,38 @@ function parseWireFigureLevels(record: Record<string, unknown>): FigureLevels {
 }
 
 /**
+ * Intent: parse an untrusted wire intent's optional rhythm lock group and steering block, each
+ * only when its key is present (a key holding nothing is refused, never read as absent), through
+ * the domain's own parsers. Any RequestRhythmLockError or SteeringBlockError is a
+ * GenerationWorkerProtocolError naming the field and the cause.
+ */
+// @spec-link [[entity_request_rhythm_lock]]
+// @spec-link [[entity_steering_block]]
+function parseWireRequestGroups(record: Record<string, unknown>): {
+  readonly rhythmLock?: RequestRhythmLock
+  readonly steering?: SteeringBlock
+} {
+  try {
+    return {
+      ...(Object.hasOwn(record, 'rhythmLock')
+        ? { rhythmLock: parseRequestRhythmLock(record.rhythmLock) }
+        : {}),
+      ...(Object.hasOwn(record, 'steering')
+        ? { steering: parseSteeringBlock(record.steering) }
+        : {}),
+    }
+  } catch (error) {
+    if (error instanceof RequestRhythmLockError || error instanceof SteeringBlockError) {
+      const field = error instanceof RequestRhythmLockError ? 'rhythmLock' : 'steering'
+      throw new GenerationWorkerProtocolError(
+        `GenerationWorkerRequest.intent.${field} is invalid: ${error.message}`,
+      )
+    }
+    throw error
+  }
+}
+
+/**
  * Intent: validate the owning fields of an untrusted GenerationIntent record (requestId, seed,
  * writtenTonalCenter, controls, figureLevels and an optional carryIn) through the existing domain
  * constructors and rebuild the full intent via `makeGenerationIntent`, or `makeCarryInGenerationIntent`
@@ -190,17 +234,25 @@ function parseWireFigureLevels(record: Record<string, unknown>): FigureLevels {
  * by field (any fault is a CarryInError) and then checked against the rebuilt intent by
  * `makeCarryInGenerationIntent` itself; its `finalHarmony` is a carried chord or an explicit null
  * (dropped by a key or collection change), never missing. Shared by the worker request parser and
- * the phrase replay key decoder so neither keeps a parallel schema. A built-in's profile is
+ * the phrase replay key decoder so neither keeps a parallel schema; each names the carry-in parser
+ * it reads with (the worker reads both origins through `parseCarryIn`, a replay key only v3.1's
+ * form through `parsePhraseCarryIn`). A built-in's profile is
  * resolved from its id; my instrument's, which its id alone cannot give, is read from the record's
  * `instrumentProfile` through `parseMyInstrumentProfile`. The `figureLevels` are required and read
  * through the domain's figure-levels parser, then handed to the factory as the intent's levels; a
- * record holds no musical profile, so none is read.
+ * record holds no musical profile, so none is read. The rhythm lock group and the steering block,
+ * each when its key is present, are parsed by `parseWireRequestGroups` and handed to the builders.
  */
 // @spec-link [[module_generation_worker_protocol]]
 // @spec-link [[module_phrase_replay_key]]
 // @spec-link [[rule_key_change_drops_harmonic_carry_in]]
 // @spec-link [[entity_my_instrument]]
-export function rebuildGenerationWorkerIntent(record: Record<string, unknown>): GenerationIntent {
+// @spec-link [[entity_request_rhythm_lock]]
+// @spec-link [[entity_steering_block]]
+export function rebuildGenerationWorkerIntent(
+  record: Record<string, unknown>,
+  readCarryIn: (input: unknown) => CarryIn,
+): GenerationIntent {
   if (typeof record.requestId !== 'string') {
     throw new GenerationWorkerProtocolError(
       `GenerationWorkerRequest.intent.requestId must be a string, got ${typeof record.requestId}.`,
@@ -226,12 +278,13 @@ export function rebuildGenerationWorkerIntent(record: Record<string, unknown>): 
     tonalCenter: writtenTonalCenter,
   })
   const figureLevels = parseWireFigureLevels(record)
-  const carryIn = 'carryIn' in record ? parseCarryIn(record.carryIn) : undefined
+  const carryIn = 'carryIn' in record ? readCarryIn(record.carryIn) : undefined
   const suppliedProfile =
     controls.instrumentProfileId === MY_INSTRUMENT_ID
       ? { instrumentProfile: parseMyInstrumentProfile(record.instrumentProfile) }
       : {}
-  const input = { requestId, seed, controls, figureLevels, ...suppliedProfile }
+  const groups = parseWireRequestGroups(record)
+  const input = { requestId, seed, controls, figureLevels, ...suppliedProfile, ...groups }
 
   return carryIn === undefined
     ? makeGenerationIntent(input)
@@ -247,7 +300,8 @@ export function rebuildGenerationWorkerIntent(record: Record<string, unknown>): 
  * derived deterministically from those owning fields (my instrument's profile and the figure levels
  * are themselves owning fields, validated as data), so this both validates them and proves the
  * wire value was not tampered with or corrupted in transit. An intent without a carry-in must have
- * no such field.
+ * no such field, and likewise for the rhythm lock group and the steering block; a group sent with
+ * a field its parser does not rebuild, or in a non-canonical form, fails the deep-equal check.
  */
 // @spec-link [[service_workspace_session_runner_factory]]
 // @spec-link [[entity_phrase_carry_in]]
@@ -255,7 +309,7 @@ export function parseGenerationWorkerIntent(input: unknown): GenerationIntent {
   const record = asPlainRecord(input, 'GenerationWorkerRequest.intent')
   requireAllowedKeys(record, GENERATION_INTENT_ALLOWED_KEYS, 'GenerationWorkerRequest.intent')
 
-  const rebuilt = rebuildGenerationWorkerIntent(record)
+  const rebuilt = rebuildGenerationWorkerIntent(record, parseCarryIn)
 
   if (!deepEqual(rebuilt, record)) {
     throw new GenerationWorkerProtocolError(

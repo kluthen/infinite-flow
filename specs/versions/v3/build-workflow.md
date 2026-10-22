@@ -1,6 +1,8 @@
 # Infinite Flow v3 — Build workflow
 
-Status: v1 (2026-10-16): written from §3 of the v3.0–v3.3 build plans (spec D349).
+Status: v2 (2026-10-22): the contract sign-off is recorded in the intent change set and the
+commit that applies it, not in the atom (wave 1 preflight of v3.2). v1 (2026-10-16): written from
+§3 of the v3.0–v3.3 build plans (spec D349).
 
 How Infinite Flow fills in the build-plan model
 (`~/.local/share/dev_team/references/build-plan-model.md`) for every v3 build plan that links this
@@ -80,8 +82,9 @@ The repo declares intent with ATD (`.atd`, atoms in `docs/<id>.atom.md`). In a v
   atd:lint` and `npm run atd:check` pass; the sync is committed on the wave branch.
 - **Contract sign-off.** A chunk that changes a STABLE guarantee does not merge into its wave
   branch before the owner has confirmed that guarantee's wording and `documentalist` has recorded
-  the confirmation in the atom's notes (spec D246, D276). It is a gate in the plan's gates table;
-  the chunk's merge commit cites the decision that records it.
+  the confirmation in the release's intent change set, in the part that drafts the wording, and in
+  the commit message that applies it (ATD allows no `notes:` key in an atom) (spec D246, D276). It
+  is a gate in the plan's gates table; the chunk's merge commit cites the decision that records it.
 
 ## Wave gate
 

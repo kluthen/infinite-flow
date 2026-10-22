@@ -25,6 +25,7 @@ import { fakeGenerationSession, readyState } from './fake-generation-session'
 import { PHRASE_SCORE_STUB } from './test-workspace'
 import { provideSaveSettings } from './recording-save-settings'
 import { noRememberedController, quietSavedData, quietPresetStore } from './quiet-saved-data'
+import { ALL_GROUPS_ALLOWED } from '@/session/settings-mutation'
 
 vi.mock('@/components/review/ReviewPanel.vue', () => import('./review-panel-stub'))
 
@@ -114,6 +115,8 @@ async function startSession(wrapper: Shell, fake: FakeSessionController, hasCont
     controls: DEFAULT_GENERATION_CONTROLS,
     figureLevels: NEUTRAL_FIGURE_LEVELS,
     selection: DEFAULT_PRESET_SELECTION,
+    allowedGroups: ALL_GROUPS_ALLOWED,
+    rhythmLockOn: false,
   }
   await nextTick()
 }

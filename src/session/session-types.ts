@@ -18,7 +18,7 @@ import type { PresetSelection } from '../domain/presets/preset-selection'
 import type { InstrumentProfile } from '../domain/profile/instrument-profile'
 import type { Seed } from '../domain/random/seed'
 import type { ReadyPhrase } from './session-ready-phrases'
-import type { MutableSetting, SettingsMutationFlag } from './settings-mutation'
+import type { AllowedGroups, MutableSetting, SettingsMutationFlag } from './settings-mutation'
 
 /** Seconds on the audio clock. */
 // @spec-link [[service_session_engine]]
@@ -62,7 +62,7 @@ export type SuccessfulOutcome = Extract<GenerationOutcome, { kind: 'generation_s
  * restriction in force at the session's start, frozen there for the whole session: Vary
  * settings' key and mode moves stay inside it. It is absent when none was in force, or when the
  * one in force allows every key and mode, so nothing is drawn again for a restriction's sake. No
- * phrase is generated from it.
+ * phrase is generated from it, nor from the allowed groups or the rhythm lock's state.
  */
 // @spec-link [[service_session_engine]]
 // @spec-link [[rule_session_settings_locked]]
@@ -72,6 +72,13 @@ export interface SessionSettings {
   readonly selection: PresetSelection
   readonly instrumentProfile?: InstrumentProfile
   readonly restriction?: KeyAndModeRestriction
+  /** Vary settings' allowed groups, saved with the option: only their settings may move. */
+  readonly allowedGroups: AllowedGroups
+  /**
+   * Whether the session's rhythm lock is on: while it is, Vary settings never moves the Rhythm
+   * group. Nothing turns it on in a session yet.
+   */
+  readonly rhythmLockOn: boolean
 }
 
 /**
@@ -167,7 +174,9 @@ export type SessionEvent =
  * differ between attempts for the same phrase. `phrase-ready` is the phrase to show next as
  * read-ahead, repeats included; `phrase-sounding` carries the tempo that phrase plays at.
  * `settings-changed` names the first phrase new settings apply to, and `phrase-discarded` a
- * look-ahead phrase dropped to be requested again with new settings. `phrase-tempo` gives the
+ * look-ahead phrase dropped to be requested again with new settings. `mutation-skipped` names a
+ * scheduled mutation that met a dead end, and the phrase it would have landed on: the settings in
+ * effect stay as they are, and the next mutation lands as scheduled. `phrase-tempo` gives the
  * tempo of a phrase from 2 on, output once, when it is fixed at that phrase's look-ahead deadline.
  * `cancel-generation` names an attempt dropped while still generating, to be stopped where it
  * runs; it comes before any `request-generation` of the same event.
@@ -207,6 +216,7 @@ export type SessionOutput =
       readonly soundedPhraseCount: number
     }
   | SettingsChangedOutput
+  | MutationSkippedOutput
   | { readonly kind: 'phrase-discarded'; readonly phraseNumber: number }
   | { readonly kind: 'phrase-tempo'; readonly phraseNumber: number; readonly tempo: number }
   | { readonly kind: 'cancel-generation'; readonly attemptId: number }
@@ -236,6 +246,19 @@ export type SettingsChangedOutput =
       readonly settings: SessionSettings
       readonly cause: 'automatic'
     }
+
+/**
+ * A scheduled mutation skipped: mutation `mutationNumber` met a dead end (no step of the settings
+ * in effect is a supported one inside the allowed groups) on the phrase it would have landed on.
+ * Nothing changes; the session history keeps it in memory only.
+ */
+// @spec-link [[service_session_engine]]
+// @spec-link [[rule_mutation_lands_on_scheduled_phrase]]
+export interface MutationSkippedOutput {
+  readonly kind: 'mutation-skipped'
+  readonly phraseNumber: number
+  readonly mutationNumber: number
+}
 
 /** Whether any of a session phrase is drawn on screen, as read-ahead or sounding. */
 // @spec-link [[service_session_engine]]

@@ -2,7 +2,8 @@
 id: rule_jam_phrase_one_joins_doodle
 status: DRAFT
 priority: 1
-dependents: []
+dependents:
+  - [[entity_phrase_carry_in]]
 type: RULE
 layer: BUSINESS
 human_name: Phrase 1 Continues From the Doodle's Last Note
