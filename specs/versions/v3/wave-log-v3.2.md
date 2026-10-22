@@ -202,3 +202,19 @@ thinks not). Gate CN asked of the owner.
   `documentalist` applies it at wave 1's sync. Chunk 15 may merge into `v3.2-w1`. The gate's status
   in the plan is set once `spec-writer`'s chunk 5 ruling is committed, since it is editing the plan
   now.
+- Chunk 5 ruling: `spec-writer` D424 (26d21c0; Part C v1.6, §D.2 re-measured, plan v12). The five
+  kinds stay as built. "Repeated" means the identical edit in k and k+2. "With Sixteenth, none" was
+  wrong: Sixteenth / Strict / Straight / Sparse offers adding or removing a rest (16 of 80). §D.2's
+  2026-10-08 figures are replaced by a census of the built code, and the chunk's availability test
+  must match them exactly. Keying takes about 15 ms; distance to all takes about 27 ms. Knock-ons:
+  - chunks 8, 10 and 11 get budgets: rank once per request, and look candidates up by group;
+  - chunk 11's Sixteenth row changes;
+  - M2 compares against the new §D.2 and records each preset;
+  - H2 now uses the Pop song preset at 120 BPM.
+
+  For the wave 1 sync: `rule_rhythm_change_kinds` is reworded as in D424's report. The new rule
+  text is in the chunk 5 ruling's report, logged here in short: the five kinds as built, the
+  repeated form as the identical edit, the corrected known limit, and one more EXPECTATION line.
+  For the owner, for information only: under Neutral, "Move a note" and "Move a rest" offer
+  nothing. Pop song offers all five kinds.
+  Chunk 5 resumes after chunk 6 (κ = 1).
