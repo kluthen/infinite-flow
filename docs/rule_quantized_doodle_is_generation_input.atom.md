@@ -9,6 +9,8 @@ layer: BUSINESS
 human_name: The Quantized Doodle Is a Generation Input
 tags: [v3, release-v3.2, session, jam, privacy, storage]
 dependents:
+  - [[entity_quantized_doodle]]
+  - [[entity_steering_block]]
   - [[rule_earlier_sessions_open_without_doodle]]
 type: RULE
 ---

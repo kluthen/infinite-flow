@@ -5,7 +5,8 @@ type: RULE
 version: 0.1
 human_name: The Five Kinds of Rhythm Change
 tags: [v3, release-v3.2, session, rhythm, rhythm-lock]
-dependents: []
+dependents:
+  - [[entity_rhythm_candidate_domain]]
 layer: BUSINESS
 priority: 1
 parents:

@@ -6,6 +6,7 @@ version: 0.2
 parents:
   - [[rule_stray_note_definition]]
 dependents:
+  - [[module_doodle_quantizer]]
   - [[module_review_played_notes_lane]]
   - [[rule_played_notes_export_omits_stray_notes]]
 priority: 1

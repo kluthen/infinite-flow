@@ -5,7 +5,9 @@ type: RULE
 layer: BUSINESS
 priority: 1
 human_name: The Doodle Is One Melodic Line
-dependents: []
+dependents:
+  - [[entity_quantized_doodle]]
+  - [[module_doodle_quantizer]]
 version: 0.1
 tags: [v3, release-v3.2, session, jam]
 parents:

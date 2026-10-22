@@ -2,7 +2,9 @@
 id: rule_jam_and_lock_off_reproduce_earlier_phrases
 status: DRAFT
 tags: [v3, release-v3.2, generation, determinism]
-dependents: []
+dependents:
+  - [[entity_request_rhythm_lock]]
+  - [[entity_steering_block]]
 version: 0.2
 parents:
   - [[rule_seeded_phrase_reproduction]]
