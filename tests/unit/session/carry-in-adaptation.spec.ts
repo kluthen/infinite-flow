@@ -17,7 +17,12 @@ import {
   NEUTRAL_FIGURE_LEVELS,
   type FigureLevels,
 } from '@/domain/figures/figure-levels'
-import { CarryInError, makeCarryIn, type CarryIn } from '@/domain/generation/carry-in/carry-in'
+import {
+  CarryInError,
+  makeCarryIn,
+  type CarryIn,
+  type PhraseCarryIn,
+} from '@/domain/generation/carry-in/carry-in'
 import { owedRecoveryCanSettle } from '@/domain/generation/carry-in/phrase-ending-debt'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { makeHarmonyCollection } from '@/domain/harmony/collection'
@@ -34,7 +39,7 @@ import {
 /** A real phrase 1 of a session: its intent and the carry-in it hands forward. */
 interface PhraseOne {
   readonly intent: GenerationIntent
-  readonly carryIn: CarryIn
+  readonly carryIn: PhraseCarryIn
 }
 
 /**
@@ -160,7 +165,7 @@ describe('adapting a carry-in after a key or collection change', () => {
     expect(adapted.finalHarmony).toBeNull()
     expect(adapted.lastPitch).toStrictEqual(phrase.carryIn.lastPitch)
     expect(adapted.registerWindow).toStrictEqual(phrase.carryIn.registerWindow)
-    expect(adapted.phraseNumber).toBe(phrase.carryIn.phraseNumber)
+    expect(adapted).toMatchObject({ phraseNumber: phrase.carryIn.phraseNumber })
     expect(receive(after, adapted).carryIn).toStrictEqual(adapted)
   })
 
@@ -332,5 +337,71 @@ describe('carry-in adaptation as a pure function', () => {
     expect(() => adapt(phrase, MIDDLE, settings({ instrumentProfileId: 'bb-tenor' }))).toThrow(
       SessionEngineError,
     )
+  })
+})
+
+/** Intent: a carry-in from no phrase (the doodle's join) at a pitch inside the Middle window. */
+function noPhraseCarryIn(midi: number): CarryIn {
+  return makeCarryIn({
+    origin: 'none',
+    lastPitch: {
+      midi: makeConcertPitch(midi),
+      arrivingInterval: null,
+      recovery: { kind: 'settled' },
+    },
+    registerWindow: windowOfBase('Middle'),
+    finalHarmony: null,
+  })
+}
+
+/** Intent: the base instrument's window of one register. */
+function windowOfBase(id: RegisterWindowCandidate['id']) {
+  return baseCandidates().find((candidate) => candidate.id === id)!.window
+}
+
+/** Intent: the base instrument's register windows, as a plain Middle intent resolves them. */
+function baseCandidates(): readonly RegisterWindowCandidate[] {
+  return buildIntent({ seed: 1, label: 'adaptation-windows' }).registerIntent.candidates
+}
+
+// @test-link [[entity_phrase_carry_in]]
+// @test-link [[rule_jam_phrase_one_joins_doodle]]
+// @test-link [[rule_register_change_replaces_carried_window]]
+describe('adapting a carry-in from no phrase', () => {
+  it('keeps its origin through a register change, with the new window and no harmony', () => {
+    const adaptation = adaptCarryIn({
+      carryIn: noPhraseCarryIn(62),
+      before: MIDDLE,
+      after: settings({ register: 'High' }),
+      candidates: baseCandidates(),
+    })
+    const adapted = keptCarryIn(adaptation)
+
+    expect(adapted).toStrictEqual({
+      origin: 'none',
+      lastPitch: { midi: 62, arrivingInterval: null, recovery: { kind: 'settled' } },
+      registerWindow: windowOfBase('High'),
+      finalHarmony: null,
+    })
+    expect(Object.isFrozen(adapted)).toBe(true)
+  })
+
+  it('keeps its origin through a key change, and goes standalone when the pitch leaves the window', () => {
+    const carryIn = noPhraseCarryIn(55)
+    const keyChanged = adaptCarryIn({
+      carryIn,
+      before: MIDDLE,
+      after: settings({ tonalCenter: 'F#', collection: 'Dorian' }),
+      candidates: baseCandidates(),
+    })
+    expect(keptCarryIn(keyChanged)).toStrictEqual(carryIn)
+
+    const registerChanged = adaptCarryIn({
+      carryIn,
+      before: MIDDLE,
+      after: settings({ register: 'High' }),
+      candidates: baseCandidates(),
+    })
+    expect(registerChanged).toStrictEqual({ kind: 'standalone', register: 'High' })
   })
 })

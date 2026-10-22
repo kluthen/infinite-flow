@@ -80,7 +80,7 @@ describe('composeWorkspaceSession session runner', () => {
 
     expect(deps.generateMock).toHaveBeenCalledTimes(2)
     const phraseTwoIntent = deps.generateMock.mock.calls[1]![0] as GenerationIntent
-    expect(phraseTwoIntent.carryIn?.phraseNumber).toBe(1)
+    expect(phraseTwoIntent.carryIn).toMatchObject({ phraseNumber: 1 })
     expect(outputs[0]).toMatchObject({
       kind: 'request-generation',
       phraseNumber: 2,

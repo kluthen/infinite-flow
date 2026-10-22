@@ -1,12 +1,15 @@
 /**
- * The carry-in: the only data one session phrase hands forward to the phrase generated after it.
- * Exactly four items cross a join: the last sounding concert pitch with its leap state, the
- * resolved register window, the final harmony event (chord and role) with its endpoint class, and
- * the phrase's ordinal in the session. After a mid-session key or collection change the harmonic
- * part is dropped: `finalHarmony` is then an explicit null, never a missing field. Tempo, seeds,
- * settings and every other fact of the phrase stay behind. A carry-in is always constructed valid
- * and deep-frozen, and an untrusted wire value is parsed through the same constructor, rejecting
- * any missing, extra or malformed field.
+ * The carry-in: the only data that crosses a join into the next generated phrase. A carry-in has
+ * an origin. From a phrase (v3.1's carry-in, unchanged in fields and form), exactly four items
+ * cross: the last sounding concert pitch with its leap state, the resolved register window, the
+ * final harmony event (chord and role) with its endpoint class, and the phrase's ordinal in the
+ * session. After a mid-session key or collection change the harmonic part is dropped:
+ * `finalHarmony` is then an explicit null, never a missing field. From no phrase (the doodle's
+ * join into a Jam's phrase 1), only the doodle's last pitch, reached by no interval and owing no
+ * recovery, and the window cross; it holds no chord and no ordinal. Tempo, seeds, settings and
+ * every other fact of the phrase stay behind. A carry-in is always constructed valid and
+ * deep-frozen, and an untrusted wire value is parsed through the same constructor, rejecting any
+ * missing, extra or malformed field.
  */
 
 import { makeConcertPitch, type ConcertPitch } from '../../events/concert-pitch'
@@ -44,17 +47,50 @@ export interface CarriedPitch {
   readonly recovery: CarriedRecovery
 }
 
-/** The four items that cross a join, and nothing else. */
+/**
+ * A carry-in from a phrase: the four items that cross a join, and nothing else. v3.1's carry-in,
+ * unchanged: exactly these four keys, no origin key.
+ */
 // @spec-link [[rule_join_carry_in_limited]]
 // @spec-link [[entity_phrase_carry_in]]
 // @spec-link [[rule_key_change_drops_harmonic_carry_in]]
-export interface CarryIn {
+export interface PhraseCarryIn {
   readonly lastPitch: CarriedPitch
   readonly registerWindow: RegisterWindow
   /** The carried chord; null when a key or collection change dropped the harmonic part. */
   readonly finalHarmony: CarriedHarmony | null
   /** Ordinal of the phrase that just ended, counted from 1 in its session. */
   readonly phraseNumber: number
+}
+
+/**
+ * A carry-in from no phrase: the doodle's join into a Jam's phrase 1. Its pitch is reached by no
+ * interval and owes no recovery; it carries no chord and no ordinal. Those fixed parts keep the
+ * phrase carry-in's shape, so every reader of the pitch, the window and the harmony reads both.
+ */
+// @spec-link [[rule_jam_phrase_one_joins_doodle]]
+// @spec-link [[entity_phrase_carry_in]]
+export interface NoPhraseCarryIn {
+  readonly origin: 'none'
+  readonly lastPitch: {
+    readonly midi: ConcertPitch
+    readonly arrivingInterval: null
+    readonly recovery: { readonly kind: 'settled' }
+  }
+  readonly registerWindow: RegisterWindow
+  readonly finalHarmony: null
+}
+
+/** What crosses a join: a carry-in from a phrase, or from no phrase. */
+// @spec-link [[entity_phrase_carry_in]]
+// @spec-link [[rule_jam_phrase_one_joins_doodle]]
+export type CarryIn = PhraseCarryIn | NoPhraseCarryIn
+
+/** Intent: true when a carry-in comes from a phrase, which has no `origin` key. */
+// @spec-link [[entity_phrase_carry_in]]
+// @spec-link [[rule_jam_phrase_one_joins_doodle]]
+export function isPhraseCarryIn(carryIn: CarryIn): carryIn is PhraseCarryIn {
+  return !Object.hasOwn(carryIn, 'origin')
 }
 
 /** Typed failure for a malformed or inconsistent carry-in. */
@@ -166,25 +202,66 @@ function assertCarriedHarmony(harmony: CarriedHarmony): void {
 }
 
 /**
- * Intent: build one immutable carry-in from its four items, refusing a pitch outside the carried
- * window, an inconsistent leap state, a malformed chord, a harmony that is neither a chord nor an
- * explicit null, or an ordinal that is not a positive whole number. A carried pitch off the
- * carried chord is a tense note and must have been reached by a step; without a carried chord
- * there is no tense note, and only the leap-recovery state is checked.
+ * Intent: build one immutable carry-in. From a phrase, from its four items, refusing a pitch
+ * outside the carried window, an inconsistent leap state, a malformed chord, a harmony that is
+ * neither a chord nor an explicit null, or an ordinal that is not a positive whole number. A
+ * carried pitch off the carried chord is a tense note and must have been reached by a step;
+ * without a carried chord there is no tense note, and only the leap-recovery state is checked.
+ * From no phrase, only the pitch inside the window is checked; its fixed parts (no interval, no
+ * owed recovery, no chord, no ordinal) are the form and are refused if anything else. An input
+ * holding an origin other than none is refused.
  */
 // @spec-link [[entity_phrase_carry_in]]
 // @spec-link [[rule_key_change_drops_harmonic_carry_in]]
+// @spec-link [[rule_jam_phrase_one_joins_doodle]]
+export function makeCarryIn(input: PhraseCarryIn): PhraseCarryIn
+export function makeCarryIn(input: NoPhraseCarryIn): NoPhraseCarryIn
+export function makeCarryIn(input: CarryIn): CarryIn
 export function makeCarryIn(input: CarryIn): CarryIn {
   try {
-    return buildCarryIn(input)
+    return isPhraseCarryIn(input) ? buildCarryIn(input) : buildNoPhraseCarryIn(input)
   } catch (error) {
     if (error instanceof CarryInError) throw error
     throw new CarryInError(`The carry-in is invalid: ${(error as Error).message}`)
   }
 }
 
-/** Intent: the unguarded body of `makeCarryIn`; value-object errors are rethrown as CarryInError. */
-function buildCarryIn(input: CarryIn): CarryIn {
+/**
+ * Intent: the unguarded body of `makeCarryIn` for a carry-in from no phrase: the origin, the
+ * pitch inside the window, and the fixed parts exactly as the form has them.
+ */
+// @spec-link [[rule_jam_phrase_one_joins_doodle]]
+function buildNoPhraseCarryIn(input: NoPhraseCarryIn): NoPhraseCarryIn {
+  if (input.origin !== 'none')
+    throw new CarryInError(
+      `The carry-in origin must be "none", got ${JSON.stringify(input.origin)}.`,
+    )
+  if (Object.hasOwn(input, 'phraseNumber'))
+    throw new CarryInError('A carry-in from no phrase has no phrase number.')
+  const midi = makeConcertPitch(input.lastPitch.midi)
+  const registerWindow = makeRegisterWindow(
+    input.registerWindow.minMidi,
+    input.registerWindow.maxMidi,
+  )
+  if (!registerWindowContainsPitch(registerWindow, midi))
+    throw new CarryInError(
+      `The carried pitch ${midi} lies outside the carried window ${registerWindow.minMidi}-${registerWindow.maxMidi}.`,
+    )
+  if (input.lastPitch.arrivingInterval !== null)
+    throw new CarryInError('A carry-in from no phrase has no arriving interval.')
+  if (input.lastPitch.recovery.kind !== 'settled')
+    throw new CarryInError('A carry-in from no phrase owes no leap recovery.')
+  if (input.finalHarmony !== null) throw new CarryInError('A carry-in from no phrase has no chord.')
+  return deepFreeze({
+    origin: 'none' as const,
+    lastPitch: { midi, arrivingInterval: null, recovery: { kind: 'settled' as const } },
+    registerWindow,
+    finalHarmony: null,
+  })
+}
+
+/** Intent: the unguarded body of `makeCarryIn` for a carry-in from a phrase, as v3.1 built it. */
+function buildCarryIn(input: PhraseCarryIn): PhraseCarryIn {
   const midi = makeConcertPitch(input.lastPitch.midi)
   if (!registerWindowContainsPitch(input.registerWindow, midi))
     throw new CarryInError(
@@ -312,15 +389,16 @@ function parseCarriedWindow(input: unknown): RegisterWindow {
 }
 
 /**
- * Intent: parse an untrusted wire value (a structured clone, which drops freezing) into a
- * carry-in, rejecting any missing or extra field at every level, then re-validating it through
- * `makeCarryIn`. The harmony is a carried chord or an explicit null; a missing or undefined one
- * is refused. Never fills in a default.
+ * Intent: parse an untrusted wire value (a structured clone, which drops freezing) into a carry-in
+ * from a phrase exactly as v3.1 parsed every carry-in, rejecting any missing or extra field at
+ * every level (an `origin` key among them), then re-validating it through `makeCarryIn`. The
+ * harmony is a carried chord or an explicit null; a missing or undefined one is refused. Never
+ * fills in a default.
  */
 // @spec-link [[entity_phrase_carry_in]]
 // @spec-link [[module_generation_worker_protocol]]
 // @spec-link [[rule_key_change_drops_harmonic_carry_in]]
-export function parseCarryIn(input: unknown): CarryIn {
+export function parsePhraseCarryIn(input: unknown): PhraseCarryIn {
   const record = exactRecord(
     input,
     ['lastPitch', 'registerWindow', 'finalHarmony', 'phraseNumber'],
@@ -334,4 +412,56 @@ export function parseCarryIn(input: unknown): CarryIn {
     finalHarmony: record.finalHarmony === null ? null : parseCarriedHarmony(record.finalHarmony),
     phraseNumber: record.phraseNumber,
   })
+}
+
+/**
+ * Intent: parse an untrusted wire carry-in from no phrase, with exactly its keys at every level
+ * and its fixed parts exactly null, settled and null, then re-validate it through `makeCarryIn`.
+ */
+// @spec-link [[rule_jam_phrase_one_joins_doodle]]
+function parseNoPhraseCarryIn(input: unknown): NoPhraseCarryIn {
+  const record = exactRecord(
+    input,
+    ['origin', 'lastPitch', 'registerWindow', 'finalHarmony'],
+    'CarryIn',
+  )
+  if (record.origin !== 'none')
+    throw new CarryInError(`CarryIn.origin must be "none", got ${JSON.stringify(record.origin)}.`)
+  const lastPitch = exactRecord(
+    record.lastPitch,
+    ['midi', 'arrivingInterval', 'recovery'],
+    'CarryIn.lastPitch',
+  )
+  if (typeof lastPitch.midi !== 'number')
+    throw new CarryInError('CarryIn.lastPitch.midi must be a number.')
+  if (lastPitch.arrivingInterval !== null)
+    throw new CarryInError('CarryIn.lastPitch.arrivingInterval must be null for no phrase.')
+  const recovery = exactRecord(lastPitch.recovery, ['kind'], 'CarryIn.lastPitch.recovery')
+  if (recovery.kind !== 'settled')
+    throw new CarryInError('CarryIn.lastPitch.recovery.kind must be "settled" for no phrase.')
+  if (record.finalHarmony !== null)
+    throw new CarryInError('CarryIn.finalHarmony must be null for no phrase.')
+  return makeCarryIn({
+    origin: 'none',
+    lastPitch: {
+      midi: lastPitch.midi as ConcertPitch,
+      arrivingInterval: null,
+      recovery: { kind: 'settled' },
+    },
+    registerWindow: parseCarriedWindow(record.registerWindow),
+    finalHarmony: null,
+  })
+}
+
+/**
+ * Intent: parse an untrusted wire carry-in of either origin: a record holding its own `origin` key
+ * is read as a carry-in from no phrase, any other value exactly as v3.1 read a carry-in.
+ */
+// @spec-link [[entity_phrase_carry_in]]
+// @spec-link [[rule_jam_phrase_one_joins_doodle]]
+// @spec-link [[module_generation_worker_protocol]]
+export function parseCarryIn(input: unknown): CarryIn {
+  if (typeof input === 'object' && input !== null && Object.hasOwn(input, 'origin'))
+    return parseNoPhraseCarryIn(input)
+  return parsePhraseCarryIn(input)
 }

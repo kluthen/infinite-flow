@@ -7,8 +7,13 @@
 import { describe, expect, it } from 'vitest'
 
 import { GenerationRequestError } from '@/domain/generation/generation-request'
-import { CarryInError } from '@/domain/generation/carry-in/carry-in'
-import { parseGenerationWorkerRequest } from '@/generation-worker/generation-worker-inbound'
+import { CarryInError, makeCarryIn } from '@/domain/generation/carry-in/carry-in'
+import { makeConcertPitch } from '@/domain/events/concert-pitch'
+import { makeRegisterWindow } from '@/domain/profile/register-window'
+import {
+  parseGenerationWorkerInboundMessage,
+  parseGenerationWorkerRequest,
+} from '@/generation-worker/generation-worker-inbound'
 import {
   GenerationWorkerProtocolError,
   parseGenerationWorkerResponse,
@@ -20,6 +25,7 @@ import {
   generateSuccess,
   keyChangeIntent,
 } from '../domain/generation/carry-in/carry-in-fixture'
+import { SAMPLE_STEERING } from '../domain/generation/request-inputs-fixture'
 
 /** Intent: a real intent for phrase 2 of a session, carrying phrase 1's carry-in. */
 function carryInIntent() {
@@ -136,5 +142,49 @@ describe('generation worker protocol with a carry-in whose harmony was dropped',
       throw new Error('Expected a successful outcome.')
     expect(response.outcome.request.carryIn).toStrictEqual(intent.carryIn)
     expect(parseGenerationWorkerResponse(structuredClone(response))).toStrictEqual(response)
+  })
+})
+
+/** Intent: the posted message of a Middle phrase 1 receiving the doodle's join, with steering. */
+function noPhraseMessage() {
+  const carryIn = makeCarryIn({
+    origin: 'none',
+    lastPitch: {
+      midi: makeConcertPitch(60),
+      arrivingInterval: null,
+      recovery: { kind: 'settled' },
+    },
+    registerWindow: makeRegisterWindow(54, 66),
+    finalHarmony: null,
+  })
+  const plain = buildIntent({ seed: 13, label: 'doodle-join' })
+  return {
+    type: 'generate' as const,
+    id: 9,
+    intent: { ...plain, carryIn, steering: SAMPLE_STEERING },
+  }
+}
+
+// @test-link [[module_generation_worker_protocol]]
+// @test-link [[entity_phrase_carry_in]]
+// @test-link [[rule_jam_phrase_one_joins_doodle]]
+describe('generation worker protocol with a carry-in from no phrase', () => {
+  it('round-trips an intent holding it beside a steering block', () => {
+    const message = noPhraseMessage()
+    const parsed = parseGenerationWorkerInboundMessage(structuredClone(message))
+
+    expect(parsed).toStrictEqual(message)
+    expect(JSON.stringify(parsed)).toBe(JSON.stringify(message))
+  })
+
+  it('refuses it without a steering block, as a CarryInError', () => {
+    const wire = structuredClone(noPhraseMessage())
+    const intent: Record<string, unknown> = { ...wire.intent }
+    delete intent.steering
+
+    expect(() => parseGenerationWorkerInboundMessage({ ...wire, intent })).toThrow(CarryInError)
+    expect(() => parseGenerationWorkerInboundMessage({ ...wire, intent })).toThrow(
+      /steering block/u,
+    )
   })
 })

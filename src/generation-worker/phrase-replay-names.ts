@@ -11,7 +11,7 @@ import {
   type Collection,
   type PitchClass,
 } from '../domain/controls/generation-controls'
-import type { CarryIn } from '../domain/generation/carry-in/carry-in'
+import { isPhraseCarryIn, type CarryIn } from '../domain/generation/carry-in/carry-in'
 import type { CarriedHarmony } from '../domain/harmony/harmony-join'
 import type { DiatonicTriad, PitchClassNumber } from '../domain/harmony/harmony-types'
 import { CHORD_SUFFIX_BY_TRIAD_QUALITY } from '../domain/notation/notation-input'
@@ -52,16 +52,30 @@ export interface NamedCarriedChord {
   readonly endpointClass: CarriedHarmony['endpoint']['kind']
 }
 
-/** The readable additions placed beside a verbatim carry-in. */
+/** The readable additions placed beside a verbatim carry-in from a phrase. */
 // @spec-link [[service_headless_phrase_replay]]
 // @spec-link [[rule_key_change_drops_harmonic_carry_in]]
-export interface CarryInNames {
+export interface PhraseCarryInNames {
   readonly phraseNumber: number
   readonly lastPitch: NamedPitch
   readonly registerWindow: NamedMidiRange
   /** The carried chord named; null when a key or collection change dropped the harmony. */
   readonly finalChord: NamedCarriedChord | null
 }
+
+/** The readable additions placed beside a verbatim carry-in from no phrase: no number, no chord. */
+// @spec-link [[service_headless_phrase_replay]]
+// @spec-link [[rule_jam_phrase_one_joins_doodle]]
+export interface NoPhraseCarryInNames {
+  readonly origin: 'none'
+  readonly lastPitch: NamedPitch
+  readonly registerWindow: NamedMidiRange
+  readonly finalChord: null
+}
+
+/** The readable additions placed beside a verbatim carry-in, whatever its origin. */
+// @spec-link [[service_headless_phrase_replay]]
+export type CarryInNames = PhraseCarryInNames | NoPhraseCarryInNames
 
 /**
  * Intent: the pitch-class number of a tonal center, crashing on a value outside the closed
@@ -146,11 +160,20 @@ function namedCarriedChord(harmony: CarriedHarmony, concertKey: WrittenKey): Nam
 
 /**
  * Intent: restate a carry-in readably (named last pitch, window bounds and final chord); a dropped
- * harmony stays an explicit null chord.
+ * harmony stays an explicit null chord. A carry-in from no phrase is named by its origin, with no
+ * phrase number and no chord.
  */
 // @spec-link [[service_headless_phrase_replay]]
 // @spec-link [[rule_key_change_drops_harmonic_carry_in]]
+// @spec-link [[rule_jam_phrase_one_joins_doodle]]
 export function carryInNames(carryIn: CarryIn, concertKey: WrittenKey): CarryInNames {
+  if (!isPhraseCarryIn(carryIn))
+    return {
+      origin: 'none',
+      lastPitch: namedPitchInKey(carryIn.lastPitch.midi, concertKey),
+      registerWindow: namedRange(carryIn.registerWindow, concertKey),
+      finalChord: null,
+    }
   return {
     phraseNumber: carryIn.phraseNumber,
     lastPitch: namedPitchInKey(carryIn.lastPitch.midi, concertKey),

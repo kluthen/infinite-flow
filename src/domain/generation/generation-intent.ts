@@ -15,6 +15,8 @@ import type { InstrumentProfile } from '../profile/instrument-profile'
 import { buildRegisterIntent, type RegisterIntent } from '../profile/register-intent'
 import type { Seed } from '../random/seed'
 import type { CarryIn } from './carry-in/carry-in'
+import type { RequestRhythmLock } from './request-rhythm-lock'
+import type { SteeringBlock } from './steering-block'
 import {
   FOUR_FOUR_METER,
   PHRASE_MEASURE_COUNT,
@@ -31,6 +33,8 @@ import {
  */
 // @spec-link [[module_generation_request_construction]]
 // @spec-link [[module_figure_levels]]
+// @spec-link [[entity_request_rhythm_lock]]
+// @spec-link [[entity_steering_block]]
 export interface GenerationIntent {
   readonly requestId: RequestId
   readonly seed: Seed
@@ -43,6 +47,10 @@ export interface GenerationIntent {
   readonly registerIntent: RegisterIntent
   /** What the session phrase before hands forward; absent for a phrase generated without one. */
   readonly carryIn?: CarryIn
+  /** The rhythm lock group; absent when the lock is off, exactly v3.1's request. */
+  readonly rhythmLock?: RequestRhythmLock
+  /** What a doodle steers; absent when nothing steers, exactly v3.1's request. */
+  readonly steering?: SteeringBlock
 }
 
 /**
@@ -50,17 +58,23 @@ export interface GenerationIntent {
  * selection, not concert pitch. `figureLevels` are the seven figure levels the intent holds. It
  * holds no carry-in: an intent that receives one is built by `makeCarryInGenerationIntent`, which
  * checks the carry-in against the intent. `instrumentProfile` is my instrument's profile, given as
- * data exactly when the controls name `my-instrument`; a built-in is resolved from its id.
+ * data exactly when the controls name `my-instrument`; a built-in is resolved from its id. The
+ * rhythm lock group and the steering block, when given, are values their own validating
+ * constructors built; absent, the intent is exactly v3.1's.
  */
 // @spec-link [[module_generation_request_construction]]
 // @spec-link [[module_figure_levels]]
 // @spec-link [[entity_my_instrument]]
+// @spec-link [[entity_request_rhythm_lock]]
+// @spec-link [[entity_steering_block]]
 export interface GenerationIntentInput {
   readonly requestId: RequestId
   readonly seed: Seed
   readonly controls: GenerationControls
   readonly figureLevels: FigureLevels
   readonly instrumentProfile?: InstrumentProfile
+  readonly rhythmLock?: RequestRhythmLock
+  readonly steering?: SteeringBlock
 }
 
 // @spec-link [[module_generation_request_construction]]
@@ -175,9 +189,16 @@ export function writtenToConcertTonalCenter(
  * `my-instrument`. An input that still holds a carry-in is a caller bug and is refused, never
  * silently dropped: such an intent is built by `makeCarryInGenerationIntent`, which checks the
  * carry-in against it. The figure levels are a fresh frozen copy of the input's own, keys in
- * FIGURE_IDS order (an invalid value is refused as a FigureLevelsError).
+ * FIGURE_IDS order (an invalid value is refused as a FigureLevelsError). A rhythm lock group and a
+ * steering block are kept as given, last and in that order, and are not re-validated here (their
+ * constructors validated them; the worker re-validates them at its boundary), which keeps their
+ * validators out of the code the app loads at start-up. Without them the intent has neither key
+ * and is exactly v3.1's.
  */
 // @spec-link [[module_generation_request_construction]]
+// @spec-link [[entity_request_rhythm_lock]]
+// @spec-link [[entity_steering_block]]
+// @spec-link [[rule_jam_and_lock_off_reproduce_earlier_phrases]]
 export function makeGenerationIntent(input: GenerationIntentInput): GenerationIntent {
   if ('carryIn' in input && input.carryIn !== undefined) {
     throw new GenerationIntentError(
@@ -206,6 +227,8 @@ export function makeGenerationIntent(input: GenerationIntentInput): GenerationIn
     figureLevels: parseFigureLevels(input.figureLevels),
     instrumentProfile,
     registerIntent,
+    ...(input.rhythmLock === undefined ? {} : { rhythmLock: input.rhythmLock }),
+    ...(input.steering === undefined ? {} : { steering: input.steering }),
   })
 }
 
@@ -224,11 +247,14 @@ export function createGenerationIntent(input: GenerationIntentInput): Generation
 /**
  * Regeneration retains the active controls and figure levels and obtains a fresh injected seed and
  * identity. My instrument's profile is handed on as data, since its id alone resolves nothing; a
- * built-in is resolved from its id again.
+ * built-in is resolved from its id again. The rhythm lock group and the steering block, when the
+ * previous intent holds them, are handed on unchanged.
  */
 // @spec-link [[module_generation_request_construction]]
 // @spec-link [[rule_seeded_phrase_reproduction]]
 // @spec-link [[entity_my_instrument]]
+// @spec-link [[entity_request_rhythm_lock]]
+// @spec-link [[entity_steering_block]]
 export function regenerateGenerationIntent(
   previous: GenerationIntent,
   providers: GenerationIntentProviders,
@@ -243,5 +269,7 @@ export function regenerateGenerationIntent(
     controls: { ...previous.controls, tonalCenter: previous.writtenTonalCenter },
     figureLevels: previous.figureLevels,
     ...suppliedProfile,
+    ...(previous.rhythmLock === undefined ? {} : { rhythmLock: previous.rhythmLock }),
+    ...(previous.steering === undefined ? {} : { steering: previous.steering }),
   })
 }

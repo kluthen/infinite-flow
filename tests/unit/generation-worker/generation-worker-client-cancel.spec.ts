@@ -17,6 +17,9 @@ import {
   type GenerationWorkerClient,
 } from '@/generation-worker/generation-worker-client'
 
+import { parseGenerationWorkerInboundMessage } from '@/generation-worker/generation-worker-inbound'
+
+import { SAMPLE_RHYTHM_LOCK, SAMPLE_STEERING } from '../domain/generation/request-inputs-fixture'
 import { buildIntent } from './client-intents'
 import {
   createFakeGenerationWorkerPort,
@@ -78,6 +81,32 @@ describe('createGenerationWorkerClient: cancellation', () => {
     ])
     await expect(first).resolves.toEqual(generatePhrase(intentA))
     await expect(third).resolves.toEqual(generatePhrase(intentC))
+  })
+
+  // @test-link [[entity_request_rhythm_lock]]
+  // @test-link [[entity_steering_block]]
+  it('re-posts and re-warms intents holding the rhythm lock group and the steering block whole', async () => {
+    const { client, ports } = cancelRig(true)
+    const groups = { rhythmLock: SAMPLE_RHYTHM_LOCK, steering: SAMPLE_STEERING }
+    const [kept, dropped] = [
+      buildIntent('cancel-groups-a', 81, groups),
+      buildIntent('cancel-groups-b', 82, groups),
+    ]
+    const controller = new AbortController()
+    const first = client.generate(kept)
+    const cancelled = client.generate(dropped, controller.signal)
+
+    controller.abort()
+
+    await expect(cancelled).rejects.toBeInstanceOf(GenerationCancelledError)
+    const reposted = ports[1]!.postedMessages()
+    expect(reposted).toEqual([
+      { type: 'generate', id: 1, intent: kept },
+      { type: 'prewarm', intent: dropped },
+    ])
+    for (const message of reposted)
+      expect(parseGenerationWorkerInboundMessage(structuredClone(message))).toEqual(message)
+    await expect(first).resolves.toEqual(generatePhrase(kept))
   })
 
   // @test-link [[module_generation_worker_cancellation]]

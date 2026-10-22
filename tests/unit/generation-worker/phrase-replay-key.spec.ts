@@ -6,7 +6,10 @@ import {
   REGISTER_CHOICES,
 } from '@/domain/controls/generation-controls'
 import { JAZZ_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
-import { CarryInError } from '@/domain/generation/carry-in/carry-in'
+import { CarryInError, makeCarryIn } from '@/domain/generation/carry-in/carry-in'
+import { makeCarryInGenerationIntent } from '@/domain/generation/carry-in/carry-in-intent'
+import { makeConcertPitch } from '@/domain/events/concert-pitch'
+import { makeRegisterWindow } from '@/domain/profile/register-window'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { makeSeed, SeedConstructionError } from '@/domain/random/seed'
 import { GenerationWorkerProtocolError } from '@/generation-worker/generation-worker-protocol'
@@ -18,6 +21,7 @@ import {
   PHRASE_REPLAY_KEY_V3_PREFIX,
   PhraseReplayKeyError,
   phraseReplayKeyLine,
+  requireConsistentPhraseNumber,
 } from '@/generation-worker/phrase-replay-key'
 import { decodePhraseReplayKey } from '@/generation-worker/phrase-replay-key-decode'
 import {
@@ -27,6 +31,7 @@ import {
   generateSuccess,
   keyChangeIntent,
 } from '../domain/generation/carry-in/carry-in-fixture'
+import { SAMPLE_RHYTHM_LOCK, SAMPLE_STEERING } from '../domain/generation/request-inputs-fixture'
 
 /** Intent: a real intent for phrase 2 of a session, carrying phrase 1's carry-in. */
 function carryInIntent(): GenerationIntent {
@@ -151,7 +156,7 @@ describe('phrase replay key round trip', () => {
 
   it('round-trips an intent with a carry-in and its phrase number', () => {
     const intent = carryInIntent()
-    expect(intent.carryIn?.phraseNumber).toBe(1)
+    expect(intent.carryIn).toMatchObject({ phraseNumber: 1 })
     expectRoundTrip(intent, 2)
   })
 
@@ -498,5 +503,86 @@ describe('phrase replay key console line', () => {
       PhraseReplayKeyError,
     )
     expect(log).not.toHaveBeenCalled()
+  })
+})
+
+// @test-link [[module_phrase_replay_key]]
+describe('phrase replay key encoder refuses what an ifk3. key cannot carry', () => {
+  // @test-link [[module_phrase_replay_key]]
+  it('refuses an intent holding the rhythm lock group, before any other check', () => {
+    const intent: GenerationIntent = {
+      ...buildIntent({ seed: 13, label: 'replay-lock' }),
+      rhythmLock: SAMPLE_RHYTHM_LOCK,
+    }
+
+    expect(() => encodePhraseReplayKey(intent, 1)).toThrow(PhraseReplayKeyError)
+    expect(() => encodePhraseReplayKey(intent, 0)).toThrow(/ifk3\. key cannot carry.*rhythmLock/u)
+  })
+
+  // @test-link [[module_phrase_replay_key]]
+  it('refuses an intent holding the steering block, before any other check', () => {
+    const intent: GenerationIntent = { ...carryInIntent(), steering: SAMPLE_STEERING }
+
+    expect(() => encodePhraseReplayKey(intent, 2)).toThrow(PhraseReplayKeyError)
+    expect(() => encodePhraseReplayKey(intent, 7)).toThrow(/ifk3\. key cannot carry.*steering/u)
+  })
+})
+
+/** The doodle's join into a Middle phrase 1: a carry-in from no phrase. */
+const NO_PHRASE_CARRY_IN = makeCarryIn({
+  origin: 'none',
+  lastPitch: { midi: makeConcertPitch(60), arrivingInterval: null, recovery: { kind: 'settled' } },
+  registerWindow: makeRegisterWindow(54, 66),
+  finalHarmony: null,
+})
+
+/** Intent: a real Middle phrase-1 intent receiving the doodle's join, with its steering block. */
+function noPhraseIntent(): GenerationIntent {
+  const plain = buildIntent({ seed: 14, label: 'replay-doodle' })
+  return makeCarryInGenerationIntent({
+    requestId: plain.requestId,
+    seed: plain.seed,
+    controls: BASE_CONTROLS,
+    figureLevels: plain.figureLevels,
+    carryIn: NO_PHRASE_CARRY_IN,
+    steering: SAMPLE_STEERING,
+  })
+}
+
+// @test-link [[module_phrase_replay_key]]
+// @test-link [[rule_jam_phrase_one_joins_doodle]]
+describe('phrase replay key and a carry-in from no phrase', () => {
+  it('the encoder refuses it before any other check, naming it', () => {
+    const withSteering = noPhraseIntent()
+    const withoutSteering: GenerationIntent = {
+      ...buildIntent({ seed: 14, label: 'replay-doodle' }),
+      carryIn: NO_PHRASE_CARRY_IN,
+    }
+
+    for (const intent of [withSteering, withoutSteering]) {
+      expect(() => encodePhraseReplayKey(intent, 1)).toThrow(PhraseReplayKeyError)
+      expect(() => encodePhraseReplayKey(intent, 0)).toThrow(
+        /ifk3\. key cannot carry a carry-in from no phrase/u,
+      )
+    }
+  })
+
+  it('takes phrase number 1, the phrase the doodle joins, and refuses any other', () => {
+    const intent = noPhraseIntent()
+
+    expect(() => requireConsistentPhraseNumber(intent, 1)).not.toThrow()
+    expect(() => requireConsistentPhraseNumber(intent, 2)).toThrow(PhraseReplayKeyError)
+    expect(() => requireConsistentPhraseNumber(intent, 2)).toThrow(/must be 1/u)
+  })
+
+  it('the decoder refuses a key whose carry-in holds an origin, as v3.1 does', () => {
+    const wireCarryIn = structuredClone(NO_PHRASE_CARRY_IN)
+    const ifk3 = validIfk3Tuple()
+    ifk3[5] = wireCarryIn
+
+    for (const key of [rawIfk3Key(ifk3), rawKey(tupleWith(6, wireCarryIn))]) {
+      expect(() => decodePhraseReplayKey(key)).toThrow(CarryInError)
+      expect(() => decodePhraseReplayKey(key)).toThrow('CarryIn has unknown field "origin".')
+    }
   })
 })

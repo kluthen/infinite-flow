@@ -125,7 +125,7 @@ export async function expectDiscarded(rig: PregenerationRig, change: () => unkno
   await flush()
   expect(rig.failures).toEqual([])
   expect(rig.calls).toHaveLength(full + 1)
-  expect(inFlight(rig).intent.carryIn?.phraseNumber).toBe(1)
+  expect(inFlight(rig).intent.carryIn).toMatchObject({ phraseNumber: 1 })
   expect(rig.queue.take('one-system')).toEqual([])
 }
 

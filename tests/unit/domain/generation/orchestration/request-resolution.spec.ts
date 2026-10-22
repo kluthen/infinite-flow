@@ -12,6 +12,7 @@ import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection
 import type { RegisterId } from '@/domain/profile/register-id'
 import { makeSeed, type Seed } from '@/domain/random/seed'
 import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
+import { SAMPLE_RHYTHM_LOCK, SAMPLE_STEERING } from '../request-inputs-fixture'
 
 const PROFILE_WINDOWS = {
   'c-keyboard': { Low: [48, 60], Middle: [54, 66], High: [60, 72] },
@@ -67,6 +68,46 @@ describe('request-resolution', () => {
       expect(requests.map((request) => request.register)).toEqual(['Low', 'Middle', 'High'])
       for (const request of requests) {
         expect(['Low', 'Middle', 'High']).toContain(request.register)
+      }
+    })
+  })
+
+  // @test-link [[entity_request_rhythm_lock]]
+  // @test-link [[entity_steering_block]]
+  describe('resolveCoreRequests: the rhythm lock group and the steering block', () => {
+    it.each(['Middle', 'Varying'] as const)(
+      'carries both groups unchanged into every core request of a %s register',
+      (register) => {
+        const intent = createGenerationIntent({
+          requestId: makeRequestId(`request-groups-${register}`),
+          seed: makeSeed(3),
+          controls: controlsFor('bb-tenor', register),
+          figureLevels: NEUTRAL_FIGURE_LEVELS,
+          rhythmLock: SAMPLE_RHYTHM_LOCK,
+          steering: SAMPLE_STEERING,
+        })
+        const requests = resolveCoreRequests(intent)
+
+        expect(requests).toHaveLength(register === 'Varying' ? 3 : 1)
+        for (const request of requests) {
+          expect(request.rhythmLock).toStrictEqual(SAMPLE_RHYTHM_LOCK)
+          expect(request.steering).toStrictEqual(SAMPLE_STEERING)
+        }
+      },
+    )
+
+    // @test-link [[rule_jam_and_lock_off_reproduce_earlier_phrases]]
+    it('adds neither key to the core requests of an intent without the groups', () => {
+      const intent = createGenerationIntent({
+        requestId: makeRequestId('request-no-groups'),
+        seed: makeSeed(3),
+        controls: controlsFor('bb-tenor', 'Varying'),
+        figureLevels: NEUTRAL_FIGURE_LEVELS,
+      })
+
+      for (const request of resolveCoreRequests(intent)) {
+        expect(Object.keys(request)).not.toContain('rhythmLock')
+        expect(Object.keys(request)).not.toContain('steering')
       }
     })
   })

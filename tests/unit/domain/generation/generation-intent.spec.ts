@@ -26,7 +26,14 @@ import {
   deriveRegisterWindowCandidates,
 } from '@/domain/profile/register-window-derivation'
 import { makeSeed } from '@/domain/random/seed'
-import { buildIntent, carryInAfter, generateSuccess } from './carry-in/carry-in-fixture'
+import { makeCarryInGenerationIntent } from '@/domain/generation/carry-in/carry-in-intent'
+import {
+  BASE_CONTROLS,
+  buildIntent,
+  carryInAfter,
+  generateSuccess,
+} from './carry-in/carry-in-fixture'
+import { SAMPLE_RHYTHM_LOCK, SAMPLE_STEERING } from './request-inputs-fixture'
 
 /**
  * Two open, fabricated test-only instrument profiles -- neither transposition any shipped
@@ -406,5 +413,113 @@ describe('GenerationIntent: the figure levels given as levels', () => {
     })
     expect(regenerated.figureLevels).toStrictEqual(GIVEN_LEVELS)
     expect(regenerated.seed).toBe(11)
+  })
+})
+
+/** Intent: the plain intent input every v3.2 request-input test builds on. */
+function plainInput() {
+  return {
+    requestId: makeRequestId('request-v32-inputs'),
+    seed: makeSeed(21),
+    controls: DEFAULT_GENERATION_CONTROLS,
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
+  }
+}
+
+/** The full field order of an intent holding every optional group. */
+const FULL_INTENT_KEYS = [
+  'requestId',
+  'seed',
+  'measureCount',
+  'meter',
+  'controls',
+  'writtenTonalCenter',
+  'figureLevels',
+  'instrumentProfile',
+  'registerIntent',
+  'carryIn',
+  'rhythmLock',
+  'steering',
+]
+
+// @test-link [[entity_request_rhythm_lock]]
+// @test-link [[entity_steering_block]]
+describe('GenerationIntent: the rhythm lock group and the steering block', () => {
+  // @test-link [[entity_request_rhythm_lock]]
+  it('keeps a rhythm lock group it is given, frozen, after the v3.1 fields', () => {
+    const intent = makeGenerationIntent({ ...plainInput(), rhythmLock: SAMPLE_RHYTHM_LOCK })
+
+    expect(intent.rhythmLock).toStrictEqual(SAMPLE_RHYTHM_LOCK)
+    expect(Object.isFrozen(intent.rhythmLock)).toBe(true)
+    expect(Object.keys(intent).at(-1)).toBe('rhythmLock')
+    expect(Object.keys(intent)).not.toContain('steering')
+  })
+
+  // @test-link [[entity_steering_block]]
+  it('keeps a steering block it is given, frozen, after the v3.1 fields', () => {
+    const intent = makeGenerationIntent({ ...plainInput(), steering: SAMPLE_STEERING })
+
+    expect(intent.steering).toStrictEqual(SAMPLE_STEERING)
+    expect(Object.isFrozen(intent.steering)).toBe(true)
+    expect(Object.keys(intent).at(-1)).toBe('steering')
+    expect(Object.keys(intent)).not.toContain('rhythmLock')
+  })
+
+  // @test-link [[rule_jam_and_lock_off_reproduce_earlier_phrases]]
+  it('built with neither group, has no such key and is the intent v3.1 builds', () => {
+    const v31Intent = makeGenerationIntent(plainInput())
+    const intent = makeGenerationIntent({ ...plainInput() })
+
+    expect(Object.keys(intent)).toEqual(FULL_INTENT_KEYS.slice(0, 9))
+    expect(intent).toStrictEqual(v31Intent)
+    expect(JSON.stringify(intent)).toBe(JSON.stringify(v31Intent))
+  })
+
+  // @test-link [[entity_request_rhythm_lock]]
+  // @test-link [[entity_steering_block]]
+  it('regenerates with both groups handed on unchanged', () => {
+    const intent = makeGenerationIntent({
+      ...plainInput(),
+      rhythmLock: SAMPLE_RHYTHM_LOCK,
+      steering: SAMPLE_STEERING,
+    })
+    const regenerated = regenerateGenerationIntent(intent, {
+      nextRequestId: () => makeRequestId('request-v32-inputs-2'),
+      nextSeed: () => makeSeed(22),
+    })
+
+    expect(regenerated.rhythmLock).toStrictEqual(SAMPLE_RHYTHM_LOCK)
+    expect(regenerated.steering).toStrictEqual(SAMPLE_STEERING)
+    expect(Object.keys(regenerated)).toEqual(Object.keys(intent))
+  })
+
+  // @test-link [[rule_jam_and_lock_off_reproduce_earlier_phrases]]
+  it('regenerates an intent without the groups without adding either key', () => {
+    const regenerated = regenerateGenerationIntent(makeGenerationIntent(plainInput()), {
+      nextRequestId: () => makeRequestId('request-v32-inputs-3'),
+      nextSeed: () => makeSeed(23),
+    })
+
+    expect(Object.keys(regenerated)).toEqual(FULL_INTENT_KEYS.slice(0, 9))
+  })
+
+  // @test-link [[entity_request_rhythm_lock]]
+  // @test-link [[entity_steering_block]]
+  it('an intent receiving a carry-in keeps the full field order, the groups after the carry-in', () => {
+    const first = buildIntent({ seed: 11, label: 'groups' })
+    const carryIn = carryInAfter(first, generateSuccess(first), 1)
+    const input = { ...plainInput(), controls: BASE_CONTROLS, carryIn }
+    const withGroups = makeCarryInGenerationIntent({
+      ...input,
+      rhythmLock: SAMPLE_RHYTHM_LOCK,
+      steering: SAMPLE_STEERING,
+    })
+    const withoutGroups = makeCarryInGenerationIntent(input)
+
+    expect(Object.keys(withGroups)).toEqual(FULL_INTENT_KEYS)
+    expect(Object.isFrozen(withGroups)).toBe(true)
+    expect(withGroups.rhythmLock).toStrictEqual(SAMPLE_RHYTHM_LOCK)
+    expect(withGroups.steering).toStrictEqual(SAMPLE_STEERING)
+    expect(Object.keys(withoutGroups)).toEqual(FULL_INTENT_KEYS.slice(0, 10))
   })
 })

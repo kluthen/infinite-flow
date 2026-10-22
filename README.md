@@ -385,8 +385,11 @@ UI (Vue components, props-in/events-out)
   with its leap state, the register window, the final chord with its endpoint class, and the phrase
   number, derived from the phrase before by `deriveCarryIn`. The pitch search starts from the
   carried pitch, the harmony from the carried chord, and the one carried window is searched; the
-  join is validated like the inside of a phrase. Without a carry-in the output is byte-identical
-  to v1. See [joins between session phrases](docs/music/pitch-planner-validation.md#joins-between-session-phrases-v2).
+  join is validated like the inside of a phrase. A carry-in has an origin: a phrase (as above) or
+  none, the doodle's join into a Jam's phrase 1, which holds only the pitch and the window (no
+  chord, no arriving interval, no owed recovery) and is accepted only beside a steering block;
+  nothing makes one before Jam's engine. Without a carry-in the output is byte-identical to v1.
+  See [joins between session phrases](docs/music/pitch-planner-validation.md#joins-between-session-phrases-v2).
 - **Notation.** A successful outcome's concert-pitch timeline is transformed into a `WrittenPhrase`
   for the selected display convention (Concert / B-flat / E-flat), then engraved by a lazily loaded
   VexFlow adapter (`src/notation/vexflow-engraver-loader.ts` is the sole static importer of the

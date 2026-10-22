@@ -374,6 +374,30 @@ describe('parseKeptIntent', () => {
   })
 
   // @test-link [[module_kept_session_codec]]
+  // @test-link [[entity_phrase_carry_in]]
+  it('refuses a carry-in in the no-phrase form as v3.1 refuses an unknown field', () => {
+    const intent = stored(carriedIntentOf('c-keyboard'))
+    const carried = intent.carryIn as Record<string, Record<string, unknown>>
+    const noPhrase = {
+      origin: 'none',
+      lastPitch: {
+        midi: carried.lastPitch!.midi,
+        arrivingInterval: null,
+        recovery: { kind: 'settled' },
+      },
+      registerWindow: carried.registerWindow,
+      finalHarmony: null,
+    }
+    for (const carryIn of [noPhrase, { ...carried, origin: 'none' }]) {
+      const input = { ...intent, carryIn }
+      expect(() => parseKeptIntent(input)).toThrow(CarryInError)
+      expect(() => parseKeptIntent(input)).toThrow('CarryIn has unknown field "origin".')
+      expect(() => parseKeptIntentV1(input)).toThrow('CarryIn has unknown field "origin".')
+      expect(isKeptPhraseRefusal(catchError(() => parseKeptIntent(input)))).toBe(true)
+    }
+  })
+
+  // @test-link [[module_kept_session_codec]]
   it('reports an error that is not a refusal of the stored value as no refusal', () => {
     expect(isKeptPhraseRefusal(new TypeError('defect'))).toBe(false)
     expect(isKeptPhraseRefusal('text')).toBe(false)

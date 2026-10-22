@@ -11,7 +11,11 @@ import {
 import type { Measure } from '@/domain/events/measure'
 import { levelsForProfile, type FigureLevels } from '@/domain/figures/figure-levels'
 import { deriveCarryIn } from '@/domain/generation/carry-in/carry-in-derivation'
-import { makeCarryIn, type CarryIn } from '@/domain/generation/carry-in/carry-in'
+import {
+  makeCarryIn,
+  type CarryIn,
+  type PhraseCarryIn,
+} from '@/domain/generation/carry-in/carry-in'
 import { makeCarryInGenerationIntent } from '@/domain/generation/carry-in/carry-in-intent'
 import {
   createGenerationIntent,
@@ -81,7 +85,7 @@ export function carryInAfter(
   intent: GenerationIntent,
   outcome: SuccessOutcome,
   phraseNumber: number,
-): CarryIn {
+): PhraseCarryIn {
   return deriveCarryIn({ intent, outcome, phraseNumber })
 }
 
