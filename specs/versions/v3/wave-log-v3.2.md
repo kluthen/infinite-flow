@@ -137,3 +137,34 @@ the push, and the three promotions.
   confirmation of its wording and a contract bump at its wave's sync; the wave 1 and wave 2
   preflights carry it.
 - Gate CS done. Wave 0 merged into `main` and pushed.
+
+## Wave 1 (2026-10-22)
+
+Chunks 4 The quantized doodle · 5 Rhythm bars, distance and change kinds · 6 The request carries
+v3.2's inputs · 15 Vary settings' allowed groups. The owner said to start ("you may start working on
+wave 1"). Branch `v3.2-w1` from `main` 1013e13, worktree `/home/bastien/work/infinite_flow-v3.2-w1`.
+
+### Preflight
+
+`documentalist` (cde06fe captures, 896ee7f change set part N):
+
+| Chunk | Verdict | Captures |
+| --- | --- | --- |
+| 4 | proceed with corrections | `entity_quantized_doodle` 0.1, `module_doodle_quantizer` 0.1 (new, DRAFT) |
+| 5 | proceed (one clarification) | `entity_rhythm_candidate_domain` 0.1 → 0.2 (REVIEW) |
+| 6 | proceed with corrections | `entity_steering_block` 0.1, `entity_request_rhythm_lock` 0.1 (new); `entity_phrase_carry_in` 0.4 → 0.5 (REVIEW): a carry-in from a phrase keeps v3.1's exact fields and form |
+| 15 | proceed, sign-off pending | its capture revises the STABLE `module_settings_mutation`: drafted as change set part N1 (not applied) |
+
+Contract sign-off outside CS: chunk 15 changes `module_settings_mutation` (STABLE since 8.1.0), so
+it does not merge into `v3.2-w1` before the owner confirms change set part N (N1, N3 CONTRACT 8.1.0
+→ 9.0.0, N2 optional). Asked of the owner at preflight. Chunks 4, 5 and 6 change no STABLE contract
+atom.
+
+Driver's rulings on minor points (owner's standing delegation): each contract change is applied at
+the sync of the wave that builds it, so `main` never holds code that disagrees with a STABLE atom:
+9.0.0 at wave 1's sync (part N), another MAJOR at wave 2's for chunk 12 (`module_phrase_replay_key`,
+`rule_seeded_phrase_reproduction`); C13's "one bump" is superseded by the 8.1.0 promotions.
+
+Sent to `spec-writer`: the preflight's plan corrections 1–13 (chunks 4, 5, 6, 15, the gates table,
+the build workflow's sign-off wording, chunk 12's revisions) and the open points (chunk 6's
+encoder refusal, the skipped mutation's record, the draw bound's typed error).
