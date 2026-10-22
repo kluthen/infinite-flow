@@ -118,3 +118,22 @@ Chunks 0, 1 and 2 done, none moved; gate passed; entry chunk 265,431 B. Asked fo
 push. Open for the next driver: CS (owner); wave 1 (chunks 4, 5, 6, 15) in a fresh session, chunk
 15's brief carrying the draws corpus projection (plan v9); test:notation needs `npm run build`
 first in a fresh worktree.
+
+### The owner's answers (2026-10-22)
+
+"agreed for your questions": the CS sign-off on M1–M22, the merge of `v3.2-w0` into `main` with
+the push, and the three promotions.
+
+- `spec-writer` recorded D421 (e8d354c; Part C v1.4, plan v10): the wording is applied at once, so
+  a chunk's "(contract, CS)" revision is now its wave sync's check that the code meets the signed
+  wording.
+- `documentalist` applied part M (3fe768f): 20 STABLE atoms rewritten, the vision 0.10, CONTRACT
+  8.0.0; then the three promotions (5a0c991), CONTRACT 8.1.0. `atd:lint`, `atd:check`, `atd crawl
+  --gaps` and `lint:links` pass.
+- For the next drivers: `module_session_seed_plan`'s interface names are filled at the sync of the
+  wave building chunks 17 and 18. The promotions put two more contract changes ahead, outside CS:
+  chunk 15 (wave 1) on `module_settings_mutation` and chunk 12 (wave 2) on
+  `module_phrase_replay_key` and `rule_seeded_phrase_reproduction`. Each needs the owner's
+  confirmation of its wording and a contract bump at its wave's sync; the wave 1 and wave 2
+  preflights carry it.
+- Gate CS done. Wave 0 merged into `main` and pushed.
