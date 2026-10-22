@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.123
+Status: draft v2.124
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -796,3 +796,37 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   under `src/jam/`, kept out of the entry chunk by a new boundary check; chunk 26 folded into 19;
   new chunks 28–33, 240 BPM last behind ruling J240; nine scripted hand checks, none on Edge or a
   phone. Now in: [build plan v3.2](versions/v3/build-plan-v3.2.md).
+
+- **D417 (2026-10-21): build plan v3.2 v5 is approved; hand check v3.2 H9 is waived.** The owner:
+  "wave [waive] H9. I approve you may proceed." H9 (v3.1 data carried over) is waived on D399's ground for
+  v3.1 H5: the earlier version had no live users. Chunk 22's automated step-4 upgrade tests on
+  seeded v3.1 data and M3 stay. IDs H1–H8 keep their numbers. Now in:
+  [build plan v3.2, hand checks](versions/v3/build-plan-v3.2.md#hand-checks).
+
+- **D418 (2026-10-21): `rule_start_while_controller_away` joins C13, for the CS sign-off.**
+  `spec-writer`'s, under the owner's delegation of minor calls; found by chunk 0's re-sync (change
+  set L2). It held for a Jam only under v1.0; since D407 Jam mode needs a controller. Session mode
+  keeps it whole; in Jam mode Start is unavailable while the controller is away (draft M2). Revised
+  by chunk 20. Now in: [Part C §C13](versions/v3/master-spec.md#c13-what-v32-changes-in-v2-v30-and-v31-guarantees-and-atoms),
+  [build plan v3.2, gates](versions/v3/build-plan-v3.2.md#gates).
+
+- **D419 (2026-10-21): a fresh Jam draws its session seed once at Start; phrase 1's attempts take
+  seeds derived from it by labels of their own.** `spec-writer`'s, under the same delegation (L2).
+  It keeps every seed fixed before the Jam runs, a fresh Jam reproducible, and every v3.1 seed as
+  it is; a kept doodle's phrase 1 at Idle draws as any Idle phrase 1. `module_session_seed_plan`'s
+  wording changes, so it joins C13 for CS; chunks 17 and 18 build it. Now in:
+  [Part C §C11](versions/v3/master-spec.md#c11-the-generation-request-the-replay-key-and-kept-sessions),
+  [§C15](versions/v3/master-spec.md#c15-architectural-decisions-and-their-reasons),
+  [build plan v3.2, chunk 18](versions/v3/build-plan-v3.2.md#chunk-18--jam-engine-part-2-from-the-doodle-to-phrase-1).
+
+- **D420 (2026-10-21): the vision's out-of-scope "browsers other than Chromium-based ones" follows
+  D399 in the CS redraft.** `spec-writer`'s, under the same delegation: browsers other than Chrome
+  are out of scope, other Chromium-based ones untested. It goes in the vision's one redraft and
+  sign-off. Now in: [Part C §C13](versions/v3/master-spec.md#c13-what-v32-changes-in-v2-v30-and-v31-guarantees-and-atoms).
+
+- **D421 (2026-10-22): gate CS is signed off; three atoms go to STABLE.** The owner, after wave 0:
+  "agreed for your questions." M1–M22 of the [change set](../docs/release/v3.1-v3.2-intent-change-set.md)'s part M as
+  drafted: CONTRACT 7.2.0 → 8.0.0, the vision 0.9 → 0.10; `documentalist` applies them on
+  `v3.2-w0`. `module_phrase_replay_key`, `rule_seeded_phrase_reproduction` and
+  `module_settings_mutation` are promoted to STABLE. Now in: [Part C §C13](versions/v3/master-spec.md#c13-what-v32-changes-in-v2-v30-and-v31-guarantees-and-atoms),
+  [build plan v3.2, gates](versions/v3/build-plan-v3.2.md#gates).

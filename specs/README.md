@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.86
+Status: draft v0.87
 
 ## Status Snapshot
 
@@ -46,11 +46,13 @@ Status: draft v0.86
     60–180 BPM (D400–D408; [draft](versions/v3/jam-mode.md)). Master spec
     [Part C](versions/v3/master-spec.md#part-c--v32) **v1.2, approved** (D410), with the design's
     behaviour answers (D411), the doodle-to-controls thresholds (D415) and "the kept doodle"
-    (D413); its contract wording (CONTRACT 7.2.0 to 8.0.0) still waits for the owner's one
-    sign-off. The design is approved (gate D0) and its token pass allowed (T2) (D412). Phones are
-    a third-rate client (D414). Build plan [v3.2](versions/v3/build-plan-v3.2.md) **v5, written,
-    awaiting the owner's approval** (D416; v5 corrected against the design at `ux-writer`'s
-    review): 32 chunks in eight waves, session mode first, one release, 3.2.0.
+    (D413); v1.3 settles chunk 0's three findings: a fresh Jam's seeds, and two atoms and a vision
+    line more for the sign-off (D418–D420); v1.4 records the owner's sign-off on its contract
+    wording, CONTRACT 7.2.0 to 8.0.0 (gate CS, D421). The design is approved (gate D0) and its token pass allowed (T2) (D412). Phones are
+    a third-rate client (D414). Build plan [v3.2](versions/v3/build-plan-v3.2.md) **v10**, from v6,
+    **approved by the owner** (D416, D417; v5 corrected against the design at `ux-writer`'s review,
+    v6 waives hand check H9, v7 takes wave 0's preflight corrections, v8 chunk 0's findings, v9
+    chunk 2's report, v10 the CS sign-off, D421): 32 chunks in eight waves, session mode first, one release, 3.2.0.
   - **v3.3:** richer chords, opt-in: one Seventh chords level, Off by default, diatonic sevenths
     only. Master spec [Part D](versions/v3/master-spec.md#part-d--v33), awaiting owner approval
     (D264–D275); build plan [v3.3](versions/v3/build-plan-v3.3.md), v3, not approved, after
@@ -89,7 +91,7 @@ Status: draft v0.86
   [prerequisites](versions/prerequisites.md). v3's build plans: [v3.0](versions/v3/build-plan.md) (complete; chunk 26 is the release gate's
   record), [v3.1](versions/v3/build-plan-v3.1.md) (v23, complete; chunk 21 is the release gate's
   record, and its hand checks H3–H5 follow the tag; on the build-plan model with the shared
-  [v3 build workflow](versions/v3/build-workflow.md), D349; its [wave log](versions/v3/wave-log-v3.1.md)), [v3.2](versions/v3/build-plan-v3.2.md) (v5, rewritten for Jam as its own mode, D416, then corrected against the design; not approved)
+  [v3 build workflow](versions/v3/build-workflow.md), D349; its [wave log](versions/v3/wave-log-v3.1.md)), [v3.2](versions/v3/build-plan-v3.2.md) (v10, rewritten for Jam as its own mode, D416, then corrected against the design; approved, H9 waived, D417; gate CS signed off, D421)
   and [v3.3](versions/v3/build-plan-v3.3.md) (v3, on the build-plan model, D351; not approved;
   depends on owner approval of Part D). Every build plan runs wave by
   wave (D252): one intent preflight and one full wave gate per wave; a chunk checks only its own

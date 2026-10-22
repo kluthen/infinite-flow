@@ -2,7 +2,7 @@
 id: rule_session_generation_failure_ladder
 status: STABLE
 type: RULE
-version: 0.5
+version: 0.6
 priority: 1
 dependents:
   - [[mechanic_pitch_search_policy]]
@@ -41,7 +41,7 @@ The ladder keeps time for the standalone attempt. What the standalone attempt ne
 
 Whenever step 1's carry-in retries are skipped or cut short, for either reason above, the standalone attempt is generated with the same request and seed it would have had after three failed retries, so skipping changes which attempts run, never what the standalone attempt generates. Which attempt produces a phrase can therefore depend on the machine's speed, as whether a phrase is repeated already could; what each attempt generates for its request and seed never does.
 
-A phrase is repeated only when no attempt has produced a valid phrase by the deadline, and the repeat is recorded the same way whichever kind of failure led to it. A generation failure never stops the session, with one exception: a Jam's phrase 1 has no phrase before it to repeat, so it follows a ladder of its own (first the doodle's join and its preferences, with these carry-in retries; then its preferences without the join; then a standalone phrase with no doodle, whose time is kept before a deadline three measures after the generation measure begins), and if no attempt produces it by that deadline the Jam ends with no review and the player is told at Idle. Otherwise stopping would penalize the player for something they did not cause, while repeating a phrase is musically harmless. At Idle there is no deadline, so none of this ladder's timing applies there; a phrase at Idle has no carry-in, except a held doodle's phrase 1, which is joined from the doodle.
+A phrase is repeated only when no attempt has produced a valid phrase by the deadline, and the repeat is recorded the same way whichever kind of failure led to it. A generation failure never stops the session, with one exception: a Jam's phrase 1 has no phrase before it to repeat, so it follows a ladder of its own (first the doodle's join and the steering block, with these carry-in retries; then the steering block without the join; then a standalone phrase without the steering block, under the controls read from the doodle, whose time is kept before a deadline three measures after the generation measure begins), and if no attempt produces it by that deadline the Jam ends with no review and the player is told at Idle. Otherwise stopping would penalize the player for something they did not cause, while repeating a phrase is musically harmless. At Idle there is no deadline, so none of this ladder's timing applies there; a phrase at Idle has no carry-in, except a kept doodle's phrase 1, which is joined from the doodle.
 
 ## TECHNICAL INTERFACE
 

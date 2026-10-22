@@ -493,8 +493,7 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
 - **[v3.2 changed]** In a Jam's review, `room-notice` stands in for `review-doodle` as well, its
   suggestion and `Jam again on this doodle` included: one notice in place of the doodle and the
   phrases, both coming back together.
-- **[v3.2 new]** **`review-doodle`**, the doodle section of a Jam's review. Its classes are in
-  `ui_ux/token-source-v3.1-v3.2.md`. In order:
+- **[v3.2 new]** **`review-doodle`**, the doodle section of a Jam's review. In order:
   - **Header.** `review-phrase-header` with `review-phrase-title` (h3) "Your doodle", which names
     the section, and `review-phrase-tempo` "{tempo} BPM", the tempo the doodle was played at,
     kept with it; then, at the line's trailing end, where per-phrase tools go, a plain `btn`
@@ -664,8 +663,6 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
   rail, no second column.
 - Every visual value comes from the token source (`src/styles/theme.css`,
   `src/styles/components.css`); this handoff declares none.
-  **[v3.2 changed]** `review-doodle` and `suggestion-row` are in
-  `ui_ux/token-source-v3.1-v3.2.md`.
 
 ## States
 

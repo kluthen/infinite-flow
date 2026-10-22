@@ -88,11 +88,9 @@ for where the work stands.
 - `flows/my-instrument/` specifies making, selecting, changing and deleting the player's own
   instrument, and `screens/my-instrument/` the sheet it is made in. The transposition check's
   way into it is in `flows/controller-connection/`.
-- `token-source-v3.1-v3.2.md` specifies the new tokens and component classes of v3.1 (its first
-  part) and v3.2 (its second) until they are written into `src/styles/theme.css` and
-  `components.css`; the handoffs cite them by name. v3.0's are in those two files, shipped in
-  3.0.0; v3.1's part is in them too, written by v3.1's token-source pass; v3.2's waits for
-  its own.
+- Every token and component class the handoffs cite by name is in `src/styles/theme.css` and
+  `components.css`: v3.0's shipped in 3.0.0, v3.1's in 3.1.0, and v3.2's, written by its
+  token-source pass, under `v3.2 new` comments (v3.2 adds classes only, no token value).
   v3.3 adds no token, class or motion: its one control and its chord symbols reuse existing ones.
 - `flows/presets/` specifies choosing a preset, the Custom state, the key and mode highlight, and
   saving, renaming and deleting the player's own presets; `screens/preset-sheet/` the sheet those

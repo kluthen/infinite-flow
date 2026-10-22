@@ -1,6 +1,6 @@
 ---
 id: module_settings_mutation
-status: REVIEW
+status: STABLE
 layer: ARCHITECTURE
 version: 0.4
 priority: 1

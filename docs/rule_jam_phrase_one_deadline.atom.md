@@ -7,7 +7,7 @@ tags: [v3, release-v3.2, session, jam, look-ahead]
 dependents:
   - [[rule_jam_phrase_one_failure_ladder]]
 type: RULE
-version: 0.1
+version: 0.2
 human_name: A Late Phrase 1 Extends the Wait by Whole Measures
 parents:
   - [[req_jam]]
@@ -19,7 +19,7 @@ parents:
 Wait for a late phrase 1 in step with the music, within a fixed limit.
 
 ## THE RULE / LOGIC
-If phrase 1 is not ready within the generation measure, the wait extends by whole measures: phrase 1 is shown at the first barline at or after the moment it is ready, followed by its read-in measure. The click goes on and the row above the staff keeps saying the app is writing. The deadline for phrase 1 is three measures after the generation measure begins (3 s at 240 BPM, 12 s at 60 BPM), the same span a look-ahead phrase gets.
+If phrase 1 is not ready within the generation measure, the wait extends by whole measures: phrase 1 is shown at the first barline at or after the moment it is ready, followed by its read-in measure. The click goes on and the row above the staff keeps saying the app is writing. The deadline for phrase 1 is three measures after the generation measure begins (4 s at 180 BPM, 12 s at 60 BPM), the same span a look-ahead phrase gets.
 
 ## TECHNICAL INTERFACE
 Phrase 1's deadline is three measures after the generation measure begins.

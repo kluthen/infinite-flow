@@ -71,9 +71,12 @@ Status: this file holds four parts.
   facts refreshed against version 3.1.0 (spec D409). **v1.2 (2026-10-21), approved by the owner**
   (spec D410): v1.1 with its seven proposed answers, the design's seven behaviour answers (spec
   D411), the doodle-to-controls thresholds (C5.16.1, spec D415) and "the kept doodle" for "the held
-  doodle" (spec D413) written in; the contract wording's one sign-off is still to come. Its sections
-  are numbered C1 to C18; what v1.1 and v1.2 change is listed at the top of Part C and marked in
-  each section they touch.
+  doodle" (spec D413) written in. v1.3
+  (2026-10-21): three findings of the v3.2 build's intent re-sync settled (spec D418–D420): where
+  a fresh Jam's seeds come from (C11), and two more atoms and one more vision line for the same
+  sign-off (C13). v1.4 (2026-10-22): the owner signed off the re-scoped contract wording, CONTRACT
+  7.2.0 to 8.0.0 (C13; spec D421). Its sections are numbered C1 to C18; what v1.1 to v1.4 change
+  is listed at the top of Part C and marked in each section they touch.
 - **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.1
   (2026-10-12), consolidated from the v3.3 direction and the chord research; **awaiting the
   owner's approval**. The contract wording it changes (§D12) needs the owner's confirmation
@@ -2229,10 +2232,14 @@ Delete everything removes them. No preset leaves the device.
 
 ## Part C — v3.2
 
-Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.2 (2026-10-21), approved
-by the owner** (D410): v1.1 with the seven answers it proposed (C17), the design's seven behaviour
+Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.4 (2026-10-22)**: v1.3
+with the owner's sign-off on C13's re-scoped contract wording recorded (D421); it adds no
+behaviour. v1.3 (2026-10-21): v1.2
+with three findings of the build's intent re-sync settled by `spec-writer` under the owner's
+delegation of minor calls (D418–D420); the only behaviour it adds is where a fresh Jam's seeds come
+from (C11). **v1.2 (2026-10-21), approved by the owner** (D410): v1.1 with the seven answers it proposed (C17), the design's seven behaviour
 questions (D411), the doodle-to-controls thresholds (C5.16.1, D415) and the kept doodle's name (D413)
-written in. The contract wording of C13 still waits for its one sign-off. v1.1 rebuilds this part from the settled re-scope
+written in. v1.1 rebuilds this part from the settled re-scope
 [Jam as its own mode](jam-mode.md), which takes Jam out of the session options and makes it a mode
 of its own, and refreshes the code facts against version 3.1.0. It adds no behaviour beyond that
 re-scope; where the re-scope left a choice open, this part says so and proposes an answer (C17).
@@ -2240,8 +2247,8 @@ re-scope; where the re-scope left a choice open, this part says so and proposes 
 v1.0 (2026-10-08) was consolidated from the approved drafts [jam.md](jam.md),
 [key-and-mode-suggestion.md](key-and-mode-suggestion.md) and [rhythm-lock.md](rhythm-lock.md), with
 the code facts of [jam-grounding.md](jam-grounding.md), and approved by the owner on 2026-10-08,
-who confirmed the contract wording of C13 the same day. v1.1 changes that wording: it is signed
-off again, once, for the whole re-scope (C13). Where the drafts and this part differ, this part
+who confirmed the contract wording of C13 the same day. v1.1 changes that wording: it was signed
+off again, once, for the whole re-scope, on 2026-10-22 (C13, D421). Where the drafts and this part differ, this part
 wins. v3.2 is built on v3.0 (Part A) and v3.1 (Part B), both released (3.1.0 on 2026-10-21): their
 storage, kept sessions, stray-note filter, pre-generation,
 [figure levels](../../../docs/music/lexicon.md#figure-level), presets and `ifk3.` replay key are in
@@ -2249,6 +2256,26 @@ the code.
 
 Music terms are explained the first time they appear; the project's
 [lexicon](../../../docs/music/lexicon.md) has one entry per term.
+
+### What v1.4 changes against v1.3
+
+Each section v1.4 changes opens with a line in italics, _Changed in v1.4:_, under the earlier lines.
+
+- **The contract sign-off** (D421): the owner signed off C13's re-scoped wording on 2026-10-22, the
+  change set's part M as drafted, M1–M22: CONTRACT 7.2.0 to 8.0.0, the vision 0.9 to 0.10 (C13,
+  C14, C17). No behaviour changes.
+
+### What v1.3 changes against v1.2
+
+Each section v1.3 changes opens with a line in italics, _Changed in v1.3:_, under the earlier lines.
+
+- **A fresh Jam's seeds** (D419): its session seed is drawn at Start, and phrase 1's attempts take
+  seeds derived from it by labels of their own; a phrase 1 written from a kept doodle at Idle draws
+  its seeds as any phrase 1 at Idle (C5.7, C5.11, C11, C15, C16 item 39). The session seed plan's
+  wording is re-scoped at the contract sign-off (C13).
+- **Two more atoms and one vision line for the sign-off** (C13): a Start click with the controller
+  away (D418), the session seed plan (D419), and the vision's out-of-scope browsers, which follow
+  D399 (D420).
 
 ### What v1.2 changes against v1.1
 
@@ -2701,6 +2728,7 @@ _Changed in v1.1:_ times given for Jam's range.
 
 _Changed in v1.1:_ times given for Jam's range; the rungs read "the steering block" for "the doodle's
 preferences".
+_Changed in v1.3:_ each attempt's seed is derived from the session seed (D419, C11).
 
 - **The wait extends by whole measures.** Phrase 1 is shown at the first barline at or after the
   moment it is ready, followed by its read-in measure. The click goes on; the cue row keeps saying
@@ -2708,8 +2736,8 @@ preferences".
 - **Deadline: three measures after the generation measure begins** (4 s at 180 BPM, 6 s at
   120 BPM, 12 s at 60 BPM; 3 s at 240 BPM), the same span a look-ahead phrase gets in v2.
 - **The ladder**, v2's failure ladder adapted, three rungs:
-  1. **the doodle's join and the steering block** (C5.9), with v2's carry-in retries (a fresh seed
-     each, skipped after a search that covered every candidate);
+  1. **the doodle's join and the steering block** (C5.9), with v2's carry-in retries (each with a
+     seed of its own, C11, skipped after a search that covered every candidate);
   2. **one attempt with the steering block and no join**;
   3. **v2's standalone phrase, with no steering block**, under the controls taken from the doodle.
 
@@ -2872,6 +2900,8 @@ leaves Jam mode, or deletes its session; v1.0's list of changes that dropped it 
 on this doodle" opens Jam mode from a kept Jam session's review.
 _Changed in v1.2:_ "kept" for v1.1's "held" (D413); the session it comes from is the latest one played
 on it; a change of a Jam setting rewrites phrase 1 at once (D411).
+_Changed in v1.3:_ phrase 1 written from the kept doodle draws its seeds as any phrase 1 at Idle
+(D419, C11).
 
 - **After a Jam, Jam mode keeps its doodle.** Back at Idle after the review, Jam mode shows a
   phrase 1 newly written from the kept doodle, with a fresh seed, and Start goes round again
@@ -2895,7 +2925,9 @@ on it; a change of a Jam setting rewrites phrase 1 at once (D411).
   do the controls taken from it. A shared setting acts the same way (C5.1). A tempo change, tap-in
   included, changes no phrase, as in v2.
 - **At Idle with a kept doodle**: phrase 1 is generated from the doodle at Idle, with no deadline,
-  through the same three rungs as C5.7, and is on screen; the starting note is phrase 1's first
+  through the same three rungs as C5.7, each attempt drawing a fresh seed and the session seed
+  drawn when phrase 1 is published, as for any phrase 1 at Idle (C11), and is on screen; the
+  starting note is phrase 1's first
   note, as in v2; v2's Idle phrase rules and pre-generation run as for any phrase 1, a replacement
   being generated from the kept doodle too; and the key and mode suggestion, when there is one,
   stays shown (C6.4).
@@ -3586,6 +3618,7 @@ and the drift; the replay key's content follows, with one open choice; the kept-
 versions are per record.
 _Changed in v1.2:_ the key carries the steering block; one release, so one key version and one data
 version (D410).
+_Changed in v1.3:_ a fresh Jam's seeds (D419).
 
 - **The generation request** gains, on both the player-facing request and the resolved core
   request, and across the generation worker (re-validated there from untrusted input like every
@@ -3619,6 +3652,31 @@ version (D410).
   [locale-dependent order issue](../../../issues/Ref_20261007_locale_dependent_candidate_order.md)).
   Which ladder rung produced phrase 1 can depend on the machine's speed, as v2 accepts; what each
   rung generates never does.
+- **A fresh Jam's seeds.** v3.0's seed plan fixes every seed a session uses before it runs: one
+  session seed, drawn at Idle when the phrase 1 the session will start from is published, from
+  which every later attempt's seed is derived; nothing in a session draws a seed. A fresh Jam has
+  no phrase 1 at Idle, so:
+  - **its session seed is drawn at Start** (the Start click or the home note), once, before the
+    count-in, from the same provider as a session seed drawn at Idle; nothing after Start draws a
+    seed;
+  - **phrase 1's attempts take seeds derived from it**, by the plan's one derivation, with labels
+    of their own, one per attempt of C5.7's ladder: `session-seed-plan-v1:jam-phrase-one:rung:<r>`,
+    r being 0 for rung 1's first attempt, 1 to 3 for its retries, 4 for rung 2 and 5 for rung 3. An
+    attempt started at a silent barline and cancelled by a further doodle note (C5.4) is a rung-0
+    attempt; the next one, on the longer doodle, takes the same seed, its request differing only by
+    what the longer doodle gives (the controls, the join, the steering block);
+  - **phrase 2 onward take the plan's existing labels** from the same session seed, as in any
+    session. Those labels refuse phrase 1 and do not change, so every seed v3.1 derives is
+    unchanged.
+
+  A fresh Jam is then reproducible from its session seed, its quantized doodle and Jam's settings,
+  wherever the same attempts succeed; and each phrase record still keeps its own request and seed,
+  so its `ifk4.` key, carrying the steering block (D410), replays the phrase without the session.
+  **A phrase 1 written from a kept doodle at Idle** is a phrase 1 at Idle like any other (C5.11):
+  each attempt draws a fresh seed, and the session seed is drawn when phrase 1 is published; a Jam
+  on it takes both at Start, as a session does. The seed plan reads no setting, so it touches
+  neither pre-generation key: session mode's (`settingsKeyOf`) still holds none of Jam's
+  settings, and Jam's own pre-generation, for a kept doodle, still follows Jam's settings (C10.5).
 - **Kept sessions.** Each kept phrase's reproduction inputs (Part A §5.2) gain the request's new
   fields. The session's record gains: whether it is a Jam session; the quantized doodle with its
   capture tempo; and whether the player declined its suggestion. Each stored record carries its own
@@ -3699,6 +3757,10 @@ off once on the re-scoped wording; the atoms carry their status at 3.1.0; "MIDI 
 now changes; the tension-arc wording no longer does.
 _Changed in v1.2:_ the replay key's choice settled; one release, so one bump (D410). The wording's
 sign-off is still to come.
+_Changed in v1.3:_ a Start click with the controller away (D418) and the session seed plan (D419)
+join the guarantees that change; the vision's out-of-scope browsers follow D399 (D420). All three
+go in the same sign-off.
+_Changed in v1.4:_ the owner signed off the wording (D421).
 
 Each change is intended. Where a declared-intent entry is named, `documentalist` prepares the
 change.
@@ -3708,7 +3770,10 @@ checks). v3.2 takes **one MAJOR bump, to 8.0.0**, with **one sign-off by the own
 re-scoped wording** of every guarantee below, before the release gate, as v3.1's contract gate did.
 The owner confirmed v1.0's wording on 2026-10-08; v1.1 changes it (Jam mode instead of the Jam
 switch, the steering block instead of the doodle in the request, a controller needed in Jam mode),
-so it is confirmed again, once. v3.2 is one release (C2), so the bump is taken once.
+so it is confirmed again, once. v3.2 is one release (C2), so the bump is taken once. **The owner
+signed it off on 2026-10-22** (D421): the 22 wordings of the
+[change set](../../../docs/release/v3.1-v3.2-intent-change-set.md)'s part M as drafted, the
+vision's lines (0.9 to 0.10) among them.
 
 **Contract guarantees that change** (STABLE atoms on the contract surface):
 
@@ -3727,6 +3792,11 @@ so it is confirmed again, once. v3.2 is one release (C2), so the bump is taken o
   connected is always possible, and nothing about MIDI ever blocks Start"). In Jam mode, Start
   needs a controller and says why without one. Session mode, where the app always opens, keeps the
   guarantee whole.
+- **A Start click with the controller away** (`rule_start_while_controller_away`: "A Start click
+  while the selected controller is away begins a session with no controller"). Under v1.0 it held
+  for a Jam too, since Jam was out of effect without a controller; since v1.1 Jam mode needs one
+  (C5.1, D407). Session mode keeps the guarantee whole; in Jam mode Start is unavailable while the
+  controller is away, so no Jam starts without it (D418).
 - **The count-in shows phrase 1** (`rule_count_in_shown_on_screen`): "phrase 1's whole first
   measure stays fully visible throughout the count-in". In a Jam without a kept doodle, no phrase
   exists during the count-in; the beats are still counted on screen.
@@ -3750,6 +3820,14 @@ so it is confirmed again, once. v3.2 is one release (C2), so the bump is taken o
   phrase 2"): in a fresh Jam the session generates phrase 1, so the step-down can apply from
   phrase 1. (v1.0 also listed `rule_multi_phrase_tension_arc_cycle`'s "phrase 1, generated at Idle";
   Tension across phrases is not in Jam, so it no longer changes.)
+- **The session seed plan** (`module_session_seed_plan`, ARCHITECTURE, on the contract: one
+  session seed "drawn at Idle ... each time it publishes a phrase 1", "Nothing in a session draws a
+  seed", "At Start the session takes phrase 1, exactly the Idle phrase"). A fresh Jam has no phrase
+  1 at Idle: its session seed is drawn once at Start, before the count-in, and its phrase 1's
+  attempts take seeds derived from it by labels of their own (C11); nothing after Start draws a
+  seed. Session mode, and a Jam on a kept doodle, keep the plan as it stands; every existing label,
+  and so every seed v3.1 derives, is unchanged. An extension: every seed of a session is still
+  fixed before it runs (D419).
 - **The join** (`rule_join_carry_in_limited`, "exactly four things cross the join ... nothing else
   is visible across the join"): the steering block reaches every phrase of a Jam as a generation
   input, not across the join; the doodle-to-phrase-1 join comes from no phrase and carries the last
@@ -3807,6 +3885,9 @@ so it is confirmed again, once. v3.2 is one release (C2), so the bump is taken o
 - **Pre-generation** (`rule_pregeneration_discarded_on_change`): session mode's three new discard
   triggers; Jam's settings never discard session mode's phrases.
 - **The vision** (`vision_infinite_flow_first_release`, STABLE): its scope moves on with v3.2.
+  Its out-of-scope list's "browsers other than Chromium-based ones" follows D399 in the same
+  redraft: Chrome is the one supported browser, so browsers other than Chrome are out of scope,
+  other Chromium-based ones, Edge among them, being untested (D420).
 - **v3.2's own draft atoms**, written from v1.0 (among them `rule_jam_needs_controller`,
   `rule_jam_idle_shows_no_phrase`, `rule_held_doodle_dropped_on_change`,
   `rule_doodle_only_orders_candidates`, `rule_every_jam_phrase_carries_doodle`,
@@ -3833,6 +3914,7 @@ _Changed in v1.1:_ facts refreshed against version 3.1.0 (5ef47a0, 2026-10-21); 
 stray-note filter and replay keys; Jam mode's facts and risks added. File references are in
 [jam-grounding.md](jam-grounding.md#e-refresh-at-v310-2026-10-21) and
 [Jam mode §4](jam-mode.md#4-the-generator-seam).
+_Changed in v1.4:_ the contract's risk closed by the sign-off (D421).
 
 - **The generation request is closed by construction**: the worker checks it against an exact list
   of its ten fields and refuses any other, then rebuilds it and requires the rebuild to equal what
@@ -3922,14 +4004,15 @@ stray-note filter and replay keys; Jam mode's facts and risks added. File refere
   workspace would pull it in. The boundary check guards it.
 - **The doodle-to-controls mapping** (C5.16.1): a poor threshold makes "does it sound like my
   doodle?" fail even when the steering works; the listening check confirms or corrects it.
-- **The contract**: the guarantees of C13 change, which needs the owner's one sign-off before the
-  gate.
+- **The contract**: the guarantees of C13 change; the owner signed off their wording on
+  2026-10-22 (D421).
 
 ## C15. Architectural decisions and their reasons
 
 _Changed in v1.1:_ Jam mode, its own settings, the seam, on-demand loading and Jam's tempo added;
 "Jam is a mode, not a second Start button" now reads as a mode of the app; "the doodle only orders
 candidates" narrowed to within the controls it sets.
+_Changed in v1.3:_ a fresh Jam's seeds added (D419).
 
 - **Jam is a mode of its own, entered by a button at Idle, not a session option**, because Jam's
   settings differ from a session's (the app follows the doodle and develops it), and keeping Jam
@@ -3986,6 +4069,13 @@ candidates" narrowed to within the controls it sets.
   phrases and Vary settings' tension steps.
 - **Rhythm changes last one phrase and are measured from the locked rhythm**, because a change may
   never alter the rhythm durably while the lock is set, and changes must never add up.
+- **A fresh Jam's session seed drawn at Start, and its phrase 1's seeds derived from it**, because
+  a fresh Jam has no phrase 1 at Idle to carry a session seed, and drawing a seed per attempt
+  during the Jam would break "nothing in a session draws a seed" and leave the Jam not reproducible
+  from its session seed. Labels of its own leave every existing seed as it is. The rejected
+  alternative, a seed hashed from the doodle as the suggestion's is, would make every Jam on one
+  doodle open with the same phrase 1, where a kept doodle's phrase 1 is written with a fresh seed
+  each time (C5.11).
 - **Rhythm changes drawn from the phrase's own seed, inside generation**, because the generator
   must stay a pure function of its request, and a pre-generated phrase must draw as the session
   would.
@@ -4009,6 +4099,7 @@ candidates" narrowed to within the controls it sets.
 _Changed in v1.1:_ rewritten for Jam mode and split into the two halves; items renumbered; the Jam
 sweep and checks run at 60, 120 and 180 BPM, 240 last; hand checks are short scripts.
 _Changed in v1.2:_ items 14, 17, 18, 19, 33 and 38 follow the settled answers (D410, D411).
+_Changed in v1.3:_ item 39 checks a fresh Jam's seeds (D419).
 
 v3.2 ships when every item holds, each verified by a named test or a recorded hand check. **Every
 hand check is a numbered script of at most ten minutes**, run in Chrome (Edge is not supported);
@@ -4134,7 +4225,9 @@ Jam's run at 60, 120 and 180 BPM, and at 240 BPM only if Jam keeps it (C5.17).
     notes deletes only the raw ones; the replay key holds the steering block, not the doodle;
     nothing is sent.
 39. **Jam phrases replay**: every Jam, drifted and locked Jam phrase replays from its `ifk4.` key;
-    kept Jam sessions hold C11's additions under the new data version.
+    kept Jam sessions hold C11's additions under the new data version; a fresh Jam draws its
+    session seed once, at Start, and two runs from the same session seed, quantized doodle and
+    settings give the same seed to every attempt, phrase 1's included (C11).
 40. **The Jam check on the instrument** is recorded: a scripted Jam on the Travel Sax at 60, 120 and
     180 BPM, with tap-in.
 
@@ -4169,6 +4262,7 @@ Jam's run at 60, 120 and 180 BPM, and at 240 BPM only if Jam keeps it (C5.17).
 _Changed in v1.1:_ the provisional answers and their checks; seven open questions with proposed
 answers; the code gaps and deferrals follow the re-scope.
 _Changed in v1.2:_ the seven questions settled (D410), the design's seven answered (D411).
+_Changed in v1.4:_ the contract sign-off given (D421).
 
 **Provisional answers, each confirmed by a check.** Four answers of the re-scope were accepted on
 the owner's "will need testing to be sure". A check that fails comes back to the owner as a ruling;
@@ -4209,7 +4303,7 @@ Jam's on-demand chunk with its boundary check.
 
 **From the owner**: approval of this part (given, D410, with the seven answers above); one
 sign-off on C13's re-scoped contract wording, before the release gate (the build plan's contract
-gate).
+gate; given on 2026-10-22, D421).
 
 **For `documentalist`**: the declared-intent changes of C13, including v3.2's draft atoms written
 from v1.0, and the lexicon entries for v3.2's terms (C4), Jam and the kept doodle taking their new

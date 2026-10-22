@@ -4,7 +4,7 @@ status: DRAFT
 dependents: []
 type: RULE
 layer: BUSINESS
-version: 0.1
+version: 0.2
 priority: 1
 human_name: How Often a Phrase Changes Its Rhythm
 tags: [v3, release-v3.2, session, rhythm, rhythm-lock, determinism]
@@ -18,7 +18,7 @@ parents:
 Make rhythm changes occasional, a little more frequent on tenser phrases, and reproducible.
 
 ## THE RULE / LOGIC
-Each phrase from phrase 2 on draws whether it changes: 1 in 4 normally, and 1 in 2 on a tenser phrase, the one Tension across phrases generates a step above the tension in effect. A tension step made by Vary settings is a setting change, not a tenser phrase. These shares are starting values, tuned at the listening check. The draw is seeded by the phrase's own seed, inside generation, so a phrase generated ahead at Idle draws exactly as the session would. The change is chosen among the phrase's rhythm candidates that differ from the locked rhythm by exactly one change of an allowed kind, in seeded order, every allowed kind pooled, so a kind with more candidates comes up more often. When no candidate exists, the phrase keeps the locked rhythm, nothing is shown, and the session history records it.
+Each phrase from phrase 2 on draws whether it changes: 1 in 4 normally, and 1 in 2 on a tenser phrase, the one Tension across phrases generates a step above the tension in effect, which happens in session mode only, since Tension across phrases never runs in a Jam. A tension step made by Vary settings is a setting change, not a tenser phrase. These shares are starting values, tuned at the listening check. The draw is seeded by the phrase's own seed, inside generation, so a phrase generated ahead at Idle draws exactly as the session would. The change is chosen among the phrase's rhythm candidates that differ from the locked rhythm by exactly one change of an allowed kind, in seeded order, every allowed kind pooled, so a kind with more candidates comes up more often. When no candidate exists, the phrase keeps the locked rhythm, nothing is shown, and the session history records it.
 
 ## TECHNICAL INTERFACE
 The change draw and choice are computed inside generation from the phrase's seed.

@@ -8,21 +8,21 @@ parents:
 dependents: []
 type: RULE
 layer: BUSINESS
-version: 0.1
+version: 0.2
 human_name: Use It Sets the Key and Mode as by Hand
 ---
 
 # Use It Sets the Key and Mode as by Hand
 
 ## INTENT
-Make accepting a suggestion behave exactly like choosing that key and mode oneself.
+Make accepting a suggestion behave exactly like choosing that key and mode for Jam oneself.
 
 ## THE RULE / LOGIC
-Use it sets the Written key and the Collection exactly as a change by hand does: it is saved like any setting, it discards the pre-generated phrases, and under a preset whose restriction excludes the answer the selection becomes Custom. With a held doodle it is the one key and mode change that keeps the doodle: phrase 1 is regenerated from it in the new key and mode, so the next Jam continues the doodle in the key and mode it sounds in. Without a held doodle nothing is regenerated, as after any change at Idle. Vary settings, when on, moves from the confirmed key and mode during the next session.
+Use it sets Jam's Written key and Collection exactly as a change by hand in Jam mode does: it is saved with Jam's settings, it discards Jam's pre-generated phrases, and it leaves session mode's key and mode untouched, wherever the review was opened from. With a kept doodle, phrase 1 is regenerated from it in the new key and mode and the doodle stays kept, so the next Jam continues the doodle in the key and mode it sounds in. Without a kept doodle nothing is regenerated: Jam mode's Idle shows no phrase, and the next Jam simply generates in the new key and mode.
 
 ## TECHNICAL INTERFACE
-Use it writes the Written key and Collection controls.
+Use it writes Jam's Written key and Collection.
 
 ## EXPECTATION
-- Use it changes the key and mode exactly as a change by hand would.
-- With a held doodle, Use it keeps the doodle and regenerates phrase 1 from it.
+- Use it changes Jam's key and mode exactly as a change by hand in Jam mode would, and never session mode's.
+- With a kept doodle, Use it keeps the doodle and regenerates phrase 1 from it in the new key and mode.
