@@ -60,6 +60,40 @@ export type MutableControl = Exclude<keyof GenerationControls, 'tempo' | 'instru
 // @spec-link [[rule_vary_settings_figure_step]]
 export type MutableSetting = MutableControl | 'figureLevels'
 
+/**
+ * Vary settings' six groups, each switched on or off as a whole: Key and mode, Harmony, Tension,
+ * Rhythm, Melody shape and Figures.
+ */
+// @spec-link [[rule_vary_settings_allowed_groups]]
+export type VarySettingsGroup =
+  'keyAndMode' | 'harmony' | 'tension' | 'rhythm' | 'melodyShape' | 'figures'
+
+/** Vary settings' six groups, in the order the spec lists them. */
+// @spec-link [[rule_vary_settings_allowed_groups]]
+export const VARY_SETTINGS_GROUPS: readonly VarySettingsGroup[] = deepFreeze([
+  'keyAndMode',
+  'harmony',
+  'tension',
+  'rhythm',
+  'melodyShape',
+  'figures',
+])
+
+/** Which of Vary settings' six groups are on; a missing group is a type error. */
+// @spec-link [[rule_vary_settings_allowed_groups]]
+export type AllowedGroups = Readonly<Record<VarySettingsGroup, boolean>>
+
+/** Intent: all six groups on, the default: Vary settings as before the groups existed. */
+// @spec-link [[rule_vary_settings_allowed_groups]]
+export const ALL_GROUPS_ALLOWED: AllowedGroups = deepFreeze({
+  keyAndMode: true,
+  harmony: true,
+  tension: true,
+  rhythm: true,
+  melodyShape: true,
+  figures: true,
+})
+
 /** The value type of one mutable setting: a control's value, or one figure's level. */
 // @spec-link [[module_settings_mutation]]
 export type MutableValue<K extends MutableSetting> = K extends keyof GenerationControls
@@ -339,3 +373,41 @@ export const MUTABLE_SETTINGS: readonly MutableSetting[] = deepFreeze([
   'arpeggioChaos',
   'figureLevels',
 ])
+
+/**
+ * The group each mutable setting belongs to: Key and mode (the written tonal center and the
+ * collection), Harmony (harmonic motion), Tension (tension arc), Rhythm (note density, rhythmic
+ * variety, syncopation and silence density), Melody shape (contour, register, leapiness and
+ * arpeggio chaos) and Figures (the figure levels' entry). A missing setting is a type error.
+ */
+// @spec-link [[rule_vary_settings_allowed_groups]]
+// @spec-link [[module_settings_mutation]]
+export const MUTABLE_SETTING_GROUPS: Readonly<Record<MutableSetting, VarySettingsGroup>> =
+  deepFreeze({
+    tonalCenter: 'keyAndMode',
+    collection: 'keyAndMode',
+    harmonicMotion: 'harmony',
+    tension: 'tension',
+    noteDensity: 'rhythm',
+    rhythmicVariety: 'rhythm',
+    syncopation: 'rhythm',
+    silenceDensity: 'rhythm',
+    contour: 'melodyShape',
+    register: 'melodyShape',
+    leapiness: 'melodyShape',
+    arpeggioChaos: 'melodyShape',
+    figureLevels: 'figures',
+  })
+
+/**
+ * Intent: whether Vary settings may move a group's settings under these settings: its switch is
+ * on, and the Rhythm group counts as not allowed while the rhythm lock is on.
+ */
+// @spec-link [[rule_vary_settings_allowed_groups]]
+export function isGroupAllowed(
+  group: VarySettingsGroup,
+  settings: Pick<SessionSettings, 'allowedGroups' | 'rhythmLockOn'>,
+): boolean {
+  if (group === 'rhythm' && settings.rhythmLockOn) return false
+  return settings.allowedGroups[group]
+}

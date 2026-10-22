@@ -67,6 +67,8 @@ export function changeSettings(controls: Readonly<Record<string, string>>): void
     controls: makeGenerationControls(Object.assign({}, latest.settings.controls, controls)),
     figureLevels: latest.settings.figureLevels,
     selection: latest.settings.selection,
+    allowedGroups: latest.settings.allowedGroups,
+    rhythmLockOn: latest.settings.rhythmLockOn,
   })
   latest.runner.dispatch({ kind: 'settings-change', at: latest.now(), settings })
 }

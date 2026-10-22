@@ -21,6 +21,7 @@ import { builtInPreset, DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-
 import type { PresetSelection } from '@/domain/presets/preset-selection'
 import { makeSeed, type Seed } from '@/domain/random/seed'
 import {
+  ALL_GROUPS_ALLOWED,
   MUTABLE_SETTINGS,
   SettingsMutationError,
   drawMutation,
@@ -54,6 +55,8 @@ function settingsWith(
     controls: { ...DEFAULT_GENERATION_CONTROLS, ...controls },
     figureLevels,
     selection,
+    allowedGroups: ALL_GROUPS_ALLOWED,
+    rhythmLockOn: false,
   }
 }
 

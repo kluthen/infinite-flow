@@ -18,7 +18,7 @@ import type { PresetSelection } from '../domain/presets/preset-selection'
 import type { InstrumentProfile } from '../domain/profile/instrument-profile'
 import type { Seed } from '../domain/random/seed'
 import type { ReadyPhrase } from './session-ready-phrases'
-import type { MutableSetting, SettingsMutationFlag } from './settings-mutation'
+import type { AllowedGroups, MutableSetting, SettingsMutationFlag } from './settings-mutation'
 
 /** Seconds on the audio clock. */
 // @spec-link [[service_session_engine]]
@@ -62,7 +62,7 @@ export type SuccessfulOutcome = Extract<GenerationOutcome, { kind: 'generation_s
  * restriction in force at the session's start, frozen there for the whole session: Vary
  * settings' key and mode moves stay inside it. It is absent when none was in force, or when the
  * one in force allows every key and mode, so nothing is drawn again for a restriction's sake. No
- * phrase is generated from it.
+ * phrase is generated from it, nor from the allowed groups or the rhythm lock's state.
  */
 // @spec-link [[service_session_engine]]
 // @spec-link [[rule_session_settings_locked]]
@@ -72,6 +72,13 @@ export interface SessionSettings {
   readonly selection: PresetSelection
   readonly instrumentProfile?: InstrumentProfile
   readonly restriction?: KeyAndModeRestriction
+  /** Vary settings' allowed groups, saved with the option: only their settings may move. */
+  readonly allowedGroups: AllowedGroups
+  /**
+   * Whether the session's rhythm lock is on: while it is, Vary settings never moves the Rhythm
+   * group. Nothing turns it on in a session yet.
+   */
+  readonly rhythmLockOn: boolean
 }
 
 /**

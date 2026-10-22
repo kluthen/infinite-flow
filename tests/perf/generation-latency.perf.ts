@@ -54,6 +54,7 @@ import { createMulberry32, type Mulberry32Generator } from '@/domain/random/prng
 import { makeSeed } from '@/domain/random/seed'
 import type { SessionSettings } from '@/session/session-types'
 import {
+  ALL_GROUPS_ALLOWED,
   MUTABLE_SETTINGS,
   mutationCandidates,
   type MutableSetting,
@@ -358,6 +359,8 @@ function allStartSettings(): SessionSettings[] {
     }),
     figureLevels: levelsForProfile(profiles[index]!),
     selection: { kind: 'custom', baseId: profiles[index] === 'Jazz' ? 'jazz' : 'neutral' },
+    allowedGroups: ALL_GROUPS_ALLOWED,
+    rhythmLockOn: false,
   }))
 }
 

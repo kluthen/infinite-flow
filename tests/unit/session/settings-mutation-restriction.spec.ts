@@ -38,6 +38,7 @@ import { landingMutation } from '@/session/session-mutation-step'
 import { changedSettings } from '@/session/session-settings-change'
 import type { SessionSettings } from '@/session/session-types'
 import {
+  ALL_GROUPS_ALLOWED,
   mutateSettings,
   withRestrictionAtStart,
   type MutationContext,
@@ -85,6 +86,8 @@ function cIonian(
     controls: { ...DEFAULT_GENERATION_CONTROLS, ...controls },
     figureLevels: NEUTRAL_FIGURE_LEVELS,
     selection,
+    allowedGroups: ALL_GROUPS_ALLOWED,
+    rhythmLockOn: false,
   }
 }
 
@@ -101,6 +104,8 @@ function startUnder(preset: Preset, controls: Partial<GenerationControls> = {}):
       controls: chosen.settings.controls,
       figureLevels: chosen.settings.levels,
       selection: chosen.selection,
+      allowedGroups: ALL_GROUPS_ALLOWED,
+      rhythmLockOn: false,
     },
     PRESETS,
   )

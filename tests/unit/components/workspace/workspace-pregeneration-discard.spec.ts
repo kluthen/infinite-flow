@@ -20,7 +20,7 @@ import { mutationFlagFor } from '@/components/workspace/workspace-session-runner
 import { BUILT_IN_PRESETS, builtInPreset } from '@/domain/presets/built-in-presets'
 import { choosePreset, makePreset } from '@/domain/presets/preset-selection'
 import { makeSeed } from '@/domain/random/seed'
-import { withRestrictionAtStart } from '@/session/settings-mutation'
+import { ALL_GROUPS_ALLOWED, withRestrictionAtStart } from '@/session/settings-mutation'
 import type { SessionSettings } from '@/session/session-types'
 import {
   answer,
@@ -395,6 +395,8 @@ function reelSettings(): SessionSettings {
     controls: chosen.settings.controls,
     figureLevels: chosen.settings.levels,
     selection: chosen.selection,
+    allowedGroups: ALL_GROUPS_ALLOWED,
+    rhythmLockOn: false,
   }
 }
 

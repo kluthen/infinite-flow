@@ -21,7 +21,7 @@ import {
 import { allowsKeyAndMode } from '@/domain/presets/key-and-mode-restriction'
 import { choosePreset } from '@/domain/presets/preset-selection'
 import { makeSeed, type Seed } from '@/domain/random/seed'
-import { withRestrictionAtStart } from '@/session/settings-mutation'
+import { ALL_GROUPS_ALLOWED, withRestrictionAtStart } from '@/session/settings-mutation'
 import type { ReadyPhrase } from '@/session/session-ready-phrases'
 import { measureSeconds } from '@/session/session-timing'
 import type { SessionOutput, SessionSettings } from '@/session/session-types'
@@ -85,6 +85,8 @@ function settingsUnder(preset: BuiltInPresetId): SessionSettings {
       controls: chosen.settings.controls,
       figureLevels: chosen.settings.levels,
       selection: chosen.selection,
+      allowedGroups: ALL_GROUPS_ALLOWED,
+      rhythmLockOn: false,
     },
     BUILT_IN_PRESETS,
   )

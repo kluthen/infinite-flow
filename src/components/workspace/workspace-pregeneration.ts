@@ -42,7 +42,7 @@ import type { ReadyPhrase } from '@/session/session-ready-phrases'
 import type { SessionStartBlocker } from '@/session/session-start-conditions'
 import { sessionLayoutAtStart } from '@/session/session-window'
 import { phraseOneSettings } from '@/session/stale-phrase-one'
-import { withRestrictionAtStart } from '@/session/settings-mutation'
+import { ALL_GROUPS_ALLOWED, withRestrictionAtStart } from '@/session/settings-mutation'
 import { fitsHeldLayout, writtenPhraseOf } from './held-layout-fit'
 import type { IdleLayoutPort } from './idle-layout-gate'
 import type { WorkspacePregenerationPolicy } from './prewarm-policy'
@@ -198,7 +198,14 @@ export function createWorkspacePregeneration(
     return {
       settings: withRestrictionAtStart(
         sessionSettingsAtStart(
-          { controls: idle.controls, figureLevels: idle.figureLevels, selection: idle.selection },
+          {
+            controls: idle.controls,
+            figureLevels: idle.figureLevels,
+            selection: idle.selection,
+            // The saved allowed groups arrive with chunk 19, the session's rhythm lock with chunk 16.
+            allowedGroups: ALL_GROUPS_ALLOWED,
+            rhythmLockOn: false,
+          },
           phraseOne.intent,
         ),
         idle.presets,

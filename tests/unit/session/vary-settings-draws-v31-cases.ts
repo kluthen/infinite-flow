@@ -5,9 +5,12 @@
  * one mutation context, and lands every scheduled mutation phrase after phrase through the
  * session's own mutation step, each landing's settings the next phrase's settings. Every landing
  * becomes one row: the phrase, the mutation number, the move, the draws it took, the selection and
- * a hash of the full settings it put in effect. On v3.1, which recorded the corpus, these rows
- * were written to `tests/fixtures/vary-settings/v3.1-mutation-draws.json`; the spec replays the
- * same sessions and compares.
+ * a hash of the settings it put in effect. On v3.1, which recorded the corpus, these rows were
+ * written to `tests/fixtures/vary-settings/v3.1-mutation-draws.json`; the spec replays the same
+ * sessions, with every allowed group on and the rhythm lock off, and compares. Since v3.2 the
+ * settings carry keys v3.1.0's did not (the allowed groups, the lock state), so the starts and the
+ * hash compare the settings projected onto the keys `SessionSettings` had in v3.1.0
+ * (`projectOntoV310Keys`); the hash of a v3.1.0 landing is then the hash of its full settings.
  */
 
 import { createHash } from 'node:crypto'
@@ -27,6 +30,7 @@ import { landingMutation } from '@/session/session-mutation-step'
 import { settingsMutationSeed } from '@/session/session-seed-plan'
 import type { SessionSettings } from '@/session/session-types'
 import {
+  ALL_GROUPS_ALLOWED,
   mutateSettings,
   mutationIndexLandingOn,
   withRestrictionAtStart,
@@ -147,7 +151,8 @@ export function mutationSeedOf(sessionSeed: number): Seed {
 /**
  * Intent: the session's start settings after choosing `presetId` at Idle from C Ionian with
  * Neutral's controls, levels and selection, with the restriction in force frozen in as Start
- * freezes it against the built-in presets.
+ * freezes it against the built-in presets, every allowed group on and the rhythm lock off, which
+ * is Vary settings as v3.1.0 ran it.
  */
 export function startSettings(presetId: BuiltInPresetId): SessionSettings {
   const chosen = choosePreset(
@@ -160,6 +165,8 @@ export function startSettings(presetId: BuiltInPresetId): SessionSettings {
       controls: chosen.settings.controls,
       figureLevels: chosen.settings.levels,
       selection: chosen.selection,
+      allowedGroups: ALL_GROUPS_ALLOWED,
+      rhythmLockOn: false,
     },
     BUILT_IN_PRESETS,
   )
@@ -181,9 +188,109 @@ export function canonicalJson(value: unknown): string {
   return JSON.stringify(value)
 }
 
-/** Intent: the first 16 hex digits of the SHA-256 of the settings' canonical JSON. */
+/** The keys `GenerationControls` had in v3.1.0. */
+const V310_CONTROL_KEYS = [
+  'tempo',
+  'tonalCenter',
+  'collection',
+  'harmonicMotion',
+  'tension',
+  'noteDensity',
+  'rhythmicVariety',
+  'syncopation',
+  'silenceDensity',
+  'contour',
+  'register',
+  'leapiness',
+  'arpeggioChaos',
+  'instrumentProfileId',
+] as const
+
+/** The keys `FigureLevels` had in v3.1.0: the seven figures. */
+const V310_FIGURE_KEYS = [
+  'passingTone',
+  'accentedPassingTone',
+  'neighborTone',
+  'appoggiatura',
+  'diatonicEnclosure',
+  'chromaticApproach',
+  'chromaticEnclosure',
+] as const
+
+/** A settings value projected onto v3.1.0's keys: plain data, compared as canonical JSON only. */
+export type V310Projection = Readonly<Record<string, unknown>>
+
+/** Intent: the listed keys of a value and nothing else; a listed key it lacks is a test bug. */
+function onlyKeys(value: object, keys: readonly string[], what: string): V310Projection {
+  const entries = Object.entries(value)
+  return Object.fromEntries(
+    keys.map((key) => {
+      const entry = entries.find(([name]) => name === key)
+      if (entry === undefined) throw new Error(`${what} has no ${key}, a key it had in v3.1.0.`)
+      return entry
+    }),
+  )
+}
+
+/**
+ * Intent: settings projected onto the keys `SessionSettings` had in v3.1.0, each with only its
+ * v3.1.0 keys, so a key added since never reaches the comparison:
+ * - `controls`: tempo, tonalCenter, collection, harmonicMotion, tension, noteDensity,
+ *   rhythmicVariety, syncopation, silenceDensity, contour, register, leapiness, arpeggioChaos,
+ *   instrumentProfileId;
+ * - `figureLevels`: passingTone, accentedPassingTone, neighborTone, appoggiatura,
+ *   diatonicEnclosure, chromaticApproach, chromaticEnclosure;
+ * - `selection`: kind and presetId for a preset, kind and baseId for Custom;
+ * - `instrumentProfile`, when present: kind, id, displayName, concertRange (kind, minMidi,
+ *   maxMidi), registerWindows (algorithm, minimumSpan, widthNumerator, widthDenominator) and
+ *   transposition (chromatic, diatonic);
+ * - `restriction`, when present: keys and modes, each `any` or its list.
+ */
+export function projectOntoV310Keys(settings: SessionSettings): V310Projection {
+  const { controls, figureLevels, selection, instrumentProfile, restriction } = settings
+  const profile = instrumentProfile
+  return {
+    controls: onlyKeys(controls, V310_CONTROL_KEYS, 'The controls'),
+    figureLevels: onlyKeys(figureLevels, V310_FIGURE_KEYS, 'The figure levels'),
+    selection:
+      selection.kind === 'preset'
+        ? onlyKeys(selection, ['kind', 'presetId'], 'The selection')
+        : onlyKeys(selection, ['kind', 'baseId'], 'The selection'),
+    ...(profile === undefined
+      ? {}
+      : {
+          instrumentProfile: {
+            ...onlyKeys(profile, ['kind', 'id', 'displayName'], 'The instrument profile'),
+            concertRange: onlyKeys(
+              profile.concertRange,
+              ['kind', 'minMidi', 'maxMidi'],
+              'The concert range',
+            ),
+            registerWindows: onlyKeys(
+              profile.registerWindows,
+              ['algorithm', 'minimumSpan', 'widthNumerator', 'widthDenominator'],
+              'The register-window policy',
+            ),
+            transposition: onlyKeys(
+              profile.transposition,
+              ['chromatic', 'diatonic'],
+              'The transposition',
+            ),
+          },
+        }),
+    ...(restriction === undefined
+      ? {}
+      : { restriction: onlyKeys(restriction, ['keys', 'modes'], 'The restriction') }),
+  }
+}
+
+/**
+ * Intent: the first 16 hex digits of the SHA-256 of the canonical JSON of the settings projected
+ * onto v3.1.0's keys, which for settings v3.1.0 could hold is their full canonical JSON.
+ */
 export function settingsHash(settings: SessionSettings): string {
-  return createHash('sha256').update(canonicalJson(settings), 'utf8').digest('hex').slice(0, 16)
+  const projected = canonicalJson(projectOntoV310Keys(settings))
+  return createHash('sha256').update(projected, 'utf8').digest('hex').slice(0, 16)
 }
 
 /** Intent: a selection as short text: `preset:<id>`, or `custom:<base id>` (empty: no base). */

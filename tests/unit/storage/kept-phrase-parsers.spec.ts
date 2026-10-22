@@ -24,6 +24,7 @@ import { makeMyInstrument } from '@/domain/profile/my-instrument'
 import { makeSeed, SeedConstructionError } from '@/domain/random/seed'
 import type { SessionHistoryRecord } from '@/session/session-history'
 import type { SessionSettings } from '@/session/session-types'
+import { ALL_GROUPS_ALLOWED } from '@/session/settings-mutation'
 import {
   isKeptPhraseRefusal,
   KeptRecordError,
@@ -75,6 +76,8 @@ function jazzSettings(): SessionSettings {
     }),
     figureLevels: JAZZ_FIGURE_LEVELS,
     selection: { kind: 'preset', presetId: 'jazz' },
+    allowedGroups: ALL_GROUPS_ALLOWED,
+    rhythmLockOn: false,
   }
 }
 

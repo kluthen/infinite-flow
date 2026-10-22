@@ -3,7 +3,24 @@
  * from each built-in preset's start, under each mutation context, for six session seeds. The
  * fixture was recorded once on v3.1.0 and is never regenerated; these sessions must keep landing
  * exactly the same moves on the same phrases, with the same draws and the same settings. A failure
- * is fixed in the code, never by re-recording.
+ * is fixed in the code, never by re-recording. The sessions run with every allowed group on and
+ * the rhythm lock off, Vary settings as v3.1.0 ran it.
+ *
+ * Since v3.2, `SessionSettings` holds keys v3.1.0's did not (the allowed groups, whether the
+ * rhythm lock is on), so the starts check and each landing's settings hash compare the settings
+ * projected onto the keys `SessionSettings` had in v3.1.0 (`projectOntoV310Keys`), each with only
+ * its v3.1.0 keys, written out as explicit lists so a key added later never leaks in:
+ * - `controls`: tempo, tonalCenter, collection, harmonicMotion, tension, noteDensity,
+ *   rhythmicVariety, syncopation, silenceDensity, contour, register, leapiness, arpeggioChaos,
+ *   instrumentProfileId;
+ * - `figureLevels`: passingTone, accentedPassingTone, neighborTone, appoggiatura,
+ *   diatonicEnclosure, chromaticApproach, chromaticEnclosure;
+ * - `selection`: kind and presetId for a preset, kind and baseId for Custom;
+ * - `instrumentProfile`, when present: kind, id, displayName, concertRange (kind, minMidi,
+ *   maxMidi), registerWindows (algorithm, minimumSpan, widthNumerator, widthDenominator),
+ *   transposition (chromatic, diatonic);
+ * - `restriction`, when present: keys and modes.
+ * Every row's move, draw count and selection are still compared exactly as recorded.
  */
 
 import { readFileSync } from 'node:fs'
@@ -20,6 +37,7 @@ import {
   VARY_SETTINGS_DRAWS_V31_SESSION_SEEDS,
   canonicalJson,
   mutationSeedOf,
+  projectOntoV310Keys,
   sessionDrawRows,
   startSettings,
   type DrawsContext,
@@ -97,9 +115,10 @@ describe('the v3.1 Vary settings draws corpus', () => {
   // @test-link [[module_settings_mutation]]
   it('builds the same start settings and mutation seeds as v3.1.0', () => {
     for (const presetId of VARY_SETTINGS_DRAWS_V31_PRESETS)
-      expect(JSON.parse(canonicalJson(startSettings(presetId))), presetId).toStrictEqual(
-        CORPUS.starts[presetId],
-      )
+      expect(
+        JSON.parse(canonicalJson(projectOntoV310Keys(startSettings(presetId)))),
+        presetId,
+      ).toStrictEqual(CORPUS.starts[presetId])
     for (const { session, mutation } of CORPUS.seeds)
       expect(mutationSeedOf(session), `session seed ${session}`).toBe(mutation)
   })
