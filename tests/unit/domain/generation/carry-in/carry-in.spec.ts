@@ -10,6 +10,7 @@ import {
   makeCarryIn,
   parseCarryIn,
   type CarryIn,
+  type PhraseCarryIn,
 } from '@/domain/generation/carry-in/carry-in'
 import { GenerationIntentError, makeGenerationIntent } from '@/domain/generation/generation-intent'
 import { makeRegisterWindow } from '@/domain/profile/register-window'
@@ -22,7 +23,7 @@ import {
 } from './carry-in-fixture'
 
 /** Intent: a real carry-in handed forward by a real phrase 1 (C keyboard, Middle, seed 11). */
-function realCarryIn(): { carryIn: CarryIn; outcome: SuccessOutcome } {
+function realCarryIn(): { carryIn: PhraseCarryIn; outcome: SuccessOutcome } {
   const intent = buildIntent({ seed: 11 })
   const outcome = generateSuccess(intent)
   return { carryIn: carryInAfter(intent, outcome, 1), outcome }

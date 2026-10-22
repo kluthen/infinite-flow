@@ -12,7 +12,7 @@ import { harmonyEventIndexAt, soundingSpans } from '../../pitch/pitch-harmony'
 import { carriedMotionState } from '../../pitch/pitch-carry-in'
 import type { GenerationIntent } from '../generation-intent'
 import type { GenerationOutcome } from '../orchestration/orchestration-types'
-import { CarryInError, makeCarryIn, type CarriedRecovery, type CarryIn } from './carry-in'
+import { CarryInError, makeCarryIn, type CarriedRecovery, type PhraseCarryIn } from './carry-in'
 
 /** One successful phrase, the intent it was generated from, and its ordinal in the session. */
 export interface CarryInSource {
@@ -66,11 +66,11 @@ function finalMotionState(source: CarryInSource, midis: readonly number[]): Moti
  * Intent: derive the carry-in of one successful phrase: its last sounding pitch with the interval
  * that arrived at it (from the carried pitch when the phrase sounded one note) and any recovery
  * still owed, its resolved register window, its final harmony event and endpoint class, and the
- * ordinal it was given.
+ * ordinal it was given: always a carry-in from a phrase.
  */
 // @spec-link [[entity_phrase_carry_in]]
 // @spec-link [[rule_join_carry_in_limited]]
-export function deriveCarryIn(source: CarryInSource): CarryIn {
+export function deriveCarryIn(source: CarryInSource): PhraseCarryIn {
   const midis = attackMidis(source)
   const last = midis.at(-1)
   if (last === undefined) throw new CarryInError('A phrase with no sounding note carries nothing.')

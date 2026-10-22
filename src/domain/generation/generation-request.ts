@@ -25,7 +25,7 @@ import {
 } from './generation-request-envelope'
 import { type ActiveConcertRange, makeActiveConcertRange } from '../profile/active-concert-range'
 import { type RegisterId } from '../profile/register-id'
-import { parseCarryIn, type CarryIn } from './carry-in/carry-in'
+import { isPhraseCarryIn, parseCarryIn, type CarryIn } from './carry-in/carry-in'
 import { parseRequestRhythmLock, type RequestRhythmLock } from './request-rhythm-lock'
 import { parseSteeringBlock, type SteeringBlock } from './steering-block'
 import {
@@ -93,15 +93,17 @@ interface GenerationRequestInput {
 /**
  * Intent: construct an immutable, deep-frozen GenerationRequest from already-validated inputs.
  * Rejects a measure count other than four, a resolved register window that is not fully contained
- * in the resolved active concert range, and a carry-in whose window is not the resolved window,
- * each as a typed failure; never defaults, coerces, or transposes to force a fit. A request without
- * a carry-in has no `carryIn` field at all, so it serializes exactly as a first-release request;
- * likewise a request without the rhythm lock group or the steering block has neither key, so it
- * serializes exactly as v3.1's. The groups, when present, follow the carry-in in that order.
+ * in the resolved active concert range, a carry-in whose window is not the resolved window, and a
+ * carry-in from no phrase without a steering block, each as a typed failure; never defaults,
+ * coerces, or transposes to force a fit. A request without a carry-in has no `carryIn` field at
+ * all, so it serializes exactly as a first-release request; likewise a request without the rhythm
+ * lock group or the steering block has neither key, so it serializes exactly as v3.1's. The
+ * groups, when present, follow the carry-in in that order.
  */
 // @spec-link [[rule_no_carry_in_output_matches_v1]]
 // @spec-link [[service_generation_request_resolution]]
 // @spec-link [[rule_jam_and_lock_off_reproduce_earlier_phrases]]
+// @spec-link [[entity_phrase_carry_in]]
 export function makeGenerationRequest(input: GenerationRequestInput): GenerationRequest {
   if (input.measureCount !== PHRASE_MEASURE_COUNT) {
     throw new GenerationRequestError(
@@ -124,6 +126,15 @@ export function makeGenerationRequest(input: GenerationRequestInput): Generation
     throw new GenerationRequestError(
       `Resolved register window ${input.registerWindow.minMidi}-${input.registerWindow.maxMidi} is not ` +
         `the carried window ${carried.minMidi}-${carried.maxMidi}.`,
+    )
+  }
+  if (
+    input.carryIn !== undefined &&
+    !isPhraseCarryIn(input.carryIn) &&
+    input.steering === undefined
+  ) {
+    throw new GenerationRequestError(
+      'A carry-in from no phrase is received only with a steering block.',
     )
   }
 

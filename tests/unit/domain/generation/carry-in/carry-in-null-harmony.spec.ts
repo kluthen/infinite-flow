@@ -16,6 +16,7 @@ import {
   makeCarryIn,
   parseCarryIn,
   type CarryIn,
+  type PhraseCarryIn,
 } from '@/domain/generation/carry-in/carry-in'
 import { assertCarryInFitsIntent } from '@/domain/generation/carry-in/carry-in-fit'
 import { owedRecoveryCanSettle } from '@/domain/generation/carry-in/phrase-ending-debt'
@@ -37,18 +38,21 @@ const LEAPING_MAX_INTERVAL = 10
 const SEEDS = [21, 22, 23, 24] as const
 
 /** Intent: the real carry-in a C Ionian phrase 1 (C keyboard, Middle, seed 11) hands forward. */
-function ionianCarryIn(): CarryIn {
+function ionianCarryIn(): PhraseCarryIn {
   const intent = buildIntent({ seed: 11, controls: C_IONIAN })
   return carryInAfter(intent, generateSuccess(intent), 1)
 }
 
 /** Intent: a carry-in with its harmonic part dropped, as a key or collection change leaves it. */
-function withoutHarmony(carryIn: CarryIn): CarryIn {
+function withoutHarmony(carryIn: PhraseCarryIn): PhraseCarryIn {
   return makeCarryIn({ ...carryIn, finalHarmony: null })
 }
 
 /** Intent: a copy of a carry-in with its last pitch and leap state replaced, built unchecked. */
-function withLastPitch(carryIn: CarryIn, lastPitch: Partial<CarryIn['lastPitch']>): CarryIn {
+function withLastPitch(
+  carryIn: PhraseCarryIn,
+  lastPitch: Partial<CarryIn['lastPitch']>,
+): PhraseCarryIn {
   return { ...carryIn, lastPitch: { ...carryIn.lastPitch, ...lastPitch } }
 }
 

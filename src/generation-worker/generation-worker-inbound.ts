@@ -18,7 +18,7 @@ import {
   parseFigureLevels,
   type FigureLevels,
 } from '../domain/figures/figure-levels'
-import { parseCarryIn } from '../domain/generation/carry-in/carry-in'
+import { parseCarryIn, type CarryIn } from '../domain/generation/carry-in/carry-in'
 import { makeCarryInGenerationIntent } from '../domain/generation/carry-in/carry-in-intent'
 import { makeGenerationIntent, type GenerationIntent } from '../domain/generation/generation-intent'
 import { makeRequestId } from '../domain/generation/generation-request'
@@ -234,7 +234,9 @@ function parseWireRequestGroups(record: Record<string, unknown>): {
  * by field (any fault is a CarryInError) and then checked against the rebuilt intent by
  * `makeCarryInGenerationIntent` itself; its `finalHarmony` is a carried chord or an explicit null
  * (dropped by a key or collection change), never missing. Shared by the worker request parser and
- * the phrase replay key decoder so neither keeps a parallel schema. A built-in's profile is
+ * the phrase replay key decoder so neither keeps a parallel schema; each names the carry-in parser
+ * it reads with (the worker reads both origins through `parseCarryIn`, a replay key only v3.1's
+ * form through `parsePhraseCarryIn`). A built-in's profile is
  * resolved from its id; my instrument's, which its id alone cannot give, is read from the record's
  * `instrumentProfile` through `parseMyInstrumentProfile`. The `figureLevels` are required and read
  * through the domain's figure-levels parser, then handed to the factory as the intent's levels; a
@@ -247,7 +249,10 @@ function parseWireRequestGroups(record: Record<string, unknown>): {
 // @spec-link [[entity_my_instrument]]
 // @spec-link [[entity_request_rhythm_lock]]
 // @spec-link [[entity_steering_block]]
-export function rebuildGenerationWorkerIntent(record: Record<string, unknown>): GenerationIntent {
+export function rebuildGenerationWorkerIntent(
+  record: Record<string, unknown>,
+  readCarryIn: (input: unknown) => CarryIn,
+): GenerationIntent {
   if (typeof record.requestId !== 'string') {
     throw new GenerationWorkerProtocolError(
       `GenerationWorkerRequest.intent.requestId must be a string, got ${typeof record.requestId}.`,
@@ -273,7 +278,7 @@ export function rebuildGenerationWorkerIntent(record: Record<string, unknown>): 
     tonalCenter: writtenTonalCenter,
   })
   const figureLevels = parseWireFigureLevels(record)
-  const carryIn = 'carryIn' in record ? parseCarryIn(record.carryIn) : undefined
+  const carryIn = 'carryIn' in record ? readCarryIn(record.carryIn) : undefined
   const suppliedProfile =
     controls.instrumentProfileId === MY_INSTRUMENT_ID
       ? { instrumentProfile: parseMyInstrumentProfile(record.instrumentProfile) }
@@ -304,7 +309,7 @@ export function parseGenerationWorkerIntent(input: unknown): GenerationIntent {
   const record = asPlainRecord(input, 'GenerationWorkerRequest.intent')
   requireAllowedKeys(record, GENERATION_INTENT_ALLOWED_KEYS, 'GenerationWorkerRequest.intent')
 
-  const rebuilt = rebuildGenerationWorkerIntent(record)
+  const rebuilt = rebuildGenerationWorkerIntent(record, parseCarryIn)
 
   if (!deepEqual(rebuilt, record)) {
     throw new GenerationWorkerProtocolError(

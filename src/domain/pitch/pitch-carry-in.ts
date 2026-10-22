@@ -29,8 +29,11 @@ const WIDE = 3
  * pitch and its place before the join; whether it was a chord tone is unknown and never read,
  * because a chain holding it spans the join and so can never form a run. A carry-in whose harmony
  * was dropped has no carried chord, so its pitch is a tone of none; its leap state crosses as is.
+ * A carry-in from no phrase (the doodle's join) reads as the note before beat 1, reached by no
+ * interval: its pitch is the prior note, a tone of no chord, with no open chain and no debt.
  */
 // @spec-link [[rule_no_carry_in_output_matches_v1]]
+// @spec-link [[rule_jam_phrase_one_joins_doodle]]
 // @spec-link [[rule_join_inherits_leap_recovery]]
 // @spec-link [[rule_join_interval_obeys_phrase_rules]]
 // @spec-link [[rule_key_change_drops_harmonic_carry_in]]

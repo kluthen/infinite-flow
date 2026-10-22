@@ -14,6 +14,8 @@ import {
   parseGenerationRequest,
 } from '@/domain/generation/generation-request'
 import type { GenerationRequest } from '@/domain/generation/generation-request'
+import { makeCarryIn, type CarryIn } from '@/domain/generation/carry-in/carry-in'
+import { makeConcertPitch } from '@/domain/events/concert-pitch'
 import { SAMPLE_RHYTHM_LOCK, SAMPLE_STEERING } from './request-inputs-fixture'
 
 const validSeed = makeSeed(42)
@@ -413,5 +415,49 @@ describe('GenerationRequest: the rhythm lock group and the steering block', () =
     )
 
     expect(() => parseGenerationRequest({ ...wire, doodle: [] })).toThrow(GenerationRequestError)
+  })
+})
+
+/** Intent: a carry-in from no phrase inside the request's resolved window. */
+function noPhraseCarryIn(): CarryIn {
+  return makeCarryIn({
+    origin: 'none',
+    lastPitch: {
+      midi: makeConcertPitch(registerWindow.minMidi),
+      arrivingInterval: null,
+      recovery: { kind: 'settled' },
+    },
+    registerWindow,
+    finalHarmony: null,
+  })
+}
+
+// @test-link [[entity_phrase_carry_in]]
+// @test-link [[rule_jam_phrase_one_joins_doodle]]
+describe('GenerationRequest: a carry-in from no phrase', () => {
+  it('is accepted with a steering block, and round-trips through parseGenerationRequest', () => {
+    const request = makeGenerationRequest({
+      ...validRequestInput(),
+      carryIn: noPhraseCarryIn(),
+      steering: SAMPLE_STEERING,
+    })
+    const reparsed = parseGenerationRequest(structuredClone(request))
+
+    expect(request.carryIn).toStrictEqual(noPhraseCarryIn())
+    expect(Object.keys(request).slice(-2)).toEqual(['carryIn', 'steering'])
+    expect(reparsed).toStrictEqual(request)
+    expect(JSON.stringify(reparsed)).toBe(JSON.stringify(request))
+  })
+
+  it('is refused without a steering block, built or parsed', () => {
+    const input = { ...validRequestInput(), carryIn: noPhraseCarryIn() }
+    expect(() => makeGenerationRequest(input)).toThrow(GenerationRequestError)
+    expect(() => makeGenerationRequest(input)).toThrow(/steering block/u)
+    const wire = structuredClone(
+      makeGenerationRequest({ ...input, steering: SAMPLE_STEERING }),
+    ) as unknown as Record<string, unknown>
+    delete wire.steering
+    expect(() => parseGenerationRequest(wire)).toThrow(GenerationRequestError)
+    expect(() => parseGenerationRequest(wire)).toThrow(/steering block/u)
   })
 })

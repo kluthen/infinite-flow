@@ -215,7 +215,7 @@ describe('replayPhraseKey reproduces generation', () => {
         expectReplayEqualsGeneration(report, second)
         expectCompleteInput(report, second)
         expect(report.phraseNumber).toBe(2)
-        expect(report.input.carryInNames?.phraseNumber).toBe(1)
+        expect(report.input.carryInNames).toMatchObject({ phraseNumber: 1 })
         const output = successOf(report)
         const outcome = generateSuccess(second)
         const expected = deriveCarryIn({ intent: second, outcome, phraseNumber: 2 })

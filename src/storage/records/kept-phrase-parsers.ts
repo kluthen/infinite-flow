@@ -35,7 +35,7 @@ import {
   parseFigureLevels,
   type FigureLevels,
 } from '@/domain/figures/figure-levels'
-import { CarryInError, parseCarryIn } from '@/domain/generation/carry-in/carry-in'
+import { CarryInError, parsePhraseCarryIn } from '@/domain/generation/carry-in/carry-in'
 import {
   writtenToConcertTonalCenter,
   type GenerationIntent,
@@ -531,8 +531,8 @@ const INTENT_V2: IntentShape = {
  * Intent: read a stored intent of the given shape back into the intent it was generated from,
  * without rebuilding it: each field through the domain's own parser (request id, seed, meter,
  * controls, written tonal center, figure levels, instrument profile from its stored data,
- * carry-in), the rest against the intent's shape, with exactly the shape's keys, then its parts
- * checked against each other.
+ * carry-in, read through `parsePhraseCarryIn`, v3.1's exact form), the rest against the intent's
+ * shape, with exactly the shape's keys, then its parts checked against each other.
  */
 function parseIntentOfShape(input: unknown, shape: IntentShape): GenerationIntent {
   const record = exactRecord(input, shape.keys, 'Kept intent', shape.optional)
@@ -551,7 +551,9 @@ function parseIntentOfShape(input: unknown, shape: IntentShape): GenerationInten
   const instrumentProfile = parseStoredProfile(record.instrumentProfile)
   assertIntentCoherent(controls, writtenTonalCenter, instrumentProfile)
   const registerIntent = parseRegisterIntent(record.registerIntent, instrumentProfile, controls)
-  const carried = Object.hasOwn(record, 'carryIn') ? { carryIn: parseCarryIn(record.carryIn) } : {}
+  const carried = Object.hasOwn(record, 'carryIn')
+    ? { carryIn: parsePhraseCarryIn(record.carryIn) }
+    : {}
   return deepFreeze({
     requestId,
     seed,

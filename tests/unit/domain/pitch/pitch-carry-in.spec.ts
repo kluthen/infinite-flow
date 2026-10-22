@@ -11,8 +11,15 @@ import { describe, expect, it } from 'vitest'
 
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
-import { makeCarryIn, type CarryIn } from '@/domain/generation/carry-in/carry-in'
+import {
+  makeCarryIn,
+  type CarryIn,
+  type PhraseCarryIn,
+} from '@/domain/generation/carry-in/carry-in'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
+import { BEFORE_JOIN_POSITION, carriedMotionState } from '@/domain/pitch/pitch-carry-in'
+import { INITIAL_MOTION_STATE } from '@/domain/pitch/pitch-motion'
+import { makeRegisterWindow } from '@/domain/profile/register-window'
 import {
   attackMidis,
   buildIntent,
@@ -25,7 +32,7 @@ const C_MAJOR = [0, 2, 4, 5, 7, 9, 11]
 const C_MAJOR_TONIC_TRIAD = [0, 4, 7]
 
 /** Intent: a real carry-in handed forward by phrase 1 of the given controls (C major). */
-function donorCarryIn(controls: Partial<GenerationControls>): CarryIn {
+function donorCarryIn(controls: Partial<GenerationControls>): PhraseCarryIn {
   const intent = buildIntent({ seed: 11, controls })
   return carryInAfter(intent, generateSuccess(intent), 1)
 }
@@ -39,7 +46,11 @@ function windowMidis(carryIn: CarryIn, keep: (pitchClass: number) => boolean): r
 }
 
 /** Intent: the donor carry-in with its last pitch and leap state replaced. */
-function reshaped(donor: CarryIn, midi: number, leap: Partial<CarryIn['lastPitch']>): CarryIn {
+function reshaped(
+  donor: PhraseCarryIn,
+  midi: number,
+  leap: Partial<CarryIn['lastPitch']>,
+): CarryIn {
   return makeCarryIn({
     ...donor,
     lastPitch: { ...donor.lastPitch, ...leap, midi: makeConcertPitch(midi) },
@@ -156,5 +167,37 @@ describe('pitch planner resolving a tense carried note', () => {
       expect(Math.abs(first - carryIn.lastPitch.midi)).toBeLessThanOrEqual(2)
       expect(C_MAJOR_TONIC_TRIAD).toContain(first % 12)
     }
+  })
+})
+
+// @test-link [[rule_jam_phrase_one_joins_doodle]]
+// @test-link [[entity_phrase_carry_in]]
+describe('the motion state a carry-in from no phrase gives', () => {
+  it('is the note before beat 1, reached by no interval: a tone of no chord, no chain, no debt', () => {
+    const carryIn = makeCarryIn({
+      origin: 'none',
+      lastPitch: {
+        midi: makeConcertPitch(60),
+        arrivingInterval: null,
+        recovery: { kind: 'settled' },
+      },
+      registerWindow: makeRegisterWindow(54, 66),
+      finalHarmony: null,
+    })
+    const state = carriedMotionState(carryIn)
+
+    expect(state).toStrictEqual({
+      ...INITIAL_MOTION_STATE,
+      prior: {
+        midi: 60,
+        chordTone: false,
+        harmonyIndex: BEFORE_JOIN_POSITION,
+        barIndex: BEFORE_JOIN_POSITION,
+      },
+      chainDirection: 0,
+      chainNotes: [],
+    })
+    expect(state).not.toHaveProperty('debt')
+    expect(Object.isFrozen(state)).toBe(true)
   })
 })
