@@ -63,7 +63,7 @@ import type {
   SessionStart,
 } from '@/session/session-types'
 import { settingsMutationSeed } from '@/session/session-seed-plan'
-import { SETTINGS_MUTATION_OFF } from '@/session/settings-mutation'
+import { ALL_GROUPS_ALLOWED, SETTINGS_MUTATION_OFF } from '@/session/settings-mutation'
 import { SEEDS } from '../domain/generation/carry-in/carry-in-matrix'
 import {
   allRhythmSettings,
@@ -221,6 +221,8 @@ function caseSettings(sweepCase: SweepCase, tempo: number): SessionSettings {
       baseId: sweepCase.musicalProfile === 'Jazz' ? 'jazz' : 'neutral',
     },
     ...(sweepCase.restriction === undefined ? {} : { restriction: sweepCase.restriction }),
+    allowedGroups: ALL_GROUPS_ALLOWED,
+    rhythmLockOn: false,
   }
 }
 

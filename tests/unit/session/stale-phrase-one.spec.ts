@@ -25,6 +25,7 @@ import { makeMyInstrument, type MyInstrument } from '@/domain/profile/my-instrum
 import { MY_INSTRUMENT_ID } from '@/domain/profile/instrument-profiles'
 import { makeSeed } from '@/domain/random/seed'
 import { SessionEngineError, type SessionSettings } from '@/session/session-types'
+import { ALL_GROUPS_ALLOWED } from '@/session/settings-mutation'
 import {
   isPhraseOneStale,
   phraseOneSettings,
@@ -39,6 +40,8 @@ function settingsWith(overrides: Partial<GenerationControls> = {}): SessionSetti
     controls: makeGenerationControls({ ...DEFAULT_GENERATION_CONTROLS, ...overrides }),
     figureLevels: NEUTRAL_FIGURE_LEVELS,
     selection: DEFAULT_PRESET_SELECTION,
+    allowedGroups: ALL_GROUPS_ALLOWED,
+    rhythmLockOn: false,
   }
 }
 

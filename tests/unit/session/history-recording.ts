@@ -29,7 +29,7 @@ import { measureSeconds } from '@/session/session-timing'
 import type { SessionSettings, SessionStart, SuccessfulOutcome } from '@/session/session-types'
 import { buildIntent, generateSuccess } from '../domain/generation/carry-in/carry-in-fixture'
 import type { MatrixCell } from '../domain/generation/carry-in/carry-in-matrix'
-import { SETTINGS_MUTATION_OFF } from '@/session/settings-mutation'
+import { ALL_GROUPS_ALLOWED, SETTINGS_MUTATION_OFF } from '@/session/settings-mutation'
 import {
   UNREAD_DISPLAY,
   fakeViewport,
@@ -51,6 +51,8 @@ export function settingsForCell(cell: MatrixCell): SessionSettings {
     }),
     figureLevels: levelsForProfile(cell.set.musicalProfile),
     selection: { kind: 'custom', baseId: cell.set.musicalProfile === 'Jazz' ? 'jazz' : 'neutral' },
+    allowedGroups: ALL_GROUPS_ALLOWED,
+    rhythmLockOn: false,
   }
 }
 

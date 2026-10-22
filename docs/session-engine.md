@@ -44,8 +44,8 @@ ahead of it (the read-ahead), so the player always sees what comes next.
 | `session-ready-phrases.ts`        | The ready phrases a start carries: their check, the re-derivation of their intents, and the engine's take of them.                |
 | `session-pregeneration.ts`        | The pure pre-generation plan: phrases 2 to 5 built at Idle as the session would request them (see below).                         |
 | `settings-mutation-scales.ts`     | `MUTATION_SCALES`: the scale of every mutable setting, as data, and `scaleNeighbours`.                                            |
-| `settings-mutation.ts`            | The pure seeded mutation: the cadence, `mutationCandidates`, `mutateSettings` and the flag.                                       |
-| `session-mutation-step.ts`        | `landingMutation`: whether a mutation lands on the phrase about to be requested, and its output.                                  |
+| `settings-mutation.ts`            | The pure seeded mutation: the cadence, `mutationCandidates`, `mutateSettings` (a move or the dead end), `hasLegalMove`, the flag. |
+| `session-mutation-step.ts`        | `landingMutation` (a mutation landing on the next phrase: its change or its skip) and `mutationContextAtStart`.                   |
 | `session-settings-change.ts`      | A look-ahead's basis, each rung's attempt after a change, and the discard rule of a settings change.                              |
 | `carry-in-adaptation.ts`          | `adaptCarryIn`: a carry-in adapted to settings that changed at the join, or a standalone phrase.                                  |
 | `tension-arc-cycle.ts`            | The multi-phrase tension arc: a phrase's cycle step, and the settings it is generated under.                                      |
@@ -95,18 +95,19 @@ Every event has an `at`, its audio time.
 | `tick`                                     | Time has reached `at`; lets the engine see a deadline pass.                                                                                                                                                                           |
 | `end { cause }`                            | The session ends: `'stop'` (the player's Stop), `'hidden-tab'` (the tab became hidden), `'staff-not-shown'`, `'silence-timeout'` (more than 30 s without a played note) or `'controller-lost'` (the controller not back within 30 s). |
 
-| Output                                                                          | Meaning                                                                                                          |
-| ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `request-generation { attemptId, phraseNumber, step, retry, intent, deadline }` | Generate this intent. `step` is `'carry-in'` or `'standalone'`; `retry` counts the attempts before this one.     |
-| `check-fit { attemptId, phraseNumber, outcome, intent }`                        | Check whether this generated phrase fits the staff. `intent` is this attempt's own, which differs per rung.      |
-| `phrase-ready { phrase }`                                                       | The phrase to show next as read-ahead, repeats included.                                                         |
-| `phrase-sounding { at, phrase, tempo }`                                         | A phrase started sounding, with its full record and the tempo it plays at.                                       |
-| `struggling-notice { visible }`                                                 | Show or hide the struggling-generator notice.                                                                    |
-| `wake-at { at }`                                                                | Send a `tick` at this time: the next deadline.                                                                   |
-| `ended { at, cause, phase, soundedPhraseCount }`                                | The session ended, during the `'count-in'` or while `'running'`, after this many phrases started sounding.       |
-| `settings-changed { phraseNumber, settings, cause, … }`                         | New settings apply from this phrase on. `cause` is `'mutation'` (with `setting`, `from`, `to`) or `'automatic'`. |
-| `phrase-discarded { phraseNumber }`                                             | A decided look-ahead phrase, not yet on screen, was dropped and is requested again with the new settings.        |
-| `phrase-tempo { phraseNumber, tempo }`                                          | The tempo phrase N (2 or more) plays at, fixed at its look-ahead deadline. Output once per phrase.               |
+| Output                                                                          | Meaning                                                                                                           |
+| ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `request-generation { attemptId, phraseNumber, step, retry, intent, deadline }` | Generate this intent. `step` is `'carry-in'` or `'standalone'`; `retry` counts the attempts before this one.      |
+| `check-fit { attemptId, phraseNumber, outcome, intent }`                        | Check whether this generated phrase fits the staff. `intent` is this attempt's own, which differs per rung.       |
+| `phrase-ready { phrase }`                                                       | The phrase to show next as read-ahead, repeats included.                                                          |
+| `phrase-sounding { at, phrase, tempo }`                                         | A phrase started sounding, with its full record and the tempo it plays at.                                        |
+| `struggling-notice { visible }`                                                 | Show or hide the struggling-generator notice.                                                                     |
+| `wake-at { at }`                                                                | Send a `tick` at this time: the next deadline.                                                                    |
+| `ended { at, cause, phase, soundedPhraseCount }`                                | The session ended, during the `'count-in'` or while `'running'`, after this many phrases started sounding.        |
+| `settings-changed { phraseNumber, settings, cause, … }`                         | New settings apply from this phrase on. `cause` is `'mutation'` (with `setting`, `from`, `to`) or `'automatic'`.  |
+| `mutation-skipped { phraseNumber, mutationNumber }`                             | Mutation `mutationNumber` met a dead end on this phrase and was skipped: the settings in effect stay as they are. |
+| `phrase-discarded { phraseNumber }`                                             | A decided look-ahead phrase, not yet on screen, was dropped and is requested again with the new settings.         |
+| `phrase-tempo { phraseNumber, tempo }`                                          | The tempo phrase N (2 or more) plays at, fixed at its look-ahead deadline. Output once per phrase.                |
 
 The phrase record, `SessionPhrase`, is `{ phraseNumber, origin, intent, outcome, repeatOf? }`.
 `origin` is `'idle'` (phrase 1), `'carry-in'`, `'standalone'` or `'repeat'`. The repeat mark is
@@ -470,6 +471,11 @@ The history is fed every engine output, in the order the engine gave it: the run
 - **`phrase-ready` is ignored.** A phrase shown only as read-ahead, because the session ended
   before it started sounding, is never recorded. It is in neither the review nor any export.
 - **`ended` closes the history.** A session ended during the count-in records nothing.
+- **`mutation-skipped` is kept beside the records.** `skippedMutations()` reads back every
+  mutation the session skipped at a [dead end](#allowed-groups-and-the-dead-end), as
+  `{ phraseNumber, mutationNumber }`, frozen, in record order. It lives in memory only: no record
+  holds it and the [kept session](storage.md#kept-sessions) is written exactly as without it. A
+  skip that names no phrase or no mutation (each an integer from 1) is refused.
 - **Every other output** is ignored.
 
 The session controller's MIDI side also hands it what the player does, in a session read from a
@@ -1175,13 +1181,51 @@ resolved.
   nothing, so those draws are v3.0's. A half with no allowed value one step away simply never
   moves (under Reel the mode moves only between Mixolydian and Dorian; under Pop song it never
   moves). A key or mode step never marks Custom.
+- From v3.2, a step whose setting's group is not allowed is marked unsupported too (see
+  [Allowed groups and the dead end](#allowed-groups-and-the-dead-end)), so it is drawn again in the
+  same way and every setting with a step keeps its place in the draw.
 - `drawMutation` draws one setting uniformly among those with a step, then one of its steps
-  uniformly, and draws both again from the same stream while the step is unsupported. No cycle is
-  skipped. With no supported candidate it throws at once rather than loop. An optional observer
-  (`MutationDrawsObserver`) is told how many draws a mutation took; the bound is 10,000, and the
-  worst restriction (one key and one mode) needed at most 6 redraws over 10,872 property-test
-  mutations.
+  uniformly, and draws both again from the same stream while the step is unsupported. With no
+  supported candidate it returns the dead end at once, drawing nothing. An optional observer
+  (`MutationDrawsObserver`) is told how many draws a move took; the bound is 10,000, reaching it
+  throws rather than loop, and the worst restriction (one key and one mode) needed at most 6
+  redraws over 10,872 property-test mutations.
 - Settings that are unsupported to begin with are a caller bug and throw.
+
+### Allowed groups and the dead end
+
+From v3.2 the session settings carry two more fields, fixed at the start like the restriction:
+
+- **`allowedGroups`** (`AllowedGroups`) says which of Vary settings' six groups may move: Key and
+  mode (the written key and the collection), Harmony (harmonic motion), Tension (the tension arc),
+  Rhythm (note density, rhythmic variety, syncopation and silence density), Melody shape (contour,
+  register, leapiness and arpeggio chaos) and Figures (the figure levels). `MUTABLE_SETTING_GROUPS`
+  maps each mutable setting to its group. The start passes `ALL_GROUPS_ALLOWED` until the saved
+  choice exists, so the draws are v3.1's.
+- **`rhythmLockOn`** says whether the session's rhythm lock is on; while it is, the Rhythm group
+  counts as not allowed (`isGroupAllowed`). Nothing turns it on yet, and the start passes `false`.
+
+No phrase is generated from either field. A step of a group that is not allowed is marked
+unsupported among the candidates, as above.
+
+**The dead end.** When no step of the settings in effect is a supported one inside the allowed
+groups, the mutation is a dead end: `mutateSettings` and `drawMutation` return `MUTATION_DEAD_END`
+(`{ kind: 'dead-end' }`, recognised by `isMutationDeadEnd`) instead of a move, throwing nothing and
+telling the observer nothing. The same inputs and seed always give the same move, or the same dead
+end. Only the dead end goes without a move and throws nothing: settings unsupported to begin
+with, and no supported draw within the bound, still throw a typed `SettingsMutationError`. The
+session skips that mutation (see [Where a mutation lands](#where-a-mutation-lands)).
+
+**The legal-move check.** `hasLegalMove(settings, context)` is true when at least one step lands on
+a supported combination inside the allowed groups, a key or mode step counting only inside the
+restriction the settings carry; it is false exactly when a mutation of those settings is a dead
+end. The controls will call it at Idle (chunk 19), and the session start calls it: a session started
+while it is false runs without Vary settings (see [In the workspace](#in-the-workspace)). At the
+start it reads `mutationContextAtStart(phraseOne, belowTabletLandscape)`
+(`session-mutation-step.ts`): the window's width read at the start, no step-down yet (the
+engine's start memory) and the register whose window phrase 2's carry-in holds, worked out from
+phrase 1 exactly as opening phrase 2 does. It is the context the session's first mutation sees
+when nothing changes before it.
 
 ### The seeded cadence
 
@@ -1214,6 +1258,16 @@ just before phrase N's first `request-generation`, and the new settings are in e
   the phrase before, under its own settings, and the phrase after it uses the new settings.
 - **Flag off.** With the flag off the context is never read, and the engine's requests are those
   of chunk 8.
+- **A dead end.** A mutation that meets a [dead end](#allowed-groups-and-the-dead-end) on phrase N
+  is skipped and never throws: a `mutation-skipped { phraseNumber: N, mutationNumber: k }` output
+  comes where its `settings-changed` would have, just before phrase N's first
+  `request-generation`. The settings in effect stay the very same object, so nothing counts as a
+  change: no carry-in adaptation, no discard, no other intent and nothing new shown. Mutation k + 1
+  still lands on its own phrase and draws from its own stream. The session history keeps the skip
+  in memory; the kept session does not change. No step-down leaves a dead end in today's catalog
+  (no rhythm setting generated with Eighth is blocked, so a stepped-down session always keeps a
+  rhythm move, and a step-down only ever unblocks the other groups' steps): a dead end mid-session
+  comes from settings a `settings-change` puts in effect, such as the rhythm lock turned on.
 
 ### Settings changes at a phrase boundary
 
@@ -1321,10 +1375,15 @@ every workspace session's runner: the starter that `loadSessionRunner()` resolve
 the engine's three points to the app:
 
 - **The flag.** `WorkspaceSessionStart` carries the player's `Vary settings` choice
-  (`varySettings`) in place of `mutation`. `mutationFlagFor` turns it into the flag: off, or on
-  with a seed drawn from the workspace's seed provider before the engine asks for any attempt
-  seed. With the choice off no seed is drawn, so such a session draws the seeds it drew before the
-  flag existed. The seed is kept in the session's start, so the session replays from its inputs.
+  (`varySettings`) in place of `mutation`.
+  `mutationFlagFor(varySettings, sessionSeed, settings, context)` turns it into the flag: off when
+  the choice is off, or when `hasLegalMove(settings, context)` is false for the start settings
+  (the restriction in force at the start frozen in) under `mutationContextAtStart`, the window
+  read once at the start; otherwise on with the mutation seed the session seed plan derives from
+  the session seed (`settingsMutationSeed`). No seed is drawn either way, and no mutation seed is
+  derived when the flag is off. The pre-generation plan's start builds its flag the same way,
+  from the same settings and the window as the plan reads it, so a session spends the phrases it
+  planned.
 - **The display reading.** The controller hands the runner its rolling display's
   `isPhraseOnScreen` for the held layout. The engine reads it only for a `settings-change`, which
   no part of the app sends yet: the engine's own mutations land on a phrase not yet requested, and
@@ -1507,6 +1566,10 @@ arc).
   pure pre-generation plan (see [Phrases pre-generated at Idle](#phrases-pre-generated-at-idle))
   and Start's take of the Idle queue (see
   [Pre-generation at Idle](phrase-workspace.md#pre-generation-at-idle)).
+- **v3.2 chunk 15 (built):** Vary settings' allowed groups and the rhythm lock's state in the
+  session settings, the dead end and its `mutation-skipped` output, the history's
+  `skippedMutations`, and the legal-move check at the session start (see
+  [Allowed groups and the dead end](#allowed-groups-and-the-dead-end)).
 
 ## Choices made while building it
 
@@ -1604,7 +1667,8 @@ The settings-mutation choices were made in chunk 24:
   sounding. Nothing has been generated for that phrase yet, so a mutation never needs the discard
   rule.
 - **Unsupported steps are listed, then redrawn** from the same stream, so a redraw is as
-  reproducible as the first draw, and a mutation is never skipped.
+  reproducible as the first draw, and a mutation is never skipped while one step is supported
+  (from v3.2, a mutation with none is a [dead end](#allowed-groups-and-the-dead-end), skipped).
 - **The decided phrase is kept until it sounds,** with the notice before its decision, so a
   settings change can take the decision back cleanly.
 - **The workspace refused what it could not handle yet.** Until chunk 25 connected them, a

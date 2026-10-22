@@ -15,6 +15,7 @@ import type { WorkspaceSessionResult } from '@/composables/workspace-session-res
 import { MY_INSTRUMENT_ID } from '@/domain/profile/instrument-profiles'
 import type { SessionStartBlocker } from '@/session/session-start-conditions'
 import type { SessionSettings } from '@/session/session-types'
+import { ALL_GROUPS_ALLOWED } from '@/session/settings-mutation'
 import { phraseOneSettings, staleSettingsOf, type StaleSetting } from '@/session/stale-phrase-one'
 import { SessionControllerError } from './workspace-session-controller-types'
 
@@ -64,7 +65,8 @@ export interface StalePhraseStart {
 /**
  * Intent: the current settings as the generation reads them: the controls, the figure levels,
  * the preset selection and, while the controls name my instrument, its profile as saved now, whose range and
- * transposition phrase 1's are compared with.
+ * transposition phrase 1's are compared with. The comparison never reads Vary settings' allowed
+ * groups or the lock state, so they are every group on and the lock off.
  */
 // @spec-link [[rule_stale_phrase_prompt_at_start]]
 function currentSettings(
@@ -74,6 +76,8 @@ function currentSettings(
     controls: idle.controls,
     figureLevels: idle.figureLevels,
     selection: idle.selection,
+    allowedGroups: ALL_GROUPS_ALLOWED,
+    rhythmLockOn: false,
   }
   if (idle.controls.instrumentProfileId !== MY_INSTRUMENT_ID) return settings
   if (idle.myInstrument === null)

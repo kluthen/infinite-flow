@@ -29,6 +29,7 @@ import { makeHarmonyCollection } from '@/domain/harmony/collection'
 import type { RegisterWindowCandidate } from '@/domain/profile/register-window-derivation'
 import { adaptCarryIn, type CarryInAdaptation } from '@/session/carry-in-adaptation'
 import { SessionEngineError, type SessionSettings } from '@/session/session-types'
+import { ALL_GROUPS_ALLOWED } from '@/session/settings-mutation'
 import {
   BASE_CONTROLS,
   buildIntent,
@@ -54,6 +55,8 @@ function settings(
     controls: makeGenerationControls({ ...BASE_CONTROLS, ...controls }),
     figureLevels,
     selection: { kind: 'custom', baseId: 'neutral' },
+    allowedGroups: ALL_GROUPS_ALLOWED,
+    rhythmLockOn: false,
   }
 }
 

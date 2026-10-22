@@ -14,7 +14,9 @@ import {
   type FigureLevel,
 } from '@/domain/figures/figure-levels'
 import type { PresetSelection } from '@/domain/presets/preset-selection'
-import type { SessionSettings } from '@/session/session-types'
+import { freezeSessionSettings } from '@/session/session-intents'
+import { SessionEngineError, type SessionSettings } from '@/session/session-types'
+import { ALL_GROUPS_ALLOWED, type AllowedGroups } from '@/session/settings-mutation'
 import { BASE_CONTROLS } from '../domain/generation/carry-in/carry-in-fixture'
 import { SessionDriver, fakeViewport, phraseOneFor, sessionSettings } from './session-harness'
 
@@ -67,7 +69,13 @@ describe('settings locked at start', () => {
       kind: 'custom',
       baseId: 'neutral',
     }
-    const settings: SessionSettings = { controls, figureLevels, selection }
+    const settings: SessionSettings = {
+      controls,
+      figureLevels,
+      selection,
+      allowedGroups: ALL_GROUPS_ALLOWED,
+      rhythmLockOn: false,
+    }
     const phraseOne = phraseOneFor(settings)
     const driver = new SessionDriver({ at: 0, settings, phraseOne })
 
@@ -174,5 +182,69 @@ describe('session density only steps down', () => {
     driver.viewport.below = false
     driver.fail(0.2)
     expect(densitiesOf(driver, 2)).toEqual(['Eighth', 'Eighth', 'Eighth'])
+  })
+})
+
+// @test-link [[rule_session_settings_locked]]
+// @test-link [[rule_vary_settings_allowed_groups]]
+describe("the settings' allowed groups and rhythm lock state", () => {
+  const ONLY_HARMONY: AllowedGroups = {
+    keyAndMode: false,
+    harmony: true,
+    tension: false,
+    rhythm: false,
+    melodyShape: false,
+    figures: false,
+  }
+
+  // @test-link [[rule_session_settings_locked]]
+  // @test-link [[rule_vary_settings_allowed_groups]]
+  it('keeps them as given, frozen, and builds no intent from them', () => {
+    const allowedGroups = { ...ONLY_HARMONY }
+    const given: SessionSettings = { ...sessionSettings({ tempo: 60 }), allowedGroups }
+    const frozen = freezeSessionSettings({ ...given, rhythmLockOn: true })
+    allowedGroups.figures = true
+    expect(frozen.allowedGroups).toStrictEqual(ONLY_HARMONY)
+    expect(frozen.rhythmLockOn).toBe(true)
+    expect(Object.isFrozen(frozen.allowedGroups)).toBe(true)
+
+    const intentsUnder = (settings: SessionSettings) => {
+      const driver = new SessionDriver({ at: 0, settings, phraseOne: phraseOneFor(settings) })
+      reachPhraseThree(driver)
+      driver.fail(20.5)
+      return driver.requests().map((request) => request.intent)
+    }
+    const everyGroup = sessionSettings({ tempo: 60 })
+    expect(everyGroup.allowedGroups).toStrictEqual(ALL_GROUPS_ALLOWED)
+    expect(everyGroup.rhythmLockOn).toBe(false)
+    expect(
+      intentsUnder({ ...everyGroup, allowedGroups: ONLY_HARMONY, rhythmLockOn: true }),
+    ).toStrictEqual(intentsUnder(everyGroup))
+  })
+
+  // @test-link [[rule_session_settings_locked]]
+  it('refuses allowed groups that are not exactly the six groups, each on or off, and a lock state that is not a boolean', () => {
+    const settings = sessionSettings()
+    const { figures, ...fiveGroups } = ONLY_HARMONY
+    void figures
+    const invalidGroups: readonly unknown[] = [
+      fiveGroups,
+      { ...ONLY_HARMONY, jam: true },
+      { ...ONLY_HARMONY, rhythm: 'on' },
+      { ...ONLY_HARMONY, figures: undefined },
+      null,
+      [true, true, true, true, true, true],
+    ]
+    for (const allowedGroups of invalidGroups)
+      expect(() =>
+        freezeSessionSettings({
+          ...settings,
+          allowedGroups: allowedGroups as unknown as AllowedGroups,
+        }),
+      ).toThrow(SessionEngineError)
+    for (const rhythmLockOn of [undefined, 'false', 0])
+      expect(() =>
+        freezeSessionSettings({ ...settings, rhythmLockOn: rhythmLockOn as unknown as boolean }),
+      ).toThrow(SessionEngineError)
   })
 })

@@ -25,6 +25,7 @@ import {
 import { DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
 import type { PresetSelection } from '@/domain/presets/preset-selection'
 import {
+  ALL_GROUPS_ALLOWED,
   MUTABLE_SETTINGS,
   MUTATION_SCALES,
   SettingsMutationError,
@@ -46,7 +47,13 @@ function settingsWith(
   selection: PresetSelection = DEFAULT_PRESET_SELECTION,
   figureLevels: FigureLevels = NEUTRAL_FIGURE_LEVELS,
 ): SessionSettings {
-  return { controls: { ...DEFAULT_GENERATION_CONTROLS, ...controls }, figureLevels, selection }
+  return {
+    controls: { ...DEFAULT_GENERATION_CONTROLS, ...controls },
+    figureLevels,
+    selection,
+    allowedGroups: ALL_GROUPS_ALLOWED,
+    rhythmLockOn: false,
+  }
 }
 
 /** The values one grade away from the current one, as the real candidate list gives them. */

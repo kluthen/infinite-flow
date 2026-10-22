@@ -23,6 +23,7 @@ import { DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
 import { adaptCarryIn } from '@/session/carry-in-adaptation'
 import { measureSeconds } from '@/session/session-timing'
 import type { SessionSettings, SessionStart } from '@/session/session-types'
+import { ALL_GROUPS_ALLOWED } from '@/session/settings-mutation'
 import { SessionDriver, phraseOneFor, type GenerationRequestOutput } from './session-harness'
 
 /** The tempo of the session that runs past phrase 2, a 2 s measure. */
@@ -39,6 +40,8 @@ function defaultsWith(overrides: Partial<GenerationControls> = {}): SessionSetti
     controls: makeGenerationControls({ ...DEFAULT_GENERATION_CONTROLS, ...overrides }),
     figureLevels: NEUTRAL_FIGURE_LEVELS,
     selection: DEFAULT_PRESET_SELECTION,
+    allowedGroups: ALL_GROUPS_ALLOWED,
+    rhythmLockOn: false,
   }
 }
 

@@ -17,6 +17,7 @@ import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection
 import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
 import type { SessionSettings } from '@/session/session-types'
+import { ALL_GROUPS_ALLOWED } from '@/session/settings-mutation'
 import { transportRig } from '../../audio/transport-rig'
 import { createControllerRig } from '../../midi/midi-controller-rig'
 import { createFakeSessionController } from './fake-session-controller'
@@ -82,6 +83,8 @@ const VARIED_TENSION: SessionSettings = {
   controls: { ...DEFAULT_GENERATION_CONTROLS, tension: 'Build' },
   figureLevels: NEUTRAL_FIGURE_LEVELS,
   selection: { kind: 'custom', baseId: 'neutral' },
+  allowedGroups: ALL_GROUPS_ALLOWED,
+  rhythmLockOn: false,
 }
 
 // @test-link [[req_multi_phrase_tension_arc]]
@@ -151,6 +154,8 @@ describe('WorkspaceShell: the Tension across phrases control', () => {
       controls: DEFAULT_GENERATION_CONTROLS,
       figureLevels: NEUTRAL_FIGURE_LEVELS,
       selection: DEFAULT_PRESET_SELECTION,
+      allowedGroups: ALL_GROUPS_ALLOWED,
+      rhythmLockOn: false,
     }
     await nextTick()
     expect(checked(wrapper, 'Tension')).toBe('Lift')

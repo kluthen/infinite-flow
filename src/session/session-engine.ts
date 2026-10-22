@@ -71,9 +71,11 @@ function assertAudioTime(at: AudioTime): void {
  * Intent: open the look-ahead for the phrase after the latest decided one at `at` and wake at its
  * deadline. A mutation scheduled on that phrase is decided first, from the window read now, the
  * step-down memory and the register whose window the carry-in holds, is in effect for it and is
- * reported first; the phrase is generated under those settings with its tension-arc cycle step,
- * which never reaches the settings in effect. A matching ready phrase is then decided at once;
- * otherwise its first rung is requested, the standalone one when that attempt is already due.
+ * reported first; one that meets a dead end is skipped and its skip reported first, the settings
+ * in effect unchanged; the phrase is generated under those settings with its tension-arc cycle
+ * step, which never reaches the settings in effect. A matching ready phrase is then decided at
+ * once; otherwise its first rung is requested, the standalone one when that attempt is already
+ * due.
  */
 function requestNextPhrase(
   context: EngineContext,

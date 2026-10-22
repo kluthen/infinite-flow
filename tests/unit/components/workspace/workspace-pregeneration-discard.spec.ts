@@ -17,10 +17,11 @@ import { describe, expect, it } from 'vitest'
 
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { mutationFlagFor } from '@/components/workspace/workspace-session-runner'
+import { mutationContextAtStart } from '@/session/session-mutation-step'
 import { BUILT_IN_PRESETS, builtInPreset } from '@/domain/presets/built-in-presets'
 import { choosePreset, makePreset } from '@/domain/presets/preset-selection'
 import { makeSeed } from '@/domain/random/seed'
-import { withRestrictionAtStart } from '@/session/settings-mutation'
+import { ALL_GROUPS_ALLOWED, withRestrictionAtStart } from '@/session/settings-mutation'
 import type { SessionSettings } from '@/session/session-types'
 import {
   answer,
@@ -395,6 +396,8 @@ function reelSettings(): SessionSettings {
     controls: chosen.settings.controls,
     figureLevels: chosen.settings.levels,
     selection: chosen.selection,
+    allowedGroups: ALL_GROUPS_ALLOWED,
+    rhythmLockOn: false,
   }
 }
 
@@ -429,6 +432,7 @@ describe('Idle pre-generation queue under a restriction in force', () => {
     const rig = await reelRig(true)
     const reel = reelSettings()
     const phraseOne = rig.idle.result!
+    const atStart = mutationContextAtStart(phraseOne, false)
     /** Intent: the plan's start from Reel's phrase 1, as the queue builds it, with these settings. */
     const startFrom = (settings: SessionSettings) =>
       planStart({
@@ -436,7 +440,7 @@ describe('Idle pre-generation queue under a restriction in force', () => {
         phraseOne: { intent: phraseOne.intent, outcome: phraseOne.outcome },
         phraseOneSettings: reel,
         sessionSeed: REEL_SESSION_SEED,
-        mutation: mutationFlagFor(true, REEL_SESSION_SEED),
+        mutation: mutationFlagFor(true, REEL_SESSION_SEED, settings, atStart),
       })
     const bounded = withRestrictionAtStart(reel, BUILT_IN_PRESETS)
     expect(bounded.restriction).toStrictEqual(builtInPreset('reel').restriction)
@@ -519,6 +523,7 @@ describe('Idle pre-generation queue under a restriction in force', () => {
     const bounded = withRestrictionAtStart(mine, rig.idle.presets)
     expect(bounded.restriction).toStrictEqual(myReel.restriction)
     const phraseOne = rig.idle.result
+    const atStart = mutationContextAtStart(phraseOne, false)
     const planned = plannedReadyPhrases(
       planSeams(),
       planStart({
@@ -526,7 +531,7 @@ describe('Idle pre-generation queue under a restriction in force', () => {
         phraseOne: { intent: phraseOne.intent, outcome: phraseOne.outcome },
         phraseOneSettings: mine,
         sessionSeed: REEL_SESSION_SEED,
-        mutation: mutationFlagFor(true, REEL_SESSION_SEED),
+        mutation: mutationFlagFor(true, REEL_SESSION_SEED, bounded, atStart),
       }),
     )
     expect(withoutRequestIds(rig.queue.take('one-system').map((ready) => ready.intent))).toEqual(

@@ -38,11 +38,12 @@ import {
   type PregenerationStart,
 } from '@/session/session-pregeneration'
 import { sessionSettingsAtStart } from '@/session/session-intents'
+import { mutationContextAtStart } from '@/session/session-mutation-step'
 import type { ReadyPhrase } from '@/session/session-ready-phrases'
 import type { SessionStartBlocker } from '@/session/session-start-conditions'
 import { sessionLayoutAtStart } from '@/session/session-window'
 import { phraseOneSettings } from '@/session/stale-phrase-one'
-import { withRestrictionAtStart } from '@/session/settings-mutation'
+import { ALL_GROUPS_ALLOWED, withRestrictionAtStart } from '@/session/settings-mutation'
 import { fitsHeldLayout, writtenPhraseOf } from './held-layout-fit'
 import type { IdleLayoutPort } from './idle-layout-gate'
 import type { WorkspacePregenerationPolicy } from './prewarm-policy'
@@ -189,20 +190,30 @@ export function createWorkspacePregeneration(
    * Intent: the plan's start from phrase 1 and the Idle choices as a session would take them, my
    * instrument's profile taken from phrase 1's intent and the restriction in force frozen in, as
    * Start takes them, with the settings phrase 1 was generated under, as the stale-phrase prompt's
-   * Use it passes them.
+   * Use it passes them, and the mutation flag Start gives: off when those settings have no legal
+   * move under the context the start state gives, the window read as the plan reads it.
    */
   // @spec-link [[entity_my_instrument]]
   // @spec-link [[rule_pregenerated_phrase_matches_session]]
   // @spec-link [[rule_vary_settings_stays_inside_restriction]]
   function startOf(phraseOne: WorkspaceSessionResult): PregenerationStart {
-    return {
-      settings: withRestrictionAtStart(
-        sessionSettingsAtStart(
-          { controls: idle.controls, figureLevels: idle.figureLevels, selection: idle.selection },
-          phraseOne.intent,
-        ),
-        idle.presets,
+    const settings = withRestrictionAtStart(
+      sessionSettingsAtStart(
+        {
+          controls: idle.controls,
+          figureLevels: idle.figureLevels,
+          selection: idle.selection,
+          // The saved allowed groups arrive with chunk 19, the session's rhythm lock with chunk 16.
+          allowedGroups: ALL_GROUPS_ALLOWED,
+          rhythmLockOn: false,
+        },
+        phraseOne.intent,
       ),
+      idle.presets,
+    )
+    const context = mutationContextAtStart(phraseOne, deps.viewport.isBelowTabletLandscape())
+    return {
+      settings,
       phraseOne: { intent: phraseOne.intent, outcome: phraseOne.outcome },
       phraseOneSettings: phraseOneSettings(
         phraseOne.settings,
@@ -210,7 +221,7 @@ export function createWorkspacePregeneration(
         idle.controls.tempo,
       ),
       sessionSeed: phraseOne.sessionSeed,
-      mutation: mutationFlagFor(deps.varySettings(), phraseOne.sessionSeed),
+      mutation: mutationFlagFor(deps.varySettings(), phraseOne.sessionSeed, settings, context),
       multiPhraseTensionArc: deps.tensionAcrossPhrases(),
     }
   }
