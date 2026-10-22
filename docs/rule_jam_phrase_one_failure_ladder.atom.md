@@ -10,6 +10,7 @@ version: 0.2
 priority: 1
 tags: [v3, release-v3.2, session, jam, error-handling]
 dependents:
+  - [[module_session_seed_plan]]
   - [[rule_jam_ends_when_phrase_one_never_comes]]
 ---
 

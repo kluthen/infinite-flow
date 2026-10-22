@@ -1,7 +1,7 @@
 ---
 id: rule_join_carry_in_limited
 status: STABLE
-version: 0.3
+version: 0.4
 tags: [v2, release-v2.0, session, phrase-join]
 parents:
   - [[req_rolling_practice_session]]
@@ -36,12 +36,12 @@ When one phrase of a session is followed by the next, exactly four things cross 
 3. its final harmony event (the chord and its harmonic role) and the endpoint class that chord belongs to;
 4. the phrase's ordinal position in the session.
 
-Nothing else is visible across the join. Two kinds of input are not carry-in and do not cross a join, since they are the same for every later phrase of a session once set: a Jam's quantized doodle and drift, which every phrase of a Jam is generated with; and the rhythm lock's locked rhythm, taken from phrase 1 (and re-taken once after a narrow-window step-down), which every later phrase is generated with. A Jam's phrase 1 is joined from the doodle, not from a phrase: only the doodle's last pitch, reached by no interval and owing no leap recovery, and the register window cross, with no chord and no ordinal. In particular, each phrase's own tension arc (its build and release within its own four measures) is planned independently of carry-in and of every other phrase; when the multi-phrase tension arc runs, the tension a phrase is generated with is stepped from its own position in the session, never from another phrase's material. Where the next phrase is generated under different settings from the phrase before it, after a setting change or a multi-phrase tension arc step, carry-in can be adapted at the join, a part dropped or the carried register window replaced, as the carry-in adaptation rules say, but nothing beyond those four items is ever added. No stage of generating a later phrase ever revises anything about an earlier phrase.
+Nothing else is visible across the join. Two kinds of input are not carry-in and do not cross a join, since they are the same for every later phrase of a session once set: a Jam's steering block, derived from its doodle and drift, which every phrase of a Jam is generated with; and the rhythm lock's locked rhythm, taken from phrase 1 (and re-taken once after a narrow-window step-down), which every later phrase is generated with. A Jam's phrase 1 is joined from the doodle, not from a phrase: only the doodle's last pitch, reached by no interval and owing no leap recovery, and the register window cross, with no chord and no ordinal. In particular, each phrase's own tension arc (its build and release within its own four measures) is planned independently of carry-in and of every other phrase; when the multi-phrase tension arc runs, the tension a phrase is generated with is stepped from its own position in the session, never from another phrase's material. Where the next phrase is generated under different settings from the phrase before it, after a setting change or a multi-phrase tension arc step, carry-in can be adapted at the join, a part dropped or the carried register window replaced, as the carry-in adaptation rules say, but nothing beyond those four items is ever added. No stage of generating a later phrase ever revises anything about an earlier phrase.
 
 ## TECHNICAL INTERFACE
 
 Generating a session phrase after the first takes the carry-in of the phrase before it, alongside the usual complete request and seed.
 
 ## EXPECTATION
-- A session phrase's generation depends on the previous phrase only through those four carry-in items, as adapted at a join where the settings differ, and on earlier material only through those and the session-wide inputs named above: a Jam's doodle and drift, and the locked rhythm.
+- A session phrase's generation depends on the previous phrase only through those four carry-in items, as adapted at a join where the settings differ, and on earlier material only through those and the session-wide inputs named above: a Jam's steering block, and the locked rhythm.
 - A phrase already generated or shown never changes because of a later phrase.
