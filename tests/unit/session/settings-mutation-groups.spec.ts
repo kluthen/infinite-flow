@@ -16,13 +16,12 @@ import {
   MUTABLE_SETTING_GROUPS,
   MUTABLE_SETTINGS,
   VARY_SETTINGS_GROUPS,
-  drawMutation,
   isGroupAllowed,
-  mutateSettings,
   mutationCandidates,
   type MutationContext,
   type VarySettingsGroup,
 } from '@/session/settings-mutation'
+import { drawnMove, mutatedMove } from './settings-mutation-moves'
 import {
   EVERY_GROUP_SUBSET,
   GROUP_CONTEXTS,
@@ -124,10 +123,10 @@ describe('mutateSettings inside the allowed groups', () => {
           continue
         }
         const label = `trial ${trial}`
-        const result = mutateSettings(settings, context, seed, k)
+        const result = mutatedMove(settings, context, seed, k)
         const group = specGroupOf(result.setting)
         expect(specAllows(group, allowedGroups, rhythmLockOn), label).toBe(true)
-        const expected = drawMutation(marked, seed, k)
+        const expected = drawnMove(marked, seed, k)
         expect(
           { setting: result.setting, figure: result.figure, from: result.from, to: result.to },
           label,
@@ -158,7 +157,7 @@ describe('mutateSettings inside the allowed groups', () => {
     const groups = new Set<VarySettingsGroup>()
     for (let seed = 0; seed < 400; seed += 1)
       for (const k of [1, 2, 3]) {
-        const result = mutateSettings(settings, WIDE, makeSeed(seed), k)
+        const result = mutatedMove(settings, WIDE, makeSeed(seed), k)
         groups.add(specGroupOf(result.setting))
       }
     expect([...groups].sort()).toStrictEqual(

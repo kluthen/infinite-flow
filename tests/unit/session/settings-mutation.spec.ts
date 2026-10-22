@@ -23,14 +23,18 @@ import { makeSeed, type Seed } from '@/domain/random/seed'
 import {
   ALL_GROUPS_ALLOWED,
   MUTABLE_SETTINGS,
+  MUTATION_DEAD_END,
   SettingsMutationError,
   drawMutation,
+  isMutationDeadEnd,
   mutateSettings,
   mutationCandidates,
   type MutationContext,
   type SettingsMutationResult,
 } from '@/session/settings-mutation'
 import type { SessionSettings } from '@/session/session-types'
+import { drawnMove, mutatedMove } from './settings-mutation-moves'
+import { groupsOn } from './vary-settings-groups-cases'
 
 const WIDE: MutationContext = {
   belowTabletLandscape: false,
@@ -74,7 +78,7 @@ function densityMutations(
 ): SettingsMutationResult[] {
   const found: SettingsMutationResult[] = []
   for (let seed = 0; found.length < wanted && seed < 5000; seed += 1) {
-    const result = mutateSettings(settings, context, makeSeed(seed), 1)
+    const result = mutatedMove(settings, context, makeSeed(seed), 1)
     if (result.setting === 'noteDensity') found.push(result)
   }
   expect(found).toHaveLength(wanted)
@@ -112,7 +116,7 @@ function expectMutationsLandSupported(
   for (const seed of SEEDS.slice(0, 3))
     for (const k of [1, 4]) {
       const label = `${settingLabel} ${JSON.stringify(context)} ${seed}/${k}`
-      const result = mutateSettings(settings, context, seed, k)
+      const result = mutatedMove(settings, context, seed, k)
       expect(isRhythmSettingBlocked(result.settings.controls, context), label).toBe(false)
       if (sixteenthUnavailable && result.setting === 'noteDensity')
         expect(result.to, label).not.toBe('Sixteenth')
@@ -126,15 +130,15 @@ describe('mutateSettings draw', () => {
     const settings = settingsWith({})
     for (const seed of SEEDS.slice(0, 50))
       for (const k of [1, 2, 7])
-        expect(mutateSettings(settings, WIDE, seed, k)).toStrictEqual(
-          mutateSettings(settings, WIDE, seed, k),
+        expect(mutatedMove(settings, WIDE, seed, k)).toStrictEqual(
+          mutatedMove(settings, WIDE, seed, k),
         )
   })
 
   it('returns frozen, valid settings and leaves the input untouched', () => {
     const settings = settingsWith({})
     const snapshot = structuredClone(settings)
-    const result = mutateSettings(settings, WIDE, makeSeed(9), 1)
+    const result = mutatedMove(settings, WIDE, makeSeed(9), 1)
     expect(Object.isFrozen(result)).toBe(true)
     expect(Object.isFrozen(result.settings.controls)).toBe(true)
     expect(Object.isFrozen(result.settings.figureLevels)).toBe(true)
@@ -147,7 +151,7 @@ describe('mutateSettings draw', () => {
     const drawn = new Set<string>()
     for (const seed of SEEDS)
       for (const k of [1, 2, 3]) {
-        const result = mutateSettings(settings, WIDE, seed, k)
+        const result = mutatedMove(settings, WIDE, seed, k)
         drawn.add(result.setting)
         const changed = changedControls(settings.controls, result.settings.controls)
         if (result.setting === 'figureLevels') {
@@ -188,19 +192,37 @@ describe('mutateSettings draw', () => {
       supported: index === 5,
     }))
     for (const seed of SEEDS.slice(0, 20)) {
-      const result = drawMutation(onlyOne, seed, 1)
+      const result = drawnMove(onlyOne, seed, 1)
       expect(result.setting).toBe(candidates[5]?.setting)
       expect(result.to).toBe(candidates[5]?.to)
     }
   })
 
-  it('throws instead of looping when no candidate is supported', () => {
+  // @test-link [[rule_vary_settings_skips_dead_end]]
+  // @test-link [[module_settings_mutation]]
+  it('returns a dead end, throwing nothing, when no candidate is supported', () => {
     const none = mutationCandidates(settingsWith({}), WIDE).map((candidate) => ({
       ...candidate,
       supported: false,
     }))
-    expect(() => drawMutation(none, makeSeed(1), 1)).toThrow(SettingsMutationError)
-    expect(() => drawMutation([], makeSeed(1), 1)).toThrow(SettingsMutationError)
+    const draws: number[] = []
+    /** Intent: keep every draw count the observer is told. */
+    const observe = (count: number) => draws.push(count)
+    for (const seed of SEEDS.slice(0, 5)) {
+      const drawn = drawMutation(none, seed, 1, observe)
+      expect(isMutationDeadEnd(drawn)).toBe(true)
+      expect(drawn).toStrictEqual(drawMutation(none, seed, 1))
+      expect(Object.isFrozen(drawn)).toBe(true)
+    }
+    expect(drawMutation([], makeSeed(1), 1, observe)).toStrictEqual(MUTATION_DEAD_END)
+    const everyGroupOff = { ...settingsWith({}), allowedGroups: groupsOn([]) }
+    for (const seed of SEEDS.slice(0, 5))
+      for (const k of [1, 2, 7]) {
+        const drawn = mutateSettings(everyGroupOff, WIDE, seed, k, observe)
+        expect(drawn).toStrictEqual(MUTATION_DEAD_END)
+        expect(drawn).toStrictEqual(mutateSettings(everyGroupOff, WIDE, seed, k))
+      }
+    expect(draws).toEqual([])
   })
 
   it('throws when the input settings are themselves unsupported', () => {
@@ -322,7 +344,7 @@ describe('mutateSettings figure step', () => {
     let flips = 0
     for (const [start, seed, k, setting, from, to] of V30_DRAWS.rows) {
       const label = `${start} seed ${seed} k ${k}`
-      const result = mutateSettings(recordedStart(start), V30_DRAWS.context, makeSeed(seed), k)
+      const result = mutatedMove(recordedStart(start), V30_DRAWS.context, makeSeed(seed), k)
       if (setting === 'musicalProfile') {
         flips += 1
         expect(result.setting, label).toBe('figureLevels')
@@ -342,7 +364,7 @@ describe('mutateSettings figure step', () => {
     const settings = settingsWith({})
     const reached = new Set<string>()
     for (let seed = 0; seed < 3000; seed += 1) {
-      const result = mutateSettings(settings, WIDE, makeSeed(seed), 1)
+      const result = mutatedMove(settings, WIDE, makeSeed(seed), 1)
       if (result.setting !== 'figureLevels') continue
       const figure = result.figure
       if (figure === undefined) throw new Error('A figure step names its figure.')
@@ -369,7 +391,7 @@ describe('mutateSettings figure step', () => {
     const settings = settingsWith({}, DEFAULT_PRESET_SELECTION, levels)
     const moved = new Set<string>()
     for (let seed = 0; seed < 3000; seed += 1) {
-      const result = mutateSettings(settings, WIDE, makeSeed(seed), 2)
+      const result = mutatedMove(settings, WIDE, makeSeed(seed), 2)
       if (result.setting !== 'figureLevels' || result.figure === undefined) continue
       if (result.figure === 'passingTone') {
         moved.add('passingTone')
@@ -391,9 +413,7 @@ describe('mutateSettings figure step', () => {
 describe('mutateSettings Custom mark', () => {
   /** Intent: the drawn mutations k = 1 of these settings over many seeds. */
   function drawn(settings: SessionSettings): readonly SettingsMutationResult[] {
-    return Array.from({ length: 600 }, (_, seed) =>
-      mutateSettings(settings, WIDE, makeSeed(seed), 1),
-    )
+    return Array.from({ length: 600 }, (_, seed) => mutatedMove(settings, WIDE, makeSeed(seed), 1))
   }
 
   // @test-link [[rule_vary_settings_marks_custom]]

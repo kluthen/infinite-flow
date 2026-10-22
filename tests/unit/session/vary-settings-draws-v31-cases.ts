@@ -31,11 +31,11 @@ import { settingsMutationSeed } from '@/session/session-seed-plan'
 import type { SessionSettings } from '@/session/session-types'
 import {
   ALL_GROUPS_ALLOWED,
-  mutateSettings,
   mutationIndexLandingOn,
   withRestrictionAtStart,
   type MutationContext,
 } from '@/session/settings-mutation'
+import { mutatedMove } from './settings-mutation-moves'
 
 /** The last phrase each session runs to; mutations can land from phrase 3 on. */
 export const VARY_SETTINGS_DRAWS_V31_LAST_PHRASE = 31
@@ -320,11 +320,12 @@ export function sessionDrawRows(
     const landing = landingMutation({ kind: 'on', seed }, phrase, settings, () => mutationContext)
     if (landing === undefined) continue
     const { output } = landing
-    if (output.cause !== 'mutation') throw new Error('A mutation landing reports a mutation.')
+    if (output.kind !== 'settings-changed' || output.cause !== 'mutation')
+      throw new Error(`The mutation on phrase ${phrase} met a dead end; v3.1.0 always moved.`)
     const k = mutationIndexLandingOn(seed, phrase)
     if (k === undefined) throw new Error(`No mutation is scheduled on phrase ${phrase}.`)
     let draws = 0
-    const drawn = mutateSettings(settings, mutationContext, seed, k, (count) => {
+    const drawn = mutatedMove(settings, mutationContext, seed, k, (count) => {
       draws = count
     })
     if (canonicalJson(drawn.settings) !== canonicalJson(landing.settings))

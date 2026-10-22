@@ -1,7 +1,8 @@
 /**
  * The session controller and its Idle pre-generation queue: the queue runs while every start
  * condition holds, a background attempt never blocks Start, Start aborts it at once and passes
- * the ready phrases that fit to the runner, whose engine spends them in place of requesting them;
+ * the ready phrases that fit to the runner, whose engine spends them in place of requesting them,
+ * planned with the mutation flag Start gives;
  * tempo and Rising tempo keep the queue; dispose aborts the attempt in flight.
  */
 import { describe, expect, it } from 'vitest'
@@ -9,6 +10,8 @@ import { describe, expect, it } from 'vitest'
 import { createWorkspacePregeneration } from '@/components/workspace/workspace-pregeneration'
 import { createPregenerationSlot } from '@/composables/generation-session-pregeneration'
 import { makeRequestId } from '@/domain/generation/generation-request'
+import { settingsMutationSeed } from '@/session/session-seed-plan'
+import { mutationPhrase } from '@/session/settings-mutation'
 import { fakeViewport, realOutcomeFor } from '../../session/session-harness'
 import { connectKeys } from './session-controller-midi'
 import {
@@ -17,9 +20,15 @@ import {
   controllerRig,
   flush,
   outputsOf,
+  playTo,
   type ControllerRig,
 } from './session-controller-rig'
 import { createGatedGenerate, type GatedGenerate } from './pregeneration-rig'
+
+/** Intent: when phrase `n` of a 240 BPM rig session starts sounding. */
+function phraseStart(n: number): number {
+  return 6.1 + 4 * (n - 1)
+}
 
 /** A controller whose pre-generation queue runs on a generate seam the test settles. */
 interface PregeneratingRig {
@@ -78,6 +87,32 @@ describe('session controller with Idle pre-generation', () => {
     expect(phraseTwo?.phrase).toMatchObject({ phraseNumber: 2, origin: 'carry-in' })
     expect(phraseTwo?.phrase.intent).toEqual(readyPhrases![0]!.intent)
     expect(background.calls).toHaveLength(4)
+    rig.controller.dispose()
+  })
+
+  // @test-link [[rule_pregenerated_phrase_matches_session]]
+  // @test-link [[rule_vary_settings_needs_legal_move]]
+  it('plans with the mutation flag Start gives, so a session with Vary settings on spends every ready phrase, its first mutation among them', async () => {
+    const { rig, background } = pregeneratingRig()
+    rig.controller.setVarySettings(true)
+    await answerBackground(background)
+    const landsOn = mutationPhrase(settingsMutationSeed(rig.phraseOne.sessionSeed), 1)
+    expect(landsOn).toBeLessThanOrEqual(5)
+
+    rig.controller.start()
+    await playTo(rig, phraseStart(4) + 0.05)
+
+    expect(rig.runnerInputs[0]!.start).toMatchObject({ varySettings: true })
+    expect(rig.runnerInputs[0]!.start.readyPhrases?.map((ready) => ready.phraseNumber)).toEqual([
+      2, 3, 4, 5,
+    ])
+    expect(outputsOf(rig, 'request-generation')).toEqual([])
+    expect(outputsOf(rig, 'settings-changed')).toMatchObject([
+      { phraseNumber: landsOn, cause: 'mutation' },
+    ])
+    expect(outputsOf(rig, 'phrase-ready').map((ready) => ready.phrase.phraseNumber)).toEqual([
+      2, 3, 4, 5,
+    ])
     rig.controller.dispose()
   })
 

@@ -11,6 +11,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { mutationFlagFor } from '@/components/workspace/workspace-session-runner'
+import { mutationContextAtStart } from '@/session/session-mutation-step'
 import {
   createPregenerationPlan,
   revalidatedReadyPhrases,
@@ -227,7 +228,9 @@ describe('Vary settings and Tension across phrases in the plan', () => {
   // @test-link [[module_session_pregeneration_plan]]
   // @test-link [[rule_mutation_lands_on_scheduled_phrase]]
   it('lands the first mutation on its scheduled phrase and keeps it in effect after', () => {
-    const mutation = mutationFlagFor(true, DEFAULT_SESSION_SEED)
+    const base = planStart()
+    const context = mutationContextAtStart(base.phraseOne, false)
+    const mutation = mutationFlagFor(true, DEFAULT_SESSION_SEED, base.settings, context)
     if (mutation.kind !== 'on') throw new Error('Vary settings is on.')
     const landing = mutationPhrase(mutation.seed, 1)
     const second = mutationPhrase(mutation.seed, 2)

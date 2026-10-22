@@ -2,56 +2,34 @@
  * The legal-move check: for the settings in effect and a mutation context, whether at least one
  * step lands on a supported combination inside the allowed groups, the Rhythm group not counting
  * under the rhythm lock and a key or mode step counting only inside the restriction the settings
- * carry. It is false exactly when a mutation of those settings has no move to make.
+ * carry. It is false exactly when a mutation of those settings is a dead end, which throws nothing.
  */
 
 import { describe, expect, it } from 'vitest'
 
-import {
-  ARPEGGIO_CHAOS_VALUES,
-  COLLECTIONS,
-  CONTOURS,
-  HARMONIC_MOTIONS,
-  LEAPINESS_VALUES,
-  NOTE_DENSITIES,
-  PITCH_CLASSES,
-  REGISTER_CHOICES,
-  RHYTHMIC_VARIETIES,
-  SILENCE_DENSITIES,
-  SYNCOPATIONS,
-  TENSION_ARCS,
-  type Collection,
-  type GenerationControls,
-  type PitchClass,
-} from '@/domain/controls/generation-controls'
+import type { GenerationControls } from '@/domain/controls/generation-controls'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import { isRhythmSettingBlocked } from '@/domain/controls/unsupported-rhythm-settings'
-import {
-  FIGURE_LEVEL_IDS,
-  NEUTRAL_FIGURE_LEVELS,
-  type FigureLevels,
-} from '@/domain/figures/figure-levels'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { BUILT_IN_PRESET_IDS } from '@/domain/presets/built-in-presets'
 import {
   makeKeyAndModeRestriction,
   onlyKeyAndMode,
-  type KeyAndModeRestriction,
-  type RestrictionHalf,
 } from '@/domain/presets/key-and-mode-restriction'
-import { createMulberry32, type Mulberry32Generator } from '@/domain/random/prng'
+import { createMulberry32 } from '@/domain/random/prng'
 import { makeSeed } from '@/domain/random/seed'
 import { CANONICAL_REGISTER_ORDER } from '@/domain/profile/register-id'
 import type { SessionSettings } from '@/session/session-types'
 import {
   ALL_GROUPS_ALLOWED,
-  SettingsMutationError,
+  MUTATION_DEAD_END,
   hasLegalMove,
+  isMutationDeadEnd,
   mutateSettings,
   type AllowedGroups,
   type MutationContext,
 } from '@/session/settings-mutation'
 import {
-  EVERY_GROUP_SUBSET,
   GROUP_CONTEXTS,
   groupsOn,
   pick,
@@ -61,6 +39,7 @@ import {
   specMarkedCandidates,
   withGroups,
 } from './vary-settings-groups-cases'
+import { randomSettings } from './vary-settings-random-settings'
 
 const WIDE: MutationContext = {
   belowTabletLandscape: false,
@@ -73,72 +52,6 @@ const MANY_DRAWS_TIMEOUT_MS = 60_000
 
 /** The random settings the legal-move property checks. */
 const PROPERTY_TRIALS = 2500
-
-/** Intent: a restriction half: any, or the current value with up to two others. */
-function randomHalf<T extends string>(
-  random: Mulberry32Generator,
-  catalog: readonly T[],
-  current: T,
-): RestrictionHalf<T> {
-  if (random.nextFloat() < 1 / 3) return 'any'
-  const others = Array.from({ length: Math.floor(random.nextFloat() * 3) }, () =>
-    pick(catalog, random.nextFloat()),
-  ).filter((value, at, all) => value !== current && all.indexOf(value) === at)
-  return [current, ...others]
-}
-
-/**
- * Intent: a restriction holding the current key and mode, as one frozen at a session's start
- * does, or none when both halves allow anything.
- */
-function randomRestriction(
-  random: Mulberry32Generator,
-  tonalCenter: PitchClass,
-  collection: Collection,
-): KeyAndModeRestriction | undefined {
-  const keys = randomHalf(random, PITCH_CLASSES, tonalCenter)
-  const modes = randomHalf(random, COLLECTIONS, collection)
-  if (keys === 'any' && modes === 'any') return undefined
-  return makeKeyAndModeRestriction({ keys, modes })
-}
-
-/** Intent: settings with every mutable control and figure level drawn at random. */
-function randomSettings(random: Mulberry32Generator): SessionSettings {
-  const draw = <T>(catalog: readonly T[]): T => pick(catalog, random.nextFloat())
-  const controls: GenerationControls = {
-    ...DEFAULT_GENERATION_CONTROLS,
-    tonalCenter: draw(PITCH_CLASSES),
-    collection: draw(COLLECTIONS),
-    harmonicMotion: draw(HARMONIC_MOTIONS),
-    tension: draw(TENSION_ARCS),
-    noteDensity: draw(NOTE_DENSITIES),
-    rhythmicVariety: draw(RHYTHMIC_VARIETIES),
-    syncopation: draw(SYNCOPATIONS),
-    silenceDensity: draw(SILENCE_DENSITIES),
-    contour: draw(CONTOURS),
-    register: draw(REGISTER_CHOICES),
-    leapiness: draw(LEAPINESS_VALUES),
-    arpeggioChaos: draw(ARPEGGIO_CHAOS_VALUES),
-  }
-  const figureLevels: FigureLevels = {
-    passingTone: draw(FIGURE_LEVEL_IDS),
-    accentedPassingTone: draw(FIGURE_LEVEL_IDS),
-    neighborTone: draw(FIGURE_LEVEL_IDS),
-    appoggiatura: draw(FIGURE_LEVEL_IDS),
-    diatonicEnclosure: draw(FIGURE_LEVEL_IDS),
-    chromaticApproach: draw(FIGURE_LEVEL_IDS),
-    chromaticEnclosure: draw(FIGURE_LEVEL_IDS),
-  }
-  const restriction = randomRestriction(random, controls.tonalCenter, controls.collection)
-  return {
-    controls,
-    figureLevels,
-    selection: { kind: 'custom', baseId: draw(BUILT_IN_PRESET_IDS) },
-    ...(restriction === undefined ? {} : { restriction }),
-    allowedGroups: draw(EVERY_GROUP_SUBSET),
-    rhythmLockOn: random.nextFloat() < 0.5,
-  }
-}
 
 /** Intent: C Ionian settings with Neutral's levels and the given groups, lock and controls. */
 function cIonian(
@@ -160,12 +73,13 @@ function cIonian(
 // @test-link [[module_settings_mutation]]
 describe('the legal-move check', () => {
   // @test-link [[rule_vary_settings_needs_legal_move]]
+  // @test-link [[rule_vary_settings_skips_dead_end]]
   // @test-link [[module_settings_mutation]]
   it(
-    'is false exactly when no step lands on a supported combination inside the allowed groups, and exactly when a mutation has no move to make',
+    'is false exactly when no step lands on a supported combination inside the allowed groups, and exactly when a mutation is a dead end',
     () => {
       const random = createMulberry32(0x1e6a_1015)
-      const seen = { legal: 0, none: 0, mutated: 0, refused: 0, blocked: 0 }
+      const seen = { legal: 0, none: 0, mutated: 0, deadEnd: 0, blocked: 0 }
       for (let trial = 0; trial < PROPERTY_TRIALS; trial += 1) {
         const settings = randomSettings(random)
         const context = pick(GROUP_CONTEXTS, random.nextFloat())
@@ -177,16 +91,16 @@ describe('the legal-move check', () => {
           seen.blocked += 1
           continue
         }
-        const mutate = () => mutateSettings(settings, context, makeSeed(trial), 1)
-        if (legal) {
-          const { setting } = mutate()
+        const drawn = mutateSettings(settings, context, makeSeed(trial), 1)
+        expect(isMutationDeadEnd(drawn), label).toBe(!legal)
+        if (isMutationDeadEnd(drawn)) {
+          expect(drawn, label).toStrictEqual(MUTATION_DEAD_END)
+          seen.deadEnd += 1
+        } else {
           expect(
-            specAllows(specGroupOf(setting), settings.allowedGroups, settings.rhythmLockOn),
+            specAllows(specGroupOf(drawn.setting), settings.allowedGroups, settings.rhythmLockOn),
           ).toBe(true)
           seen.mutated += 1
-        } else {
-          expect(mutate, label).toThrow(SettingsMutationError)
-          seen.refused += 1
         }
       }
       for (const [kind, count] of Object.entries(seen)) expect(count, kind).toBeGreaterThan(0)

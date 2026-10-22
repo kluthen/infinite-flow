@@ -108,6 +108,28 @@ export interface MutationCandidate extends SettingsMutationResult {
   readonly supported: boolean
 }
 
+/**
+ * A mutation with no move to make: no step of the settings is a supported one inside the allowed
+ * groups. The module returns it instead of a result and throws nothing; the session skips that
+ * mutation.
+ */
+// @spec-link [[module_settings_mutation]]
+export interface MutationDeadEnd {
+  readonly kind: 'dead-end'
+}
+
+/** Intent: the one dead end every mutation with no move returns, the same for the same inputs. */
+// @spec-link [[module_settings_mutation]]
+export const MUTATION_DEAD_END: MutationDeadEnd = deepFreeze<MutationDeadEnd>({ kind: 'dead-end' })
+
+/** Intent: whether a drawn mutation is the dead end rather than a move. */
+// @spec-link [[module_settings_mutation]]
+export function isMutationDeadEnd(
+  drawn: SettingsMutationResult | MutationDeadEnd,
+): drawn is MutationDeadEnd {
+  return 'kind' in drawn && drawn.kind === 'dead-end'
+}
+
 /** Upper bound on redraws, far beyond any real need; reaching it means the stream is broken. */
 const MAX_MUTATION_DRAWS = 10_000
 
@@ -338,8 +360,10 @@ function resultOf(step: MutationCandidate): SettingsMutationResult {
  * uniformly; all redrawn from the same (seed, k) stream while the step lands on something
  * unsupported, outside the restriction frozen at the session's start, or moves a setting whose
  * group is not allowed (each marked unsupported among the candidates, so every setting with a step
- * keeps its place in the draw). Crashes up front when no candidate is supported, rather than
- * looping. `observe`, when given, is told how many draws it took.
+ * keeps its place in the draw). When no candidate is supported, the mutation is a dead end: the
+ * dead end is returned up front, nothing drawn, `observe` not told and nothing thrown. No supported
+ * draw within a fixed bound of draws throws rather than looping. `observe`, when given, is told
+ * how many draws a move took.
  */
 // @spec-link [[rule_mutation_draws_setting_then_direction]]
 // @spec-link [[rule_mutation_rerolls_unsupported_combination]]
@@ -351,10 +375,9 @@ export function drawMutation(
   seed: Seed,
   k: number,
   observe?: MutationDrawsObserver,
-): SettingsMutationResult {
+): SettingsMutationResult | MutationDeadEnd {
   requirePositiveInteger(k, 'A mutation number')
-  if (!candidates.some((candidate) => candidate.supported))
-    throw new SettingsMutationError('No mutation of these settings lands on a supported one.')
+  if (!candidates.some((candidate) => candidate.supported)) return MUTATION_DEAD_END
   const eligible = MUTABLE_SETTINGS.filter((setting) =>
     candidates.some((candidate) => candidate.setting === setting),
   )
@@ -378,9 +401,11 @@ export function drawMutation(
  * landing on a supported combination, a key or mode step inside the restriction the settings
  * carry from the session's start (none bounds nothing), and only a setting of an allowed group,
  * never the Rhythm group while the rhythm lock is on; a step of a preset-held setting marks the
- * selection Custom, a key or mode step never does. The result is a pure function of its inputs;
- * `observe`, when given, is told how many draws it took. Settings that are unsupported to begin
- * with are a caller bug and throw.
+ * selection Custom, a key or mode step never does. When no step is a supported one inside the
+ * allowed groups (exactly when `hasLegalMove` is false), the mutation is a dead end, returned
+ * instead of a move, throwing nothing. The result, move or dead end, is a pure function of its
+ * inputs; `observe`, when given, is told how many draws a move took. Settings that are
+ * unsupported to begin with are a caller bug and throw.
  */
 // @spec-link [[module_settings_mutation]]
 // @spec-link [[rule_mutation_draws_setting_then_direction]]
@@ -393,7 +418,7 @@ export function mutateSettings(
   seed: Seed,
   k: number,
   observe?: MutationDrawsObserver,
-): SettingsMutationResult {
+): SettingsMutationResult | MutationDeadEnd {
   requirePositiveInteger(k, 'A mutation number')
   const current = freezeSessionSettings(settings)
   if (isRhythmSettingBlocked(current.controls, context))
