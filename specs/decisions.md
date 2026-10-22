@@ -847,3 +847,14 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   change. N1's fixed draw bound stays a typed error; the dead end is the only no-throw outcome. Now
   in: [build plan v3.2, chunk 6](versions/v3/build-plan-v3.2.md#chunk-6--the-request-carries-v32s-inputs),
   [chunk 15](versions/v3/build-plan-v3.2.md#chunk-15--vary-settings-allowed-groups).
+
+- **D424 (2026-10-22): C7.3's five kinds are the ones chunk 5 built; "repeated" is the identical
+  edit; the shares and the known limit follow a re-measured census.** `spec-writer`'s, under the
+  owner's delegation of minor calls, at the wave driver's request. The built kinds match C7.3 and
+  the catalogue (a moved start or rest sits between two notes, so only adding or removing a rest
+  changes the silence). The 2026-10-08 script was not kept and several of its shares do not
+  reproduce, among them "with Sixteenth, none" under Strict and Straight: Sparse offers a rest
+  change (20 %). Rejected: "repeated" as the same kind only (two edits at two places are two
+  changes, against C7.4), and fitting the code to the old figures. Keying about 15 ms, not 10, is
+  accepted. Now in: [Part C §C7.3](versions/v3/master-spec.md#c73-the-five-kinds-and-the-known-limit), [§C7.6](versions/v3/master-spec.md#c76-how-the-search-holds-the-lock),
+  [jam-grounding §D.2](versions/v3/jam-grounding.md#d2-what-the-rhythm-domain-offers-a-locked-rhythm), [build plan v3.2, chunk 5](versions/v3/build-plan-v3.2.md#chunk-5--rhythm-bars-distance-and-change-kinds) (and chunks 8, 10, 11, M2, H2).

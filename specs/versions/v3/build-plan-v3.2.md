@@ -1,6 +1,8 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v11 (2026-10-22): v10 with wave 1's preflight corrections and the driver's rulings written
+Status: v12 (2026-10-22): v11 with the ruling on chunk 5's change kinds written in (spec D424,
+master spec Part C v1.6): chunk 5's kinds, availability census and costs; chunks 8, 10 and 11's
+costs and chunk 11's Sixteenth case; M2's comparison; v3.2 H2's settings. v11 (2026-10-22): v10 with wave 1's preflight corrections and the driver's rulings written
 in (spec D422, D423; master spec Part C v1.5): chunks 4, 5, 6 and 15 corrected, chunk 12's two
 contract revisions, gates CN and CK, a MAJOR contract bump at the sync of each wave that changes a
 guarantee promoted at 8.1.0. v10 (2026-10-22): v9 with gate CS's sign-off written in (spec D421, master spec Part C
@@ -368,7 +370,9 @@ corpora are a guard, not a measurement.
   rhythm.
 - **How:** chunk 3's lock census, over seeded eight-phrase sessions on the deadline sweep's
   settings, each kind alone and all five together, Tension across phrases on and off; per-kind
-  availability compared with [jam-grounding §D.2](jam-grounding.md#d2-what-the-rhythm-domain-offers-a-locked-rhythm).
+  availability compared with [jam-grounding §D.2](jam-grounding.md#d2-what-the-rhythm-domain-offers-a-locked-rhythm)'s
+  census (re-measured, spec D424), and recorded at each built-in preset's rhythm settings, which
+  L3's tuning reads.
 - **Run by:** chunk 13; the release gate, after L3's tuning.
 - **Acceptance:** the changed share within a few points of 1 in 4 and 1 in 2 (tuned by L3); the
   rest is recorded. A forced-bend rate the owner finds too high at L3 goes to `spec-writer`: the
@@ -445,12 +449,20 @@ Written by chunk 3; run after wave 2, before wave 4. About 8 minutes.
 
 Written by chunk 19; run after wave 3. About 10 minutes.
 
-1. Session mode, Eighth, Heavily varied, any key; Rhythm lock On.
-2. Allow "Move a note" only; play a session of eight phrases.
-3. Say whether each change sounded small, and whether 1 in 4 felt too often.
-4. Repeat 2–3 with each other kind alone (about one minute each).
-5. Repeat with Tension across phrases on: tenser phrases change about 1 in 2.
-6. Report; the shares are tuned from it, then M2 re-runs.
+A kind changes a phrase only when the locked rhythm offers it (C7.3's known limit). These settings
+offer all five: of their locked rhythms, 28 % offer a moved note, 51 % a moved rest, 22 % a split,
+15 % a merge, 28 % a rest added or removed, and 82 % at least one (spec D424). At Neutral's
+settings, Move a note and Move a rest never happen, so it is not used here.
+
+1. Session mode, the Pop song preset (Eighth, Heavily varied, Occasional offbeats, Conversational
+   silence, tension Lift), any key, 120 BPM; Rhythm lock On.
+2. Allow all five kinds; play eight phrases. Say whether each change sounded small, and whether
+   1 in 4 felt too often.
+3. Allow one kind only; play eight phrases. If none changed, press Regenerate at Idle (a new
+   phrase 1, a new locked rhythm) and play eight more; if still none, note it and move on (M2
+   records how often each kind is available). Repeat for each kind (one to two minutes each).
+4. Repeat 2 with Tension across phrases on: tenser phrases change about 1 in 2.
+5. Report; the shares are tuned from it, then M2 re-runs.
 
 #### v3.2 H3 — Vary settings' groups
 
@@ -755,14 +767,17 @@ their `identity` or index; a domain keyed by bars once, beside the canonical mem
     (Same; Close; Near; beyond), the total over four measures. Integers only.
   - `rhythm-change-kinds.ts` (new): the one allowed-kind change between the locked bars and a
     candidate's, in one measure or made in gesture measure _k_ and repeated in answer measure
-    _k_ + 2, or none; bars compared as written.
+    _k_ + 2, or none; bars compared as written. The kinds exactly as C7.3's "Exactly" column
+    defines them; "repeated" is the identical edit (kind, tick, shift); ties must match outside
+    the ticks the edit touches (spec D424).
 - **Files:** `src/domain/rhythm/rhythm-bars.ts`, `src/domain/rhythm/rhythm-distance.ts`,
   `src/domain/rhythm/rhythm-change-kinds.ts` (new); tests under `tests/unit/domain/rhythm/`.
 - **Spec sections:** [C4](master-spec.md#c4-words-used-in-this-part) (Bars, Distance),
   [C7.3](master-spec.md#c73-the-five-kinds-and-the-known-limit),
   [C7.6](master-spec.md#c76-how-the-search-holds-the-lock), [C8](master-spec.md#c8-jams-drift);
-  items 1, 2 and 29 (their basis).
-- **Atoms:** `rule_rhythm_distance`, `rule_rhythm_change_kinds`; (v2)
+  items 1, 2 and 29 (their basis); jam-grounding §D.2 (the census).
+- **Atoms:** `rule_rhythm_distance`, `rule_rhythm_change_kinds` (DRAFT; `documentalist` corrects
+  its known limit and its "repeated" at the wave's sync, spec D424); (v2)
   `rule_unsupported_rhythm_settings_block_generation`. Drift check:
   `entity_rhythm_candidate_domain`.
 - **Revisions:** none.
@@ -772,9 +787,18 @@ their `identity` or index; a domain keyed by bars once, beside the canonical mem
     Lift rhythm among Build's).
   - C8's bands on hand-written measure pairs, one test per rule; the total is symmetric and zero
     only between rhythms equal up to ties.
-  - The five kinds on hand-written pairs, alone and repeated, and pairs that are none; per-kind
-    availability within a point of §D.2's shares.
-  - Keying the largest domain (2,932 candidates) takes about 10 ms in Node (recorded).
+  - The five kinds on hand-written pairs, alone and repeated, and pairs that are none (among
+    them the same kind at another tick or shift in _k_ + 2, a note start moved after a rest, a
+    rest start moving alone, a note and a rest trading places, a tie added outside the edit).
+  - Per-kind availability over every supported domain equals
+    [jam-grounding §D.2](jam-grounding.md#d2-what-the-rhythm-domain-offers-a-locked-rhythm)'s
+    census count for count, every row of its table, with its grouping: a candidate (twins with
+    identical bars counted each) counts once per kind and form when another candidate of its own
+    domain is that change from it; counts summed over the row's domains. The census may run once
+    in the spec that already builds every domain; never beside `atd audit`.
+  - Keying the largest domain (2,932 candidates) takes about 15 ms in Node, and the total edits
+    from one rhythm to all of it about 27 ms (both recorded in the chunk's report, for chunks 8,
+    10 and 11; 14.4 ms and 26.5 ms medians at 8cbb67f, spec D424).
 - **Verification:** chunk checks.
 - **Split rule:** none needed (three new pure modules).
 
@@ -899,7 +923,10 @@ chunk 10's preference tuple; without a block the tuple is chunk 10's.
   choose a Jam's locked phrase 1 nearest the doodle, without removing any candidate.
 - **Scope:** `rhythm-steering.ts` (new) in the steering module; the rank computed after the seeded
   ranking, over the bar key's start lists, once per request; ties by the seeded key, then index, in
-  code-unit order. A target far from every rhythm the settings allow is only approached:
+  code-unit order. Budget: the total edits from one rhythm to every candidate of the largest domain
+  take about 27 ms in Node (chunk 5's measure, spec D424), so the rank is computed once per
+  request, never per rung or chord plan; memoizing the per-measure distance by measure pair is
+  allowed. The Jam sweep (M1) confirms it. A target far from every rhythm the settings allow is only approached:
   `no_legal_rhythm_plan` arises only where it arises in v3.1.
 - **Files:** `src/domain/generation/steering/rhythm-steering.ts` (new),
   `src/domain/generation/orchestration/candidate-ranking.ts`, `src/domain/rhythm/rhythm-lock-order.ts`;
@@ -973,7 +1000,8 @@ a steering block, a preference rank comes first; without them, the seeded key al
 - **Goal:** with "on, these bars" in the request, keep the locked bars, take a forced bend only when
   they cannot make a phrase.
 - **Scope:** `rhythm-lock-order.ts` (new): the locked bars first, then the forced bend's order (a
-  tie variant at distance 0 first, then total edits, then the seeded order); the search
+  tie variant at distance 0 first, then total edits, then the seeded order), computed only when a
+  bend is needed and once per request (about 27 ms on the largest domain in Node, spec D424); the search
   (`src/domain/generation/orchestration/window-search.ts`) as the capture says, under the fuel the
   request already has; the outcome in the provenance. "On, nothing locked yet" without a block is
   an ordinary phrase.
@@ -1013,7 +1041,10 @@ the change's kind, or "no change available", in the provenance. Chunk 16 builds 
 - **Scope:** `rhythm-change-draw.ts` (new): whether the phrase changes (1 in 4; 1 in 2 with the
   tenser flag); if so, the candidates whose bars differ from the locked bars by exactly one allowed
   change (chunk 5), every kind pooled, in seeded order, placed before the locked bars in chunk 10's
-  order; none found, the locked rhythm, recorded. Never without locked bars (phrase 1).
+  order; none found, the locked rhythm, recorded. Never without locked bars (phrase 1). The
+  candidates are looked up among those sharing the locked bars' other measures (three for a change
+  in one measure, two for a repeated one), grouped once per domain on first use (about 13 ms on
+  the largest domain), never by scanning the domain (about 38 ms a phrase; spec D424).
 - **Files:** `src/domain/rhythm/rhythm-change-draw.ts` (new),
   `src/domain/rhythm/rhythm-lock-order.ts`; tests under `tests/unit/domain/rhythm/`.
 - **Spec sections:** [C7.2](master-spec.md#c72-allowed-rhythm-changes-the-option),
@@ -1027,8 +1058,9 @@ the change's kind, or "no change available", in the provenance. Chunk 16 builds 
   - Over many seeds, no phrase makes more than one change, each of an allowed kind and measured
     from the locked bars; the drawn share is near 1 in 4, and 1 in 2 on tenser phrases.
   - No floating-point operation in the draw; golden draws for a fixed seed list.
-  - Under Strict variety with Straight syncopation at Sixteenth, no change is found and the phrase
-    keeps the locked rhythm.
+  - Under Strict variety with Straight syncopation at Sixteenth, no change is found under
+    Conversational or Breath-heavy silence and the phrase keeps the locked rhythm; under Sparse,
+    only Add or remove a rest is ever drawn (spec D424).
   - Without the lock or a kind, no draw is made; the corpora pass.
 - **Verification:** chunk checks with the corpus guard; the sweep at the wave gate.
 - **Split rule:** none needed (two source files).

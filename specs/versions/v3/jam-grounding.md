@@ -1,7 +1,8 @@
 # Jam — grounding research
 
 Status: research v3 (2026-10-07, re-checked against the code on 2026-10-08, refreshed against
-version 3.1.0 on 2026-10-21, spec D409). The facts the Jam re-scope relies on are in
+version 3.1.0 on 2026-10-21, spec D409; §D.2's shares and costs re-measured with the built
+change kinds on 2026-10-22, spec D424). The facts the Jam re-scope relies on are in
 [jam-mode.md §4](jam-mode.md#4-the-generator-seam); the facts that moved between the 2026-10-08
 re-check and version 3.1.0 are corrected in place, each marked "(refreshed 2026-10-21)", and
 listed in [section E](#e-refresh-at-v310-2026-10-21). Sections B and C, precedent and options,
@@ -636,14 +637,36 @@ kind, either alone in one measure or as the same edit in measure k and k + 2.
   `syncopation.ts`) and in any measure from Occasional offbeats' one- and two-bar templates
   (`syncopation-templates.ts`). `displacementCandidates` keeps only the earliest legal boundary per
   case and delta (`transform-descriptors.ts`), so few positions exist per measure.
-- **Measured shares** of candidates with at least one neighbour, pooled (one measure / repeated in
-  k and k + 2): under Straight syncopation, at Settled or Lift almost nothing alone (a note and
-  rest trading places in measure 2, 9 %), repeated: split 70 %, move a start by an eighth 26 %,
-  merge 16 %, note to rest 12 %; at Build or Edge, move a start by a sixteenth 71 % alone. Under
-  Occasional offbeats: tie 41 %, move a start 31 %, move a rest 25–32 % alone. Under Active
-  displacement: moves of starts and rests, 3–61 % alone and 9–34 % repeated. Strict variety with
-  Straight syncopation offers almost nothing (Eighth: note ↔ rest repeated, 7–17 %; Sixteenth:
-  none; Quarter: a single rhythm).
+- **Measured shares** (re-measured 2026-10-22 with chunk 5's built kinds, spec D424; the
+  2026-10-08 script was not kept and several of its figures could not be reproduced). The kinds
+  are read from each measure's start list (note starts and rest starts; a tie continuation is no
+  start): **note ↔ rest**, one start changes kind at the same tick; **split**, a note start added
+  inside a note; **merge**, a note start removed after a note; **move a start**, the start of a
+  note after a note moves by 1 or 2 sixteenths; **move a rest**, a rest after a note and the note
+  after it shift together by 1 or 2 sixteenths. Ties must match outside the ticks the edit
+  touches. **Repeated** is the identical edit (kind, tick, shift) in measures k and k + 2, nothing
+  else differing; read as "the same kind" only, it would add the pairs whose two edits differ in
+  tick or shift (31.8 % of the repeated neighbours so found, chunk 5's probe), which are two edits. Each figure is the share of candidates (twins with identical bars counted
+  each) with at least one neighbour of that kind and form among the other candidates of their
+  own domain, pooled over the group's domains (numerator and denominator summed):
+
+  | Group (domains, candidates) | Shares |
+  | --- | --- |
+  | Every supported domain (284, 51,312) | any form: move a start 69.5 % (35,654), move a rest 28.7 % (14,722), split 25.6 % (13,142), merge 6.4 % (3,272), note ↔ rest 13.7 % (7,036); alone: split, merge and note ↔ rest 0 in every domain |
+  | Straight, Settled + Lift (54, 3,866) | nothing alone; repeated: split 69.5 % (2,688), merge 15.9 % (616), move a start 26.4 % (1,022), by an eighth 26.1 % (1,010), note ↔ rest 18.7 % (724): note to rest 10.6 % (408), rest to note 10.3 % (400); move a rest 0 |
+  | Straight, Build + Edge (54, 11,380) | alone: move a start by a sixteenth 71.0 % (8,080), move a rest 19.3 % (2,196) |
+  | Occasional offbeats, every tension (100, 16,668) | alone: move a start 66.8 % (11,128), by an eighth 30.1 % (5,012); move a rest 28.6 % (4,774): Settled + Lift 23.2 % (1,166 of 5,016), Build + Edge 31.0 % (3,608 of 11,652) |
+  | Active displacement, every tension (76, 19,398) | move a start alone 54.3 % (10,528), repeated 33.6 % (6,516); move a rest alone 24.9 % (4,834), repeated 20.5 % (3,974); no split, no merge |
+  | Strict variety, every syncopation (84, 2,928) | no split, no merge |
+  | Strict variety with Straight syncopation | only note ↔ rest, repeated: Eighth under Conversational 30.0 % (36 of 120; note to rest 20, rest to note 16), Sixteenth under Sparse 20.0 % (16 of 80; 12 and 12); nothing at any other silence density, nothing with Quarter (one or two rhythms per domain) |
+
+  Not kinds, kept as diagnostics: a note and the rest beside it trading places, Straight at
+  Settled or Lift, measure 2 only, 8.8 %; a tie-only neighbour under Occasional offbeats, 41.0 %.
+  Per domain the non-zero shares run from 2.9 to 100 % (move a start), 4.8–77.6 % (move a rest),
+  4.5–82.3 % (split), 3.7–29.4 % (merge) and 4.1–31.4 % (note ↔ rest). The 2026-10-08 text said,
+  where it differs: note to rest 12 % (Straight, Settled + Lift), move a start 31 % and move a rest
+  25–32 % alone (Occasional offbeats), 3–61 % alone and 9–34 % repeated (Active displacement), and
+  "Sixteenth: none" under Strict and Straight.
 - **Across tensions** (rhythms compared by bars): Settled and Lift domains hold the same rhythms,
   and so do Build and Edge; every Settled or Lift rhythm is in the Build and Edge domains; only
   41.7 % of Build and Edge rhythms are in the Settled and Lift domains (100 % in 37 of the 71
@@ -653,9 +676,13 @@ kind, either alone in one measure or as the same edit in measure k and k + 2.
   Sparse, at Build or Edge); 1,797 is the slowest setting to build, not the largest. A candidate's
   identity (about 20 KB of JSON with provenance, controls and tension) cannot compare bars:
   identical rhythms carry different identities (1,797 candidates, 1,435 distinct rhythms). No bar
-  key exists in `src/`. One is cheap: keying the 2,932-candidate domain took 10 ms, and finding a
-  locked rhythm's one-edit neighbours 0.1–0.2 ms, against 246 ms to build the domain (Node; the
-  browser sweep confirms).
+  key exists in `src/`. One is cheap: keying the 2,932-candidate domain takes about 15 ms (median
+  14.4 ms over 10 runs, 13.2–16.3; the bar keys alone about 9 ms; re-measured 2026-10-22, spec
+  D424), against 246 ms to build the domain (Node; the browser sweep confirms). Finding a locked
+  rhythm's one-change neighbours takes 0.25 ms at the median and 4.6 ms at most, among the
+  candidates sharing the other measures' bars (grouped once per domain, 13 ms); a scan of the
+  whole domain takes about 38 ms. The total edits from one rhythm to every candidate take about
+  27 ms (26.5 ms median, exact per measure).
 - Not verified: why Active displacement at Settled concentrates its one-measure changes in measure
   4, and whether a candidate's index survives a tension change (the bar key makes it irrelevant).
 

@@ -77,7 +77,9 @@ Status: this file holds four parts.
   sign-off (C13). v1.4 (2026-10-22): the owner signed off the re-scoped contract wording, CONTRACT
   7.2.0 to 8.0.0 (C13; spec D421). v1.5 (2026-10-22): the three atoms promoted to STABLE at 8.1.0
   take MAJOR bumps of their own, one at the sync of each wave that changes them (C13; spec D422).
-  Its sections are numbered C1 to C18; what v1.1 to v1.5 change
+  v1.6 (2026-10-22): the five kinds of rhythm change defined exactly, "repeated" the identical
+  edit, their shares and the known limit re-measured, and the lock's costs restated (C7.3, C7.6;
+  spec D424). Its sections are numbered C1 to C18; what v1.1 to v1.6 change
   is listed at the top of Part C and marked in each section they touch.
 - **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.1
   (2026-10-12), consolidated from the v3.3 direction and the chord research; **awaiting the
@@ -2234,7 +2236,10 @@ Delete everything removes them. No preset leaves the device.
 
 ## Part C — v3.2
 
-Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.5 (2026-10-22)**: v1.4
+Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.6 (2026-10-22)**: v1.5
+with the five kinds of rhythm change defined exactly, as built, and their shares re-measured (C7.3,
+C7.6; D424); the only behaviour it adds is a rest change under Strict variety, Straight
+syncopation, Sixteenth and Sparse silence, which v1.5 said did not exist. v1.5 (2026-10-22): v1.4
 with the later contract bumps the three 8.1.0 promotions bring (C13, C16; D422); it adds no
 behaviour. v1.4 (2026-10-22): v1.3
 with the owner's sign-off on C13's re-scoped contract wording recorded (D421); it adds no
@@ -2260,6 +2265,16 @@ the code.
 
 Music terms are explained the first time they appear; the project's
 [lexicon](../../../docs/music/lexicon.md) has one entry per term.
+
+### What v1.6 changes against v1.5
+
+Each section v1.6 changes opens with a line in italics, _Changed in v1.6:_, under the earlier lines.
+
+- **The five kinds, exactly** (D424): each kind's definition as the build reads it from the
+  written bars; "repeated" is the identical edit in measures k and k + 2 (same kind, place and
+  shift); the shares re-measured with those definitions, and the known limit corrected: under
+  Strict variety and Straight syncopation, Sixteenth with Sparse silence offers adding or removing
+  a rest (20 % of its rhythms) (C7.3). The lock's costs restated from the build's measures (C7.6).
 
 ### What v1.5 changes against v1.4
 
@@ -3314,37 +3329,52 @@ phrases meet it in session mode only.
 
 ### C7.3 The five kinds, and the known limit
 
+_Changed in v1.6:_ each kind defined exactly, "repeated" is the identical edit, and the shares and
+the known limit re-measured with those definitions (D424).
+
 **One change** is one edit of an allowed kind, made in one measure, or made in a gesture measure
 (1 or 2) and repeated in its answer measure (3 or 4). The second form is needed because the rhythm
 grammar builds measures 3–4 as a varied copy of measures 1–2: a split, a merge or a note turned into
 a rest in the gesture always comes back in the answer, and the grammar cannot write it alone.
 Repeated that way, a change keeps the phrase's gesture and answer and stays, measure by measure, a
-Close or Near edit. Rhythms are compared by their written bars.
+Close or Near edit. **Repeated means the identical edit**: the same kind, at the same place in the
+measure, by the same shift. The same kind at another place or by another shift is two edits, so
+never one change. Rhythms are compared by their written bars, through each measure's note starts
+and rest starts (a tie continues a note and starts nothing); the notes an edit touches may be
+written with other ties, but a tie added or removed anywhere else makes the pair more than one
+change (C7.4).
 
 Each kind is a Close or Near entry of the
 [mutation catalogue](../../../docs/music/mutation-catalogue.md#rhythm-mutations) that the grammar can
-write as one of its own rhythms. The shares are the measured share of locked rhythms that have at
-least one such change available, over all supported settings.
+write as one of its own rhythms. Only adding or removing a rest changes how much of the phrase is
+silent; the other four keep it. The shares are the share of rhythm candidates with at least one
+such change available among the other candidates of their own settings and tension, pooled over
+every supported setting and tension (284 domains, 51,312 candidates); the shares by group are in
+[jam-grounding §D.2](jam-grounding.md#d2-what-the-rhythm-domain-offers-a-locked-rhythm).
 
-| Kind | What it does | Distance | Where the grammar offers it |
+| Kind | Exactly | Distance | Where the grammar offers it |
 | --- | --- | --- | --- |
-| **Move a note start** by a sixteenth or an eighth | Pushes or pulls one note's start, which also covers dotting or undotting a note; the number of notes stays, so the eye finds the same notes | Close (Near on beat 1 or 3) | In one measure, from a second answer change (tension Build or Edge) and from Occasional offbeats; repeated in measures k and k+2 under most settings. The widest of the five: 11–93 % depending on settings |
-| **Move a rest** | The rest keeps its length and the phrase its silence; only its place moves | Close (Near off the density's grid) | In one measure under Occasional offbeats and Active displacement, and at Build and Edge; repeated under Active displacement |
-| **Split a note** | One note becomes two | Close (Near on beat 3) | Only repeated in k and k+2; never under Strict variety. Common where it exists (about 70 % of locked rhythms under Straight with Slightly or Heavily varied) |
-| **Merge two notes** | Two notes become one | Close (Near when the removed start was on beat 1 or 3) | Only repeated in k and k+2; never under Strict variety (7–19 %) |
-| **Add or remove a rest** | A note becomes a rest, or a rest a note | Close (Near on beat 1 or 3) | Only repeated, in measures 2 and 4 or 1 and 3; 5–18 % |
+| **Move a note start** by a sixteenth or an eighth | The start of a note that follows another note moves a sixteenth or an eighth earlier or later: the note before it gets longer or shorter by as much, and the moved note the reverse. It covers dotting or undotting a note; the number of notes stays, so the eye finds the same notes | Close (Near on beat 1 or 3) | In one measure from a second answer change (tension Build or Edge), Occasional offbeats and Active displacement; repeated in about a third of the domains. The widest of the five, 69.5 % pooled, most at Build and Edge |
+| **Move a rest** | A rest between two notes, with the note after it, moves a sixteenth or an eighth: the rest keeps its length, the note before it gets longer or shorter by as much, the note after it the reverse | Close (Near off the density's grid) | In one measure under Occasional offbeats and Active displacement, and at Build and Edge; repeated mostly under Active displacement. 28.7 % pooled; never at Settled or Lift with Straight syncopation |
+| **Split a note** | A note start is added inside a note: one note becomes two | Close (Near on beat 3) | Only repeated in k and k+2; never under Strict variety nor Active displacement. 25.6 % pooled; about 70 % under Straight syncopation |
+| **Merge two notes** | The start of a note that follows another note is removed: two notes become one | Close (Near when the removed start was on beat 1 or 3) | Only repeated in k and k+2; never under Strict variety nor Active displacement. 6.4 % pooled, at most 29 % for one setting and tension |
+| **Add or remove a rest** | A note becomes a rest of the same length, or a rest a note, at the same place | Close (Near on beat 1 or 3) | Only repeated, in measures 1 and 3 or 2 and 4. 13.7 % pooled, at most 31 % for one setting and tension |
 
 Left out, with the reason: a tie added or removed (it changes how a rhythm is written, not how it
 sounds: nothing for the ear, a cost for the eye); a note and the rest beside it trading places (not a
-catalogue entry of its own, rare, measure 2 only); a density step on one beat, regrouping into
-3 + 3 + 2, an anticipation held across the beat (the grammar cannot write them as one edit); a
-repeat with a changed ending (every phrase already does it); Related and Loose entries (far beyond
-"small", mostly not writable). Wider options are v4.
+catalogue entry of its own, rare, measure 2 only); the start of a note after a rest moved, or a rest
+whose start moves alone (each changes a rest's length, so how much of the phrase is silent, which
+only adding or removing a rest may do); a density step on one beat, regrouping into 3 + 3 + 2, an
+anticipation held across the beat (the grammar cannot write them as one edit); a repeat with a
+changed ending (every phrase already does it); Related and Loose entries (far beyond "small",
+mostly not writable). Wider options are v4.
 
-**The known limit.** Which changes exist depends on the rhythm settings. **Under Strict variety
-with Straight syncopation the grammar offers almost no allowed rhythm change**: with Eighth, only
-adding or removing a rest; with Sixteenth, none; Quarter with Strict and Straight has a single
-rhythm, so nothing to change to. Strict variety never offers a split or a merge. A list that finds
+**The known limit.** Which changes exist depends on the rhythm settings, and an allowed kind
+happens only when the locked rhythm offers it. **Under Strict variety with Straight syncopation the
+grammar offers almost no allowed rhythm change**: only adding or removing a rest, with Eighth only
+under Conversational silence (30 % of its rhythms), with Sixteenth only under Sparse silence
+(20 %); Quarter with Strict and Straight has one or two rhythms, neither a change of the other.
+Strict variety never offers a split or a merge, nor does Active displacement. A list that finds
 nothing simply leaves the lock strict (C7.4). Widening this is grammar work, v4. The option's
 description tells the player that what it offers depends on the rhythm settings.
 
@@ -3409,10 +3439,15 @@ The rules:
   forced bend's order. This is an order inside the rhythm stage and the search, not a constraint: every
   phrase possible today stays possible, and no stage revises another.
 - **Every rung of the failure ladder keeps the lock**, the standalone attempt included.
-- **Cost at 240 BPM**: keying a domain of up to 2,932 candidates by bars takes about 10 ms once per
-  domain; finding the locked rhythm and its one-change candidates takes under a millisecond per
-  phrase (Node figures). The browser sweep confirms it against the standalone reserve and the
-  phrase deadlines, which are unchanged.
+- **Cost at 240 BPM** (Node figures, largest domain, 2,932 candidates; _changed in v1.6_, D424):
+  keying a domain by bars takes about 15 ms once per domain. The one-change candidates are found
+  among the candidates that share the other measures' bars, grouped once per domain when a kind is
+  allowed (about 13 ms); then finding the locked rhythm and its one-change candidates takes under
+  a millisecond per phrase at the median, a few at most (a scan of the whole domain would take
+  about 38 ms). Ordering every candidate by total edits from one rhythm (the forced bend's order,
+  and a Jam's steering block, C8) takes about 27 ms, once per request and only when it is needed.
+  The browser sweep confirms it against the standalone reserve and the phrase deadlines, which are
+  unchanged.
 
 ### C7.7 What the lock meets
 
