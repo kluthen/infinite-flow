@@ -341,3 +341,19 @@ thinks not). Gate CN asked of the owner.
     > history, and the next one is drawn as usual. Nothing stops or fails.
 
 ### Gate
+
+Before the gate: a `coding-executor` cleared code health's one error, chunk 5's census test nesting
+(96f3a0f; 951 rhythm tests before and after).
+
+`npm run quality` ran on the reference machine on 96f3a0f, idle, with no intent audit. It exited 0.
+
+- Unit: 509 files, 7,975 tests passed. `lint:health`: 0 errors.
+- `verify:boundaries`: passed (429 source files, 52 JS chunks within budget).
+- End to end: 557 passed, 1 skipped. Pregeneration: 557 passed, 1 skipped. a11y: 59 passed.
+  Notation: 107 passed, 4 skipped.
+- `atd:lint` and `atd:check` pass.
+- **Entry chunk: 265,436 B** of 307,200 B, +5 B since wave 0. Chunk 6's group parsers are almost
+  entirely outside it. There is no Jam chunk yet.
+
+`npm run test:sweep` exited 0: 5 files, 16 tests, 126 s. At 240 BPM, Eighth loses its carry-in to
+the time rule in 216 of 216 cases from phrase 2, as in v3.1 (C5.17 keeps 240 BPM best effort).
