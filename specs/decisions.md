@@ -858,3 +858,13 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   changes, against C7.4), and fitting the code to the old figures. Keying about 15 ms, not 10, is
   accepted. Now in: [Part C §C7.3](versions/v3/master-spec.md#c73-the-five-kinds-and-the-known-limit), [§C7.6](versions/v3/master-spec.md#c76-how-the-search-holds-the-lock),
   [jam-grounding §D.2](versions/v3/jam-grounding.md#d2-what-the-rhythm-domain-offers-a-locked-rhythm), [build plan v3.2, chunk 5](versions/v3/build-plan-v3.2.md#chunk-5--rhythm-bars-distance-and-change-kinds) (and chunks 8, 10, 11, M2, H2).
+
+- **D425 (2026-10-22): the steering block's target rhythm holds note starts and rest starts, and
+  the doodle is compared as heard.** `spec-writer`'s, under the owner's delegation of minor calls,
+  at the wave driver's request after chunk 6. C8's distance needs both kinds; chunk 6 built them. A
+  doodle measure holds one rest start per silence; against it a candidate's rest right after a rest
+  starts nothing (18 % of candidates write a silence as two rests); the locked rhythm stays written.
+  Rejected: comparing the doodle with written rests (a rhythm sounding like it would be an edit
+  away, Near at beat 3). Now in: [Part C §C5.9](versions/v3/master-spec.md#c59-what-the-doodle-feeds-the-generator),
+  [§C8](versions/v3/master-spec.md#c8-jams-drift), [§C11](versions/v3/master-spec.md#c11-the-generation-request-the-replay-key-and-kept-sessions),
+  [build plan v3.2, chunks 6, 8 and 28](versions/v3/build-plan-v3.2.md#chunk-6--the-request-carries-v32s-inputs).

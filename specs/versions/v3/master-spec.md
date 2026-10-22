@@ -79,7 +79,9 @@ Status: this file holds four parts.
   take MAJOR bumps of their own, one at the sync of each wave that changes them (C13; spec D422).
   v1.6 (2026-10-22): the five kinds of rhythm change defined exactly, "repeated" the identical
   edit, their shares and the known limit re-measured, and the lock's costs restated (C7.3, C7.6;
-  spec D424). Its sections are numbered C1 to C18; what v1.1 to v1.6 change
+  spec D424). v1.7 (2026-10-22): the steering block's target rhythm holds rest starts beside note
+  starts, a doodle measure's starts are defined, and the doodle is compared as heard (C5.9, C8,
+  C11; spec D425). Its sections are numbered C1 to C18; what v1.1 to v1.7 change
   is listed at the top of Part C and marked in each section they touch.
 - **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.1
   (2026-10-12), consolidated from the v3.3 direction and the chord research; **awaiting the
@@ -2236,7 +2238,11 @@ Delete everything removes them. No preset leaves the device.
 
 ## Part C — v3.2
 
-Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.6 (2026-10-22)**: v1.5
+Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.7 (2026-10-22)**: v1.6
+with the steering block's target rhythm stated as built, note starts and rest starts, a doodle
+measure's starts defined, and a candidate compared with the doodle as heard (C5.9, C8, C11; D425);
+the only behaviour it adds is that a silence written as two rests is no edit from the doodle's
+silence. v1.6 (2026-10-22): v1.5
 with the five kinds of rhythm change defined exactly, as built, and their shares re-measured (C7.3,
 C7.6; D424); the only behaviour it adds is a rest change under Strict variety, Straight
 syncopation, Sixteenth and Sparse silence, which v1.5 said did not exist. v1.5 (2026-10-22): v1.4
@@ -2265,6 +2271,16 @@ the code.
 
 Music terms are explained the first time they appear; the project's
 [lexicon](../../../docs/music/lexicon.md) has one entry per term.
+
+### What v1.7 changes against v1.6
+
+Each section v1.7 changes opens with a line in italics, _Changed in v1.7:_, under the earlier lines.
+
+- **The steering block's target rhythm, as built** (D425): each of its four measures holds note
+  starts and rest starts, since C8's distance compares both; a doodle measure's starts are what is
+  heard in it, one rest start per silence (C5.9). Against the doodle a candidate is read as heard,
+  a rest right after a rest starting nothing; against the locked rhythm, as written (C8). The
+  replay key's block is four measures of starts, and a join from no phrase is phrase 1's (C11).
 
 ### What v1.6 changes against v1.5
 
@@ -2821,6 +2837,8 @@ _Changed in v1.2:_ the cold domain is accepted and measured (D410).
 _Changed in v1.1:_ the doodle also sets Jam's rhythm and shape controls (C5.16); everything it
 steers reaches the generator through one optional steering block, built on Jam's side, so the
 generator never hears of a doodle, a drift or Jam.
+_Changed in v1.7:_ the target rhythm holds each measure's rest starts beside its note starts, as
+C8's distance needs, and a doodle measure's starts are defined (D425).
 
 **Principles.**
 
@@ -2839,10 +2857,18 @@ generator never hears of a doodle, a drift or Jam.
 
 **The steering block.** Built from the quantized doodle and the drift:
 
-- **a target rhythm**: note starts per measure, in ticks, laid over the four measures of a phrase,
-  with a **band**, how far a candidate may be and still count as near (the drift's, C8);
+- **a target rhythm**: the doodle's measures laid over the four measures of a phrase (below), each
+  as its **note starts and rest starts** in ticks, with a **band**, how far a candidate may be and
+  still count as near (the drift's, C8);
 - **a list of melodic moves**: up, down or the same note; a step, a skip or a leap, in the doodle's
   order, with a **strength**: size and direction, direction only, or none (the drift's, C8).
+
+**A doodle measure's starts** are what is heard in it: a note start where each note starts; a rest
+start wherever a silence begins, where a note ends and no note starts, and at tick 0 when the
+measure opens in silence (a silence crossing a barline starts again in the next measure, as a rest
+is never tied); a note held across a barline starts nothing in the next measure, which may then
+hold no start. The rest starts are needed because C8's distance compares both kinds of start and
+counts turning a note into a rest as one edit.
 
 It holds no pitch. The generator reads it at two points only (C5.10): a re-ordering of the rhythm
 candidates right after their seeded ranking, and one more preference in the pitch order, below the
@@ -3466,6 +3492,8 @@ The rules:
 
 _Changed in v1.1:_ a Jam-mode setting, saved with Jam's settings; it reaches the generator as the
 steering block's band and strength (C5.9).
+_Changed in v1.7:_ a candidate is compared with the doodle as heard: a rest written right after
+another rest starts nothing (D425).
 
 - **Three positions, closest first: Close, Near (the default), Free.** A Jam-mode setting: shown
   in Jam mode only, set at Jam's Idle, saved with Jam's settings (C5.16); presets neither hold nor
@@ -3484,7 +3512,11 @@ steering block's band and strength (C5.9).
 - **The distance, measure by measure.** Compare a candidate's measure with the doodle's measure
   laid over it (C5.9), as two lists of note starts and rest starts in ticks. An **edit** adds one
   start, removes one, moves one by at most an eighth note, or turns a note start into a rest start
-  at the same tick or back (one edit, not two). Ties are not starts. No edit is **Same**. One edit away
+  at the same tick or back (one edit, not two). Ties are not starts. **Against the doodle, a
+  candidate's measure is read as heard**: a rest start right after another rest is dropped, since
+  one silence written as two rests (18 % of the candidates, pooled, write some) sounds as one, and the
+  doodle's measure holds one rest start per silence (C5.9). Against the locked rhythm, every start
+  counts, as written (C7.3). No edit is **Same**. One edit away
   from ticks 0 and 8 (beats 1 and 3) is **Close**. One edit touching tick 0 or 8, or two Close
   edits, is **Near**. Anything more is beyond.
 - **Within a position's band** (every measure inside it), candidates keep their seeded order, so
@@ -3667,6 +3699,8 @@ versions are per record.
 _Changed in v1.2:_ the key carries the steering block; one release, so one key version and one data
 version (D410).
 _Changed in v1.3:_ a fresh Jam's seeds (D419).
+_Changed in v1.7:_ the steering block's size restated: four measures of note and rest starts; a
+join from no phrase is phrase 1's (D425).
 
 - **The generation request** gains, on both the player-facing request and the resolved core
   request, and across the generation worker (re-validated there from untrusted input like every
@@ -3679,7 +3713,8 @@ _Changed in v1.3:_ a fresh Jam's seeds (D419).
 
   The controls taken from the doodle are ordinary control values. The doodle's join into phrase 1
   travels as a join (carry-in) of the "no chord, no arriving interval, no owed recovery" form, from
-  no phrase. The capture tempo is not part of the request. Every ordering and draw derived from
+  no phrase; only phrase 1 takes such a join, so a replay key that pairs one with any other
+  phrase number is refused. The capture tempo is not part of the request. Every ordering and draw derived from
   these is computed inside generation, so the generator stays a pure function of its request and a
   replay key replays without the app's state. With none of the new fields, a request gives v3.1's
   phrase byte for byte.
@@ -3687,8 +3722,8 @@ _Changed in v1.3:_ a fresh Jam's seeds (D419).
   the request's new fields above. A new version rather than an extension, so that a v3.1 app
   meeting a v3.2 key refuses it instead of replaying a different phrase without saying so. The key
   carries the steering block, as the generator read it, and not the quantized doodle (D410); the
-  block is small (one to four measures' note starts in ticks and a few dozen move classes) and
-  holds no pitch. The key is still printed to the console only, never sent or stored. v3.2 is one
+  block is small (four measures of note starts and rest starts in ticks, the doodle's measures
+  laid over the phrase, and at most 63 move classes) and holds no pitch. The key is still printed to the console only, never sent or stored. v3.2 is one
   release (C2), so `ifk4.` is written once, with every field above.
 - **Older keys keep decoding.** An `ifk1.`, `ifk2.` or `ifk3.` key decodes as no steering block, no
   lock and no allowed change, to the same phrase as in the version that wrote it. A later prefix is

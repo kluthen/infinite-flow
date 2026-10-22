@@ -1,6 +1,9 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v12 (2026-10-22): v11 with the ruling on chunk 5's change kinds written in (spec D424,
+Status: v13 (2026-10-22): v12 with chunk 6's steering-block shape confirmed (spec D425, master spec
+Part C v1.7): chunk 6's capture states the block as built, note starts and rest starts; chunk 8
+reads candidates as heard against the doodle; chunk 28 writes a doodle measure's starts as C5.9
+says. v12 (2026-10-22): v11 with the ruling on chunk 5's change kinds written in (spec D424,
 master spec Part C v1.6): chunk 5's kinds, availability census and costs; chunks 8, 10 and 11's
 costs and chunk 11's Sixteenth case; M2's comparison; v3.2 H2's settings. v11 (2026-10-22): v10 with wave 1's preflight corrections and the driver's rulings written
 in (spec D422, D423; master spec Part C v1.5): chunks 4, 5, 6 and 15 corrected, chunk 12's two
@@ -812,9 +815,10 @@ Architecture capture: v3.2's whole request contract, so the replay key and the k
 are taken once. `GenerationIntent` and the resolved `GenerationRequest` gain two optional groups:
 `rhythmLock` (its state: on with nothing locked yet, or on with these bars; the allowed rhythm
 changes; whether the phrase is a tenser one; absent means off) and `steering` (the steering block,
-`src/domain/generation/steering-block.ts`: a target rhythm, note starts per measure in ticks over
-the four measures, with a band; a list of melodic moves, up, down or same and step, skip or leap,
-with a strength; no pitch). Absent groups mean v3.1's request exactly. Every ordering and draw is
+`src/domain/generation/steering-block.ts`: a target rhythm, exactly four measures already laid
+over the phrase, each its note starts and rest starts in increasing tick 0–15 (C8 compares both,
+spec D425), with a band, close, near or unbounded (Free); a list of at most 63 melodic moves, up or
+down with a step, a skip or a leap, or the same note with no size, with a strength; no pitch). Absent groups mean v3.1's request exactly. Every ordering and draw is
 computed inside generation from them. `CarryIn` gains an origin: a phrase (its number, as today) or
 none (the doodle's join: no number, no chord, no arriving interval, no owed recovery); `makeCarryIn`
 keeps every refusal for a phrase origin and checks only the pitch and the window for none. A
@@ -923,7 +927,8 @@ chunk 10's preference tuple; without a block the tuple is chunk 10's.
 - **Goal:** order a phrase's rhythm candidates by the steering block's target rhythm and band, and
   choose a Jam's locked phrase 1 nearest the doodle, without removing any candidate.
 - **Scope:** `rhythm-steering.ts` (new) in the steering module; the rank computed after the seeded
-  ranking, over the bar key's start lists, once per request; ties by the seeded key, then index, in
+  ranking, over the bar key's start lists read as heard (a rest start right after a rest dropped,
+  C8, spec D425; the lock's comparisons keep the written lists), once per request; ties by the seeded key, then index, in
   code-unit order. Budget: the total edits from one rhythm to every candidate of the largest domain
   take about 27 ms in Node (chunk 5's measure, spec D424), so the rank is computed once per
   request, never per rung or chord plan; memoizing the per-measure distance by measure pair is
@@ -943,6 +948,7 @@ chunk 10's preference tuple; without a block the tuple is chunk 10's.
   - Over the doodle set's blocks at each band, the chosen rhythm's measures lie in the band
     whenever a candidate in it can make a phrase; Free's block keeps v3.1's rhythm for the seed.
   - With "nothing locked yet", phrase 1 takes the candidate nearest the target, whatever the band.
+  - A candidate that writes one of the target's silences as two rests is at no edit from it.
   - The same block and seed give the same order twice, under a non-English collation.
   - Every candidate appears once in the order; the corpora pass.
 - **Verification:** chunk checks with the corpus guard; the sweep at the wave gate.
@@ -1934,8 +1940,8 @@ Architecture capture: what Jam's side derives from the quantized doodle when it 
 `src/jam/doodle-controls.ts` (C5.16.1: the seven controls, a supported combination, first-visit
 values for what the doodle does not show) and `src/jam/steering-block-builder.ts` (the doodle's
 measures laid over four, one measure four times, two twice, three as 1, 2, 3, 1, four as they are;
-the target rhythm's note starts; the band and the move strength from the drift, C8; the move list in
-the doodle's order). Both pure; chunk 18 calls them at the doodle's end, chunk 24 for a kept doodle.
+the target rhythm's note starts and rest starts, each measure's as heard, C5.9 and spec D425; the
+band and the move strength from the drift, C8; the move list in the doodle's order). Both pure; chunk 18 calls them at the doodle's end, chunk 24 for a kept doodle.
 
 - **Goal:** turn the quantized doodle into ordinary control values and the steering block, exactly
   as C5.16.1 and C5.9 say.
@@ -1957,6 +1963,10 @@ the doodle's order). Both pure; chunk 18 calls them at the doodle's end, chunk 2
   - Every result is a supported combination, at both widths (C10.8); an unsupported one raises
     rhythmic variety only.
   - The overlay gives C5.9's four patterns; each drift gives C8's band and strength; integers only.
+  - A doodle measure's starts as C5.9 says, a test each: a rest start where a note ends and none
+    starts; one at tick 0 for a measure opening in silence, a silence crossing the barline
+    included; none for a note held across the barline (an empty measure possible); never two rest
+    starts in a row.
 - **Verification:** chunk checks.
 - **Split rule:** none needed (two pure modules).
 
