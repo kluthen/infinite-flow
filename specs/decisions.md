@@ -868,3 +868,11 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   away, Near at beat 3). Now in: [Part C §C5.9](versions/v3/master-spec.md#c59-what-the-doodle-feeds-the-generator),
   [§C8](versions/v3/master-spec.md#c8-jams-drift), [§C11](versions/v3/master-spec.md#c11-the-generation-request-the-replay-key-and-kept-sessions),
   [build plan v3.2, chunks 6, 8 and 28](versions/v3/build-plan-v3.2.md#chunk-6--the-request-carries-v32s-inputs).
+
+- **D426 (2026-10-22): a dead end mid-session is unreachable under today's rules; its skip is a
+  defensive guarantee.** `spec-writer`'s, under the owner's delegation of minor calls, at the wave
+  driver's request after chunk 15. The build's exhaustive search found that the narrow-window
+  step-down never leaves Vary settings without a move, so C9's "only after the narrow-window rule"
+  overstated a cause; the signed N1 wording only says what happens if one occurs. Now in:
+  [Part C §C9](versions/v3/master-spec.md#c9-vary-settings-allowed-groups),
+  [build plan v3.2, chunk 15](versions/v3/build-plan-v3.2.md#chunk-15--vary-settings-allowed-groups).

@@ -81,8 +81,9 @@ Status: this file holds four parts.
   edit, their shares and the known limit re-measured, and the lock's costs restated (C7.3, C7.6;
   spec D424). v1.7 (2026-10-22): the steering block's target rhythm holds rest starts beside note
   starts, a doodle measure's starts are defined, and the doodle is compared as heard (C5.9, C8,
-  C11; spec D425). Its sections are numbered C1 to C18; what v1.1 to v1.7 change
-  is listed at the top of Part C and marked in each section they touch.
+  C11; spec D425). v1.8 (2026-10-22): a dead end mid-session is unreachable under today's rules,
+  and its skip a defensive guarantee (C9; spec D426). Its sections are numbered C1 to C18; what
+  v1.1 to v1.8 change is listed at the top of Part C and marked in each section they touch.
 - **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.1
   (2026-10-12), consolidated from the v3.3 direction and the chord research; **awaiting the
   owner's approval**. The contract wording it changes (§D12) needs the owner's confirmation
@@ -2238,8 +2239,10 @@ Delete everything removes them. No preset leaves the device.
 
 ## Part C — v3.2
 
-Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.7 (2026-10-22)**: v1.6
-with the steering block's target rhythm stated as built, note starts and rest starts, a doodle
+Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.8 (2026-10-22)**: v1.7
+with C9 stating that a dead end mid-session cannot happen under today's rules, so its skip is a
+defensive guarantee, and what could make it reachable (D426); it adds no behaviour. v1.7
+(2026-10-22): v1.6 with the steering block's target rhythm stated as built, note starts and rest starts, a doodle
 measure's starts defined, and a candidate compared with the doodle as heard (C5.9, C8, C11; D425);
 the only behaviour it adds is that a silence written as two rests is no edit from the doodle's
 silence. v1.6 (2026-10-22): v1.5
@@ -2271,6 +2274,15 @@ the code.
 
 Music terms are explained the first time they appear; the project's
 [lexicon](../../../docs/music/lexicon.md) has one entry per term.
+
+### What v1.8 changes against v1.7
+
+Each section v1.8 changes opens with a line in italics, _Changed in v1.8:_, under the earlier lines.
+
+- **A dead end mid-session is unreachable today** (D426): the build's exhaustive search found that
+  the narrow-window step-down never leaves Vary settings without a move, and nothing else changes
+  the settings, the lock or the groups during a session. The skip stays, as a defensive guarantee;
+  C9 names what could make a dead end reachable later. No behaviour changes.
 
 ### What v1.7 changes against v1.6
 
@@ -3535,6 +3547,9 @@ another rest starts nothing (D425).
 
 _Changed in v1.1:_ session mode only, as Vary settings is; the comparison with the Jam switch goes.
 
+_Changed in v1.8:_ a dead end mid-session is unreachable under today's rules; the skip is a
+defensive guarantee (D426).
+
 - **Six groups**, each switching its settings on or off together:
   - **Key and mode**: written key, collection.
   - **Harmony**: harmonic motion.
@@ -3554,10 +3569,20 @@ _Changed in v1.1:_ session mode only, as Vary settings is; the comparison with t
   the lock, a preset, a setting) leaves none, Vary settings becomes unavailable and says why, the
   player's choice kept, as Rising tempo does without a controller; it comes back as soon as a
   move exists again. A session started meanwhile runs without it.
-- **During a session**, a reached setting can always step back to where it came from, so a dead end
-  can only appear after the narrow-window rule changed what is supported. That mutation is then
+- **During a session, a dead end cannot happen under today's rules.** A reached setting can always
+  step back to where it came from. The lock, the allowed groups and the key and mode restriction
+  are fixed for the session, and the only other change to the settings is v2's narrow-window
+  step-down from Sixteenth to Eighth, which never leaves Vary settings without a move: no rhythm
+  combination without a move uses Eighth, and the step-down only opens moves for the other groups.
+  The build checked this exhaustively (every rhythm combination with every group subset, the lock
+  on and off, with and without a restriction) and found no dead end.
+- **The skip is a defensive guarantee.** Should a dead end occur all the same, that mutation is
   skipped and recorded in the session history, and the next one is drawn as usual: a narrow
-  exception to v2's "a mutation cycle is never silently skipped". Nothing throws.
+  exception to v2's "a mutation cycle is never silently skipped". Nothing throws. The test reaches
+  it by changing the settings mid-session, which no part of the app does today. A later version
+  could make it reachable by letting the lock, the allowed groups or the restriction change during
+  a session, by adding another automatic change to the settings mid-session, or by changing what is
+  supported (the narrow-window rule, or the supported combinations).
 
 ## C10. How v3.2 meets v3.0 and v3.1
 

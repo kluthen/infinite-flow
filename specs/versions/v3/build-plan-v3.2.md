@@ -1,6 +1,8 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v13 (2026-10-22): v12 with chunk 6's steering-block shape confirmed (spec D425, master spec
+Status: v14 (2026-10-22): v13 with chunk 15's dead-end test matched to the trigger it uses, a
+dead end reached mid-session by changing the settings, since none is reachable under today's rules
+(spec D426, master spec Part C v1.8). v13 (2026-10-22): v12 with chunk 6's steering-block shape confirmed (spec D425, master spec
 Part C v1.7): chunk 6's capture states the block as built, note starts and rest starts; chunk 8
 reads candidates as heard against the doodle; chunk 28 writes a doodle measure's starts as C5.9
 says. v12 (2026-10-22): v11 with the ruling on chunk 5's change kinds written in (spec D424,
@@ -1235,8 +1237,10 @@ call at Idle (chunk 19).
     the Rhythm group never moves.
   - The legal-move check is false exactly when no move exists (property); a session started then
     runs without Vary settings.
-  - A seeded step-down that leaves a dead end skips one mutation, records it in the session
-    history, never throws; a kept session's record is unchanged.
+  - A dead end reached mid-session (none is reachable under today's rules, C9; the test reaches it
+    by, e.g., turning the lock on mid-session through a `settings-change` event) skips one
+    mutation, records it in the session history, never throws; a kept session's record is
+    unchanged.
 - **Verification:** chunk checks with the corpus guard; the sweep at the wave gate.
 - **Split rule:** if the brief passes about five source files, 15a the groups in the draw and the
   legal-move check (scales, mutation), 15b the session's side (the mutation step, types, the
