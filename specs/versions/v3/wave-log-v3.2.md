@@ -419,3 +419,13 @@ For the wave 2 preflight and later:
 - The sync applied part N, so CONTRACT is now 9.0.0.
 - Asked: the merge of `v3.2-w1` into `main` with the push, and the optional status step for
   `rule_vary_settings_skips_dead_end`.
+
+### The owner's answers (2026-10-22)
+
+"agreed. merge and move to review."
+- `documentalist` moved `rule_vary_settings_skips_dead_end` from DRAFT to REVIEW, version 0.2
+  (c95969e, change set O5).
+- Wave 1 merged into `main` and pushed. Its worktree and branch are removed.
+- Wave 2 starts in a fresh session, after the owner compacts. Wave 2 is chunks 3, 10, 11, 12
+  and 22, with gate CK before chunk 12 merges. Its preflight carries the items listed under
+  "For the wave 2 preflight and later" above.
