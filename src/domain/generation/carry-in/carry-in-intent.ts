@@ -26,13 +26,23 @@ export type CarryInGenerationIntentInput = GenerationIntentInput & {
 /**
  * Intent: build the intent exactly as the plain factory does (same validation, same concert-pitch
  * conversion, same register intent), then refuse, as a CarryInError, a carry-in the finished
- * intent cannot honour, and otherwise keep the carry-in unchanged as the intent's last field.
+ * intent cannot honour, and otherwise keep the carry-in unchanged. The fields keep the one order
+ * every intent has: the v3.1 fields, the carry-in, then the rhythm lock group and the steering
+ * block when the input holds them.
  */
 // @spec-link [[module_generation_request_construction]]
 // @spec-link [[entity_phrase_carry_in]]
+// @spec-link [[entity_request_rhythm_lock]]
+// @spec-link [[entity_steering_block]]
 export function makeCarryInGenerationIntent(input: CarryInGenerationIntentInput): GenerationIntent {
   const { carryIn, ...plainInput } = input
   const intent = makeGenerationIntent(plainInput)
   assertCarryInFitsIntent(carryIn, intent)
-  return deepFreeze({ ...intent, carryIn })
+  const { rhythmLock, steering, ...v31Fields } = intent
+  return deepFreeze({
+    ...v31Fields,
+    carryIn,
+    ...(rhythmLock === undefined ? {} : { rhythmLock }),
+    ...(steering === undefined ? {} : { steering }),
+  })
 }

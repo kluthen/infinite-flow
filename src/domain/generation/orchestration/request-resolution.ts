@@ -29,8 +29,10 @@ export class RequestResolutionError extends Error {
 
 /**
  * Intent: build one resolved core GenerationRequest for one candidate register window, carrying
- * the intent's carry-in unchanged when it has one.
+ * the intent's carry-in, rhythm lock group and steering block unchanged when it has them.
  */
+// @spec-link [[entity_request_rhythm_lock]]
+// @spec-link [[entity_steering_block]]
 function buildCoreRequest(intent: GenerationIntent, id: RegisterId): GenerationRequest {
   const candidate = resolveRegisterIntentCandidate(intent.registerIntent, id)
   return makeGenerationRequest({
@@ -42,6 +44,8 @@ function buildCoreRequest(intent: GenerationIntent, id: RegisterId): GenerationR
     register: candidate.id,
     registerWindow: candidate.window,
     ...(intent.carryIn === undefined ? {} : { carryIn: intent.carryIn }),
+    ...(intent.rhythmLock === undefined ? {} : { rhythmLock: intent.rhythmLock }),
+    ...(intent.steering === undefined ? {} : { steering: intent.steering }),
   })
 }
 

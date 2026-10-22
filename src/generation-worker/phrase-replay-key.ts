@@ -159,6 +159,21 @@ function figureLevelsEntry(levels: FigureLevels): Record<string, string> {
   return Object.fromEntries(FIGURE_IDS.map((figure) => [figure, levels[figure]]))
 }
 
+/** The intent fields an `ifk3.` key has no entry for: an intent holding one cannot be encoded. */
+const FIELDS_AN_IFK3_KEY_CANNOT_CARRY = ['rhythmLock', 'steering'] as const
+
+/**
+ * Intent: refuse an intent holding a field an `ifk3.` key cannot carry, rather than write a key
+ * that would lose it and replay a different phrase.
+ */
+function refuseFieldsAnIfk3KeyCannotCarry(intent: GenerationIntent): void {
+  for (const field of FIELDS_AN_IFK3_KEY_CANNOT_CARRY)
+    if (Object.hasOwn(intent, field))
+      throw new PhraseReplayKeyError(
+        `An ${PHRASE_REPLAY_KEY_V3_PREFIX} key cannot carry the intent's ${field}: the key would lose it.`,
+      )
+}
+
 /**
  * Intent: encode one generation intent and its phrase number into an `ifk3.` phrase replay key,
  * whatever its instrument, over the 7-tuple the file header states: request id, seed, the controls
@@ -166,11 +181,13 @@ function figureLevelsEntry(levels: FigureLevels): Record<string, string> {
  * levels by figure id, the phrase number, the carry-in or null, and my instrument's owning profile
  * fields or null for a built-in. No musical profile and no derived field is ever stored. A phrase
  * number that is not a positive integer, or not its carry-in's number plus one, is rejected rather
- * than stored.
+ * than stored. Before anything else, an intent holding the rhythm lock group or the steering block
+ * is refused: the key has no entry for either and would lose it.
  */
 // @spec-link [[module_phrase_replay_key]]
 // @spec-link [[req_my_instrument]]
 export function encodePhraseReplayKey(intent: GenerationIntent, phraseNumber: number): string {
+  refuseFieldsAnIfk3KeyCannotCarry(intent)
   requireConsistentPhraseNumber(intent, phraseNumber)
   const controls = PHRASE_REPLAY_KEY_CONTROL_ORDER.map((key) =>
     key === 'tonalCenter' ? intent.writtenTonalCenter : intent.controls[key],

@@ -27,6 +27,7 @@ import {
   generateSuccess,
   keyChangeIntent,
 } from '../domain/generation/carry-in/carry-in-fixture'
+import { SAMPLE_RHYTHM_LOCK, SAMPLE_STEERING } from '../domain/generation/request-inputs-fixture'
 
 /** Intent: a real intent for phrase 2 of a session, carrying phrase 1's carry-in. */
 function carryInIntent(): GenerationIntent {
@@ -498,5 +499,27 @@ describe('phrase replay key console line', () => {
       PhraseReplayKeyError,
     )
     expect(log).not.toHaveBeenCalled()
+  })
+})
+
+// @test-link [[module_phrase_replay_key]]
+describe('phrase replay key encoder refuses what an ifk3. key cannot carry', () => {
+  // @test-link [[module_phrase_replay_key]]
+  it('refuses an intent holding the rhythm lock group, before any other check', () => {
+    const intent: GenerationIntent = {
+      ...buildIntent({ seed: 13, label: 'replay-lock' }),
+      rhythmLock: SAMPLE_RHYTHM_LOCK,
+    }
+
+    expect(() => encodePhraseReplayKey(intent, 1)).toThrow(PhraseReplayKeyError)
+    expect(() => encodePhraseReplayKey(intent, 0)).toThrow(/ifk3\. key cannot carry.*rhythmLock/u)
+  })
+
+  // @test-link [[module_phrase_replay_key]]
+  it('refuses an intent holding the steering block, before any other check', () => {
+    const intent: GenerationIntent = { ...carryInIntent(), steering: SAMPLE_STEERING }
+
+    expect(() => encodePhraseReplayKey(intent, 2)).toThrow(PhraseReplayKeyError)
+    expect(() => encodePhraseReplayKey(intent, 7)).toThrow(/ifk3\. key cannot carry.*steering/u)
   })
 })

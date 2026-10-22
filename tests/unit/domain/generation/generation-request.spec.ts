@@ -14,6 +14,7 @@ import {
   parseGenerationRequest,
 } from '@/domain/generation/generation-request'
 import type { GenerationRequest } from '@/domain/generation/generation-request'
+import { SAMPLE_RHYTHM_LOCK, SAMPLE_STEERING } from './request-inputs-fixture'
 
 const validSeed = makeSeed(42)
 const validRequestId = makeRequestId('11111111-1111-4111-8111-111111111111')
@@ -321,5 +322,96 @@ describe('parseGenerationRequest: round trip of a domain-constructed request', (
 describe('makeRequestId', () => {
   it('rejects an empty string as a typed failure', () => {
     expect(() => makeRequestId('')).toThrow(GenerationRequestError)
+  })
+})
+
+// @test-link [[entity_request_rhythm_lock]]
+// @test-link [[entity_steering_block]]
+describe('GenerationRequest: the rhythm lock group and the steering block', () => {
+  // @test-link [[entity_request_rhythm_lock]]
+  it('keeps a rhythm lock group, frozen, as its last field', () => {
+    const request = makeGenerationRequest({
+      ...validRequestInput(),
+      rhythmLock: SAMPLE_RHYTHM_LOCK,
+    })
+
+    expect(request.rhythmLock).toStrictEqual(SAMPLE_RHYTHM_LOCK)
+    expect(Object.isFrozen(request.rhythmLock)).toBe(true)
+    expect(Object.keys(request).at(-1)).toBe('rhythmLock')
+  })
+
+  // @test-link [[entity_steering_block]]
+  it('keeps a steering block, frozen, after the rhythm lock group', () => {
+    const request = makeGenerationRequest({
+      ...validRequestInput(),
+      rhythmLock: SAMPLE_RHYTHM_LOCK,
+      steering: SAMPLE_STEERING,
+    })
+
+    expect(request.steering).toStrictEqual(SAMPLE_STEERING)
+    expect(Object.isFrozen(request.steering)).toBe(true)
+    expect(Object.keys(request).slice(-2)).toEqual(['rhythmLock', 'steering'])
+  })
+
+  // @test-link [[rule_jam_and_lock_off_reproduce_earlier_phrases]]
+  it('built with neither group, has no such key and is the request v3.1 builds', () => {
+    const v31Request = makeGenerationRequest(validRequestInput())
+    const request = makeGenerationRequest({ ...validRequestInput() })
+
+    expect(Object.keys(request)).not.toContain('rhythmLock')
+    expect(Object.keys(request)).not.toContain('steering')
+    expect(request).toStrictEqual(v31Request)
+    expect(JSON.stringify(request)).toBe(JSON.stringify(v31Request))
+  })
+
+  // @test-link [[entity_request_rhythm_lock]]
+  // @test-link [[entity_steering_block]]
+  it('round-trips each group, and both, through parseGenerationRequest', () => {
+    for (const groups of [
+      { rhythmLock: SAMPLE_RHYTHM_LOCK },
+      { steering: SAMPLE_STEERING },
+      { rhythmLock: SAMPLE_RHYTHM_LOCK, steering: SAMPLE_STEERING },
+    ]) {
+      const built = makeGenerationRequest({ ...validRequestInput(), ...groups })
+      const reparsed = parseGenerationRequest(structuredClone(built))
+
+      expect(reparsed).toStrictEqual(built)
+      expect(JSON.stringify(reparsed)).toBe(JSON.stringify(built))
+    }
+  })
+
+  // @test-link [[entity_request_rhythm_lock]]
+  it('refuses an unknown value in the rhythm lock group as a GenerationRequestError', () => {
+    const wire = structuredClone(
+      makeGenerationRequest({ ...validRequestInput(), rhythmLock: SAMPLE_RHYTHM_LOCK }),
+    )
+    const tampered = { ...wire, rhythmLock: { ...wire.rhythmLock, allowedChanges: ['swing'] } }
+
+    expect(() => parseGenerationRequest(tampered)).toThrow(GenerationRequestError)
+    expect(() => parseGenerationRequest(tampered)).toThrow(/rhythmLock/u)
+  })
+
+  // @test-link [[entity_steering_block]]
+  it('refuses an unknown value in the steering block as a GenerationRequestError', () => {
+    const wire = structuredClone(
+      makeGenerationRequest({ ...validRequestInput(), steering: SAMPLE_STEERING }),
+    )
+    const tampered = { ...wire, steering: { ...wire.steering, strength: 'all' } }
+
+    expect(() => parseGenerationRequest(tampered)).toThrow(GenerationRequestError)
+    expect(() => parseGenerationRequest(tampered)).toThrow(/steering/u)
+  })
+
+  // @test-link [[entity_steering_block]]
+  it('still refuses any other extra field beside the groups', () => {
+    const wire = structuredClone(
+      makeGenerationRequest({
+        ...validRequestInput(),
+        rhythmLock: SAMPLE_RHYTHM_LOCK,
+        steering: SAMPLE_STEERING,
+      }),
+    )
+
+    expect(() => parseGenerationRequest({ ...wire, doodle: [] })).toThrow(GenerationRequestError)
   })
 })

@@ -26,6 +26,8 @@ import {
 import { type ActiveConcertRange, makeActiveConcertRange } from '../profile/active-concert-range'
 import { type RegisterId } from '../profile/register-id'
 import { parseCarryIn, type CarryIn } from './carry-in/carry-in'
+import { parseRequestRhythmLock, type RequestRhythmLock } from './request-rhythm-lock'
+import { parseSteeringBlock, type SteeringBlock } from './steering-block'
 import {
   type RegisterWindow,
   makeRegisterWindow,
@@ -47,15 +49,19 @@ export {
  * The resolved core generation request. Immutable and serializable: contains only request
  * identity, seed, requested measure count, meter, resolved active concert range, resolved
  * register identity, resolved register window, and, for a session phrase generated after another,
- * the carry-in that phrase handed forward (whose window is then the resolved window). The register field's type admits only Low,
- * Middle, or High — the outer RegisterChoice's Varying is not a representable value here, so an
- * unresolved register intent cannot be constructed as a core request. Theme, notation display
+ * the carry-in that phrase handed forward (whose window is then the resolved window), then the
+ * rhythm lock group and the steering block when the intent holds them (absent, the request is
+ * exactly v3.1's). The register field's type admits only Low, Middle, or High — the outer
+ * RegisterChoice's Varying is not a representable value here, so an unresolved register intent
+ * cannot be constructed as a core request. Theme, notation display
  * convention, browser state, audio nodes, UI widget values, and mutable session state cannot
  * enter this type — see rule_seeded_phrase_reproduction / rule_presentation_preference_preserves_phrase.
  */
 // @spec-link [[rule_tempo_never_affects_generation]]
 // @spec-link [[module_register_intent_boundary]]
 // @spec-link [[entity_phrase_carry_in]]
+// @spec-link [[entity_request_rhythm_lock]]
+// @spec-link [[entity_steering_block]]
 export interface GenerationRequest {
   readonly requestId: RequestId
   readonly seed: Seed
@@ -65,6 +71,10 @@ export interface GenerationRequest {
   readonly register: RegisterId
   readonly registerWindow: RegisterWindow
   readonly carryIn?: CarryIn
+  /** The rhythm lock group; absent when the lock is off. */
+  readonly rhythmLock?: RequestRhythmLock
+  /** What a doodle steers; absent when nothing steers. */
+  readonly steering?: SteeringBlock
 }
 
 interface GenerationRequestInput {
@@ -76,6 +86,8 @@ interface GenerationRequestInput {
   readonly register: RegisterId
   readonly registerWindow: RegisterWindow
   readonly carryIn?: CarryIn
+  readonly rhythmLock?: RequestRhythmLock
+  readonly steering?: SteeringBlock
 }
 
 /**
@@ -83,10 +95,13 @@ interface GenerationRequestInput {
  * Rejects a measure count other than four, a resolved register window that is not fully contained
  * in the resolved active concert range, and a carry-in whose window is not the resolved window,
  * each as a typed failure; never defaults, coerces, or transposes to force a fit. A request without
- * a carry-in has no `carryIn` field at all, so it serializes exactly as a first-release request.
+ * a carry-in has no `carryIn` field at all, so it serializes exactly as a first-release request;
+ * likewise a request without the rhythm lock group or the steering block has neither key, so it
+ * serializes exactly as v3.1's. The groups, when present, follow the carry-in in that order.
  */
 // @spec-link [[rule_no_carry_in_output_matches_v1]]
 // @spec-link [[service_generation_request_resolution]]
+// @spec-link [[rule_jam_and_lock_off_reproduce_earlier_phrases]]
 export function makeGenerationRequest(input: GenerationRequestInput): GenerationRequest {
   if (input.measureCount !== PHRASE_MEASURE_COUNT) {
     throw new GenerationRequestError(
@@ -121,6 +136,8 @@ export function makeGenerationRequest(input: GenerationRequestInput): Generation
     register: input.register,
     registerWindow: input.registerWindow,
     ...(input.carryIn === undefined ? {} : { carryIn: input.carryIn }),
+    ...(input.rhythmLock === undefined ? {} : { rhythmLock: input.rhythmLock }),
+    ...(input.steering === undefined ? {} : { steering: input.steering }),
   })
 }
 
@@ -133,6 +150,8 @@ const GENERATION_REQUEST_ALLOWED_KEYS = new Set([
   'register',
   'registerWindow',
   'carryIn',
+  'rhythmLock',
+  'steering',
 ])
 
 const CONCERT_RANGE_ALLOWED_KEYS = new Set(['kind', 'minMidi', 'maxMidi'])
@@ -238,8 +257,12 @@ function parseResolvedRegisterId(input: unknown): RegisterId {
  * importantly for rule_seeded_phrase_reproduction / rule_presentation_preference_preserves_phrase
  * — any unknown field (theme, notationDisplay, sessionId, or any other presentation/browser-state
  * field) rather than silently ignoring it, so such state structurally cannot enter a request.
+ * The rhythm lock group and the steering block, when their keys are present, are parsed through
+ * their own parsers.
  */
 // @spec-link [[module_generation_request_envelope]]
+// @spec-link [[entity_request_rhythm_lock]]
+// @spec-link [[entity_steering_block]]
 export function parseGenerationRequest(input: unknown): GenerationRequest {
   if (typeof input !== 'object' || input === null || Array.isArray(input)) {
     throw new GenerationRequestError(
@@ -272,6 +295,14 @@ export function parseGenerationRequest(input: unknown): GenerationRequest {
   const register = parseResolvedRegisterId(record.register)
   const registerWindow = parseRegisterWindow(record.registerWindow)
   const carryIn = 'carryIn' in record ? parseRequestCarryIn(record.carryIn) : undefined
+  const rhythmLock =
+    'rhythmLock' in record
+      ? parseRequestGroup('rhythmLock', record.rhythmLock, parseRequestRhythmLock)
+      : undefined
+  const steering =
+    'steering' in record
+      ? parseRequestGroup('steering', record.steering, parseSteeringBlock)
+      : undefined
 
   return makeGenerationRequest({
     requestId,
@@ -282,6 +313,8 @@ export function parseGenerationRequest(input: unknown): GenerationRequest {
     register,
     registerWindow,
     ...(carryIn === undefined ? {} : { carryIn }),
+    ...(rhythmLock === undefined ? {} : { rhythmLock }),
+    ...(steering === undefined ? {} : { steering }),
   })
 }
 
@@ -292,6 +325,20 @@ function parseRequestCarryIn(input: unknown): CarryIn {
   } catch (error) {
     throw new GenerationRequestError(
       `GenerationRequest.carryIn is invalid: ${(error as Error).message}`,
+    )
+  }
+}
+
+/**
+ * Intent: parse one untrusted optional request group through its own parser, reporting any fault
+ * as a GenerationRequestError naming the field.
+ */
+function parseRequestGroup<T>(field: string, input: unknown, parse: (value: unknown) => T): T {
+  try {
+    return parse(input)
+  } catch (error) {
+    throw new GenerationRequestError(
+      `GenerationRequest.${field} is invalid: ${(error as Error).message}`,
     )
   }
 }
