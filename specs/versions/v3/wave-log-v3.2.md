@@ -358,3 +358,64 @@ Before the gate: a `coding-executor` cleared code health's one error, chunk 5's 
 `npm run test:sweep` exited 0: 5 files, 16 tests, 126 s. At 240 BPM, Eighth loses its carry-in to
 the time rule in 216 of 216 cases from phrase 2. That is recorded here, not compared: wave 0 ran no sweep. C5.17
 keeps 240 BPM best effort.
+
+### Wave sync
+
+`documentalist` applied the wave 1 sync in 3b0ce9a.
+
+- Part N is applied under gate CN, with the owner's quote and the date in the commit and the change
+  set:
+  - `module_settings_mutation` 0.4 → 0.5, with chunk 15's names written in;
+  - `rule_vary_settings_figure_step` 0.1 → 0.2;
+  - **CONTRACT 9.0.0**.
+- Chunk revisions:
+  - `rule_stray_notes_filtered_on_reading` 0.2 → 0.3, now in part E;
+  - `req_settings_mutation_flag` 0.4;
+  - `rule_mutation_rerolls_unsupported_combination` 0.4;
+  - `rule_mutation_draws_setting_then_direction` 0.3.
+- Rewordings applied verbatim:
+  - `rule_rhythm_change_kinds` 0.2 (D424);
+  - `entity_steering_block` 0.2 and `rule_jam_steering_block` 0.2 (D425);
+  - `rule_vary_settings_skips_dead_end` 0.2 (D426).
+- Drift checks found no drift; built names were written in:
+  - `entity_quantized_doodle` 0.2;
+  - `module_doodle_quantizer` 0.2;
+  - `entity_rhythm_candidate_domain` 0.3;
+  - `entity_request_rhythm_lock` 0.2;
+  - `entity_phrase_carry_in` 0.6;
+  - `module_generation_request_construction` 0.8;
+  - `module_generation_worker_protocol` 0.10.
+- Two STABLE atoms were checked:
+  - `module_phrase_replay_key` 0.6 holds, so nothing was drafted.
+  - `module_kept_session_codec` holds its guarantee, but one interface name is stale
+    (`parseCarryIn` → `parsePhraseCarryIn`). The fix is drafted as change set O4, to ride with
+    gate CK.
+- Tags: the wave added 387 links, all above their declarations.
+- `atd check --full`: 442 atoms, 350 OK, 92 NO_IMPL. `atd:lint`, `atd:check` and `lint:links`
+  pass.
+- Part O records the sync (O1–O4).
+
+For the wave 2 preflight and later:
+- **Chunk 22.** Since chunk 6, the kept body's stored request is parsed by `parseGenerationRequest`,
+  which now accepts the two groups. A hand-crafted kept record whose request holds a group its
+  intent lacks would read, where v3.1 refused it. No record the app writes holds one. Chunk 22
+  closes this or rules it acceptable; the wave 2 or 3 preflight sends it to `spec-writer`.
+- **Gate CK (chunk 12).** It covers `module_phrase_replay_key`, `rule_seeded_phrase_reproduction`
+  and O4, with another MAJOR bump (D422).
+- **Chunk 19's sync.** Drop "(not built yet)" from `module_settings_mutation`'s Idle call. That
+  atom is STABLE, so tell the owner.
+- **Chunk 8's sync (wave 4).** Apply D425's two rewordings (change set O3).
+- **Release sync.** Remove the `changes-in-v3.2` tag from chunk 15's three atoms.
+- **Status candidates, offered to the owner.** `rule_vary_settings_skips_dead_end` DRAFT → REVIEW.
+  Four ARCHITECTURE atoms (`entity_quantized_doodle`, `module_doodle_quantizer`,
+  `entity_steering_block`, `entity_request_rhythm_lock`) are better left until something reads
+  them.
+
+### Report to the owner
+
+- Chunks 4, 5, 6 and 15 merged; none moved.
+- Chunk 5 stopped once on §D.2's figures; D424 settled it.
+- The gate passed. The entry chunk is 265,436 B (+5).
+- The sync applied part N, so CONTRACT is now 9.0.0.
+- Asked: the merge of `v3.2-w1` into `main` with the push, and the optional status step for
+  `rule_vary_settings_skips_dead_end`.
