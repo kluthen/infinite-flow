@@ -1,6 +1,6 @@
 ---
 id: rule_vary_settings_skips_dead_end
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 priority: 1
