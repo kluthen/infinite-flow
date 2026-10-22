@@ -187,3 +187,12 @@ thinks not). Gate CN asked of the owner.
   `rule_stray_notes_filtered_on_reading`. Chunk 3's recorded doodles join the quantizer's tests in
   wave 2.
 - Chunk 5: dispatched to `coding-leader`, branch `v3.2-c5-rhythm-bars`.
+- Chunk 5 stopped before merge (WIP 8cbb67f on `v3.2-c5-rhythm-bars`, worktree kept): the bar
+  key, the distance and the five kinds are built and green, and the bar key reproduces §D.2's
+  domain facts. But two things don't match the spec. First, C7.3 and `rule_rhythm_change_kinds`
+  say that under Strict and Straight, Sixteenth has no available change; the built definitions find
+  repeated note↔rest changes there (20 % per measure pair). Second, several of §D.2's per-kind
+  shares don't reproduce within a point; the 2026-10-08 script is not in the repo. Keying the
+  largest domain takes 14.4 ms (median), not about 10. Probe results are in the session scratchpad.
+  Sent to `spec-writer` for a ruling. Chunk 6 goes on meanwhile (it doesn't depend on 5).
+- Chunk 6: dispatched to `coding-leader`, branch `v3.2-c6-request-inputs`.
