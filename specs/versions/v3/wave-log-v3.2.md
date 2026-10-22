@@ -356,4 +356,5 @@ Before the gate: a `coding-executor` cleared code health's one error, chunk 5's 
   entirely outside it. There is no Jam chunk yet.
 
 `npm run test:sweep` exited 0: 5 files, 16 tests, 126 s. At 240 BPM, Eighth loses its carry-in to
-the time rule in 216 of 216 cases from phrase 2, as in v3.1 (C5.17 keeps 240 BPM best effort).
+the time rule in 216 of 216 cases from phrase 2. That is recorded here, not compared: wave 0 ran no sweep. C5.17
+keeps 240 BPM best effort.
