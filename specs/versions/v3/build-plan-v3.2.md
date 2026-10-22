@@ -748,7 +748,7 @@ conversion to microseconds. Nothing outside `src/jam/` imports the quantizer.
 
 ### Chunk 5 — Rhythm bars, distance and change kinds
 
-Status: blocked (on a ruling: C7.3 and §D.2 vs the built kinds; WIP 8cbb67f)
+Status: in progress (w1, resumed from WIP 8cbb67f)
 Wave: 1
 Depends on: 0, 2
 Architecture capture: the bar key, `src/domain/rhythm/rhythm-bars.ts` (a revision of
@@ -804,7 +804,8 @@ their `identity` or index; a domain keyed by bars once, beside the canonical mem
 
 ### Chunk 6 — The request carries v3.2's inputs
 
-Status: in progress (w1)
+Status: merged (w1, 83ac43c)
+Record: 6a 4021188, 6b 899c152; new `src/domain/generation/request-rhythm-lock.ts` (the lock group, kinds in chunk 5's names); `CarryIn` = `PhraseCarryIn | NoPhraseCarryIn`, a no-phrase carry-in requires phrase number 1; the `ifk1.`–`ifk3.` decoders read carry-ins through `parsePhraseCarryIn`; the steering block's target holds note and rest starts (C8 needs both; sent to `spec-writer`); the two group parsers enter the entry chunk with `parseGenerationRequest` (wave gate measures).
 Wave: 1
 Depends on: 0, 2
 Architecture capture: v3.2's whole request contract, so the replay key and the kept-session shape

@@ -238,3 +238,18 @@ thinks not). Gate CN asked of the owner.
   For the owner, for information only: under Neutral, "Move a note" and "Move a rest" offer
   nothing. Pop song offers all five kinds.
   Chunk 5 resumes after chunk 6 (κ = 1).
+- Chunk 6 merged: halves 6a (4021188) and 6b (899c152), merge 83ac43c.
+  - The corpus guard stayed green after each half (12 files, 425 tests). The related tests
+    passed: 287 files, 4,089 tests. The static checks and code health passed.
+  - New file `request-rhythm-lock.ts`.
+  - A carry-in from no phrase requires phrase number 1.
+  - The key decoders read carry-ins through `parsePhraseCarryIn`.
+  - Deviation sent to `spec-writer`: C5.9 and C11 say the steering block's target holds "note
+    starts". It also holds rest starts, since C8's distance needs them. This must be confirmed
+    before chunks 12 and 22 store the block.
+  - For the gate: the two group parsers join `parseGenerationRequest` in the entry chunk, a few KB.
+  - For the sync: drift-check the three captured entities and the two modules, and check whether
+    `module_phrase_replay_key` needs a word for the refusals.
+  - Risks: the locked bars' tie continuations are not checked yet (chunk 10 may tighten this).
+    There are three code-health warnings.
+- Chunk 5 resumed: a fresh `coding-leader` from WIP 8cbb67f, with D424's instruction.
