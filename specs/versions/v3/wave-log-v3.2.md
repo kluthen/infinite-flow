@@ -196,3 +196,9 @@ thinks not). Gate CN asked of the owner.
   largest domain takes 14.4 ms (median), not about 10. Probe results are in the session scratchpad.
   Sent to `spec-writer` for a ruling. Chunk 6 goes on meanwhile (it doesn't depend on 5).
 - Chunk 6: dispatched to `coding-leader`, branch `v3.2-c6-request-inputs`.
+- Gate CN cleared by the owner (2026-10-22): "ok for the vary settings." That confirms change set
+  part N as drafted: N1 (`module_settings_mutation` 0.5), N2 (the optional rewording of
+  `rule_vary_settings_figure_step`, which the driver recommended) and N3 (CONTRACT 9.0.0).
+  `documentalist` applies it at wave 1's sync. Chunk 15 may merge into `v3.2-w1`. The gate's status
+  in the plan is set once `spec-writer`'s chunk 5 ruling is committed, since it is editing the plan
+  now.
