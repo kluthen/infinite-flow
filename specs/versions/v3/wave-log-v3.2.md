@@ -253,3 +253,46 @@ thinks not). Gate CN asked of the owner.
   - Risks: the locked bars' tie continuations are not checked yet (chunk 10 may tighten this).
     There are three code-health warnings.
 - Chunk 5 resumed: a fresh `coding-leader` from WIP 8cbb67f, with D424's instruction.
+- Chunk 6's deviation: `spec-writer` D425 (69d3ed4; Part C v1.7, plan v13). The steering block's
+  target holds note starts and rest starts; the code stays as built. Settled under the owner's
+  delegation: a doodle measure's starts are what is heard, and against the doodle a candidate's
+  rest start right after another rest is dropped. About 18 % of candidates write one silence as
+  two rests. Against the lock every start counts, as written. This stays inside chunk 8, which
+  gets a new Done-when; chunk 28 gets one too. No code change.
+
+  For the wave 1 sync, reword two DRAFT atoms as follows.
+
+  `entity_steering_block`:
+  - Replace the first three sentences of THE RULE / LOGIC with:
+
+    > The steering block is one immutable value with two parts. A target rhythm: exactly four
+    > measures, the doodle's measures already laid over the phrase, each the list of its note
+    > starts and rest starts in strictly increasing measure-relative sixteenths (0 to 15), a tie
+    > continuation being no start, so a measure may hold none; with a band (close, near, or
+    > unbounded, under which every candidate counts as near and the seeded order stands). A list
+    > of at most 63 melodic moves, in order, each up or down by a size (step, skip or leap) or the
+    > same note with no size, with one strength for the list (size and direction, direction only,
+    > or none).
+
+  - Replace "an unknown band, move or strength is refused" with "an unknown band, move, start kind
+    or strength, a start off the measure's sixteenths or out of order, or a measure count other
+    than four, is refused".
+  - Add to EXPECTATION: "The target rhythm holds rest starts beside note starts, since the rhythm
+    distance compares both."
+  - Drop "(new; not built yet)" from TECHNICAL INTERFACE.
+
+  `rule_jam_steering_block`: replace "(note starts per measure, in sixteenths, laid over the
+  phrase's four measures)" with "(the note starts and rest starts of each of the phrase's four
+  measures, in sixteenths, the doodle's measures laid over them)".
+
+  For chunk 8's sync in wave 4, not now, reword two more atoms.
+
+  `rule_jam_rhythm_ordered_by_doodle`:
+  - Replace "built from the doodle's note starts" with "built from the doodle's note starts and
+    silences, one rest start per silence in a measure".
+  - Add after its first sentence: "A candidate is compared with it as heard: a rest written right
+    after another rest starts nothing."
+
+  `rule_rhythm_distance`: add after "ties are not starts.": "Against the doodle, a candidate's rest
+  start right after another rest is not counted, so one silence written as two rests is no edit;
+  against the locked rhythm every start counts, as written."
