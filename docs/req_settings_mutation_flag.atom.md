@@ -21,7 +21,7 @@ dependents:
   - [[service_session_engine]]
   - [[service_workspace_session_runner_factory]]
 layer: BUSINESS
-version: 0.3
+version: 0.4
 human_name: Settings-Mutation Flag
 tags: [v2, release-v2.0, part-v2.1, session, player-controls, changes-in-v3.2]
 parents:
@@ -37,14 +37,15 @@ priority: 1
 Let the player opt in to the app quietly varying its own generation settings over the course of a session.
 
 ## THE RULE / LOGIC
-The settings-mutation flag is an opt-in, visible on/off flag. It is off on a first visit, and the player's choice is saved, so it comes back after a page reload, on only if the player turned it on. When it is on, it lets an eligible setting drift by at most one grade, in either direction, every few phrases during a session. The number of phrases between two mutations, and before the first one counted from the session's start, is drawn at random from 2 to 4 from a seeded source, so a session's mutations can be replayed from its stored inputs. Eligible settings are every generation setting except instrument selection and tempo; tempo has its own, separate adaptive-tempo flag. Each mutation applies at the next phrase boundary, like any mid-session setting change, and never changes the instrument profile.
+The settings-mutation flag is an opt-in, visible on/off flag, in session mode, the only mode Vary settings runs in. It is off on a first visit, and the player's choice is saved, so it comes back after a page reload, on only if the player turned it on. When it is on, it lets an eligible setting drift by at most one grade, in either direction, every few phrases during a session. The number of phrases between two mutations, and before the first one counted from the session's start, is drawn at random from 2 to 4 from a seeded source, so a session's mutations can be replayed from its stored inputs. Every generation setting except instrument selection and tempo belongs to one of six groups the player switches on or off; tempo has its own, separate adaptive-tempo flag. The eligible settings are those of the groups switched on, the Rhythm group never while the rhythm lock is on. A session whose settings at its start leave no move onto a supported combination among the eligible settings runs without the flag's mutations. Each mutation applies at the next phrase boundary, like any mid-session setting change, and never changes the instrument profile.
 
 ## TECHNICAL INTERFACE
-
-A visible on/off flag controls whether the app mutates its own generation settings during a session.
+A visible on/off flag controls whether the app mutates its own generation settings during a session, among the groups of settings the player allows.
 
 ## EXPECTATION
 - The flag is off on a first visit, and after a page reload it comes back as the player left it, on only if the player turned it on.
 - With the flag off, no setting changes by itself during a session.
 - With it on, each mutation moves one eligible setting by at most one grade, never the instrument selection and never the tempo.
 - With it on, mutations come 2 to 4 phrases apart, the first one 2 to 4 phrases after the session's start, and the same stored inputs give the same mutations.
+- With it on, no mutation moves a setting of a group the player switched off, or of the Rhythm group while the rhythm lock is on.
+- A session started with no move onto a supported combination among the eligible settings runs with no mutation.

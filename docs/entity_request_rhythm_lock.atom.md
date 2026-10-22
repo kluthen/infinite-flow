@@ -2,7 +2,7 @@
 id: entity_request_rhythm_lock
 status: DRAFT
 layer: ARCHITECTURE
-version: 0.1
+version: 0.2
 priority: 1
 human_name: The Rhythm Lock in the Generation Request
 tags: [v3, release-v3.2, rhythm-lock, generation]
@@ -22,10 +22,10 @@ type: ENTITY
 Carry the rhythm lock's state into the generator as one validated group of the request, so every ordering and draw the lock needs is computed inside generation and a phrase replays from its request alone.
 
 ## THE RULE / LOGIC
-The rhythm lock group is one immutable value of three parts: the lock's state, either on with nothing locked yet (a Jam's phrase 1, chosen nearest the doodle) or on with the locked bars; the allowed rhythm changes, the kinds the player allows; and whether the phrase is a tenser one (session mode). The group's absence means the lock is off. The group serves session mode's lock and Jam's alike. It travels as one optional field of the outer generation intent and of the resolved core request, across the generation worker boundary, where it is re-validated from untrusted input and rebuilt; an unknown lock state or kind is refused with the worker's typed protocol error. A request without it is exactly the request it was before v3.2. Every ordering and draw derived from it is computed inside generation.
+The rhythm lock group is one immutable value of three parts: the lock's state, either on with nothing locked yet (a Jam's phrase 1, chosen nearest the doodle) or on with the locked bars; the allowed rhythm changes, the kinds the player allows; and whether the phrase is a tenser one (session mode). The group's absence means the lock is off. The group serves session mode's lock and Jam's alike. It travels as one optional field of the outer generation intent and of the resolved core request, across the generation worker boundary, where it is re-validated from untrusted input and rebuilt; an unknown lock state or kind, an allowed change repeated or out of the kinds' fixed order, or locked bars other than four measures each written out over its sixteen ticks, is refused with the worker's typed protocol error. A request without it is exactly the request it was before v3.2. Every ordering and draw derived from it is computed inside generation.
 
 ## TECHNICAL INTERFACE
-An optional `rhythmLock` field on GenerationIntent (src/domain/generation/generation-intent.ts) and on the resolved GenerationRequest (src/domain/generation/generation-request.ts), carried by request-resolution.ts, accepted by the worker's inbound parser (GENERATION_INTENT_ALLOWED_KEYS, src/generation-worker/generation-worker-inbound.ts) and by parseGenerationRequest's allowed keys, every other extra field still refused; the prewarm and cancellation paths carry it with the intent. Not built yet; no generation stage reads it until the lock is built in the generator.
+src/domain/generation/request-rhythm-lock.ts holds the group, `RequestRhythmLock` (`{ state, allowedChanges, tenserPhrase }`, the state `RhythmLockState`, `{ kind: 'pending' }` or `{ kind: 'locked', bars }`, each bar a `LockedRhythmMeasure` of `LockedRhythmEvent`s, the allowed changes `RhythmChangeKind`s in the order of `RHYTHM_CHANGE_KINDS`), its validating constructor `makeRequestRhythmLock` and its parser `parseRequestRhythmLock`, each refusing with `RequestRhythmLockError`; the rhythm domain's change kinds take their names from `RhythmChangeKind`. An optional `rhythmLock` field on GenerationIntent (src/domain/generation/generation-intent.ts) and on the resolved GenerationRequest (src/domain/generation/generation-request.ts), carried by request-resolution.ts, accepted by the worker's inbound parser (GENERATION_INTENT_ALLOWED_KEYS, src/generation-worker/generation-worker-inbound.ts) and by parseGenerationRequest's allowed keys, every other extra field still refused; the prewarm and cancellation paths carry it with the intent. No generation stage reads it yet.
 
 ## EXPECTATION
 - A request with the lock group round-trips through the worker unchanged; one with an unknown lock state or kind is refused with the typed protocol error.

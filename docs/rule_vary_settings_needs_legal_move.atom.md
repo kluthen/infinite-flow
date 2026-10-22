@@ -9,7 +9,8 @@ type: RULE
 layer: BUSINESS
 version: 0.1
 priority: 1
-dependents: []
+dependents:
+  - [[module_settings_mutation]]
 ---
 
 # Vary Settings Needs a Move It Can Make
