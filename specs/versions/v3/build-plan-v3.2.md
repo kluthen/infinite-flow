@@ -1184,7 +1184,8 @@ in Jam's code.
 
 ### Chunk 15 — Vary settings' allowed groups
 
-Status: in progress (w1)
+Status: merged (w1, 6be387f)
+Record: 15a b03c104, 15b 3995fc1; gate CN cleared before merge; `SessionSettings` gains `allowedGroups` and `rhythmLockOn` (corpus compared on `projectOntoV310Keys`); `hasLegalMove`, `MutationDeadEnd`, `mutation-skipped` output, `SessionHistory.skippedMutations()` in memory; a step-down dead end is unreachable with today's rules (exhaustive search), so the dead-end test turns the lock on mid-session through a `settings-change` event (sent to `spec-writer`).
 Wave: 1
 Depends on: 0, 2 (and v3.1 chunks 12 and 15, the figure step and the restriction bound)
 Architecture capture: the run-time exclusion of groups in the settings mutation: each mutable

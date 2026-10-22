@@ -306,3 +306,26 @@ thinks not). Gate CN asked of the owner.
   - Risk: `src/domain/rhythm` uses a type from `src/domain/generation`.
 - Chunk 15: dispatched to `coding-leader`, branch `v3.2-c15-allowed-groups`. Gate CN is done, so
   it may merge.
+- Chunk 15 merged: halves 15a (b03c104) and 15b (3995fc1), merge 6be387f. The merge cites gate CN.
+  - The corpus guard passed after each half (425/425). Related tests passed after each half:
+    1,941, then 1,955. The static checks pass.
+  - Interface names for N1 at the sync:
+    - the groups: `VarySettingsGroup`, `VARY_SETTINGS_GROUPS`, `AllowedGroups`,
+      `ALL_GROUPS_ALLOWED`, `MUTABLE_SETTING_GROUPS` and `isGroupAllowed`;
+    - the settings fields: `SessionSettings.allowedGroups` and `rhythmLockOn`;
+    - the dead end: `MutationDeadEnd`, `MUTATION_DEAD_END` and `isMutationDeadEnd`;
+    - the legal-move check: `hasLegalMove(settings, context)`;
+    - the session side: `MutationSkippedOutput`, `SkippedMutation`,
+      `SessionHistory.skippedMutations()`, `mutationContextAtStart` and
+      `mutationFlagFor(varySettings, sessionSeed, settings, context)`.
+  - Deviation, in the test's trigger only: an exhaustive search found no step-down dead end under
+    today's rules. The dead-end path is defensive; the test reaches it by turning the lock on
+    mid-session. Sent to `spec-writer` (C9's wording).
+  - `hasLegalMove` on settings whose rhythm combination is blocked from the start follows N1
+    literally.
+  - Two atoms' tags were placed off the busiest files because of code health's 10-atom limit; the
+    sync should check where they sit.
+  - Code health has one error on the branch, from chunk 5
+    (`rhythm-bars-domain.spec.ts:171`, nesting). It is fixed before the gate.
+
+### Gate
