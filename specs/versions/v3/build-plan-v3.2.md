@@ -685,7 +685,8 @@ Architecture capture: none
 
 ### Chunk 4 — The quantized doodle
 
-Status: in progress (w1)
+Status: merged (w1, c80701d)
+Record: `quantizeDoodle` takes a fourth input, `endMeasure` (the capture's end barline, chunk 17's verdict), and exports `snappedTickOf` for chunk 17; quantizer import boundary enforced in `eslint.config.js`; 76 new tests; lexicon "quantize" stays planned until Jam is usable; for the sync: `endMeasure` into `module_doodle_quantizer`.
 Wave: 1
 Depends on: 0
 Architecture capture: the quantized doodle, `src/domain/doodle/quantized-doodle.ts`: one to four
@@ -735,7 +736,7 @@ conversion to microseconds. Nothing outside `src/jam/` imports the quantizer.
 
 ### Chunk 5 — Rhythm bars, distance and change kinds
 
-Status: planned
+Status: in progress (w1)
 Wave: 1
 Depends on: 0, 2
 Architecture capture: the bar key, `src/domain/rhythm/rhythm-bars.ts` (a revision of

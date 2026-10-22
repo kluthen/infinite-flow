@@ -180,3 +180,10 @@ thinks not). Gate CN asked of the owner.
 ### Chunks
 
 - Chunk 4: dispatched to `coding-leader`, branch `v3.2-c4-quantized-doodle`.
+- Chunk 4 merged (6387187, merge c80701d): `QuantizedDoodle` and its parser, `quantizeDoodle`,
+  `snappedTickOf`, `doodleMeasureOf`; ESLint keeps the quantizer inside `src/jam/`; 76 new tests,
+  related 529 pass, static checks pass. For the sync: `module_doodle_quantizer` gains the input
+  `endMeasure` (the capture's end barline, from chunk 17); revise
+  `rule_stray_notes_filtered_on_reading`. Chunk 3's recorded doodles join the quantizer's tests in
+  wave 2.
+- Chunk 5: dispatched to `coding-leader`, branch `v3.2-c5-rhythm-bars`.
