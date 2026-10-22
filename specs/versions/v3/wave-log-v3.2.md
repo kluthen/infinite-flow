@@ -296,3 +296,13 @@ thinks not). Gate CN asked of the owner.
   `rule_rhythm_distance`: add after "ties are not starts.": "Against the doodle, a candidate's rest
   start right after another rest is not counted, so one silence written as two rests is no edit;
   against the locked rhythm every start counts, as written."
+- Chunk 5 merged (53c45b7, merge baf924b). The census equals §D.2 count for count.
+  - Timings: keying takes 13.2 ms. Distance to all takes 20.4 ms with start lists computed once,
+    29.7 ms without.
+  - Checks: 971 related tests pass, and the static checks pass.
+  - The kind names come from chunk 6's type.
+  - For the sync: the D424 rewording above, and a drift check on `entity_rhythm_candidate_domain`
+    0.2.
+  - Risk: `src/domain/rhythm` uses a type from `src/domain/generation`.
+- Chunk 15: dispatched to `coding-leader`, branch `v3.2-c15-allowed-groups`. Gate CN is done, so
+  it may merge.

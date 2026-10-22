@@ -751,7 +751,8 @@ conversion to microseconds. Nothing outside `src/jam/` imports the quantizer.
 
 ### Chunk 5 — Rhythm bars, distance and change kinds
 
-Status: in progress (w1, resumed from WIP 8cbb67f)
+Status: merged (w1, baf924b)
+Record: stopped at WIP 8cbb67f on §D.2's figures, resumed after spec D424 (definitions kept, §D.2 re-measured); census equal to §D.2 count for count; keying 13.2 ms, distance to all 20.4 ms with start lists precomputed (29.7 ms without; chunks 8, 10, 11 precompute once per domain); kind names imported as a type from chunk 6's `request-rhythm-lock.ts`.
 Wave: 1
 Depends on: 0, 2
 Architecture capture: the bar key, `src/domain/rhythm/rhythm-bars.ts` (a revision of
@@ -1183,7 +1184,7 @@ in Jam's code.
 
 ### Chunk 15 — Vary settings' allowed groups
 
-Status: planned
+Status: in progress (w1)
 Wave: 1
 Depends on: 0, 2 (and v3.1 chunks 12 and 15, the figure step and the restriction bound)
 Architecture capture: the run-time exclusion of groups in the settings mutation: each mutable
