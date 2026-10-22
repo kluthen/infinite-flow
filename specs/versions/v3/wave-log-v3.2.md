@@ -213,8 +213,28 @@ thinks not). Gate CN asked of the owner.
   - H2 now uses the Pop song preset at 120 BPM.
 
   For the wave 1 sync: `rule_rhythm_change_kinds` is reworded as in D424's report. The new rule
-  text is in the chunk 5 ruling's report, logged here in short: the five kinds as built, the
-  repeated form as the identical edit, the corrected known limit, and one more EXPECTATION line.
+  text, from `spec-writer`, replaces THE RULE / LOGIC; INTENT and TECHNICAL INTERFACE are
+  unchanged:
+
+  > One change is one edit of an allowed kind, made in one measure, or made in measure 1 or 2 and
+  > repeated identically (the same kind, at the same place in the measure, by the same shift) in
+  > measure 3 or 4, since the app builds measures 3 and 4 as a varied copy of measures 1 and 2.
+  > Rhythms are compared by their written bars; a tie added or removed outside the edited notes
+  > makes it more than one change. The five kinds are: move the start of a note that follows
+  > another note by a sixteenth or an eighth (the note before it absorbs the difference; this also
+  > covers dotting or undotting a note; the number of notes stays); move a rest that lies between
+  > two notes by a sixteenth or an eighth, with the note after it (it keeps its length and the
+  > phrase its silence); split a note into two; merge two notes into one; and turn a note into a
+  > rest of the same length, or a rest into a note. Ties added or removed, a note and the rest
+  > beside it trading places, a moved start that changes a rest's length, and larger edits are not
+  > offered. Which changes exist depends on the rhythm settings: under Strict rhythmic variety with
+  > Straight syncopation almost none exists (only adding or removing a rest, with Eighth notes
+  > under Conversational silence and with Sixteenth notes under Sparse silence; with Quarter notes,
+  > none), and neither Strict variety nor Active displacement ever offers a split or a merge. A
+  > list that finds nothing simply leaves the lock strict.
+
+  The EXPECTATION gains one line: "A repeated change is the identical edit in measures k and k + 2;
+  the same kind at another place or by another shift is not one change."
   For the owner, for information only: under Neutral, "Move a note" and "Move a rest" offer
   nothing. Pop song offers all five kinds.
   Chunk 5 resumes after chunk 6 (κ = 1).
