@@ -5,8 +5,9 @@
  * one position to the next, which a real instrument would swallow: it catches most of them, not
  * all, since some in-between notes last as long as notes the player meant and no length tells
  * those apart. Played notes are stored as received; this filter is applied only where they are
- * read for the review's lane and the played-notes export, so a later change of the threshold loses
- * nothing. Pure: no clock, no storage.
+ * read for the review's lane, the played-notes export and Jam's doodle (where a very short note
+ * never starts, extends or shapes the doodle), so a later change of the threshold loses nothing.
+ * Pure: no clock, no storage.
  */
 
 /**
