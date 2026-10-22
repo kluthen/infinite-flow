@@ -71,11 +71,12 @@ Status: this file holds four parts.
   facts refreshed against version 3.1.0 (spec D409). **v1.2 (2026-10-21), approved by the owner**
   (spec D410): v1.1 with its seven proposed answers, the design's seven behaviour answers (spec
   D411), the doodle-to-controls thresholds (C5.16.1, spec D415) and "the kept doodle" for "the held
-  doodle" (spec D413) written in; the contract wording's one sign-off is still to come. v1.3
+  doodle" (spec D413) written in. v1.3
   (2026-10-21): three findings of the v3.2 build's intent re-sync settled (spec D418–D420): where
   a fresh Jam's seeds come from (C11), and two more atoms and one more vision line for the same
-  sign-off (C13). Its sections are numbered C1 to C18; what v1.1, v1.2 and v1.3 change is listed
-  at the top of Part C and marked in each section they touch.
+  sign-off (C13). v1.4 (2026-10-22): the owner signed off the re-scoped contract wording, CONTRACT
+  7.2.0 to 8.0.0 (C13; spec D421). Its sections are numbered C1 to C18; what v1.1 to v1.4 change
+  is listed at the top of Part C and marked in each section they touch.
 - **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.1
   (2026-10-12), consolidated from the v3.3 direction and the chord research; **awaiting the
   owner's approval**. The contract wording it changes (§D12) needs the owner's confirmation
@@ -2231,12 +2232,14 @@ Delete everything removes them. No preset leaves the device.
 
 ## Part C — v3.2
 
-Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.3 (2026-10-21)**: v1.2
+Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.4 (2026-10-22)**: v1.3
+with the owner's sign-off on C13's re-scoped contract wording recorded (D421); it adds no
+behaviour. v1.3 (2026-10-21): v1.2
 with three findings of the build's intent re-sync settled by `spec-writer` under the owner's
 delegation of minor calls (D418–D420); the only behaviour it adds is where a fresh Jam's seeds come
 from (C11). **v1.2 (2026-10-21), approved by the owner** (D410): v1.1 with the seven answers it proposed (C17), the design's seven behaviour
 questions (D411), the doodle-to-controls thresholds (C5.16.1, D415) and the kept doodle's name (D413)
-written in. The contract wording of C13 still waits for its one sign-off. v1.1 rebuilds this part from the settled re-scope
+written in. v1.1 rebuilds this part from the settled re-scope
 [Jam as its own mode](jam-mode.md), which takes Jam out of the session options and makes it a mode
 of its own, and refreshes the code facts against version 3.1.0. It adds no behaviour beyond that
 re-scope; where the re-scope left a choice open, this part says so and proposes an answer (C17).
@@ -2244,8 +2247,8 @@ re-scope; where the re-scope left a choice open, this part says so and proposes 
 v1.0 (2026-10-08) was consolidated from the approved drafts [jam.md](jam.md),
 [key-and-mode-suggestion.md](key-and-mode-suggestion.md) and [rhythm-lock.md](rhythm-lock.md), with
 the code facts of [jam-grounding.md](jam-grounding.md), and approved by the owner on 2026-10-08,
-who confirmed the contract wording of C13 the same day. v1.1 changes that wording: it is signed
-off again, once, for the whole re-scope (C13). Where the drafts and this part differ, this part
+who confirmed the contract wording of C13 the same day. v1.1 changes that wording: it was signed
+off again, once, for the whole re-scope, on 2026-10-22 (C13, D421). Where the drafts and this part differ, this part
 wins. v3.2 is built on v3.0 (Part A) and v3.1 (Part B), both released (3.1.0 on 2026-10-21): their
 storage, kept sessions, stray-note filter, pre-generation,
 [figure levels](../../../docs/music/lexicon.md#figure-level), presets and `ifk3.` replay key are in
@@ -2253,6 +2256,14 @@ the code.
 
 Music terms are explained the first time they appear; the project's
 [lexicon](../../../docs/music/lexicon.md) has one entry per term.
+
+### What v1.4 changes against v1.3
+
+Each section v1.4 changes opens with a line in italics, _Changed in v1.4:_, under the earlier lines.
+
+- **The contract sign-off** (D421): the owner signed off C13's re-scoped wording on 2026-10-22, the
+  change set's part M as drafted, M1–M22: CONTRACT 7.2.0 to 8.0.0, the vision 0.9 to 0.10 (C13,
+  C14, C17). No behaviour changes.
 
 ### What v1.3 changes against v1.2
 
@@ -3749,6 +3760,7 @@ sign-off is still to come.
 _Changed in v1.3:_ a Start click with the controller away (D418) and the session seed plan (D419)
 join the guarantees that change; the vision's out-of-scope browsers follow D399 (D420). All three
 go in the same sign-off.
+_Changed in v1.4:_ the owner signed off the wording (D421).
 
 Each change is intended. Where a declared-intent entry is named, `documentalist` prepares the
 change.
@@ -3758,7 +3770,10 @@ checks). v3.2 takes **one MAJOR bump, to 8.0.0**, with **one sign-off by the own
 re-scoped wording** of every guarantee below, before the release gate, as v3.1's contract gate did.
 The owner confirmed v1.0's wording on 2026-10-08; v1.1 changes it (Jam mode instead of the Jam
 switch, the steering block instead of the doodle in the request, a controller needed in Jam mode),
-so it is confirmed again, once. v3.2 is one release (C2), so the bump is taken once.
+so it is confirmed again, once. v3.2 is one release (C2), so the bump is taken once. **The owner
+signed it off on 2026-10-22** (D421): the 22 wordings of the
+[change set](../../../docs/release/v3.1-v3.2-intent-change-set.md)'s part M as drafted, the
+vision's lines (0.9 to 0.10) among them.
 
 **Contract guarantees that change** (STABLE atoms on the contract surface):
 
@@ -3899,6 +3914,7 @@ _Changed in v1.1:_ facts refreshed against version 3.1.0 (5ef47a0, 2026-10-21); 
 stray-note filter and replay keys; Jam mode's facts and risks added. File references are in
 [jam-grounding.md](jam-grounding.md#e-refresh-at-v310-2026-10-21) and
 [Jam mode §4](jam-mode.md#4-the-generator-seam).
+_Changed in v1.4:_ the contract's risk closed by the sign-off (D421).
 
 - **The generation request is closed by construction**: the worker checks it against an exact list
   of its ten fields and refuses any other, then rebuilds it and requires the rebuild to equal what
@@ -3988,8 +4004,8 @@ stray-note filter and replay keys; Jam mode's facts and risks added. File refere
   workspace would pull it in. The boundary check guards it.
 - **The doodle-to-controls mapping** (C5.16.1): a poor threshold makes "does it sound like my
   doodle?" fail even when the steering works; the listening check confirms or corrects it.
-- **The contract**: the guarantees of C13 change, which needs the owner's one sign-off before the
-  gate.
+- **The contract**: the guarantees of C13 change; the owner signed off their wording on
+  2026-10-22 (D421).
 
 ## C15. Architectural decisions and their reasons
 
@@ -4246,6 +4262,7 @@ Jam's run at 60, 120 and 180 BPM, and at 240 BPM only if Jam keeps it (C5.17).
 _Changed in v1.1:_ the provisional answers and their checks; seven open questions with proposed
 answers; the code gaps and deferrals follow the re-scope.
 _Changed in v1.2:_ the seven questions settled (D410), the design's seven answered (D411).
+_Changed in v1.4:_ the contract sign-off given (D421).
 
 **Provisional answers, each confirmed by a check.** Four answers of the re-scope were accepted on
 the owner's "will need testing to be sure". A check that fails comes back to the owner as a ruling;
@@ -4286,7 +4303,7 @@ Jam's on-demand chunk with its boundary check.
 
 **From the owner**: approval of this part (given, D410, with the seven answers above); one
 sign-off on C13's re-scoped contract wording, before the release gate (the build plan's contract
-gate).
+gate; given on 2026-10-22, D421).
 
 **For `documentalist`**: the declared-intent changes of C13, including v3.2's draft atoms written
 from v1.0, and the lexicon entries for v3.2's terms (C4), Jam and the kept doodle taking their new

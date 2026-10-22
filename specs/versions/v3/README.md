@@ -5,7 +5,8 @@ D348); v3.1 released as version 3.1.0 on 2026-10-21 (tag `v3.1.0` at 55364e7; D3
 checks after the tag closed (D399; [v3.1.x notes](#v31x-notes-after-the-tag)); v3.2 consolidated as
 master spec Part C v1.0, approved (D239), re-scoped with Jam as its own mode (D400–D408;
 [draft](jam-mode.md), settled) and consolidated from it as Part C v1.1 (D409), approved as v1.2
-(D410), its design approved (D412) and its build plan v4 written, awaiting approval (D416); v3.3 in master spec
+(D410), its design approved (D412), its build plan approved (D416, D417) and its contract
+wording signed off (D421); v3.3 in master spec
 Part D, awaiting owner approval (D264–D275), its build plan not approved (D276–D288, D351); v3.4,
 a structural review before v4, opened as a scoping draft (D389), with a lexicon page added as its
 one player-facing item (D393); v3.x direction only. The Status paragraphs this README kept until
@@ -380,14 +381,15 @@ approved as v1.2 the same day (D410); the build plan is rewritten as v4 (D416).
 by the owner on 2026-10-08, with the contract wording it lists confirmed the same day (D239).
 v1.1 (2026-10-21) was rebuilt from the re-scope (D409). **v1.2 (2026-10-21) is approved by the
 owner** (D410): v1.1's seven proposed answers (O260–O266), the design's behaviour answers (D411),
-the doodle-to-controls thresholds (D415) and "the kept doodle" (D413) written in. One sign-off on
-its re-scoped contract wording (CONTRACT 7.2.0 to 8.0.0) is still to come, as the build plan's
-gate CS. v1.3 (2026-10-21) settles the three findings of the build's intent re-sync (D418–D420): a
-fresh Jam's seeds, and two atoms and a vision line more for that sign-off.
+the doodle-to-controls thresholds (D415) and "the kept doodle" (D413) written in. v1.3
+(2026-10-21) settles the three findings of the build's intent re-sync (D418–D420): a fresh Jam's
+seeds, and two atoms and a vision line more for the contract sign-off. v1.4 (2026-10-22) records
+that sign-off, the build plan's gate CS: the owner signed off the re-scoped contract wording,
+CONTRACT 7.2.0 to 8.0.0 (D421).
 
-**Build plan:** [build-plan-v3.2.md](build-plan-v3.2.md), **v8 (2026-10-21)**, from v6, **approved
-by the owner** (D416, D417; hand check H9 waived), with wave 0's corrections (v7) and chunk 0's
-findings (v8, D418–D420), from Part C v1.3 and the approved design (gate D0, D412). It plans
+**Build plan:** [build-plan-v3.2.md](build-plan-v3.2.md), **v10 (2026-10-22)**, from v6, **approved
+by the owner** (D416, D417; hand check H9 waived), with wave 0's corrections (v7), chunk 0's
+findings (v8, D418–D420), chunk 2's report (v9) and gate CS signed off (v10, D421), from Part C v1.4 and the approved design (gate D0, D412). It plans
 v3.2 on top of the [v3.1](build-plan-v3.1.md) build plan on the build-plan model: 32 chunks in eight
 waves, the session-mode half first (waves 0–3), then Jam mode (waves 4–7), one release, then the
 release gate, under the shared [v3 build workflow](build-workflow.md).

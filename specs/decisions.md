@@ -823,3 +823,10 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   D399 in the CS redraft.** `spec-writer`'s, under the same delegation: browsers other than Chrome
   are out of scope, other Chromium-based ones untested. It goes in the vision's one redraft and
   sign-off. Now in: [Part C §C13](versions/v3/master-spec.md#c13-what-v32-changes-in-v2-v30-and-v31-guarantees-and-atoms).
+
+- **D421 (2026-10-22): gate CS is signed off; three atoms go to STABLE.** The owner, after wave 0:
+  "agreed for your questions." M1–M22 of the [change set](../docs/release/v3.1-v3.2-intent-change-set.md)'s part M as
+  drafted: CONTRACT 7.2.0 → 8.0.0, the vision 0.9 → 0.10; `documentalist` applies them on
+  `v3.2-w0`. `module_phrase_replay_key`, `rule_seeded_phrase_reproduction` and
+  `module_settings_mutation` are promoted to STABLE. Now in: [Part C §C13](versions/v3/master-spec.md#c13-what-v32-changes-in-v2-v30-and-v31-guarantees-and-atoms),
+  [build plan v3.2, gates](versions/v3/build-plan-v3.2.md#gates).
