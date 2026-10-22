@@ -153,6 +153,26 @@ function touchesExactly(change: RhythmChange, grouping: readonly BarIndex[]): bo
 }
 
 /**
+ * Intent: add to `into` the census labels of every change, touching exactly `grouping`, from the
+ * locked candidate to another candidate of its bucket.
+ */
+function addBucketLabels(
+  candidates: readonly RhythmCandidate[],
+  keyed: BarsKeyedRhythmDomain,
+  grouping: readonly BarIndex[],
+  bucket: readonly number[],
+  locked: number,
+  into: Set<string>,
+): void {
+  for (const other of bucket) {
+    if (locked === other) continue
+    const change = rhythmChangeBetween(candidates[locked]!.bars, candidates[other]!.bars)
+    if (!change || !touchesExactly(change, grouping)) continue
+    for (const label of labelsOf(change, keyed.starts[locked]!)) into.add(label)
+  }
+}
+
+/**
  * Intent: count, per census label, the candidates of one domain that some other candidate of the
  * domain differs from by one change carrying that label (each candidate once per label; twins
  * written alike each count). Only pairs written alike outside a grouping are compared, and a
@@ -167,12 +187,7 @@ function censusCounts(
   for (const grouping of GROUPINGS)
     for (const bucket of bucketsOutside(measureKeys, grouping))
       for (const locked of bucket)
-        for (const other of bucket) {
-          if (locked === other) continue
-          const change = rhythmChangeBetween(candidates[locked]!.bars, candidates[other]!.bars)
-          if (!change || !touchesExactly(change, grouping)) continue
-          for (const label of labelsOf(change, keyed.starts[locked]!)) labels[locked]!.add(label)
-        }
+        addBucketLabels(candidates, keyed, grouping, bucket, locked, labels[locked]!)
   const counts = new Map<string, number>()
   for (const set of labels) for (const label of set) counts.set(label, (counts.get(label) ?? 0) + 1)
   return counts
