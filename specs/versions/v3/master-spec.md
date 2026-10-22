@@ -75,7 +75,9 @@ Status: this file holds four parts.
   (2026-10-21): three findings of the v3.2 build's intent re-sync settled (spec D418–D420): where
   a fresh Jam's seeds come from (C11), and two more atoms and one more vision line for the same
   sign-off (C13). v1.4 (2026-10-22): the owner signed off the re-scoped contract wording, CONTRACT
-  7.2.0 to 8.0.0 (C13; spec D421). Its sections are numbered C1 to C18; what v1.1 to v1.4 change
+  7.2.0 to 8.0.0 (C13; spec D421). v1.5 (2026-10-22): the three atoms promoted to STABLE at 8.1.0
+  take MAJOR bumps of their own, one at the sync of each wave that changes them (C13; spec D422).
+  Its sections are numbered C1 to C18; what v1.1 to v1.5 change
   is listed at the top of Part C and marked in each section they touch.
 - **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.1
   (2026-10-12), consolidated from the v3.3 direction and the chord research; **awaiting the
@@ -2232,7 +2234,9 @@ Delete everything removes them. No preset leaves the device.
 
 ## Part C — v3.2
 
-Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.4 (2026-10-22)**: v1.3
+Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.5 (2026-10-22)**: v1.4
+with the later contract bumps the three 8.1.0 promotions bring (C13, C16; D422); it adds no
+behaviour. v1.4 (2026-10-22): v1.3
 with the owner's sign-off on C13's re-scoped contract wording recorded (D421); it adds no
 behaviour. v1.3 (2026-10-21): v1.2
 with three findings of the build's intent re-sync settled by `spec-writer` under the owner's
@@ -2256,6 +2260,15 @@ the code.
 
 Music terms are explained the first time they appear; the project's
 [lexicon](../../../docs/music/lexicon.md) has one entry per term.
+
+### What v1.5 changes against v1.4
+
+Each section v1.5 changes opens with a line in italics, _Changed in v1.5:_, under the earlier lines.
+
+- **Later contract bumps** (D422): three atoms v3.2 still changes went to STABLE on the contract
+  with the sign-off (CONTRACT 8.1.0), so their changes take MAJOR bumps of their own, each signed
+  off by the owner and applied at the sync of the wave that builds it: 9.0.0 for Vary settings'
+  allowed groups, one more for the `ifk4.` replay key (C13, C16 item 49). No behaviour changes.
 
 ### What v1.4 changes against v1.3
 
@@ -3761,6 +3774,7 @@ _Changed in v1.3:_ a Start click with the controller away (D418) and the session
 join the guarantees that change; the vision's out-of-scope browsers follow D399 (D420). All three
 go in the same sign-off.
 _Changed in v1.4:_ the owner signed off the wording (D421).
+_Changed in v1.5:_ the three atoms promoted at 8.1.0 take later bumps of their own (D422).
 
 Each change is intended. Where a declared-intent entry is named, `documentalist` prepares the
 change.
@@ -3774,6 +3788,15 @@ so it is confirmed again, once. v3.2 is one release (C2), so the bump is taken o
 signed it off on 2026-10-22** (D421): the 22 wordings of the
 [change set](../../../docs/release/v3.1-v3.2-intent-change-set.md)'s part M as drafted, the
 vision's lines (0.9 to 0.10) among them.
+
+**Later bumps** (D422). With that sign-off the owner promoted three atoms v3.2 still changes to
+STABLE on the contract (CONTRACT 8.1.0): `module_settings_mutation`, `module_phrase_replay_key` and
+`rule_seeded_phrase_reproduction` (listed below under "Other atoms that change"). Their changes are
+no longer covered by the one bump: each takes its own wording sign-off by the owner and is applied
+at the sync of the wave that builds it, so the released contract never disagrees with the code
+beside it. CONTRACT 9.0.0 (MAJOR) comes at the sync of the wave that builds Vary settings' allowed
+groups (the settings mutation), and one more MAJOR bump at the sync of the wave that builds the
+`ifk4.` replay key (the replay key and seeded reproduction). v3.2 so takes three MAJOR bumps in all.
 
 **Contract guarantees that change** (STABLE atoms on the contract surface):
 
@@ -3850,7 +3873,8 @@ vision's lines (0.9 to 0.10) among them.
   never generation inputs); `rule_repeat_phrase_marked_internally_only` (forced bends and rhythm
   changes are likewise never shown).
 
-**Other atoms that change** (REVIEW, apart from the vision, which is STABLE):
+**Other atoms that change** (REVIEW, apart from the vision, which is STABLE, and the three atoms
+promoted at 8.1.0, which take the later bumps above):
 
 - **The replay key** (`module_phrase_replay_key`): `ifk4.`; it holds the lock fields and the
   steering block, not the doodle (D410); its "holds no played notes" wording stays true.
@@ -4100,6 +4124,7 @@ _Changed in v1.1:_ rewritten for Jam mode and split into the two halves; items r
 sweep and checks run at 60, 120 and 180 BPM, 240 last; hand checks are short scripts.
 _Changed in v1.2:_ items 14, 17, 18, 19, 33 and 38 follow the settled answers (D410, D411).
 _Changed in v1.3:_ item 39 checks a fresh Jam's seeds (D419).
+_Changed in v1.5:_ item 49 names the later contract bumps (D422).
 
 v3.2 ships when every item holds, each verified by a named test or a recorded hand check. **Every
 hand check is a numbered script of at most ten minutes**, run in Chrome (Edge is not supported);
@@ -4254,8 +4279,9 @@ Jam's run at 60, 120 and 180 BPM, and at 240 BPM only if Jam keeps it (C5.17).
     resets session mode's and Jam's settings.
 48. **v3.1, v3.0 and v2 behaviour otherwise unchanged**: their test suites pass, apart from the tests
     C13 lists as changing, each replaced by its v3.2 counterpart.
-49. **The declared-intent contract** reflects C13's guarantee changes at CONTRACT 8.0.0, with the
-    owner's one sign-off on their wording recorded.
+49. **The declared-intent contract** reflects C13's guarantee changes: CONTRACT 8.0.0 with the
+    owner's sign-off on their wording recorded, then each later MAJOR bump C13 names, its own
+    sign-off recorded.
 
 ## C17. Deferred and open
 

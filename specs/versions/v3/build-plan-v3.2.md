@@ -1,6 +1,9 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v10 (2026-10-22): v9 with gate CS's sign-off written in (spec D421, master spec Part C
+Status: v11 (2026-10-22): v10 with wave 1's preflight corrections and the driver's rulings written
+in (spec D422, D423; master spec Part C v1.5): chunks 4, 5, 6 and 15 corrected, chunk 12's two
+contract revisions, gates CN and CK, a MAJOR contract bump at the sync of each wave that changes a
+guarantee promoted at 8.1.0. v10 (2026-10-22): v9 with gate CS's sign-off written in (spec D421, master spec Part C
 v1.4): the owner signed off the change set's part M, M1–M22, as drafted; `documentalist` applies it
 on wave 0's branch, so a chunk's "(contract, CS)" revision is its sync's check that the code meets
 the signed wording. v9 (2026-10-21): v8 with chunk 2's report written in: the Vary settings draws corpus
@@ -32,7 +35,9 @@ release gate passed (gate R0, met). This plan names v3.0's and v3.1's modules wh
 **Two halves, one release.** Waves 0–3 build the session-mode half (the rhythm lock, its allowed
 changes, Vary settings' allowed groups, and the whole of v3.2's request, replay key and kept-session
 shape); waves 4–7 build Jam mode on it. v3.2 ships once, as `3.2.0` (spec D410): one replay key
-version (`ifk4.`), one kept-session data step, one contract bump (CONTRACT 7.2.0 to 8.0.0). Chunk
+version (`ifk4.`), one kept-session data step. Its contract changes are applied at the sync of the
+wave that builds them, each signed off by the owner first (spec D422): CONTRACT 7.2.0 to 8.0.0
+(gate CS), 9.0.0 at wave 1's sync (gate CN), another MAJOR at wave 2's (gate CK). Chunk
 IDs 0–27 keep the meaning plan v3 gave them where it still holds, since the v3.3 plan cites them;
 chunks 28–33 are new, and chunk 26 is folded into chunk 19.
 
@@ -92,6 +97,8 @@ no release is cut before wave 7 has merged.
 | **D0** | The owner approves the v3.2 design, reworked for Jam as its own mode (ux D328–D346, `ux-critic` validated). | The owner | Chunk 1, and through it every interface chunk | done (2026-10-21, spec D412) |
 | **T2** | The owner allows one `ux-writer` pass on `src/styles/theme.css` and `components.css` for part 2 of [`token-source-v3.1-v3.2.md`](../../../src/styles/components.css), adding the classes `mode-switch`, `tap-tempo`, `doodle-readings` and `jam-needs-controller` with the rest of part 2; no new token value. | The owner | Chunk 1 | done (2026-10-21, spec D412) |
 | **CS** | The MAJOR contract bump for C13's guarantee changes: `documentalist` drafts the re-scoped wording of every STABLE contract atom v3.2 revises, and of the two v1.0 lines in the STABLE vision (`vision_infinite_flow_first_release` 0.9) (chunk 0), then of the three items C13 added after chunk 0 (`rule_start_while_controller_away`, `module_session_seed_plan`, and the vision's out-of-scope browsers, spec D418–D420); the owner confirms them all at once, CONTRACT 7.2.0 to 8.0.0. The chunks that revise one say "(contract, CS)" in their **Revisions** line. Signed off on 2026-10-22, the [change set](../../../docs/release/v3.1-v3.2-intent-change-set.md)'s part M (M1–M22) as drafted, and applied on wave 0's branch (spec D421); a "(contract, CS)" revision is then its wave sync's check that the code meets the signed wording. | `documentalist` drafts; the owner confirms | The sync of wave 3, the first wave whose chunks revise one (chunk 19: `rule_settings_saved_on_change`, `rule_saved_settings_load_tolerantly`); its chunks may be built and merged into the wave branch first | done (D421; applied 3fe768f, CONTRACT 8.0.0, then 8.1.0 with three promotions, 5a0c991) |
+| **CN** | The owner confirms the [change set](../../../docs/release/v3.1-v3.2-intent-change-set.md)'s part N: N1 (`module_settings_mutation` 0.4 to 0.5, STABLE on the contract since 8.1.0, which chunk 15 changes), N3 (CONTRACT 8.1.0 to 9.0.0, MAJOR) and, optionally, N2 (`rule_vary_settings_figure_step`). `documentalist` applies them at wave 1's sync (spec D422; [build workflow](build-workflow.md#intent-atd), "Contract sign-off"). | `documentalist` drafts (done, 896ee7f); the owner confirms | Chunk 15's merge into the wave branch | open (asked at wave 1's preflight) |
+| **CK** | The owner confirms the wording of chunk 12's two contract revisions, `module_phrase_replay_key` and `rule_seeded_phrase_reproduction` (STABLE on the contract since 8.1.0), and the MAJOR bump that applies them at wave 2's sync (spec D422). | `documentalist` drafts at wave 2's preflight; the owner confirms | Chunk 12's merge into the wave branch | open (drafted at wave 2's preflight) |
 | **LD** | The owner ranks a handful of rhythm pairs by ear on drift's distance scale ([v3.2 H1](#v32-h1--drifts-scale-by-ear-ld)), before the scale drives the steering block's band ([C8](master-spec.md#c8-jams-drift)). A ranking that disagrees with the scale goes to `spec-writer` before chunk 8. | The owner; `spec-writer` if the ranking disagrees | Chunk 8 (wave 4) | open (after wave 2: chunks 3 and 5) |
 | **L3** | The owner's listening check of the allowed rhythm changes ([v3.2 H2](#v32-h2--allowed-rhythm-changes-l3), item 13); the change shares are tuned from it. | The owner | The release gate's final M2 run | open (after wave 3) |
 | **L1** | The owner's listening check of Jam ([v3.2 H4](#v32-h4--jam-listening-settings-drift-and-lock-l1) and [H5](#v32-h5--jam-listening-the-doodle-to-controls-mapping-l1), item 32); it confirms or sends back three of D406's provisional answers ([below](#what-confirms-d406s-provisional-answers)). | The owner; a failed answer becomes a ruling | The release gate | open (after wave 6) |
@@ -107,8 +114,8 @@ preflight does not run and no chunk carries a **Data** line
 | Wave | Chunks | Waits for | Status |
 | --- | --- | --- | --- |
 | 0 | 0 Intent re-sync and the contract drafts · 1 Token-source pass · 2 Baselines | Nothing (R0, D0, T2 done). | merged into `main` |
-| 1 | 4 The quantized doodle · 5 Rhythm bars, distance and change kinds · 6 The request carries v3.2's inputs · 15 Vary settings' allowed groups | Wave 0. | planned |
-| 2 | 3 Measurement tools · 10 The rhythm lock in the generator · 11 Allowed rhythm changes · 12 Replay key `ifk4.` · 22 v3.2's kept-session shape | Wave 1. In-wave 10 → 11: chunk 10's capture fixes the ordering seam and the lock's order the draw slots into. LD opens at its end. | planned |
+| 1 | 4 The quantized doodle · 5 Rhythm bars, distance and change kinds · 6 The request carries v3.2's inputs · 15 Vary settings' allowed groups | Wave 0; CN before chunk 15's merge. | planned |
+| 2 | 3 Measurement tools · 10 The rhythm lock in the generator · 11 Allowed rhythm changes · 12 Replay key `ifk4.` · 22 v3.2's kept-session shape | Wave 1; CK before chunk 12's merge. In-wave 10 → 11: chunk 10's capture fixes the ordering seam and the lock's order the draw slots into. LD opens at its end. | planned |
 | 3 | 16 The rhythm lock in a session · 13 Session measurements · 19 The lock and What may vary in the controls | Wave 2; CS before its sync. In-wave 16 → 13 and 16 → 19: chunk 16's capture fixes the session's lock state and what the session history records. Three chunks: the session half ends here, and every other session chunk is done. L3 opens at its end. | planned |
 | 4 | 20 Jam mode: the switch, Jam's code, Jam's Idle · 28 From the doodle: controls and steering block · 7 The join from the doodle · 8 Rhythm ordered by the steering block · 9 Melody follows the moves | Wave 3; LD (8). In-wave 28 → 7: chunk 28's capture fixes the register window the join reads. | planned |
 | 5 | 14 The key and mode suggestion · 17 Jam engine, part 1 · 18 Jam engine, part 2 · 29 The Jam sweep, first run · 31 Jam's settings | Wave 4. In-wave 14 → 18: chunk 14's capture fixes the suggestion's answer type; 17 → 18: chunk 17's capture fixes the engine's way in and the capture's states. | planned |
@@ -122,6 +129,8 @@ hand checks. κ is 1 ([build workflow](build-workflow.md#concurrency-and-order))
 flowchart LR
   LD{{LD: drift scale by ear}}
   CS{{CS: contract sign-off}}
+  CN{{CN: Vary settings sign-off}}
+  CK{{CK: replay key sign-off}}
   L{{L1, L2, L3: listening}}
   J240{{J240: 240 BPM ruling}}
   subgraph W0[Wave 0]
@@ -178,6 +187,8 @@ flowchart LR
   C0 --> C6
   C0 --> C15
   C0 --> CS
+  CN --> C15
+  CK --> C12
   C2 --> C5
   C2 --> C6
   C2 --> C15
@@ -706,7 +717,10 @@ conversion to microseconds. Nothing outside `src/jam/` imports the quantizer.
 - **Atoms:** `rule_doodle_quantized_to_sixteenths`, `rule_doodle_is_one_line`,
   `rule_doodle_capture_start`, `rule_quantized_doodle_is_generation_input`; (v3.0)
   `rule_stray_note_definition`, `rule_stray_notes_filtered_on_reading`.
-- **Revisions:** none.
+- **Revisions:** revise `rule_stray_notes_filtered_on_reading` (REVIEW, not on the contract): very
+  short notes are filtered "only" for the review's Played notes lane and the played-notes export;
+  the doodle becomes a third reader (C5.4, C10.6). Change set part E does not list it yet;
+  `documentalist` adds it at the sync.
 - **Done when:**
   - Written doodles quantize as C5.5 says: a note a little early onto beat 1 is the doodle's first
     note; overlaps, chords and notes colliding on one tick reduce to one line (a named test each); a
@@ -741,7 +755,8 @@ their `identity` or index; a domain keyed by bars once, beside the canonical mem
   - `rhythm-change-kinds.ts` (new): the one allowed-kind change between the locked bars and a
     candidate's, in one measure or made in gesture measure _k_ and repeated in answer measure
     _k_ + 2, or none; bars compared as written.
-- **Files:** the three modules above (new); tests under `tests/unit/domain/rhythm/`.
+- **Files:** `src/domain/rhythm/rhythm-bars.ts`, `src/domain/rhythm/rhythm-distance.ts`,
+  `src/domain/rhythm/rhythm-change-kinds.ts` (new); tests under `tests/unit/domain/rhythm/`.
 - **Spec sections:** [C4](master-spec.md#c4-words-used-in-this-part) (Bars, Distance),
   [C7.3](master-spec.md#c73-the-five-kinds-and-the-known-limit),
   [C7.6](master-spec.md#c76-how-the-search-holds-the-lock), [C8](master-spec.md#c8-jams-drift);
@@ -776,8 +791,10 @@ the four measures, with a band; a list of melodic moves, up, down or same and st
 with a strength; no pitch). Absent groups mean v3.1's request exactly. Every ordering and draw is
 computed inside generation from them. `CarryIn` gains an origin: a phrase (its number, as today) or
 none (the doodle's join: no number, no chord, no arriving interval, no owed recovery); `makeCarryIn`
-keeps every refusal for a phrase origin and checks only the pitch and the window for none (revises
-`entity_phrase_carry_in`).
+keeps every refusal for a phrase origin and checks only the pitch and the window for none. A
+carry-in from a phrase keeps exactly v3.1's fields and serialized form (request, worker, `ifk3.`
+key, kept record); the no-phrase origin has a form of its own (revises `entity_phrase_carry_in`,
+0.5 in the capture).
 
 - **Goal:** put the lock's state, the allowed changes, the tenser flag, the steering block and the
   join from no phrase into the request, across the worker, with no effect on any phrase yet.
@@ -792,33 +809,50 @@ keeps every refusal for a phrase origin and checks only the pitch and the window
     (`GENERATION_INTENT_ALLOWED_KEYS`, `parseGenerationRequest`'s allowed keys); the prewarm and
     cancellation paths carry them; `makeCarryInGenerationIntent` accepts a join from no phrase only
     with a steering block in the intent.
-  - No consumer reads them yet.
+  - The code that reads `carryIn.phraseNumber`, which a carry-in from no phrase lacks, reads it
+    from the phrase origin only and keeps v3.1's behaviour for it: `requireConsistentPhraseNumber`
+    (`phrase-replay-key.ts`), the replay names (`phrase-replay-names.ts`) and the session's
+    carry-in adaptation (`carry-in-adaptation.ts`). The kept-session codec reuses `parseCarryIn`
+    (`kept-phrase-parsers.ts`, under the STABLE `module_kept_session_codec`): it reads stored
+    records exactly as v3.1 does until chunk 22, so a kept carry-in in any other form is refused as
+    v3.1 refuses it.
+  - No consumer reads the new inputs yet. Until chunk 12 brings `ifk4.`, the `ifk3.` encoder
+    (`encodePhraseReplayKey`) refuses an intent with `rhythmLock`, `steering` or a carry-in from no
+    phrase with a typed error, rather than write a key that loses them (spec D423); nothing produces
+    such an intent in wave 1.
 - **Files:** `src/domain/generation/generation-intent.ts`, `generation-request.ts`,
   `steering-block.ts` (new), `src/domain/generation/orchestration/request-resolution.ts`,
   `src/domain/generation/carry-in/carry-in.ts`, `carry-in-intent.ts`,
   `src/domain/pitch/pitch-carry-in.ts`, `src/generation-worker/generation-worker-inbound.ts`,
-  `generation-worker-protocol.ts`; tests under `tests/unit/domain/generation/`,
-  `tests/unit/generation-worker/generation-worker-protocol.spec.ts` and
-  `generation-worker-protocol-carry-in.spec.ts`.
+  `generation-worker-protocol.ts`, `phrase-replay-key.ts`, `phrase-replay-names.ts`,
+  `src/session/carry-in-adaptation.ts`, `src/storage/records/kept-phrase-parsers.ts`; tests under
+  `tests/unit/domain/generation/`, `tests/unit/generation-worker/generation-worker-protocol.spec.ts`,
+  `generation-worker-protocol-carry-in.spec.ts` and `phrase-replay-key.spec.ts`.
 - **Spec sections:** [C11](master-spec.md#c11-the-generation-request-the-replay-key-and-kept-sessions),
   [C5.9](master-spec.md#c59-what-the-doodle-feeds-the-generator) (the block, the join),
   [C14](master-spec.md#c14-existing-code-and-risks); items 9 (guarded), 27, 28 (the join's form).
-- **Atoms:** `rule_jam_and_lock_off_reproduce_earlier_phrases` and the steering-block atom chunk 0
-  adds; (v2) `rule_seeded_phrase_reproduction`, `rule_join_carry_in_limited`. Drift check:
-  `module_generation_request_construction`, `module_generation_worker_protocol`,
-  `entity_phrase_carry_in`.
-- **Revisions:** none.
+- **Atoms:** `rule_jam_and_lock_off_reproduce_earlier_phrases`, `rule_jam_steering_block`,
+  `rule_jam_phrase_one_joins_doodle` (the join's form); (v2) `rule_seeded_phrase_reproduction`,
+  `rule_join_carry_in_limited`, `module_phrase_replay_key`; (v3.0) `module_kept_session_codec`.
+  Drift check: `module_generation_request_construction`,
+  `module_generation_worker_protocol`, `entity_phrase_carry_in`.
+- **Revisions:** none (`entity_phrase_carry_in` is revised in the capture).
 - **Done when:**
   - A request with each group round-trips through the worker unchanged; one with an unknown value
     in either group, or any extra field, is refused with the typed error.
   - A join from no phrase is accepted with a pitch inside the window and refused outside it; a
     phrase origin with number 0 is still refused (each refusal keeps its test).
+  - A carry-in from a phrase serializes exactly as in v3.1 in the request, the worker message, the
+    `ifk3.` key and the kept record; a stored v3.1 kept record reads as before.
+  - The `ifk3.` encoder refuses an intent with either group or a carry-in from no phrase with the
+    typed error; every v3.1-shaped intent encodes as before.
   - The corpora and the goldens pass unchanged; a request built with neither group is deep-equal to
     v3.1's.
 - **Verification:** chunk checks with the corpus guard; the sweep and the bundle at the wave gate.
 - **Split rule:** if the brief passes about five source files, 6a the two groups (intent, request,
-  steering block, resolution, inbound parser, protocol), 6b the join's origin (carry-in, carry-in
-  intent, pitch carry-in).
+  steering block, resolution, inbound parser, protocol, the encoder's refusal of the two groups),
+  6b the join's origin (carry-in, carry-in intent, pitch carry-in, the three readers of the phrase
+  number and the kept codec's reuse, the encoder's refusal of a carry-in from no phrase).
 
 ### Chunk 7 — The join from the doodle
 
@@ -1011,7 +1045,8 @@ notes" stays true. Written once for v3.2 (spec D410).
 
 - **Goal:** write `ifk4.` for every phrase, holding the request's new inputs, while every `ifk1.`,
   `ifk2.` and `ifk3.` key keeps decoding to the same phrase.
-- **Scope:** `encodePhraseReplayKey` writes `ifk4.`; decoding accepts four versions (`ifk1.` to
+- **Scope:** `encodePhraseReplayKey` writes `ifk4.`, and the refusal chunk 6 gave the `ifk3.`
+  encoder goes with it (spec D423); decoding accepts four versions (`ifk1.` to
   `ifk3.` as no lock and no block, to the phrase their version wrote; `ifk4.` re-validating every
   field; a later prefix refused as an unsupported version); `npm run replay:phrase` replays all
   four; an in-browser replay test (workspace harness, Chrome) replays a locked phrase, a changed
@@ -1024,10 +1059,11 @@ notes" stays true. Written once for v3.2 (spec D410).
 - **Spec sections:** [C11](master-spec.md#c11-the-generation-request-the-replay-key-and-kept-sessions),
   [C5.14](master-spec.md#c514-the-doodles-two-forms); items 11, 39 (format), 9 (guarded).
 - **Atoms:** `rule_jam_and_lock_off_reproduce_earlier_phrases`; (v2)
-  `rule_seeded_phrase_reproduction`. Drift check: `module_phrase_replay_key`,
-  `module_generation_worker_protocol`, `module_generation_request_construction`.
-- **Revisions:** revise `rule_seeded_phrase_reproduction` (the lock fields, the steering block, the
-  join from no phrase).
+  `rule_seeded_phrase_reproduction`. Drift check: `module_generation_worker_protocol`,
+  `module_generation_request_construction`.
+- **Revisions:** revise `module_phrase_replay_key` and `rule_seeded_phrase_reproduction` (the lock
+  fields, the steering block, the join from no phrase) (contract, drafted at wave 2's preflight;
+  owner sign-off before merge, gate [CK](#gates); a MAJOR bump at wave 2's sync, spec D422).
 - **Done when:**
   - Every phrase's key is `ifk4.`; encode then decode gives an equal intent and the same timeline,
     with and without each group, for built-in and player-made instruments.
@@ -1121,22 +1157,30 @@ call at Idle (chunk 19).
 - **Scope:** the groups (`MUTABLE_SETTINGS`, `src/session/settings-mutation-scales.ts`) and the
   draw (`drawMutation`, `src/session/settings-mutation.ts`); the legal-move check (Rhythm not
   counting under the lock; Key and mode only inside the restriction in force); the session's
-  settings hold the groups and whether the lock is on, and a session started while no move exists
-  runs without Vary settings; the seed plan takes the groups; a dead end mid-session skips that
-  mutation, recorded in the history, never throwing (the throw stays for unsupported input
-  settings only).
+  settings hold the groups and whether the lock is on; the session start (`mutationFlagFor`,
+  which pre-generation also calls) runs without Vary settings when the legal-move check is false;
+  a dead end mid-session skips that mutation, recorded in the in-memory session history only (the
+  kept record does not change), never throwing. The typed error stays for settings unsupported to
+  begin with and for the fixed draw bound (unreachable in practice when a supported move exists);
+  the dead end is the only no-throw outcome (spec D423).
 - **Files:** `src/session/settings-mutation-scales.ts`, `settings-mutation.ts`,
-  `session-mutation-step.ts`, `session-types.ts`, `session-seed-plan.ts`, `session-history.ts`;
+  `session-mutation-step.ts`, `session-types.ts`, `session-history.ts`,
+  `src/components/workspace/workspace-session-runner.ts` (and its call in
+  `workspace-pregeneration.ts`);
   tests under `tests/unit/session/` (the four tests of [Read first](#read-first-what-v32-changes-in-v2-v30-and-v31)
   rewritten), `settings-mutation-v31-draws.spec.ts` and `vary-settings-draws-v31-cases.ts` (the
   projection below), the Vary settings draws corpus section of `docs/testing.md`.
 - **Spec sections:** [C9](master-spec.md#c9-vary-settings-allowed-groups),
   [C7.7](master-spec.md#c77-what-the-lock-meets); item 7.
 - **Atoms:** `rule_vary_settings_allowed_groups`, `rule_vary_settings_needs_legal_move`,
-  `rule_vary_settings_skips_dead_end`; (v3.1) `rule_vary_settings_stays_inside_restriction`,
-  `rule_vary_settings_figure_step`. Drift check: `module_settings_mutation`.
+  `rule_vary_settings_skips_dead_end`; (v3.0) `module_session_seed_plan` (it reads no setting,
+  C11); (v3.1) `rule_vary_settings_stays_inside_restriction`, `rule_vary_settings_figure_step`
+  (its promise holds; N2 only rewords it).
 - **Revisions:** revise `req_settings_mutation_flag`,
-  `rule_mutation_rerolls_unsupported_combination`, `rule_mutation_draws_setting_then_direction`.
+  `rule_mutation_rerolls_unsupported_combination`, `rule_mutation_draws_setting_then_direction`;
+  `module_settings_mutation` (contract, change set N1; owner sign-off before merge, gate
+  [CN](#gates)); `rule_vary_settings_figure_step` (contract, N2, optional); CONTRACT 9.0.0 (N3),
+  applied at wave 1's sync (spec D422).
 - **Done when:**
   - With all six groups on, chunk 2's Vary settings corpus passes, its fixture untouched: every
     row's move, draw count and selection exactly as recorded (the draw count is what proves the
@@ -1149,11 +1193,12 @@ call at Idle (chunk 19).
     the Rhythm group never moves.
   - The legal-move check is false exactly when no move exists (property); a session started then
     runs without Vary settings.
-  - A seeded step-down that leaves a dead end skips one mutation, records it, never throws.
+  - A seeded step-down that leaves a dead end skips one mutation, records it in the session
+    history, never throws; a kept session's record is unchanged.
 - **Verification:** chunk checks with the corpus guard; the sweep at the wave gate.
 - **Split rule:** if the brief passes about five source files, 15a the groups in the draw and the
-  legal-move check (scales, mutation), 15b the session's side (the mutation step, types, seed plan,
-  the dead-end record).
+  legal-move check (scales, mutation), 15b the session's side (the mutation step, types, the
+  session start's `mutationFlagFor`, the dead-end record).
 
 ### Chunk 16 — The rhythm lock in a session
 

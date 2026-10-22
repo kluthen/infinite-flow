@@ -830,3 +830,20 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   `v3.2-w0`. `module_phrase_replay_key`, `rule_seeded_phrase_reproduction` and
   `module_settings_mutation` are promoted to STABLE. Now in: [Part C §C13](versions/v3/master-spec.md#c13-what-v32-changes-in-v2-v30-and-v31-guarantees-and-atoms),
   [build plan v3.2, gates](versions/v3/build-plan-v3.2.md#gates).
+
+- **D422 (2026-10-22): each STABLE guarantee v3.2 changes after gate CS is applied at the sync of
+  the wave that builds it, with its own MAJOR contract bump and owner sign-off.** The wave driver's,
+  under the owner's standing delegation; it follows the three 8.1.0 promotions (D421), so `main`
+  never holds code that disagrees with a STABLE atom. CONTRACT 9.0.0 at wave 1's sync (change set
+  part N, gate CN, blocks chunk 15's merge); another MAJOR at wave 2's for chunk 12's
+  `module_phrase_replay_key` and `rule_seeded_phrase_reproduction` (gate CK, blocks chunk 12's
+  merge). C13's "one bump" is superseded. Now in: [Part C §C13](versions/v3/master-spec.md#c13-what-v32-changes-in-v2-v30-and-v31-guarantees-and-atoms),
+  [build plan v3.2, gates](versions/v3/build-plan-v3.2.md#gates).
+
+- **D423 (2026-10-22): three wave 1 preflight points.** The wave driver's, same delegation. Until
+  chunk 12's `ifk4.`, the `ifk3.` encoder refuses an intent with the lock group, the steering block
+  or a carry-in from no phrase with a typed error rather than write a lossy key (chunk 6). Chunk
+  15's skipped mutation is recorded in the in-memory session history only; the kept record does not
+  change. N1's fixed draw bound stays a typed error; the dead end is the only no-throw outcome. Now
+  in: [build plan v3.2, chunk 6](versions/v3/build-plan-v3.2.md#chunk-6--the-request-carries-v32s-inputs),
+  [chunk 15](versions/v3/build-plan-v3.2.md#chunk-15--vary-settings-allowed-groups).
