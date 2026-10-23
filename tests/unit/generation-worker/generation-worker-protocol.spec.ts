@@ -346,3 +346,41 @@ describe("parseGenerationWorkerResponse: the rhythm lock's outcome in the proven
     expect(() => parseGenerationWorkerResponse(tampered)).toThrow(GenerationWorkerProtocolError)
   })
 })
+
+/** Intent: a locked phrase's wire outcome with its provenance's lock fields replaced. */
+function withLockFields(id: number, fields: Record<string, unknown>) {
+  const wire = structuredClone({ type: 'outcome', id, outcome: lockedSuccessOutcome() })
+  return {
+    ...wire,
+    outcome: { ...wire.outcome, provenance: { ...wire.outcome.provenance, ...fields } },
+  }
+}
+
+// @test-link [[module_generation_worker_protocol]]
+// @test-link [[module_rhythm_change_draw]]
+describe("parseGenerationWorkerResponse: the rhythm change's record in the provenance", () => {
+  it('keeps a made change and a change with no candidate', () => {
+    for (const fields of [
+      { rhythmLockOutcome: 'rhythm_change', rhythmChange: 'split_note' },
+      { rhythmLockOutcome: 'locked_bars', rhythmChange: 'no_change_available' },
+      { rhythmLockOutcome: 'forced_bend', rhythmChange: 'no_change_available' },
+    ]) {
+      const parsed = parseGenerationWorkerResponse(withLockFields(11, fields))
+      if (parsed.type !== 'outcome' || parsed.outcome.kind !== 'generation_success')
+        throw new Error('expected a success')
+      expect(parsed.outcome.provenance.rhythmLockOutcome).toBe(fields.rhythmLockOutcome)
+      expect(parsed.outcome.provenance.rhythmChange).toBe(fields.rhythmChange)
+    }
+  })
+
+  it('refuses an unknown record or outcome with the typed protocol error', () => {
+    for (const fields of [
+      { rhythmLockOutcome: 'rhythm_change', rhythmChange: 'swap_bars' },
+      { rhythmLockOutcome: 'rhythm_change', rhythmChange: 3 },
+      { rhythmLockOutcome: 'changed', rhythmChange: 'split_note' },
+    ])
+      expect(() => parseGenerationWorkerResponse(withLockFields(12, fields))).toThrow(
+        GenerationWorkerProtocolError,
+      )
+  })
+})

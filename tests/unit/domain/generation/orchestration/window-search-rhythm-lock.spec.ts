@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { makeGenerationSearchPolicy } from '@/domain/generation/orchestration/search-ledger'
+import { makeRequestRhythmLock, RHYTHM_CHANGE_KINDS } from '@/domain/generation/request-rhythm-lock'
 import {
   DEFAULT_WINDOW_SEARCH_DEPS,
   searchWindow,
@@ -13,8 +14,11 @@ import {
   planPitchPhrase,
   type PitchPlanResult,
 } from '@/domain/pitch/pitch-planner'
+import { makeSeed } from '@/domain/random/seed'
 import { rhythmBarKey } from '@/domain/rhythm/rhythm-bars'
+import { isRhythmChangeDrawn } from '@/domain/rhythm/rhythm-change-draw'
 import type { RhythmCandidate } from '@/domain/rhythm/rhythm-types'
+import { phraseAttemptSeed } from '@/session/session-seed-plan'
 
 import { lockedBarsOf, lockOn, lockPending, lockTestDomain } from '../../rhythm/rhythm-lock-fixture'
 import { lockTestIntent, lockTestWindowInput } from './rhythm-lock-search-fixture'
@@ -71,7 +75,8 @@ function harmonyMajorCalls(input: WindowSearchInput): Call[] {
 /** Intent: the calls of the lock's rhythm-major walk: each rhythm with every chord plan. */
 function rhythmMajorCalls(input: WindowSearchInput): Call[] {
   const order = input.rhythmLockOrder!
-  return [...order.lockedBars, ...order.forcedBend()].flatMap((rhythm) =>
+  const changes = order.changeCandidates.map((entry) => entry.rhythm)
+  return [...changes, ...order.lockedBars, ...order.forcedBend()].flatMap((rhythm) =>
     input.rankedHarmony.flatMap((harmony) => pairCalls(harmony, rhythm)),
   )
 }
@@ -182,4 +187,63 @@ describe('the search without locked bars', () => {
       ])
     })
   }
+})
+
+/** Locked Build bars that offer rhythm changes: a candidate one change from several others. */
+const BUILD_LOCKED = lockedBarsOf(lockTestDomain('Build')[1]!)
+
+/** Intent: the window input of a Build intent locked on BUILD_LOCKED, every change allowed. */
+function changeInput(seed: number): WindowSearchInput {
+  const rhythmLock = makeRequestRhythmLock({
+    state: { kind: 'locked', bars: BUILD_LOCKED },
+    allowedChanges: RHYTHM_CHANGE_KINDS,
+    tenserPhrase: false,
+  })
+  return lockTestWindowInput(lockTestIntent({ tension: 'Build', seed, rhythmLock }))
+}
+
+/** The first session phrase seed that draws a change. */
+const DRAWN_SEED = [0, 1, 2, 3, 4, 5, 6, 7]
+  .map((session) => phraseAttemptSeed(makeSeed(session), 2, 0))
+  .find((seed) => isRhythmChangeDrawn(seed, false))!
+
+// @test-link [[service_generation_window_search]]
+// @test-link [[module_rhythm_change_draw]]
+describe('the search under a drawn rhythm change', () => {
+  it("tries the change's candidates with every chord plan before the locked rhythm", () => {
+    const input = changeInput(DRAWN_SEED)
+    const order = input.rhythmLockOrder!
+    expect(order.change?.changes).toBe(true)
+    expect(order.changeCandidates.length).toBeGreaterThan(0)
+    const { deps, calls } = recordingDeps(() => false)
+    searchWindow(input, deps)
+    expect(calls).toEqual(rhythmMajorCalls(input))
+    const changeIdentities = new Set(order.changeCandidates.map((entry) => entry.rhythm.identity))
+    expect(changeIdentities.has(calls[0]!.rhythm)).toBe(true)
+  })
+
+  it('records the kind of the change the phrase took', () => {
+    const input = changeInput(DRAWN_SEED)
+    const kindByIdentity = new Map(
+      input.rhythmLockOrder!.changeCandidates.map((entry) => [entry.rhythm.identity, entry.kind]),
+    )
+    const { deps } = recordingDeps((rhythm) => kindByIdentity.has(rhythm.identity))
+    const report = searchWindow(input, deps)
+    expect(report.outcome.kind).toBe('window_success')
+    if (report.outcome.kind !== 'window_success') return
+    const { provenance } = report.outcome
+    expect(provenance.rhythmLockOutcome).toBe('rhythm_change')
+    expect(provenance.rhythmChange).toBe(kindByIdentity.get(provenance.rhythm.identity))
+  })
+
+  it('records no change available when no candidate makes a phrase', () => {
+    const input = changeInput(DRAWN_SEED)
+    const lockedKey = input.rhythmLockOrder!.lockedKey
+    const { deps } = recordingDeps((rhythm) => rhythmBarKey(rhythm.bars) === lockedKey)
+    const report = searchWindow(input, deps)
+    expect(report.outcome.kind).toBe('window_success')
+    if (report.outcome.kind !== 'window_success') return
+    expect(report.outcome.provenance.rhythmLockOutcome).toBe('locked_bars')
+    expect(report.outcome.provenance.rhythmChange).toBe('no_change_available')
+  })
 })
