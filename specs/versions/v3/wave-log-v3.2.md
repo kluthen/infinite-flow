@@ -556,3 +556,10 @@ chunk 30 (wave 6).
   stream). `move_rest` is covered at the draw level only.
 - Chunk 12: dispatched to `coding-leader`, branch `v3.2-c12-replay-key` (gate CK cleared, so it
   merges into the wave branch once built).
+- `spec-writer` (766e9f7): plan v18, Part C v1.11. D435 agrees with chunk 11's reading: C7.4's
+  "no usable candidate, no change" covers a drawn change whose candidates all fail (the history
+  records "no change available" beside any forced bend), and the history records every draw and
+  only draws; M2 counts the two cases apart. D436 the hash stays as built (raw consecutive seeds
+  cluster, seed-plan seeds spread: 0.2474 / 0.4975 over 20,000 sessions); M2 and any test of the
+  shares use seed-plan seeds. For the sync, optional: note the clustering on raw seeds in
+  `module_rhythm_change_draw`. Next free IDs: D437, O270.
