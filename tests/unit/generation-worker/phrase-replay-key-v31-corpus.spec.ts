@@ -4,8 +4,9 @@
  * built-in presets on every instrument; four figure-level spreads on every collection and every
  * instrument, the three built-ins and two my instruments of different ranges; a rotating spread of
  * the other controls; standalone and carry-in phrases, some receiving a null final harmony) still
- * decodes, re-encodes to the very same key, and still replays through the generation worker
- * runtime to the stored timeline, byte for byte. An `ifk3.` key names no preset, so the coverage
+ * decodes, re-encodes to the `ifk4.` key holding its very same entries followed by a null rhythm
+ * lock group and a null steering block, and still replays through the generation worker runtime
+ * to the stored timeline, byte for byte. An `ifk3.` key names no preset, so the coverage
  * finds each built-in preset by its ten controls and seven levels in the decoded intents. The
  * fixture is read only: a timeline changed by hand, or a change that alters any v3.1 key's phrase,
  * turns this spec red.
@@ -68,6 +69,17 @@ const TIMEOUT_MS = 300_000
 const DECODED: readonly DecodedPhraseReplayKey[] = CORPUS.cases.map((corpusCase) =>
   decodePhraseReplayKey(corpusCase.key),
 )
+
+/** Intent: the JSON payload of a key, read back without the codec's decoder. */
+function payloadOf(key: string): unknown[] {
+  const payload = key
+    .slice(key.indexOf('.') + 1)
+    .replace(/-/gu, '+')
+    .replace(/_/gu, '/')
+  const binary = atob(payload.padEnd(Math.ceil(payload.length / 4) * 4, '='))
+  const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0))
+  return JSON.parse(new TextDecoder().decode(bytes)) as unknown[]
+}
 
 /** Intent: the instrument a decoded intent names: a built-in id, or my instrument's range. */
 function instrumentOf(intent: GenerationIntent): string {
@@ -209,13 +221,20 @@ describe('v3.1 replay-key corpus (ifk3) recorded on v3.1.0', () => {
   })
 
   // @test-link [[module_phrase_replay_key]]
-  it('decodes every key and re-encodes it to the very same key', () => {
+  it('decodes every key and re-encodes it to an ifk4 key of the same entries, then two nulls', () => {
     for (const corpusCase of CORPUS.cases) {
       const decoded = decodePhraseReplayKey(corpusCase.key)
       expect(decoded.keyVersion, corpusCase.label).toBe('ifk3')
-      expect(encodePhraseReplayKey(decoded.intent, decoded.phraseNumber), corpusCase.label).toBe(
-        corpusCase.key,
+      const reEncoded = encodePhraseReplayKey(decoded.intent, decoded.phraseNumber)
+      expect(reEncoded.startsWith('ifk4.'), corpusCase.label).toBe(true)
+      expect(JSON.stringify(payloadOf(reEncoded)), corpusCase.label).toBe(
+        JSON.stringify([...payloadOf(corpusCase.key), null, null]),
       )
+      const again = decodePhraseReplayKey(reEncoded)
+      expect(again.keyVersion, corpusCase.label).toBe('ifk4')
+      expect(again.phraseNumber, corpusCase.label).toBe(decoded.phraseNumber)
+      expect(again.intent, corpusCase.label).toEqual(decoded.intent)
+      expect(JSON.stringify(again.intent), corpusCase.label).toBe(JSON.stringify(decoded.intent))
     }
   })
 

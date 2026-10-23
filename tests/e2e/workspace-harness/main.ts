@@ -86,7 +86,7 @@
  *   `storage.seedDamagedKeptBody` damages a saved session's body.
  * - the in-browser phrase replay (replay-seams.ts): `replay.replayKey` decodes a phrase replay key
  *   in the page and replays it through the real browser worker, on a worker client of its own that
- *   never prewarms, and `replay.reEncodeKey` gives the key's `ifk3.` re-encoding.
+ *   never prewarms, and `replay.reEncodeKey` gives the key's `ifk4.` re-encoding.
  *
  * The lazy VexFlow engraver, the real generation Worker, real notation, the real `matchMedia`
  * window-width provider and the real window-shape probe all run for real (a spec moves the window

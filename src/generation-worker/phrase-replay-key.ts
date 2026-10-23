@@ -1,8 +1,8 @@
 /**
  * The phrase replay key: one self-contained, versioned text key holding exactly the owning inputs
  * that reproduce an accepted phrase, and its encoder. A key is a version prefix followed by the
- * unpadded base64url of the UTF-8 JSON of a fixed tuple. Only `ifk3.` is written, for every
- * phrase, over this 7-tuple, always seven entries, in this order (permanent once emitted):
+ * unpadded base64url of the UTF-8 JSON of a fixed tuple. Only `ifk4.` is written, for every
+ * phrase, over this 9-tuple, always nine entries, in this order (permanent once emitted):
  *
  *   0. the request id (a string);
  *   1. the seed (an unsigned 32-bit integer);
@@ -11,16 +11,22 @@
  *   3. the figure levels: a JSON object holding exactly the seven figure ids as keys, written in
  *      FIGURE_IDS order, each mapped to its level id;
  *   4. the phrase number;
- *   5. the carry-in, or null;
+ *   5. the carry-in, from a phrase or from no phrase (a Jam's phrase 1, its `origin` kept), or
+ *      null;
  *   6. my instrument's owning profile fields `[displayName, minMidi, maxMidi, chromatic,
  *      diatonic]`, or JSON `null` for a built-in instrument: the built-in marker, the controls
- *      naming the built-in by its id.
+ *      naming the built-in by its id;
+ *   7. the rhythm lock group as the generation request holds it, or null;
+ *   8. the steering block as the generation request holds it, or null.
  *
- * No musical profile's or preset's name is stored. The older versions are decoded only: `ifk1.`,
- * a 7-tuple (request id, seed, controls, musical profile name, customized flag, phrase number,
- * carry-in) for a built-in instrument, and `ifk2.`, an 8-tuple of those seven entries then my
- * instrument's owning profile fields. The decoder lives apart, in phrase-replay-key-decode.ts, so
- * the app bundle never pulls in the protocol's intent validation.
+ * The first seven entries keep the `ifk3.` order and meaning. No musical profile's or preset's
+ * name is stored, nor the doodle, its raw notes, the drift or the capture tempo: the steering
+ * block and the join are what the generator read. The older versions are decoded only: `ifk1.`, a
+ * 7-tuple (request id, seed, controls, musical profile name, customized flag, phrase number,
+ * carry-in) for a built-in instrument; `ifk2.`, an 8-tuple of those seven entries then my
+ * instrument's owning profile fields; and `ifk3.`, the first seven entries above, its carry-in
+ * only from a phrase. The decoder lives apart, in phrase-replay-key-decode.ts, so the app bundle
+ * never pulls in the protocol's intent validation.
  */
 
 import type { GenerationControls } from '../domain/controls/generation-controls'
@@ -38,13 +44,17 @@ export const PHRASE_REPLAY_KEY_PREFIX = 'ifk1.'
 // @spec-link [[module_phrase_replay_key]]
 export const PHRASE_REPLAY_KEY_V2_PREFIX = 'ifk2.'
 
-/** The prefix every version-3 phrase replay key, the only one written, starts with. */
+/** The prefix every version-3 key, every phrase's under v3.1, starts with. */
 // @spec-link [[module_phrase_replay_key]]
 export const PHRASE_REPLAY_KEY_V3_PREFIX = 'ifk3.'
 
+/** The prefix every version-4 phrase replay key, the only one written, starts with. */
+// @spec-link [[module_phrase_replay_key]]
+export const PHRASE_REPLAY_KEY_V4_PREFIX = 'ifk4.'
+
 /**
- * My instrument's owning profile fields as an `ifk2.` key's eighth entry and an `ifk3.` key's
- * seventh store them: display name, lowest and highest concert MIDI note, chromatic and diatonic
+ * My instrument's owning profile fields as an `ifk2.` key's eighth entry and an `ifk3.` or `ifk4.`
+ * key's seventh store them: display name, lowest and highest concert MIDI note, chromatic and diatonic
  * transposition counts.
  */
 // @spec-link [[module_phrase_replay_key]]
@@ -102,7 +112,7 @@ export type PhraseReplayContext =
       readonly origin: 'carry-in' | 'standalone'
     }
 
-const KEY_PATTERN = /^ifk[1-3]\.[A-Za-z0-9_-]+$/u
+const KEY_PATTERN = /^ifk[1-4]\.[A-Za-z0-9_-]+$/u
 
 /** Intent: reject a phrase number that is not a positive integer, never coercing or defaulting it. */
 function requirePositivePhraseNumber(phraseNumber: number): void {
@@ -166,46 +176,25 @@ function myInstrumentEntry(intent: GenerationIntent): PhraseReplayKeyMyInstrumen
   ]
 }
 
-/** Intent: the figure levels as an `ifk3.` key stores them, the seven ids in FIGURE_IDS order. */
+/** Intent: the figure levels as an `ifk4.` key stores them, the seven ids in FIGURE_IDS order. */
 function figureLevelsEntry(levels: FigureLevels): Record<string, string> {
   return Object.fromEntries(FIGURE_IDS.map((figure) => [figure, levels[figure]]))
 }
 
-/** The intent fields an `ifk3.` key has no entry for: an intent holding one cannot be encoded. */
-const FIELDS_AN_IFK3_KEY_CANNOT_CARRY = ['rhythmLock', 'steering'] as const
-
 /**
- * Intent: refuse an intent an `ifk3.` key cannot carry, rather than write a key that would lose
- * part of it and replay a different phrase: first one whose carry-in is from no phrase (the key
- * holds only v3.1's carry-in form), then one holding a field the key has no entry for.
- */
-function refuseFieldsAnIfk3KeyCannotCarry(intent: GenerationIntent): void {
-  if (intent.carryIn !== undefined && !isPhraseCarryIn(intent.carryIn))
-    throw new PhraseReplayKeyError(
-      `An ${PHRASE_REPLAY_KEY_V3_PREFIX} key cannot carry a carry-in from no phrase: it holds only a carry-in from a phrase.`,
-    )
-  for (const field of FIELDS_AN_IFK3_KEY_CANNOT_CARRY)
-    if (Object.hasOwn(intent, field))
-      throw new PhraseReplayKeyError(
-        `An ${PHRASE_REPLAY_KEY_V3_PREFIX} key cannot carry the intent's ${field}: the key would lose it.`,
-      )
-}
-
-/**
- * Intent: encode one generation intent and its phrase number into an `ifk3.` phrase replay key,
- * whatever its instrument, over the 7-tuple the file header states: request id, seed, the controls
+ * Intent: encode one generation intent and its phrase number into an `ifk4.` phrase replay key,
+ * whatever its instrument, over the 9-tuple the file header states: request id, seed, the controls
  * in the codec's fixed order with the written tonal center in the tonal-center slot, the figure
- * levels by figure id, the phrase number, the carry-in or null, and my instrument's owning profile
- * fields or null for a built-in. No musical profile and no derived field is ever stored. A phrase
- * number that is not a positive integer, or not its carry-in's number plus one, is rejected rather
- * than stored. Before anything else, an intent whose carry-in is from no phrase, or holding the
- * rhythm lock group or the steering block, is refused: the key has no entry for either and would
- * lose it.
+ * levels by figure id, the phrase number, the carry-in of either origin or null, my instrument's
+ * owning profile fields or null for a built-in, the rhythm lock group or null and the steering
+ * block or null. No musical profile and no derived field is ever stored. A phrase number that is
+ * not a positive integer, not its phrase carry-in's number plus one, or not 1 beside a carry-in
+ * from no phrase, is rejected rather than stored.
  */
 // @spec-link [[module_phrase_replay_key]]
 // @spec-link [[req_my_instrument]]
+// @spec-link [[rule_seeded_phrase_reproduction]]
 export function encodePhraseReplayKey(intent: GenerationIntent, phraseNumber: number): string {
-  refuseFieldsAnIfk3KeyCannotCarry(intent)
   requireConsistentPhraseNumber(intent, phraseNumber)
   const controls = PHRASE_REPLAY_KEY_CONTROL_ORDER.map((key) =>
     key === 'tonalCenter' ? intent.writtenTonalCenter : intent.controls[key],
@@ -219,9 +208,11 @@ export function encodePhraseReplayKey(intent: GenerationIntent, phraseNumber: nu
     phraseNumber,
     intent.carryIn ?? null,
     isMyInstrument ? myInstrumentEntry(intent) : null,
+    intent.rhythmLock ?? null,
+    intent.steering ?? null,
   ]
   const bytes = new TextEncoder().encode(JSON.stringify(tuple))
-  return `${PHRASE_REPLAY_KEY_V3_PREFIX}${bytesToBase64Url(bytes)}`
+  return `${PHRASE_REPLAY_KEY_V4_PREFIX}${bytesToBase64Url(bytes)}`
 }
 
 /** Intent: the plain words naming which accepted phrase a key line belongs to. */
@@ -233,14 +224,15 @@ function contextText(context: PhraseReplayContext): string {
 
 /**
  * Intent: render the single console line that announces one accepted phrase's replay key, naming
- * the phrase, its seed in `seed1-` form and the key. A key that is not a well-formed `ifk1.`,
- * `ifk2.` or `ifk3.` key is rejected, so the line can never span more than one line.
+ * the phrase, its seed in `seed1-` form and the key. A key that is not a well-formed key of one of
+ * the four versions (`ifk1.` to `ifk4.`) is rejected, so the line can never span more than one
+ * line.
  */
 // @spec-link [[module_phrase_replay_key]]
 export function phraseReplayKeyLine(key: string, context: PhraseReplayContext, seed: Seed): string {
   if (!KEY_PATTERN.test(key)) {
     throw new PhraseReplayKeyError(
-      'Phrase replay key line needs a well-formed "ifk1.", "ifk2." or "ifk3." key.',
+      'Phrase replay key line needs a well-formed "ifk1.", "ifk2.", "ifk3." or "ifk4." key.',
     )
   }
   return `[Infinite Flow] phrase replay key · ${contextText(context)} · ${encodeSeed(seed)} · ${key}`

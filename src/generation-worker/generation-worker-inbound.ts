@@ -235,8 +235,8 @@ function parseWireRequestGroups(record: Record<string, unknown>): {
  * `makeCarryInGenerationIntent` itself; its `finalHarmony` is a carried chord or an explicit null
  * (dropped by a key or collection change), never missing. Shared by the worker request parser and
  * the phrase replay key decoder so neither keeps a parallel schema; each names the carry-in parser
- * it reads with (the worker reads both origins through `parseCarryIn`, a replay key only v3.1's
- * form through `parsePhraseCarryIn`). A built-in's profile is
+ * it reads with (the worker and an `ifk4.` replay key read both origins through `parseCarryIn`, an
+ * older replay key only v3.1's form through `parsePhraseCarryIn`). A built-in's profile is
  * resolved from its id; my instrument's, which its id alone cannot give, is read from the record's
  * `instrumentProfile` through `parseMyInstrumentProfile`. The `figureLevels` are required and read
  * through the domain's figure-levels parser, then handed to the factory as the intent's levels; a

@@ -285,7 +285,7 @@ app. It is a debugging aid for the generator.
 One console line is printed per accepted phrase, in production builds too:
 
 ```text
-[Infinite Flow] phrase replay key · <context> · seed1-xxxxxxxx · ifk3.…
+[Infinite Flow] phrase replay key · <context> · seed1-xxxxxxxx · ifk4.…
 ```
 
 `<context>` is `workspace phrase`, `session phrase N (carry-in)` or `session phrase N
@@ -315,11 +315,13 @@ network or stored.
 ### Key format
 
 A key is a version prefix followed by the unpadded base64url encoding of the UTF-8 JSON of a
-fixed-length tuple. From v3.1 only `ifk3.` is written, for every phrase, over a 7-tuple:
+fixed-length tuple. From v3.2 only `ifk4.` is written, for every phrase, over a 9-tuple:
 
 ```text
-[requestId, seed, controls, figureLevels, phraseNumber, carryIn, myInstrument]
+[requestId, seed, controls, figureLevels, phraseNumber, carryIn, myInstrument, rhythmLock, steering]
 ```
+
+Its first seven entries keep the order and meaning `ifk3.` gave them (v3.1).
 
 - `requestId` is kept because it appears in the generation result, which a byte-identical replay
   needs.
@@ -332,12 +334,15 @@ fixed-length tuple. From v3.1 only `ifk3.` is written, for every phrase, over a 
   name is stored: the levels are what the generation reads, whichever preset gave them.
 - `phraseNumber` is replay context, not a generation input: 1 for a workspace phrase, the session
   phrase number for a session phrase. It only serves to derive the phrase's carry-out. With a
-  carry-in it must equal the carry-in's own phrase number plus one.
-- `carryIn` is the phrase's carry-in, or `null`. Its `finalHarmony` is the carried chord, or an
-  explicit `null` when a settings change dropped the harmonic part: a key or collection change,
-  or a chord the new harmony settings never end a phrase on (see
+  carry-in from a phrase it must equal the carry-in's own phrase number plus one; with a carry-in
+  from no phrase it must be 1.
+- `carryIn` is the phrase's carry-in, or `null`. From a phrase, its `finalHarmony` is the carried
+  chord, or an explicit `null` when a settings change dropped the harmonic part: a key or
+  collection change, or a chord the new harmony settings never end a phrase on (see
   [The carry-in after a change](session-engine.md#the-carry-in-after-a-change)). A carry-in
-  without the field is refused.
+  without the field is refused. From no phrase (the doodle's join into a Jam's phrase 1) it keeps
+  its `origin: 'none'` and holds only the doodle's last concert pitch, reached by no interval and
+  owing no recovery, and the register window; it is accepted only beside a steering block.
 - `myInstrument` is `null` for a built-in instrument, whose profile the controls name by its id.
   For my instrument it is `[displayName, concertMinMidi, concertMaxMidi, chromatic, diatonic]`:
   its display name, its concert range (lowest and highest MIDI note) and its transposition
@@ -346,35 +351,50 @@ fixed-length tuple. From v3.1 only `ifk3.` is written, for every phrase, over a 
   policy. The clef, the template, the written range as entered and the input kind are not part of
   the generator-facing profile and are never stored, so two phrases that differ only by my
   instrument's clef have the same key.
+- `rhythmLock` is the request's rhythm lock group as the generation request holds it (the lock's
+  state, pending or locked with its four bars, the allowed rhythm changes and whether the phrase is
+  a tenser one), or `null` when the lock is off.
+- `steering` is the request's steering block (the target rhythm with its band, the melodic moves
+  with their strength), or `null` when nothing steers. Neither the doodle, its raw notes, the drift
+  nor the capture tempo is ever stored: the steering block and the join are what the generator
+  read, and they are enough to replay the phrase.
 
-The older versions are decoded only, never written. `ifk1.` (a built-in phrase's key before v3.1)
-is a 7-tuple `[requestId, seed, controls, musicalProfile, isCustom, phraseNumber, carryIn]`, and
-`ifk2.` (my instrument's key in v3.0) the same seven entries then my instrument's entry. Their
-`musicalProfile` slot holds v3.0's profile name, `Neutral` or `Jazz`, which decoding turns into
-that profile's figure levels (`levelsForProfile`), whatever `isCustom` says. The
-[replay-key corpus](testing.md#replay-key-corpus) of `ifk1.` keys recorded on v2.0.0 holds that an
-old key still plays the same phrase.
+The older versions are decoded only, never written. `ifk3.` (every phrase's key in v3.1) is the
+first seven entries above, its carry-in only from a phrase. `ifk1.` (a built-in phrase's key
+before v3.1) is a 7-tuple `[requestId, seed, controls, musicalProfile, isCustom, phraseNumber,
+carryIn]`, and `ifk2.` (my instrument's key in v3.0) the same seven entries then my instrument's
+entry. Their `musicalProfile` slot holds v3.0's profile name, `Neutral` or `Jazz`, which decoding
+turns into that profile's figure levels (`levelsForProfile`), whatever `isCustom` says. A key of
+versions 1 to 3 decodes with no rhythm lock group and no steering block, and never holds a
+carry-in from no phrase, having no form for it. The
+[replay-key corpus](testing.md#replay-key-corpus) of `ifk1.` keys recorded on v2.0.0, and the
+v3.0 and v3.1 corpora, hold that an old key still plays the same phrase.
 
 The key stores only owning inputs: a built-in's instrument profile, the register intent, the
 concert tonal center, the measure count and the meter are rebuilt from them. It holds no played
-notes and nothing beyond the controls, the figure levels and my instrument's owning profile
-fields; no worker message id (replay always uses id 1, which never affects the outcome), and no
+notes (a steering block holds rhythm positions and kinds of move, no pitch, and a join from no
+phrase the one pitch the generator starts from) and nothing beyond the controls, the figure
+levels, my instrument's owning profile fields and the two request groups; no worker message id (replay always uses id 1, which never affects the outcome), and no
 app version or commit, so a later generator change may replay an older key differently.
 
 `encodePhraseReplayKey` and `announcePhraseReplayKey`
 (`src/generation-worker/phrase-replay-key.ts`) build the key and its console line; that module also
-owns the three prefixes, the control order and `PhraseReplayKeyError`.
+owns the four prefixes, the control order and `PhraseReplayKeyError`.
 
 ### Decoding
 
 `decodePhraseReplayKey` (`src/generation-worker/phrase-replay-key-decode.ts`) checks the prefix and
-version first, accepting `ifk1.`, `ifk2.` and `ifk3.` and rejecting any other version. A payload
-that is not strict, canonical, unpadded base64url, not UTF-8, not JSON, or not its version's tuple
-with the right slot types throws a typed `PhraseReplayKeyError`, as do an `ifk3.` key's levels
-with a missing or unknown figure or an unknown level (read through the figure-levels parser), an
-`ifk1.` or `ifk2.` key whose profile name is no musical profile, an `ifk1.` key naming
-`my-instrument`, an `ifk2.` key naming a built-in, and an `ifk3.` key whose `myInstrument` slot
-disagrees with the instrument its controls name. My instrument's profile is rebuilt from its
+version first, accepting `ifk1.` to `ifk4.` and rejecting any other version (`ifk5.` among them)
+as unsupported. A payload that is not strict, canonical, unpadded base64url, not UTF-8, not JSON,
+or not its version's tuple with the right slot types throws a typed `PhraseReplayKeyError`, as do
+an `ifk3.` or `ifk4.` key's levels with a missing or unknown figure or an unknown level (read
+through the figure-levels parser), an `ifk4.` key's malformed rhythm lock group or steering block
+(read through `parseRequestRhythmLock` and `parseSteeringBlock`, refused naming slot 7 or 8 and the
+reason), an `ifk1.` or `ifk2.` key whose profile name is no musical profile, an `ifk1.` key naming
+`my-instrument`, an `ifk2.` key naming a built-in, and an `ifk3.` or `ifk4.` key whose
+`myInstrument` slot disagrees with the instrument its controls name. An `ifk4.` key's carry-in is
+read through `parseCarryIn`, either origin; an older key's through `parsePhraseCarryIn`, v3.1's
+form, which refuses an `origin` field. My instrument's profile is rebuilt from its
 stored fields by `deriveMyInstrumentProfile`
 (`src/generation-worker/generation-worker-inbound.ts`), the derivation the worker's inbound parser
 checks a my-instrument profile with, taking no clef; a profile no my instrument can have is refused
@@ -383,13 +403,13 @@ then validated and the full
 `GenerationIntent` rebuilt by `rebuildGenerationWorkerIntent`, the same validation
 `parseGenerationWorkerIntent` runs on a `generate` message (see
 [Generation Worker protocol](#generation-worker-protocol)). There is no parallel schema and no
-default: a missing or invalid field, or a phrase number that does not follow its carry-in, is
-rejected, never repaired.
+default: a missing or invalid field, a carry-in from no phrase without a steering block, or a
+phrase number that does not follow its carry-in, is rejected, never repaired.
 
 ### Replaying a key
 
 ```sh
-npm run replay:phrase -- 'ifk3.…'   # or an older 'ifk1.…' or 'ifk2.…' key
+npm run replay:phrase -- 'ifk4.…'   # or an older 'ifk1.…', 'ifk2.…' or 'ifk3.…' key
 npm run replay:phrase < console-line.txt   # the key, or a whole copied console line, on stdin
 ```
 
@@ -406,14 +426,17 @@ It prints one JSON document `{ key, keyVersion, phraseNumber, input, output }`:
 
 - **`input`**: every intent field verbatim, plus readable additions: the seed in `seed1-` form, the
   written and concert tonal centers with their key names, the instrument's concert range and the
-  register windows with note names, the carry-in with named pitches, and the exact worker envelope
-  replayed.
+  register windows with note names, the carry-in with named pitches, the rhythm lock group and the
+  steering block verbatim (`null` when the request has none, as for every key before `ifk4.`), and
+  the exact worker envelope replayed.
 - **`output`, phrase** (`kind: 'generation_success'`): the resolved request with its register and
   register window; the bars numbered from 1, each with its chords (1-based start beat, duration,
   concert and written chord symbols, roles) and every note and rest in order (1-based onset beat,
   duration, concert and written pitch as MIDI number and name, ties); the selected harmony; the
   ending (endpoint class, final chord, last sounding note); the carry-out derived with the key's
-  phrase number, or the reason there is none; the provenance; the diagnostics; and the raw outcome
+  phrase number, or the reason there is none; the provenance (with what the rhythm lock did,
+  `rhythmLockOutcome`, and the rhythm change drawn, `rhythmChange`, when they apply); the
+  diagnostics; and the raw outcome
   verbatim. Written pitches and names come from the existing notation path, so they match what the
   staff shows; replay adds no transposition of its own.
 - **`output`, generation failure** (`kind: 'generation_failure'`): the failure code, the

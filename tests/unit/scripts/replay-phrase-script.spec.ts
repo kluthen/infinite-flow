@@ -1,7 +1,7 @@
 // @vitest-environment node
 /**
  * The `replay:phrase` command line: run as a real Node process from the repository root, it
- * prints the full JSON report for a key of any supported version (an `ifk3.` key the encoder
+ * prints the full JSON report for a key of any supported version (an `ifk4.` key the encoder
  * writes today, and the `ifk1.` and `ifk2.` keys v3.0 wrote, recorded here as fixed strings) given
  * as its argument, on stdin or inside a whole copied console line, and rejects a malformed or
  * unsupported key with exit code 1, a stderr message and nothing on stdout.
@@ -37,9 +37,11 @@ const INTENT_FIELDS = [
   'instrumentProfile',
   'registerIntent',
   'carryIn',
+  'rhythmLock',
+  'steering',
 ]
 
-/** A real `ifk3.` key: a transposing profile, seed 42, workspace phrase. */
+/** A real `ifk4.` key: a transposing profile, seed 42, workspace phrase, without v3.2's groups. */
 const KEY = encodePhraseReplayKey(
   createGenerationIntent({
     requestId: makeRequestId('script-42'),
@@ -103,8 +105,10 @@ function expectCompleteReport(run: SpawnSyncReturns<string>): string {
   const report = JSON.parse(run.stdout) as Record<string, Record<string, unknown>>
   expect(Object.keys(report)).toEqual(['key', 'keyVersion', 'phraseNumber', 'input', 'output'])
   expect(report.key).toBe(KEY)
-  expect(report.keyVersion).toBe('ifk3')
+  expect(report.keyVersion).toBe('ifk4')
   for (const field of INTENT_FIELDS) expect(report.input).toHaveProperty(field)
+  expect(report.input!.rhythmLock).toBeNull()
+  expect(report.input!.steering).toBeNull()
   expect(report.input!.workerRequest).toMatchObject({ type: 'generate', id: 1 })
   expect(report.output!.kind).toBe('generation_success')
   const bars = report.output!.bars as readonly { readonly bar: number }[]
@@ -130,7 +134,7 @@ describe('npm run replay:phrase', () => {
   // @test-link [[service_headless_phrase_replay]]
   // @test-link [[module_phrase_replay_key]]
   it(
-    'replays an ifk1 key v3.0 wrote to the same phrase as its ifk3 key',
+    'replays an ifk1 key v3.0 wrote to the same phrase as its ifk4 key',
     () => {
       const recorded = runScript([RECORDED_IFK1_KEY])
       const current = runScript([KEY])
@@ -139,7 +143,7 @@ describe('npm run replay:phrase', () => {
       const recordedReport = JSON.parse(recorded.stdout) as Record<string, unknown>
       const currentReport = JSON.parse(current.stdout) as Record<string, unknown>
       expect(recordedReport.keyVersion).toBe('ifk1')
-      expect(currentReport.keyVersion).toBe('ifk3')
+      expect(currentReport.keyVersion).toBe('ifk4')
       expect(recordedReport.input).toEqual(currentReport.input)
       expect(JSON.stringify(recordedReport.output)).toBe(JSON.stringify(currentReport.output))
     },
@@ -186,10 +190,10 @@ describe('npm run replay:phrase', () => {
   it(
     'rejects an unsupported key version with exit 1',
     () => {
-      const run = runScript(['ifk4.xxx'])
+      const run = runScript(['ifk5.xxx'])
       expect(run.status).toBe(1)
       expect(run.stdout).toBe('')
-      expect(run.stderr).toMatch(/unsupported key version "ifk4"/u)
+      expect(run.stderr).toMatch(/unsupported key version "ifk5"/u)
     },
     TIMEOUT_MS,
   )
