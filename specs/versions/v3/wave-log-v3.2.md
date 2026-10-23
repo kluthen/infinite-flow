@@ -532,3 +532,10 @@ chunk 30 (wave 6).
   time is not reported to the sweep (`docs/generation-latency.md` says chunks 9–10 add it; no
   chunk's Files or Done when carries it).
 - Chunk 11: dispatched to `coding-leader`, branch `v3.2-c11-rhythm-changes`.
+- `spec-writer` (a6d51e3): plan v17, D434. Chunk 13 (wave 3) reports the orderings' time: an
+  optional clock in `GenerationOrchestrationOptions`; only with it do the diagnostics carry the
+  seconds spent building the request's rhythm order (the provenance and the deep-equal outcome
+  stay as they are); the sweep's ladder double and the session sweep's `OutcomeCache` read it into
+  `orderingSeconds`. Chunk 13 gains a capture (for wave 3's preflight) and a split rule (13a, 13b);
+  chunk 8 builds its steering rank inside the timed span; chunk 29's Files add
+  `tests/sweep/jam-sweep-ladder.ts`. Next free IDs: D435, O270.
