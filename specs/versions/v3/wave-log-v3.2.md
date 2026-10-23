@@ -511,3 +511,11 @@ chunk 30 (wave 6).
   next to beat 1 or 3", C8 says "touching tick 0 or 8"; 4 the census cannot tell a forced bend that
   lands one allowed change away from a change without the session history (chunk 13).
 - Chunk 10: dispatched to `coding-leader`, branch `v3.2-c10-rhythm-lock`.
+- `spec-writer` (24e75dd): plan v16, Part C v1.10, on chunk 3's findings. D431 C4 and the lexicon
+  word Close and Near as C8 and the code do; D432 chunk 13's census reads the lock outcome from the
+  provenance (Files and Done when updated); D433 O268 (how a short silence between doodle notes is
+  read; recommendation: part of the notes unless a whole rest of the doodle's value fits) becomes
+  new gate DS, blocking chunk 28 (wave 4 waits for DR and DS); O269 (legato doodles read Heavily
+  varied; recommendation: keep, ask at v3.2 H5 step 6, gate L1). LD opens as planned (H1's renders
+  give the same starts under either answer to O268). O268 put to the owner (2026-10-23), due
+  before wave 4's preflight. Next free IDs: D434, O270.
