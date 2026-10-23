@@ -85,7 +85,9 @@ Status: this file holds four parts.
   and its skip a defensive guarantee (C9; spec D426). v1.9 (2026-10-23): only locked bars make
   the search rhythm-major, a fresh Jam's played notes are timed from its count-in, and the
   kept-session data versions and their contract bump are stated (C7.6, C8, C10.3, C11, C13; spec
-  D428–D430). Its sections are numbered C1 to C18; what v1.1 to v1.9 change is listed at the top of
+  D428–D430). v1.10 (2026-10-23): C4 words the distance bands as C8 does, and two questions on
+  reading the doodle are opened (C4, C5.9, C5.16.1, C17; spec D431, D433). Its sections are
+  numbered C1 to C18; what v1.1 to v1.10 change is listed at the top of
   Part C and marked in each section they touch.
 - **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.1
   (2026-10-12), consolidated from the v3.3 direction and the chord research; **awaiting the
@@ -2242,7 +2244,10 @@ Delete everything removes them. No preset leaves the device.
 
 ## Part C — v3.2
 
-Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.9 (2026-10-23)**: v1.8
+Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.10 (2026-10-23)**: v1.9
+with the build's chunk 3 findings (C4, C5.9, C5.16.1, C17; D431, D433): C4 words the distance bands
+as C8 states them; how a short silence between two doodle notes is read, and whether a legato
+doodle should read Heavily varied, are open (C17). It adds no behaviour. v1.9 (2026-10-23): v1.8
 with the build's wave 2 preflight findings settled (C7.6, C8, C10.3, C11, C13; D428–D430): only
 locked bars make the search rhythm-major; a fresh Jam's played notes are timed from its count-in;
 the kept-session data versions and the contract bump that covers them. The only behaviour it adds
@@ -2566,6 +2571,7 @@ comes after); and Jam needs a controller, since the doodle is played on it.
 _Changed in v1.1:_ session mode, Jam mode, the mode button, Jam's settings, the steering block and
 tap-in are added; Jam and the kept doodle take their new meanings; the Collection's nine values are
 called collections.
+_Changed in v1.10:_ Distance's bands worded as C8 states them (D431).
 
 One term per concept, used the same way everywhere in Part C and by `ux-writer`'s design. The
 names of switches, buttons and positions are working names; their labels are `ux-writer`'s, their
@@ -2641,8 +2647,8 @@ meanings are fixed here.
   not a rhythm change.
 - **Distance**: how different two rhythms sound, on the [mutation catalogue's
   scale](../../../docs/music/mutation-catalogue.md#the-distance-scale-proposed): **Same**;
-  **Close** (one small edit inside a beat); **Near** (one edit on or next to a strong beat, or two
-  small ones); then **Related** and **Loose**. C8 makes it precise per measure.
+  **Close** (one small edit away from beats 1 and 3); **Near** (one edit touching beat 1 or 3, or
+  two Close edits); then **Related** and **Loose**. C8 makes it precise per measure.
 - **[Drift](../../../docs/music/lexicon.md#drift)**: in Jam mode, how far phrases may wander from
   the doodle; three positions named after the distances, **Close**, **Near** and **Free**.
 - **Vary settings' allowed groups**: in session mode, which groups of settings Vary settings (the
@@ -2904,6 +2910,8 @@ measure opens in silence (a silence crossing a barline starts again in the next 
 is never tied); a note held across a barline starts nothing in the next measure, which may then
 hold no start. The rest starts are needed because C8's distance compares both kinds of start and
 counts turning a note into a rest as one edit.
+_Open in the build (C17):_ under this definition a short silence between two notes, a detached
+note, is a rest start, often one the generator never writes; how such silences are read is open.
 
 It holds no pitch. The generator reads it at two points only (C5.10): a re-ordering of the rhythm
 candidates right after their seeded ranking, and one more preference in the pitch order, below the
@@ -3208,6 +3216,9 @@ for Quarter, 2 for Eighth and 1 for Sixteenth.
   (C5.13).
 - **Tested** on recorded and written doodles, each row at its edges, and by the listening check's
   sparse, busy, leaping and one-note doodles (C16 item 18).
+- _Open in the build (C17):_ a legato doodle mixing eighths and quarters reads Heavily varied, as
+  the generator counts variety; whether its phrases then sound busier than the doodle is asked at
+  the listening check.
 
 ### C5.17 Tempo in Jam, and tap-in
 
@@ -4450,6 +4461,7 @@ _Changed in v1.1:_ the provisional answers and their checks; seven open question
 answers; the code gaps and deferrals follow the re-scope.
 _Changed in v1.2:_ the seven questions settled (D410), the design's seven answered (D411).
 _Changed in v1.4:_ the contract sign-off given (D421).
+_Changed in v1.10:_ two questions opened during the build (D433).
 
 **Provisional answers, each confirmed by a check.** Four answers of the re-scope were accepted on
 the owner's "will need testing to be sure". A check that fails comes back to the owner as a ruling;
@@ -4477,6 +4489,14 @@ proposed), and where each now stands:
 
 The design's behaviour questions (ux Q81–Q87) are answered as `ux-writer` recommended (D411): C5.11,
 C5.16, C5.17, C10.5 and, for v3.3's Seventh chords in Jam, Part D §D8.4.
+
+**Open during the build** (D433), each with a proposed answer in the register:
+
+- **O268**, how a short silence between two doodle notes is read (C5.9, C5.16.1): proposed, as part
+  of the notes, a silence being a rest only where a whole rest of the doodle's note density value
+  fits in it on that grid. The owner's, before the steering block is built.
+- **O269**, whether a legato doodle of eighths and quarters should read Heavily varied (C5.16.1):
+  proposed, as written, asked at the Jam listening check (C16 item 32).
 
 **Measured before the gate, not open questions**: the cost of the new orderings and the sweeps
 (C5.8, C16 items 10 and 31); the forced-bend rate; the share of rhythm changes, starting at 1 in 4

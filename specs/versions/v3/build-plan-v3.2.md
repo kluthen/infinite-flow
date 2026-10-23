@@ -1,6 +1,10 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v15 (2026-10-23): v14 with wave 2's preflight corrections and rulings written in (spec
+Status: v16 (2026-10-23): v15 with chunk 3's findings written in (spec D431–D433, master spec
+Part C v1.10): chunk 13's lock census reads each phrase's lock outcome from its provenance; gate
+DS, the owner's answer to O268 (how the doodle's short silences are read), before chunk 28; v3.2
+H5 asks O269 (a legato doodle read as Heavily varied); gate LD opens as planned.
+v15 (2026-10-23): v14 with wave 2's preflight corrections and rulings written in (spec
 D427–D430, master spec Part C v1.9): chunk 10's walk rhythm-major only with locked bars, chunk 8's
 band read with it; chunks 10, 11, 12 and 22's atoms and drift checks; chunk 16's re-lock request
 without an allowed change; chunk 22's data versions, contract revisions, loophole closure and a
@@ -114,6 +118,7 @@ no release is cut before wave 7 has merged.
 | **CK** | The owner confirms the wording of chunk 12's two contract revisions, `module_phrase_replay_key` and `rule_seeded_phrase_reproduction` (STABLE on the contract since 8.1.0), and of chunk 22's three, `module_kept_session_codec`, `entity_kept_session_record` and `module_on_device_database` (STABLE on the contract since v3.0; their wording takes in the loophole closure and a fresh Jam's played-notes clock), with the optional rewordings, and the MAJOR bump, CONTRACT 9.0.0 to 10.0.0, that applies them all at wave 2's sync (spec D422, D429, D430): the [change set](../../../docs/release/v3.1-v3.2-intent-change-set.md)'s part P, P1–P8 with P3b and the played-notes clock's wording. | `documentalist` drafts at wave 2's preflight (P1–P8, P3b; the clock's wording after spec D430); the owner confirms | Chunk 12's and chunk 22's merges into the wave branch | done (2026-10-23, the owner: "i approve it all"; change set part P, P1–P8 with P3b and the clock; applied at wave 2's sync) |
 | **LD** | The owner ranks a handful of rhythm pairs by ear on drift's distance scale ([v3.2 H1](#v32-h1--drifts-scale-by-ear-ld)), before the scale drives the steering block's band ([C8](master-spec.md#c8-jams-drift)). A ranking that disagrees with the scale goes to `spec-writer` before chunk 8. | The owner; `spec-writer` if the ranking disagrees | Chunk 8 (wave 4) | open (after wave 2: chunks 3 and 5) |
 | **DR** | The owner's Travel Sax recordings join the doodle set: chunk 3 writes the doodles by hand and documents how to add recorded ones (played-notes exports, kept beside their quantized form); the owner records them that way (spec D427). | The owner | Chunk 28 (wave 4), whose readings and v3.2 H5 use the recorded doodles; nothing in wave 2 waits on it | open (after chunk 3) |
+| **DS** | The owner answers [O268](../../open-questions.md#v32-build-o267): how a short silence between two doodle notes (a detached note) is read, for the steering block's starts ([C5.9](master-spec.md#c59-what-the-doodle-feeds-the-generator)) and the silence reading ([C5.16.1](master-spec.md#c5161-the-doodle-to-controls-mapping)); `spec-writer` writes the answer into Part C and chunk 28 (spec D433). | The owner; then `spec-writer` | Chunk 28 (wave 4); nothing in waves 2 and 3 waits on it, nor LD (H1's measures read the same either way) | open |
 | **L3** | The owner's listening check of the allowed rhythm changes ([v3.2 H2](#v32-h2--allowed-rhythm-changes-l3), item 13); the change shares are tuned from it. | The owner | The release gate's final M2 run | open (after wave 3) |
 | **L1** | The owner's listening check of Jam ([v3.2 H4](#v32-h4--jam-listening-settings-drift-and-lock-l1) and [H5](#v32-h5--jam-listening-the-doodle-to-controls-mapping-l1), item 32); it confirms or sends back three of D406's provisional answers ([below](#what-confirms-d406s-provisional-answers)). | The owner; a failed answer becomes a ruling | The release gate | open (after wave 6) |
 | **L2** | The owner's listening check of the suggestion ([v3.2 H6](#v32-h6--the-suggestion-l2), item 45); the weights and cues are tuned from it. | The owner | The release gate's final suggestion tests | open (after wave 6) |
@@ -131,7 +136,7 @@ preflight does not run and no chunk carries a **Data** line
 | 1 | 4 The quantized doodle · 5 Rhythm bars, distance and change kinds · 6 The request carries v3.2's inputs · 15 Vary settings' allowed groups | Wave 0; CN before chunk 15's merge. | merged into `main` |
 | 2 | 3 Measurement tools · 10 The rhythm lock in the generator · 11 Allowed rhythm changes · 12 Replay key `ifk4.` · 22 v3.2's kept-session shape | Wave 1; CK before chunk 12's and chunk 22's merges. In-wave 10 → 11: chunk 10's capture fixes the ordering seam and the lock's order the draw slots into. LD opens at its end. | planned |
 | 3 | 16 The rhythm lock in a session · 13 Session measurements · 19 The lock and What may vary in the controls | Wave 2; CS before its sync. In-wave 16 → 13 and 16 → 19: chunk 16's capture fixes the session's lock state and what the session history records. Three chunks: the session half ends here, and every other session chunk is done. L3 opens at its end. | planned |
-| 4 | 20 Jam mode: the switch, Jam's code, Jam's Idle · 28 From the doodle: controls and steering block · 7 The join from the doodle · 8 Rhythm ordered by the steering block · 9 Melody follows the moves | Wave 3; LD (8); DR (28). In-wave 28 → 7: chunk 28's capture fixes the register window the join reads. | planned |
+| 4 | 20 Jam mode: the switch, Jam's code, Jam's Idle · 28 From the doodle: controls and steering block · 7 The join from the doodle · 8 Rhythm ordered by the steering block · 9 Melody follows the moves | Wave 3; LD (8); DR and DS (28). In-wave 28 → 7: chunk 28's capture fixes the register window the join reads. | planned |
 | 5 | 14 The key and mode suggestion · 17 Jam engine, part 1 · 18 Jam engine, part 2 · 29 The Jam sweep, first run · 31 Jam's settings | Wave 4. In-wave 14 → 18: chunk 14's capture fixes the suggestion's answer type; 17 → 18: chunk 17's capture fixes the engine's way in and the capture's states. | planned |
 | 6 | 21 A fresh Jam on screen · 30 Kept Jam sessions · 23 The review's doodle section and the suggestion | Wave 5. In-wave 21 → 23 and 30 → 23: chunk 21's capture fixes what the review receives from an ended Jam, chunk 30's what a kept Jam session holds. Three chunks: everything else of Jam's waits on 21 or 23. L1 and L2 open at its end. | planned |
 | 7 | 24 The kept doodle · 25 Exports open with the doodle · 32 Tap tempo · 33 240 BPM in Jam | Wave 6; J240 (33's second half). In-wave 24 → 32: both change Jam's Idle note routing, whose interface chunk 20's capture fixed. | planned |
@@ -381,7 +386,8 @@ corpora are a guard, not a measurement.
   and that no phrase makes more than one change, of an allowed kind, measured from the locked
   rhythm.
 - **How:** chunk 3's lock census, over seeded eight-phrase sessions on the deadline sweep's
-  settings, each kind alone and all five together, Tension across phrases on and off; per-kind
+  settings, each kind alone and all five together, Tension across phrases on and off, each phrase
+  classed by the lock outcome its provenance records (chunk 13, spec D432); per-kind
   availability compared with [jam-grounding §D.2](jam-grounding.md#d2-what-the-rhythm-domain-offers-a-locked-rhythm)'s
   census (re-measured, spec D424), and recorded at each built-in preset's rhythm settings, which
   L3's tuning reads.
@@ -508,7 +514,10 @@ Written by chunk 21; run after wave 6. About 10 minutes.
 3. Play a busy doodle (running eighths or sixteenths); read, listen.
 4. Play a leaping doodle (wide jumps); read, listen.
 5. Play a doodle of one note; read: only the register comes from it.
-6. For each, say whether the readings and the phrases matched the doodle; report any that did not.
+6. Play a legato doodle of eighths and held quarters, about half of each; read: rhythmic variety
+   shows Heavily varied; listen to two phrases: do they sound busier than the doodle, with
+   sixteenth notes it never had ([O269](../../open-questions.md#v32-build-o267))?
+7. For each, say whether the readings and the phrases matched the doodle; report any that did not.
 
 #### v3.2 H6 — The suggestion (L2)
 
@@ -1152,15 +1161,24 @@ Architecture capture: none
 - **Scope:** no product code beyond tuning constants. Run M5 at 60, 120 and 240 BPM, lock off and
   on; run M2; replay a sample of locked, changed and forced-bend phrases from their `ifk4.` keys.
   Report the figures to the owner, and to `spec-writer` if a standalone attempt exceeds its budget.
+  - **The census reads the provenance** (spec D432): chunk 3's lock census classes each phrase by
+    the lock outcome its provenance records (locked, changed with its kind, forced bend, no change
+    available, re-lock; chunks 10 and 11, kept by chunk 16's history), not from its written bars,
+    since from bars alone a forced bend landing exactly one allowed change from the locked rhythm
+    reads as a change. The bars cross-check the outcome: a recorded change is exactly one change of
+    an allowed kind, a locked phrase has the locked bars. Forced bends one allowed change away are
+    counted as bends and tallied apart.
 - **Files:** `src/domain/rhythm/rhythm-change-draw.ts` (constants only, if tuned),
+  `tests/sweep/lock-census.ts`, `lock-census-sweep.ts`, `lock-census.spec.ts`,
   `docs/generation-latency.md`, `docs/music/rhythm-phrase-structure.md`.
 - **Spec sections:** [C7.4](master-spec.md#c74-when-a-phrase-changes),
   [C14](master-spec.md#c14-existing-code-and-risks); items 1, 2, 10, 11.
 - **Atoms:** none (measurement).
 - **Revisions:** none.
 - **Done when:** M2 and M5 recorded, the deciding runs on the reference machine; no phrase repeated;
-  every replayed sample matches.
-- **Verification:** the runs; chunk checks if a constant changed.
+  every replayed sample matches; every census class comes from the provenance and agrees with the
+  bars, and the forced bends one allowed change away are counted.
+- **Verification:** the runs; chunk checks (the census changes, and a constant may).
 - **Split rule:** none needed.
 
 ### Chunk 14 — The key and mode suggestion
@@ -1990,7 +2008,8 @@ plan cites it.
 
 Status: planned
 Wave: 4
-Depends on: 4, 6 (and chunk 3's doodle set, merged in wave 2), DR (the owner's recordings in it)
+Depends on: 4, 6 (and chunk 3's doodle set, merged in wave 2), DR (the owner's recordings in it),
+DS (how the doodle's short silences are read)
 Architecture capture: what Jam's side derives from the quantized doodle when it ends:
 `src/jam/doodle-controls.ts` (C5.16.1: the seven controls, a supported combination, first-visit
 values for what the doodle does not show) and `src/jam/steering-block-builder.ts` (the doodle's

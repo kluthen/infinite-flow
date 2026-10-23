@@ -906,3 +906,25 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   and an upgrade of every record) and the doodle's barline as origin. The STABLE wording of
   `entity_kept_session_record` and `module_kept_session_codec` joins gate CK; opens O267. Now in:
   [Part C §C10.3](versions/v3/master-spec.md#c103-kept-sessions-and-played-notes), [build plan v3.2, chunk 22](versions/v3/build-plan-v3.2.md#chunk-22--v32s-kept-session-shape).
+
+- **D431 (2026-10-23): the distance bands are worded as C8 states them.** `spec-writer`'s, under
+  the owner's delegation of minor calls, from chunk 3's findings. Close is one edit away from beats
+  1 and 3; Near is one edit touching beat 1 or 3 (a start added or removed there, or moved onto or
+  off it), or two Close edits. C8, `rule_rhythm_distance` and the built `measureBand` agree; C4
+  and the lexicon's Drift entry had kept the catalogue's earlier "on or next to a strong beat",
+  under which an edit one sixteenth from beat 1 would be Near. Now in: [Part C §C4](versions/v3/master-spec.md#c4-words-used-in-this-part),
+  [lexicon, Drift](../docs/music/lexicon.md#drift).
+
+- **D432 (2026-10-23): chunk 13's lock census reads each phrase's lock outcome from its
+  provenance.** `spec-writer`'s, from chunk 3's findings. From written bars alone a forced bend
+  landing exactly one allowed change from the locked rhythm reads as a change; chunks 10 and 11
+  record the outcome and chunk 16's history keeps it, so the census takes it from there and the
+  bars only cross-check it. No behaviour. Now in: [build plan v3.2, chunk 13 and M2](versions/v3/build-plan-v3.2.md#chunk-13--session-measurements-first-run).
+
+- **D433 (2026-10-23): chunk 3's two doodle-reading findings go to the owner; gate LD opens as
+  planned.** `spec-writer`'s. How a short silence between two doodle notes is read (O268) changes
+  what Jam hears in the player's playing, so it is the owner's, before chunk 28 (gate DS). Whether
+  a legato doodle reading Heavily varied sounds right (O269) is a listening judgment, at v3.2 H5.
+  Neither touches drift's scale: H1's five doodle measures read the same under either answer. Now
+  in: [build plan v3.2, gates DS and LD](versions/v3/build-plan-v3.2.md#gates),
+  [v3.2 H5](versions/v3/build-plan-v3.2.md#v32-h5--jam-listening-the-doodle-to-controls-mapping-l1).
