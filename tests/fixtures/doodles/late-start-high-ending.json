@@ -1,0 +1,48 @@
+{
+  "name": "late-start-high-ending",
+  "source": "hand-written",
+  "description": "A rising arpeggio that starts after one silent measure and ends on a high E above the keyboard profile.",
+  "traits": {
+    "measureCount": 2,
+    "noteCount": 6,
+    "density": "moderate",
+    "leaping": false,
+    "oneNote": false,
+    "chord": false,
+    "graceNote": false,
+    "strayNote": false,
+    "lastNote": "outside-range",
+    "aimedAt": {
+      "noteDensity": "Quarter",
+      "rhythmicVariety": "Heavily varied",
+      "syncopation": "Occasional offbeats",
+      "silenceDensity": "Sparse"
+    },
+    "listeningMeasure": false,
+    "notes": "The first measure after the count-in is silent, so the doodle starts at grid measure 1 and spans two measures. The last note, E5 (76), lies above the range 48-72: no join."
+  },
+  "capture": {
+    "gridOriginAt": 8.016,
+    "tempoBpm": 60,
+    "endMeasure": 3,
+    "notes": [
+      { "onsetAt": 13.041, "releaseAt": 14.066, "pitch": 64 },
+      { "onsetAt": 13.986, "releaseAt": 14.966, "pitch": 67 },
+      { "onsetAt": 15.066, "releaseAt": 16.091, "pitch": 72 },
+      { "onsetAt": 16.036, "releaseAt": 16.491, "pitch": 71 },
+      { "onsetAt": 16.551, "releaseAt": 17.078, "pitch": 72 },
+      { "onsetAt": 16.971, "releaseAt": 19.928, "pitch": 76 }
+    ]
+  },
+  "quantized": {
+    "measureCount": 2,
+    "notes": [
+      { "startTick": 4, "lengthTicks": 4, "pitch": 64 },
+      { "startTick": 8, "lengthTicks": 4, "pitch": 67 },
+      { "startTick": 12, "lengthTicks": 4, "pitch": 72 },
+      { "startTick": 16, "lengthTicks": 2, "pitch": 71 },
+      { "startTick": 18, "lengthTicks": 2, "pitch": 72 },
+      { "startTick": 20, "lengthTicks": 12, "pitch": 76 }
+    ]
+  }
+}

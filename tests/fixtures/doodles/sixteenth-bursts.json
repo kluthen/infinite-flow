@@ -1,0 +1,54 @@
+{
+  "name": "sixteenth-bursts",
+  "source": "hand-written",
+  "description": "Two bursts of sixteenth notes, each ending on an offbeat note held across the beat, with long breaths between.",
+  "traits": {
+    "measureCount": 2,
+    "noteCount": 9,
+    "density": "busy",
+    "leaping": false,
+    "oneNote": false,
+    "chord": false,
+    "graceNote": false,
+    "strayNote": false,
+    "lastNote": "inside-windows",
+    "aimedAt": {
+      "noteDensity": "Sixteenth",
+      "rhythmicVariety": "Slightly varied",
+      "syncopation": "Active displacement",
+      "silenceDensity": "Breath-heavy"
+    },
+    "listeningMeasure": true,
+    "notes": "Listening rhythm: four sixteenths, a rest, then an offbeat note held across beat 3."
+  },
+  "capture": {
+    "gridOriginAt": 7.843,
+    "tempoBpm": 180,
+    "endMeasure": 2,
+    "notes": [
+      { "onsetAt": 7.86, "releaseAt": 7.951, "pitch": 62 },
+      { "onsetAt": 7.935, "releaseAt": 8.018, "pitch": 64 },
+      { "onsetAt": 7.993, "releaseAt": 8.126, "pitch": 65 },
+      { "onsetAt": 8.105, "releaseAt": 8.168, "pitch": 67 },
+      { "onsetAt": 8.318, "releaseAt": 8.61, "pitch": 69 },
+      { "onsetAt": 9.364, "releaseAt": 9.443, "pitch": 67 },
+      { "onsetAt": 9.435, "releaseAt": 9.535, "pitch": 65 },
+      { "onsetAt": 9.501, "releaseAt": 9.601, "pitch": 64 },
+      { "onsetAt": 9.61, "releaseAt": 9.91, "pitch": 62 }
+    ]
+  },
+  "quantized": {
+    "measureCount": 2,
+    "notes": [
+      { "startTick": 0, "lengthTicks": 1, "pitch": 62 },
+      { "startTick": 1, "lengthTicks": 1, "pitch": 64 },
+      { "startTick": 2, "lengthTicks": 1, "pitch": 65 },
+      { "startTick": 3, "lengthTicks": 1, "pitch": 67 },
+      { "startTick": 6, "lengthTicks": 3, "pitch": 69 },
+      { "startTick": 18, "lengthTicks": 1, "pitch": 67 },
+      { "startTick": 19, "lengthTicks": 1, "pitch": 65 },
+      { "startTick": 20, "lengthTicks": 1, "pitch": 64 },
+      { "startTick": 21, "lengthTicks": 4, "pitch": 62 }
+    ]
+  }
+}

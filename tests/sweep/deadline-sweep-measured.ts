@@ -23,6 +23,7 @@ import {
   type OutcomeCache,
   type SweepCase,
   type TimedSession,
+  type TimedSessionOptions,
 } from '../unit/session/deadline-sweep'
 import {
   PHRASE_PRODUCTIONS,
@@ -39,16 +40,16 @@ import {
  * gate)"; HARDWARE-CHECKLIST.md part E). 100 ms covers both with room to spare. It is charged to
  * failed attempts too, which are not engraved, so a failure is over-counted by that much at most.
  */
-const ROUND_TRIP_AND_ENGRAVING_SECONDS = 0.1
+export const ROUND_TRIP_AND_ENGRAVING_SECONDS = 0.1
 
 /** Intent: the sweep injects nothing: the real generator answers every attempt. */
-const generateEveryAttempt: AttemptScript = () => 'generate'
+export const generateEveryAttempt: AttemptScript = () => 'generate'
 
 /**
  * Intent: an attempt's real cost: the wall time `generatePhrase` took for its intent on this
  * machine, measured once per intent, plus the round trip and the engraving.
  */
-const measuredAttemptCost: AttemptCost = (generated) => {
+export const measuredAttemptCost: AttemptCost = (generated) => {
   if (generated === undefined)
     throw new Error('The measured sweep injects no failure, so every attempt has a measured time.')
   return generated.seconds + ROUND_TRIP_AND_ENGRAVING_SECONDS
@@ -100,13 +101,14 @@ export class ProductionTally {
 
 /**
  * Intent: play one case's session at a tempo with every attempt at its measured cost, after the
- * Idle phase when one is given.
+ * Idle phase when one is given, with the run's options (phrase count, phrase 1, settings).
  */
 export function measuredSession(
   sweepCase: SweepCase,
   tempo: number,
   outcomes: OutcomeCache,
   idlePhase?: IdlePhase,
+  options?: TimedSessionOptions,
 ): Promise<TimedSession> {
   return runTimedSession(
     sweepCase,
@@ -115,6 +117,7 @@ export function measuredSession(
     generateEveryAttempt,
     measuredAttemptCost,
     idlePhase,
+    options,
   )
 }
 

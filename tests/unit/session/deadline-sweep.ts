@@ -1,7 +1,6 @@
 /**
- * Shared plumbing for the look-ahead deadline sweep: the sweep's cases (every supported rhythm
- * setting crossed with the seed matrix's seeds, every value of every other generation control and
- * both values of each session flag assigned to them deterministically) and a timed session run.
+ * Shared plumbing for the look-ahead deadline sweep: the sweep's cases (deadline-sweep-cases.ts,
+ * re-exported here) and a timed session run.
  *
  * A timed run drives the real session runner, with the real `generatePhrase` behind its generate
  * seam, on a fake audio clock that only this module moves. Every generate call keeps one serial
@@ -16,29 +15,11 @@
  * planned phrase has sounded in full. Every output is kept with the fake time it came out at.
  */
 
-import {
-  ARPEGGIO_CHAOS_VALUES,
-  COLLECTIONS,
-  CONTOURS,
-  HARMONIC_MOTIONS,
-  INSTRUMENT_PROFILE_IDS,
-  LEAPINESS_VALUES,
-  MUSICAL_PROFILES,
-  PITCH_CLASSES,
-  REGISTER_CHOICES,
-  makeGenerationControls,
-  type GenerationControls,
-  type MusicalProfile,
-} from '@/domain/controls/generation-controls'
-import { isRhythmSettingBlocked } from '@/domain/controls/unsupported-rhythm-settings'
-import { levelsForProfile, type FigureLevels } from '@/domain/figures/figure-levels'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { PHRASE_MEASURE_COUNT } from '@/domain/generation/generation-request'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
-import type { KeyAndModeRestriction } from '@/domain/presets/key-and-mode-restriction'
-import type { PresetSelection } from '@/domain/presets/preset-selection'
 import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import { makeSeed } from '@/domain/random/seed'
@@ -63,14 +44,9 @@ import type {
   SessionStart,
 } from '@/session/session-types'
 import { settingsMutationSeed } from '@/session/session-seed-plan'
-import { ALL_GROUPS_ALLOWED, SETTINGS_MUTATION_OFF } from '@/session/settings-mutation'
-import { SEEDS } from '../domain/generation/carry-in/carry-in-matrix'
-import {
-  allRhythmSettings,
-  settingKey,
-  type RhythmSetting,
-} from '../domain/generation/orchestration/cold-generation-golden/cold-generation-golden-fixture'
+import { SETTINGS_MUTATION_OFF } from '@/session/settings-mutation'
 import { buildIntent } from '../domain/generation/carry-in/carry-in-fixture'
+import { caseSettings, type SweepCase } from './deadline-sweep-cases'
 import {
   UNREAD_DISPLAY,
   failureOutcome,
@@ -79,6 +55,14 @@ import {
   withoutTempo,
   type GenerationRequestOutput,
 } from './session-harness'
+
+export {
+  NON_RHYTHM_DIMENSIONS,
+  caseSettings,
+  supportedRhythmSettings,
+  sweepCases,
+  type SweepCase,
+} from './deadline-sweep-cases'
 
 /**
  * The modelled cost of one generation attempt, retries included, in seconds of audio time: from
@@ -95,136 +79,13 @@ export const ATTEMPT_COST_SECONDS = 0.35
  * The most times phrase 1 is generated at Idle, each with the next seed, before a case is given up
  * as broken.
  */
-const IDLE_GENERATIONS = 5
+export const IDLE_GENERATIONS = 5
 
 /** The tempos the sweep runs every case at: the slowest, a middle and the fastest, in BPM. */
 export const SWEEP_TEMPOS: readonly number[] = [60, 120, 240]
 
 /** How many phrases each swept session plays before Stop, phrase 1 included. */
 export const SWEEP_PHRASE_COUNT = 6
-
-/** The window every swept session runs in: at or above the tablet-landscape width. */
-const WIDE_WINDOW = { belowTabletLandscape: false, sessionSteppedDown: false }
-
-/** One case of the sweep: the chosen settings and flags of one session, and its seeds. */
-export interface SweepCase {
-  readonly index: number
-  readonly label: string
-  readonly rhythm: RhythmSetting
-  /** The seed-matrix seed phrase 1 is first generated with at Idle. */
-  readonly seed: number
-  /** The session seed drawn with phrase 1: every seed the session uses derives from it. */
-  readonly firstSessionSeed: number
-  readonly controls: Omit<GenerationControls, 'tempo'>
-  readonly musicalProfile: MusicalProfile
-  /** The "Vary settings" flag: the settings mutation, on with its own seed, or off. */
-  readonly varySettings: boolean
-  /** The "Tension across phrases" flag: the multi-phrase tension arc. */
-  readonly tensionAcrossPhrases: boolean
-  /**
-   * What a measured setting puts in place of the case's profile (the cost runner, M2): the figure
-   * levels, the selection and the restriction in force at the session's start. Unset, the case runs
-   * with its profile's levels, Custom based on the preset of that name, and no restriction.
-   */
-  readonly figureLevels?: FigureLevels
-  readonly selection?: PresetSelection
-  readonly restriction?: KeyAndModeRestriction
-}
-
-/** Intent: every rhythm setting of the 324-setting catalog that does not block generation. */
-export function supportedRhythmSettings(): readonly RhythmSetting[] {
-  return allRhythmSettings().filter((setting) => !isRhythmSettingBlocked(setting, WIDE_WINDOW))
-}
-
-/**
- * The generation controls and session flags outside the rhythm setting, each with every value it
- * can take. Tempo is not among them: each case runs at every sweep tempo.
- */
-export const NON_RHYTHM_DIMENSIONS = {
-  tonalCenter: PITCH_CLASSES,
-  collection: COLLECTIONS,
-  harmonicMotion: HARMONIC_MOTIONS,
-  contour: CONTOURS,
-  register: REGISTER_CHOICES,
-  leapiness: LEAPINESS_VALUES,
-  arpeggioChaos: ARPEGGIO_CHAOS_VALUES,
-  instrumentProfileId: INSTRUMENT_PROFILE_IDS,
-  musicalProfile: MUSICAL_PROFILES,
-  varySettings: [false, true],
-  tensionAcrossPhrases: [true, false],
-} as const
-
-/**
- * Intent: the value one dimension takes in case `index`, round-robin with a per-dimension shift
- * after each full turn, so every value appears within the first `values.length` cases and two
- * dimensions of the same size do not stay locked in the same pairs.
- */
-function roundRobin<T>(values: readonly T[], index: number, shift: number): T {
-  const turn = Math.floor(index / values.length)
-  return values[(index + turn * shift) % values.length]!
-}
-
-/**
- * Intent: the sweep's cases, in a fixed order: each supported rhythm setting with each seed of the
- * seed matrix, and every other control and flag assigned round-robin over the case index.
- */
-export function sweepCases(): readonly SweepCase[] {
-  const d = NON_RHYTHM_DIMENSIONS
-  return supportedRhythmSettings().flatMap((rhythm, settingIndex) =>
-    SEEDS.map((seed, seedIndex): SweepCase => {
-      const index = settingIndex * SEEDS.length + seedIndex
-      const controls = {
-        tonalCenter: roundRobin(d.tonalCenter, index, 1),
-        collection: roundRobin(d.collection, index, 2),
-        harmonicMotion: roundRobin(d.harmonicMotion, index, 1),
-        tension: rhythm.tensionArc,
-        noteDensity: rhythm.noteDensity,
-        rhythmicVariety: rhythm.rhythmicVariety,
-        syncopation: rhythm.syncopation,
-        silenceDensity: rhythm.silenceDensity,
-        contour: roundRobin(d.contour, index, 1),
-        register: roundRobin(d.register, index, 2),
-        leapiness: roundRobin(d.leapiness, index, 3),
-        arpeggioChaos: roundRobin(d.arpeggioChaos, index, 2),
-        instrumentProfileId: roundRobin(d.instrumentProfileId, index, 1),
-      }
-      const musicalProfile = roundRobin(d.musicalProfile, index, 0)
-      const varySettings = roundRobin(d.varySettings, Math.floor(index / 2), 1)
-      const tensionAcrossPhrases = roundRobin(d.tensionAcrossPhrases, Math.floor(index / 4), 1)
-      const flags = `${varySettings ? 'vary' : 'fixed'}${tensionAcrossPhrases ? ' arc' : ''}`
-      return {
-        index,
-        label: `#${index} ${settingKey(rhythm)} seed ${seed} ${controls.instrumentProfileId} ${controls.register} ${controls.tonalCenter} ${controls.collection} ${musicalProfile} ${flags}`,
-        rhythm,
-        seed,
-        firstSessionSeed: 100_000 + 100 * index,
-        controls,
-        musicalProfile,
-        varySettings,
-        tensionAcrossPhrases,
-      }
-    }),
-  )
-}
-
-/**
- * Intent: the chosen settings of a case at one tempo: the case's profile's figure levels, the
- * selection Custom based on the preset of that name, unless the case sets its own levels,
- * selection and restriction in force.
- */
-function caseSettings(sweepCase: SweepCase, tempo: number): SessionSettings {
-  return {
-    controls: makeGenerationControls({ ...sweepCase.controls, tempo }),
-    figureLevels: sweepCase.figureLevels ?? levelsForProfile(sweepCase.musicalProfile),
-    selection: sweepCase.selection ?? {
-      kind: 'custom',
-      baseId: sweepCase.musicalProfile === 'Jazz' ? 'jazz' : 'neutral',
-    },
-    ...(sweepCase.restriction === undefined ? {} : { restriction: sweepCase.restriction }),
-    allowedGroups: ALL_GROUPS_ALLOWED,
-    rhythmLockOn: false,
-  }
-}
 
 /** A real outcome, with the wall time in seconds `generatePhrase` took to produce it here. */
 interface TimedOutcome {
@@ -309,6 +170,8 @@ export interface GeneratorRecord {
  */
 export interface TimedSession {
   readonly tempo: number
+  /** How many phrases the run planned before Stop, phrase 1 included. */
+  readonly phraseCount: number
   readonly outputs: readonly TimedOutput[]
   readonly generations: readonly GeneratorRecord[]
   readonly errors: readonly unknown[]
@@ -380,6 +243,19 @@ export function writtenPhraseFits(candidate: {
 }
 
 /**
+ * Intent: the intent of phrase 1 generated with one seed under some settings, exactly as the sweep
+ * builds it at Idle, so another way of producing phrase 1 (a Jam's) can ask for the same phrase.
+ */
+export function phraseOneIntent(settings: SessionSettings, seed: number): GenerationIntent {
+  return buildIntent({
+    controls: settings.controls,
+    figureLevels: settings.figureLevels,
+    seed,
+    label: 'sweep-phrase-1',
+  })
+}
+
+/**
  * Intent: phrase 1 as the player gets it at Idle, before Start. As in v1, a phrase 1 that fails at
  * Idle is no phrase to start from, and the player generates again; the sweep does the same
  * deterministically, with the next seed each time (the case's seed, then seed + 1, seed + 2, ...),
@@ -391,12 +267,7 @@ function phraseOneAtIdle(
   outcomes: OutcomeCache,
 ): SessionStart['phraseOne'] {
   for (let seed = sweepCase.seed; seed < sweepCase.seed + IDLE_GENERATIONS; seed++) {
-    const intent = buildIntent({
-      controls: settings.controls,
-      figureLevels: settings.figureLevels,
-      seed,
-      label: 'sweep-phrase-1',
-    })
+    const intent = phraseOneIntent(settings, seed)
     const { outcome } = outcomes.of(intent)
     if (outcome.kind === 'generation_success') return { intent, outcome }
   }
@@ -404,11 +275,30 @@ function phraseOneAtIdle(
 }
 
 /**
+ * What a run may change from the sweep's six-phrase session: how many phrases it plans (2 or
+ * more), a phrase 1 produced elsewhere in place of the one generated at Idle, and chosen settings
+ * the case does not set.
+ */
+export interface TimedSessionOptions {
+  readonly phraseCount?: number
+  readonly phraseOne?: SessionStart['phraseOne']
+  readonly settings?: Partial<Pick<SessionSettings, 'rhythmLockOn' | 'allowedGroups'>>
+}
+
+/** Intent: a run's planned phrase count, refusing anything but a whole number of 2 or more. */
+function planned(phraseCount: number): number {
+  if (!Number.isInteger(phraseCount) || phraseCount < 2)
+    throw new Error(`A timed session plans 2 or more phrases, got ${phraseCount}.`)
+  return phraseCount
+}
+
+/**
  * Intent: play one case's session at a tempo through the real runner on the fake clock, answering
  * each attempt as the script says once the serial generator has spent the attempt's cost on it,
  * unless the engine cancels it first, and keep every output with its time. An Idle phase, when
  * given, runs first and the session starts with the phrases it made ready. The run stops at Stop,
- * or at the first event the engine refuses.
+ * or at the first event the engine refuses. The options change the phrase count, phrase 1 and some
+ * chosen settings; none given, the run is the sweep's six-phrase session.
  */
 export async function runTimedSession(
   sweepCase: SweepCase,
@@ -417,13 +307,15 @@ export async function runTimedSession(
   script: AttemptScript,
   attemptCost: AttemptCost = flatAttemptCost,
   idlePhase?: IdlePhase,
+  options: TimedSessionOptions = {},
 ): Promise<TimedSession> {
-  const settings = caseSettings(sweepCase, tempo)
+  const phraseCount = planned(options.phraseCount ?? SWEEP_PHRASE_COUNT)
+  const settings = { ...caseSettings(sweepCase, tempo), ...options.settings }
   const providers = queuedProviders(sweepCase.firstSessionSeed)
   const viewport = fakeViewport(false)
   const start: PregenerationStart = {
     settings,
-    phraseOne: phraseOneAtIdle(sweepCase, settings, outcomes),
+    phraseOne: options.phraseOne ?? phraseOneAtIdle(sweepCase, settings, outcomes),
     sessionSeed: makeSeed(sweepCase.firstSessionSeed),
     mutation: sweepCase.varySettings
       ? { kind: 'on', seed: settingsMutationSeed(makeSeed(sweepCase.firstSessionSeed)) }
@@ -541,7 +433,7 @@ export async function runTimedSession(
     },
     { at: 0, ...start, adaptiveTempo: false, readyPhrases },
   )
-  for (const event of transportEvents(tempo, SWEEP_PHRASE_COUNT))
+  for (const event of transportEvents(tempo, phraseCount))
     schedule(event.at, () => runner.dispatch(event))
   await drainContinuations()
   for (let item = due.shift(); item !== undefined; item = due.shift()) {
@@ -554,7 +446,7 @@ export async function runTimedSession(
     }
     await drainContinuations()
   }
-  return { tempo, outputs, generations, errors }
+  return { tempo, phraseCount, outputs, generations, errors }
 }
 
 /**
@@ -584,9 +476,9 @@ interface PhraseSlot {
   readonly soundingAt: AudioTime | undefined
 }
 
-/** Intent: the slots of phrases 2 to `SWEEP_PHRASE_COUNT` of a timed run, in order. */
+/** Intent: the slots of phrases 2 to the run's planned phrase count, in order. */
 export function phraseSlots(run: TimedSession): readonly PhraseSlot[] {
-  return Array.from({ length: SWEEP_PHRASE_COUNT - 1 }, (_, offset) => offset + 2).map(
+  return Array.from({ length: run.phraseCount - 1 }, (_, offset) => offset + 2).map(
     (phraseNumber): PhraseSlot => {
       const requests = run.outputs.filter(
         ({ output }) =>
@@ -653,6 +545,6 @@ export function sessionBreaks(sweepCase: SweepCase, run: TimedSession): readonly
       breaks.push(`${phrase} sounded at ${slot.soundingAt} s`)
   }
   const sounded = soundedAtEnd(run)
-  if (sounded !== SWEEP_PHRASE_COUNT) breaks.push(`${where}: ended with ${sounded} phrases sounded`)
+  if (sounded !== run.phraseCount) breaks.push(`${where}: ended with ${sounded} phrases sounded`)
   return breaks
 }
