@@ -1,6 +1,10 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v17 (2026-10-23): v16 with chunk 10's finding written in (spec D434): chunk 13 reports
+Status: v18 (2026-10-23): v17 with chunk 11's two points settled (spec D435, D436; master spec
+Part C v1.11): "no change available" also covers a drawn change whose candidates all fail, and M2
+tallies it apart from "no candidate"; M2 and any test of the change shares draw from seed-plan
+phrase seeds, never raw consecutive seeds.
+v17 (2026-10-23): v16 with chunk 10's finding written in (spec D434): chunk 13 reports
 the rhythm orderings' time through the generator's diagnostics, under a clock only the sweeps pass,
 and the sweeps read it (M1, M5); chunk 8's steering rank inside that time; chunk 29's ladder double
 reports it.
@@ -387,7 +391,9 @@ corpora are a guard, not a measurement.
 - **What:** C16 items 1 and 2, and [C7.4](master-spec.md#c74-when-a-phrase-changes)'s starting
   shares: the forced-bend rate (overall, with Tension across phrases at each tension, after Vary
   settings' Tension step from Build to Lift); the share of phrases that draw a change (near 1 in 4,
-  1 in 2 on tenser phrases); the share of draws with no candidate, per kind and per rhythm setting;
+  1 in 2 on tenser phrases); the share of draws with no candidate, per kind and per rhythm setting,
+  and apart from it the draws whose candidates all failed to make a phrase (both record "no change
+  available", spec D435; the domain lookup tells them apart);
   and that no phrase makes more than one change, of an allowed kind, measured from the locked
   rhythm.
 - **How:** chunk 3's lock census, over seeded eight-phrase sessions on the deadline sweep's
@@ -395,7 +401,11 @@ corpora are a guard, not a measurement.
   classed by the lock outcome its provenance records (chunk 13, spec D432); per-kind
   availability compared with [jam-grounding §D.2](jam-grounding.md#d2-what-the-rhythm-domain-offers-a-locked-rhythm)'s
   census (re-measured, spec D424), and recorded at each built-in preset's rhythm settings, which
-  L3's tuning reads.
+  L3's tuning reads. Every draw comes from a phrase seed the session seed plan derives, as in a
+  session (spec D436): the draw's hash barely moves its kept bits when only a seed's last hex digit
+  changes, so raw consecutive phrase seeds, or consecutive session seeds, draw in clumps; the
+  census's session seeds, 100 apart, spread (0.2503 and 0.4991 over 20,000 sessions' phrases 2–8).
+  The same holds for any test of the shares.
 - **Run by:** chunk 13; the release gate, after L3's tuning.
 - **Acceptance:** the changed share within a few points of 1 in 4 and 1 in 2 (tuned by L3); the
   rest is recorded. A forced-bend rate the owner finds too high at L3 goes to `spec-writer`: the

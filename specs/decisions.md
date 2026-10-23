@@ -934,3 +934,19 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   it). Not the provenance, which replay and the corpora compare; and the outcome stays deep-equal
   for the same intent and seed when no clock is passed. Chunk 13 builds it, chunk 8's rank falls
   inside it. No behaviour. Now in: [build plan v3.2, chunk 13, M1 and M5](versions/v3/build-plan-v3.2.md#chunk-13--session-measurements-first-run).
+
+- **D435 (2026-10-23): a drawn rhythm change none of whose candidates makes a phrase records "no
+  change available", as a draw with no candidate does.** `spec-writer`'s, confirming chunk 11's
+  reading. The phrase then keeps the lock's order C7.6 already gives (locked bars, then the forced
+  bend), and the history holds a draw's record exactly when the phrase drew, which chunk 13's
+  census counts (D432). Rejected: a second draw or a new record value. Now in:
+  [Part C §C7.4](versions/v3/master-spec.md#c74-when-a-phrase-changes), [build plan v3.2, M2](versions/v3/build-plan-v3.2.md#m2--the-lock-census-forced-bends-and-rhythm-changes).
+
+- **D436 (2026-10-23): the rhythm change draw's hash stays as built; measurements draw from
+  seed-plan phrase seeds.** `spec-writer`'s, from chunk 11's finding. FNV-1a's kept top bits
+  barely move with a seed's last hex digit, so raw consecutive seeds draw in clumps; but every
+  seed a draw ever reads comes through the session seed plan (phrase 1 never draws), and those
+  spread: share 0.2474 at random session seeds, 0.2503 at the census's, over 20,000 sessions'
+  phrases 2–8. Rejected: a final mixing step (an architecture change that would move every draw
+  and the golden draws before the release, for synthetic seeds only). Now in:
+  [build plan v3.2, M2](versions/v3/build-plan-v3.2.md#m2--the-lock-census-forced-bends-and-rhythm-changes).

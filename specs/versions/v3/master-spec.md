@@ -86,8 +86,10 @@ Status: this file holds four parts.
   the search rhythm-major, a fresh Jam's played notes are timed from its count-in, and the
   kept-session data versions and their contract bump are stated (C7.6, C8, C10.3, C11, C13; spec
   D428–D430). v1.10 (2026-10-23): C4 words the distance bands as C8 does, and two questions on
-  reading the doodle are opened (C4, C5.9, C5.16.1, C17; spec D431, D433). Its sections are
-  numbered C1 to C18; what v1.1 to v1.10 change is listed at the top of
+  reading the doodle are opened (C4, C5.9, C5.16.1, C17; spec D431, D433). v1.11 (2026-10-23):
+  a drawn rhythm change none of whose candidates makes a phrase is "no change available" too, and
+  the history records every draw and only draws (C7.4; spec D435). Its sections are
+  numbered C1 to C18; what v1.1 to v1.11 change is listed at the top of
   Part C and marked in each section they touch.
 - **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.1
   (2026-10-12), consolidated from the v3.3 direction and the chord research; **awaiting the
@@ -2244,7 +2246,11 @@ Delete everything removes them. No preset leaves the device.
 
 ## Part C — v3.2
 
-Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.10 (2026-10-23)**: v1.9
+Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.11 (2026-10-23)**: v1.10
+with chunk 11's reading confirmed (C7.4; D435): a drawn rhythm change none of whose candidates makes
+a phrase keeps the lock's order and records "no change available", as a draw with no candidate
+does, so the session history records every draw and only draws. It adds no behaviour beyond
+stating what C7.6's order already gave. v1.10 (2026-10-23): v1.9
 with the build's chunk 3 findings (C4, C5.9, C5.16.1, C17; D431, D433): C4 words the distance bands
 as C8 states them; how a short silence between two doodle notes is read, and whether a legato
 doodle should read Heavily varied, are open (C17). It adds no behaviour. v1.9 (2026-10-23): v1.8
@@ -3452,6 +3458,9 @@ description tells the player that what it offers depends on the rhythm settings.
 
 ### C7.4 When a phrase changes
 
+_Changed in v1.11:_ a drawn change none of whose candidates makes a phrase is "no change
+available" too, and the history's record of a draw is stated (D435).
+
 - **At most one change per phrase**, never on phrase 1, nor on the phrase that re-locks after a
   narrow-window step-down (C7.1).
 - **A seeded share of phrases**: each phrase from phrase 2 on draws whether it changes, **1 in 4**
@@ -3466,8 +3475,14 @@ description tells the player that what it offers depends on the rhythm settings.
   rhythm, never from the previous phrase, so changes never add up.
   A candidate that also differs by a tie added or removed elsewhere is not exactly one change, so
   it is never drawn as one; bars are compared as written.
-- **No candidate, no change**: when no candidate exists for any allowed kind, the phrase keeps the
-  locked rhythm; nothing is shown, and the session history records it.
+- **No usable candidate, no change**: when no candidate exists for any allowed kind, or none of
+  them makes a phrase with any chord plan, the phrase keeps the lock's order (C7.6): the locked
+  bars, or a forced bend when they make no phrase either (C7.5). Nothing is shown; the session
+  history records "no change available", beside the forced bend when there is one.
+- **The history records every draw, and only draws**: a phrase that drew a change (phrase 2 on,
+  the lock holding bars, at least one kind allowed, and its seed under the share) records the kind
+  of the change it made, or "no change available"; a phrase that did not draw records neither. So
+  the share of phrases that drew can be counted from the history alone.
 - **A change is never shown**: nothing in the live view, the review or the exports marks it. The
   player reads the notes as written; v2 likewise never marks a repeated phrase or an automatic
   setting change.
