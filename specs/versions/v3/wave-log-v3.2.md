@@ -475,3 +475,14 @@ Correction 8 is `spec-writer`'s to settle; a change to the STABLE wording goes t
 chunk 30 (wave 6).
 
 ### Chunks
+- `spec-writer` (06e6fec): plan v15, master spec Part C v1.9. D427 the preflight's corrections
+  (chunk 16's re-lock request holds no allowed change; chunk 22's summary and body take data
+  version 4; new gate DR, the owner's doodle recordings, blocks chunk 28); D428 only locked bars
+  make the search rhythm-major, a steering block alone keeps v3.1's harmony-major walk (chunk 8's
+  capture says so); D429 gate CK also covers chunk 22 (P3–P5, P3b, P6, P7) under CONTRACT 10.0.0
+  and blocks its merge, the loophole is closed; D430 a fresh Jam's played notes are timed from its
+  count-in's first beat (played notes stay at data version 1; the body holds the doodle's first
+  barline and phrase 1's start on that clock). New open question O267 (where the export and the
+  review lane put a doodle note played just before the doodle's first barline; before chunk 23).
+  D430's STABLE wording (`entity_kept_session_record`, `module_kept_session_codec`) joins CK:
+  sent to `documentalist` to draft in part P. Next free IDs: D431, O268.
