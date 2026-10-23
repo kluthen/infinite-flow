@@ -1015,7 +1015,12 @@ Architecture capture: none (the term sits in `pitchRank`'s existing rank, never 
 
 ### Chunk 10 — The rhythm lock in the generator
 
-Status: planned
+Status: merged (w2, 6179f7f)
+Record: 6179f7f, merge bdd858c. Beyond the Files line: `generation-orchestrator.ts` builds the lock order
+once per request; `rhythm-bars.ts` takes `WrittenMeasure` (types only); the worker protocol accepts
+the provenance's `rhythmLockOutcome`; the lock order's tests sit in `tests/unit/domain/rhythm/`. No
+deviation from the spec or the design. The orderings' time is not yet reported to the sweep (sent to
+`spec-writer`).
 Wave: 2
 Depends on: 5, 6
 Architecture capture: the ordering seam and the rhythm-major search. In the rhythm stage a

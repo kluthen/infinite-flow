@@ -519,3 +519,16 @@ chunk 30 (wave 6).
   varied; recommendation: keep, ask at v3.2 H5 step 6, gate L1). LD opens as planned (H1's renders
   give the same starts under either answer to O268). O268 put to the owner (2026-10-23), due
   before wave 4's preflight. Next free IDs: D434, O270.
+- Chunk 10 merged (6179f7f, merge bdd858c): `src/domain/rhythm/rhythm-lock-order.ts`
+  (`makeRhythmLockOrder`, `walkRhythmLockOrder`, ranks: locked bars 1, forced bend 2 + distance,
+  rank 0 left for chunk 11's change); `orderRhythmByPreference` in `candidate-ranking.ts`;
+  `walkHarmonyMajor` / `walkRhythmMajor` in `window-search.ts` (rhythm-major only with locked
+  bars); `GenerationProvenance.rhythmLockOutcome`. Corpus guard 448/448, related 3,516 pass, static
+  checks pass. Forced-bend order 24–37 ms on the largest domain in Node (D424: about 27). Beyond
+  its Files: the orchestrator builds the order once per request; the worker protocol accepts the
+  new provenance key. For the sync: write the built names into `module_rhythm_lock_order`,
+  `module_ranked_candidate_ordering` and `service_generation_window_search`; drift-check
+  `module_generation_worker_protocol` (new provenance key). Sent to `spec-writer`: the orderings'
+  time is not reported to the sweep (`docs/generation-latency.md` says chunks 9–10 add it; no
+  chunk's Files or Done when carries it).
+- Chunk 11: dispatched to `coding-leader`, branch `v3.2-c11-rhythm-changes`.
