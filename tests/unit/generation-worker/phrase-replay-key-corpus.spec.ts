@@ -2,7 +2,7 @@
 /**
  * The `ifk1.` replay-key corpus: every key recorded on the code v2.0.0 shipped (the three built-in
  * instruments, Neutral and Jazz, a spread of controls, several seeds, standalone and carry-in
- * phrases, one carry-in with a null final harmony) still decodes, its `ifk3.` re-encoding decodes
+ * phrases, one carry-in with a null final harmony) still decodes, its `ifk4.` re-encoding decodes
  * to an equal intent and phrase number, and it still replays through the generation worker runtime
  * to the stored timeline, byte for byte. The fixture is read only: a timeline changed by hand, or a
  * generator change that alters any old key's phrase, turns this spec red.
@@ -68,14 +68,14 @@ describe('ifk1 replay-key corpus recorded on v2.0', () => {
   })
 
   // @test-link [[module_phrase_replay_key]]
-  it('decodes every key and its ifk3 re-encoding decodes to an equal intent', () => {
+  it('decodes every key and its ifk4 re-encoding decodes to an equal intent', () => {
     for (const corpusCase of CORPUS.cases) {
       const decoded = decodePhraseReplayKey(corpusCase.key)
       expect(decoded.keyVersion, corpusCase.label).toBe('ifk1')
       const reEncoded = encodePhraseReplayKey(decoded.intent, decoded.phraseNumber)
-      expect(reEncoded.startsWith('ifk3.'), corpusCase.label).toBe(true)
+      expect(reEncoded.startsWith('ifk4.'), corpusCase.label).toBe(true)
       const again = decodePhraseReplayKey(reEncoded)
-      expect(again.keyVersion, corpusCase.label).toBe('ifk3')
+      expect(again.keyVersion, corpusCase.label).toBe('ifk4')
       expect(again.phraseNumber, corpusCase.label).toBe(decoded.phraseNumber)
       expect(again.intent, corpusCase.label).toEqual(decoded.intent)
       expect(JSON.stringify(again.intent), corpusCase.label).toBe(JSON.stringify(decoded.intent))

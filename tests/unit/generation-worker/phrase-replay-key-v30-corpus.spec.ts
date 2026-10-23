@@ -3,7 +3,7 @@
  * The v3.0 replay-key corpus: every key recorded on the code v3.0.0 shipped (`ifk1.` keys for the
  * three built-in instruments, `ifk2.` keys for two my instruments of different ranges; Neutral and
  * Jazz, preset and custom, on every collection; a rotating spread of the other controls; standalone
- * and carry-in phrases, some receiving a null final harmony) still decodes, its `ifk3.` re-encoding
+ * and carry-in phrases, some receiving a null final harmony) still decodes, its `ifk4.` re-encoding
  * decodes to an equal intent and phrase number, and it still replays through the generation worker
  * runtime to the stored timeline, byte for byte. The decoded intents hold the profile's levels and
  * no profile, so the coverage reads each key's profile selection from its raw tuple. The fixture is
@@ -184,13 +184,13 @@ describe('v3.0 replay-key corpus (ifk1 and ifk2) recorded on v3.0.0', () => {
   })
 
   // @test-link [[module_phrase_replay_key]]
-  it('decodes every key and its ifk3 re-encoding decodes to an equal intent', () => {
+  it('decodes every key and its ifk4 re-encoding decodes to an equal intent', () => {
     for (const corpusCase of CORPUS.cases) {
       const decoded = decodePhraseReplayKey(corpusCase.key)
       const reEncoded = encodePhraseReplayKey(decoded.intent, decoded.phraseNumber)
-      expect(reEncoded.startsWith('ifk3.'), corpusCase.label).toBe(true)
+      expect(reEncoded.startsWith('ifk4.'), corpusCase.label).toBe(true)
       const again = decodePhraseReplayKey(reEncoded)
-      expect(again.keyVersion, corpusCase.label).toBe('ifk3')
+      expect(again.keyVersion, corpusCase.label).toBe('ifk4')
       expect(again.phraseNumber, corpusCase.label).toBe(decoded.phraseNumber)
       expect(again.intent, corpusCase.label).toEqual(decoded.intent)
       expect(JSON.stringify(again.intent), corpusCase.label).toBe(JSON.stringify(decoded.intent))

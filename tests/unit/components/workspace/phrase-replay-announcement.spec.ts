@@ -116,10 +116,10 @@ describe('session phrase replay-key announcement', () => {
     expect(forwarded[0]).toBe(outputs[0])
     expect(lines).toHaveLength(2)
     expect(lines[0]).toMatch(
-      /^\[Infinite Flow\] phrase replay key · session phrase 2 \(carry-in\) · seed1-00000016 · ifk3\./u,
+      /^\[Infinite Flow\] phrase replay key · session phrase 2 \(carry-in\) · seed1-00000016 · ifk4\./u,
     )
     expect(lines[1]).toMatch(
-      /^\[Infinite Flow\] phrase replay key · session phrase 4 \(standalone\) · seed1-00000017 · ifk3\./u,
+      /^\[Infinite Flow\] phrase replay key · session phrase 4 \(standalone\) · seed1-00000017 · ifk4\./u,
     )
     const decoded = decodePhraseReplayKey(lines[0]!.split(' · ').at(-1)!)
     expect(decoded.intent).toEqual(CARRY_IN_INTENT)

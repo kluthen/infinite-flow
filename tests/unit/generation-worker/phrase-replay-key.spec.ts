@@ -31,7 +31,7 @@ import {
   generateSuccess,
   keyChangeIntent,
 } from '../domain/generation/carry-in/carry-in-fixture'
-import { SAMPLE_RHYTHM_LOCK, SAMPLE_STEERING } from '../domain/generation/request-inputs-fixture'
+import { SAMPLE_STEERING } from '../domain/generation/request-inputs-fixture'
 
 /** Intent: a real intent for phrase 2 of a session, carrying phrase 1's carry-in. */
 function carryInIntent(): GenerationIntent {
@@ -107,17 +107,20 @@ function tupleWithControl(key: string, value: unknown): unknown[] {
   return tuple
 }
 
-/** Intent: the valid `ifk3.` 7-tuple the encoder writes for a plain built-in intent. */
+/**
+ * Intent: the valid `ifk3.` 7-tuple of a plain built-in intent: the first seven entries of the
+ * `ifk4.` 9-tuple the encoder writes, which keep the `ifk3.` order and meaning.
+ */
 function validIfk3Tuple(): unknown[] {
-  return payloadOf(encodePhraseReplayKey(buildIntent({ seed: 5, label: 'tuple' }), 1))
+  return payloadOf(encodePhraseReplayKey(buildIntent({ seed: 5, label: 'tuple' }), 1)).slice(0, 7)
 }
 
-/** Intent: assert encode→decode yields an `ifk3` key and the original intent and number exactly. */
+/** Intent: assert encode→decode yields an `ifk4` key and the original intent and number exactly. */
 function expectRoundTrip(intent: GenerationIntent, phraseNumber: number): void {
   const key = encodePhraseReplayKey(intent, phraseNumber)
-  expect(key.startsWith('ifk3.')).toBe(true)
+  expect(key.startsWith('ifk4.')).toBe(true)
   const decoded = decodePhraseReplayKey(key)
-  expect(decoded.keyVersion).toBe('ifk3')
+  expect(decoded.keyVersion).toBe('ifk4')
   expect(decoded.phraseNumber).toBe(phraseNumber)
   expect(decoded.intent).toEqual(intent)
   expect(JSON.stringify(decoded.intent)).toBe(JSON.stringify(intent))
@@ -213,7 +216,7 @@ describe('phrase replay key with a carry-in whose harmony was dropped', () => {
   it('rejects an ifk1 or ifk3 key whose carry-in has no harmony field at all', () => {
     const intent = keyChangeIntent(12, 'replay')
     const ifk1 = tupleOf(intent, 2)
-    const ifk3 = payloadOf(encodePhraseReplayKey(intent, 2))
+    const ifk3 = payloadOf(encodePhraseReplayKey(intent, 2)).slice(0, 7)
     for (const [tuple, slot, encode] of [
       [ifk1, 6, rawKey],
       [ifk3, 5, rawIfk3Key],
@@ -234,7 +237,7 @@ describe('phrase replay key with a carry-in whose harmony was dropped', () => {
     expect(JSON.stringify(decoded.intent)).toBe(JSON.stringify(intent))
     expect(decoded.intent.carryIn?.finalHarmony?.triad.degree).toBe(5)
     const reEncoded = decodePhraseReplayKey(encodePhraseReplayKey(decoded.intent, 2))
-    expect(reEncoded.keyVersion).toBe('ifk3')
+    expect(reEncoded.keyVersion).toBe('ifk4')
     expect(reEncoded.intent).toEqual(intent)
   })
 
@@ -251,10 +254,10 @@ describe('phrase replay key with a carry-in whose harmony was dropped', () => {
 
 // @test-link [[module_phrase_replay_key]]
 describe('phrase replay key format', () => {
-  it('is one line of the ifk3 prefix and unpadded base64url', () => {
+  it('is one line of the ifk4 prefix and unpadded base64url', () => {
     const key = encodePhraseReplayKey(carryInIntent(), 2)
-    expect(key.startsWith('ifk3.')).toBe(true)
-    expect(key).toMatch(/^ifk3\.[A-Za-z0-9_-]+$/u)
+    expect(key.startsWith('ifk4.')).toBe(true)
+    expect(key).toMatch(/^ifk4\.[A-Za-z0-9_-]+$/u)
     expect(key.split('\n')).toHaveLength(1)
   })
 
@@ -293,10 +296,10 @@ describe('phrase replay key decoding rejects malformed keys', () => {
   })
 
   it('rejects an unsupported key version by name', () => {
-    for (const version of ['ifk0', 'ifk4', 'ifk12']) {
+    for (const version of ['ifk0', 'ifk5', 'ifk9', 'ifk12']) {
       const key = rawIfk3Key(validIfk3Tuple()).replace(/^ifk3\./u, `${version}.`)
       expect(() => decodePhraseReplayKey(key)).toThrow(
-        new RegExp(`unsupported key version "${version}"; only "ifk1", "ifk2" and "ifk3"`, 'u'),
+        `Phrase replay key has unsupported key version "${version}"; only "ifk1", "ifk2", "ifk3" and "ifk4" are supported.`,
       )
       expect(() => decodePhraseReplayKey(key)).toThrow(PhraseReplayKeyError)
     }
@@ -402,7 +405,7 @@ describe('phrase replay key decoding rejects malformed keys', () => {
       expect(() => decodePhraseReplayKey(rawKey(tupleOf(intent, phraseNumber)))).toThrow(
         /plus one/u,
       )
-    const ifk3 = payloadOf(encodePhraseReplayKey(intent, 2))
+    const ifk3 = payloadOf(encodePhraseReplayKey(intent, 2)).slice(0, 7)
     for (const phraseNumber of [1, 3]) {
       ifk3[4] = phraseNumber
       expect(() => decodePhraseReplayKey(rawIfk3Key(ifk3))).toThrow(/plus one/u)
@@ -434,15 +437,21 @@ describe('phrase replay key console line', () => {
     )
   })
 
-  it('accepts an ifk3 key and refuses a key that is not one well-formed ifk1-ifk3 key', () => {
+  it('accepts an ifk3 or ifk4 key and refuses a key that is not one well-formed ifk1-ifk4 key', () => {
     const ifk3 = rawIfk3Key(validIfk3Tuple())
-    expect(phraseReplayKeyLine(ifk3, { source: 'workspace' }, seed)).toBe(
-      `[Infinite Flow] phrase replay key · workspace phrase · seed1-0000002a · ${ifk3}`,
-    )
-    for (const bad of [`${key}\nmore`, ifk3.replace(/^ifk3\./u, 'ifk4.')])
+    const ifk4 = encodePhraseReplayKey(buildIntent({ seed: 5, label: 'tuple' }), 1)
+    for (const accepted of [ifk3, ifk4])
+      expect(phraseReplayKeyLine(accepted, { source: 'workspace' }, seed)).toBe(
+        `[Infinite Flow] phrase replay key · workspace phrase · seed1-0000002a · ${accepted}`,
+      )
+    for (const bad of [`${key}\nmore`, ifk4.replace(/^ifk4\./u, 'ifk5.')]) {
       expect(() => phraseReplayKeyLine(bad, { source: 'workspace' }, seed)).toThrow(
         PhraseReplayKeyError,
       )
+      expect(() => phraseReplayKeyLine(bad, { source: 'workspace' }, seed)).toThrow(
+        'Phrase replay key line needs a well-formed "ifk1.", "ifk2.", "ifk3." or "ifk4." key.',
+      )
+    }
   })
 
   it('announces a workspace phrase once as phrase 1', () => {
@@ -479,7 +488,7 @@ describe('phrase replay key console line', () => {
     )
     expect(log).toHaveBeenCalledTimes(1)
     expect(log.mock.calls[0]![0]).toContain(
-      '· session phrase 6 (standalone) · seed1-0000000d · ifk3.',
+      '· session phrase 6 (standalone) · seed1-0000000d · ifk4.',
     )
   })
 
@@ -503,28 +512,6 @@ describe('phrase replay key console line', () => {
       PhraseReplayKeyError,
     )
     expect(log).not.toHaveBeenCalled()
-  })
-})
-
-// @test-link [[module_phrase_replay_key]]
-describe('phrase replay key encoder refuses what an ifk3. key cannot carry', () => {
-  // @test-link [[module_phrase_replay_key]]
-  it('refuses an intent holding the rhythm lock group, before any other check', () => {
-    const intent: GenerationIntent = {
-      ...buildIntent({ seed: 13, label: 'replay-lock' }),
-      rhythmLock: SAMPLE_RHYTHM_LOCK,
-    }
-
-    expect(() => encodePhraseReplayKey(intent, 1)).toThrow(PhraseReplayKeyError)
-    expect(() => encodePhraseReplayKey(intent, 0)).toThrow(/ifk3\. key cannot carry.*rhythmLock/u)
-  })
-
-  // @test-link [[module_phrase_replay_key]]
-  it('refuses an intent holding the steering block, before any other check', () => {
-    const intent: GenerationIntent = { ...carryInIntent(), steering: SAMPLE_STEERING }
-
-    expect(() => encodePhraseReplayKey(intent, 2)).toThrow(PhraseReplayKeyError)
-    expect(() => encodePhraseReplayKey(intent, 7)).toThrow(/ifk3\. key cannot carry.*steering/u)
   })
 })
 
@@ -552,21 +539,6 @@ function noPhraseIntent(): GenerationIntent {
 // @test-link [[module_phrase_replay_key]]
 // @test-link [[rule_jam_phrase_one_joins_doodle]]
 describe('phrase replay key and a carry-in from no phrase', () => {
-  it('the encoder refuses it before any other check, naming it', () => {
-    const withSteering = noPhraseIntent()
-    const withoutSteering: GenerationIntent = {
-      ...buildIntent({ seed: 14, label: 'replay-doodle' }),
-      carryIn: NO_PHRASE_CARRY_IN,
-    }
-
-    for (const intent of [withSteering, withoutSteering]) {
-      expect(() => encodePhraseReplayKey(intent, 1)).toThrow(PhraseReplayKeyError)
-      expect(() => encodePhraseReplayKey(intent, 0)).toThrow(
-        /ifk3\. key cannot carry a carry-in from no phrase/u,
-      )
-    }
-  })
-
   it('takes phrase number 1, the phrase the doodle joins, and refuses any other', () => {
     const intent = noPhraseIntent()
 
