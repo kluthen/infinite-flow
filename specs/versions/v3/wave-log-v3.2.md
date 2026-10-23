@@ -493,3 +493,21 @@ chunk 30 (wave 6).
 - Gate CK cleared by the owner (2026-10-23): "i approve it all". That confirms change set part P as
   drafted: P1–P5 (with P3b and D430's clock), P6, P7 and P8 (CONTRACT 9.0.0 → 10.0.0), applied at
   wave 2's sync. Chunks 12 and 22 may merge into `v3.2-w2` once built.
+- `documentalist` recorded the owner's CK confirmation in part P (c2eb69c); applied at the sync.
+- Chunk 3: dispatched to `coding-leader`, branch `v3.2-c3-measurement-tools`.
+- Chunk 3 merged (e70a845, merge 97952f9): 12 hand-written doodles in `tests/fixtures/doodles/`
+  with traits, checked against `quantizeDoodle`; `scripts/import-doodle-recording.mjs` for the
+  owner's recordings (procedure in `docs/testing.md`); `measure:jam` (M1, M5), `measure:lock` (M2),
+  `render:rhythms` (32 MIDI files for v3.2 H1 and H2, checked by parsing: no synth on the machine);
+  v3.2 H1 written in `HARDWARE-CHECKLIST.md`. Baselines (Ryzen 5 PRO 8640HS, not a VM,
+  2026-10-23, desktop open, load 1.2–2.2) in `docs/generation-latency.md`: M1 phrase 1 from rung 3
+  in 100 % of Jams, no repeat or shortfall, slowest standalone a cold phrase 1 at 180 BPM charged
+  1.020 s of the 1.075 s reserve; M5 matches v3.1; M2 Pop song's per-kind availability agrees with
+  D424 (any of the five 83 %). `test:sweep` now also runs the Jam sweep and the census specs.
+  Findings sent to `spec-writer`: 1 detached doodles (a note released before the next starts) leave
+  sixteenth rest starts no grammar rhythm writes, so 4 of the 6 listening doodles sit "beyond" every
+  domain measure (drift, the steering block, gate LD); 2 C5.16.1's rhythmic-variety rule reads most
+  legato doodles as Heavily varied (chunk 28, H5); 3 the lexicon's Drift entry says Near is "on or
+  next to beat 1 or 3", C8 says "touching tick 0 or 8"; 4 the census cannot tell a forced bend that
+  lands one allowed change away from a change without the session history (chunk 13).
+- Chunk 10: dispatched to `coding-leader`, branch `v3.2-c10-rhythm-lock`.

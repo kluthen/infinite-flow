@@ -670,7 +670,10 @@ Architecture capture: none
 
 ### Chunk 3 — Measurement tools: the doodle set, the sweeps, the lock census and the renders
 
-Status: planned
+Status: merged (w2, e70a845)
+Record: e70a845, merge 97952f9. The doodle set is hand-written (driver's ruling; the owner's Travel Sax
+recordings come in through `scripts/import-doodle-recording.mjs`, gate DR); runners are `*.measure.ts`
+files with helpers split to keep under the size limit; four findings sent to `spec-writer` (wave log, wave 2).
 Wave: 2
 Depends on: 2, 4 (the doodle type), 5 (the bar key)
 Architecture capture: none
