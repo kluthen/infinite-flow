@@ -576,3 +576,36 @@ chunk 30 (wave 6).
   `encodePhraseReplayKey` and `decodePhraseReplayKey`; `service_headless_phrase_replay` prints the
   two groups.
 - Chunk 22: dispatched to `coding-leader`, branch `v3.2-c22-kept-session-shape`.
+- Chunk 22 paused (2026-10-23): its owner stopped on the account's usage limit, mid-22a. Its
+  worktree `/home/bastien/work/infinite_flow-v3.2-c22` (branch `v3.2-c22-kept-session-shape`) is
+  kept, with WIP commits fe37f45 (kept intent and body at data version 4, step 4; new
+  `kept-intent-parsers.ts`, `kept-sessions-v4.ts`, `rewrite-each.ts`), 51b3fe9 (the migration
+  steps now run after the work of the step before, in `database.ts`; tests adapted), 68f2226
+  (codec, agreement and step-sequencing tests), 92535f2 (step 4 specs, code-health fixes) and
+  e7e0cf4 (the driver's safety commit of two uncommitted edits, `kept-sessions-v2.ts` and
+  `kept-session-record.ts`, unchecked). No report was made: the state of the checks is unknown, 22b
+  (summary, reading envelope, played-notes clock) is not started, M3 is not run.
+
+### To resume (for the next session's driver)
+
+1. Read this entry and the model; nothing else of the wave needs re-reading.
+2. Start a fresh `coding-leader` on chunk 22 with the same brief as before (the chunk's section,
+   gate CK cleared, P3–P5 with P3b and D430's clock, the split 22a then 22b, M3, the git-care note:
+   squash onto `git merge-base HEAD v3.2-w2`, never `reset --soft v3.2-w2`), plus: "Resume from
+   WIP e7e0cf4 on `v3.2-c22-kept-session-shape` in its existing worktree; first run the checks and
+   find where 22a stands. 51b3fe9 changed the order in which the migration steps run in
+   `database.ts`; say whether that is within the capture (`module_kept_session_jam_upgrade_step`,
+   `module_on_device_database`) or an uncaptured architectural decision, and stop and report if
+   it is the latter."
+3. Then the wave gate on `v3.2-w2`, on an idle machine: `npm run quality`, `npm run test:sweep`,
+   the entry chunk's size against wave 1's 265,436 B.
+4. Then the wave sync by `documentalist`: apply part P (P1–P8 with P3b and the clock; CONTRACT
+   9.0.0 → 10.0.0, quoting the owner's "i approve it all", 2026-10-23), the built names each chunk
+   entry above lists, the optional note on raw-seed clustering in `module_rhythm_change_draw`.
+5. Report to the owner and ask for the merge into `main`.
+
+Open with the owner: gate DS (O268, how a short silence between doodle notes is read; asked
+2026-10-23, needed before wave 4's preflight) and gate DR (the owner's Travel Sax doodle
+recordings, made with `scripts/import-doodle-recording.mjs` as `docs/testing.md` says, before
+chunk 28). Gate LD opens once wave 2 is merged (v3.2 H1; the renders come from `npm run
+render:rhythms`).
