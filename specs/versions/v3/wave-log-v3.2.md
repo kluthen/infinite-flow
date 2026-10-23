@@ -539,3 +539,20 @@ chunk 30 (wave 6).
   `orderingSeconds`. Chunk 13 gains a capture (for wave 3's preflight) and a split rule (13a, 13b);
   chunk 8 builds its steering rank inside the timed span; chunk 29's Files add
   `tests/sweep/jam-sweep-ladder.ts`. Next free IDs: D435, O270.
+- Chunk 11 merged (d37cd69, merge fa96819): `src/domain/rhythm/rhythm-change-draw.ts` (hash
+  `fnv1a32('infinite-flow/rhythm-change/v1|' + encodeSeed(seed))`, top 16 bits under 16,384 or
+  32,768; each domain grouped once in a WeakMap); the drawn candidates take rank 0 (tier
+  `rhythm_change`) in the lock order; provenance `rhythmChange?: kind | 'no_change_available'`,
+  validated by the worker protocol. Shares over 8,000 phrase seeds within ±0.02 of 1/4 and 1/2;
+  D424's Strict/Straight/Sixteenth case holds; no floating point; golden draws. Corpus guard
+  448/448, related 3,484 pass, static checks pass. Cost on the largest domain: about 17.5 ms cold
+  once, 0.28 ms per phrase. Sent to `spec-writer`: (a) the reading that a drawn change whose
+  candidates all fail to make a phrase records `no_change_available` and keeps the lock's order
+  (the spec names only "no candidate"; it keeps "a draw happened exactly when the record is
+  present" for D432's census); (b) FNV-1a's top bits cluster on raw consecutive seeds (seeds 0–7
+  never draw), while real phrase seeds from the seed plan spread well (0.2475 and 0.490 over
+  20,000); a final mixing step would be an architecture change. For the sync: the built names in
+  `module_rhythm_change_draw`; `module_named_stream_pseudorandomness` (a hash tie key, not a
+  stream). `move_rest` is covered at the draw level only.
+- Chunk 12: dispatched to `coding-leader`, branch `v3.2-c12-replay-key` (gate CK cleared, so it
+  merges into the wave branch once built).

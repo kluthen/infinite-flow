@@ -1079,7 +1079,11 @@ build on the seam.
 
 ### Chunk 11 — Allowed rhythm changes in the generator
 
-Status: planned
+Status: merged (w2, d37cd69)
+Record: d37cd69, merge fa96819. Beyond the Files line: the orchestrator draws once per request,
+the provenance's `rhythmChange` (window search, worker protocol), `rhythm-change-kinds.ts` widened
+for types only. One reading sent to `spec-writer`: a drawn change whose candidates all fail to make
+a phrase also records "no change available". Domain grouping about 17.5 ms cold (plan: about 13).
 Wave: 2
 Depends on: 10
 Architecture capture: the rhythm-change draw, `src/domain/rhythm/rhythm-change-draw.ts`: `fnv1a32`
