@@ -1,0 +1,61 @@
+{
+  "name": "wandering-gaps-low-ending",
+  "source": "hand-written",
+  "description": "A wandering line with very uneven gaps and leaps, a pickup played in the count-in, ending on a low A below the keyboard profile.",
+  "traits": {
+    "measureCount": 4,
+    "noteCount": 12,
+    "density": "moderate",
+    "leaping": true,
+    "oneNote": false,
+    "chord": false,
+    "graceNote": false,
+    "strayNote": false,
+    "lastNote": "outside-range",
+    "aimedAt": {
+      "noteDensity": "Sixteenth",
+      "rhythmicVariety": "Heavily varied",
+      "syncopation": "Active displacement",
+      "silenceDensity": "Conversational"
+    },
+    "listeningMeasure": false,
+    "notes": "The pickup B snaps two ticks before the grid origin: it belongs to the count-in and is dropped. The D at tick 3 is released after tick 4.5, so it snaps to tick 5 and the E starting at tick 4 ends it. The last note, A2 (45), lies below the range 48-72: no join."
+  },
+  "capture": {
+    "gridOriginAt": 30.09,
+    "tempoBpm": 120,
+    "endMeasure": 4,
+    "notes": [
+      { "onsetAt": 29.852, "releaseAt": 30.04, "pitch": 59 },
+      { "onsetAt": 30.109, "releaseAt": 30.477, "pitch": 60 },
+      { "onsetAt": 30.44, "releaseAt": 30.665, "pitch": 62 },
+      { "onsetAt": 30.596, "releaseAt": 31.302, "pitch": 64 },
+      { "onsetAt": 31.703, "releaseAt": 31.99, "pitch": 59 },
+      { "onsetAt": 32.115, "releaseAt": 32.227, "pitch": 57 },
+      { "onsetAt": 32.196, "releaseAt": 33.078, "pitch": 55 },
+      { "onsetAt": 33.502, "releaseAt": 33.74, "pitch": 62 },
+      { "onsetAt": 33.727, "releaseAt": 34.315, "pitch": 67 },
+      { "onsetAt": 34.434, "releaseAt": 35.234, "pitch": 60 },
+      { "onsetAt": 35.602, "releaseAt": 36.046, "pitch": 52 },
+      { "onsetAt": 36.334, "releaseAt": 36.74, "pitch": 57 },
+      { "onsetAt": 37.115, "releaseAt": 37.871, "pitch": 45 }
+    ]
+  },
+  "quantized": {
+    "measureCount": 4,
+    "notes": [
+      { "startTick": 0, "lengthTicks": 3, "pitch": 60 },
+      { "startTick": 3, "lengthTicks": 1, "pitch": 62 },
+      { "startTick": 4, "lengthTicks": 6, "pitch": 64 },
+      { "startTick": 13, "lengthTicks": 2, "pitch": 59 },
+      { "startTick": 16, "lengthTicks": 1, "pitch": 57 },
+      { "startTick": 17, "lengthTicks": 7, "pitch": 55 },
+      { "startTick": 27, "lengthTicks": 2, "pitch": 62 },
+      { "startTick": 29, "lengthTicks": 5, "pitch": 67 },
+      { "startTick": 35, "lengthTicks": 6, "pitch": 60 },
+      { "startTick": 44, "lengthTicks": 4, "pitch": 52 },
+      { "startTick": 50, "lengthTicks": 3, "pitch": 57 },
+      { "startTick": 56, "lengthTicks": 6, "pitch": 45 }
+    ]
+  }
+}

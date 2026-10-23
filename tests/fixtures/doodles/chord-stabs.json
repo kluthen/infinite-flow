@@ -1,0 +1,50 @@
+{
+  "name": "chord-stabs",
+  "source": "hand-written",
+  "description": "Two chords struck together, each followed by melody notes, which the quantizer reduces to one line.",
+  "traits": {
+    "measureCount": 2,
+    "noteCount": 5,
+    "density": "moderate",
+    "leaping": false,
+    "oneNote": false,
+    "chord": true,
+    "graceNote": false,
+    "strayNote": false,
+    "lastNote": "inside-windows",
+    "aimedAt": {
+      "noteDensity": "Quarter",
+      "rhythmicVariety": "Heavily varied",
+      "syncopation": "Straight",
+      "silenceDensity": "Sparse"
+    },
+    "listeningMeasure": false,
+    "notes": "First chord C-E-G: three equal lengths, the highest (67) stays, then the A starting at tick 8 ends it. Second chord D-F-B flat: D and F tie as the longest, the higher (65) stays."
+  },
+  "capture": {
+    "gridOriginAt": 6.3,
+    "tempoBpm": 150,
+    "endMeasure": 2,
+    "notes": [
+      { "onsetAt": 6.29, "releaseAt": 7.51, "pitch": 60 },
+      { "onsetAt": 6.305, "releaseAt": 7.48, "pitch": 64 },
+      { "onsetAt": 6.32, "releaseAt": 7.48, "pitch": 67 },
+      { "onsetAt": 7.11, "releaseAt": 7.49, "pitch": 69 },
+      { "onsetAt": 7.52, "releaseAt": 7.87, "pitch": 67 },
+      { "onsetAt": 7.91, "releaseAt": 8.72, "pitch": 62 },
+      { "onsetAt": 7.885, "releaseAt": 8.69, "pitch": 65 },
+      { "onsetAt": 7.925, "releaseAt": 8.51, "pitch": 70 },
+      { "onsetAt": 8.73, "releaseAt": 9.28, "pitch": 64 }
+    ]
+  },
+  "quantized": {
+    "measureCount": 2,
+    "notes": [
+      { "startTick": 0, "lengthTicks": 8, "pitch": 67 },
+      { "startTick": 8, "lengthTicks": 4, "pitch": 69 },
+      { "startTick": 12, "lengthTicks": 4, "pitch": 67 },
+      { "startTick": 16, "lengthTicks": 8, "pitch": 65 },
+      { "startTick": 24, "lengthTicks": 6, "pitch": 64 }
+    ]
+  }
+}

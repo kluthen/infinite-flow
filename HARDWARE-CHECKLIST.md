@@ -674,3 +674,41 @@ address you can lose: the first step may clear it.
 
 **Result (2026-10-21):** waived, not run (spec D399). v3.0 had no live users, so its data is not
 carried over by hand; the upgrade code and its automated tests stay.
+
+---
+
+# v3.2 hand checks
+
+Build plan [Hand checks](specs/versions/v3/build-plan-v3.2.md#hand-checks): each check is written
+here by the chunk that needs it. This part holds H1; H2 to H8 are added by their chunks, and H9 is
+waived (spec D417).
+
+## v3.2 H1. Drift's scale by ear (chunk 3; gate LD; about 8 min)
+
+The reference machine, no Chrome and no controller: a MIDI player with a General MIDI sound set
+plays the files, for example VLC with a soundfont installed, or MuseScore (it opens MIDI files).
+Jam's **Drift** setting decides how far a Jam's rhythms may stray from your doodle, measure by
+measure. It rests on a scale of rhythm distance between two measures, counted in edits (one note
+or rest start added, removed, moved by at most an eighth note, or a note turned into a rest or
+back): **Same** is the same rhythm; **Close** is one edit, away from beats 1 and 3; **Near** is one
+edit on beat 1 or 3, or two Close edits; **beyond** is anything more. This check says whether your
+ear agrees with that scale. Run it after wave 2, before wave 4.
+
+- [ ] In the repository, run `npm run render:rhythms` (about ten seconds). It writes the folder
+      `rhythm-renders/`; its `README.md` says what is inside. Do not open
+      `rhythm-renders/h1-drift/ANSWERS.md` yet.
+- [ ] Open `rhythm-renders/h1-drift/`: five sets, each one measure of a different doodle,
+      `set-1-chord-stabs-m1` to `set-5-stray-notes-m1` (`m1` is the doodle's measure 1). Every file
+      starts with one measure of four clicks (the count-in), and a soft click marks every beat.
+- [ ] For each set, play `doodle.mid` (the doodle measure) once or twice. Then play each
+      lettered file (`A.mid`, `B.mid`...): the doodle measure, one silent measure, then a candidate
+      measure. The candidate reuses the doodle's pitches, so listen to the rhythm only: when the
+      notes start, how long they last, where the silences fall.
+- [ ] Rank each set's letters from most to least like the doodle and write the ranking down (for
+      example `set 1: C D B A`). Each set holds four letters; one holding fewer means no real rhythm
+      lay at some distance (`ANSWERS.md` says which).
+- [ ] Only now open `ANSWERS.md`. Write each letter's band (Same, Close, Near, beyond) beside your
+      rankings. Say whether Close sounds closer than Near in most sets (does your ranking put the
+      Close letter before the Near letter?).
+- [ ] Report the five rankings and that answer. Pass on your word; a set whose ranking disagrees
+      with the scale (Same, then Close, then Near, then beyond) goes to `spec-writer`.

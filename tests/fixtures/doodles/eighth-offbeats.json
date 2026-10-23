@@ -1,0 +1,54 @@
+{
+  "name": "eighth-offbeats",
+  "source": "hand-written",
+  "description": "An eighth-note tune whose first measure pushes two notes across the beat (short, long, short), then settles.",
+  "traits": {
+    "measureCount": 2,
+    "noteCount": 9,
+    "density": "moderate",
+    "leaping": false,
+    "oneNote": false,
+    "chord": false,
+    "graceNote": false,
+    "strayNote": false,
+    "lastNote": "inside-windows",
+    "aimedAt": {
+      "noteDensity": "Eighth",
+      "rhythmicVariety": "Heavily varied",
+      "syncopation": "Occasional offbeats",
+      "silenceDensity": "Conversational"
+    },
+    "listeningMeasure": true,
+    "notes": "Listening rhythm: eighth, quarter, eighth, quarter, quarter (two notes held across the beat). The fourth note is released after the fifth starts and is cut by it."
+  },
+  "capture": {
+    "gridOriginAt": 12.48,
+    "tempoBpm": 90,
+    "endMeasure": 2,
+    "notes": [
+      { "onsetAt": 12.497, "releaseAt": 12.847, "pitch": 67 },
+      { "onsetAt": 12.788, "releaseAt": 13.53, "pitch": 69 },
+      { "onsetAt": 13.447, "releaseAt": 13.797, "pitch": 71 },
+      { "onsetAt": 13.855, "releaseAt": 14.58, "pitch": 72 },
+      { "onsetAt": 14.53, "releaseAt": 14.997, "pitch": 69 },
+      { "onsetAt": 15.13, "releaseAt": 15.838, "pitch": 67 },
+      { "onsetAt": 15.847, "releaseAt": 16.113, "pitch": 64 },
+      { "onsetAt": 16.155, "releaseAt": 16.538, "pitch": 65 },
+      { "onsetAt": 16.472, "releaseAt": 17.013, "pitch": 67 }
+    ]
+  },
+  "quantized": {
+    "measureCount": 2,
+    "notes": [
+      { "startTick": 0, "lengthTicks": 2, "pitch": 67 },
+      { "startTick": 2, "lengthTicks": 4, "pitch": 69 },
+      { "startTick": 6, "lengthTicks": 2, "pitch": 71 },
+      { "startTick": 8, "lengthTicks": 4, "pitch": 72 },
+      { "startTick": 12, "lengthTicks": 3, "pitch": 69 },
+      { "startTick": 16, "lengthTicks": 4, "pitch": 67 },
+      { "startTick": 20, "lengthTicks": 2, "pitch": 64 },
+      { "startTick": 22, "lengthTicks": 2, "pitch": 65 },
+      { "startTick": 24, "lengthTicks": 3, "pitch": 67 }
+    ]
+  }
+}

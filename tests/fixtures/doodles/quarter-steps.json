@@ -1,0 +1,44 @@
+{
+  "name": "quarter-steps",
+  "source": "hand-written",
+  "description": "Four detached quarter notes stepping up from middle C, the first played a little early, onto the first beat.",
+  "traits": {
+    "measureCount": 1,
+    "noteCount": 4,
+    "density": "moderate",
+    "leaping": false,
+    "oneNote": false,
+    "chord": false,
+    "graceNote": false,
+    "strayNote": false,
+    "lastNote": "inside-windows",
+    "aimedAt": {
+      "noteDensity": "Quarter",
+      "rhythmicVariety": "Strict",
+      "syncopation": "Straight",
+      "silenceDensity": "Sparse"
+    },
+    "listeningMeasure": true,
+    "notes": "Listening rhythm: four quarter notes. The first onset falls before the grid origin and still snaps onto tick 0."
+  },
+  "capture": {
+    "gridOriginAt": 3.217,
+    "tempoBpm": 120,
+    "endMeasure": 1,
+    "notes": [
+      { "onsetAt": 3.192, "releaseAt": 3.755, "pitch": 60 },
+      { "onsetAt": 3.736, "releaseAt": 4.205, "pitch": 62 },
+      { "onsetAt": 4.186, "releaseAt": 4.742, "pitch": 64 },
+      { "onsetAt": 4.723, "releaseAt": 5.054, "pitch": 65 }
+    ]
+  },
+  "quantized": {
+    "measureCount": 1,
+    "notes": [
+      { "startTick": 0, "lengthTicks": 4, "pitch": 60 },
+      { "startTick": 4, "lengthTicks": 4, "pitch": 62 },
+      { "startTick": 8, "lengthTicks": 4, "pitch": 64 },
+      { "startTick": 12, "lengthTicks": 3, "pitch": 65 }
+    ]
+  }
+}

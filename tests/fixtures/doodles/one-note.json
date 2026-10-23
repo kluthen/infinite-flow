@@ -1,0 +1,34 @@
+{
+  "name": "one-note",
+  "source": "hand-written",
+  "description": "A single held note starting on beat 2.",
+  "traits": {
+    "measureCount": 1,
+    "noteCount": 1,
+    "density": "sparse",
+    "leaping": false,
+    "oneNote": true,
+    "chord": false,
+    "graceNote": false,
+    "strayNote": false,
+    "lastNote": "inside-windows",
+    "aimedAt": {
+      "noteDensity": null,
+      "rhythmicVariety": null,
+      "syncopation": null,
+      "silenceDensity": null
+    },
+    "listeningMeasure": false,
+    "notes": "A doodle of one note shows only its register; the rhythm controls are not shown (n < 2)."
+  },
+  "capture": {
+    "gridOriginAt": 4.4,
+    "tempoBpm": 180,
+    "endMeasure": 1,
+    "notes": [{ "onsetAt": 4.758, "releaseAt": 5.217, "pitch": 64 }]
+  },
+  "quantized": {
+    "measureCount": 1,
+    "notes": [{ "startTick": 4, "lengthTicks": 6, "pitch": 64 }]
+  }
+}
