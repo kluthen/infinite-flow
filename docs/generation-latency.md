@@ -812,7 +812,8 @@ outputs byte for byte). The run took 189 s.
 - **Rungs.** With no steering block and no join, every phrase 1 comes from rung 3; the join and the
   block rungs read 0 % until chunks 18 and 29. No Jam missed its deadline or needed an extended wait.
 - **Orderings.** Their share of attempt time is not measured yet: v3.1's generator orders nothing
-  (`orderingsShare` is `null`); chunks 9–10 add the orderings and the ladder double reports them.
+  (`orderingsShare` is `null`). Chunks 10 and 11 add the lock's orderings, chunk 8 the steering
+  order; chunk 13 has the generator's diagnostics report their time and the sweeps read it.
 - **Standalone reserve.** No standalone attempt went past the 1.075 s reserve. The slowest, a cold
   phrase 1 at 180 BPM, was charged 1.020 s: a cold domain leaves little margin, which is what
   C5.8 accepts (D410). The slowest attempt overall, 1.633 s, is a carry-in attempt (every standalone one

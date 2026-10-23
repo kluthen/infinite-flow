@@ -928,3 +928,9 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   Neither touches drift's scale: H1's five doodle measures read the same under either answer. Now
   in: [build plan v3.2, gates DS and LD](versions/v3/build-plan-v3.2.md#gates),
   [v3.2 H5](versions/v3/build-plan-v3.2.md#v32-h5--jam-listening-the-doodle-to-controls-mapping-l1).
+
+- **D434 (2026-10-23): the rhythm orderings' time reaches the sweeps through the diagnostics,
+  under a clock only the sweeps pass.** `spec-writer`'s, from chunk 10's finding (no chunk carried
+  it). Not the provenance, which replay and the corpora compare; and the outcome stays deep-equal
+  for the same intent and seed when no clock is passed. Chunk 13 builds it, chunk 8's rank falls
+  inside it. No behaviour. Now in: [build plan v3.2, chunk 13, M1 and M5](versions/v3/build-plan-v3.2.md#chunk-13--session-measurements-first-run).

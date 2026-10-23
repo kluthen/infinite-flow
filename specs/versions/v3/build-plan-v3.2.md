@@ -1,6 +1,10 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v16 (2026-10-23): v15 with chunk 3's findings written in (spec D431–D433, master spec
+Status: v17 (2026-10-23): v16 with chunk 10's finding written in (spec D434): chunk 13 reports
+the rhythm orderings' time through the generator's diagnostics, under a clock only the sweeps pass,
+and the sweeps read it (M1, M5); chunk 8's steering rank inside that time; chunk 29's ladder double
+reports it.
+v16 (2026-10-23): v15 with chunk 3's findings written in (spec D431–D433, master spec
 Part C v1.10): chunk 13's lock census reads each phrase's lock outcome from its provenance; gate
 DS, the owner's answer to O268 (how the doodle's short silences are read), before chunk 28; v3.2
 H5 asks O269 (a legato doodle read as Heavily varied); gate LD opens as planned.
@@ -367,7 +371,8 @@ corpora are a guard, not a measurement.
   doodle by chunk 28's mapping, each attempt charged its measured time as `npm run test:sweep` does,
   phrase 1 through a test double of chunk 18's ladder (chunk 29) and then the real one (wave 5's
   gate), phrases 2 to 8 through v2's. A cold domain is measured by clearing the domain memo before
-  phrase 1.
+  phrase 1. Each attempt's orderings time is the one the generator's diagnostics report (chunk 13,
+  spec D434); until chunk 13 the orderings' share is null.
 - **Run by:** chunk 3 (the no-steering baseline, on v3.1's generator); chunk 29; wave 5's gate;
   chunk 33 (at 240 BPM); the release gate.
 - **Acceptance:** no phrase repeated; the slowest standalone attempt within the budget on the
@@ -424,10 +429,11 @@ corpora are a guard, not a measurement.
 ### M5 — The session sweep with the lock
 
 - **What:** [C16 item 10](master-spec.md#c16-definition-of-done): at 60, 120 and 240 BPM, lock on
-  and off, the forced-bend rate, the share of changes, no phrase repeated, and the standalone
-  attempts within their reserve.
+  and off, the forced-bend rate, the share of changes, no phrase repeated, the standalone
+  attempts within their reserve, and the lock's orderings' share of attempt time.
 - **How:** chunk 3's session sweep: `npm run test:sweep`'s cases with the lock on (phrase 1's bars
-  frozen as chunk 16 does), the allowed changes all on and all off.
+  frozen as chunk 16 does), the allowed changes all on and all off; the orderings' time from the
+  generator's diagnostics, as in M1 (chunk 13).
 - **Run by:** chunk 3 (baseline, lock off); chunk 13; the release gate.
 - **Acceptance:** with the lock off, v3.1's figures; with it on, every standalone attempt within its
   budget; otherwise as M1.
@@ -955,11 +961,13 @@ search's walk: without locked bars it stays v3.1's, harmony-major (C7.6, C8; spe
   code-unit order. Budget: the total edits from one rhythm to every candidate of the largest domain
   take about 27 ms in Node (chunk 5's measure, spec D424), so the rank is computed once per
   request, never per rung or chord plan; memoizing the per-measure distance by measure pair is
-  allowed. The Jam sweep (M1) confirms it. A target far from every rhythm the settings allow is only approached:
+  allowed. The rank is built inside the span whose time the diagnostics report (chunk 13, spec
+  D434), so the Jam sweep (M1) confirms it. A target far from every rhythm the settings allow is only approached:
   `no_legal_rhythm_plan` arises only where it arises in v3.1.
 - **Files:** `src/domain/generation/steering/rhythm-steering.ts` (new),
-  `src/domain/generation/orchestration/candidate-ranking.ts`, `src/domain/rhythm/rhythm-lock-order.ts`;
-  tests under `tests/unit/domain/generation/`.
+  `src/domain/generation/orchestration/candidate-ranking.ts`, `src/domain/rhythm/rhythm-lock-order.ts`,
+  `src/domain/generation/orchestration/generation-orchestrator.ts` (the order built once per
+  request, inside the timed span); tests under `tests/unit/domain/generation/`.
 - **Spec sections:** [C5.9](master-spec.md#c59-what-the-doodle-feeds-the-generator) (rhythm),
   [C7.1](master-spec.md#c71-the-switch-and-what-is-locked) (a Jam's locked rhythm),
   [C8](master-spec.md#c8-jams-drift); items 27, 29 (rhythm), 30.
@@ -977,8 +985,9 @@ search's walk: without locked bars it stays v3.1's, harmony-major (C7.6, C8; spe
   - A candidate that writes one of the target's silences as two rests is at no edit from it.
   - The same block and seed give the same order twice, under a non-English collation.
   - Every candidate appears once in the order; the corpora pass.
+  - With a clock passed and a block, the diagnostics' orderings time includes the rank's.
 - **Verification:** chunk checks with the corpus guard; the sweep at the wave gate.
-- **Split rule:** none needed (three source files).
+- **Split rule:** none needed (four source files).
 
 ### Chunk 9 — Melody follows the moves
 
@@ -1160,12 +1169,25 @@ notes" stays true. Written once for v3.2 (spec D410).
 Status: planned
 Wave: 3
 Depends on: 3, 11, 12, 16
-Architecture capture: none
+Architecture capture: the orderings' time in the generator's diagnostics (spec D434):
+`generatePhrase`'s options (`GenerationOrchestrationOptions`) take an optional clock; when one is
+passed, `GenerationDiagnostics` carries the seconds spent building the request's rhythm orderings,
+the span that builds chunk 10's lock order with chunk 11's draw slotted in (and, from chunk 8, the
+steering rank). Without a clock the field is absent and the outcome stays deep-equal for the same
+intent and seed; the provenance never holds a time. Chunk 9's pitch term sits inside the search and
+is not timed apart.
 
-- **Goal:** measure M2 and M5 on the complete session half, and tune the change shares if needed.
-- **Scope:** no product code beyond tuning constants. Run M5 at 60, 120 and 240 BPM, lock off and
-  on; run M2; replay a sample of locked, changed and forced-bend phrases from their `ifk4.` keys.
-  Report the figures to the owner, and to `spec-writer` if a standalone attempt exceeds its budget.
+- **Goal:** measure M2 and M5 on the complete session half, with the lock's orderings' share of
+  attempt time, and tune the change shares if needed.
+- **Scope:** no product code beyond tuning constants and the diagnostics' orderings time. Run M5
+  at 60, 120 and 240 BPM, lock off and on; run M2; replay a sample of locked, changed and
+  forced-bend phrases from their `ifk4.` keys. Report the figures to the owner, and to
+  `spec-writer` if a standalone attempt exceeds its budget.
+  - **The orderings' time** (spec D434): the orchestrator times the span above under the clock
+    passed in; the sweeps' two timed generators (the ladder double's in `jam-sweep-ladder.ts`, the
+    session sweep's `OutcomeCache`) pass `performance.now` and carry the reported seconds into
+    each attempt's `orderingSeconds`, which `attemptTimings` already sums into the orderings'
+    share. Chunk 3's baseline figures stay as recorded (no orderings on v3.1's generator).
   - **The census reads the provenance** (spec D432): chunk 3's lock census classes each phrase by
     the lock outcome its provenance records (locked, changed with its kind, forced bend, no change
     available, re-lock; chunks 10 and 11, kept by chunk 16's history), not from its written bars,
@@ -1174,17 +1196,26 @@ Architecture capture: none
     an allowed kind, a locked phrase has the locked bars. Forced bends one allowed change away are
     counted as bends and tallied apart.
 - **Files:** `src/domain/rhythm/rhythm-change-draw.ts` (constants only, if tuned),
-  `tests/sweep/lock-census.ts`, `lock-census-sweep.ts`, `lock-census.spec.ts`,
-  `docs/generation-latency.md`, `docs/music/rhythm-phrase-structure.md`.
-- **Spec sections:** [C7.4](master-spec.md#c74-when-a-phrase-changes),
+  `src/domain/generation/orchestration/generation-orchestrator.ts`, `orchestration-types.ts`,
+  `tests/sweep/jam-sweep-ladder.ts`, `jam-sweep.ts`, `tests/unit/session/deadline-sweep.ts`,
+  `tests/sweep/lock-census.ts`, `lock-census-sweep.ts`, `lock-census.spec.ts`; tests under
+  `tests/unit/domain/generation/orchestration/`; `docs/generation-latency.md`,
+  `docs/music/rhythm-phrase-structure.md`.
+- **Spec sections:** [C5.8](master-spec.md#c58-the-time-budget) (the orderings' cost),
+  [C7.4](master-spec.md#c74-when-a-phrase-changes),
   [C14](master-spec.md#c14-existing-code-and-risks); items 1, 2, 10, 11.
-- **Atoms:** none (measurement).
+- **Atoms:** none (measurement). Drift check: `entity_generation_diagnostics` (a timing
+  observation, never read back), `service_generation_orchestration`.
 - **Revisions:** none.
-- **Done when:** M2 and M5 recorded, the deciding runs on the reference machine; no phrase repeated;
-  every replayed sample matches; every census class comes from the provenance and agrees with the
-  bars, and the forced bends one allowed change away are counted.
-- **Verification:** the runs; chunk checks (the census changes, and a constant may).
-- **Split rule:** none needed.
+- **Done when:** M2 and M5 recorded, the deciding runs on the reference machine, M5's orderings'
+  share a figure with the lock on (about zero with it off); no phrase repeated; every replayed sample
+  matches; every census class comes from the provenance and agrees with the bars, and the forced
+  bends one allowed change away are counted; the same intent and seed without a clock still give
+  deep-equal outcomes, and with one the same phrase and provenance.
+- **Verification:** the runs; chunk checks with the corpus guard (the orchestrator changes, the
+  census changes, and a constant may).
+- **Split rule:** if heavy, 13a the diagnostics' orderings time and the sweeps reading it, then
+  13b the runs and the census.
 
 ### Chunk 14 — The key and mode suggestion
 
@@ -2063,7 +2094,9 @@ Architecture capture: none
   on; replay a sample of Jam phrases (each rung, locked, drifted) from their `ifk4.` keys. Report
   the figures to the owner, and to `spec-writer` if a standalone attempt exceeds its budget or a
   cold domain misses the deadlines at 180 BPM.
-- **Files:** `docs/generation-latency.md`.
+  The double carries each attempt's orderings time from the diagnostics, as chunk 13's baseline
+  ladder does (spec D434).
+- **Files:** `tests/sweep/jam-sweep-ladder.ts` (the double), `docs/generation-latency.md`.
 - **Spec sections:** [C5.8](master-spec.md#c58-the-time-budget),
   [C14](master-spec.md#c14-existing-code-and-risks) (at risk); items 31, 39 (every kind replays).
 - **Atoms:** none (measurement).
