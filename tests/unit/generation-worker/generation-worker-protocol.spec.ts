@@ -18,6 +18,7 @@ import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import type { RequestRhythmLock } from '@/domain/generation/request-rhythm-lock'
 import type { SteeringBlock } from '@/domain/generation/steering-block'
 import { SAMPLE_RHYTHM_LOCK, SAMPLE_STEERING } from '../domain/generation/request-inputs-fixture'
+import { lockedBarsOf, lockOn } from '../domain/rhythm/rhythm-lock-fixture'
 
 /** Intent: one real GenerationWorkerRequest wire envelope, exactly as the session posts it. */
 function requestFixture() {
@@ -46,7 +47,7 @@ function requestFixture() {
 }
 
 /** Intent: one real, cheap-to-search success outcome, exactly as the worker handler produces it. */
-function successOutcome() {
+function successOutcome(rhythmLock?: RequestRhythmLock) {
   const intent = createGenerationIntent({
     requestId: makeRequestId('protocol-round-trip'),
     seed: makeSeed(1),
@@ -67,6 +68,7 @@ function successOutcome() {
       instrumentProfileId: 'c-keyboard',
     }),
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    ...(rhythmLock === undefined ? {} : { rhythmLock }),
   })
   const outcome = generatePhrase(intent)
   if (outcome.kind !== 'generation_success') throw new Error('fixture outcome must succeed')
@@ -310,5 +312,37 @@ describe('parseGenerationWorkerInboundMessage: the rhythm lock group and the ste
     expect(() => parseGenerationWorkerInboundMessage({ type: 'generate', id: 8, intent })).toThrow(
       GenerationWorkerProtocolError,
     )
+  })
+})
+
+/** Intent: a success under locked bars, its provenance carrying the lock's outcome. */
+function lockedSuccessOutcome() {
+  return successOutcome(lockOn(lockedBarsOf(successOutcome().provenance.rhythm)))
+}
+
+// @test-link [[module_generation_worker_protocol]]
+// @test-link [[module_rhythm_lock_order]]
+describe("parseGenerationWorkerResponse: the rhythm lock's outcome in the provenance", () => {
+  it('keeps the outcome of a phrase generated under locked bars', () => {
+    const outcome = lockedSuccessOutcome()
+    expect(outcome.provenance.rhythmLockOutcome).toBe('locked_bars')
+    const parsed = parseGenerationWorkerResponse(
+      structuredClone({ type: 'outcome', id: 9, outcome }),
+    )
+    if (parsed.type !== 'outcome' || parsed.outcome.kind !== 'generation_success')
+      throw new Error('expected a success')
+    expect(parsed.outcome.provenance.rhythmLockOutcome).toBe('locked_bars')
+  })
+
+  it('refuses an unknown outcome with the typed protocol error', () => {
+    const wire = structuredClone({ type: 'outcome', id: 10, outcome: lockedSuccessOutcome() })
+    const tampered = {
+      ...wire,
+      outcome: {
+        ...wire.outcome,
+        provenance: { ...wire.outcome.provenance, rhythmLockOutcome: 'bent' },
+      },
+    }
+    expect(() => parseGenerationWorkerResponse(tampered)).toThrow(GenerationWorkerProtocolError)
   })
 })

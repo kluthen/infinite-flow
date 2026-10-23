@@ -6,7 +6,21 @@
  */
 
 import { TICKS_PER_BAR } from '../time/ticks'
-import type { RhythmBar, RhythmCandidate, RhythmEventKind } from './rhythm-types'
+import type { RhythmCandidate, RhythmEvent, RhythmEventKind } from './rhythm-types'
+
+/**
+ * A measure as written: the only parts of a measure the bar key and the start list read (each
+ * event's kind, start, length and tie mark, and the measure's index for error messages). A
+ * candidate's `RhythmBar` is one; so is a locked measure of the request's rhythm lock.
+ */
+// @spec-link [[entity_rhythm_candidate_domain]]
+export interface WrittenMeasure {
+  readonly barIndex: number
+  readonly events: readonly Pick<
+    RhythmEvent,
+    'kind' | 'startTick' | 'durationTicks' | 'tieContinuation'
+  >[]
+}
 
 /** One note start or rest start of a measure, at its measure-relative tick. */
 // @spec-link [[entity_rhythm_candidate_domain]]
@@ -54,7 +68,7 @@ const INTERNED_STARTS: Readonly<Record<RhythmEventKind, readonly RhythmStart[]>>
  * names are left out, so two measures have equal keys exactly when they are written alike.
  */
 // @spec-link [[entity_rhythm_candidate_domain]]
-export function measureBarKey(bar: RhythmBar): string {
+export function measureBarKey(bar: Pick<WrittenMeasure, 'events'>): string {
   return bar.events
     .map(
       (event) =>
@@ -66,7 +80,7 @@ export function measureBarKey(bar: RhythmBar): string {
 
 /** Intent: the bar key of a whole rhythm: its measure keys joined with `|`. */
 // @spec-link [[entity_rhythm_candidate_domain]]
-export function rhythmBarKey(bars: readonly RhythmBar[]): string {
+export function rhythmBarKey(bars: readonly Pick<WrittenMeasure, 'events'>[]): string {
   return bars.map(measureBarKey).join('|')
 }
 
@@ -76,7 +90,7 @@ export function rhythmBarKey(bars: readonly RhythmBar[]): string {
  * which only a malformed bar can do.
  */
 // @spec-link [[entity_rhythm_candidate_domain]]
-export function measureStarts(bar: RhythmBar): MeasureStarts {
+export function measureStarts(bar: WrittenMeasure): MeasureStarts {
   let previous = -1
   const list: RhythmStart[] = []
   for (const event of bar.events) {
@@ -97,7 +111,7 @@ export function measureStarts(bar: RhythmBar): MeasureStarts {
 
 /** Intent: the start list of every measure of a rhythm, in measure order. */
 // @spec-link [[entity_rhythm_candidate_domain]]
-export function rhythmStarts(bars: readonly RhythmBar[]): readonly MeasureStarts[] {
+export function rhythmStarts(bars: readonly WrittenMeasure[]): readonly MeasureStarts[] {
   return Object.freeze(bars.map(measureStarts))
 }
 

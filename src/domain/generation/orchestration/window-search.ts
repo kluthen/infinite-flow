@@ -1,8 +1,9 @@
 /**
  * Depth-first search of one resolved window's harmony, rhythm, tension-binding, and pitch
- * candidate space, ledger-metered and wall-clock independent. Walks already-ranked harmony
- * candidates, then already-ranked rhythm candidates, then each pair's concrete tension binding
- * domain in stable order, planning a pitch phrase for each binding and independently validating
+ * candidate space, ledger-metered and wall-clock independent. Walks the already-ranked harmony
+ * and rhythm candidates pair by pair, harmony-major (each harmony with every rhythm) as v3.1
+ * does, or rhythm-major in the rhythm lock's order (each rhythm with every harmony) for a request
+ * holding locked bars, then each pair's concrete tension binding domain in stable order, planning a pitch phrase for each binding and independently validating
  * the first plan found. Every unit of search work (a visited harmony/rhythm pair, an attempted
  * concrete tension binding, and every pitch-search `advance` call folded into a plan's
  * `fuelUsed`) is metered against one FuelLedger opened under the caller's GenerationSearchPolicy;
@@ -21,6 +22,11 @@ import {
   type ConcreteTensionBinding,
   type PitchPlanResult,
 } from '../../pitch/pitch-planner'
+import {
+  walkRhythmLockOrder,
+  type RhythmLockOrder,
+  type RhythmLockTier,
+} from '../../rhythm/rhythm-lock-order'
 import type { RhythmCandidate } from '../../rhythm/rhythm-types'
 import {
   validateGenerationResult,
@@ -38,13 +44,18 @@ import type {
 import { openFuelLedger, remainingFuel, spendFuel, type FuelLedger } from './search-ledger'
 import { assemblePhraseResult } from './timeline-assembly'
 
-/** The already-resolved, already-ranked inputs one window search consumes. */
+/**
+ * The already-resolved, already-ranked inputs one window search consumes. `rhythmLockOrder` is
+ * present exactly when the request holds the rhythm lock's locked bars: the order the
+ * orchestrator built once for the request, shared by its windows.
+ */
 export interface WindowSearchInput {
   readonly intent: GenerationIntent
   readonly request: GenerationRequest
   readonly rankedHarmony: readonly HarmonyCandidate[]
   readonly rankedRhythm: RankedRhythmCache
   readonly searchPolicy: GenerationSearchPolicy
+  readonly rhythmLockOrder?: RhythmLockOrder
 }
 
 /** Injectable collaborators, defaulted to the real pitch planner and result validator. */
@@ -118,10 +129,16 @@ function resolvePlannedPhrase(
   rhythm: RhythmCandidate,
   binding: ConcreteTensionBinding,
   planResult: Extract<PitchPlanResult, { kind: 'pitch_plan' }>,
+  tier: RhythmLockTier | undefined,
 ): StepResult {
   const attackMidis = planResult.phrase.assignments.map((assignment) => assignment.candidate.midi)
   const result = assemblePhraseResult(input.request, rhythm, attackMidis)
-  const provenance: GenerationProvenance = { harmony, rhythm, tensionBinding: binding }
+  const provenance: GenerationProvenance = {
+    harmony,
+    rhythm,
+    tensionBinding: binding,
+    ...(tier === undefined ? {} : { rhythmLockOutcome: tier }),
+  }
   const validationInput: GenerationResultValidationInput = {
     intent: input.intent,
     request: input.request,
@@ -161,6 +178,7 @@ function tryBinding(
   harmony: HarmonyCandidate,
   rhythm: RhythmCandidate,
   binding: ConcreteTensionBinding,
+  tier: RhythmLockTier | undefined,
 ): StepResult {
   if (remainingFuel(acc.ledger) < 1) return { kind: 'limit_exceeded' }
   acc.ledger = spendFuel(acc.ledger, 1)
@@ -180,7 +198,7 @@ function tryBinding(
 
   if (planResult.kind === 'search_limit_exceeded') return { kind: 'limit_exceeded' }
   if (planResult.kind === 'no_legal_pitch_plan') return { kind: 'continue' }
-  return resolvePlannedPhrase(input, deps, harmony, rhythm, binding, planResult)
+  return resolvePlannedPhrase(input, deps, harmony, rhythm, binding, planResult, tier)
 }
 
 /**
@@ -195,6 +213,7 @@ function tryPair(
   acc: SearchAccumulator,
   harmony: HarmonyCandidate,
   rhythm: RhythmCandidate,
+  tier: RhythmLockTier | undefined,
 ): StepResult {
   if (remainingFuel(acc.ledger) < 1) return { kind: 'limit_exceeded' }
   acc.ledger = spendFuel(acc.ledger, 1)
@@ -204,7 +223,7 @@ function tryPair(
   if (bindingDomain.kind === 'no_legal_tension_binding') return { kind: 'continue' }
 
   for (const binding of bindingDomain.bindings) {
-    const step = tryBinding(input, deps, acc, harmony, rhythm, binding)
+    const step = tryBinding(input, deps, acc, harmony, rhythm, binding, tier)
     if (step.kind !== 'continue') return step
   }
   return { kind: 'continue' }
@@ -239,12 +258,69 @@ function buildDiagnostics(
 }
 
 /**
+ * Intent: the rhythm lock order the search walks, present exactly when the request holds locked
+ * bars. Throws when the request and the input disagree, so a locked request is never searched in
+ * v3.1's order, nor an unlocked one in the lock's.
+ */
+function rhythmLockOrderOf(input: WindowSearchInput): RhythmLockOrder | undefined {
+  const locked = input.request.rhythmLock?.state.kind === 'locked'
+  if (locked && input.rhythmLockOrder === undefined)
+    throw new Error('A request holding locked bars is searched only with its rhythm lock order.')
+  if (!locked && input.rhythmLockOrder !== undefined)
+    throw new Error('A rhythm lock order is searched only for a request holding locked bars.')
+  return input.rhythmLockOrder
+}
+
+/**
+ * Intent: v3.1's walk, harmony-major: each harmony candidate with every rhythm candidate, in
+ * ranked order, before the next harmony candidate. Returns the first step that is not
+ * `continue`, or `continue` once every pair is exhausted.
+ */
+function walkHarmonyMajor(
+  input: WindowSearchInput,
+  deps: WindowSearchDeps,
+  acc: SearchAccumulator,
+): StepResult {
+  for (const harmony of input.rankedHarmony) {
+    for (const rhythm of input.rankedRhythm.candidates) {
+      const step = tryPair(input, deps, acc, harmony, rhythm, undefined)
+      if (step.kind !== 'continue') return step
+    }
+  }
+  return { kind: 'continue' }
+}
+
+/**
+ * Intent: the rhythm lock's walk, rhythm-major: each rhythm in the lock's order (the locked bars,
+ * then the forced bend's order) with every harmony candidate, in ranked order, before the next
+ * rhythm, so the locked rhythm gives way only when no chord plan makes a phrase with it. Same
+ * pairs, same ledger, same fuel as the harmony-major walk.
+ */
+// @spec-link [[module_rhythm_lock_order]]
+// @spec-link [[rule_rhythm_lock_strict]]
+function walkRhythmMajor(
+  input: WindowSearchInput,
+  deps: WindowSearchDeps,
+  acc: SearchAccumulator,
+  order: RhythmLockOrder,
+): StepResult {
+  for (const { rhythm, tier } of walkRhythmLockOrder(order)) {
+    for (const harmony of input.rankedHarmony) {
+      const step = tryPair(input, deps, acc, harmony, rhythm, tier)
+      if (step.kind !== 'continue') return step
+    }
+  }
+  return { kind: 'continue' }
+}
+
+/**
  * Intent: search one resolved window's full harmony/rhythm/tension-binding/pitch candidate space
  * depth-first, without replacement, in already-ranked order, under one wall-clock-independent
  * FuelLedger. Returns the first independently validated plan found as window_success, a claimed
  * plan that fails independent validation as window_result_validation_failed (search stops either
  * way), window_search_limit_exceeded on a fuel cutoff, or window_exhausted once every pair and
- * binding has been tried without a resolving plan.
+ * binding has been tried without a resolving plan. The pairs are walked harmony-major, or
+ * rhythm-major in the rhythm lock's order when the request holds locked bars.
  */
 // @spec-link [[service_generation_window_search]]
 // @spec-link [[mechanic_pitch_search_policy]]
@@ -252,30 +328,27 @@ export function searchWindow(
   input: WindowSearchInput,
   deps: WindowSearchDeps = DEFAULT_WINDOW_SEARCH_DEPS,
 ): WindowSearchReport {
+  const rhythmLockOrder = rhythmLockOrderOf(input)
   const acc: SearchAccumulator = {
     ledger: openFuelLedger(input.searchPolicy),
     pairsVisited: 0,
     bindingsAttempted: 0,
   }
 
-  for (const harmony of input.rankedHarmony) {
-    for (const rhythm of input.rankedRhythm.candidates) {
-      const step = tryPair(input, deps, acc, harmony, rhythm)
-      if (step.kind === 'limit_exceeded') {
-        return {
-          outcome: deepFreeze({
-            kind: 'window_search_limit_exceeded',
-            request: input.request,
-          }),
-          diagnostics: buildDiagnostics(input, acc, 'window_search_limit_exceeded', undefined),
-        }
-      }
-      if (step.kind === 'resolved') {
-        return {
-          outcome: deepFreeze(step.outcome),
-          diagnostics: buildDiagnostics(input, acc, step.outcome.kind, step.identity),
-        }
-      }
+  const step =
+    rhythmLockOrder === undefined
+      ? walkHarmonyMajor(input, deps, acc)
+      : walkRhythmMajor(input, deps, acc, rhythmLockOrder)
+  if (step.kind === 'limit_exceeded') {
+    return {
+      outcome: deepFreeze({ kind: 'window_search_limit_exceeded', request: input.request }),
+      diagnostics: buildDiagnostics(input, acc, 'window_search_limit_exceeded', undefined),
+    }
+  }
+  if (step.kind === 'resolved') {
+    return {
+      outcome: deepFreeze(step.outcome),
+      diagnostics: buildDiagnostics(input, acc, step.outcome.kind, step.identity),
     }
   }
 
