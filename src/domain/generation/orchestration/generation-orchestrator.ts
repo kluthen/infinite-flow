@@ -18,6 +18,7 @@ import type {
   HarmonyCandidateDomain,
   HarmonyPlanResult,
 } from '../../harmony/harmony-types'
+import { drawRhythmChange } from '../../rhythm/rhythm-change-draw'
 import { makeRhythmLockOrder, type RhythmLockOrder } from '../../rhythm/rhythm-lock-order'
 import { isNoLegalRhythmPlan } from '../../rhythm/rhythm-planner'
 import type { RhythmCandidate, RhythmExpansionInput } from '../../rhythm/rhythm-types'
@@ -123,18 +124,36 @@ function buildDiagnostics(
 
 /**
  * Intent: the rhythm lock's order for an intent holding locked bars, built once for every window
- * of the request (so its forced bend's order is computed at most once); undefined otherwise, the
- * lock off or "on, nothing locked yet", whose windows walk v3.1's order.
+ * of the request (so its forced bend's order is computed at most once), with the phrase's rhythm
+ * change draw when the request allows a change; undefined otherwise, the lock off or "on, nothing
+ * locked yet", whose windows walk v3.1's order and never draw.
  */
 // @spec-link [[module_rhythm_lock_order]]
+// @spec-link [[module_rhythm_change_draw]]
+// @spec-link [[rule_allowed_rhythm_changes]]
 function rhythmLockOrderFor(
   intent: GenerationIntent,
   domain: readonly RhythmCandidate[],
   rankedRhythm: RankedRhythmCache,
 ): RhythmLockOrder | undefined {
-  const state = intent.rhythmLock?.state
-  if (state?.kind !== 'locked') return undefined
-  return makeRhythmLockOrder({ domain, seeded: rankedRhythm.candidates, lockedBars: state.bars })
+  const lock = intent.rhythmLock
+  if (lock?.state.kind !== 'locked') return undefined
+  const seeded = rankedRhythm.candidates
+  const lockedBars = lock.state.bars
+  const change = drawRhythmChange({
+    domain,
+    seeded,
+    lockedBars,
+    allowedChanges: lock.allowedChanges,
+    seed: intent.seed,
+    tenserPhrase: lock.tenserPhrase,
+  })
+  return makeRhythmLockOrder({
+    domain,
+    seeded,
+    lockedBars,
+    ...(change === undefined ? {} : { change }),
+  })
 }
 
 /** Intent: run one independent, freshly-ledgered `searchWindow` for every resolved core request. */

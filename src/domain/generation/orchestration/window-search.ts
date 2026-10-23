@@ -25,7 +25,7 @@ import {
 import {
   walkRhythmLockOrder,
   type RhythmLockOrder,
-  type RhythmLockTier,
+  type RhythmLockStep,
 } from '../../rhythm/rhythm-lock-order'
 import type { RhythmCandidate } from '../../rhythm/rhythm-types'
 import {
@@ -118,6 +118,26 @@ function bindingPitchPolicy(input: WindowSearchInput, searchFuel: number) {
 }
 
 /**
+ * Intent: what the rhythm lock did to the phrase, for its provenance: nothing without a lock step
+ * (v3.1's walk); otherwise the step's tier, and, when the phrase drew a rhythm change, the kind of
+ * the change it took, or `no_change_available` when it kept the lock's order (the walk sets the
+ * kind exactly on the change's tier).
+ */
+// @spec-link [[module_rhythm_change_draw]]
+// @spec-link [[module_rhythm_lock_order]]
+function rhythmLockProvenance(
+  input: WindowSearchInput,
+  lockStep: RhythmLockStep | undefined,
+): Pick<GenerationProvenance, 'rhythmLockOutcome' | 'rhythmChange'> {
+  if (lockStep === undefined) return {}
+  if (input.rhythmLockOrder?.change?.changes !== true) return { rhythmLockOutcome: lockStep.tier }
+  return {
+    rhythmLockOutcome: lockStep.tier,
+    rhythmChange: lockStep.changeKind ?? 'no_change_available',
+  }
+}
+
+/**
  * Intent: assemble and independently validate the phrase for one accepted pitch plan, producing
  * the final `resolved` step: window_success on a valid result, window_result_validation_failed
  * with its failure codes otherwise. Never retried; the caller stops the whole search either way.
@@ -129,7 +149,7 @@ function resolvePlannedPhrase(
   rhythm: RhythmCandidate,
   binding: ConcreteTensionBinding,
   planResult: Extract<PitchPlanResult, { kind: 'pitch_plan' }>,
-  tier: RhythmLockTier | undefined,
+  lockStep: RhythmLockStep | undefined,
 ): StepResult {
   const attackMidis = planResult.phrase.assignments.map((assignment) => assignment.candidate.midi)
   const result = assemblePhraseResult(input.request, rhythm, attackMidis)
@@ -137,7 +157,7 @@ function resolvePlannedPhrase(
     harmony,
     rhythm,
     tensionBinding: binding,
-    ...(tier === undefined ? {} : { rhythmLockOutcome: tier }),
+    ...rhythmLockProvenance(input, lockStep),
   }
   const validationInput: GenerationResultValidationInput = {
     intent: input.intent,
@@ -178,7 +198,7 @@ function tryBinding(
   harmony: HarmonyCandidate,
   rhythm: RhythmCandidate,
   binding: ConcreteTensionBinding,
-  tier: RhythmLockTier | undefined,
+  lockStep: RhythmLockStep | undefined,
 ): StepResult {
   if (remainingFuel(acc.ledger) < 1) return { kind: 'limit_exceeded' }
   acc.ledger = spendFuel(acc.ledger, 1)
@@ -198,7 +218,7 @@ function tryBinding(
 
   if (planResult.kind === 'search_limit_exceeded') return { kind: 'limit_exceeded' }
   if (planResult.kind === 'no_legal_pitch_plan') return { kind: 'continue' }
-  return resolvePlannedPhrase(input, deps, harmony, rhythm, binding, planResult, tier)
+  return resolvePlannedPhrase(input, deps, harmony, rhythm, binding, planResult, lockStep)
 }
 
 /**
@@ -213,7 +233,7 @@ function tryPair(
   acc: SearchAccumulator,
   harmony: HarmonyCandidate,
   rhythm: RhythmCandidate,
-  tier: RhythmLockTier | undefined,
+  lockStep: RhythmLockStep | undefined,
 ): StepResult {
   if (remainingFuel(acc.ledger) < 1) return { kind: 'limit_exceeded' }
   acc.ledger = spendFuel(acc.ledger, 1)
@@ -223,7 +243,7 @@ function tryPair(
   if (bindingDomain.kind === 'no_legal_tension_binding') return { kind: 'continue' }
 
   for (const binding of bindingDomain.bindings) {
-    const step = tryBinding(input, deps, acc, harmony, rhythm, binding, tier)
+    const step = tryBinding(input, deps, acc, harmony, rhythm, binding, lockStep)
     if (step.kind !== 'continue') return step
   }
   return { kind: 'continue' }
@@ -291,10 +311,10 @@ function walkHarmonyMajor(
 }
 
 /**
- * Intent: the rhythm lock's walk, rhythm-major: each rhythm in the lock's order (the locked bars,
- * then the forced bend's order) with every harmony candidate, in ranked order, before the next
- * rhythm, so the locked rhythm gives way only when no chord plan makes a phrase with it. Same
- * pairs, same ledger, same fuel as the harmony-major walk.
+ * Intent: the rhythm lock's walk, rhythm-major: each rhythm in the lock's order (the drawn rhythm
+ * change's candidates, the locked bars, then the forced bend's order) with every harmony
+ * candidate, in ranked order, before the next rhythm, so the locked rhythm gives way only when no
+ * chord plan makes a phrase with it. Same pairs, same ledger, same fuel as the harmony-major walk.
  */
 // @spec-link [[module_rhythm_lock_order]]
 // @spec-link [[rule_rhythm_lock_strict]]
@@ -304,9 +324,9 @@ function walkRhythmMajor(
   acc: SearchAccumulator,
   order: RhythmLockOrder,
 ): StepResult {
-  for (const { rhythm, tier } of walkRhythmLockOrder(order)) {
+  for (const lockStep of walkRhythmLockOrder(order)) {
     for (const harmony of input.rankedHarmony) {
-      const step = tryPair(input, deps, acc, harmony, rhythm, tier)
+      const step = tryPair(input, deps, acc, harmony, lockStep.rhythm, lockStep)
       if (step.kind !== 'continue') return step
     }
   }

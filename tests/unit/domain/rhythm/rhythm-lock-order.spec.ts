@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { makeSeed } from '@/domain/random/seed'
 import { rhythmBarKey, rhythmStarts, type MeasureStarts } from '@/domain/rhythm/rhythm-bars'
+import { rhythmChangeCandidates } from '@/domain/rhythm/rhythm-change-draw'
 import { rhythmDistance } from '@/domain/rhythm/rhythm-distance'
 import {
   lockedBarsKey,
@@ -9,7 +10,10 @@ import {
   walkRhythmLockOrder,
   type RhythmLockOrderDeps,
 } from '@/domain/rhythm/rhythm-lock-order'
-import type { LockedRhythmMeasure } from '@/domain/generation/request-rhythm-lock'
+import {
+  RHYTHM_CHANGE_KINDS,
+  type LockedRhythmMeasure,
+} from '@/domain/generation/request-rhythm-lock'
 import type { RhythmCandidate } from '@/domain/rhythm/rhythm-types'
 
 import {
@@ -175,5 +179,58 @@ describe('walking the order', () => {
     const walk = walkRhythmLockOrder(order)
     expect(walk.next().value).toEqual({ rhythm: order.lockedBars[0], tier: 'locked_bars' })
     expect(counting.calls()).toBe(0)
+  })
+})
+
+/** Intent: a Build candidate whose bars offer a change of some kind, with those candidates. */
+function lockedWithChange(seeded: readonly RhythmCandidate[]) {
+  for (const locked of BUILD) {
+    const lockedBars = lockedBarsOf(locked)
+    const candidates = rhythmChangeCandidates({
+      domain: BUILD,
+      seeded,
+      lockedBars,
+      allowedChanges: RHYTHM_CHANGE_KINDS,
+    })
+    if (candidates.length > 0) return { lockedBars, candidates }
+  }
+  throw new Error('Fixture setup: no Build rhythm offers a change.')
+}
+
+// @test-link [[module_rhythm_lock_order]]
+// @test-link [[module_rhythm_change_draw]]
+describe('the drawn rhythm change', () => {
+  it('comes first, with its kind, then the locked bars, then the forced bend without it', () => {
+    const seeded = seededOrder(BUILD, SEED)
+    const { lockedBars, candidates } = lockedWithChange(seeded)
+    const change = { changes: true as const, candidates }
+    const order = makeRhythmLockOrder({ domain: BUILD, seeded, lockedBars, change })
+    expect(order.change).toBe(change)
+    const walked = [...walkRhythmLockOrder(order)]
+    expect(walked.slice(0, candidates.length)).toEqual(
+      candidates.map(({ rhythm, kind }) => ({ rhythm, tier: 'rhythm_change', changeKind: kind })),
+    )
+    const next = walked.slice(candidates.length, candidates.length + order.lockedBars.length)
+    expect(next.map((step) => step.rhythm)).toEqual(order.lockedBars)
+    expect(next.every((step) => step.tier === 'locked_bars')).toBe(true)
+    const drawn = new Set(candidates.map((entry) => entry.rhythm))
+    expect(order.forcedBend().some((candidate) => drawn.has(candidate))).toBe(false)
+    expect(walked).toHaveLength(seeded.length)
+    expect(new Set(walked.map((step) => step.rhythm))).toEqual(new Set(seeded))
+  })
+
+  it('leaves the lock order as it was when the phrase draws no change', () => {
+    const seeded = seededOrder(BUILD, SEED)
+    const { lockedBars } = lockedWithChange(seeded)
+    const plain = makeRhythmLockOrder({ domain: BUILD, seeded, lockedBars })
+    const unchanged = makeRhythmLockOrder({
+      domain: BUILD,
+      seeded,
+      lockedBars,
+      change: { changes: false },
+    })
+    expect(plain.change).toBeUndefined()
+    expect(unchanged.change).toEqual({ changes: false })
+    expect([...walkRhythmLockOrder(unchanged)]).toEqual([...walkRhythmLockOrder(plain)])
   })
 })
