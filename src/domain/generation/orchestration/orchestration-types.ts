@@ -8,6 +8,7 @@
 import type { HarmonyCandidate } from '../../harmony/harmony-types'
 import type { ConcreteTensionBinding } from '../../pitch/pitch-planner'
 import type { RegisterId } from '../../profile/register-id'
+import type { RhythmLockTier } from '../../rhythm/rhythm-lock-order'
 import type { RhythmCandidate } from '../../rhythm/rhythm-types'
 import type { GenerationRequest } from '../generation-request'
 import type { GenerationResult } from '../generation-result'
@@ -30,12 +31,24 @@ export interface GenerationSearchPolicy {
   readonly windowFuel: number
 }
 
-/** The selected upstream candidates and binding that one phrase was planned from. */
+/**
+ * What the rhythm lock did to one phrase: it kept the locked bars, or it took a forced bend. Kept
+ * by the session history; never part of the timeline.
+ */
+// @spec-link [[module_rhythm_lock_order]]
+// @spec-link [[rule_forced_bend]]
+export type RhythmLockOutcome = RhythmLockTier
+
+/**
+ * The selected upstream candidates and binding that one phrase was planned from, and, only for a
+ * request holding the rhythm lock's locked bars, what the lock did.
+ */
 // @spec-link [[service_generation_window_search]]
 export interface GenerationProvenance {
   readonly harmony: HarmonyCandidate
   readonly rhythm: RhythmCandidate
   readonly tensionBinding: ConcreteTensionBinding
+  readonly rhythmLockOutcome?: RhythmLockOutcome
 }
 
 /** Typed generation failure codes, as defined by the pitch planner and validation policy. */

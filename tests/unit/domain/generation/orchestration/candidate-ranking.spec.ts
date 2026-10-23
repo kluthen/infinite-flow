@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   harmonyTieKey,
   materializeRankedRhythmCache,
+  orderRhythmByPreference,
   rankHarmonyCandidates,
   rhythmTieKey,
 } from '@/domain/generation/orchestration/candidate-ranking'
@@ -153,6 +154,34 @@ describe('candidate-ranking', () => {
       const cache = materializeRankedRhythmCache(fastRhythmDomain(), SEED_A)
       expect(Object.isFrozen(cache)).toBe(true)
       expect(Object.isFrozen(cache.candidates)).toBe(true)
+    })
+  })
+
+  // @test-link [[module_ranked_candidate_ordering]]
+  describe('orderRhythmByPreference', () => {
+    const seeded = materializeRankedRhythmCache(fastRhythmDomain(), SEED_A).candidates
+
+    it('keeps the seeded order when every candidate has the same preference rank', () => {
+      expect(orderRhythmByPreference(seeded, () => 3)).toEqual(seeded)
+    })
+
+    it('places by preference rank, then the seeded tie key, then candidateIndex', () => {
+      const rankOf = (candidate: { readonly candidateIndex: number }) =>
+        candidate.candidateIndex % 3
+      const expected = [0, 1, 2].flatMap((rank) =>
+        seeded.filter((candidate) => rankOf(candidate) === rank),
+      )
+      expect(orderRhythmByPreference(seeded, rankOf)).toEqual(expected)
+      expect(expected).not.toEqual(seeded)
+    })
+
+    it('is an order, never a filter, and leaves its input untouched', () => {
+      const input = [...seeded]
+      const ordered = orderRhythmByPreference(input, (candidate) => -candidate.candidateIndex)
+      expect(ordered).toHaveLength(seeded.length)
+      expect(new Set(ordered)).toEqual(new Set(seeded))
+      expect(input).toEqual(seeded)
+      expect(Object.isFrozen(ordered)).toBe(true)
     })
   })
 })

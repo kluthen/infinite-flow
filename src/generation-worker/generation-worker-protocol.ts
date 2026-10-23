@@ -107,20 +107,38 @@ export function parseCorrelationId(input: unknown, context: string): number {
   return input
 }
 
-const PROVENANCE_ALLOWED_KEYS = new Set(['harmony', 'rhythm', 'tensionBinding'])
+const PROVENANCE_ALLOWED_KEYS = new Set([
+  'harmony',
+  'rhythm',
+  'tensionBinding',
+  'rhythmLockOutcome',
+])
+
+/** The rhythm lock's outcomes a provenance may carry. */
+const RHYTHM_LOCK_OUTCOMES: readonly unknown[] = ['locked_bars', 'forced_bend']
 
 /**
  * Intent: minimally validate an untrusted wire GenerationProvenance. No existing boundary parser
  * covers HarmonyCandidate/RhythmCandidate/ConcreteTensionBinding (nothing upstream ever accepted
  * them as untrusted input before this worker boundary), so this checks only that the three
- * expected fields are present as plain objects and rejects any other shape.
+ * expected fields are present as plain objects, that the rhythm lock's outcome, when present, is
+ * one of its two values, and rejects any other shape.
  */
+// @spec-link [[module_generation_worker_protocol]]
+// @spec-link [[module_rhythm_lock_order]]
 function parseGenerationProvenance(input: unknown): GenerationProvenance {
   const record = asPlainRecord(input, 'GenerationOutcome.provenance')
   requireAllowedKeys(record, PROVENANCE_ALLOWED_KEYS, 'GenerationOutcome.provenance')
   asPlainRecord(record.harmony, 'GenerationOutcome.provenance.harmony')
   asPlainRecord(record.rhythm, 'GenerationOutcome.provenance.rhythm')
   asPlainRecord(record.tensionBinding, 'GenerationOutcome.provenance.tensionBinding')
+  if (
+    Object.hasOwn(record, 'rhythmLockOutcome') &&
+    !RHYTHM_LOCK_OUTCOMES.includes(record.rhythmLockOutcome)
+  )
+    throw new GenerationWorkerProtocolError(
+      'GenerationOutcome.provenance.rhythmLockOutcome must be locked_bars or forced_bend.',
+    )
   return record as unknown as GenerationProvenance
 }
 
