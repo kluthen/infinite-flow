@@ -486,3 +486,7 @@ chunk 30 (wave 6).
   review lane put a doodle note played just before the doodle's first barline; before chunk 23).
   D430's STABLE wording (`entity_kept_session_record`, `module_kept_session_codec`) joins CK:
   sent to `documentalist` to draft in part P. Next free IDs: D431, O268.
+- `documentalist` (2e6879e): D430's clock wording folded into P3 and P4; P3b part of CK (presence
+  check, not value equality, reason in the change set); P8 covers both; P6 and P7 recommended;
+  `module_kept_session_jam_upgrade_step` 0.2. Gate CK put to the owner (2026-10-23): P1, P2, P3
+  (with P3b and the clock), P4, P5, P8, and P6, P7.
