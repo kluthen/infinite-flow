@@ -490,3 +490,6 @@ chunk 30 (wave 6).
   check, not value equality, reason in the change set); P8 covers both; P6 and P7 recommended;
   `module_kept_session_jam_upgrade_step` 0.2. Gate CK put to the owner (2026-10-23): P1, P2, P3
   (with P3b and the clock), P4, P5, P8, and P6, P7.
+- Gate CK cleared by the owner (2026-10-23): "i approve it all". That confirms change set part P as
+  drafted: P1–P5 (with P3b and D430's clock), P6, P7 and P8 (CONTRACT 9.0.0 → 10.0.0), applied at
+  wave 2's sync. Chunks 12 and 22 may merge into `v3.2-w2` once built.
