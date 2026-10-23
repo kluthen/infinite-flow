@@ -6,7 +6,8 @@ priority: 1
 human_name: A Rhythm Change Lasts One Phrase
 parents:
   - [[rule_allowed_rhythm_changes]]
-dependents: []
+dependents:
+  - [[module_rhythm_change_draw]]
 layer: BUSINESS
 version: 0.1
 tags: [v3, release-v3.2, session, rhythm, rhythm-lock]

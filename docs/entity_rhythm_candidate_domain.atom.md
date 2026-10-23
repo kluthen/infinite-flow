@@ -14,7 +14,8 @@ parents:
   - [[rule_rhythm_change_kinds]]
   - [[rule_rhythm_distance]]
   - [[user_story_controlled_phrase_generation]]
-dependents: []
+dependents:
+  - [[module_rhythm_lock_order]]
 ---
 
 # Rhythm Candidate Domain

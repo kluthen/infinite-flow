@@ -7,6 +7,7 @@ human_name: The Five Kinds of Rhythm Change
 tags: [v3, release-v3.2, session, rhythm, rhythm-lock]
 dependents:
   - [[entity_rhythm_candidate_domain]]
+  - [[module_rhythm_change_draw]]
 layer: BUSINESS
 priority: 1
 parents:

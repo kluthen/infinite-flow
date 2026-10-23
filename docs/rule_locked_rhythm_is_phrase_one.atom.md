@@ -3,6 +3,7 @@ id: rule_locked_rhythm_is_phrase_one
 status: DRAFT
 dependents:
   - [[entity_request_rhythm_lock]]
+  - [[module_rhythm_lock_order]]
 layer: BUSINESS
 version: 0.2
 human_name: The Locked Rhythm Is Phrase 1's

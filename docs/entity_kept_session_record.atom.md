@@ -16,6 +16,7 @@ priority: 1
 dependents:
   - [[module_kept_session_changes]]
   - [[module_kept_session_codec]]
+  - [[module_kept_session_jam_upgrade_step]]
   - [[module_kept_session_save]]
 ---
 
