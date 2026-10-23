@@ -1135,7 +1135,10 @@ the change's kind, or "no change available", in the provenance. Chunk 16 builds 
 
 ### Chunk 12 — Replay key `ifk4.`
 
-Status: planned
+Status: merged (w2, cecd20b)
+Record: cecd20b, merge 4f8178d (gate CK, change set part P, owner 2026-10-23). Built to P1 and P2
+as signed; `phrase-replay.ts` and `scripts/replay-phrase.mjs` needed no change; one comment in
+`generation-worker-inbound.ts`; the in-browser test also replays a v3.1 corpus slice. No deviation.
 Wave: 2
 Depends on: 2, 6 (and v3.1 chunk 8's `ifk3.`)
 Architecture capture: the `ifk4.` format (a revision of `module_phrase_replay_key`): everything

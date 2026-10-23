@@ -563,3 +563,16 @@ chunk 30 (wave 6).
   cluster, seed-plan seeds spread: 0.2474 / 0.4975 over 20,000 sessions); M2 and any test of the
   shares use seed-plan seeds. For the sync, optional: note the clustering on raw seeds in
   `module_rhythm_change_draw`. Next free IDs: D437, O270.
+- Chunk 12 merged (cecd20b, merge 4f8178d, citing gate CK): every phrase's key is `ifk4.`, a
+  9-tuple whose first seven entries are `ifk3.`'s, slots 7 `rhythmLock` and 8 `steering` (null when
+  absent), the carry-in slot taking the no-phrase form; D423's encoder refusal removed; `ifk5.`
+  refused as unsupported; `replay:phrase` replays one key of each version; the in-browser replay
+  test replays five hand-written `ifk4.` keys (locked, changed, forced bend, steering, join from no
+  phrase) and a v3.1 corpus slice. Corpus guard pass (676 tests in its run), related 324 pass,
+  Playwright 10 pass, static checks pass. No deviation from P1 or P2. The chunk owner's first
+  squash would have undone 766e9f7 and ad8e545 on the wave branch; it caught and redid it before
+  merging, and the driver checked `specs/` is unchanged by the merge. For the sync: P1, P2 as
+  signed; built names `PHRASE_REPLAY_KEY_V4_PREFIX`, `PhraseReplayKeyVersion`; new links on
+  `encodePhraseReplayKey` and `decodePhraseReplayKey`; `service_headless_phrase_replay` prints the
+  two groups.
+- Chunk 22: dispatched to `coding-leader`, branch `v3.2-c22-kept-session-shape`.
