@@ -429,3 +429,49 @@ For the wave 2 preflight and later:
 - Wave 2 starts in a fresh session, after the owner compacts. Wave 2 is chunks 3, 10, 11, 12
   and 22, with gate CK before chunk 12 merges. Its preflight carries the items listed under
   "For the wave 2 preflight and later" above.
+
+## Wave 2 (2026-10-23)
+
+Chunks 3 Measurement tools · 10 The rhythm lock in the generator · 11 Allowed rhythm changes · 12
+Replay key `ifk4.` · 22 v3.2's kept-session shape. The owner said to start ("i believe we're ready
+to work on next wave"). Branch `v3.2-w2` from `main` 8e78dae, worktree
+`/home/bastien/work/infinite_flow-v3.2-w2`.
+
+### Preflight
+
+`documentalist` (80ebf45 preflight and captures, d3fb1b3 change set part P):
+
+| Chunk | Verdict | Captures |
+| --- | --- | --- |
+| 3 | proceed | none (measurement) |
+| 10 | proceed with corrections 1–2 | `module_ranked_candidate_ordering` 0.3 → 0.4, `service_generation_window_search` 0.1 → 0.2 (REVIEW); `module_rhythm_lock_order` 0.1 (new, DRAFT) |
+| 11 | proceed | `module_rhythm_change_draw` 0.1 (new, DRAFT) |
+| 12 | proceed, sign-off pending (CK), correction 4 | the `ifk4.` format drafted as change set P1 (not applied to the STABLE atom) |
+| 22 | proceed, sign-off pending, corrections 5–9 before its brief | `module_kept_session_jam_upgrade_step` 0.1 (new, DRAFT) |
+
+Gate CK is drafted as change set part P: P1 `module_phrase_replay_key` 0.7, P2
+`rule_seeded_phrase_reproduction` 0.3, P3 `module_kept_session_codec` 0.7 (O4 folded in, P3b
+optional: the loophole closure), P4 `entity_kept_session_record` 0.7, P5 `module_on_device_database`
+0.7, P6 and P7 optional rewordings, P8 CONTRACT 9.0.0 → 10.0.0.
+
+Plan corrections found (all sent to `spec-writer`): 1 chunk 10's capture makes the search
+rhythm-major only when the request holds locked bars; 2 chunk 10's drift check and Revisions; 3
+chunk 16's re-lock phrase carries no allowed change, chunk 11's drift check adds
+`module_rhythm_change_draw`; 4 chunk 12's drift check adds `service_headless_phrase_replay`; 5 chunk
+22 revises three STABLE contract atoms (P3–P5), so it needs a sign-off; 6 the kept-record loophole
+is not closed by chunk 22 as written; 7 chunk 22's data versions (summary and body 4, played notes
+1); 8 a Jam's raw doodle notes come before phrase 1, which the played-notes reader and the STABLE
+`entity_kept_session_record` refuse; 9 chunk 22's Atoms and drift check.
+
+Driver's rulings on minor points (owner's standing delegation):
+- Correction 5: gate CK widens to P3–P5 under the same 10.0.0 and also blocks chunk 22's merge,
+  as D422 does for every changed STABLE guarantee.
+- Correction 6: close the loophole (as v3.1 refused such a record; crash early). P3b goes into CK.
+- Chunk 3's doodle set: the chunk writes the doodles by hand and leaves a documented way to add the
+  owner's Travel Sax recordings (played-notes exports); the owner records them before wave 4
+  (chunk 28, v3.2 H5). Nothing in the wave waits on it.
+
+Correction 8 is `spec-writer`'s to settle; a change to the STABLE wording goes to the owner before
+chunk 30 (wave 6).
+
+### Chunks
