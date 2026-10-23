@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.83
+Status: draft v0.84
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -34,7 +34,8 @@ opened (D400–D405) and closed (D406–D408) on 2026-10-21; [Jam mode](versions
 the answers. O260–O266 (v3.2 Part C v1.1, D409) were closed the same day by the owner's
 approval (D410); [Part C §C17](versions/v3/master-spec.md#c17-deferred-and-open) says where each answer
 now stands.
-New questions take IDs from **O267**; the IDs reserved for v3.0's waves and left unused stay
+O267 (a doodle note played before the doodle's first barline, D430) was opened on 2026-10-23.
+New questions take IDs from **O268**; the IDs reserved for v3.0's waves and left unused stay
 unused, and O177 stays unused.
 
 Opened on 2026-10-12 with v3.3 (D261): O165–O175, richer chords. D262 closed O174 the same day.
@@ -280,3 +281,17 @@ structural review.
 - **O246 - Which goal the page serves** _(D393; [personas](personas.md))_: proposed: P1's G1
   ("get to know the possibilities rather than study theory"), between sessions: a word met in the
   controls, a preset or the review can be looked up without going online. No new persona goal.
+
+## v3.2 build (O267+)
+
+Opened during the v3.2 build ([build plan](versions/v3/build-plan-v3.2.md)). None blocks the wave
+in progress.
+
+- **O267 - A doodle note played just before the doodle's first barline** _(D430;
+  [build plan chunk 25](versions/v3/build-plan-v3.2.md#chunk-25--exports-open-with-the-doodle))_:
+  C5.4 makes a note played a little early onto the doodle's first beat a doodle note, so its raw
+  onset falls before the doodle section's time zero, by at most half a sixteenth note. Kept, it is
+  stored as played (D430). Where the played-notes export and the review's `Played notes` lane put
+  it is open; C5.15 only says a note running past the section's end stops there. Proposed: the
+  export starts it at the section's start, its release unchanged, as the end is clipped; the lane
+  draws it where it was played. Needed before chunk 23 (the lane, wave 6) and chunk 25 (wave 7).

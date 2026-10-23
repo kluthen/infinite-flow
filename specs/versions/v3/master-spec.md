@@ -82,8 +82,11 @@ Status: this file holds four parts.
   spec D424). v1.7 (2026-10-22): the steering block's target rhythm holds rest starts beside note
   starts, a doodle measure's starts are defined, and the doodle is compared as heard (C5.9, C8,
   C11; spec D425). v1.8 (2026-10-22): a dead end mid-session is unreachable under today's rules,
-  and its skip a defensive guarantee (C9; spec D426). Its sections are numbered C1 to C18; what
-  v1.1 to v1.8 change is listed at the top of Part C and marked in each section they touch.
+  and its skip a defensive guarantee (C9; spec D426). v1.9 (2026-10-23): only locked bars make
+  the search rhythm-major, a fresh Jam's played notes are timed from its count-in, and the
+  kept-session data versions and their contract bump are stated (C7.6, C8, C10.3, C11, C13; spec
+  D428–D430). Its sections are numbered C1 to C18; what v1.1 to v1.9 change is listed at the top of
+  Part C and marked in each section they touch.
 - **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.1
   (2026-10-12), consolidated from the v3.3 direction and the chord research; **awaiting the
   owner's approval**. The contract wording it changes (§D12) needs the owner's confirmation
@@ -2239,8 +2242,12 @@ Delete everything removes them. No preset leaves the device.
 
 ## Part C — v3.2
 
-Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.8 (2026-10-22)**: v1.7
-with C9 stating that a dead end mid-session cannot happen under today's rules, so its skip is a
+Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.9 (2026-10-23)**: v1.8
+with the build's wave 2 preflight findings settled (C7.6, C8, C10.3, C11, C13; D428–D430): only
+locked bars make the search rhythm-major; a fresh Jam's played notes are timed from its count-in;
+the kept-session data versions and the contract bump that covers them. The only behaviour it adds
+is that a kept phrase whose request and intent disagree on v3.2's fields is unreadable. v1.8
+(2026-10-22): v1.7 with C9 stating that a dead end mid-session cannot happen under today's rules, so its skip is a
 defensive guarantee, and what could make it reachable (D426); it adds no behaviour. v1.7
 (2026-10-22): v1.6 with the steering block's target rhythm stated as built, note starts and rest starts, a doodle
 measure's starts defined, and a candidate compared with the doodle as heard (C5.9, C8, C11; D425);
@@ -2274,6 +2281,22 @@ the code.
 
 Music terms are explained the first time they appear; the project's
 [lexicon](../../../docs/music/lexicon.md) has one entry per term.
+
+### What v1.9 changes against v1.8
+
+Each section v1.9 changes opens with a line in italics, _Changed in v1.9:_, under the earlier lines.
+
+- **Only locked bars make the search rhythm-major** (D428): a steering block alone, and a Jam's
+  phrase 1 chosen nearest the doodle, keep v3.1's walk, so the band orders the rhythms tried with
+  each chord plan (C7.6, C8).
+- **A fresh Jam's played notes are timed from its count-in** (D430): its raw doodle notes come
+  before phrase 1, so its played-notes record counts from the count-in's first beat, and its body
+  holds where the doodle and phrase 1 start on that clock; the played-notes record keeps data
+  version 1 (C10.3, C11).
+- **The kept-session records' data versions and their contract bump** (D429): the session-wide
+  record and the body take data version 4; a kept phrase whose request and intent disagree on the
+  lock group, the steering block or the join's origin is unreadable, as v3.1 refused such a record;
+  the stored layout's three contract atoms join the wave 2 bump (C11, C13).
 
 ### What v1.8 changes against v1.7
 
@@ -3453,6 +3476,8 @@ description tells the player that what it offers depends on the rhythm settings.
 
 ### C7.6 How the search holds the lock
 
+_Changed in v1.9:_ only locked bars make the search rhythm-major (D428).
+
 Facts from the code (re-checked against version 3.1.0 on 2026-10-21; [C14](#c14-existing-code-and-risks)):
 
 - Each rhythm candidate has a stable index and identity, independent of the seed; but the identity
@@ -3475,7 +3500,10 @@ The rules:
 - **Under the lock, the phrase's rhythm is tried with every chord plan before any other rhythm**:
   the drawn change's candidates first when the phrase changes, then the locked bars, then the
   forced bend's order. This is an order inside the rhythm stage and the search, not a constraint: every
-  phrase possible today stays possible, and no stage revises another.
+  phrase possible today stays possible, and no stage revises another. _Changed in v1.9:_ only a
+  request holding locked bars walks this way (D428); without them (the lock off, "on, nothing
+  locked yet", with or without a steering block) the search keeps v3.1's walk, every rhythm with
+  one chord plan before the next.
 - **Every rung of the failure ladder keeps the lock**, the standalone attempt included.
 - **Cost at 240 BPM** (Node figures, largest domain, 2,932 candidates; _changed in v1.6_, D424):
   keying a domain by bars takes about 15 ms once per domain. The one-change candidates are found
@@ -3506,6 +3534,8 @@ _Changed in v1.1:_ a Jam-mode setting, saved with Jam's settings; it reaches the
 steering block's band and strength (C5.9).
 _Changed in v1.7:_ a candidate is compared with the doodle as heard: a rest written right after
 another rest starts nothing (D425).
+_Changed in v1.9:_ the band orders the rhythms tried with each chord plan, as v3.1 walks them
+(D428).
 
 - **Three positions, closest first: Close, Near (the default), Free.** A Jam-mode setting: shown
   in Jam mode only, set at Jam's Idle, saved with Jam's settings (C5.16); presets neither hold nor
@@ -3536,6 +3566,11 @@ another rest starts nothing (D425).
   measures, fewest first, then seeded order, so a doodle far from everything the settings allow is
   still approached. The same total orders "nearest the doodle" under the lock (C7.1), the
   forced bend (C7.5) and the narrow-window step-down (C7.1), against the locked rhythm for the last two.
+  _Changed in v1.9:_ this is the rhythm order the search walks with each chord plan, as in v3.1
+  (D428): a candidate in the band comes first among the rhythms tried with the chord plan the
+  search is on, and only locked bars make a rhythm be tried with every chord plan first (C7.6). A
+  Jam's phrase 1 "nearest the doodle" is so the nearest rhythm that makes a phrase with the first
+  chord plan any rhythm makes one with.
 - **The catalogue's mutations, as unlocked here.** A Close or Near mutation is reached by choosing a
   candidate rhythm at that distance from the doodle, not by an operation applied to the doodle. The
   catalogue's Close and Near rhythm entries the grammar can write are covered that way; the others,
@@ -3624,6 +3659,7 @@ _Changed in v1.2:_ Jam's first values named (D410, D411).
 
 _Changed in v1.1:_ the data versions are per record, and older records are upgraded when the
 database opens only.
+_Changed in v1.9:_ a fresh Jam's played notes are timed from its count-in (D430).
 
 - **A Jam session is kept like any session** (Part A §5.1): the most recent automatically, pinned
   ones for good, favorites pinning their session. A Jam that ended before phrase 1 sounded changes
@@ -3632,6 +3668,16 @@ database opens only.
   suggestion, and, in each phrase's reproduction inputs, the new request fields (the lock fields and
   the steering block). The raw doodle notes follow "Keep my played notes" like every played note
   (C5.14).
+- **A fresh Jam's played notes are timed from its count-in** (_changed in v1.9_, D430). Every time
+  a kept session holds counts from phrase 1's scheduled start, and no note played before it is
+  kept; a fresh Jam's raw doodle notes are played before phrase 1, and a note played a little early
+  onto the doodle's first beat even before the doodle's first barline (C5.4). So the played notes
+  of a Jam whose doodle was played in it count from its count-in's first beat, which comes before
+  every doodle note, and its body holds the doodle's first barline and phrase 1's scheduled start
+  on that clock, whatever "Keep my played notes" says (barline times, not notes). The only notes
+  kept from before phrase 1 are the raw doodle notes, so they are the kept notes before phrase 1's
+  start. Every other time stays as it was, and every other session (session mode, a Jam on a kept
+  doodle) times its played notes from phrase 1 as before.
 - **Sessions kept before v3.2** have no doodle and open as before, upgraded when the database opens
   (C11).
 
@@ -3726,6 +3772,8 @@ version (D410).
 _Changed in v1.3:_ a fresh Jam's seeds (D419).
 _Changed in v1.7:_ the steering block's size restated: four measures of note and rest starts; a
 join from no phrase is phrase 1's (D425).
+_Changed in v1.9:_ the kept-session data versions stated; a kept phrase whose request and intent
+disagree on v3.2's fields is unreadable (D429, D430).
 
 - **The generation request** gains, on both the player-facing request and the resolved core
   request, and across the generation worker (re-validated there from untrusted input like every
@@ -3793,6 +3841,12 @@ join from no phrase is phrase 1's (D425).
   does); sessions kept before v3.2 are upgraded with no doodle and are otherwise unchanged. The
   locked rhythm, the forced bends and the rhythm changes need nothing more: each kept phrase's
   inputs reproduce it, and its timeline is kept. Jam's saved settings need no data change (C10.2).
+  _Changed in v1.9_ (D429, D430): the session-wide record and the body take **data version 4**, the
+  database's step for v3.2 (3 was the presets' step), and the played notes stay at data version 1,
+  a fresh Jam's body holding where its played notes' clock starts (C10.3). A kept phrase whose
+  request holds a lock group or a steering block its intent lacks, or the reverse, or a join of
+  another origin (from a phrase, from no phrase, or none), is unreadable, as v3.1 refused a request
+  holding either group; the readers of the records v3.1 wrote still refuse one.
 
 ## C12. For the interface design
 
@@ -3870,6 +3924,8 @@ join the guarantees that change; the vision's out-of-scope browsers follow D399 
 go in the same sign-off.
 _Changed in v1.4:_ the owner signed off the wording (D421).
 _Changed in v1.5:_ the three atoms promoted at 8.1.0 take later bumps of their own (D422).
+_Changed in v1.9:_ the wave 2 bump also covers the kept-session stored layout's three contract
+atoms (D429) and a fresh Jam's played-notes clock (D430).
 
 Each change is intended. Where a declared-intent entry is named, `documentalist` prepares the
 change.
@@ -3892,6 +3948,16 @@ at the sync of the wave that builds it, so the released contract never disagrees
 beside it. CONTRACT 9.0.0 (MAJOR) comes at the sync of the wave that builds Vary settings' allowed
 groups (the settings mutation), and one more MAJOR bump at the sync of the wave that builds the
 `ifk4.` replay key (the replay key and seeded reproduction). v3.2 so takes three MAJOR bumps in all.
+
+**The wave 2 bump also covers the kept-session shape** (_changed in v1.9_, D429, D430). The wave
+that builds the `ifk4.` key also builds v3.2's kept-session shape, which changes the stored layout
+of three atoms on the contract since v3.0 and not listed above: `module_kept_session_codec`,
+`entity_kept_session_record` and `module_on_device_database` (data version 4; the Jam parts; a
+kept phrase whose request and intent disagree on v3.2's fields unreadable; a fresh Jam's played
+notes timed from its count-in, C10.3). No promise to the player is weakened. The owner signs their
+wording off with the replay key's, and the same MAJOR bump, CONTRACT 9.0.0 to 10.0.0, applies them
+at that wave's sync, with the optional rewordings of the two earlier upgrade steps and
+`rule_kept_session_content`.
 
 **Contract guarantees that change** (STABLE atoms on the contract surface):
 

@@ -876,3 +876,33 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   overstated a cause; the signed N1 wording only says what happens if one occurs. Now in:
   [Part C §C9](versions/v3/master-spec.md#c9-vary-settings-allowed-groups),
   [build plan v3.2, chunk 15](versions/v3/build-plan-v3.2.md#chunk-15--vary-settings-allowed-groups).
+
+- **D427 (2026-10-23): wave 2's preflight corrections to the v3.2 plan.** The wave driver's, at
+  the preflight. The plan states what the spec already settles: chunk 16's re-lock request holds
+  no allowed change (C7.4); chunk 22's summary and body take data version 4; chunks 10, 11, 12 and
+  22 name the atoms the preflight found. Chunk 3 writes the doodle set by hand; the owner's Travel
+  Sax recordings join it before chunk 28 (gate DR). Now in: [build plan v3.2, v15](versions/v3/build-plan-v3.2.md#gates).
+
+- **D428 (2026-10-23): only locked bars make the search rhythm-major.** `spec-writer`'s, under the
+  owner's delegation of minor calls. A steering block alone, and "on, nothing locked yet" with one,
+  keep v3.1's harmony-major walk, so a Free block reproduces v3.1 and the doodle only orders the
+  rhythms tried with each chord plan. Rejected: rhythm-major for every block (Free would differ
+  from v3.1). If M1 or L1 finds the band too often missed, a block walking rhythm-major is the
+  lever. Now in: [Part C §C7.6](versions/v3/master-spec.md#c76-how-the-search-holds-the-lock),
+  [§C8](versions/v3/master-spec.md#c8-jams-drift), [build plan v3.2, chunks 8 and 10](versions/v3/build-plan-v3.2.md#chunk-10--the-rhythm-lock-in-the-generator).
+
+- **D429 (2026-10-23): gate CK also covers chunk 22's kept-session shape, and the kept-record
+  loophole is closed.** The wave driver's, under the owner's delegation, per D422: chunk 22's
+  merge waits on the owner's sign-off of P3–P5 (P3b, P6, P7 with them), under the same CONTRACT
+  10.0.0. A kept phrase whose request and intent disagree on the lock group, the steering block or
+  the join's origin is unreadable, as v3.1 refused it. Now in: [Part C §C11](versions/v3/master-spec.md#c11-the-generation-request-the-replay-key-and-kept-sessions),
+  [§C13](versions/v3/master-spec.md#c13-what-v32-changes-in-v2-v30-and-v31-guarantees-and-atoms), [build plan v3.2, chunk 22 and gate CK](versions/v3/build-plan-v3.2.md#chunk-22--v32s-kept-session-shape).
+
+- **D430 (2026-10-23): a fresh Jam's played notes are timed from its count-in.** `spec-writer`'s,
+  under the owner's delegation of minor calls. Its body holds the doodle's first barline and phrase
+  1's start on that clock; the played notes keep data version 1 and its reader. The count-in's
+  first beat precedes every doodle note, even one played early onto the first beat (C5.4), which
+  the doodle's first barline does not. Rejected: negative times (a new played-notes data version
+  and an upgrade of every record) and the doodle's barline as origin. The STABLE wording of
+  `entity_kept_session_record` and `module_kept_session_codec` joins gate CK; opens O267. Now in:
+  [Part C §C10.3](versions/v3/master-spec.md#c103-kept-sessions-and-played-notes), [build plan v3.2, chunk 22](versions/v3/build-plan-v3.2.md#chunk-22--v32s-kept-session-shape).
