@@ -38,10 +38,13 @@ their music-theory knowledge for granted.
 ## Production VPS (shared — filetstudio must never go down)
 
 The app is served at https://infinite.upsilon-hub.com from `ssh vps`, directory `~/infinite-flow`, behind
-the Caddy container of another app (filetstudio/crochethub). The runbook for up, down, update and the
-Caddy procedure is `~/infinite-flow/README_INFINITE_FLOW.md` on the VPS — read it before touching
-anything there. Never stop, restart or recreate anything under `~/crochethub`; change Caddy only by
-backup → validate → graceful reload. Never store secrets on the VPS. Ask before deploying.
+the VPS's shared Caddy (`~/caddy`, container `caddy`, rules in `~/README_SHARED_CADDY.md`), over the
+network `caddy_infinite-flow` that only Caddy and this app join; our only file there is
+`~/caddy/conf/sites/infinite-flow.caddy` (versioned in `deploy/vps/`). The runbook for up, down,
+update and the Caddy procedure is `~/infinite-flow/README_INFINITE_FLOW.md` on the VPS — read it
+before touching anything there. Never stop, restart or recreate anything under `~/crochethub`, nor
+the shared `caddy` container; change Caddy only by backup → validate → graceful reload. Never store
+secrets on the VPS. Ask before deploying.
 
 ## Declared intent
 

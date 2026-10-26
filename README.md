@@ -537,6 +537,16 @@ the read-only `status` do what they say. `update`, `start` and `rollback` end wi
 check of the app and the shared site; `stop` checks the shared site still answers. `VPS_HOST`
 overrides the SSH host alias (default `vps`).
 
+On the VPS, the app sits behind the shared Caddy that serves every app there (`~/caddy`, container
+`caddy`): Caddy reaches the `infinite-flow-web` container on port 8181 over the Docker network
+`caddy_infinite-flow`, which only Caddy and this app join, so the app shares no network with any
+other app. [`deploy/vps/`](deploy/vps) holds the versioned copies of the two VPS files that set this
+up and that `scripts/vps.sh` does not ship: `compose.yaml` (`~/infinite-flow/compose.yaml`) and
+`infinite-flow.caddy` (the site file, `~/caddy/conf/sites/infinite-flow.caddy`). Changing either
+on the VPS follows the runbook there (`~/infinite-flow/README_INFINITE_FLOW.md`); `update`, `start`
+and `rollback` refuse to run if `compose.yaml` there does not use that network or the network is
+missing.
+
 ### The build id in the header
 
 The header shows the build beside the app's name: the package version and the short id of the

@@ -2,10 +2,16 @@
 # Manage the Infinite Flow website on the shared production VPS (https://infinite.upsilon-hub.com).
 # The full runbook is ~/infinite-flow/README_INFINITE_FLOW.md on the VPS.
 #
+# Wiring (since 2026-10-26): the VPS's shared Caddy (~/caddy, container `caddy`, runbook
+# ~/README_SHARED_CADDY.md) proxies to infinite-flow-web:8181 over the network
+# caddy_infinite-flow, which only Caddy and this app join. The site file is
+# ~/caddy/conf/sites/infinite-flow.caddy (versioned copy: deploy/vps/infinite-flow.caddy). This
+# script never changes that wiring; it refuses to (re)start the app if the wiring is not in place.
+#
 # Hard rules (the VPS also serves filetstudio, which must never go down):
-#   - only ~/infinite-flow is used; never cd into ~/crochethub, never touch the Caddyfile;
-#   - no docker command on crochethub-* containers, no `docker system prune`,
-#     no `docker network rm`, no `-v`/`--rmi` on down;
+#   - only ~/infinite-flow is used; never cd into ~/crochethub, never touch ~/caddy;
+#   - no docker command on crochethub-* containers or on the shared `caddy` container,
+#     no `docker system prune`, no `docker network rm`, no `-v`/`--rmi` on down;
 #   - every remote docker command runs as `cd ~/infinite-flow || exit 1; docker ...`;
 #   - every mutating command first checks that the compose project there is `infinite-flow`.
 #
@@ -17,6 +23,7 @@ VPS_HOST="${VPS_HOST:-vps}"
 APP_URL="https://infinite.upsilon-hub.com"
 SHARED_URL="https://filetstudio.com"
 CONTAINER="infinite-flow-web"
+EDGE_NETWORK="caddy_infinite-flow"
 IMAGE="infinite-flow:vps"
 PREV_IMAGE="infinite-flow:vps-prev"
 HEALTH_TIMEOUT=60
@@ -30,7 +37,7 @@ Manage the Infinite Flow website on the shared production VPS (ssh host: $VPS_HO
 Commands:
   update [ref]  Ship a committed ref (default HEAD), rebuild on freshly pulled base images
                 and restart; keeps the previous image as infinite-flow:vps-prev for rollback.
-  stop          Stop the container (reversible; infinity.* then answers 502).
+  stop          Stop the container (reversible; infinite.* then answers 502).
   start         Start the container again.
   status        Show the container, the deployed commit and both sites' HTTP status (read-only).
   rollback      Switch back to infinite-flow:vps-prev and restart.
@@ -56,6 +63,18 @@ in_app_dir() { remote "cd ~/infinite-flow || exit 1; $1"; }
 assert_project() {
   in_app_dir 'grep -qx "name: infinite-flow" compose.yaml && docker compose config | grep -qx "name: infinite-flow"' ||
     die "the ~/infinite-flow directory on $VPS_HOST is not the infinite-flow compose project; aborting."
+}
+
+# Abort unless the VPS compose project joins only the dedicated Caddy network, and that network
+# exists with the shared Caddy on it. `docker compose config` drops comments, so only real
+# references count.
+assert_edge_network() {
+  in_app_dir "docker network inspect $EDGE_NETWORK >/dev/null 2>&1" ||
+    die "network $EDGE_NETWORK is missing on $VPS_HOST; see 'Re-creating the network' in ~/infinite-flow/README_INFINITE_FLOW.md"
+  in_app_dir "docker network inspect -f '{{range .Containers}}{{.Name}} {{end}}' $EDGE_NETWORK | grep -qw caddy" ||
+    warn "the shared caddy container is not on $EDGE_NETWORK; the site will answer 502 until it is (see the VPS runbook)"
+  in_app_dir "docker compose config | grep -q '$EDGE_NETWORK' && ! docker compose config | grep -q crochethub_net" ||
+    die "~/infinite-flow/compose.yaml on $VPS_HOST must use the network $EDGE_NETWORK and not crochethub_net; aborting."
 }
 
 image_exists() { in_app_dir "docker image inspect $1 >/dev/null 2>&1"; }
@@ -124,6 +143,7 @@ cmd_update() {
   fi
 
   assert_project
+  assert_edge_network
 
   if image_exists "$IMAGE"; then
     in_app_dir "docker tag $IMAGE $PREV_IMAGE"
@@ -154,13 +174,14 @@ cmd_stop() {
   assert_project
   log "stopping the container"
   in_app_dir 'docker compose stop'
-  log "checking the shared site (infinity.* is expected to answer 502 now)"
+  log "checking the shared site (infinite.* is expected to answer 502 now)"
   check_sites stopped || die "post-check failed"
   log "stopped; run 'scripts/vps.sh start' to bring it back"
 }
 
 cmd_start() {
   assert_project
+  assert_edge_network
   log "starting the container"
   in_app_dir 'docker compose up -d'
   post_check
@@ -169,6 +190,8 @@ cmd_start() {
 cmd_status() {
   log "container"
   in_app_dir 'docker compose ps -a'
+  log "network $EDGE_NETWORK (want exactly: caddy $CONTAINER)"
+  in_app_dir "docker network inspect -f '{{range .Containers}}{{.Name}} {{end}}' $EDGE_NETWORK || true"
   log "deployed commit"
   in_app_dir 'if [ -f DEPLOYED_COMMIT ]; then cat DEPLOYED_COMMIT; else echo "(no DEPLOYED_COMMIT file)"; fi'
   log "HTTP status"
@@ -178,6 +201,7 @@ cmd_status() {
 cmd_rollback() {
   local current_id
   assert_project
+  assert_edge_network
   image_exists "$PREV_IMAGE" || die "no $PREV_IMAGE image on $VPS_HOST; nothing to roll back to"
 
   # Swap the two tags so a second rollback undoes the first, like the DEPLOYED_COMMIT swap below.
