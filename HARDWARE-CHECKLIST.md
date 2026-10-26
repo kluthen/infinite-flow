@@ -680,8 +680,8 @@ carried over by hand; the upgrade code and its automated tests stay.
 # v3.2 hand checks
 
 Build plan [Hand checks](specs/versions/v3/build-plan-v3.2.md#hand-checks): each check is written
-here by the chunk that needs it. This part holds H1; H2 to H8 are added by their chunks, and H9 is
-waived (spec D417).
+here by the chunk that needs it. This part holds H1 to H3; H4 to H8 are added by their chunks, and
+H9 is waived (spec D417).
 
 ## v3.2 H1. Drift's scale by ear (chunk 3; gate LD; about 8 min)
 
@@ -712,3 +712,46 @@ ear agrees with that scale. Run it after wave 2, before wave 4.
       Close letter before the Near letter?).
 - [ ] Report the five rankings and that answer. Pass on your word; a set whose ranking disagrees
       with the scale (Same, then Close, then Near, then beyond) goes to `spec-writer`.
+
+## v3.2 H2. Allowed rhythm changes (chunk 19; gate L3; about 10 min)
+
+Chrome on the reference machine, the Travel Sax over USB. With the **Rhythm lock** on, every
+phrase keeps phrase 1's rhythm; **Allowed rhythm changes** lets one phrase now and then change it
+in one small way, the next phrase going back to it. A kind can change a phrase only when the locked
+rhythm offers it (a rhythm with no rest has no rest to move). The Pop song preset's rhythms offer
+all five kinds: of its locked rhythms, 28 % offer a moved note, 51 % a moved rest, 22 % a split,
+15 % a merge, 28 % a rest added or removed, and 82 % at least one (spec D424). Neutral's settings
+never offer Move a note or Move a rest, so this check does not use them. Run it after wave 3.
+
+- [ ] Session mode. Choose the **Pop song** preset (Eighth, Heavily varied, Occasional offbeats,
+      Conversational silence, tension Lift), any key, 120 BPM. In "During a session", set
+      **Rhythm lock** to `On`; **Allowed rhythm changes** shows under it, every kind off.
+- [ ] Turn all five kinds on. Play a session of eight phrases. Note whether each change sounded
+      small, and whether about one phrase in four changing felt too often.
+- [ ] Allow one kind only (start with "Move a note"); play eight phrases. If none changed, press
+      **Regenerate** at Idle (a new phrase 1, so a new locked rhythm) and play eight more; if still
+      none, write it down and move on (the M2 measurement records how often each kind is
+      available). Repeat for each of the five kinds, one to two minutes each.
+- [ ] Turn all five kinds on again and **Tension across phrases** `On`; play eight phrases. The
+      tenser phrases should change about one time in two.
+- [ ] Report what you noted for each step. Pass on your word; the shares are tuned from your
+      report, then M2 runs again.
+
+## v3.2 H3. Vary settings' groups (chunk 19; about 6 min)
+
+Chrome on the reference machine, the Travel Sax over USB. **What may vary**, under **Vary
+settings**, chooses which groups of settings Vary settings may move. Run it after wave 3.
+
+- [ ] Session mode; **Vary settings** `On`. In **What may vary**, turn every group off but
+      "Key and mode".
+- [ ] Play a session of about twelve phrases. Only the written key and the collection should
+      move; every other control stays as you set it.
+- [ ] Back at Idle, turn every group on and set **Rhythm lock** to `On`: "Rhythm" shows off and
+      disabled, with the note "The rhythm lock holds the rhythm." Play about eight phrases: the
+      rhythm never moves, and no rhythm control (Note density, Rhythmic variety, Syncopation,
+      Silence density) changes.
+- [ ] Back at Idle, turn every group off but "Rhythm", the lock still `On`. Vary settings' `On`
+      is disabled, `Off` shows checked, and the note "Nothing is allowed to vary with these
+      choices. Turn on another group below." shows. Turn the lock `Off`: Vary settings shows `On`
+      again.
+- [ ] Report. Pass on your word.

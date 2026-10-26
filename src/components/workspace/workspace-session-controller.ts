@@ -81,6 +81,7 @@ import {
 import { createSessionMidi, type ControllerLostCountdown } from './workspace-session-midi'
 import { createSessionStart } from './workspace-session-start'
 import { createSessionLockAndGroups } from './workspace-session-lock-choices'
+import { createVarySettingsAvailability } from './workspace-vary-settings-availability'
 import { createStalePhraseStart, type StalePhrasePrompt } from './workspace-stale-phrase'
 import type { WorkspacePregeneration } from './workspace-pregeneration'
 import {
@@ -227,6 +228,9 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     get tensionAcrossPhrases(): boolean {
       return tensionAcrossPhrases.on()
     },
+    get varySettingsAvailable(): boolean {
+      return varySettingsAvailability.available()
+    },
     get rhythmLockOn(): boolean {
       return lockAndGroups.current().rhythmLockOn
     },
@@ -291,6 +295,11 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     saved.tensionAcrossPhrases,
   )
   const lockAndGroups = createSessionLockAndGroups(() => state.phase, saved)
+  const varySettingsAvailability = createVarySettingsAvailability(
+    idle.state,
+    () => state.phase,
+    lockAndGroups.current,
+  )
   const pregeneration = createIdlePregeneration(deps, () => startBlocker.value, {
     varySettings,
     tensionAcrossPhrases,
@@ -370,6 +379,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
       stalePhrase.dispose()
       if (core.active !== null) ends.end('stop')
       stopReadingWindow()
+      varySettingsAvailability.dispose()
       sessionMidi.dispose()
       // No timer exists when no session ever started: there is no worker to free then.
       core.timer?.dispose()

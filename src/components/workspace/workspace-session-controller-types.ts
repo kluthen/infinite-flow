@@ -277,6 +277,13 @@ export interface SessionControllerState {
    */
   readonly tensionAcrossPhrases: boolean
   /**
+   * Whether `Vary settings` has a move: at Idle and while the Review shows, whether the settings a
+   * session started now would take (the lock and the allowed groups among them) have a legal move;
+   * during a session, as when it left Idle. While false, `On` cannot be chosen and is shown off,
+   * the player's choice kept, and a session runs without it.
+   */
+  readonly varySettingsAvailable: boolean
+  /**
    * Whether session mode's rhythm lock is on: the player's saved choice at page load (off on a
    * first visit), kept from one session to the next, held in memory; a session started with it on
    * locks phrase 1's rhythm.

@@ -340,6 +340,20 @@ function instrumentProfileOf(intent: GenerationIntent): WorkspaceHarnessInstrume
 }
 
 /**
+ * Intent: the rhythm lock group `intent` carries, as plain JSON (its state's kind, the allowed
+ * changes and the tenser flag), or null when it carries none.
+ */
+function rhythmLockOf(intent: GenerationIntent): WorkspaceHarnessGenerationRequest['rhythmLock'] {
+  const group = intent.rhythmLock
+  if (group === undefined) return null
+  return {
+    state: group.state.kind,
+    allowedChanges: [...group.allowedChanges],
+    tenserPhrase: group.tenserPhrase,
+  }
+}
+
+/**
  * Intent: record the call, then pass it through the gates and the armed failures to the real
  * worker client; settle its record as the call settles. A background attempt is a call carrying
  * a signal while no session runs (the controller at Idle).
@@ -360,6 +374,8 @@ async function harnessGenerate(
     background: signal !== undefined && harnessSessionController.phase() === 'idle',
     settled: 'pending',
     timeline: null,
+    rhythmLock: rhythmLockOf(intent),
+    rhythmLockOutcome: null,
   }
   generationRequests.push(record)
   try {
@@ -367,6 +383,7 @@ async function harnessGenerate(
     record.settled = 'answered'
     if (outcome.kind === 'generation_success') {
       record.timeline = JSON.stringify(outcome.result.timeline)
+      record.rhythmLockOutcome = outcome.provenance.rhythmLockOutcome ?? null
     }
     return outcome
   } catch (error: unknown) {

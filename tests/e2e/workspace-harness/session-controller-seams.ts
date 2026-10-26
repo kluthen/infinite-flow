@@ -197,6 +197,10 @@ function snapshotOf(state: SessionControllerState): WorkspaceHarnessSessionState
     lastSessionReachedTempo: state.lastSessionReachedTempo,
     varySettings: state.varySettings,
     tensionAcrossPhrases: state.tensionAcrossPhrases,
+    varySettingsAvailable: state.varySettingsAvailable,
+    rhythmLockOn: state.rhythmLockOn,
+    allowedRhythmChanges: [...state.allowedRhythmChanges],
+    allowedGroups: { ...state.allowedGroups },
     shownSettings:
       state.shownSettings === null
         ? null

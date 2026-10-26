@@ -10,6 +10,7 @@ import { effectScope, shallowRef } from 'vue'
 import { useSessionOptions } from '@/components/workspace/use-session-options'
 import type { SessionController } from '@/components/workspace/workspace-session-controller-types'
 import { RHYTHM_CHANGE_KINDS } from '@/domain/generation/request-rhythm-lock'
+import { ALL_GROUPS_ALLOWED } from '@/session/settings-mutation-scales'
 import {
   DEFAULT_SESSION_OPTIONS,
   type SessionOptionChoices,
@@ -25,6 +26,7 @@ const ALL_ON: SessionOptionChoices = {
   risingTempo: true,
   rhythmLockOn: true,
   allowedRhythmChanges: RHYTHM_CHANGE_KINDS,
+  allowedGroups: { ...ALL_GROUPS_ALLOWED, rhythm: false },
 }
 
 /** Intent: the options over a controller the test sets, inside their own effect scope. */
@@ -69,6 +71,31 @@ describe('useSessionOptions: while the controller loads', () => {
     stop()
   })
 
+  // @test-link [[rule_first_phrase_waits_for_saved_settings]]
+  // @test-link [[req_rhythm_lock]]
+  // @test-link [[rule_vary_settings_allowed_groups]]
+  // @test-link [[rule_vary_settings_needs_legal_move]]
+  it("shows the saved lock, rhythm changes and groups, Vary settings available, until the controller's arrive", () => {
+    const { built, controller, stop } = options(ALL_ON)
+
+    expect(built.rhythmLockOn.value).toBe(true)
+    expect(built.allowedRhythmChanges.value).toEqual(RHYTHM_CHANGE_KINDS)
+    expect(built.allowedGroups.value).toEqual({ ...ALL_GROUPS_ALLOWED, rhythm: false })
+    expect(built.varySettingsAvailable.value).toBe(true)
+
+    const fake = createFakeSessionController()
+    fake.state.rhythmLockOn = false
+    fake.state.allowedRhythmChanges = ['split_note']
+    fake.state.allowedGroups = { ...ALL_GROUPS_ALLOWED, harmony: false }
+    fake.state.varySettingsAvailable = false
+    controller.value = fake.controller
+    expect(built.rhythmLockOn.value).toBe(false)
+    expect(built.allowedRhythmChanges.value).toEqual(['split_note'])
+    expect(built.allowedGroups.value).toEqual({ ...ALL_GROUPS_ALLOWED, harmony: false })
+    expect(built.varySettingsAvailable.value).toBe(false)
+    stop()
+  })
+
   // @test-link [[req_adaptive_tempo]]
   // @test-link [[rule_saved_setting_is_players_choice]]
   it('shows Rising tempo unavailable, as with a controller and no MIDI controller attached', () => {
@@ -107,6 +134,27 @@ describe("useSessionOptions: saving the player's choices", () => {
     stop()
   })
 
+  it('saves the lock, the rhythm changes and the groups once the controller accepted each', () => {
+    const { built, controller, saves, stop } = options(ALL_ON)
+    const fake = createFakeSessionController()
+    controller.value = fake.controller
+    const groups = { ...ALL_GROUPS_ALLOWED, tension: false }
+
+    built.setRhythmLockOn(true)
+    built.setAllowedRhythmChanges(['move_rest', 'note_rest'])
+    built.setAllowedGroups(groups)
+
+    expect(fake.setRhythmLockOn).toHaveBeenCalledExactlyOnceWith(true)
+    expect(fake.setAllowedRhythmChanges).toHaveBeenCalledExactlyOnceWith(['move_rest', 'note_rest'])
+    expect(fake.setAllowedGroups).toHaveBeenCalledExactlyOnceWith(groups)
+    expect(saves).toEqual([
+      { 'sessionOptions.rhythmLockOn': true },
+      { 'sessionOptions.allowedRhythmChanges': ['move_rest', 'note_rest'] },
+      { 'sessionOptions.allowedGroups': groups },
+    ])
+    stop()
+  })
+
   it('saves nothing when the controller refuses the change', () => {
     const { built, controller, saves, stop } = options(ALL_ON)
     const fake = createFakeSessionController()
@@ -116,6 +164,9 @@ describe("useSessionOptions: saving the player's choices", () => {
     expect(() => built.setVarySettings(true)).toThrow(/during a session/)
     expect(() => built.setTensionAcrossPhrases(true)).toThrow(/during a session/)
     expect(() => built.setRisingTempo(true)).toThrow(/during a session/)
+    expect(() => built.setRhythmLockOn(true)).toThrow(/during a session/)
+    expect(() => built.setAllowedRhythmChanges([])).toThrow(/during a session/)
+    expect(() => built.setAllowedGroups(ALL_GROUPS_ALLOWED)).toThrow(/during a session/)
 
     expect(saves).toEqual([])
     stop()

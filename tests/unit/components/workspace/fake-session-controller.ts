@@ -222,6 +222,7 @@ export function createFakeSessionController(
     adaptiveTempoAvailable: false,
     lastSessionReachedTempo: null,
     varySettings: false,
+    varySettingsAvailable: true,
     tensionAcrossPhrases: false,
     rhythmLockOn: DEFAULT_SESSION_OPTIONS.rhythmLockOn,
     allowedRhythmChanges: DEFAULT_SESSION_OPTIONS.allowedRhythmChanges,

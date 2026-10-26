@@ -11,6 +11,7 @@ import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection
 import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { BUILT_IN_PRESETS, DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
 import type { Preset, PresetSelection } from '@/domain/presets/preset-selection'
+import { ALL_GROUPS_ALLOWED } from '@/session/settings-mutation-scales'
 
 /** The actions row of a built-in selection: Save as new preset alone. */
 const NO_PRESET_ACTIONS: PresetActionsRow = {
@@ -43,6 +44,10 @@ export function mountPanel(
       risingTempoAvailable: false,
       lastSessionReachedTempo: null,
       varySettings: false,
+      varySettingsAvailable: true,
+      allowedGroups: ALL_GROUPS_ALLOWED,
+      rhythmLockOn: false,
+      allowedRhythmChanges: [],
       tensionAcrossPhrases: false,
       sessionOptionsReadonly: readonly,
       startSettings,
