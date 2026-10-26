@@ -232,6 +232,7 @@ describe('presetDescription', () => {
       selection: { kind: 'preset', presetId: 'neutral' },
       allowedGroups: ALL_GROUPS_ALLOWED,
       rhythmLockOn: false,
+      allowedRhythmChanges: [],
     }
     const start: SessionStartSettings = settings
     expect(presetDescription(start.selection, PRESETS)).toBe(

@@ -13,6 +13,7 @@ import type {
   GenerationIntentProviders,
 } from '../domain/generation/generation-intent'
 import type { GenerationOutcome } from '../domain/generation/orchestration/orchestration-types'
+import type { RhythmChangeKind } from '../domain/generation/request-rhythm-lock'
 import type { KeyAndModeRestriction } from '../domain/presets/key-and-mode-restriction'
 import type { PresetSelection } from '../domain/presets/preset-selection'
 import type { InstrumentProfile } from '../domain/profile/instrument-profile'
@@ -62,7 +63,8 @@ export type SuccessfulOutcome = Extract<GenerationOutcome, { kind: 'generation_s
  * restriction in force at the session's start, frozen there for the whole session: Vary
  * settings' key and mode moves stay inside it. It is absent when none was in force, or when the
  * one in force allows every key and mode, so nothing is drawn again for a restriction's sake. No
- * phrase is generated from it, nor from the allowed groups or the rhythm lock's state.
+ * phrase is generated from it, nor from the allowed groups; the rhythm lock's state and its allowed
+ * changes are taken at Start into the session's lock.
  */
 // @spec-link [[service_session_engine]]
 // @spec-link [[rule_session_settings_locked]]
@@ -76,9 +78,15 @@ export interface SessionSettings {
   readonly allowedGroups: AllowedGroups
   /**
    * Whether the session's rhythm lock is on: while it is, Vary settings never moves the Rhythm
-   * group. Nothing turns it on in a session yet.
+   * group, and the engine, taking it at Start, locks phrase 1's rhythm and carries the lock into
+   * every request from phrase 2 on.
    */
   readonly rhythmLockOn: boolean
+  /**
+   * The rhythm changes the player allows on the locked rhythm, in RHYTHM_CHANGE_KINDS order; kept
+   * and inert while the lock is off. Nothing sets them in a session beyond Start.
+   */
+  readonly allowedRhythmChanges: readonly RhythmChangeKind[]
 }
 
 /**
@@ -94,6 +102,8 @@ export interface SessionPhrase {
   readonly intent: GenerationIntent
   readonly outcome: SuccessfulOutcome
   readonly repeatOf?: number
+  /** The internal re-lock mark: this phrase's bars became the locked ones. No view shows it. */
+  readonly relock?: true
 }
 
 /**

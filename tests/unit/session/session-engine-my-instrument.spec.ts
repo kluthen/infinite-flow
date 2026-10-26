@@ -66,6 +66,7 @@ function mySettings(
     selection: { kind: 'custom', baseId: 'neutral' },
     allowedGroups: ALL_GROUPS_ALLOWED,
     rhythmLockOn: false,
+    allowedRhythmChanges: [],
     instrumentProfile: profile,
   }
 }
@@ -193,6 +194,7 @@ describe('the carry-in receiver converts the tonal center with my instrument’s
       selection: { kind: 'custom', baseId: 'neutral' },
       allowedGroups: ALL_GROUPS_ALLOWED,
       rhythmLockOn: false,
+      allowedRhythmChanges: [],
     }
   }
 
@@ -268,5 +270,6 @@ function altoBuiltIn(): SessionSettings {
     selection: { kind: 'custom', baseId: 'neutral' },
     allowedGroups: ALL_GROUPS_ALLOWED,
     rhythmLockOn: false,
+    allowedRhythmChanges: [],
   }
 }

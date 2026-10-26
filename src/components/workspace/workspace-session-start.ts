@@ -84,9 +84,11 @@ export function createSessionStart(
           controls: idle.state.controls,
           figureLevels: idle.state.figureLevels,
           selection: idle.state.selection,
-          // The saved allowed groups arrive with chunk 19, the session's rhythm lock with chunk 16.
+          // The saved allowed groups, the rhythm lock and its allowed changes arrive with chunk 19
+          // (the Idle choice).
           allowedGroups: ALL_GROUPS_ALLOWED,
           rhythmLockOn: false,
+          allowedRhythmChanges: [],
         },
         phraseOne.intent,
       ),

@@ -151,5 +151,6 @@ export function caseSettings(sweepCase: SweepCase, tempo: number): SessionSettin
     ...(sweepCase.restriction === undefined ? {} : { restriction: sweepCase.restriction }),
     allowedGroups: ALL_GROUPS_ALLOWED,
     rhythmLockOn: false,
+    allowedRhythmChanges: [],
   }
 }

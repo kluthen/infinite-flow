@@ -140,6 +140,7 @@ export function sessionSettings(overrides: Partial<GenerationControls> = {}): Se
     selection: { kind: 'custom', baseId: 'neutral' },
     allowedGroups: ALL_GROUPS_ALLOWED,
     rhythmLockOn: false,
+    allowedRhythmChanges: [],
   }
 }
 

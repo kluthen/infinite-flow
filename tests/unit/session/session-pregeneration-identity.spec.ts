@@ -88,6 +88,7 @@ function settingsUnder(preset: BuiltInPresetId): SessionSettings {
       selection: chosen.selection,
       allowedGroups: ALL_GROUPS_ALLOWED,
       rhythmLockOn: false,
+      allowedRhythmChanges: [],
     },
     BUILT_IN_PRESETS,
   )

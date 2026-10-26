@@ -88,6 +88,7 @@ function cIonian(
     selection,
     allowedGroups: ALL_GROUPS_ALLOWED,
     rhythmLockOn: false,
+    allowedRhythmChanges: [],
   }
 }
 
@@ -106,6 +107,7 @@ function startUnder(preset: Preset, controls: Partial<GenerationControls> = {}):
       selection: chosen.selection,
       allowedGroups: ALL_GROUPS_ALLOWED,
       rhythmLockOn: false,
+      allowedRhythmChanges: [],
     },
     PRESETS,
   )

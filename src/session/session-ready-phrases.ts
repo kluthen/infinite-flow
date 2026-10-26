@@ -19,6 +19,7 @@ import {
   type Step,
 } from './session-engine-state'
 import type { IntentSeams } from './session-intents'
+import type { PhraseRhythmLock } from './rhythm-lock-session'
 import { requestFirstRung } from './session-ladder-step'
 import { buildRungIntent, type RungIntent } from './session-phrase-opening'
 import {
@@ -89,36 +90,48 @@ export function requireReadyPhrases(readyPhrases: readonly ReadyPhrase[]): reado
 /**
  * Intent: re-derive a ready phrase's intent at its place, after `previous`, from the basis its
  * look-ahead was opened with: its rung's intent built through the very path a request takes, with
- * the window read now, the step-down memory given and the ready phrase's own request id, drawing
- * no request id. The rebuilt intent, with the step-down memory building it gives, when it is
- * identical to the ready phrase's; undefined when it differs.
+ * the window read now, the step-down memory given, the phrase's rhythm lock groups and the ready
+ * phrase's own request id, drawing no request id. The rebuilt intent, with the step-down memory
+ * building it gives and whether it carries the re-lock group, when it is identical to the ready
+ * phrase's, lock group included; undefined when it differs.
  */
 // @spec-link [[module_session_ready_phrases]]
 // @spec-link [[rule_pregenerated_phrase_matches_session]]
+// @spec-link [[module_session_rhythm_lock]]
 export function rederivedReadyPhrase(
   seams: IntentSeams,
   previous: SessionPhrase,
   basis: LookAheadBasis,
   ready: ReadyPhrase,
   steppedDown: boolean,
+  rhythmLock: PhraseRhythmLock | undefined,
 ): RungIntent | undefined {
   /** Intent: the ready phrase's own request id, so the rebuild draws none from the provider. */
   const ownRequestId = () => ready.intent.requestId
   const own = { ...seams, providers: { nextRequestId: ownRequestId } }
   const rung = LADDER[ready.rung]
   if (rung === undefined) throw new SessionEngineError(`No ladder rung ${ready.rung}.`)
-  const rebuilt = buildRungIntent(own, previous, basis, rung, steppedDown)
+  const rebuilt = buildRungIntent(own, previous, basis, rung, steppedDown, rhythmLock)
   return deepEqual(rebuilt.intent, ready.intent) ? rebuilt : undefined
 }
 
-/** Intent: the session record of a spent ready phrase, with the origin its rung's step gives. */
+/**
+ * Intent: the session record of a spent ready phrase, with the origin its rung's step gives and
+ * the re-lock mark when its intent carries the re-lock group.
+ */
 // @spec-link [[module_session_ready_phrases]]
-export function spentPhrase(ready: ReadyPhrase, step: RungIntent['step']): SessionPhrase {
+// @spec-link [[rule_rhythm_lock_relocks_after_step_down]]
+export function spentPhrase(
+  ready: ReadyPhrase,
+  step: RungIntent['step'],
+  relock: boolean,
+): SessionPhrase {
   return {
     phraseNumber: ready.phraseNumber,
     origin: step,
     intent: ready.intent,
     outcome: ready.outcome,
+    ...(relock ? { relock: true as const } : {}),
   }
 }
 
@@ -138,8 +151,10 @@ export function takeReadyPhrase(context: EngineContext, state: EngineState, at: 
     ? undefined
     : context.readyPhrases.find((entry) => entry.phraseNumber === lookAhead.phraseNumber)
   if (ready === undefined) return requestFirstRung(context, state, at)
-  const { previous, basis } = lookAhead
-  const rebuilt = rederivedReadyPhrase(context, previous, basis, ready, state.steppedDown)
+  const { previous, basis, rhythmLock } = lookAhead
+  const { steppedDown } = state
+  const rebuilt = rederivedReadyPhrase(context, previous, basis, ready, steppedDown, rhythmLock)
   if (rebuilt === undefined) return requestFirstRung(context, { ...state, readyRefused: true }, at)
-  return decide({ ...state, steppedDown: rebuilt.steppedDown }, spentPhrase(ready, rebuilt.step))
+  const phrase = spentPhrase(ready, rebuilt.step, rebuilt.relock)
+  return decide({ ...state, steppedDown: rebuilt.steppedDown }, phrase)
 }

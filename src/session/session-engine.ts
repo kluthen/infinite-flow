@@ -19,6 +19,7 @@ import {
   repeatedPhrase,
   type Attempt,
 } from './failure-ladder'
+import { phraseRhythmLock, sessionRhythmLockAtStart } from './rhythm-lock-session'
 import { freezeSessionSettings } from './session-intents'
 import {
   decide,
@@ -86,7 +87,8 @@ function requestNextPhrase(
   if (state.lookAhead !== undefined)
     throw new SessionEngineError('A phrase is requested while another is still undecided.')
   const opened = openNextPhrase(context, state)
-  const lookAhead = openLookAhead(state.lastDecided, opened.carryIn, opened.basis, deadline)
+  const { carryIn, basis, rhythmLock } = opened
+  const lookAhead = openLookAhead(state.lastDecided, carryIn, basis, deadline, rhythmLock)
   const requested = takeReadyPhrase(context, { ...state, settings: opened.settings, lookAhead }, at)
   return {
     state: requested.state,
@@ -239,7 +241,9 @@ function onPhraseStartedSounding(
  * phrase's tempo, remains before its deadline and none of it is on screen: a decided one is
  * undecided again, and either way it is requested again from its first rung (the standalone one
  * once that attempt is due) with the new settings (generated under them with its own tension-arc cycle step), same phrase before and
- * deadline, its attempt in flight superseded, and cancelled first while still generating.
+ * deadline, its attempt in flight superseded, and cancelled first while still generating; its
+ * rhythm lock groups are drawn again from the lock state before it was decided and the new
+ * tension in effect.
  * Otherwise the change applies from the phrase after it. The settings in effect and the
  * settings-changed output never carry the step.
  */
@@ -256,8 +260,11 @@ function onSettingsChange(
   if (!discardsPendingPhrase(at, pending, soundingTempo(state), context.display))
     return { state: { ...state, settings }, outputs: [automaticChange(phraseNumber + 1, settings)] }
   const undecided = state.lookAhead === undefined ? undecide(state) : state
-  const under = settingsGeneratedUnder(context.multiPhraseTensionArc, phraseNumber, settings)
-  const lookAhead = reopenedLookAhead(pending, under)
+  const { multiPhraseTensionArc } = context
+  const under = settingsGeneratedUnder(multiPhraseTensionArc, phraseNumber, settings)
+  const tensionInEffect = settings.controls.tension
+  const place = { phraseNumber, tensionInEffect, multiPhraseTensionArc }
+  const lookAhead = reopenedLookAhead(pending, under, phraseRhythmLock(undecided.rhythmLock, place))
   const requested = requestFirstRung(context, { ...undecided, settings, lookAhead }, at)
   const discarded: readonly SessionOutput[] =
     state.lookAhead === undefined ? [{ kind: 'phrase-discarded', phraseNumber }] : []
@@ -374,10 +381,10 @@ function handleEvent(context: EngineContext, state: EngineState, event: SessionE
  * non-boolean throws) and ready phrases (none when absent; an invalid list throws):
  * freeze the settings as the settings in effect, whose tempo stays the starting tempo, keep
  * phrase 1 as the `idle` record at the starting tempo, decided under its own settings, so phrase
- * 2's carry-in is adapted as after a change at their boundary, and request phrase 2 at once (or
- * spend its ready phrase) with its deadline at the end of the count-in. Returns the start outputs
- * and the handler of every later event; every output is deep-frozen, and attempt ids increase
- * from 1.
+ * 2's carry-in is adapted as after a change at their boundary, lock phrase 1's written bars for
+ * the session when the rhythm lock is on, and request phrase 2 at once (or spend its ready phrase)
+ * with its deadline at the end of the count-in. Returns the start outputs and the handler of every
+ * later event; every output is deep-frozen, and attempt ids increase from 1.
  */
 // @spec-link [[service_session_engine]]
 // @spec-link [[req_settings_mutation_flag]]
@@ -430,6 +437,7 @@ export function createSessionEngine(
     nextAttemptId: 1,
     tempo: startSessionTempo(settings, start.adaptiveTempo),
     readyRefused: false,
+    rhythmLock: sessionRhythmLockAtStart(settings, phraseOne),
   }
   const phraseTwoDue = phraseTwoDeadline(start.at, settings.controls.tempo)
   const started = requestNextPhrase(context, initial, start.at, phraseTwoDue)
