@@ -609,3 +609,29 @@ Open with the owner: gate DS (O268, how a short silence between doodle notes is 
 recordings, made with `scripts/import-doodle-recording.mjs` as `docs/testing.md` says, before
 chunk 28). Gate LD opens once wave 2 is merged (v3.2 H1; the renders come from `npm run
 render:rhythms`).
+
+### Chunk 22 resumed and merged (2026-10-26)
+
+- A fresh `coding-leader` resumed chunk 22 from e7e0cf4. 51b3fe9's step sequencing is within the
+  capture (`module_kept_session_jam_upgrade_step` 0.2: every earlier step runs first, in order;
+  signed P6: data version 2 before any later step); only the mechanism, `MigrationUpgrade.hold`,
+  is new, for `module_on_device_database`'s interface at the sync. e7e0cf4's two edits were
+  comment rewraps, kept.
+- Chunk 22 merged: 22a 30a5e73, 22b 9dd3d07, merge b5cfc5d (gate CK). `vitest related` 120 files,
+  1,320 tests pass on the merged wave branch; typecheck, lint, format, link lint pass. All six Done
+  when items met. For the sync: P3–P8 with the built names in the chunk's report (summary and body
+  data version 4, `doodle`, `playedNotesClock`, `isJam`, `suggestionDeclined` on a Jam only,
+  `kept-intent-parsers.ts`, `KEPT_SESSIONS_V4`, `rewriteEach`, `MigrationUpgrade.hold`,
+  `encodeKeptPlayedNotes(…, fresh?)`), `module_kept_session_jam_upgrade_step`'s interface (still
+  "Not built yet"), the new link to `rule_raw_doodle_notes_are_played_notes` (DRAFT).
+- M3 (2026-10-26, Ryzen 5 PRO 8640HS, not a VM, 5-minute load about 2): v3.1 → step 4, 500
+  sessions 808 / 948 ms cold (47 % of the 2 s wait, v3.1's upgrade was 38 %); v3.0 → steps 2–4, 500
+  sessions 1,684 / 1,881 ms (94 %, inside the wait but not well under it; D376 accepts a failed-read
+  visit past it). Start-up read at most 37 ms cold. Put to the owner with the wave report; the owner
+  repeats the deciding runs on the reference machine.
+- Left for the wave gate: the full suite and e2e (the harness seam rename,
+  `kept-sessions-carried-over.spec.ts` now at data version 4). Chunk 30 must pass `jam.fresh` and
+  `fresh` (codec wiring). Not checked by the codec, as the wording doesn't ask: a raw doodle note's
+  release past phrase 1's start, a Jam's phrase 1 joining from no phrase.
+- Unrelated to the wave, on `main` meanwhile: 254bccb (`.tech`, `SECURITY_TODO.md`) and 316199d
+  (Docker runtime on nginx 1.30); merge `main` in or merge the wave cleanly, no shared files.

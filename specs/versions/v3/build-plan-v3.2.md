@@ -1786,7 +1786,16 @@ state the workspace takes after it (Jam mode's Idle). Chunk 23 builds on it.
 
 ### Chunk 22 — v3.2's kept-session shape
 
-Status: planned
+Status: merged (w2, 9dd3d07)
+Record: 22a 30a5e73, 22b 9dd3d07, merge b5cfc5d (gate CK, change set part P, owner 2026-10-23); paused once on the
+usage limit (WIP e7e0cf4), resumed. Beyond the Files line: new `kept-intent-parsers.ts`, `kept-session-summary.ts`,
+`migrations/rewrite-each.ts`; `database.ts` holds each step until its cursor walk ends (`MigrationUpgrade.hold`,
+within `module_kept_session_jam_upgrade_step` and P6; the name goes into `module_on_device_database` at the sync);
+the e2e seam `version-one-seams.ts` renamed `earlier-version-seams.ts`. `suggestionDeclined` is present exactly on a
+Jam; chunk 30 must pass `jam.fresh` to the save and `fresh` to `encodeKeptPlayedNotes`. M3 in `docs/storage.md`
+(2026-10-26, Ryzen 5 PRO 8640HS, load about 2): from v3.1, 500 sessions about 0.81–0.95 s cold (47 % of the 2 s
+wait); from v3.0 (steps 2–4), 500 sessions about 1.7–1.9 s (94 %), reported to the owner. No deviation from the
+spec, part P or the design.
 Wave: 2
 Depends on: 4, 6 (and v3.0 chunks 4 and 9–11; v3.1 chunks 9 and 16)
 Architecture capture: database step 4, taken once for v3.2, upgrading at open only (spec D376),
