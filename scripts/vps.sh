@@ -28,8 +28,8 @@ Usage: scripts/vps.sh <command>
 Manage the Infinite Flow website on the shared production VPS (ssh host: $VPS_HOST, default vps).
 
 Commands:
-  update [ref]  Ship a committed ref (default HEAD), rebuild and restart; keeps the
-                previous image as infinite-flow:vps-prev for rollback.
+  update [ref]  Ship a committed ref (default HEAD), rebuild on freshly pulled base images
+                and restart; keeps the previous image as infinite-flow:vps-prev for rollback.
   stop          Stop the container (reversible; infinity.* then answers 502).
   start         Start the container again.
   status        Show the container, the deployed commit and both sites' HTTP status (read-only).
@@ -138,8 +138,8 @@ cmd_update() {
     remote 'rm -rf ~/infinite-flow/src.new && mkdir ~/infinite-flow/src.new && tar -x -C ~/infinite-flow/src.new && rm -rf ~/infinite-flow/src && mv ~/infinite-flow/src.new ~/infinite-flow/src' ||
     die "shipping the source failed; the old container keeps serving"
 
-  log "building the image (nice -n 19)"
-  in_app_dir 'nice -n 19 docker compose build' ||
+  log "building the image (pulling current base images, nice -n 19)"
+  in_app_dir 'nice -n 19 docker compose build --pull' ||
     die "build failed; the container was NOT restarted, the old one keeps serving (src/ now holds $short)"
 
   log "starting the new container"
