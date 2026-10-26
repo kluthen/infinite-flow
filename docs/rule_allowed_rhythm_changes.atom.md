@@ -11,6 +11,7 @@ layer: BUSINESS
 dependents:
   - [[entity_request_rhythm_lock]]
   - [[module_rhythm_change_draw]]
+  - [[module_session_lock_and_groups_choices]]
   - [[rule_rhythm_change_kinds]]
   - [[rule_rhythm_change_lasts_one_phrase]]
   - [[rule_rhythm_change_share]]

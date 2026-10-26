@@ -5,6 +5,7 @@ priority: 1
 human_name: Pre-Generated Phrase Equals the Session's Phrase
 tags: [v3, release-v3.0, generation, determinism]
 dependents:
+  - [[module_session_lock_and_groups_choices]]
   - [[module_session_pregeneration_plan]]
   - [[module_session_ready_phrases]]
   - [[module_session_seed_plan]]

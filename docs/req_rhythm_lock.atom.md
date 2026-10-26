@@ -11,6 +11,7 @@ parents:
   - [[req_rolling_practice_session]]
 dependents:
   - [[entity_request_rhythm_lock]]
+  - [[module_session_lock_and_groups_choices]]
   - [[module_session_rhythm_lock]]
   - [[rule_allowed_rhythm_changes]]
   - [[rule_forced_bend]]
