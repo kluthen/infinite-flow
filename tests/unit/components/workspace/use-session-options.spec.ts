@@ -9,15 +9,22 @@ import { effectScope, shallowRef } from 'vue'
 
 import { useSessionOptions } from '@/components/workspace/use-session-options'
 import type { SessionController } from '@/components/workspace/workspace-session-controller-types'
-import type { SessionOptionChoices } from '@/storage/records/setting-defaults'
+import { RHYTHM_CHANGE_KINDS } from '@/domain/generation/request-rhythm-lock'
+import {
+  DEFAULT_SESSION_OPTIONS,
+  type SessionOptionChoices,
+} from '@/storage/records/setting-defaults'
 import { createFakeSessionController } from './fake-session-controller'
 import { recordingSaveSettings } from './recording-save-settings'
 
-/** Every saved choice on. */
+/** Every saved flag on, the rhythm lock with them; every rhythm change allowed. */
 const ALL_ON: SessionOptionChoices = {
+  ...DEFAULT_SESSION_OPTIONS,
   varySettings: true,
   tensionAcrossPhrases: true,
   risingTempo: true,
+  rhythmLockOn: true,
+  allowedRhythmChanges: RHYTHM_CHANGE_KINDS,
 }
 
 /** Intent: the options over a controller the test sets, inside their own effect scope. */

@@ -61,9 +61,12 @@ import {
   type PresetSelection,
 } from '@/domain/presets/preset-selection'
 import { MY_INSTRUMENT_ID } from '@/domain/profile/instrument-profiles'
+import { RHYTHM_CHANGE_KINDS, type RhythmChangeKind } from '@/domain/generation/request-rhythm-lock'
+import type { AllowedGroups } from '@/session/settings-mutation-scales'
 import { readEnvelope, type RecordVersions } from '@/storage/record-envelope'
 
 import {
+  DEFAULT_SESSION_OPTIONS,
   defaultSettings,
   GENERATED_NOTES_FORMATS,
   THEME_PREFERENCES,
@@ -301,11 +304,57 @@ const MIX_PARSERS: GroupParsers<AudioMix> = {
   backingVolume: volume(validateBackingVolume),
 }
 
-/** Each "During a session" option's parser. */
+/**
+ * Intent: accept only a list of known rhythm change kinds, each once, in RHYTHM_CHANGE_KINDS
+ * order, as the app writes it; any other list is unreadable, never repaired.
+ */
+// @spec-link [[rule_saved_settings_load_tolerantly]]
+// @spec-link [[entity_session_option_records]]
+const readAllowedRhythmChanges: Parse<readonly RhythmChangeKind[]> = (value) => {
+  if (!Array.isArray(value)) return UNREADABLE
+  const indexes = value.map((kind: unknown) =>
+    RHYTHM_CHANGE_KINDS.indexOf(kind as RhythmChangeKind),
+  )
+  const canonical = indexes.every(
+    (index, at) => index !== -1 && (at === 0 || index > indexes[at - 1]!),
+  )
+  return canonical ? indexes.map((index) => RHYTHM_CHANGE_KINDS[index]!) : UNREADABLE
+}
+
+/** Vary settings' six groups, in the order the defaults list them. */
+const VARY_SETTINGS_GROUP_NAMES = Object.keys(
+  DEFAULT_SESSION_OPTIONS.allowedGroups,
+) as (keyof AllowedGroups)[]
+
+/**
+ * Intent: accept only exactly Vary settings' six groups, each on or off. A stored Rhythm group is
+ * read as stored, whatever the lock: the lock disables it without changing the player's choice.
+ */
+// @spec-link [[rule_saved_settings_load_tolerantly]]
+// @spec-link [[entity_session_option_records]]
+const readAllowedGroups: Parse<AllowedGroups> = (value) => {
+  if (!isPlainRecord(value) || !hasExactKeys(value, VARY_SETTINGS_GROUP_NAMES)) return UNREADABLE
+  if (!VARY_SETTINGS_GROUP_NAMES.every((group) => typeof value[group] === 'boolean')) {
+    return UNREADABLE
+  }
+  return Object.fromEntries(
+    VARY_SETTINGS_GROUP_NAMES.map((group) => [group, value[group]]),
+  ) as unknown as AllowedGroups
+}
+
+/**
+ * Each "During a session" option's parser: the three flags, then session mode's rhythm lock, its
+ * allowed rhythm changes and Vary settings' allowed groups, records v3.2 added beside them with no
+ * upgrade step: a store written before v3.2 has none, and each takes its default.
+ */
+// @spec-link [[entity_session_option_records]]
 const SESSION_OPTION_PARSERS: GroupParsers<SessionOptionChoices> = {
   varySettings: readBoolean,
   tensionAcrossPhrases: readBoolean,
   risingTempo: readBoolean,
+  rhythmLockOn: readBoolean,
+  allowedRhythmChanges: readAllowedRhythmChanges,
+  allowedGroups: readAllowedGroups,
 }
 
 /** Each review preference's parser. */

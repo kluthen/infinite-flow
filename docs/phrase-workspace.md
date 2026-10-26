@@ -608,9 +608,11 @@ player's request and the restarted pre-generation both use.
 
 **Discards and re-checks.** The queue belongs to one key: phrase 1 (the Idle result, and so its
 session seed), the generation controls except tempo, the instrument included, the seven figure
-levels, `Vary settings`, `Tension across phrases` and the
+levels, `Vary settings`, `Tension across phrases`, the
 [restriction in force](music/lexicon.md#key-and-mode-restriction), none in force and one allowing
-every key and mode counting as one, as Start takes them; never the preset selection itself, so
+every key and mode counting as one, as Start takes them, and (v3.2) the
+[rhythm lock](music/lexicon.md#rhythm-lock), its allowed rhythm changes and Vary settings' allowed
+groups, whose change discards whether or not it acts on phrases then; never the preset selection itself, so
 saving, renaming or deleting a preset, or choosing one, that changes none of these keeps the
 queue. The orchestrator watches that key; any change aborts the attempt in flight, empties the
 queue and starts again from the new phrase 1 once the change is over. A change of tempo or `Rising tempo` discards nothing: tempo never reaches a

@@ -30,8 +30,11 @@ import type {
 import type { StalePhrasePrompt } from '@/components/workspace/workspace-stale-phrase'
 import { presetLabel } from '@/domain/controls/preset-label'
 import { getInstrumentProfile } from '@/domain/generation/generation-intent'
+import type { RhythmChangeKind } from '@/domain/generation/request-rhythm-lock'
 import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import type { SessionHistory, SessionHistoryRecord } from '@/session/session-history'
+import type { AllowedGroups } from '@/session/settings-mutation-scales'
+import { DEFAULT_SESSION_OPTIONS } from '@/storage/records/setting-defaults'
 import {
   DEFAULT_SESSION_SEED,
   SESSION_START_EPOCH_MS,
@@ -64,6 +67,9 @@ export interface FakeSessionController {
   readonly setAdaptiveTempo: Mock<(on: boolean) => void>
   readonly setVarySettings: Mock<(on: boolean) => void>
   readonly setTensionAcrossPhrases: Mock<(on: boolean) => void>
+  readonly setRhythmLockOn: Mock<SessionController['setRhythmLockOn']>
+  readonly setAllowedRhythmChanges: Mock<SessionController['setAllowedRhythmChanges']>
+  readonly setAllowedGroups: Mock<SessionController['setAllowedGroups']>
   readonly setKeepPlayedNotes: Mock<(on: boolean) => Promise<KeepPlayedNotesSwitch>>
   readonly deletePlayedNotes: Mock<() => Promise<PlayedNotesDeletion>>
   readonly deleteEveryKeptPlayedNote: Mock<() => Promise<PlayedNotesDeletion>>
@@ -217,6 +223,9 @@ export function createFakeSessionController(
     lastSessionReachedTempo: null,
     varySettings: false,
     tensionAcrossPhrases: false,
+    rhythmLockOn: DEFAULT_SESSION_OPTIONS.rhythmLockOn,
+    allowedRhythmChanges: DEFAULT_SESSION_OPTIONS.allowedRhythmChanges,
+    allowedGroups: DEFAULT_SESSION_OPTIONS.allowedGroups,
     shownSettings: null,
     startSettings: null,
     stalePhrasePrompt: null,
@@ -328,6 +337,19 @@ export function createFakeSessionController(
       throw new Error('fake controller: tension across phrases during a session')
     state.tensionAcrossPhrases = on
   })
+  const setRhythmLockOn = vi.fn((on: boolean): void => {
+    if (state.phase !== 'idle') throw new Error('fake controller: rhythm lock during a session')
+    state.rhythmLockOn = on
+  })
+  const setAllowedRhythmChanges = vi.fn((kinds: readonly RhythmChangeKind[]): void => {
+    if (state.phase !== 'idle')
+      throw new Error('fake controller: allowed rhythm changes during a session')
+    state.allowedRhythmChanges = kinds
+  })
+  const setAllowedGroups = vi.fn((groups: AllowedGroups): void => {
+    if (state.phase !== 'idle') throw new Error('fake controller: allowed groups during a session')
+    state.allowedGroups = groups
+  })
   const setKeepPlayedNotes = vi.fn((on: boolean): Promise<KeepPlayedNotesSwitch> => {
     state.keepPlayedNotes = on
     return Promise.resolve({ kind: 'done' })
@@ -407,6 +429,9 @@ export function createFakeSessionController(
       setAdaptiveTempo,
       setVarySettings,
       setTensionAcrossPhrases,
+      setRhythmLockOn,
+      setAllowedRhythmChanges,
+      setAllowedGroups,
       setKeepPlayedNotes,
       deletePlayedNotes,
       deleteEveryKeptPlayedNote,
@@ -431,6 +456,9 @@ export function createFakeSessionController(
     setAdaptiveTempo,
     setVarySettings,
     setTensionAcrossPhrases,
+    setRhythmLockOn,
+    setAllowedRhythmChanges,
+    setAllowedGroups,
     setKeepPlayedNotes,
     deletePlayedNotes,
     deleteEveryKeptPlayedNote,

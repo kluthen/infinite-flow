@@ -19,6 +19,7 @@ import type { SessionEndWatch } from './workspace-session-end-watchers'
 import type { SessionMidi, SessionMidiRun } from './workspace-session-midi'
 import type { SessionPhrases } from './workspace-session-phrases'
 import type { WorkspacePregeneration } from './workspace-pregeneration'
+import type { SessionLockAndGroups } from './workspace-session-lock-choices'
 import type {
   SessionShownSettings,
   TensionAcrossPhrasesFlag,
@@ -109,6 +110,8 @@ export interface SessionControllerSides {
   readonly adaptiveTempo: AdaptiveTempoFlag
   readonly varySettings: VarySettingsFlag
   readonly tensionAcrossPhrases: TensionAcrossPhrasesFlag
+  /** The player's rhythm lock, its allowed changes and Vary settings' allowed groups. */
+  readonly lockAndGroups: SessionLockAndGroups
   /** The Idle pre-generation queue, whose ready phrases each start takes. */
   readonly pregeneration: WorkspacePregeneration
 }

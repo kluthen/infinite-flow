@@ -1256,10 +1256,12 @@ From v3.2 the session settings carry two more fields, fixed at the start like th
   mode (the written key and the collection), Harmony (harmonic motion), Tension (the tension arc),
   Rhythm (note density, rhythmic variety, syncopation and silence density), Melody shape (contour,
   register, leapiness and arpeggio chaos) and Figures (the figure levels). `MUTABLE_SETTING_GROUPS`
-  maps each mutable setting to its group. The start passes `ALL_GROUPS_ALLOWED` until the saved
-  choice exists, so the draws are v3.1's.
+  maps each mutable setting to its group. The start passes the player's saved choice (see
+  [In the workspace](#in-the-workspace), The page's lock and groups); with its default, all six on
+  (`ALL_GROUPS_ALLOWED`), the draws are v3.1's.
 - **`rhythmLockOn`** says whether the session's rhythm lock is on; while it is, the Rhythm group
-  counts as not allowed (`isGroupAllowed`). Nothing turns it on yet, and the start passes `false`.
+  counts as not allowed (`isGroupAllowed`), whatever the player's Rhythm choice, which is kept. The
+  start passes the player's saved choice, off by default.
 
 No phrase is generated from either field. A step of a group that is not allowed is marked
 unsupported among the candidates, as above.
@@ -1457,6 +1459,20 @@ the count-in or a running session throws. The "During a session" group shows it
 (`SessionOptionsControls.vue`), read-only during a generation, a session, or while the controller
 loads.
 
+**The page's lock and groups.** The controller also holds session mode's rhythm lock, its allowed
+rhythm changes and Vary settings' allowed groups for the page's life
+(`createSessionLockAndGroups`, `src/components/workspace/workspace-session-lock-choices.ts`), from
+the player's saved choices (`savedSessionOptions`; the lock off, no change allowed and all six
+groups on for a first visit or an unreadable record), kept from one session to the next and never
+written to storage by the controller. `state.rhythmLockOn`, `state.allowedRhythmChanges` and
+`state.allowedGroups` read them; `setRhythmLockOn`, `setAllowedRhythmChanges` and
+`setAllowedGroups` change them outside a session only, and throw during the count-in or a running
+session, or on a list or groups `freezeSessionSettings` would refuse. Start and the Idle
+pre-generation's start both build the session's settings with `chosenSessionSettings` (same file),
+so a pre-generated phrase's request, its phrase 1→2 plan included, is the one the session
+re-derives; with the defaults both give v3.1's settings. The stale-phrase comparison and phrase 1's
+own settings (`phraseOneSettings`) keep the lock off and every group on: neither reaches a request.
+
 **What the controls show.** `state.shownSettings` is what the read-only controls show while a
 session runs (`createSessionShownSettings`): the start settings, the player's own, during the
 count-in, then what the phrase now sounding was generated with. A `settings-changed` output is
@@ -1626,6 +1642,9 @@ arc).
   session settings, the dead end and its `mutation-skipped` output, the history's
   `skippedMutations`, and the legal-move check at the session start (see
   [Allowed groups and the dead end](#allowed-groups-and-the-dead-end)).
+- **v3.2 chunk 19 (built):** the player's saved rhythm lock, allowed rhythm changes and allowed
+  groups held by the controller and put into Start's and the Idle pre-generation's settings alike
+  (see [In the workspace](#in-the-workspace), The page's lock and groups).
 
 ## Choices made while building it
 

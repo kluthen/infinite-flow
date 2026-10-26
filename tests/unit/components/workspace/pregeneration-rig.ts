@@ -1,7 +1,8 @@
 /**
  * The Idle pre-generation orchestrator specs' shared rig: an orchestrator over an Idle state the
  * test edits by hand (a real phrase 1, engraved, its session seed published with it), a start
- * blocker and two session flags the test sets, a real Idle layout gate that has had the staff's
+ * blocker, two session flags and the rhythm lock, its allowed changes and the allowed groups the
+ * test sets, a real Idle layout gate that has had the staff's
  * wide inputs, a desktop window, a fake staff planner, queued providers, a real background slot,
  * and a generate seam the test answers by hand: each call waits until the test settles it, and an
  * aborted signal rejects it with the client's cancellation error, as the worker client does.
@@ -15,6 +16,7 @@ import {
   createWorkspacePregeneration,
   type WorkspacePregeneration,
 } from '@/components/workspace/workspace-pregeneration'
+import type { LockAndGroupsChoices } from '@/components/workspace/workspace-session-lock-choices'
 import {
   createPregenerationSlot,
   type PregenerationSlot,
@@ -30,6 +32,7 @@ import { GenerationCancelledError } from '@/generation-worker/generation-worker-
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { WindowShapeReading } from '@/session/session-browser-ports'
 import type { SessionStartBlocker } from '@/session/session-start-conditions'
+import { DEFAULT_SESSION_OPTIONS } from '@/storage/records/setting-defaults'
 import {
   fakeViewport,
   phraseOneFor,
@@ -51,6 +54,13 @@ export const WIDE_INPUTS: StaffLayoutInputs = {
   viewport: { layout: 'one-system', heightBudgetPx: null },
 }
 
+/** A first visit's rhythm lock, allowed rhythm changes and allowed groups: v3.1's settings. */
+export const DEFAULT_LOCK_AND_GROUPS: LockAndGroupsChoices = {
+  rhythmLockOn: DEFAULT_SESSION_OPTIONS.rhythmLockOn,
+  allowedRhythmChanges: DEFAULT_SESSION_OPTIONS.allowedRhythmChanges,
+  allowedGroups: DEFAULT_SESSION_OPTIONS.allowedGroups,
+}
+
 /** One call of the rig's generate seam, settled by the test. */
 export interface GenerateCall {
   readonly intent: GenerationIntent
@@ -67,6 +77,8 @@ export interface PregenerationRig {
   readonly blocker: ShallowRef<SessionStartBlocker | null>
   readonly varySettings: ShallowRef<boolean>
   readonly tensionAcrossPhrases: ShallowRef<boolean>
+  /** The rhythm lock, its allowed changes and the allowed groups; the defaults at first. */
+  readonly lockAndGroups: ShallowRef<LockAndGroupsChoices>
   readonly viewport: FakeViewport
   readonly window: { shape: WindowShapeReading }
   readonly gate: IdleLayoutGate
@@ -171,6 +183,7 @@ export function pregenerationRig(options: PregenerationRigOptions = {}): Pregene
   const blocker = shallowRef<SessionStartBlocker | null>(options.blocker ?? null)
   const varySettings = shallowRef(false)
   const tensionAcrossPhrases = shallowRef(false)
+  const lockAndGroups = shallowRef<LockAndGroupsChoices>(DEFAULT_LOCK_AND_GROUPS)
   const viewport = fakeViewport(false)
   const window = { shape: FAKE_DESKTOP_WINDOW }
   const gate = createIdleLayoutGate({
@@ -195,6 +208,7 @@ export function pregenerationRig(options: PregenerationRigOptions = {}): Pregene
     startBlocker: () => blocker.value,
     varySettings: () => varySettings.value,
     tensionAcrossPhrases: () => tensionAcrossPhrases.value,
+    lockAndGroups: () => lockAndGroups.value,
     windowShape: () => window.shape,
     idleLayout: gate,
     loadPlanner: planner.load,
@@ -206,6 +220,7 @@ export function pregenerationRig(options: PregenerationRigOptions = {}): Pregene
     blocker,
     varySettings,
     tensionAcrossPhrases,
+    lockAndGroups,
     viewport,
     window,
     gate,

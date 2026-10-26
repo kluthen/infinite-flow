@@ -18,6 +18,8 @@ import type { SessionStaff } from '@/components/notation/session-staff'
 import type { KeptSessionRow } from './use-kept-sessions'
 import type { ControllerLostCountdown } from './workspace-session-midi'
 import type { StalePhrasePrompt } from './workspace-stale-phrase'
+import type { RhythmChangeKind } from '@/domain/generation/request-rhythm-lock'
+import type { AllowedGroups } from '@/session/settings-mutation-scales'
 
 export type { KeptSessionsSeam } from './workspace-kept-sessions-seam'
 export type {
@@ -275,6 +277,22 @@ export interface SessionControllerState {
    */
   readonly tensionAcrossPhrases: boolean
   /**
+   * Whether session mode's rhythm lock is on: the player's saved choice at page load (off on a
+   * first visit), kept from one session to the next, held in memory; a session started with it on
+   * locks phrase 1's rhythm.
+   */
+  readonly rhythmLockOn: boolean
+  /**
+   * The rhythm changes the player allows on the locked rhythm, in RHYTHM_CHANGE_KINDS order: the
+   * saved choice at page load (none on a first visit), kept while the lock is off.
+   */
+  readonly allowedRhythmChanges: readonly RhythmChangeKind[]
+  /**
+   * The groups Vary settings may move: the saved choice at page load (all six on a first visit);
+   * a Rhythm group on is kept as the player's choice while the lock makes it ineligible.
+   */
+  readonly allowedGroups: AllowedGroups
+  /**
    * What the read-only controls show while a session runs: the settings phrase 1 was generated
    * with during the count-in and phrase 1 (the player's own, unless phrase 1 was stale and used as
    * it is), then the settings the phrase now sounding was generated with; null with no session,
@@ -431,6 +449,22 @@ export interface SessionController {
    * only: throws during the count-in or a running session.
    */
   readonly setTensionAcrossPhrases: (on: boolean) => void
+  /**
+   * Turn session mode's rhythm lock on or off, at Idle or while the Review shows only: throws
+   * during the count-in or a running session. Never saves: the caller saves an accepted change.
+   */
+  readonly setRhythmLockOn: (on: boolean) => void
+  /**
+   * Set the rhythm changes the lock allows, known kinds each once in RHYTHM_CHANGE_KINDS order, at
+   * Idle or while the Review shows only: throws during the count-in or a running session, and on
+   * any other list.
+   */
+  readonly setAllowedRhythmChanges: (kinds: readonly RhythmChangeKind[]) => void
+  /**
+   * Set the groups Vary settings may move, exactly the six each on or off, at Idle or while the
+   * Review shows only: throws during the count-in or a running session, and on any other value.
+   */
+  readonly setAllowedGroups: (groups: AllowedGroups) => void
   /**
    * End a running session, stop reading the window and listening to the MIDI controller, and
    * dispose of the wake-up timer (its worker). Throws if called twice.

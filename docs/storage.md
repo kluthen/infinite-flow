@@ -759,9 +759,17 @@ Each place gains its initial value; the saves come from the player's change hand
 | The player presets                                                  | The Idle generation session's `presets` (the built-ins, then `initialSettings.playerPresets`), which the selection, its label and the restriction in force are judged against. |
 | My instrument                                                       | The Idle generation session's first state (`initialSettings.myInstrument`), from which `App.vue` sizes the staff and the screen reads its profile.                             |
 | The audio mix                                                       | The audio transport's `loadedMix`, read on its first use, its volumes checked against the design's range.                                                                      |
-| The three "During a session" options                                | The session controller's creation (`savedSessionOptions`), never through its actions; until its chunk has loaded, the controls show the loaded values.                         |
+| The "During a session" options                                      | The session controller's creation (`savedSessionOptions`), never through its actions; until its chunk has loaded, the controls show the loaded values.                         |
 | The review's preferences                                            | The review host's first values (`WorkspaceShell` and `ScorePanel`'s `savedReviewPreferences`).                                                                                 |
 | `Keep my played notes`                                              | Decoded, not used yet.                                                                                                                                                         |
+
+The "During a session" options are six records in the `sessionOptions` group: `varySettings`,
+`tensionAcrossPhrases` and `risingTempo`, then, from v3.2, session mode's `rhythmLockOn`,
+`allowedRhythmChanges` (the kinds allowed, each once in `RHYTHM_CHANGE_KINDS` order) and
+`allowedGroups` (Vary settings' six groups, each on or off). The v3.2 records are new keys of the
+same shape at data version 1, with no upgrade step: a store written by v3.0 or v3.1 has none, and
+each loads its default (the lock off, no change allowed, all six groups on); an older tab skips
+them as keys it does not know. A stored Rhythm group loads as stored while the lock disables it.
 
 A saved `Rising tempo` `On` loads even with no MIDI controller attached, which is the usual state
 at load: the controller's flag holds the stored `On`, the option shows `Off` and disabled while it
@@ -799,7 +807,7 @@ reach the policy at once, so the hold takes effect inside the Start click.
 | The 14 controls, the figure levels, the preset selection | The generation session's `setControl`, `setFigureLevel`, `selectPreset` and `selectInstrumentProfile`: what each change changed (`chosenControlChanges`). |
 | The theme                                                | The generation session's `setTheme`, when the theme changed.                                                                                              |
 | The audio mix                                            | `MixControls` (each on/off) and `MixVolumePanel` (each volume, on the slider's release: its `change` event, not each `input`).                            |
-| The three "During a session" options                     | `useSessionOptions`, once the session controller accepted the change.                                                                                     |
+| The "During a session" options                           | `useSessionOptions`, once the session controller accepted the change.                                                                                     |
 | The review's preferences                                 | The review host's `setFormat`, `setBackingTrack` and `setPlayedNotesShown`.                                                                               |
 
 The values saved are the player's choices: a chosen `Sixteenth` below `bp-tablet-landscape` is

@@ -23,7 +23,9 @@
  * the page's flag) hands the engine. Its settings side (./workspace-session-settings.ts) holds the
  * page's `Vary settings` and `Tension across phrases` flags, which turn the engine's settings
  * mutations and multi-phrase tension arc on for a session, and the settings the read-only controls
- * show while a session runs; the engine reads the rolling display to know whether a phrase is on
+ * show while a session runs; its lock side (./workspace-session-lock-choices.ts) holds the
+ * player's rhythm lock, its allowed changes and Vary settings' allowed groups, which each start
+ * and the Idle pre-generation put into the session's settings alike; the engine reads the rolling display to know whether a phrase is on
  * screen. At Idle, while every start condition holds, its pre-generation queue
  * (./workspace-pregeneration.ts) makes the phrases after phrase 1 in the background, and each
  * start takes those ready. The parts share one core (./workspace-session-active.ts). The player's
@@ -46,6 +48,8 @@ import { computed, shallowReactive, shallowReadonly, shallowRef } from 'vue'
 import type { GenerationSessionState } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import { isRhythmSettingBlocked } from '@/domain/controls/unsupported-rhythm-settings'
+import type { RhythmChangeKind } from '@/domain/generation/request-rhythm-lock'
+import type { AllowedGroups } from '@/session/settings-mutation-scales'
 import type { WindowShapeReading } from '@/session/session-browser-ports'
 import type { SessionHistory } from '@/session/session-history'
 import {
@@ -76,6 +80,7 @@ import {
 } from './workspace-session-settings'
 import { createSessionMidi, type ControllerLostCountdown } from './workspace-session-midi'
 import { createSessionStart } from './workspace-session-start'
+import { createSessionLockAndGroups } from './workspace-session-lock-choices'
 import { createStalePhraseStart, type StalePhrasePrompt } from './workspace-stale-phrase'
 import type { WorkspacePregeneration } from './workspace-pregeneration'
 import {
@@ -119,7 +124,8 @@ function startFactsOf(
 
 /**
  * Intent: build the Idle pre-generation queue's orchestrator over the controller's run conditions
- * (`startBlocker`), its two session flags, the Idle state, the window's shape and the staff's
+ * (`startBlocker`), its two session flags, the player's rhythm lock, its allowed changes and the
+ * allowed groups, the Idle state, the window's shape and the staff's
  * reports. A programming error it meets has no session to end: it is thrown out of band, the
  * unhandled error it is.
  */
@@ -127,13 +133,14 @@ function startFactsOf(
 function createIdlePregeneration(
   deps: SessionControllerDependencies,
   startBlocker: () => SessionStartBlocker | null,
-  flags: Pick<SessionControllerSides, 'varySettings' | 'tensionAcrossPhrases'>,
+  flags: Pick<SessionControllerSides, 'varySettings' | 'tensionAcrossPhrases' | 'lockAndGroups'>,
 ): WorkspacePregeneration {
   return deps.pregeneration({
     idle: deps.idle.state,
     startBlocker,
     varySettings: flags.varySettings.on,
     tensionAcrossPhrases: flags.tensionAcrossPhrases.on,
+    lockAndGroups: flags.lockAndGroups.current,
     windowShape: () => deps.browser.windowShape.read(),
     idleLayout: deps.idleLayout,
     loadPlanner: deps.staffFitPlanner,
@@ -146,13 +153,14 @@ function createIdlePregeneration(
 
 /**
  * Intent: build the session controller over the workspace's Idle state, audio transport, browser
- * ports and runner factory, its three "During a session" flags starting from the player's saved
- * choices. It reads the window's shape from creation (for the rotate-device start condition) and
+ * ports and runner factory, its three "During a session" flags, the rhythm lock, its allowed
+ * changes and the allowed groups starting from the player's saved choices. It reads the window's shape from creation (for the rotate-device start condition) and
  * listens to the MIDI controller (for the starting note) until `dispose`; it asks for no lock and
  * opens no audio until a start.
  */
 // @spec-link [[service_session_controller]]
 // @spec-link [[rule_first_phrase_waits_for_saved_settings]]
+// @spec-link [[module_session_lock_and_groups_choices]]
 // @spec-link [[rule_session_start_conditions]]
 // @spec-link [[rule_midi_never_blocks_session]]
 // @spec-link [[rule_phrase_one_is_idle_phrase]]
@@ -219,6 +227,15 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     get tensionAcrossPhrases(): boolean {
       return tensionAcrossPhrases.on()
     },
+    get rhythmLockOn(): boolean {
+      return lockAndGroups.current().rhythmLockOn
+    },
+    get allowedRhythmChanges(): readonly RhythmChangeKind[] {
+      return lockAndGroups.current().allowedRhythmChanges
+    },
+    get allowedGroups(): AllowedGroups {
+      return lockAndGroups.current().allowedGroups
+    },
     get keepPlayedNotes(): boolean {
       return keptPlayedNotes.on()
     },
@@ -273,9 +290,11 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     () => state.phase,
     saved.tensionAcrossPhrases,
   )
+  const lockAndGroups = createSessionLockAndGroups(() => state.phase, saved)
   const pregeneration = createIdlePregeneration(deps, () => startBlocker.value, {
     varySettings,
     tensionAcrossPhrases,
+    lockAndGroups,
   })
   const keptPlayedNotes = createKeptPlayedNotes(core, deps.savedKeepPlayedNotes, rows)
   const edits = createKeptSessionEdits(core, rows)
@@ -291,7 +310,14 @@ export function createSessionController(deps: SessionControllerDependencies): Se
   const ends = createSessionEnds(core, adaptiveTempo, keptPlayedNotes.on, edits.saveRefused, rows)
   const start = createSessionStart(
     core,
-    { sessionMidi, adaptiveTempo, varySettings, tensionAcrossPhrases, pregeneration },
+    {
+      sessionMidi,
+      adaptiveTempo,
+      varySettings,
+      tensionAcrossPhrases,
+      lockAndGroups,
+      pregeneration,
+    },
     ends,
     () => startBlocker.value,
   )
@@ -333,6 +359,9 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     setAdaptiveTempo: adaptiveTempo.set,
     setVarySettings: varySettings.set,
     setTensionAcrossPhrases: tensionAcrossPhrases.set,
+    setRhythmLockOn: lockAndGroups.setRhythmLockOn,
+    setAllowedRhythmChanges: lockAndGroups.setAllowedRhythmChanges,
+    setAllowedGroups: lockAndGroups.setAllowedGroups,
     dispose: () => {
       if (core.disposed) throw new SessionControllerError('session controller: disposed twice')
       core.disposed = true
