@@ -807,3 +807,13 @@ CONTRACT 10.0.0 → 11.0.0, MAJOR); S3 `module_settings_mutation` name-only fix 
 settings' availability under `module_session_vary_settings_flag` 0.3. Status candidates DRAFT →
 REVIEW: `module_session_rhythm_lock`, `module_session_lock_and_groups_choices`,
 `entity_session_option_records`, `ui_toggle_list`, `ui_field_dependent`.
+- ux D350 (`ux-writer`, a012c8c): a read-only toggle list gives each toggle `aria-disabled`, as
+  TempoStepper does. Built by `coding-executor` (206eea5): ToggleList 8/8, related 141/141,
+  accessibility and chunk 19's e2e 83/83, typecheck, lint, format, health clean.
+
+### Report to the owner (2026-10-26)
+
+Chunks 16, 13, 19 merged, none moved; plan gap (Start ignoring the saved choices) closed in 19.
+Gate passed after a test fix; entry 282,098 B, first-load 329,885 B. Sync applied Q3 and the three
+promotions; CS met. Asked: CR (R1, R2: CONTRACT 11.0.0), S3's two items, five status candidates;
+the merge into `main` once CR is confirmed. H2 and H3 open to run (L3).
