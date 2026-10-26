@@ -8,7 +8,8 @@
  * round trip and engraving. Per configuration it reports a Jam's phrase 1 by rung, the attempt
  * times and the orderings' share, the repeats, the standalone attempts against the standalone
  * reserve, the deadline shortfalls and, with the lock on, the lock census, and prints a summary as
- * `JAM-SWEEP` lines. A figure is reported, never failed on: only the runs' completion is checked.
+ * `JAM-SWEEP` lines. A figure is reported, never failed on: only the runs' completion, and the lock
+ * census's record and bars agreeing, are checked.
  * The result depends on the machine: run it idle.
  *
  * Env: `JAM_OUT` writes the full figures JSON (with the machine, the date and the run duration)
@@ -60,7 +61,7 @@ describe('Jam sweep runner (M1, M5)', () => {
         seeds: SEEDS,
         phraseCount: { jam: JAM_PHRASE_COUNT, session: SESSION_PHRASE_COUNT },
         doodles: doodleNames,
-        note: 'every supported rhythm setting with each seed (or JAM_LIMIT evenly spaced cases); a Jam plays phrase 1 through the baseline ladder (rung 3 only, no steering block: v3.1 has none) then phrases 2 to 8, a session plays v3.1 six phrases from phrase 1 at Idle; each attempt charged its measured generatePhrase time plus 0.1 s; doodles are recorded, not yet read',
+        note: 'every supported rhythm setting with each seed (or JAM_LIMIT evenly spaced cases); a Jam plays phrase 1 through the baseline ladder (rung 3 only, no steering block: v3.1 has none) then phrases 2 to 8, a session plays v3.1 six phrases from phrase 1 at Idle; each attempt charged its measured generatePhrase time plus 0.1 s; with the lock on, the generator plays the lock and each phrase is classed from its provenance lock record, its bars cross-checking it; doodles are recorded, not yet read',
       },
       configurations: figures,
     }
@@ -71,5 +72,12 @@ describe('Jam sweep runner (M1, M5)', () => {
     expect(figures.map((configuration) => configuration.runs)).toEqual(
       keys.map((key) => cases.length * doodleRuns(key.mode)),
     )
+    expect(
+      figures.flatMap(({ label, lockCensus }) =>
+        lockCensus === null || lockCensus.mismatches.count === 0
+          ? []
+          : [`${label}: ${lockCensus.mismatches.count} lock census mismatches`],
+      ),
+    ).toEqual([])
   })
 })

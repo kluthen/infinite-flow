@@ -276,3 +276,29 @@ The manifest pins what the expansion yields, not how it gets there. Enumeration 
 ## Calibration questions
 
 Attack bands, silence bands, and answer similarity are explicit hypotheses. Listening tests should compare one control at a time at slow, default, and fast BPMs. Tempo does not currently alter policy, so any future tempo-conditioned density would require a product decision rather than an undocumented implementation tweak.
+
+## The rhythm lock in practice (M2, 2026-10-26)
+
+With the rhythm lock on, every phrase of a session keeps phrase 1's rhythm, takes one allowed change
+of it, or takes a forced bend (master spec C7). The lock census (v3.2 measurement M2, first run
+with the lock built; figures, method and machine in
+[Generation latency](../generation-latency.md#m2-the-lock-census-with-the-lock)) plays seeded
+eight-phrase sessions over every supported rhythm setting and each built-in preset, and reads what
+each phrase did from the generator's own record, checked against the written bars:
+
+- **How often a phrase draws a change**: about 1 in 4 phrases (25.8–26.4 %), and about 1 in 2 of
+  the tenser phrases of Tension across phrases (52.4–54.2 %), the starting values of C7.4; the
+  listening check (L3) tunes them.
+- **How often it actually changes**: less, because a drawn change often finds no candidate. With
+  all five kinds allowed, 19.1 % of phrases change over the sweep's settings with Tension across
+  phrases on (15.5 % off), 28.1 % at Pop song's settings, and none at Gentle's, Reel's and Bebop's,
+  whose rhythms offer no single change (C7.3's known limit).
+- **Which kinds are available** one change from the locked rhythm, per drawing phrase over the
+  sweep's settings: move a note start 35.5 %, split a note 17.3 %, move a rest 12.8 %, merge two
+  notes 6.3 %, add or remove a rest 4.6 %; at Pop song's settings 35.3, 22.5, 51.5, 17.8 and 25.0 %.
+- **Forced bends** stay rare: 2.5 % of phrases with a strict lock and Tension across phrases on,
+  0.5 % with the tension fixed. The step from Build down to Lift is where the locked rhythm is most
+  often lost (about 1 phrase in 10 of those steps), since 58 % of Build's rhythms do not exist at
+  Lift (C7.6).
+- **A change never adds up**: every change is exactly one change of an allowed kind, measured from
+  the locked rhythm, never from the previous phrase.
