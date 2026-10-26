@@ -1,6 +1,6 @@
 ---
 id: module_kept_session_jam_upgrade_step
-status: DRAFT
+status: REVIEW
 version: 0.3
 priority: 1
 human_name: Kept Sessions Carried Over to v3.2's Shape

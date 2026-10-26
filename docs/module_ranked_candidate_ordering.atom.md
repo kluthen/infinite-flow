@@ -5,7 +5,7 @@ layer: ARCHITECTURE
 human_name: Ranked Candidate Ordering
 type: MODULE
 priority: 1
-version: 0.5
+version: 0.6
 tags: generation
 parents:
   - [[entity_concert_event_timeline]]
@@ -26,7 +26,7 @@ Without a preference. Every harmony candidate, and every rhythm candidate of a r
 
 The preference seam. Rhythm ranking takes a preference rank for each candidate, computed inside generation from the request alone, never from the app's state. Under the rhythm lock with locked bars (module_rhythm_lock_order), the drawn rhythm change's candidates come first when the phrase draws one (module_rhythm_change_draw), then the candidates whose written bars equal the locked bars, then every other candidate in the forced bend's order. A steering block orders rhythm candidates through the same seam. A preference is an order, never a filter: every candidate of the domain stays in the order exactly once, so every phrase possible without the preference stays possible.
 
-Rhythm ranking accepts an already-materialized candidate list (a lazy rhythm candidate domain's iterator is fully drained into a list exactly once by a separate entry point before ranking), sorts it by preference rank, then rhythm tie key, then candidateIndex, and freezes the result together with its grammar version and domain size into a reusable ranked cache, so the same ranked order can be reused across every register window of one operation without re-expanding or re-ranking the grammar.
+Rhythm ranking accepts an already-materialized candidate list (a lazy rhythm candidate domain's iterator is fully drained into a list exactly once by a separate entry point before ranking), sorts it by rhythm tie key, then candidateIndex, and freezes the result together with its grammar version and domain size into a reusable ranked cache, so the same ranked order can be reused across every register window of one operation without re-expanding or re-ranking the grammar; a request with a preference orders that cache's seeded order by preference rank in front of it, once per request, so each candidate's place is the tuple above.
 
 Rhythm ranking computes the rhythm tie keys itself, with an incremental 32-bit FNV-1a equivalent to hashing each candidate's full tie-key string: it hashes the versioned prefix `infinite-flow/rhythm-tie/v1|<seed encoding>|<grammar version>|` once per ranking call, then continues that hash state over each candidate's identity characters, building no concatenated string per candidate. It may visit the identities in the UTF-16 code-unit order of their strings (a plain string comparison, independent of the locale), precomputed once per domain, resuming each identity from the hash state checkpointed at the prefix it shares with the previous identity in that order. Every key computed this way equals the key the per-candidate rhythm tie-key function gives for the same seed and candidate, so the ranked order is unchanged; the visiting order affects only how the keys are computed, never the sort.
 
