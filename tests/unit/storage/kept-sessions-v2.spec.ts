@@ -2,10 +2,11 @@
 /**
  * The upgrade step to data version 2 over the real port and an in-memory IndexedDB: a database a
  * v3.0 tab created at data version 1 and filled with v3.0-shaped kept sessions (Neutral, Jazz,
- * customized Jazz, my instrument, played notes kept, favorites, a comment) opens in v3.1 at data
- * version 2, each session carried over with its phrases' levels and its preset label, reviewed and
- * exported byte for byte as before; the played notes and every other store are left as stored, and
- * a session kept after the upgrade keeps its label through a later change.
+ * customized Jazz, my instrument, played notes kept, favorites, a comment) opens at the code's
+ * data version, through step 2 then step 4, each session carried over with its phrases' levels and
+ * its preset label, reviewed and exported byte for byte as before; step 2 alone writes v3.1's body
+ * at data version 2; the played notes and every other store are left as stored, and a session
+ * kept after the upgrade keeps its label through a later change.
  */
 
 import { beforeAll, describe, expect, it } from 'vitest'
@@ -23,11 +24,13 @@ import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import { buildGeneratedNotesFile, type GeneratedNotesRequest } from '@/export/generated-notes-file'
 import { buildPlayedNotesFile } from '@/export/played-notes-file'
 import type { SessionHistoryRecord } from '@/session/session-history'
+import { DATABASE_DATA_VERSION } from '@/storage/database'
 import { encodeControllerRecord } from '@/storage/records/controller-record'
 import {
   decodeKeptSession,
   decodeKeptSessionSummary,
   encodeKeptSession,
+  KEPT_SESSION_BODY_DATA_VERSION,
   rewriteKeptSummary,
   type KeptSession,
   type KeptSessionFacts,
@@ -38,7 +41,7 @@ import {
   encodeMyInstrumentRecord,
   MY_INSTRUMENT_RECORD_KEY,
 } from '@/storage/records/my-instrument-record'
-import { parseKeptSessionBodyV1 } from '@/storage/records/kept-session-body'
+import { parseKeptSessionBodyV1, parseKeptSessionBodyV2 } from '@/storage/records/kept-session-body'
 import { parseKeptSessionSummaryV1 } from '@/storage/records/kept-session-summary'
 import { encodeSettingRecord } from '@/storage/records/settings-record'
 import type { StorageChange, StoragePort } from '@/storage/storage-port'
@@ -51,6 +54,7 @@ import {
 } from './kept-session-fixtures'
 import {
   databaseState,
+  openAtVersion2,
   openUpgraded,
   rawSession,
   seedVersion1,
@@ -247,17 +251,20 @@ describe('a data version 1 database of v3.0 kept sessions, opened by v3.1', () =
 
   // @test-link [[module_kept_session_upgrade_step]]
   // @test-link [[module_on_device_database]]
-  it('opens the database at data version 2, the port ready', async () => {
+  // @test-link [[module_kept_session_jam_upgrade_step]]
+  it("opens the database at the code's data version, 4, the port ready", async () => {
     expect(upgraded.status()).toBe('ready')
     expect(await databaseState(factory)).toEqual({
-      version: 2,
-      meta: { dataVersion: 2, appVersion: UPGRADING_APP_VERSION },
+      version: DATABASE_DATA_VERSION,
+      meta: { dataVersion: DATABASE_DATA_VERSION, appVersion: UPGRADING_APP_VERSION },
     })
+    expect(DATABASE_DATA_VERSION).toBe(4)
   })
 
   // @test-link [[module_kept_session_upgrade_step]]
   // @test-link [[rule_earlier_kept_sessions_carried_over]]
-  it("holds each body at data version 2, every phrase intent with its profile's levels and no profile", () => {
+  // @test-link [[module_kept_session_jam_upgrade_step]]
+  it("holds each body at the body's data version through 2, every phrase intent with its profile's levels and no profile", () => {
     for (const { key, levels } of sessions) {
       const seededIntents = storedIntents(seeded.get(key)!.body)
       expect(
@@ -265,7 +272,10 @@ describe('a data version 1 database of v3.0 kept sessions, opened by v3.1', () =
         key,
       ).toBe(false)
       const { body } = after.get(key)!
-      expect((body as { dataVersion: number }).dataVersion, key).toBe(2)
+      expect((body as { dataVersion: number }).dataVersion, key).toBe(
+        KEPT_SESSION_BODY_DATA_VERSION,
+      )
+      expect(Object.hasOwn(body as object, 'doodle'), key).toBe(false)
       expect(storedIntents(body)).toHaveLength(seededIntents.length)
       for (const intent of storedIntents(body)) {
         expect(intent.figureLevels, key).toStrictEqual(levels)
@@ -363,6 +373,37 @@ describe('a data version 1 database of v3.0 kept sessions, opened by v3.1', () =
   })
 })
 
+// @test-link [[module_kept_session_upgrade_step]]
+// @test-link [[module_kept_session_jam_upgrade_step]]
+describe('the upgrade step to data version 2 alone', () => {
+  // @test-link [[module_kept_session_upgrade_step]]
+  // @test-link [[module_kept_session_jam_upgrade_step]]
+  it("writes v3.1's body at data version 2, which the data version 2 reader reads and the current codec does not", async () => {
+    const factory = freshFactory()
+    const phrases = recordedKeptSession('bb-tenor', 3).phrases()
+    const records = encodeKeptSession(
+      historyOf(phrases, 'bb-tenor', presetSelectionOf(NEUTRAL)),
+      { ...PLAIN, favorites: [2] },
+      V30_APP_VERSION,
+    )
+    const stored = v1Session(records, NEUTRAL, 'v3.0')
+    await seedVersion1(factory, sessionWrites({ key: 'kept', stored }))
+
+    expect((await openAtVersion2(factory)).status()).toBe('ready')
+
+    const after = await rawSession(factory, 'kept')
+    expect((await databaseState(factory)).version).toBe(2)
+    expect(after.body).toMatchObject({ dataVersion: 2, appVersion: UPGRADING_APP_VERSION })
+    expect(Object.keys(after.body as object).sort()).toEqual([
+      'appVersion',
+      'dataVersion',
+      'phrases',
+    ])
+    expect(parseKeptSessionBodyV2(after.body)).toEqual(parseKeptSessionBodyV1(stored.body))
+    expect(decodeKeptSession(after)).toEqual({ reading: 'unreadable' })
+  })
+})
+
 /** The remembered controller the v3.0 tab saved. */
 const CONTROLLER = { id: 'port-1', name: 'Sax controller', manufacturer: 'Acme' }
 
@@ -418,7 +459,7 @@ describe('the stores the upgrade to data version 2 does not change', () => {
 describe('a customized Jazz session kept after the upgrade', () => {
   // @test-link [[rule_preset_label_kept_with_session]]
   // @test-link [[module_kept_session_upgrade_step]]
-  it('stores the label "Custom, based on Jazz" at data version 2, which a later change keeps', async () => {
+  it('stores the label "Custom, based on Jazz" in the summary at data version 2, which a later change keeps', async () => {
     const factory = freshFactory()
     await seedVersion1(factory, otherStoreWrites())
     const port = await openUpgraded(factory)

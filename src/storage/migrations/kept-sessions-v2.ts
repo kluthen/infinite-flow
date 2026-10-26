@@ -7,18 +7,22 @@
  * stays at data version 1, which the codec then reports as unreadable, and the played notes, whose
  * shape does not change, and every other store are not touched.
  *
+ * The bodies it writes are v3.1's, at data version 2, which the step to data version 4 then
+ * carries on: a session kept by v3.0 reaches the current shapes through data version 2.
+ *
  * The step never throws for anything stored. A throw from a cursor callback would escape the
  * migration runner's guard and abort the upgrade, and every later open of the database would then
  * fail on the same record; so reading a stored value and writing its rewrite back are each
- * guarded, and a record either is rewritten or stays as it was. A failing request (a quota error,
- * say) is not prevented: it aborts the upgrade, which a later open then runs again.
+ * guarded (`rewrite-each.ts`), and a record either is rewritten or stays as it was. A failing
+ * request (a quota error, say) is not prevented: it aborts the upgrade, which a later open then
+ * runs again.
  */
 
 import type { MigrationStep } from '../database'
 import { readEnvelope } from '../record-envelope'
 import {
   parseKeptSessionBodyV1,
-  rewrittenKeptBodyRecord,
+  rewrittenKeptBodyRecordV2,
   type KeptSessionBodyRecord,
 } from '../records/kept-session-body'
 import {
@@ -26,6 +30,7 @@ import {
   rewrittenKeptSummaryRecord,
   type KeptSessionSummaryRecord,
 } from '../records/kept-session-summary'
+import { rewriteInOrder } from './rewrite-each'
 
 /** The data version the kept-session records the step reads were written at. */
 const FROM_VERSION = 1
@@ -53,11 +58,11 @@ export function upgradedKeptSummary(
 }
 
 /**
- * Intent: the data version 2 body of a stored data version 1 one, written by `appVersion`: its
- * phrases as read, each intent holding its figure levels only, each favorite mark and every other
- * field (the timelines included) as stored; null for any body not at data version 1 or not
- * readable, which is then left as it is. Never throws: any error reading the stored value gives
- * null.
+ * Intent: the data version 2 body, v3.1's, of a stored data version 1 one, written by
+ * `appVersion`: its phrases as read, each intent holding its figure levels only, each favorite
+ * mark and every other field (the timelines included) as stored; null for any body not at data
+ * version 1 or not readable, which is then left as it is. Never throws: any error reading the
+ * stored value gives null.
  */
 // @spec-link [[module_kept_session_upgrade_step]]
 export function upgradedKeptBody(
@@ -70,7 +75,7 @@ export function upgradedKeptBody(
     const favorites = new Set(
       phrases.filter((phrase) => phrase.favorite).map((phrase) => phrase.phraseNumber),
     )
-    return rewrittenKeptBodyRecord(phrases, (number) => favorites.has(number), appVersion)
+    return rewrittenKeptBodyRecordV2(phrases, (number) => favorites.has(number), appVersion)
   } catch {
     // Deliberately any error, a refusal or not: the body stays at data version 1, read as
     // unreadable, rather than abort the upgrade every later open would then fail on.
@@ -79,60 +84,30 @@ export function upgradedKeptBody(
 }
 
 /**
- * Intent: write `next` over the record the cursor is on, and whether the write was requested; when
- * it cannot even be requested (the value cannot be stored, say), the record is left as it is.
- * Never throws.
- */
-function updateOrLeave(cursor: IDBCursorWithValue, next: unknown): boolean {
-  try {
-    cursor.update(next)
-    return true
-  } catch {
-    // A throw here would escape the migration runner's guard and abort the upgrade; the record
-    // stays at data version 1 instead, which the codec reads as unreadable.
-    return false
-  }
-}
-
-/**
- * Intent: walk every record of `store`, writing back the rewrite `upgraded` gives of each one that
- * has one and leaving the others as they are, then call `done` when given. `upgraded` never
- * throws, and neither does the write; a failing request is left to abort the upgrade.
- */
-function rewriteEach(
-  store: IDBObjectStore,
-  upgraded: (stored: unknown) => unknown,
-  done?: () => void,
-): void {
-  const walk = store.openCursor()
-  walk.onsuccess = () => {
-    const cursor = walk.result
-    if (cursor === null) {
-      done?.()
-      return
-    }
-    const next = upgraded(cursor.value)
-    if (next !== null) updateOrLeave(cursor, next)
-    cursor.continue()
-  }
-}
-
-/**
  * The migration step to data version 2: it rewrites the data version 1 session-wide records, then
  * the data version 1 bodies, that it can read, written by the app version the database is opened
- * with; every other record and store is left as it is.
+ * with, holding the upgrade until both walks end; every other record and store is left as it is.
  */
 // @spec-link [[module_kept_session_upgrade_step]]
 // @spec-link [[rule_earlier_kept_sessions_carried_over]]
 export const KEPT_SESSIONS_V2: MigrationStep = {
   toVersion: 2,
-  migrate: ({ transaction, appVersion }) => {
-    const summaries = transaction.objectStore('sessionSummaries')
-    const bodies = transaction.objectStore('sessionBodies')
-    rewriteEach(
-      summaries,
-      (stored) => upgradedKeptSummary(stored, appVersion),
-      () => rewriteEach(bodies, (stored) => upgradedKeptBody(stored, appVersion)),
+  migrate: ({ transaction, appVersion, hold }) => {
+    rewriteInOrder(
+      transaction,
+      [
+        {
+          store: 'sessionSummaries',
+          /** Intent: the session-wide record's data version 2 rewrite, null to leave it. */
+          upgraded: (stored) => upgradedKeptSummary(stored, appVersion),
+        },
+        {
+          store: 'sessionBodies',
+          /** Intent: the body's data version 2 rewrite, null to leave it as it is. */
+          upgraded: (stored) => upgradedKeptBody(stored, appVersion),
+        },
+      ],
+      hold(),
     )
   },
 }

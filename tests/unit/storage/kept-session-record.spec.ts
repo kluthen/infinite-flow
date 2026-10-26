@@ -14,6 +14,7 @@ import {
 } from '@/session/session-history'
 import type { SessionSettings } from '@/session/session-types'
 import { upgradedKeptBody, upgradedKeptSummary } from '@/storage/migrations/kept-sessions-v2'
+import { upgradedKeptBodyV4 } from '@/storage/migrations/kept-sessions-v4'
 import type { RecordVersions } from '@/storage/record-envelope'
 import {
   decodeKeptSession,
@@ -179,9 +180,11 @@ describe('encodeKeptSession on a five-phrase session with played notes and ackno
   })
 
   // @test-link [[entity_kept_session_record]]
-  it('writes the summary and body at data version 2, the played notes at 1, by the app version given, the clef treble', () => {
+  // @test-link [[module_kept_session_jam_upgrade_step]]
+  it('writes the summary at data version 2, the body at 4 with no doodle, the played notes at 1, by the app version given, the clef treble', () => {
     expect(records.summary.dataVersion).toBe(2)
-    expect(records.body.dataVersion).toBe(2)
+    expect(records.body.dataVersion).toBe(4)
+    expect(Object.hasOwn(records.body, 'doodle')).toBe(false)
     expect(records.playedNotes!.dataVersion).toBe(1)
     for (const record of [records.summary, records.body, records.playedNotes!])
       expect(record.appVersion).toBe(APP_VERSION)
@@ -331,12 +334,16 @@ describe('what a kept phrase holds in place of the musical profile', () => {
   })
 })
 
-/** Intent: a stored session's data version 1 records carried over by the upgrade step's rewrites. */
+/**
+ * Intent: a stored session's data version 1 records carried over by the upgrade steps' rewrites,
+ * in order: step 2's, then step 4's for the body.
+ */
 function upgraded(stored: StoredKeptSession, summary: unknown, body: unknown): StoredKeptSession {
+  const bodyV2 = upgradedKeptBody(body, APP_VERSION) ?? body
   return {
     ...stored,
     summary: upgradedKeptSummary(summary, APP_VERSION) ?? summary,
-    body: upgradedKeptBody(body, APP_VERSION) ?? body,
+    body: upgradedKeptBodyV4(bodyV2, APP_VERSION) ?? bodyV2,
   }
 }
 
@@ -597,7 +604,7 @@ describe('decodeKeptSession of newer or invalid stored values', () => {
   )
 
   // @test-link [[entity_kept_session_record]]
-  it('reads a session whose played notes are at data version 1 and its summary and body at 2', () => {
+  it('reads a session whose played notes are at data version 1, its summary at 2 and its body at 4', () => {
     expect((stored.playedNotes as RecordVersions).dataVersion).toBe(1)
     expect(decodeKeptSession(stored).reading).toBe('current')
   })
@@ -614,7 +621,7 @@ describe('decodeKeptSession of newer or invalid stored values', () => {
     ['in place of its levels', (intent: Record<string, unknown>) => v30Intent(intent, NEUTRAL)],
     ['beside its levels', (intent: Record<string, unknown>) => chunk4Intent(intent, NEUTRAL)],
   ])(
-    'reports a body at data version 2 whose intents hold a musical profile %s as unreadable',
+    'reports a current body whose intents hold a musical profile %s as unreadable',
     (_, reshape) => {
       const body = reshapedBody(stored.body, reshape)
 

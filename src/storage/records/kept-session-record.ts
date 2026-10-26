@@ -61,7 +61,7 @@ export {
   KEPT_SESSION_SUMMARY_DATA_VERSION,
   type KeptReading,
 } from './kept-reading'
-export type { KeptSessionBodyRecord, KeptPhraseRecord } from './kept-session-body'
+export type { KeptDoodle, KeptSessionBodyRecord, KeptPhraseRecord } from './kept-session-body'
 export type { KeptPlayedNotesRecord, KeptPlayedNote } from './kept-played-notes'
 export type { KeptSessionSummaryRecord } from './kept-session-summary'
 
@@ -144,16 +144,15 @@ function checkedFavorites(
 /**
  * Intent: the records of a finished session: the session-wide record (its facts from the history,
  * the preset label of the preset selection the history keeps from the session's start, named from
- * the presets the session knew,
- * the instrument's display name from phrase 1's intent, the starting tempo from phrase 1 and the
- * tempo reached from the last phrase), the body, and the played notes only when they are kept,
- * each written by `appVersion`, the session-wide record and the body at data version 2, the played
- * notes at data version 1, every field copied by name and every time in seconds from phrase 1's
- * scheduled start. Throws, as a
- * caller defect, on a history with no phrase, an empty app version, a comment over 500
- * characters, an unknown or repeated favorite, a selected preset none of the given presets has, or
- * a phrase played on another instrument than the session's. Every phrase keeps the clef the
- * history recorded it in.
+ * the presets the session knew, the instrument's display name from phrase 1's intent, the starting
+ * tempo from phrase 1 and the tempo reached from the last phrase), the body, and the played notes
+ * only when they are kept, each written by `appVersion`, the session-wide record at data version 2
+ * and the body at data version 4, with no doodle, the played notes at data version 1, every field
+ * copied by name and every time in seconds from phrase 1's scheduled start. Throws, as a caller
+ * defect, on a history with no phrase, an empty app version, a comment over 500 characters, an
+ * unknown or repeated favorite, a selected preset none of the given presets has, or a phrase
+ * played on another instrument than the session's. Every phrase keeps the clef the history
+ * recorded it in.
  */
 // @spec-link [[module_kept_session_codec]]
 // @spec-link [[rule_kept_session_content]]
@@ -192,7 +191,7 @@ export function encodeKeptSession(
   )
   return {
     summary,
-    body: keptSessionBodyRecord(records, favorites, appVersion),
+    body: keptSessionBodyRecord(records, favorites, null, appVersion),
     playedNotes: facts.playedNotesKept
       ? keptPlayedNotesRecord(records, first.startedAt, appVersion)
       : null,
@@ -231,10 +230,10 @@ export interface RewrittenKeptBody {
 
 /**
  * Intent: a stored body encoded again after the session's save with phrase `phraseNumber` marked
- * a favorite or not, as `favorite` says, every other mark and field as stored, written by
- * `appVersion`; with the number of favorites it then holds. Nothing when no body is stored, or it
- * cannot be read, or a newer app wrote it. Throws, as a caller defect, on a phrase the body does
- * not hold or an empty app version.
+ * a favorite or not, as `favorite` says, every other mark and field (the doodle too) as stored,
+ * written by `appVersion`; with the number of favorites it then holds. Nothing when no body is
+ * stored, or it cannot be read, or a newer app wrote it. Throws, as a caller defect, on a phrase
+ * the body does not hold or an empty app version.
  */
 // @spec-link [[module_kept_session_changes]]
 // @spec-link [[req_favorite_phrases]]
@@ -249,13 +248,13 @@ export function rewriteKeptBodyFavorite(
     parseKeptSessionBody(stored),
   )
   if (reading.reading !== 'current') return null
-  const phrases = reading.value
+  const { phrases } = reading.value
   if (!phrases.some((phrase) => phrase.phraseNumber === phraseNumber))
     throw new Error(`kept session record: the body holds no phrase ${phraseNumber}`)
   const marked = new Set(phrases.filter((phrase) => phrase.favorite).map((p) => p.phraseNumber))
   if (favorite) marked.add(phraseNumber)
   else marked.delete(phraseNumber)
-  const body = rewrittenKeptBodyRecord(phrases, (number) => marked.has(number), appVersion)
+  const body = rewrittenKeptBodyRecord(reading.value, (number) => marked.has(number), appVersion)
   return { body, favoritesCount: marked.size }
 }
 
@@ -323,7 +322,7 @@ export interface StoredKeptSession {
 /** Intent: read current records into a kept session, or throw a refusal for anything invalid. */
 function keptSession(stored: StoredKeptSession): KeptSession {
   const summary = parseKeptSessionSummary(stored.summary)
-  const phrases = parseKeptSessionBody(stored.body)
+  const { phrases } = parseKeptSessionBody(stored.body)
   assertBodyMatchesSummary(summary, phrases)
   if (summary.playedNotesKept !== (stored.playedNotes !== undefined))
     throw new KeptRecordError('Kept session: a played-notes record exists exactly when kept.')
