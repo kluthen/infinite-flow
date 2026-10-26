@@ -702,3 +702,38 @@ on the next wave" — "you may merge into main of course".
 - Next: wave 3 (chunks 16, 13, 19) in a fresh session; CS before its sync. Dev-tool security batch
   (vite 8.3.5, vitest and @vitest/coverage-v8 5.0.3, lockfile undici 8.12.2, fast-uri 3.1.9,
   serialize-javascript 7.1.3) as its own unit from `main`.
+
+## Wave 3 (2026-10-26)
+
+Chunks 16, 13, 19 (order 16 → 13 → 19). Branch `v3.2-w3` from `main` 5591a76, worktree
+`/home/bastien/work/infinite_flow-v3.2-w3`.
+
+### The owner's answers on wave 2's leftovers (2026-10-26)
+
+- Q3's three drift proposals: apply all three at this wave's sync (the third, on STABLE
+  `module_stored_profile_to_levels`, a file name only, signed off by this answer).
+- Status candidates `module_rhythm_lock_order`, `module_rhythm_change_draw`,
+  `module_kept_session_jam_upgrade_step`: DRAFT → REVIEW at this wave's sync.
+- Each wave gate records the first-load JS total beside the entry chunk's figure (information only;
+  the 300 KiB entry budget is unchanged). Sent to `spec-writer` as a workflow delta.
+
+### Preflight
+
+`documentalist` (fad111f, "ATD: wave 3 preflight and captures"). No halt.
+- 16: PROCEED-WITH-SIGNOFF-PENDING. `module_session_ready_phrases` (STABLE, contract) likely needs
+  a wording extension at the sync (the ready phrase's intent also reads the session's lock state);
+  the owner signs it off then.
+- 13: PROCEED. The change shares stay as they are (tuned at L3, per the plan); tuning them would
+  change `rule_rhythm_change_share` and need the owner.
+- 19: PROCEED. Its "(contract, CS)" revisions are checked at the sync.
+
+Captures: `module_session_rhythm_lock` 0.1 (16); `entity_generation_diagnostics` 1.1,
+`service_generation_orchestration` 0.5 (13, the orderings' optional clock); `ui_field_dependent`,
+`ui_toggle_list`, `entity_session_option_records` 0.1, `module_idle_pregeneration_queue` 0.8 (19).
+
+Plan corrections sent to `spec-writer` before chunk 16 starts: 16's re-lock only when the locked
+bars use sixteenths (C7.1); the tenser flag's condition; 16's Files (drop the seed plan, add the
+session files that hold the requests) and split rule; 16's atoms and drift checks; 13's census
+reads the re-lock class from the history's mark; 19's Files (`setting-defaults.ts`, new specs in
+`test:e2e`), atoms and drift checks. Also two readings in the capture to confirm ("uses sixteenth
+notes", a repeat leaves the re-lock pending).
