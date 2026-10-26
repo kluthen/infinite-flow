@@ -35,14 +35,14 @@ test('regenerating replaces the score with a different phrase', async ({ page })
 
 /** One workspace phrase's replay-key console line, its seed code and key captured. */
 const WORKSPACE_REPLAY_KEY_LINE =
-  /^\[Infinite Flow\] phrase replay key · workspace phrase · (seed1-[0-9a-f]{8}) · (ifk3\.[A-Za-z0-9_-]+)$/
+  /^\[Infinite Flow\] phrase replay key · workspace phrase · (seed1-[0-9a-f]{8}) · (ifk4\.[A-Za-z0-9_-]+)$/
 
 /**
- * Intent: read a version-3 replay key's 7-tuple Node-side (unpadded base64url of UTF-8 JSON), so
+ * Intent: read a version-4 replay key's 9-tuple Node-side (unpadded base64url of UTF-8 JSON), so
  * the line's seed code can be checked against the seed the key itself holds.
  */
 function replayKeyTuple(key: string): unknown[] {
-  const json = Buffer.from(key.slice('ifk3.'.length), 'base64url').toString('utf8')
+  const json = Buffer.from(key.slice('ifk4.'.length), 'base64url').toString('utf8')
   const payload = JSON.parse(json) as unknown
   if (!Array.isArray(payload)) throw new Error(`Replay key payload is not a tuple: ${key}`)
   return payload
@@ -61,7 +61,8 @@ const DEFAULT_FIGURE_LEVELS = {
 
 /**
  * Intent: check one workspace replay-key line, its key holding the line's seed, the default
- * profile's figure levels, phrase number 1, no carry-in and the built-in marker, and return that key.
+ * profile's figure levels, phrase number 1, no carry-in, the built-in marker, no rhythm lock group
+ * and no steering block, and return that key.
  */
 function expectWorkspaceReplayKeyLine(line: string): string {
   const match = WORKSPACE_REPLAY_KEY_LINE.exec(line)
@@ -69,13 +70,15 @@ function expectWorkspaceReplayKeyLine(line: string): string {
   const seedCode = match[1]!
   const key = match[2]!
   const tuple = replayKeyTuple(key)
-  expect(tuple).toHaveLength(7)
+  expect(tuple).toHaveLength(9)
   expect(tuple[1]).toBe(Number.parseInt(seedCode.slice('seed1-'.length), 16))
   expect(tuple[3]).toEqual(DEFAULT_FIGURE_LEVELS)
   expect(Object.keys(tuple[3] as object)).toEqual(Object.keys(DEFAULT_FIGURE_LEVELS))
   expect(tuple[4]).toBe(1)
   expect(tuple[5]).toBeNull()
   expect(tuple[6]).toBeNull()
+  expect(tuple[7]).toBeNull()
+  expect(tuple[8]).toBeNull()
   return key
 }
 

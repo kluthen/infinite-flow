@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.83
+Status: draft v0.84
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -34,7 +34,9 @@ opened (D400–D405) and closed (D406–D408) on 2026-10-21; [Jam mode](versions
 the answers. O260–O266 (v3.2 Part C v1.1, D409) were closed the same day by the owner's
 approval (D410); [Part C §C17](versions/v3/master-spec.md#c17-deferred-and-open) says where each answer
 now stands.
-New questions take IDs from **O267**; the IDs reserved for v3.0's waves and left unused stay
+O267 (a doodle note played before the doodle's first barline, D430) was opened on 2026-10-23,
+and O268 and O269 (how the doodle's short silences and its legato rhythm are read, D433) the same
+day. New questions take IDs from **O270**; the IDs reserved for v3.0's waves and left unused stay
 unused, and O177 stays unused.
 
 Opened on 2026-10-12 with v3.3 (D261): O165–O175, richer chords. D262 closed O174 the same day.
@@ -280,3 +282,48 @@ structural review.
 - **O246 - Which goal the page serves** _(D393; [personas](personas.md))_: proposed: P1's G1
   ("get to know the possibilities rather than study theory"), between sessions: a word met in the
   controls, a preset or the review can be looked up without going online. No new persona goal.
+
+## v3.2 build (O267+)
+
+Opened during the v3.2 build ([build plan](versions/v3/build-plan-v3.2.md)). None blocks the wave
+in progress.
+
+- **O267 - A doodle note played just before the doodle's first barline** _(D430;
+  [build plan chunk 25](versions/v3/build-plan-v3.2.md#chunk-25--exports-open-with-the-doodle))_:
+  C5.4 makes a note played a little early onto the doodle's first beat a doodle note, so its raw
+  onset falls before the doodle section's time zero, by at most half a sixteenth note. Kept, it is
+  stored as played (D430). Where the played-notes export and the review's `Played notes` lane put
+  it is open; C5.15 only says a note running past the section's end stops there. Proposed: the
+  export starts it at the section's start, its release unchanged, as the end is clipped; the lane
+  draws it where it was played. Needed before chunk 23 (the lane, wave 6) and chunk 25 (wave 7).
+- **O268 - How a short silence between two doodle notes is read** _(D433; [Part C
+  §C5.9](versions/v3/master-spec.md#c59-what-the-doodle-feeds-the-generator), [build plan gate
+  DS](versions/v3/build-plan-v3.2.md#gates))_: the question for the owner: when you play notes short
+  and separated (each one tongued and let go a little before the next), should Jam hear the small
+  gaps as rests, or as part of the notes, as sheet music writes short, detached notes as ordinary
+  notes (with a staccato dot) rather than as rests? Today C5.9 makes every silence a rest start, and
+  no rhythm the generator writes holds a rest one sixteenth long off the beat grid, so 4 of chunk
+  3's 6 listening doodles are "beyond" every rhythm (`quarter-steps`, four detached quarters, reads
+  a sixteenth rest on its last sixteenth): for such doodles Close and Near order rhythms alike, and
+  C5.16's "a doodle far from everything the settings allow no longer happens" fails. A tongued
+  wind controller will make most real doodles detached. Proposed: part of the notes. A silence is a
+  rest only where a whole rest of the doodle's note density value (a quarter, an eighth or a
+  sixteenth, as read in C5.16.1) fits inside it on that grid, its rest start at the first such grid
+  tick; the silence density reading counts the same rests. All four doodles then come within reach
+  (`quarter-steps` reads as four quarters, `tresillo-leaps` as 3 + 3 + 2), the other two and H1's
+  five measures are unchanged. Other answers: keep C5.9 (drift becomes "nearest first" for
+  detached doodles); drop only one-sixteenth silences (misses `sparse-calls`, a note held a
+  sixteenth past beat 3). Needed before chunk 28 (wave 4); not before gate LD. The owner's
+  recordings (gate DR) show how short real gaps are.
+- **O269 - Whether a legato doodle of eighths and quarters should read Heavily varied** _(D433;
+  [Part C §C5.16.1](versions/v3/master-spec.md#c5161-the-doodle-to-controls-mapping), [v3.2
+  H5](versions/v3/build-plan-v3.2.md#v32-h5--jam-listening-the-doodle-to-controls-mapping-l1))_: a
+  listening question. A doodle mixing eighths with held quarters reads Heavily varied when more
+  than one note in four is not an eighth. That is the generator's own measure: Slightly varied
+  allows at most one note in four off the main value, so a lower reading would leave the doodle's
+  own rhythm outside every rhythm the generator may write. But Heavily varied also lets the
+  generator add sixteenth figures the doodle never had. Proposed: keep C5.16.1 as written, and ask
+  at H5 whether such phrases sound busier than the doodle. If they do, the remedy is reading
+  Slightly varied when every note off the main value is longer than it (the doodle's rhythm then
+  approached, not reached), or a later grammar level adding only longer values. Needed at the Jam
+  listening check (gate L1, after wave 6); chunk 28 builds the rule as written.

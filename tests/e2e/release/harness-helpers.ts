@@ -67,7 +67,7 @@ export function replayKeyInBrowser(page: Page, key: string): Promise<WorkspaceHa
   return page.evaluate((value) => window.__workspaceHarness.replay.replayKey(value), key)
 }
 
-/** Intent: a phrase replay key's `ifk3.` re-encoding, decoded and encoded again in the page. */
+/** Intent: a phrase replay key's `ifk4.` re-encoding, decoded and encoded again in the page. */
 export function reEncodeKeyInBrowser(page: Page, key: string): Promise<string> {
   return page.evaluate((value) => window.__workspaceHarness.replay.reEncodeKey(value), key)
 }

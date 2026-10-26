@@ -1,0 +1,80 @@
+{
+  "name": "stray-notes",
+  "source": "hand-written",
+  "description": "Four measures of legato eighth and quarter notes with two very short stray notes between fingerings, the last note held past the end.",
+  "traits": {
+    "measureCount": 4,
+    "noteCount": 21,
+    "density": "moderate",
+    "leaping": false,
+    "oneNote": false,
+    "chord": false,
+    "graceNote": false,
+    "strayNote": true,
+    "lastNote": "inside-windows",
+    "aimedAt": {
+      "noteDensity": "Eighth",
+      "rhythmicVariety": "Heavily varied",
+      "syncopation": "Straight",
+      "silenceDensity": "Sparse"
+    },
+    "listeningMeasure": false,
+    "notes": "Stray notes E flat (25 ms, would snap to tick 23 and cut the F) and G sharp (20 ms, would snap to tick 43) are left out. End by length: the last A, released past the fourth barline, is cut at tick 64."
+  },
+  "capture": {
+    "gridOriginAt": 3.5,
+    "tempoBpm": 180,
+    "endMeasure": 4,
+    "notes": [
+      { "onsetAt": 3.487, "releaseAt": 3.683, "pitch": 64 },
+      { "onsetAt": 3.675, "releaseAt": 3.842, "pitch": 65 },
+      { "onsetAt": 3.817, "releaseAt": 4.025, "pitch": 67 },
+      { "onsetAt": 4.017, "releaseAt": 4.158, "pitch": 69 },
+      { "onsetAt": 4.158, "releaseAt": 4.513, "pitch": 67 },
+      { "onsetAt": 4.521, "releaseAt": 4.817, "pitch": 64 },
+      { "onsetAt": 4.808, "releaseAt": 5.017, "pitch": 62 },
+      { "onsetAt": 5.004, "releaseAt": 5.188, "pitch": 64 },
+      { "onsetAt": 5.179, "releaseAt": 5.508, "pitch": 65 },
+      { "onsetAt": 5.433, "releaseAt": 5.458, "pitch": 63 },
+      { "onsetAt": 5.517, "releaseAt": 5.658, "pitch": 64 },
+      { "onsetAt": 5.658, "releaseAt": 5.858, "pitch": 62 },
+      { "onsetAt": 5.842, "releaseAt": 6.146, "pitch": 60 },
+      { "onsetAt": 6.146, "releaseAt": 6.508, "pitch": 62 },
+      { "onsetAt": 6.512, "releaseAt": 6.683, "pitch": 64 },
+      { "onsetAt": 6.662, "releaseAt": 6.846, "pitch": 65 },
+      { "onsetAt": 6.858, "releaseAt": 7.171, "pitch": 67 },
+      { "onsetAt": 7.108, "releaseAt": 7.128, "pitch": 68 },
+      { "onsetAt": 7.15, "releaseAt": 7.517, "pitch": 69 },
+      { "onsetAt": 7.508, "releaseAt": 7.675, "pitch": 71 },
+      { "onsetAt": 7.654, "releaseAt": 7.858, "pitch": 72 },
+      { "onsetAt": 7.85, "releaseAt": 8.162, "pitch": 71 },
+      { "onsetAt": 8.158, "releaseAt": 9.025, "pitch": 69 }
+    ]
+  },
+  "quantized": {
+    "measureCount": 4,
+    "notes": [
+      { "startTick": 0, "lengthTicks": 2, "pitch": 64 },
+      { "startTick": 2, "lengthTicks": 2, "pitch": 65 },
+      { "startTick": 4, "lengthTicks": 2, "pitch": 67 },
+      { "startTick": 6, "lengthTicks": 2, "pitch": 69 },
+      { "startTick": 8, "lengthTicks": 4, "pitch": 67 },
+      { "startTick": 12, "lengthTicks": 4, "pitch": 64 },
+      { "startTick": 16, "lengthTicks": 2, "pitch": 62 },
+      { "startTick": 18, "lengthTicks": 2, "pitch": 64 },
+      { "startTick": 20, "lengthTicks": 4, "pitch": 65 },
+      { "startTick": 24, "lengthTicks": 2, "pitch": 64 },
+      { "startTick": 26, "lengthTicks": 2, "pitch": 62 },
+      { "startTick": 28, "lengthTicks": 4, "pitch": 60 },
+      { "startTick": 32, "lengthTicks": 4, "pitch": 62 },
+      { "startTick": 36, "lengthTicks": 2, "pitch": 64 },
+      { "startTick": 38, "lengthTicks": 2, "pitch": 65 },
+      { "startTick": 40, "lengthTicks": 4, "pitch": 67 },
+      { "startTick": 44, "lengthTicks": 4, "pitch": 69 },
+      { "startTick": 48, "lengthTicks": 2, "pitch": 71 },
+      { "startTick": 50, "lengthTicks": 2, "pitch": 72 },
+      { "startTick": 52, "lengthTicks": 4, "pitch": 71 },
+      { "startTick": 56, "lengthTicks": 8, "pitch": 69 }
+    ]
+  }
+}

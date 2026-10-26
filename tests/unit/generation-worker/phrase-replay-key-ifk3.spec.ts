@@ -2,7 +2,9 @@
 /**
  * The `ifk3.` phrase replay key's own format: a fixed 7-tuple, always seven entries in the order
  * phrase-replay-key.ts states, the figure levels by figure id in slot 3 and `null` at index 6 for a
- * built-in instrument; no musical profile's or preset's name and no customized flag. A malformed
+ * built-in instrument; no musical profile's or preset's name and no customized flag. The `ifk4.`
+ * key the encoder now writes keeps these seven entries first, then `null` at 7 and 8 for an intent
+ * without a rhythm lock group or steering block. A malformed
  * `ifk3.` key, and one naming a figure or level the app does not know, are refused naming the slot
  * and the reason. An `ifk1.` key's profile name decodes to that profile's levels whatever its
  * customized flag, and no decoded intent holds a profile.
@@ -87,9 +89,12 @@ function tupleOf(
   ]
 }
 
-/** Intent: the valid `ifk3.` 7-tuple the encoder writes for a plain built-in intent. */
+/**
+ * Intent: the valid `ifk3.` 7-tuple of a plain built-in intent: the first seven entries of the
+ * `ifk4.` 9-tuple the encoder writes, which keep the `ifk3.` order and meaning.
+ */
 function validIfk3Tuple(): unknown[] {
-  return payloadOf(encodePhraseReplayKey(buildIntent({ seed: 5, label: 'tuple' }), 1))
+  return payloadOf(encodePhraseReplayKey(buildIntent({ seed: 5, label: 'tuple' }), 1)).slice(0, 7)
 }
 
 /** Intent: a valid `ifk3.` tuple with one slot replaced. */
@@ -132,10 +137,10 @@ describe("an ifk1 key decodes to its profile's levels and no profile", () => {
 
 // @test-link [[module_phrase_replay_key]]
 describe('the ifk3 key', () => {
-  it('holds exactly seven entries in the stated order, null at index 6 for a built-in', () => {
+  it('leads the ifk4 key with its seven entries in the stated order, null at 6 to 8 for a built-in', () => {
     const intent = carryInIntent()
     const tuple = payloadOf(encodePhraseReplayKey(intent, 2))
-    expect(tuple).toHaveLength(7)
+    expect(tuple).toHaveLength(9)
     expect(tuple[0]).toBe(intent.requestId)
     expect(tuple[1]).toBe(intent.seed)
     expect(tuple[2]).toEqual(
@@ -147,7 +152,7 @@ describe('the ifk3 key', () => {
     expect(tuple[3]).toEqual(intent.figureLevels)
     expect(tuple[4]).toBe(2)
     expect(tuple[5]).toEqual(JSON.parse(JSON.stringify(intent.carryIn)))
-    expect(tuple[6]).toBeNull()
+    expect(tuple.slice(6)).toEqual([null, null, null])
     expect(payloadOf(encodePhraseReplayKey(buildIntent({ seed: 5 }), 1))[5]).toBeNull()
   })
 

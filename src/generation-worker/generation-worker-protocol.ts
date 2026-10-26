@@ -14,6 +14,7 @@
 import { deepFreeze } from '../domain/events/deep-freeze'
 import type { GenerationIntent } from '../domain/generation/generation-intent'
 import { parseGenerationRequest } from '../domain/generation/generation-request'
+import { RHYTHM_CHANGE_KINDS } from '../domain/generation/request-rhythm-lock'
 import { makeGenerationResult } from '../domain/generation/generation-result'
 import { parseConcertEventTimeline } from '../domain/events/timeline-parser'
 import type {
@@ -107,20 +108,48 @@ export function parseCorrelationId(input: unknown, context: string): number {
   return input
 }
 
-const PROVENANCE_ALLOWED_KEYS = new Set(['harmony', 'rhythm', 'tensionBinding'])
+const PROVENANCE_ALLOWED_KEYS = new Set([
+  'harmony',
+  'rhythm',
+  'tensionBinding',
+  'rhythmLockOutcome',
+  'rhythmChange',
+])
+
+/** The rhythm lock's outcomes a provenance may carry. */
+const RHYTHM_LOCK_OUTCOMES: readonly unknown[] = ['rhythm_change', 'locked_bars', 'forced_bend']
+
+/** The rhythm change records a provenance may carry: a change's kind, or no change available. */
+const RHYTHM_CHANGE_RECORDS: readonly unknown[] = [...RHYTHM_CHANGE_KINDS, 'no_change_available']
 
 /**
  * Intent: minimally validate an untrusted wire GenerationProvenance. No existing boundary parser
  * covers HarmonyCandidate/RhythmCandidate/ConcreteTensionBinding (nothing upstream ever accepted
  * them as untrusted input before this worker boundary), so this checks only that the three
- * expected fields are present as plain objects and rejects any other shape.
+ * expected fields are present as plain objects, that the rhythm lock's outcome, when present, is
+ * one of its three values, that the rhythm change's record, when present, is a change kind or
+ * `no_change_available`, and rejects any other shape.
  */
+// @spec-link [[module_generation_worker_protocol]]
+// @spec-link [[module_rhythm_lock_order]]
+// @spec-link [[module_rhythm_change_draw]]
 function parseGenerationProvenance(input: unknown): GenerationProvenance {
   const record = asPlainRecord(input, 'GenerationOutcome.provenance')
   requireAllowedKeys(record, PROVENANCE_ALLOWED_KEYS, 'GenerationOutcome.provenance')
   asPlainRecord(record.harmony, 'GenerationOutcome.provenance.harmony')
   asPlainRecord(record.rhythm, 'GenerationOutcome.provenance.rhythm')
   asPlainRecord(record.tensionBinding, 'GenerationOutcome.provenance.tensionBinding')
+  if (
+    Object.hasOwn(record, 'rhythmLockOutcome') &&
+    !RHYTHM_LOCK_OUTCOMES.includes(record.rhythmLockOutcome)
+  )
+    throw new GenerationWorkerProtocolError(
+      'GenerationOutcome.provenance.rhythmLockOutcome must be rhythm_change, locked_bars or forced_bend.',
+    )
+  if (Object.hasOwn(record, 'rhythmChange') && !RHYTHM_CHANGE_RECORDS.includes(record.rhythmChange))
+    throw new GenerationWorkerProtocolError(
+      `GenerationOutcome.provenance.rhythmChange must be one of ${RHYTHM_CHANGE_KINDS.join(', ')} or no_change_available.`,
+    )
   return record as unknown as GenerationProvenance
 }
 

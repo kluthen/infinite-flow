@@ -3,7 +3,7 @@
  * intent sent through the real browser generation worker (a client of its own, created at the
  * first replay, that never prewarms, apart from the workspace's), and the answer turned into plain
  * JSON for the spec: the concert timeline's JSON text, or a plain description of a failure. Also
- * gives a key's `ifk3.` re-encoding, from the decoded intent and phrase number. The workspace
+ * gives a key's `ifk4.` re-encoding, from the decoded intent and phrase number. The workspace
  * session never sees these calls.
  */
 import { createBrowserGenerationWorker } from '../../../src/generation-worker/browser-generation-worker'

@@ -1,6 +1,7 @@
 /**
  * The headless phrase replay report: the readable JSON account of one replayed phrase key. Its
- * input holds every generation-intent field verbatim plus readable names; its output holds, for a
+ * input holds every generation-intent field verbatim plus readable names, the rhythm lock group
+ * and the steering block among them (null when the request has none); its output holds, for a
  * successful phrase, the resolved request, the four bars, the harmony, the ending, the carry-out,
  * the provenance, the diagnostics and the raw outcome verbatim; a generation failure keeps its
  * code and diagnostics; a worker crash keeps its error name and message. Readable additions always
@@ -13,6 +14,8 @@ import { deriveCarryIn } from '../domain/generation/carry-in/carry-in-derivation
 import type { CarryIn } from '../domain/generation/carry-in/carry-in'
 import type { GenerationIntent } from '../domain/generation/generation-intent'
 import type { GenerationRequest, Meter } from '../domain/generation/generation-request'
+import type { RequestRhythmLock } from '../domain/generation/request-rhythm-lock'
+import type { SteeringBlock } from '../domain/generation/steering-block'
 import type {
   GenerationDiagnostics,
   GenerationFailureCode,
@@ -85,6 +88,10 @@ export interface PhraseReplayInput {
   /** The carry-in verbatim, or null for a phrase generated without one. */
   readonly carryIn: CarryIn | null
   readonly carryInNames: CarryInNames | null
+  /** The rhythm lock group verbatim, or null for a request without one (every key before ifk4). */
+  readonly rhythmLock: RequestRhythmLock | null
+  /** The steering block verbatim, or null for a request without one (every key before ifk4). */
+  readonly steering: SteeringBlock | null
   /** The generation worker envelope replayed (JSON-identical to the clone sent to the worker). */
   readonly workerRequest: GenerationWorkerRequest
 }
@@ -220,6 +227,8 @@ function replayInput(
     })),
     carryIn: intent.carryIn ?? null,
     carryInNames: intent.carryIn === undefined ? null : carryInNames(intent.carryIn, concertKey),
+    rhythmLock: intent.rhythmLock ?? null,
+    steering: intent.steering ?? null,
     workerRequest,
   }
 }

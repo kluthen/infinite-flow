@@ -1,0 +1,56 @@
+{
+  "name": "grace-notes",
+  "source": "hand-written",
+  "description": "A simple tune with two quick grace notes played just before the beat, both dropped by the quantizer.",
+  "traits": {
+    "measureCount": 3,
+    "noteCount": 9,
+    "density": "moderate",
+    "leaping": false,
+    "oneNote": false,
+    "chord": false,
+    "graceNote": true,
+    "strayNote": false,
+    "lastNote": "inside-windows",
+    "aimedAt": {
+      "noteDensity": "Quarter",
+      "rhythmicVariety": "Heavily varied",
+      "syncopation": "Occasional offbeats",
+      "silenceDensity": "Sparse"
+    },
+    "listeningMeasure": false,
+    "notes": "Grace notes E flat (50 ms) before tick 4 and C sharp (45 ms) before tick 32: each snaps onto the tick of the longer note after it, so the longer note stays."
+  },
+  "capture": {
+    "gridOriginAt": 15.92,
+    "tempoBpm": 90,
+    "endMeasure": 3,
+    "notes": [
+      { "onsetAt": 15.937, "releaseAt": 16.553, "pitch": 62 },
+      { "onsetAt": 16.528, "releaseAt": 16.578, "pitch": 63 },
+      { "onsetAt": 16.595, "releaseAt": 17.27, "pitch": 64 },
+      { "onsetAt": 17.237, "releaseAt": 18.52, "pitch": 67 },
+      { "onsetAt": 18.62, "releaseAt": 18.937, "pitch": 65 },
+      { "onsetAt": 18.903, "releaseAt": 19.287, "pitch": 64 },
+      { "onsetAt": 19.278, "releaseAt": 19.895, "pitch": 62 },
+      { "onsetAt": 19.887, "releaseAt": 20.97, "pitch": 60 },
+      { "onsetAt": 21.187, "releaseAt": 21.232, "pitch": 61 },
+      { "onsetAt": 21.27, "releaseAt": 21.953, "pitch": 62 },
+      { "onsetAt": 21.912, "releaseAt": 23.628, "pitch": 60 }
+    ]
+  },
+  "quantized": {
+    "measureCount": 3,
+    "notes": [
+      { "startTick": 0, "lengthTicks": 4, "pitch": 62 },
+      { "startTick": 4, "lengthTicks": 4, "pitch": 64 },
+      { "startTick": 8, "lengthTicks": 8, "pitch": 67 },
+      { "startTick": 16, "lengthTicks": 2, "pitch": 65 },
+      { "startTick": 18, "lengthTicks": 2, "pitch": 64 },
+      { "startTick": 20, "lengthTicks": 4, "pitch": 62 },
+      { "startTick": 24, "lengthTicks": 6, "pitch": 60 },
+      { "startTick": 32, "lengthTicks": 4, "pitch": 62 },
+      { "startTick": 36, "lengthTicks": 10, "pitch": 60 }
+    ]
+  }
+}

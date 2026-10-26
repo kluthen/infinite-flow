@@ -19,6 +19,8 @@ Idle is in [Phrase 2 after pre-generation (M4, 2026-10-12)](#phrase-2-after-pre-
 How often each embellishment figure appears (M1) is in [Embellishment figures](#embellishment-figures),
 and what the figures cost the pitch search (M2) in
 [Embellishment figures: the cost guard](#embellishment-figures-the-cost-guard).
+v3.2's Jam sweep, session sweep and lock census (M1, M5, M2) are in
+[Jam and the rhythm lock (v3.2)](#jam-and-the-rhythm-lock-v32).
 The newest whole-catalog generation figures are in
 [Validator-free fast enumeration on the reference machine (2026-09-30)](#validator-free-fast-enumeration-on-the-reference-machine-2026-09-30),
 after the [cold-generation speed-up](#cold-generation-speed-up-on-the-reference-machine-2026-09-30);
@@ -765,6 +767,97 @@ The settings of #344, #349 and #354:
   register; F♯ Ionian; Jazz; Vary settings and Tension across phrases on.
 - #354: Eighth, Heavily varied, Conversational, Straight, Lift; seed 7; B♭ tenor; High register; B
   Major; Neutral; both flags on.
+
+## Jam and the rhythm lock (v3.2)
+
+Measurements M1 (the Jam sweep), M5 (the session sweep with the lock) and M2 (the lock census) of
+the [v3.2 build plan](../specs/versions/v3/build-plan-v3.2.md#measurements-and-hand-checks), written
+by its chunk 3 and run once on the code as it stood for their baseline: v3.1's generator, with no
+steering block, no doodle-to-controls mapping, no phrase-1 ladder and no lock (the request carries
+the lock group and the steering block, but the generator reads neither yet). Later chunks re-run
+them unchanged as those parts land (chunks 13 and 29, wave 5's gate, chunk 33, the release gate).
+The scripts are described in [Testing: Scripts](testing.md#scripts).
+
+**Machine and date.** Run by Claude on 2026-10-23 between 10:55 and 11:00 CEST (the census's preset
+groups at 10:40–10:47), branch `v3.2-c3-measurement-tools` cut from `v3.2-w2`, on the reference
+machine: AMD Ryzen 5 PRO 8640HS (6 cores, 12 threads), 11 GiB RAM, not a VM, Node 22.23.3. Nothing
+else of the project ran; the desktop stayed open (1-minute load average 1.2 before, 2.2 after).
+These are a baseline for comparison on the same machine; the owner runs the deciding runs.
+
+### M1 and M5: the Jam sweep and the session sweep, baseline
+
+**Method.** `npm run measure:jam` runs `tests/sweep/jam-sweep.measure.ts` over the deadline sweep's
+568 cases (every supported rhythm setting with seeds 7 and 13). Jam mode: phrase 1 is generated on
+the clock through the baseline ladder (rung 3 only, v2's standalone phrase, built exactly as the
+sweep builds phrase 1 at Idle) against the three-measure deadline with the standalone reserve, then
+phrases 2 to 8 play through the real session runner; warm (the rhythm domain memo filled first) and
+cold (a fresh memo for phrase 1's first attempt). Session mode: v3.1's six-phrase sessions. Each
+attempt is charged its measured `generatePhrase` time plus 100 ms; times below are `generatePhrase`
+wall times (the charged time only where named), the 95th percentile by nearest rank. With no block
+and the lock off, a Jam plays exactly v3.1's session (`tests/sweep/jam-sweep.spec.ts` compares the
+outputs byte for byte). The run took 189 s.
+
+| Configuration             | Phrase 1                                        | Repeats | Shortfalls | Attempts: p95 / slowest | Standalone: count, p95 / slowest (charged) |
+| ------------------------- | ----------------------------------------------- | ------- | ---------- | ----------------------- | ------------------------------------------ |
+| Jam 60 BPM, warm          | rung 3 100 %, never came 0 %, extended wait 0 % | 0       | 0          | 0.024 / 1.633 s         | 630, 0.022 / 0.613 s (0.713 s)             |
+| Jam 60 BPM, cold          | rung 3 100 %, never came 0 %, extended wait 0 % | 0       | 0          | 0.048 / 1.633 s         | 630, 0.161 / 0.771 s (0.871 s)             |
+| Jam 120 BPM, warm         | rung 3 100 %, never came 0 %, extended wait 0 % | 0       | 0          | 0.024 / 1.633 s         | 630, 0.020 / 0.613 s (0.713 s)             |
+| Jam 120 BPM, cold         | rung 3 100 %, never came 0 %, extended wait 0 % | 0       | 0          | 0.050 / 1.633 s         | 630, 0.156 / 0.688 s (0.788 s)             |
+| Jam 180 BPM, warm         | rung 3 100 %, never came 0 %, extended wait 0 % | 0       | 0          | 0.024 / 1.633 s         | 637, 0.021 / 0.613 s (0.713 s)             |
+| Jam 180 BPM, cold         | rung 3 100 %, never came 0 %, extended wait 0 % | 0       | 0          | 0.050 / 1.633 s         | 637, 0.166 / 0.920 s (1.020 s)             |
+| Session 60 BPM, lock off  | —                                               | 0       | 0          | 0.024 / 1.633 s         | 42, 0.013 / 0.019 s (0.119 s)              |
+| Session 120 BPM, lock off | —                                               | 0       | 0          | 0.024 / 1.633 s         | 42, 0.013 / 0.019 s (0.119 s)              |
+| Session 240 BPM, lock off | —                                               | 0       | 0          | 0.019 / 1.639 s         | 603, 0.021 / 0.313 s (0.413 s)             |
+
+- **Rungs.** With no steering block and no join, every phrase 1 comes from rung 3; the join and the
+  block rungs read 0 % until chunks 18 and 29. No Jam missed its deadline or needed an extended wait.
+- **Orderings.** Their share of attempt time is not measured yet: v3.1's generator orders nothing
+  (`orderingsShare` is `null`). Chunks 10 and 11 add the lock's orderings, chunk 8 the steering
+  order; chunk 13 has the generator's diagnostics report their time and the sweeps read it.
+- **Standalone reserve.** No standalone attempt went past the 1.075 s reserve. The slowest, a cold
+  phrase 1 at 180 BPM, was charged 1.020 s: a cold domain leaves little margin, which is what
+  C5.8 accepts (D410). The slowest attempt overall, 1.633 s, is a carry-in attempt (every standalone one
+  is listed apart); v3.1's final run had failed attempts up to about 1.9 s.
+- **Session mode with the lock off** matches v3.1's deadline sweep: every phrase 2 to 6 generated,
+  no repeat, no missed deadline.
+
+### M2: the lock census, baseline
+
+**Method.** `npm run measure:lock` runs `tests/sweep/lock-census.measure.ts`: an eight-phrase seeded
+session per case at 120 BPM, Tension across phrases on and off, each phrase's written bars classified
+against phrase 1's (kept; one change of an allowed kind; otherwise a forced bend) for each kind
+alone and all five, and per draw (phrases 2 to 8, repeats skipped) whether the phrase's own rhythm
+domain (the domain the generator searched) offers a candidate one change away, per kind. Two
+populations: the sweep's 568 cases (seeds 7 and 13; 381 distinct locked rhythms), and each built-in
+preset's rhythm settings applied to every case, with a seed per case. The sweep group took 87 s, the
+eight preset groups 419 s.
+
+Since the generator ignores the lock today, the kept, changed and bent shares only say how often an
+unlocked phrase happens to keep phrase 1's rhythm or lie one change from it (about 14 % and 5 %).
+They are the "lock off" reference; chunk 13 re-runs the census with the lock. The availability
+shares are already the lock's: they say how often a drawn change could find a candidate.
+
+| Population (Tension across phrases on)                 | Move a note start | Move a rest | Split a note | Merge two notes | Add or remove a rest | Any of the five |
+| ------------------------------------------------------ | ----------------- | ----------- | ------------ | --------------- | -------------------- | --------------- |
+| Sweep cases (off: 35.2, 12.9, 17.4, 6.3, 4.6, 60.7 %)  | 35.8 %            | 12.7 %      | 17.3 %       | 6.2 %           | 4.6 %                | 61.3 %          |
+| Pop song                                               | 36.8 %            | 52.2 %      | 22.5 %       | 17.8 %          | 25.0 %               | 82.9 %          |
+| Speed drill (off: move a note start 5.8 %, any 55.6 %) | 27.6 %            | 22.9 %      | 0 %          | 0 %             | 32.2 %               | 64.7 %          |
+| Jazz, Modal (Dorian)                                   | 0 %               | 31.0 %      | 0 %          | 0 %             | 24.8 %               | 55.8 %          |
+| Neutral                                                | 0 %               | 0 %         | 78.5 %       | 21.5 %          | 0 %                  | 100 %           |
+| Gentle, Reel, Bebop                                    | 0 %               | 0 %         | 0 %          | 0 %             | 0 %                  | 0 %             |
+
+- **Against spec D424.** At Pop song's settings, D424 found 28 % of locked rhythms offering a moved
+  note, 51 % a moved rest, 22 % a split, 15 % a merge, 28 % a rest added or removed and 82 % at least
+  one; the census finds 37, 52, 23, 18, 25 and 83 % of draws. D424's pooled shares are per candidate
+  over every domain, the census's per draw from the rhythm phrase 1 actually took, so the sweep-case
+  row is not expected to match them.
+- **Few locked rhythms at some presets.** With a seed per case, Gentle's sessions all locked the same
+  rhythm, Neutral and Reel four, Bebop eight (Jazz and Modal (Dorian) 107, Pop song 281, Speed drill
+  334). Gentle, Reel and Bebop offer no change at all: under the lock their phrases keep the locked
+  rhythm or bend (C7.3's known limit).
+- **What the census cannot tell from bars alone.** A forced bend that lands exactly one allowed
+  change from the locked rhythm reads as a change; once the lock exists, the session history tells
+  them apart.
 
 ## My instrument ranges (2026-10-11)
 

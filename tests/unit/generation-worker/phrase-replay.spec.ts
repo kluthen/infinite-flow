@@ -2,7 +2,8 @@
 /**
  * Headless phrase replay: a replayed key reproduces the phrase generation and the worker message
  * handler produce for the same intent (with and without a carry-in), its report is complete and
- * readable (every intent field, four 1-based bars, every event with concert and written pitch),
+ * readable (every intent field, the rhythm lock group and steering block included, four 1-based
+ * bars, every event with concert and written pitch),
  * the carry-out matches the session's derivation, and key input is read strictly.
  */
 
@@ -10,11 +11,19 @@ import { describe, expect, it } from 'vitest'
 
 import type { GenerationControls, MusicalProfile } from '@/domain/controls/generation-controls'
 import { deriveCarryIn } from '@/domain/generation/carry-in/carry-in-derivation'
-import type { GenerationIntent } from '@/domain/generation/generation-intent'
+import {
+  createGenerationIntent,
+  type GenerationIntent,
+} from '@/domain/generation/generation-intent'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
 import { handleGenerationWorkerMessage } from '@/generation-worker/generation-worker-handler'
-import { encodePhraseReplayKey, PhraseReplayKeyError } from '@/generation-worker/phrase-replay-key'
+import {
+  bytesToBase64Url,
+  encodePhraseReplayKey,
+  PHRASE_REPLAY_KEY_V3_PREFIX,
+  PhraseReplayKeyError,
+} from '@/generation-worker/phrase-replay-key'
 import {
   extractPhraseReplayKey,
   replayDecodedPhraseKey,
@@ -32,6 +41,7 @@ import {
   generateSuccess,
   keyChangeIntent,
 } from '../domain/generation/carry-in/carry-in-fixture'
+import { SAMPLE_RHYTHM_LOCK, SAMPLE_STEERING } from '../domain/generation/request-inputs-fixture'
 
 /** Generous per-test timeout: each case generates the same phrase three times. */
 const TIMEOUT_MS = 120_000
@@ -48,6 +58,8 @@ const INTENT_FIELDS = [
   'instrumentProfile',
   'registerIntent',
   'carryIn',
+  'rhythmLock',
+  'steering',
 ] as const
 
 /** A control setting replayed over the seed sample. */
@@ -103,6 +115,26 @@ function handlerOutcome(intent: GenerationIntent): GenerationOutcome {
   )
   if (response.type !== 'outcome') throw new Error(`Worker crashed: ${response.message}`)
   return response.outcome
+}
+
+/** Intent: the JSON payload of a key, read back without the codec's decoder. */
+function payloadOf(key: string): unknown[] {
+  const payload = key
+    .slice(key.indexOf('.') + 1)
+    .replace(/-/gu, '+')
+    .replace(/_/gu, '/')
+  const binary = atob(payload.padEnd(Math.ceil(payload.length / 4) * 4, '='))
+  const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0))
+  return JSON.parse(new TextDecoder().decode(bytes)) as unknown[]
+}
+
+/**
+ * Intent: the `ifk3.` key v3.1 would have written for an intent without the v3.2 groups: the first
+ * seven entries of the `ifk4.` key the encoder writes, under the `ifk3.` prefix.
+ */
+function ifk3KeyOf(intent: GenerationIntent, phraseNumber: number): string {
+  const tuple = payloadOf(encodePhraseReplayKey(intent, phraseNumber)).slice(0, 7)
+  return `${PHRASE_REPLAY_KEY_V3_PREFIX}${bytesToBase64Url(new TextEncoder().encode(JSON.stringify(tuple)))}`
 }
 
 /** Intent: assert a report's raw outcome equals direct generation and the worker handler's. */
@@ -189,7 +221,7 @@ describe('replayPhraseKey reproduces generation', () => {
         for (const seed of SEEDS) {
           const intent = settingIntent(setting, seed)
           const report = replayPhraseKey(encodePhraseReplayKey(intent, 1))
-          expect(report.keyVersion).toBe('ifk3')
+          expect(report.keyVersion).toBe('ifk4')
           expectReplayEqualsGeneration(report, intent)
           expectCompleteInput(report, intent)
           const output = successOf(report)
@@ -279,6 +311,33 @@ describe('the replay report', () => {
   )
 
   // @test-link [[service_headless_phrase_replay]]
+  it(
+    'holds the rhythm lock group and steering block verbatim for an ifk4 key, null for an ifk3 key',
+    () => {
+      const plain = buildIntent({ seed: 5, label: 'replay-groups' })
+      const withGroups = createGenerationIntent({
+        requestId: plain.requestId,
+        seed: plain.seed,
+        controls: plain.controls,
+        figureLevels: plain.figureLevels,
+        rhythmLock: SAMPLE_RHYTHM_LOCK,
+        steering: SAMPLE_STEERING,
+      })
+      const ifk4 = replayPhraseKey(encodePhraseReplayKey(withGroups, 1))
+      expect(ifk4.keyVersion).toBe('ifk4')
+      expect(JSON.stringify(ifk4.input.rhythmLock)).toBe(JSON.stringify(SAMPLE_RHYTHM_LOCK))
+      expect(JSON.stringify(ifk4.input.steering)).toBe(JSON.stringify(SAMPLE_STEERING))
+      expectCompleteInput(ifk4, withGroups)
+      const ifk3 = replayPhraseKey(ifk3KeyOf(plain, 1))
+      expect(ifk3.keyVersion).toBe('ifk3')
+      expect(ifk3.input.rhythmLock).toBeNull()
+      expect(ifk3.input.steering).toBeNull()
+      expectCompleteInput(ifk3, plain)
+    },
+    TIMEOUT_MS,
+  )
+
+  // @test-link [[service_headless_phrase_replay]]
   it('reports a worker crash with its name and message', () => {
     const intent = settingIntent(SETTINGS[0]!, 1)
     const key = encodePhraseReplayKey(intent, 1)
@@ -317,7 +376,7 @@ describe('reading a key', () => {
   it('rejects a malformed or unsupported key with a typed error before generating', () => {
     expect(() => replayPhraseKey('ifk1.!!')).toThrow(PhraseReplayKeyError)
     expect(() => replayPhraseKey('ifk1.AAAA')).toThrow(PhraseReplayKeyError)
-    expect(() => replayPhraseKey('ifk4.AAAA')).toThrow(/unsupported key version/u)
+    expect(() => replayPhraseKey('ifk5.AAAA')).toThrow(/unsupported key version "ifk5"/u)
     expect(() => replayDecodedPhraseKey(key, decodePhraseReplayKey(key))).not.toThrow()
   })
 })

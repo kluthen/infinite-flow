@@ -74,6 +74,7 @@ function summaryAt(startedAt: number): KeptSessionSummary {
     playedNotesKept: false,
     recordedByAppVersion: '3.0.0',
     sessionSeed: makeSeed(1),
+    isJam: false,
   }
 }
 

@@ -5,11 +5,14 @@
  * compares the resulting concert-pitch timeline (never the request identity, which is always
  * fresh per generation by design).
  *
- * The in-browser replay (v3.1 hand check H3): a deterministic slice of the two recorded replay-key
- * corpora replays through the real browser generation worker to the stored timelines, byte for
- * byte, both as recorded and re-encoded as `ifk3.` keys. With `INFINITE_FLOW_REPLAY_KEY` holding a
- * key (or a whole copied console line), one more test replays it in the browser and checks the
- * phrase equals the headless replay of the same key. `INFINITE_FLOW_BROWSER_CHANNEL` runs the
+ * The in-browser replay (v3.1 hand check H3): a deterministic slice of each recorded replay-key
+ * corpus (v2.0's, v3.0's and v3.1's) replays through the real browser generation worker to the
+ * stored timelines, byte for byte, both as recorded and re-encoded as `ifk4.` keys. Hand-written
+ * `ifk4.` keys (v3.2 chunk 12) for a locked phrase, a changed phrase, a forced bend, a phrase with a
+ * steering block and a Jam's phrase 1 joining from no phrase replay in the browser to the same
+ * phrase as the headless replay, which names the lock's outcome. With `INFINITE_FLOW_REPLAY_KEY`
+ * holding a key (or a whole copied console line), one more test replays it in the browser and
+ * checks the phrase equals the headless replay of the same key. `INFINITE_FLOW_BROWSER_CHANNEL` runs the
  * whole spec on another browser channel (`msedge` for Microsoft Edge).
  */
 import { readFileSync } from 'node:fs'
@@ -94,7 +97,7 @@ function everyNth(cases: readonly CorpusCase[], step: number): readonly CorpusCa
 }
 
 /**
- * Intent: a recorded (`ifk1.` or `ifk2.`) key's raw tuple, read Node-side without the codec, so
+ * Intent: a recorded (`ifk1.`, `ifk2.` or `ifk3.`) key's raw tuple, read Node-side without the codec, so
  * the slice's coverage is checked on what the key itself holds.
  */
 function recordedTuple(key: string): readonly unknown[] {
@@ -105,9 +108,19 @@ function recordedTuple(key: string): readonly unknown[] {
   return payload
 }
 
-/** Intent: what a recorded key's tuple names: its version, profile, instrument kind and carry-in. */
+/**
+ * Intent: what a recorded key's tuple names: its version, profile (an `ifk3.` key holds levels,
+ * no profile), instrument kind and carry-in.
+ */
 function coverageOf(key: string): readonly string[] {
   const tuple = recordedTuple(key)
+  if (key.startsWith('ifk3.')) {
+    return [
+      'ifk3',
+      tuple[6] === null ? 'built-in' : 'my-instrument',
+      tuple[5] === null ? 'standalone' : 'carry-in',
+    ]
+  }
   return [
     key.slice(0, key.indexOf('.')),
     String(tuple[3]),
@@ -117,7 +130,7 @@ function coverageOf(key: string): readonly string[] {
 }
 
 /**
- * Intent: replay each case in the browser, as recorded and as its `ifk3.` re-encoding, and expect
+ * Intent: replay each case in the browser, as recorded and as its `ifk4.` re-encoding, and expect
  * both to give the stored timeline's JSON text exactly.
  */
 async function expectSliceReplays(
@@ -132,8 +145,8 @@ async function expectSliceReplays(
       timeline: stored,
     })
     const reEncoded = await reEncodeKeyInBrowser(page, corpusCase.key)
-    expect(reEncoded.startsWith('ifk3.'), corpusCase.label).toBe(true)
-    expect(await replayKeyInBrowser(page, reEncoded), `${corpusCase.label} as ifk3`).toEqual({
+    expect(reEncoded.startsWith('ifk4.'), corpusCase.label).toBe(true)
+    expect(await replayKeyInBrowser(page, reEncoded), `${corpusCase.label} as ifk4`).toEqual({
       kind: 'timeline',
       timeline: stored,
     })
@@ -144,13 +157,15 @@ async function expectSliceReplays(
 const V30_SLICE = everyNth(readCorpusCases('v3.0-neutral-jazz.json'), 19)
 /** The v2.0 corpus slice: 6 ifk1 cases, Neutral and Jazz, a carry-in one among them. */
 const V20_SLICE = everyNth(readCorpusCases('ifk1-v2.0.json'), 17)
+/** The v3.1 corpus slice: 10 ifk3 cases, built-in and my instrument, standalone and carry-in. */
+const V31_SLICE = everyNth(readCorpusCases('v3.1-corpus.json'), 25)
 
 /** Generous per-test timeout: each slice replays in about a second in Chromium. */
 const SLICE_TIMEOUT_MS = 120_000
 
 // @test-link [[rule_seeded_phrase_reproduction]]
 // @test-link [[module_phrase_replay_key]]
-test('a slice of the v3.0 replay-key corpus replays in the browser worker to its stored timelines, also as ifk3', async ({
+test('a slice of the v3.0 replay-key corpus replays in the browser worker to its stored timelines, also as ifk4', async ({
   page,
 }) => {
   test.setTimeout(SLICE_TIMEOUT_MS)
@@ -164,7 +179,7 @@ test('a slice of the v3.0 replay-key corpus replays in the browser worker to its
 
 // @test-link [[rule_seeded_phrase_reproduction]]
 // @test-link [[module_phrase_replay_key]]
-test('a slice of the v2.0 replay-key corpus replays in the browser worker to its stored timelines, also as ifk3', async ({
+test('a slice of the v2.0 replay-key corpus replays in the browser worker to its stored timelines, also as ifk4', async ({
   page,
 }) => {
   test.setTimeout(SLICE_TIMEOUT_MS)
@@ -173,6 +188,20 @@ test('a slice of the v2.0 replay-key corpus replays in the browser worker to its
   expect(V20_SLICE).toHaveLength(6)
 
   await expectSliceReplays(page, V20_SLICE)
+})
+
+// @test-link [[rule_seeded_phrase_reproduction]]
+// @test-link [[module_phrase_replay_key]]
+test('a slice of the v3.1 replay-key corpus replays in the browser worker to its stored timelines, also as ifk4', async ({
+  page,
+}) => {
+  test.setTimeout(SLICE_TIMEOUT_MS)
+  const covered = new Set(V31_SLICE.flatMap((corpusCase) => coverageOf(corpusCase.key)))
+  for (const value of ['ifk3', 'built-in', 'my-instrument', 'standalone', 'carry-in'])
+    expect(covered).toContain(value)
+  expect(V31_SLICE).toHaveLength(10)
+
+  await expectSliceReplays(page, V31_SLICE)
 })
 
 /** The hand check's key (or a whole copied console line holding one); unset skips its test. */
@@ -194,7 +223,11 @@ type HeadlessReplayOutput =
   | {
       readonly kind: 'generation_success' | 'generation_failure'
       readonly raw:
-        | { readonly kind: 'generation_success'; readonly result: { readonly timeline: unknown } }
+        | {
+            readonly kind: 'generation_success'
+            readonly result: { readonly timeline: unknown }
+            readonly provenance: { readonly rhythmLockOutcome?: string }
+          }
         | { readonly kind: 'generation_failure'; readonly code: string }
     }
 
@@ -248,4 +281,189 @@ test('the hand check key replays in the browser to the same phrase as the headle
 
   await gotoWorkspaceHarness(page)
   expect(await replayKeyInBrowser(page, key)).toEqual(expected)
+})
+
+/** The neutral figure levels every hand-written key below holds, by figure id in their order. */
+const NEUTRAL_LEVELS = {
+  passingTone: 'asToday',
+  accentedPassingTone: 'asToday',
+  neighborTone: 'asToday',
+  appoggiatura: 'off',
+  diatonicEnclosure: 'off',
+  chromaticApproach: 'off',
+  chromaticEnclosure: 'off',
+}
+
+/** Intent: the 14 controls in the key's order: C major on the C keyboard, the given tension. */
+function handControls(tension: string): readonly unknown[] {
+  return [
+    90,
+    'C',
+    'Major',
+    'Gentle diatonic',
+    tension,
+    'Quarter',
+    'Slightly varied',
+    'Occasional offbeats',
+    'Sparse',
+    'Arch',
+    'Middle',
+    'Shaped',
+    'Predictable',
+    'c-keyboard',
+  ]
+}
+
+/** Intent: one locked rhythm event, in ticks of a sixteenth. */
+function event(kind: 'note' | 'rest', startTick: number, durationTicks: number, tie = false) {
+  return { kind, startTick, durationTicks, tieContinuation: tie }
+}
+
+/** Intent: four quarter notes. */
+function quarters() {
+  return [event('note', 0, 4), event('note', 4, 4), event('note', 8, 4), event('note', 12, 4)]
+}
+
+/** The rhythm of a Build phrase, as the lock holds it once locked. */
+const BUILD_BARS = [
+  quarters(),
+  [event('rest', 0, 4), event('note', 4, 4), event('note', 8, 4), event('note', 12, 4)],
+  quarters(),
+  [event('note', 0, 4), event('note', 4, 6), event('note', 10, 2), event('rest', 12, 4)],
+]
+
+/** A rhythm no Lift phrase writes (a half note, a rest, a quarter note, one tied over). */
+const UNWRITTEN_BARS = [0, 1, 2, 3].map((bar) => [
+  event('note', 0, 8, bar === 2),
+  event('rest', 8, 4),
+  event('note', 12, 4),
+])
+
+/** Every rhythm change kind the player may allow. */
+const ALL_CHANGES = ['move_note_start', 'move_rest', 'split_note', 'merge_notes', 'note_rest']
+
+/** A steering block: rhythm positions and kinds of move, no pitch. */
+const STEERING = {
+  targetRhythm: {
+    measures: [
+      [
+        { tick: 0, kind: 'note' },
+        { tick: 6, kind: 'rest' },
+      ],
+      [{ tick: 4, kind: 'note' }],
+      [],
+      [{ tick: 0, kind: 'note' }],
+    ],
+    band: 'close',
+  },
+  moves: [
+    { direction: 'up', size: 'skip' },
+    { direction: 'same' },
+    { direction: 'down', size: 'step' },
+  ],
+  strength: 'direction',
+}
+
+/** The doodle's join into phrase 1: its last concert pitch and the Middle window, nothing else. */
+const JOIN_FROM_NO_PHRASE = {
+  origin: 'none',
+  lastPitch: { midi: 60, arrivingInterval: null, recovery: { kind: 'settled' } },
+  registerWindow: { kind: 'RegisterWindow', minMidi: 54, maxMidi: 66 },
+  finalHarmony: null,
+}
+
+/** Intent: an `ifk4.` key written by hand from its nine entries. */
+function handKey(
+  requestId: string,
+  seed: number,
+  tension: string,
+  carryIn: unknown,
+  rhythmLock: unknown,
+  steering: unknown,
+): string {
+  const tuple = [
+    requestId,
+    seed,
+    handControls(tension),
+    NEUTRAL_LEVELS,
+    1,
+    carryIn,
+    null,
+    rhythmLock,
+    steering,
+  ]
+  return `ifk4.${Buffer.from(JSON.stringify(tuple), 'utf8').toString('base64url')}`
+}
+
+/** Intent: the lock group locked on these bars with these allowed changes. */
+function lockedOn(bars: unknown, allowedChanges: readonly string[], tenserPhrase = false) {
+  return { state: { kind: 'locked', bars }, allowedChanges, tenserPhrase }
+}
+
+/** Each hand-written key, with the lock outcome its phrase must report (none without the bars). */
+const HAND_WRITTEN_KEYS: readonly {
+  readonly label: string
+  readonly key: string
+  readonly lockOutcome: string | undefined
+}[] = [
+  {
+    label: 'a locked phrase',
+    key: handKey('rhythm-lock-Build-2', 2, 'Build', null, lockedOn(BUILD_BARS, []), null),
+    lockOutcome: 'locked_bars',
+  },
+  {
+    label: 'a changed phrase',
+    key: handKey(
+      'rhythm-lock-Build-10',
+      10,
+      'Build',
+      null,
+      lockedOn(BUILD_BARS, ALL_CHANGES),
+      null,
+    ),
+    lockOutcome: 'rhythm_change',
+  },
+  {
+    label: 'a forced bend',
+    key: handKey(
+      'rhythm-lock-Lift-3',
+      3,
+      'Lift',
+      null,
+      lockedOn(UNWRITTEN_BARS, ['move_rest', 'split_note'], true),
+      null,
+    ),
+    lockOutcome: 'forced_bend',
+  },
+  {
+    label: 'a phrase with a steering block',
+    key: handKey('steering-4242', 4242, 'Settled', null, null, STEERING),
+    lockOutcome: undefined,
+  },
+  {
+    label: "a Jam's phrase 1 joining from no phrase",
+    key: handKey('join-4242', 4242, 'Settled', JOIN_FROM_NO_PHRASE, null, STEERING),
+    lockOutcome: undefined,
+  },
+]
+
+// @test-link [[rule_seeded_phrase_reproduction]]
+// @test-link [[rule_jam_and_lock_off_reproduce_earlier_phrases]]
+// @test-link [[module_phrase_replay_key]]
+test('hand-written ifk4 keys replay in the browser to the same phrase as the headless replay', async ({
+  page,
+}) => {
+  test.setTimeout(SLICE_TIMEOUT_MS)
+  const replay = await loadHeadlessReplay()
+  await gotoWorkspaceHarness(page)
+  for (const { label, key, lockOutcome } of HAND_WRITTEN_KEYS) {
+    const { output } = replay.replayPhraseKey(key)
+    if (output.kind === 'crash' || output.raw.kind !== 'generation_success')
+      throw new Error(`${label}: the headless replay made no phrase`)
+    expect(output.raw.provenance.rhythmLockOutcome, label).toBe(lockOutcome)
+    expect(await replayKeyInBrowser(page, key), label).toEqual({
+      kind: 'timeline',
+      timeline: JSON.stringify(output.raw.result.timeline),
+    })
+  }
 })

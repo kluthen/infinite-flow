@@ -4,6 +4,8 @@
  * tension requirement; the rhythm grammar defines no scores), so every candidate is equal-ranked
  * and the search order is the seeded tie key, falling back to the canonical `candidateIndex` only
  * on a key collision. Sorting is stable and explicit: compare unsigned keys, then candidateIndex.
+ * A request that asks for a preference (the rhythm lock's locked bars) orders the seeded rhythm
+ * order by a preference rank in front of it (`orderRhythmByPreference`).
  */
 
 import { deepFreeze } from '../../events/deep-freeze'
@@ -140,4 +142,24 @@ export function materializeRankedRhythmCache(
     all.push(candidate)
   }
   return rankMaterializedRhythmCandidates(domain.grammarVersion, all, seed)
+}
+
+/**
+ * Intent: order rhythm candidates by a preference rank computed inside generation from the request
+ * alone. `seeded` is a seeded rhythm order (seeded tie key, then candidateIndex), so ordering it
+ * by rank, then by its seeded position, places each candidate by the tuple (preference rank,
+ * seeded tie key, candidateIndex). Equal ranks give the seeded order back. An order, never a
+ * filter: every candidate stays exactly once. Never mutates its input; returns a frozen array.
+ */
+// @spec-link [[module_ranked_candidate_ordering]]
+export function orderRhythmByPreference(
+  seeded: readonly RhythmCandidate[],
+  rankOf: (candidate: RhythmCandidate) => number,
+): readonly RhythmCandidate[] {
+  return Object.freeze(
+    seeded
+      .map((candidate, position) => ({ candidate, position, rank: rankOf(candidate) }))
+      .sort((left, right) => left.rank - right.rank || left.position - right.position)
+      .map((entry) => entry.candidate),
+  )
 }

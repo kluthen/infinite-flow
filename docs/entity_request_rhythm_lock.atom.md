@@ -12,7 +12,9 @@ parents:
   - [[rule_jam_and_lock_off_reproduce_earlier_phrases]]
   - [[rule_locked_rhythm_is_phrase_one]]
   - [[rule_rhythm_change_share]]
-dependents: []
+dependents:
+  - [[module_rhythm_change_draw]]
+  - [[module_rhythm_lock_order]]
 type: ENTITY
 ---
 

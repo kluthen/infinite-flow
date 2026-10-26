@@ -592,7 +592,7 @@ interface WorkspaceHarnessReplayApi {
    * real browser worker. A malformed key, or a worker crash, rejects with its error's message.
    */
   replayKey: (key: string) => Promise<WorkspaceHarnessReplayAnswer>
-  /** The key's `ifk3.` re-encoding: its decoded intent and phrase number, encoded again. */
+  /** The key's `ifk4.` re-encoding: its decoded intent and phrase number, encoded again. */
   reEncodeKey: (key: string) => string
 }
 
@@ -904,10 +904,11 @@ interface WorkspaceHarnessStorageApi {
 }
 
 /**
- * A kept session as data version 1 (v3.0) stored it, as raw values: its session-wide record,
- * its body and, when kept, its played notes.
+ * A kept session as an earlier version stored it, as raw values: its session-wide record, its
+ * body and, when kept, its played notes; at data version 1 as v3.0 kept it, or at data version 2
+ * as v3.1 kept it.
  */
-interface WorkspaceHarnessVersionOneSession {
+interface WorkspaceHarnessEarlierSession {
   readonly summary: unknown
   readonly body: unknown
   readonly playedNotes?: unknown
@@ -936,19 +937,27 @@ interface WorkspaceHarnessHeldLoad {
    * copies of `template`, in batches of 50, copy `i` under `session-{startedAt}-{i}`, its
    * session-wide record's `startedAt` the template's plus `i` minutes and its `sessionSeed` `i`,
    * its body and played notes as given. The values are written as given, never through the save
-   * policy or a codec. The v3.0 port stays open, as a v3.0 tab left open: the load's upgrade to
-   * data version 2 closes it.
+   * policy or a codec. The v3.0 port stays open, as a v3.0 tab left open: the load's upgrade (to
+   * data version 4, through 2 and 3) closes it.
    */
-  seedVersionOneSessions: (
-    template: WorkspaceHarnessVersionOneSession,
-    count: number,
-  ) => Promise<void>
+  seedVersionOneSessions: (template: WorkspaceHarnessEarlierSession, count: number) => Promise<void>
   /**
    * Before `release()` only, as `seedVersionOneSessions` (through the same v3.0 port): write each
    * settings record as given in the `settings` store under its `key`, in one batch, so the load's
    * open carries v3.0's settings over to data version 3.
    */
   seedVersionOneSettings: (records: readonly WorkspaceHarnessVersionOneSetting[]) => Promise<void>
+  /**
+   * Before `release()` only, as `seedVersionOneSessions` but as v3.1 would: open the database as a
+   * v3.1 tab would, at data version 3 (`ready`, or this throws), and write `count` copies of
+   * `template`, given as v3.1 kept it (data version 2 records), keyed and started the same way.
+   * The v3.1 port stays open until the load's upgrade to data version 4 closes it. Throws after a
+   * v3.0 seed, and a v3.0 seed throws after it: one database holds one version's data.
+   */
+  seedVersionThreeSessions: (
+    template: WorkspaceHarnessEarlierSession,
+    count: number,
+  ) => Promise<void>
 }
 
 interface Window {

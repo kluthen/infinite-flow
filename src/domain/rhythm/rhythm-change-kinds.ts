@@ -7,8 +7,14 @@
 
 import type { RhythmChangeKind } from '../generation/request-rhythm-lock'
 import { TICKS_PER_BAR } from '../time/ticks'
-import { measureBarKey, measureStarts, type MeasureStarts, type RhythmStart } from './rhythm-bars'
-import type { BarIndex, RhythmBar } from './rhythm-types'
+import {
+  measureBarKey,
+  measureStarts,
+  type MeasureStarts,
+  type RhythmStart,
+  type WrittenMeasure,
+} from './rhythm-bars'
+import type { BarIndex } from './rhythm-types'
 
 /** The five kinds, named once beside the request's rhythm lock and re-exported for this module. */
 export type { RhythmChangeKind }
@@ -162,7 +168,7 @@ function findEdit(a: MeasureStarts, b: MeasureStarts): FoundEdit | undefined {
 }
 
 /** Intent: the ticks at which a measure's written events continue a tie, outside a span. */
-function tieTicksOutside(bar: RhythmBar, from: number, to: number): string {
+function tieTicksOutside(bar: WrittenMeasure, from: number, to: number): string {
   return bar.events
     .filter((event) => event.tieContinuation === true)
     .map((event) => event.startTick)
@@ -178,7 +184,10 @@ function tieTicksOutside(bar: RhythmBar, from: number, to: number): string {
  * else is `other`.
  */
 // @spec-link [[rule_rhythm_change_kinds]]
-export function classifyMeasureChange(locked: RhythmBar, candidate: RhythmBar): MeasureChange {
+export function classifyMeasureChange(
+  locked: WrittenMeasure,
+  candidate: WrittenMeasure,
+): MeasureChange {
   if (measureBarKey(locked) === measureBarKey(candidate)) return { type: 'same' }
   const a = measureStarts(locked)
   const b = measureStarts(candidate)
@@ -201,8 +210,8 @@ export function classifyMeasureChange(locked: RhythmBar, candidate: RhythmBar): 
  */
 // @spec-link [[rule_rhythm_change_kinds]]
 export function rhythmChangeBetween(
-  locked: readonly RhythmBar[],
-  candidate: readonly RhythmBar[],
+  locked: readonly WrittenMeasure[],
+  candidate: readonly WrittenMeasure[],
 ): RhythmChange | undefined {
   if (locked.length !== MEASURE_COUNT || candidate.length !== MEASURE_COUNT)
     throw new Error(

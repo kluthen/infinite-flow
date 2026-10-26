@@ -876,3 +876,77 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   overstated a cause; the signed N1 wording only says what happens if one occurs. Now in:
   [Part C §C9](versions/v3/master-spec.md#c9-vary-settings-allowed-groups),
   [build plan v3.2, chunk 15](versions/v3/build-plan-v3.2.md#chunk-15--vary-settings-allowed-groups).
+
+- **D427 (2026-10-23): wave 2's preflight corrections to the v3.2 plan.** The wave driver's, at
+  the preflight. The plan states what the spec already settles: chunk 16's re-lock request holds
+  no allowed change (C7.4); chunk 22's summary and body take data version 4; chunks 10, 11, 12 and
+  22 name the atoms the preflight found. Chunk 3 writes the doodle set by hand; the owner's Travel
+  Sax recordings join it before chunk 28 (gate DR). Now in: [build plan v3.2, v15](versions/v3/build-plan-v3.2.md#gates).
+
+- **D428 (2026-10-23): only locked bars make the search rhythm-major.** `spec-writer`'s, under the
+  owner's delegation of minor calls. A steering block alone, and "on, nothing locked yet" with one,
+  keep v3.1's harmony-major walk, so a Free block reproduces v3.1 and the doodle only orders the
+  rhythms tried with each chord plan. Rejected: rhythm-major for every block (Free would differ
+  from v3.1). If M1 or L1 finds the band too often missed, a block walking rhythm-major is the
+  lever. Now in: [Part C §C7.6](versions/v3/master-spec.md#c76-how-the-search-holds-the-lock),
+  [§C8](versions/v3/master-spec.md#c8-jams-drift), [build plan v3.2, chunks 8 and 10](versions/v3/build-plan-v3.2.md#chunk-10--the-rhythm-lock-in-the-generator).
+
+- **D429 (2026-10-23): gate CK also covers chunk 22's kept-session shape, and the kept-record
+  loophole is closed.** The wave driver's, under the owner's delegation, per D422: chunk 22's
+  merge waits on the owner's sign-off of P3–P5 (P3b, P6, P7 with them), under the same CONTRACT
+  10.0.0. A kept phrase whose request and intent disagree on the lock group, the steering block or
+  the join's origin is unreadable, as v3.1 refused it. Now in: [Part C §C11](versions/v3/master-spec.md#c11-the-generation-request-the-replay-key-and-kept-sessions),
+  [§C13](versions/v3/master-spec.md#c13-what-v32-changes-in-v2-v30-and-v31-guarantees-and-atoms), [build plan v3.2, chunk 22 and gate CK](versions/v3/build-plan-v3.2.md#chunk-22--v32s-kept-session-shape).
+
+- **D430 (2026-10-23): a fresh Jam's played notes are timed from its count-in.** `spec-writer`'s,
+  under the owner's delegation of minor calls. Its body holds the doodle's first barline and phrase
+  1's start on that clock; the played notes keep data version 1 and its reader. The count-in's
+  first beat precedes every doodle note, even one played early onto the first beat (C5.4), which
+  the doodle's first barline does not. Rejected: negative times (a new played-notes data version
+  and an upgrade of every record) and the doodle's barline as origin. The STABLE wording of
+  `entity_kept_session_record` and `module_kept_session_codec` joins gate CK; opens O267. Now in:
+  [Part C §C10.3](versions/v3/master-spec.md#c103-kept-sessions-and-played-notes), [build plan v3.2, chunk 22](versions/v3/build-plan-v3.2.md#chunk-22--v32s-kept-session-shape).
+
+- **D431 (2026-10-23): the distance bands are worded as C8 states them.** `spec-writer`'s, under
+  the owner's delegation of minor calls, from chunk 3's findings. Close is one edit away from beats
+  1 and 3; Near is one edit touching beat 1 or 3 (a start added or removed there, or moved onto or
+  off it), or two Close edits. C8, `rule_rhythm_distance` and the built `measureBand` agree; C4
+  and the lexicon's Drift entry had kept the catalogue's earlier "on or next to a strong beat",
+  under which an edit one sixteenth from beat 1 would be Near. Now in: [Part C §C4](versions/v3/master-spec.md#c4-words-used-in-this-part),
+  [lexicon, Drift](../docs/music/lexicon.md#drift).
+
+- **D432 (2026-10-23): chunk 13's lock census reads each phrase's lock outcome from its
+  provenance.** `spec-writer`'s, from chunk 3's findings. From written bars alone a forced bend
+  landing exactly one allowed change from the locked rhythm reads as a change; chunks 10 and 11
+  record the outcome and chunk 16's history keeps it, so the census takes it from there and the
+  bars only cross-check it. No behaviour. Now in: [build plan v3.2, chunk 13 and M2](versions/v3/build-plan-v3.2.md#chunk-13--session-measurements-first-run).
+
+- **D433 (2026-10-23): chunk 3's two doodle-reading findings go to the owner; gate LD opens as
+  planned.** `spec-writer`'s. How a short silence between two doodle notes is read (O268) changes
+  what Jam hears in the player's playing, so it is the owner's, before chunk 28 (gate DS). Whether
+  a legato doodle reading Heavily varied sounds right (O269) is a listening judgment, at v3.2 H5.
+  Neither touches drift's scale: H1's five doodle measures read the same under either answer. Now
+  in: [build plan v3.2, gates DS and LD](versions/v3/build-plan-v3.2.md#gates),
+  [v3.2 H5](versions/v3/build-plan-v3.2.md#v32-h5--jam-listening-the-doodle-to-controls-mapping-l1).
+
+- **D434 (2026-10-23): the rhythm orderings' time reaches the sweeps through the diagnostics,
+  under a clock only the sweeps pass.** `spec-writer`'s, from chunk 10's finding (no chunk carried
+  it). Not the provenance, which replay and the corpora compare; and the outcome stays deep-equal
+  for the same intent and seed when no clock is passed. Chunk 13 builds it, chunk 8's rank falls
+  inside it. No behaviour. Now in: [build plan v3.2, chunk 13, M1 and M5](versions/v3/build-plan-v3.2.md#chunk-13--session-measurements-first-run).
+
+- **D435 (2026-10-23): a drawn rhythm change none of whose candidates makes a phrase records "no
+  change available", as a draw with no candidate does.** `spec-writer`'s, confirming chunk 11's
+  reading. The phrase then keeps the lock's order C7.6 already gives (locked bars, then the forced
+  bend), and the history holds a draw's record exactly when the phrase drew, which chunk 13's
+  census counts (D432). Rejected: a second draw or a new record value. Now in:
+  [Part C §C7.4](versions/v3/master-spec.md#c74-when-a-phrase-changes), [build plan v3.2, M2](versions/v3/build-plan-v3.2.md#m2--the-lock-census-forced-bends-and-rhythm-changes).
+
+- **D436 (2026-10-23): the rhythm change draw's hash stays as built; measurements draw from
+  seed-plan phrase seeds.** `spec-writer`'s, from chunk 11's finding. FNV-1a's kept top bits
+  barely move with a seed's last hex digit, so raw consecutive seeds draw in clumps; but every
+  seed a draw ever reads comes through the session seed plan (phrase 1 never draws), and those
+  spread: share 0.2474 at random session seeds, 0.2503 at the census's, over 20,000 sessions'
+  phrases 2–8. Rejected: a final mixing step (an architecture change that would move every draw
+  and the golden draws before the release, for synthetic seeds only). Now in:
+  [build plan v3.2, M2](versions/v3/build-plan-v3.2.md#m2--the-lock-census-forced-bends-and-rhythm-changes).

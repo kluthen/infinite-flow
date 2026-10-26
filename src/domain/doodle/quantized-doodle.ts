@@ -15,6 +15,10 @@ import { ConcertPitchError, makeConcertPitch, type ConcertPitch } from '../event
 import { deepFreeze } from '../events/deep-freeze'
 import { TICKS_PER_BAR } from '../time/ticks'
 
+import { QuantizedDoodleParseError, QuantizedDoodleViolation } from './quantized-doodle-errors'
+
+export { QuantizedDoodleParseError, QuantizedDoodleViolation } from './quantized-doodle-errors'
+
 /** Intent: the most measures a doodle spans. */
 // @spec-link [[entity_quantized_doodle]]
 export const DOODLE_MAX_MEASURES = 4
@@ -58,28 +62,6 @@ export interface QuantizedDoodleInput {
     readonly lengthTicks: number
     readonly pitch: number
   }[]
-}
-
-/** Typed failure for a doodle that breaks the quantized doodle's rules. */
-// @spec-link [[entity_quantized_doodle]]
-export class QuantizedDoodleViolation extends Error {
-  readonly kind = 'QuantizedDoodleViolation' as const
-
-  constructor(message: string) {
-    super(message)
-    this.name = 'QuantizedDoodleViolation'
-  }
-}
-
-/** Typed failure for untrusted doodle input that cannot be parsed. */
-// @spec-link [[entity_quantized_doodle]]
-export class QuantizedDoodleParseError extends Error {
-  readonly kind = 'QuantizedDoodleParseError' as const
-
-  constructor(message: string) {
-    super(message)
-    this.name = 'QuantizedDoodleParseError'
-  }
 }
 
 /** Intent: whether a number is a doodle's measure count, 1 to 4. */

@@ -8,9 +8,11 @@
 import type { HarmonyCandidate } from '../../harmony/harmony-types'
 import type { ConcreteTensionBinding } from '../../pitch/pitch-planner'
 import type { RegisterId } from '../../profile/register-id'
+import type { RhythmLockTier } from '../../rhythm/rhythm-lock-order'
 import type { RhythmCandidate } from '../../rhythm/rhythm-types'
 import type { GenerationRequest } from '../generation-request'
 import type { GenerationResult } from '../generation-result'
+import type { RhythmChangeKind } from '../request-rhythm-lock'
 
 /**
  * The versioned identity of the whole-window search ledger policy: the first release's, used by
@@ -30,12 +32,41 @@ export interface GenerationSearchPolicy {
   readonly windowFuel: number
 }
 
-/** The selected upstream candidates and binding that one phrase was planned from. */
+/**
+ * What the rhythm lock did to one phrase: it took one of the drawn rhythm change's candidates, it
+ * kept the locked bars, or it took a forced bend. Kept by the session history; never part of the
+ * timeline.
+ */
+// @spec-link [[module_rhythm_lock_order]]
+// @spec-link [[module_rhythm_change_draw]]
+// @spec-link [[rule_forced_bend]]
+export type RhythmLockOutcome = RhythmLockTier
+
+/**
+ * The record of a phrase that drew a rhythm change: the kind of the change it made, or
+ * `no_change_available` when it kept the lock's order instead (no candidate existed, or none made
+ * a phrase). Kept by the session history; never part of the timeline.
+ */
+// @spec-link [[module_rhythm_change_draw]]
+// @spec-link [[rule_allowed_rhythm_changes]]
+export type RhythmChangeRecord = RhythmChangeKind | 'no_change_available'
+
+/**
+ * The selected upstream candidates and binding that one phrase was planned from, and, only for a
+ * request holding the rhythm lock's locked bars, what the lock did. `rhythmChange` is present
+ * exactly when the phrase drew a rhythm change (its lock order's `change?.changes === true`): the
+ * kind of the change when the phrase took a drawn candidate (outcome `rhythm_change`),
+ * `no_change_available` otherwise (no candidate existed, or none made a phrase, and the phrase
+ * kept the lock's order: the locked bars or a forced bend).
+ */
 // @spec-link [[service_generation_window_search]]
+// @spec-link [[module_rhythm_change_draw]]
 export interface GenerationProvenance {
   readonly harmony: HarmonyCandidate
   readonly rhythm: RhythmCandidate
   readonly tensionBinding: ConcreteTensionBinding
+  readonly rhythmLockOutcome?: RhythmLockOutcome
+  readonly rhythmChange?: RhythmChangeRecord
 }
 
 /** Typed generation failure codes, as defined by the pitch planner and validation policy. */

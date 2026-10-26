@@ -7,7 +7,9 @@ human_name: A Forced Bend Instead of a Failed Phrase
 tags: [v3, release-v3.2, session, rhythm, rhythm-lock, error-handling]
 parents:
   - [[req_rhythm_lock]]
-dependents: []
+dependents:
+  - [[module_ranked_candidate_ordering]]
+  - [[module_rhythm_lock_order]]
 type: RULE
 version: 0.1
 ---

@@ -77,7 +77,8 @@
  *   seeds settings for the next load, `storage.seedMyInstrument` my instrument, and
  *   `?storageLoad=held` holds the load until `window.__workspaceHarnessHeldLoad.release()`
  *   (its `seedVersionOneSessions` and `seedVersionOneSettings` seed kept sessions and settings as
- *   v3.0 kept them, for the load to upgrade);
+ *   v3.0 kept them, and its `seedVersionThreeSessions` kept sessions as v3.1 kept them, for the
+ *   load to upgrade);
  *   `?storageRead=fail|slow` fails or delays the app's reads, `storage.refuseSaves` refuses its
  *   saves (`?storageRefuse=quota|other` from the load on), `storage.portChanges` counts them and
  *   `storage.openNewerVersion` outdates the tab as a newer version would; `storage.keyedRecords`
@@ -86,7 +87,7 @@
  *   `storage.seedDamagedKeptBody` damages a saved session's body.
  * - the in-browser phrase replay (replay-seams.ts): `replay.replayKey` decodes a phrase replay key
  *   in the page and replays it through the real browser worker, on a worker client of its own that
- *   never prewarms, and `replay.reEncodeKey` gives the key's `ifk3.` re-encoding.
+ *   never prewarms, and `replay.reEncodeKey` gives the key's `ifk4.` re-encoding.
  *
  * The lazy VexFlow engraver, the real generation Worker, real notation, the real `matchMedia`
  * window-width provider and the real window-shape probe all run for real (a spec moves the window

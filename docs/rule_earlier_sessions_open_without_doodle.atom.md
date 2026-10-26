@@ -3,7 +3,8 @@ id: rule_earlier_sessions_open_without_doodle
 status: DRAFT
 parents:
   - [[rule_quantized_doodle_is_generation_input]]
-dependents: []
+dependents:
+  - [[module_kept_session_jam_upgrade_step]]
 version: 0.1
 priority: 1
 tags: [v3, release-v3.2, jam, storage, review]

@@ -9,7 +9,10 @@ parents:
   - [[req_rhythm_lock]]
 version: 0.1
 tags: [v3, release-v3.2, session, rhythm, rhythm-lock]
-dependents: []
+dependents:
+  - [[module_ranked_candidate_ordering]]
+  - [[module_rhythm_lock_order]]
+  - [[service_generation_window_search]]
 ---
 
 # The Rhythm Lock Is Strict

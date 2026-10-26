@@ -2,7 +2,7 @@
 id: service_headless_phrase_replay
 status: REVIEW
 layer: ARCHITECTURE
-version: 0.1
+version: 0.2
 priority: 1
 parents:
   - [[module_generation_worker_protocol]]
@@ -24,7 +24,7 @@ Replay one phrase from its replay key on the command line, through the same gene
 ## THE RULE / LOGIC
 `npm run replay:phrase -- <key>` takes the key as its argument or on stdin; a whole copied console line is accepted, the key being its `ifk<N>.` token. The script loads the TypeScript replay module through Vite's runnerImport, Vite already being a dependency, so replay adds no dependency. Replay decodes the key, builds the worker request envelope `{type:'generate', id:1, intent}`, round-trips it through JSON as the structured clone of a worker message would, and sends it through the generation worker runtime's message handler: the same runtime, protocol parser, request handler and phrase generation the browser worker runs, starting from a cold rhythm-domain memo, which yields the same result as a prewarmed one.
 
-It prints one JSON document `{ key, keyVersion, phraseNumber, input, output }`, the phrase number being the key's own. The input holds every intent field verbatim, plus readable additions: the seed in seed1- form, note names, the written and the concert tonal center, and the carry-in with named pitches. For a successful outcome the output holds the outcome kind; the resolved request with its register and register window; the bars numbered from 1, with their chords (1-based beat timing, roles, symbols) and every note and rest in order (onset, duration, concert and written pitch as MIDI number and name, ties); the ending and its endpoint class; the carry-out derived with the key's phrase number; the provenance; the diagnostics; and the raw outcome verbatim. For a generation failure it holds the failure code and diagnostics. Written pitches and written names come only from the existing notation path, read after generation; replay adds no transposition logic of its own.
+It prints one JSON document `{ key, keyVersion, phraseNumber, input, output }`, the phrase number being the key's own. The input holds every intent field verbatim, the rhythm lock group and the steering block among them, each null when the request has none, as for every key before `ifk4.`, plus readable additions: the seed in seed1- form, note names, the written and the concert tonal center, and the carry-in with named pitches. For a successful outcome the output holds the outcome kind; the resolved request with its register and register window; the bars numbered from 1, with their chords (1-based beat timing, roles, symbols) and every note and rest in order (onset, duration, concert and written pitch as MIDI number and name, ties); the ending and its endpoint class; the carry-out derived with the key's phrase number; the provenance; the diagnostics; and the raw outcome verbatim. For a generation failure it holds the failure code and diagnostics. Written pitches and written names come only from the existing notation path, read after generation; replay adds no transposition logic of its own.
 
 The exit code is 0 when the replay ran, whether the outcome is a phrase or a generation failure; 1 for a malformed or unsupported key or a usage error, with a clear message on stderr; 2 when the worker path crashed, the JSON still being printed with output kind `crash`.
 

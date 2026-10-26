@@ -104,7 +104,8 @@ describe('the rows from the summaries the load read', () => {
     )
     expect(readable).not.toHaveProperty('favoritesCount')
     expect(readable).not.toHaveProperty('comment')
-    expect(keptSessionRow('m', { dataVersion: 3, appVersion: '9.0.0' })).toEqual({
+    const newerVersion = KEPT_SESSION_SUMMARY_DATA_VERSION + 1
+    expect(keptSessionRow('m', { dataVersion: newerVersion, appVersion: '9.0.0' })).toEqual({
       kind: 'newer',
       key: 'm',
       readable: {},

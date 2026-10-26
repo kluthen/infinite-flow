@@ -429,3 +429,276 @@ For the wave 2 preflight and later:
 - Wave 2 starts in a fresh session, after the owner compacts. Wave 2 is chunks 3, 10, 11, 12
   and 22, with gate CK before chunk 12 merges. Its preflight carries the items listed under
   "For the wave 2 preflight and later" above.
+
+## Wave 2 (2026-10-23)
+
+Chunks 3 Measurement tools · 10 The rhythm lock in the generator · 11 Allowed rhythm changes · 12
+Replay key `ifk4.` · 22 v3.2's kept-session shape. The owner said to start ("i believe we're ready
+to work on next wave"). Branch `v3.2-w2` from `main` 8e78dae, worktree
+`/home/bastien/work/infinite_flow-v3.2-w2`.
+
+### Preflight
+
+`documentalist` (80ebf45 preflight and captures, d3fb1b3 change set part P):
+
+| Chunk | Verdict | Captures |
+| --- | --- | --- |
+| 3 | proceed | none (measurement) |
+| 10 | proceed with corrections 1–2 | `module_ranked_candidate_ordering` 0.3 → 0.4, `service_generation_window_search` 0.1 → 0.2 (REVIEW); `module_rhythm_lock_order` 0.1 (new, DRAFT) |
+| 11 | proceed | `module_rhythm_change_draw` 0.1 (new, DRAFT) |
+| 12 | proceed, sign-off pending (CK), correction 4 | the `ifk4.` format drafted as change set P1 (not applied to the STABLE atom) |
+| 22 | proceed, sign-off pending, corrections 5–9 before its brief | `module_kept_session_jam_upgrade_step` 0.1 (new, DRAFT) |
+
+Gate CK is drafted as change set part P: P1 `module_phrase_replay_key` 0.7, P2
+`rule_seeded_phrase_reproduction` 0.3, P3 `module_kept_session_codec` 0.7 (O4 folded in, P3b
+optional: the loophole closure), P4 `entity_kept_session_record` 0.7, P5 `module_on_device_database`
+0.7, P6 and P7 optional rewordings, P8 CONTRACT 9.0.0 → 10.0.0.
+
+Plan corrections found (all sent to `spec-writer`): 1 chunk 10's capture makes the search
+rhythm-major only when the request holds locked bars; 2 chunk 10's drift check and Revisions; 3
+chunk 16's re-lock phrase carries no allowed change, chunk 11's drift check adds
+`module_rhythm_change_draw`; 4 chunk 12's drift check adds `service_headless_phrase_replay`; 5 chunk
+22 revises three STABLE contract atoms (P3–P5), so it needs a sign-off; 6 the kept-record loophole
+is not closed by chunk 22 as written; 7 chunk 22's data versions (summary and body 4, played notes
+1); 8 a Jam's raw doodle notes come before phrase 1, which the played-notes reader and the STABLE
+`entity_kept_session_record` refuse; 9 chunk 22's Atoms and drift check.
+
+Driver's rulings on minor points (owner's standing delegation):
+- Correction 5: gate CK widens to P3–P5 under the same 10.0.0 and also blocks chunk 22's merge,
+  as D422 does for every changed STABLE guarantee.
+- Correction 6: close the loophole (as v3.1 refused such a record; crash early). P3b goes into CK.
+- Chunk 3's doodle set: the chunk writes the doodles by hand and leaves a documented way to add the
+  owner's Travel Sax recordings (played-notes exports); the owner records them before wave 4
+  (chunk 28, v3.2 H5). Nothing in the wave waits on it.
+
+Correction 8 is `spec-writer`'s to settle; a change to the STABLE wording goes to the owner before
+chunk 30 (wave 6).
+
+### Chunks
+- `spec-writer` (06e6fec): plan v15, master spec Part C v1.9. D427 the preflight's corrections
+  (chunk 16's re-lock request holds no allowed change; chunk 22's summary and body take data
+  version 4; new gate DR, the owner's doodle recordings, blocks chunk 28); D428 only locked bars
+  make the search rhythm-major, a steering block alone keeps v3.1's harmony-major walk (chunk 8's
+  capture says so); D429 gate CK also covers chunk 22 (P3–P5, P3b, P6, P7) under CONTRACT 10.0.0
+  and blocks its merge, the loophole is closed; D430 a fresh Jam's played notes are timed from its
+  count-in's first beat (played notes stay at data version 1; the body holds the doodle's first
+  barline and phrase 1's start on that clock). New open question O267 (where the export and the
+  review lane put a doodle note played just before the doodle's first barline; before chunk 23).
+  D430's STABLE wording (`entity_kept_session_record`, `module_kept_session_codec`) joins CK:
+  sent to `documentalist` to draft in part P. Next free IDs: D431, O268.
+- `documentalist` (2e6879e): D430's clock wording folded into P3 and P4; P3b part of CK (presence
+  check, not value equality, reason in the change set); P8 covers both; P6 and P7 recommended;
+  `module_kept_session_jam_upgrade_step` 0.2. Gate CK put to the owner (2026-10-23): P1, P2, P3
+  (with P3b and the clock), P4, P5, P8, and P6, P7.
+- Gate CK cleared by the owner (2026-10-23): "i approve it all". That confirms change set part P as
+  drafted: P1–P5 (with P3b and D430's clock), P6, P7 and P8 (CONTRACT 9.0.0 → 10.0.0), applied at
+  wave 2's sync. Chunks 12 and 22 may merge into `v3.2-w2` once built.
+- `documentalist` recorded the owner's CK confirmation in part P (c2eb69c); applied at the sync.
+- Chunk 3: dispatched to `coding-leader`, branch `v3.2-c3-measurement-tools`.
+- Chunk 3 merged (e70a845, merge 97952f9): 12 hand-written doodles in `tests/fixtures/doodles/`
+  with traits, checked against `quantizeDoodle`; `scripts/import-doodle-recording.mjs` for the
+  owner's recordings (procedure in `docs/testing.md`); `measure:jam` (M1, M5), `measure:lock` (M2),
+  `render:rhythms` (32 MIDI files for v3.2 H1 and H2, checked by parsing: no synth on the machine);
+  v3.2 H1 written in `HARDWARE-CHECKLIST.md`. Baselines (Ryzen 5 PRO 8640HS, not a VM,
+  2026-10-23, desktop open, load 1.2–2.2) in `docs/generation-latency.md`: M1 phrase 1 from rung 3
+  in 100 % of Jams, no repeat or shortfall, slowest standalone a cold phrase 1 at 180 BPM charged
+  1.020 s of the 1.075 s reserve; M5 matches v3.1; M2 Pop song's per-kind availability agrees with
+  D424 (any of the five 83 %). `test:sweep` now also runs the Jam sweep and the census specs.
+  Findings sent to `spec-writer`: 1 detached doodles (a note released before the next starts) leave
+  sixteenth rest starts no grammar rhythm writes, so 4 of the 6 listening doodles sit "beyond" every
+  domain measure (drift, the steering block, gate LD); 2 C5.16.1's rhythmic-variety rule reads most
+  legato doodles as Heavily varied (chunk 28, H5); 3 the lexicon's Drift entry says Near is "on or
+  next to beat 1 or 3", C8 says "touching tick 0 or 8"; 4 the census cannot tell a forced bend that
+  lands one allowed change away from a change without the session history (chunk 13).
+- Chunk 10: dispatched to `coding-leader`, branch `v3.2-c10-rhythm-lock`.
+- `spec-writer` (24e75dd): plan v16, Part C v1.10, on chunk 3's findings. D431 C4 and the lexicon
+  word Close and Near as C8 and the code do; D432 chunk 13's census reads the lock outcome from the
+  provenance (Files and Done when updated); D433 O268 (how a short silence between doodle notes is
+  read; recommendation: part of the notes unless a whole rest of the doodle's value fits) becomes
+  new gate DS, blocking chunk 28 (wave 4 waits for DR and DS); O269 (legato doodles read Heavily
+  varied; recommendation: keep, ask at v3.2 H5 step 6, gate L1). LD opens as planned (H1's renders
+  give the same starts under either answer to O268). O268 put to the owner (2026-10-23), due
+  before wave 4's preflight. Next free IDs: D434, O270.
+- Chunk 10 merged (6179f7f, merge bdd858c): `src/domain/rhythm/rhythm-lock-order.ts`
+  (`makeRhythmLockOrder`, `walkRhythmLockOrder`, ranks: locked bars 1, forced bend 2 + distance,
+  rank 0 left for chunk 11's change); `orderRhythmByPreference` in `candidate-ranking.ts`;
+  `walkHarmonyMajor` / `walkRhythmMajor` in `window-search.ts` (rhythm-major only with locked
+  bars); `GenerationProvenance.rhythmLockOutcome`. Corpus guard 448/448, related 3,516 pass, static
+  checks pass. Forced-bend order 24–37 ms on the largest domain in Node (D424: about 27). Beyond
+  its Files: the orchestrator builds the order once per request; the worker protocol accepts the
+  new provenance key. For the sync: write the built names into `module_rhythm_lock_order`,
+  `module_ranked_candidate_ordering` and `service_generation_window_search`; drift-check
+  `module_generation_worker_protocol` (new provenance key). Sent to `spec-writer`: the orderings'
+  time is not reported to the sweep (`docs/generation-latency.md` says chunks 9–10 add it; no
+  chunk's Files or Done when carries it).
+- Chunk 11: dispatched to `coding-leader`, branch `v3.2-c11-rhythm-changes`.
+- `spec-writer` (a6d51e3): plan v17, D434. Chunk 13 (wave 3) reports the orderings' time: an
+  optional clock in `GenerationOrchestrationOptions`; only with it do the diagnostics carry the
+  seconds spent building the request's rhythm order (the provenance and the deep-equal outcome
+  stay as they are); the sweep's ladder double and the session sweep's `OutcomeCache` read it into
+  `orderingSeconds`. Chunk 13 gains a capture (for wave 3's preflight) and a split rule (13a, 13b);
+  chunk 8 builds its steering rank inside the timed span; chunk 29's Files add
+  `tests/sweep/jam-sweep-ladder.ts`. Next free IDs: D435, O270.
+- Chunk 11 merged (d37cd69, merge fa96819): `src/domain/rhythm/rhythm-change-draw.ts` (hash
+  `fnv1a32('infinite-flow/rhythm-change/v1|' + encodeSeed(seed))`, top 16 bits under 16,384 or
+  32,768; each domain grouped once in a WeakMap); the drawn candidates take rank 0 (tier
+  `rhythm_change`) in the lock order; provenance `rhythmChange?: kind | 'no_change_available'`,
+  validated by the worker protocol. Shares over 8,000 phrase seeds within ±0.02 of 1/4 and 1/2;
+  D424's Strict/Straight/Sixteenth case holds; no floating point; golden draws. Corpus guard
+  448/448, related 3,484 pass, static checks pass. Cost on the largest domain: about 17.5 ms cold
+  once, 0.28 ms per phrase. Sent to `spec-writer`: (a) the reading that a drawn change whose
+  candidates all fail to make a phrase records `no_change_available` and keeps the lock's order
+  (the spec names only "no candidate"; it keeps "a draw happened exactly when the record is
+  present" for D432's census); (b) FNV-1a's top bits cluster on raw consecutive seeds (seeds 0–7
+  never draw), while real phrase seeds from the seed plan spread well (0.2475 and 0.490 over
+  20,000); a final mixing step would be an architecture change. For the sync: the built names in
+  `module_rhythm_change_draw`; `module_named_stream_pseudorandomness` (a hash tie key, not a
+  stream). `move_rest` is covered at the draw level only.
+- Chunk 12: dispatched to `coding-leader`, branch `v3.2-c12-replay-key` (gate CK cleared, so it
+  merges into the wave branch once built).
+- `spec-writer` (766e9f7): plan v18, Part C v1.11. D435 agrees with chunk 11's reading: C7.4's
+  "no usable candidate, no change" covers a drawn change whose candidates all fail (the history
+  records "no change available" beside any forced bend), and the history records every draw and
+  only draws; M2 counts the two cases apart. D436 the hash stays as built (raw consecutive seeds
+  cluster, seed-plan seeds spread: 0.2474 / 0.4975 over 20,000 sessions); M2 and any test of the
+  shares use seed-plan seeds. For the sync, optional: note the clustering on raw seeds in
+  `module_rhythm_change_draw`. Next free IDs: D437, O270.
+- Chunk 12 merged (cecd20b, merge 4f8178d, citing gate CK): every phrase's key is `ifk4.`, a
+  9-tuple whose first seven entries are `ifk3.`'s, slots 7 `rhythmLock` and 8 `steering` (null when
+  absent), the carry-in slot taking the no-phrase form; D423's encoder refusal removed; `ifk5.`
+  refused as unsupported; `replay:phrase` replays one key of each version; the in-browser replay
+  test replays five hand-written `ifk4.` keys (locked, changed, forced bend, steering, join from no
+  phrase) and a v3.1 corpus slice. Corpus guard pass (676 tests in its run), related 324 pass,
+  Playwright 10 pass, static checks pass. No deviation from P1 or P2. The chunk owner's first
+  squash would have undone 766e9f7 and ad8e545 on the wave branch; it caught and redid it before
+  merging, and the driver checked `specs/` is unchanged by the merge. For the sync: P1, P2 as
+  signed; built names `PHRASE_REPLAY_KEY_V4_PREFIX`, `PhraseReplayKeyVersion`; new links on
+  `encodePhraseReplayKey` and `decodePhraseReplayKey`; `service_headless_phrase_replay` prints the
+  two groups.
+- Chunk 22: dispatched to `coding-leader`, branch `v3.2-c22-kept-session-shape`.
+- Chunk 22 paused (2026-10-23): its owner stopped on the account's usage limit, mid-22a. Its
+  worktree `/home/bastien/work/infinite_flow-v3.2-c22` (branch `v3.2-c22-kept-session-shape`) is
+  kept, with WIP commits fe37f45 (kept intent and body at data version 4, step 4; new
+  `kept-intent-parsers.ts`, `kept-sessions-v4.ts`, `rewrite-each.ts`), 51b3fe9 (the migration
+  steps now run after the work of the step before, in `database.ts`; tests adapted), 68f2226
+  (codec, agreement and step-sequencing tests), 92535f2 (step 4 specs, code-health fixes) and
+  e7e0cf4 (the driver's safety commit of two uncommitted edits, `kept-sessions-v2.ts` and
+  `kept-session-record.ts`, unchecked). No report was made: the state of the checks is unknown, 22b
+  (summary, reading envelope, played-notes clock) is not started, M3 is not run.
+
+### To resume (for the next session's driver)
+
+1. Read this entry and the model; nothing else of the wave needs re-reading.
+2. Start a fresh `coding-leader` on chunk 22 with the same brief as before (the chunk's section,
+   gate CK cleared, P3–P5 with P3b and D430's clock, the split 22a then 22b, M3, the git-care note:
+   squash onto `git merge-base HEAD v3.2-w2`, never `reset --soft v3.2-w2`), plus: "Resume from
+   WIP e7e0cf4 on `v3.2-c22-kept-session-shape` in its existing worktree; first run the checks and
+   find where 22a stands. 51b3fe9 changed the order in which the migration steps run in
+   `database.ts`; say whether that is within the capture (`module_kept_session_jam_upgrade_step`,
+   `module_on_device_database`) or an uncaptured architectural decision, and stop and report if
+   it is the latter."
+3. Then the wave gate on `v3.2-w2`, on an idle machine: `npm run quality`, `npm run test:sweep`,
+   the entry chunk's size against wave 1's 265,436 B.
+4. Then the wave sync by `documentalist`: apply part P (P1–P8 with P3b and the clock; CONTRACT
+   9.0.0 → 10.0.0, quoting the owner's "i approve it all", 2026-10-23), the built names each chunk
+   entry above lists, the optional note on raw-seed clustering in `module_rhythm_change_draw`.
+5. Report to the owner and ask for the merge into `main`.
+
+Open with the owner: gate DS (O268, how a short silence between doodle notes is read; asked
+2026-10-23, needed before wave 4's preflight) and gate DR (the owner's Travel Sax doodle
+recordings, made with `scripts/import-doodle-recording.mjs` as `docs/testing.md` says, before
+chunk 28). Gate LD opens once wave 2 is merged (v3.2 H1; the renders come from `npm run
+render:rhythms`).
+
+### Chunk 22 resumed and merged (2026-10-26)
+
+- A fresh `coding-leader` resumed chunk 22 from e7e0cf4. 51b3fe9's step sequencing is within the
+  capture (`module_kept_session_jam_upgrade_step` 0.2: every earlier step runs first, in order;
+  signed P6: data version 2 before any later step); only the mechanism, `MigrationUpgrade.hold`,
+  is new, for `module_on_device_database`'s interface at the sync. e7e0cf4's two edits were
+  comment rewraps, kept.
+- Chunk 22 merged: 22a 30a5e73, 22b 9dd3d07, merge b5cfc5d (gate CK). `vitest related` 120 files,
+  1,320 tests pass on the merged wave branch; typecheck, lint, format, link lint pass. All six Done
+  when items met. For the sync: P3–P8 with the built names in the chunk's report (summary and body
+  data version 4, `doodle`, `playedNotesClock`, `isJam`, `suggestionDeclined` on a Jam only,
+  `kept-intent-parsers.ts`, `KEPT_SESSIONS_V4`, `rewriteEach`, `MigrationUpgrade.hold`,
+  `encodeKeptPlayedNotes(…, fresh?)`), `module_kept_session_jam_upgrade_step`'s interface (still
+  "Not built yet"), the new link to `rule_raw_doodle_notes_are_played_notes` (DRAFT).
+- M3 (2026-10-26, Ryzen 5 PRO 8640HS, not a VM, 5-minute load about 2): v3.1 → step 4, 500
+  sessions 808 / 948 ms cold (47 % of the 2 s wait, v3.1's upgrade was 38 %); v3.0 → steps 2–4, 500
+  sessions 1,684 / 1,881 ms (94 %, inside the wait but not well under it; D376 accepts a failed-read
+  visit past it). Start-up read at most 37 ms cold. Put to the owner with the wave report; the owner
+  repeats the deciding runs on the reference machine.
+- Left for the wave gate: the full suite and e2e (the harness seam rename,
+  `kept-sessions-carried-over.spec.ts` now at data version 4). Chunk 30 must pass `jam.fresh` and
+  `fresh` (codec wiring). Not checked by the codec, as the wording doesn't ask: a raw doodle note's
+  release past phrase 1's start, a Jam's phrase 1 joining from no phrase.
+- Unrelated to the wave, on `main` meanwhile: 254bccb (`.tech`, `SECURITY_TODO.md`) and 316199d
+  (Docker runtime on nginx 1.30); merge `main` in or merge the wave cleanly, no shared files.
+
+### Wave gate (2026-10-26)
+
+On `v3.2-w2` d9308fe, Ryzen 5 PRO 8640HS, not a VM, load about 2.2 (other sessions open):
+- `npm run quality` passed: unit 522 files, 8,232 tests; Playwright 559 passed; boundaries pass.
+- `npm run test:sweep` passed: 8 files, 60 tests.
+- **Entry chunk 290,292 B** (+24,856 B since wave 1). Traced per merge: chunks 3, 10, 11 and 12 add
+  0 B; all of it is chunk 22's. About 18.5 kB was rolldown folding three files the entry already
+  imported statically (`generation-request-*`, `timeline-parser-*`, `deep-equal-*`) into `index`;
+  the real first-load growth was +6,401 B (315,691 → 322,099 B over the entry and its static
+  imports), of which about 2.9 kB was the data version 4 Jam-parts reader (doodle, played-notes
+  clock) reached by the start-up migration through `kept-session-body.ts`.
+- Fix c6bbdba (`coding-executor`, the driver's call): the data version 4 body reader moves to
+  `kept-session-body-read.ts`, imported only by the on-demand codec; the doodle error classes move
+  to `quantized-doodle-errors.ts` (`isKeptPhraseRefusal` checks them on the start-up path). No
+  behaviour or format change. `vitest related` 124 files, 1,458 tests; storage Playwright 139;
+  lint, format, health (769 warnings, unchanged), boundaries, `atd:check` pass.
+- **After the fix: entry chunk 271,179 B** of 307,200 B (+5,743 B since wave 1); first-load JS
+  318,964 B over 16 files (+3,273 B since wave 1). rolldown re-split the two shared files out again.
+- Note for the owner: `verify:boundaries` measures `index-*.js` alone, so a change in rolldown's
+  splitting moves it by about 18 kB without any change in what loads. Proposed to record the
+  first-load total beside it from wave 3 on (a plan change, the owner's call).
+
+### Wave sync (2026-10-26)
+
+`documentalist` (e324a99, change set part Q; part P marked applied): CONTRACT 9.0.0 → 10.0.0
+(P8, gate CK). P1–P5 with P3b and D430's clock, P6, P7 applied; the code meets every signed
+sentence. Built names of chunks 10, 11, 12 and 22 written in; D436's note on raw-seed clustering in
+`module_rhythm_change_draw`; the gate fix's two files in the codec's file list and
+`entity_quantized_doodle`. The step sequencing (`MigrationUpgrade.hold`) confirmed within
+`module_kept_session_jam_upgrade_step` and P6, now in `module_on_device_database`'s interface.
+`atd check --full`: 445 atoms, 360 with an implementation, 359 OK, 85 NO_IMPL. `atd audit` run,
+scoped to the 9 revised non-STABLE atoms: no collision.
+
+Drift, none blocking (proposals in Q3, not applied): 1 `module_ranked_candidate_ordering` (REVIEW)
+says the rhythm cache is sorted by rank, the code ranks once per request over the seeded cache
+(same walk); 2 `rule_rhythm_change_share` (DRAFT) predates D435's "none makes a phrase"; 3
+`module_stored_profile_to_levels` (STABLE) names an old file for `parseKeptIntentV1` (name only).
+Observation: step 3 takes no hold; harmless while no later step reads `settings`.
+Status candidates (DRAFT → REVIEW): `module_rhythm_lock_order`, `module_rhythm_change_draw`,
+`module_kept_session_jam_upgrade_step`.
+
+### Report to the owner (2026-10-26)
+
+- Chunks 3, 10, 11, 12 and 22 merged; none moved. Chunk 22 paused once on the usage limit and was
+  resumed.
+- Gate passed. Entry chunk 271,179 B (+5,743 B), after the fix c6bbdba.
+- The sync applied part P. CONTRACT is now 10.0.0.
+- Asked:
+  - the merge of `v3.2-w2` into `main`;
+  - M3's v3.0 → v3.2 figure (94 % of the wait at 500 sessions);
+  - recording the first-load total beside the entry figure;
+  - Q3's three proposals (3 touches a STABLE atom);
+  - the three status candidates.
+
+### The owner's answers (2026-10-26)
+
+"right now there are no true users so upgrade time isn't a problem. otherwise we're okay to proceed
+on the next wave" — "you may merge into main of course".
+- M3's v3.0 → v3.2 figure (94 % of the wait at 500 sessions) accepted: no real users yet.
+- Wave 2 merged into `main` (not pushed). Its worktrees and branches removed.
+- Carried to wave 3 (not yet answered explicitly): Q3's three proposals (3 touches a STABLE atom),
+  the three status candidates, recording the first-load total beside the entry figure. Ask at wave
+  3's start.
+- Next: wave 3 (chunks 16, 13, 19) in a fresh session; CS before its sync. Dev-tool security batch
+  (vite 8.3.5, vitest and @vitest/coverage-v8 5.0.3, lockfile undici 8.12.2, fast-uri 3.1.9,
+  serialize-javascript 7.1.3) as its own unit from `main`.

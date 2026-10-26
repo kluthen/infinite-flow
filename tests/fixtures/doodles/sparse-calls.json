@@ -1,0 +1,44 @@
+{
+  "name": "sparse-calls",
+  "source": "hand-written",
+  "description": "A few long notes with much silence around them, one of them a quick staccato note kept as one sixteenth.",
+  "traits": {
+    "measureCount": 3,
+    "noteCount": 4,
+    "density": "sparse",
+    "leaping": false,
+    "oneNote": false,
+    "chord": false,
+    "graceNote": false,
+    "strayNote": false,
+    "lastNote": "inside-windows",
+    "aimedAt": {
+      "noteDensity": "Quarter",
+      "rhythmicVariety": "Heavily varied",
+      "syncopation": "Straight",
+      "silenceDensity": "Breath-heavy"
+    },
+    "listeningMeasure": true,
+    "notes": "Listening rhythm: half note, rest, quarter note. The staccato note lasts 44 ms: its start and end snap to one tick and it keeps one tick."
+  },
+  "capture": {
+    "gridOriginAt": 21.604,
+    "tempoBpm": 120,
+    "endMeasure": 3,
+    "notes": [
+      { "onsetAt": 21.629, "releaseAt": 22.566, "pitch": 67 },
+      { "onsetAt": 23.085, "releaseAt": 23.629, "pitch": 64 },
+      { "onsetAt": 24.591, "releaseAt": 24.635, "pitch": 62 },
+      { "onsetAt": 25.642, "releaseAt": 26.616, "pitch": 60 }
+    ]
+  },
+  "quantized": {
+    "measureCount": 3,
+    "notes": [
+      { "startTick": 0, "lengthTicks": 8, "pitch": 67 },
+      { "startTick": 12, "lengthTicks": 4, "pitch": 64 },
+      { "startTick": 24, "lengthTicks": 1, "pitch": 62 },
+      { "startTick": 32, "lengthTicks": 8, "pitch": 60 }
+    ]
+  }
+}

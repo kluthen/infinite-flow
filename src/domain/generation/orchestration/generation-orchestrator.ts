@@ -18,8 +18,10 @@ import type {
   HarmonyCandidateDomain,
   HarmonyPlanResult,
 } from '../../harmony/harmony-types'
+import { drawRhythmChange } from '../../rhythm/rhythm-change-draw'
+import { makeRhythmLockOrder, type RhythmLockOrder } from '../../rhythm/rhythm-lock-order'
 import { isNoLegalRhythmPlan } from '../../rhythm/rhythm-planner'
-import type { RhythmExpansionInput } from '../../rhythm/rhythm-types'
+import type { RhythmCandidate, RhythmExpansionInput } from '../../rhythm/rhythm-types'
 import type { RegisterId } from '../../profile/register-id'
 import type { GenerationIntent } from '../generation-intent'
 import type { GenerationRequest } from '../generation-request'
@@ -120,17 +122,53 @@ function buildDiagnostics(
   return deepFreeze({ ...base, selectedRegister })
 }
 
+/**
+ * Intent: the rhythm lock's order for an intent holding locked bars, built once for every window
+ * of the request (so its forced bend's order is computed at most once), with the phrase's rhythm
+ * change draw when the request allows a change; undefined otherwise, the lock off or "on, nothing
+ * locked yet", whose windows walk v3.1's order and never draw.
+ */
+// @spec-link [[module_rhythm_lock_order]]
+// @spec-link [[module_rhythm_change_draw]]
+// @spec-link [[rule_allowed_rhythm_changes]]
+function rhythmLockOrderFor(
+  intent: GenerationIntent,
+  domain: readonly RhythmCandidate[],
+  rankedRhythm: RankedRhythmCache,
+): RhythmLockOrder | undefined {
+  const lock = intent.rhythmLock
+  if (lock?.state.kind !== 'locked') return undefined
+  const seeded = rankedRhythm.candidates
+  const lockedBars = lock.state.bars
+  const change = drawRhythmChange({
+    domain,
+    seeded,
+    lockedBars,
+    allowedChanges: lock.allowedChanges,
+    seed: intent.seed,
+    tenserPhrase: lock.tenserPhrase,
+  })
+  return makeRhythmLockOrder({
+    domain,
+    seeded,
+    lockedBars,
+    ...(change === undefined ? {} : { change }),
+  })
+}
+
 /** Intent: run one independent, freshly-ledgered `searchWindow` for every resolved core request. */
 function runWindows(
   intent: GenerationIntent,
   requests: readonly GenerationRequest[],
   rankedHarmony: readonly HarmonyCandidate[],
   rankedRhythm: RankedRhythmCache,
+  rhythmLockOrder: RhythmLockOrder | undefined,
   searchPolicy: GenerationSearchPolicy,
   deps: WindowSearchDeps,
 ): readonly WindowSearchReport[] {
+  const lock = rhythmLockOrder === undefined ? {} : { rhythmLockOrder }
   return requests.map((request) =>
-    searchWindow({ intent, request, rankedHarmony, rankedRhythm, searchPolicy }, deps),
+    searchWindow({ intent, request, rankedHarmony, rankedRhythm, searchPolicy, ...lock }, deps),
   )
 }
 
@@ -273,8 +311,17 @@ export function generatePhrase(
     rhythmDomain.candidates,
     intent.seed,
   )
+  const rhythmLockOrder = rhythmLockOrderFor(intent, rhythmDomain.candidates, rankedRhythm)
   const requests = resolveCoreRequests(intent)
-  const reports = runWindows(intent, requests, rankedHarmony, rankedRhythm, searchPolicy, deps)
+  const reports = runWindows(
+    intent,
+    requests,
+    rankedHarmony,
+    rankedRhythm,
+    rhythmLockOrder,
+    searchPolicy,
+    deps,
+  )
   const windows = reports.map((report) => report.diagnostics)
   const harmonyDomainSize = harmonyDomain.candidates.length
   const rhythmDomainSize = rankedRhythm.domainSize

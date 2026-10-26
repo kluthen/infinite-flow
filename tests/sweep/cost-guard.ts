@@ -280,7 +280,7 @@ const MAX_CASES_PER_CACHE = 216
  * Intent: some cases grouped by note density, densities in order of first appearance, each group
  * split, in order, into the fewest even parts of at most `MAX_CASES_PER_CACHE` cases.
  */
-function byNoteDensity(cases: readonly SweepCase[]): readonly (readonly SweepCase[])[] {
+export function byNoteDensity(cases: readonly SweepCase[]): readonly (readonly SweepCase[])[] {
   const groups = new Map<string, SweepCase[]>()
   for (const sweepCase of cases) {
     const density = sweepCase.rhythm.noteDensity
