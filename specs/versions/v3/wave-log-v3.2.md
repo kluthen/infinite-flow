@@ -657,3 +657,35 @@ On `v3.2-w2` d9308fe, Ryzen 5 PRO 8640HS, not a VM, load about 2.2 (other sessio
 - Note for the owner: `verify:boundaries` measures `index-*.js` alone, so a change in rolldown's
   splitting moves it by about 18 kB without any change in what loads. Proposed to record the
   first-load total beside it from wave 3 on (a plan change, the owner's call).
+
+### Wave sync (2026-10-26)
+
+`documentalist` (e324a99, change set part Q; part P marked applied): CONTRACT 9.0.0 → 10.0.0
+(P8, gate CK). P1–P5 with P3b and D430's clock, P6, P7 applied; the code meets every signed
+sentence. Built names of chunks 10, 11, 12 and 22 written in; D436's note on raw-seed clustering in
+`module_rhythm_change_draw`; the gate fix's two files in the codec's file list and
+`entity_quantized_doodle`. The step sequencing (`MigrationUpgrade.hold`) confirmed within
+`module_kept_session_jam_upgrade_step` and P6, now in `module_on_device_database`'s interface.
+`atd check --full`: 445 atoms, 360 with an implementation, 359 OK, 85 NO_IMPL. `atd audit` run,
+scoped to the 9 revised non-STABLE atoms: no collision.
+
+Drift, none blocking (proposals in Q3, not applied): 1 `module_ranked_candidate_ordering` (REVIEW)
+says the rhythm cache is sorted by rank, the code ranks once per request over the seeded cache
+(same walk); 2 `rule_rhythm_change_share` (DRAFT) predates D435's "none makes a phrase"; 3
+`module_stored_profile_to_levels` (STABLE) names an old file for `parseKeptIntentV1` (name only).
+Observation: step 3 takes no hold; harmless while no later step reads `settings`.
+Status candidates (DRAFT → REVIEW): `module_rhythm_lock_order`, `module_rhythm_change_draw`,
+`module_kept_session_jam_upgrade_step`.
+
+### Report to the owner (2026-10-26)
+
+- Chunks 3, 10, 11, 12 and 22 merged; none moved. Chunk 22 paused once on the usage limit and was
+  resumed.
+- Gate passed. Entry chunk 271,179 B (+5,743 B), after the fix c6bbdba.
+- The sync applied part P. CONTRACT is now 10.0.0.
+- Asked:
+  - the merge of `v3.2-w2` into `main`;
+  - M3's v3.0 → v3.2 figure (94 % of the wait at 500 sessions);
+  - recording the first-load total beside the entry figure;
+  - Q3's three proposals (3 touches a STABLE atom);
+  - the three status candidates.
