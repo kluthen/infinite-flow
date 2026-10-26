@@ -12,6 +12,7 @@ import type { RecordVersions } from '@/storage/record-envelope'
 import type { KeptSessionRecords, StoredKeptSession } from '@/storage/records/kept-session-record'
 import { openStoragePort, type StorageChange, type StoragePort } from '@/storage/storage-port'
 import { storedRecords } from './kept-session-fixtures'
+import { v2Summary } from './kept-sessions-v2-fixtures'
 import { rawGet, rawPut, withRawDatabase } from './storage-test-doubles'
 
 /** The app version of the v3.0 tab that created the database and kept the sessions. */
@@ -62,11 +63,12 @@ export function reshapedBody(
 }
 
 /**
- * Intent: a stored data version 2 session-wide record as data version 1 held it: its musical
- * profile selection in place of its preset label, at the same key position, at data version 1.
+ * Intent: a stored session-wide record as data version 1 held it: v3.1's record (no Jam mark) with
+ * its musical profile selection in place of its preset label, at the same key position, at data
+ * version 1.
  */
 export function v1Summary(summary: unknown, selection: ProfileSelection): unknown {
-  const entries = Object.entries(structuredClone(summary) as Record<string, unknown>).map(
+  const entries = Object.entries(v2Summary(summary) as Record<string, unknown>).map(
     ([key, value]): [string, unknown] => {
       if (key === 'presetLabel') return ['musicalProfile', { ...selection }]
       return key === 'dataVersion' ? [key, 1] : [key, value]

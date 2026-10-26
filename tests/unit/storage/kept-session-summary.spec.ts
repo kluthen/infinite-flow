@@ -8,6 +8,7 @@ import {
   decodeKeptSession,
   decodeKeptSessionSummary,
   encodeKeptSession,
+  KEPT_SESSION_SUMMARY_DATA_VERSION,
   rewriteKeptSummary,
   type KeptSessionFacts,
   type KeptSessionRecords,
@@ -73,6 +74,7 @@ describe('the session-wide record of a kept session, stored and read back', () =
       playedNotesKept: true,
       recordedByAppVersion: APP_VERSION,
       sessionSeed: history.sessionSeed,
+      isJam: false,
     })
     expect(history.selection).toEqual({ kind: 'custom', baseId: 'neutral' })
     expect(history.sessionSeed).toBe(DEFAULT_SESSION_SEED)
@@ -125,6 +127,24 @@ describe('the session-wide record of a kept session, stored and read back', () =
     expect(rewritten?.presetLabel).toBe('Jazz')
     expect(decodedSummary(structuredClone(rewritten)).presetLabel).toBe('Jazz')
   })
+
+  // @test-link [[module_kept_session_changes]]
+  // @test-link [[entity_kept_session_record]]
+  it("keeps a Jam session's mark and its declined suggestion when a later change rewrites the record", () => {
+    const jam = edited(edited(records.summary, ['isJam'], true), ['suggestionDeclined'], true)
+
+    const rewritten = rewriteKeptSummary(jam, { pinned: false, comment: 'Later.' }, '3.2.1')
+
+    expect(rewritten).toMatchObject({ isJam: true, suggestionDeclined: true, pinned: false })
+    expect(decodedSummary(structuredClone(rewritten))).toMatchObject({
+      isJam: true,
+      suggestionDeclined: true,
+      comment: 'Later.',
+    })
+    const noJam = rewriteKeptSummary(records.summary, { pinned: false }, '3.2.1')
+    expect(noJam).toMatchObject({ isJam: false })
+    expect(Object.hasOwn(noJam!, 'suggestionDeclined')).toBe(false)
+  })
 })
 
 // @test-link [[rule_outdated_tab_reads_what_it_can]]
@@ -140,10 +160,10 @@ describe('decodeKeptSessionSummary of newer or invalid stored values', () => {
 
   // @test-link [[rule_outdated_tab_reads_what_it_can]]
   it('reports a newer record as newer, even one this app could not read', () => {
-    expect(decodeKeptSessionSummary(edited(summary, ['dataVersion'], 3))).toEqual({
+    expect(decodeKeptSessionSummary(edited(summary, ['dataVersion'], 5))).toEqual({
       reading: 'newer',
     })
-    expect(decodeKeptSessionSummary({ dataVersion: 3, appVersion: '9.0.0' })).toEqual({
+    expect(decodeKeptSessionSummary({ dataVersion: 5, appVersion: '9.0.0' })).toEqual({
       reading: 'newer',
     })
   })
@@ -163,8 +183,34 @@ describe('decodeKeptSessionSummary of newer or invalid stored values', () => {
     ['more favorites than phrases', edited(summary, ['favoritesCount'], 3)],
     ['a zero tempo', edited(summary, ['tempoReached'], 0)],
     ['a pinned flag that is no boolean', edited(summary, ['pinned'], 1)],
+    ['no Jam mark', edited(summary, ['isJam'], REMOVE)],
+    [
+      'a declined suggestion on a session that is no Jam',
+      edited(summary, ['suggestionDeclined'], true),
+    ],
+    ['a Jam with no declined suggestion', edited(summary, ['isJam'], true)],
   ])('reports %s as unreadable', (_, value) => {
     expect(decodeKeptSessionSummary(value)).toEqual({ reading: 'unreadable' })
+  })
+
+  // @test-link [[entity_kept_session_record]]
+  // @test-link [[module_kept_session_jam_upgrade_step]]
+  it("reports a record at data version 2, v3.1's, as unreadable after the upgrade", () => {
+    const { isJam, ...v31Shaped } = summary as Record<string, unknown>
+    void isJam
+
+    expect(decodeKeptSessionSummary(edited(summary, ['dataVersion'], 2))).toEqual({
+      reading: 'unreadable',
+    })
+    expect(decodeKeptSessionSummary({ ...v31Shaped, dataVersion: 2 })).toEqual({
+      reading: 'unreadable',
+    })
+  })
+
+  // @test-link [[entity_kept_session_record]]
+  it('writes the record at data version 4', () => {
+    expect(KEPT_SESSION_SUMMARY_DATA_VERSION).toBe(4)
+    expect(summary).toMatchObject({ dataVersion: 4, isJam: false })
   })
 
   // @test-link [[entity_kept_session_record]]

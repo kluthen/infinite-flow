@@ -3,8 +3,9 @@
  * sounding order, its number, its start in seconds from phrase 1's scheduled start, the request and
  * the generated concert timeline as shown, the harmony its chord symbols come from, its generation
  * intent with the instrument profile as data, its tempo, its repeat mark, its favorite mark and the
- * clef the history recorded it in, with the record envelope's two versions; and, for a Jam session
- * only, its quantized doodle with the tempo it was captured at. Every field is copied by name, so
+ * clef the history recorded it in, with the record envelope's two versions; for a Jam session
+ * only, its quantized doodle with the tempo it was captured at; and, for a fresh Jam only, the
+ * clock its played notes are counted on. Every field is copied by name, so
  * the acknowledgements, the rhythm and tension provenance (the rhythm lock's outcome included) and
  * the diagnostics the history holds never reach it. Read back through the domain's own parsers,
  * never rebuilding a profile from its id, each phrase's request agreeing with its intent. The data
@@ -73,16 +74,33 @@ export interface KeptDoodle {
 }
 
 /**
+ * A fresh Jam's played-notes clock: its doodle's first barline and phrase 1's start, in seconds
+ * from the count-in's first beat, the moment a fresh Jam's played notes are counted from. Phrase
+ * 1 starts after the first barline.
+ */
+// @spec-link [[entity_kept_session_record]]
+// @spec-link [[rule_raw_doodle_notes_are_played_notes]]
+export interface KeptPlayedNotesClock {
+  readonly doodleFirstBarline: number
+  readonly phraseOneStart: number
+}
+
+/**
  * The stored body: the envelope's two versions, the phrases in sounding order and, for a Jam
- * session only, its quantized doodle with its capture tempo.
+ * session only, its quantized doodle with its capture tempo; for a fresh Jam only, its played-notes
+ * clock.
  */
 // @spec-link [[entity_kept_session_record]]
 export interface KeptSessionBodyRecord extends RecordVersions {
   readonly phrases: readonly KeptPhraseRecord[]
   readonly doodle?: KeptDoodle
+  readonly playedNotesClock?: KeptPlayedNotesClock
 }
 
-/** Every key the body always holds (`doodle` too, for a Jam session only), and no other. */
+/**
+ * Every key the body always holds (`doodle` too, for a Jam session only, and `playedNotesClock`
+ * for a fresh Jam only), and no other.
+ */
 // @spec-link [[entity_kept_session_record]]
 export const KEPT_SESSION_BODY_KEYS = Object.freeze([
   'dataVersion',
@@ -93,6 +111,13 @@ export const KEPT_SESSION_BODY_KEYS = Object.freeze([
 /** Every key a kept doodle holds, and no other. */
 // @spec-link [[entity_kept_session_record]]
 export const KEPT_DOODLE_KEYS = Object.freeze(['quantized', 'captureTempo'] as const)
+
+/** Every key a fresh Jam's played-notes clock holds, and no other. */
+// @spec-link [[entity_kept_session_record]]
+export const KEPT_PLAYED_NOTES_CLOCK_KEYS = Object.freeze([
+  'doodleFirstBarline',
+  'phraseOneStart',
+] as const)
 
 /** The data version of v3.1's body shape, which only the upgrade steps read or write. */
 const BODY_V2_DATA_VERSION = 2
@@ -132,12 +157,20 @@ export interface ParsedKeptPhrase {
   readonly clef: InstrumentClef
 }
 
-/** A current body read back: its phrases in sounding order, and its doodle, null for no Jam. */
+/**
+ * A current body read back: its phrases in sounding order, its doodle, null for no Jam, and its
+ * played-notes clock, null unless a fresh Jam.
+ */
 // @spec-link [[module_kept_session_codec]]
 export interface ParsedKeptBody {
   readonly phrases: readonly ParsedKeptPhrase[]
   readonly doodle: KeptDoodle | null
+  readonly playedNotesClock: KeptPlayedNotesClock | null
 }
+
+/** A body's Jam parts: its doodle, null for no Jam, and its clock, null unless a fresh Jam. */
+// @spec-link [[module_kept_session_codec]]
+export type KeptBodyJamParts = Pick<ParsedKeptBody, 'doodle' | 'playedNotesClock'>
 
 /**
  * Intent: one recorded phrase as kept, every field copied by name from the history record (the
@@ -166,23 +199,36 @@ function keptPhraseRecord(
   }
 }
 
-/** Intent: the doodle entry of a body: none for a session that is not a Jam. */
-function doodleEntry(doodle: KeptDoodle | null): Pick<KeptSessionBodyRecord, 'doodle'> {
-  return doodle === null ? {} : { doodle }
+/**
+ * Intent: the Jam entries of a body: its doodle for a Jam session, its played-notes clock beside
+ * it for a fresh Jam, none for a session that is not a Jam. Throws, as a caller defect, on a clock
+ * without a doodle.
+ */
+function jamEntries({
+  doodle,
+  playedNotesClock,
+}: KeptBodyJamParts): Pick<KeptSessionBodyRecord, 'doodle' | 'playedNotesClock'> {
+  if (doodle === null) {
+    if (playedNotesClock !== null)
+      throw new Error('kept session record: a played-notes clock is kept only beside a doodle')
+    return {}
+  }
+  return playedNotesClock === null ? { doodle } : { doodle, playedNotesClock }
 }
 
 /**
  * Intent: the body of a session's recorded phrases, written at the body's data version (4), each
  * marked a favorite when its number is in `favorites`, with every start rebased to seconds from
- * phrase 1's scheduled start, and the session's doodle with its capture tempo when it is a Jam
- * (null otherwise). Throws for an empty app version.
+ * phrase 1's scheduled start, the session's doodle with its capture tempo when it is a Jam (null
+ * otherwise) and its played-notes clock when it is a fresh Jam (null otherwise). Throws for an
+ * empty app version or a clock without a doodle.
  */
 // @spec-link [[module_kept_session_codec]]
 // @spec-link [[rule_kept_session_content]]
 export function keptSessionBodyRecord(
   records: readonly SessionHistoryRecord[],
   favorites: ReadonlySet<number>,
-  doodle: KeptDoodle | null,
+  jam: KeptBodyJamParts,
   appVersion: string,
 ): KeptSessionBodyRecord {
   assertKeptAppVersion(appVersion)
@@ -193,7 +239,7 @@ export function keptSessionBodyRecord(
     phrases: records.map((record) =>
       keptPhraseRecord(record, origin, favorites.has(record.phraseNumber)),
     ),
-    ...doodleEntry(doodle),
+    ...jamEntries(jam),
   }
 }
 
@@ -220,9 +266,9 @@ function rewrittenPhrases(
 /**
  * Intent: a body read back, encoded again at the body's data version (4) by `appVersion`: its
  * phrases each copied by name as read (its start as `startsAt`), with the favorite mark `favorite`
- * gives it by its number, and its doodle as read, none when it has none: a stored body encoded
- * again after the session's save, or a data version 2 body the upgrade step to data version 4
- * read. Throws for an empty app version.
+ * gives it by its number, and its doodle and played-notes clock as read, none when it has none: a
+ * stored body encoded again after the session's save, or a data version 2 body the upgrade step to
+ * data version 4 read. Throws for an empty app version or a clock without a doodle.
  */
 // @spec-link [[module_kept_session_codec]]
 // @spec-link [[module_kept_session_changes]]
@@ -236,7 +282,7 @@ export function rewrittenKeptBodyRecord(
     dataVersion: KEPT_SESSION_BODY_DATA_VERSION,
     appVersion,
     phrases: rewrittenPhrases(body.phrases, favorite),
-    ...doodleEntry(body.doodle),
+    ...jamEntries(body),
   }
 }
 
@@ -409,27 +455,61 @@ function parseKeptDoodle(value: unknown): KeptDoodle {
 }
 
 /**
- * Intent: read a current (data version 4) body back into its phrases, in sounding order, and its
- * doodle: exactly its keys (the doodle only for a Jam session), at least one phrase, each through
+ * Intent: a stored played-notes clock: exactly its keys, each a finite number of at least 0,
+ * phrase 1's start after the doodle's first barline.
+ */
+function parsePlayedNotesClock(value: unknown): KeptPlayedNotesClock {
+  const context = 'Kept session body.playedNotesClock'
+  const record = exactRecord(value, KEPT_PLAYED_NOTES_CLOCK_KEYS, context)
+  const doodleFirstBarline = finiteAtLeast(
+    record.doodleFirstBarline,
+    0,
+    `${context}.doodleFirstBarline`,
+  )
+  const phraseOneStart = finiteAtLeast(record.phraseOneStart, 0, `${context}.phraseOneStart`)
+  if (phraseOneStart <= doodleFirstBarline)
+    throw new KeptRecordError(`${context}: phrase 1 must start after the first barline.`)
+  return { doodleFirstBarline, phraseOneStart }
+}
+
+/**
+ * Intent: a stored body's Jam parts: its doodle when it holds one, and its played-notes clock when
+ * it holds one, only beside a doodle; or a refusal.
+ */
+function parseJamParts(record: Record<string, unknown>): KeptBodyJamParts {
+  const doodle = Object.hasOwn(record, 'doodle') ? parseKeptDoodle(record.doodle) : null
+  if (!Object.hasOwn(record, 'playedNotesClock')) return { doodle, playedNotesClock: null }
+  if (doodle === null)
+    throw new KeptRecordError('Kept session body holds a played-notes clock without a doodle.')
+  return { doodle, playedNotesClock: parsePlayedNotesClock(record.playedNotesClock) }
+}
+
+/**
+ * Intent: read a current (data version 4) body back into its phrases, in sounding order, its
+ * doodle and its played-notes clock: exactly its keys (the doodle only for a Jam session, the
+ * clock only beside it), at least one phrase, each through
  * the domain's parsers (request, timeline, harmony, intent with its figure levels, its profile
  * from its data and its rhythm lock group, steering block and carry-in when it holds them) with
  * its request and intent agreeing, a carry-in from no phrase only on phrase 1, numbers and starts
- * strictly increasing from the first phrase at 0, and the doodle through the doodle's own parser.
- * Returns a fresh deep-frozen body, its doodle null when it holds none; throws a refusal for
+ * strictly increasing from the first phrase at 0, the doodle through the doodle's own parser, and
+ * the clock's two moments finite, at least 0, phrase 1's start after the first barline. Returns a
+ * fresh deep-frozen body, its doodle and clock null when it holds none; throws a refusal for
  * anything invalid, never repairing it.
  */
 // @spec-link [[module_kept_session_codec]]
 // @spec-link [[rule_kept_session_content]]
 export function parseKeptSessionBody(value: unknown): ParsedKeptBody {
-  const record = exactRecord(value, KEPT_SESSION_BODY_KEYS, 'Kept session body', ['doodle'])
+  const record = exactRecord(value, KEPT_SESSION_BODY_KEYS, 'Kept session body', [
+    'doodle',
+    'playedNotesClock',
+  ])
   const phrases = parsePhrases(record, PHRASE_V4)
-  const doodle = Object.hasOwn(record, 'doodle') ? parseKeptDoodle(record.doodle) : null
-  return deepFreeze({ phrases, doodle })
+  return deepFreeze({ phrases, ...parseJamParts(record) })
 }
 
 /**
  * Intent: read a data version 2 body, v3.1's, back into its phrases, as the upgrade step to data
- * version 4 reads it: exactly v3.1's keys (no doodle), each phrase read as `parseKeptSessionBody`
+ * version 4 reads it: exactly v3.1's keys (no doodle, no clock), each phrase read as `parseKeptSessionBody`
  * reads it but with v3.1's intent, its carry-in only from a phrase, and a stored request holding a
  * rhythm lock group or a steering block refused, as v3.1's reader refused it. Returns a fresh
  * deep-frozen list; throws a refusal for anything invalid, never repairing it.

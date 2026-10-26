@@ -4,8 +4,10 @@
  * controls (phrase 1 with the lock on and nothing locked yet, then a phrase kept on its bars, a
  * phrase with an allowed rhythm change and a forced bend, each joined from the phrase before); a
  * Jam-style session whose phrase 1 joins from no phrase beside its steering block and whose
- * phrase 2 joins from phrase 1, with a steering block too; and a quantized doodle with its capture
- * tempo, as the body of a Jam session keeps it.
+ * phrase 2 joins from phrase 1, with a steering block too, and the same session with notes played
+ * in each phrase; a quantized doodle with its capture tempo, as the body of a Jam session keeps
+ * it; and the audio-clock moments of a fresh Jam's count-in and doodle, with the notes played
+ * during the doodle.
  */
 
 import { makeQuantizedDoodle } from '@/domain/doodle/quantized-doodle'
@@ -27,9 +29,9 @@ import { makeRegisterWindow } from '@/domain/profile/register-window'
 import { makeSeed } from '@/domain/random/seed'
 import { rhythmBarKey } from '@/domain/rhythm/rhythm-bars'
 import { isRhythmChangeDrawn } from '@/domain/rhythm/rhythm-change-draw'
-import type { SessionHistoryRecord } from '@/session/session-history'
+import type { RecordedPlayedNote, SessionHistoryRecord } from '@/session/session-history'
 import type { SuccessfulOutcome } from '@/session/session-types'
-import type { KeptDoodle } from '@/storage/records/kept-session-record'
+import type { KeptDoodle, KeptFreshJam } from '@/storage/records/kept-session-record'
 
 import { BASE_CONTROLS, generateSuccess } from '../domain/generation/carry-in/carry-in-fixture'
 import { SAMPLE_STEERING } from '../domain/generation/request-inputs-fixture'
@@ -195,4 +197,53 @@ export const KEPT_DOODLE: KeptDoodle = {
     ],
   }),
   captureTempo: 96,
+}
+
+/** Intent: a played note at an audio-clock onset, held for a quarter of a second. */
+function playedNote(midi: number, onsetAt: number): RecordedPlayedNote {
+  return { pitch: makeConcertPitch(midi), velocity: 72, onsetAt, releaseAt: onsetAt + 0.25 }
+}
+
+/**
+ * Intent: the records of the Jam-style session (see `jamSessionRecords`), each phrase holding two
+ * played notes, at half a second and at two seconds and an eighth into it.
+ */
+export function jamSessionRecordsWithPlayedNotes(): readonly SessionHistoryRecord[] {
+  return jamSessionRecords().map((record) => ({
+    ...record,
+    playedNotes: [
+      playedNote(62 + record.phraseNumber, record.startedAt + 0.5),
+      playedNote(65 + record.phraseNumber, record.startedAt + 2.125),
+    ],
+  }))
+}
+
+/** The audio-clock moment a fresh Jam's count-in starts: its first beat. */
+export const JAM_COUNT_IN_AT = 0.25
+
+/** The audio-clock moment a fresh Jam's doodle starts: its first barline, a second later. */
+export const JAM_DOODLE_FIRST_BARLINE_AT = 1.25
+
+/**
+ * The notes played during a fresh Jam's doodle, in onset order: one before its first barline
+ * (on the count-in), two during the doodle.
+ */
+export const RAW_DOODLE_NOTES: readonly RecordedPlayedNote[] = [
+  playedNote(60, 0.75),
+  playedNote(62, 1.5),
+  playedNote(64, 3.75),
+]
+
+/**
+ * Intent: a fresh Jam's count-in and doodle before the Jam-style session's phrase 1, with the
+ * notes played during it, `RAW_DOODLE_NOTES` unless given.
+ */
+export function freshJam(
+  rawDoodleNotes: readonly RecordedPlayedNote[] = RAW_DOODLE_NOTES,
+): KeptFreshJam {
+  return {
+    countInStartsAt: JAM_COUNT_IN_AT,
+    doodleFirstBarlineAt: JAM_DOODLE_FIRST_BARLINE_AT,
+    rawDoodleNotes,
+  }
 }

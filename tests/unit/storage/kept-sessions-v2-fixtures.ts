@@ -2,7 +2,8 @@
  * Builders for the specs of the kept sessions kept at data version 2 (v3.1) and the upgrade step
  * to data version 4: a session's records as the current encoder writes them, turned into the
  * shapes v3.1 wrote (the body at data version 2, which never held a doodle; the session-wide
- * record and the played notes as encoded); a stored request given a v3.2 group no v3.1 request
+ * record at data version 2, which never held the Jam mark; the played notes as encoded); a stored
+ * request given a v3.2 group no v3.1 request
  * held; and a database at data version 3, as a v3.1 tab opens it, seeded through its port.
  */
 
@@ -31,12 +32,27 @@ export function v2Body(body: unknown): unknown {
 }
 
 /**
- * Intent: the stored values a session's records had when v3.1 kept them: its body at data version
- * 2, its session-wide record and played notes as encoded, their shapes unchanged since v3.1.
+ * Intent: a stored session-wide record as v3.1 wrote it: the same keys in the same order, at data
+ * version 2, without the Jam mark. Throws for a Jam's record, which no v3.1 record was.
+ */
+export function v2Summary(summary: unknown): unknown {
+  const copy = structuredClone(summary) as Record<string, unknown>
+  if (copy.isJam !== false) throw new Error('Fixture setup: a v3.1 session is no Jam.')
+  return Object.fromEntries(
+    Object.entries(copy)
+      .filter(([key]) => key !== 'isJam')
+      .map(([key, value]) => [key, key === 'dataVersion' ? 2 : value]),
+  )
+}
+
+/**
+ * Intent: the stored values a session's records had when v3.1 kept them: its body and its
+ * session-wide record at data version 2, its played notes as encoded, their shape unchanged since
+ * v3.1.
  */
 export function v2Session(records: KeptSessionRecords): StoredKeptSession {
   const stored = storedRecords(records)
-  return { ...stored, body: v2Body(stored.body) }
+  return { ...stored, summary: v2Summary(stored.summary), body: v2Body(stored.body) }
 }
 
 /** The v3.2 groups a stored request may be given, each as built by its own constructor. */

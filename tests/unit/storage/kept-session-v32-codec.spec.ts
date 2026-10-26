@@ -10,7 +10,7 @@ import { beforeAll, describe, expect, it } from 'vitest'
 
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import type { SessionHistoryRecord } from '@/session/session-history'
-import { upgradedKeptBodyV4 } from '@/storage/migrations/kept-sessions-v4'
+import { upgradedKeptBodyV4, upgradedKeptSummaryV4 } from '@/storage/migrations/kept-sessions-v4'
 import { parseKeptSessionBody } from '@/storage/records/kept-session-body'
 import {
   decodeKeptSession,
@@ -61,8 +61,14 @@ function keptRecords(records: readonly SessionHistoryRecord[]): StoredKeptSessio
  */
 function jamRecords(records: readonly SessionHistoryRecord[]): StoredKeptSession {
   const stored = keptRecords(records)
-  const body = keptSessionBodyRecord(records, new Set([2]), KEPT_DOODLE, APP_VERSION)
-  return { ...stored, body: structuredClone(body) }
+  const body = keptSessionBodyRecord(
+    records,
+    new Set([2]),
+    { doodle: KEPT_DOODLE, playedNotesClock: null },
+    APP_VERSION,
+  )
+  const summary = edited(edited(stored.summary, ['isJam'], true), ['suggestionDeclined'], false)
+  return { ...stored, summary, body: structuredClone(body) }
 }
 
 // @test-link [[module_kept_session_codec]]
@@ -248,7 +254,8 @@ describe("a body of another data version than the body's shape", () => {
   })
 
   // @test-link [[module_kept_session_jam_upgrade_step]]
-  it('gives no rewrite to step 4 of a body already at data version 4', () => {
+  it('gives no rewrite to step 4 of a session-wide record or a body already at data version 4', () => {
     expect(upgradedKeptBodyV4(stored.body, APP_VERSION)).toBeNull()
+    expect(upgradedKeptSummaryV4(stored.summary, APP_VERSION)).toBeNull()
   })
 })

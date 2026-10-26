@@ -31,6 +31,7 @@ import {
   decodeKeptSessionSummary,
   encodeKeptSession,
   KEPT_SESSION_BODY_DATA_VERSION,
+  KEPT_SESSION_SUMMARY_DATA_VERSION,
   rewriteKeptSummary,
   type KeptSession,
   type KeptSessionFacts,
@@ -42,7 +43,10 @@ import {
   MY_INSTRUMENT_RECORD_KEY,
 } from '@/storage/records/my-instrument-record'
 import { parseKeptSessionBodyV1, parseKeptSessionBodyV2 } from '@/storage/records/kept-session-body'
-import { parseKeptSessionSummaryV1 } from '@/storage/records/kept-session-summary'
+import {
+  parseKeptSessionSummaryV1,
+  parseKeptSessionSummaryV2,
+} from '@/storage/records/kept-session-summary'
 import { encodeSettingRecord } from '@/storage/records/settings-record'
 import type { StorageChange, StoragePort } from '@/storage/storage-port'
 import { lowHorn, recordedMyInstrumentSession } from '../session/my-instrument-session'
@@ -286,10 +290,12 @@ describe('a data version 1 database of v3.0 kept sessions, opened by v3.1', () =
 
   // @test-link [[module_kept_session_upgrade_step]]
   // @test-link [[rule_preset_label_kept_with_session]]
-  it('holds each summary at data version 2 with its preset label in place of the selection', () => {
+  // @test-link [[module_kept_session_jam_upgrade_step]]
+  it("holds each summary at the summary's data version through 2, with its preset label in place of the selection", () => {
     for (const { key, label } of sessions) {
       const summary = after.get(key)!.summary as Record<string, unknown>
-      expect(summary.dataVersion, key).toBe(2)
+      expect(summary.dataVersion, key).toBe(KEPT_SESSION_SUMMARY_DATA_VERSION)
+      expect(summary.isJam, key).toBe(false)
       expect(summary.presetLabel, key).toBe(label)
       expect(Object.hasOwn(summary, 'musicalProfile'), key).toBe(false)
     }
@@ -306,7 +312,10 @@ describe('a data version 1 database of v3.0 kept sessions, opened by v3.1', () =
       const session = decoded(after.get(kept.key)!)
       expect(session, kept.key).toEqual(keptByV31(kept))
       const v1 = seeded.get(kept.key)!
-      expect(session.summary, kept.key).toEqual(parseKeptSessionSummaryV1(v1.summary))
+      expect(session.summary, kept.key).toEqual({
+        ...parseKeptSessionSummaryV1(v1.summary),
+        isJam: false,
+      })
       expect(session.phrases.map((phrase) => phrase.intent)).toEqual(
         parseKeptSessionBodyV1(v1.body).map((phrase) => phrase.intent),
       )
@@ -378,7 +387,7 @@ describe('a data version 1 database of v3.0 kept sessions, opened by v3.1', () =
 describe('the upgrade step to data version 2 alone', () => {
   // @test-link [[module_kept_session_upgrade_step]]
   // @test-link [[module_kept_session_jam_upgrade_step]]
-  it("writes v3.1's body at data version 2, which the data version 2 reader reads and the current codec does not", async () => {
+  it("writes v3.1's session-wide record and body at data version 2, which the data version 2 readers read and the current codec does not", async () => {
     const factory = freshFactory()
     const phrases = recordedKeptSession('bb-tenor', 3).phrases()
     const records = encodeKeptSession(
@@ -400,6 +409,16 @@ describe('the upgrade step to data version 2 alone', () => {
       'phrases',
     ])
     expect(parseKeptSessionBodyV2(after.body)).toEqual(parseKeptSessionBodyV1(stored.body))
+    expect(after.summary).toMatchObject({
+      dataVersion: 2,
+      appVersion: UPGRADING_APP_VERSION,
+      recordedByAppVersion: V30_APP_VERSION,
+      presetLabel: 'Neutral',
+    })
+    expect(Object.hasOwn(after.summary as object, 'isJam')).toBe(false)
+    expect(parseKeptSessionSummaryV2(after.summary)).toEqual(
+      parseKeptSessionSummaryV1(stored.summary),
+    )
     expect(decodeKeptSession(after)).toEqual({ reading: 'unreadable' })
   })
 })
@@ -459,7 +478,7 @@ describe('the stores the upgrade to data version 2 does not change', () => {
 describe('a customized Jazz session kept after the upgrade', () => {
   // @test-link [[rule_preset_label_kept_with_session]]
   // @test-link [[module_kept_session_upgrade_step]]
-  it('stores the label "Custom, based on Jazz" in the summary at data version 2, which a later change keeps', async () => {
+  it('stores the label "Custom, based on Jazz" in the summary at the summary\'s data version, which a later change keeps', async () => {
     const factory = freshFactory()
     await seedVersion1(factory, otherStoreWrites())
     const port = await openUpgraded(factory)
@@ -476,7 +495,7 @@ describe('a customized Jazz session kept after the upgrade', () => {
 
     const saved = (await rawSession(factory, 'new')).summary as Record<string, unknown>
     expect(saved.presetLabel).toBe('Custom, based on Jazz')
-    expect(saved.dataVersion).toBe(2)
+    expect(saved.dataVersion).toBe(KEPT_SESSION_SUMMARY_DATA_VERSION)
 
     const rewritten = rewriteKeptSummary(saved, { pinned: true }, UPGRADING_APP_VERSION)
     expect(rewritten).not.toBeNull()

@@ -3,9 +3,11 @@
  * The upgrade step to data version 4 over the real port and an in-memory IndexedDB: a database a
  * v3.1 tab left at data version 3, holding v3.1 kept sessions (plain, pinned with a comment, with
  * favorites, with played notes kept, on my instrument) and a record of every other store, opens in
- * v3.2 at data version 4; each body is carried over at data version 4 with no doodle and every
- * field as stored, each session decodes, reviews and exports exactly as before, and every other
- * record keeps its data version. A database at data version 1 goes through step 2, then step 4.
+ * v3.2 at data version 4; each session-wide record is carried over at data version 4 as no Jam
+ * and each body with no doodle, every other field as stored; each session decodes, reviews and
+ * exports exactly as before, and every other record keeps its data version. A database at data
+ * version 1 goes through step 2, then step 4, its session-wide record reaching data version 4
+ * through 2.
  * Sessions are carried over at the open only, never when read.
  */
 
@@ -254,10 +256,20 @@ describe('a data version 3 database of v3.1 kept sessions, opened by v3.2', () =
   })
 
   // @test-link [[module_kept_session_jam_upgrade_step]]
-  it('leaves each session-wide record as stored, its recording app version unchanged', () => {
+  // @test-link [[rule_earlier_sessions_open_without_doodle]]
+  it('holds each session-wide record at data version 4 as no Jam, every other field as stored, the recording app version unchanged', () => {
     for (const { key } of sessions) {
+      const before = seeded.get(key)!.summary as Record<string, unknown>
       const summary = after.get(key)!.summary as Record<string, unknown>
-      expect(summary, key).toStrictEqual(seeded.get(key)!.summary)
+      expect(before.dataVersion, key).toBe(2)
+      expect(Object.hasOwn(before, 'isJam'), key).toBe(false)
+      expect(summary, key).toStrictEqual({
+        ...before,
+        dataVersion: 4,
+        appVersion: V32_APP_VERSION,
+        isJam: false,
+      })
+      expect(Object.hasOwn(summary, 'suggestionDeclined'), key).toBe(false)
       expect(summary.recordedByAppVersion, key).toBe(V31_APP_VERSION)
     }
   })
@@ -346,7 +358,7 @@ describe('a data version 3 database of v3.1 kept sessions, opened by v3.2', () =
 describe('a data version 1 database of a v3.0 kept session, opened by v3.2', () => {
   // @test-link [[module_kept_session_jam_upgrade_step]]
   // @test-link [[module_on_device_database]]
-  it('runs steps 2, 3 and 4 in order, the body reaching data version 4 through 2', async () => {
+  it('runs steps 2, 3 and 4 in order, the session-wide record and the body reaching data version 4 through 2', async () => {
     const factory = freshFactory()
     const kept: V31Session = {
       key: 'v30',
@@ -374,7 +386,13 @@ describe('a data version 1 database of a v3.0 kept session, opened by v3.2', () 
     expect((await databaseState(factory)).version).toBe(4)
     const after = await rawSession(factory, kept.key)
     expect(after.body).toMatchObject({ dataVersion: 4, appVersion: V32_APP_VERSION })
-    expect(after.summary).toMatchObject({ dataVersion: 2, recordedByAppVersion: V30_APP_VERSION })
+    expect(after.summary).toMatchObject({
+      dataVersion: 4,
+      appVersion: V32_APP_VERSION,
+      recordedByAppVersion: V30_APP_VERSION,
+      isJam: false,
+    })
+    expect(Object.hasOwn(after.summary as object, 'suggestionDeclined')).toBe(false)
     const session = decoded(after)
     expect(session.phrases).toEqual(keptByV31(kept).phrases)
     expect(notationText(session)).toBe(notationText(keptByV31(kept)))

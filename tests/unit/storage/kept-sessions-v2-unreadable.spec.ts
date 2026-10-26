@@ -26,12 +26,13 @@ import {
   decodeKeptSession,
   encodeKeptSession,
   KEPT_SESSION_BODY_DATA_VERSION,
+  KEPT_SESSION_SUMMARY_DATA_VERSION,
   type KeptSessionFacts,
   type StoredKeptSession,
 } from '@/storage/records/kept-session-record'
 import {
   parseKeptSessionSummaryV1,
-  rewrittenKeptSummaryRecord,
+  rewrittenKeptSummaryRecordV2,
 } from '@/storage/records/kept-session-summary'
 import { edited, historyOf, recordedKeptSession, REMOVE } from './kept-session-fixtures'
 import {
@@ -132,7 +133,9 @@ describe('a data version 1 database holding all three phrase shapes and a damage
     expect(after.body).toStrictEqual(stored.body)
     expect((after.body as { dataVersion: number }).dataVersion).toBe(1)
     expect(after.playedNotes).toStrictEqual(stored.playedNotes)
-    expect((after.summary as { dataVersion: number }).dataVersion).toBe(2)
+    expect((after.summary as { dataVersion: number }).dataVersion).toBe(
+      KEPT_SESSION_SUMMARY_DATA_VERSION,
+    )
     expect(decodeKeptSession(after)).toEqual({ reading: 'unreadable' })
   })
 })
@@ -245,7 +248,7 @@ describe('the upgrade step over malformed stored session-wide records and bodies
     }
     const phrases = parseKeptSessionBodyV1(valid.body)
     const failures = [
-      thrown(() => rewrittenKeptSummaryRecord(parseKeptSessionSummaryV1(valid.summary), '')),
+      thrown(() => rewrittenKeptSummaryRecordV2(parseKeptSessionSummaryV1(valid.summary), '')),
       thrown(() => rewrittenKeptBodyRecordV2(phrases, () => false, '')),
     ]
 

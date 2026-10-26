@@ -7,8 +7,9 @@
  * stays at data version 1, which the codec then reports as unreadable, and the played notes, whose
  * shape does not change, and every other store are not touched.
  *
- * The bodies it writes are v3.1's, at data version 2, which the step to data version 4 then
- * carries on: a session kept by v3.0 reaches the current shapes through data version 2.
+ * The session-wide records and bodies it writes are v3.1's, at data version 2, which the step to
+ * data version 4 then carries on: a session kept by v3.0 reaches the current shapes through data
+ * version 2.
  *
  * The step never throws for anything stored. A throw from a cursor callback would escape the
  * migration runner's guard and abort the upgrade, and every later open of the database would then
@@ -27,29 +28,30 @@ import {
 } from '../records/kept-session-body'
 import {
   parseKeptSessionSummaryV1,
-  rewrittenKeptSummaryRecord,
-  type KeptSessionSummaryRecord,
+  rewrittenKeptSummaryRecordV2,
+  type KeptSessionSummaryV2,
 } from '../records/kept-session-summary'
+import type { RecordVersions } from '../record-envelope'
 import { rewriteInOrder } from './rewrite-each'
 
 /** The data version the kept-session records the step reads were written at. */
 const FROM_VERSION = 1
 
 /**
- * Intent: the data version 2 session-wide record of a stored data version 1 one, written by
- * `appVersion`, its preset label the one its musical profile selection names; null for any record
- * not at data version 1 or not readable, which is then left as it is. Never throws: any error
- * reading the stored value gives null.
+ * Intent: the data version 2 session-wide record, v3.1's, of a stored data version 1 one, written
+ * by `appVersion`, its preset label the one its musical profile selection names; null for any
+ * record not at data version 1 or not readable, which is then left as it is. Never throws: any
+ * error reading the stored value gives null.
  */
 // @spec-link [[module_kept_session_upgrade_step]]
 // @spec-link [[rule_preset_label_kept_with_session]]
 export function upgradedKeptSummary(
   stored: unknown,
   appVersion: string,
-): KeptSessionSummaryRecord | null {
+): (RecordVersions & KeptSessionSummaryV2) | null {
   try {
     if (readEnvelope(stored, FROM_VERSION) !== 'current') return null
-    return rewrittenKeptSummaryRecord(parseKeptSessionSummaryV1(stored), appVersion)
+    return rewrittenKeptSummaryRecordV2(parseKeptSessionSummaryV1(stored), appVersion)
   } catch {
     // Deliberately any error, a refusal or not: the record stays at data version 1, read as
     // unreadable, rather than abort the upgrade every later open would then fail on.

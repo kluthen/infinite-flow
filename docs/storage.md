@@ -60,9 +60,10 @@ any relative path into a `storage` directory.
 | `records/kept-session-summary.ts` | The session-wide record, its allowlist of keys, and `decodeKeptSessionSummary`, which reads it alone.                                                                                                                        |
 | `records/kept-session-body.ts`    | The body record and the allowlist of a kept phrase's keys.                                                                                                                                                                   |
 | `records/kept-played-notes.ts`    | The played-notes record and the allowlist of a kept note's keys.                                                                                                                                                             |
-| `records/kept-phrase-parsers.ts`  | `parseKeptHarmony`, `parseKeptIntent`, `parseKeptProfileSelection`, and `isKeptPhraseRefusal`, the test of what counts as a refusal.                                                                                         |
+| `records/kept-phrase-parsers.ts`  | `parseKeptHarmony`, `parseKeptProfileSelection`, and `isKeptPhraseRefusal`, the test of what counts as a refusal.                                                                                                            |
+| `records/kept-intent-parsers.ts`  | `parseKeptIntent`, the reader of a data version 4 intent, and `parseKeptIntentV2` and `parseKeptIntentV1`, the readers the upgrade steps read earlier intents with.                                                          |
 | `records/kept-record-shape.ts`    | `KeptRecordError` and the shape readers the kept-session validators share.                                                                                                                                                   |
-| `records/kept-reading.ts`         | `KEPT_SESSION_DATA_VERSION`, the `KeptReading` a decode gives, and `readKept`, which reads the envelopes first.                                                                                                              |
+| `records/kept-reading.ts`         | The data version of each kept-session shape, the `KeptReading` a decode gives, and `readKept`, which reads the envelopes first.                                                                                              |
 
 The port takes its IndexedDB factory and storage manager as options (`factory`,
 `storageManager`), with the running app's version (`appVersion`), and optionally its migration
@@ -100,17 +101,18 @@ caller defect.
 
 One numbering covers the whole database:
 
-- **The database's data version** is one integer, `DATABASE_DATA_VERSION`: 1 in v3.0, 3 from
-  v3.1 (step 2 for the kept sessions, step 3 for the presets and the levels). It is the IndexedDB version the database is opened with, the `dataVersion` held in `meta`,
-  and the number of migration steps.
+- **The database's data version** is one integer, `DATABASE_DATA_VERSION`: 1 in v3.0, 3 in
+  v3.1 (step 2 for the kept sessions, step 3 for the presets and the levels), 4 from v3.2 (step 4
+  for the kept sessions). It is the IndexedDB version the database is opened with, the
+  `dataVersion` held in `meta`, and the number of migration steps.
 - **A record's data version** is the data version at which its store's current record shape was
   introduced, so it is never above the database's. Each codec owns that number for its store
-  (`SETTINGS_DATA_VERSION` for the settings); in v3.0 every one is 1. From v3.1 the kept
-  session-wide record and the body are at 2 (see [Kept sessions](#kept-sessions)); the player
-  preset record (`PRESET_RECORD_DATA_VERSION`) and, in `settings`, the `presetSelection` record
-  and the seven `figureLevels.*` records (`PRESET_SETTINGS_DATA_VERSION`, by
-  `settingDataVersion(key)`) are at 3; every other shape, the kept played notes and every other
-  setting included, still at 1.
+  (`SETTINGS_DATA_VERSION` for the settings); in v3.0 every one is 1. The kept session-wide
+  record and the body are at 4 from v3.2 (at 2 in v3.1; see [Kept sessions](#kept-sessions));
+  the player preset record (`PRESET_RECORD_DATA_VERSION`) and, in `settings`, the
+  `presetSelection` record and the seven `figureLevels.*` records
+  (`PRESET_SETTINGS_DATA_VERSION`, by `settingDataVersion(key)`) are at 3; every other shape, the
+  kept played notes and every other setting included, still at 1.
 - **A migration to data version N rewrites only the stores whose shape changes at N**, giving
   their records data version N. The records of every other store keep their number, so an older
   tab still reads them.
@@ -175,10 +177,18 @@ defect of the caller, and nothing is written.
 ## Migrations
 
 A migration step is `{ toVersion, migrate(upgrade) }`, where `upgrade` gives the database being
-upgraded, its upgrade transaction and the app version the database is opened with, which a step
-writes into the envelopes it rewrites. When opening finds a stored version below the code's, the
-runner, inside the upgrade transaction, runs in order every step whose `toVersion` is above the
-stored version, then writes `meta` with the code's data version and the running app's version.
+upgraded, its upgrade transaction, the app version the database is opened with, which a step
+writes into the envelopes it rewrites, and `hold`. When opening finds a stored version below the
+code's, the runner, inside the upgrade transaction, runs in order every step whose `toVersion` is
+above the stored version, each after the work of the one before is done, then writes `meta` with
+the code's data version and the running app's version.
+
+A step whose work goes on in request callbacks, a cursor walk, calls `hold()` and calls the
+release it gets back when the walk ends. The runner starts the next step only once the step has
+returned and every hold it took is released, so each step sees every record the one before wrote:
+a v3.0 database reaches data version 4 through data version 2, step 4 reading what step 2 wrote.
+Releasing twice counts once. The steps that rewrite records share one guarded cursor walk,
+`src/storage/migrations/rewrite-each.ts`.
 
 - **Step 1**, from an empty database, creates data version 1's seven stores (`meta` and every
   data store but `presets`). `PRODUCTION_MIGRATIONS` held it alone in v3.0.
@@ -188,12 +198,16 @@ stored version, then writes `meta` with the code's data version and the running 
 - **Step 3** (v3.1, `SETTINGS_V3`, `src/storage/migrations/settings-v3.ts`) creates the
   `presets` store, empty, and carries v3.0's musical-profile selection over (see
   [The upgrade to data version 3](#the-upgrade-to-data-version-3)).
+- **Step 4** (v3.2, `KEPT_SESSIONS_V4`, `src/storage/migrations/kept-sessions-v4.ts`) carries the
+  kept sessions over to their data version 4 shapes, with no Jam part (see
+  [The upgrade to data version 4](#the-upgrade-to-data-version-4)).
 - **Every step runs at the open only**, inside the upgrade transaction, once per database: a
   record is never mapped to a newer shape when it is read.
 - **The steps must run 1, 2, … N without a gap.** `migrationsDataVersion` checks the list when the
   port opens and throws otherwise, before any database is created: a configuration defect.
-- **A step that throws** rolls the upgrade back and makes the open reject with a
-  `MigrationStepError` naming the step: a defect, never reported as a storage failure.
+- **A step that throws**, when it runs or when a release runs it from a request callback, rolls
+  the upgrade back and makes the open reject with a `MigrationStepError` naming the step: a
+  defect, never reported as a storage failure. No later step runs.
 - **An empty app version** also makes the open reject.
 
 The production list is the default. A caller may pass its own list through the port's
@@ -293,19 +307,21 @@ session's save (`keptSessionKey`). It is in no record, and no code reads a fact 
 clock or draws a seed.
 
 Each shape holds its own data version (`kept-reading.ts`): the session-wide record
-(`KEPT_SESSION_SUMMARY_DATA_VERSION`) and the body (`KEPT_SESSION_BODY_DATA_VERSION`) are at 2
-from v3.1, the played notes (`KEPT_PLAYED_NOTES_DATA_VERSION`), whose shape did not change, at 1.
-Every time in them is in seconds from phrase 1's scheduled start, never on the audio clock.
+(`KEPT_SESSION_SUMMARY_DATA_VERSION`) and the body (`KEPT_SESSION_BODY_DATA_VERSION`) are at 4
+from v3.2, the played notes (`KEPT_PLAYED_NOTES_DATA_VERSION`), whose shape has not changed since
+v3.0, at 1. Every time in them is in seconds, never on the audio clock: from phrase 1's scheduled
+start, except a fresh Jam's played-notes clock and played notes, which count from its count-in's
+first beat (a fresh Jam is one whose doodle was played in the session, not a kept doodle).
 
 ### What each record holds
 
 Each record holds the envelope's two versions, then exactly these keys, and no other:
 
-| Record       | Keys                                                                                                                                                                                                        |
-| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Session-wide | `startedAt`, `lengthSeconds`, `phraseCount`, `presetLabel`, `instrument`, `startingTempo`, `tempoReached`, `pinned`, `favoritesCount`, `comment`, `playedNotesKept`, `recordedByAppVersion`, `sessionSeed`. |
-| Body         | `phrases`, in sounding order, each with `phraseNumber`, `startsAt`, `request`, `timeline`, `harmony`, `intent`, `tempo`, `isRepeat`, `repeatOf` (only on a repeat), `favorite`, `clef`.                     |
-| Played notes | `notes`, in onset order, each with `pitch`, `velocity`, `onset`, `release`.                                                                                                                                 |
+| Record       | Keys                                                                                                                                                                                                                                                                 |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Session-wide | `startedAt`, `lengthSeconds`, `phraseCount`, `presetLabel`, `instrument`, `startingTempo`, `tempoReached`, `pinned`, `favoritesCount`, `comment`, `playedNotesKept`, `recordedByAppVersion`, `sessionSeed`, `isJam`, and `suggestionDeclined` on a Jam session only. |
+| Body         | `phrases`, in sounding order, each with `phraseNumber`, `startsAt`, `request`, `timeline`, `harmony`, `intent`, `tempo`, `isRepeat`, `repeatOf` (only on a repeat), `favorite`, `clef`; `doodle` on a Jam session only; `playedNotesClock` on a fresh Jam only.      |
+| Played notes | `notes`, in onset order, each with `pitch`, `velocity`, `onset`, `release`.                                                                                                                                                                                          |
 
 The session-wide record holds what a list row shows:
 
@@ -325,29 +341,49 @@ The session-wide record holds what a list row shows:
   fact: the envelope's `appVersion` names the app that last wrote the record, and a migration
   rewrites it; this one never changes.
 - `sessionSeed`: kept mainly for debugging. Nothing derived from it is stored.
+- `isJam`: whether the session is a Jam session. `suggestionDeclined`, on a Jam session only:
+  whether the player declined its key and mode suggestion.
 
 A body phrase holds the generation request and the concert timeline as shown, the harmony its
 chord symbols come from, and its generation intent, with the instrument profile as data. Its
 `clef` is the clef the session history recorded the phrase in: the clef of the written phrase Idle
 showed at Start, treble for a built-in instrument, treble or bass for my instrument. It is copied
 from the history, never looked up from my instrument as it is now, so a later change of my
-instrument's clef leaves a kept session as it was.
+instrument's clef leaves a kept session as it was. When the phrase had them, its request and its
+intent hold v3.2's request inputs: the rhythm lock group (`rhythmLock`), the steering block
+(`steering`), and a carry-in from the phrase before or, on a Jam's phrase 1 only, from no phrase
+(the doodle's join into phrase 1).
+
+A Jam session's body holds its `doodle`: the quantized doodle (`quantized`), which holds no tempo,
+and `captureTempo`, the tempo it was captured at. A fresh Jam's body also holds its
+`playedNotesClock`: `doodleFirstBarline`, the doodle's first barline, and `phraseOneStart`,
+phrase 1's start, both in seconds from the count-in's first beat. A Jam on a kept doodle has no
+clock. The body keeps the doodle and the clock whether or not the played notes are kept.
 
 Nothing else is kept: no acknowledgement, no rhythm or tension provenance, no diagnostics. The
 encoder copies every field by name onto fresh records, so what the history holds beyond them never
-reaches storage. A played note is kept only when it falls in a phrase; one played before phrase 1
-is not.
+reaches storage. A played note is kept when it falls in a phrase. One played before phrase 1 is
+kept only in a fresh Jam: its raw doodle notes, played during the count-in and the doodle. A fresh
+Jam's played notes, the raw doodle notes included, are timed from its count-in's first beat;
+every other session's from phrase 1's start. The played-notes record's shape is the same either
+way: the body's clock says which.
 
 ### Encoding
 
 The encoder takes the finished session's history and the facts the history does not hold:
-`pinned`, the numbers of the favorite phrases, the comment and whether the played notes are kept.
-It throws a plain `Error`, a defect of the caller, for:
+`pinned`, the numbers of the favorite phrases, the comment, whether the played notes are kept,
+and, for a Jam session only, its Jam facts (`jam`): the doodle with its capture tempo, whether the
+suggestion was declined, and, for a fresh Jam, its count-in's first beat, its doodle's first
+barline and its raw doodle notes, on the audio clock. It throws a plain `Error`, a defect of the
+caller, for:
 
 - a history with no phrase, or an empty app version;
 - a comment over 500 characters;
 - a favorite that is not a phrase of the session, or is listed twice;
-- a phrase played on another instrument than the session's.
+- a phrase played on another instrument than the session's;
+- a fresh Jam whose doodle starts before its count-in, whose phrase 1 starts at or before the
+  doodle's first barline, or with a raw doodle note before the count-in or at or after phrase 1's
+  start.
 
 ### Decoding
 
@@ -359,33 +395,50 @@ reads the envelopes first, of every record stored:
 
 Current records are then validated, and anything invalid or inconsistent makes the session
 `unreadable`. Nothing is repaired, defaulted or partly read. Every field is checked by the domain's
-own parser where one exists: `parseGenerationRequest`, `parseConcertEventTimeline` and
-`parseConcertPitch`, with `isInstrumentClef` for the clef. `kept-phrase-parsers.ts` adds
-`parseKeptHarmony` and `parseKeptIntent` for what no domain parser covers. A data version 2
-intent holds the seven figure levels (`figureLevels`) and no musical profile; one holding a
-`musicalProfile` is refused. An intent's instrument
-profile is read from the data it holds, through the domain's profile parser, and never rebuilt from
-its id, so a phrase reads back as it was played.
+own parser where one exists: `parseGenerationRequest`, `parseConcertEventTimeline`,
+`parseQuantizedDoodle` and `parseConcertPitch`, with `isInstrumentClef` for the clef.
+`kept-phrase-parsers.ts` adds `parseKeptHarmony`, and `kept-intent-parsers.ts` `parseKeptIntent`,
+for what no domain parser covers. A data version 4 intent holds the seven figure levels
+(`figureLevels`) and no musical profile; one holding a `musicalProfile` is refused. When the
+phrase had them, it also holds its carry-in, its rhythm lock group and its steering block, each
+read through the generation request's own parsers; a carry-in from no phrase is read only beside a
+steering block. An intent's instrument profile is read from the data it holds, through the
+domain's profile parser, and never rebuilt from its id, so a phrase reads back as it was played.
+A played-notes clock holds exactly its two moments, each finite and at least 0.
 
 The records must also agree:
 
 - the body holds the summary's phrase count and favorites count;
 - every phrase was played on the summary's instrument;
 - a played-notes record exists exactly when `playedNotesKept` is true;
-- each phrase's request and intent agree on the request id and the seed;
+- the body holds a doodle exactly when the summary says the session is a Jam, the summary holds
+  `suggestionDeclined` exactly on a Jam, and a clock is held only beside a doodle;
+- each phrase's request and intent agree on the request id and the seed, on whether they hold a
+  rhythm lock group, on whether they hold a steering block, and on the carry-in's origin (none,
+  from a phrase, or from no phrase). Only presence is compared, never the groups' values: the
+  request is the intent resolved, kept for display, and the phrase replays from its intent;
+- a carry-in from no phrase is held on phrase 1 only;
 - phrase numbers and starts strictly increase, from phrase 1 at 0;
 - `repeatOf` is present exactly on a repeat, and names an earlier phrase;
-- the notes are in onset order, none before phrase 1's start, none released before its onset.
+- a clock's phrase 1 starts after the doodle's first barline;
+- the notes are in onset order, none before 0, none released before its onset. Without a clock, 0
+  is phrase 1's start, so a session without a clock holding a note before phrase 1 is
+  unreadable.
 
 Only a refusal of a stored value turns into `unreadable`: an error that `isKeptPhraseRefusal`
 recognizes, from the kept-session validators or the domain parsers they call. Any other error is a
 defect and is thrown.
 
-The decoded value is a `KeptSession`: the `summary` and the `phrases`, each a `KeptPhrase`. A
-`KeptPhrase` is a `ReviewedPhrase` with its repeat mark, its favorite mark and its clef. Its
-outcome holds only what the records hold: the `result` (the request id and seed of the stored
-request, and the timeline) and `provenance.harmony`. The played notes are placed in the phrases by
-`withPlayedNotes`, exactly as the session history places them.
+The decoded value is a `KeptSession`: the `summary`, the `phrases`, each a `KeptPhrase`, and
+`jam`, null for a session that is no Jam. A `KeptPhrase` is a `ReviewedPhrase` with its repeat
+mark, its favorite mark and its clef. Its outcome holds only what the records hold: the `result`
+(the request id and seed of the stored request, and the timeline) and `provenance.harmony`. A
+Jam's `jam` holds its `doodle` with its capture tempo, its `playedNotesClock` (null for a Jam on a
+kept doodle) and its `rawDoodleNotes`. With a clock, the played notes are split at
+`phraseOneStart` (`splitAtPhraseOne`): those before it are the raw doodle notes, kept as read, in
+seconds from the count-in's first beat; every other note is counted from phrase 1's start. Without
+a clock, or when the played notes are not kept, there is no raw doodle note. The notes from phrase
+1 on are placed in the phrases by `withPlayedNotes`, exactly as the session history places them.
 
 `decodeKeptSessionSummary` reads the session-wide record alone, the same way, for the session list.
 
@@ -443,6 +496,37 @@ does that at every load, so a v3.0 Jazz selection with a changed Tension opens a
 Jazz. Every other settings record, the controls included, and every other store are left alone.
 Like step 2, it never throws for a stored value; a failing request aborts the upgrade, and the
 next open runs it again.
+
+### The upgrade to data version 4
+
+Step 4, `KEPT_SESSIONS_V4` (`src/storage/migrations/kept-sessions-v4.ts`), runs once, inside the
+upgrade transaction, when v3.2 first opens a database below data version 4: alone on v3.1's data
+at data version 3, after steps 2 and 3 on v3.0's at data version 1, then reading the records step
+2 wrote. It walks `sessionSummaries`, then `sessionBodies`, holding the upgrade until both walks
+end, and rewrites each data version 2 record it can read:
+
+- a version 2 session-wide record, read by `parseKeptSessionSummaryV2` (exactly v3.1's keys, no
+  Jam mark), is written back at 4 with `isJam` false and no `suggestionDeclined`; every other
+  field is kept as stored, its `recordedByAppVersion` included;
+- a version 2 body, read by `parseKeptSessionBodyV2`, is written back at 4 with no `doodle` and
+  no `playedNotesClock`; every phrase, favorite mark and field, the timelines included, is kept as
+  read, so a carried-over session reviews and exports byte for byte as before. The version 2
+  reader takes v3.1's phrase shape: an intent read by `parseKeptIntentV2`, with its figure levels
+  and a carry-in only from a phrase, in v3.1's exact form; and a request read by the generation
+  request's parser, refused when it holds a rhythm lock group or a steering block, as v3.1's
+  reader refused it.
+
+Each rewritten envelope's `appVersion` is the upgrading app's. The played notes, whose shape did
+not change, and every other store are left alone.
+
+A record the step cannot read is left as it is, at data version 2, and the codec then reads its
+session as unreadable: a damaged value, a body holding a doodle key, or a version 2 record whose
+stored request or intent holds a rhythm lock group or a steering block, which v3.1 never wrote. A
+record at any other data version is left alone too. Like steps 2 and 3, the step never throws for
+a stored value: reading a value and writing its rewrite back are each guarded (`rewrite-each.ts`).
+A failing request (a quota error, say) is not caught: it aborts the whole upgrade, the database
+keeps its old data version for that visit, and the next open runs the steps again. An older tab
+open meanwhile is closed by the version change and turns outdated.
 
 ### Size
 
@@ -1247,6 +1331,82 @@ alone did (step 3 adds little); the start-up read with 60 player presets and 500
 takes at most 36 ms, under 2 % of it. The owner repeats the deciding runs on the reference
 machine.
 
+## The upgrade to data version 4 (M3)
+
+v3.2's build plan (chunk 22) runs M3 again for step 4:
+
+- `npm run measure:kept-session-upgrade` has two tests, each printing its own table, titled with
+  its path. The first times v3.2's first open of v3.1's data: a database at data version 3,
+  seeded through the harness's v3.1 seam (`seedVersionThreeSessions`, as a v3.1 tab writes it),
+  holding 10, 100 or 500 kept sessions in v3.1's shapes. Each is a copy of one real Jazz session
+  played on the harness, turned in Node into v3.1's shapes (`v31Session`: no Jam mark, no doodle,
+  no played-notes clock, no rhythm lock group, steering block or carry-in from no phrase, written
+  by 3.1.0) and cycled to a body of about 100 kB, pinned, with a 500-character comment and no
+  played notes, as chunks 9 and 16 did. The timed open runs step 4 only. The second test keeps
+  chunk 16's path for comparison, the worst case: v3.0's settings and the same sessions in v3.0's
+  shapes at data version 1, so the open runs steps 2, 3 and 4, each after the work of the one
+  before. On each path the cold figure is the first load after the browser starts on the profile,
+  the one that upgrades, checked to have written every session-wide record and body at data
+  version 4, the first session no Jam and its body with no doodle (and, from v3.0, the settings
+  carried over); then three warm reloads.
+- `npm run measure:startup-read` runs again on M2's 0, 10, 100 and 500 kept sessions, crossed with
+  0, 50 and 60 player presets, their session-wide records now v3.2's, at data version 4 with the
+  Jam mark.
+
+Measured on 2026-10-26 on this worktree's machine: Linux 6.12.113+deb13-amd64 (Debian), AMD
+Ryzen 5 PRO 8640HS w/ Radeon 760M Graphics (12 threads), 11 GiB of RAM, no virtual machine,
+headless Chromium through Playwright 1.63.0, no other test running. Two runs of each, each started
+once the 1-minute load average was below 1.5; the 5-minute average stayed about 2 (other sessions
+on the machine), so the figures may run a little high. In milliseconds, first run / second run.
+
+The upgrade to data version 4 from v3.1's data, step 4 alone (load average, 1 minute, before →
+after: 1.45 → 2.26, then 1.32 → 2.31):
+
+| Kept sessions | Upgrade load (cold) | Warm, slowest of three |
+| ------------- | ------------------- | ---------------------- |
+| 10            | 47.7 / 61.4         | 1.6 / 1.8              |
+| 100           | 194.7 / 199.2       | 5.5 / 6.2              |
+| 500           | 808.2 / 947.6       | 19.9 / 15.4            |
+
+For comparison, the upgrade to data version 4 from v3.0's data, steps 2, 3 and 4 (same runs):
+
+| Kept sessions | Upgrade load (cold) | Warm, slowest of three |
+| ------------- | ------------------- | ---------------------- |
+| 10            | 76.1 / 66.4         | 3.0 / 1.8              |
+| 100           | 407.6 / 341.6       | 4.4 / 3.6              |
+| 500           | 1683.7 / 1880.7     | 16.8 / 18.9            |
+
+Each body is 15 phrases, about 100 kB (102,820 bytes from v3.1, 100,615 from v3.0).
+
+The start-up read with v3.2's session-wide records (load average, 1 minute, before → after:
+1.44 → 2.43, then 1.31 → 2.26):
+
+| Player presets | Kept sessions | Cold        | Warm, fastest of five | Warm, slowest of five |
+| -------------- | ------------- | ----------- | --------------------- | --------------------- |
+| 0              | 0             | 10.0 / 10.1 | 1.6 / 1.5             | 2.2 / 3.1             |
+| 0              | 10            | 7.6 / 18.0  | 1.6 / 1.9             | 3.0 / 4.3             |
+| 0              | 100           | 11.2 / 19.0 | 3.1 / 3.0             | 4.2 / 4.5             |
+| 0              | 500           | 36.2 / 37.3 | 15.9 / 14.7           | 18.0 / 17.6           |
+| 50             | 0             | 13.9 / 22.6 | 2.8 / 2.7             | 4.1 / 4.9             |
+| 50             | 10            | 9.7 / 12.2  | 2.6 / 2.6             | 5.2 / 3.9             |
+| 50             | 100           | 27.5 / 20.4 | 4.1 / 4.1             | 5.0 / 5.2             |
+| 50             | 500           | 30.5 / 37.2 | 9.7 / 16.5            | 18.6 / 19.5           |
+| 60             | 0             | 9.8 / 12.9  | 3.6 / 3.0             | 5.1 / 4.9             |
+| 60             | 10            | 11.0 / 8.6  | 3.1 / 3.2             | 4.8 / 4.1             |
+| 60             | 100           | 20.7 / 29.6 | 4.5 / 4.6             | 5.5 / 6.1             |
+| 60             | 500           | 34.2 / 31.7 | 18.2 / 15.2           | 18.7 / 19.1           |
+
+Verdict: v3.2's first open of v3.1's data upgrades it inside the 2 s start-up wait at every count:
+step 4 takes at most 948 ms with 500 sessions, about 47 % of the wait (v3.1's upgrade took about
+38 %), since it rewrites every session-wide record and body as step 2 did. The start-up read with
+the new records takes at most 37 ms, under 2 % of the wait. From v3.0's data the open rewrites
+everything twice, steps 2 and 4 one after the other, and takes up to 1,881 ms with 500 sessions,
+about 94 % of the wait: still inside it on this machine, but not well under. A slower device with
+that many sessions kept by v3.0 would pass the wait; that visit starts from the defaults while the
+upgrade completes, and the next visit reads normally (spec D376), as v3.1 accepted for its largest
+bodies. Chunk 30 repeats the read with half the sessions Jam sessions. The owner repeats the
+deciding runs on the reference machine.
+
 ## The app version
 
 `src/storage/app-version.ts` exports `APP_VERSION`, the compile-time constant `__APP_VERSION__`
@@ -1273,26 +1433,31 @@ in-memory IndexedDB (see
 kept-session codec's need no database (see
 [Kept-session fixtures](testing.md#kept-session-fixtures)):
 
-| Spec                                    | What it checks                                                                                                                                                                                      |
-| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `record-envelope.spec.ts`               | The three readings and the write check.                                                                                                                                                             |
-| `database.spec.ts`                      | Opening at data version 0 and 1, the seven stores, `meta`, a synthetic step 1 → 2, untouched stores, and the open-time defects.                                                                     |
-| `storage-port.spec.ts`                  | Writes and reads, the write check, quota and other failures, the storage manager, Delete everything, and an unavailable port.                                                                       |
-| `storage-port-outdated.spec.ts`         | The four outdated triggers, listeners told once, reads that go on, and another tab's Delete everything.                                                                                             |
-| `storage-port-batch.spec.ts`            | Batches across stores, list order, one transaction, all or none on a failure, the refusals, and defective batches.                                                                                  |
-| `storage-port-keyed-read.spec.ts`       | The keyed read: keys and raw values in key order, non-string keys left out, one read-only transaction, `readAll` unchanged, and its refusal.                                                        |
-| `save-policy.spec.ts`                   | The saving states and their changes, saving at once, skipping while off, and the session hold.                                                                                                      |
-| `save-policy-reports.spec.ts`           | The failure report and its runs, and the request for persistent storage.                                                                                                                            |
-| `save-policy-your-data.spec.ts`         | The estimate, persistence, and Delete everything in each saving state and during a session.                                                                                                         |
-| `save-policy-kept-session-read.spec.ts` | The read of one kept session's records by its key, raw, in an outdated tab too, and its refusal.                                                                                                    |
-| `save-policy-session.spec.ts`           | The session's own save: the keyed read at the save, its order after the flush, waiting for a hold, one save after the other, each outcome, the failure listener for `quota` only, and saving off.   |
-| `app-version.spec.ts`                   | `APP_VERSION` is `package.json`'s version.                                                                                                                                                          |
-| `settings-record.spec.ts`               | The settings codec, whose version check is the envelope's, and the loaded preset selection (with `settings-preset-selection.spec.ts`).                                                              |
-| `settings-saver.spec.ts`                | The saves of the player's settings: one batch per change, the order kept before and after the policy loads, the hold, and `chosenControlChanges`.                                                   |
-| `storage-bootstrap.spec.ts`             | The load before the first draw: the saved settings, an invalid value's default, each failing, late and outdated case with its settings, saving state and load outcome, and the defects that reject. |
-| `kept-phrase-parsers.spec.ts`           | The harmony and intent validators: real values read back, frozen copies, each refusal, and an intent's profile read from its data.                                                                  |
-| `kept-session-record.spec.ts`           | The kept-session codec: exact keys, nothing kept beyond them, times in seconds from phrase 1, newer and unreadable records, the encoder's refusals, and the size of a 30-minute session.            |
-| `kept-session-summary.spec.ts`          | The session-wide record: its facts, its length, the recording app version, and newer and unreadable records.                                                                                        |
+| Spec                                    | What it checks                                                                                                                                                                                         |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `record-envelope.spec.ts`               | The three readings and the write check.                                                                                                                                                                |
+| `database.spec.ts`                      | Opening at data version 0 and 1, the seven stores, `meta`, a synthetic step 1 → 2, untouched stores, and the open-time defects.                                                                        |
+| `storage-port.spec.ts`                  | Writes and reads, the write check, quota and other failures, the storage manager, Delete everything, and an unavailable port.                                                                          |
+| `storage-port-outdated.spec.ts`         | The four outdated triggers, listeners told once, reads that go on, and another tab's Delete everything.                                                                                                |
+| `storage-port-batch.spec.ts`            | Batches across stores, list order, one transaction, all or none on a failure, the refusals, and defective batches.                                                                                     |
+| `storage-port-keyed-read.spec.ts`       | The keyed read: keys and raw values in key order, non-string keys left out, one read-only transaction, `readAll` unchanged, and its refusal.                                                           |
+| `save-policy.spec.ts`                   | The saving states and their changes, saving at once, skipping while off, and the session hold.                                                                                                         |
+| `save-policy-reports.spec.ts`           | The failure report and its runs, and the request for persistent storage.                                                                                                                               |
+| `save-policy-your-data.spec.ts`         | The estimate, persistence, and Delete everything in each saving state and during a session.                                                                                                            |
+| `save-policy-kept-session-read.spec.ts` | The read of one kept session's records by its key, raw, in an outdated tab too, and its refusal.                                                                                                       |
+| `save-policy-session.spec.ts`           | The session's own save: the keyed read at the save, its order after the flush, waiting for a hold, one save after the other, each outcome, the failure listener for `quota` only, and saving off.      |
+| `app-version.spec.ts`                   | `APP_VERSION` is `package.json`'s version.                                                                                                                                                             |
+| `settings-record.spec.ts`               | The settings codec, whose version check is the envelope's, and the loaded preset selection (with `settings-preset-selection.spec.ts`).                                                                 |
+| `settings-saver.spec.ts`                | The saves of the player's settings: one batch per change, the order kept before and after the policy loads, the hold, and `chosenControlChanges`.                                                      |
+| `storage-bootstrap.spec.ts`             | The load before the first draw: the saved settings, an invalid value's default, each failing, late and outdated case with its settings, saving state and load outcome, and the defects that reject.    |
+| `kept-phrase-parsers.spec.ts`           | The harmony and intent validators: real values read back, frozen copies, each refusal, and an intent's profile read from its data.                                                                     |
+| `kept-session-record.spec.ts`           | The kept-session codec: exact keys, nothing kept beyond them, times in seconds from phrase 1, newer and unreadable records, the encoder's refusals, and the size of a 30-minute session.               |
+| `kept-session-summary.spec.ts`          | The session-wide record: its facts, its length, the recording app version, and newer and unreadable records.                                                                                           |
+| `kept-session-v32-codec.spec.ts`        | v3.2's body: a locked session and a Jam-style session round-trip with every request input, each phrase replaying from its kept intent; a body of another data version.                                 |
+| `kept-session-agreement.spec.ts`        | The request-intent agreement on the rhythm lock group, the steering block and the carry-in's origin, a carry-in from no phrase on phrase 1 only, and the data version 2 readers refusing either group. |
+| `kept-session-jam-codec.spec.ts`        | A fresh Jam with its doodle, clock and raw doodle notes, a Jam on a kept doodle, the Jam mark and the declined suggestion, records that disagree or break the clock, and the encoder's refusals.       |
+| `kept-sessions-v4.spec.ts`              | Step 4 over v3.1's sessions at data version 3, each carried over as no Jam and decoding, reviewing and exporting as before, other records untouched; a v3.0 database reaching 4 through 2.             |
+| `kept-sessions-v4-unreadable.spec.ts`   | Step 4 over records it cannot read, left as stored and read as unreadable, malformed values that never make it throw, and a v3.1 tab turned outdated.                                                  |
 
 `tests/unit/boundaries/eslint-boundaries.spec.ts` checks the import ban on `src/session/` and
 `src/export/`.
@@ -1306,7 +1471,10 @@ the session's save at its end, and the most recent session with its keep line. T
 - the moment the app calls `requestProtection()`;
 - the session list, and opening a kept session other than the most recent one; a read of the most
   recent one that fails shows nothing yet, where the design shows the list with that session's row
-  failed to open (chunk 14).
+  failed to open (chunk 14);
+- the review and the exports of a Jam's parts (v3.2 chunk 30): the codec keeps and reads a Jam's
+  doodle, its played-notes clock and its raw doodle notes into the decoded session's `jam`, but
+  nothing shows or exports them yet.
 
 The loader imports the port, the policy and the settings codec, so they are in the entry chunk;
 building my instrument is loaded on demand, only when its record reads; the kept-session

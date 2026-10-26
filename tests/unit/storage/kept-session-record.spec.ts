@@ -14,7 +14,7 @@ import {
 } from '@/session/session-history'
 import type { SessionSettings } from '@/session/session-types'
 import { upgradedKeptBody, upgradedKeptSummary } from '@/storage/migrations/kept-sessions-v2'
-import { upgradedKeptBodyV4 } from '@/storage/migrations/kept-sessions-v4'
+import { upgradedKeptBodyV4, upgradedKeptSummaryV4 } from '@/storage/migrations/kept-sessions-v4'
 import type { RecordVersions } from '@/storage/record-envelope'
 import {
   decodeKeptSession,
@@ -146,6 +146,7 @@ describe('encodeKeptSession on a five-phrase session with played notes and ackno
         'playedNotesKept',
         'recordedByAppVersion',
         'sessionSeed',
+        'isJam',
       ].sort(),
     )
     expect(typeof records.summary.presetLabel).toBe('string')
@@ -181,8 +182,9 @@ describe('encodeKeptSession on a five-phrase session with played notes and ackno
 
   // @test-link [[entity_kept_session_record]]
   // @test-link [[module_kept_session_jam_upgrade_step]]
-  it('writes the summary at data version 2, the body at 4 with no doodle, the played notes at 1, by the app version given, the clef treble', () => {
-    expect(records.summary.dataVersion).toBe(2)
+  it('writes the summary at data version 4 as no Jam, the body at 4 with no doodle, the played notes at 1, by the app version given, the clef treble', () => {
+    expect(records.summary.dataVersion).toBe(4)
+    expect(records.summary.isJam).toBe(false)
     expect(records.body.dataVersion).toBe(4)
     expect(Object.hasOwn(records.body, 'doodle')).toBe(false)
     expect(records.playedNotes!.dataVersion).toBe(1)
@@ -340,9 +342,10 @@ describe('what a kept phrase holds in place of the musical profile', () => {
  */
 function upgraded(stored: StoredKeptSession, summary: unknown, body: unknown): StoredKeptSession {
   const bodyV2 = upgradedKeptBody(body, APP_VERSION) ?? body
+  const summaryV2 = upgradedKeptSummary(summary, APP_VERSION) ?? summary
   return {
     ...stored,
-    summary: upgradedKeptSummary(summary, APP_VERSION) ?? summary,
+    summary: upgradedKeptSummaryV4(summaryV2, APP_VERSION) ?? summaryV2,
     body: upgradedKeptBodyV4(bodyV2, APP_VERSION) ?? bodyV2,
   }
 }
@@ -457,7 +460,7 @@ describe("the preset label a new session's summary records", () => {
     [{ kind: 'preset', presetId: 'reel' }, 'Reel'],
     [{ kind: 'custom', baseId: 'jazz' }, 'Custom, based on Jazz'],
     [{ kind: 'custom', baseId: null }, 'Custom'],
-  ] as const)('records %j as "%s", at data version 2', (selection, label) => {
+  ] as const)('records %j as "%s", at data version 4', (selection, label) => {
     const kept = encodeKeptSession(
       historyOf(records, 'bb-tenor', selection),
       { ...KEPT_FACTS, favorites: [1] },
@@ -465,7 +468,7 @@ describe("the preset label a new session's summary records", () => {
     )
 
     expect(kept.summary.presetLabel).toBe(label)
-    expect(kept.summary.dataVersion).toBe(2)
+    expect(kept.summary.dataVersion).toBe(4)
     expect(decoded(storedRecords(kept)).summary.presetLabel).toBe(label)
   })
 

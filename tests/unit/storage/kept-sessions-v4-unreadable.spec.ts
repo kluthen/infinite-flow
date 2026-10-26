@@ -1,18 +1,20 @@
 // @vitest-environment node
 /**
- * The upgrade step to data version 4 over bodies it cannot read: a database a v3.1 tab left at
+ * The upgrade step to data version 4 over records it cannot read: a database a v3.1 tab left at
  * data version 3, holding one readable session and v3.1 bodies the data version 2 reader refuses
  * (a damaged intent, a stored request holding a rhythm lock group or a steering block, a doodle
  * key, a body still at data version 1), opens at data version 4, the readable one carried over and
- * every other left as stored, its session read as unreadable; malformed stored values of every
- * kind never make the step throw or the open fail; a v3.1 tab open meanwhile becomes outdated.
+ * every other left as stored, its session read as unreadable; so do v3.1 session-wide records the
+ * data version 2 reader refuses (a damaged field, a Jam mark, a record still at data version 1);
+ * malformed stored values of every kind never make the step throw or the open fail; a v3.1 tab
+ * open meanwhile becomes outdated.
  */
 
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import { DATABASE_DATA_VERSION } from '@/storage/database'
-import { upgradedKeptBodyV4 } from '@/storage/migrations/kept-sessions-v4'
+import { upgradedKeptBodyV4, upgradedKeptSummaryV4 } from '@/storage/migrations/kept-sessions-v4'
 import { isKeptPhraseRefusal } from '@/storage/records/kept-phrase-parsers'
 import {
   parseKeptSessionBodyV2,
@@ -106,14 +108,58 @@ describe('a data version 3 database holding v3.1 bodies step 4 cannot read', () 
   // @test-link [[module_kept_session_jam_upgrade_step]]
   // @test-link [[rule_earlier_sessions_open_without_doodle]]
   it.each(UNREADABLE.map(([name]) => name))(
-    'leaves the body with %s as stored, its session read as unreadable',
+    'leaves the body with %s as stored, the summary carried over, its session read as unreadable',
     async (name) => {
       const after = await rawSession(factory, name)
       const stored = seeded.get(name)!
 
-      expect(after).toStrictEqual(stored)
+      expect(after.body).toStrictEqual(stored.body)
+      expect(after.playedNotes).toStrictEqual(stored.playedNotes)
+      expect(after.summary).toMatchObject({ dataVersion: 4, isJam: false })
       expect(decodeKeptSession(after)).toEqual({ reading: 'unreadable' })
       expect(upgradedKeptBodyV4(stored.body, V32_APP_VERSION)).toBeNull()
+    },
+  )
+})
+
+// @test-link [[module_kept_session_jam_upgrade_step]]
+// @test-link [[rule_earlier_sessions_open_without_doodle]]
+describe('a data version 3 database holding v3.1 session-wide records step 4 cannot read', () => {
+  /** Each unreadable session-wide record, by name, over a valid v3.1 one. */
+  const UNREADABLE: readonly (readonly [string, (summary: unknown) => unknown])[] = [
+    ['a damaged field', (summary) => edited(summary, ['favoritesCount'], -1)],
+    ['a Jam mark', (summary) => edited(summary, ['isJam'], false)],
+    ['a declined suggestion', (summary) => edited(summary, ['suggestionDeclined'], false)],
+    ['a data version of 1', (summary) => edited(summary, ['dataVersion'], 1)],
+  ]
+  let factory: IDBFactory
+  let seeded: Map<string, StoredKeptSession>
+
+  beforeAll(async () => {
+    factory = freshFactory()
+    const valid = v31Session()
+    seeded = new Map(
+      UNREADABLE.map(([name, damage]) => [name, { ...valid, summary: damage(valid.summary) }]),
+    )
+    await seedVersion3(
+      factory,
+      [...seeded].flatMap(([key, stored]) => sessionWrites({ key, stored })),
+    )
+    expect((await openV32(factory)).status()).toBe('ready')
+  }, 30_000)
+
+  // @test-link [[module_kept_session_jam_upgrade_step]]
+  // @test-link [[rule_earlier_sessions_open_without_doodle]]
+  it.each(UNREADABLE.map(([name]) => name))(
+    'leaves the session-wide record with %s as stored, its session read as unreadable',
+    async (name) => {
+      const after = await rawSession(factory, name)
+      const stored = seeded.get(name)!
+
+      expect(after.summary).toStrictEqual(stored.summary)
+      expect(after.body).toMatchObject({ dataVersion: 4, appVersion: V32_APP_VERSION })
+      expect(decodeKeptSession(after)).toEqual({ reading: 'unreadable' })
+      expect(upgradedKeptSummaryV4(stored.summary, V32_APP_VERSION)).toBeNull()
     },
   )
 })
@@ -159,6 +205,22 @@ describe('the upgrade step to data version 4 over malformed stored bodies', () =
   const bodies = malformedBodies(valid.body)
 
   // @test-link [[module_kept_session_jam_upgrade_step]]
+  it('reads the valid session-wide record, and gives no rewrite of malformed ones, never throwing', () => {
+    expect(upgradedKeptSummaryV4(valid.summary, V32_APP_VERSION)).not.toBeNull()
+    const malformed: readonly (readonly [string, unknown])[] = [
+      ['a string', 'a kept session'],
+      ['null', null],
+      ['a Map', new Map<string, unknown>([['dataVersion', 2]])],
+      ['an ill-typed app version', edited(valid.summary, ['appVersion'], 3)],
+      ['a missing field', edited(valid.summary, ['sessionSeed'], REMOVE)],
+      ['a deeply nested comment', edited(valid.summary, ['comment'], nested(300))],
+    ]
+    for (const [name, value] of malformed)
+      expect(upgradedKeptSummaryV4(value, V32_APP_VERSION), name).toBeNull()
+    expect(upgradedKeptSummaryV4(valid.summary, '')).toBeNull()
+  })
+
+  // @test-link [[module_kept_session_jam_upgrade_step]]
   it('reads the valid body it is built over, so each malformed one differs only as named', () => {
     expect(upgradedKeptBodyV4(valid.body, V32_APP_VERSION)).not.toBeNull()
   })
@@ -173,7 +235,7 @@ describe('the upgrade step to data version 4 over malformed stored bodies', () =
     let failure: unknown = null
     try {
       rewrittenKeptBodyRecord(
-        { phrases: parseKeptSessionBodyV2(valid.body), doodle: null },
+        { phrases: parseKeptSessionBodyV2(valid.body), doodle: null, playedNotesClock: null },
         () => false,
         '',
       )
