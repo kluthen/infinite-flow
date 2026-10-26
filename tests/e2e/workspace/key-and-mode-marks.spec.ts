@@ -86,13 +86,21 @@ async function expectReelMarks(page: Page): Promise<void> {
   await expectMarks(page, 'Written key', [], null)
 }
 
+/** Intent: the field holding the named key or mode radiogroup, with its notes. */
+function field(page: Page, label: 'Written key' | 'Collection'): Locator {
+  return page.locator('.field-group').filter({ has: group(page, label) })
+}
+
 /** Intent: no marks and no note on either control. */
 async function expectNoMarks(page: Page): Promise<void> {
   await expectMarks(page, 'Collection', [], null)
   await expectMarks(page, 'Written key', [], null)
-  await expect(page.locator('.control-group .field-note', { hasText: 'is meant for' })).toHaveCount(
-    0,
-  )
+  for (const label of ['Collection', 'Written key'] as const) {
+    await expect(field(page, label)).toHaveCount(1)
+    await expect(
+      field(page, label).locator('.field-note', { hasText: 'is meant for' }),
+    ).toHaveCount(0)
+  }
 }
 
 /** Intent: one radio is the checked option of its group. */
