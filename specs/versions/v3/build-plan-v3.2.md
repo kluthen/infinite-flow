@@ -1,6 +1,8 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v19 (2026-10-26): v18 with wave 3's preflight corrections and the owner's bundle ruling
+Status: v20 (2026-10-26): v19 with chunk 16's finding written in (spec D439): chunk 19 carries the
+saved lock, allowed changes and allowed groups into Start and the Idle pre-generation's start, its
+Files, Scope, Done when and split rule to match, and runs the corpus guard. v19 (2026-10-26): v18 with wave 3's preflight corrections and the owner's bundle ruling
 written in (spec D437, D438): chunk 16's re-lock only from locked bars with sixteenth notes, its
 tenser flag's condition, Files on the session's engine and pre-generation plan (not the seed plan),
 atoms and drift checks, and gate CR for `module_session_ready_phrases`' likely wording at wave 3's
@@ -315,7 +317,7 @@ The [build workflow](build-workflow.md) holds for v3.2 with release name `v3.2`:
 `v3.2-w<n>` in `/home/bastien/work/infinite_flow-v3.2-w<n>`, chunk branches `v3.2-c<id>-<slug>` in
 `/home/bastien/work/infinite_flow-v3.2-c<id>`. v3.2's own:
 
-- **Corpus guard** (a chunk check): chunks 6, 8, 9, 10, 11, 12, 15, 16 and 18, which touch
+- **Corpus guard** (a chunk check): chunks 6, 8, 9, 10, 11, 12, 15, 16, 18 and 19, which touch
   generation or the session's draws, run chunk 2's two corpora (the `ifk3.` phrase corpus and the
   Vary settings draws), v3.1's `v3.0-neutral-jazz.json` corpus, v3.0's `ifk1-v2.0.json` corpus and
   the cold-generation goldens unchanged. Red means a request with none of the new fields, or Vary
@@ -1627,7 +1629,8 @@ dependent shown under its switch, appearing and leaving at once, only at Idle an
 mode, its read-only state) and `ToggleList.vue` (a list of toggles, its read-only and disabled
 states), which chunk 31 reuses for Jam's lock; each new session-mode setting a `settings` record of
 its own in the `sessionOptions` group, no migration, a missing record taking its default; the three
-join `settingsKeyOf`.
+join `settingsKeyOf`; the session controller holds the three saved choices as it holds Vary
+settings' flag and passes them to Start and to the Idle pre-generation's start.
 
 - **Goal:** the Rhythm lock with its Allowed rhythm changes, and Vary settings' What may vary, in
   "During a session", saved, with Vary settings unavailable when no move exists, and each change at
@@ -1642,6 +1645,14 @@ join `settingsKeyOf`.
     review mode.
   - **Saving**: each a record, saved when changed, never during a session; tolerant loading (an
     invalid value takes its default; a stored "Rhythm" kept while the lock disables it).
+  - **Into the session** (spec D439): the session controller holds the saved lock, allowed
+    changes and allowed groups (`src/components/workspace/workspace-session-settings.ts`, beside
+    the Vary settings flag), and both Start (`workspace-session-start.ts`) and the Idle
+    pre-generation's `startOf` (`workspace-pregeneration.ts`) put them into the session's settings
+    in place of today's lock off, no change and every group, so a pre-generated phrase's request,
+    its phrase 1→2 plan included, is the one the session re-derives. The stale-phrase comparison
+    (`workspace-stale-phrase.ts`) and `phraseOneSettings` (`src/session/stale-phrase-one.ts`) keep
+    the lock off and every group: neither reaches a request.
   - **Pre-generation** (chunk 26 folded in, spec D416): the lock, the allowed changes and the groups
     join `settingsKeyOf` (`src/components/workspace/workspace-pregeneration.ts`), so a change at
     Idle discards the prepared phrases whether or not it acts on phrases then; the C10.5 matrix for
@@ -1650,9 +1661,14 @@ join `settingsKeyOf`.
 - **Files:** `src/components/controls/SessionOptionsControls.vue`, `ToggleList.vue` (new),
   `FieldDependent.vue` (new), `src/components/workspace/use-session-options.ts`,
   `src/storage/records/settings-record.ts`, `setting-defaults.ts`,
-  `src/components/workspace/workspace-pregeneration.ts`; tests
+  `src/components/workspace/workspace-pregeneration.ts`, `workspace-session-start.ts`,
+  `workspace-session-settings.ts`, `workspace-session-controller.ts`,
+  `workspace-session-controller-types.ts` and `workspace-session-active.ts` (the last two type
+  additions: the controller's state and setters, Start's sides); tests
   `tests/unit/components/controls/ToggleList.spec.ts` (new),
   `tests/unit/components/workspace/workspace-pregeneration*.spec.ts`,
+  `workspace-session-controller-saved-options.spec.ts`,
+  `workspace-session-controller-pregeneration.spec.ts`,
   `tests/e2e/workspace/rhythm-lock-controls.spec.ts` (new),
   `tests/e2e/workspace/vary-settings-groups.spec.ts` (new),
   `tests/e2e/storage/session-options-v32.spec.ts` (new), the three new end-to-end specs added to
@@ -1674,13 +1690,19 @@ join `settingsKeyOf`.
   `rule_vary_settings_allowed_groups`, `rule_vary_settings_needs_legal_move`; (v3.0)
   `req_idle_pregeneration`, `rule_saved_setting_is_players_choice`, `rule_no_save_during_session`;
   the captures `ui_field_dependent`, `ui_toggle_list`, `entity_session_option_records` (wave 3's
-  preflight). Drift check: `module_session_vary_settings_flag`, `module_idle_pregeneration_queue`.
+  preflight); (v3.0) `rule_pregenerated_phrase_matches_session`; `module_session_rhythm_lock`
+  (captured, chunk 16). Drift check: `module_session_vary_settings_flag`,
+  `module_idle_pregeneration_queue`.
 - **Revisions:** revise `rule_pregeneration_discarded_on_change` (session mode's three triggers);
   `rule_settings_saved_on_change`, `rule_saved_settings_load_tolerantly` (their session-mode halves;
   contract, CS).
 - **Done when:**
   - The lock and each kind set in the controls reach the session's requests; the list is hidden and
     kept while the lock is off.
+  - With a saved lock on, kinds allowed and a group off, `startOf`'s settings equal Start's, and
+    with pre-generation on (fake clock, instant generator) the ready phrases are spent at Start and
+    the session's phrases are identical with it on and off, changes included. With the defaults,
+    Start and `startOf` give v3.1's settings and the corpora pass.
   - Each group toggled off never moves over a seeded session; "Rhythm" disabled under the lock, its
     stored value back when the lock goes off.
   - Choices that leave no move show the unavailable state with its sentence; the stored On returns
@@ -1689,10 +1711,13 @@ join `settingsKeyOf`.
   - Each change of the three at Idle empties the prepared phrases (queue spy); a tempo change does
     not.
   - Nothing in the live view changes on a changed phrase or a forced bend; v3.2 H2 and H3 written.
-- **Verification:** chunk checks; the accessibility checks of what it adds; desktop and phone debug
-  runs; the bundle at the wave gate.
-- **Split rule:** 19a the controls and saving (the controls component, the two new components, the
-  composable, the record and its defaults), 19b the pre-generation key and its matrix.
+- **Verification:** chunk checks with the corpus guard (19a); the accessibility checks of what it
+  adds; desktop and phone debug runs; the bundle at the wave gate.
+- **Split rule:** 19a the saved choices into the session (the record and its defaults, the
+  controller's holders, state and sides, Start, and pre-generation's `startOf`, key and matrix;
+  three of its eight files are small, and with nothing yet to change the defaults the app keeps
+  v3.1's behaviour after it), 19b the controls (the controls component, the two new components,
+  the composable forwarding to the controller and saving, the end-to-end specs, v3.2 H2 and H3).
 
 ### Chunk 20 — Jam mode: the mode switch, Jam's code on demand and Jam's Idle
 

@@ -962,3 +962,10 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   figure.** The owner's. Information only: rolldown's re-splitting moved the entry chunk by about
   18 kB in wave 2 with no change in what loads. The 300 KiB entry budget and what
   `verify:boundaries` gates on are unchanged. Now in: [build plan v3.2, workflow deltas and M4](versions/v3/build-plan-v3.2.md#m4--the-first-load-bundle).
+
+- **D439 (2026-10-26): chunk 19 carries the saved lock, allowed changes and allowed groups into
+  Start and the Idle pre-generation's start.** `spec-writer`'s, from chunk 16's finding: both still
+  pass the lock off, no change and every group, so the Idle choice never reached a session and a
+  pre-generated phrase 1→2 plan could not match a session started with the lock on (C10.5). Chunk
+  19 gains the Start path's files, a matching Done when, the corpus guard and a re-cut split rule.
+  Now in: [build plan v3.2, chunk 19](versions/v3/build-plan-v3.2.md#chunk-19--the-rhythm-lock-and-what-may-vary-in-the-controls).
