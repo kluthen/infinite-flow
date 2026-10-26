@@ -48,3 +48,11 @@ backup → validate → graceful reload. Never store secrets on the VPS. Ask bef
 This project records its declared intent with ATD: atoms in `docs/*.atom.md`, linked from code by
 `@spec-link` / `@test-link`, managed with the `atd` tool. `documentalist` owns it; leaders gate
 every change through it (skill `intent-gating-protocol`).
+
+## Dependency security
+
+This project lists the technologies it runs on in `.tech` (platforms,
+versions, accepted risks); package dependencies are read from the
+lockfiles. Known vulnerabilities land in `SECURITY_TODO.md` from the daily
+`cve-watch` sweep. `security-advisor` keeps both; leaders call it before
+and after any dependency change.

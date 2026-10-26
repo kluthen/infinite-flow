@@ -1,0 +1,70 @@
+# Technologies this project depends on. Kept by security-advisor (dev_team),
+# read by cve-watch. Package dependencies come from the lockfiles; list here
+# only what they don't cover.
+schema = 1
+updated = 2026-10-26
+
+[stack]
+languages = ["TypeScript 6.0"]
+frameworks = ["Vue 3.5", "VexFlow 5.0"]
+runtime = ["Node.js 22 (build, dev)", "nginx 1.30 (serves the static build in production)"]
+tooling = ["Vite 8.3", "vite-plugin-pwa 1.3", "Tailwind CSS 4.3", "Vitest 5.0", "Playwright 1.63", "ESLint 10.11", "vue-tsc 3.3"]
+deployment = ["Docker multi-stage image (node:22-alpine build, nginxinc/nginx-unprivileged:1.30-alpine runtime)", "Docker Compose, built on the VPS with --pull", "behind the shared VPS's Caddy (owned by another app, not pinned here)", "VPS host x86_64"]
+lockfiles = ["package-lock.json"]
+
+# Runtime versions below are those of the nginx 1.30 image (branch nginx-1.30,
+# commit 48be99a). They take effect once that branch is merged and deployed:
+# as of 2026-10-26 (read-only check) the VPS still runs nginx 1.28.2, OpenSSL
+# 3.5.5, Alpine 3.23.3 (nginxinc/nginx-unprivileged:1.28-alpine). The VPS host
+# is x86_64 (32-bit-only advisories such as OpenSSL CVE-2026-31789 do not
+# apply) and caches no nginx or node base image, so its first build pulls.
+
+# Production web server: the only component that runs in production. It serves
+# dist/ as static files on :8080, behind the VPS's TLS-terminating Caddy.
+[[platform]]
+name = "nginx"
+version = "1.30.6"
+cpe = "cpe:2.3:a:f5:nginx_open_source"
+source = "Dockerfile runtime stage FROM nginxinc/nginx-unprivileged:1.30-alpine (floating minor tag; image of 2026-10-19, digest f5116ed4..., read offline 2026-10-26). Rebuilds pick up later 1.30.x. Production: 1.28.2 until branch nginx-1.30 is deployed"
+
+# OS of the runtime image (shipped). apk packages are not scanned by cve-watch:
+# on 2026-10-26 OSV Alpine:v3.24 listed zlib 1.3.2-r0 (CVE-2026-85091, gzFile
+# API, not used by nginx's deflate-stream gzip) and curl/libcurl 8.22.0-r0
+# (24 advisories, curl unused at runtime; healthcheck uses busybox wget), both
+# fixed in the v3.24 repo (zlib 1.3.2-r1, curl 8.23.0-r0), arriving with the
+# next upstream rebuild of the tag. musl 1.2.6-r2, pcre2 10.49-r0, busybox
+# 1.37.0-r31 had none.
+[[platform]]
+name = "Alpine Linux"
+version = "3.24.2"
+cpe = "cpe:2.3:o:alpinelinux:alpine_linux"
+source = "base of nginxinc/nginx-unprivileged:1.30-alpine (/etc/alpine-release, read offline 2026-10-26). Production: 3.23.3 until branch nginx-1.30 is deployed"
+
+# TLS library in the runtime image (libssl3/libcrypto3). nginx listens in plain
+# HTTP on :8080; TLS is terminated by Caddy, so nginx does not use it for TLS.
+[[platform]]
+name = "OpenSSL"
+version = "3.5.9"
+cpe = "cpe:2.3:a:openssl:openssl"
+source = "apk libssl3/libcrypto3 3.5.9-r0 in nginxinc/nginx-unprivileged:1.30-alpine (read offline 2026-10-26). Production: 3.5.5 until branch nginx-1.30 is deployed"
+
+# Build stage only: runs `npm ci` and `vite build`, never shipped.
+[[platform]]
+name = "Node.js (Docker build stage)"
+version = "22.23.4"
+cpe = "cpe:2.3:a:nodejs:node.js"
+source = "Dockerfile build stage FROM node:22-alpine (floating tag; Docker Hub tag = 22.23.4-alpine since 2026-10-22, Alpine 3.24). The VPS builds with --pull (branch nginx-1.30), so it gets the current tag; the locally cached node:22-alpine is still 22.23.3 (2026-09-23). package.json engines: >=22.12.0"
+
+# Developer machine: runs the Vite dev server, Vitest, Playwright.
+[[platform]]
+name = "Node.js (dev host)"
+version = "22.23.4"
+cpe = "cpe:2.3:a:nodejs:node.js"
+source = "host (node --version on the Linux dev machine)"
+
+# Dev container (optional dev environment).
+[[platform]]
+name = "Node.js (devcontainer)"
+version = "22.23.2"
+cpe = "cpe:2.3:a:nodejs:node.js"
+source = ".devcontainer/Dockerfile FROM mcr.microsoft.com/devcontainers/typescript-node:22-bookworm (floating tag); 22.23.2 in the locally cached image (2026-09-10)"
