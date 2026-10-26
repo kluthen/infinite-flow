@@ -24,13 +24,13 @@ COPY . .
 RUN npm run build
 
 # ---- runtime stage ----------------------------------------------------------
-FROM nginxinc/nginx-unprivileged:1.28-alpine AS runtime
+FROM nginxinc/nginx-unprivileged:1.30-alpine AS runtime
 
 LABEL org.opencontainers.image.title="Infinite Flow" \
       org.opencontainers.image.description="Browser-only musical phrase workspace, served as a static PWA." \
       org.opencontainers.image.licenses="MIT" \
       org.opencontainers.image.source="https://github.com/kluthen/infinite-flow" \
-      org.opencontainers.image.base.name="nginxinc/nginx-unprivileged:1.28-alpine"
+      org.opencontainers.image.base.name="nginxinc/nginx-unprivileged:1.30-alpine"
 
 COPY docker/security-headers.conf /etc/nginx/security-headers.conf
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
