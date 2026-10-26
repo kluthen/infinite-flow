@@ -12,6 +12,7 @@ import type {
   ThemePreference,
 } from '../../src/composables/use-generation-session'
 import type { SavedDataLoad } from '../../src/storage-bootstrap'
+import { DEFAULT_SESSION_OPTIONS } from '../../src/storage/records/setting-defaults'
 import type { SettingChanges } from '../../src/storage/settings-saver'
 import { fakeSavedData } from './components/workspace/fake-workspace-dependencies'
 
@@ -264,7 +265,11 @@ describe('App: the saved data it is mounted with', () => {
     const wrapper = mount(App, {
       props: {
         savedData: fakeSavedData({
-          sessionOptions: { varySettings: true, tensionAcrossPhrases: true, risingTempo: false },
+          sessionOptions: {
+            ...DEFAULT_SESSION_OPTIONS,
+            varySettings: true,
+            tensionAcrossPhrases: true,
+          },
         }),
       },
       global: { stubs: STUBS },

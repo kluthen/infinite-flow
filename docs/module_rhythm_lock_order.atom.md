@@ -1,6 +1,6 @@
 ---
 id: module_rhythm_lock_order
-status: DRAFT
+status: REVIEW
 tags: [v3, release-v3.2, rhythm-lock, generation]
 layer: ARCHITECTURE
 version: 0.2

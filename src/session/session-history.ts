@@ -82,7 +82,9 @@ export interface ReviewedPhrase {
  * harmony its chord symbols come from); `intent` holds the resolved request with the density it
  * was generated with, the seed and the carry-in; `tempo` is the tempo it played at, from its
  * phrase-sounding output. `isRepeat` and
- * `repeatOf` are the internal repeat mark, which no view shows. `acknowledgements` holds the
+ * `repeatOf` are the internal repeat mark, which no view shows; `relock`, the internal re-lock
+ * mark of the phrase whose bars the rhythm lock locked after a narrow-window step-down, which no
+ * view shows and no kept session holds. `acknowledgements` holds the
  * acknowledged expected notes of the phrase, in arrival order; `playedNotes` the played notes whose
  * onsets fall inside it, by onset; `clef` the clef the session's instrument was drawn in at its
  * start.
@@ -99,6 +101,7 @@ export interface SessionHistoryRecord extends ReviewedPhrase {
   readonly tempo: number
   readonly isRepeat: boolean
   readonly repeatOf?: number
+  readonly relock?: true
   readonly acknowledgements: readonly ExpectedNoteIdentity[]
   readonly playedNotes: readonly RecordedPlayedNote[]
   readonly clef: InstrumentClef
@@ -362,11 +365,11 @@ function checkedAcknowledgement(identity: ExpectedNoteIdentity): {
 
 /**
  * Intent: the deep-frozen record of one sounded phrase at the tempo its output carries, in the
- * session's clef.
+ * session's clef, with its repeat and re-lock marks when it has them.
  */
 // @spec-link [[service_session_history]]
 function recordOf(output: SoundingOutput, clef: InstrumentClef): SessionHistoryRecord {
-  const { phraseNumber, origin, intent, outcome, repeatOf } = output.phrase
+  const { phraseNumber, origin, intent, outcome, repeatOf, relock } = output.phrase
   return deepFreeze({
     phraseNumber,
     startedAt: output.at,
@@ -375,6 +378,7 @@ function recordOf(output: SoundingOutput, clef: InstrumentClef): SessionHistoryR
     tempo: output.tempo,
     isRepeat: origin === 'repeat',
     ...(repeatOf === undefined ? {} : { repeatOf }),
+    ...(relock === undefined ? {} : { relock }),
     acknowledgements: [],
     playedNotes: [],
     clef,

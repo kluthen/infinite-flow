@@ -44,11 +44,13 @@ export function cancelDropped(lookAhead: LookAhead | undefined): readonly Sessio
 /**
  * Intent: request one rung for the look-ahead phrase at `at`: build its intent now from the
  * look-ahead's basis (the window read now, the step-down memory updated) with the planned seed of
- * that phrase's rung, give it the next attempt id, and make it the attempt in flight. A carry-in
+ * that phrase's rung and the look-ahead's rhythm lock group, give it the next attempt id, and make
+ * it the attempt in flight, remembering whether it carries the re-lock group. A carry-in
  * attempt also asks to be woken at the phrase's cutover time when that is still ahead, so the
  * cutover runs on time with no other event.
  */
 // @spec-link [[module_session_seed_plan]]
+// @spec-link [[module_session_rhythm_lock]]
 function requestRung(
   context: EngineContext,
   state: EngineState,
@@ -56,15 +58,16 @@ function requestRung(
   at: AudioTime,
 ): Step {
   const lookAhead = lookAheadOf(state)
-  const { intent, steppedDown, step } = buildRungIntent(
+  const { intent, steppedDown, step, relock } = buildRungIntent(
     context,
     lookAhead.previous,
     lookAhead.basis,
     rung,
     state.steppedDown,
+    lookAhead.rhythmLock,
   )
   const attemptId = state.nextAttemptId
-  const attempt: Attempt = { attemptId, rung, step, intent, stage: 'generating' }
+  const attempt: Attempt = { attemptId, rung, step, intent, relock, stage: 'generating' }
   const cutover = cutoverAt(lookAhead.deadline)
   const wake: readonly SessionOutput[] =
     step === 'carry-in' && cutover > at ? [{ kind: 'wake-at', at: cutover }] : []

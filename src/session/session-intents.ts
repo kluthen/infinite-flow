@@ -30,11 +30,16 @@ import {
 } from '../domain/presets/key-and-mode-restriction'
 import type { PresetSelection } from '../domain/presets/preset-selection'
 import type { InstrumentProfile } from '../domain/profile/instrument-profile'
+import {
+  RHYTHM_CHANGE_KINDS,
+  type RhythmChangeKind,
+} from '../domain/generation/request-rhythm-lock'
 import { MY_INSTRUMENT_ID } from '../domain/profile/instrument-profiles'
 import type { RegisterId } from '../domain/profile/register-id'
 import type { RegisterChoice } from '../domain/profile/register-intent'
 import type { RegisterWindowCandidate } from '../domain/profile/register-window-derivation'
 import type { Seed } from '../domain/random/seed'
+import type { PhraseRhythmLock } from './rhythm-lock-session'
 import { phraseAttemptSeed } from './session-seed-plan'
 import { VARY_SETTINGS_GROUPS, type AllowedGroups } from './settings-mutation-scales'
 import {
@@ -70,12 +75,16 @@ export type AttemptPlan =
   | { readonly step: 'carry-in'; readonly carryIn: CarryIn }
   | { readonly step: 'standalone'; readonly register: RegisterChoice }
 
-/** A built intent and the step-down memory after building it. */
+/**
+ * A built intent, the step-down memory after building it, and whether it carries the re-lock
+ * group (built with Eighth by the step-down while a re-lock is pending).
+ */
 // @spec-link [[rule_session_density_only_steps_down]]
 // @spec-link [[module_session_density_step_down]]
 export interface BuiltIntent {
   readonly intent: GenerationIntent
   readonly steppedDown: boolean
+  readonly relock: boolean
 }
 
 /**
@@ -179,13 +188,41 @@ function rhythmLockOnOf(settings: SessionSettings): boolean {
 }
 
 /**
+ * Intent: a fresh copy of the allowed rhythm changes, refused unless it is a list of known kinds,
+ * each once, in RHYTHM_CHANGE_KINDS order.
+ */
+function allowedRhythmChangesCopy(settings: SessionSettings): RhythmChangeKind[] {
+  const value: unknown = settings.allowedRhythmChanges
+  if (!Array.isArray(value))
+    throw new SessionEngineError(`The allowed rhythm changes must be a list, not ${value}.`)
+  let previousIndex = -1
+  return value.map((kind: unknown) => {
+    const index = RHYTHM_CHANGE_KINDS.indexOf(kind as RhythmChangeKind)
+    if (index === -1)
+      throw new SessionEngineError(
+        `The allowed rhythm change ${JSON.stringify(kind)} is none of ${RHYTHM_CHANGE_KINDS.join(', ')}.`,
+      )
+    if (index === previousIndex)
+      throw new SessionEngineError(`The allowed rhythm change ${String(kind)} is repeated.`)
+    if (index < previousIndex)
+      throw new SessionEngineError(
+        `The allowed rhythm change ${String(kind)} is out of order: ${RHYTHM_CHANGE_KINDS.join(', ')}.`,
+      )
+    previousIndex = index
+    return kind as RhythmChangeKind
+  })
+}
+
+/**
  * Intent: an independent, deep-frozen copy of the chosen settings, so nothing the caller does to
  * its own objects after the start can reach the session. The controls and the figure levels are
  * validated on the way, the selection is copied as a plain value, and my instrument's profile,
  * when the settings carry it, is kept: settings whose profile does not match their instrument are
  * refused. The restriction frozen at the session's start, when they carry one, is kept, validated.
- * Vary settings' allowed groups and whether the rhythm lock is on are kept, validated: settings
- * without exactly the six groups, each a boolean, or without a boolean lock state are refused.
+ * Vary settings' allowed groups, whether the rhythm lock is on and its allowed changes are kept,
+ * validated: settings without exactly the six groups, each a boolean, without a boolean lock
+ * state, or whose allowed changes are not known kinds, each once, in their canonical order, are
+ * refused.
  */
 // @spec-link [[rule_session_settings_locked]]
 // @spec-link [[entity_my_instrument]]
@@ -200,21 +237,27 @@ export function freezeSessionSettings(settings: SessionSettings): SessionSetting
     ...restrictionOf(settings),
     allowedGroups: allowedGroupsCopy(settings.allowedGroups),
     rhythmLockOn: rhythmLockOnOf(settings),
+    allowedRhythmChanges: allowedRhythmChangesCopy(settings),
   })
 }
 
 /**
  * Intent: the settings a session starts with: the chosen controls, figure levels and selection,
- * Vary settings' allowed groups and whether the rhythm lock is on, and, when the controls name my
- * instrument, its profile as phrase 1's intent embeds it, so the session generates with the very
- * profile phrase 1 was generated with.
+ * Vary settings' allowed groups, whether the rhythm lock is on and its allowed changes, and, when
+ * the controls name my instrument, its profile as phrase 1's intent embeds it, so the session
+ * generates with the very profile phrase 1 was generated with.
  */
 // @spec-link [[service_session_engine]]
 // @spec-link [[entity_my_instrument]]
 export function sessionSettingsAtStart(
   chosen: Pick<
     SessionSettings,
-    'controls' | 'figureLevels' | 'selection' | 'allowedGroups' | 'rhythmLockOn'
+    | 'controls'
+    | 'figureLevels'
+    | 'selection'
+    | 'allowedGroups'
+    | 'rhythmLockOn'
+    | 'allowedRhythmChanges'
   >,
   phraseOne: GenerationIntent,
 ): SessionSettings {
@@ -226,6 +269,7 @@ export function sessionSettingsAtStart(
     ...(mine ? { instrumentProfile: phraseOne.instrumentProfile } : {}),
     allowedGroups: chosen.allowedGroups,
     rhythmLockOn: chosen.rhythmLockOn,
+    allowedRhythmChanges: chosen.allowedRhythmChanges,
   }
 }
 
@@ -256,7 +300,9 @@ export function resolvedRegister(
  * note density comes from the density in effect, the window reading now and the step-down memory;
  * building it as Eighth for a Sixteenth in effect sets the memory, whatever the attempt's fate. A
  * carry-in attempt keeps its carry-in; a standalone one drops it and fixes its register. My
- * instrument's profile, carried by the settings, goes into every attempt as data.
+ * instrument's profile, carried by the settings, goes into every attempt as data. With the lock
+ * on, the attempt carries its phrase's rhythm lock group: the re-lock group when one is pending
+ * and this attempt is built with Eighth by the step-down, the phrase's group otherwise.
  */
 // @spec-link [[rule_session_settings_locked]]
 // @spec-link [[rule_session_density_only_steps_down]]
@@ -270,6 +316,7 @@ export function buildAttemptIntent(
   plan: AttemptPlan,
   steppedDown: boolean,
   slot: AttemptSlot,
+  rhythmLock: PhraseRhythmLock | undefined,
 ): BuiltIntent {
   const chosen = settings.controls
   const noteDensity = resolveGeneratedNoteDensity(chosen.noteDensity, {
@@ -277,18 +324,26 @@ export function buildAttemptIntent(
     sessionSteppedDown: steppedDown,
   })
   const register = plan.step === 'standalone' ? plan.register : chosen.register
+  const steppedDownNow = noteDensity !== chosen.noteDensity
+  const relockGroup = steppedDownNow ? rhythmLock?.relockGroup : undefined
+  const group = relockGroup ?? rhythmLock?.group
   const input = {
     requestId: seams.providers.nextRequestId(),
     seed: phraseAttemptSeed(seams.sessionSeed, slot.phraseNumber, slot.rung),
     controls: { ...chosen, noteDensity, register },
     figureLevels: sessionFigureLevels(settings),
     ...suppliedProfileOf(settings),
+    ...(group === undefined ? {} : { rhythmLock: group }),
   }
   const intent =
     plan.step === 'carry-in'
       ? makeCarryInGenerationIntent({ ...input, carryIn: plan.carryIn })
       : makeGenerationIntent(input)
-  return { intent, steppedDown: steppedDown || noteDensity !== chosen.noteDensity }
+  return {
+    intent,
+    steppedDown: steppedDown || steppedDownNow,
+    relock: relockGroup !== undefined,
+  }
 }
 
 /**

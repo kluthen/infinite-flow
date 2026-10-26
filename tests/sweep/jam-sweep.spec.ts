@@ -6,7 +6,8 @@
  * scripted generator, and real runs on cases of different note densities: a Jam with no steering
  * block, the lock off and a warm domain plays v3.1's measured session phrase for phrase; session
  * mode with the lock off is today's run; a cold domain gives the same phrase 1 at another time;
- * the lock on yields a census of every phrase against phrase 1.
+ * the lock on yields a census of every phrase against phrase 1, its record and bars agreeing, whose
+ * figures the configuration's lock line prints.
  */
 
 import { describe, expect, it } from 'vitest'
@@ -26,8 +27,10 @@ import { loadDoodleSet } from '../unit/jam/doodle-set'
 import { failureOutcome } from '../unit/session/session-harness'
 import { measuredSession } from './deadline-sweep-measured'
 import {
+  ConfigurationTally,
   NO_ORDERINGS_NOTE,
   attemptTimings,
+  configurationSummaryLines,
   rungShares,
   standaloneFigures,
   type AttemptRecord,
@@ -116,7 +119,8 @@ describe('Jam phrase 1: the extended wait and the baseline ladder', () => {
       generate: (): GeneratedAttempt => {
         calls += 1
         const outcome = calls >= succeedAt ? real : failureOutcome()
-        return { outcome, seconds: charged - 0.1, chargedSeconds: charged, cold: false }
+        const seconds = charged - 0.1
+        return { outcome, seconds, chargedSeconds: charged, orderingSeconds: 0, cold: false }
       },
     }
   }
@@ -205,10 +209,36 @@ describe.each(REAL_CASES.map((sweepCase) => [sweepCase.rhythm.noteDensity, sweep
       const census = record.lockCensus!
       expect(census.phrases).toHaveLength(6)
       expect(census.phrases[0]!.lockClass).toEqual({ kind: 'locked' })
-      const { kept, changesByKind, bends, relocks } = census.counts
+      const { kept, changesByKind, bends, relocks, mismatches } = census.counts
       const changes = Object.values(changesByKind).reduce((sum, count) => sum + count, 0)
       expect(kept + changes + bends).toBe(5)
       expect(relocks).toBe(0)
+      expect(mismatches).toEqual([])
+      const tally = new ConfigurationTally({
+        mode: 'session',
+        tempo: 120,
+        lock,
+        domain: 'warm',
+        steering: false,
+      })
+      tally.add(record, 0)
+      const figures = tally.figures().lockCensus!
+      expect(figures.mismatches.count).toBe(0)
+      expect(figures.forcedBendRate).toBe(figures.shares.bent)
+      expect(figures.changesShare).toBe(figures.shares.changed)
+      const line = configurationSummaryLines(tally.figures()).find((each) =>
+        each.includes('] lock: '),
+      )
+      for (const figure of [
+        'forced bends',
+        'changes',
+        'drew',
+        'normal',
+        'tenser',
+        'bends one allowed change away',
+        'mismatches 0',
+      ])
+        expect(line).toContain(figure)
     })
   },
 )

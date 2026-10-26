@@ -607,3 +607,13 @@ Nothing in `src/` is edited; the token pass waits for the owner's go (gate T2). 
   from `bp-tablet-landscape` up as the phrase-workspace handoff says (an `auto-fill` grid gave one
   in a group's width), each row a `div` holding its `dt` and `dd`; `review-doodle`'s disabled
   button is named by `review-phrase-note`, as its handoff says, with no `field-note`.
+
+## v3.2 wave 3, chunk 19's question, 2026-10-26
+
+- **D350 — A read-only `toggle-list`'s toggles carry `aria-disabled="true"` (2026-10-26).**
+  ARIA allows no `aria-readonly` on a group or a button; the tempo stepper's buttons already use
+  `aria-disabled` while read-only, so the toggles do the same, focusable and unchanged in look.
+  Rejected: a hidden "read-only during a session" description (every other read-only control has
+  no such note, and it would be read on every toggle); nothing (the toggles would sound live).
+  Now in `screens/phrase-workspace/handoff.md` (the "During a session" `toggle-list`s) and the
+  token source's `toggle-list` comment.

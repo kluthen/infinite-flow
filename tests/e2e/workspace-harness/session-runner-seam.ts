@@ -69,6 +69,7 @@ export function changeSettings(controls: Readonly<Record<string, string>>): void
     selection: latest.settings.selection,
     allowedGroups: latest.settings.allowedGroups,
     rhythmLockOn: latest.settings.rhythmLockOn,
+    allowedRhythmChanges: latest.settings.allowedRhythmChanges,
   })
   latest.runner.dispatch({ kind: 'settings-change', at: latest.now(), settings })
 }

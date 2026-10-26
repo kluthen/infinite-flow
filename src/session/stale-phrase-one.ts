@@ -41,6 +41,7 @@ export function phraseOneSettings(
       selection: recorded.selection,
       allowedGroups: ALL_GROUPS_ALLOWED,
       rhythmLockOn: false,
+      allowedRhythmChanges: [],
     },
     phraseOne,
   )

@@ -38,7 +38,12 @@ import {
   type PhraseOneLadder,
   type RhythmDomainState,
 } from './jam-sweep-ladder'
-import { censusOfSession, type SessionLockCensus, type SessionPhraseRhythm } from './lock-census'
+import {
+  censusOfSession,
+  type CensusPhrase,
+  type SessionLockCensus,
+  type VaryTensionStep,
+} from './lock-census'
 
 /** How a run plays: as a Jam, or as a session started from Idle. */
 export type JamMode = 'jam' | 'session'
@@ -118,13 +123,14 @@ function recordingCost(records: AttemptRecord[]): AttemptCost {
   return (generated, request) => {
     const chargedSeconds = measuredAttemptCost(generated, request)
     if (generated === undefined) throw new Error('A measured attempt has an outcome.')
-    const { outcome, seconds } = generated
+    const { outcome, seconds, orderingSeconds } = generated
     records.push({
       phraseNumber: request.phraseNumber,
       kind: request.step,
       seconds,
       chargedSeconds,
       failureCode: outcome.kind === 'generation_failure' ? outcome.code : null,
+      orderingSeconds,
     })
     return chargedSeconds
   }
@@ -143,16 +149,38 @@ function ladderAttemptRecord(attempt: LadderAttempt): AttemptRecord {
 }
 
 /**
- * Intent: the written rhythm of each phrase that sounded in a run, in phrase order, from the
- * generation outcome it sounded with (its provenance's rhythm candidate): phrase 1 is the locked
- * rhythm, repeats sound their phrase's rhythm again.
+ * Intent: each phrase that sounded in a run, in phrase order, as the lock census reads it: its
+ * repeat and re-lock marks, the written bars and lock record of the generation outcome it sounded
+ * with (its provenance), its request's tenser flag, the tension in effect, and the Vary settings
+ * tension step that landed on it, when one did. Phrase 1 is the locked rhythm; a repeat sounds its
+ * phrase's rhythm, and carries its record, again.
  */
-export function soundedPhraseRhythms(run: TimedSession): readonly SessionPhraseRhythm[] {
-  const byNumber = new Map<number, SessionPhraseRhythm>()
+export function censusPhrasesOf(run: TimedSession): CensusPhrase[] {
+  const varySteps = new Map<number, VaryTensionStep>()
+  for (const { output } of run.outputs)
+    if (
+      output.kind === 'settings-changed' &&
+      output.cause === 'mutation' &&
+      output.setting === 'tension'
+    )
+      varySteps.set(output.phraseNumber, { from: output.from, to: output.to })
+  const byNumber = new Map<number, CensusPhrase>()
   for (const { output } of run.outputs)
     if (output.kind === 'phrase-sounding') {
-      const { phraseNumber, outcome } = output.phrase
-      byNumber.set(phraseNumber, { phraseNumber, bars: outcome.provenance.rhythm.bars })
+      const { phraseNumber, origin, relock, intent, outcome } = output.phrase
+      const { rhythm, rhythmLockOutcome, rhythmChange } = outcome.provenance
+      const varyTensionStep = varySteps.get(phraseNumber)
+      byNumber.set(phraseNumber, {
+        phraseNumber,
+        repeat: origin === 'repeat',
+        relock: relock === true,
+        bars: rhythm.bars,
+        ...(rhythmLockOutcome === undefined ? {} : { rhythmLockOutcome }),
+        ...(rhythmChange === undefined ? {} : { rhythmChange }),
+        tenserPhrase: intent.rhythmLock?.tenserPhrase === true,
+        tension: intent.controls.tension,
+        ...(varyTensionStep === undefined ? {} : { varyTensionStep }),
+      })
     }
   return [...byNumber.values()].sort((a, b) => a.phraseNumber - b.phraseNumber)
 }
@@ -228,7 +256,10 @@ export async function runJamCase(config: JamRunConfig, outcomes: OutcomeCache): 
     undefined,
     {
       phraseCount,
-      settings: { rhythmLockOn: lock.on },
+      settings: {
+        rhythmLockOn: lock.on,
+        ...(lock.on ? { allowedRhythmChanges: lock.allowedChanges } : {}),
+      },
       ...(phraseOne?.ready === undefined ? {} : { phraseOne: phraseOne.ready.phraseOne }),
     },
   )
@@ -237,9 +268,7 @@ export async function runJamCase(config: JamRunConfig, outcomes: OutcomeCache): 
     attempts,
     repeats: repeatCount(session),
     shortfalls: runShortfalls(sweepCase, session),
-    lockCensus: lock.on
-      ? censusOfSession(soundedPhraseRhythms(session), lock.allowedChanges)
-      : null,
+    lockCensus: lock.on ? censusOfSession(censusPhrasesOf(session), lock.allowedChanges) : null,
   }
   return { record, session }
 }

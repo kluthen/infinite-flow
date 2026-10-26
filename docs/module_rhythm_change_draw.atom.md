@@ -1,6 +1,6 @@
 ---
 id: module_rhythm_change_draw
-status: DRAFT
+status: REVIEW
 layer: ARCHITECTURE
 tags: [v3, release-v3.2, rhythm-lock, generation, determinism]
 version: 0.2

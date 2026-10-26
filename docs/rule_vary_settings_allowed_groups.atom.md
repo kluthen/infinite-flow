@@ -2,9 +2,12 @@
 id: rule_vary_settings_allowed_groups
 status: DRAFT
 dependents:
+  - [[module_session_lock_and_groups_choices]]
   - [[module_settings_mutation]]
   - [[rule_vary_settings_needs_legal_move]]
   - [[rule_vary_settings_skips_dead_end]]
+  - [[ui_field_dependent]]
+  - [[ui_toggle_list]]
 type: RULE
 priority: 1
 parents:

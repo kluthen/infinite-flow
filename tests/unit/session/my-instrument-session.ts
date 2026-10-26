@@ -44,6 +44,7 @@ export function myInstrumentSettings(instrument: MyInstrument): SessionSettings 
     instrumentProfile: instrument.profile,
     allowedGroups: ALL_GROUPS_ALLOWED,
     rhythmLockOn: false,
+    allowedRhythmChanges: [],
   }
 }
 

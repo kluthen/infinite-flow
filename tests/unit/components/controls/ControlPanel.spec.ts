@@ -39,6 +39,7 @@ describe('ControlPanel', () => {
       'Diatonic enclosure',
       'Chromatic approach',
       'Chromatic enclosure',
+      'Rhythm lock',
       'Rising tempo',
       'Tension across phrases',
       'Vary settings',

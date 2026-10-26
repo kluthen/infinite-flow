@@ -15,6 +15,7 @@ import {
   type LookAhead,
   type LookAheadBasis,
 } from './failure-ladder'
+import type { PhraseRhythmLock } from './rhythm-lock-session'
 import { freezeSessionSettings, resolvedRegister, type AttemptPlan } from './session-intents'
 import { measureSeconds } from './session-timing'
 import {
@@ -61,17 +62,22 @@ export function lookAheadBasis(
 
 /**
  * Intent: a look-ahead opened again from the same phrase before and with the same deadline, its
- * attempts built from new settings, with no attempt in flight: a late result of the old one is
- * then a superseded attempt's.
+ * attempts built from new settings and carrying the rhythm lock groups given for it, with no
+ * attempt in flight: a late result of the old one is then a superseded attempt's.
  */
 // @spec-link [[rule_session_change_applies_at_phrase_boundary]]
-export function reopenedLookAhead(lookAhead: LookAhead, settings: SessionSettings): LookAhead {
+export function reopenedLookAhead(
+  lookAhead: LookAhead,
+  settings: SessionSettings,
+  rhythmLock: PhraseRhythmLock | undefined,
+): LookAhead {
   const { previous, carryIn, basis, deadline } = lookAhead
   return openLookAhead(
     previous,
     carryIn,
     lookAheadBasis(previous, basis.previousSettings, settings, carryIn),
     deadline,
+    rhythmLock,
   )
 }
 

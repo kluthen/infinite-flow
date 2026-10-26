@@ -74,6 +74,7 @@ test('Tension across phrases starts Off between Rising tempo and Vary settings, 
   await gotoSessionHarness(page, DESKTOP, PREGENERATION_OFF)
   await readyToStart(page)
   await expect(page.locator('.control-group-session .field-label')).toHaveText([
+    'Rhythm lock',
     'Rising tempo',
     OPTION,
     'Vary settings',

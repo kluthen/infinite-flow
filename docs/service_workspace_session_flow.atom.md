@@ -53,6 +53,7 @@ dependents:
   - [[module_idle_window_width_density]]
   - [[module_session_adaptive_tempo_control]]
   - [[module_session_controller_loss]]
+  - [[module_session_lock_and_groups_choices]]
   - [[module_session_note_acknowledgement]]
   - [[module_session_phrase_steps]]
   - [[module_session_shown_settings]]

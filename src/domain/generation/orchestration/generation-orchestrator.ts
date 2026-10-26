@@ -58,6 +58,17 @@ export interface GenerationOrchestrationOptions {
   readonly searchPolicy?: GenerationSearchPolicy
   readonly deps?: WindowSearchDeps
   readonly rhythmDomainMemo?: CanonicalRhythmDomainMemo
+  /**
+   * A millisecond reader on the `performance.now()` timeline, read only to time the building of
+   * the request's rhythm orderings into the diagnostics. The app never passes one.
+   */
+  readonly clock?: () => number
+}
+
+/** The running total, in milliseconds, of the time a caller's clock saw building the orderings. */
+interface OrderingsTimer {
+  readonly clock: () => number
+  elapsedMs: number
 }
 
 /** Intent: build the exact structural harmony domain input the whole-result validator re-derives. */
@@ -105,21 +116,23 @@ function buildRhythmDomain(
 // @spec-link [[service_generation_orchestration]]
 // @spec-link [[entity_generation_diagnostics]]
 function buildDiagnostics(
+  timer: OrderingsTimer | undefined,
   harmonyDomainSize: number,
   rhythmDomainSize: number,
   windows: readonly WindowDiagnostics[],
   successfulRegisters: readonly RegisterId[],
   selectedRegister?: RegisterId,
 ): GenerationDiagnostics {
-  const base = {
+  const rhythmOrderingsSeconds = timer === undefined ? undefined : timer.elapsedMs / 1000
+  return deepFreeze({
     version: 'generation-diagnostics-v1' as const,
     harmonyDomainSize,
     rhythmDomainSize,
     windows,
     successfulRegisters,
-  }
-  if (selectedRegister === undefined) return deepFreeze(base)
-  return deepFreeze({ ...base, selectedRegister })
+    ...(selectedRegister === undefined ? {} : { selectedRegister }),
+    ...(rhythmOrderingsSeconds === undefined ? {} : { rhythmOrderingsSeconds }),
+  })
 }
 
 /**
@@ -154,6 +167,47 @@ function rhythmLockOrderFor(
     lockedBars,
     ...(change === undefined ? {} : { change }),
   })
+}
+
+/**
+ * Intent: the lock's order with its forced bend timed: the first call, the one that builds the
+ * forced bend's order, adds its time to the timer; later calls return the memoized order untimed.
+ */
+// @spec-link [[entity_generation_diagnostics]]
+// @spec-link [[service_generation_orchestration]]
+function withTimedForcedBend(order: RhythmLockOrder, timer: OrderingsTimer): RhythmLockOrder {
+  let built = false
+  return Object.freeze({
+    ...order,
+    forcedBend: () => {
+      if (built) return order.forcedBend()
+      const start = timer.clock()
+      const forcedBend = order.forcedBend()
+      timer.elapsedMs += timer.clock() - start
+      built = true
+      return forcedBend
+    },
+  })
+}
+
+/**
+ * Intent: the rhythm lock's order of an intent, its building timed into the timer when the caller
+ * passed a clock (the order then times its forced bend too); without one, exactly the untimed
+ * order, the clock never read.
+ */
+// @spec-link [[entity_generation_diagnostics]]
+// @spec-link [[service_generation_orchestration]]
+function timedRhythmLockOrderFor(
+  intent: GenerationIntent,
+  domain: readonly RhythmCandidate[],
+  rankedRhythm: RankedRhythmCache,
+  timer: OrderingsTimer | undefined,
+): RhythmLockOrder | undefined {
+  if (timer === undefined) return rhythmLockOrderFor(intent, domain, rankedRhythm)
+  const start = timer.clock()
+  const order = rhythmLockOrderFor(intent, domain, rankedRhythm)
+  timer.elapsedMs += timer.clock() - start
+  return order === undefined ? undefined : withTimedForcedBend(order, timer)
 }
 
 /** Intent: run one independent, freshly-ledgered `searchWindow` for every resolved core request. */
@@ -273,6 +327,8 @@ function searchPolicyFor(intent: GenerationIntent): GenerationSearchPolicy {
  * carried window is searched.
  * `options.searchPolicy` defaults to the policy picked from the intent (with or without carry-in)
  * and is its only override; `options.deps` defaults to the production collaborators.
+ * `options.clock`, when given, times the building of the rhythm orderings into the diagnostics'
+ * `rhythmOrderingsSeconds` and changes nothing generated; without it that field is absent.
  * Only these injectable collaborators are defaulted, never any domain data derived from `intent`.
  */
 // @spec-link [[service_generation_orchestration]]
@@ -283,13 +339,14 @@ export function generatePhrase(
   const searchPolicy = options.searchPolicy ?? searchPolicyFor(intent)
   const deps = options.deps ?? DEFAULT_WINDOW_SEARCH_DEPS
   const rhythmDomainMemo = options.rhythmDomainMemo ?? SHARED_CANONICAL_RHYTHM_DOMAIN_MEMO
+  const timer = options.clock === undefined ? undefined : { clock: options.clock, elapsedMs: 0 }
 
   const harmonyDomain = buildHarmonyDomain(intent)
   if (isNoLegalHarmonyPlan(harmonyDomain)) {
     const outcome: GenerationOutcome = {
       kind: 'generation_failure',
       code: 'no_legal_harmony_plan',
-      diagnostics: buildDiagnostics(0, 0, [], []),
+      diagnostics: buildDiagnostics(timer, 0, 0, [], []),
     }
     return deepFreeze(outcome)
   }
@@ -299,7 +356,7 @@ export function generatePhrase(
     const outcome: GenerationOutcome = {
       kind: 'generation_failure',
       code: 'no_legal_rhythm_plan',
-      diagnostics: buildDiagnostics(harmonyDomain.candidates.length, 0, [], []),
+      diagnostics: buildDiagnostics(timer, harmonyDomain.candidates.length, 0, [], []),
     }
     return deepFreeze(outcome)
   }
@@ -311,7 +368,12 @@ export function generatePhrase(
     rhythmDomain.candidates,
     intent.seed,
   )
-  const rhythmLockOrder = rhythmLockOrderFor(intent, rhythmDomain.candidates, rankedRhythm)
+  const rhythmLockOrder = timedRhythmLockOrderFor(
+    intent,
+    rhythmDomain.candidates,
+    rankedRhythm,
+    timer,
+  )
   const requests = resolveCoreRequests(intent)
   const reports = runWindows(
     intent,
@@ -332,7 +394,7 @@ export function generatePhrase(
     const outcome: GenerationOutcome = {
       kind: 'generation_failure',
       code: outcomeKind,
-      diagnostics: buildDiagnostics(harmonyDomainSize, rhythmDomainSize, windows, []),
+      diagnostics: buildDiagnostics(timer, harmonyDomainSize, rhythmDomainSize, windows, []),
     }
     return deepFreeze(outcome)
   }
@@ -341,7 +403,7 @@ export function generatePhrase(
     const outcome: GenerationOutcome = {
       kind: 'generation_failure',
       code: noSelectionFailureCode(intent),
-      diagnostics: buildDiagnostics(harmonyDomainSize, rhythmDomainSize, windows, []),
+      diagnostics: buildDiagnostics(timer, harmonyDomainSize, rhythmDomainSize, windows, []),
     }
     return deepFreeze(outcome)
   }
@@ -356,6 +418,7 @@ export function generatePhrase(
     result: chosen.result,
     provenance: chosen.provenance,
     diagnostics: buildDiagnostics(
+      timer,
       harmonyDomainSize,
       rhythmDomainSize,
       windows,

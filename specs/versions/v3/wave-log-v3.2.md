@@ -702,3 +702,128 @@ on the next wave" — "you may merge into main of course".
 - Next: wave 3 (chunks 16, 13, 19) in a fresh session; CS before its sync. Dev-tool security batch
   (vite 8.3.5, vitest and @vitest/coverage-v8 5.0.3, lockfile undici 8.12.2, fast-uri 3.1.9,
   serialize-javascript 7.1.3) as its own unit from `main`.
+
+## Wave 3 (2026-10-26)
+
+Chunks 16, 13, 19 (order 16 → 13 → 19). Branch `v3.2-w3` from `main` 5591a76, worktree
+`/home/bastien/work/infinite_flow-v3.2-w3`.
+
+### The owner's answers on wave 2's leftovers (2026-10-26)
+
+- Q3's three drift proposals: apply all three at this wave's sync (the third, on STABLE
+  `module_stored_profile_to_levels`, a file name only, signed off by this answer).
+- Status candidates `module_rhythm_lock_order`, `module_rhythm_change_draw`,
+  `module_kept_session_jam_upgrade_step`: DRAFT → REVIEW at this wave's sync.
+- Each wave gate records the first-load JS total beside the entry chunk's figure (information only;
+  the 300 KiB entry budget is unchanged). Sent to `spec-writer` as a workflow delta.
+
+### Preflight
+
+`documentalist` (fad111f, "ATD: wave 3 preflight and captures"). No halt.
+- 16: PROCEED-WITH-SIGNOFF-PENDING. `module_session_ready_phrases` (STABLE, contract) likely needs
+  a wording extension at the sync (the ready phrase's intent also reads the session's lock state);
+  the owner signs it off then.
+- 13: PROCEED. The change shares stay as they are (tuned at L3, per the plan); tuning them would
+  change `rule_rhythm_change_share` and need the owner.
+- 19: PROCEED. Its "(contract, CS)" revisions are checked at the sync.
+
+Captures: `module_session_rhythm_lock` 0.1 (16); `entity_generation_diagnostics` 1.1,
+`service_generation_orchestration` 0.5 (13, the orderings' optional clock); `ui_field_dependent`,
+`ui_toggle_list`, `entity_session_option_records` 0.1, `module_idle_pregeneration_queue` 0.8 (19).
+
+Plan corrections sent to `spec-writer` before chunk 16 starts: 16's re-lock only when the locked
+bars use sixteenths (C7.1); the tenser flag's condition; 16's Files (drop the seed plan, add the
+session files that hold the requests) and split rule; 16's atoms and drift checks; 13's census
+reads the re-lock class from the history's mark; 19's Files (`setting-defaults.ts`, new specs in
+`test:e2e`), atoms and drift checks. Also two readings in the capture to confirm ("uses sixteenth
+notes", a repeat leaves the re-lock pending).
+
+Plan v19 (`spec-writer`, 85e8e22; spec D437, D438): every preflight correction applied, both
+readings confirmed. New gate CR: `module_session_ready_phrases`' wording extension, signed off by
+the owner at this wave's sync (chunk 16 merges first, as for CS); it blocks the sync and the merge
+into `main`. The first-load total is recorded beside the entry figure (M4, workflow deltas).
+
+### Chunks
+
+- 16 dispatched (2026-10-26) to `coding-leader`, branch `v3.2-c16-session-rhythm-lock`.
+- 16 merged (79ac60d; 84645e6 16a, 7890771 16b). Done when met item by item; corpus guard 425/425
+  after each half. Gap: nothing passes the Idle lock choice into a session yet (Start and
+  `startOf` pass the lock off); sent to `spec-writer` for chunk 19's Files. For the sync: new atom
+  tags left off five session files at the ten-atom cap; CR's wording. Risks noted: seeds differing
+  only in low bits draw alike (`rhythmChangeHash`, chunk 11; real seeds are random); no forced bend
+  from Build under Tension across phrases in any seeded session; the census at the gate checks it.
+- Plan v20 (`spec-writer`, c769530, spec D439): chunk 19 also wires the saved lock, allowed changes
+  and allowed groups into Start and `startOf` (both still hard-code the lock off and every group);
+  corpus guard on 19a; split re-cut (19a the saved choices into the session, 19b the controls).
+- `documentalist` peek over chunk 19's added files: PROCEED, no sign-off. Capture
+  `module_session_lock_and_groups_choices` 0.1 (069dbf5); carried in chunk 19's brief. For the
+  sync: `module_idle_pregeneration_queue`'s interface names the three choices (names only).
+- 13 dispatched (2026-10-26), branch `v3.2-c13-session-measurements`.
+- 13 merged (94bbbe5; 7e08ec8 13a, 2d7eab6 13b). Reference machine (Ryzen 5 PRO 8640HS), 2026-10-26.
+  M5 orderings share of attempt time: 2.2 % (all changes, 60/120 BPM), 0.8 % (240), 0.5 % strict,
+  ~0.005 % off; 0 repeats, 0 shortfalls; slowest standalone 0.565 s of the 1.075 s reserve. Census:
+  0 mismatches (9 groups × 7,952 sessions); replays kept 45/45, changed 30/30, bent 10/10. Draw
+  shares 25.8–26.4 % normal, 52.4–54.2 % tenser (targets 1 in 4, 1 in 2); changed 15.5–19.1 % in
+  sweep cases (0 % at Gentle, Reel, Bebop: C7.3's known limit). Forced bends 2.5 % strict with
+  Tension across phrases (Lift 5.5 %), 0.5 % without; Build → Lift does bend (52 of 523 strict).
+  Shares untouched (for L3). For the gate: `test:sweep` (deadline-sweep changed). For the sync:
+  the two atoms' clock names. Risk: no sweep session re-locks; only chunk 16's tests cover it.
+- 19 dispatched, then merged (2d375f3; f0db02d 19a, f07f0d3 19b). Done when met item by item;
+  corpus guard 425/425; Playwright on its specs 104/104, axe clean; landscape phone run clean.
+  Deviations: holders in a new `workspace-session-lock-choices.ts` (ten-atom cap); Vary settings'
+  availability a new controller reading (`workspace-vary-settings-availability.ts`), judged part of
+  chunk 15's check; the three records at data version 1, no upgrade step. Question for `ux-writer`:
+  a read-only toggle list's cue for assistive technology. For the sync: revise
+  `rule_pregeneration_discarded_on_change`, the CS halves; fill the interface names of
+  `entity_session_option_records`, `module_session_lock_and_groups_choices`,
+  `module_idle_pregeneration_queue`. Hand checks H2 and H3 after the wave.
+
+### Wave gate (2026-10-26)
+
+Reference machine (Ryzen 5 PRO 8640HS, idle), on `v3.2-w3`.
+- First `npm run quality`: unit 530 files / 8,327 tests pass; Playwright 591 passed, 1 skipped,
+  4 failed, all in `key-and-mode-marks.spec.ts`: its no-note locator also matched Vary settings'
+  v3.2 note (chunk 19b, wording as the design gives it, "…what your preset is meant for…"). Fixed
+  in the test, scoped to the Written key and Collection fields (`coding-executor`, fae3b84).
+- `npm run test:sweep`: 9 files / 83 tests pass (before the fix; the fix touched one e2e spec).
+- Second `npm run quality` after fae3b84: pass (unit 8,327; Playwright 595 passed, 1 skipped).
+- Bundle: entry chunk 282,098 B (+10,919 B on wave 2's 271,179; budget 307,200 B, 25,102 B left);
+  first-load JS 329,885 B over 16 files (+10,921 B on 318,964; spec D438). The two moved together:
+  real growth (chunks 16 and 19's session and controls code), not a re-split.
+- No dependency changed (`package.json`: the `test:e2e` list only), so no `security-advisor`
+  post-change check.
+
+### Wave sync (2026-10-26)
+
+`documentalist` (1d608c0; change set parts R, S; Q3 marked applied). Applied: Q3's three proposals
+(`module_stored_profile_to_levels` 0.4, a file name, no bump); DRAFT → REVIEW for
+`module_rhythm_lock_order`, `module_rhythm_change_draw`, `module_kept_session_jam_upgrade_step`;
+chunk 19's revision `rule_pregeneration_discarded_on_change` 0.5; built names for chunks 13, 16, 19.
+CS check (chunk 19's two contract rules, session mode): met. Tags off the five capped session files:
+coverage adequate. `atd check` 19/19, `atd lint` pass, `atd audit` on 16 atoms: no collision.
+
+Drafted, not applied (the owner's word): CR as part R (R1 `module_session_ready_phrases` 0.2, R2
+CONTRACT 10.0.0 → 11.0.0, MAJOR); S3 `module_settings_mutation` name-only fix (STABLE); S3 Vary
+settings' availability under `module_session_vary_settings_flag` 0.3. Status candidates DRAFT →
+REVIEW: `module_session_rhythm_lock`, `module_session_lock_and_groups_choices`,
+`entity_session_option_records`, `ui_toggle_list`, `ui_field_dependent`.
+- ux D350 (`ux-writer`, a012c8c): a read-only toggle list gives each toggle `aria-disabled`, as
+  TempoStepper does. Built by `coding-executor` (206eea5): ToggleList 8/8, related 141/141,
+  accessibility and chunk 19's e2e 83/83, typecheck, lint, format, health clean.
+
+### Report to the owner (2026-10-26)
+
+Chunks 16, 13, 19 merged, none moved; plan gap (Start ignoring the saved choices) closed in 19.
+Gate passed after a test fix; entry 282,098 B, first-load 329,885 B. Sync applied Q3 and the three
+promotions; CS met. Asked: CR (R1, R2: CONTRACT 11.0.0), S3's two items, five status candidates;
+the merge into `main` once CR is confirmed. H2 and H3 open to run (L3).
+
+### The owner's answers (2026-10-26)
+
+"agreed, you can merge and push. you may handle doc items as well." `documentalist` (bf64a28):
+CR applied (R1 `module_session_ready_phrases` 0.2, R2 CONTRACT 11.0.0); `module_settings_mutation`
+0.6 (name only); `module_session_vary_settings_flag` 0.3 (Vary settings' availability); five
+DRAFT → REVIEW; `ui_toggle_list` 0.3 (ux D350). Gate CR done. Wave 3 merged into `main` and pushed;
+worktrees and branches removed.
+Next: wave 4 (chunks 20, 28, 7, 8, 9) waits on the owner's gates LD (chunk 8), DR and DS (chunk
+28); hand checks v3.2 H2, H3 open (L3). Dev-tool security batch still pending as its own unit.

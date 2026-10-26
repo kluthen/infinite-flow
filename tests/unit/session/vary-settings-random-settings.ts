@@ -97,5 +97,6 @@ export function randomSettings(random: Mulberry32Generator): SessionSettings {
     ...(restriction === undefined ? {} : { restriction }),
     allowedGroups: draw(EVERY_GROUP_SUBSET),
     rhythmLockOn: random.nextFloat() < 0.5,
+    allowedRhythmChanges: [],
   }
 }

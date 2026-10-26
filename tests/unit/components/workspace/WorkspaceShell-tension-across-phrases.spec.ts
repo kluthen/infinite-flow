@@ -85,6 +85,7 @@ const VARIED_TENSION: SessionSettings = {
   selection: { kind: 'custom', baseId: 'neutral' },
   allowedGroups: ALL_GROUPS_ALLOWED,
   rhythmLockOn: false,
+  allowedRhythmChanges: [],
 }
 
 // @test-link [[req_multi_phrase_tension_arc]]
@@ -95,6 +96,7 @@ describe('WorkspaceShell: the Tension across phrases control', () => {
     const { session } = fakeGenerationSession(readyState())
     const wrapper = mountShell(session, fake.controller)
     expect(wrapper.findAll('.control-group-session .field-label').map((l) => l.text())).toEqual([
+      'Rhythm lock',
       'Rising tempo',
       'Tension across phrases',
       'Vary settings',
@@ -156,6 +158,7 @@ describe('WorkspaceShell: the Tension across phrases control', () => {
       selection: DEFAULT_PRESET_SELECTION,
       allowedGroups: ALL_GROUPS_ALLOWED,
       rhythmLockOn: false,
+      allowedRhythmChanges: [],
     }
     await nextTick()
     expect(checked(wrapper, 'Tension')).toBe('Lift')

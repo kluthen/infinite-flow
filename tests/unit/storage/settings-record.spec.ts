@@ -26,6 +26,8 @@ import {
   type PresetSelection,
 } from '@/domain/presets/preset-selection'
 import { createMulberry32 } from '@/domain/random/prng'
+import { RHYTHM_CHANGE_KINDS } from '@/domain/generation/request-rhythm-lock'
+import { VARY_SETTINGS_GROUPS } from '@/session/settings-mutation-scales'
 import type { SavedSettings } from '@/storage/records/setting-defaults'
 import {
   decodeSettings,
@@ -82,6 +84,9 @@ const EXPECTED_KEYS: readonly SettingKey[] = [
   'sessionOptions.varySettings',
   'sessionOptions.tensionAcrossPhrases',
   'sessionOptions.risingTempo',
+  'sessionOptions.rhythmLockOn',
+  'sessionOptions.allowedRhythmChanges',
+  'sessionOptions.allowedGroups',
   'review.format',
   'review.backingTrack',
   'review.playedNotesShown',
@@ -126,6 +131,7 @@ const BOOLEAN_KEYS = new Set<SettingKey>([
   'sessionOptions.varySettings',
   'sessionOptions.tensionAcrossPhrases',
   'sessionOptions.risingTempo',
+  'sessionOptions.rhythmLockOn',
   'review.backingTrack',
   'review.playedNotesShown',
   'keepPlayedNotes',
@@ -152,6 +158,16 @@ const CATALOGS: Partial<Record<SettingKey, readonly (string | number)[]>> = {
 
 const WRONG_TYPES: readonly unknown[] = [null, undefined, [], {}, true, 7, 'text']
 
+/** Vary settings' six groups, all on: the allowed groups' default. */
+const ALL_GROUPS = DEFAULTS.sessionOptions.allowedGroups
+
+/** The three session option records v3.2 added; a store written by v3.1 has none of them. */
+const V3_2_SESSION_OPTION_KEYS: readonly SettingKey[] = [
+  'sessionOptions.rhythmLockOn',
+  'sessionOptions.allowedRhythmChanges',
+  'sessionOptions.allowedGroups',
+]
+
 /**
  * Intent: the invalid values of one setting: unknown values, wrong types and out-of-range numbers,
  * each of which the codec must read as that setting's default.
@@ -161,6 +177,28 @@ function invalidValues(key: SettingKey): readonly unknown[] {
   if (key === 'controls.tempo') return [50, 250, 95, 90.5, -90, Number.NaN, Infinity, '90', null]
   if (key === 'mix.clickVolume') return [0, 0.1, -0.1, 1.01, Number.NaN, Infinity, '0.5', null]
   if (key === 'mix.backingVolume') return [-0.01, 1.5, Number.NaN, -Infinity, '0.5', true]
+  if (key === 'sessionOptions.allowedRhythmChanges') {
+    return [
+      'move_rest',
+      ['shuffle'],
+      ['move_rest', 'move_rest'],
+      ['merge_notes', 'move_rest'],
+      ['move_rest', 7],
+      null,
+      {},
+    ]
+  }
+  if (key === 'sessionOptions.allowedGroups') {
+    const { figures, ...missingOne } = ALL_GROUPS
+    void figures
+    return [
+      missingOne,
+      { ...ALL_GROUPS, pitch: true },
+      { ...ALL_GROUPS, rhythm: 'false' },
+      [true, true, true, true, true, true],
+      null,
+    ]
+  }
   if (key === 'presetSelection') {
     return [
       { kind: 'preset' },
@@ -216,6 +254,12 @@ function randomValue(key: SettingKey, next: () => number): unknown {
   if (key === 'mix.clickVolume') return Math.round((0.2 + next() * 0.8) * 100) / 100
   if (key === 'mix.backingVolume') return Math.round(next() * 100) / 100
   if (isLevelKey(key)) return pick(FIGURE_LEVEL_IDS)
+  if (key === 'sessionOptions.allowedRhythmChanges') {
+    return RHYTHM_CHANGE_KINDS.filter(() => next() < 0.5)
+  }
+  if (key === 'sessionOptions.allowedGroups') {
+    return Object.fromEntries(VARY_SETTINGS_GROUPS.map((group) => [group, next() < 0.5]))
+  }
   if (key === 'presetSelection') {
     const id = pick(BUILT_IN_PRESETS).id
     return pick<PresetSelection>([
@@ -321,6 +365,9 @@ describe('settings record keys', () => {
 
     expect(decoded).toEqual(NON_DEFAULT)
     expect(Object.keys(decoded.sessionOptions).sort()).toEqual([
+      'allowedGroups',
+      'allowedRhythmChanges',
+      'rhythmLockOn',
       'risingTempo',
       'tensionAcrossPhrases',
       'varySettings',
@@ -450,6 +497,57 @@ describe('decodeSettings', () => {
     }))
     expect(decodeSettings(off, CONTEXT).keepPlayedNotes).toBe(false)
     expect(decodeSettings(rawRecords(NON_DEFAULT), CONTEXT).keepPlayedNotes).toBe(true)
+  })
+})
+
+describe('the rhythm lock, its allowed changes and the allowed groups', () => {
+  // @test-link [[entity_session_option_records]]
+  // @test-link [[rule_saved_settings_load_tolerantly]]
+  it('loads a v3.1 store, which has none of their records, as their defaults, every other setting as saved', () => {
+    const v31 = rawRecords(NON_DEFAULT).filter(
+      (record) => !V3_2_SESSION_OPTION_KEYS.includes(record.key as SettingKey),
+    )
+    expect(v31).toHaveLength(EXPECTED_KEYS.length - 3)
+
+    const decoded = decodeSettings(v31, CONTEXT)
+
+    expect(decoded.sessionOptions).toEqual({
+      ...NON_DEFAULT.sessionOptions,
+      rhythmLockOn: false,
+      allowedRhythmChanges: [],
+      allowedGroups: ALL_GROUPS,
+    })
+    expect(ALL_GROUPS).toEqual({
+      keyAndMode: true,
+      harmony: true,
+      tension: true,
+      rhythm: true,
+      melodyShape: true,
+      figures: true,
+    })
+    for (const key of EXPECTED_KEYS) {
+      if (V3_2_SESSION_OPTION_KEYS.includes(key)) continue
+      expect(settingAt(decoded, key), key).toEqual(settingAt(NON_DEFAULT, key))
+    }
+  })
+
+  // @test-link [[entity_session_option_records]]
+  // @test-link [[rule_vary_settings_allowed_groups]]
+  it('loads a Rhythm group on beside the lock on as stored: the lock never rewrites the choice', () => {
+    const saved: SavedSettings = {
+      ...NON_DEFAULT,
+      sessionOptions: {
+        ...NON_DEFAULT.sessionOptions,
+        rhythmLockOn: true,
+        allowedGroups: { ...NON_DEFAULT.sessionOptions.allowedGroups, rhythm: true },
+      },
+    }
+
+    const decoded = decodeSettings(rawRecords(saved), CONTEXT)
+
+    expect(decoded.sessionOptions.rhythmLockOn).toBe(true)
+    expect(decoded.sessionOptions.allowedGroups.rhythm).toBe(true)
+    expect(decoded).toEqual(saved)
   })
 })
 

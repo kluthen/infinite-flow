@@ -194,6 +194,52 @@ The engine counts repeats in a row, in the order phrases are decided.
 - Phrase 1 never sets the memory: it was generated at Idle. Phrase 2's request is built at start
   from the width then.
 
+## The rhythm lock in a session
+
+The [rhythm lock](music/lexicon.md#rhythm-lock) keeps phrase 1's
+[rhythm](music/lexicon.md#rhythm) for the whole session. `src/session/rhythm-lock-session.ts` holds
+its pure functions; the engine and the pre-generation plan both call them, so a ready phrase's
+request carries the same lock group as the session's own.
+
+- **The choices.** `rhythmLockOn` and `allowedRhythmChanges` are session settings, taken at Start
+  with the others. `freezeSessionSettings` refuses allowed changes that are not known kinds, each
+  once, in `RHYTHM_CHANGE_KINDS` order. With the lock off, no request carries a lock group and the
+  session is exactly the one before v3.2.
+- **The lock state at Start.** With the lock on, `sessionRhythmLockAtStart` freezes phrase 1's
+  written bars (the Idle phrase Start takes, even when it is out of date), the allowed changes,
+  and whether a re-lock is pending: the bars use
+  [sixteenth notes](music/lexicon.md#sixteenth-note), that is some note or rest starts or lasts
+  off the two-tick grid of Eighth. The state is engine state (`EngineState.rhythmLock`, and the
+  phrase course's), never a setting.
+- **The group on every rung.** Each phrase opened from phrase 2 gets its groups from
+  `phraseRhythmLock`: on with the locked bars, the allowed changes and the tenser flag. The
+  look-ahead keeps them, so every rung of the failure ladder carries the same group, the
+  standalone attempt included. A phrase discarded by a settings change gets its groups again from
+  the lock state before it was decided and the new tension in effect.
+- **The tenser flag.** `isTenserPhrase` sets it only when
+  [Tension across phrases](music/lexicon.md#tension-across-phrases) runs in the session, the
+  phrase's cycle step is one step tenser (phrases 2, 6, 10...), and the tension in effect from that
+  phrase on is below Edge. A tension step made by Vary settings never sets it. A tenser phrase
+  draws a [rhythm change](music/lexicon.md#rhythm-changes) 1 in 2 instead of 1 in 4, inside
+  generation.
+- **The re-lock.** While a re-lock is pending, a phrase's groups also hold a re-lock group: the same
+  bars and flag with no allowed change. `buildAttemptIntent` puts it on an attempt built with
+  Eighth by the step-down (see
+  [Settings lock and density step-down](#settings-lock-and-density-step-down)), so that phrase
+  draws no change and the lock's order gives it the nearest Eighth rhythm, often a
+  [forced bend](music/lexicon.md#forced-bend). The attempt remembers it (`relock`), and the phrase
+  it makes, once accepted (or spent as a ready phrase), carries the `relock` mark. When it is
+  decided, `rhythmLockAfterDecision` locks its written bars for the rest of the session and no
+  re-lock is pending any more. A repeat is not a generated phrase, so it leaves the re-lock
+  pending; so does a settings change that discards the decided re-lock phrase, since `undecide`
+  restores the lock state from before the decision. Locked bars without sixteenth notes are never
+  re-locked.
+- **The record.** Each phrase's outcome provenance keeps what the lock did (`rhythmLockOutcome`,
+  and `rhythmChange` when the phrase drew a change). The session adds its own `relock` mark, which
+  the session history copies onto the record. `phraseRhythmLockRecord` reads a record as locked,
+  changed with its kind, forced bend or re-lock, with whether no change was available. Nothing is
+  shown in the live view, the review or the exports, and no kept session holds the mark.
+
 ## Tempo is transport-only
 
 Tempo only sets the times of the measure grid; it never reaches an intent's musical content. The
@@ -382,9 +428,19 @@ seed: every seed comes from the session seed plan. Tempo and Rising tempo never 
   throws. `revalidatedReadyPhrases(seams, start, readyPhrases)` gives the longest prefix that
   still does, with the same check the engine makes when it spends them; the workspace queue calls
   it before resuming and on every window change.
+- **The rhythm lock.** The plan carries the session's lock state as the engine does (see
+  [The rhythm lock in a session](#the-rhythm-lock-in-a-session)): phrase 1's written bars locked
+  at its start, the allowed changes and each phrase's tenser flag on every rung, and the re-lock:
+  a phrase built with Eighth by the step-down while a re-lock is pending carries the re-lock
+  group, and once it is ready its bars are locked for the phrases planned after it. A phrase's
+  change draw takes the phrase's own seed inside generation, so the session seed plan does not
+  change. The engine spends a ready phrase only when the request it re-derives, lock group
+  included, is identical: a ready phrase planned with the lock off, or with other allowed
+  changes, is refused.
 
 With every attempt succeeding at once, a session's phrases, intents and seeds are the same with
-pre-generation on and off, request ids aside (`session-pregeneration-identity.spec.ts`).
+pre-generation on and off, request ids aside, the rhythm lock's changes and re-lock included
+(`session-pregeneration-identity.spec.ts`).
 
 ## The runner and the one-Worker wiring
 
@@ -1200,10 +1256,12 @@ From v3.2 the session settings carry two more fields, fixed at the start like th
   mode (the written key and the collection), Harmony (harmonic motion), Tension (the tension arc),
   Rhythm (note density, rhythmic variety, syncopation and silence density), Melody shape (contour,
   register, leapiness and arpeggio chaos) and Figures (the figure levels). `MUTABLE_SETTING_GROUPS`
-  maps each mutable setting to its group. The start passes `ALL_GROUPS_ALLOWED` until the saved
-  choice exists, so the draws are v3.1's.
+  maps each mutable setting to its group. The start passes the player's saved choice (see
+  [In the workspace](#in-the-workspace), The page's lock and groups); with its default, all six on
+  (`ALL_GROUPS_ALLOWED`), the draws are v3.1's.
 - **`rhythmLockOn`** says whether the session's rhythm lock is on; while it is, the Rhythm group
-  counts as not allowed (`isGroupAllowed`). Nothing turns it on yet, and the start passes `false`.
+  counts as not allowed (`isGroupAllowed`), whatever the player's Rhythm choice, which is kept. The
+  start passes the player's saved choice, off by default.
 
 No phrase is generated from either field. A step of a group that is not allowed is marked
 unsupported among the candidates, as above.
@@ -1401,6 +1459,20 @@ the count-in or a running session throws. The "During a session" group shows it
 (`SessionOptionsControls.vue`), read-only during a generation, a session, or while the controller
 loads.
 
+**The page's lock and groups.** The controller also holds session mode's rhythm lock, its allowed
+rhythm changes and Vary settings' allowed groups for the page's life
+(`createSessionLockAndGroups`, `src/components/workspace/workspace-session-lock-choices.ts`), from
+the player's saved choices (`savedSessionOptions`; the lock off, no change allowed and all six
+groups on for a first visit or an unreadable record), kept from one session to the next and never
+written to storage by the controller. `state.rhythmLockOn`, `state.allowedRhythmChanges` and
+`state.allowedGroups` read them; `setRhythmLockOn`, `setAllowedRhythmChanges` and
+`setAllowedGroups` change them outside a session only, and throw during the count-in or a running
+session, or on a list or groups `freezeSessionSettings` would refuse. Start and the Idle
+pre-generation's start both build the session's settings with `chosenSessionSettings` (same file),
+so a pre-generated phrase's request, its phrase 1→2 plan included, is the one the session
+re-derives; with the defaults both give v3.1's settings. The stale-phrase comparison and phrase 1's
+own settings (`phraseOneSettings`) keep the lock off and every group on: neither reaches a request.
+
 **What the controls show.** `state.shownSettings` is what the read-only controls show while a
 session runs (`createSessionShownSettings`): the start settings, the player's own, during the
 count-in, then what the phrase now sounding was generated with. A `settings-changed` output is
@@ -1570,6 +1642,9 @@ arc).
   session settings, the dead end and its `mutation-skipped` output, the history's
   `skippedMutations`, and the legal-move check at the session start (see
   [Allowed groups and the dead end](#allowed-groups-and-the-dead-end)).
+- **v3.2 chunk 19 (built):** the player's saved rhythm lock, allowed rhythm changes and allowed
+  groups held by the controller and put into Start's and the Idle pre-generation's settings alike
+  (see [In the workspace](#in-the-workspace), The page's lock and groups).
 
 ## Choices made while building it
 

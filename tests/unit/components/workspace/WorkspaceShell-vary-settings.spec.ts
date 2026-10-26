@@ -48,6 +48,7 @@ const VARIED: SessionSettings = {
   selection: { kind: 'custom', baseId: 'neutral' },
   allowedGroups: ALL_GROUPS_ALLOWED,
   rhythmLockOn: false,
+  allowedRhythmChanges: [],
 }
 
 /** Intent: mount the shell over `session` and `controller` (null while it loads). */
@@ -110,6 +111,7 @@ const START: SessionSettings = {
   selection: { kind: 'preset', presetId: 'neutral' },
   allowedGroups: ALL_GROUPS_ALLOWED,
   rhythmLockOn: false,
+  allowedRhythmChanges: [],
 }
 
 // @test-link [[req_settings_mutation_flag]]
@@ -123,7 +125,7 @@ describe('WorkspaceShell: the Vary settings control', () => {
     const note = wrapper.get(`#${group(wrapper, 'Vary settings').attributes('aria-describedby')}`)
     expect(note.classes()).toContain('field-note')
     expect(note.text()).toBe(
-      'Every 2 to 4 phrases, one setting moves one step. Never the instrument or the tempo. Your settings come back when the session ends.',
+      'Every 2 to 4 phrases, one setting from the groups below moves one step. Never the instrument or the tempo. Keys and modes stay within what your preset is meant for. Your settings come back when the session ends.',
     )
 
     await group(wrapper, 'Vary settings').findAll('[role="radio"]')[1]!.trigger('click')

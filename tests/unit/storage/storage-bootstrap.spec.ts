@@ -45,7 +45,14 @@ const SAVED: SavedSettings = {
   presetSelection: { kind: 'custom', baseId: 'jazz' },
   theme: 'Dark',
   mix: { clickOn: false, clickVolume: 0.5, backingOn: false, backingVolume: 0.3 },
-  sessionOptions: { varySettings: true, tensionAcrossPhrases: true, risingTempo: true },
+  sessionOptions: {
+    varySettings: true,
+    tensionAcrossPhrases: true,
+    risingTempo: true,
+    rhythmLockOn: true,
+    allowedRhythmChanges: ['split_note'],
+    allowedGroups: { ...DEFAULTS.sessionOptions.allowedGroups, harmony: false },
+  },
   review: { format: 'midi', backingTrack: true, playedNotesShown: true },
   keepPlayedNotes: true,
 }

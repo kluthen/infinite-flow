@@ -10,6 +10,7 @@ parents:
 dependents:
   - [[module_ranked_candidate_ordering]]
   - [[module_rhythm_lock_order]]
+  - [[module_session_rhythm_lock]]
 type: RULE
 version: 0.1
 ---

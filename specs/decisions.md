@@ -950,3 +950,22 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   phrases 2–8. Rejected: a final mixing step (an architecture change that would move every draw
   and the golden draws before the release, for synthetic seeds only). Now in:
   [build plan v3.2, M2](versions/v3/build-plan-v3.2.md#m2--the-lock-census-forced-bends-and-rhythm-changes).
+
+- **D437 (2026-10-26): wave 3's preflight corrections to the v3.2 plan.** The wave driver's, at
+  the preflight; `spec-writer` checked each against Part C and the code. The plan states what the
+  spec settles: the re-lock only from locked bars with sixteenth notes (C7.1), read as a note or
+  rest starting or lasting off the Eighth grid, a repeat leaving it pending; the tenser flag only
+  for a tenser phrase (C4); a re-lock counted from the history's mark. Gate CR lets chunk 16 merge
+  before `module_session_ready_phrases`' sign-off, as CS did. Now in: [build plan v3.2, v19](versions/v3/build-plan-v3.2.md#chunk-16--the-rhythm-lock-in-a-session).
+
+- **D438 (2026-10-26): each wave gate records the first-load JS total beside the entry chunk's
+  figure.** The owner's. Information only: rolldown's re-splitting moved the entry chunk by about
+  18 kB in wave 2 with no change in what loads. The 300 KiB entry budget and what
+  `verify:boundaries` gates on are unchanged. Now in: [build plan v3.2, workflow deltas and M4](versions/v3/build-plan-v3.2.md#m4--the-first-load-bundle).
+
+- **D439 (2026-10-26): chunk 19 carries the saved lock, allowed changes and allowed groups into
+  Start and the Idle pre-generation's start.** `spec-writer`'s, from chunk 16's finding: both still
+  pass the lock off, no change and every group, so the Idle choice never reached a session and a
+  pre-generated phrase 1→2 plan could not match a session started with the lock on (C10.5). Chunk
+  19 gains the Start path's files, a matching Done when, the corpus guard and a re-cut split rule.
+  Now in: [build plan v3.2, chunk 19](versions/v3/build-plan-v3.2.md#chunk-19--the-rhythm-lock-and-what-may-vary-in-the-controls).

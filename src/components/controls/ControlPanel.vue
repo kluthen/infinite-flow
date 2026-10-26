@@ -23,6 +23,8 @@ import CharacterControls from './CharacterControls.vue'
 import EmbellishmentControls from './EmbellishmentControls.vue'
 import SessionOptionsControls from './SessionOptionsControls.vue'
 import { controlSummaryText } from './control-options'
+import type { RhythmChangeKind } from '@/domain/generation/request-rhythm-lock'
+import type { AllowedGroups } from '@/session/settings-mutation-scales'
 import type { PresetActionKind, PresetActionsRow, SessionStartSettings } from './preset-bar-model'
 import type { SetControlPayload } from './set-control-event'
 
@@ -46,6 +48,14 @@ const props = defineProps<{
   tensionAcrossPhrases: boolean
   /** The page's `Vary settings` flag. */
   varySettings: boolean
+  /** Whether `Vary settings` has a move: while false its `On` cannot be chosen. */
+  varySettingsAvailable: boolean
+  /** The groups `Vary settings` may move. */
+  allowedGroups: AllowedGroups
+  /** Session mode's rhythm lock. */
+  rhythmLockOn: boolean
+  /** The rhythm changes the lock allows, kept while it is off. */
+  allowedRhythmChanges: readonly RhythmChangeKind[]
   /** Whether the "During a session" options are read-only. */
   sessionOptionsReadonly: boolean
   /** The session's start settings during a session; null with no session. */
@@ -68,6 +78,9 @@ const emit = defineEmits<{
   'set-rising-tempo': [on: boolean]
   'set-tension-across-phrases': [on: boolean]
   'set-vary-settings': [on: boolean]
+  'set-allowed-groups': [groups: AllowedGroups]
+  'set-rhythm-lock': [on: boolean]
+  'set-allowed-rhythm-changes': [kinds: readonly RhythmChangeKind[]]
   'open-my-instrument': []
   'preset-action': [action: PresetActionKind]
 }>()
@@ -177,14 +190,21 @@ const controlSummary = computed(() =>
         @set-figure-level="forwardFigureLevel"
       />
       <SessionOptionsControls
+        :rhythm-lock-on="rhythmLockOn"
+        :allowed-rhythm-changes="allowedRhythmChanges"
         :rising-tempo="risingTempo"
         :rising-tempo-available="risingTempoAvailable"
         :tension-across-phrases="tensionAcrossPhrases"
         :vary-settings="varySettings"
+        :vary-settings-available="varySettingsAvailable"
+        :allowed-groups="allowedGroups"
         :readonly="sessionOptionsReadonly"
+        @set-rhythm-lock="emit('set-rhythm-lock', $event)"
+        @set-allowed-rhythm-changes="emit('set-allowed-rhythm-changes', $event)"
         @set-rising-tempo="forwardRisingTempo"
         @set-tension-across-phrases="forwardTensionAcrossPhrases"
         @set-vary-settings="forwardVarySettings"
+        @set-allowed-groups="emit('set-allowed-groups', $event)"
       />
     </div>
   </section>

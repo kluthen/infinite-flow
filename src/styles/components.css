@@ -2306,7 +2306,9 @@
   /* States: default; read-only (`is-readonly`, during Loading and a session, as every control:
      the toggles keep their words, their `on` bar and full strength and stay focusable, pointer
      events are off, and script refuses activation by Space, Enter or click, as
-     `segmented-control.is-readonly` refuses an arrow key). The dashed `--readonly-ring` is drawn
+     `segmented-control.is-readonly` refuses an arrow key; each toggle carries
+     `aria-disabled="true"`, as `stepper-button` does, and no rule here styles it, so the toggles
+     keep their full-strength look). The dashed `--readonly-ring` is drawn
      once, by the nearest read-only `field-group`, never on the list. Each toggle otherwise
      carries `toggle-button`'s states (off, on, hover, focus-visible, active), disabled included.
      A wrapping row of `btn toggle-button`s, `--spacing-2` apart, after a `field-label` naming

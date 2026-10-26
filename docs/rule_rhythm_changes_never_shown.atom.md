@@ -4,7 +4,8 @@ status: DRAFT
 human_name: Rhythm Changes and Forced Bends Are Never Shown
 parents:
   - [[req_rhythm_lock]]
-dependents: []
+dependents:
+  - [[module_session_rhythm_lock]]
 type: RULE
 layer: BUSINESS
 version: 0.1

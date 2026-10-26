@@ -37,17 +37,16 @@ import {
   type PregenerationSeams,
   type PregenerationStart,
 } from '@/session/session-pregeneration'
-import { sessionSettingsAtStart } from '@/session/session-intents'
 import { mutationContextAtStart } from '@/session/session-mutation-step'
 import type { ReadyPhrase } from '@/session/session-ready-phrases'
 import type { SessionStartBlocker } from '@/session/session-start-conditions'
 import { sessionLayoutAtStart } from '@/session/session-window'
 import { phraseOneSettings } from '@/session/stale-phrase-one'
-import { ALL_GROUPS_ALLOWED, withRestrictionAtStart } from '@/session/settings-mutation'
 import { fitsHeldLayout, writtenPhraseOf } from './held-layout-fit'
 import type { IdleLayoutPort } from './idle-layout-gate'
 import type { WorkspacePregenerationPolicy } from './prewarm-policy'
 import type { StaffFitPlanner } from './workspace-session-controller-seams'
+import { chosenSessionSettings, type LockAndGroupsChoices } from './workspace-session-lock-choices'
 import { mutationFlagFor } from './workspace-session-runner'
 
 /** What the workspace composition binds: the worker client's seam, the slot and the policy. */
@@ -61,7 +60,7 @@ export interface PregenerationWorkspaceSeams extends PregenerationSeams {
 
 /**
  * What the session controller binds: the Idle state (phrase 1, the controls, the figure levels,
- * the preset selection, the presets it knows and the note-density context), its start blocker (the run conditions), its two session flags,
+ * the preset selection, the presets it knows and the note-density context), its start blocker (the run conditions), its two session flags, the rhythm lock, its allowed changes and the allowed groups,
  * the window's shape, the staff's latest layout inputs and their observer, the staff planner's
  * loader, and where a programming error is reported.
  */
@@ -71,6 +70,8 @@ export interface PregenerationControllerSeams {
   readonly startBlocker: () => SessionStartBlocker | null
   readonly varySettings: () => boolean
   readonly tensionAcrossPhrases: () => boolean
+  /** The player's rhythm lock, its allowed changes and Vary settings' allowed groups, reactive. */
+  readonly lockAndGroups: () => LockAndGroupsChoices
   readonly windowShape: () => WindowShapeReading
   readonly idleLayout: Pick<IdleLayoutPort, 'latestInputs' | 'observeInputs'>
   readonly loadPlanner: () => Promise<StaffFitPlanner>
@@ -131,14 +132,17 @@ function atTempo(readyPhrases: readonly ReadyPhrase[], tempo: number): readonly 
 /**
  * Intent: the queue's key besides phrase 1: the generation controls except tempo (the instrument
  * is a control), the seven figure levels in FIGURE_IDS order, Vary settings, Tension across
- * phrases and the restriction in force, whose change discards whether Vary settings is on or not
- * (opting out, or coming back inside). No restriction in force and an "any" restriction count as
+ * phrases, the restriction in force, whose change discards whether Vary settings is on or not
+ * (opting out, or coming back inside), and the rhythm lock, its allowed changes and Vary settings'
+ * allowed groups, whose change discards whether or not it acts on phrases then (the allowed
+ * changes while the lock is off, the groups while Vary settings is off). No restriction in force and an "any" restriction count as
  * one, as Start takes them. Never the preset selection itself: no phrase is generated from it, so
  * a change of the selection alone (the same controls, levels and restriction in force) keeps the
  * ready phrases.
  */
 // @spec-link [[rule_pregeneration_discarded_on_change]]
 // @spec-link [[rule_restriction_in_force]]
+// @spec-link [[module_session_lock_and_groups_choices]]
 function settingsKeyOf(deps: PregenerationControllerSeams): string {
   const { tempo, ...controls } = deps.idle.controls
   void tempo
@@ -150,6 +154,7 @@ function settingsKeyOf(deps: PregenerationControllerSeams): string {
     deps.tensionAcrossPhrases(),
     restrictionInForce(selection, controls.tonalCenter, controls.collection, presets) ??
       ANY_KEY_AND_MODE,
+    deps.lockAndGroups(),
   ])
 }
 
@@ -187,30 +192,19 @@ export function createWorkspacePregeneration(
   let recheckOnIdle = false
 
   /**
-   * Intent: the plan's start from phrase 1 and the Idle choices as a session would take them, my
-   * instrument's profile taken from phrase 1's intent and the restriction in force frozen in, as
-   * Start takes them, with the settings phrase 1 was generated under, as the stale-phrase prompt's
+   * Intent: the plan's start from phrase 1 and the Idle choices as a session would take them, the
+   * player's rhythm lock, its allowed changes and the allowed groups with them, my instrument's
+   * profile taken from phrase 1's intent and the restriction in force frozen in, built as Start
+   * builds them, with the settings phrase 1 was generated under, as the stale-phrase prompt's
    * Use it passes them, and the mutation flag Start gives: off when those settings have no legal
    * move under the context the start state gives, the window read as the plan reads it.
    */
   // @spec-link [[entity_my_instrument]]
   // @spec-link [[rule_pregenerated_phrase_matches_session]]
   // @spec-link [[rule_vary_settings_stays_inside_restriction]]
+  // @spec-link [[module_session_lock_and_groups_choices]]
   function startOf(phraseOne: WorkspaceSessionResult): PregenerationStart {
-    const settings = withRestrictionAtStart(
-      sessionSettingsAtStart(
-        {
-          controls: idle.controls,
-          figureLevels: idle.figureLevels,
-          selection: idle.selection,
-          // The saved allowed groups arrive with chunk 19, the session's rhythm lock with chunk 16.
-          allowedGroups: ALL_GROUPS_ALLOWED,
-          rhythmLockOn: false,
-        },
-        phraseOne.intent,
-      ),
-      idle.presets,
-    )
+    const settings = chosenSessionSettings(idle, deps.lockAndGroups(), phraseOne.intent)
     const context = mutationContextAtStart(phraseOne, deps.viewport.isBelowTabletLandscape())
     return {
       settings,

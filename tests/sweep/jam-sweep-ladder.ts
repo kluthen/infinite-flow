@@ -34,7 +34,7 @@ import { createGenerationIntent } from '@/domain/generation/generation-intent'
 import type { SteeringBlock } from '@/domain/generation/steering-block'
 import { measureSeconds } from '@/session/session-timing'
 import type { SessionSettings, SessionStart } from '@/session/session-types'
-import { phraseOneIntent } from '../unit/session/deadline-sweep'
+import { phraseOneIntent, splitOrderingsTime } from '../unit/session/deadline-sweep'
 import { ROUND_TRIP_AND_ENGRAVING_SECONDS } from './deadline-sweep-measured'
 
 /** The rhythm lock a run plays with: off, or on with the rhythm changes the player allows. */
@@ -64,6 +64,11 @@ export interface GeneratedAttempt {
   readonly seconds: number
   /** What the attempt keeps the generator busy for: `seconds` plus the round trip and engraving. */
   readonly chargedSeconds: number
+  /**
+   * The time, in seconds, the generator's diagnostics report for building the rhythm orderings
+   * (the lock's order and its change draw; the steering rank later).
+   */
+  readonly orderingSeconds: number
   /** Whether it ran on a cold rhythm domain. */
   readonly cold: boolean
 }
@@ -99,7 +104,10 @@ export interface LadderAttempt {
   readonly chargedSeconds: number
   /** Its failure code, or null when it generated a phrase. */
   readonly failureCode: GenerationFailureCode | null
-  /** The time it spent ordering candidates by the steering block, when the ladder measures it. */
+  /**
+   * The time, in seconds, the generator's diagnostics report for building the rhythm orderings
+   * (the lock's order and its change draw; the steering rank later), when the ladder measures it.
+   */
   readonly orderingSeconds?: number
   readonly cold: boolean
 }
@@ -196,8 +204,13 @@ export function phraseOneGenerator(domain: RhythmDomainState): PhraseOneGenerate
     const rhythmDomainMemo = cold
       ? createCanonicalRhythmDomainMemo()
       : SHARED_CANONICAL_RHYTHM_DOMAIN_MEMO
-    const { outcome, seconds } = timed(() => generatePhrase(intent, { rhythmDomainMemo }))
-    return { outcome, seconds, chargedSeconds: seconds + ROUND_TRIP_AND_ENGRAVING_SECONDS, cold }
+    const clocked = timed(() =>
+      generatePhrase(intent, { rhythmDomainMemo, clock: () => performance.now() }),
+    )
+    const { seconds } = clocked
+    const { outcome, orderingSeconds } = splitOrderingsTime(clocked.outcome)
+    const chargedSeconds = seconds + ROUND_TRIP_AND_ENGRAVING_SECONDS
+    return { outcome, seconds, chargedSeconds, orderingSeconds, cold }
   }
 }
 
@@ -205,8 +218,9 @@ export function phraseOneGenerator(domain: RhythmDomainState): PhraseOneGenerate
  * The baseline ladder, standing in for Jam's real one: rung 3 only, phrase 1 generated as at Idle
  * (the case's seed, then the next ones, under the same label), with the lock group and the
  * steering block when given. Attempts run back to back from the generation measure's start, until
- * one generates a phrase or the next would start at or after the deadline. It orders nothing, so
- * it reports no ordering time.
+ * one generates a phrase or the next would start at or after the deadline. Each attempt reports
+ * the time the generator's diagnostics report for building the rhythm orderings (the lock's order
+ * and its change draw; the steering rank later).
  */
 export const BASELINE_LADDER: PhraseOneLadder = {
   name: 'baseline (rung 3 only)',
@@ -227,6 +241,7 @@ export const BASELINE_LADDER: PhraseOneLadder = {
         seconds: generated.seconds,
         chargedSeconds: generated.chargedSeconds,
         failureCode: outcome.kind === 'generation_failure' ? outcome.code : null,
+        orderingSeconds: generated.orderingSeconds,
         cold: generated.cold,
       })
       clock += generated.chargedSeconds

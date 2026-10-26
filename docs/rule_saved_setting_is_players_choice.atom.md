@@ -8,6 +8,7 @@ parents:
   - [[rule_settings_saved_on_change]]
 dependents:
   - [[module_saved_data_loader]]
+  - [[module_session_lock_and_groups_choices]]
 version: 0.1
 priority: 1
 human_name: Saved Setting Is the Player's Choice

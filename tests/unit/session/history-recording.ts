@@ -53,6 +53,7 @@ export function settingsForCell(cell: MatrixCell): SessionSettings {
     selection: { kind: 'custom', baseId: cell.set.musicalProfile === 'Jazz' ? 'jazz' : 'neutral' },
     allowedGroups: ALL_GROUPS_ALLOWED,
     rhythmLockOn: false,
+    allowedRhythmChanges: [],
   }
 }
 

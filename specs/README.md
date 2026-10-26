@@ -57,11 +57,11 @@ Status: draft v0.87
     (D429) and times a fresh Jam's played notes from its count-in (D430); v1.10 words C4's distance
     bands as C8 does (D431) and opens two questions on reading the doodle (D433). v1.11 states that a drawn rhythm change
     whose candidates all fail records "no change available" too (D435). The design is approved (gate D0) and its token pass allowed (T2) (D412). Phones are
-    a third-rate client (D414). Build plan [v3.2](versions/v3/build-plan-v3.2.md) **v18**, from v6,
+    a third-rate client (D414). Build plan [v3.2](versions/v3/build-plan-v3.2.md) **v19**, from v6,
     **approved by the owner** (D416, D417; v5 corrected against the design at `ux-writer`'s review,
     v6 waives hand check H9, v7 takes wave 0's preflight corrections, v8 chunk 0's findings, v9
     chunk 2's report, v10 the CS sign-off, D421, v11 wave 1's preflight corrections, gates CN and
-    CK, D422, D423, v12 chunk 5's change kinds, D424, v13 the steering block's shape, D425, v14 chunk 15's dead-end test, D426, v15 wave 2's preflight corrections, D427–D430, v16 chunk 3's findings, D431–D433, v17 the orderings' time, D434, v18 chunk 11's two points, D435, D436): 32 chunks in eight waves, session mode first, one release, 3.2.0.
+    CK, D422, D423, v12 chunk 5's change kinds, D424, v13 the steering block's shape, D425, v14 chunk 15's dead-end test, D426, v15 wave 2's preflight corrections, D427–D430, v16 chunk 3's findings, D431–D433, v17 the orderings' time, D434, v18 chunk 11's two points, D435, D436, v19 wave 3's preflight corrections and the first-load total, D437, D438): 32 chunks in eight waves, session mode first, one release, 3.2.0.
   - **v3.3:** richer chords, opt-in: one Seventh chords level, Off by default, diatonic sevenths
     only. Master spec [Part D](versions/v3/master-spec.md#part-d--v33), awaiting owner approval
     (D264–D275); build plan [v3.3](versions/v3/build-plan-v3.3.md), v3, not approved, after
@@ -103,7 +103,7 @@ Status: draft v0.87
   [prerequisites](versions/prerequisites.md). v3's build plans: [v3.0](versions/v3/build-plan.md) (complete; chunk 26 is the release gate's
   record), [v3.1](versions/v3/build-plan-v3.1.md) (v23, complete; chunk 21 is the release gate's
   record, and its hand checks H3–H5 follow the tag; on the build-plan model with the shared
-  [v3 build workflow](versions/v3/build-workflow.md), D349; its [wave log](versions/v3/wave-log-v3.1.md)), [v3.2](versions/v3/build-plan-v3.2.md) (v17, rewritten for Jam as its own mode, D416, then corrected against the design; approved, H9 waived, D417; gate CS signed off, D421; wave 1's preflight corrections, D422, D423; chunk 5's change kinds, D424; the steering block's shape, D425; chunk 15's dead-end test, D426; wave 2's preflight corrections, D427–D430; chunk 3's findings, D431–D433; the orderings' time, D434)
+  [v3 build workflow](versions/v3/build-workflow.md), D349; its [wave log](versions/v3/wave-log-v3.1.md)), [v3.2](versions/v3/build-plan-v3.2.md) (v19, rewritten for Jam as its own mode, D416, then corrected against the design; approved, H9 waived, D417; gate CS signed off, D421; wave 1's preflight corrections, D422, D423; chunk 5's change kinds, D424; the steering block's shape, D425; chunk 15's dead-end test, D426; wave 2's preflight corrections, D427–D430; chunk 3's findings, D431–D433; the orderings' time, D434; chunk 11's two points, D435, D436; wave 3's preflight corrections, D437; the first-load total, D438)
   and [v3.3](versions/v3/build-plan-v3.3.md) (v3, on the build-plan model, D351; not approved;
   depends on owner approval of Part D). Every build plan runs wave by
   wave (D252): one intent preflight and one full wave gate per wave; a chunk checks only its own

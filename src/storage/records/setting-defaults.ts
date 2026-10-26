@@ -8,7 +8,9 @@
  * `src/domain/figures/figure-levels.ts`; the preset selection, Neutral, from
  * `src/domain/presets/built-in-presets.ts`; the theme from the generation session's first state
  * (`System`); the audio mix from the design tokens, read at start-up, so it is passed in; the
- * three "During a session" options from the session controller's flags, all off;
+ * three "During a session" options from the session controller's flags, all off, and session
+ * mode's rhythm lock, its allowed rhythm changes and Vary settings' allowed groups from the
+ * session's settings before v3.2 (the lock off, no change allowed, all six groups on);
  * the review's preferences from the review host (MusicXML, no backing track, Played notes hidden);
  * `Keep my played notes` is off, as the player's played notes are kept only after they opt in.
  */
@@ -22,13 +24,23 @@ import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection
 import { NEUTRAL_FIGURE_LEVELS, type FigureLevels } from '@/domain/figures/figure-levels'
 import { DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
 import type { PresetSelection } from '@/domain/presets/preset-selection'
+import type { RhythmChangeKind } from '@/domain/generation/request-rhythm-lock'
+import type { AllowedGroups } from '@/session/settings-mutation-scales'
 
-/** The three "During a session" options, each the player's own opt-in. */
+/**
+ * The "During a session" options, each the player's own opt-in, each saved as a record of its own:
+ * the three flags, then session mode's rhythm lock, the rhythm changes it allows (in
+ * RHYTHM_CHANGE_KINDS order) and the groups Vary settings may move.
+ */
 // @spec-link [[rule_settings_saved_on_change]]
+// @spec-link [[entity_session_option_records]]
 export interface SessionOptionChoices {
   readonly varySettings: boolean
   readonly tensionAcrossPhrases: boolean
   readonly risingTempo: boolean
+  readonly rhythmLockOn: boolean
+  readonly allowedRhythmChanges: readonly RhythmChangeKind[]
+  readonly allowedGroups: AllowedGroups
 }
 
 /** The review's preferences: the generated-notes format, its backing track, the Played notes lane. */
@@ -86,12 +98,28 @@ export const GENERATED_NOTES_FORMATS: readonly GeneratedNotesFormat[] = deepFree
 // @spec-link [[rule_saved_settings_load_tolerantly]]
 export const DEFAULT_THEME: ThemePreference = 'System'
 
-/** The "During a session" options on a first visit: all off, so each is the player's opt-in. */
+/**
+ * The "During a session" options on a first visit: the three flags off, so each is the player's
+ * opt-in; the rhythm lock off with no change allowed, and all six groups allowed, Vary settings as
+ * before the groups existed (the session's ALL_GROUPS_ALLOWED, written out so the entry chunk
+ * loads no session code).
+ */
 // @spec-link [[rule_settings_saved_on_change]]
+// @spec-link [[entity_session_option_records]]
 export const DEFAULT_SESSION_OPTIONS: SessionOptionChoices = deepFreeze({
   varySettings: false,
   tensionAcrossPhrases: false,
   risingTempo: false,
+  rhythmLockOn: false,
+  allowedRhythmChanges: [],
+  allowedGroups: {
+    keyAndMode: true,
+    harmony: true,
+    tension: true,
+    rhythm: true,
+    melodyShape: true,
+    figures: true,
+  },
 })
 
 /** The review's preferences on a first visit: MusicXML, no backing track, Played notes hidden. */

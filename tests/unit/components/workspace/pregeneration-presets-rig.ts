@@ -58,6 +58,7 @@ export function settingsOf(
     selection,
     allowedGroups: ALL_GROUPS_ALLOWED,
     rhythmLockOn: false,
+    allowedRhythmChanges: [],
   }
 }
 

@@ -468,6 +468,17 @@ interface WorkspaceHarnessSessionState {
   /** The page's `Tension across phrases` flag: off at page load, kept from one session to the next. */
   readonly tensionAcrossPhrases: boolean
   /**
+   * Whether `Vary settings` has a move: judged live at Idle and in the Review, held from the start
+   * during a session. While false its `On` cannot be chosen and a session runs without it.
+   */
+  readonly varySettingsAvailable: boolean
+  /** Session mode's rhythm lock: off on a first visit, kept from one session to the next. */
+  readonly rhythmLockOn: boolean
+  /** The rhythm changes the lock allows, in canonical order, kept while the lock is off. */
+  readonly allowedRhythmChanges: readonly string[]
+  /** Which of Vary settings' six groups are on (`keyAndMode`, …, `figures`). */
+  readonly allowedGroups: Readonly<Record<string, boolean>>
+  /**
    * What the read-only controls show while a session runs (its start settings in the count-in,
    * then those the phrase now sounding was generated with); null with no session.
    */
@@ -553,6 +564,22 @@ interface WorkspaceHarnessGenerationRequest {
   readonly settled: WorkspaceHarnessGenerationSettlement
   /** The concert timeline (JSON, as `snapshot().timeline`) of a successful answer; else null. */
   readonly timeline: string | null
+  /**
+   * The intent's rhythm lock group, or null when it carries none (the lock off, or an Idle phrase
+   * 1): the lock state's kind (`pending` or `locked`), the allowed rhythm changes in canonical
+   * order and whether the phrase is a tenser one.
+   */
+  readonly rhythmLock: {
+    readonly state: 'pending' | 'locked'
+    readonly allowedChanges: readonly string[]
+    readonly tenserPhrase: boolean
+  } | null
+  /**
+   * What the lock did to a successful answer (its provenance's `rhythmLockOutcome`:
+   * `rhythm_change`, `locked_bars` or `forced_bend`); null while unanswered, for a failure and
+   * for an answer under no locked bars.
+   */
+  readonly rhythmLockOutcome: 'rhythm_change' | 'locked_bars' | 'forced_bend' | null
 }
 
 /**
