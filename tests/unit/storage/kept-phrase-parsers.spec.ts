@@ -81,6 +81,7 @@ function jazzSettings(): SessionSettings {
     selection: { kind: 'preset', presetId: 'jazz' },
     allowedGroups: ALL_GROUPS_ALLOWED,
     rhythmLockOn: false,
+    allowedRhythmChanges: [],
   }
 }
 

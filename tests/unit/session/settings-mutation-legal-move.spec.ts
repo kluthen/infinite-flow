@@ -65,6 +65,7 @@ function cIonian(
     selection: { kind: 'preset', presetId: 'neutral' },
     allowedGroups,
     rhythmLockOn,
+    allowedRhythmChanges: [],
   }
 }
 

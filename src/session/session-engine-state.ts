@@ -6,6 +6,7 @@
 
 import type { AdaptiveTempoSchedule } from './adaptive-tempo'
 import type { LookAhead } from './failure-ladder'
+import { rhythmLockAfterDecision, type SessionRhythmLock } from './rhythm-lock-session'
 import type { IntentSeams } from './session-intents'
 import type { ReadyPhrase } from './session-ready-phrases'
 import {
@@ -37,12 +38,15 @@ export interface EngineContext extends IntentSeams {
 
 /**
  * A decided phrase not yet sounding, kept so a settings change can discard it: the look-ahead it
- * was decided from (its phrase before, deadline and basis) and the notice before its decision.
+ * was decided from (its phrase before, deadline and basis), and the notice and the rhythm lock
+ * state before its decision.
  */
 // @spec-link [[rule_session_change_applies_at_phrase_boundary]]
+// @spec-link [[module_session_rhythm_lock]]
 export interface DecidedPhrase {
   readonly lookAhead: LookAhead
   readonly notice: StrugglingNotice
+  readonly rhythmLock: SessionRhythmLock | undefined
 }
 
 /**
@@ -65,10 +69,11 @@ export interface SessionTempo {
  * `decided` its record once decided until it starts sounding; `soundedCount` is how many phrases
  * have started sounding; `tempo` is the adaptive-tempo schedule and each phrase's fixed tempo,
  * kept apart from the settings; `readyRefused` tells that a ready phrase was refused, so no later
- * one is spent.
+ * one is spent; `rhythmLock` is the session's rhythm lock state, none while the lock is off.
  */
 // @spec-link [[service_session_engine]]
 // @spec-link [[rule_session_change_applies_at_phrase_boundary]]
+// @spec-link [[module_session_rhythm_lock]]
 export interface EngineState {
   readonly phase: 'count-in' | 'running' | 'ended'
   readonly lastAt: AudioTime
@@ -83,6 +88,7 @@ export interface EngineState {
   readonly nextAttemptId: number
   readonly tempo: SessionTempo
   readonly readyRefused: boolean
+  readonly rhythmLock: SessionRhythmLock | undefined
 }
 
 /** A new state and the outputs that produced it. */
@@ -110,27 +116,32 @@ export function decidedOf(state: EngineState): DecidedPhrase {
 
 /**
  * Intent: take back the decision of the phrase not yet sounding, as if it was never decided: the
- * phrase before is the latest decided again, with its settings, and the notice is as it was.
+ * phrase before is the latest decided again, with its settings, and the notice and the rhythm lock
+ * state are as they were, so a discarded re-lock phrase leaves the re-lock pending.
  */
 // @spec-link [[rule_session_change_applies_at_phrase_boundary]]
 // @spec-link [[rule_struggling_generator_notice]]
+// @spec-link [[rule_rhythm_lock_relocks_after_step_down]]
 export function undecide(state: EngineState): EngineState {
-  const { lookAhead, notice } = decidedOf(state)
+  const { lookAhead, notice, rhythmLock } = decidedOf(state)
   return {
     ...state,
     lastDecided: lookAhead.previous,
     lastDecidedSettings: lookAhead.basis.previousSettings,
     decided: undefined,
     notice,
+    rhythmLock,
   }
 }
 
 /**
  * Intent: decide the look-ahead phrase: it is the next one to show, generated under its basis's
- * settings (a repeat under those of the phrase it repeats), and the notice learns of it. Its
- * look-ahead and the notice before are kept until it sounds, for a settings change to discard it.
+ * settings (a repeat under those of the phrase it repeats), the notice learns of it, and a re-lock
+ * phrase's bars become the locked ones. Its look-ahead, the notice and the rhythm lock state
+ * before are kept until it sounds, for a settings change to discard it.
  */
 // @spec-link [[service_session_engine]]
+// @spec-link [[rule_rhythm_lock_relocks_after_step_down]]
 export function decide(state: EngineState, phrase: SessionPhrase): Step {
   const lookAhead = lookAheadOf(state)
   const { notice, outputs } = noticeOnDecision(state.notice, phrase.origin)
@@ -140,10 +151,15 @@ export function decide(state: EngineState, phrase: SessionPhrase): Step {
     state: {
       ...state,
       lookAhead: undefined,
-      decided: { lookAhead: { ...lookAhead, attempt: undefined }, notice: state.notice },
+      decided: {
+        lookAhead: { ...lookAhead, attempt: undefined },
+        notice: state.notice,
+        rhythmLock: state.rhythmLock,
+      },
       lastDecided: phrase,
       lastDecidedSettings,
       notice,
+      rhythmLock: rhythmLockAfterDecision(state.rhythmLock, phrase),
     },
     outputs: [{ kind: 'phrase-ready', phrase }, ...outputs],
   }

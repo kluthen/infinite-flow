@@ -42,6 +42,7 @@ function defaultsWith(overrides: Partial<GenerationControls> = {}): SessionSetti
     selection: DEFAULT_PRESET_SELECTION,
     allowedGroups: ALL_GROUPS_ALLOWED,
     rhythmLockOn: false,
+    allowedRhythmChanges: [],
   }
 }
 

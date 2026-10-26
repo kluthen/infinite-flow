@@ -361,6 +361,7 @@ function allStartSettings(): SessionSettings[] {
     selection: { kind: 'custom', baseId: profiles[index] === 'Jazz' ? 'jazz' : 'neutral' },
     allowedGroups: ALL_GROUPS_ALLOWED,
     rhythmLockOn: false,
+    allowedRhythmChanges: [],
   }))
 }
 

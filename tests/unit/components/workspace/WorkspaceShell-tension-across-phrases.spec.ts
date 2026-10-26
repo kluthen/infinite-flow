@@ -85,6 +85,7 @@ const VARIED_TENSION: SessionSettings = {
   selection: { kind: 'custom', baseId: 'neutral' },
   allowedGroups: ALL_GROUPS_ALLOWED,
   rhythmLockOn: false,
+  allowedRhythmChanges: [],
 }
 
 // @test-link [[req_multi_phrase_tension_arc]]
@@ -156,6 +157,7 @@ describe('WorkspaceShell: the Tension across phrases control', () => {
       selection: DEFAULT_PRESET_SELECTION,
       allowedGroups: ALL_GROUPS_ALLOWED,
       rhythmLockOn: false,
+      allowedRhythmChanges: [],
     }
     await nextTick()
     expect(checked(wrapper, 'Tension')).toBe('Lift')

@@ -3,8 +3,9 @@
  * audio clock, a generator that answers instantly, every phrase fitting), a workspace session's
  * decided phrases and settings changes are identical, request ids aside, whether it starts with
  * the phrases the pre-generation plan made for the same phrase 1 and session seed or with none,
- * Vary settings and Tension across phrases on or off, and under a preset whose restriction is in
- * force at Start, which both freeze into their start settings.
+ * Vary settings and Tension across phrases on or off, under a preset whose restriction is in
+ * force at Start, which both freeze into their start settings, and under the rhythm lock, every
+ * ready phrase spent, drawn changes and a re-lock among them.
  */
 
 import { describe, expect, it } from 'vitest'
@@ -23,11 +24,18 @@ import { choosePreset } from '@/domain/presets/preset-selection'
 import { makeSeed, type Seed } from '@/domain/random/seed'
 import { ALL_GROUPS_ALLOWED, withRestrictionAtStart } from '@/session/settings-mutation'
 import { mutationContextAtStart } from '@/session/session-mutation-step'
+import { createPregenerationPlan } from '@/session/session-pregeneration'
 import type { ReadyPhrase } from '@/session/session-ready-phrases'
 import { measureSeconds } from '@/session/session-timing'
 import type { SessionOutput, SessionSettings } from '@/session/session-types'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
-import { planSeams, planStart, plannedReadyPhrases } from './pregeneration-harness'
+import {
+  RHYTHM_CHANGE_KINDS,
+  type LockedRhythmMeasure,
+  type RhythmChangeKind,
+} from '@/domain/generation/request-rhythm-lock'
+import { planSeams, planStart, runPlan, type PlanRun } from './pregeneration-harness'
+import { barsOf, expectedGroup, expectedTenser } from './rhythm-lock-sessions'
 import {
   DEFAULT_SESSION_SEED,
   UNREAD_DISPLAY,
@@ -71,6 +79,12 @@ interface SessionCase {
   readonly changedAtIdle?: Partial<GenerationControls>
   /** A preset chosen at Idle from the base settings, its restriction frozen in at Start. */
   readonly preset?: BuiltInPresetId
+  /** Base controls other than the defaults, phrase 1 generated under them. */
+  readonly controls?: Partial<GenerationControls>
+  /** With the rhythm lock on, the changes allowed; absent, the lock is off. */
+  readonly allowedRhythmChanges?: readonly RhythmChangeKind[]
+  /** Whether the window is below tablet landscape for the plan and the session. */
+  readonly narrow?: boolean
 }
 
 /** Intent: the base settings at 60 BPM after choosing `preset`, as Start takes them. */
@@ -88,23 +102,36 @@ function settingsUnder(preset: BuiltInPresetId): SessionSettings {
       selection: chosen.selection,
       allowedGroups: ALL_GROUPS_ALLOWED,
       rhythmLockOn: false,
+      allowedRhythmChanges: [],
     },
     BUILT_IN_PRESETS,
   )
 }
 
+/** Intent: settings with the case's rhythm lock: on with its allowed changes, or off as given. */
+function withCaseLock(settings: SessionSettings, options: SessionCase): SessionSettings {
+  const allowed = options.allowedRhythmChanges
+  if (allowed === undefined) return settings
+  return { ...settings, rhythmLockOn: true, allowedRhythmChanges: allowed }
+}
+
 /**
- * Intent: a case's settings: phrase 1's, the base settings at 60 BPM, and the session's, those
- * with the case's Idle change; with none, the two are the same.
+ * Intent: a case's settings: phrase 1's, the base settings at 60 BPM with the case's controls, and
+ * the session's, those with the case's Idle change; with none, the two are the same. Both carry
+ * the case's rhythm lock.
  */
 function caseSettings(options: SessionCase): {
   readonly phraseOne: SessionSettings
   readonly session: SessionSettings
 } {
-  const phraseOne =
-    options.preset === undefined ? sessionSettings({ tempo: TEMPO }) : settingsUnder(options.preset)
+  const base = { tempo: TEMPO, ...options.controls }
+  const phraseOne = withCaseLock(
+    options.preset === undefined ? sessionSettings(base) : settingsUnder(options.preset),
+    options,
+  )
   if (options.changedAtIdle === undefined) return { phraseOne, session: phraseOne }
-  return { phraseOne, session: sessionSettings({ tempo: TEMPO, ...options.changedAtIdle }) }
+  const session = withCaseLock(sessionSettings({ ...base, ...options.changedAtIdle }), options)
+  return { phraseOne, session }
 }
 
 /** What one session gave: every output, in order. */
@@ -124,8 +151,7 @@ async function runSession(
   const clock = { at: 0 }
   const log: SessionOutput[] = []
   const errors: unknown[] = []
-  const { changedAtIdle, preset, ...flags } = options
-  void preset
+  const { changedAtIdle, varySettings, multiPhraseTensionArc, sessionSeed } = options
   const settings = caseSettings(options)
   const runner = startWorkspaceSessionRunner(
     {
@@ -133,7 +159,7 @@ async function runSession(
       checkFit: () => Promise.resolve(true),
       now: () => clock.at,
       providers: queuedProviders(),
-      viewport: fakeViewport(false),
+      viewport: fakeViewport(options.narrow === true),
       display: UNREAD_DISPLAY,
       onOutput: (output) => log.push(output),
       onError: (error) => errors.push(error),
@@ -144,7 +170,9 @@ async function runSession(
       phraseOne: phraseOneFor(settings.phraseOne),
       ...(changedAtIdle === undefined ? {} : { phraseOneSettings: settings.phraseOne }),
       adaptiveTempo: false,
-      ...flags,
+      varySettings,
+      multiPhraseTensionArc,
+      sessionSeed,
       ...(readyPhrases === undefined ? {} : { readyPhrases }),
     },
   )
@@ -160,25 +188,33 @@ async function runSession(
   return { log }
 }
 
+/** Intent: the plan for a case's phrase 1, seed and options, run with real results. */
+function planFor(options: SessionCase): PlanRun {
+  const settings = caseSettings(options)
+  return runPlan(
+    createPregenerationPlan(
+      planSeams(options.narrow === true),
+      planStart({
+        settings: settings.session,
+        phraseOne: phraseOneFor(settings.phraseOne),
+        ...(options.changedAtIdle === undefined ? {} : { phraseOneSettings: settings.phraseOne }),
+        sessionSeed: options.sessionSeed,
+        mutation: mutationFlagFor(
+          options.varySettings,
+          options.sessionSeed,
+          settings.session,
+          mutationContextAtStart(phraseOneFor(settings.phraseOne), false),
+        ),
+        multiPhraseTensionArc: options.multiPhraseTensionArc,
+      }),
+      [],
+    ),
+  )
+}
+
 /** Intent: the ready phrases the plan makes for a case's phrase 1, seed and options. */
 function readyFor(options: SessionCase): readonly ReadyPhrase[] {
-  const settings = caseSettings(options)
-  return plannedReadyPhrases(
-    planSeams(),
-    planStart({
-      settings: settings.session,
-      phraseOne: phraseOneFor(settings.phraseOne),
-      ...(options.changedAtIdle === undefined ? {} : { phraseOneSettings: settings.phraseOne }),
-      sessionSeed: options.sessionSeed,
-      mutation: mutationFlagFor(
-        options.varySettings,
-        options.sessionSeed,
-        settings.session,
-        mutationContextAtStart(phraseOneFor(settings.phraseOne), false),
-      ),
-      multiPhraseTensionArc: options.multiPhraseTensionArc,
-    }),
-  )
+  return planFor(options).plan.readyPhrases
 }
 
 /** Intent: every output of one kind a session gave, in order. */
@@ -330,6 +366,138 @@ describe('a session under a restriction in force, with and without pre-generatio
       for (const change of changes) {
         const { tonalCenter, collection } = change.settings.controls
         expect(allowsKeyAndMode(reel, tonalCenter, collection)).toBe(true)
+      }
+      const requested = outputsOf(withReady, 'request-generation').map(
+        (request) => request.phraseNumber,
+      )
+      expect(requested.every((phraseNumber) => phraseNumber >= 6)).toBe(true)
+    },
+    SESSIONS_TIMEOUT_MS,
+  )
+})
+
+/** Intent: the session seed of lock case `index`, spread over the 32 bits. */
+function lockCaseSeed(index: number): Seed {
+  return makeSeed(Math.imul(0x9e37_79b1, index + 1) >>> 0)
+}
+
+/**
+ * Lock sessions at Lift: every change allowed with Tension across phrases on and off on three
+ * spread seeds, one with Vary settings on, and one strict session with no change allowed. On each
+ * of these seeds with changes allowed, some ready phrase takes a drawn change.
+ */
+const LOCK_CASES: readonly SessionCase[] = [
+  ...[0, 1, 2].flatMap((index) =>
+    [true, false].map((multiPhraseTensionArc) => ({
+      allowedRhythmChanges: RHYTHM_CHANGE_KINDS,
+      multiPhraseTensionArc,
+      varySettings: index === 2,
+      sessionSeed: lockCaseSeed(index),
+    })),
+  ),
+  {
+    allowedRhythmChanges: [],
+    multiPhraseTensionArc: true,
+    varySettings: false,
+    sessionSeed: lockCaseSeed(3),
+  },
+].map((lockCase) => ({ ...lockCase, controls: { tension: 'Lift' } }))
+
+/** Intent: whether a decided or ready phrase's outcome took a drawn rhythm change. */
+function tookChange(entry: { readonly outcome: ReadyPhrase['outcome'] }): boolean {
+  return entry.outcome.provenance.rhythmLockOutcome === 'rhythm_change'
+}
+
+// @test-link [[rule_pregenerated_phrase_matches_session]]
+// @test-link [[module_session_ready_phrases]]
+// @test-link [[module_session_pregeneration_plan]]
+// @test-link [[module_session_rhythm_lock]]
+describe('a session under the rhythm lock, with and without pre-generation', () => {
+  // @test-link [[rule_pregenerated_phrase_matches_session]]
+  // @test-link [[module_session_ready_phrases]]
+  // @test-link [[module_session_pregeneration_plan]]
+  // @test-link [[module_session_rhythm_lock]]
+  it.each(LOCK_CASES)(
+    'spends every ready phrase and decides identical phrases (allowed $allowedRhythmChanges, Tension $multiPhraseTensionArc, Vary $varySettings, seed $sessionSeed)',
+    async (options) => {
+      const ready = readyFor(options)
+      expect(ready.map((entry) => entry.phraseNumber)).toEqual([2, 3, 4, 5])
+      expect(ready.every((entry) => entry.intent.rhythmLock !== undefined)).toBe(true)
+      const changesAllowed = (options.allowedRhythmChanges ?? []).length > 0
+      expect(ready.some(tookChange), 'a ready phrase took a rhythm change').toBe(changesAllowed)
+      const without = await runSession(options, undefined)
+      const withReady = await runSession(options, ready)
+      expect(decidedPhrases(withReady)).toEqual(decidedPhrases(without))
+      expect(outputsOf(withReady, 'settings-changed')).toEqual(
+        outputsOf(without, 'settings-changed'),
+      )
+      const requested = outputsOf(withReady, 'request-generation').map(
+        (request) => request.phraseNumber,
+      )
+      expect(requested.length).toBeGreaterThan(0)
+      expect(requested.every((phraseNumber) => phraseNumber >= 6)).toBe(true)
+    },
+    SESSIONS_TIMEOUT_MS,
+  )
+})
+
+/** Intent: whether bars hold a note or rest starting or lasting off the two-tick Eighth grid. */
+function offEighthGrid(bars: readonly LockedRhythmMeasure[]): boolean {
+  return bars.some((measure) =>
+    measure.some((event) => event.startTick % 2 === 1 || event.durationTicks % 2 === 1),
+  )
+}
+
+/**
+ * Re-lock sessions: Sixteenth chosen at Lift with every change allowed, phrase 1 generated wide
+ * (its bars using sixteenth notes) and the window narrow for the plan and the session, so phrase 2
+ * is generated with Eighth and is the re-lock phrase.
+ */
+const RELOCK_CASES: readonly SessionCase[] = [true, false].map((multiPhraseTensionArc, index) => ({
+  allowedRhythmChanges: RHYTHM_CHANGE_KINDS,
+  controls: { noteDensity: 'Sixteenth', tension: 'Lift' },
+  narrow: true,
+  multiPhraseTensionArc,
+  varySettings: false,
+  sessionSeed: lockCaseSeed(4 + index),
+}))
+
+// @test-link [[rule_pregenerated_phrase_matches_session]]
+// @test-link [[module_session_pregeneration_plan]]
+// @test-link [[module_session_rhythm_lock]]
+// @test-link [[rule_rhythm_lock_relocks_after_step_down]]
+describe('a re-lock among the ready phrases, with and without pre-generation', () => {
+  // @test-link [[rule_pregenerated_phrase_matches_session]]
+  // @test-link [[module_session_pregeneration_plan]]
+  // @test-link [[rule_rhythm_lock_relocks_after_step_down]]
+  it.each(RELOCK_CASES)(
+    'plans and spends phrase 2 as the re-lock phrase, as the session decides it (Tension $multiPhraseTensionArc)',
+    async (options) => {
+      const { attempts, plan } = planFor(options)
+      const ready = plan.readyPhrases
+      expect(ready.map((entry) => entry.phraseNumber)).toEqual([2, 3, 4, 5])
+      const phraseOneBars = barsOf(phraseOneFor(caseSettings(options).phraseOne).outcome)
+      expect(offEighthGrid(phraseOneBars)).toBe(true)
+      const relockBars = barsOf(ready[0]!.outcome)
+      const arc = options.multiPhraseTensionArc
+      for (const attempt of attempts) {
+        const { phraseNumber, intent } = attempt
+        expect(intent.controls.noteDensity).toBe('Eighth')
+        const tenser = expectedTenser(arc, phraseNumber, 'Lift')
+        expect(intent.rhythmLock, `phrase ${phraseNumber}`).toEqual(
+          phraseNumber === 2
+            ? expectedGroup(phraseOneBars, [], tenser)
+            : expectedGroup(relockBars, RHYTHM_CHANGE_KINDS, tenser),
+        )
+      }
+      const without = await runSession(options, undefined)
+      const withReady = await runSession(options, ready)
+      expect(decidedPhrases(withReady)).toEqual(decidedPhrases(without))
+      for (const run of [without, withReady]) {
+        const phrases = outputsOf(run, 'phrase-ready').map((output) => output.phrase)
+        expect(phrases.map((phrase) => phrase.relock === true)).toEqual(
+          phrases.map((phrase) => phrase.phraseNumber === 2),
+        )
       }
       const requested = outputsOf(withReady, 'request-generation').map(
         (request) => request.phraseNumber,

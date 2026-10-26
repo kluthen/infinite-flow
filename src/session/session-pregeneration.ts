@@ -3,8 +3,9 @@
  * a time, the phrases 2 to 5 a session would generate after a given phrase 1, so that what is made
  * at Idle is exactly what the session would ask for at each place. Every request is built through
  * the session engine's own functions (the mutation landing, the tension-arc step, the look-ahead
- * basis from the carry-in, each rung's intent with its planned seed), and the step-down memory and
- * the settings in effect carry from phrase to phrase as they do in the engine. It reads no clock,
+ * basis from the carry-in, each rung's intent with its planned seed and rhythm lock group), and
+ * the step-down memory, the rhythm lock state and the settings in effect carry from phrase to
+ * phrase as they do in the engine. It reads no clock,
  * touches no page and posts nothing: its only seams are the request-identity provider, from which
  * each attempt's request id is drawn, and the window-width reading. Each plan value is immutable;
  * stepping it gives the next one.
@@ -45,6 +46,7 @@ import {
   type SuccessfulOutcome,
 } from './session-types'
 import type { SettingsMutationFlag } from './settings-mutation'
+import { rhythmLockAfterDecision, sessionRhythmLockAtStart } from './rhythm-lock-session'
 import { phraseOneSettingsAtStart } from './stale-phrase-one'
 import { requireTensionArcFlag } from './tension-arc-cycle'
 
@@ -110,12 +112,16 @@ export interface PregenerationPlan {
 /** Everything fixed for a whole plan: the seams, the session seed and both session flags. */
 type PlanContext = IntentSeams & PhraseOpeningSeams
 
-/** The attempt in flight: the phrase it is for, its rung, the step it takes and its intent. */
+/**
+ * The attempt in flight: the phrase it is for, its rung, the step it takes, its intent and whether
+ * that intent carries the rhythm lock's re-lock group.
+ */
 interface PendingAttempt {
   readonly opened: OpenedPhrase
   readonly rung: LadderRung
   readonly step: 'carry-in' | 'standalone'
   readonly intent: GenerationIntent
+  readonly relock: boolean
 }
 
 /** The plan's state between results. */
@@ -139,9 +145,11 @@ function planContext(seams: PregenerationSeams, start: PregenerationStart): Plan
 
 /**
  * Intent: the course at the start, as the engine's: phrase 1 decided under its own settings, so
- * phrase 2 is planned joined to it as the session joins it after a stale phrase 1 is used.
+ * phrase 2 is planned joined to it as the session joins it after a stale phrase 1 is used, and
+ * with the rhythm lock on, phrase 1's written bars locked.
  */
 // @spec-link [[rule_pregenerated_phrase_matches_session]]
+// @spec-link [[module_session_rhythm_lock]]
 function initialCourse(start: PregenerationStart): PhraseCourse {
   if (start.phraseOne.outcome.kind !== 'generation_success')
     throw new SessionEngineError('Phrase 1 must be a successfully generated phrase.')
@@ -157,14 +165,18 @@ function initialCourse(start: PregenerationStart): PhraseCourse {
     lastDecided: phraseOne,
     lastDecidedSettings: phraseOneSettingsAtStart(settings, start.phraseOneSettings),
     steppedDown: false,
+    rhythmLock: sessionRhythmLockAtStart(settings, phraseOne),
   }
 }
 
 /**
- * Intent: the course once an opened phrase is decided: its settings in effect, the phrase as the
- * latest decided one under its basis's settings, and the step-down memory as it now stands.
+ * Intent: the course once an opened phrase is decided after the previous course: its settings in
+ * effect, the phrase as the latest decided one under its basis's settings, the step-down memory as
+ * it now stands, and the rhythm lock state after it (a re-lock phrase's bars locked).
  */
+// @spec-link [[module_session_rhythm_lock]]
 function decidedCourse(
+  previousCourse: PhraseCourse,
   opened: OpenedPhrase,
   phrase: SessionPhrase,
   steppedDown: boolean,
@@ -174,6 +186,7 @@ function decidedCourse(
     lastDecided: phrase,
     lastDecidedSettings: opened.basis.settings,
     steppedDown,
+    rhythmLock: rhythmLockAfterDecision(previousCourse.rhythmLock, phrase),
   }
 }
 
@@ -192,9 +205,18 @@ function replayReady(
   for (const ready of readyPhrases) {
     const opened = openNextPhrase(context, course)
     const { lastDecided, steppedDown } = course
-    const rebuilt = rederivedReadyPhrase(context, lastDecided, opened.basis, ready, steppedDown)
+    const { basis, rhythmLock } = opened
+    const rebuilt = rederivedReadyPhrase(
+      context,
+      lastDecided,
+      basis,
+      ready,
+      steppedDown,
+      rhythmLock,
+    )
     if (rebuilt === undefined) break
-    course = decidedCourse(opened, spentPhrase(ready, rebuilt.step), rebuilt.steppedDown)
+    const phrase = spentPhrase(ready, rebuilt.step, rebuilt.relock)
+    course = decidedCourse(course, opened, phrase, rebuilt.steppedDown)
     spent.push(ready)
   }
   return { course, spent }
@@ -203,7 +225,7 @@ function replayReady(
 /**
  * Intent: request one rung of an opened phrase: the request ids of the `skipped` rungs are drawn
  * and discarded first, then its intent is built with its own rung's planned seed, the window read
- * now and the step-down memory updated.
+ * now, the step-down memory updated and the phrase's rhythm lock group.
  */
 function requestRung(
   context: PlanContext,
@@ -214,8 +236,17 @@ function requestRung(
 ): PlanState {
   discardSkippedRungs(context, skipped)
   const { course } = state
-  const built = buildRungIntent(context, course.lastDecided, opened.basis, rung, course.steppedDown)
-  const pending: PendingAttempt = { opened, rung, step: built.step, intent: built.intent }
+  const { lastDecided, steppedDown } = course
+  const built = buildRungIntent(
+    context,
+    lastDecided,
+    opened.basis,
+    rung,
+    steppedDown,
+    opened.rhythmLock,
+  )
+  const { step, intent, relock } = built
+  const pending: PendingAttempt = { opened, rung, step, intent, relock }
   return { ...state, course: { ...course, steppedDown: built.steppedDown }, pending }
 }
 
@@ -248,7 +279,7 @@ function takeResult(
   const { pending } = state
   if (pending === undefined)
     throw new SessionEngineError(`The pre-generation plan has stopped (${state.stopped}).`)
-  const { opened, rung, step, intent } = pending
+  const { opened, rung, step, intent, relock } = pending
   if (result.kind === 'fits') {
     if (result.outcome.kind !== 'generation_success')
       throw new SessionEngineError('A fitting attempt must have a successful outcome.')
@@ -258,7 +289,8 @@ function takeResult(
       intent,
       outcome: result.outcome,
     })
-    const course = decidedCourse(opened, spentPhrase(ready, step), state.course.steppedDown)
+    const phrase = spentPhrase(ready, step, relock)
+    const course = decidedCourse(state.course, opened, phrase, state.course.steppedDown)
     return planNext(context, course, [...state.readyPhrases, ready])
   }
   const next = rungAfterFailure({ rung, step }, result, false)

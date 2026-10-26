@@ -12,6 +12,7 @@ import type { CarryIn } from '../domain/generation/carry-in/carry-in'
 import type { GenerationIntent } from '../domain/generation/generation-intent'
 import type { GenerationFailureCode } from '../domain/generation/orchestration/orchestration-types'
 import type { CarryInAdaptation } from './carry-in-adaptation'
+import type { PhraseRhythmLock } from './rhythm-lock-session'
 import type { AudioTime, SessionPhrase, SessionSettings, SuccessfulOutcome } from './session-types'
 
 /** One rung of the ladder: its step and how many attempts for the phrase came before it. */
@@ -33,10 +34,12 @@ export const LADDER: readonly LadderRung[] = Object.freeze([
 
 /**
  * The attempt in flight: generating, or generated and waiting for its fit check. Only a phrase
- * that fits the staff can become ready.
+ * that fits the staff can become ready. `relock` tells that its intent carries the rhythm lock's
+ * re-lock group, so the phrase it makes, once accepted, is the re-lock phrase.
  */
 // @spec-link [[rule_session_generation_failure_ladder]]
 // @spec-link [[rule_look_ahead_phrase_must_fit_staff]]
+// @spec-link [[module_session_rhythm_lock]]
 export type Attempt =
   | {
       readonly attemptId: number
@@ -44,6 +47,7 @@ export type Attempt =
       /** The step actually taken: the rung's, or standalone for every rung of a standalone phrase. */
       readonly step: 'carry-in' | 'standalone'
       readonly intent: GenerationIntent
+      readonly relock: boolean
       readonly stage: 'generating'
     }
   | {
@@ -51,6 +55,7 @@ export type Attempt =
       readonly rung: LadderRung
       readonly step: 'carry-in' | 'standalone'
       readonly intent: GenerationIntent
+      readonly relock: boolean
       readonly stage: 'fitting'
       readonly outcome: SuccessfulOutcome
     }
@@ -72,17 +77,20 @@ export interface LookAheadBasis {
 
 /**
  * The phrase being looked ahead for, not yet decided: its number, its deadline, the phrase before
- * and the carry-in derived from it, what its attempts are built from, and the attempt in flight,
- * if any (none once the ladder is exhausted).
+ * and the carry-in derived from it, what its attempts are built from, the rhythm lock groups every
+ * rung of it carries (none while the lock is off), and the attempt in flight, if any (none once
+ * the ladder is exhausted).
  */
 // @spec-link [[rule_session_generation_failure_ladder]]
 // @spec-link [[module_session_failure_ladder]]
+// @spec-link [[module_session_rhythm_lock]]
 export interface LookAhead {
   readonly phraseNumber: number
   readonly deadline: AudioTime
   readonly previous: SessionPhrase
   readonly carryIn: CarryIn
   readonly basis: LookAheadBasis
+  readonly rhythmLock: PhraseRhythmLock | undefined
   readonly attempt: Attempt | undefined
 }
 
@@ -99,13 +107,18 @@ export function carryInAfter(previous: SessionPhrase): CarryIn {
   })
 }
 
-/** Intent: open the look-ahead for the phrase after `previous`, with its carry-in and basis. */
+/**
+ * Intent: open the look-ahead for the phrase after `previous`, with its carry-in, basis and the
+ * rhythm lock groups its rungs carry.
+ */
 // @spec-link [[rule_session_generation_failure_ladder]]
+// @spec-link [[module_session_rhythm_lock]]
 export function openLookAhead(
   previous: SessionPhrase,
   carryIn: CarryIn,
   basis: LookAheadBasis,
   deadline: AudioTime,
+  rhythmLock: PhraseRhythmLock | undefined,
 ): LookAhead {
   return {
     phraseNumber: previous.phraseNumber + 1,
@@ -113,6 +126,7 @@ export function openLookAhead(
     previous,
     carryIn,
     basis,
+    rhythmLock,
     attempt: undefined,
   }
 }
@@ -221,8 +235,12 @@ export function currentAttempt(
   return attempt?.attemptId === attemptId ? attempt : undefined
 }
 
-/** Intent: the record of an accepted attempt: generated with or without carry-in, and fitting. */
+/**
+ * Intent: the record of an accepted attempt: generated with or without carry-in, and fitting,
+ * with the re-lock mark when the attempt carried the re-lock group.
+ */
 // @spec-link [[rule_look_ahead_phrase_must_fit_staff]]
+// @spec-link [[rule_rhythm_lock_relocks_after_step_down]]
 export function acceptedPhrase(
   lookAhead: LookAhead,
   attempt: Extract<Attempt, { stage: 'fitting' }>,
@@ -232,12 +250,14 @@ export function acceptedPhrase(
     origin: attempt.step,
     intent: attempt.intent,
     outcome: attempt.outcome,
+    ...(attempt.relock ? { relock: true as const } : {}),
   }
 }
 
 /**
  * Intent: the repeat decided at the deadline when no valid phrase exists: the phrase before, as
  * the next phrase, marked with the internal repeat origin and the number of the phrase repeated.
+ * A repeat is no generated phrase, so it never carries the re-lock mark.
  */
 // @spec-link [[rule_session_generation_failure_ladder]]
 // @spec-link [[rule_repeat_phrase_marked_internally_only]]

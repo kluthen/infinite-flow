@@ -48,6 +48,7 @@ const VARIED: SessionSettings = {
   selection: { kind: 'custom', baseId: 'neutral' },
   allowedGroups: ALL_GROUPS_ALLOWED,
   rhythmLockOn: false,
+  allowedRhythmChanges: [],
 }
 
 /** Intent: mount the shell over `session` and `controller` (null while it loads). */
@@ -110,6 +111,7 @@ const START: SessionSettings = {
   selection: { kind: 'preset', presetId: 'neutral' },
   allowedGroups: ALL_GROUPS_ALLOWED,
   rhythmLockOn: false,
+  allowedRhythmChanges: [],
 }
 
 // @test-link [[req_settings_mutation_flag]]

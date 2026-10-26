@@ -78,6 +78,7 @@ function currentSettings(
     selection: idle.selection,
     allowedGroups: ALL_GROUPS_ALLOWED,
     rhythmLockOn: false,
+    allowedRhythmChanges: [],
   }
   if (idle.controls.instrumentProfileId !== MY_INSTRUMENT_ID) return settings
   if (idle.myInstrument === null)

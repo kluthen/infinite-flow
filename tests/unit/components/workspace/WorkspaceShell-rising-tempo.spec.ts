@@ -117,6 +117,7 @@ async function startSession(wrapper: Shell, fake: FakeSessionController, hasCont
     selection: DEFAULT_PRESET_SELECTION,
     allowedGroups: ALL_GROUPS_ALLOWED,
     rhythmLockOn: false,
+    allowedRhythmChanges: [],
   }
   await nextTick()
 }

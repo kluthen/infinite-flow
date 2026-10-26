@@ -300,7 +300,7 @@ describe('the rung after a failed attempt', () => {
 /** Intent: an attempt on a rung, with a step and a stage, built from a real requested intent. */
 function attemptOn(rungIndex: number, step: Attempt['step'], stage: Attempt['stage']): Attempt {
   const { intent } = varyingDriver().lastRequest()
-  const base = { attemptId: 1, rung: LADDER[rungIndex]!, step, intent }
+  const base = { attemptId: 1, rung: LADDER[rungIndex]!, step, intent, relock: false }
   return stage === 'generating'
     ? { ...base, stage }
     : { ...base, stage, outcome: successFor(intent) }

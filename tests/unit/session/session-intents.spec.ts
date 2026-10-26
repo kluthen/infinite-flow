@@ -13,6 +13,7 @@ import {
   type FigureId,
   type FigureLevel,
 } from '@/domain/figures/figure-levels'
+import { RHYTHM_CHANGE_KINDS, type RhythmChangeKind } from '@/domain/generation/request-rhythm-lock'
 import type { PresetSelection } from '@/domain/presets/preset-selection'
 import { freezeSessionSettings } from '@/session/session-intents'
 import { SessionEngineError, type SessionSettings } from '@/session/session-types'
@@ -75,6 +76,7 @@ describe('settings locked at start', () => {
       selection,
       allowedGroups: ALL_GROUPS_ALLOWED,
       rhythmLockOn: false,
+      allowedRhythmChanges: [],
     }
     const phraseOne = phraseOneFor(settings)
     const driver = new SessionDriver({ at: 0, settings, phraseOne })
@@ -199,14 +201,22 @@ describe("the settings' allowed groups and rhythm lock state", () => {
 
   // @test-link [[rule_session_settings_locked]]
   // @test-link [[rule_vary_settings_allowed_groups]]
-  it('keeps them as given, frozen, and builds no intent from them', () => {
+  it('keeps them as given, frozen, and builds no intent from the allowed groups', () => {
     const allowedGroups = { ...ONLY_HARMONY }
-    const given: SessionSettings = { ...sessionSettings({ tempo: 60 }), allowedGroups }
+    const allowedRhythmChanges: RhythmChangeKind[] = ['move_rest', 'note_rest']
+    const given: SessionSettings = {
+      ...sessionSettings({ tempo: 60 }),
+      allowedGroups,
+      allowedRhythmChanges,
+    }
     const frozen = freezeSessionSettings({ ...given, rhythmLockOn: true })
     allowedGroups.figures = true
+    allowedRhythmChanges.push('split_note')
     expect(frozen.allowedGroups).toStrictEqual(ONLY_HARMONY)
     expect(frozen.rhythmLockOn).toBe(true)
+    expect(frozen.allowedRhythmChanges).toStrictEqual(['move_rest', 'note_rest'])
     expect(Object.isFrozen(frozen.allowedGroups)).toBe(true)
+    expect(Object.isFrozen(frozen.allowedRhythmChanges)).toBe(true)
 
     const intentsUnder = (settings: SessionSettings) => {
       const driver = new SessionDriver({ at: 0, settings, phraseOne: phraseOneFor(settings) })
@@ -217,9 +227,9 @@ describe("the settings' allowed groups and rhythm lock state", () => {
     const everyGroup = sessionSettings({ tempo: 60 })
     expect(everyGroup.allowedGroups).toStrictEqual(ALL_GROUPS_ALLOWED)
     expect(everyGroup.rhythmLockOn).toBe(false)
-    expect(
-      intentsUnder({ ...everyGroup, allowedGroups: ONLY_HARMONY, rhythmLockOn: true }),
-    ).toStrictEqual(intentsUnder(everyGroup))
+    expect(intentsUnder({ ...everyGroup, allowedGroups: ONLY_HARMONY })).toStrictEqual(
+      intentsUnder(everyGroup),
+    )
   })
 
   // @test-link [[rule_session_settings_locked]]
@@ -246,5 +256,33 @@ describe("the settings' allowed groups and rhythm lock state", () => {
       expect(() =>
         freezeSessionSettings({ ...settings, rhythmLockOn: rhythmLockOn as unknown as boolean }),
       ).toThrow(SessionEngineError)
+  })
+
+  // @test-link [[rule_session_settings_locked]]
+  // @test-link [[module_session_rhythm_lock]]
+  it('refuses allowed rhythm changes that are not a list of known kinds, each once, in order', () => {
+    const settings = sessionSettings()
+    const invalid: readonly [unknown, RegExp][] = [
+      [undefined, /must be a list/],
+      ['split_note', /must be a list/],
+      [{ 0: 'split_note' }, /must be a list/],
+      [['split_note', 'swing'], /"swing" is none of/],
+      [['move_rest', 'move_rest'], /move_rest is repeated/],
+      [['note_rest', 'split_note'], /split_note is out of order/],
+    ]
+    for (const [allowedRhythmChanges, message] of invalid) {
+      /** Intent: freeze the settings with this invalid list of allowed changes. */
+      const freeze = () =>
+        freezeSessionSettings({
+          ...settings,
+          allowedRhythmChanges: allowedRhythmChanges as readonly RhythmChangeKind[],
+        })
+      expect(freeze).toThrow(SessionEngineError)
+      expect(freeze).toThrow(message)
+    }
+    expect(
+      freezeSessionSettings({ ...settings, allowedRhythmChanges: RHYTHM_CHANGE_KINDS }),
+    ).toHaveProperty('allowedRhythmChanges', RHYTHM_CHANGE_KINDS)
+    expect(freezeSessionSettings(settings).allowedRhythmChanges).toStrictEqual([])
   })
 })
