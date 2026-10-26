@@ -1364,7 +1364,7 @@ call at Idle (chunk 19).
 
 ### Chunk 16 — The rhythm lock in a session
 
-Status: planned
+Status: merged (w3, 79ac60d)
 Wave: 3
 Depends on: 11, 15 (the session's settings hold the lock) (and v3.0 chunks 23 and 24)
 Architecture capture: the session's lock state: frozen at Start from phrase 1's bars and the
@@ -1440,6 +1440,12 @@ changed with its kind, forced bend, re-lock, no change available). Captured as
   requests (intents, runner, ladder, types, the engine and its state, the phrase opening, the
   lock module, the history), 16b pre-generation follows the lock (the pre-generation plan, the
   ready phrases, the workspace's pre-generation module).
+
+Record: 84645e6 (16a, the lock in the session's requests), 7890771 (16b, pre-generation follows
+the lock), merged 79ac60d. Also changed `session-ladder-step.ts`, `session-settings-change.ts`,
+`stale-phrase-one.ts`. Start still passes the lock off (`workspace-session-start.ts`,
+`workspace-pregeneration.ts` `startOf`): the Idle choice arrives with chunk 19 (sent to
+`spec-writer`). New atom tags left off five session files at the ten-atom cap (for the sync).
 
 ### Chunk 17 — Jam engine, part 1: the count-in and the capture
 

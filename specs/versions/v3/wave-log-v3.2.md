@@ -746,3 +746,9 @@ into `main`. The first-load total is recorded beside the entry figure (M4, workf
 ### Chunks
 
 - 16 dispatched (2026-10-26) to `coding-leader`, branch `v3.2-c16-session-rhythm-lock`.
+- 16 merged (79ac60d; 84645e6 16a, 7890771 16b). Done when met item by item; corpus guard 425/425
+  after each half. Gap: nothing passes the Idle lock choice into a session yet (Start and
+  `startOf` pass the lock off); sent to `spec-writer` for chunk 19's Files. For the sync: new atom
+  tags left off five session files at the ten-atom cap; CR's wording. Risks noted: seeds differing
+  only in low bits draw alike (`rhythmChangeHash`, chunk 11; real seeds are random); no forced bend
+  from Build under Tension across phrases in any seeded session; the census at the gate checks it.
