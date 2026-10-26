@@ -94,6 +94,25 @@ describe('ToggleList', () => {
     wrapper.unmount()
   })
 
+  // @test-link [[ui_toggle_list]]
+  it('read-only, marks every toggle aria-disabled except an item disabled on its own; editable, none', () => {
+    const readonlyWrapper = mountList(true)
+    const [alpha, beta, gamma] = readonlyWrapper.findAll('button')
+    expect(alpha!.attributes('aria-disabled')).toBe('true')
+    expect(beta!.attributes('aria-disabled')).toBe('true')
+    expect(alpha!.attributes('disabled')).toBeUndefined()
+    expect(beta!.attributes('disabled')).toBeUndefined()
+    expect(gamma!.attributes('disabled')).toBeDefined()
+    expect(gamma!.attributes('aria-disabled')).toBeUndefined()
+    readonlyWrapper.unmount()
+
+    const editableWrapper = mountList()
+    for (const button of editableWrapper.findAll('button')) {
+      expect(button.attributes('aria-disabled')).toBeUndefined()
+    }
+    editableWrapper.unmount()
+  })
+
   it('editable, leaves Space and Enter to the button', () => {
     const wrapper = mountList()
     const beta = wrapper.findAll('button')[1]!

@@ -5,9 +5,9 @@
  * state in words (`toggle-button-state`, hidden from assistive technology, which reads
  * `aria-pressed`), as the audio mix's toggles. Each toggle is its own tab stop; arrow keys do
  * nothing special. Props-in/events-out only: a toggle reports its item's value and the parent
- * decides the new state. Read-only, every toggle keeps its value and stays focusable while script
- * refuses activation by click, Space or Enter. A disabled item is natively disabled and named by
- * the element that says why.
+ * decides the new state. Read-only, every toggle keeps its value, stays focusable and carries
+ * `aria-disabled` while script refuses activation by click, Space or Enter. A disabled item is
+ * natively disabled, without `aria-disabled`, and named by the element that says why.
  */
 import type { ToggleListItem } from './toggle-list-item'
 
@@ -59,6 +59,7 @@ function handleKeydown(event: KeyboardEvent): void {
       class="btn toggle-button"
       :aria-pressed="item.pressed ? 'true' : 'false'"
       :disabled="item.disabled === true"
+      :aria-disabled="readonly && item.disabled !== true ? 'true' : undefined"
       :aria-describedby="item.describedBy"
       @click="handleClick(item)"
       @keydown="handleKeydown"
