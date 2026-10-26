@@ -14,6 +14,8 @@ dependents:
   - [[rule_rhythm_change_kinds]]
   - [[rule_rhythm_change_lasts_one_phrase]]
   - [[rule_rhythm_change_share]]
+  - [[ui_field_dependent]]
+  - [[ui_toggle_list]]
 version: 0.2
 ---
 

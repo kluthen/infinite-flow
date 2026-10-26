@@ -6,6 +6,7 @@ tags: [v3, release-v3.0, storage, player-controls, changes-in-v3.2]
 parents:
   - [[req_on_device_storage]]
 dependents:
+  - [[entity_session_option_records]]
   - [[module_save_policy]]
   - [[module_saved_data_loader]]
   - [[rule_first_phrase_waits_for_saved_settings]]

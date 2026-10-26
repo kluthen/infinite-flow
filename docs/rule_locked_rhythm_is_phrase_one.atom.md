@@ -4,6 +4,7 @@ status: DRAFT
 dependents:
   - [[entity_request_rhythm_lock]]
   - [[module_rhythm_lock_order]]
+  - [[module_session_rhythm_lock]]
 layer: BUSINESS
 version: 0.2
 human_name: The Locked Rhythm Is Phrase 1's

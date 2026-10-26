@@ -11,6 +11,7 @@ parents:
   - [[req_rolling_practice_session]]
 dependents:
   - [[entity_request_rhythm_lock]]
+  - [[module_session_rhythm_lock]]
   - [[rule_allowed_rhythm_changes]]
   - [[rule_forced_bend]]
   - [[rule_locked_rhythm_is_phrase_one]]
@@ -18,6 +19,7 @@ dependents:
   - [[rule_rhythm_distance]]
   - [[rule_rhythm_lock_relocks_after_step_down]]
   - [[rule_rhythm_lock_strict]]
+  - [[ui_field_dependent]]
 ---
 
 # The Rhythm Lock

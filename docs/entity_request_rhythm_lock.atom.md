@@ -15,6 +15,7 @@ parents:
 dependents:
   - [[module_rhythm_change_draw]]
   - [[module_rhythm_lock_order]]
+  - [[module_session_rhythm_lock]]
 type: ENTITY
 ---
 

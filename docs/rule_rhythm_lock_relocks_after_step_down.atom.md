@@ -3,7 +3,8 @@ id: rule_rhythm_lock_relocks_after_step_down
 status: DRAFT
 parents:
   - [[req_rhythm_lock]]
-dependents: []
+dependents:
+  - [[module_session_rhythm_lock]]
 type: RULE
 version: 0.2
 priority: 1

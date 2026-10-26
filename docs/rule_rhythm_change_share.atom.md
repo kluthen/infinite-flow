@@ -4,6 +4,7 @@ status: DRAFT
 dependents:
   - [[entity_request_rhythm_lock]]
   - [[module_rhythm_change_draw]]
+  - [[module_session_rhythm_lock]]
 type: RULE
 layer: BUSINESS
 version: 0.2
