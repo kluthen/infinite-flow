@@ -1202,7 +1202,7 @@ notes" stays true. Written once for v3.2 (spec D410).
 
 ### Chunk 13 — Session measurements, first run
 
-Status: planned
+Status: merged (w3, 94bbbe5)
 Wave: 3
 Depends on: 3, 11, 12, 16
 Architecture capture: the orderings' time in the generator's diagnostics (spec D434):
@@ -1257,6 +1257,12 @@ is not timed apart.
   change).
 - **Split rule:** if heavy, 13a the diagnostics' orderings time and the sweeps reading it, then
   13b the runs and the census.
+
+Record: 7e08ec8 (13a, the orderings' time in the diagnostics), 2d7eab6 (13b, M2 and M5 with the
+lock), merged 94bbbe5. Figures in `docs/generation-latency.md` and
+`docs/music/rhythm-phrase-structure.md`. The forced-bend order is timed at its first build; the
+sweeps strip the time field before the session sees it (`splitOrderingsTime`). M5 runs as two
+processes (heap), documented in `docs/testing.md`. No sweep session re-locks (wide window).
 
 ### Chunk 14 — The key and mode suggestion
 

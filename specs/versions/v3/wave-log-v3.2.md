@@ -759,3 +759,12 @@ into `main`. The first-load total is recorded beside the entry figure (M4, workf
   `module_session_lock_and_groups_choices` 0.1 (069dbf5); carried in chunk 19's brief. For the
   sync: `module_idle_pregeneration_queue`'s interface names the three choices (names only).
 - 13 dispatched (2026-10-26), branch `v3.2-c13-session-measurements`.
+- 13 merged (94bbbe5; 7e08ec8 13a, 2d7eab6 13b). Reference machine (Ryzen 5 PRO 8640HS), 2026-10-26.
+  M5 orderings share of attempt time: 2.2 % (all changes, 60/120 BPM), 0.8 % (240), 0.5 % strict,
+  ~0.005 % off; 0 repeats, 0 shortfalls; slowest standalone 0.565 s of the 1.075 s reserve. Census:
+  0 mismatches (9 groups × 7,952 sessions); replays kept 45/45, changed 30/30, bent 10/10. Draw
+  shares 25.8–26.4 % normal, 52.4–54.2 % tenser (targets 1 in 4, 1 in 2); changed 15.5–19.1 % in
+  sweep cases (0 % at Gentle, Reel, Bebop: C7.3's known limit). Forced bends 2.5 % strict with
+  Tension across phrases (Lift 5.5 %), 0.5 % without; Build → Lift does bend (52 of 523 strict).
+  Shares untouched (for L3). For the gate: `test:sweep` (deadline-sweep changed). For the sync:
+  the two atoms' clock names. Risk: no sweep session re-locks; only chunk 16's tests cover it.
