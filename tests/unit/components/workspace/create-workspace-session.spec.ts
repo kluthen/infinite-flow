@@ -10,6 +10,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { composeWorkspaceSession } from '@/components/workspace/create-workspace-session'
 import { JAZZ_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { NotationError } from '@/notation/notation-error'
+import { DEFAULT_SESSION_OPTIONS } from '@/storage/records/setting-defaults'
 import { resetFakeEngraver } from '../../notation/fake-vexflow-engraver-loader'
 import {
   CHEAP_CONTROLS,
@@ -212,7 +213,12 @@ describe('composeWorkspaceSession: the saved data', () => {
       figureLevels: JAZZ_FIGURE_LEVELS,
       presetSelection: { kind: 'custom', baseId: 'neutral' },
       theme: 'Light',
-      sessionOptions: { varySettings: true, tensionAcrossPhrases: true, risingTempo: true },
+      sessionOptions: {
+        ...DEFAULT_SESSION_OPTIONS,
+        varySettings: true,
+        tensionAcrossPhrases: true,
+        risingTempo: true,
+      },
     })
     const workspace = composeWorkspaceSession({ ...fakeDependencies(), savedData })
 

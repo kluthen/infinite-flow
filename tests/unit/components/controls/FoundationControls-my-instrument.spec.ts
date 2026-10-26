@@ -13,6 +13,7 @@ import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { BUILT_IN_PRESETS, DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
 import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import { makeMyInstrument, type MyInstrument } from '@/domain/profile/my-instrument'
+import { ALL_GROUPS_ALLOWED } from '@/session/settings-mutation-scales'
 
 const LOW_TENOR: MyInstrument = makeMyInstrument({
   template: 'bb-tenor',
@@ -39,6 +40,10 @@ function mountPanel(
       risingTempoAvailable: false,
       lastSessionReachedTempo: null,
       varySettings: false,
+      varySettingsAvailable: true,
+      allowedGroups: ALL_GROUPS_ALLOWED,
+      rhythmLockOn: false,
+      allowedRhythmChanges: [],
       tensionAcrossPhrases: false,
       sessionOptionsReadonly: false,
       startSettings: null,

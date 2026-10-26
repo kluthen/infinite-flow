@@ -193,7 +193,7 @@ test('a figure step shows Custom in place at its phrase with nothing moving, and
   await gotoSessionHarness(page, DESKTOP)
   expect(await checkedIn(page, 'Vary settings')).toBe('Off')
   await expect(radiogroup(page, 'Vary settings')).toHaveAccessibleDescription(
-    'Every 2 to 4 phrases, one setting moves one step. Never the instrument or the tempo. Your settings come back when the session ends.',
+    'Every 2 to 4 phrases, one setting from the groups below moves one step. Never the instrument or the tempo. Keys and modes stay within what your preset is meant for. Your settings come back when the session ends.',
   )
   await queueMutationSeed(page, FIGURE_STEP_ON_PHRASE_3)
   await readyToStart(page)

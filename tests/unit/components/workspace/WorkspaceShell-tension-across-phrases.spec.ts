@@ -96,6 +96,7 @@ describe('WorkspaceShell: the Tension across phrases control', () => {
     const { session } = fakeGenerationSession(readyState())
     const wrapper = mountShell(session, fake.controller)
     expect(wrapper.findAll('.control-group-session .field-label').map((l) => l.text())).toEqual([
+      'Rhythm lock',
       'Rising tempo',
       'Tension across phrases',
       'Vary settings',

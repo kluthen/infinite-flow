@@ -209,11 +209,18 @@ const {
 const {
   sessionOptionsReadonly,
   varySettings,
+  varySettingsAvailable,
+  allowedGroups,
+  rhythmLockOn,
+  allowedRhythmChanges,
   tensionAcrossPhrases,
   risingTempo,
   setRisingTempo: handleSetRisingTempo,
   setTensionAcrossPhrases: handleSetTensionAcrossPhrases,
   setVarySettings: handleSetVarySettings,
+  setAllowedGroups: handleSetAllowedGroups,
+  setRhythmLockOn: handleSetRhythmLockOn,
+  setAllowedRhythmChanges: handleSetAllowedRhythmChanges,
 } = useSessionOptions({
   controller: () => props.controller,
   requireController,
@@ -480,6 +487,10 @@ const controlPanelActions = useControlPanelActions(props.session)
         :last-session-reached-tempo="risingTempo.lastSessionReachedTempo.value"
         :tension-across-phrases="tensionAcrossPhrases"
         :vary-settings="varySettings"
+        :vary-settings-available="varySettingsAvailable"
+        :allowed-groups="allowedGroups"
+        :rhythm-lock-on="rhythmLockOn"
+        :allowed-rhythm-changes="allowedRhythmChanges"
         :session-options-readonly="sessionOptionsReadonly"
         :start-settings="startSettings"
         :my-instrument="state.myInstrument"
@@ -495,6 +506,9 @@ const controlPanelActions = useControlPanelActions(props.session)
         @set-rising-tempo="handleSetRisingTempo"
         @set-tension-across-phrases="handleSetTensionAcrossPhrases"
         @set-vary-settings="handleSetVarySettings"
+        @set-allowed-groups="handleSetAllowedGroups"
+        @set-rhythm-lock="handleSetRhythmLockOn"
+        @set-allowed-rhythm-changes="handleSetAllowedRhythmChanges"
       />
     </div>
     <LayoutFooter

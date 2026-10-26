@@ -134,12 +134,17 @@ async function stopSession(fake: FakeSessionController) {
 // @test-link [[rule_controller_attached_definition]]
 describe('WorkspaceShell: the Rising tempo control', () => {
   // @test-link [[req_adaptive_tempo]]
-  it('comes first under "During a session", Off at load, unavailable with its reason without a controller', () => {
+  it('comes after the rhythm lock under "During a session", Off at load, unavailable with its reason without a controller', () => {
     const wrapper = mountShell(createFakeSessionController().controller)
     const labels = wrapper
       .findAll('.control-group-session .field-label')
       .map((label) => label.text())
-    expect(labels).toEqual(['Rising tempo', 'Tension across phrases', 'Vary settings'])
+    expect(labels).toEqual([
+      'Rhythm lock',
+      'Rising tempo',
+      'Tension across phrases',
+      'Vary settings',
+    ])
     expect(checked(wrapper)).toBe('Off')
     expect(wrapper.get(`#${group(wrapper).attributes('aria-describedby')}`).text()).toBe(NOTE)
     expect(segment(wrapper, 'On').attributes('disabled')).toBeDefined()

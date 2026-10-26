@@ -10,12 +10,10 @@
  */
 import { createAudioTimeAgenda } from '@/session/session-agenda'
 import { createSessionHistory } from '@/session/session-history'
-import { sessionSettingsAtStart } from '@/session/session-intents'
 import { phraseOneSettings } from '@/session/stale-phrase-one'
 import type { SessionStartBlocker } from '@/session/session-start-conditions'
 import type { SessionSettings } from '@/session/session-types'
 import { sessionLayoutAtStart } from '@/session/session-window'
-import { ALL_GROUPS_ALLOWED, withRestrictionAtStart } from '@/session/settings-mutation'
 import type {
   ActiveSession,
   SessionControllerCore,
@@ -24,6 +22,7 @@ import type {
 import { beginSession } from './workspace-session-begin'
 import { SessionControllerError } from './workspace-session-controller-types'
 import type { SessionEnds } from './workspace-session-ends'
+import { chosenSessionSettings } from './workspace-session-lock-choices'
 import { createSessionShownSettings } from './workspace-session-settings'
 
 /**
@@ -45,9 +44,11 @@ export function createSessionStart(
    * (or the starting note's MIDI callback, once a Connect-controller click has unlocked the audio):
    * unlock the audio, hold the player's saves until the session ends, ask for the wake lock and the
    * landscape lock (a refusal changes nothing, so their outcomes are ignored), start the transport
-   * and queue phrase 1's backing; then lock the current settings (my instrument's profile taken
+   * and queue phrase 1's backing; then lock the current settings (the player's rhythm lock, its
+   * allowed changes and Vary settings' allowed groups with them, my instrument's profile taken
    * from phrase 1's intent, which embeds it, and the restriction in force frozen in them for the
-   * session, so Vary settings' key and mode moves stay inside it), beside the settings phrase 1 was generated under at
+   * session, so Vary settings' key and mode moves stay inside it, built as the Idle
+   * pre-generation's start builds them), beside the settings phrase 1 was generated under at
    * the session's tempo (phrase 2 joins phrase 1 as after a change from them, and the controls show
    * them, the preset selection as the player's at Start, through the count-in and phrase 1; equal ones
    * change nothing), hold the staff layout the
@@ -78,21 +79,10 @@ export function createSessionStart(
       throw new SessionControllerError(`session controller: a session cannot start: ${blocker}`)
     }
     state.review = null
-    const settings: SessionSettings = withRestrictionAtStart(
-      sessionSettingsAtStart(
-        {
-          controls: idle.state.controls,
-          figureLevels: idle.state.figureLevels,
-          selection: idle.state.selection,
-          // The saved allowed groups, the rhythm lock and its allowed changes arrive with chunk 19
-          // (the Idle choice).
-          allowedGroups: ALL_GROUPS_ALLOWED,
-          rhythmLockOn: false,
-          allowedRhythmChanges: [],
-        },
-        phraseOne.intent,
-      ),
-      idle.state.presets,
+    const settings: SessionSettings = chosenSessionSettings(
+      idle.state,
+      sides.lockAndGroups.current(),
+      phraseOne.intent,
     )
     const tempo = settings.controls.tempo
     const phraseOneOwn = phraseOneSettings(phraseOne.settings, phraseOne.intent, tempo)

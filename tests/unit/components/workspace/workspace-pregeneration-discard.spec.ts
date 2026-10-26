@@ -1,7 +1,9 @@
 /**
  * The Idle pre-generation queue's key and window re-check: a change of a control, a figure level,
- * a chosen preset whose values differ, the instrument, phrase 1, Vary settings or Tension across
- * phrases empties the queue and starts again from the new phrase 1, and so does a change of the
+ * a chosen preset whose values differ, the instrument, phrase 1, Vary settings, Tension across
+ * phrases, the rhythm lock, its allowed changes (even with the lock off) or the allowed groups
+ * (even with Vary settings off) empties the queue and starts again from the new phrase 1, and so
+ * does a change of the
  * restriction in force (opting out, coming back inside), Vary settings on or off; tempo keeps it,
  * its phrases then carrying the new tempo, and so does a change of the preset selection alone
  * that leaves the restriction in force as it was. Under a restriction in force, the queue plans
@@ -96,6 +98,34 @@ const KEY_CHANGES: readonly KeyChange[] = [
   },
 ]
 
+/** The changes of the rhythm lock, its allowed changes and the allowed groups, made at Idle. */
+const LOCK_AND_GROUP_CHANGES: readonly KeyChange[] = [
+  {
+    name: 'the rhythm lock (turned on)',
+    apply: (rig) => {
+      rig.lockAndGroups.value = { ...rig.lockAndGroups.value, rhythmLockOn: true }
+    },
+  },
+  {
+    name: 'an allowed rhythm change added while the lock is off',
+    apply: (rig) => {
+      expect(rig.lockAndGroups.value.rhythmLockOn).toBe(false)
+      rig.lockAndGroups.value = { ...rig.lockAndGroups.value, allowedRhythmChanges: ['split_note'] }
+    },
+  },
+  {
+    name: 'an allowed group turned off while Vary settings is off',
+    apply: (rig) => {
+      expect(rig.varySettings.value).toBe(false)
+      const { allowedGroups } = rig.lockAndGroups.value
+      rig.lockAndGroups.value = {
+        ...rig.lockAndGroups.value,
+        allowedGroups: { ...allowedGroups, harmony: false },
+      }
+    },
+  },
+]
+
 /** Intent: a rig whose queue holds phrases 2 to 5, nothing in flight. */
 async function fullRig(options: Parameters<typeof pregenerationRig>[0] = {}) {
   const rig = pregenerationRig(options)
@@ -111,7 +141,7 @@ function intentsFrom(rig: PregenerationRig, from: number): GenerationIntent[] {
 
 // @test-link [[rule_pregeneration_discarded_on_change]]
 describe('Idle pre-generation queue: discards', () => {
-  for (const change of KEY_CHANGES) {
+  for (const change of [...KEY_CHANGES, ...LOCK_AND_GROUP_CHANGES]) {
     // @test-link [[rule_pregeneration_discarded_on_change]]
     // @test-link [[module_idle_pregeneration_queue]]
     it(`empties the queue and starts again from phrase 2 on a change of ${change.name}`, async () => {
@@ -168,6 +198,23 @@ describe('Idle pre-generation queue: discards', () => {
     expect(inFlight(rig).intent.carryIn).toMatchObject({ phraseNumber: 1 })
     expect(inFlight(rig).intent.controls.contour).toBe('Falling')
   })
+
+  for (const change of LOCK_AND_GROUP_CHANGES) {
+    // @test-link [[rule_pregeneration_discarded_on_change]]
+    // @test-link [[module_session_lock_and_groups_choices]]
+    it(`aborts the attempt in flight on a change of ${change.name}`, async () => {
+      const rig = pregenerationRig()
+      await answer(rig)
+      const phraseThree = inFlight(rig)
+
+      change.apply(rig)
+      await flush()
+
+      expect(phraseThree.signal.aborted).toBe(true)
+      expect(rig.calls).toHaveLength(3)
+      expect(inFlight(rig).intent.carryIn).toMatchObject({ phraseNumber: 1 })
+    })
+  }
 
   // @test-link [[rule_pregeneration_discarded_on_change]]
   it('keeps the queue on a tempo change, Start taking its phrases at the new tempo', async () => {
