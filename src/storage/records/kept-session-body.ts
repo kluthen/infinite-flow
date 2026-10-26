@@ -8,12 +8,13 @@
  * clock its played notes are counted on. Every field is copied by name, so
  * the acknowledgements, the rhythm and tension provenance (the rhythm lock's outcome included) and
  * the diagnostics the history holds never reach it. Read back through the domain's own parsers,
- * never rebuilding a profile from its id, each phrase's request agreeing with its intent. The data
- * version 1 and 2 readers and the data version 2 writer serve only the upgrade steps that carry
- * those bodies over. Pure: no storage access.
+ * never rebuilding a profile from its id, each phrase's request agreeing with its intent: a current
+ * body's reader, the only one that reads a doodle or a played-notes clock, is the codec's own
+ * (`kept-session-body-read.ts`). The data version 1 and 2 readers and the data version 2 writer
+ * serve only the upgrade steps that carry those bodies over. Pure: no storage access.
  */
 
-import { parseQuantizedDoodle, type QuantizedDoodle } from '@/domain/doodle/quantized-doodle'
+import type { QuantizedDoodle } from '@/domain/doodle/quantized-doodle'
 import { deepFreeze } from '@/domain/events/deep-freeze'
 import type { ConcertEventTimeline } from '@/domain/events/timeline'
 import { parseConcertEventTimeline } from '@/domain/events/timeline-parser'
@@ -28,7 +29,7 @@ import { isInstrumentClef, type InstrumentClef } from '@/domain/profile/instrume
 import type { SessionHistoryRecord } from '@/session/session-history'
 
 import type { RecordVersions } from '../record-envelope'
-import { parseKeptIntent, parseKeptIntentV1, parseKeptIntentV2 } from './kept-intent-parsers'
+import { parseKeptIntentV1, parseKeptIntentV2 } from './kept-intent-parsers'
 import { parseKeptHarmony } from './kept-phrase-parsers'
 import { assertKeptAppVersion, KEPT_SESSION_BODY_DATA_VERSION } from './kept-reading'
 import {
@@ -106,17 +107,6 @@ export const KEPT_SESSION_BODY_KEYS = Object.freeze([
   'dataVersion',
   'appVersion',
   'phrases',
-] as const)
-
-/** Every key a kept doodle holds, and no other. */
-// @spec-link [[entity_kept_session_record]]
-export const KEPT_DOODLE_KEYS = Object.freeze(['quantized', 'captureTempo'] as const)
-
-/** Every key a fresh Jam's played-notes clock holds, and no other. */
-// @spec-link [[entity_kept_session_record]]
-export const KEPT_PLAYED_NOTES_CLOCK_KEYS = Object.freeze([
-  'doodleFirstBarline',
-  'phraseOneStart',
 ] as const)
 
 /** The data version of v3.1's body shape, which only the upgrade steps read or write. */
@@ -368,13 +358,10 @@ function parseRequestV2(value: unknown, context: string): GenerationRequest {
 }
 
 /** How one data version's phrases read their stored request and intent. */
-interface PhraseReaders {
+export interface PhraseReaders {
   readonly request: (value: unknown, context: string) => GenerationRequest
   readonly intent: (input: unknown) => GenerationIntent
 }
-
-/** Data version 4's phrases: the request and the intent as the codec reads them now. */
-const PHRASE_V4: PhraseReaders = { request: parseGenerationRequest, intent: parseKeptIntent }
 
 /** Data version 2's phrases, v3.1's: neither group in the request nor in the intent. */
 const PHRASE_V2: PhraseReaders = { request: parseRequestV2, intent: parseKeptIntentV2 }
@@ -430,7 +417,7 @@ function assertSoundingOrder(phrases: readonly ParsedKeptPhrase[]): void {
 }
 
 /** Intent: a stored body's phrases, read through `readers`, in sounding order, or a refusal. */
-function parsePhrases(
+export function parseKeptPhrases(
   record: Record<string, unknown>,
   readers: PhraseReaders,
 ): readonly ParsedKeptPhrase[] {
@@ -439,72 +426,6 @@ function parsePhrases(
   )
   assertSoundingOrder(phrases)
   return phrases
-}
-
-/**
- * Intent: a stored doodle entry: exactly the quantized doodle, read through the doodle's own
- * parser, and its capture tempo, a finite number above 0.
- */
-function parseKeptDoodle(value: unknown): KeptDoodle {
-  const context = 'Kept session body.doodle'
-  const record = exactRecord(value, KEPT_DOODLE_KEYS, context)
-  return {
-    quantized: parseQuantizedDoodle(record.quantized),
-    captureTempo: positiveFinite(record.captureTempo, `${context}.captureTempo`),
-  }
-}
-
-/**
- * Intent: a stored played-notes clock: exactly its keys, each a finite number of at least 0,
- * phrase 1's start after the doodle's first barline.
- */
-function parsePlayedNotesClock(value: unknown): KeptPlayedNotesClock {
-  const context = 'Kept session body.playedNotesClock'
-  const record = exactRecord(value, KEPT_PLAYED_NOTES_CLOCK_KEYS, context)
-  const doodleFirstBarline = finiteAtLeast(
-    record.doodleFirstBarline,
-    0,
-    `${context}.doodleFirstBarline`,
-  )
-  const phraseOneStart = finiteAtLeast(record.phraseOneStart, 0, `${context}.phraseOneStart`)
-  if (phraseOneStart <= doodleFirstBarline)
-    throw new KeptRecordError(`${context}: phrase 1 must start after the first barline.`)
-  return { doodleFirstBarline, phraseOneStart }
-}
-
-/**
- * Intent: a stored body's Jam parts: its doodle when it holds one, and its played-notes clock when
- * it holds one, only beside a doodle; or a refusal.
- */
-function parseJamParts(record: Record<string, unknown>): KeptBodyJamParts {
-  const doodle = Object.hasOwn(record, 'doodle') ? parseKeptDoodle(record.doodle) : null
-  if (!Object.hasOwn(record, 'playedNotesClock')) return { doodle, playedNotesClock: null }
-  if (doodle === null)
-    throw new KeptRecordError('Kept session body holds a played-notes clock without a doodle.')
-  return { doodle, playedNotesClock: parsePlayedNotesClock(record.playedNotesClock) }
-}
-
-/**
- * Intent: read a current (data version 4) body back into its phrases, in sounding order, its
- * doodle and its played-notes clock: exactly its keys (the doodle only for a Jam session, the
- * clock only beside it), at least one phrase, each through
- * the domain's parsers (request, timeline, harmony, intent with its figure levels, its profile
- * from its data and its rhythm lock group, steering block and carry-in when it holds them) with
- * its request and intent agreeing, a carry-in from no phrase only on phrase 1, numbers and starts
- * strictly increasing from the first phrase at 0, the doodle through the doodle's own parser, and
- * the clock's two moments finite, at least 0, phrase 1's start after the first barline. Returns a
- * fresh deep-frozen body, its doodle and clock null when it holds none; throws a refusal for
- * anything invalid, never repairing it.
- */
-// @spec-link [[module_kept_session_codec]]
-// @spec-link [[rule_kept_session_content]]
-export function parseKeptSessionBody(value: unknown): ParsedKeptBody {
-  const record = exactRecord(value, KEPT_SESSION_BODY_KEYS, 'Kept session body', [
-    'doodle',
-    'playedNotesClock',
-  ])
-  const phrases = parsePhrases(record, PHRASE_V4)
-  return deepFreeze({ phrases, ...parseJamParts(record) })
 }
 
 /**
@@ -519,7 +440,7 @@ export function parseKeptSessionBody(value: unknown): ParsedKeptBody {
 // @spec-link [[module_kept_session_codec]]
 export function parseKeptSessionBodyV2(value: unknown): readonly ParsedKeptPhrase[] {
   const record = exactRecord(value, KEPT_SESSION_BODY_KEYS, 'Kept session body')
-  return deepFreeze(parsePhrases(record, PHRASE_V2))
+  return deepFreeze(parseKeptPhrases(record, PHRASE_V2))
 }
 
 /**
@@ -531,5 +452,5 @@ export function parseKeptSessionBodyV2(value: unknown): readonly ParsedKeptPhras
 // @spec-link [[module_kept_session_upgrade_step]]
 export function parseKeptSessionBodyV1(value: unknown): readonly ParsedKeptPhrase[] {
   const record = exactRecord(value, KEPT_SESSION_BODY_KEYS, 'Kept session body')
-  return deepFreeze(parsePhrases(record, PHRASE_V1))
+  return deepFreeze(parseKeptPhrases(record, PHRASE_V1))
 }

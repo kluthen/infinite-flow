@@ -11,7 +11,7 @@ import { beforeAll, describe, expect, it } from 'vitest'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import type { SessionHistoryRecord } from '@/session/session-history'
 import { upgradedKeptBodyV4, upgradedKeptSummaryV4 } from '@/storage/migrations/kept-sessions-v4'
-import { parseKeptSessionBody } from '@/storage/records/kept-session-body'
+import { parseKeptSessionBody } from '@/storage/records/kept-session-body-read'
 import {
   decodeKeptSession,
   encodeKeptSession,

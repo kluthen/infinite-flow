@@ -11,7 +11,7 @@ import { beforeAll, describe, expect, it } from 'vitest'
 
 import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import type { SessionHistoryRecord } from '@/session/session-history'
-import { parseKeptSessionBody } from '@/storage/records/kept-session-body'
+import { parseKeptSessionBody } from '@/storage/records/kept-session-body-read'
 import {
   decodeKeptSession,
   encodeKeptPlayedNotes,

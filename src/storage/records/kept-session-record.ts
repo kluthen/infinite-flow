@@ -42,7 +42,6 @@ import {
 import { KeptRecordError } from './kept-record-shape'
 import {
   keptSessionBodyRecord,
-  parseKeptSessionBody,
   rewrittenKeptBodyRecord,
   type KeptDoodle,
   type KeptPlayedNotesClock,
@@ -50,6 +49,7 @@ import {
   type ParsedKeptBody,
   type ParsedKeptPhrase,
 } from './kept-session-body'
+import { parseKeptSessionBody } from './kept-session-body-read'
 import {
   keptSessionSummaryRecord,
   parseKeptSessionSummary,

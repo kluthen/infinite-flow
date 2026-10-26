@@ -18,7 +18,7 @@ import type { ProfileSelection } from '@/domain/controls/profile-selection'
 import {
   QuantizedDoodleParseError,
   QuantizedDoodleViolation,
-} from '@/domain/doodle/quantized-doodle'
+} from '@/domain/doodle/quantized-doodle-errors'
 import { ConcertPitchError } from '@/domain/events/concert-pitch'
 import { deepFreeze } from '@/domain/events/deep-freeze'
 import { FigureLevelsError } from '@/domain/figures/figure-levels'
