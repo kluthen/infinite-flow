@@ -1627,7 +1627,7 @@ Architecture capture: none (it builds on chunk 17's)
 
 ### Chunk 19 — The rhythm lock and What may vary in the controls
 
-Status: planned
+Status: merged (w3, 2d375f3)
 Wave: 3
 Depends on: 1, 15, 16; CS before wave 3's sync (and v3.0 chunks 5–7; v3.1 chunk 14)
 Architecture capture: the "During a session" group's dependent controls: `FieldDependent.vue` (a
@@ -1724,6 +1724,12 @@ settings' flag and passes them to Start and to the Idle pre-generation's start.
   three of its eight files are small, and with nothing yet to change the defaults the app keeps
   v3.1's behaviour after it), 19b the controls (the controls component, the two new components,
   the composable forwarding to the controller and saving, the end-to-end specs, v3.2 H2 and H3).
+
+Record: f0db02d (19a, the saved choices into the session), f07f0d3 (19b, the controls), merged
+2d375f3. The holders live in a new `workspace-session-lock-choices.ts` (`chosenSessionSettings`),
+not `workspace-session-settings.ts`, which was at the ten-atom cap; Vary settings' availability is a
+new controller reading in `workspace-vary-settings-availability.ts`. Read-only toggle lists have no
+assistive-technology cue beyond blocked activation (ARIA allows none; asked of `ux-writer`).
 
 ### Chunk 20 — Jam mode: the mode switch, Jam's code on demand and Jam's Idle
 

@@ -768,3 +768,12 @@ into `main`. The first-load total is recorded beside the entry figure (M4, workf
   Tension across phrases (Lift 5.5 %), 0.5 % without; Build → Lift does bend (52 of 523 strict).
   Shares untouched (for L3). For the gate: `test:sweep` (deadline-sweep changed). For the sync:
   the two atoms' clock names. Risk: no sweep session re-locks; only chunk 16's tests cover it.
+- 19 dispatched, then merged (2d375f3; f0db02d 19a, f07f0d3 19b). Done when met item by item;
+  corpus guard 425/425; Playwright on its specs 104/104, axe clean; landscape phone run clean.
+  Deviations: holders in a new `workspace-session-lock-choices.ts` (ten-atom cap); Vary settings'
+  availability a new controller reading (`workspace-vary-settings-availability.ts`), judged part of
+  chunk 15's check; the three records at data version 1, no upgrade step. Question for `ux-writer`:
+  a read-only toggle list's cue for assistive technology. For the sync: revise
+  `rule_pregeneration_discarded_on_change`, the CS halves; fill the interface names of
+  `entity_session_option_records`, `module_session_lock_and_groups_choices`,
+  `module_idle_pregeneration_queue`. Hand checks H2 and H3 after the wave.
