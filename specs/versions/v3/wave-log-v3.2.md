@@ -635,3 +635,25 @@ render:rhythms`).
   release past phrase 1's start, a Jam's phrase 1 joining from no phrase.
 - Unrelated to the wave, on `main` meanwhile: 254bccb (`.tech`, `SECURITY_TODO.md`) and 316199d
   (Docker runtime on nginx 1.30); merge `main` in or merge the wave cleanly, no shared files.
+
+### Wave gate (2026-10-26)
+
+On `v3.2-w2` d9308fe, Ryzen 5 PRO 8640HS, not a VM, load about 2.2 (other sessions open):
+- `npm run quality` passed: unit 522 files, 8,232 tests; Playwright 559 passed; boundaries pass.
+- `npm run test:sweep` passed: 8 files, 60 tests.
+- **Entry chunk 290,292 B** (+24,856 B since wave 1). Traced per merge: chunks 3, 10, 11 and 12 add
+  0 B; all of it is chunk 22's. About 18.5 kB was rolldown folding three files the entry already
+  imported statically (`generation-request-*`, `timeline-parser-*`, `deep-equal-*`) into `index`;
+  the real first-load growth was +6,401 B (315,691 → 322,099 B over the entry and its static
+  imports), of which about 2.9 kB was the data version 4 Jam-parts reader (doodle, played-notes
+  clock) reached by the start-up migration through `kept-session-body.ts`.
+- Fix c6bbdba (`coding-executor`, the driver's call): the data version 4 body reader moves to
+  `kept-session-body-read.ts`, imported only by the on-demand codec; the doodle error classes move
+  to `quantized-doodle-errors.ts` (`isKeptPhraseRefusal` checks them on the start-up path). No
+  behaviour or format change. `vitest related` 124 files, 1,458 tests; storage Playwright 139;
+  lint, format, health (769 warnings, unchanged), boundaries, `atd:check` pass.
+- **After the fix: entry chunk 271,179 B** of 307,200 B (+5,743 B since wave 1); first-load JS
+  318,964 B over 16 files (+3,273 B since wave 1). rolldown re-split the two shared files out again.
+- Note for the owner: `verify:boundaries` measures `index-*.js` alone, so a change in rolldown's
+  splitting moves it by about 18 kB without any change in what loads. Proposed to record the
+  first-load total beside it from wave 3 on (a plan change, the owner's call).
