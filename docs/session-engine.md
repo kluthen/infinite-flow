@@ -428,9 +428,19 @@ seed: every seed comes from the session seed plan. Tempo and Rising tempo never 
   throws. `revalidatedReadyPhrases(seams, start, readyPhrases)` gives the longest prefix that
   still does, with the same check the engine makes when it spends them; the workspace queue calls
   it before resuming and on every window change.
+- **The rhythm lock.** The plan carries the session's lock state as the engine does (see
+  [The rhythm lock in a session](#the-rhythm-lock-in-a-session)): phrase 1's written bars locked
+  at its start, the allowed changes and each phrase's tenser flag on every rung, and the re-lock:
+  a phrase built with Eighth by the step-down while a re-lock is pending carries the re-lock
+  group, and once it is ready its bars are locked for the phrases planned after it. A phrase's
+  change draw takes the phrase's own seed inside generation, so the session seed plan does not
+  change. The engine spends a ready phrase only when the request it re-derives, lock group
+  included, is identical: a ready phrase planned with the lock off, or with other allowed
+  changes, is refused.
 
 With every attempt succeeding at once, a session's phrases, intents and seeds are the same with
-pre-generation on and off, request ids aside (`session-pregeneration-identity.spec.ts`).
+pre-generation on and off, request ids aside, the rhythm lock's changes and re-lock included
+(`session-pregeneration-identity.spec.ts`).
 
 ## The runner and the one-Worker wiring
 

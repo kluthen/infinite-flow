@@ -4,13 +4,16 @@
  * failure ladder with no deadline, the standalone rung only after every carry-in rung failed or
  * straight after an exhausted carry-in search; it stops at a phrase whose standalone attempt fails
  * and at four ready phrases; it resumes after the last phrase of an existing ready list; it
- * re-validates a ready list against the window read now; and it carries Vary settings and the
- * tension-arc cycle step from phrase to phrase.
+ * re-validates a ready list against the window read now; it carries Vary settings and the
+ * tension-arc cycle step from phrase to phrase; and its attempts carry the rhythm lock group the
+ * session's requests carry, none while the lock is off.
  */
 
 import { describe, expect, it } from 'vitest'
 
 import { mutationFlagFor } from '@/components/workspace/workspace-session-runner'
+import { RHYTHM_CHANGE_KINDS, type RhythmChangeKind } from '@/domain/generation/request-rhythm-lock'
+import { makeSeed, type Seed } from '@/domain/random/seed'
 import { mutationContextAtStart } from '@/session/session-mutation-step'
 import {
   createPregenerationPlan,
@@ -19,7 +22,8 @@ import {
   type PregenerationResult,
 } from '@/session/session-pregeneration'
 import { phraseAttemptSeed } from '@/session/session-seed-plan'
-import { SessionEngineError } from '@/session/session-types'
+import { measureSeconds } from '@/session/session-timing'
+import { SessionEngineError, type SessionSettings } from '@/session/session-types'
 import { mutationPhrase } from '@/session/settings-mutation'
 import { steppedTensionArc } from '@/session/tension-arc-cycle'
 import {
@@ -29,7 +33,13 @@ import {
   realResult,
   runPlan,
 } from './pregeneration-harness'
-import { DEFAULT_SESSION_SEED, sessionSettings, withoutRequestIds } from './session-harness'
+import { barsOf, expectedGroup, expectedTenser, lockSettings } from './rhythm-lock-sessions'
+import {
+  DEFAULT_SESSION_SEED,
+  SessionDriver,
+  sessionSettings,
+  withoutRequestIds,
+} from './session-harness'
 
 /** Intent: an answer failing every carry-in rung of one phrase with this code, real otherwise. */
 function failingCarryIn(
@@ -260,5 +270,102 @@ describe('Vary settings and Tension across phrases in the plan', () => {
         ...start.settings.controls,
         tension: steppedTensionArc('Lift', entry.phraseNumber),
       })
+  })
+})
+
+/** One lock case: the allowed changes, whether Tension across phrases runs, the session seed. */
+interface PlanLockCase {
+  readonly label: string
+  readonly allowed: readonly RhythmChangeKind[]
+  readonly arc: boolean
+  readonly sessionSeed: Seed
+}
+
+/** Intent: the session seed of lock case `index`, spread over the 32 bits. */
+function lockCaseSeed(index: number): Seed {
+  return makeSeed(Math.imul(0x9e37_79b1, index + 1) >>> 0)
+}
+
+/** Every change allowed under the arc, none allowed without it, and one kind under the arc. */
+const PLAN_LOCK_CASES: readonly PlanLockCase[] = (
+  [
+    { label: 'every change, arc on', allowed: RHYTHM_CHANGE_KINDS, arc: true },
+    { label: 'no change, arc off', allowed: [], arc: false },
+    { label: 'one kind, arc on', allowed: ['split_note'], arc: true },
+  ] satisfies readonly Omit<PlanLockCase, 'sessionSeed'>[]
+).map((lockCase, index) => ({ ...lockCase, sessionSeed: lockCaseSeed(index) }))
+
+/**
+ * Intent: drive a session at 60 BPM from the same start as a plan, every attempt answered at once
+ * with its real outcome, until phrase 5 is decided; phrases 2 to 5 are requested in turn.
+ */
+function drivenToPhraseFive(
+  settings: SessionSettings,
+  arc: boolean,
+  sessionSeed: Seed,
+): SessionDriver {
+  const measure = measureSeconds(60)
+  const driver = new SessionDriver({ settings, sessionSeed, multiPhraseTensionArc: arc })
+  driver.settle(measure / 2)
+  driver.tick(measure)
+  driver.countInOver(measure)
+  for (let phraseNumber = 2; phraseNumber <= 4; phraseNumber += 1) {
+    const at = measure * (1 + 4 * (phraseNumber - 1))
+    driver.sounding(at, phraseNumber)
+    driver.settle(at + measure / 2)
+  }
+  return driver
+}
+
+/** Intent: an attempt or a request as the comparison reads it: phrase, step and intent. */
+function attemptView(attempt: {
+  readonly phraseNumber: number
+  readonly step: string
+  readonly intent: unknown
+}): unknown {
+  return withoutRequestIds({
+    phrase: attempt.phraseNumber,
+    step: attempt.step,
+    intent: attempt.intent,
+  })
+}
+
+// @test-link [[module_session_pregeneration_plan]]
+// @test-link [[module_session_rhythm_lock]]
+// @test-link [[rule_pregenerated_phrase_matches_session]]
+describe('the rhythm lock in the plan', () => {
+  // @test-link [[module_session_pregeneration_plan]]
+  // @test-link [[module_session_rhythm_lock]]
+  // @test-link [[rule_pregenerated_phrase_matches_session]]
+  it.each(PLAN_LOCK_CASES)(
+    "carries phrase 1's bars, the allowed changes and the tenser flags as the session's requests ($label)",
+    ({ allowed, arc, sessionSeed }) => {
+      const settings = lockSettings(allowed, { tempo: 60, tension: 'Lift' })
+      const start = planStart({ settings, sessionSeed, multiPhraseTensionArc: arc })
+      const { plan, attempts } = runPlan(createPregenerationPlan(planSeams(), start, []))
+      expect(plan.stopped).toBe('four-ready')
+      const bars = barsOf(start.phraseOne.outcome)
+      for (const attempt of attempts)
+        expect(attempt.intent.rhythmLock, `phrase ${attempt.phraseNumber}`).toEqual(
+          expectedGroup(bars, allowed, expectedTenser(arc, attempt.phraseNumber, 'Lift')),
+        )
+      expect(attempts.some((attempt) => attempt.intent.rhythmLock?.tenserPhrase === true)).toBe(arc)
+      const driver = drivenToPhraseFive(settings, arc, sessionSeed)
+      const requests = driver.requests().filter((request) => request.phraseNumber <= 5)
+      expect(requests.map(attemptView)).toEqual(attempts.map(attemptView))
+    },
+  )
+
+  // @test-link [[module_session_pregeneration_plan]]
+  // @test-link [[module_session_rhythm_lock]]
+  it('builds no attempt with a rhythm lock group while the lock is off, whatever is allowed', () => {
+    const settings = {
+      ...sessionSettings({ tempo: 60, tension: 'Lift' }),
+      allowedRhythmChanges: RHYTHM_CHANGE_KINDS,
+    }
+    const start = planStart({ settings, multiPhraseTensionArc: true })
+    const { plan, attempts } = runPlan(createPregenerationPlan(planSeams(), start, []))
+    expect(plan.readyPhrases).toHaveLength(4)
+    for (const attempt of attempts) expect(attempt.intent).not.toHaveProperty('rhythmLock')
   })
 })

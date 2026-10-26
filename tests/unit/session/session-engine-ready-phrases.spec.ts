@@ -3,13 +3,15 @@
  * re-derives identically at its place is decided at once with no generation request, its
  * deadline, wake-up and tempo as without it and any mutation landing reported first; the first
  * that differs is refused with every later one and requested as without pre-generation; after the
- * last ready phrase the session looks one phrase ahead as before; an invalid ready list throws.
+ * last ready phrase the session looks one phrase ahead as before; a ready phrase whose rhythm
+ * lock group differs from the re-derived one is refused; an invalid ready list throws.
  */
 
 import { describe, expect, it } from 'vitest'
 
 import { mutationFlagFor } from '@/components/workspace/workspace-session-runner'
 import { mutationContextAtStart } from '@/session/session-mutation-step'
+import { RHYTHM_CHANGE_KINDS } from '@/domain/generation/request-rhythm-lock'
 import { makeSeed } from '@/domain/random/seed'
 import type { PregenerationResult } from '@/session/session-pregeneration'
 import type { ReadyPhrase } from '@/session/session-ready-phrases'
@@ -29,6 +31,7 @@ import {
   runPlan,
 } from './pregeneration-harness'
 import { createPregenerationPlan } from '@/session/session-pregeneration'
+import { lockSettings } from './rhythm-lock-sessions'
 import {
   DEFAULT_SESSION_SEED,
   SessionDriver,
@@ -247,6 +250,83 @@ describe('a session refusing ready phrases', () => {
     expect(driver.lastRequest()).toMatchObject({ phraseNumber: 4, retry: 0, step: 'carry-in' })
     expect(driver.lastRequest().intent.seed).toBe(phraseAttemptSeed(DEFAULT_SESSION_SEED, 4, 0))
     expect(driver.lastRequest().intent.requestId).toBe('session-1')
+  })
+})
+
+/** The lock settings a ready list is planned under or a session started with, at 60 BPM. */
+const LOCK_OFF = sessionSettings({ tempo: SLOW, tension: 'Lift' })
+const EVERY_CHANGE = lockSettings(RHYTHM_CHANGE_KINDS, { tempo: SLOW, tension: 'Lift' })
+const NO_CHANGE = lockSettings([], { tempo: SLOW, tension: 'Lift' })
+const ONE_KIND = lockSettings(['merge_notes'], { tempo: SLOW, tension: 'Lift' })
+
+/** Intent: the ready phrases a plan makes under these settings, Tension across phrases on. */
+function lockReadyFor(settings: SessionSettings): readonly ReadyPhrase[] {
+  return plannedReadyPhrases(planSeams(), planStart({ settings, multiPhraseTensionArc: true }))
+}
+
+/** Intent: a session started under these settings, Tension across phrases on. */
+function lockDriver(
+  settings: SessionSettings,
+  readyPhrases?: readonly ReadyPhrase[],
+): SessionDriver {
+  return new SessionDriver({
+    settings,
+    multiPhraseTensionArc: true,
+    ...(readyPhrases === undefined ? {} : { readyPhrases }),
+  })
+}
+
+// @test-link [[module_session_ready_phrases]]
+// @test-link [[module_session_rhythm_lock]]
+// @test-link [[rule_pregenerated_phrase_matches_session]]
+describe('ready phrases under the rhythm lock', () => {
+  // @test-link [[module_session_ready_phrases]]
+  // @test-link [[module_session_rhythm_lock]]
+  // @test-link [[rule_pregenerated_phrase_matches_session]]
+  it.each([
+    { label: 'lock off', planned: LOCK_OFF, session: EVERY_CHANGE },
+    { label: 'lock on', planned: EVERY_CHANGE, session: LOCK_OFF },
+    { label: 'no change allowed', planned: NO_CHANGE, session: EVERY_CHANGE },
+    { label: 'one kind allowed', planned: ONE_KIND, session: EVERY_CHANGE },
+    { label: 'every change allowed', planned: EVERY_CHANGE, session: ONE_KIND },
+  ])(
+    'refuses a ready phrase planned with $label when its re-derived lock group differs',
+    ({ planned, session }) => {
+      const ready = lockReadyFor(planned)
+      expect(ready).toHaveLength(4)
+      const withReady = lockDriver(session, ready)
+      const without = lockDriver(session)
+      expect(withReady.startOutputs).toEqual(without.startOutputs)
+      expect(withReady.lastRequest()).toMatchObject({ phraseNumber: 2, retry: 0 })
+      expect(withReady.lastRequest().intent.requestId).toBe('session-1')
+      expect(withReady.lastRequest().intent.rhythmLock?.allowedChanges).toEqual(
+        session.rhythmLockOn ? session.allowedRhythmChanges : undefined,
+      )
+    },
+  )
+
+  // @test-link [[module_session_ready_phrases]]
+  // @test-link [[module_session_rhythm_lock]]
+  // @test-link [[rule_pregenerated_phrase_matches_session]]
+  it.each([
+    { label: 'every change allowed', settings: EVERY_CHANGE },
+    { label: 'no change allowed', settings: NO_CHANGE },
+  ])('spends every ready phrase planned with the same lock group ($label)', ({ settings }) => {
+    const ready = lockReadyFor(settings)
+    expect(ready).toHaveLength(4)
+    for (const entry of ready)
+      expect(entry.intent.rhythmLock?.allowedChanges).toEqual(settings.allowedRhythmChanges)
+    const driver = lockDriver(settings, ready)
+    expect(driver.startOutputs[0]).toEqual({ kind: 'phrase-ready', phrase: spent(ready[0]!) })
+    driver.tick(measureSeconds(SLOW))
+    driver.countInOver(soundingAt(1))
+    for (let phraseNumber = 2; phraseNumber <= 4; phraseNumber += 1) {
+      const at = soundingAt(phraseNumber)
+      const outputs = driver.sounding(at, phraseNumber)
+      expect(outputs[1]).toEqual({ kind: 'phrase-ready', phrase: spent(ready[phraseNumber - 1]!) })
+      driver.tick(at + 3 * measureSeconds(SLOW))
+    }
+    expect(driver.requests()).toEqual([])
   })
 })
 
