@@ -752,3 +752,10 @@ into `main`. The first-load total is recorded beside the entry figure (M4, workf
   tags left off five session files at the ten-atom cap; CR's wording. Risks noted: seeds differing
   only in low bits draw alike (`rhythmChangeHash`, chunk 11; real seeds are random); no forced bend
   from Build under Tension across phrases in any seeded session; the census at the gate checks it.
+- Plan v20 (`spec-writer`, c769530, spec D439): chunk 19 also wires the saved lock, allowed changes
+  and allowed groups into Start and `startOf` (both still hard-code the lock off and every group);
+  corpus guard on 19a; split re-cut (19a the saved choices into the session, 19b the controls).
+- `documentalist` peek over chunk 19's added files: PROCEED, no sign-off. Capture
+  `module_session_lock_and_groups_choices` 0.1 (069dbf5); carried in chunk 19's brief. For the
+  sync: `module_idle_pregeneration_queue`'s interface names the three choices (names only).
+- 13 dispatched (2026-10-26), branch `v3.2-c13-session-measurements`.
