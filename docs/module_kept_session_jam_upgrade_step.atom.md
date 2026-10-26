@@ -1,7 +1,7 @@
 ---
 id: module_kept_session_jam_upgrade_step
 status: DRAFT
-version: 0.2
+version: 0.3
 priority: 1
 human_name: Kept Sessions Carried Over to v3.2's Shape
 tags: [v3, release-v3.2, storage, session, jam]
@@ -32,7 +32,7 @@ The envelope. A rewritten record's envelope names the upgrading app as the app t
 Never failing the open. A record the step cannot read is left as it is, for the kept-session codec to report as unreadable. The step never throws on a stored value, in its own body or in any callback of the reads and writes it makes inside the upgrade transaction, since a throw there aborts the whole upgrade and every later open then fails. A request the step makes that fails, for lack of space for instance, still aborts the upgrade: the database stays at data version 3 for that visit, and the next open runs the step again.
 
 ## TECHNICAL INTERFACE
-Not built yet. src/storage/migrations/kept-sessions-v4.ts exports the step, a MigrationStep with toVersion 4, registered in PRODUCTION_MIGRATIONS (src/storage/database.ts) after SETTINGS_V3, which makes DATABASE_DATA_VERSION 4; the runner gives it the opening's app version for the envelopes it rewrites. It walks sessionSummaries, then sessionBodies, reading through the kept-session codec's data version 2 readers and writing the shapes the codec reads at data version 4, each kept shape's data version held in src/storage/records/kept-reading.ts. Names are written in when the code exists.
+src/storage/migrations/kept-sessions-v4.ts exports the step, KEPT_SESSIONS_V4, a MigrationStep with toVersion 4, registered last in PRODUCTION_MIGRATIONS (src/storage/database.ts), after SETTINGS_V3, which makes DATABASE_DATA_VERSION 4; the runner gives it the opening's app version (MigrationUpgrade.appVersion) for the envelopes it rewrites, and runs it only once every earlier step's work is done. It walks sessionSummaries, then sessionBodies, with a cursor, through rewriteInOrder and rewriteEach (src/storage/migrations/rewrite-each.ts), holding the upgrade (MigrationUpgrade.hold) until both walks end, rewriting each record through upgradedKeptSummaryV4(stored, appVersion) and upgradedKeptBodyV4(stored, appVersion), which give null, never a throw, for a record not at data version 2 or not readable; the cursor's update is guarded the same way. They read through the kept-session codec's data version 2 readers, parseKeptSessionSummaryV2 (src/storage/records/kept-session-summary.ts) and parseKeptSessionBodyV2 (src/storage/records/kept-session-body.ts), whose phrases go through parseKeptIntentV2 (src/storage/records/kept-intent-parsers.ts) and refuse a stored request holding a rhythm lock group or a steering block, and write the session-wide record, with isJam false and no suggestionDeclined, and the body, with no doodle and no playedNotesClock, in the shapes the codec reads at data version 4, through rewrittenKeptSummaryRecord and rewrittenKeptBodyRecord; each kept shape's data version is held in src/storage/records/kept-reading.ts, the played notes' staying KEPT_PLAYED_NOTES_DATA_VERSION 1.
 
 ## EXPECTATION
 - A database at data version 3 holding sessions kept by v3.1, pinned, with favorites, with played notes and with a comment, opens at data version 4; each session opens as before, its exports byte-identical, with no Jam part.

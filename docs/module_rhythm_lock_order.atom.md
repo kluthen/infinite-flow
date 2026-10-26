@@ -3,7 +3,7 @@ id: module_rhythm_lock_order
 status: DRAFT
 tags: [v3, release-v3.2, rhythm-lock, generation]
 layer: ARCHITECTURE
-version: 0.1
+version: 0.2
 human_name: The Rhythm Lock's Order
 parents:
   - [[entity_request_rhythm_lock]]
@@ -33,7 +33,7 @@ The window search tries each rhythm in this order with every chord plan before t
 The outcome. The search reports whether the phrase took the locked bars or a forced bend, beside the rhythm change draw's own record. It goes into the generation result's provenance, which the session history keeps, and never into the timeline; nothing the player sees marks it.
 
 ## TECHNICAL INTERFACE
-Not built yet. src/domain/rhythm/rhythm-lock-order.ts computes the preference ranks from the request's rhythm lock group (RequestRhythmLock, src/domain/generation/request-rhythm-lock.ts) and the phrase's rhythm candidates, matching bars through the bar key of src/domain/rhythm/rhythm-bars.ts and measuring total edits with its rhythm distance. Rhythm ranking (src/domain/generation/orchestration/candidate-ranking.ts) takes the ranks; the window search (src/domain/generation/orchestration/window-search.ts) walks rhythm-major under the lock; the outcome is a provenance field declared in src/domain/generation/orchestration/orchestration-types.ts. Names are written in when the code exists.
+src/domain/rhythm/rhythm-lock-order.ts: makeRhythmLockOrder(input) builds one request's RhythmLockOrder from a RhythmLockOrderInput (the phrase's whole rhythm domain, the same candidates in seeded order, the request's locked bars of its RequestRhythmLock, src/domain/generation/request-rhythm-lock.ts, and the phrase's rhythm change draw when one is made): the drawn change's candidates, the candidates written as the locked bars, both in seeded order, and forcedBend, every other candidate in the forced bend's order, computed on its first call and then reused. Candidates are matched through lockedBarsKey(bars), equal to the bar key (rhythmBarKey, barsKeyedDomainOf, src/domain/rhythm/rhythm-bars.ts) of a candidate written alike. The forced bend's preference rank is 2 plus the total edits from the locked bars (RhythmLockOrderDeps.distance, the rhythm distance by default), ranks 0 and 1 being the drawn change's and the locked bars', and its order is sorted by orderRhythmByPreference (src/domain/generation/orchestration/candidate-ranking.ts). walkRhythmLockOrder(order) yields each rhythm as a RhythmLockStep with its RhythmLockTier (rhythm_change, locked_bars or forced_bend) and a drawn change's kind. The generation orchestrator (src/domain/generation/orchestration/generation-orchestrator.ts) builds the order once per request, with the phrase's rhythm change draw, and hands it to every window's search as WindowSearchInput.rhythmLockOrder; the window search (src/domain/generation/orchestration/window-search.ts) walks it rhythm-major. The outcome is GenerationProvenance.rhythmLockOutcome (RhythmLockOutcome, the tier the phrase's rhythm came from), declared in src/domain/generation/orchestration/orchestration-types.ts and validated by the generation worker protocol.
 
 ## EXPECTATION
 - With the locked bars among a phrase's candidates and no drawn change, every phrase takes them, on every attempt of the failure handling.

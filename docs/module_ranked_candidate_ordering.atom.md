@@ -5,7 +5,7 @@ layer: ARCHITECTURE
 human_name: Ranked Candidate Ordering
 type: MODULE
 priority: 1
-version: 0.4
+version: 0.5
 tags: generation
 parents:
   - [[entity_concert_event_timeline]]
@@ -31,7 +31,7 @@ Rhythm ranking accepts an already-materialized candidate list (a lazy rhythm can
 Rhythm ranking computes the rhythm tie keys itself, with an incremental 32-bit FNV-1a equivalent to hashing each candidate's full tie-key string: it hashes the versioned prefix `infinite-flow/rhythm-tie/v1|<seed encoding>|<grammar version>|` once per ranking call, then continues that hash state over each candidate's identity characters, building no concatenated string per candidate. It may visit the identities in the UTF-16 code-unit order of their strings (a plain string comparison, independent of the locale), precomputed once per domain, resuming each identity from the hash state checkpointed at the prefix it shares with the previous identity in that order. Every key computed this way equals the key the per-candidate rhythm tie-key function gives for the same seed and candidate, so the ranked order is unchanged; the visiting order affects only how the keys are computed, never the sort.
 
 ## TECHNICAL INTERFACE
-Callers supply a harmony candidate list and a seed to receive a frozen, ranked harmony candidate list. Callers supply a rhythm grammar version, an already-materialized rhythm candidate list, and a seed to receive a frozen RankedRhythmCache; a separate entry point accepts a raw lazy RhythmCandidateDomain and a seed and produces the same cache after draining the domain's iterator exactly once. Harmony ranking consumes the harmony tie key already exposed by the candidate domain's own tie-key function. Rhythm ranking computes its keys incrementally as described above; the per-candidate rhythm tie-key function `rhythmTieKey` stays the reference definition those keys must equal bit for bit. All of this lives in src/domain/generation/orchestration/candidate-ranking.ts. Not built yet: the preference rank as an input of rhythm ranking, which src/domain/rhythm/rhythm-lock-order.ts computes under the lock; without it, the ranked order is the seeded key's.
+Callers supply a harmony candidate list and a seed to receive a frozen, ranked harmony candidate list. Callers supply a rhythm grammar version, an already-materialized rhythm candidate list, and a seed to receive a frozen RankedRhythmCache; a separate entry point accepts a raw lazy RhythmCandidateDomain and a seed and produces the same cache after draining the domain's iterator exactly once. Harmony ranking consumes the harmony tie key already exposed by the candidate domain's own tie-key function. Rhythm ranking computes its keys incrementally as described above; the per-candidate rhythm tie-key function `rhythmTieKey` stays the reference definition those keys must equal bit for bit. All of this lives in src/domain/generation/orchestration/candidate-ranking.ts. orderRhythmByPreference(seeded, rankOf), in the same file, takes the preference rank: it orders a seeded rhythm order by each candidate's rank, then its seeded position, so each candidate is placed by (preference rank, seeded tie key, candidateIndex), every candidate kept once, and returns a frozen list; equal ranks give the seeded order back. src/domain/rhythm/rhythm-lock-order.ts computes the ranks under the lock (module_rhythm_lock_order); without a preference, the ranked order is the seeded key's.
 
 ## EXPECTATION
 - Ranking the same candidate list under the same request and seed always produces the same order.
