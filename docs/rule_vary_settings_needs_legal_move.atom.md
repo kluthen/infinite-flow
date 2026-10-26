@@ -10,6 +10,7 @@ layer: BUSINESS
 version: 0.1
 priority: 1
 dependents:
+  - [[module_session_vary_settings_flag]]
   - [[module_settings_mutation]]
 ---
 

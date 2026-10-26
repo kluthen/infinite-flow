@@ -1,6 +1,6 @@
 ---
 id: module_session_rhythm_lock
-status: DRAFT
+status: REVIEW
 priority: 1
 parents:
   - [[entity_request_rhythm_lock]]

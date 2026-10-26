@@ -1,6 +1,6 @@
 ---
 id: module_session_lock_and_groups_choices
-status: DRAFT
+status: REVIEW
 version: 0.2
 priority: 1
 human_name: Rhythm Lock and Allowed Groups Choices in the Controller

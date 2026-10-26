@@ -1,6 +1,6 @@
 ---
 id: ui_field_dependent
-status: DRAFT
+status: REVIEW
 human_name: A Field's Dependent Option
 type: UI
 layer: ARCHITECTURE

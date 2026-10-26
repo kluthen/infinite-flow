@@ -1,6 +1,6 @@
 ---
 id: entity_session_option_records
-status: DRAFT
+status: REVIEW
 version: 0.2
 dependents: []
 human_name: The Session Options' Setting Records

@@ -36,6 +36,7 @@ export interface VarySettingsAvailability {
 // @spec-link [[rule_vary_settings_needs_legal_move]]
 // @spec-link [[rule_vary_settings_allowed_groups]]
 // @spec-link [[module_session_lock_and_groups_choices]]
+// @spec-link [[module_session_vary_settings_flag]]
 export function createVarySettingsAvailability(
   idle: Readonly<GenerationSessionState<WorkspaceSessionResult>>,
   phase: () => SessionControllerPhase,

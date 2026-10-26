@@ -32,6 +32,7 @@ const BLOCKED_RHYTHM: Partial<GenerationControls> = {
 }
 
 // @test-link [[rule_vary_settings_needs_legal_move]]
+// @test-link [[module_session_vary_settings_flag]]
 describe('session controller: whether Vary settings has a move', () => {
   // @test-link [[rule_vary_settings_needs_legal_move]]
   // @test-link [[rule_vary_settings_allowed_groups]]
