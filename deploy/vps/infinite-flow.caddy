@@ -1,0 +1,9 @@
+# Infinite Flow — site block in the VPS shared Caddy (~/caddy). Owned by Infinite Flow:
+# only this file is ours. Runbook: ~/infinite-flow/README_INFINITE_FLOW.md.
+# Static app (nginx, no backend, no secrets) in container infinite-flow-web, reached over the
+# network caddy_infinite-flow (shared only by Caddy and this app). Port 8181, never 8080: the
+# host firewall (DOCKER-USER) drops TCP 8080, container-to-container included.
+# No `encode`: nginx already compresses.
+infinite.upsilon-hub.com, infinity.upsilon-hub.com {
+    reverse_proxy infinite-flow-web:8181
+}

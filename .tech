@@ -9,7 +9,7 @@ languages = ["TypeScript 6.0"]
 frameworks = ["Vue 3.5", "VexFlow 5.0"]
 runtime = ["Node.js 22 (build, dev)", "nginx 1.30 (serves the static build in production)"]
 tooling = ["Vite 8.3", "vite-plugin-pwa 1.3", "Tailwind CSS 4.3", "Vitest 5.0", "Playwright 1.63", "ESLint 10.11", "vue-tsc 3.3"]
-deployment = ["Docker multi-stage image (node:22-alpine build, nginxinc/nginx-unprivileged:1.30-alpine runtime)", "Docker Compose, built on the VPS with --pull", "behind the shared VPS's Caddy (owned by another app, not pinned here)", "VPS host x86_64"]
+deployment = ["Docker multi-stage image (node:22-alpine build, nginxinc/nginx-unprivileged:1.30-alpine runtime)", "Docker Compose, built on the VPS with --pull", "behind the VPS's shared Caddy (~/caddy, caddy:2-alpine, common to every app on the VPS, over the network caddy_infinite-flow; not ours, not pinned here)", "VPS host x86_64"]
 lockfiles = ["package-lock.json"]
 
 # Runtime versions below are those of the nginx 1.30 image (branch nginx-1.30,
