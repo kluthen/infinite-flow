@@ -118,13 +118,14 @@ function recordingCost(records: AttemptRecord[]): AttemptCost {
   return (generated, request) => {
     const chargedSeconds = measuredAttemptCost(generated, request)
     if (generated === undefined) throw new Error('A measured attempt has an outcome.')
-    const { outcome, seconds } = generated
+    const { outcome, seconds, orderingSeconds } = generated
     records.push({
       phraseNumber: request.phraseNumber,
       kind: request.step,
       seconds,
       chargedSeconds,
       failureCode: outcome.kind === 'generation_failure' ? outcome.code : null,
+      orderingSeconds,
     })
     return chargedSeconds
   }
@@ -228,7 +229,10 @@ export async function runJamCase(config: JamRunConfig, outcomes: OutcomeCache): 
     undefined,
     {
       phraseCount,
-      settings: { rhythmLockOn: lock.on },
+      settings: {
+        rhythmLockOn: lock.on,
+        ...(lock.on ? { allowedRhythmChanges: lock.allowedChanges } : {}),
+      },
       ...(phraseOne?.ready === undefined ? {} : { phraseOne: phraseOne.ready.phraseOne }),
     },
   )

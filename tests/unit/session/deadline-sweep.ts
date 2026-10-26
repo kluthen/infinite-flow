@@ -15,6 +15,7 @@
  * planned phrase has sounded in full. Every output is kept with the fake time it came out at.
  */
 
+import { deepFreeze } from '@/domain/events/deep-freeze'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { PHRASE_MEASURE_COUNT } from '@/domain/generation/generation-request'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
@@ -87,10 +88,32 @@ export const SWEEP_TEMPOS: readonly number[] = [60, 120, 240]
 /** How many phrases each swept session plays before Stop, phrase 1 included. */
 export const SWEEP_PHRASE_COUNT = 6
 
-/** A real outcome, with the wall time in seconds `generatePhrase` took to produce it here. */
+/**
+ * A real outcome, with the wall time in seconds `generatePhrase` took to produce it here, and the
+ * seconds its diagnostics report for building the rhythm orderings, kept out of the outcome so the
+ * session sees exactly the outcome an unclocked call gives.
+ */
 interface TimedOutcome {
   readonly outcome: GenerationOutcome
   readonly seconds: number
+  readonly orderingSeconds: number
+}
+
+/**
+ * Intent: split a clocked outcome into the outcome the session sees, deep-equal to an unclocked
+ * one, and the seconds its diagnostics report for building the rhythm orderings.
+ */
+export function splitOrderingsTime(clocked: GenerationOutcome): {
+  readonly outcome: GenerationOutcome
+  readonly orderingSeconds: number
+} {
+  const { rhythmOrderingsSeconds, ...diagnostics } = clocked.diagnostics
+  if (rhythmOrderingsSeconds === undefined)
+    throw new Error('A clocked outcome reports its orderings.')
+  return {
+    outcome: deepFreeze({ ...clocked, diagnostics }),
+    orderingSeconds: rhythmOrderingsSeconds,
+  }
 }
 
 /**
@@ -107,8 +130,9 @@ export class OutcomeCache {
     const cached = this.outcomes.get(key)
     if (cached !== undefined) return cached
     const startedAt = performance.now()
-    const outcome = generatePhrase(intent)
-    const timed = { outcome, seconds: (performance.now() - startedAt) / 1000 }
+    const clocked = generatePhrase(intent, { clock: () => performance.now() })
+    const seconds = (performance.now() - startedAt) / 1000
+    const timed = { ...splitOrderingsTime(clocked), seconds }
     this.outcomes.set(key, timed)
     return timed
   }
@@ -282,7 +306,9 @@ function phraseOneAtIdle(
 export interface TimedSessionOptions {
   readonly phraseCount?: number
   readonly phraseOne?: SessionStart['phraseOne']
-  readonly settings?: Partial<Pick<SessionSettings, 'rhythmLockOn' | 'allowedGroups'>>
+  readonly settings?: Partial<
+    Pick<SessionSettings, 'rhythmLockOn' | 'allowedRhythmChanges' | 'allowedGroups'>
+  >
 }
 
 /** Intent: a run's planned phrase count, refusing anything but a whole number of 2 or more. */

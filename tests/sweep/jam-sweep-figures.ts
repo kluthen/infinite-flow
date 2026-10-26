@@ -18,8 +18,9 @@ import { LockCensusTally, type LockCensusFigures } from './lock-census'
  * One attempt of a run, as the figures keep it: the phrase it was for, how it was asked for (a
  * look-ahead phrase's carry-in or standalone step, or a rung of a Jam's phrase-1 ladder), its
  * `generatePhrase` time, what it was charged (that time plus the round trip and engraving), its
- * failure code (null when it generated a phrase), and the time it spent ordering candidates when
- * its ladder measures it.
+ * failure code (null when it generated a phrase), and the time the generator's diagnostics report
+ * for building the rhythm orderings (the lock's order and its change draw; the steering rank
+ * later), when measured.
  */
 export interface AttemptRecord {
   readonly phraseNumber: number
@@ -105,8 +106,7 @@ export interface ConfigurationFigures {
 const MAX_SHORTFALL_LINES = 5
 
 /** Why a configuration's orderings share is null. */
-export const NO_ORDERINGS_NOTE =
-  'no attempt reports ordering time: the baseline ladder orders nothing (v3.1 has no orderings)'
+export const NO_ORDERINGS_NOTE = 'no attempt reports ordering time'
 
 /** Intent: a configuration's readable label, e.g. `jam 120 BPM lock off warm no block`. */
 export function configurationLabel(key: ConfigurationKey): string {

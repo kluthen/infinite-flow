@@ -116,7 +116,8 @@ describe('Jam phrase 1: the extended wait and the baseline ladder', () => {
       generate: (): GeneratedAttempt => {
         calls += 1
         const outcome = calls >= succeedAt ? real : failureOutcome()
-        return { outcome, seconds: charged - 0.1, chargedSeconds: charged, cold: false }
+        const seconds = charged - 0.1
+        return { outcome, seconds, chargedSeconds: charged, orderingSeconds: 0, cold: false }
       },
     }
   }

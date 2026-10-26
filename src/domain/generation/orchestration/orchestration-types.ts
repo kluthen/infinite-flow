@@ -123,6 +123,13 @@ export interface GenerationDiagnostics {
   readonly windows: readonly WindowDiagnostics[]
   readonly successfulRegisters: readonly RegisterId[]
   readonly selectedRegister?: RegisterId
+  /**
+   * Seconds spent building the request's rhythm orderings (the rhythm lock's order with its rhythm
+   * change draw, and its forced bend's order once the search reaches it). Present exactly when the
+   * caller passed a clock; a timing observation never read back, and never in the provenance or
+   * the result.
+   */
+  readonly rhythmOrderingsSeconds?: number
 }
 
 /** One orchestration operation's outcome: resolved request beside the unchanged result, or a failure. */
