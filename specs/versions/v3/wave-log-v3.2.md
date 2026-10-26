@@ -817,3 +817,13 @@ Chunks 16, 13, 19 merged, none moved; plan gap (Start ignoring the saved choices
 Gate passed after a test fix; entry 282,098 B, first-load 329,885 B. Sync applied Q3 and the three
 promotions; CS met. Asked: CR (R1, R2: CONTRACT 11.0.0), S3's two items, five status candidates;
 the merge into `main` once CR is confirmed. H2 and H3 open to run (L3).
+
+### The owner's answers (2026-10-26)
+
+"agreed, you can merge and push. you may handle doc items as well." `documentalist` (bf64a28):
+CR applied (R1 `module_session_ready_phrases` 0.2, R2 CONTRACT 11.0.0); `module_settings_mutation`
+0.6 (name only); `module_session_vary_settings_flag` 0.3 (Vary settings' availability); five
+DRAFT → REVIEW; `ui_toggle_list` 0.3 (ux D350). Gate CR done. Wave 3 merged into `main` and pushed;
+worktrees and branches removed.
+Next: wave 4 (chunks 20, 28, 7, 8, 9) waits on the owner's gates LD (chunk 8), DR and DS (chunk
+28); hand checks v3.2 H2, H3 open (L3). Dev-tool security batch still pending as its own unit.
