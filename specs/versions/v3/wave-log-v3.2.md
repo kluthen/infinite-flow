@@ -737,3 +737,12 @@ session files that hold the requests) and split rule; 16's atoms and drift check
 reads the re-lock class from the history's mark; 19's Files (`setting-defaults.ts`, new specs in
 `test:e2e`), atoms and drift checks. Also two readings in the capture to confirm ("uses sixteenth
 notes", a repeat leaves the re-lock pending).
+
+Plan v19 (`spec-writer`, 85e8e22; spec D437, D438): every preflight correction applied, both
+readings confirmed. New gate CR: `module_session_ready_phrases`' wording extension, signed off by
+the owner at this wave's sync (chunk 16 merges first, as for CS); it blocks the sync and the merge
+into `main`. The first-load total is recorded beside the entry figure (M4, workflow deltas).
+
+### Chunks
+
+- 16 dispatched (2026-10-26) to `coding-leader`, branch `v3.2-c16-session-rhythm-lock`.
