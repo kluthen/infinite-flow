@@ -70,9 +70,16 @@ async function v30Database(settings: readonly (readonly [string, unknown])[]): P
   return factory
 }
 
-/** Intent: open the database as the upgrading v3.1 tab does, with every production step. */
+/** The production steps of v3.1, up to the settings step: a database at data version 3. */
+const V3_1_MIGRATIONS = PRODUCTION_MIGRATIONS.slice(0, 3)
+
+/** Intent: open the database as the upgrading v3.1 tab does, with every step it has. */
 function openUpgraded(factory: IDBFactory) {
-  return openStoragePort({ factory, appVersion: UPGRADING_APP_VERSION })
+  return openStoragePort({
+    factory,
+    appVersion: UPGRADING_APP_VERSION,
+    migrations: V3_1_MIGRATIONS,
+  })
 }
 
 /** Intent: every value of a store, read raw. */
@@ -109,9 +116,9 @@ function storedSelectionRecords(factory: IDBFactory): Promise<unknown[]> {
   )
 }
 
-/** Intent: the production steps, each recorded in `ran` before it runs. */
+/** Intent: v3.1's production steps, each recorded in `ran` before it runs. */
 function recordedProductionSteps(ran: number[]): MigrationStep[] {
-  return PRODUCTION_MIGRATIONS.map((step) => ({
+  return V3_1_MIGRATIONS.map((step) => ({
     toVersion: step.toVersion,
     migrate: (upgrade) => {
       ran.push(step.toVersion)

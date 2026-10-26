@@ -12,6 +12,7 @@
  */
 
 import { KEPT_SESSIONS_V2 } from './migrations/kept-sessions-v2'
+import { KEPT_SESSIONS_V4 } from './migrations/kept-sessions-v4'
 import { SETTINGS_V3 } from './migrations/settings-v3'
 import { readEnvelope } from './record-envelope'
 
@@ -42,8 +43,8 @@ export const DATA_STORES = [
 export type StoreName = (typeof DATA_STORES)[number]
 
 /**
- * What a migration step works with: the database being upgraded, its upgrade transaction and the
- * app version upgrading it.
+ * What a migration step works with: the database being upgraded, its upgrade transaction, the app
+ * version upgrading it, and the hold that keeps the next step waiting for its work.
  */
 // @spec-link [[module_on_device_database]]
 export interface MigrationUpgrade {
@@ -51,11 +52,18 @@ export interface MigrationUpgrade {
   readonly transaction: IDBTransaction
   /** The app version the database is opened with, for the envelopes a step rewrites. */
   readonly appVersion: string
+  /**
+   * Hold the upgrade at this step until the returned release is called: a step whose work goes on
+   * in request callbacks (a cursor walk) takes one, so the next step runs only once that work is
+   * done and sees every record it wrote. Releasing twice counts once.
+   */
+  readonly hold: () => () => void
 }
 
 /**
  * One migration step: the data version it brings the database to, and how. It runs inside the
- * upgrade transaction and rewrites only the stores whose record shape changes at that version.
+ * upgrade transaction, after every earlier step's work is done, and rewrites only the stores whose
+ * record shape changes at that version.
  */
 // @spec-link [[module_on_device_database]]
 export interface MigrationStep {
@@ -91,6 +99,7 @@ export const PRODUCTION_MIGRATIONS: readonly MigrationStep[] = Object.freeze([
   CREATE_STORES,
   KEPT_SESSIONS_V2,
   SETTINGS_V3,
+  KEPT_SESSIONS_V4,
 ])
 
 /**
@@ -107,8 +116,9 @@ export function migrationsDataVersion(steps: readonly MigrationStep[]): number {
 }
 
 /**
- * The code's data version: 1 in v3.0, 3 from v3.1, reached by the step to version 2 (the kept
- * sessions) and the step to version 3 (the settings and the `presets` store).
+ * The code's data version: 1 in v3.0, 3 in v3.1, 4 in v3.2, reached by the step to version 2 (the
+ * kept sessions), the step to version 3 (the settings and the `presets` store) and the step to
+ * version 4, which carries the kept sessions over to v3.2's shapes with no Jam part.
  */
 // @spec-link [[module_on_device_database]]
 export const DATABASE_DATA_VERSION: number = migrationsDataVersion(PRODUCTION_MIGRATIONS)
@@ -166,21 +176,71 @@ function closedOnVersionChange(
   return connection
 }
 
+/** What every migration step of one upgrade works with, apart from its own hold. */
+type UpgradeContext = Omit<MigrationUpgrade, 'hold'>
+
 /**
- * Intent: run, in order, every migration step above the stored version, then write `meta`: the
- * code's data version and the app that upgraded the database.
+ * Intent: run `steps[index]` and then, once its synchronous part has returned and every hold it
+ * took is released, the steps after it in order; after the last, write `meta`: the code's data
+ * version and the app that upgraded the database. A step that throws, now or when a release runs
+ * the next one from a request callback, is handed to `fail` as a MigrationStepError and no later
+ * step runs.
  */
-function runMigrations(upgrade: MigrationUpgrade, oldVersion: number, opening: DatabaseOpening) {
-  for (const step of opening.migrations) {
-    if (step.toVersion <= oldVersion) continue
-    try {
-      step.migrate(upgrade)
-    } catch (cause) {
-      throw new MigrationStepError(step.toVersion, cause)
+function runStepsFrom(
+  context: UpgradeContext,
+  steps: readonly MigrationStep[],
+  index: number,
+  opening: DatabaseOpening,
+  fail: (error: unknown) => void,
+): void {
+  const step = steps[index]
+  if (step === undefined) {
+    const meta = { dataVersion: opening.dataVersion, appVersion: opening.appVersion }
+    context.transaction.objectStore(META_STORE).put(meta, META_KEY)
+    return
+  }
+  let holds = 0
+  let returned = false
+  let advanced = false
+  /** Intent: run the next step once this one has returned and holds nothing, exactly once. */
+  const advance = () => {
+    if (!returned || holds > 0 || advanced) return
+    advanced = true
+    runStepsFrom(context, steps, index + 1, opening, fail)
+  }
+  /** Intent: hold the upgrade at this step; the release, called once or more, lets it go on. */
+  const hold = () => {
+    holds += 1
+    let released = false
+    return () => {
+      if (released) return
+      released = true
+      holds -= 1
+      advance()
     }
   }
-  const meta = { dataVersion: opening.dataVersion, appVersion: opening.appVersion }
-  upgrade.transaction.objectStore(META_STORE).put(meta, META_KEY)
+  try {
+    step.migrate({ ...context, hold })
+  } catch (cause) {
+    fail(new MigrationStepError(step.toVersion, cause))
+    return
+  }
+  returned = true
+  advance()
+}
+
+/**
+ * Intent: run, in order, every migration step above the stored version, each after the work of
+ * the one before it is done, then write `meta`. A step that throws is handed to `fail`.
+ */
+function runMigrations(
+  context: UpgradeContext,
+  oldVersion: number,
+  opening: DatabaseOpening,
+  fail: (error: unknown) => void,
+): void {
+  const steps = opening.migrations.filter((step) => step.toVersion > oldVersion)
+  runStepsFrom(context, steps, 0, opening, fail)
 }
 
 /**
@@ -195,16 +255,18 @@ function openAtDataVersion(opening: DatabaseOpening): Promise<IDBDatabase> {
     request.onupgradeneeded = (event) => {
       const transaction = request.transaction
       if (transaction === null) throw new Error('database: an upgrade without its transaction')
-      try {
-        runMigrations(
-          { database: request.result, transaction, appVersion: opening.appVersion },
-          event.oldVersion,
-          opening,
-        )
-      } catch (error) {
+      /** Intent: keep the first step failure and roll the upgrade back. */
+      const fail = (error: unknown) => {
+        if (upgradeFailure !== null) return
         upgradeFailure = error
         transaction.abort()
       }
+      runMigrations(
+        { database: request.result, transaction, appVersion: opening.appVersion },
+        event.oldVersion,
+        opening,
+        fail,
+      )
     }
     request.onsuccess = () =>
       resolve(closedOnVersionChange(request.result, opening.onVersionChange))

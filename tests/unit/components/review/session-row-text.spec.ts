@@ -28,6 +28,7 @@ const SUMMARY: KeptSessionSummary = {
   playedNotesKept: false,
   recordedByAppVersion: '3.0.0',
   sessionSeed: makeSeed(7),
+  isJam: false,
 }
 
 /** Intent: a current row over `SUMMARY` changed by `edit`. */

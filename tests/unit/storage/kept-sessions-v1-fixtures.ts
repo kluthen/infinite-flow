@@ -2,8 +2,8 @@
  * Builders for the specs of the kept sessions kept at data version 1 and the upgrade step to data
  * version 2: a session's records as the current encoder writes them, turned into the shapes data
  * version 1 held (v3.0's, chunk 4's and chunk 8's); a database created at data version 1, as a
- * v3.0 tab opens it, seeded with them through the port or raw; and the upgrading app's open and
- * raw reads of what it then holds.
+ * v3.0 tab opens it, seeded with them through the port or raw; and the upgrading app's open (every
+ * production step, or only up to step 2) and raw reads of what it then holds.
  */
 
 import type { ProfileSelection } from '@/domain/controls/profile-selection'
@@ -12,12 +12,13 @@ import type { RecordVersions } from '@/storage/record-envelope'
 import type { KeptSessionRecords, StoredKeptSession } from '@/storage/records/kept-session-record'
 import { openStoragePort, type StorageChange, type StoragePort } from '@/storage/storage-port'
 import { storedRecords } from './kept-session-fixtures'
+import { v2Summary } from './kept-sessions-v2-fixtures'
 import { rawGet, rawPut, withRawDatabase } from './storage-test-doubles'
 
 /** The app version of the v3.0 tab that created the database and kept the sessions. */
 export const V30_APP_VERSION = '3.0.0'
 
-/** The app version of the v3.1 tab that upgrades the database. */
+/** The app version of the tab that upgrades the database. */
 export const UPGRADING_APP_VERSION = '3.1.0-test'
 
 /**
@@ -62,11 +63,12 @@ export function reshapedBody(
 }
 
 /**
- * Intent: a stored data version 2 session-wide record as data version 1 held it: its musical
- * profile selection in place of its preset label, at the same key position, at data version 1.
+ * Intent: a stored session-wide record as data version 1 held it: v3.1's record (no Jam mark) with
+ * its musical profile selection in place of its preset label, at the same key position, at data
+ * version 1.
  */
 export function v1Summary(summary: unknown, selection: ProfileSelection): unknown {
-  const entries = Object.entries(structuredClone(summary) as Record<string, unknown>).map(
+  const entries = Object.entries(v2Summary(summary) as Record<string, unknown>).map(
     ([key, value]): [string, unknown] => {
       if (key === 'presetLabel') return ['musicalProfile', { ...selection }]
       return key === 'dataVersion' ? [key, 1] : [key, value]
@@ -169,10 +171,19 @@ export async function seedRaw(
 }
 
 /**
- * Intent: the database opened with the production migrations up to the kept-session step, at data
- * version 2, as the upgrading v3.1 tab runs them; the later steps change no kept session.
+ * Intent: the database opened with every production migration, at the code's data version, as the
+ * upgrading tab runs them: a session kept at data version 1 reaches the current shapes through
+ * step 2, then step 4.
  */
 export function openUpgraded(factory: IDBFactory): Promise<StoragePort> {
+  return openStoragePort({ factory, appVersion: UPGRADING_APP_VERSION })
+}
+
+/**
+ * Intent: the database opened with the production migrations up to the step to data version 2
+ * only, as the v3.1 tab of that step ran them, so what step 2 alone writes can be read.
+ */
+export function openAtVersion2(factory: IDBFactory): Promise<StoragePort> {
   return openStoragePort({
     factory,
     appVersion: UPGRADING_APP_VERSION,

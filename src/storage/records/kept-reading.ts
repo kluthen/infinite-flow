@@ -9,18 +9,24 @@ import { readEnvelope, type EnvelopeReading } from '../record-envelope'
 import { isKeptPhraseRefusal } from './kept-phrase-parsers'
 
 /**
- * The data version of the session-wide record's shape: 2 from v3.1, which records the preset
- * label in place of v3.0's musical profile selection.
+ * The data version of the session-wide record's shape: 4 from v3.2, which says whether the session
+ * is a Jam session and, for a Jam session only, whether the player declined its key and mode
+ * suggestion; it records the preset label in place of v3.0's musical profile selection, as from
+ * v3.1's data version 2.
  */
 // @spec-link [[entity_kept_session_record]]
-export const KEPT_SESSION_SUMMARY_DATA_VERSION = 2
+export const KEPT_SESSION_SUMMARY_DATA_VERSION = 4
 
 /**
- * The data version of the body's shape: 2 from v3.1, whose phrases' intents hold the figure
- * levels only, never a musical profile.
+ * The data version of the body's shape: 4 from v3.2, which holds a Jam session's quantized doodle
+ * with its capture tempo, and whose phrases' intents and requests hold v3.2's request fields (the
+ * rhythm lock group, the steering block and a carry-in from no phrase) when the phrase had them;
+ * every intent holds its figure levels only, never a musical profile, as from v3.1's data version
+ * 2.
  */
 // @spec-link [[entity_kept_session_record]]
-export const KEPT_SESSION_BODY_DATA_VERSION = 2
+// @spec-link [[rule_kept_session_content]]
+export const KEPT_SESSION_BODY_DATA_VERSION = 4
 
 /** The data version of the played-notes record's shape: 1, unchanged since v3.0. */
 // @spec-link [[entity_kept_session_record]]

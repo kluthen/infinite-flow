@@ -1,8 +1,9 @@
 // @vitest-environment node
 /**
  * The upgrade step to data version 2 over records it cannot or need not rewrite: a database
- * holding a session in each of data version 1's three shapes and one damaged record opens at data
- * version 2, the three carried over and the damaged one left as stored; a database seeded with
+ * holding a session in each of data version 1's three shapes and one damaged record opens at the
+ * code's data version, through step 2 then step 4, the three carried over and the damaged one left
+ * as stored; a database seeded with
  * malformed session-wide records and bodies of every kind still opens, each left as stored, and
  * the step's readers give nothing for them without ever throwing; a v3.0 tab open meanwhile
  * becomes outdated rather than block the upgrade.
@@ -14,21 +15,24 @@ import type { ProfileSelection } from '@/domain/controls/profile-selection'
 import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import type { PresetSelection } from '@/domain/presets/preset-selection'
 import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
+import { DATABASE_DATA_VERSION } from '@/storage/database'
 import { upgradedKeptBody, upgradedKeptSummary } from '@/storage/migrations/kept-sessions-v2'
 import { isKeptPhraseRefusal } from '@/storage/records/kept-phrase-parsers'
 import {
   parseKeptSessionBodyV1,
-  rewrittenKeptBodyRecord,
+  rewrittenKeptBodyRecordV2,
 } from '@/storage/records/kept-session-body'
 import {
   decodeKeptSession,
   encodeKeptSession,
+  KEPT_SESSION_BODY_DATA_VERSION,
+  KEPT_SESSION_SUMMARY_DATA_VERSION,
   type KeptSessionFacts,
   type StoredKeptSession,
 } from '@/storage/records/kept-session-record'
 import {
   parseKeptSessionSummaryV1,
-  rewrittenKeptSummaryRecord,
+  rewrittenKeptSummaryRecordV2,
 } from '@/storage/records/kept-session-summary'
 import { edited, historyOf, recordedKeptSession, REMOVE } from './kept-session-fixtures'
 import {
@@ -99,9 +103,9 @@ describe('a data version 1 database holding all three phrase shapes and a damage
 
   // @test-link [[module_kept_session_upgrade_step]]
   // @test-link [[module_on_device_database]]
-  it('opens at data version 2, never rejected', async () => {
+  it("opens at the code's data version, never rejected", async () => {
     expect(status).toBe('ready')
-    expect((await databaseState(factory)).version).toBe(2)
+    expect((await databaseState(factory)).version).toBe(DATABASE_DATA_VERSION)
   })
 
   // @test-link [[module_kept_session_upgrade_step]]
@@ -129,7 +133,9 @@ describe('a data version 1 database holding all three phrase shapes and a damage
     expect(after.body).toStrictEqual(stored.body)
     expect((after.body as { dataVersion: number }).dataVersion).toBe(1)
     expect(after.playedNotes).toStrictEqual(stored.playedNotes)
-    expect((after.summary as { dataVersion: number }).dataVersion).toBe(2)
+    expect((after.summary as { dataVersion: number }).dataVersion).toBe(
+      KEPT_SESSION_SUMMARY_DATA_VERSION,
+    )
     expect(decodeKeptSession(after)).toEqual({ reading: 'unreadable' })
   })
 })
@@ -242,8 +248,8 @@ describe('the upgrade step over malformed stored session-wide records and bodies
     }
     const phrases = parseKeptSessionBodyV1(valid.body)
     const failures = [
-      thrown(() => rewrittenKeptSummaryRecord(parseKeptSessionSummaryV1(valid.summary), '')),
-      thrown(() => rewrittenKeptBodyRecord(phrases, () => false, '')),
+      thrown(() => rewrittenKeptSummaryRecordV2(parseKeptSessionSummaryV1(valid.summary), '')),
+      thrown(() => rewrittenKeptBodyRecordV2(phrases, () => false, '')),
     ]
 
     for (const failure of failures) {
@@ -256,7 +262,7 @@ describe('the upgrade step over malformed stored session-wide records and bodies
 
   // @test-link [[module_kept_session_upgrade_step]]
   // @test-link [[module_on_device_database]]
-  it('opens a database seeded with all of them at data version 2, each left as stored', async () => {
+  it("opens a database seeded with all of them at the code's data version, each left as stored", async () => {
     const factory = freshFactory()
     await openV30Port(factory)
     await seedRaw(factory, 'sessionSummaries', summaries)
@@ -265,7 +271,7 @@ describe('the upgrade step over malformed stored session-wide records and bodies
     const port = await openUpgraded(factory)
 
     expect(port.status()).toBe('ready')
-    expect((await databaseState(factory)).version).toBe(2)
+    expect((await databaseState(factory)).version).toBe(DATABASE_DATA_VERSION)
     await withRawDatabase(factory, async (database) => {
       for (const [name, value] of summaries)
         expect(await rawGet(database, 'sessionSummaries', name), name).toStrictEqual(value)
@@ -285,14 +291,14 @@ describe('the upgrade step over malformed stored session-wide records and bodies
     const after = await rawSession(factory, 'no-mark')
 
     expect(after.summary).toStrictEqual(summary)
-    expect((after.body as { dataVersion: number }).dataVersion).toBe(2)
+    expect((after.body as { dataVersion: number }).dataVersion).toBe(KEPT_SESSION_BODY_DATA_VERSION)
     expect(decodeKeptSession(after)).toEqual({ reading: 'unreadable' })
   })
 })
 
 // @test-link [[module_kept_session_upgrade_step]]
 // @test-link [[module_on_device_database]]
-describe('a v3.0 tab open while v3.1 upgrades the database to data version 2', () => {
+describe('a v3.0 tab open while the database is upgraded through data version 2', () => {
   // @test-link [[module_kept_session_upgrade_step]]
   // @test-link [[module_on_device_database]]
   it('becomes outdated, the upgrade not blocked and the session carried over', async () => {
@@ -311,7 +317,7 @@ describe('a v3.0 tab open while v3.1 upgrades the database to data version 2', (
     expect(newer.status()).toBe('ready')
     expect(older.status()).toBe('outdated')
     expect(notices).toBe(1)
-    expect((await databaseState(factory)).version).toBe(2)
+    expect((await databaseState(factory)).version).toBe(DATABASE_DATA_VERSION)
     expect(decodeKeptSession(await rawSession(factory, 'kept')).reading).toBe('current')
   })
 })

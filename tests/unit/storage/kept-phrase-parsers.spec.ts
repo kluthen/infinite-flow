@@ -26,11 +26,14 @@ import type { SessionHistoryRecord } from '@/session/session-history'
 import type { SessionSettings } from '@/session/session-types'
 import { ALL_GROUPS_ALLOWED } from '@/session/settings-mutation'
 import {
+  parseKeptIntent,
+  parseKeptIntentV1,
+  parseKeptIntentV2,
+} from '@/storage/records/kept-intent-parsers'
+import {
   isKeptPhraseRefusal,
   KeptRecordError,
   parseKeptHarmony,
-  parseKeptIntent,
-  parseKeptIntentV1,
 } from '@/storage/records/kept-phrase-parsers'
 
 import { idlePhraseOne, recordRunnerSession } from '../session/history-recording'
@@ -294,6 +297,29 @@ const INTENT_REFUSALS: readonly Refusal[] = [
   ['a carry-in with an extra field', ['carryIn', 'tempo'], 120, CarryInError],
 ]
 
+/**
+ * Intent: a stored carried intent with its carry-in turned into the no-phrase form, and the same
+ * intent with an origin added to its phrase carry-in, which is neither form.
+ */
+function noPhraseIntents(): readonly [Record<string, unknown>, Record<string, unknown>] {
+  const intent = stored(carriedIntentOf('c-keyboard'))
+  const carried = intent.carryIn as Record<string, Record<string, unknown>>
+  const noPhrase = {
+    origin: 'none',
+    lastPitch: {
+      midi: carried.lastPitch!.midi,
+      arrivingInterval: null,
+      recovery: { kind: 'settled' },
+    },
+    registerWindow: carried.registerWindow,
+    finalHarmony: null,
+  }
+  return [
+    { ...intent, carryIn: noPhrase },
+    { ...intent, carryIn: { ...carried, origin: 'none' } },
+  ]
+}
+
 // @test-link [[module_kept_session_codec]]
 describe('parseKeptIntent', () => {
   // @test-link [[module_kept_session_codec]]
@@ -377,27 +403,27 @@ describe('parseKeptIntent', () => {
   })
 
   // @test-link [[module_kept_session_codec]]
+  // @test-link [[module_kept_session_jam_upgrade_step]]
   // @test-link [[entity_phrase_carry_in]]
-  it('refuses a carry-in in the no-phrase form as v3.1 refuses an unknown field', () => {
-    const intent = stored(carriedIntentOf('c-keyboard'))
-    const carried = intent.carryIn as Record<string, Record<string, unknown>>
-    const noPhrase = {
-      origin: 'none',
-      lastPitch: {
-        midi: carried.lastPitch!.midi,
-        arrivingInterval: null,
-        recovery: { kind: 'settled' },
-      },
-      registerWindow: carried.registerWindow,
-      finalHarmony: null,
+  it('refuses, in the data version 2 and 1 readers, a carry-in in the no-phrase form as v3.1 refuses an unknown field', () => {
+    for (const input of noPhraseIntents()) {
+      for (const read of [parseKeptIntentV2, parseKeptIntentV1]) {
+        expect(() => read(input)).toThrow(CarryInError)
+        expect(() => read(input)).toThrow('CarryIn has unknown field "origin".')
+        expect(isKeptPhraseRefusal(catchError(() => read(input)))).toBe(true)
+      }
     }
-    for (const carryIn of [noPhrase, { ...carried, origin: 'none' }]) {
-      const input = { ...intent, carryIn }
-      expect(() => parseKeptIntent(input)).toThrow(CarryInError)
-      expect(() => parseKeptIntent(input)).toThrow('CarryIn has unknown field "origin".')
-      expect(() => parseKeptIntentV1(input)).toThrow('CarryIn has unknown field "origin".')
+  })
+
+  // @test-link [[module_kept_session_codec]]
+  // @test-link [[rule_kept_session_content]]
+  it('refuses a carry-in from no phrase that no steering block stands beside', () => {
+    const [noPhrase, malformed] = noPhraseIntents()
+    expect(() => parseKeptIntent(noPhrase)).toThrow(KeptRecordError)
+    expect(() => parseKeptIntent(noPhrase)).toThrow('without a steering block')
+    expect(() => parseKeptIntent(malformed)).toThrow(CarryInError)
+    for (const input of [noPhrase, malformed])
       expect(isKeptPhraseRefusal(catchError(() => parseKeptIntent(input)))).toBe(true)
-    }
   })
 
   // @test-link [[module_kept_session_codec]]
@@ -552,15 +578,22 @@ describe('parseKeptIntentV1, the data version 1 reader: figure levels, in each o
   })
 })
 
+/** The readers of an intent that holds its figure levels only: data version 4's and 2's. */
+const LEVELS_ONLY_READERS = [
+  ['parseKeptIntent', parseKeptIntent],
+  ['parseKeptIntentV2', parseKeptIntentV2],
+] as const
+
 // @test-link [[module_kept_session_codec]]
-describe('parseKeptIntent, the data version 2 reader: figure levels only', () => {
+// @test-link [[module_kept_session_jam_upgrade_step]]
+describe.each(LEVELS_ONLY_READERS)('%s: figure levels only', (_, read) => {
   // @test-link [[module_kept_session_codec]]
   it.each(['Neutral', 'Jazz'] as const)(
     'reads a %s intent holding its levels only back, with no musical profile',
     (musicalProfile) => {
       const intent = intentOfProfile(musicalProfile)
 
-      const parsed = parseKeptIntent(stored(intent))
+      const parsed = read(stored(intent))
 
       expect(parsed.figureLevels).toStrictEqual(PROFILE_LEVELS[musicalProfile])
       expect(parsed).toEqual(intent)
@@ -574,8 +607,8 @@ describe('parseKeptIntent, the data version 2 reader: figure levels only', () =>
     (selection) => {
       const intent = intentOfProfile(selection.musicalProfile)
       for (const input of [v30Shaped(intent, selection), chunk4Shaped(intent, selection)]) {
-        expect(() => parseKeptIntent(input)).toThrow(KeptRecordError)
-        expect(isKeptPhraseRefusal(catchError(() => parseKeptIntent(input)))).toBe(true)
+        expect(() => read(input)).toThrow(KeptRecordError)
+        expect(isKeptPhraseRefusal(catchError(() => read(input)))).toBe(true)
       }
     },
   )
@@ -584,14 +617,19 @@ describe('parseKeptIntent, the data version 2 reader: figure levels only', () =>
   it('refuses an intent holding no levels as unreadable', () => {
     const input = edited(intentOfProfile('Jazz'), ['figureLevels'], REMOVE)
 
-    expect(() => parseKeptIntent(input)).toThrow(KeptRecordError)
-    expect(isKeptPhraseRefusal(catchError(() => parseKeptIntent(input)))).toBe(true)
+    expect(() => read(input)).toThrow(KeptRecordError)
+    expect(isKeptPhraseRefusal(catchError(() => read(input)))).toBe(true)
   })
 
   // @test-link [[module_kept_session_codec]]
   it('refuses levels with an unknown level as unreadable', () => {
     const input = edited(intentOfProfile('Neutral'), ['figureLevels', 'passingTone'], 'often')
 
-    expect(() => parseKeptIntent(input)).toThrow(FigureLevelsError)
+    expect(() => read(input)).toThrow(FigureLevelsError)
+  })
+
+  // @test-link [[module_kept_session_codec]]
+  it('reads back every real intent it was stored from, carry-ins included', () => {
+    for (const record of records) expect(read(stored(record.intent))).toEqual(record.intent)
   })
 })

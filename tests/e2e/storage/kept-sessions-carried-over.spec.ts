@@ -1,11 +1,11 @@
 /**
- * v3.1 chunk 9, the kept sessions an earlier version kept, carried over to data version 2 at the
- * open, on the workspace harness (port 4175) with its fake audio clock, over the browser's real
- * IndexedDB: a Jazz session played and kept by this version, turned in Node into the shapes v3.0
- * kept it in (data version 1) and seeded in a fresh browser context through the harness's v3.0
- * seam while the load is held, is upgraded by the load's open: its records are rewritten at data
- * version 2, the session list and its Review's summary show its preset label, and its Review
- * exports the same files.
+ * v3.1 chunk 9, the kept sessions an earlier version kept, carried over at the open, on the
+ * workspace harness (port 4175) with its fake audio clock, over the browser's real IndexedDB: a
+ * Jazz session played and kept by this version, turned in Node into the shapes v3.0 kept it in
+ * (data version 1) and seeded in a fresh browser context through the harness's v3.0 seam while
+ * the load is held, is upgraded by the load's open: its records are rewritten at data version 4
+ * (steps 2 to 4; v3.2 chunk 22), no Jam, the session list and its Review's summary show its
+ * preset label, and its Review exports the same files.
  */
 import { expect, test, type Page } from '@playwright/test'
 
@@ -97,10 +97,12 @@ test('a session kept by v3.0 is carried over at the open: the list and the Revie
 
     const key = `session-${V30_STARTED_AT}-0`
     const upgraded = await storedSession(fresh, key)
-    expect(upgraded.summary.dataVersion).toBe(2)
+    expect(upgraded.summary.dataVersion).toBe(4)
     expect(upgraded.summary.presetLabel).toBe(V30_PRESET_LABEL)
+    expect(upgraded.summary.isJam).toBe(false)
     expect(upgraded.summary).not.toHaveProperty('musicalProfile')
-    expect(upgraded.body.dataVersion).toBe(2)
+    expect(upgraded.body.dataVersion).toBe(4)
+    expect(upgraded.body).not.toHaveProperty('doodle')
     const phrases = storedPhrases(upgraded.body)
     expect(phrases).toHaveLength(2)
     for (const { intent } of phrases) {

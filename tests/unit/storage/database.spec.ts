@@ -7,6 +7,7 @@ import {
   PRODUCTION_MIGRATIONS,
   type MigrationStep,
 } from '@/storage/database'
+import { KEPT_SESSIONS_V4 } from '@/storage/migrations/kept-sessions-v4'
 import { openStoragePort } from '@/storage/storage-port'
 
 import {
@@ -54,9 +55,11 @@ function recordedStepOne(ran: number[]): MigrationStep {
 
 describe('the database data version', () => {
   // @test-link [[module_on_device_database]]
-  it('is 3 from v3.1, the number of production migration steps', () => {
-    expect(DATABASE_DATA_VERSION).toBe(3)
-    expect(PRODUCTION_MIGRATIONS.map((step) => step.toVersion)).toEqual([1, 2, 3])
+  // @test-link [[module_kept_session_jam_upgrade_step]]
+  it('is 4 in v3.2, the number of production migration steps, the kept sessions step last', () => {
+    expect(DATABASE_DATA_VERSION).toBe(4)
+    expect(PRODUCTION_MIGRATIONS.map((step) => step.toVersion)).toEqual([1, 2, 3, 4])
+    expect(PRODUCTION_MIGRATIONS.at(-1)).toBe(KEPT_SESSIONS_V4)
   })
 
   // @test-link [[module_on_device_database]]
@@ -75,16 +78,16 @@ describe('the database data version', () => {
 
 describe('opening a database at data version 0', () => {
   // @test-link [[module_on_device_database]]
-  it('migrates it to 3: the eight stores exist and meta holds the data and app versions', async () => {
+  it('migrates it to 4: the eight stores exist and meta holds the data and app versions', async () => {
     const factory = freshFactory()
     const port = await openStoragePort({ factory, appVersion: TEST_APP_VERSION })
 
     expect(port.status()).toBe('ready')
     await withRawDatabase(factory, async (database) => {
-      expect(database.version).toBe(3)
+      expect(database.version).toBe(4)
       expect([...database.objectStoreNames].sort()).toEqual(EIGHT_STORES)
       expect(await rawGet(database, 'meta', 'database')).toEqual({
-        dataVersion: 3,
+        dataVersion: 4,
         appVersion: TEST_APP_VERSION,
       })
     })
@@ -180,6 +183,54 @@ describe('opening a database at data version 1 with a step 1 -> 2', () => {
     })
 
     expect(await newer.read('settings', 'theme')).toEqual(sampleRecord('Dark'))
+  })
+})
+
+describe('migration steps whose work goes on in request callbacks', () => {
+  // @test-link [[module_on_device_database]]
+  // @test-link [[module_kept_session_jam_upgrade_step]]
+  it('runs each step only once the work the step before it holds the upgrade for is done', async () => {
+    const factory = freshFactory()
+    const ran: string[] = []
+    let seen: unknown = 'nothing read'
+    const holding: MigrationStep = {
+      toVersion: 2,
+      migrate: ({ transaction, hold }) => {
+        const release = hold()
+        const settings = transaction.objectStore('settings')
+        const first = settings.get('absent')
+        first.onsuccess = () => {
+          settings.put(sampleRecord('Held'), 'theme')
+          ran.push('step 2 wrote')
+          release()
+          release()
+        }
+        ran.push('step 2 returned')
+      },
+    }
+    const reading: MigrationStep = {
+      toVersion: 3,
+      migrate: ({ transaction }) => {
+        ran.push('step 3 ran')
+        const read = transaction.objectStore('settings').get('theme')
+        read.onsuccess = () => {
+          seen = read.result
+        }
+      },
+    }
+
+    const port = await openStoragePort({
+      factory,
+      appVersion: TEST_APP_VERSION,
+      migrations: [...V3_0_MIGRATIONS, holding, reading],
+    })
+
+    expect(port.status()).toBe('ready')
+    expect(ran).toEqual(['step 2 returned', 'step 2 wrote', 'step 3 ran'])
+    expect(seen).toEqual(sampleRecord('Held'))
+    expect(
+      await withRawDatabase(factory, (database) => rawGet(database, 'meta', 'database')),
+    ).toEqual({ dataVersion: 3, appVersion: TEST_APP_VERSION })
   })
 })
 

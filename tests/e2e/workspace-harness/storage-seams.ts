@@ -5,13 +5,16 @@
  *
  * - `?storageLoad=held` holds the load until `window.__workspaceHarnessHeldLoad.release()`, so a
  *   spec can see the page before the load ends: only its background;
- * - `window.__workspaceHarnessHeldLoad.seedVersionOneSessions` (version-one-seams.ts), only while
- *   the load is held, opens the database as a v3.0 tab would, at data version 1, and writes
+ * - `window.__workspaceHarnessHeldLoad.seedVersionOneSessions` (earlier-version-seams.ts), only
+ *   while the load is held, opens the database as a v3.0 tab would, at data version 1, and writes
  *   copies of a kept session given as raw data version 1 values, each under its own key and
  *   start, keeping that port open as a v3.0 tab left open: the load's open then upgrades them (the
  *   upgrade measurement, M3, and the carried-over sessions' browser check);
  *   `seedVersionOneSettings`, through the same port, writes raw v3.0 settings records (the
  *   controls and v3.0's `profileSelection`), which the load's open carries over to data version 3;
+ *   `seedVersionThreeSessions` does the same as v3.1 would, at data version 3, with copies of a
+ *   kept session given as raw data version 2 values, which the load's open carries over to data
+ *   version 4 (M3);
  * - `seedSettings` writes settings records through the settings codec, valid or not, for the next
  *   load (the spec reloads the page); `records` reads a store back;
  * - `seedMyInstrument` writes the my-instrument record through its codec, valid or not, for the
@@ -83,7 +86,7 @@ import {
   type StoragePort,
   type StoreName,
 } from '../../../src/storage/storage-port'
-import { createVersionOneSeeds } from './version-one-seams'
+import { createEarlierVersionSeeds } from './earlier-version-seams'
 
 /** How the harness runs the load: at once, or held until the spec releases it. */
 export type HarnessStorageLoadMode = 'immediate' | 'held'
@@ -195,6 +198,7 @@ function timingSession(index: number, bodyBytes: number): StorageChange[] {
     playedNotesKept: false,
     recordedByAppVersion: APP_VERSION,
     sessionSeed: index,
+    isJam: false,
   }
   const body = {
     dataVersion: KEPT_SESSION_BODY_DATA_VERSION,
@@ -296,7 +300,7 @@ export function createHarnessStorage(
   let loadMs: number | null = null
   let held = mode === 'held'
   // Refused once the load is released or the app's port has opened.
-  const versionOneSeeds = createVersionOneSeeds(() => held && port === null)
+  const earlierSeeds = createEarlierVersionSeeds(() => held && port === null)
 
   /** Intent: the port the load opened; throws before it has opened. */
   function openedPort(): StoragePort {
@@ -314,12 +318,12 @@ export function createHarnessStorage(
   function released(): Promise<void> {
     if (mode === 'immediate') return Promise.resolve()
     return new Promise((resolve) => {
-      /** Intent: end the hold, so the version 1 seed is refused from now on, and run the load. */
+      /** Intent: end the hold, refusing the earlier versions' seeds from now on; run the load. */
       const release = (): void => {
         held = false
         resolve()
       }
-      window.__workspaceHarnessHeldLoad = { release, ...versionOneSeeds }
+      window.__workspaceHarnessHeldLoad = { release, ...earlierSeeds }
     })
   }
 
