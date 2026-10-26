@@ -54,6 +54,7 @@ export const ATD_EXEMPT_PATHS = {
     'tests/sweep/figure-census.spec.ts',
     'tests/sweep/lock-census.spec.ts',
     'tests/sweep/lock-census-seeds.spec.ts',
+    'tests/sweep/lock-census-runner.spec.ts',
     'tests/sweep/jam-sweep.spec.ts',
     'tests/unit/jam/doodle-set.spec.ts',
     'tests/e2e/workspace/focus-visibility.spec.ts',

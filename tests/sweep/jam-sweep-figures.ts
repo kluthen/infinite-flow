@@ -12,7 +12,7 @@ import { STANDALONE_RESERVE_SECONDS } from '@/session/session-timing'
 import { nearestRank, shareOf, type Share } from './cost-guard-figures'
 import type { JamLock, LadderRung, RhythmDomainState } from './jam-sweep-ladder'
 import type { JamMode, JamRunRecord } from './jam-sweep'
-import { LockCensusTally, type LockCensusFigures } from './lock-census'
+import { LockCensusTally, type LockCensusFigures } from './lock-census-tally'
 
 /**
  * One attempt of a run, as the figures keep it: the phrase it was for, how it was asked for (a
@@ -290,7 +290,7 @@ export function configurationSummaryLines(figures: ConfigurationFigures): readon
   const lock = figures.lockCensus
   if (lock !== null)
     lines.push(
-      `${prefix} lock: ${lock.classifiedPhrases} phrases classified, forced bends ${ratioText(lock.forcedBendRate)}, changes ${ratioText(lock.changesShare)}, kept ${ratioText(lock.shares.kept)}`,
+      `${prefix} lock: ${lock.classifiedPhrases} phrases classified, forced bends ${ratioText(lock.forcedBendRate)}, changes ${ratioText(lock.changesShare)}, kept ${ratioText(lock.shares.kept)}, drew ${ratioText(lock.drawn.share)} of ${lock.drawn.eligible} eligible (normal ${ratioText(lock.drawn.normal.share)}, tenser ${ratioText(lock.drawn.tenser.share)}), bends one allowed change away ${ratioText(lock.bentOneAllowedChangeAway)}, mismatches ${lock.mismatches.count}`,
     )
   for (const shortfall of figures.shortfalls.first) lines.push(`${prefix} shortfall: ${shortfall}`)
   return lines
