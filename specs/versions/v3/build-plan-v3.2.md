@@ -1,6 +1,12 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v18 (2026-10-23): v17 with chunk 11's two points settled (spec D435, D436; master spec
+Status: v19 (2026-10-26): v18 with wave 3's preflight corrections and the owner's bundle ruling
+written in (spec D437, D438): chunk 16's re-lock only from locked bars with sixteenth notes, its
+tenser flag's condition, Files on the session's engine and pre-generation plan (not the seed plan),
+atoms and drift checks, and gate CR for `module_session_ready_phrases`' likely wording at wave 3's
+sync; chunk 13 classes a re-lock from the history's mark and tunes no change share; chunk 19's
+Files, new specs and atoms; each wave gate records the first-load JS total (workflow deltas, M4).
+v18 (2026-10-23): v17 with chunk 11's two points settled (spec D435, D436; master spec
 Part C v1.11): "no change available" also covers a drawn change whose candidates all fail, and M2
 tallies it apart from "no candidate"; M2 and any test of the change shares draw from seed-plan
 phrase seeds, never raw consecutive seeds.
@@ -124,6 +130,7 @@ no release is cut before wave 7 has merged.
 | **CS** | The MAJOR contract bump for C13's guarantee changes: `documentalist` drafts the re-scoped wording of every STABLE contract atom v3.2 revises, and of the two v1.0 lines in the STABLE vision (`vision_infinite_flow_first_release` 0.9) (chunk 0), then of the three items C13 added after chunk 0 (`rule_start_while_controller_away`, `module_session_seed_plan`, and the vision's out-of-scope browsers, spec D418–D420); the owner confirms them all at once, CONTRACT 7.2.0 to 8.0.0. The chunks that revise one say "(contract, CS)" in their **Revisions** line. Signed off on 2026-10-22, the [change set](../../../docs/release/v3.1-v3.2-intent-change-set.md)'s part M (M1–M22) as drafted, and applied on wave 0's branch (spec D421); a "(contract, CS)" revision is then its wave sync's check that the code meets the signed wording. | `documentalist` drafts; the owner confirms | The sync of wave 3, the first wave whose chunks revise one (chunk 19: `rule_settings_saved_on_change`, `rule_saved_settings_load_tolerantly`); its chunks may be built and merged into the wave branch first | done (D421; applied 3fe768f, CONTRACT 8.0.0, then 8.1.0 with three promotions, 5a0c991) |
 | **CN** | The owner confirms the [change set](../../../docs/release/v3.1-v3.2-intent-change-set.md)'s part N: N1 (`module_settings_mutation` 0.4 to 0.5, STABLE on the contract since 8.1.0, which chunk 15 changes), N3 (CONTRACT 8.1.0 to 9.0.0, MAJOR) and, optionally, N2 (`rule_vary_settings_figure_step`). `documentalist` applies them at wave 1's sync (spec D422; [build workflow](build-workflow.md#intent-atd), "Contract sign-off"). | `documentalist` drafts (done, 896ee7f); the owner confirms | Chunk 15's merge into the wave branch | done (2026-10-22, the owner: "ok for the vary settings"; N1, N2 and N3; applied at wave 1's sync) |
 | **CK** | The owner confirms the wording of chunk 12's two contract revisions, `module_phrase_replay_key` and `rule_seeded_phrase_reproduction` (STABLE on the contract since 8.1.0), and of chunk 22's three, `module_kept_session_codec`, `entity_kept_session_record` and `module_on_device_database` (STABLE on the contract since v3.0; their wording takes in the loophole closure and a fresh Jam's played-notes clock), with the optional rewordings, and the MAJOR bump, CONTRACT 9.0.0 to 10.0.0, that applies them all at wave 2's sync (spec D422, D429, D430): the [change set](../../../docs/release/v3.1-v3.2-intent-change-set.md)'s part P, P1–P8 with P3b and the played-notes clock's wording. | `documentalist` drafts at wave 2's preflight (P1–P8, P3b; the clock's wording after spec D430); the owner confirms | Chunk 12's and chunk 22's merges into the wave branch | done (2026-10-23, the owner: "i approve it all"; change set part P, P1–P8 with P3b and the clock; applied at wave 2's sync) |
+| **CR** | If chunk 16 changes what `module_session_ready_phrases` (STABLE on the contract) guarantees, as the preflight expects (a ready phrase's re-derived request takes in the session's lock state): `documentalist` drafts the wording extension at wave 3's sync and the owner confirms it there, with the contract bump the change set's rule gives (spec D422, D437). As for CS, chunk 16 merges into the wave branch first, since chunks 13 and 19 build on it in the wave. | `documentalist` drafts; the owner confirms | Wave 3's sync, and so its merge into `main` | open (likely; drafted at the sync) |
 | **LD** | The owner ranks a handful of rhythm pairs by ear on drift's distance scale ([v3.2 H1](#v32-h1--drifts-scale-by-ear-ld)), before the scale drives the steering block's band ([C8](master-spec.md#c8-jams-drift)). A ranking that disagrees with the scale goes to `spec-writer` before chunk 8. | The owner; `spec-writer` if the ranking disagrees | Chunk 8 (wave 4) | open (after wave 2: chunks 3 and 5) |
 | **DR** | The owner's Travel Sax recordings join the doodle set: chunk 3 writes the doodles by hand and documents how to add recorded ones (played-notes exports, kept beside their quantized form); the owner records them that way (spec D427). | The owner | Chunk 28 (wave 4), whose readings and v3.2 H5 use the recorded doodles; nothing in wave 2 waits on it | open (after chunk 3) |
 | **DS** | The owner answers [O268](../../open-questions.md#v32-build-o267): how a short silence between two doodle notes (a detached note) is read, for the steering block's starts ([C5.9](master-spec.md#c59-what-the-doodle-feeds-the-generator)) and the silence reading ([C5.16.1](master-spec.md#c5161-the-doodle-to-controls-mapping)); `spec-writer` writes the answer into Part C and chunk 28 (spec D433). | The owner; then `spec-writer` | Chunk 28 (wave 4); nothing in waves 2 and 3 waits on it, nor LD (H1's measures read the same either way) | open |
@@ -143,7 +150,7 @@ preflight does not run and no chunk carries a **Data** line
 | 0 | 0 Intent re-sync and the contract drafts · 1 Token-source pass · 2 Baselines | Nothing (R0, D0, T2 done). | merged into `main` |
 | 1 | 4 The quantized doodle · 5 Rhythm bars, distance and change kinds · 6 The request carries v3.2's inputs · 15 Vary settings' allowed groups | Wave 0; CN before chunk 15's merge. | merged into `main` |
 | 2 | 3 Measurement tools · 10 The rhythm lock in the generator · 11 Allowed rhythm changes · 12 Replay key `ifk4.` · 22 v3.2's kept-session shape | Wave 1; CK before chunk 12's and chunk 22's merges. In-wave 10 → 11: chunk 10's capture fixes the ordering seam and the lock's order the draw slots into. LD opens at its end. | gated and synced (2026-10-26), merge into `main` on the owner's word |
-| 3 | 16 The rhythm lock in a session · 13 Session measurements · 19 The lock and What may vary in the controls | Wave 2; CS before its sync. In-wave 16 → 13 and 16 → 19: chunk 16's capture fixes the session's lock state and what the session history records. Three chunks: the session half ends here, and every other session chunk is done. L3 opens at its end. | planned |
+| 3 | 16 The rhythm lock in a session · 13 Session measurements · 19 The lock and What may vary in the controls | Wave 2; CS and CR before its sync. In-wave 16 → 13 and 16 → 19: chunk 16's capture fixes the session's lock state and what the session history records. Three chunks: the session half ends here, and every other session chunk is done. L3 opens at its end. | planned |
 | 4 | 20 Jam mode: the switch, Jam's code, Jam's Idle · 28 From the doodle: controls and steering block · 7 The join from the doodle · 8 Rhythm ordered by the steering block · 9 Melody follows the moves | Wave 3; LD (8); DR and DS (28). In-wave 28 → 7: chunk 28's capture fixes the register window the join reads. | planned |
 | 5 | 14 The key and mode suggestion · 17 Jam engine, part 1 · 18 Jam engine, part 2 · 29 The Jam sweep, first run · 31 Jam's settings | Wave 4. In-wave 14 → 18: chunk 14's capture fixes the suggestion's answer type; 17 → 18: chunk 17's capture fixes the engine's way in and the capture's states. | planned |
 | 6 | 21 A fresh Jam on screen · 30 Kept Jam sessions · 23 The review's doodle section and the suggestion | Wave 5. In-wave 21 → 23 and 30 → 23: chunk 21's capture fixes what the review receives from an ended Jam, chunk 30's what a kept Jam session holds. Three chunks: everything else of Jam's waits on 21 or 23. L1 and L2 open at its end. | planned |
@@ -158,6 +165,7 @@ flowchart LR
   CS{{CS: contract sign-off}}
   CN{{CN: Vary settings sign-off}}
   CK{{CK: replay key sign-off}}
+  CR{{CR: ready phrases sign-off}}
   L{{L1, L2, L3: listening}}
   J240{{J240: 240 BPM ruling}}
   subgraph W0[Wave 0]
@@ -240,6 +248,7 @@ flowchart LR
   C15 --> C19
   C16 --> C19
   CS --> C19
+  C16 --> CR
   C1 --> C20
   C4 --> C28
   C6 --> C28
@@ -298,7 +307,7 @@ flowchart LR
 ```
 
 The critical path runs 0 → 6 → 10 → 11 → 16 → 19 → 31 → 21 → 23 → 24 → 32 → 27, with LD
-between waves 2 and 4 and CS before wave 3's sync.
+between waves 2 and 4 and CS and CR before wave 3's sync.
 
 ## Workflow deltas
 
@@ -345,7 +354,11 @@ The [build workflow](build-workflow.md) holds for v3.2 with release name `v3.2`:
   `docs/generation-latency.md`, `docs/audio-transport.md`, `docs/storage.md`,
   [`docs/music/`](../../../docs/music/README.md); the lexicon entries C4 names.
 - **Entry budget**: 300 KiB (307,200 B), unchanged; 265,431 B used at 3.1.0
-  ([M4](#m4--the-first-load-bundle)). Raising it needs the owner.
+  ([M4](#m4--the-first-load-bundle)). Raising it needs the owner. From wave 3 on, each wave gate
+  records the first-load JS total (the entry chunk and every chunk it imports statically) beside
+  the entry chunk's figure, with its change since the previous wave (spec D438): information only,
+  since rolldown's re-splitting can move the entry chunk alone by about 18 kB with no change in what
+  loads (wave 2). The budget and what `verify:boundaries` gates on are unchanged.
 - **New end-to-end specs** go into the explicit `test:e2e` list in `package.json`, or they never
   run in `npm run quality`.
 - **Hand checks** go into a new "v3.2 hand checks" part of
@@ -398,7 +411,8 @@ corpora are a guard, not a measurement.
   rhythm.
 - **How:** chunk 3's lock census, over seeded eight-phrase sessions on the deadline sweep's
   settings, each kind alone and all five together, Tension across phrases on and off, each phrase
-  classed by the lock outcome its provenance records (chunk 13, spec D432); per-kind
+  classed by the lock outcome its provenance records, a re-lock by the history's mark (chunk 13,
+  spec D432, D437); per-kind
   availability compared with [jam-grounding §D.2](jam-grounding.md#d2-what-the-rhythm-domain-offers-a-locked-rhythm)'s
   census (re-measured, spec D424), and recorded at each built-in preset's rhythm settings, which
   L3's tuning reads. Every draw comes from a phrase seed the session seed plan derives, as in a
@@ -434,6 +448,9 @@ corpora are a guard, not a measurement.
   and the steering module live in the worker's chunk (150 KiB); the mode switch and Jam's loader
   are the only Jam code in the entry chunk.
 - **Run by:** chunk 2 (the baseline on `main`); every wave gate; the release gate.
+- **Beside it** (spec D438): from wave 3 on, the first-load JS total, the entry chunk and every
+  chunk it imports statically (318,964 B over 16 files after wave 2), recorded for information; it
+  gates nothing.
 - **Recorded:** the wave log and each wave's merge commit message; the release notes.
 
 ### M5 — The session sweep with the lock
@@ -1195,11 +1212,12 @@ intent and seed; the provenance never holds a time. Chunk 9's pitch term sits in
 is not timed apart.
 
 - **Goal:** measure M2 and M5 on the complete session half, with the lock's orderings' share of
-  attempt time, and tune the change shares if needed.
-- **Scope:** no product code beyond tuning constants and the diagnostics' orderings time. Run M5
-  at 60, 120 and 240 BPM, lock off and on; run M2; replay a sample of locked, changed and
-  forced-bend phrases from their `ifk4.` keys. Report the figures to the owner, and to
-  `spec-writer` if a standalone attempt exceeds its budget.
+  attempt time.
+- **Scope:** no product code beyond the diagnostics' orderings time. The change shares stay as
+  built: they are tuned from L3's listening check, and changing them changes the business atom
+  `rule_rhythm_change_share`, which needs the owner. Run M5 at 60, 120 and 240 BPM, lock off and
+  on; run M2; replay a sample of locked, changed and forced-bend phrases from their `ifk4.` keys.
+  Report the figures to the owner, and to `spec-writer` if a standalone attempt exceeds its budget.
   - **The orderings' time** (spec D434): the orchestrator times the span above under the clock
     passed in; the sweeps' two timed generators (the ladder double's in `jam-sweep-ladder.ts`, the
     session sweep's `OutcomeCache`) pass `performance.now` and carry the reported seconds into
@@ -1207,14 +1225,17 @@ is not timed apart.
     share. Chunk 3's baseline figures stay as recorded (no orderings on v3.1's generator).
   - **The census reads the provenance** (spec D432): chunk 3's lock census classes each phrase by
     the lock outcome its provenance records (locked, changed with its kind, forced bend, no change
-    available, re-lock; chunks 10 and 11, kept by chunk 16's history), not from its written bars,
-    since from bars alone a forced bend landing exactly one allowed change from the locked rhythm
-    reads as a change. The bars cross-check the outcome: a recorded change is exactly one change of
-    an allowed kind, a locked phrase has the locked bars. Forced bends one allowed change away are
-    counted as bends and tallied apart.
-- **Files:** `src/domain/rhythm/rhythm-change-draw.ts` (constants only, if tuned),
-  `src/domain/generation/orchestration/generation-orchestrator.ts`, `orchestration-types.ts`,
-  `tests/sweep/jam-sweep-ladder.ts`, `jam-sweep.ts`, `tests/unit/session/deadline-sweep.ts`,
+    available; chunks 10 and 11, kept by chunk 16's history), not from its written bars, since from
+    bars alone a forced bend landing exactly one allowed change from the locked rhythm reads as a
+    change. The re-lock class is the exception: it comes from the history's own re-lock mark
+    (`module_session_rhythm_lock`), since the re-lock phrase's provenance shows the lock's order,
+    normally a forced bend; that phrase is counted as a re-lock, not as a bend. The bars cross-check
+    the outcome: a recorded change is exactly one change of an allowed kind, a locked phrase has the
+    locked bars in effect (after a re-lock, the re-lock phrase's). Forced bends one allowed change
+    away are counted as bends and tallied apart.
+- **Files:** `src/domain/generation/orchestration/generation-orchestrator.ts`,
+  `orchestration-types.ts`, `tests/sweep/jam-sweep-ladder.ts`, `jam-sweep.ts`,
+  `tests/unit/session/deadline-sweep.ts`,
   `tests/sweep/lock-census.ts`, `lock-census-sweep.ts`, `lock-census.spec.ts`; tests under
   `tests/unit/domain/generation/orchestration/`; `docs/generation-latency.md`,
   `docs/music/rhythm-phrase-structure.md`.
@@ -1226,11 +1247,12 @@ is not timed apart.
 - **Revisions:** none.
 - **Done when:** M2 and M5 recorded, the deciding runs on the reference machine, M5's orderings'
   share a figure with the lock on (about zero with it off); no phrase repeated; every replayed sample
-  matches; every census class comes from the provenance and agrees with the bars, and the forced
-  bends one allowed change away are counted; the same intent and seed without a clock still give
-  deep-equal outcomes, and with one the same phrase and provenance.
-- **Verification:** the runs; chunk checks with the corpus guard (the orchestrator changes, the
-  census changes, and a constant may).
+  matches; every census class comes from the provenance, the re-lock from the history's mark, and
+  agrees with the bars; the forced bends one allowed change away are counted; the change shares are
+  unchanged; the same intent and seed without a clock still give deep-equal outcomes, and with one
+  the same phrase and provenance.
+- **Verification:** the runs; chunk checks with the corpus guard (the orchestrator and the census
+  change).
 - **Split rule:** if heavy, 13a the diagnostics' orderings time and the sweeps reading it, then
   13b the runs and the census.
 
@@ -1347,44 +1369,67 @@ Wave: 3
 Depends on: 11, 15 (the session's settings hold the lock) (and v3.0 chunks 23 and 24)
 Architecture capture: the session's lock state: frozen at Start from phrase 1's bars and the
 allowed changes, carried by every request with the tenser flag; the re-lock after a narrow-window
-step-down; what the history records per phrase (locked, changed with its kind, forced bend,
-re-lock, no change available). Chunks 13 and 19 build on it.
+step-down from locked bars with sixteenth notes; what the history records per phrase (locked,
+changed with its kind, forced bend, re-lock, no change available). Captured as
+`module_session_rhythm_lock` 0.1 at wave 3's preflight (fad111f). Chunks 13 and 19 build on it.
 
 - **Goal:** run the lock through a session: phrase 1's bars locked at Start, every request carrying
   them, the tenser flag and the allowed changes, the re-lock, pre-generation following the lock,
   and nothing shown.
 - **Scope:**
   - **At Start** in session mode, the session freezes phrase 1's bars; every later request carries
-    "on, these bars", the allowed changes and the tenser flag (`tensionArcCycleStep`,
-    `src/session/tension-arc-cycle.ts`; a Vary settings Tension step is never a tenser phrase).
+    "on, these bars", the allowed changes and the tenser flag. The flag is set only for a tenser
+    phrase ([C4](master-spec.md#c4-words-used-in-this-part), "Tenser phrase"): Tension across
+    phrases runs in the session, the phrase's cycle step is one tenser (`tensionArcCycleStep`,
+    `src/session/tension-arc-cycle.ts`) and the tension in effect is below Edge. The step alone is
+    not enough: it is +1 at Edge too. A Vary settings Tension step never sets it.
   - **Every rung** keeps the lock (`src/session/failure-ladder.ts`, `session-intents.ts`).
-  - **The re-lock**: the first Eighth phrase after a narrow-window step-down takes the nearest
-    Eighth rhythm (its request holds the old bars and no allowed change, so no change is drawn and
-    the forced bend's order finds it; C7.1, C7.4, spec D427), and the session locks its bars from
-    then on.
+  - **The re-lock**, only when the locked bars use sixteenth notes (C7.1,
+    `rule_rhythm_lock_relocks_after_step_down`): some note or rest of them starts or lasts off the
+    Eighth density's two-tick grid. Then a narrow-window step-down leaves a re-lock pending, and the
+    first phrase generated with Eighth takes the nearest Eighth rhythm (each rung's request holds
+    the old bars and no allowed change, so no change is drawn and the forced bend's order finds it;
+    C7.1, C7.4, spec D427); the session locks its bars from then on. A repeat is not a generated
+    phrase and leaves the re-lock pending. Locked bars without sixteenth notes stay locked through
+    the step-down, and the phrases after it draw as usual (C7.4, `rule_rhythm_change_share`).
   - **The history** as the capture says; nothing in the live view.
-  - **Pre-generation** follows the lock: the seed plan takes it, phrases 2–5 carry phrase 1's bars
-    and draw exactly as the session would (`src/components/workspace/workspace-pregeneration.ts`).
+  - **Pre-generation** follows the lock: the pre-generation plan takes it, phrases 2–5 carry
+    phrase 1's bars, allowed changes, tenser flags and re-lock and draw exactly as the session would,
+    and the engine spends a ready phrase only when the request it re-derives, lock group included,
+    is identical (`src/session/session-pregeneration.ts`, `session-ready-phrases.ts`,
+    `src/components/workspace/workspace-pregeneration.ts`). The session seed plan does not change:
+    a phrase's change draw takes the phrase's own seed inside generation.
 - **Files:** `src/session/session-intents.ts`, `session-runner.ts`, `failure-ladder.ts`,
-  `session-types.ts`, `session-history.ts`, `src/session/rhythm-lock-session.ts` (new),
-  `src/session/session-seed-plan.ts`, `src/components/workspace/workspace-pregeneration.ts`; tests
-  under `tests/unit/session/`, `tests/unit/components/workspace/workspace-pregeneration*.spec.ts`.
+  `session-types.ts`, `session-history.ts`, `session-engine.ts`, `session-engine-state.ts`,
+  `session-phrase-opening.ts`, `session-pregeneration.ts`, `session-ready-phrases.ts`,
+  `src/session/rhythm-lock-session.ts` (new), `src/components/workspace/workspace-pregeneration.ts`;
+  tests under `tests/unit/session/`, `tests/unit/components/workspace/workspace-pregeneration*.spec.ts`.
 - **Spec sections:** [C7.1](master-spec.md#c71-the-switch-and-what-is-locked),
   [C7.4](master-spec.md#c74-when-a-phrase-changes), [C7.7](master-spec.md#c77-what-the-lock-meets),
   [C10.5](master-spec.md#c105-pre-generation-v30); items 1, 2, 3 (live view), 5, 6.
 - **Atoms:** `rule_rhythm_lock_strict`, `rule_locked_rhythm_is_phrase_one`,
   `rule_rhythm_lock_relocks_after_step_down`, `rule_rhythm_change_lasts_one_phrase`,
-  `rule_rhythm_changes_never_shown`; (v3.0) `rule_pregenerated_phrase_matches_session`; (v2)
+  `rule_rhythm_changes_never_shown`, `rule_forced_bend`, `rule_rhythm_change_share`,
+  `entity_request_rhythm_lock`; (v3.0) `rule_pregenerated_phrase_matches_session`; (v2)
   `rule_multi_phrase_tension_arc_cycle`, `rule_session_density_only_steps_down`. Drift check:
-  `service_session_runner`, `module_session_failure_ladder`, `service_session_history`.
-- **Revisions:** none.
+  `service_session_runner`, `module_session_failure_ladder`, `service_session_history`,
+  `service_session_engine`, `module_session_pregeneration_plan`, `module_session_density_step_down`,
+  `module_session_ready_phrases` (contract); the code is tagged with `module_session_rhythm_lock`
+  (captured).
+- **Revisions:** likely `module_session_ready_phrases` (contract, CR): its wording extended so a
+  ready phrase's re-derived request takes in the session's lock state; `documentalist` drafts it
+  at wave 3's sync, the owner signs it off then.
 - **Done when:**
   - Over seeded sessions with the lock on and no kind allowed, every phrase has phrase 1's bars
     apart from forced bends, which the history records.
   - With kinds allowed: at most one change per phrase, never on phrase 1, the next phrase back to the
     locked bars, tenser phrases drawing about twice as often.
-  - A seeded step-down: the first Eighth phrase's request holds no allowed change, it draws none,
-    and its bars are locked from then on.
+  - A seeded step-down from locked bars with sixteenth notes: the first Eighth phrase's requests
+    hold no allowed change, it draws none, and its bars are locked from then on; a repeat before it
+    leaves the re-lock pending. From locked bars without sixteenth notes, nothing re-locks and the
+    phrases after the step-down draw as usual.
+  - The tenser flag is set on the second phrase of each group of four only with Tension across
+    phrases on and the tension in effect below Edge; never at Edge, never for a Vary settings step.
   - With pre-generation (fake clock, instant generator), the session's phrases are identical with
     it on and off, changes included.
   - With the lock off, the corpora pass; if the lock's state is added to `SessionSettings`, the
@@ -1392,8 +1437,9 @@ re-lock, no change available). Chunks 13 and 19 build on it.
     and its fixture is never regenerated.
 - **Verification:** chunk checks with the corpus guard; the sweep at the wave gate.
 - **Split rule:** if the brief passes about five source files, 16a the lock in the session's
-  requests (intents, runner, ladder, types, the lock module, the history), 16b pre-generation
-  follows the lock (the seed plan, the pre-generation module).
+  requests (intents, runner, ladder, types, the engine and its state, the phrase opening, the
+  lock module, the history), 16b pre-generation follows the lock (the pre-generation plan, the
+  ready phrases, the workspace's pre-generation module).
 
 ### Chunk 17 — Jam engine, part 1: the count-in and the capture
 
@@ -1597,11 +1643,14 @@ join `settingsKeyOf`.
   - The live view never marks a change or a forced bend (e2e over a seeded session).
 - **Files:** `src/components/controls/SessionOptionsControls.vue`, `ToggleList.vue` (new),
   `FieldDependent.vue` (new), `src/components/workspace/use-session-options.ts`,
-  `src/storage/records/settings-record.ts`, `src/components/workspace/workspace-pregeneration.ts`;
-  tests `tests/unit/components/controls/ToggleList.spec.ts`,
+  `src/storage/records/settings-record.ts`, `setting-defaults.ts`,
+  `src/components/workspace/workspace-pregeneration.ts`; tests
+  `tests/unit/components/controls/ToggleList.spec.ts` (new),
   `tests/unit/components/workspace/workspace-pregeneration*.spec.ts`,
-  `tests/e2e/workspace/rhythm-lock-controls.spec.ts`, `tests/e2e/workspace/vary-settings-groups.spec.ts`,
-  `tests/e2e/storage/session-options-v32.spec.ts` (new), `HARDWARE-CHECKLIST.md` (v3.2 H2, H3).
+  `tests/e2e/workspace/rhythm-lock-controls.spec.ts` (new),
+  `tests/e2e/workspace/vary-settings-groups.spec.ts` (new),
+  `tests/e2e/storage/session-options-v32.spec.ts` (new), the three new end-to-end specs added to
+  `package.json`'s `test:e2e` list; `HARDWARE-CHECKLIST.md` (v3.2 H2, H3).
 - **Spec sections:** [C7.1](master-spec.md#c71-the-switch-and-what-is-locked),
   [C7.2](master-spec.md#c72-allowed-rhythm-changes-the-option),
   [C9](master-spec.md#c9-vary-settings-allowed-groups),
@@ -1617,8 +1666,9 @@ join `settingsKeyOf`.
   (What Is Saved, and When; Load).
 - **Atoms:** `req_rhythm_lock`, `rule_allowed_rhythm_changes`, `rule_rhythm_changes_never_shown`,
   `rule_vary_settings_allowed_groups`, `rule_vary_settings_needs_legal_move`; (v3.0)
-  `req_idle_pregeneration`, `rule_saved_setting_is_players_choice`, `rule_no_save_during_session`.
-  Drift check: `module_session_vary_settings_flag`.
+  `req_idle_pregeneration`, `rule_saved_setting_is_players_choice`, `rule_no_save_during_session`;
+  the captures `ui_field_dependent`, `ui_toggle_list`, `entity_session_option_records` (wave 3's
+  preflight). Drift check: `module_session_vary_settings_flag`, `module_idle_pregeneration_queue`.
 - **Revisions:** revise `rule_pregeneration_discarded_on_change` (session mode's three triggers);
   `rule_settings_saved_on_change`, `rule_saved_settings_load_tolerantly` (their session-mode halves;
   contract, CS).
@@ -1636,7 +1686,7 @@ join `settingsKeyOf`.
 - **Verification:** chunk checks; the accessibility checks of what it adds; desktop and phone debug
   runs; the bundle at the wave gate.
 - **Split rule:** 19a the controls and saving (the controls component, the two new components, the
-  composable, the record), 19b the pre-generation key and its matrix.
+  composable, the record and its defaults), 19b the pre-generation key and its matrix.
 
 ### Chunk 20 — Jam mode: the mode switch, Jam's code on demand and Jam's Idle
 
