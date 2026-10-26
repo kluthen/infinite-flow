@@ -777,3 +777,18 @@ into `main`. The first-load total is recorded beside the entry figure (M4, workf
   `rule_pregeneration_discarded_on_change`, the CS halves; fill the interface names of
   `entity_session_option_records`, `module_session_lock_and_groups_choices`,
   `module_idle_pregeneration_queue`. Hand checks H2 and H3 after the wave.
+
+### Wave gate (2026-10-26)
+
+Reference machine (Ryzen 5 PRO 8640HS, idle), on `v3.2-w3`.
+- First `npm run quality`: unit 530 files / 8,327 tests pass; Playwright 591 passed, 1 skipped,
+  4 failed, all in `key-and-mode-marks.spec.ts`: its no-note locator also matched Vary settings'
+  v3.2 note (chunk 19b, wording as the design gives it, "…what your preset is meant for…"). Fixed
+  in the test, scoped to the Written key and Collection fields (`coding-executor`, fae3b84).
+- `npm run test:sweep`: 9 files / 83 tests pass (before the fix; the fix touched one e2e spec).
+- Second `npm run quality` after fae3b84: pass (unit 8,327; Playwright 595 passed, 1 skipped).
+- Bundle: entry chunk 282,098 B (+10,919 B on wave 2's 271,179; budget 307,200 B, 25,102 B left);
+  first-load JS 329,885 B over 16 files (+10,921 B on 318,964; spec D438). The two moved together:
+  real growth (chunks 16 and 19's session and controls code), not a re-split.
+- No dependency changed (`package.json`: the `test:e2e` list only), so no `security-advisor`
+  post-change check.
