@@ -792,3 +792,18 @@ Reference machine (Ryzen 5 PRO 8640HS, idle), on `v3.2-w3`.
   real growth (chunks 16 and 19's session and controls code), not a re-split.
 - No dependency changed (`package.json`: the `test:e2e` list only), so no `security-advisor`
   post-change check.
+
+### Wave sync (2026-10-26)
+
+`documentalist` (1d608c0; change set parts R, S; Q3 marked applied). Applied: Q3's three proposals
+(`module_stored_profile_to_levels` 0.4, a file name, no bump); DRAFT → REVIEW for
+`module_rhythm_lock_order`, `module_rhythm_change_draw`, `module_kept_session_jam_upgrade_step`;
+chunk 19's revision `rule_pregeneration_discarded_on_change` 0.5; built names for chunks 13, 16, 19.
+CS check (chunk 19's two contract rules, session mode): met. Tags off the five capped session files:
+coverage adequate. `atd check` 19/19, `atd lint` pass, `atd audit` on 16 atoms: no collision.
+
+Drafted, not applied (the owner's word): CR as part R (R1 `module_session_ready_phrases` 0.2, R2
+CONTRACT 10.0.0 → 11.0.0, MAJOR); S3 `module_settings_mutation` name-only fix (STABLE); S3 Vary
+settings' availability under `module_session_vary_settings_flag` 0.3. Status candidates DRAFT →
+REVIEW: `module_session_rhythm_lock`, `module_session_lock_and_groups_choices`,
+`entity_session_option_records`, `ui_toggle_list`, `ui_field_dependent`.
