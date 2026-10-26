@@ -689,3 +689,16 @@ Status candidates (DRAFT → REVIEW): `module_rhythm_lock_order`, `module_rhythm
   - recording the first-load total beside the entry figure;
   - Q3's three proposals (3 touches a STABLE atom);
   - the three status candidates.
+
+### The owner's answers (2026-10-26)
+
+"right now there are no true users so upgrade time isn't a problem. otherwise we're okay to proceed
+on the next wave" — "you may merge into main of course".
+- M3's v3.0 → v3.2 figure (94 % of the wait at 500 sessions) accepted: no real users yet.
+- Wave 2 merged into `main` (not pushed). Its worktrees and branches removed.
+- Carried to wave 3 (not yet answered explicitly): Q3's three proposals (3 touches a STABLE atom),
+  the three status candidates, recording the first-load total beside the entry figure. Ask at wave
+  3's start.
+- Next: wave 3 (chunks 16, 13, 19) in a fresh session; CS before its sync. Dev-tool security batch
+  (vite 8.3.5, vitest and @vitest/coverage-v8 5.0.3, lockfile undici 8.12.2, fast-uri 3.1.9,
+  serialize-javascript 7.1.3) as its own unit from `main`.
