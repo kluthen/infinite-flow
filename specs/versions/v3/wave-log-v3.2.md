@@ -923,3 +923,21 @@ part of the note (staccato).
   load took focus from an open sheet). Jam e2e 22/22, accessibility 5/5, related unit 559,
   `verify:boundaries` pass; entry 290,301 B, Jam's chunk 6,731 B. For the sync:
   `module_workspace_mode` still reads "not built yet" in places.
+- 28 merged (d85b1e3; 28ff715). Done when met item by item: C5.16.1's rows at their edges (62
+  tests), the steering block's starts (19 tests, D440's rests under Quarter, Eighth and Sixteenth;
+  `quarter-steps` n0 n4 n8 n12, `tresillo-leaps` n0 n6 n12), every block parses at every drift,
+  integers only. Every doodle reads its `aimedAt`; `eighth-offbeats` and `tresillo-leaps` corrected
+  to Sparse; new `syncopated-push-with-rests` (Eighth / Heavily varied / Occasional offbeats /
+  Conversational, `listeningMeasure` false). H1's five measures unchanged (`render:rhythms` into a
+  scratch dir, byte-identical). Related tests 239, typecheck, lint, format, links, health clean.
+  Register window for chunk 7: `readDoodleRegister(doodle, windows)` /
+  `readDoodleControls(...).register.window` (`RegisterWindowCandidate | null`, null only for
+  Varying), windows from `deriveRegisterWindowCandidates`. `JamDrift` lives in
+  `steering-block-builder.ts` (chunk 31 imports it). Design edge sent to `ux-writer`: a default the
+  supported-combination step raised (two-note doodle: Slightly → Heavily varied, source default)
+  vs "{value} (default)". For the gate: the sweep reads the doodle set, now 13. For the sync: the
+  two revisions; both captures' built names (`doodle-rhythm-reading.ts`, `JamDrift`,
+  `readDoodleRegister`, a stepped default's source). Risks: hand-written doodles only until DR;
+  H1's pick sorts non-listening measures by name, so a future doodle sorting earlier could change
+  it; callers pass the `NoteDensityContext`.
+- 7 dispatched (2026-10-27), branch `v3.2-c7-doodle-join`.

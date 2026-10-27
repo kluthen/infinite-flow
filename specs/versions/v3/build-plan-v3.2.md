@@ -2187,7 +2187,7 @@ plan cites it.
 
 ### Chunk 28 — From the doodle: the controls and the steering block
 
-Status: planned
+Status: merged (w4, d85b1e3)
 Wave: 4
 Depends on: 4, 6 (and chunk 3's doodle set, merged in wave 2, its twelve hand-written doodles; the
 owner's recordings join it later, gate DR, spec D443), DS (done, spec D440)
@@ -2260,6 +2260,8 @@ D441.
     silence holding no rest: a test at each band's edge under Quarter and Eighth.
 - **Verification:** chunk checks.
 - **Split rule:** none needed (two pure modules).
+
+Record: 28ff715, merged d85b1e3. Differs from the Files line only: `src/jam/doodle-rhythm-reading.ts` holds the note density reading and the doodle's rests (`doodleMeasureRests`, the one function D440's rests go through), shared by both modules without a cycle; `tests/unit/jam/doodle-builders.ts`; new doodle `syncopated-push-with-rests`. The block's moves reuse chunk 9's `melodicMoveBetween`. A design edge (a default the supported-combination step raised) sent to `ux-writer` (wave log, wave 4).
 
 ### Chunk 29 — The Jam sweep, first run
 
