@@ -5,7 +5,8 @@
  * accidentals, one with some), and the staff it is drawn on for the selected instrument: treble
  * clef and the profile's written range for a built-in, my instrument's own clef and range. The
  * expected signatures come from music theory: a mode shares the key signature of the major key
- * (its Ionian) whose scale holds the same notes.
+ * (its Ionian) whose scale holds the same notes. The empty system's accessible name is worded as
+ * a phrase's summary, naming no measures, the key's accidentals in words.
  */
 import { describe, expect, it } from 'vitest'
 
@@ -13,6 +14,7 @@ import type { Collection, PitchClass } from '@/domain/controls/generation-contro
 import type { Letter } from '@/domain/notation/written-phrase-types'
 import { makeMyInstrument } from '@/domain/profile/my-instrument'
 import {
+  emptySystemNameOf,
   emptySystemStaffOf,
   jamInstrumentRangeInClef,
   jamKeySignature,
@@ -204,5 +206,30 @@ describe("the empty system's staff for the selected instrument", () => {
     })
     expect(staff.rangeInClef).toEqual({ writtenRange: { minMidi: 36, maxMidi: 60 }, clef: 'bass' })
     expect(staff.signature).toEqual(jamKeySignature('E', 'Dorian'))
+  })
+})
+
+// @test-link [[rule_jam_idle_shows_no_phrase]]
+describe("the empty system's accessible name", () => {
+  // @test-link [[rule_jam_idle_shows_no_phrase]]
+  it.each([
+    {
+      settings: { tonalCenter: 'G', collection: 'Ionian', instrumentProfileId: 'c-keyboard' },
+      name: 'Empty staff, treble clef, key signature 1 sharp (G Ionian), 4/4 time.',
+    },
+    {
+      settings: { tonalCenter: 'A#', collection: 'Ionian', instrumentProfileId: 'my-instrument' },
+      name: 'Empty staff, bass clef, key signature 2 flats (B flat Ionian), 4/4 time.',
+    },
+    {
+      settings: { tonalCenter: 'A', collection: 'Aeolian', instrumentProfileId: 'bb-tenor' },
+      name: 'Empty staff, treble clef, key signature no sharps or flats (A Aeolian), 4/4 time.',
+    },
+    {
+      settings: { tonalCenter: 'F#', collection: 'Aeolian', instrumentProfileId: 'eb-alto' },
+      name: 'Empty staff, treble clef, key signature 3 sharps (F sharp Aeolian), 4/4 time.',
+    },
+  ] as const)('names $name', ({ settings, name }) => {
+    expect(emptySystemNameOf({ ...settings, myInstrument: MY_BASS })).toBe(name)
   })
 })

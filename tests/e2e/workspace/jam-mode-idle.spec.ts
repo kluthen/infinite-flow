@@ -1,6 +1,8 @@
 /**
  * v3.2 chunk 20: Jam mode at Idle, no doodle kept. Its staff shows the empty system in Jam's
- * written key and collection (session mode's until Jam has settings of its own) and no phrase is
+ * written key and collection (session mode's until Jam has settings of its own), an image named as
+ * a phrase's summary names its staff, renamed silently on a redraw, drawing the opening line at
+ * the system's start and no other barline, under the score title `Jam`; no phrase is
  * generated, prepared or replaced; `Start Jam` is primary and, until chunk 21, disabled. The cue
  * row names the home note (the tonic of Jam's key, in the instrument's written pitch, in the
  * octave nearest the middle of its written range) while a fresh Jam could start, or shows
@@ -30,7 +32,13 @@ import {
 } from '../session/session-helpers'
 import { connectDevice, midiKind, startLine } from '../session/session-midi-helpers'
 import { observeGenerationStatus, radio, readGenerationStatusLog } from './helpers'
-import { expectJamModeShows, jamFrame, modeSegment, modeSwitch } from './jam-mode-helpers'
+import {
+  expectJamModeShows,
+  jamFrame,
+  modeSegment,
+  modeSwitch,
+  scoreTitle,
+} from './jam-mode-helpers'
 import { generationRecords } from './pregeneration-helpers'
 
 /** A landscape phone, below bp-tablet-landscape. */
@@ -180,6 +188,71 @@ test("the empty system shows the key signature of Jam's key and collection, nine
   }
   await expectJamModeShows(page)
   expect(await generationRecords(page), 'a key change in Jam mode generates nothing').toEqual([])
+})
+
+/** Intent: the empty system's SVG. */
+function emptySystem(page: Page): Locator {
+  return jamFrame(page).locator('[data-system-position="top"] > .staff-content > svg.staff-svg')
+}
+
+// @test-link [[rule_jam_idle_shows_no_phrase]]
+test('the empty system is an image named by its clef, key and 4/4, renamed silently on a redraw', async ({
+  page,
+}) => {
+  await gotoHarness(page)
+  await enterJam(page)
+
+  await expect(scoreTitle(page)).toHaveText('Jam')
+  await expect(jamFrame(page)).toHaveAttribute('aria-labelledby', 'score-panel-title')
+  await expect(emptySystem(page)).toHaveAttribute('role', 'img')
+  await expect(emptySystem(page)).not.toHaveAttribute('aria-hidden')
+  // C Ionian on the tenor saxophone, the first visit's settings.
+  await expect(
+    jamFrame(page).getByRole('img', {
+      name: 'Empty staff, treble clef, key signature no sharps or flats (C Ionian), 4/4 time.',
+      exact: true,
+    }),
+  ).toHaveCount(1)
+
+  await radio(page, 'Written key', 'G').click()
+  await expect(emptySystem(page)).toHaveAccessibleName(
+    'Empty staff, treble clef, key signature 1 sharp (G Ionian), 4/4 time.',
+  )
+  await radio(page, 'Written key', 'A-sharp/B-flat').click()
+  await expect(emptySystem(page)).toHaveAccessibleName(
+    'Empty staff, treble clef, key signature 2 flats (B flat Ionian), 4/4 time.',
+  )
+  // G Ionian and E Aeolian share one sharp, not a name.
+  await radio(page, 'Written key', 'E').click()
+  await radio(page, 'Collection', 'Aeolian').click()
+  await expect(emptySystem(page)).toHaveAccessibleName(
+    'Empty staff, treble clef, key signature 1 sharp (E Aeolian), 4/4 time.',
+  )
+  await expect(jamFrame(page).locator('[aria-live], [role="status"], [role="alert"]')).toHaveCount(
+    0,
+  )
+})
+
+// @test-link [[rule_jam_idle_shows_no_phrase]]
+test("the empty system draws the opening line at the system's start, and no other barline", async ({
+  page,
+}) => {
+  await gotoHarness(page)
+  await enterJam(page)
+
+  const drawn = emptySystem(page).locator('g.vf-stavebarline rect')
+  await expect(drawn, 'one barline drawn: the opening line').toHaveCount(1)
+  const line = await boxOf(drawn)
+  // The stave group holds the five staff lines only.
+  const staffLines = await boxOf(emptySystem(page).locator('g.vf-stave'))
+  const clef = await boxOf(emptySystem(page).locator('g.vf-clef'))
+  expect(Math.abs(line.x - staffLines.x), "at the staff lines' start").toBeLessThan(1.5)
+  expect(line.x + line.width, 'before the clef').toBeLessThanOrEqual(clef.x)
+  expect(Math.abs(line.y - staffLines.y), 'from the top line').toBeLessThan(1.5)
+  expect(
+    Math.abs(line.y + line.height - (staffLines.y + staffLines.height)),
+    'to the bottom line',
+  ).toBeLessThan(1.5)
 })
 
 // @test-link [[rule_jam_starting_note_is_home_note]]

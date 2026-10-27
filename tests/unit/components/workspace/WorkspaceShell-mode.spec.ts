@@ -3,8 +3,11 @@
  * session mode at mount, reported not held; the first press of `Jam` holds session mode at once
  * (reported synchronously), the controls read-only and both header actions disabled; once loaded,
  * Jam's view takes the staff's place, the session staff out of sight and inert but still mounted;
- * `Session` brings session mode back as it was. A failed load shows Jam's load-failure notice,
- * focus on its `Try again`, which loads again; `Dismiss` removes it, focus to the fallback. Jam's
+ * `Session` brings session mode back as it was. The score title reads `Jam` once Jam's view shows,
+ * `Four-measure phrase` otherwise, while Jam's code loads included. A failed load shows Jam's
+ * load-failure notice, focus on its `Try again`, which loads again, unless a sheet is open as the
+ * wait ends, when focus stays in the sheet (a load succeeding moves none either); `Dismiss`
+ * removes it, focus to the fallback. Jam's
  * view is given Jam's settings and reports what its staff shows: a notation error makes the
  * header's phrase action `Retry notation`, which reaches Jam's view's `retryNotation()`.
  */
@@ -13,6 +16,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h } from 'vue'
 
 import ControlPanel from '@/components/controls/ControlPanel.vue'
+import ConnectionSheet from '@/components/controller-connection/ConnectionSheet.vue'
 import WorkspaceShell from '@/components/workspace/WorkspaceShell.vue'
 import type { JamModeModule } from '@/components/workspace/load-jam-mode'
 import { createTestWorkspace, PHRASE_SCORE_STUB } from './test-workspace'
@@ -24,6 +28,12 @@ import { noRememberedController, quietSavedData, quietPresetStore } from './quie
 const loader = vi.hoisted(() => ({
   pending: [] as { resolve: (loaded: unknown) => void; reject: (cause: unknown) => void }[],
 }))
+
+// The connection sheet engraves its check note; jsdom has no fonts nor canvas for VexFlow.
+vi.mock(
+  '@/notation/vexflow-engraver-loader',
+  () => import('../controller-connection/fake-check-note-engraver'),
+)
 
 vi.mock('@/components/workspace/load-jam-mode', () => ({
   loadJamMode: () =>
@@ -119,6 +129,23 @@ function lastLoad() {
   return load
 }
 
+/** Intent: the score title, which also names the staff frame. */
+function scoreTitle(wrapper: ShellWrapper): string {
+  return wrapper.get('#score-panel-title').text()
+}
+
+/**
+ * Intent: open the connection sheet from `controller-status`, let it load and render, and return
+ * it, focus moved inside it as it opens.
+ */
+async function openConnectionSheet(wrapper: ShellWrapper) {
+  await wrapper.get('.context-group > button.controller-status').trigger('click')
+  await flushPromises()
+  const sheet = wrapper.getComponent(ConnectionSheet).get('.sheet[role="dialog"]')
+  expect(sheet.element.contains(document.activeElement)).toBe(true)
+  return sheet
+}
+
 /** Intent: the session's staff viewport, the score panel's first. */
 function sessionStaff(wrapper: ShellWrapper) {
   return wrapper.get('.score-panel .staff-viewport:not(.jam-stub)')
@@ -177,6 +204,55 @@ describe('WorkspaceShell and the workspace mode', () => {
     await flushPromises()
     expect(wrapper.find('.app-notice-row').exists()).toBe(false)
     expect(wrapper.find('.jam-stub').exists()).toBe(true)
+  })
+
+  // @test-link [[module_workspace_mode]]
+  it('titles the score Jam while Jam mode shows, and Four-measure phrase while its code loads', async () => {
+    const wrapper = mountShell()
+    expect(scoreTitle(wrapper)).toBe('Four-measure phrase')
+
+    await segment(wrapper, 'Jam').trigger('click')
+    expect(segment(wrapper, 'Jam').attributes('aria-checked')).toBe('true')
+    expect(scoreTitle(wrapper)).toBe('Four-measure phrase')
+
+    lastLoad().resolve(FAKE_JAM_MODULE)
+    await flushPromises()
+    expect(scoreTitle(wrapper)).toBe('Jam')
+
+    await segment(wrapper, 'Session').trigger('click')
+    expect(scoreTitle(wrapper)).toBe('Four-measure phrase')
+    await segment(wrapper, 'Jam').trigger('click')
+    expect(scoreTitle(wrapper)).toBe('Jam')
+  })
+
+  // @test-link [[module_workspace_mode]]
+  it('keeps focus in a sheet open as the load fails, the notice showing all the same', async () => {
+    const wrapper = mountShell()
+    await segment(wrapper, 'Jam').trigger('click')
+    const sheet = await openConnectionSheet(wrapper)
+    const focused = document.activeElement
+
+    lastLoad().reject(new Error('offline'))
+    await flushPromises()
+
+    expect(wrapper.get('.app-notice-row .app-notice p').text()).toBe(JAM_LOAD_FAILED)
+    expect(segment(wrapper, 'Session').attributes('aria-checked')).toBe('true')
+    expect(document.activeElement).toBe(focused)
+    expect(sheet.element.contains(document.activeElement)).toBe(true)
+  })
+
+  // @test-link [[module_workspace_mode]]
+  it('keeps focus in a sheet open as the load succeeds, Jam mode showing under it', async () => {
+    const wrapper = mountShell()
+    await segment(wrapper, 'Jam').trigger('click')
+    await openConnectionSheet(wrapper)
+    const focused = document.activeElement
+
+    lastLoad().resolve(FAKE_JAM_MODULE)
+    await flushPromises()
+
+    expect(wrapper.find('.jam-stub').exists()).toBe(true)
+    expect(document.activeElement).toBe(focused)
   })
 
   // @test-link [[rule_jam_code_loaded_on_demand]]

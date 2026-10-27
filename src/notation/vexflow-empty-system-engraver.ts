@@ -2,12 +2,13 @@
  * Jam's empty system: one staff system with no notes, engraved into the top system position before
  * a doodle (the Notation Contract's "The empty system"). It carries the instrument's clef, the key
  * signature a phrase in the same written key and collection would carry, drawn by the phrase's own
- * helper, and the 4/4 time signature; its staff lines run to the system's end, with no barline, no
- * measure and no chord symbol. It is planned exactly as a phrase whose four measures all take the
- * engraver's minimum measure width (./notation-layout-policy.ts, `planSystemLayout`), with the
- * phrase's own leading width and system padding, and placed in its position by the instrument's
- * written range (`planStaffPlacement`), so phrase 1 later enters at the same scale and in the same
- * place, no staff line moving. Re-exported by ./vexflow-engraver.ts, so it ships in the lazy
+ * helper, and the 4/4 time signature; its staff lines run to the system's end, with the opening line
+ * at the system's start that every phrase system draws and no other barline (none between
+ * measures, none at the end), no measure and no chord symbol. It is planned exactly as a phrase
+ * whose four measures all take the engraver's minimum measure width (./notation-layout-policy.ts,
+ * `planSystemLayout`), with the phrase's own leading width and system padding, and placed in its
+ * position by the instrument's written range (`planStaffPlacement`), so phrase 1 later enters at
+ * the same scale and in the same place, no staff line moving. Re-exported by ./vexflow-engraver.ts, so it ships in the lazy
  * engraver chunk; with that file, ./vexflow-mapping.ts, ./vexflow-two-system-engraver.ts and
  * ./vexflow-check-note-engraver.ts, one of the only five files allowed to import 'vexflow'.
  */
@@ -109,8 +110,8 @@ function planEmptySystem(
 
 /**
  * Intent: draw the empty system into `host`: one stave as wide as the system, its top line where
- * the instrument's placement puts a phrase's, carrying the clef, the key signature and 4/4, with no
- * barline at either end.
+ * the instrument's placement puts a phrase's, carrying the clef, the key signature and 4/4, with the
+ * opening line a phrase's first stave keeps (the stave's default start barline) and no end barline.
  */
 // @spec-link [[rule_jam_idle_shows_no_phrase]]
 function drawEmptySystem(host: HTMLElement, staff: EmptySystemStaff, plan: SystemLayoutPlan): void {
@@ -120,7 +121,6 @@ function drawEmptySystem(host: HTMLElement, staff: EmptySystemStaff, plan: Syste
   const stave = new Stave(0, staffTopLineUnits, plan.systemWidthUnits, { spaceAboveStaffLn: 0 })
   addClefAndKey(stave, staff.rangeInClef.clef, staff.signature)
   stave.addTimeSignature('4/4')
-  stave.setBegBarType(Barline.type.NONE)
   stave.setEndBarType(Barline.type.NONE)
   stave.setContext(context).draw()
 }

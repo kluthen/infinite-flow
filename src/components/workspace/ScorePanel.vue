@@ -27,7 +27,9 @@
  * exactly as it was left, and the generation-failure banner is hidden; the Review hides Jam's view
  * the same way. Jam's view gets the props the workspace gives it (`jamViewProps`); what its staff
  * shows is passed on (`jam-staff-state`), and its `retryNotation()` is reached through
- * `retryJamNotation()`. The cue row is given Jam's Idle cue (`jamCue`) as it is.
+ * `retryJamNotation()`. The cue row is given Jam's Idle cue (`jamCue`) as it is. The score title,
+ * which also names the staff frame, follows the mode shown: `Jam` while Jam's view shows, else
+ * `Four-measure phrase` (while Jam's code loads too).
  */
 import { computed, defineAsyncComponent, nextTick, ref, watch, type Component } from 'vue'
 
@@ -143,6 +145,11 @@ const review = useReviewHost({
 const reviewShowing = review.showing
 /** Session mode's staff is out of sight: under the Review, or while Jam mode shows. */
 const sessionStaffAway = computed(() => reviewShowing.value || props.jamView !== null)
+/**
+ * The score title: one per mode, following the mode the workspace shows, not the switch, so it
+ * still reads "Four-measure phrase" while Jam's code loads.
+ */
+const scoreTitle = computed(() => (props.jamView !== null ? 'Jam' : 'Four-measure phrase'))
 
 const roomNoticeElement = ref<HTMLElement | null>(null)
 
@@ -397,7 +404,7 @@ const generationErrorAlertText = computed(() =>
   <div class="score-panel">
     <div class="score-toolbar">
       <h2 id="score-panel-title" class="score-context" :hidden="reviewShowing">
-        Four-measure phrase
+        {{ scoreTitle }}
       </h2>
       <p class="generation-status" role="status" aria-live="polite" aria-atomic="true">
         {{ statusText }}

@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
 import { deepFreeze } from '@/domain/events/deep-freeze'
-import { describeWrittenPhrase } from '@/domain/notation/score-description'
+import { spellWrittenKey } from '@/domain/notation/pitch-spelling'
+import { describeEmptySystem, describeWrittenPhrase } from '@/domain/notation/score-description'
 import { noteStemDirection } from '@/domain/notation/stem-direction'
 import type {
   WrittenChordSymbol,
@@ -156,6 +157,30 @@ describe('describeWrittenPhrase summary wording', () => {
     const result = describeWrittenPhrase(phrase({ key: D_IONIAN_KEY, clef: 'bass' }))
     expect(result.summary).toBe(
       'Written notation, bass clef, key signature 2 sharps (D Ionian), 4/4 time, four measures.',
+    )
+  })
+})
+
+// @test-link [[rule_jam_idle_shows_no_phrase]]
+describe("describeEmptySystem, the empty system's name", () => {
+  // @test-link [[rule_jam_idle_shows_no_phrase]]
+  it('words it as a phrase summary naming no measures: treble clef, G Ionian, 1 sharp', () => {
+    expect(describeEmptySystem('treble', spellWrittenKey(7, 'Ionian'))).toBe(
+      'Empty staff, treble clef, key signature 1 sharp (G Ionian), 4/4 time.',
+    )
+  })
+
+  // @test-link [[rule_jam_idle_shows_no_phrase]]
+  it('spells the key label with accidentals in words: bass clef, B flat Ionian, 2 flats', () => {
+    expect(describeEmptySystem('bass', spellWrittenKey(10, 'Ionian'))).toBe(
+      'Empty staff, bass clef, key signature 2 flats (B flat Ionian), 4/4 time.',
+    )
+  })
+
+  // @test-link [[rule_jam_idle_shows_no_phrase]]
+  it('names no sharps or flats for a natural key, as the phrase summary does', () => {
+    expect(describeEmptySystem('treble', C_IONIAN_KEY)).toBe(
+      'Empty staff, treble clef, key signature no sharps or flats (C Ionian), 4/4 time.',
     )
   })
 })

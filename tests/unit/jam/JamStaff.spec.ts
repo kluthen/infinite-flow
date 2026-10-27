@@ -2,7 +2,8 @@
  * Jam's Idle staff over a stand-in engraver: `staff-frame staff-jam` with the empty system in the
  * top position's one `staff-content` unit and the instruction in the bottom one, both positions
  * sized as the session staff's; a change of key, collection or instrument redraws the empty system
- * in the same unit (so no entrance fade plays); no room shows the no-room sentence in
+ * in the same unit (so no entrance fade plays), the image named as a phrase's summary names its
+ * staff and renamed silently on each redraw; no room shows the no-room sentence in
  * `staff-no-room`; a failure shows the notation error in `staff-error`, and `retryNotation()`
  * engraves again, loading the engraver again after a failed load. Each change of what the staff
  * shows is reported once through `staff-state`. jsdom has no ResizeObserver, matchMedia or layout,
@@ -119,7 +120,11 @@ describe("Jam's Idle staff", () => {
     expect(frame.attributes('aria-labelledby')).toBe('score-panel-title')
     const units = wrapper.findAll('[data-system-position="top"] > .staff-content')
     expect(units).toHaveLength(1)
-    expect(units[0]!.find('svg.staff-svg').attributes('aria-hidden')).toBe('true')
+    const svg = units[0]!.get('svg.staff-svg')
+    expect(svg.attributes('aria-hidden')).toBeUndefined()
+    expect(svg.attributes('aria-label')).toBe(
+      'Empty staff, treble clef, key signature no sharps or flats (D Dorian), 4/4 time.',
+    )
     expect(wrapper.get('[data-system-position="bottom"] > .jam-instruction').text()).toBe(
       'After the count-in, play your doodle: one to four measures. The app continues it.',
     )
@@ -168,6 +173,29 @@ describe("Jam's Idle staff", () => {
     expect(wrapper.get('.staff-content').element).toBe(unit)
     expect(unit.querySelectorAll('svg')).toHaveLength(1)
     expect(wrapper.emitted('staff-state')).toEqual([['shown']])
+  })
+
+  // @test-link [[rule_jam_idle_shows_no_phrase]]
+  it('renames the empty system silently on a redraw, a key sharing the signature included', async () => {
+    const wrapper = await mountStaff()
+    /** Intent: the shown empty system's accessible name. */
+    const label = () => wrapper.get('.staff-content svg.staff-svg').attributes('aria-label')
+
+    // D Dorian and C Ionian share a signature, not a name.
+    await wrapper.setProps({ tonalCenter: 'C', collection: 'Ionian' })
+    await nextFrame()
+    expect(engraveEmptySystem).toHaveBeenCalledTimes(2)
+    expect(label()).toBe(
+      'Empty staff, treble clef, key signature no sharps or flats (C Ionian), 4/4 time.',
+    )
+
+    await wrapper.setProps({ tonalCenter: 'A#' })
+    await nextFrame()
+    expect(label()).toBe(
+      'Empty staff, treble clef, key signature 2 flats (B flat Ionian), 4/4 time.',
+    )
+    expect(wrapper.find('[aria-live]').exists()).toBe(false)
+    expect(wrapper.find('[role="status"]').exists()).toBe(false)
   })
 
   // @test-link [[rule_jam_idle_shows_no_phrase]]

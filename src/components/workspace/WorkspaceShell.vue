@@ -36,7 +36,8 @@
  * session mode at every load: the header's mode switch changes it, Jam's view takes the staff's
  * place while Jam mode shows, and while Jam mode opens the controls are read-only and both header
  * actions disabled; whether session mode is held is reported to the workspace as it changes. A
- * failed opening shows Jam's load-failure notice in the notice row, focus on its `Try again`.
+ * failed opening shows Jam's load-failure notice in the notice row, focus on its `Try again`
+ * unless a sheet is open, when focus stays in the sheet.
  * Jam's view is given Jam's written key and collection (session mode's, until Jam has its own),
  * the instrument and the shared system-position size; the shell keeps what Jam's staff shows, for
  * the header's `Retry notation`, which has Jam's staff engraved again. Jam's view is also given
@@ -233,6 +234,15 @@ const reviewShowing = computed(
     props.controller?.state.listShowing === true,
 )
 
+/**
+ * Intent: a failed opening of Jam mode sends focus to its notice's `Try again`, unless a sheet is
+ * open as the wait ends: focus then stays in the sheet, the notice showing all the same.
+ */
+// @spec-link [[module_workspace_mode]]
+function focusJamTryAgainOutsideSheets(): void {
+  if (!anySheetOpen.value) requireNoticeRow().focusJamTryAgain()
+}
+
 // The workspace's mode: session mode at every load, Jam's code loaded on the first press of Jam.
 // @spec-link [[module_workspace_mode]]
 const workspaceMode = useWorkspaceMode({
@@ -241,7 +251,7 @@ const workspaceMode = useWorkspaceMode({
   reviewShowing: () => reviewShowing.value,
   load: loadJamMode,
   onHeldChange: (held) => emit('session-mode-held-change', held),
-  onLoadFailed: () => void nextTick(() => requireNoticeRow().focusJamTryAgain()),
+  onLoadFailed: () => void nextTick(focusJamTryAgainOutsideSheets),
 })
 /** The controls are read-only: during a session, as the session holds them, or while Jam opens. */
 const settingsReadonly = computed(() => controlsReadonly.value || workspaceMode.opening.value)
