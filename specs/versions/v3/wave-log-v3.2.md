@@ -896,3 +896,18 @@ part of the note (staccato).
   `melodicMoveBetween` for the block's moves. Risk: under Predictable or Chaotic the term barely
   moves chord tones (Jam holds Varied).
 - 20 dispatched (2026-10-27), branch `v3.2-c20-jam-mode-switch` (split 20a/20b).
+- 20 merged (38bb6f6; 2dd4ab9 20a, bcb6e60 20b). Done when met item by item; e2e jam-mode-switch
+  and jam-mode-idle 18/18 (in `test:e2e`); accessibility tests of what it adds pass; related unit
+  1,291; `build` + `verify:boundaries` pass, and fail on a real build with Jam's code imported into
+  `main.ts`. Entry chunk 290,156 B (282,172 before; 17,044 B left in the 307,200 B budget); Jam's
+  chunk 6,551 B. `Try again` retries Jam's chunk under a fresh `?retry=n` URL (Chromium remembers a
+  failed dynamic import). Deviations (Files only): `src/notation/vexflow-empty-system-engraver.ts`
+  (a fifth VexFlow importer, so Jam's chunk carries no engraver), Jam's view in `ScorePanel.vue`,
+  helpers listed on its Record line. Design gaps sent to `ux-writer`: the empty system's accessible
+  name; the line at the system's start ("no barline" taken literally); the `score-context` title
+  "Four-measure phrase" in Jam mode; what stays live while Jam's code loads. For the gate: the
+  notation suite (engraver constants moved into `vexflow-two-system-engraver.ts`). For the sync:
+  built names for the four captures, `module_generation_prewarm` (`FIRST_VISIT_RHYTHM_VALUES`,
+  `doodlePrewarmControls`), `freshJamCanStart`. Risks: session controls changeable in Jam mode until
+  chunk 31; the retry reads Chromium's message wording; `WorkspaceShell.vue` 442 effective lines;
+  three files at the ten-atom cap.

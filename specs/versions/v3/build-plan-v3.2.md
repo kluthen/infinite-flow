@@ -1733,7 +1733,7 @@ assistive-technology cue beyond blocked activation (ARIA allows none; asked of `
 
 ### Chunk 20 — Jam mode: the mode switch, Jam's code on demand and Jam's Idle
 
-Status: planned
+Status: merged (w4, 38bb6f6)
 Wave: 4
 Depends on: 1 (and v3.0 chunks 7, 22 and 24)
 Architecture capture: the top-level mode and Jam's code boundary. The mode (session or Jam, never
@@ -1839,6 +1839,8 @@ its state and its prepared phrases and prepares nothing new.
 - **Split rule:** 20a the mode and Jam's code (the shell, the header, the loader, the boundary
   check, the lint rule, pre-generation paused), 20b Jam's Idle on screen (Jam's view, the empty
   system, the action policy, the prewarm, Jam's Idle notes, session mode's starting note silenced).
+
+Record: 2dd4ab9 (20a), bcb6e60 (20b), merged 38bb6f6. Differs from the Files line, not from the spec or the design: a new `src/notation/vexflow-empty-system-engraver.ts` (VexFlow stays in `src/notation/`, loaded through `loadVexflowEngraver()`, so Jam's chunk carries no engraver); Jam's view placed in `ScorePanel.vue`; helpers `use-workspace-mode.ts`, `ModeSwitch.vue`, `use-jam-idle-cue.ts`, `staff-viewport-reading.ts`, `src/jam/JamStaff.vue`, `jam-idle-prewarm.ts`; the starting note silenced in 20a; Jam's tension a transitional `Lift` until chunk 31. Four design gaps sent to `ux-writer` (wave log, wave 4). No phone reduction.
 
 ### Chunk 21 — A fresh Jam on screen
 
