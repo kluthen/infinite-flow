@@ -1005,3 +1005,19 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   owed by D425 and D428; chunk 8's in-wave edge from chunk 28, whose blocks it orders by; chunk
   18's no-phrase carry-in fuel, which M1 confirms. No behaviour. Now
   in: [build plan v3.2, v21](versions/v3/build-plan-v3.2.md#chunk-20--jam-mode-the-mode-switch-jams-code-on-demand-and-jams-idle).
+
+- **D445 (2026-10-27): the supported-combination step judges the doodle's note density as read,
+  at every width.** `spec-writer`'s, under the owner's delegation of minor calls, from `ux-writer`'s
+  wave 4 gap. No combination at Eighth is unsupported, so judging the Sixteenth read keeps the
+  controls supported at both widths: they never depend on the window, a crossing while a doodle is
+  kept changes no reading and, as in session mode, rewrites nothing. Rejected: running the step
+  again on each crossing (a kept phrase 1 written narrow, then a Jam started wide, would generate
+  Sixteenth with a variety stepped only for Eighth, an unsupported combination). Cost: on a narrow
+  screen a doodle read as Sixteenth may keep a variety one step higher than Eighth needs (D414).
+  Now in: [Part C §C5.16.1](versions/v3/master-spec.md#c5161-the-doodle-to-controls-mapping),
+  [build plan v3.2, chunks 31, 18 and 24](versions/v3/build-plan-v3.2.md#chunk-31--jams-settings).
+
+- **D446 (2026-10-27): chunk 31 adds the raised mark to the rhythmic variety reading (ux D355).**
+  Chunk 28 is merged and closed, so the readings' model gains `raised` in the chunk that shows the
+  readings, with D445's change to the same function. Now in:
+  [build plan v3.2, chunk 31](versions/v3/build-plan-v3.2.md#chunk-31--jams-settings).

@@ -59,12 +59,13 @@ Status: draft v0.88
     whose candidates all fail records "no change available" too (D435). v1.12 reads a short silence
     between two doodle notes as part of the note before it, the owner's answer to O268 (D440), breaks
     a window-centre tie to Middle (D441) and prewarms the first-visit rhythm values at Jam's Idle
-    before any doodle (D442). The design is approved (gate D0) and its token pass allowed (T2) (D412). Phones are
-    a third-rate client (D414). Build plan [v3.2](versions/v3/build-plan-v3.2.md) **v21**, from v6,
+    before any doodle (D442). v1.13 judges the supported-combination step on the doodle's note
+    density as read, at every width (D445). The design is approved (gate D0) and its token pass allowed (T2) (D412). Phones are
+    a third-rate client (D414). Build plan [v3.2](versions/v3/build-plan-v3.2.md) **v22**, from v6,
     **approved by the owner** (D416, D417; v5 corrected against the design at `ux-writer`'s review,
     v6 waives hand check H9, v7 takes wave 0's preflight corrections, v8 chunk 0's findings, v9
     chunk 2's report, v10 the CS sign-off, D421, v11 wave 1's preflight corrections, gates CN and
-    CK, D422, D423, v12 chunk 5's change kinds, D424, v13 the steering block's shape, D425, v14 chunk 15's dead-end test, D426, v15 wave 2's preflight corrections, D427–D430, v16 chunk 3's findings, D431–D433, v17 the orderings' time, D434, v18 chunk 11's two points, D435, D436, v19 wave 3's preflight corrections and the first-load total, D437, D438, v20 chunk 16's finding, D439, v21 wave 4's preflight corrections and gate answers, D440–D444): 32 chunks in eight waves, session mode first, one release, 3.2.0.
+    CK, D422, D423, v12 chunk 5's change kinds, D424, v13 the steering block's shape, D425, v14 chunk 15's dead-end test, D426, v15 wave 2's preflight corrections, D427–D430, v16 chunk 3's findings, D431–D433, v17 the orderings' time, D434, v18 chunk 11's two points, D435, D436, v19 wave 3's preflight corrections and the first-load total, D437, D438, v20 chunk 16's finding, D439, v21 wave 4's preflight corrections and gate answers, D440–D444, v22 the raised variety's mark and the step at the note density as read, ux D355, D445, D446): 32 chunks in eight waves, session mode first, one release, 3.2.0.
   - **v3.3:** richer chords, opt-in: one Seventh chords level, Off by default, diatonic sevenths
     only. Master spec [Part D](versions/v3/master-spec.md#part-d--v33), awaiting owner approval
     (D264–D275); build plan [v3.3](versions/v3/build-plan-v3.3.md), v3, not approved, after

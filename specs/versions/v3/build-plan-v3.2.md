@@ -1,6 +1,9 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v21 (2026-10-27): v20 with wave 4's preflight corrections and the owner's answers on its
+Status: v22 (2026-10-27): v21 with ux D355 and spec D445–D446 written in (master spec Part C
+v1.13): chunk 31 marks a rhythmic variety the supported-combination step raised and judges that
+step on the note density as read, at every width; chunks 18 and 24 follow.
+v21 (2026-10-27): v20 with wave 4's preflight corrections and the owner's answers on its
 gates written in (spec D440–D444, master spec Part C v1.12): chunks 20, 28, 8 and 9's atoms, Files,
 revisions and drift checks; DS answered (a short silence is part of the note before it), the tie
 between two window centres and what Jam's Idle prewarms before any doodle settled; DR re-scoped to
@@ -1552,7 +1555,9 @@ Architecture capture: none (it builds on chunk 17's)
 - **Scope:**
   - **At the doodle's end** (the tentative generation measure): the controls taken from the doodle
     and the steering block (chunk 28), the join (chunk 7), and with Jam's lock on, "on, nothing
-    locked yet"; the first attempt starts; a doodle note cancels it on the worker.
+    locked yet"; the first attempt starts; a doodle note cancels it on the worker. The controls
+    depend on no window width (spec D445): `readDoodleControls` takes no window context once chunk
+    31 has dropped it, and whichever of chunks 18 and 31 merges second matches the other's call.
   - **The ladder** (`src/jam/jam-phrase-one.ts`): rung 1, the join and the block, with v2's carry-in
     retries (each with a seed of its own, skipped after a search that covered every candidate); rung 2, the
     block with no join; rung 3, v2's standalone phrase with no block. Deadline three measures after
@@ -2050,7 +2055,9 @@ keyed by Jam's settings and the doodle, never session mode's.
   - **A Jam setting changed** (all but the tempo) writes phrase 1 again at once, through Loading,
     discarding Jam's prepared phrases; of the shared settings, only the instrument does likewise (my
     instrument's range or clef included). The tempo, the theme and the audio mix rewrite nothing,
-    nor does a controller lost or attached.
+    nor does a controller lost or attached, nor a window crossing: the readings kept with the
+    doodle depend on no width (spec D445), and a Jam on it then generates with the step-down as
+    any session does (C10.8).
   - **`jam-bar`** with its sentence and `New doodle`, and `suggestion-row` at Idle; held still
     during a session.
   - **A Jam on it**: a v2 start from Ready (`Start Jam` or phrase 1's first note, through
@@ -2069,6 +2076,7 @@ keyed by Jam's settings and the doodle, never session mode's.
   [C5.13](master-spec.md#c513-edge-cases-before-phrase-1-sounds),
   [C6.4](master-spec.md#c64-where-and-when-it-is-shown),
   [C6.5](master-spec.md#c65-use-it-keep-mine-and-jam-again-on-this-doodle),
+  [C5.16.1](master-spec.md#c5161-the-doodle-to-controls-mapping) (a supported combination),
   [C10.5](master-spec.md#c105-pre-generation-v30); items 33, 43, 44 (kept halves), 46.
 - **Design docs:** [`flows/jam/handoff.md`](../../../ui_ux/flows/jam/handoff.md) (The Kept Doodle;
   Routing Rules: Jam on the kept doodle, The kept doodle at Idle, A Jam setting changed with a kept
@@ -2093,6 +2101,9 @@ keyed by Jam's settings and the doodle, never session mode's.
   - Each Jam setting change rewrites phrase 1 at once, an instrument change too (my instrument's
     range or clef included); a tempo, theme or audio-mix change does not; the out-of-date phrase
     prompt never shows in Jam mode.
+  - A window crossing with a doodle kept, either way, changes no reading and rewrites nothing; a
+    Jam on a doodle read as Sixteenth whose variety the step raised, kept narrow and started wide,
+    generates every phrase.
   - Each "lets go" of the design is a test; a second Jam on the doodle, replacing the first
     (unpinned) session, keeps it; deleting the latest session played on it lets it go.
   - After a reload nothing is kept; the kept session's review offers it again, and the same settings
@@ -2374,7 +2385,10 @@ their first values, decoded tolerantly in Jam's code from records of a `jam` gro
 store (`src/storage/records/settings-record.ts` lists the group's keys and stores their values; the
 first load decodes nothing of Jam's); saved when changed, never during a session; reset by Delete
 everything. The shared settings stay session mode's records; an instrument changed in Jam mode is
-applied to session mode, on returning, as an instrument switch made there.
+applied to session mode, on returning, as an instrument switch made there. Revised:
+`module_doodle_controls` (chunk 28's): `readDoodleControls(doodle, windows)` takes no window
+context, its supported-combination step judging the note density as read (spec D445), and its
+`rhythmicVariety` reading carries `raised` (ux D355).
 
 - **Goal:** Jam's own small settings set, saved apart, with the readings of what came from the
   doodle, and the shared instrument handled on return.
@@ -2385,8 +2399,17 @@ applied to session mode, on returning, as an instrument switch made there.
     request carrying it as seven equal figure levels); **Following your doodle** (Drift; Rhythm lock
     with Allowed rhythm changes under it, chunk 19's components); **From your doodle**
     (`doodle-readings`, empty until a doodle, its rows from chunk 28's model, "(default)" for what
-    the doodle left unsaid, and the narrow-screen reading of a Sixteenth, D411). No preset bar, no
-    key and mode marks, no "During a session" options; arpeggio chaos held at Varied.
+    the doodle left unsaid, and the narrow-screen reading of a Sixteenth, D411; Rhythmic variety
+    as ux D355 says: `raised` gives "{value} (to work with the other rhythm values)", else a
+    default gives "{value} (default)", else "{value}"). No preset bar, no key and mode marks, no
+    "During a session" options; arpeggio chaos held at Varied.
+  - **The readings' model** (`src/jam/doodle-controls.ts`, spec D445, ux D355): the
+    supported-combination step judges the four rhythm values as read, a Sixteenth as Sixteenth at
+    every width, so `readDoodleControls` drops its window-context parameter and every caller on
+    the wave branch with it (chunk 18's, if merged first); `rhythmicVariety` adds `raised`, true
+    when `supportedRhythmicVariety` returned a higher step than the value read or the default. No
+    reading depends on the width, so the line is built once per doodle; only Note density's
+    narrow-screen wording follows the window.
   - **First values** (C5.16): key and mode and tempo from session mode's current values the first
     time Jam's settings are needed (tempo kept in 60–180), Gentle diatonic, Lift, Embellishments
     Rarely, Drift Near, lock off, every change off.
@@ -2396,10 +2419,13 @@ applied to session mode, on returning, as an instrument switch made there.
     checked and written again, the prepared phrases discarded.
   - Editable at Idle, read-only in Loading and a session.
 - **Files:** `src/jam/jam-settings.ts`, `src/jam/JamControls.vue`, `src/jam/DoodleReadings.vue`
-  (new), `src/storage/records/settings-record.ts`, `src/components/workspace/WorkspaceShell.vue`
+  (new), `src/jam/doodle-controls.ts` (and `src/jam/jam-phrase-one.ts`'s call, if chunk 18 merged
+  first), `src/storage/records/settings-record.ts`, `src/components/workspace/WorkspaceShell.vue`
   (the return), `src/composables/use-generation-session.ts` (the instrument switch on return); tests
-  `tests/unit/jam/jam-settings.spec.ts`, `tests/e2e/workspace/jam-settings.spec.ts` (new).
+  `tests/unit/jam/jam-settings.spec.ts`, `tests/unit/jam/doodle-controls.spec.ts`,
+  `tests/e2e/workspace/jam-settings.spec.ts` (new).
 - **Spec sections:** [C5.1](master-spec.md#c51-jam-mode), [C5.16](master-spec.md#c516-jams-settings),
+  [C5.16.1](master-spec.md#c5161-the-doodle-to-controls-mapping) (a supported combination),
   [C5.17](master-spec.md#c517-tempo-in-jam-and-tap-in) (the range),
   [C10.2](master-spec.md#c102-saving-the-new-settings-v30-storage),
   [C10.7](master-spec.md#c107-delete-everything-and-your-data); items 14 (the shared setting), 17,
@@ -2411,11 +2437,24 @@ applied to session mode, on returning, as an instrument switch made there.
 - **Atoms:** the Jam settings atoms chunk 0 adds; `rule_jam_drift_positions`; (v3.0)
   `rule_no_save_during_session`.
 - **Revisions:** `rule_settings_saved_on_change`, `rule_saved_settings_load_tolerantly`,
-  `rule_delete_everything` (their Jam halves; contract, CS).
+  `rule_delete_everything` (their Jam halves; contract, CS); `rule_doodle_controls_always_supported`
+  (the note density as read, spec D445) and the capture `module_doodle_controls` (no window context;
+  `raised`).
 - **Done when:**
   - The first time, Jam's settings start from C5.16's first values; each survives a reload; a
     corrupt record loads its first value; session mode's records are untouched by any Jam change.
   - The readings show what chunk 28's model gives, "(default)" where it says so.
+  - Rhythmic variety's line, a test each: a doodle's variety the step raised, and a default it
+    raised, read "{value} (to work with the other rhythm values)"; an unraised default reads
+    "{value} (default)"; an unraised doodle value reads "{value}". `raised` is false whenever the
+    value equals the one read or the default.
+  - The step at the note density as read: `supportedRhythmicVariety` takes Sixteenth, Strict,
+    Sparse, Active displacement to Slightly varied, and a doodle read as Sixteenth, Active
+    displacement and Breath-heavy, its variety not shown, reads Heavily varied, raised; no reading
+    takes the window's width, and every result is a supported combination at both widths. Chunk
+    28's two tests of the step at the generating density (the Sixteenth judged as Eighth below the
+    width, and the narrow half of the raised-variety test) give way to these; its other tests pass
+    unchanged.
   - An instrument changed in Jam mode: on returning, session mode's phrase is written for the new
     instrument and its prepared phrases discarded; no other Jam change touches session mode.
   - Delete everything resets Jam's settings; the entry chunk decodes none of them (M4).
@@ -2424,7 +2463,7 @@ applied to session mode, on returning, as an instrument switch made there.
   runs; the bundle at the wave gate.
 - **Split rule:** 31a the model, saving and the instrument on return (the settings module, the
   record, the shell, the generation session), 31b the controls and the readings (the two
-  components).
+  components and the readings' model).
 
 ### Chunk 32 — Tap tempo
 

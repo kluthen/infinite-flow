@@ -91,8 +91,10 @@ Status: this file holds four parts.
   the history records every draw and only draws (C7.4; spec D435). v1.12 (2026-10-27): a short
   silence between two doodle notes is part of the note before it (the owner's answer to O268), a
   tie between two register windows goes to Middle, and Jam's Idle prewarms the first-visit rhythm
-  values before any doodle (C5.1, C5.8, C5.9, C5.16.1, C8, C17; spec D440–D442). Its sections are
-  numbered C1 to C18; what v1.1 to v1.12 change is listed at the top of
+  values before any doodle (C5.1, C5.8, C5.9, C5.16.1, C8, C17; spec D440–D442). v1.13
+  (2026-10-27): the supported-combination step judges the note density as the doodle shows it, so
+  no window width changes it (C5.16, C5.16.1; spec D445). Its sections are
+  numbered C1 to C18; what v1.1 to v1.13 change is listed at the top of
   Part C and marked in each section they touch.
 - **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.1
   (2026-10-12), consolidated from the v3.3 direction and the chord research; **awaiting the
@@ -2249,7 +2251,10 @@ Delete everything removes them. No preset leaves the device.
 
 ## Part C — v3.2
 
-Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.12 (2026-10-27)**: v1.11
+Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.13 (2026-10-27)**: v1.12
+with one of `spec-writer`'s minor calls (C5.16, C5.16.1; D445): the supported-combination step
+judges the note density as the doodle shows it, a Sixteenth at every width, so it runs once when
+the doodle ends and a window crossing changes no reading. v1.12 (2026-10-27): v1.11
 with the owner's answer to O268 and two of `spec-writer`'s minor calls (C5.1, C5.8, C5.9, C5.16.1,
 C8, C17; D440–D442). The behaviour it adds: a silence between two doodle notes is a rest only
 where a whole rest of the doodle's note density value fits in it, so a short one is part of the
@@ -3221,7 +3226,8 @@ not a Jam setting; the mapping's thresholds in C5.16.1 (D415).
   busy one, a leaping one).
 - **Narrow screens.** Below the tablet-landscape width a Sixteenth taken from the doodle generates
   as Eighth, as any chosen Sixteenth does (C10.8); what the doodle showed is still read as
-  Sixteenth, and how the readings say so is `ux-writer`'s (D411).
+  Sixteenth, and how the readings say so is `ux-writer`'s (D411). The supported-combination step
+  judges that Sixteenth, not the Eighth it generates as (C5.16.1, D445).
 - **Pre-generation.** Jam's settings never enter session mode's pre-generation key, so a change in
   Jam never discards session mode's pre-generated phrases (C10.5).
 
@@ -3232,6 +3238,8 @@ confirmed or corrected by the owner's listening check (C16 item 32), a correctio
 ruling.
 _Changed in v1.12:_ the silence reading counts only the rests C5.9 defines (D440); a tie between
 two register windows goes to Middle (D441).
+_Changed in v1.13:_ the supported-combination step judges the note density as read, at every width
+(D445).
 
 Each of the seven controls takes the value nearest what the quantized doodle shows; a control the
 doodle cannot show takes session mode's first-visit value (C5.16); a combination the generator does
@@ -3257,10 +3265,14 @@ end.
 
 - **Order.** Note density first (variety, syncopation and silence density read its value), then
   the others.
-- **A supported combination.** When the four rhythm values, with the note density as it generates
-  at the current width (C10.8), are an unsupported rhythm combination, rhythmic variety steps up,
-  Strict to Slightly varied to Heavily varied, until they are not; Heavily varied supports every
-  combination. Nothing else moves.
+- **A supported combination.** When the four rhythm values as read (the note density as the
+  doodle shows it, a Sixteenth at every width) are an unsupported rhythm combination, rhythmic
+  variety steps up, Strict to Slightly varied to Heavily varied, until they are not; Heavily varied
+  supports every combination. Nothing else moves. No combination at Eighth is unsupported, so the
+  result stays supported when a Sixteenth generates as Eighth (C10.8): the step depends on no
+  window width, and a window crossing while the doodle is kept (C5.11), before phrase 1 is written
+  again or a Jam on it starts, changes no reading. On a narrow screen a doodle read as Sixteenth may
+  so keep a variety one step higher than Eighth alone needs; the larger screen wins (C10.8).
 - **A doodle of one note** shows only its register; the other six take their first-visit values
   (C5.13).
 - **Tested** on recorded and written doodles, each row at its edges, and by the listening check's
