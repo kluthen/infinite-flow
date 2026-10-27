@@ -3,11 +3,12 @@
  * Jam's Idle staff: `staff-frame staff-jam`, its two reserved system positions sized exactly as
  * the session's staff sizes them (./../components/notation/staff-viewport-reading.ts), the top one
  * holding one `staff-content` unit engraved as the empty system (the instrument's clef, the key
- * signature of Jam's written key and collection, 4/4), the bottom one `jam-instruction`. The empty
+ * signature of Jam's written key and collection, 4/4), an image named as a phrase's summary names
+ * its staff ("Empty staff, treble clef, ..."), the bottom one `jam-instruction`. The empty
  * system is engraved into a hidden staging host and swapped in only once it succeeds, then redrawn
- * at once, with no fade, when the key, the collection or the instrument changes, and at the new
- * size when the container width, the viewport or the shared system-position size changes,
- * coalesced to one check per frame. A window with no room for the staff layout shows the no-room
+ * at once, with no fade and renamed silently, when the key, the collection or the instrument
+ * changes, and at the new size when the container width, the viewport or the shared
+ * system-position size changes, coalesced to one check per frame. A window with no room for the staff layout shows the no-room
  * sentence instead (`staff-no-room`), a failure a retry can cure the notation error
  * (`staff-error`), redrawn by `retryNotation()`. It reports each change of what it shows through
  * `staff-state`, and announces nothing.
@@ -24,6 +25,7 @@ import type { StaffViewport } from '@/notation/notation-layout-policy'
 import { NotationError } from '@/notation/notation-error'
 import type { EmptySystemStaff } from '@/notation/vexflow-empty-system-engraver'
 import {
+  emptySystemNameOf,
   emptySystemStaffOf,
   loadEmptySystemEngraver,
   type EmptySystemEngraver,
@@ -71,6 +73,8 @@ let latestCheck = 0
 
 /** What the empty system shows for the current settings. */
 const staff = computed<EmptySystemStaff>(() => emptySystemStaffOf(props))
+/** The empty system's accessible name for the current settings. */
+const systemName = computed(() => emptySystemNameOf(props))
 
 /** The frame's state class: `staff-jam` with the empty system, or the room or error state's. */
 const frameStateClass = computed(() => {
@@ -102,9 +106,9 @@ function readInputs(): EmptySystemInputs | null {
   }
 }
 
-/** Intent: the comparison key of an engraving: its layout inputs and what it shows. */
-function engravingKey(inputs: EmptySystemInputs, shown: EmptySystemStaff): string {
-  return JSON.stringify({ inputs, shown })
+/** Intent: the comparison key of an engraving: its layout inputs, what it shows and its name. */
+function engravingKey(inputs: EmptySystemInputs, shown: EmptySystemStaff, name: string): string {
+  return JSON.stringify({ inputs, shown, name })
 }
 
 /** Intent: show `next` and report it, only when it changes what the staff shows. */
@@ -153,14 +157,16 @@ async function swapIn(host: HTMLElement, check: number): Promise<void> {
 }
 
 /**
- * Intent: engrave the empty system with the given inputs into a fresh staging host and swap it in
- * on success; no room shows the no-room sentence, a typed failure the notation error.
+ * Intent: engrave the empty system with the given inputs into a fresh staging host, name the
+ * image, and swap it in on success; no room shows the no-room sentence, a typed failure the
+ * notation error.
  */
 // @spec-link [[rule_jam_idle_shows_no_phrase]]
 async function engrave(
   engraveEmptySystem: EmptySystemEngraver,
   inputs: EmptySystemInputs,
   shown: EmptySystemStaff,
+  name: string,
   check: number,
 ): Promise<void> {
   const staging = stagingEl.value
@@ -181,8 +187,9 @@ async function engrave(
       setState('no-room')
       return
     }
-    // The empty system holds no notes to describe: the frame is named by the panel's title.
-    result.svg.setAttribute('aria-hidden', 'true')
+    // An image, as every phrase system is (`finishSystemSvg` gives it its role), named without
+    // measures. A redraw renames it silently: nothing is announced.
+    result.svg.setAttribute('aria-label', name)
     await swapIn(host, check)
   } catch (error) {
     staging.replaceChildren()
@@ -200,7 +207,7 @@ async function checkLayout(force: boolean): Promise<void> {
   const inputs = readInputs()
   if (!inputs) return
   positionBlockPx.value = staffPositionBlockPx(inputs.viewport, inputs.systemPositionUnits)
-  const key = engravingKey(inputs, staff.value)
+  const key = engravingKey(inputs, staff.value, systemName.value)
   if (!force && key === lastEngravedKey) return
   // Claimed before the await, so a signal that changed nothing does not engrave twice.
   lastEngravedKey = key
@@ -215,8 +222,8 @@ async function checkLayout(force: boolean): Promise<void> {
   const current = readInputs()
   if (!current) return
   positionBlockPx.value = staffPositionBlockPx(current.viewport, current.systemPositionUnits)
-  lastEngravedKey = engravingKey(current, staff.value)
-  await engrave(loaded, current, staff.value, check)
+  lastEngravedKey = engravingKey(current, staff.value, systemName.value)
+  await engrave(loaded, current, staff.value, systemName.value, check)
 }
 
 /** Intent: coalesce bursts of triggers into one layout check per frame. */
@@ -259,8 +266,9 @@ onMounted(async () => {
 })
 
 // A change of the key, the collection or the instrument (my instrument's clef and range included),
-// or of the shared size, changes the comparison key: the next check redraws the empty system.
-watch([staff, () => props.systemPositionUnits], handleSignal)
+// or of the shared size, changes the comparison key: the next check redraws the empty system. The
+// name is watched too: two keys may share a signature (C Ionian, A Aeolian) yet not a name.
+watch([staff, systemName, () => props.systemPositionUnits], handleSignal)
 
 onUnmounted(() => {
   resizeObserver?.disconnect()

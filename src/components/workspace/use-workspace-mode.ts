@@ -45,7 +45,10 @@ export interface WorkspaceModeDependencies {
   readonly load: () => Promise<JamModeModule>
   /** Session mode's hold began or ended; called at creation (not held), then in each change. */
   readonly onHeldChange: (held: boolean) => void
-  /** The opening failed: the load-failure notice shows; the shell moves focus to `Try again`. */
+  /**
+   * The opening failed: the load-failure notice shows; the shell moves focus to `Try again`,
+   * unless a sheet is open.
+   */
   readonly onLoadFailed: () => void
 }
 

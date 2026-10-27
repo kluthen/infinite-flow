@@ -1,7 +1,8 @@
 /**
  * Jam's side of the empty system its Idle staff shows: from Jam's written key and collection and
  * the selected instrument, what the notation engraver needs (the key signature, spelled as a
- * phrase's is, and the instrument's written range in its clef), and the engraver itself, reached
+ * phrase's is, and the instrument's written range in its clef), the empty system's accessible name,
+ * worded as a phrase's summary is, and the engraver itself, reached
  * through the lazy engraver chunk (src/notation/vexflow-engraver-loader.ts) once its notation fonts
  * have loaded. Part of Jam's code (src/jam/), loaded on demand.
  */
@@ -12,6 +13,8 @@ import {
 } from '@/domain/controls/generation-controls'
 import type { PitchClassNumber } from '@/domain/harmony/harmony-types'
 import { spellWrittenKey } from '@/domain/notation/pitch-spelling'
+import { describeEmptySystem } from '@/domain/notation/score-description'
+import type { WrittenKey } from '@/domain/notation/written-phrase-types'
 import { instrumentClefOf } from '@/domain/profile/instrument-clef'
 import {
   findBuiltInInstrumentProfile,
@@ -30,16 +33,24 @@ import type { JamStaffProps } from './jam-view-types'
 export type EmptySystemEngraver = VexflowEngraverModule['engraveEmptySystem']
 
 /**
+ * Intent: a written key and collection spelled exactly as a phrase in them is (the
+ * fewest-accidental spelling, sharps on a tie).
+ */
+function jamWrittenKey(tonalCenter: PitchClass, collection: Collection): WrittenKey {
+  const writtenTonic = PITCH_CLASSES.indexOf(tonalCenter) as PitchClassNumber
+  return spellWrittenKey(writtenTonic, collection)
+}
+
+/**
  * Intent: the key signature of a written key and collection, spelled exactly as a phrase in them
- * is (the fewest-accidental spelling, sharps on a tie): the signature the empty system carries.
+ * is: the signature the empty system carries.
  */
 // @spec-link [[rule_jam_idle_shows_no_phrase]]
 export function jamKeySignature(
   tonalCenter: PitchClass,
   collection: Collection,
 ): StaffKeySignature {
-  const writtenTonic = PITCH_CLASSES.indexOf(tonalCenter) as PitchClassNumber
-  return spellWrittenKey(writtenTonic, collection).signature
+  return jamWrittenKey(tonalCenter, collection).signature
 }
 
 /**
@@ -83,6 +94,23 @@ export function emptySystemStaffOf(
     rangeInClef: jamInstrumentRangeInClef(settings.instrumentProfileId, settings.myInstrument),
     signature: jamKeySignature(settings.tonalCenter, settings.collection),
   }
+}
+
+/**
+ * Intent: the empty system's accessible name for Jam's settings, worded as a phrase's summary is
+ * but naming no measures: "Empty staff, bass clef, key signature 2 flats (B flat Ionian), 4/4 time."
+ */
+// @spec-link [[rule_jam_idle_shows_no_phrase]]
+export function emptySystemNameOf(
+  settings: Pick<
+    JamStaffProps,
+    'tonalCenter' | 'collection' | 'instrumentProfileId' | 'myInstrument'
+  >,
+): string {
+  return describeEmptySystem(
+    instrumentClefOf(settings.instrumentProfileId, settings.myInstrument),
+    jamWrittenKey(settings.tonalCenter, settings.collection),
+  )
 }
 
 /**

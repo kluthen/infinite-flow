@@ -3,7 +3,10 @@
  * every load, a reload in Jam mode included; the switch works at Idle only, read-only during
  * Loading, a session and the review mode; the first press of `Jam` in a visit fetches Jam's code
  * chunk, never before and never again; while it loads the workspace is held and `Session` cancels;
- * a failed load leaves session mode as it was under Jam's load-failure notice; leaving Jam mode
+ * a failed load leaves session mode as it was under Jam's load-failure notice, focus on its
+ * `Try again` unless a sheet is open as the wait ends, when focus stays in the sheet; the score
+ * title reads `Jam` in Jam mode and `Four-measure phrase` otherwise, while Jam's code loads
+ * included; leaving Jam mode
  * returns session mode with its phrase and its pre-generated phrases untouched, pre-generation
  * resuming where it stopped; a controller arriving or leaving never switches the mode; and once
  * the service worker has kept the build, Jam mode opens offline. On the workspace harness (port
@@ -24,6 +27,12 @@ import {
 import { sessionEndedAfter } from '../review/review-helpers'
 import { allSessions, listTitle } from '../review/session-list-helpers'
 import { toBarline } from '../session/rolling-helpers'
+import {
+  footerYourData,
+  openYourData,
+  sheetButton,
+  yourDataSheet,
+} from '../storage/your-data-helpers'
 import {
   DESKTOP,
   PREGENERATION_OFF,
@@ -51,6 +60,7 @@ import {
   modeSwitch,
   openingSeen,
   refuseJamChunk,
+  scoreTitle,
   sessionFrame,
   waitForServiceWorkerReady,
   watchJamChunk,
@@ -253,6 +263,9 @@ test('while Jam mode opens the workspace is held, and Session cancels the openin
   )
   await expect(sessionFrame(page)).toHaveClass(/staff-ready/)
   await expect(jamFrame(page)).toHaveCount(0)
+  await expect(scoreTitle(page), 'the title follows the mode shown, not the switch').toHaveText(
+    'Four-measure phrase',
+  )
 
   await modeSegment(page, 'Session').click()
   await expectSessionModeAsLeft(page, timeline)
@@ -287,6 +300,58 @@ test("a failed load leaves session mode as it was under Jam's load-failure notic
   await expect(jamNotice(page).locator('p')).toHaveText(JAM_LOAD_FAILED)
   await expect(jamNoticeButton(page, 'Try again')).toBeFocused()
   await expectSessionModeAsLeft(page, timeline)
+})
+
+// @test-link [[module_workspace_mode]]
+test('a load failing while a sheet is open shows the notice, focus staying in the sheet', async ({
+  page,
+}) => {
+  await gotoHarness(page)
+  await readyToStart(page)
+  const timeline = await shownTimeline(page)
+  const held = await holdJamChunk(page)
+  await modeSegment(page, 'Jam').click()
+  await expect.poll(held.requests).toBe(1)
+  await openYourData(page)
+
+  await held.refuse()
+
+  await expect(jamNotice(page).locator('p')).toHaveText(JAM_LOAD_FAILED)
+  await expectChecked(page, 'Session')
+  await settleAWhile(page)
+  await expect(sheetButton(page, 'Done')).toBeFocused()
+
+  // The sheet's own closing rule then applies: focus back to its opener.
+  await sheetButton(page, 'Done').click()
+  await expect(yourDataSheet(page)).toHaveCount(0)
+  await expect(footerYourData(page)).toBeFocused()
+  await expect(jamNotice(page)).toHaveCount(1)
+  await expectSessionModeAsLeft(page, timeline)
+})
+
+// @test-link [[module_workspace_mode]]
+test('a load ending while a sheet is open shows Jam mode under it, focus staying in the sheet', async ({
+  page,
+}) => {
+  await gotoHarness(page)
+  await readyToStart(page)
+  const held = await holdJamChunk(page)
+  await modeSegment(page, 'Jam').click()
+  await expect.poll(held.requests).toBe(1)
+  await openYourData(page)
+
+  await held.release()
+
+  await expect(modeSwitch(page)).not.toHaveClass(/is-loading/)
+  await expectChecked(page, 'Jam')
+  await expect(jamFrame(page)).toHaveCount(1)
+  await expect(scoreTitle(page)).toHaveText('Jam')
+  await settleAWhile(page)
+  await expect(sheetButton(page, 'Done')).toBeFocused()
+
+  await sheetButton(page, 'Done').click()
+  await expect(footerYourData(page)).toBeFocused()
+  await expectJamModeShows(page)
 })
 
 // Chromium keeps a failed dynamic import in its module map for the visit: the loader retries under

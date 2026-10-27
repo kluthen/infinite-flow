@@ -623,6 +623,14 @@ for (const controller of ['without', 'with'] as const) {
         })
         .click()
       await expect(page.locator('.staff-frame.staff-jam svg.staff-svg')).toHaveCount(1)
+      // The empty system is an image named as a phrase's summary names its staff (ux D351).
+      await expect(
+        page.locator('.staff-frame.staff-jam').getByRole('img', {
+          name: 'Empty staff, treble clef, key signature no sharps or flats (C Ionian), 4/4 time.',
+          exact: true,
+        }),
+      ).toHaveCount(1)
+      await expect(page.locator('#score-panel-title')).toHaveText('Jam')
       const cue = controller === 'with' ? '.start-note-line' : '.jam-needs-controller'
       await expect(page.locator(`.session-cue-row ${cue}`)).toBeVisible()
       await page.waitForFunction(() =>

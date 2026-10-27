@@ -1,7 +1,8 @@
 /**
  * Shared helpers for the mode switch spec (v3.2 chunk 20): the header's `mode-switch` and its two
- * segments, what session mode and Jam mode show, the refusals of a read-only switch, Jam's built
- * code chunk (`assets/jam-mode-*.js`) watched, held or refused on the network, a record of whether
+ * segments, what session mode and Jam mode show (the score title among it), the refusals of a
+ * read-only switch, Jam's built code chunk (`assets/jam-mode-*.js`) watched, held then let through
+ * or refused, or refused at once, on the network, a record of whether
  * the switch ever took `is-loading`, Jam's load-failure notice, and the wait for the production
  * build's service worker.
  */
@@ -59,17 +60,24 @@ export function sessionFrame(page: Page): Locator {
   return sessionViewport(page).locator(':scope > .staff-frame')
 }
 
+/** Intent: the score panel's title, `h2#score-panel-title`, which also names the staff frame. */
+export function scoreTitle(page: Page): Locator {
+  return page.locator('.score-toolbar h2#score-panel-title')
+}
+
 /** Intent: Jam's staff frame, rendered only while Jam mode shows. */
 export function jamFrame(page: Page): Locator {
   return page.locator('.score-panel .staff-frame.staff-jam')
 }
 
 /**
- * Intent: assert Jam mode shows: `Jam` checked and not loading, Jam's staff frame in the staff's
- * place with session mode's out of sight, `Start Jam` and `Generate phrase` disabled.
+ * Intent: assert Jam mode shows: `Jam` checked and not loading, the score titled `Jam`, Jam's staff
+ * frame in the staff's place with session mode's out of sight, `Start Jam` and `Generate phrase`
+ * disabled.
  */
 export async function expectJamModeShows(page: Page): Promise<void> {
   await expectChecked(page, 'Jam')
+  await expect(scoreTitle(page)).toHaveText('Jam')
   await expect(modeSwitch(page)).not.toHaveClass(/is-loading/)
   await expect(modeSwitch(page)).not.toHaveAttribute('aria-busy')
   await expect(jamFrame(page)).toBeVisible()
@@ -81,11 +89,12 @@ export async function expectJamModeShows(page: Page): Promise<void> {
 }
 
 /**
- * Intent: assert session mode shows at Idle: `Session` checked and not loading, no Jam view, its
- * staff in sight, the session action `Start session`.
+ * Intent: assert session mode shows at Idle: `Session` checked and not loading, the score titled
+ * `Four-measure phrase`, no Jam view, its staff in sight, the session action `Start session`.
  */
 export async function expectSessionModeShows(page: Page): Promise<void> {
   await expectChecked(page, 'Session')
+  await expect(scoreTitle(page)).toHaveText('Four-measure phrase')
   await expect(modeSwitch(page)).not.toHaveClass(/is-loading/)
   await expect(modeSwitch(page)).not.toHaveAttribute('aria-busy')
   await expect(jamFrame(page)).toHaveCount(0)
@@ -121,23 +130,25 @@ export function watchJamChunk(page: Page): string[] {
   return urls
 }
 
-/** Jam's code chunk held on the network until the test lets it through. */
+/** Jam's code chunk held on the network until the test lets it through or refuses it. */
 export interface HeldJamChunk {
   /** How many requests for it reached the route. */
   readonly requests: () => number
   /** Let every held request through to the server; resolves once its response has finished. */
   readonly release: () => Promise<void>
+  /** Refuse every held request, as a network gone away does; resolves once it has failed. */
+  readonly refuse: () => Promise<void>
 }
 
-/** Intent: hold every request for Jam's code chunk until `release`. */
+/** Intent: hold every request for Jam's code chunk until `release` or `refuse`. */
 export async function holdJamChunk(page: Page): Promise<HeldJamChunk> {
   let requests = 0
-  let open!: () => void
-  const released = new Promise<void>((resolve) => (open = resolve))
+  let settle!: (outcome: 'release' | 'refuse') => void
+  const settled = new Promise<'release' | 'refuse'>((resolve) => (settle = resolve))
   await page.route(JAM_CHUNK, async (route) => {
     requests += 1
-    await released
-    await route.continue()
+    if ((await settled) === 'release') await route.continue()
+    else await route.abort('internetdisconnected')
   })
   return {
     requests: () => requests,
@@ -145,8 +156,13 @@ export async function holdJamChunk(page: Page): Promise<HeldJamChunk> {
       const finished = page.waitForEvent('requestfinished', (request) =>
         JAM_CHUNK.test(request.url()),
       )
-      open()
+      settle('release')
       await finished
+    },
+    refuse: async () => {
+      const failed = page.waitForEvent('requestfailed', (request) => JAM_CHUNK.test(request.url()))
+      settle('refuse')
+      await failed
     },
   }
 }

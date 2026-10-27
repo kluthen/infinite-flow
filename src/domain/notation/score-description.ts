@@ -12,10 +12,14 @@
  *   immediately before the tick it starts at, or a run of comma-joined note/rest tokens
  *   ("<pitch> <octave> [dotted ]<value>[, tied to next]" / "rest [dotted ]<value>") covering every
  *   event up to the next chord change.
+ * - `describeEmptySystem`, the name of Jam's empty system, follows the summary without the
+ *   display convention and the measures: "Empty staff, <clef> clef, key signature <...> (<tonic>
+ *   <collection>), 4/4 time."
  * - accidentals are always spelled as words from the pitch's letter/alteration ('F sharp', 'B
  *   flat', 'double sharp', 'double flat'); the word 'natural' is added only when the written note
  *   carries a displayed natural sign.
  */
+import type { InstrumentClef } from '../profile/instrument-clef'
 import { pitchClassText } from './pitch-spelling'
 import { NotationInputError } from './written-phrase-types'
 import type {
@@ -99,14 +103,25 @@ function signatureWords(signature: WrittenKey['signature']): string {
   return `${signature.count} ${noun}`
 }
 
+/** Intent: render a clef, a key and the 4/4 meter as words, as a phrase's summary names them. */
+function clefKeyAndMeterWords(clef: InstrumentClef, key: WrittenKey): string {
+  const signature = signatureWords(key.signature)
+  const label = spellAccidentalsAsWords(key.label)
+  return `${clef} clef, key signature ${signature} (${label}), 4/4 time`
+}
+
 /** Intent: build the one-line summary of a written phrase's clef, key and meter. */
 function summaryOf(phrase: WrittenPhrase): string {
-  const signature = signatureWords(phrase.key.signature)
-  const label = spellAccidentalsAsWords(phrase.key.label)
-  return (
-    `Written notation, ${phrase.clef} clef, key signature ${signature} (${label}), ` +
-    `4/4 time, four measures.`
-  )
+  return `Written notation, ${clefKeyAndMeterWords(phrase.clef, phrase.key)}, four measures.`
+}
+
+/**
+ * Intent: name Jam's empty system as a phrase's summary names its staff, naming no measures:
+ * "Empty staff, treble clef, key signature 1 sharp (G Ionian), 4/4 time."
+ */
+// @spec-link [[rule_jam_idle_shows_no_phrase]]
+export function describeEmptySystem(clef: InstrumentClef, key: WrittenKey): string {
+  return `Empty staff, ${clefKeyAndMeterWords(clef, key)}.`
 }
 
 /**
