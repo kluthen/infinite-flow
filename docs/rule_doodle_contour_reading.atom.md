@@ -7,7 +7,8 @@ human_name: Contour Read From the Doodle
 tags: [v3, release-v3.2, jam, melody]
 parents:
   - [[rule_doodle_sets_jam_controls]]
-dependents: []
+dependents:
+  - [[module_doodle_controls]]
 version: 0.1
 priority: 1
 ---

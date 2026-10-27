@@ -10,7 +10,8 @@ parents:
   - [[rule_session_start_conditions]]
 priority: 1
 human_name: When a Jam Can Start
-dependents: []
+dependents:
+  - [[module_jam_idle_notes]]
 ---
 
 # When a Jam Can Start

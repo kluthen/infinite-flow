@@ -3,7 +3,8 @@ id: rule_jam_melody_follows_doodle_moves
 status: DRAFT
 version: 0.2
 priority: 1
-dependents: []
+dependents:
+  - [[module_steering_block_builder]]
 type: RULE
 human_name: A Jam's Melody Follows the Doodle's Moves
 tags: [v3, release-v3.2, session, jam, melody]

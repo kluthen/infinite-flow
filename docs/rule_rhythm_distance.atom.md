@@ -11,6 +11,7 @@ parents:
   - [[req_rhythm_lock]]
 dependents:
   - [[entity_rhythm_candidate_domain]]
+  - [[module_rhythm_steering]]
 type: RULE
 ---
 

@@ -9,7 +9,8 @@ tags: [v3, release-v3.2, jam, session-mode, idle]
 priority: 1
 parents:
   - [[req_jam]]
-dependents: []
+dependents:
+  - [[module_workspace_mode]]
 ---
 
 # The Mode Button Works at Idle Only

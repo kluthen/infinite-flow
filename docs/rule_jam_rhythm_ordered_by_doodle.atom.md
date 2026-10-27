@@ -1,7 +1,9 @@
 ---
 id: rule_jam_rhythm_ordered_by_doodle
 status: DRAFT
-dependents: []
+dependents:
+  - [[module_rhythm_steering]]
+  - [[module_steering_block_builder]]
 layer: BUSINESS
 priority: 1
 type: RULE

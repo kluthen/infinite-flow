@@ -7,7 +7,8 @@ human_name: Rhythmic Variety Read From the Doodle
 tags: [v3, release-v3.2, jam, rhythm]
 parents:
   - [[rule_doodle_sets_jam_controls]]
-dependents: []
+dependents:
+  - [[module_doodle_controls]]
 type: RULE
 layer: BUSINESS
 ---

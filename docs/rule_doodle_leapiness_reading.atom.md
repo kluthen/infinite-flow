@@ -1,7 +1,8 @@
 ---
 id: rule_doodle_leapiness_reading
 status: DRAFT
-dependents: []
+dependents:
+  - [[module_doodle_controls]]
 layer: BUSINESS
 version: 0.1
 human_name: Leapiness Read From the Doodle

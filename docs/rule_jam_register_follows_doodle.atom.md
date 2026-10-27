@@ -2,7 +2,8 @@
 id: rule_jam_register_follows_doodle
 status: DRAFT
 human_name: A Jam's Register Is Read From the Doodle's Last Note
-dependents: []
+dependents:
+  - [[module_doodle_controls]]
 type: RULE
 layer: BUSINESS
 version: 0.2

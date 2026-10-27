@@ -1,7 +1,8 @@
 ---
 id: rule_doodle_syncopation_reading
 status: DRAFT
-dependents: []
+dependents:
+  - [[module_doodle_controls]]
 layer: BUSINESS
 priority: 1
 human_name: Syncopation Read From the Doodle

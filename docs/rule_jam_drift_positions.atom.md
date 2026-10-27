@@ -9,7 +9,9 @@ tags: [v3, release-v3.2, session, jam, rhythm, melody]
 priority: 1
 parents:
   - [[req_jam]]
-dependents: []
+dependents:
+  - [[module_rhythm_steering]]
+  - [[module_steering_block_builder]]
 ---
 
 # Jam's Drift
