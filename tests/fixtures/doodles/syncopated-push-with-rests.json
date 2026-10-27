@@ -1,0 +1,52 @@
+{
+  "name": "syncopated-push-with-rests",
+  "source": "hand-written",
+  "description": "An eighth-note tune that pushes one note across beat 2, then breathes: each measure ends in a rest.",
+  "traits": {
+    "measureCount": 2,
+    "noteCount": 8,
+    "density": "moderate",
+    "leaping": false,
+    "oneNote": false,
+    "chord": false,
+    "graceNote": false,
+    "strayNote": false,
+    "lastNote": "inside-windows",
+    "aimedAt": {
+      "noteDensity": "Eighth",
+      "rhythmicVariety": "Heavily varied",
+      "syncopation": "Occasional offbeats",
+      "silenceDensity": "Conversational"
+    },
+    "listeningMeasure": false,
+    "notes": "Written for the Eighth, Occasional offbeats and Conversational aim once a short silence stopped counting as a rest (spec D440): the first measure's second note is held across beat 2, and each measure closes on a rest of at least a quarter note (six ticks, then four). The second note is released just after the third starts and is cut by it."
+  },
+  "capture": {
+    "gridOriginAt": 8.36,
+    "tempoBpm": 120,
+    "endMeasure": 2,
+    "notes": [
+      { "onsetAt": 8.372, "releaseAt": 8.598, "pitch": 64 },
+      { "onsetAt": 8.624, "releaseAt": 9.131, "pitch": 67 },
+      { "onsetAt": 9.104, "releaseAt": 9.322, "pitch": 65 },
+      { "onsetAt": 9.371, "releaseAt": 9.587, "pitch": 64 },
+      { "onsetAt": 10.348, "releaseAt": 10.583, "pitch": 62 },
+      { "onsetAt": 10.627, "releaseAt": 10.851, "pitch": 64 },
+      { "onsetAt": 10.866, "releaseAt": 11.338, "pitch": 65 },
+      { "onsetAt": 11.379, "releaseAt": 11.83, "pitch": 67 }
+    ]
+  },
+  "quantized": {
+    "measureCount": 2,
+    "notes": [
+      { "startTick": 0, "lengthTicks": 2, "pitch": 64 },
+      { "startTick": 2, "lengthTicks": 4, "pitch": 67 },
+      { "startTick": 6, "lengthTicks": 2, "pitch": 65 },
+      { "startTick": 8, "lengthTicks": 2, "pitch": 64 },
+      { "startTick": 16, "lengthTicks": 2, "pitch": 62 },
+      { "startTick": 18, "lengthTicks": 2, "pitch": 64 },
+      { "startTick": 20, "lengthTicks": 4, "pitch": 65 },
+      { "startTick": 24, "lengthTicks": 4, "pitch": 67 }
+    ]
+  }
+}
