@@ -1,4 +1,5 @@
 import { deepFreeze } from '../events/deep-freeze'
+import { pitchSteeringTerm } from '../generation/steering/pitch-steering'
 import {
   advanceContour,
   contourComplete,
@@ -184,7 +185,9 @@ function favoredError(candidate: PitchCandidate, favored: FavoredEntry): string 
  * their ranking facts and are deep-frozen; internal search steps skip both because the search only
  * reads `kind` and `nextState`, and never exposes or mutates either. A `favored` entry tries the
  * candidate as its drawn figure: the figure reducer reads a held free tone with the entry's hold
- * as its one allowed resolution, and the ranking facts rank it as the search does.
+ * as its one allowed resolution, and the ranking facts rank it as the search does. With a steering
+ * block in the request, the ranking facts carry the block's move preference for the note last, as
+ * the search ranks it.
  */
 function transition(
   context: PitchSearchContext,
@@ -248,6 +251,11 @@ function transition(
         candidate,
         priorSoundingMidi(state),
         favored,
+        pitchSteeringTerm(
+          context.input.request.steering,
+          attack.attackIndex,
+          context.input.request.carryIn !== undefined,
+        ),
       )
     : UNREAD_RANKING_FACTS
   return finish({ kind: 'accepted', nextState, rankingFacts })
