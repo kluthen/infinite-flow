@@ -602,7 +602,8 @@ detection, scoring, and the rolling continuation flow remain outside this releas
 
 ## Open Issues
 
-| Name                                                                                                               | Date       | Status | Severity | Oneliner                                                                         |
-| ------------------------------------------------------------------------------------------------------------------ | ---------- | ------ | -------- | -------------------------------------------------------------------------------- |
-| [The timeline parser accepts a hole in its measures](issues/Ref_20261019_timeline_parser_accepts_holes.md)         | 2026-10-19 | Open   | Low      | `parseConcertEventTimeline`, the boundary parser for an untrusted timeline, a... |
-| [A rising up-stemmed beam can run through a chord symbol](issues/Ref_20261005_chord_symbol_through_rising_beam.md) | 2026-10-05 | Open   | Medium   | In a beam group stemmed up whose beam rises above the staff's text line, the ... |
+| Name                                                                                                                                                        | Date       | Status | Severity | Oneliner                                                                         |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ------ | -------- | -------------------------------------------------------------------------------- |
+| [A joined phrase's first note is pinned at the window's edge, where its contour cannot start](issues/Ref_20261027_join_first_note_pinned_at_window_edge.md) | 2026-10-27 | Open   | Medium   | A phrase generated with carry-in may end on a tense note (a scale tone outsid... |
+| [The timeline parser accepts a hole in its measures](issues/Ref_20261019_timeline_parser_accepts_holes.md)                                                  | 2026-10-19 | Open   | Low      | `parseConcertEventTimeline`, the boundary parser for an untrusted timeline, a... |
+| [A rising up-stemmed beam can run through a chord symbol](issues/Ref_20261005_chord_symbol_through_rising_beam.md)                                          | 2026-10-05 | Open   | Medium   | In a beam group stemmed up whose beam rises above the staff's text line, the ... |
