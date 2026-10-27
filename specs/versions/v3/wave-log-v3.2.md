@@ -869,3 +869,17 @@ wording (a shared setting changed in Jam mode acts on the return), revisions and
 add, and the spec gap on what Jam's Idle prewarms before any doodle; 28's atoms, capture line,
 the window-centre tie, DS's revision; 8's revisions, Files, timing step, drift checks; 9's Files
 (`pitch-advance.ts`), drift checks, a `module_pitch_steering` atom at the sync.
+
+Plan v21 (`spec-writer`, 47c8063; spec D440–D444, Part C v1.12): every correction applied. D440
+DS answered (gate DS done, O268 closed); D441 a tie between two window centres goes to Middle;
+D442 before any doodle, Jam's Idle prewarms the first-visit rhythm values with Jam's tension; D443
+DR re-scoped (blocks v3.2 H5 and the release gate's recorded-doodle tests, not chunk 28); D444 the
+preflight's corrections. Chunk 8 now also depends on 28 (its Done when runs over the builder's
+blocks). Under D440, `eighth-offbeats` and `tresillo-leaps` read Sparse silence: chunk 28 corrects
+their `aimedAt` and adds one hand-written doodle aimed at Conversational. Order: 9 → 20 → 28 → 7
+→ 8 (8 once LD clears). Left for the sync: the lexicon's Doodle entry could say a short gap is
+part of the note (staccato).
+
+### Chunks
+
+- 9 dispatched (2026-10-27) to `coding-leader`, branch `v3.2-c9-melody-steering`.
