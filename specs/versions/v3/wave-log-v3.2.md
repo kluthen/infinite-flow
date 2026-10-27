@@ -827,3 +827,45 @@ DRAFT → REVIEW; `ui_toggle_list` 0.3 (ux D350). Gate CR done. Wave 3 merged in
 worktrees and branches removed.
 Next: wave 4 (chunks 20, 28, 7, 8, 9) waits on the owner's gates LD (chunk 8), DR and DS (chunk
 28); hand checks v3.2 H2, H3 open (L3). Dev-tool security batch still pending as its own unit.
+
+## Wave 4 (2026-10-27)
+
+Chunks 20, 28, 7, 8, 9 (order 9 → 20 → 28 → 7, with 8 once LD clears). Branch `v3.2-w4` from
+`main` 6958001, worktree `/home/bastien/work/infinite_flow-v3.2-w4`.
+
+### The owner's answers on the wave's gates (2026-10-27)
+
+- DS (O268): "Part of the notes", as proposed. A silence is a rest only where a whole rest of the
+  doodle's note density value fits inside it on that grid, its rest start at the first such grid
+  tick; the silence density reading counts the same rests. Sent to `spec-writer` for Part C and
+  chunk 28.
+- LD: the owner runs v3.2 H1 during this wave; chunk 8 waits for the ranking and leaves the wave if
+  it has not come by the end.
+- DR: chunk 28 builds and tests on the twelve hand-written doodles; the owner's recordings join the
+  set later, before H5 ("I'll still attempt this afternoon to do some hardware testing"). DR then
+  blocks H5, not chunk 28 (sent to `spec-writer`).
+
+### Preflight
+
+`documentalist` (2d0525c, "ATD: wave 4 preflight and captures"). No halt.
+- 20: PROCEED. Its "(contract, CS)" revisions (M1, M2) are checked at the sync.
+- 28: PROCEED-WITH-SIGNOFF-PENDING: DS decides the rest starts (`module_steering_block_builder`)
+  and `rule_doodle_silence_density_reading`; the tie between two equally near window centres is a
+  spec gap.
+- 7: PROCEED. Its two revisions must take in phrase 1 joined from no phrase. For chunk 18: a "no
+  phrase" carry-in takes the carry-in search fuel (160,000); M1 confirms its margin.
+- 8: PROCEED-WITH-SIGNOFF-PENDING: LD decides `rule_rhythm_distance`'s scale and the bands of
+  `rule_jam_drift_positions`. "Revisions: none" is stale (O3, D425, D428 owe business revisions).
+- 9: PROCEED.
+
+Captures (DRAFT): `module_workspace_mode`, `module_jam_code_boundary`, `module_jam_idle_notes` 0.1
+and `module_idle_pregeneration_queue` 0.10 (20); `module_doodle_controls` (with the register
+window chunk 7 reads), `module_steering_block_builder` 0.1 (28); `module_rhythm_steering` 0.1 (8).
+No new contract sign-off gate.
+
+Plan corrections sent to `spec-writer` before the first chunk: 20's atoms, Files (new files, the
+`src/jam/` lint rule, the session starting note and MIDI files, maybe the cue row), Revisions
+wording (a shared setting changed in Jam mode acts on the return), revisions and drift checks to
+add, and the spec gap on what Jam's Idle prewarms before any doodle; 28's atoms, capture line,
+the window-centre tie, DS's revision; 8's revisions, Files, timing step, drift checks; 9's Files
+(`pitch-advance.ts`), drift checks, a `module_pitch_steering` atom at the sync.
