@@ -131,6 +131,24 @@ describe('session controller: the starting note starts the session', () => {
     rig.controller.dispose()
   })
 
+  // @test-link [[module_workspace_mode]]
+  // @test-link [[rule_leaving_jam_mode_keeps_session_mode]]
+  it('names nothing and starts nothing while session mode is held, and names it again after', async () => {
+    const rig = controllerRig()
+    await connectKeys(rig)
+    const pitch = rigStartingNote(rig).concertPitch
+    rig.sessionModeHeld.value = true
+    expect(rig.controller.state.startingNote).toBeNull()
+
+    press(rig, pitch)
+
+    expectNothingStarted(rig)
+    lift(rig, pitch)
+    rig.sessionModeHeld.value = false
+    expect(rig.controller.state.startingNote).toEqual(rigStartingNote(rig))
+    rig.controller.dispose()
+  })
+
   // @test-link [[rule_midi_never_blocks_session]]
   it.each(BLOCKERS)('names nothing and starts nothing with $name', async ({ block }) => {
     const rig = controllerRig()

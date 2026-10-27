@@ -32,9 +32,13 @@
  * ends with the page footer and hosts the Your data sheet (./use-your-data.ts), opened from the
  * footer, the session list's header and the storage-full notice, loaded on demand. It hosts the
  * preset bar's actions and the preset sheet (./use-preset-sheet.ts), loaded on demand, whose
- * refused saves the notice row tells.
+ * refused saves the notice row tells. It holds the workspace's mode (./use-workspace-mode.ts),
+ * session mode at every load: the header's mode switch changes it, Jam's view takes the staff's
+ * place while Jam mode shows, and while Jam mode opens the controls are read-only and both header
+ * actions disabled; whether session mode is held is reported to the workspace as it changes. A
+ * failed opening shows Jam's load-failure notice in the notice row, focus on its `Try again`.
  */
-import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, nextTick, onMounted, ref, watch } from 'vue'
 
 import type { GenerationSession } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
@@ -79,6 +83,8 @@ import { useWorkspaceFocus } from './use-workspace-focus'
 import { useMyInstrumentSheet } from './use-my-instrument-sheet'
 import { usePresetSheet, type PresetStore } from './use-preset-sheet'
 import { useYourData } from './use-your-data'
+import { loadJamMode } from './load-jam-mode'
+import { useWorkspaceMode } from './use-workspace-mode'
 
 // The stale-phrase prompt, in its own chunk: only a stale phrase 1 at a start needs it.
 const StalePhrasePrompt = defineAsyncComponent(() => import('./StalePhrasePrompt.vue'))
@@ -162,6 +168,7 @@ const systemPositionUnits = computed(() =>
 const layoutRoot = ref<HTMLElement | null>(null)
 const header = ref<InstanceType<typeof WorkspaceHeader> | null>(null)
 const scorePanel = ref<InstanceType<typeof ScorePanel> | null>(null)
+const noticeRow = ref<InstanceType<typeof AppNoticeRow> | null>(null)
 
 // The one volume popover of the page: its id is unique, since the workspace is rendered once.
 // @spec-link [[req_session_audio_mix]]
@@ -189,6 +196,37 @@ const { controlsReadonly, shownSettings, startSettings } = useShownSettings({
   controller: () => props.controller,
   sessionActive: () => sessionActive.value,
 })
+
+const emit = defineEmits<{
+  /**
+   * The connection sheet, the My instrument sheet, the Your data sheet or the preset sheet opened
+   * or closed (also once at setup, closed): whether any is open, emitted synchronously inside the
+   * change, so the workspace's flag, which keeps a MIDI note from starting a session, never lags
+   * the sheets.
+   */
+  'connection-sheet-open-change': [open: boolean]
+  /**
+   * Session mode's hold began or ended (also once at setup, not held): held while Jam mode opens
+   * or shows, when it prepares nothing and no note starts a session; emitted synchronously inside
+   * the change, so the workspace's flag never lags the mode.
+   */
+  'session-mode-held-change': [held: boolean]
+}>()
+
+// The workspace's mode: session mode at every load, Jam's code loaded on the first press of Jam.
+// @spec-link [[module_workspace_mode]]
+const workspaceMode = useWorkspaceMode({
+  operationRunning: () => state.value.operation !== 'idle',
+  sessionActive: () => sessionActive.value,
+  reviewShowing: () =>
+    props.controller?.state.review?.showing === true ||
+    props.controller?.state.listShowing === true,
+  load: loadJamMode,
+  onHeldChange: (held) => emit('session-mode-held-change', held),
+  onLoadFailed: () => void nextTick(() => requireNoticeRow().focusJamTryAgain()),
+})
+/** The controls are read-only: during a session, as the session holds them, or while Jam opens. */
+const settingsReadonly = computed(() => controlsReadonly.value || workspaceMode.opening.value)
 
 // The player presets' refused saves, which the preset actions tell and the notice row hears.
 const refusedPresetSaves = createRefusedPresetSaves()
@@ -224,20 +262,10 @@ const {
 } = useSessionOptions({
   controller: () => props.controller,
   requireController,
-  controlsReadonly: () => controlsReadonly.value,
+  controlsReadonly: () => settingsReadonly.value,
   savedSessionOptions: () => props.savedSessionOptions,
   saveSettings: injectSaveSettings(),
 })
-
-const emit = defineEmits<{
-  /**
-   * The connection sheet, the My instrument sheet, the Your data sheet or the preset sheet opened
-   * or closed (also once at setup, closed): whether any is open, emitted synchronously inside the
-   * change, so the workspace's flag, which keeps a MIDI note from starting a session, never lags
-   * the sheets.
-   */
-  'connection-sheet-open-change': [open: boolean]
-}>()
 
 // The My instrument sheet, opened by `instrument-actions`; focus returns to that button.
 // @spec-link [[req_my_instrument]]
@@ -417,6 +445,19 @@ function focusFallback(): void {
   else focusTarget('controller-status')
 }
 
+/** Intent: the mounted notice row; asking for it while it shows no notice is a defect. */
+function requireNoticeRow(): InstanceType<typeof AppNoticeRow> {
+  if (noticeRow.value === null) throw new Error('workspace shell: the notice row is not shown')
+  return noticeRow.value
+}
+
+/** Intent: Jam's load-failure notice's `Dismiss`: the notice goes, focus to the fallback. */
+// @spec-link [[module_workspace_mode]]
+function handleDismissJamFailure(): void {
+  workspaceMode.dismissFailure()
+  focusFallback()
+}
+
 /** Intent: `Dismiss`: remove the notice, and move focus to the workspace's fallback. */
 // @spec-link [[rule_failed_save_never_disturbs_session]]
 function handleDismissAppNotice(): void {
@@ -443,6 +484,8 @@ const controlPanelActions = useControlPanelActions(props.session)
       :session="session"
       :controller="controller"
       :controller-status="controllerStatus.form.value"
+      :workspace-mode="workspaceMode.view.value"
+      @select-mode="workspaceMode.select"
       @start-session="handleStartSession"
       @stop-session="handleStopSession"
       @close-review="reviewNavigation.closeReview"
@@ -450,9 +493,13 @@ const controlPanelActions = useControlPanelActions(props.session)
     />
     <div class="layout-workspace">
       <AppNoticeRow
-        v-if="appNotice !== null"
+        v-if="appNotice !== null || workspaceMode.loadFailed.value"
+        ref="noticeRow"
         :notice="appNotice"
         :disabled="appNoticeActionsDisabled"
+        :jam-load-failed="workspaceMode.loadFailed.value"
+        @jam-try-again="workspaceMode.retry"
+        @jam-dismiss="handleDismissJamFailure"
         @dismiss="handleDismissAppNotice"
         @reload="reloadPage"
         @your-data="yourData.open"
@@ -470,6 +517,7 @@ const controlPanelActions = useControlPanelActions(props.session)
         :controller="controller"
         :system-position-units="systemPositionUnits"
         :saved-review-preferences="savedReviewPreferences"
+        :jam-view="workspaceMode.jamView.value"
         @stop-session="handleStopSession"
         @show-review="reviewNavigation.showReview"
         @show-sessions="reviewNavigation.showSessions"
@@ -480,7 +528,7 @@ const controlPanelActions = useControlPanelActions(props.session)
         :figure-levels="shownSettings.figureLevels"
         :selection="shownSettings.selection"
         :presets="state.presets"
-        :readonly="controlsReadonly"
+        :readonly="settingsReadonly"
         :note-density-context="state.noteDensityContext"
         :rising-tempo="risingTempo.on.value"
         :rising-tempo-available="risingTempo.available.value"
@@ -494,9 +542,9 @@ const controlPanelActions = useControlPanelActions(props.session)
         :session-options-readonly="sessionOptionsReadonly"
         :start-settings="startSettings"
         :my-instrument="state.myInstrument"
-        :instrument-actions-disabled="controlsReadonly || state.operation !== 'idle'"
+        :instrument-actions-disabled="settingsReadonly || state.operation !== 'idle'"
         :preset-actions="presetSheet.row.value"
-        :preset-actions-disabled="sessionActive"
+        :preset-actions-disabled="sessionActive || workspaceMode.opening.value"
         @open-my-instrument="myInstrumentSheet.open"
         @preset-action="presetSheet.act"
         @set-control="controlPanelActions.setControl"

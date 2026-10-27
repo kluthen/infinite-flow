@@ -1,0 +1,25 @@
+{
+  "chunks": [
+    {
+      "fileName": "assets/index-a1.js",
+      "isEntry": true,
+      "imports": ["assets/shared-b2.js"],
+      "dynamicImports": [],
+      "modules": ["src/App.vue", "src/main.ts"]
+    },
+    {
+      "fileName": "assets/shared-b2.js",
+      "isEntry": false,
+      "imports": ["assets/quantizer-c3.js"],
+      "dynamicImports": [],
+      "modules": ["src/domain/doodle/quantized-doodle.ts"]
+    },
+    {
+      "fileName": "assets/quantizer-c3.js",
+      "isEntry": false,
+      "imports": [],
+      "dynamicImports": [],
+      "modules": ["src/jam/doodle-quantizer.ts"]
+    }
+  ]
+}

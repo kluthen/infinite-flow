@@ -139,6 +139,7 @@ function createIdlePregeneration(
   return deps.pregeneration({
     idle: deps.idle.state,
     startBlocker,
+    sessionModeHeld: deps.sessionModeHeld,
     varySettings: flags.varySettings.on,
     tensionAcrossPhrases: flags.tensionAcrossPhrases.on,
     lockAndGroups: flags.lockAndGroups.current,
@@ -278,6 +279,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     pageActivation: deps.browser.pageActivation,
     // While the stale-phrase prompt shows, as while a sheet is open, no note starts anything.
     connectionSheetOpen: () => deps.connectionSheetOpen() || state.stalePhrasePrompt !== null,
+    sessionModeHeld: deps.sessionModeHeld,
     canStart: () => startBlocker.value === null,
     idleResult: () => idle.state.result,
     idlePhrase: deps.idlePhrase,

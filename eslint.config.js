@@ -113,12 +113,15 @@ const storageImportPattern = {
   message: 'src/session/ and src/export/ stay storage-free: they never import src/storage/.',
 }
 
-// Imports of the doodle quantizer, by alias or by relative path: forbidden everywhere in src/
-// outside src/jam/ (see the block near the end, which ignores src/jam/).
-// @spec-link [[module_doodle_quantizer]]
-const doodleQuantizerImportPattern = {
-  group: ['@/jam/doodle-quantizer', '**/jam/doodle-quantizer'],
-  message: 'Only src/jam/ may import the doodle quantizer (src/jam/doodle-quantizer.ts).',
+// Static imports of Jam's code (src/jam/, the doodle quantizer among it), by alias or by
+// relative path: forbidden everywhere in src/ outside src/jam/ and its loader (see the block near
+// the end). Type-only imports stay allowed: they are erased from the bundle.
+// @spec-link [[module_jam_code_boundary]]
+const jamImportPattern = {
+  group: ['@/jam', '@/jam/**', '**/jam', '**/jam/**'],
+  allowTypeImports: true,
+  message:
+    "Only src/jam/ and its loader (src/components/workspace/load-jam-mode.ts) may import src/jam/: Jam's code stays out of the first load.",
 }
 
 /**
@@ -242,19 +245,18 @@ export default [
       ],
     },
   },
-  // Nothing outside src/jam/ imports the doodle quantizer: Jam's code alone turns a capture into
-  // a quantized doodle. The typescript-eslint variant of the rule is used on purpose: it is a
-  // separate rule, so this block does not replace the core no-restricted-imports options of the
-  // vexflow and storage blocks above.
-  // @spec-link [[module_doodle_quantizer]]
+  // Nothing outside src/jam/ and its loader imports Jam's code statically (the doodle quantizer
+  // included: Jam's code alone turns a capture into a quantized doodle), so Jam stays out of the
+  // first load; a dynamic import() is not checked by the rule. The typescript-eslint variant of
+  // the rule is used on purpose: it is a separate rule, so this block does not replace the core
+  // no-restricted-imports options of the vexflow and storage blocks above, and it lets type-only
+  // imports through.
+  // @spec-link [[module_jam_code_boundary]]
   {
     files: ['src/**/*.{js,mjs,ts,vue}'],
-    ignores: ['src/jam/**'],
+    ignores: ['src/jam/**', 'src/components/workspace/load-jam-mode.ts'],
     rules: {
-      '@typescript-eslint/no-restricted-imports': [
-        'error',
-        { patterns: [doodleQuantizerImportPattern] },
-      ],
+      '@typescript-eslint/no-restricted-imports': ['error', { patterns: [jamImportPattern] }],
     },
   },
   prettier,

@@ -92,6 +92,15 @@ function handleConnectionSheetOpenChange(open: boolean): void {
   workspace.connectionSheetOpen.value = open
 }
 
+/**
+ * Intent: keep the workspace's session-mode-held flag, which the session controller reads, equal
+ * to the shell's mode; the shell reports every change synchronously.
+ */
+// @spec-link [[module_workspace_mode]]
+function handleSessionModeHeldChange(held: boolean): void {
+  workspace.sessionModeHeld.value = held
+}
+
 /** Intent: end any running session and stop the controller, then tear the workspace down. */
 // @spec-link [[service_session_controller]]
 onUnmounted(() => {
@@ -120,5 +129,6 @@ onUnmounted(() => {
     :preset-store="workspace.presetStore"
     :damaged-session-reports="workspace.damagedSessionReports"
     @connection-sheet-open-change="handleConnectionSheetOpenChange"
+    @session-mode-held-change="handleSessionModeHeldChange"
   />
 </template>

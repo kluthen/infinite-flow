@@ -9,7 +9,10 @@
  * session action and `controller-status` only ask: the shell starts and stops the session, closes
  * the Review and opens the connection sheet. There is no independently
  * selectable display-notation control: the score is always shown in the active instrument
- * profile's own written pitch.
+ * profile's own written pitch. After the brand sits the mode switch (./ModeSwitch.vue), whose
+ * presses it only reports. While Jam mode opens both actions are disabled in place, their labels
+ * and emphasis kept; in Jam mode (no kept doodle yet) the phrase action reads `Generate phrase`,
+ * disabled, secondary, and the session action `Start Jam`, primary.
  */
 import { computed, ref } from 'vue'
 
@@ -20,18 +23,27 @@ import type { ControllerStatusForm } from '@/midi/controller-status'
 import { APP_VERSION } from '@/storage/app-version'
 import { APP_COMMIT } from './build-id'
 import ControllerStatus from './ControllerStatus.vue'
+import ModeSwitch from './ModeSwitch.vue'
 import ThemeControl from './ThemeControl.vue'
 import { phraseActionDisabled, primaryHeaderAction } from './session-action-policy'
 import { sheetCloseFocusTarget } from './sheet-close-focus'
 import type { SessionController } from './workspace-session-controller-types'
+import type { WorkspaceMode, WorkspaceModeView } from './use-workspace-mode'
 
-const props = defineProps<{
-  session: GenerationSession<WorkspaceSessionResult>
-  /** The session controller; null while its lazy chunk loads, when `Start session` is disabled. */
-  controller: SessionController | null
-  /** The form `controller-status` shows (kept as a session started with, during it). */
-  controllerStatus: ControllerStatusForm
-}>()
+const props = withDefaults(
+  defineProps<{
+    session: GenerationSession<WorkspaceSessionResult>
+    /** The session controller; null while its lazy chunk loads, when `Start session` is disabled. */
+    controller: SessionController | null
+    /** The form `controller-status` shows (kept as a session started with, during it). */
+    controllerStatus: ControllerStatusForm
+    /** What the mode switch shows; session mode at Idle by default. */
+    workspaceMode?: WorkspaceModeView
+  }>(),
+  {
+    workspaceMode: () => ({ mode: 'session', checked: 'session', opening: false, readonly: false }),
+  },
+)
 
 const emit = defineEmits<{
   /** The enabled `Start session` was clicked; the shell starts the session inside this click. */
@@ -42,6 +54,8 @@ const emit = defineEmits<{
   'close-review': []
   /** The enabled `controller-status` was clicked; the shell opens the sheet inside this click. */
   'open-connection-sheet': []
+  /** A segment of the mode switch was pressed outside read-only; the shell decides. */
+  'select-mode': [mode: WorkspaceMode]
 }>()
 
 const phraseActionButton = ref<HTMLButtonElement | null>(null)
@@ -74,7 +88,17 @@ const primaryActionKind = computed<PrimaryActionKind>(() => {
   return 'generate'
 })
 
-const primaryActionLabel = computed(() => PRIMARY_ACTION_LABEL[primaryActionKind.value])
+/**
+ * Intent: Jam mode shows (not while it opens, when both actions keep session mode's labels and
+ * emphasis). No doodle is kept yet: the phrase action, with nothing to generate, reads `Generate
+ * phrase` in place, disabled.
+ */
+// @spec-link [[module_workspace_mode]]
+const jamShowing = computed(() => props.workspaceMode.mode === 'jam')
+
+const primaryActionLabel = computed(() =>
+  jamShowing.value ? PRIMARY_ACTION_LABEL.generate : PRIMARY_ACTION_LABEL[primaryActionKind.value],
+)
 
 /** True while any operation is running: every configuration control, including notation mode, is read-only. */
 const operationRunning = computed(() => state.value.operation !== 'idle')
@@ -114,13 +138,16 @@ const reviewShowing = computed(
  */
 // @spec-link [[rule_session_settings_locked]]
 // @spec-link [[req_last_session_review]]
-const primaryActionDisabled = computed(() =>
-  phraseActionDisabled({
-    operationRunning: operationRunning.value,
-    blockedByUnsupportedRhythm: blockedByUnsupportedRhythm.value,
-    sessionActive: sessionActive.value,
-    reviewShowing: reviewShowing.value,
-  }),
+const primaryActionDisabled = computed(
+  () =>
+    props.workspaceMode.opening ||
+    jamShowing.value ||
+    phraseActionDisabled({
+      operationRunning: operationRunning.value,
+      blockedByUnsupportedRhythm: blockedByUnsupportedRhythm.value,
+      sessionActive: sessionActive.value,
+      reviewShowing: reviewShowing.value,
+    }),
 )
 
 /**
@@ -132,8 +159,10 @@ const primaryActionDisabled = computed(() =>
 // @spec-link [[rule_stop_ends_session]]
 // @spec-link [[req_last_session_review]]
 const sessionActionDisabled = computed(() => {
-  if (props.controller === null) return true
+  if (props.workspaceMode.opening || props.controller === null) return true
   if (sessionActive.value || reviewShowing.value) return false
+  // The transitional interface: `Start Jam` stays disabled until a fresh Jam can start (chunk 21).
+  if (jamShowing.value) return true
   return !props.controller.state.canStart
 })
 
@@ -141,13 +170,18 @@ const sessionActionDisabled = computed(() => {
 // @spec-link [[req_last_session_review]]
 const sessionActionLabel = computed(() => {
   if (sessionActive.value) return 'Stop'
-  return reviewShowing.value ? 'Close review' : 'Start session'
+  if (reviewShowing.value) return 'Close review'
+  return jamShowing.value ? 'Start Jam' : 'Start session'
 })
 
-/** Intent: which of the two slots carries the primary emphasis, by the handoff's action table. */
+/**
+ * Intent: which of the two slots carries the primary emphasis, by the handoff's action table; in
+ * Jam mode without a kept doodle, always the session action.
+ */
 // @spec-link [[rule_session_start_conditions]]
 const sessionActionPrimary = computed(
   () =>
+    jamShowing.value ||
     primaryHeaderAction({
       sessionActive: sessionActive.value,
       operationRunning: operationRunning.value,
@@ -257,6 +291,7 @@ function handleThemeSelect(theme: ThemePreference): void {
         >{{ APP_VERSION }}<span aria-hidden="true"> · </span>{{ APP_COMMIT }}</span
       >
     </div>
+    <ModeSwitch :view="workspaceMode" @select="emit('select-mode', $event)" />
     <div class="header-actions">
       <div class="context-group" aria-label="Score context">
         <ControllerStatus
@@ -275,7 +310,10 @@ function handleThemeSelect(theme: ThemePreference): void {
         ref="phraseActionButton"
         class="btn btn-lg"
         type="button"
-        :class="{ 'btn-primary': !sessionActionPrimary, 'is-loading': operationRunning }"
+        :class="{
+          'btn-primary': !sessionActionPrimary,
+          'is-loading': operationRunning && !jamShowing,
+        }"
         :disabled="primaryActionDisabled"
         @click="handlePrimaryAction"
       >

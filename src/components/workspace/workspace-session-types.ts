@@ -75,6 +75,12 @@ export interface WorkspaceSession {
   // @spec-link [[rule_controller_connects_between_sessions]]
   readonly connectionSheetOpen: ShallowRef<boolean>
   /**
+   * Whether session mode is held, while Jam mode opens or shows: false at first, kept equal to the
+   * shell's own flag by the shell. Session controllers read it: while it holds, no starting note
+   * is named, no played note starts a session and the Idle pre-generation queue prepares nothing.
+   */
+  readonly sessionModeHeld: ShallowRef<boolean>
+  /**
    * The browser capabilities a session uses around its run: the screen wake lock and the
    * landscape orientation lock (requested in the Start click, released at every end), the page
    * becoming hidden and the window's shape (both judged during a session). No screen uses them
