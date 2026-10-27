@@ -911,3 +911,15 @@ part of the note (staccato).
   `doodlePrewarmControls`), `freshJamCanStart`. Risks: session controls changeable in Jam mode until
   chunk 31; the retry reads Chromium's message wording; `WorkspaceShell.vue` 442 effective lines;
   three files at the ten-atom cap.
+- 28 dispatched (2026-10-27), branch `v3.2-c28-doodle-controls`.
+- Chunk 20's design gaps: `ux-writer` (2a839cd, ux D351–D354, no owner question): D351 the empty
+  system is a named image ("Empty staff, treble clef, key signature 1 sharp (G Ionian), 4/4
+  time."); D352 it draws the opening line at the system's start (no lines between measures or at
+  the end); D353 the score title reads "Jam" while Jam mode shows (still "Four-measure phrase"
+  while Jam's code loads); D354 what is live in Loading stays live while Jam's code loads, and a
+  load ending while a sheet is open leaves focus in the sheet. Built by `coding-executor`
+  (eaaea13, merged 8848897): `describeEmptySystem` in `score-description.ts`, the name in the
+  redraw key (C Ionian and A Aeolian share a signature, not a name); a real bug fixed (a failed
+  load took focus from an open sheet). Jam e2e 22/22, accessibility 5/5, related unit 559,
+  `verify:boundaries` pass; entry 290,301 B, Jam's chunk 6,731 B. For the sync:
+  `module_workspace_mode` still reads "not built yet" in places.
