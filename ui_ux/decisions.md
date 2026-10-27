@@ -643,3 +643,14 @@ title word.
   consequences settled: a kept session deleted meanwhile lets its doodle go, so Jam mode opens
   with none; the wait ending under an open sheet moves no focus out of it. Now in
   `screens/phrase-workspace/handoff.md`, States, Opening Jam mode, and `flows/jam/handoff.md`.
+
+## v3.2 wave 4, chunk 28's question, 2026-10-27
+
+- **D355 — A rhythmic variety the step raised is marked as raised (2026-10-27; minor, D119's
+  standing rule).** The line shows the raised value, the one played, as "{value} (to work with
+  the other rhythm values)", in place of "(default)", whether the doodle's value or the default
+  was raised. "(default)" would call Heavily varied the default; the unraised value describes
+  phrases never heard; an unmarked raised doodle value claims a variety the doodle lacked.
+  Rejected: "Heavily varied (default)"; showing the unraised value. Now in
+  `screens/phrase-workspace/handoff.md`, Components and Content, Jam's controls, and
+  `intent.md`, Jam's Controls.
