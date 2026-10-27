@@ -617,3 +617,29 @@ Nothing in `src/` is edited; the token pass waits for the owner's go (gate T2). 
   no such note, and it would be read on every toggle); nothing (the toggles would sound live).
   Now in `screens/phrase-workspace/handoff.md` (the "During a session" `toggle-list`s) and the
   token source's `toggle-list` comment.
+
+## v3.2 wave 4, chunk 20's questions, 2026-10-27
+
+Minor, settled under D119's standing rule; the owner sees only D352's opening line and D353's
+title word.
+
+- **D351 — The empty system is a named image (2026-10-27).** Built `aria-hidden`; corrected.
+  Its key signature is the one thing it shows, and every phrase system is a named image, so the
+  name follows the phrase summary's wording without the measures: "Empty staff, {clef} clef, key
+  signature {signature} ({key label}), 4/4 time." Now in
+  `screens/phrase-workspace/handoff.md`, Notation Contract, The empty system.
+- **D352 — The empty system draws the opening line (2026-10-27).** "No barline" meant no measure
+  and no end: phrase systems draw the line at the system's start, so the empty system does too,
+  and phrase 1's entry adds only what follows the 4/4 signature. Built without it; corrected.
+  Now in `screens/phrase-workspace/handoff.md`, Notation Contract, The empty system.
+- **D353 — The score title reads `Jam` in Jam mode (2026-10-27).** "Four-measure phrase" over
+  an empty staff whose instruction says "one to four measures" misleads, and a title that
+  changed at the read-in would move the toolbar mid-session. One title per mode, following the
+  mode the workspace shows (still "Four-measure phrase" while Jam's code loads); nothing for
+  chunk 21 to add. Rejected: keeping it (wrong at Idle); "Your doodle" (wrong once phrases
+  show). Now in `screens/phrase-workspace/handoff.md`, Components and Content.
+- **D354 — What stays live while Jam's code loads (2026-10-27).** As built: what is live in
+  Loading stays live (the theme, `controller-status`, the cue-row links, `Your data`). Two
+  consequences settled: a kept session deleted meanwhile lets its doodle go, so Jam mode opens
+  with none; the wait ending under an open sheet moves no focus out of it. Now in
+  `screens/phrase-workspace/handoff.md`, States, Opening Jam mode, and `flows/jam/handoff.md`.

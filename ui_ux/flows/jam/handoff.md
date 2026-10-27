@@ -105,7 +105,9 @@ flowchart TD
   mode labels kept), `session-cue-row` empty, the starting note ignored; session mode stays drawn.
   `Session` stays pressable and cancels: session mode as it was, focus on `Session`, the load
   finishing unseen (a later press of `Jam` then waits for nothing). Loaded: Jam mode's Idle at
-  once. Every later press in the visit shows Jam mode at once.
+  once. Every later press in the visit shows Jam mode at once. The theme, `controller-status`
+  and the footer's `Your data` stay live during the wait, as in **Loading**; a kept session
+  deleted meanwhile from Your data lets its doodle go, so Jam mode opens with none kept.
   - **The load fails** (offline before the app's files were kept): session mode as it was,
     `Session` checked, and `app-notice-row` shows Jam's load-failure notice, "Jam mode couldn't
     open because part of the app didn't load. Check that you're online, then try again.", with
