@@ -1,13 +1,10 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v22 (2026-10-27): v21 with ux D355 and spec D445–D446 written in (master spec Part C
+Status: v23 (2026-10-27): v22 with spec D447–D448 written in: ISS-015 known and deferred, read
+with in chunks 18 and 29, M1 and M5.
+v22 (2026-10-27): v21 with ux D355 and spec D445–D446 written in (master spec Part C
 v1.13): chunk 31 marks a rhythmic variety the supported-combination step raised and judges that
 step on the note density as read, at every width; chunks 18 and 24 follow.
-v21 (2026-10-27): v20 with wave 4's preflight corrections and the owner's answers on its
-gates written in (spec D440–D444, master spec Part C v1.12): chunks 20, 28, 8 and 9's atoms, Files,
-revisions and drift checks; DS answered (a short silence is part of the note before it), the tie
-between two window centres and what Jam's Idle prewarms before any doodle settled; DR re-scoped to
-v3.2 H5; chunk 18's no-phrase carry-in fuel for M1 to confirm.
 **Approved by the owner** at v6 (spec D417), hand check v3.2 H9 waived (spec D417).
 
 Jam mode, the key and mode suggestion, the rhythm lock, Jam's drift and Vary settings' allowed
@@ -362,6 +359,16 @@ corpora are a guard, not a measurement.
   spec D434); until chunk 13 the orderings' share is null.
 - **Run by:** chunk 3 (the no-steering baseline, on v3.1's generator); chunk 29; wave 5's gate;
   chunk 33 (at 240 BPM); the release gate.
+- **Known and deferred: ISS-015** (spec D447, D448;
+  [the issue](../../../issues/Ref_20261027_join_first_note_pinned_at_window_edge.md)). With
+  phrase 1's carry-in, phrase 2's carry-in fails for every seed in seven doodle × instrument cases
+  and falls to v2's standalone rung: `quarter-steps` on the C MIDI keyboard and on the B-flat
+  tenor, `eighth-offbeats` and `sixteenth-bursts` on the B-flat tenor (a tense ending its contour
+  cannot resolve), and `sparse-calls` on all three instruments (Falling + Smooth pinned at the
+  window's floor, a known limit). `eighth-offbeats` on the B-flat tenor burns the carry-in fuel
+  before each failure (about 1.35 s per attempt, up to about 5 s with the retries). Phrases 2 to 8
+  "generated without the join" and their attempt costs are read with this, recorded as such, and
+  never tuned around; a standalone attempt past its reserve still goes to `spec-writer`.
 - **Acceptance:** no phrase repeated; the slowest standalone attempt within the budget on the
   reference machine; with no steering block and the lock off, the baseline's figures (phrases
   byte-equal; only timing noise differs). A standalone attempt past its budget is not tuned away: it
@@ -434,6 +441,10 @@ corpora are a guard, not a measurement.
 - **Run by:** chunk 3 (baseline, lock off); chunk 13; the release gate.
 - **Acceptance:** with the lock off, v3.1's figures; with it on, every standalone attempt within its
   budget; otherwise as M1.
+- **Known and deferred: ISS-015** (spec D447, D448), as in M1: in the issue's run of the sweep's
+  cases, 19 of 2,827 joins (0.7 %) fell to the standalone rung, 18 after a tense ending the next
+  phrase's contour cannot resolve; on a large rhythm domain such a doomed carry-in attempt may run
+  out of fuel first and keep its retries. Read with it, not tuned around.
 - **Recorded:** `docs/generation-latency.md`, beside M1.
 
 ### What confirms D406's provisional answers
@@ -1587,6 +1598,12 @@ Architecture capture: none (it builds on chunk 17's)
     carry-in search fuel, 160,000 (`CARRY_IN_WINDOW_SEARCH_FUEL`): the orchestrator picks the policy
     by `intent.carryIn === undefined` (`searchPolicyFor`, `generation-orchestrator.ts`). That margin
     was measured on phrase carry-ins only; M1's re-run at the wave gate confirms it for phrase 1.
+  - **Known and deferred: ISS-015** (spec D447, D448; the cases in
+    [M1](#m1--the-jam-sweep)): in seven doodle × instrument cases phrase 2's carry-in from phrase
+    1 fails for every seed and v2's ladder gives a standalone phrase 2, after attempts that may
+    burn the carry-in fuel (about 1.35 s each on `eighth-offbeats`, B-flat tenor). Not fixed in
+    this chunk, and none of its tests may assume phrase 2 joins in those cases; phrase 2's
+    deadline keeps v2's reserve rule.
 - **Files:** `src/jam/jam-phrase-one.ts` (new), `src/session/session-timing.ts` (the Jam's
   deadlines beside `phraseTwoDeadline`), `session-seed-plan.ts` (phrase 1's labels), `session-engine.ts`, `session-runner.ts`,
   `session-intents.ts`, `session-history.ts`; tests under `tests/unit/jam/`, `tests/unit/session/`.
@@ -2292,6 +2309,9 @@ Architecture capture: none
   cold domain misses the deadlines at 180 BPM.
   The double carries each attempt's orderings time from the diagnostics, as chunk 13's baseline
   ladder does (spec D434).
+  ISS-015 is known and deferred (spec D447, D448): phrase 2's standalone share and the doomed
+  carry-in attempts' cost in [M1](#m1--the-jam-sweep)'s seven cases are recorded with the issue
+  named, not tuned around.
 - **Files:** `tests/sweep/jam-sweep-ladder.ts` (the double), `docs/generation-latency.md`.
 - **Spec sections:** [C5.8](master-spec.md#c58-the-time-budget),
   [C14](master-spec.md#c14-existing-code-and-risks) (at risk); items 31, 39 (every kind replays).

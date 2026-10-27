@@ -1021,3 +1021,18 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   Chunk 28 is merged and closed, so the readings' model gains `raised` in the chunk that shows the
   readings, with D445's change to the same function. Now in:
   [build plan v3.2, chunk 31](versions/v3/build-plan-v3.2.md#chunk-31--jams-settings).
+
+- **D447 (2026-10-27): ISS-015's fixes are deferred past v3.2.** The owner's ("Later, after
+  v3.2"; his "Now, in wave 4" read as recording this now). Neither fix A (a tense ending only
+  where the next phrase's contour can start) nor fix C (proving the join impossible before the
+  search) is built in v3.2; ISS-015 stays open. Phrase 2 of seven doodle × instrument cases is
+  standalone, and some carry-in attempts burn their fuel first; the Jam and session sweeps read
+  their figures with it, never tuned around it. Now in: [build plan v3.2, chunk 18, chunk 29, M1
+  and M5](versions/v3/build-plan-v3.2.md#m1--the-jam-sweep).
+
+- **D448 (2026-10-27): a join pinned at the window's floor with no tense note is a known limit.**
+  The owner's ("Accept and document", ISS-015's option B2): a Falling + Smooth phrase ending on
+  the window's lowest tonic-triad tone leaves the next phrase no legal first note, so the ladder's
+  standalone phrase is the designed outcome. Rejected: B1 (no carry-in phrase may end where the
+  next cannot start), a gated generator change like fix A. Now in: [build plan v3.2,
+  M1](versions/v3/build-plan-v3.2.md#m1--the-jam-sweep).
