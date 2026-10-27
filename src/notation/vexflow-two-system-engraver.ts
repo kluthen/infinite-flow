@@ -5,10 +5,12 @@
  * system repeats the clef and key signature but not the time signature, and its notes are forced
  * to start at the same x as the top system's, so bar 3 aligns under bar 1 and bar 4 under bar 2.
  * Each measure's group also records its playhead band rectangle. It also opens, sizes, finishes
- * and bounds-checks a system's SVG root. The caller, ./vexflow-engraver.ts, owns the planning,
- * which systems are drawn into which hosts, the ties and the note-identity tagging.
- * Together with ./vexflow-mapping.ts, ./vexflow-engraver.ts and ./vexflow-check-note-engraver.ts,
- * this is one of the only four files allowed to import 'vexflow'.
+ * and bounds-checks a system's SVG root, and measures a first stave's leading width (clef, key
+ * signature, 4/4) with the system padding beside it. The callers, ./vexflow-engraver.ts and
+ * ./vexflow-empty-system-engraver.ts, own the planning, which systems are drawn into which hosts,
+ * the ties and the note-identity tagging. Together with ./vexflow-mapping.ts,
+ * ./vexflow-engraver.ts, ./vexflow-check-note-engraver.ts and ./vexflow-empty-system-engraver.ts,
+ * this is one of the only five files allowed to import 'vexflow'.
  */
 import {
   Barline,
@@ -69,6 +71,29 @@ export function addClefAndKey(
 ): void {
   stave.addClef(clef)
   stave.addKeySignature(signature.count === 0 ? 'C' : mapKeySpec(signature.ionianTonic))
+}
+
+/**
+ * Reserved raw engraving units beyond a system's measures' minimum widths (barline, margins, and a
+ * safety margin absorbing the small gap between Formatter.preCalculateMinTotalWidth's estimate and
+ * the actual formatToStave layout width).
+ */
+// @spec-link [[module_notation_layout_preflight]]
+export const SYSTEM_PADDING_UNITS = 60
+
+/** A wide scratch width (raw units) used only to measure the first stave's leading offset. */
+const LEADING_SCRATCH_WIDTH_UNITS = 1000
+
+/**
+ * Intent: measure the first stave's leading width (clef + key signature + time signature) for a
+ * clef and a key signature, on a scratch stave built with the drawn staff's own helper.
+ */
+// @spec-link [[module_notation_layout_preflight]]
+export function measureLeadingWidth(clef: InstrumentClef, signature: StaffKeySignature): number {
+  const scratch = new Stave(0, 0, LEADING_SCRATCH_WIDTH_UNITS)
+  addClefAndKey(scratch, clef, signature)
+  scratch.addTimeSignature('4/4')
+  return scratch.getNoteStartX()
 }
 
 /**

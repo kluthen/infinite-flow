@@ -97,12 +97,12 @@ const storageDirectoryProperties = [
   { object: 'navigator', property: 'storage', message: storageDirectoryMessage },
 ]
 
-// vexflow imports: allowed only in the four engraving files of src/notation/ (see the block
+// vexflow imports: allowed only in the five engraving files of src/notation/ (see the block
 // near the end, which ignores them).
 const vexflowImportPattern = {
   group: ['vexflow', 'vexflow/*'],
   message:
-    'Only src/notation/vexflow-mapping.ts, vexflow-engraver.ts, vexflow-two-system-engraver.ts and vexflow-check-note-engraver.ts may import vexflow.',
+    'Only src/notation/vexflow-mapping.ts, vexflow-engraver.ts, vexflow-two-system-engraver.ts, vexflow-check-note-engraver.ts and vexflow-empty-system-engraver.ts may import vexflow.',
 }
 
 // Imports of the storage code, by alias or by relative path: forbidden in src/session/ and
@@ -227,6 +227,7 @@ export default [
       'src/notation/vexflow-engraver.ts',
       'src/notation/vexflow-two-system-engraver.ts',
       'src/notation/vexflow-check-note-engraver.ts',
+      'src/notation/vexflow-empty-system-engraver.ts',
     ],
     rules: {
       'no-restricted-imports': ['error', { patterns: [vexflowImportPattern] }],

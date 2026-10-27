@@ -23,7 +23,8 @@ export interface EngravedPayload {
  * hidden staging host and only swaps them into their positions once the whole phrase succeeds, so
  * a failure never leaves a partial staff on screen. A failed module load is retried on the next
  * engrave (a new phrase, a Retry, or a real change of the layout inputs). Below the tablet-landscape breakpoint the height budget is read from the frame's
- * computed `max-block-size` (built from the small viewport height) minus its padding and border.
+ * computed `max-block-size` (built from the small viewport height) minus its padding and border
+ * (./staff-viewport-reading.ts, shared with Jam's empty system).
  * It re-engraves when the phrase changes, or when the container width, the height budget, the
  * layout or the shared system-position size changes, coalesced to one check per frame; any other
  * viewport signal, such as a browser toolbar showing or hiding, leaves the staff untouched. Every
@@ -55,7 +56,6 @@ import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import {
   heldViewport,
   NOTATION_PHONE_LAYOUT_MEDIA_QUERY,
-  planStaffPositions,
   type StaffViewport,
 } from '@/notation/notation-layout-policy'
 import { NotationError } from '@/notation/notation-error'
@@ -64,6 +64,7 @@ import { NO_SCORE_OVERLAYS, type ScoreOverlays } from '@/notation/score-overlay-
 import { loadVexflowEngraver, type VexflowEngraverModule } from '@/notation/vexflow-engraver-loader'
 import type { SessionStaff } from './session-staff'
 import { createLoadingStaffDrawing } from './load-staff-drawing'
+import { readStaffViewport, staffPositionBlockPx } from './staff-viewport-reading'
 
 // @spec-link [[module_notation_layout_preflight]]
 // @spec-link [[module_notation_note_identity_overlays]]
@@ -128,41 +129,6 @@ let shownScore: {
   readonly phraseNumber: number
 } | null = null
 
-/** Intent: find the enclosing `staff-frame`, whose computed style carries the height budget. */
-function staffFrame(root: HTMLElement): HTMLElement {
-  const frame = root.closest<HTMLElement>('.staff-frame')
-  if (!frame) {
-    throw new Error(
-      'PhraseScore must be mounted inside a .staff-frame, which holds its height budget.',
-    )
-  }
-  return frame
-}
-
-/**
- * Intent: read the viewport as the planner needs it: from the breakpoint up, the one-system layout
- * with no height budget; below it, the split layout in the window's height budget, which is
- * the frame's computed `max-block-size` (viewport units already resolved to CSS px) minus its
- * block padding and border; a frame without a maximum there means the stylesheet and the notation
- * layout disagree on the breakpoint, which is a defect, not a state to paper over.
- */
-function readViewport(frame: HTMLElement): StaffViewport {
-  if (!window.matchMedia(NOTATION_PHONE_LAYOUT_MEDIA_QUERY).matches) {
-    return { layout: 'one-system', heightBudgetPx: null }
-  }
-  const style = getComputedStyle(frame)
-  if (style.maxBlockSize === 'none') {
-    throw new Error('staff-frame has no max-block-size below the tablet-landscape breakpoint.')
-  }
-  const chrome = [
-    style.paddingBlockStart,
-    style.paddingBlockEnd,
-    style.borderBlockStartWidth,
-    style.borderBlockEndWidth,
-  ].reduce((sum, value) => sum + parseFloat(value), 0)
-  return { layout: 'split', heightBudgetPx: parseFloat(style.maxBlockSize) - chrome }
-}
-
 /**
  * Intent: read the current layout inputs, or null before the root element exists: the measured
  * container width and viewport, with the shared system-position size when one is given.
@@ -170,7 +136,7 @@ function readViewport(frame: HTMLElement): StaffViewport {
 function readLayoutInputs(): StaffLayoutInputs | null {
   const root = rootEl.value
   if (!root) return null
-  const measured = { containerWidthPx: root.clientWidth, viewport: readViewport(staffFrame(root)) }
+  const measured = { containerWidthPx: root.clientWidth, viewport: readStaffViewport(root) }
   const units = props.systemPositionUnits
   return units === null ? measured : { ...measured, systemPositionUnits: units }
 }
@@ -185,20 +151,10 @@ function reportLayoutInputs(inputs: StaffLayoutInputs): void {
 
 /**
  * Intent: size both reserved positions for the viewport and the shared system-position size,
- * whatever the phrase. With no room in the window's height budget, the two positions share the
- * whole budget, so the frame sits at its maximum; only a height budget can leave no room for the
- * positions.
+ * whatever the phrase (see `staffPositionBlockPx`).
  */
 function sizePositions(viewport: StaffViewport, systemPositionUnits: number | undefined): void {
-  const positions = planStaffPositions(viewport, systemPositionUnits)
-  if (positions.kind === 'room') {
-    positionBlockPx.value = positions.positionBlockPx
-    return
-  }
-  if (viewport.heightBudgetPx === null) {
-    throw new Error('staff positions have no room without a height budget.')
-  }
-  positionBlockPx.value = Math.max(0, viewport.heightBudgetPx) / 2
+  positionBlockPx.value = staffPositionBlockPx(viewport, systemPositionUnits)
 }
 
 /** Intent: show the hidden description of a phrase (null: none), describing each phrase once. */

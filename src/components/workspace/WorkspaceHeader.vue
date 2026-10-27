@@ -12,13 +12,17 @@
  * profile's own written pitch. After the brand sits the mode switch (./ModeSwitch.vue), whose
  * presses it only reports. While Jam mode opens both actions are disabled in place, their labels
  * and emphasis kept; in Jam mode (no kept doodle yet) the phrase action reads `Generate phrase`,
- * disabled, secondary, and the session action `Start Jam`, primary.
+ * disabled, secondary, and the session action `Start Jam`, primary, except while Jam's staff shows
+ * a notation error: the phrase action then reads `Retry notation`, enabled and primary, and asks
+ * the shell to engrave Jam's staff again. While the cue row holds `jam-needs-controller` (no
+ * controller connected in Jam mode), `Start Jam` names it with `aria-describedby`.
  */
 import { computed, ref } from 'vue'
 
 import type { GenerationSession, ThemePreference } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import { isRhythmSettingBlocked } from '@/domain/controls/unsupported-rhythm-settings'
+import type { JamStaffState } from '@/jam/jam-view-types'
 import type { ControllerStatusForm } from '@/midi/controller-status'
 import { APP_VERSION } from '@/storage/app-version'
 import { APP_COMMIT } from './build-id'
@@ -29,6 +33,7 @@ import { phraseActionDisabled, primaryHeaderAction } from './session-action-poli
 import { sheetCloseFocusTarget } from './sheet-close-focus'
 import type { SessionController } from './workspace-session-controller-types'
 import type { WorkspaceMode, WorkspaceModeView } from './use-workspace-mode'
+import { JAM_NEEDS_CONTROLLER_ID } from './use-jam-idle-cue'
 
 const props = withDefaults(
   defineProps<{
@@ -39,9 +44,15 @@ const props = withDefaults(
     controllerStatus: ControllerStatusForm
     /** What the mode switch shows; session mode at Idle by default. */
     workspaceMode?: WorkspaceModeView
+    /** What Jam's staff shows while Jam mode shows; null (the default) when unknown or absent. */
+    jamStaffState?: JamStaffState | null
+    /** The cue row holds `jam-needs-controller`, which `Start Jam` then names; false by default. */
+    jamNeedsController?: boolean
   }>(),
   {
     workspaceMode: () => ({ mode: 'session', checked: 'session', opening: false, readonly: false }),
+    jamStaffState: null,
+    jamNeedsController: false,
   },
 )
 
@@ -56,6 +67,8 @@ const emit = defineEmits<{
   'open-connection-sheet': []
   /** A segment of the mode switch was pressed outside read-only; the shell decides. */
   'select-mode': [mode: WorkspaceMode]
+  /** The enabled `Retry notation` was clicked in Jam mode; the shell has Jam's staff redrawn. */
+  'retry-jam-notation': []
 }>()
 
 const phraseActionButton = ref<HTMLButtonElement | null>(null)
@@ -96,9 +109,25 @@ const primaryActionKind = computed<PrimaryActionKind>(() => {
 // @spec-link [[module_workspace_mode]]
 const jamShowing = computed(() => props.workspaceMode.mode === 'jam')
 
-const primaryActionLabel = computed(() =>
-  jamShowing.value ? PRIMARY_ACTION_LABEL.generate : PRIMARY_ACTION_LABEL[primaryActionKind.value],
+/**
+ * Intent: Jam's staff shows a notation error at Jam mode's Idle: the phrase action is `Retry
+ * notation`, enabled and primary, as in the action table's Notation error row.
+ */
+// @spec-link [[module_workspace_mode]]
+const jamRetriesNotation = computed(
+  () =>
+    jamShowing.value &&
+    props.jamStaffState === 'notation-error' &&
+    !sessionActive.value &&
+    !reviewShowing.value,
 )
+
+/** Intent: the phrase action's label; in Jam mode `Generate phrase`, or its notation retry. */
+const primaryActionLabel = computed(() => {
+  if (jamRetriesNotation.value) return PRIMARY_ACTION_LABEL['retry-notation']
+  if (jamShowing.value) return PRIMARY_ACTION_LABEL.generate
+  return PRIMARY_ACTION_LABEL[primaryActionKind.value]
+})
 
 /** True while any operation is running: every configuration control, including notation mode, is read-only. */
 const operationRunning = computed(() => state.value.operation !== 'idle')
@@ -138,17 +167,16 @@ const reviewShowing = computed(
  */
 // @spec-link [[rule_session_settings_locked]]
 // @spec-link [[req_last_session_review]]
-const primaryActionDisabled = computed(
-  () =>
-    props.workspaceMode.opening ||
-    jamShowing.value ||
-    phraseActionDisabled({
-      operationRunning: operationRunning.value,
-      blockedByUnsupportedRhythm: blockedByUnsupportedRhythm.value,
-      sessionActive: sessionActive.value,
-      reviewShowing: reviewShowing.value,
-    }),
-)
+const primaryActionDisabled = computed(() => {
+  if (props.workspaceMode.opening) return true
+  if (jamShowing.value) return !jamRetriesNotation.value
+  return phraseActionDisabled({
+    operationRunning: operationRunning.value,
+    blockedByUnsupportedRhythm: blockedByUnsupportedRhythm.value,
+    sessionActive: sessionActive.value,
+    reviewShowing: reviewShowing.value,
+  })
+})
 
 /**
  * Intent: `Start session` is enabled only once the controller has loaded and every start
@@ -161,7 +189,9 @@ const primaryActionDisabled = computed(
 const sessionActionDisabled = computed(() => {
   if (props.workspaceMode.opening || props.controller === null) return true
   if (sessionActive.value || reviewShowing.value) return false
-  // The transitional interface: `Start Jam` stays disabled until a fresh Jam can start (chunk 21).
+  // Transitional: `Start Jam` stays disabled until chunk 21, which enables it exactly while a fresh
+  // Jam could start (`freshJamCanStart`, ./session-action-policy.ts, which the cue row already
+  // follows to name the home note).
   if (jamShowing.value) return true
   return !props.controller.state.canStart
 })
@@ -176,12 +206,12 @@ const sessionActionLabel = computed(() => {
 
 /**
  * Intent: which of the two slots carries the primary emphasis, by the handoff's action table; in
- * Jam mode without a kept doodle, always the session action.
+ * Jam mode without a kept doodle, the session action, unless Jam's staff shows a notation error.
  */
 // @spec-link [[rule_session_start_conditions]]
-const sessionActionPrimary = computed(
-  () =>
-    jamShowing.value ||
+const sessionActionPrimary = computed(() => {
+  if (jamShowing.value) return !jamRetriesNotation.value
+  return (
     primaryHeaderAction({
       sessionActive: sessionActive.value,
       operationRunning: operationRunning.value,
@@ -190,8 +220,9 @@ const sessionActionPrimary = computed(
       roomNoticeShown: state.value.roomNotice !== null,
       phraseShown: state.value.result !== null,
       reviewShowing: reviewShowing.value,
-    }) === 'session',
-)
+    }) === 'session'
+  )
+})
 
 /** Intent: the tempo the header shows: the running session's locked tempo, else the control's. */
 // @spec-link [[rule_session_settings_locked]]
@@ -203,6 +234,10 @@ const shownTempo = computed(
 // @spec-link [[user_story_controlled_phrase_generation]]
 function handlePrimaryAction(): void {
   if (primaryActionDisabled.value) return
+  if (jamRetriesNotation.value) {
+    emit('retry-jam-notation')
+    return
+  }
   const { actions } = props.session
   if (primaryActionKind.value === 'generate') void actions.generate()
   else if (primaryActionKind.value === 'regenerate') void actions.regenerate()
@@ -325,6 +360,7 @@ function handleThemeSelect(theme: ThemePreference): void {
         type="button"
         :class="{ 'btn-primary': sessionActionPrimary }"
         :disabled="sessionActionDisabled"
+        :aria-describedby="jamNeedsController ? JAM_NEEDS_CONTROLLER_ID : undefined"
         @click="handleSessionAction"
       >
         {{ sessionActionLabel }}

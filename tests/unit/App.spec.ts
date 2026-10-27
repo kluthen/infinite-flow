@@ -102,6 +102,7 @@ function fakeWorkspaceSession(savedData: SavedDataLoad = fakeSavedData()) {
     midi: createControllerRig().controller,
     connectionSheetOpen: shallowRef(false),
     sessionModeHeld: shallowRef(false),
+    prewarm: null,
     createSessionController: async () => {
       if (controllerLoad !== null) await controllerLoad.promise
       nextController ??= createFakeSessionController()

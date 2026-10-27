@@ -222,6 +222,7 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
     midi: deps.midi,
     connectionSheetOpen,
     sessionModeHeld,
+    prewarm: deps.prewarmPolicy === 'enabled' ? deps.prewarm : null,
     browser: deps.browser,
     createSessionController: async () => {
       // The runner starter settles only once the replay-key announcer has loaded, so the

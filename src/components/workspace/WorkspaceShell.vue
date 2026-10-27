@@ -37,14 +37,23 @@
  * place while Jam mode shows, and while Jam mode opens the controls are read-only and both header
  * actions disabled; whether session mode is held is reported to the workspace as it changes. A
  * failed opening shows Jam's load-failure notice in the notice row, focus on its `Try again`.
+ * Jam's view is given Jam's written key and collection (session mode's, until Jam has its own),
+ * the instrument and the shared system-position size; the shell keeps what Jam's staff shows, for
+ * the header's `Retry notation`, which has Jam's staff engraved again. Jam's view is also given
+ * the prewarm port (none while the prewarm policy is off) and session mode's controls and figure
+ * levels, for Jam's Idle prewarm. In Jam mode the cue row holds Jam's Idle cue
+ * (./use-jam-idle-cue.ts): the home note while a fresh Jam could start, or `jam-needs-controller`
+ * without a connected controller, which `Start Jam` names.
  */
 import { computed, defineAsyncComponent, nextTick, onMounted, ref, watch } from 'vue'
 
+import type { PostPrewarm } from '@/composables/generation-session-prewarm'
 import type { GenerationSession } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import ControlPanel from '@/components/controls/ControlPanel.vue'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { NotationError } from '@/notation/notation-error'
+import type { JamStaffState, JamWorkspaceProps } from '@/jam/jam-view-types'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { AudioTransport } from '@/audio/audio-transport'
 import type { SavedDataLoad } from '@/storage-bootstrap'
@@ -85,6 +94,7 @@ import { usePresetSheet, type PresetStore } from './use-preset-sheet'
 import { useYourData } from './use-your-data'
 import { loadJamMode } from './load-jam-mode'
 import { useWorkspaceMode } from './use-workspace-mode'
+import { useJamIdleCue } from './use-jam-idle-cue'
 
 // The stale-phrase prompt, in its own chunk: only a stale phrase 1 at a start needs it.
 const StalePhrasePrompt = defineAsyncComponent(() => import('./StalePhrasePrompt.vue'))
@@ -135,6 +145,8 @@ const props = withDefaults(
      * while the session controller loads (it starts from the same); a first visit's by default.
      */
     savedSessionOptions?: SessionOptionChoices
+    /** The generation worker's prewarm port, for Jam's Idle prewarm; none (the default) when off. */
+    prewarm?: PostPrewarm | null
   }>(),
   {
     // Default: the window's own instant scroll, measured against the layout viewport's height.
@@ -150,6 +162,7 @@ const props = withDefaults(
     damagedSessionReports: null,
     savedReviewPreferences: () => DEFAULT_REVIEW_PREFERENCES,
     savedSessionOptions: () => DEFAULT_SESSION_OPTIONS,
+    prewarm: null,
   },
 )
 
@@ -213,20 +226,47 @@ const emit = defineEmits<{
   'session-mode-held-change': [held: boolean]
 }>()
 
+/** True while the review mode shows: a Review, or the session list in its place. */
+const reviewShowing = computed(
+  () =>
+    props.controller?.state.review?.showing === true ||
+    props.controller?.state.listShowing === true,
+)
+
 // The workspace's mode: session mode at every load, Jam's code loaded on the first press of Jam.
 // @spec-link [[module_workspace_mode]]
 const workspaceMode = useWorkspaceMode({
   operationRunning: () => state.value.operation !== 'idle',
   sessionActive: () => sessionActive.value,
-  reviewShowing: () =>
-    props.controller?.state.review?.showing === true ||
-    props.controller?.state.listShowing === true,
+  reviewShowing: () => reviewShowing.value,
   load: loadJamMode,
   onHeldChange: (held) => emit('session-mode-held-change', held),
   onLoadFailed: () => void nextTick(() => requireNoticeRow().focusJamTryAgain()),
 })
 /** The controls are read-only: during a session, as the session holds them, or while Jam opens. */
 const settingsReadonly = computed(() => controlsReadonly.value || workspaceMode.opening.value)
+
+/**
+ * What Jam's view is given: Jam's written key and collection, session mode's until Jam has its own,
+ * the shared instrument choice (my instrument included), the shared system-position size, and what
+ * Jam's Idle prewarm reads: the prewarm port and session mode's controls and figure levels.
+ */
+// @spec-link [[module_workspace_mode]]
+const jamViewProps = computed<JamWorkspaceProps>(() => ({
+  tonalCenter: state.value.controls.tonalCenter,
+  collection: state.value.controls.collection,
+  instrumentProfileId: state.value.controls.instrumentProfileId,
+  myInstrument: state.value.myInstrument,
+  systemPositionUnits: systemPositionUnits.value,
+  prewarm: props.prewarm,
+  controls: state.value.controls,
+  figureLevels: state.value.figureLevels,
+}))
+/** What Jam's staff shows while Jam mode shows (Start Jam's conditions read it); null otherwise. */
+const jamStaffState = ref<JamStaffState | null>(null)
+watch(workspaceMode.jamView, (view) => {
+  if (view === null) jamStaffState.value = null
+})
 
 // The player presets' refused saves, which the preset actions tell and the notice row hears.
 const refusedPresetSaves = createRefusedPresetSaves()
@@ -325,6 +365,33 @@ const {
     reportSheetsOpen()
   },
   rememberedController: props.rememberedController,
+})
+
+/** True while any sheet is open: the connection, My instrument, Your data or preset sheet. */
+const anySheetOpen = computed(
+  () =>
+    connectionSheetOpen.value ||
+    myInstrumentSheet.sheetOpen.value ||
+    yourData.sheet.value !== null ||
+    presetSheet.sheetOpen.value,
+)
+
+// Jam mode's Idle cue: the home note while a fresh Jam could start, or `jam-needs-controller`.
+const jamIdleCue = useJamIdleCue({
+  jamModule: () => workspaceMode.jamModule.value,
+  jamShowing: () => workspaceMode.jamView.value !== null,
+  settings: () => jamViewProps.value,
+  startFacts: () => ({
+    controllerLoaded: props.controller !== null,
+    controllerConnected: controllerStatus.form.value.kind === 'connected',
+    sessionActive: sessionActive.value,
+    reviewShowing: reviewShowing.value,
+    sheetOpen: anySheetOpen.value,
+    orientationNoticeShown: props.controller?.state.orientationNoticeShown === true,
+    jamStaffShown: jamStaffState.value === 'shown',
+  }),
+  pageAwaitsClick: () =>
+    props.controller?.state.pageActivated !== true && !props.audio.isUnlocked(),
 })
 
 defineExpose({
@@ -445,6 +512,13 @@ function focusFallback(): void {
   else focusTarget('controller-status')
 }
 
+/** Intent: the header's `Retry notation` in Jam mode: Jam's staff engraves its empty system again. */
+// @spec-link [[module_workspace_mode]]
+function handleRetryJamNotation(): void {
+  if (scorePanel.value === null) throw new Error('workspace shell: the score panel is not mounted')
+  scorePanel.value.retryJamNotation()
+}
+
 /** Intent: the mounted notice row; asking for it while it shows no notice is a defect. */
 function requireNoticeRow(): InstanceType<typeof AppNoticeRow> {
   if (noticeRow.value === null) throw new Error('workspace shell: the notice row is not shown')
@@ -485,7 +559,10 @@ const controlPanelActions = useControlPanelActions(props.session)
       :controller="controller"
       :controller-status="controllerStatus.form.value"
       :workspace-mode="workspaceMode.view.value"
+      :jam-staff-state="jamStaffState"
+      :jam-needs-controller="jamIdleCue.needsController.value"
       @select-mode="workspaceMode.select"
+      @retry-jam-notation="handleRetryJamNotation"
       @start-session="handleStartSession"
       @stop-session="handleStopSession"
       @close-review="reviewNavigation.closeReview"
@@ -518,6 +595,9 @@ const controlPanelActions = useControlPanelActions(props.session)
         :system-position-units="systemPositionUnits"
         :saved-review-preferences="savedReviewPreferences"
         :jam-view="workspaceMode.jamView.value"
+        :jam-view-props="jamViewProps"
+        :jam-cue="jamIdleCue.cue.value"
+        @jam-staff-state="jamStaffState = $event"
         @stop-session="handleStopSession"
         @show-review="reviewNavigation.showReview"
         @show-sessions="reviewNavigation.showSessions"

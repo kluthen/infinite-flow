@@ -165,6 +165,18 @@ describe('workspace prewarm: policy and triggers', () => {
   })
 
   // @test-link [[module_generation_prewarm]]
+  it("exposes the prewarm port, for Jam's Idle prewarm, only under the enabled policy", () => {
+    const enabled = prewarmRig('enabled')
+    expect(enabled.workspace.prewarm).not.toBeNull()
+    const posted = enabled.prewarms.length
+    const intent = enabled.prewarms[0]!
+    enabled.workspace.prewarm?.(intent)
+    expect(enabled.prewarms).toHaveLength(posted + 1)
+
+    expect(prewarmRig('disabled').workspace.prewarm).toBeNull()
+  })
+
+  // @test-link [[module_generation_prewarm]]
   it('posts one prewarm at start for the current controls, under the fixed prewarm identity', () => {
     const { workspace, prewarms } = prewarmRig('enabled')
 

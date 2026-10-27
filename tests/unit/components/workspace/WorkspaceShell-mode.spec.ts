@@ -4,7 +4,9 @@
  * (reported synchronously), the controls read-only and both header actions disabled; once loaded,
  * Jam's view takes the staff's place, the session staff out of sight and inert but still mounted;
  * `Session` brings session mode back as it was. A failed load shows Jam's load-failure notice,
- * focus on its `Try again`, which loads again; `Dismiss` removes it, focus to the fallback.
+ * focus on its `Try again`, which loads again; `Dismiss` removes it, focus to the fallback. Jam's
+ * view is given Jam's settings and reports what its staff shows: a notation error makes the
+ * header's phrase action `Retry notation`, which reaches Jam's view's `retryNotation()`.
  */
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -30,11 +32,38 @@ vi.mock('@/components/workspace/load-jam-mode', () => ({
     }),
 }))
 
-/** A stand-in for Jam's code entry: a view whose root is its own staff viewport. */
+/** The props Jam's stand-in view last rendered with. */
+const reporting = vi.hoisted(() => ({ props: null as Record<string, unknown> | null }))
+/** The stand-in view's `retryNotation()`. */
+const retryNotation = vi.fn()
+
+/**
+ * A stand-in for Jam's code entry: a view whose root is its own staff viewport, which takes Jam's
+ * props, reports a notation error on its button and exposes `retryNotation()`.
+ */
 const FAKE_JAM_MODULE = {
   JamWorkspace: defineComponent({
     name: 'JamWorkspaceStub',
-    render: () => h('div', { class: 'staff-viewport jam-stub' }),
+    props: {
+      tonalCenter: { type: String, required: true },
+      collection: { type: String, required: true },
+      instrumentProfileId: { type: String, required: true },
+      myInstrument: { type: Object, default: null },
+      systemPositionUnits: { type: Number, required: true },
+    },
+    emits: ['staff-state'],
+    setup(props, { emit, expose }) {
+      expose({ retryNotation })
+      return () => {
+        reporting.props = { ...props }
+        return h('div', { class: 'staff-viewport jam-stub' }, [
+          h('button', {
+            class: 'report-error',
+            onClick: () => emit('staff-state', 'notation-error'),
+          }),
+        ])
+      }
+    },
   }),
 } as unknown as JamModeModule
 
@@ -43,6 +72,8 @@ const JAM_LOAD_FAILED =
 
 beforeEach(() => {
   loader.pending.length = 0
+  reporting.props = null
+  retryNotation.mockClear()
 })
 
 afterEach(() => {
@@ -167,5 +198,35 @@ describe('WorkspaceShell and the workspace mode', () => {
     expect(document.activeElement).toBe(
       wrapper.get('.header-actions > button:not(.session-action)').element,
     )
+  })
+
+  // @test-link [[module_workspace_mode]]
+  it("gives Jam's view its settings, and retries its notation from the header", async () => {
+    const wrapper = mountShell()
+    await segment(wrapper, 'Jam').trigger('click')
+    lastLoad().resolve(FAKE_JAM_MODULE)
+    await flushPromises()
+    const controls = wrapper.props('session').state.controls
+    expect(reporting.props).toEqual({
+      tonalCenter: controls.tonalCenter,
+      collection: controls.collection,
+      instrumentProfileId: controls.instrumentProfileId,
+      myInstrument: null,
+      systemPositionUnits: 160,
+    })
+    /** Intent: the header's phrase action, the first action slot. */
+    const phraseAction = () => wrapper.get('.header-actions > button:not(.session-action)')
+    expect(phraseAction().text()).toBe('Generate phrase')
+
+    await wrapper.get('.jam-stub .report-error').trigger('click')
+    expect(phraseAction().text()).toBe('Retry notation')
+    expect(phraseAction().attributes('disabled')).toBeUndefined()
+    await phraseAction().trigger('click')
+    expect(retryNotation).toHaveBeenCalledOnce()
+
+    await segment(wrapper, 'Session').trigger('click')
+    await segment(wrapper, 'Jam').trigger('click')
+    await flushPromises()
+    expect(phraseAction().text()).toBe('Generate phrase')
   })
 })

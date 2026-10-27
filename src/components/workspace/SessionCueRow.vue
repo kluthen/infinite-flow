@@ -15,7 +15,10 @@
  * disabled, while a kept session is read from the device. After it, `sessions-link` ("All
  * sessions") while the session list has at least one row; it asks the shell to show the list. When
  * each link shows is ./cue-row-links.ts. It is not a live region and nothing in it is announced;
- * its content changes with no animation.
+ * its content changes with no animation. In Jam mode (`jamCue`) the starting-note line's place holds
+ * Jam's Idle cue instead: the same line naming the home note, with no start marker, or
+ * `jam-needs-controller` ("A Jam needs a connected controller. Connect one to start.", "Connect a
+ * controller to start." below bp-tablet-landscape), which `Start Jam` names by its id.
  */
 import { computed } from 'vue'
 
@@ -23,14 +26,20 @@ import type { AudioTransport } from '@/audio/audio-transport'
 import MixVolumeButton from './MixVolumeButton.vue'
 import { reviewLinkShown, sessionsLinkShown } from './cue-row-links'
 import type { MixVolumePopover } from './mix-volume-popover'
+import { JAM_NEEDS_CONTROLLER_ID, type JamCue } from './use-jam-idle-cue'
 import type { SessionController } from './workspace-session-controller-types'
 
-const props = defineProps<{
-  /** The session controller; null while its lazy chunk loads (no session can run then). */
-  controller: SessionController | null
-  audio: AudioTransport
-  mixPopover: MixVolumePopover
-}>()
+const props = withDefaults(
+  defineProps<{
+    /** The session controller; null while its lazy chunk loads (no session can run then). */
+    controller: SessionController | null
+    audio: AudioTransport
+    mixPopover: MixVolumePopover
+    /** Jam's Idle cue, in the starting-note line's place in Jam mode; null (the default) else. */
+    jamCue?: JamCue | null
+  }>(),
+  { jamCue: null },
+)
 
 const emit = defineEmits<{
   /** The compact `Stop` was clicked: it does exactly what the header's `Stop` does. */
@@ -66,12 +75,27 @@ const strugglingNotice = computed(() => props.controller?.state.strugglingNotice
 const startingNote = computed(() => props.controller?.state.startingNote ?? null)
 
 /**
- * Intent: whether the start line asks for the page's first click first (after a load, before any
- * click, tap or key press): "Click the page once, then play this note to start", shorter on the
- * phone.
+ * Intent: the starting-note line: session mode's starting note, or in Jam mode the home note Jam's
+ * Idle cue names; its label, and whether it asks for the page's first click first (after a load,
+ * before any click, tap or key press): "Click the page once, then play this note to start",
+ * shorter on the phone. Null when neither is named.
  */
 // @spec-link [[rule_midi_starting_note]]
-const awaitsClick = computed(() => props.controller?.state.startingNoteAwaitsClick === true)
+// @spec-link [[rule_jam_starting_note_is_home_note]]
+const startLine = computed(() => {
+  if (startingNote.value !== null) {
+    return {
+      label: startingNote.value.label,
+      awaitsClick: props.controller?.state.startingNoteAwaitsClick === true,
+    }
+  }
+  const jam = props.jamCue
+  return jam?.kind === 'starting-note' ? { label: jam.label, awaitsClick: jam.awaitsClick } : null
+})
+
+/** Intent: whether `jam-needs-controller` holds the starting-note line's place (Jam mode). */
+// @spec-link [[rule_jam_needs_controller]]
+const jamNeedsController = computed(() => props.jamCue?.kind === 'needs-controller')
 
 /** Intent: whether `review-link` is offered (./cue-row-links.ts). */
 const reviewLink = computed(
@@ -113,14 +137,19 @@ const reviewLinkLoading = computed(() => props.controller?.state.readingMostRece
       <span class="session-alert-text">The generator is struggling with these settings.</span>
     </p>
     <!-- Below bp-tablet-landscape the stylesheet drops the cue clauses: the phone's wording. -->
-    <p v-else-if="startingNote !== null && awaitsClick" class="start-note-line">
+    <p v-else-if="startLine !== null && startLine.awaitsClick" class="start-note-line">
       Click<span class="cue-clause"> the page</span> once, then play<span class="cue-clause">
         this note</span
       >
-      to start: <strong>{{ startingNote.label }}</strong>
+      to start: <strong>{{ startLine.label }}</strong>
     </p>
-    <p v-else-if="startingNote !== null" class="start-note-line">
-      Play this note to start: <strong>{{ startingNote.label }}</strong>
+    <p v-else-if="startLine !== null" class="start-note-line">
+      Play this note to start: <strong>{{ startLine.label }}</strong>
+    </p>
+    <!-- Below bp-tablet-landscape the stylesheet shows the narrow label instead of the wide one. -->
+    <p v-else-if="jamNeedsController" :id="JAM_NEEDS_CONTROLLER_ID" class="jam-needs-controller">
+      <span class="cue-label-wide">A Jam needs a connected controller. Connect one to start.</span
+      ><span class="cue-label-narrow">Connect a controller to start.</span>
     </p>
     <div v-if="sessionActive" class="session-cue-actions">
       <button type="button" class="btn btn-primary" @click="emit('stop')">Stop</button>

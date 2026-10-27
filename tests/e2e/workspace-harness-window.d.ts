@@ -533,6 +533,15 @@ interface WorkspaceHarnessSettings {
   readonly selection: WorkspaceHarnessPresetSelection
 }
 
+/** The rhythm setting one prewarm carried: the five controls the worker's rhythm memo is keyed by. */
+interface WorkspaceHarnessPrewarmRhythmSetting {
+  readonly noteDensity: string
+  readonly rhythmicVariety: string
+  readonly syncopation: string
+  readonly silenceDensity: string
+  readonly tension: string
+}
+
 /** The instrument profile an intent carries, as plain JSON: its id, name and concert range. */
 interface WorkspaceHarnessInstrumentProfile {
   readonly id: string
@@ -743,6 +752,11 @@ interface WorkspaceHarnessApi {
    * post order; empty with `?prewarm=off`.
    */
   prewarmInstrumentProfiles: () => readonly WorkspaceHarnessInstrumentProfile[]
+  /**
+   * The rhythm setting each rhythm-domain prewarm posted since the page loaded carried, session
+   * mode's and Jam's Idle's alike, in post order; empty with `?prewarm=off`.
+   */
+  prewarmRhythmSettings: () => readonly WorkspaceHarnessPrewarmRhythmSetting[]
   /** The audio transport's seams (see `WorkspaceHarnessAudioApi`). */
   audio: WorkspaceHarnessAudioApi
   /** The MIDI controller's seams (see `WorkspaceHarnessMidiApi`). */

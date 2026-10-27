@@ -5,8 +5,9 @@
  * SVG marked like a score system (`staff-svg`, image role, an accessible name in the score
  * description's words) so the stylesheet recolours it like the score. The SVG is sized to the
  * note: its height grows with the note's ledger lines. Re-exported by ./vexflow-engraver.ts, so
- * it ships in the lazy engraver chunk; with that file, ./vexflow-mapping.ts and
- * ./vexflow-two-system-engraver.ts, one of the only four files allowed to import 'vexflow'.
+ * it ships in the lazy engraver chunk; with that file, ./vexflow-mapping.ts,
+ * ./vexflow-two-system-engraver.ts and ./vexflow-empty-system-engraver.ts, one of the only five
+ * files allowed to import 'vexflow'.
  */
 import { Formatter, Renderer, Stave, Voice } from 'vexflow/bravura'
 

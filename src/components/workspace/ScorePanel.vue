@@ -25,7 +25,9 @@
  * view (`jamView`, Jam's code, loaded on demand) takes the staff's place: the session's staff
  * viewport stays laid out, out of sight and inert as under the Review, so session mode returns
  * exactly as it was left, and the generation-failure banner is hidden; the Review hides Jam's view
- * the same way.
+ * the same way. Jam's view gets the props the workspace gives it (`jamViewProps`); what its staff
+ * shows is passed on (`jam-staff-state`), and its `retryNotation()` is reached through
+ * `retryJamNotation()`. The cue row is given Jam's Idle cue (`jamCue`) as it is.
  */
 import { computed, defineAsyncComponent, nextTick, ref, watch, type Component } from 'vue'
 
@@ -39,6 +41,7 @@ import {
   NOTATION_SYSTEM_POSITION_UNITS,
 } from '@/notation/notation-layout-policy'
 import type { NotationError } from '@/notation/notation-error'
+import type { JamStaffState, JamWorkspaceProps } from '@/jam/jam-view-types'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { AudioTransport } from '@/audio/audio-transport'
 import { loadReviewArea } from '@/components/review/load-review-panel'
@@ -49,6 +52,7 @@ import {
 } from '@/storage/records/setting-defaults'
 import MixControls from './MixControls.vue'
 import SessionCueRow from './SessionCueRow.vue'
+import type { JamCue } from './use-jam-idle-cue'
 import { useScoreOverlays } from './use-score-overlays'
 import type { MixVolumePopover } from './mix-volume-popover'
 import type { ReviewExportPorts } from './review-export'
@@ -98,6 +102,10 @@ const props = withDefaults(
     savedReviewPreferences?: ReviewPreferences
     /** Jam's view while Jam mode shows, in the staff's place; null (the default) in session mode. */
     jamView?: Component | null
+    /** The props Jam's view is given while it shows; null (the default) with none. */
+    jamViewProps?: JamWorkspaceProps | null
+    /** What the cue row holds in the starting-note line's place in Jam mode; null (the default) else. */
+    jamCue?: JamCue | null
   }>(),
   {
     // Default: the notation layout's own width query (the split layout's), read from the window now.
@@ -106,6 +114,8 @@ const props = withDefaults(
     systemPositionUnits: NOTATION_SYSTEM_POSITION_UNITS,
     savedReviewPreferences: () => DEFAULT_REVIEW_PREFERENCES,
     jamView: null,
+    jamViewProps: null,
+    jamCue: null,
   },
 )
 
@@ -118,6 +128,8 @@ const emit = defineEmits<{
   'show-sessions': []
   /** The review mode switched between a Review and the session list. */
   'scroll-to-top': []
+  /** What Jam's staff shows changed. */
+  'jam-staff-state': [state: JamStaffState]
 }>()
 
 const state = computed(() => props.session.state)
@@ -168,7 +180,16 @@ function focusReviewTitle(): void {
 
 watch(reviewArea, focusPendingReviewTitle, { flush: 'post' })
 
-defineExpose({ focusRoomNotice, focusReviewTitle })
+/** Jam's mounted view's exposed API; null while Jam mode does not show. */
+const jamViewInstance = ref<{ readonly retryNotation: () => void } | null>(null)
+
+/** Intent: `Retry notation` in Jam mode: Jam's view engraves its staff again; it must be shown. */
+function retryJamNotation(): void {
+  if (jamViewInstance.value === null) throw new Error("score panel: Jam's view is not shown")
+  jamViewInstance.value.retryNotation()
+}
+
+defineExpose({ focusRoomNotice, focusReviewTitle, retryJamNotation })
 
 const statusText = ref('')
 const notationStatusText = ref('')
@@ -407,6 +428,7 @@ const generationErrorAlertText = computed(() =>
       :controller="controller"
       :audio="audio"
       :mix-popover="mixPopover"
+      :jam-cue="jamCue"
       :hidden="reviewShowing"
       @stop="emit('stop-session')"
       @show-review="emit('show-review')"
@@ -462,8 +484,11 @@ const generationErrorAlertText = computed(() =>
     <component
       :is="jamView"
       v-if="jamView !== null"
+      ref="jamViewInstance"
+      v-bind="jamViewProps ?? {}"
       :class="{ 'is-out-of-sight': reviewShowing }"
       :inert="reviewShowing || undefined"
+      @staff-state="emit('jam-staff-state', $event)"
     />
   </div>
 </template>

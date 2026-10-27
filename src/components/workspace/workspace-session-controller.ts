@@ -205,6 +205,12 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     get startingNoteAwaitsClick(): boolean {
       return sessionMidi.startingNoteAwaitsClick()
     },
+    get pageActivated(): boolean {
+      return sessionMidi.pageActivated()
+    },
+    get orientationNoticeShown(): boolean {
+      return isPortraitBelowDesktop(windowShape.value)
+    },
     get controllerLost(): ControllerLostCountdown | null {
       return sessionMidi.controllerLost()
     },

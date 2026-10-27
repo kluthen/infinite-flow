@@ -128,6 +128,7 @@ onUnmounted(() => {
     :remembered-controller="workspace.rememberedController"
     :preset-store="workspace.presetStore"
     :damaged-session-reports="workspace.damagedSessionReports"
+    :prewarm="workspace.prewarm"
     @connection-sheet-open-change="handleConnectionSheetOpenChange"
     @session-mode-held-change="handleSessionModeHeldChange"
   />

@@ -117,6 +117,8 @@ export interface SessionMidi {
    */
   // @spec-link [[rule_midi_starting_note]]
   readonly startingNoteAwaitsClick: () => boolean
+  /** Whether the page has had its first click, tap or key press since it loaded. */
+  readonly pageActivated: () => boolean
   readonly controllerLost: () => ControllerLostCountdown | null
   readonly acknowledged: () => readonly ExpectedNoteIdentity[]
   readonly sessionHasController: () => boolean | null
@@ -226,6 +228,7 @@ export function createSessionMidi(deps: SessionMidiDependencies): SessionMidi {
     controllerState: () => midiState.value,
     startingNote: idleStartingNote.startingNote,
     startingNoteAwaitsClick: idleStartingNote.awaitsClick,
+    pageActivated: idleStartingNote.pageActivated,
     controllerLost: () => controllerLost.value,
     acknowledged: () => acknowledged.value,
     sessionHasController: () => sessionHasController.value,

@@ -215,6 +215,8 @@ export function createFakeSessionController(
     latestReady: null,
     startingNote: null,
     startingNoteAwaitsClick: false,
+    pageActivated: true,
+    orientationNoticeShown: false,
     controllerLost: null,
     acknowledged: [],
     sessionHasController: null,
