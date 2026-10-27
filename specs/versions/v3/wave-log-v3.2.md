@@ -883,3 +883,15 @@ part of the note (staccato).
 ### Chunks
 
 - 9 dispatched (2026-10-27) to `coding-leader`, branch `v3.2-c9-melody-steering`.
+- 9 merged (22e81a8; 4294f74). Corpus guard 13 files / 448 tests; related unit suites green. Over
+  the 11 doodles with two or more notes (2,332 steered notes per strength): in the block's
+  direction 29.3 % (none), 43.5 % (direction only), 43.4 % (size and direction); matching size
+  too 7.0 %, 8.2 %, 8.8 %. Both strengths put direction first, so their direction shares are level;
+  the Done when's "rises … to size and direction" read as sizes rising at the last (accepted by the
+  driver; a strict rise would need size to override direction). Size gains are small since steps
+  are mostly non-chord tones, ranked after chord tones ("never across ranks"). 88/88 successes at
+  every strength; strength none byte-identical to no block. For the gate: the sweep (the term's
+  share of timings, fuel). For the sync: `module_pitch_steering` (`pitch-steering.ts`:
+  `melodicMoveBetween`, `pitchSteeringTerm`, `moveDisagreement`). For chunk 28: reuse
+  `melodicMoveBetween` for the block's moves. Risk: under Predictable or Chaotic the term barely
+  moves chord tones (Jam holds Varied).

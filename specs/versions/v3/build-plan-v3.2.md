@@ -1007,7 +1007,7 @@ search's walk: without locked bars it stays v3.1's, harmony-major (C7.6, C8; spe
 
 ### Chunk 9 — Melody follows the moves
 
-Status: planned
+Status: merged (w4, 22e81a8)
 Wave: 4
 Depends on: 6 (and v3.1 chunk 6, the favored rank the term sits inside)
 Architecture capture: none (the term sits in `pitchRank`'s existing rank, never across ranks)
@@ -1044,6 +1044,8 @@ Architecture capture: none (the term sits in `pitchRank`'s existing rank, never 
   - Without a block the pitch order is v3.1's; the corpora pass.
 - **Verification:** chunk checks with the corpus guard; the sweep at the wave gate.
 - **Split rule:** none needed (two to four source files).
+
+Record: 4294f74, merged 22e81a8. No deviation. Done when's first item read as "both strengths beat none on direction, and matching sizes rise at the last": both strengths order direction first, so their direction shares are level (43.5 % and 43.4 %, none 29.3 %); sizes 7.0 → 8.2 → 8.8 % (wave log, wave 4).
 
 ### Chunk 10 — The rhythm lock in the generator
 
