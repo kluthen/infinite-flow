@@ -951,3 +951,21 @@ part of the note (staccato).
   narrow window, a few Sixteenth combinations keep a variety one step higher than Eighth alone
   needs (to mention at wave 5's report). For wave 5's preflight: `rule_doodle_controls_always_supported`
   ("as it generates at the current window width" → "as read") and `module_doodle_controls` change.
+- 7 merged (7ce4a76; a87b142). `doodleJoin(doodle, instrument, register)` in `src/jam/doodle-join.ts`
+  (join with the reading's window, or none: `outside-range` / `outside-windows`); 50 tests; jam and
+  carry-in suites 503 tests; typecheck, lint, format, links, health clean. Over the doodle set ×
+  three instruments every join generates and validates, first interval within the in-phrase limits,
+  no recovery owed (`tresillo-leaps` ends on a 15-semitone leap, phrase 1 owes nothing); 11 doodles
+  join, `late-start-high-ending` and `wandering-gaps-low-ending` lie outside the keyboard's range
+  (no join, steering kept). The "outside every window" branch can't happen with a valid profile.
+  For the sync: the two revisions — phrase 1 joined from no phrase inherits no recovery and owes no
+  resolution, but counts as generated with a carry-in, so it may end tense or owing a recovery
+  (2 of 33 seed-7 cases ended tense); both atoms' "without carry-in … never ends owing" sentences
+  don't cover it. `module_doodle_controls` still reads the join "not built" and the tie open.
+  Risk found (pre-existing since v2/v3.1): a phrase that ends tense is followed by a failed
+  carry-in phrase (`no_legal_pitch_plan`, `search_limit_exceeded`) in nearly every case with the
+  doodle set's controls (repro: keyboard, Smooth, Arch, Quarter, Heavily varied, Straight, Sparse,
+  High; phrase 1 seed 9, phrase n seed 900+n−1: phrase 5 ends tense, phrase 6 fails); for Jam,
+  phrase 2 then falls down v2's ladder to a standalone phrase (7 of 33 cases). `sparse-calls`'
+  controls (Falling, Smooth, Breath-heavy) fail phrase 2 with its carry-in for every seed, as v3.1's
+  chain does for most. Sent for diagnosis (an issue, no fix) while chunk 8 waits on LD.

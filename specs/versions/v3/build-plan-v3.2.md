@@ -912,7 +912,7 @@ key, kept record); the no-phrase origin has a form of its own (revises `entity_p
 
 ### Chunk 7 — The join from the doodle
 
-Status: planned
+Status: merged (w4, 7ce4a76)
 Wave: 4
 Depends on: 4, 6, 28 (the register window) (and v3.0 chunk 16, my instrument's range)
 Architecture capture: none (chunk 6 fixed the join's form, chunk 28 the window)
@@ -940,6 +940,8 @@ Architecture capture: none (chunk 6 fixed the join's form, chunk 28 the window)
     range, no join (a test per case), the steering block still in the request.
 - **Verification:** chunk checks.
 - **Split rule:** none needed (one module).
+
+Record: a87b142, merged 7ce4a76. No deviation. Found while testing: a phrase ending on a tense note is almost never followed by a carry-in phrase that succeeds (pre-existing since v2/v3.1), and Jam's phrase 1, generated with a carry-in, may end tense (wave log, wave 4).
 
 ### Chunk 8 — Rhythm ordered by the steering block
 
