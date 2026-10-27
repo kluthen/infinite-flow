@@ -941,3 +941,13 @@ part of the note (staccato).
   H1's pick sorts non-listening measures by name, so a future doodle sorting earlier could change
   it; callers pass the `NoteDensityContext`.
 - 7 dispatched (2026-10-27), branch `v3.2-c7-doodle-join`.
+- Chunk 28's design edge: `ux-writer` (763ad72, ux D355): when the supported-combination step
+  raised rhythmic variety, the readings line shows the raised value marked "(to work with the other
+  rhythm values)" instead of "(default)", also when the doodle showed a lower variety. Chunk 28's
+  model drops the value before the step, so plan v22 (`spec-writer`, 661af93; spec D445, D446,
+  Part C v1.13) gives chunk 31 a `raised` field. D445: the step judges note density as read (a
+  Sixteenth is Sixteenth at every width), so it runs once when the doodle ends, and a window
+  crossing rewrites nothing; `readDoodleControls` loses its window context in chunk 31. Cost: on a
+  narrow window, a few Sixteenth combinations keep a variety one step higher than Eighth alone
+  needs (to mention at wave 5's report). For wave 5's preflight: `rule_doodle_controls_always_supported`
+  ("as it generates at the current window width" → "as read") and `module_doodle_controls` change.
