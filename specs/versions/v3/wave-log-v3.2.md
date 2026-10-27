@@ -895,3 +895,4 @@ part of the note (staccato).
   `melodicMoveBetween`, `pitchSteeringTerm`, `moveDisagreement`). For chunk 28: reuse
   `melodicMoveBetween` for the block's moves. Risk: under Predictable or Chaotic the term barely
   moves chord tones (Jam holds Varied).
+- 20 dispatched (2026-10-27), branch `v3.2-c20-jam-mode-switch` (split 20a/20b).
