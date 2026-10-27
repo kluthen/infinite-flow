@@ -205,6 +205,14 @@ request and seed, and owes nothing at its end.
   note starts on beat 1 or 3) or the neighbor tone is not Off. It names no figure, so a Favored
   level never makes the search try it before the chord tones. Neutral and Jazz keep those three
   at As today, so their joined phrases are unchanged.
+- **Known limit: a join can be impossible at the window's edge** (ISS-015; spec D447, D448). A
+  tense ending is offered whenever a resolving tonic-triad tone lies inside the carried window, but
+  that tone may be the window's highest (or lowest) scale tone, where the next phrase's Arch or
+  Rising (or Falling) contour has no room for its first move. The same happens with no tense note
+  when a Falling + Smooth phrase ends on the window's lowest triad tone. The carry-in attempt then
+  fails for every seed and the failure ladder gives a standalone phrase: the player still hears a
+  phrase, not a joined one. It is rare at the default settings and common in the High and Low
+  registers. The fixes are deferred past v3.2; the floor case is accepted as designed.
 - **The next phrase settles the debt on its first note, never later.** An owed recovery is repaid
   by the first interval (opposite direction, 1-4 semitones). A tense carried note is resolved by
   the first note: a collection step onto a tone of the first chord.

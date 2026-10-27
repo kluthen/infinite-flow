@@ -1022,8 +1022,8 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   readings, with D445's change to the same function. Now in:
   [build plan v3.2, chunk 31](versions/v3/build-plan-v3.2.md#chunk-31--jams-settings).
 
-- **D447 (2026-10-27): ISS-015's fixes are deferred past v3.2.** The owner's ("Later, after
-  v3.2"; his "Now, in wave 4" read as recording this now). Neither fix A (a tense ending only
+- **D447 (2026-10-27): ISS-015's fixes are deferred past v3.2.** The owner chose "Later, after
+  v3.2" (their "Now, in wave 4" read as recording this now). Neither fix A (a tense ending only
   where the next phrase's contour can start) nor fix C (proving the join impossible before the
   search) is built in v3.2; ISS-015 stays open. Phrase 2 of seven doodle × instrument cases is
   standalone, and some carry-in attempts burn their fuel first; the Jam and session sweeps read

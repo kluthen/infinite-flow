@@ -4,7 +4,7 @@
 **Ref:** `ISS-015`
 **Date:** 2026-10-27
 **Severity:** Medium
-**Status:** Open
+**Status:** Open (fixes deferred past v3.2, spec D447; the Falling floor case accepted as a known limit, spec D448)
 **Component:** `src/domain/generation/carry-in/phrase-ending-debt.ts`
 **Affects:** `src/domain/pitch/pitch-candidates.ts` (tense endings offered), `src/domain/pitch/validation/join-rules.ts` (the validator's tense ending), `src/domain/generation/carry-in/carry-in-fit.ts` (the carry-in fit and setting-change recheck), `src/domain/pitch/pitch-advance.ts` and `src/domain/pitch/pitch-contour.ts` (where the next phrase fails), `src/session/failure-ladder.ts` (which hides it), Jam's phrase 1 to phrase 2 join (`src/jam/doodle-join.ts`, v3.2 chunk 18)
 
@@ -83,6 +83,17 @@ The `search_limit_exceeded` variant is the same cause. When the rhythm domain is
 | Current mitigant    | The failure ladder (`rule_session_generation_failure_ladder`, STABLE) always produces a phrase; `rule_open_phrase_ending` and `rule_join_tense_note_resolution` explicitly allow a tense ending to stay unresolved when the next phrase is standalone.                                                                                                     |
 
 **Defect or allowed fallback?** The user-visible outcome (a standalone phrase, the tense note dropped) is within spec. The ladder is designed for it, and the two rules above name that case. But the tense ending case is a defect against intent. `rule_join_tense_note_resolution`'s INTENT is that the tense ending resolves onto the next phrase, and the code's own documented invariant (`phrase-ending-debt.ts:11-15`) promises that a phrase only ends owing what the next phrase can settle. Here the ending is offered when the next phrase deterministically cannot settle it: 61% of tense endings in the grid below are dead ends, for every seed. No atom EXPECTATION is literally violated, because they are all conditional on "the next phrase is generated with its carry-in". The non-tense Falling + Smooth floor pin is a design limitation within spec (interval cap + contour + inherited window). It is no defect against an atom.
+
+---
+
+## Decision (2026-10-27)
+
+The owner deferred fixes A and C past v3.2 (spec D447) and accepted the plain floor/ceiling pin
+(sparse-calls, Falling + Smooth) as a known limit, option B2 (spec D448). v3.2's Jam sweep (M1),
+session sweep (M5), chunk 18 and chunk 29 read their figures with this issue named, not tuned
+around it. The known limit is written in `docs/music/pitch-planner-validation.md` ("Joins between
+session phrases (v2)"); `documentalist` words it into `rule_join_interval_obeys_phrase_rules` at
+wave 4's sync.
 
 ---
 

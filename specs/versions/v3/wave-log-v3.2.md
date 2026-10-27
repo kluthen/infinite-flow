@@ -969,3 +969,19 @@ part of the note (staccato).
   phrase 2 then falls down v2's ladder to a standalone phrase (7 of 33 cases). `sparse-calls`'
   controls (Falling, Smooth, Breath-heavy) fail phrase 2 with its carry-in for every seed, as v3.1's
   chain does for most. Sent for diagnosis (an issue, no fix) while chunk 8 waits on LD.
+- ISS-015 diagnosed (`coding-leader`, issue filed 69e8bd9, merged 96dc850; no code change): the
+  next phrase's only legal first note (the step resolving a tense ending, onto a tonic-triad tone)
+  sits at the carried window's edge, where Arch / Rising (or Falling) can't make its first move;
+  `tenseNoteCanSettle` ignores the next contour. Not fuel: large rhythm domains burn the 160,000
+  carry-in fuel (~1.35 s per attempt, up to ~5 s with retries) on the same dead end. Numbers:
+  default settings 0 of 315 joins lost; sweep cases 19 of 2,827 joins to standalone; a contour ×
+  leapiness × register grid 79 of 1,440 (61 % of tense joins, all in High or Low); Jam phrase 2,
+  7 of 33 doodle × instrument cases. Related, no tense note: Falling + Smooth ending on the
+  window's lowest triad tone (sparse-calls). Proposed fixes A (contour-aware "can settle", gated by
+  a new request field, contract MAJOR) and C (prove the join impossible before searching).
+- The owner's answers (2026-10-27): fixes A and C "Later, after v3.2"; the Falling floor case
+  "Accept and document" (B2). Plan v23 (`spec-writer`, 86f1d7c; spec D447, D448): M1, M5, chunks
+  18 and 29 read their figures with ISS-015 named (the seven cases listed in M1); Part C unchanged
+  (it already names v2's ladder). The driver marked the issue deferred and wrote the known limit
+  into `docs/music/pitch-planner-validation.md`. For the sync: B2's wording in
+  `rule_join_interval_obeys_phrase_rules`.
