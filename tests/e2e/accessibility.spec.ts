@@ -604,3 +604,53 @@ for (const scan of REVIEW_TOOLS_SCANS) {
     })
   }
 }
+
+// Jam mode at Idle (no doodle kept), without a controller (`jam-needs-controller`, named by the
+// disabled `Start Jam`) and with one (the starting-note line naming the home note).
+for (const controller of ['without', 'with'] as const) {
+  for (const theme of ['Light', 'Dark'] as const) {
+    test(`has no detectable axe violations in Jam mode at Idle ${controller} a controller, ${theme} theme`, async ({
+      page,
+    }) => {
+      await gotoControllerHarness(page, { query: { pregeneration: 'off' } })
+      if (controller === 'with') await connectDevice(page, KEYS)
+      await radio(page, 'Presentation theme', theme).click()
+      await page
+        .getByRole('radiogroup', { name: 'Mode', exact: true })
+        .getByRole('radio', {
+          name: 'Jam',
+          exact: true,
+        })
+        .click()
+      await expect(page.locator('.staff-frame.staff-jam svg.staff-svg')).toHaveCount(1)
+      const cue = controller === 'with' ? '.start-note-line' : '.jam-needs-controller'
+      await expect(page.locator(`.session-cue-row ${cue}`)).toBeVisible()
+      await page.waitForFunction(() =>
+        document.getAnimations().every((animation) => !(animation instanceof CSSTransition)),
+      )
+
+      const results = await new AxeBuilder({ page }).analyze()
+      expect(results.violations, describeViolations(results.violations)).toEqual([])
+    })
+  }
+}
+
+test('the mode switch is the radiogroup "Mode", its checked segment exposed to assistive technology', async ({
+  page,
+}) => {
+  await gotoControllerHarness(page, { query: { pregeneration: 'off' } })
+  const modeSwitch = page.getByRole('radiogroup', { name: 'Mode', exact: true })
+  const session = modeSwitch.getByRole('radio', { name: 'Session', exact: true })
+  const jam = modeSwitch.getByRole('radio', { name: 'Jam', exact: true })
+  await expect(session).toBeChecked()
+  await expect(jam).not.toBeChecked()
+
+  await jam.click()
+  await expect(jam).toBeChecked()
+  await expect(session).not.toBeChecked()
+  await expect(jam).toBeFocused()
+  await expect(page.locator('.staff-frame.staff-jam')).toBeVisible()
+
+  const results = await new AxeBuilder({ page }).include('.mode-switch').analyze()
+  expect(results.violations, describeViolations(results.violations)).toEqual([])
+})

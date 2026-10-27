@@ -244,6 +244,18 @@ export interface SessionControllerState {
    */
   // @spec-link [[rule_midi_starting_note]]
   readonly startingNoteAwaitsClick: boolean
+  /**
+   * Whether the page has had its first click, tap or key press since it loaded (a note played on
+   * the controller never counts); Jam's starting note waits for it as session mode's does.
+   */
+  // @spec-link [[rule_midi_starting_note]]
+  readonly pageActivated: boolean
+  /**
+   * Whether the rotate-device notice shows now (a portrait-shaped view below bp-desktop), from the
+   * window's shape the controller reads: no session and no Jam can start then.
+   */
+  // @spec-link [[rule_session_start_conditions]]
+  readonly orientationNoticeShown: boolean
   /** A lost controller's countdown while it runs, count-in included; null otherwise. */
   readonly controllerLost: ControllerLostCountdown | null
   /** The running session's acknowledged notes, in acknowledgement order; empty at Idle. */

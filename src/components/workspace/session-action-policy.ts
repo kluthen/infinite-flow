@@ -2,7 +2,8 @@
  * The header's two action slots, the phrase action and the session action: which of them carries
  * the primary emphasis in each workspace state, by the handoff's action table, and when the phrase
  * action is disabled. Exactly one slot carries the emphasis: the next useful step. Pure and
- * DOM-free; the header reads the facts from the Idle state and the session controller.
+ * DOM-free; the header reads the facts from the Idle state and the session controller. It also
+ * judges when a fresh Jam (Jam mode at Idle, no doodle kept) could start.
  */
 
 /** The workspace facts the action table is judged on. */
@@ -69,5 +70,45 @@ export function phraseActionDisabled(facts: PhraseActionFacts): boolean {
     facts.blockedByUnsupportedRhythm ||
     facts.sessionActive ||
     facts.reviewShowing
+  )
+}
+
+/** The facts a fresh Jam's start (Jam mode at Idle, no doodle kept) is judged on. */
+// @spec-link [[rule_jam_start_conditions]]
+export interface FreshJamStartFacts {
+  /** The session controller has loaded: every start goes through it. */
+  readonly controllerLoaded: boolean
+  /** A MIDI controller is connected (`controller-status` shows its connected badge). */
+  readonly controllerConnected: boolean
+  /** A session is running, count-in included. */
+  readonly sessionActive: boolean
+  /** The review mode shows: a Review, or the session list. */
+  readonly reviewShowing: boolean
+  /** A sheet is open (the connection, My instrument, Your data or preset sheet, with its confirmations). */
+  readonly sheetOpen: boolean
+  /** The rotate-device notice shows (a portrait-shaped view below bp-desktop). */
+  readonly orientationNoticeShown: boolean
+  /** Jam's staff shows its empty system: neither Needs more room nor a notation error. */
+  readonly jamStaffShown: boolean
+}
+
+/**
+ * Intent: whether a fresh Jam could start now: every condition of a session start except the three
+ * that need a phrase (a phrase on screen, no new phrase being generated, a supported rhythm
+ * combination), and a controller connected: the controller loaded, no session running, the review
+ * mode not showing, no sheet or confirmation open, and the staff shown (no rotate-device notice,
+ * no Needs more room, no Notation error).
+ */
+// @spec-link [[rule_jam_start_conditions]]
+// @spec-link [[rule_jam_needs_controller]]
+export function freshJamCanStart(facts: FreshJamStartFacts): boolean {
+  return (
+    facts.controllerLoaded &&
+    facts.controllerConnected &&
+    !facts.sessionActive &&
+    !facts.reviewShowing &&
+    !facts.sheetOpen &&
+    !facts.orientationNoticeShown &&
+    facts.jamStaffShown
   )
 }

@@ -131,6 +131,7 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
   )
 
   const connectionSheetOpen = shallowRef(false)
+  const sessionModeHeld = shallowRef(false)
   const slot = createPregenerationSlot()
   const {
     controls,
@@ -220,6 +221,8 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
     audio: deps.audio,
     midi: deps.midi,
     connectionSheetOpen,
+    sessionModeHeld,
+    prewarm: deps.prewarmPolicy === 'enabled' ? deps.prewarm : null,
     browser: deps.browser,
     createSessionController: async () => {
       // The runner starter settles only once the replay-key announcer has loaded, so the
@@ -250,6 +253,7 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
         staffFitPlanner: loadSessionStaffFitPlanner,
         midi: deps.midi,
         connectionSheetOpen: () => connectionSheetOpen.value,
+        sessionModeHeld: () => sessionModeHeld.value,
         pregeneration: (seams) =>
           createWorkspacePregeneration({
             ...seams,

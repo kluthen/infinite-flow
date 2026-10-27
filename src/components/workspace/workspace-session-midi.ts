@@ -52,8 +52,8 @@ export interface ControllerLostCountdown {
 
 /**
  * What the MIDI side reads from the controller: the MIDI controller and the audio transport, the
- * page's first click, tap or key press, whether a sheet or the stale-phrase prompt is open and
- * whether Start may be clicked (both reactive), the Idle result and the written phrase the staff
+ * page's first click, tap or key press, whether a sheet or the stale-phrase prompt is open,
+ * whether session mode is held and whether Start may be clicked (all reactive), the Idle result and the written phrase the staff
  * shows, and the controller's own start (which opens the prompt instead with a stale phrase 1).
  */
 // @spec-link [[rule_midi_starting_note]]
@@ -63,6 +63,8 @@ export interface SessionMidiDependencies {
   readonly pageActivation: PageActivation
   /** A sheet (connection, My instrument, Your data) or the stale-phrase prompt is open. */
   readonly connectionSheetOpen: () => boolean
+  /** Session mode is held (Jam mode opening or showing): no note starts a session. */
+  readonly sessionModeHeld: () => boolean
   readonly canStart: () => boolean
   readonly idleResult: () => WorkspaceSessionResult | null
   readonly idlePhrase: () => WrittenPhrase | null
@@ -115,6 +117,8 @@ export interface SessionMidi {
    */
   // @spec-link [[rule_midi_starting_note]]
   readonly startingNoteAwaitsClick: () => boolean
+  /** Whether the page has had its first click, tap or key press since it loaded. */
+  readonly pageActivated: () => boolean
   readonly controllerLost: () => ControllerLostCountdown | null
   readonly acknowledged: () => readonly ExpectedNoteIdentity[]
   readonly sessionHasController: () => boolean | null
@@ -224,6 +228,7 @@ export function createSessionMidi(deps: SessionMidiDependencies): SessionMidi {
     controllerState: () => midiState.value,
     startingNote: idleStartingNote.startingNote,
     startingNoteAwaitsClick: idleStartingNote.awaitsClick,
+    pageActivated: idleStartingNote.pageActivated,
     controllerLost: () => controllerLost.value,
     acknowledged: () => acknowledged.value,
     sessionHasController: () => sessionHasController.value,

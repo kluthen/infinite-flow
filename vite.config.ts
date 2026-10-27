@@ -6,6 +6,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vite'
 
 import { appVersionDefine } from './scripts/app-version-define.mjs'
+import { moduleGraphPlugin } from './scripts/module-graph-plugin.mjs'
 
 export default defineConfig({
   define: appVersionDefine(),
@@ -22,6 +23,9 @@ export default defineConfig({
     // Options API code from the bundle (about 4.5 kB of the entry chunk).
     vue({ features: { optionsAPI: false } }),
     tailwindcss(),
+    // Writes dist/.vite/module-graph.json (each JS chunk's modules and imports), which
+    // scripts/verify-boundaries.mjs reads to keep Jam's code (src/jam/) out of the first load.
+    moduleGraphPlugin(),
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {

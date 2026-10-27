@@ -9,11 +9,12 @@
  * the same whole-phrase plan. It also runs the two pure pre-draw checks the idle workspace needs,
  * through the same planning code drawing uses and without touching the DOM: whether a phrase
  * fits, and whether the window has room for the staff with a given key signature at all. It also
- * re-exports the controller check's one-note engraving (./vexflow-check-note-engraver.ts), so that
- * ships in this same lazy chunk. Together with that file, ./vexflow-mapping.ts and
- * ./vexflow-two-system-engraver.ts, this is one of the only four files allowed to import 'vexflow'.
+ * re-exports the controller check's one-note engraving (./vexflow-check-note-engraver.ts) and
+ * Jam's empty system (./vexflow-empty-system-engraver.ts), so they ship in this same lazy chunk.
+ * With those two files, ./vexflow-mapping.ts and ./vexflow-two-system-engraver.ts, this is one of
+ * the only five files allowed to import 'vexflow'.
  */
-import { Formatter, Stave, StaveNote, Voice, type Beam } from 'vexflow/bravura'
+import { Formatter, StaveNote, Voice, type Beam } from 'vexflow/bravura'
 
 import type { ExpectedNoteIdentity } from '../domain/acknowledgement/expected-note'
 import type { WrittenPhrase } from '../domain/notation/written-phrase-types'
@@ -50,16 +51,18 @@ import {
   type FlatGlyph,
 } from './vexflow-mapping'
 import {
-  addClefAndKey,
   assertSystemWidthBounds,
   buildSystemStaves,
   drawSystemMeasures,
   finishSystemSvg,
+  measureLeadingWidth,
   openSystemSvg,
+  SYSTEM_PADDING_UNITS,
   type MeasureBox,
 } from './vexflow-two-system-engraver'
 
 export { engraveCheckNote } from './vexflow-check-note-engraver'
+export { engraveEmptySystem } from './vexflow-empty-system-engraver'
 
 /** The engraved result: one SVG per system that shows notes, plus the geometry PhraseScore reports. */
 export interface EngravedScore {
@@ -95,16 +98,6 @@ export interface EngravedSystem extends Pick<
 
 /** Where each system draws: the top position's host, then the bottom position's. */
 export type SystemTargets = readonly [HTMLElement, HTMLElement]
-
-/**
- * Reserved raw engraving units beyond a system's measures' minimum widths (barline, margins, and a
- * safety margin absorbing the small gap between Formatter.preCalculateMinTotalWidth's estimate and
- * the actual formatToStave layout width).
- */
-const SYSTEM_PADDING_UNITS = 60
-
-/** A wide scratch width (raw units) used only to measure the first stave's leading offset. */
-const LEADING_SCRATCH_WIDTH_UNITS = 1000
 
 /** Each system part: the layout it belongs to, its stacking index in it and its phrase measures. */
 const SYSTEM_PARTS: Readonly<
@@ -185,17 +178,6 @@ function measureMinWidths(voices: readonly Voice[]): readonly [number, number, n
     new Formatter().joinVoices([voice]).preCalculateMinTotalWidth([voice]),
   )
   return [widths[0]!, widths[1]!, widths[2]!, widths[3]!]
-}
-
-/**
- * Intent: measure the first stave's leading width (clef + key signature + time signature) for a
- * clef and a key signature, on a scratch stave built with the drawn staff's own helper.
- */
-function measureLeadingWidth(clef: InstrumentClef, signature: StaffKeySignature): number {
-  const scratch = new Stave(0, 0, LEADING_SCRATCH_WIDTH_UNITS)
-  addClefAndKey(scratch, clef, signature)
-  scratch.addTimeSignature('4/4')
-  return scratch.getNoteStartX()
 }
 
 /** Intent: flatten every measure's glyphs and tieToNext flags in phrase order, for cross-measure ties. */

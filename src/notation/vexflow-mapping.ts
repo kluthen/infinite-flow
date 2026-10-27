@@ -5,9 +5,9 @@
  * here re-decides music (no auto-accidentals, no auto-beaming, no auto-stemming): every glyph,
  * accidental, stem direction, beam group and tie is taken verbatim from the WrittenPhrase. It
  * also reports where a drawn note's own parts are, for the note-identity tagging
- * (./note-part-tags.ts). Together with
- * ./vexflow-engraver.ts, ./vexflow-two-system-engraver.ts and ./vexflow-check-note-engraver.ts,
- * this is one of the only four files allowed to import 'vexflow'.
+ * (./note-part-tags.ts). Together with ./vexflow-engraver.ts, ./vexflow-two-system-engraver.ts,
+ * ./vexflow-check-note-engraver.ts and ./vexflow-empty-system-engraver.ts, this is one of the only
+ * five files allowed to import 'vexflow'.
  */
 import {
   Accidental,

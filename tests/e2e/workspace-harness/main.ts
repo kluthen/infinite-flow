@@ -65,7 +65,7 @@
  * - the prewarm policy, read from the page URL exactly as production reads it (`?prewarm=off`
  *   disables it, on by default), with every prewarm forwarded to the real worker client and
  *   counted for `prewarmCount()`, the instrument profile each carried kept for
- *   `prewarmInstrumentProfiles()`;
+ *   `prewarmInstrumentProfiles()` and its rhythm setting for `prewarmRhythmSettings()`;
  * - the Idle pre-generation policy, read from the page URL with the harness's own default: off,
  *   unlike production, so no spec meets background attempts unless it asks for them with
  *   `?pregeneration=on`; any value given is read by production's parser (`off`, `on`, a mistyped
@@ -468,6 +468,8 @@ function armGenerationFailures(
 let prewarmsPosted = 0
 /** The instrument profile each prewarm carried, in post order. */
 const prewarmInstrumentProfiles: WorkspaceHarnessInstrumentProfile[] = []
+/** The rhythm setting each prewarm carried, in post order. */
+const prewarmRhythmSettings: WorkspaceHarnessPrewarmRhythmSetting[] = []
 /** The wall clock a spec fixed, as epoch milliseconds; null reads the real one. */
 let fixedWallClock: number | null = null
 
@@ -484,6 +486,8 @@ function setWallClock(epochMs: number | null): void {
 function harnessPrewarm(intent: GenerationIntent): void {
   prewarmsPosted += 1
   prewarmInstrumentProfiles.push(instrumentProfileOf(intent))
+  const { noteDensity, rhythmicVariety, syncopation, silenceDensity, tension } = intent.controls
+  prewarmRhythmSettings.push({ noteDensity, rhythmicVariety, syncopation, silenceDensity, tension })
   client.prewarm(intent)
 }
 
@@ -578,6 +582,7 @@ const harnessApi: WorkspaceHarnessApi = {
   selectPreset,
   prewarmCount: () => prewarmsPosted,
   prewarmInstrumentProfiles: () => prewarmInstrumentProfiles.map((profile) => ({ ...profile })),
+  prewarmRhythmSettings: () => prewarmRhythmSettings.map((setting) => ({ ...setting })),
   audio: harnessAudio.api,
   midi: harnessMidi.api,
   screenLocks: harnessBrowser.screenLocks,

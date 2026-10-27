@@ -1,0 +1,30 @@
+{
+  "chunks": [
+    {
+      "fileName": "assets/index-a1.js",
+      "isEntry": true,
+      "imports": [],
+      "dynamicImports": ["assets/jam-mode-d4.js", "assets/vexflow-engraver-e5.js"],
+      "modules": [
+        "plugin-vue:export-helper",
+        "src/App.vue",
+        "src/components/workspace/load-jam-mode.ts",
+        "src/main.ts"
+      ]
+    },
+    {
+      "fileName": "assets/jam-mode-d4.js",
+      "isEntry": false,
+      "imports": ["assets/index-a1.js"],
+      "dynamicImports": [],
+      "modules": ["src/jam/JamWorkspace.vue", "src/jam/jam-mode.ts"]
+    },
+    {
+      "fileName": "assets/vexflow-engraver-e5.js",
+      "isEntry": false,
+      "imports": ["assets/index-a1.js"],
+      "dynamicImports": [],
+      "modules": ["node_modules/vexflow/build/esm/entry/vexflow.js"]
+    }
+  ]
+}

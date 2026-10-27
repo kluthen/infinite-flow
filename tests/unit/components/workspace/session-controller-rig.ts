@@ -11,7 +11,7 @@
  * of phrase 1, and the staff planner is a fake where every phrase fits until the test says otherwise.
  * The MIDI controller is a real one on a fake MIDI access, its notes placed on the same fake audio
  * clock; nothing is plugged in and MIDI access was never asked for until a test connects. The
- * connection sheet's open flag is the test's to set. The Idle side's fresh-phrase action only logs
+ * connection sheet's open flag and session mode's hold are the test's to set. The Idle side's fresh-phrase action only logs
  * what the controller showed when it was asked: the Idle state stays as the test left it. A test
  * can send the latest runner an automatic settings change, which no part of the app sends yet.
  * The hold of the player's saves logs each hold and release with what the controller showed then.
@@ -221,6 +221,8 @@ export interface ControllerRig {
   readonly midi: MidiController
   /** Whether the connection sheet is open, as the shell would report it; false at first. */
   readonly sheetOpen: ShallowRef<boolean>
+  /** Whether session mode is held (Jam mode opening or showing), as the shell would report it. */
+  readonly sessionModeHeld: ShallowRef<boolean>
   /** Every time the controller asked the Idle side for a fresh phrase, in order. */
   readonly freshPhraseRequests: FreshPhraseRequest[]
   /** Hand the latest runner's output sink an output no real engine would give, as a broken one. */
@@ -323,6 +325,7 @@ export function controllerRig(
     clock: { anchor: () => (transport.isUnlocked() ? audioRig.output.anchor() : null) },
   })
   const sheetOpen = shallowRef(false)
+  const sessionModeHeld = shallowRef(false)
   const freshPhraseRequests: FreshPhraseRequest[] = []
   let built: SessionController | null = null
   const runners: SessionRunner[] = []
@@ -405,6 +408,7 @@ export function controllerRig(
     staffFitPlanner: planner.load,
     midi,
     connectionSheetOpen: () => sheetOpen.value,
+    sessionModeHeld: () => sessionModeHeld.value,
     pregeneration: options.pregeneration ?? disabledPregeneration,
     savedSessionOptions: options.savedSessionOptions ?? DEFAULT_SESSION_OPTIONS,
     savedKeepPlayedNotes: options.savedKeepPlayedNotes ?? false,
@@ -475,6 +479,7 @@ export function controllerRig(
     midiAccess,
     midi,
     sheetOpen,
+    sessionModeHeld,
     freshPhraseRequests,
     injectOutput: (output) => {
       const input = runnerInputs.at(-1)

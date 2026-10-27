@@ -1,0 +1,11 @@
+{
+  "chunks": [
+    {
+      "fileName": "assets/index-a1.js",
+      "isEntry": true,
+      "imports": [],
+      "dynamicImports": [],
+      "modules": ["src/App.vue", "src/jam/jam-mode.ts", "src/main.ts"]
+    }
+  ]
+}
