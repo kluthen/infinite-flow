@@ -1,5 +1,6 @@
 import type { ArpeggioChaos } from '../controls/generation-controls'
 import { deepFreeze } from '../events/deep-freeze'
+import { moveDisagreement, type PitchSteeringTerm } from '../generation/steering/pitch-steering'
 import { FIGURE_IDS, type FigureId, type FigureLevels } from '../figures/figure-levels'
 import { isFavoredLevel, isFigureDrawn, type FavoredLevel } from './figure-draw'
 import type {
@@ -24,18 +25,23 @@ const FAVORED_PRIORITY: Readonly<Record<FavoredLevel, number>> = deepFreeze({
  *    other candidates there, 0 elsewhere);
  * 2. chord tones before every non-chord candidate, so chaos can never interleave the two groups;
  * 3. arpeggio chaos, applied only to chord tones: Predictable prefers the nearest tone, Chaotic the
- *    farthest, Varied leaves chord tones to the seeded tie key.
- * Without `favored` the tuple is the one used before the figure levels existed.
+ *    farthest, Varied leaves chord tones to the seeded tie key;
+ * 4. only with a steering term and a note before: the steering block's move preference, below every
+ *    rank above, so it orders candidates within a rank and never moves one across.
+ * Without `favored` the tuple is the one used before the figure levels existed; without a term
+ * (no steering block, or a note nothing steers) it is v3.1's three-term tuple.
  */
 // @spec-link [[rule_arpeggio_chaos_respects_constraints]]
 // @spec-link [[module_favored_figure_draw]]
 // @spec-link [[rule_figure_level_orders_search]]
+// @spec-link [[rule_jam_melody_follows_doodle_moves]]
 export function pitchRank(
   chaos: ArpeggioChaos,
   attack: Pick<PitchAttack, 'isBeatOne' | 'isFirstUnderHarmonyChange'>,
   candidate: Pick<PitchCandidate, 'role' | 'midi'>,
   priorMidi: number | undefined,
   favored?: Pick<FavoredEntry, 'level'>,
+  steering?: PitchSteeringTerm,
 ): readonly number[] {
   const chord = candidate.role === 'chord_tone'
   const priority =
@@ -52,7 +58,14 @@ export function pitchRank(
       : chaos === 'Chaotic'
         ? -distance
         : 0
-  return deepFreeze([priority, chord ? 0 : 1, chaosKey])
+  return steering === undefined || priorMidi === undefined
+    ? deepFreeze([priority, chord ? 0 : 1, chaosKey])
+    : deepFreeze([
+        priority,
+        chord ? 0 : 1,
+        chaosKey,
+        moveDisagreement(steering, priorMidi, candidate.midi),
+      ])
 }
 
 /** Lexicographic comparison of two rank tuples of equal length. */
@@ -142,10 +155,14 @@ function figureIndex(entry: PitchSearchEntry): number {
  * first, their tie key seeded over the candidate and the figure. Where no named figure is drawn,
  * or no levels are given, every candidate is one unheld entry in exactly the order used before
  * the figure levels existed.
+ *
+ * With a steering term, candidates of equal rank are ordered by agreement with the steering move
+ * before the tie key; without one, the order is v3.1's.
  */
 // @spec-link [[rule_arpeggio_chaos_respects_constraints]]
 // @spec-link [[module_favored_figure_draw]]
 // @spec-link [[rule_figure_level_orders_search]]
+// @spec-link [[rule_jam_melody_follows_doodle_moves]]
 export function orderCandidates(input: {
   readonly chaos: ArpeggioChaos
   readonly seed: number
@@ -158,6 +175,8 @@ export function orderCandidates(input: {
    * order is the one before the levels existed.
    */
   readonly figureLevels?: FigureLevels
+  /** The steering block's term for this note; omitted where nothing steers it. */
+  readonly steering?: PitchSteeringTerm
 }): readonly PitchSearchEntry[] {
   const drawn =
     input.figureLevels === undefined
@@ -169,7 +188,14 @@ export function orderCandidates(input: {
       : input.candidates.flatMap((candidate) => candidateEntries(candidate, drawn))
   const ranked = entries.map((entry) => ({
     entry,
-    rank: pitchRank(input.chaos, input.attack, entry.candidate, input.priorMidi, entry.favored),
+    rank: pitchRank(
+      input.chaos,
+      input.attack,
+      entry.candidate,
+      input.priorMidi,
+      entry.favored,
+      input.steering,
+    ),
     tieKey: input.key({
       seed: input.seed,
       decisionIdentity: input.attack.identity,

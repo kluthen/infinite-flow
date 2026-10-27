@@ -1949,8 +1949,10 @@ npx vitest run tests/unit/generation-worker/phrase-replay-key-v31-corpus.spec.ts
 `tests/fixtures/doodles/` holds the doodles Jam's tests share, one JSON file per doodle. The doodle
 set's spec (`tests/unit/jam/doodle-set.spec.ts`) runs each one through the quantizer, so the set is
 part of the quantizer's tests. The Jam sweep plays them, the doodle-to-controls mapping's tests
-read their traits, and `npm run render:rhythms` renders five of their measures for the v3.2 H1
-listening check, so the owner can compare rhythms by ear. It picks the measures with a real rhythm
+read their traits, the melody-steering spec
+(`tests/unit/domain/pitch/melody-steering-generation.spec.ts`) reads the moves between their
+quantized notes into steering blocks, and `npm run render:rhythms` renders five of their measures
+for the v3.2 H1 listening check, so the owner can compare rhythms by ear. It picks the measures with a real rhythm
 at every distance band, preferring those marked as listening measures (`listeningMeasure`):
 measures played detached, with a short rest after each note, often lie beyond every rhythm the app
 writes.
