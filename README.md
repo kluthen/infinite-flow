@@ -91,8 +91,9 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   a capture's raw played notes into the quantized doodle with integer arithmetic, and what Jam
   reads from that doodle, pure and in whole numbers: the seven controls with the register window
   phrase 1's join reads (`doodle-controls.ts`, the rhythm readings and the doodle's rests in
-  `doodle-rhythm-reading.ts`) and the steering block (`steering-block-builder.ts`). Nothing outside
-  `src/jam/` imports the quantizer (enforced by ESLint).
+  `doodle-rhythm-reading.ts`), the steering block (`steering-block-builder.ts`) and phrase 1's
+  join from the doodle's last note, or none outside the range or every window (`doodle-join.ts`).
+  Nothing outside `src/jam/` imports the quantizer (enforced by ESLint).
 - `src/generation-worker/` — the typed request/response protocol and handler that run generation
   inside a dedicated module Web Worker, off the main thread.
 - `src/notation/` — the concert-to-written transformation types and the VexFlow engraving adapter,
