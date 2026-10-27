@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.84
+Status: draft v0.85
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -36,7 +36,7 @@ approval (D410); [Part C §C17](versions/v3/master-spec.md#c17-deferred-and-open
 now stands.
 O267 (a doodle note played before the doodle's first barline, D430) was opened on 2026-10-23,
 and O268 and O269 (how the doodle's short silences and its legato rhythm are read, D433) the same
-day. New questions take IDs from **O270**; the IDs reserved for v3.0's waves and left unused stay
+day; O268 was closed on 2026-10-27 by the owner's answer (D440). New questions take IDs from **O270**; the IDs reserved for v3.0's waves and left unused stay
 unused, and O177 stays unused.
 
 Opened on 2026-10-12 with v3.3 (D261): O165–O175, richer chords. D262 closed O174 the same day.
@@ -296,25 +296,6 @@ in progress.
   it is open; C5.15 only says a note running past the section's end stops there. Proposed: the
   export starts it at the section's start, its release unchanged, as the end is clipped; the lane
   draws it where it was played. Needed before chunk 23 (the lane, wave 6) and chunk 25 (wave 7).
-- **O268 - How a short silence between two doodle notes is read** _(D433; [Part C
-  §C5.9](versions/v3/master-spec.md#c59-what-the-doodle-feeds-the-generator), [build plan gate
-  DS](versions/v3/build-plan-v3.2.md#gates))_: the question for the owner: when you play notes short
-  and separated (each one tongued and let go a little before the next), should Jam hear the small
-  gaps as rests, or as part of the notes, as sheet music writes short, detached notes as ordinary
-  notes (with a staccato dot) rather than as rests? Today C5.9 makes every silence a rest start, and
-  no rhythm the generator writes holds a rest one sixteenth long off the beat grid, so 4 of chunk
-  3's 6 listening doodles are "beyond" every rhythm (`quarter-steps`, four detached quarters, reads
-  a sixteenth rest on its last sixteenth): for such doodles Close and Near order rhythms alike, and
-  C5.16's "a doodle far from everything the settings allow no longer happens" fails. A tongued
-  wind controller will make most real doodles detached. Proposed: part of the notes. A silence is a
-  rest only where a whole rest of the doodle's note density value (a quarter, an eighth or a
-  sixteenth, as read in C5.16.1) fits inside it on that grid, its rest start at the first such grid
-  tick; the silence density reading counts the same rests. All four doodles then come within reach
-  (`quarter-steps` reads as four quarters, `tresillo-leaps` as 3 + 3 + 2), the other two and H1's
-  five measures are unchanged. Other answers: keep C5.9 (drift becomes "nearest first" for
-  detached doodles); drop only one-sixteenth silences (misses `sparse-calls`, a note held a
-  sixteenth past beat 3). Needed before chunk 28 (wave 4); not before gate LD. The owner's
-  recordings (gate DR) show how short real gaps are.
 - **O269 - Whether a legato doodle of eighths and quarters should read Heavily varied** _(D433;
   [Part C §C5.16.1](versions/v3/master-spec.md#c5161-the-doodle-to-controls-mapping), [v3.2
   H5](versions/v3/build-plan-v3.2.md#v32-h5--jam-listening-the-doodle-to-controls-mapping-l1))_: a

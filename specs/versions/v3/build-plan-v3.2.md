@@ -1,53 +1,11 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v20 (2026-10-26): v19 with chunk 16's finding written in (spec D439): chunk 19 carries the
-saved lock, allowed changes and allowed groups into Start and the Idle pre-generation's start, its
-Files, Scope, Done when and split rule to match, and runs the corpus guard. v19 (2026-10-26): v18 with wave 3's preflight corrections and the owner's bundle ruling
-written in (spec D437, D438): chunk 16's re-lock only from locked bars with sixteenth notes, its
-tenser flag's condition, Files on the session's engine and pre-generation plan (not the seed plan),
-atoms and drift checks, and gate CR for `module_session_ready_phrases`' likely wording at wave 3's
-sync; chunk 13 classes a re-lock from the history's mark and tunes no change share; chunk 19's
-Files, new specs and atoms; each wave gate records the first-load JS total (workflow deltas, M4).
-v18 (2026-10-23): v17 with chunk 11's two points settled (spec D435, D436; master spec
-Part C v1.11): "no change available" also covers a drawn change whose candidates all fail, and M2
-tallies it apart from "no candidate"; M2 and any test of the change shares draw from seed-plan
-phrase seeds, never raw consecutive seeds.
-v17 (2026-10-23): v16 with chunk 10's finding written in (spec D434): chunk 13 reports
-the rhythm orderings' time through the generator's diagnostics, under a clock only the sweeps pass,
-and the sweeps read it (M1, M5); chunk 8's steering rank inside that time; chunk 29's ladder double
-reports it.
-v16 (2026-10-23): v15 with chunk 3's findings written in (spec D431–D433, master spec
-Part C v1.10): chunk 13's lock census reads each phrase's lock outcome from its provenance; gate
-DS, the owner's answer to O268 (how the doodle's short silences are read), before chunk 28; v3.2
-H5 asks O269 (a legato doodle read as Heavily varied); gate LD opens as planned.
-v15 (2026-10-23): v14 with wave 2's preflight corrections and rulings written in (spec
-D427–D430, master spec Part C v1.9): chunk 10's walk rhythm-major only with locked bars, chunk 8's
-band read with it; chunks 10, 11, 12 and 22's atoms and drift checks; chunk 16's re-lock request
-without an allowed change; chunk 22's data versions, contract revisions, loophole closure and a
-fresh Jam's played-notes clock; gate CK widened to chunk 22; gate DR for the doodle recordings.
-v14 (2026-10-22): v13 with chunk 15's dead-end test matched to the trigger it uses, a
-dead end reached mid-session by changing the settings, since none is reachable under today's rules
-(spec D426, master spec Part C v1.8). v13 (2026-10-22): v12 with chunk 6's steering-block shape confirmed (spec D425, master spec
-Part C v1.7): chunk 6's capture states the block as built, note starts and rest starts; chunk 8
-reads candidates as heard against the doodle; chunk 28 writes a doodle measure's starts as C5.9
-says. v12 (2026-10-22): v11 with the ruling on chunk 5's change kinds written in (spec D424,
-master spec Part C v1.6): chunk 5's kinds, availability census and costs; chunks 8, 10 and 11's
-costs and chunk 11's Sixteenth case; M2's comparison; v3.2 H2's settings. v11 (2026-10-22): v10 with wave 1's preflight corrections and the driver's rulings written
-in (spec D422, D423; master spec Part C v1.5): chunks 4, 5, 6 and 15 corrected, chunk 12's two
-contract revisions, gates CN and CK, a MAJOR contract bump at the sync of each wave that changes a
-guarantee promoted at 8.1.0. v10 (2026-10-22): v9 with gate CS's sign-off written in (spec D421, master spec Part C
-v1.4): the owner signed off the change set's part M, M1–M22, as drafted; `documentalist` applies it
-on wave 0's branch, so a chunk's "(contract, CS)" revision is its sync's check that the code meets
-the signed wording. v9 (2026-10-21): v8 with chunk 2's report written in: the Vary settings draws corpus
-compares only `SessionSettings`' v3.1.0 keys once a chunk adds fields to it (the corpus guard,
-chunks 15 and 16). v8: v7 with chunk 0's three findings settled (spec D418–D420, master spec
-Part C v1.3): gate CS also takes `rule_start_while_controller_away` (chunk 20),
-`module_session_seed_plan` (chunks 17 and 18 build a fresh Jam's seeds, chunk 24 checks the kept
-doodle's) and the vision's out-of-scope browser line. v7: v6 with wave 0's preflight corrections (chunk 0 also drafts the vision's
-two v1.0 lines for CS and no longer edits the lexicon, whose v3.2 entries `spec-writer` brought to
-Part C v1.2; chunk 2's **Atoms** name its tests' links). v6: v5 **approved by the owner** (spec
-D417), hand check v3.2 H9 waived (spec D417). v5 was v4 (rewritten from master spec Part C v1.2 and the approved v3.2 design, Jam as its
-own mode, spec D416) corrected against the design at `ux-writer`'s review (chunks 1, 23, 24, 25, 30).
+Status: v21 (2026-10-27): v20 with wave 4's preflight corrections and the owner's answers on its
+gates written in (spec D440–D444, master spec Part C v1.12): chunks 20, 28, 8 and 9's atoms, Files,
+revisions and drift checks; DS answered (a short silence is part of the note before it), the tie
+between two window centres and what Jam's Idle prewarms before any doodle settled; DR re-scoped to
+v3.2 H5; chunk 18's no-phrase carry-in fuel for M1 to confirm.
+**Approved by the owner** at v6 (spec D417), hand check v3.2 H9 waived (spec D417).
 
 Jam mode, the key and mode suggestion, the rhythm lock, Jam's drift and Vary settings' allowed
 groups, written from [master spec Part C](master-spec.md#part-c--v32) v1.2 (approved by the owner on
@@ -134,8 +92,8 @@ no release is cut before wave 7 has merged.
 | **CK** | The owner confirms the wording of chunk 12's two contract revisions, `module_phrase_replay_key` and `rule_seeded_phrase_reproduction` (STABLE on the contract since 8.1.0), and of chunk 22's three, `module_kept_session_codec`, `entity_kept_session_record` and `module_on_device_database` (STABLE on the contract since v3.0; their wording takes in the loophole closure and a fresh Jam's played-notes clock), with the optional rewordings, and the MAJOR bump, CONTRACT 9.0.0 to 10.0.0, that applies them all at wave 2's sync (spec D422, D429, D430): the [change set](../../../docs/release/v3.1-v3.2-intent-change-set.md)'s part P, P1–P8 with P3b and the played-notes clock's wording. | `documentalist` drafts at wave 2's preflight (P1–P8, P3b; the clock's wording after spec D430); the owner confirms | Chunk 12's and chunk 22's merges into the wave branch | done (2026-10-23, the owner: "i approve it all"; change set part P, P1–P8 with P3b and the clock; applied at wave 2's sync) |
 | **CR** | If chunk 16 changes what `module_session_ready_phrases` (STABLE on the contract) guarantees, as the preflight expects (a ready phrase's re-derived request takes in the session's lock state): `documentalist` drafts the wording extension at wave 3's sync and the owner confirms it there, with the contract bump the change set's rule gives (spec D422, D437). As for CS, chunk 16 merges into the wave branch first, since chunks 13 and 19 build on it in the wave. | `documentalist` drafts; the owner confirms | Wave 3's sync, and so its merge into `main` | done (2026-10-26, the owner: "agreed"; change set part R; CONTRACT 11.0.0, bf64a28) |
 | **LD** | The owner ranks a handful of rhythm pairs by ear on drift's distance scale ([v3.2 H1](#v32-h1--drifts-scale-by-ear-ld)), before the scale drives the steering block's band ([C8](master-spec.md#c8-jams-drift)). A ranking that disagrees with the scale goes to `spec-writer` before chunk 8. | The owner; `spec-writer` if the ranking disagrees | Chunk 8 (wave 4) | open (after wave 2: chunks 3 and 5) |
-| **DR** | The owner's Travel Sax recordings join the doodle set: chunk 3 writes the doodles by hand and documents how to add recorded ones (played-notes exports, kept beside their quantized form); the owner records them that way (spec D427). | The owner | Chunk 28 (wave 4), whose readings and v3.2 H5 use the recorded doodles; nothing in wave 2 waits on it | open (after chunk 3) |
-| **DS** | The owner answers [O268](../../open-questions.md#v32-build-o267): how a short silence between two doodle notes (a detached note) is read, for the steering block's starts ([C5.9](master-spec.md#c59-what-the-doodle-feeds-the-generator)) and the silence reading ([C5.16.1](master-spec.md#c5161-the-doodle-to-controls-mapping)); `spec-writer` writes the answer into Part C and chunk 28 (spec D433). | The owner; then `spec-writer` | Chunk 28 (wave 4); nothing in waves 2 and 3 waits on it, nor LD (H1's measures read the same either way) | open |
+| **DR** | The owner's Travel Sax recordings join the doodle set: chunk 3 writes the doodles by hand and documents how to add recorded ones (played-notes exports, kept beside their quantized form); the owner records them that way (spec D427). Chunk 28 builds and tests on the twelve hand-written doodles; each recording, as it joins, runs through the quantizer's and the mapping's tests (spec D443). | The owner | v3.2 H5, so gate L1; the release gate's tests on recorded doodles (item 25). Not chunk 28 (spec D443) | open (the owner records during wave 4) |
+| **DS** | The owner answers O268 (now closed, [spec D440](../../decisions.md)): how a short silence between two doodle notes (a detached note) is read, for the steering block's starts ([C5.9](master-spec.md#c59-what-the-doodle-feeds-the-generator)) and the silence reading ([C5.16.1](master-spec.md#c5161-the-doodle-to-controls-mapping)); `spec-writer` writes the answer into Part C and chunk 28 (spec D433). | The owner; then `spec-writer` | Chunk 28 (wave 4) | done (2026-10-27, the owner: "part of the notes", as proposed; spec D440, Part C v1.12) |
 | **L3** | The owner's listening check of the allowed rhythm changes ([v3.2 H2](#v32-h2--allowed-rhythm-changes-l3), item 13); the change shares are tuned from it. | The owner | The release gate's final M2 run | open (after wave 3) |
 | **L1** | The owner's listening check of Jam ([v3.2 H4](#v32-h4--jam-listening-settings-drift-and-lock-l1) and [H5](#v32-h5--jam-listening-the-doodle-to-controls-mapping-l1), item 32); it confirms or sends back three of D406's provisional answers ([below](#what-confirms-d406s-provisional-answers)). | The owner; a failed answer becomes a ruling | The release gate | open (after wave 6) |
 | **L2** | The owner's listening check of the suggestion ([v3.2 H6](#v32-h6--the-suggestion-l2), item 45); the weights and cues are tuned from it. | The owner | The release gate's final suggestion tests | open (after wave 6) |
@@ -153,7 +111,7 @@ preflight does not run and no chunk carries a **Data** line
 | 1 | 4 The quantized doodle · 5 Rhythm bars, distance and change kinds · 6 The request carries v3.2's inputs · 15 Vary settings' allowed groups | Wave 0; CN before chunk 15's merge. | merged into `main` |
 | 2 | 3 Measurement tools · 10 The rhythm lock in the generator · 11 Allowed rhythm changes · 12 Replay key `ifk4.` · 22 v3.2's kept-session shape | Wave 1; CK before chunk 12's and chunk 22's merges. In-wave 10 → 11: chunk 10's capture fixes the ordering seam and the lock's order the draw slots into. LD opens at its end. | merged into `main` |
 | 3 | 16 The rhythm lock in a session · 13 Session measurements · 19 The lock and What may vary in the controls | Wave 2; CS and CR before its sync. In-wave 16 → 13 and 16 → 19: chunk 16's capture fixes the session's lock state and what the session history records. Three chunks: the session half ends here, and every other session chunk is done. L3 opens at its end. | merged into `main` |
-| 4 | 20 Jam mode: the switch, Jam's code, Jam's Idle · 28 From the doodle: controls and steering block · 7 The join from the doodle · 8 Rhythm ordered by the steering block · 9 Melody follows the moves | Wave 3; LD (8); DR and DS (28). In-wave 28 → 7: chunk 28's capture fixes the register window the join reads. | planned |
+| 4 | 20 Jam mode: the switch, Jam's code, Jam's Idle · 28 From the doodle: controls and steering block · 7 The join from the doodle · 8 Rhythm ordered by the steering block · 9 Melody follows the moves | Wave 3; DS (28, done); LD (8: chunk 8 waits in the wave for the owner's ranking, and leaves it with nothing depending on it if LD has not cleared when the rest is done). In-wave 28 → 7 and 28 → 8: chunk 28's capture fixes the register window the join reads and the blocks chunk 8 orders by. | planned |
 | 5 | 14 The key and mode suggestion · 17 Jam engine, part 1 · 18 Jam engine, part 2 · 29 The Jam sweep, first run · 31 Jam's settings | Wave 4. In-wave 14 → 18: chunk 14's capture fixes the suggestion's answer type; 17 → 18: chunk 17's capture fixes the engine's way in and the capture's states. | planned |
 | 6 | 21 A fresh Jam on screen · 30 Kept Jam sessions · 23 The review's doodle section and the suggestion | Wave 5. In-wave 21 → 23 and 30 → 23: chunk 21's capture fixes what the review receives from an ended Jam, chunk 30's what a kept Jam session holds. Three chunks: everything else of Jam's waits on 21 or 23. L1 and L2 open at its end. | planned |
 | 7 | 24 The kept doodle · 25 Exports open with the doodle · 32 Tap tempo · 33 240 BPM in Jam | Wave 6; J240 (33's second half). In-wave 24 → 32: both change Jam's Idle note routing, whose interface chunk 20's capture fixed. | planned |
@@ -164,6 +122,8 @@ hand checks. κ is 1 ([build workflow](build-workflow.md#concurrency-and-order))
 ```mermaid
 flowchart LR
   LD{{LD: drift scale by ear}}
+  DS{{DS: short silences, done}}
+  DR{{DR: recorded doodles}}
   CS{{CS: contract sign-off}}
   CN{{CN: Vary settings sign-off}}
   CK{{CK: replay key sign-off}}
@@ -258,8 +218,12 @@ flowchart LR
   C6 --> C7
   C28 --> C7
   C3 --> C28
+  DS --> C28
+  C3 --> DR
+  DR --> L
   C15 --> C16
   C10 --> C8
+  C28 --> C8
   LD --> C8
   C6 --> C9
   C4 --> C14
@@ -390,7 +354,8 @@ corpora are a guard, not a measurement.
   doodle by chunk 28's mapping, each attempt charged its measured time as `npm run test:sweep` does,
   phrase 1 through a test double of chunk 18's ladder (chunk 29) and then the real one (wave 5's
   gate), phrases 2 to 8 through v2's. A cold domain is measured by clearing the domain memo before
-  phrase 1. Each attempt's orderings time is the one the generator's diagnostics report (chunk 13,
+  phrase 1. Rung 1's attempts run on the carry-in search fuel (chunk 18), whose margin M1 confirms
+  for a join from no phrase. Each attempt's orderings time is the one the generator's diagnostics report (chunk 13,
   spec D434); until chunk 13 the orderings' share is null.
 - **Run by:** chunk 3 (the no-steering baseline, on v3.1's generator); chunk 29; wave 5's gate;
   chunk 33 (at 240 BPM); the release gate.
@@ -541,7 +506,8 @@ Written by chunk 21; run after wave 6. About 10 minutes.
 
 #### v3.2 H5 — Jam listening: the doodle-to-controls mapping (L1)
 
-Written by chunk 21; run after wave 6. About 10 minutes.
+Written by chunk 21; run after wave 6, once the owner's recordings have joined the doodle set (gate
+DR, spec D443). About 10 minutes.
 
 1. Jam mode, 90 BPM, Drift Near, lock Off, New doodle before each step.
 2. Play a sparse doodle (three or four long notes over two measures); read "From your doodle"
@@ -961,11 +927,13 @@ Architecture capture: none (chunk 6 fixed the join's form, chunk 28 the window)
 - **Atoms:** `rule_jam_phrase_one_joins_doodle`, `rule_jam_register_follows_doodle`; (v2)
   `rule_varying_register_once_per_session`, `rule_instrument_profile_range`. Drift check:
   `entity_phrase_carry_in`.
-- **Revisions:** revise `rule_join_inherits_leap_recovery`, `rule_join_tense_note_resolution`.
+- **Revisions:** revise `rule_join_inherits_leap_recovery`, `rule_join_tense_note_resolution`, each
+  taking in phrase 1 joined from no phrase.
 - **Done when:**
   - Over the doodle set, generating with the join gives a first interval that obeys the limits of
     two notes inside a phrase, and no recovery owed on phrase 1's first note.
-  - The window holds the last note (nearest centre among several); outside every window or the
+  - The window holds the last note (nearest centre among several, Middle on a tie, spec D441: the
+    window chunk 28's register reading carries); outside every window or the
     range, no join (a test per case), the steering block still in the request.
 - **Verification:** chunk checks.
 - **Split rule:** none needed (one module).
@@ -974,36 +942,55 @@ Architecture capture: none (chunk 6 fixed the join's form, chunk 28 the window)
 
 Status: planned
 Wave: 4
-Depends on: 5, 6, 10 (the ordering seam), LD
+Depends on: 5, 6, 10 (the ordering seam), 28 (the doodle set's blocks, their rest starts per spec
+D440; its capture fixes the builder), LD
 Architecture capture: the generator's steering module, `src/domain/generation/steering/`, its rhythm
 part: with a steering block, a candidate's preference rank is 0 when every measure lies inside the
 block's band, else 1 plus its total edits to the target rhythm; with the lock "on, nothing locked
 yet" and a block, the total edits alone (nearest the doodle, whatever the band). It slots into
 chunk 10's preference tuple; without a block the tuple is chunk 10's. A block never changes the
-search's walk: without locked bars it stays v3.1's, harmony-major (C7.6, C8; spec D428).
+search's walk: without locked bars it stays v3.1's, harmony-major (C7.6, C8; spec D428). Captured:
+`module_rhythm_steering` (0.1).
 
 - **Goal:** order a phrase's rhythm candidates by the steering block's target rhythm and band, and
   choose a Jam's locked phrase 1 nearest the doodle, without removing any candidate.
 - **Scope:** `rhythm-steering.ts` (new) in the steering module; the rank computed after the seeded
   ranking, over the bar key's start lists read as heard (a rest start right after a rest dropped,
   C8, spec D425; the lock's comparisons keep the written lists), once per request; ties by the seeded key, then index, in
-  code-unit order. Budget: the total edits from one rhythm to every candidate of the largest domain
+  code-unit order. The target's rest starts are the block's, built by chunk 28 (C5.9: a silence a
+  rest only where a whole rest of the note density's value fits in it, spec D440). Budget: the total edits from one rhythm to every candidate of the largest domain
   take about 27 ms in Node (chunk 5's measure, spec D424), so the rank is computed once per
   request, never per rung or chord plan; memoizing the per-measure distance by measure pair is
   allowed. The rank is built inside the span whose time the diagnostics report (chunk 13, spec
-  D434), so the Jam sweep (M1) confirms it. A target far from every rhythm the settings allow is only approached:
+  D434), so the Jam sweep (M1) confirms it; that needs a timing step of its own, since
+  `timedRhythmLockOrderFor` times only the lock order today. With locked bars the block orders
+  nothing (the lock's order stands); otherwise `rhythmLockOrderFor` returns undefined (the lock
+  off, or "on, nothing locked yet") and the steered order replaces `rankedRhythm.candidates`,
+  which the walk (`walkHarmonyMajor`) reads. A target far from every rhythm the settings allow is only approached:
   `no_legal_rhythm_plan` arises only where it arises in v3.1.
 - **Files:** `src/domain/generation/steering/rhythm-steering.ts` (new),
-  `src/domain/generation/orchestration/candidate-ranking.ts`, `src/domain/rhythm/rhythm-lock-order.ts`,
+  `src/domain/generation/orchestration/candidate-ranking.ts`,
   `src/domain/generation/orchestration/generation-orchestrator.ts` (the order built once per
-  request, inside the timed span); tests under `tests/unit/domain/generation/`.
+  request, inside the timed span, with its own timing step),
+  `src/domain/generation/orchestration/window-search.ts` (`walkHarmonyMajor` reads
+  `rankedRhythm.candidates`; if needed), `src/domain/rhythm/rhythm-lock-order.ts` (likely
+  unchanged); tests under `tests/unit/domain/generation/`.
 - **Spec sections:** [C5.9](master-spec.md#c59-what-the-doodle-feeds-the-generator) (rhythm),
   [C7.1](master-spec.md#c71-the-switch-and-what-is-locked) (a Jam's locked rhythm),
   [C8](master-spec.md#c8-jams-drift); items 27, 29 (rhythm), 30.
 - **Atoms:** `rule_jam_rhythm_ordered_by_doodle`, `rule_jam_drift_positions`,
-  `rule_rhythm_distance`, `rule_doodle_only_orders_candidates`. Drift check:
-  `module_named_stream_pseudorandomness` (no new stream), `module_ranked_candidate_ordering`.
-- **Revisions:** none.
+  `rule_rhythm_distance`, `rule_doodle_only_orders_candidates`; the capture
+  `module_rhythm_steering` (0.1). Drift check: `module_named_stream_pseudorandomness` (no new
+  stream), `module_ranked_candidate_ordering`, `module_rhythm_lock_order` ("nothing locked yet"
+  without a steering block), `entity_generation_diagnostics`, `service_generation_orchestration`,
+  `service_generation_window_search`, `entity_steering_block`.
+- **Revisions** (business, owed by spec D425 and D428 and authorized by the plan's approval):
+  revise `rule_jam_rhythm_ordered_by_doodle` (the target holds the doodle's note starts and rest
+  starts, a rest per C5.9 and spec D440; a candidate compared as heard; the band orders the
+  rhythms tried with each chord plan; phrase 1's nearest rhythm is the nearest that makes a phrase
+  with the first chord plan any rhythm makes one with), `rule_rhythm_distance` (against the doodle,
+  a rest start right after a rest is not counted) and `rule_jam_drift_positions` (the band orders
+  the rhythms tried with each chord plan, spec D428).
 - **Done when:**
   - Over the doodle set's blocks at each band, the chosen rhythm's measures lie in the band
     whenever a candidate in it makes a phrase with the chord plan the search settles on (the
@@ -1016,7 +1003,7 @@ search's walk: without locked bars it stays v3.1's, harmony-major (C7.6, C8; spe
   - Every candidate appears once in the order; the corpora pass.
   - With a clock passed and a block, the diagnostics' orderings time includes the rank's.
 - **Verification:** chunk checks with the corpus guard; the sweep at the wave gate.
-- **Split rule:** none needed (four source files).
+- **Split rule:** none needed (three source files, four if the walk needs it).
 
 ### Chunk 9 — Melody follows the moves
 
@@ -1032,24 +1019,31 @@ Architecture capture: none (the term sits in `pitchRank`'s existing rank, never 
   within each rank (chord tones first, v3.1's drawn favored figures), after the hard rules
   (Contour, Leapiness, the window). The search's ordering memo (`searchPitchPlan`,
   `src/domain/pitch/pitch-search.ts`) keeps a correct key (a test pins that no ordering is reused
-  across two blocks).
+  across two blocks); the memo is local to one call, which sees one block, so its key is likely
+  unchanged. No threading is needed: the block reaches the pitch search as
+  `BoundPitchPlannerInput.request.steering`. If the term enters `pitchRank`'s tuple, its second
+  caller, `src/domain/pitch/pitch-advance.ts` (the published ranking facts), follows.
 - **Files:** `src/domain/generation/steering/pitch-steering.ts` (new),
-  `src/domain/pitch/pitch-ranking.ts`, `src/domain/pitch/pitch-search.ts` (if the memo key needs
-  it); tests under `tests/unit/domain/pitch/`.
+  `src/domain/pitch/pitch-ranking.ts`, `src/domain/pitch/pitch-advance.ts` (if the term enters
+  `pitchRank`'s tuple), `src/domain/pitch/pitch-search.ts` (if the memo key needs it); tests under
+  `tests/unit/domain/pitch/`.
 - **Spec sections:** [C5.9](master-spec.md#c59-what-the-doodle-feeds-the-generator) (melody),
   [C8](master-spec.md#c8-jams-drift); items 27, 29 (melody).
 - **Atoms:** `rule_jam_melody_follows_doodle_moves`, `rule_jam_drift_positions`,
   `rule_doodle_only_orders_candidates`; (v3.1) `rule_figure_level_orders_search`. Drift check:
-  `mechanic_pitch_search_policy`.
-- **Revisions:** none.
+  `mechanic_pitch_search_policy`, `module_favored_figure_draw` (STABLE),
+  `rule_arpeggio_chaos_respects_constraints`.
+- **Revisions:** at the sync, create `module_pitch_steering` (ARCHITECTURE, for
+  `pitch-steering.ts`) or extend `mechanic_pitch_search_policy` with it, `documentalist`'s choice.
 - **Done when:**
-  - Over the doodle set's blocks, the share of notes moving in the block's direction rises from no
+  - Over the doodle set's blocks (their moves taken in the test from each doodle's notes, so the
+    chunk needs nothing of chunk 28's), the share of notes moving in the block's direction rises from no
     strength to "direction only" to "size and direction", and of matching sizes at the last.
   - Every phrase passes the validator unchanged; the same requests without the block succeed at
     least as often.
   - Without a block the pitch order is v3.1's; the corpora pass.
 - **Verification:** chunk checks with the corpus guard; the sweep at the wave gate.
-- **Split rule:** none needed (three source files).
+- **Split rule:** none needed (two to four source files).
 
 ### Chunk 10 — The rhythm lock in the generator
 
@@ -1580,6 +1574,10 @@ Architecture capture: none (it builds on chunk 17's)
     Rising tempo do not run; the silence timer waits for a first note from phrase 1 on; the
     narrow-window step-down applies from phrase 1.
   - **The suggestion** (chunk 14) computed at the doodle's end and kept with the session.
+  - **Search fuel**: rung 1's join from no phrase (chunk 7) is a carry-in, so its attempts take the
+    carry-in search fuel, 160,000 (`CARRY_IN_WINDOW_SEARCH_FUEL`): the orchestrator picks the policy
+    by `intent.carryIn === undefined` (`searchPolicyFor`, `generation-orchestrator.ts`). That margin
+    was measured on phrase carry-ins only; M1's re-run at the wave gate confirms it for phrase 1.
 - **Files:** `src/jam/jam-phrase-one.ts` (new), `src/session/session-timing.ts` (the Jam's
   deadlines beside `phraseTwoDeadline`), `session-seed-plan.ts` (phrase 1's labels), `session-engine.ts`, `session-runner.ts`,
   `session-intents.ts`, `session-history.ts`; tests under `tests/unit/jam/`, `tests/unit/session/`.
@@ -1769,17 +1767,27 @@ its state and its prepared phrases and prepares nothing new.
     until chunk 21 (the transitional interface); the starting-note line naming the home note;
     without a controller, `jam-needs-controller` in its place, `Start Jam` named by it. No phrase
     generated, prepared or replaced; the rhythm prewarm runs for the controls Jam last took from a
-    doodle. Until chunk 31, Jam's key and mode are session mode's.
+    doodle, and before any doodle in the visit for the first-visit rhythm values with Jam's tension
+    (C5.8, spec D442). While Jam mode shows, session mode's starting note is not named and no played
+    note starts a session: in Jam mode only the home note starts anything, and only a Jam (C5.1, "the
+    two never meet"). Until chunk 31, Jam's key and mode are session mode's.
   - **The boundary** as the capture says.
 - **Files:** `src/components/workspace/WorkspaceShell.vue`, `WorkspaceHeader.vue`,
   `load-jam-mode.ts` (new), `workspace-pregeneration.ts` (paused while Jam shows),
-  `session-action-policy.ts`, `prewarm-policy.ts`, `src/jam/JamWorkspace.vue`,
-  `src/jam/empty-system-engraving.ts`, `src/jam/jam-idle-notes.ts` (new),
-  `scripts/verify-boundaries.mjs`, `eslint.config.js`; tests `tests/unit/components/workspace/load-jam-mode.spec.ts`,
-  `tests/unit/jam/empty-system-engraving.spec.ts`, `tests/e2e/workspace/jam-mode-switch.spec.ts`,
-  `tests/e2e/workspace/jam-mode-idle.spec.ts` (new).
+  `workspace-session-starting-note.ts` and `workspace-session-midi.ts` (no session starting note
+  while Jam mode shows), `SessionCueRow.vue` (if the home-note line reuses the cue row),
+  `session-action-policy.ts`, `src/composables/generation-session-prewarm.ts` (Jam's Idle prewarm,
+  under the same prewarm policy), `src/jam/JamWorkspace.vue` (new),
+  `src/jam/empty-system-engraving.ts` (new), `src/jam/jam-idle-notes.ts` (new),
+  `scripts/verify-boundaries.mjs`, `eslint.config.js` (the new `src/jam/` rule takes in the
+  quantizer-only one, `doodleQuantizerImportPattern` and its block, since
+  `src/jam/doodle-quantizer.ts` is already there), `package.json` (the `test:e2e` list); tests
+  `tests/unit/components/workspace/load-jam-mode.spec.ts` (new),
+  `tests/unit/jam/empty-system-engraving.spec.ts` (new),
+  `tests/unit/boundaries/eslint-boundaries.spec.ts`, `tests/e2e/workspace/jam-mode-switch.spec.ts`
+  (new), `tests/e2e/workspace/jam-mode-idle.spec.ts` (new).
 - **Spec sections:** [C5.1](master-spec.md#c51-jam-mode), [C5.2](master-spec.md#c52-starting-a-jam),
-  [C10.5](master-spec.md#c105-pre-generation-v30), [C10.9](master-spec.md#c109-loading-jams-code-on-demand),
+  [C5.8](master-spec.md#c58-the-time-budget) (the prewarm), [C10.5](master-spec.md#c105-pre-generation-v30), [C10.9](master-spec.md#c109-loading-jams-code-on-demand),
   [C12](master-spec.md#c12-for-the-interface-design); items 14, 15, 16, 20, 21 (Idle half).
 - **Design docs:** [`flows/jam/handoff.md`](../../../ui_ux/flows/jam/handoff.md) (Entering and
   Leaving Jam Mode; Routing Rules: The mode switch, Opening Jam mode, Session mode while Jam mode
@@ -1789,13 +1797,22 @@ its state and its prepared phrases and prepares nothing new.
   mode switch; Jam mode's staff; The starting note in Jam mode; `jam-needs-controller`; Notation
   Contract: The empty system; States: Opening Jam mode, Jam mode at Idle, Leaving Jam mode;
   Responsive Behavior), [`flows/controller-connection/handoff.md`](../../../ui_ux/flows/controller-connection/handoff.md).
-- **Atoms:** the Jam mode atoms chunk 0 adds (the switch at Idle only, opening in session mode,
-  Jam's code on demand); `rule_jam_needs_controller`, `rule_jam_idle_shows_no_phrase`,
-  `rule_jam_starting_note_is_home_note`, `rule_jam_start_conditions`; (v3.0)
-  `req_idle_pregeneration`. Drift check: `service_idle_generation_session`.
-- **Revisions:** revise `rule_pregeneration_discarded_on_change` (nothing in Jam mode discards
-  session mode's phrases); `rule_midi_never_blocks_session`, `rule_start_while_controller_away`
-  (contract, CS).
+- **Atoms:** `rule_mode_button_at_idle_only`, `rule_app_opens_in_session_mode`,
+  `rule_jam_code_loaded_on_demand`, `rule_leaving_jam_mode_keeps_session_mode`,
+  `rule_jam_pregeneration_only_for_kept_doodle` (without a kept doodle Jam's Idle generates nothing
+  ahead), `rule_jam_needs_controller`, `rule_jam_idle_shows_no_phrase`,
+  `rule_jam_starting_note_is_home_note`, `rule_jam_start_conditions`; the captures
+  `module_workspace_mode`, `module_jam_code_boundary`, `module_jam_idle_notes` (0.1) and
+  `module_idle_pregeneration_queue` (0.10); (v3.0) `req_idle_pregeneration`. Drift check:
+  `service_idle_generation_session`, `service_session_controller`,
+  `module_idle_pregeneration_queue`, `module_generation_prewarm`, `module_session_starting_note`,
+  `service_session_midi`.
+- **Revisions:** revise `rule_pregeneration_discarded_on_change` (nothing of Jam's own discards
+  session mode's prepared phrases; a shared setting changed in Jam mode acts on them on the
+  return, as in session mode, chunk 31); `module_generation_prewarm` (Jam's Idle prewarms the
+  rhythm controls it last took from a doodle, before any doodle the first-visit values, C5.8, spec
+  D442; no atom states it yet); `module_idle_pregeneration_queue` (done at its capture, 0.10);
+  `rule_midi_never_blocks_session`, `rule_start_while_controller_away` (contract, CS).
 - **Done when:**
   - The app opens in session mode, after a reload too; the switch works at Idle only.
   - `npm run build` then `npm run verify:boundaries` fails on a test fixture that imports a
@@ -1810,11 +1827,16 @@ its state and its prepared phrases and prepares nothing new.
     the home note with its octave for each built-in instrument; without a controller the
     `jam-needs-controller` line shows and `Start Jam` is disabled; a controller arriving changes no
     mode.
+  - In Jam mode, phrase 1's first note (session mode's starting note) starts nothing and is not
+    named.
+  - Before any doodle in the visit, Jam's Idle prewarms the first-visit rhythm values with Jam's
+    tension (prewarm spy: the intent's four rhythm controls and tension); with `?prewarm=off`,
+    nothing.
 - **Verification:** chunk checks; `npm run build` and `npm run verify:boundaries` (this chunk's
   point); the accessibility checks of what it adds; desktop and phone debug runs.
 - **Split rule:** 20a the mode and Jam's code (the shell, the header, the loader, the boundary
   check, the lint rule, pre-generation paused), 20b Jam's Idle on screen (Jam's view, the empty
-  system, the action policy, the prewarm, Jam's Idle notes).
+  system, the action policy, the prewarm, Jam's Idle notes, session mode's starting note silenced).
 
 ### Chunk 21 — A fresh Jam on screen
 
@@ -2163,39 +2185,75 @@ plan cites it.
 
 Status: planned
 Wave: 4
-Depends on: 4, 6 (and chunk 3's doodle set, merged in wave 2), DR (the owner's recordings in it),
-DS (how the doodle's short silences are read)
+Depends on: 4, 6 (and chunk 3's doodle set, merged in wave 2, its twelve hand-written doodles; the
+owner's recordings join it later, gate DR, spec D443), DS (done, spec D440)
 Architecture capture: what Jam's side derives from the quantized doodle when it ends:
 `src/jam/doodle-controls.ts` (C5.16.1: the seven controls, a supported combination, first-visit
-values for what the doodle does not show) and `src/jam/steering-block-builder.ts` (the doodle's
+values for what the doodle does not show, and the register window phrase 1's join reads: the one
+holding the last note, the nearest by its centre, Middle on a tie, spec D441) and `src/jam/steering-block-builder.ts` (the doodle's
 measures laid over four, one measure four times, two twice, three as 1, 2, 3, 1, four as they are;
-the target rhythm's note starts and rest starts, each measure's as heard, C5.9 and spec D425; the
-band and the move strength from the drift, C8; the move list in the doodle's order). Both pure; chunk 18 calls them at the doodle's end, chunk 24 for a kept doodle.
+the target rhythm's note starts and rest starts, each measure's as heard, C5.9 and spec D425, a
+silence a rest only where a whole rest of the note density's value fits in it, spec D440; the band
+and the move strength from the drift, C8; the move list in the doodle's order). Both pure; chunk 18
+calls them at the doodle's end, chunk 24 for a kept doodle. Captured: `module_doodle_controls`,
+`module_steering_block_builder` (0.1); their two undecided points are settled by spec D440 and
+D441.
 
 - **Goal:** turn the quantized doodle into ordinary control values and the steering block, exactly
   as C5.16.1 and C5.9 say.
 - **Scope:** the two modules above; the readings' model (each of the seven controls with its value
-  and whether it came from the doodle or is the default), which chunk 31 shows.
+  and whether it came from the doodle or is the default), which chunk 31 shows. The rests (C5.9,
+  spec D440): a silence holds a rest only where a whole rest of the note density's value as read
+  (Quarter's when the doodle does not show it; a Sixteenth read on a narrow screen still
+  Sixteenth's) fits in it on that grid, from
+  its first such grid tick to the silence's end; the steering block's rest starts and the silence
+  reading's _R_ read the same rests, through one function. The doodle set's recorded readings
+  follow: `eighth-offbeats` and `tresillo-leaps` now read Sparse silence; the set keeps a doodle
+  aimed at Eighth, Occasional offbeats and Conversational (its spec requires one) through a new
+  hand-written doodle, written as chunk 3's were, with `listeningMeasure` false, so that the H1 renders
+  still pick the same five measures. No existing doodle's capture or quantized form
+  changes, since H1's renders read them. Out: the H1 render
+  tooling's own measure starts (`tests/unit/scripts/rhythm-renders-h1.ts`), which H1's five
+  measures read the same either way (spec D433).
 - **Files:** `src/jam/doodle-controls.ts`, `src/jam/steering-block-builder.ts` (new); tests
-  `tests/unit/jam/doodle-controls.spec.ts`, `tests/unit/jam/steering-block-builder.spec.ts`.
+  `tests/unit/jam/doodle-controls.spec.ts`, `tests/unit/jam/steering-block-builder.spec.ts` (new);
+  `tests/fixtures/doodles/eighth-offbeats.json` and `tresillo-leaps.json` (`aimedAt.silenceDensity`
+  only), one new doodle file there; `docs/testing.md` (the doodle set's table).
 - **Spec sections:** [C5.16.1](master-spec.md#c5161-the-doodle-to-controls-mapping),
   [C5.9](master-spec.md#c59-what-the-doodle-feeds-the-generator), [C8](master-spec.md#c8-jams-drift),
   [C10.8](master-spec.md#c108-other-session-rules); items 18, 27, 29.
-- **Atoms:** the mapping and steering-block atoms chunk 0 adds; `rule_jam_drift_positions`,
-  `rule_doodle_only_orders_candidates`; (v2) `rule_unsupported_rhythm_settings_block_generation`.
-- **Revisions:** none.
+- **Atoms:** `rule_doodle_sets_jam_controls`, `rule_doodle_note_density_reading`,
+  `rule_doodle_rhythmic_variety_reading`, `rule_doodle_syncopation_reading`,
+  `rule_doodle_silence_density_reading`, `rule_doodle_contour_reading`,
+  `rule_doodle_leapiness_reading`, `rule_doodle_controls_always_supported`,
+  `rule_doodle_sixteenth_on_narrow_screens`, `rule_jam_register_follows_doodle`,
+  `rule_jam_steering_block`, `entity_steering_block`, `rule_jam_drift_positions`,
+  `rule_doodle_only_orders_candidates`; (v2) `rule_unsupported_rhythm_settings_block_generation`;
+  the captures `module_doodle_controls`, `module_steering_block_builder`.
+- **Revisions:** revise `rule_doodle_silence_density_reading` (_R_ counts the rests C5.9 defines,
+  spec D440) and `rule_jam_register_follows_doodle` (Middle on a tie, spec D441); at the sync,
+  `module_steering_block_builder`'s rest starts and `module_doodle_controls`' silence reading and
+  tie follow spec D440 and D441.
 - **Done when:**
   - Each row of C5.16.1 at its edges, a test each (the note density's quarter share; the variety's
     3-in-4; the syncopated-measure half; the silence midpoints; each contour; each leapiness limit
-    scaled by measures; the register's nearest window and Varying).
-  - The doodle set's sparse, busy, leaping and one-note doodles give the readings recorded with them.
+    scaled by measures; the register's nearest window, Middle on a tie with Low and with High, and
+    Varying).
+  - Every doodle of the set gives the rhythm readings recorded with it (`traits.aimedAt`, before
+    the step to a supported combination), the two corrected silence readings and the new doodle
+    included; the set's spec still passes, and `npm run render:rhythms -- --out <scratch dir>`
+    picks the same five measures (never into the owner's `rhythm-renders/`).
   - Every result is a supported combination, at both widths (C10.8); an unsupported one raises
     rhythmic variety only.
   - The overlay gives C5.9's four patterns; each drift gives C8's band and strength; integers only.
-  - A doodle measure's starts as C5.9 says, a test each: a rest start where a note ends and none
-    starts; one at tick 0 for a measure opening in silence, a silence crossing the barline
-    included; none for a note held across the barline (an empty measure possible); never two rest
-    starts in a row.
+  - A doodle measure's starts as C5.9 says, a test each: a rest start at the first grid tick of a
+    silence holding a whole rest of the note density's value, under Quarter, Eighth and Sixteenth;
+    none in a shorter silence (`quarter-steps` reads four quarters, `tresillo-leaps` 3 + 3 + 2); one
+    at tick 0 for a measure opening in a silence that holds a rest there, a silence crossing the
+    barline included; none for a note held across the barline (an empty measure possible); never
+    two rest starts in a row.
+  - The silence reading's _R_ counts each rest from its start to its silence's end and nothing of a
+    silence holding no rest: a test at each band's edge under Quarter and Eighth.
 - **Verification:** chunk checks.
 - **Split rule:** none needed (two pure modules).
 

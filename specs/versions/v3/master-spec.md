@@ -88,8 +88,11 @@ Status: this file holds four parts.
   D428–D430). v1.10 (2026-10-23): C4 words the distance bands as C8 does, and two questions on
   reading the doodle are opened (C4, C5.9, C5.16.1, C17; spec D431, D433). v1.11 (2026-10-23):
   a drawn rhythm change none of whose candidates makes a phrase is "no change available" too, and
-  the history records every draw and only draws (C7.4; spec D435). Its sections are
-  numbered C1 to C18; what v1.1 to v1.11 change is listed at the top of
+  the history records every draw and only draws (C7.4; spec D435). v1.12 (2026-10-27): a short
+  silence between two doodle notes is part of the note before it (the owner's answer to O268), a
+  tie between two register windows goes to Middle, and Jam's Idle prewarms the first-visit rhythm
+  values before any doodle (C5.1, C5.8, C5.9, C5.16.1, C8, C17; spec D440–D442). Its sections are
+  numbered C1 to C18; what v1.1 to v1.12 change is listed at the top of
   Part C and marked in each section they touch.
 - **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.1
   (2026-10-12), consolidated from the v3.3 direction and the chord research; **awaiting the
@@ -2246,7 +2249,12 @@ Delete everything removes them. No preset leaves the device.
 
 ## Part C — v3.2
 
-Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.11 (2026-10-23)**: v1.10
+Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.12 (2026-10-27)**: v1.11
+with the owner's answer to O268 and two of `spec-writer`'s minor calls (C5.1, C5.8, C5.9, C5.16.1,
+C8, C17; D440–D442). The behaviour it adds: a silence between two doodle notes is a rest only
+where a whole rest of the doodle's note density value fits in it, so a short one is part of the
+note before it; a tie between two register windows goes to Middle; before any doodle, Jam's Idle
+prewarms the first-visit rhythm values. v1.11 (2026-10-23): v1.10
 with chunk 11's reading confirmed (C7.4; D435): a drawn rhythm change none of whose candidates makes
 a phrase keeps the lock's order and records "no change available", as a draw with no candidate
 does, so the session history records every draw and only draws. It adds no behaviour beyond
@@ -2292,6 +2300,20 @@ the code.
 
 Music terms are explained the first time they appear; the project's
 [lexicon](../../../docs/music/lexicon.md) has one entry per term.
+
+### What v1.12 changes against v1.11
+
+Each section v1.12 changes opens with a line in italics, _Changed in v1.12:_, under the earlier lines.
+
+- **A short silence is part of the note before it** (D440, the owner's answer to O268): a silence
+  between two doodle notes is a rest only where a whole rest of the doodle's note density value
+  fits in it on that grid, as sheet music writes a short, detached note as a note with a staccato
+  dot, not as a note and a rest. The steering block's rest starts and the silence reading count
+  the same rests (C5.9, C5.16.1, C8).
+- **A tie between two register windows goes to Middle** (D441): when the doodle's last note is
+  equally near two windows' centres, the register is Middle, always one of them (C5.9, C5.16.1).
+- **Jam's Idle prewarms before any doodle** (D442): until Jam has taken controls from a doodle in
+  the visit, it prewarms the first-visit rhythm values with Jam's tension (C5.1, C5.8).
 
 ### What v1.9 changes against v1.8
 
@@ -2679,6 +2701,7 @@ _Changed in v1.1:_ replaces v1.0's Jam switch. Jam is a mode, entered by a butto
 returns session mode as it was; a controller is needed to start a Jam, never to enter the mode; the
 mode is not remembered across reloads.
 _Changed in v1.2:_ a shared setting changed in Jam mode, the instrument above all (D410, D411).
+_Changed in v1.12:_ what Jam's Idle prewarms before any doodle (D442).
 
 - **The app always opens in session mode**, after a reload too. The mode is not saved; Jam's
   settings are (C5.16).
@@ -2704,8 +2727,9 @@ _Changed in v1.2:_ a shared setting changed in Jam mode, the instrument above al
   doodle. The staff shows the key signature of Jam's key and mode, and the cue row names the home
   note as the starting note. v2's Idle phrase rules (replacing a phrase that does not fit, the
   dense-notes notice) and pre-generation (Part A §8) do not run without a kept doodle. v2's prewarm
-  of the rhythm domains runs for the rhythm controls Jam last took from a doodle (C5.8). With a
-  kept doodle, Idle shows its phrase 1 (C5.11).
+  of the rhythm domains runs for the rhythm controls Jam last took from a doodle, and before any
+  doodle in the visit for the first-visit rhythm values (C5.8). With a kept doodle, Idle shows its
+  phrase 1 (C5.11).
 - **A Jam needs a MIDI controller attached** (a selected controller, connected). Without one, Jam
   mode still opens and its settings can be set, but its Start is unavailable and says why, as Rising
   tempo does ([v2 master spec §10](../v2/master-spec.md#10-adaptive-tempo)). A controller attaching
@@ -2848,6 +2872,7 @@ _Changed in v1.3:_ each attempt's seed is derived from the session seed (D419, C
 _Changed in v1.1:_ sized for 180 BPM, 240 BPM last; figures refreshed from v3.1's final timing run;
 the rhythm domain of a fresh doodle may be cold.
 _Changed in v1.2:_ the cold domain is accepted and measured (D410).
+_Changed in v1.12:_ what Jam's Idle prewarms before any doodle (D442).
 
 - **One measure lasts** 4 s at 60 BPM, 2 s at 120, 1.6 s at 150, about 1.33 s at 180 and 1 s at
   240. The standalone reserve is 1.075 s. Up to 180 BPM the generation measure alone outlasts the
@@ -2867,7 +2892,10 @@ _Changed in v1.2:_ the cold domain is accepted and measured (D410).
 - **A fresh doodle's rhythm domain may be cold.** The rhythm domains are remembered and prewarmed
   per rhythm controls and tension; in Jam the rhythm controls come from the doodle, so they are
   known only when it ends. Jam's Idle prewarms the domain of the controls it last took from a doodle
-  (and a kept doodle's, which are known). A doodle that lands elsewhere pays the domain's first
+  (and a kept doodle's, which are known); before any doodle in the visit, the domain of the
+  first-visit rhythm values (Quarter, Slightly varied, Straight, Sparse), the controls a doodle
+  showing none of them takes, with Jam's tension. The memo keeps every domain it builds, so this
+  costs session mode nothing. A doodle that lands elsewhere pays the domain's first
   build inside its deadline: the reserve was measured on a cold worker, so rung 3 still fits, and
   rungs 1 and 2 may be skipped more often. This is accepted (D410): the Jam sweep measures phrase 1
   with a cold domain at 180 BPM, and a result that misses the deadlines goes back to the owner.
@@ -2886,6 +2914,9 @@ steers reaches the generator through one optional steering block, built on Jam's
 generator never hears of a doodle, a drift or Jam.
 _Changed in v1.7:_ the target rhythm holds each measure's rest starts beside its note starts, as
 C8's distance needs, and a doodle measure's starts are defined (D425).
+_Changed in v1.12:_ a short silence between two notes is part of the note before it, a silence a
+rest only where a whole rest of the note density value fits in it (O268, the owner's answer,
+D440); a tie between two register windows goes to Middle (D441).
 
 **Principles.**
 
@@ -2910,14 +2941,20 @@ C8's distance needs, and a doodle measure's starts are defined (D425).
 - **a list of melodic moves**: up, down or the same note; a step, a skip or a leap, in the doodle's
   order, with a **strength**: size and direction, direction only, or none (the drift's, C8).
 
-**A doodle measure's starts** are what is heard in it: a note start where each note starts; a rest
-start wherever a silence begins, where a note ends and no note starts, and at tick 0 when the
-measure opens in silence (a silence crossing a barline starts again in the next measure, as a rest
-is never tied); a note held across a barline starts nothing in the next measure, which may then
-hold no start. The rest starts are needed because C8's distance compares both kinds of start and
-counts turning a note into a rest as one edit.
-_Open in the build (C17):_ under this definition a short silence between two notes, a detached
-note, is a rest start, often one the generator never writes; how such silences are read is open.
+**A doodle measure's starts** are what is heard in it: a note start where each note starts, and a
+rest start where each of its **rests** starts. A **silence** is a stretch of the measure where no
+note sounds; a silence crossing a barline starts again in the next measure, as a rest is never
+tied. A silence holds a rest only where a whole rest of the doodle's note density value fits in
+it on that grid: a span from one multiple of the value to the next (in ticks, 4 for Quarter, 2
+for Eighth, 1 for Sixteenth, as C5.16.1 reads it; Quarter's when the doodle does not show it; a
+Sixteenth read on a narrow screen still 1) during which no note sounds. The rest then starts at
+the first such grid tick and lasts to the silence's end. A shorter silence, and the part of a
+silence before that tick, start nothing: they are part of the note before them, as sheet music
+writes a short, detached note as a note with a staccato dot rather than as a note and a rest. So
+a measure opening in a silence that holds a rest at tick 0 has a rest start there; a note held
+across a barline starts nothing in the next measure, which may then hold no start; and a measure
+never holds two rest starts in a row. The rest starts are needed because C8's distance compares
+both kinds of start and counts turning a note into a rest as one edit.
 
 It holds no pitch. The generator reads it at two points only (C5.10): a re-ordering of the rhythm
 candidates right after their seeded ranking, and one more preference in the pitch order, below the
@@ -2932,8 +2969,9 @@ the rhythm lock's (C8), which session mode needs anyway.
   if reached by no interval (as after a phrase of one note); **no chord** (the "no chord" form a key
   change already uses); and **no owed leap recovery**, since two measures of silence come between.
 - **Register.** When the register is taken from the doodle (C5.16), it is the register window
-  holding the doodle's last note, the nearest by its centre when several do; when none does,
-  Varying resolves as in v2. Every doodle shows a register (C5.16.1).
+  holding the doodle's last note, the nearest by its centre when several do, and Middle when two
+  or three centres are equally near (Middle is always one of them); when none does, Varying
+  resolves as in v2. Every doodle shows a register (C5.16.1).
 - **No join** when the last note lies outside that window or outside the instrument's range:
   phrase 1 is generated without it, as v2's standalone phrase is; the steering block still
   applies. Notes outside the range or the window stay in the doodle and shape the block like any
@@ -3192,6 +3230,8 @@ not a Jam setting; the mapping's thresholds in C5.16.1 (D415).
 _New in v1.2._ The method is D410's (O262 as proposed); the thresholds are `spec-writer`'s (D415),
 confirmed or corrected by the owner's listening check (C16 item 32), a correction coming back as a
 ruling.
+_Changed in v1.12:_ the silence reading counts only the rests C5.9 defines (D440); a tie between
+two register windows goes to Middle (D441).
 
 Each of the seven controls takes the value nearest what the quantized doodle shows; a control the
 doodle cannot show takes session mode's first-visit value (C5.16); a combination the generator does
@@ -3201,19 +3241,22 @@ Jam's side, in integers, from the quantized doodle (after the stray-note filter)
 **Words.** The doodle has _M_ measures (one to four), each 16 ticks, and _n_ notes. A note's
 **position** is its start in ticks from the start of its measure. A note's **gap** is the ticks from
 its start to the next note's start; the last note has none. The note density's **value** is 4 ticks
-for Quarter, 2 for Eighth and 1 for Sixteenth.
+for Quarter, 2 for Eighth and 1 for Sixteenth. A **rest** is as C5.9 defines it: in a silence,
+from the first grid tick of the value at which a whole rest of the value fits, to the silence's
+end.
 
 | Control | Read from the doodle | Not shown when |
 | --- | --- | --- |
 | Note density | The finest grid needed by at least a quarter of the note starts. **Sixteenth** when 4 × (starts at an odd position) ≥ _n_; else **Eighth** when 4 × (starts at a position not divisible by 4) ≥ _n_; else **Quarter**. | _n_ < 2 |
 | Rhythmic variety | Each gap counts as the main value when it equals the note density's value, or is twice it with the note sounding no longer than the value (a note, then a rest of the same value). **Strict** when every gap does; **Slightly varied** when 4 × (gaps that do) ≥ 3 × (gaps); else **Heavily varied**. | _n_ < 3 |
 | Syncopation | A measure is **syncopated** when it holds a note starting off the note density's grid (under Quarter at a position not divisible by 4, under Eighth at an odd one, under Sixteenth never) or a note starting off a beat and still sounding at the next beat. **Straight** when no measure is; **Occasional offbeats** when at least one is and 2 × (syncopated measures) ≤ _M_; else **Active displacement**. | _n_ < 2 |
-| Silence density | _R_, the ticks of the doodle's measures where no note sounds, scaled to a phrase's four measures. **Sparse** when 4 × _R_ ≤ 10 × _M_; **Conversational** when 4 × _R_ ≤ 22 × _M_; else **Breath-heavy** (the midpoints between the bands of 4–8, 12–20 and 24–32 ticks a phrase holds). | _n_ < 2 |
+| Silence density | _R_, the ticks of the doodle's rests (each from its start to its silence's end; a silence holding no rest counts nothing), scaled to a phrase's four measures. **Sparse** when 4 × _R_ ≤ 10 × _M_; **Conversational** when 4 × _R_ ≤ 22 × _M_; else **Breath-heavy** (the midpoints between the bands of 4–8, 12–20 and 24–32 ticks a phrase holds). | _n_ < 2 |
 | Contour | Checkpoints: in each half measure (positions 0–7 and 8–15), the pitch of its first note start; half measures with none are skipped. **Rising** when the checkpoints never go down and the last is above the first; **Falling**, the mirror; **Arch** when one checkpoint is the single highest and is neither the first nor the last; else **Wandering**. | fewer than 3 checkpoints, or all equal |
 | Leapiness | The moves between neighbouring notes, in half steps: _w_ the widest, _L_ the number of 5 or more, _K_ the number of 7 or more, each count scaled to four measures. **Smooth** when _w_ ≤ 4; **Shaped** when _w_ ≤ 7, 4 × _L_ ≤ 2 × _M_ and 4 × _K_ ≤ _M_; **Leaping** when _w_ ≤ 10, 4 × _L_ ≤ 4 × _M_ and 4 × _K_ ≤ 2 × _M_; else **Angular**. | _n_ < 2 |
-| Register | The window holding the doodle's last note (C5.9): **Low**, **Middle** or **High**, the nearest by its centre when several do; **Varying** when none does. | never: one note shows it |
+| Register | The window holding the doodle's last note (C5.9): **Low**, **Middle** or **High**, the nearest by its centre when several do, **Middle** on a tie; **Varying** when none does. | never: one note shows it |
 
-- **Order.** Note density first (variety and syncopation read its value), then the others.
+- **Order.** Note density first (variety, syncopation and silence density read its value), then
+  the others.
 - **A supported combination.** When the four rhythm values, with the note density as it generates
   at the current width (C10.8), are an unsupported rhythm combination, rhythmic variety steps up,
   Strict to Slightly varied to Heavily varied, until they are not; Heavily varied supports every
@@ -3562,6 +3605,8 @@ _Changed in v1.7:_ a candidate is compared with the doodle as heard: a rest writ
 another rest starts nothing (D425).
 _Changed in v1.9:_ the band orders the rhythms tried with each chord plan, as v3.1 walks them
 (D428).
+_Changed in v1.12:_ the doodle's rests are those C5.9 defines, a short silence starting none
+(D440).
 
 - **Three positions, closest first: Close, Near (the default), Free.** A Jam-mode setting: shown
   in Jam mode only, set at Jam's Idle, saved with Jam's settings (C5.16); presets neither hold nor
@@ -3583,7 +3628,7 @@ _Changed in v1.9:_ the band orders the rhythms tried with each chord plan, as v3
   at the same tick or back (one edit, not two). Ties are not starts. **Against the doodle, a
   candidate's measure is read as heard**: a rest start right after another rest is dropped, since
   one silence written as two rests (18 % of the candidates, pooled, write some) sounds as one, and the
-  doodle's measure holds one rest start per silence (C5.9). Against the locked rhythm, every start
+  doodle's measure holds at most one rest start per silence (C5.9). Against the locked rhythm, every start
   counts, as written (C7.3). No edit is **Same**. One edit away
   from ticks 0 and 8 (beats 1 and 3) is **Close**. One edit touching tick 0 or 8, or two Close
   edits, is **Near**. Anything more is beyond.
@@ -4477,6 +4522,7 @@ answers; the code gaps and deferrals follow the re-scope.
 _Changed in v1.2:_ the seven questions settled (D410), the design's seven answered (D411).
 _Changed in v1.4:_ the contract sign-off given (D421).
 _Changed in v1.10:_ two questions opened during the build (D433).
+_Changed in v1.12:_ O268 settled by the owner (D440).
 
 **Provisional answers, each confirmed by a check.** Four answers of the re-scope were accepted on
 the owner's "will need testing to be sure". A check that fails comes back to the owner as a ruling;
@@ -4505,11 +4551,12 @@ proposed), and where each now stands:
 The design's behaviour questions (ux Q81–Q87) are answered as `ux-writer` recommended (D411): C5.11,
 C5.16, C5.17, C10.5 and, for v3.3's Seventh chords in Jam, Part D §D8.4.
 
-**Open during the build** (D433), each with a proposed answer in the register:
+**Settled during the build**: O268, how a short silence between two doodle notes is read, as
+proposed (the owner's answer, D440): part of the note before it, a silence being a rest only where
+a whole rest of the doodle's note density value fits in it on that grid; C5.9, C5.16.1, C8.
 
-- **O268**, how a short silence between two doodle notes is read (C5.9, C5.16.1): proposed, as part
-  of the notes, a silence being a rest only where a whole rest of the doodle's note density value
-  fits in it on that grid. The owner's, before the steering block is built.
+**Open during the build** (D433), with a proposed answer in the register:
+
 - **O269**, whether a legato doodle of eighths and quarters should read Heavily varied (C5.16.1):
   proposed, as written, asked at the Jam listening check (C16 item 32).
 

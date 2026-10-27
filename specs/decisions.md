@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.124
+Status: draft v2.125
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -969,3 +969,39 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   pre-generated phrase 1→2 plan could not match a session started with the lock on (C10.5). Chunk
   19 gains the Start path's files, a matching Done when, the corpus guard and a re-cut split rule.
   Now in: [build plan v3.2, chunk 19](versions/v3/build-plan-v3.2.md#chunk-19--the-rhythm-lock-and-what-may-vary-in-the-controls).
+
+- **D440 (2026-10-27): a short silence between two doodle notes is part of the note before it;
+  closes O268.** The owner's answer ("part of the notes", as proposed; gate DS). A silence is a
+  rest only where a whole rest of the doodle's note density value fits in it on that grid, its
+  rest start at the first such grid tick; the silence reading counts the same rests. A tongued
+  wind controller makes most doodles detached, which the old reading put beyond every rhythm the
+  generator writes. Rejected: keeping C5.9 (drift only "nearest first" for detached doodles);
+  dropping only one-sixteenth silences (misses `sparse-calls`). Two doodles' recorded silence
+  readings become Sparse. Now in: [Part C §C5.9](versions/v3/master-spec.md#c59-what-the-doodle-feeds-the-generator),
+  [§C5.16.1](versions/v3/master-spec.md#c5161-the-doodle-to-controls-mapping), [build plan v3.2, chunk 28](versions/v3/build-plan-v3.2.md#chunk-28--from-the-doodle-the-controls-and-the-steering-block).
+
+- **D441 (2026-10-27): a tie between two register windows' centres goes to Middle.**
+  `spec-writer`'s, under the owner's delegation of minor calls, from wave 4's preflight. Under the
+  window derivation Middle is always among the tied windows (its centre sits at, or a hair from,
+  the midpoint of the other two; checked for every range up to five octaves), so one rule settles every
+  tie; Middle is also the first-visit register. Rejected: the lower window (an arbitrary lean). Now in:
+  [Part C §C5.9](versions/v3/master-spec.md#c59-what-the-doodle-feeds-the-generator),
+  [§C5.16.1](versions/v3/master-spec.md#c5161-the-doodle-to-controls-mapping), [build plan v3.2, chunks 28 and 7](versions/v3/build-plan-v3.2.md#chunk-28--from-the-doodle-the-controls-and-the-steering-block).
+
+- **D442 (2026-10-27): before any doodle in the visit, Jam's Idle prewarms the first-visit rhythm
+  values with Jam's tension.** `spec-writer`'s, under the owner's delegation (a prewarm is not
+  heard or seen). They are what a doodle showing no rhythm takes; the domain memo never evicts, so
+  session mode loses nothing. Rejected: prewarming nothing (a first doodle landing on those values would pay a cold build).
+  Now in: [Part C §C5.8](versions/v3/master-spec.md#c58-the-time-budget), [build plan v3.2, chunk 20](versions/v3/build-plan-v3.2.md#chunk-20--jam-mode-the-mode-switch-jams-code-on-demand-and-jams-idle).
+
+- **D443 (2026-10-27): chunk 28 builds on the hand-written doodles; gate DR blocks v3.2 H5.** The
+  owner's ("Build on the written ones"). The Travel Sax recordings join the doodle set later,
+  before H5, and run through the quantizer's and the mapping's tests as they join. Now in:
+  [build plan v3.2, gates](versions/v3/build-plan-v3.2.md#gates).
+
+- **D444 (2026-10-27): wave 4's preflight corrections to the v3.2 plan.** `documentalist`'s
+  preflight (2d0525c), applied by `spec-writer` after checking each against Part C and the code:
+  chunks 20, 28, 8 and 9's atoms, Files, drift checks and revisions; chunk 8's business revisions
+  owed by D425 and D428; chunk 8's in-wave edge from chunk 28, whose blocks it orders by; chunk
+  18's no-phrase carry-in fuel, which M1 confirms. No behaviour. Now
+  in: [build plan v3.2, v21](versions/v3/build-plan-v3.2.md#chunk-20--jam-mode-the-mode-switch-jams-code-on-demand-and-jams-idle).
