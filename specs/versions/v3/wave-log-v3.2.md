@@ -1060,3 +1060,23 @@ Reference machine (Ryzen 5 PRO 8640HS, idle), on `v3.2-w4` 7c3013d6 (`coding-exe
   The first run's `vary-settings-groups` timeout did not recur.
 - Sweep and bundle as in the first run (no source change since): sweep 9 files / 83 tests; entry
   290,302 B, first-load 338,186 B over 17 files, Jam's chunk 6,731 B.
+
+### Wave sync (2026-11-03)
+
+`documentalist` (12ae067b; change set part T, the sync's record). No STABLE atom, CONTRACT (11.0.0)
+or VISION changed; no owner sign-off part. Revised (statuses unchanged): chunk 8's three
+(`rule_jam_rhythm_ordered_by_doodle` 0.3, `rule_rhythm_distance` 0.3, `rule_jam_drift_positions`
+0.3, O3 as D440 words it); chunk 7's two (`rule_join_inherits_leap_recovery` 0.3,
+`rule_join_tense_note_resolution` 0.4); B2 in `rule_join_interval_obeys_phrase_rules` 0.3; chunk 28's
+(`rule_doodle_silence_density_reading` 0.2, `rule_jam_register_follows_doodle` 0.3,
+`module_doodle_controls` 0.2, `module_steering_block_builder` 0.2); chunk 20's
+(`rule_pregeneration_discarded_on_change` 0.6, `module_generation_prewarm` 0.4, built names on its
+four captures); `module_pitch_steering` 0.1 created (chunk 9); drift words on
+`module_ranked_candidate_ordering` 0.7, `module_session_starting_note` 0.4,
+`module_doodle_quantizer` 0.3; the lexicon's Doodle entry (a short gap is part of the note, as
+staccato). M1/M2 (contract, CS) met; Start Jam is disabled until chunk 21, so re-check both at chunk
+21's sync. Transitional states recorded in T2 (Jam on session mode's controls until chunk 31; the
+home note starts nothing until chunk 21). For wave 5's preflight: D445 (chunk 31) and D450 (chunk
+34) rewordings. `atd audit` flags five atoms bloated (none split). Status candidates for the owner,
+DRAFT → REVIEW: `module_rhythm_steering`, `module_pitch_steering`, `module_steering_block_builder`,
+`module_jam_code_boundary`. `doc-ids compare main v3.2-w4`: 0 collisions.
