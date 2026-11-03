@@ -1046,3 +1046,17 @@ Reference machine (Ryzen 5 PRO 8640HS, idle), on `v3.2-w4` 7c3013d6 (`coding-exe
   `carry-in-*` shrank by 829 B: real growth); Jam's chunk `jam-mode-*.js` 6,731 B (+180 B on chunk
   20's 6,551 B).
 - Asked the owner: raise the worker's budget (a spec figure) or trim chunk 8's code by 638 B.
+
+### Wave gate (2026-11-03), second run: PASS
+
+- The owner's ruling (question form, verbatim): "Raise to 170 KiB" (over 160 KiB or trimming chunk
+  8). Spec D451, Part C v1.15, plan v25 (`spec-writer`, f6d7dc6c); no atom states the figure. Fix
+  commit 6564460b (`coding-executor`): `generationWorkerChunkByteBudget` = 170 KiB in
+  `scripts/verify-boundaries.mjs`. `docs/sound-library-survey.md`'s "150 kB" left as written (a
+  record as of c498d9c).
+- `npm run quality` on 6564460b: pass. Unit 548 files / 8,628 tests; `test:e2e` 617 passed,
+  1 skipped; `test:e2e:pregeneration` 617 passed, 1 skipped; a11y 64; notation 107 (4 skipped);
+  `verify:boundaries` 53 chunks within budget, the worker 154,238 B of 174,080 B (19,842 B left).
+  The first run's `vary-settings-groups` timeout did not recur.
+- Sweep and bundle as in the first run (no source change since): sweep 9 files / 83 tests; entry
+  290,302 B, first-load 338,186 B over 17 files, Jam's chunk 6,731 B.
