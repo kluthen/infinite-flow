@@ -1280,3 +1280,32 @@ On v3.2-w5 (head 9e03760d), reference machine (AMD Ryzen 5 PRO 8640HS, 12 thread
   chunks `kept-session-summary`, `steering-block`, `generation-intent`, … moved out of the entry);
   Jam's chunk 16,966 B (+10,235 B); worker 154,170 B, unchanged (budget 174,080 B).
 - No dependency changed (package.json: the `test:e2e` list only): no `security-advisor` check.
+
+### Wave sync (2026-11-03)
+
+- `documentalist` (310d04df): 33 atoms revised, no status change, CONTRACT stays 11.0.0, no STABLE
+  BUSINESS text changed. Every merged chunk's Revisions applied: D450's shares
+  (`rule_rhythm_change_share` 0.4, `module_rhythm_change_draw` 0.3, constants 32,768 / 49,152);
+  D452 (`rule_suggestion_withheld` 0.3); `module_key_suggestion` 0.3 (built names, D455 already
+  in); `module_named_stream_pseudorandomness` 0.6; chunk 17's eight session rules and
+  `module_jam_capture` 0.2, `module_session_start_without_phrase_one` 0.3 (with
+  `cancel-phrase-one-attempt`, D457); chunk 18's four rules, `module_session_seed_plan` 0.4 (M22
+  names, interface only), `module_session_transport_tempo_map` 0.3; chunk 31's
+  `rule_doodle_controls_always_supported` 0.2 (D445), `module_doodle_controls` 0.4,
+  `module_jam_settings` 0.2; gate CL's U1 on `module_saved_data_loader` 0.6 → 0.7. The contract
+  atoms of gate CS checked against the code: met. `rule_played_onset_latency_compensation`:
+  aligned. One tag added (`rule_jam_runs_as_session_from_phrase_one`). Change set: E/F/G status
+  notes, part U applied, new part V. No dependency changed: no `security-advisor`.
+- Drift for the owner: `module_saved_data_loader` (STABLE, contract), "Saves": "called from the
+  player's change handlers only", but `createJamSettings` saves Jam's first values once when Jam
+  mode first shows with no readable record (as `rule_jam_settings_first_values` and
+  `flows/saved-data` ask).
+- Status candidates (DRAFT → REVIEW) for the owner: `module_key_suggestion`,
+  `module_doodle_controls`, `module_jam_settings`.
+- Out of scope, noted: change set part G still calls `module_ranked_candidate_ordering`'s wording
+  open; it was reworded at wave 2's preflight (80ebf45b).
+- `ux-writer`, chunk 31's question: ux D448 (44b62f5a), the readings keep the option labels at
+  every width, so the narrow Sixteenth reads "Eighth notes (Sixteenth on larger screens)"; no atom
+  change. Applied by `coding-executor` (790bd3a4; related 122 tests, typecheck, lint pass); the
+  change set's Prettier formatting and a CSS comment fixed by the driver (0935c57d).
+- `doc-ids compare main v3.2-w5`: 0 collisions.
