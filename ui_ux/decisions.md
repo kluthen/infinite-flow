@@ -16,7 +16,7 @@ Append-only record of settled UI/UX decisions. Earlier logs are archived verbati
 
 Archived IDs keep their meaning; a citation to one by ID elsewhere in this repository stays valid
 through this header. D225, D226, D235–D264 and D328 on (v3.2 and v3.3, not yet released, and the
-entries v3.1 shares with v3.2) stay here; D265–D279 were never used. Numbering continues from D350.
+entries v3.1 shares with v3.2) stay here; D265–D279 were never used. Numbering continues from D448.
 
 ## v3.1 (presets and embellishment figures) and v3.2 (Jam) design, 2026-10-08
 
@@ -654,3 +654,12 @@ title word.
   Rejected: "Heavily varied (default)"; showing the unraised value. Now in
   `screens/phrase-workspace/handoff.md`, Components and Content, Jam's controls, and
   `intent.md`, Jam's Controls.
+
+## v3.2 wave 5, spec D457's alignment, 2026-11-03
+
+- **D447 — Phrase 2 at phrase 1's hand-over; a Jam whose rungs all fail ends at the deadline
+  (2026-11-03; follows spec D457).** Phrase 2 is requested at the read-in measure's barline, where
+  phrase 1 is handed to the session, not when phrase 1 is ready; the failed Jam keeps writing and
+  clicking until the deadline. Nothing the player sees changes. Now in `flows/jam/handoff.md`,
+  Routing Rules, Every rung failed and Read-in measure; `flows/play-session/handoff.md`, Phrase 1
+  of a fresh Jam; `screens/phrase-workspace/handoff.md`, States, Jam ended before phrase 1.
