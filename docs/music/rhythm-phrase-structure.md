@@ -277,21 +277,21 @@ The manifest pins what the expansion yields, not how it gets there. Enumeration 
 
 Attack bands, silence bands, and answer similarity are explicit hypotheses. Listening tests should compare one control at a time at slow, default, and fast BPMs. Tempo does not currently alter policy, so any future tempo-conditioned density would require a product decision rather than an undocumented implementation tweak.
 
-## The rhythm lock in practice (M2, 2026-10-26)
+## The rhythm lock in practice (M2, 2026-11-03)
 
 With the rhythm lock on, every phrase of a session keeps phrase 1's rhythm, takes one allowed change
-of it, or takes a forced bend (master spec C7). The lock census (v3.2 measurement M2, first run
-with the lock built; figures, method and machine in
+of it, or takes a forced bend (master spec C7). The lock census (v3.2 measurement M2, re-run
+at the shares the listening check tuned; figures, method and machine in
 [Generation latency](../generation-latency.md#m2-the-lock-census-with-the-lock)) plays seeded
 eight-phrase sessions over every supported rhythm setting and each built-in preset, and reads what
 each phrase did from the generator's own record, checked against the written bars:
 
-- **How often a phrase draws a change**: about 1 in 4 phrases (25.8–26.4 %), and about 1 in 2 of
-  the tenser phrases of Tension across phrases (52.4–54.2 %), the starting values of C7.4; the
-  listening check (L3) tunes them.
+- **How often a phrase draws a change**: about 1 in 2 phrases (49.3–51.2 %), and about 3 in 4 of
+  the tenser phrases of Tension across phrases (75.5–78.7 %), the shares of C7.4 the listening
+  check (L3) settled, up from the starting 1 in 4 and 1 in 2.
 - **How often it actually changes**: less, because a drawn change often finds no candidate. With
-  all five kinds allowed, 19.1 % of phrases change over the sweep's settings with Tension across
-  phrases on (15.5 % off), 28.1 % at Pop song's settings, and none at Gentle's, Reel's and Bebop's,
+  all five kinds allowed, 33.5 % of phrases change over the sweep's settings with Tension across
+  phrases on (30.2 % off), 48.0 % at Pop song's settings, and none at Gentle's, Reel's and Bebop's,
   whose rhythms offer no single change (C7.3's known limit).
 - **Which kinds are available** one change from the locked rhythm, per drawing phrase over the
   sweep's settings: move a note start 35.5 %, split a note 17.3 %, move a rest 12.8 %, merge two

@@ -220,7 +220,7 @@ request carries the same lock group as the session's own.
   [Tension across phrases](music/lexicon.md#tension-across-phrases) runs in the session, the
   phrase's cycle step is one step tenser (phrases 2, 6, 10...), and the tension in effect from that
   phrase on is below Edge. A tension step made by Vary settings never sets it. A tenser phrase
-  draws a [rhythm change](music/lexicon.md#rhythm-changes) 1 in 2 instead of 1 in 4, inside
+  draws a [rhythm change](music/lexicon.md#rhythm-changes) 3 in 4 instead of 1 in 2, inside
   generation.
 - **The re-lock.** While a re-lock is pending, a phrase's groups also hold a re-lock group: the same
   bars and flag with no allowed change. `buildAttemptIntent` puts it on an attempt built with
