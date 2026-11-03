@@ -1250,3 +1250,33 @@ subsection to `docs/generation-latency.md` (a shared record; the later one resol
   `DoodleReadings.vue`. Entry 282,047 B, Jam's chunk 16,966 B. To `ux-writer`: the readings use
   each control's option labels ("Eighth notes") while the narrow form reads "Eighth (Sixteenth on
   larger screens)"; the intent's example says "Note density: Eighth".
+
+### Wave gate (2026-11-03)
+
+On v3.2-w5 (head 9e03760d), reference machine (AMD Ryzen 5 PRO 8640HS, 12 threads, 11 GiB, Node
+22.23.4), idle, no `atd audit`, one heavy command at a time, no suspend (`coding-executor`).
+
+- `npm run quality` green after three fixes, each traced to its chunk: 64219d43 (chunk 29, the Jam
+  sweep's loop extracted under the nesting limit); fdd3be07 (chunk 18, its phrase 1 spec split by
+  topic under the 10-atom limit; 21 tests, titles and links unchanged); 5d8d865f (chunk 34,
+  `rhythm-lock-controls.spec.ts` › 'the live view never marks a rhythm change…': at D450's 1-in-2
+  share session seed 8 draws on phrases 2–4, the test assumed 4 alone; seed 74 draws on 4 alone;
+  title and assertions unchanged; passes at 8b87bc22, fails from afca4828; no behaviour bug).
+  Unit 9,015; e2e 623 (+1 skipped) and pregeneration 623; a11y 66; notation 107; `lint:health` 0
+  errors; `atd:lint`, `atd:check` pass.
+- `npm run test:sweep`: 91/91 (20:13–20:15 CET).
+- M1 re-run through chunk 29's double (lock off 20:15–20:40, on 20:40–21:32): identical to chunk
+  29 in all 18 configurations (rung 1 84.4 %, rung 2 15.6 %, rung 3 0 %, never came 0; 0 repeats,
+  0 shortfalls, none over the reserve, 420/420 replays; ISS-015 93 / 89); cold at 180 BPM all met,
+  slowest cold phrase-1 attempt 0.805 s; timing noise only.
+- M5 at D450's shares (`JAM_MODE=session JAM_LOCK=both npm run measure:jam`, 21:32–21:35, one
+  process, no out-of-memory): lock off matches v3.1 (standalone 42/42/603, 0 repeats); lock on
+  every standalone within the reserve (slowest 0.519 s at 240 BPM); all changes 33.1 % changed,
+  0.7 % forced bends, drew 50.5–50.8 % normal, 76.6–76.8 % tenser; strict 1.2–1.3 % bends;
+  orderings 2.4 % / 1.0 % (all changes), 0.4–0.5 % (strict). Acceptance met. Table rewritten in
+  `docs/generation-latency.md` (9e03760d).
+- Bundle (`verify:boundaries` passes; against a2ed40d5 rebuilt on this machine): entry 282,047 B
+  (−8,308 B; recorded wave 4 290,302); first-load JS 344,080 B in 22 files (+5,841 B; new shared
+  chunks `kept-session-summary`, `steering-block`, `generation-intent`, … moved out of the entry);
+  Jam's chunk 16,966 B (+10,235 B); worker 154,170 B, unchanged (budget 174,080 B).
+- No dependency changed (package.json: the `test:e2e` list only): no `security-advisor` check.
