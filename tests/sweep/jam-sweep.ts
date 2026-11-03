@@ -8,11 +8,19 @@
  *
  * With no steering block, the lock off and a warm domain, a Jam asks for the very phrase 1 a
  * session gets at Idle, so it plays the same phrases as v3.1's measured session.
+ *
+ * A Jam steered by its doodle (a doodle and a drift given) plays as C5 sets it: the controls read
+ * from the doodle, its steering block and its join; phrase 1 through the double of Jam's ladder
+ * (or another ladder given); then the session started without phrase 1 at the generation
+ * measure's start, phrase 1 handed over at the barline it is shown at (phrase 2 requested there,
+ * spec D457) and sounding one read-in measure later, every later request carrying the block; no
+ * Vary settings and no Tension across phrases, which a Jam has none of.
  */
 
 import type { QuantizedDoodle } from '@/domain/doodle/quantized-doodle'
 import type { SteeringBlock } from '@/domain/generation/steering-block'
-import { STANDALONE_RESERVE_SECONDS } from '@/session/session-timing'
+import type { JamDrift } from '@/jam/steering-block-builder'
+import { STANDALONE_RESERVE_SECONDS, measureSeconds } from '@/session/session-timing'
 import {
   SWEEP_PHRASE_COUNT,
   caseSettings,
@@ -20,6 +28,7 @@ import {
   phraseSlots,
   runTimedSession,
   type AttemptCost,
+  type JamHandover,
   type OutcomeCache,
   type SweepCase,
   type TimedSession,
@@ -28,14 +37,18 @@ import { generateEveryAttempt, measuredAttemptCost, runShortfalls } from './dead
 import type { AttemptRecord } from './jam-sweep-figures'
 import {
   BASELINE_LADDER,
+  JAM_DOUBLE_LADDER,
+  doodlePhraseOne,
   extendedWaitMeasures,
   jamPhraseOneIntent,
   phraseOneDeadlineSeconds,
   phraseOneGenerator,
+  type DoodlePhraseOne,
   type JamLock,
   type LadderAttempt,
   type LadderRung,
   type PhraseOneLadder,
+  type PhraseOneReady,
   type RhythmDomainState,
 } from './jam-sweep-ladder'
 import {
@@ -61,15 +74,17 @@ export const JAM_PHRASE_COUNT = 8
 export const SESSION_PHRASE_COUNT = SWEEP_PHRASE_COUNT
 
 /**
- * One run of the sweep. The doodle is recorded and not yet read (the controls a doodle sets come
- * later); no steering block is the baseline; a cold domain applies to a Jam's phrase 1 only. The
- * phrase count defaults to the mode's, the ladder to the baseline one.
+ * One run of the sweep. A doodle with a drift steers the Jam (its controls, block and join, see
+ * above); a doodle alone is only recorded (chunk 3's runs); no steering block is the baseline; a
+ * cold domain applies to a Jam's phrase 1 only. The phrase count defaults to the mode's, the
+ * ladder to the double for a steered Jam, the baseline one otherwise.
  */
 export interface JamRunConfig {
   readonly mode: JamMode
   readonly sweepCase: SweepCase
   readonly tempo: number
   readonly doodle?: JamDoodle
+  readonly drift?: JamDrift
   readonly steering?: SteeringBlock
   readonly lock: JamLock
   readonly domain: RhythmDomainState
@@ -97,6 +112,12 @@ export interface JamRunRecord {
   readonly tempo: number
   readonly phraseCount: number
   readonly doodle: string | null
+  /** The drift of a Jam steered by its doodle, null otherwise. */
+  readonly drift: JamDrift | null
+  /** The case's instrument. */
+  readonly instrument: string
+  /** How phrase 2 was decided (carry-in, standalone, repeat), null when it never was. */
+  readonly phraseTwoOrigin: string | null
   readonly phraseOne: JamPhraseOneRecord | null
   readonly attempts: readonly AttemptRecord[]
   readonly repeats: number
@@ -104,18 +125,28 @@ export interface JamRunRecord {
   readonly lockCensus: SessionLockCensus | null
 }
 
-/** A finished run: its record, and the session it played (none when a Jam's phrase 1 never came). */
+/**
+ * A finished run: its record, the session it played (none when a Jam's phrase 1 never came) and,
+ * for a Jam steered by its doodle, what the doodle gave phrase 1.
+ */
 export interface JamRun {
   readonly record: JamRunRecord
   readonly session: TimedSession | undefined
+  readonly phraseOneInput?: DoodlePhraseOne
 }
 
-/** Intent: refuse a configuration only a caller bug can give: a cold domain in session mode. */
+/**
+ * Intent: refuse a configuration only a caller bug can give: a cold domain in session mode, a
+ * steering block or a drift in session mode, a drift without a doodle, or a drift beside a block
+ * given by hand.
+ */
 function requireConfig(config: JamRunConfig): void {
   if (config.mode === 'session' && config.domain === 'cold')
     throw new Error('A cold rhythm domain applies to a Jam phrase 1 only, not to session mode.')
-  if (config.mode === 'session' && config.steering !== undefined)
+  if (config.mode === 'session' && (config.steering !== undefined || config.drift !== undefined))
     throw new Error('Session mode carries no steering block.')
+  if (config.drift !== undefined && (config.doodle === undefined || config.steering !== undefined))
+    throw new Error('A Jam steered by its doodle needs the doodle, and takes no block by hand.')
 }
 
 /** Intent: the measured cost of each session attempt, recording each one's time as it is charged. */
@@ -145,6 +176,7 @@ function ladderAttemptRecord(attempt: LadderAttempt): AttemptRecord {
     chargedSeconds: attempt.chargedSeconds,
     failureCode: attempt.failureCode,
     ...(attempt.orderingSeconds === undefined ? {} : { orderingSeconds: attempt.orderingSeconds }),
+    ...(attempt.cancelledAt === undefined ? {} : { cancelled: true }),
   }
 }
 
@@ -194,22 +226,40 @@ function repeatCount(run: TimedSession): number {
   return phraseSlots(run).filter((slot) => slot.decided?.origin === 'repeat').length
 }
 
-/** Intent: a Jam's phrase 1 through its ladder, at the run's tempo, domain, block and lock. */
+/**
+ * Intent: how phrase 2 of a run was decided (its phrase-ready origin), or null when it never was.
+ */
+function phraseTwoOriginOf(run: TimedSession): string | null {
+  return phraseSlots(run)[0]?.decided?.origin ?? null
+}
+
+/**
+ * Intent: a Jam's phrase 1 through its ladder, at the run's tempo, domain, block and lock; for a
+ * Jam steered by its doodle, with what the doodle gives phrase 1 (its controls, block and join).
+ */
 function jamPhraseOne(config: JamRunConfig): {
   readonly record: JamPhraseOneRecord
-  readonly ready: ReturnType<PhraseOneLadder['run']>['ready']
+  readonly ready: PhraseOneReady | undefined
+  readonly doodle: DoodlePhraseOne | undefined
 } {
   const settings = caseSettings(config.sweepCase, config.tempo)
-  const ladder = config.phraseOneLadder ?? BASELINE_LADDER
+  const doodle =
+    config.drift === undefined || config.doodle === undefined
+      ? undefined
+      : doodlePhraseOne(settings, config.doodle.quantized, config.drift, config.lock)
+  const ladder =
+    config.phraseOneLadder ?? (doodle === undefined ? BASELINE_LADDER : JAM_DOUBLE_LADDER)
   const { attempts, ready } = ladder.run({
     baseIntent: phraseOneIntent(settings, config.sweepCase.seed),
     intentAt: (seed, extras) => jamPhraseOneIntent(settings, seed, extras),
     firstSeed: config.sweepCase.seed,
-    steering: config.steering,
+    steering: doodle?.steering ?? config.steering,
     lock: config.lock,
     deadlineSeconds: phraseOneDeadlineSeconds(config.tempo),
     reserveSeconds: STANDALONE_RESERVE_SECONDS,
     generate: phraseOneGenerator(config.domain),
+    sessionSeed: config.sweepCase.firstSessionSeed,
+    ...(doodle === undefined ? {} : { doodle }),
   })
   const record = {
     ladder: ladder.name,
@@ -219,7 +269,43 @@ function jamPhraseOne(config: JamRunConfig): {
       ready === undefined ? null : extendedWaitMeasures(ready.readyAt, config.tempo),
     attempts,
   }
-  return { record, ready }
+  return { record, ready, doodle }
+}
+
+/**
+ * Intent: phrase 1 of a Jam steered by its doodle as the session is handed it (C5.6, C5.7): the
+ * attempt that made it, asked for when it started with the doodle's settings and block and the
+ * deadline; shown at the first barline at or after it was ready (the generation measure's end at
+ * the earliest), sounding one read-in measure later.
+ */
+function jamHandover(ready: PhraseOneReady, doodle: DoodlePhraseOne, tempo: number): JamHandover {
+  const made = ready.made
+  if (made === undefined || made.attempt === undefined)
+    throw new Error('A steered Jam is handed phrase 1 from a ladder that names its attempt.')
+  if (ready.phraseOne.outcome.kind !== 'generation_success')
+    throw new Error('Phrase 1 handed over is a generated phrase.')
+  const measure = measureSeconds(tempo)
+  const shownAt = (1 + extendedWaitMeasures(ready.readyAt, tempo)) * measure
+  return {
+    attempt: {
+      kind: 'phrase-one-attempt',
+      at: made.startedAt,
+      step: made.rung === 'join-and-block' ? 'carry-in' : 'standalone',
+      retry: made.attempt,
+      intent: ready.phraseOne.intent,
+      settings: doodle.settings,
+      deadline: phraseOneDeadlineSeconds(tempo),
+      steering: doodle.steering,
+    },
+    generated: {
+      outcome: ready.phraseOne.outcome,
+      seconds: made.seconds,
+      orderingSeconds: made.orderingSeconds ?? 0,
+    },
+    chargedSeconds: made.chargedSeconds,
+    shownAt,
+    soundsAt: shownAt + measure,
+  }
 }
 
 /**
@@ -241,12 +327,26 @@ export async function runJamCase(config: JamRunConfig, outcomes: OutcomeCache): 
     tempo,
     phraseCount,
     doodle: config.doodle?.name ?? null,
+    drift: config.drift ?? null,
+    instrument: sweepCase.controls.instrumentProfileId,
     phraseOne: phraseOne?.record ?? null,
   }
   if (phraseOne !== undefined && phraseOne.ready === undefined) {
-    const record = { ...base, attempts, repeats: 0, shortfalls: [], lockCensus: null }
-    return { record, session: undefined }
+    const record = {
+      ...base,
+      phraseTwoOrigin: null,
+      attempts,
+      repeats: 0,
+      shortfalls: [],
+      lockCensus: null,
+    }
+    return {
+      record,
+      session: undefined,
+      ...(phraseOne.doodle === undefined ? {} : { phraseOneInput: phraseOne.doodle }),
+    }
   }
+  const steered = phraseOne?.doodle
   const session = await runTimedSession(
     sweepCase,
     tempo,
@@ -254,21 +354,24 @@ export async function runJamCase(config: JamRunConfig, outcomes: OutcomeCache): 
     generateEveryAttempt,
     recordingCost(attempts),
     undefined,
-    {
-      phraseCount,
-      settings: {
-        rhythmLockOn: lock.on,
-        ...(lock.on ? { allowedRhythmChanges: lock.allowedChanges } : {}),
-      },
-      ...(phraseOne?.ready === undefined ? {} : { phraseOne: phraseOne.ready.phraseOne }),
-    },
+    steered !== undefined && phraseOne?.ready !== undefined
+      ? { phraseCount, jam: jamHandover(phraseOne.ready, steered, tempo) }
+      : {
+          phraseCount,
+          settings: {
+            rhythmLockOn: lock.on,
+            ...(lock.on ? { allowedRhythmChanges: lock.allowedChanges } : {}),
+          },
+          ...(phraseOne?.ready === undefined ? {} : { phraseOne: phraseOne.ready.phraseOne }),
+        },
   )
   const record: JamRunRecord = {
     ...base,
+    phraseTwoOrigin: phraseTwoOriginOf(session),
     attempts,
     repeats: repeatCount(session),
     shortfalls: runShortfalls(sweepCase, session),
     lockCensus: lock.on ? censusOfSession(censusPhrasesOf(session), lock.allowedChanges) : null,
   }
-  return { record, session }
+  return { record, session, ...(steered === undefined ? {} : { phraseOneInput: steered }) }
 }
