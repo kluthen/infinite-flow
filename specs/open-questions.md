@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.85
+Status: draft v0.86
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -36,8 +36,9 @@ approval (D410); [Part C §C17](versions/v3/master-spec.md#c17-deferred-and-open
 now stands.
 O267 (a doodle note played before the doodle's first barline, D430) was opened on 2026-10-23,
 and O268 and O269 (how the doodle's short silences and its legato rhythm are read, D433) the same
-day; O268 was closed on 2026-10-27 by the owner's answer (D440). New questions take IDs from **O270**; the IDs reserved for v3.0's waves and left unused stay
-unused, and O177 stays unused.
+day; O268 was closed on 2026-10-27 by the owner's answer (D440). O271 (a note start off the
+doodle's grid, D449) was opened on 2026-11-03; O270 was never issued. New IDs come from `doc-ids
+next spec O`; the IDs reserved for v3.0's waves and left unused stay unused, and O177 stays unused.
 
 Opened on 2026-10-12 with v3.3 (D261): O165–O175, richer chords. D262 closed O174 the same day.
 D264–D273 settled the rest the same day in master spec Part D, as proposed for the owner's
@@ -308,3 +309,13 @@ in progress.
   Slightly varied when every note off the main value is longer than it (the doodle's rhythm then
   approached, not reached), or a later grammar level adding only longer values. Needed at the Jam
   listening check (gate L1, after wave 6); chunk 28 builds the rule as written.
+- **O271 - Whether a note start off the doodle's grid should count as a strong edit** _(D449;
+  [Part C §C8](versions/v3/master-spec.md#c8-jams-drift), [v3.2
+  H4](versions/v3/build-plan-v3.2.md#v32-h4--jam-listening-settings-drift-and-lock-l1))_: at v3.2
+  H1, every set's least-alike candidate was the only one starting a note on a finer grid than any
+  the doodle's starts use (an offbeat over an on-beat doodle, a sixteenth among eighths). C8 counts
+  that start as one edit like any other, so such a candidate can sit at Close. Proposed: keep C8 as
+  written (D449) and ask at H4 step 3 whether Drift Close used quicker notes than the doodle. If it
+  did, fallback B: against the doodle only, never against the locked rhythm, such a start is a
+  strong edit, Near at once wherever it falls. Needed at the Jam listening check (gate L1, after
+  wave 6); nothing is built for it before.

@@ -2251,7 +2251,10 @@ Delete everything removes them. No preset leaves the device.
 
 ## Part C — v3.2
 
-Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.13 (2026-10-27)**: v1.12
+Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.14 (2026-11-03)**: v1.13
+with the owner's two listening checks of 2026-11-03 (C7.4, C8, C16, C17; D449, D450): the rhythm
+change shares are tuned to 1 in 2, and 3 in 4 on a tenser phrase; drift's distance scale stays as
+written, with one finding carried to the Jam listening check (O271). v1.13 (2026-10-27): v1.12
 with one of `spec-writer`'s minor calls (C5.16, C5.16.1; D445): the supported-combination step
 judges the note density as the doodle shows it, a Sixteenth at every width, so it runs once when
 the doodle ends and a window crossing changes no reading. v1.12 (2026-10-27): v1.11
@@ -3515,12 +3518,16 @@ description tells the player that what it offers depends on the rhythm settings.
 
 _Changed in v1.11:_ a drawn change none of whose candidates makes a phrase is "no change
 available" too, and the history's record of a draw is stated (D435).
+_Changed in v1.14:_ the shares are the listening check's, 1 in 2 and 3 in 4, up from the starting
+1 in 4 and 1 in 2 (D450).
 
 - **At most one change per phrase**, never on phrase 1, nor on the phrase that re-locks after a
   narrow-window step-down (C7.1).
-- **A seeded share of phrases**: each phrase from phrase 2 on draws whether it changes, **1 in 4**
-  normally and **1 in 2** on a tenser phrase (session mode only: Tension across phrases is not in
-  Jam). A tension step made by Vary settings is a setting change, not a tenser phrase. These figures are starting values, tuned at the listening check.
+- **A seeded share of phrases**: each phrase from phrase 2 on draws whether it changes, **1 in 2**
+  normally and **3 in 4** on a tenser phrase (session mode only: Tension across phrases is not in
+  Jam, so a Jam's phrases draw at 1 in 2). A tension step made by Vary settings is a setting
+  change, not a tenser phrase. These figures come from the owner's listening check (D450); they
+  may be tuned again later.
 - **The draw is seeded by the phrase's own seed**, through a hash tie key of its own
   (`infinite-flow/rhythm-change/v1`), inside generation: the generator stays a pure function of its
   request, and a pre-generated phrase draws exactly as the session would.
@@ -3619,6 +3626,7 @@ _Changed in v1.9:_ the band orders the rhythms tried with each chord plan, as v3
 (D428).
 _Changed in v1.12:_ the doodle's rests are those C5.9 defines, a short silence starting none
 (D440).
+_Changed in v1.14:_ the listening check ran; the scale stays (D449).
 
 - **Three positions, closest first: Close, Near (the default), Free.** A Jam-mode setting: shown
   in Jam mode only, set at Jam's Idle, saved with Jam's settings (C5.16); presets neither hold nor
@@ -3658,8 +3666,10 @@ _Changed in v1.12:_ the doodle's rests are those C5.9 defines, a short silence s
   candidate rhythm at that distance from the doodle, not by an operation applied to the doodle. The
   catalogue's Close and Near rhythm entries the grammar can write are covered that way; the others,
   and the melodic ones (sequence, interval expansion, fragmentation), are later.
-- **Listening check before the gate**: the owner ranks a handful of examples by ear before the
-  scale drives the control.
+- **Listening check before the gate**: held on 2026-11-03 (five sets, one listener; D449). The
+  scale stays as written. In every set, the candidate ranked least alike was the only one starting
+  a note on a finer grid than the doodle's; whether such a start should count as a stronger edit
+  is open (O271), asked at the Jam listening check.
 
 ## C9. Vary settings' allowed groups
 
@@ -4381,8 +4391,9 @@ Jam's run at 60, 120 and 180 BPM, and at 240 BPM only if Jam keeps it (C5.17).
    bends, whose rate over the sweep is recorded.
 2. **Allowed changes.** No phrase makes more than one change; every change is of an allowed kind
    and measured from the locked rhythm; phrase 1 never changes; the phrase after a change returns
-   to the locked rhythm; over the sweep the share of changed phrases is near 1 in 4, and near 1 in
-   2 on tenser phrases; the share of draws with no candidate is recorded.
+   to the locked rhythm; over the sweep the share of phrases that draw a change is near 1 in 2,
+   and near 3 in 4 on tenser phrases (C7.4); the share of changed phrases and the share of draws
+   with no candidate are recorded.
 3. **Never shown**: no rhythm change and no forced bend is marked anywhere: live view, review,
    exports.
 4. **Search order.** Under the lock, the phrase's rhythm is tried with every chord plan before any
@@ -4567,15 +4578,19 @@ C5.16, C5.17, C10.5 and, for v3.3's Seventh chords in Jam, Part D §D8.4.
 proposed (the owner's answer, D440): part of the note before it, a silence being a rest only where
 a whole rest of the doodle's note density value fits in it on that grid; C5.9, C5.16.1, C8.
 
-**Open during the build** (D433), with a proposed answer in the register:
+**Open during the build** (D433, D449), with a proposed answer in the register:
 
 - **O269**, whether a legato doodle of eighths and quarters should read Heavily varied (C5.16.1):
   proposed, as written, asked at the Jam listening check (C16 item 32).
+- **O271**, whether a note start on a finer grid than the doodle's should count as a stronger edit
+  against the doodle (C8; D449): proposed, the scale as written, asked at the Jam listening check
+  (C16 item 32).
 
 **Measured before the gate, not open questions**: the cost of the new orderings and the sweeps
-(C5.8, C16 items 10 and 31); the forced-bend rate; the share of rhythm changes, starting at 1 in 4
-and 1 in 2 (C7.4); the suggestion's shares and cues, and whether Locrian needs a handicap (C6.2);
-drift's distance scale by ear (C8); 240 BPM in Jam, last.
+(C5.8, C16 items 10 and 31); the forced-bend rate; the share of rhythm changes, tuned to 1 in 2
+and 3 in 4 at the listening check's first steps (C7.4, D450), its one-kind-at-a-time step still to
+run; the suggestion's shares and cues, and whether Locrian needs a handicap (C6.2);
+drift's distance scale by ear (C8; held, D449); 240 BPM in Jam, last.
 
 **Code gaps for `coding-leader`, not open design**: the steering module and the block's check on
 arrival; the doodle's own type on Jam's side; the join from no phrase; the bar key; the run-time

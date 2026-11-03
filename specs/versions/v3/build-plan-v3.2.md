@@ -1,6 +1,9 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v23 (2026-10-27): v22 with spec D447–D448 written in: ISS-015 known and deferred, read
+Status: v24 (2026-11-03): v23 with spec D449–D450 written in (master spec Part C v1.14): gate LD
+cleared with a finding carried to v3.2 H4 (O271), chunk 8 unchanged; L3's step 2 tunes the rhythm
+change shares, built by new chunk 34 (wave 5), which re-runs M2.
+v23 (2026-10-27): v22 with spec D447–D448 written in: ISS-015 known and deferred, read
 with in chunks 18 and 29, M1 and M5.
 v22 (2026-10-27): v21 with ux D355 and spec D445–D446 written in (master spec Part C
 v1.13): chunk 31 marks a rhythmic variety the supported-combination step raised and judges that
@@ -30,7 +33,7 @@ wave that builds them, each signed off by the owner first (spec D422): CONTRACT 
 (gate CS), 9.0.0 at wave 1's sync (gate CN), another MAJOR at wave 2's (gate CK, chunk 12's
 replay key and chunk 22's kept-session shape, spec D429). Chunk
 IDs 0–27 keep the meaning plan v3 gave them where it still holds, since the v3.3 plan cites them;
-chunks 28–33 are new, and chunk 26 is folded into chunk 19.
+chunks 28–34 are new, and chunk 26 is folded into chunk 19.
 
 ## Read first: what v3.2 changes in v2, v3.0 and v3.1
 
@@ -91,10 +94,10 @@ no release is cut before wave 7 has merged.
 | **CN** | The owner confirms the [change set](../../../docs/release/v3.1-v3.2-intent-change-set.md)'s part N: N1 (`module_settings_mutation` 0.4 to 0.5, STABLE on the contract since 8.1.0, which chunk 15 changes), N3 (CONTRACT 8.1.0 to 9.0.0, MAJOR) and, optionally, N2 (`rule_vary_settings_figure_step`). `documentalist` applies them at wave 1's sync (spec D422; [build workflow](build-workflow.md#intent-atd), "Contract sign-off"). | `documentalist` drafts (done, 896ee7f); the owner confirms | Chunk 15's merge into the wave branch | done (2026-10-22, the owner: "ok for the vary settings"; N1, N2 and N3; applied at wave 1's sync) |
 | **CK** | The owner confirms the wording of chunk 12's two contract revisions, `module_phrase_replay_key` and `rule_seeded_phrase_reproduction` (STABLE on the contract since 8.1.0), and of chunk 22's three, `module_kept_session_codec`, `entity_kept_session_record` and `module_on_device_database` (STABLE on the contract since v3.0; their wording takes in the loophole closure and a fresh Jam's played-notes clock), with the optional rewordings, and the MAJOR bump, CONTRACT 9.0.0 to 10.0.0, that applies them all at wave 2's sync (spec D422, D429, D430): the [change set](../../../docs/release/v3.1-v3.2-intent-change-set.md)'s part P, P1–P8 with P3b and the played-notes clock's wording. | `documentalist` drafts at wave 2's preflight (P1–P8, P3b; the clock's wording after spec D430); the owner confirms | Chunk 12's and chunk 22's merges into the wave branch | done (2026-10-23, the owner: "i approve it all"; change set part P, P1–P8 with P3b and the clock; applied at wave 2's sync) |
 | **CR** | If chunk 16 changes what `module_session_ready_phrases` (STABLE on the contract) guarantees, as the preflight expects (a ready phrase's re-derived request takes in the session's lock state): `documentalist` drafts the wording extension at wave 3's sync and the owner confirms it there, with the contract bump the change set's rule gives (spec D422, D437). As for CS, chunk 16 merges into the wave branch first, since chunks 13 and 19 build on it in the wave. | `documentalist` drafts; the owner confirms | Wave 3's sync, and so its merge into `main` | done (2026-10-26, the owner: "agreed"; change set part R; CONTRACT 11.0.0, bf64a28) |
-| **LD** | The owner ranks a handful of rhythm pairs by ear on drift's distance scale ([v3.2 H1](#v32-h1--drifts-scale-by-ear-ld)), before the scale drives the steering block's band ([C8](master-spec.md#c8-jams-drift)). A ranking that disagrees with the scale goes to `spec-writer` before chunk 8. | The owner; `spec-writer` if the ranking disagrees | Chunk 8 (wave 4) | open (after wave 2: chunks 3 and 5) |
+| **LD** | The owner ranks a handful of rhythm pairs by ear on drift's distance scale ([v3.2 H1](#v32-h1--drifts-scale-by-ear-ld)), before the scale drives the steering block's band ([C8](master-spec.md#c8-jams-drift)). A ranking that disagrees with the scale goes to `spec-writer` before chunk 8. | The owner; `spec-writer` if the ranking disagrees | Chunk 8 (wave 4) | done (2026-11-03, the owner's ranking; the scale kept with a finding, spec D449, carried to v3.2 H4 as O271) |
 | **DR** | The owner's Travel Sax recordings join the doodle set: chunk 3 writes the doodles by hand and documents how to add recorded ones (played-notes exports, kept beside their quantized form); the owner records them that way (spec D427). Chunk 28 builds and tests on the twelve hand-written doodles; each recording, as it joins, runs through the quantizer's and the mapping's tests (spec D443). | The owner | v3.2 H5, so gate L1; the release gate's tests on recorded doodles (item 25). Not chunk 28 (spec D443) | open (the owner records during wave 4) |
 | **DS** | The owner answers O268 (now closed, [spec D440](../../decisions.md)): how a short silence between two doodle notes (a detached note) is read, for the steering block's starts ([C5.9](master-spec.md#c59-what-the-doodle-feeds-the-generator)) and the silence reading ([C5.16.1](master-spec.md#c5161-the-doodle-to-controls-mapping)); `spec-writer` writes the answer into Part C and chunk 28 (spec D433). | The owner; then `spec-writer` | Chunk 28 (wave 4) | done (2026-10-27, the owner: "part of the notes", as proposed; spec D440, Part C v1.12) |
-| **L3** | The owner's listening check of the allowed rhythm changes ([v3.2 H2](#v32-h2--allowed-rhythm-changes-l3), item 13); the change shares are tuned from it. | The owner | The release gate's final M2 run | open (after wave 3) |
+| **L3** | The owner's listening check of the allowed rhythm changes ([v3.2 H2](#v32-h2--allowed-rhythm-changes-l3), item 13); the change shares are tuned from it. Steps 2 and 4 ran on 2026-11-03 and tuned the shares (spec D450, built by [chunk 34](#chunk-34--the-rhythm-change-shares-tuned-l3)); step 3, one kind at a time, is still owed. | The owner | The release gate's final M2 run | open (after wave 3) |
 | **L1** | The owner's listening check of Jam ([v3.2 H4](#v32-h4--jam-listening-settings-drift-and-lock-l1) and [H5](#v32-h5--jam-listening-the-doodle-to-controls-mapping-l1), item 32); it confirms or sends back three of D406's provisional answers ([below](#what-confirms-d406s-provisional-answers)). | The owner; a failed answer becomes a ruling | The release gate | open (after wave 6) |
 | **L2** | The owner's listening check of the suggestion ([v3.2 H6](#v32-h6--the-suggestion-l2), item 45); the weights and cues are tuned from it. | The owner | The release gate's final suggestion tests | open (after wave 6) |
 | **J240** | Whether Jam's tempo reaches 240 BPM: from [chunk 33](#chunk-33--240-bpm-in-jam-best-effort)'s run at 240 BPM, the owner widens Jam's tempo control to 240, or keeps it at 180 and the chunk is dropped (C5.17, spec D404). Widening changes two of the design's sentences (Tap tempo's limit note): `ux-writer` rewords them first. | The owner; `ux-writer` if widened | The second half of chunk 33 | open (in wave 7) |
@@ -111,8 +114,8 @@ preflight does not run and no chunk carries a **Data** line
 | 1 | 4 The quantized doodle · 5 Rhythm bars, distance and change kinds · 6 The request carries v3.2's inputs · 15 Vary settings' allowed groups | Wave 0; CN before chunk 15's merge. | merged into `main` |
 | 2 | 3 Measurement tools · 10 The rhythm lock in the generator · 11 Allowed rhythm changes · 12 Replay key `ifk4.` · 22 v3.2's kept-session shape | Wave 1; CK before chunk 12's and chunk 22's merges. In-wave 10 → 11: chunk 10's capture fixes the ordering seam and the lock's order the draw slots into. LD opens at its end. | merged into `main` |
 | 3 | 16 The rhythm lock in a session · 13 Session measurements · 19 The lock and What may vary in the controls | Wave 2; CS and CR before its sync. In-wave 16 → 13 and 16 → 19: chunk 16's capture fixes the session's lock state and what the session history records. Three chunks: the session half ends here, and every other session chunk is done. L3 opens at its end. | merged into `main` |
-| 4 | 20 Jam mode: the switch, Jam's code, Jam's Idle · 28 From the doodle: controls and steering block · 7 The join from the doodle · 8 Rhythm ordered by the steering block · 9 Melody follows the moves | Wave 3; DS (28, done); LD (8: chunk 8 waits in the wave for the owner's ranking, and leaves it with nothing depending on it if LD has not cleared when the rest is done). In-wave 28 → 7 and 28 → 8: chunk 28's capture fixes the register window the join reads and the blocks chunk 8 orders by. | planned |
-| 5 | 14 The key and mode suggestion · 17 Jam engine, part 1 · 18 Jam engine, part 2 · 29 The Jam sweep, first run · 31 Jam's settings | Wave 4. In-wave 14 → 18: chunk 14's capture fixes the suggestion's answer type; 17 → 18: chunk 17's capture fixes the engine's way in and the capture's states. | planned |
+| 4 | 20 Jam mode: the switch, Jam's code, Jam's Idle · 28 From the doodle: controls and steering block · 7 The join from the doodle · 8 Rhythm ordered by the steering block · 9 Melody follows the moves | Wave 3; DS (28, done); LD (8, done, spec D449). In-wave 28 → 7 and 28 → 8: chunk 28's capture fixes the register window the join reads and the blocks chunk 8 orders by. | planned |
+| 5 | 34 The rhythm change shares, tuned · 14 The key and mode suggestion · 17 Jam engine, part 1 · 18 Jam engine, part 2 · 29 The Jam sweep, first run · 31 Jam's settings | Wave 4. Chunk 34 has no in-wave edge and goes first, so the wave's measurements run at the tuned shares. In-wave 14 → 18: chunk 14's capture fixes the suggestion's answer type; 17 → 18: chunk 17's capture fixes the engine's way in and the capture's states. | planned |
 | 6 | 21 A fresh Jam on screen · 30 Kept Jam sessions · 23 The review's doodle section and the suggestion | Wave 5. In-wave 21 → 23 and 30 → 23: chunk 21's capture fixes what the review receives from an ended Jam, chunk 30's what a kept Jam session holds. Three chunks: everything else of Jam's waits on 21 or 23. L1 and L2 open at its end. | planned |
 | 7 | 24 The kept doodle · 25 Exports open with the doodle · 32 Tap tempo · 33 240 BPM in Jam | Wave 6; J240 (33's second half). In-wave 24 → 32: both change Jam's Idle note routing, whose interface chunk 20's capture fixed. | planned |
 
@@ -121,7 +124,7 @@ hand checks. κ is 1 ([build workflow](build-workflow.md#concurrency-and-order))
 
 ```mermaid
 flowchart LR
-  LD{{LD: drift scale by ear}}
+  LD{{LD: drift scale by ear, done}}
   DS{{DS: short silences, done}}
   DR{{DR: recorded doodles}}
   CS{{CS: contract sign-off}}
@@ -161,6 +164,7 @@ flowchart LR
     C9[9 Melody steering]
   end
   subgraph W5[Wave 5]
+    C34[34 Change shares tuned]
     C14[14 Suggestion]
     C17[17 Jam engine 1]
     C18[18 Jam engine 2]
@@ -269,6 +273,9 @@ flowchart LR
   C25 --> C27
   C32 --> C27
   C33 --> C27
+  C11 --> C34
+  C13 --> C34
+  C34 --> C27
   L --> C27
 ```
 
@@ -380,8 +387,8 @@ corpora are a guard, not a measurement.
 
 - **What:** C16 items 1 and 2, and [C7.4](master-spec.md#c74-when-a-phrase-changes)'s starting
   shares: the forced-bend rate (overall, with Tension across phrases at each tension, after Vary
-  settings' Tension step from Build to Lift); the share of phrases that draw a change (near 1 in 4,
-  1 in 2 on tenser phrases); the share of draws with no candidate, per kind and per rhythm setting,
+  settings' Tension step from Build to Lift); the share of phrases that draw a change (near 1 in 2,
+  3 in 4 on tenser phrases, spec D450); the share of draws with no candidate, per kind and per rhythm setting,
   and apart from it the draws whose candidates all failed to make a phrase (both record "no change
   available", spec D435; the domain lookup tells them apart);
   and that no phrase makes more than one change, of an allowed kind, measured from the locked
@@ -397,9 +404,10 @@ corpora are a guard, not a measurement.
   changes, so raw consecutive phrase seeds, or consecutive session seeds, draw in clumps; the
   census's session seeds, 100 apart, spread (0.2503 and 0.4991 over 20,000 sessions' phrases 2–8).
   The same holds for any test of the shares.
-- **Run by:** chunk 13; the release gate, after L3's tuning.
-- **Acceptance:** the changed share within a few points of 1 in 4 and 1 in 2 (tuned by L3); the
-  rest is recorded. A forced-bend rate the owner finds too high at L3 goes to `spec-writer`: the
+- **Run by:** chunk 13; [chunk 34](#chunk-34--the-rhythm-change-shares-tuned-l3), at spec D450's
+  shares; the release gate, once L3 has closed.
+- **Acceptance:** the drawn share within a few points of 1 in 2 and 3 in 4 (spec D450; L3's step 3
+  may tune again); the rest is recorded. A forced-bend rate the owner finds too high at L3 goes to `spec-writer`: the
   lock is strict by spec.
 - **Recorded:** `docs/generation-latency.md` and
   [`docs/music/rhythm-phrase-structure.md`](../../../docs/music/rhythm-phrase-structure.md).
@@ -479,7 +487,8 @@ Written by chunk 3; run after wave 2, before wave 4. About 8 minutes.
 
 #### v3.2 H2 — Allowed rhythm changes (L3)
 
-Written by chunk 19; run after wave 3. About 10 minutes.
+Written by chunk 19; run after wave 3. About 10 minutes. Steps 2 and 4 ran on 2026-11-03 at 90 BPM
+and tuned the shares (spec D450); step 3 is owed, then 5. Any tempo from 90 BPM will do.
 
 A kind changes a phrase only when the locked rhythm offers it (C7.3's known limit). These settings
 offer all five: of their locked rhythms, 28 % offer a moved note, 51 % a moved rest, 22 % a split,
@@ -487,14 +496,14 @@ offer all five: of their locked rhythms, 28 % offer a moved note, 51 % a moved r
 settings, Move a note and Move a rest never happen, so it is not used here.
 
 1. Session mode, the Pop song preset (Eighth, Heavily varied, Occasional offbeats, Conversational
-   silence, tension Lift), any key, 120 BPM; Rhythm lock On.
+   silence, tension Lift), any key, 90 BPM; Rhythm lock On.
 2. Allow all five kinds; play eight phrases. Say whether each change sounded small, and whether
-   1 in 4 felt too often.
+   about 1 in 2 felt too often.
 3. Allow one kind only; play eight phrases. If none changed, press Regenerate at Idle (a new
    phrase 1, a new locked rhythm) and play eight more; if still none, note it and move on (M2
    records how often each kind is available). Repeat for each kind (one to two minutes each).
-4. Repeat 2 with Tension across phrases on: tenser phrases change about 1 in 2.
-5. Report; the shares are tuned from it, then M2 re-runs.
+4. Repeat 2 with Tension across phrases on: tenser phrases change about 3 in 4.
+5. Report; the shares are tuned from it, then M2 re-runs (chunk 34 for spec D450's shares).
 
 #### v3.2 H3 — Vary settings' groups
 
@@ -512,11 +521,16 @@ Written by chunk 21; run after wave 6. About 10 minutes.
 1. Jam mode, 100 BPM, Drift Near, lock Off.
 2. Play a two-measure doodle with a clear rhythm; listen to four phrases: "does it sound like my
    doodle?"
-3. Stop; the doodle is kept. Set Drift Close; Start; listen to four phrases.
+3. Stop; the doodle is kept. Set Drift Close; Start; listen to four phrases. At Drift Close, did
+   any phrase use quicker notes than your doodle? ([O271](../../open-questions.md#v32-build-o267))
 4. Same with Drift Free.
 5. Rhythm lock On; Start; listen to four phrases: one rhythm, near the doodle's.
 6. Say whether Jam's small settings set felt enough, and whether drift and the lock felt like two
    controls or one.
+
+A note from H1 for H4 and H5 (spec D449): in its set 4, two candidates further from the doodle
+sounded better to the owner, though clearly different. That is a preference, not likeness; say the
+two apart here too ("sounds like my doodle" and "I like it").
 
 #### v3.2 H5 — Jam listening: the doodle-to-controls mapping (L1)
 
@@ -2550,6 +2564,46 @@ Architecture capture: none
 - **Verification:** the runs; chunk checks if widened.
 - **Split rule:** the two halves above, in order.
 
+### Chunk 34 — The rhythm change shares, tuned (L3)
+
+Status: planned
+Wave: 5
+Depends on: 11 (the draw), 13 (M2's first run); spec D450 (L3's steps 2 and 4)
+Architecture capture: none (two constants; the draw stays chunk 11's)
+
+- **Goal:** draw a rhythm change at the shares the owner ruled at L3: 1 in 2, and 3 in 4 on a
+  tenser phrase ([C7.4](master-spec.md#c74-when-a-phrase-changes), spec D450).
+- **Scope:** `RHYTHM_CHANGE_SHARE` 32,768 and `TENSER_RHYTHM_CHANGE_SHARE` 49,152 over 2^16. The
+  tie key, the hash and which change is drawn stay, so every seed that drew still draws and a
+  tenser draw still covers a normal one. A Jam's lock draws at the base share, so its changes
+  rise too, with no Jam code. With the lock off or no kind
+  allowed no draw is made, so the corpora stay. v3.2 is unreleased, so the key version and the tie
+  key's `v1` stay; a development build's locked phrases with changes may replay differently. The
+  tests that pin the shares, the golden draws and any test seed picked by the draw follow. M2
+  re-runs and its share figures are rewritten in the two records; v3.2 H2's script takes the new
+  figures and 90 BPM. Small: one source file, its tests, three records.
+- **Files:** `src/domain/rhythm/rhythm-change-draw.ts`;
+  `tests/unit/domain/rhythm/rhythm-change-draw.spec.ts`; if a seed picked by the draw moves,
+  `tests/unit/domain/generation/orchestration/generation-rhythm-change.spec.ts`,
+  `generation-orderings-time.spec.ts`, `window-search-rhythm-lock.spec.ts` and
+  `tests/unit/storage/kept-session-v32-fixtures.ts`; `docs/generation-latency.md` (M2's tables),
+  [`docs/music/rhythm-phrase-structure.md`](../../../docs/music/rhythm-phrase-structure.md) (the
+  draw shares), `HARDWARE-CHECKLIST.md` (v3.2 H2).
+- **Spec sections:** [C7.4](master-spec.md#c74-when-a-phrase-changes); item 2.
+- **Atoms:** `rule_rhythm_change_share`, `module_rhythm_change_draw`. Drift check:
+  `rule_allowed_rhythm_changes`, `module_session_rhythm_lock`, `entity_request_rhythm_lock`.
+- **Revisions:** `rule_rhythm_change_share` and `module_rhythm_change_draw`: 1 in 4 to 1 in 2, 1
+  in 2 to 3 in 4 (neither on the contract).
+- **Done when:**
+  - The shares are 2^15 and 3 × 2^14 over 2^16, in whole numbers; over many seed-plan seeds,
+    spread as M2 says, the drawn share is within two points of 1 in 2 and 3 in 4; every seed that
+    draws normally draws when tenser.
+  - The golden draws are re-recorded for the same seed list; the corpora pass.
+  - M2 re-run (`npm run measure:lock`): the drawn shares near 1 in 2 and 3 in 4 at every group,
+    the changed and no-candidate shares recorded.
+- **Verification:** chunk checks with the corpus guard; M2, not alongside `atd audit`.
+- **Split rule:** none needed (one source file).
+
 ## Chunk 27 — v3.2 release gate
 
 Status: planned
@@ -2586,7 +2640,7 @@ owner says go.
 | Item | Proved in | Verified by |
 | --- | --- | --- |
 | 1 Strict lock | 5, 10, 13, 16 | session property; M2 forced-bend rate |
-| 2 Allowed changes | 11, 13, 16 | draw properties; M2 shares and no-candidate share |
+| 2 Allowed changes | 11, 13, 16, 34 | draw properties; M2 shares and no-candidate share |
 | 3 Never shown | 16, 19, 23, 25 | live-view e2e; review and export golden |
 | 4 Search order | 10 | instrumented search on every rung |
 | 5 Narrow windows | 16 | re-lock after a seeded step-down |

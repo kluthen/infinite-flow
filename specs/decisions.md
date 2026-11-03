@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.125
+Status: draft v2.126
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -26,8 +26,8 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and each milestone
-folder's README, such as [archive/v3/README.md](archive/v3/README.md)). Numbering continues from
-**D410**.
+folder's README, such as [archive/v3/README.md](archive/v3/README.md)). New IDs come from
+`doc-ids next spec D`.
 
 Live here: D232–D251 (v3.2, not built yet), with v3.1's D233, D235, D242 and D250 interleaved
 among them and D237, D239 and D246 ruling both releases, kept until v3.2's archive closes the
@@ -1036,3 +1036,21 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   standalone phrase is the designed outcome. Rejected: B1 (no carry-in phrase may end where the
   next cannot start), a gated generator change like fix A. Now in: [build plan v3.2,
   M1](versions/v3/build-plan-v3.2.md#m1--the-jam-sweep).
+
+- **D449 (2026-11-03): gate LD cleared with a finding; drift's scale stays as C8 writes it.** The
+  owner ranked v3.2 H1's five sets on 2026-11-03; the driver ruled option A, no product change.
+  One listener, five sets: in every set the candidate ranked least alike was the only one starting
+  a note on a finer grid than the doodle's (an offbeat over an on-beat doodle, a sixteenth among
+  eighths); the ranking did not support C8's extra weight on beats 1 and 3 (Close over Near in 3
+  sets of 5), and a shortened note was heard as Same. Rejected for now: fallback B, carried to the
+  Jam listening check as O271. Set 4's "better, though distinct" is a preference, not likeness,
+  noted for H4 and H5. Now in: [Part C §C8](versions/v3/master-spec.md#c8-jams-drift),
+  [build plan v3.2, gate LD and H4](versions/v3/build-plan-v3.2.md#v32-h4--jam-listening-settings-drift-and-lock-l1).
+
+- **D450 (2026-11-03): the rhythm change shares become 1 in 2, and 3 in 4 on a tenser phrase.**
+  The owner's ruling, option (a), from v3.2 H2 steps 2 and 4 at 90 BPM: tension off, changes came
+  too rarely; on, about 1 in 2 felt fine; "if needed we will change that later on". Tension across
+  phrases keeps an audible step above the base. A Jam's lock draws at the base share, so it rises
+  too. Built by new chunk 34 (wave 5), which re-runs M2; L3 stays open for step 3. Now in:
+  [Part C §C7.4](versions/v3/master-spec.md#c74-when-a-phrase-changes),
+  [build plan v3.2, chunk 34](versions/v3/build-plan-v3.2.md#chunk-34--the-rhythm-change-shares-tuned-l3).
