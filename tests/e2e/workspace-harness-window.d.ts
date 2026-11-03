@@ -632,9 +632,51 @@ interface WorkspaceHarnessReplayApi {
   reEncodeKey: (key: string) => string
 }
 
+/**
+ * One case of the key and mode suggestion's golden list as the in-browser seam takes it
+ * (tests/unit/jam/key-suggestion/key-suggestion-golden-case.ts): a quantized doodle's raw shape,
+ * Jam's written key and Collection, and a built-in instrument's id.
+ */
+interface WorkspaceHarnessKeySuggestionCase {
+  readonly label: string
+  readonly doodle: {
+    readonly measureCount: number
+    readonly notes: readonly {
+      readonly startTick: number
+      readonly lengthTicks: number
+      readonly pitch: number
+    }[]
+  }
+  readonly jam: { readonly tonalCenter: string; readonly collection: string }
+  readonly instrumentProfileId: string
+}
+
+/** What the page computed for a case: the draw's seed, the kept candidates and the answer. */
+interface WorkspaceHarnessKeySuggestionDescription {
+  readonly seed: number
+  readonly kept: readonly string[]
+  readonly answer:
+    | { readonly kind: 'nothing' }
+    | { readonly kind: 'no_fit' }
+    | { readonly kind: 'suggested'; readonly tonalCenter: string; readonly collection: string }
+}
+
+/**
+ * The in-browser key and mode suggestion (key-suggestion-seams.ts): the golden list's cases
+ * computed in the page by the app's own functions; the workspace session never sees it.
+ */
+interface WorkspaceHarnessKeySuggestionApi {
+  /** Each case's seed, kept candidates and answer, in order. A malformed case throws. */
+  describe: (
+    cases: readonly WorkspaceHarnessKeySuggestionCase[],
+  ) => readonly WorkspaceHarnessKeySuggestionDescription[]
+}
+
 interface WorkspaceHarnessApi {
   /** The in-browser phrase replay (see `WorkspaceHarnessReplayApi`). */
   replay: WorkspaceHarnessReplayApi
+  /** The in-browser key and mode suggestion (see `WorkspaceHarnessKeySuggestionApi`). */
+  keySuggestion: WorkspaceHarnessKeySuggestionApi
   /** Append deterministic seeds to the queue `nextSeed()` draws from first, in call order. */
   queueSeeds: (seeds: readonly number[]) => void
   /** Hold every subsequent `generate` call before it reaches the real worker, until released. */
