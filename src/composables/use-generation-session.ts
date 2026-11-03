@@ -23,6 +23,7 @@ import { createControlActions } from './generation-session-control-actions'
 import { createFitRunner } from './generation-session-fit-round'
 import { createNotationActions } from './generation-session-notation'
 import {
+  createHoldInstrumentSwitchesAction,
   createReplacePhraseAction,
   createSelectInstrumentProfileAction,
 } from './generation-session-profile-switch'
@@ -327,12 +328,25 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
 
   const profileSwitch = {
     state,
+    hold: { held: false, owed: false },
     isBlocked: isBlockedByUnsupportedRhythm,
     runFitRun: () => fitRunner.run('keep_screen'),
     clearPhrase,
     saveSettings: options.saveSettings,
   }
   const selectInstrumentProfile = createSelectInstrumentProfileAction<TResult>(profileSwitch)
+  const holdInstrumentSwitches = createHoldInstrumentSwitchesAction<TResult>(profileSwitch)
+
+  /**
+   * Intent: redraw the phrase for a clef-only change of the selected my instrument; while
+   * switches are held (Jam mode shows), owe session mode the switch instead.
+   */
+  // @spec-link [[rule_shared_setting_changed_in_jam_mode]]
+  function redrawOrOwe(): Promise<boolean> {
+    if (!profileSwitch.hold.held) return redrawPhrase()
+    profileSwitch.hold.owed = true
+    return Promise.resolve(true)
+  }
   let myInstrumentActions: MyInstrumentActions | null = null
 
   /**
@@ -349,7 +363,7 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
       saves: options.myInstrumentSaves ?? NO_MY_INSTRUMENT_SAVES,
       selectInstrumentProfile,
       replacePhrase: createReplacePhraseAction<TResult>(profileSwitch),
-      redrawPhrase,
+      redrawPhrase: redrawOrOwe,
     })
     return myInstrumentActions
   }
@@ -391,6 +405,7 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
       selectPreset,
       replacePlayerPresets,
       selectInstrumentProfile,
+      holdInstrumentSwitches,
       saveMyInstrument,
       saveAndSelectMyInstrument,
       deleteMyInstrument,

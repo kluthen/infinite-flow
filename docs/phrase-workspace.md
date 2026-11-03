@@ -45,6 +45,11 @@ App.vue
         VarySettingsField.vue     (Vary settings, What may vary under it)
           FieldDependent.vue
             ToggleList.vue
+    JamControls.vue               (Jam's code, in ControlPanel's place while Jam mode shows)
+      TempoStepper.vue            (Jam's tempo, 60 to 180 BPM)
+      SegmentedControl.vue        (key, mode, instrument, harmony, tension, Embellishments, Drift)
+      RhythmLockField.vue         (Jam's own lock, its note in Jam's words)
+      DoodleReadings.vue          (doodle-readings, or its note while no doodle is kept)
     ConnectionSheet.vue           (lazy chunk, while the connection sheet is open)
     OrientationNotice.vue
 ```
@@ -1324,6 +1329,43 @@ entry chunk.
 - **Format and backing track** belong to the page session, not to one Review: `useReviewHost`
   holds them (`MusicXML`, backing off, at first), keeps them across Reviews and sessions, and
   stores them nowhere, so a reload resets them.
+
+## Jam's controls
+
+While Jam mode shows (Jam's code loaded and Jam's settings made, `use-jam-settings.ts`),
+`WorkspaceShell` renders Jam's `JamControls` (`src/jam/JamControls.vue`, reached through
+`jam-mode.ts` like Jam's view, so none of it is in the first load) in `ControlPanel`'s place, and
+`ControlPanel` comes back on returning to session mode. "Shape your Jam" holds three
+`control-group`s (master spec C5.16; the phrase-workspace handoff, Jam's controls):
+
+- **Foundation**: Jam's tempo (`TempoStepper` over `JAM_TEMPO_VALUES`, 60 to 180 BPM in steps of
+  10; `Tap tempo` joins it in chunk 32), written key, collection, the shared instrument (its range
+  summary and `instrument-actions` as in session mode), harmonic motion, tension, and one
+  Embellishments level (`Off`, `Rarely`, `Often`, `Very often`, the figure levels' options) given
+  to all seven figures (`jamFigureLevels`).
+- **Following your doodle**: Drift (`Close`, `Near`, `Free`) and Jam's own rhythm lock, the same
+  `RhythmLockField` as session mode's with Jam's note (its `note` prop), its allowed rhythm changes
+  under it.
+- **From your doodle**: `DoodleReadings`, the seven readings of `readDoodleControls` in their
+  session controls' option words; "(default)" where the doodle left a value unsaid; a rhythmic
+  variety the supported-combination step raised reads "(to work with the other rhythm values)"
+  instead (ux D355); below `bp-tablet-landscape` a Sixteenth reads "Eighth (Sixteenth on larger
+  screens)". No reading depends on the width: only that wording follows the window. While no
+  doodle is kept (every Jam mode until chunks 21 and 24) the shell gives `readings: null` and the
+  note "They show here once you've played a doodle." stands in.
+
+There is no preset bar, no key and mode mark and no "During a session" option; arpeggio chaos is
+held at `Varied` (`jamGenerationControls`). The control-summary line reads "{key} {mode} · Drift:
+{drift} · Rhythm lock: {On or Off}".
+
+The component is props-in, events-out (`JamControlsProps`, `src/jam/jam-view-types.ts`): a change
+of Jam's own settings is `change` (a partial `JamSettings`), which the shell hands to
+`jamSettings.change`, saved by Jam's code among the `jam.*` records alone (`docs/storage.md`);
+the instrument is `select-instrument-profile`, session mode's own selection, which
+`holdInstrumentSwitches` keeps owed while Jam mode shows and applies on returning as an instrument
+switch (the phrase written again, the prepared phrases discarded). Read-only (`is-readonly`)
+exactly when session mode's controls are: during Loading, opening Jam mode included, and for a
+whole session; `instrument-actions` is disabled as session mode's is.
 
 ## E2E workspace harness and DI seam
 

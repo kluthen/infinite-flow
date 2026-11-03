@@ -3,10 +3,12 @@
  * doodle becomes the seven ordinary control values a Jam is generated with, each with whether the
  * doodle showed it or it took session mode's first-visit value (master spec C5.16.1). The four
  * rhythm values come from doodle-rhythm-reading.ts, note density first; contour, leapiness and
- * the register are read here. The rhythm values then step to a supported combination, raising
- * rhythmic variety only. The register reading carries the register window it names, the one
- * phrase 1's join reads (C5.9). Pure, whole numbers only (no division), nothing saved; part of
- * Jam's code (src/jam/), loaded on demand.
+ * the register are read here. The rhythm values then step to a supported combination, the note
+ * density judged as read (a Sixteenth as Sixteenth at every width), raising rhythmic variety only,
+ * and the rhythmic variety reading says whether the step raised it. No reading takes the window's
+ * width, so a window crossing changes none. The register reading carries the register window it
+ * names, the one phrase 1's join reads (C5.9). Pure, whole numbers only (no division), nothing
+ * saved; part of Jam's code (src/jam/), loaded on demand.
  */
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import {
@@ -43,6 +45,17 @@ export interface DoodleReading<T> {
 }
 
 /**
+ * The rhythmic variety read from the doodle, after the step to a supported combination: `raised`
+ * is true exactly when the step gave a higher variety than the value read or the default, and
+ * `source` stays the source of the value it was raised from.
+ */
+// @spec-link [[rule_doodle_controls_always_supported]]
+// @spec-link [[module_doodle_controls]]
+export interface DoodleVarietyReading extends DoodleReading<RhythmicVariety> {
+  readonly raised: boolean
+}
+
+/**
  * The register read from the doodle: Low, Middle or High, the instrument's register window that
  * holds the doodle's last note (`window`, the very window phrase 1's join reads), or Varying with
  * no window when none holds it. Every doodle shows a register.
@@ -56,21 +69,28 @@ export interface DoodleRegisterReading {
 }
 
 /**
- * The seven controls read from a doodle, after the step to a supported combination. The note
- * density is the one the doodle showed: a Sixteenth stays Sixteenth here at every width, and only
- * generates as Eighth below the tablet-landscape width.
+ * The seven controls read from a doodle, after the step to a supported combination, none of them
+ * depending on the window's width. The note density is the one the doodle showed: a Sixteenth
+ * stays Sixteenth here at every width, and only generates as Eighth below the tablet-landscape
+ * width.
  */
 // @spec-link [[rule_doodle_sets_jam_controls]]
 // @spec-link [[module_doodle_controls]]
 export interface DoodleReadings {
   readonly noteDensity: DoodleReading<NoteDensity>
-  readonly rhythmicVariety: DoodleReading<RhythmicVariety>
+  readonly rhythmicVariety: DoodleVarietyReading
   readonly syncopation: DoodleReading<Syncopation>
   readonly silenceDensity: DoodleReading<SilenceDensity>
   readonly contour: DoodleReading<Contour>
   readonly leapiness: DoodleReading<Leapiness>
   readonly register: DoodleRegisterReading
 }
+
+/**
+ * The context the step judges the note density in: one that resolves every density unchanged, so
+ * the density is judged as read, a Sixteenth as Sixteenth.
+ */
+const AS_READ: NoteDensityContext = { belowTabletLandscape: false, sessionSteppedDown: false }
 
 /** Half a measure, in ticks: contour checkpoints sit at positions 0–7 and 8–15. */
 const HALF_MEASURE_TICKS = 8
@@ -184,22 +204,21 @@ export function readDoodleRegister(
 }
 
 /**
- * Intent: the rhythmic variety that makes the four rhythm values a supported combination, the note
- * density judged as it generates in `context`: the given variety, stepped up (Strict to Slightly
- * varied to Heavily varied) only while the combination is unsupported. Heavily varied supports
- * every combination.
+ * Intent: the rhythmic variety that makes the four rhythm values a supported combination, judged
+ * by the generator's own rule with the note density as read (a Sixteenth as Sixteenth, at no
+ * window width): the given variety, stepped up (Strict to Slightly varied to Heavily varied) only
+ * while the combination is unsupported. Heavily varied supports every combination, and no
+ * combination at Eighth is unsupported, so the result stays supported when a Sixteenth generates
+ * as Eighth below the tablet-landscape width.
  */
 // @spec-link [[rule_doodle_controls_always_supported]]
 // @spec-link [[rule_unsupported_rhythm_settings_block_generation]]
 // @spec-link [[rule_doodle_sixteenth_on_narrow_screens]]
-export function supportedRhythmicVariety(
-  setting: RhythmSetting,
-  context: NoteDensityContext,
-): RhythmicVariety {
+export function supportedRhythmicVariety(setting: RhythmSetting): RhythmicVariety {
   let step = RHYTHMIC_VARIETIES.indexOf(setting.rhythmicVariety)
   while (
     step < RHYTHMIC_VARIETIES.length - 1 &&
-    isRhythmSettingBlocked({ ...setting, rhythmicVariety: RHYTHMIC_VARIETIES[step]! }, context)
+    isRhythmSettingBlocked({ ...setting, rhythmicVariety: RHYTHMIC_VARIETIES[step]! }, AS_READ)
   ) {
     step += 1
   }
@@ -208,19 +227,21 @@ export function supportedRhythmicVariety(
 
 /**
  * Intent: the seven controls read from a quantized doodle (after the very-short-note filter), for
- * the selected instrument's register windows and the window's note-density context: note density
- * first, then the other rhythm values, contour, leapiness and register, each control the doodle
- * cannot show taking session mode's first-visit value, marked as such; then rhythmic variety
- * steps up while the rhythm values, with the note density as it generates in `context`, form an
- * unsupported combination. Nothing else moves; the same inputs always give the same readings.
+ * the selected instrument's register windows, and no window context: note density first, then the
+ * other rhythm values, contour, leapiness and register, each control the doodle cannot show taking
+ * session mode's first-visit value, marked as such; then rhythmic variety steps up while the
+ * rhythm values, with the note density as read, form an unsupported combination, the reading
+ * keeping the source of the value it was raised from and marked raised exactly when the step moved
+ * it. Nothing else moves; the same doodle and windows always give the same readings, at every
+ * window width.
  */
 // @spec-link [[rule_doodle_sets_jam_controls]]
 // @spec-link [[rule_doodle_controls_always_supported]]
+// @spec-link [[rule_doodle_sixteenth_on_narrow_screens]]
 // @spec-link [[module_doodle_controls]]
 export function readDoodleControls(
   doodle: QuantizedDoodle,
   windows: readonly RegisterWindowCandidate[],
-  context: NoteDensityContext,
 ): DoodleReadings {
   const firstVisit = DEFAULT_GENERATION_CONTROLS
   const aim = readDoodleRhythmAim(doodle)
@@ -228,18 +249,19 @@ export function readDoodleControls(
   const shownVariety = reading(aim.rhythmicVariety, firstVisit.rhythmicVariety)
   const syncopation = reading(aim.syncopation, firstVisit.syncopation)
   const silenceDensity = reading(aim.silenceDensity, firstVisit.silenceDensity)
-  const rhythmicVariety = supportedRhythmicVariety(
-    {
-      noteDensity: noteDensity.value,
-      rhythmicVariety: shownVariety.value,
-      syncopation: syncopation.value,
-      silenceDensity: silenceDensity.value,
-    },
-    context,
-  )
+  const rhythmicVariety = supportedRhythmicVariety({
+    noteDensity: noteDensity.value,
+    rhythmicVariety: shownVariety.value,
+    syncopation: syncopation.value,
+    silenceDensity: silenceDensity.value,
+  })
   return deepFreeze({
     noteDensity,
-    rhythmicVariety: { value: rhythmicVariety, source: shownVariety.source },
+    rhythmicVariety: {
+      value: rhythmicVariety,
+      source: shownVariety.source,
+      raised: rhythmicVariety !== shownVariety.value,
+    },
     syncopation,
     silenceDensity,
     contour: reading(doodleContour(doodle), firstVisit.contour),

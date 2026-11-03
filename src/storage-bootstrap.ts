@@ -15,6 +15,9 @@
  * `stopSavingUnreadable()` at once; one that opened outdated keeps its policy `off-outdated`, and
  * a read through it gives the player presets it could read.
  *
+ * Jam's settings records come in the same settings read and are handed on undecoded, as the kept
+ * sessions' summaries are: Jam's code, loaded on demand, decodes them.
+ *
  * My instrument's record is decoded by its own codec, within the wait. That codec's read side
  * (./storage/records/my-instrument-record-read.ts), with building my instrument, is loaded on
  * demand, only when the `instrument` store holds a record, so it stays out of the first load; an
@@ -32,7 +35,7 @@ import type { MyInstrument } from '@/domain/profile/my-instrument'
 import { APP_VERSION } from '@/storage/app-version'
 import { decodePlayerPresets } from '@/storage/records/preset-record'
 import { defaultSettings, type SavedSettings } from '@/storage/records/setting-defaults'
-import { decodeSettings } from '@/storage/records/settings-record'
+import { decodeSettings, jamSettingRecords } from '@/storage/records/settings-record'
 import { createSavePolicy, type SavePolicy } from '@/storage/save-policy'
 import {
   browserStorage,
@@ -69,6 +72,12 @@ export interface SavedDataLoad {
   readonly outcome: LoadOutcome
   /** Every setting the workspace is first drawn with: saved, or its default. */
   readonly settings: SavedSettings
+  /**
+   * Jam's settings records, as stored and undecoded (none when the visit started from defaults):
+   * Jam's code decodes each on its own when Jam's settings are first needed, so the first load
+   * decodes nothing of Jam's; session mode's settings above never read them.
+   */
+  readonly jamSettingsRecords: readonly unknown[]
   /**
    * The player presets read, in key order, each record that could be read (none when the visit
    * started from defaults, which so lists the built-ins only; an outdated tab gives the ones it
@@ -165,6 +174,7 @@ function fromDefaults(
   return {
     outcome: 'started-from-defaults',
     settings: defaultSettings(deps.mixDesign().defaults),
+    jamSettingsRecords: [],
     playerPresets: [],
     myInstrument: null,
     keptSessionSummaries: [],
@@ -219,6 +229,7 @@ export async function loadSavedData(deps: SavedDataLoadDependencies): Promise<Sa
       myInstrumentLoaded,
       presets: [...BUILT_IN_PRESETS, ...playerPresets],
     }),
+    jamSettingsRecords: jamSettingRecords(read.settings),
     playerPresets,
     myInstrument: read.myInstrument,
     keptSessionSummaries: read.keptSessionSummaries,

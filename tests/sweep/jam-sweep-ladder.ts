@@ -312,9 +312,6 @@ export const JAM_LADDER_ATTEMPTS = 6
 const BLOCK_ATTEMPT_INDEX = 4
 const STANDALONE_ATTEMPT_INDEX = 5
 
-/** The window every swept Jam runs in: at or above the tablet-landscape width, never stepped down. */
-const WIDE_WINDOW = { belowTabletLandscape: false, sessionSteppedDown: false }
-
 /** Intent: the rung of one of the ladder's six attempts (C11's index). */
 export function rungOfAttemptIndex(index: number): LadderRung {
   if (!Number.isInteger(index) || index < 0 || index >= JAM_LADDER_ATTEMPTS)
@@ -337,7 +334,7 @@ export function jamAttemptSeed(sessionSeed: number, index: number): Seed {
 
 /**
  * Intent: what a doodle gives Jam's phrase 1 under a sweep case's settings (C5.9, C5.16, C7.1):
- * the seven controls read from the quantized doodle for the case's instrument on a wide window
+ * the seven controls read from the quantized doodle for the case's instrument, at no window width
  * (chunk 28's mapping) set into the settings, with Jam's lock; the steering block from the doodle
  * and the drift; the join from the doodle's last note (chunk 7). Rung 1's attempt joins the doodle
  * in the join's register and carries the block; rung 2's carries the block, no join, in the
@@ -356,7 +353,7 @@ export function doodlePhraseOne(
     instrument.concertRange,
     instrument.registerWindows,
   )
-  const readings = readDoodleControls(doodle, windows, WIDE_WINDOW)
+  const readings = readDoodleControls(doodle, windows)
   const controls = makeGenerationControls({
     ...settings.controls,
     noteDensity: readings.noteDensity.value,

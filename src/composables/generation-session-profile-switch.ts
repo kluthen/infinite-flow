@@ -20,9 +20,21 @@ export type ProfileSelectionOutcome =
   | 'regeneration_failed'
   | 'cleared_unsupported_rhythm'
 
+/**
+ * Whether session mode's instrument switches are held (Jam mode opening or showing), and whether
+ * one made meanwhile is owed to session mode's phrase.
+ */
+// @spec-link [[rule_shared_setting_changed_in_jam_mode]]
+export interface InstrumentSwitchHold {
+  held: boolean
+  owed: boolean
+}
+
 /** The dependency surface `selectInstrumentProfile` needs from the root session composable. */
 export interface ProfileSwitchDependencies<TResult> {
   readonly state: MutableGenerationSessionState<TResult>
+  /** The hold of instrument switches while Jam mode opens or shows. */
+  readonly hold: InstrumentSwitchHold
   /** Whether the current controls' rhythm combination blocks generation at the width now. */
   readonly isBlocked: () => boolean
   /** Run one Idle fit run from the current controls, keeping what the staff shows meanwhile. */
@@ -69,15 +81,22 @@ export function createSelectInstrumentProfileAction<TResult>(
 }
 
 /**
- * Intent: what an applied switch does to the phrase, the instrument already changed: nothing under
- * the no-room notice or with no phrase shown; otherwise the phrase is cleared under a rhythm
- * combination that blocks generation, or regenerated with a fresh seed through the fit run.
+ * Intent: what an applied switch does to the phrase, the instrument already changed: while
+ * switches are held (Jam mode shows), nothing yet, the switch owed to session mode's return;
+ * nothing under the no-room notice or with no phrase shown; otherwise the phrase is cleared under
+ * a rhythm combination that blocks generation, or regenerated with a fresh seed through the fit
+ * run.
  */
 // @spec-link [[rule_profile_switch_validates_phrase]]
+// @spec-link [[rule_shared_setting_changed_in_jam_mode]]
 async function phraseAfterSwitch<TResult>(
   deps: ProfileSwitchDependencies<TResult>,
 ): Promise<ProfileSelectionOutcome> {
   const { state } = deps
+  if (deps.hold.held) {
+    deps.hold.owed = true
+    return 'applied'
+  }
   if (state.roomNotice === 'no_room') return 'applied'
   if (state.roomNotice === null && state.result === null) return 'applied'
 
@@ -101,6 +120,27 @@ export function createReplacePhraseAction<TResult>(
 ): () => Promise<ProfileSelectionOutcome> {
   return async function replacePhrase(): Promise<ProfileSelectionOutcome> {
     if (deps.state.operation !== 'idle') return 'rejected'
+    return phraseAfterSwitch(deps)
+  }
+}
+
+/**
+ * Intent: build the action that holds session mode's instrument switches while Jam mode opens or
+ * shows, and releases them on returning: an owed switch is then applied as one made in session
+ * mode, by the same rules as `selectInstrumentProfile`'s (written again, or cleared under a
+ * blocked rhythm combination, or nothing under the no-room notice or with no phrase). A release
+ * outside idle keeps the switch owed and is rejected; nothing owed resolves `unchanged`.
+ */
+// @spec-link [[rule_shared_setting_changed_in_jam_mode]]
+// @spec-link [[rule_profile_switch_validates_phrase]]
+export function createHoldInstrumentSwitchesAction<TResult>(
+  deps: ProfileSwitchDependencies<TResult>,
+): (held: boolean) => Promise<ProfileSelectionOutcome> {
+  return async function holdInstrumentSwitches(held: boolean): Promise<ProfileSelectionOutcome> {
+    deps.hold.held = held
+    if (held || !deps.hold.owed) return 'unchanged'
+    if (deps.state.operation !== 'idle') return 'rejected'
+    deps.hold.owed = false
     return phraseAfterSwitch(deps)
   }
 }

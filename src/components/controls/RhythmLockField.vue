@@ -5,7 +5,7 @@
  * toggles, the small rhythm edits the player allows on the locked rhythm. Hidden while the lock is
  * off, the list keeps its values, which come back with it. Props-in/events-out only: each change
  * is reported as the full new value; the parent makes the field read-only during a generation and
- * for a whole session.
+ * for a whole session. Jam's controls reuse it for Jam's own lock, giving its note in Jam's words.
  */
 import { computed, useId } from 'vue'
 
@@ -21,6 +21,8 @@ const props = defineProps<{
   /** The allowed rhythm changes, in RHYTHM_CHANGE_KINDS order, kept while the lock is off. */
   allowedRhythmChanges: readonly RhythmChangeKind[]
   readonly: boolean
+  /** The lock's note; session mode's by default. */
+  note?: string
 }>()
 
 const emit = defineEmits<{
@@ -31,6 +33,9 @@ const emit = defineEmits<{
 /** The `Rhythm lock` note, as the phrase-workspace handoff words it. */
 const RHYTHM_LOCK_NOTE =
   'Every phrase keeps the rhythm of the first one, so your eyes can stay on the notes.'
+
+/** The note shown: the one given, else session mode's. */
+const rhythmLockNote = computed(() => props.note ?? RHYTHM_LOCK_NOTE)
 
 /** The `Allowed rhythm changes` note, as the phrase-workspace handoff words it. */
 const ALLOWED_RHYTHM_CHANGES_NOTE =
@@ -95,7 +100,7 @@ function handleRhythmChange(value: string): void {
       :described-by="rhythmLockNoteId"
       @update:model-value="handleRhythmLock"
     />
-    <p :id="rhythmLockNoteId" class="field-note">{{ RHYTHM_LOCK_NOTE }}</p>
+    <p :id="rhythmLockNoteId" class="field-note">{{ rhythmLockNote }}</p>
     <!-- @spec-link [[ui_field_dependent]] -->
     <!-- @spec-link [[rule_allowed_rhythm_changes]] -->
     <FieldDependent :shown="rhythmLockOn" :readonly="readonly">

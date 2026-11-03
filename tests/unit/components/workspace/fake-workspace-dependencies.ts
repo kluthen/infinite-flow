@@ -75,6 +75,7 @@ export function fakeSavedData(settings: Partial<SavedSettings> = {}): SavedDataL
     playerPresets: [],
     myInstrument: null,
     keptSessionSummaries: [],
+    jamSettingsRecords: [],
     rememberedController: [],
     savePolicy: new Promise(() => {}),
   }

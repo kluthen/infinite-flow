@@ -73,6 +73,7 @@ function fakeWorkspaceSession(savedData: SavedDataLoad = fakeSavedData()) {
       selectPreset: () => false,
       setFigureLevel: () => false,
       selectInstrumentProfile: async () => 'rejected',
+      holdInstrumentSwitches: async () => 'unchanged',
       saveMyInstrument: async () => 'rejected',
       saveAndSelectMyInstrument: async () => 'rejected',
       deleteMyInstrument: async () => 'rejected',

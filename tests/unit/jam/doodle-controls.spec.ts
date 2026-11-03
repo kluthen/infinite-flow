@@ -4,8 +4,9 @@
  * checkpoints, leapiness from the moves scaled to four measures, the register from the window
  * holding the last note (nearest centre, Middle on a tie, Varying when none, the window carried
  * for phrase 1's join); the first-visit value, marked as such, for what the doodle cannot show;
- * a supported combination at both widths, reached by raising rhythmic variety only; and the
- * rhythm values each doodle of the set was written to show. Whole numbers only.
+ * a supported combination at both widths, reached by raising rhythmic variety only, judged at the
+ * note density as read and at no window width, and marked raised exactly when the step moved it;
+ * and the rhythm values each doodle of the set was written to show. Whole numbers only.
  */
 import { describe, expect, it } from 'vitest'
 
@@ -187,10 +188,10 @@ describe('the register read from a doodle', () => {
 describe('the readings of a doodle', () => {
   // @test-link [[rule_doodle_sets_jam_controls]]
   it('gives a one-note doodle only its register, the six others at their first-visit values', () => {
-    const readings = readDoodleControls(doodleOf(1, [[4, 6, 60]]), WINDOWS, WIDE)
+    const readings = readDoodleControls(doodleOf(1, [[4, 6, 60]]), WINDOWS)
     expect(readings).toEqual({
       noteDensity: { value: 'Quarter', source: 'default' },
-      rhythmicVariety: { value: 'Slightly varied', source: 'default' },
+      rhythmicVariety: { value: 'Slightly varied', source: 'default', raised: false },
       syncopation: { value: 'Straight', source: 'default' },
       silenceDensity: { value: 'Sparse', source: 'default' },
       contour: { value: 'Arch', source: 'default' },
@@ -202,7 +203,7 @@ describe('the readings of a doodle', () => {
 
   // @test-link [[rule_doodle_sets_jam_controls]]
   it('marks every control a doodle shows as read from it', () => {
-    const readings = readDoodleControls(halves([60, 67, 64, 62, 60, 62, 64, 62]), WINDOWS, WIDE)
+    const readings = readDoodleControls(halves([60, 67, 64, 62, 60, 62, 64, 62]), WINDOWS)
     expect(Object.values(readings).every((each) => each.source === 'doodle')).toBe(true)
     expect(readings.contour.value).toBe('Arch')
   })
@@ -210,7 +211,7 @@ describe('the readings of a doodle', () => {
   // @test-link [[rule_doodle_sixteenth_on_narrow_screens]]
   it('still reads a Sixteenth as Sixteenth below the tablet-landscape width', () => {
     const doodle = legatoDoodle(1, [0, 1, 2, 3, 4, 6, 8, 12])
-    expect(readDoodleControls(doodle, WINDOWS, NARROW).noteDensity).toEqual({
+    expect(readDoodleControls(doodle, WINDOWS).noteDensity).toEqual({
       value: 'Sixteenth',
       source: 'doodle',
     })
@@ -219,9 +220,7 @@ describe('the readings of a doodle', () => {
   // @test-link [[rule_doodle_sets_jam_controls]]
   it('gives the same readings for the same doodle, windows and width', () => {
     const doodle = DOODLES.find((each) => each.name === 'tresillo-leaps')!.quantized
-    expect(readDoodleControls(doodle, WINDOWS, WIDE)).toEqual(
-      readDoodleControls(doodle, WINDOWS, WIDE),
-    )
+    expect(readDoodleControls(doodle, WINDOWS)).toEqual(readDoodleControls(doodle, WINDOWS))
   })
 })
 
@@ -234,7 +233,7 @@ describe('a supported combination', () => {
       silenceDensity: 'Sparse',
       syncopation: 'Active displacement',
     } as const
-    expect(supportedRhythmicVariety({ ...quarter, rhythmicVariety: 'Strict' }, WIDE)).toBe(
+    expect(supportedRhythmicVariety({ ...quarter, rhythmicVariety: 'Strict' })).toBe(
       'Heavily varied',
     )
     const sixteenth = {
@@ -242,32 +241,30 @@ describe('a supported combination', () => {
       silenceDensity: 'Sparse',
       syncopation: 'Active displacement',
     } as const
-    expect(supportedRhythmicVariety({ ...sixteenth, rhythmicVariety: 'Strict' }, WIDE)).toBe(
+    expect(supportedRhythmicVariety({ ...sixteenth, rhythmicVariety: 'Strict' })).toBe(
       'Slightly varied',
     )
     expect(
-      supportedRhythmicVariety(
-        { ...quarter, rhythmicVariety: 'Strict', syncopation: 'Straight' },
-        WIDE,
-      ),
+      supportedRhythmicVariety({ ...quarter, rhythmicVariety: 'Strict', syncopation: 'Straight' }),
     ).toBe('Strict')
   })
 
   // @test-link [[rule_doodle_controls_always_supported]]
   // @test-link [[rule_doodle_sixteenth_on_narrow_screens]]
-  it('judges the note density as it generates: a Sixteenth below the width as Eighth', () => {
+  it('judges the note density as read: a Sixteenth as Sixteenth, at no window width', () => {
     const setting = {
       noteDensity: 'Sixteenth',
       rhythmicVariety: 'Strict',
       silenceDensity: 'Sparse',
       syncopation: 'Active displacement',
     } as const
-    expect(supportedRhythmicVariety(setting, NARROW)).toBe('Strict')
+    expect(supportedRhythmicVariety(setting)).toBe('Slightly varied')
   })
 
   // @test-link [[rule_doodle_controls_always_supported]]
   // @test-link [[rule_unsupported_rhythm_settings_block_generation]]
-  it('raises only the variety of a doodle read onto an unsupported combination', () => {
+  // @test-link [[rule_doodle_sixteenth_on_narrow_screens]]
+  it('raises a Sixteenth, Active displacement, Breath-heavy doodle showing no variety to Heavily varied', () => {
     const doodle = doodleOf(1, [
       [0, 1],
       [1, 4],
@@ -278,16 +275,24 @@ describe('a supported combination', () => {
       syncopation: 'Active displacement',
       silenceDensity: 'Breath-heavy',
     })
-    const wide = readDoodleControls(doodle, WINDOWS, WIDE)
-    expect(rhythmOf(wide)).toEqual({
+    const readings = readDoodleControls(doodle, WINDOWS)
+    expect(rhythmOf(readings)).toEqual({
       noteDensity: 'Sixteenth',
       rhythmicVariety: 'Heavily varied',
       syncopation: 'Active displacement',
       silenceDensity: 'Breath-heavy',
     })
-    expect(readDoodleControls(doodle, WINDOWS, NARROW).rhythmicVariety.value).toBe(
-      'Slightly varied',
-    )
+    expect(readings.rhythmicVariety).toEqual({
+      value: 'Heavily varied',
+      source: 'default',
+      raised: true,
+    })
+  })
+
+  // @test-link [[rule_doodle_controls_always_supported]]
+  it('reads no window width: neither the readings nor the step take a window context', () => {
+    expect(readDoodleControls).toHaveLength(2)
+    expect(supportedRhythmicVariety).toHaveLength(1)
   })
 
   // @test-link [[rule_doodle_controls_always_supported]]
@@ -298,7 +303,7 @@ describe('a supported combination', () => {
     'holds for every doodle of the set, %s, and moves nothing but the variety',
     (_, context) => {
       for (const { name, quantized } of DOODLES) {
-        const readings = readDoodleControls(quantized, WINDOWS, context)
+        const readings = readDoodleControls(quantized, WINDOWS)
         expect(isRhythmSettingBlocked(rhythmOf(readings), context), name).toBe(false)
         const aim = readDoodleRhythmAim(quantized)
         expect(readings.noteDensity.value, name).toBe(aim.noteDensity ?? 'Quarter')
@@ -307,6 +312,78 @@ describe('a supported combination', () => {
       }
     },
   )
+})
+
+/** Intent: the doodle of the set with the given name, quantized. */
+function setDoodle(name: string) {
+  return DOODLES.find((each) => each.name === name)!.quantized
+}
+
+// @test-link [[rule_doodle_controls_always_supported]]
+describe("rhythmic variety's raised", () => {
+  // @test-link [[rule_doodle_controls_always_supported]]
+  it("is true, from the doodle, for a doodle's own variety the step raised", () => {
+    const doodle = setDoodle('sixteenth-bursts')
+    expect(readDoodleRhythmAim(doodle).rhythmicVariety).toBe('Slightly varied')
+    expect(readDoodleControls(doodle, WINDOWS).rhythmicVariety).toEqual({
+      value: 'Heavily varied',
+      source: 'doodle',
+      raised: true,
+    })
+  })
+
+  // @test-link [[rule_doodle_controls_always_supported]]
+  it('is true, from the default, for a first-visit variety the step raised', () => {
+    const doodle = doodleOf(2, [
+      [0, 1],
+      [1, 4],
+    ])
+    expect(readDoodleRhythmAim(doodle)).toEqual({
+      noteDensity: 'Sixteenth',
+      rhythmicVariety: null,
+      syncopation: 'Occasional offbeats',
+      silenceDensity: 'Breath-heavy',
+    })
+    expect(readDoodleControls(doodle, WINDOWS).rhythmicVariety).toEqual({
+      value: 'Heavily varied',
+      source: 'default',
+      raised: true,
+    })
+  })
+
+  // @test-link [[rule_doodle_controls_always_supported]]
+  it('is false, from the default, for a first-visit variety the step left alone', () => {
+    const doodle = doodleOf(1, [
+      [0, 1],
+      [4, 9],
+    ])
+    expect(readDoodleRhythmAim(doodle).rhythmicVariety).toBeNull()
+    expect(readDoodleControls(doodle, WINDOWS).rhythmicVariety).toEqual({
+      value: 'Slightly varied',
+      source: 'default',
+      raised: false,
+    })
+  })
+
+  // @test-link [[rule_doodle_controls_always_supported]]
+  it("is false, from the doodle, for a doodle's own variety the step left alone", () => {
+    const doodle = setDoodle('quarter-steps')
+    expect(readDoodleRhythmAim(doodle).rhythmicVariety).toBe('Strict')
+    expect(readDoodleControls(doodle, WINDOWS).rhythmicVariety).toEqual({
+      value: 'Strict',
+      source: 'doodle',
+      raised: false,
+    })
+  })
+
+  // @test-link [[rule_doodle_controls_always_supported]]
+  it('is false exactly when the variety is the one read or the default, over the doodle set', () => {
+    for (const { name, quantized } of DOODLES) {
+      const { value, raised } = readDoodleControls(quantized, WINDOWS).rhythmicVariety
+      const before = readDoodleRhythmAim(quantized).rhythmicVariety ?? 'Slightly varied'
+      expect(raised, name).toBe(value !== before)
+    }
+  })
 })
 
 // @test-link [[module_doodle_controls]]

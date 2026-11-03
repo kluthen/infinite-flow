@@ -9,10 +9,7 @@
  * attempt's seed comes from the caller. Pure; part of Jam's code (src/jam/), loaded on demand.
  */
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
-import {
-  resolveGeneratedNoteDensity,
-  type NoteDensityContext,
-} from '@/domain/controls/generated-note-density'
+import { resolveGeneratedNoteDensity } from '@/domain/controls/generated-note-density'
 import type { QuantizedDoodle } from '@/domain/doodle/quantized-doodle'
 import { deepFreeze } from '@/domain/events/deep-freeze'
 import { makeCarryInGenerationIntent } from '@/domain/generation/carry-in/carry-in-intent'
@@ -94,25 +91,21 @@ export interface DoodleAttempts {
 /**
  * Intent: what the doodle gives phrase 1's attempts, read now: the seven controls read from the
  * quantized doodle for Jam's instrument (its rhythmic variety stepped to a supported combination
- * under the window context `context`), set into Jam's settings; the steering block from the doodle
- * and Jam's drift; the join from the doodle's last note; and, with Jam's lock on, the pending lock
- * group with Jam's allowed changes, not a tenser phrase.
+ * at the note density as read, at no window width), set into Jam's settings; the steering block
+ * from the doodle and Jam's drift; the join from the doodle's last note; and, with Jam's lock on,
+ * the pending lock group with Jam's allowed changes, not a tenser phrase.
  */
 // @spec-link [[rule_doodle_sets_jam_controls]]
 // @spec-link [[rule_jam_phrase_one_joins_doodle]]
 // @spec-link [[rule_every_jam_phrase_carries_doodle]]
 // @spec-link [[rule_two_measures_before_jam_phrase_one]]
-export function doodleAttempts(
-  doodle: QuantizedDoodle,
-  jam: JamPhraseOneSettings,
-  context: NoteDensityContext,
-): DoodleAttempts {
+export function doodleAttempts(doodle: QuantizedDoodle, jam: JamPhraseOneSettings): DoodleAttempts {
   const instrument = sessionInstrumentProfile(jam.settings)
   const windows = deriveRegisterWindowCandidates(
     instrument.concertRange,
     instrument.registerWindows,
   )
-  const readings = readDoodleControls(doodle, windows, context)
+  const readings = readDoodleControls(doodle, windows)
   const controls = makeGenerationControls({
     ...jam.settings.controls,
     noteDensity: readings.noteDensity.value,

@@ -12,7 +12,6 @@
  * wake it. Each attempt's seed comes from the caller. Part of Jam's code (src/jam/), loaded on
  * demand.
  */
-import type { NoteDensityContext } from '@/domain/controls/generated-note-density'
 import type { RequestId } from '@/domain/generation/generation-request-envelope'
 import type { Seed } from '@/domain/random/seed'
 import type { PlayedNoteEvent } from '@/midi/played-note-tracker'
@@ -163,11 +162,6 @@ export function createJamPhraseOne(
   let steppedDown = false
   let lastAt = Number.NEGATIVE_INFINITY
 
-  /** Intent: the window context an attempt or a reading is built under now. */
-  function context(): NoteDensityContext {
-    return { belowTabletLandscape: deps.isBelowTabletLandscape(), sessionSteppedDown: steppedDown }
-  }
-
   /** Intent: ask for attempt `index` at `at`, discarding the request ids of the attempts skipped. */
   function request(
     climbing: Extract<Stage, { kind: 'climbing' }>,
@@ -176,7 +170,7 @@ export function createJamPhraseOne(
     at: AudioTime,
   ): JamPhraseOneOutput[] {
     for (let left = skipped; left > 0; left -= 1) deps.nextRequestId()
-    const { belowTabletLandscape } = context()
+    const belowTabletLandscape = deps.isBelowTabletLandscape()
     const built = jamAttempt(climbing.attempts, index, {
       requestId: deps.nextRequestId(),
       seed: deps.seedOf(index),
@@ -201,7 +195,7 @@ export function createJamPhraseOne(
 
   /** Intent: start the ladder on a doodle end at `at`: its inputs, its deadline, its first attempt. */
   function climb(end: RecordedDoodle, at: AudioTime): JamPhraseOneOutput[] {
-    const attempts = doodleAttempts(end.doodle, jam, context())
+    const attempts = doodleAttempts(end.doodle, jam)
     const deadline = jamPhraseOneDeadline(end.endBarlineAt, jam.settings.controls.tempo)
     const climbing: Extract<Stage, { kind: 'climbing' }> = {
       kind: 'climbing',

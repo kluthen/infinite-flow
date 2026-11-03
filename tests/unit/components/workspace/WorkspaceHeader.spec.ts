@@ -39,6 +39,7 @@ function fakeSession(overrides: Partial<GenerationSession<WorkspaceSessionResult
     selectPreset: vi.fn(() => true),
     setFigureLevel: vi.fn(() => true),
     selectInstrumentProfile: vi.fn(async () => 'applied' as const),
+    holdInstrumentSwitches: vi.fn(async () => 'unchanged' as const),
     saveMyInstrument: vi.fn(async () => 'saved' as const),
     saveAndSelectMyInstrument: vi.fn(async () => 'saved' as const),
     deleteMyInstrument: vi.fn(async () => 'saved' as const),
