@@ -16,7 +16,7 @@ Append-only record of settled UI/UX decisions. Earlier logs are archived verbati
 
 Archived IDs keep their meaning; a citation to one by ID elsewhere in this repository stays valid
 through this header. D225, D226, D235–D264 and D328 on (v3.2 and v3.3, not yet released, and the
-entries v3.1 shares with v3.2) stay here; D265–D279 were never used. Numbering continues from D448.
+entries v3.1 shares with v3.2) stay here; D265–D279 were never used. Numbering continues from D449.
 
 ## v3.1 (presets and embellishment figures) and v3.2 (Jam) design, 2026-10-08
 
@@ -663,3 +663,12 @@ title word.
   clicking until the deadline. Nothing the player sees changes. Now in `flows/jam/handoff.md`,
   Routing Rules, Every rung failed and Read-in measure; `flows/play-session/handoff.md`, Phrase 1
   of a fresh Jam; `screens/phrase-workspace/handoff.md`, States, Jam ended before phrase 1.
+
+## v3.2 wave 5, chunk 31's question, 2026-11-03
+
+- **D448 — The narrow Sixteenth reading keeps the option words (2026-11-03; minor, D119's
+  standing rule).** Below `bp-tablet-landscape` a doodle's Sixteenth reads "Eighth notes
+  (Sixteenth on larger screens)", Note density's own labels on both sides, so it matches the wide
+  "Eighth notes". Rejected: short words throughout (they would part from the controls' labels,
+  "Conversational space" included). Now in `screens/phrase-workspace/handoff.md`, Components and
+  Content, Jam's controls, and `intent.md`, Jam's Controls.
