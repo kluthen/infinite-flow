@@ -1,6 +1,10 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v28 (2026-11-03): v27 with spec D456 written in (Part C unchanged): chunk 18 makes the
+Status: v29 (2026-11-03): v28 with spec D457 written in (master spec Part C v1.18): chunk 18's
+two readings, accepted by the driver: phrase 1 is handed over at the barline where it is shown and
+phrase 2 is requested then, not when phrase 1 is ready; a Jam whose rungs all fail early ends at
+the deadline. Phrase 2's deadline is unchanged.
+v28 (2026-11-03): v27 with spec D456 written in (Part C unchanged): chunk 18 makes the
 audio transport start phrase 1 at the `soundsAt` it is handed with, for a session started without
 phrase 1; the throw in `phrasesOf` on a hand-over through the workspace is its known limit, and
 chunk 21's to remove.
@@ -1655,8 +1659,10 @@ Architecture capture: none (it builds on chunk 17's)
     again on the longer doodle keeps its seed. `phraseAttemptSeed` and its labels stay as they are.
     At Idle with a kept doodle (chunk 24) the caller draws a fresh seed per attempt.
   - **Showing**: phrase 1 at the first barline at or after it is ready, then one read-in measure,
-    then it sounds with the backing; phrase 2 requested once phrase 1 is ready, due at the start of
-    phrase 1's last measure.
+    then it sounds with the backing. Phrase 1 is handed over at the barline where it is shown, and
+    phrase 2 is requested at the hand-over (spec D457): after an end by silence the earliest
+    moment, after an end by length or in an extended wait the barline after phrase 1 is ready;
+    phrase 2 is due at the start of phrase 1's last measure.
   - **The transport follows phrase 1's start** (spec D456). Today the transport puts phrase 1 at
     the count-in's end (`phraseStartsAt`, `queueBacking`, `src/audio/audio-transport.ts`, over
     `phraseFirstBeat`, `src/audio/backing-track.ts`). In a session started without phrase 1, the
@@ -1675,7 +1681,8 @@ Architecture capture: none (it builds on chunk 17's)
     steps or display until [chunk 21](#chunk-21--a-fresh-jam-on-screen) builds them and removes
     the throw (spec D456). This chunk's tests drive the hand-over at the engine, at the transport
     and at the handle's call to the transport, never through the workspace end to end.
-  - **Every rung failed**: the Jam ends as a count-in end, the engine reporting why.
+  - **Every rung failed**: the Jam ends as a count-in end at the deadline, even when the last rung
+    failed earlier (spec D457), the engine reporting why.
   - **From phrase 1**: a v2 session; every request carries the steering block (phrases 2 onward
     join the phrase before, every rung keeping the block); with Jam's lock on, phrase 1's bars are
     locked (chunk 16's machinery, Jam's own lock value); Vary settings, Tension across phrases and
@@ -1728,8 +1735,9 @@ Architecture capture: none (it builds on chunk 17's)
     later, at 60, 120 and 180 BPM;
   - a slow generator: the wait grows by whole measures; rungs 2 and 3 reached in order; no rung 1 or
     2 attempt starts with less than the reserve left;
-  - every rung failing ends the Jam with nothing kept and the failure reported;
-  - phrase 2's deadline is the start of phrase 1's last measure;
+  - every rung failing ends the Jam at the deadline, with nothing kept and the failure reported;
+  - phrase 2 is requested at the hand-over, the barline where phrase 1 is shown, and its deadline
+    is the start of phrase 1's last measure;
   - on the fake audio, in a session started without phrase 1, at 60, 120 and 180 BPM and after a
     wait of one, two and three measures: after the hand-over `phraseStartsAt(1)` is `soundsAt`,
     phrase 2 starts one phrase later, and phrase 1's backing is queued from `soundsAt`; before it

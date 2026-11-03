@@ -2255,7 +2255,11 @@ Delete everything removes them. No preset leaves the device.
 
 ## Part C — v3.2
 
-Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.17 (2026-11-03)**: v1.16
+Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.18 (2026-11-03)**: v1.17
+with two driver rulings under the owner's delegation of minor design calls, on chunk 18's build
+(C5.6, C5.7, C5.8; D457): phrase 1 is handed to the session at the barline where it is shown, and
+phrase 2 is requested then, not when phrase 1 is ready; a Jam whose rungs all fail before the
+deadline ends at the deadline. Phrase 2's deadline is unchanged. v1.17 (2026-11-03): v1.16
 with a driver ruling under the owner's delegation of minor design calls (C6.2; D455): the last
 and first home-note cues are flat bonuses taken off the candidate's penalty, as the research note
 defines them, not weights on the note. v1.16 (2026-11-03): v1.15 with one of `spec-writer`'s minor calls from wave 5's preflight (C6.3; D452): the suggestion judges
@@ -2841,6 +2845,7 @@ _Changed in v1.1:_ the timing example is given at Jam's top tempo, 180 BPM.
 ### C5.6 From the doodle to phrase 1: the generation and read-in measures
 
 _Changed in v1.1:_ times given for Jam's range.
+_Changed in v1.18:_ phrase 1 is handed to the session at the barline where it is shown (D457).
 
 - **The generation measure**: the app takes the controls from the doodle (C5.16), builds the
   steering block (C5.9) and writes phrase 1. The cue row says the app is writing.
@@ -2854,15 +2859,17 @@ _Changed in v1.1:_ times given for Jam's range.
 - **Phrase 1 starts with a fresh note on beat 1**, as every phrase does. With the gap, no pickup or
   tie across the join is needed.
 - **Where the session engine takes over.** Jam's own code runs the count-in, the capture and the
-  generation measure. Once phrase 1 is ready, it starts an ordinary session with that phrase on
-  screen, at the barline the click has reached, the read-in measure playing the part of v2's
-  count-in. The session engine only learns to accept a start on a click already running.
+  generation measure. At the barline where phrase 1 is shown (C5.7), it hands phrase 1 over with
+  the time it sounds, one measure later, and from there an ordinary session runs with that phrase
+  on screen, the read-in measure playing the part of v2's count-in. The session engine only learns
+  to accept a start on a click already running.
 
 ### C5.7 When phrase 1 is late: the extended wait and the fallback
 
 _Changed in v1.1:_ times given for Jam's range; the rungs read "the steering block" for "the doodle's
 preferences".
 _Changed in v1.3:_ each attempt's seed is derived from the session seed (D419, C11).
+_Changed in v1.18:_ a Jam whose rungs all fail before the deadline ends at the deadline (D457).
 
 - **The wait extends by whole measures.** Phrase 1 is shown at the first barline at or after the
   moment it is ready, followed by its read-in measure. The click goes on; the cue row keeps saying
@@ -2879,8 +2886,9 @@ _Changed in v1.3:_ each attempt's seed is derived from the session seed (D419, C
   that reserve was measured on: once less is left, no attempt of rungs 1 or 2 starts, the one
   running is cancelled, and rung 3 is requested at once. A phrase repeat, v2's last step, is
   impossible: there is no phrase before.
-- **If every attempt fails by the deadline, the Jam ends**: back to Idle, no review, nothing kept,
-  no doodle kept, and the player is told, at Idle, that the app could not continue with these
+- **If every attempt fails by the deadline, the Jam ends at the deadline**, even when the last
+  one failed earlier, as v2 repeats a phrase at its deadline: back to Idle, no review, nothing
+  kept, no doodle kept, and the player is told, at Idle, that the app could not continue with these
   settings. It should be rare: the controls taken from the doodle always form a supported
   combination (C5.16), and the steering block only orders candidates.
 - If phrase 1 comes from rung 3 with Jam's rhythm lock on, its rhythm is not chosen near the
@@ -2892,6 +2900,7 @@ _Changed in v1.1:_ sized for 180 BPM, 240 BPM last; figures refreshed from v3.1'
 the rhythm domain of a fresh doodle may be cold.
 _Changed in v1.2:_ the cold domain is accepted and measured (D410).
 _Changed in v1.12:_ what Jam's Idle prewarms before any doodle (D442).
+_Changed in v1.18:_ phrase 2 is requested when phrase 1 is handed over, not when it is ready (D457).
 
 - **One measure lasts** 4 s at 60 BPM, 2 s at 120, 1.6 s at 150, about 1.33 s at 180 and 1 s at
   240. The standalone reserve is 1.075 s. Up to 180 BPM the generation measure alone outlasts the
@@ -2920,8 +2929,11 @@ _Changed in v1.12:_ what Jam's Idle prewarms before any doodle (D442).
   with a cold domain at 180 BPM, and a result that misses the deadlines goes back to the owner.
 - **Pre-generation cannot help a fresh doodle**: phrase 1 depends on notes played after Start. It
   helps a kept doodle (C5.11).
-- **Phrase 2** is requested as soon as phrase 1 is ready; its deadline is the start of phrase 1's
-  last measure, which gives it the read-in measure plus three measures, more than v2's phrase 2
+- **Phrase 2** is requested when phrase 1 is handed over to the session (C5.6), at the barline
+  where phrase 1 is shown. After an end by silence that is the earliest moment, since a note in
+  the silent measure would still extend the doodle; after an end by length or in an extended wait,
+  it is the barline after phrase 1 is ready. Its deadline is the start of phrase 1's last measure,
+  which gives it the read-in measure plus three measures from its request, more than v2's phrase 2
   gets.
 - **240 BPM is worked on last.** The Jam sweep and hand checks run at 60, 120 and 180 BPM; 240 is
   tried after them (C5.17).

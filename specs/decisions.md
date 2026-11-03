@@ -1103,3 +1103,14 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   The throw in `phrasesOf` on a hand-over through the workspace stays until chunk 21. Now in:
   [build plan v3.2, chunk 18](versions/v3/build-plan-v3.2.md#chunk-18--jam-engine-part-2-from-the-doodle-to-phrase-1),
   [chunk 21](versions/v3/build-plan-v3.2.md#chunk-21--a-fresh-jam-on-screen).
+
+- **D457 (2026-11-03): phrase 2 is requested at phrase 1's hand-over; a Jam all of whose rungs fail ends at the deadline.**
+  The driver's ruling under the owner's delegation of minor design calls, on chunk 18's two
+  readings (639d0055). The captured way in (`module_session_start_without_phrase_one`) hands
+  phrase 1 over with the time it sounds, at the barline where it is shown, and the session runs
+  from there; so phrase 2 is requested then, still with the read-in measure plus three measures to
+  its unchanged deadline. Every rung failing early still ends the Jam at the deadline, as "by the
+  deadline" and v2's repeat at the deadline read. Rejected: requesting phrase 2 inside Jam's code
+  before the hand-over. Now in: [Part C §C5.8](versions/v3/master-spec.md#c58-the-time-budget),
+  [§C5.7](versions/v3/master-spec.md#c57-when-phrase-1-is-late-the-extended-wait-and-the-fallback),
+  [build plan v3.2, chunk 18](versions/v3/build-plan-v3.2.md#chunk-18--jam-engine-part-2-from-the-doodle-to-phrase-1).
