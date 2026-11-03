@@ -1627,7 +1627,7 @@ settled as spec D456 and given to chunk 18.
 
 ### Chunk 18 — Jam engine, part 2: from the doodle to phrase 1
 
-Status: planned
+Status: merged (w5, 639d0055)
 Wave: 5
 Depends on: 7, 8, 9, 14, 16, 17, 28
 Architecture capture: none (it builds on chunk 17's)
@@ -1749,6 +1749,14 @@ Architecture capture: none (it builds on chunk 17's)
   to phrase 1 sounding (the phrase-1 module, its seeds, the timing, the engine, the transport's
   phrase 1 start and the handle's call to it), 18b the Jam from phrase 1 on
   (the runner, the intents, the history).
+
+Record: 5d1000dc (18a, the ladder up to phrase 1 sounding) and 038fb5c4 (18b, the Jam from phrase
+1 on), merged 639d0055. A new engine event `{kind:'cancel-phrase-one-attempt', at}` (a doodle note
+cancels the attempt; the captured way in had no such event). Phrase 1 is handed over when the
+capture shows it, so phrase 2 is requested at that barline, not at ready, after an end by length or
+in an extended wait; with every rung failed early, the Jam ends at the deadline: both reported to
+`spec-writer` (accepted by the driver, spec D457). Built: `createJamPhraseOne(deps, jam, capture)`,
+`jamPhraseOneSeed(sessionSeed, rung)`, `jamPhraseOneDeadline`, `AudioTransport.startPhraseOneAt`.
 
 ### Chunk 19 — The rhythm lock and What may vary in the controls
 

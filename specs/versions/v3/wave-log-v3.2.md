@@ -1188,3 +1188,24 @@ subsection to `docs/generation-latency.md` (a shared record; the later one resol
   (18a) owns it; the `phrasesOf` throw is chunk 18's known limit, chunk 21 removes it.
   `documentalist` revised the capture before chunk 18 (8d0342ba): `module_session_start_without_phrase_one`
   0.2 (DRAFT), `module_session_transport_tempo_map` 0.2 (REVIEW kept).
+- 18 merged (5d1000dc 18a, 038fb5c4 18b; 639d0055). Done when all met on the fake clock (rig
+  `tests/unit/jam/jam-phrase-one-rig.ts`: real capture, ladder and engine): instant generator shown
+  at barline 2, sounds at 3 (60/120/180 BPM); rungs in order with the reserve cutover; every rung
+  failed → `no-phrase-one` count-in end; phrase 2 due at phrase 1's last measure; transport
+  `phraseStartsAt(1) = soundsAt` for waits 0–3 measures, throws before, refuses off-barline; lock and
+  block carried; Vary/Tension/Rising tempo never run; six seed labels pinned. Related tests
+  2,547 (18a) and 2,239 (18b) pass; corpus guard + audio + jam 1,039/1,039. Built:
+  `createJamPhraseOne(deps:{nextRequestId, seedOf, isBelowTabletLandscape}, jam:{settings, drift},
+  capture)` (`note`, `session`, `advance`, `nextDecisionAt`; outputs `session-event`, `capture`,
+  `suggestion`, `no-phrase-one`); `jam-phrase-one-attempts.ts` (`JamPhraseOneRung`,
+  `doodleAttempts`, `jamAttempt`, `doodleSuggestion`); `jamPhraseOneSeed`,
+  `JAM_PHRASE_ONE_ATTEMPTS = 6`; `jamPhraseOneDeadline`, `JAM_PHRASE_ONE_DEADLINE_MEASURES = 3`;
+  `TransportStartOptions.phraseOneStart`, `AudioTransport.startPhraseOneAt`; history
+  `recordSuggestion` / `suggestion()`. Interpretations: (1) new event `cancel-phrase-one-attempt`
+  → sync writes it into `module_session_start_without_phrase_one`; (2) phrase 2 requested at the
+  hand-over (the barline after ready, after an end by length or an extended wait), where Part C
+  says "once phrase 1 is ready"; (3) every rung failed early → ends at the deadline ("by the
+  deadline", v2's repeat-at-deadline); (4) the ladder owns the capture. Driver accepted (2) and (3)
+  (minor, the captured way in implies them) → `spec-writer`. Risks: `audio-transport.ts` and
+  `workspace-session-without-phrase-one.ts` at the 10-atom health limit; `session-history.ts` near
+  the file-size limit.
