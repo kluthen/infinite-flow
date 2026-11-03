@@ -1093,3 +1093,13 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   then fail (G Dorian / G Mixolydian for D Dorian / D Aeolian, among others), while chunk 14's
   build reproduces all of them. Now in: [Part C §C6.2](versions/v3/master-spec.md#c62-the-method),
   [build plan v3.2, chunk 14](versions/v3/build-plan-v3.2.md#chunk-14--the-key-and-mode-suggestion).
+
+- **D456 (2026-11-03): chunk 18 makes the transport start phrase 1 at its handed-over time.**
+  `spec-writer`'s minor call on a gap chunk 17's owner found after 17a (0d69ac38): the transport
+  still puts phrase 1 at the count-in's end, and phrase 1's backing, the MIDI side's silence arming
+  and acknowledgement all read that start. Chunk 18 computes `soundsAt`, hands phrase 1 over and
+  must sound it one measure after showing it, and already follows chunk 17 in wave 5, so no new
+  edge. Rejected: chunk 21, which would leave wave 5's ladder sounding phrase 1 at the wrong time.
+  The throw in `phrasesOf` on a hand-over through the workspace stays until chunk 21. Now in:
+  [build plan v3.2, chunk 18](versions/v3/build-plan-v3.2.md#chunk-18--jam-engine-part-2-from-the-doodle-to-phrase-1),
+  [chunk 21](versions/v3/build-plan-v3.2.md#chunk-21--a-fresh-jam-on-screen).

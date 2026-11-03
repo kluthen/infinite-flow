@@ -1,6 +1,10 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v27 (2026-11-03): v26 with spec D455 written in (master spec Part C v1.17): chunk 14's
+Status: v28 (2026-11-03): v27 with spec D456 written in (Part C unchanged): chunk 18 makes the
+audio transport start phrase 1 at the `soundsAt` it is handed with, for a session started without
+phrase 1; the throw in `phrasesOf` on a hand-over through the workspace is its known limit, and
+chunk 21's to remove.
+v27 (2026-11-03): v26 with spec D455 written in (master spec Part C v1.17): chunk 14's
 home-note cues are flat bonuses of 693 and 405 thousandths off the penalty, not note weights;
 chunk 16's Done when states spec D450's shares, about 1 in 2 and 3 in 4.
 v26 (2026-11-03): v25 with spec D452–D454 written in (master spec Part C v1.16): wave 5's
@@ -15,9 +19,6 @@ cleared with a finding carried to v3.2 H4 (O271), chunk 8 unchanged; L3's step 2
 change shares, built by new chunk 34 (wave 5), which re-runs M2.
 v23 (2026-10-27): v22 with spec D447–D448 written in: ISS-015 known and deferred, read
 with in chunks 18 and 29, M1 and M5.
-v22 (2026-10-27): v21 with ux D355 and spec D445–D446 written in (master spec Part C
-v1.13): chunk 31 marks a rhythmic variety the supported-combination step raised and judges that
-step on the note density as read, at every width; chunks 18 and 24 follow.
 **Approved by the owner** at v6 (spec D417), hand check v3.2 H9 waived (spec D417).
 
 Jam mode, the key and mode suggestion, the rhythm lock, Jam's drift and Vary settings' allowed
@@ -1647,6 +1648,24 @@ Architecture capture: none (it builds on chunk 17's)
   - **Showing**: phrase 1 at the first barline at or after it is ready, then one read-in measure,
     then it sounds with the backing; phrase 2 requested once phrase 1 is ready, due at the start of
     phrase 1's last measure.
+  - **The transport follows phrase 1's start** (spec D456). Today the transport puts phrase 1 at
+    the count-in's end (`phraseStartsAt`, `queueBacking`, `src/audio/audio-transport.ts`, over
+    `phraseFirstBeat`, `src/audio/backing-track.ts`). In a session started without phrase 1, the
+    hand-over sets phrase 1's first beat on the click plan at the `soundsAt` it carries: the
+    workspace handle's `phrase-one` dispatch (`workspace-session-without-phrase-one.ts`) sets it
+    beside `forceClickUntil`. From then on `phraseStartsAt(n)` counts from it, phrase n starting
+    whole phrases later, and `queueBacking(1)` starts phrase 1's backing there. Before the
+    hand-over, `phraseStartsAt` throws in such a session, as for a phrase not queued yet, rather
+    than give the count-in's end. A `soundsAt` that is not a barline of the click plan at or after
+    the count-in's end is refused. The beats up to phrase 1 stay at the starting tempo. Every
+    reader of `phraseStartsAt` (the MIDI side's silence arming and phrase acknowledgement, the
+    outputs' times, the phrase steps' backing queue, the display) then takes the right start with
+    no change of its own. A session started with phrase 1 keeps today's timing.
+  - **Known limit: a hand-over through the workspace handle throws** in `phrasesOf(session)`
+    (`src/components/workspace/workspace-session-active.ts`), by design: a fresh Jam has no phrase
+    steps or display until [chunk 21](#chunk-21--a-fresh-jam-on-screen) builds them and removes
+    the throw (spec D456). This chunk's tests drive the hand-over at the engine, at the transport
+    and at the handle's call to the transport, never through the workspace end to end.
   - **Every rung failed**: the Jam ends as a count-in end, the engine reporting why.
   - **From phrase 1**: a v2 session; every request carries the steering block (phrases 2 onward
     join the phrase before, every rung keeping the block); with Jam's lock on, phrase 1's bars are
@@ -1666,7 +1685,10 @@ Architecture capture: none (it builds on chunk 17's)
     deadline keeps v2's reserve rule.
 - **Files:** `src/jam/jam-phrase-one.ts` (new), `src/session/session-timing.ts` (the Jam's
   deadlines beside `phraseTwoDeadline`), `session-seed-plan.ts` (phrase 1's labels), `session-types.ts`, `session-engine.ts`, `session-runner.ts`,
-  `session-intents.ts`, `session-history.ts`; tests under `tests/unit/jam/`, `tests/unit/session/`.
+  `session-intents.ts`, `session-history.ts`; `src/audio/audio-transport.ts`, `backing-track.ts`
+  (phrase 1's start, spec D456), `src/components/workspace/workspace-session-without-phrase-one.ts`
+  (the hand-over sets it); tests under `tests/unit/jam/`, `tests/unit/session/`,
+  `tests/unit/audio/` (with `fake-audio.ts`), `tests/unit/components/workspace/`.
 - **Spec sections:** [C5.6](master-spec.md#c56-from-the-doodle-to-phrase-1-the-generation-and-read-in-measures),
   [C5.7](master-spec.md#c57-when-phrase-1-is-late-the-extended-wait-and-the-fallback),
   [C5.8](master-spec.md#c58-the-time-budget), [C5.9](master-spec.md#c59-what-the-doodle-feeds-the-generator),
@@ -1680,8 +1702,9 @@ Architecture capture: none (it builds on chunk 17's)
 - **Atoms:** `rule_two_measures_before_jam_phrase_one`, `rule_jam_phrase_one_deadline`,
   `rule_jam_phrase_one_failure_ladder`, `rule_jam_ends_when_phrase_one_never_comes`,
   `rule_every_jam_phrase_carries_doodle` (as chunk 0 rewords it for the steering block),
-  `rule_jam_runs_as_session_from_phrase_one`, `rule_doodle_only_orders_candidates`. Drift check:
-  `module_session_look_ahead_timing`, `module_session_failure_ladder`, `service_session_runner`,
+  `rule_jam_runs_as_session_from_phrase_one`, `rule_doodle_only_orders_candidates`,
+  `rule_jam_no_backing_before_phrase_one`, `rule_jam_silence_timer_from_phrase_one`. Drift check:
+  `req_session_backing_track`, `module_session_look_ahead_timing`, `module_session_failure_ladder`, `service_session_runner`,
   `module_generation_worker_cancellation`, `module_session_seed_plan` (STABLE, on the contract:
   "At Start the session takes phrase 1, exactly the Idle phrase", "Nothing in a session draws a
   seed"; C13).
@@ -1689,7 +1712,8 @@ Architecture capture: none (it builds on chunk 17's)
   `req_rolling_practice_session`, `rule_no_carry_in_output_matches_v1`;
   `rule_session_generation_failure_ladder`, `rule_dropped_attempt_cancelled`,
   `rule_session_density_only_steps_down`, `rule_join_carry_in_limited`,
-  `module_session_seed_plan` (contract, CS).
+  `module_session_seed_plan` (contract, CS); `module_session_start_without_phrase_one` and
+  `module_session_transport_tempo_map` (phrase 1's start taken from the hand-over, spec D456).
 - **Done when:** on the fake clock with the held-generation harness,
   - an instant generator shows phrase 1 at the generation measure's end and sounds it one measure
     later, at 60, 120 and 180 BPM;
@@ -1697,6 +1721,12 @@ Architecture capture: none (it builds on chunk 17's)
     2 attempt starts with less than the reserve left;
   - every rung failing ends the Jam with nothing kept and the failure reported;
   - phrase 2's deadline is the start of phrase 1's last measure;
+  - on the fake audio, in a session started without phrase 1, at 60, 120 and 180 BPM and after a
+    wait of one, two and three measures: after the hand-over `phraseStartsAt(1)` is `soundsAt`,
+    phrase 2 starts one phrase later, and phrase 1's backing is queued from `soundsAt`; before it
+    `phraseStartsAt` throws; a `soundsAt` off the click's barlines is refused; the handle's
+    `phrase-one` dispatch sets the start before the engine hears it; every transport test of a
+    session started with phrase 1 passes unchanged;
   - with Jam's lock on, phrase 1 is the candidate nearest the doodle and is then held; a rung-3
     phrase 1's own rhythm is held;
   - Vary settings, Tension across phrases and Rising tempo never run in a Jam;
@@ -1707,7 +1737,8 @@ Architecture capture: none (it builds on chunk 17's)
   the wave gate through chunk 29's double of this ladder, the generator real (spec D453); chunk 33
   first runs M1 through this ladder itself.
 - **Split rule:** if the brief passes about five source files, 18a the ladder and the deadlines up
-  to phrase 1 sounding (the phrase-1 module, its seeds, the timing, the engine), 18b the Jam from phrase 1 on
+  to phrase 1 sounding (the phrase-1 module, its seeds, the timing, the engine, the transport's
+  phrase 1 start and the handle's call to it), 18b the Jam from phrase 1 on
   (the runner, the intents, the history).
 
 ### Chunk 19 — The rhythm lock and What may vary in the controls
@@ -1953,10 +1984,18 @@ state the workspace takes after it (Jam mode's Idle). Chunk 23 builds on it.
   - **The session end in Jam mode**: the hidden workspace takes Jam mode's Idle (the kept doodle is
     chunk 24's); the mode never changes with the controller.
   - Nothing asked or offered during the Jam.
+  - **Phrase 1 through the workspace** (spec D456): at the hand-over the fresh Jam's session gets
+    its phrase steps and display, which removes the throw in `phrasesOf(session)`
+    (`workspace-session-active.ts`) that [chunk 18](#chunk-18--jam-engine-part-2-from-the-doodle-to-phrase-1)
+    leaves as its known limit. Phrase 1's backing, its acknowledgement and the silence timer's
+    arming then read the start chunk 18's transport takes from `soundsAt`; this chunk changes no
+    timing.
 - **Files:** `src/components/workspace/SessionCueRow.vue`, `src/jam/JamCapture.vue`,
   `src/jam/JamWriting.vue` (new), `src/components/workspace/ScorePanel.vue`,
   `workspace-session-display.ts`, `workspace-session-ends.ts`, `session-end-focus.ts`,
-  `workspace-session-begin.ts`, `create-workspace-session.ts`; tests
+  `workspace-session-begin.ts`, `create-workspace-session.ts`,
+  `workspace-session-without-phrase-one.ts`, `workspace-session-phrases.ts` (phrase 1 through the
+  workspace); tests
   `tests/e2e/session/jam-fresh.spec.ts`, `tests/e2e/session/jam-ends-before-phrase-one.spec.ts`
   (new), `HARDWARE-CHECKLIST.md` (v3.2 H4, H5).
 - **Spec sections:** [C5.3](master-spec.md#c53-the-count-in-and-the-click) to
@@ -1971,7 +2010,8 @@ state the workspace takes after it (Jam mode's Idle). Chunk 23 builds on it.
   phrase 1), [`flows/play-session/handoff.md`](../../../ui_ux/flows/play-session/handoff.md),
   [`flows/review-and-export/handoff.md`](../../../ui_ux/flows/review-and-export/handoff.md).
 - **Atoms:** `req_jam`, `rule_jam_live_view_never_shows_doodle`, `rule_jam_ending_before_phrase_one`,
-  `rule_jam_ends_when_phrase_one_never_comes`, `rule_jam_runs_as_session_from_phrase_one`; (v2,
+  `rule_jam_ends_when_phrase_one_never_comes`, `rule_jam_runs_as_session_from_phrase_one`,
+  `module_session_start_without_phrase_one` (phrase 1 through the workspace); (v2,
   STABLE) `rule_count_in_shown_on_screen`, `rule_midi_starting_note`.
 - **Revisions:** revise `rule_session_end_generates_next_phrase_one` (its fresh-Jam half).
 - **Done when:**
@@ -1979,13 +2019,16 @@ state the workspace takes after it (Jam mode's Idle). Chunk 23 builds on it.
     reach Session running; the cue row's phases in order; no note on the staff during the capture;
     the audio spy hears the click with `Click` off and no backing until phrase 1; the readings fill
     when phrase 1 enters.
+  - The hand-over through the workspace handle throws nowhere (`phrasesOf` included); phrase 1's
+    backing starts at the `soundsAt` handed over, after one, two and three measures of wait; a note
+    played before it arms no silence timer and the first from it does.
   - Each end before phrase 1 lands where the design says, with its focus; only every rung failing
     shows `jam-notice`.
   - No note starts anything while the review shows; v3.2 H4 and H5 written.
 - **Verification:** chunk checks; the accessibility checks of what it adds; desktop and phone debug
   runs.
 - **Split rule:** 21a the cue row and the read-in (the cue row and its two parts, the score panel,
-  the session display), 21b the ends and the session end in Jam mode (the ends, the end focus, the
+  the session display, phrase 1 through the workspace), 21b the ends and the session end in Jam mode (the ends, the end focus, the
   begin and create modules).
 
 ### Chunk 22 — v3.2's kept-session shape
