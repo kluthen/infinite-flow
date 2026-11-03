@@ -643,6 +643,30 @@ for (const controller of ['without', 'with'] as const) {
   }
 }
 
+// Jam's controls ("Shape your Jam"), the rhythm lock on so its allowed rhythm changes show.
+for (const theme of ['Light', 'Dark'] as const) {
+  test(`has no detectable axe violations in Jam's controls, the rhythm lock on, ${theme} theme`, async ({
+    page,
+  }) => {
+    await gotoControllerHarness(page, { query: { pregeneration: 'off' } })
+    await radio(page, 'Presentation theme', theme).click()
+    await page
+      .getByRole('radiogroup', { name: 'Mode', exact: true })
+      .getByRole('radio', { name: 'Jam', exact: true })
+      .click()
+    const controls = page.locator('section.control-section[aria-labelledby="jam-controls-heading"]')
+    await expect(controls.locator('h2')).toHaveText('Shape your Jam')
+    await radio(page, 'Rhythm lock', 'On').click()
+    await expect(controls.locator('.field-dependent .toggle-button')).toHaveCount(5)
+    await page.waitForFunction(() =>
+      document.getAnimations().every((animation) => !(animation instanceof CSSTransition)),
+    )
+
+    const results = await new AxeBuilder({ page }).analyze()
+    expect(results.violations, describeViolations(results.violations)).toEqual([])
+  })
+}
+
 test('the mode switch is the radiogroup "Mode", its checked segment exposed to assistive technology', async ({
   page,
 }) => {

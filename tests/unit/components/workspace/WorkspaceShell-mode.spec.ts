@@ -19,10 +19,11 @@ import ControlPanel from '@/components/controls/ControlPanel.vue'
 import ConnectionSheet from '@/components/controller-connection/ConnectionSheet.vue'
 import WorkspaceShell from '@/components/workspace/WorkspaceShell.vue'
 import type { JamModeModule } from '@/components/workspace/load-jam-mode'
+import JamControls from '@/jam/JamControls.vue'
 import { createJamSettings, jamFigureLevels, jamGenerationControls } from '@/jam/jam-settings'
 import { createTestWorkspace, PHRASE_SCORE_STUB } from './test-workspace'
 import { createControllerRig } from '../../midi/midi-controller-rig'
-import { provideSaveSettings } from './recording-save-settings'
+import { provideSaveSettings, recordingSaveSettings } from './recording-save-settings'
 import { noRememberedController, quietSavedData, quietPresetStore } from './quiet-saved-data'
 
 /** Every load of Jam's code asked for, settled by the test. */
@@ -51,9 +52,10 @@ const retryNotation = vi.fn()
 /**
  * A stand-in for Jam's code entry: a view whose root is its own staff viewport, which takes Jam's
  * props, reports a notation error on its button and exposes `retryNotation()`; and Jam's own
- * settings, the real ones.
+ * settings and controls, the real ones.
  */
 const FAKE_JAM_MODULE = {
+  JamControls,
   createJamSettings,
   jamFigureLevels,
   jamGenerationControls,
@@ -96,7 +98,7 @@ afterEach(() => {
 })
 
 /** Intent: mount the shell over a test workspace at Idle, no session controller loaded. */
-function mountShell() {
+function mountShell(saving = recordingSaveSettings()) {
   const workspace = createTestWorkspace()
   return mount(WorkspaceShell, {
     props: {
@@ -113,7 +115,10 @@ function mountShell() {
       midi: createControllerRig().controller,
       controller: null,
     },
-    global: { stubs: { PhraseScore: PHRASE_SCORE_STUB }, provide: provideSaveSettings() },
+    global: {
+      stubs: { PhraseScore: PHRASE_SCORE_STUB },
+      provide: provideSaveSettings(saving.saveSettings),
+    },
     attachTo: document.body,
   })
 }
@@ -180,13 +185,16 @@ describe('WorkspaceShell and the workspace mode', () => {
     expect(wrapper.find('.jam-stub').exists()).toBe(true)
     expect(sessionStaff(wrapper).classes()).toContain('is-out-of-sight')
     expect(sessionStaff(wrapper).attributes('inert')).toBeDefined()
-    expect(wrapper.getComponent(ControlPanel).props('readonly')).toBe(false)
+    expect(wrapper.findComponent(ControlPanel).exists()).toBe(false)
+    expect(wrapper.getComponent(JamControls).props('readonly')).toBe(false)
 
     await segment(wrapper, 'Session').trigger('click')
     expect(wrapper.emitted('session-mode-held-change')).toEqual([[false], [true], [false]])
     expect(wrapper.find('.jam-stub').exists()).toBe(false)
     expect(sessionStaff(wrapper).classes()).not.toContain('is-out-of-sight')
     expect(sessionStaff(wrapper).attributes('inert')).toBeUndefined()
+    expect(wrapper.findComponent(JamControls).exists()).toBe(false)
+    expect(wrapper.getComponent(ControlPanel).props('readonly')).toBe(false)
   })
 
   // @test-link [[rule_jam_code_loaded_on_demand]]
@@ -309,5 +317,37 @@ describe('WorkspaceShell and the workspace mode', () => {
     await segment(wrapper, 'Jam').trigger('click')
     await flushPromises()
     expect(phraseAction().text()).toBe('Generate phrase')
+  })
+
+  // @test-link [[module_workspace_mode]]
+  it("shows Jam's controls in Jam mode, saving Jam's changes apart and sharing the instrument", async () => {
+    const saving = recordingSaveSettings()
+    const wrapper = mountShell(saving)
+    await segment(wrapper, 'Jam').trigger('click')
+    lastLoad().resolve(FAKE_JAM_MODULE)
+    await flushPromises()
+    const session = wrapper.props('session')
+    const before = session.state.controls
+    const jam = wrapper.getComponent(JamControls)
+    expect(jam.get('h2').text()).toBe('Shape your Jam')
+    expect(jam.props('readings')).toBeNull()
+    saving.saves.length = 0
+
+    jam.vm.$emit('change', { drift: 'Free', tonalCenter: 'G' })
+    await flushPromises()
+    expect(saving.saves).toEqual([{ 'jam.tonalCenter': 'G', 'jam.drift': 'Free' }])
+    expect(session.state.controls).toBe(before)
+    expect(jam.props('settings')).toMatchObject({ drift: 'Free', tonalCenter: 'G' })
+    expect(reporting.props).toMatchObject({ tonalCenter: 'G' })
+
+    jam.vm.$emit('select-instrument-profile', 'eb-alto')
+    await flushPromises()
+    expect(session.state.controls.instrumentProfileId).toBe('eb-alto')
+    expect(jam.props('instrumentProfileId')).toBe('eb-alto')
+
+    await segment(wrapper, 'Session').trigger('click')
+    expect(wrapper.getComponent(ControlPanel).props('controls').tonalCenter).toBe(
+      before.tonalCenter,
+    )
   })
 })

@@ -13,7 +13,6 @@
 import { describe, expect, it } from 'vitest'
 
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
-import type { NoteDensityContext } from '@/domain/controls/generated-note-density'
 import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import {
   createGenerationIntent,
@@ -60,7 +59,6 @@ const WINDOWS = deriveRegisterWindowCandidates(
   C_KEYBOARD_PROFILE.concertRange,
   C_KEYBOARD_PROFILE.registerWindows,
 )
-const WIDE: NoteDensityContext = { belowTabletLandscape: false, sessionSteppedDown: false }
 
 /** Intent: a request on the doodle's rhythm controls, carrying the block and the lock if given. */
 function intentOf(
@@ -68,7 +66,7 @@ function intentOf(
   seed: number,
   extras: { readonly steering?: SteeringBlock; readonly rhythmLock?: RequestRhythmLock } = {},
 ): GenerationIntent {
-  const readings = readDoodleControls(doodle.quantized, WINDOWS, WIDE)
+  const readings = readDoodleControls(doodle.quantized, WINDOWS)
   const controls = makeGenerationControls({
     tempo: 90,
     tonalCenter: 'C',

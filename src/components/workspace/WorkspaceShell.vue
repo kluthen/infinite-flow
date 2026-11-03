@@ -42,7 +42,10 @@
  * instrument and the shared system-position size; the shell keeps what Jam's staff shows, for
  * the header's `Retry notation`, which has Jam's staff engraved again. Jam's view is also given
  * the prewarm port (none while the prewarm policy is off) and Jam's controls and figure levels, for
- * Jam's Idle prewarm. Session mode's instrument switches are held while Jam mode opens or shows: an
+ * Jam's Idle prewarm. While Jam mode shows, Jam's controls (Jam's code) take the control panel's
+ * place, showing Jam's own settings, each change saved by Jam's code, and the shared instrument,
+ * read-only as session mode's are; their doodle readings stay empty until a doodle can be kept.
+ * Session mode's instrument switches are held while Jam mode opens or shows: an
  * instrument changed there is applied to session mode as a switch on returning. In Jam mode the cue row holds Jam's Idle cue
  * (./use-jam-idle-cue.ts): the home note while a fresh Jam could start, or `jam-needs-controller`
  * without a connected controller, which `Start Jam` names.
@@ -55,7 +58,7 @@ import type { WorkspaceSessionResult } from '@/composables/workspace-session-res
 import ControlPanel from '@/components/controls/ControlPanel.vue'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { NotationError } from '@/notation/notation-error'
-import type { JamStaffState, JamWorkspaceProps } from '@/jam/jam-view-types'
+import type { JamControlsProps, JamStaffState, JamWorkspaceProps } from '@/jam/jam-view-types'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { AudioTransport } from '@/audio/audio-transport'
 import type { SavedDataLoad } from '@/storage-bootstrap'
@@ -294,6 +297,31 @@ const jamViewProps = computed<JamWorkspaceProps>(() => {
     prewarm: props.prewarm,
     controls,
     figureLevels: jam?.figureLevels ?? state.value.figureLevels,
+  }
+})
+/** Jam's controls while Jam mode shows with its settings made; null otherwise. */
+// @spec-link [[module_workspace_mode]]
+const jamControls = computed(() =>
+  workspaceMode.jamView.value !== null && jamSettings.view.value !== null
+    ? (workspaceMode.jamModule.value?.JamControls ?? null)
+    : null,
+)
+/**
+ * What Jam's controls are given: Jam's settings, the shared instrument, the controls' read-only
+ * state and `instrument-actions`' as session mode's, and no doodle readings yet (none is kept).
+ */
+// @spec-link [[module_workspace_mode]]
+const jamControlsProps = computed((): JamControlsProps | null => {
+  const jam = jamSettings.view.value
+  if (jam === null) return null
+  return {
+    settings: jam.settings,
+    instrumentProfileId: state.value.controls.instrumentProfileId,
+    myInstrument: state.value.myInstrument,
+    readonly: settingsReadonly.value,
+    instrumentActionsDisabled: settingsReadonly.value || state.value.operation !== 'idle',
+    readings: null,
+    belowTabletLandscape: state.value.noteDensityContext.belowTabletLandscape,
   }
 })
 /** What Jam's staff shows while Jam mode shows (Start Jam's conditions read it); null otherwise. */
@@ -637,7 +665,16 @@ const controlPanelActions = useControlPanelActions(props.session)
         @show-sessions="reviewNavigation.showSessions"
         @scroll-to-top="props.scrollToPageTop()"
       />
+      <component
+        :is="jamControls"
+        v-if="jamControls !== null && jamControlsProps !== null"
+        v-bind="jamControlsProps"
+        @change="jamSettings.change"
+        @select-instrument-profile="controlPanelActions.selectInstrumentProfile"
+        @open-my-instrument="myInstrumentSheet.open"
+      />
       <ControlPanel
+        v-else
         :controls="shownSettings.controls"
         :figure-levels="shownSettings.figureLevels"
         :selection="shownSettings.selection"

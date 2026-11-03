@@ -1,7 +1,8 @@
 /**
- * The shapes the workspace and Jam's view share: what the shell gives Jam's view and the staff
- * state Jam's view reports back. Types only, so the workspace may import them (type-only imports of
- * src/jam/ are erased from the bundle) without pulling any of Jam's code into the first load.
+ * The shapes the workspace and Jam's view share: what the shell gives Jam's view and Jam's
+ * controls, and the staff state Jam's view reports back. Types only, so the workspace may import
+ * them (type-only imports of src/jam/ are erased from the bundle) without pulling any of Jam's code
+ * into the first load.
  */
 import type { PostPrewarm } from '@/composables/generation-session-prewarm'
 import type {
@@ -12,6 +13,9 @@ import type {
 import type { FigureLevels } from '@/domain/figures/figure-levels'
 import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import type { MyInstrument } from '@/domain/profile/my-instrument'
+
+import type { DoodleReadings } from './doodle-controls'
+import type { JamSettings } from './jam-settings'
 
 /**
  * What Jam's staff shows at Idle: the empty system (`shown`), the no-room sentence instead
@@ -53,4 +57,26 @@ export interface JamWorkspaceProps extends JamStaffProps {
   readonly controls: GenerationControls
   /** Jam's figure levels: its one Embellishments level for every figure. */
   readonly figureLevels: FigureLevels
+}
+
+/**
+ * What the workspace gives Jam's controls (`JamControls.vue`, in `control-section`'s place while
+ * Jam mode shows): Jam's own settings, the shared instrument, whether they are read-only, and what
+ * the doodle's readings show (null while no doodle is kept) at the window's width.
+ */
+// @spec-link [[req_jam_settings]]
+export interface JamControlsProps {
+  readonly settings: JamSettings
+  /** The shared instrument: session mode's choice. */
+  readonly instrumentProfileId: InstrumentProfileId
+  /** My instrument, or null when none is saved. */
+  readonly myInstrument: MyInstrument | null
+  /** Read-only during Loading (opening Jam mode included) and for a whole session. */
+  readonly readonly: boolean
+  /** Whether `instrument-actions` is disabled: during a session and during Loading. */
+  readonly instrumentActionsDisabled: boolean
+  /** The kept doodle's readings; null while no doodle is kept. */
+  readonly readings: DoodleReadings | null
+  /** The window is narrower than `bp-tablet-landscape`. */
+  readonly belowTabletLandscape: boolean
 }

@@ -16,7 +16,7 @@
  *   kept session given as raw data version 2 values, which the load's open carries over to data
  *   version 4 (M3);
  * - `seedSettings` writes settings records through the settings codec, valid or not, for the next
- *   load (the spec reloads the page); `records` reads a store back;
+ *   load (the spec reloads the page), Jam's among them; `records` reads a store back;
  * - `seedMyInstrument` writes the my-instrument record through its codec, valid or not, for the
  *   next load;
  * - `seedPresets` writes player preset records through the preset codec, each preset checked by
@@ -68,6 +68,7 @@ import { decodePlayerPresets, encodePresetRecord } from '../../../src/storage/re
 import {
   decodeSettings,
   encodeSettingRecord,
+  JAM_SETTING_KEYS,
   SETTING_KEYS,
   type SettingKey,
   type SettingValue,
@@ -350,7 +351,7 @@ export function createHarnessStorage(
   async function seedSettings(values: Readonly<Record<string, unknown>>): Promise<void> {
     const target = openedPort()
     for (const [key, value] of Object.entries(values)) {
-      if (!(SETTING_KEYS as readonly string[]).includes(key)) {
+      if (![...SETTING_KEYS, ...JAM_SETTING_KEYS].includes(key as SettingKey)) {
         throw new Error(`Workspace harness: "${key}" names no setting`)
       }
       // A seeded value may be invalid on purpose: the load must refuse it, so it is not checked.
