@@ -6,6 +6,7 @@ import {
   orderRhythmByPreference,
   rankHarmonyCandidates,
   rhythmTieKey,
+  withRhythmOrder,
 } from '@/domain/generation/orchestration/candidate-ranking'
 import { isNoLegalHarmonyPlan, makeHarmonyCandidateDomain } from '@/domain/harmony/harmony-planner'
 import type { HarmonyCandidate } from '@/domain/harmony/harmony-types'
@@ -182,6 +183,27 @@ describe('candidate-ranking', () => {
       expect(new Set(ordered)).toEqual(new Set(seeded))
       expect(input).toEqual(seeded)
       expect(Object.isFrozen(ordered)).toBe(true)
+    })
+  })
+
+  // @test-link [[module_ranked_candidate_ordering]]
+  describe('withRhythmOrder', () => {
+    const cache = materializeRankedRhythmCache(fastRhythmDomain(), SEED_A)
+
+    it('replaces the candidates by another order of the same domain, keeping the rest', () => {
+      const reversed = [...cache.candidates].reverse()
+      const reordered = withRhythmOrder(cache, reversed)
+      expect(reordered.candidates).toEqual(reversed)
+      expect({ ...reordered, candidates: [] }).toEqual({ ...cache, candidates: [] })
+      expect(Object.isFrozen(reordered)).toBe(true)
+      expect(Object.isFrozen(reordered.candidates)).toBe(true)
+      expect(withRhythmOrder(cache, cache.candidates)).toBe(cache)
+    })
+
+    it('refuses an order that drops or repeats a candidate', () => {
+      expect(() => withRhythmOrder(cache, cache.candidates.slice(1))).toThrow(/cannot replace/)
+      const repeated = [cache.candidates[0]!, ...cache.candidates.slice(0, -1)]
+      expect(() => withRhythmOrder(cache, repeated)).toThrow(/cannot replace/)
     })
   })
 })
