@@ -1229,3 +1229,24 @@ subsection to `docs/generation-latency.md` (a shared record; the later one resol
   two processes (~25 and ~50 min, ~2 GB RSS), machine kept awake (a suspend at 16:49 spoiled the
   first lock-on run; discarded, kept in scratchpad `c29-contaminated/`). Risk: the cutover path and
   its worker-restart charge have no measured instance; chunk 33 measures the real ladder.
+- 31 paused after 31a (488fa8af) with the readings' model in a WIP (ba7ed1d7), resumed by a fresh
+  owner; merged (31b 10931dcc; 0210a6da). Done when all met: Jam's first values (session tempo 200
+  → 180), nine `jam.*` records, each survives a reload, a corrupt one loads its first value, session
+  mode's records and controls untouched (unit + e2e `jam-settings.spec.ts`, added to `test:e2e`);
+  readings and Rhythmic variety's four wordings (`DoodleReadings.spec.ts`); the step as read with
+  chunk 28's two tests retired as the Done when says; an instrument changed in Jam rewrites session
+  mode's phrase and queue on return, other Jam changes touch nothing; Delete everything resets
+  Jam's settings; landscape phone stacks the three groups. Related 1,643 tests pass; e2e 105/106 —
+  the failure, `rhythm-lock-controls.spec.ts:331` ('the live view never marks a rhythm change…',
+  phrases 2–3 come back `rhythm_change`), fails identically at the wave base 717c8618, so it is
+  not chunk 31's: traced at the wave gate. Sweep double's readings unchanged for all 39 pairs.
+  Built: `src/jam/jam-settings.ts` (`JamSettings`, `JAM_TEMPO_VALUES`, `jamFirstValues`,
+  `decodeJamSettings`, `jamSettingChanges`, `jamFigureLevels`, `jamGenerationControls`,
+  `createJamSettings`); `JAM_SETTING_FIELDS` / `JAM_SETTING_KEYS`, `JamSettingKey`, settings data
+  version 1, no upgrade step; loader `jamSettingRecords` → `SavedDataLoad.jamSettingsRecords`
+  (undecoded) → `useJamSettings`; `readDoodleControls(doodle, windows)`,
+  `supportedRhythmicVariety(setting)` as read, `DoodleVarietyReading.raised`, `doodleAttempts(doodle,
+  jam)`; `holdInstrumentSwitches(held)` (`InstrumentSwitchHold`); `JamControls.vue`,
+  `DoodleReadings.vue`. Entry 282,047 B, Jam's chunk 16,966 B. To `ux-writer`: the readings use
+  each control's option labels ("Eighth notes") while the narrow form reads "Eighth (Sixteenth on
+  larger screens)"; the intent's example says "Note density: Eighth".

@@ -2543,7 +2543,7 @@ on it.
 
 ### Chunk 31 — Jam's settings
 
-Status: planned
+Status: merged (w5, 0210a6da)
 Wave: 5
 Depends on: 19 (the dependent controls), 20 (Jam's view); CL (its merge into the wave branch)
 Architecture capture: Jam's settings model, `src/jam/jam-settings.ts` (captured as
@@ -2641,6 +2641,8 @@ context, its supported-combination step judging the note density as read (spec D
 - **Split rule:** 31a the model, saving and the instrument on return (the settings module, the
   record, the shell, the generation session), 31b the controls and the readings (the two
   components and the readings' model).
+
+Record: 31a 488fa8af, 31b 10931dcc, merged 0210a6da; paused once between the halves (WIP ba7ed1d7, resumed by a fresh owner). As specified, no phone reduction. Differs from the Files line: `src/components/workspace/use-jam-settings.ts` (entry code, Jam's code by type only), `src/jam/jam-view-types.ts` (`JamControlsProps`), `RhythmLockField.vue` gains an optional `note`, `jam-idle-prewarm.ts` takes Jam's own tension (`JAM_TRANSITIONAL_TENSION` removed), `generation-session-profile-switch.ts` (`holdInstrumentSwitches`), App.vue passes `jamSettingsRecords`. Entry 282,047 B, Jam's chunk 16,966 B. The readings show no data until chunks 21 and 24 keep a doodle. A wording question (option labels vs the narrow "Eighth") sent to `ux-writer`.
 
 ### Chunk 32 — Tap tempo
 
