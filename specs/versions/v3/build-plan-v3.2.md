@@ -970,7 +970,7 @@ Record: a87b142, merged 7ce4a76. No deviation. Found while testing: a phrase end
 
 ### Chunk 8 — Rhythm ordered by the steering block
 
-Status: planned
+Status: merged (w4, 481f655b)
 Wave: 4
 Depends on: 5, 6, 10 (the ordering seam), 28 (the doodle set's blocks, their rest starts per spec
 D440; its capture fixes the builder), LD
@@ -1034,6 +1034,8 @@ search's walk: without locked bars it stays v3.1's, harmony-major (C7.6, C8; spe
   - With a clock passed and a block, the diagnostics' orderings time includes the rank's.
 - **Verification:** chunk checks with the corpus guard; the sweep at the wave gate.
 - **Split rule:** none needed (three source files, four if the walk needs it).
+
+Record: 414fc742, merged 481f655b. No deviation. New `src/domain/generation/steering/rhythm-steering.ts` (`heardMeasureStarts`, `steerRhythmOrder` band / nearest), `withRhythmOrder` in `candidate-ranking.ts`, the timing step in `generation-orchestrator.ts`; `measureBand` untouched (fallback B not built, spec D449). Corpus guard 425/425; related units 1609/1609. Found: under their own controls most doodles have no rhythm in their band (8 of 52 requests land in it; minimum total edits 2 to 35), so the target is only approached, as C8 allows (for H4).
 
 ### Chunk 9 — Melody follows the moves
 

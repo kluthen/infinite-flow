@@ -1010,3 +1010,18 @@ part of the note (staccato).
   lock changes rise to 1 in 2 too (to tell the owner at wave 4's report). Still owed: H2 step 3
   (one kind at a time) and H3; L3 stays open.
 - Chunk 8 dispatched next (LD cleared).
+- 8 merged (481f655b; 414fc742). `src/domain/generation/steering/rhythm-steering.ts` (new):
+  `heardMeasureStarts` (a rest start right after a rest dropped, per D425) and `steerRhythmOrder`
+  (`band`: 0 inside the band, else 1 + total edits; `nearest` for the lock pending);
+  `withRhythmOrder` in `candidate-ranking.ts`; the steered order built once per request after the
+  seeded ranking, timed inside the orderings span (D434). `measureBand` untouched (D449). Corpus
+  guard 425/425; related units 1,609/1,609; typecheck, lint, format, links clean; health 0 errors
+  (`generation-orchestrator.ts` links 8 atoms, warning). Found: under their own controls most of the
+  doodle set has no rhythm in its band (8 of 52 requests land in it; minimum total edits 2 to 35),
+  so the target is only approached, as C8 allows: to mention at wave 4's report and for H4. For
+  the sync: `module_rhythm_steering` 0.1 built (drop its "Not built yet" lines); revisions owed to
+  `rule_jam_rhythm_ordered_by_doodle` 0.2 (target holds note and rest starts, compared as heard,
+  the band orders the rhythms tried with each chord plan, phrase 1's nearest rhythm),
+  `rule_rhythm_distance` 0.2 (against the doodle a rest start right after a rest is not counted),
+  `rule_jam_drift_positions` (D428); plus D425's O3 rewordings. Every wave 4 chunk merged; next the
+  wave gate.
