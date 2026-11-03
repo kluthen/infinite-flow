@@ -1,8 +1,9 @@
 /**
  * The backing's timing: a phrase's rendered backing placed on the session's beat grid, and handed
  * to the look-ahead scheduler one window at a time. Phrases are four 4/4 measures, back to back
- * from the end of the count-in. It is pure arithmetic on audio time, through the click track's own
- * `beatAt`, so a backing note on a beat falls at exactly that beat's click; it reads no clock.
+ * from phrase 1's first beat: the end of the count-in, unless phrase 1's start was handed over. It
+ * is pure arithmetic on audio time, through the click track's own `beatAt`, so a backing note on a
+ * beat falls at exactly that beat's click; it reads no clock.
  */
 
 import type { BackingNote, RenderedBacking } from '../domain/backing/backing-renderer'
@@ -22,25 +23,56 @@ function assertPhraseNumber(phraseNumber: number): void {
 }
 
 /**
- * Intent: the session beat phrase `phraseNumber` starts on, just after the count-in for phrase 1.
- * Throws on a phrase number that is not a whole number from 1.
+ * Intent: throw unless `phraseOneBeat` can be phrase 1's first beat: a whole session beat on a
+ * barline at or after the count-in's end.
  */
-// @spec-link [[req_session_backing_track]]
 // @spec-link [[module_session_transport_tempo_map]]
-export function phraseFirstBeat(plan: ClickPlan, phraseNumber: number): number {
-  assertPhraseNumber(phraseNumber)
-  return plan.countInBeats + (phraseNumber - 1) * PHRASE_MEASURE_COUNT * plan.beatsPerMeasure
+// @spec-link [[module_session_start_without_phrase_one]]
+function assertPhraseOneBeat(plan: ClickPlan, phraseOneBeat: number): void {
+  if (
+    !Number.isInteger(phraseOneBeat) ||
+    phraseOneBeat < plan.countInBeats ||
+    phraseOneBeat % plan.beatsPerMeasure !== 0
+  ) {
+    throw new Error(
+      `backing track: phrase 1 cannot start on beat ${phraseOneBeat}, not a barline at or after the count-in's end`,
+    )
+  }
 }
 
 /**
- * Intent: when phrase `phraseNumber` (from 1) starts sounding: phrase 1 when the count-in ends,
- * each next one four measures later, at the tempo map's tempos, so it depends only on the tempos
- * of the phrases before it. Throws on a phrase number that is not a whole number from 1.
+ * Intent: the session beat phrase `phraseNumber` starts on: phrase 1 on `phraseOneBeat` (by
+ * default just after the count-in; in a session started without phrase 1, the barline it was
+ * handed over at), each next one four measures later. Throws on a phrase number that is not a
+ * whole number from 1, and on a phrase 1 beat that is not a barline at or after the count-in's end.
  */
 // @spec-link [[req_session_backing_track]]
 // @spec-link [[module_session_transport_tempo_map]]
-export function phraseStartsAt(plan: ClickPlan, phraseNumber: number): AudioTime {
-  return beatAt(plan, phraseFirstBeat(plan, phraseNumber))
+// @spec-link [[module_session_start_without_phrase_one]]
+export function phraseFirstBeat(
+  plan: ClickPlan,
+  phraseNumber: number,
+  phraseOneBeat = plan.countInBeats,
+): number {
+  assertPhraseNumber(phraseNumber)
+  assertPhraseOneBeat(plan, phraseOneBeat)
+  return phraseOneBeat + (phraseNumber - 1) * PHRASE_MEASURE_COUNT * plan.beatsPerMeasure
+}
+
+/**
+ * Intent: when phrase `phraseNumber` (from 1) starts sounding: phrase 1 on `phraseOneBeat` (by
+ * default when the count-in ends), each next one four measures later, at the tempo map's tempos, so
+ * it depends only on the tempos of the phrases before it. Throws as `phraseFirstBeat` does.
+ */
+// @spec-link [[req_session_backing_track]]
+// @spec-link [[module_session_transport_tempo_map]]
+// @spec-link [[module_session_start_without_phrase_one]]
+export function phraseStartsAt(
+  plan: ClickPlan,
+  phraseNumber: number,
+  phraseOneBeat = plan.countInBeats,
+): AudioTime {
+  return beatAt(plan, phraseFirstBeat(plan, phraseNumber, phraseOneBeat))
 }
 
 /**
@@ -92,18 +124,22 @@ function assertOneTempoAcross(plan: ClickPlan, phraseNumber: number, firstBeat: 
  * Intent: phrase `phraseNumber`'s rendered backing as notes on the audio clock, ordered by start
  * (the bass before the chord on a shared beat). Each start and end is the time of its session
  * beat, computed exactly as that beat's click, so the notes start and last at the tempo in effect
- * for the phrase. Throws on a phrase number that is not a whole number from 1, on a tempo change
- * inside the phrase, or on a note that does not start and end on a whole beat.
+ * for the phrase; phrase 1 starts on `phraseOneBeat`, as in `phraseFirstBeat`. Throws on a phrase
+ * number that is not a whole number from 1, on a phrase 1 beat that is not a barline at or after
+ * the count-in's end, on a tempo change inside the phrase, or on a note that does not start and
+ * end on a whole beat.
  */
 // @spec-link [[req_session_backing_track]]
 // @spec-link [[rule_playhead_follows_audio_clock]]
 // @spec-link [[module_session_transport_tempo_map]]
+// @spec-link [[module_session_start_without_phrase_one]]
 export function scheduleBacking(
   plan: ClickPlan,
   phraseNumber: number,
   backing: RenderedBacking,
+  phraseOneBeat = plan.countInBeats,
 ): ScheduledBackingNote[] {
-  const firstBeat = phraseFirstBeat(plan, phraseNumber)
+  const firstBeat = phraseFirstBeat(plan, phraseNumber, phraseOneBeat)
   assertOneTempoAcross(plan, phraseNumber, firstBeat)
   const notes = [
     ...backing.bass.map((note) => placeNote(plan, firstBeat, 'bass', note)),

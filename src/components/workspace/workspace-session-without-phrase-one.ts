@@ -1,10 +1,11 @@
 /**
  * A session controller's start without phrase 1, a fresh Jam's way in: the in-click part (as a
- * start's, but with the session seed drawn once at Start, no backing queued and the click forced
- * on) and the rest of its start (its MIDI handling with no phrase 1, its count-in row, the
- * wake-ups, the runner, the watchers of its ends), and the handle the code that runs it drives the
- * session through. That code shows its own staff and hands phrase 1 over; this module never names
- * it. Part of the session controller's chunk.
+ * start's, but with the session seed drawn once at Start, no backing queued, the click forced on
+ * and phrase 1's start left to be handed over to the transport) and the rest of its start (its
+ * MIDI handling with no phrase 1, its count-in row, the wake-ups, the runner, the watchers of its
+ * ends), and the handle the code that runs it drives the session through. That code shows its
+ * own staff and hands phrase 1 over; this module never names it. Part of the session controller's
+ * chunk.
  */
 import type { TransportTimeline } from '@/audio/audio-transport'
 import type { Seed } from '@/domain/random/seed'
@@ -54,7 +55,8 @@ export interface StartWithoutPhraseOne {
 /**
  * A session started without phrase 1, as the code that runs it drives it: its transport timeline
  * (the click plan's start, the count-in's end), its phrase 1 events (an attempt asked for, phrase
- * 1 handed over with the time it sounds, which also sets the forced click's end), stamped now on
+ * 1 handed over with the time it sounds, a barline of the click at or after the count-in's end,
+ * which also sets phrase 1's start on the transport and the forced click's end), stamped now on
  * the audio clock, its own ends (no note played, no phrase 1, the staff no longer shown), and the
  * doodle its capture ended, kept in the session's history with its raw notes marked; each a no-op
  * once the session has ended.
@@ -88,10 +90,13 @@ export interface SessionBeginningWithoutPhraseOne {
  * phrase 1's fits through the caller, nothing on screen to read, each output handled and then
  * handed to the caller; and watch the hidden tab and the window's shape. No count-in-over is
  * scheduled: phrase 1 sounds when the caller says. Returns the caller's handle: its phrase 1
- * events stamped now (handing phrase 1 over also ends the forced click when phrase 1 sounds) and
- * its own ends, a no-op once the session has ended.
+ * events stamped now (handing phrase 1 over first sets phrase 1's start on the transport, so phrase
+ * starts and the backing count from it, and ends the forced click when phrase 1 sounds, and only
+ * then reaches the runner; a time the transport refuses throws and reaches nothing) and its own
+ * ends, a no-op once the session has ended.
  */
 // @spec-link [[module_session_start_without_phrase_one]]
+// @spec-link [[module_session_transport_tempo_map]]
 // @spec-link [[rule_count_in_shown_on_screen]]
 // @spec-link [[rule_jam_click_runs_until_phrase_one]]
 // @spec-link [[rule_jam_silence_timer_from_phrase_one]]
@@ -157,7 +162,10 @@ export function beginSessionWithoutPhraseOne(
     timeline,
     dispatch: (event) => {
       if (core.active !== session) return
-      if (event.kind === 'phrase-one') audio.forceClickUntil(event.soundsAt)
+      if (event.kind === 'phrase-one') {
+        audio.startPhraseOneAt(event.soundsAt)
+        audio.forceClickUntil(event.soundsAt)
+      }
       dispatchAt(session, audio.now(), event)
     },
     end,
@@ -174,10 +182,10 @@ export function beginSessionWithoutPhraseOne(
  * MIDI callback, it discards the kept Review, unlocks the audio, holds the player's saves until
  * the session ends, asks for both screen locks (their outcomes ignored), draws the session seed
  * once from the session-seed provider, before the count-in (there is no Idle result to take it
- * from, and nothing after Start draws one), starts the transport with the click forced on and no
- * backing queued, holds the staff layout the window's width selects, opens the history with that
- * seed and the caller's clef, and hands the session to the rest of its start
- * (./workspace-session-begin.ts). Once the saves are held it is all or nothing.
+ * from, and nothing after Start draws one), starts the transport with the click forced on, phrase
+ * 1's start to be handed over and no backing queued, holds the staff layout the window's width
+ * selects, opens the history with that seed and the caller's clef, and hands the session to the
+ * rest of its start (./workspace-session-begin.ts). Once the saves are held it is all or nothing.
  */
 // @spec-link [[module_session_start_without_phrase_one]]
 // @spec-link [[module_session_seed_plan]]
@@ -212,7 +220,7 @@ export function createSessionStartWithoutPhraseOne(
       void browser.wakeLock.request()
       void browser.orientationLock.lock()
       const sessionSeed = deps.nextSessionSeed()
-      const timeline = audio.start({ tempo, clickForced: true })
+      const timeline = audio.start({ tempo, clickForced: true, phraseOneStart: 'handed-over' })
       session = {
         timeline,
         startingTempo: tempo,

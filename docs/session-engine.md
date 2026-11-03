@@ -1611,8 +1611,10 @@ under `src/session/` imports `src/jam/` ([module_session_start_without_phrase_on
   deadline). The engine gives it its own attempt id, outputs `request-generation` (phrase 1),
   `check-fit` on a success, and reports each result as `phrase-one-attempt-result` (`fits`,
   `generation-failure` with its code, `crash`, `not-fitting`). A newer request cancels the attempt
-  still generating; a late result of a superseded attempt is ignored. The engine climbs no ladder
-  for phrase 1: the caller's does (chunk 18).
+  still generating; a late result of a superseded attempt is ignored. `cancel-phrase-one-attempt`
+  (chunk 18) drops the attempt in flight, cancelled where it runs while still generating: a doodle
+  note voiding the candidate end it was asked from. The engine climbs no ladder for phrase 1: the
+  caller's does (see [Phrase 1's ladder](#phrase-1s-ladder)).
 - **The hand-over.** `phrase-one` names the attempt that fitted and `soundsAt`, when phrase 1 starts
   sounding. The engine opens on it (`src/session/session-engine-without-phrase-one.ts`, lent
   `openEngine` and `handleEvent` by `session-engine.ts`), its origin being the attempt's step,
@@ -1629,7 +1631,8 @@ begins the MIDI side with no phrase 1, every note also handed to `request.played
 the count-in row and starts the runner with Vary settings, Tension across phrases and Rising tempo
 off. The watchers cover the hidden tab and the window's shape: there are no phrase 1 fixed parts
 to judge. It schedules no `count-in-over`. The returned handle gives the transport timeline, a
-`dispatch` for the phrase 1 events (a `phrase-one` also calls `audio.forceClickUntil(soundsAt)`),
+`dispatch` for the phrase 1 events (a `phrase-one` first calls `audio.startPhraseOneAt(soundsAt)`,
+then `audio.forceClickUntil(soundsAt)`, before the engine hears it; chunk 18, spec D456),
 `end(cause)` and `recordDoodle(doodle)`, which keeps the capture's doodle in the session's history
 (see [The doodle in the history](#the-doodle-in-the-history)). The session's display, phrase steps and staff are not built here: chunk 21 shows
 the fresh Jam on screen.
@@ -1702,6 +1705,53 @@ it back frozen as a `SessionDoodle`: the quantized doodle, the capture tempo, th
 raw doodle notes as `playedNotes`. Those are the finished played notes the doodle names, matched on
 pitch and exact onset (`doodlePlayedNotes`), by onset, each once its release has arrived. They are
 in no phrase, and every other note before phrase 1 is still in nothing.
+
+### Phrase 1's ladder
+
+v3.2 chunk 18. `createJamPhraseOne(deps, jam, capture)` (`src/jam/jam-phrase-one.ts`, Jam's code) is
+the pure state machine that runs the capture and drives the session from the doodle to phrase 1
+([rule_jam_phrase_one_failure_ladder](rule_jam_phrase_one_failure_ladder.atom.md),
+[rule_jam_phrase_one_deadline](rule_jam_phrase_one_deadline.atom.md)). Its caller feeds it the
+played notes (`note`), every engine output with the time it came (`session`) and its wake-ups
+(`advance`, at `nextDecisionAt()`); it answers with `session-event` (a `PhraseOneEvent` to
+dispatch), `capture` (each capture output passed on) and `no-phrase-one`. It takes every decision
+due by an input's time first, its own (the cutover, the deadline) and the capture's in time order.
+
+- **At each end of the doodle** (a `candidate-end`, or `doodle-ended` by length),
+  `doodleAttempts` (`src/jam/jam-phrase-one-attempts.ts`) reads the controls from the doodle
+  (`readDoodleControls`, with the window context now) into Jam's settings, builds the steering
+  block (`buildSteeringBlock`, Jam's drift) and the join (`doodleJoin`), and with Jam's lock on the
+  pending lock group ("on, nothing locked yet", Jam's allowed changes). The deadline is
+  `jamPhraseOneDeadline(end.endBarlineAt, tempo)` (`src/session/session-timing.ts`): three measures
+  after the generation measure begins.
+- **The six attempts** (`JamPhraseOneAttemptIndex`, `jamAttempt`): 0 to 3 rung 1 (step
+  `carry-in`: the join, the block, the lock group), 4 rung 2 (`standalone`: the block and the lock
+  group, the register read from the doodle), 5 rung 3 (`standalone`: v2's phrase, no block, no lock
+  group, so the lock then holds its own rhythm). The request's `retry` is the index. The first is
+  0, or 4 when the doodle gives no join, or 5 once the standalone attempt is due. After a failure:
+  5 once due, 4 after a rung 1 search that covered every candidate (`no_legal_pitch_plan`), the
+  next one otherwise; nothing after 5. At `cutoverAt(deadline)` a rung 1 or 2 attempt still
+  generating is superseded by 5 (the engine cancels it). Skipped attempts draw and discard their
+  request ids. Each seed comes from `deps.seedOf(index)`: in a fresh Jam
+  `jamPhraseOneSeed(sessionSeed, index)` (`src/session/session-seed-plan.ts`, label
+  `session-seed-plan-v1:jam-phrase-one:rung:<r>`, `JAM_PHRASE_ONE_ATTEMPTS` = 6, any other index a
+  `SessionSeedPlanError`); at Idle with a kept doodle, a fresh draw. The note density steps down
+  from phrase 1 on narrow windows, and only down.
+- **A voided candidate end** sends `cancel-phrase-one-attempt` and waits for the next end; the
+  attempt asked from it is rung 0 again, with the same seed.
+- **Ready and shown.** An attempt that fits is ready: the ladder tells the capture
+  (`phraseOneReady`) once every capture decision due by then is taken, so a void at that very
+  moment drops it first. When the capture shows phrase 1 (`phrase-one-shown`), the ladder hands it
+  over (`phrase-one`, `soundsAt`). Phrase 2 is then requested at once, due at the start of phrase
+  1's last measure. In a silence end phrase 1 cannot be decided before the generation measure's end,
+  so this is the earliest moment; after an end by length or in an extended wait it is the barline
+  after ready.
+- **Every rung failed**: at the deadline, nothing having fitted, the ladder stops the capture and
+  outputs `no-phrase-one`; the caller ends the session with that cause, a count-in end, and the
+  engine cancels any attempt still running.
+
+The transport takes phrase 1's start from the hand-over (spec D456; see
+[the audio transport](audio-transport.md)), so every reader of `phraseStartsAt` gets it.
 
 ## What later chunks add
 

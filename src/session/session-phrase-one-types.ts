@@ -41,11 +41,13 @@ export type PhraseOneAttemptResult =
   | { readonly kind: 'not-fitting' }
 
 /**
- * The two events only a session started without phrase 1 takes, before phrase 1 sounds:
+ * The three events only a session started without phrase 1 takes, before phrase 1 sounds:
  * `phrase-one-attempt` asks for one phrase 1 attempt, with its intent (its seed in it), the step it
  * takes, the retry number its caller gives it, the settings it is generated under and its
- * deadline, superseding the attempt in flight; `phrase-one` hands over the attempt that fits as
- * phrase 1, with the time phrase 1 starts sounding.
+ * deadline, superseding the attempt in flight; `cancel-phrase-one-attempt` drops the attempt in
+ * flight, cancelled where it runs while still generating (its caller's reason to try it is gone);
+ * `phrase-one` hands over the attempt that fits as phrase 1, with the time phrase 1 starts
+ * sounding.
  */
 // @spec-link [[module_session_start_without_phrase_one]]
 export type PhraseOneEvent =
@@ -58,6 +60,7 @@ export type PhraseOneEvent =
       readonly settings: SessionSettings
       readonly deadline: AudioTime
     }
+  | { readonly kind: 'cancel-phrase-one-attempt'; readonly at: AudioTime }
   | {
       readonly kind: 'phrase-one'
       readonly at: AudioTime

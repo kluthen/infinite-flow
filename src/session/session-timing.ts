@@ -60,6 +60,26 @@ export function nextPhraseDeadline(soundingAt: AudioTime, tempo: number): AudioT
   return soundingAt + (PHRASE_MEASURE_COUNT - 1) * measureSeconds(tempo)
 }
 
+/**
+ * How many measures after its generation measure begins a fresh Jam's phrase 1 is due: three, the
+ * span a look-ahead phrase gets.
+ */
+// @spec-link [[rule_jam_phrase_one_deadline]]
+export const JAM_PHRASE_ONE_DEADLINE_MEASURES = 3
+
+/**
+ * Intent: a fresh Jam's phrase 1 deadline, given the moment its generation measure begins (the
+ * doodle's end barline): three measures later at the Jam's tempo (4 s at 180 BPM, 6 s at 120, 12 s
+ * at 60). Phrase 1 ready before it is shown at the first barline at or after it is ready, the
+ * deadline's barline at the latest; its phrase 2 is due at the start of phrase 1's last measure
+ * (nextPhraseDeadline, from the moment phrase 1 sounds).
+ */
+// @spec-link [[rule_jam_phrase_one_deadline]]
+// @spec-link [[module_session_look_ahead_timing]]
+export function jamPhraseOneDeadline(generationMeasureAt: AudioTime, tempo: number): AudioTime {
+  return generationMeasureAt + JAM_PHRASE_ONE_DEADLINE_MEASURES * measureSeconds(tempo)
+}
+
 /** Intent: whether a moment has reached a deadline; a result arriving at the deadline is too late. */
 // @spec-link [[rule_look_ahead_deadline]]
 export function deadlineReached(at: AudioTime, deadline: AudioTime): boolean {

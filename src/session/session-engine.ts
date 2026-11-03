@@ -347,6 +347,7 @@ function dispatch(context: EngineContext, state: EngineState, event: SessionEven
     case 'end':
       return onEnd(state, event)
     case 'phrase-one-attempt':
+    case 'cancel-phrase-one-attempt':
     case 'phrase-one':
       throw new SessionEngineError(`"${event.kind}" cannot come once phrase 1 is decided.`)
   }

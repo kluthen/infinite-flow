@@ -2,8 +2,8 @@
  * A session started without phrase 1, before its caller hands phrase 1 over: the engine stays in
  * its count-in phase, requests nothing on its own and sets no deadline of its own. It runs each
  * phrase 1 attempt its caller asks for as any attempt (its own attempt id, its generation request,
- * its fit check, its cancellation when a newer request supersedes it or the session ends) and
- * reports each result back; the caller's own ladder chooses the next attempt. Every end in this
+ * its fit check, its cancellation when a newer request supersedes it, its caller drops it or the
+ * session ends) and reports each result back; the caller's own ladder chooses the next attempt. Every end in this
  * phase is a count-in end with its cause, and a lost controller ends the session at once. Pure,
  * immutable state; no clock is read.
  */
@@ -130,6 +130,15 @@ function requestAttempt(state: BeforePhraseOne, request: AttemptRequest): Before
   }
 }
 
+/**
+ * Intent: drop the attempt in flight as its caller asked, cancelled first while still generating;
+ * its late result is then ignored. With none in flight, nothing happens.
+ */
+// @spec-link [[rule_dropped_attempt_cancelled]]
+function dropAttempt(state: BeforePhraseOne): BeforePhraseOneStep {
+  return { state: { ...state, attempt: undefined }, outputs: cancelInFlight(state) }
+}
+
 /** Intent: drop the attempt in flight and report its result to the caller. */
 function reportFailure(
   state: BeforePhraseOne,
@@ -243,7 +252,8 @@ function afterEnd(state: BeforePhraseOne, event: SessionEvent): BeforePhraseOneS
 
 /**
  * Intent: handle one timed event before phrase 1 is handed over. Time never runs backwards. A
- * phrase 1 attempt is requested, generated, fit-checked and reported; `phrase-one` hands phrase 1
+ * phrase 1 attempt is requested, generated, fit-checked and reported, or dropped when its caller
+ * cancels it; `phrase-one` hands phrase 1
  * over; `end` and a lost controller end the session as a count-in end; ticks and a controller
  * coming back change nothing. The events of a session already running (`count-in-over`, a later
  * phrase sounding, a settings change) cannot come before phrase 1 and throw.
@@ -262,6 +272,8 @@ export function handleBeforePhraseOne(
   switch (event.kind) {
     case 'phrase-one-attempt':
       return requestAttempt(timed, event)
+    case 'cancel-phrase-one-attempt':
+      return dropAttempt(timed)
     case 'generation-result':
     case 'generation-crashed':
       return onAttemptGenerated(timed, event)
