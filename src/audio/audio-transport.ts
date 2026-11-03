@@ -66,6 +66,17 @@ export interface AudioTransportDependencies {
   readonly loadedMix?: () => AudioMix
 }
 
+/**
+ * How a session's sound starts: at `tempo` BPM, and, for a session started without phrase 1,
+ * with the click forced on, the count-in's bypass of the click switch extended, until phrase 1
+ * sounds.
+ */
+// @spec-link [[rule_jam_click_runs_until_phrase_one]]
+export interface TransportStartOptions {
+  readonly tempo: number
+  readonly clickForced?: boolean
+}
+
 /** A started session's timeline: when its count-in starts, and when phrase 1 starts sounding. */
 // @spec-link [[rule_playhead_follows_audio_clock]]
 export interface TransportTimeline {
@@ -92,8 +103,16 @@ export interface AudioTransport {
   readonly outputLatency: () => number
   /** One simultaneous reading of the audio clock and performance.now(). Throws before unlock. */
   readonly clockAnchor: () => ClockAnchor
-  /** Start a session's count-in and click at `tempo` BPM. */
-  readonly start: (options: { readonly tempo: number }) => TransportTimeline
+  /**
+   * Start a session's count-in and click at `tempo` BPM; with `clickForced`, the click is forced
+   * on, whatever the click switch says, from the count-in until the end `forceClickUntil` sets.
+   */
+  readonly start: (options: TransportStartOptions) => TransportTimeline
+  /**
+   * Set when the running session's forced click ends: from `until` on, the click switch governs.
+   * Throws with no session running.
+   */
+  readonly forceClickUntil: (until: AudioTime) => void
   /**
    * Queue the backing of the running session's phrase `phraseNumber` (1, 2, 3… in order) from its
    * harmony, at `tempo` BPM, the phrase's tempo: the click runs at it from the phrase's first beat.
@@ -247,9 +266,11 @@ export function createAudioTransport(deps: AudioTransportDependencies): AudioTra
 
   /**
    * Intent: plan a fresh session's count-in and click on a fresh bus, starting just ahead, with
-   * an empty backing queue waiting for phrase 1.
+   * an empty backing queue waiting for phrase 1; with `clickForced`, the bus's click is forced on
+   * with no end yet before anything is planned.
    */
-  function start({ tempo }: { readonly tempo: number }): TransportTimeline {
+  // @spec-link [[rule_jam_click_runs_until_phrase_one]]
+  function start({ tempo, clickForced = false }: TransportStartOptions): TransportTimeline {
     const out = unlockedOutput()
     if (session !== null) throw new Error('audio transport: a session is already running')
     const plan = createClickPlan(out.now() + START_DELAY_SECONDS, tempo)
@@ -265,6 +286,7 @@ export function createAudioTransport(deps: AudioTransportDependencies): AudioTra
       nextPhrase: 1,
       plannedUntil: out.now(),
     }
+    if (clickForced) fresh.bus.forceClickUntil(Number.POSITIVE_INFINITY)
     scheduler.run((from, to) => planWindow(fresh, from, to))
     session = fresh
     return { startAt: plan.startAt, countInEndsAt: countInEndsAt(plan) }
@@ -365,6 +387,7 @@ export function createAudioTransport(deps: AudioTransportDependencies): AudioTra
     start,
     queueBacking,
     phraseStartsAt: runningPhraseStartsAt,
+    forceClickUntil: (until) => runningSession().bus.forceClickUntil(until),
     stop,
     isRunning: () => session !== null,
     mix: () => ({ ...currentMix() }),

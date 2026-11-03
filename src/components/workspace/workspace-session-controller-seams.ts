@@ -4,6 +4,8 @@
  * controller. The workspace supplies them; `workspace-session-controller-types.ts` re-exports them
  * beside the controller's state and actions.
  */
+import type { Seed } from '@/domain/random/seed'
+import type { HeldModeNoteRoute } from './workspace-session-midi'
 import type { InstrumentClef } from '@/domain/profile/instrument-clef'
 import type {
   GenerationSessionActions,
@@ -108,6 +110,18 @@ export interface SessionControllerDependencies {
    * note starts a session and the Idle pre-generation queue prepares nothing, keeping what it has.
    */
   readonly sessionModeHeld: () => boolean
+  /**
+   * The note route of the code holding session mode (Jam's Idle note routing), read at each note
+   * played at Idle while session mode is held: a note it means `start` by starts what it starts
+   * (a session without phrase 1); null while it routes none.
+   */
+  // @spec-link [[rule_midi_starting_note]]
+  readonly heldModeNotes: () => HeldModeNoteRoute | null
+  /**
+   * The session-seed provider, drawn once at a start without phrase 1, inside its Start, since
+   * there is no Idle result to take the session seed from.
+   */
+  readonly nextSessionSeed: () => Seed
   /**
    * Build the Idle pre-generation queue's orchestrator over the controller's run conditions and
    * Idle reading; the workspace binds it to the one generation worker, the slot and the policy.

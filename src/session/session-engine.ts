@@ -30,6 +30,12 @@ import {
   type EngineState,
   type Step,
 } from './session-engine-state'
+import {
+  createSessionEngineWithoutPhraseOne,
+  type CommonStart,
+  type EngineOpening,
+  type OpenedEngine,
+} from './session-engine-without-phrase-one'
 import { cancelDropped, climb, requestFirstRung, runCutover } from './session-ladder-step'
 import { openNextPhrase } from './session-phrase-opening'
 import { requireReadyPhrases, takeReadyPhrase } from './session-ready-phrases'
@@ -59,6 +65,7 @@ import {
   type SessionPhrase,
   type SessionSettings,
   type SessionStart,
+  type SessionStartWithoutPhraseOne,
 } from './session-types'
 import { NOTICE_AT_START, noticeAtEnd, noticeOnSounding } from './struggling-notice'
 import { requireTensionArcFlag, settingsGeneratedUnder } from './tension-arc-cycle'
@@ -339,6 +346,9 @@ function dispatch(context: EngineContext, state: EngineState, event: SessionEven
       return { state, outputs: [] }
     case 'end':
       return onEnd(state, event)
+    case 'phrase-one-attempt':
+    case 'phrase-one':
+      throw new SessionEngineError(`"${event.kind}" cannot come once phrase 1 is decided.`)
   }
 }
 
@@ -353,6 +363,24 @@ function runDue(state: EngineState, at: AudioTime): Step {
 }
 
 /**
+ * Intent: whether `event` is a controller lost in a session started without phrase 1 before phrase
+ * 1 sounds, which ends the session at once, with no reconnection window.
+ */
+// @spec-link [[service_session_engine]]
+function lostBeforePhraseOneSounds(
+  context: EngineContext,
+  state: EngineState,
+  event: SessionEvent,
+): boolean {
+  return (
+    context.startedWithoutPhraseOne &&
+    state.phase === 'count-in' &&
+    event.kind === 'controller' &&
+    !event.attached
+  )
+}
+
+/**
  * Intent: handle one timed event. Time never runs backwards. Before the end, any event other than
  * `end` first runs what is due by its time, so a result at or after the deadline is too late;
  * `end` decides nothing more. Once the event is handled, the look-ahead's carry-in attempt still
@@ -362,6 +390,8 @@ function runDue(state: EngineState, at: AudioTime): Step {
 function handleEvent(context: EngineContext, state: EngineState, event: SessionEvent): Step {
   assertAudioTime(event.at)
   if (state.phase === 'ended') return afterEnd(state, event)
+  if (lostBeforePhraseOneSounds(context, state, event))
+    return handleEvent(context, state, { kind: 'end', at: event.at, cause: 'controller-lost' })
   if (event.at < state.lastAt)
     throw new SessionEngineError(`Time ran backwards: ${event.at} s after ${state.lastAt} s.`)
   const timed = { ...state, lastAt: event.at }
@@ -375,7 +405,52 @@ function handleEvent(context: EngineContext, state: EngineState, event: SessionE
 }
 
 /**
- * Intent: start a session from its start time, chosen settings, phrase 1 (the Idle phrase) and the
+ * Intent: open the engine on phrase 1: keep phrase 1 decided under its own settings at the
+ * starting tempo, lock its written bars for the session when the rhythm lock is on, and request
+ * phrase 2 at once (or spend its ready phrase) with its deadline.
+ */
+// @spec-link [[service_session_engine]]
+function openEngine(
+  deps: SessionEngineDependencies,
+  start: CommonStart,
+  opening: EngineOpening,
+): OpenedEngine {
+  const { settings, phraseOne } = opening
+  const { providers, viewport, display } = deps
+  const context: EngineContext = {
+    providers,
+    viewport,
+    display,
+    sessionSeed: makeSeed(start.sessionSeed),
+    mutation: deepFreeze({ ...start.mutation }),
+    phraseOne,
+    readyPhrases: requireReadyPhrases(opening.readyPhrases),
+    multiPhraseTensionArc: requireTensionArcFlag(start.multiPhraseTensionArc),
+    startedWithoutPhraseOne: opening.startedWithoutPhraseOne,
+  }
+  const initial: EngineState = {
+    phase: 'count-in',
+    lastAt: opening.at,
+    soundedCount: 0,
+    settings,
+    lastDecided: phraseOne,
+    lastDecidedSettings: opening.phraseOneSettings,
+    lookAhead: undefined,
+    decided: undefined,
+    steppedDown: false,
+    notice: NOTICE_AT_START,
+    nextAttemptId: opening.nextAttemptId,
+    tempo: startSessionTempo(settings, start.adaptiveTempo),
+    readyRefused: false,
+    rhythmLock: sessionRhythmLockAtStart(settings, phraseOne),
+  }
+  return { context, step: requestNextPhrase(context, initial, opening.at, opening.phraseTwoDue) }
+}
+
+/**
+ * Intent: start a session. A start without phrase 1 holds none and draws nothing: its caller asks
+ * for phrase 1's attempts and hands phrase 1 over (createSessionEngineWithoutPhraseOne). A start
+ * with phrase 1 starts from its start time, chosen settings, phrase 1 (the Idle phrase) and the
  * settings it was generated under (the chosen ones when absent), session seed (one that is no
  * seed throws), mutation flag, adaptive-tempo choice, multi-phrase tension arc flag (a
  * non-boolean throws) and ready phrases (none when absent; an invalid list throws):
@@ -397,9 +472,15 @@ function handleEvent(context: EngineContext, state: EngineState, event: SessionE
 // @spec-link [[module_tension_arc_cycle]]
 export function createSessionEngine(
   deps: SessionEngineDependencies,
-  start: SessionStart,
+  start: SessionStart | SessionStartWithoutPhraseOne,
 ): SessionEngine {
   assertAudioTime(start.at)
+  if (start.phraseOne === undefined)
+    return createSessionEngineWithoutPhraseOne(deps, start, {
+      open: openEngine,
+      handle: handleEvent,
+      assertAudioTime,
+    })
   if (start.phraseOne.outcome.kind !== 'generation_success')
     throw new SessionEngineError('Phrase 1 must be a successfully generated phrase.')
   const settings = freezeSessionSettings(start.settings)
@@ -409,41 +490,20 @@ export function createSessionEngine(
     intent: start.phraseOne.intent,
     outcome: start.phraseOne.outcome,
   })
-  const { providers, viewport, display } = deps
-  const mutation = deepFreeze({ ...start.mutation })
-  const arcFlag = { multiPhraseTensionArc: requireTensionArcFlag(start.multiPhraseTensionArc) }
-  const sessionSeed = makeSeed(start.sessionSeed)
-  const context: EngineContext = {
-    providers,
-    viewport,
-    display,
-    sessionSeed,
-    mutation,
-    phraseOne,
-    readyPhrases: requireReadyPhrases(start.readyPhrases ?? []),
-    ...arcFlag,
-  }
-  const initial: EngineState = {
-    phase: 'count-in',
-    lastAt: start.at,
-    soundedCount: 0,
+  const opened = openEngine(deps, start, {
+    at: start.at,
     settings,
-    lastDecided: phraseOne,
-    lastDecidedSettings: phraseOneSettingsAtStart(settings, start.phraseOneSettings),
-    lookAhead: undefined,
-    decided: undefined,
-    steppedDown: false,
-    notice: NOTICE_AT_START,
+    phraseOne,
+    phraseOneSettings: phraseOneSettingsAtStart(settings, start.phraseOneSettings),
+    readyPhrases: start.readyPhrases ?? [],
     nextAttemptId: 1,
-    tempo: startSessionTempo(settings, start.adaptiveTempo),
-    readyRefused: false,
-    rhythmLock: sessionRhythmLockAtStart(settings, phraseOne),
-  }
-  const phraseTwoDue = phraseTwoDeadline(start.at, settings.controls.tempo)
-  const started = requestNextPhrase(context, initial, start.at, phraseTwoDue)
-  let state = started.state
+    startedWithoutPhraseOne: false,
+    phraseTwoDue: phraseTwoDeadline(start.at, settings.controls.tempo),
+  })
+  const { context } = opened
+  let state = opened.step.state
   return Object.freeze({
-    outputsAtStart: deepFreeze([...started.outputs]),
+    outputsAtStart: deepFreeze([...opened.step.outputs]),
     handle(event: SessionEvent): readonly SessionOutput[] {
       const step = handleEvent(context, state, event)
       state = step.state

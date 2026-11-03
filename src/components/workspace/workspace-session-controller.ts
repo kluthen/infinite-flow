@@ -80,6 +80,7 @@ import {
 } from './workspace-session-settings'
 import { createSessionMidi, type ControllerLostCountdown } from './workspace-session-midi'
 import { createSessionStart } from './workspace-session-start'
+import { createSessionStartWithoutPhraseOne } from './workspace-session-without-phrase-one'
 import { createSessionLockAndGroups } from './workspace-session-lock-choices'
 import { createVarySettingsAvailability } from './workspace-vary-settings-availability'
 import { createStalePhraseStart, type StalePhrasePrompt } from './workspace-stale-phrase'
@@ -286,6 +287,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     // While the stale-phrase prompt shows, as while a sheet is open, no note starts anything.
     connectionSheetOpen: () => deps.connectionSheetOpen() || state.stalePhrasePrompt !== null,
     sessionModeHeld: deps.sessionModeHeld,
+    heldModeNotes: deps.heldModeNotes,
     canStart: () => startBlocker.value === null,
     idleResult: () => idle.state.result,
     idlePhrase: deps.idlePhrase,
@@ -325,19 +327,16 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     edits,
   )
   const ends = createSessionEnds(core, adaptiveTempo, keptPlayedNotes.on, edits.saveRefused, rows)
-  const start = createSessionStart(
-    core,
-    {
-      sessionMidi,
-      adaptiveTempo,
-      varySettings,
-      tensionAcrossPhrases,
-      lockAndGroups,
-      pregeneration,
-    },
-    ends,
-    () => startBlocker.value,
-  )
+  const sides = {
+    sessionMidi,
+    adaptiveTempo,
+    varySettings,
+    tensionAcrossPhrases,
+    lockAndGroups,
+    pregeneration,
+  }
+  const start = createSessionStart(core, sides, ends, () => startBlocker.value)
+  const startWithoutPhraseOne = createSessionStartWithoutPhraseOne(core, sides, ends)
   const stalePhrase = createStalePhraseStart({
     idle: idle.state,
     state,
@@ -351,6 +350,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
   return {
     state: shallowReadonly(state),
     start: () => stalePhrase.request('start'),
+    startWithoutPhraseOne,
     useStalePhrase: stalePhrase.use,
     dismissStalePhrase: stalePhrase.dismiss,
     stop: () => ends.end('stop'),

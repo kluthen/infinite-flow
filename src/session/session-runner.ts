@@ -25,6 +25,8 @@ import type {
   SessionEvent,
   SessionOutput,
   SessionStart,
+  SessionStartWithoutPhraseOne,
+  PhraseOneEvent,
   SuccessfulOutcome,
 } from './session-types'
 
@@ -68,15 +70,16 @@ export type SessionTransportEvent = Extract<
 >
 
 /**
- * The events a caller sends a running session: its transport's, and a settings change giving the
+ * The events a caller sends a running session: its transport's, a settings change giving the
  * complete settings in effect from the next phrase boundary on, from an automatic source other
- * than the engine's own mutations. The app has no such source yet; the engine reads the display
+ * than the engine's own mutations, and, in a session started without phrase 1, its phrase 1
+ * events. The app has no such source yet; the engine reads the display
  * for it alone.
  */
 // @spec-link [[service_session_runner]]
 // @spec-link [[rule_session_change_applies_at_phrase_boundary]]
 export type SessionRunnerEvent =
-  SessionTransportEvent | Extract<SessionEvent, { kind: 'settings-change' }>
+  SessionTransportEvent | Extract<SessionEvent, { kind: 'settings-change' }> | PhraseOneEvent
 
 /** A running session, driven by its transport's events and any automatic settings change. */
 // @spec-link [[service_session_runner]]
@@ -110,7 +113,7 @@ function isWorkerFailure(error: unknown): boolean {
 // @spec-link [[rule_dropped_attempt_cancelled]]
 export function createSessionRunner(
   deps: SessionRunnerDependencies,
-  start: SessionStart,
+  start: SessionStart | SessionStartWithoutPhraseOne,
 ): SessionRunner {
   const { providers, viewport, display } = deps
   const engine = createSessionEngine({ providers, viewport, display }, start)

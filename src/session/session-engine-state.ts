@@ -23,17 +23,21 @@ import { noticeOnDecision, type StrugglingNotice } from './struggling-notice'
 /**
  * Everything fixed for the whole session: the seams, the session seed (from the intent seams),
  * the mutation flag, the multi-phrase tension arc flag, phrase 1 and the ready phrases
- * pre-generated at Idle (none when the start has none), checked.
+ * pre-generated at Idle (none when the start has none), checked, and whether the session started
+ * without phrase 1, its caller handing phrase 1 over after Start (then a lost controller ends it
+ * at once until phrase 1 sounds).
  */
 // @spec-link [[service_session_engine]]
 // @spec-link [[req_settings_mutation_flag]]
 // @spec-link [[req_multi_phrase_tension_arc]]
+// @spec-link [[module_session_start_without_phrase_one]]
 export interface EngineContext extends IntentSeams {
   readonly display: SessionDisplayReading
   readonly mutation: SettingsMutationFlag
   readonly multiPhraseTensionArc: boolean
   readonly phraseOne: SessionPhrase
   readonly readyPhrases: readonly ReadyPhrase[]
+  readonly startedWithoutPhraseOne: boolean
 }
 
 /**

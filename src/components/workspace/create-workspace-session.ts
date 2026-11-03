@@ -254,6 +254,9 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
         midi: deps.midi,
         connectionSheetOpen: () => connectionSheetOpen.value,
         sessionModeHeld: () => sessionModeHeld.value,
+        // Jam's note route reaches the controller once a fresh Jam is wired on screen (chunk 21).
+        heldModeNotes: () => null,
+        nextSessionSeed: deps.nextSessionSeed,
         pregeneration: (seams) =>
           createWorkspacePregeneration({
             ...seams,

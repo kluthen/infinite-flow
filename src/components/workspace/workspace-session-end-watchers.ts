@@ -27,8 +27,11 @@ export interface SessionEndWatchDependencies {
   readonly browser: SessionBrowserPorts
   readonly idleLayout: IdleLayoutPort
   readonly heldLayout: StaffLayout
-  /** Phrase 1's staff fixed parts, measured once from the session's start. */
-  readonly fixedParts: Promise<StaffFixedParts>
+  /**
+   * Phrase 1's staff fixed parts, measured once from the session's start; null for a session
+   * started without phrase 1, whose room is not judged on them (only the window's shape is).
+   */
+  readonly fixedParts: Promise<StaffFixedParts> | null
   /** Whether every phrase shown or waiting fits the held layout at these layout inputs. */
   readonly materialFits: (inputs: StaffLayoutInputs) => Promise<boolean>
   /** End the session for `cause`; a no-op once it has ended, so a second cause changes nothing. */
@@ -159,7 +162,7 @@ export function watchSessionEnds(deps: SessionEndWatchDependencies): SessionEndW
     judgeWindow()
   })
   const release = idleLayout.divert(diverted)
-  void deps.fixedParts.then(
+  void deps.fixedParts?.then(
     (measured) => {
       parts = measured
       judgeWindow()

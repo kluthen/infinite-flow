@@ -21,6 +21,7 @@ function spyOutput() {
     scheduleClick: vi.fn(),
     scheduleBackingNote: vi.fn(),
     fadeOut: vi.fn(),
+    forceClickUntil: vi.fn(),
   } satisfies SessionBus
   const inner = {
     now: vi.fn(() => clock.t),

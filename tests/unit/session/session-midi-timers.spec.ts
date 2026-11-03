@@ -6,6 +6,8 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  lossEndsAtOnceBeforePhraseOne,
+  noteArmsSilenceBeforePhraseOne,
   countdownSecondsLeft,
   nextCountdownChangeAt,
   RECONNECTION_WINDOW_SECONDS,
@@ -106,5 +108,33 @@ describe('reconnection window', () => {
     expect(() => countdownSecondsLeft(5, 4.999)).toThrow(SessionMidiTimerError)
     expect(() => reconnectionExpired(5, 4)).toThrow(SessionMidiTimerError)
     expect(() => nextCountdownChangeAt(5, 4)).toThrow(SessionMidiTimerError)
+  })
+})
+
+// @test-link [[rule_jam_silence_timer_from_phrase_one]]
+// @test-link [[rule_jam_controller_loss_before_phrase_one]]
+describe('a session started without phrase 1', () => {
+  // @test-link [[rule_jam_silence_timer_from_phrase_one]]
+  it('arms the silence timer only on a note played from phrase 1 on', () => {
+    expect(noteArmsSilenceBeforePhraseOne(3, null)).toBe(false)
+    expect(noteArmsSilenceBeforePhraseOne(11.99, 12)).toBe(false)
+    expect(noteArmsSilenceBeforePhraseOne(12, 12)).toBe(true)
+    expect(noteArmsSilenceBeforePhraseOne(40, 12)).toBe(true)
+  })
+
+  // @test-link [[rule_jam_controller_loss_before_phrase_one]]
+  // @test-link [[rule_controller_loss_mid_session]]
+  it('ends at once on a loss before phrase 1 sounds, and counts down from it on', () => {
+    expect(lossEndsAtOnceBeforePhraseOne(3, null)).toBe(true)
+    expect(lossEndsAtOnceBeforePhraseOne(11.99, 12)).toBe(true)
+    expect(lossEndsAtOnceBeforePhraseOne(12, 12)).toBe(false)
+  })
+
+  // @test-link [[rule_jam_silence_timer_from_phrase_one]]
+  it('refuses a time that is not finite', () => {
+    expect(() => noteArmsSilenceBeforePhraseOne(Number.NaN, 12)).toThrow(SessionMidiTimerError)
+    expect(() => lossEndsAtOnceBeforePhraseOne(3, Number.POSITIVE_INFINITY)).toThrow(
+      SessionMidiTimerError,
+    )
   })
 })

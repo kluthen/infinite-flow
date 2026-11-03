@@ -10,8 +10,12 @@
  * is played more than 30 s without another ends it, and losing the controller shows a 30-second
  * countdown that ends it unless the same device comes back (the silence count, if it had begun,
  * restarting from then). A session started without it never reads one, and the away
- * device reattaches only once that session ends. Every time is on the audio clock; every timer is
- * on the session's audio-time agenda. Loaded with the controller, never in the entry chunk.
+ * device reattaches only once that session ends. While session mode is held, the note route of
+ * the code holding it (Jam's Idle note routing) says which note starts what it starts. A session
+ * started without phrase 1 hands every note to its caller's port, arms the silence timer only on a
+ * note played from phrase 1 on, and ends at once on a controller lost before phrase 1 sounds.
+ * Every time is on the audio clock; every timer is on the session's audio-time agenda. Loaded with
+ * the controller, never in the entry chunk.
  */
 import { shallowRef } from 'vue'
 
@@ -19,7 +23,11 @@ import type { AudioTransport } from '@/audio/audio-transport'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import type { ExpectedNoteIdentity } from '@/domain/acknowledgement/expected-note'
 import type { ConcertPitch } from '@/domain/events/concert-pitch'
-import { latencyCorrectionFor } from '@/domain/acknowledgement/played-onset-latency'
+import {
+  compensatePlayedNote,
+  latencyCorrectionFor,
+  type LatencyCorrection,
+} from '@/domain/acknowledgement/played-onset-latency'
 import type { ConcertEventTimeline } from '@/domain/events/timeline'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type {
@@ -27,13 +35,19 @@ import type {
   MidiControllerChange,
   MidiControllerState,
 } from '@/midi/midi-controller-state'
-import { toNoteOnOnAudioClock, type PlayedNoteEvent } from '@/midi/played-note-tracker'
+import {
+  toNoteOnOnAudioClock,
+  type PlayedNoteEvent,
+  type PlayedNoteOn,
+} from '@/midi/played-note-tracker'
 import { createSessionAcknowledgement } from '@/session/session-acknowledgement'
 import type { AudioTimeAgenda } from '@/session/session-agenda'
 import type { SessionHistory } from '@/session/session-history'
 import {
   countdownSecondsLeft,
+  lossEndsAtOnceBeforePhraseOne,
   nextCountdownChangeAt,
+  noteArmsSilenceBeforePhraseOne,
   reconnectionExpired,
   silenceDeadline,
   silenceExpired,
@@ -42,6 +56,16 @@ import type { PageActivation } from '@/session/session-browser-ports'
 import type { AudioTime, SessionEndCause } from '@/session/session-types'
 import { isStartingNote, type StartingNote } from '@/session/starting-note'
 import { createIdleStartingNote } from './workspace-session-starting-note'
+
+/**
+ * The note route of the code holding session mode (Jam's Idle note routing): what a note at an
+ * exact concert pitch means at Idle now, and the start a `start` note triggers.
+ */
+// @spec-link [[rule_midi_starting_note]]
+export interface HeldModeNoteRoute {
+  readonly meaningOf: (concertPitch: number) => 'start' | 'ignored'
+  readonly start: () => void
+}
 
 /** A lost controller's countdown: the whole seconds left before the session ends, 30 down to 1. */
 // @spec-link [[rule_controller_loss_mid_session]]
@@ -65,6 +89,8 @@ export interface SessionMidiDependencies {
   readonly connectionSheetOpen: () => boolean
   /** Session mode is held (Jam mode opening or showing): no note starts a session. */
   readonly sessionModeHeld: () => boolean
+  /** The note route of the code holding session mode; null while it routes none. */
+  readonly heldModeNotes: () => HeldModeNoteRoute | null
   readonly canStart: () => boolean
   readonly idleResult: () => WorkspaceSessionResult | null
   readonly idlePhrase: () => WrittenPhrase | null
@@ -73,15 +99,19 @@ export interface SessionMidiDependencies {
 
 /**
  * What one session gives its MIDI side at its start: its starting tempo (phrase 1's), phrase 1's
- * concert timeline, its history and agenda, how it ends for a cause (nothing once it has ended),
- * how a programming error ends it loudly, and where the controller's presence goes in a session
- * started with it: away at the loss that starts the countdown, back at its reattachment.
+ * concert timeline (null for a session started without phrase 1, whose phrase 1 comes through
+ * `phraseReady`), its history and agenda, how it ends for a cause (nothing once it has ended),
+ * how a programming error ends it loudly, where the controller's presence goes in a session
+ * started with it: away at the loss that starts the countdown, back at its reattachment, and,
+ * for a session started without phrase 1, the port every played note goes to as well, its times
+ * latency-compensated as the history keeps them.
  */
 // @spec-link [[rule_session_history_records_played_notes]]
 // @spec-link [[rule_controller_loss_mid_session]]
 export interface SessionMidiSeams {
   readonly startingTempo: number
-  readonly phraseOne: ConcertEventTimeline
+  readonly phraseOne: ConcertEventTimeline | null
+  readonly playedNotes?: (event: PlayedNoteEvent) => void
   readonly history: SessionHistory
   readonly agenda: AudioTimeAgenda
   readonly end: (cause: SessionEndCause) => void
@@ -169,9 +199,25 @@ export function createSessionMidi(deps: SessionMidiDependencies): SessionMidi {
   // @spec-link [[rule_midi_starting_note]]
   function onUnclockedNote(pitch: ConcertPitch): void {
     if (listeners !== null || !idleStartingNote.pageActivated()) return
+    if (deps.sessionModeHeld()) {
+      if (deps.heldModeNotes()?.meaningOf(pitch) === 'start') audio.unlock()
+      return
+    }
     const starting = idleStartingNote.startingNote()
     if (starting === null || !isStartingNote({ pitch }, starting)) return
     audio.unlock()
+  }
+
+  /**
+   * Intent: at Idle while session mode is held, a note the holding code's route means `start` by
+   * starts what it starts; it arms no silence timer. Any other note does nothing.
+   */
+  // @spec-link [[rule_midi_starting_note]]
+  // @spec-link [[rule_silence_timeout_ends_session]]
+  function onHeldModeNote(event: PlayedNoteEvent): void {
+    if (event.kind !== 'played') return
+    const route = deps.heldModeNotes()
+    if (route?.meaningOf(event.note.pitch) === 'start') route.start()
   }
 
   /**
@@ -180,6 +226,10 @@ export function createSessionMidi(deps: SessionMidiDependencies): SessionMidi {
    */
   // @spec-link [[rule_starting_note_only_starts_count_in]]
   function onIdleNote(event: PlayedNoteEvent): void {
+    if (deps.sessionModeHeld()) {
+      onHeldModeNote(event)
+      return
+    }
     if (event.kind !== 'played') return
     const starting = idleStartingNote.startingNote()
     if (starting === null || !isStartingNote(event.note, starting)) return
@@ -261,6 +311,16 @@ export function createSessionMidi(deps: SessionMidiDependencies): SessionMidi {
   }
 }
 
+/**
+ * Intent: a note-on with its onset latency-compensated as the history's finished notes are, so
+ * the caller's port reads the very onset the history keeps for it.
+ */
+// @spec-link [[rule_played_onset_latency_compensation]]
+function compensatedNoteOn(note: PlayedNoteOn, correction: LatencyCorrection): PlayedNoteOn {
+  const { onsetSeconds } = compensatePlayedNote(toNoteOnOnAudioClock(note), correction)
+  return Object.freeze({ ...note, onsetAt: onsetSeconds })
+}
+
 /** What a session with a controller writes to and reads from, besides its seams. */
 interface ControllerSessionPorts {
   readonly audio: AudioTransport
@@ -278,13 +338,15 @@ interface ControllerSessionPorts {
  * never ends the session. A loss suspends it and counts 30 s down; the same device back clears the
  * countdown, passes over the notes that fell due while it was away (never acknowledged), and, only
  * if a note had armed the timer, re-arms it from then — otherwise it stays unarmed until the first
- * played note.
+ * played note. A session started without phrase 1 hands every note to its caller's port, adds
+ * phrase 1's notes once phrase 1 is ready, arms the silence timer only from phrase 1 on, and ends
+ * at once on a loss before phrase 1 sounds.
  */
 // @spec-link [[rule_acknowledgement_highlights_expected_note_only]]
-// @spec-link [[rule_session_history_records_played_notes]]
-// @spec-link [[rule_played_onset_latency_compensation]]
 // @spec-link [[rule_silence_timeout_ends_session]]
 // @spec-link [[rule_controller_loss_mid_session]]
+// @spec-link [[rule_session_history_records_played_notes]]
+// @spec-link [[rule_played_onset_latency_compensation]]
 // @spec-link [[rule_controller_reconnection_window]]
 function beginWithController(
   seams: SessionMidiSeams,
@@ -292,8 +354,13 @@ function beginWithController(
   ports: ControllerSessionPorts,
 ): { readonly listeners: SessionListeners; readonly run: SessionMidiRun } {
   const { audio, midi } = ports
-  const acknowledgement = createSessionAcknowledgement({ correction: latencyCorrectionFor('usb') })
-  acknowledgement.addPhrase(1, seams.phraseOne, audio.phraseStartsAt(1), seams.startingTempo)
+  const correction = latencyCorrectionFor('usb')
+  const acknowledgement = createSessionAcknowledgement({ correction })
+  const withoutPhraseOne = seams.phraseOne === null
+  if (seams.phraseOne !== null)
+    acknowledgement.addPhrase(1, seams.phraseOne, audio.phraseStartsAt(1), seams.startingTempo)
+  /** In a session started without phrase 1: when phrase 1 sounds, once it is ready; null before. */
+  let phraseOneAt: AudioTime | null = null
   /** Bumped at each re-arm, suspension and stop: a check scheduled before it does nothing. */
   let silenceToken = 0
   /** Bumped at each loss, reattachment and stop: a countdown change scheduled before it does nothing. */
@@ -348,6 +415,8 @@ function beginWithController(
       ports.controllerLost.value = null
       if (silenceArmed) armSilence(audio.now())
       seams.controllerPresence(true)
+    } else if (withoutPhraseOne && lossEndsAtOnceBeforePhraseOne(audio.now(), phraseOneAt)) {
+      seams.end('controller-lost')
     } else if (lostAt === null) {
       lostAt = audio.now()
       lossToken += 1
@@ -357,13 +426,21 @@ function beginWithController(
     }
   }
 
-  /** Intent: acknowledge and re-arm on a played note; record a finished one. */
+  /**
+   * Intent: hand the note to the caller's port latency-compensated, on the times the history keeps,
+   * then acknowledge and re-arm on a played note (before phrase 1 sounds, in a session started
+   * without it, no note arms); record a finished one.
+   */
   function note(event: PlayedNoteEvent): void {
     if (event.kind === 'ended') {
-      seams.history.recordPlayedNote(acknowledgement.compensatedRecord(event.note))
+      const record = acknowledgement.compensatedRecord(event.note)
+      seams.playedNotes?.({ kind: 'ended', note: record })
+      seams.history.recordPlayedNote(record)
       return
     }
-    armSilence(event.note.onsetAt)
+    seams.playedNotes?.({ kind: 'played', note: compensatedNoteOn(event.note, correction) })
+    if (!withoutPhraseOne || noteArmsSilenceBeforePhraseOne(event.note.onsetAt, phraseOneAt))
+      armSilence(event.note.onsetAt)
     const matched = acknowledgement.notePlayed(toNoteOnOnAudioClock(event.note))
     if (matched.length === 0) return
     matched.forEach((identity) => seams.history.recordAcknowledgement(identity))
@@ -385,13 +462,11 @@ function beginWithController(
   return {
     listeners: { note: guarded(note), stateChanged: guarded(stateChanged) },
     run: {
-      phraseReady: (phraseNumber, timeline, tempo) =>
-        acknowledgement.addPhrase(
-          phraseNumber,
-          timeline,
-          audio.phraseStartsAt(phraseNumber),
-          tempo,
-        ),
+      phraseReady: (phraseNumber, timeline, tempo) => {
+        const startsAt = audio.phraseStartsAt(phraseNumber)
+        if (withoutPhraseOne && phraseNumber === 1) phraseOneAt = startsAt
+        acknowledgement.addPhrase(phraseNumber, timeline, startsAt, tempo)
+      },
       releaseHeld: () => {
         midi.releaseHeld(audio.now())
       },
