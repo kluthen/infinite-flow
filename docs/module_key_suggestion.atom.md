@@ -15,7 +15,7 @@ tags: [v3, release-v3.2, jam, key-and-mode-suggestion, determinism]
 dependents: []
 type: MODULE
 layer: ARCHITECTURE
-version: 0.1
+version: 0.2
 ---
 
 # The Key and Mode Suggestion's Method
@@ -26,7 +26,7 @@ Compute, from a quantized doodle and Jam's key and mode, the one answer a Jam's 
 ## THE RULE / LOGIC
 Pure functions inside Jam's code, run on the main thread, in whole numbers only: no floating-point operation and no transcendental function runs on the path. The input is the quantized doodle, after the very-short-note filter, in concert pitch, with lengths in ticks (sixteenths).
 
-Scores. Each of the 84 pairs, a home note C to B with a mode Ionian to Locrian, gets a penalty in thousandths: the sum over the notes of the note's role penalty times its weight. The role penalties are the business shares as negative natural logarithms in thousandths: home note 1609, fifth 1802, third 1931, each of the other four notes of the mode 2141, a note outside it 5521. A note's weight is its length in ticks clamped to 2 to 6, times 1.5 when it starts on beat 1 or 3; the last note counts twice and the first one and a half times when it is the candidate's home note. Every factor of 1.5 is taken by doubling the scale, so every weight stays whole. The lower the penalty, the likelier the pair.
+Scores. Each of the 84 pairs, a home note C to B with a mode Ionian to Locrian, gets a penalty in thousandths: the sum over the notes of the note's role penalty times its weight, less the home-note cues. The role penalties are the business shares as negative natural logarithms in thousandths: home note 1609, fifth 1802, third 1931, each of the other four notes of the mode 2141, a note outside it 5521. A note's weight is its length in ticks clamped to 2 to 6, times 1.5 when it starts on beat 1 or 3; that factor is taken by doubling the scale, so every weight stays whole. The home-note cues are flat subtractions, not note weights: when the doodle's last note is the candidate's home note, the candidate's penalty drops by 693 thousandths (twice the likelihood), and when its first note is, by 405 thousandths (one and a half times). Like the candidates' 693-thousandth gap below, the cues are counted per beat of weight, so they are scaled with the weights. The lower the penalty, the likelier the pair.
 
 Candidates. The pair with the lowest penalty is the best; every pair whose penalty is within 693 thousandths of it (at least half its chance) is a candidate, at most three kept, ordered by penalty, then home note C to B, then mode Ionian, Dorian, Phrygian, Lydian, Mixolydian, Aeolian, Locrian.
 
