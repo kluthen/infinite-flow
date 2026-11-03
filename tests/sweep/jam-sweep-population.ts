@@ -172,6 +172,40 @@ export interface PlayedConfiguration {
 }
 
 /**
+ * Intent: play one case under one configuration, with the doodle at its index (a session runs once
+ * per case, with the first doodle's turn; a Jam once per doodle, steered with its drift when the
+ * configuration carries a block), and add the run to the configuration's tally and replay sample.
+ */
+async function playOne(
+  { tally, replays }: PlayedConfiguration,
+  sweepCase: SweepCase,
+  doodleIndex: number,
+  doodle: JamDoodle | undefined,
+  outcomes: OutcomeCache,
+): Promise<void> {
+  if (tally.key.mode === 'session' && doodleIndex > 0) return
+  const playedDoodle = tally.key.mode === 'jam' ? doodle : undefined
+  const startedAt = performance.now()
+  const { mode, tempo, lock, domain, steering } = tally.key
+  if (steering && playedDoodle === undefined)
+    throw new Error('A steered Jam configuration needs the doodle set.')
+  const { record, session, phraseOneInput } = await runJamCase(
+    {
+      mode,
+      tempo,
+      lock,
+      domain,
+      sweepCase,
+      ...(playedDoodle === undefined ? {} : { doodle: playedDoodle }),
+      ...(steering ? { drift: driftOf(sweepCase, doodleIndex) } : {}),
+    },
+    outcomes,
+  )
+  tally.add(record, (performance.now() - startedAt) / 1000)
+  replays.addJam(record, session, phraseOneInput, sweepCase.firstSessionSeed)
+}
+
+/**
  * Intent: play every case under every configuration (a Jam once per doodle, steered by it with its
  * drift when the configuration carries a block), density by density, case by case and doodle by
  * doodle, with one outcome cache per case and doodle shared by every configuration and dropped
@@ -194,29 +228,8 @@ export async function playConfigurations(
     for (const sweepCase of group)
       for (const [doodleIndex, doodle] of someJam ? jamDoodles : [[0, undefined] as const]) {
         const outcomes = new OutcomeCache()
-        for (const { tally, replays } of played) {
-          // A session runs once per case, with the first doodle's turn; a Jam once per doodle.
-          if (tally.key.mode === 'session' && doodleIndex > 0) continue
-          const playedDoodle = tally.key.mode === 'jam' ? doodle : undefined
-          const startedAt = performance.now()
-          const { mode, tempo, lock, domain, steering } = tally.key
-          if (steering && playedDoodle === undefined)
-            throw new Error('A steered Jam configuration needs the doodle set.')
-          const { record, session, phraseOneInput } = await runJamCase(
-            {
-              mode,
-              tempo,
-              lock,
-              domain,
-              sweepCase,
-              ...(playedDoodle === undefined ? {} : { doodle: playedDoodle }),
-              ...(steering ? { drift: driftOf(sweepCase, doodleIndex) } : {}),
-            },
-            outcomes,
-          )
-          tally.add(record, (performance.now() - startedAt) / 1000)
-          replays.addJam(record, session, phraseOneInput, sweepCase.firstSessionSeed)
-        }
+        for (const configuration of played)
+          await playOne(configuration, sweepCase, doodleIndex, doodle, outcomes)
       }
     onDensity(group[0]!.rhythm.noteDensity, group.length)
   }
