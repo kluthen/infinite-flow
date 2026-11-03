@@ -21,8 +21,8 @@ import type { MyInstrument } from '@/domain/profile/my-instrument'
 export type JamStaffState = 'shown' | 'no-room' | 'notation-error'
 
 /**
- * What Jam's staff is drawn from. Until Jam has settings of its own, Jam's written key and
- * collection are session mode's; the instrument is the one shared choice, my instrument included.
+ * What Jam's staff is drawn from: Jam's own written key and collection; the instrument is the one
+ * shared choice, my instrument included.
  */
 // @spec-link [[module_jam_code_boundary]]
 export interface JamStaffProps {
@@ -40,17 +40,17 @@ export interface JamStaffProps {
 
 /**
  * What the workspace gives Jam's view: what its staff is drawn from, and what its Idle prewarm
- * reads: the generation worker's prewarm port (null while the prewarm policy is off) and session
- * mode's current controls and figure levels, which a prewarm intent carries beside the rhythm
- * values Jam's Idle prewarms.
+ * reads: the generation worker's prewarm port (null while the prewarm policy is off) and the
+ * controls and figure levels a Jam is generated with (Jam's settings, ./jam-settings.ts), which a
+ * prewarm intent carries beside the rhythm values Jam's Idle prewarms.
  */
 // @spec-link [[module_jam_code_boundary]]
 // @spec-link [[module_generation_prewarm]]
 export interface JamWorkspaceProps extends JamStaffProps {
   /** Where a prewarm goes; null while the prewarm policy is off. */
   readonly prewarm: PostPrewarm | null
-  /** Session mode's current controls (the written key among them, not yet in concert pitch). */
+  /** Jam's controls (its written key among them, not yet in concert pitch). */
   readonly controls: GenerationControls
-  /** Session mode's current figure levels. */
+  /** Jam's figure levels: its one Embellishments level for every figure. */
   readonly figureLevels: FigureLevels
 }

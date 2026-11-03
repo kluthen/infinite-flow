@@ -16,6 +16,10 @@
  * decoded values: when they no longer match the selected preset, the values win and the selection
  * loads as Custom.
  *
+ * Jam's own settings are records of a `jam` group in the same store: this codec lists their keys
+ * and hands their records on undecoded (`jamSettingRecords`); Jam's code decodes them, and the
+ * load here skips them.
+ *
  * It also keeps a reader of v3.0's musical-profile selection record, at data version 1, for the
  * step that carries that record over to data version 3; the load itself never reads that record.
  *
@@ -106,6 +110,43 @@ type SettingGroup = 'controls' | 'figureLevels' | 'mix' | 'sessionOptions' | 're
  */
 type FieldKey<G extends SettingGroup> = `${G}.${keyof SavedSettings[G] & string}`
 
+/**
+ * The fields of Jam's own settings, each one record of the `jam` group beside session mode's
+ * groups, with no upgrade step and no data version of their own (master spec C5.16, C10.2). This
+ * codec only lists their keys and stores their values as given: Jam's code (src/jam/) decodes
+ * them, so the first load decodes nothing of Jam's.
+ */
+// @spec-link [[module_jam_settings]]
+export const JAM_SETTING_FIELDS = deepFreeze([
+  'tempo',
+  'tonalCenter',
+  'collection',
+  'harmonicMotion',
+  'tension',
+  'embellishments',
+  'drift',
+  'rhythmLockOn',
+  'allowedRhythmChanges',
+] as const)
+
+/** One of Jam's settings, by its field name. */
+// @spec-link [[module_jam_settings]]
+export type JamSettingField = (typeof JAM_SETTING_FIELDS)[number]
+
+/** The record key of one of Jam's settings: `jam.tempo`, `jam.drift` and so on. */
+// @spec-link [[module_jam_settings]]
+export type JamSettingKey = `jam.${JamSettingField}`
+
+/** What a Jam setting's record holds: its value as Jam's code gives it, unchecked here. */
+// @spec-link [[module_jam_settings]]
+export type JamSettingStoredValue = string | number | boolean | readonly string[]
+
+/** Every Jam setting's record key, in JAM_SETTING_FIELDS order. */
+// @spec-link [[module_jam_settings]]
+export const JAM_SETTING_KEYS: readonly JamSettingKey[] = deepFreeze(
+  JAM_SETTING_FIELDS.map((field): JamSettingKey => `jam.${field}`),
+)
+
 /** The key of one setting's record. There is one record per setting, and no other. */
 // @spec-link [[rule_settings_saved_on_change]]
 export type SettingKey =
@@ -117,18 +158,21 @@ export type SettingKey =
   | FieldKey<'sessionOptions'>
   | FieldKey<'review'>
   | 'keepPlayedNotes'
+  | JamSettingKey
 
-/** The value a setting's record holds, by its key. */
+/** The value a setting's record holds, by its key; a Jam setting's as Jam's code gives it. */
 // @spec-link [[rule_settings_saved_on_change]]
-export type SettingValue<K extends SettingKey> = K extends `${infer G}.${infer F}`
-  ? G extends SettingGroup
-    ? F extends keyof SavedSettings[G]
-      ? SavedSettings[G][F]
+export type SettingValue<K extends SettingKey> = K extends JamSettingKey
+  ? JamSettingStoredValue
+  : K extends `${infer G}.${infer F}`
+    ? G extends SettingGroup
+      ? F extends keyof SavedSettings[G]
+        ? SavedSettings[G][F]
+        : never
       : never
-    : never
-  : K extends keyof SavedSettings
-    ? SavedSettings[K]
-    : never
+    : K extends keyof SavedSettings
+      ? SavedSettings[K]
+      : never
 
 /** One saved setting: its key, its value and the versions it was written with. */
 // @spec-link [[rule_settings_saved_on_change]]
@@ -370,8 +414,8 @@ function fieldKeys<G extends SettingGroup>(group: G, parsers: object): FieldKey<
 }
 
 /**
- * Every setting's record key, in a fixed order. The tempo a Rising-tempo session reached is not
- * among them: it belongs to that session.
+ * Every session-mode setting's record key, in a fixed order; Jam's are JAM_SETTING_KEYS. The tempo
+ * a Rising-tempo session reached is not among them: it belongs to that session.
  */
 // @spec-link [[rule_settings_saved_on_change]]
 // @spec-link [[rule_saved_setting_is_players_choice]]
@@ -388,11 +432,29 @@ export const SETTING_KEYS: readonly SettingKey[] = deepFreeze([
 
 const SETTING_KEY_SET: ReadonlySet<string> = new Set(SETTING_KEYS)
 
+const JAM_SETTING_KEY_SET: ReadonlySet<string> = new Set(JAM_SETTING_KEYS)
+
+/**
+ * Intent: the stored records of Jam's settings, as stored and undecoded, in their stored order:
+ * each record naming one of Jam's keys. Their values are not read here: Jam's code decodes each
+ * on its own when Jam's settings are first needed, and session mode's decoding skips them.
+ */
+// @spec-link [[module_jam_settings]]
+export function jamSettingRecords(records: readonly unknown[]): readonly unknown[] {
+  return records.filter(
+    (record) =>
+      isPlainRecord(record) &&
+      typeof record.key === 'string' &&
+      JAM_SETTING_KEY_SET.has(record.key),
+  )
+}
+
 const LEVEL_KEY_PREFIX = 'figureLevels.'
 
 /**
  * Intent: the data version of one setting's record shape: 3 for the preset selection and each
- * figure level, introduced at data version 3; 1 for every setting v3.0 already saved.
+ * figure level, introduced at data version 3; 1 for every setting v3.0 already saved, and for the
+ * records v3.2 added beside them (session mode's three options, Jam's group), with no step.
  */
 // @spec-link [[module_settings_upgrade_step]]
 // @spec-link [[rule_outdated_tab_reads_what_it_can]]

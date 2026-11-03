@@ -65,6 +65,7 @@ export function fakeGenerationSession(overrides: Partial<FakeIdleState> = {}): {
         if (selection !== undefined) state.selection = selection
       }),
       selectInstrumentProfile: vi.fn(async () => 'applied' as const),
+      holdInstrumentSwitches: vi.fn(async () => 'unchanged' as const),
       saveMyInstrument: vi.fn(async () => 'saved' as const),
       saveAndSelectMyInstrument: vi.fn(async () => 'saved' as const),
       deleteMyInstrument: vi.fn(async () => 'saved' as const),

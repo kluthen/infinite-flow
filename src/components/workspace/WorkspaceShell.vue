@@ -38,11 +38,12 @@
  * actions disabled; whether session mode is held is reported to the workspace as it changes. A
  * failed opening shows Jam's load-failure notice in the notice row, focus on its `Try again`
  * unless a sheet is open, when focus stays in the sheet.
- * Jam's view is given Jam's written key and collection (session mode's, until Jam has its own),
- * the instrument and the shared system-position size; the shell keeps what Jam's staff shows, for
+ * Jam's view is given Jam's own written key and collection (./use-jam-settings.ts), the shared
+ * instrument and the shared system-position size; the shell keeps what Jam's staff shows, for
  * the header's `Retry notation`, which has Jam's staff engraved again. Jam's view is also given
- * the prewarm port (none while the prewarm policy is off) and session mode's controls and figure
- * levels, for Jam's Idle prewarm. In Jam mode the cue row holds Jam's Idle cue
+ * the prewarm port (none while the prewarm policy is off) and Jam's controls and figure levels, for
+ * Jam's Idle prewarm. Session mode's instrument switches are held while Jam mode opens or shows: an
+ * instrument changed there is applied to session mode as a switch on returning. In Jam mode the cue row holds Jam's Idle cue
  * (./use-jam-idle-cue.ts): the home note while a fresh Jam could start, or `jam-needs-controller`
  * without a connected controller, which `Start Jam` names.
  */
@@ -96,6 +97,7 @@ import { useYourData } from './use-your-data'
 import { loadJamMode } from './load-jam-mode'
 import { useWorkspaceMode } from './use-workspace-mode'
 import { useJamIdleCue } from './use-jam-idle-cue'
+import { useJamSettings } from './use-jam-settings'
 
 // The stale-phrase prompt, in its own chunk: only a stale phrase 1 at a start needs it.
 const StalePhrasePrompt = defineAsyncComponent(() => import('./StalePhrasePrompt.vue'))
@@ -148,6 +150,8 @@ const props = withDefaults(
     savedSessionOptions?: SessionOptionChoices
     /** The generation worker's prewarm port, for Jam's Idle prewarm; none (the default) when off. */
     prewarm?: PostPrewarm | null
+    /** Jam's settings records as the load handed them, undecoded; none by default. */
+    jamSettingsRecords?: readonly unknown[]
   }>(),
   {
     // Default: the window's own instant scroll, measured against the layout viewport's height.
@@ -164,6 +168,7 @@ const props = withDefaults(
     savedReviewPreferences: () => DEFAULT_REVIEW_PREFERENCES,
     savedSessionOptions: () => DEFAULT_SESSION_OPTIONS,
     prewarm: null,
+    jamSettingsRecords: () => [],
   },
 )
 
@@ -250,28 +255,47 @@ const workspaceMode = useWorkspaceMode({
   sessionActive: () => sessionActive.value,
   reviewShowing: () => reviewShowing.value,
   load: loadJamMode,
-  onHeldChange: (held) => emit('session-mode-held-change', held),
+  onHeldChange: (held) => {
+    emit('session-mode-held-change', held)
+    void props.session.actions.holdInstrumentSwitches(held)
+  },
   onLoadFailed: () => void nextTick(focusJamTryAgainOutsideSheets),
 })
 /** The controls are read-only: during a session, as the session holds them, or while Jam opens. */
 const settingsReadonly = computed(() => controlsReadonly.value || workspaceMode.opening.value)
 
+// Jam's own settings, made the first time Jam mode shows in the visit.
+// @spec-link [[module_workspace_mode]]
+const jamSettings = useJamSettings({
+  jamModule: () => workspaceMode.jamModule.value,
+  jamShowing: () => workspaceMode.jamView.value !== null,
+  records: () => props.jamSettingsRecords,
+  sessionControls: () => state.value.controls,
+  instrumentProfileId: () => state.value.controls.instrumentProfileId,
+  saveSettings: injectSaveSettings(),
+})
+
 /**
- * What Jam's view is given: Jam's written key and collection, session mode's until Jam has its own,
- * the shared instrument choice (my instrument included), the shared system-position size, and what
- * Jam's Idle prewarm reads: the prewarm port and session mode's controls and figure levels.
+ * What Jam's view is given: Jam's written key and collection, the shared instrument choice (my
+ * instrument included), the shared system-position size, and what Jam's Idle prewarm reads: the
+ * prewarm port and the controls and figure levels a Jam is generated with. Session mode's values
+ * stand in only before Jam's settings exist, while Jam's view does not show.
  */
 // @spec-link [[module_workspace_mode]]
-const jamViewProps = computed<JamWorkspaceProps>(() => ({
-  tonalCenter: state.value.controls.tonalCenter,
-  collection: state.value.controls.collection,
-  instrumentProfileId: state.value.controls.instrumentProfileId,
-  myInstrument: state.value.myInstrument,
-  systemPositionUnits: systemPositionUnits.value,
-  prewarm: props.prewarm,
-  controls: state.value.controls,
-  figureLevels: state.value.figureLevels,
-}))
+const jamViewProps = computed<JamWorkspaceProps>(() => {
+  const jam = jamSettings.view.value
+  const controls = jam?.controls ?? state.value.controls
+  return {
+    tonalCenter: controls.tonalCenter,
+    collection: controls.collection,
+    instrumentProfileId: state.value.controls.instrumentProfileId,
+    myInstrument: state.value.myInstrument,
+    systemPositionUnits: systemPositionUnits.value,
+    prewarm: props.prewarm,
+    controls,
+    figureLevels: jam?.figureLevels ?? state.value.figureLevels,
+  }
+})
 /** What Jam's staff shows while Jam mode shows (Start Jam's conditions read it); null otherwise. */
 const jamStaffState = ref<JamStaffState | null>(null)
 watch(workspaceMode.jamView, (view) => {

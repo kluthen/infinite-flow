@@ -19,6 +19,7 @@ import ControlPanel from '@/components/controls/ControlPanel.vue'
 import ConnectionSheet from '@/components/controller-connection/ConnectionSheet.vue'
 import WorkspaceShell from '@/components/workspace/WorkspaceShell.vue'
 import type { JamModeModule } from '@/components/workspace/load-jam-mode'
+import { createJamSettings, jamFigureLevels, jamGenerationControls } from '@/jam/jam-settings'
 import { createTestWorkspace, PHRASE_SCORE_STUB } from './test-workspace'
 import { createControllerRig } from '../../midi/midi-controller-rig'
 import { provideSaveSettings } from './recording-save-settings'
@@ -49,9 +50,13 @@ const retryNotation = vi.fn()
 
 /**
  * A stand-in for Jam's code entry: a view whose root is its own staff viewport, which takes Jam's
- * props, reports a notation error on its button and exposes `retryNotation()`.
+ * props, reports a notation error on its button and exposes `retryNotation()`; and Jam's own
+ * settings, the real ones.
  */
 const FAKE_JAM_MODULE = {
+  createJamSettings,
+  jamFigureLevels,
+  jamGenerationControls,
   JamWorkspace: defineComponent({
     name: 'JamWorkspaceStub',
     props: {
