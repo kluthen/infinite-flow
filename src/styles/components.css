@@ -2110,7 +2110,7 @@
      (`field-label`'s type) over its `dd` (`--text-md`, `--color-text`), rows `--spacing-2`
      apart; one column below bp-tablet-landscape and two from it up (the block at the end of this
      part). A value the doodle does not show reads "{value} (default)", and a Note density used
-     as Eighth on a small screen "Eighth (Sixteenth on larger screens)": the bracketed words are
+     as Eighth on a small screen "Eighth notes (Sixteenth on larger screens)": the bracketed words are
      the `dd`'s `span`, in `--color-text-muted`. Fills and empties at once, with no animation. */
   .doodle-readings {
     display: grid;
