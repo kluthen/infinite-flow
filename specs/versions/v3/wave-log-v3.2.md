@@ -1167,3 +1167,24 @@ subsection to `docs/generation-latency.md` (a shared record; the later one resol
   on `key-suggestion.ts` and its spec). For the sync: the built names into
   `module_key_suggestion`'s interface; one sentence on `module_named_stream_pseudorandomness`;
   `rule_suggestion_withheld` (D452). Lexicon entry stays "Planned" until chunk 23 shows it.
+- 17 paused after 17a (context; 0d69ac38), resumed by a fresh owner, merged (31a19198; e3239507).
+  Built: `createSessionEngine(deps, SessionStart | SessionStartWithoutPhraseOne)`, end causes
+  `no-note-played` / `no-phrase-one`; attempt seam `phrase-one-attempt` → `phrase-one-attempt-result`
+  (`fits` / `generation-failure` / `crash` / `not-fitting`); hand-over `{kind:'phrase-one', at,
+  attemptId, soundsAt}`; `SessionController.startWithoutPhraseOne` with handle `{timeline, dispatch,
+  end, recordDoodle}`; `createJamCapture({startAt, tempo})` (`note`, `advance`, `phraseOneReady`,
+  `end`, `phase`, `nextDecisionAt`; outputs `candidate-end`, `candidate-voided`, `doodle-ended`,
+  `phrase-one-shown`, `no-note-played`); `JamPhase` / `JamCaptureState` in `jam-phase.ts`;
+  `SessionHistory.recordDoodle` / `doodle()`. Done when all met (jam-capture 25 tests; related
+  2,589/2,589; session e2e 29/29 unchanged; 30 s / 29.9 s on the rig; one seed at Start). Entry
+  290,683 B, Jam's chunk 6,731 B. Risk for the report and v3.2 H7: barline decisions wait 38 ms, so
+  a MIDI note later than that (Bluetooth measured ~+80 ms batched on 2026-10-06; best-effort, D191)
+  could miss a decision. For the sync: built names into `module_jam_capture` and
+  `module_session_start_without_phrase_one`; `rule_raw_doodle_notes_are_played_notes` now linked;
+  drift-check the port's latency-compensated note times against
+  `rule_played_onset_latency_compensation`.
+- Mid-wave: 17a's owner found that the transport still starts phrase 1 at the count-in's end
+  (`phraseStartsAt(1)`, `queueBacking(1)`). `spec-writer`: spec D456, plan v28 (3d5bf82f), chunk 18
+  (18a) owns it; the `phrasesOf` throw is chunk 18's known limit, chunk 21 removes it.
+  `documentalist` revised the capture before chunk 18 (8d0342ba): `module_session_start_without_phrase_one`
+  0.2 (DRAFT), `module_session_transport_tempo_map` 0.2 (REVIEW kept).

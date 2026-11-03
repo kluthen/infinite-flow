@@ -1521,7 +1521,7 @@ the lock), merged 79ac60d. Also changed `session-ladder-step.ts`, `session-setti
 
 ### Chunk 17 — Jam engine, part 1: the count-in and the capture
 
-Status: planned
+Status: merged (w5, e3239507)
 Wave: 5
 Depends on: 4 (and v3.0 chunk 25, the filter; v3.0 chunk 23, the seed plan)
 Architecture capture: a session that starts without phrase 1, and the capture's state machine. The
@@ -1615,6 +1615,15 @@ and `module_jam_capture` (wave 5's preflight).
 - **Split rule:** if the brief passes about five source files, 17a the way in (the starting note,
   the start without phrase 1, the forced click, the timers left unarmed), 17b the capture, its
   history and the ends before phrase 1.
+
+Record: 0d69ac38 (17a, the way in) and 31a19198 (17b, the capture), merged e3239507. Beyond Files:
+four new session/workspace files (`session-before-phrase-one.ts`, `session-engine-without-phrase-one.ts`,
+`session-phrase-one-types.ts`, `workspace-session-without-phrase-one.ts`; the 10-atom-per-file
+health limit) and small wiring edits. Barline decisions wait 38 ms (`VERY_SHORT_NOTE_SECONDS`) so
+very short notes are known; the MIDI port hands latency-compensated notes (USB correction 0). A
+start without phrase 1 runs Vary settings, Tension across phrases and Rising tempo off (C5.12); its
+staff watch and phrase steps come with chunk 21. Plan gap found (phrase 1's transport start),
+settled as spec D456 and given to chunk 18.
 
 ### Chunk 18 — Jam engine, part 2: from the doodle to phrase 1
 
