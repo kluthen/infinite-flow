@@ -1083,3 +1083,13 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   17 reuses `jamHomeNote`; Jam's settings records reach Jam's code undecoded, extending
   `module_saved_data_loader` (STABLE, on the contract), so new gate CL blocks chunk 31's merge. No
   behaviour. Now in: [build plan v3.2, v26](versions/v3/build-plan-v3.2.md#gates).
+
+- **D455 (2026-11-03): C6's home-note cues are flat bonuses off the penalty, not note weights.**
+  The driver's ruling under the owner's delegation of minor design calls. As the research note
+  defines them, the candidate's penalty drops by 693 thousandths (×2 likelihood) when the last note
+  is its home note and by 405 (×1.5) when the first is; the beat-1/3 ×1.5 stays a note weight.
+  Rejected: reading "counts ×2 / ×1.5" as a weight on the note. Penalties are summed −ln shares, so
+  that raises the home-note candidate's penalty and inverts the cue; the research note's examples
+  then fail (G Dorian / G Mixolydian for D Dorian / D Aeolian, among others), while chunk 14's
+  build reproduces all of them. Now in: [Part C §C6.2](versions/v3/master-spec.md#c62-the-method),
+  [build plan v3.2, chunk 14](versions/v3/build-plan-v3.2.md#chunk-14--the-key-and-mode-suggestion).

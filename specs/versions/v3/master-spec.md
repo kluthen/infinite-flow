@@ -96,8 +96,9 @@ Status: this file holds four parts.
   no window width changes it (C5.16, C5.16.1; spec D445). v1.14 (2026-11-03): the rhythm change
   shares are tuned and drift's scale stays (C7.4, C8, C16, C17; spec D449, D450). v1.15
   (2026-11-03): the generator worker's chunk budget is 170 KiB (C10.9, C14; spec D451). v1.16
-  (2026-11-03): the suggestion judges "no fit" before the selection (C6.3; spec D452). Its
-  sections are numbered C1 to C18; what v1.1 to v1.16 change is listed at the top of
+  (2026-11-03): the suggestion judges "no fit" before the selection (C6.3; spec D452). v1.17
+  (2026-11-03): the home-note cues are flat bonuses taken off the penalty, not note weights (C6.2;
+  spec D455). Its sections are numbered C1 to C18; what v1.1 to v1.17 change is listed at the top of
   Part C and marked in each section they touch.
 - **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.1
   (2026-10-12), consolidated from the v3.3 direction and the chord research; **awaiting the
@@ -2254,8 +2255,10 @@ Delete everything removes them. No preset leaves the device.
 
 ## Part C — v3.2
 
-Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.16 (2026-11-03)**: v1.15
-with one of `spec-writer`'s minor calls from wave 5's preflight (C6.3; D452): the suggestion judges
+Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.17 (2026-11-03)**: v1.16
+with a driver ruling under the owner's delegation of minor design calls (C6.2; D455): the last
+and first home-note cues are flat bonuses taken off the candidate's penalty, as the research note
+defines them, not weights on the note. v1.16 (2026-11-03): v1.15 with one of `spec-writer`'s minor calls from wave 5's preflight (C6.3; D452): the suggestion judges
 "no fit" before "the selection is among the kept candidates", so "no fit" never depends on Jam's
 key and mode. v1.15 (2026-11-03): v1.14
 with the owner's ruling at wave 4's gate (C10.9, C14; D451): the generator worker's chunk budget
@@ -3346,15 +3349,22 @@ restriction no longer meet it; "Jam again on this doodle" is no longer one of it
 
 ### C6.2 The method
 
+_Changed in v1.17:_ the home-note cues are flat bonuses off the penalty, not note weights (D455).
+
 - **Input: the quantized doodle**, after the stray-note filter. Lengths are in ticks, so the whole
   computation stays in integers.
 - **Score all 84 key and mode pairs** (12 keys × the 7 modes Ionian to Locrian; Major and Minor are
   scored as Ionian and Aeolian). Each note scores by its role in the candidate, weighted by its
   length: home note 0.200, fifth 0.165, third 0.145, each of the other four notes 0.1175, a note
-  outside the mode 0.004. Cues: the last note counts ×2 and the first ×1.5 when it is the
-  candidate's home note; a note starting on beat 1 or 3 counts ×1.5; lengths count between half a
-  beat and a beat and a half (clamped). These are starting values, stored as integer penalties in
-  thousandths, and checked at the owner's listening check.
+  outside the mode 0.004. A candidate's penalty is the sum of its notes' weighted penalties
+  (smaller is better). Note weights: a note's length counts between half a beat and a beat and a
+  half (clamped), and a note starting on beat 1 or 3 weighs ×1.5. **Home-note bonuses**, taken off
+  the candidate's total penalty and never applied to the note's weight: 693 thousandths (twice the
+  likelihood) when the last note is the candidate's home note, and 405 thousandths (1.5 times the
+  likelihood) when the first note is
+  ([research note](../../../docs/music/key-and-mode-estimation.md#scoring-all-84-pairs)). These
+  are starting values, stored as integer penalties in thousandths, and checked at the owner's
+  listening check.
 - **Equal chances for all seven modes beforehand, and no head start for the player's current
   selection.** "Nothing is suggested when the selection is among the kept candidates" (C6.3)
   already lets the player's choice win every close call. Locrian, which ties with Phrygian when the

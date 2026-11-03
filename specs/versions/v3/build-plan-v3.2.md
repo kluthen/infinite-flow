@@ -1,6 +1,9 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v26 (2026-11-03): v25 with spec D452–D454 written in (master spec Part C v1.16): wave 5's
+Status: v27 (2026-11-03): v26 with spec D455 written in (master spec Part C v1.17): chunk 14's
+home-note cues are flat bonuses of 693 and 405 thousandths off the penalty, not note weights;
+chunk 16's Done when states spec D450's shares, about 1 in 2 and 3 in 4.
+v26 (2026-11-03): v25 with spec D452–D454 written in (master spec Part C v1.16): wave 5's
 preflight corrections to chunks 34, 14, 17, 18, 31 and 29; the suggestion's "no fit" before Jam's
 key and mode; chunk 29 keeps its double of chunk 18's ladder, chunk 33 plugs in the real one; new
 gate CL, `module_saved_data_loader`'s wording, before chunk 31's merge.
@@ -1323,8 +1326,10 @@ in Jam's code. Captured as `module_key_suggestion` (wave 5's preflight).
 
 - **Goal:** C6's method as pure, tested functions over the quantized doodle.
 - **Scope:** the 84 pairs' scores (role penalties in thousandths, 1609, 1802, 1931, 2141 and 5521,
-  weighted by length in ticks clamped to 2–6, × 1.5 on beat 1 or 3; the last ×2 and first ×1.5 cues
-  when the note is the candidate's home note; every factor 1.5 handled by doubling the scale); the
+  weighted by length in ticks clamped to 2–6, × 1.5 on beat 1 or 3, that factor handled by doubling
+  the scale; the home-note bonuses, flat subtractions from the candidate's total and never a weight
+  on the note (spec D455): 693 thousandths when the last note is the candidate's home note, 405 when
+  the first is, scaled with the sum if it is kept doubled); the
   thresholds (5 pitch classes, 6 notes, 2 beats; `5 × fitting ≥ 4 × total`); at most 3 kept
   candidates within a gap of 693 thousandths, ordered by penalty, home note C to B, then mode Ionian
   to Locrian; the draw (`seed % total` over integer weights written once from `e^(−gap/1000)`); the
@@ -1482,7 +1487,7 @@ changed with its kind, forced bend, re-lock, no change available). Captured as
   - Over seeded sessions with the lock on and no kind allowed, every phrase has phrase 1's bars
     apart from forced bends, which the history records.
   - With kinds allowed: at most one change per phrase, never on phrase 1, the next phrase back to the
-    locked bars, tenser phrases drawing about twice as often.
+    locked bars, phrases drawing a change about 1 in 2, tenser ones about 3 in 4 (spec D450).
   - A seeded step-down from locked bars with sixteenth notes: the first Eighth phrase's requests
     hold no allowed change, it draws none, and its bars are locked from then on; a repeat before it
     leaves the re-lock pending. From locked bars without sixteenth notes, nothing re-locks and the
