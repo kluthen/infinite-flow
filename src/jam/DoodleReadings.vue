@@ -5,10 +5,10 @@
  * doodle did not show reads "{value} (default)"; a rhythmic variety the supported-combination step
  * raised reads "{value} (to work with the other rhythm values)", that mark in place of "(default)",
  * never beside it. Below the tablet-landscape width a Note density read as Sixteenth reads "Eighth
- * (Sixteenth on larger screens)", as it is played there; no other line follows the window. While
- * no doodle is kept the list is not rendered and its note stands in its place. Static text: never
- * a live region, never interactive, never ringed when the controls are read-only. Part of Jam's
- * code (src/jam/), loaded on demand.
+ * notes (Sixteenth on larger screens)", as it is played there, in Note density's own option words
+ * (ux D448); no other line follows the window. While no doodle is kept the list is not rendered
+ * and its note stands in its place. Static text: never a live region, never interactive, never
+ * ringed when the controls are read-only. Part of Jam's code (src/jam/), loaded on demand.
  */
 import { computed } from 'vue'
 
@@ -73,7 +73,11 @@ function plainLine(
 // @spec-link [[rule_doodle_sixteenth_on_narrow_screens]]
 function noteDensityLine(reading: DoodleReadings['noteDensity']): ReadingLine {
   if (reading.value === 'Sixteenth' && props.belowTabletLandscape) {
-    return { name: 'Note density', value: 'Eighth', mark: NARROW_SIXTEENTH_MARK }
+    return {
+      name: 'Note density',
+      value: wordsOf(noteDensityOptions(), 'Eighth'),
+      mark: NARROW_SIXTEENTH_MARK,
+    }
   }
   return plainLine('Note density', noteDensityOptions(), reading)
 }

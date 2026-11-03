@@ -4,7 +4,8 @@
  * the doodle left unsaid; the rhythmic variety's line by ux D355 (raised: "(to work with the other
  * rhythm values)", whether the doodle's value or the default was raised; else a default reads
  * "(default)"; else the value alone); a Sixteenth below the tablet-landscape width reads "Eighth
- * (Sixteenth on larger screens)"; and the note in its place while no doodle is kept.
+ * notes (Sixteenth on larger screens)" (ux D448); and the note in its place while no doodle is
+ * kept.
  */
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
@@ -114,7 +115,7 @@ describe('DoodleReadings', () => {
   it('reads a Sixteenth as Eighth below the tablet-landscape width, Sixteenth from it up', () => {
     const sixteenth = readings({ noteDensity: { value: 'Sixteenth', source: 'doodle' } })
     expect(lines(mountReadings(sixteenth, true))[0]).toBe(
-      'Note density: Eighth (Sixteenth on larger screens)',
+      'Note density: Eighth notes (Sixteenth on larger screens)',
     )
     expect(lines(mountReadings(sixteenth, false))[0]).toBe('Note density: Sixteenth')
     expect(lines(mountReadings(readings(), true))[0]).toBe('Note density: Eighth notes')
