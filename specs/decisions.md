@@ -1061,3 +1061,25 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   174,080 B leaves about 19.6 KiB, so the limit needs no revisit before v3.2 ships. Now in:
   [Part C §C10.9](versions/v3/master-spec.md#c109-loading-jams-code-on-demand),
   [build plan v3.2, M4](versions/v3/build-plan-v3.2.md#m4--the-first-load-bundle).
+
+- **D452 (2026-11-03): the suggestion judges "no fit" before Jam's key and mode.** `spec-writer`'s
+  minor call, from wave 5's preflight: C6.3 gave no order. Too little material, then no fit, then
+  Jam's key and mode among the kept candidates; "no fit" reads the doodle alone, so a kept Jam's
+  recomputed review says it whatever key and mode the player has selected since, which "in every
+  review of that Jam" needs. Now in: [Part C §C6.3](versions/v3/master-spec.md#c63-when-nothing-is-suggested),
+  [build plan v3.2, chunk 14](versions/v3/build-plan-v3.2.md#chunk-14--the-key-and-mode-suggestion).
+
+- **D453 (2026-11-03): chunk 29 measures through its double; chunk 33 plugs in the real ladder.**
+  `spec-writer`'s minor call. Chunk 18 runs first in wave 5, but an 18 → 29 edge would make a
+  chain of three (17 → 18 → 29) behind a ladder interface no capture fixes, which the in-wave edge
+  rule forbids, and the wave is frozen. The generator under the double is real, so the carry-in
+  fuel is still confirmed in wave 5; the plan named no chunk for the real ladder's sweep adapter.
+  Now in: [build plan v3.2, chunk 29](versions/v3/build-plan-v3.2.md#chunk-29--the-jam-sweep-first-run),
+  [chunk 33 and M1](versions/v3/build-plan-v3.2.md#m1--the-jam-sweep).
+
+- **D454 (2026-11-03): wave 5's preflight corrections to the v3.2 plan, and gate CL.**
+  `documentalist`'s preflight (4e8e9f11), applied by `spec-writer` after checking each against
+  Part C and the code: chunks 34, 14, 17, 18 and 31's Files, atoms, drift checks and wording; chunk
+  17 reuses `jamHomeNote`; Jam's settings records reach Jam's code undecoded, extending
+  `module_saved_data_loader` (STABLE, on the contract), so new gate CL blocks chunk 31's merge. No
+  behaviour. Now in: [build plan v3.2, v26](versions/v3/build-plan-v3.2.md#gates).

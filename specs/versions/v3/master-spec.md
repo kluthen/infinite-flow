@@ -95,8 +95,9 @@ Status: this file holds four parts.
   (2026-10-27): the supported-combination step judges the note density as the doodle shows it, so
   no window width changes it (C5.16, C5.16.1; spec D445). v1.14 (2026-11-03): the rhythm change
   shares are tuned and drift's scale stays (C7.4, C8, C16, C17; spec D449, D450). v1.15
-  (2026-11-03): the generator worker's chunk budget is 170 KiB (C10.9, C14; spec D451). Its
-  sections are numbered C1 to C18; what v1.1 to v1.15 change is listed at the top of
+  (2026-11-03): the generator worker's chunk budget is 170 KiB (C10.9, C14; spec D451). v1.16
+  (2026-11-03): the suggestion judges "no fit" before the selection (C6.3; spec D452). Its
+  sections are numbered C1 to C18; what v1.1 to v1.16 change is listed at the top of
   Part C and marked in each section they touch.
 - **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.1
   (2026-10-12), consolidated from the v3.3 direction and the chord research; **awaiting the
@@ -2253,7 +2254,10 @@ Delete everything removes them. No preset leaves the device.
 
 ## Part C — v3.2
 
-Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.15 (2026-11-03)**: v1.14
+Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.16 (2026-11-03)**: v1.15
+with one of `spec-writer`'s minor calls from wave 5's preflight (C6.3; D452): the suggestion judges
+"no fit" before "the selection is among the kept candidates", so "no fit" never depends on Jam's
+key and mode. v1.15 (2026-11-03): v1.14
 with the owner's ruling at wave 4's gate (C10.9, C14; D451): the generator worker's chunk budget
 rises from 150 KiB to 170 KiB (174,080 bytes); it adds no behaviour. v1.14 (2026-11-03): v1.13
 with the owner's two listening checks of 2026-11-03 (C7.4, C8, C16, C17; D449, D450): the rhythm
@@ -3379,12 +3383,18 @@ restriction no longer meet it; "Jam again on this doodle" is no longer one of it
 
 ### C6.3 When nothing is suggested
 
+_Changed in v1.16:_ the checks are judged in a fixed order, "no fit" before the selection (D452).
+
+The checks run in this order; the first that holds gives the answer.
+
 - **Too little material**: fewer than 5 pitch classes, 6 notes, or 2 beats of sounding time after
   the filter. Nothing is shown about it: a short doodle is normal, not a failure.
-- **The selection is among the kept candidates**: the doodle fits the selection; nothing is shown.
 - **Under 80 % of the doodle's weighted length fits the winner**: the doodle uses notes the app's
   modes do not offer, such as harmonic minor or blue notes. The review then says so in one plain sentence, in
-  every review of that Jam, kept ones included, without naming a "wrong" note.
+  every review of that Jam, kept ones included, without naming a "wrong" note. This check reads the
+  doodle alone, so it comes before the selection's: a kept Jam's review, recomputed against Jam's
+  key and mode as they are now, says the same whatever the player has selected since.
+- **The selection is among the kept candidates**: the doodle fits the selection; nothing is shown.
 - **A Jam whose phrase 1 never came** has no review, so no suggestion.
 
 ### C6.4 Where and when it is shown
