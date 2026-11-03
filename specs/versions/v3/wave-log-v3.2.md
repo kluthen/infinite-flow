@@ -1080,3 +1080,17 @@ home note starts nothing until chunk 21). For wave 5's preflight: D445 (chunk 31
 34) rewordings. `atd audit` flags five atoms bloated (none split). Status candidates for the owner,
 DRAFT → REVIEW: `module_rhythm_steering`, `module_pitch_steering`, `module_steering_block_builder`,
 `module_jam_code_boundary`. `doc-ids compare main v3.2-w4`: 0 collisions.
+
+### Report and merge (2026-11-03)
+
+Reported to the owner: chunks 9, 20, 28, 7, 8 merged; the gate (second run) passes; entry
+290,302 B, first-load 338,186 B, the worker 154,238 B of 174,080 B; the sync's changes (part T, no
+contract change); Jam's lock changes rise to 1 in 2 with chunk 34; 8 of 52 doodle-set requests land
+in their band; Start Jam disabled until chunk 21. The owner, verbatim: "ok agreed, move to review,
+merge and push." The four status candidates advanced to REVIEW (`documentalist`, 9b0df761).
+`v3.2-w4` merged `--no-ff` into `main` and pushed; the wave worktree and branches removed.
+
+Next: wave 5 in a fresh session, chunk 34 first (the change shares, D450). Open with the owner:
+v3.2 H2 step 3 and H3 (gate L3 stays open); H4/H5 after wave 6 (with O271's question at H4 step 3,
+and gate DR's recordings before H5). For wave 5's preflight: D445 (chunk 31) and D450 (chunk 34)
+rewordings; re-check M1/M2 (contract, CS) at chunk 21's sync.
