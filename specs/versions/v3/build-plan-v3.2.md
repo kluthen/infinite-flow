@@ -1,6 +1,9 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v24 (2026-11-03): v23 with spec D449–D450 written in (master spec Part C v1.14): gate LD
+Status: v25 (2026-11-03): v24 with spec D451 written in (master spec Part C v1.15): the
+generation worker's chunk budget rises from 150 KiB to 170 KiB (174,080 B), set in
+`verify-boundaries.mjs` by wave 4's gate fix commit (M4).
+v24 (2026-11-03): v23 with spec D449–D450 written in (master spec Part C v1.14): gate LD
 cleared with a finding carried to v3.2 H4 (O271), chunk 8 unchanged; L3's step 2 tunes the rhythm
 change shares, built by new chunk 34 (wave 5), which re-runs M2.
 v23 (2026-10-27): v22 with spec D447–D448 written in: ISS-015 known and deferred, read
@@ -71,7 +74,7 @@ and the chunk adds the Jam variant beside it.
 | The session end generates a new phrase 1 (`rule_session_end_generates_next_phrase_one`) | 21, [24](#chunk-24--the-kept-doodle) | In Jam mode, no phrase without a kept doodle; with one, phrase 1 written again from it. |
 | Kept-session records: database data version 3 (`DATABASE_DATA_VERSION`, `src/storage/database.ts`); record shapes summary 2, body 2, played notes 1 (`src/storage/records/kept-reading.ts`); the kept intent's exact field list (`INTENT_FIELDS`, `src/storage/records/kept-phrase-parsers.ts`) | [22](#chunk-22--v32s-kept-session-shape) | One database step, 4, taken once, upgrading at open only (spec D376), each shape with its own data version (spec D370): the kept intent gains the lock group and the steering block; the summary and body gain the Jam parts (data version 4 each); played notes stay at version 1, a fresh Jam's timed from its count-in (spec D430). |
 | Pre-generation's discard: its queue key `settingsKeyOf` (`src/components/workspace/workspace-pregeneration.ts`): the controls without the tempo, the figure levels, Vary settings, Tension across phrases and the restriction in force | [19](#chunk-19--the-rhythm-lock-and-what-may-vary-in-the-controls), 20, 24 | Session mode's key gains the lock, the allowed rhythm changes and the allowed groups; Jam's settings never enter it; session mode prepares nothing while Jam mode shows; Jam mode prepares only for its kept doodle, in a queue of its own. |
-| Nothing checks that a module stays out of the entry chunk: `scripts/verify-boundaries.mjs` checks sizes (entry 307,200 B, 265,431 used at 3.1.0; every other chunk 100 KiB; the worker 150 KiB) and the service worker's precache list | 20 | A Jam module in the entry chunk fails `npm run verify:boundaries`. |
+| Nothing checks that a module stays out of the entry chunk: `scripts/verify-boundaries.mjs` checks sizes (entry 307,200 B, 265,431 used at 3.1.0; every other chunk 100 KiB; the worker 170 KiB, spec D451) and the service worker's precache list | 20 | A Jam module in the entry chunk fails `npm run verify:boundaries`. |
 | The cold-generation goldens (`tests/unit/domain/generation/orchestration/generation-outcome-golden.spec.ts` and its fixtures), and the `ifk1.`, `ifk2.` and `ifk3.` corpora of v3.0 and v3.1 | **Never** | They stay byte-identical: without the new inputs, v3.2 reproduces v3.1 (item 9). A chunk that needs to touch one is wrong. |
 
 Every replaced or extended test gets its v3.2 counterpart in the same chunk, and the release gate
@@ -430,8 +433,13 @@ corpora are a guard, not a measurement.
   `scripts/verify-boundaries.mjs`; 265,431 B at 3.1.0); from chunk 20 on, no `src/jam/` module is
   in it, and each of Jam's chunks stays within the 100 KiB per-chunk budget. The session half adds
   the lock's and the groups' controls to the entry chunk; the bar key, the distance, the orderings
-  and the steering module live in the worker's chunk (150 KiB); the mode switch and Jam's loader
-  are the only Jam code in the entry chunk.
+  and the steering module live in the worker's chunk (170 KiB, 174,080 B, spec D451); the mode
+  switch and Jam's loader are the only Jam code in the entry chunk.
+- **The worker's budget** (spec D451): 170 KiB, raised from 150 KiB after wave 4's gate measured
+  the worker's chunk at 154,238 B, 638 B over. The script constant `generationWorkerChunkByteBudget`
+  in `scripts/verify-boundaries.mjs` (today `150 * 1024`) becomes `170 * 1024` in wave 4's gate
+  fix commit, which the driver has a `coding-executor` make; the gate then re-runs
+  `npm run quality`.
 - **Run by:** chunk 2 (the baseline on `main`); every wave gate; the release gate.
 - **Beside it** (spec D438): from wave 3 on, the first-load JS total, the entry chunk and every
   chunk it imports statically (318,964 B over 16 files after wave 2), recorded for information; it

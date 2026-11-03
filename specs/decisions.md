@@ -1054,3 +1054,10 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   too. Built by new chunk 34 (wave 5), which re-runs M2; L3 stays open for step 3. Now in:
   [Part C §C7.4](versions/v3/master-spec.md#c74-when-a-phrase-changes),
   [build plan v3.2, chunk 34](versions/v3/build-plan-v3.2.md#chunk-34--the-rhythm-change-shares-tuned-l3).
+
+- **D451 (2026-11-03): the generation worker's chunk budget rises from 150 KiB to 170 KiB.** The
+  owner chose "Raise to 170 KiB" over 160 KiB or trimming chunk 8. Wave 4's gate measured the
+  chunk at 154,238 B, 638 B over 153,600 B (chunk 8's steering rank +2,167 B, chunk 9 +752 B);
+  174,080 B leaves about 19.6 KiB, so the limit needs no revisit before v3.2 ships. Now in:
+  [Part C §C10.9](versions/v3/master-spec.md#c109-loading-jams-code-on-demand),
+  [build plan v3.2, M4](versions/v3/build-plan-v3.2.md#m4--the-first-load-bundle).

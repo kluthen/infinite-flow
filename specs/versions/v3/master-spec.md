@@ -93,8 +93,10 @@ Status: this file holds four parts.
   tie between two register windows goes to Middle, and Jam's Idle prewarms the first-visit rhythm
   values before any doodle (C5.1, C5.8, C5.9, C5.16.1, C8, C17; spec D440–D442). v1.13
   (2026-10-27): the supported-combination step judges the note density as the doodle shows it, so
-  no window width changes it (C5.16, C5.16.1; spec D445). Its sections are
-  numbered C1 to C18; what v1.1 to v1.13 change is listed at the top of
+  no window width changes it (C5.16, C5.16.1; spec D445). v1.14 (2026-11-03): the rhythm change
+  shares are tuned and drift's scale stays (C7.4, C8, C16, C17; spec D449, D450). v1.15
+  (2026-11-03): the generator worker's chunk budget is 170 KiB (C10.9, C14; spec D451). Its
+  sections are numbered C1 to C18; what v1.1 to v1.15 change is listed at the top of
   Part C and marked in each section they touch.
 - **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.1
   (2026-10-12), consolidated from the v3.3 direction and the chord research; **awaiting the
@@ -2251,7 +2253,9 @@ Delete everything removes them. No preset leaves the device.
 
 ## Part C — v3.2
 
-Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.14 (2026-11-03)**: v1.13
+Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.15 (2026-11-03)**: v1.14
+with the owner's ruling at wave 4's gate (C10.9, C14; D451): the generator worker's chunk budget
+rises from 150 KiB to 170 KiB (174,080 bytes); it adds no behaviour. v1.14 (2026-11-03): v1.13
 with the owner's two listening checks of 2026-11-03 (C7.4, C8, C16, C17; D449, D450): the rhythm
 change shares are tuned to 1 in 2, and 3 in 4 on a tenser phrase; drift's distance scale stays as
 written, with one finding carried to the Jam listening check (O271). v1.13 (2026-10-27): v1.12
@@ -3840,6 +3844,7 @@ _Changed in v1.2:_ phones are a third-rate client (D414).
 ### C10.9 Loading Jam's code on demand
 
 _New in v1.1._
+_Changed in v1.15:_ the generator worker's chunk budget is 170 KiB, up from 150 KiB (D451).
 
 - **The first load carries the mode button and nothing else of Jam's.** At the top of the app, the
   mode picks the session workspace or Jam's, which is loaded on demand; both sit over the one shared
@@ -3852,8 +3857,8 @@ _New in v1.1._
 - **Budgets** (the release's bundle rules): the first-load (entry) budget stays 300 KiB
   (307,200 bytes; 265,431 used at 3.1.0); a boundary check keeps every Jam module out of the entry
   chunk; Jam's chunks stay under the existing 100 KiB per-chunk budget; the generator worker's
-  chunk under its 150 KiB. The service worker keeps Jam's files for offline use like every other
-  file.
+  chunk under its 170 KiB (174,080 bytes). The service worker keeps Jam's files for offline use
+  like every other file.
 
 ## C11. The generation request, the replay key and kept sessions
 
@@ -4193,6 +4198,7 @@ stray-note filter and replay keys; Jam mode's facts and risks added. File refere
 [jam-grounding.md](jam-grounding.md#e-refresh-at-v310-2026-10-21) and
 [Jam mode §4](jam-mode.md#4-the-generator-seam).
 _Changed in v1.4:_ the contract's risk closed by the sign-off (D421).
+_Changed in v1.15:_ the generator worker's chunk budget, 170 KiB (D451).
 
 - **The generation request is closed by construction**: the worker checks it against an exact list
   of its ten fields and refuses any other, then rebuilds it and requires the rebuild to equal what
@@ -4254,7 +4260,8 @@ _Changed in v1.4:_ the contract's risk closed by the sign-off (D421).
   unreadable, a higher one newer). The settings store keeps one record per setting, so Jam's group
   needs no new store.
 - **Budgets**: the entry chunk's budget is 300 KiB (307,200 bytes), 265,431 used at 3.1.0; every
-  other chunk 100 KiB; the generator worker's chunk 150 KiB; the engraver's 800 KiB.
+  other chunk 100 KiB; the generator worker's chunk 170 KiB (174,080 bytes, D451); the engraver's
+  800 KiB.
 - **The tempo control** runs 60 to 240 BPM in steps of 10, default 90. The standalone reserve is
   1.075 s (0.95 s plus 0.125 s for a worker respawn).
 
