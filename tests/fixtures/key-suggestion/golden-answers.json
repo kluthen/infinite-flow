@@ -1,0 +1,3652 @@
+{
+  "about": "The key and mode suggestion's golden list (v3.2 chunk 14): each case a quantized doodle, Jam's written key and Collection and a built-in instrument, with the seed, the kept candidates (concert pitch) and the answer recorded on 2026-11-03. Compared in Node (tests/unit/jam/key-suggestion/key-suggestion.spec.ts) and in Chrome (tests/e2e/workspace/key-suggestion-in-browser.spec.ts). Never re-recorded.",
+  "cases": [
+    {
+      "label": "doodle set chord-stabs, C Major, c-keyboard",
+      "doodle": {
+        "measureCount": 2,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 8,
+            "pitch": 67
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 4,
+            "pitch": 69
+          },
+          {
+            "startTick": 12,
+            "lengthTicks": 4,
+            "pitch": 67
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 8,
+            "pitch": 65
+          },
+          {
+            "startTick": 24,
+            "lengthTicks": 6,
+            "pitch": 64
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "C",
+        "collection": "Major"
+      },
+      "instrumentProfileId": "c-keyboard",
+      "seed": 547414421,
+      "kept": ["E Phrygian", "E Locrian", "G Dorian"],
+      "answer": {
+        "kind": "nothing"
+      }
+    },
+    {
+      "label": "doodle set chord-stabs, D Dorian, bb-tenor",
+      "doodle": {
+        "measureCount": 2,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 8,
+            "pitch": 67
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 4,
+            "pitch": 69
+          },
+          {
+            "startTick": 12,
+            "lengthTicks": 4,
+            "pitch": 67
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 8,
+            "pitch": 65
+          },
+          {
+            "startTick": 24,
+            "lengthTicks": 6,
+            "pitch": 64
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "D",
+        "collection": "Dorian"
+      },
+      "instrumentProfileId": "bb-tenor",
+      "seed": 547414421,
+      "kept": ["E Phrygian", "E Locrian", "G Dorian"],
+      "answer": {
+        "kind": "nothing"
+      }
+    },
+    {
+      "label": "doodle set chord-stabs, A Minor, eb-alto",
+      "doodle": {
+        "measureCount": 2,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 8,
+            "pitch": 67
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 4,
+            "pitch": 69
+          },
+          {
+            "startTick": 12,
+            "lengthTicks": 4,
+            "pitch": 67
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 8,
+            "pitch": 65
+          },
+          {
+            "startTick": 24,
+            "lengthTicks": 6,
+            "pitch": 64
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "A",
+        "collection": "Minor"
+      },
+      "instrumentProfileId": "eb-alto",
+      "seed": 547414421,
+      "kept": ["E Phrygian", "E Locrian", "G Dorian"],
+      "answer": {
+        "kind": "nothing"
+      }
+    },
+    {
+      "label": "doodle set eighth-offbeats, C Major, c-keyboard",
+      "doodle": {
+        "measureCount": 2,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 2,
+            "pitch": 67
+          },
+          {
+            "startTick": 2,
+            "lengthTicks": 4,
+            "pitch": 69
+          },
+          {
+            "startTick": 6,
+            "lengthTicks": 2,
+            "pitch": 71
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 4,
+            "pitch": 72
+          },
+          {
+            "startTick": 12,
+            "lengthTicks": 3,
+            "pitch": 69
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 4,
+            "pitch": 67
+          },
+          {
+            "startTick": 20,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 22,
+            "lengthTicks": 2,
+            "pitch": 65
+          },
+          {
+            "startTick": 24,
+            "lengthTicks": 3,
+            "pitch": 67
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "C",
+        "collection": "Major"
+      },
+      "instrumentProfileId": "c-keyboard",
+      "seed": 2774033474,
+      "kept": ["G Mixolydian"],
+      "answer": {
+        "kind": "suggested",
+        "tonalCenter": "G",
+        "collection": "Mixolydian"
+      }
+    },
+    {
+      "label": "doodle set eighth-offbeats, D Dorian, bb-tenor",
+      "doodle": {
+        "measureCount": 2,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 2,
+            "pitch": 67
+          },
+          {
+            "startTick": 2,
+            "lengthTicks": 4,
+            "pitch": 69
+          },
+          {
+            "startTick": 6,
+            "lengthTicks": 2,
+            "pitch": 71
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 4,
+            "pitch": 72
+          },
+          {
+            "startTick": 12,
+            "lengthTicks": 3,
+            "pitch": 69
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 4,
+            "pitch": 67
+          },
+          {
+            "startTick": 20,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 22,
+            "lengthTicks": 2,
+            "pitch": 65
+          },
+          {
+            "startTick": 24,
+            "lengthTicks": 3,
+            "pitch": 67
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "D",
+        "collection": "Dorian"
+      },
+      "instrumentProfileId": "bb-tenor",
+      "seed": 2774033474,
+      "kept": ["G Mixolydian"],
+      "answer": {
+        "kind": "suggested",
+        "tonalCenter": "A",
+        "collection": "Mixolydian"
+      }
+    },
+    {
+      "label": "doodle set eighth-offbeats, A Minor, eb-alto",
+      "doodle": {
+        "measureCount": 2,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 2,
+            "pitch": 67
+          },
+          {
+            "startTick": 2,
+            "lengthTicks": 4,
+            "pitch": 69
+          },
+          {
+            "startTick": 6,
+            "lengthTicks": 2,
+            "pitch": 71
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 4,
+            "pitch": 72
+          },
+          {
+            "startTick": 12,
+            "lengthTicks": 3,
+            "pitch": 69
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 4,
+            "pitch": 67
+          },
+          {
+            "startTick": 20,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 22,
+            "lengthTicks": 2,
+            "pitch": 65
+          },
+          {
+            "startTick": 24,
+            "lengthTicks": 3,
+            "pitch": 67
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "A",
+        "collection": "Minor"
+      },
+      "instrumentProfileId": "eb-alto",
+      "seed": 2774033474,
+      "kept": ["G Mixolydian"],
+      "answer": {
+        "kind": "suggested",
+        "tonalCenter": "E",
+        "collection": "Mixolydian"
+      }
+    },
+    {
+      "label": "doodle set grace-notes, C Major, c-keyboard",
+      "doodle": {
+        "measureCount": 3,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 4,
+            "pitch": 62
+          },
+          {
+            "startTick": 4,
+            "lengthTicks": 4,
+            "pitch": 64
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 8,
+            "pitch": 67
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 2,
+            "pitch": 65
+          },
+          {
+            "startTick": 18,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 20,
+            "lengthTicks": 4,
+            "pitch": 62
+          },
+          {
+            "startTick": 24,
+            "lengthTicks": 6,
+            "pitch": 60
+          },
+          {
+            "startTick": 32,
+            "lengthTicks": 4,
+            "pitch": 62
+          },
+          {
+            "startTick": 36,
+            "lengthTicks": 10,
+            "pitch": 60
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "C",
+        "collection": "Major"
+      },
+      "instrumentProfileId": "c-keyboard",
+      "seed": 260743036,
+      "kept": ["C Ionian", "C Mixolydian"],
+      "answer": {
+        "kind": "nothing"
+      }
+    },
+    {
+      "label": "doodle set grace-notes, D Dorian, bb-tenor",
+      "doodle": {
+        "measureCount": 3,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 4,
+            "pitch": 62
+          },
+          {
+            "startTick": 4,
+            "lengthTicks": 4,
+            "pitch": 64
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 8,
+            "pitch": 67
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 2,
+            "pitch": 65
+          },
+          {
+            "startTick": 18,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 20,
+            "lengthTicks": 4,
+            "pitch": 62
+          },
+          {
+            "startTick": 24,
+            "lengthTicks": 6,
+            "pitch": 60
+          },
+          {
+            "startTick": 32,
+            "lengthTicks": 4,
+            "pitch": 62
+          },
+          {
+            "startTick": 36,
+            "lengthTicks": 10,
+            "pitch": 60
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "D",
+        "collection": "Dorian"
+      },
+      "instrumentProfileId": "bb-tenor",
+      "seed": 260743036,
+      "kept": ["C Ionian", "C Mixolydian"],
+      "answer": {
+        "kind": "suggested",
+        "tonalCenter": "D",
+        "collection": "Ionian"
+      }
+    },
+    {
+      "label": "doodle set grace-notes, A Minor, eb-alto",
+      "doodle": {
+        "measureCount": 3,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 4,
+            "pitch": 62
+          },
+          {
+            "startTick": 4,
+            "lengthTicks": 4,
+            "pitch": 64
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 8,
+            "pitch": 67
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 2,
+            "pitch": 65
+          },
+          {
+            "startTick": 18,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 20,
+            "lengthTicks": 4,
+            "pitch": 62
+          },
+          {
+            "startTick": 24,
+            "lengthTicks": 6,
+            "pitch": 60
+          },
+          {
+            "startTick": 32,
+            "lengthTicks": 4,
+            "pitch": 62
+          },
+          {
+            "startTick": 36,
+            "lengthTicks": 10,
+            "pitch": 60
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "A",
+        "collection": "Minor"
+      },
+      "instrumentProfileId": "eb-alto",
+      "seed": 260743036,
+      "kept": ["C Ionian", "C Mixolydian"],
+      "answer": {
+        "kind": "suggested",
+        "tonalCenter": "A",
+        "collection": "Major"
+      }
+    },
+    {
+      "label": "doodle set late-start-high-ending, C Major, c-keyboard",
+      "doodle": {
+        "measureCount": 2,
+        "notes": [
+          {
+            "startTick": 4,
+            "lengthTicks": 4,
+            "pitch": 64
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 4,
+            "pitch": 67
+          },
+          {
+            "startTick": 12,
+            "lengthTicks": 4,
+            "pitch": 72
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 2,
+            "pitch": 71
+          },
+          {
+            "startTick": 18,
+            "lengthTicks": 2,
+            "pitch": 72
+          },
+          {
+            "startTick": 20,
+            "lengthTicks": 12,
+            "pitch": 76
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "C",
+        "collection": "Major"
+      },
+      "instrumentProfileId": "c-keyboard",
+      "seed": 2586250699,
+      "kept": ["E Phrygian", "E Aeolian"],
+      "answer": {
+        "kind": "nothing"
+      }
+    },
+    {
+      "label": "doodle set late-start-high-ending, D Dorian, bb-tenor",
+      "doodle": {
+        "measureCount": 2,
+        "notes": [
+          {
+            "startTick": 4,
+            "lengthTicks": 4,
+            "pitch": 64
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 4,
+            "pitch": 67
+          },
+          {
+            "startTick": 12,
+            "lengthTicks": 4,
+            "pitch": 72
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 2,
+            "pitch": 71
+          },
+          {
+            "startTick": 18,
+            "lengthTicks": 2,
+            "pitch": 72
+          },
+          {
+            "startTick": 20,
+            "lengthTicks": 12,
+            "pitch": 76
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "D",
+        "collection": "Dorian"
+      },
+      "instrumentProfileId": "bb-tenor",
+      "seed": 2586250699,
+      "kept": ["E Phrygian", "E Aeolian"],
+      "answer": {
+        "kind": "nothing"
+      }
+    },
+    {
+      "label": "doodle set late-start-high-ending, A Minor, eb-alto",
+      "doodle": {
+        "measureCount": 2,
+        "notes": [
+          {
+            "startTick": 4,
+            "lengthTicks": 4,
+            "pitch": 64
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 4,
+            "pitch": 67
+          },
+          {
+            "startTick": 12,
+            "lengthTicks": 4,
+            "pitch": 72
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 2,
+            "pitch": 71
+          },
+          {
+            "startTick": 18,
+            "lengthTicks": 2,
+            "pitch": 72
+          },
+          {
+            "startTick": 20,
+            "lengthTicks": 12,
+            "pitch": 76
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "A",
+        "collection": "Minor"
+      },
+      "instrumentProfileId": "eb-alto",
+      "seed": 2586250699,
+      "kept": ["E Phrygian", "E Aeolian"],
+      "answer": {
+        "kind": "nothing"
+      }
+    },
+    {
+      "label": "doodle set one-note, C Major, c-keyboard",
+      "doodle": {
+        "measureCount": 1,
+        "notes": [
+          {
+            "startTick": 4,
+            "lengthTicks": 6,
+            "pitch": 64
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "C",
+        "collection": "Major"
+      },
+      "instrumentProfileId": "c-keyboard",
+      "seed": 2118430915,
+      "kept": ["E Ionian", "E Dorian", "E Phrygian"],
+      "answer": {
+        "kind": "nothing"
+      }
+    },
+    {
+      "label": "doodle set one-note, D Dorian, bb-tenor",
+      "doodle": {
+        "measureCount": 1,
+        "notes": [
+          {
+            "startTick": 4,
+            "lengthTicks": 6,
+            "pitch": 64
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "D",
+        "collection": "Dorian"
+      },
+      "instrumentProfileId": "bb-tenor",
+      "seed": 2118430915,
+      "kept": ["E Ionian", "E Dorian", "E Phrygian"],
+      "answer": {
+        "kind": "nothing"
+      }
+    },
+    {
+      "label": "doodle set one-note, A Minor, eb-alto",
+      "doodle": {
+        "measureCount": 1,
+        "notes": [
+          {
+            "startTick": 4,
+            "lengthTicks": 6,
+            "pitch": 64
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "A",
+        "collection": "Minor"
+      },
+      "instrumentProfileId": "eb-alto",
+      "seed": 2118430915,
+      "kept": ["E Ionian", "E Dorian", "E Phrygian"],
+      "answer": {
+        "kind": "nothing"
+      }
+    },
+    {
+      "label": "doodle set quarter-steps, C Major, c-keyboard",
+      "doodle": {
+        "measureCount": 1,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 4,
+            "pitch": 60
+          },
+          {
+            "startTick": 4,
+            "lengthTicks": 4,
+            "pitch": 62
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 4,
+            "pitch": 64
+          },
+          {
+            "startTick": 12,
+            "lengthTicks": 3,
+            "pitch": 65
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "C",
+        "collection": "Major"
+      },
+      "instrumentProfileId": "c-keyboard",
+      "seed": 683388476,
+      "kept": ["F Ionian", "F Lydian", "C Ionian"],
+      "answer": {
+        "kind": "nothing"
+      }
+    },
+    {
+      "label": "doodle set quarter-steps, D Dorian, bb-tenor",
+      "doodle": {
+        "measureCount": 1,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 4,
+            "pitch": 60
+          },
+          {
+            "startTick": 4,
+            "lengthTicks": 4,
+            "pitch": 62
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 4,
+            "pitch": 64
+          },
+          {
+            "startTick": 12,
+            "lengthTicks": 3,
+            "pitch": 65
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "D",
+        "collection": "Dorian"
+      },
+      "instrumentProfileId": "bb-tenor",
+      "seed": 683388476,
+      "kept": ["F Ionian", "F Lydian", "C Ionian"],
+      "answer": {
+        "kind": "nothing"
+      }
+    },
+    {
+      "label": "doodle set quarter-steps, A Minor, eb-alto",
+      "doodle": {
+        "measureCount": 1,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 4,
+            "pitch": 60
+          },
+          {
+            "startTick": 4,
+            "lengthTicks": 4,
+            "pitch": 62
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 4,
+            "pitch": 64
+          },
+          {
+            "startTick": 12,
+            "lengthTicks": 3,
+            "pitch": 65
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "A",
+        "collection": "Minor"
+      },
+      "instrumentProfileId": "eb-alto",
+      "seed": 683388476,
+      "kept": ["F Ionian", "F Lydian", "C Ionian"],
+      "answer": {
+        "kind": "nothing"
+      }
+    },
+    {
+      "label": "doodle set sixteenth-bursts, C Major, c-keyboard",
+      "doodle": {
+        "measureCount": 2,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 1,
+            "pitch": 62
+          },
+          {
+            "startTick": 1,
+            "lengthTicks": 1,
+            "pitch": 64
+          },
+          {
+            "startTick": 2,
+            "lengthTicks": 1,
+            "pitch": 65
+          },
+          {
+            "startTick": 3,
+            "lengthTicks": 1,
+            "pitch": 67
+          },
+          {
+            "startTick": 6,
+            "lengthTicks": 3,
+            "pitch": 69
+          },
+          {
+            "startTick": 18,
+            "lengthTicks": 1,
+            "pitch": 67
+          },
+          {
+            "startTick": 19,
+            "lengthTicks": 1,
+            "pitch": 65
+          },
+          {
+            "startTick": 20,
+            "lengthTicks": 1,
+            "pitch": 64
+          },
+          {
+            "startTick": 21,
+            "lengthTicks": 4,
+            "pitch": 62
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "C",
+        "collection": "Major"
+      },
+      "instrumentProfileId": "c-keyboard",
+      "seed": 3071227676,
+      "kept": ["D Dorian", "D Aeolian"],
+      "answer": {
+        "kind": "suggested",
+        "tonalCenter": "D",
+        "collection": "Dorian"
+      }
+    },
+    {
+      "label": "doodle set sixteenth-bursts, D Dorian, bb-tenor",
+      "doodle": {
+        "measureCount": 2,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 1,
+            "pitch": 62
+          },
+          {
+            "startTick": 1,
+            "lengthTicks": 1,
+            "pitch": 64
+          },
+          {
+            "startTick": 2,
+            "lengthTicks": 1,
+            "pitch": 65
+          },
+          {
+            "startTick": 3,
+            "lengthTicks": 1,
+            "pitch": 67
+          },
+          {
+            "startTick": 6,
+            "lengthTicks": 3,
+            "pitch": 69
+          },
+          {
+            "startTick": 18,
+            "lengthTicks": 1,
+            "pitch": 67
+          },
+          {
+            "startTick": 19,
+            "lengthTicks": 1,
+            "pitch": 65
+          },
+          {
+            "startTick": 20,
+            "lengthTicks": 1,
+            "pitch": 64
+          },
+          {
+            "startTick": 21,
+            "lengthTicks": 4,
+            "pitch": 62
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "D",
+        "collection": "Dorian"
+      },
+      "instrumentProfileId": "bb-tenor",
+      "seed": 3071227676,
+      "kept": ["D Dorian", "D Aeolian"],
+      "answer": {
+        "kind": "suggested",
+        "tonalCenter": "E",
+        "collection": "Dorian"
+      }
+    },
+    {
+      "label": "doodle set sixteenth-bursts, A Minor, eb-alto",
+      "doodle": {
+        "measureCount": 2,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 1,
+            "pitch": 62
+          },
+          {
+            "startTick": 1,
+            "lengthTicks": 1,
+            "pitch": 64
+          },
+          {
+            "startTick": 2,
+            "lengthTicks": 1,
+            "pitch": 65
+          },
+          {
+            "startTick": 3,
+            "lengthTicks": 1,
+            "pitch": 67
+          },
+          {
+            "startTick": 6,
+            "lengthTicks": 3,
+            "pitch": 69
+          },
+          {
+            "startTick": 18,
+            "lengthTicks": 1,
+            "pitch": 67
+          },
+          {
+            "startTick": 19,
+            "lengthTicks": 1,
+            "pitch": 65
+          },
+          {
+            "startTick": 20,
+            "lengthTicks": 1,
+            "pitch": 64
+          },
+          {
+            "startTick": 21,
+            "lengthTicks": 4,
+            "pitch": 62
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "A",
+        "collection": "Minor"
+      },
+      "instrumentProfileId": "eb-alto",
+      "seed": 3071227676,
+      "kept": ["D Dorian", "D Aeolian"],
+      "answer": {
+        "kind": "suggested",
+        "tonalCenter": "B",
+        "collection": "Dorian"
+      }
+    },
+    {
+      "label": "doodle set sixteenth-stream, C Major, c-keyboard",
+      "doodle": {
+        "measureCount": 1,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 1,
+            "pitch": 60
+          },
+          {
+            "startTick": 1,
+            "lengthTicks": 1,
+            "pitch": 62
+          },
+          {
+            "startTick": 2,
+            "lengthTicks": 1,
+            "pitch": 64
+          },
+          {
+            "startTick": 3,
+            "lengthTicks": 1,
+            "pitch": 65
+          },
+          {
+            "startTick": 4,
+            "lengthTicks": 1,
+            "pitch": 67
+          },
+          {
+            "startTick": 5,
+            "lengthTicks": 1,
+            "pitch": 69
+          },
+          {
+            "startTick": 6,
+            "lengthTicks": 1,
+            "pitch": 71
+          },
+          {
+            "startTick": 7,
+            "lengthTicks": 1,
+            "pitch": 72
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 1,
+            "pitch": 71
+          },
+          {
+            "startTick": 9,
+            "lengthTicks": 1,
+            "pitch": 69
+          },
+          {
+            "startTick": 10,
+            "lengthTicks": 1,
+            "pitch": 67
+          },
+          {
+            "startTick": 11,
+            "lengthTicks": 1,
+            "pitch": 65
+          },
+          {
+            "startTick": 12,
+            "lengthTicks": 1,
+            "pitch": 64
+          },
+          {
+            "startTick": 13,
+            "lengthTicks": 1,
+            "pitch": 62
+          },
+          {
+            "startTick": 14,
+            "lengthTicks": 1,
+            "pitch": 60
+          },
+          {
+            "startTick": 15,
+            "lengthTicks": 1,
+            "pitch": 62
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "C",
+        "collection": "Major"
+      },
+      "instrumentProfileId": "c-keyboard",
+      "seed": 2438482888,
+      "kept": ["D Dorian", "C Ionian"],
+      "answer": {
+        "kind": "nothing"
+      }
+    },
+    {
+      "label": "doodle set sixteenth-stream, D Dorian, bb-tenor",
+      "doodle": {
+        "measureCount": 1,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 1,
+            "pitch": 60
+          },
+          {
+            "startTick": 1,
+            "lengthTicks": 1,
+            "pitch": 62
+          },
+          {
+            "startTick": 2,
+            "lengthTicks": 1,
+            "pitch": 64
+          },
+          {
+            "startTick": 3,
+            "lengthTicks": 1,
+            "pitch": 65
+          },
+          {
+            "startTick": 4,
+            "lengthTicks": 1,
+            "pitch": 67
+          },
+          {
+            "startTick": 5,
+            "lengthTicks": 1,
+            "pitch": 69
+          },
+          {
+            "startTick": 6,
+            "lengthTicks": 1,
+            "pitch": 71
+          },
+          {
+            "startTick": 7,
+            "lengthTicks": 1,
+            "pitch": 72
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 1,
+            "pitch": 71
+          },
+          {
+            "startTick": 9,
+            "lengthTicks": 1,
+            "pitch": 69
+          },
+          {
+            "startTick": 10,
+            "lengthTicks": 1,
+            "pitch": 67
+          },
+          {
+            "startTick": 11,
+            "lengthTicks": 1,
+            "pitch": 65
+          },
+          {
+            "startTick": 12,
+            "lengthTicks": 1,
+            "pitch": 64
+          },
+          {
+            "startTick": 13,
+            "lengthTicks": 1,
+            "pitch": 62
+          },
+          {
+            "startTick": 14,
+            "lengthTicks": 1,
+            "pitch": 60
+          },
+          {
+            "startTick": 15,
+            "lengthTicks": 1,
+            "pitch": 62
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "D",
+        "collection": "Dorian"
+      },
+      "instrumentProfileId": "bb-tenor",
+      "seed": 2438482888,
+      "kept": ["D Dorian", "C Ionian"],
+      "answer": {
+        "kind": "suggested",
+        "tonalCenter": "E",
+        "collection": "Dorian"
+      }
+    },
+    {
+      "label": "doodle set sixteenth-stream, A Minor, eb-alto",
+      "doodle": {
+        "measureCount": 1,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 1,
+            "pitch": 60
+          },
+          {
+            "startTick": 1,
+            "lengthTicks": 1,
+            "pitch": 62
+          },
+          {
+            "startTick": 2,
+            "lengthTicks": 1,
+            "pitch": 64
+          },
+          {
+            "startTick": 3,
+            "lengthTicks": 1,
+            "pitch": 65
+          },
+          {
+            "startTick": 4,
+            "lengthTicks": 1,
+            "pitch": 67
+          },
+          {
+            "startTick": 5,
+            "lengthTicks": 1,
+            "pitch": 69
+          },
+          {
+            "startTick": 6,
+            "lengthTicks": 1,
+            "pitch": 71
+          },
+          {
+            "startTick": 7,
+            "lengthTicks": 1,
+            "pitch": 72
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 1,
+            "pitch": 71
+          },
+          {
+            "startTick": 9,
+            "lengthTicks": 1,
+            "pitch": 69
+          },
+          {
+            "startTick": 10,
+            "lengthTicks": 1,
+            "pitch": 67
+          },
+          {
+            "startTick": 11,
+            "lengthTicks": 1,
+            "pitch": 65
+          },
+          {
+            "startTick": 12,
+            "lengthTicks": 1,
+            "pitch": 64
+          },
+          {
+            "startTick": 13,
+            "lengthTicks": 1,
+            "pitch": 62
+          },
+          {
+            "startTick": 14,
+            "lengthTicks": 1,
+            "pitch": 60
+          },
+          {
+            "startTick": 15,
+            "lengthTicks": 1,
+            "pitch": 62
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "A",
+        "collection": "Minor"
+      },
+      "instrumentProfileId": "eb-alto",
+      "seed": 2438482888,
+      "kept": ["D Dorian", "C Ionian"],
+      "answer": {
+        "kind": "suggested",
+        "tonalCenter": "B",
+        "collection": "Dorian"
+      }
+    },
+    {
+      "label": "doodle set sparse-calls, C Major, c-keyboard",
+      "doodle": {
+        "measureCount": 3,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 8,
+            "pitch": 67
+          },
+          {
+            "startTick": 12,
+            "lengthTicks": 4,
+            "pitch": 64
+          },
+          {
+            "startTick": 24,
+            "lengthTicks": 1,
+            "pitch": 62
+          },
+          {
+            "startTick": 32,
+            "lengthTicks": 8,
+            "pitch": 60
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "C",
+        "collection": "Major"
+      },
+      "instrumentProfileId": "c-keyboard",
+      "seed": 1511306681,
+      "kept": ["C Ionian", "C Lydian", "C Mixolydian"],
+      "answer": {
+        "kind": "nothing"
+      }
+    },
+    {
+      "label": "doodle set sparse-calls, D Dorian, bb-tenor",
+      "doodle": {
+        "measureCount": 3,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 8,
+            "pitch": 67
+          },
+          {
+            "startTick": 12,
+            "lengthTicks": 4,
+            "pitch": 64
+          },
+          {
+            "startTick": 24,
+            "lengthTicks": 1,
+            "pitch": 62
+          },
+          {
+            "startTick": 32,
+            "lengthTicks": 8,
+            "pitch": 60
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "D",
+        "collection": "Dorian"
+      },
+      "instrumentProfileId": "bb-tenor",
+      "seed": 1511306681,
+      "kept": ["C Ionian", "C Lydian", "C Mixolydian"],
+      "answer": {
+        "kind": "nothing"
+      }
+    },
+    {
+      "label": "doodle set sparse-calls, A Minor, eb-alto",
+      "doodle": {
+        "measureCount": 3,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 8,
+            "pitch": 67
+          },
+          {
+            "startTick": 12,
+            "lengthTicks": 4,
+            "pitch": 64
+          },
+          {
+            "startTick": 24,
+            "lengthTicks": 1,
+            "pitch": 62
+          },
+          {
+            "startTick": 32,
+            "lengthTicks": 8,
+            "pitch": 60
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "A",
+        "collection": "Minor"
+      },
+      "instrumentProfileId": "eb-alto",
+      "seed": 1511306681,
+      "kept": ["C Ionian", "C Lydian", "C Mixolydian"],
+      "answer": {
+        "kind": "nothing"
+      }
+    },
+    {
+      "label": "doodle set stray-notes, C Major, c-keyboard",
+      "doodle": {
+        "measureCount": 4,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 2,
+            "lengthTicks": 2,
+            "pitch": 65
+          },
+          {
+            "startTick": 4,
+            "lengthTicks": 2,
+            "pitch": 67
+          },
+          {
+            "startTick": 6,
+            "lengthTicks": 2,
+            "pitch": 69
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 4,
+            "pitch": 67
+          },
+          {
+            "startTick": 12,
+            "lengthTicks": 4,
+            "pitch": 64
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 2,
+            "pitch": 62
+          },
+          {
+            "startTick": 18,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 20,
+            "lengthTicks": 4,
+            "pitch": 65
+          },
+          {
+            "startTick": 24,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 26,
+            "lengthTicks": 2,
+            "pitch": 62
+          },
+          {
+            "startTick": 28,
+            "lengthTicks": 4,
+            "pitch": 60
+          },
+          {
+            "startTick": 32,
+            "lengthTicks": 4,
+            "pitch": 62
+          },
+          {
+            "startTick": 36,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 38,
+            "lengthTicks": 2,
+            "pitch": 65
+          },
+          {
+            "startTick": 40,
+            "lengthTicks": 4,
+            "pitch": 67
+          },
+          {
+            "startTick": 44,
+            "lengthTicks": 4,
+            "pitch": 69
+          },
+          {
+            "startTick": 48,
+            "lengthTicks": 2,
+            "pitch": 71
+          },
+          {
+            "startTick": 50,
+            "lengthTicks": 2,
+            "pitch": 72
+          },
+          {
+            "startTick": 52,
+            "lengthTicks": 4,
+            "pitch": 71
+          },
+          {
+            "startTick": 56,
+            "lengthTicks": 8,
+            "pitch": 69
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "C",
+        "collection": "Major"
+      },
+      "instrumentProfileId": "c-keyboard",
+      "seed": 1999904342,
+      "kept": ["A Aeolian", "E Phrygian"],
+      "answer": {
+        "kind": "suggested",
+        "tonalCenter": "A",
+        "collection": "Minor"
+      }
+    },
+    {
+      "label": "doodle set stray-notes, D Dorian, bb-tenor",
+      "doodle": {
+        "measureCount": 4,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 2,
+            "lengthTicks": 2,
+            "pitch": 65
+          },
+          {
+            "startTick": 4,
+            "lengthTicks": 2,
+            "pitch": 67
+          },
+          {
+            "startTick": 6,
+            "lengthTicks": 2,
+            "pitch": 69
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 4,
+            "pitch": 67
+          },
+          {
+            "startTick": 12,
+            "lengthTicks": 4,
+            "pitch": 64
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 2,
+            "pitch": 62
+          },
+          {
+            "startTick": 18,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 20,
+            "lengthTicks": 4,
+            "pitch": 65
+          },
+          {
+            "startTick": 24,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 26,
+            "lengthTicks": 2,
+            "pitch": 62
+          },
+          {
+            "startTick": 28,
+            "lengthTicks": 4,
+            "pitch": 60
+          },
+          {
+            "startTick": 32,
+            "lengthTicks": 4,
+            "pitch": 62
+          },
+          {
+            "startTick": 36,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 38,
+            "lengthTicks": 2,
+            "pitch": 65
+          },
+          {
+            "startTick": 40,
+            "lengthTicks": 4,
+            "pitch": 67
+          },
+          {
+            "startTick": 44,
+            "lengthTicks": 4,
+            "pitch": 69
+          },
+          {
+            "startTick": 48,
+            "lengthTicks": 2,
+            "pitch": 71
+          },
+          {
+            "startTick": 50,
+            "lengthTicks": 2,
+            "pitch": 72
+          },
+          {
+            "startTick": 52,
+            "lengthTicks": 4,
+            "pitch": 71
+          },
+          {
+            "startTick": 56,
+            "lengthTicks": 8,
+            "pitch": 69
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "D",
+        "collection": "Dorian"
+      },
+      "instrumentProfileId": "bb-tenor",
+      "seed": 1999904342,
+      "kept": ["A Aeolian", "E Phrygian"],
+      "answer": {
+        "kind": "suggested",
+        "tonalCenter": "B",
+        "collection": "Aeolian"
+      }
+    },
+    {
+      "label": "doodle set stray-notes, A Minor, eb-alto",
+      "doodle": {
+        "measureCount": 4,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 2,
+            "lengthTicks": 2,
+            "pitch": 65
+          },
+          {
+            "startTick": 4,
+            "lengthTicks": 2,
+            "pitch": 67
+          },
+          {
+            "startTick": 6,
+            "lengthTicks": 2,
+            "pitch": 69
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 4,
+            "pitch": 67
+          },
+          {
+            "startTick": 12,
+            "lengthTicks": 4,
+            "pitch": 64
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 2,
+            "pitch": 62
+          },
+          {
+            "startTick": 18,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 20,
+            "lengthTicks": 4,
+            "pitch": 65
+          },
+          {
+            "startTick": 24,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 26,
+            "lengthTicks": 2,
+            "pitch": 62
+          },
+          {
+            "startTick": 28,
+            "lengthTicks": 4,
+            "pitch": 60
+          },
+          {
+            "startTick": 32,
+            "lengthTicks": 4,
+            "pitch": 62
+          },
+          {
+            "startTick": 36,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 38,
+            "lengthTicks": 2,
+            "pitch": 65
+          },
+          {
+            "startTick": 40,
+            "lengthTicks": 4,
+            "pitch": 67
+          },
+          {
+            "startTick": 44,
+            "lengthTicks": 4,
+            "pitch": 69
+          },
+          {
+            "startTick": 48,
+            "lengthTicks": 2,
+            "pitch": 71
+          },
+          {
+            "startTick": 50,
+            "lengthTicks": 2,
+            "pitch": 72
+          },
+          {
+            "startTick": 52,
+            "lengthTicks": 4,
+            "pitch": 71
+          },
+          {
+            "startTick": 56,
+            "lengthTicks": 8,
+            "pitch": 69
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "A",
+        "collection": "Minor"
+      },
+      "instrumentProfileId": "eb-alto",
+      "seed": 1999904342,
+      "kept": ["A Aeolian", "E Phrygian"],
+      "answer": {
+        "kind": "suggested",
+        "tonalCenter": "F#",
+        "collection": "Minor"
+      }
+    },
+    {
+      "label": "doodle set syncopated-push-with-rests, C Major, c-keyboard",
+      "doodle": {
+        "measureCount": 2,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 2,
+            "lengthTicks": 4,
+            "pitch": 67
+          },
+          {
+            "startTick": 6,
+            "lengthTicks": 2,
+            "pitch": 65
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 2,
+            "pitch": 62
+          },
+          {
+            "startTick": 18,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 20,
+            "lengthTicks": 4,
+            "pitch": 65
+          },
+          {
+            "startTick": 24,
+            "lengthTicks": 4,
+            "pitch": 67
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "C",
+        "collection": "Major"
+      },
+      "instrumentProfileId": "c-keyboard",
+      "seed": 3023958789,
+      "kept": ["G Dorian", "G Mixolydian", "E Phrygian"],
+      "answer": {
+        "kind": "nothing"
+      }
+    },
+    {
+      "label": "doodle set syncopated-push-with-rests, D Dorian, bb-tenor",
+      "doodle": {
+        "measureCount": 2,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 2,
+            "lengthTicks": 4,
+            "pitch": 67
+          },
+          {
+            "startTick": 6,
+            "lengthTicks": 2,
+            "pitch": 65
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 2,
+            "pitch": 62
+          },
+          {
+            "startTick": 18,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 20,
+            "lengthTicks": 4,
+            "pitch": 65
+          },
+          {
+            "startTick": 24,
+            "lengthTicks": 4,
+            "pitch": 67
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "D",
+        "collection": "Dorian"
+      },
+      "instrumentProfileId": "bb-tenor",
+      "seed": 3023958789,
+      "kept": ["G Dorian", "G Mixolydian", "E Phrygian"],
+      "answer": {
+        "kind": "nothing"
+      }
+    },
+    {
+      "label": "doodle set syncopated-push-with-rests, A Minor, eb-alto",
+      "doodle": {
+        "measureCount": 2,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 2,
+            "lengthTicks": 4,
+            "pitch": 67
+          },
+          {
+            "startTick": 6,
+            "lengthTicks": 2,
+            "pitch": 65
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 2,
+            "pitch": 62
+          },
+          {
+            "startTick": 18,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 20,
+            "lengthTicks": 4,
+            "pitch": 65
+          },
+          {
+            "startTick": 24,
+            "lengthTicks": 4,
+            "pitch": 67
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "A",
+        "collection": "Minor"
+      },
+      "instrumentProfileId": "eb-alto",
+      "seed": 3023958789,
+      "kept": ["G Dorian", "G Mixolydian", "E Phrygian"],
+      "answer": {
+        "kind": "nothing"
+      }
+    },
+    {
+      "label": "doodle set tresillo-leaps, C Major, c-keyboard",
+      "doodle": {
+        "measureCount": 2,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 5,
+            "pitch": 60
+          },
+          {
+            "startTick": 6,
+            "lengthTicks": 5,
+            "pitch": 67
+          },
+          {
+            "startTick": 12,
+            "lengthTicks": 3,
+            "pitch": 55
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 5,
+            "pitch": 64
+          },
+          {
+            "startTick": 22,
+            "lengthTicks": 5,
+            "pitch": 72
+          },
+          {
+            "startTick": 28,
+            "lengthTicks": 3,
+            "pitch": 57
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "C",
+        "collection": "Major"
+      },
+      "instrumentProfileId": "c-keyboard",
+      "seed": 2875063151,
+      "kept": ["C Ionian", "C Lydian", "C Mixolydian"],
+      "answer": {
+        "kind": "nothing"
+      }
+    },
+    {
+      "label": "doodle set tresillo-leaps, D Dorian, bb-tenor",
+      "doodle": {
+        "measureCount": 2,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 5,
+            "pitch": 60
+          },
+          {
+            "startTick": 6,
+            "lengthTicks": 5,
+            "pitch": 67
+          },
+          {
+            "startTick": 12,
+            "lengthTicks": 3,
+            "pitch": 55
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 5,
+            "pitch": 64
+          },
+          {
+            "startTick": 22,
+            "lengthTicks": 5,
+            "pitch": 72
+          },
+          {
+            "startTick": 28,
+            "lengthTicks": 3,
+            "pitch": 57
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "D",
+        "collection": "Dorian"
+      },
+      "instrumentProfileId": "bb-tenor",
+      "seed": 2875063151,
+      "kept": ["C Ionian", "C Lydian", "C Mixolydian"],
+      "answer": {
+        "kind": "nothing"
+      }
+    },
+    {
+      "label": "doodle set tresillo-leaps, A Minor, eb-alto",
+      "doodle": {
+        "measureCount": 2,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 5,
+            "pitch": 60
+          },
+          {
+            "startTick": 6,
+            "lengthTicks": 5,
+            "pitch": 67
+          },
+          {
+            "startTick": 12,
+            "lengthTicks": 3,
+            "pitch": 55
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 5,
+            "pitch": 64
+          },
+          {
+            "startTick": 22,
+            "lengthTicks": 5,
+            "pitch": 72
+          },
+          {
+            "startTick": 28,
+            "lengthTicks": 3,
+            "pitch": 57
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "A",
+        "collection": "Minor"
+      },
+      "instrumentProfileId": "eb-alto",
+      "seed": 2875063151,
+      "kept": ["C Ionian", "C Lydian", "C Mixolydian"],
+      "answer": {
+        "kind": "nothing"
+      }
+    },
+    {
+      "label": "doodle set wandering-gaps-low-ending, C Major, c-keyboard",
+      "doodle": {
+        "measureCount": 4,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 3,
+            "pitch": 60
+          },
+          {
+            "startTick": 3,
+            "lengthTicks": 1,
+            "pitch": 62
+          },
+          {
+            "startTick": 4,
+            "lengthTicks": 6,
+            "pitch": 64
+          },
+          {
+            "startTick": 13,
+            "lengthTicks": 2,
+            "pitch": 59
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 1,
+            "pitch": 57
+          },
+          {
+            "startTick": 17,
+            "lengthTicks": 7,
+            "pitch": 55
+          },
+          {
+            "startTick": 27,
+            "lengthTicks": 2,
+            "pitch": 62
+          },
+          {
+            "startTick": 29,
+            "lengthTicks": 5,
+            "pitch": 67
+          },
+          {
+            "startTick": 35,
+            "lengthTicks": 6,
+            "pitch": 60
+          },
+          {
+            "startTick": 44,
+            "lengthTicks": 4,
+            "pitch": 52
+          },
+          {
+            "startTick": 50,
+            "lengthTicks": 3,
+            "pitch": 57
+          },
+          {
+            "startTick": 56,
+            "lengthTicks": 6,
+            "pitch": 45
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "C",
+        "collection": "Major"
+      },
+      "instrumentProfileId": "c-keyboard",
+      "seed": 1583646284,
+      "kept": ["A Dorian", "A Aeolian"],
+      "answer": {
+        "kind": "suggested",
+        "tonalCenter": "A",
+        "collection": "Dorian"
+      }
+    },
+    {
+      "label": "doodle set wandering-gaps-low-ending, D Dorian, bb-tenor",
+      "doodle": {
+        "measureCount": 4,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 3,
+            "pitch": 60
+          },
+          {
+            "startTick": 3,
+            "lengthTicks": 1,
+            "pitch": 62
+          },
+          {
+            "startTick": 4,
+            "lengthTicks": 6,
+            "pitch": 64
+          },
+          {
+            "startTick": 13,
+            "lengthTicks": 2,
+            "pitch": 59
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 1,
+            "pitch": 57
+          },
+          {
+            "startTick": 17,
+            "lengthTicks": 7,
+            "pitch": 55
+          },
+          {
+            "startTick": 27,
+            "lengthTicks": 2,
+            "pitch": 62
+          },
+          {
+            "startTick": 29,
+            "lengthTicks": 5,
+            "pitch": 67
+          },
+          {
+            "startTick": 35,
+            "lengthTicks": 6,
+            "pitch": 60
+          },
+          {
+            "startTick": 44,
+            "lengthTicks": 4,
+            "pitch": 52
+          },
+          {
+            "startTick": 50,
+            "lengthTicks": 3,
+            "pitch": 57
+          },
+          {
+            "startTick": 56,
+            "lengthTicks": 6,
+            "pitch": 45
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "D",
+        "collection": "Dorian"
+      },
+      "instrumentProfileId": "bb-tenor",
+      "seed": 1583646284,
+      "kept": ["A Dorian", "A Aeolian"],
+      "answer": {
+        "kind": "suggested",
+        "tonalCenter": "B",
+        "collection": "Dorian"
+      }
+    },
+    {
+      "label": "doodle set wandering-gaps-low-ending, A Minor, eb-alto",
+      "doodle": {
+        "measureCount": 4,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 3,
+            "pitch": 60
+          },
+          {
+            "startTick": 3,
+            "lengthTicks": 1,
+            "pitch": 62
+          },
+          {
+            "startTick": 4,
+            "lengthTicks": 6,
+            "pitch": 64
+          },
+          {
+            "startTick": 13,
+            "lengthTicks": 2,
+            "pitch": 59
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 1,
+            "pitch": 57
+          },
+          {
+            "startTick": 17,
+            "lengthTicks": 7,
+            "pitch": 55
+          },
+          {
+            "startTick": 27,
+            "lengthTicks": 2,
+            "pitch": 62
+          },
+          {
+            "startTick": 29,
+            "lengthTicks": 5,
+            "pitch": 67
+          },
+          {
+            "startTick": 35,
+            "lengthTicks": 6,
+            "pitch": 60
+          },
+          {
+            "startTick": 44,
+            "lengthTicks": 4,
+            "pitch": 52
+          },
+          {
+            "startTick": 50,
+            "lengthTicks": 3,
+            "pitch": 57
+          },
+          {
+            "startTick": 56,
+            "lengthTicks": 6,
+            "pitch": 45
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "A",
+        "collection": "Minor"
+      },
+      "instrumentProfileId": "eb-alto",
+      "seed": 1583646284,
+      "kept": ["A Dorian", "A Aeolian"],
+      "answer": {
+        "kind": "suggested",
+        "tonalCenter": "F#",
+        "collection": "Dorian"
+      }
+    },
+    {
+      "label": "worked example, C Major, c-keyboard",
+      "doodle": {
+        "measureCount": 2,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 4,
+            "pitch": 62
+          },
+          {
+            "startTick": 4,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 6,
+            "lengthTicks": 2,
+            "pitch": 65
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 4,
+            "pitch": 67
+          },
+          {
+            "startTick": 12,
+            "lengthTicks": 4,
+            "pitch": 69
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 2,
+            "pitch": 72
+          },
+          {
+            "startTick": 18,
+            "lengthTicks": 2,
+            "pitch": 69
+          },
+          {
+            "startTick": 20,
+            "lengthTicks": 8,
+            "pitch": 62
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "C",
+        "collection": "Major"
+      },
+      "instrumentProfileId": "c-keyboard",
+      "seed": 849393029,
+      "kept": ["D Dorian", "D Aeolian"],
+      "answer": {
+        "kind": "suggested",
+        "tonalCenter": "D",
+        "collection": "Minor"
+      }
+    },
+    {
+      "label": "worked example, C Major, bb-tenor",
+      "doodle": {
+        "measureCount": 2,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 4,
+            "pitch": 62
+          },
+          {
+            "startTick": 4,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 6,
+            "lengthTicks": 2,
+            "pitch": 65
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 4,
+            "pitch": 67
+          },
+          {
+            "startTick": 12,
+            "lengthTicks": 4,
+            "pitch": 69
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 2,
+            "pitch": 72
+          },
+          {
+            "startTick": 18,
+            "lengthTicks": 2,
+            "pitch": 69
+          },
+          {
+            "startTick": 20,
+            "lengthTicks": 8,
+            "pitch": 62
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "C",
+        "collection": "Major"
+      },
+      "instrumentProfileId": "bb-tenor",
+      "seed": 849393029,
+      "kept": ["D Dorian", "D Aeolian"],
+      "answer": {
+        "kind": "suggested",
+        "tonalCenter": "E",
+        "collection": "Minor"
+      }
+    },
+    {
+      "label": "worked example, D Minor, c-keyboard",
+      "doodle": {
+        "measureCount": 2,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 4,
+            "pitch": 62
+          },
+          {
+            "startTick": 4,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 6,
+            "lengthTicks": 2,
+            "pitch": 65
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 4,
+            "pitch": 67
+          },
+          {
+            "startTick": 12,
+            "lengthTicks": 4,
+            "pitch": 69
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 2,
+            "pitch": 72
+          },
+          {
+            "startTick": 18,
+            "lengthTicks": 2,
+            "pitch": 69
+          },
+          {
+            "startTick": 20,
+            "lengthTicks": 8,
+            "pitch": 62
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "D",
+        "collection": "Minor"
+      },
+      "instrumentProfileId": "c-keyboard",
+      "seed": 849393029,
+      "kept": ["D Dorian", "D Aeolian"],
+      "answer": {
+        "kind": "nothing"
+      }
+    },
+    {
+      "label": "worked example off the beats, C Ionian, c-keyboard",
+      "doodle": {
+        "measureCount": 2,
+        "notes": [
+          {
+            "startTick": 1,
+            "lengthTicks": 4,
+            "pitch": 62
+          },
+          {
+            "startTick": 5,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 7,
+            "lengthTicks": 2,
+            "pitch": 65
+          },
+          {
+            "startTick": 9,
+            "lengthTicks": 4,
+            "pitch": 67
+          },
+          {
+            "startTick": 13,
+            "lengthTicks": 4,
+            "pitch": 69
+          },
+          {
+            "startTick": 17,
+            "lengthTicks": 2,
+            "pitch": 72
+          },
+          {
+            "startTick": 19,
+            "lengthTicks": 2,
+            "pitch": 69
+          },
+          {
+            "startTick": 21,
+            "lengthTicks": 8,
+            "pitch": 62
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "C",
+        "collection": "Ionian"
+      },
+      "instrumentProfileId": "c-keyboard",
+      "seed": 884195561,
+      "kept": ["D Dorian", "D Aeolian"],
+      "answer": {
+        "kind": "suggested",
+        "tonalCenter": "D",
+        "collection": "Aeolian"
+      }
+    },
+    {
+      "label": "ending on E, C Major, c-keyboard",
+      "doodle": {
+        "measureCount": 2,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 4,
+            "pitch": 62
+          },
+          {
+            "startTick": 4,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 6,
+            "lengthTicks": 2,
+            "pitch": 65
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 4,
+            "pitch": 67
+          },
+          {
+            "startTick": 12,
+            "lengthTicks": 4,
+            "pitch": 69
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 2,
+            "pitch": 72
+          },
+          {
+            "startTick": 18,
+            "lengthTicks": 2,
+            "pitch": 69
+          },
+          {
+            "startTick": 20,
+            "lengthTicks": 8,
+            "pitch": 64
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "C",
+        "collection": "Major"
+      },
+      "instrumentProfileId": "c-keyboard",
+      "seed": 748727315,
+      "kept": ["E Phrygian", "E Locrian", "D Dorian"],
+      "answer": {
+        "kind": "suggested",
+        "tonalCenter": "E",
+        "collection": "Phrygian"
+      }
+    },
+    {
+      "label": "ending on E, F Lydian, eb-alto",
+      "doodle": {
+        "measureCount": 2,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 4,
+            "pitch": 62
+          },
+          {
+            "startTick": 4,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 6,
+            "lengthTicks": 2,
+            "pitch": 65
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 4,
+            "pitch": 67
+          },
+          {
+            "startTick": 12,
+            "lengthTicks": 4,
+            "pitch": 69
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 2,
+            "pitch": 72
+          },
+          {
+            "startTick": 18,
+            "lengthTicks": 2,
+            "pitch": 69
+          },
+          {
+            "startTick": 20,
+            "lengthTicks": 8,
+            "pitch": 64
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "F",
+        "collection": "Lydian"
+      },
+      "instrumentProfileId": "eb-alto",
+      "seed": 748727315,
+      "kept": ["E Phrygian", "E Locrian", "D Dorian"],
+      "answer": {
+        "kind": "suggested",
+        "tonalCenter": "C#",
+        "collection": "Phrygian"
+      }
+    },
+    {
+      "label": "ending on E off the beats, G Mixolydian, c-keyboard",
+      "doodle": {
+        "measureCount": 2,
+        "notes": [
+          {
+            "startTick": 1,
+            "lengthTicks": 4,
+            "pitch": 62
+          },
+          {
+            "startTick": 5,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 7,
+            "lengthTicks": 2,
+            "pitch": 65
+          },
+          {
+            "startTick": 9,
+            "lengthTicks": 4,
+            "pitch": 67
+          },
+          {
+            "startTick": 13,
+            "lengthTicks": 4,
+            "pitch": 69
+          },
+          {
+            "startTick": 17,
+            "lengthTicks": 2,
+            "pitch": 72
+          },
+          {
+            "startTick": 19,
+            "lengthTicks": 2,
+            "pitch": 69
+          },
+          {
+            "startTick": 21,
+            "lengthTicks": 8,
+            "pitch": 64
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "G",
+        "collection": "Mixolydian"
+      },
+      "instrumentProfileId": "c-keyboard",
+      "seed": 917750799,
+      "kept": ["E Phrygian", "E Locrian", "A Phrygian"],
+      "answer": {
+        "kind": "suggested",
+        "tonalCenter": "A",
+        "collection": "Phrygian"
+      }
+    },
+    {
+      "label": "harmonic minor, C Major, c-keyboard",
+      "doodle": {
+        "measureCount": 2,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 4,
+            "pitch": 57
+          },
+          {
+            "startTick": 4,
+            "lengthTicks": 2,
+            "pitch": 59
+          },
+          {
+            "startTick": 6,
+            "lengthTicks": 2,
+            "pitch": 60
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 2,
+            "pitch": 62
+          },
+          {
+            "startTick": 10,
+            "lengthTicks": 4,
+            "pitch": 64
+          },
+          {
+            "startTick": 14,
+            "lengthTicks": 2,
+            "pitch": 65
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 2,
+            "pitch": 68
+          },
+          {
+            "startTick": 18,
+            "lengthTicks": 8,
+            "pitch": 69
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "C",
+        "collection": "Major"
+      },
+      "instrumentProfileId": "c-keyboard",
+      "seed": 3621982307,
+      "kept": ["A Aeolian"],
+      "answer": {
+        "kind": "suggested",
+        "tonalCenter": "A",
+        "collection": "Minor"
+      }
+    },
+    {
+      "label": "harmonic minor, A Minor, c-keyboard",
+      "doodle": {
+        "measureCount": 2,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 4,
+            "pitch": 57
+          },
+          {
+            "startTick": 4,
+            "lengthTicks": 2,
+            "pitch": 59
+          },
+          {
+            "startTick": 6,
+            "lengthTicks": 2,
+            "pitch": 60
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 2,
+            "pitch": 62
+          },
+          {
+            "startTick": 10,
+            "lengthTicks": 4,
+            "pitch": 64
+          },
+          {
+            "startTick": 14,
+            "lengthTicks": 2,
+            "pitch": 65
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 2,
+            "pitch": 68
+          },
+          {
+            "startTick": 18,
+            "lengthTicks": 8,
+            "pitch": 69
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "A",
+        "collection": "Minor"
+      },
+      "instrumentProfileId": "c-keyboard",
+      "seed": 3621982307,
+      "kept": ["A Aeolian"],
+      "answer": {
+        "kind": "nothing"
+      }
+    },
+    {
+      "label": "bluesy, C Major, c-keyboard",
+      "doodle": {
+        "measureCount": 2,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 4,
+            "pitch": 60
+          },
+          {
+            "startTick": 4,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 6,
+            "lengthTicks": 2,
+            "pitch": 65
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 2,
+            "pitch": 66
+          },
+          {
+            "startTick": 10,
+            "lengthTicks": 4,
+            "pitch": 67
+          },
+          {
+            "startTick": 14,
+            "lengthTicks": 2,
+            "pitch": 70
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 8,
+            "pitch": 72
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "C",
+        "collection": "Major"
+      },
+      "instrumentProfileId": "c-keyboard",
+      "seed": 1943138328,
+      "kept": ["C Mixolydian"],
+      "answer": {
+        "kind": "suggested",
+        "tonalCenter": "C",
+        "collection": "Mixolydian"
+      }
+    },
+    {
+      "label": "bluesy, C Dorian, bb-tenor",
+      "doodle": {
+        "measureCount": 2,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 4,
+            "pitch": 60
+          },
+          {
+            "startTick": 4,
+            "lengthTicks": 2,
+            "pitch": 64
+          },
+          {
+            "startTick": 6,
+            "lengthTicks": 2,
+            "pitch": 65
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 2,
+            "pitch": 66
+          },
+          {
+            "startTick": 10,
+            "lengthTicks": 4,
+            "pitch": 67
+          },
+          {
+            "startTick": 14,
+            "lengthTicks": 2,
+            "pitch": 70
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 8,
+            "pitch": 72
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "C",
+        "collection": "Dorian"
+      },
+      "instrumentProfileId": "bb-tenor",
+      "seed": 1943138328,
+      "kept": ["C Mixolydian"],
+      "answer": {
+        "kind": "suggested",
+        "tonalCenter": "D",
+        "collection": "Mixolydian"
+      }
+    },
+    {
+      "label": "chromatic, C Major, c-keyboard",
+      "doodle": {
+        "measureCount": 4,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 4,
+            "pitch": 60
+          },
+          {
+            "startTick": 4,
+            "lengthTicks": 4,
+            "pitch": 61
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 4,
+            "pitch": 62
+          },
+          {
+            "startTick": 12,
+            "lengthTicks": 4,
+            "pitch": 63
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 4,
+            "pitch": 64
+          },
+          {
+            "startTick": 20,
+            "lengthTicks": 4,
+            "pitch": 65
+          },
+          {
+            "startTick": 24,
+            "lengthTicks": 4,
+            "pitch": 66
+          },
+          {
+            "startTick": 28,
+            "lengthTicks": 4,
+            "pitch": 67
+          },
+          {
+            "startTick": 32,
+            "lengthTicks": 4,
+            "pitch": 68
+          },
+          {
+            "startTick": 36,
+            "lengthTicks": 4,
+            "pitch": 69
+          },
+          {
+            "startTick": 40,
+            "lengthTicks": 4,
+            "pitch": 70
+          },
+          {
+            "startTick": 44,
+            "lengthTicks": 4,
+            "pitch": 71
+          },
+          {
+            "startTick": 48,
+            "lengthTicks": 4,
+            "pitch": 72
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "C",
+        "collection": "Major"
+      },
+      "instrumentProfileId": "c-keyboard",
+      "seed": 2217678374,
+      "kept": ["C Locrian", "C Lydian", "C Mixolydian"],
+      "answer": {
+        "kind": "no_fit"
+      }
+    },
+    {
+      "label": "80 % exactly, F# Major, c-keyboard",
+      "doodle": {
+        "measureCount": 2,
+        "notes": [
+          {
+            "startTick": 1,
+            "lengthTicks": 4,
+            "pitch": 60
+          },
+          {
+            "startTick": 5,
+            "lengthTicks": 4,
+            "pitch": 62
+          },
+          {
+            "startTick": 9,
+            "lengthTicks": 4,
+            "pitch": 64
+          },
+          {
+            "startTick": 13,
+            "lengthTicks": 4,
+            "pitch": 67
+          },
+          {
+            "startTick": 17,
+            "lengthTicks": 4,
+            "pitch": 72
+          },
+          {
+            "startTick": 21,
+            "lengthTicks": 5,
+            "pitch": 61
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "F#",
+        "collection": "Major"
+      },
+      "instrumentProfileId": "c-keyboard",
+      "seed": 601298333,
+      "kept": ["C Ionian", "C Lydian", "C Mixolydian"],
+      "answer": {
+        "kind": "suggested",
+        "tonalCenter": "C",
+        "collection": "Major"
+      }
+    },
+    {
+      "label": "under 80 %, F# Major, c-keyboard",
+      "doodle": {
+        "measureCount": 2,
+        "notes": [
+          {
+            "startTick": 1,
+            "lengthTicks": 4,
+            "pitch": 60
+          },
+          {
+            "startTick": 5,
+            "lengthTicks": 4,
+            "pitch": 62
+          },
+          {
+            "startTick": 9,
+            "lengthTicks": 4,
+            "pitch": 64
+          },
+          {
+            "startTick": 13,
+            "lengthTicks": 4,
+            "pitch": 67
+          },
+          {
+            "startTick": 17,
+            "lengthTicks": 4,
+            "pitch": 72
+          },
+          {
+            "startTick": 21,
+            "lengthTicks": 6,
+            "pitch": 61
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "F#",
+        "collection": "Major"
+      },
+      "instrumentProfileId": "c-keyboard",
+      "seed": 2299330294,
+      "kept": ["C Ionian", "C Lydian", "C Mixolydian"],
+      "answer": {
+        "kind": "no_fit"
+      }
+    },
+    {
+      "label": "just enough material, F# Major, c-keyboard",
+      "doodle": {
+        "measureCount": 1,
+        "notes": [
+          {
+            "startTick": 1,
+            "lengthTicks": 1,
+            "pitch": 62
+          },
+          {
+            "startTick": 2,
+            "lengthTicks": 1,
+            "pitch": 64
+          },
+          {
+            "startTick": 3,
+            "lengthTicks": 1,
+            "pitch": 65
+          },
+          {
+            "startTick": 4,
+            "lengthTicks": 1,
+            "pitch": 67
+          },
+          {
+            "startTick": 5,
+            "lengthTicks": 1,
+            "pitch": 69
+          },
+          {
+            "startTick": 6,
+            "lengthTicks": 3,
+            "pitch": 62
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "F#",
+        "collection": "Major"
+      },
+      "instrumentProfileId": "c-keyboard",
+      "seed": 1502012257,
+      "kept": ["D Dorian", "D Aeolian"],
+      "answer": {
+        "kind": "suggested",
+        "tonalCenter": "D",
+        "collection": "Minor"
+      }
+    },
+    {
+      "label": "seven ticks, F# Major, c-keyboard",
+      "doodle": {
+        "measureCount": 1,
+        "notes": [
+          {
+            "startTick": 1,
+            "lengthTicks": 1,
+            "pitch": 62
+          },
+          {
+            "startTick": 2,
+            "lengthTicks": 1,
+            "pitch": 64
+          },
+          {
+            "startTick": 3,
+            "lengthTicks": 1,
+            "pitch": 65
+          },
+          {
+            "startTick": 4,
+            "lengthTicks": 1,
+            "pitch": 67
+          },
+          {
+            "startTick": 5,
+            "lengthTicks": 1,
+            "pitch": 69
+          },
+          {
+            "startTick": 6,
+            "lengthTicks": 2,
+            "pitch": 62
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "F#",
+        "collection": "Major"
+      },
+      "instrumentProfileId": "c-keyboard",
+      "seed": 3736596804,
+      "kept": ["D Dorian", "D Aeolian"],
+      "answer": {
+        "kind": "nothing"
+      }
+    },
+    {
+      "label": "64 sixteenths, C Major, c-keyboard",
+      "doodle": {
+        "measureCount": 4,
+        "notes": [
+          {
+            "startTick": 0,
+            "lengthTicks": 1,
+            "pitch": 55
+          },
+          {
+            "startTick": 1,
+            "lengthTicks": 1,
+            "pitch": 60
+          },
+          {
+            "startTick": 2,
+            "lengthTicks": 1,
+            "pitch": 65
+          },
+          {
+            "startTick": 3,
+            "lengthTicks": 1,
+            "pitch": 70
+          },
+          {
+            "startTick": 4,
+            "lengthTicks": 1,
+            "pitch": 56
+          },
+          {
+            "startTick": 5,
+            "lengthTicks": 1,
+            "pitch": 61
+          },
+          {
+            "startTick": 6,
+            "lengthTicks": 1,
+            "pitch": 66
+          },
+          {
+            "startTick": 7,
+            "lengthTicks": 1,
+            "pitch": 71
+          },
+          {
+            "startTick": 8,
+            "lengthTicks": 1,
+            "pitch": 57
+          },
+          {
+            "startTick": 9,
+            "lengthTicks": 1,
+            "pitch": 62
+          },
+          {
+            "startTick": 10,
+            "lengthTicks": 1,
+            "pitch": 67
+          },
+          {
+            "startTick": 11,
+            "lengthTicks": 1,
+            "pitch": 72
+          },
+          {
+            "startTick": 12,
+            "lengthTicks": 1,
+            "pitch": 58
+          },
+          {
+            "startTick": 13,
+            "lengthTicks": 1,
+            "pitch": 63
+          },
+          {
+            "startTick": 14,
+            "lengthTicks": 1,
+            "pitch": 68
+          },
+          {
+            "startTick": 15,
+            "lengthTicks": 1,
+            "pitch": 73
+          },
+          {
+            "startTick": 16,
+            "lengthTicks": 1,
+            "pitch": 59
+          },
+          {
+            "startTick": 17,
+            "lengthTicks": 1,
+            "pitch": 64
+          },
+          {
+            "startTick": 18,
+            "lengthTicks": 1,
+            "pitch": 69
+          },
+          {
+            "startTick": 19,
+            "lengthTicks": 1,
+            "pitch": 55
+          },
+          {
+            "startTick": 20,
+            "lengthTicks": 1,
+            "pitch": 60
+          },
+          {
+            "startTick": 21,
+            "lengthTicks": 1,
+            "pitch": 65
+          },
+          {
+            "startTick": 22,
+            "lengthTicks": 1,
+            "pitch": 70
+          },
+          {
+            "startTick": 23,
+            "lengthTicks": 1,
+            "pitch": 56
+          },
+          {
+            "startTick": 24,
+            "lengthTicks": 1,
+            "pitch": 61
+          },
+          {
+            "startTick": 25,
+            "lengthTicks": 1,
+            "pitch": 66
+          },
+          {
+            "startTick": 26,
+            "lengthTicks": 1,
+            "pitch": 71
+          },
+          {
+            "startTick": 27,
+            "lengthTicks": 1,
+            "pitch": 57
+          },
+          {
+            "startTick": 28,
+            "lengthTicks": 1,
+            "pitch": 62
+          },
+          {
+            "startTick": 29,
+            "lengthTicks": 1,
+            "pitch": 67
+          },
+          {
+            "startTick": 30,
+            "lengthTicks": 1,
+            "pitch": 72
+          },
+          {
+            "startTick": 31,
+            "lengthTicks": 1,
+            "pitch": 58
+          },
+          {
+            "startTick": 32,
+            "lengthTicks": 1,
+            "pitch": 63
+          },
+          {
+            "startTick": 33,
+            "lengthTicks": 1,
+            "pitch": 68
+          },
+          {
+            "startTick": 34,
+            "lengthTicks": 1,
+            "pitch": 73
+          },
+          {
+            "startTick": 35,
+            "lengthTicks": 1,
+            "pitch": 59
+          },
+          {
+            "startTick": 36,
+            "lengthTicks": 1,
+            "pitch": 64
+          },
+          {
+            "startTick": 37,
+            "lengthTicks": 1,
+            "pitch": 69
+          },
+          {
+            "startTick": 38,
+            "lengthTicks": 1,
+            "pitch": 55
+          },
+          {
+            "startTick": 39,
+            "lengthTicks": 1,
+            "pitch": 60
+          },
+          {
+            "startTick": 40,
+            "lengthTicks": 1,
+            "pitch": 65
+          },
+          {
+            "startTick": 41,
+            "lengthTicks": 1,
+            "pitch": 70
+          },
+          {
+            "startTick": 42,
+            "lengthTicks": 1,
+            "pitch": 56
+          },
+          {
+            "startTick": 43,
+            "lengthTicks": 1,
+            "pitch": 61
+          },
+          {
+            "startTick": 44,
+            "lengthTicks": 1,
+            "pitch": 66
+          },
+          {
+            "startTick": 45,
+            "lengthTicks": 1,
+            "pitch": 71
+          },
+          {
+            "startTick": 46,
+            "lengthTicks": 1,
+            "pitch": 57
+          },
+          {
+            "startTick": 47,
+            "lengthTicks": 1,
+            "pitch": 62
+          },
+          {
+            "startTick": 48,
+            "lengthTicks": 1,
+            "pitch": 67
+          },
+          {
+            "startTick": 49,
+            "lengthTicks": 1,
+            "pitch": 72
+          },
+          {
+            "startTick": 50,
+            "lengthTicks": 1,
+            "pitch": 58
+          },
+          {
+            "startTick": 51,
+            "lengthTicks": 1,
+            "pitch": 63
+          },
+          {
+            "startTick": 52,
+            "lengthTicks": 1,
+            "pitch": 68
+          },
+          {
+            "startTick": 53,
+            "lengthTicks": 1,
+            "pitch": 73
+          },
+          {
+            "startTick": 54,
+            "lengthTicks": 1,
+            "pitch": 59
+          },
+          {
+            "startTick": 55,
+            "lengthTicks": 1,
+            "pitch": 64
+          },
+          {
+            "startTick": 56,
+            "lengthTicks": 1,
+            "pitch": 69
+          },
+          {
+            "startTick": 57,
+            "lengthTicks": 1,
+            "pitch": 55
+          },
+          {
+            "startTick": 58,
+            "lengthTicks": 1,
+            "pitch": 60
+          },
+          {
+            "startTick": 59,
+            "lengthTicks": 1,
+            "pitch": 65
+          },
+          {
+            "startTick": 60,
+            "lengthTicks": 1,
+            "pitch": 70
+          },
+          {
+            "startTick": 61,
+            "lengthTicks": 1,
+            "pitch": 56
+          },
+          {
+            "startTick": 62,
+            "lengthTicks": 1,
+            "pitch": 61
+          },
+          {
+            "startTick": 63,
+            "lengthTicks": 1,
+            "pitch": 66
+          }
+        ]
+      },
+      "jam": {
+        "tonalCenter": "C",
+        "collection": "Major"
+      },
+      "instrumentProfileId": "c-keyboard",
+      "seed": 208061146,
+      "kept": ["G Locrian"],
+      "answer": {
+        "kind": "no_fit"
+      }
+    }
+  ]
+}
