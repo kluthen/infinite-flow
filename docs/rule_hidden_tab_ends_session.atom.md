@@ -12,7 +12,7 @@ dependents:
   - [[service_session_engine]]
   - [[service_workspace_session_flow]]
 layer: BUSINESS
-version: 0.1
+version: 0.2
 tags: [v2, release-v2.0, session, session-end, changes-in-v3.2]
 ---
 
@@ -22,11 +22,11 @@ tags: [v2, release-v2.0, session, session-end, changes-in-v3.2]
 End the session cleanly when the browser tab is hidden, since a hidden tab cannot keep time.
 
 ## THE RULE / LOGIC
-A hidden browser tab ends the session immediately, exactly like Stop: the backing and the click fade out over about 100 ms, and the review opens, or, during the count-in, the app goes back to Idle. Browsers throttle timers in hidden tabs, so a paused-and-resumed clock could never resume cleanly; there is no pause and resume state.
+A hidden browser tab ends the session immediately, exactly like Stop: the backing and the click fade out over about 100 ms, and the review opens, or, during the count-in, or in a Jam before its phrase 1 sounds, the app goes back to Idle with no review. Browsers throttle timers in hidden tabs, so a paused-and-resumed clock could never resume cleanly; there is no pause and resume state.
 
 ## TECHNICAL INTERFACE
 The session reacts to the page becoming hidden by ending as Stop does.
 
 ## EXPECTATION
-- Hiding the tab during a session ends it at once, exactly like Stop, count-in included.
+- Hiding the tab during a session ends it at once, exactly like Stop, count-in included, and in a Jam before its phrase 1 sounds.
 - No session is ever paused and resumed.

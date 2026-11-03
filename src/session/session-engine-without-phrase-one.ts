@@ -123,6 +123,7 @@ function openOnHandedPhraseOne(
  */
 // @spec-link [[module_session_start_without_phrase_one]]
 // @spec-link [[module_session_seed_plan]]
+// @spec-link [[rule_jam_runs_as_session_from_phrase_one]]
 export function createSessionEngineWithoutPhraseOne(
   deps: SessionEngineDependencies,
   start: SessionStartWithoutPhraseOne,

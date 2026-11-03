@@ -1,7 +1,7 @@
 ---
 id: rule_starting_note_only_starts_count_in
 status: REVIEW
-version: 0.1
+version: 0.2
 priority: 1
 parents:
   - [[rule_midi_starting_note]]
@@ -20,7 +20,7 @@ tags: [v2, release-v2.0, session, session-start, midi, changes-in-v3.2]
 Keep the note that starts a session out of the phrase the player is about to play.
 
 ## THE RULE / LOGIC
-The starting note only starts the count-in. It is not phrase 1's first note already played, and it belongs to no phrase in the session history or in any export. After the count-in, the player plays phrase 1 from its first note, on beat 1.
+The starting note only starts the count-in. It is not phrase 1's first note already played, and it belongs to no phrase in the session history or in any export. After the count-in, the player plays phrase 1 from its first note, on beat 1. In a Jam that begins with a doodle not yet played, the starting note, Jam's home note, likewise only starts the count-in and belongs to no doodle: the doodle follows the count-in, a note belonging to it by its snapped start from the first beat after the count-in on.
 
 ## TECHNICAL INTERFACE
 The starting note triggers the count-in and is otherwise ignored by acknowledgement, history and export.
@@ -28,3 +28,4 @@ The starting note triggers the count-in and is otherwise ignored by acknowledgem
 ## EXPECTATION
 - The starting note is recorded in no phrase and appears in no export.
 - Phrase 1's first expected note still has to be played after the count-in to be acknowledged.
+- In a Jam begun with a doodle not yet played, the starting note is in no doodle, and the doodle starts after the count-in.

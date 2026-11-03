@@ -15,7 +15,7 @@ tags: [v3, release-v3.2, jam, key-and-mode-suggestion, determinism]
 dependents: []
 type: MODULE
 layer: ARCHITECTURE
-version: 0.2
+version: 0.3
 ---
 
 # The Key and Mode Suggestion's Method
@@ -37,7 +37,7 @@ The answer, judged in this order: nothing, when the doodle has fewer than 5 pitc
 Naming. The drawn pair is computed in concert pitch and answered as Jam's settings would hold it: its home note in written pitch for the selected instrument, and its collection in the player's family: with Major or Minor as Jam's collection an Ionian answer is Major and an Aeolian one Minor; any other answer is its mode.
 
 ## TECHNICAL INTERFACE
-src/jam/key-suggestion/, inside Jam's code (module_jam_code_boundary): key-suggestion.ts gives the answer from the quantized doodle (QuantizedDoodle, src/domain/doodle/quantized-doodle.ts), Jam's written tonal centre and collection and the selected instrument; key-suggestion-scores.ts the 84 penalties and the kept candidates; key-suggestion-draw.ts the seed, with fnv1a32 (src/domain/random/hash32.ts), the weight table and the draw; key-suggestion-names.ts the written home note and the family's collection. The answer is a closed union of three kinds: nothing; no fit; and suggested, holding the written tonal centre (a PitchClass, as GenerationControls.tonalCenter holds it) and the Collection that Use it would set. It is read by Jam's path to phrase 1 at the doodle's end, which keeps it with the session, by the review's doodle section and by the kept doodle at Jam's Idle. Not built yet; the function and type names are written in when built.
+src/jam/key-suggestion/, inside Jam's code (module_jam_code_boundary): key-suggestion.ts gives the answer, suggestKeyAndMode(doodle, jam, instrument): KeySuggestion, from the quantized doodle (QuantizedDoodle, src/domain/doodle/quantized-doodle.ts), Jam's written tonal centre and collection (JamKeyAndMode) and the selected instrument's transposition; key-suggestion-scores.ts the 84 penalties and the kept candidates (scorePairs, keptCandidates, the material check hasEnoughMaterial and the 80 % check fitsWell, with ROLE_PENALTIES, FINAL_HOME_CUE, FIRST_HOME_CUE, KEPT_GAP and MAX_KEPT_CANDIDATES; penalties are kept in eighths of a beat of weight, WEIGHT_UNITS_PER_BEAT, and the gap and the cues are scaled to match); key-suggestion-draw.ts the seed (keySuggestionSeed under KEY_SUGGESTION_SEED_PREFIX, with fnv1a32 from src/domain/random/hash32.ts), the weight table GAP_WEIGHTS and the draw (drawCandidate); key-suggestion-names.ts the written home note and the family's collection. KeySuggestion is a closed union of three kinds: nothing; no_fit; and suggested, holding the written tonal centre (tonalCenter, a PitchClass, as GenerationControls.tonalCenter holds it) and the Collection that Use it would set (collection). Jam's path to phrase 1 works it out at the doodle's end (doodleSuggestion in src/jam/jam-phrase-one-attempts.ts) and the session keeps it with its history (SessionHistory.recordSuggestion and suggestion()). The review's doodle section and the kept doodle at Jam's Idle, which read it too, are not built yet.
 
 ## EXPECTATION
 - The research note's worked examples give its answers; each material threshold and the 80 % rule hold at their edges.
