@@ -4,8 +4,8 @@
  * tension requirement; the rhythm grammar defines no scores), so every candidate is equal-ranked
  * and the search order is the seeded tie key, falling back to the canonical `candidateIndex` only
  * on a key collision. Sorting is stable and explicit: compare unsigned keys, then candidateIndex.
- * A request that asks for a preference (the rhythm lock's locked bars) orders the seeded rhythm
- * order by a preference rank in front of it (`orderRhythmByPreference`).
+ * A request that asks for a preference (the rhythm lock's locked bars, or a steering block) orders
+ * the seeded rhythm order by a preference rank in front of it (`orderRhythmByPreference`).
  */
 
 import { deepFreeze } from '../../events/deep-freeze'
@@ -162,4 +162,25 @@ export function orderRhythmByPreference(
       .sort((left, right) => left.rank - right.rank || left.position - right.position)
       .map((entry) => entry.candidate),
   )
+}
+
+/**
+ * Intent: the ranked rhythm cache with its candidates in another order of the same domain (a
+ * preference order built from its seeded order), everything else kept. Throws unless the order
+ * holds every candidate of the cache exactly once. Returns the cache itself when the order is its
+ * own list.
+ */
+// @spec-link [[module_ranked_candidate_ordering]]
+export function withRhythmOrder(
+  cache: RankedRhythmCache,
+  candidates: readonly RhythmCandidate[],
+): RankedRhythmCache {
+  if (candidates === cache.candidates) return cache
+  const seen = new Set(candidates.map((candidate) => candidate.candidateIndex))
+  if (candidates.length !== cache.candidates.length || seen.size !== candidates.length)
+    throw new Error(
+      `A rhythm order of ${candidates.length} rhythms (${seen.size} distinct) cannot replace ` +
+        `the ${cache.candidates.length} of the ranked domain.`,
+    )
+  return Object.freeze({ ...cache, candidates: Object.freeze(candidates) })
 }

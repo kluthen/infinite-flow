@@ -5,9 +5,11 @@
  * `midi/`, `storage/`, `session/`, `export/`, `components/` and `other/` directories) but lives
  * outside it, so the real `npm run verify:boundaries` scan never sees these deliberately forbidden
  * calls. The build-output scan runs over file names
- * and over a throwaway directory tree made in the system temp directory.
+ * and over a throwaway directory tree made in the system temp directory. Jam's code boundary runs
+ * over the module-graph fixtures in `tests/fixtures/boundaries/module-graphs/`, shaped like the
+ * build's `dist/.vite/module-graph.json`.
  */
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -16,12 +18,16 @@ import { beforeAll, describe, expect, test } from 'vitest'
 
 import {
   buildOutputBoundaryViolations,
+  firstLoadJamViolations,
+  jamChunkFileNames,
+  readModuleGraph,
   scanBuildOutputBoundaries,
   scanSourceBoundaries,
   sourceBoundaryViolations,
 } from '../../../scripts/verify-boundaries.mjs'
 
 const fixtureSourceRoot = fileURLToPath(new URL('../../fixtures/boundaries/src/', import.meta.url))
+const moduleGraphFixtures = new URL('../../fixtures/boundaries/module-graphs/', import.meta.url)
 
 const audioOutsideAudioDirectory =
   'browser-only boundary: AudioContext is allowed only under src/audio/'
@@ -267,6 +273,67 @@ describe('verify-boundaries build-output check for audio and sample assets', () 
       const scan = await scanBuildOutputBoundaries(root)
       expect(scan.files).toEqual(['assets/sounds/bass.ogg', 'index.html'])
       expect(scan.violations).toEqual([{ file: 'assets/sounds/bass.ogg', boundary: audioAsset }])
+    } finally {
+      await rm(root, { recursive: true, force: true })
+    }
+  })
+})
+
+describe("verify-boundaries Jam's code boundary over the build's module graph", () => {
+  type ModuleGraph = Awaited<ReturnType<typeof readModuleGraph>>
+
+  /** Intent: one module-graph fixture, parsed. */
+  async function moduleGraphFixture(name: string): Promise<ModuleGraph> {
+    return JSON.parse(await readFile(new URL(name, moduleGraphFixtures), 'utf8')) as ModuleGraph
+  }
+
+  // @test-link [[module_jam_code_boundary]]
+  test('a src/jam/ module in the entry chunk is a violation', async () => {
+    const graph = await moduleGraphFixture('entry-holds-jam.json')
+    expect(firstLoadJamViolations(graph)).toEqual([
+      { chunk: 'assets/index-a1.js', module: 'src/jam/jam-mode.ts' },
+    ])
+  })
+
+  // @test-link [[module_jam_code_boundary]]
+  test('a src/jam/ module in a chunk the entry imports statically, through another, is a violation', async () => {
+    const graph = await moduleGraphFixture('static-import-holds-jam.json')
+    expect(firstLoadJamViolations(graph)).toEqual([
+      { chunk: 'assets/quantizer-c3.js', module: 'src/jam/doodle-quantizer.ts' },
+    ])
+  })
+
+  // @test-link [[module_jam_code_boundary]]
+  test("Jam's code in a chunk imported only dynamically is no violation, and is Jam's chunk", async () => {
+    const graph = await moduleGraphFixture('jam-loaded-on-demand.json')
+    expect(firstLoadJamViolations(graph)).toEqual([])
+    expect(jamChunkFileNames(graph)).toEqual(['assets/jam-mode-d4.js'])
+  })
+
+  // @test-link [[module_jam_code_boundary]]
+  test('the module graph is read from .vite/module-graph.json under the build output', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'verify-boundaries-'))
+    try {
+      await mkdir(join(root, '.vite'))
+      await copyFile(
+        new URL('jam-loaded-on-demand.json', moduleGraphFixtures),
+        join(root, '.vite', 'module-graph.json'),
+      )
+      const graph = await readModuleGraph(root)
+      expect(graph).toEqual(await moduleGraphFixture('jam-loaded-on-demand.json'))
+    } finally {
+      await rm(root, { recursive: true, force: true })
+    }
+  })
+
+  // @test-link [[module_jam_code_boundary]]
+  test('a build output without the module graph fails loudly', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'verify-boundaries-'))
+    try {
+      await expect(readModuleGraph(root)).rejects.toThrow(/ENOENT/)
+      await mkdir(join(root, '.vite'))
+      await writeFile(join(root, '.vite', 'module-graph.json'), '{}')
+      await expect(readModuleGraph(root)).rejects.toThrow(/holds no chunks list/)
     } finally {
       await rm(root, { recursive: true, force: true })
     }

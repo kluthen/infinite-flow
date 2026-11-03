@@ -6,7 +6,8 @@ parents:
   - [[req_jam]]
 layer: BUSINESS
 human_name: Leaving Jam Mode Returns Session Mode as It Was
-dependents: []
+dependents:
+  - [[module_workspace_mode]]
 type: RULE
 version: 0.1
 priority: 1

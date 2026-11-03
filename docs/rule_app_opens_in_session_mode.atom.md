@@ -1,7 +1,8 @@
 ---
 id: rule_app_opens_in_session_mode
 status: DRAFT
-dependents: []
+dependents:
+  - [[module_workspace_mode]]
 version: 0.1
 priority: 1
 tags: [v3, release-v3.2, jam, session-mode, storage]

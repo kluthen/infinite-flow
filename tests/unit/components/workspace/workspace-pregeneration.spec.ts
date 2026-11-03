@@ -2,7 +2,8 @@
  * The Idle pre-generation queue's orchestrator, over a hand-driven Idle state and generate seam:
  * it runs phrases 2 to 5 one background attempt at a time while every start condition holds, each
  * with its own abort signal in the background slot; it yields to the player through the slot; it
- * stops while a start condition fails (a review showing) and resumes after the last ready phrase;
+ * stops while a start condition fails (a review showing) or session mode is held, and resumes after
+ * the last ready phrase;
  * it climbs the failure ladder on failures and crashes, and stops for good on a programming error;
  * Start's take aborts the attempt in flight and gives the ready prefix that fits; the disabled
  * policy never runs; dispose aborts.
@@ -22,6 +23,7 @@ import {
   inFlight,
   pregenerationRig,
   takenNumbers,
+  WIDE_INPUTS,
   type PregenerationRig,
 } from './pregeneration-rig'
 
@@ -99,6 +101,32 @@ describe('Idle pre-generation queue: running', () => {
     expect(rig.calls.filter((call) => !call.settled)).toEqual([])
 
     rig.blocker.value = null
+    await flush()
+    expect(inFlightPlace(rig).phrase).toBe(2)
+    await answerAll(rig)
+    expect(takenNumbers(rig)).toEqual([2, 3, 4, 5])
+  })
+
+  // @test-link [[module_idle_pregeneration_queue]]
+  // @test-link [[req_idle_pregeneration]]
+  // @test-link [[rule_leaving_jam_mode_keeps_session_mode]]
+  it('prepares nothing while session mode is held, keeping the ready phrases, and resumes after the last one', async () => {
+    const rig = pregenerationRig()
+    await answer(rig)
+    const phraseThree = inFlight(rig)
+
+    rig.sessionModeHeld.value = true
+    await flush()
+    expect(phraseThree.signal.aborted).toBe(true)
+    expect(rig.calls.filter((call) => !call.settled)).toEqual([])
+
+    // A layout report and a re-check while held re-check nothing and start nothing.
+    rig.gate.layoutInputs(WIDE_INPUTS)
+    rig.queue.recheck()
+    await flush()
+    expect(rig.calls).toHaveLength(2)
+
+    rig.sessionModeHeld.value = false
     await flush()
     expect(inFlightPlace(rig).phrase).toBe(2)
     await answerAll(rig)

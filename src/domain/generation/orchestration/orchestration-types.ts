@@ -125,7 +125,8 @@ export interface GenerationDiagnostics {
   readonly selectedRegister?: RegisterId
   /**
    * Seconds spent building the request's rhythm orderings (the rhythm lock's order with its rhythm
-   * change draw, and its forced bend's order once the search reaches it). Present exactly when the
+   * change draw, and its forced bend's order once the search reaches it; or, without locked
+   * bars, the order a steering block gives the rhythms). Present exactly when the
    * caller passed a clock; a timing observation never read back, and never in the provenance or
    * the result.
    */

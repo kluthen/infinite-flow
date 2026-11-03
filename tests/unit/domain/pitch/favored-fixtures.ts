@@ -1,7 +1,7 @@
 /**
  * Shared builders for the favored-order tests (test plumbing): a static C major tonic phrase of
  * quarter notes as a bound pitch-planner input, figure levels with a few figures raised, hand-built
- * attacks and candidates, and a deterministic scan for a seed whose draws meet a condition.
+ * attacks and candidates, an optional steering block, and a deterministic scan for a seed whose draws meet a condition.
  */
 
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
@@ -18,6 +18,7 @@ import {
   makeGenerationRequest,
   makeRequestId,
 } from '@/domain/generation/generation-request'
+import type { SteeringBlock } from '@/domain/generation/steering-block'
 import { makeHarmonyCandidateDomain } from '@/domain/harmony/harmony-planner'
 import { makeActiveConcertRange } from '@/domain/profile/active-concert-range'
 import { makeRegisterWindow } from '@/domain/profile/register-window'
@@ -83,6 +84,7 @@ export function pitchFixtureInput(
     readonly tensionBinding?: ConcreteTensionBinding
     readonly carryIn?: CarryIn
     readonly fuel?: number
+    readonly steering?: SteeringBlock
   } = {},
 ): BoundPitchPlannerInput {
   const harmony = makeHarmonyCandidateDomain({
@@ -115,6 +117,7 @@ export function pitchFixtureInput(
       register: 'Middle',
       registerWindow: makeRegisterWindow(48, 72),
       ...(options.carryIn === undefined ? {} : { carryIn: options.carryIn }),
+      ...(options.steering === undefined ? {} : { steering: options.steering }),
     }),
     policy: makePitchPolicy({
       figureLevels: options.figureLevels ?? NEUTRAL_FIGURE_LEVELS,

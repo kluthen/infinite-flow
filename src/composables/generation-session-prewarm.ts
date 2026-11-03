@@ -5,7 +5,15 @@
  * or request-id providers.
  */
 
-import type { GenerationControls } from '@/domain/controls/generation-controls'
+import type {
+  GenerationControls,
+  NoteDensity,
+  RhythmicVariety,
+  SilenceDensity,
+  Syncopation,
+  TensionArc,
+} from '@/domain/controls/generation-controls'
+import { deepFreeze } from '@/domain/events/deep-freeze'
 import type { FigureLevels } from '@/domain/figures/figure-levels'
 import {
   createGenerationIntent,
@@ -24,6 +32,47 @@ export const PREWARM_SEED = makeSeed(0)
 
 /** The request id every prewarm intent carries; a prewarm is never answered, so it is never correlated. */
 export const PREWARM_REQUEST_ID = makeRequestId('workspace-prewarm')
+
+/** The four rhythm values a doodle's reading sets: what a prewarm for a doodle's controls takes. */
+// @spec-link [[module_generation_prewarm]]
+export interface DoodleRhythmValues {
+  readonly noteDensity: NoteDensity
+  readonly rhythmicVariety: RhythmicVariety
+  readonly syncopation: Syncopation
+  readonly silenceDensity: SilenceDensity
+}
+
+/**
+ * The first-visit rhythm values: the controls a doodle showing none of the four takes, and so the
+ * rhythm values Jam's Idle prewarms before any doodle in the visit.
+ */
+// @spec-link [[module_generation_prewarm]]
+export const FIRST_VISIT_RHYTHM_VALUES: DoodleRhythmValues = deepFreeze({
+  noteDensity: 'Quarter',
+  rhythmicVariety: 'Slightly varied',
+  syncopation: 'Straight',
+  silenceDensity: 'Sparse',
+})
+
+/**
+ * Intent: the controls a prewarm for a doodle's rhythm is built from: the current controls with the
+ * doodle's four rhythm values and Jam's tension in place of their own, every other control kept.
+ */
+// @spec-link [[module_generation_prewarm]]
+export function doodlePrewarmControls(
+  controls: GenerationControls,
+  rhythm: DoodleRhythmValues,
+  tension: TensionArc,
+): GenerationControls {
+  return {
+    ...controls,
+    noteDensity: rhythm.noteDensity,
+    rhythmicVariety: rhythm.rhythmicVariety,
+    syncopation: rhythm.syncopation,
+    silenceDensity: rhythm.silenceDensity,
+    tension,
+  }
+}
 
 /** Where a prewarm intent goes: the generation worker client's fire-and-forget `prewarm`. */
 export type PostPrewarm = (intent: GenerationIntent) => void

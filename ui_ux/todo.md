@@ -158,7 +158,10 @@ would move, also comes back here (ux D258, D264).
 
 v3.2: approved (gate D0 granted, T2 allowed; ux D347). The token-source pass is done (build plan
 v3.2's chunk 1, ux D349): D342's classes are in `src/styles/components.css` under `v3.2 new`, and
-`token-source-v3.1-v3.2.md` is deleted. One item remains:
+`token-source-v3.1-v3.2.md` is deleted. Questions from the build are settled as they come:
+wave 3's chunk 19 (ux D350); wave 4's chunk 20, the empty system's name and opening line, the
+score title in Jam mode, and what stays live while Jam's code loads (ux D351-D354). One item
+remains:
 
 - **`versions/v3.2/`**: take it from the root without the v3.3 parts, as D324 did for v3.1. With
   no token-source document left, its README points at the token source's `v3.2 new` blocks, whose

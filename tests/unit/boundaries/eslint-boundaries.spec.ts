@@ -285,17 +285,27 @@ describe('eslint.config.js keeps src/session/ and src/export/ from importing src
   })
 })
 
-describe('eslint.config.js keeps the doodle quantizer inside src/jam/', () => {
-  const quantizerOutsideJam =
-    /Only src\/jam\/ may import the doodle quantizer \(src\/jam\/doodle-quantizer\.ts\)\./
+describe("eslint.config.js keeps Jam's code (src/jam/) behind its loader", () => {
+  const jamOutsideJam =
+    /Only src\/jam\/ and its loader \(src\/components\/workspace\/load-jam-mode\.ts\) may import src\/jam\/: Jam's code stays out of the first load\./
 
-  const quantizerImportsFromOutside = [
-    "import { quantizeDoodle } from '@/jam/doodle-quantizer'",
-    "import { quantizeDoodle } from '../jam/doodle-quantizer'",
+  const loaderPath = 'components/workspace/load-jam-mode.ts'
+  const directoriesOutsideJam = [
+    'session',
+    'export',
+    'components',
+    'composables',
+    'domain',
+    'midi',
+  ] as const
+
+  const jamEntryImports = [
+    "import { JamWorkspace as probed } from '@/jam/jam-mode'",
+    "import probed from '../../jam/JamWorkspace.vue'",
   ]
-  const quantizerImportsFromJam = [
-    "import { quantizeDoodle } from '@/jam/doodle-quantizer'",
-    "import { quantizeDoodle } from './doodle-quantizer'",
+  const quantizerImports = [
+    "import { quantizeDoodle as probed } from '@/jam/doodle-quantizer'",
+    "import { quantizeDoodle as probed } from '../jam/doodle-quantizer'",
   ]
 
   /** Intent: lint a probe file that makes `importStatement` and re-exports what it imported. */
@@ -303,29 +313,69 @@ describe('eslint.config.js keeps the doodle quantizer inside src/jam/', () => {
     relativePath: string,
     importStatement: string,
   ): Promise<Linter.LintMessage[]> {
-    return lintAsSource(relativePath, `${importStatement}\nexport const probe = quantizeDoodle\n`)
+    return lintAsSource(relativePath, `${importStatement}\nexport const probe = probed\n`)
   }
 
-  /** Intent: assert exactly one typescript-eslint no-restricted-imports error for the quantizer. */
-  function expectRestrictedQuantizerImport(messages: Linter.LintMessage[]): void {
+  /** Intent: assert exactly one typescript-eslint no-restricted-imports error for src/jam/. */
+  function expectRestrictedJamImport(messages: Linter.LintMessage[]): void {
     expect(messages).toHaveLength(1)
     const [message] = messages
     expect(message?.ruleId).toBe('@typescript-eslint/no-restricted-imports')
     expect(message?.severity).toBe(2)
-    expect(message?.message).toMatch(quantizerOutsideJam)
+    expect(message?.message).toMatch(jamOutsideJam)
   }
 
-  // @test-link [[module_doodle_quantizer]]
+  // @test-link [[module_jam_code_boundary]]
   test.each(
-    ['session', 'export', 'components', 'domain', 'midi'].flatMap((directory) =>
-      quantizerImportsFromOutside.map((importStatement) => ({ directory, importStatement })),
+    directoriesOutsideJam.flatMap((directory) =>
+      jamEntryImports.map((importStatement) => ({ directory, importStatement })),
     ),
   )('$importStatement is rejected in src/$directory/', async ({ directory, importStatement }) => {
-    expectRestrictedQuantizerImport(await lintImport(`${directory}/x.ts`, importStatement))
+    expectRestrictedJamImport(await lintImport(`${directory}/x.ts`, importStatement))
   })
 
+  // @test-link [[module_jam_code_boundary]]
   // @test-link [[module_doodle_quantizer]]
-  test.each(quantizerImportsFromJam)('%s is allowed in src/jam/', async (importStatement) => {
+  test.each(
+    directoriesOutsideJam.flatMap((directory) =>
+      quantizerImports.map((importStatement) => ({ directory, importStatement })),
+    ),
+  )('$importStatement is rejected in src/$directory/', async ({ directory, importStatement }) => {
+    expectRestrictedJamImport(await lintImport(`${directory}/x.ts`, importStatement))
+  })
+
+  // @test-link [[module_jam_code_boundary]]
+  test('a static import of src/jam/ from the app root, src/main.ts, is rejected', async () => {
+    expectRestrictedJamImport(await lintAsSource('main.ts', "import './jam/jam-mode'\n"))
+  })
+
+  // @test-link [[module_jam_code_boundary]]
+  test.each(jamEntryImports)('%s is allowed in src/jam/', async (importStatement) => {
     expect(await lintImport('jam/x.ts', importStatement)).toEqual([])
+  })
+
+  // @test-link [[module_jam_code_boundary]]
+  // @test-link [[module_doodle_quantizer]]
+  test.each([...quantizerImports, "import { quantizeDoodle as probed } from './doodle-quantizer'"])(
+    '%s is allowed in src/jam/',
+    async (importStatement) => {
+      expect(await lintImport('jam/x.ts', importStatement)).toEqual([])
+    },
+  )
+
+  // @test-link [[module_jam_code_boundary]]
+  test('a type-only import of src/jam/ is allowed outside it: it is erased from the bundle', async () => {
+    const code =
+      "import type { JamModeModule } from '@/jam/jam-mode'\nexport type Probe = JamModeModule\n"
+    expect(await lintAsSource('components/x.ts', code)).toEqual([])
+  })
+
+  // @test-link [[module_jam_code_boundary]]
+  test('the loader may import src/jam/ dynamically and statically', async () => {
+    const dynamicImport = "export const probe = () => import('@/jam/jam-mode')\n"
+    expect(await lintAsSource(loaderPath, dynamicImport)).toEqual([])
+    expect(
+      await lintImport(loaderPath, "import { JamWorkspace as probed } from '@/jam/jam-mode'"),
+    ).toEqual([])
   })
 })

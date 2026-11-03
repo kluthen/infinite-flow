@@ -88,8 +88,12 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   (`src/domain/doodle/`: the type of a Jam's doodle once quantized, one line of one to four
   measures in whole ticks with no tempo, its validating constructor and its parser).
 - `src/jam/` — Jam mode's code; for now the doodle quantizer (`doodle-quantizer.ts`), which turns
-  a capture's raw played notes into the quantized doodle with integer arithmetic. Nothing outside
-  `src/jam/` imports the quantizer (enforced by ESLint).
+  a capture's raw played notes into the quantized doodle with integer arithmetic, and what Jam
+  reads from that doodle, pure and in whole numbers: the seven controls with the register window
+  phrase 1's join reads (`doodle-controls.ts`, the rhythm readings and the doodle's rests in
+  `doodle-rhythm-reading.ts`), the steering block (`steering-block-builder.ts`) and phrase 1's
+  join from the doodle's last note, or none outside the range or every window (`doodle-join.ts`).
+  Nothing outside `src/jam/` imports the quantizer (enforced by ESLint).
 - `src/generation-worker/` — the typed request/response protocol and handler that run generation
   inside a dedicated module Web Worker, off the main thread.
 - `src/notation/` — the concert-to-written transformation types and the VexFlow engraving adapter,
@@ -598,7 +602,8 @@ detection, scoring, and the rolling continuation flow remain outside this releas
 
 ## Open Issues
 
-| Name                                                                                                               | Date       | Status | Severity | Oneliner                                                                         |
-| ------------------------------------------------------------------------------------------------------------------ | ---------- | ------ | -------- | -------------------------------------------------------------------------------- |
-| [The timeline parser accepts a hole in its measures](issues/Ref_20261019_timeline_parser_accepts_holes.md)         | 2026-10-19 | Open   | Low      | `parseConcertEventTimeline`, the boundary parser for an untrusted timeline, a... |
-| [A rising up-stemmed beam can run through a chord symbol](issues/Ref_20261005_chord_symbol_through_rising_beam.md) | 2026-10-05 | Open   | Medium   | In a beam group stemmed up whose beam rises above the staff's text line, the ... |
+| Name                                                                                                                                                        | Date       | Status | Severity | Oneliner                                                                         |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ------ | -------- | -------------------------------------------------------------------------------- |
+| [A joined phrase's first note is pinned at the window's edge, where its contour cannot start](issues/Ref_20261027_join_first_note_pinned_at_window_edge.md) | 2026-10-27 | Open   | Medium   | A phrase generated with carry-in may end on a tense note (a scale tone outsid... |
+| [The timeline parser accepts a hole in its measures](issues/Ref_20261019_timeline_parser_accepts_holes.md)                                                  | 2026-10-19 | Open   | Low      | `parseConcertEventTimeline`, the boundary parser for an untrusted timeline, a... |
+| [A rising up-stemmed beam can run through a chord symbol](issues/Ref_20261005_chord_symbol_through_rising_beam.md)                                          | 2026-10-05 | Open   | Medium   | In a beam group stemmed up whose beam rises above the staff's text line, the ... |

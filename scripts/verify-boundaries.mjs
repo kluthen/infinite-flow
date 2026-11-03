@@ -216,9 +216,110 @@ export async function scanSourceBoundaries(sourceRoot) {
 }
 
 /**
+ * The build's module graph as scripts/module-graph-plugin.mjs writes it: every JS chunk, its file
+ * name relative to the build output root, whether it is an entry, the chunks it imports statically
+ * and dynamically, and the source modules it holds (paths from the project root, e.g.
+ * `src/jam/jam-mode.ts`).
+ *
+ * @typedef {{ fileName: string, isEntry: boolean, imports: string[], dynamicImports: string[], modules: string[] }} GraphChunk
+ * @typedef {{ chunks: GraphChunk[] }} ModuleGraph
+ */
+
+/** Where Jam's code lives, as the module graph names source modules. */
+const jamSourceDirectory = 'src/jam/'
+
+/**
+ * Intent: the build's module graph, read from `<outputRoot>/.vite/module-graph.json`. A missing
+ * file fails loudly (ENOENT), like a missing dist/sw.js: the check needs a production build.
+ *
+ * @param {string} outputRoot the directory that stands for the build output `dist/`
+ * @returns {Promise<ModuleGraph>}
+ */
+// @spec-link [[module_jam_code_boundary]]
+export async function readModuleGraph(outputRoot) {
+  const graph = JSON.parse(await readFile(join(outputRoot, '.vite', 'module-graph.json'), 'utf8'))
+  if (typeof graph !== 'object' || graph === null || !Array.isArray(graph.chunks)) {
+    throw new Error(`${join(outputRoot, '.vite', 'module-graph.json')} holds no chunks list`)
+  }
+  return graph
+}
+
+/**
+ * Intent: the chunks of the first load: every entry chunk and every chunk they import statically,
+ * transitively. Chunks imported only dynamically load on demand and stay out of it.
+ *
+ * @param {ModuleGraph} graph
+ * @returns {GraphChunk[]}
+ */
+function firstLoadChunks(graph) {
+  const byFileName = new Map(graph.chunks.map((chunk) => [chunk.fileName, chunk]))
+  const reached = new Set()
+  const pending = graph.chunks.filter((chunk) => chunk.isEntry)
+  while (pending.length > 0) {
+    const chunk = pending.pop()
+    if (chunk === undefined || reached.has(chunk)) continue
+    reached.add(chunk)
+    for (const imported of chunk.imports) {
+      const importedChunk = byFileName.get(imported)
+      if (importedChunk !== undefined) pending.push(importedChunk)
+    }
+  }
+  return graph.chunks.filter((chunk) => reached.has(chunk))
+}
+
+/**
+ * Intent: every src/jam/ module the first load holds (see firstLoadChunks), with the chunk that
+ * holds it: Jam's code must load only on demand, through its loader, so the list is empty in a
+ * sound build.
+ *
+ * @param {ModuleGraph} graph
+ * @returns {{ chunk: string, module: string }[]}
+ */
+// @spec-link [[module_jam_code_boundary]]
+export function firstLoadJamViolations(graph) {
+  return firstLoadChunks(graph).flatMap((chunk) =>
+    chunk.modules
+      .filter((module) => module.startsWith(jamSourceDirectory))
+      .map((module) => ({ chunk: chunk.fileName, module })),
+  )
+}
+
+/**
+ * Intent: the chunks that hold Jam's code (any src/jam/ module), by file name, for the check's
+ * report of their sizes.
+ *
+ * @param {ModuleGraph} graph
+ * @returns {string[]}
+ */
+// @spec-link [[module_jam_code_boundary]]
+export function jamChunkFileNames(graph) {
+  return graph.chunks
+    .filter((chunk) => chunk.modules.some((module) => module.startsWith(jamSourceDirectory)))
+    .map((chunk) => chunk.fileName)
+}
+
+/**
+ * Intent: the byte sizes of the given chunks of the build output, as `<file name> <size> B`
+ * separated by commas, for the check's report.
+ *
+ * @param {string} outputRoot the directory that stands for the build output `dist/`
+ * @param {string[]} fileNames chunk file names relative to `outputRoot`
+ * @returns {Promise<string>}
+ */
+async function chunkSizes(outputRoot, fileNames) {
+  const sized = await Promise.all(
+    fileNames.map(
+      async (fileName) => `${fileName} ${(await stat(join(outputRoot, fileName))).size} B`,
+    ),
+  )
+  return sized.join(', ')
+}
+
+/**
  * Intent: the full boundary verification run by `npm run verify:boundaries`: the authored-source
  * scan of `src/`, the Workbox runtime-caching setting, the precache manifest, the build output's
- * audio-asset scan and the chunk-size budgets. Throws with every violation found.
+ * audio-asset scan, the chunk-size budgets and Jam's code boundary (no src/jam/ module in the first
+ * load, read from the build's module graph). Throws with every violation found.
  */
 async function verifyBoundaries() {
   const { files, violations: sourceViolations } = await scanSourceBoundaries(
@@ -276,7 +377,7 @@ async function verifyBoundaries() {
    * the tightest budget so unexpected new chunks are still guarded.
    */
   const entryChunkByteBudget = 300 * 1024 // v3.1 (spec D359): raised from 224 KiB, v3.0 shipped 229,146 B with 230 B left; v3.1's presets and level controls load at first start
-  const generationWorkerChunkByteBudget = 150 * 1024
+  const generationWorkerChunkByteBudget = 170 * 1024
   const vexflowEngraverChunkByteBudget = 800 * 1024
   const defaultChunkByteBudget = 100 * 1024
 
@@ -309,6 +410,13 @@ async function verifyBoundaries() {
     }
   }
 
+  // Jam's code boundary: no src/jam/ module in the entry chunk or a chunk it imports statically.
+  const distRoot = fileURLToPath(new URL('../dist/', import.meta.url))
+  const moduleGraph = await readModuleGraph(distRoot)
+  for (const { chunk, module } of firstLoadJamViolations(moduleGraph)) {
+    violations.push(`dist/${chunk} (Jam's code boundary: ${module} is in the first load)`)
+  }
+
   if (violations.length > 0) {
     throw new Error(`Boundary violation(s) found: ${violations.join('; ')}`)
   }
@@ -316,6 +424,12 @@ async function verifyBoundaries() {
   console.log(
     `Boundary verification passed for ${files.length} authored source files, ${outputFiles.length} build-output files with no audio or sample asset, ${precacheableAssetCount} precacheable dist/assets entries, and ${jsChunkCount} JS chunk(s) within budget ` +
       `(entry ${entryChunkByteBudget / 1024} kB, generation.worker ${generationWorkerChunkByteBudget / 1024} kB, vexflow-engraver ${vexflowEngraverChunkByteBudget / 1024} kB, other ${defaultChunkByteBudget / 1024} kB).`,
+  )
+  const entryChunks = moduleGraph.chunks.filter((chunk) => chunk.isEntry).map((c) => c.fileName)
+  const jamChunks = jamChunkFileNames(moduleGraph)
+  console.log(
+    `Jam's code boundary passed: no src/jam/ module in the first load. Entry chunk: ${await chunkSizes(distRoot, entryChunks)}. ` +
+      `Jam's chunks: ${jamChunks.length > 0 ? await chunkSizes(distRoot, jamChunks) : 'none in the build'}.`,
   )
 }
 

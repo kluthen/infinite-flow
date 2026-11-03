@@ -5,7 +5,8 @@ priority: 1
 tags: [v3, release-v3.2, jam, session-mode, performance]
 parents:
   - [[req_jam]]
-dependents: []
+dependents:
+  - [[module_jam_code_boundary]]
 version: 0.1
 human_name: Session Mode Never Pays for Jam
 type: RULE

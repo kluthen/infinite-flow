@@ -827,3 +827,270 @@ DRAFT → REVIEW; `ui_toggle_list` 0.3 (ux D350). Gate CR done. Wave 3 merged in
 worktrees and branches removed.
 Next: wave 4 (chunks 20, 28, 7, 8, 9) waits on the owner's gates LD (chunk 8), DR and DS (chunk
 28); hand checks v3.2 H2, H3 open (L3). Dev-tool security batch still pending as its own unit.
+
+## Wave 4 (2026-10-27)
+
+Chunks 20, 28, 7, 8, 9 (order 9 → 20 → 28 → 7, with 8 once LD clears). Branch `v3.2-w4` from
+`main` 6958001, worktree `/home/bastien/work/infinite_flow-v3.2-w4`.
+
+### The owner's answers on the wave's gates (2026-10-27)
+
+- DS (O268): "Part of the notes", as proposed. A silence is a rest only where a whole rest of the
+  doodle's note density value fits inside it on that grid, its rest start at the first such grid
+  tick; the silence density reading counts the same rests. Sent to `spec-writer` for Part C and
+  chunk 28.
+- LD: the owner runs v3.2 H1 during this wave; chunk 8 waits for the ranking and leaves the wave if
+  it has not come by the end.
+- DR: chunk 28 builds and tests on the twelve hand-written doodles; the owner's recordings join the
+  set later, before H5 ("I'll still attempt this afternoon to do some hardware testing"). DR then
+  blocks H5, not chunk 28 (sent to `spec-writer`).
+
+### Preflight
+
+`documentalist` (2d0525c, "ATD: wave 4 preflight and captures"). No halt.
+- 20: PROCEED. Its "(contract, CS)" revisions (M1, M2) are checked at the sync.
+- 28: PROCEED-WITH-SIGNOFF-PENDING: DS decides the rest starts (`module_steering_block_builder`)
+  and `rule_doodle_silence_density_reading`; the tie between two equally near window centres is a
+  spec gap.
+- 7: PROCEED. Its two revisions must take in phrase 1 joined from no phrase. For chunk 18: a "no
+  phrase" carry-in takes the carry-in search fuel (160,000); M1 confirms its margin.
+- 8: PROCEED-WITH-SIGNOFF-PENDING: LD decides `rule_rhythm_distance`'s scale and the bands of
+  `rule_jam_drift_positions`. "Revisions: none" is stale (O3, D425, D428 owe business revisions).
+- 9: PROCEED.
+
+Captures (DRAFT): `module_workspace_mode`, `module_jam_code_boundary`, `module_jam_idle_notes` 0.1
+and `module_idle_pregeneration_queue` 0.10 (20); `module_doodle_controls` (with the register
+window chunk 7 reads), `module_steering_block_builder` 0.1 (28); `module_rhythm_steering` 0.1 (8).
+No new contract sign-off gate.
+
+Plan corrections sent to `spec-writer` before the first chunk: 20's atoms, Files (new files, the
+`src/jam/` lint rule, the session starting note and MIDI files, maybe the cue row), Revisions
+wording (a shared setting changed in Jam mode acts on the return), revisions and drift checks to
+add, and the spec gap on what Jam's Idle prewarms before any doodle; 28's atoms, capture line,
+the window-centre tie, DS's revision; 8's revisions, Files, timing step, drift checks; 9's Files
+(`pitch-advance.ts`), drift checks, a `module_pitch_steering` atom at the sync.
+
+Plan v21 (`spec-writer`, 47c8063; spec D440–D444, Part C v1.12): every correction applied. D440
+DS answered (gate DS done, O268 closed); D441 a tie between two window centres goes to Middle;
+D442 before any doodle, Jam's Idle prewarms the first-visit rhythm values with Jam's tension; D443
+DR re-scoped (blocks v3.2 H5 and the release gate's recorded-doodle tests, not chunk 28); D444 the
+preflight's corrections. Chunk 8 now also depends on 28 (its Done when runs over the builder's
+blocks). Under D440, `eighth-offbeats` and `tresillo-leaps` read Sparse silence: chunk 28 corrects
+their `aimedAt` and adds one hand-written doodle aimed at Conversational. Order: 9 → 20 → 28 → 7
+→ 8 (8 once LD clears). Left for the sync: the lexicon's Doodle entry could say a short gap is
+part of the note (staccato).
+
+### Chunks
+
+- 9 dispatched (2026-10-27) to `coding-leader`, branch `v3.2-c9-melody-steering`.
+- 9 merged (22e81a8; 4294f74). Corpus guard 13 files / 448 tests; related unit suites green. Over
+  the 11 doodles with two or more notes (2,332 steered notes per strength): in the block's
+  direction 29.3 % (none), 43.5 % (direction only), 43.4 % (size and direction); matching size
+  too 7.0 %, 8.2 %, 8.8 %. Both strengths put direction first, so their direction shares are level;
+  the Done when's "rises … to size and direction" read as sizes rising at the last (accepted by the
+  driver; a strict rise would need size to override direction). Size gains are small since steps
+  are mostly non-chord tones, ranked after chord tones ("never across ranks"). 88/88 successes at
+  every strength; strength none byte-identical to no block. For the gate: the sweep (the term's
+  share of timings, fuel). For the sync: `module_pitch_steering` (`pitch-steering.ts`:
+  `melodicMoveBetween`, `pitchSteeringTerm`, `moveDisagreement`). For chunk 28: reuse
+  `melodicMoveBetween` for the block's moves. Risk: under Predictable or Chaotic the term barely
+  moves chord tones (Jam holds Varied).
+- 20 dispatched (2026-10-27), branch `v3.2-c20-jam-mode-switch` (split 20a/20b).
+- 20 merged (38bb6f6; 2dd4ab9 20a, bcb6e60 20b). Done when met item by item; e2e jam-mode-switch
+  and jam-mode-idle 18/18 (in `test:e2e`); accessibility tests of what it adds pass; related unit
+  1,291; `build` + `verify:boundaries` pass, and fail on a real build with Jam's code imported into
+  `main.ts`. Entry chunk 290,156 B (282,172 before; 17,044 B left in the 307,200 B budget); Jam's
+  chunk 6,551 B. `Try again` retries Jam's chunk under a fresh `?retry=n` URL (Chromium remembers a
+  failed dynamic import). Deviations (Files only): `src/notation/vexflow-empty-system-engraver.ts`
+  (a fifth VexFlow importer, so Jam's chunk carries no engraver), Jam's view in `ScorePanel.vue`,
+  helpers listed on its Record line. Design gaps sent to `ux-writer`: the empty system's accessible
+  name; the line at the system's start ("no barline" taken literally); the `score-context` title
+  "Four-measure phrase" in Jam mode; what stays live while Jam's code loads. For the gate: the
+  notation suite (engraver constants moved into `vexflow-two-system-engraver.ts`). For the sync:
+  built names for the four captures, `module_generation_prewarm` (`FIRST_VISIT_RHYTHM_VALUES`,
+  `doodlePrewarmControls`), `freshJamCanStart`. Risks: session controls changeable in Jam mode until
+  chunk 31; the retry reads Chromium's message wording; `WorkspaceShell.vue` 442 effective lines;
+  three files at the ten-atom cap.
+- 28 dispatched (2026-10-27), branch `v3.2-c28-doodle-controls`.
+- Chunk 20's design gaps: `ux-writer` (2a839cd, ux D351–D354, no owner question): D351 the empty
+  system is a named image ("Empty staff, treble clef, key signature 1 sharp (G Ionian), 4/4
+  time."); D352 it draws the opening line at the system's start (no lines between measures or at
+  the end); D353 the score title reads "Jam" while Jam mode shows (still "Four-measure phrase"
+  while Jam's code loads); D354 what is live in Loading stays live while Jam's code loads, and a
+  load ending while a sheet is open leaves focus in the sheet. Built by `coding-executor`
+  (eaaea13, merged 8848897): `describeEmptySystem` in `score-description.ts`, the name in the
+  redraw key (C Ionian and A Aeolian share a signature, not a name); a real bug fixed (a failed
+  load took focus from an open sheet). Jam e2e 22/22, accessibility 5/5, related unit 559,
+  `verify:boundaries` pass; entry 290,301 B, Jam's chunk 6,731 B. For the sync:
+  `module_workspace_mode` still reads "not built yet" in places.
+- 28 merged (d85b1e3; 28ff715). Done when met item by item: C5.16.1's rows at their edges (62
+  tests), the steering block's starts (19 tests, D440's rests under Quarter, Eighth and Sixteenth;
+  `quarter-steps` n0 n4 n8 n12, `tresillo-leaps` n0 n6 n12), every block parses at every drift,
+  integers only. Every doodle reads its `aimedAt`; `eighth-offbeats` and `tresillo-leaps` corrected
+  to Sparse; new `syncopated-push-with-rests` (Eighth / Heavily varied / Occasional offbeats /
+  Conversational, `listeningMeasure` false). H1's five measures unchanged (`render:rhythms` into a
+  scratch dir, byte-identical). Related tests 239, typecheck, lint, format, links, health clean.
+  Register window for chunk 7: `readDoodleRegister(doodle, windows)` /
+  `readDoodleControls(...).register.window` (`RegisterWindowCandidate | null`, null only for
+  Varying), windows from `deriveRegisterWindowCandidates`. `JamDrift` lives in
+  `steering-block-builder.ts` (chunk 31 imports it). Design edge sent to `ux-writer`: a default the
+  supported-combination step raised (two-note doodle: Slightly → Heavily varied, source default)
+  vs "{value} (default)". For the gate: the sweep reads the doodle set, now 13. For the sync: the
+  two revisions; both captures' built names (`doodle-rhythm-reading.ts`, `JamDrift`,
+  `readDoodleRegister`, a stepped default's source). Risks: hand-written doodles only until DR;
+  H1's pick sorts non-listening measures by name, so a future doodle sorting earlier could change
+  it; callers pass the `NoteDensityContext`.
+- 7 dispatched (2026-10-27), branch `v3.2-c7-doodle-join`.
+- Chunk 28's design edge: `ux-writer` (763ad72, ux D355): when the supported-combination step
+  raised rhythmic variety, the readings line shows the raised value marked "(to work with the other
+  rhythm values)" instead of "(default)", also when the doodle showed a lower variety. Chunk 28's
+  model drops the value before the step, so plan v22 (`spec-writer`, 661af93; spec D445, D446,
+  Part C v1.13) gives chunk 31 a `raised` field. D445: the step judges note density as read (a
+  Sixteenth is Sixteenth at every width), so it runs once when the doodle ends, and a window
+  crossing rewrites nothing; `readDoodleControls` loses its window context in chunk 31. Cost: on a
+  narrow window, a few Sixteenth combinations keep a variety one step higher than Eighth alone
+  needs (to mention at wave 5's report). For wave 5's preflight: `rule_doodle_controls_always_supported`
+  ("as it generates at the current window width" → "as read") and `module_doodle_controls` change.
+- 7 merged (7ce4a76; a87b142). `doodleJoin(doodle, instrument, register)` in `src/jam/doodle-join.ts`
+  (join with the reading's window, or none: `outside-range` / `outside-windows`); 50 tests; jam and
+  carry-in suites 503 tests; typecheck, lint, format, links, health clean. Over the doodle set ×
+  three instruments every join generates and validates, first interval within the in-phrase limits,
+  no recovery owed (`tresillo-leaps` ends on a 15-semitone leap, phrase 1 owes nothing); 11 doodles
+  join, `late-start-high-ending` and `wandering-gaps-low-ending` lie outside the keyboard's range
+  (no join, steering kept). The "outside every window" branch can't happen with a valid profile.
+  For the sync: the two revisions — phrase 1 joined from no phrase inherits no recovery and owes no
+  resolution, but counts as generated with a carry-in, so it may end tense or owing a recovery
+  (2 of 33 seed-7 cases ended tense); both atoms' "without carry-in … never ends owing" sentences
+  don't cover it. `module_doodle_controls` still reads the join "not built" and the tie open.
+  Risk found (pre-existing since v2/v3.1): a phrase that ends tense is followed by a failed
+  carry-in phrase (`no_legal_pitch_plan`, `search_limit_exceeded`) in nearly every case with the
+  doodle set's controls (repro: keyboard, Smooth, Arch, Quarter, Heavily varied, Straight, Sparse,
+  High; phrase 1 seed 9, phrase n seed 900+n−1: phrase 5 ends tense, phrase 6 fails); for Jam,
+  phrase 2 then falls down v2's ladder to a standalone phrase (7 of 33 cases). `sparse-calls`'
+  controls (Falling, Smooth, Breath-heavy) fail phrase 2 with its carry-in for every seed, as v3.1's
+  chain does for most. Sent for diagnosis (an issue, no fix) while chunk 8 waits on LD.
+- ISS-015 diagnosed (`coding-leader`, issue filed 69e8bd9, merged 96dc850; no code change): the
+  next phrase's only legal first note (the step resolving a tense ending, onto a tonic-triad tone)
+  sits at the carried window's edge, where Arch / Rising (or Falling) can't make its first move;
+  `tenseNoteCanSettle` ignores the next contour. Not fuel: large rhythm domains burn the 160,000
+  carry-in fuel (~1.35 s per attempt, up to ~5 s with retries) on the same dead end. Numbers:
+  default settings 0 of 315 joins lost; sweep cases 19 of 2,827 joins to standalone; a contour ×
+  leapiness × register grid 79 of 1,440 (61 % of tense joins, all in High or Low); Jam phrase 2,
+  7 of 33 doodle × instrument cases. Related, no tense note: Falling + Smooth ending on the
+  window's lowest triad tone (sparse-calls). Proposed fixes A (contour-aware "can settle", gated by
+  a new request field, contract MAJOR) and C (prove the join impossible before searching).
+- The owner's answers (2026-10-27): fixes A and C "Later, after v3.2"; the Falling floor case
+  "Accept and document" (B2). Plan v23 (`spec-writer`, 86f1d7c; spec D447, D448): M1, M5, chunks
+  18 and 29 read their figures with ISS-015 named (the seven cases listed in M1); Part C unchanged
+  (it already names v2's ladder). The driver marked the issue deferred and wrote the known limit
+  into `docs/music/pitch-planner-validation.md`. For the sync: B2's wording in
+  `rule_join_interval_obeys_phrase_rules`.
+- The owner's hand checks (2026-11-03). **v3.2 H1 (gate LD)**, the owner's ranking, most to least
+  alike, verbatim: "set 1: C, A B tied, D. set 2: B D tied, C, A set 3: B C D tied, A set 4: C , A
+  B tied (honestly while distinct, these were better), D set 5: C, A, B, D". By band: 1 Same ›
+  Close = beyond › Near; 2 Same = Close › beyond › Near; 3 Close = beyond = Same › Near; 4 Same ›
+  Near = beyond › Close; 5 Same › Near › Close › beyond. Close above Near in 3 of 5 sets; every
+  set disagrees with the scale somewhere, so it went to `spec-writer`. Finding: in all five sets
+  the last-ranked candidate is the only one starting a note on a finer grid than the doodle
+  measure's (an offbeat over an on-beat doodle, a sixteenth over eighths); the beat 1/3 weighting
+  and a shortened note's weight were not supported. The driver ruled option A (scale kept, no
+  product change): plan v24 (1219291e; spec D449, O271 carrying fallback B to H4 and gate L1; H4
+  step 3 gains "At Drift Close, did any phrase use quicker notes than your doodle?"). LD done;
+  chunk 8's scope unchanged.
+- **v3.2 H2 (gate L3), partial**: steps 2 and 4 run at 90 BPM (the owner's tempo; it does not
+  matter for H2). The owner, verbatim: "Rhythm lock worked very well but didn't see any
+  alterations beside tonal change. with tension across phrase turned on: i did see alterations
+  appearing (split note, merging, etc)." and "no change was fine with tension on, with tension off
+  it did seem not often enough though, i'd probably prefer it to be on the same rate as with
+  tension set to on." The driver's offline replay of the owner's locked rhythm (12 seeds each):
+  3 of 12 changed at the normal share, 8 of 12 tenser; the owner's pasted phrase 10 kept the locked
+  bars. Asked to choose, the owner: "i'll take the option a. If needed we will change that later
+  on." (normal 1 in 2, tenser about 3 in 4). Plan v24 (spec D450): new chunk 34, first in wave 5,
+  tunes `RHYTHM_CHANGE_SHARE` / `TENSER_RHYTHM_CHANGE_SHARE` and re-runs `measure:lock`; Jam's
+  lock changes rise to 1 in 2 too (to tell the owner at wave 4's report). Still owed: H2 step 3
+  (one kind at a time) and H3; L3 stays open.
+- Chunk 8 dispatched next (LD cleared).
+- 8 merged (481f655b; 414fc742). `src/domain/generation/steering/rhythm-steering.ts` (new):
+  `heardMeasureStarts` (a rest start right after a rest dropped, per D425) and `steerRhythmOrder`
+  (`band`: 0 inside the band, else 1 + total edits; `nearest` for the lock pending);
+  `withRhythmOrder` in `candidate-ranking.ts`; the steered order built once per request after the
+  seeded ranking, timed inside the orderings span (D434). `measureBand` untouched (D449). Corpus
+  guard 425/425; related units 1,609/1,609; typecheck, lint, format, links clean; health 0 errors
+  (`generation-orchestrator.ts` links 8 atoms, warning). Found: under their own controls most of the
+  doodle set has no rhythm in its band (8 of 52 requests land in it; minimum total edits 2 to 35),
+  so the target is only approached, as C8 allows: to mention at wave 4's report and for H4. For
+  the sync: `module_rhythm_steering` 0.1 built (drop its "Not built yet" lines); revisions owed to
+  `rule_jam_rhythm_ordered_by_doodle` 0.2 (target holds note and rest starts, compared as heard,
+  the band orders the rhythms tried with each chord plan, phrase 1's nearest rhythm),
+  `rule_rhythm_distance` 0.2 (against the doodle a rest start right after a rest is not counted),
+  `rule_jam_drift_positions` (D428); plus D425's O3 rewordings. Every wave 4 chunk merged; next the
+  wave gate.
+
+### Wave gate (2026-11-03), first run: FAILED on the worker's budget
+
+Reference machine (Ryzen 5 PRO 8640HS, idle), on `v3.2-w4` 7c3013d6 (`coding-executor`, no commit).
+- `npm run quality` stopped at `verify:boundaries`: the generation worker's chunk is 154,238 B
+  against its 150 KiB budget (153,600 B; master spec's figure), 638 B over. By merge: main 6958001
+  151,319 B; chunk 9 +752 B; chunks 20, 28, 7 and the ISS-015 diagnosis 0 B; chunk 8 +2,167 B (the
+  steering rank, real code; chunk 8 merged without a build). Jam's boundary held. Before it: unit
+  548 files / 8,628 tests pass; format, lint, links, health (0 errors), build pass.
+- The rest run one by one: `test:e2e` 616 passed, 1 skipped, 1 failed (`vary-settings-groups.spec.ts`
+  › 'with only Rhythm off, a seeded session never moves it': the harness page never loaded, 60 s
+  timeout; passed 85/85 in isolation with `--repeat-each=5` and in the pregeneration run: a page-load
+  flake, unexplained); `test:e2e:pregeneration` 617 passed, 1 skipped; a11y 64; notation 107 (4
+  skipped); `atd:lint`, `atd:check` pass.
+- `npm run test:sweep`: 9 files / 83 tests pass.
+- Bundle: entry chunk 290,302 B (+8,204 B on wave 3's 282,098; like for like on this machine
+  +8,129 B; chunk 20 +7,984, chunk 7 +145; budget 307,200 B, 16,898 B left); first-load JS
+  338,186 B over 17 files (+8,301 B; a new shared `concert-pitch-*.js` of 880 B split out while
+  `carry-in-*` shrank by 829 B: real growth); Jam's chunk `jam-mode-*.js` 6,731 B (+180 B on chunk
+  20's 6,551 B).
+- Asked the owner: raise the worker's budget (a spec figure) or trim chunk 8's code by 638 B.
+
+### Wave gate (2026-11-03), second run: PASS
+
+- The owner's ruling (question form, verbatim): "Raise to 170 KiB" (over 160 KiB or trimming chunk
+  8). Spec D451, Part C v1.15, plan v25 (`spec-writer`, f6d7dc6c); no atom states the figure. Fix
+  commit 6564460b (`coding-executor`): `generationWorkerChunkByteBudget` = 170 KiB in
+  `scripts/verify-boundaries.mjs`. `docs/sound-library-survey.md`'s "150 kB" left as written (a
+  record as of c498d9c).
+- `npm run quality` on 6564460b: pass. Unit 548 files / 8,628 tests; `test:e2e` 617 passed,
+  1 skipped; `test:e2e:pregeneration` 617 passed, 1 skipped; a11y 64; notation 107 (4 skipped);
+  `verify:boundaries` 53 chunks within budget, the worker 154,238 B of 174,080 B (19,842 B left).
+  The first run's `vary-settings-groups` timeout did not recur.
+- Sweep and bundle as in the first run (no source change since): sweep 9 files / 83 tests; entry
+  290,302 B, first-load 338,186 B over 17 files, Jam's chunk 6,731 B.
+
+### Wave sync (2026-11-03)
+
+`documentalist` (12ae067b; change set part T, the sync's record). No STABLE atom, CONTRACT (11.0.0)
+or VISION changed; no owner sign-off part. Revised (statuses unchanged): chunk 8's three
+(`rule_jam_rhythm_ordered_by_doodle` 0.3, `rule_rhythm_distance` 0.3, `rule_jam_drift_positions`
+0.3, O3 as D440 words it); chunk 7's two (`rule_join_inherits_leap_recovery` 0.3,
+`rule_join_tense_note_resolution` 0.4); B2 in `rule_join_interval_obeys_phrase_rules` 0.3; chunk 28's
+(`rule_doodle_silence_density_reading` 0.2, `rule_jam_register_follows_doodle` 0.3,
+`module_doodle_controls` 0.2, `module_steering_block_builder` 0.2); chunk 20's
+(`rule_pregeneration_discarded_on_change` 0.6, `module_generation_prewarm` 0.4, built names on its
+four captures); `module_pitch_steering` 0.1 created (chunk 9); drift words on
+`module_ranked_candidate_ordering` 0.7, `module_session_starting_note` 0.4,
+`module_doodle_quantizer` 0.3; the lexicon's Doodle entry (a short gap is part of the note, as
+staccato). M1/M2 (contract, CS) met; Start Jam is disabled until chunk 21, so re-check both at chunk
+21's sync. Transitional states recorded in T2 (Jam on session mode's controls until chunk 31; the
+home note starts nothing until chunk 21). For wave 5's preflight: D445 (chunk 31) and D450 (chunk
+34) rewordings. `atd audit` flags five atoms bloated (none split). Status candidates for the owner,
+DRAFT → REVIEW: `module_rhythm_steering`, `module_pitch_steering`, `module_steering_block_builder`,
+`module_jam_code_boundary`. `doc-ids compare main v3.2-w4`: 0 collisions.
+
+### Report and merge (2026-11-03)
+
+Reported to the owner: chunks 9, 20, 28, 7, 8 merged; the gate (second run) passes; entry
+290,302 B, first-load 338,186 B, the worker 154,238 B of 174,080 B; the sync's changes (part T, no
+contract change); Jam's lock changes rise to 1 in 2 with chunk 34; 8 of 52 doodle-set requests land
+in their band; Start Jam disabled until chunk 21. The owner, verbatim: "ok agreed, move to review,
+merge and push." The four status candidates advanced to REVIEW (`documentalist`, 9b0df761).
+`v3.2-w4` merged `--no-ff` into `main` and pushed; the wave worktree and branches removed.
+
+Next: wave 5 in a fresh session, chunk 34 first (the change shares, D450). Open with the owner:
+v3.2 H2 step 3 and H3 (gate L3 stays open); H4/H5 after wave 6 (with O271's question at H4 step 3,
+and gate DR's recordings before H5). For wave 5's preflight: D445 (chunk 31) and D450 (chunk 34)
+rewordings; re-check M1/M2 (contract, CS) at chunk 21's sync.

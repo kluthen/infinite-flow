@@ -8,7 +8,11 @@
  * the queue on every staff layout report, window-width crossing and saved change to my
  * instrument outside a session (one seen during a session waits for the return to Idle), and
  * hands the queue to Start. A background attempt is never an Idle operation: it changes no Idle
- * state. Loaded with the session controller, outside the entry chunk.
+ * state. While session mode is held (Jam mode opening or showing) it runs as while a start
+ * condition fails: the attempt in flight is aborted, the ready phrases are kept, nothing new is
+ * prepared and nothing is discarded on its own; a re-check asked for meanwhile waits, and once the
+ * hold ends it resumes after the last ready phrase, exactly as when the start conditions hold
+ * again. Loaded with the session controller, outside the entry chunk.
  */
 import { watch } from 'vue'
 
@@ -61,13 +65,15 @@ export interface PregenerationWorkspaceSeams extends PregenerationSeams {
 /**
  * What the session controller binds: the Idle state (phrase 1, the controls, the figure levels,
  * the preset selection, the presets it knows and the note-density context), its start blocker (the run conditions), its two session flags, the rhythm lock, its allowed changes and the allowed groups,
- * the window's shape, the staff's latest layout inputs and their observer, the staff planner's
- * loader, and where a programming error is reported.
+ * whether session mode is held, the window's shape, the staff's latest layout inputs and their
+ * observer, the staff planner's loader, and where a programming error is reported.
  */
 // @spec-link [[module_idle_pregeneration_queue]]
 export interface PregenerationControllerSeams {
   readonly idle: Readonly<GenerationSessionState<WorkspaceSessionResult>>
   readonly startBlocker: () => SessionStartBlocker | null
+  /** Session mode is held (Jam mode opening or showing), reactive: the queue prepares nothing. */
+  readonly sessionModeHeld: () => boolean
   readonly varySettings: () => boolean
   readonly tensionAcrossPhrases: () => boolean
   /** The player's rhythm lock, its allowed changes and Vary settings' allowed groups, reactive. */
@@ -164,12 +170,13 @@ function disabledPregeneration(): WorkspacePregeneration {
 }
 
 /**
- * Intent: build the orchestrator and start it: it runs at once if every start condition holds.
- * A disabled policy builds one that never runs. A programming error met while it runs (an
- * unexpected rejection, or a plan that cannot be built or stepped, a carry-in error included)
- * goes to `fail`, the attempt in flight aborted and the queue emptied; it then stays stopped,
- * Start taking nothing, until the queue's key next changes. A layout re-check asked for while a
- * session runs re-checks nothing then: it runs once every start condition holds again.
+ * Intent: build the orchestrator and start it: it runs at once if every start condition holds
+ * and session mode is not held. A disabled policy builds one that never runs. A programming error
+ * met while it runs (an unexpected rejection, or a plan that cannot be built or stepped, a
+ * carry-in error included) goes to `fail`, the attempt in flight aborted and the queue emptied; it
+ * then stays stopped, Start taking nothing, until the queue's key next changes. A layout re-check
+ * asked for while a session runs or session mode is held re-checks nothing then: it runs once the
+ * queue may run again.
  */
 // @spec-link [[module_idle_pregeneration_queue]]
 // @spec-link [[rule_pregeneration_discarded_on_change]]
@@ -188,8 +195,18 @@ export function createWorkspacePregeneration(
   let planner: StaffFitPlanner | null = null
   let stalled = false
   let disposed = false
-  /** A layout re-check was asked for during a session; it runs on the return to Idle. */
+  /**
+   * A layout re-check was asked for during a session or while session mode was held; it runs once
+   * the queue may run again.
+   */
   let recheckOnIdle = false
+
+  /**
+   * Intent: whether the queue may run: every start condition holds and session mode is not held.
+   */
+  function runnable(): boolean {
+    return deps.startBlocker() === null && !deps.sessionModeHeld()
+  }
 
   /**
    * Intent: the plan's start from phrase 1 and the Idle choices as a session would take them, the
@@ -358,7 +375,7 @@ export function createWorkspacePregeneration(
    */
   function pump(checked = false): void {
     if (stalled || disposed || flight !== null || exhausted) return
-    if (deps.startBlocker() !== null) return
+    if (!runnable()) return
     if (!checked) ready = keptReady()
     const plan = createPregenerationPlan(seams, startOf(phraseOne()), ready)
     if (plan.attempt !== undefined) launch(plan, plan.attempt)
@@ -368,13 +385,13 @@ export function createWorkspacePregeneration(
    * Intent: the window re-check: truncate the queue at its first phrase that no longer re-derives
    * or fits; abort the attempt in flight when the queue shrank or `staleFlight` (a width crossing
    * may have changed its request), then resume. A phrase that stopped the plan is tried again.
-   * During a session it re-checks nothing and leaves the ready phrases as they are: it runs once
-   * every start condition holds again.
+   * During a session, or while session mode is held, it re-checks nothing and leaves the ready
+   * phrases as they are: it runs once the queue may run again.
    */
   // @spec-link [[rule_pregeneration_discarded_on_change]]
   function reconsider(staleFlight: boolean): void {
     if (stalled || disposed) return
-    if (deps.startBlocker() === 'session_active') {
+    if (deps.startBlocker() === 'session_active' || deps.sessionModeHeld()) {
       recheckOnIdle = true
       return
     }
@@ -402,13 +419,10 @@ export function createWorkspacePregeneration(
   }
 
   const stops = [
-    watch(
-      () => deps.startBlocker() === null,
-      (eligible) => {
-        if (!eligible) abortFlight()
-        else guarded(() => (recheckOnIdle ? reconsider(false) : pump()))
-      },
-    ),
+    watch(runnable, (eligible) => {
+      if (!eligible) abortFlight()
+      else guarded(() => (recheckOnIdle ? reconsider(false) : pump()))
+    }),
     watch([() => idle.result, () => settingsKeyOf(deps)], discard, { flush: 'sync' }),
     watch(
       () => idle.noteDensityContext.belowTabletLandscape,

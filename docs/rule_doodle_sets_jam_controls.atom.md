@@ -6,6 +6,7 @@ tags: [v3, release-v3.2, jam, rhythm, melody, player-controls]
 parents:
   - [[req_jam_settings]]
 dependents:
+  - [[module_doodle_controls]]
   - [[rule_doodle_contour_reading]]
   - [[rule_doodle_controls_always_supported]]
   - [[rule_doodle_leapiness_reading]]

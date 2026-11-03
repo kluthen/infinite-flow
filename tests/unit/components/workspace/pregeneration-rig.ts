@@ -1,7 +1,7 @@
 /**
  * The Idle pre-generation orchestrator specs' shared rig: an orchestrator over an Idle state the
  * test edits by hand (a real phrase 1, engraved, its session seed published with it), a start
- * blocker, two session flags and the rhythm lock, its allowed changes and the allowed groups the
+ * blocker, whether session mode is held (not at first), two session flags and the rhythm lock, its allowed changes and the allowed groups the
  * test sets, a real Idle layout gate that has had the staff's
  * wide inputs, a desktop window, a fake staff planner, queued providers, a real background slot,
  * and a generate seam the test answers by hand: each call waits until the test settles it, and an
@@ -75,6 +75,8 @@ export interface PregenerationRig {
   readonly queue: WorkspacePregeneration
   readonly idle: MutableGenerationSessionState<WorkspaceSessionResult>
   readonly blocker: ShallowRef<SessionStartBlocker | null>
+  /** Whether session mode is held (Jam mode opening or showing); not at first. */
+  readonly sessionModeHeld: ShallowRef<boolean>
   readonly varySettings: ShallowRef<boolean>
   readonly tensionAcrossPhrases: ShallowRef<boolean>
   /** The rhythm lock, its allowed changes and the allowed groups; the defaults at first. */
@@ -181,6 +183,7 @@ export function pregenerationRig(options: PregenerationRigOptions = {}): Pregene
     roomNoticeAnnouncements: 0,
   })
   const blocker = shallowRef<SessionStartBlocker | null>(options.blocker ?? null)
+  const sessionModeHeld = shallowRef(false)
   const varySettings = shallowRef(false)
   const tensionAcrossPhrases = shallowRef(false)
   const lockAndGroups = shallowRef<LockAndGroupsChoices>(DEFAULT_LOCK_AND_GROUPS)
@@ -206,6 +209,7 @@ export function pregenerationRig(options: PregenerationRigOptions = {}): Pregene
     policy: options.policy ?? 'enabled',
     idle,
     startBlocker: () => blocker.value,
+    sessionModeHeld: () => sessionModeHeld.value,
     varySettings: () => varySettings.value,
     tensionAcrossPhrases: () => tensionAcrossPhrases.value,
     lockAndGroups: () => lockAndGroups.value,
@@ -218,6 +222,7 @@ export function pregenerationRig(options: PregenerationRigOptions = {}): Pregene
     queue,
     idle,
     blocker,
+    sessionModeHeld,
     varySettings,
     tensionAcrossPhrases,
     lockAndGroups,

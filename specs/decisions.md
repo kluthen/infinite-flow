@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.124
+Status: draft v2.126
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -26,8 +26,8 @@ Append-only record of settled decisions. Earlier logs are archived verbatim:
 
 Archived IDs keep their meaning and may be cited anywhere. Their content is now stated as settled
 fact in the live documents (see the [archive index](archive/README.md) and each milestone
-folder's README, such as [archive/v3/README.md](archive/v3/README.md)). Numbering continues from
-**D410**.
+folder's README, such as [archive/v3/README.md](archive/v3/README.md)). New IDs come from
+`doc-ids next spec D`.
 
 Live here: D232–D251 (v3.2, not built yet), with v3.1's D233, D235, D242 and D250 interleaved
 among them and D237, D239 and D246 ruling both releases, kept until v3.2's archive closes the
@@ -969,3 +969,95 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   pre-generated phrase 1→2 plan could not match a session started with the lock on (C10.5). Chunk
   19 gains the Start path's files, a matching Done when, the corpus guard and a re-cut split rule.
   Now in: [build plan v3.2, chunk 19](versions/v3/build-plan-v3.2.md#chunk-19--the-rhythm-lock-and-what-may-vary-in-the-controls).
+
+- **D440 (2026-10-27): a short silence between two doodle notes is part of the note before it;
+  closes O268.** The owner's answer ("part of the notes", as proposed; gate DS). A silence is a
+  rest only where a whole rest of the doodle's note density value fits in it on that grid, its
+  rest start at the first such grid tick; the silence reading counts the same rests. A tongued
+  wind controller makes most doodles detached, which the old reading put beyond every rhythm the
+  generator writes. Rejected: keeping C5.9 (drift only "nearest first" for detached doodles);
+  dropping only one-sixteenth silences (misses `sparse-calls`). Two doodles' recorded silence
+  readings become Sparse. Now in: [Part C §C5.9](versions/v3/master-spec.md#c59-what-the-doodle-feeds-the-generator),
+  [§C5.16.1](versions/v3/master-spec.md#c5161-the-doodle-to-controls-mapping), [build plan v3.2, chunk 28](versions/v3/build-plan-v3.2.md#chunk-28--from-the-doodle-the-controls-and-the-steering-block).
+
+- **D441 (2026-10-27): a tie between two register windows' centres goes to Middle.**
+  `spec-writer`'s, under the owner's delegation of minor calls, from wave 4's preflight. Under the
+  window derivation Middle is always among the tied windows (its centre sits at, or a hair from,
+  the midpoint of the other two; checked for every range up to five octaves), so one rule settles every
+  tie; Middle is also the first-visit register. Rejected: the lower window (an arbitrary lean). Now in:
+  [Part C §C5.9](versions/v3/master-spec.md#c59-what-the-doodle-feeds-the-generator),
+  [§C5.16.1](versions/v3/master-spec.md#c5161-the-doodle-to-controls-mapping), [build plan v3.2, chunks 28 and 7](versions/v3/build-plan-v3.2.md#chunk-28--from-the-doodle-the-controls-and-the-steering-block).
+
+- **D442 (2026-10-27): before any doodle in the visit, Jam's Idle prewarms the first-visit rhythm
+  values with Jam's tension.** `spec-writer`'s, under the owner's delegation (a prewarm is not
+  heard or seen). They are what a doodle showing no rhythm takes; the domain memo never evicts, so
+  session mode loses nothing. Rejected: prewarming nothing (a first doodle landing on those values would pay a cold build).
+  Now in: [Part C §C5.8](versions/v3/master-spec.md#c58-the-time-budget), [build plan v3.2, chunk 20](versions/v3/build-plan-v3.2.md#chunk-20--jam-mode-the-mode-switch-jams-code-on-demand-and-jams-idle).
+
+- **D443 (2026-10-27): chunk 28 builds on the hand-written doodles; gate DR blocks v3.2 H5.** The
+  owner's ("Build on the written ones"). The Travel Sax recordings join the doodle set later,
+  before H5, and run through the quantizer's and the mapping's tests as they join. Now in:
+  [build plan v3.2, gates](versions/v3/build-plan-v3.2.md#gates).
+
+- **D444 (2026-10-27): wave 4's preflight corrections to the v3.2 plan.** `documentalist`'s
+  preflight (2d0525c), applied by `spec-writer` after checking each against Part C and the code:
+  chunks 20, 28, 8 and 9's atoms, Files, drift checks and revisions; chunk 8's business revisions
+  owed by D425 and D428; chunk 8's in-wave edge from chunk 28, whose blocks it orders by; chunk
+  18's no-phrase carry-in fuel, which M1 confirms. No behaviour. Now
+  in: [build plan v3.2, v21](versions/v3/build-plan-v3.2.md#chunk-20--jam-mode-the-mode-switch-jams-code-on-demand-and-jams-idle).
+
+- **D445 (2026-10-27): the supported-combination step judges the doodle's note density as read,
+  at every width.** `spec-writer`'s, under the owner's delegation of minor calls, from `ux-writer`'s
+  wave 4 gap. No combination at Eighth is unsupported, so judging the Sixteenth read keeps the
+  controls supported at both widths: they never depend on the window, a crossing while a doodle is
+  kept changes no reading and, as in session mode, rewrites nothing. Rejected: running the step
+  again on each crossing (a kept phrase 1 written narrow, then a Jam started wide, would generate
+  Sixteenth with a variety stepped only for Eighth, an unsupported combination). Cost: on a narrow
+  screen a doodle read as Sixteenth may keep a variety one step higher than Eighth needs (D414).
+  Now in: [Part C §C5.16.1](versions/v3/master-spec.md#c5161-the-doodle-to-controls-mapping),
+  [build plan v3.2, chunks 31, 18 and 24](versions/v3/build-plan-v3.2.md#chunk-31--jams-settings).
+
+- **D446 (2026-10-27): chunk 31 adds the raised mark to the rhythmic variety reading (ux D355).**
+  Chunk 28 is merged and closed, so the readings' model gains `raised` in the chunk that shows the
+  readings, with D445's change to the same function. Now in:
+  [build plan v3.2, chunk 31](versions/v3/build-plan-v3.2.md#chunk-31--jams-settings).
+
+- **D447 (2026-10-27): ISS-015's fixes are deferred past v3.2.** The owner chose "Later, after
+  v3.2" (their "Now, in wave 4" read as recording this now). Neither fix A (a tense ending only
+  where the next phrase's contour can start) nor fix C (proving the join impossible before the
+  search) is built in v3.2; ISS-015 stays open. Phrase 2 of seven doodle × instrument cases is
+  standalone, and some carry-in attempts burn their fuel first; the Jam and session sweeps read
+  their figures with it, never tuned around it. Now in: [build plan v3.2, chunk 18, chunk 29, M1
+  and M5](versions/v3/build-plan-v3.2.md#m1--the-jam-sweep).
+
+- **D448 (2026-10-27): a join pinned at the window's floor with no tense note is a known limit.**
+  The owner's ("Accept and document", ISS-015's option B2): a Falling + Smooth phrase ending on
+  the window's lowest tonic-triad tone leaves the next phrase no legal first note, so the ladder's
+  standalone phrase is the designed outcome. Rejected: B1 (no carry-in phrase may end where the
+  next cannot start), a gated generator change like fix A. Now in: [build plan v3.2,
+  M1](versions/v3/build-plan-v3.2.md#m1--the-jam-sweep).
+
+- **D449 (2026-11-03): gate LD cleared with a finding; drift's scale stays as C8 writes it.** The
+  owner ranked v3.2 H1's five sets on 2026-11-03; the driver ruled option A, no product change.
+  One listener, five sets: in every set the candidate ranked least alike was the only one starting
+  a note on a finer grid than the doodle's (an offbeat over an on-beat doodle, a sixteenth among
+  eighths); the ranking did not support C8's extra weight on beats 1 and 3 (Close over Near in 3
+  sets of 5), and a shortened note was heard as Same. Rejected for now: fallback B, carried to the
+  Jam listening check as O271. Set 4's "better, though distinct" is a preference, not likeness,
+  noted for H4 and H5. Now in: [Part C §C8](versions/v3/master-spec.md#c8-jams-drift),
+  [build plan v3.2, gate LD and H4](versions/v3/build-plan-v3.2.md#v32-h4--jam-listening-settings-drift-and-lock-l1).
+
+- **D450 (2026-11-03): the rhythm change shares become 1 in 2, and 3 in 4 on a tenser phrase.**
+  The owner's ruling, option (a), from v3.2 H2 steps 2 and 4 at 90 BPM: tension off, changes came
+  too rarely; on, about 1 in 2 felt fine; "if needed we will change that later on". Tension across
+  phrases keeps an audible step above the base. A Jam's lock draws at the base share, so it rises
+  too. Built by new chunk 34 (wave 5), which re-runs M2; L3 stays open for step 3. Now in:
+  [Part C §C7.4](versions/v3/master-spec.md#c74-when-a-phrase-changes),
+  [build plan v3.2, chunk 34](versions/v3/build-plan-v3.2.md#chunk-34--the-rhythm-change-shares-tuned-l3).
+
+- **D451 (2026-11-03): the generation worker's chunk budget rises from 150 KiB to 170 KiB.** The
+  owner chose "Raise to 170 KiB" over 160 KiB or trimming chunk 8. Wave 4's gate measured the
+  chunk at 154,238 B, 638 B over 153,600 B (chunk 8's steering rank +2,167 B, chunk 9 +752 B);
+  174,080 B leaves about 19.6 KiB, so the limit needs no revisit before v3.2 ships. Now in:
+  [Part C §C10.9](versions/v3/master-spec.md#c109-loading-jams-code-on-demand),
+  [build plan v3.2, M4](versions/v3/build-plan-v3.2.md#m4--the-first-load-bundle).

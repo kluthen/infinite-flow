@@ -3,6 +3,7 @@ id: rule_jam_steering_block
 status: DRAFT
 dependents:
   - [[entity_steering_block]]
+  - [[module_steering_block_builder]]
 type: RULE
 layer: BUSINESS
 tags: [v3, release-v3.2, jam, generation, privacy]

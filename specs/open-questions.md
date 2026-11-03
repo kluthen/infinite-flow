@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.84
+Status: draft v0.86
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -36,8 +36,9 @@ approval (D410); [Part C §C17](versions/v3/master-spec.md#c17-deferred-and-open
 now stands.
 O267 (a doodle note played before the doodle's first barline, D430) was opened on 2026-10-23,
 and O268 and O269 (how the doodle's short silences and its legato rhythm are read, D433) the same
-day. New questions take IDs from **O270**; the IDs reserved for v3.0's waves and left unused stay
-unused, and O177 stays unused.
+day; O268 was closed on 2026-10-27 by the owner's answer (D440). O271 (a note start off the
+doodle's grid, D449) was opened on 2026-11-03; O270 was never issued. New IDs come from `doc-ids
+next spec O`; the IDs reserved for v3.0's waves and left unused stay unused, and O177 stays unused.
 
 Opened on 2026-10-12 with v3.3 (D261): O165–O175, richer chords. D262 closed O174 the same day.
 D264–D273 settled the rest the same day in master spec Part D, as proposed for the owner's
@@ -296,25 +297,6 @@ in progress.
   it is open; C5.15 only says a note running past the section's end stops there. Proposed: the
   export starts it at the section's start, its release unchanged, as the end is clipped; the lane
   draws it where it was played. Needed before chunk 23 (the lane, wave 6) and chunk 25 (wave 7).
-- **O268 - How a short silence between two doodle notes is read** _(D433; [Part C
-  §C5.9](versions/v3/master-spec.md#c59-what-the-doodle-feeds-the-generator), [build plan gate
-  DS](versions/v3/build-plan-v3.2.md#gates))_: the question for the owner: when you play notes short
-  and separated (each one tongued and let go a little before the next), should Jam hear the small
-  gaps as rests, or as part of the notes, as sheet music writes short, detached notes as ordinary
-  notes (with a staccato dot) rather than as rests? Today C5.9 makes every silence a rest start, and
-  no rhythm the generator writes holds a rest one sixteenth long off the beat grid, so 4 of chunk
-  3's 6 listening doodles are "beyond" every rhythm (`quarter-steps`, four detached quarters, reads
-  a sixteenth rest on its last sixteenth): for such doodles Close and Near order rhythms alike, and
-  C5.16's "a doodle far from everything the settings allow no longer happens" fails. A tongued
-  wind controller will make most real doodles detached. Proposed: part of the notes. A silence is a
-  rest only where a whole rest of the doodle's note density value (a quarter, an eighth or a
-  sixteenth, as read in C5.16.1) fits inside it on that grid, its rest start at the first such grid
-  tick; the silence density reading counts the same rests. All four doodles then come within reach
-  (`quarter-steps` reads as four quarters, `tresillo-leaps` as 3 + 3 + 2), the other two and H1's
-  five measures are unchanged. Other answers: keep C5.9 (drift becomes "nearest first" for
-  detached doodles); drop only one-sixteenth silences (misses `sparse-calls`, a note held a
-  sixteenth past beat 3). Needed before chunk 28 (wave 4); not before gate LD. The owner's
-  recordings (gate DR) show how short real gaps are.
 - **O269 - Whether a legato doodle of eighths and quarters should read Heavily varied** _(D433;
   [Part C §C5.16.1](versions/v3/master-spec.md#c5161-the-doodle-to-controls-mapping), [v3.2
   H5](versions/v3/build-plan-v3.2.md#v32-h5--jam-listening-the-doodle-to-controls-mapping-l1))_: a
@@ -327,3 +309,13 @@ in progress.
   Slightly varied when every note off the main value is longer than it (the doodle's rhythm then
   approached, not reached), or a later grammar level adding only longer values. Needed at the Jam
   listening check (gate L1, after wave 6); chunk 28 builds the rule as written.
+- **O271 - Whether a note start off the doodle's grid should count as a strong edit** _(D449;
+  [Part C §C8](versions/v3/master-spec.md#c8-jams-drift), [v3.2
+  H4](versions/v3/build-plan-v3.2.md#v32-h4--jam-listening-settings-drift-and-lock-l1))_: at v3.2
+  H1, every set's least-alike candidate was the only one starting a note on a finer grid than any
+  the doodle's starts use (an offbeat over an on-beat doodle, a sixteenth among eighths). C8 counts
+  that start as one edit like any other, so such a candidate can sit at Close. Proposed: keep C8 as
+  written (D449) and ask at H4 step 3 whether Drift Close used quicker notes than the doodle. If it
+  did, fallback B: against the doodle only, never against the locked rhythm, such a start is a
+  strong edit, Near at once wherever it falls. Needed at the Jam listening check (gate L1, after
+  wave 6); nothing is built for it before.

@@ -4,7 +4,8 @@ status: DRAFT
 tags: [v3, release-v3.2, jam, rhythm]
 parents:
   - [[rule_doodle_sets_jam_controls]]
-dependents: []
+dependents:
+  - [[module_doodle_controls]]
 layer: BUSINESS
 version: 0.1
 type: RULE

@@ -5,7 +5,8 @@ type: RULE
 human_name: Note Density Read From the Doodle
 parents:
   - [[rule_doodle_sets_jam_controls]]
-dependents: []
+dependents:
+  - [[module_doodle_controls]]
 layer: BUSINESS
 version: 0.1
 priority: 1

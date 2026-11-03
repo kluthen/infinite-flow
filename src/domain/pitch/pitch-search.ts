@@ -1,4 +1,5 @@
 import { deepFreeze } from '../events/deep-freeze'
+import { pitchSteeringTerm } from '../generation/steering/pitch-steering'
 import {
   advanceSearchStep,
   indexedDomainMember,
@@ -40,14 +41,20 @@ interface SearchBudget {
  * held resolution through `state.figure.free.only`. Nothing rejects or retries a phrase for
  * lacking a drawn figure, and the assignments always hold the domain member itself.
  *
+ * With a steering block in the request, each attack's candidates are also ordered by the block's
+ * move for that note (`pitchSteeringTerm`), below every existing rank; the hard rules still decide
+ * what the transition accepts, so the block changes only which allowed candidate is tried first.
+ *
  * An attack's ordered entries depend only on the attack, its required MIDI, and the prior MIDI
- * (chaos, seed, key and levels are fixed for the run, and the draw reads only the seed and the
- * attack), so they are ordered once per such triple. The prefix is a push/pop stack copied only
- * into the returned phrase.
+ * (chaos, seed, key, levels and the steering block are fixed for the run, the draw reads only the
+ * seed and the attack, and the steering move only the attack's index), so they are ordered once
+ * per such triple; the memo is local to one run, so no ordering outlives its block. The prefix is
+ * a push/pop stack copied only into the returned phrase.
  */
 // @spec-link [[module_pitch_planner]]
 // @spec-link [[mechanic_pitch_search_policy]]
 // @spec-link [[rule_figure_level_never_a_quota]]
+// @spec-link [[rule_jam_melody_follows_doodle_moves]]
 export function searchPitchPlan(
   input: BoundPitchPlannerInput,
   key: PitchTieKeyFactory,
@@ -61,6 +68,7 @@ export function searchPitchPlan(
   const budget: SearchBudget = { fuel: input.policy.searchFuel, limited: false, dead: new Set() }
   const member = indexedDomainMember(context)
   const orderings = new Map<string, readonly PitchSearchEntry[]>()
+  const { steering, carryIn } = input.request
   const ordered = (state: PitchSearchState): readonly PitchSearchEntry[] => {
     const attack = context.attacks[state.nextAttackIndex]!
     const required = requiredMidi(state.figure)
@@ -68,6 +76,7 @@ export function searchPitchPlan(
     const orderingKey = `${attack.attackIndex}|${required ?? ''}|${priorMidi ?? ''}`
     let entries = orderings.get(orderingKey)
     if (!entries) {
+      const term = pitchSteeringTerm(steering, attack.attackIndex, carryIn !== undefined)
       entries = orderCandidates({
         chaos: input.policy.arpeggioChaos,
         seed: input.request.seed,
@@ -78,6 +87,7 @@ export function searchPitchPlan(
         priorMidi,
         key,
         ...(required === undefined ? { figureLevels: input.policy.figureLevels } : {}),
+        ...(term === undefined ? {} : { steering: term }),
       })
       orderings.set(orderingKey, entries)
     }

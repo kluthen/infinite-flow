@@ -3,7 +3,8 @@ id: rule_jam_starting_note_is_home_note
 status: DRAFT
 parents:
   - [[req_jam]]
-dependents: []
+dependents:
+  - [[module_jam_idle_notes]]
 type: RULE
 layer: BUSINESS
 version: 0.3

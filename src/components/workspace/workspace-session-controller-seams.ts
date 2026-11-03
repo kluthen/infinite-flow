@@ -104,6 +104,11 @@ export interface SessionControllerDependencies {
   /** Whether the connection sheet is open, read reactively; no note starts a session while it is. */
   readonly connectionSheetOpen: () => boolean
   /**
+   * Whether session mode is held (Jam mode opening or showing), read reactively: while it is, no
+   * note starts a session and the Idle pre-generation queue prepares nothing, keeping what it has.
+   */
+  readonly sessionModeHeld: () => boolean
+  /**
    * Build the Idle pre-generation queue's orchestrator over the controller's run conditions and
    * Idle reading; the workspace binds it to the one generation worker, the slot and the policy.
    */

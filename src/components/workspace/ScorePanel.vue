@@ -21,9 +21,17 @@
  * at the one shared system-position size the workspace gives it. What the page keeps of the
  * Review lives here, in its Review host (./use-review-host.ts), and outlives the area as the
  * Review closes and opens again: the staff's viewport, and the export choices and Played notes
- * switch, which start from the saved review preferences it is given.
+ * switch, which start from the saved review preferences it is given. While Jam mode shows, Jam's
+ * view (`jamView`, Jam's code, loaded on demand) takes the staff's place: the session's staff
+ * viewport stays laid out, out of sight and inert as under the Review, so session mode returns
+ * exactly as it was left, and the generation-failure banner is hidden; the Review hides Jam's view
+ * the same way. Jam's view gets the props the workspace gives it (`jamViewProps`); what its staff
+ * shows is passed on (`jam-staff-state`), and its `retryNotation()` is reached through
+ * `retryJamNotation()`. The cue row is given Jam's Idle cue (`jamCue`) as it is. The score title,
+ * which also names the staff frame, follows the mode shown: `Jam` while Jam's view shows, else
+ * `Four-measure phrase` (while Jam's code loads too).
  */
-import { computed, defineAsyncComponent, nextTick, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, nextTick, ref, watch, type Component } from 'vue'
 
 import type { GenerationSession } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
@@ -35,6 +43,7 @@ import {
   NOTATION_SYSTEM_POSITION_UNITS,
 } from '@/notation/notation-layout-policy'
 import type { NotationError } from '@/notation/notation-error'
+import type { JamStaffState, JamWorkspaceProps } from '@/jam/jam-view-types'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { AudioTransport } from '@/audio/audio-transport'
 import { loadReviewArea } from '@/components/review/load-review-panel'
@@ -45,6 +54,7 @@ import {
 } from '@/storage/records/setting-defaults'
 import MixControls from './MixControls.vue'
 import SessionCueRow from './SessionCueRow.vue'
+import type { JamCue } from './use-jam-idle-cue'
 import { useScoreOverlays } from './use-score-overlays'
 import type { MixVolumePopover } from './mix-volume-popover'
 import type { ReviewExportPorts } from './review-export'
@@ -92,6 +102,12 @@ const props = withDefaults(
      * from, loaded before the first draw; a first visit's by default.
      */
     savedReviewPreferences?: ReviewPreferences
+    /** Jam's view while Jam mode shows, in the staff's place; null (the default) in session mode. */
+    jamView?: Component | null
+    /** The props Jam's view is given while it shows; null (the default) with none. */
+    jamViewProps?: JamWorkspaceProps | null
+    /** What the cue row holds in the starting-note line's place in Jam mode; null (the default) else. */
+    jamCue?: JamCue | null
   }>(),
   {
     // Default: the notation layout's own width query (the split layout's), read from the window now.
@@ -99,6 +115,9 @@ const props = withDefaults(
     reviewExportPorts: null,
     systemPositionUnits: NOTATION_SYSTEM_POSITION_UNITS,
     savedReviewPreferences: () => DEFAULT_REVIEW_PREFERENCES,
+    jamView: null,
+    jamViewProps: null,
+    jamCue: null,
   },
 )
 
@@ -111,6 +130,8 @@ const emit = defineEmits<{
   'show-sessions': []
   /** The review mode switched between a Review and the session list. */
   'scroll-to-top': []
+  /** What Jam's staff shows changed. */
+  'jam-staff-state': [state: JamStaffState]
 }>()
 
 const state = computed(() => props.session.state)
@@ -122,6 +143,13 @@ const review = useReviewHost({
   saveSettings: injectSaveSettings(),
 })
 const reviewShowing = review.showing
+/** Session mode's staff is out of sight: under the Review, or while Jam mode shows. */
+const sessionStaffAway = computed(() => reviewShowing.value || props.jamView !== null)
+/**
+ * The score title: one per mode, following the mode the workspace shows, not the switch, so it
+ * still reads "Four-measure phrase" while Jam's code loads.
+ */
+const scoreTitle = computed(() => (props.jamView !== null ? 'Jam' : 'Four-measure phrase'))
 
 const roomNoticeElement = ref<HTMLElement | null>(null)
 
@@ -159,7 +187,16 @@ function focusReviewTitle(): void {
 
 watch(reviewArea, focusPendingReviewTitle, { flush: 'post' })
 
-defineExpose({ focusRoomNotice, focusReviewTitle })
+/** Jam's mounted view's exposed API; null while Jam mode does not show. */
+const jamViewInstance = ref<{ readonly retryNotation: () => void } | null>(null)
+
+/** Intent: `Retry notation` in Jam mode: Jam's view engraves its staff again; it must be shown. */
+function retryJamNotation(): void {
+  if (jamViewInstance.value === null) throw new Error("score panel: Jam's view is not shown")
+  jamViewInstance.value.retryNotation()
+}
+
+defineExpose({ focusRoomNotice, focusReviewTitle, retryJamNotation })
 
 const statusText = ref('')
 const notationStatusText = ref('')
@@ -367,7 +404,7 @@ const generationErrorAlertText = computed(() =>
   <div class="score-panel">
     <div class="score-toolbar">
       <h2 id="score-panel-title" class="score-context" :hidden="reviewShowing">
-        Four-measure phrase
+        {{ scoreTitle }}
       </h2>
       <p class="generation-status" role="status" aria-live="polite" aria-atomic="true">
         {{ statusText }}
@@ -390,7 +427,7 @@ const generationErrorAlertText = computed(() =>
     <p
       v-if="generationErrorAlertText !== null"
       class="inline-alert alert-error"
-      :hidden="reviewShowing"
+      :hidden="sessionStaffAway"
     >
       {{ generationErrorAlertText }}
     </p>
@@ -398,17 +435,19 @@ const generationErrorAlertText = computed(() =>
       :controller="controller"
       :audio="audio"
       :mix-popover="mixPopover"
+      :jam-cue="jamCue"
       :hidden="reviewShowing"
       @stop="emit('stop-session')"
       @show-review="emit('show-review')"
       @show-sessions="emit('show-sessions')"
     />
-    <!-- Out of sight, not hidden, under the Review: the staff keeps its geometry. `inert` is
-         bound as present or absent, never "false", which a DOM without the property would keep. -->
+    <!-- Out of sight, not hidden, under the Review and in Jam mode: the staff keeps its geometry.
+         `inert` is bound as present or absent, never "false", which a DOM without the property
+         would keep. -->
     <div
       class="staff-viewport"
-      :class="{ 'is-out-of-sight': reviewShowing }"
-      :inert="reviewShowing || undefined"
+      :class="{ 'is-out-of-sight': sessionStaffAway }"
+      :inert="sessionStaffAway || undefined"
     >
       <div class="staff-frame" :class="staffFrameStateClass" aria-labelledby="score-panel-title">
         <!-- The idle phrase is the phrase a session starts with, phrase 1. -->
@@ -448,5 +487,15 @@ const generationErrorAlertText = computed(() =>
         </PhraseScore>
       </div>
     </div>
+    <!-- Jam's view, its own staff-viewport where the session's (out of sight) takes no room. -->
+    <component
+      :is="jamView"
+      v-if="jamView !== null"
+      ref="jamViewInstance"
+      v-bind="jamViewProps ?? {}"
+      :class="{ 'is-out-of-sight': reviewShowing }"
+      :inert="reviewShowing || undefined"
+      @staff-state="emit('jam-staff-state', $event)"
+    />
   </div>
 </template>

@@ -3,7 +3,8 @@ id: rule_jam_tap_in_listening
 status: DRAFT
 version: 0.1
 tags: [v3, release-v3.2, jam, tempo, midi]
-dependents: []
+dependents:
+  - [[module_jam_idle_notes]]
 type: RULE
 layer: BUSINESS
 priority: 1
