@@ -32,6 +32,7 @@ import type { Seed } from '../domain/random/seed'
 import {
   doodlePlayedNotes,
   withPlayedNotes,
+  type DoodleSuggestion,
   type RecordedDoodle,
   type SessionDoodle,
 } from './session-history-played-notes'
@@ -45,6 +46,7 @@ import type {
 
 export type {
   PlayedNoteIdentity,
+  DoodleSuggestion,
   RecordedDoodle,
   SessionDoodle,
 } from './session-history-played-notes'
@@ -144,8 +146,10 @@ export interface SessionHistory {
   recordPlayedNote(note: RecordedPlayedNote): void
   recordAcknowledgement(identity: ExpectedNoteIdentity): void
   recordDoodle(doodle: RecordedDoodle): void
+  recordSuggestion(suggestion: DoodleSuggestion): void
   phrases(): readonly SessionHistoryRecord[]
   doodle(): SessionDoodle | null
+  suggestion(): DoodleSuggestion | null
   // @spec-link [[rule_vary_settings_skips_dead_end]]
   skippedMutations(): readonly SkippedMutation[]
   // @spec-link [[rule_adaptive_tempo_resets_after_session]]
@@ -480,6 +484,7 @@ export function createSessionHistory(
   const acknowledgedKeys = new Set<string>()
   const skips: SkippedMutation[] = []
   let doodle: RecordedDoodle | null = null
+  let suggestion: DoodleSuggestion | null = null
   let snapshot: readonly SessionHistoryRecord[] | undefined
   let ended = false
 
@@ -541,6 +546,18 @@ export function createSessionHistory(
       if (records.length > 0)
         throw new SessionHistoryError('A doodle arrived after phrase 1 started sounding.')
       doodle = checkedDoodle(recorded)
+    },
+    /** Intent: keep the suggestion worked out at the doodle's end, once, after the doodle. */
+    recordSuggestion(worked: DoodleSuggestion): void {
+      assertOpen('A suggestion')
+      if (doodle === null) throw new SessionHistoryError('A suggestion arrived with no doodle.')
+      if (suggestion !== null)
+        throw new SessionHistoryError('The session already holds a suggestion.')
+      suggestion = deepFreeze({ ...worked })
+    },
+    /** Intent: the suggestion kept with the session, or null when none was worked out. */
+    suggestion(): DoodleSuggestion | null {
+      return suggestion
     },
     /** Intent: the doodle with its raw notes marked among the played notes, or null; frozen. */
     doodle(): SessionDoodle | null {

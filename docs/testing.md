@@ -1235,6 +1235,20 @@ on a tie, then advances it to `until`. A note released after `until` is still he
 outputs carry the time each decision was taken: a barline's is the barline plus
 `VERY_SHORT_NOTE_SECONDS`.
 
+### The Jam's way to phrase 1 on a fake clock
+
+`tests/unit/jam/jam-phrase-one-rig.ts` (`runJam(options)`) plays a fresh Jam from its count-in to
+`until` with the real ladder over a real capture and a real session engine started without phrase
+1, as Jam's code wires them, with a held-generation double: each request is answered after the
+time `options.generate(request, at)` gives (`GenerationPlan`: `after`, and `real` for the intent's
+real outcome, a failure code or `crash`; `fits` for the fit check), a cancelled one never. The
+doodle is `[pitch, onsetBeat, lengthBeats]` notes from the count-in's end, on the click plan's own
+grid (`rigBarline(run, k)`). A run returns every request, engine output, capture and ladder output
+with its time; `phraseOneRequests` and `engineOutputs` filter them. Seeds come from
+`jamPhraseOneSeed`. Phrases 2 onward start sounding whole phrases after phrase 1 once ready, and
+`below()` is read at each request, so a test can narrow or widen the window mid-run. It is a
+discrete-event simulation: no real time passes.
+
 ## Fake window width
 
 The workspace session reads the window's position against `bp-tablet-landscape` through an

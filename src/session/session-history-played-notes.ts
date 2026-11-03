@@ -8,6 +8,7 @@
  */
 
 import type { ExpectedNoteIdentity } from '../domain/acknowledgement/expected-note'
+import type { Collection, PitchClass } from '../domain/controls/generation-controls'
 import type { QuantizedDoodle } from '../domain/doodle/quantized-doodle'
 import type { ConcertPitch } from '../domain/events/concert-pitch'
 import { deepFreeze } from '../domain/events/deep-freeze'
@@ -50,6 +51,23 @@ export interface SessionDoodle {
   readonly endBarlineAt: AudioTime
   readonly playedNotes: readonly RecordedPlayedNote[]
 }
+
+/**
+ * The key and mode suggestion a fresh Jam worked out at its doodle's end, kept with the session
+ * for its review: nothing to suggest, a doodle no key and mode fits, or a written key and mode.
+ * The same shape as the suggestion Jam's code computes, named here so the history needs none of
+ * Jam's code.
+ */
+// @spec-link [[module_key_suggestion]]
+// @spec-link [[service_session_history]]
+export type DoodleSuggestion =
+  | { readonly kind: 'nothing' }
+  | { readonly kind: 'no_fit' }
+  | {
+      readonly kind: 'suggested'
+      readonly tonalCenter: PitchClass
+      readonly collection: Collection
+    }
 
 /** The parts of a phrase record the placement reads and fills. */
 interface PlaceableRecord {

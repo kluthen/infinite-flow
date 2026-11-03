@@ -7,7 +7,12 @@
 import { describe, expect, it } from 'vitest'
 
 import type { ScheduledBackingNote } from '@/audio/audio-ports'
-import { backingNotesBetween, phraseStartsAt, scheduleBacking } from '@/audio/backing-track'
+import {
+  backingNotesBetween,
+  phraseFirstBeat,
+  phraseStartsAt,
+  scheduleBacking,
+} from '@/audio/backing-track'
 import {
   clicksBetween,
   countInEndsAt,
@@ -178,5 +183,74 @@ describe('handing out the backing one window at a time', () => {
     expect(atStart.length).toBeGreaterThanOrEqual(4)
     expect(atStart.every((note) => note.at === phraseStart)).toBe(true)
     expect(() => backingNotesBetween(queue, 7, 6)).toThrow(/backwards/)
+  })
+})
+
+// @test-link [[module_session_transport_tempo_map]]
+// @test-link [[module_session_start_without_phrase_one]]
+describe('placing the phrases from a handed-over phrase 1 beat', () => {
+  /** Phrase 1's first beat three measures after the count-in's end. */
+  const PHRASE_ONE_BEAT = 4 + 3 * 4
+
+  // @test-link [[module_session_transport_tempo_map]]
+  it('keeps phrase 1 at the count-in end when no phrase 1 beat is given', () => {
+    const plan = createClickPlan(5.1, 120)
+    for (const n of [1, 2, 5]) {
+      expect(phraseFirstBeat(plan, n)).toBe(phraseFirstBeat(plan, n, plan.countInBeats))
+      expect(phraseStartsAt(plan, n)).toBe(phraseStartsAt(plan, n, plan.countInBeats))
+    }
+  })
+
+  // @test-link [[module_session_transport_tempo_map]]
+  // @test-link [[module_session_start_without_phrase_one]]
+  it('starts phrase 1 on the given beat and each next phrase four measures after it', () => {
+    const plan = createClickPlan(5.1, 120)
+    const clicks = clickTimes(plan, PHRASE_ONE_BEAT + 48)
+    expect(phraseFirstBeat(plan, 1, PHRASE_ONE_BEAT)).toBe(PHRASE_ONE_BEAT)
+    expect(phraseFirstBeat(plan, 3, PHRASE_ONE_BEAT)).toBe(PHRASE_ONE_BEAT + 32)
+    expect(phraseStartsAt(plan, 1, PHRASE_ONE_BEAT)).toBe(clicks[PHRASE_ONE_BEAT])
+    expect(phraseStartsAt(plan, 2, PHRASE_ONE_BEAT)).toBe(clicks[PHRASE_ONE_BEAT + 16])
+    expect(phraseStartsAt(plan, 4, PHRASE_ONE_BEAT)).toBe(clicks[PHRASE_ONE_BEAT + 48])
+  })
+
+  // @test-link [[module_session_transport_tempo_map]]
+  // @test-link [[module_session_start_without_phrase_one]]
+  it('puts every note of phrases 1 and 2 exactly on its click from the given beat', () => {
+    const plan = createClickPlan(5.1, 97)
+    const clicks = clickTimes(plan, PHRASE_ONE_BEAT + 32)
+    const rendered = renderBacking(twoPhraseHarmonies()[0], FOUR_FOUR_METER)
+    for (const phraseNumber of [1, 2]) {
+      const firstBeat = PHRASE_ONE_BEAT + (phraseNumber - 1) * 16
+      const expected = renderedAttacks(twoPhraseHarmonies()[0])
+        .map((attack) => ({
+          voice: attack.voice,
+          pitch: attack.pitch,
+          at: clicks[firstBeat + attack.startBeat]!,
+          until: clicks[firstBeat + attack.endBeat]!,
+        }))
+        .sort((a, b) => a.at - b.at)
+      expect(scheduleBacking(plan, phraseNumber, rendered, PHRASE_ONE_BEAT)).toEqual(expected)
+    }
+  })
+
+  // @test-link [[module_session_transport_tempo_map]]
+  it('checks the one tempo across the shifted phrase, not the unshifted one', () => {
+    const rendered = renderBacking(twoPhraseHarmonies()[0], FOUR_FOUR_METER)
+    const insideShifted = withTempoFrom(createClickPlan(5.1, 90), PHRASE_ONE_BEAT + 20, 95)
+    expect(() => scheduleBacking(insideShifted, 2, rendered, PHRASE_ONE_BEAT)).toThrow(/tempo/)
+    const onShifted = withTempoFrom(createClickPlan(5.1, 90), PHRASE_ONE_BEAT + 16, 95)
+    const notes = scheduleBacking(onShifted, 2, rendered, PHRASE_ONE_BEAT)
+    expect(notes[0]!.at).toBe(phraseStartsAt(onShifted, 2, PHRASE_ONE_BEAT))
+  })
+
+  // @test-link [[module_session_transport_tempo_map]]
+  it('throws on a phrase 1 beat that is not a barline at or after the count-in end', () => {
+    const plan = createClickPlan(5.1, 120)
+    const rendered = renderBacking(twoPhraseHarmonies()[0], FOUR_FOUR_METER)
+    for (const bad of [0, 2, PHRASE_ONE_BEAT + 1, PHRASE_ONE_BEAT + 0.5, Number.NaN, Infinity]) {
+      expect(() => phraseFirstBeat(plan, 1, bad)).toThrow(/phrase 1/)
+      expect(() => phraseStartsAt(plan, 2, bad)).toThrow(/phrase 1/)
+      expect(() => scheduleBacking(plan, 1, rendered, bad)).toThrow(/phrase 1/)
+    }
   })
 })

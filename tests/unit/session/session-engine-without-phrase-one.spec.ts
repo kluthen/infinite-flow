@@ -332,3 +332,40 @@ describe('a session started with phrase 1', () => {
     expect(engine.handle({ kind: 'controller', at: START_AT + 0.5, attached: false })).toEqual([])
   })
 })
+
+// @test-link [[rule_dropped_attempt_cancelled]]
+describe('a phrase 1 attempt cancelled by its caller', () => {
+  // @test-link [[rule_dropped_attempt_cancelled]]
+  // @test-link [[module_session_start_without_phrase_one]]
+  it('cancels the attempt still generating where it runs and ignores its late result', () => {
+    const engine = engineWithoutPhraseOne()
+    askAttempt(engine, START_AT + 3)
+    expect(engine.handle({ kind: 'cancel-phrase-one-attempt', at: START_AT + 3.2 })).toEqual([
+      { kind: 'cancel-generation', attemptId: 1 },
+    ])
+    const outcome = successFor(PHRASE_ONE.intent)
+    expect(
+      engine.handle({ kind: 'generation-result', at: START_AT + 3.4, attemptId: 1, outcome }),
+    ).toEqual([])
+    expect(askAttempt(engine, START_AT + 4)).toContainEqual(
+      expect.objectContaining({ kind: 'request-generation', attemptId: 2, phraseNumber: 1 }),
+    )
+  })
+
+  // @test-link [[module_session_start_without_phrase_one]]
+  it('drops an attempt in its fit check or fitted with nothing to cancel, and none at all', () => {
+    const engine = engineWithoutPhraseOne()
+    expect(engine.handle({ kind: 'cancel-phrase-one-attempt', at: START_AT + 3 })).toEqual([])
+    askAttempt(engine, START_AT + 3)
+    fitAttempt(engine, 1, START_AT + 3.1)
+    expect(engine.handle({ kind: 'cancel-phrase-one-attempt', at: START_AT + 3.2 })).toEqual([])
+    expect(() =>
+      engine.handle({
+        kind: 'phrase-one',
+        at: START_AT + 3.3,
+        attemptId: 1,
+        soundsAt: START_AT + 8,
+      }),
+    ).toThrow(/not a phrase 1 that fits/)
+  })
+})
