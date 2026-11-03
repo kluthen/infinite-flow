@@ -908,6 +908,14 @@ default heap, since one outcome cache per density holds every configuration's ph
 
 #### M2: the lock census with the lock
 
+**Re-run at the tuned shares (chunk 34).** The figures below are chunk 34's run, at the shares
+the owner ruled at L3 (spec D450): a phrase draws a change 1 in 2, a tenser phrase 3 in 4 (chunk
+13's first run used the starting 1 in 4 and 1 in 2, as M5's table above still does). Run by Claude
+on 2026-11-03, 12:58–13:49 CET (3,076 s), on branch `v3.2-c34-change-shares` cut from `v3.2-w5`,
+on the reference machine: AMD Ryzen 5 PRO 8640HS (12 threads), not a VM, Node 22.23.4. Nothing
+else of the project ran (1-minute load average 8.0 at the start, as a test run wound down); every
+attempt is charged the flat modelled cost, so the load moves no figure.
+
 `LOCK_SETTINGS=both npm run measure:lock`: per case, eight-phrase sessions at 120 BPM with the lock
 on, one per allowed list (strict, each kind alone, all five), Tension across phrases on and off: the
 sweep's 568 cases (seeds 7 and 13, 381 distinct locked rhythms) and each built-in preset applied to
@@ -919,44 +927,51 @@ no re-lock phrase was sampled; the re-lock is covered by chunk 16's session test
 
 Sweep cases, Tension across phrases on (off in brackets); phrases 2 to 8 classified (3,976 per row):
 
-| Allowed list         | Kept          | Changed       | Forced bends | Bends one allowed change away | Drew a change: normal, tenser  | Drew, no change available: no candidate, candidates failed |
-| -------------------- | ------------- | ------------- | ------------ | ----------------------------- | ------------------------------ | ---------------------------------------------------------- |
-| None (strict)        | 97.5 % (99.5) | —             | 2.5 % (0.5)  | —                             | —                              | —                                                          |
-| Move a note start    | 86.7 % (90.5) | 11.2 % (9.0)  | 2.1 % (0.5)  | 33 (0)                        | 25.8 %, 52.5 % (26.3 %)        | 800, 6 of 1,250 (688, 1 of 1,047)                          |
-| Move a rest          | 93.9 % (96.6) | 3.6 % (2.9)   | 2.5 % (0.5)  | 4 (3)                         | 25.8 %, 52.5 % (26.3 %)        | 1,106, 0 of 1,251 (932, 0 of 1,047)                        |
-| Split a note         | 91.8 % (94.7) | 5.8 % (4.9)   | 2.4 % (0.5)  | 6 (3)                         | 25.8 %, 52.4 % (26.3 %)        | 1,019, 0 of 1,249 (851, 0 of 1,045)                        |
-| Merge two notes      | 95.9 % (98.3) | 1.6 % (1.2)   | 2.5 % (0.5)  | 0 (0)                         | 25.8 %, 52.5 % (26.3 %)        | 1,182, 6 of 1,251 (989, 11 of 1,047)                       |
-| Add or remove a rest | 95.9 % (98.2) | 1.6 % (1.3)   | 2.5 % (0.5)  | 0 (0)                         | 25.8 %, 52.5 % (26.4 %)        | 1,186, 0 of 1,251 (997, 0 of 1,048)                        |
-| All five             | 78.9 % (84.1) | 19.1 % (15.5) | 2.0 % (0.4)  | 43 (6)                        | 25.8 %, 52.4 % (26.3 %)        | 479, 11 of 1,248 (417, 11 of 1,046)                        |
+| Allowed list         | Kept          | Changed       | Forced bends | Bends one allowed change away | Drew a change: normal, tenser | Drew, no change available: no candidate, candidates failed |
+| -------------------- | ------------- | ------------- | ------------ | ----------------------------- | ----------------------------- | ---------------------------------------------------------- |
+| None (strict)        | 97.5 % (99.5) | —             | 2.5 % (0.5)  | —                             | —                             | —                                                          |
+| Move a note start    | 78.9 % (82.2) | 19.2 % (17.3) | 1.8 % (0.5)  | 24 (0)                        | 49.4 %, 75.6 % (50.1 %)       | 1,409, 10 of 2,184 (1,301, 2 of 1,990)                     |
+| Move a rest          | 91.0 % (93.5) | 6.6 % (6.1)   | 2.4 % (0.4)  | 1 (0)                         | 49.4 %, 75.5 % (50.1 %)       | 1,918, 2 of 2,183 (1,747, 1 of 1,990)                      |
+| Split a note         | 87.8 % (90.4) | 9.9 % (9.2)   | 2.4 % (0.4)  | 3 (1)                         | 49.4 %, 75.6 % (50.1 %)       | 1,792, 0 of 2,185 (1,626, 0 of 1,990)                      |
+| Merge two notes      | 94.4 % (96.9) | 3.1 % (2.6)   | 2.5 % (0.5)  | 0 (0)                         | 49.4 %, 75.6 % (50.1 %)       | 2,053, 8 of 2,185 (1,873, 14 of 1,990)                     |
+| Add or remove a rest | 94.8 % (97.0) | 2.7 % (2.4)   | 2.5 % (0.5)  | 0 (0)                         | 49.4 %, 75.6 % (50.1 %)       | 2,078, 0 of 2,184 (1,893, 0 of 1,990)                      |
+| All five             | 64.9 % (69.6) | 33.5 % (30.2) | 1.6 % (0.3)  | 28 (1)                        | 49.3 %, 75.6 % (50.0 %)       | 832, 18 of 2,182 (774, 15 of 1,989)                        |
 
-- **The draw shares** hold C7.4's starting values: 25.8–26.4 % of phrases draw a change normally
-  (target 1 in 4) and 52.4–54.2 % of tenser phrases (target 1 in 2), in every group. They are not
-  tuned here: L3 tunes them (`rule_rhythm_change_share`, the owner's).
+- **The draw shares** hold the tuned values: 49.3–51.2 % of phrases draw a change normally (target
+  1 in 2) and 75.5–78.7 % of tenser phrases (target 3 in 4), in every group. The presets' groups
+  share their case seeds, so their tenser phrases read 78.6–78.7 % together (893 of 1,136 at most
+  presets): one sample, not eight. Over 8,000 seed-plan seeds the draw's own test reads 48.9 % and
+  74.1 %. In chunk 13's run, at the starting shares: 25.8–26.4 % and 52.4–54.2 %.
 - **The changed share** is lower than the drawn share because many draws find no candidate (the
-  last column): with all five allowed, 19.1 % of phrases change with Tension across phrases on,
-  15.5 % off. At the presets (all five, on / off): Pop song 28.1 / 21.6 %, Neutral 34.1 / 26.2 %,
-  Speed drill 24.1 / 14.6 %, Jazz and Modal (Dorian) 19.1 / 14.7 %, Gentle, Reel and Bebop 0 %
-  (every draw has no candidate: C7.3's known limit).
+  last column): with all five allowed, 33.5 % of phrases change with Tension across phrases on,
+  30.2 % off (19.1 and 15.5 % at the starting shares). At the presets (all five, on / off): Pop
+  song 48.0 / 41.9 %, Neutral 58.0 / 51.2 %, Speed drill 40.2 / 29.5 %, Jazz 32.3 / 28.5 %, Modal
+  (Dorian) 32.2 / 28.4 %, Gentle, Reel and Bebop 0 % (every draw has no candidate: C7.3's known
+  limit).
 - **Forced bends** happen almost only in the sweep cases: 2.5 % of phrases with the strict lock and
-  Tension across phrases on, 0.5 % off. Among the presets, Jazz bends one phrase under every list,
-  with Tension across phrases on and off; no other preset bends. By the tension in effect (strict, on):
-  Settled 0.1 %, Lift 5.5 %, Build 3.5 %, Edge 1.1 %. The step from Build to Lift that Tension
-  across phrases makes bends 52 of 523 phrases (9.9 %; 37 with all five allowed), as C7.6 expects.
-  Vary settings' Build-to-Lift step lands on 12 phrases per list in the sweep cases (Tension across
-  phrases off), one of them bent under every list, and on 36 at Bebop, none bent. Bends also occur on steps that keep the locked rhythm among the candidates (Build and
-  Edge hold the same rhythms, and every Lift rhythm is among Build's), where the locked bars made no
-  phrase: Edge to Build 22 of 564, Lift to Build 12 of 403, and 0.5 % with the tension fixed.
+  Tension across phrases on, 0.5 % off; the strict lock draws nothing, so these are chunk 13's
+  figures again. With all five allowed they fall to 1.6 % (2.0 % at the starting shares), since a
+  drawn change walks its candidates before the locked bars. Among the presets, Jazz bends one
+  phrase under every list, with Tension across phrases on and off; no other preset bends. By the
+  tension in effect (strict, on): Settled 0.1 %, Lift 5.5 %, Build 3.5 %, Edge 1.1 %. The step from
+  Build to Lift that Tension across phrases makes bends 52 of 523 phrases (9.9 %; 25 with all five
+  allowed), as C7.6 expects. Vary settings' Build-to-Lift step lands on 12 phrases per list in the
+  sweep cases (Tension across phrases off), one of them bent under the strict lock and each kind
+  alone but Move a rest, none with all five; and on 36 at Bebop, none bent. Bends also occur on
+  steps that keep the locked rhythm among the candidates (Build and Edge hold the same rhythms, and
+  every Lift rhythm is among Build's), where the locked bars made no phrase: Edge to Build 22 of
+  564, Lift to Build 12 of 403 (strict), and 0.5 % with the tension fixed.
 - **No phrase makes more than one change**: every recorded change is exactly one change of an allowed
   kind from the locked rhythm (0 mismatches).
 
 Per-kind availability, the share of drawing phrases whose own domain offers a candidate one change
-away (all five sessions, Tension across phrases on and off pooled), beside chunk 3's baseline: the
-sweep cases 35.5, 12.8, 17.3, 6.3, 4.6 % (move a note start, move a rest, split, merge, add or
-remove a rest); Pop song 35.3, 51.5, 22.5, 17.8, 25.0 %; Speed drill 16.7, 22.9, 0, 0, 32.2 %;
-Jazz and Modal (Dorian) 0, 31.0, 0, 0, 24.8 %; Neutral 0, 0, 78.5, 21.5, 0 %; Gentle, Reel and
-Bebop 0 %. They match chunk 3's baseline except Speed drill's moved note start (27.6 % with
-Tension across phrases on then; the baseline read every phrase's own domain from sessions without
-the lock).
+away (all five sessions, Tension across phrases on and off pooled), unchanged from chunk 13's run
+(the share moves which phrases draw, not what their domains offer): the sweep cases 35.5, 12.8,
+17.3, 6.3, 4.6 % (move a note start, move a rest, split, merge, add or remove a rest); Pop song
+35.3, 51.5, 22.5, 17.8, 25.0 %; Speed drill 16.7, 22.9, 0, 0, 32.2 %; Jazz and Modal (Dorian) 0,
+31.0, 0, 0, 24.8 %; Neutral 0, 0, 78.5, 21.5, 0 %; Gentle, Reel and Bebop 0 %. They match chunk 3's
+baseline except Speed drill's moved note start (27.6 % with Tension across phrases on then; the
+baseline read every phrase's own domain from sessions without the lock).
 
 ## My instrument ranges (2026-10-11)
 

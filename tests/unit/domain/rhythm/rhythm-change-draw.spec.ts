@@ -107,12 +107,12 @@ function kindsFound(domain: readonly RhythmCandidate[]): ReadonlySet<RhythmChang
 // @test-link [[module_rhythm_change_draw]]
 // @test-link [[rule_rhythm_change_share]]
 describe('whether a phrase changes', () => {
-  it('draws about 1 in 4 phrases, and 1 in 2 tenser phrases, over many session seeds', () => {
+  it('draws about 1 in 2 phrases, and 3 in 4 tenser phrases, over many session seeds', () => {
     const seeds = sessionPhraseSeeds(200, 40)
     const normal = seeds.filter((seed) => isRhythmChangeDrawn(seed, false)).length
     const tenser = seeds.filter((seed) => isRhythmChangeDrawn(seed, true)).length
-    expect(Math.abs(normal / seeds.length - 0.25)).toBeLessThanOrEqual(0.02)
-    expect(Math.abs(tenser / seeds.length - 0.5)).toBeLessThanOrEqual(0.02)
+    expect(Math.abs(normal / seeds.length - 0.5)).toBeLessThanOrEqual(0.02)
+    expect(Math.abs(tenser / seeds.length - 0.75)).toBeLessThanOrEqual(0.02)
   })
 
   it('draws on a tenser phrase every seed it draws on a normal one', () => {
@@ -122,8 +122,8 @@ describe('whether a phrase changes', () => {
 
   it('keeps both shares whole numerators over 2^16, under the versioned tie-key prefix', () => {
     expect(RHYTHM_CHANGE_SHARE_BITS).toBe(16)
-    expect(RHYTHM_CHANGE_SHARE).toBe(2 ** 14)
-    expect(TENSER_RHYTHM_CHANGE_SHARE).toBe(2 ** 15)
+    expect(RHYTHM_CHANGE_SHARE).toBe(2 ** 15)
+    expect(TENSER_RHYTHM_CHANGE_SHARE).toBe(3 * 2 ** 14)
     expect(RHYTHM_CHANGE_TIE_KEY_PREFIX).toBe('infinite-flow/rhythm-change/v1')
   })
 
@@ -134,8 +134,8 @@ describe('whether a phrase changes', () => {
       [7, 3338450258, false, false],
       [11, 335359625, true, true],
       [42, 83297982, true, true],
-      [1000, 3091231851, false, false],
-      [0xffffffff, 2763783027, false, false],
+      [1000, 3091231851, false, true],
+      [0xffffffff, 2763783027, false, true],
     ]
     for (const [value, hash, normal, tenser] of golden) {
       const seed = makeSeed(value)

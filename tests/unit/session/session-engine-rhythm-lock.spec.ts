@@ -4,7 +4,7 @@
  * on every rung, carries them with the allowed changes and the tenser flag. With no change
  * allowed, every phrase keeps phrase 1's bars but for forced bends, which the history records;
  * with changes allowed, a phrase makes at most one, never carried into a later request, and tenser
- * phrases draw about twice as often as the others.
+ * phrases draw more often than the others, about 3 in 4 against 1 in 2.
  */
 
 import { describe, expect, it } from 'vitest'
@@ -185,7 +185,7 @@ describe('a session with the rhythm lock on and every change allowed', () => {
   })
 
   // @test-link [[rule_rhythm_change_share]]
-  it('draws on tenser phrases about twice as often as on the others', () => {
+  it('draws on tenser phrases more often than on the others, about 3 in 4 against 1 in 2', () => {
     const drew = { tenser: [0, 0], other: [0, 0] }
     for (const { lockCase, driver } of drivers)
       for (const phrase of generatedPhrases(driver)) {
@@ -196,11 +196,11 @@ describe('a session with the rhythm lock on and every change allowed', () => {
       }
     const share = ([count, total]: number[]) => count! / total!
     expect(drew.tenser[1]).toBeGreaterThan(10)
-    expect(share(drew.tenser)).toBeGreaterThan(share(drew.other) * 1.5)
-    expect(share(drew.tenser)).toBeGreaterThan(0.3)
-    expect(share(drew.tenser)).toBeLessThan(0.75)
-    expect(share(drew.other)).toBeGreaterThan(0.1)
-    expect(share(drew.other)).toBeLessThan(0.4)
+    expect(share(drew.tenser)).toBeGreaterThan(share(drew.other) * 1.2)
+    expect(share(drew.tenser)).toBeGreaterThan(0.55)
+    expect(share(drew.tenser)).toBeLessThan(0.95)
+    expect(share(drew.other)).toBeGreaterThan(0.35)
+    expect(share(drew.other)).toBeLessThan(0.65)
   })
 })
 

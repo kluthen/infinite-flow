@@ -26,13 +26,13 @@ export const RHYTHM_CHANGE_TIE_KEY_PREFIX = 'infinite-flow/rhythm-change/v1'
 // @spec-link [[rule_rhythm_change_share]]
 export const RHYTHM_CHANGE_SHARE_BITS = 16
 
-/** A phrase's share of drawing a change: 1 in 4 (16,384 over 2^16). */
+/** A phrase's share of drawing a change: 1 in 2 (32,768 over 2^16). */
 // @spec-link [[rule_rhythm_change_share]]
-export const RHYTHM_CHANGE_SHARE = 16_384
+export const RHYTHM_CHANGE_SHARE = 32_768
 
-/** A tenser phrase's share of drawing a change: 1 in 2 (32,768 over 2^16). */
+/** A tenser phrase's share of drawing a change: 3 in 4 (49,152 over 2^16). */
 // @spec-link [[rule_rhythm_change_share]]
-export const TENSER_RHYTHM_CHANGE_SHARE = 32_768
+export const TENSER_RHYTHM_CHANGE_SHARE = 49_152
 
 /** The width of the hash, in bits. */
 const HASH_BITS = 32
@@ -98,7 +98,7 @@ export function rhythmChangeHash(seed: Seed): number {
 
 /**
  * Intent: whether a phrase draws a change: when the top 16 bits of its tie key fall under the
- * share, 1 in 4, or 1 in 2 on a tenser phrase. Reads nothing but the seed and the flag.
+ * share, 1 in 2, or 3 in 4 on a tenser phrase. Reads nothing but the seed and the flag.
  */
 // @spec-link [[module_rhythm_change_draw]]
 // @spec-link [[rule_rhythm_change_share]]
