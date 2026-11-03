@@ -1,6 +1,6 @@
 ---
 id: module_steering_block_builder
-status: DRAFT
+status: REVIEW
 type: MODULE
 priority: 1
 human_name: Building the Steering Block From the Doodle

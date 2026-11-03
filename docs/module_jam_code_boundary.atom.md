@@ -1,6 +1,6 @@
 ---
 id: module_jam_code_boundary
-status: DRAFT
+status: REVIEW
 layer: ARCHITECTURE
 version: 0.2
 priority: 1

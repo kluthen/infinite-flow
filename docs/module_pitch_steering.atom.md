@@ -1,6 +1,6 @@
 ---
 id: module_pitch_steering
-status: DRAFT
+status: REVIEW
 human_name: The Generator's Pitch Steering
 tags: [v3, release-v3.2, jam, generation, melody]
 dependents: []

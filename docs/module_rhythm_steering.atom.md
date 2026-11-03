@@ -1,6 +1,6 @@
 ---
 id: module_rhythm_steering
-status: DRAFT
+status: REVIEW
 version: 0.2
 human_name: The Generator's Rhythm Steering
 tags: [v3, release-v3.2, jam, generation, rhythm]
