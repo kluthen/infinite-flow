@@ -1094,3 +1094,44 @@ Next: wave 5 in a fresh session, chunk 34 first (the change shares, D450). Open 
 v3.2 H2 step 3 and H3 (gate L3 stays open); H4/H5 after wave 6 (with O271's question at H4 step 3,
 and gate DR's recordings before H5). For wave 5's preflight: D445 (chunk 31) and D450 (chunk 34)
 rewordings; re-check M1/M2 (contract, CS) at chunk 21's sync.
+
+## Wave 5 (2026-11-03)
+
+Wave branch `v3.2-w5` from `main` a2ed40d5, worktree `/home/bastien/work/infinite_flow-v3.2-w5`.
+Chunks, in order (κ 1): 34 → 14 → 17 → 18 → 29 → 31. Every **Depends on** is merged (waves 0–4)
+or cleared (LD, DS).
+
+### Preflight
+
+`documentalist`, full preflight plus captures, 4e8e9f11 (no semantic index in the worktree, so it
+used grep over the atoms and the `@spec-link`s of the in-scope files).
+
+| Chunk | Verdict | Governing atoms |
+| --- | --- | --- |
+| 34 | PROCEED | `rule_rhythm_change_share` (DRAFT 0.3), `module_rhythm_change_draw` (REVIEW 0.2); no STABLE atom, CONTRACT or VISION states a share, so D450 changes no contract wording |
+| 14 | PROCEED | `req_key_and_mode_suggestion` + six suggestion rules (DRAFT); drift `module_named_stream_pseudorandomness` |
+| 17 | PROCEED | 15 DRAFT Jam rules; STABLE contract atoms already carrying the signed part M wording (`rule_midi_starting_note`, `rule_count_in_shown_on_screen`, `rule_silence_timeout_ends_session`, `rule_controller_loss_mid_session`, `rule_controller_reconnection_window`, `module_session_seed_plan`, whose interface gets its built names at the sync, M22) |
+| 18 | PROCEED | 7 DRAFT rules; STABLE `rule_session_generation_failure_ladder`, `rule_dropped_attempt_cancelled`, `rule_session_density_only_steps_down`, `rule_join_carry_in_limited`, `module_session_seed_plan`, `module_generation_worker_cancellation` |
+| 29 | PROCEED | none (measurement) |
+| 31 | PROCEED, sign-off pending | the Jam settings atoms; `module_saved_data_loader` (STABLE, contract) extends: gate CL |
+
+Captures (DRAFT 0.1 unless noted): `module_session_start_without_phrase_one` and `module_jam_capture`
+(chunk 17; the engine's way in that chunk 18 builds on; phrase 1's origin stays carry-in or
+standalone, a new origin needs a `documentalist` peek), `module_key_suggestion` (chunk 14; answer
+nothing / no fit / suggested), `module_jam_settings` and `module_doodle_controls` 0.2 → 0.3 (chunk
+31; the load hands Jam's records undecoded; D445's "as read" on
+`rule_doodle_controls_always_supported` waits for the sync as a chunk 31 revision).
+
+Plan corrections to `spec-writer`: plan v26, e1f8d47a (spec D452–D454, Part C v1.16). D452 C6.3's
+order (too little material, then no fit, then Jam's key among the kept candidates);
+`rule_suggestion_withheld` added to chunk 14's Revisions. D453 chunk 29 keeps the sweep double (an
+18 → 29 edge would be a three-chunk chain); the real-ladder adapter goes to chunk 33 (now depends
+on 18), and wave 5's gate re-runs M1 through the double. D454 the preflight's Files, drift-check
+and wording corrections for chunks 17, 18, 31, 34, and gate CL. Chunks 29 and 34 both add a
+subsection to `docs/generation-latency.md` (a shared record; the later one resolves at merge).
+
+### The owner's answers (2026-11-03)
+
+- Gate CL: the owner, verbatim: "i'll follow your recommendations", i.e. option (a): the loader's
+  wording as drafted only follows the signed M16–M18, so no contract bump. CL done; `documentalist`
+  records the confirmation in the change set.
