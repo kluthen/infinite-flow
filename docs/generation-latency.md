@@ -877,44 +877,61 @@ one real lock session per allowed list (spec D432, D437).
 
 #### M5: the session sweep, lock off and on
 
-`JAM_MODE=session npm run measure:jam`, the deadline sweep's 568 cases (six phrases each), lock off,
-then on with every change allowed and with none (the strict lock). Run as two processes,
-`JAM_LOCK=off` then `JAM_LOCK=on` (the latter with an 8 GiB heap): `JAM_LOCK=both` ran out of Node's
-default heap, since one outcome cache per density holds every configuration's phrases.
+**Re-run at the tuned shares (wave 5's gate).** The figures below are wave 5's gate run, at the
+shares the owner ruled at L3 (spec D450): a phrase draws a change 1 in 2, a tenser phrase 3 in 4
+(chunk 13's first run used the starting 1 in 4 and 1 in 2). Run by Claude on 2026-11-03,
+21:32–21:35 CET (175 s), on branch `v3.2-w5` at 5d8d865f (every chunk of wave 5 merged), on the
+reference machine: AMD Ryzen 5 PRO 8640HS (12 threads), 11 GiB RAM, not a VM, Node 22.23.4.
+Nothing else of the project ran; the desktop stayed open (1-minute load average 1.3 at the start
+and the end). Peak resident memory about 1.9 GB.
+
+`JAM_MODE=session JAM_LOCK=both npm run measure:jam`, the deadline sweep's 568 cases (six phrases
+each), lock off, then on with every change allowed and with none (the strict lock), in one process:
+chunk 29's one outcome cache per case keeps the heap small (chunk 13 ran `JAM_LOCK=off` and
+`JAM_LOCK=on` as two processes, the latter with an 8 GiB heap, as one cache per density ran out of
+Node's default heap).
 
 | Configuration                 | Repeats | Shortfalls | Attempts: p95 / slowest | Orderings share | Standalone: count, slowest (charged) | Forced bends    | Changed           | Drew a change: normal, tenser |
 | ----------------------------- | ------- | ---------- | ----------------------- | --------------- | ------------------------------------ | --------------- | ----------------- | ----------------------------- |
-| 60 BPM, lock off              | 0       | 0          | 0.026 / 1.651 s         | 0.005 %         | 42, 0.018 s (0.118 s)                | —               | —                 | —                             |
-| 120 BPM, lock off             | 0       | 0          | 0.026 / 1.651 s         | 0.005 %         | 42, 0.018 s (0.118 s)                | —               | —                 | —                             |
-| 240 BPM, lock off             | 0       | 0          | 0.019 / 1.578 s         | 0.004 %         | 603, 0.309 s (0.409 s)               | —               | —                 | —                             |
-| 60 BPM, lock on, all changes  | 0       | 0          | 0.024 / 0.610 s         | 2.2 %           | 49, 0.051 s (0.151 s)                | 0.8 % (23/2840) | 18.3 % (521/2840) | 26.1 %, 53.9 % (228/423)      |
-| 60 BPM, lock on, strict       | 0       | 0          | 0.020 / 0.638 s         | 0.5 %           | 48, 0.054 s (0.154 s)                | 1.3 % (36/2840) | —                 | —                             |
-| 120 BPM, lock on, all changes | 0       | 0          | 0.024 / 0.610 s         | 2.2 %           | 49, 0.051 s (0.151 s)                | 0.8 % (23/2840) | 18.3 % (521/2840) | 26.1 %, 53.9 % (228/423)      |
-| 120 BPM, lock on, strict      | 0       | 0          | 0.020 / 0.638 s         | 0.5 %           | 48, 0.054 s (0.154 s)                | 1.3 % (36/2840) | —                 | —                             |
-| 240 BPM, lock on, all changes | 0       | 0          | 0.020 / 0.645 s         | 0.8 %           | 616, 0.465 s (0.565 s)               | 0.8 % (23/2840) | 18.0 % (511/2840) | 26.3 %, 52.5 % (222/423)      |
-| 240 BPM, lock on, strict      | 0       | 0          | 0.020 / 0.684 s         | 0.5 %           | 617, 0.463 s (0.563 s)               | 1.2 % (34/2840) | —                 | —                             |
+| 60 BPM, lock off              | 0       | 0          | 0.025 / 1.408 s         | 0.003 %         | 42, 0.022 s (0.122 s)                | —               | —                 | —                             |
+| 120 BPM, lock off             | 0       | 0          | 0.025 / 1.408 s         | 0.003 %         | 42, 0.022 s (0.122 s)                | —               | —                 | —                             |
+| 240 BPM, lock off             | 0       | 0          | 0.017 / 1.330 s         | 0.004 %         | 603, 0.292 s (0.392 s)               | —               | —                 | —                             |
+| 60 BPM, lock on, all changes  | 0       | 0          | 0.019 / 0.581 s         | 2.4 %           | 49, 0.051 s (0.151 s)                | 0.7 % (20/2840) | 33.1 % (941/2840) | 50.8 %, 76.6 % (324/423)      |
+| 60 BPM, lock on, strict       | 0       | 0          | 0.018 / 0.582 s         | 0.4 %           | 48, 0.055 s (0.155 s)                | 1.3 % (36/2840) | —                 | —                             |
+| 120 BPM, lock on, all changes | 0       | 0          | 0.019 / 0.581 s         | 2.4 %           | 49, 0.051 s (0.151 s)                | 0.7 % (20/2840) | 33.1 % (941/2840) | 50.8 %, 76.6 % (324/423)      |
+| 120 BPM, lock on, strict      | 0       | 0          | 0.018 / 0.582 s         | 0.4 %           | 48, 0.055 s (0.155 s)                | 1.3 % (36/2840) | —                 | —                             |
+| 240 BPM, lock on, all changes | 0       | 0          | 0.018 / 0.529 s         | 1.0 %           | 616, 0.419 s (0.519 s)               | 0.7 % (20/2840) | 33.1 % (941/2840) | 50.5 %, 76.8 % (325/423)      |
+| 240 BPM, lock on, strict      | 0       | 0          | 0.019 / 0.519 s         | 0.5 %           | 617, 0.407 s (0.507 s)               | 1.2 % (34/2840) | —                 | —                             |
 
 - **Lock off** gives v3.1's figures again (chunk 3's baseline above): no repeat, no missed deadline,
-  and an orderings share of about zero (the time of finding there is no lock to order).
+  the same standalone counts (42, 42, 603), and an orderings share of about zero (the time of
+  finding there is no lock to order). The lock-off rows do not depend on the shares; their times
+  moved within run-to-run noise (slowest attempt 1.408 s against chunk 13's 1.651 s).
 - **Lock on**: no phrase repeated, no deadline missed, and every standalone attempt within the
-  1.075 s reserve (slowest charged 0.565 s, at 240 BPM). The orderings take 2.2 % of attempt time
-  with every change allowed, 0.5 % strict, and 0.8 % with every change allowed at 240 BPM, where
-  the session makes more standalone attempts (616 against 49). 60 and 120 BPM share their outcomes (the cache keys intents
-  without the tempo), so their figures are the same.
-- **Census**: every phrase classed from its provenance agrees with its bars (0 mismatches); 8 of the
-  23 forced bends with every change allowed land exactly one allowed change from the locked rhythm,
-  which bars alone would have read as changes. Of the 860 draws at 60 BPM, 339 had no change
-  available.
+  1.075 s reserve (slowest charged 0.519 s, at 240 BPM). The orderings take 2.4 % of attempt time
+  with every change allowed, 0.4–0.5 % strict, and 1.0 % with every change allowed at 240 BPM, where
+  the session makes more standalone attempts (616 against 49). 60 and 120 BPM share their outcomes
+  (the cache keys intents without the tempo), so their figures are the same.
+- **At the tuned shares**, with every change allowed, phrases draw a change 50.5–50.8 % of the time
+  (target 1 in 2) and tenser phrases 76.6–76.8 % (target 3 in 4; chunk 13: 26.1–26.3 % and
+  52.5–53.9 %); 33.1 % of phrases change (18.0–18.3 % at the starting shares), and forced bends fall
+  to 0.7 % (0.8 %), since a drawn change walks its candidates before the locked bars. The strict
+  rows draw nothing, so they repeat chunk 13's figures but for their times.
+- **Census**: every phrase classed from its provenance agrees with its bars (0 mismatches); 5 of the
+  20 forced bends with every change allowed land exactly one allowed change from the locked rhythm,
+  which bars alone would have read as changes. Of the 1,552 draws at 60 BPM, 611 had no change
+  available. No session re-locked.
 
 #### M2: the lock census with the lock
 
 **Re-run at the tuned shares (chunk 34).** The figures below are chunk 34's run, at the shares
 the owner ruled at L3 (spec D450): a phrase draws a change 1 in 2, a tenser phrase 3 in 4 (chunk
-13's first run used the starting 1 in 4 and 1 in 2, as M5's table above still does). Run by Claude
-on 2026-11-03, 12:58–13:49 CET (3,076 s), on branch `v3.2-c34-change-shares` cut from `v3.2-w5`,
-on the reference machine: AMD Ryzen 5 PRO 8640HS (12 threads), not a VM, Node 22.23.4. Nothing
-else of the project ran (1-minute load average 8.0 at the start, as a test run wound down); every
-attempt is charged the flat modelled cost, so the load moves no figure.
+13's first run used the starting 1 in 4 and 1 in 2; since wave 5's gate, M5's table above is at
+the tuned shares too). Run by Claude on 2026-11-03, 12:58–13:49 CET (3,076 s), on branch
+`v3.2-c34-change-shares` cut from `v3.2-w5`, on the reference machine: AMD Ryzen 5 PRO 8640HS (12
+threads), not a VM, Node 22.23.4. Nothing else of the project ran (1-minute load average 8.0 at the
+start, as a test run wound down); every attempt is charged the flat modelled cost, so the load
+moves no figure.
 
 `LOCK_SETTINGS=both npm run measure:lock`: per case, eight-phrase sessions at 120 BPM with the lock
 on, one per allowed list (strict, each kind alone, all five), Tension across phrases on and off: the
@@ -1087,6 +1104,25 @@ cutover at the deadline minus 1.075 s, an attempt ending at the cutover too late
 after it). No cutover happened in the sweep, so that path is exercised by the double's own tests
 only. Wave 5's gate re-runs this measurement on the merged wave through the double; chunk 33 runs
 it through the real ladder.
+
+**Wave 5 gate re-run.** Run by Claude on 2026-11-03 on branch `v3.2-w5` at 5d8d865f (every chunk
+of wave 5 merged: 34, 14, 17, 18, 29, 31), on the same reference machine (AMD Ryzen 5 PRO 8640HS,
+12 threads, 11 GiB RAM, not a VM, Node 22.23.4), one process each, nothing else of the project
+running: lock off 20:15–20:40 CET (1,487 s; 1-minute load average 2.3 at the start, as the sweep
+suite wound down), lock on 20:40–21:32 (3,083 s; 1.0 at the start, 1.3 at the end; peak resident
+memory about 1.6 GB). The figures do not move: in every one of the 18 configurations phrase 1 came
+from rung 1 in 84.4 % of Jams (6,234/7,384) and from rung 2 in 15.6 % (1,150); rung 3 made none;
+no phrase 1 failed to come, none needed an extended wait, no attempt was cut at the cutover; 0
+repeats, 0 shortfalls, and no standalone attempt past the 1.075 s reserve (phrases 2 to 8 charged
+at most 0.123 s lock off, 0.114 s every change, 0.113 s strict). At 180 BPM with a cold domain
+every deadline was met, the slowest cold phrase 1 attempt 0.805 s (0.768 s lock off); the slowest
+phrase 1 attempt anywhere 0.820 s, against 0.899 s in the first run. The slowest attempts overall
+(2.875 s lock off, 3.045 s every change, 3.260 s strict) are again attempts of phrases 2 to 8,
+as in the first run, wall times that vary from run to run; no deadline was missed. The lock: with
+every change allowed 65.4 % kept, 33.9 % changed, 0.8 % forced bends, 50.2 % drew a change;
+strict 98.9 % kept, 1.1 % bends; 0 census mismatches. Phrase 2 lost its join in 93 Jams lock off
+(89 on). Replays: 420, all matched. Chunk 31's change to `readDoodleControls` (no window context)
+moves nothing here, since the double always reads with the wide context.
 
 ## My instrument ranges (2026-10-11)
 
