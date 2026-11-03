@@ -15,7 +15,11 @@ import {
   type SessionRunnerDependencies,
 } from '@/session/session-runner'
 import { mutationContextAtStart } from '@/session/session-mutation-step'
-import type { SessionSettings, SessionStart } from '@/session/session-types'
+import type {
+  SessionSettings,
+  SessionStart,
+  SessionStartWithoutPhraseOne,
+} from '@/session/session-types'
 import { settingsMutationSeed } from '@/session/session-seed-plan'
 import {
   hasLegalMove,
@@ -40,6 +44,13 @@ export interface WorkspaceSessionStart extends Omit<SessionStart, 'mutation'> {
 }
 
 /**
+ * A workspace session's start without phrase 1: the engine's, with no `Vary settings` choice,
+ * since Vary settings never runs in a session started without phrase 1, so its flag is off.
+ */
+// @spec-link [[module_session_start_without_phrase_one]]
+export type WorkspaceSessionStartWithoutPhraseOne = Omit<SessionStartWithoutPhraseOne, 'mutation'>
+
+/**
  * Intent: the engine's mutation flag for the player's choice and the session's start: off when
  * the choice is off, or when the start settings have no legal move under the mutation context the
  * start state gives (a session started then runs without Vary settings); otherwise on with the
@@ -60,7 +71,8 @@ export function mutationFlagFor(
 }
 
 /**
- * Intent: start a workspace session runner with the settings-mutation flag the player's choice
+ * Intent: start a workspace session runner; one without phrase 1 runs with the flag off. Otherwise,
+ * with the settings-mutation flag the player's choice
  * gives (its seed derived from the start's session seed), off when the start settings (with the
  * restriction in force at the start frozen in) have no legal move under the context the start
  * state gives, the window read once now; the multi-phrase tension arc and adaptive tempo as the
@@ -73,8 +85,10 @@ export function mutationFlagFor(
 // @spec-link [[module_session_seed_plan]]
 export function startWorkspaceSessionRunner(
   deps: SessionRunnerDependencies,
-  start: WorkspaceSessionStart,
+  start: WorkspaceSessionStart | WorkspaceSessionStartWithoutPhraseOne,
 ): SessionRunner {
+  if (start.phraseOne === undefined)
+    return createSessionRunner(deps, { ...start, mutation: SETTINGS_MUTATION_OFF })
   const { varySettings, ...engineStart } = start
   const context = mutationContextAtStart(
     engineStart.phraseOne,

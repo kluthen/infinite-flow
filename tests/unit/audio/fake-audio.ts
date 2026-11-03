@@ -71,9 +71,22 @@ export interface FakeOpenBusEvent {
   readonly scheduledAt: AudioTime
 }
 
+/** One session bus's click forced on until `until`, the count-in's bypass extended. */
+export interface FakeForceClickEvent {
+  readonly kind: 'force-click'
+  readonly bus: number
+  readonly until: AudioTime
+  readonly scheduledAt: AudioTime
+}
+
 /** Every call the fake output records, in call order. */
 export type FakeAudioEvent =
-  FakeClickEvent | FakeBackingEvent | FakeGainEvent | FakeFadeEvent | FakeOpenBusEvent
+  | FakeClickEvent
+  | FakeBackingEvent
+  | FakeGainEvent
+  | FakeFadeEvent
+  | FakeOpenBusEvent
+  | FakeForceClickEvent
 
 /** A click that sounds, with the click-volume gain it sounds at. */
 export interface AudibleClick extends FakeClickEvent {
@@ -215,17 +228,22 @@ function fadedOut(
 
 /**
  * Intent: the clicks the player hears. A click sounds when the click volume is above zero at its
- * time, its route is `count-in` or the click is enabled at its time, and its bus has not started
- * fading by then (see `fadedOut`).
+ * time, its route is `count-in`, the click is forced on at its time (the latest force recorded on
+ * its bus before it was scheduled ends after it) or the click is enabled at its time, and its bus
+ * has not started fading by then (see `fadedOut`).
  */
 // @test-link [[rule_count_in_always_clicks]]
+// @test-link [[rule_jam_click_runs_until_phrase_one]]
 export function audibleClicksOf(events: readonly FakeAudioEvent[]): AudibleClick[] {
   const audible: AudibleClick[] = []
+  const forcedUntil = new Map<number, AudioTime>()
   for (const event of events) {
+    if (event.kind === 'force-click') forcedUntil.set(event.bus, event.until)
     if (event.kind !== 'click' || fadedOut(events, event)) continue
     const gain = gainValueAt(events, 'click-volume', event.at)
+    const forced = event.at < (forcedUntil.get(event.bus) ?? Number.NEGATIVE_INFINITY)
     const enabled =
-      event.route === 'count-in' || gainValueAt(events, 'click-enable', event.at) === 1
+      event.route === 'count-in' || forced || gainValueAt(events, 'click-enable', event.at) === 1
     if (gain > 0 && enabled) audible.push({ ...event, gain })
   }
   return audible
@@ -287,6 +305,10 @@ export function recordAudioOutput(inner: AudioOutput): RecordedAudioOutput {
         innerBus.fadeOut(at, duration)
         log.push({ kind: 'fade', bus, at, duration, scheduledAt: inner.now() })
       },
+      forceClickUntil: (until) => {
+        innerBus.forceClickUntil(until)
+        log.push({ kind: 'force-click', bus, until, scheduledAt: inner.now() })
+      },
     }
   }
 
@@ -311,6 +333,7 @@ const SILENT_BUS: SessionBus = {
   scheduleClick: () => {},
   scheduleBackingNote: () => {},
   fadeOut: () => {},
+  forceClickUntil: () => {},
 }
 
 /**

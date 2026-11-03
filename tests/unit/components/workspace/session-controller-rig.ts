@@ -19,8 +19,12 @@
 import { shallowReactive, shallowRef, type ShallowRef } from 'vue'
 
 import type { WorkspaceSessionRunnerInput } from '@/components/workspace/create-workspace-session'
-import { startWorkspaceSessionRunner } from '@/components/workspace/workspace-session-runner'
+import {
+  startWorkspaceSessionRunner,
+  type WorkspaceSessionStart,
+} from '@/components/workspace/workspace-session-runner'
 import { createSessionController } from '@/components/workspace/workspace-session-controller'
+import type { HeldModeNoteRoute } from '@/components/workspace/workspace-session-midi'
 import type {
   KeptSessionsSeam,
   SessionController,
@@ -41,7 +45,7 @@ import type { WorkspaceSessionResult } from '@/composables/workspace-session-res
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import type { PageGoingAway, SessionChanges, SessionSaveOutcome } from '@/storage/save-policy'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
-import { makeSeed } from '@/domain/random/seed'
+import { makeSeed, type Seed } from '@/domain/random/seed'
 import {
   DEFAULT_SESSION_OPTIONS,
   type SessionOptionChoices,
@@ -181,6 +185,11 @@ export interface SaveHoldCall {
 }
 
 /** A controller and every seam around it, in the test's hand. */
+/** What the controller passed to a runner for a session started with phrase 1. */
+export interface SessionModeRunnerInput extends WorkspaceSessionRunnerInput {
+  readonly start: WorkspaceSessionStart
+}
+
 export interface ControllerRig {
   readonly controller: SessionController
   readonly audioRig: FakeAudioRig
@@ -203,8 +212,10 @@ export interface ControllerRig {
   readonly outputs: SessionOutput[]
   /** Every event a runner was sent (transport events, a test's settings changes), in order. */
   readonly events: SessionRunnerEvent[]
-  /** What the controller passed to each runner it created. */
-  readonly runnerInputs: WorkspaceSessionRunnerInput[]
+  /** What the controller passed to each runner it created for a session started with phrase 1. */
+  readonly runnerInputs: SessionModeRunnerInput[]
+  /** What the controller passed to each runner it created for a session started without one. */
+  readonly runnerInputsWithoutPhraseOne: WorkspaceSessionRunnerInput[]
   /** Replace the generate script from the next request on. */
   readonly setScript: (script: GenerateScript) => void
   /** Make the runner throw on the next transport event of this kind, as a broken engine would. */
@@ -223,6 +234,10 @@ export interface ControllerRig {
   readonly sheetOpen: ShallowRef<boolean>
   /** Whether session mode is held (Jam mode opening or showing), as the shell would report it. */
   readonly sessionModeHeld: ShallowRef<boolean>
+  /** The note route of the code holding session mode (Jam's Idle note routing); none at first. */
+  readonly heldModeNotes: ShallowRef<HeldModeNoteRoute | null>
+  /** Every session seed the controller drew from its session-seed provider, in order. */
+  readonly sessionSeedsDrawn: Seed[]
   /** Every time the controller asked the Idle side for a fresh phrase, in order. */
   readonly freshPhraseRequests: FreshPhraseRequest[]
   /** Hand the latest runner's output sink an output no real engine would give, as a broken one. */
@@ -303,7 +318,8 @@ export function controllerRig(
   const timers: FakeWakeTimer[] = []
   const outputs: SessionOutput[] = []
   const events: SessionRunnerEvent[] = []
-  const runnerInputs: WorkspaceSessionRunnerInput[] = []
+  const runnerInputs: SessionModeRunnerInput[] = []
+  const runnerInputsWithoutPhraseOne: WorkspaceSessionRunnerInput[] = []
   let current = script
   let broken: SessionTransportEvent['kind'] | null = null
   const providers = queuedProviders(5000, 400)
@@ -326,6 +342,8 @@ export function controllerRig(
   })
   const sheetOpen = shallowRef(false)
   const sessionModeHeld = shallowRef(false)
+  const heldModeNotes = shallowRef<HeldModeNoteRoute | null>(null)
+  const sessionSeedsDrawn: Seed[] = []
   const freshPhraseRequests: FreshPhraseRequest[] = []
   let built: SessionController | null = null
   const runners: SessionRunner[] = []
@@ -356,7 +374,9 @@ export function controllerRig(
    * reading the controller's) on the scripted generate seam, logging what passes through it.
    */
   function createRunner(input: WorkspaceSessionRunnerInput): SessionRunner {
-    runnerInputs.push(input)
+    const { start } = input
+    if (start.phraseOne === undefined) runnerInputsWithoutPhraseOne.push(input)
+    else runnerInputs.push({ ...input, start })
     const runner = startWorkspaceSessionRunner(
       {
         generate: (intent) => Promise.resolve(current(intent)),
@@ -409,6 +429,12 @@ export function controllerRig(
     midi,
     connectionSheetOpen: () => sheetOpen.value,
     sessionModeHeld: () => sessionModeHeld.value,
+    heldModeNotes: () => heldModeNotes.value,
+    nextSessionSeed: () => {
+      const seed = makeSeed(0x5e55_1000 + sessionSeedsDrawn.length)
+      sessionSeedsDrawn.push(seed)
+      return seed
+    },
     pregeneration: options.pregeneration ?? disabledPregeneration,
     savedSessionOptions: options.savedSessionOptions ?? DEFAULT_SESSION_OPTIONS,
     savedKeepPlayedNotes: options.savedKeepPlayedNotes ?? false,
@@ -467,6 +493,7 @@ export function controllerRig(
     outputs,
     events,
     runnerInputs,
+    runnerInputsWithoutPhraseOne,
     setScript: (next) => {
       current = next
     },
@@ -480,6 +507,8 @@ export function controllerRig(
     midi,
     sheetOpen,
     sessionModeHeld,
+    heldModeNotes,
+    sessionSeedsDrawn,
     freshPhraseRequests,
     injectOutput: (output) => {
       const input = runnerInputs.at(-1)

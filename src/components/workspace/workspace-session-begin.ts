@@ -29,7 +29,11 @@ import { createSessionPhrases } from './workspace-session-phrases'
  * on the audio clock; the row empties once the count-in is over.
  */
 // @spec-link [[rule_count_in_shown_on_screen]]
-function showCountIn(core: SessionControllerCore, session: ActiveSession, at: AudioTime): void {
+export function showCountIn(
+  core: SessionControllerCore,
+  session: ActiveSession,
+  at: AudioTime,
+): void {
   const display = countInDisplayAt(session.timeline.startAt, session.startingTempo, at)
   if (display.over) {
     core.state.countIn = null
@@ -54,6 +58,14 @@ function onWake(core: SessionControllerCore, ends: SessionEnds): void {
   } catch (error: unknown) {
     ends.failLoudly(session, error)
   }
+}
+
+/** Intent: start the controller's wake-up timer (built at the first start) for this session. */
+// @spec-link [[service_session_controller]]
+export function startWakeUps(core: SessionControllerCore, ends: SessionEnds): void {
+  const timer = (core.timer ??= core.deps.clock.createWakeTimer())
+  timer.start(() => onWake(core, ends))
+  core.startedTimer = timer
 }
 
 /**
@@ -100,6 +112,7 @@ export function beginSession(
   const { audio, browser } = deps
   const { sessionMidi, adaptiveTempo, varySettings, tensionAcrossPhrases } = sides
   const { timeline, startingTempo, phraseOne } = session
+  if (phraseOne === null) throw new Error('session controller: a session begun without phrase 1')
   core.active = session
   state.phase = 'count-in'
   state.sessionTempo = startingTempo
@@ -122,9 +135,7 @@ export function beginSession(
     state.countIn = null
     dispatchAt(session, timeline.countInEndsAt, { kind: 'count-in-over' })
   })
-  const timer = (core.timer ??= deps.clock.createWakeTimer())
-  timer.start(() => onWake(core, ends))
-  core.startedTimer = timer
+  startWakeUps(core, ends)
   const display = createSessionDisplay({
     audio,
     frames: deps.clock.frames,

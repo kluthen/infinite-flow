@@ -1097,6 +1097,10 @@ half-open windows), `tests/unit/audio/audio-transport-backing.spec.ts` (eight ba
 `web-audio-session-bus.spec.ts`, `web-audio-output.spec.ts` and `fake-audio.spec.ts` (the voice
 nodes and envelope, the backing route into backing-enable, the fade, the recorder).
 
+The recorder also logs `force-click` events, one per `SessionBus.forceClickUntil` call.
+`audibleClicksOf` counts a click-track click before the latest forced end on its bus as heard
+whatever `Click` says, as the real bus routes it around the click gate.
+
 ## Fake MIDI access
 
 The MIDI controller takes its Web MIDI access through an injected `MidiAccessProvider`
@@ -1201,6 +1205,20 @@ access:
 The component specs `vi.mock` the engraver loader with `fake-check-note-engraver.ts`, so the check
 note is a bare SVG carrying the written note, and open the real sheet over a controller on the fake
 MIDI access through `connection-sheet-rig.ts` (see [Unit fixtures](#unit-fixtures-goldens-and-manifests)).
+
+### The session controller rig and a start without phrase 1
+
+`controllerRig` (`tests/unit/components/workspace/session-controller-rig.ts`) has three fields for
+a start without phrase 1:
+
+- `sessionSeedsDrawn` records every draw from the controller's `nextSessionSeed`.
+- `heldModeNotes` is the held mode's note route, null at first. Set it with
+  `sessionModeHeld` to route Idle notes the way Jam mode does.
+- `runnerInputsWithoutPhraseOne` keeps the inputs of runners started without phrase 1, apart from
+  `runnerInputs`, whose starts all carry phrase 1.
+
+`startFresh(rig)` (`session-controller-fresh-start.ts`) starts one such session the way Jam's code
+will. It keeps the handle, every note handed to the port and every output handed back.
 
 ## Fake window width
 

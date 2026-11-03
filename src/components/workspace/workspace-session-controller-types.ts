@@ -13,6 +13,10 @@ import type { SessionTransportEvent } from '@/session/session-runner'
 import type { SessionStartBlocker } from '@/session/session-start-conditions'
 import type { StartingNote } from '@/session/starting-note'
 import type { SessionEndCause, SessionSettings } from '@/session/session-types'
+import type {
+  SessionWithoutPhraseOne,
+  StartWithoutPhraseOne,
+} from './workspace-session-without-phrase-one'
 import type { StaffLayout } from '@/notation/notation-layout-policy'
 import type { SessionStaff } from '@/components/notation/session-staff'
 import type { KeptSessionRow } from './use-kept-sessions'
@@ -22,6 +26,10 @@ import type { RhythmChangeKind } from '@/domain/generation/request-rhythm-lock'
 import type { AllowedGroups } from '@/session/settings-mutation-scales'
 
 export type { KeptSessionsSeam } from './workspace-kept-sessions-seam'
+export type {
+  SessionWithoutPhraseOne,
+  StartWithoutPhraseOne,
+} from './workspace-session-without-phrase-one'
 export type {
   FramePort,
   SessionControllerClock,
@@ -336,6 +344,12 @@ export interface SessionControllerState {
 // @spec-link [[service_session_controller]]
 export interface SessionController {
   readonly state: SessionControllerState
+  /**
+   * Start a session without phrase 1 (a fresh Jam's), synchronously, inside the Start click or the
+   * home note's MIDI callback. Throws while a session runs, the review mode shows, or no
+   * controller is connected; the code that runs it judges its own start conditions first.
+   */
+  readonly startWithoutPhraseOne: (request: StartWithoutPhraseOne) => SessionWithoutPhraseOne
   /**
    * Start a session; call it synchronously inside the player's Start click. Throws when blocked.
    * With a stale phrase 1 it starts nothing and opens the stale-phrase prompt instead (`asked`).

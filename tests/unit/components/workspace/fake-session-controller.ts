@@ -420,6 +420,9 @@ export function createFakeSessionController(
     controller: {
       state,
       start,
+      startWithoutPhraseOne: vi.fn(() => {
+        throw new Error('fake session controller: no start without phrase 1 is expected')
+      }),
       useStalePhrase,
       dismissStalePhrase,
       stop,

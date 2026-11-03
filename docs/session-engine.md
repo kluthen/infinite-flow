@@ -1591,6 +1591,53 @@ arc).
 `session-engine-tension-arc-generation.spec.ts` drive whole sessions on the
 [session driver](testing.md#the-session-driver).
 
+## A session started without phrase 1
+
+v3.2 chunk 17 gives the engine one generic way in for a session whose phrase 1 is written after
+Start by the code that started it (a fresh Jam's). The engine never names that code, and nothing
+under `src/session/` imports `src/jam/` ([module_session_start_without_phrase_one](module_session_start_without_phrase_one.atom.md)).
+
+- **The start.** `createSessionEngine` takes a `SessionStartWithoutPhraseOne`
+  (`src/session/session-phrase-one-types.ts`): the start time, the settings, the session seed, the
+  mutation flag and the two option flags, and no phrase 1, phrase 1 settings or ready phrases. Its
+  `outputsAtStart` is empty: no phrase 2 is requested.
+- **Before phrase 1** (`src/session/session-before-phrase-one.ts`). The engine stays in its count-in
+  phase, requests nothing on its own and sets no deadline. Every end is a count-in end with its
+  cause, two of them new: `no-note-played` and `no-phrase-one`. A `controller` event with
+  `attached: false` ends it at once as `controller-lost`, until phrase 1 sounds.
+- **Phrase 1's attempts.** The caller sends `phrase-one-attempt` (intent, step, retry, settings,
+  deadline). The engine gives it its own attempt id, outputs `request-generation` (phrase 1),
+  `check-fit` on a success, and reports each result as `phrase-one-attempt-result` (`fits`,
+  `generation-failure` with its code, `crash`, `not-fitting`). A newer request cancels the attempt
+  still generating; a late result of a superseded attempt is ignored. The engine climbs no ladder
+  for phrase 1: the caller's does (chunk 18).
+- **The hand-over.** `phrase-one` names the attempt that fitted and `soundsAt`, when phrase 1 starts
+  sounding. The engine opens on it (`src/session/session-engine-without-phrase-one.ts`, lent
+  `openEngine` and `handleEvent` by `session-engine.ts`), its origin being the attempt's step,
+  never `idle`; the attempt's settings become the settings in effect. It outputs `phrase-ready`
+  for phrase 1 and requests phrase 2 at once, due at the start of phrase 1's last measure
+  (`nextPhraseDeadline(soundsAt, tempo)`). `count-in-over` at `soundsAt` then makes it a running
+  session like any other.
+
+In the workspace, `SessionController.startWithoutPhraseOne(request)`
+(`src/components/workspace/workspace-session-without-phrase-one.ts`) is the in-click start. It
+draws the session seed once from `nextSessionSeed`, before the count-in, and starts the transport
+with `clickForced: true` and no backing queued. It opens the history with the request's clef and
+begins the MIDI side with no phrase 1, every note also handed to `request.playedNotes`. It shows
+the count-in row and starts the runner with Vary settings, Tension across phrases and Rising tempo
+off. The watchers cover the hidden tab and the window's shape: there are no phrase 1 fixed parts
+to judge. It schedules no `count-in-over`. The returned handle gives the transport timeline, a
+`dispatch` for the phrase 1 events (a `phrase-one` also calls `audio.forceClickUntil(soundsAt)`)
+and `end(cause)`. The session's display, phrase steps and staff are not built here: chunk 21 shows
+the fresh Jam on screen.
+
+The MIDI side, in a session started without phrase 1, arms the silence timer only on a note
+played at or after phrase 1's start (`noteArmsSilenceBeforePhraseOne`). It ends the session at
+once on a loss before phrase 1 sounds (`lossEndsAtOnceBeforePhraseOne`), with no countdown and no
+presence event. While session mode is held, a note played at Idle goes to `heldModeNotes()`, the
+held mode's route (Jam's Idle note routing, wired by chunk 21). A `start` note there calls the
+route's `start`, and the note arms nothing.
+
 ## What later chunks add
 
 - **Chunk 9 (built):** the session history, fed from the engine's outputs (see

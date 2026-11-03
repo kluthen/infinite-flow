@@ -104,6 +104,12 @@ type WorkspaceHarnessAudioEvent =
       readonly scheduledAt: number
     }
   | { readonly kind: 'open-bus'; readonly bus: number; readonly scheduledAt: number }
+  | {
+      readonly kind: 'force-click'
+      readonly bus: number
+      readonly until: number
+      readonly scheduledAt: number
+    }
 
 /** A click that sounds, with the click-volume gain it sounds at. */
 type WorkspaceHarnessAudibleClick = Extract<WorkspaceHarnessAudioEvent, { kind: 'click' }> & {
@@ -348,7 +354,13 @@ type WorkspaceHarnessCountInBeat = 'muted' | 'current' | 'past'
 
 /** Why a session ended (src/session/session-types.ts's `SessionEndCause`). */
 type WorkspaceHarnessSessionEndCause =
-  'stop' | 'hidden-tab' | 'staff-not-shown' | 'silence-timeout' | 'controller-lost'
+  | 'stop'
+  | 'hidden-tab'
+  | 'staff-not-shown'
+  | 'silence-timeout'
+  | 'controller-lost'
+  | 'no-note-played'
+  | 'no-phrase-one'
 
 /**
  * Which note of the session a note is (src/domain/acknowledgement/expected-note.ts's

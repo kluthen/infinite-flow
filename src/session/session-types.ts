@@ -18,8 +18,15 @@ import type { KeyAndModeRestriction } from '../domain/presets/key-and-mode-restr
 import type { PresetSelection } from '../domain/presets/preset-selection'
 import type { InstrumentProfile } from '../domain/profile/instrument-profile'
 import type { Seed } from '../domain/random/seed'
+import type { PhraseOneAttemptResult, PhraseOneEvent } from './session-phrase-one-types'
 import type { ReadyPhrase } from './session-ready-phrases'
 import type { AllowedGroups, MutableSetting, SettingsMutationFlag } from './settings-mutation'
+
+export type {
+  PhraseOneAttemptResult,
+  PhraseOneEvent,
+  SessionStartWithoutPhraseOne,
+} from './session-phrase-one-types'
 
 /** Seconds on the audio clock. */
 // @spec-link [[service_session_engine]]
@@ -28,7 +35,10 @@ export type AudioTime = number
 /**
  * Why a session ended: the player's Stop, the tab becoming hidden, the staff no longer shown, more
  * than 30 s without a played note while a controller is attached, or the selected controller lost
- * and not back within 30 s.
+ * and not back within 30 s (at once, in a session started without phrase 1, before phrase 1
+ * sounds). Two causes belong to a session started without phrase 1, before phrase 1 sounds: no
+ * note played within the time its caller allows after the count-in (`no-note-played`), and no
+ * phrase 1 by its deadline (`no-phrase-one`).
  */
 // @spec-link [[service_session_engine]]
 // @spec-link [[rule_stop_ends_session]]
@@ -36,7 +46,13 @@ export type AudioTime = number
 // @spec-link [[rule_silence_timeout_ends_session]]
 // @spec-link [[rule_controller_reconnection_window]]
 export type SessionEndCause =
-  'stop' | 'hidden-tab' | 'staff-not-shown' | 'silence-timeout' | 'controller-lost'
+  | 'stop'
+  | 'hidden-tab'
+  | 'staff-not-shown'
+  | 'silence-timeout'
+  | 'controller-lost'
+  | 'no-note-played'
+  | 'no-phrase-one'
 
 /**
  * Where a session phrase came from: the Idle phrase that became phrase 1, a generation with the
@@ -149,7 +165,8 @@ export interface SessionStart {
  * attempt; `settings-change` gives the complete settings in effect from then on, from an automatic
  * source other than the engine's own mutations; `controller` tells that a controller lost
  * mid-session goes away (`attached` false) or reconnects, sent only in a session that started with
- * a controller; `tick` lets the engine see a deadline pass.
+ * a controller; `tick` lets the engine see a deadline pass; the phrase 1 events belong to a
+ * session started without phrase 1, before phrase 1 sounds.
  */
 // @spec-link [[service_session_engine]]
 export type SessionEvent =
@@ -176,6 +193,7 @@ export type SessionEvent =
   | { readonly kind: 'controller'; readonly at: AudioTime; readonly attached: boolean }
   | { readonly kind: 'tick'; readonly at: AudioTime }
   | { readonly kind: 'end'; readonly at: AudioTime; readonly cause: SessionEndCause }
+  | PhraseOneEvent
 
 /**
  * What the engine asks its caller to do or tells it happened. `retry` counts the attempts made for
@@ -189,7 +207,8 @@ export type SessionEvent =
  * effect stay as they are, and the next mutation lands as scheduled. `phrase-tempo` gives the
  * tempo of a phrase from 2 on, output once, when it is fixed at that phrase's look-ahead deadline.
  * `cancel-generation` names an attempt dropped while still generating, to be stopped where it
- * runs; it comes before any `request-generation` of the same event.
+ * runs; it comes before any `request-generation` of the same event. `phrase-one-attempt-result`
+ * reports a phrase 1 attempt's result to the caller of a session started without phrase 1.
  */
 // @spec-link [[service_session_engine]]
 export type SessionOutput =
@@ -230,6 +249,11 @@ export type SessionOutput =
   | { readonly kind: 'phrase-discarded'; readonly phraseNumber: number }
   | { readonly kind: 'phrase-tempo'; readonly phraseNumber: number; readonly tempo: number }
   | { readonly kind: 'cancel-generation'; readonly attemptId: number }
+  | {
+      readonly kind: 'phrase-one-attempt-result'
+      readonly attemptId: number
+      readonly result: PhraseOneAttemptResult
+    }
 
 /**
  * New settings in effect from a phrase on: from the engine's own mutation, which names the one

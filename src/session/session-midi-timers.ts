@@ -92,6 +92,40 @@ export function nextCountdownChangeAt(lostAt: AudioTime, now: AudioTime): AudioT
   return secondEdge(lostAt, passed + 1)
 }
 
+/**
+ * Intent: in a session started without phrase 1, whether a note played at `onsetAt` arms the
+ * silence timer: only a note played from phrase 1 on, once the time phrase 1 sounds is known
+ * (`phraseOneAt`, null before); the starting note and every note before phrase 1 arm nothing.
+ */
+// @spec-link [[rule_jam_silence_timer_from_phrase_one]]
+// @spec-link [[module_session_silence_timeout]]
+export function noteArmsSilenceBeforePhraseOne(
+  onsetAt: AudioTime,
+  phraseOneAt: AudioTime | null,
+): boolean {
+  assertFinite('note onset', onsetAt)
+  if (phraseOneAt === null) return false
+  assertFinite('phrase 1', phraseOneAt)
+  return onsetAt >= phraseOneAt
+}
+
+/**
+ * Intent: in a session started without phrase 1, whether a controller lost at `lostAt` ends it at
+ * once: any loss before phrase 1 sounds (`phraseOneAt`, null while not known yet) does; from phrase
+ * 1 on, the reconnection window applies.
+ */
+// @spec-link [[rule_jam_controller_loss_before_phrase_one]]
+// @spec-link [[module_session_controller_loss]]
+export function lossEndsAtOnceBeforePhraseOne(
+  lostAt: AudioTime,
+  phraseOneAt: AudioTime | null,
+): boolean {
+  assertFinite('controller loss', lostAt)
+  if (phraseOneAt === null) return true
+  assertFinite('phrase 1', phraseOneAt)
+  return lostAt < phraseOneAt
+}
+
 /** Intent: the audio-clock time of the k-th second edge after a loss, always computed alike. */
 function secondEdge(lostAt: AudioTime, k: number): AudioTime {
   return lostAt + k
