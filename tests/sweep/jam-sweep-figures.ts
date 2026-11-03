@@ -3,7 +3,9 @@
  * configuration (mode, tempo, lock, rhythm domain, steering block present or not) add up to. A
  * Jam's phrase 1 by rung and how often it never came or extended the wait; every attempt's time
  * and the share of it spent ordering candidates; the repeats; the standalone attempts against the
- * standalone reserve; the deadline shortfalls; and, with the lock on, the lock census. The figures
+ * standalone reserve; the deadline shortfalls; and, with the lock on, the lock census. For Jams
+ * steered by their doodle, also phrase 1's attempts by rung and those superseded at the cutover,
+ * and phrase 2 by how it was decided, per doodle and instrument (ISS-015's cases). The figures
  * keep times, counts and lines only, never a phrase.
  */
 
@@ -29,6 +31,8 @@ export interface AttemptRecord {
   readonly chargedSeconds: number
   readonly failureCode: string | null
   readonly orderingSeconds?: number
+  /** Whether a Jam's ladder cancelled it where it ran, superseded at the cutover by rung 3. */
+  readonly cancelled?: boolean
 }
 
 /** What a configuration of the sweep holds fixed across its runs. */
@@ -55,7 +59,22 @@ export interface AttemptTimings {
   readonly slowestSeconds: number | null
   /** Sum of ordering seconds over sum of attempt seconds; null when no attempt reports any. */
   readonly orderingsShare: number | null
+  /** The orderings' time per attempt: nearest-rank 95th percentile and slowest, when reported. */
+  readonly orderingsP95Seconds?: number | null
+  readonly orderingsSlowestSeconds?: number | null
   readonly orderingsNote?: string
+}
+
+/**
+ * Phrase 2 of the Jams of one doodle on one instrument: how many Jams reached it, and how many
+ * decided it by v2's standalone rung (the join lost) or as a repeat.
+ */
+export interface PhraseTwoByDoodle {
+  readonly doodle: string
+  readonly instrument: string
+  readonly jams: number
+  readonly standalone: number
+  readonly repeat: number
 }
 
 /** The standalone attempts' times, and how many were charged past the standalone reserve. */
@@ -92,7 +111,21 @@ export interface ConfigurationFigures {
     readonly rungs: RungShares
     readonly extendedWait: Share
     readonly extendedWaitByMeasures: Readonly<Record<string, number>>
+    /** Phrase 1's attempts of each rung: their times and the orderings' cost. */
+    readonly attemptsByRung: Readonly<Record<LadderRung, AttemptTimings>>
+    /** Rung 1 and 2 attempts cancelled where they ran, superseded by rung 3 at the cutover. */
+    readonly supersededAtCutover: number
+    /** Phrase 1's standalone attempts (rung 3, no steering block) against the reserve. */
+    readonly standalone: StandaloneFigures
   } | null
+  /** Phrases 2 to n's standalone attempts (with the block and the lock a Jam carries). */
+  readonly laterStandalone: StandaloneFigures
+  /**
+   * A steered Jam's phrase 2 by doodle and instrument (empty otherwise), and the pairs whose
+   * phrase 2 lost its join in every Jam that reached it (ISS-015's known cases).
+   */
+  readonly phraseTwoByDoodle: readonly PhraseTwoByDoodle[]
+  readonly phraseTwoAlwaysStandalone: readonly string[]
   readonly attempts: AttemptTimings
   /** Phrases decided as a repeat. */
   readonly repeats: number
@@ -154,9 +187,12 @@ export function attemptTimings(attempts: readonly AttemptRecord[]): AttemptTimin
   const base = { count: attempts.length, ...slowestAndP95(seconds) }
   if (ordering.length === 0)
     return { ...base, orderingsShare: null, orderingsNote: NO_ORDERINGS_NOTE }
+  const perAttempt = slowestAndP95(ordering)
   return {
     ...base,
     orderingsShare: total === 0 ? null : ordering.reduce((a, b) => a + b, 0) / total,
+    orderingsP95Seconds: perAttempt.p95Seconds,
+    orderingsSlowestSeconds: perAttempt.slowestSeconds,
   }
 }
 
@@ -188,6 +224,7 @@ export class ConfigurationTally {
   private shortfallCount = 0
   private readonly shortfalls: string[] = []
   private readonly census = new LockCensusTally()
+  private readonly phraseTwo = new Map<string, PhraseTwoByDoodle>()
 
   /** Intent: start the tally of one configuration. */
   constructor(readonly key: ConfigurationKey) {}
@@ -213,6 +250,20 @@ export class ConfigurationTally {
       ...record.shortfalls.slice(0, MAX_SHORTFALL_LINES - this.shortfalls.length),
     )
     if (record.lockCensus !== null) this.census.addSession(record.lockCensus)
+    if (record.drift !== null && record.doodle !== null && record.phraseTwoOrigin !== null)
+      this.addPhraseTwo(record.doodle, record.instrument, record.phraseTwoOrigin)
+  }
+
+  /** Intent: count one steered Jam's phrase 2 under its doodle and instrument. */
+  private addPhraseTwo(doodle: string, instrument: string, origin: string): void {
+    const key = `${doodle} on ${instrument}`
+    const was = this.phraseTwo.get(key) ?? { doodle, instrument, jams: 0, standalone: 0, repeat: 0 }
+    this.phraseTwo.set(key, {
+      ...was,
+      jams: was.jams + 1,
+      standalone: was.standalone + (origin === 'standalone' ? 1 : 0),
+      repeat: was.repeat + (origin === 'repeat' ? 1 : 0),
+    })
   }
 
   /** Intent: the configuration's label. */
@@ -225,11 +276,22 @@ export class ConfigurationTally {
     if (this.key.mode !== 'jam') return null
     const byMeasures: Record<string, number> = {}
     for (const wait of this.waits) byMeasures[String(wait)] = (byMeasures[String(wait)] ?? 0) + 1
+    const phraseOne = this.attempts.filter((attempt) => attempt.phraseNumber === 1)
+    /** Intent: the timings of phrase 1's attempts of one rung. */
+    const ofRung = (rung: LadderRung): AttemptTimings =>
+      attemptTimings(phraseOne.filter((attempt) => attempt.kind === rung))
     return {
       ladders: [...this.ladders],
       rungs: rungShares(this.rungs),
       extendedWait: shareOf(this.waits.filter((wait) => wait > 0).length, this.rungs.length),
       extendedWaitByMeasures: byMeasures,
+      attemptsByRung: {
+        'join-and-block': ofRung('join-and-block'),
+        block: ofRung('block'),
+        standalone: ofRung('standalone'),
+      },
+      supersededAtCutover: phraseOne.filter((attempt) => attempt.cancelled === true).length,
+      standalone: standaloneFigures(phraseOne),
     }
   }
 
@@ -251,6 +313,13 @@ export class ConfigurationTally {
       attempts: attemptTimings(this.attempts),
       repeats: this.repeats,
       standalone: standaloneFigures(this.attempts),
+      laterStandalone: standaloneFigures(
+        this.attempts.filter((attempt) => attempt.phraseNumber > 1),
+      ),
+      phraseTwoByDoodle: [...this.phraseTwo.values()],
+      phraseTwoAlwaysStandalone: [...this.phraseTwo.entries()].flatMap(([key, each]) =>
+        each.jams > 0 && each.standalone === each.jams ? [key] : [],
+      ),
       shortfalls: { count: this.shortfallCount, first: [...this.shortfalls] },
       lockCensus: this.lockCensus(),
     }
@@ -283,10 +352,29 @@ export function configurationSummaryLines(figures: ConfigurationFigures): readon
     `${prefix} standalone ${standalone.count}: p95 ${secondsText(standalone.p95Seconds)}, slowest ${secondsText(standalone.slowestSeconds)} (charged ${secondsText(standalone.slowestChargedSeconds)}), over the ${standalone.reserveSeconds} s reserve ${standalone.overReserve}`,
   ]
   const one = figures.phraseOne
-  if (one !== null)
+  if (one !== null) {
     lines.push(
       `${prefix} phrase 1: join+block ${percent(one.rungs.joinAndBlock)}, block ${percent(one.rungs.block)}, standalone ${percent(one.rungs.standalone)}, never came ${percent(one.rungs.neverCame)}, extended wait ${percent(one.extendedWait)}`,
     )
+    const byRung = (['join-and-block', 'block', 'standalone'] as const).map((rung) => {
+      const timings = one.attemptsByRung[rung]
+      return `${rung} ${timings.count} (p95 ${secondsText(timings.p95Seconds)}, slowest ${secondsText(timings.slowestSeconds)}, orderings ${ratioText(timings.orderingsShare)}, p95 ${secondsText(timings.orderingsP95Seconds ?? null)})`
+    })
+    lines.push(
+      `${prefix} phrase 1 attempts: ${byRung.join('; ')}; superseded at the cutover ${one.supersededAtCutover}; rung 3 slowest charged ${secondsText(one.standalone.slowestChargedSeconds)}, over the reserve ${one.standalone.overReserve}`,
+    )
+  }
+  const later = figures.laterStandalone
+  lines.push(
+    `${prefix} phrases 2+: standalone ${later.count}, slowest charged ${secondsText(later.slowestChargedSeconds)}, over the reserve ${later.overReserve}; orderings per attempt p95 ${secondsText(attempts.orderingsP95Seconds ?? null)}, slowest ${secondsText(attempts.orderingsSlowestSeconds ?? null)}`,
+  )
+  if (figures.phraseTwoByDoodle.length > 0) {
+    const lost = figures.phraseTwoByDoodle.reduce((sum, each) => sum + each.standalone, 0)
+    const jams = figures.phraseTwoByDoodle.reduce((sum, each) => sum + each.jams, 0)
+    lines.push(
+      `${prefix} phrase 2 lost its join in ${lost}/${jams} Jams; in every Jam (ISS-015): ${figures.phraseTwoAlwaysStandalone.join(', ') || 'none'}`,
+    )
+  }
   const lock = figures.lockCensus
   if (lock !== null)
     lines.push(

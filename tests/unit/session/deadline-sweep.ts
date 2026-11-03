@@ -39,6 +39,10 @@ import {
   phraseTwoDeadline,
 } from '@/session/session-timing'
 import type {
+  PhraseOneEvent,
+  SessionStartWithoutPhraseOne,
+} from '@/session/session-phrase-one-types'
+import type {
   AudioTime,
   SessionOutput,
   SessionSettings,
@@ -93,7 +97,7 @@ export const SWEEP_PHRASE_COUNT = 6
  * seconds its diagnostics report for building the rhythm orderings, kept out of the outcome so the
  * session sees exactly the outcome an unclocked call gives.
  */
-interface TimedOutcome {
+export interface TimedOutcome {
   readonly outcome: GenerationOutcome
   readonly seconds: number
   readonly orderingSeconds: number
@@ -196,6 +200,8 @@ export interface TimedSession {
   readonly tempo: number
   /** How many phrases the run planned before Stop, phrase 1 included. */
   readonly phraseCount: number
+  /** When phrase 1 started sounding: after the count-in, or after a Jam's read-in measure. */
+  readonly phraseOneSoundsAt: AudioTime
   readonly outputs: readonly TimedOutput[]
   readonly generations: readonly GeneratorRecord[]
   readonly errors: readonly unknown[]
@@ -234,21 +240,46 @@ export function soundingAt(phraseNumber: number, tempo: number): AudioTime {
 }
 
 /**
- * Intent: the transport's events of a session of `phraseCount` phrases started at 0: the count-in
- * over, each later phrase starting to sound, and Stop when the last phrase has sounded.
+ * Intent: the moment phrase N starts sounding at a tempo, counted from when phrase 1 started
+ * sounding (after the count-in, or after a Jam's read-in measure), four measures per phrase.
  */
-function transportEvents(tempo: number, phraseCount: number): readonly SessionRunnerEvent[] {
+function soundingFrom(
+  phraseOneSoundsAt: AudioTime,
+  phraseNumber: number,
+  tempo: number,
+): AudioTime {
+  return phraseOneSoundsAt + (phraseNumber - 1) * PHRASE_MEASURE_COUNT * measureSeconds(tempo)
+}
+
+/** Intent: the moment phrase N starts sounding in a run, from its phrase 1's sounding. */
+export function runSoundingAt(run: TimedSession, phraseNumber: number): AudioTime {
+  return soundingFrom(run.phraseOneSoundsAt, phraseNumber, run.tempo)
+}
+
+/**
+ * Intent: the transport's events of a session of `phraseCount` phrases whose phrase 1 starts
+ * sounding at `phraseOneSoundsAt`: the count-in (or a Jam's read-in measure) over, each later
+ * phrase starting to sound, and Stop when the last phrase has sounded.
+ */
+function transportEvents(
+  tempo: number,
+  phraseCount: number,
+  phraseOneSoundsAt: AudioTime,
+): readonly SessionRunnerEvent[] {
+  /** Intent: when phrase N starts sounding in this run. */
+  const at = (phraseNumber: number): AudioTime =>
+    soundingFrom(phraseOneSoundsAt, phraseNumber, tempo)
   const sounding = Array.from({ length: phraseCount - 1 }, (_, offset) => offset + 2).map(
     (phraseNumber): SessionRunnerEvent => ({
       kind: 'phrase-started-sounding',
-      at: soundingAt(phraseNumber, tempo),
+      at: at(phraseNumber),
       phraseNumber,
     }),
   )
   return [
-    { kind: 'count-in-over', at: soundingAt(1, tempo) },
+    { kind: 'count-in-over', at: phraseOneSoundsAt },
     ...sounding,
-    { kind: 'end', at: soundingAt(phraseCount + 1, tempo), cause: 'stop' },
+    { kind: 'end', at: at(phraseCount + 1), cause: 'stop' },
   ]
 }
 
@@ -299,9 +330,26 @@ function phraseOneAtIdle(
 }
 
 /**
+ * A fresh Jam's phrase 1, handed to a session started without phrase 1 (master spec C5.6, C5.7):
+ * the attempt that made it, as the Jam's ladder asked for it at the time it started (its settings
+ * the session's, its steering block every later request's); what it generated, and what it kept
+ * the serial generator busy for (its ladder's charge, so it is ready when the ladder found it
+ * ready); the barline phrase 1 is shown at, the hand-over; and the moment it starts sounding, one
+ * read-in measure later. The session starts at 0, the generation measure's start; a Jam has no
+ * Vary settings and no Tension across phrases (C5.16), and no phrase pre-generated.
+ */
+export interface JamHandover {
+  readonly attempt: Extract<PhraseOneEvent, { kind: 'phrase-one-attempt' }>
+  readonly generated: TimedOutcome
+  readonly chargedSeconds: number
+  readonly shownAt: AudioTime
+  readonly soundsAt: AudioTime
+}
+
+/**
  * What a run may change from the sweep's six-phrase session: how many phrases it plans (2 or
- * more), a phrase 1 produced elsewhere in place of the one generated at Idle, and chosen settings
- * the case does not set.
+ * more), a phrase 1 produced elsewhere in place of the one generated at Idle, chosen settings the
+ * case does not set, or a fresh Jam's phrase 1 handed over (in place of the last three).
  */
 export interface TimedSessionOptions {
   readonly phraseCount?: number
@@ -309,6 +357,7 @@ export interface TimedSessionOptions {
   readonly settings?: Partial<
     Pick<SessionSettings, 'rhythmLockOn' | 'allowedRhythmChanges' | 'allowedGroups'>
   >
+  readonly jam?: JamHandover
 }
 
 /** Intent: a run's planned phrase count, refusing anything but a whole number of 2 or more. */
@@ -326,6 +375,27 @@ function planned(phraseCount: number): number {
  * or at the first event the engine refuses. The options change the phrase count, phrase 1 and some
  * chosen settings; none given, the run is the sweep's six-phrase session.
  */
+/**
+ * Intent: refuse options only a caller bug can give: a Jam's hand-over beside a phrase 1, chosen
+ * settings or an Idle phase, which a fresh Jam has none of.
+ */
+function requireOptions(options: TimedSessionOptions, idlePhase: IdlePhase | undefined): void {
+  if (options.jam === undefined) return
+  if (options.phraseOne !== undefined || options.settings !== undefined || idlePhase !== undefined)
+    throw new Error('A Jam hand-over takes no phrase 1, no chosen settings and no Idle phase.')
+}
+
+/**
+ * Intent: play one case's session at a tempo through the real runner on the fake clock, answering
+ * each attempt as the script says once the serial generator has spent the attempt's cost on it,
+ * unless the engine cancels it first, and keep every output with its time. An Idle phase, when
+ * given, runs first and the session starts with the phrases it made ready. The run stops at Stop,
+ * or at the first event the engine refuses. The options change the phrase count, phrase 1 and some
+ * chosen settings; none given, the run is the sweep's six-phrase session. With a Jam's hand-over
+ * the session starts without phrase 1 at 0: the attempt is asked for at its time and answered with
+ * its outcome at its charge, phrase 1 is handed over at its barline once it fits, and every later
+ * phrase sounds on the grid from phrase 1's sounding.
+ */
 export async function runTimedSession(
   sweepCase: SweepCase,
   tempo: number,
@@ -335,21 +405,44 @@ export async function runTimedSession(
   idlePhase?: IdlePhase,
   options: TimedSessionOptions = {},
 ): Promise<TimedSession> {
+  requireOptions(options, idlePhase)
   const phraseCount = planned(options.phraseCount ?? SWEEP_PHRASE_COUNT)
-  const settings = { ...caseSettings(sweepCase, tempo), ...options.settings }
+  const { jam } = options
+  const settings = jam?.attempt.settings ?? {
+    ...caseSettings(sweepCase, tempo),
+    ...options.settings,
+  }
   const providers = queuedProviders(sweepCase.firstSessionSeed)
   const viewport = fakeViewport(false)
-  const start: PregenerationStart = {
-    settings,
-    phraseOne: options.phraseOne ?? phraseOneAtIdle(sweepCase, settings, outcomes),
-    sessionSeed: makeSeed(sweepCase.firstSessionSeed),
-    mutation: sweepCase.varySettings
-      ? { kind: 'on', seed: settingsMutationSeed(makeSeed(sweepCase.firstSessionSeed)) }
-      : SETTINGS_MUTATION_OFF,
-    multiPhraseTensionArc: sweepCase.tensionAcrossPhrases,
-  }
+  const sessionSeed = makeSeed(sweepCase.firstSessionSeed)
+  const jamStart: SessionStartWithoutPhraseOne | undefined =
+    jam === undefined
+      ? undefined
+      : {
+          at: 0,
+          settings,
+          sessionSeed,
+          mutation: SETTINGS_MUTATION_OFF,
+          adaptiveTempo: false,
+          multiPhraseTensionArc: false,
+        }
+  const start: PregenerationStart | undefined =
+    jam !== undefined
+      ? undefined
+      : {
+          settings,
+          phraseOne: options.phraseOne ?? phraseOneAtIdle(sweepCase, settings, outcomes),
+          sessionSeed,
+          mutation: sweepCase.varySettings
+            ? { kind: 'on', seed: settingsMutationSeed(sessionSeed) }
+            : SETTINGS_MUTATION_OFF,
+          multiPhraseTensionArc: sweepCase.tensionAcrossPhrases,
+        }
   const readyPhrases =
-    idlePhase === undefined ? [] : await idlePhase({ providers, viewport }, start)
+    idlePhase === undefined || start === undefined
+      ? []
+      : await idlePhase({ providers, viewport }, start)
+  const phraseOneSoundsAt = jam?.soundsAt ?? soundingAt(1, tempo)
   const clock = { at: 0 }
   const due: DueItem[] = []
   const outputs: TimedOutput[] = []
@@ -420,8 +513,13 @@ export async function runTimedSession(
    */
   function generate(intent: GenerationIntent, signal?: AbortSignal): Promise<GenerationOutcome> {
     const request = latestRequest!
-    const answer = script(request)
-    const generated = answer === 'generate' ? outcomes.of(intent) : undefined
+    const jamPhraseOne = jam !== undefined && request.phraseNumber === 1
+    const answer = jamPhraseOne ? 'generate' : script(request)
+    const generated = jamPhraseOne
+      ? jam.generated
+      : answer === 'generate'
+        ? outcomes.of(intent)
+        : undefined
     return new Promise((resolve, reject) => {
       const record: OpenGeneratorRecord = {
         attemptId: request.attemptId,
@@ -433,7 +531,7 @@ export async function runTimedSession(
         cancelledAt: undefined,
       }
       generations.push(record)
-      const cost = attemptCost(generated, request)
+      const cost = jamPhraseOne ? jam.chargedSeconds : attemptCost(generated, request)
       const job: GeneratorJob = { request, answer, generated, cost, resolve, reject, record }
       waiting.push(job)
       signal?.addEventListener('abort', () => cancel(job), { once: true })
@@ -454,12 +552,22 @@ export async function runTimedSession(
         if (output.kind === 'request-generation') latestRequest = output
         if (output.kind === 'wake-at')
           schedule(output.at, () => runner.dispatch({ kind: 'tick', at: output.at }))
+        if (
+          jam !== undefined &&
+          output.kind === 'phrase-one-attempt-result' &&
+          output.result.kind === 'fits'
+        ) {
+          const { attemptId } = output
+          const { shownAt: at, soundsAt } = jam
+          schedule(at, () => runner.dispatch({ kind: 'phrase-one', at, attemptId, soundsAt }))
+        }
       },
       onError: (error) => errors.push(error),
     },
-    { at: 0, ...start, adaptiveTempo: false, readyPhrases },
+    jamStart ?? { at: 0, ...start!, adaptiveTempo: false, readyPhrases },
   )
-  for (const event of transportEvents(tempo, phraseCount))
+  if (jam !== undefined) schedule(jam.attempt.at, () => runner.dispatch(jam.attempt))
+  for (const event of transportEvents(tempo, phraseCount, phraseOneSoundsAt))
     schedule(event.at, () => runner.dispatch(event))
   await drainContinuations()
   for (let item = due.shift(); item !== undefined; item = due.shift()) {
@@ -472,18 +580,18 @@ export async function runTimedSession(
     }
     await drainContinuations()
   }
-  return { tempo, phraseCount, outputs, generations, errors }
+  return { tempo, phraseCount, phraseOneSoundsAt, outputs, generations, errors }
 }
 
 /**
- * Intent: the deadline the session's schedule gives phrase N (2 or more) in a session started at 0
- * at a constant tempo: the end of the count-in for phrase 2, otherwise the start of the previous
- * phrase's last measure.
+ * Intent: the deadline the session's schedule gives phrase N (2 or more) in a run at a constant
+ * tempo: in a session started at 0 with phrase 1, the end of the count-in for phrase 2; otherwise
+ * the start of the previous phrase's last measure.
  */
-function scheduledDeadline(phraseNumber: number, tempo: number): AudioTime {
-  return phraseNumber === 2
-    ? phraseTwoDeadline(0, tempo)
-    : nextPhraseDeadline(soundingAt(phraseNumber - 1, tempo), tempo)
+function scheduledDeadline(run: TimedSession, phraseNumber: number): AudioTime {
+  return phraseNumber === 2 && run.phraseOneSoundsAt === soundingAt(1, run.tempo)
+    ? phraseTwoDeadline(0, run.tempo)
+    : nextPhraseDeadline(runSoundingAt(run, phraseNumber - 1), run.tempo)
 }
 
 /** What became of one phrase slot after phrase 1 in a timed run. */
@@ -524,7 +632,7 @@ export function phraseSlots(run: TimedSession): readonly PhraseSlot[] {
         deadline:
           last?.kind === 'request-generation'
             ? last.deadline
-            : scheduledDeadline(phraseNumber, run.tempo),
+            : scheduledDeadline(run, phraseNumber),
         attempts: requests.length,
         decided:
           ready?.output.kind === 'phrase-ready'
@@ -567,7 +675,7 @@ export function sessionBreaks(sweepCase: SweepCase, run: TimedSession): readonly
       breaks.push(`${phrase} repeated at ${slot.decided.at} s, deadline ${slot.deadline} s`)
     else if (slot.decided.origin !== 'repeat' && !(slot.decided.at < slot.deadline))
       breaks.push(`${phrase} ready at ${slot.decided.at} s, deadline ${slot.deadline} s`)
-    if (slot.soundingAt !== soundingAt(slot.phraseNumber, run.tempo))
+    if (slot.soundingAt !== runSoundingAt(run, slot.phraseNumber))
       breaks.push(`${phrase} sounded at ${slot.soundingAt} s`)
   }
   const sounded = soundedAtEnd(run)

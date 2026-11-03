@@ -1,26 +1,33 @@
 /**
  * What the Jam sweep runner plays (measurement tooling, `npm run measure:jam`): its configurations
- * and cases, read from the environment, and the loop that plays every run of them, note density by
- * note density with one outcome cache per density shared by every configuration (as the cost
- * runner keeps the heap in check).
+ * and cases, read from the environment, and the loop that plays every run of them, case by case
+ * and doodle by doodle with one outcome cache shared by every configuration of that case and
+ * doodle and dropped after it: only those runs ask for the same intents (tempo never reaches
+ * generation), so each intent is still generated and timed once, and the heap stays small.
  *
  * Env: `JAM_LIMIT` keeps N evenly spaced sweep cases (every k-th, so every note density shows);
  * `JAM_MODE` jam, session or both (default both); `JAM_TEMPOS` comma-separated BPM for every mode
  * (default 60,120,180 for a Jam, 60,120,240 for a session); `JAM_DOMAIN` warm, cold or both
  * (default both; a session runs warm only); `JAM_LOCK` off, on or both (default off; on plays the
- * allowed changes all on, then all off); `JAM_DOODLES` none or all (default none; all crosses each
- * Jam with every doodle of the doodle set).
+ * allowed changes all on, then all off); `JAM_LADDER` double or baseline (default double: each Jam
+ * steered by its doodle, phrase 1 through the double of Jam's ladder; baseline: chunk 3's runs,
+ * rung 3 only, no steering block); `JAM_DOODLES` none or all (default all with the double, none
+ * with the baseline; all crosses each Jam with every doodle of the doodle set; the double needs
+ * them). A steered Jam's drift walks Close, Near, Free over the case and doodle indices, so every
+ * doodle meets every drift.
  */
 
 import { performance } from 'node:perf_hooks'
 
 import { RHYTHM_CHANGE_KINDS } from '@/domain/generation/request-rhythm-lock'
+import { JAM_DRIFTS, type JamDrift } from '@/jam/steering-block-builder'
 import { OutcomeCache, type SweepCase } from '../unit/session/deadline-sweep'
 import { loadDoodleSet } from '../unit/jam/doodle-set'
 import { byNoteDensity } from './cost-guard'
 import { ConfigurationTally, type ConfigurationKey } from './jam-sweep-figures'
 import type { JamLock, RhythmDomainState } from './jam-sweep-ladder'
 import { runJamCase, type JamDoodle, type JamMode } from './jam-sweep'
+import { JamReplaySampler } from './jam-sweep-replay'
 
 /** A Jam's tempos by default (M1: 240 BPM comes later). */
 export const JAM_TEMPOS: readonly number[] = [60, 120, 180]
@@ -36,6 +43,8 @@ export interface JamSweepChoices {
   readonly domains: readonly RhythmDomainState[]
   readonly locks: readonly JamLock[]
   readonly doodles: 'none' | 'all'
+  /** Whether a Jam is steered by its doodle through the double of Jam's ladder, or the baseline. */
+  readonly ladder: 'double' | 'baseline'
 }
 
 /** Intent: one of some allowed words, or the default when unset; anything else fails. */
@@ -84,6 +93,15 @@ export function jamSweepChoices(env: NodeJS.ProcessEnv = process.env): JamSweepC
   const domain = oneOf('JAM_DOMAIN', env.JAM_DOMAIN, ['warm', 'cold', 'both'], 'both')
   const lock = oneOf('JAM_LOCK', env.JAM_LOCK, ['off', 'on', 'both'], 'off')
   const tempos = tempoList(env.JAM_TEMPOS)
+  const ladder = oneOf('JAM_LADDER', env.JAM_LADDER, ['double', 'baseline'], 'double')
+  const doodles = oneOf(
+    'JAM_DOODLES',
+    env.JAM_DOODLES,
+    ['none', 'all'],
+    ladder === 'double' ? 'all' : 'none',
+  )
+  if (ladder === 'double' && doodles === 'none' && mode !== 'session')
+    throw new Error('JAM_LADDER=double steers each Jam by its doodle: JAM_DOODLES=none has none.')
   return {
     limit: positiveInteger('JAM_LIMIT', env.JAM_LIMIT),
     modes: mode === 'both' ? ['jam', 'session'] : [mode],
@@ -93,7 +111,8 @@ export function jamSweepChoices(env: NodeJS.ProcessEnv = process.env): JamSweepC
       ...(lock === 'on' ? [] : [{ on: false } as const]),
       ...(lock === 'off' ? [] : LOCKS_ON),
     ],
-    doodles: oneOf('JAM_DOODLES', env.JAM_DOODLES, ['none', 'all'], 'none'),
+    doodles,
+    ladder,
   }
 }
 
@@ -111,14 +130,21 @@ export function evenlySpaced(
 
 /**
  * Intent: every configuration the choices give, in run order: per mode, its tempos, the locks,
- * then the domains (warm only for a session). No configuration carries a steering block yet.
+ * then the domains (warm only for a session). A Jam carries its doodle's steering block with the
+ * double, none with the baseline; a session never does.
  */
 export function configurations(choices: JamSweepChoices): readonly ConfigurationKey[] {
   return choices.modes.flatMap((mode) =>
     choices.tempos[mode].flatMap((tempo) =>
       choices.locks.flatMap((lock) =>
         (mode === 'jam' ? choices.domains : (['warm'] as const)).map(
-          (domain): ConfigurationKey => ({ mode, tempo, lock, domain, steering: false }),
+          (domain): ConfigurationKey => ({
+            mode,
+            tempo,
+            lock,
+            domain,
+            steering: mode === 'jam' && choices.ladder === 'double',
+          }),
         ),
       ),
     ),
@@ -134,32 +160,65 @@ export function doodlesOf(choice: 'none' | 'all'): readonly (JamDoodle | undefin
   return set
 }
 
+/** Intent: the drift of a steered Jam: Close, Near, Free in turn over the case and doodle. */
+export function driftOf(sweepCase: SweepCase, doodleIndex: number): JamDrift {
+  return JAM_DRIFTS[(sweepCase.index + doodleIndex) % JAM_DRIFTS.length]!
+}
+
+/** A configuration's tally, and the replay sample of its steered Jams. */
+export interface PlayedConfiguration {
+  readonly tally: ConfigurationTally
+  readonly replays: JamReplaySampler
+}
+
 /**
- * Intent: play every case under every configuration (a Jam once per doodle), density by density
- * with one outcome cache per density shared by every configuration and dropped after it, and add
- * each run to its configuration's tally. `onDensity` hears of each density finished.
+ * Intent: play every case under every configuration (a Jam once per doodle, steered by it with its
+ * drift when the configuration carries a block), density by density, case by case and doodle by
+ * doodle, with one outcome cache per case and doodle shared by every configuration and dropped
+ * after it; add each run to its configuration's tally and offer it to its replay sample.
+ * `onDensity` hears of each density finished.
  */
 export async function playConfigurations(
   keys: readonly ConfigurationKey[],
   cases: readonly SweepCase[],
   doodles: readonly (JamDoodle | undefined)[],
   onDensity: (density: string, cases: number) => void = () => {},
-): Promise<readonly ConfigurationTally[]> {
-  const tallies = keys.map((key) => new ConfigurationTally(key))
+): Promise<readonly PlayedConfiguration[]> {
+  const played = keys.map((key) => ({
+    tally: new ConfigurationTally(key),
+    replays: new JamReplaySampler(),
+  }))
+  const jamDoodles = [...doodles.entries()]
+  const someJam = played.some(({ tally }) => tally.key.mode === 'jam')
   for (const group of byNoteDensity(cases)) {
-    const outcomes = new OutcomeCache()
-    for (const tally of tallies)
-      for (const doodle of tally.key.mode === 'jam' ? doodles : [undefined])
-        for (const sweepCase of group) {
+    for (const sweepCase of group)
+      for (const [doodleIndex, doodle] of someJam ? jamDoodles : [[0, undefined] as const]) {
+        const outcomes = new OutcomeCache()
+        for (const { tally, replays } of played) {
+          // A session runs once per case, with the first doodle's turn; a Jam once per doodle.
+          if (tally.key.mode === 'session' && doodleIndex > 0) continue
+          const playedDoodle = tally.key.mode === 'jam' ? doodle : undefined
           const startedAt = performance.now()
-          const { mode, tempo, lock, domain } = tally.key
-          const { record } = await runJamCase(
-            { mode, tempo, lock, domain, sweepCase, ...(doodle === undefined ? {} : { doodle }) },
+          const { mode, tempo, lock, domain, steering } = tally.key
+          if (steering && playedDoodle === undefined)
+            throw new Error('A steered Jam configuration needs the doodle set.')
+          const { record, session, phraseOneInput } = await runJamCase(
+            {
+              mode,
+              tempo,
+              lock,
+              domain,
+              sweepCase,
+              ...(playedDoodle === undefined ? {} : { doodle: playedDoodle }),
+              ...(steering ? { drift: driftOf(sweepCase, doodleIndex) } : {}),
+            },
             outcomes,
           )
           tally.add(record, (performance.now() - startedAt) / 1000)
+          replays.addJam(record, session, phraseOneInput, sweepCase.firstSessionSeed)
         }
+      }
     onDensity(group[0]!.rhythm.noteDensity, group.length)
   }
-  return tallies
+  return played
 }
