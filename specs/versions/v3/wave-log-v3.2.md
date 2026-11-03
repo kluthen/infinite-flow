@@ -1209,3 +1209,23 @@ subsection to `docs/generation-latency.md` (a shared record; the later one resol
   (minor, the captured way in implies them) → `spec-writer`. Risks: `audio-transport.ts` and
   `workspace-session-without-phrase-one.ts` at the 10-atom health limit; `session-history.ts` near
   the file-size limit.
+- Mid-wave, after chunk 18: `spec-writer` recorded the driver's acceptance of chunk 18's
+  interpretations (2) and (3) as spec D457 (2fa8f35c; Part C v1.18, plan v29): phrase 2 is
+  requested at phrase 1's hand-over; a Jam whose rungs all fail ends at the deadline. `ux-writer`
+  aligned the Jam flow (ux D447, 67ddbcd8).
+- 29 merged (0d352486; f1ee94d2). Done when all met. M1 through the three-rung double (D453, no
+  import from chunk 18's ladder), reference machine (Ryzen 5 PRO 8640HS, Node 22.23.4), lock off
+  16:17–16:43, lock on 18:26–19:16, baseline 19:16–19:19, one process each. 568 cases × 13 doodles
+  = 7,384 Jams × 8 phrases per configuration (60/120/180 BPM, warm/cold, lock off / all changes /
+  strict). Phrase 1: rung 1 84.4 %, rung 2 15.6 % (last note gives no join), rung 3 0 %, never
+  came / extended wait / cutover 0. Cold at 180 BPM: every deadline met, slowest cold phrase-1
+  attempt 0.899 s vs 2.93 s. Standalone phrases 2–8 slowest 0.116 s (none over 1.075 s). Orderings
+  cost 7–11 % of rung 1's warm time, 1–4 % overall. Lock census: all changes 65.4 % kept, 33.9 %
+  changed, 0.8 % forced bends; strict 98.9 % kept. 0 repeats, 0 shortfalls, 420/420 replays
+  (rung 3 probed, 5/5). ISS-015: phrase 2 lost its join in 93/7,384 Jams lock off (89 lock on),
+  all seven issue cases among them, recorded not tuned around. Baseline (`JAM_LADDER=baseline`)
+  reproduces chunk 3. No double-vs-ladder difference, no budget overrun, no cold miss: nothing
+  routed. Wave gate: re-run `JAM_MODE=jam JAM_LOCK=off npm run measure:jam`, then `JAM_LOCK=on`, as
+  two processes (~25 and ~50 min, ~2 GB RSS), machine kept awake (a suspend at 16:49 spoiled the
+  first lock-on run; discarded, kept in scratchpad `c29-contaminated/`). Risk: the cutover path and
+  its worker-restart charge have no measured instance; chunk 33 measures the real ladder.

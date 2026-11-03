@@ -2424,7 +2424,7 @@ Record: 28ff715, merged d85b1e3. Differs from the Files line only: `src/jam/dood
 
 ### Chunk 29 — The Jam sweep, first run
 
-Status: planned
+Status: merged (w5, f1ee94d2)
 Wave: 5
 Depends on: 3, 7, 8, 9, 28
 Architecture capture: none
@@ -2463,6 +2463,8 @@ Architecture capture: none
   replayed sample matches.
 - **Verification:** the runs (this chunk's point).
 - **Split rule:** none needed.
+
+Record: 0d352486, merged f1ee94d2. M1 first run through the three-rung double, reference machine 2026-11-03: phrase 1 rung 1 84.4 %, rung 2 15.6 %, rung 3 0 %, never came 0; cold domain met every deadline at 180 BPM (slowest cold phrase-1 attempt 0.899 s against 2.93 s); no standalone attempt over the 1.075 s reserve; 0 repeats, 0 shortfalls, 420/420 replays matched; no difference from chunk 18's ladder. Differs from the Files line: optional Jam hand-over in `tests/unit/session/deadline-sweep.ts`, new `tests/sweep/jam-sweep-replay.ts`, `lock-census-replay.ts` parameter type widened, `docs/testing.md` `measure:jam` row; the outcome cache is per case and doodle (fixes the `JAM_LOCK=both` out-of-memory). The cutover path has no measured instance; chunk 33 measures the real ladder.
 
 ### Chunk 30 — Kept Jam sessions on the device
 
