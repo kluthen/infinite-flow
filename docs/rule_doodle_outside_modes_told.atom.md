@@ -4,7 +4,8 @@ status: DRAFT
 priority: 1
 parents:
   - [[rule_suggestion_candidates]]
-dependents: []
+dependents:
+  - [[module_key_suggestion]]
 layer: BUSINESS
 human_name: A Doodle Outside the App's Modes Is Said Plainly
 tags: [v3, release-v3.2, jam, key-and-mode-suggestion, non-scoring]

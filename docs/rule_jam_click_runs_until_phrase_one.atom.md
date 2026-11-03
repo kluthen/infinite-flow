@@ -3,7 +3,8 @@ id: rule_jam_click_runs_until_phrase_one
 status: DRAFT
 type: RULE
 priority: 1
-dependents: []
+dependents:
+  - [[module_session_start_without_phrase_one]]
 layer: BUSINESS
 version: 0.2
 human_name: A Jam's Click Runs Until Phrase 1

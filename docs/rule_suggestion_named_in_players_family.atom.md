@@ -1,7 +1,8 @@
 ---
 id: rule_suggestion_named_in_players_family
 status: DRAFT
-dependents: []
+dependents:
+  - [[module_key_suggestion]]
 type: RULE
 layer: BUSINESS
 version: 0.2

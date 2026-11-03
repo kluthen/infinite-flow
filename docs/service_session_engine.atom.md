@@ -42,6 +42,7 @@ dependents:
   - [[module_session_mutation_step]]
   - [[module_session_ready_phrases]]
   - [[module_session_settings_change]]
+  - [[module_session_start_without_phrase_one]]
   - [[module_session_struggling_notice]]
   - [[module_session_tension_arc_step]]
   - [[service_session_history]]

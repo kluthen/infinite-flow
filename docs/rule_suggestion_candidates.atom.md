@@ -9,6 +9,7 @@ priority: 1
 human_name: How the Suggestion Weighs Keys and Modes
 tags: [v3, release-v3.2, jam, key-and-mode-suggestion]
 dependents:
+  - [[module_key_suggestion]]
   - [[rule_doodle_outside_modes_told]]
   - [[rule_suggestion_same_doodle_same_answer]]
   - [[rule_suggestion_withheld]]

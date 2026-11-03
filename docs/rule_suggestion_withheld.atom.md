@@ -9,7 +9,8 @@ tags: [v3, release-v3.2, jam, key-and-mode-suggestion]
 parents:
   - [[rule_suggestion_candidates]]
 layer: BUSINESS
-dependents: []
+dependents:
+  - [[module_key_suggestion]]
 ---
 
 # When Nothing Is Suggested

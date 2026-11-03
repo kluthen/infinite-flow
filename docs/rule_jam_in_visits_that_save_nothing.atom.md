@@ -9,7 +9,8 @@ type: RULE
 human_name: Jam Mode in a Visit That Saves Nothing
 parents:
   - [[req_jam]]
-dependents: []
+dependents:
+  - [[module_jam_settings]]
 ---
 
 # Jam Mode in a Visit That Saves Nothing

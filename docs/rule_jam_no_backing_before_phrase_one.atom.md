@@ -7,7 +7,8 @@ layer: BUSINESS
 priority: 1
 parents:
   - [[req_jam]]
-dependents: []
+dependents:
+  - [[module_session_start_without_phrase_one]]
 version: 0.1
 human_name: No Backing Before a Jam's Phrase 1
 ---

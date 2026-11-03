@@ -5,7 +5,8 @@ human_name: A Doodle Lasts at Most Four Measures
 tags: [v3, release-v3.2, session, jam]
 parents:
   - [[req_jam]]
-dependents: []
+dependents:
+  - [[module_jam_capture]]
 layer: BUSINESS
 priority: 1
 type: RULE

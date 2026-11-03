@@ -5,7 +5,8 @@ type: RULE
 layer: BUSINESS
 version: 0.2
 priority: 1
-dependents: []
+dependents:
+  - [[module_session_start_without_phrase_one]]
 human_name: A Jam Ended Before Phrase 1 Leaves Nothing
 tags: [v3, release-v3.2, session, jam, session-end]
 parents:

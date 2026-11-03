@@ -8,6 +8,7 @@ human_name: The Key and Mode Suggestion
 parents:
   - [[req_jam]]
 dependents:
+  - [[module_key_suggestion]]
   - [[rule_suggestion_candidates]]
   - [[rule_suggestion_ignores_restriction]]
   - [[rule_suggestion_keep_mine]]

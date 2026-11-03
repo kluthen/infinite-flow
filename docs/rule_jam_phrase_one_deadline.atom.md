@@ -5,6 +5,7 @@ layer: BUSINESS
 priority: 1
 tags: [v3, release-v3.2, session, jam, look-ahead]
 dependents:
+  - [[module_jam_capture]]
   - [[rule_jam_phrase_one_failure_ladder]]
 type: RULE
 version: 0.2

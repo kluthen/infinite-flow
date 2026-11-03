@@ -1,7 +1,8 @@
 ---
 id: rule_jam_settings_first_values
 status: DRAFT
-dependents: []
+dependents:
+  - [[module_jam_settings]]
 type: RULE
 priority: 1
 tags: [v3, release-v3.2, jam, player-controls, storage]

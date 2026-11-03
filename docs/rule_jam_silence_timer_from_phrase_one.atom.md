@@ -9,7 +9,8 @@ tags: [v3, release-v3.2, session, jam, midi, session-end]
 parents:
   - [[req_jam]]
 layer: BUSINESS
-dependents: []
+dependents:
+  - [[module_session_start_without_phrase_one]]
 ---
 
 # A Jam's Silence Timer Waits for Phrase 1

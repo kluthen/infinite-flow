@@ -9,7 +9,8 @@ layer: BUSINESS
 tags: [v3, release-v3.2, jam, player-controls, embellishments]
 parents:
   - [[req_jam_settings]]
-dependents: []
+dependents:
+  - [[module_jam_settings]]
 ---
 
 # Jam Has One Embellishments Level for All Seven Figures

@@ -4,7 +4,8 @@ status: DRAFT
 version: 0.1
 priority: 1
 tags: [v3, release-v3.2, jam, player-controls, storage]
-dependents: []
+dependents:
+  - [[module_jam_settings]]
 type: RULE
 layer: BUSINESS
 human_name: Jam's Settings Are Saved on Their Own

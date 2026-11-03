@@ -10,6 +10,7 @@ tags: [v3, release-v3.2, jam, tempo]
 parents:
   - [[req_jam_settings]]
 dependents:
+  - [[module_jam_settings]]
   - [[rule_jam_tap_in_listening]]
   - [[rule_jam_tempo_from_taps]]
 ---
