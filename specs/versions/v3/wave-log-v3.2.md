@@ -1025,3 +1025,24 @@ part of the note (staccato).
   `rule_rhythm_distance` 0.2 (against the doodle a rest start right after a rest is not counted),
   `rule_jam_drift_positions` (D428); plus D425's O3 rewordings. Every wave 4 chunk merged; next the
   wave gate.
+
+### Wave gate (2026-11-03), first run: FAILED on the worker's budget
+
+Reference machine (Ryzen 5 PRO 8640HS, idle), on `v3.2-w4` 7c3013d6 (`coding-executor`, no commit).
+- `npm run quality` stopped at `verify:boundaries`: the generation worker's chunk is 154,238 B
+  against its 150 KiB budget (153,600 B; master spec's figure), 638 B over. By merge: main 6958001
+  151,319 B; chunk 9 +752 B; chunks 20, 28, 7 and the ISS-015 diagnosis 0 B; chunk 8 +2,167 B (the
+  steering rank, real code; chunk 8 merged without a build). Jam's boundary held. Before it: unit
+  548 files / 8,628 tests pass; format, lint, links, health (0 errors), build pass.
+- The rest run one by one: `test:e2e` 616 passed, 1 skipped, 1 failed (`vary-settings-groups.spec.ts`
+  › 'with only Rhythm off, a seeded session never moves it': the harness page never loaded, 60 s
+  timeout; passed 85/85 in isolation with `--repeat-each=5` and in the pregeneration run: a page-load
+  flake, unexplained); `test:e2e:pregeneration` 617 passed, 1 skipped; a11y 64; notation 107 (4
+  skipped); `atd:lint`, `atd:check` pass.
+- `npm run test:sweep`: 9 files / 83 tests pass.
+- Bundle: entry chunk 290,302 B (+8,204 B on wave 3's 282,098; like for like on this machine
+  +8,129 B; chunk 20 +7,984, chunk 7 +145; budget 307,200 B, 16,898 B left); first-load JS
+  338,186 B over 17 files (+8,301 B; a new shared `concert-pitch-*.js` of 880 B split out while
+  `carry-in-*` shrank by 829 B: real growth); Jam's chunk `jam-mode-*.js` 6,731 B (+180 B on chunk
+  20's 6,551 B).
+- Asked the owner: raise the worker's budget (a spec figure) or trim chunk 8's code by 638 B.
