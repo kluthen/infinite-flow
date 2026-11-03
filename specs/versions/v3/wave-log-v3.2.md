@@ -985,3 +985,28 @@ part of the note (staccato).
   (it already names v2's ladder). The driver marked the issue deferred and wrote the known limit
   into `docs/music/pitch-planner-validation.md`. For the sync: B2's wording in
   `rule_join_interval_obeys_phrase_rules`.
+- The owner's hand checks (2026-11-03). **v3.2 H1 (gate LD)**, the owner's ranking, most to least
+  alike, verbatim: "set 1: C, A B tied, D. set 2: B D tied, C, A set 3: B C D tied, A set 4: C , A
+  B tied (honestly while distinct, these were better), D set 5: C, A, B, D". By band: 1 Same ›
+  Close = beyond › Near; 2 Same = Close › beyond › Near; 3 Close = beyond = Same › Near; 4 Same ›
+  Near = beyond › Close; 5 Same › Near › Close › beyond. Close above Near in 3 of 5 sets; every
+  set disagrees with the scale somewhere, so it went to `spec-writer`. Finding: in all five sets
+  the last-ranked candidate is the only one starting a note on a finer grid than the doodle
+  measure's (an offbeat over an on-beat doodle, a sixteenth over eighths); the beat 1/3 weighting
+  and a shortened note's weight were not supported. The driver ruled option A (scale kept, no
+  product change): plan v24 (1219291e; spec D449, O271 carrying fallback B to H4 and gate L1; H4
+  step 3 gains "At Drift Close, did any phrase use quicker notes than your doodle?"). LD done;
+  chunk 8's scope unchanged.
+- **v3.2 H2 (gate L3), partial**: steps 2 and 4 run at 90 BPM (the owner's tempo; it does not
+  matter for H2). The owner, verbatim: "Rhythm lock worked very well but didn't see any
+  alterations beside tonal change. with tension across phrase turned on: i did see alterations
+  appearing (split note, merging, etc)." and "no change was fine with tension on, with tension off
+  it did seem not often enough though, i'd probably prefer it to be on the same rate as with
+  tension set to on." The driver's offline replay of the owner's locked rhythm (12 seeds each):
+  3 of 12 changed at the normal share, 8 of 12 tenser; the owner's pasted phrase 10 kept the locked
+  bars. Asked to choose, the owner: "i'll take the option a. If needed we will change that later
+  on." (normal 1 in 2, tenser about 3 in 4). Plan v24 (spec D450): new chunk 34, first in wave 5,
+  tunes `RHYTHM_CHANGE_SHARE` / `TENSER_RHYTHM_CHANGE_SHARE` and re-runs `measure:lock`; Jam's
+  lock changes rise to 1 in 2 too (to tell the owner at wave 4's report). Still owed: H2 step 3
+  (one kind at a time) and H3; L3 stays open.
+- Chunk 8 dispatched next (LD cleared).
