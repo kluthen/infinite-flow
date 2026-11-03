@@ -1314,7 +1314,7 @@ processes (heap), documented in `docs/testing.md`. No sweep session re-locks (wi
 
 ### Chunk 14 — The key and mode suggestion
 
-Status: planned
+Status: merged (w5, 12a74108)
 Wave: 5
 Depends on: 4
 Architecture capture: the suggestion module, `src/jam/key-suggestion/`, and its answer: "nothing",
@@ -1363,6 +1363,13 @@ in Jam's code. Captured as `module_key_suggestion` (wave 5's preflight).
   - Scoring 64 notes takes under a millisecond (recorded).
 - **Verification:** chunk checks.
 - **Split rule:** none needed (four new pure modules).
+
+Record: 940798a7, merged 12a74108. The home-note cues are flat likelihood cues (−693 / −405
+thousandths), not note weights: the code followed the research note where Part C's wording inverted
+it; stopped and reported, settled as spec D455 (driver ruling), atoms reworded b993f4c0. Built:
+`suggestKeyAndMode(doodle, jam, instrument): KeySuggestion` (`nothing` / `no_fit` / `suggested`
+with `tonalCenter`, `collection`), `JamKeyAndMode`; harness seam `keySuggestion.describe`; golden
+list `tests/fixtures/key-suggestion/golden-answers.json`.
 
 ### Chunk 15 — Vary settings' allowed groups
 

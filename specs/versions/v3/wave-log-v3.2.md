@@ -1151,3 +1151,19 @@ subsection to `docs/generation-latency.md` (a shared record; the later one resol
   chunk 16's Done when still says "tenser phrases drawing about twice as often". For the gate: M5's
   table is at the earlier shares; the sync revises `rule_rhythm_change_share` and
   `module_rhythm_change_draw`.
+- 14 stopped, then merged (940798a7; 12a74108). Its owner stopped on a contradiction:
+  `module_key_suggestion` and Part C ("the last note counts ×2 and the first ×1.5 when it is the
+  candidate's home note") weight the note, which raises the home candidate's summed −ln penalty and
+  inverts the cue; the research note's worked examples then fail. The research note
+  (`docs/music/key-and-mode-estimation.md`, "Final bonus") gives flat bonuses, −0.69 and −0.41.
+  Driver ruling under the owner's standing delegation of minor design calls: the likelihood reading,
+  as built. Spec D455 + Part C v1.17 + plan v27 (fc3d05c5; v27 also fixes chunk 16's "about twice
+  as often"), atoms `module_key_suggestion` 0.2, `rule_suggestion_candidates` 0.3 (b993f4c0).
+  Evidence: every worked example gives the note's answer; D452's order under all 108 Jam keys and
+  modes; 56-case golden list equal in Node and Chrome; transposition property over 200 doodles
+  (penalties and uncapped kept set exact; the three-cap's tie-break by home note doesn't transpose);
+  64 notes 48.9 µs median (Node 22.23.4, Ryzen 5 PRO 8640HS, 2026-11-03); 99 unit tests (re-run on
+  the wave branch after merge: 99/99); entry 290,355 B. lint:health: two new warnings (6 atom links
+  on `key-suggestion.ts` and its spec). For the sync: the built names into
+  `module_key_suggestion`'s interface; one sentence on `module_named_stream_pseudorandomness`;
+  `rule_suggestion_withheld` (D452). Lexicon entry stays "Planned" until chunk 23 shows it.
