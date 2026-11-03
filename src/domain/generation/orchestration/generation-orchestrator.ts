@@ -29,9 +29,11 @@ import {
   type CanonicalRhythmDomainMemo,
   SHARED_CANONICAL_RHYTHM_DOMAIN_MEMO,
 } from './canonical-rhythm-domain'
+import { steerRhythmOrder } from '../steering/rhythm-steering'
 import {
   rankHarmonyCandidates,
   rankMaterializedRhythmCandidates,
+  withRhythmOrder,
   type RankedRhythmCache,
 } from './candidate-ranking'
 import type {
@@ -210,6 +212,51 @@ function timedRhythmLockOrderFor(
   return order === undefined ? undefined : withTimedForcedBend(order, timer)
 }
 
+/**
+ * Intent: the rhythm order the windows walk when no locked bars order it: the seeded ranking
+ * steered by the request's steering block, by its band with the lock off, or nearest the target
+ * whatever the band with the lock on and nothing locked yet; the seeded ranking itself without a
+ * block. Never called for an intent holding locked bars, whose lock's order stands.
+ */
+// @spec-link [[module_rhythm_steering]]
+function steeredRhythmFor(
+  intent: GenerationIntent,
+  domain: readonly RhythmCandidate[],
+  rankedRhythm: RankedRhythmCache,
+): RankedRhythmCache {
+  const block = intent.steering
+  if (block === undefined) return rankedRhythm
+  const ordering = intent.rhythmLock?.state.kind === 'pending' ? 'nearest' : 'band'
+  const steered = steerRhythmOrder({
+    domain,
+    seeded: rankedRhythm.candidates,
+    target: block.targetRhythm,
+    ordering,
+  })
+  return withRhythmOrder(rankedRhythm, steered)
+}
+
+/**
+ * Intent: the steered rhythm order of an intent without a lock order, its building timed into
+ * the timer when the caller passed a clock and the intent holds a steering block; without either,
+ * exactly the untimed order, the clock never read.
+ */
+// @spec-link [[entity_generation_diagnostics]]
+// @spec-link [[service_generation_orchestration]]
+function timedSteeredRhythmFor(
+  intent: GenerationIntent,
+  domain: readonly RhythmCandidate[],
+  rankedRhythm: RankedRhythmCache,
+  timer: OrderingsTimer | undefined,
+): RankedRhythmCache {
+  if (timer === undefined || intent.steering === undefined)
+    return steeredRhythmFor(intent, domain, rankedRhythm)
+  const start = timer.clock()
+  const steered = steeredRhythmFor(intent, domain, rankedRhythm)
+  timer.elapsedMs += timer.clock() - start
+  return steered
+}
+
 /** Intent: run one independent, freshly-ledgered `searchWindow` for every resolved core request. */
 function runWindows(
   intent: GenerationIntent,
@@ -327,8 +374,11 @@ function searchPolicyFor(intent: GenerationIntent): GenerationSearchPolicy {
  * carried window is searched.
  * `options.searchPolicy` defaults to the policy picked from the intent (with or without carry-in)
  * and is its only override; `options.deps` defaults to the production collaborators.
- * `options.clock`, when given, times the building of the rhythm orderings into the diagnostics'
- * `rhythmOrderingsSeconds` and changes nothing generated; without it that field is absent.
+ * Without locked bars, a steering block orders the rhythms every window walks (built once here,
+ * after the seeded ranking); with them, the lock's order stands.
+ * `options.clock`, when given, times the building of the rhythm orderings (the lock's order and
+ * the steered order) into the diagnostics' `rhythmOrderingsSeconds` and changes nothing
+ * generated; without it that field is absent.
  * Only these injectable collaborators are defaulted, never any domain data derived from `intent`.
  */
 // @spec-link [[service_generation_orchestration]]
@@ -374,12 +424,16 @@ export function generatePhrase(
     rankedRhythm,
     timer,
   )
+  const walkedRhythm =
+    rhythmLockOrder === undefined
+      ? timedSteeredRhythmFor(intent, rhythmDomain.candidates, rankedRhythm, timer)
+      : rankedRhythm
   const requests = resolveCoreRequests(intent)
   const reports = runWindows(
     intent,
     requests,
     rankedHarmony,
-    rankedRhythm,
+    walkedRhythm,
     rhythmLockOrder,
     searchPolicy,
     deps,

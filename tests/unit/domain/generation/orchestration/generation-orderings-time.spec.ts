@@ -13,12 +13,13 @@ import {
   type LockedRhythmMeasure,
   type RequestRhythmLock,
 } from '@/domain/generation/request-rhythm-lock'
+import { makeSteeringBlock, type SteeringBlock } from '@/domain/generation/steering-block'
 import { makeSeed } from '@/domain/random/seed'
-import { rhythmBarKey } from '@/domain/rhythm/rhythm-bars'
+import { rhythmBarKey, rhythmStarts } from '@/domain/rhythm/rhythm-bars'
 import { isRhythmChangeDrawn } from '@/domain/rhythm/rhythm-change-draw'
 import { phraseAttemptSeed } from '@/session/session-seed-plan'
 
-import { lockedBarsOf, lockOn, lockTestDomain } from '../../rhythm/rhythm-lock-fixture'
+import { lockedBarsOf, lockOn, lockPending, lockTestDomain } from '../../rhythm/rhythm-lock-fixture'
 import { buildOrchestratorIntent } from './generation-orchestrator-fixture'
 import { lockTestIntent } from './rhythm-lock-search-fixture'
 
@@ -170,5 +171,57 @@ describe('the orderings time with a clock', () => {
     expect(outcome.kind === 'generation_failure' && outcome.code).toBe('no_legal_rhythm_plan')
     expect(outcome.diagnostics.rhythmOrderingsSeconds).toBe(0)
     expect(reads()).toBe(0)
+  })
+})
+
+/** A steering block whose target is the last rhythm of the Build domain, at the Close band. */
+const STEERING: SteeringBlock = makeSteeringBlock({
+  targetRhythm: {
+    measures: rhythmStarts(lockTestDomain('Build').at(-1)!.bars).map((measure) =>
+      measure.map(({ tick, kind }) => ({ tick, kind })),
+    ),
+    band: 'close',
+  },
+  moves: [],
+  strength: 'none',
+})
+
+// @test-link [[entity_generation_diagnostics]]
+// @test-link [[module_rhythm_steering]]
+describe('the orderings time with a steering block', () => {
+  const STEERED = { ...UNLOCKED, steering: STEERING }
+  const PHRASE_ONE = { ...UNLOCKED, rhythmLock: lockPending(), steering: STEERING }
+  const LOCKED = { ...KEPT_BARS, steering: STEERING }
+
+  it('gives deep-equal outcomes with no time field without a clock', () => {
+    for (const intent of [STEERED, PHRASE_ONE, LOCKED]) {
+      const first = generatePhrase(intent)
+      expect(generatePhrase(intent, {})).toStrictEqual(first)
+      expect(Object.hasOwn(first.diagnostics, 'rhythmOrderingsSeconds')).toBe(false)
+    }
+  })
+
+  it('gives the same phrase and provenance with a clock', () => {
+    for (const intent of [STEERED, PHRASE_ONE, LOCKED]) {
+      const plain = success(generatePhrase(intent))
+      const clocked = success(generatePhrase(intent, { clock: () => performance.now() }))
+      expect(clocked.result).toStrictEqual(plain.result)
+      expect(clocked.provenance).toStrictEqual(plain.provenance)
+    }
+  })
+
+  it("adds the steered order's own span, the lock off or on with nothing locked yet", () => {
+    for (const intent of [STEERED, PHRASE_ONE]) {
+      const { clock, reads } = steppingClock()
+      expect(orderingsSeconds(generatePhrase(intent, { clock }).diagnostics)).toBe(2)
+      expect(reads()).toBe(4)
+    }
+  })
+
+  it('times the lock order alone under locked bars, which the block orders nothing for', () => {
+    const { clock } = steppingClock()
+    const outcome = success(generatePhrase(LOCKED, { clock }))
+    expect(outcome.provenance.rhythmLockOutcome).toBe('locked_bars')
+    expect(orderingsSeconds(outcome.diagnostics)).toBe(1)
   })
 })
