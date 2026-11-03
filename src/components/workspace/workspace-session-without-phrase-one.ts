@@ -12,7 +12,7 @@ import type { InstrumentClef } from '@/domain/profile/instrument-clef'
 import type { PlayedNoteEvent } from '@/midi/played-note-tracker'
 import type { StaffLayout } from '@/notation/notation-layout-policy'
 import { createAudioTimeAgenda } from '@/session/session-agenda'
-import { createSessionHistory } from '@/session/session-history'
+import { createSessionHistory, type RecordedDoodle } from '@/session/session-history'
 import type {
   PhraseOneEvent,
   SessionEndCause,
@@ -55,14 +55,17 @@ export interface StartWithoutPhraseOne {
  * A session started without phrase 1, as the code that runs it drives it: its transport timeline
  * (the click plan's start, the count-in's end), its phrase 1 events (an attempt asked for, phrase
  * 1 handed over with the time it sounds, which also sets the forced click's end), stamped now on
- * the audio clock, and its own ends (no note played, no phrase 1, the staff no longer shown),
- * each a no-op once the session has ended.
+ * the audio clock, its own ends (no note played, no phrase 1, the staff no longer shown), and the
+ * doodle its capture ended, kept in the session's history with its raw notes marked; each a no-op
+ * once the session has ended.
  */
 // @spec-link [[module_session_start_without_phrase_one]]
+// @spec-link [[rule_raw_doodle_notes_are_played_notes]]
 export interface SessionWithoutPhraseOne {
   readonly timeline: TransportTimeline
   readonly dispatch: (event: UntimedEvent<PhraseOneEvent>) => void
   readonly end: (cause: SessionEndCause) => void
+  readonly recordDoodle: (doodle: RecordedDoodle) => void
 }
 
 /**
@@ -158,6 +161,9 @@ export function beginSessionWithoutPhraseOne(
       dispatchAt(session, audio.now(), event)
     },
     end,
+    recordDoodle: (doodle) => {
+      if (core.active === session) session.history.recordDoodle(doodle)
+    },
   }
 }
 

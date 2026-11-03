@@ -97,7 +97,7 @@ function closed(): never {
 }
 
 /**
- * Intent: a closed session history for a Review: `records` as its phrases, no skipped mutation,
+ * Intent: a closed session history for a Review: `records` as its phrases, no doodle, no skipped mutation,
  * the fixed test start time, the harness's session settings' preset selection, and the session's
  * instrument profile (the B-flat tenor unless given).
  */
@@ -110,7 +110,9 @@ export function fakeReviewHistory(
     record: closed,
     recordPlayedNote: closed,
     recordAcknowledgement: closed,
+    recordDoodle: closed,
     phrases: () => records,
+    doodle: () => null,
     skippedMutations: () => [],
     tempoReached: () => records.at(-1)?.tempo ?? null,
     phraseCount: records.length,

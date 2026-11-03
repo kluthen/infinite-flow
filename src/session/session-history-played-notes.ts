@@ -3,13 +3,53 @@
  * the session hands in into the phrase records, on read. A played note belongs to
  * the recorded phrase its onset falls in, and an acknowledgement to the record of its phrase
  * number. Placement is computed from everything received so far, so it stays exact whatever order
- * the notes, acknowledgements and phrase records arrive in.
+ * the notes, acknowledgements and phrase records arrive in. In a fresh Jam the raw doodle notes,
+ * which the capture names by their note-ons, are marked as the doodle's, also on read.
  */
 
 import type { ExpectedNoteIdentity } from '../domain/acknowledgement/expected-note'
+import type { QuantizedDoodle } from '../domain/doodle/quantized-doodle'
+import type { ConcertPitch } from '../domain/events/concert-pitch'
 import { deepFreeze } from '../domain/events/deep-freeze'
 import type { RecordedPlayedNote } from './session-history'
 import type { AudioTime } from './session-types'
+
+/** A played note as the capture knows it from its note-on: its concert pitch and onset. */
+// @spec-link [[rule_raw_doodle_notes_are_played_notes]]
+export interface PlayedNoteIdentity {
+  readonly pitch: ConcertPitch
+  readonly onsetAt: AudioTime
+}
+
+/**
+ * A fresh Jam's doodle as its capture hands it to the history once the doodle has ended: the
+ * quantized doodle, the tempo it was captured at (kept beside it, never inside it), the doodle's
+ * first barline and its end barline on the audio clock, and the raw doodle notes, every played
+ * note whose snapped start falls in the doodle's measures (very short ones included: the filter
+ * applies where they are read), by the identity of their note-on.
+ */
+// @spec-link [[rule_raw_doodle_notes_are_played_notes]]
+export interface RecordedDoodle {
+  readonly doodle: QuantizedDoodle
+  readonly captureTempo: number
+  readonly firstBarlineAt: AudioTime
+  readonly endBarlineAt: AudioTime
+  readonly notes: readonly PlayedNoteIdentity[]
+}
+
+/**
+ * The doodle as the history reads it back: the quantized doodle with its capture tempo and
+ * barlines, and its raw notes as the played notes marked as the doodle's, by onset, each once it
+ * has been recorded as a finished played note. They belong to no phrase.
+ */
+// @spec-link [[rule_raw_doodle_notes_are_played_notes]]
+export interface SessionDoodle {
+  readonly doodle: QuantizedDoodle
+  readonly captureTempo: number
+  readonly firstBarlineAt: AudioTime
+  readonly endBarlineAt: AudioTime
+  readonly playedNotes: readonly RecordedPlayedNote[]
+}
 
 /** The parts of a phrase record the placement reads and fills. */
 interface PlaceableRecord {
@@ -76,4 +116,24 @@ export function withPlayedNotes<R extends PlaceableRecord>(
     if (playedNotes.length === 0 && acknowledged.length === 0) return record
     return deepFreeze({ ...record, acknowledgements: acknowledged, playedNotes })
   })
+}
+
+/** Intent: the key one played note's identity (its pitch and onset) is matched by. */
+function identityKey(note: PlayedNoteIdentity): string {
+  return `${note.pitch}@${note.onsetAt}`
+}
+
+/**
+ * Intent: the played notes the doodle names (one per identity, matched on its pitch and its exact
+ * onset), by onset, ties in arrival order; a named note not yet recorded as finished is not there
+ * yet. Frozen.
+ */
+// @spec-link [[rule_raw_doodle_notes_are_played_notes]]
+export function doodlePlayedNotes(
+  identities: readonly PlayedNoteIdentity[],
+  notes: readonly RecordedPlayedNote[],
+): readonly RecordedPlayedNote[] {
+  const named = new Set(identities.map(identityKey))
+  const marked = notes.filter((note) => named.has(identityKey(note)))
+  return Object.freeze(marked.sort((a, b) => a.onsetAt - b.onsetAt))
 }

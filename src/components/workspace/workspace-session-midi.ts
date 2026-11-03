@@ -23,7 +23,11 @@ import type { AudioTransport } from '@/audio/audio-transport'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import type { ExpectedNoteIdentity } from '@/domain/acknowledgement/expected-note'
 import type { ConcertPitch } from '@/domain/events/concert-pitch'
-import { latencyCorrectionFor } from '@/domain/acknowledgement/played-onset-latency'
+import {
+  compensatePlayedNote,
+  latencyCorrectionFor,
+  type LatencyCorrection,
+} from '@/domain/acknowledgement/played-onset-latency'
 import type { ConcertEventTimeline } from '@/domain/events/timeline'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type {
@@ -31,7 +35,11 @@ import type {
   MidiControllerChange,
   MidiControllerState,
 } from '@/midi/midi-controller-state'
-import { toNoteOnOnAudioClock, type PlayedNoteEvent } from '@/midi/played-note-tracker'
+import {
+  toNoteOnOnAudioClock,
+  type PlayedNoteEvent,
+  type PlayedNoteOn,
+} from '@/midi/played-note-tracker'
 import { createSessionAcknowledgement } from '@/session/session-acknowledgement'
 import type { AudioTimeAgenda } from '@/session/session-agenda'
 import type { SessionHistory } from '@/session/session-history'
@@ -95,7 +103,8 @@ export interface SessionMidiDependencies {
  * `phraseReady`), its history and agenda, how it ends for a cause (nothing once it has ended),
  * how a programming error ends it loudly, where the controller's presence goes in a session
  * started with it: away at the loss that starts the countdown, back at its reattachment, and,
- * for a session started without phrase 1, the port every played note goes to as well.
+ * for a session started without phrase 1, the port every played note goes to as well, its times
+ * latency-compensated as the history keeps them.
  */
 // @spec-link [[rule_session_history_records_played_notes]]
 // @spec-link [[rule_controller_loss_mid_session]]
@@ -302,6 +311,16 @@ export function createSessionMidi(deps: SessionMidiDependencies): SessionMidi {
   }
 }
 
+/**
+ * Intent: a note-on with its onset latency-compensated as the history's finished notes are, so
+ * the caller's port reads the very onset the history keeps for it.
+ */
+// @spec-link [[rule_played_onset_latency_compensation]]
+function compensatedNoteOn(note: PlayedNoteOn, correction: LatencyCorrection): PlayedNoteOn {
+  const { onsetSeconds } = compensatePlayedNote(toNoteOnOnAudioClock(note), correction)
+  return Object.freeze({ ...note, onsetAt: onsetSeconds })
+}
+
 /** What a session with a controller writes to and reads from, besides its seams. */
 interface ControllerSessionPorts {
   readonly audio: AudioTransport
@@ -335,7 +354,8 @@ function beginWithController(
   ports: ControllerSessionPorts,
 ): { readonly listeners: SessionListeners; readonly run: SessionMidiRun } {
   const { audio, midi } = ports
-  const acknowledgement = createSessionAcknowledgement({ correction: latencyCorrectionFor('usb') })
+  const correction = latencyCorrectionFor('usb')
+  const acknowledgement = createSessionAcknowledgement({ correction })
   const withoutPhraseOne = seams.phraseOne === null
   if (seams.phraseOne !== null)
     acknowledgement.addPhrase(1, seams.phraseOne, audio.phraseStartsAt(1), seams.startingTempo)
@@ -407,16 +427,18 @@ function beginWithController(
   }
 
   /**
-   * Intent: hand the note to the caller's port, then acknowledge and re-arm on a played note
-   * (before phrase 1 sounds, in a session started without it, no note arms); record a finished
-   * one.
+   * Intent: hand the note to the caller's port latency-compensated, on the times the history keeps,
+   * then acknowledge and re-arm on a played note (before phrase 1 sounds, in a session started
+   * without it, no note arms); record a finished one.
    */
   function note(event: PlayedNoteEvent): void {
-    seams.playedNotes?.(event)
     if (event.kind === 'ended') {
-      seams.history.recordPlayedNote(acknowledgement.compensatedRecord(event.note))
+      const record = acknowledgement.compensatedRecord(event.note)
+      seams.playedNotes?.({ kind: 'ended', note: record })
+      seams.history.recordPlayedNote(record)
       return
     }
+    seams.playedNotes?.({ kind: 'played', note: compensatedNoteOn(event.note, correction) })
     if (!withoutPhraseOne || noteArmsSilenceBeforePhraseOne(event.note.onsetAt, phraseOneAt))
       armSilence(event.note.onsetAt)
     const matched = acknowledgement.notePlayed(toNoteOnOnAudioClock(event.note))

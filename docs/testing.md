@@ -1220,6 +1220,21 @@ a start without phrase 1:
 `startFresh(rig)` (`session-controller-fresh-start.ts`) starts one such session the way Jam's code
 will. It keeps the handle, every note handed to the port and every output handed back.
 
+`workspace-session-jam-capture.spec.ts` runs a real Jam capture (`createJamCapture`) on such a
+session. Its `freshJam()` routes every note from the port into the capture. Its `jamTo(fresh, t)`
+plays the rig on in 50 ms steps, advances the capture to the audio clock after each, and acts on
+the outputs as Jam's code will: `no-note-played` ends the session, and `doodle-ended` goes to
+`recordDoodle`.
+
+### Scripting the Jam capture
+
+`tests/unit/jam/jam-capture.spec.ts` drives `createJamCapture` alone, with no rig. A script is a
+list of notes `[pitch, onset, release]`, a null release for a note still held. `played(script,
+until)` hands the capture each note-on and note-off up to `until` in time order, note-offs first
+on a tie, then advances it to `until`. A note released after `until` is still held there. The
+outputs carry the time each decision was taken: a barline's is the barline plus
+`VERY_SHORT_NOTE_SECONDS`.
+
 ## Fake window width
 
 The workspace session reads the window's position against `bp-tablet-landscape` through an
