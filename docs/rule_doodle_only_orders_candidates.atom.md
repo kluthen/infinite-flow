@@ -6,6 +6,7 @@ version: 0.2
 priority: 1
 human_name: The Doodle Sets Jam's Controls, Then Only Orders the Generator's Choices
 dependents:
+  - [[module_pitch_steering]]
   - [[module_rhythm_steering]]
   - [[rule_jam_steering_block]]
 type: RULE

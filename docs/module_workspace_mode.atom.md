@@ -8,7 +8,7 @@ parents:
 dependents: []
 type: MODULE
 layer: ARCHITECTURE
-version: 0.1
+version: 0.2
 tags: [v3, release-v3.2, jam, session-mode, workspace]
 priority: 1
 human_name: The Workspace's Mode
@@ -24,12 +24,12 @@ The mode is workspace state, session or Jam, and is never saved: every load of t
 
 The mode switch, a segmented control in the header labelled Mode with the options Session and Jam, changes the mode at Idle only: it is read-only while Loading, while a session or a Jam runs and while the review shows. A change is instant and focus stays on the chosen segment. Only the switch, and Jam again on this doodle in a kept Jam session's review, change the mode; no controller attaching or leaving, no played note and no preset does.
 
-The first press of Jam in a visit waits for Jam's code to load (module_jam_code_boundary): meanwhile the workspace is held as during Loading, and pressing Session cancels the opening. If the load fails, session mode stays exactly as it was and a notice offers Try again and Dismiss. Later presses in the visit wait for nothing.
+The first press of Jam in a visit waits for Jam's code to load (module_jam_code_boundary): meanwhile the workspace is held as during Loading, and pressing Session cancels the opening. What is live during Loading stays live while it loads. If the load fails, session mode stays exactly as it was and a notice offers Try again and Dismiss, focus moving to Try again unless a sheet is open, where it stays; Try again presses Jam again. Later presses in the visit wait for nothing.
 
-While Jam mode shows, session mode keeps its state as it was left (the phrase on screen, its prepared phrases and its banners), discards nothing and prepares nothing new; leaving Jam mode shows it exactly as it was. Not built yet.
+While Jam mode opens or shows, session mode is held: it keeps its state as it was left (the phrase on screen, its prepared phrases and its banners), prepares nothing new, names no starting note and no played note starts a session; leaving Jam mode shows it exactly as it was.
 
 ## TECHNICAL INTERFACE
-The mode is workspace state read by src/components/workspace/WorkspaceShell.vue; the mode switch (`segmented-control mode-switch`) sits in src/components/workspace/WorkspaceHeader.vue. Jam's view, src/jam/JamWorkspace.vue, is reached only through Jam's loader, src/components/workspace/load-jam-mode.ts (module_jam_code_boundary). Session mode's pre-generation orchestrator, src/components/workspace/workspace-pregeneration.ts (module_idle_pregeneration_queue), prepares nothing while Jam mode shows. Not built yet.
+src/components/workspace/use-workspace-mode.ts: `useWorkspaceMode(deps)` holds the mode (`WorkspaceMode`, `session` or `jam`, `session` at creation), whether Jam mode is opening, whether session mode is `held`, Jam's loaded code and view, the load-failure notice and the switch's `view` (`WorkspaceModeView`), with `select`, `retry` and `dismissFailure`; it reads only whether an Idle operation runs, a session runs or the review mode shows, and Jam's loader. src/components/workspace/WorkspaceShell.vue builds it with `loadJamMode` (src/components/workspace/load-jam-mode.ts, module_jam_code_boundary) and reports the hold upward (`session-mode-held-change`), which src/App.vue writes into the workspace session's `sessionModeHeld` (src/components/workspace/create-workspace-session.ts); the session controller hands it to session mode's pre-generation orchestrator (src/components/workspace/workspace-pregeneration.ts, module_idle_pregeneration_queue) and to its starting note (src/components/workspace/workspace-session-starting-note.ts, module_session_starting_note). The mode switch (`segmented-control mode-switch`) is src/components/workspace/ModeSwitch.vue in src/components/workspace/WorkspaceHeader.vue; Jam's view, src/jam/JamWorkspace.vue, reached only through Jam's loaded code, shows in src/components/workspace/ScorePanel.vue.
 
 ## EXPECTATION
 - Every load of the app, a reload included, opens in session mode; the mode is never saved.

@@ -6,6 +6,7 @@ priority: 1
 human_name: The Steering Block in the Generation Request
 tags: [v3, release-v3.2, jam, generation]
 dependents:
+  - [[module_pitch_steering]]
   - [[module_rhythm_steering]]
   - [[module_steering_block_builder]]
 type: ENTITY

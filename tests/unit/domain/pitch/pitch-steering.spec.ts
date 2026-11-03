@@ -89,6 +89,7 @@ function ordered(
   )
 }
 
+// @test-link [[module_pitch_steering]]
 describe('the pitch steering term', () => {
   // @test-link [[rule_jam_melody_follows_doodle_moves]]
   it('reads a move as the same note, a step of 1-2, a skip of 3-4 or a leap of 5 or more half steps', () => {
@@ -147,6 +148,7 @@ describe('the pitch steering term', () => {
   })
 })
 
+// @test-link [[module_pitch_steering]]
 describe('the steering term in the pitch rank', () => {
   const term: PitchSteeringTerm = { move: UP_LEAP, strength: 'direction' }
   const plain = { isBeatOne: false, isFirstUnderHarmonyChange: false }
@@ -237,6 +239,7 @@ describe('the steering term in the pitch rank', () => {
   })
 })
 
+// @test-link [[module_pitch_steering]]
 describe('the steering term in the published ranking facts', () => {
   // @test-link [[rule_jam_melody_follows_doodle_moves]]
   it('publishes the term last when the request carries a block that steers the note', () => {

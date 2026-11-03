@@ -4,6 +4,7 @@ status: DRAFT
 version: 0.2
 priority: 1
 dependents:
+  - [[module_pitch_steering]]
   - [[module_steering_block_builder]]
 type: RULE
 human_name: A Jam's Melody Follows the Doodle's Moves

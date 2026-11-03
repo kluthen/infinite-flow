@@ -4,7 +4,7 @@ status: DRAFT
 tags: [v3, release-v3.2, jam, midi, idle]
 dependents: []
 type: MODULE
-version: 0.1
+version: 0.2
 priority: 1
 human_name: Jam's Idle Note Routing
 parents:
@@ -26,10 +26,10 @@ Without a kept doodle, the starting note is the home note of Jam's key, in writt
 
 No note starts anything while the review shows, while the player is connecting a controller or its transposition check runs, or while a Jam cannot start; and, as in session mode, the starting note starts nothing until the page's first click, tap or key press.
 
-The routing that comes later joins this module rather than a second one: with a kept doodle, the starting note is that doodle's phrase 1's first note; while tap-in listens, every controller note is a tap, the starting note included, and no note starts a Jam. Not built yet.
+The routing that comes later joins this module rather than a second one: with a kept doodle, the starting note is that doodle's phrase 1's first note; while tap-in listens, every controller note is a tap, the starting note included, and no note starts a Jam. A played starting note means start, but nothing acts on that meaning yet: Start Jam is not yet wired to a Jam's count-in, and the note joins that same path when it is.
 
 ## TECHNICAL INTERFACE
-src/jam/jam-idle-notes.ts, inside Jam's code and loaded with it (module_jam_code_boundary): it hears the controller's notes at Jam mode's Idle, reads Jam's key and mode (session mode's until Jam's own settings exist) and the selected instrument, and publishes the starting note the starting-note line names, or none. The kept doodle's starting note and tap-in extend this module. Session mode's starting note stays in src/components/workspace/workspace-session-starting-note.ts (module_session_starting_note). Not built yet.
+src/jam/jam-idle-notes.ts, inside Jam's code and loaded with it (module_jam_code_boundary): `createJamIdleNotes(deps)` gives the `JamIdleNotes` routing (`startingNote()`, the `JamStartingNote` with its label, written MIDI number and concert pitch, or null; `awaitsClick()`; `meaningOf(concertPitch)`, a `JamNoteMeaning`, `start` or `ignored`), reading Jam's written key and collection (session mode's until Jam's own settings exist), the selected instrument (`JamInstrument`), whether a fresh Jam could start and whether the page still waits for its first click, tap or key press; `jamHomeNote(writtenKey, collection, instrument)` works out the home note, the written range from src/jam/empty-system-engraving.ts. The workspace reaches it through Jam's loaded code: src/components/workspace/use-jam-idle-cue.ts builds it for the starting-note line or `jam-needs-controller`, over `freshJamCanStart` (src/components/workspace/session-action-policy.ts) and the page's first activation as the session controller's state publishes it (`pageActivated`, from the session MIDI side). The kept doodle's starting note and tap-in extend this module. Session mode's starting note stays in src/components/workspace/workspace-session-starting-note.ts (module_session_starting_note).
 
 ## EXPECTATION
 - At Jam mode's Idle without a kept doodle, the starting-note line names the home note with its octave, and only that note at its exact concert pitch can start a Jam from the controller.

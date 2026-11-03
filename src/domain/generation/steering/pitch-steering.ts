@@ -29,6 +29,7 @@ const WIDEST_SKIP = 4
  * or 2 half steps), a skip (3 or 4) or a leap (5 or more).
  */
 // @spec-link [[rule_jam_melody_follows_doodle_moves]]
+// @spec-link [[module_pitch_steering]]
 export function melodicMoveBetween(fromMidi: number, toMidi: number): MelodicMove {
   const interval = toMidi - fromMidi
   if (interval === 0) return { direction: 'same' }
@@ -48,6 +49,7 @@ export function melodicMoveBetween(fromMidi: number, toMidi: number): MelodicMov
  */
 // @spec-link [[rule_jam_melody_follows_doodle_moves]]
 // @spec-link [[rule_jam_drift_positions]]
+// @spec-link [[module_pitch_steering]]
 export function pitchSteeringTerm(
   block: SteeringBlock | undefined,
   attackIndex: number,
@@ -66,6 +68,7 @@ export function pitchSteeringTerm(
  */
 // @spec-link [[rule_jam_melody_follows_doodle_moves]]
 // @spec-link [[rule_doodle_only_orders_candidates]]
+// @spec-link [[module_pitch_steering]]
 export function moveDisagreement(term: PitchSteeringTerm, priorMidi: number, midi: number): number {
   const move = melodicMoveBetween(priorMidi, midi)
   if (move.direction !== term.move.direction) return term.strength === 'direction' ? 1 : 2
