@@ -2628,7 +2628,7 @@ Architecture capture: none
 
 ### Chunk 34 — The rhythm change shares, tuned (L3)
 
-Status: planned
+Status: merged (w5, afca4828)
 Wave: 5
 Depends on: 11 (the draw), 13 (M2's first run); spec D450 (L3's steps 2 and 4)
 Architecture capture: none (two constants; the draw stays chunk 11's)
@@ -2671,6 +2671,8 @@ Architecture capture: none (two constants; the draw stays chunk 11's)
     the changed and no-candidate shares recorded.
 - **Verification:** chunk checks with the corpus guard; M2, not alongside `atd audit`.
 - **Split rule:** none needed (one source file).
+
+Record: baa803dd, merged afca4828. As specified; M2 re-run 2026-11-03 on the reference machine (drawn 49.3–51.2 % normal, 75.5–78.7 % tenser, 0 mismatches). One test outside Files followed the shares: `tests/unit/session/session-engine-rhythm-lock.spec.ts` ("about 3 in 4 against 1 in 2"); chunk 16's Done-when wording "about twice as often" goes to `spec-writer`. M5's table stays at the earlier shares until the wave gate.
 
 ## Chunk 27 — v3.2 release gate
 

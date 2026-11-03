@@ -1135,3 +1135,19 @@ subsection to `docs/generation-latency.md` (a shared record; the later one resol
 - Gate CL: the owner, verbatim: "i'll follow your recommendations", i.e. option (a): the loader's
   wording as drafted only follows the signed M16–M18, so no contract bump. CL done; `documentalist`
   records the confirmation in the change set.
+- Change set part U, U1 (`documentalist`, 8b87bc22): gate CL's confirmation recorded; CONTRACT stays
+  11.0.0; U1 is applied to `module_saved_data_loader` (0.6 → 0.7) at this wave's sync.
+
+### Chunks
+
+- 34 merged (baa803dd; afca4828). Shares 2^15 and 3 × 2^14 over 2^16; over 8,000 seed-plan seeds
+  48.85 % / 74.1 %; golden draws re-recorded (seeds 1000 and 0xffffffff now draw when tenser);
+  corpus guard 47/47 unchanged. M2 (`LOCK_SETTINGS=both npm run measure:lock`, reference machine,
+  2026-11-03 12:58–13:49 CET): 7,952 sessions per group, 0 census mismatches, replays 45/45, 30/30,
+  10/10; drawn 49.3–51.2 % normal, 75.5–78.7 % tenser; with all five kinds allowed and Tension
+  across phrases on (off) changed 33.5 % (30.2 %), forced bends 1.6 % (0.3 %); Gentle, Reel and
+  Bebop stay at 0 % (C7.3's known limit). Related tests 3,560 pass; static checks clean. Outside
+  Files: `session-engine-rhythm-lock.spec.ts` follows the shares. For `spec-writer` (batched):
+  chunk 16's Done when still says "tenser phrases drawing about twice as often". For the gate: M5's
+  table is at the earlier shares; the sync revises `rule_rhythm_change_share` and
+  `module_rhythm_change_draw`.
