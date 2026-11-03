@@ -6,6 +6,7 @@
  */
 
 import { deepFreeze } from '../domain/events/deep-freeze'
+import type { SteeringBlock } from '../domain/generation/steering-block'
 import { makeSeed } from '../domain/random/seed'
 import {
   beforePhraseOneAt,
@@ -37,7 +38,9 @@ export type CommonStart = Omit<SessionStart, 'phraseOne' | 'phraseOneSettings' |
 /**
  * What the engine opens from once phrase 1 is known: the time it opens at, the settings in effect
  * (frozen), phrase 1 and the settings it was generated under, the ready phrases, the next attempt
- * id, whether the session started without phrase 1, and phrase 2's deadline.
+ * id, whether the session started without phrase 1, phrase 2's deadline, whether the session has
+ * already stepped its note density down (phrase 1 generated as Eighth for a Sixteenth in effect),
+ * and the steering block every later request carries (none: no phrase steered).
  */
 // @spec-link [[module_session_start_without_phrase_one]]
 export interface EngineOpening {
@@ -49,6 +52,8 @@ export interface EngineOpening {
   readonly nextAttemptId: number
   readonly startedWithoutPhraseOne: boolean
   readonly phraseTwoDue: AudioTime
+  readonly steppedDown: boolean
+  readonly steering: SteeringBlock | undefined
 }
 
 /** The context and the state an opened engine runs on, with the outputs of its opening. */
@@ -74,10 +79,15 @@ export interface EngineCore {
  * Intent: open the engine of a session started without phrase 1 on the phrase 1 its caller
  * handed over: decided under the settings it was generated with, which are the settings in effect
  * from then on, its origin the step its attempt took, and phrase 2 requested at once, due at the
- * start of phrase 1's last measure, counted from the time phrase 1 starts sounding. The phrase 1
- * decided is reported as the phrase to show next.
+ * start of phrase 1's last measure, counted from the time phrase 1 starts sounding. Phrase 1
+ * generated with a note density other than the one in effect (Eighth for a Sixteenth, on a narrow
+ * window) has stepped the session down, so the step-down holds from phrase 1; every later request
+ * carries the steering block the hand-over names. The phrase 1 decided is reported as the phrase
+ * to show next.
  */
 // @spec-link [[module_session_start_without_phrase_one]]
+// @spec-link [[rule_every_jam_phrase_carries_doodle]]
+// @spec-link [[rule_session_density_only_steps_down]]
 function openOnHandedPhraseOne(
   deps: SessionEngineDependencies,
   start: CommonStart,
@@ -95,6 +105,8 @@ function openOnHandedPhraseOne(
     nextAttemptId: handover.nextAttemptId,
     startedWithoutPhraseOne: true,
     phraseTwoDue: nextPhraseDeadline(handover.soundsAt, settings.controls.tempo),
+    steppedDown: phraseOne.intent.controls.noteDensity !== settings.controls.noteDensity,
+    steering: handover.steering,
   })
   const { state, outputs } = opened.step
   return {

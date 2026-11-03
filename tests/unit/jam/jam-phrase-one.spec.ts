@@ -410,7 +410,7 @@ describe('the narrow-window step-down', () => {
   // @test-link [[rule_session_density_only_steps_down]]
   // @test-link [[rule_doodle_sixteenth_on_narrow_screens]]
   it('applies from phrase 1: a Sixteenth read from the doodle generates as Eighth below the width', () => {
-    const run = runJam({ tempo: 120, doodle: SIXTEENTHS, until: 20, below: true })
+    const run = runJam({ tempo: 120, doodle: SIXTEENTHS, until: 20, below: () => true })
     const [first] = phraseOneRequests(run)
     const attempt = run.ladder.find(
       (output) => output.kind === 'session-event' && output.event.kind === 'phrase-one-attempt',

@@ -35,6 +35,7 @@ import type { SessionSettings } from '@/session/session-types'
 
 import { readDoodleControls, type DoodleReadings } from './doodle-controls'
 import { doodleJoin, type DoodleJoin } from './doodle-join'
+import { suggestKeyAndMode, type KeySuggestion } from './key-suggestion/key-suggestion'
 import { buildSteeringBlock, type JamDrift } from './steering-block-builder'
 
 /**
@@ -210,4 +211,21 @@ export function jamAttempt(
     settings,
     steppedDown,
   }
+}
+
+/**
+ * Intent: the key and mode suggestion for the doodle that ended, worked out against Jam's written
+ * key and mode for its instrument's transposition; nothing about it is shown during the Jam.
+ */
+// @spec-link [[module_key_suggestion]]
+export function doodleSuggestion(
+  doodle: QuantizedDoodle,
+  jam: JamPhraseOneSettings,
+): KeySuggestion {
+  const { tonalCenter, collection } = jam.settings.controls
+  return suggestKeyAndMode(
+    doodle,
+    { tonalCenter, collection },
+    sessionInstrumentProfile(jam.settings),
+  )
 }

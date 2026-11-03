@@ -1753,6 +1753,31 @@ due by an input's time first, its own (the cutover, the deadline) and the captur
 The transport takes phrase 1's start from the hand-over (spec D456; see
 [the audio transport](audio-transport.md)), so every reader of `phraseStartsAt` gets it.
 
+### The Jam from phrase 1
+
+v3.2 chunk 18b. From the hand-over a fresh Jam is a v2 session
+([rule_jam_runs_as_session_from_phrase_one](rule_jam_runs_as_session_from_phrase_one.atom.md)):
+
+- **The steering block on every request.** `phrase-one-attempt` carries `steering`, the block every
+  request of the session carries from phrase 2 on, whatever the attempt's own intent holds (a rung
+  3 phrase 1 has none). The hand-over passes it into the engine's context (`IntentSeams.steering`),
+  and `buildAttemptIntent` adds it to every attempt, the standalone one included
+  ([rule_every_jam_phrase_carries_doodle](rule_every_jam_phrase_carries_doodle.atom.md)). Phrase 2
+  onward join the phrase before as in any session. With no `steering`, nothing changes.
+- **The step-down from phrase 1.** When phrase 1 was generated with another note density than the
+  one in effect (Eighth for a Sixteenth read from the doodle, below `bp-tablet-landscape`), the
+  engine opens stepped down, so every later phrase is generated as Eighth.
+- **The lock.** With Jam's lock on (`settings.rhythmLockOn`, Jam's own value), the engine locks
+  phrase 1's written bars at the hand-over, as it locks an Idle phrase 1 (chunk 16's machinery).
+- **Session mode's options.** The workspace starts the runner with Vary settings, Tension across
+  phrases and Rising tempo off, whatever their saved choices.
+- **The suggestion.** At `doodle-ended` the ladder outputs `suggestion` (`doodleSuggestion`:
+  `suggestKeyAndMode` against Jam's written key and mode); Jam's code keeps it with
+  `recordSuggestion` on the handle, and the history reads it back with `suggestion()`
+  (`DoodleSuggestion`, beside the doodle, once).
+- **The silence timer** arms on the first note played at or after phrase 1's start, which the MIDI
+  side reads from `phraseStartsAt(1)`, now the handed-over time.
+
 ## What later chunks add
 
 - **Chunk 9 (built):** the session history, fed from the engine's outputs (see

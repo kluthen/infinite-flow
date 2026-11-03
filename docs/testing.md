@@ -1245,7 +1245,9 @@ real outcome, a failure code or `crash`; `fits` for the fit check), a cancelled 
 doodle is `[pitch, onsetBeat, lengthBeats]` notes from the count-in's end, on the click plan's own
 grid (`rigBarline(run, k)`). A run returns every request, engine output, capture and ladder output
 with its time; `phraseOneRequests` and `engineOutputs` filter them. Seeds come from
-`jamPhraseOneSeed`. It is a discrete-event simulation: no real time passes.
+`jamPhraseOneSeed`. Phrases 2 onward start sounding whole phrases after phrase 1 once ready, and
+`below()` is read at each request, so a test can narrow or widen the window mid-run. It is a
+discrete-event simulation: no real time passes.
 
 ## Fake window width
 

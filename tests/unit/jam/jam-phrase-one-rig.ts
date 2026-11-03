@@ -1,7 +1,8 @@
 /**
  * The Jam's way to phrase 1 on a fake clock: the real phrase 1 ladder (createJamPhraseOne) over a
  * real capture (createJamCapture), and a real session engine started without phrase 1, wired as
- * Jam's code wires them, with a held-generation double. Each generation request is answered after the
+ * Jam's code wires them, with a held-generation double. Phrases 2 onward start sounding whole
+ * phrases after phrase 1, once ready. Each generation request is answered after the
  * time its script gives, with the real outcome of its intent, a failure code or a crash; a
  * cancelled one never answers. Fit checks answer at once (fitting unless the script says not). A
  * run is a discrete-event simulation over the doodle's notes, the generation answers and the
@@ -19,6 +20,7 @@ import type { JamDrift } from '@/jam/steering-block-builder'
 import type { PlayedNoteEvent } from '@/midi/played-note-tracker'
 import { createSessionEngine } from '@/session/session-engine'
 import { jamPhraseOneSeed } from '@/session/session-seed-plan'
+import { PHRASE_MEASURE_COUNT } from '@/domain/generation/generation-request-envelope'
 import { measureSeconds } from '@/session/session-timing'
 import type {
   AudioTime,
@@ -59,7 +61,8 @@ export interface JamRunOptions {
   readonly settings?: SessionSettings
   readonly drift?: JamDrift
   readonly sessionSeed?: Seed
-  readonly below?: boolean
+  /** Whether the window is below the tablet-landscape width, read at each request. */
+  readonly below?: () => boolean
   /** The double's answer to each request; instant and real by default. */
   readonly generate?: (request: GenerationRequestOutput, at: AudioTime) => GenerationPlan
 }
@@ -131,7 +134,7 @@ export function runJam(options: JamRunOptions): JamRun {
   const engine: SessionEngine = createSessionEngine(
     {
       providers,
-      viewport: { isBelowTabletLandscape: () => options.below ?? false },
+      viewport: { isBelowTabletLandscape: () => options.below?.() ?? false },
       display: fakeDisplay(),
     },
     {
@@ -152,7 +155,7 @@ export function runJam(options: JamRunOptions): JamRun {
         seedsAsked.push(index)
         return jamPhraseOneSeed(sessionSeed, index)
       },
-      isBelowTabletLandscape: () => options.below ?? false,
+      isBelowTabletLandscape: () => options.below?.() ?? false,
     },
     { settings, drift: options.drift ?? 'Near' },
     capture,
@@ -172,6 +175,8 @@ export function runJam(options: JamRunOptions): JamRun {
   }))
   const generate = options.generate ?? ((): GenerationPlan => ({ after: 0, answer: 'real' }))
   let now = RIG_START_AT
+  /** When phrase 1 sounds, once shown; later phrases sound whole phrases after it. */
+  let soundingAt = Infinity
 
   function enqueue(item: Queued): void {
     queue = [...queue, item]
@@ -205,6 +210,13 @@ export function runJam(options: JamRunOptions): JamRun {
             })
         },
       })
+    } else if (output.kind === 'phrase-ready' && output.phrase.phraseNumber >= 2) {
+      const { phraseNumber } = output.phrase
+      const soundsAt = soundingAt + (phraseNumber - 1) * PHRASE_MEASURE_COUNT * measure
+      enqueue({
+        at: soundsAt,
+        run: () => toEngine({ kind: 'phrase-started-sounding', at: soundsAt, phraseNumber }),
+      })
     } else if (output.kind === 'cancel-generation') {
       queue = queue.filter((item) => item.attemptId !== output.attemptId)
     }
@@ -216,7 +228,8 @@ export function runJam(options: JamRunOptions): JamRun {
       log.ladder.push(output)
       if (output.kind === 'session-event') toEngine(output.event)
       else if (output.kind === 'capture') fromCapture(output.output)
-      else toEngine({ kind: 'end', at: output.at, cause: 'no-phrase-one' })
+      else if (output.kind === 'no-phrase-one')
+        toEngine({ kind: 'end', at: output.at, cause: 'no-phrase-one' })
     }
   }
 
@@ -224,6 +237,7 @@ export function runJam(options: JamRunOptions): JamRun {
     log.capture.push(output)
     if (output.kind === 'no-note-played')
       toEngine({ kind: 'end', at: output.at, cause: 'no-note-played' })
+    if (output.kind === 'phrase-one-shown') soundingAt = output.soundsAt
     if (output.kind === 'phrase-one-shown')
       enqueue({
         at: output.soundsAt,

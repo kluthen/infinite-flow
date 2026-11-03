@@ -428,6 +428,7 @@ function openEngine(
     readyPhrases: requireReadyPhrases(opening.readyPhrases),
     multiPhraseTensionArc: requireTensionArcFlag(start.multiPhraseTensionArc),
     startedWithoutPhraseOne: opening.startedWithoutPhraseOne,
+    ...(opening.steering === undefined ? {} : { steering: opening.steering }),
   }
   const initial: EngineState = {
     phase: 'count-in',
@@ -438,7 +439,7 @@ function openEngine(
     lastDecidedSettings: opening.phraseOneSettings,
     lookAhead: undefined,
     decided: undefined,
-    steppedDown: false,
+    steppedDown: opening.steppedDown,
     notice: NOTICE_AT_START,
     nextAttemptId: opening.nextAttemptId,
     tempo: startSessionTempo(settings, start.adaptiveTempo),
@@ -500,6 +501,8 @@ export function createSessionEngine(
     nextAttemptId: 1,
     startedWithoutPhraseOne: false,
     phraseTwoDue: phraseTwoDeadline(start.at, settings.controls.tempo),
+    steppedDown: false,
+    steering: undefined,
   })
   const { context } = opened
   let state = opened.step.state

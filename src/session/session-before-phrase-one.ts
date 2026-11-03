@@ -8,6 +8,7 @@
  * immutable state; no clock is read.
  */
 
+import type { SteeringBlock } from '../domain/generation/steering-block'
 import {
   SessionEngineError,
   type AudioTime,
@@ -56,8 +57,8 @@ export interface BeforePhraseOne {
 
 /**
  * Phrase 1 handed over: the decided phrase (its origin the step its attempt took), the settings it
- * was generated under, the time of the hand-over, the time it starts sounding, and the next
- * attempt id the session goes on from.
+ * was generated under, the time of the hand-over, the time it starts sounding, the next attempt id
+ * the session goes on from, and the steering block its attempt named for every later request.
  */
 // @spec-link [[module_session_start_without_phrase_one]]
 export interface PhraseOneHandover {
@@ -66,6 +67,7 @@ export interface PhraseOneHandover {
   readonly at: AudioTime
   readonly soundsAt: AudioTime
   readonly nextAttemptId: number
+  readonly steering: SteeringBlock | undefined
 }
 
 /** A new state, the outputs that produced it, and phrase 1 once it is handed over. */
@@ -229,6 +231,7 @@ function onHandover(
     at: event.at,
     soundsAt: event.soundsAt,
     nextAttemptId: state.nextAttemptId,
+    steering: request.steering,
   }
   return { state: { ...state, attempt: undefined }, outputs: [], handover }
 }

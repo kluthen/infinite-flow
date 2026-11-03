@@ -7,6 +7,7 @@
 
 import type { GenerationIntent } from '../domain/generation/generation-intent'
 import type { GenerationOutcome } from '../domain/generation/orchestration/orchestration-types'
+import type { SteeringBlock } from '../domain/generation/steering-block'
 import type { AudioTime, SessionSettings, SessionStart } from './session-types'
 
 /**
@@ -43,8 +44,9 @@ export type PhraseOneAttemptResult =
 /**
  * The three events only a session started without phrase 1 takes, before phrase 1 sounds:
  * `phrase-one-attempt` asks for one phrase 1 attempt, with its intent (its seed in it), the step it
- * takes, the retry number its caller gives it, the settings it is generated under and its
- * deadline, superseding the attempt in flight; `cancel-phrase-one-attempt` drops the attempt in
+ * takes, the retry number its caller gives it, the settings it is generated under, its deadline
+ * and the steering block every request of the session carries from phrase 2 on (whatever this
+ * attempt's own intent holds; none, no phrase steered), superseding the attempt in flight; `cancel-phrase-one-attempt` drops the attempt in
  * flight, cancelled where it runs while still generating (its caller's reason to try it is gone);
  * `phrase-one` hands over the attempt that fits as phrase 1, with the time phrase 1 starts
  * sounding.
@@ -59,6 +61,7 @@ export type PhraseOneEvent =
       readonly intent: GenerationIntent
       readonly settings: SessionSettings
       readonly deadline: AudioTime
+      readonly steering?: SteeringBlock
     }
   | { readonly kind: 'cancel-phrase-one-attempt'; readonly at: AudioTime }
   | {

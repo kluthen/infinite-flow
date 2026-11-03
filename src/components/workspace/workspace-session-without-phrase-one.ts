@@ -13,7 +13,11 @@ import type { InstrumentClef } from '@/domain/profile/instrument-clef'
 import type { PlayedNoteEvent } from '@/midi/played-note-tracker'
 import type { StaffLayout } from '@/notation/notation-layout-policy'
 import { createAudioTimeAgenda } from '@/session/session-agenda'
-import { createSessionHistory, type RecordedDoodle } from '@/session/session-history'
+import {
+  createSessionHistory,
+  type DoodleSuggestion,
+  type RecordedDoodle,
+} from '@/session/session-history'
 import type {
   PhraseOneEvent,
   SessionEndCause,
@@ -58,8 +62,9 @@ export interface StartWithoutPhraseOne {
  * 1 handed over with the time it sounds, a barline of the click at or after the count-in's end,
  * which also sets phrase 1's start on the transport and the forced click's end), stamped now on
  * the audio clock, its own ends (no note played, no phrase 1, the staff no longer shown), and the
- * doodle its capture ended, kept in the session's history with its raw notes marked; each a no-op
- * once the session has ended.
+ * doodle its capture ended, kept in the session's history with its raw notes marked, and the key
+ * and mode suggestion worked out at the doodle's end, kept beside it; each a no-op once the session
+ * has ended.
  */
 // @spec-link [[module_session_start_without_phrase_one]]
 // @spec-link [[rule_raw_doodle_notes_are_played_notes]]
@@ -68,6 +73,7 @@ export interface SessionWithoutPhraseOne {
   readonly dispatch: (event: UntimedEvent<PhraseOneEvent>) => void
   readonly end: (cause: SessionEndCause) => void
   readonly recordDoodle: (doodle: RecordedDoodle) => void
+  readonly recordSuggestion: (suggestion: DoodleSuggestion) => void
 }
 
 /**
@@ -171,6 +177,9 @@ export function beginSessionWithoutPhraseOne(
     end,
     recordDoodle: (doodle) => {
       if (core.active === session) session.history.recordDoodle(doodle)
+    },
+    recordSuggestion: (suggestion) => {
+      if (core.active === session) session.history.recordSuggestion(suggestion)
     },
   }
 }

@@ -31,6 +31,8 @@ import type {
 } from '@/session/session-types'
 
 import type { JamCapture, JamCaptureOutput } from './jam-capture'
+import type { KeySuggestion } from './key-suggestion/key-suggestion'
+import { doodleSuggestion } from './jam-phrase-one-attempts'
 import {
   BLOCK_ATTEMPT,
   STANDALONE_ATTEMPT,
@@ -58,14 +60,16 @@ export interface JamPhraseOneDependencies {
 /**
  * What the ladder asks its caller to do or tells it, each at the time it was decided: send the
  * session a phrase 1 event (an attempt, its cancellation, or phrase 1 handed over); a capture
- * output, passed on (the doodle's end to record, no note played, phrase 1 shown); the Jam ends, no
- * phrase 1 having come by its deadline.
+ * output, passed on (the doodle's end to record, no note played, phrase 1 shown); the key and mode
+ * suggestion worked out at the doodle's end, to keep with the session; the Jam ends, no phrase 1
+ * having come by its deadline.
  */
 // @spec-link [[rule_jam_phrase_one_failure_ladder]]
 // @spec-link [[rule_jam_ends_when_phrase_one_never_comes]]
 export type JamPhraseOneOutput =
   | { readonly kind: 'session-event'; readonly event: PhraseOneEvent }
   | { readonly kind: 'capture'; readonly output: JamCaptureOutput }
+  | { readonly kind: 'suggestion'; readonly at: AudioTime; readonly suggestion: KeySuggestion }
   | { readonly kind: 'no-phrase-one'; readonly at: AudioTime }
 
 /**
@@ -190,6 +194,7 @@ export function createJamPhraseOne(
       intent,
       settings,
       deadline: climbing.deadline,
+      steering: climbing.attempts.steering,
     }
     return [{ kind: 'session-event', event }]
   }
@@ -272,8 +277,11 @@ export function createJamPhraseOne(
             `A candidate end cannot come while the ladder is ${stage.kind}.`,
           )
         return climb(output.end, at)
-      case 'doodle-ended':
-        return stage.kind === 'waiting' ? climb(output.end, at) : []
+      case 'doodle-ended': {
+        const suggestion = doodleSuggestion(output.end.doodle, jam)
+        const kept: JamPhraseOneOutput = { kind: 'suggestion', at, suggestion }
+        return stage.kind === 'waiting' ? [...climb(output.end, at), kept] : [kept]
+      }
       case 'candidate-voided':
         return voided(at)
       case 'phrase-one-shown':
