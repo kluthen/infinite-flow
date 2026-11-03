@@ -7,7 +7,7 @@
  * - the lock and the allowed changes reach every request of a session from phrase 2 on, and no
  *   request carries a lock group with the lock off;
  * - during a session the switches and toggles are read-only and no dependent appears or leaves;
- * - nothing in the live view marks a rhythm change: under session seed 8 (phrase 1 seeded 7, the
+ * - nothing in the live view marks a rhythm change: under session seed 74 (phrase 1 seeded 7, the
  *   lock on with every change allowed) phrase 4 is a rhythm change and phrases 2, 3, 5 and 6 keep
  *   the locked bars, and the view's elements, classes, ARIA and live regions are the same at every
  *   phrase's start;
@@ -59,7 +59,7 @@ const ALLOWED_CHANGES_NOTE =
   "Now and then one phrase changes the rhythm in one of these ways, and the next goes back to it. What's possible depends on your rhythm settings: with Strict variety and Straight syncopation, almost nothing."
 
 /** The session seed under which phrase 4 is a rhythm change, the lock on with every change. */
-const CHANGE_ON_PHRASE_4 = 8
+const CHANGE_ON_PHRASE_4 = 74
 
 /** The phrase that seed changes the rhythm of. */
 const CHANGED_PHRASE = 4
