@@ -162,6 +162,37 @@ describe('session controller: Delete every session', () => {
     expect(rig.controller.state.review).toBe(review)
     expect(rig.controller.state.mostRecent).toBe(mostRecent)
     expect(rowKeys(rig)).toEqual(rows)
+    expect(rig.controller.state.lastDeletion).toBeNull()
+  })
+
+  // @test-link [[rule_held_doodle_dropped_on_change]]
+  it("records the player's deletion of every session once it is made", async () => {
+    const rig = await afterSession(fakeKept())
+    expect(rig.controller.state.lastDeletion).toBeNull()
+
+    await expect(rig.controller.deleteEverySession()).resolves.toBe('deleted')
+
+    expect(rig.controller.state.lastDeletion).toEqual({ kind: 'every-session' })
+  })
+
+  // @test-link [[rule_held_doodle_dropped_on_change]]
+  it("records no player's deletion for the unpinned sessions a session's own save deletes", async () => {
+    const fake = fakeKept()
+    const rig = controllerRig(undefined, undefined, {
+      keptSessions: fake.seam,
+      sessionSaveOutcome: (changes: SessionChanges) => {
+        const deleted = changes(LOADED).filter((change) => change.kind === 'delete')
+        expect(deleted.map((change) => change.key)).toContain('newest')
+        return Promise.resolve({ status: 'saved' })
+      },
+    })
+    rig.controller.start()
+    await playTo(rig, 10.2)
+    rig.controller.stop()
+    await flush()
+
+    expect(rowKeys(rig)).not.toContain('newest')
+    expect(rig.controller.state.lastDeletion).toBeNull()
   })
 
   it('turned off as it ran (an outdated tab), changes nothing', async () => {

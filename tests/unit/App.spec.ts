@@ -6,6 +6,8 @@ import type { GenerationSession } from '../../src/composables/use-generation-ses
 import type { WorkspaceSessionResult } from '../../src/composables/workspace-session-result'
 import type { HeldModeNoteRoute } from '../../src/components/workspace/workspace-session-midi'
 import { DEFAULT_GENERATION_CONTROLS } from '../../src/domain/controls/profile-selection'
+import { makeRequestId } from '../../src/domain/generation/generation-request'
+import { makeSeed } from '../../src/domain/random/seed'
 import type { WrittenPhrase } from '../../src/domain/notation/written-phrase-types'
 import { BUILT_IN_PRESETS } from '../../src/domain/presets/built-in-presets'
 import type {
@@ -107,6 +109,18 @@ function fakeWorkspaceSession(savedData: SavedDataLoad = fakeSavedData()) {
     heldModeNotes: shallowRef<HeldModeNoteRoute | null>(null),
     afterNoteStart: shallowRef<(() => void) | null>(null),
     prewarm: null,
+    keptDoodleGeneration: {
+      generate: () => Promise.reject(new Error('App spec: no kept doodle is generated')),
+      providers: {
+        nextRequestId: () => makeRequestId('app-spec'),
+        nextSeed: () => makeSeed(1),
+      },
+      nextSessionSeed: () => makeSeed(1),
+      viewport: { isBelowTabletLandscape: () => false },
+    },
+    // Jam's queue: one that never prepares anything.
+    jamPregeneration: () =>
+      Promise.resolve({ take: () => [], recheck: () => undefined, dispose: () => undefined }),
     createSessionController: async () => {
       if (controllerLoad !== null) await controllerLoad.promise
       nextController ??= createFakeSessionController()

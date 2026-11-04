@@ -228,6 +228,36 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
     heldModeNotes,
     afterNoteStart,
     prewarm: deps.prewarmPolicy === 'enabled' ? deps.prewarm : null,
+    keptDoodleGeneration: {
+      generate: yieldingToPlayer(slot, deps.generate),
+      providers: deps.providers,
+      nextSessionSeed: deps.nextSessionSeed,
+      viewport: deps.viewport,
+    },
+    jamPregeneration: async (seams) => {
+      const [{ createJamPregeneration }, { loadSessionStaffFitPlanner }, browser] =
+        await Promise.all([
+          import('./jam-pregeneration'),
+          import('./session-staff-fixed-parts'),
+          deps.browser,
+        ])
+      return createJamPregeneration({
+        ...seams,
+        generate: deps.generate,
+        providers: deps.providers,
+        viewport: deps.viewport,
+        slot,
+        policy: deps.pregenerationPolicy,
+        shared: created.state,
+        windowShape: () => browser.windowShape.read(),
+        idleLayout: staffReports,
+        loadPlanner: loadSessionStaffFitPlanner,
+        fail: (error) =>
+          queueMicrotask(() => {
+            throw error
+          }),
+      })
+    },
     browser: deps.browser,
     createSessionController: async () => {
       // The runner starter settles only once the replay-key announcer has loaded, so the

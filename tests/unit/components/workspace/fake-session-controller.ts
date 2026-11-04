@@ -208,6 +208,7 @@ export function createFakeSessionController(
     canStart: true,
     startBlocker: null,
     lastEnd: null,
+    lastDeletion: null,
     lastHistory: null,
     review: null,
     mostRecent: null,

@@ -15,7 +15,12 @@ import type { SessionHistory } from '@/session/session-history'
 import type { SessionEndCause } from '@/session/session-types'
 import { jamPartOf } from './session-jam-part'
 import { endedSession, openedReview, settledKeeping } from './session-review-state'
-import { endedSessionSave, saveEndedSession, tellDamagedDeleted } from './workspace-session-save'
+import {
+  endedSessionSave,
+  keptSessionKey,
+  saveEndedSession,
+  tellDamagedDeleted,
+} from './workspace-session-save'
 import type { KeptSessionRows } from './use-kept-sessions'
 import type { AdaptiveTempoFlag } from './workspace-adaptive-tempo'
 import { findHeldSession } from './workspace-kept-session-opening'
@@ -105,9 +110,10 @@ export function createSessionEnds(
   /**
    * Intent: end the running session for `cause`, the one path every end takes: the notes still
    * held end now and are recorded, the engine gets `end` (its `ended` output closes the history),
-   * then the session is torn down and summed up. Once phrase 1 has sounded, the Review opens over
-   * the closed history and that session becomes the most recent one, not pinned, or not saved at
-   * once while saving is off, under the key minted for its save, a Jam with its Jam part, its
+   * then the session is torn down and summed up, a Jam that sounded phrase 1 with its Jam part and
+   * the key minted for its save, before anything else of its end. Once phrase 1 has sounded, the
+   * Review opens over the closed history and that session becomes the most recent one, not
+   * pinned, or not saved at once while saving is off, under the key minted for its save, a Jam with its Jam part, its
    * played notes kept when `Keep my played notes` is on, saving is on and it holds one (a fresh
    * Jam's raw doodle notes count), its preset label named from the
    * presets the session knew (Idle's, which never change during a session); the session's own
@@ -136,15 +142,19 @@ export function createSessionEnds(
     }
     const ended = session.ended
     if (ended === null) throw new Error('session controller: the engine did not report the end')
+    // The Jam part is gathered before the summary, which hands it to Jam's code with its key.
+    const jam = ended.soundedPhraseCount === 0 ? null : jamPartOf(session)
     state.lastEnd = Object.freeze({
       cause: ended.cause,
       phase: ended.phase,
       soundedPhraseCount: ended.soundedPhraseCount,
+      ...(jam === null
+        ? {}
+        : { jam: Object.freeze({ part: jam, sessionKey: keptSessionKey(session.history) }) }),
     })
     state.lastHistory = session.history
     if (ended.soundedPhraseCount === 0) return
     const savingOff = core.deps.keptSessions.savingOff()
-    const jam = jamPartOf(session)
     const save = endedSessionSave(
       session.history,
       !savingOff && keepPlayedNotes(),

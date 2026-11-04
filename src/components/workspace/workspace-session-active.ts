@@ -93,6 +93,7 @@ type WritableStateKey =
   | 'mostRecent'
   | 'readingMostRecent'
   | 'listShowing'
+  | 'lastDeletion'
   | 'openingKey'
   | 'sessionStaff'
   | 'latestReady'

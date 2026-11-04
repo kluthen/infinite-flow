@@ -50,12 +50,26 @@ export type UntimedEvent<E = SessionTransportEvent> = E extends unknown ? Omit<E
 // @spec-link [[rule_count_in_shown_on_screen]]
 export type RunningCountIn = Extract<CountInDisplay, { over: false }>
 
-/** How the last session ended: why, in which phase, and how many phrases had started sounding. */
+/**
+ * The Jam part an ended Jam hands Jam's code at its end with a review: the very Jam part its
+ * Review shows, and the key its session is kept under.
+ */
+export interface EndedJam {
+  readonly part: ReviewedJamPart
+  readonly sessionKey: string
+}
+
+/**
+ * How the last session ended: why, in which phase, how many phrases had started sounding and, for
+ * a Jam that ended with a review, its Jam part (absent for an end before phrase 1 and for a session
+ * that is no Jam).
+ */
 // @spec-link [[rule_stop_ends_session]]
 export interface SessionEndSummary {
   readonly cause: SessionEndCause
   readonly phase: 'count-in' | 'running'
   readonly soundedPhraseCount: number
+  readonly jam?: EndedJam
 }
 
 /**
@@ -142,6 +156,16 @@ export type PlayedNotesDeletion = 'deleted' | 'refused' | 'saving-off'
 export type SessionDeletion = 'deleted' | 'refused' | 'saving-off'
 
 /**
+ * The player's last deletion of kept sessions in the visit, which lets Jam's kept doodle go when
+ * it takes the session the doodle comes from: one session (`Delete session`), by its key, or every
+ * session (`Delete every session`). Recorded once the deletion is made, a new object each time;
+ * a refused one, a session's own save deleting the earlier unpinned sessions and the clean-up of
+ * damaged ones record nothing.
+ */
+export type PlayerSessionDeletion =
+  { readonly kind: 'session'; readonly key: string } | { readonly kind: 'every-session' }
+
+/**
  * What became of opening a session's Review, from `Review last session` or a list row: shown;
  * failed, its read not giving the session (its row says so); damaged, the session found damaged
  * and deleted (or its deletion refused), its row gone and the list showing; or superseded by a
@@ -225,6 +249,8 @@ export interface SessionControllerState {
    */
   // @spec-link [[req_kept_session_review]]
   readonly keptRows: readonly KeptSessionRow[]
+  /** The player's last deletion of kept sessions in the visit; null before any. */
+  readonly lastDeletion: PlayerSessionDeletion | null
   /** The session list shows, in the review mode's place of a Review. */
   readonly listShowing: boolean
   /** The kept sessions could not be read in this visit (it started from the defaults). */

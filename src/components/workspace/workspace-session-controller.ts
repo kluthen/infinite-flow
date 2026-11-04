@@ -91,6 +91,7 @@ import {
   type SessionController,
   type SessionControllerDependencies,
   type SessionControllerPhase,
+  type PlayerSessionDeletion,
   type SessionEndSummary,
   type SessionReview,
 } from './workspace-session-controller-types'
@@ -188,6 +189,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     mostRecent: mostRecentKept(deps.keptSessions.summaries),
     readingMostRecent: false,
     listShowing: false,
+    lastDeletion: null as PlayerSessionDeletion | null,
     openingKey: null as string | null,
     sessionStaff: null as SessionStaff | null,
     latestReady: null as number | null,

@@ -348,7 +348,8 @@ export function createKeptSessionEdits(
   /**
    * Intent: `Delete session`: from the device (one batch), then from memory and its row; a
    * session held in memory only because its save failed, from memory alone; one not held, by its
-   * row, its body never read. A refusal, or saving turned off meanwhile, leaves it as it was.
+   * row, its body never read; once deleted, the deletion is recorded as the player's last one. A
+   * refusal, or saving turned off meanwhile, leaves it as it was.
    */
   // @spec-link [[req_kept_session_list]]
   // @spec-link [[module_kept_session_reach]]
@@ -367,6 +368,7 @@ export function createKeptSessionEdits(
     }
     rows.removed([key])
     forget(key)
+    state.lastDeletion = Object.freeze({ kind: 'session', key })
     return 'deleted'
   }
 

@@ -7,7 +7,7 @@
  * {key} {mode}` (the decline, at once in memory and saved with the session, focus then on `Jam
  * again on this doodle` when it is enabled, else on `review-title`), and `Jam again on this
  * doodle`, disabled while Jam's code loads or after it failed, which leaves the review mode onto
- * Jam mode.
+ * Jam mode with the reviewed session's doodle kept.
  */
 import { computed, nextTick, type ComputedRef, type Ref } from 'vue'
 
@@ -118,11 +118,24 @@ export function useReviewDoodleTools(deps: ReviewDoodleToolsDependencies): Revie
     void nextTick(() => (loaded.value === null ? deps.focusTitle() : deps.focusJamAgain()))
   }
 
+  /**
+   * Intent: `Jam again on this doodle`: the review mode left onto Jam mode with the showing
+   * Review's doodle kept, from its session.
+   */
+  // @spec-link [[rule_jam_again_on_this_doodle]]
+  function jamAgain(): Promise<void> {
+    const jam = deps.jam()
+    const sessionKey = deps.sessionKey()
+    if (jam === null || sessionKey === null)
+      throw new Error("review doodle: Jam again with no Jam session's Review showing")
+    return deps.ports().jamAgain({ jam, sessionKey })
+  }
+
   return {
     suggestion,
     jamAgainDisabled: computed(() => loaded.value === null),
     useAnswer,
     keep,
-    jamAgain: () => deps.ports().jamAgain(),
+    jamAgain,
   }
 }

@@ -7,8 +7,9 @@
  * goes, the most recent one included, and every row of the session list (./use-kept-sessions.ts);
  * there is then no most recent session until the next session ends with a review. A Review that
  * showed gives way to the session list, and an opening still pending is cancelled, so the session
- * it reads never shows. A refusal changes nothing, stored or in memory, and is
- * told to the caller alone. At Idle only, and never while saving is off.
+ * it reads never shows; the deletion is then recorded as the player's last one. A refusal changes
+ * nothing, stored or in memory, and is told to the caller alone. At Idle only, and never while
+ * saving is off.
  */
 import { deleteEveryKeptSession } from './kept-session-review-changes'
 import type { KeptSessionRows } from './use-kept-sessions'
@@ -56,6 +57,7 @@ export function createEverySessionDeletion(
     if (outcome.status === 'saving-off') return 'saving-off'
     // Saved, or nothing stored to delete (spec D332): the same success.
     forgetEverySession()
+    state.lastDeletion = Object.freeze({ kind: 'every-session' })
     return 'deleted'
   }
 }

@@ -4,11 +4,12 @@
  * start without phrase 1, under Jam's own settings and the shared instrument; what the running
  * Jam gives the screen (the cue row's parts and phase before phrase 1, the readings taken from the
  * doodle once phrase 1 enters); and what its end leaves at Jam mode's Idle. Every end goes through
- * the controller's one end path: here the running Jam is let go once the session is over, and
- * Jam mode's Idle takes over with no doodle kept (no phrase, the readings empty); an end because no
- * phrase 1 came by the deadline leaves `jam-notice` showing until the next start, a change of a
- * Jam setting or leaving Jam mode. The mode never changes here. Jam's code is reached through its
- * loaded module only.
+ * the controller's one end path: here the running Jam is let go once the session is over; an end
+ * with a review hands Jam's kept doodle the Jam part that review shows, with its session's key,
+ * and an end before phrase 1 hands none, so a fresh Jam's doodle is not kept and a doodle kept
+ * already stays; an end because no phrase 1 came by the deadline leaves `jam-notice` showing until
+ * the next start, a change of a Jam setting or leaving Jam mode. The mode never changes here. Jam's
+ * code is reached through its loaded module only.
  */
 import { computed, shallowRef, watch, type ComputedRef, type Ref } from 'vue'
 
@@ -23,6 +24,7 @@ import type { JamPhase } from '@/jam/jam-phase'
 import type { JamStaffState } from '@/jam/jam-view-types'
 import type { JamSessionCue } from './jam-session-cue'
 import type { JamModeModule } from './load-jam-mode'
+import type { ReviewedJamPart } from './session-jam-part'
 import type { SessionController, SessionEndSummary } from './workspace-session-controller-types'
 
 /** The Jam's phases before phrase 1 enters the session staff, while Jam's staff shows it. */
@@ -54,6 +56,8 @@ export interface FreshJamSeams {
   readonly lastEnd: () => SessionEndSummary | null
   /** What Jam's staff shows while Jam mode shows; null otherwise. */
   readonly jamStaffState: () => JamStaffState | null
+  /** Keep the doodle of an ended Jam's part, from its session under `sessionKey` (Jam's code). */
+  readonly keepDoodle: (jam: ReviewedJamPart, sessionKey: string) => void
 }
 
 /** The shell's fresh Jam: what it shows, and its start and notice clearing. */
@@ -74,7 +78,8 @@ export interface WorkspaceFreshJam {
 /**
  * Intent: the shell's fresh Jam over its seams. A start (whose conditions the caller has judged)
  * removes `jam-notice` and starts the Jam through Jam's code, under Jam's settings with my
- * instrument's profile when it is the instrument, drawn in the instrument's clef. Once the session
+ * instrument's profile when it is the instrument, drawn in the instrument's clef. An end that
+ * carries a Jam part (a Jam's end with a review) hands it to Jam's kept doodle. Once the session
  * is over, by whatever cause, the Jam is let go, and the end's cause says whether `jam-notice`
  * shows: only when no phrase 1 came by the deadline. Leaving Jam mode removes it too. Before
  * phrase 1 enters, Jam's staff no longer showing its empty system ends the Jam.
@@ -83,6 +88,7 @@ export interface WorkspaceFreshJam {
 // @spec-link [[rule_jam_ending_before_phrase_one]]
 // @spec-link [[rule_jam_ends_when_phrase_one_never_comes]]
 // @spec-link [[module_jam_session_end]]
+// @spec-link [[module_kept_doodle]]
 export function useFreshJam(seams: FreshJamSeams): WorkspaceFreshJam {
   const running = shallowRef<FreshJam | null>(null)
   const noticeShown = shallowRef(false)
@@ -107,11 +113,12 @@ export function useFreshJam(seams: FreshJamSeams): WorkspaceFreshJam {
     })
   }
 
-  // The session over, its end summed up: the Jam goes, and an end with no phrase 1 by the
-  // deadline leaves the notice.
+  // The session over, its end summed up: a Jam part it carries is kept, the Jam goes, and an end
+  // with no phrase 1 by the deadline leaves the notice.
   watch(
     seams.lastEnd,
     (end) => {
+      if (end?.jam !== undefined) seams.keepDoodle(end.jam.part, end.jam.sessionKey)
       if (end === null || running.value === null) return
       running.value = null
       noticeShown.value = end.cause === 'no-phrase-one'

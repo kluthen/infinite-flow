@@ -36,7 +36,13 @@
  * viewport stays the first `staff-viewport` in DOM order. The cue row is given Jam's Idle cue
  * (`jamCue`) and a fresh Jam's cue row parts and phase (`jamSession`) as they are. The score title,
  * which also names the staff frame, follows the mode shown: `Jam` while Jam's view shows, else
- * `Four-measure phrase` (while Jam's code loads too).
+ * `Four-measure phrase` (while Jam's code loads too). While Jam mode shows it also mounts Jam's
+ * staff for phrase 1 written from the kept doodle (./KeptDoodleStaff.vue, `keptPhrase`), after the
+ * session's viewport: while a doodle is kept it takes Jam's view's place in sight (Jam's view out
+ * of sight and inert, still mounted), out of sight under the Review and while a session's staff
+ * shows; with none kept it is out of sight and inert and Jam's view shows as before. In Jam mode
+ * both live regions and the generation-failure banner follow Jam's phrase 1, never session mode's
+ * Idle, so with no doodle kept they say nothing and no banner shows.
  */
 import { computed, defineAsyncComponent, nextTick, ref, watch, type Component } from 'vue'
 
@@ -54,7 +60,11 @@ import type { JamStaffState, JamWorkspaceProps } from '@/jam/jam-view-types'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { AudioTransport } from '@/audio/audio-transport'
 import { loadReviewArea } from '@/components/review/load-review-panel'
-import { ROOM_NOTICE_NARROW, ROOM_NOTICE_WIDE } from '@/components/notation/room-notice-copy'
+import {
+  ROOM_NOTICE_NARROW,
+  ROOM_NOTICE_TOO_MANY_NOTES,
+  ROOM_NOTICE_WIDE,
+} from '@/components/notation/room-notice-copy'
 import {
   DEFAULT_REVIEW_PREFERENCES,
   type ReviewPreferences,
@@ -64,9 +74,12 @@ import SessionCueRow from './SessionCueRow.vue'
 import type { JamSessionCue } from './jam-session-cue'
 import type { JamCue } from './use-jam-idle-cue'
 import { useScoreOverlays } from './use-score-overlays'
+import { idleStaffFrameClass } from './idle-staff-frame'
 import type { MixVolumePopover } from './mix-volume-popover'
 import type { ReviewExportPorts } from './review-export'
 import { useReviewHost } from './use-review-host'
+import KeptDoodleStaff from './KeptDoodleStaff.vue'
+import type { KeptDoodlePhraseView } from './use-kept-doodle-phrase'
 import { injectSaveSettings } from './save-settings-injection'
 import type { SessionController } from './workspace-session-controller-types'
 
@@ -118,6 +131,8 @@ const props = withDefaults(
     jamCue?: JamCue | null
     /** A fresh Jam's cue row parts and phase while it runs, for the cue row; null (the default) else. */
     jamSession?: JamSessionCue | null
+    /** Jam's phrase 1 from the kept doodle while Jam mode shows; null (the default) otherwise. */
+    keptPhrase?: KeptDoodlePhraseView | null
   }>(),
   {
     // Default: the notation layout's own width query (the split layout's), read from the window now.
@@ -129,6 +144,7 @@ const props = withDefaults(
     jamViewProps: null,
     jamCue: null,
     jamSession: null,
+    keptPhrase: null,
   },
 )
 
@@ -146,6 +162,16 @@ const emit = defineEmits<{
 }>()
 
 const state = computed(() => props.session.state)
+
+/**
+ * The Idle state the live regions and the banner follow: Jam's phrase 1 while Jam mode shows,
+ * session mode's Idle otherwise.
+ */
+// @spec-link [[service_idle_generation_session]]
+const announced = computed(() => props.keptPhrase?.state ?? state.value)
+
+/** A doodle is kept in Jam mode: Jam's staff shows its phrase 1 in Jam's view's place. */
+const keptShows = computed(() => props.keptPhrase?.kept === true)
 
 // @spec-link [[req_last_session_review]]
 const review = useReviewHost({
@@ -185,8 +211,14 @@ watch(jamPhraseOneIn, (entered) => {
   if (!entered) jamLeft.value = false
 })
 
-/** Jam's view is out of sight: under the Review, or once it has left as phrase 1 entered. */
-const jamViewAway = computed(() => reviewShowing.value || jamLeft.value)
+/**
+ * Jam's view is out of sight: under the Review, once it has left as phrase 1 entered, or while
+ * Jam's staff shows the kept doodle's phrase 1 in its place.
+ */
+const jamViewAway = computed(() => reviewShowing.value || jamLeft.value || keptShows.value)
+
+/** Jam's staff for the kept doodle is out of sight: with none kept, under the Review, in a session. */
+const keptAway = computed(() => !keptShows.value || reviewShowing.value || jamPhraseOneIn.value)
 
 /** While it leaves, Jam's view lies over the session's viewport, in the same place. */
 const JAM_LEAVING_STYLE = 'position: absolute; inset: 0'
@@ -198,8 +230,13 @@ const STAFF_STACK_STYLE = 'position: relative'
  */
 const scoreTitle = computed(() => (props.jamView !== null ? 'Jam' : 'Four-measure phrase'))
 
-/** The generation-failure banner is hidden under the Review and in Jam mode. */
-const bannerAway = computed(() => reviewShowing.value || props.jamView !== null)
+/**
+ * The generation-failure banner is hidden under the Review, and in Jam mode with no doodle kept
+ * (Jam's phrase 1 then has none to show).
+ */
+const bannerAway = computed(
+  () => reviewShowing.value || (props.jamView !== null && !keptShows.value),
+)
 
 const roomNoticeElement = ref<HTMLElement | null>(null)
 
@@ -209,6 +246,11 @@ const roomNoticeElement = ref<HTMLElement | null>(null)
  */
 // @spec-link [[rule_count_in_ending_returns_to_idle]]
 function focusRoomNotice(): void {
+  if (keptShows.value) {
+    if (keptStaff.value === null) throw new Error("score panel: Jam's staff is not shown")
+    keptStaff.value.focusRoomNotice()
+    return
+  }
   if (props.jamView !== null) {
     if (jamViewInstance.value === null) throw new Error("score panel: Jam's view is not shown")
     jamViewInstance.value.focusRoomNotice()
@@ -241,6 +283,9 @@ function focusReviewTitle(): void {
 }
 
 watch(reviewArea, focusPendingReviewTitle, { flush: 'post' })
+
+/** Jam's mounted staff for the kept doodle's phrase 1; null while Jam mode does not show. */
+const keptStaff = ref<InstanceType<typeof KeptDoodleStaff> | null>(null)
 
 /** Jam's mounted view's exposed API; null while Jam mode does not show. */
 const jamViewInstance = ref<{
@@ -294,7 +339,7 @@ let announceOnIdle = false
  * step this watcher must see through, not treat as the end of the cycle.
  */
 watch(
-  () => state.value.operation,
+  () => announced.value.operation,
   (next) => {
     if (next === 'generating') {
       if (!reviewShowing.value) statusText.value = 'Generating phrase'
@@ -305,16 +350,16 @@ watch(
     announceOnIdle = false
     // A run ending out of sight, under the Review, says nothing.
     if (reviewShowing.value) return
-    if (state.value.generationError !== null) {
+    if (announced.value.generationError !== null) {
       statusText.value = 'Generation failed. Try again.'
       return
     }
     // Only a phrase actually shown is ready: a run that ends in the room notice (`notation-status`
     // speaks) or on Empty (stopped by a blocking width crossing) has none to call ready.
     const phraseShown =
-      state.value.result !== null &&
-      state.value.notationError === null &&
-      state.value.roomNotice === null
+      announced.value.result !== null &&
+      announced.value.notationError === null &&
+      announced.value.roomNotice === null
     statusText.value = phraseShown ? 'Phrase ready' : ''
   },
 )
@@ -327,15 +372,12 @@ watch(
  */
 // @spec-link [[service_idle_generation_session]]
 watch(
-  () => state.value.notationError,
+  () => announced.value.notationError,
   (next) => {
     notationStatusText.value =
       next !== null && !reviewShowing.value ? 'Notation error. Try again.' : ''
   },
 )
-
-const ROOM_NOTICE_TOO_MANY_NOTES =
-  'These notes need more room. Make the window larger, or choose a lower note density.'
 
 /**
  * Intent: the room-notice sentence on screen now: for the no-room cause, the one the stylesheet
@@ -343,7 +385,7 @@ const ROOM_NOTICE_TOO_MANY_NOTES =
  */
 // @spec-link [[rule_staff_needs_room_notice]]
 function visibleRoomNoticeSentence(): string | null {
-  const cause = state.value.roomNotice
+  const cause = announced.value.roomNotice
   if (cause === null) return null
   if (cause === 'notes_too_wide') return ROOM_NOTICE_TOO_MANY_NOTES
   return props.matchesPhoneLayout() ? ROOM_NOTICE_NARROW : ROOM_NOTICE_WIDE
@@ -358,7 +400,7 @@ function visibleRoomNoticeSentence(): string | null {
 // @spec-link [[rule_staff_needs_room_notice]]
 // @spec-link [[rule_too_dense_notice_retry_rounds]]
 watch(
-  () => state.value.roomNoticeAnnouncements,
+  () => announced.value.roomNoticeAnnouncements,
   async (next, previous) => {
     if (next <= previous || reviewShowing.value) return
     const sentence = visibleRoomNoticeSentence()
@@ -374,42 +416,23 @@ watch(
 /** Intent: the notice's clearing is silent: the region only empties, as a notation recovery does. */
 // @spec-link [[rule_staff_notice_gives_way_to_new_phrase]]
 watch(
-  () => state.value.roomNotice,
+  () => announced.value.roomNotice,
   (next) => {
     if (next !== null) return
     roomNoticeAnnouncement += 1
-    if (state.value.notationError === null) notationStatusText.value = ''
+    if (announced.value.notationError === null) notationStatusText.value = ''
   },
 )
 
 /**
- * The staff-frame state class the States table defines, in priority order, the room notice first.
- * A retained result that was never engraved (its notation error cleared by a later generation
- * attempt that then failed) falls back to `staff-error` rather than `staff-ready` -- but only while
- * idle, since every ordinary generation assigns a not-yet-engraved result just before its own
- * engraving step runs.
+ * The staff-frame state class the States table defines (./idle-staff-frame.ts), except while a
+ * fresh Jam's phrase 1 shows over session mode's Idle, whatever that Idle shows.
  */
 // @spec-link [[service_idle_generation_session]]
 // @spec-link [[rule_staff_needs_room_notice]]
-const staffFrameStateClass = computed(() => {
-  // A fresh Jam's phrase 1 shows over session mode's Idle, whatever that Idle shows.
-  if (jamPhraseOneIn.value) return 'staff-ready'
-  // The notice holds the frame through a round under it, dimmed as the Loading it is.
-  if (state.value.roomNotice !== null) {
-    return state.value.operation === 'idle' ? 'staff-no-room' : 'staff-no-room staff-loading'
-  }
-  if (state.value.operation === 'generating') return 'staff-loading'
-  if (state.value.notationError !== null) return 'staff-error'
-  if (
-    state.value.operation === 'idle' &&
-    state.value.result !== null &&
-    !state.value.resultEngraved
-  ) {
-    return 'staff-error'
-  }
-  if (state.value.result !== null) return 'staff-ready'
-  return 'staff-empty'
-})
+const staffFrameStateClass = computed(() =>
+  jamPhraseOneIn.value ? 'staff-ready' : idleStaffFrameClass(state.value),
+)
 
 /**
  * Intent: show the instruction whenever no phrase is shown, as v1 did -- Empty, and a Loading that
@@ -452,8 +475,8 @@ function handleStaffLayoutInputs(inputs: StaffLayoutInputs): void {
 /** Intent: the D29 alert-banner text, mapped by failure kind rather than a "Generation failed: " prefix concatenated onto the error's own message. */
 // @spec-link [[rule_generation_failure_alert_copy]]
 const generationErrorAlertText = computed(() =>
-  state.value.generationError !== null
-    ? generationFailureAlertText(state.value.generationError)
+  announced.value.generationError !== null
+    ? generationFailureAlertText(announced.value.generationError)
     : null,
 )
 </script>
@@ -548,6 +571,15 @@ const generationErrorAlertText = computed(() =>
           </PhraseScore>
         </div>
       </div>
+      <!-- Jam's staff for the kept doodle's phrase 1, in sight while a doodle is kept. -->
+      <KeptDoodleStaff
+        v-if="keptPhrase !== null"
+        ref="keptStaff"
+        :view="keptPhrase"
+        :system-position-units="systemPositionUnits"
+        :class="{ 'is-out-of-sight': keptAway }"
+        :inert="keptAway || undefined"
+      />
       <!-- Jam's view, its own staff-viewport where the session's (out of sight) takes no room; laid
            over it while it leaves, as a fresh Jam's phrase 1 enters it. -->
       <component
