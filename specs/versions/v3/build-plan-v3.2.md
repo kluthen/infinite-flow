@@ -1,6 +1,11 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v31 (2026-11-04): v30 with spec D495 and D497 written in (master spec Part C v1.19):
+Status: v32 (2026-11-04): v31 with spec D499 written in (Part C unchanged), from chunk 30's
+report: chunk 24 keeps and reads back a Jam on a kept doodle, whose body holds no played-notes
+clock (C10.3), and which chunk 30's read throws on; chunk 25 says a doodle-only Jam's
+`Export played notes` is disabled with the very-short reason until it puts the doodle's notes in
+the file.
+v31 (2026-11-04): v30 with spec D495 and D497 written in (master spec Part C v1.19):
 chunk 21's two readings. Until phrase 1 is on screen, Jam's empty staff is the staff judged, so a
 window that leaves it no room ends the Jam before phrase 1 (C5.13); v3.2 H4 plays the same doodle
 again until wave 7, and chunk 24 rewords H4 and H5 for the kept doodle.
@@ -2264,6 +2269,13 @@ keyed by Jam's settings and the doodle, never session mode's.
     `jam-idle-notes.ts`), no capture, no 30-second wait; its review shows the kept doodle with an
     empty lane; at its end, phrase 1 written again with a fresh seed (ended in its count-in, the
     same phrase 1).
+  - **A Jam on it, kept and read back** (C10.3, spec D430, D499): its kept session's body holds the
+    kept doodle and its capture tempo and no played-notes clock, which only a fresh Jam's body
+    holds; its played notes are timed from phrase 1, as session mode's, and hold no raw doodle
+    note; the suggestion it declined stays declined. Its Jam part (`session-jam-part.ts`) admits a
+    Jam with no count-in; the save writes it, and reading it back (`keptJamPart` in
+    `workspace-kept-session-read.ts`, which throws on a body with no clock since chunk 30) gives the
+    review the Jam showed at its end: the kept doodle at its capture tempo, its lane empty.
   - **What lets it go**, and nothing else: `New doodle`, leaving Jam mode, the player's deletion of
     the latest session played on it, Delete everything, `Jam again on this doodle` on another
     doodle (which replaces it), a reload. A session end that replaces an unpinned
@@ -2274,9 +2286,11 @@ keyed by Jam's settings and the doodle, never session mode's.
     doodle starts a fresh Jam through `New doodle`.
 - **Files:** `src/jam/use-kept-doodle.ts`, `src/jam/JamBar.vue` (new), `src/jam/jam-idle-notes.ts`,
   `src/components/workspace/use-review-host.ts`, `workspace-session-begin.ts`,
-  `workspace-session-ends.ts`, `workspace-pregeneration.ts`, `HARDWARE-CHECKLIST.md` (v3.2 H4,
-  H5); tests `tests/unit/jam/use-kept-doodle.spec.ts`, `tests/e2e/workspace/kept-doodle.spec.ts`
-  (new).
+  `workspace-session-ends.ts`, `workspace-pregeneration.ts`, `session-jam-part.ts`,
+  `workspace-session-save.ts`, `workspace-kept-session-read.ts` (a Jam on a kept doodle's Jam
+  part, save and read), `HARDWARE-CHECKLIST.md` (v3.2 H4, H5); tests
+  `tests/unit/jam/use-kept-doodle.spec.ts`, `tests/unit/components/workspace/` (the kept session
+  read's and the save's kept-doodle cases), `tests/e2e/workspace/kept-doodle.spec.ts` (new).
 - **Spec sections:** [C5.11](master-spec.md#c511-the-kept-doodle-and-jam-again-on-this-doodle),
   [C5.13](master-spec.md#c513-edge-cases-before-phrase-1-sounds),
   [C6.4](master-spec.md#c64-where-and-when-it-is-shown),
@@ -2296,7 +2310,8 @@ keyed by Jam's settings and the doodle, never session mode's.
   successors from chunk 0, which also replaces `rule_held_doodle_dropped_on_change`;
   `rule_suggestion_use_it`, `rule_suggestion_keep_mine`; (v3.0)
   `rule_pregenerated_phrase_matches_session`. Drift check: `module_session_seed_plan` (a kept
-  doodle's phrase 1 at Idle draws its seeds as any phrase 1 at Idle, C11).
+  doodle's phrase 1 at Idle draws its seeds as any phrase 1 at Idle, C11), `module_kept_jam_session`
+  (a Jam on a kept doodle keeps no played-notes clock, C10.3).
 - **Revisions:** revise `rule_session_end_generates_next_phrase_one` (its kept-doodle half),
   `rule_pregeneration_discarded_on_change` (Jam's queue).
 - **Done when:**
@@ -2313,6 +2328,10 @@ keyed by Jam's settings and the doodle, never session mode's.
     (unpinned) session, keeps it; deleting the latest session played on it lets it go.
   - After a reload nothing is kept; the kept session's review offers it again, and the same settings
     and seed give the same phrase 1.
+  - A Jam on the kept doodle, kept and reloaded: its body holds no played-notes clock and its
+    played notes no raw doodle note, their times from phrase 1; its review reads back with the kept
+    doodle at its capture tempo, an empty lane and its decline, as at its end; a fresh Jam's read
+    unchanged.
   - v3.2 H4's steps 3 to 5 run on the kept doodle and H5 starts each doodle with `New doodle`, in
     `HARDWARE-CHECKLIST.md` and in this plan's H4.
 - **Verification:** chunk checks; the accessibility checks of what it adds; a debug run going round
@@ -2349,7 +2368,10 @@ Architecture capture: none
     none of them. Under `Favorites only` in a Jam, the very-short reason reads "Every note you
     played in your favorites and the doodle is very short. Turn on Include very short notes to
     export them."; the other reasons keep their wording. (Keeping such a Jam's played notes, and
-    `Delete played notes`, are chunk 30's.)
+    `Delete played notes`, are chunk 30's.) Until this chunk, a Jam in which only the doodle was
+    played has `Export played notes` disabled with v3.0's "Every note you played is very short.
+    Turn on Include very short notes to export them." (spec D499): the file holds no doodle note
+    yet. That transitional state goes here, once the doodle's notes are in the file.
   - **Both scopes**: the doodle always exported, never a favorite.
   - **From Jam's code**: the section is built by `src/jam/export/doodle-section.ts`, loaded with
     Jam's code; an export pressed while it loads waits; if the load fails, both exports of that
@@ -2388,6 +2410,8 @@ Architecture capture: none
     `Export played notes`, in both scopes with no favorite; a Jam on a kept doodle with no note
     played after it shows neither. With the doodle's and the favorites' notes all very short, the
     Jam sentence under `Favorites only`, v3.0's under `Whole session`; non-Jam reasons unchanged.
+    A Jam in which only the doodle was played, its notes not very short, no longer shows the
+    very-short reason: `Export played notes` is enabled and its file holds them.
 - **Verification:** chunk checks.
 - **Split rule:** 25a the generated-notes files (the file, the MIDI and MusicXML inputs, the tracks,
   the marks, the doodle section), 25b the played-notes file and what counts as holding a played

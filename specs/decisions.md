@@ -1139,3 +1139,11 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   wrong; chunk 24 rewords them. Now in:
   [build plan v3.2, H4](versions/v3/build-plan-v3.2.md#v32-h4--jam-listening-settings-drift-and-lock-l1),
   [chunk 24](versions/v3/build-plan-v3.2.md#chunk-24--the-kept-doodle).
+
+- **D499 (2026-11-04): a Jam on a kept doodle is kept with no played-notes clock; chunk 24 reads it back.**
+  `spec-writer`'s minor call on chunk 30's report (2cd6dfc3): C10.3 times its played notes from
+  phrase 1 and gives the count-in clock to a fresh Jam only, so its body holds the kept doodle and
+  no clock; nothing writes it yet and `keptJamPart` throws on it. Chunk 24 writes and reads it;
+  chunk 25 lifts a doodle-only Jam's transitional very-short disable. Now in:
+  [build plan v3.2, chunk 24](versions/v3/build-plan-v3.2.md#chunk-24--the-kept-doodle),
+  [chunk 25](versions/v3/build-plan-v3.2.md#chunk-25--exports-open-with-the-doodle).
