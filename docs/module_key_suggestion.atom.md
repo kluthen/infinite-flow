@@ -1,6 +1,6 @@
 ---
 id: module_key_suggestion
-status: DRAFT
+status: REVIEW
 human_name: The Key and Mode Suggestion's Method
 parents:
   - [[req_key_and_mode_suggestion]]

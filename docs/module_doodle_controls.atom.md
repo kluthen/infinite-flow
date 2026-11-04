@@ -1,6 +1,6 @@
 ---
 id: module_doodle_controls
-status: DRAFT
+status: REVIEW
 type: MODULE
 layer: ARCHITECTURE
 tags: [v3, release-v3.2, jam, generation, register]

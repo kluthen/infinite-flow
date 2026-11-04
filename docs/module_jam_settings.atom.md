@@ -1,6 +1,6 @@
 ---
 id: module_jam_settings
-status: DRAFT
+status: REVIEW
 priority: 1
 human_name: Jam's Settings Model
 tags: [v3, release-v3.2, jam, player-controls, storage]
