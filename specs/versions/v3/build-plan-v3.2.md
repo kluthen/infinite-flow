@@ -1,6 +1,10 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v32 (2026-11-04): v31 with spec D499 written in (Part C unchanged), from chunk 30's
+Status: v33 (2026-11-04): v32 with no decision (Part C unchanged), from chunk 23a's report:
+chunk 25's Scope and Done when state a Jam session's two exports after a failed load of Jam's
+code (disabled, each with the design's failure sentence; enabled once it loads), which chunk 23
+leaves enabled.
+v32 (2026-11-04): v31 with spec D499 written in (Part C unchanged), from chunk 30's
 report: chunk 24 keeps and reads back a Jam on a kept doodle, whose body holds no played-notes
 clock (C10.3), and which chunk 30's read throws on; chunk 25 says a doodle-only Jam's
 `Export played notes` is disabled with the very-short reason until it puts the doodle's notes in
@@ -2190,7 +2194,7 @@ Architecture capture: none (it builds on chunk 21's and chunk 30's)
     doodle; a doodle note played just before the doodle's first barline is O267's.
   - **Loading from Jam's code** (ux D339): "Loading your doodle." while it loads; if it fails, the
     sentence, `Jam again on this doodle` disabled with the reason, no suggestion; the rest of the
-    review works.
+    review works (both exports disabled with that sentence is chunk 25's).
   - **`suggestion-row`**: judged against Jam's key and mode; `Jam in {answer}` sets Jam's key and
     mode only (saved with Jam's settings, chunk 31), never session mode's; `Keep {key} {mode}`
     declines, saved with the session (chunk 30); the "no mode fits" sentence in every review of that
@@ -2374,14 +2378,20 @@ Architecture capture: none
     yet. That transitional state goes here, once the doodle's notes are in the file.
   - **Both scopes**: the doodle always exported, never a favorite.
   - **From Jam's code**: the section is built by `src/jam/export/doodle-section.ts`, loaded with
-    Jam's code; an export pressed while it loads waits; if the load fails, both exports of that
-    session are unavailable with the reason (ux D339, D345).
+    Jam's code; an export pressed while it loads waits in its `is-loading` state; if the load
+    fails, `Export generated notes` and `Export played notes` are both disabled, each named by a
+    `field-note` after it holding the doodle's failure sentence (for `Export played notes`, before
+    every other reason), the other export controls live, and an export already waiting ends there,
+    never in `review-export-error`; once Jam's code loads, both are enabled as for any Jam (ux D339,
+    D345). Until this chunk they stay enabled with no `field-note` after a failed load (chunk 23
+    reads Jam's code through `use-review-jam-code.ts`).
   - Outside a Jam every file is byte-identical to v3.1's.
 - **Files:** `src/export/generated-notes-file.ts`, `played-notes-file.ts`,
   `src/export/midi/midi-export-input.ts`, `midi-tracks.ts`, `played-notes-midi-input.ts`,
   `played-notes-placement.ts`, `src/export/musicxml/musicxml-export-input.ts`, `musicxml-marks.ts`,
   `src/jam/export/doodle-section.ts` (new); `src/components/workspace/review-export.ts` (whether
   the history and the file hold a played note, and why not), `use-review-area.ts`,
+  `use-review-jam-code.ts` (chunk 23's; the exports' state after a failed load),
   `src/components/review/review-types.ts`, `ReviewPanel.vue` (the reason's words); tests under
   `tests/unit/export/` (the three tests of
   [Read first](#read-first-what-v32-changes-in-v2-v30-and-v31) kept, Jam variants beside them),
@@ -2412,6 +2422,10 @@ Architecture capture: none
     Jam sentence under `Favorites only`, v3.0's under `Whole session`; non-Jam reasons unchanged.
     A Jam in which only the doodle was played, its notes not very short, no longer shows the
     very-short reason: `Export played notes` is enabled and its file holds them.
+  - After a failed load of Jam's code, a Jam session's two exports are disabled, each with the
+    design's `field-note` sentence (first for `Export played notes`), the other export controls
+    live, and an export pressed while loading ends there, never in `review-export-error`; once
+    Jam's code loads, both are enabled.
 - **Verification:** chunk checks.
 - **Split rule:** 25a the generated-notes files (the file, the MIDI and MusicXML inputs, the tracks,
   the marks, the doodle section), 25b the played-notes file and what counts as holding a played
