@@ -10,6 +10,7 @@
 import type { TransportTimeline } from '@/audio/audio-transport'
 import type { Seed } from '@/domain/random/seed'
 import type { InstrumentClef } from '@/domain/profile/instrument-clef'
+import type { DoodleReadings } from '@/jam/doodle-controls'
 import type { PlayedNoteEvent } from '@/midi/played-note-tracker'
 import type { StaffLayout } from '@/notation/notation-layout-policy'
 import { createAudioTimeAgenda } from '@/session/session-agenda'
@@ -19,6 +20,7 @@ import {
   type RecordedDoodle,
 } from '@/session/session-history'
 import type {
+  AudioTime,
   PhraseOneEvent,
   SessionEndCause,
   SessionOutput,
@@ -35,45 +37,53 @@ import {
 } from './workspace-session-active'
 import { showCountIn, startWakeUps } from './workspace-session-begin'
 import { SessionControllerError, type UntimedEvent } from './workspace-session-controller-types'
-import type { WorkspaceSessionRunnerInput } from './workspace-session-dependencies'
+import type { PhraseOneAttemptSeams } from './workspace-session-controller-seams'
 import { watchSessionEnds } from './workspace-session-end-watchers'
 import type { SessionEnds } from './workspace-session-ends'
+import { phraseOneEntry, phraseOneFitCheck } from './workspace-session-phrase-one-entry'
 import { onSessionOutput } from './workspace-session-outputs'
 import { createSessionShownSettings } from './workspace-session-settings'
 
 /**
  * What a start without phrase 1 takes from the code that runs it (Jam's): the session's settings
- * and clef, where every note the session reads goes (the capture's port), the fit check of phrase
- * 1's attempts against the session staff layout, and where each engine output goes once the
- * controller has handled it.
+ * and clef, where every note the session reads goes (the capture's port), and where each engine
+ * output goes once the controller has handled it. Phrase 1's attempts are checked against the
+ * session staff layout by the controller itself.
  */
 // @spec-link [[module_session_start_without_phrase_one]]
 export interface StartWithoutPhraseOne {
   readonly settings: SessionSettings
   readonly clef: InstrumentClef
   readonly playedNotes: (event: PlayedNoteEvent) => void
-  readonly checkFit: WorkspaceSessionRunnerInput['checkFit']
   readonly outputs: (output: SessionOutput) => void
 }
 
 /**
  * A session started without phrase 1, as the code that runs it drives it: its transport timeline
- * (the click plan's start, the count-in's end), its phrase 1 events (an attempt asked for, phrase
+ * (the click plan's start, the count-in's end), the session seed drawn at Start and the seams its
+ * phrase 1 attempts are built with, the audio clock and a wake-up on it (an action run once the
+ * clock reaches its time, by the controller's wake-ups, never after the session's end), its
+ * phrase 1 events (an attempt asked for, phrase
  * 1 handed over with the time it sounds, a barline of the click at or after the count-in's end,
  * which also sets phrase 1's start on the transport and the forced click's end), stamped now on
  * the audio clock, its own ends (no note played, no phrase 1, the staff no longer shown), and the
  * doodle its capture ended, kept in the session's history with its raw notes marked, and the key
- * and mode suggestion worked out at the doodle's end, kept beside it; each a no-op once the session
- * has ended.
+ * and mode suggestion worked out at the doodle's end, kept beside it, and the controls taken from
+ * the doodle, kept for the review's Jam part; each a no-op once the session has ended.
  */
 // @spec-link [[module_session_start_without_phrase_one]]
 // @spec-link [[rule_raw_doodle_notes_are_played_notes]]
 export interface SessionWithoutPhraseOne {
   readonly timeline: TransportTimeline
+  readonly sessionSeed: Seed
+  readonly attemptSeams: PhraseOneAttemptSeams
+  readonly now: () => AudioTime
+  readonly wakeAt: (at: AudioTime, action: () => void) => void
   readonly dispatch: (event: UntimedEvent<PhraseOneEvent>) => void
   readonly end: (cause: SessionEndCause) => void
   readonly recordDoodle: (doodle: RecordedDoodle) => void
   readonly recordSuggestion: (suggestion: DoodleSuggestion) => void
+  readonly recordDoodleControls: (controls: DoodleReadings) => void
 }
 
 /**
@@ -93,9 +103,11 @@ export interface SessionBeginningWithoutPhraseOne {
  * handling with no phrase 1, every note going to the caller's port too; show its count-in row;
  * start the wake-ups; start the runner from the session seed drawn at Start (none of session
  * mode's options, Vary settings, Tension across phrases and Rising tempo, runs in it), checking
- * phrase 1's fits through the caller, nothing on screen to read, each output handled and then
- * handed to the caller; and watch the hidden tab and the window's shape. No count-in-over is
- * scheduled: phrase 1 sounds when the caller says. Returns the caller's handle: its phrase 1
+ * phrase 1's fits against the held layout, each output handled and then handed to the caller
+ * (phrase 1, readied at the hand-over, enters the workspace: ./workspace-session-phrase-one-entry.ts,
+ * which also schedules phrase 1's start); and watch the hidden tab and the window's shape, the
+ * material on screen once phrase 1 has entered. No count-in-over is scheduled before the
+ * hand-over: phrase 1 sounds when the caller says. Returns the caller's handle: its phrase 1
  * events stamped now (handing phrase 1 over first sets phrase 1's start on the transport, so phrase
  * starts and the backing count from it, and ends the forced click when phrase 1 sounds, and only
  * then reaches the runner; a time the transport refuses throws and reaches nothing) and its own
@@ -126,6 +138,7 @@ export function beginSessionWithoutPhraseOne(
   state.strugglingNotice = false
   state.shownSettings = session.shown.current()
   state.startSettings = request.settings
+  session.enterPhraseOne = phraseOneEntry(core, ends, session, { heldLayout, clef: request.clef })
   session.midi = sides.sessionMidi.beginSession({
     startingTempo,
     phraseOne: null,
@@ -146,8 +159,10 @@ export function beginSessionWithoutPhraseOne(
       adaptiveTempo: false,
       multiPhraseTensionArc: false,
     },
-    checkFit: request.checkFit,
-    display: { isPhraseOnScreen: () => false },
+    checkFit: phraseOneFitCheck(core, heldLayout, request.clef),
+    display: {
+      isPhraseOnScreen: (phraseNumber) => session.display?.isPhraseOnScreen(phraseNumber) ?? false,
+    },
     now: () => engineTime(session, audio.now()),
     onOutput: (output) => {
       onSessionOutput(audio, state, session, output)
@@ -160,12 +175,18 @@ export function beginSessionWithoutPhraseOne(
     idleLayout: deps.idleLayout,
     heldLayout,
     fixedParts: null,
-    materialFits: () => Promise.resolve(true),
+    materialFits: (inputs) => session.display?.materialFits(inputs) ?? Promise.resolve(true),
     end,
     fail,
   })
   return {
     timeline,
+    sessionSeed,
+    attemptSeams: deps.phraseOneSeams,
+    now: audio.now,
+    wakeAt: (at, action) => {
+      if (core.active === session) session.agenda.schedule(at, action)
+    },
     dispatch: (event) => {
       if (core.active !== session) return
       if (event.kind === 'phrase-one') {
@@ -180,6 +201,9 @@ export function beginSessionWithoutPhraseOne(
     },
     recordSuggestion: (suggestion) => {
       if (core.active === session) session.history.recordSuggestion(suggestion)
+    },
+    recordDoodleControls: (controls) => {
+      if (core.active === session) session.doodleControls = controls
     },
   }
 }
@@ -243,6 +267,8 @@ export function createSessionStartWithoutPhraseOne(
         watch: null,
         display: null,
         midi: null,
+        enterPhraseOne: null,
+        doodleControls: null,
         shown: createSessionShownSettings(settings, settings),
       }
       return beginSessionWithoutPhraseOne(core, sides, ends, session, {

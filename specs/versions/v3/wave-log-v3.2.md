@@ -1329,3 +1329,214 @@ On v3.2-w5 (head 9e03760d), reference machine (AMD Ryzen 5 PRO 8640HS, 12 thread
 - Open after the wave: v3.2 H2 step 3 and H3 (gate L3, the owner); DR recordings (the owner); the
   hand checks v3.2 H4–H6 before any BUSINESS atom of the Jam goes to REVIEW. Next: wave 6 (chunk
   21 wires the fresh Jam), in a fresh session.
+
+## Wave 6 (2026-11-04)
+
+Wave branch `v3.2-w6` from `main` a83a14f1 (wave 5 plus the security fixes), worktree
+`/home/bastien/work/infinite_flow-v3.2-w6`. Chunks, in order (κ 1): 21 → 30 → 23. Every
+**Depends on** is merged (waves 2–5). The owner was updating the VPS from `main` at the wave's
+start.
+
+### Preflight
+
+`documentalist`, full preflight plus captures, 2d4334b4 (no semantic index; grep over the atoms
+and the `@spec-link`s of the in-scope files; no `atd audit`).
+
+| Chunk | Verdict | Governing atoms |
+| --- | --- | --- |
+| 21 | PROCEED WITH CORRECTIONS | `req_jam`, the Jam start/phrase-1 rules, `module_session_start_without_phrase_one`; STABLE contract atoms whose signed Jam halves go live (`rule_midi_never_blocks_session`, `rule_start_while_controller_away`, `rule_silence_timeout_ends_session`, `rule_controller_loss_mid_session`, `rule_controller_reconnection_window`, `rule_session_generation_failure_ladder`, `module_session_seed_plan`); no guarantee changes (the sync drops `module_session_seed_plan`'s "Nothing in the app starts a fresh Jam yet", M22) |
+| 30 | PROCEED WITH CORRECTIONS, sign-off pending | the kept-Jam atoms; STABLE `module_kept_session_save`, `module_kept_session_changes`, `module_kept_session_reach` change: gate CJ W1–W3 |
+| 23 | PROCEED WITH CORRECTIONS, sign-off pending | the review and suggestion atoms; STABLE `module_saved_data_loader` 0.8 changes: gate CJ W4 |
+
+Captures (DRAFT 0.1): `module_jam_session_end` (chunk 21: what the review host receives from an
+ended Jam, its Jam part; the mode never changes at a Jam's end; an end before phrase 1 opens no
+review and keeps nothing), `module_kept_jam_session` (chunk 30: what a kept Jam session holds in
+chunk 22's shape; its raw-doodle-note rule depends on W1). Change set part W (W1–W5) drafted, not
+applied.
+
+Plan corrections to `spec-writer`: plan v30, 82dc9ef9 (spec D460; D458–D459 reserved elsewhere,
+O274 reserved unused; next free D461, O275): Files, Atoms, Drift check and Revisions for 21, 30,
+23; gate CJ; chunk 21's capture wording confirmed (the controls from the doodle are carried for
+Jam's view, the review shows none; Part C C5.16).
+
+Driver ruling (minor design, delegated): a kept Jam session stores its preset label as the STABLE
+`entity_kept_session_record` says; its row and review summary show no preset part. `ux-writer`
+ux D449, d84f5d6e (corrects D345; next ux D450).
+
+Gate CJ asked of the owner 2026-11-04: W1–W3 before chunk 30's merge, W4 (a) recommended, no
+contract bump, or (b) CONTRACT 13.0.0, before chunk 23's merge.
+
+### Chunks
+
+- **Chunk 21** (A fresh Jam on screen), split. 21a b80eea9c (the cue row's Jam parts, the read-in,
+  phrase 1 through the workspace: `phrasesOf`'s throw gone, spec D456; Jam's driver
+  `src/jam/fresh-jam.ts`; `StartWithoutPhraseOne.checkFit` removed, the controller checks phrase
+  1's fit itself; new controller dependency `phraseOneSeams`); the first owner paused at ~190k
+  context, a fresh owner built 21b 60a7a17d (`Start Jam` enabled, the home-note start, every end
+  before phrase 1 with its focus, `jam-notice` only at the deadline, the reviewed session's Jam
+  part `ReviewedJamPart` with a new handle call `recordDoodleControls`, v3.2 H4/H5 written).
+  MERGED 235d3920. Checks: vitest related 96 files / 881 tests; typecheck, lint, format, links,
+  health clean; build; verify:boundaries (entry 286,103 B, jam-mode chunk 45,420 B); Playwright
+  Jam specs + accessibility 120 passed, new specs `--repeat-each=3`, five session-mode specs 37
+  passed; axe light/dark; debug runs 1280×800 and 740×360. Readings the chunk owner settled, routed:
+  narrow window before phrase 1 → `staff-not-shown` end (spec-writer); H4 step 3 without the kept
+  doodle (spec-writer); read-in cross-fade blocked by `.staff-frame`'s opaque background, portrait
+  end focus on `body` (ux-writer). Left for the sync: `rule_session_end_generates_next_phrase_one`'s
+  fresh-Jam half, the Jam part's names in `module_jam_session_end`, M22's caveat. Risk:
+  `accessibility.spec.ts` at 561 effective lines (warning 400, error 600).
+- Chunk 21's readings recorded: `spec-writer` 282d122e (plan v31, Part C v1.19): spec D495
+  (until phrase 1 is on screen, Jam's empty staff is the staff judged; a window leaving it no room
+  ends the Jam; `rule_jam_ending_before_phrase_one` already covers it, an optional rewording for
+  the sync), D497 (plan H4/H5 aligned with the checklist; chunk 24 rewords H4 and H5 once the doodle
+  is kept). IDs: D461–D494 are held by another worktree (`v3.2-guide-playback`), D496 and one open-question ID
+  reserved unused; next free D498, O301. `ux-writer` e0d02ca5: ux D450 (the read-in cross-fade, in
+  `components.css` only), D451 (a portrait end leaves focus on the page, both modes, accepted),
+  D452 (the design says either kind of start jumps: the build's missing jump on a note start is a
+  code gap in both modes); next ux D453.
+- Start-jump fix (ux D452), `coding-executor` 39a128ab on the wave branch: the home note's start
+  and session mode's starting-note start make the start's jump (new seam `afterNoteStart`, as
+  `heldModeNotes`); a note that opens the stale prompt doesn't. vitest related 64 files / 524
+  tests; Playwright 41 passed; typecheck, lint, format, health (warnings unchanged),
+  verify:boundaries (entry 286,684 B). No atom governs the jump. `WorkspaceShell.vue` 540 effective
+  lines (warning).
+- **Chunk 30** (Kept Jam sessions) dispatched to a `coding-leader` (worktree
+  `/home/bastien/work/infinite_flow-v3.2-c30`, branch `v3.2-c30-kept-jam`, cut before 39a128ab),
+  build only: its merge waits on gate CJ W1–W3.
+- **Chunk 30** BUILT, not merged (gate CJ W1–W3): 30a 98186732 (the save, the ends, the review
+  state, the confirmation copy, the played notes, the decline, the deletions), 30b 2cd6dfc3 (the
+  list's Jam mark, the summary, a kept Jam session read back, Your data, M3), branch
+  `v3.2-c30-kept-jam` from e0d02ca5, worktree kept. Every Done when met (new e2e
+  `kept-jam-session.spec.ts`, `review-privacy.spec.ts`'s Jam case). Checks: vitest related 150 files
+  / 1,606 tests (30a), 147 / 1,545 (30b); typecheck, lint, format, links, health clean;
+  verify:boundaries (entry 286,411 B, jam-mode 45,420 B); Playwright 49 + 35 + 60 passed; debug runs
+  1280×800, 740×360. **M3** (2026-11-04, Ryzen 5 PRO 8640HS, no VM, two runs): half Jam sessions,
+  worst cold read 32.7 / 31.7 ms (500 sessions, 50 presets), under 2 % of the 2 s wait; without Jam
+  35.5 / 35.3 ms; `docs/storage.md`; the owner repeats the deciding runs on the reference machine.
+  Readings to route: `ReviewedJamPart.suggestion` and `.doodleControls` nullable for a kept Jam
+  read back (against `module_jam_session_end`'s "same shape"; for the sync); a kept Jam with no
+  played-notes clock (a Jam on a kept doodle) throws on read back, chunk 24's to handle
+  (spec-writer); `controller.declineSuggestion(key)` built for chunk 23's Keep; Your data copy built
+  here ("your Jam settings", "Doodles stay as the app wrote them.") (ux-writer); a doodle-only Jam's
+  `Export played notes` disabled until chunk 25 (transitional); harness `settingsNotReadBack` now
+  decodes Jam's settings records. Chunk 23 waits on chunk 30's merge, so on CJ W1–W3.
+- Chunk 30's follow-ups: `spec-writer` 8e620583 (plan v32, spec D499; D498 held elsewhere): chunk
+  24 keeps and reads back a Jam on a kept doodle with no played-notes clock (C10.3 already says so;
+  Part C unchanged); chunk 25 removes the doodle-only Jam's disabled `Export played notes`.
+  `ux-writer` bb1e359f: Your data's built copy matches the design; ux D454 (next ux D455): the
+  Review's kept-played-notes confirmation also says "Doodles stay as the app wrote them." when a
+  Jam is among the sessions keeping played notes. Fixed on chunk 30's branch, `coding-executor`
+  aa925607 (shared `jamKeepsPlayedNotes(rows)`; vitest related 666 passed; `kept-jam-session`
+  8/8, `played-notes-opt-in` 10/10; typecheck, lint, format, health clean). Chunk 30 stays built,
+  waiting on CJ W1–W3.
+- Gate CJ: the owner, verbatim, 2026-11-04: "CJ ok, W4 (a) (Recommended)": W1–W3 as drafted, W4
+  option (a) (Jam's settings made for a review save no first values), W5 not taken, CONTRACT stays
+  12.0.0. `documentalist` recorded it in change set part W, 87756fdc (applied at this wave's sync:
+  W1–W3 after chunk 30, W4 after chunk 23, with the built names part W lists). Gate CJ done,
+  9419ce53.
+- **Chunk 30** MERGED 2347dac6 (clean; typecheck green on the merged branch, which also holds the
+  start-jump fix 39a128ab); worktree removed, branch kept.
+- **Chunk 23** (The review's doodle section and the suggestion) dispatched to a `coding-leader`
+  (worktree `/home/bastien/work/infinite_flow-v3.2-c23`, branch `v3.2-c23-review-doodle`, split
+  23a/23b); its merge gate CJ W4 is cleared, so it merges itself.
+- **Chunk 23** (The review's doodle section and the suggestion), split. 23a ad6cb777 (the doodle
+  section `ReviewDoodleSection.vue` with Jam's `ReviewDoodle`, the doodle engraved by the phrase
+  engraver clipped at its last barline, loading and failed-load states, the doodle's lane); the first
+  owner paused at heavy context (its tests came after the code), a fresh owner built 23b b56da067
+  (red first: `use-key-suggestion.ts`, `SuggestionRow.vue`, `Jam again on this doodle`, W4 (a)'s
+  `changeFromReview` and the deferred first-values save `firstValuesDeferred` / `saveFirstValues`,
+  v3.2 H6 written, lexicon "Key and mode suggestion" built). MERGED c1631457. Checks: vitest
+  related 46 files / 432 tests, workspace + review + Jam unit dirs 167 files / 1,549; typecheck,
+  lint, format, links, health clean; build, verify:boundaries (entry 288,120 B, jam-mode 53,258
+  B); Playwright 68 passed; axe light/dark on the doodle Review and the row (the row's in
+  `review-suggestion.spec.ts`, since `accessibility.spec.ts` is at 10 atoms); debug runs 1280×800
+  and 740×360. Routed: `spec-writer` aa99506c (plan v33): chunk 25 spells out the failed-load
+  exports (disabled with the sentence); O267 noted as built at the lane's start, not exactly "where
+  it was played" (the owner's). To `ux-writer`: focus after `Jam again on this doodle` until
+  chunk 24's `jam-bar`; a set suggestion stays absent after a further key change; the answer
+  named for the selected instrument.
+- All three chunks merged; wave 6's gate next.
+- Chunk 23's design calls: `ux-writer` dfa2f937, ux D456 (focus after `Jam again on this doodle`
+  follows Close review's rule until chunk 24's `jam-bar`), D457 (a set suggestion stays absent for
+  the rest of that Review), D458 (the answer is named for the selected instrument); no code change.
+
+### Wave gate (2026-11-04)
+
+On v3.2-w6 (head dfa2f937), reference machine (AMD Ryzen 5 PRO 8640HS, 12 threads, 11 GiB, Node
+22.23.4, no VM), idle, no `atd audit`, one heavy command at a time (`coding-executor`). No chunk
+of wave 6 places the sweep, so no `test:sweep`, M1 or M5.
+
+- `npm run quality`: run 1 (15:24–15:33) stopped on one flake, `session-start-conditions.spec.ts:114`
+  › 'a generation-failure banner over the retained phrase: disabled' in the pregeneration pass
+  (the banner not visible within 5 s); alone it passes 9/9 and 20/20 with pregeneration off and on;
+  no wave 6 commit touches it (last changed 65db2a48); the same kind as the flaky
+  injected-failure-vs-pregeneration e2e seen 2026-10-28. Run 2 (15:34–15:44) green, no fix commit:
+  unit 589 files / 9,153; e2e 675 (+1 skipped) and pregeneration 675; a11y 76; notation 107
+  (+4 skipped); `atd:lint`, `atd:check` pass; `lint:health` 0 errors (860 warnings). Near the
+  600-line limit: `notation-calibration.spec.ts` 591, `accessibility.spec.ts` 589 (+116 this
+  wave), `pitch-search-equivalence.spec.ts` 566, `WorkspaceShell.vue` 553, `pitch-candidates.ts`
+  553; 68 files at 10 atoms.
+- Bundle (`verify:boundaries` passes; against main a83a14f1 rebuilt on this machine): entry
+  288,120 B (+6,073 B; 19,080 B left of 307,200 B); first-load JS 350,038 B in 21 files (+5,958 B;
+  `concert-pitch`, `deep-freeze`, `rational` left it, `quantized-doodle-errors`, `timeline` joined);
+  Jam's chunk `jam-mode` 53,258 B, 30 modules (+36,285 B; lazy, under the 102,400 B budget for other
+  chunks); worker 154,170 B, unchanged (budget 174,080 B).
+- No dependency changed (`package-lock.json` unchanged; `package.json` only adds five specs to
+  `test:e2e`): no `security-advisor` check.
+
+### Wave sync (2026-11-04)
+
+`documentalist` 8fb51a77, then 917818b5 (atd:lint, atd:check 27 atoms with impl and tests,
+lint:links, lint:health 0 errors; no `atd audit`). Change set: part W marked applied; new part X.
+
+- Chunk 21: `rule_session_end_generates_next_phrase_one` 0.2 → 0.3 (fresh-Jam half; tag kept for
+  chunk 24's half); `module_session_seed_plan` 0.4 → 0.5 (STABLE; M22's caveat dropped, no
+  guarantee changed); `module_jam_session_end` 0.1 → 0.3 (built names; then the driver's ruling on
+  two drifts: a kept Jam read back gives the same type with no suggestion and no controls; handing
+  Jam's code the Jam part comes with the kept doodle, chunk 24; `jam-notice` also goes when Jam
+  mode is left); `module_session_start_without_phrase_one` 0.3 → 0.4; D495's optional rewording
+  applied, `rule_jam_ending_before_phrase_one` 0.2 → 0.3.
+- Chunk 30: W1–W3 applied, `module_kept_session_save` 1.2, `module_kept_session_changes` 0.9,
+  `module_kept_session_reach` 0.7; `module_kept_jam_session` 0.2.
+- Chunk 23: W4 (a) applied, `module_saved_data_loader` 0.9; `module_jam_code_boundary` 0.3 (the
+  entry's full exports).
+- Drift checks aligned: `module_jam_capture` 0.3, `module_jam_idle_notes` 0.4,
+  `module_workspace_mode` 0.3, `service_session_controller` 0.9, `service_session_end` 0.4,
+  `service_workspace_session_flow` 1.10, `module_session_rolling_display` 0.7,
+  `module_session_phrase_steps` 0.2, `module_review_played_notes_lane` 0.4,
+  `module_key_suggestion` 0.4, `module_jam_settings` 0.3.
+- CONTRACT stays 12.0.0 (W5 not taken); the code meets the signed wording of chunk 21's part M
+  Jam halves and chunks 30's and 23's CS atoms. One tag added (`rule_suggestion_shown_after_jam_only`
+  above `useReviewDoodleTools`); no file pushed over 10 atoms. O267 noted in X2, no ruling.
+- Status candidates for the owner (DRAFT → REVIEW): `module_jam_capture`,
+  `module_session_start_without_phrase_one`, `module_jam_idle_notes`, `module_workspace_mode`.
+- `spec-writer` 4e73b763 (plan v34): chunk 24 hands Jam's code the ended Jam's Jam part at a
+  Jam's end (none before phrase 1; C5.13's kept-doodle split), `module_jam_session_end` in its
+  drift check.
+- `doc-ids compare main v3.2-w6`: 0 collisions, 0 warnings (spec D461–D494 are held in the
+  `v3.2-guide-playback` worktree, not on `main`).
+
+### Report to the owner (2026-11-04)
+
+Chunks 21, 30 and 23 merged, none moved; gate green with no fix (one load flake,
+`session-start-conditions.spec.ts:114`, passes alone); entry 288,120 B (+6,073 B), first-load
+350,038 B, Jam's chunk 53,258 B, worker unchanged; sync applied W1–W4, CONTRACT 12.0.0. Asked:
+the four status candidates; the merge into `main` (and push); whether to file the flake as an
+issue. Open after the wave: v3.2 H2 step 3 and H3 (gate L3); H4–H6 (gates L1, L2, now open);
+DR recordings; O267; `accessibility.spec.ts` at 589 of 600 lines and
+`notation-calibration.spec.ts` at 591 (the next chunk adding to either splits it).
+
+### The owner's answers and the merge (2026-11-04)
+
+- The owner, verbatim: "Merge, clean up and push (Recommended)"; "Move all four to REVIEW
+  (Recommended)"; "File an issue (Recommended)".
+- `documentalist` 7efdd811: `module_jam_capture` 0.3, `module_session_start_without_phrase_one`
+  0.4, `module_jam_idle_notes` 0.4, `module_workspace_mode` 0.3 to REVIEW (change set X3);
+  CONTRACT stays 12.0.0.
+- ISS-016 filed, ec7d4f70: the load flake of `session-start-conditions.spec.ts:114` (Low).
+- Wave 6 merged into `main` `--no-ff` and pushed; the wave worktree and the branches `v3.2-w6`,
+  `v3.2-c21-fresh-jam`, `v3.2-c30-kept-jam`, `v3.2-c23-review-doodle` removed.
+- Open after the wave: v3.2 H2 step 3 and H3 (gate L3); H4–H6 now runnable (gates L1, L2); DR
+  recordings; O267; ISS-016; `accessibility.spec.ts` 589 and `notation-calibration.spec.ts` 591 of
+  600 lines. Next: wave 7 (24, 25, 32, 33; gate J240 in it), in a fresh session; chunk 24 carries
+  the Jam part hand-over (plan v34), the kept-Jam read back with no clock (spec D499) and H4/H5's
+  rewording (spec D497); chunk 25 the failed-load exports and the doodle-only export (plan v33).

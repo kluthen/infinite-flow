@@ -1,6 +1,6 @@
 ---
 id: module_workspace_mode
-status: DRAFT
+status: REVIEW
 parents:
   - [[rule_app_opens_in_session_mode]]
   - [[rule_leaving_jam_mode_keeps_session_mode]]
@@ -8,7 +8,7 @@ parents:
 dependents: []
 type: MODULE
 layer: ARCHITECTURE
-version: 0.2
+version: 0.3
 tags: [v3, release-v3.2, jam, session-mode, workspace]
 priority: 1
 human_name: The Workspace's Mode
@@ -29,7 +29,7 @@ The first press of Jam in a visit waits for Jam's code to load (module_jam_code_
 While Jam mode opens or shows, session mode is held: it keeps its state as it was left (the phrase on screen, its prepared phrases and its banners), prepares nothing new, names no starting note and no played note starts a session; leaving Jam mode shows it exactly as it was.
 
 ## TECHNICAL INTERFACE
-src/components/workspace/use-workspace-mode.ts: `useWorkspaceMode(deps)` holds the mode (`WorkspaceMode`, `session` or `jam`, `session` at creation), whether Jam mode is opening, whether session mode is `held`, Jam's loaded code and view, the load-failure notice and the switch's `view` (`WorkspaceModeView`), with `select`, `retry` and `dismissFailure`; it reads only whether an Idle operation runs, a session runs or the review mode shows, and Jam's loader. src/components/workspace/WorkspaceShell.vue builds it with `loadJamMode` (src/components/workspace/load-jam-mode.ts, module_jam_code_boundary) and reports the hold upward (`session-mode-held-change`), which src/App.vue writes into the workspace session's `sessionModeHeld` (src/components/workspace/create-workspace-session.ts); the session controller hands it to session mode's pre-generation orchestrator (src/components/workspace/workspace-pregeneration.ts, module_idle_pregeneration_queue) and to its starting note (src/components/workspace/workspace-session-starting-note.ts, module_session_starting_note). The mode switch (`segmented-control mode-switch`) is src/components/workspace/ModeSwitch.vue in src/components/workspace/WorkspaceHeader.vue; Jam's view, src/jam/JamWorkspace.vue, reached only through Jam's loaded code, shows in src/components/workspace/ScorePanel.vue.
+src/components/workspace/use-workspace-mode.ts: `useWorkspaceMode(deps)` holds the mode (`WorkspaceMode`, `session` or `jam`, `session` at creation), whether Jam mode is opening, whether session mode is `held`, Jam's loaded code and view, the load-failure notice and the switch's `view` (`WorkspaceModeView`), with `select`, `retry` and `dismissFailure`; it reads only whether an Idle operation runs, a session runs or the review mode shows, and Jam's loader. src/components/workspace/WorkspaceShell.vue builds it with `loadJamMode` (src/components/workspace/load-jam-mode.ts, module_jam_code_boundary) and reports the hold upward (`session-mode-held-change`), which src/App.vue writes into the workspace session's `sessionModeHeld` (src/components/workspace/create-workspace-session.ts); the session controller hands it to session mode's pre-generation orchestrator (src/components/workspace/workspace-pregeneration.ts, module_idle_pregeneration_queue) and to its starting note (src/components/workspace/workspace-session-starting-note.ts, module_session_starting_note). The mode switch (`segmented-control mode-switch`) is src/components/workspace/ModeSwitch.vue in src/components/workspace/WorkspaceHeader.vue; Jam's view, src/jam/JamWorkspace.vue, reached only through Jam's loaded code, shows in src/components/workspace/ScorePanel.vue. Jam again on this doodle changes the mode through workspaceReviewJamPorts (src/components/workspace/review-jam-ports.ts): over session mode it closes the review and presses Jam in between (select('jam')), over Jam mode it only closes the review. In Jam mode the shell's Start Jam and Jam's home note start a fresh Jam through useFreshJam (src/components/workspace/use-fresh-jam.ts), and the shell hands Jam's home-note route upward (`held-mode-notes-change`), which src/App.vue writes into the workspace session's heldModeNotes (module_jam_idle_notes).
 
 ## EXPECTATION
 - Every load of the app, a reload included, opens in session mode; the mode is never saved.

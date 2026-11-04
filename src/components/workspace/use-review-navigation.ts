@@ -40,7 +40,11 @@ export interface ReviewNavigationDependencies {
 /** The moves the shell binds to `Close review`, `Review last session` and `All sessions`. */
 // @spec-link [[req_last_session_review]]
 export interface ReviewNavigation {
-  readonly closeReview: () => Promise<void>
+  /**
+   * `Close review`; given `between`, the review closed first, then `between` awaited before the
+   * page scrolls and focus moves (`Jam again on this doodle` over session mode opens Jam mode).
+   */
+  readonly closeReview: (between?: () => Promise<void>) => Promise<void>
   readonly showReview: () => Promise<void>
   readonly showSessions: () => void
 }
@@ -56,11 +60,15 @@ export function useReviewNavigation(deps: ReviewNavigationDependencies): ReviewN
    * Intent: `Close review`: the Review stops showing and is kept, the page scrolls instantly to its
    * top, and once the staff area is rendered again focus moves by the idle state it shows: it
    * stays on the session action if enabled (`Start session` in Ready), else `room-notice`, else
-   * the phrase action if enabled, else `controller-status`. Nothing is announced.
+   * the phrase action if enabled, else `controller-status`. Nothing is announced. `Jam again on
+   * this doodle` leaves the same way, Jam mode opened between when the Review showed over session
+   * mode, so focus moves by the idle state Jam mode shows.
    */
   // @spec-link [[req_last_session_review]]
-  async function closeReview(): Promise<void> {
+  // @spec-link [[rule_jam_again_on_this_doodle]]
+  async function closeReview(between?: () => Promise<void>): Promise<void> {
     deps.controller().closeReview()
+    if (between !== undefined) await between()
     deps.scrollToPageTop()
     await nextTick()
     const header = deps.header()

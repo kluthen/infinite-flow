@@ -11,6 +11,7 @@ parents:
   - [[req_jam]]
 dependents:
   - [[module_jam_settings]]
+  - [[module_kept_jam_session]]
 ---
 
 # Jam Mode in a Visit That Saves Nothing

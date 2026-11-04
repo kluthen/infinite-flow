@@ -30,6 +30,7 @@ import {
 import { SAVE_SETTINGS } from './components/workspace/save-settings-injection'
 import WorkspaceShell from './components/workspace/WorkspaceShell.vue'
 import type { SessionController } from './components/workspace/workspace-session-controller-types'
+import type { HeldModeNoteRoute } from './components/workspace/workspace-session-midi'
 import type { WrittenRangeInClef } from './notation/notation-layout-policy'
 import type { SavedDataLoad } from './storage-bootstrap'
 
@@ -101,6 +102,24 @@ function handleSessionModeHeldChange(held: boolean): void {
   workspace.sessionModeHeld.value = held
 }
 
+/**
+ * Intent: keep the workspace's held-mode note route, which the session controller reads at Idle
+ * while session mode is held, equal to the shell's (Jam's home note starting a fresh Jam); the
+ * shell reports every change synchronously.
+ */
+// @spec-link [[rule_jam_starting_note_is_home_note]]
+function handleHeldModeNotesChange(route: HeldModeNoteRoute | null): void {
+  workspace.heldModeNotes.value = route
+}
+
+/**
+ * Intent: give the workspace the shell's start jump, which the session controller makes after a
+ * start by the starting note; the shell gives it once at its setup.
+ */
+function handleAfterNoteStartChange(afterStart: () => void): void {
+  workspace.afterNoteStart.value = afterStart
+}
+
 /** Intent: end any running session and stop the controller, then tear the workspace down. */
 // @spec-link [[service_session_controller]]
 onUnmounted(() => {
@@ -132,5 +151,7 @@ onUnmounted(() => {
     :jam-settings-records="savedData.jamSettingsRecords"
     @connection-sheet-open-change="handleConnectionSheetOpenChange"
     @session-mode-held-change="handleSessionModeHeldChange"
+    @held-mode-notes-change="handleHeldModeNotesChange"
+    @after-note-start-change="handleAfterNoteStartChange"
   />
 </template>

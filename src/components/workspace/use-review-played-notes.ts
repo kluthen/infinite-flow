@@ -11,6 +11,7 @@
 import { computed, shallowRef, watch, type ComputedRef, type ShallowRef } from 'vue'
 
 import type { SaveSettings } from '@/storage/settings-saver'
+import { jamKeepsPlayedNotes } from './use-kept-sessions'
 import {
   runSessionToolConfirmation,
   type SessionToolConfirmation,
@@ -31,10 +32,18 @@ export type ReviewConfirmation =
   | {
       readonly kind: 'kept-played-notes'
       readonly sessionCount: number
+      /** A Jam session keeps played notes: its confirmation says the doodles stay. */
+      readonly jam: boolean
       readonly failed: boolean
       readonly busy: boolean
     }
-  | { readonly kind: 'session-played-notes'; readonly failed: boolean; readonly busy: boolean }
+  | {
+      readonly kind: 'session-played-notes'
+      /** The session is a Jam session: its confirmation says its written-out doodle stays. */
+      readonly jam: boolean
+      readonly failed: boolean
+      readonly busy: boolean
+    }
   | SessionToolConfirmation
 
 /**
@@ -104,10 +113,18 @@ export function useReviewPlayedNotes(deps: ReviewPlayedNotesDependencies): Revie
   // @spec-link [[rule_kept_played_notes_deletable]]
   async function setKeepPlayedNotes(on: boolean): Promise<void> {
     deps.saveSettings({ keepPlayedNotes: on })
-    const outcome = await requireController(deps).setKeepPlayedNotes(on)
+    const controller = requireController(deps)
+    const outcome = await controller.setKeepPlayedNotes(on)
     if (outcome.kind !== 'confirm-deletion' || deps.shownReview() === null) return
     const { sessionCount } = outcome
-    confirmation.value = { kind: 'kept-played-notes', sessionCount, failed: false, busy: false }
+    const jam = jamKeepsPlayedNotes(controller.state.keptRows)
+    confirmation.value = {
+      kind: 'kept-played-notes',
+      sessionCount,
+      jam,
+      failed: false,
+      busy: false,
+    }
   }
 
   /** Intent: run the open confirmation's deletion through the controller. */
@@ -152,7 +169,8 @@ export function useReviewPlayedNotes(deps: ReviewPlayedNotesDependencies): Revie
     canDeletePlayedNotes,
     askDeletePlayedNotes: () => {
       if (!canDeletePlayedNotes.value) throw new Error('review host: no played notes to delete')
-      confirmation.value = { kind: 'session-played-notes', failed: false, busy: false }
+      const jam = deps.shownReview()?.jam !== undefined
+      confirmation.value = { kind: 'session-played-notes', jam, failed: false, busy: false }
     },
     confirmation,
     confirm,

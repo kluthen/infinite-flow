@@ -353,7 +353,7 @@ how long the first draw waits for the saved data before starting from the defaul
 2 s (`STARTUP_WAIT_MS` in `src/storage-bootstrap.ts`) and must stay well above the slowest read.
 
 - [ ] On the reference machine, idle (no `atd audit`, no other test run): `npm run
-    measure:startup-read`. It times the load cold (first load after a browser start) and warm,
+measure:startup-read`. It times the load cold (first load after a browser start) and warm,
       with 0, 10, 100 and 500 kept sessions, and prints a table.
 - [ ] Copy the table, with the machine and the date, into
       [`docs/storage.md`](docs/storage.md#the-start-up-wait-m2). If the slowest figure is above
@@ -680,7 +680,7 @@ carried over by hand; the upgrade code and its automated tests stay.
 # v3.2 hand checks
 
 Build plan [Hand checks](specs/versions/v3/build-plan-v3.2.md#hand-checks): each check is written
-here by the chunk that needs it. This part holds H1 to H3; H4 to H8 are added by their chunks, and
+here by the chunk that needs it. This part holds H1 to H5; H6 to H8 are added by their chunks, and
 H9 is waived (spec D417).
 
 ## v3.2 H1. Drift's scale by ear (chunk 3; gate LD; about 8 min)
@@ -757,4 +757,76 @@ settings**, chooses which groups of settings Vary settings may move. Run it afte
       is disabled, `Off` shows checked, and the note "Nothing is allowed to vary with these
       choices. Turn on another group below." shows. Turn the lock `Off`: Vary settings shows `On`
       again.
+- [ ] Report. Pass on your word.
+
+## v3.2 H4. Jam listening: settings, drift and lock (chunk 21; gate L1; about 10 min)
+
+Chrome on the reference machine, the Travel Sax over USB. A **Jam** starts from a short melody
+you play first, your **doodle** (one to four measures after a one-measure count-in), and the app
+continues it as a session. **Drift** says how far the phrases may stray from your doodle's rhythm
+(`Close`, `Near`, `Free`); Jam's **Rhythm lock** holds one rhythm for the whole Jam. Run it after
+wave 6. Until wave 7 the doodle is not kept after a Jam, so each step plays the doodle again.
+
+- [ ] Switch the header's **Mode** to `Jam`. Set Jam's tempo to 100 BPM, **Drift** `Near`,
+      **Rhythm lock** `Off`.
+- [ ] Press **Start Jam**. After the count-in, play a two-measure doodle with a clear rhythm, then
+      stop playing; the cue row shows "Writing your first phrase", then phrase 1 enters. Listen to
+      four phrases and say: "does it sound like my doodle?"
+- [ ] **Stop**, **Close review**. Set **Drift** `Close`; **Start Jam** and play the same doodle
+      again; listen to four phrases. At Drift Close, did any phrase use quicker notes than your
+      doodle ([O271](specs/open-questions.md#v32-build-o267))?
+- [ ] The same with **Drift** `Free`.
+- [ ] **Rhythm lock** `On`; **Start Jam**, the same doodle; listen to four phrases: one rhythm, near
+      the doodle's.
+- [ ] Say whether Jam's small set of settings felt enough, and whether Drift and the lock felt like
+      two controls or one. Keep "sounds like my doodle" apart from "I like it": in H1's set 4 two
+      candidates further from the doodle sounded better, though clearly different (spec D449).
+- [ ] Report. Pass on your word; your answers confirm or send back D406's provisional answers
+      (build plan, gate L1).
+
+## v3.2 H5. Jam listening: the doodle-to-controls mapping (chunk 21; gate L1; about 10 min)
+
+Chrome on the reference machine, the Travel Sax over USB. When phrase 1 enters, **From your
+doodle**, under Jam's controls, shows the rhythm and shape the app read from your doodle (note
+density, rhythmic variety, syncopation, silence, contour, leaps, register). Run it after wave 6,
+once your recordings have joined the doodle set (gate DR, spec D443).
+
+- [ ] Mode `Jam`, 90 BPM, **Drift** `Near`, **Rhythm lock** `Off`. Before each step, Stop and
+      Close review if a Jam is running, so each doodle starts a fresh Jam.
+- [ ] A sparse doodle: three or four long notes over two measures. Read "From your doodle" once
+      phrase 1 enters; listen to two phrases.
+- [ ] A busy doodle: running eighths or sixteenths. Read, listen.
+- [ ] A leaping doodle: wide jumps. Read, listen.
+- [ ] A doodle of one note. Read: only the register comes from it; the rest shows "(default)".
+- [ ] A legato doodle of eighths and held quarters, about half of each. Read: rhythmic variety shows
+      Heavily varied. Listen to two phrases: do they sound busier than the doodle, with sixteenth
+      notes it never had ([O269](specs/open-questions.md#v32-build-o267))?
+- [ ] For each doodle, say whether the readings and the phrases matched it; report any that did
+      not. Pass on your word.
+
+## v3.2 H6. The suggestion (chunk 23; gate L2; about 10 min)
+
+Chrome on the reference machine, the Travel Sax over USB. After a Jam, its review opens with your
+doodle as the app heard it, then, when it can tell, the **key and mode suggestion**: "Your doodle
+sounds like {answer}.", with `Jam in {answer}` and `Keep {key} {mode}`. The key is the home note
+(**Written key**) and the mode the scale on it (**Collection**), both named as you read them, in
+written pitch. Run it after wave 6.
+
+- [ ] Switch the header's **Mode** to `Jam`; set Jam's **Written key** `C` and **Collection**
+      `Major`. Before each doodle, Stop and Close review if a Jam is running, so each doodle starts
+      a fresh Jam. Press nothing in the suggestion's row until the fourth step.
+- [ ] Play four doodles of two to four measures, each with at least six notes and five different
+      note names, a fresh Jam each: one plainly in G Major (ending on G), one in D Dorian (D to D
+      with no sharp or flat, ending on D), one in A Minor (ending on A), and one with a blue note
+      (C Major with E-flat, the flattened third, played often).
+- [ ] After each, read the review's suggestion: does it name what the doodle sounds in? The
+      blue-note doodle should get "Your doodle uses notes outside the app's keys and modes, so no
+      key is suggested.", naming no note. The D Dorian and A Minor doodles use the same notes as
+      C Major, so when C Major is among the close answers no suggestion shows; say which happened.
+- [ ] Use one suggestion: press `Jam in {answer}`. The row reads "Jams now play in {answer}.".
+      Close review: Jam's Written key and Collection show the answer; switch to `Session` and back:
+      session mode's key and mode have not moved. Start Jam with a new doodle: the phrases follow
+      the new key and mode.
+- [ ] Say whether Locrian ever surprised you (an answer named "... Locrian"). The weights and cues
+      are tuned from it.
 - [ ] Report. Pass on your word.

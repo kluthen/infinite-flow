@@ -2,7 +2,7 @@
 id: service_session_end
 status: REVIEW
 type: SERVICE
-version: 0.3
+version: 0.4
 priority: 1
 human_name: Practice Session End
 tags: workspace,session,end,review
@@ -18,7 +18,8 @@ parents:
   - [[rule_session_ends_when_staff_too_small]]
   - [[rule_stop_ends_session]]
   - [[service_workspace_session_flow]]
-dependents: []
+dependents:
+  - [[module_jam_session_end]]
 ---
 
 # Practice Session End
@@ -33,4 +34,4 @@ During a session, a staff layout report after which a phrase shown or waiting no
 The session controller's end actions: stop (throws with no session running), closeReview (leaves the review mode, from the review or the session list, the review kept; throws unless one of them shows) and showReview (shows the most recent session's review: at once for one held in memory, after reading it by its key for one kept on the device; resolves a SessionOpening, 'shown', 'failed' when the read does not give it and the session list shows instead, or 'superseded' when a session started or the most recent session changed meanwhile; throws unless a most recent session exists, neither the review nor the list shows, no session runs and no read is under way). Its readonly state keeps the last end's summary and closed history; the review, the session it draws (its history, its instrument's name, tempoReached, the last sounded phrase's tempo, and how it is kept) and whether it shows, or null when none exists; mostRecent, the most recent session, held in memory or kept on the device under its key, or null; readingMostRecent; and listShowing.
 
 ## EXPECTATION
-Every end, whatever its cause, ends the runner, releases both locks, stops the wake-ups, fades the audio out unless the transport already stopped it, stops the end watchers and returns the session state to Idle exactly once; a second cause arriving in the same tick ends nothing more. After an end once phrase 1 has started sounding, the review opens over the closed history, that session becomes the most recent one, its save is asked for without delaying the end, and Idle starts a fresh phrase at once; no session starts while the review shows, and the next accepted start closes it while the most recent session stays. An end during the count-in opens no review, saves and generates nothing, and leaves the most recent session as it was.
+Every end, whatever its cause, ends the runner, releases both locks, stops the wake-ups, fades the audio out unless the transport already stopped it, stops the end watchers and returns the session state to Idle exactly once; a second cause arriving in the same tick ends nothing more. After an end once phrase 1 has started sounding, the review opens over the closed history, that session becomes the most recent one, its save is asked for without delaying the end, and Idle starts a fresh phrase at once, except after a session started without phrase 1, a fresh Jam's, which hands session mode's Idle no tempo reached and asks it for no fresh phrase (module_jam_session_end); no session starts while the review shows, and the next accepted start closes it while the most recent session stays. An end during the count-in opens no review, saves and generates nothing, and leaves the most recent session as it was.

@@ -30,6 +30,7 @@ import {
   type PlayedNotesLaneView,
 } from './played-notes-lane-view'
 import type { ReviewEngravingOutcome } from './review-engraving-window'
+import { reviewStaffStyle } from './review-staff-style'
 import type { ReviewEngraver, ReviewStaffReservation } from './review-types'
 
 // @spec-link [[req_last_session_review]]
@@ -78,21 +79,9 @@ const staffEl = ref<HTMLElement | null>(null)
 const laneSource = shallowRef<PlayedNotesLaneSource | null>(null)
 let unmounted = false
 
-/**
- * Intent: the review staff's reserved block size: its positions', plus, while Played notes is on,
- * one lane and its separating gap per position, whether the engraving is drawn, not yet drawn,
- * released or replaced by its note.
- */
+/** Intent: the review staff's reserved block size, its lanes' included while Played notes is on. */
 // @spec-link [[module_review_played_notes_lane]]
-const staffStyle = computed(() => {
-  const reservation = props.reservation
-  if (reservation === null) return undefined
-  const { positionCount: n, positionBlockPx } = reservation
-  const positions = `${n * positionBlockPx}px`
-  if (!props.playedNotesShown) return { blockSize: positions }
-  const lanes = `${n} * (var(--played-notes-lane-block-size) + var(--spacing-2))`
-  return { blockSize: `calc(${positions} + ${lanes})` }
-})
+const staffStyle = computed(() => reviewStaffStyle(props.reservation, props.playedNotesShown))
 
 /**
  * Intent: the lanes to render under the positions while Played notes is on, none otherwise: drawn

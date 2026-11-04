@@ -32,7 +32,7 @@
 >   shows ([Showing](#showing))
 > - _v3.2 new:_ `Close review` returns to the mode the review showed over
 >   ([Leaving and Coming Back](#leaving-and-coming-back))
-> - _v3.2 new:_ what a Jam session's save adds, and no preset label
+> - _v3.2 new:_ what a Jam session's save adds, and its summary's missing preset part
 >   ([Saving the Session](#saving-the-session))
 > - _v3.2 new:_ a Jam's review, its doodle loaded with Jam's code, the suggestion's actions and
 >   what they change, and `Jam again on this doodle`
@@ -240,8 +240,8 @@ flowchart TD
 - **[v3.2 new]** **A Jam session's save** also holds that it is a Jam, the quantized doodle with
   the tempo it was played at, and, once answered, the suggestion's decline; each phrase's
   reproduction inputs hold the request's new fields, the rhythm lock's and what the app read from
-  the doodle to steer the phrase (master spec §C11). It holds no preset label: Jam mode has no
-  presets, so the summary and the list's row have no preset part. The raw doodle notes are played
+  the doodle to steer the phrase (master spec §C11). It keeps a preset label like any session, but Jam
+  mode has no presets, so the summary and the list's row show no preset part. The raw doodle notes are played
   notes, saved with the others only while `Keep my played notes` is on. `Keep {key} {mode}` saves
   the decline into the session when pressed, as a favorite is saved; in a session held in memory,
   or while saving is off, the decline lasts for the visit.
@@ -284,7 +284,8 @@ flowchart TD
   (`flows/jam/handoff.md`, A Jam setting changed with a kept doodle). Under a Review over session
   mode nothing on the hidden staff changes; Jam mode opens in the new key and mode. The row then
   reads "Jams now play in {answer}." until the review closes or Jam's key or mode is changed
-  again. `Jam in {answer}` does not close the review.
+  again; after such a change the row stays absent for the rest of that Review. `Jam in {answer}`
+  does not close the review.
 - **`Keep {key} {mode}`** changes no setting. The row leaves, and this doodle's suggestion is
   never offered again: not in this review, not in the kept session's review later, not at Jam
   mode's Idle for the doodle kept from it. The decline is saved with the session (see Saving the

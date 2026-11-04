@@ -3,12 +3,20 @@
  * has sounded gives the session its Review draws (named from its own data, kept as its save
  * allows) and opens it showing; `Close review` keeps it without showing it; `Review last session`
  * shows the most recent session again, only at Idle; the save's outcome settles how the session is
- * kept; its played notes are kept after its save, or deleted, from memory too. Each transition returns a new frozen value; one asked for out of turn throws. Pure; the
+ * kept; its played notes are kept after its save, or deleted, from memory too (a Jam's raw doodle
+ * notes with them, its doodle kept); a Jam's suggestion is declined. Each transition returns a new
+ * frozen value; one asked for out of turn throws. Pure; the
  * controller holds the current Review and the most recent session in its state.
  */
 import { presetLabel } from '@/domain/controls/preset-label'
 import type { SessionHistory } from '@/session/session-history'
 import type { SessionSaveOutcome } from '@/storage/save-policy'
+import {
+  declinedJamPart,
+  holdsRawDoodleNote,
+  withoutRawDoodleNotes,
+  type ReviewedJamPart,
+} from './session-jam-part'
 import type { EndedSessionSave } from './workspace-session-save'
 import {
   SessionControllerError,
@@ -26,7 +34,8 @@ import {
  * (its history's, never the current settings'), named from the presets the session knew, which
  * its save keeps, the tempo it reached (its last sounded phrase's),
  * how it is kept, and the key and played-notes fact its save was asked for with, nothing pinned,
- * chosen or commented yet; a history in which no phrase sounded gives none and throws.
+ * chosen or commented yet, and, for a Jam, its Jam part beside the history (none for a session
+ * that is no Jam); a history in which no phrase sounded gives none and throws.
  */
 // @spec-link [[req_last_session_review]]
 // @spec-link [[rule_adaptive_tempo_resets_after_session]]
@@ -38,6 +47,7 @@ export function endedSession(
   >,
   keeping: SessionKeeping,
   saving: EndedSessionSave,
+  jam: ReviewedJamPart | null = null,
 ): ReviewedSession {
   const tempoReached = history.tempoReached()
   const first = history.phrases()[0]
@@ -57,13 +67,20 @@ export function endedSession(
     pinned: false,
     favorites: Object.freeze([]),
     comment: '',
+    ...(jam === null ? {} : { jam }),
   })
 }
 
-/** Intent: whether a session's history holds a played note in a phrase. */
+/**
+ * Intent: whether a session holds played notes to keep: a played note in a phrase of its history
+ * or, in a fresh Jam, a raw doodle note.
+ */
 // @spec-link [[rule_played_notes_kept_only_after_opt_in]]
-export function holdsPlayedNote(session: Pick<ReviewedSession, 'history'>): boolean {
-  return session.history.phrases().some((phrase) => phrase.playedNotes.length > 0)
+export function holdsPlayedNote(session: Pick<ReviewedSession, 'history' | 'jam'>): boolean {
+  return (
+    session.history.phrases().some((phrase) => phrase.playedNotes.length > 0) ||
+    (session.jam !== undefined && holdsRawDoodleNote(session.jam))
+  )
 }
 
 /**
@@ -84,7 +101,8 @@ export function withPlayedNotesKept(session: ReviewedSession): ReviewedSession {
 
 /**
  * Intent: the session once its played notes are deleted, from memory too: a history of the same
- * phrases, each holding no played note, and its played notes no longer kept.
+ * phrases, each holding no played note, its played notes no longer kept, and, for a Jam, its Jam
+ * part holding no raw doodle note, its quantized doodle and everything else kept.
  */
 // @spec-link [[rule_kept_played_notes_deletable]]
 export function withoutPlayedNotes(session: ReviewedSession): ReviewedSession {
@@ -96,7 +114,27 @@ export function withoutPlayedNotes(session: ReviewedSession): ReviewedSession {
     phraseCount: session.history.phraseCount,
     startedAt: session.history.startedAt,
   })
-  return Object.freeze({ ...session, history, playedNotesKept: false })
+  const { jam } = session
+  return Object.freeze({
+    ...session,
+    history,
+    playedNotesKept: false,
+    ...(jam === undefined ? {} : { jam: withoutRawDoodleNotes(jam) }),
+  })
+}
+
+/**
+ * Intent: a Jam session with its key and mode suggestion declined (`Keep mine`), every other fact
+ * as held; a session that is no Jam has no suggestion to decline and throws.
+ */
+// @spec-link [[module_kept_session_changes]]
+export function withSuggestionDeclined(session: ReviewedSession): ReviewedSession {
+  const { jam } = session
+  if (jam === undefined)
+    throw new SessionControllerError(
+      'session controller: a session that is no Jam declines nothing',
+    )
+  return Object.freeze({ ...session, jam: declinedJamPart(jam) })
 }
 
 /** Intent: the Review a session end opens over `session`, showing. */

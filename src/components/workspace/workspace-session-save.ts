@@ -1,7 +1,8 @@
 /**
  * The session's own save, at a session's end with a review, beside the session's ends: the
- * session that ended is kept under a key minted here, with its played notes when `Keep my played
- * notes` is on at its end and it holds one, and every older kept session that is not pinned goes
+ * session that ended is kept under a key minted here, a Jam session with its Jam facts, with its
+ * played notes when `Keep my played notes` is on at its end and it holds one (a fresh Jam's raw
+ * doodle notes count), and every older kept session that is not pinned goes
  * in the same batch, with every kept session whose summary is damaged, whose count the save tells. The changes made to a kept session after this save are beside it, in
  * ./kept-session-changes.ts. The visit's saves run it after the release of the settings held
  * during the session; the save policy reads the kept summaries at the save and applies the batch
@@ -18,8 +19,14 @@ import type { SessionHistory } from '@/session/session-history'
 import { APP_VERSION } from '@/storage/app-version'
 import type { SessionChanges, SessionSaveOutcome } from '@/storage/save-policy'
 import type { SessionSaveHold } from '@/storage/settings-saver'
+import type {
+  KeptFreshJam,
+  KeptJamFacts,
+  KeptSessionHistory,
+} from '@/storage/records/kept-session-record'
 import type { DamagedSessionReports } from './workspace-kept-sessions-seam'
 import type { StorageChange, StoredEntry, StoreName } from '@/storage/storage-port'
+import type { ReviewedJamPart } from './session-jam-part'
 
 /** The kept-session codec, as its module gives it. */
 export type KeptSessionCodec = Pick<
@@ -44,9 +51,19 @@ export function keptSessionKey(history: Pick<SessionHistory, 'startedAt' | 'sess
 }
 
 /**
+ * What a Jam session's save keeps of its Jam part beside its history, whatever `Keep my played
+ * notes` says: its quantized doodle with its capture tempo and its fresh moments (its count-in's
+ * first beat, its doodle's first barline and its raw doodle notes, which go to the played-notes
+ * record only when those are kept). Whether its suggestion was declined is a held fact.
+ */
+// @spec-link [[module_kept_jam_session]]
+export type KeptJamSave = Omit<KeptJamFacts, 'suggestionDeclined'>
+
+/**
  * How the session that ended is saved: under the key minted for it once, whether its played
- * notes go with it, and the presets the session knew at its end, which its preset label names its
- * selection from, so a later rename or deletion of a preset never changes that label.
+ * notes go with it, the presets the session knew at its end, which its preset label names its
+ * selection from, so a later rename or deletion of a preset never changes that label, and, for a
+ * Jam session, what its save keeps of its Jam part (null for a session that is no Jam).
  */
 // @spec-link [[module_kept_session_save]]
 // @spec-link [[rule_played_notes_kept_only_after_opt_in]]
@@ -55,34 +72,69 @@ export interface EndedSessionSave {
   readonly key: string
   readonly playedNotesKept: boolean
   readonly presets: readonly Preset[]
+  readonly jam: KeptJamSave | null
+}
+
+/**
+ * Intent: a reviewed Jam part's fresh moments as the kept-session codec takes them: its count-in's
+ * first beat, its doodle's first barline and its raw doodle notes, on the audio clock.
+ */
+// @spec-link [[module_kept_jam_session]]
+// @spec-link [[rule_raw_doodle_notes_are_played_notes]]
+export function keptFreshJam(jam: ReviewedJamPart): KeptFreshJam {
+  return {
+    countInStartsAt: jam.countInStartAt,
+    doodleFirstBarlineAt: jam.doodle.firstBarlineAt,
+    rawDoodleNotes: jam.doodle.playedNotes,
+  }
+}
+
+/**
+ * Intent: what a Jam session's save keeps of its Jam part: its quantized doodle with its capture
+ * tempo, and its fresh moments; null for a session that is no Jam.
+ */
+// @spec-link [[module_kept_jam_session]]
+// @spec-link [[rule_quantized_doodle_is_generation_input]]
+export function keptJamSave(jam: ReviewedJamPart | null): KeptJamSave | null {
+  if (jam === null) return null
+  return {
+    doodle: { quantized: jam.doodle.doodle, captureTempo: jam.doodle.captureTempo },
+    fresh: keptFreshJam(jam),
+  }
 }
 
 /**
  * Intent: how the session that ended is saved: its key minted once, its played notes kept
- * exactly when `Keep my played notes` is on at its end and it holds a played note in a phrase (a
- * session without one has none to keep), and the presets the session knew, `presets`, kept with
- * it.
+ * exactly when `Keep my played notes` is on at its end and it holds a played note in a phrase
+ * or, in a fresh Jam, a raw doodle note (a session without one has none to keep), the presets the
+ * session knew, `presets`, kept with it, and, for a Jam, what its save keeps of its Jam part.
  */
 // @spec-link [[module_kept_session_save]]
 // @spec-link [[rule_played_notes_kept_only_after_opt_in]]
 // @spec-link [[rule_preset_label_kept_with_session]]
+// @spec-link [[rule_raw_doodle_notes_are_played_notes]]
 export function endedSessionSave(
   history: Pick<SessionHistory, 'startedAt' | 'sessionSeed' | 'phrases'>,
   keepPlayedNotes: boolean,
   presets: readonly Preset[],
+  jam: ReviewedJamPart | null = null,
 ): EndedSessionSave {
-  const holdsPlayedNote = history.phrases().some((phrase) => phrase.playedNotes.length > 0)
+  const holdsPlayedNote =
+    history.phrases().some((phrase) => phrase.playedNotes.length > 0) ||
+    (jam !== null && jam.doodle.playedNotes.length > 0)
   return {
     key: keptSessionKey(history),
     playedNotesKept: keepPlayedNotes && holdsPlayedNote,
     presets,
+    jam: keptJamSave(jam),
   }
 }
 
 /**
  * The facts of a session held in memory that its save records beside its history: whether it is
- * pinned, the numbers of its favorite phrases and its comment. At a session's end none is set yet;
- * the retry of a failed save records them as they are at the retry.
+ * pinned, the numbers of its favorite phrases, its comment and, for a Jam session, whether its
+ * suggestion was declined (read only for a Jam). At a session's end none is set yet; the retry of
+ * a failed save records them as they are at the retry.
  */
 // @spec-link [[module_kept_session_save]]
 // @spec-link [[rule_failed_save_never_disturbs_session]]
@@ -90,13 +142,15 @@ export interface HeldSessionFacts {
   readonly pinned: boolean
   readonly favorites: readonly number[]
   readonly comment: string
+  readonly suggestionDeclined: boolean
 }
 
-/** The facts of a session at its end: nothing pinned, chosen or commented yet. */
+/** The facts of a session at its end: nothing pinned, chosen, commented or declined yet. */
 export const ENDED_SESSION_FACTS: HeldSessionFacts = Object.freeze({
   pinned: false,
   favorites: Object.freeze([]),
   comment: '',
+  suggestionDeclined: false,
 })
 
 /**
@@ -127,15 +181,16 @@ function deletedBySave(
  * the deletion of the summary, body and played notes of every readable kept session that is not
  * pinned and of every damaged one (a summary a newer app wrote stays with its records), then
  * the new session's records under its key with the facts `held` gives (at its end nothing pinned,
- * chosen or commented yet; at a retry, the facts held in memory then), and its played notes only
- * when they are kept.
+ * chosen, commented or declined yet; at a retry, the facts held in memory then), a Jam session's
+ * Jam facts with them, and its played notes only when they are kept.
  */
 // @spec-link [[module_kept_session_save]]
 // @spec-link [[rule_most_recent_session_kept]]
 // @spec-link [[rule_played_notes_kept_only_after_opt_in]]
+// @spec-link [[module_kept_jam_session]]
 export function keptSessionChanges(
   codec: KeptSessionCodec,
-  history: SessionHistory,
+  history: KeptSessionHistory & Pick<SessionHistory, 'startedAt' | 'sessionSeed'>,
   saving: EndedSessionSave,
   keptSummaries: readonly StoredEntry[],
   appVersion: string,
@@ -150,6 +205,9 @@ export function keptSessionChanges(
     comment: held.comment,
     playedNotesKept: saving.playedNotesKept,
     presets: saving.presets,
+    ...(saving.jam === null
+      ? {}
+      : { jam: { ...saving.jam, suggestionDeclined: held.suggestionDeclined } }),
   }
   const records = codec.encodeKeptSession(history, facts, appVersion)
   const { key } = saving

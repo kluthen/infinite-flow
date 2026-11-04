@@ -3,14 +3,15 @@
  * MIDI access. At Ready with a controller connected, the start line names phrase 1's first
  * attacked note in the profile's written pitch (as the staff spells it), and playing that note at
  * its exact concert pitch starts the count-in, as Start does, shown beat by beat with its clicks
- * and phrase 1's first measure in view throughout. Any other pitch, the same pitch an
+ * and phrase 1's first measure in view throughout, after the start's one instant jump (ux D452).
+ * Any other pitch, the same pitch an
  * octave off, a note with no controller attached (never connected, or away), and the note played
  * in the item-22 states (a generation running, the generation-failure banner, a notation error,
  * the room notice) start nothing and change nothing, and the line is absent in each.
  */
 import { expect, test, type Page } from '@playwright/test'
 
-import { audioEvents } from '../audio/audio-harness-helpers'
+import { audioEvents, audioNow } from '../audio/audio-harness-helpers'
 import {
   FORM,
   chooseProfile,
@@ -200,6 +201,31 @@ test.describe('the starting note at Ready with a controller connected', () => {
       await sessionAction(page).click()
     })
   }
+
+  test("with the staff top scrolled out of view, its start jumps once, instantly, before the count-in's first click", async ({
+    page,
+  }) => {
+    await gotoSessionHarness(page)
+    await connectDevice(page, KEYS)
+    await readyToStart(page)
+    const first = await firstAttack(page)
+    const staffTop = await page
+      .locator('.staff-viewport')
+      .evaluate((element) => element.getBoundingClientRect().top + window.scrollY)
+    await page.evaluate((y) => window.scrollTo({ top: y + 40, behavior: 'instant' }), staffTop)
+    expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(staffTop)
+
+    await noteOn(page, KEYS, first.pitch)
+
+    await expect(sessionAction(page)).toHaveText('Stop')
+    expect((await sessionState(page)).phase).toBe('count-in')
+    expect(
+      await page.locator('.layout-app').evaluate((element) => element.getBoundingClientRect().top),
+    ).toBe(0)
+    expect(await audioNow(page)).toBeLessThan((await sessionTimeline(page)).startAt)
+    await noteOff(page, KEYS, first.pitch)
+    await sessionAction(page).click()
+  })
 
   // @test-link [[rule_midi_starting_note]]
   test('another pitch, or the starting pitch an octave off, starts nothing', async ({ page }) => {

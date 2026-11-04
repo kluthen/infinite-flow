@@ -471,7 +471,8 @@ test('a controller arriving or leaving never switches the mode', async ({ page }
   await expectJamModeShows(page)
   await plug(page, KEYS)
   await expect.poll(() => midiKind(page)).toBe('connected')
-  await expectJamModeShows(page)
+  // Back and connected, a fresh Jam could start: `Start Jam` is enabled, the mode unchanged.
+  await expectJamModeShows(page, 'enabled')
   await unplug(page, KEYS)
   await expect.poll(() => midiKind(page)).toBe('away')
   await expectJamModeShows(page)

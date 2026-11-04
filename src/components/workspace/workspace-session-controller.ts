@@ -291,7 +291,9 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     canStart: () => startBlocker.value === null,
     idleResult: () => idle.state.result,
     idlePhrase: deps.idlePhrase,
-    start: () => void stalePhrase.request('note'),
+    start: () => {
+      if (stalePhrase.request('note') === 'started') deps.afterNoteStart()
+    },
   })
   const saved = deps.savedSessionOptions
   const adaptiveTempo = createAdaptiveTempoFlag(
@@ -370,6 +372,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     setFavorite: edits.setFavorite,
     setPinned: edits.setPinned,
     setComment: edits.setComment,
+    declineSuggestion: edits.declineSuggestion,
     deleteSession: edits.deleteSession,
     deleteEverySession,
     myInstrumentSessions,

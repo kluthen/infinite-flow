@@ -13,6 +13,7 @@
 import type { Preset } from '@/domain/presets/preset-selection'
 import type { SessionHistory } from '@/session/session-history'
 import type { SessionEndCause } from '@/session/session-types'
+import { jamPartOf } from './session-jam-part'
 import { endedSession, openedReview, settledKeeping } from './session-review-state'
 import { endedSessionSave, saveEndedSession, tellDamagedDeleted } from './workspace-session-save'
 import type { KeptSessionRows } from './use-kept-sessions'
@@ -106,8 +107,9 @@ export function createSessionEnds(
    * held end now and are recorded, the engine gets `end` (its `ended` output closes the history),
    * then the session is torn down and summed up. Once phrase 1 has sounded, the Review opens over
    * the closed history and that session becomes the most recent one, not pinned, or not saved at
-   * once while saving is off, under the key minted for its save, its played notes kept when
-   * `Keep my played notes` is on, saving is on and it holds one, its preset label named from the
+   * once while saving is off, under the key minted for its save, a Jam with its Jam part, its
+   * played notes kept when `Keep my played notes` is on, saving is on and it holds one (a fresh
+   * Jam's raw doodle notes count), its preset label named from the
    * presets the session knew (Idle's, which never change during a session); the session's own
    * save is asked
    * for after the release (never
@@ -142,12 +144,19 @@ export function createSessionEnds(
     state.lastHistory = session.history
     if (ended.soundedPhraseCount === 0) return
     const savingOff = core.deps.keptSessions.savingOff()
+    const jam = jamPartOf(session)
     const save = endedSessionSave(
       session.history,
       !savingOff && keepPlayedNotes(),
       idle.state.presets,
+      jam,
     )
-    const reviewed = endedSession(session.history, savingOff ? 'not-saved' : 'not-pinned', save)
+    const reviewed = endedSession(
+      session.history,
+      savingOff ? 'not-saved' : 'not-pinned',
+      save,
+      jam,
+    )
     state.review = openedReview(reviewed)
     state.mostRecent = Object.freeze({ kind: 'held', session: reviewed })
     const saves = rows.savingThrough(core.deps.saveHold, () => findHeldSession(state, reviewed.key))
@@ -159,6 +168,9 @@ export function createSessionEnds(
         tellDamagedDeleted(core.deps.keptSessions.reports, outcome)
       })
     }
+    // A session started without phrase 1 (a fresh Jam's) ran no adaptive tempo and leaves session
+    // mode's Idle as it was: no tempo reached is handed over and no fresh phrase asked for.
+    if (session.phraseOne === null) return
     adaptiveTempo.sessionEnded(reviewed.tempoReached)
     void idle.actions.startFreshPhrase()
   }

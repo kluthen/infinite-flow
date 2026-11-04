@@ -1,6 +1,7 @@
 /**
  * Jam's one loader over a mocked code entry: every caller shares one import and one promise, and a
- * failed import clears the memo, so the next call imports again.
+ * failed import clears the memo, so the next call imports again. What has loaded in the visit is
+ * there at once for what needs it (a Jam session's Review), nothing before.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -56,6 +57,35 @@ describe('loadJamMode', () => {
     expect(retried).not.toBe(failed)
     expect(await retried).toMatchObject({ JamWorkspace: { name: 'JamWorkspaceStub' } })
     expect(importState.imports).toBe(2)
+  })
+})
+
+// @test-link [[rule_jam_code_loaded_on_demand]]
+describe('loadedJamMode', () => {
+  // @test-link [[rule_jam_code_loaded_on_demand]]
+  it('holds nothing before a load, and the module once a load has succeeded', async () => {
+    const { loadJamMode, loadedJamMode } = await import('@/components/workspace/load-jam-mode')
+
+    expect(loadedJamMode()).toBeNull()
+    const loading = loadJamMode()
+    expect(loadedJamMode()).toBeNull()
+    const loaded = await loading
+
+    expect(loadedJamMode()).toBe(loaded)
+    expect(loadedJamMode()).toMatchObject({ JamWorkspace: { name: 'JamWorkspaceStub' } })
+  })
+
+  // @test-link [[rule_jam_code_loaded_on_demand]]
+  it('still holds nothing after a failed load, and the module once a retry succeeds', async () => {
+    importState.shouldFail = true
+    const { loadJamMode, loadedJamMode } = await import('@/components/workspace/load-jam-mode')
+
+    await expect(loadJamMode()).rejects.toThrow()
+    expect(loadedJamMode()).toBeNull()
+
+    importState.shouldFail = false
+    const loaded = await loadJamMode()
+    expect(loadedJamMode()).toBe(loaded)
   })
 })
 

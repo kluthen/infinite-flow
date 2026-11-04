@@ -1634,15 +1634,35 @@ to judge. It schedules no `count-in-over`. The returned handle gives the transpo
 `dispatch` for the phrase 1 events (a `phrase-one` first calls `audio.startPhraseOneAt(soundsAt)`,
 then `audio.forceClickUntil(soundsAt)`, before the engine hears it; chunk 18, spec D456),
 `end(cause)` and `recordDoodle(doodle)`, which keeps the capture's doodle in the session's history
-(see [The doodle in the history](#the-doodle-in-the-history)). The session's display, phrase steps and staff are not built here: chunk 21 shows
-the fresh Jam on screen.
+(see [The doodle in the history](#the-doodle-in-the-history)). Chunk 21 adds what Jam's code runs
+the Jam with: the `sessionSeed` drawn at Start, the `attemptSeams` phrase 1's attempts are built with
+(the page's one request-id source and the window's width reading, the controller's
+`phraseOneSeams` dependency), the audio clock (`now`) and `wakeAt(at, action)`, an action on the
+session's agenda, fired by the controller's wake-ups and dropped at the end. The controller checks
+phrase 1's attempts against the held layout itself (`phraseOneFitCheck`), as the display checks every
+later phrase: the request carries no fit check.
+
+**Phrase 1 through the workspace** (chunk 21, spec D456;
+`src/components/workspace/workspace-session-phrase-one-entry.ts`). At the hand-over the engine
+readies phrase 1 (`phrase-ready`, phrase 1), which `phraseReadied` (`workspace-session-active.ts`)
+sends to the session's `enterPhraseOne` instead of the phrase steps: phrase 1's backing is queued at
+the starting tempo and its notes added for acknowledgement, both from the start the transport took
+from `soundsAt`; the rolling display is built with phrase 1 entering the held layout (no playhead
+yet), then the steps of phrases 2 on; the read-in measure is counted in on the cue row
+(`showCountIn` from the barline one measure before `soundsAt`); at `soundsAt` the controller turns
+`running` and sends `count-in-over`. From then on the watchers check the material on screen through
+the display. A session started with phrase 1 has no `enterPhraseOne`: a phrase 1 readied there is a
+defect. At its end, a session started without phrase 1 hands no tempo reached to adaptive tempo
+and asks session mode's Idle for no fresh phrase.
 
 The MIDI side, in a session started without phrase 1, arms the silence timer only on a note
 played at or after phrase 1's start (`noteArmsSilenceBeforePhraseOne`). It ends the session at
 once on a loss before phrase 1 sounds (`lossEndsAtOnceBeforePhraseOne`), with no countdown and no
 presence event. While session mode is held, a note played at Idle goes to `heldModeNotes()`, the
-held mode's route (Jam's Idle note routing, wired by chunk 21). A `start` note there calls the
-route's `start`, and the note arms nothing. Every note it hands the caller's port is
+held mode's route: Jam's Idle note routing, which the shell emits once at setup
+(`held-mode-notes-change`) and `App.vue` keeps in the workspace's `heldModeNotes`. A `start` note
+there (the home note, while a fresh Jam could start) calls the route's `start`, which starts a
+fresh Jam, and the note arms nothing. Every note it hands the caller's port is
 latency-compensated, on the very times the history keeps (`compensatedNoteOn` for a note-on,
 `compensatedRecord` for a finished note), so the capture names each raw doodle note by the onset
 the history holds for it.
@@ -1751,7 +1771,45 @@ due by an input's time first, its own (the cutover, the deadline) and the captur
   engine cancels any attempt still running.
 
 The transport takes phrase 1's start from the hand-over (spec D456; see
-[the audio transport](audio-transport.md)), so every reader of `phraseStartsAt` gets it.
+[the audio transport](audio-transport.md)), so every reader of `phraseStartsAt` gets it. Right after
+the hand-over the ladder gives `readings`, the controls read from the doodle phrase 1 was written
+from, for `doodle-readings` as phrase 1 enters.
+
+### A fresh Jam on the audio clock
+
+v3.2 chunk 21. `startFreshJam({ startWithoutPhraseOne, jam, clef })` (`src/jam/fresh-jam.ts`, Jam's
+code) starts the session without phrase 1 inside the Start click or the home note's callback, then
+runs the capture and the ladder from the count-in's start, each attempt seeded by
+`jamPhraseOneSeed(sessionSeed, index)`. Every note the session reads and every engine output goes
+into the ladder; it wakes on `wakeAt` at each ladder decision and at each barline (skipped when a
+decision follows within `VERY_SHORT_NOTE_SECONDS`, so a silent barline turns straight to the
+writing cue). It dispatches the ladder's phrase 1 events, records the doodle and the suggestion,
+and ends the session on `no-note-played` and `no-phrase-one`. Its `view` (a shallow ref) holds the
+Jam's phase, which the cue row reads (`jam-capture`, `jam-writing`), never a doodle note, and the
+readings once phrase 1 enters, which it also records on the handle (`recordDoodleControls`) for the
+review; an `ended` output from the engine, whatever its cause, stops the capture and empties the
+readings. The settings it starts under are Jam's own (`freshJamSettings`,
+`src/jam/fresh-jam-settings.ts`): Jam's controls and figure levels, a custom selection from no
+preset (Jam mode has none), no restriction, Vary settings' default groups (it never runs in a
+Jam), Jam's lock, allowed changes and drift, and my instrument's profile when it is the
+instrument.
+
+### A Jam's end
+
+v3.2 chunk 21 ([module_jam_session_end](module_jam_session_end.atom.md)). A Jam ends through the
+controller's one end path (`workspace-session-ends.ts`), whatever its cause. Before phrase 1 sounds
+it ends as a count-in end: no review, nothing saved, the most recent session as it was, and no fresh
+phrase asked of session mode. Once phrase 1 has sounded, the review opens as for any session, and
+the reviewed session (`ReviewedSession.jam`, absent for a session that is no Jam) carries the Jam
+part, `ReviewedJamPart` (`session-jam-part.ts`, built by `jamPartOf` at the end): the doodle as the
+closed history keeps it (`doodle()`: the quantized doodle, its capture tempo, its first and end
+barlines, its raw notes), the first beat of the count-in (`countInStartAt`, the timeline's
+`startAt`), the suggestion (`suggestion()`), `suggestionDeclined: false`, and the controls taken
+from the doodle (`doodleControls`, kept on the running session by `recordDoodleControls`), carried
+for Jam's view; the review shows none of them. A Jam that sounded phrase 1 without all three is a
+defect and throws. The end asks session mode's Idle for no fresh phrase and hands adaptive tempo
+nothing; the mode never changes. Jam mode's Idle then shows no phrase: no doodle is kept yet
+(chunk 24 keeps it). A kept Jam session's read-back fills the same shape (chunk 30).
 
 ### The Jam from phrase 1
 

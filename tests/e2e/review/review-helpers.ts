@@ -56,7 +56,7 @@ export function reviewLink(page: Page): Locator {
 
 /** Intent: the hidden staff's viewport, out of sight while the Review shows. */
 export function staffViewport(page: Page): Locator {
-  return page.locator('.score-panel > .staff-viewport')
+  return page.locator('.score-panel > div > .staff-viewport')
 }
 
 /** Intent: the Review's `Export generated notes` button, in the generated-notes group. */

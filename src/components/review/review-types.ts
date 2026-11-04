@@ -1,4 +1,5 @@
 import type { ExportScope } from '@/export/export-file'
+import type { JamModeModule } from '@/components/workspace/load-jam-mode'
 import type { VexflowEngraverModule } from '@/notation/vexflow-engraver-loader'
 
 /** The file format of the generated-notes export: a MusicXML score or a MIDI file. */
@@ -45,3 +46,20 @@ export interface ReviewStaffReservation {
   readonly positionCount: 1 | 2
   readonly positionBlockPx: number
 }
+
+/**
+ * Jam's code as a Jam session's Review has it: loading, unable to load (offline before the app's
+ * files were kept), or loaded, with the doodle's staff it draws the doodle with, the suggestion's
+ * row, and what reads and makes Jam's settings, which the suggestion is judged against and sets.
+ */
+// @spec-link [[rule_jam_code_loaded_on_demand]]
+export type ReviewJamCode =
+  | { readonly state: 'loading' }
+  | { readonly state: 'failed' }
+  | {
+      readonly state: 'loaded'
+      readonly module: Pick<
+        JamModeModule,
+        'ReviewDoodle' | 'SuggestionRow' | 'createJamSettings' | 'decodeJamSettings'
+      >
+    }

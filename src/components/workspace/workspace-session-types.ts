@@ -23,6 +23,7 @@ import type { DamagedSessionReports } from './workspace-kept-sessions-seam'
 import type { PresetStore } from './use-preset-sheet'
 import type { WorkspaceSessionRunnerStarter } from './workspace-session-dependencies'
 import type { SessionController } from './workspace-session-controller-types'
+import type { HeldModeNoteRoute } from './workspace-session-midi'
 
 export interface WorkspaceSession {
   readonly session: GenerationSession<WorkspaceSessionResult>
@@ -81,6 +82,19 @@ export interface WorkspaceSession {
    * is named, no played note starts a session and the Idle pre-generation queue prepares nothing.
    */
   readonly sessionModeHeld: ShallowRef<boolean>
+  /**
+   * The note route of the code holding session mode (Jam's Idle note routing, through the shell):
+   * null at first and while it routes none, kept equal to the shell's by the shell. Session
+   * controllers read it at Idle while session mode is held: a note it means `start` by starts what
+   * it starts (a fresh Jam).
+   */
+  readonly heldModeNotes: ShallowRef<HeldModeNoteRoute | null>
+  /**
+   * What follows a start by the starting note, inside the note's callback: the shell's start jump,
+   * which the Start click makes itself. Null at first, given by the shell at its setup; session
+   * controllers call it once such a start has happened.
+   */
+  readonly afterNoteStart: ShallowRef<(() => void) | null>
   /**
    * The generation worker's prewarm port, which Jam's Idle prewarm posts through; null while the
    * prewarm policy is off, so nothing is posted then, as for session mode.

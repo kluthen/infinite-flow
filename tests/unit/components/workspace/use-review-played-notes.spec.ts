@@ -8,6 +8,8 @@
 import { describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
 
+import { reviewConfirmationCopy } from '@/components/workspace/review-confirmation-copy'
+import type { KeptSessionRow } from '@/components/workspace/use-kept-sessions'
 import { recordedRecords } from '../review/review-fixtures'
 import {
   createFakeSessionController,
@@ -17,6 +19,7 @@ import {
   type FakeSessionController,
 } from './fake-session-controller'
 import { reviewAreaRig } from './review-area-rig'
+import { reviewedJamPart } from './reviewed-jam-part-fixture'
 
 /** Intent: a fake controller showing a Review whose played notes are kept, or not. */
 function showingPlayedNotes(kept: boolean): FakeSessionController {
@@ -63,6 +66,7 @@ describe('the review area: Keep my played notes', () => {
     expect(built.confirmation.value).toEqual({
       kind: 'kept-played-notes',
       sessionCount: 2,
+      jam: false,
       failed: false,
       busy: false,
     })
@@ -94,6 +98,7 @@ describe('the review area: deleting played notes', () => {
     built.askDeletePlayedNotes()
     expect(built.confirmation.value).toEqual({
       kind: 'session-played-notes',
+      jam: false,
       failed: false,
       busy: false,
     })
@@ -155,5 +160,117 @@ describe('the review area: deleting played notes', () => {
     expect(built.confirmation.value).toBeNull()
     expect(fake.deletePlayedNotes).not.toHaveBeenCalled()
     stop()
+  })
+})
+
+// @test-link [[rule_kept_played_notes_deletable]]
+// @test-link [[rule_deleting_played_notes_keeps_quantized_doodle]]
+// @test-link [[rule_raw_doodle_notes_are_played_notes]]
+describe("the review area: Delete played notes' confirmation", () => {
+  const CANNOT = "This can't be undone."
+
+  it("reads v3.0's copy in a session that is no Jam", () => {
+    const { built, stop } = areaOver(showingPlayedNotes(true))
+
+    built.askDeletePlayedNotes()
+
+    expect(reviewConfirmationCopy(built.confirmation.value!)).toEqual({
+      title: "Delete this session's played notes?",
+      paragraphs: [
+        'This deletes the notes you played in this session. The session stays, with its favorite phrases and comment.',
+        CANNOT,
+      ],
+      confirmLabel: 'Delete played notes',
+      cancelLabel: 'Cancel',
+      destructive: true,
+      error: null,
+    })
+    stop()
+  })
+
+  it('reads the Jam copy in a Jam in which only the doodle was played, its played notes kept', () => {
+    const review = {
+      ...fakeReview(fakeReviewHistory(recordedRecords()), true, 'not-pinned', true),
+      jam: reviewedJamPart(),
+    }
+    const fake = createFakeSessionController({
+      review,
+      mostRecent: heldSessionOf(review),
+      keepPlayedNotes: true,
+    })
+    const { built, stop } = areaOver(fake)
+    expect(built.canDeletePlayedNotes.value).toBe(true)
+
+    built.askDeletePlayedNotes()
+
+    const copy = reviewConfirmationCopy(built.confirmation.value!)
+    expect(copy.title).toBe("Delete this session's played notes?")
+    expect(copy.paragraphs).toEqual([
+      'This deletes the notes you played in this session. The session stays, with its doodle as the app wrote it, its favorite phrases and comment.',
+      CANNOT,
+    ])
+    expect(copy.confirmLabel).toBe('Delete played notes')
+    stop()
+  })
+})
+
+/** Intent: a listed session under `key` a newer version wrote, with what can be read of it. */
+function listed(key: string, playedNotesKept: boolean, isJam: boolean): KeptSessionRow {
+  return { kind: 'newer', key, readable: { playedNotesKept, isJam }, failedToOpen: false }
+}
+
+// @test-link [[rule_kept_played_notes_deletable]]
+// @test-link [[rule_raw_doodle_notes_are_played_notes]]
+describe("the review area: the played notes already kept's confirmation", () => {
+  const CANNOT = "This can't be undone."
+
+  /** Intent: the copy opened by turning Keep my played notes off over `keptRows`, `count` kept. */
+  async function keptCopy(keptRows: readonly KeptSessionRow[], count: number) {
+    const fake = showingPlayedNotes(true)
+    fake.state.keptRows = keptRows
+    fake.setKeepPlayedNotes.mockResolvedValueOnce({
+      kind: 'confirm-deletion',
+      sessionCount: count,
+    })
+    const { built, stop } = areaOver(fake)
+    await built.setKeepPlayedNotes(false)
+    const copy = reviewConfirmationCopy(built.confirmation.value!)
+    stop()
+    return copy
+  }
+
+  it('reads as built when no session keeping played notes is a Jam, a Jam keeping none aside', async () => {
+    const copy = await keptCopy([listed('a', true, false), listed('j', false, true)], 1)
+
+    expect(copy).toEqual({
+      title: 'Delete the played notes already kept?',
+      paragraphs: [
+        "Your played notes won't be kept from now on. The ones already kept with 1 session can be deleted too; the sessions stay.",
+        CANNOT,
+      ],
+      confirmLabel: 'Delete them',
+      cancelLabel: 'Keep them',
+      destructive: true,
+      error: null,
+    })
+  })
+
+  it('says the doodles stay when a Jam session is among those keeping played notes, whichever the Review shows', async () => {
+    const copy = await keptCopy([listed('a', true, false), listed('j', true, true)], 2)
+
+    expect(copy).toEqual({
+      title: 'Delete the played notes already kept?',
+      paragraphs: [
+        "Your played notes won't be kept from now on. The ones already kept with 2 sessions can be deleted too; the sessions stay. Doodles stay as the app wrote them.",
+        CANNOT,
+      ],
+      confirmLabel: 'Delete them',
+      cancelLabel: 'Keep them',
+      destructive: true,
+      error: null,
+    })
+    expect((await keptCopy([listed('j', true, true)], 1)).paragraphs[0]).toBe(
+      "Your played notes won't be kept from now on. The ones already kept with 1 session can be deleted too; the sessions stay. Doodles stay as the app wrote them.",
+    )
   })
 })

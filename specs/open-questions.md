@@ -297,6 +297,9 @@ in progress.
   it is open; C5.15 only says a note running past the section's end stops there. Proposed: the
   export starts it at the section's start, its release unchanged, as the end is clipped; the lane
   draws it where it was played. Needed before chunk 23 (the lane, wave 6) and chunk 25 (wave 7).
+  Built so far, no ruling: chunk 23 (wave 6) draws such a note at the lane's start, the nearest
+  the lane's time axis, which starts at the doodle's first barline, allows to the proposal's
+  "where it was played". Still the owner's to decide.
 - **O269 - Whether a legato doodle of eighths and quarters should read Heavily varied** _(D433;
   [Part C §C5.16.1](versions/v3/master-spec.md#c5161-the-doodle-to-controls-mapping), [v3.2
   H5](versions/v3/build-plan-v3.2.md#v32-h5--jam-listening-the-doodle-to-controls-mapping-l1))_: a

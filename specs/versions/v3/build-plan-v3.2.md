@@ -1,6 +1,27 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v29 (2026-11-03): v28 with spec D457 written in (master spec Part C v1.18): chunk 18's
+Status: v34 (2026-11-04): v33 with no decision (Part C unchanged), from wave 6's sync: chunk 24
+hands Jam's code the ended Jam's Jam part at a Jam's end, which the shell's `useFreshJam` does not
+yet (it reads only the controller's `lastEnd`), so Jam's code can keep the doodle; its Drift check
+gains `module_jam_session_end`.
+v33 (2026-11-04): v32 with no decision (Part C unchanged), from chunk 23a's report:
+chunk 25's Scope and Done when state a Jam session's two exports after a failed load of Jam's
+code (disabled, each with the design's failure sentence; enabled once it loads), which chunk 23
+leaves enabled.
+v32 (2026-11-04): v31 with spec D499 written in (Part C unchanged), from chunk 30's
+report: chunk 24 keeps and reads back a Jam on a kept doodle, whose body holds no played-notes
+clock (C10.3), and which chunk 30's read throws on; chunk 25 says a doodle-only Jam's
+`Export played notes` is disabled with the very-short reason until it puts the doodle's notes in
+the file.
+v31 (2026-11-04): v30 with spec D495 and D497 written in (master spec Part C v1.19):
+chunk 21's two readings. Until phrase 1 is on screen, Jam's empty staff is the staff judged, so a
+window that leaves it no room ends the Jam before phrase 1 (C5.13); v3.2 H4 plays the same doodle
+again until wave 7, and chunk 24 rewords H4 and H5 for the kept doodle.
+v30 (2026-11-04): v29 with spec D460 written in (Part C unchanged): wave 6's preflight
+corrections to chunks 21, 30 and 23 (files, atoms, drift checks, revisions; chunk 21's capture: the
+review shows none of the controls taken from the doodle; chunk 30 stores a Jam session's preset
+label); new gate CJ, change set part W, before chunk 30's and chunk 23's merges.
+v29 (2026-11-03): v28 with spec D457 written in (master spec Part C v1.18): chunk 18's
 two readings, accepted by the driver: phrase 1 is handed over at the barline where it is shown and
 phrase 2 is requested then, not when phrase 1 is ready; a Jam whose rungs all fail early ends at
 the deadline. Phrase 2's deadline is unchanged.
@@ -110,6 +131,7 @@ no release is cut before wave 7 has merged.
 | **CK** | The owner confirms the wording of chunk 12's two contract revisions, `module_phrase_replay_key` and `rule_seeded_phrase_reproduction` (STABLE on the contract since 8.1.0), and of chunk 22's three, `module_kept_session_codec`, `entity_kept_session_record` and `module_on_device_database` (STABLE on the contract since v3.0; their wording takes in the loophole closure and a fresh Jam's played-notes clock), with the optional rewordings, and the MAJOR bump, CONTRACT 9.0.0 to 10.0.0, that applies them all at wave 2's sync (spec D422, D429, D430): the [change set](../../../docs/release/v3.1-v3.2-intent-change-set.md)'s part P, P1–P8 with P3b and the played-notes clock's wording. | `documentalist` drafts at wave 2's preflight (P1–P8, P3b; the clock's wording after spec D430); the owner confirms | Chunk 12's and chunk 22's merges into the wave branch | done (2026-10-23, the owner: "i approve it all"; change set part P, P1–P8 with P3b and the clock; applied at wave 2's sync) |
 | **CR** | If chunk 16 changes what `module_session_ready_phrases` (STABLE on the contract) guarantees, as the preflight expects (a ready phrase's re-derived request takes in the session's lock state): `documentalist` drafts the wording extension at wave 3's sync and the owner confirms it there, with the contract bump the change set's rule gives (spec D422, D437). As for CS, chunk 16 merges into the wave branch first, since chunks 13 and 19 build on it in the wave. | `documentalist` drafts; the owner confirms | Wave 3's sync, and so its merge into `main` | done (2026-10-26, the owner: "agreed"; change set part R; CONTRACT 11.0.0, bf64a28) |
 | **CL** | The owner confirms the wording of chunk 31's extension of `module_saved_data_loader` (STABLE, on the contract): the saved-data load hands Jam's settings records undecoded and Jam's code decodes them (`module_jam_settings`, wave 5's preflight), with the contract bump the change set's rule gives (spec D422, D454). | `documentalist` drafts; the owner confirms | Chunk 31's merge into the wave branch | done (2026-11-03, the owner: "i'll follow your recommendations": the wording as drafted at wave 5's preflight, which only follows the signed M16–M18, so no contract bump) |
+| **CJ** | The owner confirms the [change set](../../../docs/release/v3.1-v3.2-intent-change-set.md)'s part W (spec D422, D460): W1–W3 (`module_kept_session_save` 1.1 to 1.2, `module_kept_session_changes` 0.8 to 0.9, `module_kept_session_reach` 0.6 to 0.7; wording only), and W4 (`module_saved_data_loader` 0.8 to 0.9), with its choice: (a) Jam's settings made for a review save no first values, no bump; or (b) the first-values save also from a Jam session's review, CONTRACT 12.0.0 to 13.0.0 (W5). | `documentalist` drafts at wave 6's preflight (part W, done); the owner confirms | W1–W3: chunk 30's merge into the wave branch; W4 (and W5 with (b)): chunk 23's | done (2026-11-04, the owner: "CJ ok, W4 (a) (Recommended)": W1–W3 as drafted, W4 option (a), W5 not taken, CONTRACT stays 12.0.0; recorded in change set part W, 87756fdc) |
 | **LD** | The owner ranks a handful of rhythm pairs by ear on drift's distance scale ([v3.2 H1](#v32-h1--drifts-scale-by-ear-ld)), before the scale drives the steering block's band ([C8](master-spec.md#c8-jams-drift)). A ranking that disagrees with the scale goes to `spec-writer` before chunk 8. | The owner; `spec-writer` if the ranking disagrees | Chunk 8 (wave 4) | done (2026-11-03, the owner's ranking; the scale kept with a finding, spec D449, carried to v3.2 H4 as O271) |
 | **DR** | The owner's Travel Sax recordings join the doodle set: chunk 3 writes the doodles by hand and documents how to add recorded ones (played-notes exports, kept beside their quantized form); the owner records them that way (spec D427). Chunk 28 builds and tests on the twelve hand-written doodles; each recording, as it joins, runs through the quantizer's and the mapping's tests (spec D443). | The owner | v3.2 H5, so gate L1; the release gate's tests on recorded doodles (item 25). Not chunk 28 (spec D443) | open (the owner records during wave 4) |
 | **DS** | The owner answers O268 (now closed, [spec D440](../../decisions.md)): how a short silence between two doodle notes (a detached note) is read, for the steering block's starts ([C5.9](master-spec.md#c59-what-the-doodle-feeds-the-generator)) and the silence reading ([C5.16.1](master-spec.md#c5161-the-doodle-to-controls-mapping)); `spec-writer` writes the answer into Part C and chunk 28 (spec D433). | The owner; then `spec-writer` | Chunk 28 (wave 4) | done (2026-10-27, the owner: "part of the notes", as proposed; spec D440, Part C v1.12) |
@@ -132,7 +154,7 @@ preflight does not run and no chunk carries a **Data** line
 | 3 | 16 The rhythm lock in a session · 13 Session measurements · 19 The lock and What may vary in the controls | Wave 2; CS and CR before its sync. In-wave 16 → 13 and 16 → 19: chunk 16's capture fixes the session's lock state and what the session history records. Three chunks: the session half ends here, and every other session chunk is done. L3 opens at its end. | merged into `main` |
 | 4 | 20 Jam mode: the switch, Jam's code, Jam's Idle · 28 From the doodle: controls and steering block · 7 The join from the doodle · 8 Rhythm ordered by the steering block · 9 Melody follows the moves | Wave 3; DS (28, done); LD (8, done, spec D449). In-wave 28 → 7 and 28 → 8: chunk 28's capture fixes the register window the join reads and the blocks chunk 8 orders by. | merged into `main` |
 | 5 | 34 The rhythm change shares, tuned · 14 The key and mode suggestion · 17 Jam engine, part 1 · 18 Jam engine, part 2 · 29 The Jam sweep, first run · 31 Jam's settings | Wave 4; CL before chunk 31's merge. Chunk 34 has no in-wave edge and goes first, so the wave's measurements run at the tuned shares. In-wave 14 → 18: chunk 14's capture fixes the suggestion's answer type; 17 → 18: chunk 17's capture fixes the engine's way in and the capture's states. Chunk 29 has no in-wave edge: it measures through a double of chunk 18's ladder, since 17 → 18 → 29 would be a chain of three (spec D453). Chunks 34 and 29 both write `docs/generation-latency.md`, a record each adds its own subsection to, resolved at merge as a shared list; 34 merges first. Likewise `docs/session-engine.md`, an area document: 34 changes one line of the tenser flag, 17 and 18 their own parts. | merged (2026-11-04) |
-| 6 | 21 A fresh Jam on screen · 30 Kept Jam sessions · 23 The review's doodle section and the suggestion | Wave 5. In-wave 21 → 23 and 30 → 23: chunk 21's capture fixes what the review receives from an ended Jam, chunk 30's what a kept Jam session holds. Three chunks: everything else of Jam's waits on 21 or 23. L1 and L2 open at its end. | planned |
+| 6 | 21 A fresh Jam on screen · 30 Kept Jam sessions · 23 The review's doodle section and the suggestion | Wave 5; CJ before chunk 30's and chunk 23's merges. In-wave 21 → 23 and 30 → 23: chunk 21's capture fixes what the review receives from an ended Jam, chunk 30's what a kept Jam session holds. Three chunks: everything else of Jam's waits on 21 or 23. L1 and L2 open at its end. | merged (2026-11-04) |
 | 7 | 24 The kept doodle · 25 Exports open with the doodle · 32 Tap tempo · 33 240 BPM in Jam | Wave 6; J240 (33's second half). In-wave 24 → 32: both change Jam's Idle note routing, whose interface chunk 20's capture fixed. | planned |
 
 The [release gate](#chunk-27--v32-release-gate) (chunk 27) follows wave 7, with L1, L2, L3 and the
@@ -148,6 +170,7 @@ flowchart LR
   CK{{CK: replay key sign-off}}
   CR{{CR: ready phrases sign-off}}
   CL{{CL: Jam settings load sign-off}}
+  CJ{{CJ: kept Jam sessions and Use it sign-off}}
   L{{L1, L2, L3: listening}}
   J240{{J240: 240 BPM ruling}}
   subgraph W0[Wave 0]
@@ -263,6 +286,8 @@ flowchart LR
   C28 --> C29
   C19 --> C31
   CL --> C31
+  CJ --> C30
+  CJ --> C23
   C20 --> C31
   C18 --> C21
   C20 --> C21
@@ -541,15 +566,19 @@ Written by chunk 19; run after wave 3. About 6 minutes.
 
 #### v3.2 H4 — Jam listening: settings, drift and lock (L1)
 
-Written by chunk 21; run after wave 6. About 10 minutes.
+Written by chunk 21; run after wave 6. About 10 minutes. Until wave 7 keeps the doodle (chunk
+24), each Jam is a fresh one, so steps 3 to 5 play the same doodle again; chunk 24 rewords them to
+run on the kept doodle (spec D497).
 
 1. Jam mode, 100 BPM, Drift Near, lock Off.
 2. Play a two-measure doodle with a clear rhythm; listen to four phrases: "does it sound like my
    doodle?"
-3. Stop; the doodle is kept. Set Drift Close; Start; listen to four phrases. At Drift Close, did
-   any phrase use quicker notes than your doodle? ([O271](../../open-questions.md#v32-build-o267))
+3. Stop; Close review. Set Drift Close; Start Jam and play the same doodle again; listen to four
+   phrases. At Drift Close, did any phrase use quicker notes than your doodle?
+   ([O271](../../open-questions.md#v32-build-o267))
 4. Same with Drift Free.
-5. Rhythm lock On; Start; listen to four phrases: one rhythm, near the doodle's.
+5. Rhythm lock On; Start Jam, the same doodle; listen to four phrases: one rhythm, near the
+   doodle's.
 6. Say whether Jam's small settings set felt enough, and whether drift and the lock felt like two
    controls or one.
 
@@ -562,7 +591,8 @@ two apart here too ("sounds like my doodle" and "I like it").
 Written by chunk 21; run after wave 6, once the owner's recordings have joined the doodle set (gate
 DR, spec D443). About 10 minutes.
 
-1. Jam mode, 90 BPM, Drift Near, lock Off, New doodle before each step.
+1. Jam mode, 90 BPM, Drift Near, lock Off. Before each step, Stop and Close review, so each doodle
+   starts a fresh Jam; from wave 7, New doodle (chunk 24 rewords it, spec D497).
 2. Play a sparse doodle (three or four long notes over two measures); read "From your doodle"
    after phrase 1; listen to two phrases.
 3. Play a busy doodle (running eighths or sixteenths); read, listen.
@@ -1985,13 +2015,18 @@ Record: 2dd4ab9 (20a), bcb6e60 (20b), merged 38bb6f6. Differs from the Files lin
 
 ### Chunk 21 — A fresh Jam on screen
 
-Status: planned
+Status: merged (w6, 235d3920)
 Wave: 6
 Depends on: 18, 20, 31
-Architecture capture: how a Jam's end reaches the workspace and the review: what the review host
-receives from an ended Jam (its session history with the quantized doodle and its capture tempo,
-the raw doodle notes, the controls taken from the doodle, the suggestion kept by chunk 18), and the
-state the workspace takes after it (Jam mode's Idle). Chunk 23 builds on it.
+Architecture capture: how a Jam's end reaches the workspace and the review
+(`module_jam_session_end`, captured at wave 6's preflight): what the reviewed session of an ended
+Jam carries as its Jam part (the quantized doodle and its capture tempo, the doodle's barlines, the
+raw doodle notes, the count-in's first beat, the suggestion kept by chunk 18 with no decline, and
+the controls taken from the doodle, carried for Jam's view, whose `doodle-readings` show them: the
+review shows none of them), and the state the workspace takes after it (Jam mode's Idle, session
+mode untouched). Chunk 23 builds on it.
+
+Record: 21a b80eea9c, 21b 60a7a17d, merged 235d3920. Differs: a too-narrow window before phrase 1 ends the Jam as `staff-not-shown`, judged by Jam's staff (the session's watchers judge from the read-in), to spec-writer; H4 step 3 plays the same doodle again (the kept doodle is chunk 24's), to spec-writer; the read-in is no true cross-fade (`.staff-frame` is opaque) and a portrait end leaves focus on `body` as in session mode, to ux-writer; the home note's start makes no page jump, as session mode's starting note.
 
 - **Goal:** show a fresh Jam from Start to phrase 1, the ends before phrase 1, `jam-notice`, and the
   readings filled when phrase 1 enters; enable `Start Jam`.
@@ -2015,12 +2050,18 @@ state the workspace takes after it (Jam mode's Idle). Chunk 23 builds on it.
     leaves as its known limit. Phrase 1's backing, its acknowledgement and the silence timer's
     arming then read the start chunk 18's transport takes from `soundsAt`; this chunk changes no
     timing.
-- **Files:** `src/components/workspace/SessionCueRow.vue`, `src/jam/JamCapture.vue`,
-  `src/jam/JamWriting.vue` (new), `src/components/workspace/ScorePanel.vue`,
-  `workspace-session-display.ts`, `workspace-session-ends.ts`, `session-end-focus.ts`,
-  `workspace-session-begin.ts`, `create-workspace-session.ts`,
-  `workspace-session-without-phrase-one.ts`, `workspace-session-phrases.ts` (phrase 1 through the
-  workspace); tests
+- **Files:** `src/components/workspace/SessionCueRow.vue`, `src/jam/JamCapture.vue` and
+  `src/jam/JamWriting.vue` (both new, the cue row's Jam parts, reading the capture's states from
+  `src/jam/jam-capture.ts`), `src/jam/JamWorkspace.vue` and `JamStaff.vue` (`staff-jam` leaving at
+  the read-in), `src/jam/jam-mode.ts` (Jam's code entry exports the new parts), `jam-phrase-one.ts`,
+  `src/components/workspace/ScorePanel.vue`, `workspace-session-display.ts`,
+  `workspace-session-ends.ts`, `session-end-focus.ts`, `workspace-session-begin.ts`,
+  `create-workspace-session.ts`, `workspace-session-without-phrase-one.ts`,
+  `workspace-session-phrases.ts` and `workspace-session-active.ts` (phrase 1 through the workspace:
+  the throw in `phrasesOf`, spec D456), `workspace-session-controller-types.ts` and
+  `session-review-state.ts` (the reviewed session's Jam part, `endedSession`; also chunk 30's),
+  `session-action-policy.ts` (`freshJamCanStart`), `use-workspace-mode.ts`, `WorkspaceShell.vue`,
+  `use-jam-idle-cue.ts`; tests
   `tests/e2e/session/jam-fresh.spec.ts`, `tests/e2e/session/jam-ends-before-phrase-one.spec.ts`
   (new), `HARDWARE-CHECKLIST.md` (v3.2 H4, H5).
 - **Spec sections:** [C5.3](master-spec.md#c53-the-count-in-and-the-click) to
@@ -2036,8 +2077,22 @@ state the workspace takes after it (Jam mode's Idle). Chunk 23 builds on it.
   [`flows/review-and-export/handoff.md`](../../../ui_ux/flows/review-and-export/handoff.md).
 - **Atoms:** `req_jam`, `rule_jam_live_view_never_shows_doodle`, `rule_jam_ending_before_phrase_one`,
   `rule_jam_ends_when_phrase_one_never_comes`, `rule_jam_runs_as_session_from_phrase_one`,
-  `module_session_start_without_phrase_one` (phrase 1 through the workspace); (v2,
-  STABLE) `rule_count_in_shown_on_screen`, `rule_midi_starting_note`.
+  `module_session_start_without_phrase_one` (phrase 1 through the workspace),
+  `rule_jam_start_conditions`, `rule_jam_needs_controller`, `rule_jam_starting_note_is_home_note`,
+  `rule_jam_click_runs_until_phrase_one`, `rule_jam_no_backing_before_phrase_one`,
+  `rule_jam_silence_timer_from_phrase_one`, `rule_jam_phrase_one_deadline`,
+  `rule_jam_without_doodle_note_ends`, `rule_jam_controller_loss_before_phrase_one`,
+  `rule_jam_idle_shows_no_phrase`, `rule_doodle_sets_jam_controls`; (v2, STABLE)
+  `rule_count_in_shown_on_screen`, `rule_midi_starting_note`; (STABLE, on the contract, their
+  signed Jam halves going live, part M) `rule_midi_never_blocks_session`,
+  `rule_start_while_controller_away`, `rule_silence_timeout_ends_session`,
+  `rule_controller_loss_mid_session`, `rule_controller_reconnection_window`,
+  `rule_session_generation_failure_ladder`, `module_session_seed_plan` (the sync checks the code
+  against the signed wording and drops the "Nothing in the app starts a fresh Jam yet" caveat under
+  M22). Drift check: `module_jam_session_end`, `module_session_start_without_phrase_one`,
+  `module_jam_capture`, `module_workspace_mode`, `module_jam_idle_notes`,
+  `service_session_controller`, `service_session_end`, `service_workspace_session_flow`,
+  `module_session_rolling_display`, `module_session_phrase_steps`.
 - **Revisions:** revise `rule_session_end_generates_next_phrase_one` (its fresh-Jam half).
 - **Done when:**
   - E2e on the harness (fake MIDI, fake clock): a Jam by `Start Jam` and one by the home note each
@@ -2052,9 +2107,10 @@ state the workspace takes after it (Jam mode's Idle). Chunk 23 builds on it.
   - No note starts anything while the review shows; v3.2 H4 and H5 written.
 - **Verification:** chunk checks; the accessibility checks of what it adds; desktop and phone debug
   runs.
-- **Split rule:** 21a the cue row and the read-in (the cue row and its two parts, the score panel,
-  the session display, phrase 1 through the workspace), 21b the ends and the session end in Jam mode (the ends, the end focus, the
-  begin and create modules).
+- **Split rule:** 21a the cue row and the read-in (the cue row and its two parts, Jam's staff and
+  entry, the score panel, the session display, phrase 1 through the workspace), 21b the start, the
+  ends and the session end in Jam mode (the start policy, the mode and the Idle cue, the ends, the
+  end focus, the reviewed session's Jam part, the begin and create modules).
 
 ### Chunk 22 — v3.2's kept-session shape
 
@@ -2128,10 +2184,12 @@ unchanged. Chunk 30 writes the Jam parts.
 
 ### Chunk 23 — The review's doodle section and the suggestion
 
-Status: planned
+Status: merged (w6, c1631457)
 Wave: 6
-Depends on: 14, 21, 30 (and v3.0 chunks 12 and 25)
+Depends on: 14, 21, 30, CJ (W4, before its merge) (and v3.0 chunks 12 and 25)
 Architecture capture: none (it builds on chunk 21's and chunk 30's)
+
+Record: 23a ad6cb777, 23b b56da067, merged c1631457. Differs: new files `ReviewDoodleSection.vue`, `review-staff-style.ts`, `review-jam-ports.ts`, `use-review-doodle-tools.ts` (files at the 10-atom limit); the doodle drawn by the phrase engraver clipped at its last barline; O267 built as the doodle note at the lane's start (the owner's to rule); focus after `Jam again on this doodle` follows Close review's rule until chunk 24's `jam-bar`, a set suggestion stays absent after a further key change, the answer named for the selected instrument (ux-writer); Use it before Jam mode has shown makes Jam's settings from session mode's values, first values saved when Jam mode first shows (W4 (a)); the row's axe scans live in `review-suggestion.spec.ts` (`accessibility.spec.ts` at 10 atoms).
 
 - **Goal:** open a Jam session's review with the doodle as the app heard it, its played-notes lane,
   the suggestion with its two answers, and `Jam again on this doodle`, all from Jam's code.
@@ -2142,7 +2200,7 @@ Architecture capture: none (it builds on chunk 21's and chunk 30's)
     doodle; a doodle note played just before the doodle's first barline is O267's.
   - **Loading from Jam's code** (ux D339): "Loading your doodle." while it loads; if it fails, the
     sentence, `Jam again on this doodle` disabled with the reason, no suggestion; the rest of the
-    review works.
+    review works (both exports disabled with that sentence is chunk 25's).
   - **`suggestion-row`**: judged against Jam's key and mode; `Jam in {answer}` sets Jam's key and
     mode only (saved with Jam's settings, chunk 31), never session mode's; `Keep {key} {mode}`
     declines, saved with the session (chunk 30); the "no mode fits" sentence in every review of that
@@ -2152,7 +2210,11 @@ Architecture capture: none (it builds on chunk 21's and chunk 30's)
 - **Files:** `src/jam/review/ReviewDoodle.vue`, `src/jam/review/SuggestionRow.vue`,
   `src/jam/review/use-key-suggestion.ts`, `src/jam/doodle-engraving.ts` (all new),
   `src/components/review/ReviewPanel.vue`, `review-engraving-window.ts`,
-  `played-notes-lane-geometry.ts`, `played-notes-lane-view.ts`; tests
+  `played-notes-lane-geometry.ts`, `played-notes-lane-view.ts`, `src/jam/jam-mode.ts` (Jam's code
+  entry exports the review parts, `module_jam_code_boundary`),
+  `src/components/workspace/use-review-area.ts`, `ReviewArea.vue`, possibly `load-jam-mode.ts`,
+  `use-jam-settings.ts` (Use it from a review; Jam's settings possibly made there first, CJ W4);
+  `use-key-suggestion.ts` builds on the existing `src/jam/key-suggestion/`; tests
   `tests/unit/jam/review/SuggestionRow.spec.ts`, `tests/e2e/review/review-doodle.spec.ts`,
   `tests/e2e/review/review-suggestion.spec.ts` (new), `HARDWARE-CHECKLIST.md` (v3.2 H6).
 - **Spec sections:** [C5.15](master-spec.md#c515-the-review-and-the-exports),
@@ -2165,9 +2227,14 @@ Architecture capture: none (it builds on chunk 21's and chunk 30's)
   (The Doodle and the Suggestion; Played Notes).
 - **Atoms:** `rule_review_opens_with_doodle`, `rule_suggestion_shown_after_jam_only`,
   `rule_suggestion_use_it`, `rule_suggestion_keep_mine`, `rule_suggestion_withheld`,
-  `rule_doodle_outside_modes_told`, `rule_suggestion_named_in_players_family`; (v2, STABLE)
-  `req_last_session_review`. Drift check: `module_review_played_notes_lane`.
-- **Revisions:** `rule_review_played_notes_toggle`, `req_last_session_review` (contract, CS).
+  `rule_doodle_outside_modes_told`, `rule_suggestion_named_in_players_family`,
+  `rule_jam_again_on_this_doodle` (its review half), `rule_jam_code_loaded_on_demand`,
+  `req_key_and_mode_suggestion`, `rule_suggestion_same_doodle_same_answer`,
+  `rule_raw_doodle_notes_are_played_notes`; (v2, STABLE) `req_last_session_review`. Drift check:
+  `module_review_played_notes_lane`, `module_jam_session_end`, `module_kept_jam_session`,
+  `module_key_suggestion`, `module_jam_code_boundary`, `module_jam_settings`.
+- **Revisions:** `rule_review_played_notes_toggle`, `req_last_session_review` (contract, CS);
+  `module_saved_data_loader` (contract, CJ W4).
 - **Done when:**
   - The review of a just-ended Jam and of a kept one open with the doodle section (one-, two- and
     four-measure doodles), the lane under it when on; a session kept before v3.2 has none.
@@ -2198,6 +2265,11 @@ keyed by Jam's settings and the doodle, never session mode's.
   rewrite phrase 1 when a Jam setting changes, and let it go exactly when C5.11 says.
 - **Scope:**
   - **Keeping**: after every Jam, and from `Jam again on this doodle`, replacing any kept doodle.
+    At a Jam's end with a review, Jam's code receives the ended Jam's Jam part (`ReviewedJamPart`,
+    `session-jam-part.ts`), the one the review shows, so it keeps that doodle and fills Jam mode's
+    Idle with it; today the shell's `useFreshJam` learns of the end from the controller's `lastEnd`
+    summary only, which carries no Jam part, and hands Jam's code nothing. An end before phrase 1
+    hands none: a fresh Jam's doodle is not kept, and a Jam on a kept doodle keeps it (C5.13).
   - **Phrase 1 at Idle** from it: three rungs with no deadline (chunk 18's ladder), through every
     Idle rule; with Jam's lock on, the rhythm nearest the doodle; Jam's prepared phrases from it.
   - **A Jam setting changed** (all but the tempo) writes phrase 1 again at once, through Loading,
@@ -2212,14 +2284,29 @@ keyed by Jam's settings and the doodle, never session mode's.
     `jam-idle-notes.ts`), no capture, no 30-second wait; its review shows the kept doodle with an
     empty lane; at its end, phrase 1 written again with a fresh seed (ended in its count-in, the
     same phrase 1).
+  - **A Jam on it, kept and read back** (C10.3, spec D430, D499): its kept session's body holds the
+    kept doodle and its capture tempo and no played-notes clock, which only a fresh Jam's body
+    holds; its played notes are timed from phrase 1, as session mode's, and hold no raw doodle
+    note; the suggestion it declined stays declined. Its Jam part (`session-jam-part.ts`) admits a
+    Jam with no count-in; the save writes it, and reading it back (`keptJamPart` in
+    `workspace-kept-session-read.ts`, which throws on a body with no clock since chunk 30) gives the
+    review the Jam showed at its end: the kept doodle at its capture tempo, its lane empty.
   - **What lets it go**, and nothing else: `New doodle`, leaving Jam mode, the player's deletion of
     the latest session played on it, Delete everything, `Jam again on this doodle` on another
     doodle (which replaces it), a reload. A session end that replaces an unpinned
     session keeps it.
+  - **The hand checks reworded for the kept doodle** (spec D497): in v3.2 H4, the intro's "until
+    wave 7" sentence goes and steps 3 to 5 run on the kept doodle (Stop, Close review, change the
+    setting, Start Jam with no new doodle, the same doodle replayed by the app); in v3.2 H5, each
+    doodle starts a fresh Jam through `New doodle`.
 - **Files:** `src/jam/use-kept-doodle.ts`, `src/jam/JamBar.vue` (new), `src/jam/jam-idle-notes.ts`,
+  `src/components/workspace/use-fresh-jam.ts` (the Jam part handed to Jam's code at the end),
   `src/components/workspace/use-review-host.ts`, `workspace-session-begin.ts`,
-  `workspace-session-ends.ts`, `workspace-pregeneration.ts`; tests
-  `tests/unit/jam/use-kept-doodle.spec.ts`, `tests/e2e/workspace/kept-doodle.spec.ts` (new).
+  `workspace-session-ends.ts`, `workspace-pregeneration.ts`, `session-jam-part.ts`,
+  `workspace-session-save.ts`, `workspace-kept-session-read.ts` (a Jam on a kept doodle's Jam
+  part, save and read), `HARDWARE-CHECKLIST.md` (v3.2 H4, H5); tests
+  `tests/unit/jam/use-kept-doodle.spec.ts`, `tests/unit/components/workspace/use-fresh-jam.spec.ts`, `tests/unit/components/workspace/` (the kept session
+  read's and the save's kept-doodle cases), `tests/e2e/workspace/kept-doodle.spec.ts` (new).
 - **Spec sections:** [C5.11](master-spec.md#c511-the-kept-doodle-and-jam-again-on-this-doodle),
   [C5.13](master-spec.md#c513-edge-cases-before-phrase-1-sounds),
   [C6.4](master-spec.md#c64-where-and-when-it-is-shown),
@@ -2238,11 +2325,17 @@ keyed by Jam's settings and the doodle, never session mode's.
   `rule_jam_on_held_doodle_skips_capture`, `rule_held_doodle_in_memory_only` and their kept-doodle
   successors from chunk 0, which also replaces `rule_held_doodle_dropped_on_change`;
   `rule_suggestion_use_it`, `rule_suggestion_keep_mine`; (v3.0)
-  `rule_pregenerated_phrase_matches_session`. Drift check: `module_session_seed_plan` (a kept
-  doodle's phrase 1 at Idle draws its seeds as any phrase 1 at Idle, C11).
+  `rule_pregenerated_phrase_matches_session`. Drift check: `module_jam_session_end` (Jam's code is
+  handed the ended Jam's Jam part; its "comes with the kept doodle" sentence),
+  `module_session_seed_plan` (a kept
+  doodle's phrase 1 at Idle draws its seeds as any phrase 1 at Idle, C11), `module_kept_jam_session`
+  (a Jam on a kept doodle keeps no played-notes clock, C10.3).
 - **Revisions:** revise `rule_session_end_generates_next_phrase_one` (its kept-doodle half),
   `rule_pregeneration_discarded_on_change` (Jam's queue).
 - **Done when:**
+  - At a Jam's end with a review, Jam's code receives that Jam's Jam part, the same one the review
+    shows, and keeps its doodle from it; an end before phrase 1 hands it none (a fresh Jam's doodle
+    not kept, a kept doodle still kept).
   - After a Jam and from `Jam again on this doodle`, phrase 1 written from the doodle shows with
     `jam-bar`; the starting note is phrase 1's first note.
   - The kept doodle's phrase 1 and prepared phrases are the phrases the Jam plays (fake clock).
@@ -2256,10 +2349,16 @@ keyed by Jam's settings and the doodle, never session mode's.
     (unpinned) session, keeps it; deleting the latest session played on it lets it go.
   - After a reload nothing is kept; the kept session's review offers it again, and the same settings
     and seed give the same phrase 1.
+  - A Jam on the kept doodle, kept and reloaded: its body holds no played-notes clock and its
+    played notes no raw doodle note, their times from phrase 1; its review reads back with the kept
+    doodle at its capture tempo, an empty lane and its decline, as at its end; a fresh Jam's read
+    unchanged.
+  - v3.2 H4's steps 3 to 5 run on the kept doodle and H5 starts each doodle with `New doodle`, in
+    `HARDWARE-CHECKLIST.md` and in this plan's H4.
 - **Verification:** chunk checks; the accessibility checks of what it adds; a debug run going round
   twice on one doodle.
 - **Split rule:** 24a keeping, phrase 1 at Idle, Jam's queue and what lets it go (the composable,
-  the review host, pre-generation), 24b the bar and a Jam on it (the bar, Jam's Idle notes, the
+  the Jam part handed at the end, the review host, pre-generation), 24b the bar and a Jam on it (the bar, Jam's Idle notes, the
   session begin and ends).
 
 ### Chunk 25 — Exports open with the doodle
@@ -2290,17 +2389,26 @@ Architecture capture: none
     none of them. Under `Favorites only` in a Jam, the very-short reason reads "Every note you
     played in your favorites and the doodle is very short. Turn on Include very short notes to
     export them."; the other reasons keep their wording. (Keeping such a Jam's played notes, and
-    `Delete played notes`, are chunk 30's.)
+    `Delete played notes`, are chunk 30's.) Until this chunk, a Jam in which only the doodle was
+    played has `Export played notes` disabled with v3.0's "Every note you played is very short.
+    Turn on Include very short notes to export them." (spec D499): the file holds no doodle note
+    yet. That transitional state goes here, once the doodle's notes are in the file.
   - **Both scopes**: the doodle always exported, never a favorite.
   - **From Jam's code**: the section is built by `src/jam/export/doodle-section.ts`, loaded with
-    Jam's code; an export pressed while it loads waits; if the load fails, both exports of that
-    session are unavailable with the reason (ux D339, D345).
+    Jam's code; an export pressed while it loads waits in its `is-loading` state; if the load
+    fails, `Export generated notes` and `Export played notes` are both disabled, each named by a
+    `field-note` after it holding the doodle's failure sentence (for `Export played notes`, before
+    every other reason), the other export controls live, and an export already waiting ends there,
+    never in `review-export-error`; once Jam's code loads, both are enabled as for any Jam (ux D339,
+    D345). Until this chunk they stay enabled with no `field-note` after a failed load (chunk 23
+    reads Jam's code through `use-review-jam-code.ts`).
   - Outside a Jam every file is byte-identical to v3.1's.
 - **Files:** `src/export/generated-notes-file.ts`, `played-notes-file.ts`,
   `src/export/midi/midi-export-input.ts`, `midi-tracks.ts`, `played-notes-midi-input.ts`,
   `played-notes-placement.ts`, `src/export/musicxml/musicxml-export-input.ts`, `musicxml-marks.ts`,
   `src/jam/export/doodle-section.ts` (new); `src/components/workspace/review-export.ts` (whether
   the history and the file hold a played note, and why not), `use-review-area.ts`,
+  `use-review-jam-code.ts` (chunk 23's; the exports' state after a failed load),
   `src/components/review/review-types.ts`, `ReviewPanel.vue` (the reason's words); tests under
   `tests/unit/export/` (the three tests of
   [Read first](#read-first-what-v32-changes-in-v2-v30-and-v31) kept, Jam variants beside them),
@@ -2329,6 +2437,12 @@ Architecture capture: none
     `Export played notes`, in both scopes with no favorite; a Jam on a kept doodle with no note
     played after it shows neither. With the doodle's and the favorites' notes all very short, the
     Jam sentence under `Favorites only`, v3.0's under `Whole session`; non-Jam reasons unchanged.
+    A Jam in which only the doodle was played, its notes not very short, no longer shows the
+    very-short reason: `Export played notes` is enabled and its file holds them.
+  - After a failed load of Jam's code, a Jam session's two exports are disabled, each with the
+    design's `field-note` sentence (first for `Export played notes`), the other export controls
+    live, and an export pressed while loading ends there, never in `review-export-error`; once
+    Jam's code loads, both are enabled.
 - **Verification:** chunk checks.
 - **Split rule:** 25a the generated-notes files (the file, the MIDI and MusicXML inputs, the tracks,
   the marks, the doodle section), 25b the played-notes file and what counts as holding a played
@@ -2468,14 +2582,16 @@ Record: 0d352486, merged f1ee94d2. M1 first run through the three-rung double, r
 
 ### Chunk 30 — Kept Jam sessions on the device
 
-Status: planned
+Status: merged (w6, 2347dac6)
 Wave: 6
-Depends on: 18, 22
-Architecture capture: what a kept Jam session holds, in chunk 22's shape: the summary's Jam mark
-and decline, the body's quantized doodle and capture tempo, each phrase's steering block, and the
+Depends on: 18, 22, CJ (W1–W3, before its merge)
+Architecture capture: what a kept Jam session holds (`module_kept_jam_session`, captured at wave
+6's preflight), in chunk 22's shape: the summary's Jam mark and decline, the body's quantized doodle and capture tempo, each phrase's steering block, and the
 raw doodle notes in the played-notes record only while "Keep my played notes" is on, a fresh Jam's
 played notes timed from its count-in with the body's clock (chunk 22, spec D430). Chunk 23 builds
 on it.
+
+Record: 30a 98186732, 30b 2cd6dfc3, copy fix aa925607 (ux D454), merged 2347dac6 after gate CJ W1–W3. Differs: a kept Jam read back has `ReviewedJamPart.suggestion` and `.doodleControls` null (the records hold neither; chunk 23 works the suggestion out again), against `module_jam_session_end`'s "same shape", for the sync; a Jam on a kept doodle (no played-notes clock) throws on read back, chunk 24's (spec D499); Your data's v3.2 copy built here (it matches the design); a doodle-only Jam's `Export played notes` disabled until chunk 25 (spec D499).
 
 - **Goal:** keep a Jam session with its doodle in both forms, by the privacy split; mark Jam sessions
   in the list; make the deletions, Delete everything and the visits that save nothing hold.
@@ -2495,14 +2611,18 @@ on it.
   - **Visits that save nothing** (outdated tab, failed read): a Jam runs and is reviewed in memory;
     nothing written, the decline included; a Jam session written by a newer version listed as such.
   - **The list and the summary**: "Jam" first in a Jam session's detail line and `review-summary`;
-    no preset part (ux D345).
+    no preset part (ux D345). The record still keeps a preset label, as every kept session's does
+    and as the encoder always writes one (`entity_kept_session_record`,
+    `rule_kept_session_content`); only the row and the summary leave it out (spec D460).
   - M3's read with Jam sessions.
-- **Files:** `src/components/workspace/workspace-session-save.ts`,
-  `session-review-state.ts` (whether a session holds played notes to keep),
-  `review-confirmation-copy.ts`, `src/storage/records/kept-session-record.ts`,
-  `src/storage/records/kept-played-notes.ts`, the session-row text module
-  (`src/components/review/SessionRow.vue` or its text helper),
-  `src/components/workspace/use-your-data.ts`, the review summary; tests under `tests/unit/storage/`,
+- **Files:** `src/components/workspace/workspace-session-save.ts`, `workspace-session-ends.ts`,
+  `session-review-state.ts` (whether a session holds played notes to keep; `endedSession`, also
+  chunk 21's), `review-confirmation-copy.ts`, `use-kept-sessions.ts`,
+  `kept-session-review-changes.ts` (the decline), `workspace-kept-session-read.ts` (a kept
+  session's Jam part), `src/storage/records/kept-session-record.ts`, `kept-session-summary.ts` (the
+  row's Jam mark: `NewerKeptSummaryFacts` has no `isJam` yet), `kept-played-notes.ts`,
+  `src/components/review/session-row-text.ts`, `src/components/workspace/use-your-data.ts`,
+  `src/components/review/ReviewPanel.vue` (`review-summary`, also chunk 23's); tests under `tests/unit/storage/`,
   `tests/unit/components/workspace/` (the session review state's and the confirmation's Jam cases),
   `tests/e2e/storage/kept-jam-session.spec.ts` (new), `tests/e2e/review/review-privacy.spec.ts`
   (extended: the storage half with a Jam).
@@ -2522,11 +2642,14 @@ on it.
   Confirmations: This session's played notes, in a Jam session).
 - **Atoms:** `rule_raw_doodle_notes_are_played_notes`,
   `rule_deleting_played_notes_keeps_quantized_doodle`, `rule_jam_in_visits_that_save_nothing`,
-  `rule_jam_ending_before_phrase_one`; (v3.0) `rule_outdated_tab_stops_saving`,
-  `rule_failed_read_offers_only_delete_everything`.
+  `rule_jam_ending_before_phrase_one`, `rule_quantized_doodle_is_generation_input`,
+  `rule_suggestion_keep_mine`; (v3.0) `rule_outdated_tab_stops_saving`,
+  `rule_failed_read_offers_only_delete_everything`, `rule_most_recent_session_kept`. Drift check:
+  `module_kept_jam_session`, `entity_kept_session_record`, `module_kept_session_codec`.
 - **Revisions:** `rule_kept_session_content`, `req_kept_session_list`,
   `rule_played_notes_kept_only_after_opt_in`, `rule_kept_played_notes_deletable`,
-  `rule_delete_everything`, `rule_optional_midi_privacy` (contract, CS).
+  `rule_delete_everything`, `rule_optional_midi_privacy` (contract, CS); `module_kept_session_save`,
+  `module_kept_session_changes`, `module_kept_session_reach` (contract, CJ W1–W3).
 - **Done when:**
   - A Jam session with the opt-in off: after a reload the doodle and its tempo are back, and no raw
     doodle note is in storage (the privacy spy's storage half); with it on, the raw notes are back,
@@ -2539,7 +2662,8 @@ on it.
   - The list's detail line and the summary begin with "Jam"; M3's read recorded.
 - **Verification:** chunk checks; a debug run reloading a kept Jam session.
 - **Split rule:** if the brief passes about five source files, 30a the save and the deletions (the
-  save, the session review state, the confirmation copy, the record, the played notes), 30b the list's mark, the summary and Your data.
+  save, the session ends, the session review state, the confirmation copy, the record, the played
+  notes, the decline), 30b the list's mark, the summary, the kept session's read and Your data.
 
 ### Chunk 31 — Jam's settings
 

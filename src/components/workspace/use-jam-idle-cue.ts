@@ -4,8 +4,9 @@
  * `jam-needs-controller`, which `Start Jam` names; with one, while a fresh Jam could start (its
  * start conditions, ./session-action-policy.ts), it is the starting-note line naming the home
  * note, from Jam's Idle note routing (src/jam/jam-idle-notes.ts), reached through Jam's loaded
- * code only; otherwise nothing. The row is given plain data, never Jam's code. Nothing here
- * listens to the controller's notes, and a controller arriving or leaving never changes the mode.
+ * code only; otherwise nothing. The row is given plain data, never Jam's code. It also passes on
+ * what a played note means there, for the controller's note route. Nothing here listens to the
+ * controller's notes, and a controller arriving or leaving never changes the mode.
  */
 import { computed, type ComputedRef } from 'vue'
 
@@ -16,6 +17,9 @@ import { freshJamCanStart, type FreshJamStartFacts } from './session-action-poli
 
 /** The id of `jam-needs-controller`, which `Start Jam`'s `aria-describedby` names. */
 export const JAM_NEEDS_CONTROLLER_ID = 'jam-needs-controller'
+
+/** The id of Jam's staff's `jam-notice`, which `Start Jam`'s `aria-describedby` names. */
+export const JAM_NOTICE_ID = 'jam-notice'
 
 /**
  * What the cue row holds in `start-note-line`'s place in Jam mode: the starting-note line naming
@@ -55,14 +59,19 @@ export interface JamIdleCue {
   readonly cue: ComputedRef<JamCue | null>
   /** `jam-needs-controller` shows, so `Start Jam` names it with `aria-describedby`. */
   readonly needsController: ComputedRef<boolean>
+  /**
+   * What a controller note at this exact concert pitch means at Jam mode's Idle now: `start` for
+   * the named home note, else (and before Jam's code has loaded) `ignored`.
+   */
+  readonly meaningOf: (concertPitch: number) => 'start' | 'ignored'
 }
 
 /**
  * Intent: Jam mode's Idle cue. Outside Jam mode, during a session and while the review mode shows,
  * none. Without a connected controller (a selected one away counts as none), the needs-controller
  * line, in every idle state of Jam mode. Otherwise the starting-note line naming the home note
- * exactly while a fresh Jam could start (whenever `Start Jam` would be enabled; chunk 21 enables
- * it), from Jam's Idle note routing, built once Jam's code has loaded.
+ * exactly while a fresh Jam could start (whenever `Start Jam` is enabled), from Jam's Idle note
+ * routing, built once Jam's code has loaded, which also says what a played note means.
  */
 // @spec-link [[rule_jam_needs_controller]]
 // @spec-link [[rule_jam_start_conditions]]
@@ -95,5 +104,6 @@ export function useJamIdleCue(deps: JamIdleCueDependencies): JamIdleCue {
   return {
     cue,
     needsController: computed(() => cue.value?.kind === 'needs-controller'),
+    meaningOf: (concertPitch) => idleNotes.value?.meaningOf(concertPitch) ?? 'ignored',
   }
 }

@@ -72,12 +72,26 @@ function sessionToolCopy(open: SessionToolConfirmation, error: string | null): C
   }
 }
 
+/** What `Delete played notes` deletes and keeps, in a session that is no Jam. */
+const SESSION_PLAYED_NOTES =
+  'This deletes the notes you played in this session. The session stays, with its favorite phrases and comment.'
+
+/** What `Delete played notes` deletes and keeps, in a Jam session: its written-out doodle stays. */
+const JAM_SESSION_PLAYED_NOTES =
+  'This deletes the notes you played in this session. The session stays, with its doodle as the app wrote it, its favorite phrases and comment.'
+
+/** What the played notes already kept adds when a Jam session keeps played notes (ux D454). */
+const DOODLES_STAY = ' Doodles stay as the app wrote them.'
+
 /**
  * Intent: the words of a Review's confirmation: "Delete the played notes already kept?" when
- * `Keep my played notes` was turned off while some are kept, "Delete this session's played
- * notes?" for `Delete played notes`, and the session tools' own.
+ * `Keep my played notes` was turned off while some are kept (saying the doodles stay when a Jam
+ * session keeps played notes), "Delete this session's played
+ * notes?" for `Delete played notes` (in a Jam session, saying its doodle as the app wrote it
+ * stays), and the session tools' own.
  */
 // @spec-link [[rule_kept_played_notes_deletable]]
+// @spec-link [[rule_deleting_played_notes_keeps_quantized_doodle]]
 export function reviewConfirmationCopy(open: ReviewConfirmation): ConfirmationCopy {
   const error = open.failed ? NOT_DELETED : null
   if (open.kind === 'unpin' || open.kind === 'delete-session') return sessionToolCopy(open, error)
@@ -85,7 +99,7 @@ export function reviewConfirmationCopy(open: ReviewConfirmation): ConfirmationCo
     return {
       title: 'Delete the played notes already kept?',
       paragraphs: [
-        `Your played notes won't be kept from now on. The ones already kept ${withSessions(open.sessionCount)} can be deleted too; the sessions stay.`,
+        `Your played notes won't be kept from now on. The ones already kept ${withSessions(open.sessionCount)} can be deleted too; the sessions stay.${open.jam ? DOODLES_STAY : ''}`,
         CANNOT_BE_UNDONE,
       ],
       confirmLabel: 'Delete them',
@@ -96,10 +110,7 @@ export function reviewConfirmationCopy(open: ReviewConfirmation): ConfirmationCo
   }
   return {
     title: "Delete this session's played notes?",
-    paragraphs: [
-      'This deletes the notes you played in this session. The session stays, with its favorite phrases and comment.',
-      CANNOT_BE_UNDONE,
-    ],
+    paragraphs: [open.jam ? JAM_SESSION_PLAYED_NOTES : SESSION_PLAYED_NOTES, CANNOT_BE_UNDONE],
     confirmLabel: 'Delete played notes',
     cancelLabel: 'Cancel',
     destructive: true,

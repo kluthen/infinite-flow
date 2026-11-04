@@ -11,8 +11,9 @@
  * records on undecoded, and they are decoded here, each on its own, when Jam's settings are first
  * needed: a missing, damaged, newer or invalid record gives that setting its first value and
  * touches no other. The first values of the key, the mode and the tempo come from session mode's
- * current values (the tempo kept inside 60 to 180 BPM) and are saved then, so a later visit finds
- * the same ones. A change is saved at once through the visit's saver, one record per setting it
+ * current values (the tempo kept inside 60 to 180 BPM) and are saved as Jam mode first shows, so a
+ * later visit finds the same ones; made earlier for a Jam session's Review, they save none until
+ * then. A change is saved at once through the visit's saver, one record per setting it
  * changed; a visit that saves nothing keeps them in memory, as its saver writes nothing. Saving a
  * Jam setting never writes a session-mode record. Part of Jam's code (src/jam/), loaded on demand.
  */
@@ -289,6 +290,13 @@ export function jamGenerationControls(
   })
 }
 
+/** Intent: the first values still to save once a change has saved `saved`: none it saved. */
+function withoutSaved(pending: SettingChanges, saved: SettingChanges): SettingChanges {
+  return Object.fromEntries(
+    Object.entries(pending).filter(([key]) => !Object.hasOwn(saved, key)),
+  ) as SettingChanges
+}
+
 /** What Jam's settings are made from: the load's records, session mode's values, the saver. */
 // @spec-link [[module_jam_settings]]
 export interface JamSettingsDependencies {
@@ -298,28 +306,52 @@ export interface JamSettingsDependencies {
   readonly session: SessionModeStart
   /** The visit's saver; it writes nothing in a visit that saves nothing. */
   readonly saveSettings: SaveSettings
+  /**
+   * Made for a Jam session's Review before Jam mode first shows: the first values taken from
+   * session mode are not saved now, but by `saveFirstValues` as Jam mode first shows.
+   */
+  readonly firstValuesDeferred?: boolean
 }
 
 /** Jam's settings for the visit: what they are now, and the player's changes to them. */
 // @spec-link [[module_jam_settings]]
 export interface JamSettingsStore {
   readonly settings: Readonly<ShallowRef<JamSettings>>
-  /** Apply a change of the player's at Jam's Idle, and save each setting it changed. */
+  /**
+   * Apply a change of the player's (at Jam's Idle, or the review's `Jam in {answer}`), and save
+   * each setting it changed.
+   */
   readonly change: (change: JamSettingsChange) => void
+  /**
+   * Save the first values taken from session mode that no change has saved since, as Jam mode
+   * first shows; once only, so a later call saves nothing.
+   */
+  readonly saveFirstValues: () => void
 }
 
 /**
  * Intent: Jam's settings for the visit, made when they are first needed: decoded from the load's
- * records, the key, mode and tempo taken from session mode saved at once when none was readable;
- * each change then saved at once, one record per setting it changed.
+ * records, the key, mode and tempo taken from session mode saved when none was readable, at once,
+ * or, made for a Jam session's Review, only as Jam mode first shows (never one a change has saved
+ * meanwhile); each change then saved at once, one record per setting it changed.
  */
 // @spec-link [[module_jam_settings]]
 // @spec-link [[rule_jam_settings_saved_on_change]]
 // @spec-link [[rule_jam_in_visits_that_save_nothing]]
+// @spec-link [[rule_jam_settings_first_values]]
 export function createJamSettings(deps: JamSettingsDependencies): JamSettingsStore {
   const decoded = decodeJamSettings(deps.records, deps.session)
   const settings = shallowRef(decoded.settings)
-  deps.saveSettings(decoded.startedFromSessionMode)
+  /** The first values taken from session mode not saved yet; null once they have been. */
+  let pendingFirstValues: SettingChanges | null = decoded.startedFromSessionMode
+  /** Intent: save the first values still pending, once; nothing after that. */
+  const saveFirstValues = (): void => {
+    if (pendingFirstValues === null) return
+    const pending = pendingFirstValues
+    pendingFirstValues = null
+    deps.saveSettings(pending)
+  }
+  if (deps.firstValuesDeferred !== true) saveFirstValues()
   return {
     settings,
     change: (change) => {
@@ -328,7 +360,11 @@ export function createJamSettings(deps: JamSettingsDependencies): JamSettingsSto
       const changes = jamSettingChanges(before, after)
       if (Object.keys(changes).length === 0) return
       settings.value = after
+      if (pendingFirstValues !== null) {
+        pendingFirstValues = withoutSaved(pendingFirstValues, changes)
+      }
       deps.saveSettings(changes)
     },
+    saveFirstValues,
   }
 }

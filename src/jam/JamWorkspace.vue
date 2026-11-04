@@ -8,20 +8,34 @@
  * (`staff-state`) and its `retryNotation()`, which the header's `Retry notation` calls. While it
  * shows, under the prewarm policy, it warms the generation worker for the rhythm values Jam's Idle
  * prewarms (./jam-idle-prewarm.ts): once on showing, and again after a change of that rhythm
- * setting; nothing else is generated or prepared.
+ * setting; nothing else is generated or prepared. As a fresh Jam's phrase 1 enters the session's
+ * staff, the workspace tells it it leaves (`leaving`): its staff's empty system fades out, and it
+ * passes on `left` once the fade has ended, the workspace then putting it out of sight. After a
+ * Jam whose phrase 1 could not be written, its staff shows `jam-notice` (`notice`).
  */
 import { computed, ref, watch } from 'vue'
 
 import JamStaff from './JamStaff.vue'
 import { createJamIdlePrewarm } from './jam-idle-prewarm'
-import type { JamStaffProps, JamStaffState, JamWorkspaceProps } from './jam-view-types'
+import type {
+  JamStaffProps,
+  JamStaffState,
+  JamViewLeaving,
+  JamWorkspaceProps,
+} from './jam-view-types'
 
 // @spec-link [[module_jam_code_boundary]]
-const props = defineProps<JamWorkspaceProps>()
+// @spec-link [[req_jam]]
+const props = withDefaults(defineProps<JamWorkspaceProps & JamViewLeaving>(), {
+  leaving: false,
+  notice: false,
+})
 
 const emit = defineEmits<{
   /** What Jam's staff shows changed. */
   'staff-state': [state: JamStaffState]
+  /** While leaving, Jam's staff has faded out: the view may go out of sight. */
+  left: []
 }>()
 
 const jamStaff = ref<InstanceType<typeof JamStaff> | null>(null)
@@ -63,12 +77,26 @@ function retryNotation(): void {
   jamStaff.value.retryNotation()
 }
 
-defineExpose({ retryNotation })
+/** Intent: focus the staff's no-room sentence (a Jam ended into Needs more room). */
+// @spec-link [[rule_jam_ending_before_phrase_one]]
+function focusRoomNotice(): void {
+  if (jamStaff.value === null) throw new Error("Jam's view: its staff is not mounted.")
+  jamStaff.value.focusRoomNotice()
+}
+
+defineExpose({ retryNotation, focusRoomNotice })
 </script>
 
 <template>
   <!-- @spec-link [[module_jam_code_boundary]] -->
   <div class="staff-viewport">
-    <JamStaff ref="jamStaff" v-bind="staffProps" @staff-state="emit('staff-state', $event)" />
+    <JamStaff
+      ref="jamStaff"
+      v-bind="staffProps"
+      :leaving="leaving"
+      :notice="notice"
+      @staff-state="emit('staff-state', $event)"
+      @left="emit('left')"
+    />
   </div>
 </template>

@@ -6,7 +6,7 @@
 >
 > - _v3.1 changed:_ a row names the preset the session started with, as it was then
 >   ([The List](#the-list))
-> - _v3.2 new:_ Jam sessions in the list, kept and deleted like any, with no preset; deleting
+> - _v3.2 new:_ Jam sessions in the list, kept and deleted like any, their rows showing no preset; deleting
 >   one lets go the doodle Jam mode keeps from it; sessions kept before v3.2
 >   ([Jam Sessions](#jam-sessions))
 
@@ -161,7 +161,7 @@ it was played with, by the name it had then.
 **[v3.2 new]** A Jam is kept like any session, by the same rule: once its first phrase has
 sounded, it is saved at its end, kept as the most recent session, and kept for good when pinned or
 when the player marks a favorite. Its row says "Jam" at the start of its detail line, so the
-sessions that began with the player's own idea are easy to find; it names no preset, since Jam
+sessions that began with the player's own idea are easy to find; it shows no preset, since Jam
 mode has none. A Jam that ends before its first phrase sounds keeps nothing and replaces nothing,
 as a session stopped during its count-in: there is no music to keep.
 

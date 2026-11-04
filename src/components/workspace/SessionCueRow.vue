@@ -4,7 +4,11 @@
  * staff, at one fixed block size, holding at most one cue by priority: the disconnect banner while
  * a lost controller's countdown runs (a count-in under it keeps running, and shows again if the
  * device reattaches before beat 4), then the count-in (its beats lit on the audio clock by the
- * session controller), then the struggling notice, then the starting-note line (asking first for
+ * session controller; a fresh Jam's count-in and read-in measure too), then, while a fresh Jam
+ * runs (`jamSession`), the part its phase gives (./jam-session-cue.ts): `jam-capture` during the
+ * capture, `jam-writing` from a silent barline through the generation measure and any extended
+ * wait, both Jam's code reached through Jam's loaded code; then the struggling notice, then the
+ * starting-note line (asking first for
  * the page's first click, tap or key press while the starting note waits for it). Below
  * bp-tablet-landscape, from a session's start to its end, `session-cue-actions` sits at its
  * trailing end: a compact `Stop` and the phone's `Volume`; the stylesheet shows them only there.
@@ -25,6 +29,7 @@ import { computed } from 'vue'
 import type { AudioTransport } from '@/audio/audio-transport'
 import MixVolumeButton from './MixVolumeButton.vue'
 import { reviewLinkShown, sessionsLinkShown } from './cue-row-links'
+import { jamCuePartOf, type JamSessionCue } from './jam-session-cue'
 import type { MixVolumePopover } from './mix-volume-popover'
 import { JAM_NEEDS_CONTROLLER_ID, type JamCue } from './use-jam-idle-cue'
 import type { SessionController } from './workspace-session-controller-types'
@@ -37,8 +42,10 @@ const props = withDefaults(
     mixPopover: MixVolumePopover
     /** Jam's Idle cue, in the starting-note line's place in Jam mode; null (the default) else. */
     jamCue?: JamCue | null
+    /** A fresh Jam's cue row parts and phase while it runs; null (the default) else. */
+    jamSession?: JamSessionCue | null
   }>(),
-  { jamCue: null },
+  { jamCue: null, jamSession: null },
 )
 
 const emit = defineEmits<{
@@ -64,6 +71,23 @@ const controllerLost = computed(() => props.controller?.state.controllerLost ?? 
 /** Intent: the count-in row while the count-in runs, null otherwise; it outranks the notice. */
 // @spec-link [[rule_count_in_shown_on_screen]]
 const countIn = computed(() => props.controller?.state.countIn ?? null)
+
+/**
+ * Intent: Jam's part of the row while a fresh Jam's session runs, from its phase: `jam-capture`
+ * with the doodle's measure, or `jam-writing`; null otherwise (the controller's count-in covering
+ * the count-in and the read-in measure). It ranks just below the count-in.
+ */
+// @spec-link [[rule_count_in_shown_on_screen]]
+const jamPart = computed(() => {
+  const jam = props.jamSession
+  if (jam === null || !sessionActive.value) return null
+  const part = jamCuePartOf(jam.phase)
+  if (part === 'capture') {
+    const doodleMeasure = jam.phase.state === 'capture' ? jam.phase.doodleMeasure : null
+    return { component: jam.parts.JamCapture, props: { doodleMeasure } }
+  }
+  return part === 'writing' ? { component: jam.parts.JamWriting, props: {} } : null
+})
 
 /** Intent: whether the controller raises the struggling notice; it outranks the start line. */
 // @spec-link [[rule_struggling_generator_notice]]
@@ -133,6 +157,7 @@ const reviewLinkLoading = computed(() => props.controller?.state.readingMostRece
         {{ index + 1 }}
       </li>
     </ol>
+    <component :is="jamPart.component" v-else-if="jamPart !== null" v-bind="jamPart.props" />
     <p v-else-if="strugglingNotice" class="inline-alert alert-notice session-alert">
       <span class="session-alert-text">The generator is struggling with these settings.</span>
     </p>

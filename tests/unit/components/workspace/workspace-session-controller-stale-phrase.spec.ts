@@ -189,6 +189,7 @@ describe('session controller: a stale phrase 1 at the starting note', () => {
       changed: ['tonalCenter'],
     })
     expect(rig.controller.state.phase).toBe('idle')
+    expect(rig.afterNoteStartPhases).toEqual([])
     expect(rig.controller.state.startingNote).toBeNull()
     press(rig, note.concertPitch)
     lift(rig, note.concertPitch)

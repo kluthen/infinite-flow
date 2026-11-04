@@ -38,7 +38,8 @@
 >   section and the exports when it cannot load; _v3.2 changed:_ the summary begins with "Jam"
 >   and names no preset for a Jam session, the raw doodle notes count as played notes, both
 >   exports open with the doodle, and the played-notes confirmation of a Jam session says the
->   written-out doodle stays ([Components and Content](#components-and-content))
+>   written-out doodle stays, as the played notes already kept confirmation does when a Jam
+>   session keeps played notes ([Components and Content](#components-and-content))
 > - _v3.2 changed:_ the tab order gains the doodle section's buttons; _v3.2 new:_ focus after
 >   `Jam in {answer}`, `Keep` and `Jam again on this doodle` ([Focus and Keyboard](#focus-and-keyboard))
 > - _v3.2 new:_ the doodle and the suggestion at each breakpoint
@@ -185,8 +186,8 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
 - **[v3.2 changed]** For a Jam session, the part of the summary after the session date begins with
   the word "Jam", as the session list's detail line does: "Tue 6 Oct 2026, 18:42 · Jam · 12 min ·
   9 phrases · …", or "Jam · 12 min · 9 phrases · …" when the date is the title. A word, not an
-  icon. A Jam session has no preset label (Jam mode has no presets), so its summary has no
-  {preset} part: "Jam · 12 min · 9 phrases · {instrument} · {favorites}".
+  icon. Jam mode has no presets, so a Jam session's summary shows no {preset} part, though
+  the session keeps its preset label: "Jam · 12 min · 9 phrases · {instrument} · {favorites}".
 - **[v3 new]** `review-keep-line`: "Pinned: kept until you unpin or delete it.", "Not pinned:
   deleted when your next session is saved.", or, for a session whose save failed, "Not saved on
   this device: export it to keep it." Its text changes in place, with no announcement. Below
@@ -360,6 +361,11 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
     paragraph reads "This deletes the notes you played in this session. The session stays, with
     its doodle as the app wrote it, its favorite phrases and comment.", since the written-out
     doodle is kept (master spec §C5.14); the rest as above.
+  - **[v3.2 changed]** **Played notes already kept, when a Jam session keeps played notes:** when
+    at least one of the sessions whose played notes are kept is a Jam session, whichever session
+    this Review shows, the body's first paragraph ends with one more sentence, "Doodles stay as
+    the app wrote them.", as in `Your data` (`screens/your-data/handoff.md`, Confirmations):
+    `Delete them` deletes their raw doodle notes and keeps each written-out doodle.
   - A deletion that fails keeps its sheet open with `inline-alert alert-error` "That couldn't be
     deleted. Try again." under its paragraphs; the confirming action tries again.
   - While a deletion runs, its confirming action takes `is-loading`; the way back stays live and
@@ -535,8 +541,11 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
   doodle (master spec §C6), about Jam's key and mode: Jam's own Written key and Collection
   (`screens/phrase-workspace/handoff.md`, Saved settings), never session mode's, whichever mode
   the review shows over. Until Jam mode has first opened on this device, Jam's key and mode are
-  session mode's current ones, as Jam's first values are. The answer is named in written pitch,
-  its key as the Written key control labels it, its mode in the player's family: while Jam's
+  session mode's current ones, as Jam's first values are. The answer is named in the written pitch
+  of the instrument selected now, never the kept session's: it is the key Jam will play in, and
+  the Written key control reads in that instrument's written pitch (the doodle's staff keeps the
+  session's instrument, so the two can differ). Its key is named as the Written key control
+  labels it, its mode in the player's family: while Jam's
   Collection is Major or Minor an Ionian answer reads "Major" and an Aeolian one "Minor";
   otherwise every answer reads as its mode ("G Dorian", "F Major", "D Ionian"). {answer} below is
   that name. Forms:
@@ -545,7 +554,9 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
     controls label them ("Keep C Major"). Neither is `btn-primary`. There is no second line:
     Jam mode has no presets.
   - **Set:** after `Jam in {answer}`, one `p`, "Jams now play in {answer}.", and no button, until
-    the review closes or Jam's key or mode is changed again; then the row is absent.
+    the review closes or Jam's key or mode is changed again; then the row is absent for the rest
+    of that Review, whatever Jam's key and mode become, and is judged afresh only at the
+    session's next Review.
   - **No fit:** when under 80 % of the doodle fits the best answer, one `p` and no button: "Your
     doodle uses notes outside the app's keys and modes, so no key is suggested." It never names a
     note.

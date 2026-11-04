@@ -8,6 +8,7 @@ parents:
   - [[req_midi_controller_input]]
   - [[req_rolling_practice_session]]
 dependents:
+  - [[module_jam_session_end]]
   - [[module_session_start_without_phrase_one]]
   - [[req_jam_settings]]
   - [[req_key_and_mode_suggestion]]

@@ -52,6 +52,7 @@ import type {
   WorkspaceSessionRunnerStarter,
 } from './workspace-session-dependencies'
 import type { WorkspaceSession } from './workspace-session-types'
+import type { HeldModeNoteRoute } from './workspace-session-midi'
 import { createDamagedSessionReports, keptSessionsOf } from './workspace-kept-sessions-seam'
 
 export type {
@@ -132,6 +133,8 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
 
   const connectionSheetOpen = shallowRef(false)
   const sessionModeHeld = shallowRef(false)
+  const heldModeNotes = shallowRef<HeldModeNoteRoute | null>(null)
+  const afterNoteStart = shallowRef<(() => void) | null>(null)
   const slot = createPregenerationSlot()
   const {
     controls,
@@ -222,6 +225,8 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
     midi: deps.midi,
     connectionSheetOpen,
     sessionModeHeld,
+    heldModeNotes,
+    afterNoteStart,
     prewarm: deps.prewarmPolicy === 'enabled' ? deps.prewarm : null,
     browser: deps.browser,
     createSessionController: async () => {
@@ -254,9 +259,18 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
         midi: deps.midi,
         connectionSheetOpen: () => connectionSheetOpen.value,
         sessionModeHeld: () => sessionModeHeld.value,
-        // Jam's note route reaches the controller once a fresh Jam is wired on screen (chunk 21).
-        heldModeNotes: () => null,
+        heldModeNotes: () => heldModeNotes.value,
+        afterNoteStart: () => {
+          const after = afterNoteStart.value
+          if (after === null)
+            throw new Error('workspace: a note started a session before the shell')
+          after()
+        },
         nextSessionSeed: deps.nextSessionSeed,
+        phraseOneSeams: {
+          nextRequestId: deps.providers.nextRequestId,
+          isBelowTabletLandscape: () => deps.viewport.isBelowTabletLandscape(),
+        },
         pregeneration: (seams) =>
           createWorkspacePregeneration({
             ...seams,

@@ -25,23 +25,26 @@ import { onSessionOutput } from './workspace-session-outputs'
 import { createSessionPhrases } from './workspace-session-phrases'
 
 /**
- * Intent: show the count-in row as it stands at audio time `at`, and schedule its next change
- * on the audio clock; the row empties once the count-in is over.
+ * Intent: show the count-in row as it stands at audio time `at`, for the measure counted in from
+ * `startAt` (the session's count-in by default; a fresh Jam's read-in measure, before phrase 1
+ * sounds, too), and schedule its next change on the audio clock; the row empties once that
+ * measure is over.
  */
 // @spec-link [[rule_count_in_shown_on_screen]]
 export function showCountIn(
   core: SessionControllerCore,
   session: ActiveSession,
   at: AudioTime,
+  startAt: AudioTime = session.timeline.startAt,
 ): void {
-  const display = countInDisplayAt(session.timeline.startAt, session.startingTempo, at)
+  const display = countInDisplayAt(startAt, session.startingTempo, at)
   if (display.over) {
     core.state.countIn = null
     return
   }
   core.state.countIn = display
   session.agenda.schedule(display.nextChangeAt, () =>
-    showCountIn(core, session, display.nextChangeAt),
+    showCountIn(core, session, display.nextChangeAt, startAt),
   )
 }
 

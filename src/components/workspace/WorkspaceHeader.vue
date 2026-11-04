@@ -15,7 +15,9 @@
  * disabled, secondary, and the session action `Start Jam`, primary, except while Jam's staff shows
  * a notation error: the phrase action then reads `Retry notation`, enabled and primary, and asks
  * the shell to engrave Jam's staff again. While the cue row holds `jam-needs-controller` (no
- * controller connected in Jam mode), `Start Jam` names it with `aria-describedby`.
+ * controller connected in Jam mode), `Start Jam` names it with `aria-describedby`, and
+ * `jam-notice` while Jam's staff shows it. `Start Jam` is enabled exactly while a fresh Jam could
+ * start, as the shell judges it.
  */
 import { computed, ref } from 'vue'
 
@@ -33,7 +35,7 @@ import { phraseActionDisabled, primaryHeaderAction } from './session-action-poli
 import { sheetCloseFocusTarget } from './sheet-close-focus'
 import type { SessionController } from './workspace-session-controller-types'
 import type { WorkspaceMode, WorkspaceModeView } from './use-workspace-mode'
-import { JAM_NEEDS_CONTROLLER_ID } from './use-jam-idle-cue'
+import { JAM_NEEDS_CONTROLLER_ID, JAM_NOTICE_ID } from './use-jam-idle-cue'
 
 const props = withDefaults(
   defineProps<{
@@ -48,11 +50,17 @@ const props = withDefaults(
     jamStaffState?: JamStaffState | null
     /** The cue row holds `jam-needs-controller`, which `Start Jam` then names; false by default. */
     jamNeedsController?: boolean
+    /** A fresh Jam could start now (`freshJamCanStart`): `Start Jam` is enabled; false by default. */
+    jamCanStart?: boolean
+    /** Jam's staff shows `jam-notice`, which `Start Jam` then names; false by default. */
+    jamNoticeShown?: boolean
   }>(),
   {
     workspaceMode: () => ({ mode: 'session', checked: 'session', opening: false, readonly: false }),
     jamStaffState: null,
     jamNeedsController: false,
+    jamCanStart: false,
+    jamNoticeShown: false,
   },
 )
 
@@ -189,11 +197,19 @@ const primaryActionDisabled = computed(() => {
 const sessionActionDisabled = computed(() => {
   if (props.workspaceMode.opening || props.controller === null) return true
   if (sessionActive.value || reviewShowing.value) return false
-  // Transitional: `Start Jam` stays disabled until chunk 21, which enables it exactly while a fresh
-  // Jam could start (`freshJamCanStart`, ./session-action-policy.ts, which the cue row already
-  // follows to name the home note).
-  if (jamShowing.value) return true
+  if (jamShowing.value) return !props.jamCanStart
   return !props.controller.state.canStart
+})
+
+/**
+ * Intent: what `Start Jam` names with `aria-describedby` at Jam mode's Idle: `jam-needs-controller`
+ * while the cue row holds it, else `jam-notice` while Jam's staff shows it; nothing otherwise.
+ */
+// @spec-link [[module_workspace_mode]]
+const sessionActionDescribedBy = computed(() => {
+  if (props.jamNeedsController) return JAM_NEEDS_CONTROLLER_ID
+  const idle = jamShowing.value && !sessionActive.value && !reviewShowing.value
+  return idle && props.jamNoticeShown ? JAM_NOTICE_ID : undefined
 })
 
 /** Intent: the session action's label: `Stop` in a session, `Close review` over the Review. */
@@ -360,7 +376,7 @@ function handleThemeSelect(theme: ThemePreference): void {
         type="button"
         :class="{ 'btn-primary': sessionActionPrimary }"
         :disabled="sessionActionDisabled"
-        :aria-describedby="jamNeedsController ? JAM_NEEDS_CONTROLLER_ID : undefined"
+        :aria-describedby="sessionActionDescribedBy"
         @click="handleSessionAction"
       >
         {{ sessionActionLabel }}

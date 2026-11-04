@@ -6,7 +6,9 @@
  * staff and renamed silently on each redraw; no room shows the no-room sentence in
  * `staff-no-room`; a failure shows the notation error in `staff-error`, and `retryNotation()`
  * engraves again, loading the engraver again after a failed load. Each change of what the staff
- * shows is reported once through `staff-state`. jsdom has no ResizeObserver, matchMedia or layout,
+ * shows is reported once through `staff-state`. While it leaves as phrase 1 enters, its unit takes
+ * `is-fading-out` and it reports `left` once, at the fade's end or at once when nothing fades; no
+ * longer leaving, its unit shows again as it was. jsdom has no ResizeObserver, matchMedia or layout,
  * so each is stubbed; from the breakpoint up a position is 160 units at the 1.2 maximum scale.
  */
 import { flushPromises, mount } from '@vue/test-utils'
@@ -90,7 +92,7 @@ async function nextFrame(): Promise<void> {
 }
 
 /** Intent: mount Jam's staff on `props` and let its first engraving settle. */
-async function mountStaff(props: JamStaffProps = D_DORIAN) {
+async function mountStaff(props: JamStaffProps & { readonly notice?: boolean } = D_DORIAN) {
   const wrapper = mount(JamStaff, { props, attachTo: document.body })
   await flushPromises()
   return wrapper
@@ -198,6 +200,30 @@ describe("Jam's Idle staff", () => {
     expect(wrapper.find('[role="status"]').exists()).toBe(false)
   })
 
+  // @test-link [[rule_jam_ends_when_phrase_one_never_comes]]
+  it('shows jam-notice after the instruction, by its id, only while asked to', async () => {
+    const wrapper = await mountStaff({ ...D_DORIAN, notice: true })
+    const bottom = wrapper.get('[data-system-position="bottom"]')
+    const notice = bottom.get('.jam-instruction + .jam-notice')
+    expect(notice.classes()).toEqual(['inline-alert', 'alert-notice', 'jam-notice'])
+    expect(notice.attributes('id')).toBe('jam-notice')
+    expect(notice.attributes('role')).toBeUndefined()
+    expect(notice.attributes('aria-live')).toBeUndefined()
+    expect(notice.text()).toBe(
+      "The app couldn't continue your doodle with these settings. Try again, or change a setting.",
+    )
+    await wrapper.setProps({ notice: false })
+    expect(wrapper.find('.jam-notice').exists()).toBe(false)
+  })
+
+  // @test-link [[rule_jam_ending_before_phrase_one]]
+  it('takes focus on its no-room sentence by focusRoomNotice()', async () => {
+    engraving.outcomes = ['no_room']
+    const wrapper = await mountStaff()
+    wrapper.vm.focusRoomNotice()
+    expect(document.activeElement).toBe(wrapper.get('.room-notice').element)
+  })
+
   // @test-link [[rule_jam_idle_shows_no_phrase]]
   it('shows the no-room sentence instead of the empty system when the window has no room', async () => {
     engraving.outcomes = ['no_room']
@@ -246,5 +272,84 @@ describe("Jam's Idle staff", () => {
     expect(engraving.loads).toBe(2)
     expect(engraveEmptySystem).toHaveBeenCalledOnce()
     expect(wrapper.emitted('staff-state')).toEqual([['notation-error'], ['shown']])
+  })
+})
+
+/** Intent: give the staff's unit a running animation, as a browser does under `is-fading-out`. */
+function animatingUnits(): void {
+  Object.defineProperty(Element.prototype, 'getAnimations', {
+    configurable: true,
+    value: () => [{ playState: 'running', pending: false }],
+  })
+}
+
+// @test-link [[req_jam]]
+describe("Jam's staff leaving as phrase 1 enters", () => {
+  afterEach(() => {
+    delete (Element.prototype as { getAnimations?: unknown }).getAnimations
+  })
+
+  // @test-link [[req_jam]]
+  it("fades its unit out while leaving and reports it left at the animation's end", async () => {
+    animatingUnits()
+    const wrapper = await mountStaff()
+    const unit = wrapper.get('.staff-content')
+
+    await wrapper.setProps({ leaving: true })
+    await flushPromises()
+    expect(unit.classes()).toContain('is-fading-out')
+    expect(wrapper.get('.staff-frame').classes()).toContain('staff-jam')
+    expect(wrapper.emitted('left')).toBeUndefined()
+
+    await unit.trigger('animationend')
+    expect(wrapper.emitted('left')).toEqual([[]])
+    await unit.trigger('animationend')
+    expect(wrapper.emitted('left')).toEqual([[]])
+    expect(engraveEmptySystem).toHaveBeenCalledOnce()
+  })
+
+  // @test-link [[req_jam]]
+  it('reports it left at once when its unit runs no animation (reduced motion, none shown)', async () => {
+    Object.defineProperty(Element.prototype, 'getAnimations', {
+      configurable: true,
+      value: () => [],
+    })
+    const wrapper = await mountStaff()
+
+    await wrapper.setProps({ leaving: true })
+    await flushPromises()
+    expect(wrapper.emitted('left')).toEqual([[]])
+  })
+
+  // @test-link [[req_jam]]
+  it('reports it left at once with no unit to fade', async () => {
+    engraving.outcomes = ['no_room']
+    const wrapper = await mountStaff()
+
+    await wrapper.setProps({ leaving: true })
+    await flushPromises()
+    expect(wrapper.emitted('left')).toEqual([[]])
+  })
+
+  // @test-link [[req_jam]]
+  it('comes back with no fade once it no longer leaves, its empty system as it was', async () => {
+    animatingUnits()
+    const wrapper = await mountStaff()
+    const unit = wrapper.get('.staff-content')
+    await wrapper.setProps({ leaving: true })
+    await flushPromises()
+    await unit.trigger('animationend')
+
+    await wrapper.setProps({ leaving: false })
+    await flushPromises()
+    expect(wrapper.get('.staff-content').element).toBe(unit.element)
+    expect(unit.classes()).not.toContain('is-fading-out')
+    expect(unit.find('svg.staff-svg').exists()).toBe(true)
+    expect(engraveEmptySystem).toHaveBeenCalledOnce()
+
+    await wrapper.setProps({ leaving: true })
+    await flushPromises()
+    await unit.trigger('animationend')
+    expect(wrapper.emitted('left')).toEqual([[], []])
   })
 })

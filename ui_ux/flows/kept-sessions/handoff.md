@@ -5,7 +5,7 @@
 > **Changes since v3.0**
 >
 > - _v3.1 new:_ the preset label ([Terms](#terms))
-> - _v3.2 new:_ a Jam session, with no preset label ([Terms](#terms)); a Jam ended before
+> - _v3.2 new:_ a Jam session, whose detail line and summary show no preset part ([Terms](#terms)); a Jam ended before
 >   phrase 1 sounds changes nothing ([Terms](#terms),
 >   [Keeping at a Session's End](#keeping-at-a-sessions-end))
 > - _v3.2 new:_ opening a Jam session, its doodle loaded with Jam's code, and sessions kept before
@@ -76,8 +76,8 @@ flowchart TD
   v3.0 carries its musical profile in the same form ("Neutral", "Jazz", "Custom, based on Jazz").
   A snapshot: renaming or deleting a preset never changes it. Shown in the list's detail line and
   the review's summary.
-- **[v3.2 new]** A Jam session has no preset label: Jam mode has no presets, so its detail line
-  and summary have no preset part.
+- **[v3.2 new]** A Jam session keeps its preset label like any session, but Jam mode has no
+  presets, so its detail line and summary show no preset part.
 - **[v3.2 new]** **Jam session:** a kept session begun in Jam mode, whose phrase 1 sounded. It
   holds, beyond any session, the quantized doodle with the tempo it was played at, whether its
   key and mode suggestion was declined, and, only while `Keep my played notes` was on, the raw

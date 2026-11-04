@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   awaitsLateRoomNotice,
+  jamSessionEndFocusTarget,
   reviewCloseFocusTarget,
   sessionEndFocusTarget,
   type ReviewCloseFocusFacts,
@@ -108,5 +109,32 @@ describe('reviewCloseFocusTarget', () => {
     ],
   ])('%s (%o): focus goes to %s', (_state, facts, expected) => {
     expect(reviewCloseFocusTarget({ ...CLOSE_AT_READY, ...facts })).toBe(expected)
+  })
+})
+
+// @test-link [[rule_jam_ending_before_phrase_one]]
+describe('jamSessionEndFocusTarget', () => {
+  it.each(['stop', 'hidden-tab', 'no-note-played', 'no-phrase-one', 'staff-not-shown'] as const)(
+    'sends focus to Start Jam after an end before phrase 1 by %s, with the empty system shown',
+    (cause) => {
+      const end = { cause, phase: 'count-in', soundedPhraseCount: 0 } as const
+      expect(jamSessionEndFocusTarget(end, 'shown')).toBe('session-action')
+    },
+  )
+
+  // @test-link [[rule_jam_controller_loss_before_phrase_one]]
+  it('sends focus to controller-status after the controller is lost before phrase 1', () => {
+    const end = { cause: 'controller-lost', phase: 'count-in', soundedPhraseCount: 0 } as const
+    expect(jamSessionEndFocusTarget(end, 'shown')).toBe('controller-status')
+  })
+
+  it("sends focus to Jam's room-notice when its staff shows Needs more room", () => {
+    const end = { cause: 'staff-not-shown', phase: 'count-in', soundedPhraseCount: 0 } as const
+    expect(jamSessionEndFocusTarget(end, 'no-room')).toBe('room-notice')
+  })
+
+  it('sends focus to Close review once phrase 1 has sounded, whatever the cause', () => {
+    const end = { cause: 'controller-lost', phase: 'running', soundedPhraseCount: 3 } as const
+    expect(jamSessionEndFocusTarget(end, 'no-room')).toBe('session-action')
   })
 })

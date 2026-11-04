@@ -3,7 +3,8 @@ id: rule_jam_ends_when_phrase_one_never_comes
 status: DRAFT
 version: 0.2
 tags: [v3, release-v3.2, session, jam, error-handling, session-end]
-dependents: []
+dependents:
+  - [[module_jam_session_end]]
 type: RULE
 priority: 1
 human_name: A Jam Whose Phrase 1 Never Comes Ends

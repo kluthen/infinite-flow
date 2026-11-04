@@ -1,7 +1,8 @@
 ---
 id: rule_review_opens_with_doodle
 status: DRAFT
-dependents: []
+dependents:
+  - [[module_jam_session_end]]
 layer: BUSINESS
 version: 0.1
 priority: 1
