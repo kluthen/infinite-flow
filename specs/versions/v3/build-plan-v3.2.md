@@ -2551,7 +2551,7 @@ Record: 0d352486, merged f1ee94d2. M1 first run through the three-rung double, r
 
 ### Chunk 30 — Kept Jam sessions on the device
 
-Status: built (30a 98186732, 30b 2cd6dfc3; merge waits on CJ W1–W3)
+Status: built (30a 98186732, 30b 2cd6dfc3, copy fix aa925607; merge waits on CJ W1–W3)
 Wave: 6
 Depends on: 18, 22, CJ (W1–W3, before its merge)
 Architecture capture: what a kept Jam session holds (`module_kept_jam_session`, captured at wave

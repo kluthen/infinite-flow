@@ -1419,3 +1419,12 @@ contract bump, or (b) CONTRACT 13.0.0, before chunk 23's merge.
   here ("your Jam settings", "Doodles stay as the app wrote them.") (ux-writer); a doodle-only Jam's
   `Export played notes` disabled until chunk 25 (transitional); harness `settingsNotReadBack` now
   decodes Jam's settings records. Chunk 23 waits on chunk 30's merge, so on CJ W1–W3.
+- Chunk 30's follow-ups: `spec-writer` 8e620583 (plan v32, spec D499; D498 held elsewhere): chunk
+  24 keeps and reads back a Jam on a kept doodle with no played-notes clock (C10.3 already says so;
+  Part C unchanged); chunk 25 removes the doodle-only Jam's disabled `Export played notes`.
+  `ux-writer` bb1e359f: Your data's built copy matches the design; ux D454 (next ux D455): the
+  Review's kept-played-notes confirmation also says "Doodles stay as the app wrote them." when a
+  Jam is among the sessions keeping played notes. Fixed on chunk 30's branch, `coding-executor`
+  aa925607 (shared `jamKeepsPlayedNotes(rows)`; vitest related 666 passed; `kept-jam-session`
+  8/8, `played-notes-opt-in` 10/10; typecheck, lint, format, health clean). Chunk 30 stays built,
+  waiting on CJ W1–W3.
