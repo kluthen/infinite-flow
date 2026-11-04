@@ -16,7 +16,7 @@ Append-only record of settled UI/UX decisions. Earlier logs are archived verbati
 
 Archived IDs keep their meaning; a citation to one by ID elsewhere in this repository stays valid
 through this header. D225, D226, D235–D264 and D328 on (v3.2 and v3.3, not yet released, and the
-entries v3.1 shares with v3.2) stay here; D265–D279 were never used. Numbering continues from D455.
+entries v3.1 shares with v3.2) stay here; D265–D279 were never used. New numbers come from `doc-ids next ux D`.
 
 ## v3.1 (presets and embellishment figures) and v3.2 (Jam) design, 2026-10-08
 
@@ -707,3 +707,23 @@ title word.
   condition (a Jam session among those keeping played notes), not only in a Jam's review. Your
   data's built copy already matched its handoff. Now in `screens/last-session-review/handoff.md`,
   Components and Content, Confirmations.
+
+## v3.2 wave 6, chunk 23's follow-ups, 2026-11-04
+
+- **D456 — Jam again's focus, until `jam-bar`'s sentence exists (2026-11-04; minor, D119's
+  standing rule).** Until chunk 24 (wave 7) builds `jam-bar`, `Jam again on this doodle` moves
+  focus by Close review's rule in the mode then shown: with phrase 1 being written both header
+  actions are disabled, so `controller-status`. Accepted as interim: a real control, never
+  `mode-switch`, never the page. Chunk 24 brings the design's focus. The design is unchanged:
+  `flows/review-and-export/handoff.md`, The Doodle and the Suggestion.
+- **D457 — A set suggestion, once Jam's key changes again, stays gone for that Review
+  (2026-11-04; minor, D119's standing rule).** No re-judging after "Jams now play in {answer}.":
+  the player has answered; offering again would flicker under their own edits. The next Review of
+  the session judges afresh (setting is not declining). Now in
+  `screens/last-session-review/handoff.md`, Components and Content, `suggestion-row`, Set, and
+  `flows/review-and-export/handoff.md`, The Doodle and the Suggestion.
+- **D458 — The answer is named for the instrument selected now (2026-11-04; minor, D119's
+  standing rule).** `Jam in {answer}` sets Jam's Written key, which reads in the selected
+  instrument's written pitch, so the answer, `Keep {key} {mode}` and the family labels follow it,
+  not the kept session's instrument, even where the doodle's key signature then differs. Now in
+  `screens/last-session-review/handoff.md`, Components and Content, `suggestion-row`.

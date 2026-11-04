@@ -284,7 +284,8 @@ flowchart TD
   (`flows/jam/handoff.md`, A Jam setting changed with a kept doodle). Under a Review over session
   mode nothing on the hidden staff changes; Jam mode opens in the new key and mode. The row then
   reads "Jams now play in {answer}." until the review closes or Jam's key or mode is changed
-  again. `Jam in {answer}` does not close the review.
+  again; after such a change the row stays absent for the rest of that Review. `Jam in {answer}`
+  does not close the review.
 - **`Keep {key} {mode}`** changes no setting. The row leaves, and this doodle's suggestion is
   never offered again: not in this review, not in the kept session's review later, not at Jam
   mode's Idle for the doodle kept from it. The decline is saved with the session (see Saving the

@@ -541,8 +541,11 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
   doodle (master spec §C6), about Jam's key and mode: Jam's own Written key and Collection
   (`screens/phrase-workspace/handoff.md`, Saved settings), never session mode's, whichever mode
   the review shows over. Until Jam mode has first opened on this device, Jam's key and mode are
-  session mode's current ones, as Jam's first values are. The answer is named in written pitch,
-  its key as the Written key control labels it, its mode in the player's family: while Jam's
+  session mode's current ones, as Jam's first values are. The answer is named in the written pitch
+  of the instrument selected now, never the kept session's: it is the key Jam will play in, and
+  the Written key control reads in that instrument's written pitch (the doodle's staff keeps the
+  session's instrument, so the two can differ). Its key is named as the Written key control
+  labels it, its mode in the player's family: while Jam's
   Collection is Major or Minor an Ionian answer reads "Major" and an Aeolian one "Minor";
   otherwise every answer reads as its mode ("G Dorian", "F Major", "D Ionian"). {answer} below is
   that name. Forms:
@@ -551,7 +554,9 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
     controls label them ("Keep C Major"). Neither is `btn-primary`. There is no second line:
     Jam mode has no presets.
   - **Set:** after `Jam in {answer}`, one `p`, "Jams now play in {answer}.", and no button, until
-    the review closes or Jam's key or mode is changed again; then the row is absent.
+    the review closes or Jam's key or mode is changed again; then the row is absent for the rest
+    of that Review, whatever Jam's key and mode become, and is judged afresh only at the
+    session's next Review.
   - **No fit:** when under 80 % of the doodle fits the best answer, one `p` and no button: "Your
     doodle uses notes outside the app's keys and modes, so no key is suggested." It never names a
     note.
