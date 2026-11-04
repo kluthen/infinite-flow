@@ -5,7 +5,8 @@
  * reads goes into the ladder; every engine output comes back to it; it is woken at each of its
  * decisions and at each barline (the doodle's measures light on the audio clock). What it asks
  * for goes to the session: its phrase 1 events, the doodle and its key and mode suggestion, kept
- * in the session's history, and its own ends (no doodle note, no phrase 1 by the deadline). Its
+ * in the session's history, the controls read from the doodle, kept for the review, and its own
+ * ends (no doodle note, no phrase 1 by the deadline). Its
  * view publishes the Jam's phase for the cue row (never a note of the doodle) and, once phrase 1
  * enters, the controls read from the doodle for `doodle-readings`. Part of Jam's code (src/jam/),
  * loaded on demand.
@@ -145,8 +146,10 @@ export function startFreshJam(request: FreshJamRequest): FreshJam {
       if (output.kind === 'session-event') session.dispatch(output.event)
       else if (output.kind === 'capture') onCapture(output.output)
       else if (output.kind === 'suggestion') session.recordSuggestion(output.suggestion)
-      else if (output.kind === 'readings') readings = output.readings
-      else session.end('no-phrase-one')
+      else if (output.kind === 'readings') {
+        readings = output.readings
+        session.recordDoodleControls(readings)
+      } else session.end('no-phrase-one')
     }
     if (ended) return
     publish(readings)

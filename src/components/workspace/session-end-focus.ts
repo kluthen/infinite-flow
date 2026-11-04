@@ -5,6 +5,7 @@
  */
 import type { GenerationSessionState } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
+import type { JamStaffState } from '@/jam/jam-view-types'
 import type { SessionEndSummary } from './workspace-session-controller-types'
 
 /** The element focus moves to at a session end. */
@@ -36,6 +37,25 @@ export function sessionEndFocusTarget(
   if (end.soundedPhraseCount >= 1) return 'session-action'
   if (idle.roomNotice !== null) return 'room-notice'
   if (idle.operation !== 'idle') return 'controller-status'
+  return 'session-action'
+}
+
+/**
+ * Intent: the focus target after a Jam's `end`, in Jam mode, its Idle rules applied. Once phrase 1
+ * has sounded the Review shows, and focus goes to the session action, now `Close review`. Before
+ * phrase 1: after a lost controller to `controller-status` (`Start Jam` is disabled, the cue row
+ * names the missing controller); to Jam's `room-notice` whenever Jam's staff shows Needs more room;
+ * else to the session action, `Start Jam`.
+ */
+// @spec-link [[rule_jam_ending_before_phrase_one]]
+// @spec-link [[rule_jam_controller_loss_before_phrase_one]]
+export function jamSessionEndFocusTarget(
+  end: SessionEndSummary,
+  jamStaffState: JamStaffState | null,
+): SessionEndFocusTarget {
+  if (end.soundedPhraseCount >= 1) return 'session-action'
+  if (end.cause === 'controller-lost') return 'controller-status'
+  if (jamStaffState === 'no-room') return 'room-notice'
   return 'session-action'
 }
 

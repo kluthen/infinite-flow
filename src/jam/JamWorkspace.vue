@@ -10,7 +10,8 @@
  * prewarms (./jam-idle-prewarm.ts): once on showing, and again after a change of that rhythm
  * setting; nothing else is generated or prepared. As a fresh Jam's phrase 1 enters the session's
  * staff, the workspace tells it it leaves (`leaving`): its staff's empty system fades out, and it
- * passes on `left` once the fade has ended, the workspace then putting it out of sight.
+ * passes on `left` once the fade has ended, the workspace then putting it out of sight. After a
+ * Jam whose phrase 1 could not be written, its staff shows `jam-notice` (`notice`).
  */
 import { computed, ref, watch } from 'vue'
 
@@ -25,7 +26,10 @@ import type {
 
 // @spec-link [[module_jam_code_boundary]]
 // @spec-link [[req_jam]]
-const props = withDefaults(defineProps<JamWorkspaceProps & JamViewLeaving>(), { leaving: false })
+const props = withDefaults(defineProps<JamWorkspaceProps & JamViewLeaving>(), {
+  leaving: false,
+  notice: false,
+})
 
 const emit = defineEmits<{
   /** What Jam's staff shows changed. */
@@ -73,7 +77,14 @@ function retryNotation(): void {
   jamStaff.value.retryNotation()
 }
 
-defineExpose({ retryNotation })
+/** Intent: focus the staff's no-room sentence (a Jam ended into Needs more room). */
+// @spec-link [[rule_jam_ending_before_phrase_one]]
+function focusRoomNotice(): void {
+  if (jamStaff.value === null) throw new Error("Jam's view: its staff is not mounted.")
+  jamStaff.value.focusRoomNotice()
+}
+
+defineExpose({ retryNotation, focusRoomNotice })
 </script>
 
 <template>
@@ -83,6 +94,7 @@ defineExpose({ retryNotation })
       ref="jamStaff"
       v-bind="staffProps"
       :leaving="leaving"
+      :notice="notice"
       @staff-state="emit('staff-state', $event)"
       @left="emit('left')"
     />

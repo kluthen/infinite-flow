@@ -24,6 +24,7 @@ import type { ControllerLostCountdown } from './workspace-session-midi'
 import type { StalePhrasePrompt } from './workspace-stale-phrase'
 import type { RhythmChangeKind } from '@/domain/generation/request-rhythm-lock'
 import type { AllowedGroups } from '@/session/settings-mutation-scales'
+import type { ReviewedJamPart } from './session-jam-part'
 
 export type { KeptSessionsSeam } from './workspace-kept-sessions-seam'
 export type {
@@ -110,6 +111,11 @@ export interface ReviewedSession {
   readonly favorites: readonly number[]
   /** Its comment, trimmed, at most 500 characters; empty when it has none. */
   readonly comment: string
+  /**
+   * The Jam part of a Jam session (./session-jam-part.ts), the review's doodle section, raw doodle
+   * notes and suggestion drawn from it; absent for a session that is no Jam.
+   */
+  readonly jam?: ReviewedJamPart
 }
 
 /**

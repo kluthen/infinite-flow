@@ -9,6 +9,7 @@
 import type { DisposableWakeTimer, WakeTimer } from '@/audio/audio-ports'
 import type { TransportTimeline } from '@/audio/audio-transport'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
+import type { DoodleReadings } from '@/jam/doodle-controls'
 import type { AudioTimeAgenda } from '@/session/session-agenda'
 import type { SessionHistory } from '@/session/session-history'
 import type { SessionRunner } from '@/session/session-runner'
@@ -72,6 +73,11 @@ export interface ActiveSession {
    * the engine never readies phrase 1.
    */
   enterPhraseOne: ((phrase: SessionPhrase) => void) | null
+  /**
+   * The controls a fresh Jam took from its doodle, recorded at phrase 1's hand-over for its
+   * review's Jam part; null until then, and in a session started with phrase 1.
+   */
+  doodleControls: DoodleReadings | null
 }
 
 /** The fields of the controller's state its parts write; the rest are read through its sides. */

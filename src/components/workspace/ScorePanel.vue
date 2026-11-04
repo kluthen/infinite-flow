@@ -205,10 +205,15 @@ const roomNoticeElement = ref<HTMLElement | null>(null)
 
 /**
  * Intent: move focus to `room-notice` (a session ended during its count-in into Needs more room);
- * it must be on screen.
+ * it must be on screen. In Jam mode, Jam's staff's (a Jam ended before phrase 1 into it).
  */
 // @spec-link [[rule_count_in_ending_returns_to_idle]]
 function focusRoomNotice(): void {
+  if (props.jamView !== null) {
+    if (jamViewInstance.value === null) throw new Error("score panel: Jam's view is not shown")
+    jamViewInstance.value.focusRoomNotice()
+    return
+  }
   if (roomNoticeElement.value === null) throw new Error('score panel: room-notice is not shown')
   roomNoticeElement.value.focus()
 }
@@ -238,7 +243,10 @@ function focusReviewTitle(): void {
 watch(reviewArea, focusPendingReviewTitle, { flush: 'post' })
 
 /** Jam's mounted view's exposed API; null while Jam mode does not show. */
-const jamViewInstance = ref<{ readonly retryNotation: () => void } | null>(null)
+const jamViewInstance = ref<{
+  readonly retryNotation: () => void
+  readonly focusRoomNotice: () => void
+} | null>(null)
 
 /** Intent: `Retry notation` in Jam mode: Jam's view engraves its staff again; it must be shown. */
 function retryJamNotation(): void {

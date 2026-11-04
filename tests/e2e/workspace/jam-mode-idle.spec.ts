@@ -3,12 +3,12 @@
  * written key and collection (session mode's until Jam has settings of its own), an image named as
  * a phrase's summary names its staff, renamed silently on a redraw, drawing the opening line at
  * the system's start and no other barline, under the score title `Jam`; no phrase is
- * generated, prepared or replaced; `Start Jam` is primary and, until chunk 21, disabled. The cue
- * row names the home note (the tonic of Jam's key, in the instrument's written pitch, in the
+ * generated, prepared or replaced; `Start Jam` is primary, enabled while a fresh Jam could start
+ * (v3.2 chunk 21) and disabled without a controller. The cue row names the home note (the tonic of Jam's key, in the instrument's written pitch, in the
  * octave nearest the middle of its written range) while a fresh Jam could start, or shows
  * `jam-needs-controller` without a connected controller, which `Start Jam` names; a controller
  * arriving or leaving swaps the two and never the mode. In Jam mode phrase 1's first note starts
- * nothing and is not named, and the home note starts nothing yet either. Entering Jam's Idle warms
+ * nothing and is not named, and the home note starts a fresh Jam's count-in. Entering Jam's Idle warms
  * the generation worker for the first-visit rhythm values with Jam's tension, and nothing under
  * `?prewarm=off`. On the workspace harness (port 4175: fake audio clock, fake MIDI).
  */
@@ -65,10 +65,13 @@ async function settleAWhile(page: Page): Promise<void> {
   for (let frame = 0; frame < 5; frame += 1) await settleFrames(page)
 }
 
-/** Intent: press `Jam` and wait until Jam mode shows. */
-async function enterJam(page: Page): Promise<void> {
+/**
+ * Intent: press `Jam` and wait until Jam mode shows, `Start Jam` as `startJam` says (enabled with a
+ * controller connected: a fresh Jam could start).
+ */
+async function enterJam(page: Page, startJam: 'enabled' | 'disabled' = 'disabled'): Promise<void> {
   await modeSegment(page, 'Jam').click()
-  await expectJamModeShows(page)
+  await expectJamModeShows(page, startJam)
 }
 
 /** Intent: the cue row's `jam-needs-controller` line. */
@@ -144,6 +147,7 @@ async function boxOf(
 
 // @test-link [[rule_jam_idle_shows_no_phrase]]
 // @test-link [[rule_jam_pregeneration_only_for_kept_doodle]]
+// @test-link [[rule_jam_start_conditions]]
 test('Jam mode at Idle shows the empty system and generates, prepares and replaces nothing', async ({
   page,
 }) => {
@@ -152,7 +156,7 @@ test('Jam mode at Idle shows the empty system and generates, prepares and replac
   await observeGenerationStatus(page)
   const before = await harnessSnapshot(page)
 
-  await enterJam(page)
+  await enterJam(page, 'enabled')
   await settleAWhile(page)
 
   await expect(jamFrame(page)).toBeVisible()
@@ -162,7 +166,8 @@ test('Jam mode at Idle shows the empty system and generates, prepares and replac
   await expect(phraseAction(page)).not.toHaveClass(/btn-primary/)
   await expect(sessionAction(page)).toHaveText('Start Jam')
   await expect(sessionAction(page)).toHaveClass(/btn-primary/)
-  await expect(sessionAction(page)).toBeDisabled()
+  // The keyboard connected, nothing else in the way: a fresh Jam could start.
+  await expect(sessionAction(page)).toBeEnabled()
   expect(await generationRecords(page), 'nothing generated or prepared').toEqual([])
   const after = await harnessSnapshot(page)
   expect(after.timeline, 'no phrase').toBeNull()
@@ -275,7 +280,7 @@ test('the starting-note line names the home note with its octave for each built-
   for (const [instrument, note] of homeNotes) {
     await modeSegment(page, 'Session').click()
     await chooseProfile(page, instrument)
-    await enterJam(page)
+    await enterJam(page, 'enabled')
     await expect(startLine(page)).toHaveText(`Play this note to start: ${note}`)
     await expect(startLine(page).locator('strong')).toHaveText(note)
     await expect(page.locator('.start-note-marker')).toHaveCount(0)
@@ -286,7 +291,7 @@ test('the starting-note line names the home note with its octave for each built-
 
 // @test-link [[rule_jam_needs_controller]]
 // @test-link [[module_workspace_mode]]
-test('without a controller jam-needs-controller shows and Start Jam names it; a controller swaps it', async ({
+test('without a controller jam-needs-controller shows and the disabled Start Jam names it; a controller swaps it and enables Start Jam', async ({
   page,
 }) => {
   await gotoHarness(page)
@@ -307,7 +312,7 @@ test('without a controller jam-needs-controller shows and Start Jam names it; a 
   await expect(needsController(page)).toHaveCount(0)
   await expect(startLine(page)).toHaveText('Play this note to start: C5')
   await expect(sessionAction(page)).not.toHaveAttribute('aria-describedby')
-  await expectJamModeShows(page)
+  await expectJamModeShows(page, 'enabled')
 
   await unplug(page, KEYS)
   await expect.poll(() => midiKind(page)).toBe('away')
@@ -319,7 +324,8 @@ test('without a controller jam-needs-controller shows and Start Jam names it; a 
 
 // @test-link [[module_session_starting_note]]
 // @test-link [[module_jam_idle_notes]]
-test("in Jam mode phrase 1's first note starts nothing and is not named, nor yet the home note", async ({
+// @test-link [[rule_jam_starting_note_is_home_note]]
+test("in Jam mode phrase 1's first note starts nothing and is not named; the home note starts a fresh Jam's count-in", async ({
   page,
 }) => {
   await gotoHarness(page)
@@ -329,28 +335,44 @@ test("in Jam mode phrase 1's first note starts nothing and is not named, nor yet
   if (sessionStart === null) throw new Error('session mode names no starting note')
   await expect(startLine(page)).toHaveText(`Play this note to start: ${sessionStart.label}`)
 
-  await enterJam(page)
+  await enterJam(page, 'enabled')
   expect(
     (await sessionState(page)).startingNote,
     'the session starting note is not named',
   ).toBeNull()
   // C Ionian on the tenor saxophone: written C5, the middle of C4 to C6, sounding B♭3 (58).
   await expect(startLine(page)).toHaveText('Play this note to start: C5')
+  expect(sessionStart.concertPitch, "phrase 1's first note is not the home note").not.toBe(58)
 
-  for (const pitch of [sessionStart.concertPitch, 58]) {
-    await play(page, KEYS, pitch)
-    await settleAWhile(page)
-    const state = await sessionState(page)
-    expect(state.phase).toBe('idle')
-    expect(state.countIn).toBeNull()
-    expect(state.startingNote).toBeNull()
-    expect(
-      (await audioEvents(page)).filter((event) => event.kind === 'click'),
-      'no count-in click scheduled',
-    ).toEqual([])
-    await expectJamModeShows(page)
-    await expect(startLine(page)).toHaveText('Play this note to start: C5')
-  }
+  await play(page, KEYS, sessionStart.concertPitch)
+  await settleAWhile(page)
+  const state = await sessionState(page)
+  expect(state.phase).toBe('idle')
+  expect(state.countIn).toBeNull()
+  expect(state.startingNote).toBeNull()
+  expect(
+    (await audioEvents(page)).filter((event) => event.kind === 'click'),
+    'no count-in click scheduled',
+  ).toEqual([])
+  await expectJamModeShows(page, 'enabled')
+  await expect(startLine(page)).toHaveText('Play this note to start: C5')
+
+  await play(page, KEYS, 58)
+  await expect(sessionAction(page)).toHaveText('Stop')
+  const started = await sessionState(page)
+  expect(started.phase).toBe('count-in')
+  expect(started.countIn?.beats).toEqual(['muted', 'muted', 'muted', 'muted'])
+  expect(
+    (await audioEvents(page)).filter(
+      (event) => event.kind === 'click' && event.route === 'count-in',
+    ),
+    "the count-in's first click scheduled",
+  ).not.toEqual([])
+  await expect(startLine(page)).toHaveCount(0)
+  await expect(modeSegment(page, 'Jam')).toHaveAttribute('aria-checked', 'true')
+  await expect(scoreTitle(page)).toHaveText('Jam')
+  await sessionAction(page).click()
+  await expect(sessionAction(page)).toHaveText('Start Jam')
 })
 
 // @test-link [[module_generation_prewarm]]

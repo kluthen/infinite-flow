@@ -119,6 +119,7 @@ export function createSessionStart(
         display: null,
         midi: null,
         enterPhraseOne: null,
+        doodleControls: null,
         shown: createSessionShownSettings(
           { ...phraseOneOwn, selection: settings.selection },
           settings,

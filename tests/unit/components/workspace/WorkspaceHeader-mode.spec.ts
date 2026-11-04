@@ -4,9 +4,11 @@
  * press, is read-only or `is-loading` with `aria-busy` as the mode says; while Jam mode opens both
  * actions are disabled in place with session mode's labels and emphasis; in Jam mode without a
  * kept doodle the phrase action reads `Generate phrase`, disabled, secondary, and the session
- * action `Start Jam`, primary and (for now) disabled; while Jam's staff shows a notation error the
+ * action `Start Jam`, primary, enabled exactly while a fresh Jam could start (asking for a start
+ * when clicked); while Jam's staff shows a notation error the
  * phrase action reads `Retry notation`, enabled and primary, and asks for Jam's staff to be redrawn;
- * while the cue row holds `jam-needs-controller`, `Start Jam` names it with `aria-describedby`.
+ * while the cue row holds `jam-needs-controller`, `Start Jam` names it with `aria-describedby`, and
+ * `jam-notice` while Jam's staff shows it.
  */
 import { mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -31,6 +33,7 @@ function mountHeader(
   view: WorkspaceModeView,
   jamStaffState: JamStaffState | null = null,
   jamNeedsController = false,
+  jam: { readonly canStart?: boolean; readonly noticeShown?: boolean } = {},
 ) {
   return mount(WorkspaceHeader, {
     props: {
@@ -40,6 +43,8 @@ function mountHeader(
       workspaceMode: view,
       jamStaffState,
       jamNeedsController,
+      jamCanStart: jam.canStart ?? false,
+      jamNoticeShown: jam.noticeShown ?? false,
     },
     attachTo: document.body,
   })
@@ -153,5 +158,28 @@ describe('WorkspaceHeader and the workspace mode', () => {
 
     const connected = mountHeader(JAM_MODE, 'shown', false)
     expect(sessionAction(connected).attributes('aria-describedby')).toBeUndefined()
+  })
+
+  // @test-link [[rule_jam_start_conditions]]
+  it('enables Start Jam exactly while a fresh Jam could start, and asks for a start when clicked', async () => {
+    const closed = mountHeader(JAM_MODE, 'shown', false, { canStart: false })
+    expect(sessionAction(closed).attributes('disabled')).toBeDefined()
+
+    const open = mountHeader(JAM_MODE, 'shown', false, { canStart: true })
+    expect(sessionAction(open).attributes('disabled')).toBeUndefined()
+    await sessionAction(open).trigger('click')
+    expect(open.emitted('start-session')).toEqual([[]])
+  })
+
+  // @test-link [[rule_jam_ends_when_phrase_one_never_comes]]
+  it('has Start Jam name jam-notice while it shows, jam-needs-controller taking precedence', () => {
+    const notice = mountHeader(JAM_MODE, 'shown', false, { canStart: true, noticeShown: true })
+    expect(sessionAction(notice).attributes('aria-describedby')).toBe('jam-notice')
+
+    const both = mountHeader(JAM_MODE, 'shown', true, { noticeShown: true })
+    expect(sessionAction(both).attributes('aria-describedby')).toBe('jam-needs-controller')
+
+    const sessionMode = mountHeader(SESSION_MODE, null, false, { noticeShown: true })
+    expect(sessionAction(sessionMode).attributes('aria-describedby')).toBeUndefined()
   })
 })

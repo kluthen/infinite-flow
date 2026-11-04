@@ -9,6 +9,7 @@
 import { presetLabel } from '@/domain/controls/preset-label'
 import type { SessionHistory } from '@/session/session-history'
 import type { SessionSaveOutcome } from '@/storage/save-policy'
+import type { ReviewedJamPart } from './session-jam-part'
 import type { EndedSessionSave } from './workspace-session-save'
 import {
   SessionControllerError,
@@ -26,7 +27,8 @@ import {
  * (its history's, never the current settings'), named from the presets the session knew, which
  * its save keeps, the tempo it reached (its last sounded phrase's),
  * how it is kept, and the key and played-notes fact its save was asked for with, nothing pinned,
- * chosen or commented yet; a history in which no phrase sounded gives none and throws.
+ * chosen or commented yet, and, for a Jam, its Jam part beside the history (none for a session
+ * that is no Jam); a history in which no phrase sounded gives none and throws.
  */
 // @spec-link [[req_last_session_review]]
 // @spec-link [[rule_adaptive_tempo_resets_after_session]]
@@ -38,6 +40,7 @@ export function endedSession(
   >,
   keeping: SessionKeeping,
   saving: EndedSessionSave,
+  jam: ReviewedJamPart | null = null,
 ): ReviewedSession {
   const tempoReached = history.tempoReached()
   const first = history.phrases()[0]
@@ -57,6 +60,7 @@ export function endedSession(
     pinned: false,
     favorites: Object.freeze([]),
     comment: '',
+    ...(jam === null ? {} : { jam }),
   })
 }
 

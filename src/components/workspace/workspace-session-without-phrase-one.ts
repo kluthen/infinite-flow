@@ -10,6 +10,7 @@
 import type { TransportTimeline } from '@/audio/audio-transport'
 import type { Seed } from '@/domain/random/seed'
 import type { InstrumentClef } from '@/domain/profile/instrument-clef'
+import type { DoodleReadings } from '@/jam/doodle-controls'
 import type { PlayedNoteEvent } from '@/midi/played-note-tracker'
 import type { StaffLayout } from '@/notation/notation-layout-policy'
 import { createAudioTimeAgenda } from '@/session/session-agenda'
@@ -67,8 +68,8 @@ export interface StartWithoutPhraseOne {
  * which also sets phrase 1's start on the transport and the forced click's end), stamped now on
  * the audio clock, its own ends (no note played, no phrase 1, the staff no longer shown), and the
  * doodle its capture ended, kept in the session's history with its raw notes marked, and the key
- * and mode suggestion worked out at the doodle's end, kept beside it; each a no-op once the session
- * has ended.
+ * and mode suggestion worked out at the doodle's end, kept beside it, and the controls taken from
+ * the doodle, kept for the review's Jam part; each a no-op once the session has ended.
  */
 // @spec-link [[module_session_start_without_phrase_one]]
 // @spec-link [[rule_raw_doodle_notes_are_played_notes]]
@@ -82,6 +83,7 @@ export interface SessionWithoutPhraseOne {
   readonly end: (cause: SessionEndCause) => void
   readonly recordDoodle: (doodle: RecordedDoodle) => void
   readonly recordSuggestion: (suggestion: DoodleSuggestion) => void
+  readonly recordDoodleControls: (controls: DoodleReadings) => void
 }
 
 /**
@@ -200,6 +202,9 @@ export function beginSessionWithoutPhraseOne(
     recordSuggestion: (suggestion) => {
       if (core.active === session) session.history.recordSuggestion(suggestion)
     },
+    recordDoodleControls: (controls) => {
+      if (core.active === session) session.doodleControls = controls
+    },
   }
 }
 
@@ -263,6 +268,7 @@ export function createSessionStartWithoutPhraseOne(
         display: null,
         midi: null,
         enterPhraseOne: null,
+        doodleControls: null,
         shown: createSessionShownSettings(settings, settings),
       }
       return beginSessionWithoutPhraseOne(core, sides, ends, session, {

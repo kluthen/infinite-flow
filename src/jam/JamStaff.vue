@@ -14,7 +14,9 @@
  * `staff-state`, and announces nothing. As a fresh Jam's phrase 1 enters (`leaving`), its unit
  * takes `is-fading-out`, the fast fade-out, and it reports through `left` once the fade ends, at
  * once when nothing fades (no unit shown, or no animation running, as under reduced motion);
- * when it no longer leaves, its unit shows again as it was, with no fade and no redraw.
+ * when it no longer leaves, its unit shows again as it was, with no fade and no redraw. After a
+ * Jam whose phrase 1 could not be written (`notice`), `jam-notice` follows the instruction, which
+ * `Start Jam` names by its id; its no-room sentence takes focus by `focusRoomNotice()`.
  */
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
@@ -33,10 +35,14 @@ import {
   loadEmptySystemEngraver,
   type EmptySystemEngraver,
 } from './empty-system-engraving'
-import type { JamStaffProps, JamStaffState, JamViewLeaving } from './jam-view-types'
+import { JAM_NOTICE_ID } from '@/components/workspace/use-jam-idle-cue'
+import type { JamStaffProps, JamStaffState, JamViewLeaving, JamViewNotice } from './jam-view-types'
 
 // @spec-link [[rule_jam_idle_shows_no_phrase]]
-const props = withDefaults(defineProps<JamStaffProps & JamViewLeaving>(), { leaving: false })
+const props = withDefaults(defineProps<JamStaffProps & JamViewLeaving & JamViewNotice>(), {
+  leaving: false,
+  notice: false,
+})
 
 const emit = defineEmits<{
   /** What the staff shows changed: the empty system, the no-room sentence or a notation error. */
@@ -257,7 +263,16 @@ function retryNotation(): void {
   scheduleCheck(true)
 }
 
-defineExpose({ retryNotation })
+const roomNoticeEl = ref<HTMLParagraphElement | null>(null)
+
+/** Intent: move focus to the no-room sentence (a Jam ended into Needs more room); it must show. */
+// @spec-link [[rule_jam_ending_before_phrase_one]]
+function focusRoomNotice(): void {
+  if (roomNoticeEl.value === null) throw new Error("Jam's staff: room-notice is not shown.")
+  roomNoticeEl.value.focus()
+}
+
+defineExpose({ retryNotation, focusRoomNotice })
 
 /** Whether `left` has been reported for the current leaving. */
 let leftReported = false
@@ -346,11 +361,18 @@ onUnmounted(() => {
         <p v-if="frameStateClass === 'staff-jam'" class="jam-instruction">
           After the count-in, play your doodle: one to four measures. The app continues it.
         </p>
+        <p
+          v-if="frameStateClass === 'staff-jam' && notice"
+          :id="JAM_NOTICE_ID"
+          class="inline-alert alert-notice jam-notice"
+        >
+          The app couldn't continue your doodle with these settings. Try again, or change a setting.
+        </p>
       </div>
       <div ref="stagingEl" aria-hidden="true" :style="STAGING_STYLE"></div>
       <div v-if="state === 'no-room' || state === 'notation-error'" :style="OVERLAY_STYLE">
         <!-- The stylesheet shows one no-room sentence by the notation layout's width query. -->
-        <p v-if="state === 'no-room'" class="room-notice" tabindex="-1">
+        <p v-if="state === 'no-room'" ref="roomNoticeEl" class="room-notice" tabindex="-1">
           <span class="room-notice-wide">{{ ROOM_NOTICE_WIDE }}</span>
           <span class="room-notice-narrow">{{ ROOM_NOTICE_NARROW }}</span>
         </p>

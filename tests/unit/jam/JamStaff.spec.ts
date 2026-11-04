@@ -92,7 +92,7 @@ async function nextFrame(): Promise<void> {
 }
 
 /** Intent: mount Jam's staff on `props` and let its first engraving settle. */
-async function mountStaff(props: JamStaffProps = D_DORIAN) {
+async function mountStaff(props: JamStaffProps & { readonly notice?: boolean } = D_DORIAN) {
   const wrapper = mount(JamStaff, { props, attachTo: document.body })
   await flushPromises()
   return wrapper
@@ -198,6 +198,30 @@ describe("Jam's Idle staff", () => {
     )
     expect(wrapper.find('[aria-live]').exists()).toBe(false)
     expect(wrapper.find('[role="status"]').exists()).toBe(false)
+  })
+
+  // @test-link [[rule_jam_ends_when_phrase_one_never_comes]]
+  it('shows jam-notice after the instruction, by its id, only while asked to', async () => {
+    const wrapper = await mountStaff({ ...D_DORIAN, notice: true })
+    const bottom = wrapper.get('[data-system-position="bottom"]')
+    const notice = bottom.get('.jam-instruction + .jam-notice')
+    expect(notice.classes()).toEqual(['inline-alert', 'alert-notice', 'jam-notice'])
+    expect(notice.attributes('id')).toBe('jam-notice')
+    expect(notice.attributes('role')).toBeUndefined()
+    expect(notice.attributes('aria-live')).toBeUndefined()
+    expect(notice.text()).toBe(
+      "The app couldn't continue your doodle with these settings. Try again, or change a setting.",
+    )
+    await wrapper.setProps({ notice: false })
+    expect(wrapper.find('.jam-notice').exists()).toBe(false)
+  })
+
+  // @test-link [[rule_jam_ending_before_phrase_one]]
+  it('takes focus on its no-room sentence by focusRoomNotice()', async () => {
+    engraving.outcomes = ['no_room']
+    const wrapper = await mountStaff()
+    wrapper.vm.focusRoomNotice()
+    expect(document.activeElement).toBe(wrapper.get('.room-notice').element)
   })
 
   // @test-link [[rule_jam_idle_shows_no_phrase]]

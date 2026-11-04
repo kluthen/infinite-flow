@@ -59,6 +59,8 @@ import ControlPanel from '@/components/controls/ControlPanel.vue'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { NotationError } from '@/notation/notation-error'
 import type { JamControlsProps, JamStaffState, JamWorkspaceProps } from '@/jam/jam-view-types'
+import type { JamSettingsChange } from '@/jam/jam-settings'
+import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { AudioTransport } from '@/audio/audio-transport'
 import type { SavedDataLoad } from '@/storage-bootstrap'
@@ -101,6 +103,9 @@ import { loadJamMode } from './load-jam-mode'
 import { useWorkspaceMode } from './use-workspace-mode'
 import { useJamIdleCue } from './use-jam-idle-cue'
 import { useJamSettings } from './use-jam-settings'
+import { useFreshJam } from './use-fresh-jam'
+import { freshJamCanStart, type FreshJamStartFacts } from './session-action-policy'
+import type { HeldModeNoteRoute } from './workspace-session-midi'
 
 // The stale-phrase prompt, in its own chunk: only a stale phrase 1 at a start needs it.
 const StalePhrasePrompt = defineAsyncComponent(() => import('./StalePhrasePrompt.vue'))
@@ -233,6 +238,11 @@ const emit = defineEmits<{
    * the change, so the workspace's flag never lags the mode.
    */
   'session-mode-held-change': [held: boolean]
+  /**
+   * The note route of Jam mode's Idle, emitted once at setup: what a controller note means there
+   * (the home note, while a fresh Jam could start) and the fresh Jam it starts.
+   */
+  'held-mode-notes-change': [route: HeldModeNoteRoute | null]
 }>()
 
 /** True while the review mode shows: a Review, or the session list in its place. */
@@ -278,6 +288,27 @@ const jamSettings = useJamSettings({
   saveSettings: injectSaveSettings(),
 })
 
+/** What Jam's staff shows while Jam mode shows (Start Jam's conditions read it); null otherwise. */
+const jamStaffState = ref<JamStaffState | null>(null)
+watch(workspaceMode.jamView, (view) => {
+  if (view === null) jamStaffState.value = null
+})
+
+// A fresh Jam: its start, what it shows while it runs, and `jam-notice` after it.
+// @spec-link [[module_workspace_mode]]
+const freshJam = useFreshJam({
+  jamModule: () => workspaceMode.jamModule.value,
+  jamShowing: () => workspaceMode.jamView.value !== null,
+  controller: requireController,
+  settings: () => jamSettings.view.value,
+  instrument: () => ({
+    instrumentProfileId: state.value.controls.instrumentProfileId,
+    myInstrument: state.value.myInstrument,
+  }),
+  lastEnd: () => props.controller?.state.lastEnd ?? null,
+  jamStaffState: () => jamStaffState.value,
+})
+
 /**
  * What Jam's view is given: Jam's written key and collection, the shared instrument choice (my
  * instrument included), the shared system-position size, and what Jam's Idle prewarm reads: the
@@ -297,6 +328,7 @@ const jamViewProps = computed<JamWorkspaceProps>(() => {
     prewarm: props.prewarm,
     controls,
     figureLevels: jam?.figureLevels ?? state.value.figureLevels,
+    notice: freshJam.noticeShown.value,
   }
 })
 /** Jam's controls while Jam mode shows with its settings made; null otherwise. */
@@ -320,14 +352,9 @@ const jamControlsProps = computed((): JamControlsProps | null => {
     myInstrument: state.value.myInstrument,
     readonly: settingsReadonly.value,
     instrumentActionsDisabled: settingsReadonly.value || state.value.operation !== 'idle',
-    readings: null,
+    readings: freshJam.readings.value,
     belowTabletLandscape: state.value.noteDensityContext.belowTabletLandscape,
   }
-})
-/** What Jam's staff shows while Jam mode shows (Start Jam's conditions read it); null otherwise. */
-const jamStaffState = ref<JamStaffState | null>(null)
-watch(workspaceMode.jamView, (view) => {
-  if (view === null) jamStaffState.value = null
 })
 
 // The player presets' refused saves, which the preset actions tell and the notice row hears.
@@ -438,12 +465,9 @@ const anySheetOpen = computed(
     presetSheet.sheetOpen.value,
 )
 
-// Jam mode's Idle cue: the home note while a fresh Jam could start, or `jam-needs-controller`.
-const jamIdleCue = useJamIdleCue({
-  jamModule: () => workspaceMode.jamModule.value,
-  jamShowing: () => workspaceMode.jamView.value !== null,
-  settings: () => jamViewProps.value,
-  startFacts: () => ({
+/** Intent: the facts a fresh Jam's start is judged on, now. */
+function jamStartFacts(): FreshJamStartFacts {
+  return {
     controllerLoaded: props.controller !== null,
     controllerConnected: controllerStatus.form.value.kind === 'connected',
     sessionActive: sessionActive.value,
@@ -451,10 +475,35 @@ const jamIdleCue = useJamIdleCue({
     sheetOpen: anySheetOpen.value,
     orientationNoticeShown: props.controller?.state.orientationNoticeShown === true,
     jamStaffShown: jamStaffState.value === 'shown',
-  }),
+  }
+}
+
+// Jam mode's Idle cue: the home note while a fresh Jam could start, or `jam-needs-controller`.
+const jamIdleCue = useJamIdleCue({
+  jamModule: () => workspaceMode.jamModule.value,
+  jamShowing: () => workspaceMode.jamView.value !== null,
+  settings: () => jamViewProps.value,
+  startFacts: jamStartFacts,
   pageAwaitsClick: () =>
     props.controller?.state.pageActivated !== true && !props.audio.isUnlocked(),
 })
+
+/** `Start Jam` is enabled: Jam mode shows and a fresh Jam could start now. */
+// @spec-link [[module_workspace_mode]]
+const jamCanStart = computed(
+  () => workspaceMode.jamView.value !== null && freshJamCanStart(jamStartFacts()),
+)
+
+/**
+ * Intent: Jam mode's home note, played while a fresh Jam could start: the start `Start Jam` takes,
+ * with no jump (a note's start, as in session mode, moves nothing on the page).
+ */
+// @spec-link [[module_workspace_mode]]
+function handleJamHomeNote(): void {
+  prepareStart()
+  freshJam.start()
+}
+emit('held-mode-notes-change', { meaningOf: jamIdleCue.meaningOf, start: handleJamHomeNote })
 
 defineExpose({
   /** True while the connection sheet is open (see `ConnectionSheetHost.connectionSheetOpen`). */
@@ -491,7 +540,22 @@ function prepareStart(): void {
 // @spec-link [[req_landscape_phrase_workspace]]
 function handleStartSession(): void {
   prepareStart()
-  if (requireController().start() === 'started') jumpAfterStart()
+  if (workspaceMode.jamView.value !== null) {
+    freshJam.start()
+    jumpAfterStart()
+  } else if (requireController().start() === 'started') jumpAfterStart()
+}
+
+/**
+ * Intent: the staff viewport the start's jump brings into place: in Jam mode Jam's own, which
+ * shows `staff-jam`, else session mode's, the first in DOM order.
+ */
+function startStaffViewport(): Element {
+  if (workspaceMode.jamView.value === null) return workspacePart('.staff-viewport')
+  const viewports = layoutRoot.value?.querySelectorAll('.staff-viewport') ?? []
+  const jam = [...viewports].find((viewport) => viewport.querySelector('.staff-jam') !== null)
+  if (jam === undefined) throw new Error("workspace shell: Jam's staff viewport is not mounted")
+  return jam
 }
 
 /** Intent: the start's one instant jump, for the layout the session just started holds. */
@@ -504,7 +568,7 @@ function jumpAfterStart(): void {
     {
       workspace: layoutRoot.value,
       cueRow: workspacePart('.session-cue-row'),
-      staffViewport: workspacePart('.staff-viewport'),
+      staffViewport: startStaffViewport(),
     },
     layout,
   )
@@ -549,6 +613,8 @@ const workspaceFocus = useWorkspaceFocus({
   focusTarget,
   focusRoomNotice: () => focusParts().scorePanel.focusRoomNotice(),
   focusAfterConnectionSheet: () => focusParts().header.focusAfterConnectionSheet(),
+  jamShowing: () => workspaceMode.jamView.value !== null,
+  jamStaffState: () => jamStaffState.value,
 })
 
 // The review mode's moves: `Close review`, `Review last session`, `All sessions` from the cue row,
@@ -572,6 +638,19 @@ function focusFallback(): void {
   if (shown.sessionActionEnabled) focusTarget('session-action')
   else if (shown.phraseActionEnabled) focusTarget('phrase-action')
   else focusTarget('controller-status')
+}
+
+/** Intent: a change of one of Jam's settings at Idle: saved by Jam's code; `jam-notice` goes. */
+// @spec-link [[module_workspace_mode]]
+function handleJamSettingChange(change: JamSettingsChange): void {
+  freshJam.settingChanged()
+  jamSettings.change(change)
+}
+
+/** Intent: the instrument changed from Jam's controls: a change of a Jam setting too. */
+function handleJamInstrumentChange(id: InstrumentProfileId): void {
+  freshJam.settingChanged()
+  controlPanelActions.selectInstrumentProfile(id)
 }
 
 /** Intent: the header's `Retry notation` in Jam mode: Jam's staff engraves its empty system again. */
@@ -623,6 +702,8 @@ const controlPanelActions = useControlPanelActions(props.session)
       :workspace-mode="workspaceMode.view.value"
       :jam-staff-state="jamStaffState"
       :jam-needs-controller="jamIdleCue.needsController.value"
+      :jam-can-start="jamCanStart"
+      :jam-notice-shown="freshJam.noticeShown.value"
       @select-mode="workspaceMode.select"
       @retry-jam-notation="handleRetryJamNotation"
       @start-session="handleStartSession"
@@ -659,6 +740,7 @@ const controlPanelActions = useControlPanelActions(props.session)
         :jam-view="workspaceMode.jamView.value"
         :jam-view-props="jamViewProps"
         :jam-cue="jamIdleCue.cue.value"
+        :jam-session="freshJam.cue.value"
         @jam-staff-state="jamStaffState = $event"
         @stop-session="handleStopSession"
         @show-review="reviewNavigation.showReview"
@@ -669,8 +751,8 @@ const controlPanelActions = useControlPanelActions(props.session)
         :is="jamControls"
         v-if="jamControls !== null && jamControlsProps !== null"
         v-bind="jamControlsProps"
-        @change="jamSettings.change"
-        @select-instrument-profile="controlPanelActions.selectInstrumentProfile"
+        @change="handleJamSettingChange"
+        @select-instrument-profile="handleJamInstrumentChange"
         @open-my-instrument="myInstrumentSheet.open"
       />
       <ControlPanel

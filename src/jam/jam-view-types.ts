@@ -53,6 +53,16 @@ export interface JamViewLeaving {
 }
 
 /**
+ * Whether Jam's staff shows `jam-notice` under its instruction: after a fresh Jam ended because no
+ * phrase 1 could be written by its deadline, until the next start, a change of a Jam setting or
+ * leaving Jam mode; false (the default) otherwise.
+ */
+// @spec-link [[rule_jam_ends_when_phrase_one_never_comes]]
+export interface JamViewNotice {
+  readonly notice?: boolean
+}
+
+/**
  * What the workspace gives Jam's view: what its staff is drawn from, and what its Idle prewarm
  * reads: the generation worker's prewarm port (null while the prewarm policy is off) and the
  * controls and figure levels a Jam is generated with (Jam's settings, ./jam-settings.ts), which a
@@ -60,7 +70,7 @@ export interface JamViewLeaving {
  */
 // @spec-link [[module_jam_code_boundary]]
 // @spec-link [[module_generation_prewarm]]
-export interface JamWorkspaceProps extends JamStaffProps {
+export interface JamWorkspaceProps extends JamStaffProps, JamViewNotice {
   /** Where a prewarm goes; null while the prewarm policy is off. */
   readonly prewarm: PostPrewarm | null
   /** Jam's controls (its written key among them, not yet in concert pitch). */
