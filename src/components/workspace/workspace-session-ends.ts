@@ -13,6 +13,7 @@
 import type { Preset } from '@/domain/presets/preset-selection'
 import type { SessionHistory } from '@/session/session-history'
 import type { SessionEndCause } from '@/session/session-types'
+import { jamPartOf } from './session-jam-part'
 import { endedSession, openedReview, settledKeeping } from './session-review-state'
 import { endedSessionSave, saveEndedSession, tellDamagedDeleted } from './workspace-session-save'
 import type { KeptSessionRows } from './use-kept-sessions'
@@ -147,7 +148,12 @@ export function createSessionEnds(
       !savingOff && keepPlayedNotes(),
       idle.state.presets,
     )
-    const reviewed = endedSession(session.history, savingOff ? 'not-saved' : 'not-pinned', save)
+    const reviewed = endedSession(
+      session.history,
+      savingOff ? 'not-saved' : 'not-pinned',
+      save,
+      jamPartOf(session),
+    )
     state.review = openedReview(reviewed)
     state.mostRecent = Object.freeze({ kind: 'held', session: reviewed })
     const saves = rows.savingThrough(core.deps.saveHold, () => findHeldSession(state, reviewed.key))
@@ -159,6 +165,9 @@ export function createSessionEnds(
         tellDamagedDeleted(core.deps.keptSessions.reports, outcome)
       })
     }
+    // A session started without phrase 1 (a fresh Jam's) ran no adaptive tempo and leaves session
+    // mode's Idle as it was: no tempo reached is handed over and no fresh phrase asked for.
+    if (session.phraseOne === null) return
     adaptiveTempo.sessionEnded(reviewed.tempoReached)
     void idle.actions.startFreshPhrase()
   }

@@ -1,0 +1,61 @@
+/**
+ * The Jam part of a reviewed session: what the review of an ended Jam is drawn from beside its
+ * closed history (its doodle section, the raw doodle notes in its played-notes lane, its key and
+ * mode suggestion), and the controls taken from the doodle, carried for Jam's view, which the
+ * review never shows. Gathered once at the end, from the closed history and the running session;
+ * a session that is no Jam has none. Pure; Jam's types are imported as types only, erased from the
+ * bundle.
+ */
+import type { DoodleReadings } from '@/jam/doodle-controls'
+import type { DoodleSuggestion, SessionDoodle } from '@/session/session-history'
+import type { AudioTime } from '@/session/session-types'
+import type { ActiveSession } from './workspace-session-active'
+
+/**
+ * The Jam part of a reviewed session: the doodle (quantized, with its capture tempo, its first
+ * and end barlines and its raw notes, which belong to no phrase), the first beat of a fresh Jam's
+ * count-in (the clock its played notes are kept on), the suggestion worked out at the doodle's
+ * end, whether the player has declined it, and the controls taken from the doodle.
+ */
+// @spec-link [[module_jam_session_end]]
+export interface ReviewedJamPart {
+  readonly doodle: SessionDoodle
+  readonly countInStartAt: AudioTime
+  readonly suggestion: DoodleSuggestion
+  readonly suggestionDeclined: boolean
+  readonly doodleControls: DoodleReadings
+}
+
+/** What the end reads a session's Jam part from: the running session, its history closed. */
+export type EndedJamSources = Pick<
+  ActiveSession,
+  'phraseOne' | 'history' | 'timeline' | 'doodleControls'
+>
+
+/**
+ * Intent: the Jam part of a session that ended once phrase 1 had sounded. A session started
+ * without phrase 1 (a fresh Jam's) gives its doodle and suggestion as the closed history kept
+ * them, its count-in's first beat, no decline yet, and the controls taken from the doodle at
+ * phrase 1's hand-over; a Jam that sounded phrase 1 always recorded all three before it, so one
+ * missing is a defect and throws. A session started with phrase 1 gives none.
+ */
+// @spec-link [[module_jam_session_end]]
+// @spec-link [[rule_raw_doodle_notes_are_played_notes]]
+export function jamPartOf(session: EndedJamSources): ReviewedJamPart | null {
+  if (session.phraseOne !== null) return null
+  const doodle = session.history.doodle()
+  const suggestion = session.history.suggestion()
+  const { doodleControls } = session
+  if (doodle === null || suggestion === null || doodleControls === null) {
+    throw new Error(
+      'session end: a Jam that sounded phrase 1 holds no doodle, suggestion or controls',
+    )
+  }
+  return Object.freeze({
+    doodle,
+    countInStartAt: session.timeline.startAt,
+    suggestion,
+    suggestionDeclined: false,
+    doodleControls,
+  })
+}

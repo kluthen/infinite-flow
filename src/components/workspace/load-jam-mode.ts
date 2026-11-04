@@ -7,7 +7,7 @@
  * again, under a fresh URL, since the browser never fetches a failed import's URL again.
  */
 
-/** What Jam's code entry exports: Jam's workspace view, and later the rest of Jam's ports. */
+/** What Jam's code entry exports: Jam's views, its cue row parts and the rest of Jam's ports. */
 export type JamModeModule = typeof import('@/jam/jam-mode')
 
 let modulePromise: Promise<JamModeModule> | null = null

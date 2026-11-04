@@ -4,6 +4,7 @@ import { reactive, ref, shallowRef } from 'vue'
 
 import type { GenerationSession } from '../../src/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '../../src/composables/workspace-session-result'
+import type { HeldModeNoteRoute } from '../../src/components/workspace/workspace-session-midi'
 import { DEFAULT_GENERATION_CONTROLS } from '../../src/domain/controls/profile-selection'
 import type { WrittenPhrase } from '../../src/domain/notation/written-phrase-types'
 import { BUILT_IN_PRESETS } from '../../src/domain/presets/built-in-presets'
@@ -103,6 +104,7 @@ function fakeWorkspaceSession(savedData: SavedDataLoad = fakeSavedData()) {
     midi: createControllerRig().controller,
     connectionSheetOpen: shallowRef(false),
     sessionModeHeld: shallowRef(false),
+    heldModeNotes: shallowRef<HeldModeNoteRoute | null>(null),
     prewarm: null,
     createSessionController: async () => {
       if (controllerLoad !== null) await controllerLoad.promise
@@ -340,6 +342,22 @@ describe('App connection sheet flag', () => {
     expect(injected.connectionSheetOpen.value).toBe(true)
     // Let the sheet's lazy chunk finish loading before the test environment goes.
     await loadConnectionSheet()
+    wrapper.unmount()
+  })
+})
+
+// @test-link [[rule_midi_starting_note]]
+describe('App held-mode note route', () => {
+  // @test-link [[rule_midi_starting_note]]
+  it("gives the workspace the shell's Jam mode note route at mount, ignoring every note in session mode", () => {
+    const injected = fakeWorkspaceSession()
+    const wrapper = mount(App, {
+      props: { savedData: fakeSavedData() },
+      global: { stubs: STUBS, provide: { [workspaceSessionFactoryKey]: () => injected } },
+    })
+    const route = injected.heldModeNotes.value
+    expect(route).not.toBeNull()
+    expect(route?.meaningOf(60)).toBe('ignored')
     wrapper.unmount()
   })
 })

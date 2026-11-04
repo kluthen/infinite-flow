@@ -9,10 +9,16 @@
 import type { DisposableWakeTimer, WakeTimer } from '@/audio/audio-ports'
 import type { TransportTimeline } from '@/audio/audio-transport'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
+import type { DoodleReadings } from '@/jam/doodle-controls'
 import type { AudioTimeAgenda } from '@/session/session-agenda'
 import type { SessionHistory } from '@/session/session-history'
 import type { SessionRunner } from '@/session/session-runner'
-import type { AudioTime, PhraseOneEvent, SessionOutput } from '@/session/session-types'
+import type {
+  AudioTime,
+  PhraseOneEvent,
+  SessionOutput,
+  SessionPhrase,
+} from '@/session/session-types'
 import type { AdaptiveTempoFlag } from './workspace-adaptive-tempo'
 import type { SessionDisplay } from './workspace-session-display'
 import type { SessionEndWatch } from './workspace-session-end-watchers'
@@ -61,6 +67,17 @@ export interface ActiveSession {
   midi: SessionMidiRun | null
   /** The settings its read-only controls show, from its start settings on. */
   readonly shown: SessionShownSettings
+  /**
+   * What a session started without phrase 1 takes when the engine readies phrase 1 at the
+   * hand-over (./workspace-session-phrase-one-entry.ts); null in a session started with it, where
+   * the engine never readies phrase 1.
+   */
+  enterPhraseOne: ((phrase: SessionPhrase) => void) | null
+  /**
+   * The controls a fresh Jam took from its doodle, recorded at phrase 1's hand-over for its
+   * review's Jam part; null until then, and in a session started with phrase 1.
+   */
+  doodleControls: DoodleReadings | null
 }
 
 /** The fields of the controller's state its parts write; the rest are read through its sides. */
@@ -134,6 +151,23 @@ function runnerOf(session: ActiveSession): SessionRunner {
 export function phrasesOf(session: ActiveSession): SessionPhrases {
   if (session.phrases === null) throw new Error('session controller: no phrase steps yet')
   return session.phrases
+}
+
+/**
+ * Intent: a phrase the engine readied: phrase 1 is handed over to a session started without it,
+ * which then takes its display and phrase steps; every later phrase goes to the phrase steps. A
+ * phrase 1 readied in a session started with it is a wiring defect.
+ */
+// @spec-link [[module_session_phrase_steps]]
+// @spec-link [[module_session_start_without_phrase_one]]
+export function phraseReadied(session: ActiveSession, phrase: SessionPhrase): void {
+  if (phrase.phraseNumber !== 1) {
+    phrasesOf(session).phraseReady(phrase)
+    return
+  }
+  if (session.enterPhraseOne === null)
+    throw new Error('session controller: phrase 1 readied in a session started with it')
+  session.enterPhraseOne(phrase)
 }
 
 /**

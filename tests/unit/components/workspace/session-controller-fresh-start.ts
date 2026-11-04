@@ -23,7 +23,6 @@ export function startFresh(rig: ControllerRig): FreshStart {
     settings: rig.settings,
     clef: BUILT_IN_INSTRUMENT_CLEF,
     playedNotes: (event) => notes.push(event),
-    checkFit: () => Promise.resolve(true),
     outputs: (output) => outputs.push(output),
   })
   return { session, notes, outputs }

@@ -29,6 +29,7 @@ import type {
   SessionOutput,
 } from '@/session/session-types'
 
+import type { DoodleReadings } from './doodle-controls'
 import type { JamCapture, JamCaptureOutput } from './jam-capture'
 import type { KeySuggestion } from './key-suggestion/key-suggestion'
 import { doodleSuggestion } from './jam-phrase-one-attempts'
@@ -60,8 +61,9 @@ export interface JamPhraseOneDependencies {
  * What the ladder asks its caller to do or tells it, each at the time it was decided: send the
  * session a phrase 1 event (an attempt, its cancellation, or phrase 1 handed over); a capture
  * output, passed on (the doodle's end to record, no note played, phrase 1 shown); the key and mode
- * suggestion worked out at the doodle's end, to keep with the session; the Jam ends, no phrase 1
- * having come by its deadline.
+ * suggestion worked out at the doodle's end, to keep with the session; the controls read from the
+ * doodle phrase 1 was written from, for Jam's view to show as phrase 1 enters, right after the
+ * hand-over; the Jam ends, no phrase 1 having come by its deadline.
  */
 // @spec-link [[rule_jam_phrase_one_failure_ladder]]
 // @spec-link [[rule_jam_ends_when_phrase_one_never_comes]]
@@ -69,6 +71,7 @@ export type JamPhraseOneOutput =
   | { readonly kind: 'session-event'; readonly event: PhraseOneEvent }
   | { readonly kind: 'capture'; readonly output: JamCaptureOutput }
   | { readonly kind: 'suggestion'; readonly at: AudioTime; readonly suggestion: KeySuggestion }
+  | { readonly kind: 'readings'; readonly at: AudioTime; readonly readings: DoodleReadings }
   | { readonly kind: 'no-phrase-one'; readonly at: AudioTime }
 
 /**
@@ -113,7 +116,7 @@ type Stage =
       readonly deadline: AudioTime
       readonly attempt: InFlight | undefined
     }
-  | { readonly kind: 'ready'; readonly attemptId: number }
+  | { readonly kind: 'ready'; readonly attemptId: number; readonly readings: DoodleReadings }
   | { readonly kind: 'over' }
 
 /**
@@ -252,13 +255,19 @@ export function createJamPhraseOne(
     return [{ kind: 'session-event', event: { kind: 'cancel-phrase-one-attempt', at } }]
   }
 
-  /** Intent: phrase 1 shown by the capture: hand the fitting attempt over, sounding at `soundsAt`. */
+  /**
+   * Intent: phrase 1 shown by the capture: hand the fitting attempt over, sounding at `soundsAt`,
+   * then give the doodle's readings it was written with.
+   */
   function shown(at: AudioTime, soundsAt: AudioTime): JamPhraseOneOutput[] {
     if (stage.kind !== 'ready')
       throw new JamPhraseOneError(`Phrase 1 cannot be shown while the ladder is ${stage.kind}.`)
-    const { attemptId } = stage
+    const { attemptId, readings } = stage
     stage = { kind: 'over' }
-    return [{ kind: 'session-event', event: { kind: 'phrase-one', at, attemptId, soundsAt } }]
+    return [
+      { kind: 'session-event', event: { kind: 'phrase-one', at, attemptId, soundsAt } },
+      { kind: 'readings', at, readings },
+    ]
   }
 
   /** Intent: what one capture output asks of the ladder. */
@@ -327,7 +336,7 @@ export function createJamPhraseOne(
     const attempt = named(attemptId)
     if (attempt === undefined || stage.kind !== 'climbing') return []
     if (result.kind === 'fits') {
-      stage = { kind: 'ready', attemptId }
+      stage = { kind: 'ready', attemptId, readings: stage.attempts.readings }
       return fromCapture(capture.phraseOneReady(at))
     }
     const next = attemptAfter(attempt.index, result, standaloneDue(at, stage.deadline))

@@ -9,8 +9,10 @@ import { onBeforeUnmount, watch } from 'vue'
 import type { GenerationSessionState } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import type { MixVolumePopover } from './mix-volume-popover'
+import type { JamStaffState } from '@/jam/jam-view-types'
 import {
   awaitsLateRoomNotice,
+  jamSessionEndFocusTarget,
   sessionEndFocusTarget,
   type SessionEndFocusTarget,
 } from './session-end-focus'
@@ -34,6 +36,10 @@ export interface WorkspaceFocusDeps {
   readonly focusRoomNotice: () => void
   /** Focus where the connection sheet's close sends it, in the mounted header. */
   readonly focusAfterConnectionSheet: () => void
+  /** Jam mode shows: a session's end is a Jam's, judged on Jam's staff. */
+  readonly jamShowing: () => boolean
+  /** What Jam's staff shows while Jam mode shows; null otherwise. */
+  readonly jamStaffState: () => JamStaffState | null
 }
 
 /** What the shell drives: forgetting a late room notice still awaited. */
@@ -61,14 +67,16 @@ export function useWorkspaceFocus(deps: WorkspaceFocusDeps): WorkspaceFocus {
   /**
    * Intent: move focus where the session's end sends it, once the Idle rules have applied and the
    * screen shows the state they reached (called after the render, so the Idle state read here is
-   * the one on screen); after a window end, remember where it went, for a room notice that lands
-   * late.
+   * the one on screen), in Jam mode as a Jam's end sends it; after a window end, remember where it
+   * went, for a room notice that lands late.
    */
   // @spec-link [[rule_count_in_ending_returns_to_idle]]
   function focusAfterSessionEnd(): void {
     const end = deps.controller().state.lastEnd
     if (end === null) throw new Error('workspace shell: a session ended with no end summary')
-    const target = sessionEndFocusTarget(end, deps.idle())
+    const target = deps.jamShowing()
+      ? jamSessionEndFocusTarget(end, deps.jamStaffState())
+      : sessionEndFocusTarget(end, deps.idle())
     deps.focusTarget(target)
     lateRoomNoticeFrom = awaitsLateRoomNotice(end, target) ? document.activeElement : null
   }
@@ -88,15 +96,21 @@ export function useWorkspaceFocus(deps: WorkspaceFocusDeps): WorkspaceFocus {
     { flush: 'post' },
   )
 
+  /** Intent: Jam's staff shows Needs more room, as a notice the late-landing watch can see. */
+  function jamRoomNotice(): 'no-room' | null {
+    return deps.jamStaffState() === 'no-room' ? 'no-room' : null
+  }
+
   /**
-   * Intent: when Needs more room lands, rendered, after a window end's focus move, move focus once
+   * Intent: when Needs more room lands, rendered, after a window end's focus move (in Jam mode,
+   * on Jam's staff), move focus once
    * to `room-notice`, unless the player has moved it since (it is still where the end put it, or
    * lost to the page because the notice disabled that button).
    */
   // @spec-link [[rule_count_in_ending_returns_to_idle]]
   // @spec-link [[rule_session_ends_when_staff_too_small]]
   const stopLateNoticeWatch = watch(
-    () => deps.idle().roomNotice,
+    () => (deps.jamShowing() ? jamRoomNotice() : deps.idle().roomNotice),
     (notice) => {
       const from = lateRoomNoticeFrom
       if (notice === null || from === null) return

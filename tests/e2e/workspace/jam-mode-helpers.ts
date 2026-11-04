@@ -51,7 +51,7 @@ export async function expectChecked(page: Page, label: ModeLabel): Promise<void>
 /** Intent: session mode's staff viewport (Jam's view has one of its own). */
 export function sessionViewport(page: Page): Locator {
   return page
-    .locator('.score-panel > .staff-viewport')
+    .locator('.score-panel > div > .staff-viewport')
     .filter({ hasNot: page.locator('.staff-jam') })
 }
 
@@ -72,10 +72,14 @@ export function jamFrame(page: Page): Locator {
 
 /**
  * Intent: assert Jam mode shows: `Jam` checked and not loading, the score titled `Jam`, Jam's staff
- * frame in the staff's place with session mode's out of sight, `Start Jam` and `Generate phrase`
- * disabled.
+ * frame in the staff's place with session mode's out of sight, `Generate phrase` disabled and
+ * `Start Jam` as `startJam` says: disabled by default (no controller connected, or a fresh Jam
+ * could not start), enabled while a fresh Jam could start.
  */
-export async function expectJamModeShows(page: Page): Promise<void> {
+export async function expectJamModeShows(
+  page: Page,
+  startJam: 'enabled' | 'disabled' = 'disabled',
+): Promise<void> {
   await expectChecked(page, 'Jam')
   await expect(scoreTitle(page)).toHaveText('Jam')
   await expect(modeSwitch(page)).not.toHaveClass(/is-loading/)
@@ -83,7 +87,8 @@ export async function expectJamModeShows(page: Page): Promise<void> {
   await expect(jamFrame(page)).toBeVisible()
   await expect(sessionViewport(page)).toHaveClass(/is-out-of-sight/)
   await expect(sessionAction(page)).toHaveText('Start Jam')
-  await expect(sessionAction(page)).toBeDisabled()
+  if (startJam === 'enabled') await expect(sessionAction(page)).toBeEnabled()
+  else await expect(sessionAction(page)).toBeDisabled()
   await expect(phraseAction(page)).toHaveText('Generate phrase')
   await expect(phraseAction(page)).toBeDisabled()
 }

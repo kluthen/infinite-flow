@@ -40,7 +40,19 @@ import {
   startSession,
   toRunning,
 } from './session/session-helpers'
-import { connectDevice, unplugNow } from './session/session-midi-helpers'
+import { clockTo, connectDevice, unplugNow } from './session/session-midi-helpers'
+import {
+  PAST_BARLINE,
+  doodleReadings,
+  gotoJamIdle,
+  jamGrid,
+  jamStaffNotice,
+  jamToRunning,
+  playDoodle,
+  startJamByClick,
+  untilAttemptsSettled,
+  type JamGrid,
+} from './session/jam-helpers'
 import {
   backingTrackToggle,
   deletePlayedNotesButton,
@@ -665,6 +677,72 @@ for (const theme of ['Light', 'Dark'] as const) {
     const results = await new AxeBuilder({ page }).analyze()
     expect(results.violations, describeViolations(results.violations)).toEqual([])
   })
+}
+
+/** One state of a fresh Jam to scan: how to reach it from Jam mode's Idle with a controller. */
+interface FreshJamScan {
+  readonly name: string
+  readonly reach: (page: Page) => Promise<unknown>
+}
+
+/** Intent: start a fresh Jam with `Start Jam` and play a one-measure doodle: the capture. */
+async function freshJamCapture(page: Page): Promise<JamGrid> {
+  await startJamByClick(page)
+  const grid = await jamGrid(page)
+  await playDoodle(page, grid, 1)
+  await expect(page.locator('.session-cue-row > .jam-capture')).toBeVisible()
+  return grid
+}
+
+/** Intent: from the capture, the doodle's silent barline: the generation measure (`jam-writing`). */
+async function freshJamWriting(page: Page): Promise<JamGrid> {
+  const grid = await freshJamCapture(page)
+  await clockTo(page, grid.barline(1) + PAST_BARLINE)
+  await expect(page.locator('.session-cue-row > .jam-writing')).toBeVisible()
+  return grid
+}
+
+/** Intent: from Jam mode's Idle, a fresh Jam whose every attempt failed ends under `jam-notice`. */
+async function jamNoticeShown(page: Page): Promise<void> {
+  await failNextGeneration(page, 'search_limit_exceeded', 0, 50)
+  const grid = await freshJamWriting(page)
+  await untilAttemptsSettled(page)
+  await clockTo(page, grid.barline(4) + PAST_BARLINE)
+  await expect(jamStaffNotice(page)).toBeVisible()
+  await expect(sessionAction(page)).toHaveAttribute('aria-describedby', 'jam-notice')
+}
+
+/** Intent: from Jam mode's Idle, a fresh Jam at Session running, `doodle-readings` filled. */
+async function freshJamRunning(page: Page): Promise<void> {
+  await startJamByClick(page)
+  await jamToRunning(page)
+  await expect(doodleReadings(page)).toBeVisible()
+}
+
+// What chunk 21b adds: `jam-notice` at Jam mode's Idle after every phrase 1 attempt failed, a
+// fresh Jam's capture (`jam-capture`) and generation measure (`jam-writing`), and Session running
+// in Jam mode with `doodle-readings` filled.
+const FRESH_JAM_SCANS: readonly FreshJamScan[] = [
+  { name: 'Jam mode at Idle with jam-notice', reach: jamNoticeShown },
+  { name: "a fresh Jam's capture", reach: freshJamCapture },
+  { name: "a fresh Jam's generation measure", reach: freshJamWriting },
+  { name: 'Session running in Jam mode with doodle-readings filled', reach: freshJamRunning },
+]
+
+for (const scan of FRESH_JAM_SCANS) {
+  for (const theme of ['Light', 'Dark'] as const) {
+    test(`has no detectable axe violations in ${scan.name}, ${theme} theme`, async ({ page }) => {
+      await gotoJamIdle(page)
+      await radio(page, 'Presentation theme', theme).click()
+      await scan.reach(page)
+      await page.waitForFunction(() =>
+        document.getAnimations().every((animation) => !(animation instanceof CSSTransition)),
+      )
+
+      const results = await new AxeBuilder({ page }).analyze()
+      expect(results.violations, describeViolations(results.violations)).toEqual([])
+    })
+  }
 }
 
 test('the mode switch is the radiogroup "Mode", its checked segment exposed to assistive technology', async ({

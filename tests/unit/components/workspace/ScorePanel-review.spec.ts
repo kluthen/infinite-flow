@@ -120,9 +120,16 @@ function reviewPanel(wrapper: ReturnType<typeof mountPanel>) {
   return wrapper.getComponent({ name: 'ReviewPanel' })
 }
 
-/** Intent: the class names of the score panel's children, in order. */
+/**
+ * Intent: the class names of the score panel's children, in order, the staff viewports' unclassed
+ * container read through to its children.
+ */
 function panelChildren(wrapper: ReturnType<typeof mountPanel>): string[] {
-  return [...wrapper.get('.score-panel').element.children].map((element) => element.className)
+  return [...wrapper.get('.score-panel').element.children].flatMap((element) =>
+    element.className === ''
+      ? [...element.children].map((child) => child.className)
+      : [element.className],
+  )
 }
 
 /** Intent: the text of both live regions. */
