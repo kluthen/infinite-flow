@@ -1028,8 +1028,11 @@
     stroke: none;
   }
 
-  /* Layout only: each child carries its own states. The audio mix -- the `Backing` and `Click`
-     toggle buttons, then `mix-volume` (the `Volume` button and its popover). Never locked:
+  /* v3.2 changed -- Layout only: each child carries its own states. The audio mix -- the
+     `Backing`, `Click`, `Melody guide` and `Rhythm guide` toggle buttons, in that order, then
+     `mix-volume` (the `Volume` button and its popover). From bp-tablet-landscape up it stays
+     one line (the toolbar's own wrap moves it under the title when needed); below, on its own
+     row, it wraps onto a second line in the same order. Never locked:
      fully interactive at Idle, during a session and in the Review. From bp-tablet-landscape
      up it sits at the toolbar's trailing end; below it, whatever the orientation (the
      width-only block right after this rule, the same query as `session-cue-actions`), it takes
@@ -1086,9 +1089,10 @@
   .toggle-button[aria-pressed='true'] .toggle-button-state {
     color: var(--color-text);
   }
-  /* States: closed (`hidden`: absent), open. It opens and closes instantly, with no
-     animation. A non-modal panel anchored under the `Volume`
-     button, aligned to its inline end, holding the two volume `field-group`s. The one element
+  /* v3.2 changed -- States: closed (`hidden`: absent), open. It opens and closes instantly,
+     with no animation. A non-modal panel anchored under the `Volume`
+     button, aligned to its inline end, holding the four volume `field-group`s (backing, click,
+     melody guide, rhythm guide). The one element
      allowed to cover part of the staff, since only the player opens it. Not itself
      interactive: its sliders carry their own states. */
   .popover {

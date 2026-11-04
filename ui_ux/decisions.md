@@ -727,3 +727,45 @@ title word.
   instrument's written pitch, so the answer, `Keep {key} {mode}` and the family labels follow it,
   not the kept session's instrument, even where the doodle's key signature then differs. Now in
   `screens/last-session-review/handoff.md`, Components and Content, `suggestion-row`.
+
+## v3.2 wave 7, gate GD: the guide playback's controls, 2026-11-04
+
+Master spec Part C §C19.3 (spec D490-D494), a minor design call under the owner's delegation
+(spec D491): settled here, heard by the owner at hand check v3.2 HG.
+
+- **D459 — The guide switches follow `Click` in `mix-controls` (2026-11-04; minor, spec D491).**
+  The order is `Backing`, `Click`, `Melody guide`, `Rhythm guide`, then `Volume`: each guide a
+  `btn toggle-button` with `aria-pressed` and its `toggle-button-state` ("on" or "off"), the
+  accessible name the name alone, both off by default. Appended, so the two controls players know
+  keep their place. No separator, group label or new class. Rejected: the switches inside the
+  `Volume` popover (on/off is what a player reaches for mid-session, and the spec puts them beside
+  the backing and click); one `Off / Melody / Rhythm / Both` segmented control (the spec makes them
+  two independent switches, and it would be a new pattern in the toolbar). Stated in
+  `screens/phrase-workspace/handoff.md`, Layout Tree and Components and Content, `mix-controls`.
+- **D460 — Full labels at every breakpoint; the mix's line wraps (2026-11-04; minor, spec
+  D491).** "Melody guide" and "Rhythm guide", no short form: "Melody on" beside "Backing on" would
+  read as muting the tune, and a short form would not keep a narrow phone's mix on one line anyway.
+  From `bp-tablet-landscape` up the mix stays one line, the toolbar's own wrap taking it under the
+  title when the title's line cannot hold it; below, on its own line, `mix-controls` wraps onto a
+  second line in the same order. A phone loses only that line of staff room. Stated in `screens/phrase-workspace/handoff.md`, Responsive Behavior.
+- **D461 — The `Volume` popover holds four sliders in the switches' order (2026-11-04; minor,
+  spec D491).** `Backing volume`, `Click volume`, `Melody guide volume`, `Rhythm guide volume`;
+  every popover rule unchanged (focus to the first slider, live while its switch is off, saved when
+  changed, a session's change saved at its end). The phone's compact `Volume` opens the same
+  popover. On a phone in landscape it may run past the viewport's bottom; the page scrolls to it,
+  with no size cap and no new token. Stated in `screens/phrase-workspace/handoff.md`, Components
+  and Content, `mix-controls` and `session-cue-actions`.
+- **D462 — The guide tokens are named by channel (2026-11-04; minor, spec D491).**
+  `--mix-melody-guide-volume-min: 0`, `--mix-rhythm-guide-volume-min: 0`,
+  `--mix-melody-guide-volume-default: 0.8`, `--mix-rhythm-guide-volume-default: 0.6`; maximum and
+  step shared (`--mix-volume-max`, `--mix-volume-step`). `--mix-{channel}-volume-*` follows the
+  backing's and click's names and the mix looked up by channel (C19.6); the plan's `--mix-guide-*`
+  was a placeholder. Both reach silence, as C19.3 allows. The melody's first level is the
+  backing's; the rhythm's lower, so with both on the melody leads. A channel's full level is its
+  voice's peak, set by ear in chunk 40a; HG's ear may retune these, the tokens being the only edit.
+  Stated in `src/styles/theme.css`, the audio-mix levels.
+- **D463 — Gate GD's validation: four findings fixed (2026-11-04; minor, D119's standing rule).**
+  `ux-critic`: DRIFT. Fixed: the wrap described as the CSS does it (one line from
+  `bp-tablet-landscape` up, moved under the title by the toolbar's wrap; D460 corrected); both
+  intent docs' phone paragraphs name the four toggles and give the phone's low priority as the
+  reason; the edited `session-cue-actions` item tagged; the saved-data mix row holds the guides.

@@ -307,7 +307,13 @@
      are used. The click minimum is above zero on purpose: the click slider never reaches
      silence (turning the click off is its toggle's job), so the count-in, which plays at the
      click volume and always sounds, is always audible. The backing slider does reach silence:
-     the player may mute the backing entirely, by its toggle or by its slider. */
+     the player may mute the backing entirely, by its toggle or by its slider.
+     v3.2 new: the melody guide's and the rhythm guide's levels, named by channel as the
+     backing's and the click's are. Each is a fraction of its own guide voice's peak, the
+     voice's full level. Both minimums reach silence, as the backing's does. They share
+     `--mix-volume-max` and `--mix-volume-step`. The melody's first level is the backing's; the
+     rhythm's is lower, so that with both guides on the melody leads. The guides' on/off
+     defaults (both off) are not tokens. */
   :root {
     --mix-backing-volume-min: 0;
     --mix-click-volume-min: 0.2;
@@ -315,6 +321,11 @@
     --mix-volume-step: 0.05;
     --mix-backing-volume-default: 0.8;
     --mix-click-volume-default: 0.8;
+    /* v3.2 new */
+    --mix-melody-guide-volume-min: 0;
+    --mix-rhythm-guide-volume-min: 0;
+    --mix-melody-guide-volume-default: 0.8;
+    --mix-rhythm-guide-volume-default: 0.6;
   }
 
   /* Accessibility floor: 4.5:1 normal text, 3:1 large text and controls, 44px minimum targets. */
