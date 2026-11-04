@@ -1,6 +1,10 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v30 (2026-11-04): v29 with spec D460 written in (Part C unchanged): wave 6's preflight
+Status: v31 (2026-11-04): v30 with spec D495 and D497 written in (master spec Part C v1.19):
+chunk 21's two readings. Until phrase 1 is on screen, Jam's empty staff is the staff judged, so a
+window that leaves it no room ends the Jam before phrase 1 (C5.13); v3.2 H4 plays the same doodle
+again until wave 7, and chunk 24 rewords H4 and H5 for the kept doodle.
+v30 (2026-11-04): v29 with spec D460 written in (Part C unchanged): wave 6's preflight
 corrections to chunks 21, 30 and 23 (files, atoms, drift checks, revisions; chunk 21's capture: the
 review shows none of the controls taken from the doodle; chunk 30 stores a Jam session's preset
 label); new gate CJ, change set part W, before chunk 30's and chunk 23's merges.
@@ -549,15 +553,19 @@ Written by chunk 19; run after wave 3. About 6 minutes.
 
 #### v3.2 H4 — Jam listening: settings, drift and lock (L1)
 
-Written by chunk 21; run after wave 6. About 10 minutes.
+Written by chunk 21; run after wave 6. About 10 minutes. Until wave 7 keeps the doodle (chunk
+24), each Jam is a fresh one, so steps 3 to 5 play the same doodle again; chunk 24 rewords them to
+run on the kept doodle (spec D497).
 
 1. Jam mode, 100 BPM, Drift Near, lock Off.
 2. Play a two-measure doodle with a clear rhythm; listen to four phrases: "does it sound like my
    doodle?"
-3. Stop; the doodle is kept. Set Drift Close; Start; listen to four phrases. At Drift Close, did
-   any phrase use quicker notes than your doodle? ([O271](../../open-questions.md#v32-build-o267))
+3. Stop; Close review. Set Drift Close; Start Jam and play the same doodle again; listen to four
+   phrases. At Drift Close, did any phrase use quicker notes than your doodle?
+   ([O271](../../open-questions.md#v32-build-o267))
 4. Same with Drift Free.
-5. Rhythm lock On; Start; listen to four phrases: one rhythm, near the doodle's.
+5. Rhythm lock On; Start Jam, the same doodle; listen to four phrases: one rhythm, near the
+   doodle's.
 6. Say whether Jam's small settings set felt enough, and whether drift and the lock felt like two
    controls or one.
 
@@ -570,7 +578,8 @@ two apart here too ("sounds like my doodle" and "I like it").
 Written by chunk 21; run after wave 6, once the owner's recordings have joined the doodle set (gate
 DR, spec D443). About 10 minutes.
 
-1. Jam mode, 90 BPM, Drift Near, lock Off, New doodle before each step.
+1. Jam mode, 90 BPM, Drift Near, lock Off. Before each step, Stop and Close review, so each doodle
+   starts a fresh Jam; from wave 7, New doodle (chunk 24 rewords it, spec D497).
 2. Play a sparse doodle (three or four long notes over two measures); read "From your doodle"
    after phrase 1; listen to two phrases.
 3. Play a busy doodle (running eighths or sixteenths); read, listen.
@@ -2259,10 +2268,15 @@ keyed by Jam's settings and the doodle, never session mode's.
     the latest session played on it, Delete everything, `Jam again on this doodle` on another
     doodle (which replaces it), a reload. A session end that replaces an unpinned
     session keeps it.
+  - **The hand checks reworded for the kept doodle** (spec D497): in v3.2 H4, the intro's "until
+    wave 7" sentence goes and steps 3 to 5 run on the kept doodle (Stop, Close review, change the
+    setting, Start Jam with no new doodle, the same doodle replayed by the app); in v3.2 H5, each
+    doodle starts a fresh Jam through `New doodle`.
 - **Files:** `src/jam/use-kept-doodle.ts`, `src/jam/JamBar.vue` (new), `src/jam/jam-idle-notes.ts`,
   `src/components/workspace/use-review-host.ts`, `workspace-session-begin.ts`,
-  `workspace-session-ends.ts`, `workspace-pregeneration.ts`; tests
-  `tests/unit/jam/use-kept-doodle.spec.ts`, `tests/e2e/workspace/kept-doodle.spec.ts` (new).
+  `workspace-session-ends.ts`, `workspace-pregeneration.ts`, `HARDWARE-CHECKLIST.md` (v3.2 H4,
+  H5); tests `tests/unit/jam/use-kept-doodle.spec.ts`, `tests/e2e/workspace/kept-doodle.spec.ts`
+  (new).
 - **Spec sections:** [C5.11](master-spec.md#c511-the-kept-doodle-and-jam-again-on-this-doodle),
   [C5.13](master-spec.md#c513-edge-cases-before-phrase-1-sounds),
   [C6.4](master-spec.md#c64-where-and-when-it-is-shown),
@@ -2299,6 +2313,8 @@ keyed by Jam's settings and the doodle, never session mode's.
     (unpinned) session, keeps it; deleting the latest session played on it lets it go.
   - After a reload nothing is kept; the kept session's review offers it again, and the same settings
     and seed give the same phrase 1.
+  - v3.2 H4's steps 3 to 5 run on the kept doodle and H5 starts each doodle with `New doodle`, in
+    `HARDWARE-CHECKLIST.md` and in this plan's H4.
 - **Verification:** chunk checks; the accessibility checks of what it adds; a debug run going round
   twice on one doodle.
 - **Split rule:** 24a keeping, phrase 1 at Idle, Jam's queue and what lets it go (the composable,

@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.126
+Status: draft v2.127
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -1124,3 +1124,18 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   sign-off on part W, blocks chunks 30's and 23's merges. Now in:
   [build plan v3.2, gates](versions/v3/build-plan-v3.2.md#gates),
   [chunk 21](versions/v3/build-plan-v3.2.md#chunk-21--a-fresh-jam-on-screen).
+
+- **D495 (2026-11-04): until phrase 1 is on screen, Jam's empty staff is the staff judged for room.**
+  The driver's ruling under the owner's delegation of minor design calls, on chunk 21's reading
+  (235d3920). Before phrase 1 enters, the session's watchers have no phrase to judge, so a window
+  that leaves the empty staff no room (or a failed engraving of it) ends a fresh Jam as a count-in
+  end; from the read-in measure on, the session's staff rule judges phrase 1. C5.13 named the end,
+  not which staff. Now in: [Part C §C5.13](versions/v3/master-spec.md#c513-edge-cases-before-phrase-1-sounds).
+
+- **D497 (2026-11-04): v3.2 H4 replays the doodle until wave 7; chunk 24 rewords H4 and H5.**
+  `spec-writer`'s minor call on chunk 21's reading: H4 runs after wave 6, before chunk 24 keeps the
+  doodle, so steps 3 to 5 play the same doodle again, and H5 starts each fresh Jam by Stop and
+  Close review. Once the doodle is kept, Start Jam no longer captures, so both scripts would be
+  wrong; chunk 24 rewords them. Now in:
+  [build plan v3.2, H4](versions/v3/build-plan-v3.2.md#v32-h4--jam-listening-settings-drift-and-lock-l1),
+  [chunk 24](versions/v3/build-plan-v3.2.md#chunk-24--the-kept-doodle).

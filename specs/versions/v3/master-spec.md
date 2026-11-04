@@ -98,8 +98,11 @@ Status: this file holds four parts.
   (2026-11-03): the generator worker's chunk budget is 170 KiB (C10.9, C14; spec D451). v1.16
   (2026-11-03): the suggestion judges "no fit" before the selection (C6.3; spec D452). v1.17
   (2026-11-03): the home-note cues are flat bonuses taken off the penalty, not note weights (C6.2;
-  spec D455). Its sections are numbered C1 to C18; what v1.1 to v1.17 change is listed at the top of
-  Part C and marked in each section they touch.
+  spec D455). v1.18 (2026-11-03): phrase 1 is handed over at the barline where it is shown, and a
+  Jam whose rungs all fail ends at the deadline (C5.6, C5.7, C5.8; spec D457). v1.19 (2026-11-04):
+  until phrase 1 is on screen, Jam's empty staff is the staff judged for room (C5.13; spec D495).
+  Its sections are numbered C1 to C18; what v1.1 to v1.19 change is listed at the top of Part C and
+  marked in each section they touch.
 - **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.1
   (2026-10-12), consolidated from the v3.3 direction and the chord research; **awaiting the
   owner's approval**. The contract wording it changes (§D12) needs the owner's confirmation
@@ -2255,7 +2258,11 @@ Delete everything removes them. No preset leaves the device.
 
 ## Part C — v3.2
 
-Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.18 (2026-11-03)**: v1.17
+Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.19 (2026-11-04)**: v1.18
+with a driver ruling under the owner's delegation of minor design calls, on chunk 21's build
+(C5.13; D495): until phrase 1 is on screen, a fresh Jam's staff is Jam's empty staff, and a window
+that leaves it no room ends the Jam as a count-in end; from the read-in measure on, the session's
+staff rule judges phrase 1. v1.18 (2026-11-03): v1.17
 with two driver rulings under the owner's delegation of minor design calls, on chunk 18's build
 (C5.6, C5.7, C5.8; D457): phrase 1 is handed to the session at the barline where it is shown, and
 phrase 2 is requested then, not when phrase 1 is ready; a Jam whose rungs all fail before the
@@ -3135,6 +3142,8 @@ _Changed in v1.1:_ Vary settings, Tension across phrases and Rising tempo are no
 ### C5.13 Edge cases before phrase 1 sounds
 
 _Changed in v1.1:_ "held" follows C5.11's new meaning.
+_Changed in v1.19:_ until phrase 1 is on screen, the staff that must stay shown is Jam's empty
+staff (D495).
 
 "Ends as a count-in end" means: back to Idle, no review, nothing kept, as a v2 session ended during
 its count-in (Part A §5.1); a fresh Jam's doodle is not kept. A Jam on a kept doodle that ends
@@ -3154,7 +3163,13 @@ this way keeps it (C5.11), and Idle shows the same phrase 1 again.
   v2's 30-second reconnection rule applies. A Jam on a kept doodle has no capture, so it follows
   v2's rule from its count-in on. The mode never changes because of it (C5.1).
 - **Stop, a hidden tab, or a staff that can no longer be shown** before phrase 1 sounds: as a
-  count-in end.
+  count-in end. Until phrase 1 is on screen (a fresh Jam's count-in, the capture, the generation
+  measure, an extended wait), the staff the Jam shows is Jam's empty staff, and it is the one
+  judged: a window change that leaves it no room, or an engraving of it that fails, ends the Jam,
+  and Idle shows the staff's no-room notice if the staff still has no room. From the read-in
+  measure on, phrase 1 is on screen and the session's own staff rule judges it, in the layout the
+  session holds, as in v2. A Jam on a kept doodle shows phrase 1 from Idle, so the session's rule
+  applies from its count-in.
 - **Every rung fails** by the deadline: C5.7.
 - **A doodle of one note** is a doodle. It shapes little, sets few controls (C5.16), and gives no
   key and mode suggestion (C6.3).
