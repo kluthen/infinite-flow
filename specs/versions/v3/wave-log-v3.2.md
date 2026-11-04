@@ -1309,3 +1309,23 @@ On v3.2-w5 (head 9e03760d), reference machine (AMD Ryzen 5 PRO 8640HS, 12 thread
   change. Applied by `coding-executor` (790bd3a4; related 122 tests, typecheck, lint pass); the
   change set's Prettier formatting and a CSS comment fixed by the driver (0935c57d).
 - `doc-ids compare main v3.2-w5`: 0 collisions.
+
+### Report and merge (2026-11-03/04)
+
+- Reported to the owner 2026-11-03: chunks, gate, bundle, sync, risks (barline decisions wait
+  38 ms against Bluetooth's ~80 ms, v3.2 H7; the cutover path unmeasured until chunk 33; ISS-015
+  about 1 Jam in 80; a fresh Jam unstartable until chunk 21; `audio-transport.ts` and
+  `workspace-session-without-phrase-one.ts` at the 10-atom limit, `session-history.ts` near the
+  size limit).
+- The owner, verbatim, 2026-11-04: "go with your recomendations. merge, cleanup, push, i'll clear
+  the way for next wave". So: (a) the loader's wording names Jam's first-values save, code
+  unchanged; the three status candidates to REVIEW; merge, clean up, push.
+- `documentalist` (c74c1e58): `module_saved_data_loader` 0.7 → 0.8 (LOGIC "Saves" and EXPECTATION
+  name the one first-values save); CONTRACT 11.0.0 → 12.0.0 (MAJOR: a listed guarantee, "only a
+  change of the player's is saved", is weakened; spec D422), applied with `atd update --force` on
+  the relayed sign-off; the contract's new sentence is in change set V5, for the owner to read;
+  `module_key_suggestion` 0.3, `module_doodle_controls` 0.4, `module_jam_settings` 0.2 to REVIEW;
+  part G's stale note on `module_ranked_candidate_ordering` fixed.
+- Open after the wave: v3.2 H2 step 3 and H3 (gate L3, the owner); DR recordings (the owner); the
+  hand checks v3.2 H4–H6 before any BUSINESS atom of the Jam goes to REVIEW. Next: wave 6 (chunk
+  21 wires the fresh Jam), in a fresh session.
