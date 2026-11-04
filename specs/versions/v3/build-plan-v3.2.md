@@ -1993,7 +1993,7 @@ Record: 2dd4ab9 (20a), bcb6e60 (20b), merged 38bb6f6. Differs from the Files lin
 
 ### Chunk 21 — A fresh Jam on screen
 
-Status: in progress
+Status: merged (w6, 235d3920)
 Wave: 6
 Depends on: 18, 20, 31
 Architecture capture: how a Jam's end reaches the workspace and the review
@@ -2003,6 +2003,8 @@ raw doodle notes, the count-in's first beat, the suggestion kept by chunk 18 wit
 the controls taken from the doodle, carried for Jam's view, whose `doodle-readings` show them: the
 review shows none of them), and the state the workspace takes after it (Jam mode's Idle, session
 mode untouched). Chunk 23 builds on it.
+
+Record: 21a b80eea9c, 21b 60a7a17d, merged 235d3920. Differs: a too-narrow window before phrase 1 ends the Jam as `staff-not-shown`, judged by Jam's staff (the session's watchers judge from the read-in), to spec-writer; H4 step 3 plays the same doodle again (the kept doodle is chunk 24's), to spec-writer; the read-in is no true cross-fade (`.staff-frame` is opaque) and a portrait end leaves focus on `body` as in session mode, to ux-writer; the home note's start makes no page jump, as session mode's starting note.
 
 - **Goal:** show a fresh Jam from Start to phrase 1, the ends before phrase 1, `jam-notice`, and the
   readings filled when phrase 1 enters; enable `Start Jam`.

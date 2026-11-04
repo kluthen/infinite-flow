@@ -1367,3 +1367,20 @@ Gate CJ asked of the owner 2026-11-04: W1–W3 before chunk 30's merge, W4 (a) r
 contract bump, or (b) CONTRACT 13.0.0, before chunk 23's merge.
 
 ### Chunks
+
+- **Chunk 21** (A fresh Jam on screen), split. 21a b80eea9c (the cue row's Jam parts, the read-in,
+  phrase 1 through the workspace: `phrasesOf`'s throw gone, spec D456; Jam's driver
+  `src/jam/fresh-jam.ts`; `StartWithoutPhraseOne.checkFit` removed, the controller checks phrase
+  1's fit itself; new controller dependency `phraseOneSeams`); the first owner paused at ~190k
+  context, a fresh owner built 21b 60a7a17d (`Start Jam` enabled, the home-note start, every end
+  before phrase 1 with its focus, `jam-notice` only at the deadline, the reviewed session's Jam
+  part `ReviewedJamPart` with a new handle call `recordDoodleControls`, v3.2 H4/H5 written).
+  MERGED 235d3920. Checks: vitest related 96 files / 881 tests; typecheck, lint, format, links,
+  health clean; build; verify:boundaries (entry 286,103 B, jam-mode chunk 45,420 B); Playwright
+  Jam specs + accessibility 120 passed, new specs `--repeat-each=3`, five session-mode specs 37
+  passed; axe light/dark; debug runs 1280×800 and 740×360. Readings settled by the owner, routed:
+  narrow window before phrase 1 → `staff-not-shown` end (spec-writer); H4 step 3 without the kept
+  doodle (spec-writer); read-in cross-fade blocked by `.staff-frame`'s opaque background, portrait
+  end focus on `body` (ux-writer). Left for the sync: `rule_session_end_generates_next_phrase_one`'s
+  fresh-Jam half, the Jam part's names in `module_jam_session_end`, M22's caveat. Risk:
+  `accessibility.spec.ts` at 561 effective lines (warning 400, error 600).
