@@ -1378,7 +1378,7 @@ contract bump, or (b) CONTRACT 13.0.0, before chunk 23's merge.
   MERGED 235d3920. Checks: vitest related 96 files / 881 tests; typecheck, lint, format, links,
   health clean; build; verify:boundaries (entry 286,103 B, jam-mode chunk 45,420 B); Playwright
   Jam specs + accessibility 120 passed, new specs `--repeat-each=3`, five session-mode specs 37
-  passed; axe light/dark; debug runs 1280×800 and 740×360. Readings settled by the owner, routed:
+  passed; axe light/dark; debug runs 1280×800 and 740×360. Readings the chunk owner settled, routed:
   narrow window before phrase 1 → `staff-not-shown` end (spec-writer); H4 step 3 without the kept
   doodle (spec-writer); read-in cross-fade blocked by `.staff-frame`'s opaque background, portrait
   end focus on `body` (ux-writer). Left for the sync: `rule_session_end_generates_next_phrase_one`'s
