@@ -102,8 +102,9 @@ Status: this file holds four parts.
   Jam whose rungs all fail ends at the deadline (C5.6, C5.7, C5.8; spec D457). v1.19 (2026-11-04):
   until phrase 1 is on screen, Jam's empty staff is the staff judged for room (C5.13; spec D495).
   v1.20 (2026-11-04): the guide playback, added after approval at the owner's request (C19, and
-  C2, C3, C13, C15, C16 items 50–52, C17; spec D490–D494). Its sections are numbered C1 to C19;
-  what v1.1 to v1.20 change is listed at the top of Part C and marked in each section they touch.
+  C2, C3, C13, C15, C16 items 50–52, C17; spec D490–D494). v1.21 (2026-11-04): the guide's
+  sign-off also revises the saved settings' list and the vision (C13; spec D500). Its sections are
+  numbered C1 to C19; what v1.1 to v1.21 change is listed at the top of Part C and marked in each section they touch.
 - **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.1
   (2026-10-12), consolidated from the v3.3 direction and the chord research; **awaiting the
   owner's approval**. The contract wording it changes (§D12) needs the owner's confirmation
@@ -2260,7 +2261,10 @@ Delete everything removes them. No preset leaves the device.
 ## Part C — v3.2
 
 Jam, the key and mode suggestion, the rhythm lock and, added after approval, the guide playback.
-**Master spec v1.20 (2026-11-04)**: v1.19 with the owner's request of 2026-11-04 (C19, and C2,
+**Master spec v1.21 (2026-11-04)**: v1.20 with the guide's sign-off widened (C13; D500): besides
+`req_session_audio_mix`, it revises `rule_settings_saved_on_change`, which lists the mix's saved
+settings, and the vision, whose out-of-scope lead-line playback the melody guide is; no behaviour
+changes. v1.20 (2026-11-04): v1.19 with the owner's request of 2026-11-04 (C19, and C2,
 C3, C13, C15, C16, C17 for it; D490–D492): an optional guide playback beside the backing, two
 switches, a melody guide playing the phrase's notes at concert pitch and a rhythm guide playing its
 rhythm on the chords' roots, each with its own volume, off by default; session playback only, not
@@ -4088,6 +4092,8 @@ _Changed in v1.4:_ the owner signed off the wording (D421).
 _Changed in v1.5:_ the three atoms promoted at 8.1.0 take later bumps of their own (D422).
 _Changed in v1.9:_ the wave 2 bump also covers the kept-session stored layout's three contract
 atoms (D429) and a fresh Jam's played-notes clock (D430).
+_Changed in v1.21:_ the guide playback's sign-off also covers the saved settings' list and the
+vision's out-of-scope lead-line playback (D500).
 
 Each change is intended. Where a declared-intent entry is named, `documentalist` prepares the
 change.
@@ -4241,12 +4247,16 @@ promoted at 8.1.0, which take the later bumps above):
   `rule_jam_start_conditions`), follow v1.1: Jam mode, the kept doodle's new rule, the controls
   taken from the doodle, the steering block.
 
-**The guide playback** (C19; D490, D492). `req_session_audio_mix` (STABLE, on the contract) says
-the mix has four controls, the backing's and the click's; the two guides add four more (a switch
-and a volume each), every one as independent, operable at any moment and changing nothing that is
-generated. Its wording is revised once, `documentalist` drafting and the owner confirming it with
-the contract bump the change set's rule gives (the build plan's gate CG), as for every later bump
-above. `req_session_backing_track` is unchanged: the backing sounds as before. The guide itself
+**The guide playback** (C19; D490, D492, D500). `req_session_audio_mix` (STABLE, on the contract)
+says the mix has four controls, the backing's and the click's; the two guides add four more (a
+switch and a volume each), every one as independent, operable at any moment and changing nothing
+that is generated. `rule_settings_saved_on_change` (STABLE, on the contract) lists the mix's saved
+settings by name, so it takes in the guides' four. The vision (`vision_infinite_flow_first_release`,
+STABLE) keeps "playback of the generated lead line" out of scope, and the melody guide is that
+playback during a session: its out-of-scope line narrows to playback outside a running session or
+with a sound the player chooses, and its v3.2 paragraph names the guide. The three are revised
+once, `documentalist` drafting and the owner confirming them with one MAJOR contract bump (the
+build plan's gate CG), as for every later bump above. `req_session_backing_track` is unchanged: the backing sounds as before. The guide itself
 is new intent (a requirement and its rules, drafted from C19). The tests that change: those that
 pin the mix's four controls or its gain list (`src/audio/audio-mix.ts`'s, the transport's, the
 settings records', the mix controls'), each kept and extended with the guides.

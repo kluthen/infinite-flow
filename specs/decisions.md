@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.127
+Status: draft v2.128
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -1180,3 +1180,9 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   chunk 25 lifts a doodle-only Jam's transitional very-short disable. Now in:
   [build plan v3.2, chunk 24](versions/v3/build-plan-v3.2.md#chunk-24--the-kept-doodle),
   [chunk 25](versions/v3/build-plan-v3.2.md#chunk-25--exports-open-with-the-doodle).
+
+- **D500 (2026-11-04): gate CG covers change set part Y, the vision gap included.** The guide also
+  changes `rule_settings_saved_on_change` (it lists the mix's saved settings) and the vision, whose
+  out-of-scope lead-line playback D490 put in scope without updating it; CG is Y1–Y4 as one set
+  (CONTRACT 13.0.0), then Y5's atoms. Now in: [Part C §C13](versions/v3/master-spec.md#c13-what-v32-changes-in-v2-v30-and-v31-guarantees-and-atoms),
+  [build plan v3.2, gates](versions/v3/build-plan-v3.2.md#gates), [chunk 40](versions/v3/build-plan-v3.2.md#chunk-40--the-guide-playback).
