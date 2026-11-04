@@ -1455,3 +1455,30 @@ contract bump, or (b) CONTRACT 13.0.0, before chunk 23's merge.
   chunk 24's `jam-bar`; a set suggestion stays absent after a further key change; the answer
   named for the selected instrument.
 - All three chunks merged; wave 6's gate next.
+- Chunk 23's design calls: `ux-writer` dfa2f937, ux D456 (focus after `Jam again on this doodle`
+  follows Close review's rule until chunk 24's `jam-bar`), D457 (a set suggestion stays absent for
+  the rest of that Review), D458 (the answer is named for the selected instrument); no code change.
+
+### Wave gate (2026-11-04)
+
+On v3.2-w6 (head dfa2f937), reference machine (AMD Ryzen 5 PRO 8640HS, 12 threads, 11 GiB, Node
+22.23.4, no VM), idle, no `atd audit`, one heavy command at a time (`coding-executor`). No chunk
+of wave 6 places the sweep, so no `test:sweep`, M1 or M5.
+
+- `npm run quality`: run 1 (15:24–15:33) stopped on one flake, `session-start-conditions.spec.ts:114`
+  › 'a generation-failure banner over the retained phrase: disabled' in the pregeneration pass
+  (the banner not visible within 5 s); alone it passes 9/9 and 20/20 with pregeneration off and on;
+  no wave 6 commit touches it (last changed 65db2a48); the same kind as the flaky
+  injected-failure-vs-pregeneration e2e seen 2026-10-28. Run 2 (15:34–15:44) green, no fix commit:
+  unit 589 files / 9,153; e2e 675 (+1 skipped) and pregeneration 675; a11y 76; notation 107
+  (+4 skipped); `atd:lint`, `atd:check` pass; `lint:health` 0 errors (860 warnings). Near the
+  600-line limit: `notation-calibration.spec.ts` 591, `accessibility.spec.ts` 589 (+116 this
+  wave), `pitch-search-equivalence.spec.ts` 566, `WorkspaceShell.vue` 553, `pitch-candidates.ts`
+  553; 68 files at 10 atoms.
+- Bundle (`verify:boundaries` passes; against main a83a14f1 rebuilt on this machine): entry
+  288,120 B (+6,073 B; 19,080 B left of 307,200 B); first-load JS 350,038 B in 21 files (+5,958 B;
+  `concert-pitch`, `deep-freeze`, `rational` left it, `quantized-doodle-errors`, `timeline` joined);
+  Jam's chunk `jam-mode` 53,258 B, 30 modules (+36,285 B; lazy, under the 102,400 B budget for other
+  chunks); worker 154,170 B, unchanged (budget 174,080 B).
+- No dependency changed (`package-lock.json` unchanged; `package.json` only adds five specs to
+  `test:e2e`): no `security-advisor` check.
