@@ -6,6 +6,7 @@ version: 0.1
 priority: 1
 tags: [v3, release-v3.2, session, audio]
 parents:
+  - [[req_guide_playback]]
   - [[req_session_audio_mix]]
   - [[req_session_backing_track]]
 layer: ARCHITECTURE

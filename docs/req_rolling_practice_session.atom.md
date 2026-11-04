@@ -15,6 +15,7 @@ dependents:
   - [[module_session_rolling_display]]
   - [[module_session_staff_refill]]
   - [[req_adaptive_tempo]]
+  - [[req_guide_playback]]
   - [[req_idle_pregeneration]]
   - [[req_jam]]
   - [[req_kept_sessions]]
