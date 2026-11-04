@@ -1329,3 +1329,41 @@ On v3.2-w5 (head 9e03760d), reference machine (AMD Ryzen 5 PRO 8640HS, 12 thread
 - Open after the wave: v3.2 H2 step 3 and H3 (gate L3, the owner); DR recordings (the owner); the
   hand checks v3.2 H4–H6 before any BUSINESS atom of the Jam goes to REVIEW. Next: wave 6 (chunk
   21 wires the fresh Jam), in a fresh session.
+
+## Wave 6 (2026-11-04)
+
+Wave branch `v3.2-w6` from `main` a83a14f1 (wave 5 plus the security fixes), worktree
+`/home/bastien/work/infinite_flow-v3.2-w6`. Chunks, in order (κ 1): 21 → 30 → 23. Every
+**Depends on** is merged (waves 2–5). The owner was updating the VPS from `main` at the wave's
+start.
+
+### Preflight
+
+`documentalist`, full preflight plus captures, 2d4334b4 (no semantic index; grep over the atoms
+and the `@spec-link`s of the in-scope files; no `atd audit`).
+
+| Chunk | Verdict | Governing atoms |
+| --- | --- | --- |
+| 21 | PROCEED WITH CORRECTIONS | `req_jam`, the Jam start/phrase-1 rules, `module_session_start_without_phrase_one`; STABLE contract atoms whose signed Jam halves go live (`rule_midi_never_blocks_session`, `rule_start_while_controller_away`, `rule_silence_timeout_ends_session`, `rule_controller_loss_mid_session`, `rule_controller_reconnection_window`, `rule_session_generation_failure_ladder`, `module_session_seed_plan`); no guarantee changes (the sync drops `module_session_seed_plan`'s "Nothing in the app starts a fresh Jam yet", M22) |
+| 30 | PROCEED WITH CORRECTIONS, sign-off pending | the kept-Jam atoms; STABLE `module_kept_session_save`, `module_kept_session_changes`, `module_kept_session_reach` change: gate CJ W1–W3 |
+| 23 | PROCEED WITH CORRECTIONS, sign-off pending | the review and suggestion atoms; STABLE `module_saved_data_loader` 0.8 changes: gate CJ W4 |
+
+Captures (DRAFT 0.1): `module_jam_session_end` (chunk 21: what the review host receives from an
+ended Jam, its Jam part; the mode never changes at a Jam's end; an end before phrase 1 opens no
+review and keeps nothing), `module_kept_jam_session` (chunk 30: what a kept Jam session holds in
+chunk 22's shape; its raw-doodle-note rule depends on W1). Change set part W (W1–W5) drafted, not
+applied.
+
+Plan corrections to `spec-writer`: plan v30, 82dc9ef9 (spec D460; D458–D459 reserved elsewhere,
+O274 reserved unused; next free D461, O275): Files, Atoms, Drift check and Revisions for 21, 30,
+23; gate CJ; chunk 21's capture wording confirmed (the controls from the doodle are carried for
+Jam's view, the review shows none; Part C C5.16).
+
+Driver ruling (minor design, delegated): a kept Jam session stores its preset label as the STABLE
+`entity_kept_session_record` says; its row and review summary show no preset part. `ux-writer`
+ux D449, d84f5d6e (corrects D345; next ux D450).
+
+Gate CJ asked of the owner 2026-11-04: W1–W3 before chunk 30's merge, W4 (a) recommended, no
+contract bump, or (b) CONTRACT 13.0.0, before chunk 23's merge.
+
+### Chunks
