@@ -9,6 +9,8 @@ priority: 1
 parents:
   - [[req_jam]]
 dependents:
+  - [[module_jam_session_end]]
+  - [[module_kept_jam_session]]
   - [[rule_deleting_played_notes_keeps_quantized_doodle]]
 type: RULE
 ---

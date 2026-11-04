@@ -6,7 +6,8 @@ parents:
   - [[req_key_and_mode_suggestion]]
 priority: 1
 human_name: The Suggestion Is Shown Only After a Jam
-dependents: []
+dependents:
+  - [[module_jam_session_end]]
 type: RULE
 layer: BUSINESS
 version: 0.2

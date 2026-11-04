@@ -8,7 +8,8 @@ human_name: Deleting Played Notes Keeps the Quantized Doodle
 tags: [v3, release-v3.2, session, jam, privacy, storage]
 parents:
   - [[rule_raw_doodle_notes_are_played_notes]]
-dependents: []
+dependents:
+  - [[module_kept_jam_session]]
 version: 0.2
 ---
 

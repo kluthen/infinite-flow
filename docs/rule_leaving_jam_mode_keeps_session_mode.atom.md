@@ -7,6 +7,7 @@ parents:
 layer: BUSINESS
 human_name: Leaving Jam Mode Returns Session Mode as It Was
 dependents:
+  - [[module_jam_session_end]]
   - [[module_workspace_mode]]
 type: RULE
 version: 0.1

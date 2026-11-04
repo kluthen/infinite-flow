@@ -14,6 +14,7 @@ type: ENTITY
 layer: ARCHITECTURE
 priority: 1
 dependents:
+  - [[module_kept_jam_session]]
   - [[module_kept_session_changes]]
   - [[module_kept_session_codec]]
   - [[module_kept_session_jam_upgrade_step]]

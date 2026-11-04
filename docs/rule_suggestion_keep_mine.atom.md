@@ -9,7 +9,8 @@ priority: 1
 tags: [v3, release-v3.2, jam, key-and-mode-suggestion]
 parents:
   - [[req_key_and_mode_suggestion]]
-dependents: []
+dependents:
+  - [[module_kept_jam_session]]
 ---
 
 # Keep Mine Declines the Suggestion for Good

@@ -18,7 +18,8 @@ parents:
   - [[rule_session_ends_when_staff_too_small]]
   - [[rule_stop_ends_session]]
   - [[service_workspace_session_flow]]
-dependents: []
+dependents:
+  - [[module_jam_session_end]]
 ---
 
 # Practice Session End

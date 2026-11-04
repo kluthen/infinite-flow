@@ -11,6 +11,7 @@ parents:
 type: RULE
 dependents:
   - [[entity_kept_session_record]]
+  - [[module_kept_jam_session]]
   - [[module_kept_session_codec]]
   - [[module_kept_session_jam_upgrade_step]]
   - [[rule_kept_session_holds_no_acknowledgements]]
