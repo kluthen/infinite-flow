@@ -1125,6 +1125,39 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   [build plan v3.2, gates](versions/v3/build-plan-v3.2.md#gates),
   [chunk 21](versions/v3/build-plan-v3.2.md#chunk-21--a-fresh-jam-on-screen).
 
+- **D490 (2026-11-04): the guide playback joins v3.2's scope.** The owner's request of 2026-11-04,
+  amended the same day: a melody guide and a rhythm guide beside the backing, two independent
+  switches, both off by default, plain Web Audio, no new library, session playback only. Now in:
+  [Part C §C19](versions/v3/master-spec.md#c19-the-guide-playback), §C2, §C3, §C13, §C16 items
+  50–52.
+
+- **D491 (2026-11-04): the guide's minor calls, and its five layers.** `spec-writer`'s calls under
+  the owner's delegation of minor design: a volume per guide (per-channel gains make it natural);
+  the rhythm guide in C4–B4; a guide turned on sounds from its next planned note, one turned off is
+  silent at once; a same-pitch re-attack fades the ringing note quickly; the attack is at most half
+  the note, so every length plays; the release rings into a rest (O291); no export (O290). The
+  layers are the owner's approved design. Now in:
+  [Part C §C19](versions/v3/master-spec.md#c19-the-guide-playback), §C15.
+
+- **D492 (2026-11-04): chunk 40 builds the guide in wave 7; gates GD and CG; hand check v3.2 HG.**
+  `spec-writer`'s plan revision. No in-wave edge: chunks 24, 25, 32 and 33 touch neither the audio
+  path nor the mix. GD, the guide's controls and tokens by `ux-writer`, blocks 40b; CG, the revised
+  `req_session_audio_mix` (STABLE, on the contract), blocks chunk 40's merge. HG is a letter so it
+  collides with no hand check another branch numbers. Now in:
+  [build plan v3.2, chunk 40](versions/v3/build-plan-v3.2.md#chunk-40--the-guide-playback).
+
+- **D493 (2026-11-04): a guide note rings on into a rest after it; closes O291.** The owner's
+  ruling, "let it ring": a rest starts no note, and the note before it keeps its full release,
+  with no quick fade before a rest. Now in:
+  [Part C §C19.4](versions/v3/master-spec.md#c194-the-guides-voices), §C19.1,
+  [build plan v3.2, chunk 40 and v3.2 HG](versions/v3/build-plan-v3.2.md#chunk-40--the-guide-playback).
+
+- **D494 (2026-11-04): the guide playback is never exported; closes O290.** The owner's second
+  ruling of the day: the guide has no role in the MIDI export. No guide note is written to the
+  generated-notes MIDI file or to any other export, now or later; the exports are unchanged with
+  the guides on. Now in: [Part C §C19.5](versions/v3/master-spec.md#c195-out-of-v32), §C2, §C17,
+  [build plan v3.2, chunk 40](versions/v3/build-plan-v3.2.md#chunk-40--the-guide-playback).
+
 - **D495 (2026-11-04): until phrase 1 is on screen, Jam's empty staff is the staff judged for room.**
   The driver's ruling under the owner's delegation of minor design calls, on chunk 21's reading
   (235d3920). Before phrase 1 enters, the session's watchers have no phrase to judge, so a window
