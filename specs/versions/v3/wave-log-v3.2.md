@@ -1384,3 +1384,21 @@ contract bump, or (b) CONTRACT 13.0.0, before chunk 23's merge.
   end focus on `body` (ux-writer). Left for the sync: `rule_session_end_generates_next_phrase_one`'s
   fresh-Jam half, the Jam part's names in `module_jam_session_end`, M22's caveat. Risk:
   `accessibility.spec.ts` at 561 effective lines (warning 400, error 600).
+- Chunk 21's readings recorded: `spec-writer` 282d122e (plan v31, Part C v1.19): spec D495
+  (until phrase 1 is on screen, Jam's empty staff is the staff judged; a window leaving it no room
+  ends the Jam; `rule_jam_ending_before_phrase_one` already covers it, an optional rewording for
+  the sync), D497 (plan H4/H5 aligned with the checklist; chunk 24 rewords H4 and H5 once the doodle
+  is kept). IDs: D461–D494 are held by another worktree (`v3.2-guide-playback`), D496 and O300
+  reserved unused; next free D498, O301. `ux-writer` e0d02ca5: ux D450 (the read-in cross-fade, in
+  `components.css` only), D451 (a portrait end leaves focus on the page, both modes, accepted),
+  D452 (the design says either kind of start jumps: the build's missing jump on a note start is a
+  code gap in both modes); next ux D453.
+- Start-jump fix (ux D452), `coding-executor` 39a128ab on the wave branch: the home note's start
+  and session mode's starting-note start make the start's jump (new seam `afterNoteStart`, as
+  `heldModeNotes`); a note that opens the stale prompt doesn't. vitest related 64 files / 524
+  tests; Playwright 41 passed; typecheck, lint, format, health (warnings unchanged),
+  verify:boundaries (entry 286,684 B). No atom governs the jump. `WorkspaceShell.vue` 540 effective
+  lines (warning).
+- **Chunk 30** (Kept Jam sessions) dispatched to a `coding-leader` (worktree
+  `/home/bastien/work/infinite_flow-v3.2-c30`, branch `v3.2-c30-kept-jam`, cut before 39a128ab),
+  build only: its merge waits on gate CJ W1–W3.

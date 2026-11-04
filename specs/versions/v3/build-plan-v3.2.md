@@ -2527,7 +2527,7 @@ Record: 0d352486, merged f1ee94d2. M1 first run through the three-rung double, r
 
 ### Chunk 30 — Kept Jam sessions on the device
 
-Status: planned
+Status: in progress
 Wave: 6
 Depends on: 18, 22, CJ (W1–W3, before its merge)
 Architecture capture: what a kept Jam session holds (`module_kept_jam_session`, captured at wave
