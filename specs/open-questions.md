@@ -37,7 +37,8 @@ now stands.
 O267 (a doodle note played before the doodle's first barline, D430) was opened on 2026-10-23,
 and O268 and O269 (how the doodle's short silences and its legato rhythm are read, D433) the same
 day; O268 was closed on 2026-10-27 by the owner's answer (D440). O271 (a note start off the
-doodle's grid, D449) was opened on 2026-11-03; O270 was never issued. New IDs come from `doc-ids
+doodle's grid, D449) was opened on 2026-11-03; O270 was never issued. O290 and O291 (the guide
+playback, D491) were opened on 2026-11-04, from the range O290–O299 reserved for that branch. New IDs come from `doc-ids
 next spec O`; the IDs reserved for v3.0's waves and left unused stay unused, and O177 stays unused.
 
 Opened on 2026-10-12 with v3.3 (D261): O165–O175, richer chords. D262 closed O174 the same day.
@@ -319,3 +320,15 @@ in progress.
   did, fallback B: against the doodle only, never against the locked rhythm, such a start is a
   strong edit, Near at once wherever it falls. Needed at the Jam listening check (gate L1, after
   wave 6); nothing is built for it before.
+- **O290 - Whether the guide playback should go into the generated-notes MIDI export** _(D491;
+  [Part C §C19.5](versions/v3/master-spec.md#c195-out-of-v32))_: v3.2's guide plays in a running
+  session only. Its notes come from a pure renderer, so the MIDI file could carry them as tracks of
+  their own later, as v4's constraint 6 wants of every export. Proposed: not in v3.2; decided with
+  v4's sound-library spike or when the owner asks. Blocks nothing.
+- **O291 - Whether a guide note's ringing release may sound into the rest after it** _(D491;
+  [Part C §C19.4](versions/v3/master-spec.md#c194-the-guides-voices), [v3.2
+  HG](versions/v3/build-plan-v3.2.md#v32-hg--the-guide-playback))_: the owner asked for rests to be
+  silent and for each note to ring out after its end. A release of 300 to 800 ms rings into a short
+  rest. Proposed: let it ring, as a plucked string does; ask at HG whether the rests still sound
+  like rests. If not, the release is cut to a quick fade before a rest. Needed at HG (after wave 7);
+  chunk 40 builds it as proposed.

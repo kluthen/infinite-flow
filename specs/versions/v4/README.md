@@ -51,8 +51,12 @@ Status: direction (2026-09-25; the rhythm ratios and the rhythm editor moved her
        heaviest); the v2 latency goal still holds.
     5. `verify:boundaries` keeps its no-sample and no-audio-asset rules.
     6. The MIDI and MusicXML exports stay on the pure renderer in `src/domain/backing/`.
-  - Prepare in v2/v3 at no cost: keep the voice list behind the `audio-ports.ts` seam (today
-    `BackingVoice` is `'bass' | 'chord'`).
+  - Prepare in v2/v3 at no cost: keep the voice list behind the `audio-ports.ts` seam (until
+    v3.2, `BackingVoice` is `'bass' | 'chord'`). v3.2's guide playback does it (spec D490, D491;
+    [Part C §C19.6](../v3/master-spec.md#c196-how-it-is-built-and-v4), built by
+    [chunk 40](../v3/build-plan-v3.2.md#chunk-40--the-guide-playback)): sound roles, each role's
+    voice a data entry, the mix's gains by channel, and one Web Audio part, the bus's note
+    sounding. The owner wants those layers kept in v4: the spike replaces only that part.
   - Related: O57, the backing's voicing and timbre listening test
     ([open questions](../../open-questions.md)).
 

@@ -2255,7 +2255,13 @@ Delete everything removes them. No preset leaves the device.
 
 ## Part C — v3.2
 
-Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.18 (2026-11-03)**: v1.17
+Jam, the key and mode suggestion, the rhythm lock and, added after approval, the guide playback.
+**Master spec v1.19-guide (2026-11-04)**: v1.18 with the owner's request of 2026-11-04 (C19, and C2,
+C3, C13, C15, C16, C17 for it; D490–D492): an optional guide playback beside the backing, two
+switches, a melody guide playing the phrase's notes at concert pitch and a rhythm guide playing its
+rhythm on the chords' roots, each with its own volume, off by default; session playback only, not
+exported. It is the one behaviour v1.19-guide adds; its version name stays apart from any v1.19
+another branch takes, and is renumbered when the branches merge. v1.18 (2026-11-03): v1.17
 with two driver rulings under the owner's delegation of minor design calls, on chunk 18's build
 (C5.6, C5.7, C5.8; D457): phrase 1 is handed to the session at the barline where it is shown, and
 phrase 2 is requested then, not when phrase 1 is ready; a Jam whose rungs all fail before the
@@ -2537,6 +2543,11 @@ bump.
 - The key and mode suggestion, after a Jam, with Use it and Keep mine (C6).
 - The steering block in the request and its slot in `ifk4.`; the doodle in kept sessions (C11).
 
+**Added after approval: the guide playback** (D490, the owner's request of 2026-11-04). Two
+optional sounds beside the backing, in both modes: a melody guide playing the phrase on the sheet,
+and a rhythm guide playing its rhythm on the chords' roots, each switched on or off on its own and
+with its own volume, off by default (C19). Built in wave 7, without changing the backing.
+
 ### Out of v3.2
 
 - **The doodle's exact rhythm.** v3.2 locks and matches the nearest rhythm the app's rhythm
@@ -2568,6 +2579,8 @@ bump.
 - A doodle taken from a file or a past session's played notes (around v5, as a snippet library).
 - A pickup (notes before beat 1) or a tie across the join into phrase 1: Jam's gap makes them
   unnecessary (C5.6).
+- The guide playback in the exports, outside a running session, or with a sound the player
+  chooses (C19.5; O290).
 - **Unchanged, permanently out:** any grading, scoring, ranking or wrong-note signal; accounts,
   sharing or any server-side state.
 
@@ -2589,6 +2602,7 @@ the Speed Builder** (secondary), who wants endless fresh material at steadily hi
 | **P1.G1 — Vocabulary by exposure.** Play whatever gets generated and feel how these ideas sound. | **Partly** | Allowed rhythm changes let a player hear one rhythm varied by one small, named edit. The suggestion names the mode the player's own idea sounds in. Hearing their own idea developed is exposure too. Vary settings' allowed groups let the player choose what drifts. |
 | **P1.G2 — Real-time reading and dexterity.** | **Partly** | The rhythm lock from phrase 1: with the rhythm settled, the eyes go to the pitches. |
 | **P2.S1 — Fresh material at a steadily higher tempo.** | **Partly** | Vary settings' allowed groups: variety the player can steer (for example, keys only). |
+| **P1.G2 — Real-time reading and dexterity** (D490) | **Extended** | The guide playback (C19): a player who cannot yet read a phrase at sight hears it, its notes with the melody guide, its rhythm with the rhythm guide, while reading it. Off by default, so a player who reads without it hears what they heard before. |
 
 **The context of use** (all personas: hands, and the mouth on a wind controller, busy on the
 instrument; no clicking on screen while playing; Chrome the one supported browser) shapes four
@@ -4209,6 +4223,16 @@ promoted at 8.1.0, which take the later bumps above):
   `rule_jam_start_conditions`), follow v1.1: Jam mode, the kept doodle's new rule, the controls
   taken from the doodle, the steering block.
 
+**The guide playback** (C19; D490, D492). `req_session_audio_mix` (STABLE, on the contract) says
+the mix has four controls, the backing's and the click's; the two guides add four more (a switch
+and a volume each), every one as independent, operable at any moment and changing nothing that is
+generated. Its wording is revised once, `documentalist` drafting and the owner confirming it with
+the contract bump the change set's rule gives (the build plan's gate CG), as for every later bump
+above. `req_session_backing_track` is unchanged: the backing sounds as before. The guide itself
+is new intent (a requirement and its rules, drafted from C19). The tests that change: those that
+pin the mix's four controls or its gain list (`src/audio/audio-mix.ts`'s, the transport's, the
+settings records', the mix controls'), each kept and extended with the guides.
+
 **Draft decisions this part replaces** (recorded before the v3.2 drafts): the lock holding "the
 note starts on beats 1 and 3 and the number of notes in each measure" becomes the strict lock; "the
 generation may bend the rhythm a little for tension and release" becomes the player's allowed
@@ -4330,6 +4354,7 @@ _Changed in v1.1:_ Jam mode, its own settings, the seam, on-demand loading and J
 "Jam is a mode, not a second Start button" now reads as a mode of the app; "the doodle only orders
 candidates" narrowed to within the controls it sets.
 _Changed in v1.3:_ a fresh Jam's seeds added (D419).
+_Changed in v1.19-guide:_ the guide playback's layers added (D490, D491).
 
 - **Jam is a mode of its own, entered by a button at Idle, not a session option**, because Jam's
   settings differ from a session's (the app follows the doodle and develops it), and keeping Jam
@@ -4410,6 +4435,15 @@ _Changed in v1.3:_ a fresh Jam's seeds added (D419).
 - **Session-mode work first, then Jam mode**, because the rhythm lock's generator work (matching by
   bars, the forced bend, the rhythm changes) is shared and Jam reuses it, and session mode's half
   touches nothing of Jam's.
+- **The guide playback in five layers, plain Web Audio, no library** (C19.6; D490, D491), because
+  the owner wants it now and kept in v4, not rewritten: the notes come from a pure renderer beside
+  the backing's, so an export can use them later; they are placed on the audio clock through the
+  tempo map, at any position; each sound role's voice is a data entry behind the audio seam, and
+  each mix channel's gains are looked up by channel, so v4 adds roles without reshaping either;
+  only the few lines that turn a note into oscillators and gains know Web Audio, and they are what
+  a v4 sound library would replace. Rejected: a sound library now (the owner's choice; the no-sample
+  rule and the entry budget stay as they are), and stretching the backing's note path (whole beats
+  only, a 45 ms minimum note).
 
 ## C16. Definition of done
 
@@ -4577,6 +4611,30 @@ Jam's run at 60, 120 and 180 BPM, and at 240 BPM only if Jam keeps it (C5.17).
     owner's sign-off on their wording recorded, then each later MAJOR bump C13 names, its own
     sign-off recorded.
 
+**The guide playback (both modes; added after approval, D490)**
+
+50. **The guide's notes** (C19.1): for seeded phrases holding ties (across a barline too), rests,
+    offbeat eighths, triplets and, on a transposing instrument, written notes that differ from the
+    sounding ones, the melody guide's notes are exactly the phrase's fresh attacks, each at its
+    concert pitch and lasting its full tied length, and no note starts in a rest; the rhythm
+    guide's notes have the same starts and lengths, each on the root of the harmony event holding
+    its start, in MIDI 60–71; with both on, both lines sound, on the same starts. Each start and
+    end falls at the exact audio time of its position through the tempo map (a note on a beat at
+    that beat's click), phrase by phrase at each phrase's tempo; a sixteenth-note triplet at 240 BPM
+    (about 42 ms) is scheduled and sounds, and no length the generator writes is refused.
+51. **The guide's sound and settings** (C19.2–C19.4): both guides off by default, and then no guide
+    note is scheduled and the session's sound is the sound it had before C19 (the same recorded
+    calls on a fake output); each guide's switch and volume act on their own, with the backing on
+    and off, so all four combinations of the two guides play; a guide turned off is silent at once,
+    one turned on sounds from the next note planned; each note's release starts at its end and its
+    oscillator stops once the fade is over; a same-pitch re-attack fades the ringing note quickly at
+    the new start; Stop fades every guide note with the session; the four settings are saved and
+    loaded as the mix's are, an unreadable one taking its default; acknowledgement gives the same
+    result with the guides on as off; `npm run verify:boundaries` passes with its rules unchanged.
+52. **The owner's listening check of the guide** is recorded: each guide alone, both together (told
+    apart by ear), each with and without the backing, the ringing release, a note followed by a
+    rest (O291), and quick notes at 240 BPM.
+
 ## C17. Deferred and open
 
 _Changed in v1.1:_ the provisional answers and their checks; seven open questions with proposed
@@ -4624,6 +4682,10 @@ a whole rest of the doodle's note density value fits in it on that grid; C5.9, C
 - **O271**, whether a note start on a finer grid than the doodle's should count as a stronger edit
   against the doodle (C8; D449): proposed, the scale as written, asked at the Jam listening check
   (C16 item 32).
+- **O290**, whether the guide playback should later go into the generated-notes MIDI export
+  (C19.5; D491): proposed, not in v3.2; the pure renderer makes it possible later.
+- **O291**, whether a guide note's ringing release may sound into the rest after it (C19.4; D491):
+  proposed, yes, as a plucked string rings; asked at the guide's listening check (C16 item 52).
 
 **Measured before the gate, not open questions**: the cost of the new orderings and the sweeps
 (C5.8, C16 items 10 and 31); the forced-bend rate; the share of rhythm changes, tuned to 1 in 2
@@ -4659,7 +4721,9 @@ meanings.
 - Jam above 180 BPM, if 240 does not hold;
 - a drone under the doodle: a later candidate;
 - favoring the figures found in the doodle; presets with rhythm cues (the richer presets);
-- a doodle taken from a file or a past session: around v5.
+- a doodle taken from a file or a past session: around v5;
+- the guide playback in the exports (O290), outside a running session, or with a sound the player
+  chooses (C19.5).
 
 ## C18. Access model
 
@@ -4671,6 +4735,122 @@ sessions and their doodles, and Jam's saved settings, join the data kept for "wh
 browser profile on this device"; Delete everything removes them. The quantized doodle leaves the
 device only in the generated-notes export the player triggers, and the raw doodle notes only in the
 played-notes export; the replay key's console line stays on the device.
+
+## C19. The guide playback
+
+_Added in v1.19-guide_ (2026-11-04; D490–D492): the owner's request of that day, after this part's
+approval. It adds nothing to the generator, the request, the replay key, kept sessions or the
+exports.
+
+The guide playback is two optional sounds that play the phrase on the sheet while it is played,
+beside the backing, so a player who cannot yet read a phrase at sight hears what they are reading:
+the **melody guide** plays the phrase's notes, the **rhythm guide** plays its rhythm on the chords'
+roots (the **root** of a chord is the note it is built on and named after: C for a C major chord).
+They are listening aids only: nothing compares the player with them.
+
+### C19.1 What each guide plays
+
+- **The melody guide** plays every note of the phrase as written on the sheet, at its **concert
+  pitch**: the pitch the instrument actually sounds. On a transposing instrument the sheet is
+  written higher or lower than it sounds (a B♭ tenor saxophone's written D sounds a C, more than an
+  octave lower), and the guide plays the sounding pitch, the one the backing is in. A
+  [tie](../../../docs/music/lexicon.md#tie) joins two written notes into one sound, so a tied note
+  sounds once, held for its whole tied length, across a barline too. A
+  [rest](../../../docs/music/lexicon.md#rest) starts no note.
+- **The rhythm guide** plays the same note starts and lengths as the melody guide (a tied note once,
+  no note in a rest), but each note sounds the root of the chord in effect when the note starts:
+  the harmony event whose span holds the note's start (a phrase's chords change only on beat 1 or
+  beat 3 of a measure). Every rhythm-guide note is in one fixed
+  [octave](../../../docs/music/lexicon.md#octave), from middle C up, C4 to B4 (MIDI 60–71), well
+  above the bass's C2–B2. A note held across a chord change keeps the root it started on.
+- **Both on**: the two guides sound together, on the same starts, the melody at concert pitch and
+  the rhythm on the root in its octave.
+- Each note starts and ends exactly where its position on the sheet falls, on the audio clock,
+  through the session's tempo map: on a beat, off a beat (an offbeat eighth), or inside a triplet.
+  Every length the generator writes plays, the shortest, a sixteenth-note triplet at 240 BPM, lasting
+  about 42 ms.
+
+### C19.2 When the guides play
+
+- In a running session, in both modes: from phrase 1's first beat, every phrase the session plays,
+  at that phrase's tempo. In a Jam, the Jam's phrases, from phrase 1 on.
+- Never before phrase 1: not during the count-in, nor during a fresh Jam's capture, generation
+  measure, extended wait or read-in measure (no phrase is playing; as for the backing, C5.3).
+- Never outside a running session: the review and Idle play nothing (C19.5).
+- **Stop**: the guides fade out with every other sound of the session, in the stop fade, notes still
+  ringing included; nothing of a stopped session sounds after it.
+- **Sound only.** The guides change nothing in acknowledgement (which reads the player's MIDI
+  input), the session's timing, what is generated, what is saved with a session, or the exports.
+
+### C19.3 The settings
+
+- Two switches, **Melody guide** and **Rhythm guide**, each on or off, both **off by default**; and a
+  volume for each, beside the backing's volume. They are independent of each other, of the backing
+  and of the click: all four combinations of the two guides are valid, with the backing on or off.
+- They are audio-mix controls (`req_session_audio_mix`): reachable at all times, at Idle, in the
+  review and during a session, in both modes, shared by the two modes as the mix is.
+- During a session, a volume change applies at once; a guide turned off is silent at once, notes
+  still ringing included; a guide turned on sounds from the next of its notes the session plans
+  (within the scheduler's look-ahead, 0.2 s), so a note that started before is never caught half
+  way.
+- Saved as the mix's settings are: each its own setting record, saved when changed (a change made
+  during a session at its end), loaded tolerantly (an unreadable one takes its default: off, or the
+  design's first-load volume); a device with no such record yet loads the defaults, with no data
+  step. Visits that save nothing save neither; Delete everything resets them.
+- Where the controls sit and look, and the volume range and first-load levels (design tokens), are
+  the design's (the build plan's gate GD); a guide's volume may reach silence, as the backing's
+  does.
+
+### C19.4 The guides' voices
+
+- Each guide has **its own fixed voice**, soft and neutral, imitating no instrument, not chosen by
+  the player. Indicatively, the melody guide a sine and the rhythm guide a triangle with a short
+  plucked fade. The two must be easy to tell apart when both play the same starts, and apart from
+  the backing's bass and chords. The exact values are set by ear by the team, under the owner's
+  delegation of minor design calls, and heard at the owner's listening check (C16 item 52).
+- Made only from the browser's own oscillators and gains: no sample, no audio file, no new library.
+  The only sound ban (D260) and `npm run verify:boundaries` hold unchanged.
+- **The ringing release.** A guide note rises from silence in a few milliseconds (at most 5 ms, and
+  at most half the note), holds to its written end, then fades out exponentially over its release
+  (indicatively 300 to 800 ms), which starts at that end; its oscillator stops once the fade is
+  over. Each note has its own oscillator, so the next note starts on its own start while the last
+  one still rings, and no note is cut to make room for another.
+- A note's release also rings into a rest that follows it, as a plucked string does (proposed; O291).
+- **A same-pitch re-attack stays audible**: when a guide note starts on the pitch of that guide's
+  note still ringing, the ringing note fades out quickly at the new start (indicatively 10 to
+  20 ms), so the new note is heard as a new note and the two never sound on one pitch together.
+- The backing is unchanged: its notes, voices, envelopes and 45 ms shortest note are as before.
+
+### C19.5 Out of v3.2
+
+- The guides in the exports: not in v3.2 (O290). The notes come from a pure renderer, as v4's sound
+  library constraint 6 wants of every export, so the generated-notes MIDI file could carry them
+  later.
+- A guide outside a running session: the app has no other playback today (the review plays
+  nothing); a later playback feature decides whether it carries the guides.
+- A sound the player chooses, an instrument imitation, or a guide for the doodle.
+
+### C19.6 How it is built, and v4
+
+Five layers, so that v4 keeps them (D491; the owner does not want it rewritten in v4):
+
+1. **A pure renderer** in `src/domain/backing/`, beside the backing renderer: from a phrase's
+   concert timeline and its harmony events to the melody-guide and rhythm-guide notes, in whole-note
+   rationals, with no audio. It reads ties and rests as acknowledgement's expected notes do.
+2. **Placement on the audio clock**, beside `src/audio/backing-track.ts`: any rational position
+   placed exactly through the tempo map, where the backing's placement takes whole beats only.
+3. **The seam**, `src/audio/audio-ports.ts`: `BackingVoice` (`'bass' | 'chord'`) widens to a list of
+   sound roles (bass, chord, melody guide, rhythm guide), each role's sound a data entry (waveform,
+   peak, attack, release, and whether its release ends at the note's end or starts there), each
+   role in a mix channel. This is the "prepare at no cost" item of v4's sound-library plan
+   ([v4](../v4/README.md)).
+4. **The mix by channel**: the backing, the click and each guide have an on/off gain and a volume
+   gain, looked up by channel, not named one by one, so a role v4 adds joins without reshaping the
+   mix; the settings records follow.
+5. **Sounding**, in `src/audio/web-audio-session-bus.ts`: the only part that knows Web Audio, a
+   few dozen lines turning one note into an oscillator and its envelope. It is the one part a v4
+   sound library (Tone.js is the survey's first pick for the spike) would replace; v4's constraints
+   1 to 6 already hold for everything else.
 
 ## Part D — v3.3
 

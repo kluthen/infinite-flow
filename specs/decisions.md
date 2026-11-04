@@ -1124,3 +1124,24 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   sign-off on part W, blocks chunks 30's and 23's merges. Now in:
   [build plan v3.2, gates](versions/v3/build-plan-v3.2.md#gates),
   [chunk 21](versions/v3/build-plan-v3.2.md#chunk-21--a-fresh-jam-on-screen).
+
+- **D490 (2026-11-04): the guide playback joins v3.2's scope.** The owner's request of 2026-11-04,
+  amended the same day: a melody guide and a rhythm guide beside the backing, two independent
+  switches, both off by default, plain Web Audio, no new library, session playback only. Now in:
+  [Part C §C19](versions/v3/master-spec.md#c19-the-guide-playback), §C2, §C3, §C13, §C16 items
+  50–52.
+
+- **D491 (2026-11-04): the guide's minor calls, and its five layers.** `spec-writer`'s calls under
+  the owner's delegation of minor design: a volume per guide (per-channel gains make it natural);
+  the rhythm guide in C4–B4; a guide turned on sounds from its next planned note, one turned off is
+  silent at once; a same-pitch re-attack fades the ringing note quickly; the attack is at most half
+  the note, so every length plays; the release rings into a rest (O291); no export (O290). The
+  layers are the owner's approved design. Now in:
+  [Part C §C19](versions/v3/master-spec.md#c19-the-guide-playback), §C15.
+
+- **D492 (2026-11-04): chunk 40 builds the guide in wave 7; gates GD and CG; hand check v3.2 HG.**
+  `spec-writer`'s plan revision. No in-wave edge: chunks 24, 25, 32 and 33 touch neither the audio
+  path nor the mix. GD, the guide's controls and tokens by `ux-writer`, blocks 40b; CG, the revised
+  `req_session_audio_mix` (STABLE, on the contract), blocks chunk 40's merge. HG is a letter so it
+  collides with no hand check another branch numbers. Now in:
+  [build plan v3.2, chunk 40](versions/v3/build-plan-v3.2.md#chunk-40--the-guide-playback).

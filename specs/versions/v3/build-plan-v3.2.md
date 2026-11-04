@@ -1,6 +1,10 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v30 (2026-11-04): v29 with spec D460 written in (Part C unchanged): wave 6's preflight
+Status: v31-guide (2026-11-04): v30 with spec D490–D492 written in (master spec Part C
+v1.19-guide): new chunk 40, the guide playback, in wave 7; new gates GD (its design) and CG (its
+contract wording); new hand check v3.2 HG. Named apart from any v31 another branch takes; renumber
+it at merge to follow that one.
+v30 (2026-11-04): v29 with spec D460 written in (Part C unchanged): wave 6's preflight
 corrections to chunks 21, 30 and 23 (files, atoms, drift checks, revisions; chunk 21's capture: the
 review shows none of the controls taken from the doodle; chunk 30 stores a Jam session's preset
 label); new gate CJ, change set part W, before chunk 30's and chunk 23's merges.
@@ -52,7 +56,8 @@ wave that builds them, each signed off by the owner first (spec D422): CONTRACT 
 (gate CS), 9.0.0 at wave 1's sync (gate CN), another MAJOR at wave 2's (gate CK, chunk 12's
 replay key and chunk 22's kept-session shape, spec D429). Chunk
 IDs 0–27 keep the meaning plan v3 gave them where it still holds, since the v3.3 plan cites them;
-chunks 28–34 are new, and chunk 26 is folded into chunk 19.
+chunks 28–34 are new, chunk 40 (the guide playback, added after approval, spec D490) too, and
+chunk 26 is folded into chunk 19.
 
 ## Read first: what v3.2 changes in v2, v3.0 and v3.1
 
@@ -87,6 +92,7 @@ and the chunk adds the Jam variant beside it.
 | Vary settings moves every setting but tempo and the instrument, and throws when no move exists: `tests/unit/session/settings-mutation.spec.ts` › 'changes exactly one eligible setting by one step, never tempo or the instrument', › 'throws instead of looping when no candidate is supported'; `tests/unit/session/settings-mutation-scales.spec.ts` › 'holds one scale per eligible setting, the figure levels in the profile's last place, and never tempo or the instrument', › 'offers at least one step for every eligible setting' | [15](#chunk-15--vary-settings-allowed-groups) | Only settings of an allowed group move; with all six on, the draws are v3.1's, byte for byte. With no legal move Vary settings is unavailable at Idle; a dead end mid-session skips one mutation, recorded, and never throws. |
 | Notes before phrase 1 belong to no phrase: `tests/unit/session/session-history-played-notes.spec.ts` › 'puts the starting note and the count-in notes in no phrase' | 17 | Unchanged; in a fresh Jam the notes with a snapped start inside the doodle's measures belong to the doodle. |
 | The played-notes export drops every note before phrase 1, and both MIDI files start phrase 1 at time zero: `tests/unit/export/midi/played-notes-midi-input.spec.ts` › 'refuses an onset before its phrase starts or at or after the next phrase starts'; `tests/unit/export/midi/midi-encoder.spec.ts` › 'writes one marker per phrase with its number, phrases back to back from time zero'; `tests/unit/export/musicxml/musicxml-encoder.spec.ts` › 'lays phrases back to back from phrase 1, four full measures each, numbered 1 upward' | [25](#chunk-25--exports-open-with-the-doodle) | Unchanged outside a Jam; a Jam's files open with a "Doodle" section at time zero and phrase 1 at the next barline, the raw doodle notes in the played-notes file's section. |
+| The mix has four controls, the backing's and the click's (`req_session_audio_mix`, STABLE on the contract; `AudioMix`, `MixGain` and `mixGains` in `src/audio/audio-mix.ts` and `audio-ports.ts`; `tests/unit/audio/audio-mix.spec.ts`, `tests/e2e/audio/mix-controls.spec.ts`); the backing's voices are `BackingVoice = 'bass' \| 'chord'`, its notes on whole beats only (`wholeBeats`, `src/audio/backing-track.ts`) | [40](#chunk-40--the-guide-playback) | Two guides join the mix, a switch and a volume each, by channel; the voices become sound roles; the four controls, the backing's notes and their sound unchanged (the tests kept, guide cases beside them). |
 | The session end generates a new phrase 1 (`rule_session_end_generates_next_phrase_one`) | 21, [24](#chunk-24--the-kept-doodle) | In Jam mode, no phrase without a kept doodle; with one, phrase 1 written again from it. |
 | Kept-session records: database data version 3 (`DATABASE_DATA_VERSION`, `src/storage/database.ts`); record shapes summary 2, body 2, played notes 1 (`src/storage/records/kept-reading.ts`); the kept intent's exact field list (`INTENT_FIELDS`, `src/storage/records/kept-phrase-parsers.ts`) | [22](#chunk-22--v32s-kept-session-shape) | One database step, 4, taken once, upgrading at open only (spec D376), each shape with its own data version (spec D370): the kept intent gains the lock group and the steering block; the summary and body gain the Jam parts (data version 4 each); played notes stay at version 1, a fresh Jam's timed from its count-in (spec D430). |
 | Pre-generation's discard: its queue key `settingsKeyOf` (`src/components/workspace/workspace-pregeneration.ts`): the controls without the tempo, the figure levels, Vary settings, Tension across phrases and the restriction in force | [19](#chunk-19--the-rhythm-lock-and-what-may-vary-in-the-controls), 20, 24 | Session mode's key gains the lock, the allowed rhythm changes and the allowed groups; Jam's settings never enter it; session mode prepares nothing while Jam mode shows; Jam mode prepares only for its kept doodle, in a queue of its own. |
@@ -115,6 +121,8 @@ no release is cut before wave 7 has merged.
 | **CR** | If chunk 16 changes what `module_session_ready_phrases` (STABLE on the contract) guarantees, as the preflight expects (a ready phrase's re-derived request takes in the session's lock state): `documentalist` drafts the wording extension at wave 3's sync and the owner confirms it there, with the contract bump the change set's rule gives (spec D422, D437). As for CS, chunk 16 merges into the wave branch first, since chunks 13 and 19 build on it in the wave. | `documentalist` drafts; the owner confirms | Wave 3's sync, and so its merge into `main` | done (2026-10-26, the owner: "agreed"; change set part R; CONTRACT 11.0.0, bf64a28) |
 | **CL** | The owner confirms the wording of chunk 31's extension of `module_saved_data_loader` (STABLE, on the contract): the saved-data load hands Jam's settings records undecoded and Jam's code decodes them (`module_jam_settings`, wave 5's preflight), with the contract bump the change set's rule gives (spec D422, D454). | `documentalist` drafts; the owner confirms | Chunk 31's merge into the wave branch | done (2026-11-03, the owner: "i'll follow your recommendations": the wording as drafted at wave 5's preflight, which only follows the signed M16–M18, so no contract bump) |
 | **CJ** | The owner confirms the [change set](../../../docs/release/v3.1-v3.2-intent-change-set.md)'s part W (spec D422, D460): W1–W3 (`module_kept_session_save` 1.1 to 1.2, `module_kept_session_changes` 0.8 to 0.9, `module_kept_session_reach` 0.6 to 0.7; wording only), and W4 (`module_saved_data_loader` 0.8 to 0.9), with its choice: (a) Jam's settings made for a review save no first values, no bump; or (b) the first-values save also from a Jam session's review, CONTRACT 12.0.0 to 13.0.0 (W5). | `documentalist` drafts at wave 6's preflight (part W, done); the owner confirms | W1–W3: chunk 30's merge into the wave branch; W4 (and W5 with (b)): chunk 23's | open (asked 2026-11-04) |
+| **GD** | `ux-writer` designs the guide playback's controls ([Part C §C19.3](master-spec.md#c193-the-settings)): the `Melody guide` and `Rhythm guide` switches in `mix-controls` beside `Backing` and `Click`, a volume slider each in the `Volume` popover, the phone's compact `Volume`, and the `--mix-guide-*` tokens (range and first-load levels) in `src/styles/theme.css`, with its own ux decisions; `ux-critic` validates as usual. A minor design call under the owner's delegation (spec D491); the owner hears the result at v3.2 HG. | `ux-writer` | Chunk 40b | open |
+| **CG** | The owner confirms the revised wording of `req_session_audio_mix` (STABLE, on the contract): the mix's controls become the backing's, the click's and each guide's, all independent, operable at any moment, changing nothing generated ([Part C §C13](master-spec.md#c13-what-v32-changes-in-v2-v30-and-v31-guarantees-and-atoms)), with the contract bump the change set's rule gives (spec D422, D492); and the guide's new draft atoms from C19. | `documentalist` drafts at wave 7's preflight; the owner confirms | Chunk 40's merge into the wave branch | open |
 | **LD** | The owner ranks a handful of rhythm pairs by ear on drift's distance scale ([v3.2 H1](#v32-h1--drifts-scale-by-ear-ld)), before the scale drives the steering block's band ([C8](master-spec.md#c8-jams-drift)). A ranking that disagrees with the scale goes to `spec-writer` before chunk 8. | The owner; `spec-writer` if the ranking disagrees | Chunk 8 (wave 4) | done (2026-11-03, the owner's ranking; the scale kept with a finding, spec D449, carried to v3.2 H4 as O271) |
 | **DR** | The owner's Travel Sax recordings join the doodle set: chunk 3 writes the doodles by hand and documents how to add recorded ones (played-notes exports, kept beside their quantized form); the owner records them that way (spec D427). Chunk 28 builds and tests on the twelve hand-written doodles; each recording, as it joins, runs through the quantizer's and the mapping's tests (spec D443). | The owner | v3.2 H5, so gate L1; the release gate's tests on recorded doodles (item 25). Not chunk 28 (spec D443) | open (the owner records during wave 4) |
 | **DS** | The owner answers O268 (now closed, [spec D440](../../decisions.md)): how a short silence between two doodle notes (a detached note) is read, for the steering block's starts ([C5.9](master-spec.md#c59-what-the-doodle-feeds-the-generator)) and the silence reading ([C5.16.1](master-spec.md#c5161-the-doodle-to-controls-mapping)); `spec-writer` writes the answer into Part C and chunk 28 (spec D433). | The owner; then `spec-writer` | Chunk 28 (wave 4) | done (2026-10-27, the owner: "part of the notes", as proposed; spec D440, Part C v1.12) |
@@ -138,7 +146,7 @@ preflight does not run and no chunk carries a **Data** line
 | 4 | 20 Jam mode: the switch, Jam's code, Jam's Idle · 28 From the doodle: controls and steering block · 7 The join from the doodle · 8 Rhythm ordered by the steering block · 9 Melody follows the moves | Wave 3; DS (28, done); LD (8, done, spec D449). In-wave 28 → 7 and 28 → 8: chunk 28's capture fixes the register window the join reads and the blocks chunk 8 orders by. | merged into `main` |
 | 5 | 34 The rhythm change shares, tuned · 14 The key and mode suggestion · 17 Jam engine, part 1 · 18 Jam engine, part 2 · 29 The Jam sweep, first run · 31 Jam's settings | Wave 4; CL before chunk 31's merge. Chunk 34 has no in-wave edge and goes first, so the wave's measurements run at the tuned shares. In-wave 14 → 18: chunk 14's capture fixes the suggestion's answer type; 17 → 18: chunk 17's capture fixes the engine's way in and the capture's states. Chunk 29 has no in-wave edge: it measures through a double of chunk 18's ladder, since 17 → 18 → 29 would be a chain of three (spec D453). Chunks 34 and 29 both write `docs/generation-latency.md`, a record each adds its own subsection to, resolved at merge as a shared list; 34 merges first. Likewise `docs/session-engine.md`, an area document: 34 changes one line of the tenser flag, 17 and 18 their own parts. | merged (2026-11-04) |
 | 6 | 21 A fresh Jam on screen · 30 Kept Jam sessions · 23 The review's doodle section and the suggestion | Wave 5; CJ before chunk 30's and chunk 23's merges. In-wave 21 → 23 and 30 → 23: chunk 21's capture fixes what the review receives from an ended Jam, chunk 30's what a kept Jam session holds. Three chunks: everything else of Jam's waits on 21 or 23. L1 and L2 open at its end. | in progress |
-| 7 | 24 The kept doodle · 25 Exports open with the doodle · 32 Tap tempo · 33 240 BPM in Jam | Wave 6; J240 (33's second half). In-wave 24 → 32: both change Jam's Idle note routing, whose interface chunk 20's capture fixed. | planned |
+| 7 | 24 The kept doodle · 25 Exports open with the doodle · 32 Tap tempo · 33 240 BPM in Jam · 40 The guide playback | Wave 6; J240 (33's second half); GD (40b); CG before chunk 40's merge. In-wave 24 → 32: both change Jam's Idle note routing, whose interface chunk 20's capture fixed. Chunk 40 has no in-wave edge: it touches neither Jam's Idle notes nor the exports, and only the audio path and the mix, which no other chunk of the wave touches. | planned |
 
 The [release gate](#chunk-27--v32-release-gate) (chunk 27) follows wave 7, with L1, L2, L3 and the
 hand checks. κ is 1 ([build workflow](build-workflow.md#concurrency-and-order)).
@@ -156,6 +164,8 @@ flowchart LR
   CJ{{CJ: kept Jam sessions and Use it sign-off}}
   L{{L1, L2, L3: listening}}
   J240{{J240: 240 BPM ruling}}
+  GD{{GD: guide design}}
+  CG{{CG: audio mix sign-off}}
   subgraph W0[Wave 0]
     C0[0 Intent re-sync]
     C1[1 Token pass]
@@ -204,6 +214,7 @@ flowchart LR
     C25[25 Exports with the doodle]
     C32[32 Tap tempo]
     C33[33 240 BPM]
+    C40[40 Guide playback]
   end
   C27[27 Release gate]
   C0 --> C4
@@ -304,6 +315,10 @@ flowchart LR
   C13 --> C34
   C34 --> C27
   L --> C27
+  C21 --> C40
+  GD --> C40
+  CG --> C40
+  C40 --> C27
 ```
 
 The critical path runs 0 → 6 → 10 → 11 → 16 → 19 → 31 → 21 → 23 → 24 → 32 → 27, with LD
@@ -366,7 +381,7 @@ The [build workflow](build-workflow.md) holds for v3.2 with release name `v3.2`:
   [`HARDWARE-CHECKLIST.md`](../../../HARDWARE-CHECKLIST.md), written by the chunk the
   [list](#hand-checks) names, as numbered scripts of at most ten minutes, run in Chrome on the
   reference machine with the Travel Sax over USB; their names are "v3.2 H1" to "v3.2 H8" (H9 waived,
-  spec D417). None runs in Edge (spec D399).
+  spec D417), and "v3.2 HG" for the guide playback (spec D492). None runs in Edge (spec D399).
 
 ## Measurements and hand checks
 
@@ -616,6 +631,27 @@ Written by chunk 25; run after wave 7. About 5 minutes.
 1. Export a kept Jam session's generated notes as MusicXML and MIDI, and its played notes as MIDI.
 2. Open the MusicXML in MuseScore: a "Doodle" section first, then phrase 1 at the next barline.
 3. Open both MIDI files in a DAW: the doodle at time zero in both, phrase 1 at the same bar in both.
+
+#### v3.2 HG — The guide playback
+
+Written by chunk 40; run after wave 7. About 8 minutes. The voices' values are set by ear in chunk
+40 (spec D491); this check confirms or tunes them, a tuning being a constant change made before
+the release gate.
+
+1. Session mode, the Neutral preset, C Major, 90 BPM, Backing on; both guides off: the session sounds
+   as before.
+2. Melody guide on; play two phrases: the guide plays the notes on the sheet, a tied note once,
+   nothing where a rest is. Say whether its voice is soft enough to play along with.
+3. Melody guide off, Rhythm guide on; two phrases: the sheet's rhythm, on the chords' roots. Say
+   whether a repeated note is heard as repeated.
+4. Both on; two phrases: say whether the two voices are easy to tell apart.
+5. Backing off, both guides on; two phrases; then each guide's volume down to silence and back.
+6. Say whether a note ringing on into the rest after it still lets the rest sound like a rest
+   ([O291](../../open-questions.md#v32-build-o267)).
+7. Instrument: E-flat alto saxophone (a transposing instrument); melody guide on: it sounds in
+   tune with the backing, though the sheet is written in another key.
+8. 240 BPM, Sixteenth note density; both guides on; one phrase: the quick notes all sound. Stop
+   mid-phrase: everything fades at once.
 
 #### v3.2 H9 — waived
 
@@ -2807,6 +2843,105 @@ Architecture capture: none (two constants; the draw stays chunk 11's)
 
 Record: baa803dd, merged afca4828. As specified; M2 re-run 2026-11-03 on the reference machine (drawn 49.3–51.2 % normal, 75.5–78.7 % tenser, 0 mismatches). One test outside Files followed the shares: `tests/unit/session/session-engine-rhythm-lock.spec.ts` ("about 3 in 4 against 1 in 2"); chunk 16's Done-when wording "about twice as often" goes to `spec-writer`. M5's table stays at the earlier shares until the wave gate.
 
+### Chunk 40 — The guide playback
+
+Status: planned
+Wave: 7
+Depends on: 21 (the phrase queueing paths as wave 6 leaves them; and v2's backing, v3.0's saved
+settings); GD (40b); CG (its merge)
+Architecture capture: the guide's five layers ([Part C §C19.6](master-spec.md#c196-how-it-is-built-and-v4),
+spec D491): the pure guide renderer in `src/domain/backing/` (the phrase's concert timeline and
+harmony events to melody-guide and rhythm-guide notes, whole-note rationals); its placement on the
+audio clock at any rational position through the tempo map; the sound roles behind
+`src/audio/audio-ports.ts` (`BackingVoice` widened: bass, chord, melody guide, rhythm guide, each
+role's voice a data entry, each role in a mix channel); the mix's gains looked up by channel; and
+the one Web Audio part, the bus's note sounding. Also how a phrase's guide notes reach the
+transport: with its backing, from the same queueing call, which then takes the phrase's timeline.
+
+- **Goal:** play the guide playback exactly as C19 says, beside an unchanged backing, built so v4
+  keeps every layer but the sounding.
+- **Scope:**
+  - **The renderer** (pure): the melody guide's notes from the timeline's fresh attacks, a tie
+    continuation lengthening its note (across a barline too), a rest starting none, as
+    `deriveExpectedNotes` reads them (`src/domain/acknowledgement/expected-note.ts`), at concert
+    pitch; the rhythm guide's from the same starts and lengths, each on the root
+    (`triad.pitchClasses[0]`) of the harmony event holding its start, in MIDI 60–71. A start no
+    harmony event holds, or a malformed tie, is a typed error, never repaired.
+  - **The placement**: each note's start and end at the exact audio time of its rational position
+    through the phrase's tempo map (`beatAt`, `src/audio/click-track.ts`), so a note on a beat falls
+    at that beat's click; the backing's placement and its whole-beat check unchanged.
+  - **The seam and the voices**: the sound roles and their data entries; the bass's and chord's
+    entries give exactly today's envelopes. A guide entry: attack at most 5 ms and at most half the
+    note, held to the note's end, an exponential release starting there (300 to 800 ms, set by ear),
+    the oscillator stopped after it; the melody guide's waveform a sine, the rhythm guide's a
+    triangle with a short plucked fade (indicative; set by ear, told apart from each other and from
+    the backing). No minimum length for a guide note.
+  - **The bus**: a guide channel route per guide, faded with the others on Stop; a same-pitch
+    re-attack on a guide fades its still-ringing note in 10 to 20 ms from the new start (the bus
+    knows what it sounded, across a phrase boundary too).
+  - **The mix**: `MixGain` and `mixGains` by channel (`click`, `backing`, `melody-guide`,
+    `rhythm-guide`, each `-enable` and `-volume`; the four existing strings unchanged); the
+    transport's mix state, setters and start-up order follow. A guide switched off: its enable gain
+    0 at once, and its notes no longer sent to the bus; switched on: its notes sent from the next
+    look-ahead window on. With both off, no guide note reaches the bus.
+  - **40b, the settings and the controls**: the four settings in `AudioMix`, their records, parsers
+    and defaults (each its own record; none saved yet loads the default; no data step), the save
+    and the visits that save nothing as for the mix; `MixControls.vue` and `MixVolumePanel.vue` as
+    GD designs them, the tokens read as `readAudioMixDesign` reads the mix's.
+  - Out: any export, a guide outside a running session, a sound library, the backing's sound.
+- **Files:** `src/domain/backing/guide-renderer.ts` (new), `src/audio/guide-track.ts` (new, the
+  placement), `src/audio/audio-ports.ts`, `src/audio/audio-transport.ts`,
+  `src/audio/web-audio-session-bus.ts`, `src/audio/web-audio-output.ts`, `src/audio/audio-mix.ts`,
+  `src/components/workspace/workspace-session-start.ts` and `workspace-session-phrases.ts` (the two
+  queueing calls today; the wave preflight re-checks them after wave 6); 40b:
+  `src/storage/records/settings-record.ts`, `setting-defaults.ts`,
+  `src/components/workspace/MixControls.vue`, `MixVolumePanel.vue`, `mix-volume-popover.ts`,
+  `src/audio/browser-audio-transport.ts`; tests `tests/unit/domain/backing/guide-renderer.spec.ts`,
+  `tests/unit/audio/guide-track.spec.ts` (new), `tests/unit/audio/web-audio-session-bus.spec.ts`,
+  `web-audio-output.spec.ts`, `audio-mix.spec.ts`, `audio-transport-backing.spec.ts`,
+  `audio-transport-loaded-mix.spec.ts` and the fakes (`fake-audio.ts`,
+  `fake-web-audio-context.ts`), the settings records' tests, `tests/e2e/audio/mix-controls.spec.ts`,
+  `tests/e2e/audio/audio-guide.spec.ts` (new, into the `test:e2e` list); `docs/audio-transport.md`;
+  `HARDWARE-CHECKLIST.md` (v3.2 HG).
+- **Spec sections:** [C19](master-spec.md#c19-the-guide-playback),
+  [C13](master-spec.md#c13-what-v32-changes-in-v2-v30-and-v31-guarantees-and-atoms) (the guide
+  playback); items 50, 51, 52.
+- **Design docs:** what GD adds to
+  [`screens/phrase-workspace/handoff.md`](../../../ui_ux/screens/phrase-workspace/handoff.md)
+  (`mix-controls`, the `Volume` popover, `session-cue-actions`).
+- **Atoms:** the guide's new draft atoms, which `documentalist` drafts from C19 at wave 7's
+  preflight; (v2) `req_session_backing_track`, `rule_click_volume_never_silent`,
+  `rule_stop_ends_session`, `rule_playhead_follows_audio_clock`; (v3.0)
+  `rule_settings_saved_on_change`, `rule_saved_settings_load_tolerantly`,
+  `rule_first_phrase_waits_for_saved_settings`. Drift check: `module_session_transport_tempo_map`,
+  `module_session_start_without_phrase_one`, `rule_expected_note_window`.
+- **Revisions:** revise `req_session_audio_mix` (contract, CG).
+- **Done when:**
+  - The renderer's notes, for seeded phrases holding ties (one across a barline), rests, offbeat
+    eighths and triplets, on the C MIDI keyboard and on the E-flat alto saxophone, are the phrase's
+    attacks at concert pitch with their tied lengths, and the rhythm guide's the same starts and
+    lengths on the right roots, in 60–71 (item 50).
+  - Every placed start and end equals the time of its position through the tempo map, on beats,
+    off beats and in triplets, across two phrases at two tempos; a sixteenth-note triplet at 240 BPM
+    is scheduled and sounds on the fake context, and nothing refuses it (item 50).
+  - With both guides off, a recorded session's calls on the fake output are the same as before the
+    chunk (backing and clicks included); each of the four guide combinations, backing on and off,
+    sounds exactly its own lines; with both on, both lines share their starts (item 51).
+  - On the fake context: each guide note's release starts at its end and its oscillator stops after
+    the fade; a same-pitch re-attack fades the ringing note from the new start; a guide turned off
+    mid-session takes its enable gain to 0 at once and gets no later note, one turned on gets notes
+    from the next window; Stop fades the guide routes with the rest (item 51).
+  - The four settings reload after a change (e2e); each unreadable record loads its default; a
+    store with none of them loads both guides off; acknowledgement of a seeded played session gives
+    the same result with both guides on as off (item 51).
+  - `npm run verify:boundaries` passes with its rules unchanged; v3.2 HG written.
+- **Verification:** chunk checks; the accessibility checks of what 40b adds; a debug run in Chrome
+  with each guide alone and both together, with the backing on and off, at 90 and 240 BPM.
+- **Split rule:** 40a the sound (the renderer, the placement, the seam and voices, the bus, the
+  output, the mix's gains by channel and the transport's guide state, the two queueing calls),
+  which needs no design; 40b the settings and the controls (the records, the defaults, the mix
+  controls and popover, the tokens' use, HG written), after GD.
+
 ## Chunk 27 — v3.2 release gate
 
 Status: planned
@@ -2815,7 +2950,7 @@ Depends on: every chunk but 26 (folded into 19), L1, L2, L3, CS
 The release gate, not a wave; it keeps its chunk number because other plans link it. It runs the
 [build workflow's release gate](build-workflow.md#release-gate), plus:
 
-- `docs/release/v3.2-release-notes.md`: one row per item 1–49 of C16, then the table of every
+- `docs/release/v3.2-release-notes.md`: one row per item 1–52 of C16, then the table of every
   replaced or extended test and its v3.2 counterpart (item 48, from
   [Read first](#read-first-what-v32-changes-in-v2-v30-and-v31)), then M1–M5 with their figures and
   chunk 33's outcome, and how D406's four provisional answers were confirmed or ruled.
@@ -2823,7 +2958,7 @@ The release gate, not a wave; it keeps its chunk number because other plans link
 - The v3.1 corpus, every earlier corpus, the Vary settings corpus and the goldens re-run; the
   privacy spy (network half) with Jam sessions kept, raw notes kept and not (nothing sent).
 - `npm run verify:boundaries` with the 300 KiB entry budget and the Jam boundary (M4).
-- Hand checks v3.2 H1–H8 done (H9 waived, spec D417), each a numbered script of at most ten
+- Hand checks v3.2 H1–H8 and HG done (H9 waived, spec D417), each a numbered script of at most ten
   minutes, none on Edge or a phone.
 - `documentalist`'s post-task sync over every `release-v3.2` atom, promoting those the owner agrees
   to; every `changes-in-v3.2` atom revised; part F's drift checks done; the vision's v3.2 scope
@@ -2891,3 +3026,6 @@ owner says go.
 | 47 Delete everything | 30, 31, 24 | e2e: Jam sessions gone, Jam's and session mode's settings reset, the kept doodle let go |
 | 48 Otherwise unchanged | every wave gate | `npm run quality`; the table of [Read first](#read-first-what-v32-changes-in-v2-v30-and-v31) |
 | 49 Contract | CS, 27 | the owner's sign-off in the CONTRACT 8.0.0 notes |
+| 50 The guide's notes | 40 | renderer tests on seeded phrases (ties, rests, triplets, a transposing instrument); exact placement through the tempo map; a 42 ms note |
+| 51 The guide's sound and settings | 40 | fake-output recordings, both off identical to before; switches and volumes in all combinations; release, re-attack and Stop; settings reload e2e; acknowledgement unchanged; `verify:boundaries` |
+| 52 Guide listening | 40 (HG), 27 | the owner's recorded check |
