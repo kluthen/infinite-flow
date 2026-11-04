@@ -1,6 +1,7 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v36 (2026-11-04): v35 with spec D500 written in (master spec Part C v1.21): wave 7's preflight corrections to chunks 24, 25, 32, 33 and 40 and gates J240 and CG.
+Status: v37 (2026-11-04): v36 with no decision (Part C unchanged), after gate GD (ux D459–D463): gate GD and chunk 40 name the guides' tokens (`--mix-melody-guide-volume-*`, `--mix-rhythm-guide-volume-*`), chunk 40's design docs and its `readAudioMixDesign` docblock rewording.
+v36 (2026-11-04): v35 with spec D500 written in (master spec Part C v1.21): wave 7's preflight corrections to chunks 24, 25, 32, 33 and 40 and gates J240 and CG.
 v35 (2026-11-04): v34 with spec D490–D494 written in (master spec Part C v1.20), merged
 from the guide playback's branch: new chunk 40, the guide playback, in wave 7; new gates GD (its
 design) and CG (its contract wording); new hand check v3.2 HG; spec D493: a guide note rings on
@@ -140,7 +141,7 @@ no release is cut before wave 7 has merged.
 | **CR** | If chunk 16 changes what `module_session_ready_phrases` (STABLE on the contract) guarantees, as the preflight expects (a ready phrase's re-derived request takes in the session's lock state): `documentalist` drafts the wording extension at wave 3's sync and the owner confirms it there, with the contract bump the change set's rule gives (spec D422, D437). As for CS, chunk 16 merges into the wave branch first, since chunks 13 and 19 build on it in the wave. | `documentalist` drafts; the owner confirms | Wave 3's sync, and so its merge into `main` | done (2026-10-26, the owner: "agreed"; change set part R; CONTRACT 11.0.0, bf64a28) |
 | **CL** | The owner confirms the wording of chunk 31's extension of `module_saved_data_loader` (STABLE, on the contract): the saved-data load hands Jam's settings records undecoded and Jam's code decodes them (`module_jam_settings`, wave 5's preflight), with the contract bump the change set's rule gives (spec D422, D454). | `documentalist` drafts; the owner confirms | Chunk 31's merge into the wave branch | done (2026-11-03, the owner: "i'll follow your recommendations": the wording as drafted at wave 5's preflight, which only follows the signed M16–M18, so no contract bump) |
 | **CJ** | The owner confirms the [change set](../../../docs/release/v3.1-v3.2-intent-change-set.md)'s part W (spec D422, D460): W1–W3 (`module_kept_session_save` 1.1 to 1.2, `module_kept_session_changes` 0.8 to 0.9, `module_kept_session_reach` 0.6 to 0.7; wording only), and W4 (`module_saved_data_loader` 0.8 to 0.9), with its choice: (a) Jam's settings made for a review save no first values, no bump; or (b) the first-values save also from a Jam session's review, CONTRACT 12.0.0 to 13.0.0 (W5). | `documentalist` drafts at wave 6's preflight (part W, done); the owner confirms | W1–W3: chunk 30's merge into the wave branch; W4 (and W5 with (b)): chunk 23's | done (2026-11-04, the owner: "CJ ok, W4 (a) (Recommended)": W1–W3 as drafted, W4 option (a), W5 not taken, CONTRACT stays 12.0.0; recorded in change set part W, 87756fdc) |
-| **GD** | `ux-writer` designs the guide playback's controls ([Part C §C19.3](master-spec.md#c193-the-settings)): the `Melody guide` and `Rhythm guide` switches in `mix-controls` beside `Backing` and `Click`, a volume slider each in the `Volume` popover, the phone's compact `Volume`, and the `--mix-guide-*` tokens (range and first-load levels) in `src/styles/theme.css`, with its own ux decisions; `ux-critic` validates as usual. A minor design call under the owner's delegation (spec D491); the owner hears the result at v3.2 HG. | `ux-writer` | Chunk 40b | done (2026-11-04, ux D459–D463, `ux-critic` ALIGNED, 6d7afb1c) |
+| **GD** | `ux-writer` designs the guide playback's controls ([Part C §C19.3](master-spec.md#c193-the-settings)): the `Melody guide` and `Rhythm guide` switches in `mix-controls` beside `Backing` and `Click`, a volume slider each in the `Volume` popover, the phone's compact `Volume`, and the guides' tokens in `src/styles/theme.css`: `--mix-melody-guide-volume-{min,default}` and `--mix-rhythm-guide-volume-{min,default}`, the max and step shared (`--mix-volume-max`, `--mix-volume-step`), on the `--mix-{channel}-volume-*` pattern so `readAudioMixDesign` looks them up by the channel strings `melody-guide` and `rhythm-guide` (both guides off on first load, not a token), with its own ux decisions; `ux-critic` validates as usual. A minor design call under the owner's delegation (spec D491); the owner hears the result at v3.2 HG. | `ux-writer` | Chunk 40b | done (2026-11-04, ux D459–D463, `ux-critic` ALIGNED, 6d7afb1c) |
 | **CG** | The owner confirms the [change set](../../../docs/release/v3.1-v3.2-intent-change-set.md)'s part Y as one set (spec D422, D492, D500; [Part C §C13](master-spec.md#c13-what-v32-changes-in-v2-v30-and-v31-guarantees-and-atoms)): Y1 `req_session_audio_mix` 0.1 to 0.2 (STABLE, on the contract: the mix's controls become the backing's, the click's and each guide's, all independent, operable at any moment, changing nothing generated); Y2 `rule_settings_saved_on_change` 0.4 to 0.5 (STABLE, on the contract: it lists the mix's saved settings); Y3 the VISION `vision_infinite_flow_first_release` 0.10 to 0.11 (its out-of-scope "playback of the generated lead line", which the melody guide is); Y4 CONTRACT 12.0.0 to 13.0.0 (MAJOR); and Y5, the guide's twelve new DRAFT atoms from C19, written only after Y1–Y4 are confirmed. | `documentalist` drafts at wave 7's preflight (part Y, done); the owner confirms | Chunk 40's merge into the wave branch | open |
  **LD** | The owner ranks a handful of rhythm pairs by ear on drift's distance scale ([v3.2 H1](#v32-h1--drifts-scale-by-ear-ld)), before the scale drives the steering block's band ([C8](master-spec.md#c8-jams-drift)). A ranking that disagrees with the scale goes to `spec-writer` before chunk 8. | The owner; `spec-writer` if the ranking disagrees | Chunk 8 (wave 4) | done (2026-11-03, the owner's ranking; the scale kept with a finding, spec D449, carried to v3.2 H4 as O271) |
 | **DR** | The owner's Travel Sax recordings join the doodle set: chunk 3 writes the doodles by hand and documents how to add recorded ones (played-notes exports, kept beside their quantized form); the owner records them that way (spec D427). Chunk 28 builds and tests on the twelve hand-written doodles; each recording, as it joins, runs through the quantizer's and the mapping's tests (spec D443). | The owner | v3.2 H5, so gate L1; the release gate's tests on recorded doodles (item 25). Not chunk 28 (spec D443) | open (the owner records during wave 4) |
@@ -2985,7 +2986,12 @@ transport: with its backing, from the same queueing call, which then takes the p
   - **40b, the settings and the controls**: the four settings in `AudioMix`, their records, parsers
     and defaults (each its own record; none saved yet loads the default; no data step), the save
     and the visits that save nothing as for the mix; `MixControls.vue` and `MixVolumePanel.vue` as
-    GD designs them, the tokens read as `readAudioMixDesign` reads the mix's.
+    GD designs them, the tokens (`--mix-melody-guide-volume-{min,default}`,
+    `--mix-rhythm-guide-volume-{min,default}`, the shared `--mix-volume-max` and
+    `--mix-volume-step`) read as `readAudioMixDesign` reads the mix's, by the channel strings
+    `melody-guide` and `rhythm-guide`; both guides off by default (a default, not a token), and
+    `readAudioMixDesign`'s docblock in `src/audio/audio-mix.ts` ("Both switches start on")
+    reworded to say so.
   - Out: a guide outside a running session, a sound library, the backing's sound. Never: the guide
     in any export (spec D494).
 - **Files:** `src/domain/backing/guide-renderer.ts` (new), `src/audio/guide-track.ts` (new, the
@@ -3007,9 +3013,16 @@ transport: with its backing, from the same queueing call, which then takes the p
 - **Spec sections:** [C19](master-spec.md#c19-the-guide-playback),
   [C13](master-spec.md#c13-what-v32-changes-in-v2-v30-and-v31-guarantees-and-atoms) (the guide
   playback); items 50, 51, 52.
-- **Design docs:** what GD adds to
+- **Design docs:** what GD adds (ux D459–D463) to
   [`screens/phrase-workspace/handoff.md`](../../../ui_ux/screens/phrase-workspace/handoff.md)
-  (`mix-controls`, the `Volume` popover, `session-cue-actions`).
+  (`mix-controls`, the `Volume` popover, `session-cue-actions`);
+  [`flows/saved-data/handoff.md`](../../../ui_ux/flows/saved-data/handoff.md) (the audio mix row
+  takes in the guides; 40b reads it);
+  [`flows/play-session/handoff.md`](../../../ui_ux/flows/play-session/handoff.md) (the guides fade
+  out at a session's end and never sound before phrase 1); the tokens in
+  [`src/styles/theme.css`](../../../src/styles/theme.css); and
+  [`src/styles/components.css`](../../../src/styles/components.css), comments only (40b changes no
+  CSS rule).
 - **Atoms:** the capture `module_guide_playback_layers`; the guide's twelve new DRAFT atoms (change
   set Y5, written once CG confirms Y1–Y4): `req_guide_playback`, `rule_melody_guide_notes`,
   `rule_rhythm_guide_notes`, `rule_guide_notes_placed_exactly`, `rule_guide_plays_from_phrase_one`,
