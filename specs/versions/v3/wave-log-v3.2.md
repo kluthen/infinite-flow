@@ -1482,3 +1482,45 @@ of wave 6 places the sweep, so no `test:sweep`, M1 or M5.
   chunks); worker 154,170 B, unchanged (budget 174,080 B).
 - No dependency changed (`package-lock.json` unchanged; `package.json` only adds five specs to
   `test:e2e`): no `security-advisor` check.
+
+### Wave sync (2026-11-04)
+
+`documentalist` 8fb51a77, then 917818b5 (atd:lint, atd:check 27 atoms with impl and tests,
+lint:links, lint:health 0 errors; no `atd audit`). Change set: part W marked applied; new part X.
+
+- Chunk 21: `rule_session_end_generates_next_phrase_one` 0.2 → 0.3 (fresh-Jam half; tag kept for
+  chunk 24's half); `module_session_seed_plan` 0.4 → 0.5 (STABLE; M22's caveat dropped, no
+  guarantee changed); `module_jam_session_end` 0.1 → 0.3 (built names; then the driver's ruling on
+  two drifts: a kept Jam read back gives the same type with no suggestion and no controls; handing
+  Jam's code the Jam part comes with the kept doodle, chunk 24; `jam-notice` also goes when Jam
+  mode is left); `module_session_start_without_phrase_one` 0.3 → 0.4; D495's optional rewording
+  applied, `rule_jam_ending_before_phrase_one` 0.2 → 0.3.
+- Chunk 30: W1–W3 applied, `module_kept_session_save` 1.2, `module_kept_session_changes` 0.9,
+  `module_kept_session_reach` 0.7; `module_kept_jam_session` 0.2.
+- Chunk 23: W4 (a) applied, `module_saved_data_loader` 0.9; `module_jam_code_boundary` 0.3 (the
+  entry's full exports).
+- Drift checks aligned: `module_jam_capture` 0.3, `module_jam_idle_notes` 0.4,
+  `module_workspace_mode` 0.3, `service_session_controller` 0.9, `service_session_end` 0.4,
+  `service_workspace_session_flow` 1.10, `module_session_rolling_display` 0.7,
+  `module_session_phrase_steps` 0.2, `module_review_played_notes_lane` 0.4,
+  `module_key_suggestion` 0.4, `module_jam_settings` 0.3.
+- CONTRACT stays 12.0.0 (W5 not taken); the code meets the signed wording of chunk 21's part M
+  Jam halves and chunks 30's and 23's CS atoms. One tag added (`rule_suggestion_shown_after_jam_only`
+  above `useReviewDoodleTools`); no file pushed over 10 atoms. O267 noted in X2, no ruling.
+- Status candidates for the owner (DRAFT → REVIEW): `module_jam_capture`,
+  `module_session_start_without_phrase_one`, `module_jam_idle_notes`, `module_workspace_mode`.
+- `spec-writer` 4e73b763 (plan v34): chunk 24 hands Jam's code the ended Jam's Jam part at a
+  Jam's end (none before phrase 1; C5.13's kept-doodle split), `module_jam_session_end` in its
+  drift check.
+- `doc-ids compare main v3.2-w6`: 0 collisions, 0 warnings (spec D461–D494 are held in the
+  `v3.2-guide-playback` worktree, not on `main`).
+
+### Report to the owner (2026-11-04)
+
+Chunks 21, 30 and 23 merged, none moved; gate green with no fix (one load flake,
+`session-start-conditions.spec.ts:114`, passes alone); entry 288,120 B (+6,073 B), first-load
+350,038 B, Jam's chunk 53,258 B, worker unchanged; sync applied W1–W4, CONTRACT 12.0.0. Asked:
+the four status candidates; the merge into `main` (and push); whether to file the flake as an
+issue. Open after the wave: v3.2 H2 step 3 and H3 (gate L3); H4–H6 (gates L1, L2, now open);
+DR recordings; O267; `accessibility.spec.ts` at 589 of 600 lines and
+`notation-calibration.spec.ts` at 591 (the next chunk adding to either splits it).
