@@ -1388,7 +1388,7 @@ contract bump, or (b) CONTRACT 13.0.0, before chunk 23's merge.
   (until phrase 1 is on screen, Jam's empty staff is the staff judged; a window leaving it no room
   ends the Jam; `rule_jam_ending_before_phrase_one` already covers it, an optional rewording for
   the sync), D497 (plan H4/H5 aligned with the checklist; chunk 24 rewords H4 and H5 once the doodle
-  is kept). IDs: D461–D494 are held by another worktree (`v3.2-guide-playback`), D496 and O300
+  is kept). IDs: D461–D494 are held by another worktree (`v3.2-guide-playback`), D496 and one open-question ID
   reserved unused; next free D498, O301. `ux-writer` e0d02ca5: ux D450 (the read-in cross-fade, in
   `components.css` only), D451 (a portrait end leaves focus on the page, both modes, accepted),
   D452 (the design says either kind of start jumps: the build's missing jump on a note start is a
@@ -1438,3 +1438,20 @@ contract bump, or (b) CONTRACT 13.0.0, before chunk 23's merge.
 - **Chunk 23** (The review's doodle section and the suggestion) dispatched to a `coding-leader`
   (worktree `/home/bastien/work/infinite_flow-v3.2-c23`, branch `v3.2-c23-review-doodle`, split
   23a/23b); its merge gate CJ W4 is cleared, so it merges itself.
+- **Chunk 23** (The review's doodle section and the suggestion), split. 23a ad6cb777 (the doodle
+  section `ReviewDoodleSection.vue` with Jam's `ReviewDoodle`, the doodle engraved by the phrase
+  engraver clipped at its last barline, loading and failed-load states, the doodle's lane); the first
+  owner paused at heavy context (its tests came after the code), a fresh owner built 23b b56da067
+  (red first: `use-key-suggestion.ts`, `SuggestionRow.vue`, `Jam again on this doodle`, W4 (a)'s
+  `changeFromReview` and the deferred first-values save `firstValuesDeferred` / `saveFirstValues`,
+  v3.2 H6 written, lexicon "Key and mode suggestion" built). MERGED c1631457. Checks: vitest
+  related 46 files / 432 tests, workspace + review + Jam unit dirs 167 files / 1,549; typecheck,
+  lint, format, links, health clean; build, verify:boundaries (entry 288,120 B, jam-mode 53,258
+  B); Playwright 68 passed; axe light/dark on the doodle Review and the row (the row's in
+  `review-suggestion.spec.ts`, since `accessibility.spec.ts` is at 10 atoms); debug runs 1280×800
+  and 740×360. Routed: `spec-writer` aa99506c (plan v33): chunk 25 spells out the failed-load
+  exports (disabled with the sentence); O267 noted as built at the lane's start, not exactly "where
+  it was played" (the owner's). To `ux-writer`: focus after `Jam again on this doodle` until
+  chunk 24's `jam-bar`; a set suggestion stays absent after a further key change; the answer
+  named for the selected instrument.
+- All three chunks merged; wave 6's gate next.

@@ -150,7 +150,7 @@ preflight does not run and no chunk carries a **Data** line
 | 3 | 16 The rhythm lock in a session · 13 Session measurements · 19 The lock and What may vary in the controls | Wave 2; CS and CR before its sync. In-wave 16 → 13 and 16 → 19: chunk 16's capture fixes the session's lock state and what the session history records. Three chunks: the session half ends here, and every other session chunk is done. L3 opens at its end. | merged into `main` |
 | 4 | 20 Jam mode: the switch, Jam's code, Jam's Idle · 28 From the doodle: controls and steering block · 7 The join from the doodle · 8 Rhythm ordered by the steering block · 9 Melody follows the moves | Wave 3; DS (28, done); LD (8, done, spec D449). In-wave 28 → 7 and 28 → 8: chunk 28's capture fixes the register window the join reads and the blocks chunk 8 orders by. | merged into `main` |
 | 5 | 34 The rhythm change shares, tuned · 14 The key and mode suggestion · 17 Jam engine, part 1 · 18 Jam engine, part 2 · 29 The Jam sweep, first run · 31 Jam's settings | Wave 4; CL before chunk 31's merge. Chunk 34 has no in-wave edge and goes first, so the wave's measurements run at the tuned shares. In-wave 14 → 18: chunk 14's capture fixes the suggestion's answer type; 17 → 18: chunk 17's capture fixes the engine's way in and the capture's states. Chunk 29 has no in-wave edge: it measures through a double of chunk 18's ladder, since 17 → 18 → 29 would be a chain of three (spec D453). Chunks 34 and 29 both write `docs/generation-latency.md`, a record each adds its own subsection to, resolved at merge as a shared list; 34 merges first. Likewise `docs/session-engine.md`, an area document: 34 changes one line of the tenser flag, 17 and 18 their own parts. | merged (2026-11-04) |
-| 6 | 21 A fresh Jam on screen · 30 Kept Jam sessions · 23 The review's doodle section and the suggestion | Wave 5; CJ before chunk 30's and chunk 23's merges. In-wave 21 → 23 and 30 → 23: chunk 21's capture fixes what the review receives from an ended Jam, chunk 30's what a kept Jam session holds. Three chunks: everything else of Jam's waits on 21 or 23. L1 and L2 open at its end. | in progress |
+| 6 | 21 A fresh Jam on screen · 30 Kept Jam sessions · 23 The review's doodle section and the suggestion | Wave 5; CJ before chunk 30's and chunk 23's merges. In-wave 21 → 23 and 30 → 23: chunk 21's capture fixes what the review receives from an ended Jam, chunk 30's what a kept Jam session holds. Three chunks: everything else of Jam's waits on 21 or 23. L1 and L2 open at its end. | gate pending |
 | 7 | 24 The kept doodle · 25 Exports open with the doodle · 32 Tap tempo · 33 240 BPM in Jam | Wave 6; J240 (33's second half). In-wave 24 → 32: both change Jam's Idle note routing, whose interface chunk 20's capture fixed. | planned |
 
 The [release gate](#chunk-27--v32-release-gate) (chunk 27) follows wave 7, with L1, L2, L3 and the
@@ -2180,10 +2180,12 @@ unchanged. Chunk 30 writes the Jam parts.
 
 ### Chunk 23 — The review's doodle section and the suggestion
 
-Status: in progress
+Status: merged (w6, c1631457)
 Wave: 6
 Depends on: 14, 21, 30, CJ (W4, before its merge) (and v3.0 chunks 12 and 25)
 Architecture capture: none (it builds on chunk 21's and chunk 30's)
+
+Record: 23a ad6cb777, 23b b56da067, merged c1631457. Differs: new files `ReviewDoodleSection.vue`, `review-staff-style.ts`, `review-jam-ports.ts`, `use-review-doodle-tools.ts` (files at the 10-atom limit); the doodle drawn by the phrase engraver clipped at its last barline; O267 built as the doodle note at the lane's start (the owner's to rule); focus after `Jam again on this doodle` follows Close review's rule until chunk 24's `jam-bar`, a set suggestion stays absent after a further key change, the answer named for the selected instrument (ux-writer); Use it before Jam mode has shown makes Jam's settings from session mode's values, first values saved when Jam mode first shows (W4 (a)); the row's axe scans live in `review-suggestion.spec.ts` (`accessibility.spec.ts` at 10 atoms).
 
 - **Goal:** open a Jam session's review with the doodle as the app heard it, its played-notes lane,
   the suggestion with its two answers, and `Jam again on this doodle`, all from Jam's code.
