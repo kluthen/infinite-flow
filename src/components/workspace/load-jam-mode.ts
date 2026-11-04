@@ -11,6 +11,8 @@
 export type JamModeModule = typeof import('@/jam/jam-mode')
 
 let modulePromise: Promise<JamModeModule> | null = null
+/** Jam's code entry once loaded in this visit; null before. */
+let loadedModule: JamModeModule | null = null
 /** The URL of Jam's code entry whose fetch failed, without any query; null until one fails. */
 let failedEntryUrl: string | null = null
 /** How many retries have been made, so each one asks for a URL the browser has never failed. */
@@ -45,10 +47,25 @@ function importJamEntry(): Promise<JamModeModule> {
 // @spec-link [[module_jam_code_boundary]]
 // @spec-link [[rule_jam_code_loaded_on_demand]]
 export function loadJamMode(): Promise<JamModeModule> {
-  modulePromise ??= importJamEntry().catch((cause: unknown) => {
-    modulePromise = null
-    failedEntryUrl = failedModuleUrl(cause) ?? failedEntryUrl
-    throw cause
-  })
+  modulePromise ??= importJamEntry().then(
+    (loaded) => {
+      loadedModule = loaded
+      return loaded
+    },
+    (cause: unknown) => {
+      modulePromise = null
+      failedEntryUrl = failedModuleUrl(cause) ?? failedEntryUrl
+      throw cause
+    },
+  )
   return modulePromise
+}
+
+/**
+ * Intent: Jam's code, if it has already loaded in this visit (Jam mode opened, or a Jam session's
+ * Review loaded it), so what needs it shows it at once; null before.
+ */
+// @spec-link [[rule_jam_code_loaded_on_demand]]
+export function loadedJamMode(): JamModeModule | null {
+  return loadedModule
 }

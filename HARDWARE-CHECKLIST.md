@@ -803,3 +803,30 @@ once your recordings have joined the doodle set (gate DR, spec D443).
       notes it never had ([O269](specs/open-questions.md#v32-build-o267))?
 - [ ] For each doodle, say whether the readings and the phrases matched it; report any that did
       not. Pass on your word.
+
+## v3.2 H6. The suggestion (chunk 23; gate L2; about 10 min)
+
+Chrome on the reference machine, the Travel Sax over USB. After a Jam, its review opens with your
+doodle as the app heard it, then, when it can tell, the **key and mode suggestion**: "Your doodle
+sounds like {answer}.", with `Jam in {answer}` and `Keep {key} {mode}`. The key is the home note
+(**Written key**) and the mode the scale on it (**Collection**), both named as you read them, in
+written pitch. Run it after wave 6.
+
+- [ ] Switch the header's **Mode** to `Jam`; set Jam's **Written key** `C` and **Collection**
+      `Major`. Before each doodle, Stop and Close review if a Jam is running, so each doodle starts
+      a fresh Jam. Press nothing in the suggestion's row until the fourth step.
+- [ ] Play four doodles of two to four measures, each with at least six notes and five different
+      note names, a fresh Jam each: one plainly in G Major (ending on G), one in D Dorian (D to D
+      with no sharp or flat, ending on D), one in A Minor (ending on A), and one with a blue note
+      (C Major with E-flat, the flattened third, played often).
+- [ ] After each, read the review's suggestion: does it name what the doodle sounds in? The
+      blue-note doodle should get "Your doodle uses notes outside the app's keys and modes, so no
+      key is suggested.", naming no note. The D Dorian and A Minor doodles use the same notes as
+      C Major, so when C Major is among the close answers no suggestion shows; say which happened.
+- [ ] Use one suggestion: press `Jam in {answer}`. The row reads "Jams now play in {answer}.".
+      Close review: Jam's Written key and Collection show the answer; switch to `Session` and back:
+      session mode's key and mode have not moved. Start Jam with a new doodle: the phrases follow
+      the new key and mode.
+- [ ] Say whether Locrian ever surprised you (an answer named "... Locrian"). The weights and cues
+      are tuned from it.
+- [ ] Report. Pass on your word.

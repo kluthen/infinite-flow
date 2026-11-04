@@ -508,6 +508,42 @@ for (const theme of ['Light', 'Dark'] as const) {
   })
 }
 
+// The Review of a Jam session (v3.2 chunk 23a), in both themes: the doodle section before phrase 1,
+// engraved, with `Played notes` switched on and the doodle's lane it shows.
+for (const theme of ['Light', 'Dark'] as const) {
+  // The file is at its limit of ten atoms: the Review's and the lane's, as the scans above.
+  // @test-link [[req_last_session_review]]
+  // @test-link [[module_review_played_notes_lane]]
+  test(`has no detectable axe violations in a Jam session's Review with its doodle section, ${theme} theme`, async ({
+    page,
+  }) => {
+    test.setTimeout(120_000)
+    await gotoJamIdle(page)
+    await radio(page, 'Presentation theme', theme).click()
+    await startJamByClick(page)
+    await jamToRunning(page)
+    await sessionAction(page).click()
+    const doodle = reviewPanel(page).locator('section.review-doodle')
+    await expect(doodle.locator('[data-system-position="top"] svg')).toBeAttached({
+      timeout: 30_000,
+    })
+    await expect(reviewItems(page).first().locator('.review-staff svg').first()).toBeAttached({
+      timeout: 30_000,
+    })
+    await playedNotesToggle(page).click()
+    await expect(playedNotesToggle(page)).toHaveAttribute('aria-pressed', 'true')
+    // The doodle's lane is scanned too, with the bar of the doodle's one note.
+    await expect(doodle.getByRole('img', { name: 'Played notes, your doodle' })).toHaveCount(1)
+    await expect(doodle.locator('.played-notes-lane .played-note')).toHaveCount(1)
+    await page.waitForFunction(() =>
+      document.getAnimations().every((animation) => !(animation instanceof CSSTransition)),
+    )
+
+    const results = await new AxeBuilder({ page }).analyze()
+    expect(results.violations, describeViolations(results.violations)).toEqual([])
+  })
+}
+
 // The Review's v3.0 tools (wave 6, chunks 11, 12 and 25), in both themes: a favorite marked with
 // the comment's editor open; the Unpin and `Delete session` sheets; the played-notes sheets; and,
 // in a session whose every played note is very short, `Include very short notes` with the note

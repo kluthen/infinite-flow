@@ -50,7 +50,7 @@
  * (./use-jam-idle-cue.ts): the home note while a fresh Jam could start, or `jam-needs-controller`
  * without a connected controller, which `Start Jam` names.
  */
-import { computed, defineAsyncComponent, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, nextTick, onMounted, provide, ref, watch } from 'vue'
 
 import type { PostPrewarm } from '@/composables/generation-session-prewarm'
 import type { GenerationSession } from '@/composables/use-generation-session'
@@ -103,6 +103,7 @@ import { loadJamMode } from './load-jam-mode'
 import { useWorkspaceMode } from './use-workspace-mode'
 import { useJamIdleCue } from './use-jam-idle-cue'
 import { useJamSettings } from './use-jam-settings'
+import { REVIEW_JAM_PORTS, workspaceReviewJamPorts } from './review-jam-ports'
 import { useFreshJam } from './use-fresh-jam'
 import { freshJamCanStart, type FreshJamStartFacts } from './session-action-policy'
 import type { HeldModeNoteRoute } from './workspace-session-midi'
@@ -635,6 +636,23 @@ const reviewNavigation = useReviewNavigation({
   focusReviewTitle: () => focusParts().scorePanel.focusReviewTitle(),
   focusTarget,
 })
+
+// What a Jam session's Review reaches of the workspace's Jam: its key and mode, the shared
+// instrument, `Jam in {answer}` and `Jam again on this doodle`.
+// @spec-link [[module_workspace_mode]]
+provide(
+  REVIEW_JAM_PORTS,
+  workspaceReviewJamPorts({
+    jamSettings,
+    instrument: () =>
+      selectedInstrumentProfile(state.value.controls.instrumentProfileId, state.value.myInstrument),
+    settingChanged: () => freshJam.settingChanged(),
+    mode: () => workspaceMode.mode.value,
+    selectJam: () => workspaceMode.select('jam'),
+    jamShown: () => loadJamMode().then(() => nextTick()),
+    closeReview: (between) => reviewNavigation.closeReview(between),
+  }),
+)
 
 /**
  * Intent: move focus to the first enabled of the session action, the phrase action and

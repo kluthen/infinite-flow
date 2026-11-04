@@ -24,13 +24,17 @@ export function distanceFromVisibleArea(item: Element): number {
 }
 
 /**
- * Intent: observe every item of the list (its children, in order) for the scheduler, and the
+ * Intent: observe every item of the list for the scheduler, in its order (the list's children by
+ * default; a Jam's doodle section first, before them, when it is engraved with them), and the
  * list's width: a real width change invalidates the engravings, anything else (its block size
  * growing as positions are reserved) does not. Returns the function that stops observing.
  */
 // @spec-link [[req_last_session_review]]
-export function observeReviewList(list: HTMLElement, engraving: ReviewEngravingWindow): () => void {
-  const items = Array.from(list.children)
+export function observeReviewList(
+  list: HTMLElement,
+  engraving: ReviewEngravingWindow,
+  items: readonly Element[] = Array.from(list.children),
+): () => void {
   const indexes = new Map(items.map((item, index) => [item, index]))
 
   /** Intent: the list index of an observed item; any other target is a wiring defect. */

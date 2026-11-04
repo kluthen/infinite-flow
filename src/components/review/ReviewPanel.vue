@@ -17,12 +17,14 @@
  * notes are kept and may be deleted, `Delete played notes`, which asks the page for its
  * confirmation. Its heading row ends with the session tools (./ReviewSessionTools.vue: `Pin` /
  * `Unpin`, `Delete session`), and its comment (./ReviewComment.vue) takes a row of its own before
- * the exports; each asks the page, as each phrase's favorite star does. Then the list of the
- * session's phrases in order, each engraved lazily as it comes
+ * the exports; each asks the page, as each phrase's favorite star does. In a Jam session's Review,
+ * the doodle section (./ReviewDoodleSection.vue) comes next, before phrase 1, drawn with Jam's code
+ * and engraved first, with the controls its host gives (`Jam again on this doodle` in its header,
+ * the suggestion last). Then the list of the session's phrases in order, each engraved lazily as it comes
  * near the visible area (see ./review-engraving-window.ts) in positions reserved at the workspace
  * staff's size (its viewport and shared system-position size), so a review of any length stays
  * responsive and never moves the page as phrases are drawn. While the workspace staff has no room,
- * the room notice stands in for the list. Everything it shows comes from the session history it is
+ * the room notice stands in for the list (and for the doodle section). Everything it shows comes from the session history it is
  * given; it holds each export's state only while its file is built (see
  * ./use-review-export-action.ts), the two exports running independently and sharing one error.
  */
@@ -39,9 +41,10 @@ import {
   type StaffViewport,
 } from '@/notation/notation-layout-policy'
 import { loadVexflowEngraver } from '@/notation/vexflow-engraver-loader'
-import type { ReviewedPhrase } from '@/session/session-history'
+import type { ReviewedPhrase, SessionDoodle } from '@/session/session-history'
 import type { SessionKeeping } from '@/components/workspace/workspace-session-controller-types'
 import ReviewComment from './ReviewComment.vue'
+import ReviewDoodleSection from './ReviewDoodleSection.vue'
 import ReviewPhrase from './ReviewPhrase.vue'
 import ReviewScope from './ReviewScope.vue'
 import ReviewSessionTools from './ReviewSessionTools.vue'
@@ -62,6 +65,7 @@ import type {
   PlayedNotesUnavailable,
   ReviewEngraver,
   ReviewExportScope,
+  ReviewJamCode,
   ReviewStaffReservation,
 } from './review-types'
 
@@ -80,6 +84,10 @@ const props = withDefaults(
     presetLabel: string
     /** The session is a Jam session: its summary begins with "Jam" and names no preset. */
     isJam?: boolean
+    /** A Jam session's doodle, which its doodle section shows; null for any other session. */
+    doodle?: SessionDoodle | null
+    /** Jam's code, which draws the doodle: loading, unable to load, or loaded. */
+    jamCode?: ReviewJamCode
     /** The session's start, epoch milliseconds. */
     startedAt: number
     /** The session's length in seconds, as its kept record stores it. */
@@ -133,7 +141,12 @@ const props = withDefaults(
      */
     systemPositionUnits?: number
   }>(),
-  { systemPositionUnits: NOTATION_SYSTEM_POSITION_UNITS, isJam: false },
+  {
+    systemPositionUnits: NOTATION_SYSTEM_POSITION_UNITS,
+    isJam: false,
+    doodle: null,
+    jamCode: () => ({ state: 'loading' }),
+  },
 )
 
 const emit = defineEmits<{
@@ -408,7 +421,11 @@ function toggleKeepPlayedNotes(): void {
  */
 // @spec-link [[module_review_played_notes_lane]]
 const pitchScale = computed(() =>
-  playedNotesPitchScale(recordsWithoutVeryShortNotes(props.records)),
+  playedNotesPitchScale(
+    recordsWithoutVeryShortNotes(
+      props.doodle === null ? props.records : [...props.records, props.doodle],
+    ),
+  ),
 )
 const lanesShown = computed(() => props.holdsPlayedNote && props.playedNotesShown)
 
@@ -416,14 +433,43 @@ const lanesShown = computed(() => props.holdsPlayedNote && props.playedNotesShow
 
 /** The exposed API of one list item. */
 type ReviewPhraseApi = InstanceType<typeof ReviewPhrase>
+/** The exposed API of the doodle section, an item engraved like one. */
+type ReviewDoodleApi = InstanceType<typeof ReviewDoodleSection>
+type ReviewItemApi = Pick<ReviewPhraseApi, 'engrave' | 'showFailure' | 'release'>
 
 const listEl = ref<HTMLOListElement | null>(null)
 /** Each item's component, by list index; null once Vue removes it. */
 const phrases: (ReviewPhraseApi | null)[] = []
+const doodleSection = ref<ReviewDoodleApi | null>(null)
 
 /** Intent: keep the item component at `index` (null when Vue removes it). */
 function setPhrase(index: number, instance: unknown): void {
   phrases[index] = instance === null ? null : (instance as ReviewPhraseApi)
+}
+
+/** A Jam session's doodle section shows: it has a doodle, and the staff has room. */
+const doodleShown = computed(() => props.doodle !== null && !props.noRoom)
+/**
+ * Intent: the doodle section leaving (the room notice in its place) while one of its controls
+ * holds focus hands focus to the title; read before the section leaves the page, moved once it has.
+ */
+// @spec-link [[req_last_session_review]]
+watch(
+  doodleShown,
+  (shown) => {
+    if (shown || document.activeElement?.closest('section.review-doodle') == null) return
+    void nextTick(focusTitle)
+  },
+  { flush: 'pre' },
+)
+/** The doodle is engraved with the list, as its first item, once Jam's code has loaded. */
+const doodleItems = computed(() => (doodleShown.value && props.jamCode.state === 'loaded' ? 1 : 0))
+
+/** Intent: the engraved item at a scheduler index: the doodle first, when it is one, then phrases. */
+function itemAt(index: number): ReviewItemApi | null {
+  const offset = served?.doodleItems ?? 0
+  if (index < offset) return doodleSection.value
+  return phrases[index - offset] ?? null
 }
 
 let engraverLoad: Promise<ReviewEngraver> | null = null
@@ -456,28 +502,29 @@ async function engraveItem(index: number): Promise<ReviewEngravingOutcome | null
     engraver = await loadEngraver()
   } catch (error) {
     if (!(error instanceof NotationError)) throw error
-    const phrase = phrases[index] ?? null
-    if (phrase === null) return null
-    phrase.showFailure()
+    const item = itemAt(index)
+    if (item === null) return null
+    item.showFailure()
     return 'failed'
   }
-  const phrase = phrases[index] ?? null
-  return phrase === null ? null : phrase.engrave(engraver)
+  const item = itemAt(index)
+  return item === null ? null : item.engrave(engraver)
 }
 
 /** Intent: the item component at `index`, which the scheduler only names while it is mounted. */
-function requirePhrase(index: number): ReviewPhraseApi {
-  const phrase = phrases[index] ?? null
-  if (phrase === null) throw new Error(`Review item ${index} is not mounted.`)
-  return phrase
+function requireItem(index: number): ReviewItemApi {
+  const item = itemAt(index)
+  if (item === null) throw new Error(`Review item ${index} is not mounted.`)
+  return item
 }
 
 let engraving: ReviewEngravingWindow | null = null
 let stopObserving: (() => void) | null = null
-/** The list and records the running scheduler serves. */
+/** The list, records and doodle the running scheduler serves. */
 let served: {
   readonly list: HTMLOListElement
   readonly records: readonly ReviewedPhrase[]
+  readonly doodleItems: number
 } | null = null
 
 /** Intent: stop the list's observers and scheduler, if any. */
@@ -492,36 +539,46 @@ function stopEngraving(): void {
 /** Intent: start a scheduler and its observers for the list on screen. */
 // @spec-link [[req_last_session_review]]
 function startEngraving(list: HTMLOListElement): void {
+  const doodle: Element | null = doodleItems.value === 1 ? doodleSection.value?.$el : null
+  if (doodleItems.value === 1 && doodle === null) throw new Error('The doodle is not mounted.')
+  const items = [...(doodle === null ? [] : [doodle]), ...Array.from(list.children)]
   const scheduler = createReviewEngravingWindow({
-    itemCount: props.records.length,
+    itemCount: items.length,
     canEngrave: () => props.viewport !== null,
     distance: (index) => {
-      const item = list.children[index]
+      const item = items[index]
       if (item === undefined) throw new Error(`Review item ${index} is not in the list.`)
       return distanceFromVisibleArea(item)
     },
     engrave: engraveItem,
-    release: (index) => requirePhrase(index).release(),
+    release: (index) => requireItem(index).release(),
     nextTurn: () => new Promise((resolve) => setTimeout(resolve, 0)),
   })
   engraving = scheduler
-  served = { list, records: props.records }
-  stopObserving = observeReviewList(list, scheduler)
+  served = { list, records: props.records, doodleItems: doodleItems.value }
+  stopObserving = observeReviewList(list, scheduler, items)
 }
 
 /**
  * Intent: serve the list on screen: from the mount on, and again whenever the list is replaced
- * (shown again after no room) or the records change; nothing while the room notice stands in.
+ * (shown again after no room), the records change or the doodle joins it (Jam's code loaded);
+ * nothing while the room notice stands in.
  */
 function serveList(): void {
   const list = listEl.value
-  if (served !== null && served.list === list && served.records === props.records) return
+  if (
+    served !== null &&
+    served.list === list &&
+    served.records === props.records &&
+    served.doodleItems === doodleItems.value
+  )
+    return
   stopEngraving()
   if (list !== null) startEngraving(list)
 }
 
 onMounted(serveList)
-watch([listEl, () => props.records], serveList, { flush: 'post' })
+watch([listEl, () => props.records, doodleItems], serveList, { flush: 'post' })
 
 /**
  * Intent: a real change of the viewport or the Review's system-position size re-engraves what is
@@ -674,6 +731,21 @@ onBeforeUnmount(stopEngraving)
         Delete played notes
       </button>
     </div>
+    <ReviewDoodleSection
+      v-if="doodle !== null && doodleShown"
+      ref="doodleSection"
+      :doodle="doodle"
+      :phrase-one="records[0]!"
+      :jam-code="jamCode"
+      :viewport="viewport"
+      :reservation="reservation"
+      :system-position-units="positionUnits"
+      :played-notes-shown="lanesShown"
+      :pitch-scale="pitchScale"
+    >
+      <template #header-tools="{ noteId }"><slot name="doodle-tools" :note-id="noteId" /></template>
+      <template #suggestion><slot name="doodle-suggestion" /></template>
+    </ReviewDoodleSection>
     <ol v-if="!noRoom" ref="listEl" class="review-list">
       <ReviewPhrase
         v-for="(record, index) in records"
