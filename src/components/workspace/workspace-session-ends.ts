@@ -159,6 +159,9 @@ export function createSessionEnds(
         tellDamagedDeleted(core.deps.keptSessions.reports, outcome)
       })
     }
+    // A session started without phrase 1 (a fresh Jam's) ran no adaptive tempo and leaves session
+    // mode's Idle as it was: no tempo reached is handed over and no fresh phrase asked for.
+    if (session.phraseOne === null) return
     adaptiveTempo.sessionEnded(reviewed.tempoReached)
     void idle.actions.startFreshPhrase()
   }

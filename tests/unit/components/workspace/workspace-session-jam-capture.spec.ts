@@ -46,7 +46,6 @@ async function freshJam(): Promise<FreshJam> {
     playedNotes: (event) => {
       if (routed.fresh !== null) follow(routed.fresh)(routed.fresh.jam.note(event))
     },
-    checkFit: () => Promise.resolve(true),
     outputs: () => undefined,
   })
   const jam = createJamCapture({ startAt: session.timeline.startAt, tempo: RIG_TEMPO })

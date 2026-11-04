@@ -4,6 +4,7 @@
  * controller. The workspace supplies them; `workspace-session-controller-types.ts` re-exports them
  * beside the controller's state and actions.
  */
+import type { RequestId } from '@/domain/generation/generation-request-envelope'
 import type { Seed } from '@/domain/random/seed'
 import type { HeldModeNoteRoute } from './workspace-session-midi'
 import type { InstrumentClef } from '@/domain/profile/instrument-clef'
@@ -65,6 +66,16 @@ export type StaffFitPlanner = (
 ) => StaffFitVerdict
 
 /**
+ * The seams phrase 1's attempts are built with in a session started without phrase 1: the page's
+ * one request-id source and the window's width reading.
+ */
+// @spec-link [[service_session_controller]]
+export interface PhraseOneAttemptSeams {
+  readonly nextRequestId: () => RequestId
+  readonly isBelowTabletLandscape: () => boolean
+}
+
+/**
  * What the controller drives: the Idle state, its fresh-phrase action (a session end once phrase 1
  * has sounded asks it for the next phrase), and the written phrase Idle shows (phrase 1, which a
  * session's staff keeps showing as the very same object), the audio, the browser, runners and its
@@ -122,6 +133,13 @@ export interface SessionControllerDependencies {
    * there is no Idle result to take the session seed from.
    */
   readonly nextSessionSeed: () => Seed
+  /**
+   * What a session started without phrase 1 lends the code that runs it for phrase 1's attempts:
+   * the page-wide request ids every generation request draws from, and whether the window is
+   * below the tablet-landscape width now.
+   */
+  // @spec-link [[service_session_controller]]
+  readonly phraseOneSeams: PhraseOneAttemptSeams
   /**
    * Build the Idle pre-generation queue's orchestrator over the controller's run conditions and
    * Idle reading; the workspace binds it to the one generation worker, the slot and the policy.

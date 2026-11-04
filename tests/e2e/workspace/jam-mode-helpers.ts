@@ -51,7 +51,7 @@ export async function expectChecked(page: Page, label: ModeLabel): Promise<void>
 /** Intent: session mode's staff viewport (Jam's view has one of its own). */
 export function sessionViewport(page: Page): Locator {
   return page
-    .locator('.score-panel > .staff-viewport')
+    .locator('.score-panel > div > .staff-viewport')
     .filter({ hasNot: page.locator('.staff-jam') })
 }
 

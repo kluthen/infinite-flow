@@ -41,6 +41,21 @@ describe('phrase 1 from an instant generator', () => {
     },
   )
 
+  // @test-link [[rule_doodle_sets_jam_controls]]
+  it('gives the controls read from the doodle right after the hand-over, and only then', () => {
+    const run = runJam({ tempo: 120, doodle: ONE_MEASURE, until: 20 })
+    const kinds = run.ladder.map((output) =>
+      output.kind === 'session-event' ? output.event.kind : output.kind,
+    )
+    const handedOver = kinds.indexOf('phrase-one')
+    expect(kinds.filter((kind) => kind === 'readings')).toHaveLength(1)
+    expect(kinds[handedOver + 1]).toBe('readings')
+    const readings = run.ladder.find((output) => output.kind === 'readings')
+    expect(readings?.at).toBeGreaterThanOrEqual(barline(run, 2))
+    expect(readings?.at).toBeLessThan(barline(run, 3))
+    expect(readings?.kind === 'readings' && readings.readings.noteDensity.value).toBe('Quarter')
+  })
+
   // @test-link [[module_session_look_ahead_timing]]
   it("asks phrase 2 once phrase 1 is handed over, due at the start of phrase 1's last measure", () => {
     const run = runJam({ tempo: 120, doodle: ONE_MEASURE, until: 20 })

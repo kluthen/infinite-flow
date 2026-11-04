@@ -146,14 +146,14 @@ export async function untilIdleDrawn(page: Page): Promise<void> {
 /** Intent: the clef glyphs the workspace's staff draws now. */
 export function staffClefs(page: Page): Promise<string[]> {
   return page
-    .locator('.score-panel > .staff-viewport svg.staff-svg g.vf-clef > text')
+    .locator('.score-panel > div > .staff-viewport svg.staff-svg g.vf-clef > text')
     .evaluateAll((texts) => texts.map((text) => text.textContent ?? ''))
 }
 
 /** Intent: each workspace staff SVG's `viewBox` height: the shared system-position size. */
 export function staffHeights(page: Page): Promise<number[]> {
   return page
-    .locator('.score-panel > .staff-viewport svg.staff-svg')
+    .locator('.score-panel > div > .staff-viewport svg.staff-svg')
     .evaluateAll((svgs) => svgs.map((svg) => Number(svg.getAttribute('viewBox')!.split(' ')[3])))
 }
 

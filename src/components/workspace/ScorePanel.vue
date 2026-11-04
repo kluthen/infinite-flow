@@ -27,7 +27,14 @@
  * exactly as it was left, and the generation-failure banner is hidden; the Review hides Jam's view
  * the same way. Jam's view gets the props the workspace gives it (`jamViewProps`); what its staff
  * shows is passed on (`jam-staff-state`), and its `retryNotation()` is reached through
- * `retryJamNotation()`. The cue row is given Jam's Idle cue (`jamCue`) as it is. The score title,
+ * `retryJamNotation()`. As a fresh Jam's phrase 1 enters (the controller's session staff set in
+ * Jam mode: its read-in, then its session), the session's staff viewport comes in sight, `staff-ready`
+ * with none of session mode's overlays whatever its Idle shows (its state untouched, the banner
+ * still hidden), while Jam's view, laid over it in the same place, leaves (`leaving`): its empty
+ * system fades out as phrase 1 fades in, and once it reports `left` it goes out of sight and inert,
+ * still mounted; when the session staff goes, it comes back in sight as it was. The session's
+ * viewport stays the first `staff-viewport` in DOM order. The cue row is given Jam's Idle cue
+ * (`jamCue`) and a fresh Jam's cue row parts and phase (`jamSession`) as they are. The score title,
  * which also names the staff frame, follows the mode shown: `Jam` while Jam's view shows, else
  * `Four-measure phrase` (while Jam's code loads too).
  */
@@ -54,6 +61,7 @@ import {
 } from '@/storage/records/setting-defaults'
 import MixControls from './MixControls.vue'
 import SessionCueRow from './SessionCueRow.vue'
+import type { JamSessionCue } from './jam-session-cue'
 import type { JamCue } from './use-jam-idle-cue'
 import { useScoreOverlays } from './use-score-overlays'
 import type { MixVolumePopover } from './mix-volume-popover'
@@ -108,6 +116,8 @@ const props = withDefaults(
     jamViewProps?: JamWorkspaceProps | null
     /** What the cue row holds in the starting-note line's place in Jam mode; null (the default) else. */
     jamCue?: JamCue | null
+    /** A fresh Jam's cue row parts and phase while it runs, for the cue row; null (the default) else. */
+    jamSession?: JamSessionCue | null
   }>(),
   {
     // Default: the notation layout's own width query (the split layout's), read from the window now.
@@ -118,6 +128,7 @@ const props = withDefaults(
     jamView: null,
     jamViewProps: null,
     jamCue: null,
+    jamSession: null,
   },
 )
 
@@ -143,13 +154,52 @@ const review = useReviewHost({
   saveSettings: injectSaveSettings(),
 })
 const reviewShowing = review.showing
-/** Session mode's staff is out of sight: under the Review, or while Jam mode shows. */
-const sessionStaffAway = computed(() => reviewShowing.value || props.jamView !== null)
+
+/**
+ * Intent: the running session's staff, which PhraseScore shows instead of the Idle phrase; null
+ * with no session (or no controller loaded yet), so it shows Idle.
+ */
+// @spec-link [[module_session_rolling_display]]
+const sessionStaff = computed(() => props.controller?.state.sessionStaff ?? null)
+
+/**
+ * Intent: whether a fresh Jam's phrase 1 has entered the session's staff (its read-in, then its
+ * session): Jam mode shows and the controller's session staff is set.
+ */
+// @spec-link [[module_session_rolling_display]]
+const jamPhraseOneIn = computed(() => props.jamView !== null && sessionStaff.value !== null)
+
+/**
+ * Session mode's staff is out of sight: under the Review, or while Jam mode shows until a fresh
+ * Jam's phrase 1 enters it.
+ */
+const sessionStaffAway = computed(
+  () => reviewShowing.value || (props.jamView !== null && !jamPhraseOneIn.value),
+)
+
+/** Jam's view has reported it left as phrase 1 entered; cleared when the session staff goes. */
+const jamLeft = ref(false)
+
+/** Intent: the session staff gone (the session ended), Jam's view comes back in sight. */
+watch(jamPhraseOneIn, (entered) => {
+  if (!entered) jamLeft.value = false
+})
+
+/** Jam's view is out of sight: under the Review, or once it has left as phrase 1 entered. */
+const jamViewAway = computed(() => reviewShowing.value || jamLeft.value)
+
+/** While it leaves, Jam's view lies over the session's viewport, in the same place. */
+const JAM_LEAVING_STYLE = 'position: absolute; inset: 0'
+/** What lays the two viewports in the same place: the session's, and Jam's while it leaves. */
+const STAFF_STACK_STYLE = 'position: relative'
 /**
  * The score title: one per mode, following the mode the workspace shows, not the switch, so it
  * still reads "Four-measure phrase" while Jam's code loads.
  */
 const scoreTitle = computed(() => (props.jamView !== null ? 'Jam' : 'Four-measure phrase'))
+
+/** The generation-failure banner is hidden under the Review and in Jam mode. */
+const bannerAway = computed(() => reviewShowing.value || props.jamView !== null)
 
 const roomNoticeElement = ref<HTMLElement | null>(null)
 
@@ -334,6 +384,8 @@ watch(
 // @spec-link [[service_idle_generation_session]]
 // @spec-link [[rule_staff_needs_room_notice]]
 const staffFrameStateClass = computed(() => {
+  // A fresh Jam's phrase 1 shows over session mode's Idle, whatever that Idle shows.
+  if (jamPhraseOneIn.value) return 'staff-ready'
   // The notice holds the frame through a round under it, dimmed as the Loading it is.
   if (state.value.roomNotice !== null) {
     return state.value.operation === 'idle' ? 'staff-no-room' : 'staff-no-room staff-loading'
@@ -358,7 +410,7 @@ const staffFrameStateClass = computed(() => {
  */
 // @spec-link [[rule_staff_needs_room_notice]]
 const showEmptyInstruction = computed(
-  () => props.pendingPhrase === null && state.value.roomNotice === null,
+  () => props.pendingPhrase === null && state.value.roomNotice === null && !jamPhraseOneIn.value,
 )
 
 /**
@@ -368,18 +420,16 @@ const showEmptyInstruction = computed(
 // @spec-link [[module_notation_layout_preflight]]
 // @spec-link [[rule_staff_needs_room_notice]]
 const notationErrorMessage = computed(() =>
-  state.value.roomNotice === null ? (state.value.notationError?.message ?? null) : null,
+  state.value.roomNotice === null && !jamPhraseOneIn.value
+    ? (state.value.notationError?.message ?? null)
+    : null,
 )
 
-/** Intent: the notice's cause, for the markup: which sentence `room-notice` holds. */
-const roomNotice = computed(() => state.value.roomNotice)
-
 /**
- * Intent: the running session's staff, which PhraseScore shows instead of the Idle phrase; null
- * with no session (or no controller loaded yet), so it shows Idle.
+ * Intent: the notice's cause, for the markup: which sentence `room-notice` holds; none while a
+ * fresh Jam's phrase 1 shows.
  */
-// @spec-link [[module_session_rolling_display]]
-const sessionStaff = computed(() => props.controller?.state.sessionStaff ?? null)
+const roomNotice = computed(() => (jamPhraseOneIn.value ? null : state.value.roomNotice))
 
 /** Intent: the controller's marks PhraseScore draws on the score; see useScoreOverlays. */
 const overlays = useScoreOverlays(() => props.controller)
@@ -427,7 +477,7 @@ const generationErrorAlertText = computed(() =>
     <p
       v-if="generationErrorAlertText !== null"
       class="inline-alert alert-error"
-      :hidden="sessionStaffAway"
+      :hidden="bannerAway"
     >
       {{ generationErrorAlertText }}
     </p>
@@ -436,66 +486,74 @@ const generationErrorAlertText = computed(() =>
       :audio="audio"
       :mix-popover="mixPopover"
       :jam-cue="jamCue"
+      :jam-session="jamSession"
       :hidden="reviewShowing"
       @stop="emit('stop-session')"
       @show-review="emit('show-review')"
       @show-sessions="emit('show-sessions')"
     />
-    <!-- Out of sight, not hidden, under the Review and in Jam mode: the staff keeps its geometry.
-         `inert` is bound as present or absent, never "false", which a DOM without the property
-         would keep. -->
-    <div
-      class="staff-viewport"
-      :class="{ 'is-out-of-sight': sessionStaffAway }"
-      :inert="sessionStaffAway || undefined"
-    >
-      <div class="staff-frame" :class="staffFrameStateClass" aria-labelledby="score-panel-title">
-        <!-- The idle phrase is the phrase a session starts with, phrase 1. -->
-        <PhraseScore
-          :phrase="pendingPhrase"
-          :phrase-number="1"
-          :session="sessionStaff"
-          :overlays="overlays"
-          :system-position-units="systemPositionUnits"
-          @engraved="handleEngraved"
-          @notation-error="handleNotationError"
-          @session-staff-failed="handleSessionStaffFailed"
-          @layout-inputs="handleStaffLayoutInputs"
-        >
-          <p v-if="showEmptyInstruction" class="staff-empty-copy">Generate a phrase to begin.</p>
-          <!-- The stylesheet shows one no-room sentence by the notation layout's width query. -->
-          <p
-            v-if="roomNotice === 'no_room'"
-            ref="roomNoticeElement"
-            class="room-notice"
-            tabindex="-1"
+    <!-- The session's viewport and Jam's view, laid in the same place while Jam's view leaves. -->
+    <div :style="STAFF_STACK_STYLE">
+      <!-- Out of sight, not hidden, under the Review and in Jam mode: the staff keeps its geometry.
+           `inert` is bound as present or absent, never "false", which a DOM without the property
+           would keep. -->
+      <div
+        class="staff-viewport"
+        :class="{ 'is-out-of-sight': sessionStaffAway }"
+        :inert="sessionStaffAway || undefined"
+      >
+        <div class="staff-frame" :class="staffFrameStateClass" aria-labelledby="score-panel-title">
+          <!-- The idle phrase is the phrase a session starts with, phrase 1. -->
+          <PhraseScore
+            :phrase="pendingPhrase"
+            :phrase-number="1"
+            :session="sessionStaff"
+            :overlays="overlays"
+            :system-position-units="systemPositionUnits"
+            @engraved="handleEngraved"
+            @notation-error="handleNotationError"
+            @session-staff-failed="handleSessionStaffFailed"
+            @layout-inputs="handleStaffLayoutInputs"
           >
-            <span class="room-notice-wide">{{ ROOM_NOTICE_WIDE }}</span>
-            <span class="room-notice-narrow">{{ ROOM_NOTICE_NARROW }}</span>
-          </p>
-          <p
-            v-else-if="roomNotice === 'notes_too_wide'"
-            ref="roomNoticeElement"
-            class="room-notice"
-            tabindex="-1"
-          >
-            {{ ROOM_NOTICE_TOO_MANY_NOTES }}
-          </p>
-          <p v-if="notationErrorMessage !== null" class="inline-alert alert-error">
-            Notation error: {{ notationErrorMessage }}
-          </p>
-        </PhraseScore>
+            <p v-if="showEmptyInstruction" class="staff-empty-copy">Generate a phrase to begin.</p>
+            <!-- The stylesheet shows one no-room sentence by the notation layout's width query. -->
+            <p
+              v-if="roomNotice === 'no_room'"
+              ref="roomNoticeElement"
+              class="room-notice"
+              tabindex="-1"
+            >
+              <span class="room-notice-wide">{{ ROOM_NOTICE_WIDE }}</span>
+              <span class="room-notice-narrow">{{ ROOM_NOTICE_NARROW }}</span>
+            </p>
+            <p
+              v-else-if="roomNotice === 'notes_too_wide'"
+              ref="roomNoticeElement"
+              class="room-notice"
+              tabindex="-1"
+            >
+              {{ ROOM_NOTICE_TOO_MANY_NOTES }}
+            </p>
+            <p v-if="notationErrorMessage !== null" class="inline-alert alert-error">
+              Notation error: {{ notationErrorMessage }}
+            </p>
+          </PhraseScore>
+        </div>
       </div>
+      <!-- Jam's view, its own staff-viewport where the session's (out of sight) takes no room; laid
+           over it while it leaves, as a fresh Jam's phrase 1 enters it. -->
+      <component
+        :is="jamView"
+        v-if="jamView !== null"
+        ref="jamViewInstance"
+        v-bind="jamViewProps ?? {}"
+        :leaving="jamPhraseOneIn"
+        :class="{ 'is-out-of-sight': jamViewAway }"
+        :style="jamPhraseOneIn ? JAM_LEAVING_STYLE : undefined"
+        :inert="jamViewAway || undefined"
+        @staff-state="emit('jam-staff-state', $event)"
+        @left="jamLeft = true"
+      />
     </div>
-    <!-- Jam's view, its own staff-viewport where the session's (out of sight) takes no room. -->
-    <component
-      :is="jamView"
-      v-if="jamView !== null"
-      ref="jamViewInstance"
-      v-bind="jamViewProps ?? {}"
-      :class="{ 'is-out-of-sight': reviewShowing }"
-      :inert="reviewShowing || undefined"
-      @staff-state="emit('jam-staff-state', $event)"
-    />
   </div>
 </template>

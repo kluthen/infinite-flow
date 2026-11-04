@@ -257,6 +257,10 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
         // Jam's note route reaches the controller once a fresh Jam is wired on screen (chunk 21).
         heldModeNotes: () => null,
         nextSessionSeed: deps.nextSessionSeed,
+        phraseOneSeams: {
+          nextRequestId: deps.providers.nextRequestId,
+          isBelowTabletLandscape: () => deps.viewport.isBelowTabletLandscape(),
+        },
         pregeneration: (seams) =>
           createWorkspacePregeneration({
             ...seams,

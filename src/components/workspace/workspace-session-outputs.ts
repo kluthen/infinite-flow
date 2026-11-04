@@ -1,7 +1,8 @@
 /**
  * The session controller's handling of what the engine reports: every runner output is recorded
  * in the session's history, a phrase starting to sound placed at its scheduled start, then acted
- * on: a readied phrase is shown and kept, scheduled once its tempo is fixed, or taken back when
+ * on: a readied phrase is shown and kept (phrase 1 handed over to a session started without it),
+ * scheduled once its tempo is fixed, or taken back when
  * discarded (./workspace-session-phrases.ts); a settings change waits for the phrase it applies
  * to; a mutation skipped at a dead end is only recorded; a phrase starting to sound sets the
  * tempo and settings shown; the struggling notice shows or
@@ -12,6 +13,7 @@ import type { AudioTransport } from '@/audio/audio-transport'
 import type { SessionOutput } from '@/session/session-types'
 import {
   dispatchAt,
+  phraseReadied,
   phrasesOf,
   type ActiveSession,
   type SessionControllerWritableState,
@@ -68,7 +70,7 @@ export function onSessionOutput(
   output: SessionOutput,
 ): void {
   session.history.record(historyOutput(audio, output))
-  if (output.kind === 'phrase-ready') phrasesOf(session).phraseReady(output.phrase)
+  if (output.kind === 'phrase-ready') phraseReadied(session, output.phrase)
   else if (output.kind === 'phrase-tempo')
     phrasesOf(session).phraseTempo(output.phraseNumber, output.tempo)
   else if (output.kind === 'phrase-discarded')

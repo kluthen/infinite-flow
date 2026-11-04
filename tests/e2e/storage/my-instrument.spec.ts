@@ -111,7 +111,7 @@ function clefGlyphs(scope: Locator): Promise<string[]> {
 
 /** Intent: the clef glyphs the workspace's staff draws now. */
 function staffClefs(page: Page): Promise<string[]> {
-  return clefGlyphs(page.locator('.score-panel > .staff-viewport'))
+  return clefGlyphs(page.locator('.score-panel > div > .staff-viewport'))
 }
 
 /** Intent: every attacked note's concert pitch in a concert timeline (JSON). */
@@ -309,7 +309,7 @@ test.describe('the shared system-position size reads my instrument’s written r
         await readyToStart(page, 7)
 
         const heights = await page
-          .locator('.score-panel > .staff-viewport svg.staff-svg')
+          .locator('.score-panel > div > .staff-viewport svg.staff-svg')
           .evaluateAll((svgs) =>
             svgs.map((svg) => Number(svg.getAttribute('viewBox')!.split(' ')[3])),
           )

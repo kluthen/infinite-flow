@@ -218,6 +218,12 @@ export interface ControllerRig {
   readonly runnerInputsWithoutPhraseOne: WorkspaceSessionRunnerInput[]
   /** Replace the generate script from the next request on. */
   readonly setScript: (script: GenerateScript) => void
+  /**
+   * Hold every generation answer from now on until `releaseGenerations`, which answers the held
+   * ones, in order, with the script in force then, and lets later ones answer at once again.
+   */
+  readonly holdGenerations: () => void
+  readonly releaseGenerations: () => void
   /** Make the runner throw on the next transport event of this kind, as a broken engine would. */
   readonly breakDispatchOf: (kind: SessionTransportEvent['kind']) => void
   /** The gate the staff reports through, as PhraseScore's events would reach it. */
@@ -321,6 +327,8 @@ export function controllerRig(
   const runnerInputs: SessionModeRunnerInput[] = []
   const runnerInputsWithoutPhraseOne: WorkspaceSessionRunnerInput[] = []
   let current = script
+  /** The generation answers held back, while generations are held; null otherwise. */
+  let held: (() => void)[] | null = null
   let broken: SessionTransportEvent['kind'] | null = null
   const providers = queuedProviders(5000, 400)
   const idleReports: IdleReport[] = []
@@ -379,7 +387,12 @@ export function controllerRig(
     else runnerInputs.push({ ...input, start })
     const runner = startWorkspaceSessionRunner(
       {
-        generate: (intent) => Promise.resolve(current(intent)),
+        generate: (intent) =>
+          held === null
+            ? Promise.resolve(current(intent))
+            : new Promise<GenerationOutcome>((resolve) => {
+                held?.push(() => resolve(current(intent)))
+              }),
         checkFit: input.checkFit,
         now: input.now,
         providers,
@@ -434,6 +447,10 @@ export function controllerRig(
       const seed = makeSeed(0x5e55_1000 + sessionSeedsDrawn.length)
       sessionSeedsDrawn.push(seed)
       return seed
+    },
+    phraseOneSeams: {
+      nextRequestId: providers.nextRequestId,
+      isBelowTabletLandscape: () => false,
     },
     pregeneration: options.pregeneration ?? disabledPregeneration,
     savedSessionOptions: options.savedSessionOptions ?? DEFAULT_SESSION_OPTIONS,
@@ -496,6 +513,14 @@ export function controllerRig(
     runnerInputsWithoutPhraseOne,
     setScript: (next) => {
       current = next
+    },
+    holdGenerations: () => {
+      held ??= []
+    },
+    releaseGenerations: () => {
+      const answers = held ?? []
+      held = null
+      for (const answer of answers) answer()
     },
     breakDispatchOf: (kind) => {
       broken = kind

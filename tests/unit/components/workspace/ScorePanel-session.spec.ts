@@ -41,8 +41,10 @@ describe('ScorePanel session cue row', () => {
   it('places session-cue-row after the banner position and right before staff-viewport', () => {
     const wrapper = mountPanel(createTestWorkspace(), null)
 
-    const children = [...wrapper.get('.score-panel').element.children].map((el) => el.className)
-    expect(children).toEqual(['score-toolbar', 'session-cue-row', 'staff-viewport'])
+    const children = [...wrapper.get('.score-panel').element.children]
+    expect(children.map((el) => el.className)).toEqual(['score-toolbar', 'session-cue-row', ''])
+    // The staff viewports' container, unclassed: the session's viewport first.
+    expect(children[2]!.firstElementChild!.className).toBe('staff-viewport')
     wrapper.unmount()
   })
 

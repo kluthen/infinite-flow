@@ -43,6 +43,16 @@ export interface JamStaffProps {
 }
 
 /**
+ * Whether Jam's view leaves as a fresh Jam's phrase 1 enters the session's staff: its empty
+ * system fades out (`is-fading-out`), and it reports `left` when the fade has ended; false (the
+ * default) whenever no phrase 1 has entered.
+ */
+// @spec-link [[req_jam]]
+export interface JamViewLeaving {
+  readonly leaving?: boolean
+}
+
+/**
  * What the workspace gives Jam's view: what its staff is drawn from, and what its Idle prewarm
  * reads: the generation worker's prewarm port (null while the prewarm policy is off) and the
  * controls and figure levels a Jam is generated with (Jam's settings, ./jam-settings.ts), which a
