@@ -27,6 +27,7 @@ import {
 } from './fake-session-controller'
 import { myInstrumentHistory } from './my-instrument-history'
 import { reviewAreaRig } from './review-area-rig'
+import { reviewedJamPart } from './reviewed-jam-part-fixture'
 
 // @test-link [[req_last_session_review]]
 describe('useReviewArea', () => {
@@ -92,6 +93,20 @@ describe('useReviewArea', () => {
     stop()
   })
 
+  // @test-link [[rule_raw_doodle_notes_are_played_notes]]
+  it('holds played notes for a Jam in which only the doodle was played', () => {
+    const silent = recordedRecords().map((record) => ({ ...record, playedNotes: [] }))
+    const fake = createFakeSessionController({
+      review: { ...fakeReview(fakeReviewHistory(silent), true), jam: reviewedJamPart() },
+    })
+    const { area, stop } = reviewAreaRig(fake)
+
+    expect(area.holdsPlayedNote.value).toBe(true)
+    fake.state.review = { ...fake.state.review!, jam: reviewedJamPart([]) }
+    expect(area.holdsPlayedNote.value).toBe(false)
+    stop()
+  })
+
   // @test-link [[req_last_session_review]]
   it('gives the phrases and instrument of the Review only while it shows, not while kept', () => {
     const fake = createFakeSessionController({
@@ -118,6 +133,7 @@ describe('useReviewArea', () => {
         key: 'session-1-1',
         playedNotesKept: false,
         presets: BUILT_IN_PRESETS,
+        jam: null,
       }),
     )
     const fake = createFakeSessionController({ review, mostRecent: heldSessionOf(review) })

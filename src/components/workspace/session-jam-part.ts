@@ -59,3 +59,27 @@ export function jamPartOf(session: EndedJamSources): ReviewedJamPart | null {
     doodleControls,
   })
 }
+
+/** Intent: whether a Jam part holds a raw doodle note, which counts as a played note to keep. */
+// @spec-link [[rule_raw_doodle_notes_are_played_notes]]
+export function holdsRawDoodleNote(jam: ReviewedJamPart): boolean {
+  return jam.doodle.playedNotes.length > 0
+}
+
+/**
+ * Intent: a Jam part once its session's played notes are deleted: no raw doodle note, its
+ * quantized doodle, its barlines and everything else kept.
+ */
+// @spec-link [[rule_deleting_played_notes_keeps_quantized_doodle]]
+export function withoutRawDoodleNotes(jam: ReviewedJamPart): ReviewedJamPart {
+  return Object.freeze({
+    ...jam,
+    doodle: Object.freeze({ ...jam.doodle, playedNotes: Object.freeze([]) }),
+  })
+}
+
+/** Intent: a Jam part with its key and mode suggestion declined (`Keep mine`), all else as held. */
+// @spec-link [[rule_suggestion_keep_mine]]
+export function declinedJamPart(jam: ReviewedJamPart): ReviewedJamPart {
+  return Object.freeze({ ...jam, suggestionDeclined: true })
+}

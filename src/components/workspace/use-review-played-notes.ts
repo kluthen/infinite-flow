@@ -34,7 +34,13 @@ export type ReviewConfirmation =
       readonly failed: boolean
       readonly busy: boolean
     }
-  | { readonly kind: 'session-played-notes'; readonly failed: boolean; readonly busy: boolean }
+  | {
+      readonly kind: 'session-played-notes'
+      /** The session is a Jam session: its confirmation says its written-out doodle stays. */
+      readonly jam: boolean
+      readonly failed: boolean
+      readonly busy: boolean
+    }
   | SessionToolConfirmation
 
 /**
@@ -152,7 +158,8 @@ export function useReviewPlayedNotes(deps: ReviewPlayedNotesDependencies): Revie
     canDeletePlayedNotes,
     askDeletePlayedNotes: () => {
       if (!canDeletePlayedNotes.value) throw new Error('review host: no played notes to delete')
-      confirmation.value = { kind: 'session-played-notes', failed: false, busy: false }
+      const jam = deps.shownReview()?.jam !== undefined
+      confirmation.value = { kind: 'session-played-notes', jam, failed: false, busy: false }
     },
     confirmation,
     confirm,

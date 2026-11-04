@@ -1,6 +1,6 @@
 /**
  * The session controller's side of the changes a Review makes to its session: a favorite mark, a
- * pin or unpin, the comment and `Delete session`. Each change applies at once in memory, to the
+ * pin or unpin, the comment, a Jam session's `Keep mine` and `Delete session`. Each change applies at once in memory, to the
  * session held under its key in the Review and as the most recent session alike, so both keep
  * drawing one history; it is then saved when made. A session kept on the device is changed through
  * the change path (./kept-session-review-changes.ts), named by its key; a session whose own save
@@ -21,6 +21,7 @@ import { KEPT_SESSION_COMMENT_MAX_LENGTH } from '@/storage/records/kept-session-
 import type { KeptChangeOutcome } from '@/storage/save-policy'
 import {
   changeKeptComment,
+  changeKeptDecline,
   changeKeptFavorite,
   changeKeptPinned,
   deleteKeptSession,
@@ -33,13 +34,16 @@ import {
   type SessionDeletion,
   type SessionKeeping,
 } from './workspace-session-controller-types'
-import { saveEndedSession, tellDamagedDeleted } from './workspace-session-save'
+import { withSuggestionDeclined } from './session-review-state'
+import { keptJamSave, saveEndedSession, tellDamagedDeleted } from './workspace-session-save'
 
 /** The controller's changes to the session a Review draws. */
 export interface KeptSessionEdits {
   readonly setFavorite: (key: string, phraseNumber: number, favorite: boolean) => Promise<void>
   readonly setPinned: (key: string, pinned: boolean) => Promise<void>
   readonly setComment: (key: string, comment: string) => Promise<void>
+  /** `Keep mine`: decline the key and mode suggestion of the Jam session under `key`. */
+  readonly declineSuggestion: (key: string) => Promise<void>
   readonly deleteSession: (key: string) => Promise<SessionDeletion>
   /**
    * The own save of the session under `key` was refused: hold its history and the presets the
@@ -177,7 +181,7 @@ export function createKeptSessionEdits(
 
   /**
    * Intent: run the session's own save again for the session under `key`, with its facts as they
-   * are now; once saved, its keep line takes its pinned or not-pinned wording, and the damaged kept
+   * are now (a Jam's Jam part and its decline included); once saved, its keep line takes its pinned or not-pinned wording, and the damaged kept
    * sessions its batch deleted are told. A failed retry changes nothing shown. Nothing to retry without the history of a refused save.
    * It stops before its transaction, writing nothing, once its session has left memory, and while
    * a batch erasing it is applied, which holds it back (spec D338).
@@ -187,7 +191,7 @@ export function createKeptSessionEdits(
   const retry = async (session: ReviewedSession): Promise<void> => {
     const pending = unsaved
     if (pending === null || pending.key !== session.key) return
-    const { key, playedNotesKept, pinned, favorites, comment } = session
+    const { key, playedNotesKept, pinned, favorites, comment, jam } = session
     const saves = rows.savingThrough(core.deps.saveHold, () => findHeld(key))
     /** Intent: whether the retry stops: its session left memory, or a batch erasing it holds it. */
     const stopped = (): boolean => {
@@ -203,8 +207,8 @@ export function createKeptSessionEdits(
       },
       core.deps.browser.pageLeaving,
       pending.history,
-      { key, playedNotesKept, presets: pending.presets },
-      { pinned, favorites, comment },
+      { key, playedNotesKept, presets: pending.presets, jam: keptJamSave(jam ?? null) },
+      { pinned, favorites, comment, suggestionDeclined: jam?.suggestionDeclined ?? false },
     )
     tellDamagedDeleted(kept.reports, outcome)
     if (outcome.status !== 'saved') return
@@ -314,6 +318,19 @@ export function createKeptSessionEdits(
   }
 
   /**
+   * Intent: `Keep mine`: decline the suggestion of the Jam session under `key`, at once in
+   * memory, then save it, as a pin is: a refusal holds it in memory for the visit, a retry of a
+   * refused save carries it, and nothing is saved while saving is off. Declined already, nothing.
+   */
+  // @spec-link [[module_kept_session_changes]]
+  const declineSuggestion = (key: string): Promise<void> => {
+    const session = heldAtIdle(key, 'Keep mine')
+    if (session.jam?.suggestionDeclined === true) return Promise.resolve()
+    replaceHeld(withSuggestionDeclined(session))
+    return saved(key, () => changeKeptDecline(kept.changes, key))
+  }
+
+  /**
    * Intent: drop the session under `key` from memory: the Review, which the session list replaces
    * when it showed, and the most recent session.
    */
@@ -357,6 +374,7 @@ export function createKeptSessionEdits(
     setFavorite,
     setPinned,
     setComment,
+    declineSuggestion,
     deleteSession,
     saveRefused: (key, history, presets) => {
       unsaved = { key, history, presets }

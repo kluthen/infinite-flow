@@ -864,7 +864,8 @@ the review. It runs in this order:
    summary, body and played notes of every readable kept session that is not pinned, then the new
    session's summary and body under its new key, and its played notes only when they are kept:
    `Keep my played notes` on at the session's end and the session holding a played note in a
-   phrase (`endedSessionSave`, which also mints the key once). Every kept session whose summary is
+   phrase or, in a fresh Jam, a raw doodle note (`endedSessionSave`, which also mints the key
+   once). Every kept session whose summary is
    damaged (the codec reads it as `unreadable`) is deleted in the same batch, pinned or not, and
    once the batch is saved `saveEndedSession` resolves how many it deleted (`damagedDeleted`),
    which the end and the retry tell (`tellDamagedDeleted`; see
@@ -926,6 +927,23 @@ added to the session list. The settings flush at the end is unchanged.
 - **A tab or app switch** never fires `pagehide`: it still ends the session, opens its review and
   saves it.
 
+### A Jam session's save
+
+A Jam session is saved through the same save, at its end, as any session with a review; a Jam
+ended before phrase 1 saves nothing. `endedSessionSave(history, keep, presets, jam)` takes the
+reviewed session's Jam part (`ReviewedJamPart`, `session-jam-part.ts`) and gives its
+`EndedSessionSave` a `jam` (`KeptJamSave`, from `keptJamSave`): the quantized doodle with its
+capture tempo, and its fresh moments (`keptFreshJam`: the count-in's first beat, the doodle's
+first barline and the raw doodle notes, on the audio clock). `keptSessionChanges` hands the codec
+these Jam facts with the decline from the held facts (`HeldSessionFacts.suggestionDeclined`, false
+at the end), so the session-wide record holds `isJam` and `suggestionDeclined`, and the body the
+doodle and the played-notes clock, whatever `Keep my played notes` says; the raw doodle notes go
+into the played-notes record only when the played notes are kept. Raw doodle notes are played
+notes: a Jam in which only the doodle was played keeps them under the opt-in, at its end or when
+the switch is turned on in its review (`keepSessionPlayedNotes(saves, key, history, fresh)`), and
+`Delete played notes` then shows for it. A retry of a refused save rebuilds the Jam facts from the
+held session's Jam part, with its decline as held then.
+
 ## Changes after the session's save
 
 Every change the player makes to a kept session after its own save is one batch through the save
@@ -949,12 +967,17 @@ which reads nothing, is never used for them.
 - **Named by its key.** A session is named by the key its own save minted (`ReviewedSession.key`),
   or the one it was read by; never by a key rebuilt from its facts.
 - **Encoded again.** `rewriteKeptSummary(stored, edit, appVersion)` rewrites a stored session-wide
-  record with only `edit` applied (`playedNotesKept`, `pinned`, `favoritesCount`, `comment`), the
+  record with only `edit` applied (`playedNotesKept`, `pinned`, `favoritesCount`, `comment`,
+  and a Jam's `suggestionDeclined`), the
   app version that recorded the session kept; `encodeKeptPlayedNotes(history, appVersion)` gives
   the very played-notes record the session's save writes when they are kept.
 - **What each change writes.** Keeping a session's played notes writes its `playedNotes` record and
   its summary saying so; deleting them deletes the record and rewrites the summary; both in one
-  batch, so the two never disagree. Deleting every kept played note reads the keys of every
+  batch, so the two never disagree. A Jam session's raw doodle notes are in its played-notes record, so
+  keeping or deleting its played notes keeps or deletes them too; its body, with its quantized
+  doodle and its clock, stays. A Jam session's `Keep mine` (`changeKeptDecline`, from the
+  controller's `declineSuggestion`) rewrites its summary with `suggestionDeclined` true and nothing
+  else; refused, it holds in memory for the visit, and while saving is off nothing is written. Deleting every kept played note reads the keys of every
   `playedNotes` record and every summary with its key, then deletes every played-notes record (an
   unreadable session's included) and rewrites every readable summary that said they were kept; an
   unreadable summary and its body are left as they are.

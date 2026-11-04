@@ -8,6 +8,7 @@
 import { describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
 
+import { reviewConfirmationCopy } from '@/components/workspace/review-confirmation-copy'
 import { recordedRecords } from '../review/review-fixtures'
 import {
   createFakeSessionController,
@@ -17,6 +18,7 @@ import {
   type FakeSessionController,
 } from './fake-session-controller'
 import { reviewAreaRig } from './review-area-rig'
+import { reviewedJamPart } from './reviewed-jam-part-fixture'
 
 /** Intent: a fake controller showing a Review whose played notes are kept, or not. */
 function showingPlayedNotes(kept: boolean): FakeSessionController {
@@ -94,6 +96,7 @@ describe('the review area: deleting played notes', () => {
     built.askDeletePlayedNotes()
     expect(built.confirmation.value).toEqual({
       kind: 'session-played-notes',
+      jam: false,
       failed: false,
       busy: false,
     })
@@ -154,6 +157,57 @@ describe('the review area: deleting played notes', () => {
     await nextTick()
     expect(built.confirmation.value).toBeNull()
     expect(fake.deletePlayedNotes).not.toHaveBeenCalled()
+    stop()
+  })
+})
+
+// @test-link [[rule_kept_played_notes_deletable]]
+// @test-link [[rule_deleting_played_notes_keeps_quantized_doodle]]
+// @test-link [[rule_raw_doodle_notes_are_played_notes]]
+describe("the review area: Delete played notes' confirmation", () => {
+  const CANNOT = "This can't be undone."
+
+  it("reads v3.0's copy in a session that is no Jam", () => {
+    const { built, stop } = areaOver(showingPlayedNotes(true))
+
+    built.askDeletePlayedNotes()
+
+    expect(reviewConfirmationCopy(built.confirmation.value!)).toEqual({
+      title: "Delete this session's played notes?",
+      paragraphs: [
+        'This deletes the notes you played in this session. The session stays, with its favorite phrases and comment.',
+        CANNOT,
+      ],
+      confirmLabel: 'Delete played notes',
+      cancelLabel: 'Cancel',
+      destructive: true,
+      error: null,
+    })
+    stop()
+  })
+
+  it('reads the Jam copy in a Jam in which only the doodle was played, its played notes kept', () => {
+    const review = {
+      ...fakeReview(fakeReviewHistory(recordedRecords()), true, 'not-pinned', true),
+      jam: reviewedJamPart(),
+    }
+    const fake = createFakeSessionController({
+      review,
+      mostRecent: heldSessionOf(review),
+      keepPlayedNotes: true,
+    })
+    const { built, stop } = areaOver(fake)
+    expect(built.canDeletePlayedNotes.value).toBe(true)
+
+    built.askDeletePlayedNotes()
+
+    const copy = reviewConfirmationCopy(built.confirmation.value!)
+    expect(copy.title).toBe("Delete this session's played notes?")
+    expect(copy.paragraphs).toEqual([
+      'This deletes the notes you played in this session. The session stays, with its doodle as the app wrote it, its favorite phrases and comment.',
+      CANNOT,
+    ])
+    expect(copy.confirmLabel).toBe('Delete played notes')
     stop()
   })
 })

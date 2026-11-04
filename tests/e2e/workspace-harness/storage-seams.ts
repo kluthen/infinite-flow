@@ -30,7 +30,7 @@
  *   would, `seedKeptSessionCopy` copies one under another key and start, as this version or a
  *   newer one would have written it, and `seedDamagedKeptBody` rewrites a kept session's body so
  *   the codec reads it as unreadable;
- * - `settingsNotReadBack` names each stored settings record the settings codec does not read back
+ * - `settingsNotReadBack` names each stored settings record the settings codec (Jam's for its own) does not read back
  *   as the value it holds, read as a load reads them all (with the mix design of the page's tokens,
  *   my instrument not loaded, and the built-ins and the stored player presets);
  * - `loadOutcome`, `savingState` and `loadMs` report the load;
@@ -62,6 +62,7 @@ import {
   KEPT_SESSION_SUMMARY_DATA_VERSION,
 } from '../../../src/storage/records/kept-reading'
 import { readAudioMixDesign } from '../../../src/audio/audio-mix'
+import { decodeJamSettings } from '../../../src/jam/jam-settings'
 import { BUILT_IN_PRESETS } from '../../../src/domain/presets/built-in-presets'
 import { makePreset, type Preset } from '../../../src/domain/presets/preset-selection'
 import { decodePlayerPresets, encodePresetRecord } from '../../../src/storage/records/preset-record'
@@ -69,6 +70,7 @@ import {
   decodeSettings,
   encodeSettingRecord,
   JAM_SETTING_KEYS,
+  jamSettingRecords,
   SETTING_KEYS,
   type SettingKey,
   type SettingValue,
@@ -273,10 +275,13 @@ function notReadBack(records: readonly unknown[], playerPresets: readonly Preset
     myInstrumentLoaded: false,
     presets: [...BUILT_IN_PRESETS, ...playerPresets],
   })
+  // Jam's settings are decoded by Jam's code, from session mode's values for their first ones.
+  const jam = decodeJamSettings(jamSettingRecords(records), decoded.controls).settings
   return records.flatMap((record) => {
     const { key, value } = (record ?? {}) as { key?: unknown; value?: unknown }
     if (typeof key !== 'string') return ['(no key)']
-    return sameValue(decodedAt(decoded, key), value) ? [] : [key]
+    const read = key.startsWith('jam.') ? decodedAt(jam, key.slice(4)) : decodedAt(decoded, key)
+    return sameValue(read, value) ? [] : [key]
   })
 }
 
