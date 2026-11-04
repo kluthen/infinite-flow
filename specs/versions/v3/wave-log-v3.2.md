@@ -1524,3 +1524,19 @@ the four status candidates; the merge into `main` (and push); whether to file th
 issue. Open after the wave: v3.2 H2 step 3 and H3 (gate L3); H4–H6 (gates L1, L2, now open);
 DR recordings; O267; `accessibility.spec.ts` at 589 of 600 lines and
 `notation-calibration.spec.ts` at 591 (the next chunk adding to either splits it).
+
+### The owner's answers and the merge (2026-11-04)
+
+- The owner, verbatim: "Merge, clean up and push (Recommended)"; "Move all four to REVIEW
+  (Recommended)"; "File an issue (Recommended)".
+- `documentalist` 7efdd811: `module_jam_capture` 0.3, `module_session_start_without_phrase_one`
+  0.4, `module_jam_idle_notes` 0.4, `module_workspace_mode` 0.3 to REVIEW (change set X3);
+  CONTRACT stays 12.0.0.
+- ISS-016 filed, ec7d4f70: the load flake of `session-start-conditions.spec.ts:114` (Low).
+- Wave 6 merged into `main` `--no-ff` and pushed; the wave worktree and the branches `v3.2-w6`,
+  `v3.2-c21-fresh-jam`, `v3.2-c30-kept-jam`, `v3.2-c23-review-doodle` removed.
+- Open after the wave: v3.2 H2 step 3 and H3 (gate L3); H4–H6 now runnable (gates L1, L2); DR
+  recordings; O267; ISS-016; `accessibility.spec.ts` 589 and `notation-calibration.spec.ts` 591 of
+  600 lines. Next: wave 7 (24, 25, 32, 33; gate J240 in it), in a fresh session; chunk 24 carries
+  the Jam part hand-over (plan v34), the kept-Jam read back with no clock (spec D499) and H4/H5's
+  rewording (spec D497); chunk 25 the failed-load exports and the doodle-only export (plan v33).
