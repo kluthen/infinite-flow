@@ -2,6 +2,7 @@
 id: req_session_audio_mix
 status: STABLE
 dependents:
+  - [[module_guide_playback_layers]]
   - [[rule_click_track]]
   - [[rule_click_volume_never_silent]]
 priority: 1

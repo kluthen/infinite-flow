@@ -5,7 +5,8 @@ tags: [v3, release-v3.2, session, jam, storage]
 parents:
   - [[rule_jam_again_on_this_doodle]]
 priority: 1
-dependents: []
+dependents:
+  - [[module_kept_doodle]]
 type: RULE
 layer: BUSINESS
 version: 0.2

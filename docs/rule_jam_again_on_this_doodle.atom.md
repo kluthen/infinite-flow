@@ -10,6 +10,7 @@ type: RULE
 version: 0.3
 human_name: Jam Again on This Doodle
 dependents:
+  - [[module_kept_doodle]]
   - [[rule_held_doodle_dropped_on_change]]
   - [[rule_held_doodle_in_memory_only]]
   - [[rule_held_doodle_phrase_one_at_idle]]

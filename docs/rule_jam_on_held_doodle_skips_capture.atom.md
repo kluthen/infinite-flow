@@ -7,7 +7,8 @@ priority: 1
 human_name: A Jam on a Kept Doodle Skips the Capture
 parents:
   - [[rule_jam_again_on_this_doodle]]
-dependents: []
+dependents:
+  - [[module_kept_doodle]]
 type: RULE
 tags: [v3, release-v3.2, session, jam]
 ---

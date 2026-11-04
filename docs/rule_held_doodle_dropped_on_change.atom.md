@@ -1,7 +1,8 @@
 ---
 id: rule_held_doodle_dropped_on_change
 status: DRAFT
-dependents: []
+dependents:
+  - [[module_kept_doodle]]
 layer: BUSINESS
 human_name: How Long Jam Mode Keeps a Doodle
 tags: [v3, release-v3.2, session, jam, idle]
