@@ -112,6 +112,14 @@ function handleHeldModeNotesChange(route: HeldModeNoteRoute | null): void {
   workspace.heldModeNotes.value = route
 }
 
+/**
+ * Intent: give the workspace the shell's start jump, which the session controller makes after a
+ * start by the starting note; the shell gives it once at its setup.
+ */
+function handleAfterNoteStartChange(afterStart: () => void): void {
+  workspace.afterNoteStart.value = afterStart
+}
+
 /** Intent: end any running session and stop the controller, then tear the workspace down. */
 // @spec-link [[service_session_controller]]
 onUnmounted(() => {
@@ -144,5 +152,6 @@ onUnmounted(() => {
     @connection-sheet-open-change="handleConnectionSheetOpenChange"
     @session-mode-held-change="handleSessionModeHeldChange"
     @held-mode-notes-change="handleHeldModeNotesChange"
+    @after-note-start-change="handleAfterNoteStartChange"
   />
 </template>

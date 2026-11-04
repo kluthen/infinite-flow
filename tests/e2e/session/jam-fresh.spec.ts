@@ -299,36 +299,44 @@ test("doodle-readings stays empty until phrase 1 enters, then names the doodle's
 
 // @test-link [[req_jam]]
 // @test-link [[rule_jam_runs_as_session_from_phrase_one]]
-test("the mode stays Jam throughout, and Start Jam's jump leaves Jam's staff in view", async ({
-  page,
-}) => {
-  await gotoJamIdle(page)
-  const jamViewport = page
-    .locator('.staff-viewport')
-    .filter({ has: page.locator('.staff-frame.staff-jam') })
-  const staffTop = await jamViewport.evaluate(
-    (element) => element.getBoundingClientRect().top + window.scrollY,
-  )
-  await page.evaluate((y) => window.scrollTo({ top: y + 40, behavior: 'instant' }), staffTop)
-  expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(staffTop)
+test.describe("the mode stays Jam throughout, and the start's jump leaves Jam's staff in view", () => {
+  for (const start of ['Start Jam', 'the home note'] as const) {
+    // @test-link [[req_jam]]
+    // @test-link [[rule_jam_runs_as_session_from_phrase_one]]
+    test(`started by ${start}`, async ({ page }) => {
+      await gotoJamIdle(page)
+      const jamViewport = page
+        .locator('.staff-viewport')
+        .filter({ has: page.locator('.staff-frame.staff-jam') })
+      const staffTop = await jamViewport.evaluate(
+        (element) => element.getBoundingClientRect().top + window.scrollY,
+      )
+      await page.evaluate((y) => window.scrollTo({ top: y + 40, behavior: 'instant' }), staffTop)
+      expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(staffTop)
 
-  await startJamByClick(page)
-  expect(
-    await page.locator('.layout-app').evaluate((element) => element.getBoundingClientRect().top),
-  ).toBe(0)
-  expect(await whollyInViewport(jamFrame(page)), "Jam's staff in view").toBe(true)
-  await expect(sessionAction(page)).toBeFocused()
-  await expectStillJam(page, 'the count-in')
+      if (start === 'Start Jam') await startJamByClick(page)
+      else await startJamByHomeNote(page)
+      expect(
+        await page
+          .locator('.layout-app')
+          .evaluate((element) => element.getBoundingClientRect().top),
+      ).toBe(0)
+      expect(await whollyInViewport(jamFrame(page)), "Jam's staff in view").toBe(true)
+      const grid = await jamGrid(page)
+      expect(await audioNow(page), "before the count-in's first click").toBeLessThan(grid.startAt)
+      if (start === 'Start Jam') await expect(sessionAction(page)).toBeFocused()
+      await expectStillJam(page, 'the count-in')
 
-  const grid = await jamGrid(page)
-  await playDoodle(page, grid, 1)
-  await expectStillJam(page, 'the capture')
-  await clockTo(page, grid.barline(1) + PAST_BARLINE)
-  await expectStillJam(page, 'the generation measure')
-  await untilPhraseOneAnswered(page)
-  await clockTo(page, grid.barline(2) + PAST_BARLINE)
-  await expectStillJam(page, 'the read-in')
-  await clockTo(page, grid.barline(3) + 1)
-  expect((await sessionState(page)).phase).toBe('running')
-  await expectStillJam(page, 'Session running')
+      await playDoodle(page, grid, 1)
+      await expectStillJam(page, 'the capture')
+      await clockTo(page, grid.barline(1) + PAST_BARLINE)
+      await expectStillJam(page, 'the generation measure')
+      await untilPhraseOneAnswered(page)
+      await clockTo(page, grid.barline(2) + PAST_BARLINE)
+      await expectStillJam(page, 'the read-in')
+      await clockTo(page, grid.barline(3) + 1)
+      expect((await sessionState(page)).phase).toBe('running')
+      await expectStillJam(page, 'Session running')
+    })
+  }
 })

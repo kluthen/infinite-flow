@@ -90,6 +90,12 @@ export interface WorkspaceSession {
    */
   readonly heldModeNotes: ShallowRef<HeldModeNoteRoute | null>
   /**
+   * What follows a start by the starting note, inside the note's callback: the shell's start jump,
+   * which the Start click makes itself. Null at first, given by the shell at its setup; session
+   * controllers call it once such a start has happened.
+   */
+  readonly afterNoteStart: ShallowRef<(() => void) | null>
+  /**
    * The generation worker's prewarm port, which Jam's Idle prewarm posts through; null while the
    * prewarm policy is off, so nothing is posted then, as for session mode.
    */

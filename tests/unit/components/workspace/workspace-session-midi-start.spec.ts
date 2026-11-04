@@ -1,6 +1,7 @@
 /**
  * The starting note: at Idle with a controller attached, phrase 1's first note at its exact pitch
- * starts the session exactly as the Start click does, and `startingNote` names it exactly when
+ * starts the session exactly as the Start click does, then hands the start to what follows one
+ * (the shell's jump, which the Start click makes itself), and `startingNote` names it exactly when
  * playing it would start one. Any other note, any blocked start, the connection sheet open, or no
  * controller attached: nothing happens and nothing is named. On the fake audio clock from 5 s.
  */
@@ -85,6 +86,21 @@ describe('session controller: the starting note starts the session', () => {
     rig.controller.dispose()
   })
 
+  it('hands a start by the starting note, once it has started, to what follows a start; Start never', async () => {
+    const rig = controllerRig()
+    await connectKeys(rig)
+    rig.controller.start()
+    rig.controller.stop()
+    expect(rig.afterNoteStartPhases).toEqual([])
+    const starting = rigStartingNote(rig)
+
+    press(rig, starting.concertPitch)
+
+    expect(rig.afterNoteStartPhases).toEqual(['count-in'])
+    lift(rig, starting.concertPitch)
+    rig.controller.dispose()
+  })
+
   it('starts nothing on another pitch, or on the starting pitch an octave off', async () => {
     const rig = controllerRig()
     await connectKeys(rig)
@@ -97,6 +113,7 @@ describe('session controller: the starting note starts the session', () => {
     }
 
     expectNothingStarted(rig)
+    expect(rig.afterNoteStartPhases).toEqual([])
     expect(rig.controller.state.startingNote).toBe(before)
     rig.controller.dispose()
   })

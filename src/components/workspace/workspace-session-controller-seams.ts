@@ -129,6 +129,13 @@ export interface SessionControllerDependencies {
   // @spec-link [[rule_midi_starting_note]]
   readonly heldModeNotes: () => HeldModeNoteRoute | null
   /**
+   * What follows a start by the starting note, called inside the note's callback once the session
+   * has started (never when the note opens the stale-phrase prompt instead): the shell's start
+   * jump, which the Start click makes itself.
+   */
+  // @spec-link [[rule_midi_starting_note]]
+  readonly afterNoteStart: () => void
+  /**
    * The session-seed provider, drawn once at a start without phrase 1, inside its Start, since
    * there is no Idle result to take the session seed from.
    */

@@ -243,6 +243,11 @@ const emit = defineEmits<{
    * (the home note, while a fresh Jam could start) and the fresh Jam it starts.
    */
   'held-mode-notes-change': [route: HeldModeNoteRoute | null]
+  /**
+   * What follows a start by session mode's starting note, emitted once at setup: the start's one
+   * instant jump, which the session controller makes once the note has started the session.
+   */
+  'after-note-start-change': [afterStart: () => void]
 }>()
 
 /** True while the review mode shows: a Review, or the session list in its place. */
@@ -496,14 +501,16 @@ const jamCanStart = computed(
 
 /**
  * Intent: Jam mode's home note, played while a fresh Jam could start: the start `Start Jam` takes,
- * with no jump (a note's start, as in session mode, moves nothing on the page).
+ * its one instant jump included (ux D452); focus stays where it is.
  */
 // @spec-link [[module_workspace_mode]]
 function handleJamHomeNote(): void {
   prepareStart()
   freshJam.start()
+  jumpAfterStart()
 }
 emit('held-mode-notes-change', { meaningOf: jamIdleCue.meaningOf, start: handleJamHomeNote })
+emit('after-note-start-change', jumpAfterStart)
 
 defineExpose({
   /** True while the connection sheet is open (see `ConnectionSheetHost.connectionSheetOpen`). */

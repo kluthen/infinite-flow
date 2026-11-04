@@ -242,6 +242,8 @@ export interface ControllerRig {
   readonly sessionModeHeld: ShallowRef<boolean>
   /** The note route of the code holding session mode (Jam's Idle note routing); none at first. */
   readonly heldModeNotes: ShallowRef<HeldModeNoteRoute | null>
+  /** The controller's phase each time it handed a start by the starting note to what follows. */
+  readonly afterNoteStartPhases: string[]
   /** Every session seed the controller drew from its session-seed provider, in order. */
   readonly sessionSeedsDrawn: Seed[]
   /** Every time the controller asked the Idle side for a fresh phrase, in order. */
@@ -351,6 +353,7 @@ export function controllerRig(
   const sheetOpen = shallowRef(false)
   const sessionModeHeld = shallowRef(false)
   const heldModeNotes = shallowRef<HeldModeNoteRoute | null>(null)
+  const afterNoteStartPhases: string[] = []
   const sessionSeedsDrawn: Seed[] = []
   const freshPhraseRequests: FreshPhraseRequest[] = []
   let built: SessionController | null = null
@@ -443,6 +446,10 @@ export function controllerRig(
     connectionSheetOpen: () => sheetOpen.value,
     sessionModeHeld: () => sessionModeHeld.value,
     heldModeNotes: () => heldModeNotes.value,
+    afterNoteStart: () => {
+      if (built === null) throw new Error('rig: a start followed before the controller was built')
+      afterNoteStartPhases.push(built.state.phase)
+    },
     nextSessionSeed: () => {
       const seed = makeSeed(0x5e55_1000 + sessionSeedsDrawn.length)
       sessionSeedsDrawn.push(seed)
@@ -533,6 +540,7 @@ export function controllerRig(
     sheetOpen,
     sessionModeHeld,
     heldModeNotes,
+    afterNoteStartPhases,
     sessionSeedsDrawn,
     freshPhraseRequests,
     injectOutput: (output) => {

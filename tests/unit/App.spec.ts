@@ -105,6 +105,7 @@ function fakeWorkspaceSession(savedData: SavedDataLoad = fakeSavedData()) {
     connectionSheetOpen: shallowRef(false),
     sessionModeHeld: shallowRef(false),
     heldModeNotes: shallowRef<HeldModeNoteRoute | null>(null),
+    afterNoteStart: shallowRef<(() => void) | null>(null),
     prewarm: null,
     createSessionController: async () => {
       if (controllerLoad !== null) await controllerLoad.promise
@@ -358,6 +359,19 @@ describe('App held-mode note route', () => {
     const route = injected.heldModeNotes.value
     expect(route).not.toBeNull()
     expect(route?.meaningOf(60)).toBe('ignored')
+    wrapper.unmount()
+  })
+})
+
+describe('App after a start by the starting note', () => {
+  it("gives the workspace the shell's start jump at mount, for the controller to make after a note's start", () => {
+    const injected = fakeWorkspaceSession()
+    expect(injected.afterNoteStart.value).toBeNull()
+    const wrapper = mount(App, {
+      props: { savedData: fakeSavedData() },
+      global: { stubs: STUBS, provide: { [workspaceSessionFactoryKey]: () => injected } },
+    })
+    expect(injected.afterNoteStart.value).toBeTypeOf('function')
     wrapper.unmount()
   })
 })

@@ -134,6 +134,7 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
   const connectionSheetOpen = shallowRef(false)
   const sessionModeHeld = shallowRef(false)
   const heldModeNotes = shallowRef<HeldModeNoteRoute | null>(null)
+  const afterNoteStart = shallowRef<(() => void) | null>(null)
   const slot = createPregenerationSlot()
   const {
     controls,
@@ -225,6 +226,7 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
     connectionSheetOpen,
     sessionModeHeld,
     heldModeNotes,
+    afterNoteStart,
     prewarm: deps.prewarmPolicy === 'enabled' ? deps.prewarm : null,
     browser: deps.browser,
     createSessionController: async () => {
@@ -258,6 +260,12 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
         connectionSheetOpen: () => connectionSheetOpen.value,
         sessionModeHeld: () => sessionModeHeld.value,
         heldModeNotes: () => heldModeNotes.value,
+        afterNoteStart: () => {
+          const after = afterNoteStart.value
+          if (after === null)
+            throw new Error('workspace: a note started a session before the shell')
+          after()
+        },
         nextSessionSeed: deps.nextSessionSeed,
         phraseOneSeams: {
           nextRequestId: deps.providers.nextRequestId,
