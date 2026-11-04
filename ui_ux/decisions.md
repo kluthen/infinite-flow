@@ -16,7 +16,7 @@ Append-only record of settled UI/UX decisions. Earlier logs are archived verbati
 
 Archived IDs keep their meaning; a citation to one by ID elsewhere in this repository stays valid
 through this header. D225, D226, D235–D264 and D328 on (v3.2 and v3.3, not yet released, and the
-entries v3.1 shares with v3.2) stay here; D265–D279 were never used. Numbering continues from D450.
+entries v3.1 shares with v3.2) stay here; D265–D279 were never used. Numbering continues from D453.
 
 ## v3.1 (presets and embellishment figures) and v3.2 (Jam) design, 2026-10-08
 
@@ -681,3 +681,20 @@ title word.
   The design now states only what is shown. Now in `screens/session-list/handoff.md`,
   `screens/last-session-review/handoff.md`, `flows/kept-sessions/` and
   `flows/review-and-export/handoff.md`.
+
+## v3.2 wave 6, chunk 21's follow-ups, 2026-11-04
+
+- **D450 — The read-in is a true cross-fade (2026-11-04; minor, D119's standing rule).** While
+  Jam's frame leaves, it draws no background or border, so phrase 1's identical frame beneath
+  shows through, and `jam-instruction` fades out with the empty system. Stylesheet only: the
+  leaving `staff-jam` block in `src/styles/components.css`. Now in
+  `screens/phrase-workspace/handoff.md`, States, Jam read-in.
+- **D451 — A portrait end leaves focus on the page (2026-11-04; minor, D119's standing rule).**
+  In both modes, the end's focus target is hidden with the workspace and `orientation-notice` has
+  nothing to focus; nothing restores focus when it returns. Accepted: a turned touch device, and
+  the phone the third display. Now in `screens/phrase-workspace/handoff.md`, Responsive Behavior.
+- **D452 — A start by the starting note jumps too, in both modes (2026-11-04; minor, D119's
+  standing rule).** The design's "either kind of start" stands: a note-started player has both
+  hands on the instrument and cannot scroll, the case the jump exists for. The build's missing
+  jump on a note start (session mode's starting note, Jam's home note) is a code gap, not a
+  ruling. Stated in `flows/play-session/handoff.md`, Jump, and `intent.md`, Where the eyes land.

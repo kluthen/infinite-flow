@@ -2182,7 +2182,8 @@
      `jam-instruction` and, when it applies, `jam-notice`, centred in its block. The empty system
      appears, is redrawn and leaves with no entrance animation; it keeps the `is-fading-out` exit
      at the read-in, where the frame leaves `staff-jam` as phrase 1 enters with its usual
-     entrance. Not interactive. */
+     entrance, the frame and the bottom position following the leaving state just below. Not
+     interactive. */
   .staff-jam .staff-content:not(.is-fading-out) {
     animation: none;
   }
@@ -2192,6 +2193,20 @@
     gap: var(--spacing-2);
     justify-items: center;
     text-align: center;
+  }
+  /* The read-in's cross-fade, while the frame leaves (its unit carries `is-fading-out`): Jam's
+     view then lies over the session's staff viewport, in the same place, where phrase 1 enters
+     with the `staff-content` fade-in in its own `staff-ready` frame. The leaving frame draws no
+     background and no border of its own, so the identical frame beneath shows through from the
+     fade's first frame; the bottom system position (`jam-instruction`) fades out with the unit,
+     on the same fast fade-out tokens, so it ends as the unit's fade ends and the view goes out of
+     sight with nothing left to vanish. Reduced motion makes both fades instant, as everywhere. */
+  .staff-jam:has(.staff-content.is-fading-out) {
+    background: transparent;
+    border-color: transparent;
+  }
+  .staff-jam:has(.staff-content.is-fading-out) [data-system-position='bottom'] {
+    animation: staff-fade-out var(--duration-fade-fast) var(--ease-out-gentle) both;
   }
   /* States: shown, absent (below bp-tablet-landscape while `jam-notice` shows). Static. "After
      the count-in, play your doodle: one to four measures. The app continues it.", centred in the
