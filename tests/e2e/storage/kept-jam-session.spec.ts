@@ -16,12 +16,17 @@
  * From chunk 30b: its review summary and its list row's detail line begin with "Jam" and name no
  * preset, after a reload too; a Jam session a newer version wrote is listed as such, still marked;
  * Your data's `Delete all played notes` says the doodles stay and keeps the doodle, and `Delete
- * everything` leaves no Jam session.
+ * everything` leaves no Jam session; the Review's played notes already kept says the doodles stay
+ * too (ux D454).
  */
 import { expect, test, type Page } from '@playwright/test'
 
 import { KEYS, gotoControllerHarness, watchPageErrors } from '../controller/controller-helpers'
-import { deletePlayedNotesButton, reviewPanel } from '../review/review-helpers'
+import {
+  deletePlayedNotesButton,
+  keepPlayedNotesToggle,
+  reviewPanel,
+} from '../review/review-helpers'
 import {
   NOT_PINNED,
   NOT_SAVED,
@@ -175,6 +180,31 @@ test.describe('a Jam session kept on the device', () => {
     expect(await storedValue(page, 'sessionSummaries', second!)).toEqual(
       expect.objectContaining({ isJam: true, playedNotesKept: false }),
     )
+  })
+
+  test('turned off with a Jam keeping its raw doodle notes, the played notes already kept says the doodles stay; Keep them keeps them', async ({
+    page,
+  }) => {
+    test.setTimeout(120_000)
+    await gotoJamIdle(page)
+    await seedSettings(page, { keepPlayedNotes: true })
+    await gotoJamIdle(page)
+    await jamThenStop(page)
+    const [key] = await untilKept(page, 1)
+    await expect.poll(() => storedOnsets(page, key!)).toHaveLength(1)
+    const onsets = await storedOnsets(page, key!)
+
+    await keepPlayedNotesToggle(page).click()
+
+    await expect(sheet(page)).toHaveAccessibleName('Delete the played notes already kept?')
+    const paragraphs = sheet(page).locator('.sheet-body > p')
+    await expect(paragraphs.first()).toHaveText(
+      "Your played notes won't be kept from now on. The ones already kept with 1 session can be deleted too; the sessions stay. Doodles stay as the app wrote them.",
+    )
+    await expect(paragraphs.nth(1)).toHaveText("This can't be undone.")
+    await sheetAction(page, 'Keep them').click()
+    await expect(sheet(page)).toHaveCount(0)
+    expect(await storedOnsets(page, key!)).toEqual(onsets)
   })
 
   // @test-link [[req_kept_session_list]]

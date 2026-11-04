@@ -103,6 +103,19 @@ export function keptSessionRow(key: string, value: unknown): KeptSessionRow | nu
   return Object.freeze({ kind: 'current', key, summary: reading.value, failedToOpen: false })
 }
 
+/**
+ * Intent: whether a Jam session is among the rows whose played notes are kept, a newer row by what
+ * can be read of it: then deleting every kept played note deletes raw doodle notes too, and its
+ * confirmation says the doodles stay.
+ */
+// @spec-link [[rule_deleting_played_notes_keeps_quantized_doodle]]
+export function jamKeepsPlayedNotes(rows: readonly KeptSessionRow[]): boolean {
+  return rows.some((row) => {
+    const facts = row.kind === 'current' ? row.summary : row.readable
+    return facts.playedNotesKept === true && facts.isJam === true
+  })
+}
+
 /** Intent: the facts of a session held in memory that its row shows and a change may change. */
 function heldFacts(session: ReviewedSession): KeptSummaryEdit {
   return {

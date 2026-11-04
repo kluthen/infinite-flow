@@ -28,7 +28,7 @@ import type {
   YourDataConfirmationKind,
   YourDataForm,
 } from './your-data-copy'
-import type { KeptSessionRow } from './use-kept-sessions'
+import { jamKeepsPlayedNotes as jamAmongKeepers, type KeptSessionRow } from './use-kept-sessions'
 import type { PlayerPresets, PresetDeletionOutcome } from './use-player-presets'
 import type { SessionController, SessionDeletion } from './workspace-session-controller-types'
 
@@ -100,26 +100,16 @@ export function yourDataForm(outcome: SavedDataLoad['outcome'], saving: SavingSt
 }
 
 /**
- * Intent: the pinned, favorites, played-notes and Jam facts a row holds, a newer one's as far as
- * it can be read.
+ * Intent: the pinned, favorites and played-notes facts a row holds, a newer one's as far as it can
+ * be read.
  */
-function rowFacts(row: KeptSessionRow): {
-  pinned: boolean
-  favorites: number
-  kept: boolean
-  jam: boolean
-} {
+function rowFacts(row: KeptSessionRow): { pinned: boolean; favorites: number; kept: boolean } {
   if (row.kind === 'current') {
-    const { pinned, favoritesCount, playedNotesKept, isJam } = row.summary
-    return { pinned, favorites: favoritesCount, kept: playedNotesKept, jam: isJam }
+    const { pinned, favoritesCount, playedNotesKept } = row.summary
+    return { pinned, favorites: favoritesCount, kept: playedNotesKept }
   }
-  const { pinned, favoritesCount, playedNotesKept, isJam } = row.readable
-  return {
-    pinned: pinned ?? false,
-    favorites: favoritesCount ?? 0,
-    kept: playedNotesKept ?? false,
-    jam: isJam ?? false,
-  }
+  const { pinned, favoritesCount, playedNotesKept } = row.readable
+  return { pinned: pinned ?? false, favorites: favoritesCount ?? 0, kept: playedNotesKept ?? false }
 }
 
 /** Intent: whether a deletion refused as outdated, or a plain refusal; anything else is a defect. */
@@ -208,7 +198,7 @@ export function useYourDataSheet(deps: YourDataSheetDependencies): YourDataSheet
     favorites: facts.value.reduce((sum, row) => sum + row.favorites, 0),
   }))
   const playedNotesCount = computed(() => facts.value.filter((row) => row.kept).length)
-  const jamKeepsPlayedNotes = computed(() => facts.value.some((row) => row.kept && row.jam))
+  const jamKeepsPlayedNotes = computed(() => jamAmongKeepers(controller.state.keptRows))
   const confirmationCount = computed(() => {
     const open = confirmation.value
     if (open === null) return 0

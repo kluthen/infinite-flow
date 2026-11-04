@@ -80,9 +80,13 @@ const SESSION_PLAYED_NOTES =
 const JAM_SESSION_PLAYED_NOTES =
   'This deletes the notes you played in this session. The session stays, with its doodle as the app wrote it, its favorite phrases and comment.'
 
+/** What the played notes already kept adds when a Jam session keeps played notes (ux D454). */
+const DOODLES_STAY = ' Doodles stay as the app wrote them.'
+
 /**
  * Intent: the words of a Review's confirmation: "Delete the played notes already kept?" when
- * `Keep my played notes` was turned off while some are kept, "Delete this session's played
+ * `Keep my played notes` was turned off while some are kept (saying the doodles stay when a Jam
+ * session keeps played notes), "Delete this session's played
  * notes?" for `Delete played notes` (in a Jam session, saying its doodle as the app wrote it
  * stays), and the session tools' own.
  */
@@ -95,7 +99,7 @@ export function reviewConfirmationCopy(open: ReviewConfirmation): ConfirmationCo
     return {
       title: 'Delete the played notes already kept?',
       paragraphs: [
-        `Your played notes won't be kept from now on. The ones already kept ${withSessions(open.sessionCount)} can be deleted too; the sessions stay.`,
+        `Your played notes won't be kept from now on. The ones already kept ${withSessions(open.sessionCount)} can be deleted too; the sessions stay.${open.jam ? DOODLES_STAY : ''}`,
         CANNOT_BE_UNDONE,
       ],
       confirmLabel: 'Delete them',

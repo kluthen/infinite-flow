@@ -11,6 +11,7 @@
 import { computed, shallowRef, watch, type ComputedRef, type ShallowRef } from 'vue'
 
 import type { SaveSettings } from '@/storage/settings-saver'
+import { jamKeepsPlayedNotes } from './use-kept-sessions'
 import {
   runSessionToolConfirmation,
   type SessionToolConfirmation,
@@ -31,6 +32,8 @@ export type ReviewConfirmation =
   | {
       readonly kind: 'kept-played-notes'
       readonly sessionCount: number
+      /** A Jam session keeps played notes: its confirmation says the doodles stay. */
+      readonly jam: boolean
       readonly failed: boolean
       readonly busy: boolean
     }
@@ -110,10 +113,18 @@ export function useReviewPlayedNotes(deps: ReviewPlayedNotesDependencies): Revie
   // @spec-link [[rule_kept_played_notes_deletable]]
   async function setKeepPlayedNotes(on: boolean): Promise<void> {
     deps.saveSettings({ keepPlayedNotes: on })
-    const outcome = await requireController(deps).setKeepPlayedNotes(on)
+    const controller = requireController(deps)
+    const outcome = await controller.setKeepPlayedNotes(on)
     if (outcome.kind !== 'confirm-deletion' || deps.shownReview() === null) return
     const { sessionCount } = outcome
-    confirmation.value = { kind: 'kept-played-notes', sessionCount, failed: false, busy: false }
+    const jam = jamKeepsPlayedNotes(controller.state.keptRows)
+    confirmation.value = {
+      kind: 'kept-played-notes',
+      sessionCount,
+      jam,
+      failed: false,
+      busy: false,
+    }
   }
 
   /** Intent: run the open confirmation's deletion through the controller. */
