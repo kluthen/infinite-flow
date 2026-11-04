@@ -9,12 +9,13 @@
  * Review that are Jam's (`module_jam_code_boundary`): its doodle's staff and its key and mode
  * suggestion, and Jam's key and mode read for the Review before Jam's settings exist; and Jam
  * mode's kept doodle (`module_kept_doodle`), which the workspace keeps and lets go, with the climb
- * of phrase 1's attempts the workspace writes from it at Idle.
+ * of phrase 1's attempts the workspace writes from it at Idle and its bar (`jam-bar`).
  */
 export { default as JamWorkspace } from './JamWorkspace.vue'
 export { default as JamControls } from './JamControls.vue'
 export { default as JamCapture } from './JamCapture.vue'
 export { default as JamWriting } from './JamWriting.vue'
+export { default as JamBar } from './JamBar.vue'
 export { default as ReviewDoodle } from './review/ReviewDoodle.vue'
 export { default as SuggestionRow } from './review/SuggestionRow.vue'
 export { createJamIdleNotes } from './jam-idle-notes'

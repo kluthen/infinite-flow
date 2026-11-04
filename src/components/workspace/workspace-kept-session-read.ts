@@ -11,7 +11,7 @@ import type { KeptChanges } from '@/storage/save-policy'
 import { decodeKeptSessionSummary } from '@/storage/records/kept-session-summary'
 import type { KeptJam, KeptSession, StoredKeptSession } from '@/storage/records/kept-session-record'
 import { measureSeconds } from '@/session/session-timing'
-import type { ReviewedJamPart } from './session-jam-part'
+import { keptSessionDoodle, type ReviewedJamPart } from './session-jam-part'
 import {
   StorageError,
   type StorageChange,
@@ -41,22 +41,32 @@ export function mostRecentKept(summaries: readonly StoredEntry[]): MostRecentSes
 }
 
 /**
- * Intent: a decoded fresh Jam's Jam part, in the reviewed session's shape, every time on its
- * phrases' clock (phrase 1 starting at 0, the played-notes clock's moments and the raw doodle
- * notes moved by phrase 1's start on it): its doodle with its capture tempo, its first barline,
- * its end barline its measures later at its capture tempo, and its raw doodle notes as kept (none
- * when its played notes are not); its count-in's first beat; whether its suggestion was declined;
- * no suggestion and no controls, which the records do not hold. A Jam on a kept doodle, which
- * holds no clock, is not written yet (v3.2 chunk 24) and throws.
+ * Intent: a decoded Jam session's Jam part, in the reviewed session's shape, every time on its
+ * phrases' clock (phrase 1 starting at 0). A fresh Jam's (its body holds a played-notes clock, its
+ * moments and the raw doodle notes moved by phrase 1's start on it): its doodle with its capture
+ * tempo, its first barline, its end barline its measures later at its capture tempo, and its raw
+ * doodle notes as kept (none when its played notes are not); its count-in's first beat. A Jam on
+ * the kept doodle's (no clock): the kept doodle with its capture tempo as its review showed it at
+ * its end, its measures ending at phrase 1's start, no raw note and no count-in. Either way,
+ * whether its suggestion was declined, and no suggestion and no controls, which the records do not
+ * hold.
  */
 // @spec-link [[module_kept_jam_session]]
+// @spec-link [[rule_jam_on_held_doodle_skips_capture]]
 function keptJamPart(jam: KeptJam, suggestionDeclined: boolean): ReviewedJamPart {
   const clock = jam.playedNotesClock
-  if (clock === null)
-    throw new Error('kept session read: a Jam on a kept doodle has no reviewed Jam part yet')
+  const { quantized, captureTempo } = jam.doodle
+  if (clock === null) {
+    return Object.freeze({
+      doodle: keptSessionDoodle({ doodle: quantized, captureTempo }, 0),
+      countInStartAt: null,
+      suggestion: null,
+      suggestionDeclined,
+      doodleControls: null,
+    })
+  }
   const from = clock.phraseOneStart
   const firstBarlineAt = clock.doodleFirstBarline - from
-  const { quantized, captureTempo } = jam.doodle
   return Object.freeze({
     doodle: Object.freeze({
       doodle: quantized,

@@ -37,12 +37,15 @@
  * (`jamCue`) and a fresh Jam's cue row parts and phase (`jamSession`) as they are. The score title,
  * which also names the staff frame, follows the mode shown: `Jam` while Jam's view shows, else
  * `Four-measure phrase` (while Jam's code loads too). While Jam mode shows it also mounts Jam's
- * staff for phrase 1 written from the kept doodle (./KeptDoodleStaff.vue, `keptPhrase`), after the
+ * staff for phrase 1 written from the kept doodle (./KeptDoodleStaff.vue, `keptPhrase`, its start
+ * marker `keptStartMarker`), after the
  * session's viewport: while a doodle is kept it takes Jam's view's place in sight (Jam's view out
  * of sight and inert, still mounted), out of sight under the Review and while a session's staff
  * shows; with none kept it is out of sight and inert and Jam's view shows as before. In Jam mode
  * both live regions and the generation-failure banner follow Jam's phrase 1, never session mode's
- * Idle, so with no doodle kept they say nothing and no banner shows.
+ * Idle, so with no doodle kept they say nothing and no banner shows. The kept doodle's bar the
+ * shell gives it (`jamBar`, Jam's code) sits after the toolbar, before the banner's place, hidden
+ * with the staff area while the review mode shows.
  */
 import { computed, defineAsyncComponent, nextTick, ref, watch, type Component } from 'vue'
 
@@ -51,6 +54,7 @@ import type { WorkspaceSessionResult } from '@/composables/workspace-session-res
 import { generationFailureAlertText } from '@/composables/generation-failure-alert'
 import PhraseScore from '@/components/notation/PhraseScore.vue'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
+import type { ExpectedNoteIdentity } from '@/domain/acknowledgement/expected-note'
 import {
   NOTATION_PHONE_LAYOUT_MEDIA_QUERY,
   NOTATION_SYSTEM_POSITION_UNITS,
@@ -80,6 +84,7 @@ import type { ReviewExportPorts } from './review-export'
 import { useReviewHost } from './use-review-host'
 import KeptDoodleStaff from './KeptDoodleStaff.vue'
 import type { KeptDoodlePhraseView } from './use-kept-doodle-phrase'
+import type { JamBarView } from './use-jam-bar'
 import { injectSaveSettings } from './save-settings-injection'
 import type { SessionController } from './workspace-session-controller-types'
 
@@ -133,6 +138,10 @@ const props = withDefaults(
     jamSession?: JamSessionCue | null
     /** Jam's phrase 1 from the kept doodle while Jam mode shows; null (the default) otherwise. */
     keptPhrase?: KeptDoodlePhraseView | null
+    /** The note of that phrase 1 the start marker points at while it starts a Jam; null (the default) else. */
+    keptStartMarker?: ExpectedNoteIdentity | null
+    /** The kept doodle's bar while a doodle is kept; null (the default) otherwise. */
+    jamBar?: JamBarView | null
   }>(),
   {
     // Default: the notation layout's own width query (the split layout's), read from the window now.
@@ -145,6 +154,8 @@ const props = withDefaults(
     jamCue: null,
     jamSession: null,
     keptPhrase: null,
+    keptStartMarker: null,
+    jamBar: null,
   },
 )
 
@@ -495,6 +506,13 @@ const generationErrorAlertText = computed(() =>
         {{ notationStatusText }}
       </p>
     </div>
+    <component
+      :is="jamBar.component"
+      v-if="jamBar !== null"
+      v-bind="jamBar.props"
+      :hidden="reviewShowing"
+      v-on="jamBar.listeners"
+    />
     <ReviewArea
       v-if="reviewShowing"
       ref="reviewArea"
@@ -576,6 +594,7 @@ const generationErrorAlertText = computed(() =>
         v-if="keptPhrase !== null"
         ref="keptStaff"
         :view="keptPhrase"
+        :start-marker="keptStartMarker"
         :system-position-units="systemPositionUnits"
         :class="{ 'is-out-of-sight': keptAway }"
         :inert="keptAway || undefined"

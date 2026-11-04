@@ -16,6 +16,7 @@ import type { SessionEndCause } from '@/session/session-types'
 import { jamPartOf } from './session-jam-part'
 import { endedSession, openedReview, settledKeeping } from './session-review-state'
 import {
+  ENDED_SESSION_FACTS,
   endedSessionSave,
   keptSessionKey,
   saveEndedSession,
@@ -120,8 +121,9 @@ export function createSessionEnds(
    * save is asked
    * for after the release (never
    * awaited, so the end is not delayed; its outcome settles how the session is kept, and the
-   * damaged kept sessions its batch deleted are told once it is saved) and, the
-   * reports handed back to Idle, Idle is asked for the next phrase; an end during the count-in
+   * damaged kept sessions its batch deleted are told once it is saved; a Jam on the kept doodle's
+   * save keeps the decline its doodle was kept with) and, the reports handed back to Idle, session
+   * mode's Idle is asked for the next phrase, unless the session was a Jam; an end during the count-in
    * opens none, saves nothing, asks for nothing and leaves the most recent session as it was.
    * The session is dropped first, so nothing can end it twice; ending with none running throws.
    */
@@ -170,7 +172,15 @@ export function createSessionEnds(
     state.review = openedReview(reviewed)
     state.mostRecent = Object.freeze({ kind: 'held', session: reviewed })
     const saves = rows.savingThrough(core.deps.saveHold, () => findHeldSession(state, reviewed.key))
-    const saving = saveEndedSession(saves, core.deps.browser.pageLeaving, session.history, save)
+    // A Jam on the kept doodle carries the decline the doodle was kept with.
+    const held = { ...ENDED_SESSION_FACTS, suggestionDeclined: jam?.suggestionDeclined ?? false }
+    const saving = saveEndedSession(
+      saves,
+      core.deps.browser.pageLeaving,
+      session.history,
+      save,
+      held,
+    )
     if (!savingOff) {
       void saving.then((outcome) => {
         settleKeeping(reviewed, outcome)
@@ -178,9 +188,10 @@ export function createSessionEnds(
         tellDamagedDeleted(core.deps.keptSessions.reports, outcome)
       })
     }
-    // A session started without phrase 1 (a fresh Jam's) ran no adaptive tempo and leaves session
-    // mode's Idle as it was: no tempo reached is handed over and no fresh phrase asked for.
-    if (session.phraseOne === null) return
+    // A Jam (a fresh one, started without phrase 1, or one on the kept doodle) ran no adaptive
+    // tempo and leaves session mode's Idle as it was: no tempo reached is handed over and no fresh
+    // phrase asked for; Jam's code writes its own phrase 1 again from the doodle it keeps.
+    if (session.phraseOne === null || session.keptDoodle !== null) return
     adaptiveTempo.sessionEnded(reviewed.tempoReached)
     void idle.actions.startFreshPhrase()
   }

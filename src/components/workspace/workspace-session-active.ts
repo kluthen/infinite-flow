@@ -19,6 +19,7 @@ import type {
   SessionOutput,
   SessionPhrase,
 } from '@/session/session-types'
+import type { StartedOnKeptDoodle } from './session-jam-part'
 import type { AdaptiveTempoFlag } from './workspace-adaptive-tempo'
 import type { SessionDisplay } from './workspace-session-display'
 import type { SessionEndWatch } from './workspace-session-end-watchers'
@@ -78,6 +79,8 @@ export interface ActiveSession {
    * review's Jam part; null until then, and in a session started with phrase 1.
    */
   doodleControls: DoodleReadings | null
+  /** The kept doodle a Jam on it started on, which its review's Jam part shows; null otherwise. */
+  readonly keptDoodle: StartedOnKeptDoodle | null
 }
 
 /** The fields of the controller's state its parts write; the rest are read through its sides. */

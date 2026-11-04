@@ -19,8 +19,8 @@
  * `Retry generation` and `Retry notation` act on it, writing from the doodle, and no rhythm
  * combination ever blocks it. While the cue row holds `jam-needs-controller` (no
  * controller connected in Jam mode), `Start Jam` names it with `aria-describedby`, and
- * `jam-notice` while Jam's staff shows it. `Start Jam` is enabled exactly while a fresh Jam could
- * start, as the shell judges it.
+ * `jam-notice` while Jam's staff shows it. `Start Jam` is enabled exactly while a Jam could start
+ * (a fresh Jam, or with a doodle kept a Jam on it), as the shell judges it.
  */
 import { computed, ref } from 'vue'
 
@@ -54,7 +54,10 @@ const props = withDefaults(
     jamStaffState?: JamStaffState | null
     /** The cue row holds `jam-needs-controller`, which `Start Jam` then names; false by default. */
     jamNeedsController?: boolean
-    /** A fresh Jam could start now (`freshJamCanStart`): `Start Jam` is enabled; false by default. */
+    /**
+     * A Jam could start now (a fresh Jam, or with a doodle kept a Jam on it): `Start Jam` is
+     * enabled; false by default.
+     */
     jamCanStart?: boolean
     /** Jam's staff shows `jam-notice`, which `Start Jam` then names; false by default. */
     jamNoticeShown?: boolean

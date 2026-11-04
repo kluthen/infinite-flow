@@ -48,10 +48,13 @@ export async function expectChecked(page: Page, label: ModeLabel): Promise<void>
   await expect(modeSegment(page, otherMode(label))).toHaveAttribute('aria-checked', 'false')
 }
 
-/** Intent: session mode's staff viewport (Jam's view has one of its own). */
+/**
+ * Intent: session mode's staff viewport, the staff stack's first child (Jam's view and the kept
+ * doodle's staff each have one of their own after it).
+ */
 export function sessionViewport(page: Page): Locator {
   return page
-    .locator('.score-panel > div > .staff-viewport')
+    .locator('.score-panel > div > .staff-viewport:first-child')
     .filter({ hasNot: page.locator('.staff-jam') })
 }
 

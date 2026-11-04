@@ -333,6 +333,7 @@ describe("Jam mode's phrase 1 at Idle from the kept doodle", () => {
       closeReview: () => Promise.resolve(),
       keptDoodleSession: () => rig.keptDoodle.kept.value?.sessionKey ?? null,
       keepDoodle: rig.keptDoodle.keep,
+      declineKeptDoodle: () => undefined,
     })
 
     ports.useAnswer(JAM_MODULE, { tonalCenter: 'A', collection: 'Aeolian' })

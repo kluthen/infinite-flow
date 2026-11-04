@@ -3,8 +3,10 @@
  * the primary emphasis in each workspace state, by the handoff's action table, and when the phrase
  * action is disabled. Exactly one slot carries the emphasis: the next useful step. Pure and
  * DOM-free; the header reads the facts from the Idle state and the session controller. It also
- * judges when a fresh Jam (Jam mode at Idle, no doodle kept) could start.
+ * judges when a fresh Jam (Jam mode at Idle, no doodle kept) could start, and when a Jam on the
+ * kept doodle could.
  */
+import type { IdlePhraseStateView } from '@/composables/generation-session-types'
 
 /** The workspace facts the action table is judged on. */
 // @spec-link [[rule_session_start_conditions]]
@@ -110,5 +112,53 @@ export function freshJamCanStart(facts: FreshJamStartFacts): boolean {
     !facts.sheetOpen &&
     !facts.orientationNoticeShown &&
     facts.jamStaffShown
+  )
+}
+
+/** The facts a Jam on the kept doodle's start is judged on: a fresh Jam's, phrase 1 in its staff's. */
+// @spec-link [[rule_jam_on_held_doodle_skips_capture]]
+export interface KeptDoodleJamStartFacts extends Omit<FreshJamStartFacts, 'jamStaffShown'> {
+  /**
+   * Phrase 1 written from the kept doodle is shown, as in Ready: engraved, and no Loading, fit
+   * retries, generation failure, notation error or Needs more room on it.
+   */
+  readonly phraseOneShown: boolean
+}
+
+/**
+ * Intent: whether phrase 1 written from the kept doodle is shown as in Ready, from its Idle state:
+ * a result engraved, nothing running on it, and no failure, error or room notice.
+ */
+// @spec-link [[rule_jam_on_held_doodle_skips_capture]]
+export function keptPhraseOneShown(state: IdlePhraseStateView<unknown>): boolean {
+  return (
+    state.result !== null &&
+    state.resultEngraved &&
+    state.operation === 'idle' &&
+    !state.retriesRunning &&
+    state.generationError === null &&
+    state.notationError === null &&
+    state.roomNotice === null
+  )
+}
+
+/**
+ * Intent: whether a Jam on the kept doodle could start now: as a session start from Ready, its
+ * phrase 1 the one shown from the kept doodle, and a controller connected: the controller loaded,
+ * no session running, the review mode not showing, no sheet or confirmation open, no rotate-device
+ * notice, and phrase 1 shown with nothing running, failed or noticed on it.
+ */
+// @spec-link [[rule_jam_on_held_doodle_skips_capture]]
+// @spec-link [[rule_jam_needs_controller]]
+// @spec-link [[rule_session_start_conditions]]
+export function keptDoodleJamCanStart(facts: KeptDoodleJamStartFacts): boolean {
+  return (
+    facts.controllerLoaded &&
+    facts.controllerConnected &&
+    !facts.sessionActive &&
+    !facts.reviewShowing &&
+    !facts.sheetOpen &&
+    !facts.orientationNoticeShown &&
+    facts.phraseOneShown
   )
 }

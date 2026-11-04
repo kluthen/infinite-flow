@@ -3,7 +3,7 @@
  * loaded in the visit, from Jam's code, for the selected instrument and Jam's key and mode; kept
  * through anything but what lets it go: leaving Jam mode, and the player's deletion of the session
  * it comes from or of every session. A deletion of another session, entering Jam mode or a change
- * of the instrument keep it.
+ * of the instrument keep it. Its suggestion declined keeps it too.
  */
 import { afterEach, describe, expect, it } from 'vitest'
 import { effectScope, shallowRef, type EffectScope } from 'vue'
@@ -121,6 +121,20 @@ describe("the workspace's kept doodle", () => {
     expect(made.host.kept.value).toBe(kept)
 
     made.host.letGo()
+    expect(made.host.kept.value).toBeNull()
+  })
+
+  // @test-link [[rule_suggestion_keep_mine]]
+  it("declines the kept doodle's suggestion, the doodle kept; with none kept, nothing changes", () => {
+    const made = keeping()
+
+    made.host.decline()
+
+    expect(made.host.kept.value).toEqual(
+      expect.objectContaining({ sessionKey: 'session-1', suggestionDeclined: true }),
+    )
+    made.host.letGo()
+    expect(() => made.host.decline()).not.toThrow()
     expect(made.host.kept.value).toBeNull()
   })
 

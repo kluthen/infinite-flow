@@ -4,7 +4,8 @@
  * over Jam mode, the reviewed session's doodle kept in place of any other, then the review closed;
  * over session mode, the review closed, Jam mode entered between, then the doodle kept; and, the
  * reviewed session being the one the kept doodle comes from, the review closed and the doodle kept
- * as it is.
+ * as it is. A review's `Keep {key} {mode}` on the session the kept doodle comes from declines the
+ * kept doodle's suggestion too; on another session it leaves it.
  */
 import { describe, expect, it } from 'vitest'
 
@@ -41,6 +42,7 @@ function ports(mode: WorkspaceMode, keptFrom: string | null = null) {
       log.push(`keep ${sessionKey}`)
       kept.push({ jam, sessionKey })
     },
+    declineKeptDoodle: () => log.push('decline the kept doodle'),
   })
   return { ports: made, log, kept }
 }
@@ -74,5 +76,26 @@ describe('Jam again on this doodle', () => {
     await run.ports.jamAgain({ jam: reviewedJamPart(), sessionKey: 'session-1' })
 
     expect(run.log).toEqual(['close review'])
+  })
+})
+
+// @test-link [[rule_suggestion_keep_mine]]
+// @test-link [[module_kept_doodle]]
+describe("a review's Keep {key} {mode}", () => {
+  it('on the session the kept doodle comes from, declines the kept doodle’s suggestion too', () => {
+    const run = ports('jam', 'session-1')
+
+    run.ports.declined('session-1')
+
+    expect(run.log).toEqual(['decline the kept doodle'])
+  })
+
+  it('on another session, or with no doodle kept, leaves the kept doodle as it is', () => {
+    const other = ports('jam', 'session-other')
+    other.ports.declined('session-1')
+    const none = ports('session')
+    none.ports.declined('session-1')
+
+    expect([...other.log, ...none.log]).toEqual([])
   })
 })

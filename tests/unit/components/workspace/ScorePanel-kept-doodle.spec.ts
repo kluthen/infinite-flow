@@ -5,7 +5,8 @@
  * takes Jam's view's place in sight (Jam's view out of sight and inert, still mounted), its frame
  * taking the Idle states as session mode's (Loading, Ready, the notation error, Needs more room),
  * the generation-failure banner and both live regions following Jam's phrase 1, never session
- * mode's Idle, which stays as it was; it goes out of sight while a session's staff shows.
+ * mode's Idle, which stays as it was; it goes out of sight while a session's staff shows. Its
+ * start marker points at the note the panel is given (`keptStartMarker`), none without one.
  */
 import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
@@ -20,6 +21,7 @@ import type {
 } from '@/components/workspace/use-kept-doodle-phrase'
 import { GenerationFailedError } from '@/composables/workspace-session-result'
 import { NotationError } from '@/notation/notation-error'
+import type { ExpectedNoteIdentity } from '@/domain/acknowledgement/expected-note'
 import { transportRig } from '../../audio/transport-rig'
 import { createFakeSessionController, type FakeSessionController } from './fake-session-controller'
 import { fakeGenerationSession } from './fake-generation-session'
@@ -74,6 +76,7 @@ function keptPhrase(kept: boolean) {
 function mountPanel(
   phrase: ReturnType<typeof keptPhrase>,
   fake: FakeSessionController = createFakeSessionController(),
+  keptStartMarker: ExpectedNoteIdentity | null = null,
 ) {
   const generation = fakeGenerationSession({ generationError: new Error('session boom') })
   const wrapper = mount(ScorePanel, {
@@ -90,6 +93,7 @@ function mountPanel(
       matchesPhoneLayout: () => false,
       jamView: JamViewStub,
       keptPhrase: phrase.view,
+      keptStartMarker,
     },
     global: { stubs: { PhraseScore: PHRASE_SCORE_STUB }, provide: provideSaveSettings() },
     attachTo: document.body,
@@ -183,5 +187,27 @@ describe("ScorePanel and Jam's phrase 1 from the kept doodle", () => {
 
     expect(keptStaff(wrapper).classes()).toContain('is-out-of-sight')
     wrapper.unmount()
+  })
+})
+
+// @test-link [[module_jam_idle_notes]]
+describe("ScorePanel and the start marker on the kept doodle's phrase 1", () => {
+  // @test-link [[module_jam_idle_notes]]
+  it("points the start marker of Jam's staff at the note it is given, none without one", async () => {
+    const marker: ExpectedNoteIdentity = { phraseNumber: 1, measureIndex: 0, eventIndex: 0 }
+    const marked = mountPanel(keptPhrase(true), createFakeSessionController(), marker)
+    const unmarked = mountPanel(keptPhrase(true))
+    await flushPromises()
+
+    const kept = (mounted: ReturnType<typeof mountPanel>) =>
+      mounted.wrapper.findAllComponents({ name: 'PhraseScore' })[1]!
+    expect(kept(marked).props('overlays')).toEqual({
+      startMarker: marker,
+      playheadMeasure: null,
+      acknowledged: [],
+    })
+    expect(kept(unmarked).props('overlays').startMarker).toBeNull()
+    marked.wrapper.unmount()
+    unmarked.wrapper.unmount()
   })
 })

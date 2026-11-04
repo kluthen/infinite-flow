@@ -49,6 +49,11 @@ import {
   startLine,
   unplugNow,
 } from './session-midi-helpers'
+import {
+  KEPT_SENTENCE,
+  jamBarSentence,
+  untilKeptPhraseOneReady,
+} from '../workspace/kept-doodle-helpers'
 
 let expectNoPageErrors: () => void
 
@@ -360,6 +365,7 @@ test.describe('jam-notice goes at a change of a Jam setting, of the instrument, 
 
 // @test-link [[rule_jam_runs_as_session_from_phrase_one]]
 // @test-link [[req_jam]]
+// @test-link [[rule_session_end_generates_next_phrase_one]]
 test('stopped after phrase 1, the Review opens in Jam mode; the home note starts nothing; Close review leaves Idle', async ({
   page,
 }) => {
@@ -371,10 +377,12 @@ test('stopped after phrase 1, the Review opens in Jam mode; the home note starts
 
   await expectReviewShowing(page, 1)
   await expectChecked(page, 'Jam')
+  // The end hands Jam's code the ended Jam's Jam part, which keeps its doodle (chunk 24).
   expect((await sessionState(page)).lastEnd).toEqual({
     cause: 'stop',
     phase: 'running',
     soundedPhraseCount: 1,
+    jam: expect.objectContaining({ sessionKey: expect.any(String) }),
   })
   const before = await sessionState(page)
   const at = await noteOn(page, KEYS, HOME_NOTE)
@@ -385,10 +393,9 @@ test('stopped after phrase 1, the Review opens in Jam mode; the home note starts
 
   await sessionAction(page).click()
 
-  await expect(sessionAction(page)).toHaveText('Start Jam')
-  await expect(sessionAction(page)).toBeEnabled()
+  // Idle keeps the doodle: phrase 1 written from it, with jam-bar, its first note the starting note.
+  await untilKeptPhraseOneReady(page)
   await expectChecked(page, 'Jam')
-  await expectStaffJamBack(page)
-  expect(await page.evaluate(() => window.__workspaceHarness.snapshot().timeline)).toBeNull()
-  await expect(startLine(page)).toHaveText('Play this note to start: C5')
+  await expect(jamBarSentence(page)).toHaveText(KEPT_SENTENCE)
+  await expect(startLine(page)).toHaveText(/Play this note to start: [A-G]/)
 })

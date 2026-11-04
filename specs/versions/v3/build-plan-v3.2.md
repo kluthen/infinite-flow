@@ -583,19 +583,18 @@ Written by chunk 19; run after wave 3. About 6 minutes.
 
 #### v3.2 H4 — Jam listening: settings, drift and lock (L1)
 
-Written by chunk 21; run after wave 6. About 10 minutes. Until wave 7 keeps the doodle (chunk
-24), each Jam is a fresh one, so steps 3 to 5 play the same doodle again; chunk 24 rewords them to
-run on the kept doodle (spec D497).
+Written by chunk 21; run after wave 7. About 10 minutes. Steps 3 to 5 run on the kept doodle
+(chunk 24, spec D497).
 
 1. Jam mode, 100 BPM, Drift Near, lock Off.
 2. Play a two-measure doodle with a clear rhythm; listen to four phrases: "does it sound like my
    doodle?"
-3. Stop; Close review. Set Drift Close; Start Jam and play the same doodle again; listen to four
-   phrases. At Drift Close, did any phrase use quicker notes than your doodle?
-   ([O271](../../open-questions.md#v32-build-o267))
-4. Same with Drift Free.
-5. Rhythm lock On; Start Jam, the same doodle; listen to four phrases: one rhythm, near the
-   doodle's.
+3. Stop; Close review: the doodle is kept. Set Drift Close; Start Jam with no new doodle (the app
+   replays the same doodle); listen to four phrases. At Drift Close, did any phrase use quicker
+   notes than your doodle? ([O271](../../open-questions.md#v32-build-o267))
+4. Same with Drift Free: Stop, Close review, Drift Free, Start Jam with no new doodle.
+5. Stop, Close review; Rhythm lock On; Start Jam, still the kept doodle; listen to four phrases:
+   one rhythm, near the doodle's.
 6. Say whether Jam's small settings set felt enough, and whether drift and the lock felt like two
    controls or one.
 
@@ -605,11 +604,11 @@ two apart here too ("sounds like my doodle" and "I like it").
 
 #### v3.2 H5 — Jam listening: the doodle-to-controls mapping (L1)
 
-Written by chunk 21; run after wave 6, once the owner's recordings have joined the doodle set (gate
+Written by chunk 21; run after wave 7, once the owner's recordings have joined the doodle set (gate
 DR, spec D443). About 10 minutes.
 
-1. Jam mode, 90 BPM, Drift Near, lock Off. Before each step, Stop and Close review, so each doodle
-   starts a fresh Jam; from wave 7, New doodle (chunk 24 rewords it, spec D497).
+1. Jam mode, 90 BPM, Drift Near, lock Off. Before each step, Stop, Close review and New doodle,
+   so each doodle starts a fresh Jam (spec D497).
 2. Play a sparse doodle (three or four long notes over two measures); read "From your doodle"
    after phrase 1; listen to two phrases.
 3. Play a busy doodle (running eighths or sixteenths); read, listen.

@@ -107,7 +107,7 @@ export function createKeptPlayedNotes(
     const session = recent.session
     replaceHeld(withPlayedNotesKept(session))
     // A refusal is told by the notice row; the change holds in memory for the visit.
-    const fresh = session.jam === undefined ? undefined : keptFreshJam(session.jam)
+    const fresh = session.jam === undefined ? undefined : (keptFreshJam(session.jam) ?? undefined)
     await keepSessionPlayedNotes(kept.changes, session.key, session.history, fresh)
   }
 

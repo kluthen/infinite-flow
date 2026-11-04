@@ -5,7 +5,8 @@
  * Jam gives the screen (the cue row's parts and phase before phrase 1, the readings taken from the
  * doodle once phrase 1 enters); and what its end leaves at Jam mode's Idle. Every end goes through
  * the controller's one end path: here the running Jam is let go once the session is over; an end
- * with a review hands Jam's kept doodle the Jam part that review shows, with its session's key,
+ * with a review hands Jam's kept doodle the Jam part that review shows, with its session's key (a
+ * Jam on the kept doodle's too, whose part holds that same doodle, ./use-kept-doodle-jam.ts),
  * and an end before phrase 1 hands none, so a fresh Jam's doodle is not kept and a doodle kept
  * already stays; an end because no phrase 1 came by the deadline leaves `jam-notice` showing until
  * the next start, a change of a Jam setting or leaving Jam mode. The mode never changes here. Jam's

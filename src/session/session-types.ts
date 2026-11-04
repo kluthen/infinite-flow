@@ -14,6 +14,7 @@ import type {
 } from '../domain/generation/generation-intent'
 import type { GenerationOutcome } from '../domain/generation/orchestration/orchestration-types'
 import type { RhythmChangeKind } from '../domain/generation/request-rhythm-lock'
+import type { SteeringBlock } from '../domain/generation/steering-block'
 import type { KeyAndModeRestriction } from '../domain/presets/key-and-mode-restriction'
 import type { PresetSelection } from '../domain/presets/preset-selection'
 import type { InstrumentProfile } from '../domain/profile/instrument-profile'
@@ -156,6 +157,11 @@ export interface SessionStart {
    * Absent means none, as an empty list does: pre-generation off or nothing ready.
    */
   readonly readyPhrases?: readonly ReadyPhrase[]
+  /**
+   * The steering block every request from phrase 2 on carries, in a steered session (a Jam on the
+   * kept doodle, whose phrase 1 at Idle was written from it); absent for an unsteered one.
+   */
+  readonly steering?: SteeringBlock
 }
 
 /**

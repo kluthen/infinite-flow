@@ -10,6 +10,7 @@ import type { ReadyPhrase } from '@/session/session-ready-phrases'
 import type { AudioTime, SessionSettings } from '@/session/session-types'
 import type { StaffLayout } from '@/notation/notation-layout-policy'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
+import type { SteeringBlock } from '@/domain/generation/steering-block'
 import { forwardPresence } from './workspace-adaptive-tempo'
 import {
   dispatchAt,
@@ -72,9 +73,19 @@ export function startWakeUps(core: SessionControllerCore, ends: SessionEnds): vo
 }
 
 /**
+ * What a Jam on the kept doodle adds to its beginning: the steering block every phrase from 2 on
+ * carries. As in any Jam, Vary settings, Tension across phrases and Rising tempo do not run in it.
+ */
+// @spec-link [[module_session_ready_phrases]]
+export interface JamOnKeptDoodleBeginning {
+  readonly steering: SteeringBlock
+}
+
+/**
  * What the in-click part of a start settled: the session's settings and those phrase 1 was
- * generated under, the staff layout it holds, the written phrase Idle shows (phrase 1) and the
- * pre-generated phrases Start took.
+ * generated under, the staff layout it holds, the written phrase Idle shows (phrase 1), the
+ * pre-generated phrases Start took, and, for a Jam on the kept doodle, what it adds (null in
+ * session mode).
  */
 // @spec-link [[module_session_ready_phrases]]
 export interface SessionBeginning {
@@ -83,6 +94,7 @@ export interface SessionBeginning {
   readonly heldLayout: StaffLayout
   readonly idleWritten: WrittenPhrase
   readonly readyPhrases: readonly ReadyPhrase[]
+  readonly jam: JamOnKeptDoodleBeginning | null
 }
 
 /**
@@ -92,8 +104,10 @@ export interface SessionBeginning {
  * end, start the wake-ups, the display's frame loop, the runner (from phrase 1 and its session
  * seed and the ready phrases Start took, checking fits through the display, reading it for what
  * is on screen, with the page's `Vary settings` choice) and the end watchers; the controls show the
- * start settings, and the state holds the settings the session was started with. `start` undoes it
- * all if any of it throws.
+ * start settings, and the state holds the settings the session was started with. A Jam on the kept
+ * doodle runs with its steering block on every request and none of session mode's options:
+ * no settings mutation, no tension arc across phrases, no adaptive tempo. `start` undoes it all if
+ * any of it throws.
  */
 // @spec-link [[req_settings_mutation_flag]]
 // @spec-link [[rule_count_in_shown_on_screen]]
@@ -110,7 +124,7 @@ export function beginSession(
   session: ActiveSession,
   begun: SessionBeginning,
 ): void {
-  const { settings, phraseOneSettings, heldLayout, idleWritten, readyPhrases } = begun
+  const { settings, phraseOneSettings, heldLayout, idleWritten, readyPhrases, jam } = begun
   const { deps, state } = core
   const { audio, browser } = deps
   const { sessionMidi, adaptiveTempo, varySettings, tensionAcrossPhrases } = sides
@@ -169,9 +183,18 @@ export function beginSession(
       phraseOne: { intent: phraseOne.intent, outcome: phraseOne.outcome },
       phraseOneSettings,
       sessionSeed: phraseOne.sessionSeed,
-      adaptiveTempo: adaptiveTempo.forSession(sessionMidi.sessionHasController()),
-      varySettings: varySettings.on(),
-      multiPhraseTensionArc: tensionAcrossPhrases.on(),
+      ...(jam === null
+        ? {
+            adaptiveTempo: adaptiveTempo.forSession(sessionMidi.sessionHasController()),
+            varySettings: varySettings.on(),
+            multiPhraseTensionArc: tensionAcrossPhrases.on(),
+          }
+        : {
+            adaptiveTempo: false,
+            varySettings: false,
+            multiPhraseTensionArc: false,
+            steering: jam.steering,
+          }),
       readyPhrases,
     },
     checkFit: display.checkFit,

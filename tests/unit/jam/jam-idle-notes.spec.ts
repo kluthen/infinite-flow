@@ -7,18 +7,24 @@
  * music theory and the instruments' written ranges, never from the code: the keyboard writes C3 to
  * C5 (MIDI 48 to 72, middle C4 = 60) at concert pitch; both saxophones write C4 to C6 (60 to 84,
  * middle C5 = 72), the tenor sounding a major ninth (14 semitones) lower and the alto a major sixth
- * (9 semitones) lower. Octave 4 starts on middle C.
+ * (9 semitones) lower. Octave 4 starts on middle C. With a doodle kept, the starting note is the
+ * first note of phrase 1 written from it, read here from that phrase's own timeline.
  */
 import { describe, expect, it } from 'vitest'
 
 import type { Collection, PitchClass } from '@/domain/controls/generation-controls'
 import { makeMyInstrument } from '@/domain/profile/my-instrument'
+import { notationInputFromOutcome } from '@/domain/notation/notation-input'
+import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
+import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
 import {
   createJamIdleNotes,
   jamHomeNote,
   type JamIdleNotesDependencies,
   type JamInstrument,
+  type JamKeptPhraseOne,
 } from '@/jam/jam-idle-notes'
+import { phraseOneFor, sessionSettings } from '../session/session-harness'
 
 const KEYBOARD: JamInstrument = { instrumentProfileId: 'c-keyboard', myInstrument: null }
 const TENOR: JamInstrument = { instrumentProfileId: 'bb-tenor', myInstrument: null }
@@ -167,6 +173,8 @@ function routing(conditions: { canStart: boolean; pageAwaitsClick: boolean }) {
     instrument: () => KEYBOARD,
     canStart: () => conditions.canStart,
     pageAwaitsClick: () => conditions.pageAwaitsClick,
+    doodleKept: () => false,
+    keptPhraseOne: () => null,
   }
   return createJamIdleNotes(deps)
 }
@@ -212,5 +220,77 @@ describe('createJamIdleNotes', () => {
     conditions.pageAwaitsClick = false
     expect(notes.awaitsClick()).toBe(false)
     expect(notes.meaningOf(55)).toBe('start')
+  })
+})
+
+/** Phrase 1 written from a kept doodle, as Jam mode's Idle would show it: a real phrase, drawn. */
+function keptPhraseOne(): JamKeptPhraseOne {
+  const { intent, outcome } = phraseOneFor(sessionSettings())
+  const written = transformToWrittenPhrase(
+    notationInputFromOutcome(outcome, intent, BUILT_IN_INSTRUMENT_CLEF),
+  )
+  return { timeline: outcome.result.timeline, written }
+}
+
+/** Intent: phrase 1's first attacked note, read from its timeline: its pitch and where it is. */
+function firstNoteOf(phrase: JamKeptPhraseOne) {
+  for (const measure of phrase.timeline.measures) {
+    const eventIndex = measure.events.findIndex((event) => event.kind === 'note')
+    const event = measure.events[eventIndex]
+    if (event?.kind === 'note')
+      return { pitch: event.pitch, measureIndex: measure.measureIndex, eventIndex }
+  }
+  throw new Error('phrase 1 has no note')
+}
+
+/** Intent: Jam's Idle note routing with a doodle kept, its phrase 1 shown or not, as the test sets. */
+function keptRouting(conditions: { canStart: boolean; phrase: JamKeptPhraseOne | null }) {
+  return createJamIdleNotes({
+    writtenKey: () => 'G',
+    collection: () => 'Major',
+    instrument: () => KEYBOARD,
+    canStart: () => conditions.canStart,
+    pageAwaitsClick: () => false,
+    doodleKept: () => true,
+    keptPhraseOne: () => conditions.phrase,
+  })
+}
+
+// @test-link [[module_jam_idle_notes]]
+// @test-link [[rule_held_doodle_phrase_one_at_idle]]
+describe('createJamIdleNotes with a doodle kept', () => {
+  // @test-link [[module_jam_idle_notes]]
+  it("names phrase 1's first note, marked on the staff, and only its exact pitch starts", () => {
+    const phrase = keptPhraseOne()
+    const first = firstNoteOf(phrase)
+    const notes = keptRouting({ canStart: true, phrase })
+
+    const starting = notes.startingNote()
+    expect(starting?.concertPitch).toBe(first.pitch)
+    expect(starting?.identity).toEqual({
+      phraseNumber: 1,
+      measureIndex: first.measureIndex,
+      eventIndex: first.eventIndex,
+    })
+    expect(starting?.writtenMidi).toBe(first.pitch + phrase.written.transposition.chromatic)
+    expect(notes.meaningOf(first.pitch)).toBe('start')
+    expect(notes.meaningOf(first.pitch + 12), 'another octave').toBe('ignored')
+    expect(notes.meaningOf(first.pitch - 1), 'another note').toBe('ignored')
+  })
+
+  // @test-link [[module_jam_idle_notes]]
+  it('names no note, never the home note, while phrase 1 is not shown or a Jam cannot start', () => {
+    const conditions: { canStart: boolean; phrase: JamKeptPhraseOne | null } = {
+      canStart: true,
+      phrase: null,
+    }
+    const notes = keptRouting(conditions)
+    expect(notes.startingNote()).toBeNull()
+    expect(notes.meaningOf(jamHomeNote('G', 'Major', KEYBOARD).concertPitch)).toBe('ignored')
+
+    conditions.phrase = keptPhraseOne()
+    conditions.canStart = false
+    expect(notes.startingNote()).toBeNull()
+    expect(notes.meaningOf(firstNoteOf(conditions.phrase).pitch)).toBe('ignored')
   })
 })

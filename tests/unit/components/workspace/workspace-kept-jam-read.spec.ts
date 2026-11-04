@@ -3,7 +3,8 @@
  * in the shape a just-ended Jam's has, every time on its phrases' clock (phrase 1 at 0): its
  * quantized doodle with its capture tempo and barlines, its count-in's first beat, its raw doodle
  * notes when its played notes are kept (none otherwise), its decline as stored, and neither a
- * suggestion nor controls, which the records do not hold. A session that is no Jam has none.
+ * suggestion nor controls, which the records do not hold. A Jam on the kept doodle reads back as
+ * its end showed it: the kept doodle, no raw note, no count-in. A session that is no Jam has none.
  */
 import { describe, expect, it } from 'vitest'
 
@@ -23,16 +24,22 @@ import {
   KEPT_DOODLE,
   RAW_DOODLE_NOTES,
   jamHistory,
+  keptDoodleJamPart,
   reviewedJamPart,
 } from './reviewed-jam-part-fixture'
+import type { ReviewedJamPart } from '@/components/workspace/session-jam-part'
 
 /**
  * Intent: the session the Review of the fresh Jam kept by its own save draws once read back, its
  * played notes kept or not, its suggestion declined or not.
  */
-async function readBack(keep: boolean, declined: boolean): Promise<ReviewedSession> {
+async function readBack(
+  keep: boolean,
+  declined: boolean,
+  part: ReviewedJamPart = reviewedJamPart(),
+): Promise<ReviewedSession> {
   const history = jamHistory(true)
-  const saving = endedSessionSave(history, keep, BUILT_IN_PRESETS, reviewedJamPart())
+  const saving = endedSessionSave(history, keep, BUILT_IN_PRESETS, part)
   const held = { pinned: false, favorites: [], comment: '', suggestionDeclined: declined }
   const changes = keptSessionChanges(codec, history, saving, [], APP_VERSION, held)
   const stored = (store: StorageChange['store']): unknown => {
@@ -91,6 +98,25 @@ describe('a kept Jam session read back for its Review', () => {
   // @test-link [[rule_suggestion_keep_mine]]
   it('reads its decline as stored', async () => {
     expect((await readBack(false, true)).jam?.suggestionDeclined).toBe(true)
+  })
+
+  // @test-link [[rule_jam_on_held_doodle_skips_capture]]
+  it("gives a Jam on the kept doodle the part its end showed, on its phrases' clock, its lane empty", async () => {
+    const part = keptDoodleJamPart(PHRASE_ONE_AT, true)
+    const session = await readBack(true, true, part)
+
+    expect(session.jam).toEqual({
+      doodle: {
+        ...part.doodle,
+        firstBarlineAt: expect.closeTo(part.doodle.firstBarlineAt - PHRASE_ONE_AT, 9),
+        endBarlineAt: expect.closeTo(part.doodle.endBarlineAt - PHRASE_ONE_AT, 9),
+      },
+      countInStartAt: null,
+      suggestion: null,
+      suggestionDeclined: true,
+      doodleControls: null,
+    })
+    expect(session.history.phrases()[0]?.playedNotes.length).toBeGreaterThan(0)
   })
 
   it('gives a session that is no Jam no Jam part', async () => {

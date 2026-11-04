@@ -81,6 +81,7 @@ import {
 import { createSessionMidi, type ControllerLostCountdown } from './workspace-session-midi'
 import { createSessionStart } from './workspace-session-start'
 import { createSessionStartWithoutPhraseOne } from './workspace-session-without-phrase-one'
+import { createSessionStartOnKeptDoodle } from './workspace-session-on-kept-doodle'
 import { createSessionLockAndGroups } from './workspace-session-lock-choices'
 import { createVarySettingsAvailability } from './workspace-vary-settings-availability'
 import { createStalePhraseStart, type StalePhrasePrompt } from './workspace-stale-phrase'
@@ -341,6 +342,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
   }
   const start = createSessionStart(core, sides, ends, () => startBlocker.value)
   const startWithoutPhraseOne = createSessionStartWithoutPhraseOne(core, sides, ends)
+  const startOnKeptDoodle = createSessionStartOnKeptDoodle(core, sides, ends)
   const stalePhrase = createStalePhraseStart({
     idle: idle.state,
     state,
@@ -355,6 +357,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     state: shallowReadonly(state),
     start: () => stalePhrase.request('start'),
     startWithoutPhraseOne,
+    startOnKeptDoodle,
     useStalePhrase: stalePhrase.use,
     dismissStalePhrase: stalePhrase.dismiss,
     stop: () => ends.end('stop'),

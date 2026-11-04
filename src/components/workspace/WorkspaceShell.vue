@@ -55,9 +55,10 @@
  * staff, which the score panel and the header's phrase action show in Jam mode with a doodle kept;
  * its Loading holds the mode switch and Jam's controls read-only, as session mode's does. Jam's
  * own pre-generation queue (./use-jam-pregeneration.ts), apart from session mode's, prepares the
- * phrases a Jam on the kept doodle plays after that phrase 1.
+ * phrases a Jam on the kept doodle plays after that phrase 1. The kept doodle's bar (`jam-bar`,
+ * ./use-jam-bar.ts) lets it go on `New doodle` and offers its suggestion at Idle.
  */
-import { computed, defineAsyncComponent, nextTick, onMounted, provide, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, nextTick, onMounted, ref, watch } from 'vue'
 
 import type { PostPrewarm } from '@/composables/generation-session-prewarm'
 import type { GenerationSession } from '@/composables/use-generation-session'
@@ -88,7 +89,7 @@ import WorkspaceHeader from './WorkspaceHeader.vue'
 import ScorePanel from './ScorePanel.vue'
 import OrientationNotice from './OrientationNotice.vue'
 import { createMixVolumePopover } from './mix-volume-popover'
-import { jumpForSessionStart, type SessionJumpView } from './session-start-jump'
+import { jumpForSessionStart, startStaffViewport, type SessionJumpView } from './session-start-jump'
 import type { SessionEndFocusTarget } from './session-end-focus'
 import type { SessionController } from './workspace-session-controller-types'
 import {
@@ -110,13 +111,14 @@ import { loadJamMode } from './load-jam-mode'
 import { useWorkspaceMode } from './use-workspace-mode'
 import { useJamIdleCue } from './use-jam-idle-cue'
 import { useJamSettings } from './use-jam-settings'
-import { REVIEW_JAM_PORTS, workspaceReviewJamPorts } from './review-jam-ports'
 import { useFreshJam } from './use-fresh-jam'
 import { useKeptDoodleHost } from './use-kept-doodle-host'
 import { useKeptDoodlePhrase, type KeptDoodleGeneration } from './use-kept-doodle-phrase'
 import { useJamPregeneration } from './use-jam-pregeneration'
 import type { JamPregenerationLoader } from './jam-pregeneration'
-import { freshJamCanStart, type FreshJamStartFacts } from './session-action-policy'
+import { useKeptDoodleJam } from './use-kept-doodle-jam'
+import { useJamPortsAndBar } from './use-jam-bar'
+import type { FreshJamStartFacts } from './session-action-policy'
 import type { HeldModeNoteRoute } from './workspace-session-midi'
 
 // The stale-phrase prompt, in its own chunk: only a stale phrase 1 at a start needs it.
@@ -352,7 +354,7 @@ const jamPhraseRunning = computed(() => keptPhrase.state.operation !== 'idle')
 
 // Jam's own pre-generation queue, from the kept doodle's phrase 1: a Jam started on it takes its
 // ready phrases with `take(heldLayout)`.
-useJamPregeneration({
+const jamPregeneration = useJamPregeneration({
   load: props.jamPregeneration,
   jamModule: () => workspaceMode.jamModule.value,
   phrase: keptPhrase,
@@ -379,6 +381,17 @@ const freshJam = useFreshJam({
   lastEnd: () => props.controller?.state.lastEnd ?? null,
   jamStaffState: () => jamStaffState.value,
   keepDoodle: keptDoodle.keep,
+})
+
+// The Jam `Start Jam` starts: on the kept doodle (as from Ready) when one is kept, else a fresh one.
+const keptDoodleJam = useKeptDoodleJam({
+  controller: requireController,
+  kept: () => keptDoodle.kept.value,
+  phrase: keptPhrase,
+  tempo: () => jamSettings.view.value?.controls.tempo ?? null,
+  take: jamPregeneration.take,
+  lastEnd: () => props.controller?.state.lastEnd ?? null,
+  startFresh: freshJam.start,
 })
 
 /**
@@ -551,7 +564,8 @@ function jamStartFacts(): FreshJamStartFacts {
   }
 }
 
-// Jam mode's Idle cue: the home note while a fresh Jam could start, or `jam-needs-controller`.
+// Jam mode's Idle cue: the starting note while a Jam could start (the home note, or the kept
+// doodle's phrase 1's first note), or `jam-needs-controller`.
 const jamIdleCue = useJamIdleCue({
   jamModule: () => workspaceMode.jamModule.value,
   jamShowing: () => workspaceMode.jamView.value !== null,
@@ -559,22 +573,18 @@ const jamIdleCue = useJamIdleCue({
   startFacts: jamStartFacts,
   pageAwaitsClick: () =>
     props.controller?.state.pageActivated !== true && !props.audio.isUnlocked(),
+  keptPhrase: keptDoodleJam.phraseCue,
 })
 
-/** `Start Jam` is enabled: Jam mode shows and a fresh Jam could start now. */
-// @spec-link [[module_workspace_mode]]
-const jamCanStart = computed(
-  () => workspaceMode.jamView.value !== null && freshJamCanStart(jamStartFacts()),
-)
-
 /**
- * Intent: Jam mode's home note, played while a fresh Jam could start: the start `Start Jam` takes,
- * its one instant jump included (ux D452); focus stays where it is.
+ * Intent: Jam mode's starting note, played while a Jam could start (the home note, or the kept
+ * doodle's phrase 1's first note): the start `Start Jam` takes, its one instant jump included (ux
+ * D452); focus stays where it is.
  */
 // @spec-link [[module_workspace_mode]]
 function handleJamHomeNote(): void {
   prepareStart()
-  freshJam.start()
+  keptDoodleJam.start()
   jumpAfterStart()
 }
 emit('held-mode-notes-change', { meaningOf: jamIdleCue.meaningOf, start: handleJamHomeNote })
@@ -616,37 +626,28 @@ function prepareStart(): void {
 function handleStartSession(): void {
   prepareStart()
   if (workspaceMode.jamView.value !== null) {
-    freshJam.start()
+    keptDoodleJam.start()
     jumpAfterStart()
   } else if (requireController().start() === 'started') jumpAfterStart()
 }
 
 /**
- * Intent: the staff viewport the start's jump brings into place: in Jam mode Jam's own, which
- * shows `staff-jam`, else session mode's, the first in DOM order.
+ * Intent: the start's one instant jump, for the layout the session just started holds, to the
+ * staff in sight at the start: session mode's, or in Jam mode Jam's own (its empty staff, or with a
+ * doodle kept the staff showing its phrase 1).
  */
-function startStaffViewport(): Element {
-  if (workspaceMode.jamView.value === null) return workspacePart('.staff-viewport')
-  const viewports = layoutRoot.value?.querySelectorAll('.staff-viewport') ?? []
-  const jam = [...viewports].find((viewport) => viewport.querySelector('.staff-jam') !== null)
-  if (jam === undefined) throw new Error("workspace shell: Jam's staff viewport is not mounted")
-  return jam
-}
-
-/** Intent: the start's one instant jump, for the layout the session just started holds. */
 function jumpAfterStart(): void {
   const layout = requireController().state.heldLayout
   if (layout === null) throw new Error('workspace shell: a started session holds no staff layout')
-  if (layoutRoot.value === null) throw new Error('workspace shell: the workspace is not mounted')
-  jumpForSessionStart(
-    props.jumpView,
-    {
-      workspace: layoutRoot.value,
-      cueRow: workspacePart('.session-cue-row'),
-      staffViewport: startStaffViewport(),
-    },
-    layout,
+  const root = layoutRoot.value
+  if (root === null) throw new Error('workspace shell: the workspace is not mounted')
+  const jamStaff = keptDoodle.kept.value === null ? 'jam-empty' : 'jam-kept-doodle'
+  const staffViewport = startStaffViewport(
+    root,
+    workspaceMode.jamView.value === null ? 'session' : jamStaff,
   )
+  const parts = { workspace: root, cueRow: workspacePart('.session-cue-row'), staffViewport }
+  jumpForSessionStart(props.jumpView, parts, layout)
 }
 
 /** Intent: `Stop`, from the header or the phone's compact one. */
@@ -704,24 +705,26 @@ const reviewNavigation = useReviewNavigation({
   focusTarget,
 })
 
-// What a Jam session's Review reaches of the workspace's Jam: its key and mode, the shared
-// instrument, `Jam in {answer}` and `Jam again on this doodle`, which keeps its doodle.
+// What a Jam session's Review reaches of the workspace's Jam (its key and mode, the shared
+// instrument, `Jam in {answer}`, `Jam again on this doodle`, which keeps its doodle, and a decline,
+// which reaches the kept doodle from its session), and the kept doodle's bar over the same.
 // @spec-link [[module_workspace_mode]]
-provide(
-  REVIEW_JAM_PORTS,
-  workspaceReviewJamPorts({
-    jamSettings,
-    instrument: () =>
-      selectedInstrumentProfile(state.value.controls.instrumentProfileId, state.value.myInstrument),
-    settingChanged: () => freshJam.settingChanged(),
-    mode: () => workspaceMode.mode.value,
-    selectJam: () => workspaceMode.select('jam'),
-    jamShown: () => loadJamMode().then(() => nextTick()),
-    closeReview: (between) => reviewNavigation.closeReview(between),
-    keptDoodleSession: () => keptDoodle.kept.value?.sessionKey ?? null,
-    keepDoodle: keptDoodle.keep,
-  }),
-)
+const jamBar = useJamPortsAndBar({
+  jamSettings,
+  instrument: () =>
+    selectedInstrumentProfile(state.value.controls.instrumentProfileId, state.value.myInstrument),
+  settingChanged: () => freshJam.settingChanged(),
+  mode: () => workspaceMode.mode.value,
+  selectJam: () => workspaceMode.select('jam'),
+  jamShown: () => loadJamMode().then(() => nextTick()),
+  closeReview: (between) => reviewNavigation.closeReview(between),
+  jamModule: () => workspaceMode.jamModule.value,
+  keptDoodle,
+  loading: () => jamPhraseRunning.value,
+  sessionActive: () => sessionActive.value,
+  controller: requireController,
+  header: () => focusParts().header,
+})
 
 /**
  * Intent: move focus to the first enabled of the session action, the phrase action and
@@ -796,7 +799,7 @@ const controlPanelActions = useControlPanelActions(props.session)
       :workspace-mode="workspaceMode.view.value"
       :jam-staff-state="jamStaffState"
       :jam-needs-controller="jamIdleCue.needsController.value"
-      :jam-can-start="jamCanStart"
+      :jam-can-start="jamIdleCue.canStart.value"
       :jam-notice-shown="freshJam.noticeShown.value"
       :jam-phrase="keptPhrase.view.value"
       @select-mode="workspaceMode.select"
@@ -837,6 +840,8 @@ const controlPanelActions = useControlPanelActions(props.session)
         :jam-cue="jamIdleCue.cue.value"
         :jam-session="freshJam.cue.value"
         :kept-phrase="keptPhrase.view.value"
+        :kept-start-marker="jamIdleCue.startMarker.value"
+        :jam-bar="jamBar"
         @jam-staff-state="jamStaffState = $event"
         @stop-session="handleStopSession"
         @show-review="reviewNavigation.showReview"

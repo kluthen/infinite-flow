@@ -74,6 +74,8 @@ describe('session controller: the home note while session mode is held', () => {
       instrument: () => testCase.instrument,
       canStart: () => true,
       pageAwaitsClick: () => false,
+      doodleKept: () => false,
+      keptPhraseOne: () => null,
     })
     const start = vi.fn(() => {
       startFresh(rig)

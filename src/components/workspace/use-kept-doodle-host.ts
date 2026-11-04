@@ -7,7 +7,9 @@
  * go on leaving Jam mode, and on the player's deletion of the session it comes from, one session
  * or every session, which the session controller records (`lastDeletion`); `New doodle` calls
  * `letGo`. Nothing else lets it go: a session's own save deleting the earlier unpinned sessions
- * records no deletion. Jam's code is reached through its loaded module only.
+ * records no deletion. Its suggestion is declined here too (`Keep {key} {mode}`, at Jam's Idle or
+ * in the review of the session it comes from). Jam's code is reached through its loaded module
+ * only.
  */
 import { computed, shallowRef, watch, type ComputedRef, type Ref } from 'vue'
 
@@ -45,6 +47,8 @@ export interface WorkspaceKeptDoodle {
   readonly keep: (jam: ReviewedJamPart, sessionKey: string) => void
   /** Let the kept doodle go (`New doodle`); with none kept, nothing changes. */
   readonly letGo: () => void
+  /** Decline the kept doodle's suggestion for good; with none kept, nothing changes. */
+  readonly decline: () => void
 }
 
 /**
@@ -104,5 +108,9 @@ export function useKeptDoodleHost(seams: KeptDoodleHostSeams): WorkspaceKeptDood
       holder.value.keep(jam, sessionKey)
     },
     letGo,
+    decline: () => {
+      const doodle = holder.value
+      if (doodle !== null && doodle.kept.value !== null) doodle.decline()
+    },
   }
 }

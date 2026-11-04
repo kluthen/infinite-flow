@@ -7,11 +7,15 @@
  * so the Idle rules keep measuring and engraving under the Review. Its frame takes the Idle states
  * as session mode's does (./idle-staff-frame.ts): Loading, Ready, the notation error and Needs
  * more room, with the same sentences; it shows no instruction, phrase 1 being always on its way
- * from the doodle. What its `PhraseScore` reports goes to Jam's phrase 1.
+ * from the doodle. While phrase 1's first note would start a Jam, the start marker points at it,
+ * as on session mode's Ready staff. What its `PhraseScore` reports goes to Jam's phrase 1.
  */
 import { computed, ref } from 'vue'
 
 import PhraseScore from '@/components/notation/PhraseScore.vue'
+import type { ExpectedNoteIdentity } from '@/domain/acknowledgement/expected-note'
+import { noteIdentityKey } from '@/notation/note-identity'
+import { NO_SCORE_OVERLAYS, type ScoreOverlays } from '@/notation/score-overlay-state'
 import {
   ROOM_NOTICE_NARROW,
   ROOM_NOTICE_TOO_MANY_NOTES,
@@ -26,7 +30,26 @@ const props = defineProps<{
   view: KeptDoodlePhraseView
   /** The shared system-position size, in engraving units, the staff draws at. */
   systemPositionUnits: number
+  /** The note of phrase 1 the start marker points at; null for no marker. */
+  startMarker: ExpectedNoteIdentity | null
 }>()
+
+/**
+ * Intent: the start marker as PhraseScore draws it, kept as the same object while it points at the
+ * same note, so nothing is redrawn for an unchanged marker.
+ */
+// @spec-link [[rule_starting_note_named]]
+// @spec-link [[module_notation_note_identity_overlays]]
+const overlays = computed<ScoreOverlays>((previous) => {
+  const marker = props.startMarker
+  const kept = previous ?? NO_SCORE_OVERLAYS
+  const same =
+    marker === kept.startMarker ||
+    (marker !== null &&
+      kept.startMarker !== null &&
+      noteIdentityKey(marker) === noteIdentityKey(kept.startMarker))
+  return same ? kept : { ...NO_SCORE_OVERLAYS, startMarker: marker }
+})
 
 /** Intent: the frame's state class, from phrase 1's Idle state. */
 // @spec-link [[rule_held_doodle_phrase_one_at_idle]]
@@ -58,6 +81,7 @@ defineExpose({ focusRoomNotice })
       <PhraseScore
         :phrase="view.phrase"
         :phrase-number="1"
+        :overlays="overlays"
         :system-position-units="systemPositionUnits"
         @engraved="view.staff.handleEngraved()"
         @notation-error="view.staff.handleNotationError"

@@ -25,12 +25,14 @@ import type { StalePhrasePrompt } from './workspace-stale-phrase'
 import type { RhythmChangeKind } from '@/domain/generation/request-rhythm-lock'
 import type { AllowedGroups } from '@/session/settings-mutation-scales'
 import type { ReviewedJamPart } from './session-jam-part'
+import type { StartOnKeptDoodle } from './workspace-session-on-kept-doodle'
 
 export type { KeptSessionsSeam } from './workspace-kept-sessions-seam'
 export type {
   SessionWithoutPhraseOne,
   StartWithoutPhraseOne,
 } from './workspace-session-without-phrase-one'
+export type { StartOnKeptDoodle } from './workspace-session-on-kept-doodle'
 export type {
   FramePort,
   SessionControllerClock,
@@ -382,6 +384,13 @@ export interface SessionController {
    * controller is connected; the code that runs it judges its own start conditions first.
    */
   readonly startWithoutPhraseOne: (request: StartWithoutPhraseOne) => SessionWithoutPhraseOne
+  /**
+   * Start a Jam on the kept doodle, synchronously, inside the Start click or the starting note's
+   * MIDI callback: a start from phrase 1 as from Ready, on Jam's phrase 1 written from the kept
+   * doodle, with no capture. Throws while a session runs or no controller is connected; Jam's side
+   * judges its other start conditions first.
+   */
+  readonly startOnKeptDoodle: (request: StartOnKeptDoodle) => void
   /**
    * Start a session; call it synchronously inside the player's Start click. Throws when blocked.
    * With a stale phrase 1 it starts nothing and opens the stale-phrase prompt instead (`asked`).

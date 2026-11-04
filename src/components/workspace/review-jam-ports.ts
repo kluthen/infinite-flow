@@ -4,7 +4,9 @@
  * and `Jam in {answer}` sets (the workspace's Jam settings, ./use-jam-settings.ts), the selected
  * instrument the answer is named for, and `Jam again on this doodle`, which leaves the review mode
  * onto Jam mode with the reviewed session's doodle kept (Jam's kept doodle, held by
- * ./use-kept-doodle-host.ts). The workspace shell provides them under `REVIEW_JAM_PORTS`; the review area
+ * ./use-kept-doodle-host.ts), and a review's `Keep {key} {mode}`, which declines the kept doodle's
+ * suggestion too when the kept doodle comes from the reviewed session. The workspace shell
+ * provides them under `REVIEW_JAM_PORTS` (and its `jam-bar` uses them too); the review area
  * injects them at setup. Only a Jam session's Review uses them: one shown without them is a wiring
  * defect, and throws then.
  */
@@ -40,6 +42,8 @@ export interface ReviewJamPorts {
   readonly useAnswer: (jam: JamSettingsCode, answer: JamKeyAndMode) => void
   /** `Jam again on this doodle`: the review mode left onto Jam mode, `reviewed`'s doodle kept. */
   readonly jamAgain: (reviewed: ReviewedJamSession) => Promise<void>
+  /** `Keep {key} {mode}` in the review of the session under `sessionKey`: its decline made. */
+  readonly declined: (sessionKey: string) => void
 }
 
 /** The injection key of the workspace's Jam ports. */
@@ -80,6 +84,8 @@ export interface WorkspaceReviewJamDependencies {
   readonly keptDoodleSession: () => string | null
   /** Keep the doodle of `jam`, from the session under `sessionKey`, in place of any kept one. */
   readonly keepDoodle: (jam: ReviewedJamPart, sessionKey: string) => void
+  /** Decline the kept doodle's suggestion for good. */
+  readonly declineKeptDoodle: () => void
 }
 
 /**
@@ -89,10 +95,12 @@ export interface WorkspaceReviewJamDependencies {
  * of any kept one and does what `Close review` does over Jam mode; over session mode, Jam mode
  * opens between, as a press of `Jam`, session mode kept as it was, and the doodle is kept once Jam
  * mode shows (leaving Jam mode lets a kept doodle go, so none is kept outside it). On the session
- * the kept doodle comes from, it closes the review and keeps that doodle as it is.
+ * the kept doodle comes from, it closes the review and keeps that doodle as it is. A decline in
+ * the review of the session the kept doodle comes from declines the kept doodle's suggestion too.
  */
 // @spec-link [[rule_suggestion_use_it]]
 // @spec-link [[rule_jam_again_on_this_doodle]]
+// @spec-link [[rule_suggestion_keep_mine]]
 // @spec-link [[module_kept_doodle]]
 export function workspaceReviewJamPorts(deps: WorkspaceReviewJamDependencies): ReviewJamPorts {
   /** Intent: keep `reviewed`'s doodle, unless the kept doodle already comes from its session. */
@@ -118,6 +126,9 @@ export function workspaceReviewJamPorts(deps: WorkspaceReviewJamDependencies): R
         await deps.jamShown()
         keep(reviewed)
       })
+    },
+    declined: (sessionKey) => {
+      if (deps.keptDoodleSession() === sessionKey) deps.declineKeptDoodle()
     },
   }
 }

@@ -49,6 +49,11 @@ export interface KeySuggestionInputs {
   readonly instrument: () => Pick<InstrumentProfile, 'transposition'>
   /** The player has declined this doodle's suggestion (`Keep`). */
   readonly declined: () => boolean
+  /**
+   * Shown at Jam's Idle (`jam-bar`) rather than in a review: never in the no-fit form, and once
+   * the set form has ended, judged afresh rather than absent.
+   */
+  readonly atIdle?: boolean
 }
 
 /** The review's suggestion: its form now, and `Jam in {answer}` pressed. */
@@ -108,7 +113,8 @@ export function suggestionRowForm(
 /**
  * Intent: the review's suggestion, judged again as Jam's key and mode change; after `Jam in
  * {answer}`, set while Jam's key and mode are the answer, then absent for the rest of the review
- * once they are changed again.
+ * once they are changed again. At Jam's Idle, a doodle fitting no mode shows nothing, and the
+ * suggestion is judged afresh once the set form has ended.
  */
 // @spec-link [[req_key_and_mode_suggestion]]
 // @spec-link [[rule_suggestion_use_it]]
@@ -129,9 +135,10 @@ export function useKeySuggestion(inputs: KeySuggestionInputs): ReviewKeySuggesti
     if (set !== null && sameKeyAndMode(set, jam)) {
       return Object.freeze({ kind: 'set', answerName: keyAndModeName(set) })
     }
-    if (usedOnce.value) return ABSENT
+    if (usedOnce.value && inputs.atIdle !== true) return ABSENT
     const suggestion = suggestKeyAndMode(inputs.doodle(), jam, inputs.instrument())
-    return suggestionRowForm(suggestion, jam, inputs.declined())
+    const shown = suggestionRowForm(suggestion, jam, inputs.declined())
+    return shown.kind === 'no_fit' && inputs.atIdle === true ? ABSENT : shown
   })
 
   return {
