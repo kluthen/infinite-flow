@@ -8,7 +8,10 @@ import { describe, expect, it } from 'vitest'
 import { sessionDate } from '@/components/review/session-date'
 import { sessionLengthText, sessionRowText } from '@/components/review/session-row-text'
 import type { KeptSessionRow } from '@/components/workspace/use-kept-sessions'
-import type { KeptSessionSummary } from '@/storage/records/kept-session-summary'
+import type {
+  KeptSessionSummary,
+  NewerKeptSummaryFacts,
+} from '@/storage/records/kept-session-summary'
 import { makeSeed } from '@/domain/random/seed'
 
 const STARTED_AT = Date.UTC(2026, 9, 6, 16, 42)
@@ -125,6 +128,38 @@ describe('a session list row', () => {
     })
     const undated: KeptSessionRow = { ...newer, readable: {} }
     expect(sessionRowText(undated, false, true).title).toBe('Saved by a newer version')
+  })
+
+  // @test-link [[module_kept_jam_session]]
+  it('begins a Jam session\'s detail line with "Jam", with no preset part', () => {
+    const jam = row({ isJam: true, suggestionDeclined: false, presetLabel: 'Custom' })
+    expect(sessionRowText(jam, false, false).detail).toBe(
+      'Jam · 4 min · 3 phrases · B-flat tenor saxophone',
+    )
+  })
+
+  // @test-link [[module_kept_jam_session]]
+  // @test-link [[rule_outdated_tab_reads_what_it_can]]
+  it("writes a newer Jam row's detail line without its preset, and none when the Jam mark cannot be read", () => {
+    const readable = {
+      lengthSeconds: 250,
+      phraseCount: 3,
+      instrument: SUMMARY.instrument,
+    }
+    const newer = (facts: NewerKeptSummaryFacts): KeptSessionRow => ({
+      kind: 'newer',
+      key: 'n',
+      readable: { ...readable, ...facts },
+      failedToOpen: false,
+    })
+    expect(sessionRowText(newer({ isJam: true }), false, false).detail).toBe(
+      'Jam · 4 min · 3 phrases · B-flat tenor saxophone',
+    )
+    expect(sessionRowText(newer({ isJam: false }), false, false).detail).toBeNull()
+    expect(sessionRowText(newer({ presetLabel: 'Jazz' }), false, false).detail).toBeNull()
+    expect(sessionRowText(newer({ presetLabel: 'Jazz', isJam: false }), false, false).detail).toBe(
+      '4 min · 3 phrases · B-flat tenor saxophone · Jazz',
+    )
   })
 
   // @test-link [[req_kept_session_list]]

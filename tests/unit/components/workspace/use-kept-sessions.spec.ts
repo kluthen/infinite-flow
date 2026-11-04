@@ -104,6 +104,11 @@ describe('the rows from the summaries the load read', () => {
     )
     expect(readable).not.toHaveProperty('favoritesCount')
     expect(readable).not.toHaveProperty('comment')
+    expect(readable).toEqual(expect.objectContaining({ isJam: false }))
+    const newerJam = keptSessionRow('j', newer(summaryAt(5_000), { isJam: true }))
+    expect(newerJam?.kind === 'newer' && newerJam.readable.isJam).toBe(true)
+    const unmarked = keptSessionRow('u', newer(summaryAt(5_000), { isJam: 'yes' }))
+    expect(unmarked?.kind === 'newer' ? unmarked.readable : null).not.toHaveProperty('isJam')
     const newerVersion = KEPT_SESSION_SUMMARY_DATA_VERSION + 1
     expect(keptSessionRow('m', { dataVersion: newerVersion, appVersion: '9.0.0' })).toEqual({
       kind: 'newer',

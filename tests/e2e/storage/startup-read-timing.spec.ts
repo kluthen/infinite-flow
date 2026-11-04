@@ -13,6 +13,10 @@
  * warm, over five reloads. The harness times the load from its start to the settings decoded
  * (`loadMs`).
  *
+ * v3.2 chunk 30 times the same read again with every other kept session a Jam session, its
+ * summary holding the Jam mark and its body a four-measure doodle of 64 notes and a played-notes
+ * clock.
+ *
  * Not part of `npm run test:e2e`: run it with `npm run measure:startup-read` on an idle machine,
  * and record the figures, with the machine and the date, in `docs/storage.md`.
  */
@@ -194,17 +198,22 @@ async function seedPlayerPresets(
  * `sessions` kept sessions. Up to the limit the presets are written from one tab; those above it
  * from a second tab, as two tabs saving at once can leave more than the limit.
  */
-async function seedProfile(profile: string, presets: number, sessions: number): Promise<void> {
+async function seedProfile(
+  profile: string,
+  presets: number,
+  sessions: number,
+  halfJam: boolean,
+): Promise<void> {
   const context = await chromium.launchPersistentContext(profile)
   const page = await context.newPage()
   await openHarness(page)
   const seeded = Array.from({ length: presets }, (_, index) => playerPreset(index))
   await page.evaluate(
-    async ([settings, count, bytes]) => {
+    async ([settings, count, bytes, jam]) => {
       await window.__workspaceHarness.storage.seedSettings(settings)
-      await window.__workspaceHarness.storage.seedTimingSessions(count, bytes)
+      await window.__workspaceHarness.storage.seedTimingSessions(count, bytes, jam)
     },
-    [SETTINGS, sessions, BODY_BYTES] as const,
+    [SETTINGS, sessions, BODY_BYTES, halfJam] as const,
   )
   await seedPlayerPresets(page, seeded.slice(0, PLAYER_PRESET_LIMIT))
   const secondTab = await context.newPage()
@@ -234,15 +243,17 @@ function ms(value: number): string {
   return value.toFixed(1)
 }
 
-// @test-link [[rule_first_phrase_waits_for_saved_settings]]
-test('M2 and M3: the start-up read of the saved data, cold and warm, by player-preset and kept-session count', async () => {
-  test.setTimeout(1_800_000)
+/**
+ * Intent: time every pair of counts on a fresh profile each, every other kept session a Jam
+ * session when `halfJam`, and print the table.
+ */
+async function timeEveryPair(halfJam: boolean): Promise<void> {
   const rows: TimingRow[] = []
   for (const presets of PRESET_COUNTS) {
     for (const sessions of SESSION_COUNTS) {
       const profile = await mkdtemp(path.join(tmpdir(), 'infinite-flow-m2-'))
       try {
-        await seedProfile(profile, presets, sessions)
+        await seedProfile(profile, presets, sessions, halfJam)
         rows.push(await timeProfile(profile, presets, sessions))
       } finally {
         await rm(profile, { recursive: true, force: true })
@@ -255,9 +266,24 @@ test('M2 and M3: the start-up read of the saved data, cold and warm, by player-p
   )
   console.log(
     [
+      halfJam ? 'Half of the kept sessions Jam sessions:' : 'No Jam session:',
       '| Player presets | Kept sessions | Cold | Warm, fastest | Warm, slowest |',
       '| --- | --- | --- | --- | --- |',
       ...lines,
     ].join('\n'),
   )
+}
+
+// @test-link [[rule_first_phrase_waits_for_saved_settings]]
+test('M2 and M3: the start-up read of the saved data, cold and warm, by player-preset and kept-session count', async () => {
+  test.setTimeout(1_800_000)
+  await timeEveryPair(false)
+})
+
+// v3.2 chunk 30: the same read with every other kept session a Jam session, its body holding a
+// four-measure doodle (the load reads the session-wide records only).
+// @test-link [[rule_first_phrase_waits_for_saved_settings]]
+test('M3 (v3.2): the start-up read with half of the kept sessions Jam sessions with four-measure doodles', async () => {
+  test.setTimeout(1_800_000)
+  await timeEveryPair(true)
 })

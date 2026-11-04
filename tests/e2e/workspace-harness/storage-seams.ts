@@ -22,7 +22,8 @@
  * - `seedPresets` writes player preset records through the preset codec, each preset checked by
  *   the preset model, and `seedRawPresets` writes raw records (damaged, under another id, or a
  *   newer version's) straight to IndexedDB, for the next load;
- * - `seedTimingSessions` writes sized kept-session records for the start-up read measurement (M2);
+ * - `seedTimingSessions` writes sized kept-session records for the start-up read measurement (M2),
+ *   every other one a Jam session with a four-measure doodle when asked (M3, v3.2 chunk 30);
  * - `keyedRecords` reads a store back with each record's key; `pinKeptSession` pins a kept session
  *   the app saved, as the review's pin will, `seedUnreadableKeptSession` writes a kept session
  *   whose session-wide record the codec cannot read, `seedPlayedNotes` keeps a session's played
@@ -182,8 +183,28 @@ export interface HarnessStorage {
 /** How many kept sessions one seeding batch writes. */
 const TIMING_BATCH = 50
 
-/** Intent: a sized kept session for the start-up read measurement: its summary and its body. */
-function timingSession(index: number, bodyBytes: number): StorageChange[] {
+/**
+ * A four-measure quantized doodle as a Jam session's body keeps it, its longest: a sixteenth note
+ * on every tick, captured at 120 BPM.
+ */
+const TIMING_DOODLE = Object.freeze({
+  quantized: {
+    measureCount: 4,
+    notes: Array.from({ length: 64 }, (_, tick) => ({
+      startTick: tick,
+      lengthTicks: 1,
+      pitch: 60 + (tick % 12),
+    })),
+  },
+  captureTempo: 120,
+})
+
+/**
+ * Intent: a sized kept session for the start-up read measurement: its summary and its body; a
+ * Jam session (`jam`) holds the Jam mark with no decline and, in its body, the four-measure
+ * doodle and a fresh Jam's played-notes clock.
+ */
+function timingSession(index: number, bodyBytes: number, jam: boolean): StorageChange[] {
   const key = `timing-${String(index).padStart(4, '0')}`
   const summary = {
     dataVersion: KEPT_SESSION_SUMMARY_DATA_VERSION,
@@ -201,12 +222,15 @@ function timingSession(index: number, bodyBytes: number): StorageChange[] {
     playedNotesKept: false,
     recordedByAppVersion: APP_VERSION,
     sessionSeed: index,
-    isJam: false,
+    ...(jam ? { isJam: true, suggestionDeclined: false } : { isJam: false }),
   }
   const body = {
     dataVersion: KEPT_SESSION_BODY_DATA_VERSION,
     appVersion: APP_VERSION,
     phrases: ['x'.repeat(bodyBytes)],
+    ...(jam
+      ? { doodle: TIMING_DOODLE, playedNotesClock: { doodleFirstBarline: 2, phraseOneStart: 14 } }
+      : {}),
   }
   return [
     { kind: 'write', store: 'sessionSummaries', key, record: summary },
@@ -398,7 +422,11 @@ export function createHarnessStorage(
   }
 
   /** Intent: write `count` sized kept sessions, in batches. */
-  async function seedTimingSessions(count: number, bodyBytes: number): Promise<void> {
+  async function seedTimingSessions(
+    count: number,
+    bodyBytes: number,
+    halfJam = false,
+  ): Promise<void> {
     if (!Number.isInteger(count) || count < 0 || !Number.isInteger(bodyBytes) || bodyBytes < 0) {
       throw new Error(`Workspace harness: seedTimingSessions(${count}, ${bodyBytes}) is invalid`)
     }
@@ -407,7 +435,7 @@ export function createHarnessStorage(
       const last = Math.min(count, first + TIMING_BATCH)
       const changes: StorageChange[] = []
       for (let index = first; index < last; index++) {
-        changes.push(...timingSession(index, bodyBytes))
+        changes.push(...timingSession(index, bodyBytes, halfJam && index % 2 === 1))
       }
       await target.apply(changes)
     }

@@ -94,7 +94,7 @@ describe('useReviewArea', () => {
   })
 
   // @test-link [[rule_raw_doodle_notes_are_played_notes]]
-  it('holds played notes for a Jam in which only the doodle was played', () => {
+  it('holds played notes for a Jam in which only the doodle was played, and marks it a Jam', () => {
     const silent = recordedRecords().map((record) => ({ ...record, playedNotes: [] }))
     const fake = createFakeSessionController({
       review: { ...fakeReview(fakeReviewHistory(silent), true), jam: reviewedJamPart() },
@@ -102,6 +102,7 @@ describe('useReviewArea', () => {
     const { area, stop } = reviewAreaRig(fake)
 
     expect(area.holdsPlayedNote.value).toBe(true)
+    expect(area.isJam.value).toBe(true)
     fake.state.review = { ...fake.state.review!, jam: reviewedJamPart([]) }
     expect(area.holdsPlayedNote.value).toBe(false)
     stop()

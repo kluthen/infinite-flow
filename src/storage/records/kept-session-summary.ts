@@ -436,6 +436,7 @@ export type NewerKeptSummaryFacts = Partial<
     | 'favoritesCount'
     | 'comment'
     | 'playedNotesKept'
+    | 'isJam'
   >
 >
 
@@ -453,6 +454,7 @@ const NEWER_FACT_READERS: {
     integerIn(value, 0, Number.MAX_SAFE_INTEGER, 'Kept session.favoritesCount'),
   comment: parseComment,
   playedNotesKept: (value) => booleanValue(value, 'Kept session.playedNotesKept'),
+  isJam: (value) => booleanValue(value, 'Kept session.isJam'),
 }
 
 /**

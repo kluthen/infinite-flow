@@ -37,7 +37,7 @@ export interface YourDataConfirmationCopy {
 export const INTRO =
   'Everything here is kept on this device, in this browser only, for anyone who opens the app in it. Nothing is ever sent anywhere.'
 export const SETTINGS_LINE =
-  "The phrase controls, the preset, the instrument choice, the theme, the audio mix, the During a session options and the review's choices. They come back as you left them."
+  "The phrase controls, the preset, the instrument choice, the theme, the audio mix, the During a session options, your Jam settings and the review's choices. They come back as you left them."
 export const SETTINGS_HINT = 'Delete everything returns them to their defaults.'
 export const SESSIONS_HINT =
   'Your most recent session is kept until the next one is saved. Pinned sessions stay until you unpin or delete them.'
@@ -169,17 +169,25 @@ export function protectionLine(protection: ProtectionReading): string {
   return 'Not protected. The browser may clear this data if the device runs short of space. Export what you want to be sure to keep.'
 }
 
+/** What the played-notes confirmations add when a Jam session keeps played notes. */
+const DOODLES_STAY = ' Doodles stay as the app wrote them.'
+
 /**
  * Intent: the words of a confirmation but a preset's, `count` being the sessions it concerns (kept
- * sessions, or sessions whose played notes are kept; unused for Delete everything).
+ * sessions, or sessions whose played notes are kept; unused for Delete everything); the two
+ * played-notes deletions say the doodles stay when `jamKeepsPlayedNotes`, one of the sessions whose
+ * played notes are kept being a Jam session.
  */
 // @spec-link [[req_your_data]]
 // @spec-link [[rule_delete_everything]]
 // @spec-link [[rule_kept_played_notes_deletable]]
+// @spec-link [[rule_deleting_played_notes_keeps_quantized_doodle]]
 export function confirmationCopy(
   kind: Exclude<YourDataConfirmationKind, 'preset'>,
   count: number,
+  jamKeepsPlayedNotes = false,
 ): YourDataConfirmationCopy {
+  const doodles = jamKeepsPlayedNotes ? DOODLES_STAY : ''
   if (kind === 'every-session') {
     const goes =
       count === 1
@@ -200,7 +208,7 @@ export function confirmationCopy(
     return {
       title: 'Delete all played notes?',
       paragraphs: [
-        `This deletes the played notes kept with ${sessions}. The sessions stay, with their favorite phrases and comments.`,
+        `This deletes the played notes kept with ${sessions}. The sessions stay, with their favorite phrases and comments.${doodles}`,
         CANNOT_BE_UNDONE,
       ],
       confirmLabel: 'Delete all played notes',
@@ -210,7 +218,7 @@ export function confirmationCopy(
     return {
       title: 'Delete the played notes already kept?',
       paragraphs: [
-        `Your played notes won't be kept from now on. The ones already kept with ${sessions} can be deleted too; the sessions stay.`,
+        `Your played notes won't be kept from now on. The ones already kept with ${sessions} can be deleted too; the sessions stay.${doodles}`,
         CANNOT_BE_UNDONE,
       ],
       confirmLabel: 'Delete them',

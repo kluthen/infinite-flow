@@ -73,6 +73,8 @@ export interface ReviewArea extends ReviewPlayedNotes, ReviewSessionTools {
    */
   // @spec-link [[rule_preset_label_kept_with_session]]
   readonly presetLabel: ComputedRef<string>
+  /** The showing Review's session is a Jam session; false while none shows. */
+  readonly isJam: ComputedRef<boolean>
   /** The showing Review's session start, epoch milliseconds; null while none shows. */
   // @spec-link [[req_kept_session_review]]
   readonly startedAt: ComputedRef<number | null>
@@ -142,6 +144,8 @@ export function useReviewArea(deps: ReviewAreaDependencies): ReviewArea {
   const instrumentName = computed(() => host.shownReview.value?.instrumentName ?? '')
   // @spec-link [[rule_preset_label_kept_with_session]]
   const presetLabel = computed(() => host.shownReview.value?.presetLabel ?? '')
+  // @spec-link [[req_last_session_review]]
+  const isJam = computed(() => host.shownReview.value?.jam !== undefined)
   const startedAt = computed(() => shownHistory.value?.startedAt ?? null)
   /** Intent: the showing Review's length, by the function its kept record is stored with. */
   // @spec-link [[req_kept_session_review]]
@@ -282,6 +286,7 @@ export function useReviewArea(deps: ReviewAreaDependencies): ReviewArea {
     records,
     instrumentName,
     presetLabel,
+    isJam,
     startedAt,
     lengthSeconds,
     keeping,

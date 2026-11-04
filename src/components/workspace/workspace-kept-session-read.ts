@@ -9,7 +9,9 @@
  */
 import type { KeptChanges } from '@/storage/save-policy'
 import { decodeKeptSessionSummary } from '@/storage/records/kept-session-summary'
-import type { KeptSession, StoredKeptSession } from '@/storage/records/kept-session-record'
+import type { KeptJam, KeptSession, StoredKeptSession } from '@/storage/records/kept-session-record'
+import { measureSeconds } from '@/session/session-timing'
+import type { ReviewedJamPart } from './session-jam-part'
 import {
   StorageError,
   type StorageChange,
@@ -39,16 +41,57 @@ export function mostRecentKept(summaries: readonly StoredEntry[]): MostRecentSes
 }
 
 /**
+ * Intent: a decoded fresh Jam's Jam part, in the reviewed session's shape, every time on its
+ * phrases' clock (phrase 1 starting at 0, the played-notes clock's moments and the raw doodle
+ * notes moved by phrase 1's start on it): its doodle with its capture tempo, its first barline,
+ * its end barline its measures later at its capture tempo, and its raw doodle notes as kept (none
+ * when its played notes are not); its count-in's first beat; whether its suggestion was declined;
+ * no suggestion and no controls, which the records do not hold. A Jam on a kept doodle, which
+ * holds no clock, is not written yet (v3.2 chunk 24) and throws.
+ */
+// @spec-link [[module_kept_jam_session]]
+function keptJamPart(jam: KeptJam, suggestionDeclined: boolean): ReviewedJamPart {
+  const clock = jam.playedNotesClock
+  if (clock === null)
+    throw new Error('kept session read: a Jam on a kept doodle has no reviewed Jam part yet')
+  const from = clock.phraseOneStart
+  const firstBarlineAt = clock.doodleFirstBarline - from
+  const { quantized, captureTempo } = jam.doodle
+  return Object.freeze({
+    doodle: Object.freeze({
+      doodle: quantized,
+      captureTempo,
+      firstBarlineAt,
+      endBarlineAt: firstBarlineAt + quantized.measureCount * measureSeconds(captureTempo),
+      playedNotes: Object.freeze(
+        jam.rawDoodleNotes.map((note) =>
+          Object.freeze({
+            pitch: note.pitch,
+            velocity: note.velocity,
+            onsetAt: note.onsetAt - from,
+            releaseAt: note.releaseAt - from,
+          }),
+        ),
+      ),
+    }),
+    countInStartAt: -from,
+    suggestion: null,
+    suggestionDeclined,
+    doodleControls: null,
+  })
+}
+
+/**
  * Intent: the session a decoded kept session's Review draws: its phrases and start, the
  * instrument's name and the preset label its summary holds (never looked up by id or rebuilt from
  * the current settings), the tempo it reached, whether it
  * is pinned, the key it was read by, whether its played notes are kept, its favorite phrases and
- * its comment.
+ * its comment, and, for a Jam session, its Jam part.
  */
 // @spec-link [[req_kept_session_review]]
 // @spec-link [[module_kept_session_codec]]
 // @spec-link [[rule_preset_label_kept_with_session]]
-function keptReviewedSession({ summary, phrases }: KeptSession, key: string): ReviewedSession {
+function keptReviewedSession({ summary, phrases, jam }: KeptSession, key: string): ReviewedSession {
   const history = Object.freeze({
     phrases: () => phrases,
     phraseCount: phrases.length,
@@ -67,6 +110,7 @@ function keptReviewedSession({ summary, phrases }: KeptSession, key: string): Re
       phrases.filter((phrase) => phrase.favorite).map((phrase) => phrase.phraseNumber),
     ),
     comment: summary.comment,
+    ...(jam === null ? {} : { jam: keptJamPart(jam, summary.suggestionDeclined === true) }),
   })
 }
 

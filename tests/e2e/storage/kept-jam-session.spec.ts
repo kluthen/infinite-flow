@@ -12,6 +12,11 @@
  *   notes only, the body and its doodle kept; `Delete session` removes both forms;
  * - in an outdated tab and a visit whose saved data could not be read, the Jam runs and is reviewed
  *   in memory, and nothing is written.
+ *
+ * From chunk 30b: its review summary and its list row's detail line begin with "Jam" and name no
+ * preset, after a reload too; a Jam session a newer version wrote is listed as such, still marked;
+ * Your data's `Delete all played notes` says the doodles stay and keeps the doodle, and `Delete
+ * everything` leaves no Jam session.
  */
 import { expect, test, type Page } from '@playwright/test'
 
@@ -32,7 +37,16 @@ import { gotoJamIdle, jamToRunning, startJamByClick } from '../session/jam-helpe
 import { connectDevice } from '../session/session-midi-helpers'
 import { sessionAction } from '../session/session-helpers'
 import { expectChecked, jamFrame, modeSegment } from '../workspace/jam-mode-helpers'
+import { reviewLink } from '../review/review-helpers'
+import {
+  NEWER_NOTE,
+  allSessions,
+  rows,
+  seedCopy,
+  sessionsPanel,
+} from '../review/session-list-helpers'
 import { reloadHarness, seedSettings } from './storage-helpers'
+import { askConfirmation, confirmingAction, openYourData, yourDataSheet } from './your-data-helpers'
 
 let expectNoPageErrors: () => void
 
@@ -211,4 +225,69 @@ test.describe('a Jam in a visit that saves nothing', () => {
       expect(await keyedRecords(page, 'sessionSummaries')).toEqual([])
     })
   }
+})
+
+/** A Jam session's detail line: "Jam", its length, its phrases and its instrument; no preset. */
+const JAM_DETAIL = /^Jam · (Under 1 min|\d+ min) · \d+ phrases? · [^·]+$/
+
+/** A Jam session's review summary after its date: "Jam" first, no preset, then its favorites. */
+const JAM_SUMMARY = /^[^·]+ · Jam · (Under 1 min|\d+ min) · \d+ phrases? · [^·]+ · No favorites$/
+
+// @test-link [[module_kept_jam_session]]
+// @test-link [[req_kept_session_list]]
+test.describe("a Jam session's mark", () => {
+  test('its review summary and its row begin with "Jam" and name no preset, after a reload too; a newer one is listed as such', async ({
+    page,
+  }) => {
+    test.setTimeout(120_000)
+    await gotoJamIdle(page)
+    await jamThenStop(page)
+    await expect(reviewPanel(page).locator('p.review-summary')).toHaveText(JAM_SUMMARY)
+    const [key] = await untilKept(page, 1)
+    await seedCopy(page, key!, 'session-1-1', { startedAt: 1_000, newer: true })
+
+    await reloadHarness(page)
+    await reviewLink(page).click()
+    await expect(reviewPanel(page).locator('p.review-summary')).toHaveText(JAM_SUMMARY)
+    await allSessions(page).click()
+    await expect(sessionsPanel(page)).toBeVisible()
+    await expect(rows(page)).toHaveCount(2)
+    await expect(rows(page).first().locator('p.session-row-meta').first()).toHaveText(JAM_DETAIL)
+    const newer = rows(page).nth(1)
+    await expect(newer.locator('p.session-row-meta').first()).toHaveText(JAM_DETAIL)
+    await expect(newer).toContainText(NEWER_NOTE)
+  })
+})
+
+// @test-link [[rule_deleting_played_notes_keeps_quantized_doodle]]
+// @test-link [[rule_delete_everything]]
+test.describe('a Jam session in Your data', () => {
+  test('Delete all played notes says the doodles stay and keeps the doodle; Delete everything leaves no Jam session', async ({
+    page,
+  }) => {
+    test.setTimeout(120_000)
+    await gotoJamIdle(page)
+    await seedSettings(page, { keepPlayedNotes: true })
+    await gotoJamIdle(page)
+    await jamThenStop(page)
+    const [key] = await untilKept(page, 1)
+    await expect.poll(() => storedOnsets(page, key!)).toHaveLength(1)
+    const body = await storedValue(page, 'sessionBodies', key!)
+
+    await openYourData(page)
+    await askConfirmation(page, 'Delete all played notes', 'Delete all played notes?')
+    await expect(yourDataSheet(page).locator('.sheet-body > p').first()).toHaveText(
+      'This deletes the played notes kept with 1 session. The sessions stay, with their favorite phrases and comments. Doodles stay as the app wrote them.',
+    )
+    await confirmingAction(page).click()
+    await expect(yourDataSheet(page)).toHaveAccessibleName('Your data')
+    expect(await keyedRecords(page, 'playedNotes')).toEqual([])
+    expect(await storedValue(page, 'sessionBodies', key!)).toEqual(body)
+
+    await askConfirmation(page, 'Delete everything', 'Delete everything?')
+    await Promise.all([page.waitForEvent('load'), confirmingAction(page).click()])
+    await page.waitForFunction(() => window.__workspaceHarness?.session.loaded() === true)
+    expect(await keyedRecords(page, 'sessionSummaries')).toEqual([])
+    expect(await keyedRecords(page, 'sessionBodies')).toEqual([])
+  })
 })

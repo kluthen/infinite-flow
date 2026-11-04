@@ -1084,7 +1084,24 @@ The session controller reaches every kept session, not only those it holds in me
   version wrote gives a `newer` row holding what `readNewerKeptSummary`
   (`kept-session-summary.ts`) can read of it, field by field, and cannot be opened, pinned or
   deleted; one that cannot be read gives no row. The controller exposes them as
-  `state.keptRows`.
+  `state.keptRows`. A row's facts include whether it is a Jam session (`isJam`, read from a newer
+  record too): its detail line then begins with "Jam" and has no preset part
+  (`session-row-text.ts`), though the record keeps its preset label (spec D460). A newer row whose
+  Jam mark cannot be read has no detail line; a session kept before v3.2 is never a Jam session.
+- **A kept Jam session read back** (`readKeptReviewedSession`, `workspace-kept-session-read.ts`)
+  gives the reviewed session a Jam part (`ReviewedJamPart`) of the shape a just-ended Jam's has,
+  every time on its phrases' clock (phrase 1 at 0): the quantized doodle with its capture tempo,
+  its first barline and its end barline (its measures at its capture tempo), its count-in's first
+  beat, its raw doodle notes when its played notes are kept (none otherwise), its decline as
+  stored, and no suggestion and no controls taken from the doodle, which the records do not hold
+  (`suggestion` and `doodleControls` null): Jam's code works the suggestion out again from the
+  doodle. A Jam on a kept doodle, whose body holds no clock, is not written yet (chunk 24) and its
+  read throws. The review's summary reads the Jam mark from the reviewed session
+  (`use-review-area.ts`'s `isJam`, `ReviewPanel.vue`): "Jam" first after the date, no preset part.
+- **Your data** counts Jam sessions with the others, in the same words. When one of the sessions
+  whose played notes are kept is a Jam session (by the rows), its `Delete all played notes` and
+  `Played notes already kept` confirmations end their first paragraph with "Doodles stay as the
+  app wrote them." (`confirmationCopy`'s `jamKeepsPlayedNotes`).
 - **Kept current.** The session's own save and its retry reach the visit's saves through
   `rows.savingThrough(saves, held)`, which keeps the batch the policy built: once it resolves
   `saved`, the rows of the session-wide records it deleted leave and the saved session's row is
@@ -1461,6 +1478,63 @@ that many sessions kept by v3.0 would pass the wait; that visit starts from the 
 upgrade completes, and the next visit reads normally (spec D376), as v3.1 accepted for its largest
 bodies. Chunk 30 repeats the read with half the sessions Jam sessions. The owner repeats the
 deciding runs on the reference machine.
+
+### The start-up read with Jam sessions (chunk 30)
+
+v3.2's build plan (chunk 30) runs the start-up read again with half the kept sessions Jam
+sessions: `npm run measure:startup-read` now has a second test, its table titled "Half of the kept
+sessions Jam sessions", in which every other seeded session (`seedTimingSessions(count, bytes,
+true)`) holds the Jam mark with no decline in its session-wide record and, in its body, a
+four-measure doodle of 64 notes (the longest) and a fresh Jam's played-notes clock; the first test
+is chunk 22's read, unchanged, for comparison on the same machine. The load reads the session-wide
+records only, never a body.
+
+Measured on 2026-11-04 on the same machine as chunk 22's runs: Linux 6.12.113+deb13-amd64
+(Debian), AMD Ryzen 5 PRO 8640HS w/ Radeon 760M Graphics (12 threads), 11 GiB of RAM, no virtual
+machine, headless Chromium through Playwright 1.63.0, no other test running. Two runs of the
+script, each started once the 1-minute load average was below 1.5 (1.47 and 1.49; after, 2.21 and
+2.05; the 5-minute average about 2.9, other sessions on the machine, so the figures may run a
+little high). In milliseconds, first run / second run.
+
+Half of the kept sessions Jam sessions:
+
+| Player presets | Kept sessions | Cold        | Warm, fastest of five | Warm, slowest of five |
+| -------------- | ------------- | ----------- | --------------------- | --------------------- |
+| 0              | 0             | 15.0 / 9.9  | 1.3 / 1.2             | 2.5 / 2.0             |
+| 0              | 10            | 17.3 / 14.7 | 1.6 / 1.3             | 2.8 / 2.5             |
+| 0              | 100           | 12.3 / 14.3 | 2.5 / 2.6             | 4.3 / 4.5             |
+| 0              | 500           | 28.9 / 25.4 | 13.0 / 7.1            | 15.6 / 14.2           |
+| 50             | 0             | 11.2 / 17.2 | 2.9 / 2.7             | 3.8 / 3.2             |
+| 50             | 10            | 18.1 / 8.7  | 2.3 / 2.3             | 3.6 / 3.1             |
+| 50             | 100           | 13.2 / 30.0 | 3.8 / 3.4             | 5.0 / 4.6             |
+| 50             | 500           | 32.7 / 31.7 | 13.7 / 8.3            | 16.5 / 18.1           |
+| 60             | 0             | 18.6 / 22.3 | 2.7 / 2.8             | 4.3 / 3.4             |
+| 60             | 10            | 22.3 / 19.0 | 3.2 / 2.6             | 3.8 / 5.5             |
+| 60             | 100           | 15.3 / 22.3 | 3.6 / 3.7             | 5.4 / 4.7             |
+| 60             | 500           | 32.6 / 32.6 | 8.4 / 8.3             | 15.3 / 14.9           |
+
+No Jam session (chunk 22's read, the same runs):
+
+| Player presets | Kept sessions | Cold        | Warm, fastest of five | Warm, slowest of five |
+| -------------- | ------------- | ----------- | --------------------- | --------------------- |
+| 0              | 0             | 7.3 / 15.7  | 1.3 / 1.1             | 2.5 / 2.6             |
+| 0              | 10            | 8.7 / 8.1   | 1.4 / 1.3             | 1.9 / 1.7             |
+| 0              | 100           | 17.1 / 18.0 | 2.7 / 3.0             | 3.4 / 3.5             |
+| 0              | 500           | 25.1 / 35.5 | 12.9 / 7.5            | 13.6 / 15.0           |
+| 50             | 0             | 12.2 / 17.0 | 2.3 / 2.3             | 3.5 / 3.0             |
+| 50             | 10            | 8.5 / 13.1  | 2.5 / 2.4             | 3.7 / 3.3             |
+| 50             | 100           | 15.0 / 22.2 | 3.6 / 3.7             | 4.2 / 4.3             |
+| 50             | 500           | 30.1 / 35.3 | 8.8 / 13.5            | 15.6 / 18.0           |
+| 60             | 0             | 20.0 / 8.9  | 2.4 / 2.7             | 3.5 / 4.4             |
+| 60             | 10            | 23.2 / 22.5 | 3.1 / 2.6             | 3.6 / 3.8             |
+| 60             | 100           | 17.2 / 22.6 | 3.6 / 4.1             | 4.5 / 5.5             |
+| 60             | 500           | 31.6 / 28.1 | 14.0 / 8.3            | 17.8 / 15.9           |
+
+Verdict: with half the kept sessions Jam sessions with four-measure doodles, the start-up read
+takes at most 33 ms cold with 500 sessions and 60 player presets, under 2 % of the 2 s start-up
+wait, as without Jam sessions (at most 36 ms in the same runs, 37 ms in chunk 22's): the Jam mark
+adds two fields to a session-wide record, and the doodle is in the body, which the load never
+reads. The owner repeats the deciding runs on the reference machine.
 
 ## The app version
 

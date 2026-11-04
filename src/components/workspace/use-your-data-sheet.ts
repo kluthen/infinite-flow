@@ -76,6 +76,8 @@ export interface YourDataSheet {
   readonly confirmation: Readonly<ShallowRef<YourDataConfirmation | null>>
   /** The sessions the open confirmation concerns now, as its first paragraph counts them. */
   readonly confirmationCount: ComputedRef<number>
+  /** One of the sessions whose played notes are kept is a Jam session, as the rows say. */
+  readonly jamKeepsPlayedNotes: ComputedRef<boolean>
   /** Open the confirmation of `kind`, from its Overview button. */
   readonly ask: (kind: Exclude<YourDataConfirmationKind, 'kept-played-notes' | 'preset'>) => void
   /** Open the confirmation of deleting the player preset `preset`, from its row's `Delete`. */
@@ -97,14 +99,27 @@ export function yourDataForm(outcome: SavedDataLoad['outcome'], saving: SavingSt
   return outcome === 'saved-data-read' ? 'outdated' : 'outdated-defaults'
 }
 
-/** Intent: the pinned and favorites facts a row holds, a newer one's as far as it can be read. */
-function rowFacts(row: KeptSessionRow): { pinned: boolean; favorites: number; kept: boolean } {
+/**
+ * Intent: the pinned, favorites, played-notes and Jam facts a row holds, a newer one's as far as
+ * it can be read.
+ */
+function rowFacts(row: KeptSessionRow): {
+  pinned: boolean
+  favorites: number
+  kept: boolean
+  jam: boolean
+} {
   if (row.kind === 'current') {
-    const { pinned, favoritesCount, playedNotesKept } = row.summary
-    return { pinned, favorites: favoritesCount, kept: playedNotesKept }
+    const { pinned, favoritesCount, playedNotesKept, isJam } = row.summary
+    return { pinned, favorites: favoritesCount, kept: playedNotesKept, jam: isJam }
   }
-  const { pinned, favoritesCount, playedNotesKept } = row.readable
-  return { pinned: pinned ?? false, favorites: favoritesCount ?? 0, kept: playedNotesKept ?? false }
+  const { pinned, favoritesCount, playedNotesKept, isJam } = row.readable
+  return {
+    pinned: pinned ?? false,
+    favorites: favoritesCount ?? 0,
+    kept: playedNotesKept ?? false,
+    jam: isJam ?? false,
+  }
 }
 
 /** Intent: whether a deletion refused as outdated, or a plain refusal; anything else is a defect. */
@@ -193,6 +208,7 @@ export function useYourDataSheet(deps: YourDataSheetDependencies): YourDataSheet
     favorites: facts.value.reduce((sum, row) => sum + row.favorites, 0),
   }))
   const playedNotesCount = computed(() => facts.value.filter((row) => row.kept).length)
+  const jamKeepsPlayedNotes = computed(() => facts.value.some((row) => row.kept && row.jam))
   const confirmationCount = computed(() => {
     const open = confirmation.value
     if (open === null) return 0
@@ -258,6 +274,7 @@ export function useYourDataSheet(deps: YourDataSheetDependencies): YourDataSheet
     form,
     sessions,
     playedNotesCount,
+    jamKeepsPlayedNotes,
     keepPlayedNotes: computed(() => controller.state.keepPlayedNotes),
     playerPresets: computed(() => playerPresetsInBoxOrder(deps.presets.presets.value)),
     space,

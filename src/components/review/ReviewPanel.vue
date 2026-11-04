@@ -73,8 +73,13 @@ const props = withDefaults(
     records: readonly ReviewedPhrase[]
     /** The session's instrument, by the name it had at the session. */
     instrumentName: string
-    /** The preset label the session recorded at its start, as the session list writes it. */
+    /**
+     * The preset label the session recorded at its start, as the session list writes it; a Jam
+     * session's summary shows none.
+     */
     presetLabel: string
+    /** The session is a Jam session: its summary begins with "Jam" and names no preset. */
+    isJam?: boolean
     /** The session's start, epoch milliseconds. */
     startedAt: number
     /** The session's length in seconds, as its kept record stores it. */
@@ -128,7 +133,7 @@ const props = withDefaults(
      */
     systemPositionUnits?: number
   }>(),
-  { systemPositionUnits: NOTATION_SYSTEM_POSITION_UNITS },
+  { systemPositionUnits: NOTATION_SYSTEM_POSITION_UNITS, isJam: false },
 )
 
 const emit = defineEmits<{
@@ -247,7 +252,8 @@ const title = computed(() => (props.mostRecent ? 'Last session' : date.value))
  * date left out when it is the title, the length and the preset as the session list's detail line
  * writes them ("{m} min" or "Under 1 min"; the label the session recorded at its start), "1
  * phrase" for one, the favorites as "No favorites", "1 favorite" or "{k} favorites", changing in
- * place as a star is pressed; a review is never empty.
+ * place as a star is pressed; for a Jam session, the part after the date begins with "Jam" and
+ * names no preset; a review is never empty.
  */
 // @spec-link [[req_last_session_review]]
 // @spec-link [[req_kept_session_review]]
@@ -259,7 +265,9 @@ const summary = computed(() => {
   const favorites =
     marked === 0 ? 'No favorites' : marked === 1 ? '1 favorite' : `${marked} favorites`
   const length = sessionLengthText(props.lengthSeconds)
-  const parts = [length, phrases, props.instrumentName, props.presetLabel, favorites]
+  const parts = props.isJam
+    ? ['Jam', length, phrases, props.instrumentName, favorites]
+    : [length, phrases, props.instrumentName, props.presetLabel, favorites]
   return (props.mostRecent ? [date.value, ...parts] : parts).join(' · ')
 })
 

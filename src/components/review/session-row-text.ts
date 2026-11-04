@@ -1,8 +1,8 @@
 /**
  * What one row of the session list writes: its title (the session date, " · Last session" on the
  * most recent session's row), the detail line ("{length} · {n} phrases · {instrument} ·
- * {preset}"), the status line ("{favorites} · Played notes kept · {keeping}"), the comment's
- * first line and the row's note. A row saved by a newer version writes what can be read of it: a
+ * {preset}", a Jam session's beginning with "Jam" and holding no preset part), the status line
+ * ("{favorites} · Played notes kept · {keeping}"), the comment's first line and the row's note. A row saved by a newer version writes what can be read of it: a
  * line whose facts cannot all be read is omitted, and its title falls back when its start cannot be
  * read. No line or count says how the player played. Pure.
  */
@@ -35,22 +35,29 @@ export function sessionLengthText(seconds: number): string {
   return `${Math.round(seconds / 60)} min`
 }
 
-/** Intent: the detail line, or null when one of its facts cannot be read. */
+/**
+ * Intent: the detail line, or null when one of its facts cannot be read: "{length} · {n} phrases
+ * · {instrument} · {preset}", or, for a Jam session, "Jam · {length} · {n} phrases ·
+ * {instrument}", with no preset part (the session still keeps its preset label).
+ */
+// @spec-link [[req_kept_session_list]]
+// @spec-link [[module_kept_jam_session]]
 function detailLine(facts: NewerKeptSummaryFacts): string | null {
-  const { lengthSeconds, phraseCount, instrument, presetLabel } = facts
+  const { lengthSeconds, phraseCount, instrument, presetLabel, isJam } = facts
   if (
     lengthSeconds === undefined ||
     phraseCount === undefined ||
     instrument === undefined ||
-    presetLabel === undefined
+    isJam === undefined ||
+    (!isJam && presetLabel === undefined)
   )
     return null
-  return [
+  const shared = [
     sessionLengthText(lengthSeconds),
     counted(phraseCount, 'phrase', 'phrases'),
     instrument.displayName,
-    presetLabel,
-  ].join(' · ')
+  ]
+  return (isJam ? ['Jam', ...shared] : [...shared, presetLabel]).join(' · ')
 }
 
 /** Intent: the status line, or null when one of its facts cannot be read. */

@@ -916,9 +916,11 @@ interface WorkspaceHarnessStorageApi {
   /**
    * Write `count` kept sessions, each a session-wide record (a 500-character comment, the
    * longest allowed) and a body of about `bodyBytes` bytes, for the start-up read measurement
-   * (M2) only: their content is sized, not a real session's.
+   * (M2, M3) only: their content is sized, not a real session's. With `halfJam`, every other one
+   * (the second, the fourth…) is a Jam session: the Jam mark, and a body holding a four-measure
+   * doodle of 64 notes and a fresh Jam's played-notes clock.
    */
-  seedTimingSessions: (count: number, bodyBytes: number) => Promise<void>
+  seedTimingSessions: (count: number, bodyBytes: number, halfJam?: boolean) => Promise<void>
   /** Every raw record a store holds now, read through the app's port. */
   records: (store: WorkspaceHarnessStoreName) => Promise<unknown[]>
   /** Every record a store holds now, with its key, in key order, read through the app's port. */

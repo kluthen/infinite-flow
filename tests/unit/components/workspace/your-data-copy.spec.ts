@@ -64,7 +64,7 @@ describe('the Settings and Presets sections', () => {
   // @test-link [[req_your_data]]
   it('name the preset among the settings', () => {
     expect(SETTINGS_LINE).toBe(
-      "The phrase controls, the preset, the instrument choice, the theme, the audio mix, the During a session options and the review's choices. They come back as you left them.",
+      "The phrase controls, the preset, the instrument choice, the theme, the audio mix, the During a session options, your Jam settings and the review's choices. They come back as you left them.",
     )
     expect(SETTINGS_LINE).not.toContain('musical profile')
   })
@@ -121,6 +121,7 @@ describe('the confirmations', () => {
       'This deletes the played notes kept with 1 session. The sessions stay, with their favorite phrases and comments.',
     )
     expect(confirmationCopy('everything', 0).confirmLabel).toBe('Delete everything')
+    expect(confirmationCopy('kept-played-notes', 2).paragraphs[0]).not.toContain('Doodles')
     for (const kind of [
       'every-session',
       'all-played-notes',
@@ -151,5 +152,19 @@ describe("Delete everything's confirmation", () => {
     expect(confirmationCopy('everything', 0).paragraphs[0]).toBe(
       'This deletes everything the app keeps on this device: your settings, your presets, your instrument, the remembered controller and every kept session, with its favorite phrases, comments and played notes. The page then reloads and starts as on a first visit.',
     )
+  })
+})
+
+// @test-link [[rule_deleting_played_notes_keeps_quantized_doodle]]
+describe('the played-notes confirmations when a Jam session keeps played notes', () => {
+  it('end their first paragraph saying the doodles stay; the other confirmations do not', () => {
+    expect(confirmationCopy('all-played-notes', 2, true).paragraphs[0]).toBe(
+      'This deletes the played notes kept with 2 sessions. The sessions stay, with their favorite phrases and comments. Doodles stay as the app wrote them.',
+    )
+    expect(confirmationCopy('kept-played-notes', 1, true).paragraphs[0]).toBe(
+      "Your played notes won't be kept from now on. The ones already kept with 1 session can be deleted too; the sessions stay. Doodles stay as the app wrote them.",
+    )
+    expect(confirmationCopy('every-session', 2, true).paragraphs[0]).not.toContain('Doodles')
+    expect(confirmationCopy('everything', 0, true).paragraphs[0]).not.toContain('Doodles')
   })
 })

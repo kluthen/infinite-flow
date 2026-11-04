@@ -110,7 +110,12 @@ const deleteEverythingOffered = computed(() => !form.value.startsWith('outdated'
 const copy = computed(() => {
   const open = confirmation.value
   if (open === null) return null
-  if (open.kind !== 'preset') return confirmationCopy(open.kind, model.confirmationCount.value)
+  if (open.kind !== 'preset')
+    return confirmationCopy(
+      open.kind,
+      model.confirmationCount.value,
+      model.jamKeepsPlayedNotes.value,
+    )
   if (open.preset === null) throw new Error("your data: a preset's confirmation names none")
   return presetConfirmationCopy(open.preset.name)
 })
