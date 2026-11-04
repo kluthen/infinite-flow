@@ -1540,3 +1540,59 @@ DR recordings; O267; `accessibility.spec.ts` at 589 of 600 lines and
   600 lines. Next: wave 7 (24, 25, 32, 33; gate J240 in it), in a fresh session; chunk 24 carries
   the Jam part hand-over (plan v34), the kept-Jam read back with no clock (spec D499) and H4/H5's
   rewording (spec D497); chunk 25 the failed-load exports and the doodle-only export (plan v33).
+
+## Wave 7 (2026-11-04)
+
+Chunks 24 The kept doodle, 25 Exports open with the doodle, 32 Tap tempo, 33 240 BPM in Jam,
+40 The guide playback. Wave branch `v3.2-w7` in `/home/bastien/work/infinite_flow-v3.2-w7`, cut
+from `main` fee0246a. Order 24 → 25 → 32 → 33 → 40; κ 1.
+
+### Start: the guide playback merged in
+
+- The side branch `v3.2-guide-playback` (the guide playback spec, a404880e + a06f7a11, cut from
+  c02d8bd9) merged into the wave branch at the owner's word ("merge it and then we will start
+  working on wave 7"): d4ead6ad. `spec-writer` resolved the conflicts: the guide's plan revision
+  became v35, its Part C revision v1.20; D490–D494 sit before wave 6's D495/D497/D499; C19 and DoD
+  items 50–52 collided with nothing. Chunk 40's **Files** corrected to the three production
+  `queueBacking` call sites (chunk 21 added `workspace-session-phrase-one-entry.ts:81`). The branch
+  `v3.2-guide-playback` and its worktree `../infinite_flow-v3.2-guide` are kept until this wave
+  merges into `main`.
+- `doc-ids lint spec`: 2 known warnings (O290, O291 cited, opened and closed the same day with no
+  register entry); left as they are.
+
+### Preflight
+
+`documentalist` 11467603 (D2 by grep over the chunks' **Files**, not `atd map`):
+
+| Chunk | Verdict |
+| --- | --- |
+| 24 | PROCEED WITH CORRECTIONS |
+| 25 | PROCEED WITH CORRECTIONS |
+| 32 | PROCEED WITH CORRECTIONS |
+| 33 | PROCEED (first half); a "widen" at J240 needs a contract wording sign-off and a MAJOR bump (`rule_saved_settings_load_tolerantly`, STABLE) |
+| 40 | PROCEED WITH CORRECTIONS; CG widened to change set part Y (Y1–Y4, with the vision) |
+
+- Captures (DRAFT 0.1): `module_kept_doodle` (chunk 24), `module_guide_playback_layers` (chunk 40).
+- Gate CG drafted as change set part Y: Y1 `req_session_audio_mix` 0.1→0.2, Y2
+  `rule_settings_saved_on_change` 0.4→0.5, Y3 the vision 0.10→0.11 (its out-of-scope "playback of
+  the generated lead line" never took D490 in), Y4 CONTRACT 12.0.0→13.0.0; Y5 the guide's twelve
+  atoms.
+- The ten plan corrections went to `spec-writer`: plan v36 7e7e93c2 (spec D500, Part C v1.21).
+  D501 was reserved by a `doc-ids next` call and is unused; next free spec D502, O303.
+
+### Gates GD and CG
+
+- GD: `ux-writer` 6d7afb1c (ux D459–D463; `ux-critic` DRIFT with four findings, fixed, then
+  ALIGNED). Switches `Melody guide`, `Rhythm guide` after `Click`, both off by default; four sliders
+  in `Volume`; tokens `--mix-melody-guide-volume-{min,default}` (0, 0.8) and
+  `--mix-rhythm-guide-volume-{min,default}` (0, 0.6). Status done 08c76552; plan v37 4c8f00a6 (the
+  token names, chunk 40's design docs, the `readAudioMixDesign` docblock).
+- CG: the owner, verbatim: "Confirm part Y (Recommended)". `documentalist` 3363597a: recorded in
+  part Y; Y3 applied (vision 0.11) and the twelve Y5 atoms created (DRAFT 0.1, `req_guide_playback`
+  and eleven rules); Y1, Y2, Y4 and the `rule_stop_ends_session` revision wait for this wave's sync
+  (as parts P, R and W). CONTRACT 12.0.0 on the branch.
+
+### Chunks
+
+- Chunk 24 dispatched (brief: the standard brief; worktree `../infinite_flow-v3.2-c24`, branch
+  `v3.2-c24-kept-doodle`, split 24a/24b, no merge gate).
