@@ -51,6 +51,8 @@ export interface FakeSessionController {
   readonly controller: SessionController
   readonly state: FakeSessionControllerState
   readonly start: Mock<SessionController['start']>
+  /** A Jam on the kept doodle's start: it begins the session as `start` does. */
+  readonly startOnKeptDoodle: Mock<SessionController['startOnKeptDoodle']>
   readonly useStalePhrase: Mock<SessionController['useStalePhrase']>
   readonly dismissStalePhrase: Mock<SessionController['dismissStalePhrase']>
   /**
@@ -208,6 +210,7 @@ export function createFakeSessionController(
     canStart: true,
     startBlocker: null,
     lastEnd: null,
+    lastDeletion: null,
     lastHistory: null,
     review: null,
     mostRecent: null,
@@ -269,6 +272,9 @@ export function createFakeSessionController(
     }
     begin()
     return 'started'
+  })
+  const startOnKeptDoodle = vi.fn((): void => {
+    begin()
   })
   const useStalePhrase = vi.fn((): boolean => {
     state.stalePhrasePrompt = null
@@ -435,6 +441,7 @@ export function createFakeSessionController(
       startWithoutPhraseOne: vi.fn(() => {
         throw new Error('fake session controller: no start without phrase 1 is expected')
       }),
+      startOnKeptDoodle,
       useStalePhrase,
       dismissStalePhrase,
       stop,
@@ -463,6 +470,7 @@ export function createFakeSessionController(
     },
     state,
     start,
+    startOnKeptDoodle,
     useStalePhrase,
     dismissStalePhrase,
     staleOnStart: null,

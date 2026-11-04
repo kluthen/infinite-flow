@@ -24,6 +24,8 @@ import type { PresetStore } from './use-preset-sheet'
 import type { WorkspaceSessionRunnerStarter } from './workspace-session-dependencies'
 import type { SessionController } from './workspace-session-controller-types'
 import type { HeldModeNoteRoute } from './workspace-session-midi'
+import type { KeptDoodleGeneration } from './use-kept-doodle-phrase'
+import type { JamPregenerationLoader } from './jam-pregeneration'
 
 export interface WorkspaceSession {
   readonly session: GenerationSession<WorkspaceSessionResult>
@@ -101,6 +103,21 @@ export interface WorkspaceSession {
    */
   // @spec-link [[service_workspace_session_flow]]
   readonly prewarm: PostPrewarm | null
+  /**
+   * What Jam mode's phrase 1 at Idle, written from the kept doodle, is generated with: the Idle
+   * flow's generation seam (the one worker, each request yielding first to the player, as session
+   * mode's Idle requests do), its request-id and seed providers, its session seeds and the
+   * window's width. Jam's phrase 1 has a state and a staff of its own, apart from session mode's.
+   */
+  // @spec-link [[service_workspace_session_flow]]
+  readonly keptDoodleGeneration: KeptDoodleGeneration
+  /**
+   * How Jam mode's own pre-generation queue is loaded, with the session controller's chunk, and
+   * built over Jam's side: on the same worker seam, providers, window-width reading, background
+   * slot and policy as session mode's queue, the staff a session is drawn on and the window's
+   * shape. Its queue is apart from session mode's, which it never touches.
+   */
+  readonly jamPregeneration: JamPregenerationLoader
   /**
    * The browser capabilities a session uses around its run: the screen wake lock and the
    * landscape orientation lock (requested in the Start click, released at every end), the page

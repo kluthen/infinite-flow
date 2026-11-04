@@ -33,7 +33,10 @@ import { requireTensionArcFlag } from './tension-arc-cycle'
 
 /** The fields of a start every session has, with or without phrase 1. */
 // @spec-link [[module_session_start_without_phrase_one]]
-export type CommonStart = Omit<SessionStart, 'phraseOne' | 'phraseOneSettings' | 'readyPhrases'>
+export type CommonStart = Omit<
+  SessionStart,
+  'phraseOne' | 'phraseOneSettings' | 'readyPhrases' | 'steering'
+>
 
 /**
  * What the engine opens from once phrase 1 is known: the time it opens at, the settings in effect

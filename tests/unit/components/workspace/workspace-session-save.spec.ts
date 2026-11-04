@@ -3,12 +3,15 @@
  * from the kept summaries read at the save (every readable unpinned kept session deleted, the new
  * session written), and the call through the visit's saves, the codec loaded on demand, carrying
  * the watch on the page leaving it took as it started; a page that went away by the time the codec
- * has loaded asks for nothing, even if it came back meanwhile.
+ * has loaded asks for nothing, even if it came back meanwhile. A Jam's save keeps its doodle with
+ * its capture tempo, and a fresh Jam's moments, which a Jam on the kept doodle has none of.
  */
 import { describe, expect, it } from 'vitest'
 
 import {
   endedSessionSave,
+  keptFreshJam,
+  keptJamSave,
   keptSessionChanges,
   keptSessionKey,
   saveEndedSession,
@@ -25,6 +28,15 @@ import type { StoredEntry } from '@/storage/storage-port'
 
 import { createFakePageLeaving } from '../../session/fake-session-browser'
 import { recordedKeptSession } from '../../storage/kept-session-fixtures'
+import {
+  JAM_COUNT_IN_AT,
+  JAM_DOODLE_FIRST_BARLINE_AT,
+  KEPT_DOODLE,
+  RAW_DOODLE_NOTES,
+  jamHistory,
+  keptDoodleJamPart,
+  reviewedJamPart,
+} from './reviewed-jam-part-fixture'
 
 /** A page that stays. */
 const PAGE_STAYS: PageLeaving = { watch: () => () => false }
@@ -329,5 +341,73 @@ describe("the retry of a refused session's save", () => {
       keptSessionChanges(codec, history, saving, kept, APP_VERSION, held),
     )
     expect(described(asked[0]!(kept))[0]).toBe('delete sessionSummaries session-1-1')
+  })
+})
+
+// @test-link [[module_kept_jam_session]]
+describe("what a Jam session's save keeps of its Jam part", () => {
+  // @test-link [[module_kept_jam_session]]
+  // @test-link [[rule_raw_doodle_notes_are_played_notes]]
+  it("keeps a fresh Jam's doodle with its capture tempo and its fresh moments", () => {
+    expect(keptJamSave(reviewedJamPart())).toEqual({
+      doodle: KEPT_DOODLE,
+      fresh: {
+        countInStartsAt: JAM_COUNT_IN_AT,
+        doodleFirstBarlineAt: JAM_DOODLE_FIRST_BARLINE_AT,
+        rawDoodleNotes: RAW_DOODLE_NOTES,
+      },
+    })
+  })
+
+  // @test-link [[module_kept_jam_session]]
+  // @test-link [[rule_jam_on_held_doodle_skips_capture]]
+  it('keeps a Jam on the kept doodle with its doodle and capture tempo, and no fresh moment', () => {
+    const phraseOneAt = jamHistory(false).phrases()[0]!.startedAt
+    const part = keptDoodleJamPart(phraseOneAt)
+
+    expect(keptFreshJam(part)).toBeNull()
+    expect(keptJamSave(part)).toEqual({ doodle: KEPT_DOODLE, fresh: null })
+  })
+
+  // @test-link [[rule_jam_on_held_doodle_skips_capture]]
+  // @test-link [[rule_played_notes_kept_only_after_opt_in]]
+  it('keeps the played notes of a Jam on the kept doodle only when its phrases hold one', () => {
+    const phraseOneAt = jamHistory(false).phrases()[0]!.startedAt
+    const part = keptDoodleJamPart(phraseOneAt)
+
+    expect(endedSessionSave(jamHistory(false), true, BUILT_IN_PRESETS, part).playedNotesKept).toBe(
+      false,
+    )
+    expect(endedSessionSave(jamHistory(true), true, BUILT_IN_PRESETS, part).playedNotesKept).toBe(
+      true,
+    )
+  })
+
+  // @test-link [[rule_jam_on_held_doodle_skips_capture]]
+  it('writes a Jam on the kept doodle with no played-notes clock and its notes from phrase 1', () => {
+    const history = jamHistory(true)
+    const part = keptDoodleJamPart(history.phrases()[0]!.startedAt)
+    const saving = endedSessionSave(history, true, BUILT_IN_PRESETS, part)
+
+    const changes = keptSessionChanges(codec, history, saving, [], APP_VERSION)
+    const stored = (store: string): unknown => {
+      const write = changes.find((change) => change.kind === 'write' && change.store === store)
+      return write?.kind === 'write' ? structuredClone(write.record) : undefined
+    }
+    const reading = codec.decodeKeptSession({
+      summary: stored('sessionSummaries'),
+      body: stored('sessionBodies'),
+      playedNotes: stored('playedNotes'),
+    })
+
+    if (reading.reading !== 'current') throw new Error(`read as ${reading.reading}`)
+    expect(reading.value.jam).toEqual({
+      doodle: KEPT_DOODLE,
+      playedNotesClock: null,
+      rawDoodleNotes: [],
+    })
+    const firstNote = reading.value.phrases.flatMap((phrase) => phrase.playedNotes)[0]
+    const recorded = history.phrases().flatMap((phrase) => phrase.playedNotes)[0]!
+    expect(firstNote?.onsetAt).toBeCloseTo(recorded.onsetAt - history.phrases()[0]!.startedAt, 9)
   })
 })

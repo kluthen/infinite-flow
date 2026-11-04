@@ -3,14 +3,15 @@
  * the Jam-style session's two phrases (phrase 1 joined from no phrase) on the audio clock, with or
  * without notes played in its phrases, and its Jam part: the two-measure quantized doodle with its
  * capture tempo, its count-in's first beat, its doodle's barlines and its raw doodle notes (or
- * none), nothing suggested, no decline.
+ * none), nothing suggested, no decline; and the Jam part of a Jam on that doodle kept, as its end
+ * gives it: no count-in, no raw note, the doodle's measures ending at phrase 1's start.
  */
 import { makeSeed } from '@/domain/random/seed'
 import { C_KEYBOARD_PROFILE } from '@/domain/profile/instrument-profiles'
 import { deriveRegisterWindowCandidates } from '@/domain/profile/register-window-derivation'
 import { readDoodleControls } from '@/jam/doodle-controls'
 import type { SessionHistoryRecord } from '@/session/session-history'
-import type { ReviewedJamPart } from '@/components/workspace/session-jam-part'
+import { keptSessionDoodle, type ReviewedJamPart } from '@/components/workspace/session-jam-part'
 import type { RecordedPlayedNote } from '@/session/session-history'
 import { historyOf } from '../../storage/kept-session-fixtures'
 import {
@@ -71,5 +72,25 @@ export function jamHistory(playedInPhrases: boolean): ReturnType<typeof historyO
     sessionSeed: makeSeed(41),
     phraseCount: records.length,
     tempoReached: () => records.at(-1)!.tempo,
+  }
+}
+
+/**
+ * Intent: the Jam part a Jam on the fixture's doodle, kept, gives at its end, its phrase 1
+ * starting at `phraseOneAt` on the audio clock, its suggestion declined or not.
+ */
+export function keptDoodleJamPart(
+  phraseOneAt: number,
+  suggestionDeclined = false,
+): ReviewedJamPart {
+  return {
+    doodle: keptSessionDoodle(
+      { doodle: KEPT_DOODLE.quantized, captureTempo: KEPT_DOODLE.captureTempo },
+      phraseOneAt,
+    ),
+    countInStartAt: null,
+    suggestion: { kind: 'nothing' },
+    suggestionDeclined,
+    doodleControls: DOODLE_CONTROLS,
   }
 }

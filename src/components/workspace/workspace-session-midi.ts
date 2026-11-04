@@ -210,14 +210,22 @@ export function createSessionMidi(deps: SessionMidiDependencies): SessionMidi {
 
   /**
    * Intent: at Idle while session mode is held, a note the holding code's route means `start` by
-   * starts what it starts; it arms no silence timer. Any other note does nothing.
+   * starts what it starts. As session mode's starting note, it arms the silence timer of a session
+   * it starts with phrase 1 (a Jam on the kept doodle, started on phrase 1's first note), and none
+   * of one started without phrase 1 (a fresh Jam's home note). Any other note does nothing.
    */
   // @spec-link [[rule_midi_starting_note]]
   // @spec-link [[rule_silence_timeout_ends_session]]
   function onHeldModeNote(event: PlayedNoteEvent): void {
     if (event.kind !== 'played') return
     const route = deps.heldModeNotes()
-    if (route?.meaningOf(event.note.pitch) === 'start') route.start()
+    if (route?.meaningOf(event.note.pitch) !== 'start') return
+    startingOnset = event.note.onsetAt
+    try {
+      route.start()
+    } finally {
+      startingOnset = null
+    }
   }
 
   /**
@@ -458,7 +466,8 @@ function beginWithController(
     }
   }
 
-  if (startingOnset !== null) armSilence(startingOnset)
+  // The starting note arms the timer of a session it starts with phrase 1; before phrase 1, none.
+  if (startingOnset !== null && !withoutPhraseOne) armSilence(startingOnset)
   return {
     listeners: { note: guarded(note), stateChanged: guarded(stateChanged) },
     run: {

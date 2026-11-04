@@ -2,19 +2,24 @@
  * Jam's Idle note routing: the one place that says what a controller note played at Jam mode's
  * Idle means. Without a kept doodle the starting note is the home note of Jam's written key (its
  * tonic), in the instrument's written pitch, in the octave nearest the middle of its written range,
- * matched at its exact concert pitch; it means `start` only while a fresh Jam could start and the
- * page has had its first click, tap or key press; every other note is ignored. The kept doodle's
- * starting note (chunk 24) and tap-in (chunk 32) extend this module rather than a second one.
- * Part of Jam's code (src/jam/), loaded on demand; pure apart from the readings it is given.
+ * matched at its exact concert pitch; with one, it is the first note of phrase 1 written from the
+ * kept doodle, as session mode's starting note is its Idle phrase's (the start marker shows it).
+ * It means `start` only while a Jam could start and the page has had its first click, tap or key
+ * press; every other note is ignored. Tap-in (chunk 32) extends this module rather than a second
+ * one. Part of Jam's code (src/jam/), loaded on demand; pure apart from the readings it is given.
  */
+import type { ExpectedNoteIdentity } from '@/domain/acknowledgement/expected-note'
 import {
   PITCH_CLASSES,
   type Collection,
   type PitchClass,
 } from '@/domain/controls/generation-controls'
 import { makeConcertPitch, type ConcertPitch } from '@/domain/events/concert-pitch'
+import type { ConcertEventTimeline } from '@/domain/events/timeline'
 import type { PitchClassNumber } from '@/domain/harmony/harmony-types'
 import { pitchClassText, spellMidiInKey, spellWrittenKey } from '@/domain/notation/pitch-spelling'
+import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
+import { startingNoteOf } from '@/session/starting-note'
 import {
   findBuiltInInstrumentProfile,
   MY_INSTRUMENT_ID,
@@ -31,13 +36,22 @@ export type JamInstrument = Pick<JamStaffProps, 'instrumentProfileId' | 'myInstr
 /**
  * A Jam's starting note: its label (the written spelling, as the key signature spells it, with its
  * octave number, octave 4 starting on middle C, for example `B♭3`), its written MIDI number and the
- * exact concert pitch a played note must equal.
+ * exact concert pitch a played note must equal; for the first note of the kept doodle's phrase 1,
+ * also the note on the staff the start marker points at.
  */
 // @spec-link [[rule_jam_starting_note_is_home_note]]
 export interface JamStartingNote {
   readonly label: string
   readonly writtenMidi: number
   readonly concertPitch: ConcertPitch
+  readonly identity?: ExpectedNoteIdentity
+}
+
+/** Phrase 1 written from the kept doodle, as Jam mode's Idle shows it: its notes and its staff. */
+// @spec-link [[module_jam_idle_notes]]
+export interface JamKeptPhraseOne {
+  readonly timeline: ConcertEventTimeline
+  readonly written: WrittenPhrase
 }
 
 /** What a controller note played at Jam mode's Idle means. */
@@ -110,16 +124,26 @@ export interface JamIdleNotesDependencies {
   readonly collection: () => Collection
   /** The selected instrument, shared with session mode. */
   readonly instrument: () => JamInstrument
-  /** Whether a fresh Jam could start now: its start conditions hold (rule_jam_start_conditions). */
+  /**
+   * Whether a Jam could start now: a fresh Jam's start conditions hold (rule_jam_start_conditions)
+   * or, with a doodle kept, a Jam on it could start (its phrase 1 shown).
+   */
   readonly canStart: () => boolean
   /** Whether the page still waits for its first click, tap or key press, the audio still locked. */
   readonly pageAwaitsClick: () => boolean
+  /** Whether Jam mode keeps a doodle now. */
+  readonly doodleKept: () => boolean
+  /** Phrase 1 written from the kept doodle, as shown at Idle; null while none is shown. */
+  readonly keptPhraseOne: () => JamKeptPhraseOne | null
 }
 
 /** Jam's Idle note routing: the starting note it names, and what a played note means. */
 // @spec-link [[module_jam_idle_notes]]
 export interface JamIdleNotes {
-  /** The note that would start a fresh Jam: the home note while a Jam could start, else null. */
+  /**
+   * The note that would start a Jam: while one could start, the home note, or with a doodle kept
+   * its phrase 1's first note; else null.
+   */
   readonly startingNote: () => JamStartingNote | null
   /** Whether the named starting note waits for the page's first click, tap or key press. */
   readonly awaitsClick: () => boolean
@@ -128,20 +152,42 @@ export interface JamIdleNotes {
 }
 
 /**
- * Intent: Jam's Idle note routing over its readings. The starting note is the home note while a
- * fresh Jam could start, else none. A played note means `start` only at that note's exact concert
+ * Intent: the starting note of phrase 1 written from the kept doodle: its first attacked note, at
+ * its concert pitch, named as the staff spells it, and the note the start marker points at.
+ */
+// @spec-link [[module_jam_idle_notes]]
+// @spec-link [[rule_starting_note_named]]
+function keptPhraseOneStartingNote(phrase: JamKeptPhraseOne): JamStartingNote {
+  const starting = startingNoteOf(phrase.timeline, phrase.written)
+  return Object.freeze({
+    label: starting.label,
+    writtenMidi: starting.concertPitch + phrase.written.transposition.chromatic,
+    concertPitch: starting.concertPitch,
+    identity: starting.identity,
+  })
+}
+
+/**
+ * Intent: Jam's Idle note routing over its readings. While a Jam could start, the starting note
+ * is the home note with no doodle kept, and with one its phrase 1's first note (none while that
+ * phrase 1 is not shown); else none. A played note means `start` only at that note's exact concert
  * pitch, octave included, while it is named and the page has had its first click, tap or key
- * press; every other note is ignored, and none is ever part of a doodle. Nothing acts on `start`
- * yet: chunk 21 wires it to the count-in, the path the `Start Jam` click takes. Nothing here
- * subscribes to the controller's notes.
+ * press; every other note is ignored, and none is ever part of a doodle. The start it means is the
+ * one `Start Jam` takes: a fresh Jam, or a Jam on the kept doodle. Nothing here subscribes to the
+ * controller's notes.
  */
 // @spec-link [[module_jam_idle_notes]]
 // @spec-link [[rule_jam_starting_note_is_home_note]]
 // @spec-link [[rule_jam_start_conditions]]
+// @spec-link [[rule_held_doodle_phrase_one_at_idle]]
 export function createJamIdleNotes(deps: JamIdleNotesDependencies): JamIdleNotes {
-  /** Intent: the home note while a fresh Jam could start; null otherwise. */
+  /** Intent: the home note, or the kept doodle's phrase 1's first note, while a Jam could start. */
   function startingNote(): JamStartingNote | null {
     if (!deps.canStart()) return null
+    if (deps.doodleKept()) {
+      const phrase = deps.keptPhraseOne()
+      return phrase === null ? null : keptPhraseOneStartingNote(phrase)
+    }
     return jamHomeNote(deps.writtenKey(), deps.collection(), deps.instrument())
   }
 

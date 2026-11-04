@@ -3,16 +3,21 @@
  * scripted generations) and Jam's real code: a start runs the Jam under Jam's settings, the cue row
  * follows its phase, the readings show once phrase 1 enters; at its end the Jam goes, and only an
  * end with no phrase 1 by the deadline leaves `jam-notice`, until the next start, a change of a Jam
- * setting or leaving Jam mode. At 180 BPM: a 4/3 s measure.
+ * setting or leaving Jam mode; an end with a review hands Jam's kept doodle the Jam part that review
+ * shows, and an end before phrase 1 hands none. At 180 BPM: a 4/3 s measure.
  */
 import { afterEach, describe, expect, it } from 'vitest'
 import { effectScope, shallowRef, type EffectScope } from 'vue'
 
+import { C_KEYBOARD_PROFILE } from '@/domain/profile/instrument-profiles'
 import * as jamMode from '@/jam/jam-mode'
 import { jamFirstValues } from '@/jam/jam-settings'
 import type { JamStaffState } from '@/jam/jam-view-types'
+import type { KeptDoodleState } from '@/jam/use-kept-doodle'
 import type { AudioTime } from '@/session/session-types'
+import type { ReviewedJamPart } from '@/components/workspace/session-jam-part'
 import { useFreshJam, type WorkspaceFreshJam } from '@/components/workspace/use-fresh-jam'
+import { reviewedJamPart } from './reviewed-jam-part-fixture'
 import {
   alwaysFail,
   alwaysSucceed,
@@ -33,6 +38,10 @@ interface ShellJam {
   readonly jamShowing: { value: boolean }
   readonly changeTempo: (tempo: number) => void
   readonly staffState: { value: JamStaffState | null }
+  /** Jam's kept doodle, which the shell's fresh Jam hands each ended Jam's part to. */
+  readonly keptDoodle: KeptDoodleState
+  /** Every Jam part handed to the kept doodle, with its session's key, in order. */
+  readonly handed: { readonly jam: ReviewedJamPart; readonly sessionKey: string }[]
 }
 
 let scope: EffectScope | null = null
@@ -50,6 +59,11 @@ async function shellJam(script: GenerateScript = alwaysSucceed): Promise<ShellJa
   const settings = shallowRef(jamFirstValues({ tempo, tonalCenter, collection }))
   const jamShowing = shallowRef(true)
   const staffState = shallowRef<JamStaffState | null>('shown')
+  const keptDoodle = jamMode.useKeptDoodle({
+    instrument: () => C_KEYBOARD_PROFILE,
+    keyAndMode: () => ({ tonalCenter, collection }),
+  })
+  const handed: ShellJam['handed'] = []
   scope = effectScope()
   const fresh = scope.run(() =>
     useFreshJam({
@@ -64,6 +78,10 @@ async function shellJam(script: GenerateScript = alwaysSucceed): Promise<ShellJa
       instrument: () => ({ instrumentProfileId, myInstrument: null }),
       lastEnd: () => rig.controller.state.lastEnd,
       jamStaffState: () => staffState.value,
+      keepDoodle: (jam, sessionKey) => {
+        handed.push({ jam, sessionKey })
+        keptDoodle.keep(jam, sessionKey)
+      },
     }),
   )
   if (fresh === undefined) throw new Error('the effect scope ran nothing')
@@ -72,6 +90,8 @@ async function shellJam(script: GenerateScript = alwaysSucceed): Promise<ShellJa
     fresh,
     jamShowing,
     staffState,
+    keptDoodle,
+    handed,
     changeTempo: (next) => {
       settings.value = { ...settings.value, tempo: next }
     },
@@ -192,5 +212,49 @@ describe("the shell's fresh Jam", () => {
     run.staffState.value = 'no-room'
     expect(run.rig.controller.state.phase).toBe('running')
     expect(run.rig.controller.state.lastEnd).toBeNull()
+  })
+
+  // @test-link [[module_kept_doodle]]
+  // @test-link [[rule_held_doodle_dropped_on_change]]
+  it("hands Jam's code, at an end with a review, the very Jam part the review shows, and its doodle is kept", async () => {
+    const run = await shellJam()
+    run.fresh.start()
+    const ends = countInEnd(run)
+    await playOneMeasure(run, ends)
+    await playTo(run.rig, ends + 4.5 * MEASURE)
+    run.rig.controller.stop()
+
+    const review = run.rig.controller.state.review
+    expect(review?.jam).toBeDefined()
+    expect(run.handed).toHaveLength(1)
+    expect(run.handed[0]?.jam).toBe(review?.jam)
+    expect(run.handed[0]?.sessionKey).toBe(review?.key)
+    expect(run.rig.controller.state.lastEnd?.jam?.part).toBe(review?.jam)
+    expect(run.keptDoodle.kept.value?.doodle).toBe(review?.jam?.doodle.doodle)
+    expect(run.keptDoodle.kept.value?.readings).toBe(review?.jam?.doodleControls)
+    expect(run.keptDoodle.kept.value?.sessionKey).toBe(review?.key)
+  })
+
+  // @test-link [[module_kept_doodle]]
+  // @test-link [[rule_jam_ending_before_phrase_one]]
+  it('hands none at an end before phrase 1: a fresh Jam’s doodle is not kept, a kept one stays', async () => {
+    const run = await shellJam()
+    run.fresh.start()
+    const ends = countInEnd(run)
+    await playOneMeasure(run, ends)
+    run.rig.controller.stop()
+    expect(run.rig.controller.state.lastEnd?.soundedPhraseCount).toBe(0)
+    expect(run.rig.controller.state.lastEnd?.jam).toBeUndefined()
+    expect(run.handed).toEqual([])
+    expect(run.keptDoodle.kept.value).toBeNull()
+
+    run.keptDoodle.keep(reviewedJamPart(), 'session-earlier')
+    const kept = run.keptDoodle.kept.value
+    run.fresh.start()
+    await playTo(run.rig, countInEnd(run) + 0.1)
+    run.rig.controller.stop()
+
+    expect(run.handed).toEqual([])
+    expect(run.keptDoodle.kept.value).toBe(kept)
   })
 })

@@ -4,10 +4,11 @@
  * flow, The Doodle and the Suggestion): the suggestion row's inputs once Jam's code has loaded (the
  * quantized doodle, Jam's key and mode now, the selected instrument, the decline), `Jam in
  * {answer}` (Jam's key and mode set, saved as Jam's, wherever the review was opened from), `Keep
- * {key} {mode}` (the decline, at once in memory and saved with the session, focus then on `Jam
- * again on this doodle` when it is enabled, else on `review-title`), and `Jam again on this
- * doodle`, disabled while Jam's code loads or after it failed, which leaves the review mode onto
- * Jam mode.
+ * {key} {mode}` (the decline, at once in memory and saved with the session, and the kept doodle's
+ * too when it comes from the session, focus then on `Jam again on this doodle` when it is
+ * enabled, else on `review-title`), and `Jam again on this doodle`, disabled while Jam's code
+ * loads or after it failed, which leaves the review mode onto Jam mode with the reviewed
+ * session's doodle kept.
  */
 import { computed, nextTick, type ComputedRef, type Ref } from 'vue'
 
@@ -107,7 +108,8 @@ export function useReviewDoodleTools(deps: ReviewDoodleToolsDependencies): Revie
 
   /**
    * Intent: `Keep {key} {mode}`: the suggestion declined for good, at once in memory, then saved
-   * with the session (chunk 30's decline); once the row has left, focus on `Jam again on this
+   * with the session (chunk 30's decline), and Jam's kept doodle declined too when it comes from
+   * this session; once the row has left, focus on `Jam again on this
    * doodle` when it is enabled, else on `review-title`. Nothing is announced.
    */
   // @spec-link [[rule_suggestion_keep_mine]]
@@ -115,7 +117,21 @@ export function useReviewDoodleTools(deps: ReviewDoodleToolsDependencies): Revie
     const key = deps.sessionKey()
     if (key === null) throw new Error('review doodle: Keep with no Review showing')
     void requireController().declineSuggestion(key)
+    deps.ports().declined(key)
     void nextTick(() => (loaded.value === null ? deps.focusTitle() : deps.focusJamAgain()))
+  }
+
+  /**
+   * Intent: `Jam again on this doodle`: the review mode left onto Jam mode with the showing
+   * Review's doodle kept, from its session.
+   */
+  // @spec-link [[rule_jam_again_on_this_doodle]]
+  function jamAgain(): Promise<void> {
+    const jam = deps.jam()
+    const sessionKey = deps.sessionKey()
+    if (jam === null || sessionKey === null)
+      throw new Error("review doodle: Jam again with no Jam session's Review showing")
+    return deps.ports().jamAgain({ jam, sessionKey })
   }
 
   return {
@@ -123,6 +139,6 @@ export function useReviewDoodleTools(deps: ReviewDoodleToolsDependencies): Revie
     jamAgainDisabled: computed(() => loaded.value === null),
     useAnswer,
     keep,
-    jamAgain: () => deps.ports().jamAgain(),
+    jamAgain,
   }
 }

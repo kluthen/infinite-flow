@@ -765,19 +765,22 @@ Chrome on the reference machine, the Travel Sax over USB. A **Jam** starts from 
 you play first, your **doodle** (one to four measures after a one-measure count-in), and the app
 continues it as a session. **Drift** says how far the phrases may stray from your doodle's rhythm
 (`Close`, `Near`, `Free`); Jam's **Rhythm lock** holds one rhythm for the whole Jam. Run it after
-wave 6. Until wave 7 the doodle is not kept after a Jam, so each step plays the doodle again.
+wave 7.
 
 - [ ] Switch the header's **Mode** to `Jam`. Set Jam's tempo to 100 BPM, **Drift** `Near`,
       **Rhythm lock** `Off`.
 - [ ] Press **Start Jam**. After the count-in, play a two-measure doodle with a clear rhythm, then
       stop playing; the cue row shows "Writing your first phrase", then phrase 1 enters. Listen to
       four phrases and say: "does it sound like my doodle?"
-- [ ] **Stop**, **Close review**. Set **Drift** `Close`; **Start Jam** and play the same doodle
-      again; listen to four phrases. At Drift Close, did any phrase use quicker notes than your
-      doodle ([O271](specs/open-questions.md#v32-build-o267))?
-- [ ] The same with **Drift** `Free`.
-- [ ] **Rhythm lock** `On`; **Start Jam**, the same doodle; listen to four phrases: one rhythm, near
-      the doodle's.
+- [ ] **Stop**, **Close review**: Jam mode keeps your doodle ("Jamming again on your doodle"
+      shows above the staff) and phrase 1 is written from it. Set **Drift** `Close`: phrase 1 is
+      written again. Press **Start Jam** and play no new doodle: the app reuses the same doodle,
+      and phrase 1 follows the count-in at once. Listen to four phrases. At Drift Close, did any
+      phrase use quicker notes than your doodle ([O271](specs/open-questions.md#v32-build-o267))?
+- [ ] The same with **Drift** `Free`: **Stop**, **Close review**, set **Drift** `Free`;
+      **Start Jam**, no new doodle; listen to four phrases.
+- [ ] **Stop**, **Close review**; **Rhythm lock** `On`; **Start Jam**, still the same doodle; listen
+      to four phrases: one rhythm, near the doodle's.
 - [ ] Say whether Jam's small set of settings felt enough, and whether Drift and the lock felt like
       two controls or one. Keep "sounds like my doodle" apart from "I like it": in H1's set 4 two
       candidates further from the doodle sounded better, though clearly different (spec D449).
@@ -788,11 +791,12 @@ wave 6. Until wave 7 the doodle is not kept after a Jam, so each step plays the 
 
 Chrome on the reference machine, the Travel Sax over USB. When phrase 1 enters, **From your
 doodle**, under Jam's controls, shows the rhythm and shape the app read from your doodle (note
-density, rhythmic variety, syncopation, silence, contour, leaps, register). Run it after wave 6,
+density, rhythmic variety, syncopation, silence, contour, leaps, register). Run it after wave 7,
 once your recordings have joined the doodle set (gate DR, spec D443).
 
 - [ ] Mode `Jam`, 90 BPM, **Drift** `Near`, **Rhythm lock** `Off`. Before each step, Stop and
-      Close review if a Jam is running, so each doodle starts a fresh Jam.
+      Close review if a Jam is running, then press **New doodle** if the bar "Jamming again on your
+      doodle" shows, so each doodle starts a fresh Jam.
 - [ ] A sparse doodle: three or four long notes over two measures. Read "From your doodle" once
       phrase 1 enters; listen to two phrases.
 - [ ] A busy doodle: running eighths or sixteenths. Read, listen.

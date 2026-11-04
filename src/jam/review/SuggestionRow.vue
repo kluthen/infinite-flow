@@ -4,10 +4,11 @@
  * Jam's key and mode, never session mode's (./use-key-suggestion.ts). Offering: "Your doodle
  * sounds like {answer}.", then `Jam in {answer}` and `Keep {key} {mode}`, two plain buttons. Set:
  * "Jams now play in {answer}.", which takes focus after `Jam in {answer}` (`tabindex="-1"`, never
- * in the tab order). No fit: one sentence naming no note. Absent: nothing rendered. What each
- * button changes is its host's: this row asks (`use`, `keep`) and says. When its buttons leave
- * while one has focus, not by a press of theirs (a change of Jam's key or mode), it hands focus
- * back (`focus-lost`). Part of Jam's code (src/jam/), loaded on demand.
+ * in the tab order). No fit: one sentence naming no note, in a review only. Absent: nothing
+ * rendered. Jam's Idle shows it too, in `jam-bar` (`atIdle`), its buttons disabled while the bar
+ * is held still. What each button changes is its host's: this row asks (`use`, `keep`) and says.
+ * When its buttons leave while one has focus, not by a press of theirs (a change of Jam's key or
+ * mode), it hands focus back (`focus-lost`). Part of Jam's code (src/jam/), loaded on demand.
  */
 import { nextTick, ref, watch } from 'vue'
 
@@ -27,6 +28,10 @@ const props = defineProps<{
   instrument: Pick<InstrumentProfile, 'transposition'>
   /** The player has declined this doodle's suggestion. */
   declined: boolean
+  /** Shown at Jam's Idle, in `jam-bar`: no no-fit form, judged afresh after the set form. */
+  atIdle?: boolean
+  /** Its buttons are disabled (`jam-bar` held still during a session). */
+  disabled?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -47,6 +52,7 @@ const suggestion = useKeySuggestion({
   jam: () => props.jam,
   instrument: () => props.instrument,
   declined: () => props.declined,
+  atIdle: props.atIdle,
 })
 const form = suggestion.form
 
@@ -109,10 +115,12 @@ watch(
   <div v-if="form.kind !== 'absent'" ref="rowEl" class="suggestion-row">
     <template v-if="form.kind === 'offering'">
       <p>Your doodle sounds like {{ form.answerName }}.</p>
-      <button type="button" class="btn" @click="useAnswer(form.answer)">
+      <button type="button" class="btn" :disabled="disabled" @click="useAnswer(form.answer)">
         Jam in {{ form.answerName }}
       </button>
-      <button type="button" class="btn" @click="keep">Keep {{ form.keepName }}</button>
+      <button type="button" class="btn" :disabled="disabled" @click="keep">
+        Keep {{ form.keepName }}
+      </button>
     </template>
     <p v-else-if="form.kind === 'set'" ref="setSentenceEl" tabindex="-1">
       Jams now play in {{ form.answerName }}.

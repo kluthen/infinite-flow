@@ -123,11 +123,12 @@ type Stage =
  * Intent: the attempt after a failed one, or undefined after rung 3: rung 3 once the standalone
  * attempt is due; rung 2 after a rung 1 attempt whose search covered every candidate
  * (no_legal_pitch_plan: its retries would fail the same way, whatever the seed); the next one
- * otherwise.
+ * otherwise. Phrase 1 written at Idle from a kept doodle climbs the same way, with no deadline, so
+ * nothing is ever due there.
  */
 // @spec-link [[rule_jam_phrase_one_failure_ladder]]
 // @spec-link [[rule_session_generation_failure_ladder]]
-function attemptAfter(
+export function attemptAfter(
   failed: JamPhraseOneAttemptIndex,
   result: PhraseOneAttemptResult,
   due: boolean,

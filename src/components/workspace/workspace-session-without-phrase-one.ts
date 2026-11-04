@@ -269,6 +269,7 @@ export function createSessionStartWithoutPhraseOne(
         midi: null,
         enterPhraseOne: null,
         doodleControls: null,
+        keptDoodle: null,
         shown: createSessionShownSettings(settings, settings),
       }
       return beginSessionWithoutPhraseOne(core, sides, ends, session, {

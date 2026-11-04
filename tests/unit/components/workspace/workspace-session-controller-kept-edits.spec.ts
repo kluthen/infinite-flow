@@ -326,6 +326,16 @@ describe('session controller: Delete session', () => {
     expect(rig.controller.state.mostRecent).toBeNull()
   })
 
+  it("records the player's deletion of that session, by its key, once it is deleted", async () => {
+    const rig = await afterSession(fakeKept())
+    const { key } = reviewed(rig)
+    expect(rig.controller.state.lastDeletion).toBeNull()
+
+    expect(await rig.controller.deleteSession(key)).toBe('deleted')
+
+    expect(rig.controller.state.lastDeletion).toEqual({ kind: 'session', key })
+  })
+
   it('refused, leaves it as it was', async () => {
     const fake = fakeKept()
     fake.changeOutcome = () => Promise.resolve({ status: 'refused', kind: 'other' })
@@ -336,6 +346,7 @@ describe('session controller: Delete session', () => {
 
     expect(rig.controller.state.review).toBe(review)
     expect(mostRecent(rig).key).toBe(review.key)
+    expect(rig.controller.state.lastDeletion).toBeNull()
   })
 
   it('of a session held in memory only because its save failed, deletes it from memory alone', async () => {

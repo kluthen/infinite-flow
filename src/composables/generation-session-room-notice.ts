@@ -13,7 +13,7 @@ import type {
   StaffRoomVerdict,
 } from '@/notation/staff-fit-types'
 import type { FitRunner } from './generation-session-fit-round'
-import type { MutableGenerationSessionState } from './use-generation-session'
+import type { IdlePhraseState } from './generation-session-types'
 
 /** The staff's layout-input reports, as PhraseScore forwards them on every layout change. */
 // @spec-link [[module_idle_room_notice]]
@@ -24,7 +24,7 @@ export interface StaffLayoutReports {
 /** The dependency surface the notice reactions need from the root session composable. */
 // @spec-link [[module_idle_room_notice]]
 export interface RoomNoticeDependencies<TResult> {
-  readonly state: MutableGenerationSessionState<TResult>
+  readonly state: IdlePhraseState<TResult>
   readonly checkRoom: (signature: StaffKeySignature) => Promise<StaffRoomVerdict>
   readonly staffLayout: StaffLayoutReports
   readonly fitRunner: FitRunner

@@ -299,3 +299,28 @@ export class SessionUsageError extends Error {
 export type MutableGenerationSessionState<TResult> = {
   -readonly [K in keyof GenerationSessionState<TResult>]: GenerationSessionState<TResult>[K]
 }
+
+/**
+ * The part of the mutable Idle state a phrase 1 at Idle runs on, whatever it is written from: its
+ * phrase and the intent behind it, the operation, both errors, whether it is engraved, the room
+ * notice and its announcements, and whether the fit retries run. The fit run, the notation
+ * actions and the room-notice reactions read and write this part only, so session mode's Idle and
+ * Jam mode's phrase 1 from a kept doodle each run them over a state of their own.
+ */
+// @spec-link [[service_idle_generation_session]]
+export type IdlePhraseState<TResult> = Pick<
+  MutableGenerationSessionState<TResult>,
+  | 'latestIntent'
+  | 'result'
+  | 'operation'
+  | 'generationError'
+  | 'notationError'
+  | 'resultEngraved'
+  | 'roomNotice'
+  | 'retriesRunning'
+  | 'roomNoticeAnnouncements'
+>
+
+/** The readonly view of an Idle phrase state, as the screen reads it. */
+// @spec-link [[service_idle_generation_session]]
+export type IdlePhraseStateView<TResult> = Readonly<IdlePhraseState<TResult>>

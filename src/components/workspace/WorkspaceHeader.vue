@@ -11,13 +11,16 @@
  * selectable display-notation control: the score is always shown in the active instrument
  * profile's own written pitch. After the brand sits the mode switch (./ModeSwitch.vue), whose
  * presses it only reports. While Jam mode opens both actions are disabled in place, their labels
- * and emphasis kept; in Jam mode (no kept doodle yet) the phrase action reads `Generate phrase`,
+ * and emphasis kept; in Jam mode without a kept doodle the phrase action reads `Generate phrase`,
  * disabled, secondary, and the session action `Start Jam`, primary, except while Jam's staff shows
  * a notation error: the phrase action then reads `Retry notation`, enabled and primary, and asks
- * the shell to engrave Jam's staff again. While the cue row holds `jam-needs-controller` (no
+ * the shell to engrave Jam's staff again. In Jam mode with a kept doodle every row of the action
+ * table applies as in session mode, over Jam's phrase 1 (`jamPhrase`): `Regenerate phrase`,
+ * `Retry generation` and `Retry notation` act on it, writing from the doodle, and no rhythm
+ * combination ever blocks it. While the cue row holds `jam-needs-controller` (no
  * controller connected in Jam mode), `Start Jam` names it with `aria-describedby`, and
- * `jam-notice` while Jam's staff shows it. `Start Jam` is enabled exactly while a fresh Jam could
- * start, as the shell judges it.
+ * `jam-notice` while Jam's staff shows it. `Start Jam` is enabled exactly while a Jam could start
+ * (a fresh Jam, or with a doodle kept a Jam on it), as the shell judges it.
  */
 import { computed, ref } from 'vue'
 
@@ -25,6 +28,7 @@ import type { GenerationSession, ThemePreference } from '@/composables/use-gener
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import { isRhythmSettingBlocked } from '@/domain/controls/unsupported-rhythm-settings'
 import type { JamStaffState } from '@/jam/jam-view-types'
+import type { KeptDoodlePhraseView } from './use-kept-doodle-phrase'
 import type { ControllerStatusForm } from '@/midi/controller-status'
 import { APP_VERSION } from '@/storage/app-version'
 import { APP_COMMIT } from './build-id'
@@ -50,10 +54,15 @@ const props = withDefaults(
     jamStaffState?: JamStaffState | null
     /** The cue row holds `jam-needs-controller`, which `Start Jam` then names; false by default. */
     jamNeedsController?: boolean
-    /** A fresh Jam could start now (`freshJamCanStart`): `Start Jam` is enabled; false by default. */
+    /**
+     * A Jam could start now (a fresh Jam, or with a doodle kept a Jam on it): `Start Jam` is
+     * enabled; false by default.
+     */
     jamCanStart?: boolean
     /** Jam's staff shows `jam-notice`, which `Start Jam` then names; false by default. */
     jamNoticeShown?: boolean
+    /** Jam's phrase 1 from the kept doodle while Jam mode shows; null (the default) otherwise. */
+    jamPhrase?: KeptDoodlePhraseView | null
   }>(),
   {
     workspaceMode: () => ({ mode: 'session', checked: 'session', opening: false, readonly: false }),
@@ -61,6 +70,7 @@ const props = withDefaults(
     jamNeedsController: false,
     jamCanStart: false,
     jamNoticeShown: false,
+    jamPhrase: null,
   },
 )
 
@@ -95,27 +105,41 @@ const PRIMARY_ACTION_LABEL: Readonly<Record<PrimaryActionKind, string>> = {
 const state = computed(() => props.session.state)
 
 /**
- * Intent: name which of the four phrase-action labels the current session state calls for. Under
- * the room notice no phrase is kept, yet the action is `Regenerate phrase` (a new phrase, which
- * under the too-many-notes cause starts a round), unless a generation-failure banner shows.
+ * Intent: Jam mode shows (not while it opens, when both actions keep session mode's labels and
+ * emphasis).
+ */
+// @spec-link [[module_workspace_mode]]
+const jamShowing = computed(() => props.workspaceMode.mode === 'jam')
+
+/** Jam's phrase 1 from the kept doodle, while Jam mode shows with a doodle kept; null otherwise. */
+// @spec-link [[module_workspace_mode]]
+const jamPhrase = computed(() =>
+  jamShowing.value && props.jamPhrase?.kept === true ? props.jamPhrase : null,
+)
+
+/**
+ * Jam mode shows with no doodle kept: the phrase action, with nothing to generate, reads `Generate
+ * phrase` in place, disabled.
+ */
+const jamWithoutDoodle = computed(() => jamShowing.value && jamPhrase.value === null)
+
+/** The Idle phrase the phrase action acts on: Jam's phrase 1 from the kept doodle, or session mode's. */
+const shownIdle = computed(() => jamPhrase.value?.state ?? state.value)
+
+/**
+ * Intent: name which of the four phrase-action labels the Idle phrase shown calls for. Under the
+ * room notice no phrase is kept, yet the action is `Regenerate phrase` (a new phrase, which under
+ * the too-many-notes cause starts a round), unless a generation-failure banner shows.
  */
 // @spec-link [[rule_staff_needs_room_notice]]
 // @spec-link [[user_story_controlled_phrase_generation]]
 const primaryActionKind = computed<PrimaryActionKind>(() => {
-  if (state.value.notationError !== null) return 'retry-notation'
-  if (state.value.generationError !== null) return 'retry-generation'
-  if (state.value.roomNotice !== null) return 'regenerate'
-  if (state.value.result !== null) return 'regenerate'
+  if (shownIdle.value.notationError !== null) return 'retry-notation'
+  if (shownIdle.value.generationError !== null) return 'retry-generation'
+  if (shownIdle.value.roomNotice !== null) return 'regenerate'
+  if (shownIdle.value.result !== null) return 'regenerate'
   return 'generate'
 })
-
-/**
- * Intent: Jam mode shows (not while it opens, when both actions keep session mode's labels and
- * emphasis). No doodle is kept yet: the phrase action, with nothing to generate, reads `Generate
- * phrase` in place, disabled.
- */
-// @spec-link [[module_workspace_mode]]
-const jamShowing = computed(() => props.workspaceMode.mode === 'jam')
 
 /**
  * Intent: Jam's staff shows a notation error at Jam mode's Idle: the phrase action is `Retry
@@ -124,7 +148,7 @@ const jamShowing = computed(() => props.workspaceMode.mode === 'jam')
 // @spec-link [[module_workspace_mode]]
 const jamRetriesNotation = computed(
   () =>
-    jamShowing.value &&
+    jamWithoutDoodle.value &&
     props.jamStaffState === 'notation-error' &&
     !sessionActive.value &&
     !reviewShowing.value,
@@ -133,12 +157,12 @@ const jamRetriesNotation = computed(
 /** Intent: the phrase action's label; in Jam mode `Generate phrase`, or its notation retry. */
 const primaryActionLabel = computed(() => {
   if (jamRetriesNotation.value) return PRIMARY_ACTION_LABEL['retry-notation']
-  if (jamShowing.value) return PRIMARY_ACTION_LABEL.generate
+  if (jamWithoutDoodle.value) return PRIMARY_ACTION_LABEL.generate
   return PRIMARY_ACTION_LABEL[primaryActionKind.value]
 })
 
 /** True while any operation is running: every configuration control, including notation mode, is read-only. */
-const operationRunning = computed(() => state.value.operation !== 'idle')
+const operationRunning = computed(() => shownIdle.value.operation !== 'idle')
 
 /**
  * True while the current control combination cannot form a four-bar phrase, judged on the note
@@ -150,6 +174,7 @@ const operationRunning = computed(() => state.value.operation !== 'idle')
 // @spec-link [[rule_unsupported_rhythm_settings_block_generation]]
 const blockedByUnsupportedRhythm = computed(
   () =>
+    jamPhrase.value === null &&
     primaryActionKind.value !== 'retry-notation' &&
     isRhythmSettingBlocked(state.value.controls, state.value.noteDensityContext),
 )
@@ -177,7 +202,7 @@ const reviewShowing = computed(
 // @spec-link [[req_last_session_review]]
 const primaryActionDisabled = computed(() => {
   if (props.workspaceMode.opening) return true
-  if (jamShowing.value) return !jamRetriesNotation.value
+  if (jamWithoutDoodle.value) return !jamRetriesNotation.value
   return phraseActionDisabled({
     operationRunning: operationRunning.value,
     blockedByUnsupportedRhythm: blockedByUnsupportedRhythm.value,
@@ -226,15 +251,15 @@ const sessionActionLabel = computed(() => {
  */
 // @spec-link [[rule_session_start_conditions]]
 const sessionActionPrimary = computed(() => {
-  if (jamShowing.value) return !jamRetriesNotation.value
+  if (jamWithoutDoodle.value) return !jamRetriesNotation.value
   return (
     primaryHeaderAction({
       sessionActive: sessionActive.value,
       operationRunning: operationRunning.value,
-      generationErrorShown: state.value.generationError !== null,
-      notationErrorShown: state.value.notationError !== null,
-      roomNoticeShown: state.value.roomNotice !== null,
-      phraseShown: state.value.result !== null,
+      generationErrorShown: shownIdle.value.generationError !== null,
+      notationErrorShown: shownIdle.value.notationError !== null,
+      roomNoticeShown: shownIdle.value.roomNotice !== null,
+      phraseShown: shownIdle.value.result !== null,
       reviewShowing: reviewShowing.value,
     }) === 'session'
   )
@@ -254,11 +279,26 @@ function handlePrimaryAction(): void {
     emit('retry-jam-notation')
     return
   }
+  if (jamPhrase.value !== null) {
+    actOnJamPhrase(jamPhrase.value.actions)
+    return
+  }
   const { actions } = props.session
   if (primaryActionKind.value === 'generate') void actions.generate()
   else if (primaryActionKind.value === 'regenerate') void actions.regenerate()
   else if (primaryActionKind.value === 'retry-generation') void actions.retryGeneration()
   else void actions.retryNotation()
+}
+
+/**
+ * Intent: the phrase action on Jam's phrase 1, writing from the kept doodle: `Regenerate phrase`
+ * (`Generate phrase` alike), `Retry generation` or `Retry notation`.
+ */
+// @spec-link [[user_story_controlled_phrase_generation]]
+function actOnJamPhrase(actions: KeptDoodlePhraseView['actions']): void {
+  if (primaryActionKind.value === 'retry-notation') void actions.retryNotation()
+  else if (primaryActionKind.value === 'retry-generation') void actions.retryGeneration()
+  else void actions.regenerate()
 }
 
 /**
@@ -363,7 +403,7 @@ function handleThemeSelect(theme: ThemePreference): void {
         type="button"
         :class="{
           'btn-primary': !sessionActionPrimary,
-          'is-loading': operationRunning && !jamShowing,
+          'is-loading': operationRunning && !jamWithoutDoodle,
         }"
         :disabled="primaryActionDisabled"
         @click="handlePrimaryAction"

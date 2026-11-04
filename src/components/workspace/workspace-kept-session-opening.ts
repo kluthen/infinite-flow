@@ -11,7 +11,12 @@
  * the Review's, with the facts its row holds for the visit, and as the most recent session too
  * when it is that one.
  */
-import { assertReviewMayShow, closedReview, shownReview } from './session-review-state'
+import {
+  assertReviewMayShow,
+  closedReview,
+  shownReview,
+  withSuggestionDeclined,
+} from './session-review-state'
 import type { KeptSessionRows } from './use-kept-sessions'
 import type { DamagedSessionDeletions } from './workspace-damaged-session-deletions'
 import { readKeptReviewedSession } from './workspace-kept-session-read'
@@ -57,16 +62,21 @@ export function findHeldSession(
 
 /**
  * Intent: a kept session read back from the device, with the facts its row holds for the visit
- * (a pin or a comment the device refused stays as the player made it); without a row, as read.
+ * (a pin, a comment or a Jam session's decline the device refused, or made while saving was off,
+ * stays as the player made it); without a row, as read.
  */
 // @spec-link [[module_kept_session_reach]]
 // @spec-link [[rule_pinned_session_kept]]
 function withRowFacts(read: ReviewedSession, rows: KeptSessionRows): ReviewedSession {
   const row = rows.row(read.key)
   if (row?.kind !== 'current') return read
-  const { pinned, comment } = row.summary
-  if (pinned === read.pinned && comment === read.comment) return read
-  return Object.freeze({ ...read, pinned, comment, keeping: pinned ? 'pinned' : 'not-pinned' })
+  const { pinned, comment, suggestionDeclined } = row.summary
+  const declined =
+    suggestionDeclined === true && read.jam?.suggestionDeclined === false
+      ? withSuggestionDeclined(read)
+      : read
+  if (pinned === read.pinned && comment === read.comment) return declined
+  return Object.freeze({ ...declined, pinned, comment, keeping: pinned ? 'pinned' : 'not-pinned' })
 }
 
 /**

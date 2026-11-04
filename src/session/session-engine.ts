@@ -455,7 +455,8 @@ function openEngine(
  * with phrase 1 starts from its start time, chosen settings, phrase 1 (the Idle phrase) and the
  * settings it was generated under (the chosen ones when absent), session seed (one that is no
  * seed throws), mutation flag, adaptive-tempo choice, multi-phrase tension arc flag (a
- * non-boolean throws) and ready phrases (none when absent; an invalid list throws):
+ * non-boolean throws), ready phrases (none when absent; an invalid list throws) and, for a steered
+ * session (a Jam on the kept doodle), the steering block every later request carries:
  * freeze the settings as the settings in effect, whose tempo stays the starting tempo, keep
  * phrase 1 as the `idle` record at the starting tempo, decided under its own settings, so phrase
  * 2's carry-in is adapted as after a change at their boundary, lock phrase 1's written bars for
@@ -502,7 +503,7 @@ export function createSessionEngine(
     startedWithoutPhraseOne: false,
     phraseTwoDue: phraseTwoDeadline(start.at, settings.controls.tempo),
     steppedDown: false,
-    steering: undefined,
+    steering: start.steering,
   })
   const { context } = opened
   let state = opened.step.state
