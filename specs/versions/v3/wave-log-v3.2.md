@@ -1428,3 +1428,13 @@ contract bump, or (b) CONTRACT 13.0.0, before chunk 23's merge.
   aa925607 (shared `jamKeepsPlayedNotes(rows)`; vitest related 666 passed; `kept-jam-session`
   8/8, `played-notes-opt-in` 10/10; typecheck, lint, format, health clean). Chunk 30 stays built,
   waiting on CJ W1–W3.
+- Gate CJ: the owner, verbatim, 2026-11-04: "CJ ok, W4 (a) (Recommended)": W1–W3 as drafted, W4
+  option (a) (Jam's settings made for a review save no first values), W5 not taken, CONTRACT stays
+  12.0.0. `documentalist` recorded it in change set part W, 87756fdc (applied at this wave's sync:
+  W1–W3 after chunk 30, W4 after chunk 23, with the built names part W lists). Gate CJ done,
+  9419ce53.
+- **Chunk 30** MERGED 2347dac6 (clean; typecheck green on the merged branch, which also holds the
+  start-jump fix 39a128ab); worktree removed, branch kept.
+- **Chunk 23** (The review's doodle section and the suggestion) dispatched to a `coding-leader`
+  (worktree `/home/bastien/work/infinite_flow-v3.2-c23`, branch `v3.2-c23-review-doodle`, split
+  23a/23b); its merge gate CJ W4 is cleared, so it merges itself.

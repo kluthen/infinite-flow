@@ -2176,7 +2176,7 @@ unchanged. Chunk 30 writes the Jam parts.
 
 ### Chunk 23 — The review's doodle section and the suggestion
 
-Status: planned
+Status: in progress
 Wave: 6
 Depends on: 14, 21, 30, CJ (W4, before its merge) (and v3.0 chunks 12 and 25)
 Architecture capture: none (it builds on chunk 21's and chunk 30's)
@@ -2551,7 +2551,7 @@ Record: 0d352486, merged f1ee94d2. M1 first run through the three-rung double, r
 
 ### Chunk 30 — Kept Jam sessions on the device
 
-Status: built (30a 98186732, 30b 2cd6dfc3, copy fix aa925607; merge waits on CJ W1–W3)
+Status: merged (w6, 2347dac6)
 Wave: 6
 Depends on: 18, 22, CJ (W1–W3, before its merge)
 Architecture capture: what a kept Jam session holds (`module_kept_jam_session`, captured at wave
@@ -2559,6 +2559,8 @@ Architecture capture: what a kept Jam session holds (`module_kept_jam_session`, 
 raw doodle notes in the played-notes record only while "Keep my played notes" is on, a fresh Jam's
 played notes timed from its count-in with the body's clock (chunk 22, spec D430). Chunk 23 builds
 on it.
+
+Record: 30a 98186732, 30b 2cd6dfc3, copy fix aa925607 (ux D454), merged 2347dac6 after gate CJ W1–W3. Differs: a kept Jam read back has `ReviewedJamPart.suggestion` and `.doodleControls` null (the records hold neither; chunk 23 works the suggestion out again), against `module_jam_session_end`'s "same shape", for the sync; a Jam on a kept doodle (no played-notes clock) throws on read back, chunk 24's (spec D499); Your data's v3.2 copy built here (it matches the design); a doodle-only Jam's `Export played notes` disabled until chunk 25 (spec D499).
 
 - **Goal:** keep a Jam session with its doodle in both forms, by the privacy split; mark Jam sessions
   in the list; make the deletions, Delete everything and the visits that save nothing hold.
