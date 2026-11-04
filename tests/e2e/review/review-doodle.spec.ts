@@ -136,8 +136,10 @@ async function expectDoodleHeader(page: Page, captureTempo: number): Promise<voi
   await expect(header.locator('h3.review-phrase-title')).toHaveText('Your doodle')
   await expect(header.locator('.review-phrase-tempo')).toHaveText(`${captureTempo} BPM`)
   await expect(doodleSection(page)).toHaveAccessibleName('Your doodle')
-  // No phrase number and no favorite: the doodle is not a phrase.
-  await expect(header.locator(':scope > *')).toHaveCount(2)
+  // No phrase number and no favorite: the doodle is not a phrase. `Jam again on this doodle` at
+  // the line's trailing end, where per-phrase tools go.
+  await expect(header.locator(':scope > *')).toHaveCount(3)
+  await expect(header.locator(':scope > button:last-child')).toHaveText('Jam again on this doodle')
   await expect(doodleSection(page).locator('.favorite-toggle')).toHaveCount(0)
 }
 
@@ -315,6 +317,9 @@ test.describe("Jam's code for a kept Jam session's Review, after a reload", () =
     await expect(reviewTitle(page)).toBeFocused()
     await expectDoodleHeader(page, captureTempo)
     await expect(doodleStaff(page).locator('.review-phrase-note')).toHaveText(LOADING_NOTE)
+    await expect(
+      doodleSection(page).getByRole('button', { name: 'Jam again on this doodle' }),
+    ).toBeDisabled()
     await expect.poll(held.requests).toBe(1)
     await expect(reviewItems(page).first().locator('.review-staff svg').first()).toBeAttached({
       timeout: 30_000,
@@ -345,6 +350,11 @@ test.describe("Jam's code for a kept Jam session's Review, after a reload", () =
     await expectDoodleHeader(page, captureTempo)
     await expect(doodleStaff(page).locator('.review-phrase-note')).toHaveText(FAILED_NOTE)
     await expect(doodleStaff(page).locator('[data-system-position]')).toHaveCount(0)
+    // `Jam again on this doodle` disabled, named by the sentence; no suggestion.
+    const jamAgain = doodleSection(page).getByRole('button', { name: 'Jam again on this doodle' })
+    await expect(jamAgain).toBeDisabled()
+    await expect(jamAgain).toHaveAccessibleDescription(FAILED_NOTE)
+    await expect(doodleSection(page).locator('.suggestion-row')).toHaveCount(0)
     // The note is never error-toned.
     await expect(
       doodleSection(page).locator('.inline-alert, .alert-error, [role="alert"]'),

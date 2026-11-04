@@ -19,7 +19,8 @@
  * `Unpin`, `Delete session`), and its comment (./ReviewComment.vue) takes a row of its own before
  * the exports; each asks the page, as each phrase's favorite star does. In a Jam session's Review,
  * the doodle section (./ReviewDoodleSection.vue) comes next, before phrase 1, drawn with Jam's code
- * and engraved first. Then the list of the session's phrases in order, each engraved lazily as it comes
+ * and engraved first, with the controls its host gives (`Jam again on this doodle` in its header,
+ * the suggestion last). Then the list of the session's phrases in order, each engraved lazily as it comes
  * near the visible area (see ./review-engraving-window.ts) in positions reserved at the workspace
  * staff's size (its viewport and shared system-position size), so a review of any length stays
  * responsive and never moves the page as phrases are drawn. While the workspace staff has no room,
@@ -448,6 +449,19 @@ function setPhrase(index: number, instance: unknown): void {
 
 /** A Jam session's doodle section shows: it has a doodle, and the staff has room. */
 const doodleShown = computed(() => props.doodle !== null && !props.noRoom)
+/**
+ * Intent: the doodle section leaving (the room notice in its place) while one of its controls
+ * holds focus hands focus to the title; read before the section leaves the page, moved once it has.
+ */
+// @spec-link [[req_last_session_review]]
+watch(
+  doodleShown,
+  (shown) => {
+    if (shown || document.activeElement?.closest('section.review-doodle') == null) return
+    void nextTick(focusTitle)
+  },
+  { flush: 'pre' },
+)
 /** The doodle is engraved with the list, as its first item, once Jam's code has loaded. */
 const doodleItems = computed(() => (doodleShown.value && props.jamCode.state === 'loaded' ? 1 : 0))
 
@@ -728,7 +742,10 @@ onBeforeUnmount(stopEngraving)
       :system-position-units="positionUnits"
       :played-notes-shown="lanesShown"
       :pitch-scale="pitchScale"
-    />
+    >
+      <template #header-tools="{ noteId }"><slot name="doodle-tools" :note-id="noteId" /></template>
+      <template #suggestion><slot name="doodle-suggestion" /></template>
+    </ReviewDoodleSection>
     <ol v-if="!noRoom" ref="listEl" class="review-list">
       <ReviewPhrase
         v-for="(record, index) in records"

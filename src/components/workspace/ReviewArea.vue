@@ -13,7 +13,9 @@
  * the shared confirmation sheet over the page; focus then moves by ./review-area-focus.ts. The
  * sheet and its words load on demand in a chunk of their own, warmed as this area mounts. Each
  * switch between the levels asks the page to scroll to its top. A Jam session's Review asks for
- * Jam's code, which draws its doodle section (./use-review-jam-code.ts).
+ * Jam's code, which draws its doodle section (./use-review-jam-code.ts); the section's controls,
+ * `Jam again on this doodle` and the key and mode suggestion, are bound here
+ * (./use-review-doodle-tools.ts) over the workspace's Jam (./review-jam-ports.ts).
  */
 import { computed, defineAsyncComponent, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
 
@@ -26,8 +28,10 @@ import SessionList from '@/components/review/SessionList.vue'
 import { browserReviewExportPorts, type ReviewExportPorts } from './review-export'
 import { useReviewAreaFocus, type ReviewAreaLevels } from './review-area-focus'
 import { loadedJamMode, loadJamMode } from './load-jam-mode'
+import { injectReviewJamPorts } from './review-jam-ports'
 import { injectSaveSettings } from './save-settings-injection'
 import { useReviewArea } from './use-review-area'
+import { useReviewDoodleTools } from './use-review-doodle-tools'
 import { useReviewJamCode } from './use-review-jam-code'
 import { useSessionList } from './use-session-list'
 import type { ReviewHost } from './use-review-host'
@@ -86,6 +90,21 @@ const jamCode = useReviewJamCode({
   },
   loaded: loadedJamMode,
   load: loadJamMode,
+})
+
+/** `Jam again on this doodle`, rendered in a Jam session's doodle section. */
+const jamAgainEl = ref<HTMLButtonElement | null>(null)
+
+// The doodle section's controls: `Jam again on this doodle` and the suggestion.
+// @spec-link [[req_last_session_review]]
+const doodleTools = useReviewDoodleTools({
+  jamCode,
+  jam: () => host.shownReview.value?.jam ?? null,
+  sessionKey: () => review.sessionKey.value,
+  controller: () => props.controller,
+  ports: injectReviewJamPorts(),
+  focusJamAgain: () => jamAgainEl.value?.focus(),
+  focusTitle: () => focus.title(),
 })
 
 const list = useSessionList({
@@ -311,7 +330,30 @@ defineExpose({ focusReviewTitle: focus.title })
     @delete-session="review.askDeleteSession"
     @save-comment="review.saveComment"
     @all-sessions="showAllSessions"
-  />
+  >
+    <template #doodle-tools="{ noteId }">
+      <button
+        ref="jamAgainEl"
+        type="button"
+        class="btn"
+        :disabled="doodleTools.jamAgainDisabled.value"
+        :aria-describedby="doodleTools.jamAgainDisabled.value ? noteId : undefined"
+        @click="doodleTools.jamAgain"
+      >
+        Jam again on this doodle
+      </button>
+    </template>
+    <template #doodle-suggestion>
+      <component
+        :is="jamCode.module.SuggestionRow"
+        v-if="jamCode.state === 'loaded' && doodleTools.suggestion.value !== null"
+        v-bind="doodleTools.suggestion.value"
+        @use="doodleTools.useAnswer"
+        @keep="doodleTools.keep"
+        @focus-lost="focus.title"
+      />
+    </template>
+  </ReviewPanel>
   <component
     :is="confirmationSheet"
     v-if="review.confirmation.value !== null && confirmationSheet !== null"

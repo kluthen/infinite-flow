@@ -49,10 +49,17 @@ export interface ReviewStaffReservation {
 
 /**
  * Jam's code as a Jam session's Review has it: loading, unable to load (offline before the app's
- * files were kept), or loaded, with the doodle's staff it draws the doodle with.
+ * files were kept), or loaded, with the doodle's staff it draws the doodle with, the suggestion's
+ * row, and what reads and makes Jam's settings, which the suggestion is judged against and sets.
  */
 // @spec-link [[rule_jam_code_loaded_on_demand]]
 export type ReviewJamCode =
   | { readonly state: 'loading' }
   | { readonly state: 'failed' }
-  | { readonly state: 'loaded'; readonly module: Pick<JamModeModule, 'ReviewDoodle'> }
+  | {
+      readonly state: 'loaded'
+      readonly module: Pick<
+        JamModeModule,
+        'ReviewDoodle' | 'SuggestionRow' | 'createJamSettings' | 'decodeJamSettings'
+      >
+    }

@@ -29,6 +29,7 @@ App.vue
         SegmentedControl.vue      (the export's Format)
         ReviewDoodleSection.vue   (a Jam session's doodle section, before phrase 1)
           ReviewDoodle.vue        (Jam's code, src/jam/review/: the doodle's staff and lanes)
+          SuggestionRow.vue       (Jam's code, src/jam/review/: the key and mode suggestion)
         ReviewPhrase.vue          (one per phrase of the session)
       SessionCueRow.vue
         MixVolumeButton.vue       (compact Volume, phone, during a session)
@@ -1295,7 +1296,32 @@ rest of the Review works; the next Jam session's Review opened asks again.
   they count in the session's pitch scale. A note played just before the first barline starts at
   the lane's start (O267 is open on this; the lane follows its proposal as closely as the lane's
   time axis allows). In a Jam on the kept doodle they are empty.
-- **Room.** `room-notice` stands in for the section with the list.
+- **Room.** `room-notice` stands in for the section with the list; focus on one of the
+  section's controls then moves to `review-title` (`ReviewPanel`).
+- **Its controls.** The review area fills the section's two slots (`ReviewPanel` passes them on
+  as `doodle-tools` and `doodle-suggestion`) through `use-review-doodle-tools.ts`, over the
+  workspace's Jam that `WorkspaceShell` provides under `REVIEW_JAM_PORTS`
+  (`review-jam-ports.ts`): `Jam again on this doodle` at the header's trailing end, disabled
+  while Jam's code loads or after it failed (named then by the section's note), and the key and
+  mode suggestion, Jam's `SuggestionRow.vue`, last, once Jam's code has loaded.
+- **The suggestion.** `src/jam/review/use-key-suggestion.ts` works it out again from the
+  quantized doodle (`suggestKeyAndMode`, `src/jam/key-suggestion/`) whenever the Review opens and
+  whenever Jam's key or mode changes, against Jam's key and mode (`useJamSettings`'
+  `reviewKeyAndMode`: Jam's settings', or, before they exist, the load's Jam records or session
+  mode's current values, saving nothing) for the selected instrument; never the session's stored
+  suggestion, which a kept session does not hold. Offering: the answer named as the Written key
+  and Collection controls label them, `Jam in {answer}` and `Keep {key} {mode}`. `Jam in
+{answer}` calls `changeFromReview`, which makes Jam's settings first when they do not exist yet,
+  with no first value saved (`createJamSettings`' `firstValuesDeferred`; change set W4, option
+  (a)); Jam mode, as it first shows, saves the first values still pending. Only Jam's key and mode
+  are saved; session mode's never move. The row then reads "Jams now play in {answer}.", focused,
+  until Jam's key or mode changes again, then leaves for the rest of the Review. `Keep {key}
+{mode}` calls `controller.declineSuggestion` (kept with the session); focus then moves to `Jam
+again on this doodle`. No fit: one sentence naming no note. When the row's buttons leave under
+  focus by a change of Jam's key or mode, focus moves to `review-title`.
+- **Jam again on this doodle.** Over Jam mode it does what `Close review` does; over session mode
+  `closeReview` opens Jam mode between the close and the focus move, as a press of `Jam`, so focus
+  lands by Jam mode's idle state. Keeping the doodle and writing phrase 1 from it are chunk 24's.
 
 ### Leaving and coming back
 
