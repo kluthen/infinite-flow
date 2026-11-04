@@ -16,7 +16,7 @@ Append-only record of settled UI/UX decisions. Earlier logs are archived verbati
 
 Archived IDs keep their meaning; a citation to one by ID elsewhere in this repository stays valid
 through this header. D225, D226, D235–D264 and D328 on (v3.2 and v3.3, not yet released, and the
-entries v3.1 shares with v3.2) stay here; D265–D279 were never used. Numbering continues from D453.
+entries v3.1 shares with v3.2) stay here; D265–D279 were never used. Numbering continues from D455.
 
 ## v3.1 (presets and embellishment figures) and v3.2 (Jam) design, 2026-10-08
 
@@ -698,3 +698,12 @@ title word.
   hands on the instrument and cannot scroll, the case the jump exists for. The build's missing
   jump on a note start (session mode's starting note, Jam's home note) is a code gap, not a
   ruling. Stated in `flows/play-session/handoff.md`, Jump, and `intent.md`, Where the eyes land.
+
+## v3.2 wave 6, chunk 30's copy check, 2026-11-04
+
+- **D454 — The Review's played notes already kept says the doodles stay too (2026-11-04; minor,
+  D119's standing rule).** Its `Delete them` deletes every kept played note, Jam sessions' raw
+  doodle notes included, as Your data's does; so it carries the same sentence under the same
+  condition (a Jam session among those keeping played notes), not only in a Jam's review. Your
+  data's built copy already matched its handoff. Now in `screens/last-session-review/handoff.md`,
+  Components and Content, Confirmations.

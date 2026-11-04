@@ -38,7 +38,8 @@
 >   section and the exports when it cannot load; _v3.2 changed:_ the summary begins with "Jam"
 >   and names no preset for a Jam session, the raw doodle notes count as played notes, both
 >   exports open with the doodle, and the played-notes confirmation of a Jam session says the
->   written-out doodle stays ([Components and Content](#components-and-content))
+>   written-out doodle stays, as the played notes already kept confirmation does when a Jam
+>   session keeps played notes ([Components and Content](#components-and-content))
 > - _v3.2 changed:_ the tab order gains the doodle section's buttons; _v3.2 new:_ focus after
 >   `Jam in {answer}`, `Keep` and `Jam again on this doodle` ([Focus and Keyboard](#focus-and-keyboard))
 > - _v3.2 new:_ the doodle and the suggestion at each breakpoint
@@ -360,6 +361,11 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
     paragraph reads "This deletes the notes you played in this session. The session stays, with
     its doodle as the app wrote it, its favorite phrases and comment.", since the written-out
     doodle is kept (master spec §C5.14); the rest as above.
+  - **[v3.2 changed]** **Played notes already kept, when a Jam session keeps played notes:** when
+    at least one of the sessions whose played notes are kept is a Jam session, whichever session
+    this Review shows, the body's first paragraph ends with one more sentence, "Doodles stay as
+    the app wrote them.", as in `Your data` (`screens/your-data/handoff.md`, Confirmations):
+    `Delete them` deletes their raw doodle notes and keeps each written-out doodle.
   - A deletion that fails keeps its sheet open with `inline-alert alert-error` "That couldn't be
     deleted. Try again." under its paragraphs; the confirming action tries again.
   - While a deletion runs, its confirming action takes `is-loading`; the way back stays live and
