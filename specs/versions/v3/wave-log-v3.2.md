@@ -1402,3 +1402,20 @@ contract bump, or (b) CONTRACT 13.0.0, before chunk 23's merge.
 - **Chunk 30** (Kept Jam sessions) dispatched to a `coding-leader` (worktree
   `/home/bastien/work/infinite_flow-v3.2-c30`, branch `v3.2-c30-kept-jam`, cut before 39a128ab),
   build only: its merge waits on gate CJ W1–W3.
+- **Chunk 30** BUILT, not merged (gate CJ W1–W3): 30a 98186732 (the save, the ends, the review
+  state, the confirmation copy, the played notes, the decline, the deletions), 30b 2cd6dfc3 (the
+  list's Jam mark, the summary, a kept Jam session read back, Your data, M3), branch
+  `v3.2-c30-kept-jam` from e0d02ca5, worktree kept. Every Done when met (new e2e
+  `kept-jam-session.spec.ts`, `review-privacy.spec.ts`'s Jam case). Checks: vitest related 150 files
+  / 1,606 tests (30a), 147 / 1,545 (30b); typecheck, lint, format, links, health clean;
+  verify:boundaries (entry 286,411 B, jam-mode 45,420 B); Playwright 49 + 35 + 60 passed; debug runs
+  1280×800, 740×360. **M3** (2026-11-04, Ryzen 5 PRO 8640HS, no VM, two runs): half Jam sessions,
+  worst cold read 32.7 / 31.7 ms (500 sessions, 50 presets), under 2 % of the 2 s wait; without Jam
+  35.5 / 35.3 ms; `docs/storage.md`; the owner repeats the deciding runs on the reference machine.
+  Readings to route: `ReviewedJamPart.suggestion` and `.doodleControls` nullable for a kept Jam
+  read back (against `module_jam_session_end`'s "same shape"; for the sync); a kept Jam with no
+  played-notes clock (a Jam on a kept doodle) throws on read back, chunk 24's to handle
+  (spec-writer); `controller.declineSuggestion(key)` built for chunk 23's Keep; Your data copy built
+  here ("your Jam settings", "Doodles stay as the app wrote them.") (ux-writer); a doodle-only Jam's
+  `Export played notes` disabled until chunk 25 (transitional); harness `settingsNotReadBack` now
+  decodes Jam's settings records. Chunk 23 waits on chunk 30's merge, so on CJ W1–W3.
