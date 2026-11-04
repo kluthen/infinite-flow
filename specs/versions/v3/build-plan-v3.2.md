@@ -1,6 +1,10 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v33 (2026-11-04): v32 with no decision (Part C unchanged), from chunk 23a's report:
+Status: v34 (2026-11-04): v33 with no decision (Part C unchanged), from wave 6's sync: chunk 24
+hands Jam's code the ended Jam's Jam part at a Jam's end, which the shell's `useFreshJam` does not
+yet (it reads only the controller's `lastEnd`), so Jam's code can keep the doodle; its Drift check
+gains `module_jam_session_end`.
+v33 (2026-11-04): v32 with no decision (Part C unchanged), from chunk 23a's report:
 chunk 25's Scope and Done when state a Jam session's two exports after a failed load of Jam's
 code (disabled, each with the design's failure sentence; enabled once it loads), which chunk 23
 leaves enabled.
@@ -2261,6 +2265,11 @@ keyed by Jam's settings and the doodle, never session mode's.
   rewrite phrase 1 when a Jam setting changes, and let it go exactly when C5.11 says.
 - **Scope:**
   - **Keeping**: after every Jam, and from `Jam again on this doodle`, replacing any kept doodle.
+    At a Jam's end with a review, Jam's code receives the ended Jam's Jam part (`ReviewedJamPart`,
+    `session-jam-part.ts`), the one the review shows, so it keeps that doodle and fills Jam mode's
+    Idle with it; today the shell's `useFreshJam` learns of the end from the controller's `lastEnd`
+    summary only, which carries no Jam part, and hands Jam's code nothing. An end before phrase 1
+    hands none: a fresh Jam's doodle is not kept, and a Jam on a kept doodle keeps it (C5.13).
   - **Phrase 1 at Idle** from it: three rungs with no deadline (chunk 18's ladder), through every
     Idle rule; with Jam's lock on, the rhythm nearest the doodle; Jam's prepared phrases from it.
   - **A Jam setting changed** (all but the tempo) writes phrase 1 again at once, through Loading,
@@ -2291,11 +2300,12 @@ keyed by Jam's settings and the doodle, never session mode's.
     setting, Start Jam with no new doodle, the same doodle replayed by the app); in v3.2 H5, each
     doodle starts a fresh Jam through `New doodle`.
 - **Files:** `src/jam/use-kept-doodle.ts`, `src/jam/JamBar.vue` (new), `src/jam/jam-idle-notes.ts`,
+  `src/components/workspace/use-fresh-jam.ts` (the Jam part handed to Jam's code at the end),
   `src/components/workspace/use-review-host.ts`, `workspace-session-begin.ts`,
   `workspace-session-ends.ts`, `workspace-pregeneration.ts`, `session-jam-part.ts`,
   `workspace-session-save.ts`, `workspace-kept-session-read.ts` (a Jam on a kept doodle's Jam
   part, save and read), `HARDWARE-CHECKLIST.md` (v3.2 H4, H5); tests
-  `tests/unit/jam/use-kept-doodle.spec.ts`, `tests/unit/components/workspace/` (the kept session
+  `tests/unit/jam/use-kept-doodle.spec.ts`, `tests/unit/components/workspace/use-fresh-jam.spec.ts`, `tests/unit/components/workspace/` (the kept session
   read's and the save's kept-doodle cases), `tests/e2e/workspace/kept-doodle.spec.ts` (new).
 - **Spec sections:** [C5.11](master-spec.md#c511-the-kept-doodle-and-jam-again-on-this-doodle),
   [C5.13](master-spec.md#c513-edge-cases-before-phrase-1-sounds),
@@ -2315,12 +2325,17 @@ keyed by Jam's settings and the doodle, never session mode's.
   `rule_jam_on_held_doodle_skips_capture`, `rule_held_doodle_in_memory_only` and their kept-doodle
   successors from chunk 0, which also replaces `rule_held_doodle_dropped_on_change`;
   `rule_suggestion_use_it`, `rule_suggestion_keep_mine`; (v3.0)
-  `rule_pregenerated_phrase_matches_session`. Drift check: `module_session_seed_plan` (a kept
+  `rule_pregenerated_phrase_matches_session`. Drift check: `module_jam_session_end` (Jam's code is
+  handed the ended Jam's Jam part; its "comes with the kept doodle" sentence),
+  `module_session_seed_plan` (a kept
   doodle's phrase 1 at Idle draws its seeds as any phrase 1 at Idle, C11), `module_kept_jam_session`
   (a Jam on a kept doodle keeps no played-notes clock, C10.3).
 - **Revisions:** revise `rule_session_end_generates_next_phrase_one` (its kept-doodle half),
   `rule_pregeneration_discarded_on_change` (Jam's queue).
 - **Done when:**
+  - At a Jam's end with a review, Jam's code receives that Jam's Jam part, the same one the review
+    shows, and keeps its doodle from it; an end before phrase 1 hands it none (a fresh Jam's doodle
+    not kept, a kept doodle still kept).
   - After a Jam and from `Jam again on this doodle`, phrase 1 written from the doodle shows with
     `jam-bar`; the starting note is phrase 1's first note.
   - The kept doodle's phrase 1 and prepared phrases are the phrases the Jam plays (fake clock).
@@ -2343,7 +2358,7 @@ keyed by Jam's settings and the doodle, never session mode's.
 - **Verification:** chunk checks; the accessibility checks of what it adds; a debug run going round
   twice on one doodle.
 - **Split rule:** 24a keeping, phrase 1 at Idle, Jam's queue and what lets it go (the composable,
-  the review host, pre-generation), 24b the bar and a Jam on it (the bar, Jam's Idle notes, the
+  the Jam part handed at the end, the review host, pre-generation), 24b the bar and a Jam on it (the bar, Jam's Idle notes, the
   session begin and ends).
 
 ### Chunk 25 — Exports open with the doodle
