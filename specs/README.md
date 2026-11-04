@@ -60,7 +60,7 @@ Status: draft v0.88
     between two doodle notes as part of the note before it, the owner's answer to O268 (D440), breaks
     a window-centre tie to Middle (D441) and prewarms the first-visit rhythm values at Jam's Idle
     before any doodle (D442). v1.13 judges the supported-combination step on the doodle's note
-    density as read, at every width (D445). v1.14 tunes the rhythm change shares to 1 in 2 and 3 in 4 (D450) and keeps drift's scale after the owner's ranking, with one finding open (D449, O271). v1.15 raises the generation worker's chunk budget from 150 KiB to 170 KiB (D451). v1.16 judges the suggestion's "no fit" before Jam's key and mode (D452). v1.19-guide adds the guide playback after approval: a melody guide and a rhythm guide beside the backing, two switches, off by default (C19; D490–D492; build plan chunk 40, wave 7). The design is approved (gate D0) and its token pass allowed (T2) (D412). Phones are
+    density as read, at every width (D445). v1.14 tunes the rhythm change shares to 1 in 2 and 3 in 4 (D450) and keeps drift's scale after the owner's ranking, with one finding open (D449, O271). v1.15 raises the generation worker's chunk budget from 150 KiB to 170 KiB (D451). v1.16 judges the suggestion's "no fit" before Jam's key and mode (D452). v1.19-guide adds the guide playback after approval: a melody guide and a rhythm guide beside the backing, two switches, off by default (C19; D490–D492; build plan chunk 40, wave 7); a guide note rings on into a rest after it (D493), and the guide is never exported (D494). The design is approved (gate D0) and its token pass allowed (T2) (D412). Phones are
     a third-rate client (D414). Build plan [v3.2](versions/v3/build-plan-v3.2.md) **v26**, from v6,
     **approved by the owner** (D416, D417; v5 corrected against the design at `ux-writer`'s review,
     v6 waives hand check H9, v7 takes wave 0's preflight corrections, v8 chunk 0's findings, v9
@@ -87,7 +87,7 @@ Status: draft v0.88
   reopening fails), O230 (a stale replay-key wording in a STABLE atom), O234–O238 (v3.4's
   structural review), O239–O246 (v3.4's lexicon page), O267 (a doodle note played before the
   doodle's first barline, v3.2 wave 6) and O269 (a legato doodle read as Heavily varied, at v3.2
-  H5), O290 and O291 (the guide playback's export and its release into a rest). See the
+  H5). See the
   [register](open-questions.md).
 - The snapshots this index kept through v2's design and build, through v3.0's and through
   v3.1's are archived verbatim at

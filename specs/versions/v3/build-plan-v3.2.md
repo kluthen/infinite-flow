@@ -2,7 +2,8 @@
 
 Status: v31-guide (2026-11-04): v30 with spec D490–D492 written in (master spec Part C
 v1.19-guide): new chunk 40, the guide playback, in wave 7; new gates GD (its design) and CG (its
-contract wording); new hand check v3.2 HG. Named apart from any v31 another branch takes; renumber
+contract wording); new hand check v3.2 HG; spec D493: a guide note rings on into a rest after it; spec D494: the guide is never exported.
+Named apart from any v31 another branch takes; renumber
 it at merge to follow that one.
 v30 (2026-11-04): v29 with spec D460 written in (Part C unchanged): wave 6's preflight
 corrections to chunks 21, 30 and 23 (files, atoms, drift checks, revisions; chunk 21's capture: the
@@ -646,8 +647,8 @@ the release gate.
    whether a repeated note is heard as repeated.
 4. Both on; two phrases: say whether the two voices are easy to tell apart.
 5. Backing off, both guides on; two phrases; then each guide's volume down to silence and back.
-6. Say whether a note ringing on into the rest after it still lets the rest sound like a rest
-   ([O291](../../open-questions.md#v32-build-o267)).
+6. Listen to a note followed by a rest: the note rings on into the rest and fades, and no new note
+   starts in it. Settled by the owner (spec D493); a confirmation, not a choice.
 7. Instrument: E-flat alto saxophone (a transposing instrument); melody guide on: it sounds in
    tune with the backing, though the sheet is written in another key.
 8. 240 BPM, Sixteenth note density; both guides on; one phrase: the quick notes all sound. Stop
@@ -2888,7 +2889,8 @@ transport: with its backing, from the same queueing call, which then takes the p
     and defaults (each its own record; none saved yet loads the default; no data step), the save
     and the visits that save nothing as for the mix; `MixControls.vue` and `MixVolumePanel.vue` as
     GD designs them, the tokens read as `readAudioMixDesign` reads the mix's.
-  - Out: any export, a guide outside a running session, a sound library, the backing's sound.
+  - Out: a guide outside a running session, a sound library, the backing's sound. Never: the guide
+    in any export (spec D494).
 - **Files:** `src/domain/backing/guide-renderer.ts` (new), `src/audio/guide-track.ts` (new, the
   placement), `src/audio/audio-ports.ts`, `src/audio/audio-transport.ts`,
   `src/audio/web-audio-session-bus.ts`, `src/audio/web-audio-output.ts`, `src/audio/audio-mix.ts`,
@@ -2928,12 +2930,15 @@ transport: with its backing, from the same queueing call, which then takes the p
     chunk (backing and clicks included); each of the four guide combinations, backing on and off,
     sounds exactly its own lines; with both on, both lines share their starts (item 51).
   - On the fake context: each guide note's release starts at its end and its oscillator stops after
-    the fade; a same-pitch re-attack fades the ringing note from the new start; a guide turned off
+    the fade, a note followed by a rest keeping its full release (spec D493) while no note starts in
+    the rest; a same-pitch re-attack fades the ringing note from the new start; a guide turned off
     mid-session takes its enable gain to 0 at once and gets no later note, one turned on gets notes
     from the next window; Stop fades the guide routes with the rest (item 51).
   - The four settings reload after a change (e2e); each unreadable record loads its default; a
     store with none of them loads both guides off; acknowledgement of a seeded played session gives
-    the same result with both guides on as off (item 51).
+    the same result with both guides on as off; every export of a seeded session recorded with both
+    guides on is byte-identical to its export with both off, and holds no guide note (item 51;
+    spec D494).
   - `npm run verify:boundaries` passes with its rules unchanged; v3.2 HG written.
 - **Verification:** chunk checks; the accessibility checks of what 40b adds; a debug run in Chrome
   with each guide alone and both together, with the backing on and off, at 90 and 240 BPM.
@@ -3027,5 +3032,5 @@ owner says go.
 | 48 Otherwise unchanged | every wave gate | `npm run quality`; the table of [Read first](#read-first-what-v32-changes-in-v2-v30-and-v31) |
 | 49 Contract | CS, 27 | the owner's sign-off in the CONTRACT 8.0.0 notes |
 | 50 The guide's notes | 40 | renderer tests on seeded phrases (ties, rests, triplets, a transposing instrument); exact placement through the tempo map; a 42 ms note |
-| 51 The guide's sound and settings | 40 | fake-output recordings, both off identical to before; switches and volumes in all combinations; release, re-attack and Stop; settings reload e2e; acknowledgement unchanged; `verify:boundaries` |
+| 51 The guide's sound and settings | 40 | fake-output recordings, both off identical to before; switches and volumes in all combinations; release, re-attack and Stop; settings reload e2e; acknowledgement and exports unchanged with the guides on; `verify:boundaries` |
 | 52 Guide listening | 40 (HG), 27 | the owner's recorded check |

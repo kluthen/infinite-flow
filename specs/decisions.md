@@ -1145,3 +1145,15 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   `req_session_audio_mix` (STABLE, on the contract), blocks chunk 40's merge. HG is a letter so it
   collides with no hand check another branch numbers. Now in:
   [build plan v3.2, chunk 40](versions/v3/build-plan-v3.2.md#chunk-40--the-guide-playback).
+
+- **D493 (2026-11-04): a guide note rings on into a rest after it; closes O291.** The owner's
+  ruling, "let it ring": a rest starts no note, and the note before it keeps its full release,
+  with no quick fade before a rest. Now in:
+  [Part C §C19.4](versions/v3/master-spec.md#c194-the-guides-voices), §C19.1,
+  [build plan v3.2, chunk 40 and v3.2 HG](versions/v3/build-plan-v3.2.md#chunk-40--the-guide-playback).
+
+- **D494 (2026-11-04): the guide playback is never exported; closes O290.** The owner's second
+  ruling of the day: the guide has no role in the MIDI export. No guide note is written to the
+  generated-notes MIDI file or to any other export, now or later; the exports are unchanged with
+  the guides on. Now in: [Part C §C19.5](versions/v3/master-spec.md#c195-out-of-v32), §C2, §C17,
+  [build plan v3.2, chunk 40](versions/v3/build-plan-v3.2.md#chunk-40--the-guide-playback).

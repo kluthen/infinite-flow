@@ -2260,7 +2260,9 @@ Jam, the key and mode suggestion, the rhythm lock and, added after approval, the
 C3, C13, C15, C16, C17 for it; D490–D492): an optional guide playback beside the backing, two
 switches, a melody guide playing the phrase's notes at concert pitch and a rhythm guide playing its
 rhythm on the chords' roots, each with its own volume, off by default; session playback only, not
-exported. It is the one behaviour v1.19-guide adds; its version name stays apart from any v1.19
+exported. The owner's rulings the same day (C19.1, C19.4, C17; D493): a guide note rings on into a
+rest that follows it; and the guide is never exported (C19.5, C2, C17; D494). It is the one
+behaviour v1.19-guide adds; its version name stays apart from any v1.19
 another branch takes, and is renumbered when the branches merge. v1.18 (2026-11-03): v1.17
 with two driver rulings under the owner's delegation of minor design calls, on chunk 18's build
 (C5.6, C5.7, C5.8; D457): phrase 1 is handed to the session at the barline where it is shown, and
@@ -2579,8 +2581,9 @@ with its own volume, off by default (C19). Built in wave 7, without changing the
 - A doodle taken from a file or a past session's played notes (around v5, as a snippet library).
 - A pickup (notes before beat 1) or a tie across the join into phrase 1: Jam's gap makes them
   unnecessary (C5.6).
-- The guide playback in the exports, outside a running session, or with a sound the player
-  chooses (C19.5; O290).
+- The guide playback outside a running session, or with a sound the player chooses (C19.5).
+- **The guide playback in any export: never** (D494). No guide note is written to the
+  generated-notes MIDI file or to any other export.
 - **Unchanged, permanently out:** any grading, scoring, ranking or wrong-note signal; accounts,
   sharing or any server-side state.
 
@@ -4437,7 +4440,7 @@ _Changed in v1.19-guide:_ the guide playback's layers added (D490, D491).
   touches nothing of Jam's.
 - **The guide playback in five layers, plain Web Audio, no library** (C19.6; D490, D491), because
   the owner wants it now and kept in v4, not rewritten: the notes come from a pure renderer beside
-  the backing's, so an export can use them later; they are placed on the audio clock through the
+  the backing's, testable with no audio (never exported, D494); they are placed on the audio clock through the
   tempo map, at any position; each sound role's voice is a data entry behind the audio seam, and
   each mix channel's gains are looked up by channel, so v4 adds roles without reshaping either;
   only the few lines that turn a note into oscillators and gains know Web Audio, and they are what
@@ -4630,10 +4633,11 @@ Jam's run at 60, 120 and 180 BPM, and at 240 BPM only if Jam keeps it (C5.17).
     oscillator stops once the fade is over; a same-pitch re-attack fades the ringing note quickly at
     the new start; Stop fades every guide note with the session; the four settings are saved and
     loaded as the mix's are, an unreadable one taking its default; acknowledgement gives the same
-    result with the guides on as off; `npm run verify:boundaries` passes with its rules unchanged.
+    result with the guides on as off; every export is the same with the guides on as off and holds
+    no guide note (D494); `npm run verify:boundaries` passes with its rules unchanged.
 52. **The owner's listening check of the guide** is recorded: each guide alone, both together (told
     apart by ear), each with and without the backing, the ringing release, a note followed by a
-    rest (O291), and quick notes at 240 BPM.
+    rest ringing on into it (D493), and quick notes at 240 BPM.
 
 ## C17. Deferred and open
 
@@ -4674,6 +4678,9 @@ C5.16, C5.17, C10.5 and, for v3.3's Seventh chords in Jam, Part D §D8.4.
 **Settled during the build**: O268, how a short silence between two doodle notes is read, as
 proposed (the owner's answer, D440): part of the note before it, a silence being a rest only where
 a whole rest of the doodle's note density value fits in it on that grid; C5.9, C5.16.1, C8.
+O291, whether a guide note's release may ring on into the rest after it, as proposed (the owner's
+ruling, D493): it rings, its release unchanged; C19.1, C19.4. O290, whether the guide goes into
+the MIDI export (the owner's ruling, D494): never, into no export; C19.5.
 
 **Open during the build** (D433, D449), with a proposed answer in the register:
 
@@ -4682,10 +4689,6 @@ a whole rest of the doodle's note density value fits in it on that grid; C5.9, C
 - **O271**, whether a note start on a finer grid than the doodle's should count as a stronger edit
   against the doodle (C8; D449): proposed, the scale as written, asked at the Jam listening check
   (C16 item 32).
-- **O290**, whether the guide playback should later go into the generated-notes MIDI export
-  (C19.5; D491): proposed, not in v3.2; the pure renderer makes it possible later.
-- **O291**, whether a guide note's ringing release may sound into the rest after it (C19.4; D491):
-  proposed, yes, as a plucked string rings; asked at the guide's listening check (C16 item 52).
 
 **Measured before the gate, not open questions**: the cost of the new orderings and the sweeps
 (C5.8, C16 items 10 and 31); the forced-bend rate; the share of rhythm changes, tuned to 1 in 2
@@ -4722,8 +4725,8 @@ meanings.
 - a drone under the doodle: a later candidate;
 - favoring the figures found in the doodle; presets with rhythm cues (the richer presets);
 - a doodle taken from a file or a past session: around v5;
-- the guide playback in the exports (O290), outside a running session, or with a sound the player
-  chooses (C19.5).
+- the guide playback outside a running session, or with a sound the player chooses (C19.5).
+  (The guide in an export is not deferred: it is never exported, D494.)
 
 ## C18. Access model
 
@@ -4756,9 +4759,10 @@ They are listening aids only: nothing compares the player with them.
   octave lower), and the guide plays the sounding pitch, the one the backing is in. A
   [tie](../../../docs/music/lexicon.md#tie) joins two written notes into one sound, so a tied note
   sounds once, held for its whole tied length, across a barline too. A
-  [rest](../../../docs/music/lexicon.md#rest) starts no note.
+  [rest](../../../docs/music/lexicon.md#rest) starts no note; the note before it may ring on into
+  it, through its release (C19.4; D493).
 - **The rhythm guide** plays the same note starts and lengths as the melody guide (a tied note once,
-  no note in a rest), but each note sounds the root of the chord in effect when the note starts:
+  no note starting in a rest), but each note sounds the root of the chord in effect when the note starts:
   the harmony event whose span holds the note's start (a phrase's chords change only on beat 1 or
   beat 3 of a measure). Every rhythm-guide note is in one fixed
   [octave](../../../docs/music/lexicon.md#octave), from middle C up, C4 to B4 (MIDI 60–71), well
@@ -4780,7 +4784,8 @@ They are listening aids only: nothing compares the player with them.
 - **Stop**: the guides fade out with every other sound of the session, in the stop fade, notes still
   ringing included; nothing of a stopped session sounds after it.
 - **Sound only.** The guides change nothing in acknowledgement (which reads the player's MIDI
-  input), the session's timing, what is generated, what is saved with a session, or the exports.
+  input), the session's timing, what is generated, or what is saved with a session, and they are
+  never written to an export (C19.5; D494).
 
 ### C19.3 The settings
 
@@ -4815,7 +4820,9 @@ They are listening aids only: nothing compares the player with them.
   (indicatively 300 to 800 ms), which starts at that end; its oscillator stops once the fade is
   over. Each note has its own oscillator, so the next note starts on its own start while the last
   one still rings, and no note is cut to make room for another.
-- A note's release also rings into a rest that follows it, as a plucked string does (proposed; O291).
+- **A note rings on into a rest that follows it**, its release unchanged, as a plucked string does
+  (the owner's ruling, D493): a rest is a place where no note starts, not a cut to silence. No
+  quick fade comes before a rest.
 - **A same-pitch re-attack stays audible**: when a guide note starts on the pitch of that guide's
   note still ringing, the ringing note fades out quickly at the new start (indicatively 10 to
   20 ms), so the new note is heard as a new note and the two never sound on one pitch together.
@@ -4823,9 +4830,10 @@ They are listening aids only: nothing compares the player with them.
 
 ### C19.5 Out of v3.2
 
-- The guides in the exports: not in v3.2 (O290). The notes come from a pure renderer, as v4's sound
-  library constraint 6 wants of every export, so the generated-notes MIDI file could carry them
-  later.
+- **The guides are never exported** (the owner's ruling, D494): no guide note is written to the
+  generated-notes MIDI file, the played-notes MIDI file, the MusicXML file or any other export,
+  with the guides on or off; every export is byte for byte what it is with both guides off. The
+  guide has no role in the exports; the pure renderer serves the guide's layers, not an export.
 - A guide outside a running session: the app has no other playback today (the review plays
   nothing); a later playback feature decides whether it carries the guides.
 - A sound the player chooses, an instrument imitation, or a guide for the doodle.
