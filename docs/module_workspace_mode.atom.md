@@ -1,6 +1,6 @@
 ---
 id: module_workspace_mode
-status: DRAFT
+status: REVIEW
 parents:
   - [[rule_app_opens_in_session_mode]]
   - [[rule_leaving_jam_mode_keeps_session_mode]]

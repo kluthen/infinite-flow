@@ -1,6 +1,6 @@
 ---
 id: module_jam_idle_notes
-status: DRAFT
+status: REVIEW
 tags: [v3, release-v3.2, jam, midi, idle]
 dependents: []
 type: MODULE

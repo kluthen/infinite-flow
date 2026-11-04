@@ -1,6 +1,6 @@
 ---
 id: module_session_start_without_phrase_one
-status: DRAFT
+status: REVIEW
 type: MODULE
 layer: ARCHITECTURE
 version: 0.4

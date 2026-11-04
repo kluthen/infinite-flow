@@ -1,6 +1,6 @@
 ---
 id: module_jam_capture
-status: DRAFT
+status: REVIEW
 human_name: The Jam Capture's States
 parents:
   - [[rule_doodle_capture_start]]
