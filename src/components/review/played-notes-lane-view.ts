@@ -37,7 +37,8 @@ export interface PlayedNotesLaneView {
 
 /** The input of `playedNotesLaneViews`. */
 export interface PlayedNotesLaneViewsInput {
-  readonly phraseNumber: number
+  /** The phrase the lanes belong to, by number, or a Jam's doodle. */
+  readonly phraseNumber: number | 'doodle'
   readonly record: PlayedNotesLaneRecord
   readonly positionCount: 1 | 2
   /** Null while the phrase is not engraved (or released, or replaced by its note): blank lanes. */
@@ -65,14 +66,18 @@ export function systemInlineOffsets(
   })
 }
 
-/** Intent: "Played notes, phrase {n}", with "bars 1–2" or "bars 3–4" in the split layout. */
+/**
+ * Intent: "Played notes, phrase {n}" ("Played notes, your doodle" for a Jam's doodle), with "bars
+ * 1–2" or "bars 3–4" in the split layout.
+ */
 // @spec-link [[rule_review_played_notes_toggle]]
 export function playedNotesLaneLabel(
-  phraseNumber: number,
+  phraseNumber: number | 'doodle',
   positionIndex: number,
   positionCount: 1 | 2,
 ): string {
-  const name = `Played notes, phrase ${phraseNumber}`
+  const name =
+    phraseNumber === 'doodle' ? 'Played notes, your doodle' : `Played notes, phrase ${phraseNumber}`
   if (positionCount === 1) return name
   return `${name}, bars ${positionIndex === 0 ? '1–2' : '3–4'}`
 }

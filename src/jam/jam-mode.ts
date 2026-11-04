@@ -5,12 +5,14 @@
  * Idle note routing (the starting note the cue row names, and what a played note means), and Jam's
  * own settings (made, decoded and saved by Jam's code) with Jam's controls, which show them; a
  * fresh Jam's start (its capture and phrase 1, with the view the workspace reads), and the cue
- * row's two parts before phrase 1 (`jam-capture`, `jam-writing`).
+ * row's two parts before phrase 1 (`jam-capture`, `jam-writing`); and the parts of a Jam session's
+ * Review that are Jam's (`module_jam_code_boundary`): its doodle's staff.
  */
 export { default as JamWorkspace } from './JamWorkspace.vue'
 export { default as JamControls } from './JamControls.vue'
 export { default as JamCapture } from './JamCapture.vue'
 export { default as JamWriting } from './JamWriting.vue'
+export { default as ReviewDoodle } from './review/ReviewDoodle.vue'
 export { createJamIdleNotes } from './jam-idle-notes'
 export { createJamSettings, jamFigureLevels, jamGenerationControls } from './jam-settings'
 export { startFreshJam } from './fresh-jam'

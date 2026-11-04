@@ -12,7 +12,8 @@
  * opens (deleting played notes, unpinning a session with favorites, deleting a session) shows in
  * the shared confirmation sheet over the page; focus then moves by ./review-area-focus.ts. The
  * sheet and its words load on demand in a chunk of their own, warmed as this area mounts. Each
- * switch between the levels asks the page to scroll to its top.
+ * switch between the levels asks the page to scroll to its top. A Jam session's Review asks for
+ * Jam's code, which draws its doodle section (./use-review-jam-code.ts).
  */
 import { computed, defineAsyncComponent, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
 
@@ -24,8 +25,10 @@ import {
 import SessionList from '@/components/review/SessionList.vue'
 import { browserReviewExportPorts, type ReviewExportPorts } from './review-export'
 import { useReviewAreaFocus, type ReviewAreaLevels } from './review-area-focus'
+import { loadedJamMode, loadJamMode } from './load-jam-mode'
 import { injectSaveSettings } from './save-settings-injection'
 import { useReviewArea } from './use-review-area'
+import { useReviewJamCode } from './use-review-jam-code'
 import { useSessionList } from './use-session-list'
 import type { ReviewHost } from './use-review-host'
 import type { SessionController } from './workspace-session-controller-types'
@@ -73,6 +76,16 @@ const reviewSession = computed(() => {
   return startedAt === null || lengthSeconds === null || keeping === null
     ? null
     : { startedAt, lengthSeconds, keeping }
+})
+
+/** Jam's code for a Jam session's Review, asked for as each one opens. */
+const jamCode = useReviewJamCode({
+  jamSession: () => {
+    const shown = host.shownReview.value
+    return shown?.jam === undefined ? null : shown.history
+  },
+  loaded: loadedJamMode,
+  load: loadJamMode,
 })
 
 const list = useSessionList({
@@ -261,6 +274,8 @@ defineExpose({ focusReviewTitle: focus.title })
     :instrument-name="review.instrumentName.value"
     :preset-label="review.presetLabel.value"
     :is-jam="review.isJam.value"
+    :doodle="host.shownReview.value?.jam?.doodle ?? null"
+    :jam-code="jamCode"
     :started-at="reviewSession.startedAt"
     :length-seconds="reviewSession.lengthSeconds"
     :most-recent="review.mostRecent.value"

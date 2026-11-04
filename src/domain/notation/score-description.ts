@@ -124,6 +124,21 @@ export function describeEmptySystem(clef: InstrumentClef, key: WrittenKey): stri
   return `Empty staff, ${clefKeyAndMeterWords(clef, key)}.`
 }
 
+/** The words of a doodle's length, one to four measures. */
+const DOODLE_LENGTH_WORDS = ['one measure', 'two measures', 'three measures', 'four measures']
+
+/**
+ * Intent: name a Jam's doodle as a phrase's summary names its staff, with its own length: "Your
+ * doodle, treble clef, key signature 1 sharp (G Ionian), 4/4 time, two measures."
+ */
+// @spec-link [[rule_review_opens_with_doodle]]
+export function describeDoodle(phrase: WrittenPhrase, measureCount: number): string {
+  const length = DOODLE_LENGTH_WORDS[measureCount - 1]
+  if (length === undefined)
+    throw new NotationInputError(`A doodle has no ${measureCount} measures.`)
+  return `Your doodle, ${clefKeyAndMeterWords(phrase.clef, phrase.key)}, ${length}.`
+}
+
 /**
  * Intent: build one measure's spoken description, interleaving each chord announcement
  * immediately before the run of note/rest tokens starting at (and following) its tick.

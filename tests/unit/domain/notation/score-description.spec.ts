@@ -2,16 +2,21 @@ import { describe, expect, it } from 'vitest'
 
 import { deepFreeze } from '@/domain/events/deep-freeze'
 import { spellWrittenKey } from '@/domain/notation/pitch-spelling'
-import { describeEmptySystem, describeWrittenPhrase } from '@/domain/notation/score-description'
+import {
+  describeDoodle,
+  describeEmptySystem,
+  describeWrittenPhrase,
+} from '@/domain/notation/score-description'
 import { noteStemDirection } from '@/domain/notation/stem-direction'
-import type {
-  WrittenChordSymbol,
-  WrittenEvent,
-  WrittenKey,
-  WrittenMeasure,
-  WrittenNote,
-  WrittenPhrase,
-  WrittenRest,
+import {
+  NotationInputError,
+  type WrittenChordSymbol,
+  type WrittenEvent,
+  type WrittenKey,
+  type WrittenMeasure,
+  type WrittenNote,
+  type WrittenPhrase,
+  type WrittenRest,
 } from '@/domain/notation/written-phrase-types'
 
 /** Intent: build a frozen quarter-note glyph at a given tick/pitch, with optional tie/accidental. */
@@ -182,6 +187,35 @@ describe("describeEmptySystem, the empty system's name", () => {
     expect(describeEmptySystem('treble', C_IONIAN_KEY)).toBe(
       'Empty staff, treble clef, key signature no sharps or flats (C Ionian), 4/4 time.',
     )
+  })
+})
+
+// @test-link [[rule_review_opens_with_doodle]]
+describe("describeDoodle, the doodle's name in a Jam's review", () => {
+  // @test-link [[rule_review_opens_with_doodle]]
+  it("words it as a phrase summary, named for the doodle, with the doodle's own length", () => {
+    const doodle = phrase({ key: spellWrittenKey(7, 'Ionian') })
+
+    expect(describeDoodle(doodle, 2)).toBe(
+      'Your doodle, treble clef, key signature 1 sharp (G Ionian), 4/4 time, two measures.',
+    )
+    expect(describeDoodle(doodle, 1)).toMatch(/, one measure\.$/u)
+    expect(describeDoodle(doodle, 3)).toMatch(/, three measures\.$/u)
+    expect(describeDoodle(doodle, 4)).toMatch(/, four measures\.$/u)
+  })
+
+  // @test-link [[rule_review_opens_with_doodle]]
+  it('names the clef and a key in words, as the phrase summary does', () => {
+    expect(describeDoodle(phrase({ key: spellWrittenKey(10, 'Ionian'), clef: 'bass' }), 4)).toBe(
+      'Your doodle, bass clef, key signature 2 flats (B flat Ionian), 4/4 time, four measures.',
+    )
+  })
+
+  // @test-link [[rule_review_opens_with_doodle]]
+  it('refuses a length no doodle has', () => {
+    for (const measureCount of [0, 5, 1.5]) {
+      expect(() => describeDoodle(phrase(), measureCount)).toThrow(NotationInputError)
+    }
   })
 })
 

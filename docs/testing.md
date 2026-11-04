@@ -1495,6 +1495,14 @@ capture tempo, the count-in's first beat and the doodle's barlines on the audio 
 doodle notes (`RAW_DOODLE_NOTES` unless given), nothing suggested, no decline, and the controls
 read from the doodle on the C keyboard; and `jamHistory(playedInPhrases)`, the Jam-style
 session's two phrases as its save and review read them, with or without notes played in them.
+
+The review's doodle section (v3.2 chunk 23) reads Jam's code through `useReviewJamCode`
+(`src/components/workspace/use-review-jam-code.ts`), whose three seams a spec replaces:
+`jamSession()` (the showing Jam session's history, or null), `loaded()` (Jam's code if it has
+loaded, production `loadedJamMode`) and `load()` (production `loadJamMode`), so a spec holds the
+load open, resolves it or fails it. In the browser, a failed load of Jam's code is simulated as
+the mode switch's specs do it, by aborting the request for Jam's chunk.
+
 `tests/unit/jam/fresh-jam-kept.spec.ts` runs a fresh Jam to its end on the controller rig (see
 [The session controller rig and a start without phrase 1](#the-session-controller-rig-and-a-start-without-phrase-1))
 and reads the records its save writes from the rig's `sessionSaves`.

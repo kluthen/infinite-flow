@@ -2,7 +2,8 @@
  * What a played-notes lane draws, on hand-built anchors: never a very short note. On each M1
  * recording the lane draws exactly the bars of the notes of 38 ms or more; a phrase whose every
  * played note is very short, in a session whose every played note is (so there is no pitch
- * scale), still draws its lane, with its dividers and no bar.
+ * scale), still draws its lane, with its dividers and no bar. A Jam's doodle has lanes of its own,
+ * named for it, drawn over its own measures only.
  */
 import { describe, expect, it } from 'vitest'
 
@@ -14,6 +15,7 @@ import {
   type PlayedNotesLaneRecord,
 } from '@/components/review/played-notes-lane-geometry'
 import {
+  playedNotesLaneLabel,
   playedNotesLaneViews,
   type PlayedNotesLaneSource,
 } from '@/components/review/played-notes-lane-view'
@@ -128,5 +130,40 @@ describe('the played-notes lane and very short notes', () => {
         scale: null,
       }),
     ).toThrow()
+  })
+})
+
+// @test-link [[rule_raw_doodle_notes_are_played_notes]]
+// @test-link [[module_review_played_notes_lane]]
+describe("the doodle's played-notes lane", () => {
+  // @test-link [[rule_raw_doodle_notes_are_played_notes]]
+  it('names the lane for the doodle, with its bars in the split layout, as a phrase is named', () => {
+    expect(playedNotesLaneLabel('doodle', 0, 1)).toBe('Played notes, your doodle')
+    expect(playedNotesLaneLabel('doodle', 0, 2)).toBe('Played notes, your doodle, bars 1–2')
+    expect(playedNotesLaneLabel('doodle', 1, 2)).toBe('Played notes, your doodle, bars 3–4')
+    expect(playedNotesLaneLabel(2, 1, 2)).toBe('Played notes, phrase 2, bars 3–4')
+  })
+
+  // @test-link [[rule_raw_doodle_notes_are_played_notes]]
+  // @test-link [[module_review_played_notes_lane]]
+  it("draws the raw doodle notes over the doodle's own measures, from its first barline", () => {
+    const notes = playedNotes([
+      { pitch: 60, velocity: 90, onsetAt: 10.5, releaseAt: 10.75 },
+      { pitch: 64, velocity: 90, onsetAt: 11.25, releaseAt: 11.5 },
+    ])
+    const source: PlayedNotesLaneSource = { ...SOURCE, anchors: ANCHORS.slice(0, 2) }
+
+    const lanes = playedNotesLaneViews({
+      phraseNumber: 'doodle',
+      record: { startedAt: 10, tempo: 240, playedNotes: notes },
+      positionCount: 1,
+      source,
+      scale: playedNotesPitchScale([{ playedNotes: notes }]),
+    })
+
+    expect(lanes).toHaveLength(1)
+    expect(lanes[0]!.label).toBe('Played notes, your doodle')
+    expect(lanes[0]!.dividers).toEqual([{ insetInlineStart: `${ANCHORS[0]!.barlinePx}px` }])
+    expect(lanes[0]!.bars.map((bar) => bar.insetInlineStart)).toEqual(['220px', '540px'])
   })
 })
