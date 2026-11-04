@@ -62,6 +62,7 @@ export interface ReviewDoodleTools {
 /** Intent: the doodle section's controls over the showing Review and the workspace's Jam. */
 // @spec-link [[req_key_and_mode_suggestion]]
 // @spec-link [[rule_jam_again_on_this_doodle]]
+// @spec-link [[rule_suggestion_shown_after_jam_only]]
 export function useReviewDoodleTools(deps: ReviewDoodleToolsDependencies): ReviewDoodleTools {
   /** Intent: Jam's code once loaded; null before, or after it failed. */
   const loaded = computed(() => {
