@@ -127,6 +127,16 @@ export interface GenerationSessionActions {
   ) => void
   readonly selectInstrumentProfile: (id: InstrumentProfileId) => Promise<ProfileSelectionOutcome>
   /**
+   * Hold or release session mode's instrument switches, for as long as Jam mode opens or shows.
+   * While held, an instrument switch (my instrument's included, and a saved change to the
+   * selected my instrument's range or clef) changes and saves the instrument at once but leaves
+   * session mode's phrase as it is, the switch owed. Released, an owed switch is applied as one
+   * made there: the phrase checked and written again (its prepared phrases then discarded), by
+   * session mode's Idle rules. Resolves what the release did, `unchanged` when nothing was owed.
+   */
+  // @spec-link [[service_idle_generation_session]]
+  readonly holdInstrumentSwitches: (held: boolean) => Promise<ProfileSelectionOutcome>
+  /**
    * Save my instrument, made or changed: its record is written at once, or, for a change of range
    * or transposition while it has kept sessions, in one batch erasing `sessions`, applied once
    * saved; a new one is selected, a change to the selected one replaces the phrase (range or

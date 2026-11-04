@@ -6,7 +6,8 @@ human_name: The Live View Never Shows the Doodle
 tags: [v3, release-v3.2, session, jam]
 parents:
   - [[req_jam]]
-dependents: []
+dependents:
+  - [[module_jam_capture]]
 type: RULE
 layer: BUSINESS
 version: 0.1

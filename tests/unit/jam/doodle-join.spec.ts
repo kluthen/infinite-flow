@@ -90,10 +90,7 @@ function phraseOneInput(
   instrument: InstrumentProfile,
   label: string,
 ): { input: GenerationIntentInput; steering: SteeringBlock; leapiness: Leapiness } {
-  const readings = readDoodleControls(doodle, windowsOf(instrument), {
-    belowTabletLandscape: false,
-    sessionSteppedDown: false,
-  })
+  const readings = readDoodleControls(doodle, windowsOf(instrument))
   const steering = buildSteeringBlock(doodle, 'Near')
   const instrumentProfileId = instrument.id
   if (!isBuiltInInstrumentProfileId(instrumentProfileId))

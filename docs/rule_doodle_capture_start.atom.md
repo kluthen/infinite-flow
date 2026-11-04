@@ -3,6 +3,7 @@ id: rule_doodle_capture_start
 status: DRAFT
 dependents:
   - [[module_doodle_quantizer]]
+  - [[module_jam_capture]]
 version: 0.1
 human_name: Where the Doodle Starts
 parents:

@@ -4,7 +4,8 @@ status: DRAFT
 tags: [v3, release-v3.2, session, jam, session-end]
 parents:
   - [[req_jam]]
-dependents: []
+dependents:
+  - [[module_jam_capture]]
 type: RULE
 layer: BUSINESS
 version: 0.1

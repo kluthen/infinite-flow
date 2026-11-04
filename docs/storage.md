@@ -740,6 +740,7 @@ in the visit turns the policy `off-outdated` through `onOutdated`, whatever the 
 | `myInstrument`         | My instrument (`MyInstrument`) when its record loaded; null otherwise, and when the visit started from the defaults.                          |
 | `playerPresets`        | The player presets read (`Preset[]`, in key order); empty when the visit started from the defaults. An outdated tab lists the ones it read.   |
 | `keptSessionSummaries` | The kept sessions' summaries as `StoredEntry` values, key and raw value, in key order; empty when the visit started from the defaults.        |
+| `jamSettingsRecords`   | Jam's settings records (the `jam` group of the `settings` store), raw and undecoded; empty when the visit started from the defaults.          |
 | `rememberedController` | The remembered controller's records, raw; empty when the visit started from the defaults.                                                     |
 | `savePolicy`           | `Promise<SavePolicy>`: settled before the first draw when the port opened within the wait; otherwise once the port opens, saving already off. |
 
@@ -809,10 +810,32 @@ reach the policy at once, so the hold takes effect inside the Start click.
 | The audio mix                                            | `MixControls` (each on/off) and `MixVolumePanel` (each volume, on the slider's release: its `change` event, not each `input`).                            |
 | The "During a session" options                           | `useSessionOptions`, once the session controller accepted the change.                                                                                     |
 | The review's preferences                                 | The review host's `setFormat`, `setBackingTrack` and `setPlayedNotesShown`.                                                                               |
+| Jam's own settings                                       | Jam's settings change handlers at Jam's Idle (`createJamSettings`, `src/jam/jam-settings.ts`): one `jam.*` record per setting a change changed.           |
 
 The values saved are the player's choices: a chosen `Sixteenth` below `bp-tablet-landscape` is
 saved as `Sixteenth`, though phrases are generated with `Eighth` there. The tempo a Rising-tempo
 session reached is never saved.
+
+### Jam's settings: the `jam` group
+
+Jam's own settings (master spec C5.16, C10.2) are nine records of a `jam` group in the same
+`settings` store, beside session mode's: `jam.tempo`, `jam.tonalCenter`, `jam.collection`,
+`jam.harmonicMotion`, `jam.tension`, `jam.embellishments` (one figure level for all seven),
+`jam.drift`, `jam.rhythmLockOn` and `jam.allowedRhythmChanges`. They are new records of the same
+kind, at the settings' data version 1, with no upgrade step and no change of the database's data
+version. `src/storage/records/settings-record.ts` lists their keys (`JAM_SETTING_KEYS`) and the
+saver writes their values as given; session mode's decoding (`decodeSettings`) skips them, and an
+older app's skips them too, as records naming no setting it knows.
+
+The load hands them on undecoded (`jamSettingRecords`, then `SavedDataLoad.jamSettingsRecords`),
+as it hands the kept sessions' summaries, so the first load decodes nothing of Jam's. Jam's code,
+loaded on demand, decodes them the first time Jam mode shows in the visit
+(`useJamSettings`, `src/components/workspace/use-jam-settings.ts`, calling
+`createJamSettings`): each on its own, a missing, damaged, newer or invalid record giving that
+setting its first value. The key, the mode and the tempo then start from session mode's current
+values (the tempo kept inside 60 to 180 BPM) and are saved at once, so a later visit finds the
+same ones. A visit that saves nothing keeps them in memory; Delete everything removes them with
+the database.
 
 The session controller calls `hold()` when it accepts a Start and `release()` in the teardown
 every end and every undone start runs, so a theme or mix change made during a session is written

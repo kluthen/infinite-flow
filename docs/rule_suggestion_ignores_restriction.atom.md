@@ -5,7 +5,8 @@ type: RULE
 layer: BUSINESS
 human_name: The Suggestion Meets No Key and Mode Restriction
 tags: [v3, release-v3.2, jam, key-and-mode-suggestion, presets]
-dependents: []
+dependents:
+  - [[module_key_suggestion]]
 version: 0.2
 priority: 1
 parents:

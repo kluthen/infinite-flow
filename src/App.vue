@@ -129,6 +129,7 @@ onUnmounted(() => {
     :preset-store="workspace.presetStore"
     :damaged-session-reports="workspace.damagedSessionReports"
     :prewarm="workspace.prewarm"
+    :jam-settings-records="savedData.jamSettingsRecords"
     @connection-sheet-open-change="handleConnectionSheetOpenChange"
     @session-mode-held-change="handleSessionModeHeldChange"
   />

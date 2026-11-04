@@ -9,7 +9,8 @@ layer: BUSINESS
 version: 0.1
 priority: 1
 tags: [v3, release-v3.2, session, jam]
-dependents: []
+dependents:
+  - [[module_jam_capture]]
 ---
 
 # A Doodle Ends at a Silent Measure

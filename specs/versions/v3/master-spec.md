@@ -95,8 +95,10 @@ Status: this file holds four parts.
   (2026-10-27): the supported-combination step judges the note density as the doodle shows it, so
   no window width changes it (C5.16, C5.16.1; spec D445). v1.14 (2026-11-03): the rhythm change
   shares are tuned and drift's scale stays (C7.4, C8, C16, C17; spec D449, D450). v1.15
-  (2026-11-03): the generator worker's chunk budget is 170 KiB (C10.9, C14; spec D451). Its
-  sections are numbered C1 to C18; what v1.1 to v1.15 change is listed at the top of
+  (2026-11-03): the generator worker's chunk budget is 170 KiB (C10.9, C14; spec D451). v1.16
+  (2026-11-03): the suggestion judges "no fit" before the selection (C6.3; spec D452). v1.17
+  (2026-11-03): the home-note cues are flat bonuses taken off the penalty, not note weights (C6.2;
+  spec D455). Its sections are numbered C1 to C18; what v1.1 to v1.17 change is listed at the top of
   Part C and marked in each section they touch.
 - **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.1
   (2026-10-12), consolidated from the v3.3 direction and the chord research; **awaiting the
@@ -2253,7 +2255,16 @@ Delete everything removes them. No preset leaves the device.
 
 ## Part C — v3.2
 
-Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.15 (2026-11-03)**: v1.14
+Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.18 (2026-11-03)**: v1.17
+with two driver rulings under the owner's delegation of minor design calls, on chunk 18's build
+(C5.6, C5.7, C5.8; D457): phrase 1 is handed to the session at the barline where it is shown, and
+phrase 2 is requested then, not when phrase 1 is ready; a Jam whose rungs all fail before the
+deadline ends at the deadline. Phrase 2's deadline is unchanged. v1.17 (2026-11-03): v1.16
+with a driver ruling under the owner's delegation of minor design calls (C6.2; D455): the last
+and first home-note cues are flat bonuses taken off the candidate's penalty, as the research note
+defines them, not weights on the note. v1.16 (2026-11-03): v1.15 with one of `spec-writer`'s minor calls from wave 5's preflight (C6.3; D452): the suggestion judges
+"no fit" before "the selection is among the kept candidates", so "no fit" never depends on Jam's
+key and mode. v1.15 (2026-11-03): v1.14
 with the owner's ruling at wave 4's gate (C10.9, C14; D451): the generator worker's chunk budget
 rises from 150 KiB to 170 KiB (174,080 bytes); it adds no behaviour. v1.14 (2026-11-03): v1.13
 with the owner's two listening checks of 2026-11-03 (C7.4, C8, C16, C17; D449, D450): the rhythm
@@ -2834,6 +2845,7 @@ _Changed in v1.1:_ the timing example is given at Jam's top tempo, 180 BPM.
 ### C5.6 From the doodle to phrase 1: the generation and read-in measures
 
 _Changed in v1.1:_ times given for Jam's range.
+_Changed in v1.18:_ phrase 1 is handed to the session at the barline where it is shown (D457).
 
 - **The generation measure**: the app takes the controls from the doodle (C5.16), builds the
   steering block (C5.9) and writes phrase 1. The cue row says the app is writing.
@@ -2847,15 +2859,17 @@ _Changed in v1.1:_ times given for Jam's range.
 - **Phrase 1 starts with a fresh note on beat 1**, as every phrase does. With the gap, no pickup or
   tie across the join is needed.
 - **Where the session engine takes over.** Jam's own code runs the count-in, the capture and the
-  generation measure. Once phrase 1 is ready, it starts an ordinary session with that phrase on
-  screen, at the barline the click has reached, the read-in measure playing the part of v2's
-  count-in. The session engine only learns to accept a start on a click already running.
+  generation measure. At the barline where phrase 1 is shown (C5.7), it hands phrase 1 over with
+  the time it sounds, one measure later, and from there an ordinary session runs with that phrase
+  on screen, the read-in measure playing the part of v2's count-in. The session engine only learns
+  to accept a start on a click already running.
 
 ### C5.7 When phrase 1 is late: the extended wait and the fallback
 
 _Changed in v1.1:_ times given for Jam's range; the rungs read "the steering block" for "the doodle's
 preferences".
 _Changed in v1.3:_ each attempt's seed is derived from the session seed (D419, C11).
+_Changed in v1.18:_ a Jam whose rungs all fail before the deadline ends at the deadline (D457).
 
 - **The wait extends by whole measures.** Phrase 1 is shown at the first barline at or after the
   moment it is ready, followed by its read-in measure. The click goes on; the cue row keeps saying
@@ -2872,8 +2886,9 @@ _Changed in v1.3:_ each attempt's seed is derived from the session seed (D419, C
   that reserve was measured on: once less is left, no attempt of rungs 1 or 2 starts, the one
   running is cancelled, and rung 3 is requested at once. A phrase repeat, v2's last step, is
   impossible: there is no phrase before.
-- **If every attempt fails by the deadline, the Jam ends**: back to Idle, no review, nothing kept,
-  no doodle kept, and the player is told, at Idle, that the app could not continue with these
+- **If every attempt fails by the deadline, the Jam ends at the deadline**, even when the last
+  one failed earlier, as v2 repeats a phrase at its deadline: back to Idle, no review, nothing
+  kept, no doodle kept, and the player is told, at Idle, that the app could not continue with these
   settings. It should be rare: the controls taken from the doodle always form a supported
   combination (C5.16), and the steering block only orders candidates.
 - If phrase 1 comes from rung 3 with Jam's rhythm lock on, its rhythm is not chosen near the
@@ -2885,6 +2900,7 @@ _Changed in v1.1:_ sized for 180 BPM, 240 BPM last; figures refreshed from v3.1'
 the rhythm domain of a fresh doodle may be cold.
 _Changed in v1.2:_ the cold domain is accepted and measured (D410).
 _Changed in v1.12:_ what Jam's Idle prewarms before any doodle (D442).
+_Changed in v1.18:_ phrase 2 is requested when phrase 1 is handed over, not when it is ready (D457).
 
 - **One measure lasts** 4 s at 60 BPM, 2 s at 120, 1.6 s at 150, about 1.33 s at 180 and 1 s at
   240. The standalone reserve is 1.075 s. Up to 180 BPM the generation measure alone outlasts the
@@ -2913,8 +2929,11 @@ _Changed in v1.12:_ what Jam's Idle prewarms before any doodle (D442).
   with a cold domain at 180 BPM, and a result that misses the deadlines goes back to the owner.
 - **Pre-generation cannot help a fresh doodle**: phrase 1 depends on notes played after Start. It
   helps a kept doodle (C5.11).
-- **Phrase 2** is requested as soon as phrase 1 is ready; its deadline is the start of phrase 1's
-  last measure, which gives it the read-in measure plus three measures, more than v2's phrase 2
+- **Phrase 2** is requested when phrase 1 is handed over to the session (C5.6), at the barline
+  where phrase 1 is shown. After an end by silence that is the earliest moment, since a note in
+  the silent measure would still extend the doodle; after an end by length or in an extended wait,
+  it is the barline after phrase 1 is ready. Its deadline is the start of phrase 1's last measure,
+  which gives it the read-in measure plus three measures from its request, more than v2's phrase 2
   gets.
 - **240 BPM is worked on last.** The Jam sweep and hand checks run at 60, 120 and 180 BPM; 240 is
   tried after them (C5.17).
@@ -3342,15 +3361,22 @@ restriction no longer meet it; "Jam again on this doodle" is no longer one of it
 
 ### C6.2 The method
 
+_Changed in v1.17:_ the home-note cues are flat bonuses off the penalty, not note weights (D455).
+
 - **Input: the quantized doodle**, after the stray-note filter. Lengths are in ticks, so the whole
   computation stays in integers.
 - **Score all 84 key and mode pairs** (12 keys × the 7 modes Ionian to Locrian; Major and Minor are
   scored as Ionian and Aeolian). Each note scores by its role in the candidate, weighted by its
   length: home note 0.200, fifth 0.165, third 0.145, each of the other four notes 0.1175, a note
-  outside the mode 0.004. Cues: the last note counts ×2 and the first ×1.5 when it is the
-  candidate's home note; a note starting on beat 1 or 3 counts ×1.5; lengths count between half a
-  beat and a beat and a half (clamped). These are starting values, stored as integer penalties in
-  thousandths, and checked at the owner's listening check.
+  outside the mode 0.004. A candidate's penalty is the sum of its notes' weighted penalties
+  (smaller is better). Note weights: a note's length counts between half a beat and a beat and a
+  half (clamped), and a note starting on beat 1 or 3 weighs ×1.5. **Home-note bonuses**, taken off
+  the candidate's total penalty and never applied to the note's weight: 693 thousandths (twice the
+  likelihood) when the last note is the candidate's home note, and 405 thousandths (1.5 times the
+  likelihood) when the first note is
+  ([research note](../../../docs/music/key-and-mode-estimation.md#scoring-all-84-pairs)). These
+  are starting values, stored as integer penalties in thousandths, and checked at the owner's
+  listening check.
 - **Equal chances for all seven modes beforehand, and no head start for the player's current
   selection.** "Nothing is suggested when the selection is among the kept candidates" (C6.3)
   already lets the player's choice win every close call. Locrian, which ties with Phrygian when the
@@ -3379,12 +3405,18 @@ restriction no longer meet it; "Jam again on this doodle" is no longer one of it
 
 ### C6.3 When nothing is suggested
 
+_Changed in v1.16:_ the checks are judged in a fixed order, "no fit" before the selection (D452).
+
+The checks run in this order; the first that holds gives the answer.
+
 - **Too little material**: fewer than 5 pitch classes, 6 notes, or 2 beats of sounding time after
   the filter. Nothing is shown about it: a short doodle is normal, not a failure.
-- **The selection is among the kept candidates**: the doodle fits the selection; nothing is shown.
 - **Under 80 % of the doodle's weighted length fits the winner**: the doodle uses notes the app's
   modes do not offer, such as harmonic minor or blue notes. The review then says so in one plain sentence, in
-  every review of that Jam, kept ones included, without naming a "wrong" note.
+  every review of that Jam, kept ones included, without naming a "wrong" note. This check reads the
+  doodle alone, so it comes before the selection's: a kept Jam's review, recomputed against Jam's
+  key and mode as they are now, says the same whatever the player has selected since.
+- **The selection is among the kept candidates**: the doodle fits the selection; nothing is shown.
 - **A Jam whose phrase 1 never came** has no review, so no suggestion.
 
 ### C6.4 Where and when it is shown

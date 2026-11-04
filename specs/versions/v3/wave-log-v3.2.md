@@ -1094,3 +1094,238 @@ Next: wave 5 in a fresh session, chunk 34 first (the change shares, D450). Open 
 v3.2 H2 step 3 and H3 (gate L3 stays open); H4/H5 after wave 6 (with O271's question at H4 step 3,
 and gate DR's recordings before H5). For wave 5's preflight: D445 (chunk 31) and D450 (chunk 34)
 rewordings; re-check M1/M2 (contract, CS) at chunk 21's sync.
+
+## Wave 5 (2026-11-03)
+
+Wave branch `v3.2-w5` from `main` a2ed40d5, worktree `/home/bastien/work/infinite_flow-v3.2-w5`.
+Chunks, in order (κ 1): 34 → 14 → 17 → 18 → 29 → 31. Every **Depends on** is merged (waves 0–4)
+or cleared (LD, DS).
+
+### Preflight
+
+`documentalist`, full preflight plus captures, 4e8e9f11 (no semantic index in the worktree, so it
+used grep over the atoms and the `@spec-link`s of the in-scope files).
+
+| Chunk | Verdict | Governing atoms |
+| --- | --- | --- |
+| 34 | PROCEED | `rule_rhythm_change_share` (DRAFT 0.3), `module_rhythm_change_draw` (REVIEW 0.2); no STABLE atom, CONTRACT or VISION states a share, so D450 changes no contract wording |
+| 14 | PROCEED | `req_key_and_mode_suggestion` + six suggestion rules (DRAFT); drift `module_named_stream_pseudorandomness` |
+| 17 | PROCEED | 15 DRAFT Jam rules; STABLE contract atoms already carrying the signed part M wording (`rule_midi_starting_note`, `rule_count_in_shown_on_screen`, `rule_silence_timeout_ends_session`, `rule_controller_loss_mid_session`, `rule_controller_reconnection_window`, `module_session_seed_plan`, whose interface gets its built names at the sync, M22) |
+| 18 | PROCEED | 7 DRAFT rules; STABLE `rule_session_generation_failure_ladder`, `rule_dropped_attempt_cancelled`, `rule_session_density_only_steps_down`, `rule_join_carry_in_limited`, `module_session_seed_plan`, `module_generation_worker_cancellation` |
+| 29 | PROCEED | none (measurement) |
+| 31 | PROCEED, sign-off pending | the Jam settings atoms; `module_saved_data_loader` (STABLE, contract) extends: gate CL |
+
+Captures (DRAFT 0.1 unless noted): `module_session_start_without_phrase_one` and `module_jam_capture`
+(chunk 17; the engine's way in that chunk 18 builds on; phrase 1's origin stays carry-in or
+standalone, a new origin needs a `documentalist` peek), `module_key_suggestion` (chunk 14; answer
+nothing / no fit / suggested), `module_jam_settings` and `module_doodle_controls` 0.2 → 0.3 (chunk
+31; the load hands Jam's records undecoded; D445's "as read" on
+`rule_doodle_controls_always_supported` waits for the sync as a chunk 31 revision).
+
+Plan corrections to `spec-writer`: plan v26, e1f8d47a (spec D452–D454, Part C v1.16). D452 C6.3's
+order (too little material, then no fit, then Jam's key among the kept candidates);
+`rule_suggestion_withheld` added to chunk 14's Revisions. D453 chunk 29 keeps the sweep double (an
+18 → 29 edge would be a three-chunk chain); the real-ladder adapter goes to chunk 33 (now depends
+on 18), and wave 5's gate re-runs M1 through the double. D454 the preflight's Files, drift-check
+and wording corrections for chunks 17, 18, 31, 34, and gate CL. Chunks 29 and 34 both add a
+subsection to `docs/generation-latency.md` (a shared record; the later one resolves at merge).
+
+### The owner's answers (2026-11-03)
+
+- Gate CL: the owner, verbatim: "i'll follow your recommendations", i.e. option (a): the loader's
+  wording as drafted only follows the signed M16–M18, so no contract bump. CL done; `documentalist`
+  records the confirmation in the change set.
+- Change set part U, U1 (`documentalist`, 8b87bc22): gate CL's confirmation recorded; CONTRACT stays
+  11.0.0; U1 is applied to `module_saved_data_loader` (0.6 → 0.7) at this wave's sync.
+
+### Chunks
+
+- 34 merged (baa803dd; afca4828). Shares 2^15 and 3 × 2^14 over 2^16; over 8,000 seed-plan seeds
+  48.85 % / 74.1 %; golden draws re-recorded (seeds 1000 and 0xffffffff now draw when tenser);
+  corpus guard 47/47 unchanged. M2 (`LOCK_SETTINGS=both npm run measure:lock`, reference machine,
+  2026-11-03 12:58–13:49 CET): 7,952 sessions per group, 0 census mismatches, replays 45/45, 30/30,
+  10/10; drawn 49.3–51.2 % normal, 75.5–78.7 % tenser; with all five kinds allowed and Tension
+  across phrases on (off) changed 33.5 % (30.2 %), forced bends 1.6 % (0.3 %); Gentle, Reel and
+  Bebop stay at 0 % (C7.3's known limit). Related tests 3,560 pass; static checks clean. Outside
+  Files: `session-engine-rhythm-lock.spec.ts` follows the shares. For `spec-writer` (batched):
+  chunk 16's Done when still says "tenser phrases drawing about twice as often". For the gate: M5's
+  table is at the earlier shares; the sync revises `rule_rhythm_change_share` and
+  `module_rhythm_change_draw`.
+- 14 stopped, then merged (940798a7; 12a74108). Its owner stopped on a contradiction:
+  `module_key_suggestion` and Part C ("the last note counts ×2 and the first ×1.5 when it is the
+  candidate's home note") weight the note, which raises the home candidate's summed −ln penalty and
+  inverts the cue; the research note's worked examples then fail. The research note
+  (`docs/music/key-and-mode-estimation.md`, "Final bonus") gives flat bonuses, −0.69 and −0.41.
+  Driver ruling under the owner's standing delegation of minor design calls: the likelihood reading,
+  as built. Spec D455 + Part C v1.17 + plan v27 (fc3d05c5; v27 also fixes chunk 16's "about twice
+  as often"), atoms `module_key_suggestion` 0.2, `rule_suggestion_candidates` 0.3 (b993f4c0).
+  Evidence: every worked example gives the note's answer; D452's order under all 108 Jam keys and
+  modes; 56-case golden list equal in Node and Chrome; transposition property over 200 doodles
+  (penalties and uncapped kept set exact; the three-cap's tie-break by home note doesn't transpose);
+  64 notes 48.9 µs median (Node 22.23.4, Ryzen 5 PRO 8640HS, 2026-11-03); 99 unit tests (re-run on
+  the wave branch after merge: 99/99); entry 290,355 B. lint:health: two new warnings (6 atom links
+  on `key-suggestion.ts` and its spec). For the sync: the built names into
+  `module_key_suggestion`'s interface; one sentence on `module_named_stream_pseudorandomness`;
+  `rule_suggestion_withheld` (D452). Lexicon entry stays "Planned" until chunk 23 shows it.
+- 17 paused after 17a (context; 0d69ac38), resumed by a fresh owner, merged (31a19198; e3239507).
+  Built: `createSessionEngine(deps, SessionStart | SessionStartWithoutPhraseOne)`, end causes
+  `no-note-played` / `no-phrase-one`; attempt seam `phrase-one-attempt` → `phrase-one-attempt-result`
+  (`fits` / `generation-failure` / `crash` / `not-fitting`); hand-over `{kind:'phrase-one', at,
+  attemptId, soundsAt}`; `SessionController.startWithoutPhraseOne` with handle `{timeline, dispatch,
+  end, recordDoodle}`; `createJamCapture({startAt, tempo})` (`note`, `advance`, `phraseOneReady`,
+  `end`, `phase`, `nextDecisionAt`; outputs `candidate-end`, `candidate-voided`, `doodle-ended`,
+  `phrase-one-shown`, `no-note-played`); `JamPhase` / `JamCaptureState` in `jam-phase.ts`;
+  `SessionHistory.recordDoodle` / `doodle()`. Done when all met (jam-capture 25 tests; related
+  2,589/2,589; session e2e 29/29 unchanged; 30 s / 29.9 s on the rig; one seed at Start). Entry
+  290,683 B, Jam's chunk 6,731 B. Risk for the report and v3.2 H7: barline decisions wait 38 ms, so
+  a MIDI note later than that (Bluetooth measured ~+80 ms batched on 2026-10-06; best-effort, D191)
+  could miss a decision. For the sync: built names into `module_jam_capture` and
+  `module_session_start_without_phrase_one`; `rule_raw_doodle_notes_are_played_notes` now linked;
+  drift-check the port's latency-compensated note times against
+  `rule_played_onset_latency_compensation`.
+- Mid-wave: 17a's owner found that the transport still starts phrase 1 at the count-in's end
+  (`phraseStartsAt(1)`, `queueBacking(1)`). `spec-writer`: spec D456, plan v28 (3d5bf82f), chunk 18
+  (18a) owns it; the `phrasesOf` throw is chunk 18's known limit, chunk 21 removes it.
+  `documentalist` revised the capture before chunk 18 (8d0342ba): `module_session_start_without_phrase_one`
+  0.2 (DRAFT), `module_session_transport_tempo_map` 0.2 (REVIEW kept).
+- 18 merged (5d1000dc 18a, 038fb5c4 18b; 639d0055). Done when all met on the fake clock (rig
+  `tests/unit/jam/jam-phrase-one-rig.ts`: real capture, ladder and engine): instant generator shown
+  at barline 2, sounds at 3 (60/120/180 BPM); rungs in order with the reserve cutover; every rung
+  failed → `no-phrase-one` count-in end; phrase 2 due at phrase 1's last measure; transport
+  `phraseStartsAt(1) = soundsAt` for waits 0–3 measures, throws before, refuses off-barline; lock and
+  block carried; Vary/Tension/Rising tempo never run; six seed labels pinned. Related tests
+  2,547 (18a) and 2,239 (18b) pass; corpus guard + audio + jam 1,039/1,039. Built:
+  `createJamPhraseOne(deps:{nextRequestId, seedOf, isBelowTabletLandscape}, jam:{settings, drift},
+  capture)` (`note`, `session`, `advance`, `nextDecisionAt`; outputs `session-event`, `capture`,
+  `suggestion`, `no-phrase-one`); `jam-phrase-one-attempts.ts` (`JamPhraseOneRung`,
+  `doodleAttempts`, `jamAttempt`, `doodleSuggestion`); `jamPhraseOneSeed`,
+  `JAM_PHRASE_ONE_ATTEMPTS = 6`; `jamPhraseOneDeadline`, `JAM_PHRASE_ONE_DEADLINE_MEASURES = 3`;
+  `TransportStartOptions.phraseOneStart`, `AudioTransport.startPhraseOneAt`; history
+  `recordSuggestion` / `suggestion()`. Interpretations: (1) new event `cancel-phrase-one-attempt`
+  → sync writes it into `module_session_start_without_phrase_one`; (2) phrase 2 requested at the
+  hand-over (the barline after ready, after an end by length or an extended wait), where Part C
+  says "once phrase 1 is ready"; (3) every rung failed early → ends at the deadline ("by the
+  deadline", v2's repeat-at-deadline); (4) the ladder owns the capture. Driver accepted (2) and (3)
+  (minor, the captured way in implies them) → `spec-writer`. Risks: `audio-transport.ts` and
+  `workspace-session-without-phrase-one.ts` at the 10-atom health limit; `session-history.ts` near
+  the file-size limit.
+- Mid-wave, after chunk 18: `spec-writer` recorded the driver's acceptance of chunk 18's
+  interpretations (2) and (3) as spec D457 (2fa8f35c; Part C v1.18, plan v29): phrase 2 is
+  requested at phrase 1's hand-over; a Jam whose rungs all fail ends at the deadline. `ux-writer`
+  aligned the Jam flow (ux D447, 67ddbcd8).
+- 29 merged (0d352486; f1ee94d2). Done when all met. M1 through the three-rung double (D453, no
+  import from chunk 18's ladder), reference machine (Ryzen 5 PRO 8640HS, Node 22.23.4), lock off
+  16:17–16:43, lock on 18:26–19:16, baseline 19:16–19:19, one process each. 568 cases × 13 doodles
+  = 7,384 Jams × 8 phrases per configuration (60/120/180 BPM, warm/cold, lock off / all changes /
+  strict). Phrase 1: rung 1 84.4 %, rung 2 15.6 % (last note gives no join), rung 3 0 %, never
+  came / extended wait / cutover 0. Cold at 180 BPM: every deadline met, slowest cold phrase-1
+  attempt 0.899 s vs 2.93 s. Standalone phrases 2–8 slowest 0.116 s (none over 1.075 s). Orderings
+  cost 7–11 % of rung 1's warm time, 1–4 % overall. Lock census: all changes 65.4 % kept, 33.9 %
+  changed, 0.8 % forced bends; strict 98.9 % kept. 0 repeats, 0 shortfalls, 420/420 replays
+  (rung 3 probed, 5/5). ISS-015: phrase 2 lost its join in 93/7,384 Jams lock off (89 lock on),
+  all seven issue cases among them, recorded not tuned around. Baseline (`JAM_LADDER=baseline`)
+  reproduces chunk 3. No double-vs-ladder difference, no budget overrun, no cold miss: nothing
+  routed. Wave gate: re-run `JAM_MODE=jam JAM_LOCK=off npm run measure:jam`, then `JAM_LOCK=on`, as
+  two processes (~25 and ~50 min, ~2 GB RSS), machine kept awake (a suspend at 16:49 spoiled the
+  first lock-on run; discarded, kept in scratchpad `c29-contaminated/`). Risk: the cutover path and
+  its worker-restart charge have no measured instance; chunk 33 measures the real ladder.
+- 31 paused after 31a (488fa8af) with the readings' model in a WIP (ba7ed1d7), resumed by a fresh
+  owner; merged (31b 10931dcc; 0210a6da). Done when all met: Jam's first values (session tempo 200
+  → 180), nine `jam.*` records, each survives a reload, a corrupt one loads its first value, session
+  mode's records and controls untouched (unit + e2e `jam-settings.spec.ts`, added to `test:e2e`);
+  readings and Rhythmic variety's four wordings (`DoodleReadings.spec.ts`); the step as read with
+  chunk 28's two tests retired as the Done when says; an instrument changed in Jam rewrites session
+  mode's phrase and queue on return, other Jam changes touch nothing; Delete everything resets
+  Jam's settings; landscape phone stacks the three groups. Related 1,643 tests pass; e2e 105/106 —
+  the failure, `rhythm-lock-controls.spec.ts:331` ('the live view never marks a rhythm change…',
+  phrases 2–3 come back `rhythm_change`), fails identically at the wave base 717c8618, so it is
+  not chunk 31's: traced at the wave gate. Sweep double's readings unchanged for all 39 pairs.
+  Built: `src/jam/jam-settings.ts` (`JamSettings`, `JAM_TEMPO_VALUES`, `jamFirstValues`,
+  `decodeJamSettings`, `jamSettingChanges`, `jamFigureLevels`, `jamGenerationControls`,
+  `createJamSettings`); `JAM_SETTING_FIELDS` / `JAM_SETTING_KEYS`, `JamSettingKey`, settings data
+  version 1, no upgrade step; loader `jamSettingRecords` → `SavedDataLoad.jamSettingsRecords`
+  (undecoded) → `useJamSettings`; `readDoodleControls(doodle, windows)`,
+  `supportedRhythmicVariety(setting)` as read, `DoodleVarietyReading.raised`, `doodleAttempts(doodle,
+  jam)`; `holdInstrumentSwitches(held)` (`InstrumentSwitchHold`); `JamControls.vue`,
+  `DoodleReadings.vue`. Entry 282,047 B, Jam's chunk 16,966 B. To `ux-writer`: the readings use
+  each control's option labels ("Eighth notes") while the narrow form reads "Eighth (Sixteenth on
+  larger screens)"; the intent's example says "Note density: Eighth".
+
+### Wave gate (2026-11-03)
+
+On v3.2-w5 (head 9e03760d), reference machine (AMD Ryzen 5 PRO 8640HS, 12 threads, 11 GiB, Node
+22.23.4), idle, no `atd audit`, one heavy command at a time, no suspend (`coding-executor`).
+
+- `npm run quality` green after three fixes, each traced to its chunk: 64219d43 (chunk 29, the Jam
+  sweep's loop extracted under the nesting limit); fdd3be07 (chunk 18, its phrase 1 spec split by
+  topic under the 10-atom limit; 21 tests, titles and links unchanged); 5d8d865f (chunk 34,
+  `rhythm-lock-controls.spec.ts` › 'the live view never marks a rhythm change…': at D450's 1-in-2
+  share session seed 8 draws on phrases 2–4, the test assumed 4 alone; seed 74 draws on 4 alone;
+  title and assertions unchanged; passes at 8b87bc22, fails from afca4828; no behaviour bug).
+  Unit 9,015; e2e 623 (+1 skipped) and pregeneration 623; a11y 66; notation 107; `lint:health` 0
+  errors; `atd:lint`, `atd:check` pass.
+- `npm run test:sweep`: 91/91 (20:13–20:15 CET).
+- M1 re-run through chunk 29's double (lock off 20:15–20:40, on 20:40–21:32): identical to chunk
+  29 in all 18 configurations (rung 1 84.4 %, rung 2 15.6 %, rung 3 0 %, never came 0; 0 repeats,
+  0 shortfalls, none over the reserve, 420/420 replays; ISS-015 93 / 89); cold at 180 BPM all met,
+  slowest cold phrase-1 attempt 0.805 s; timing noise only.
+- M5 at D450's shares (`JAM_MODE=session JAM_LOCK=both npm run measure:jam`, 21:32–21:35, one
+  process, no out-of-memory): lock off matches v3.1 (standalone 42/42/603, 0 repeats); lock on
+  every standalone within the reserve (slowest 0.519 s at 240 BPM); all changes 33.1 % changed,
+  0.7 % forced bends, drew 50.5–50.8 % normal, 76.6–76.8 % tenser; strict 1.2–1.3 % bends;
+  orderings 2.4 % / 1.0 % (all changes), 0.4–0.5 % (strict). Acceptance met. Table rewritten in
+  `docs/generation-latency.md` (9e03760d).
+- Bundle (`verify:boundaries` passes; against a2ed40d5 rebuilt on this machine): entry 282,047 B
+  (−8,308 B; recorded wave 4 290,302); first-load JS 344,080 B in 22 files (+5,841 B; new shared
+  chunks `kept-session-summary`, `steering-block`, `generation-intent`, … moved out of the entry);
+  Jam's chunk 16,966 B (+10,235 B); worker 154,170 B, unchanged (budget 174,080 B).
+- No dependency changed (package.json: the `test:e2e` list only): no `security-advisor` check.
+
+### Wave sync (2026-11-03)
+
+- `documentalist` (310d04df): 33 atoms revised, no status change, CONTRACT stays 11.0.0, no STABLE
+  BUSINESS text changed. Every merged chunk's Revisions applied: D450's shares
+  (`rule_rhythm_change_share` 0.4, `module_rhythm_change_draw` 0.3, constants 32,768 / 49,152);
+  D452 (`rule_suggestion_withheld` 0.3); `module_key_suggestion` 0.3 (built names, D455 already
+  in); `module_named_stream_pseudorandomness` 0.6; chunk 17's eight session rules and
+  `module_jam_capture` 0.2, `module_session_start_without_phrase_one` 0.3 (with
+  `cancel-phrase-one-attempt`, D457); chunk 18's four rules, `module_session_seed_plan` 0.4 (M22
+  names, interface only), `module_session_transport_tempo_map` 0.3; chunk 31's
+  `rule_doodle_controls_always_supported` 0.2 (D445), `module_doodle_controls` 0.4,
+  `module_jam_settings` 0.2; gate CL's U1 on `module_saved_data_loader` 0.6 → 0.7. The contract
+  atoms of gate CS checked against the code: met. `rule_played_onset_latency_compensation`:
+  aligned. One tag added (`rule_jam_runs_as_session_from_phrase_one`). Change set: E/F/G status
+  notes, part U applied, new part V. No dependency changed: no `security-advisor`.
+- Drift for the owner: `module_saved_data_loader` (STABLE, contract), "Saves": "called from the
+  player's change handlers only", but `createJamSettings` saves Jam's first values once when Jam
+  mode first shows with no readable record (as `rule_jam_settings_first_values` and
+  `flows/saved-data` ask).
+- Status candidates (DRAFT → REVIEW) for the owner: `module_key_suggestion`,
+  `module_doodle_controls`, `module_jam_settings`.
+- Out of scope, noted: change set part G still calls `module_ranked_candidate_ordering`'s wording
+  open; it was reworded at wave 2's preflight (80ebf45b).
+- `ux-writer`, chunk 31's question: ux D448 (44b62f5a), the readings keep the option labels at
+  every width, so the narrow Sixteenth reads "Eighth notes (Sixteenth on larger screens)"; no atom
+  change. Applied by `coding-executor` (790bd3a4; related 122 tests, typecheck, lint pass); the
+  change set's Prettier formatting and a CSS comment fixed by the driver (0935c57d).
+- `doc-ids compare main v3.2-w5`: 0 collisions.
+
+### Report and merge (2026-11-03/04)
+
+- Reported to the owner 2026-11-03: chunks, gate, bundle, sync, risks (barline decisions wait
+  38 ms against Bluetooth's ~80 ms, v3.2 H7; the cutover path unmeasured until chunk 33; ISS-015
+  about 1 Jam in 80; a fresh Jam unstartable until chunk 21; `audio-transport.ts` and
+  `workspace-session-without-phrase-one.ts` at the 10-atom limit, `session-history.ts` near the
+  size limit).
+- The owner, verbatim, 2026-11-04: "go with your recomendations. merge, cleanup, push, i'll clear
+  the way for next wave". So: (a) the loader's wording names Jam's first-values save, code
+  unchanged; the three status candidates to REVIEW; merge, clean up, push.
+- `documentalist` (c74c1e58): `module_saved_data_loader` 0.7 → 0.8 (LOGIC "Saves" and EXPECTATION
+  name the one first-values save); CONTRACT 11.0.0 → 12.0.0 (MAJOR: a listed guarantee, "only a
+  change of the player's is saved", is weakened; spec D422), applied with `atd update --force` on
+  the relayed sign-off; the contract's new sentence is in change set V5, for the owner to read;
+  `module_key_suggestion` 0.3, `module_doodle_controls` 0.4, `module_jam_settings` 0.2 to REVIEW;
+  part G's stale note on `module_ranked_candidate_ordering` fixed.
+- Open after the wave: v3.2 H2 step 3 and H3 (gate L3, the owner); DR recordings (the owner); the
+  hand checks v3.2 H4–H6 before any BUSINESS atom of the Jam goes to REVIEW. Next: wave 6 (chunk
+  21 wires the fresh Jam), in a fresh session.

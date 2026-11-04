@@ -58,6 +58,43 @@ describe('click routes', () => {
   })
 })
 
+// @test-link [[rule_jam_click_runs_until_phrase_one]]
+describe('the click forced on until phrase 1 sounds', () => {
+  // @test-link [[rule_jam_click_runs_until_phrase_one]]
+  it('sends a click-track click around the click on/off gate while forced with no end yet', () => {
+    const { fake, output, clickEnable, clickVolume } = setUp()
+    output.setGain('click-enable', 0, 0)
+    const bus = output.openSessionBus()
+    bus.forceClickUntil(Number.POSITIVE_INFINITY)
+    bus.scheduleClick({ at: 30, accent: false, route: 'click' })
+
+    const path = pathToDestination(fake.oscillators[0]!, fake.destination)
+    expect(path.slice(3)).toEqual([clickVolume, fake.destination])
+    expect(path).not.toContain(clickEnable)
+  })
+
+  // @test-link [[rule_jam_click_runs_until_phrase_one]]
+  // @test-link [[rule_click_track]]
+  it('sends a click before the forced end around the gate, and one at or after it through it', () => {
+    const { fake, output, clickEnable } = setUp()
+    const bus = output.openSessionBus()
+    bus.forceClickUntil(Number.POSITIVE_INFINITY)
+    bus.forceClickUntil(8)
+    bus.scheduleClick({ at: 7.5, accent: false, route: 'click' })
+    bus.scheduleClick({ at: 8, accent: true, route: 'click' })
+
+    expect(pathToDestination(fake.oscillators[0]!, fake.destination)).not.toContain(clickEnable)
+    expect(pathToDestination(fake.oscillators[1]!, fake.destination)).toContain(clickEnable)
+  })
+
+  // @test-link [[rule_click_track]]
+  it('forces nothing on a bus never asked to', () => {
+    const { fake, output, clickEnable } = setUp()
+    output.openSessionBus().scheduleClick({ at: 2, accent: false, route: 'click' })
+    expect(pathToDestination(fake.oscillators[0]!, fake.destination)).toContain(clickEnable)
+  })
+})
+
 // @test-link [[rule_click_track]]
 describe('the synthesized click', () => {
   // @test-link [[rule_click_track]]

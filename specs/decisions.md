@@ -1061,3 +1061,56 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   174,080 B leaves about 19.6 KiB, so the limit needs no revisit before v3.2 ships. Now in:
   [Part C §C10.9](versions/v3/master-spec.md#c109-loading-jams-code-on-demand),
   [build plan v3.2, M4](versions/v3/build-plan-v3.2.md#m4--the-first-load-bundle).
+
+- **D452 (2026-11-03): the suggestion judges "no fit" before Jam's key and mode.** `spec-writer`'s
+  minor call, from wave 5's preflight: C6.3 gave no order. Too little material, then no fit, then
+  Jam's key and mode among the kept candidates; "no fit" reads the doodle alone, so a kept Jam's
+  recomputed review says it whatever key and mode the player has selected since, which "in every
+  review of that Jam" needs. Now in: [Part C §C6.3](versions/v3/master-spec.md#c63-when-nothing-is-suggested),
+  [build plan v3.2, chunk 14](versions/v3/build-plan-v3.2.md#chunk-14--the-key-and-mode-suggestion).
+
+- **D453 (2026-11-03): chunk 29 measures through its double; chunk 33 plugs in the real ladder.**
+  `spec-writer`'s minor call. Chunk 18 runs first in wave 5, but an 18 → 29 edge would make a
+  chain of three (17 → 18 → 29) behind a ladder interface no capture fixes, which the in-wave edge
+  rule forbids, and the wave is frozen. The generator under the double is real, so the carry-in
+  fuel is still confirmed in wave 5; the plan named no chunk for the real ladder's sweep adapter.
+  Now in: [build plan v3.2, chunk 29](versions/v3/build-plan-v3.2.md#chunk-29--the-jam-sweep-first-run),
+  [chunk 33 and M1](versions/v3/build-plan-v3.2.md#m1--the-jam-sweep).
+
+- **D454 (2026-11-03): wave 5's preflight corrections to the v3.2 plan, and gate CL.**
+  `documentalist`'s preflight (4e8e9f11), applied by `spec-writer` after checking each against
+  Part C and the code: chunks 34, 14, 17, 18 and 31's Files, atoms, drift checks and wording; chunk
+  17 reuses `jamHomeNote`; Jam's settings records reach Jam's code undecoded, extending
+  `module_saved_data_loader` (STABLE, on the contract), so new gate CL blocks chunk 31's merge. No
+  behaviour. Now in: [build plan v3.2, v26](versions/v3/build-plan-v3.2.md#gates).
+
+- **D455 (2026-11-03): C6's home-note cues are flat bonuses off the penalty, not note weights.**
+  The driver's ruling under the owner's delegation of minor design calls. As the research note
+  defines them, the candidate's penalty drops by 693 thousandths (×2 likelihood) when the last note
+  is its home note and by 405 (×1.5) when the first is; the beat-1/3 ×1.5 stays a note weight.
+  Rejected: reading "counts ×2 / ×1.5" as a weight on the note. Penalties are summed −ln shares, so
+  that raises the home-note candidate's penalty and inverts the cue; the research note's examples
+  then fail (G Dorian / G Mixolydian for D Dorian / D Aeolian, among others), while chunk 14's
+  build reproduces all of them. Now in: [Part C §C6.2](versions/v3/master-spec.md#c62-the-method),
+  [build plan v3.2, chunk 14](versions/v3/build-plan-v3.2.md#chunk-14--the-key-and-mode-suggestion).
+
+- **D456 (2026-11-03): chunk 18 makes the transport start phrase 1 at its handed-over time.**
+  `spec-writer`'s minor call on a gap chunk 17's owner found after 17a (0d69ac38): the transport
+  still puts phrase 1 at the count-in's end, and phrase 1's backing, the MIDI side's silence arming
+  and acknowledgement all read that start. Chunk 18 computes `soundsAt`, hands phrase 1 over and
+  must sound it one measure after showing it, and already follows chunk 17 in wave 5, so no new
+  edge. Rejected: chunk 21, which would leave wave 5's ladder sounding phrase 1 at the wrong time.
+  The throw in `phrasesOf` on a hand-over through the workspace stays until chunk 21. Now in:
+  [build plan v3.2, chunk 18](versions/v3/build-plan-v3.2.md#chunk-18--jam-engine-part-2-from-the-doodle-to-phrase-1),
+  [chunk 21](versions/v3/build-plan-v3.2.md#chunk-21--a-fresh-jam-on-screen).
+
+- **D457 (2026-11-03): phrase 2 is requested at phrase 1's hand-over; a Jam all of whose rungs fail ends at the deadline.**
+  The driver's ruling under the owner's delegation of minor design calls, on chunk 18's two
+  readings (639d0055). The captured way in (`module_session_start_without_phrase_one`) hands
+  phrase 1 over with the time it sounds, at the barline where it is shown, and the session runs
+  from there; so phrase 2 is requested then, still with the read-in measure plus three measures to
+  its unchanged deadline. Every rung failing early still ends the Jam at the deadline, as "by the
+  deadline" and v2's repeat at the deadline read. Rejected: requesting phrase 2 inside Jam's code
+  before the hand-over. Now in: [Part C §C5.8](versions/v3/master-spec.md#c58-the-time-budget),
+  [§C5.7](versions/v3/master-spec.md#c57-when-phrase-1-is-late-the-extended-wait-and-the-fallback),
+  [build plan v3.2, chunk 18](versions/v3/build-plan-v3.2.md#chunk-18--jam-engine-part-2-from-the-doodle-to-phrase-1).

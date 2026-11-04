@@ -1,7 +1,7 @@
 ---
 id: rule_stop_ends_session
 status: REVIEW
-version: 0.1
+version: 0.2
 priority: 1
 tags: [v2, release-v2.0, session, session-end, changes-in-v3.2]
 type: RULE
@@ -26,11 +26,11 @@ dependents:
 Define how a session ends, so that every other ending can behave exactly like it.
 
 ## THE RULE / LOGIC
-Stop ends the session: the backing and the click fade out over about 100 ms, and the review of that session opens; if the session ends during the count-in, the app goes back to Idle instead, with no review. Stop stays reachable throughout a session, count-in included. A hidden browser tab, and a staff that can no longer be shown, end a session exactly like Stop.
+Stop ends the session: the backing and the click fade out over about 100 ms, and the review of that session opens; if the session ends during the count-in, or a Jam ends before its phrase 1 sounds, the app goes back to Idle instead, with no review. Stop stays reachable throughout a session, count-in included, and in a Jam from its count-in until phrase 1 sounds (the capture, the generation measure, an extended wait and the read-in measure). A hidden browser tab, and a staff that can no longer be shown, end a session exactly like Stop.
 
 ## TECHNICAL INTERFACE
 The session view always offers Stop.
 
 ## EXPECTATION
 - Stop, at any point after phrase 1 has started sounding, fades the backing and click out over about 100 ms and opens the review of that session.
-- Stop during the count-in returns to Idle with no review.
+- Stop during the count-in, or in a Jam before its phrase 1 sounds, returns to Idle with no review.

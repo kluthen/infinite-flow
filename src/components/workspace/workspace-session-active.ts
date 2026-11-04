@@ -12,7 +12,7 @@ import type { WorkspaceSessionResult } from '@/composables/workspace-session-res
 import type { AudioTimeAgenda } from '@/session/session-agenda'
 import type { SessionHistory } from '@/session/session-history'
 import type { SessionRunner } from '@/session/session-runner'
-import type { AudioTime, SessionOutput } from '@/session/session-types'
+import type { AudioTime, PhraseOneEvent, SessionOutput } from '@/session/session-types'
 import type { AdaptiveTempoFlag } from './workspace-adaptive-tempo'
 import type { SessionDisplay } from './workspace-session-display'
 import type { SessionEndWatch } from './workspace-session-end-watchers'
@@ -43,7 +43,8 @@ export type EndedOutput = Extract<SessionOutput, { kind: 'ended' }>
 export interface ActiveSession {
   readonly timeline: TransportTimeline
   readonly startingTempo: number
-  readonly phraseOne: WorkspaceSessionResult
+  /** The Idle phrase it started from; null for a session started without phrase 1. */
+  readonly phraseOne: WorkspaceSessionResult | null
   readonly history: SessionHistory
   readonly agenda: AudioTimeAgenda
   runner: SessionRunner | null
@@ -135,8 +136,16 @@ export function phrasesOf(session: ActiveSession): SessionPhrases {
   return session.phrases
 }
 
-/** Intent: send one transport event at `at` (raised to the floor) to the session's runner. */
+/**
+ * Intent: send one event at `at` (raised to the floor) to the session's runner: a transport event,
+ * or a phrase 1 event of a session started without phrase 1.
+ */
 // @spec-link [[service_session_controller]]
-export function dispatchAt(session: ActiveSession, at: AudioTime, event: UntimedEvent): void {
+// @spec-link [[module_session_start_without_phrase_one]]
+export function dispatchAt(
+  session: ActiveSession,
+  at: AudioTime,
+  event: UntimedEvent | UntimedEvent<PhraseOneEvent>,
+): void {
   runnerOf(session).dispatch({ ...event, at: engineTime(session, at) })
 }

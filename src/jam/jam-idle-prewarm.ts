@@ -1,7 +1,7 @@
 /**
  * Jam's Idle prewarm: at Jam mode's Idle the generation worker is warmed for the rhythm domain of
  * the controls Jam last took from a doodle, so a Jam's phrase 1 does not wait for it. No doodle
- * exists yet (chunk 28), so it always warms the first-visit rhythm values with Jam's tension. It
+ * is kept yet, so it always warms the first-visit rhythm values with Jam's own tension. It
  * posts through the same prewarm port and policy as session mode (none while the policy is off),
  * under the same fixed seed and request id; the worker's memo keeps every domain it builds, so
  * this costs session mode nothing. Nothing else is generated or prepared at Jam mode's Idle.
@@ -13,19 +13,12 @@ import {
   FIRST_VISIT_RHYTHM_VALUES,
   type PostPrewarm,
 } from '@/composables/generation-session-prewarm'
-import type { GenerationControls, TensionArc } from '@/domain/controls/generation-controls'
+import type { GenerationControls } from '@/domain/controls/generation-controls'
 import type { FigureLevels } from '@/domain/figures/figure-levels'
 import { MY_INSTRUMENT_ID } from '@/domain/profile/instrument-profiles'
 import type { MyInstrument } from '@/domain/profile/my-instrument'
 
-/**
- * Jam's tension, transitional: the first value of Jam's Tension (`Lift`), used until Jam's own
- * settings arrive. Replaced by Jam's settings in chunk 31.
- */
-// @spec-link [[module_generation_prewarm]]
-export const JAM_TRANSITIONAL_TENSION: TensionArc = 'Lift'
-
-/** What one Jam Idle prewarm reads: session mode's current controls, figure levels and instrument. */
+/** What one Jam Idle prewarm reads: Jam's controls (its tension among them), levels and instrument. */
 // @spec-link [[module_generation_prewarm]]
 export interface JamIdlePrewarmInputs {
   readonly controls: GenerationControls
@@ -49,7 +42,7 @@ export function createJamIdlePrewarm(post: PostPrewarm): JamIdlePrewarm {
   return ({ controls, figureLevels, myInstrument }) => {
     const mine = controls.instrumentProfileId === MY_INSTRUMENT_ID ? myInstrument : null
     trigger(
-      doodlePrewarmControls(controls, FIRST_VISIT_RHYTHM_VALUES, JAM_TRANSITIONAL_TENSION),
+      doodlePrewarmControls(controls, FIRST_VISIT_RHYTHM_VALUES, controls.tension),
       figureLevels,
       mine?.profile,
     )

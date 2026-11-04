@@ -2,7 +2,7 @@
 id: req_rolling_practice_session
 status: REVIEW
 layer: BUSINESS
-version: 0.6
+version: 0.7
 tags: [v2, release-v2.0, session, changes-in-v3.2]
 parents:
   - [[req_four_measure_phrase]]
@@ -56,6 +56,7 @@ Let the player practise through a continuous session in which the app keeps gene
 ## THE RULE / LOGIC
 - A session is an ordered sequence of four-measure 4/4 phrases. The four-measure phrase stays the unit of generation, and the generated timeline is never widened to span several phrases. Every phrase of a session is a complete phrase that obeys every rule a single phrase obeys, with one exception: a phrase generated with carry-in (the small handoff from the phrase before it) may end owing a leap recovery or a tense note's resolution, for the next phrase to settle.
 - A session starts from Idle (the phrase workspace outside any session and outside the review), then runs at the chosen tempo, the app looking one phrase ahead so the next phrase is ready before it is needed, until the session ends.
+- A session may be a Jam, started in Jam mode (req_jam): begun with a doodle the player plays after the count-in, from which its phrase 1 is written, or on the doodle Jam mode keeps, from the phrase 1 written from it at Idle. From phrase 1 on, a Jam runs as any session does.
 - During a session the app plays a simple backing track under the phrases, can read one MIDI controller to quietly acknowledge the notes the player gets right, and never asks the player to request the next phrase.
 - When a session that sounded at least one phrase ends, the review of that session opens, and a fresh phrase is generated for the next session to start on. From the review the player can export the session; to start again, the player leaves the review and starts from Idle.
 - A session exists only in the browser, for one local player. A session still running when the page closes or reloads, or when the player leaves it for another address, which counts as closing it, is not saved: it is lost on a close or reload, and when the browser later brings the page back alive from its back-forward cache, its review stays in memory only and says it is not saved. A page brought back alive saves the sessions played after its return. From v3.0, a session that ended with its review is kept on the device, as the most recent session or a pinned one, and its review can be opened again after a reload; one whose save failed, or that ended while saving was off, stays in memory only and is lost on reload.
@@ -68,3 +69,4 @@ Idle offers a way to start a session (a Start click, or the starting note on a c
 - Every phrase a session shows is a complete four-measure 4/4 phrase that obeys every single-phrase rule, except that a phrase generated with carry-in may end owing a leap recovery or a tense note's resolution.
 - When a session that sounded at least one phrase ends, its review opens; the next session starts from Idle once the player has left the review.
 - A session cut short by closing, reloading or leaving the page is never saved, even when the page is brought back; a session played after the page is brought back is saved; a saved session opens again in its review after a reload.
+- A Jam, begun with a doodle or on the kept doodle, runs from its phrase 1 on as any session does.

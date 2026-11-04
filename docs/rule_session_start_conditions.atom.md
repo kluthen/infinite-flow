@@ -7,7 +7,7 @@ priority: 1
 human_name: When a Session Can Start
 parents:
   - [[req_rolling_practice_session]]
-version: 0.5
+version: 0.6
 tags: [v2, release-v2.0, session, session-start, changes-in-v3.2]
 dependents:
   - [[rule_jam_start_conditions]]
@@ -33,12 +33,14 @@ While the last session's review shows, no session starts at all: neither a Start
 4. the rhythm settings are a combination that allows generation, judged on the note density a phrase would be generated with (below the tablet-landscape layout's width, a chosen Sixteenth counts as Eighth);
 5. the staff is shown: not while the rotate-device notice replaces it (a portrait-shaped view below the desktop layout's width), and not while phrase 1 cannot be drawn at the staff's minimum readable size in the layout a session would hold, within the window's width and, below the tablet-landscape layout's width, its height too, in which case the "staff needs more room" notice shows instead.
 
+In Jam mode, a Jam that begins with a doodle not yet played starts with no phrase on screen: the two conditions that need a phrase (1 and 2) do not apply to it, and one more does, a controller attached (rule_jam_start_conditions); Jam's own settings that the generator does not support still block its start, as condition 4 does. A Jam on a kept doodle starts from the phrase 1 on screen, under the five conditions.
+
 While any of these does not hold, neither a Start click nor any MIDI note starts a session, and no starting note is named. Once they all hold again (a successful regeneration, the new phrase on screen, a view that shows the staff again), starting works as usual. How an unavailable start looks belongs to the interface design.
 
 The stale-phrase prompt comes after these conditions, never among them. When every condition holds and the phrase on screen is stale, made under settings that differ from the current ones in what the generation reads, a Start click or the starting note does not start the session at once: the prompt asks first whether to make a new phrase or use this one, and only Use it starts the session, every condition checked again at that moment. The prompt is not a start condition and never replaces one: while a condition does not hold, a Start click or a MIDI note starts nothing and opens no prompt, as above. When phrase 1 is not stale, starting works as before and nothing is asked.
 
 ## TECHNICAL INTERFACE
-While the review shows, neither the Start action nor any MIDI note starts a session. At Idle, the Start action and the MIDI starting note are available only while all five conditions hold. With all five holding and phrase 1 stale, they open the stale-phrase prompt instead of starting; the prompt is no sixth condition.
+While the review shows, neither the Start action nor any MIDI note starts a session. At Idle, the Start action and the MIDI starting note are available only while all five conditions hold; for a Jam begun with a doodle not yet played, while every condition but the two needing a phrase holds and a controller is attached. With all five holding and phrase 1 stale, they open the stale-phrase prompt instead of starting; the prompt is no sixth condition.
 
 ## EXPECTATION
 - While the review shows, no session starts, by Start click or by any MIDI note, the starting note included, and no starting note is named.
@@ -46,3 +48,4 @@ While the review shows, neither the Start action nor any MIDI note starts a sess
 - A background pre-generation running at Idle never blocks or delays a start.
 - Once the player has left the review and none of these holds, a session starts as usual, after the stale-phrase prompt when phrase 1 is stale.
 - A start blocked by any of these conditions opens no stale-phrase prompt. With every condition holding and phrase 1 stale, a Start click or the starting note opens the prompt and starts nothing; Use it starts the session only if every condition still holds then.
+- A Jam begun with a doodle not yet played starts with no phrase on screen, needs a controller attached, and is still blocked by Jam settings the generator does not support.

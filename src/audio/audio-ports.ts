@@ -94,6 +94,13 @@ export interface SessionBus {
   readonly scheduleBackingNote: (note: ScheduledBackingNote) => void
   /** Fade this session's bus out, from `at`, to silence over `durationSeconds`. */
   readonly fadeOut: (at: AudioTime, durationSeconds: number) => void
+  /**
+   * Force the click on until `until`, the count-in's bypass of the click on/off gate extended: a
+   * click-track click scheduled from now on at a time before `until` goes around the gate, as a
+   * count-in click does. `Number.POSITIVE_INFINITY` forces it with no end yet; a later call sets
+   * the end. A bus never asked forces nothing.
+   */
+  readonly forceClickUntil: (until: AudioTime) => void
 }
 
 /**

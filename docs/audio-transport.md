@@ -105,8 +105,10 @@ The window size is still "proposed" in the master spec's
 - **The count-in's own route.** Count-in clicks go by a route that bypasses the click on/off gain
   but goes through the click volume gain. The count-in therefore sounds with the click off,
   including when the click is turned off during it, and always at the current click volume.
-- **`countInEndsAt`.** `start` returns `{ startAt, countInEndsAt }`. `countInEndsAt` is when phrase
-  1 starts sounding: the moment of the session engine's `count-in-over`.
+- **`countInEndsAt`.** `start` returns `{ startAt, countInEndsAt }`. In a session started with
+  phrase 1, `countInEndsAt` is when phrase 1 starts sounding: the moment of the session engine's
+  `count-in-over`. In a session started without phrase 1, phrase 1 starts at the barline handed
+  over later (see [Phrase 1's start, handed over](#phrase-1s-start-handed-over)).
 - **The accented count-in beat 1 is an inference.** The rules say the count-in clicks and that the
   click accents beat 1; they do not say whether the count-in's first beat is accented. It is,
   because the count-in is one measure of that same click.
@@ -167,8 +169,11 @@ arithmetic on audio time and reads no clock.
 - **The click's own grid.** A backing note's start and end are computed by the click track's own
   `beatAt`, the same multiplication from the session's start. A backing note on beat `k`
   therefore falls at exactly the time of the click on beat `k`, not merely close to it.
-- **Phrases back to back.** Phrase 1 starts when the count-in ends, and each next phrase four
-  measures (16 beats) later: `phraseStartsAt` gives that time. A note that doesn't start and end
+- **Phrases back to back.** Phrase 1 starts on its first beat, and each next phrase four measures
+  (16 beats) later: `phraseStartsAt` gives that time. Phrase 1's first beat is the count-in's end
+  by default; `phraseFirstBeat`, `phraseStartsAt` and `scheduleBacking` take another one as an
+  optional trailing `phraseOneBeat`, which must be a barline at or after the count-in's end (a
+  whole beat, a multiple of four, at least the count-in's four beats), or they throw. A note that doesn't start and end
   on a whole beat throws rather than falling between two clicks; the renderer never makes one.
 - **One window at a time.** `backingNotesBetween(queue, from, to)` hands the scheduler the queued
   notes with `from <= at < to`. The window is half-open like the click's, so no note is planned
@@ -186,12 +191,42 @@ arithmetic on audio time and reads no clock.
   planning has already passed the phrase's start (queued too late).
 - **A phrase never queued stays silent.** The transport can't tell a phrase is missing until the
   next `queueBacking` call, which then throws: out of order, or too late.
-- **`phraseStartsAt(phraseNumber)`** gives when the running session's phrase starts sounding: the
-  count-in's end plus the phrases before it, each at its own tempo, so it is known up to the phrase
-  after the last queued. It throws when no session is running, and for a later phrase.
-- **Only after the count-in, until stop.** Phrase 1 starts when the count-in ends, so the count-in
-  has no backing. The backing does not listen to the player: it keeps playing through their
+- **`phraseStartsAt(phraseNumber)`** gives when the running session's phrase starts sounding:
+  phrase 1's start (the count-in's end, or the barline handed over) plus the phrases before it,
+  each at its own tempo, so it is known up to the phrase after the last queued. It throws when no
+  session is running, for a later phrase, and for every phrase before phrase 1's start is handed
+  over in a session started without phrase 1.
+- **Only from phrase 1's start, until stop.** Phrase 1 starts when the count-in ends, or later at
+  its handed-over barline, so the count-in, and any wait after it, has no backing. The backing does not listen to the player: it keeps playing through their
   silence. Stop halts planning, and the fade on stop silences the notes already planned past it.
+
+#### Phrase 1's start, handed over
+
+A session started without phrase 1 (a fresh Jam's, spec D456) does not know when phrase 1 will
+sound when it starts: Jam's code decides it later, on a barline of the click. The transport
+follows it:
+
+- **`start({ tempo, clickForced, phraseOneStart })`.** `phraseOneStart` is `'count-in-end'` (the
+  default: phrase 1 starts when the count-in ends, as before) or `'handed-over'`: phrase 1's start
+  is unknown until `startPhraseOneAt` sets it. Until then `phraseStartsAt` throws for every phrase
+  and `queueBacking` throws too, rather than give the count-in's end.
+- **`startPhraseOneAt(soundsAt)`** sets phrase 1's first beat on the click plan at `soundsAt`. From
+  then on `phraseStartsAt(1)` is `soundsAt`, each later phrase starts whole phrases after it at the
+  tempo map's tempos, `queueBacking(1, …)` starts phrase 1's backing at `soundsAt`, and a later
+  phrase's tempo change falls on its own, shifted, first beat. The beats up to phrase 1 stay at
+  the starting tempo, as phrase 1 must be.
+- **What it refuses.** It throws, leaving the session as it was, with no session running, in a
+  session started with phrase 1 at the count-in's end, on a second call, and on a `soundsAt` that
+  is not exactly a barline of the click plan at or after the count-in's end: a beat inside a
+  measure, a time between beats, the count-in's own barline or a non-finite time. "Exactly" means
+  equal to the click plan's `beatAt` for that barline, with no tolerance: Jam's capture computes
+  its barlines with the same `createClickPlan(startAt, tempo)` and `beatAt`.
+- **Who calls it.** The handle of a session started without phrase 1
+  (`src/components/workspace/workspace-session-without-phrase-one.ts`) starts the transport with
+  `phraseOneStart: 'handed-over'`, and on a `phrase-one` event calls `startPhraseOneAt(soundsAt)`
+  and `forceClickUntil(soundsAt)` before the runner hears the event, so the engine learns of
+  phrase 1 only once the transport knows its start. A `soundsAt` the transport refuses throws from
+  the handle and never reaches the runner.
 
 **How the session controller wires it.** Right after `start`, the session controller (see
 [`docs/session-engine.md`](session-engine.md#the-session-controller)) queues phrase 1 with the idle

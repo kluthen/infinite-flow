@@ -12,6 +12,7 @@ tags: [v3, release-v3.2, session, jam]
 dependents:
   - [[entity_quantized_doodle]]
   - [[module_doodle_quantizer]]
+  - [[module_jam_capture]]
   - [[rule_doodle_is_one_line]]
 ---
 

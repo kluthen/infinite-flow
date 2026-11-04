@@ -88,6 +88,8 @@
  * - the in-browser phrase replay (replay-seams.ts): `replay.replayKey` decodes a phrase replay key
  *   in the page and replays it through the real browser worker, on a worker client of its own that
  *   never prewarms, and `replay.reEncodeKey` gives the key's `ifk4.` re-encoding.
+ * - the in-browser key and mode suggestion (key-suggestion-seams.ts): `keySuggestion.describe`
+ *   computes the suggestion's golden cases in the page with the app's own functions.
  *
  * The lazy VexFlow engraver, the real generation Worker, real notation, the real `matchMedia`
  * window-width provider and the real window-shape probe all run for real (a spec moves the window
@@ -137,6 +139,7 @@ import {
 } from './storage-seams'
 import { armNextExportFailure, exportsBuilt } from './export-loader-seam'
 import { createHarnessReplay } from './replay-seams'
+import { createHarnessKeySuggestion } from './key-suggestion-seams'
 import {
   armNextNotationFailure,
   engravingCount,
@@ -554,6 +557,7 @@ function shownHarmony(): readonly HarmonyEvent[] {
 
 const harnessApi: WorkspaceHarnessApi = {
   replay: createHarnessReplay(),
+  keySuggestion: createHarnessKeySuggestion(),
   queueSeeds: (seeds) => seedProvider.queueSeeds(seeds),
   holdGeneration: () => gate.hold(),
   releaseGeneration: () => gate.release(),

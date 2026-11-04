@@ -3,7 +3,8 @@ id: rule_jam_controller_loss_before_phrase_one
 status: DRAFT
 parents:
   - [[req_jam]]
-dependents: []
+dependents:
+  - [[module_session_start_without_phrase_one]]
 priority: 1
 tags: [v3, release-v3.2, session, jam, midi, session-end]
 type: RULE

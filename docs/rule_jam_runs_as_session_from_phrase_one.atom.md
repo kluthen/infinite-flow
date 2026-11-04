@@ -7,7 +7,8 @@ priority: 1
 tags: [v3, release-v3.2, session, jam]
 parents:
   - [[req_jam]]
-dependents: []
+dependents:
+  - [[module_session_start_without_phrase_one]]
 type: RULE
 human_name: From Phrase 1, a Jam Runs as Any Session
 ---

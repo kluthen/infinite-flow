@@ -222,12 +222,24 @@ function fadeToSilence(fade: WebAudioGainNodePort, at: AudioTime, durationSecond
 }
 
 /**
+ * Intent: the route a click takes: a click-track click before the forced end goes the count-in's
+ * way, around the click on/off gate; every other click its own route.
+ */
+// @spec-link [[rule_jam_click_runs_until_phrase_one]]
+function routeOf(click: ScheduledClick, forcedUntil: AudioTime): ClickRoute {
+  return click.route === 'click' && click.at < forcedUntil ? 'count-in' : click.route
+}
+
+/**
  * Intent: open one session's bus: a fresh fade gain per route, feeding that route's target, so a
  * count-in click reaches the click volume around the click on/off gate, a click-track click goes
- * through the gate, and the backing goes through the backing on/off gate. Fading the bus out fades
- * all three routes and leaves every other bus alone.
+ * through the gate, and the backing goes through the backing on/off gate. Once the click is forced
+ * on, a click-track click before the forced end takes the count-in's way around the gate, the
+ * count-in's bypass extended. Fading the bus out fades all three routes and leaves every other bus
+ * alone.
  */
 // @spec-link [[rule_count_in_always_clicks]]
+// @spec-link [[rule_jam_click_runs_until_phrase_one]]
 // @spec-link [[rule_stop_ends_session]]
 // @spec-link [[req_session_audio_mix]]
 export function createWebAudioSessionBus(
@@ -239,8 +251,14 @@ export function createWebAudioSessionBus(
     click: openFadeGain(factory, targets.click),
     backing: openFadeGain(factory, targets.backing),
   }
+  /** Click-track clicks before this time go around the gate; none before a force. */
+  let forcedUntil: AudioTime = Number.NEGATIVE_INFINITY
   return {
-    scheduleClick: (click) => soundClick(factory, click, fades[click.route]),
+    scheduleClick: (click) => soundClick(factory, click, fades[routeOf(click, forcedUntil)]),
+    forceClickUntil: (until) => {
+      if (Number.isNaN(until)) throw new Error('A forced click end must be a time, got NaN')
+      forcedUntil = until
+    },
     scheduleBackingNote: (note) => soundBackingNote(factory, note, fades.backing),
     fadeOut: (at, durationSeconds) => {
       assertFinite(at, 'A fade-out time')

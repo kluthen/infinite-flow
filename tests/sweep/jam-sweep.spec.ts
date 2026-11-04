@@ -7,14 +7,25 @@
  * block, the lock off and a warm domain plays v3.1's measured session phrase for phrase; session
  * mode with the lock off is today's run; a cold domain gives the same phrase 1 at another time;
  * the lock on yields a census of every phrase against phrase 1, its record and bars agreeing, whose
- * figures the configuration's lock line prints.
+ * figures the configuration's lock line prints. The double of Jam's ladder on a scripted generator
+ * (its rungs, its seeds, the retries skipped, the cutover and the deadline) and on real runs
+ * steered by a doodle: the handed-over session, the block on every later request, the lock census,
+ * and its phrases replayed from their keys.
  */
 
 import { describe, expect, it } from 'vitest'
 
+import type { GenerationFailureCode } from '@/domain/generation/orchestration/orchestration-types'
 import { RHYTHM_CHANGE_KINDS } from '@/domain/generation/request-rhythm-lock'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
-import { STANDALONE_RESERVE_SECONDS } from '@/session/session-timing'
+import { fnv1a32 } from '@/domain/random/hash32'
+import { makeSeed } from '@/domain/random/seed'
+import { phraseAttemptSeed } from '@/session/session-seed-plan'
+import {
+  STANDALONE_RESERVE_SECONDS,
+  WORKER_RESPAWN_SECONDS,
+  measureSeconds,
+} from '@/session/session-timing'
 import {
   OutcomeCache,
   caseSettings,
@@ -37,13 +48,18 @@ import {
 } from './jam-sweep-figures'
 import {
   BASELINE_LADDER,
+  JAM_DOUBLE_LADDER,
+  doodlePhraseOne,
   extendedWaitMeasures,
+  jamAttemptSeed,
   jamPhraseOneIntent,
   phraseOneDeadlineSeconds,
+  type DoodlePhraseOne,
   type GeneratedAttempt,
   type LadderInput,
 } from './jam-sweep-ladder'
 import { evenlySpaced } from './jam-sweep-population'
+import { JamReplaySampler } from './jam-sweep-replay'
 import { runJamCase, type JamRunConfig } from './jam-sweep'
 
 /** Intent: a hand-made standalone attempt record. */
@@ -116,6 +132,7 @@ describe('Jam phrase 1: the extended wait and the baseline ladder', () => {
       lock: { on: false },
       deadlineSeconds: phraseOneDeadlineSeconds(120),
       reserveSeconds: STANDALONE_RESERVE_SECONDS,
+      sessionSeed: sweepCase.firstSessionSeed,
       generate: (): GeneratedAttempt => {
         calls += 1
         const outcome = calls >= succeedAt ? real : failureOutcome()
@@ -138,6 +155,170 @@ describe('Jam phrase 1: the extended wait and the baseline ladder', () => {
     expect(came.ready?.rung).toBe('standalone')
     expect(came.ready?.readyAt).toBeCloseTo(5.7)
     expect(came.ready?.phraseOne.intent.seed).toBe(sweepCases()[0]!.seed + 2)
+  })
+})
+
+/** The doodle set, and the sweep's first case, for the double's tests. */
+const DOODLES = loadDoodleSet()
+const FIRST_CASE = sweepCases()[0]!
+
+/** Intent: what a doodle of the set gives phrase 1 under the first case's settings at 120 BPM. */
+function doodleInput(name: string, lock: LadderInput['lock'] = { on: false }): DoodlePhraseOne {
+  const doodle = DOODLES.find((each) => each.name === name)!
+  return doodlePhraseOne(caseSettings(FIRST_CASE, 120), doodle.quantized, 'Near', lock)
+}
+
+/** The names of the doodles whose last note gives the first case's instrument a join, and not. */
+const WITH_JOIN = DOODLES.filter((each) => doodleInput(each.name).hasJoin).map((each) => each.name)
+const WITHOUT_JOIN = DOODLES.filter((each) => !doodleInput(each.name).hasJoin).map(
+  (each) => each.name,
+)
+
+/**
+ * Intent: a double's input on a doodle at 120 BPM over a scripted generator: each attempt charged
+ * `charged(index)` seconds and failing with `fail(index)`'s code until attempt `succeedAt` (by
+ * the order asked, from 1).
+ */
+function scriptedDouble(
+  doodle: DoodlePhraseOne,
+  charged: (call: number) => number,
+  succeedAt: number,
+  fail: (call: number) => GenerationFailureCode = () => 'search_limit_exceeded',
+): LadderInput {
+  const settings = caseSettings(FIRST_CASE, 120)
+  const real = generatePhrase(phraseOneIntent(settings, FIRST_CASE.seed))
+  let calls = 0
+  return {
+    baseIntent: phraseOneIntent(settings, FIRST_CASE.seed),
+    intentAt: (seed, extras) => jamPhraseOneIntent(settings, seed, extras),
+    firstSeed: FIRST_CASE.seed,
+    steering: doodle.steering,
+    lock: { on: false },
+    deadlineSeconds: phraseOneDeadlineSeconds(120),
+    reserveSeconds: STANDALONE_RESERVE_SECONDS,
+    sessionSeed: FIRST_CASE.firstSessionSeed,
+    doodle,
+    generate: (): GeneratedAttempt => {
+      calls += 1
+      const outcome = calls >= succeedAt ? real : failureOutcome(fail(calls))
+      const cost = charged(calls)
+      return { outcome, seconds: cost - 0.1, chargedSeconds: cost, orderingSeconds: 0, cold: false }
+    },
+  }
+}
+
+describe("Jam phrase 1: the double of Jam's ladder (C5.7, C11)", () => {
+  it("derives each attempt seed from the session seed by the plan's derivation, under C11's labels", () => {
+    const sessionSeed = FIRST_CASE.firstSessionSeed
+    /** Intent: the seed plan's one derivation of a label, written out. */
+    const derive = (label: string): number => makeSeed((sessionSeed ^ fnv1a32(label)) >>> 0)
+    expect(derive('session-seed-plan-v1:phrase:2:rung:0')).toBe(
+      phraseAttemptSeed(makeSeed(sessionSeed), 2, 0),
+    )
+    const seeds = [0, 1, 2, 3, 4, 5].map((index) => jamAttemptSeed(sessionSeed, index))
+    expect(seeds).toEqual(
+      [0, 1, 2, 3, 4, 5].map((index) =>
+        derive(`session-seed-plan-v1:jam-phrase-one:rung:${index}`),
+      ),
+    )
+    expect(new Set(seeds).size).toBe(6)
+    expect(() => jamAttemptSeed(sessionSeed, 6)).toThrow()
+  })
+
+  it('builds rung 1 with the join and the block, rung 2 with the block alone, rung 3 with neither', () => {
+    expect(WITH_JOIN.length).toBeGreaterThan(0)
+    const lock = { on: true, allowedChanges: RHYTHM_CHANGE_KINDS } as const
+    const doodle = doodleInput(WITH_JOIN[0]!, lock)
+    const seed = makeSeed(1)
+    const [joined, blocked, standalone] = (['join-and-block', 'block', 'standalone'] as const).map(
+      (rung) => doodle.intentAt(rung, seed),
+    )
+    expect(joined!.carryIn).toMatchObject({ origin: 'none' })
+    expect(joined!.steering).toEqual(doodle.steering)
+    expect(joined!.rhythmLock?.state).toEqual({ kind: 'pending' })
+    expect(blocked!.carryIn).toBeUndefined()
+    expect(blocked!.steering).toEqual(doodle.steering)
+    expect(blocked!.rhythmLock?.state).toEqual({ kind: 'pending' })
+    expect(standalone!.carryIn).toBeUndefined()
+    expect(standalone!.steering).toBeUndefined()
+    expect(standalone!.rhythmLock).toBeUndefined()
+    expect(standalone!.controls.register).toBe(doodle.settings.controls.register)
+    expect(doodle.settings.rhythmLockOn).toBe(true)
+  })
+
+  it('climbs rung 1 with its retries, then rung 2, then rung 3, each attempt with its own seed', () => {
+    const result = JAM_DOUBLE_LADDER.run(
+      scriptedDouble(doodleInput(WITH_JOIN[0]!), () => 0.2, Number.POSITIVE_INFINITY),
+    )
+    expect(result.ready).toBeUndefined()
+    expect(result.attempts.map((each) => [each.attempt, each.rung])).toEqual([
+      [0, 'join-and-block'],
+      [1, 'join-and-block'],
+      [2, 'join-and-block'],
+      [3, 'join-and-block'],
+      [4, 'block'],
+      [5, 'standalone'],
+    ])
+    expect(result.attempts.map((each) => each.seed)).toEqual(
+      [0, 1, 2, 3, 4, 5].map((index) => jamAttemptSeed(FIRST_CASE.firstSessionSeed, index)),
+    )
+    expect(result.attempts.map((each) => each.startedAt)).toEqual(
+      [0, 0.2, 0.4, 0.6, 0.8, 1].map((at) => expect.closeTo(at, 9)),
+    )
+  })
+
+  it('skips the retries after a search that covered every candidate, and starts at rung 2 with no join', () => {
+    const exhausted = JAM_DOUBLE_LADDER.run(
+      scriptedDouble(
+        doodleInput(WITH_JOIN[0]!),
+        () => 0.2,
+        3,
+        () => 'no_legal_pitch_plan',
+      ),
+    )
+    expect(exhausted.attempts.map((each) => each.attempt)).toEqual([0, 4, 5])
+    expect(exhausted.ready?.rung).toBe('standalone')
+    expect(WITHOUT_JOIN.length).toBeGreaterThan(0)
+    const noJoin = JAM_DOUBLE_LADDER.run(
+      scriptedDouble(doodleInput(WITHOUT_JOIN[0]!), () => 0.2, 1),
+    )
+    expect(noJoin.attempts.map((each) => each.attempt)).toEqual([4])
+    expect(noJoin.ready?.rung).toBe('block')
+    expect(noJoin.ready?.readyAt).toBeCloseTo(0.2)
+  })
+
+  it('cancels a rung 1 or 2 attempt still running at the cutover and asks for rung 3 after the restart', () => {
+    const deadline = phraseOneDeadlineSeconds(120)
+    const cutover = deadline - STANDALONE_RESERVE_SECONDS
+    const slow = JAM_DOUBLE_LADDER.run(
+      scriptedDouble(doodleInput(WITH_JOIN[0]!), (call) => (call === 1 ? 1 : cutover), 3),
+    )
+    expect(slow.attempts.map((each) => [each.attempt, each.cancelledAt])).toEqual([
+      [0, undefined],
+      [1, cutover],
+      [5, undefined],
+    ])
+    expect(slow.attempts[2]!.startedAt).toBeCloseTo(cutover + WORKER_RESPAWN_SECONDS)
+    const atCutover = JAM_DOUBLE_LADDER.run(
+      scriptedDouble(doodleInput(WITH_JOIN[0]!), (call) => (call === 1 ? cutover : 0.3), 1),
+    )
+    expect(atCutover.attempts.map((each) => each.attempt)).toEqual([0, 5])
+    expect(atCutover.attempts[0]!.cancelledAt).toBe(cutover)
+    expect(atCutover.ready?.rung).toBe('standalone')
+  })
+
+  it('ends the Jam when rung 3 fails or comes at or after the deadline', () => {
+    const deadline = phraseOneDeadlineSeconds(120)
+    const cutover = deadline - STANDALONE_RESERVE_SECONDS
+    const late = (call: number): number => (call === 1 ? cutover : deadline)
+    const tooLate = JAM_DOUBLE_LADDER.run(scriptedDouble(doodleInput(WITH_JOIN[0]!), late, 2))
+    expect(tooLate.attempts.map((each) => each.attempt)).toEqual([0, 5])
+    expect(tooLate.ready).toBeUndefined()
+    const failed = JAM_DOUBLE_LADDER.run(
+      scriptedDouble(doodleInput(WITH_JOIN[0]!), (call) => (call === 1 ? cutover : 0.2), 99),
+    )
+    expect(failed.attempts.map((each) => each.attempt)).toEqual([0, 5])
+    expect(failed.ready).toBeUndefined()
   })
 })
 
@@ -242,3 +423,59 @@ describe.each(REAL_CASES.map((sweepCase) => [sweepCase.rhythm.noteDensity, sweep
     })
   },
 )
+
+describe('Jam sweep real runs steered by a doodle, through the double', () => {
+  const outcomes = new OutcomeCache()
+  const doodle = DOODLES.find((each) => each.name === WITH_JOIN[0])!
+  const base: JamRunConfig = {
+    mode: 'jam',
+    sweepCase: FIRST_CASE,
+    tempo: 120,
+    doodle,
+    drift: 'Near',
+    lock: { on: false },
+    domain: 'warm',
+  }
+
+  it('hands phrase 1 over at its barline and plays phrases 2 to 8 carrying the block on the grid', async () => {
+    const { record, session } = await runJamCase(base, outcomes)
+    expect(record.phraseOne?.ladder).toBe(JAM_DOUBLE_LADDER.name)
+    expect(record.phraseOne?.rung).not.toBeNull()
+    expect(record.drift).toBe('Near')
+    expect(record.shortfalls).toEqual([])
+    expect(record.repeats).toBe(0)
+    const measure = measureSeconds(120)
+    const shownAt = (1 + record.phraseOne!.extendedWaitMeasures!) * measure
+    expect(session!.phraseOneSoundsAt).toBeCloseTo(shownAt + measure)
+    const steering = doodleInput(doodle.name).steering
+    const requests = session!.outputs.flatMap(({ at, output }) =>
+      output.kind === 'request-generation' ? [{ at, output }] : [],
+    )
+    const later = requests.filter(({ output }) => output.phraseNumber > 1)
+    expect(later.length).toBeGreaterThanOrEqual(7)
+    expect(later[0]!.at).toBeCloseTo(shownAt)
+    for (const { output } of later) expect(output.intent.steering).toEqual(steering)
+    expect(session!.errors).toEqual([])
+  })
+
+  it('classifies, with the lock on, every phrase of the Jam against phrase 1, and replays them', async () => {
+    const lock = { on: true, allowedChanges: RHYTHM_CHANGE_KINDS } as const
+    const run = await runJamCase({ ...base, lock }, outcomes)
+    expect(run.record.lockCensus?.phrases).toHaveLength(8)
+    expect(run.record.lockCensus?.counts.mismatches).toEqual([])
+    const replays = new JamReplaySampler()
+    const { firstSessionSeed } = FIRST_CASE
+    replays.addJam(run.record, run.session, run.phraseOneInput, firstSessionSeed)
+    const drifted = await runJamCase(base, outcomes)
+    replays.addJam(drifted.record, drifted.session, drifted.phraseOneInput, firstSessionSeed)
+    const figures = replays.replay()
+    expect(figures.byKind.locked.replayed).toBe(1)
+    expect(figures.byKind['drifted Near'].replayed).toBe(1)
+    const made = run.record.phraseOne!.rung!
+    expect(figures.byKind[made]).toMatchObject({ replayed: 2, probed: false })
+    const others = (['join-and-block', 'block', 'standalone'] as const).filter((r) => r !== made)
+    for (const rung of others) expect(figures.byKind[rung]).toMatchObject({ probed: true })
+    expect(figures.byKind.standalone.replayed + figures.byKind.block.replayed).toBeGreaterThan(0)
+    expect(figures.mismatchedKeys).toEqual([])
+  })
+})

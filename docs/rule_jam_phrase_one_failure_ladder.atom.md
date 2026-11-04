@@ -11,6 +11,7 @@ priority: 1
 tags: [v3, release-v3.2, session, jam, error-handling]
 dependents:
   - [[module_session_seed_plan]]
+  - [[module_session_start_without_phrase_one]]
   - [[rule_jam_ends_when_phrase_one_never_comes]]
 ---
 

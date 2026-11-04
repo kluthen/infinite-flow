@@ -1,7 +1,10 @@
 /**
  * Jam's phrase 1 in the Jam sweep (measurement tooling, v3.2 measurement M1): the pluggable ladder
- * that produces it before its deadline, the generator each ladder asks for one attempt, and the
- * baseline ladder standing in until the real one exists.
+ * that produces it before its deadline, the generator each ladder asks for one attempt, the
+ * baseline ladder (chunk 3: rung 3 only, no doodle), and the test double of Jam's three-rung
+ * ladder (chunk 29, spec D453), written from master spec C5.7 and C11 and importing nothing of the
+ * app's own ladder (src/jam/jam-phrase-one.ts), with what a doodle gives its attempts: the controls
+ * read from it (chunk 28), its join (chunk 7) and its steering block.
  *
  * The generation measure starts at 0; the deadline is three measures later (master spec C5.7) and
  * the standalone reserve is kept before it for rung 3. Each attempt keeps the one generator busy
@@ -30,9 +33,24 @@ import {
   type RequestRhythmLock,
   type RhythmChangeKind,
 } from '@/domain/generation/request-rhythm-lock'
-import { createGenerationIntent } from '@/domain/generation/generation-intent'
+import {
+  createGenerationIntent,
+  makeGenerationIntent,
+  type GenerationIntentInput,
+} from '@/domain/generation/generation-intent'
+import { makeCarryInGenerationIntent } from '@/domain/generation/carry-in/carry-in-intent'
+import { makeRequestId } from '@/domain/generation/generation-request-envelope'
 import type { SteeringBlock } from '@/domain/generation/steering-block'
-import { measureSeconds } from '@/session/session-timing'
+import { makeGenerationControls } from '@/domain/controls/generation-controls'
+import type { QuantizedDoodle } from '@/domain/doodle/quantized-doodle'
+import { deriveRegisterWindowCandidates } from '@/domain/profile/register-window-derivation'
+import { fnv1a32 } from '@/domain/random/hash32'
+import { makeSeed, type Seed } from '@/domain/random/seed'
+import { readDoodleControls } from '@/jam/doodle-controls'
+import { doodleJoin } from '@/jam/doodle-join'
+import { buildSteeringBlock, type JamDrift } from '@/jam/steering-block-builder'
+import { sessionInstrumentProfile } from '@/session/session-intents'
+import { WORKER_RESPAWN_SECONDS, measureSeconds } from '@/session/session-timing'
 import type { SessionSettings, SessionStart } from '@/session/session-types'
 import { phraseOneIntent, splitOrderingsTime } from '../unit/session/deadline-sweep'
 import { ROUND_TRIP_AND_ENGRAVING_SECONDS } from './deadline-sweep-measured'
@@ -76,6 +94,19 @@ export interface GeneratedAttempt {
 /** Generates one phrase-1 attempt of a rung. */
 export type PhraseOneGenerate = (intent: GenerationIntent, rung: LadderRung) => GeneratedAttempt
 
+/**
+ * What a doodle gives Jam's phrase 1 (C5.9, C5.16, C11): Jam's settings with the seven controls
+ * read from the doodle (those in effect once phrase 1 is handed over, the rhythm lock's switch and
+ * allowed changes included), the steering block every phrase of the Jam carries, whether the
+ * doodle's last note gives phrase 1 a join, and the intent of an attempt of a rung at a seed.
+ */
+export interface DoodlePhraseOne {
+  readonly settings: SessionSettings
+  readonly steering: SteeringBlock
+  readonly hasJoin: boolean
+  readonly intentAt: (rung: LadderRung, seed: Seed) => GenerationIntent
+}
+
 /** What a ladder works from for one Jam. */
 export interface LadderInput {
   /** Phrase 1's intent at the case's seed with no steering block and no lock: v3.1's phrase 1. */
@@ -93,11 +124,27 @@ export interface LadderInput {
   /** The standalone reserve kept before the deadline for rung 3, in seconds. */
   readonly reserveSeconds: number
   readonly generate: PhraseOneGenerate
+  /** The Jam's session seed, drawn at Start: every attempt seed of the double derives from it. */
+  readonly sessionSeed: number
+  /** What the doodle gives phrase 1; none in a run with no doodle (the baseline's). */
+  readonly doodle?: DoodlePhraseOne
 }
 
 /** One attempt a ladder made, on the generation measure's clock. */
 export interface LadderAttempt {
   readonly rung: LadderRung
+  /**
+   * Its index among the ladder's six attempts (C11's label: 0 rung 1's first attempt, 1 to 3 its
+   * retries, 4 rung 2, 5 rung 3), when the ladder numbers them.
+   */
+  readonly attempt?: number
+  /** Its seed, when the ladder records it. */
+  readonly seed?: number
+  /**
+   * When it was cancelled where it ran, superseded by rung 3 at the cutover (the deadline minus
+   * the reserve), if it was: its result never counted.
+   */
+  readonly cancelledAt?: number
   /** When the generator started it, in seconds from the generation measure's start. */
   readonly startedAt: number
   readonly seconds: number
@@ -117,6 +164,8 @@ export interface PhraseOneReady {
   readonly phraseOne: SessionStart['phraseOne']
   readonly rung: LadderRung
   readonly readyAt: number
+  /** The attempt that made it, the last of the ladder's attempts. */
+  readonly made?: LadderAttempt
 }
 
 /** What a ladder did for one Jam: every attempt in order, and phrase 1, unless it never came. */
@@ -251,6 +300,181 @@ export const BASELINE_LADDER: PhraseOneLadder = {
         attempts,
         ready: { phraseOne: { intent, outcome }, rung: 'standalone', readyAt: clock },
       }
+    }
+    return { attempts, ready: undefined }
+  },
+}
+
+/** How many attempts the double's ladder has (C5.7, C11): rung 1's first and three retries, rung 2, rung 3. */
+export const JAM_LADDER_ATTEMPTS = 6
+
+/** The attempt index of rung 2 (the block, no join) and of rung 3 (v2's standalone phrase). */
+const BLOCK_ATTEMPT_INDEX = 4
+const STANDALONE_ATTEMPT_INDEX = 5
+
+/** Intent: the rung of one of the ladder's six attempts (C11's index). */
+export function rungOfAttemptIndex(index: number): LadderRung {
+  if (!Number.isInteger(index) || index < 0 || index >= JAM_LADDER_ATTEMPTS)
+    throw new Error(`A Jam phrase 1 attempt index runs from 0 to 5, got ${index}.`)
+  if (index < BLOCK_ATTEMPT_INDEX) return 'join-and-block'
+  return index === BLOCK_ATTEMPT_INDEX ? 'block' : 'standalone'
+}
+
+/**
+ * Intent: the seed of one of a fresh Jam's phrase 1 attempts, as C11 sets it: derived from the
+ * session seed drawn at Start by the seed plan's one derivation (the session seed XOR the FNV-1a
+ * 32-bit hash of the label, unsigned), under the label `session-seed-plan-v1:jam-phrase-one:rung:<r>`.
+ */
+export function jamAttemptSeed(sessionSeed: number, index: number): Seed {
+  rungOfAttemptIndex(index)
+  return makeSeed(
+    (sessionSeed ^ fnv1a32(`session-seed-plan-v1:jam-phrase-one:rung:${index}`)) >>> 0,
+  )
+}
+
+/**
+ * Intent: what a doodle gives Jam's phrase 1 under a sweep case's settings (C5.9, C5.16, C7.1):
+ * the seven controls read from the quantized doodle for the case's instrument, at no window width
+ * (chunk 28's mapping) set into the settings, with Jam's lock; the steering block from the doodle
+ * and the drift; the join from the doodle's last note (chunk 7). Rung 1's attempt joins the doodle
+ * in the join's register and carries the block; rung 2's carries the block, no join, in the
+ * register read from the doodle; both carry, with the lock on, the lock "on, nothing locked yet".
+ * Rung 3's is v2's standalone phrase under the same controls, with no block and no lock group
+ * (C5.7: "with no steering block"; C7.1: the lock then holds the rhythm it came with).
+ */
+export function doodlePhraseOne(
+  settings: SessionSettings,
+  doodle: QuantizedDoodle,
+  drift: JamDrift,
+  lock: JamLock,
+): DoodlePhraseOne {
+  const instrument = sessionInstrumentProfile(settings)
+  const windows = deriveRegisterWindowCandidates(
+    instrument.concertRange,
+    instrument.registerWindows,
+  )
+  const readings = readDoodleControls(doodle, windows)
+  const controls = makeGenerationControls({
+    ...settings.controls,
+    noteDensity: readings.noteDensity.value,
+    rhythmicVariety: readings.rhythmicVariety.value,
+    syncopation: readings.syncopation.value,
+    silenceDensity: readings.silenceDensity.value,
+    contour: readings.contour.value,
+    leapiness: readings.leapiness.value,
+    register: readings.register.value,
+  })
+  const jamSettings: SessionSettings = {
+    ...settings,
+    controls,
+    rhythmLockOn: lock.on,
+    ...(lock.on ? { allowedRhythmChanges: lock.allowedChanges } : {}),
+  }
+  const steering = buildSteeringBlock(doodle, drift)
+  const join = doodleJoin(doodle, instrument, readings.register)
+  const rhythmLock = lock.on ? phraseOneLockGroup(lock) : undefined
+  return {
+    settings: jamSettings,
+    steering,
+    hasJoin: join.kind === 'join',
+    intentAt(rung, seed) {
+      const input: GenerationIntentInput = {
+        requestId: makeRequestId(`jam-sweep-phrase-1-${rung}-${seed}`),
+        seed,
+        controls,
+        figureLevels: settings.figureLevels,
+        ...(rung === 'standalone' || rhythmLock === undefined ? {} : { rhythmLock }),
+        ...(rung === 'standalone' ? {} : { steering }),
+      }
+      if (rung !== 'join-and-block') return makeGenerationIntent(input)
+      if (join.kind !== 'join') throw new Error("Rung 1 needs the doodle's join, and it has none.")
+      return makeCarryInGenerationIntent({
+        ...input,
+        controls: { ...controls, register: join.register },
+        carryIn: join.carryIn,
+      })
+    },
+  }
+}
+
+/**
+ * Intent: the attempt after a failed one (C5.7): rung 3 once less than the reserve is left before
+ * the deadline; rung 2 after a rung-1 attempt whose search covered every candidate
+ * (`no_legal_pitch_plan`: its retries would fail the same way, whatever the seed); otherwise the
+ * next attempt (a retry of rung 1, then rung 2, then rung 3); none after rung 3.
+ */
+function attemptAfter(
+  index: number,
+  failureCode: GenerationFailureCode,
+  due: boolean,
+): number | undefined {
+  if (index === STANDALONE_ATTEMPT_INDEX) return undefined
+  if (due) return STANDALONE_ATTEMPT_INDEX
+  if (rungOfAttemptIndex(index) === 'join-and-block' && failureCode === 'no_legal_pitch_plan')
+    return BLOCK_ATTEMPT_INDEX
+  return index + 1
+}
+
+/**
+ * The test double of Jam's phrase-1 ladder (chunk 29, spec D453), written from master spec C5.7
+ * and C11 on the generation measure's clock (0 at its start, the deadline three measures later).
+ * Rung 1, the doodle's join and the steering block, has a first attempt and up to three retries,
+ * each with a seed of its own, the retries skipped after a search that covered every candidate;
+ * rung 2 is one attempt with the block and no join (the first one when the doodle gives no join);
+ * rung 3 is one attempt of v2's standalone phrase, with no block. The standalone reserve is kept
+ * before the deadline for rung 3: from the cutover (the deadline minus the reserve) on, no attempt
+ * of rungs 1 or 2 starts, the one running is cancelled at the cutover (one ending at the cutover
+ * is too late), the worker restarts, and rung 3 is asked for at once. Attempts run back to back on
+ * the one generator, each charged its measured time (`generate`); a phrase ready strictly before
+ * the deadline came; when rung 3 fails or comes too late, the Jam ends at the deadline (spec D457)
+ * and phrase 1 never came. There is no repeat: there is no phrase before. Each attempt's seed is
+ * C11's (jamAttemptSeed); every attempt reports the orderings' time its diagnostics give.
+ */
+export const JAM_DOUBLE_LADDER: PhraseOneLadder = {
+  name: 'double of chunk 18 (three rungs)',
+  run(input) {
+    const { doodle } = input
+    if (doodle === undefined) throw new Error("The double of Jam's ladder needs a doodle.")
+    const cutover = input.deadlineSeconds - input.reserveSeconds
+    const attempts: LadderAttempt[] = []
+    let clock = 0
+    let index: number | undefined =
+      clock >= cutover ? STANDALONE_ATTEMPT_INDEX : doodle.hasJoin ? 0 : BLOCK_ATTEMPT_INDEX
+    while (index !== undefined) {
+      const rung = rungOfAttemptIndex(index)
+      const seed = jamAttemptSeed(input.sessionSeed, index)
+      const intent = doodle.intentAt(rung, seed)
+      const generated = input.generate(intent, rung)
+      const { outcome } = generated
+      const startedAt = clock
+      const endsAt = startedAt + generated.chargedSeconds
+      const superseded = rung !== 'standalone' && endsAt >= cutover
+      attempts.push({
+        rung,
+        attempt: index,
+        seed,
+        startedAt,
+        seconds: generated.seconds,
+        chargedSeconds: generated.chargedSeconds,
+        failureCode: outcome.kind === 'generation_failure' ? outcome.code : null,
+        orderingSeconds: generated.orderingSeconds,
+        cold: generated.cold,
+        ...(superseded ? { cancelledAt: cutover } : {}),
+      })
+      if (superseded) {
+        clock = cutover + WORKER_RESPAWN_SECONDS
+        index = STANDALONE_ATTEMPT_INDEX
+        continue
+      }
+      clock = endsAt
+      if (outcome.kind === 'generation_success') {
+        if (!(clock < input.deadlineSeconds)) break
+        return {
+          attempts,
+          ready: { phraseOne: { intent, outcome }, rung, readyAt: clock, made: attempts.at(-1)! },
+        }
+      }
+      index = attemptAfter(index, outcome.code, clock >= cutover)
     }
     return { attempts, ready: undefined }
   },

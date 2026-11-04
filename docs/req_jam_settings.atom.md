@@ -10,6 +10,7 @@ version: 0.1
 human_name: Jam's Own Settings
 tags: [v3, release-v3.2, jam, player-controls]
 dependents:
+  - [[module_jam_settings]]
   - [[rule_doodle_sets_jam_controls]]
   - [[rule_jam_embellishments_one_level]]
   - [[rule_jam_settings_first_values]]

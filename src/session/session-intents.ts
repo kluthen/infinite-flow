@@ -39,6 +39,7 @@ import type { RegisterId } from '../domain/profile/register-id'
 import type { RegisterChoice } from '../domain/profile/register-intent'
 import type { RegisterWindowCandidate } from '../domain/profile/register-window-derivation'
 import type { Seed } from '../domain/random/seed'
+import type { SteeringBlock } from '../domain/generation/steering-block'
 import type { PhraseRhythmLock } from './rhythm-lock-session'
 import { phraseAttemptSeed } from './session-seed-plan'
 import { VARY_SETTINGS_GROUPS, type AllowedGroups } from './settings-mutation-scales'
@@ -49,13 +50,15 @@ import {
 } from './session-types'
 
 /**
- * What an attempt's intent reads besides its settings: the request identities, the window width
- * and the session seed its seed is derived from.
+ * What an attempt's intent reads besides its settings: the request identities, the window width,
+ * the session seed its seed is derived from and, in a session whose phrases are steered (a Jam's,
+ * from phrase 2 on), the steering block every attempt carries.
  */
 // @spec-link [[service_session_engine]]
 // @spec-link [[module_session_seed_plan]]
 export interface IntentSeams extends Pick<SessionEngineDependencies, 'providers' | 'viewport'> {
   readonly sessionSeed: Seed
+  readonly steering?: SteeringBlock
 }
 
 /** Where an attempt stands: its phrase's number and its rung's index on the failure ladder. */
@@ -302,7 +305,9 @@ export function resolvedRegister(
  * carry-in attempt keeps its carry-in; a standalone one drops it and fixes its register. My
  * instrument's profile, carried by the settings, goes into every attempt as data. With the lock
  * on, the attempt carries its phrase's rhythm lock group: the re-lock group when one is pending
- * and this attempt is built with Eighth by the step-down, the phrase's group otherwise.
+ * and this attempt is built with Eighth by the step-down, the phrase's group otherwise. In a
+ * steered session every attempt, the standalone one included, carries the session's steering
+ * block: it only orders candidates.
  */
 // @spec-link [[rule_session_settings_locked]]
 // @spec-link [[rule_session_density_only_steps_down]]
@@ -334,6 +339,7 @@ export function buildAttemptIntent(
     figureLevels: sessionFigureLevels(settings),
     ...suppliedProfileOf(settings),
     ...(group === undefined ? {} : { rhythmLock: group }),
+    ...(seams.steering === undefined ? {} : { steering: seams.steering }),
   }
   const intent =
     plan.step === 'carry-in'

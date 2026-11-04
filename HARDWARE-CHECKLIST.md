@@ -724,18 +724,21 @@ all five kinds: of its locked rhythms, 28 % offer a moved note, 51 % a moved res
 never offer Move a note or Move a rest, so this check does not use them. Run it after wave 3.
 
 - [ ] Session mode. Choose the **Pop song** preset (Eighth, Heavily varied, Occasional offbeats,
-      Conversational silence, tension Lift), any key, 120 BPM. In "During a session", set
+      Conversational silence, tension Lift), any key, 90 BPM. In "During a session", set
       **Rhythm lock** to `On`; **Allowed rhythm changes** shows under it, every kind off.
 - [ ] Turn all five kinds on. Play a session of eight phrases. Note whether each change sounded
-      small, and whether about one phrase in four changing felt too often.
+      small, and whether about one phrase in two changing felt too often or not often enough.
 - [ ] Allow one kind only (start with "Move a note"); play eight phrases. If none changed, press
       **Regenerate** at Idle (a new phrase 1, so a new locked rhythm) and play eight more; if still
       none, write it down and move on (the M2 measurement records how often each kind is
       available). Repeat for each of the five kinds, one to two minutes each.
 - [ ] Turn all five kinds on again and **Tension across phrases** `On`; play eight phrases. The
-      tenser phrases should change about one time in two.
-- [ ] Report what you noted for each step. Pass on your word; the shares are tuned from your
-      report, then M2 runs again.
+      tenser phrases should change about three times in four.
+- [ ] Report what you noted for each step. Pass on your word. The shares were tuned from steps 2
+      and 4 (spec D450): a phrase draws a change 1 in 2, a tenser phrase 3 in 4. A drawn change
+      that finds no candidate leaves the phrase as it was, so fewer phrases change than draw: at
+      Pop song's settings with all five kinds, M2 measured 42 % of phrases changing with Tension
+      across phrases off and 48 % with it on.
 
 ## v3.2 H3. Vary settings' groups (chunk 19; about 6 min)
 

@@ -220,7 +220,7 @@ request carries the same lock group as the session's own.
   [Tension across phrases](music/lexicon.md#tension-across-phrases) runs in the session, the
   phrase's cycle step is one step tenser (phrases 2, 6, 10...), and the tension in effect from that
   phrase on is below Edge. A tension step made by Vary settings never sets it. A tenser phrase
-  draws a [rhythm change](music/lexicon.md#rhythm-changes) 1 in 2 instead of 1 in 4, inside
+  draws a [rhythm change](music/lexicon.md#rhythm-changes) 3 in 4 instead of 1 in 2, inside
   generation.
 - **The re-lock.** While a re-lock is pending, a phrase's groups also hold a re-lock group: the same
   bars and flag with no allowed change. `buildAttemptIntent` puts it on an attempt built with
@@ -543,6 +543,8 @@ controller (see [The session controller's MIDI side](#the-session-controllers-mi
   up with the generated notes the player heard. With today's USB correction of 0 they equal the
   raw times. Notes arrive in release order.
 - **`recordAcknowledgement(identity)`** keeps one acknowledged expected note, once.
+- **`recordDoodle(doodle)`**, in a fresh Jam, keeps its doodle and names its raw notes among the
+  played notes (see [The doodle in the history](#the-doodle-in-the-history)).
 
 Both are placed in the records **on read**, by `withPlayedNotes`
 (`session-history-played-notes.ts`), from everything received so far, so the result is exact
@@ -1590,6 +1592,191 @@ arc).
 `tension-arc-cycle.spec.ts` tests the pure cycle. `session-engine-tension-arc.spec.ts` and
 `session-engine-tension-arc-generation.spec.ts` drive whole sessions on the
 [session driver](testing.md#the-session-driver).
+
+## A session started without phrase 1
+
+v3.2 chunk 17 gives the engine one generic way in for a session whose phrase 1 is written after
+Start by the code that started it (a fresh Jam's). The engine never names that code, and nothing
+under `src/session/` imports `src/jam/` ([module_session_start_without_phrase_one](module_session_start_without_phrase_one.atom.md)).
+
+- **The start.** `createSessionEngine` takes a `SessionStartWithoutPhraseOne`
+  (`src/session/session-phrase-one-types.ts`): the start time, the settings, the session seed, the
+  mutation flag and the two option flags, and no phrase 1, phrase 1 settings or ready phrases. Its
+  `outputsAtStart` is empty: no phrase 2 is requested.
+- **Before phrase 1** (`src/session/session-before-phrase-one.ts`). The engine stays in its count-in
+  phase, requests nothing on its own and sets no deadline. Every end is a count-in end with its
+  cause, two of them new: `no-note-played` and `no-phrase-one`. A `controller` event with
+  `attached: false` ends it at once as `controller-lost`, until phrase 1 sounds.
+- **Phrase 1's attempts.** The caller sends `phrase-one-attempt` (intent, step, retry, settings,
+  deadline). The engine gives it its own attempt id, outputs `request-generation` (phrase 1),
+  `check-fit` on a success, and reports each result as `phrase-one-attempt-result` (`fits`,
+  `generation-failure` with its code, `crash`, `not-fitting`). A newer request cancels the attempt
+  still generating; a late result of a superseded attempt is ignored. `cancel-phrase-one-attempt`
+  (chunk 18) drops the attempt in flight, cancelled where it runs while still generating: a doodle
+  note voiding the candidate end it was asked from. The engine climbs no ladder for phrase 1: the
+  caller's does (see [Phrase 1's ladder](#phrase-1s-ladder)).
+- **The hand-over.** `phrase-one` names the attempt that fitted and `soundsAt`, when phrase 1 starts
+  sounding. The engine opens on it (`src/session/session-engine-without-phrase-one.ts`, lent
+  `openEngine` and `handleEvent` by `session-engine.ts`), its origin being the attempt's step,
+  never `idle`; the attempt's settings become the settings in effect. It outputs `phrase-ready`
+  for phrase 1 and requests phrase 2 at once, due at the start of phrase 1's last measure
+  (`nextPhraseDeadline(soundsAt, tempo)`). `count-in-over` at `soundsAt` then makes it a running
+  session like any other.
+
+In the workspace, `SessionController.startWithoutPhraseOne(request)`
+(`src/components/workspace/workspace-session-without-phrase-one.ts`) is the in-click start. It
+draws the session seed once from `nextSessionSeed`, before the count-in, and starts the transport
+with `clickForced: true` and no backing queued. It opens the history with the request's clef and
+begins the MIDI side with no phrase 1, every note also handed to `request.playedNotes`. It shows
+the count-in row and starts the runner with Vary settings, Tension across phrases and Rising tempo
+off. The watchers cover the hidden tab and the window's shape: there are no phrase 1 fixed parts
+to judge. It schedules no `count-in-over`. The returned handle gives the transport timeline, a
+`dispatch` for the phrase 1 events (a `phrase-one` first calls `audio.startPhraseOneAt(soundsAt)`,
+then `audio.forceClickUntil(soundsAt)`, before the engine hears it; chunk 18, spec D456),
+`end(cause)` and `recordDoodle(doodle)`, which keeps the capture's doodle in the session's history
+(see [The doodle in the history](#the-doodle-in-the-history)). The session's display, phrase steps and staff are not built here: chunk 21 shows
+the fresh Jam on screen.
+
+The MIDI side, in a session started without phrase 1, arms the silence timer only on a note
+played at or after phrase 1's start (`noteArmsSilenceBeforePhraseOne`). It ends the session at
+once on a loss before phrase 1 sounds (`lossEndsAtOnceBeforePhraseOne`), with no countdown and no
+presence event. While session mode is held, a note played at Idle goes to `heldModeNotes()`, the
+held mode's route (Jam's Idle note routing, wired by chunk 21). A `start` note there calls the
+route's `start`, and the note arms nothing. Every note it hands the caller's port is
+latency-compensated, on the very times the history keeps (`compensatedNoteOn` for a note-on,
+`compensatedRecord` for a finished note), so the capture names each raw doodle note by the onset
+the history holds for it.
+
+### The Jam capture
+
+`createJamCapture({ startAt, tempo })` (`src/jam/jam-capture.ts`, Jam's code) is the pure state
+machine a fresh Jam runs from its count-in to phrase 1
+([module_jam_capture](module_jam_capture.atom.md)). It reads no clock and schedules nothing. Its
+caller hands it every note from the session's port (`note(event)`), advances it on the audio clock
+(`advance(at)`), and wakes it at `nextDecisionAt()`. Each call first takes every decision due by
+its time and returns the outputs in order. Its grid is the click plan's
+(`createClickPlan(startAt, tempo)`; `barlineAt`, `measureAt`, `firstBarlineFrom` and
+`beatOfMeasureAt` in `src/jam/jam-phase.ts`). Measure 0 starts at the count-in's end, the grid
+origin, and the tempo must be a whole BPM.
+
+- **Which notes count.** A note belongs by its snapped start (`snappedTickOf`): one snapping onto
+  the first beat after the count-in is a doodle note, one snapping earlier belongs to nothing. A
+  note counts once it is not very short: held for `VERY_SHORT_NOTE_SECONDS`, or released after at
+  least that long. So each decision that reads the notes around a barline is taken that long
+  after the barline, when every note touching it is known to count or not.
+- **The states** (`JamCaptureState`): `count-in`; `capture`, from the count-in's end; the
+  `tentative-generation-measure`; the `generation-measure` after an end by length; the
+  `extended-wait`; the `read-in` measure. The doodle's first measure is the measure of its first
+  counting note.
+- **The end by silence.** At each barline after the doodle's first measure, the capture judges
+  the barline silent when no doodle note sounds on it and none has snapped into the measure it
+  opens. A silent barline outputs `candidate-end` with the doodle quantized to that barline
+  (`quantizeDoodle`), and the tentative generation measure begins. A doodle note snapped inside it
+  outputs `candidate-voided` once it counts, and the measure joins the doodle. A measure that stays
+  silent outputs `doodle-ended` (`by: 'silence'`) with the same doodle, which ended at its start.
+- **The end by length.** The fourth barline after the doodle's first outputs `doodle-ended`
+  (`by: 'length'`) whatever sounds, a held note cut there, and the generation measure follows.
+- **The doodle end** (`RecordedDoodle`, `src/session/session-history-played-notes.ts`) holds the
+  quantized doodle, its capture tempo, its first and end barlines, and the raw doodle notes. Those
+  are every note-on whose snapped start falls in the doodle's measures, very short ones included,
+  named by pitch and onset. The end barline is where the generation measure begins, phrase 1's
+  deadline counted from it (chunk 18's ladder). Notes after the end belong to nothing.
+- **No doodle note.** With no counting doodle note 30 s after the count-in
+  (`FIRST_DOODLE_NOTE_SECONDS`), it outputs `no-note-played`; its caller ends the session with
+  that cause.
+- **Phrase 1.** `phraseOneReady(at)` is allowed once, in the tentative or the generation measure
+  or the extended wait. A void drops it. Phrase 1 is shown at the first barline at or after it is
+  ready, and never before the generation measure ends: `phrase-one-shown` gives `shownAt` and
+  `soundsAt`, one measure later. Until then the wait extends by whole measures. At `soundsAt` the
+  phase is `phrase-one` and the capture takes nothing more.
+- **The phase** (`phase()`, `JamPhase` in `src/jam/jam-phase.ts`) is the state with the beat it is
+  on. In the capture it also holds the doodle's measure (1 to 4, null before its first note); in
+  the tentative measure, the doodle's measures so far. Otherwise it is `phrase-one` or `ended`.
+  Chunk 21's cue row reads it, and it never holds a note. `end()` stops the capture when the Jam
+  ended from outside.
+
+### The doodle in the history
+
+`recordDoodle(doodle)` keeps a fresh Jam's `RecordedDoodle` once, before phrase 1 sounds and before
+the end. The history refuses, with a `SessionHistoryError`, a second doodle, one after a phrase is
+recorded or after the end, a capture tempo that is no whole BPM, barlines out of order, and a note
+onset more than a tick before the first barline or at or after the end barline. `doodle()` reads
+it back frozen as a `SessionDoodle`: the quantized doodle, the capture tempo, the barlines, and the
+raw doodle notes as `playedNotes`. Those are the finished played notes the doodle names, matched on
+pitch and exact onset (`doodlePlayedNotes`), by onset, each once its release has arrived. They are
+in no phrase, and every other note before phrase 1 is still in nothing.
+
+### Phrase 1's ladder
+
+v3.2 chunk 18. `createJamPhraseOne(deps, jam, capture)` (`src/jam/jam-phrase-one.ts`, Jam's code) is
+the pure state machine that runs the capture and drives the session from the doodle to phrase 1
+([rule_jam_phrase_one_failure_ladder](rule_jam_phrase_one_failure_ladder.atom.md),
+[rule_jam_phrase_one_deadline](rule_jam_phrase_one_deadline.atom.md)). Its caller feeds it the
+played notes (`note`), every engine output with the time it came (`session`) and its wake-ups
+(`advance`, at `nextDecisionAt()`); it answers with `session-event` (a `PhraseOneEvent` to
+dispatch), `capture` (each capture output passed on) and `no-phrase-one`. It takes every decision
+due by an input's time first, its own (the cutover, the deadline) and the capture's in time order.
+
+- **At each end of the doodle** (a `candidate-end`, or `doodle-ended` by length),
+  `doodleAttempts` (`src/jam/jam-phrase-one-attempts.ts`) reads the controls from the doodle
+  (`readDoodleControls`, with the window context now) into Jam's settings, builds the steering
+  block (`buildSteeringBlock`, Jam's drift) and the join (`doodleJoin`), and with Jam's lock on the
+  pending lock group ("on, nothing locked yet", Jam's allowed changes). The deadline is
+  `jamPhraseOneDeadline(end.endBarlineAt, tempo)` (`src/session/session-timing.ts`): three measures
+  after the generation measure begins.
+- **The six attempts** (`JamPhraseOneAttemptIndex`, `jamAttempt`): 0 to 3 rung 1 (step
+  `carry-in`: the join, the block, the lock group), 4 rung 2 (`standalone`: the block and the lock
+  group, the register read from the doodle), 5 rung 3 (`standalone`: v2's phrase, no block, no lock
+  group, so the lock then holds its own rhythm). The request's `retry` is the index. The first is
+  0, or 4 when the doodle gives no join, or 5 once the standalone attempt is due. After a failure:
+  5 once due, 4 after a rung 1 search that covered every candidate (`no_legal_pitch_plan`), the
+  next one otherwise; nothing after 5. At `cutoverAt(deadline)` a rung 1 or 2 attempt still
+  generating is superseded by 5 (the engine cancels it). Skipped attempts draw and discard their
+  request ids. Each seed comes from `deps.seedOf(index)`: in a fresh Jam
+  `jamPhraseOneSeed(sessionSeed, index)` (`src/session/session-seed-plan.ts`, label
+  `session-seed-plan-v1:jam-phrase-one:rung:<r>`, `JAM_PHRASE_ONE_ATTEMPTS` = 6, any other index a
+  `SessionSeedPlanError`); at Idle with a kept doodle, a fresh draw. The note density steps down
+  from phrase 1 on narrow windows, and only down.
+- **A voided candidate end** sends `cancel-phrase-one-attempt` and waits for the next end; the
+  attempt asked from it is rung 0 again, with the same seed.
+- **Ready and shown.** An attempt that fits is ready: the ladder tells the capture
+  (`phraseOneReady`) once every capture decision due by then is taken, so a void at that very
+  moment drops it first. When the capture shows phrase 1 (`phrase-one-shown`), the ladder hands it
+  over (`phrase-one`, `soundsAt`). Phrase 2 is then requested at once, due at the start of phrase
+  1's last measure. In a silence end phrase 1 cannot be decided before the generation measure's end,
+  so this is the earliest moment; after an end by length or in an extended wait it is the barline
+  after ready.
+- **Every rung failed**: at the deadline, nothing having fitted, the ladder stops the capture and
+  outputs `no-phrase-one`; the caller ends the session with that cause, a count-in end, and the
+  engine cancels any attempt still running.
+
+The transport takes phrase 1's start from the hand-over (spec D456; see
+[the audio transport](audio-transport.md)), so every reader of `phraseStartsAt` gets it.
+
+### The Jam from phrase 1
+
+v3.2 chunk 18b. From the hand-over a fresh Jam is a v2 session
+([rule_jam_runs_as_session_from_phrase_one](rule_jam_runs_as_session_from_phrase_one.atom.md)):
+
+- **The steering block on every request.** `phrase-one-attempt` carries `steering`, the block every
+  request of the session carries from phrase 2 on, whatever the attempt's own intent holds (a rung
+  3 phrase 1 has none). The hand-over passes it into the engine's context (`IntentSeams.steering`),
+  and `buildAttemptIntent` adds it to every attempt, the standalone one included
+  ([rule_every_jam_phrase_carries_doodle](rule_every_jam_phrase_carries_doodle.atom.md)). Phrase 2
+  onward join the phrase before as in any session. With no `steering`, nothing changes.
+- **The step-down from phrase 1.** When phrase 1 was generated with another note density than the
+  one in effect (Eighth for a Sixteenth read from the doodle, below `bp-tablet-landscape`), the
+  engine opens stepped down, so every later phrase is generated as Eighth.
+- **The lock.** With Jam's lock on (`settings.rhythmLockOn`, Jam's own value), the engine locks
+  phrase 1's written bars at the hand-over, as it locks an Idle phrase 1 (chunk 16's machinery).
+- **Session mode's options.** The workspace starts the runner with Vary settings, Tension across
+  phrases and Rising tempo off, whatever their saved choices.
+- **The suggestion.** At `doodle-ended` the ladder outputs `suggestion` (`doodleSuggestion`:
+  `suggestKeyAndMode` against Jam's written key and mode); Jam's code keeps it with
+  `recordSuggestion` on the handle, and the history reads it back with `suggestion()`
+  (`DoodleSuggestion`, beside the doodle, once).
+- **The silence timer** arms on the first note played at or after phrase 1's start, which the MIDI
+  side reads from `phraseStartsAt(1)`, now the handed-over time.
 
 ## What later chunks add
 

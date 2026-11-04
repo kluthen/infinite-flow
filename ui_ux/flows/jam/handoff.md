@@ -49,7 +49,7 @@ flowchart TD
   GM["Generation measure: jam-writing; phrase 1 written from the doodle; the suggestion worked out, nothing shown"] -->|"Phrase 1 ready: shown at the next barline"| RI
   GM -->|"Not ready at the barline"| EW
   EW["Extended wait: jam-writing, whole measures, at most three measures from the generation measure's start; rungs 1, 2, then 3"] -->|"Phrase 1 ready: shown at the next barline"| RI
-  EW -->|"Every rung failed by the deadline"| END1
+  EW -->|"Every rung failed: the Jam ends at the deadline, even when the last rung failed earlier"| END1
   RI["Read-in measure: phrase 1 enters (staff-jam leaves); doodle-readings fill; count-in beats in the cue row"] -->|"Beat 4 ends: phrase 1 sounds, with the backing"| PS["flows/play-session/: Session running"]
   PS -->|"Session end: the review opens; Jam mode keeps the doodle"| KEPT["The Kept Doodle"]
   CI & CW & CM & TS & GM & EW & RI -->|"Stop, tab hidden, or the staff can no longer be shown"| END0
@@ -218,7 +218,9 @@ flowchart TD
   always given the time it needs before the deadline. Phrase 1 is valid only if it also engraves
   in the session staff layout at the legibility floor at the current viewport size; a misfit is a
   failed attempt, as for any session phrase. Nothing shows which rung wrote phrase 1.
-- **Every rung failed by the deadline:** the Jam ends as a count-in end, and `staff-jam` adds
+- **Every rung failed by the deadline:** the Jam ends at the deadline, even when the last rung
+  failed earlier: until then the wait goes on as above, `jam-writing` shown and the click going
+  on. It ends as a count-in end, and `staff-jam` adds
   `jam-notice` under `jam-instruction`: "The app couldn't continue your doodle with these
   settings. Try again, or change a setting." (below `bp-tablet-landscape`, in place of
   `jam-instruction` while it shows). It stays until the next start or a change to any of Jam's
@@ -229,9 +231,12 @@ flowchart TD
   phrase 1's `staff-content` the ordinary fade, in the session staff layout held from the start
   (the top system in the one-system layout; bars 1–2 on top and 3–4 below in the split layout).
   `doodle-readings` fills, silently, in the controls below. `session-cue-row` holds `count-in`,
-  its four beats lit on the audio clock as during a count-in. Phrase 2 is requested as soon as
-  phrase 1 is ready; in the one-system layout it enters the bottom system when engraved, as after
-  v2's count-in. No playhead yet.
+  its four beats lit on the audio clock as during a count-in. Phrase 1 is handed to the session
+  at this barline, and phrase 2 is requested then: after an end by silence that is the earliest
+  moment, since a note in the silent measure would still have joined the doodle; after an end by
+  length or an extended wait, it is the barline after phrase 1 is ready. Phrase 2's deadline is
+  the start of phrase 1's last measure. In the one-system layout it enters the bottom system when
+  engraved, as after v2's count-in. No playhead yet.
 - **Phrase 1 sounds** at the end of the read-in measure, with the backing: the Jam is
   **Session running** (`flows/play-session/`), from which it runs, ends and opens its review as
   any session, without Vary settings, Tension across phrases or Rising tempo. The silence timer

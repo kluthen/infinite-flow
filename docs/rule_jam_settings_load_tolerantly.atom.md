@@ -3,7 +3,8 @@ id: rule_jam_settings_load_tolerantly
 status: DRAFT
 version: 0.1
 priority: 1
-dependents: []
+dependents:
+  - [[module_jam_settings]]
 human_name: Jam's Saved Settings Load One by One
 tags: [v3, release-v3.2, jam, player-controls, storage]
 parents:

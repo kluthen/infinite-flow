@@ -17,7 +17,10 @@ import type { SessionBrowserPorts } from '@/session/session-browser-ports'
 import type { AudioTransport } from '@/audio/audio-transport'
 import type { MidiController } from '@/midi/midi-controller'
 import type { WorkspacePregenerationPolicy, WorkspacePrewarmPolicy } from './prewarm-policy'
-import type { WorkspaceSessionStart } from '@/components/workspace/workspace-session-runner'
+import type {
+  WorkspaceSessionStart,
+  WorkspaceSessionStartWithoutPhraseOne,
+} from '@/components/workspace/workspace-session-runner'
 import type { SessionControllerClock } from './workspace-session-controller-seams'
 import type { SavedDataLoad } from '@/storage-bootstrap'
 
@@ -35,7 +38,7 @@ export interface WorkspaceSessionRunnerInput extends Pick<
   SessionRunnerDependencies,
   'checkFit' | 'now' | 'display' | 'onOutput' | 'onError'
 > {
-  readonly start: WorkspaceSessionStart
+  readonly start: WorkspaceSessionStart | WorkspaceSessionStartWithoutPhraseOne
 }
 
 /** Starts one session runner from the workspace, synchronously, once its module has loaded. */

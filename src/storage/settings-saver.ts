@@ -24,6 +24,7 @@ import {
 } from './records/controller-record'
 import {
   encodeSettingRecord,
+  JAM_SETTING_KEYS,
   SETTING_KEYS,
   type SettingKey,
   type SettingValue,
@@ -121,7 +122,8 @@ export interface VisitSaves
 /** A call waiting for, or made to, the loaded policy. */
 type PolicyCall = (policy: SavePolicy) => void
 
-const SETTING_KEY_SET: ReadonlySet<string> = new Set(SETTING_KEYS)
+/** Every setting's record key, session mode's and Jam's. */
+const SETTING_KEY_SET: ReadonlySet<string> = new Set([...SETTING_KEYS, ...JAM_SETTING_KEYS])
 
 /**
  * Intent: the batch of record writes for one change of the player's, one per setting. A key that

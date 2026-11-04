@@ -5,7 +5,7 @@ type: MODULE
 layer: ARCHITECTURE
 human_name: Session Silence Timeout
 tags: workspace,session,midi
-version: 0.2
+version: 0.3
 priority: 1
 parents:
   - [[rule_silence_timeout_ends_session]]
@@ -19,10 +19,10 @@ dependents: []
 End a session with a controller once the player has stopped playing for longer than the silence timeout.
 
 ## THE RULE / LOGIC
-The silence timer is armed by the first note played (in a session the starting note started, the starting note itself, from its onset), re-armed by every played note whether it matches or not, and suspended while the controller is lost; once a played note has armed it, it counts again from the moment the controller reattaches. The session ends with the silence-timeout cause once the audio clock is strictly past 30 seconds after the last arming, and a session in which no note is ever played never times out.
+The silence timer is armed by the first note played (in a session the starting note started, the starting note itself, from its onset), re-armed by every played note whether it matches or not, and suspended while the controller is lost; once a played note has armed it, it counts again from the moment the controller reattaches. The session ends with the silence-timeout cause once the audio clock is strictly past 30 seconds after the last arming, and a session in which no note is ever played never times out. In a session started without phrase 1 (module_session_start_without_phrase_one) no note arms the timer before phrase 1 sounds, the note that started it included: the first note that arms it is one played from phrase 1's start on.
 
 ## TECHNICAL INTERFACE
-The session end causes include silence-timeout. The silence timer is set on the session's audio-time agenda.
+The session end causes include silence-timeout. The silence timer is set on the session's audio-time agenda. In a session started without phrase 1, noteArmsSilenceBeforePhraseOne(onsetAt, phraseOneAt) (src/session/session-midi-timers.ts) says whether a note arms it.
 
 ## EXPECTATION
 In a session with a controller, more than 30 seconds without a played note after the first ends it with silence-timeout.

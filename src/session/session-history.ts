@@ -29,7 +29,13 @@ import {
   type InstrumentProfileId,
 } from '../domain/profile/instrument-profiles'
 import type { Seed } from '../domain/random/seed'
-import { withPlayedNotes } from './session-history-played-notes'
+import {
+  doodlePlayedNotes,
+  withPlayedNotes,
+  type DoodleSuggestion,
+  type RecordedDoodle,
+  type SessionDoodle,
+} from './session-history-played-notes'
 import type {
   AudioTime,
   MutationSkippedOutput,
@@ -37,6 +43,13 @@ import type {
   SessionSettings,
   SuccessfulOutcome,
 } from './session-types'
+
+export type {
+  PlayedNoteIdentity,
+  DoodleSuggestion,
+  RecordedDoodle,
+  SessionDoodle,
+} from './session-history-played-notes'
 
 /** A note the player played during a phrase: its concert pitch, velocity and audio-clock span. */
 // @spec-link [[rule_session_history_records_played_notes]]
@@ -132,7 +145,11 @@ export interface SessionHistory {
   record(output: SessionOutput): void
   recordPlayedNote(note: RecordedPlayedNote): void
   recordAcknowledgement(identity: ExpectedNoteIdentity): void
+  recordDoodle(doodle: RecordedDoodle): void
+  recordSuggestion(suggestion: DoodleSuggestion): void
   phrases(): readonly SessionHistoryRecord[]
+  doodle(): SessionDoodle | null
+  suggestion(): DoodleSuggestion | null
   // @spec-link [[rule_vary_settings_skips_dead_end]]
   skippedMutations(): readonly SkippedMutation[]
   // @spec-link [[rule_adaptive_tempo_resets_after_session]]
@@ -335,6 +352,44 @@ function checkedPlayedNote(note: RecordedPlayedNote): RecordedPlayedNote {
   return deepFreeze({ pitch, velocity, onsetAt, releaseAt })
 }
 
+/** Sixteenth-note ticks in a beat: a note's snapped start is at most half of one off its onset. */
+const TICKS_PER_BEAT = 4
+
+/**
+ * Intent: a deep-frozen copy of a doodle, or a SessionHistoryError when its capture tempo is no
+ * whole positive BPM, its barlines are not finite or not in order, or one of its notes has an
+ * onset no snapping can place inside the doodle (more than a tick before its first barline, or at
+ * or after its end barline).
+ */
+function checkedDoodle(recorded: RecordedDoodle): RecordedDoodle {
+  const { doodle, captureTempo, firstBarlineAt, endBarlineAt, notes } = recorded
+  if (!Number.isSafeInteger(captureTempo) || captureTempo <= 0)
+    throw new SessionHistoryError(
+      `A doodle's capture tempo must be a whole BPM, got ${captureTempo}.`,
+    )
+  if (
+    !Number.isFinite(firstBarlineAt) ||
+    !Number.isFinite(endBarlineAt) ||
+    endBarlineAt <= firstBarlineAt
+  )
+    throw new SessionHistoryError(
+      `A doodle must end after its first barline, got ${firstBarlineAt} to ${endBarlineAt}.`,
+    )
+  const tick = 60 / captureTempo / TICKS_PER_BEAT
+  for (const { onsetAt } of notes)
+    if (!(onsetAt >= firstBarlineAt - tick && onsetAt < endBarlineAt))
+      throw new SessionHistoryError(
+        `A doodle note's onset ${onsetAt} cannot snap inside ${firstBarlineAt} to ${endBarlineAt}.`,
+      )
+  return deepFreeze({
+    doodle,
+    captureTempo,
+    firstBarlineAt,
+    endBarlineAt,
+    notes: notes.map(({ pitch, onsetAt }) => ({ pitch, onsetAt })),
+  })
+}
+
 /**
  * Intent: a deep-frozen copy of an acknowledged note's identity and its key, or a
  * SessionHistoryError when it names no possible note of the session.
@@ -428,6 +483,8 @@ export function createSessionHistory(
   const acknowledgements: ExpectedNoteIdentity[] = []
   const acknowledgedKeys = new Set<string>()
   const skips: SkippedMutation[] = []
+  let doodle: RecordedDoodle | null = null
+  let suggestion: DoodleSuggestion | null = null
   let snapshot: readonly SessionHistoryRecord[] | undefined
   let ended = false
 
@@ -478,6 +535,35 @@ export function createSessionHistory(
       acknowledgedKeys.add(checked.key)
       acknowledgements.push(checked.identity)
       snapshot = undefined
+    },
+    /**
+     * Intent: keep a fresh Jam's doodle, once, before phrase 1 sounds; its raw notes are marked on
+     * read among the played notes.
+     */
+    recordDoodle(recorded: RecordedDoodle): void {
+      assertOpen('A doodle')
+      if (doodle !== null) throw new SessionHistoryError('The session already holds a doodle.')
+      if (records.length > 0)
+        throw new SessionHistoryError('A doodle arrived after phrase 1 started sounding.')
+      doodle = checkedDoodle(recorded)
+    },
+    /** Intent: keep the suggestion worked out at the doodle's end, once, after the doodle. */
+    recordSuggestion(worked: DoodleSuggestion): void {
+      assertOpen('A suggestion')
+      if (doodle === null) throw new SessionHistoryError('A suggestion arrived with no doodle.')
+      if (suggestion !== null)
+        throw new SessionHistoryError('The session already holds a suggestion.')
+      suggestion = deepFreeze({ ...worked })
+    },
+    /** Intent: the suggestion kept with the session, or null when none was worked out. */
+    suggestion(): DoodleSuggestion | null {
+      return suggestion
+    },
+    /** Intent: the doodle with its raw notes marked among the played notes, or null; frozen. */
+    doodle(): SessionDoodle | null {
+      if (doodle === null) return null
+      const { notes, ...kept } = doodle
+      return Object.freeze({ ...kept, playedNotes: doodlePlayedNotes(notes, playedNotes) })
     },
     /**
      * Intent: every recorded phrase in sounding order with its acknowledgements and played notes,

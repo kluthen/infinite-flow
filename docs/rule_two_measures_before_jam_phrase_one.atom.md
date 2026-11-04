@@ -9,7 +9,8 @@ layer: BUSINESS
 priority: 1
 parents:
   - [[req_jam]]
-dependents: []
+dependents:
+  - [[module_jam_capture]]
 ---
 
 # Two Measures Between the Doodle and Phrase 1

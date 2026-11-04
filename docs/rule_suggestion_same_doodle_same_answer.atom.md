@@ -2,7 +2,8 @@
 id: rule_suggestion_same_doodle_same_answer
 status: DRAFT
 tags: [v3, release-v3.2, jam, key-and-mode-suggestion, determinism]
-dependents: []
+dependents:
+  - [[module_key_suggestion]]
 type: RULE
 layer: BUSINESS
 version: 0.2

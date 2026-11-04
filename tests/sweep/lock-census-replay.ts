@@ -74,7 +74,7 @@ function asJson(value: unknown): unknown {
  * session's, as JSON data. A key of another version, or a replay that did not succeed, does not
  * match.
  */
-export function replaySample(sample: ReplaySample): {
+export function replaySample(sample: Pick<ReplaySample, 'phraseNumber' | 'intent' | 'sounded'>): {
   readonly key: string
   readonly matched: boolean
 } {
