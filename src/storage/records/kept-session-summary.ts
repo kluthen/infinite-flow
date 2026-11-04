@@ -243,11 +243,15 @@ export function rewrittenKeptSummaryRecordV2(
 
 /**
  * The session's own facts a change after its save may change: whether it is pinned, its
- * favorites count, its comment and whether its played notes are kept.
+ * favorites count, its comment, whether its played notes are kept and, for a Jam session only,
+ * whether its suggestion was declined.
  */
 // @spec-link [[module_kept_session_changes]]
 export type KeptSummaryEdit = Partial<
-  Pick<KeptSessionSummary, 'pinned' | 'favoritesCount' | 'comment' | 'playedNotesKept'>
+  Pick<
+    KeptSessionSummary,
+    'pinned' | 'favoritesCount' | 'comment' | 'playedNotesKept' | 'suggestionDeclined'
+  >
 >
 
 /**
@@ -255,7 +259,7 @@ export type KeptSummaryEdit = Partial<
  * player's change applied to what is stored, so a fact another tab changed since the load stays;
  * the app version that recorded the session stays, the record is written by `appVersion`. Nothing
  * when no record is stored, or it cannot be read, or a newer app wrote it. Throws on an empty app
- * version or a comment over 500 characters.
+ * version, a comment over 500 characters, or a declined suggestion for a session that is no Jam.
  */
 // @spec-link [[module_kept_session_changes]]
 // @spec-link [[entity_kept_session_record]]
@@ -432,6 +436,7 @@ export type NewerKeptSummaryFacts = Partial<
     | 'favoritesCount'
     | 'comment'
     | 'playedNotesKept'
+    | 'isJam'
   >
 >
 
@@ -449,6 +454,7 @@ const NEWER_FACT_READERS: {
     integerIn(value, 0, Number.MAX_SAFE_INTEGER, 'Kept session.favoritesCount'),
   comment: parseComment,
   playedNotesKept: (value) => booleanValue(value, 'Kept session.playedNotesKept'),
+  isJam: (value) => booleanValue(value, 'Kept session.isJam'),
 }
 
 /**

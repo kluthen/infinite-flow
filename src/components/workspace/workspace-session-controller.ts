@@ -372,6 +372,7 @@ export function createSessionController(deps: SessionControllerDependencies): Se
     setFavorite: edits.setFavorite,
     setPinned: edits.setPinned,
     setComment: edits.setComment,
+    declineSuggestion: edits.declineSuggestion,
     deleteSession: edits.deleteSession,
     deleteEverySession,
     myInstrumentSessions,

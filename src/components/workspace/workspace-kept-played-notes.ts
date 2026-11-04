@@ -18,6 +18,7 @@ import {
 } from './kept-session-changes'
 import { mayKeepPlayedNotes, withoutPlayedNotes, withPlayedNotesKept } from './session-review-state'
 import type { KeptSessionRows } from './use-kept-sessions'
+import { keptFreshJam } from './workspace-session-save'
 import type { SessionControllerCore } from './workspace-session-active'
 import {
   SessionControllerError,
@@ -95,7 +96,10 @@ export function createKeptPlayedNotes(
     rows.edited(next.key, { playedNotesKept: next.playedNotesKept })
   }
 
-  /** Intent: keep the most recent session's played notes, still in memory, once it is kept. */
+  /**
+   * Intent: keep the most recent session's played notes, still in memory, once it is kept; a
+   * fresh Jam's raw doodle notes with them.
+   */
   // @spec-link [[rule_played_notes_kept_only_after_opt_in]]
   const keepMostRecent = async (): Promise<void> => {
     const recent = state.mostRecent
@@ -103,7 +107,8 @@ export function createKeptPlayedNotes(
     const session = recent.session
     replaceHeld(withPlayedNotesKept(session))
     // A refusal is told by the notice row; the change holds in memory for the visit.
-    await keepSessionPlayedNotes(kept.changes, session.key, session.history)
+    const fresh = session.jam === undefined ? undefined : keptFreshJam(session.jam)
+    await keepSessionPlayedNotes(kept.changes, session.key, session.history, fresh)
   }
 
   /** Intent: turn the setting; on, keep the most recent session's; off, count what is kept. */

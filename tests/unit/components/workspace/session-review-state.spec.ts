@@ -40,7 +40,12 @@ import { myInstrumentHistory } from './my-instrument-history'
  * How each ended session here is saved: under a fixed key, its played notes not kept, the session
  * knowing the built-in presets only.
  */
-const SAVE = { key: 'session-1-1', playedNotesKept: false, presets: BUILT_IN_PRESETS } as const
+const SAVE = {
+  key: 'session-1-1',
+  playedNotesKept: false,
+  presets: BUILT_IN_PRESETS,
+  jam: null,
+} as const
 
 /** Intent: the closed history of a driven session, fed every output the driver logged. */
 function historyOf(driver: SessionDriver): SessionHistory {

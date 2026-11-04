@@ -76,6 +76,7 @@ export interface FakeSessionController {
   readonly setFavorite: Mock<SessionController['setFavorite']>
   readonly setPinned: Mock<SessionController['setPinned']>
   readonly setComment: Mock<SessionController['setComment']>
+  readonly declineSuggestion: Mock<SessionController['declineSuggestion']>
   readonly deleteSession: Mock<SessionController['deleteSession']>
   readonly deleteEverySession: Mock<SessionController['deleteEverySession']>
   readonly myInstrumentSessions: Mock<SessionController['myInstrumentSessions']>
@@ -397,6 +398,13 @@ export function createFakeSessionController(
   const setComment = vi.fn((_key: string, comment: string) =>
     changed((review) => ({ ...review, comment: comment.trim() })),
   )
+  const declineSuggestion = vi.fn(() =>
+    changed((review) =>
+      review.jam === undefined
+        ? review
+        : { ...review, jam: { ...review.jam, suggestionDeclined: true } },
+    ),
+  )
   const deleteSession = vi.fn((): Promise<SessionDeletion> => {
     if (state.review?.showing === true) state.listShowing = true
     state.review = null
@@ -448,6 +456,7 @@ export function createFakeSessionController(
       setFavorite,
       setPinned,
       setComment,
+      declineSuggestion,
       deleteSession,
       deleteEverySession,
       myInstrumentSessions,
@@ -475,6 +484,7 @@ export function createFakeSessionController(
     setFavorite,
     setPinned,
     setComment,
+    declineSuggestion,
     deleteSession,
     deleteEverySession,
     myInstrumentSessions,

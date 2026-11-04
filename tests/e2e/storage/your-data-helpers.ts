@@ -22,9 +22,9 @@ export const OUTDATED_NOTICE =
   "A newer version of the app saved this data, so it isn't listed here, and nothing can be deleted until the page is reloaded. Reload the page to see it."
 export const OUTDATED_DEFAULTS_NOTICE =
   "Your saved data couldn't be read in this visit, so it isn't listed here. A newer version of the app has also saved data on this device, so nothing can be deleted until the page is reloaded. Reload the page to use the newer version."
-/** The Settings section's line (spec D381). */
+/** The Settings section's line (spec D381), naming Jam's settings from v3.2. */
 export const SETTINGS_LINE =
-  "The phrase controls, the preset, the instrument choice, the theme, the audio mix, the During a session options and the review's choices. They come back as you left them."
+  "The phrase controls, the preset, the instrument choice, the theme, the audio mix, the During a session options, your Jam settings and the review's choices. They come back as you left them."
 /** The Presets section's lines with no player preset. */
 export const NO_PRESETS = ['None.', 'Save one with Save as new preset, in the controls.']
 /** The Presets section's hint with at least one player preset. */

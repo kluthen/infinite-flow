@@ -1,11 +1,11 @@
 /**
  * The changes a Review makes to a kept session after its own save, in the shape of the played-notes
- * changes beside them (./kept-session-changes.ts): a favorite mark, a pin or unpin, the comment and
- * Delete session. Each is one batch through the visit's saves, in the line of the session saves,
+ * changes beside them (./kept-session-changes.ts): a favorite mark, a pin or unpin, the comment, a
+ * Jam session's `Keep mine` (its suggestion declined) and Delete session. Each is one batch through the visit's saves, in the line of the session saves,
  * built from what it reads at the change, so only the player's change is applied to what is stored
  * and a fact another tab changed since the load stays. A favorite mark rewrites the body, where the
  * marks live, and the session-wide record with the favorites count the body then holds (marking
- * also pins); a pin and the comment rewrite the session-wide record only; Delete session deletes
+ * also pins); a pin, the comment and the decline rewrite the session-wide record only; Delete session deletes
  * the session-wide record, the body and the played notes together. A change to a session no longer
  * stored, or whose records cannot be read, writes nothing and recreates nothing. A pin, an unpin
  * and Delete session also come from a session list row, for a kept session not held in memory,
@@ -98,6 +98,20 @@ export function commentChanges(
   appVersion: string,
 ): KeptChanges {
   return keptSummaryChanges(codec, key, { comment }, [], appVersion)
+}
+
+/**
+ * Intent: the change that declines the key and mode suggestion of the Jam session under `key`
+ * (`Keep mine`): its session-wide record rewritten saying so, and nothing else.
+ */
+// @spec-link [[module_kept_session_changes]]
+// @spec-link [[rule_suggestion_keep_mine]]
+export function declineChanges(
+  codec: KeptReviewCodec,
+  key: string,
+  appVersion: string,
+): KeptChanges {
+  return keptSummaryChanges(codec, key, { suggestionDeclined: true }, [], appVersion)
 }
 
 /** The stores a kept session's records live in, each under the session's key. */
@@ -204,6 +218,16 @@ export function changeKeptComment(
   comment: string,
 ): Promise<KeptChangeOutcome> {
   return changed(saves, (codec) => commentChanges(codec, key, comment, APP_VERSION), 'notice')
+}
+
+/** Intent: decline the suggestion of the Jam session under `key`; the notice row tells a refusal. */
+// @spec-link [[module_kept_session_changes]]
+// @spec-link [[rule_suggestion_keep_mine]]
+export function changeKeptDecline(
+  saves: Pick<KeptSessionChanges, 'changeKept'>,
+  key: string,
+): Promise<KeptChangeOutcome> {
+  return changed(saves, (codec) => declineChanges(codec, key, APP_VERSION), 'notice')
 }
 
 /** Intent: delete the session under `key` and its records; its sheet tells a refusal. */

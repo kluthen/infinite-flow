@@ -4,7 +4,9 @@
  * from what it reads at the change, so only the player's change is applied to what is stored and a
  * fact another tab changed since the load stays. A session is named by the key its save minted. A
  * change to a session no longer stored, or whose session-wide record cannot be read, writes
- * nothing and recreates nothing. Deleting every kept played note deletes every stored played-notes
+ * nothing and recreates nothing. A Jam session's raw doodle notes are in its played-notes record,
+ * so keeping or deleting its played notes keeps or deletes them too; its body, with its quantized
+ * doodle and its clock, stays. Deleting every kept played note deletes every stored played-notes
  * record, an unreadable session's included, never reading a played note, and rewrites every
  * readable session-wide record that said they were kept. The kept-session codec is loaded on
  * demand, as the session's save loads it. Every other change to one session after its save (a
@@ -20,6 +22,7 @@ import type {
   KeptReadOutcome,
   KeptRefusal,
 } from '@/storage/save-policy'
+import type { KeptFreshJam } from '@/storage/records/kept-session-record'
 import type { KeptSessionChanges } from '@/storage/settings-saver'
 import type { StorageChange } from '@/storage/storage-port'
 
@@ -63,17 +66,20 @@ export function keptSummaryChanges(
 
 /**
  * Intent: the change that keeps the played notes of the session under `key`, read from its
- * history in memory: its played-notes record written, and its session-wide record saying so.
+ * history in memory, and for a fresh Jam (`fresh` given) its raw doodle notes with them, timed
+ * from its count-in: its played-notes record written, and its session-wide record saying so.
  */
 // @spec-link [[module_kept_session_changes]]
 // @spec-link [[rule_played_notes_kept_only_after_opt_in]]
+// @spec-link [[rule_raw_doodle_notes_are_played_notes]]
 export function keepPlayedNotesChanges(
   codec: KeptChangeCodec,
   key: string,
   history: Pick<ExportableHistory, 'phrases'>,
   appVersion: string,
+  fresh?: KeptFreshJam,
 ): KeptChanges {
-  const record = codec.encodeKeptPlayedNotes(history, appVersion)
+  const record = codec.encodeKeptPlayedNotes(history, appVersion, fresh)
   const write: StorageChange = { kind: 'write', store: 'playedNotes', key, record }
   return keptSummaryChanges(codec, key, { playedNotesKept: true }, [write], appVersion)
 }
@@ -140,8 +146,9 @@ async function changed(
 }
 
 /**
- * Intent: keep the played notes of the session under `key` after its save; a refusal is told
- * by the notice row, the change holding in memory.
+ * Intent: keep the played notes of the session under `key` after its save, a fresh Jam's raw
+ * doodle notes with them (`fresh` given); a refusal is told by the notice row, the change holding
+ * in memory.
  */
 // @spec-link [[module_kept_session_changes]]
 // @spec-link [[rule_played_notes_kept_only_after_opt_in]]
@@ -149,10 +156,11 @@ export function keepSessionPlayedNotes(
   saves: Pick<KeptSessionChanges, 'changeKept'>,
   key: string,
   history: Pick<ExportableHistory, 'phrases'>,
+  fresh?: KeptFreshJam,
 ): Promise<KeptChangeOutcome> {
   return changed(
     saves,
-    (codec) => keepPlayedNotesChanges(codec, key, history, APP_VERSION),
+    (codec) => keepPlayedNotesChanges(codec, key, history, APP_VERSION, fresh),
     'notice',
   )
 }

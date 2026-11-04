@@ -45,6 +45,9 @@
  *   Two player presets are saved there too, through the preset bar, one meant only for the key and
  *   mode in force, and the sessions play under one of them (v3.1 release gate, definition of done
  *   item 21): none is sent.
+ * - **A Jam** (v3.2 chunk 30): the storage half again, after a fresh Jam whose doodle and phrase 1
+ *   were played: its quantized doodle is in the body, and no raw doodle note and no played note is
+ *   stored while `Keep my played notes` is off.
  */
 import {
   expect,
@@ -64,6 +67,7 @@ import {
   sheetClose,
   watchPageErrors,
 } from '../controller/controller-helpers'
+import { doodleNote, gotoJamIdle, jamToRunning, startJamByClick } from '../session/jam-helpers'
 import { sessionAction, sessionState } from '../session/session-helpers'
 import { noteOff, noteOn } from '../session/session-midi-helpers'
 import { INSTRUMENT_GROUP, MY_INSTRUMENT_ID } from '../storage/my-instrument-sheet-helpers'
@@ -604,6 +608,36 @@ test.describe('a session under a network and storage spy', () => {
     expect(silent.musicXml.equals(played.musicXml), 'MusicXML').toBe(true)
     expect(silent.midi.equals(played.midi), 'MIDI').toBe(true)
     expect(silent.midiWithBacking.equals(played.midiWithBacking), 'MIDI with backing').toBe(true)
+  })
+
+  // v3.2 chunk 30: the storage half with a Jam. A fresh Jam whose doodle and phrase 1 were played,
+  // with Keep my played notes off, keeps its quantized doodle in the body, and no raw doodle note
+  // and no played note reaches storage.
+  // @test-link [[rule_optional_midi_privacy]]
+  // @test-link [[rule_raw_doodle_notes_are_played_notes]]
+  // @test-link [[module_kept_jam_session]]
+  test('a fresh Jam with its doodle and phrase 1 played stores its doodle and no raw doodle note while Keep my played notes is off', async ({
+    page,
+  }) => {
+    test.setTimeout(120_000)
+    await installPrivacySpy(page)
+    await gotoJamIdle(page)
+    await startJamByClick(page)
+    const grid = await jamToRunning(page)
+    await doodleNote(page, 62, grid.barline(3) + 1.1)
+    await sessionAction(page).click()
+    await expect(reviewPanel(page)).toBeVisible()
+    await expect(keepPlayedNotesToggle(page)).toHaveAttribute('aria-pressed', 'false')
+
+    await expectNothingSentOrStored(page)
+    await expectOnlyKeptSessionAndSettingsStored(page)
+    const [summary] = await keyedRecords(page, 'sessionSummaries')
+    expect(summary?.value).toEqual(expect.objectContaining({ isJam: true, playedNotesKept: false }))
+    const [body] = await keyedRecords(page, 'sessionBodies')
+    expect(body?.value).toEqual(expect.objectContaining({ doodle: expect.any(Object) }))
+    expect(
+      (await sessionState(page)).lastHistoryPhrases?.flatMap((p) => p.playedNotes),
+    ).toHaveLength(1)
   })
 
   // @test-link [[rule_session_data_never_sent_or_stored]]

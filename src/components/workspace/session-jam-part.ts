@@ -2,9 +2,10 @@
  * The Jam part of a reviewed session: what the review of an ended Jam is drawn from beside its
  * closed history (its doodle section, the raw doodle notes in its played-notes lane, its key and
  * mode suggestion), and the controls taken from the doodle, carried for Jam's view, which the
- * review never shows. Gathered once at the end, from the closed history and the running session;
- * a session that is no Jam has none. Pure; Jam's types are imported as types only, erased from the
- * bundle.
+ * review never shows. Gathered once at the end, from the closed history and the running session,
+ * or read back from a kept Jam session's records; a session that is no Jam has none. Beside it,
+ * what deleting the played notes and `Keep mine` make of it. Pure; Jam's types are imported as
+ * types only, erased from the bundle.
  */
 import type { DoodleReadings } from '@/jam/doodle-controls'
 import type { DoodleSuggestion, SessionDoodle } from '@/session/session-history'
@@ -15,15 +16,19 @@ import type { ActiveSession } from './workspace-session-active'
  * The Jam part of a reviewed session: the doodle (quantized, with its capture tempo, its first
  * and end barlines and its raw notes, which belong to no phrase), the first beat of a fresh Jam's
  * count-in (the clock its played notes are kept on), the suggestion worked out at the doodle's
- * end, whether the player has declined it, and the controls taken from the doodle.
+ * end, whether the player has declined it, and the controls taken from the doodle. A kept Jam
+ * session read back gives the same shape from its records, its times on its phrases' clock
+ * (phrase 1 starting at 0); its records hold neither the suggestion nor the controls, so both are
+ * null there: Jam's code works the suggestion out again from the doodle, the same doodle giving
+ * the same answer, and the controls are only ever read at the Jam's end.
  */
 // @spec-link [[module_jam_session_end]]
 export interface ReviewedJamPart {
   readonly doodle: SessionDoodle
   readonly countInStartAt: AudioTime
-  readonly suggestion: DoodleSuggestion
+  readonly suggestion: DoodleSuggestion | null
   readonly suggestionDeclined: boolean
-  readonly doodleControls: DoodleReadings
+  readonly doodleControls: DoodleReadings | null
 }
 
 /** What the end reads a session's Jam part from: the running session, its history closed. */
@@ -58,4 +63,28 @@ export function jamPartOf(session: EndedJamSources): ReviewedJamPart | null {
     suggestionDeclined: false,
     doodleControls,
   })
+}
+
+/** Intent: whether a Jam part holds a raw doodle note, which counts as a played note to keep. */
+// @spec-link [[rule_raw_doodle_notes_are_played_notes]]
+export function holdsRawDoodleNote(jam: ReviewedJamPart): boolean {
+  return jam.doodle.playedNotes.length > 0
+}
+
+/**
+ * Intent: a Jam part once its session's played notes are deleted: no raw doodle note, its
+ * quantized doodle, its barlines and everything else kept.
+ */
+// @spec-link [[rule_deleting_played_notes_keeps_quantized_doodle]]
+export function withoutRawDoodleNotes(jam: ReviewedJamPart): ReviewedJamPart {
+  return Object.freeze({
+    ...jam,
+    doodle: Object.freeze({ ...jam.doodle, playedNotes: Object.freeze([]) }),
+  })
+}
+
+/** Intent: a Jam part with its key and mode suggestion declined (`Keep mine`), all else as held. */
+// @spec-link [[rule_suggestion_keep_mine]]
+export function declinedJamPart(jam: ReviewedJamPart): ReviewedJamPart {
+  return Object.freeze({ ...jam, suggestionDeclined: true })
 }

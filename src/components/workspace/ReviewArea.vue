@@ -260,6 +260,7 @@ defineExpose({ focusReviewTitle: focus.title })
     :records="review.records.value"
     :instrument-name="review.instrumentName.value"
     :preset-label="review.presetLabel.value"
+    :is-jam="review.isJam.value"
     :started-at="reviewSession.startedAt"
     :length-seconds="reviewSession.lengthSeconds"
     :most-recent="review.mostRecent.value"

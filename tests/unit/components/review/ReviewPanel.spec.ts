@@ -35,6 +35,7 @@ interface PanelOptions {
   readonly records?: readonly SessionHistoryRecord[]
   readonly instrumentName?: string
   readonly presetLabel?: string
+  readonly isJam?: boolean
   readonly startedAt?: number
   readonly lengthSeconds?: number
   readonly mostRecent?: boolean
@@ -55,6 +56,7 @@ function mountPanel(options: PanelOptions = {}) {
       records: options.records ?? recordedRecords(),
       instrumentName: options.instrumentName ?? 'B-flat tenor saxophone',
       presetLabel: options.presetLabel ?? 'Neutral',
+      isJam: options.isJam ?? false,
       startedAt: options.startedAt ?? STARTED_AT,
       lengthSeconds: options.lengthSeconds ?? 240,
       mostRecent: options.mostRecent ?? true,
@@ -165,6 +167,20 @@ describe('the review panel markup', () => {
       const wrapper = mountPanel({ mostRecent, lengthSeconds })
       expect(wrapper.get('p.review-summary').text()).toBe(
         `${lead}3 phrases · B-flat tenor saxophone · Neutral · No favorites`,
+      )
+    },
+  )
+
+  // @test-link [[req_last_session_review]]
+  it.each([
+    [true, `${sessionDate(STARTED_AT)} · `],
+    [false, ''],
+  ])(
+    'begins a Jam session\'s summary after the date with "Jam", naming no preset (most recent: %s)',
+    (mostRecent, datePart) => {
+      const wrapper = mountPanel({ mostRecent, isJam: true, presetLabel: 'Custom' })
+      expect(wrapper.get('p.review-summary').text()).toBe(
+        `${datePart}Jam · 4 min · 3 phrases · B-flat tenor saxophone · No favorites`,
       )
     },
   )

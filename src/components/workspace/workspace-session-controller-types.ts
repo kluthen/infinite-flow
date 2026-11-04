@@ -447,6 +447,12 @@ export interface SessionController {
    */
   readonly setComment: (key: string, comment: string) => Promise<void>
   /**
+   * `Keep mine`: decline the key and mode suggestion of the Jam session held under `key`, as
+   * `setFavorite` saves a change; declined already, nothing. Throws during a session, for a key
+   * not held, or for a session that is no Jam.
+   */
+  readonly declineSuggestion: (key: string) => Promise<void>
+  /**
    * Delete the session under `key`: from the device, then from memory (its row, the Review, which
    * the list replaces when it showed, and, when it is the most recent session, that too, leaving
    * none); one held in memory only because

@@ -28,7 +28,7 @@ import type {
   YourDataConfirmationKind,
   YourDataForm,
 } from './your-data-copy'
-import type { KeptSessionRow } from './use-kept-sessions'
+import { jamKeepsPlayedNotes as jamAmongKeepers, type KeptSessionRow } from './use-kept-sessions'
 import type { PlayerPresets, PresetDeletionOutcome } from './use-player-presets'
 import type { SessionController, SessionDeletion } from './workspace-session-controller-types'
 
@@ -76,6 +76,8 @@ export interface YourDataSheet {
   readonly confirmation: Readonly<ShallowRef<YourDataConfirmation | null>>
   /** The sessions the open confirmation concerns now, as its first paragraph counts them. */
   readonly confirmationCount: ComputedRef<number>
+  /** One of the sessions whose played notes are kept is a Jam session, as the rows say. */
+  readonly jamKeepsPlayedNotes: ComputedRef<boolean>
   /** Open the confirmation of `kind`, from its Overview button. */
   readonly ask: (kind: Exclude<YourDataConfirmationKind, 'kept-played-notes' | 'preset'>) => void
   /** Open the confirmation of deleting the player preset `preset`, from its row's `Delete`. */
@@ -97,7 +99,10 @@ export function yourDataForm(outcome: SavedDataLoad['outcome'], saving: SavingSt
   return outcome === 'saved-data-read' ? 'outdated' : 'outdated-defaults'
 }
 
-/** Intent: the pinned and favorites facts a row holds, a newer one's as far as it can be read. */
+/**
+ * Intent: the pinned, favorites and played-notes facts a row holds, a newer one's as far as it can
+ * be read.
+ */
 function rowFacts(row: KeptSessionRow): { pinned: boolean; favorites: number; kept: boolean } {
   if (row.kind === 'current') {
     const { pinned, favoritesCount, playedNotesKept } = row.summary
@@ -193,6 +198,7 @@ export function useYourDataSheet(deps: YourDataSheetDependencies): YourDataSheet
     favorites: facts.value.reduce((sum, row) => sum + row.favorites, 0),
   }))
   const playedNotesCount = computed(() => facts.value.filter((row) => row.kept).length)
+  const jamKeepsPlayedNotes = computed(() => jamAmongKeepers(controller.state.keptRows))
   const confirmationCount = computed(() => {
     const open = confirmation.value
     if (open === null) return 0
@@ -258,6 +264,7 @@ export function useYourDataSheet(deps: YourDataSheetDependencies): YourDataSheet
     form,
     sessions,
     playedNotesCount,
+    jamKeepsPlayedNotes,
     keepPlayedNotes: computed(() => controller.state.keepPlayedNotes),
     playerPresets: computed(() => playerPresetsInBoxOrder(deps.presets.presets.value)),
     space,

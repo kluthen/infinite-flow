@@ -150,6 +150,7 @@ describe('how the session that ended is saved', () => {
       key: keptSessionKey(played),
       playedNotesKept: true,
       presets: BUILT_IN_PRESETS,
+      jam: null,
     })
     expect(endedSessionSave(played, false, BUILT_IN_PRESETS).playedNotesKept).toBe(false)
     expect(endedSessionSave(silent, true, BUILT_IN_PRESETS).playedNotesKept).toBe(false)
@@ -295,7 +296,7 @@ describe("the retry of a refused session's save", () => {
   it('is the same batch under the same key, with the facts held in memory then', () => {
     const history = recordedKeptSession('bb-tenor', 3)
     const saving = endedSessionSave(history, false, BUILT_IN_PRESETS)
-    const held = { pinned: true, favorites: [1, 3], comment: 'Steady.' }
+    const held = { pinned: true, favorites: [1, 3], comment: 'Steady.', suggestionDeclined: false }
 
     const changes = keptSessionChanges(codec, history, saving, [], APP_VERSION, held)
 
@@ -309,7 +310,7 @@ describe("the retry of a refused session's save", () => {
   it("reads the sessions to delete at the retry, through the visit's saves", async () => {
     const history = recordedKeptSession('bb-tenor', 2)
     const saving = endedSessionSave(history, false, BUILT_IN_PRESETS)
-    const held = { pinned: false, favorites: [], comment: 'Again.' }
+    const held = { pinned: false, favorites: [], comment: 'Again.', suggestionDeclined: false }
     const asked: SessionChanges[] = []
     const saves = {
       /** Intent: record the changes asked for, and resolve as saved. */
