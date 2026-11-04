@@ -185,8 +185,8 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
 - **[v3.2 changed]** For a Jam session, the part of the summary after the session date begins with
   the word "Jam", as the session list's detail line does: "Tue 6 Oct 2026, 18:42 · Jam · 12 min ·
   9 phrases · …", or "Jam · 12 min · 9 phrases · …" when the date is the title. A word, not an
-  icon. A Jam session has no preset label (Jam mode has no presets), so its summary has no
-  {preset} part: "Jam · 12 min · 9 phrases · {instrument} · {favorites}".
+  icon. Jam mode has no presets, so a Jam session's summary shows no {preset} part, though
+  the session keeps its preset label: "Jam · 12 min · 9 phrases · {instrument} · {favorites}".
 - **[v3 new]** `review-keep-line`: "Pinned: kept until you unpin or delete it.", "Not pinned:
   deleted when your next session is saved.", or, for a session whose save failed, "Not saved on
   this device: export it to keep it." Its text changes in place, with no announcement. Below

@@ -16,7 +16,7 @@ Append-only record of settled UI/UX decisions. Earlier logs are archived verbati
 
 Archived IDs keep their meaning; a citation to one by ID elsewhere in this repository stays valid
 through this header. D225, D226, D235–D264 and D328 on (v3.2 and v3.3, not yet released, and the
-entries v3.1 shares with v3.2) stay here; D265–D279 were never used. Numbering continues from D449.
+entries v3.1 shares with v3.2) stay here; D265–D279 were never used. Numbering continues from D450.
 
 ## v3.1 (presets and embellishment figures) and v3.2 (Jam) design, 2026-10-08
 
@@ -672,3 +672,12 @@ title word.
   "Eighth notes". Rejected: short words throughout (they would part from the controls' labels,
   "Conversational space" included). Now in `screens/phrase-workspace/handoff.md`, Components and
   Content, Jam's controls, and `intent.md`, Jam's Controls.
+
+## v3.2 wave 6, chunk 30's alignment, 2026-11-04
+
+- **D449 — A Jam session keeps its preset label; its row and summary show no preset part
+  (2026-11-04; minor, D119's standing rule; corrects D345).** The contract keeps a preset label
+  on every kept session, and the save always writes one; the design said a Jam records none.
+  The design now states only what is shown. Now in `screens/session-list/handoff.md`,
+  `screens/last-session-review/handoff.md`, `flows/kept-sessions/` and
+  `flows/review-and-export/handoff.md`.
