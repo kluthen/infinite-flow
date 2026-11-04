@@ -2289,7 +2289,7 @@ Record: 23a ad6cb777, 23b b56da067, merged c1631457. Differs: new files `ReviewD
 
 ### Chunk 24 — The kept doodle
 
-Status: in progress
+Status: merged (w7, 8867e7c5)
 Wave: 7
 Depends on: 21, 23, 30, 31 (and v3.0 chunk 24)
 Architecture capture: the kept doodle, `src/jam/use-kept-doodle.ts`, in memory only: what keeps it
@@ -2409,6 +2409,8 @@ keyed by Jam's settings and the doodle, never session mode's.
 - **Split rule:** 24a keeping, phrase 1 at Idle, Jam's queue and what lets it go (the composable,
   the Jam part handed at the end, the review host, pre-generation), 24b the bar and a Jam on it (the bar, Jam's Idle notes, the
   session begin and ends).
+
+Record: 24a d6daa9fa, 24b bedd1c5c, merged 8867e7c5; cut off once by a usage limit and resumed by the same owner. Differs: Jam's phrase 1 has its own state, coordinator and `KeptDoodleStaff.vue` (mounted whenever Jam mode shows, session mode untouched); `Keep {key} {mode}` declines through the session-list row when the doodle's session is no longer held; `sessionViewport()` in `jam-mode-helpers.ts` made exact; wave 6's "stopped after phrase 1" e2e updated for the kept doodle; H4/H5 "after wave 6" read "after wave 7" in the plan and the checklist. Phone: on 740×360 the bar pushes the staff below the fold (scrollable), reported to `ux-writer` (wave log, wave 7). Entry chunk 302,365 B of 307,200 B.
 
 ### Chunk 25 — Exports open with the doodle
 

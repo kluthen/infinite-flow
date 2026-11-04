@@ -1596,3 +1596,53 @@ from `main` fee0246a. Order 24 → 25 → 32 → 33 → 40; κ 1.
 
 - Chunk 24 dispatched (brief: the standard brief; worktree `../infinite_flow-v3.2-c24`, branch
   `v3.2-c24-kept-doodle`, split 24a/24b, no merge gate).
+- Chunk 24 MERGED 8867e7c5 (24a d6daa9fa, 24b bedd1c5c; worktree removed, branch
+  `v3.2-c24-kept-doodle` kept). The owner was cut off once by a usage limit (U3 resumed from a WIP
+  commit by a fresh executor; the owner resumed itself). Done when 1–10 met with evidence; related
+  units 1,392 (24a) and 2,631 (24b) passed; corpus guard 47/47 (extra evidence); typecheck, lint,
+  format, `lint:links`, `verify:boundaries` clean; new e2e 11/11 (`kept-doodle.spec.ts`,
+  `kept-doodle-lets-go.spec.ts`, `jam-bar-accessibility.spec.ts`), every Jam-mode e2e 101 + 86
+  passed; `reviewer` OKAY on session-mode invariance. Entry chunk **302,365 B of 307,200 B** (4.8 kB
+  headroom; 298,846 after 24a); Jam's chunk 55,907 B.
+
+### Paused after chunk 24 (2026-11-04)
+
+The owner, verbatim: "when this chunk is done, that's it for this wave sadly". Read as a pause,
+not a change to the wave: chunks 25, 32, 33 and 40 stay in wave 7 for the next session. Nothing
+pushed; the wave branch is not merged into `main`.
+
+For the next driver, in this order:
+
+1. **Route chunk 24's open items** (none blocks chunk 25):
+   - `documentalist` (or `ux-writer` first): drift `rule_jam_again_on_this_doodle` says the review
+     after a Jam does not offer `Jam again on this doodle`; the design's flowchart (RJ → HR) and
+     wave 6's build offer it. Left as built.
+   - `ux-writer`, calls chunk 24 made, to confirm: the suggestion offered again at Idle after the
+     "Jams now play in" sentence ends when the key or mode changed again; `Jam in` and `Keep` stay
+     enabled during Loading (only `New doodle` disabled); focus goes to the bar's sentence when the
+     suggestion's buttons vanish under focus; Jam's "too many notes" notice still says "or choose a
+     lower note density" though Jam has no density control; on a 740×360 phone the bar pushes the
+     staff below the fold (scrollable); on a laptop an empty band of about 120 px between the bar
+     and the staff during a Jam on the doodle.
+   - `spec-writer`: deleting my instrument erases its kept sessions but does not let the kept
+     doodle go; C5.11 lists only deleting one session and Delete everything.
+   - Gates table: L1/L2 still say "open (after wave 6)"; chunk 24 moved H4/H5 to "after wave 7".
+     The driver sets them.
+2. **Entry budget**: 4.8 kB left of 300 KiB. Chunks 25, 32, 33 and 40 may pass it; raising it
+   needs the owner. Tell the owner before chunk 25 starts; each chunk's owner should keep its
+   additions out of the entry chunk where it can.
+3. **Chunk 25**: brief from the standard brief (worktree `../infinite_flow-v3.2-c25`, branch
+   `v3.2-c25-<slug>` from `v3.2-w7`, no merge gate); its preflight corrections are in plan v36.
+   Then 32 (after 24, done), 33 (J240 after its first half; a widen needs a contract wording
+   sign-off and a MAJOR bump), 40 (GD and CG done; merges itself).
+4. **For the wave sync** (besides each chunk's **Revisions**): change set part Y's Y1, Y2, Y4 and
+   the `rule_stop_ends_session` revision (CONTRACT 12.0.0 → 13.0.0); `module_kept_doodle`'s exported
+   names; `module_kept_jam_session` still says reading back "throws"; `module_jam_idle_notes`'s new
+   `doodleKept` / `keptPhraseOne` deps; the atom text of `rule_session_end_generates_next_phrase_one`
+   and `rule_pregeneration_discarded_on_change`.
+5. **Wave gate**: full `npm run quality` with the `VITE_HARNESS_PREGENERATION=on` rerun. Reviewer's
+   risk (not blocking): a session-mode Idle generation while Jam mode shows could abort Jam's queue
+   attempt until the next layout report. Not hand-seen yet: the cue row during a count-in on the
+   kept doodle and the start's page jump.
+6. Branches left: `v3.2-w7` (worktree `../infinite_flow-v3.2-w7`), `v3.2-c24-kept-doodle`,
+   `v3.2-guide-playback` (worktree `../infinite_flow-v3.2-guide`; remove when wave 7 merges).
