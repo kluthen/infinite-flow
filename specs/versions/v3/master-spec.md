@@ -107,8 +107,11 @@ Status: this file holds four parts.
   (2026-11-05): the kept doodle goes with its session when my instrument's deletion or range or
   transposition change erases it (C5.1, C5.11; spec D503); the entry budget is 320 KiB (C10.9,
   C14, C16; spec D504). v1.23 (2026-11-05): Jam's tempo stays 60 to 180 BPM; 240 BPM, measured
-  last, is not kept (C2, C3, C5.8, C5.17, C15, C16, C17; spec D506). Its sections are
-  numbered C1 to C19; what v1.1 to v1.23 change is listed at the top of Part C and marked in each section they touch.
+  last, is not kept (C2, C3, C5.8, C5.17, C15, C16, C17; spec D506). v1.24 (2026-11-05): "Jam
+  again on this doodle" is offered in the review that follows a Jam too, as built, and the guide's
+  checks name the shapes seeded phrases hold (C5.11, C5.15, C6.5, C12, C16 items 33 and 50, C19.1;
+  spec D508, D509). Its sections are
+  numbered C1 to C19; what v1.1 to v1.24 change is listed at the top of Part C and marked in each section they touch.
 - **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.1
   (2026-10-12), consolidated from the v3.3 direction and the chord research; **awaiting the
   owner's approval**. The contract wording it changes (§D12) needs the owner's confirmation
@@ -2265,7 +2268,12 @@ Delete everything removes them. No preset leaves the device.
 ## Part C — v3.2
 
 Jam, the key and mode suggestion, the rhythm lock and, added after approval, the guide playback.
-**Master spec v1.23 (2026-11-05)**: v1.22 with the owner's ruling at gate J240 (C2, C3, C5.8,
+**Master spec v1.24 (2026-11-05)**: v1.23 with two wording fixes after wave 7's build (C5.11,
+C5.15, C6.5, C12, C16 items 33 and 50, C19.1; D508, D509), no behaviour changed: "Jam again on
+this doodle" is offered in every Jam session's review, the one that follows a Jam included, where
+it does what `Close review` does, as the design and the build have it; and the generator writes no
+triplet and no tie across a barline, so the guide's exactness on them is checked on hand-built
+phrases, its seeded checks on ties, rests and offbeat eighths. v1.23 (2026-11-05): v1.22 with the owner's ruling at gate J240 (C2, C3, C5.8,
 C5.17, C15, C16, C17; D506): Jam's tempo stays 60 to 180 BPM in v3.2. 240 BPM was measured last
 and held, and the owner kept 180; no Jam check runs at 240 BPM. It adds no behaviour: the control
 already stops at 180. v1.22 (2026-11-05): v1.21 with two rulings (C5.1, C5.11, C10.9, C14, C16 item
@@ -3120,6 +3128,8 @@ _Changed in v1.3:_ phrase 1 written from the kept doodle draws its seeds as any 
 (D419, C11).
 _Changed in v1.22:_ deleting my instrument, or saving a change to its range or transposition, lets
 the kept doodle go when it erases the session the doodle comes from (D503).
+_Changed in v1.24:_ "Jam again on this doodle" is offered in the review that follows a Jam too,
+where it does what `Close review` does (D508).
 
 - **After a Jam, Jam mode keeps its doodle.** Back at Idle after the review, Jam mode shows a
   phrase 1 newly written from the kept doodle, with a fresh seed, and Start goes round again
@@ -3161,11 +3171,13 @@ the kept doodle go when it erases the session the doodle comes from (D503).
   keeps it too, and regenerates phrase 1 from it in the new key and mode (C6.5).
 - **A Jam on the kept doodle that ends before phrase 1 sounds keeps it**, and Idle shows the same
   phrase 1 again (C5.13). A fresh Jam that ends before phrase 1 sounds keeps no doodle.
-- **"Jam again on this doodle"** is offered in the review of a kept Jam session opened from the
-  session list, in either mode. Choosing it leaves the review for Jam mode's Idle, entering Jam mode
-  if needed (loading its code, C10.9), with that doodle kept in place of any other. Without a
-  controller it still opens Jam mode with the doodle kept, and Jam's Start says why it is
-  unavailable (C5.1). After a Jam, its own review needs no such action: the doodle is kept already.
+- **"Jam again on this doodle"** is offered in the review of every Jam session, in either mode:
+  the review that follows a Jam, and the review of a kept Jam session opened from the session list.
+  Choosing it leaves the review for Jam mode's Idle, entering Jam mode if needed (loading its code,
+  C10.9), with that session's doodle kept in place of any other. In the review that follows a Jam,
+  whose doodle Jam mode keeps already, it does what `Close review` does, focus included (D508).
+  Without a controller it still opens Jam mode with the doodle kept, and Jam's Start says why it is
+  unavailable (C5.1).
 - **A kept doodle lives in memory only.** After a reload, the app opens in session mode and keeps
   none; the kept Jam session's review offers it again.
 
@@ -3252,6 +3264,7 @@ _Changed in v1.2:_ the replay key carries the steering block, not the doodle (D4
 
 _Changed in v1.1:_ one review and one session list for both modes, the doodle's parts loaded with
 Jam's code; "Jam again on this doodle" follows C5.11.
+_Changed in v1.24:_ "Jam again on this doodle" is in every Jam session's review (D508).
 
 - **One review, one session list, one pair of exports** for both modes. The review's doodle section
   and the suggestion are Jam's code, loaded when a Jam session's review opens (C10.9).
@@ -3263,7 +3276,7 @@ Jam's code; "Jam again on this doodle" follows C5.11.
 - **The `Played notes` lane**, when shown, covers the raw doodle notes too, under the stray-note
   rule of Part A §9.
 - **The key and mode suggestion**, when there is one, shows in the review (C6.4); **"Jam again on
-  this doodle"** in a kept Jam session's review (C5.11).
+  this doodle"** in every Jam session's review (C5.11).
 - **The session list** marks a Jam session as such.
 - **Exports.** In both scopes (the whole session and its favorites):
   - the **generated-notes export** (MusicXML and MIDI) opens with the quantized doodle as its own
@@ -3499,6 +3512,8 @@ started. So the suggestion is never offered during a Jam.
 
 ### C6.5 Use it, Keep mine and Jam again on this doodle
 
+_Changed in v1.24:_ "Jam again on this doodle" is in every Jam session's review (D508).
+
 - **Use it** sets Jam's Written key and Collection exactly as a change by hand in Jam mode does:
   saved with Jam's settings; Jam's pre-generated phrases discarded; session mode's key and mode
   untouched, wherever the review was opened from. With a kept doodle, phrase 1 is regenerated from
@@ -3513,7 +3528,7 @@ started. So the suggestion is never offered during a Jam.
 - **Keep mine** changes nothing, and that doodle's suggestion is not offered again: the same doodle
   would give the same answer. The decline is kept with the kept Jam session, so its review, and a
   doodle kept from it, do not offer it again.
-- **Jam again on this doodle**, in a kept Jam session's review: C5.11. Choosing it does not answer
+- **Jam again on this doodle**, in every Jam session's review: C5.11. Choosing it does not answer
   the suggestion.
 - **Session mode is unaffected**: Use it never changes session mode's key and mode, nor what Vary
   settings moves from there.
@@ -4042,6 +4057,7 @@ disagree on v3.2's fields is unreadable (D429, D430).
 
 _Changed in v1.1:_ rewritten for Jam mode, from the re-scope's design brief
 ([Jam mode §8](jam-mode.md#8-for-the-interface-design)).
+_Changed in v1.24:_ "Jam again on this doodle" is in every Jam session's review (D508).
 
 What the interface must support, for `ux-writer`. Behaviour only: layout, placement and wording are
 `ux-writer`'s.
@@ -4075,7 +4091,8 @@ What the interface must support, for `ux-writer`. Behaviour only: layout, placem
   named in the player's family (Major or Minor, or the mode); the one plain sentence, in every
   review of that Jam, when the doodle uses notes the app's modes do not offer, never naming a wrong
   note. Shown in a Jam's review and at Jam's Idle with a kept doodle.
-- **"Jam again on this doodle"** in a kept Jam session's review, opening Jam mode.
+- **"Jam again on this doodle"** in every Jam session's review, opening Jam mode (in the review
+  that follows a Jam, doing what `Close review` does).
 - **Shared, with Jam's parts**: one session list with Jam sessions marked; one review whose doodle
   section (first, labelled, before phrase 1, with no phrase number, no chord symbols and no
   favorite; the `Played notes` lane over it when shown) and suggestion load from Jam's code; both
@@ -4509,6 +4526,8 @@ _Changed in v1.5:_ item 49 names the later contract bumps (D422).
 _Changed in v1.22:_ item 16's entry budget is 320 KiB (D504); item 33's deletions include my
 instrument's (D503).
 _Changed in v1.23:_ Jam keeps 180 BPM as its top, so no Jam item or check runs at 240 (D506).
+_Changed in v1.24:_ item 33 checks "Jam again on this doodle" after a Jam (D508); item 50 checks
+triplets and a tie across a barline on hand-built phrases, which seeded ones never hold (D509).
 
 v3.2 ships when every item holds, each verified by a named test or a recorded hand check. **Every
 hand check is a numbered script of at most ten minutes**, run in Chrome (Edge is not supported);
@@ -4622,7 +4641,9 @@ Jam's run at 60, 120 and 180 BPM; Jam does not keep 240 BPM (C5.17; D506), so no
     played with, by deleting my instrument or saving a change to its range or transposition, D503)
     and Delete everything let it go, and nothing
     else does, the end of a Jam on it replacing an earlier unpinned session included; "Jam again on this doodle" in a kept Jam session's review opens Jam mode with it kept,
-    and, after a reload, gives the same phrase 1 for the same settings and seed.
+    and, after a reload, gives the same phrase 1 for the same settings and seed; in the review
+    that follows a Jam it is offered too and does what `Close review` does, the same doodle kept
+    (D508).
 34. **Before phrase 1 sounds**, no doodle note within 30 s, a controller lost (in a Jam without a
     kept doodle, from its count-in on), Stop, a hidden tab or a staff that cannot be shown end the
     Jam with no review and nothing kept, and never change the mode.
@@ -4672,15 +4693,17 @@ Jam's run at 60, 120 and 180 BPM; Jam does not keep 240 BPM (C5.17; D506), so no
 
 **The guide playback (both modes; added after approval, D490)**
 
-50. **The guide's notes** (C19.1): for seeded phrases holding ties (across a barline too), rests,
-    offbeat eighths, triplets and, on a transposing instrument, written notes that differ from the
-    sounding ones, the melody guide's notes are exactly the phrase's fresh attacks, each at its
+50. **The guide's notes** (C19.1): for seeded phrases holding ties, rests, offbeat eighths and, on
+    a transposing instrument, written notes that differ from the sounding ones, and for hand-built
+    phrases holding what the generator does not write (a tie across a barline, eighth and
+    sixteenth triplets), the melody guide's notes are exactly the phrase's fresh attacks, each at its
     concert pitch and lasting its full tied length, and no note starts in a rest; the rhythm
     guide's notes have the same starts and lengths, each on the root of the harmony event holding
     its start, in MIDI 60–71; with both on, both lines sound, on the same starts. Each start and
     end falls at the exact audio time of its position through the tempo map (a note on a beat at
-    that beat's click), phrase by phrase at each phrase's tempo; a sixteenth-note triplet at 240 BPM
-    (about 42 ms) is scheduled and sounds, and no length the generator writes is refused.
+    that beat's click), phrase by phrase at each phrase's tempo; no length the generator writes is
+    refused, and a hand-built sixteenth-note triplet at 240 BPM (about 42 ms) is scheduled and
+    sounds (D509).
 51. **The guide's sound and settings** (C19.2–C19.4): both guides off by default, and then no guide
     note is scheduled and the session's sound is the sound it had before C19 (the same recorded
     calls on a fake output); each guide's switch and volume act on their own, with the backing on
@@ -4811,6 +4834,9 @@ They are listening aids only: nothing compares the player with them.
 
 ### C19.1 What each guide plays
 
+_Changed in v1.24:_ the generator writes no triplet and no tie across a barline; the guides would
+play them exactly (D509).
+
 - **The melody guide** plays every note of the phrase as written on the sheet, at its **concert
   pitch**: the pitch the instrument actually sounds. On a transposing instrument the sheet is
   written higher or lower than it sounds (a B♭ tenor saxophone's written D sounds a C, more than an
@@ -4828,9 +4854,11 @@ They are listening aids only: nothing compares the player with them.
 - **Both on**: the two guides sound together, on the same starts, the melody at concert pitch and
   the rhythm on the root in its octave.
 - Each note starts and ends exactly where its position on the sheet falls, on the audio clock,
-  through the session's tempo map: on a beat, off a beat (an offbeat eighth), or inside a triplet.
-  Every length the generator writes plays, the shortest, a sixteenth-note triplet at 240 BPM, lasting
-  about 42 ms.
+  through the session's tempo map: on a beat or off a beat (an offbeat eighth). No length the
+  generator writes is refused: the shortest, a sixteenth note at 240 BPM, lasts 62.5 ms (Part A
+  §9). The guides take any position and length the sheet can hold, so the shapes the generator
+  does not write, a triplet or a tie across a barline, would play exactly too, the shortest checked
+  a sixteenth-note triplet at 240 BPM, about 42 ms (D509).
 
 ### C19.2 When the guides play
 

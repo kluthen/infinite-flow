@@ -1,6 +1,7 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v39 (2026-11-05): v38 with spec D506 written in (master spec Part C v1.23): gate J240's ruling, the owner's "Keep 180"; Jam's tempo stays 60 to 180 BPM, chunk 33 ends after its first half, and DoD item 31's trace runs no Jam check at 240 BPM.
+Status: v40 (2026-11-05): v39 with spec D508 and D509 written in (master spec Part C v1.24), two wording fixes after wave 7's build: `Jam again on this doodle` is offered in the review that follows a Jam too (no plan change); chunk 40's Done when and item 50's trace check triplets and a tie across a barline on hand-built phrases, the seeded ones holding ties, rests and offbeat eighths.
+v39 (2026-11-05): v38 with spec D506 written in (master spec Part C v1.23): gate J240's ruling, the owner's "Keep 180"; Jam's tempo stays 60 to 180 BPM, chunk 33 ends after its first half, and DoD item 31's trace runs no Jam check at 240 BPM.
 v38 (2026-11-05): v37 with spec D503 and D504 written in (master spec Part C v1.22): a wave 7 fix after chunk 24, the kept doodle going when my instrument's deletion or range or transposition change erases its session; the owner's ruling raising the entry budget from 300 KiB to 320 KiB (Workflow deltas, M4, chunk 27).
 v37 (2026-11-04): v36 with no decision (Part C unchanged), after gate GD (ux D459–D463): gate GD and chunk 40 name the guides' tokens (`--mix-melody-guide-volume-*`, `--mix-rhythm-guide-volume-*`), chunk 40's design docs and its `readAudioMixDesign` docblock rewording.
 v36 (2026-11-04): v35 with spec D500 written in (master spec Part C v1.21): wave 7's preflight corrections to chunks 24, 25, 32, 33 and 40 and gates J240 and CG.
@@ -3067,13 +3068,15 @@ transport: with its backing, from the same queueing call, which then takes the p
   included); `module_session_transport_tempo_map` (its interface names
   `queueBacking(phraseNumber, harmony, tempo)`; the call now takes the phrase's timeline).
 - **Done when:**
-  - The renderer's notes, for seeded phrases holding ties (one across a barline), rests, offbeat
-    eighths and triplets, on the C MIDI keyboard and on the E-flat alto saxophone, are the phrase's
-    attacks at concert pitch with their tied lengths, and the rhythm guide's the same starts and
-    lengths on the right roots, in 60–71 (item 50).
+  - The renderer's notes, for seeded phrases holding ties, rests and offbeat eighths, and for
+    hand-built phrases holding what the generator does not write (a tie across a barline, eighth
+    and sixteenth triplets), on the C MIDI keyboard and on the E-flat alto saxophone, are the
+    phrase's attacks at concert pitch with their tied lengths, and the rhythm guide's the same
+    starts and lengths on the right roots, in 60–71 (item 50; spec D509).
   - Every placed start and end equals the time of its position through the tempo map, on beats,
-    off beats and in triplets, across two phrases at two tempos; a sixteenth-note triplet at 240 BPM
-    is scheduled and sounds on the fake context, and nothing refuses it (item 50).
+    off beats and in (hand-built) triplets, across two phrases at two tempos; a hand-built
+    sixteenth-note triplet at 240 BPM is scheduled and sounds on the fake context, and nothing
+    refuses it (item 50).
   - With both guides off, a recorded session's calls on the fake output are the same as before the
     chunk (backing and clicks included); each of the four guide combinations, backing on and off,
     sounds exactly its own lines; with both on, both lines share their starts; in Jam, a fresh
@@ -3180,6 +3183,6 @@ owner says go.
 | 47 Delete everything | 30, 31, 24 | e2e: Jam sessions gone, Jam's and session mode's settings reset, the kept doodle let go |
 | 48 Otherwise unchanged | every wave gate | `npm run quality`; the table of [Read first](#read-first-what-v32-changes-in-v2-v30-and-v31) |
 | 49 Contract | CS, 27 | the owner's sign-off in the CONTRACT 8.0.0 notes |
-| 50 The guide's notes | 40 | renderer tests on seeded phrases (ties, rests, triplets, a transposing instrument); exact placement through the tempo map; a 42 ms note |
+| 50 The guide's notes | 40 | renderer tests on seeded phrases (ties, rests, offbeat eighths, a transposing instrument) and hand-built ones (a tie across a barline, triplets); exact placement through the tempo map; a 42 ms note |
 | 51 The guide's sound and settings | 40 | fake-output recordings, both off identical to before; switches and volumes in all combinations; release, re-attack and Stop; settings reload e2e; acknowledgement and exports unchanged with the guides on; `verify:boundaries` |
 | 52 Guide listening | 40 (HG), 27 | the owner's recorded check |

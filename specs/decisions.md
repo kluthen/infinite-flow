@@ -1209,3 +1209,16 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   [Part C §C5.17](versions/v3/master-spec.md#c517-tempo-in-jam-and-tap-in),
   [§C16](versions/v3/master-spec.md#c16-definition-of-done),
   [build plan v3.2, gates](versions/v3/build-plan-v3.2.md#gates), [chunk 33](versions/v3/build-plan-v3.2.md#chunk-33--240-bpm-in-jam-best-effort).
+
+- **D508 (2026-11-05): "Jam again on this doodle" is offered in every Jam session's review, the one
+  that follows a Jam included.** A clarification: there, Jam mode keeping that doodle already, it
+  does what `Close review` does, focus included, as the design (ux D470) and the build have it;
+  C5.11 said that review needed no such action. Now in: [Part C §C5.11](versions/v3/master-spec.md#c511-the-kept-doodle-and-jam-again-on-this-doodle),
+  [§C16, item 33](versions/v3/master-spec.md#c16-definition-of-done).
+
+- **D509 (2026-11-05): the guide's exactness on triplets and ties across a barline is checked on
+  hand-built phrases.** The generator writes neither (chunk 40's finding), so seeded phrases hold
+  ties, rests and offbeat eighths; the guarantee is unchanged: the guides place any length exactly
+  and refuse none. Now in: [Part C §C19.1](versions/v3/master-spec.md#c191-what-each-guide-plays),
+  [§C16, item 50](versions/v3/master-spec.md#c16-definition-of-done),
+  [build plan v3.2, chunk 40](versions/v3/build-plan-v3.2.md#chunk-40--the-guide-playback).
