@@ -2848,7 +2848,7 @@ Record: 31a 488fa8af, 31b 10931dcc, merged 0210a6da; paused once between the hal
 
 ### Chunk 32 — Tap tempo
 
-Status: planned
+Status: in progress
 Wave: 7
 Depends on: 24 (Jam's Idle notes), 31 (the Tempo field)
 Architecture capture: none (chunk 20's capture fixed Jam's Idle note routing)
