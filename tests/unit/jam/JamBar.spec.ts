@@ -307,6 +307,60 @@ describe('the kept doodle’s bar: focus', () => {
   })
 
   // @test-link [[module_kept_doodle]]
+  it('moves focus to the bar’s sentence when Loading starts with New doodle focused', async () => {
+    const wrapper = mountBar()
+    ;(newDoodle(wrapper).element as HTMLButtonElement).focus()
+
+    await wrapper.setProps({ loading: true })
+    await nextTick()
+
+    expect(newDoodle(wrapper).attributes('disabled')).toBeDefined()
+    expect(document.activeElement).toBe(sentence(wrapper).element)
+  })
+
+  // @test-link [[module_kept_doodle]]
+  it.each([
+    ['Jam in D Minor', 0],
+    ['Keep C Major', 1],
+  ])('moves focus to the bar’s sentence when Loading starts with %s focused', async (_, index) => {
+    const wrapper = mountBar()
+    ;(rowButtons(wrapper)[index]!.element as HTMLButtonElement).focus()
+
+    await wrapper.setProps({ loading: true })
+    await nextTick()
+
+    expect(rowButtons(wrapper)[index]!.attributes('disabled')).toBeDefined()
+    expect(document.activeElement).toBe(sentence(wrapper).element)
+  })
+
+  // @test-link [[rule_suggestion_use_it]]
+  it('keeps focus on the set sentence when Jam in starts the Loading', async () => {
+    const wrapper = mountBar()
+    ;(rowButtons(wrapper)[0]!.element as HTMLButtonElement).focus()
+
+    await rowButtons(wrapper)[0]!.trigger('click')
+    await wrapper.setProps({ jam: D_MINOR, loading: true })
+    await nextTick()
+
+    expect(row(wrapper)).toEqual({ sentence: 'Jams now play in D Minor.', buttons: [] })
+    expect(document.activeElement).toBe(wrapper.get('.suggestion-row > p').element)
+  })
+
+  // @test-link [[module_kept_doodle]]
+  it('moves no focus when Loading starts with focus outside its buttons', async () => {
+    const wrapper = mountBar()
+    const outside = document.createElement('button')
+    document.body.append(outside)
+    outside.focus()
+
+    await wrapper.setProps({ loading: true })
+    await nextTick()
+
+    expect(document.activeElement).toBe(outside)
+    outside.remove()
+  })
+
+  // @test-link [[module_kept_doodle]]
   it('asks for nothing when a session starts with focus outside its buttons', async () => {
     const wrapper = mountBar()
     ;(sentence(wrapper).element as HTMLElement).focus()

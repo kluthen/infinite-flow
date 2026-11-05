@@ -10,7 +10,8 @@
  * session the bar is held still: unchanged, its buttons disabled. Its buttons are disabled in
  * Loading too, the row in place. What each button changes is its host's: the bar asks
  * (`new-doodle`, `use`, `keep`); after `Keep {key} {mode}`, and whenever its focused element goes
- * otherwise, focus moves to its sentence (`tabindex="-1"`, never in the tab order). A session
+ * otherwise, a button disabled by Loading while focused included, focus moves to its sentence
+ * (`tabindex="-1"`, never in the tab order). A session
  * started with one of its buttons focused asks for focus on the session action
  * (`focus-session-action`). Not a live region; nothing in it is announced. Part of Jam's code
  * (src/jam/), loaded on demand.
@@ -100,6 +101,25 @@ watch(
     if (!(focused instanceof HTMLButtonElement) || barEl.value?.contains(focused) !== true) return
     void nextTick(() => emit('focus-session-action'))
   },
+)
+
+/**
+ * Intent: Loading starting with one of the bar's buttons focused, now disabled: focus goes to the
+ * bar's sentence, unless something else has taken it once drawn (the set sentence, ux D471).
+ */
+// @spec-link [[module_kept_doodle]]
+watch(
+  () => props.loading,
+  (loading, wasLoading) => {
+    if (!loading || wasLoading || props.held) return
+    const focused = document.activeElement
+    if (!(focused instanceof HTMLButtonElement) || barEl.value?.contains(focused) !== true) return
+    void nextTick(() => {
+      const now = document.activeElement
+      if (now === focused || now === document.body || now === null) sentenceEl.value?.focus()
+    })
+  },
+  { flush: 'pre' },
 )
 
 /** Intent: focus the bar's own sentence, once the row's change is drawn. */
