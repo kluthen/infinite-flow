@@ -1684,3 +1684,11 @@ For the next driver, in this order:
   `lint:links`, `verify:boundaries` clean. Entry **302,636 B of 327,680 B**; Jam's chunk 57,285 B.
   No deviation; calls inside the chunk on its Record line. O267 still the owner's (the export
   builds its proposal).
+- Chunk 32 MERGED f9dd7b1f (348d434a; branch `v3.2-c32-tap-tempo` kept). Done when 1–3 met with
+  evidence; new e2e `jam-tap-tempo.spec.ts` 12/12 (with the Jam Idle and kept-doodle specs 24/24),
+  axe clean in both themes; related units 931 passed; typecheck, lint, format, `lint:links`,
+  `verify:boundaries` clean; v3.2 H7 written. Entry **304,054 B of 327,680 B**; Jam's chunk
+  61,192 B. Fixed beside it: `tempo-readout` showed session mode's tempo in Jam mode (chunk 31's
+  gap). Risks for the gate: a tap press with no click after it swallows the next
+  assistive-technology click once; listening may not end while the audio context is suspended.
+- Chunk 33 dispatched, its first half (measurement; merge gate J240; the machine kept idle).

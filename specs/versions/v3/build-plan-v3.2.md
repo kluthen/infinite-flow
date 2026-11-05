@@ -2848,7 +2848,8 @@ Record: 31a 488fa8af, 31b 10931dcc, merged 0210a6da; paused once between the hal
 
 ### Chunk 32 — Tap tempo
 
-Status: in progress
+Status: merged (w7, f9dd7b1f)
+Record: 348d434a, merge f9dd7b1f; no deviation from the spec or the design. Beyond the Files line: the shell's wiring (`use-tap-tempo-host.ts` new, `use-jam-idle-cue.ts`, `workspace-session-midi.ts`, `WorkspaceShell.vue`, `jam-view-types.ts`, `jam-mode.ts`), and `WorkspaceHeader.vue`: `tempo-readout` shows Jam's tempo while Jam mode shows (chunk 31's gap, as both handoffs say). Entry 304,054 B, Jam's chunk 61,192 B.
 Wave: 7
 Depends on: 24 (Jam's Idle notes), 31 (the Tempo field)
 Architecture capture: none (chunk 20's capture fixed Jam's Idle note routing)
@@ -2885,7 +2886,7 @@ Architecture capture: none (chunk 20's capture fixed Jam's Idle note routing)
 
 ### Chunk 33 — 240 BPM in Jam, best effort
 
-Status: planned
+Status: in progress (first half)
 Wave: 7
 Depends on: 18, 29, 31; J240 (its second half)
 Architecture capture: none
