@@ -9,7 +9,8 @@
  * Review that are Jam's (`module_jam_code_boundary`): its doodle's staff and its key and mode
  * suggestion, and Jam's key and mode read for the Review before Jam's settings exist; and Jam
  * mode's kept doodle (`module_kept_doodle`), which the workspace keeps and lets go, with the climb
- * of phrase 1's attempts the workspace writes from it at Idle and its bar (`jam-bar`).
+ * of phrase 1's attempts the workspace writes from it at Idle and its bar (`jam-bar`); and the
+ * doodle section a Jam's export files open with (`exportDoodleSection`).
  */
 export { default as JamWorkspace } from './JamWorkspace.vue'
 export { default as JamControls } from './JamControls.vue'
@@ -29,3 +30,4 @@ export { startFreshJam } from './fresh-jam'
 export { freshJamSettings } from './fresh-jam-settings'
 export { useKeptDoodle } from './use-kept-doodle'
 export { climbKeptDoodleLadder } from './kept-doodle-phrase-one'
+export { exportDoodleSection } from './export/doodle-section'

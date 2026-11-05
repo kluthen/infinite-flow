@@ -5,12 +5,21 @@
  * The note tracks hold sounding notes: the generated line, read from each phrase's concert
  * timeline, and the backing, read from the backing notes. The phrase at zero-based position p of
  * the file starts at p × 15360 MIDI ticks, whatever its session number: a whole session's phrase n
- * at (n − 1) × 15360, a favorites-only file's phrases one after the other from zero.
+ * at (n − 1) × 15360, a favorites-only file's phrases one after the other from zero. A Jam's files
+ * open with its doodle instead: a "Doodle" marker at time zero, at the doodle's capture tempo, its
+ * measures (3840 ticks each) before the first phrase, which starts at the next barline, every
+ * phrase moved later by the doodle's length.
  */
 import type { ConcertEventTimeline } from '@/domain/events/timeline'
-import { MidiExportError, type MidiBackingPhrase } from './midi-export-input'
+import {
+  MidiExportError,
+  type MidiBackingNote,
+  type MidiBackingPhrase,
+  type MidiDoodleSection,
+} from './midi-export-input'
 import {
   MIDI_TICKS_PER_PHRASE,
+  MIDI_TICKS_PER_WHOLE_NOTE,
   microsecondsPerQuarterNote,
   midiTicksOfWholeNotes,
 } from './midi-time'
@@ -51,37 +60,70 @@ export interface VoicedNote extends SoundingNote {
 // @spec-link [[rule_played_notes_export_aligns_with_generated_midi]]
 export const MIDI_FILE_NAME = 'Infinite Flow'
 
+/** A Jam's doodle as the conductor track needs it: its length in measures and its tempo. */
+// @spec-link [[rule_jam_exports_open_with_doodle]]
+export interface ConductorDoodle {
+  readonly measureCount: number
+  readonly tempo: number
+}
+
+/** The marker that opens a Jam's doodle section in both MIDI files. */
+// @spec-link [[rule_jam_exports_open_with_doodle]]
+export const DOODLE_MARKER = 'Doodle'
+
+/**
+ * Intent: the MIDI tick at which the file's first phrase starts: zero, or, in a Jam's files, the
+ * doodle's last barline, its measures of 4/4 counted from zero.
+ */
+// @spec-link [[rule_jam_exports_open_with_doodle]]
+// @spec-link [[rule_jam_exports_line_up]]
+export function phrasesOrigin(doodle: ConductorDoodle | null | undefined): number {
+  return doodle == null ? 0 : doodle.measureCount * MIDI_TICKS_PER_WHOLE_NOTE
+}
+
 /**
  * Intent: the MIDI tick at which the phrase at zero-based `position` of the file starts: the first
- * at zero, the phrases back to back. `phraseStartTick(count)` is where the file's last phrase ends.
+ * at `origin` (zero, or a Jam's doodle's end), the phrases back to back. `phraseStartTick(count)`
+ * is where the file's last phrase ends.
  */
 // @spec-link [[rule_generated_notes_midi_export]]
 // @spec-link [[rule_played_notes_export_aligns_with_generated_midi]]
 // @spec-link [[rule_favorites_only_export]]
-export function phraseStartTick(position: number): number {
-  return position * MIDI_TICKS_PER_PHRASE
+export function phraseStartTick(position: number, origin = 0): number {
+  return origin + position * MIDI_TICKS_PER_PHRASE
 }
 
 /**
  * Intent: the conductor track's events: the file's name and the 4/4 time signature at time zero,
  * then, at each phrase's start, a tempo event when the tempo is the first or differs from the
- * phrase before, and a marker "Phrase n" with its session number. The played-notes file of the same session is built from
+ * phrase before, and a marker "Phrase n" with its session number. In a Jam's files the doodle
+ * comes first: its capture tempo and a marker "Doodle" at time zero, the doodle's tempo then
+ * counting as the one before phrase 1's. The played-notes file of the same session is built from
  * the same events, so the two files share their tempo map and markers exactly.
  */
 // @spec-link [[rule_generated_notes_midi_export]]
 // @spec-link [[req_session_export]]
 // @spec-link [[rule_played_notes_export_aligns_with_generated_midi]]
+// @spec-link [[rule_jam_exports_open_with_doodle]]
+// @spec-link [[rule_jam_exports_line_up]]
 export function conductorTrackEvents(
   phrases: readonly ConductorPhrase[],
   fileName: string,
+  doodle: ConductorDoodle | null = null,
 ): TimedMidiEvent[] {
   const events: TimedMidiEvent[] = [
     { tick: 0, bytes: trackNameEvent(fileName) },
     { tick: 0, bytes: fourFourTimeSignatureEvent() },
   ]
+  if (doodle !== null) {
+    events.push({ tick: 0, bytes: tempoEvent(microsecondsPerQuarterNote(doodle.tempo)) })
+    events.push({ tick: 0, bytes: markerEvent(DOODLE_MARKER) })
+  }
+  const origin = phrasesOrigin(doodle)
   phrases.forEach((phrase, position) => {
-    const tick = phraseStartTick(position)
-    if (position === 0 || phrases[position - 1]!.tempo !== phrase.tempo) {
+    const tick = phraseStartTick(position, origin)
+    const tempoBefore = position === 0 ? (doodle?.tempo ?? null) : phrases[position - 1]!.tempo
+    if (tempoBefore !== phrase.tempo) {
       events.push({ tick, bytes: tempoEvent(microsecondsPerQuarterNote(phrase.tempo)) })
     }
     events.push({ tick, bytes: markerEvent(`Phrase ${phrase.number}`) })
@@ -91,7 +133,8 @@ export function conductorTrackEvents(
 
 /**
  * Intent: a phrase's concert timeline as sounding notes, shifted to the start of the phrase at
- * zero-based `position` of the file; `phraseNumber` names it in a failure. A fresh
+ * zero-based `position` of the file, the phrases starting at `origin`; `phraseNumber` names it in
+ * a failure. A fresh
  * note opens a note; a tie continuation lengthens the open note, which must be of the same pitch
  * and end right where the continuation starts; a rest closes the open note. Crashes when a tie
  * continuation has nothing to continue, or when the timeline does not fill exactly four measures.
@@ -101,8 +144,9 @@ export function generatedLineNotes(
   timeline: ConcertEventTimeline,
   phraseNumber: number,
   position: number,
+  origin = 0,
 ): SoundingNote[] {
-  const offset = phraseStartTick(position)
+  const offset = phraseStartTick(position, origin)
   const notes: SoundingNote[] = []
   let holding = false
   let tick = offset
@@ -129,13 +173,10 @@ export function generatedLineNotes(
 }
 
 /**
- * Intent: one phrase's backing notes as sounding notes, shifted to the start of the phrase at
- * zero-based `position` of the file.
+ * Intent: timed notes (whole notes from their span's start) as sounding notes from `offset`.
  */
-// @spec-link [[rule_generated_notes_midi_export]]
-export function backingNotes(phrase: MidiBackingPhrase, position: number): SoundingNote[] {
-  const offset = phraseStartTick(position)
-  return phrase.notes.map((note) => {
+function soundingFrom(notes: readonly MidiBackingNote[], offset: number): SoundingNote[] {
+  return notes.map((note) => {
     const startTick = offset + midiTicksOfWholeNotes(note.start)
     return {
       pitch: note.pitch,
@@ -143,6 +184,28 @@ export function backingNotes(phrase: MidiBackingPhrase, position: number): Sound
       endTick: startTick + midiTicksOfWholeNotes(note.duration),
     }
   })
+}
+
+/**
+ * Intent: one phrase's backing notes as sounding notes, shifted to the start of the phrase at
+ * zero-based `position` of the file, the phrases starting at `origin`.
+ */
+// @spec-link [[rule_generated_notes_midi_export]]
+export function backingNotes(
+  phrase: MidiBackingPhrase,
+  position: number,
+  origin = 0,
+): SoundingNote[] {
+  return soundingFrom(phrase.notes, phraseStartTick(position, origin))
+}
+
+/**
+ * Intent: a Jam's quantized doodle as sounding notes from time zero, where its section opens the
+ * file.
+ */
+// @spec-link [[rule_jam_exports_open_with_doodle]]
+export function doodleNotes(doodle: MidiDoodleSection): SoundingNote[] {
+  return soundingFrom(doodle.notes, 0)
 }
 
 /**

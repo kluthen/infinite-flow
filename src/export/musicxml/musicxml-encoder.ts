@@ -14,10 +14,12 @@
 import type { WrittenMeasure } from '@/domain/notation/written-phrase-types'
 import {
   type GeneratedNotesMusicXmlInput,
+  type MusicXmlDoodleSection,
   type MusicXmlSessionPhrase,
   validateMusicXmlExportInput,
 } from './musicxml-export-input'
 import {
+  DOODLE_REHEARSAL,
   keyChangeAttributes,
   metronomeMark,
   openingAttributes,
@@ -45,7 +47,7 @@ const PROLOG: readonly string[] = [
  */
 function phraseOpening(
   phrase: MusicXmlSessionPhrase,
-  previous: MusicXmlSessionPhrase | null,
+  previous: Omit<MusicXmlSessionPhrase, 'number'> | null,
   input: GeneratedNotesMusicXmlInput,
 ): XmlElement[] {
   const key = phrase.writtenPhrase.key
@@ -69,11 +71,12 @@ function phraseOpening(
 // @spec-link [[rule_favorites_only_export]]
 function phraseMeasures(
   phrase: MusicXmlSessionPhrase,
-  previous: MusicXmlSessionPhrase | null,
+  previous: Omit<MusicXmlSessionPhrase, 'number'> | null,
   isLastPhrase: boolean,
   input: GeneratedNotesMusicXmlInput,
 ): XmlElement[] {
-  const firstMeasureNumber = (phrase.number - 1) * MEASURES_PER_PHRASE + 1
+  const doodleMeasures = input.doodle?.measureCount ?? 0
+  const firstMeasureNumber = doodleMeasures + (phrase.number - 1) * MEASURES_PER_PHRASE + 1
   const endBarline = isLastPhrase ? sessionEndBarline() : phraseEndBarline()
   return phrase.writtenPhrase.measures.map((measure: WrittenMeasure, index) => {
     const opening = index === 0 ? phraseOpening(phrase, previous, input) : []
@@ -87,23 +90,62 @@ function phraseMeasures(
 }
 
 /**
+ * Intent: the measures of a Jam's doodle section, numbered from 1: the first opening the score
+ * (its attributes in the doodle's key and clef, the rehearsal mark "Doodle", a metronome mark at
+ * its capture tempo), the last closed by a double barline, the phrases following.
+ */
+// @spec-link [[rule_jam_exports_open_with_doodle]]
+// @spec-link [[rule_jam_exports_line_up]]
+function doodleSectionMeasures(
+  doodle: MusicXmlDoodleSection,
+  input: GeneratedNotesMusicXmlInput,
+): XmlElement[] {
+  const { writtenPhrase, measureCount, tempo } = doodle
+  return writtenPhrase.measures.slice(0, measureCount).map((measure: WrittenMeasure, index) => {
+    const opening =
+      index === 0
+        ? [
+            openingAttributes(
+              writtenPhrase.key,
+              input.instrument.transposition,
+              writtenPhrase.clef,
+            ),
+            rehearsalMark(DOODLE_REHEARSAL),
+            metronomeMark(tempo),
+          ]
+        : []
+    const closing = index === measureCount - 1 ? [phraseEndBarline()] : []
+    return element(
+      'measure',
+      [['number', String(index + 1)]],
+      [...opening, ...measureContent(measure), ...closing],
+    )
+  })
+}
+
+/**
  * Intent: encode a session's generated notes (every phrase, or the favorites only) as one MusicXML
- * (score-partwise 4.0) document.
+ * (score-partwise 4.0) document, a Jam's opening with its doodle.
  * Validates the input first and crashes with a MusicXmlExportError on any breach; never takes or
  * writes a played note.
  */
 // @spec-link [[rule_generated_notes_musicxml_export]]
 // @spec-link [[req_session_export]]
+// @spec-link [[rule_jam_exports_open_with_doodle]]
 export function encodeGeneratedNotesMusicXml(input: GeneratedNotesMusicXmlInput): string {
   validateMusicXmlExportInput(input)
-  const measures = input.phrases.flatMap((phrase, position) =>
-    phraseMeasures(
-      phrase,
-      position === 0 ? null : input.phrases[position - 1]!,
-      position === input.phrases.length - 1,
-      input,
+  const doodle = input.doodle ?? null
+  const measures = [
+    ...(doodle === null ? [] : doodleSectionMeasures(doodle, input)),
+    ...input.phrases.flatMap((phrase, position) =>
+      phraseMeasures(
+        phrase,
+        position === 0 ? doodle : input.phrases[position - 1]!,
+        position === input.phrases.length - 1,
+        input,
+      ),
     ),
-  )
+  ]
   const score = element(
     'score-partwise',
     [['version', '4.0']],
