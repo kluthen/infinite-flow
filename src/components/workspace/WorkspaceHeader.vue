@@ -22,7 +22,7 @@
  * `jam-notice` while Jam's staff shows it. `Start Jam` is enabled exactly while a Jam could start
  * (a fresh Jam, or with a doodle kept a Jam on it), as the shell judges it.
  */
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 
 import type { GenerationSession, ThemePreference } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
@@ -358,6 +358,43 @@ function focusAfterConnectionSheet(): void {
   else if (target === 'phrase-action') focusButton(phraseActionButton.value)
   else focusControllerStatus()
 }
+
+/** Set while a Loading that disabled the focused phrase action runs (ux D474). */
+let refocusPhraseAction = false
+
+/**
+ * Intent: the phrase action disabled while it has focus: a session start (the starting note)
+ * moves focus to `Stop` once drawn; a Loading moves nothing until it ends.
+ */
+// @spec-link [[user_story_controlled_phrase_generation]]
+watch(
+  primaryActionDisabled,
+  (disabled, wasDisabled) => {
+    if (!disabled || wasDisabled || document.activeElement !== phraseActionButton.value) return
+    if (sessionActive.value) void nextTick(() => focusButton(sessionActionButton.value))
+    else if (operationRunning.value) refocusPhraseAction = true
+  },
+  { flush: 'pre' },
+)
+
+/**
+ * Intent: at that Loading's end, focus still on the phrase action or dropped to the page goes to
+ * it, else to the session action, else `controller-status`; focus moved elsewhere stays there.
+ */
+// @spec-link [[user_story_controlled_phrase_generation]]
+watch(operationRunning, (running) => {
+  if (running || !refocusPhraseAction) return
+  refocusPhraseAction = false
+  if (sessionActive.value) return
+  void nextTick(() => {
+    const focused = document.activeElement
+    if (focused !== phraseActionButton.value && focused !== document.body && focused !== null)
+      return
+    if (!primaryActionDisabled.value) focusButton(phraseActionButton.value)
+    else if (!sessionActionDisabled.value) focusButton(sessionActionButton.value)
+    else focusControllerStatus()
+  })
+})
 
 defineExpose({
   /** Whether the session action is enabled now (`Close review` focus order). */
