@@ -1,6 +1,6 @@
 ---
 id: module_guide_playback_layers
-status: DRAFT
+status: REVIEW
 type: MODULE
 version: 0.2
 priority: 1

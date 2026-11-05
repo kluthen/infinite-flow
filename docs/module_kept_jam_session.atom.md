@@ -1,6 +1,6 @@
 ---
 id: module_kept_jam_session
-status: DRAFT
+status: REVIEW
 type: MODULE
 version: 0.3
 priority: 1

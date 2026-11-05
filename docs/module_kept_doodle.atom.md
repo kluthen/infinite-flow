@@ -1,6 +1,6 @@
 ---
 id: module_kept_doodle
-status: DRAFT
+status: REVIEW
 human_name: The Kept Doodle in Jam's Code
 tags: [v3, release-v3.2, jam, idle]
 parents:

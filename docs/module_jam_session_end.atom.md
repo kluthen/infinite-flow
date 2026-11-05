@@ -1,6 +1,6 @@
 ---
 id: module_jam_session_end
-status: DRAFT
+status: REVIEW
 layer: ARCHITECTURE
 version: 0.4
 human_name: A Jam's End in the Workspace
