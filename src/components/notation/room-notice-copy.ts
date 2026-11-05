@@ -16,3 +16,8 @@ export const ROOM_NOTICE_NARROW = 'This screen is too small to show the staff.'
 // @spec-link [[rule_staff_needs_room_notice]]
 export const ROOM_NOTICE_TOO_MANY_NOTES =
   'These notes need more room. Make the window larger, or choose a lower note density.'
+
+/** Jam's too-many-notes sentence: Jam has no note density, so its cure is a new doodle. */
+// @spec-link [[rule_staff_needs_room_notice]]
+export const ROOM_NOTICE_TOO_MANY_NOTES_JAM =
+  'These notes need more room. Make the window larger, or play a new doodle with fewer notes.'

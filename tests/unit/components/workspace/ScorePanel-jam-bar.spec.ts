@@ -45,7 +45,12 @@ function barView(): JamBarView {
       loading: false,
       held: true,
     },
-    listeners: { 'new-doodle': vi.fn(), use: vi.fn(), keep: vi.fn() },
+    listeners: {
+      'new-doodle': vi.fn(),
+      use: vi.fn(),
+      keep: vi.fn(),
+      'focus-session-action': vi.fn(),
+    },
   }
 }
 

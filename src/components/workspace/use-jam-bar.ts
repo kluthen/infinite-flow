@@ -37,7 +37,7 @@ export interface JamBarProps {
   readonly jam: JamKeyAndMode
   readonly instrument: Pick<InstrumentProfile, 'transposition'>
   readonly declined: boolean
-  /** Phrase 1 is being written from the doodle: `New doodle` is disabled. */
+  /** Phrase 1 is being written from the doodle: its buttons are disabled. */
   readonly loading: boolean
   /** A session runs on the doodle: the bar is held still, its buttons disabled. */
   readonly held: boolean
@@ -52,6 +52,7 @@ export interface JamBarView {
     readonly 'new-doodle': () => void
     readonly use: (answer: JamKeyAndMode) => void
     readonly keep: () => void
+    readonly 'focus-session-action': () => void
   }
 }
 
@@ -119,7 +120,13 @@ export function useJamBar(seams: JamBarSeams): ComputedRef<JamBarView | null> {
     void seams.controller().declineSuggestion(kept.sessionKey)
   }
 
-  const listeners = Object.freeze({ 'new-doodle': newDoodle, use: useAnswer, keep })
+  const listeners = Object.freeze({
+    'new-doodle': newDoodle,
+    use: useAnswer,
+    keep,
+    // A session started from a focused bar button: focus on the session action, now `Stop`.
+    'focus-session-action': () => seams.header().focusSessionAction(),
+  })
 
   return computed((): JamBarView | null => {
     const loaded = seams.jamModule()

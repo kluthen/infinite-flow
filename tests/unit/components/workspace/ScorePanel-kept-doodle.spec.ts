@@ -172,7 +172,9 @@ describe("ScorePanel and Jam's phrase 1 from the kept doodle", () => {
     phrase.state.roomNoticeAnnouncements = 1
     await flushPromises()
     expect(staff.get('.staff-frame').classes()).toContain('staff-no-room')
-    expect(staff.get('.room-notice').text()).toMatch(/These notes need more room/)
+    expect(staff.get('.room-notice').text()).toBe(
+      'These notes need more room. Make the window larger, or play a new doodle with fewer notes.',
+    )
     wrapper.unmount()
   })
 

@@ -6,9 +6,9 @@
  * "Jams now play in {answer}.", which takes focus after `Jam in {answer}` (`tabindex="-1"`, never
  * in the tab order). No fit: one sentence naming no note, in a review only. Absent: nothing
  * rendered. Jam's Idle shows it too, in `jam-bar` (`atIdle`), its buttons disabled while the bar
- * is held still. What each button changes is its host's: this row asks (`use`, `keep`) and says.
- * When its buttons leave while one has focus, not by a press of theirs (a change of Jam's key or
- * mode), it hands focus back (`focus-lost`). Part of Jam's code (src/jam/), loaded on demand.
+ * is held still or in Loading. What each button changes is its host's: this row asks (`use`, `keep`) and says.
+ * When its buttons or its set sentence leave while focused, not by a press of theirs (a change of
+ * Jam's key or mode), it hands focus back (`focus-lost`). Part of Jam's code (src/jam/), loaded on demand.
  */
 import { nextTick, ref, watch } from 'vue'
 
@@ -30,7 +30,7 @@ const props = defineProps<{
   declined: boolean
   /** Shown at Jam's Idle, in `jam-bar`: no no-fit form, judged afresh after the set form. */
   atIdle?: boolean
-  /** Its buttons are disabled (`jam-bar` held still during a session). */
+  /** Its buttons are disabled (`jam-bar` in Loading, or held still during a session). */
   disabled?: boolean
 }>()
 
@@ -39,7 +39,7 @@ const emit = defineEmits<{
   use: [answer: JamKeyAndMode]
   /** `Keep {key} {mode}`: decline this doodle's suggestion for good. */
   keep: []
-  /** The row's focused buttons left by a change of Jam's key or mode: focus goes elsewhere. */
+  /** The row's focused element left by a change of Jam's key or mode: focus goes elsewhere. */
   'focus-lost': []
 }>()
 
@@ -96,13 +96,13 @@ function keep(): void {
 }
 
 /**
- * Intent: the offering's buttons leaving while one holds focus, not by a press of theirs: read
- * before they leave the page, handed back once they have.
+ * Intent: the focused buttons or set sentence leaving, not by a press of theirs: read before they
+ * leave the page, handed back once they have.
  */
 watch(
   () => form.value.kind,
   (kind) => {
-    if (kind === 'offering' || pressed) return
+    if (kind === 'set' || pressed) return
     const focused = document.activeElement
     if (rowEl.value === null || focused === null || !rowEl.value.contains(focused)) return
     void nextTick(() => emit('focus-lost'))
