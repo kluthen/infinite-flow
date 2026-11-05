@@ -1,0 +1,294 @@
+/**
+ * The review area's exports (./use-review-area.ts composes them into what the Review is given):
+ * the export scope (`Whole session` at every Review, back to it when the last favorite goes,
+ * never saved), which both exports read; the generated-notes export's file action; whether the
+ * session holds a played note, and the played-notes export as the host's `Include very short
+ * notes` and the scope ask, with the reason it would hold no note. A Jam session's files open with
+ * the doodle's part, built by Jam's code once it has settled; while it could not load, neither file
+ * is made and the Review says why.
+ */
+import { computed, ref, watch, type ComputedRef, type Ref } from 'vue'
+
+import type {
+  ExportRequest,
+  GeneratedNotesUnavailable,
+  PlayedNotesUnavailable,
+  ReviewExportScope,
+  ReviewJamCode,
+} from '@/components/review/review-types'
+import { WHOLE_SESSION, type ExportScope } from '@/export/export-file'
+import type { ReviewedPhrase } from '@/session/session-history'
+import { rawDoodleNotesInSection } from '@/session/session-history-played-notes'
+import {
+  historyHoldsPlayedNote,
+  playedNotesFileHoldsNote,
+  playedNotesUnavailable,
+  type PlayedNotesJam,
+} from './played-notes-availability'
+import {
+  exportGeneratedNotes,
+  exportPlayedNotes,
+  type PlayedNotesExportRequest,
+  type ReviewExportPorts,
+} from './review-export'
+import type { ReviewedJamPart } from './session-jam-part'
+import { settledJamCode } from './use-review-jam-code'
+import type { ReviewHost } from './use-review-host'
+import type { ReviewedHistory } from './workspace-session-controller-types'
+
+/** What the exports read: the page's Review host, the export's ports and Jam's code. */
+export interface ReviewExportsDependencies {
+  /** What the page keeps of the Review: the showing Review and `Include very short notes`. */
+  readonly host: Pick<ReviewHost, 'shownReview' | 'includeVeryShortNotes'>
+  readonly exportPorts: () => ReviewExportPorts
+  /**
+   * Jam's code for the showing Review (./use-review-jam-code.ts), which builds the doodle's part
+   * of a Jam session's export files; read only for a Jam session.
+   */
+  readonly jamCode: Readonly<Ref<ReviewJamCode>>
+}
+
+/** What the review area's exports give the Review. */
+// @spec-link [[req_session_export]]
+export interface ReviewExports {
+  /**
+   * The export scope both exports hold: `wholeSession` at every Review, and again as soon as the
+   * session has no favorite left.
+   */
+  // @spec-link [[rule_favorites_only_export]]
+  readonly scope: ComputedRef<ReviewExportScope>
+  /** The player picked a scope; `favoritesOnly` is refused while the session has no favorite. */
+  // @spec-link [[rule_favorites_only_export]]
+  readonly setScope: (scope: ReviewExportScope) => void
+  /**
+   * Build the asked file, under the scope it names, from the showing Review's history and download
+   * it; rejects on failure.
+   */
+  readonly exportFile: (request: ExportRequest) => Promise<void>
+  /** The showing Review's history holds a played note in a phrase; false while none shows. */
+  // @spec-link [[req_played_notes_export]]
+  readonly holdsPlayedNote: ComputedRef<boolean>
+  /**
+   * Build the showing Review's played-notes file as `Include very short notes` and the scope ask
+   * when it starts, and download it; rejects on failure.
+   */
+  // @spec-link [[req_played_notes_export]]
+  readonly exportPlayedNotes: () => Promise<void>
+  /**
+   * The showing Review's played-notes file would hold a note under `Include very short notes` and
+   * the scope; false while none shows. `Export played notes` is disabled while it would not.
+   */
+  // @spec-link [[rule_played_notes_export_omits_stray_notes]]
+  readonly playedNotesFileHoldsNote: ComputedRef<boolean>
+  /** Why that file can't be made, the first reason that applies; null while it can. */
+  // @spec-link [[rule_favorites_only_export]]
+  readonly playedNotesUnavailable: ComputedRef<PlayedNotesUnavailable | null>
+  /**
+   * Why the generated-notes file can't be made: a Jam session whose Jam code could not load; null
+   * while it can.
+   */
+  // @spec-link [[rule_jam_code_loaded_on_demand]]
+  readonly generatedNotesUnavailable: ComputedRef<GeneratedNotesUnavailable | null>
+}
+
+/** What a Jam's exports take from Jam's code: the builders of the doodle's part of each file. */
+type JamExportCode = Pick<
+  Extract<ReviewJamCode, { readonly state: 'loaded' }>['module'],
+  'exportDoodleSection' | 'exportPlayedDoodleSection'
+>
+
+/**
+ * Intent: a Jam session's phrase 1, whose key, instrument and clef its doodle is written in; a Jam
+ * session's Review always holds one, so none is a defect.
+ */
+function phraseOneOf(history: ReviewedHistory): ReviewedPhrase {
+  const first = history.phrases()[0]
+  if (first === undefined) throw new Error('review area: a Jam session holds no phrase 1')
+  return first
+}
+
+/**
+ * Intent: the exports of one review area, read from the showing Review the host names, downloading
+ * through the ports and reading the host's `Include very short notes`.
+ */
+// @spec-link [[req_session_export]]
+// @spec-link [[rule_session_data_never_sent_or_stored]]
+export function useReviewExports(deps: ReviewExportsDependencies): ReviewExports {
+  const { host } = deps
+  /** Intent: the Review's history while it shows; null otherwise. */
+  const shownHistory = computed(
+    (): ReviewedHistory | null => host.shownReview.value?.history ?? null,
+  )
+  const records = computed(() => shownHistory.value?.phrases() ?? [])
+  /** The showing Review's Jam part; null while none shows or for a session that is no Jam. */
+  const shownJam = computed((): ReviewedJamPart | null => host.shownReview.value?.jam ?? null)
+  // @spec-link [[req_played_notes_export]]
+  // In a Jam, the raw doodle notes count as played notes: a Jam in which only the doodle was
+  // played still shows the played-notes tools.
+  // @spec-link [[rule_raw_doodle_notes_are_played_notes]]
+  const holdsPlayedNote = computed(
+    () =>
+      historyHoldsPlayedNote(records.value) ||
+      (shownJam.value !== null && rawDoodleNotesInSection(shownJam.value.doodle).length > 0),
+  )
+  /** The showing Review's favorite phrases, by number; none while no Review shows. */
+  const favorites = computed(() => host.shownReview.value?.favorites ?? [])
+  /** The scope the player picked for this Review. */
+  const picked = ref<ReviewExportScope>('wholeSession')
+  /** Intent: the scope in force: the player's, but the whole session while there is no favorite. */
+  // @spec-link [[rule_favorites_only_export]]
+  const scope = computed((): ReviewExportScope =>
+    favorites.value.length === 0 ? 'wholeSession' : picked.value,
+  )
+  // A Review of another session starts at the whole session, and so does the scope once the last
+  // favorite goes, so a favorite marked again later never brings `Favorites only` back by itself.
+  watch(
+    shownHistory,
+    () => {
+      picked.value = 'wholeSession'
+    },
+    { flush: 'sync' },
+  )
+  watch(
+    () => favorites.value.length === 0,
+    (none) => {
+      if (none) picked.value = 'wholeSession'
+    },
+    { flush: 'sync' },
+  )
+
+  /** Intent: the player picked `next`; favorites only is refused while there is no favorite. */
+  // @spec-link [[rule_favorites_only_export]]
+  function setScope(next: ReviewExportScope): void {
+    if (next === 'favoritesOnly' && favorites.value.length === 0) {
+      throw new Error('review area: favorites only was picked with no favorite in the session')
+    }
+    picked.value = next
+  }
+
+  /**
+   * Intent: the export scope `kind` names, favorites only with the showing Review's favorites read
+   * now, so a build keeps the favorites it started with.
+   */
+  // @spec-link [[rule_favorites_only_export]]
+  function exportScope(kind: ReviewExportScope): ExportScope {
+    if (kind === 'wholeSession') return WHOLE_SESSION
+    if (kind === 'favoritesOnly') return { kind, favorites: [...favorites.value] }
+    throw new Error(`review area: no export scope "${String(kind)}"`)
+  }
+
+  /** Intent: the played-notes request the current choices make. */
+  function playedRequest(): PlayedNotesExportRequest {
+    return {
+      includeVeryShortNotes: host.includeVeryShortNotes.value,
+      scope: exportScope(scope.value),
+    }
+  }
+  /** Intent: a Jam session's Jam code could not load for this Review. */
+  // @spec-link [[rule_jam_code_loaded_on_demand]]
+  const jamCodeFailed = computed(
+    () => shownJam.value !== null && deps.jamCode.value.state === 'failed',
+  )
+  /** Intent: what the played-notes reasons read of a Jam session; null for one that is no Jam. */
+  // @spec-link [[rule_raw_doodle_notes_are_played_notes]]
+  const playedJam = computed((): PlayedNotesJam | null => {
+    const jam = shownJam.value
+    if (jam === null) return null
+    return { doodleNotes: rawDoodleNotesInSection(jam.doodle), codeFailed: jamCodeFailed.value }
+  })
+  // @spec-link [[rule_played_notes_export_omits_stray_notes]]
+  // @spec-link [[rule_raw_doodle_notes_are_played_notes]]
+  const playedNotesFileHolds = computed(() =>
+    playedNotesFileHoldsNote(records.value, playedRequest(), playedJam.value?.doodleNotes),
+  )
+  // @spec-link [[rule_favorites_only_export]]
+  const playedNotesReason = computed(() =>
+    playedNotesUnavailable(records.value, playedRequest(), playedJam.value),
+  )
+  // @spec-link [[rule_jam_code_loaded_on_demand]]
+  const generatedNotesReason = computed((): GeneratedNotesUnavailable | null =>
+    jamCodeFailed.value ? 'doodleNotLoaded' : null,
+  )
+
+  /**
+   * Intent: run `build` with Jam's code for a Jam session's export, once it has settled: an export
+   * asked for while it loads waits inside its own loading state; one whose load failed ends there
+   * with nothing built and no error, its button then disabled with its note. A session that is no
+   * Jam builds at once.
+   */
+  // @spec-link [[rule_jam_code_loaded_on_demand]]
+  // @spec-link [[rule_jam_exports_open_with_doodle]]
+  async function withJamCode(
+    jam: ReviewedJamPart | null,
+    build: (module: JamExportCode | null) => Promise<void>,
+  ): Promise<void> {
+    if (jam === null) return build(null)
+    const code = await settledJamCode(deps.jamCode)
+    if (code.state === 'failed') return
+    return build(code.module)
+  }
+
+  /**
+   * Intent: run `run` on the showing Review's history; an export asked for with none showing is a
+   * defect, refused as a rejection.
+   */
+  function withShownHistory(run: (history: ReviewedHistory) => Promise<void>): Promise<void> {
+    const history = shownHistory.value
+    if (history === null) {
+      return Promise.reject(
+        new Error('review host: an export was asked for with no Review showing'),
+      )
+    }
+    return run(history)
+  }
+
+  /**
+   * Intent: export the asked generated-notes file, under the scope it names, from the showing
+   * Review's history.
+   */
+  // @spec-link [[rule_favorites_only_export]]
+  function exportFile(request: ExportRequest): Promise<void> {
+    const jam = shownJam.value
+    return withShownHistory((history) => {
+      const { format, backingTrack } = request
+      const asked = { format, backingTrack, scope: exportScope(request.scope) }
+      return withJamCode(jam, (code) => {
+        const doodle =
+          code === null || jam === null
+            ? null
+            : code.exportDoodleSection(jam.doodle, phraseOneOf(history))
+        return exportGeneratedNotes(history, asked, deps.exportPorts(), doodle)
+      })
+    })
+  }
+
+  /**
+   * Intent: export the played-notes file from the showing Review's history, very short notes in it
+   * only if `Include very short notes` is on now, under the scope in force now; a later change
+   * leaves this build as it started.
+   */
+  // @spec-link [[req_played_notes_export]]
+  // @spec-link [[rule_played_notes_export_omits_stray_notes]]
+  function exportPlayed(): Promise<void> {
+    const request = playedRequest()
+    const jam = shownJam.value
+    return withShownHistory((history) =>
+      withJamCode(jam, (code) => {
+        const doodle =
+          code === null || jam === null ? null : code.exportPlayedDoodleSection(jam.doodle)
+        return exportPlayedNotes(history, request, deps.exportPorts(), doodle)
+      }),
+    )
+  }
+
+  return {
+    scope,
+    setScope,
+    exportFile,
+    holdsPlayedNote,
+    exportPlayedNotes: exportPlayed,
+    playedNotesFileHoldsNote: playedNotesFileHolds,
+    playedNotesUnavailable: playedNotesReason,
+    generatedNotesUnavailable: generatedNotesReason,
+  }
+}

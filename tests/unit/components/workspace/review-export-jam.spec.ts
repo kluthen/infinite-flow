@@ -9,9 +9,11 @@
 import { describe, expect, it } from 'vitest'
 
 import {
-  exportPlayedNotes,
   playedNotesFileHoldsNote,
   playedNotesUnavailable,
+} from '@/components/workspace/played-notes-availability'
+import {
+  exportPlayedNotes,
   type PlayedNotesExportRequest,
   type ReviewExportPorts,
 } from '@/components/workspace/review-export'

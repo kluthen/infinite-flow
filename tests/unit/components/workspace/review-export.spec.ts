@@ -8,12 +8,14 @@
 import { describe, expect, it, vi } from 'vitest'
 
 import {
-  browserReviewExportPorts,
-  exportGeneratedNotes,
-  exportPlayedNotes,
   historyHoldsPlayedNote,
   playedNotesFileHoldsNote,
   playedNotesUnavailable,
+} from '@/components/workspace/played-notes-availability'
+import {
+  browserReviewExportPorts,
+  exportGeneratedNotes,
+  exportPlayedNotes,
   type ReviewExportPorts,
 } from '@/components/workspace/review-export'
 import { BrowserDownloadError } from '@/export/browser-download'
