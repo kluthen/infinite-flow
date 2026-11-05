@@ -769,3 +769,41 @@ Master spec Part C §C19.3 (spec D490-D494), a minor design call under the owner
   `bp-tablet-landscape` up, moved under the title by the toolbar's wrap; D460 corrected); both
   intent docs' phone paragraphs name the four toggles and give the phone's low priority as the
   reason; the edited `session-cue-actions` item tagged; the saved-data mix row holds the guides.
+- **D464 — At Idle the bar's suggestion is offered again once "Jams now play in" has gone
+  (2026-11-05; minor, D119's standing rule; chunk 24's call confirmed).** After Jam's key or mode
+  changes again, the row is judged by the offering rule; a decline still holds for good. Unlike the
+  review (D457), the bar is the one place at Idle that says what the doodle sounds like, and the
+  row moves with the Loading the change starts. Now in `screens/phrase-workspace/handoff.md`, The
+  kept doodle's bar, and `flows/jam/handoff.md`, The suggestion at Idle.
+- **D465 — The suggestion's buttons are disabled during Loading, with `New doodle` (2026-11-05;
+  minor, D119's standing rule; overrides chunk 24's call).** `Jam in` is a key-and-mode change,
+  and those controls are read-only then; as built it bypasses that, and an old-key phrase being
+  drawn can flash before the new one. `Keep` follows so one row has one rule. Code change: disable
+  both while Jam's phrase 1 is written. Now in `screens/phrase-workspace/handoff.md`, The kept
+  doodle's bar, Offering, and `flows/jam/handoff.md`, The suggestion at Idle.
+- **D466 — Focus left without its element in `jam-bar` goes to the bar's sentence (2026-11-05;
+  minor, D119's standing rule; chunk 24's call confirmed and widened).** Any focused element of the
+  bar that goes (a button's row leaving or changing form, the set sentence giving way) hands focus
+  to the bar's sentence. A start by the starting note with a bar button focused moves focus to
+  `Stop`, as for the cue row's links. Now in `screens/phrase-workspace/handoff.md`, The kept
+  doodle's bar, Focus.
+- **D467 — Jam's too-many-notes sentence names Jam's cure (2026-11-05; minor, D119's standing
+  rule).** "These notes need more room. Make the window larger, or play a new doodle with fewer
+  notes." Jam has no density control; its rhythm comes from the doodle, and `New doodle` sits in
+  the bar above. Code change: a Jam string beside `ROOM_NOTICE_TOO_MANY_NOTES`, used by the kept
+  doodle's staff. Now in `screens/phrase-workspace/handoff.md`, Needs more room, the sentence table.
+- **D468 — On a phone, the bar may push the staff below the fold (2026-11-05; minor, spec D414:
+  phones a third-rate client).** Accepted: the page scrolls; no short form, no cap; the session
+  start's jump brings the cue row and both systems into view. Now in
+  `screens/phrase-workspace/handoff.md`, Responsive Behavior, `jam-bar`.
+- **D469 — The band under the bar during a Jam on the kept doodle is the cue row (2026-11-05;
+  minor, D119's standing rule).** From `bp-tablet-landscape` up, `session-cue-row` keeps its fixed
+  block, empty after the read-in, as in any running session, so nothing it shows moves the staff.
+  Accepted; the row does not collapse in Jam mode. Now in `screens/phrase-workspace/handoff.md`,
+  Responsive Behavior, `jam-bar`.
+- **D470 — The review after a Jam offers `Jam again on this doodle` (2026-11-05; confirms the
+  design; spec D147: offered in every kept Jam session's review).** There it does what `Close
+  review` does, focus included, its doodle being the kept one. The atom
+  `rule_jam_again_on_this_doodle` is the side to align, by `documentalist`. Stated in
+  `flows/review-and-export/handoff.md`, The Doodle and the Suggestion, and `flows/jam/handoff.md`'s
+  flowchart (the review of a Jam to the kept doodle's Idle).
