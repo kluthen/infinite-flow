@@ -4,8 +4,8 @@
  * `window.__workspaceHarness.audio` API. The URL chooses the mode: by default the transport runs on
  * the fake audio rig (a clock only `advance` moves), and with `?audio=real` it runs on the real
  * Web Audio output and the real wake-up Worker. Both modes record what the transport schedules
- * with the same recorder, as the same `FakeAudioEvent` shape, and read audible clicks and backing
- * notes the same way. The backing a spec queues is the harmony of the phrase the workspace shows,
+ * with the same recorder, as the same `FakeAudioEvent` shape, and read audible clicks, backing
+ * notes and guide notes the same way. The backing a spec queues is the harmony of the phrase the workspace shows,
  * read by the harness page from its own session (no production hook).
  */
 import {
@@ -29,10 +29,12 @@ import type { HarmonyEvent } from '../../../src/domain/harmony/harmony-types'
 import {
   audibleBackingOf,
   audibleClicksOf,
+  audibleGuideOf,
   createFakeAudioRig,
   recordAudioOutput,
   type FakeAudioEvent,
   type FakeBackingEvent,
+  type FakeGuideEvent,
   type RecordedAudioOutput,
 } from '../../unit/audio/fake-audio'
 
@@ -203,6 +205,10 @@ export function createHarnessAudio(
     setClickVolume: (level) => transport.setClickVolume(level),
     setBackingOn: (on) => transport.setBackingOn(on),
     setBackingVolume: (level) => transport.setBackingVolume(level),
+    guideNotes: () => parts.events().filter((e): e is FakeGuideEvent => e.kind === 'guide'),
+    audibleGuide: () => audibleGuideOf(parts.events()),
+    setGuideOn: (guide, on) => transport.setGuideOn(guide, on),
+    setGuideVolume: (guide, level) => transport.setGuideVolume(guide, level),
     stop: () => ({ ...transport.stop() }),
     mixDesign: () => {
       const { defaults, range } = pageMixDesign()

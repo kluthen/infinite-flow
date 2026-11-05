@@ -680,8 +680,8 @@ carried over by hand; the upgrade code and its automated tests stay.
 # v3.2 hand checks
 
 Build plan [Hand checks](specs/versions/v3/build-plan-v3.2.md#hand-checks): each check is written
-here by the chunk that needs it. This part holds H1 to H5; H6 to H8 are added by their chunks, and
-H9 is waived (spec D417).
+here by the chunk that needs it. This part holds H1 to H5; H6 to H8 and HG (the guide playback,
+spec D492) are added by their chunks, and H9 is waived (spec D417).
 
 ## v3.2 H1. Drift's scale by ear (chunk 3; gate LD; about 8 min)
 
@@ -888,3 +888,32 @@ them left out. Run it after wave 7.
 - [ ] Back in the app, `Favorites only` with phrase 2 starred: export the generated notes as MIDI
       and the played notes again. Both open with the doodle, phrase 2 at bar 3.
 - [ ] Report. Pass on your word.
+
+## v3.2 HG. The guide playback (chunk 40; about 8 min)
+
+Chrome on the reference machine, the Travel Sax over USB, speakers or headphones. The two guides
+are listening aids: the **melody guide** plays the notes on the sheet, the **rhythm guide** plays
+their rhythm on the chords' roots (the note each chord is named after). Their voices were set by
+ear in chunk 40 (spec D491); this check confirms them or tunes them, a tuning being a constant
+change made before the release gate. Run it after wave 7.
+
+- [ ] Session mode, the Neutral preset, C Major, 90 BPM, `Backing` on; `Melody guide` and
+      `Rhythm guide` both off (their first-load state). Play a session of two phrases: it sounds
+      as before, the backing and the click only.
+- [ ] `Melody guide` on; play two phrases: the guide plays the notes on the sheet, a tied note
+      once, nothing where a rest is. Say whether its voice is soft enough to play along with.
+- [ ] `Melody guide` off, `Rhythm guide` on; two phrases: the sheet's rhythm, on the chords'
+      roots. Say whether a repeated note is heard as repeated.
+- [ ] Both on; two phrases: say whether the two voices are easy to tell apart, and apart from the
+      backing.
+- [ ] `Backing` off, both guides on; two phrases; during them, open `Volume` and take each
+      guide's volume down to silence and back.
+- [ ] Listen to a note followed by a rest: the note rings on into the rest and fades, and no new
+      note starts in it. Settled by the owner (spec D493); a confirmation, not a choice.
+- [ ] `Instrument`: E-flat alto saxophone (a transposing instrument: the sheet is written in
+      another key than it sounds); `Melody guide` on; one phrase: the guide sounds in tune with
+      the backing.
+- [ ] 240 BPM, `Note density` Sixteenth; both guides on; one phrase: the quick notes all sound.
+      Stop mid-phrase: everything fades at once, the guides' ringing notes included.
+- [ ] Reload the page: both guides' switches and volumes come back as you left them.
+- [ ] Report, with any voice to tune. Pass on your word.

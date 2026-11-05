@@ -96,7 +96,7 @@ type WorkspaceHarnessAudioEvent =
   | {
       readonly kind: 'guide'
       readonly bus: number
-      readonly role: 'melody-guide' | 'rhythm-guide'
+      readonly role: WorkspaceHarnessGuideRole
       readonly pitch: number
       readonly at: number
       readonly until: number
@@ -134,6 +134,15 @@ type WorkspaceHarnessBackingNote = Extract<WorkspaceHarnessAudioEvent, { kind: '
 
 /** A backing note that sounds, with the backing-volume gain it sounds at. */
 type WorkspaceHarnessAudibleBackingNote = WorkspaceHarnessBackingNote & { readonly gain: number }
+
+/** One guide (src/audio/audio-ports.ts's `GuideRole`). */
+type WorkspaceHarnessGuideRole = 'melody-guide' | 'rhythm-guide'
+
+/** A scheduled guide note, as recorded. */
+type WorkspaceHarnessGuideNote = Extract<WorkspaceHarnessAudioEvent, { kind: 'guide' }>
+
+/** A guide note that starts sounding, with its guide's volume gain it sounds at. */
+type WorkspaceHarnessAudibleGuideNote = WorkspaceHarnessGuideNote & { readonly gain: number }
 
 /**
  * One harmony event of the shown phrase, as `queueBacking` queued it: where it starts in the
@@ -216,6 +225,17 @@ interface WorkspaceHarnessAudioApi {
   setClickVolume: (level: number) => void
   setBackingOn: (on: boolean) => void
   setBackingVolume: (level: number) => void
+  /**
+   * Every scheduled guide note, in call order: the notes `queueBacking` queued from the shown
+   * phrase, sent only while their guide is on.
+   */
+  guideNotes: () => readonly WorkspaceHarnessGuideNote[]
+  /** The recorded guide notes that start sounding, with the gain they sound at. */
+  audibleGuide: () => readonly WorkspaceHarnessAudibleGuideNote[]
+  /** Switch one guide on or off, as its toolbar toggle does. */
+  setGuideOn: (guide: WorkspaceHarnessGuideRole, on: boolean) => void
+  /** Set one guide's volume; throws on a level outside its range. */
+  setGuideVolume: (guide: WorkspaceHarnessGuideRole, level: number) => void
   /** Fade the running session out; throws if none is running. */
   stop: () => { readonly fadeEndsAt: number }
   mixDesign: () => WorkspaceHarnessMixDesign

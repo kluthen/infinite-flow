@@ -297,7 +297,8 @@ into the backing route, each guide into its own route.
   must be above zero, which is checked when the tokens are read (v2.0 item 18). A click volume
   outside the range throws.
 - **The player sets it in the score toolbar.** `MixControls` (`src/components/workspace/`) holds
-  the `Backing` and `Click` toggles and the `Volume` popover's two sliders, whose step is the
+  the `Backing`, `Click`, `Melody guide` and `Rhythm guide` toggles and the `Volume` popover's four
+  sliders, whose step is the
   `--mix-volume-step` token (`readMixVolumeStep`, which throws on a missing or non-positive step).
   They call the transport's setters at Idle and during a session alike; the levels live in the
   transport, which starts from the saved mix, and each change is saved (each volume on its

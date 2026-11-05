@@ -46,6 +46,7 @@ import {
   CONTEXT,
   corrupt,
   DEFAULTS,
+  MIX_DESIGN,
   NON_DEFAULT,
   rawRecords,
   settingAt,
@@ -172,6 +173,14 @@ const V3_2_SESSION_OPTION_KEYS: readonly SettingKey[] = [
   'sessionOptions.rhythmLockOn',
   'sessionOptions.allowedRhythmChanges',
   'sessionOptions.allowedGroups',
+]
+
+/** The four guide records v3.2 added; a store written by v3.1 has none of them. */
+const GUIDE_KEYS: readonly SettingKey[] = [
+  'mix.melodyGuideOn',
+  'mix.melodyGuideVolume',
+  'mix.rhythmGuideOn',
+  'mix.rhythmGuideVolume',
 ]
 
 /**
@@ -560,6 +569,33 @@ describe('the rhythm lock, its allowed changes and the allowed groups', () => {
     expect(decoded.sessionOptions.rhythmLockOn).toBe(true)
     expect(decoded.sessionOptions.allowedGroups.rhythm).toBe(true)
     expect(decoded).toEqual(saved)
+  })
+})
+
+describe("the guides' records", () => {
+  // @test-link [[req_guide_playback]]
+  // @test-link [[rule_saved_settings_load_tolerantly]]
+  it("loads a v3.1 store, which has none of their records, as both guides off at the design's first-load levels, every other setting as saved", () => {
+    const v31 = rawRecords(NON_DEFAULT).filter(
+      (record) => !GUIDE_KEYS.includes(record.key as SettingKey),
+    )
+    expect(v31).toHaveLength(EXPECTED_KEYS.length - 4)
+
+    const decoded = decodeSettings(v31, CONTEXT)
+
+    expect(decoded.mix).toEqual({
+      ...NON_DEFAULT.mix,
+      melodyGuideOn: false,
+      melodyGuideVolume: MIX_DESIGN.defaults.melodyGuideVolume,
+      rhythmGuideOn: false,
+      rhythmGuideVolume: MIX_DESIGN.defaults.rhythmGuideVolume,
+    })
+    expect(MIX_DESIGN.defaults.melodyGuideVolume).toBe(0.8)
+    expect(MIX_DESIGN.defaults.rhythmGuideVolume).toBe(0.6)
+    for (const key of EXPECTED_KEYS) {
+      if (GUIDE_KEYS.includes(key)) continue
+      expect(settingAt(decoded, key), key).toEqual(settingAt(NON_DEFAULT, key))
+    }
   })
 })
 
