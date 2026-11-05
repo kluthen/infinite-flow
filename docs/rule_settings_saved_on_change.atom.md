@@ -15,7 +15,7 @@ dependents:
 layer: BUSINESS
 priority: 1
 type: RULE
-version: 0.4
+version: 0.5
 ---
 
 # Settings Saved When the Player Changes Them
@@ -27,7 +27,7 @@ Bring the player's settings back as they left them, without them having to save 
 From v3.0, each of these settings is saved on the device when the player changes it, with no save action:
 - in session mode, the 14 generation controls, the seven figure levels, and the preset selection: which preset, or Custom and the preset it is based on, if any;
 - the theme;
-- the audio mix: click and backing, each on or off, and each one's volume;
+- the audio mix: the click, the backing, the melody guide and the rhythm guide, each on or off, and each one's volume;
 - the three options for during a session: Vary settings, Tension across phrases and Rising tempo;
 - from v3.2, in session mode, the rhythm lock, its allowed rhythm changes and Vary settings' allowed groups;
 - from v3.2, Jam's own settings, as their own group: its key and mode, tempo, drift, rhythm lock, allowed rhythm changes, harmonic motion, tension and Embellishments level;

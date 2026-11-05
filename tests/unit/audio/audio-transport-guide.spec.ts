@@ -186,9 +186,11 @@ function isGuideGain(event: FakeAudioEvent): boolean {
   )
 }
 
+// @test-link [[module_guide_playback_layers]]
 // @test-link [[req_guide_playback]]
 // @test-link [[rule_guide_changes_only_sound]]
 describe('the guides off: the session as before the guides', () => {
+  // @test-link [[module_guide_playback_layers]]
   // @test-link [[req_guide_playback]]
   // @test-link [[rule_guide_changes_only_sound]]
   it('makes exactly the calls it made before the guides, apart from the guide gains set at unlock', () => {
@@ -264,9 +266,11 @@ describe('each guide sounds exactly its own line', () => {
   })
 })
 
+// @test-link [[module_guide_playback_layers]]
 // @test-link [[rule_guide_notes_placed_exactly]]
 // @test-link [[rule_guide_plays_from_phrase_one]]
 describe('guide notes on the tempo map', () => {
+  // @test-link [[module_guide_playback_layers]]
   // @test-link [[rule_guide_notes_placed_exactly]]
   // @test-link [[rule_guide_plays_from_phrase_one]]
   it("places every note of two phrases at 120 then 90 BPM at its position's beatAt", () => {
