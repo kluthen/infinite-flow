@@ -2437,7 +2437,7 @@ M4's budget fixes), before the wave gate; it touches none of chunks 25, 32, 33 a
 
 ### Chunk 25 — Exports open with the doodle
 
-Status: planned
+Status: in progress
 Wave: 7
 Depends on: 21, 23, 30 (and v3.0 chunks 13 and 25)
 Architecture capture: none
