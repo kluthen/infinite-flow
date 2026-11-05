@@ -11,7 +11,8 @@
  * countdown that ends it unless the same device comes back (the silence count, if it had begun,
  * restarting from then). A session started without it never reads one, and the away
  * device reattaches only once that session ends. While session mode is held, the note route of
- * the code holding it (Jam's Idle note routing) says which note starts what it starts. A session
+ * the code holding it (Jam's Idle note routing) hears every note and says which note starts what
+ * it starts (none while tap tempo listens, every note then a tap). A session
  * started without phrase 1 hands every note to its caller's port, arms the silence timer only on a
  * note played from phrase 1 on, and ends at once on a controller lost before phrase 1 sounds.
  * Every time is on the audio clock; every timer is on the session's audio-time agenda. Loaded with
@@ -59,12 +60,15 @@ import { createIdleStartingNote } from './workspace-session-starting-note'
 
 /**
  * The note route of the code holding session mode (Jam's Idle note routing): what a note at an
- * exact concert pitch means at Idle now, and the start a `start` note triggers.
+ * exact concert pitch means at Idle now (a tap while tap tempo listens), the start a `start` note
+ * triggers, and where every note's event at Idle goes first (its taps).
  */
 // @spec-link [[rule_midi_starting_note]]
+// @spec-link [[rule_jam_tap_in_listening]]
 export interface HeldModeNoteRoute {
-  readonly meaningOf: (concertPitch: number) => 'start' | 'ignored'
+  readonly meaningOf: (concertPitch: number) => 'start' | 'tap' | 'ignored'
   readonly start: () => void
+  readonly hear: (event: PlayedNoteEvent) => void
 }
 
 /** A lost controller's countdown: the whole seconds left before the session ends, 30 down to 1. */
@@ -209,17 +213,22 @@ export function createSessionMidi(deps: SessionMidiDependencies): SessionMidi {
   }
 
   /**
-   * Intent: at Idle while session mode is held, a note the holding code's route means `start` by
-   * starts what it starts. As session mode's starting note, it arms the silence timer of a session
-   * it starts with phrase 1 (a Jam on the kept doodle, started on phrase 1's first note), and none
-   * of one started without phrase 1 (a fresh Jam's home note). Any other note does nothing.
+   * Intent: at Idle while session mode is held, every note's event, played or ended, goes to the
+   * holding code's route first (a tap while tap tempo listens); then a played note the route means
+   * `start` by starts what it starts. As session mode's starting note, it arms the silence timer
+   * of a session it starts with phrase 1 (a Jam on the kept doodle, started on phrase 1's first
+   * note), and none of one started without phrase 1 (a fresh Jam's home note). Any other note,
+   * a tap included, starts nothing.
    */
   // @spec-link [[rule_midi_starting_note]]
   // @spec-link [[rule_silence_timeout_ends_session]]
+  // @spec-link [[rule_jam_tap_in_listening]]
   function onHeldModeNote(event: PlayedNoteEvent): void {
-    if (event.kind !== 'played') return
     const route = deps.heldModeNotes()
-    if (route?.meaningOf(event.note.pitch) !== 'start') return
+    if (route === null) return
+    route.hear(event)
+    if (event.kind !== 'played') return
+    if (route.meaningOf(event.note.pitch) !== 'start') return
     startingOnset = event.note.onsetAt
     try {
       route.start()

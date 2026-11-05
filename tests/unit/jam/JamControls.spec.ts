@@ -5,7 +5,8 @@
  * (Drift, Jam's own rhythm lock with its allowed rhythm changes under it) and From your doodle (the
  * readings, empty without a doodle); no preset bar, no key and mode marks, no "During a session"
  * options, no Arpeggio chaos. Each change is reported as a change of Jam's settings, the
- * instrument as session mode's selection; every field read-only when told.
+ * instrument as session mode's selection; every field read-only when told. `tap-tempo` sits in the
+ * Tempo field after the stepper, disabled when read-only, its press and end passed on.
  */
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
@@ -26,6 +27,7 @@ function mountControls(overrides: Partial<JamControlsProps> = {}) {
     instrumentActionsDisabled: false,
     readings: null,
     belowTabletLandscape: false,
+    tapTempo: { listening: false, note: { kind: 'rest' }, controllerConnected: true },
     ...overrides,
   }
   return mount(JamControls, { props, attachTo: document.body })
@@ -211,5 +213,44 @@ describe('JamControls', () => {
     expect(wrapper.get('.control-group-intro').text()).toBe(
       'The app reads these from your doodle, so the phrases move like it.',
     )
+  })
+
+  // @test-link [[rule_jam_tap_in_listening]]
+  it('shows tap-tempo in the Tempo field after the stepper, its note under both', () => {
+    const wrapper = mountControls({
+      tapTempo: { listening: true, note: { kind: 'set', tempo: 110 }, controllerConnected: true },
+    })
+    const tempoField = wrapper.findAll('.field-group')[0]!
+    expect(tempoField.get('.field-label').text()).toBe('Tempo')
+    const children = Array.from(tempoField.element.children).map((child) => child.className)
+    expect(children).toEqual([
+      'field-label',
+      'input-stepper',
+      'btn tap-tempo is-listening',
+      'field-note',
+    ])
+    expect(tempoField.get('.field-note').text()).toBe('Set to 110 BPM. Keep tapping to correct it.')
+    expect(tempoField.get('.tap-tempo').attributes('disabled')).toBeUndefined()
+  })
+
+  // @test-link [[rule_jam_tap_in_listening]]
+  it("passes on tap-tempo's press and end, and disables it when read-only", async () => {
+    const wrapper = mountControls({
+      tapTempo: { listening: true, note: { kind: 'counting' }, controllerConnected: false },
+    })
+    wrapper
+      .get('.tap-tempo')
+      .element.dispatchEvent(
+        new PointerEvent('pointerdown', { bubbles: true, button: 0, isPrimary: true }),
+      )
+    expect(wrapper.emitted('tap-tempo-press')).toHaveLength(1)
+    wrapper
+      .get('.instrument-actions button')
+      .element.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+    expect(wrapper.emitted('tap-tempo-end')).toHaveLength(1)
+    expect(wrapper.emitted('change')).toBeUndefined()
+
+    await wrapper.setProps({ readonly: true })
+    expect(wrapper.get('.tap-tempo').attributes('disabled')).toBeDefined()
   })
 })

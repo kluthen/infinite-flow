@@ -56,7 +56,10 @@
  * its Loading holds the mode switch and Jam's controls read-only, as session mode's does. Jam's
  * own pre-generation queue (./use-jam-pregeneration.ts), apart from session mode's, prepares the
  * phrases a Jam on the kept doodle plays after that phrase 1. The kept doodle's bar (`jam-bar`,
- * ./use-jam-bar.ts) lets it go on `New doodle` and offers its suggestion at Idle.
+ * ./use-jam-bar.ts) lets it go on `New doodle` and offers its suggestion at Idle. Jam's tap tempo
+ * (./use-tap-tempo-host.ts) gives `tap-tempo` in Jam's controls its view and sets Jam's tempo from
+ * its taps, as a change by hand; while it listens, Jam's Idle cue hides the starting note and the
+ * controller's notes there are taps.
  */
 import { computed, defineAsyncComponent, nextTick, onMounted, ref, watch } from 'vue'
 
@@ -113,6 +116,7 @@ import { useJamIdleCue } from './use-jam-idle-cue'
 import { useJamSettings } from './use-jam-settings'
 import { useFreshJam } from './use-fresh-jam'
 import { useKeptDoodleHost } from './use-kept-doodle-host'
+import { useTapTempoHost } from './use-tap-tempo-host'
 import { useKeptDoodlePhrase, type KeptDoodleGeneration } from './use-kept-doodle-phrase'
 import { useJamPregeneration } from './use-jam-pregeneration'
 import type { JamPregenerationLoader } from './jam-pregeneration'
@@ -394,6 +398,17 @@ const keptDoodleJam = useKeptDoodleJam({
   startFresh: freshJam.start,
 })
 
+// Jam's tap tempo, made once Jam's code loads: its taps set Jam's tempo as a change by hand.
+const jamTapTempo = useTapTempoHost({
+  jamModule: () => workspaceMode.jamModule.value,
+  jamShowing: () => workspaceMode.jamView.value !== null,
+  readonly: () => settingsReadonly.value,
+  controllerConnected: () => jamStartFacts().controllerConnected,
+  audio: props.audio,
+  tempo: () => jamSettings.view.value?.settings.tempo ?? null,
+  setTempo: (tempo) => handleJamSettingChange({ tempo }),
+})
+
 /**
  * What Jam's view is given: Jam's written key and collection, the shared instrument choice (my
  * instrument included), the shared system-position size, and what Jam's Idle prewarm reads: the
@@ -416,6 +431,10 @@ const jamViewProps = computed<JamWorkspaceProps>(() => {
     notice: freshJam.noticeShown.value,
   }
 })
+/** Jam's tempo while Jam mode shows, which the header's `tempo-readout` reads; null otherwise. */
+const jamTempo = computed(() =>
+  workspaceMode.jamView.value === null ? null : (jamSettings.view.value?.settings.tempo ?? null),
+)
 /** Jam's controls while Jam mode shows with its settings made; null otherwise. */
 // @spec-link [[module_workspace_mode]]
 const jamControls = computed(() =>
@@ -431,7 +450,8 @@ const jamControls = computed(() =>
 // @spec-link [[module_workspace_mode]]
 const jamControlsProps = computed((): JamControlsProps | null => {
   const jam = jamSettings.view.value
-  if (jam === null) return null
+  const tapTempo = jamTapTempo.view.value
+  if (jam === null || tapTempo === null) return null
   return {
     settings: jam.settings,
     instrumentProfileId: state.value.controls.instrumentProfileId,
@@ -440,6 +460,7 @@ const jamControlsProps = computed((): JamControlsProps | null => {
     instrumentActionsDisabled: settingsReadonly.value || state.value.operation !== 'idle',
     readings: freshJam.readings.value ?? keptDoodle.kept.value?.readings ?? null,
     belowTabletLandscape: state.value.noteDensityContext.belowTabletLandscape,
+    tapTempo,
   }
 })
 
@@ -565,7 +586,7 @@ function jamStartFacts(): FreshJamStartFacts {
 }
 
 // Jam mode's Idle cue: the starting note while a Jam could start (the home note, or the kept
-// doodle's phrase 1's first note), or `jam-needs-controller`.
+// doodle's phrase 1's first note), or `jam-needs-controller`; none while tap tempo listens.
 const jamIdleCue = useJamIdleCue({
   jamModule: () => workspaceMode.jamModule.value,
   jamShowing: () => workspaceMode.jamView.value !== null,
@@ -574,6 +595,8 @@ const jamIdleCue = useJamIdleCue({
   pageAwaitsClick: () =>
     props.controller?.state.pageActivated !== true && !props.audio.isUnlocked(),
   keptPhrase: keptDoodleJam.phraseCue,
+  tapListening: jamTapTempo.isListening,
+  tap: jamTapTempo.tap,
 })
 
 /**
@@ -587,7 +610,11 @@ function handleJamHomeNote(): void {
   keptDoodleJam.start()
   jumpAfterStart()
 }
-emit('held-mode-notes-change', { meaningOf: jamIdleCue.meaningOf, start: handleJamHomeNote })
+emit('held-mode-notes-change', {
+  meaningOf: jamIdleCue.meaningOf,
+  start: handleJamHomeNote,
+  hear: jamIdleCue.hear,
+})
 emit('after-note-start-change', jumpAfterStart)
 
 defineExpose({
@@ -802,6 +829,7 @@ const controlPanelActions = useControlPanelActions(props.session)
       :jam-can-start="jamIdleCue.canStart.value"
       :jam-notice-shown="freshJam.noticeShown.value"
       :jam-phrase="keptPhrase.view.value"
+      :jam-tempo="jamTempo"
       @select-mode="workspaceMode.select"
       @retry-jam-notation="handleRetryJamNotation"
       @start-session="handleStartSession"
@@ -855,6 +883,8 @@ const controlPanelActions = useControlPanelActions(props.session)
         @change="handleJamSettingChange"
         @select-instrument-profile="handleJamInstrumentChange"
         @open-my-instrument="myInstrumentSheet.open"
+        @tap-tempo-press="jamTapTempo.press"
+        @tap-tempo-end="jamTapTempo.end"
       />
       <ControlPanel
         v-else

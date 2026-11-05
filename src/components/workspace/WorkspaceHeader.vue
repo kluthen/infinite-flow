@@ -63,6 +63,8 @@ const props = withDefaults(
     jamNoticeShown?: boolean
     /** Jam's phrase 1 from the kept doodle while Jam mode shows; null (the default) otherwise. */
     jamPhrase?: KeptDoodlePhraseView | null
+    /** Jam's tempo while Jam mode shows, for `tempo-readout`; null (the default) otherwise. */
+    jamTempo?: number | null
   }>(),
   {
     workspaceMode: () => ({ mode: 'session', checked: 'session', opening: false, readonly: false }),
@@ -71,6 +73,7 @@ const props = withDefaults(
     jamCanStart: false,
     jamNoticeShown: false,
     jamPhrase: null,
+    jamTempo: null,
   },
 )
 
@@ -265,10 +268,13 @@ const sessionActionPrimary = computed(() => {
   )
 })
 
-/** Intent: the tempo the header shows: the running session's locked tempo, else the control's. */
+/**
+ * Intent: the tempo the header shows: the running session's locked tempo, else the control's,
+ * Jam's own while Jam mode shows.
+ */
 // @spec-link [[rule_session_settings_locked]]
 const shownTempo = computed(
-  () => props.controller?.state.sessionTempo ?? state.value.controls.tempo,
+  () => props.controller?.state.sessionTempo ?? props.jamTempo ?? state.value.controls.tempo,
 )
 
 /** Intent: invoke whichever session action the current primary-action label calls for. */
