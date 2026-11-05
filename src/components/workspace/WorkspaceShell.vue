@@ -42,8 +42,8 @@
  * instrument and the shared system-position size; the shell keeps what Jam's staff shows, for
  * the header's `Retry notation`, which has Jam's staff engraved again. Jam's view is also given
  * the prewarm port (none while the prewarm policy is off) and Jam's controls and figure levels, for
- * Jam's Idle prewarm. While Jam mode shows, Jam's controls (Jam's code) take the control panel's
- * place, showing Jam's own settings, each change saved by Jam's code, and the shared instrument,
+ * Jam's Idle prewarm (./use-jam-view-props.ts gives these props). While Jam mode shows, Jam's
+ * controls (Jam's code) take the control panel's place, showing Jam's own settings, each change saved by Jam's code, and the shared instrument,
  * read-only as session mode's are (during the Loading of Jam's phrase 1 too); their doodle readings
  * are a running fresh Jam's once phrase 1 enters, else the kept doodle's, empty with none kept.
  * Session mode's instrument switches are held while Jam mode opens or shows: an
@@ -69,7 +69,7 @@ import type { WorkspaceSessionResult } from '@/composables/workspace-session-res
 import ControlPanel from '@/components/controls/ControlPanel.vue'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { NotationError } from '@/notation/notation-error'
-import type { JamControlsProps, JamStaffState, JamWorkspaceProps } from '@/jam/jam-view-types'
+import type { JamStaffState } from '@/jam/jam-view-types'
 import type { JamSettingsChange } from '@/jam/jam-settings'
 import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
@@ -93,7 +93,7 @@ import ScorePanel from './ScorePanel.vue'
 import OrientationNotice from './OrientationNotice.vue'
 import { createMixVolumePopover } from './mix-volume-popover'
 import { jumpForSessionStart, startStaffViewport, type SessionJumpView } from './session-start-jump'
-import type { SessionEndFocusTarget } from './session-end-focus'
+import { createWorkspaceFocusMoves } from './session-end-focus'
 import type { SessionController } from './workspace-session-controller-types'
 import {
   useControllerConnection,
@@ -117,6 +117,7 @@ import { useJamSettings } from './use-jam-settings'
 import { useFreshJam } from './use-fresh-jam'
 import { useKeptDoodleHost } from './use-kept-doodle-host'
 import { useTapTempoHost } from './use-tap-tempo-host'
+import { useJamViewProps } from './use-jam-view-props'
 import { useKeptDoodlePhrase, type KeptDoodleGeneration } from './use-kept-doodle-phrase'
 import { useJamPregeneration } from './use-jam-pregeneration'
 import type { JamPregenerationLoader } from './jam-pregeneration'
@@ -409,59 +410,28 @@ const jamTapTempo = useTapTempoHost({
   setTempo: (tempo) => handleJamSettingChange({ tempo }),
 })
 
-/**
- * What Jam's view is given: Jam's written key and collection, the shared instrument choice (my
- * instrument included), the shared system-position size, and what Jam's Idle prewarm reads: the
- * prewarm port and the controls and figure levels a Jam is generated with. Session mode's values
- * stand in only before Jam's settings exist, while Jam's view does not show.
- */
-// @spec-link [[module_workspace_mode]]
-const jamViewProps = computed<JamWorkspaceProps>(() => {
-  const jam = jamSettings.view.value
-  const controls = jam?.controls ?? state.value.controls
-  return {
-    tonalCenter: controls.tonalCenter,
-    collection: controls.collection,
-    instrumentProfileId: state.value.controls.instrumentProfileId,
-    myInstrument: state.value.myInstrument,
-    systemPositionUnits: systemPositionUnits.value,
-    prewarm: props.prewarm,
-    controls,
-    figureLevels: jam?.figureLevels ?? state.value.figureLevels,
-    notice: freshJam.noticeShown.value,
-  }
-})
-/** Jam's tempo while Jam mode shows, which the header's `tempo-readout` reads; null otherwise. */
-const jamTempo = computed(() =>
-  workspaceMode.jamView.value === null ? null : (jamSettings.view.value?.settings.tempo ?? null),
-)
-/** Jam's controls while Jam mode shows with its settings made; null otherwise. */
-// @spec-link [[module_workspace_mode]]
-const jamControls = computed(() =>
-  workspaceMode.jamView.value !== null && jamSettings.view.value !== null
-    ? (workspaceMode.jamModule.value?.JamControls ?? null)
-    : null,
-)
-/**
- * What Jam's controls are given: Jam's settings, the shared instrument, the controls' read-only
- * state and `instrument-actions`' as session mode's, and the doodle readings: a running fresh
- * Jam's once phrase 1 enters, else the kept doodle's, none with no doodle kept.
- */
-// @spec-link [[module_workspace_mode]]
-const jamControlsProps = computed((): JamControlsProps | null => {
-  const jam = jamSettings.view.value
-  const tapTempo = jamTapTempo.view.value
-  if (jam === null || tapTempo === null) return null
-  return {
-    settings: jam.settings,
-    instrumentProfileId: state.value.controls.instrumentProfileId,
-    myInstrument: state.value.myInstrument,
-    readonly: settingsReadonly.value,
-    instrumentActionsDisabled: settingsReadonly.value || state.value.operation !== 'idle',
-    readings: freshJam.readings.value ?? keptDoodle.kept.value?.readings ?? null,
-    belowTabletLandscape: state.value.noteDensityContext.belowTabletLandscape,
-    tapTempo,
-  }
+// What Jam's view and Jam's controls are given, and Jam's tempo for the header's `tempo-readout`.
+const {
+  view: jamViewProps,
+  tempo: jamTempo,
+  controls: jamControls,
+  controlsProps: jamControlsProps,
+} = useJamViewProps({
+  jamModule: () => workspaceMode.jamModule.value,
+  jamShowing: () => workspaceMode.jamView.value !== null,
+  jam: () => jamSettings.view.value,
+  sessionControls: () => state.value.controls,
+  sessionFigureLevels: () => state.value.figureLevels,
+  instrument: () => instrumentChoice.value,
+  systemPositionUnits: () => systemPositionUnits.value,
+  prewarm: () => props.prewarm,
+  noticeShown: () => freshJam.noticeShown.value,
+  tapTempo: () => jamTapTempo.view.value,
+  readonly: () => settingsReadonly.value,
+  operationRunning: () => state.value.operation !== 'idle',
+  freshReadings: () => freshJam.readings.value,
+  keptReadings: () => keptDoodle.kept.value?.readings ?? null,
+  belowTabletLandscape: () => state.value.noteDensityContext.belowTabletLandscape,
 })
 
 // The player presets' refused saves, which the preset actions tell and the notice row hears.
@@ -697,14 +667,8 @@ function focusParts(): {
   return { header: header.value, scorePanel: scorePanel.value }
 }
 
-/** Intent: move focus to the element a focus target names, in the mounted header or score panel. */
-function focusTarget(target: SessionEndFocusTarget): void {
-  const parts = focusParts()
-  if (target === 'room-notice') parts.scorePanel.focusRoomNotice()
-  else if (target === 'phrase-action') parts.header.focusPhraseAction()
-  else if (target === 'controller-status') parts.header.focusControllerStatus()
-  else parts.header.focusSessionAction()
-}
+// Focus moves to a focus target's element, and to the workspace's fallback.
+const { focusTarget, focusFallback } = createWorkspaceFocusMoves(focusParts)
 
 // Where focus goes at a session's end, when a late room notice lands, and when the sheet closes.
 const workspaceFocus = useWorkspaceFocus({
@@ -752,17 +716,6 @@ const jamBar = useJamPortsAndBar({
   controller: requireController,
   header: () => focusParts().header,
 })
-
-/**
- * Intent: move focus to the first enabled of the session action, the phrase action and
- * `controller-status` (the workspace's fallback order).
- */
-function focusFallback(): void {
-  const { header: shown } = focusParts()
-  if (shown.sessionActionEnabled) focusTarget('session-action')
-  else if (shown.phraseActionEnabled) focusTarget('phrase-action')
-  else focusTarget('controller-status')
-}
 
 /** Intent: a change of one of Jam's settings at Idle: saved by Jam's code; `jam-notice` goes. */
 // @spec-link [[module_workspace_mode]]
