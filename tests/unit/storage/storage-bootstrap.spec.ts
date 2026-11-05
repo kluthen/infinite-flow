@@ -26,6 +26,10 @@ const MIX_DESIGN: AudioMixDesign = readAudioMixDesign({
       '--mix-click-volume-min': '0.2',
       '--mix-backing-volume-min': '0',
       '--mix-volume-max': '1',
+      '--mix-melody-guide-volume-default': '0.8',
+      '--mix-rhythm-guide-volume-default': '0.6',
+      '--mix-melody-guide-volume-min': '0',
+      '--mix-rhythm-guide-volume-min': '0',
     })[name] ?? '',
 })
 
@@ -44,7 +48,16 @@ const SAVED: SavedSettings = {
   figureLevels: { ...DEFAULTS.figureLevels, appoggiatura: 'favored', chromaticApproach: 'asToday' },
   presetSelection: { kind: 'custom', baseId: 'jazz' },
   theme: 'Dark',
-  mix: { clickOn: false, clickVolume: 0.5, backingOn: false, backingVolume: 0.3 },
+  mix: {
+    clickOn: false,
+    clickVolume: 0.5,
+    backingOn: false,
+    backingVolume: 0.3,
+    melodyGuideOn: false,
+    melodyGuideVolume: 0.8,
+    rhythmGuideOn: false,
+    rhythmGuideVolume: 0.6,
+  },
   sessionOptions: {
     varySettings: true,
     tensionAcrossPhrases: true,

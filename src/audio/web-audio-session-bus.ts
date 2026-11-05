@@ -1,18 +1,24 @@
 /**
- * One session's sound on Web Audio: three fade gains, one per click route and one for the backing,
- * that every sound of the session goes through, and the synthesized click and backing voices
- * themselves. Fading the three gains out on stop silences everything the session scheduled, sound
- * planned past the fade included, while the next session opens its own fresh set. The node
+ * One session's sound on Web Audio: five fade gains, one per click route, one for the backing and
+ * one per guide, that every sound of the session goes through, and the synthesized click and the
+ * notes of every sound role themselves, each note an oscillator shaped by its role's voice entry.
+ * Fading the five gains out on stop silences everything the session scheduled, sound planned past
+ * the fade and guide notes still ringing included, while the next session opens its own fresh
+ * set. It is the only part of the guide playback that knows Web Audio. The node
  * interfaces are the minimal structural slice of Web Audio this directory uses, so a real audio
  * context fits them without a cast and a test can pass a fake.
  */
 
-import type {
-  AudioTime,
-  ClickRoute,
-  ScheduledBackingNote,
-  ScheduledClick,
-  SessionBus,
+import {
+  SOUND_ROLE_VOICES,
+  type AudioTime,
+  type ClickRoute,
+  type GuideRole,
+  type ScheduledBackingNote,
+  type ScheduledClick,
+  type ScheduledGuideNote,
+  type SessionBus,
+  type SoundRoleVoice,
 } from './audio-ports'
 
 /** The part of a Web Audio `AudioParam` this directory automates. */
@@ -50,10 +56,23 @@ export interface WebAudioNodeFactory {
   createOscillator(): WebAudioOscillatorNodePort
 }
 
-/** The paths a session's sound takes into the mix: the two click routes and the backing. */
+/**
+ * The paths a session's sound takes into the mix: the two click routes, the backing, and one per
+ * guide.
+ */
 // @spec-link [[rule_count_in_always_clicks]]
 // @spec-link [[req_session_audio_mix]]
-export type SessionBusRoute = ClickRoute | 'backing'
+// @spec-link [[req_guide_playback]]
+export type SessionBusRoute = ClickRoute | 'backing' | GuideRole
+
+/** Every route, in the order a bus opens and fades them. */
+const SESSION_BUS_ROUTES: readonly SessionBusRoute[] = [
+  'count-in',
+  'click',
+  'backing',
+  'melody-guide',
+  'rhythm-guide',
+]
 
 /** Where each route's fade gain feeds into the mix. */
 // @spec-link [[rule_count_in_always_clicks]]
@@ -79,23 +98,17 @@ const CLICK_VOICE = {
   stopSeconds: 0.06,
 } as const
 
+/** The MIDI pitch range a note can sound in. */
+const LOWEST_PITCH = 0
+const HIGHEST_PITCH = 127
+
 /**
- * The backing voices: synthesized with oscillators and gains only, no samples and no download, in
- * a placeholder timbre. The bass is a triangle wave, each chord note a quieter sine. A note rises
- * from silence to its peak in 5 ms, holds, then falls to near silence over the 40 ms before its
- * end, so a note re-attacked on the same pitch is heard again and no note ends in a click; the
- * oscillator stops at the note's end. A note shorter than attack plus release is refused.
+ * How fast a guide's still-ringing note fades out when that guide starts a note on its pitch: a
+ * quick linear fade to silence from the new start, inside the 10 to 20 ms the guide allows, so the
+ * new note is heard as a new note and the two never sound on one pitch together.
  */
-// @spec-link [[req_session_backing_track]]
-const BACKING_VOICE = {
-  bass: { waveform: 'triangle', peak: 0.35 },
-  chord: { waveform: 'sine', peak: 0.12 },
-  attackSeconds: 0.005,
-  releaseSeconds: 0.04,
-  releaseEndGain: 0.0001,
-  lowestPitch: 0,
-  highestPitch: 127,
-} as const
+// @spec-link [[rule_guide_same_pitch_reattack]]
+const REATTACK_FADE_SECONDS = 0.015
 
 /** Intent: throw unless `value`, named `what`, is a finite number. */
 function assertFinite(value: number, what: string): void {
@@ -155,51 +168,84 @@ function midiFrequency(pitch: number): number {
   return 440 * 2 ** ((pitch - 69) / 12)
 }
 
+/** One note to sound in a role's voice: its concert MIDI pitch, its start and its written end. */
+interface SoundedNote {
+  readonly pitch: number
+  readonly at: AudioTime
+  readonly until: AudioTime
+}
+
 /**
- * Intent: throw unless `note` can sound: finite times, an end after its start leaving room for
- * the attack and release, and a whole MIDI pitch from 0 to 127.
+ * Intent: throw unless `note`, a note of `what`, can sound in `voice`: finite times, an end after
+ * its start, a whole MIDI pitch from 0 to 127, and, for a voice whose release ends at the note's
+ * end, room for the attack and the release inside the note. A voice whose release starts at the
+ * note's end has no shortest note.
  */
-function assertPlayableNote(note: ScheduledBackingNote): void {
-  assertFinite(note.at, 'A backing note start')
-  assertFinite(note.until, 'A backing note end')
+function assertPlayableNote(note: SoundedNote, voice: SoundRoleVoice, what: string): void {
+  assertFinite(note.at, `A ${what} note start`)
+  assertFinite(note.until, `A ${what} note end`)
   if (!(note.until > note.at)) {
-    throw new Error(`A backing note must end after it starts, got ${note.at} to ${note.until}`)
+    throw new Error(`A ${what} note must end after it starts, got ${note.at} to ${note.until}`)
   }
-  const shortest = BACKING_VOICE.attackSeconds + BACKING_VOICE.releaseSeconds
-  if (note.until - note.at < shortest) {
-    throw new Error(`A backing note is too short: ${note.until - note.at} s, under ${shortest} s`)
+  if (voice.release === 'ends-at-note-end') {
+    const shortest = voice.attackSeconds + voice.releaseSeconds
+    if (note.until - note.at < shortest) {
+      throw new Error(`A ${what} note is too short: ${note.until - note.at} s, under ${shortest} s`)
+    }
   }
   const { pitch } = note
-  if (
-    !Number.isInteger(pitch) ||
-    pitch < BACKING_VOICE.lowestPitch ||
-    pitch > BACKING_VOICE.highestPitch
-  ) {
-    throw new Error(`A backing note pitch must be a whole MIDI number 0-127, got ${pitch}`)
+  if (!Number.isInteger(pitch) || pitch < LOWEST_PITCH || pitch > HIGHEST_PITCH) {
+    throw new Error(`A ${what} note pitch must be a whole MIDI number 0-127, got ${pitch}`)
   }
 }
 
 /**
- * Intent: sound one backing note from `note.at` until `note.until` into `destination`: an
- * oscillator at the note's pitch in its voice's waveform, shaped by its own envelope gain (attack,
- * hold, release ending at `until`), both unhooked once the oscillator has ended.
+ * A note the bus has sounded, as far as a later note needs it: its envelope gain, its oscillator,
+ * its voice, its times, and when its oscillator stops (its release's end).
+ */
+interface SoundingNote {
+  readonly envelope: WebAudioGainNodePort
+  readonly oscillator: WebAudioOscillatorNodePort
+  readonly voice: SoundRoleVoice
+  readonly attackSeconds: number
+  readonly at: AudioTime
+  readonly until: AudioTime
+  readonly stopsAt: AudioTime
+}
+
+/**
+ * Intent: sound one note of a role from `note.at` into `destination`: an oscillator at the note's
+ * pitch in its voice's waveform, shaped by its own envelope gain, both unhooked once the
+ * oscillator has ended. The envelope rises linearly from silence to the voice's peak over its
+ * attack, holds, then falls exponentially over its release: a release that ends at the note's end
+ * starts its last `releaseSeconds` before it, and the oscillator stops at the end; a release that
+ * starts at the note's end rings on after it, the attack at most half the note, and the
+ * oscillator stops once the release is over.
  */
 // @spec-link [[req_session_backing_track]]
-function soundBackingNote(
+// @spec-link [[rule_guide_note_rings_out]]
+// @spec-link [[rule_guide_sound_from_oscillators]]
+// @spec-link [[module_guide_playback_layers]]
+function soundNote(
   factory: WebAudioNodeFactory,
-  note: ScheduledBackingNote,
+  voice: SoundRoleVoice,
+  note: SoundedNote,
   destination: WebAudioNodePort,
-): void {
-  assertPlayableNote(note)
-  const voice = BACKING_VOICE[note.voice]
+): SoundingNote {
+  const ringsOn = voice.release === 'starts-at-note-end'
+  const attackSeconds = ringsOn
+    ? Math.min(voice.attackSeconds, (note.until - note.at) / 2)
+    : voice.attackSeconds
+  const releaseStartsAt = ringsOn ? note.until : note.until - voice.releaseSeconds
+  const stopsAt = ringsOn ? note.until + voice.releaseSeconds : note.until
   const oscillator = factory.createOscillator()
   const envelope = factory.createGain()
   oscillator.type = voice.waveform
   oscillator.frequency.setValueAtTime(midiFrequency(note.pitch), note.at)
   envelope.gain.setValueAtTime(0, note.at)
-  envelope.gain.linearRampToValueAtTime(voice.peak, note.at + BACKING_VOICE.attackSeconds)
-  envelope.gain.setValueAtTime(voice.peak, note.until - BACKING_VOICE.releaseSeconds)
-  envelope.gain.exponentialRampToValueAtTime(BACKING_VOICE.releaseEndGain, note.until)
+  envelope.gain.linearRampToValueAtTime(voice.peak, note.at + attackSeconds)
+  envelope.gain.setValueAtTime(voice.peak, releaseStartsAt)
+  envelope.gain.exponentialRampToValueAtTime(voice.releaseEndGain, stopsAt)
   oscillator.connect(envelope)
   envelope.connect(destination)
   oscillator.addEventListener('ended', () => {
@@ -207,7 +253,64 @@ function soundBackingNote(
     envelope.disconnect()
   })
   oscillator.start(note.at)
-  oscillator.stop(note.until)
+  oscillator.stop(stopsAt)
+  return { envelope, oscillator, voice, attackSeconds, at: note.at, until: note.until, stopsAt }
+}
+
+/**
+ * Intent: cut a sounding note's envelope at `at`, keeping its curve exactly up to there. The cut
+ * (`cancelScheduledValues`) removes every envelope event from `at` on, a ramp ending later
+ * included, so the part of the curve before `at` is laid again: the attack's linear rise, or the
+ * release's exponential fall (the same curve, ending at its own level at `at`), or nothing during
+ * the hold, whose level stays at the peak.
+ */
+function cutEnvelopeAt(note: SoundingNote, at: AudioTime): void {
+  const { voice, envelope } = note
+  envelope.gain.cancelScheduledValues(at)
+  if (at < note.at + note.attackSeconds) {
+    const level = (voice.peak * Math.max(0, at - note.at)) / note.attackSeconds
+    envelope.gain.linearRampToValueAtTime(level, at)
+    return
+  }
+  if (at <= note.until) {
+    envelope.gain.setValueAtTime(voice.peak, at)
+    return
+  }
+  const progress = (at - note.until) / (note.stopsAt - note.until)
+  envelope.gain.exponentialRampToValueAtTime(
+    voice.peak * (voice.releaseEndGain / voice.peak) ** progress,
+    at,
+  )
+}
+
+/**
+ * Intent: fade a guide's still-ringing note out quickly from `at`, where that guide starts a new
+ * note on its pitch: from the level its envelope holds then to silence over
+ * `REATTACK_FADE_SECONDS`, its oscillator stopping there. A note whose release is over by the end
+ * of that fade is left as it is.
+ */
+// @spec-link [[rule_guide_same_pitch_reattack]]
+function fadeRingingNote(ringing: SoundingNote, at: AudioTime): void {
+  const fadeEndsAt = at + REATTACK_FADE_SECONDS
+  if (fadeEndsAt >= ringing.stopsAt) return
+  cutEnvelopeAt(ringing, at)
+  ringing.envelope.gain.linearRampToValueAtTime(0, fadeEndsAt)
+  ringing.oscillator.stop(fadeEndsAt)
+}
+
+/**
+ * Intent: sound one backing note in its voice into `destination`, its release ending at the
+ * note's end as it always has. Throws on a note that cannot sound.
+ */
+// @spec-link [[req_session_backing_track]]
+function soundBackingNote(
+  factory: WebAudioNodeFactory,
+  note: ScheduledBackingNote,
+  destination: WebAudioNodePort,
+): void {
+  const voice = SOUND_ROLE_VOICES[note.voice]
+  assertPlayableNote(note, voice, 'backing')
+  soundNote(factory, voice, note, destination)
 }
 
 /**
@@ -233,26 +336,50 @@ function routeOf(click: ScheduledClick, forcedUntil: AudioTime): ClickRoute {
 /**
  * Intent: open one session's bus: a fresh fade gain per route, feeding that route's target, so a
  * count-in click reaches the click volume around the click on/off gate, a click-track click goes
- * through the gate, and the backing goes through the backing on/off gate. Once the click is forced
- * on, a click-track click before the forced end takes the count-in's way around the gate, the
- * count-in's bypass extended. Fading the bus out fades all three routes and leaves every other bus
+ * through the gate, the backing goes through the backing on/off gate, and each guide through its
+ * own on/off gate. Once the click is forced on, a click-track click before the forced end takes
+ * the count-in's way around the gate, the count-in's bypass extended. The bus remembers, per guide
+ * and pitch, the last note it sounded, across phrases, so a guide note starting on the pitch of
+ * that guide's note still ringing fades the ringing one out quickly from the new start. Fading the
+ * bus out fades all five routes, guide notes still ringing included, and leaves every other bus
  * alone.
  */
 // @spec-link [[rule_count_in_always_clicks]]
 // @spec-link [[rule_jam_click_runs_until_phrase_one]]
 // @spec-link [[rule_stop_ends_session]]
 // @spec-link [[req_session_audio_mix]]
+// @spec-link [[rule_guide_same_pitch_reattack]]
+// @spec-link [[module_guide_playback_layers]]
 export function createWebAudioSessionBus(
   factory: WebAudioNodeFactory,
   targets: SessionBusTargets,
 ): SessionBus {
-  const fades: Readonly<Record<SessionBusRoute, WebAudioGainNodePort>> = {
-    'count-in': openFadeGain(factory, targets['count-in']),
-    click: openFadeGain(factory, targets.click),
-    backing: openFadeGain(factory, targets.backing),
-  }
+  const fades = Object.fromEntries(
+    SESSION_BUS_ROUTES.map((route) => [route, openFadeGain(factory, targets[route])]),
+  ) as Readonly<Record<SessionBusRoute, WebAudioGainNodePort>>
   /** Click-track clicks before this time go around the gate; none before a force. */
   let forcedUntil: AudioTime = Number.NEGATIVE_INFINITY
+  /** Each guide's last sounded note per pitch. */
+  const lastGuideNotes: Readonly<Record<GuideRole, Map<number, SoundingNote>>> = {
+    'melody-guide': new Map(),
+    'rhythm-guide': new Map(),
+  }
+
+  /**
+   * Intent: sound one guide note on its guide's route, first fading out that guide's note still
+   * ringing on its pitch, then remember it as that pitch's last note.
+   */
+  // @spec-link [[req_guide_playback]]
+  // @spec-link [[rule_guide_same_pitch_reattack]]
+  function scheduleGuideNote(note: ScheduledGuideNote): void {
+    const voice = SOUND_ROLE_VOICES[note.role]
+    assertPlayableNote(note, voice, note.role)
+    const sounded = lastGuideNotes[note.role]
+    const ringing = sounded.get(note.pitch)
+    if (ringing !== undefined) fadeRingingNote(ringing, note.at)
+    sounded.set(note.pitch, soundNote(factory, voice, note, fades[note.role]))
+  }
+
   return {
     scheduleClick: (click) => soundClick(factory, click, fades[routeOf(click, forcedUntil)]),
     forceClickUntil: (until) => {
@@ -260,15 +387,14 @@ export function createWebAudioSessionBus(
       forcedUntil = until
     },
     scheduleBackingNote: (note) => soundBackingNote(factory, note, fades.backing),
+    scheduleGuideNote,
     fadeOut: (at, durationSeconds) => {
       assertFinite(at, 'A fade-out time')
       assertFinite(durationSeconds, 'A fade-out duration')
       if (durationSeconds < 0) {
         throw new Error(`A fade-out duration can't be negative, got ${durationSeconds}`)
       }
-      fadeToSilence(fades['count-in'], at, durationSeconds)
-      fadeToSilence(fades.click, at, durationSeconds)
-      fadeToSilence(fades.backing, at, durationSeconds)
+      for (const route of SESSION_BUS_ROUTES) fadeToSilence(fades[route], at, durationSeconds)
     },
   }
 }

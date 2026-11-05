@@ -1,14 +1,15 @@
 <script setup lang="ts">
 /**
- * The audio mix in the score toolbar: the `Backing` and `Click` toggle buttons, then the toolbar's
- * `Volume` button, which holds the one volume popover. Never locked: it drives the audio
+ * The audio mix in the score toolbar: the `Backing`, `Click`, `Melody guide` and `Rhythm guide`
+ * toggle buttons, then the toolbar's `Volume` button, which holds the one volume popover. Never locked: it drives the audio
  * transport's mix at idle and during a session alike. The levels live in the transport, which
  * starts from the player's saved mix; each toggle the player turns is saved with the value the
  * transport then holds (during a session, written when it ends).
  */
 import { ref } from 'vue'
 
-import type { AudioMix, DesignTokenSource } from '@/audio/audio-mix'
+import { channelOn, type AudioMix, type DesignTokenSource } from '@/audio/audio-mix'
+import type { GuideRole } from '@/audio/audio-ports'
 import type { AudioTransport } from '@/audio/audio-transport'
 import MixVolumeButton from './MixVolumeButton.vue'
 import type { MixVolumePopover } from './mix-volume-popover'
@@ -47,6 +48,27 @@ function toggleClick(): void {
   mix.value = props.audio.mix()
   saveSettings({ 'mix.clickOn': mix.value.clickOn })
 }
+
+/** The guide toggles, in the toolbar's order, each guide with its label. */
+const GUIDE_TOGGLES = [
+  { guide: 'melody-guide', label: 'Melody guide' },
+  { guide: 'rhythm-guide', label: 'Rhythm guide' },
+] as const satisfies readonly { guide: GuideRole; label: string }[]
+
+/**
+ * Intent: turn one guide on or off in the transport's mix, show the mix it now holds, and save the
+ * value it holds. During a session, a guide turned off is silent at once and one turned on sounds
+ * from its next planned note.
+ */
+// @spec-link [[req_session_audio_mix]]
+// @spec-link [[rule_guide_switch_takes_effect]]
+// @spec-link [[rule_settings_saved_on_change]]
+function toggleGuide(guide: GuideRole): void {
+  props.audio.setGuideOn(guide, !channelOn(mix.value, guide))
+  mix.value = props.audio.mix()
+  const on = channelOn(mix.value, guide)
+  saveSettings(guide === 'melody-guide' ? { 'mix.melodyGuideOn': on } : { 'mix.rhythmGuideOn': on })
+}
 </script>
 
 <template>
@@ -68,6 +90,19 @@ function toggleClick(): void {
     >
       Click
       <span class="toggle-button-state" aria-hidden="true">{{ mix.clickOn ? 'on' : 'off' }}</span>
+    </button>
+    <button
+      v-for="toggle in GUIDE_TOGGLES"
+      :key="toggle.guide"
+      type="button"
+      class="btn toggle-button"
+      :aria-pressed="channelOn(mix, toggle.guide) ? 'true' : 'false'"
+      @click="toggleGuide(toggle.guide)"
+    >
+      {{ toggle.label }}
+      <span class="toggle-button-state" aria-hidden="true">{{
+        channelOn(mix, toggle.guide) ? 'on' : 'off'
+      }}</span>
     </button>
     <MixVolumeButton
       :popover="popover"

@@ -1,12 +1,17 @@
 /**
- * Real phrase harmony for the backing specs, taken from the harmony planner, and the attacks the
- * backing renderer says each phrase plays, counted in beats from the phrase's start.
+ * Real phrase harmony for the backing specs, taken from the harmony planner, the attacks the
+ * backing renderer says each phrase plays, counted in beats from the phrase's start, and a
+ * rest-only concert timeline for specs whose guides play nothing.
  */
 
 import { renderBacking } from '@/domain/backing/backing-renderer'
 import { FOUR_FOUR_METER } from '@/domain/generation/generation-request'
 import { isNoLegalHarmonyPlan, makeHarmonyCandidateDomain } from '@/domain/harmony/harmony-planner'
 import type { HarmonyEvent } from '@/domain/harmony/harmony-types'
+import { makeMeasure } from '@/domain/events/measure'
+import { makeRestEvent } from '@/domain/events/measure-event'
+import { makeConcertEventTimeline, type ConcertEventTimeline } from '@/domain/events/timeline'
+import { makeRational } from '@/domain/time/rational'
 import type { BackingVoice } from '@/audio/audio-ports'
 
 /** One backing attack the renderer asks for, in beats from its phrase's start. */
@@ -62,4 +67,16 @@ export function renderedAttacks(harmony: readonly HarmonyEvent[]): RenderedAttac
       endBeat: beatsOf(note.start) + beatsOf(note.duration),
     }))
   return [...attacks('bass', rendered.bass), ...attacks('chord', rendered.chords)]
+}
+
+/**
+ * Intent: a phrase's concert timeline of four whole-rest measures, for the backing specs: the
+ * guides render no note from it, so the session sounds as it did before the guides.
+ */
+export function restTimeline(): ConcertEventTimeline {
+  return makeConcertEventTimeline(
+    [0, 1, 2, 3].map((index) =>
+      makeMeasure(index, [makeRestEvent({ duration: makeRational(1, 1) })]),
+    ),
+  )
 }

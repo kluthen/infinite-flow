@@ -22,6 +22,10 @@ export const MIX_DESIGN: AudioMixDesign = readAudioMixDesign({
       '--mix-click-volume-min': '0.2',
       '--mix-backing-volume-min': '0',
       '--mix-volume-max': '1',
+      '--mix-melody-guide-volume-default': '0.8',
+      '--mix-rhythm-guide-volume-default': '0.6',
+      '--mix-melody-guide-volume-min': '0',
+      '--mix-rhythm-guide-volume-min': '0',
     })[name] ?? '',
 })
 
@@ -68,7 +72,16 @@ export const NON_DEFAULT: SavedSettings = {
   },
   presetSelection: { kind: 'custom', baseId: 'jazz' },
   theme: 'Dark',
-  mix: { clickOn: false, clickVolume: 0.35, backingOn: false, backingVolume: 0.15 },
+  mix: {
+    clickOn: false,
+    clickVolume: 0.35,
+    backingOn: false,
+    backingVolume: 0.15,
+    melodyGuideOn: true,
+    melodyGuideVolume: 0.45,
+    rhythmGuideOn: true,
+    rhythmGuideVolume: 0.3,
+  },
   sessionOptions: {
     varySettings: true,
     tensionAcrossPhrases: true,

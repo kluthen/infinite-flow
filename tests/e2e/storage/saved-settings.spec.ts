@@ -33,7 +33,10 @@ function tempoStepper(page: Page): Locator {
 }
 
 /** Intent: the toolbar toggle of one mix channel. */
-function mixToggle(page: Page, channel: 'Backing' | 'Click'): Locator {
+function mixToggle(
+  page: Page,
+  channel: 'Backing' | 'Click' | 'Melody guide' | 'Rhythm guide',
+): Locator {
   return page.locator('.score-toolbar').getByRole('button', { name: channel, exact: true })
 }
 
@@ -44,7 +47,10 @@ async function openVolume(page: Page): Promise<void> {
 }
 
 /** Intent: the volume slider labelled `name`. */
-function slider(page: Page, name: 'Backing volume' | 'Click volume'): Locator {
+function slider(
+  page: Page,
+  name: 'Backing volume' | 'Click volume' | 'Melody guide volume' | 'Rhythm guide volume',
+): Locator {
   return page.getByRole('slider', { name, exact: true })
 }
 
@@ -172,6 +178,45 @@ test('the audio mix comes back after a reload: each channel off, each volume at 
   await openVolume(page)
   await expect(slider(page, 'Backing volume')).toHaveValue('0.75')
   await expect(slider(page, 'Click volume')).toHaveValue('0.7')
+})
+
+// @test-link [[req_guide_playback]]
+// @test-link [[rule_settings_saved_on_change]]
+test('the guides come back after a reload: both off on a first visit, then each on at its released level', async ({
+  page,
+}) => {
+  await gotoStorageHarness(page)
+  await expect(mixToggle(page, 'Melody guide')).toHaveAttribute('aria-pressed', 'false')
+  await expect(mixToggle(page, 'Rhythm guide')).toHaveAttribute('aria-pressed', 'false')
+  await openVolume(page)
+  await expect(slider(page, 'Melody guide volume')).toHaveValue('0.8')
+  await expect(slider(page, 'Rhythm guide volume')).toHaveValue('0.6')
+  await page.keyboard.press('Escape')
+
+  await mixToggle(page, 'Melody guide').click()
+  await mixToggle(page, 'Rhythm guide').click()
+  await openVolume(page)
+  // Each key press on a focused slider moves it one step and releases it (input, then change).
+  await slider(page, 'Melody guide volume').focus()
+  await page.keyboard.press('ArrowLeft')
+  await page.keyboard.press('ArrowLeft')
+  await slider(page, 'Rhythm guide volume').focus()
+  await page.keyboard.press('ArrowLeft')
+  await page.keyboard.press('ArrowLeft')
+  await page.keyboard.press('ArrowLeft')
+  await untilStored(page, {
+    'mix.melodyGuideOn': true,
+    'mix.rhythmGuideOn': true,
+    'mix.melodyGuideVolume': 0.7,
+    'mix.rhythmGuideVolume': 0.45,
+  })
+
+  await reloadHarness(page)
+  await expect(mixToggle(page, 'Melody guide')).toHaveAttribute('aria-pressed', 'true')
+  await expect(mixToggle(page, 'Rhythm guide')).toHaveAttribute('aria-pressed', 'true')
+  await openVolume(page)
+  await expect(slider(page, 'Melody guide volume')).toHaveValue('0.7')
+  await expect(slider(page, 'Rhythm guide volume')).toHaveValue('0.45')
 })
 
 // @test-link [[rule_settings_saved_on_change]]

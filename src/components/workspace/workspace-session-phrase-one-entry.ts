@@ -2,7 +2,7 @@
  * Phrase 1 through the workspace, in a session started without phrase 1 (a fresh Jam's): the fit
  * check its attempts take against the staff layout the session holds, and what the session takes
  * at the hand-over, once the engine has readied phrase 1 there. Phrase 1 enters the session's own
- * staff in the held layout, its backing is queued and its notes acknowledged from the start the
+ * staff in the held layout, its backing and guide notes are queued and its notes acknowledged from the start the
  * transport took from the hand-over, the session gets the rolling display and the steps of
  * phrases 2 on, the read-in measure is counted in on the cue row, and phrase 1's start makes it a
  * running session. Part of the session controller's chunk.
@@ -53,7 +53,8 @@ export function phraseOneFitCheck(
 
 /**
  * Intent: what a session started without phrase 1 takes when the engine readies phrase 1, at the
- * hand-over, its start already on the transport: phrase 1's backing at the starting tempo, its
+ * hand-over, its start already on the transport: phrase 1's backing and guide notes at the
+ * starting tempo, its
  * notes added for acknowledgement (which also sets when the silence timer may arm), the rolling
  * display with phrase 1 entering the held layout and no playhead yet, the steps of phrases 2 on,
  * the read-in measure counted in on the cue row as a count-in is, and at phrase 1's start the
@@ -78,7 +79,12 @@ export function phraseOneEntry(
     if (session.midi === null) throw new Error('session controller: no MIDI handling yet')
     const tempo = session.startingTempo
     const soundsAt = audio.phraseStartsAt(1)
-    audio.queueBacking(1, phrase.outcome.provenance.harmony.events, tempo)
+    audio.queueBacking(
+      1,
+      phrase.outcome.provenance.harmony.events,
+      phrase.outcome.result.timeline,
+      tempo,
+    )
     session.midi.phraseReady(1, phrase.outcome.result.timeline, tempo)
     const display = createSessionDisplay({
       audio,

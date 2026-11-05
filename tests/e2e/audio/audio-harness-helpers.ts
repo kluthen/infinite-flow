@@ -186,6 +186,40 @@ export function setBackingOn(page: Page, on: boolean): Promise<void> {
   return page.evaluate((value) => window.__workspaceHarness.audio.setBackingOn(value), on)
 }
 
+/** Intent: every scheduled guide note, in order. */
+export function guideNotes(page: Page): Promise<readonly WorkspaceHarnessGuideNote[]> {
+  return page.evaluate(() => window.__workspaceHarness.audio.guideNotes())
+}
+
+/** Intent: the guide notes that start sounding, with the gain they sound at. */
+export function audibleGuide(page: Page): Promise<readonly WorkspaceHarnessAudibleGuideNote[]> {
+  return page.evaluate(() => window.__workspaceHarness.audio.audibleGuide())
+}
+
+/** Intent: turn one guide on or off. */
+export function setGuideOn(
+  page: Page,
+  guide: WorkspaceHarnessGuideRole,
+  on: boolean,
+): Promise<void> {
+  return page.evaluate(([g, value]) => window.__workspaceHarness.audio.setGuideOn(g, value), [
+    guide,
+    on,
+  ] as const)
+}
+
+/** Intent: set one guide's volume. */
+export function setGuideVolume(
+  page: Page,
+  guide: WorkspaceHarnessGuideRole,
+  level: number,
+): Promise<void> {
+  return page.evaluate(([g, value]) => window.__workspaceHarness.audio.setGuideVolume(g, value), [
+    guide,
+    level,
+  ] as const)
+}
+
 /** Intent: stop the running session, returning when its fade reaches silence. */
 export function stopAudio(page: Page): Promise<{ readonly fadeEndsAt: number }> {
   return page.evaluate(() => window.__workspaceHarness.audio.stop())

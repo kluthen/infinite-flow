@@ -95,6 +95,7 @@ describe('session controller: start', () => {
     expect(queueBacking).toHaveBeenCalledExactlyOnceWith(
       1,
       rig.phraseOne.outcome.provenance.harmony.events,
+      rig.phraseOne.outcome.result.timeline,
       240,
     )
     expect(rig.controller.state.phase).toBe('count-in')

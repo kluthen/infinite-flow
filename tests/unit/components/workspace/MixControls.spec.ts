@@ -55,8 +55,14 @@ function mountMix() {
   return { wrapper, transport, popover, saves }
 }
 
+/** The toolbar's toggle buttons' names. */
+type ToggleName = 'Backing' | 'Click' | 'Melody guide' | 'Rhythm guide'
+
+/** The popover's sliders' labels. */
+type SliderLabel = 'Backing volume' | 'Click volume' | 'Melody guide volume' | 'Rhythm guide volume'
+
 /** Intent: the toolbar's toggle button named `name`. */
-function toggle(wrapper: VueWrapper, name: 'Backing' | 'Click') {
+function toggle(wrapper: VueWrapper, name: ToggleName) {
   const found = wrapper
     .findAll('.mix-controls .toggle-button')
     .find((button) => button.text().startsWith(name))
@@ -81,7 +87,7 @@ async function openFromToolbar(wrapper: VueWrapper): Promise<void> {
 }
 
 /** Intent: the slider labelled `label`. */
-function slider(wrapper: VueWrapper, label: 'Backing volume' | 'Click volume') {
+function slider(wrapper: VueWrapper, label: SliderLabel) {
   const labelElement = wrapper.findAll('label.field-label').find((found) => found.text() === label)
   if (labelElement === undefined) throw new Error(`no ${label} label`)
   return wrapper.get<HTMLInputElement>(`#${labelElement.attributes('for')}`)
@@ -96,6 +102,17 @@ async function moveSlider(input: ReturnType<typeof slider>, value: string): Prom
   await input.trigger('input')
 }
 
+/**
+ * Intent: a button's accessible name as assistive technology reads it here: its text without the
+ * parts hidden from it (the buttons carry no `aria-label`).
+ */
+function accessibleName(button: Element): string {
+  const copy = button.cloneNode(true)
+  if (!(copy instanceof Element)) throw new Error('accessible name: not an element')
+  for (const hidden of copy.querySelectorAll('[aria-hidden="true"]')) hidden.remove()
+  return (copy.textContent ?? '').trim()
+}
+
 afterEach(() => {
   document.body.replaceChildren()
 })
@@ -105,7 +122,7 @@ describe('MixControls toggles', () => {
   it('shows Backing then Click, both pressed and reading on, the state hidden from assistive technology', () => {
     const { wrapper } = mountMix()
 
-    const toggles = wrapper.findAll('.mix-controls .toggle-button')
+    const toggles = wrapper.findAll('.mix-controls .toggle-button').slice(0, 2)
     expect(toggles.map((button) => button.text())).toEqual(['Backing on', 'Click on'])
     for (const button of toggles) {
       expect(button.classes()).toContain('btn')
@@ -132,6 +149,56 @@ describe('MixControls toggles', () => {
   })
 })
 
+// @test-link [[req_guide_playback]]
+describe('MixControls guide toggles', () => {
+  it('shows Backing, Click, Melody guide then Rhythm guide, the guides off by default and named alone', () => {
+    const { wrapper, transport } = mountMix()
+
+    const toggles = wrapper.findAll('.mix-controls .toggle-button')
+    expect(toggles.map((button) => button.text())).toEqual([
+      'Backing on',
+      'Click on',
+      'Melody guide off',
+      'Rhythm guide off',
+    ])
+    expect(toggles.map((button) => accessibleName(button.element))).toEqual([
+      'Backing',
+      'Click',
+      'Melody guide',
+      'Rhythm guide',
+    ])
+    for (const button of toggles.slice(2)) {
+      expect(button.classes()).toContain('btn')
+      expect(button.attributes('aria-pressed')).toBe('false')
+      expect(button.get('.toggle-button-state').attributes('aria-hidden')).toBe('true')
+    }
+    expect(transport.mix().melodyGuideOn).toBe(false)
+    expect(transport.mix().rhythmGuideOn).toBe(false)
+  })
+
+  // @test-link [[rule_guide_switch_takes_effect]]
+  it('turning each guide on and off sets the transport mix and the pressed state', async () => {
+    const { wrapper, transport } = mountMix()
+
+    await toggle(wrapper, 'Melody guide').trigger('click')
+    expect(transport.mix().melodyGuideOn).toBe(true)
+    expect(transport.mix().rhythmGuideOn).toBe(false)
+    expect(toggle(wrapper, 'Melody guide').attributes('aria-pressed')).toBe('true')
+    expect(toggle(wrapper, 'Melody guide').text()).toBe('Melody guide on')
+
+    await toggle(wrapper, 'Rhythm guide').trigger('click')
+    expect(transport.mix().rhythmGuideOn).toBe(true)
+    expect(toggle(wrapper, 'Rhythm guide').attributes('aria-pressed')).toBe('true')
+
+    await toggle(wrapper, 'Melody guide').trigger('click')
+    expect(transport.mix().melodyGuideOn).toBe(false)
+    expect(transport.mix().rhythmGuideOn).toBe(true)
+    expect(toggle(wrapper, 'Melody guide').attributes('aria-pressed')).toBe('false')
+    expect(transport.mix().backingOn).toBe(true)
+    expect(transport.mix().clickOn).toBe(true)
+  })
+})
+
 // @test-link [[rule_settings_saved_on_change]]
 // @test-link [[rule_saved_setting_is_players_choice]]
 describe("MixControls: saving the player's mix", () => {
@@ -147,6 +214,43 @@ describe("MixControls: saving the player's mix", () => {
       { 'mix.clickOn': false },
       { 'mix.backingOn': true },
     ])
+  })
+
+  // @test-link [[req_guide_playback]]
+  it('saves each guide toggle with the value the transport now holds', async () => {
+    const { wrapper, saves } = mountMix()
+
+    await toggle(wrapper, 'Melody guide').trigger('click')
+    await toggle(wrapper, 'Rhythm guide').trigger('click')
+    await toggle(wrapper, 'Melody guide').trigger('click')
+
+    expect(saves).toEqual([
+      { 'mix.melodyGuideOn': true },
+      { 'mix.rhythmGuideOn': true },
+      { 'mix.melodyGuideOn': false },
+    ])
+  })
+
+  // @test-link [[req_guide_playback]]
+  it('saves a guide volume once its slider is released, never while it moves', async () => {
+    const { wrapper, transport, saves } = mountMix()
+    await openFromToolbar(wrapper)
+
+    const melody = slider(wrapper, 'Melody guide volume')
+    await moveSlider(melody, '0.4')
+    await moveSlider(melody, '0.3')
+    expect(transport.mix().melodyGuideVolume).toBe(0.3)
+    expect(saves).toEqual([])
+    await melody.trigger('change')
+    expect(saves).toEqual([{ 'mix.melodyGuideVolume': 0.3 }])
+
+    const rhythm = slider(wrapper, 'Rhythm guide volume')
+    await moveSlider(rhythm, '0.2')
+    await moveSlider(rhythm, '0')
+    expect(transport.mix().rhythmGuideVolume).toBe(0)
+    expect(saves).toHaveLength(1)
+    await rhythm.trigger('change')
+    expect(saves).toEqual([{ 'mix.melodyGuideVolume': 0.3 }, { 'mix.rhythmGuideVolume': 0 }])
   })
 
   it('saves a volume when its slider is released, never while it moves', async () => {
@@ -206,6 +310,70 @@ describe('MixControls volume popover', () => {
     expect(Number(backing.element.value)).toBe(defaults.backingVolume)
     expect(Number(click.element.value)).toBe(defaults.clickVolume)
     expect(document.activeElement).toBe(backing.element)
+  })
+
+  // @test-link [[req_guide_playback]]
+  it("opening shows the four sliders in order, the guides' with their tokens' ranges down to silence and the current levels", async () => {
+    const { wrapper } = mountMix()
+    const { range, defaults } = themeDesign()
+    const step = Number(themeMixTokens().getPropertyValue('--mix-volume-step'))
+
+    await openFromToolbar(wrapper)
+
+    expect(
+      popoverElement(wrapper)
+        .findAll('label.field-label')
+        .map((label) => label.text()),
+    ).toEqual(['Backing volume', 'Click volume', 'Melody guide volume', 'Rhythm guide volume'])
+    expect(popoverElement(wrapper).findAll('input[type="range"]')).toHaveLength(4)
+    const melody = slider(wrapper, 'Melody guide volume')
+    const rhythm = slider(wrapper, 'Rhythm guide volume')
+    expect(melody.attributes('id')).toBe('mix-volume-popover-melody-guide')
+    expect(rhythm.attributes('id')).toBe('mix-volume-popover-rhythm-guide')
+    for (const [input, min] of [
+      [melody, range.melodyGuideVolumeMin],
+      [rhythm, range.rhythmGuideVolumeMin],
+    ] as const) {
+      expect(input.classes()).toContain('range-input')
+      expect(Number(input.attributes('min'))).toBe(min)
+      expect(min).toBe(0)
+      expect(Number(input.attributes('max'))).toBe(range.volumeMax)
+      expect(Number(input.attributes('step'))).toBe(step)
+    }
+    expect(Number(melody.element.value)).toBe(defaults.melodyGuideVolume)
+    expect(Number(rhythm.element.value)).toBe(defaults.rhythmGuideVolume)
+  })
+
+  // @test-link [[req_guide_playback]]
+  it('the guide sliders set the transport live, down to silence, each guide apart', async () => {
+    const { wrapper, transport } = mountMix()
+    const { defaults } = themeDesign()
+    await openFromToolbar(wrapper)
+
+    await moveSlider(slider(wrapper, 'Melody guide volume'), '0.5')
+    expect(transport.mix().melodyGuideVolume).toBe(0.5)
+    expect(transport.mix().rhythmGuideVolume).toBe(defaults.rhythmGuideVolume)
+
+    await moveSlider(slider(wrapper, 'Rhythm guide volume'), '0')
+    expect(transport.mix().rhythmGuideVolume).toBe(0)
+    expect(transport.mix().melodyGuideVolume).toBe(0.5)
+    expect(transport.mix().backingVolume).toBe(defaults.backingVolume)
+  })
+
+  // @test-link [[req_guide_playback]]
+  it('a guide slider stays live while its guide is off, and the level holds once it is on', async () => {
+    const { wrapper, transport } = mountMix()
+    await openFromToolbar(wrapper)
+    expect(transport.mix().melodyGuideOn).toBe(false)
+
+    await moveSlider(slider(wrapper, 'Melody guide volume'), '0.25')
+    expect(slider(wrapper, 'Melody guide volume').attributes('disabled')).toBeUndefined()
+    expect(transport.mix().melodyGuideVolume).toBe(0.25)
+    expect(transport.mix().melodyGuideOn).toBe(false)
+
+    await toggle(wrapper, 'Melody guide').trigger('click')
+    expect(transport.mix().melodyGuideOn).toBe(true)
+    expect(transport.mix().melodyGuideVolume).toBe(0.25)
   })
 
   // @test-link [[rule_click_volume_never_silent]]

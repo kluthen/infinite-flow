@@ -1,0 +1,1699 @@
+[
+  {
+    "name": "phrase 1 at the start, three phrases at 120, 90 and 240 BPM, stopped",
+    "events": [
+      {
+        "kind": "gain",
+        "gain": "click-enable",
+        "value": 1,
+        "at": 5,
+        "scheduledAt": 5
+      },
+      {
+        "kind": "gain",
+        "gain": "click-volume",
+        "value": 0.8,
+        "at": 5,
+        "scheduledAt": 5
+      },
+      {
+        "kind": "gain",
+        "gain": "backing-enable",
+        "value": 1,
+        "at": 5,
+        "scheduledAt": 5
+      },
+      {
+        "kind": "gain",
+        "gain": "backing-volume",
+        "value": 0.8,
+        "at": 5,
+        "scheduledAt": 5
+      },
+      {
+        "kind": "open-bus",
+        "bus": 1,
+        "scheduledAt": 5
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 5.1,
+        "accent": true,
+        "route": "count-in",
+        "scheduledAt": 5
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 5.6,
+        "accent": false,
+        "route": "count-in",
+        "scheduledAt": 5.4
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 6.1,
+        "accent": false,
+        "route": "count-in",
+        "scheduledAt": 5.9
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 6.6,
+        "accent": false,
+        "route": "count-in",
+        "scheduledAt": 6.4
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 7.1,
+        "accent": true,
+        "route": "click",
+        "scheduledAt": 6.9
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 36,
+        "at": 7.1,
+        "until": 8.1,
+        "scheduledAt": 6.9
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 55,
+        "at": 7.1,
+        "until": 9.1,
+        "scheduledAt": 6.9
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 60,
+        "at": 7.1,
+        "until": 9.1,
+        "scheduledAt": 6.9
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 64,
+        "at": 7.1,
+        "until": 9.1,
+        "scheduledAt": 6.9
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 7.6,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 7.4
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 8.1,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 7.925000000000001
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 43,
+        "at": 8.1,
+        "until": 9.1,
+        "scheduledAt": 7.925000000000001
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 8.6,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 8.425
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 9.1,
+        "accent": true,
+        "route": "click",
+        "scheduledAt": 8.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 40,
+        "at": 9.1,
+        "until": 10.1,
+        "scheduledAt": 8.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 55,
+        "at": 9.1,
+        "until": 11.1,
+        "scheduledAt": 8.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 59,
+        "at": 9.1,
+        "until": 11.1,
+        "scheduledAt": 8.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 64,
+        "at": 9.1,
+        "until": 11.1,
+        "scheduledAt": 8.925
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 9.6,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 9.425
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 10.1,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 9.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 47,
+        "at": 10.1,
+        "until": 11.1,
+        "scheduledAt": 9.925
+      },
+      {
+        "kind": "gain",
+        "gain": "backing-volume",
+        "value": 0.5,
+        "at": 10.1,
+        "scheduledAt": 10.1
+      },
+      {
+        "kind": "gain",
+        "gain": "click-enable",
+        "value": 0,
+        "at": 10.1,
+        "scheduledAt": 10.1
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 10.6,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 10.425
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 11.1,
+        "accent": true,
+        "route": "click",
+        "scheduledAt": 10.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 38,
+        "at": 11.1,
+        "until": 12.1,
+        "scheduledAt": 10.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 53,
+        "at": 11.1,
+        "until": 12.1,
+        "scheduledAt": 10.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 57,
+        "at": 11.1,
+        "until": 12.1,
+        "scheduledAt": 10.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 62,
+        "at": 11.1,
+        "until": 12.1,
+        "scheduledAt": 10.925
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 11.6,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 11.425
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 12.1,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 11.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 43,
+        "at": 12.1,
+        "until": 13.1,
+        "scheduledAt": 11.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 55,
+        "at": 12.1,
+        "until": 13.1,
+        "scheduledAt": 11.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 59,
+        "at": 12.1,
+        "until": 13.1,
+        "scheduledAt": 11.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 62,
+        "at": 12.1,
+        "until": 13.1,
+        "scheduledAt": 11.925
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 12.6,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 12.425
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 13.1,
+        "accent": true,
+        "route": "click",
+        "scheduledAt": 12.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 43,
+        "at": 13.1,
+        "until": 14.1,
+        "scheduledAt": 12.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 55,
+        "at": 13.1,
+        "until": 15.1,
+        "scheduledAt": 12.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 59,
+        "at": 13.1,
+        "until": 15.1,
+        "scheduledAt": 12.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 62,
+        "at": 13.1,
+        "until": 15.1,
+        "scheduledAt": 12.925
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 13.6,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 13.425
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 14.1,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 13.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 38,
+        "at": 14.1,
+        "until": 15.1,
+        "scheduledAt": 13.925
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 14.6,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 14.425
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 15.1,
+        "accent": true,
+        "route": "click",
+        "scheduledAt": 14.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 36,
+        "at": 15.1,
+        "until": 16.433333333333334,
+        "scheduledAt": 14.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 55,
+        "at": 15.1,
+        "until": 17.766666666666666,
+        "scheduledAt": 14.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 60,
+        "at": 15.1,
+        "until": 17.766666666666666,
+        "scheduledAt": 14.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 64,
+        "at": 15.1,
+        "until": 17.766666666666666,
+        "scheduledAt": 14.925
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 15.766666666666666,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 15.575000000000001
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 16.433333333333334,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 16.25
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 43,
+        "at": 16.433333333333334,
+        "until": 17.766666666666666,
+        "scheduledAt": 16.25
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 17.1,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 16.925
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 17.766666666666666,
+        "accent": true,
+        "route": "click",
+        "scheduledAt": 17.575000000000003
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 40,
+        "at": 17.766666666666666,
+        "until": 19.1,
+        "scheduledAt": 17.575000000000003
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 55,
+        "at": 17.766666666666666,
+        "until": 20.433333333333334,
+        "scheduledAt": 17.575000000000003
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 59,
+        "at": 17.766666666666666,
+        "until": 20.433333333333334,
+        "scheduledAt": 17.575000000000003
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 64,
+        "at": 17.766666666666666,
+        "until": 20.433333333333334,
+        "scheduledAt": 17.575000000000003
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 18.433333333333334,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 18.25
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 19.1,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 18.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 47,
+        "at": 19.1,
+        "until": 20.433333333333334,
+        "scheduledAt": 18.925
+      },
+      {
+        "kind": "gain",
+        "gain": "click-enable",
+        "value": 1,
+        "at": 19.1,
+        "scheduledAt": 19.1
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 19.766666666666666,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 19.575000000000003
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 20.433333333333334,
+        "accent": true,
+        "route": "click",
+        "scheduledAt": 20.25
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 38,
+        "at": 20.433333333333334,
+        "until": 21.766666666666666,
+        "scheduledAt": 20.25
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 53,
+        "at": 20.433333333333334,
+        "until": 23.1,
+        "scheduledAt": 20.25
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 57,
+        "at": 20.433333333333334,
+        "until": 23.1,
+        "scheduledAt": 20.25
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 62,
+        "at": 20.433333333333334,
+        "until": 23.1,
+        "scheduledAt": 20.25
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 21.1,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 20.925
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 21.766666666666666,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 21.575
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 45,
+        "at": 21.766666666666666,
+        "until": 23.1,
+        "scheduledAt": 21.575
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 22.433333333333334,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 22.25
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 23.1,
+        "accent": true,
+        "route": "click",
+        "scheduledAt": 22.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 43,
+        "at": 23.1,
+        "until": 24.433333333333334,
+        "scheduledAt": 22.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 55,
+        "at": 23.1,
+        "until": 25.766666666666666,
+        "scheduledAt": 22.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 59,
+        "at": 23.1,
+        "until": 25.766666666666666,
+        "scheduledAt": 22.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 62,
+        "at": 23.1,
+        "until": 25.766666666666666,
+        "scheduledAt": 22.925
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 23.766666666666666,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 23.575
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 24.433333333333334,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 24.25
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 38,
+        "at": 24.433333333333334,
+        "until": 25.766666666666666,
+        "scheduledAt": 24.25
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 25.1,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 24.925
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 25.766666666666666,
+        "accent": true,
+        "route": "click",
+        "scheduledAt": 25.575000000000003
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 36,
+        "at": 25.766666666666666,
+        "until": 26.266666666666666,
+        "scheduledAt": 25.575000000000003
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 55,
+        "at": 25.766666666666666,
+        "until": 26.766666666666666,
+        "scheduledAt": 25.575000000000003
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 60,
+        "at": 25.766666666666666,
+        "until": 26.766666666666666,
+        "scheduledAt": 25.575000000000003
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 64,
+        "at": 25.766666666666666,
+        "until": 26.766666666666666,
+        "scheduledAt": 25.575000000000003
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 26.016666666666666,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 25.825000000000003
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 26.266666666666666,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 26.075000000000003
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 43,
+        "at": 26.266666666666666,
+        "until": 26.766666666666666,
+        "scheduledAt": 26.075000000000003
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 26.516666666666666,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 26.325000000000003
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 26.766666666666666,
+        "accent": true,
+        "route": "click",
+        "scheduledAt": 26.575000000000003
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 40,
+        "at": 26.766666666666666,
+        "until": 27.266666666666666,
+        "scheduledAt": 26.575000000000003
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 55,
+        "at": 26.766666666666666,
+        "until": 27.766666666666666,
+        "scheduledAt": 26.575000000000003
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 59,
+        "at": 26.766666666666666,
+        "until": 27.766666666666666,
+        "scheduledAt": 26.575000000000003
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 64,
+        "at": 26.766666666666666,
+        "until": 27.766666666666666,
+        "scheduledAt": 26.575000000000003
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 27.016666666666666,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 26.825000000000003
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 27.266666666666666,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 27.075000000000003
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 47,
+        "at": 27.266666666666666,
+        "until": 27.766666666666666,
+        "scheduledAt": 27.075000000000003
+      },
+      {
+        "kind": "fade",
+        "bus": 1,
+        "at": 27.266666666666666,
+        "duration": 0.1,
+        "scheduledAt": 27.266666666666666
+      }
+    ]
+  },
+  {
+    "name": "phrase 1 handed over at a barline, two phrases at 100 BPM, stopped",
+    "events": [
+      {
+        "kind": "gain",
+        "gain": "click-enable",
+        "value": 1,
+        "at": 5,
+        "scheduledAt": 5
+      },
+      {
+        "kind": "gain",
+        "gain": "click-volume",
+        "value": 0.8,
+        "at": 5,
+        "scheduledAt": 5
+      },
+      {
+        "kind": "gain",
+        "gain": "backing-enable",
+        "value": 1,
+        "at": 5,
+        "scheduledAt": 5
+      },
+      {
+        "kind": "gain",
+        "gain": "backing-volume",
+        "value": 0.8,
+        "at": 5,
+        "scheduledAt": 5
+      },
+      {
+        "kind": "open-bus",
+        "bus": 1,
+        "scheduledAt": 5
+      },
+      {
+        "kind": "force-click",
+        "bus": 1,
+        "until": null,
+        "scheduledAt": 5
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 5.1,
+        "accent": true,
+        "route": "count-in",
+        "scheduledAt": 5
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 5.699999999999999,
+        "accent": false,
+        "route": "count-in",
+        "scheduledAt": 5.5
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 6.3,
+        "accent": false,
+        "route": "count-in",
+        "scheduledAt": 6.125
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 6.8999999999999995,
+        "accent": false,
+        "route": "count-in",
+        "scheduledAt": 6.7
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 7.5,
+        "accent": true,
+        "route": "click",
+        "scheduledAt": 7.300000000000001
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 8.1,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 7.925000000000001
+      },
+      {
+        "kind": "force-click",
+        "bus": 1,
+        "until": 12.3,
+        "scheduledAt": 8
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 8.7,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 8.525
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 9.3,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 9.125
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 9.899999999999999,
+        "accent": true,
+        "route": "click",
+        "scheduledAt": 9.725000000000001
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 10.5,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 10.325
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 11.1,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 10.925
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 11.7,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 11.525
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 12.3,
+        "accent": true,
+        "route": "click",
+        "scheduledAt": 12.125
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 36,
+        "at": 12.3,
+        "until": 13.5,
+        "scheduledAt": 12.125
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 55,
+        "at": 12.3,
+        "until": 14.7,
+        "scheduledAt": 12.125
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 60,
+        "at": 12.3,
+        "until": 14.7,
+        "scheduledAt": 12.125
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 64,
+        "at": 12.3,
+        "until": 14.7,
+        "scheduledAt": 12.125
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 12.899999999999999,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 12.725000000000001
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 13.5,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 13.325000000000001
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 43,
+        "at": 13.5,
+        "until": 14.7,
+        "scheduledAt": 13.325000000000001
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 14.1,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 13.925
+      },
+      {
+        "kind": "gain",
+        "gain": "backing-enable",
+        "value": 0,
+        "at": 14.3,
+        "scheduledAt": 14.3
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 14.7,
+        "accent": true,
+        "route": "click",
+        "scheduledAt": 14.525
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 40,
+        "at": 14.7,
+        "until": 15.9,
+        "scheduledAt": 14.525
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 55,
+        "at": 14.7,
+        "until": 17.1,
+        "scheduledAt": 14.525
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 59,
+        "at": 14.7,
+        "until": 17.1,
+        "scheduledAt": 14.525
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 64,
+        "at": 14.7,
+        "until": 17.1,
+        "scheduledAt": 14.525
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 15.299999999999999,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 15.100000000000001
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 15.9,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 15.725000000000001
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 47,
+        "at": 15.9,
+        "until": 17.1,
+        "scheduledAt": 15.725000000000001
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 16.5,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 16.325000000000003
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 17.1,
+        "accent": true,
+        "route": "click",
+        "scheduledAt": 16.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 38,
+        "at": 17.1,
+        "until": 18.299999999999997,
+        "scheduledAt": 16.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 53,
+        "at": 17.1,
+        "until": 19.5,
+        "scheduledAt": 16.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 57,
+        "at": 17.1,
+        "until": 19.5,
+        "scheduledAt": 16.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 62,
+        "at": 17.1,
+        "until": 19.5,
+        "scheduledAt": 16.925
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 17.7,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 17.525
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 18.299999999999997,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 18.1
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 45,
+        "at": 18.299999999999997,
+        "until": 19.5,
+        "scheduledAt": 18.1
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 18.9,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 18.700000000000003
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 19.5,
+        "accent": true,
+        "route": "click",
+        "scheduledAt": 19.325000000000003
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 43,
+        "at": 19.5,
+        "until": 20.7,
+        "scheduledAt": 19.325000000000003
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 55,
+        "at": 19.5,
+        "until": 21.9,
+        "scheduledAt": 19.325000000000003
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 59,
+        "at": 19.5,
+        "until": 21.9,
+        "scheduledAt": 19.325000000000003
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 62,
+        "at": 19.5,
+        "until": 21.9,
+        "scheduledAt": 19.325000000000003
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 20.1,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 19.925
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 20.7,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 20.525
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 38,
+        "at": 20.7,
+        "until": 21.9,
+        "scheduledAt": 20.525
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 21.299999999999997,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 21.1
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 21.9,
+        "accent": true,
+        "route": "click",
+        "scheduledAt": 21.725
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 36,
+        "at": 21.9,
+        "until": 23.1,
+        "scheduledAt": 21.725
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 55,
+        "at": 21.9,
+        "until": 24.299999999999997,
+        "scheduledAt": 21.725
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 60,
+        "at": 21.9,
+        "until": 24.299999999999997,
+        "scheduledAt": 21.725
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 64,
+        "at": 21.9,
+        "until": 24.299999999999997,
+        "scheduledAt": 21.725
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 22.5,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 22.325
+      },
+      {
+        "kind": "gain",
+        "gain": "backing-enable",
+        "value": 1,
+        "at": 22.9,
+        "scheduledAt": 22.9
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 23.1,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 22.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 43,
+        "at": 23.1,
+        "until": 24.299999999999997,
+        "scheduledAt": 22.925
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 23.700000000000003,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 23.525000000000002
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 24.299999999999997,
+        "accent": true,
+        "route": "click",
+        "scheduledAt": 24.1
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 40,
+        "at": 24.299999999999997,
+        "until": 25.5,
+        "scheduledAt": 24.1
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 55,
+        "at": 24.299999999999997,
+        "until": 26.700000000000003,
+        "scheduledAt": 24.1
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 59,
+        "at": 24.299999999999997,
+        "until": 26.700000000000003,
+        "scheduledAt": 24.1
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 64,
+        "at": 24.299999999999997,
+        "until": 26.700000000000003,
+        "scheduledAt": 24.1
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 24.9,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 24.700000000000003
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 25.5,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 25.325000000000003
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 47,
+        "at": 25.5,
+        "until": 26.700000000000003,
+        "scheduledAt": 25.325000000000003
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 26.1,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 25.925
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 26.700000000000003,
+        "accent": true,
+        "route": "click",
+        "scheduledAt": 26.525000000000002
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 38,
+        "at": 26.700000000000003,
+        "until": 27.9,
+        "scheduledAt": 26.525000000000002
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 53,
+        "at": 26.700000000000003,
+        "until": 27.9,
+        "scheduledAt": 26.525000000000002
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 57,
+        "at": 26.700000000000003,
+        "until": 27.9,
+        "scheduledAt": 26.525000000000002
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 62,
+        "at": 26.700000000000003,
+        "until": 27.9,
+        "scheduledAt": 26.525000000000002
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 27.299999999999997,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 27.1
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 27.9,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 27.700000000000003
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 43,
+        "at": 27.9,
+        "until": 29.1,
+        "scheduledAt": 27.700000000000003
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 55,
+        "at": 27.9,
+        "until": 29.1,
+        "scheduledAt": 27.700000000000003
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 59,
+        "at": 27.9,
+        "until": 29.1,
+        "scheduledAt": 27.700000000000003
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 62,
+        "at": 27.9,
+        "until": 29.1,
+        "scheduledAt": 27.700000000000003
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 28.5,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 28.325000000000003
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 29.1,
+        "accent": true,
+        "route": "click",
+        "scheduledAt": 28.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 43,
+        "at": 29.1,
+        "until": 30.299999999999997,
+        "scheduledAt": 28.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 55,
+        "at": 29.1,
+        "until": 31.5,
+        "scheduledAt": 28.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 59,
+        "at": 29.1,
+        "until": 31.5,
+        "scheduledAt": 28.925
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "chord",
+        "pitch": 62,
+        "at": 29.1,
+        "until": 31.5,
+        "scheduledAt": 28.925
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 29.700000000000003,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 29.525000000000002
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 30.299999999999997,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 30.1
+      },
+      {
+        "kind": "backing",
+        "bus": 1,
+        "voice": "bass",
+        "pitch": 38,
+        "at": 30.299999999999997,
+        "until": 31.5,
+        "scheduledAt": 30.1
+      },
+      {
+        "kind": "click",
+        "bus": 1,
+        "at": 30.9,
+        "accent": false,
+        "route": "click",
+        "scheduledAt": 30.700000000000003
+      },
+      {
+        "kind": "fade",
+        "bus": 1,
+        "at": 30.9,
+        "duration": 0.1,
+        "scheduledAt": 30.9
+      }
+    ]
+  }
+]
