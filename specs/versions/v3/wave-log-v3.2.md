@@ -1646,3 +1646,35 @@ For the next driver, in this order:
    kept doodle and the start's page jump.
 6. Branches left: `v3.2-w7` (worktree `../infinite_flow-v3.2-w7`), `v3.2-c24-kept-doodle`,
    `v3.2-guide-playback` (worktree `../infinite_flow-v3.2-guide`; remove when wave 7 merges).
+
+### Resumed (2026-11-05)
+
+- Gates: L1 "open (after wave 7)" (chunk 24 moved H4/H5); L2 stays "open (after wave 6; runnable
+  now)" (H6 did not move) (48d7c3f5, ad305aec).
+- **Entry budget**: the owner, verbatim, to the question of 4.8 kB left: "Raise to 320 KiB now".
+  `spec-writer` a448e587: spec D504 (327,680 B), plan v38, Part C v1.22; the constant and
+  `docs/testing.md` changed by a `coding-executor`, 4c709230.
+- **Chunk 24's items routed**:
+  - `spec-writer` a448e587: spec D503, a clarification (no owner question): deleting my instrument,
+    or saving a change to its written range or transposition, lets the kept doodle go when its
+    session is among those erased (C5.1, C5.11). Fixed aecd2f1a (merge 00dfb531 with D504's fix;
+    entry 302,435 B). D502 and O304 reserved unused; next free spec D505, O305.
+  - `ux-writer` 53c764db: ux D464–D470. Confirmed as built: D464 (the suggestion offered again at
+    Idle), D468 (740×360 phone scrolls), D469 (the laptop band is the cue row). Changed: D465
+    (`Jam in` and `Keep` disabled during Loading), D467 (Jam's room notice: "These notes need more
+    room. Make the window larger, or play a new doodle with fewer notes."). Widened: D466 (focus to
+    the bar's sentence when the focused element goes; a start by the starting note moves it to
+    `Stop`). D470: the design offers `Jam again on this doodle` after a Jam (spec D147); the atom
+    aligns at the sync. Fixed d98a00f7 (merge e76e8d45; entry 302,590 B, Jam's chunk 56,336 B).
+  - `ux-writer` 3e817ed9: ux D471, a bar button disabled by Loading while focused hands focus to
+    the bar's sentence (native `disabled` kept). Fixed 5f1c2e21 (merge 9c81d8e1). D472 reserved
+    unused; next free ux D473.
+- Chunk 25 dispatched (the standard brief; worktree `../infinite_flow-v3.2-c25`, branch
+  `v3.2-c25-doodle-exports`, split 25a/25b, no merge gate), in parallel with the fixes above (no
+  shared file; the fixes ran no Playwright).
+- **For the wave sync**, added: `rule_held_doodle_dropped_on_change` names D503's deletions;
+  `rule_jam_again_on_this_doodle` aligns with ux D470.
+- **For the wave gate / later**, unruled: a kept doodle's readings and suggestion, worked out for
+  the instrument selected when it was kept, may go stale when the instrument changes and the
+  doodle stays (`spec-writer`'s aside); the header's phrase action is also disabled while focused
+  at its own Loading, with no design call on where focus goes (`ux-writer`'s aside).
