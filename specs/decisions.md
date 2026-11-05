@@ -1186,3 +1186,17 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   out-of-scope lead-line playback D490 put in scope without updating it; CG is Y1–Y4 as one set
   (CONTRACT 13.0.0), then Y5's atoms. Now in: [Part C §C13](versions/v3/master-spec.md#c13-what-v32-changes-in-v2-v30-and-v31-guarantees-and-atoms),
   [build plan v3.2, gates](versions/v3/build-plan-v3.2.md#gates), [chunk 40](versions/v3/build-plan-v3.2.md#chunk-40--the-guide-playback).
+
+- **D503 (2026-11-05): the kept doodle goes with its session when my instrument's deletion erases it.**
+  `spec-writer`'s clarification of a gap chunk 24 left: deleting my instrument, or saving a change
+  to its written range or transposition, deletes the kept sessions played with it after a warning,
+  and C5.11 lets the kept doodle go whenever the player deletes the session it comes from, "deleted
+  data is gone"; it listed only two of the paths. The code keeps the doodle there; a wave 7 fix after
+  chunk 24 lets it go. Now in: [Part C §C5.11](versions/v3/master-spec.md#c511-the-kept-doodle-and-jam-again-on-this-doodle),
+  [build plan v3.2, chunk 24](versions/v3/build-plan-v3.2.md#chunk-24--the-kept-doodle).
+
+- **D504 (2026-11-05): the entry budget rises from 300 KiB to 320 KiB (327,680 B), now, in wave 7.**
+  The owner's ruling ("Raise to 320 KiB now"): the entry chunk was at 302,365 B after chunk 24,
+  4.8 kB left, with chunks 25, 32, 33 and 40 to come. O235 (what the budget measures) stays open.
+  Now in: [Part C §C10.9](versions/v3/master-spec.md#c109-loading-jams-code-on-demand),
+  [build plan v3.2, M4](versions/v3/build-plan-v3.2.md#m4--the-first-load-bundle).

@@ -103,8 +103,11 @@ Status: this file holds four parts.
   until phrase 1 is on screen, Jam's empty staff is the staff judged for room (C5.13; spec D495).
   v1.20 (2026-11-04): the guide playback, added after approval at the owner's request (C19, and
   C2, C3, C13, C15, C16 items 50–52, C17; spec D490–D494). v1.21 (2026-11-04): the guide's
-  sign-off also revises the saved settings' list and the vision (C13; spec D500). Its sections are
-  numbered C1 to C19; what v1.1 to v1.21 change is listed at the top of Part C and marked in each section they touch.
+  sign-off also revises the saved settings' list and the vision (C13; spec D500). v1.22
+  (2026-11-05): the kept doodle goes with its session when my instrument's deletion or range or
+  transposition change erases it (C5.1, C5.11; spec D503); the entry budget is 320 KiB (C10.9,
+  C14, C16; spec D504). Its sections are
+  numbered C1 to C19; what v1.1 to v1.22 change is listed at the top of Part C and marked in each section they touch.
 - **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.1
   (2026-10-12), consolidated from the v3.3 direction and the chord research; **awaiting the
   owner's approval**. The contract wording it changes (§D12) needs the owner's confirmation
@@ -2261,7 +2264,11 @@ Delete everything removes them. No preset leaves the device.
 ## Part C — v3.2
 
 Jam, the key and mode suggestion, the rhythm lock and, added after approval, the guide playback.
-**Master spec v1.21 (2026-11-04)**: v1.20 with the guide's sign-off widened (C13; D500): besides
+**Master spec v1.22 (2026-11-05)**: v1.21 with two rulings (C5.1, C5.11, C10.9, C14, C16 item
+16; D503, D504): the kept doodle also goes when deleting my instrument, or saving a change to its
+range or transposition, erases the kept session it comes from, as for any deletion of that session;
+and the owner raised the first-load (entry) budget from 300 KiB to 320 KiB (327,680 bytes) in wave
+7. v1.21 (2026-11-04): v1.20 with the guide's sign-off widened (C13; D500): besides
 `req_session_audio_mix`, it revises `rule_settings_saved_on_change`, which lists the mix's saved
 settings, and the vision, whose out-of-scope lead-line playback the melody guide is; no behaviour
 changes. v1.20 (2026-11-04): v1.19 with the owner's request of 2026-11-04 (C19, and C2,
@@ -2770,7 +2777,8 @@ _Changed in v1.12:_ what Jam's Idle prewarms before any doodle (D442).
 - **A shared setting changed in Jam mode** (the instrument, the controller, the audio mix, the
   theme) is the one exception. It acts on session mode exactly as the same change made there would,
   and on Jam mode as any Jam setting the generation reads does (phrase 1 written again from a kept
-  doodle, C5.11). An instrument changed in Jam mode (my instrument's range or clef included) acts on
+  doodle, C5.11), unless it erases the kept session the kept doodle comes from, which lets the
+  doodle go (C5.11, D503). An instrument changed in Jam mode (my instrument's range or clef included) acts on
   session mode as an instrument switch made there, **on returning to session mode**: the phrase on
   screen is checked and written again, and session mode's pre-generated phrases are discarded, by
   session mode's Idle rules. Leaving Jam mode lets the kept doodle go (C5.11).
@@ -3102,6 +3110,8 @@ _Changed in v1.2:_ "kept" for v1.1's "held" (D413); the session it comes from is
 on it; a change of a Jam setting rewrites phrase 1 at once (D411).
 _Changed in v1.3:_ phrase 1 written from the kept doodle draws its seeds as any phrase 1 at Idle
 (D419, C11).
+_Changed in v1.22:_ deleting my instrument, or saving a change to its range or transposition, lets
+the kept doodle go when it erases the session the doodle comes from (D503).
 
 - **After a Jam, Jam mode keeps its doodle.** Back at Idle after the review, Jam mode shows a
   phrase 1 newly written from the kept doodle, with a fresh seed, and Start goes round again
@@ -3111,8 +3121,11 @@ _Changed in v1.3:_ phrase 1 written from the kept doodle draws its seeds as any 
     `ux-writer`'s); Idle then shows Jam mode's Idle without a doodle (C5.1), and the next Jam
     captures one;
   - the player **leaves Jam mode**;
-  - the **kept Jam session it comes from is deleted** by the player, one session or by Delete
-    everything (C5.14, C10.7): deleted data is gone, so a later Jam cannot put it back into a kept
+  - the **kept Jam session it comes from is deleted** by the player, one session, by Delete
+    everything (C5.14, C10.7), or with my instrument it was played with: deleting my instrument,
+    or saving a change to its written range or transposition, deletes or erases its kept sessions
+    after a warning (Part A §5.1, §7.1), and the kept doodle goes with its session (D503); deleted
+    data is gone, so a later Jam cannot put it back into a kept
     session. The session a kept doodle comes from is **the latest session played on it**: a Jam on
     the kept doodle keeps the same doodle in its own session, so when the end of that Jam replaces
     an earlier unpinned session (Part A §5.1), the doodle stays. Only the player's deletion of the
@@ -3913,6 +3926,7 @@ _Changed in v1.2:_ phones are a third-rate client (D414).
 
 _New in v1.1._
 _Changed in v1.15:_ the generator worker's chunk budget is 170 KiB, up from 150 KiB (D451).
+_Changed in v1.22:_ the first-load (entry) budget is 320 KiB, up from 300 KiB (D504).
 
 - **The first load carries the mode button and nothing else of Jam's.** At the top of the app, the
   mode picks the session workspace or Jam's, which is loaded on demand; both sit over the one shared
@@ -3922,8 +3936,8 @@ _Changed in v1.15:_ the generator worker's chunk budget is 170 KiB, up from 150 
   the path to phrase 1, the suggestion, the review's doodle section and the exports' doodle section.
   A kept Jam session's review opened in session mode loads the same code. What shows while it loads,
   and if it fails (offline before the files were kept), is `ux-writer`'s.
-- **Budgets** (the release's bundle rules): the first-load (entry) budget stays 300 KiB
-  (307,200 bytes; 265,431 used at 3.1.0); a boundary check keeps every Jam module out of the entry
+- **Budgets** (the release's bundle rules): the first-load (entry) budget is 320 KiB
+  (327,680 bytes; 265,431 used at 3.1.0), raised from 300 KiB by the owner in wave 7 (D504); a boundary check keeps every Jam module out of the entry
   chunk; Jam's chunks stay under the existing 100 KiB per-chunk budget; the generator worker's
   chunk under its 170 KiB (174,080 bytes). The service worker keeps Jam's files for offline use
   like every other file.
@@ -4283,6 +4297,7 @@ stray-note filter and replay keys; Jam mode's facts and risks added. File refere
 [Jam mode §4](jam-mode.md#4-the-generator-seam).
 _Changed in v1.4:_ the contract's risk closed by the sign-off (D421).
 _Changed in v1.15:_ the generator worker's chunk budget, 170 KiB (D451).
+_Changed in v1.22:_ the entry chunk's budget, 320 KiB (D504).
 
 - **The generation request is closed by construction**: the worker checks it against an exact list
   of its ten fields and refuses any other, then rebuilds it and requires the rebuild to equal what
@@ -4343,7 +4358,7 @@ _Changed in v1.15:_ the generator worker's chunk budget, 170 KiB (D451).
   are upgraded only when the database opens, never on read (a lower version read later is
   unreadable, a higher one newer). The settings store keeps one record per setting, so Jam's group
   needs no new store.
-- **Budgets**: the entry chunk's budget is 300 KiB (307,200 bytes), 265,431 used at 3.1.0; every
+- **Budgets**: the entry chunk's budget is 320 KiB (327,680 bytes, D504), 265,431 used at 3.1.0; every
   other chunk 100 KiB; the generator worker's chunk 170 KiB (174,080 bytes, D451); the engraver's
   800 KiB.
 - **The tempo control** runs 60 to 240 BPM in steps of 10, default 90. The standalone reserve is
@@ -4480,6 +4495,8 @@ sweep and checks run at 60, 120 and 180 BPM, 240 last; hand checks are short scr
 _Changed in v1.2:_ items 14, 17, 18, 19, 33 and 38 follow the settled answers (D410, D411).
 _Changed in v1.3:_ item 39 checks a fresh Jam's seeds (D419).
 _Changed in v1.5:_ item 49 names the later contract bumps (D422).
+_Changed in v1.22:_ item 16's entry budget is 320 KiB (D504); item 33's deletions include my
+instrument's (D503).
 
 v3.2 ships when every item holds, each verified by a named test or a recorded hand check. **Every
 hand check is a numbered script of at most ten minutes**, run in Chrome (Edge is not supported);
@@ -4535,7 +4552,7 @@ Jam's run at 60, 120 and 180 BPM, and at 240 BPM only if Jam keeps it (C5.17).
 15. **A controller needed.** Without one, Jam mode opens and its settings can be set, but Start is
     unavailable and says why; a controller attaching or leaving never switches the mode.
 16. **On demand.** No Jam module is in the entry chunk (a boundary check), which stays within
-    307,200 bytes; each of Jam's chunks stays within 100 KiB; the first press of the mode button
+    327,680 bytes (D504); each of Jam's chunks stays within 100 KiB; the first press of the mode button
     loads Jam's code, and a kept Jam session's review loads its doodle parts; after the service
     worker has kept the files, both work offline.
 17. **Jam's settings** are its own, as C5.16 says: saved as their own group and restored; invalid
@@ -4589,7 +4606,9 @@ Jam's run at 60, 120 and 180 BPM, and at 240 BPM only if Jam keeps it (C5.17).
 33. **The kept doodle.** After a Jam, Jam mode keeps its doodle, with phrase 1 and pre-generated
     phrases written from it, which are the phrases the next Jam plays; a change of a Jam setting
     phrase 1 is written from writes phrase 1 again at once; the "new doodle" action, leaving Jam
-    mode, deleting the latest kept session played on it and Delete everything let it go, and nothing
+    mode, deleting the latest kept session played on it (on its own, or with my instrument it was
+    played with, by deleting my instrument or saving a change to its range or transposition, D503)
+    and Delete everything let it go, and nothing
     else does, the end of a Jam on it replacing an earlier unpinned session included; "Jam again on this doodle" in a kept Jam session's review opens Jam mode with it kept,
     and, after a reload, gives the same phrase 1 for the same settings and seed.
 34. **Before phrase 1 sounds**, no doodle note within 30 s, a controller lost (in a Jam without a

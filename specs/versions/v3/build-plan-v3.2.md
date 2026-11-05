@@ -1,6 +1,7 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v37 (2026-11-04): v36 with no decision (Part C unchanged), after gate GD (ux D459–D463): gate GD and chunk 40 name the guides' tokens (`--mix-melody-guide-volume-*`, `--mix-rhythm-guide-volume-*`), chunk 40's design docs and its `readAudioMixDesign` docblock rewording.
+Status: v38 (2026-11-05): v37 with spec D503 and D504 written in (master spec Part C v1.22): a wave 7 fix after chunk 24, the kept doodle going when my instrument's deletion or range or transposition change erases its session; the owner's ruling raising the entry budget from 300 KiB to 320 KiB (Workflow deltas, M4, chunk 27).
+v37 (2026-11-04): v36 with no decision (Part C unchanged), after gate GD (ux D459–D463): gate GD and chunk 40 name the guides' tokens (`--mix-melody-guide-volume-*`, `--mix-rhythm-guide-volume-*`), chunk 40's design docs and its `readAudioMixDesign` docblock rewording.
 v36 (2026-11-04): v35 with spec D500 written in (master spec Part C v1.21): wave 7's preflight corrections to chunks 24, 25, 32, 33 and 40 and gates J240 and CG.
 v35 (2026-11-04): v34 with spec D490–D494 written in (master spec Part C v1.20), merged
 from the guide playback's branch: new chunk 40, the guide playback, in wave 7; new gates GD (its
@@ -388,8 +389,9 @@ The [build workflow](build-workflow.md) holds for v3.2 with release name `v3.2`:
 - **Area documents**: `docs/session-engine.md`, `docs/phrase-workspace.md`,
   `docs/generation-latency.md`, `docs/audio-transport.md`, `docs/storage.md`,
   [`docs/music/`](../../../docs/music/README.md); the lexicon entries C4 names.
-- **Entry budget**: 300 KiB (307,200 B), unchanged; 265,431 B used at 3.1.0
-  ([M4](#m4--the-first-load-bundle)). Raising it needs the owner. From wave 3 on, each wave gate
+- **Entry budget**: 320 KiB (327,680 B), raised from 300 KiB (307,200 B) in wave 7 by the
+  owner's ruling (spec D504); 265,431 B used at 3.1.0, 302,365 B after chunk 24
+  ([M4](#m4--the-first-load-bundle)). Raising it again needs the owner. From wave 3 on, each wave gate
   records the first-load JS total (the entry chunk and every chunk it imports statically) beside
   the entry chunk's figure, with its change since the previous wave (spec D438): information only,
   since rolldown's re-splitting can move the entry chunk alone by about 18 kB with no change in what
@@ -488,8 +490,8 @@ corpora are a guard, not a measurement.
 
 ### M4 — The first-load bundle
 
-- **What:** the entry chunk stays within 307,200 B (`entryChunkByteBudget`,
-  `scripts/verify-boundaries.mjs`; 265,431 B at 3.1.0); from chunk 20 on, no `src/jam/` module is
+- **What:** the entry chunk stays within 327,680 B, 320 KiB (`entryChunkByteBudget`,
+  `scripts/verify-boundaries.mjs`; 265,431 B at 3.1.0, 302,365 B after chunk 24); from chunk 20 on, no `src/jam/` module is
   in it, and each of Jam's chunks stays within the 100 KiB per-chunk budget. The session half adds
   the lock's and the groups' controls to the entry chunk; the bar key, the distance, the orderings
   and the steering module live in the worker's chunk (170 KiB, 174,080 B, spec D451); the mode
@@ -499,6 +501,11 @@ corpora are a guard, not a measurement.
   in `scripts/verify-boundaries.mjs` (today `150 * 1024`) becomes `170 * 1024` in wave 4's gate
   fix commit, which the driver has a `coding-executor` make; the gate then re-runs
   `npm run quality`.
+- **The entry budget** (spec D504): 320 KiB, 327,680 B, raised from 300 KiB by the owner on
+  2026-11-05 with the entry chunk at 302,365 B after chunk 24 (4,835 B left) and chunks 25, 32, 33
+  and 40 still to come. The constant `entryChunkByteBudget` in `scripts/verify-boundaries.mjs`
+  (today `300 * 1024`, spec D359) becomes `320 * 1024` in a wave 7 commit the driver routes, before
+  the next chunk merges.
 - **Run by:** chunk 2 (the baseline on `main`); every wave gate; the release gate.
 - **Beside it** (spec D438): from wave 3 on, the first-load JS total, the entry chunk and every
   chunk it imports statically (318,964 B over 16 files after wave 2), recorded for information; it
@@ -2412,6 +2419,22 @@ keyed by Jam's settings and the doodle, never session mode's.
 
 Record: 24a d6daa9fa, 24b bedd1c5c, merged 8867e7c5; cut off once by a usage limit and resumed by the same owner. Differs: Jam's phrase 1 has its own state, coordinator and `KeptDoodleStaff.vue` (mounted whenever Jam mode shows, session mode untouched); `Keep {key} {mode}` declines through the session-list row when the doodle's session is no longer held; `sessionViewport()` in `jam-mode-helpers.ts` made exact; wave 6's "stopped after phrase 1" e2e updated for the kept doodle; H4/H5 "after wave 6" read "after wave 7" in the plan and the checklist. Phone: on 740×360 the bar pushes the staff below the fold (scrollable), reported to `ux-writer` (wave log, wave 7). Entry chunk 302,365 B of 307,200 B.
 
+**Wave 7 fix after chunk 24 (spec D503)**, a small commit the driver routes (a `coding-executor`, like
+M4's budget fixes), before the wave gate; it touches none of chunks 25, 32, 33 and 40:
+- deleting my instrument (`deleteMyInstrument`, `generation-session-my-instrument.ts`) and saving a
+  change to its written range or transposition erase its kept sessions without recording a
+  deletion, so the kept doodle outlives its session: Jam's bar and staff keep it, and `Keep {key}
+  {mode}` then declines through a session row that is gone. Both paths end in `sessions.leave()`
+  (`workspace-my-instrument-sessions.ts`), which records no deletion. Both record the erased session
+  keys as a deletion the kept doodle's host acts on (`use-kept-doodle-host.ts`, beside `lastDeletion`
+  `session` and `every-session`), so the doodle goes when its session is among them, and only then;
+  a doodle whose session was played with another instrument stays (Part C §C5.1, §C5.11).
+- tests: in Jam mode with a kept doodle from a session played with my instrument, deleting my
+  instrument, and saving a range change, each let it go (Jam's Idle without a doodle); a kept
+  doodle from a session played with a built-in profile stays through both; a name or clef change
+  keeps it.
+- intent: `rule_held_doodle_dropped_on_change` names these deletions too, at the wave's sync.
+
 ### Chunk 25 — Exports open with the doodle
 
 Status: planned
@@ -3083,7 +3106,7 @@ The release gate, not a wave; it keeps its chunk number because other plans link
 - **Final M1, M2 and M5** after L3's tuning, on the reference machine.
 - The v3.1 corpus, every earlier corpus, the Vary settings corpus and the goldens re-run; the
   privacy spy (network half) with Jam sessions kept, raw notes kept and not (nothing sent).
-- `npm run verify:boundaries` with the 300 KiB entry budget and the Jam boundary (M4).
+- `npm run verify:boundaries` with the 320 KiB entry budget and the Jam boundary (M4).
 - Hand checks v3.2 H1–H8 and HG done (H9 waived, spec D417), each a numbered script of at most ten
   minutes, none on Edge or a phone.
 - `documentalist`'s post-task sync over every `release-v3.2` atom, promoting those the owner agrees

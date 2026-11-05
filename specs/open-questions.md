@@ -216,11 +216,11 @@ Opened 2026-10-21 by `spec-writer` with v3.4 (D389). The scoping draft is
   its own tag, or a milestone with no tag? Proposed: the report and the owner's rulings close the
   analysis; any refactor taken becomes a v3.4 build plan, approved separately; a tag (3.4.0) only if
   code ships.
-- **O235 - What the entry budget should measure, and its target** _(D359, D389)_: the budget counts
-  the minified entry file on disk (307,200 B), not the compressed bytes a browser downloads, nor the
+- **O235 - What the entry budget should measure, and its target** _(D359, D389, D504)_: the budget counts
+  the minified entry file on disk (327,680 B since D504), not the compressed bytes a browser downloads, nor the
   time until the app is usable. Which matters most to the owner? Proposed: the time until the app is
   usable, with the phone on a mobile connection as the hard case; the review reports all three and
-  proposes options; the 300 KiB budget stays until the owner rules.
+  proposes options; the 320 KiB budget (D504) stays until the owner rules.
 - **O236 - Is the endgame the same app, or another app using Infinite Flow's generator?**
   _(D389; [endgame](vision/endgame.md))_: the endgame calls Infinite Flow "the music factory" of a
   game. If the game is a separate app, a generation-core library has a second consumer and a split
