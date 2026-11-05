@@ -1,4 +1,5 @@
 // @vitest-environment node
+// @lint-ignore-atd measurement tooling run by `npm run test:sweep`: it checks the sweep's ladder double against the real ladder; no business rule
 /**
  * Chunk 18's real ladder in the Jam sweep (measurement tooling, run by `npm run test:sweep`): on a
  * scripted generator (no wall time), at 120 and 240 BPM, `JAM_REAL_LADDER` and the double of
