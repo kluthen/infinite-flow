@@ -1703,3 +1703,6 @@ For the next driver, in this order:
   `docs/generation-latency.md`. Recommendation: widen. J240 asked of the owner.
 - Chunk 40 dispatched (standard brief; worktree `../infinite_flow-v3.2-c40`, branch
   `v3.2-c40-guide-playback`, split 40a/40b, no merge gate: GD and CG done), while J240 waits.
+- **J240**: the owner, verbatim, to the figures and the recommendation to widen: "Keep 180". Chunk
+  33's first half merged 7d2cd4a1 (worktree removed, branch kept), marked "measured; not widened";
+  no second half, no atom revised. `spec-writer` records the ruling.

@@ -150,7 +150,7 @@ no release is cut before wave 7 has merged.
 | **L3** | The owner's listening check of the allowed rhythm changes ([v3.2 H2](#v32-h2--allowed-rhythm-changes-l3), item 13); the change shares are tuned from it. Steps 2 and 4 ran on 2026-11-03 and tuned the shares (spec D450, built by [chunk 34](#chunk-34--the-rhythm-change-shares-tuned-l3)); step 3, one kind at a time, is still owed. | The owner | The release gate's final M2 run | open (after wave 3) |
 | **L1** | The owner's listening check of Jam ([v3.2 H4](#v32-h4--jam-listening-settings-drift-and-lock-l1) and [H5](#v32-h5--jam-listening-the-doodle-to-controls-mapping-l1), item 32); it confirms or sends back three of D406's provisional answers ([below](#what-confirms-d406s-provisional-answers)). | The owner; a failed answer becomes a ruling | The release gate | open (after wave 7) |
 | **L2** | The owner's listening check of the suggestion ([v3.2 H6](#v32-h6--the-suggestion-l2), item 45); the weights and cues are tuned from it. | The owner | The release gate's final suggestion tests | open (after wave 6; runnable now) |
-| **J240** | Whether Jam's tempo reaches 240 BPM: from [chunk 33](#chunk-33--240-bpm-in-jam-best-effort)'s run at 240 BPM, the owner widens Jam's tempo control to 240, or keeps it at 180 and the chunk is dropped (C5.17, spec D404). Widening changes two of the design's sentences (Tap tempo's limit note): `ux-writer` rewords them first. It also revises `rule_saved_settings_load_tolerantly` (STABLE, on the contract), with the other atoms chunk 33 names: `documentalist` drafts the wording, the owner signs it off, and the MAJOR contract bump applies it (spec D422). | The owner; `ux-writer` and the contract wording's sign-off if widened | The second half of chunk 33 | open (in wave 7) |
+| **J240** | Whether Jam's tempo reaches 240 BPM: from [chunk 33](#chunk-33--240-bpm-in-jam-best-effort)'s run at 240 BPM, the owner widens Jam's tempo control to 240, or keeps it at 180 and the chunk is dropped (C5.17, spec D404). Widening changes two of the design's sentences (Tap tempo's limit note): `ux-writer` rewords them first. It also revises `rule_saved_settings_load_tolerantly` (STABLE, on the contract), with the other atoms chunk 33 names: `documentalist` drafts the wording, the owner signs it off, and the MAJOR contract bump applies it (spec D422). | The owner; `ux-writer` and the contract wording's sign-off if widened | The second half of chunk 33 | done (2026-11-05, the owner: "Keep 180"; chunk 33 measured, not widened) |
 
 There is no data register (`data-register/README.md` does not exist), so the version's data
 preflight does not run and no chunk carries a **Data** line
@@ -2886,7 +2886,8 @@ Architecture capture: none (chunk 20's capture fixed Jam's Idle note routing)
 
 ### Chunk 33 — 240 BPM in Jam, best effort
 
-Status: built (first half, 08001117 on v3.2-c33-240-bpm; waiting on J240)
+Status: merged (w7, 7d2cd4a1); measured; not widened
+Record: first half 08001117, merge 7d2cd4a1; J240 "keep 180" (2026-11-05), so no second half. No deviation. At 240 BPM (reference machine, 2026-11-05, 7,384 Jams per configuration): phrase 1 in every Jam, one extended wait, slowest phrase 1 attempt 0.823 s against a 1.925 s cutover; 60/120/180 through the real ladder equal chunk 29's double ([docs/generation-latency.md](../../../docs/generation-latency.md)).
 Wave: 7
 Depends on: 18, 29, 31; J240 (its second half)
 Architecture capture: none
