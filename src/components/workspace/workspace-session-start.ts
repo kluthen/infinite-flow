@@ -2,7 +2,7 @@
  * The in-click part of a session controller's start: refused, touching nothing, while a start
  * condition does not hold; otherwise it discards the kept Review, unlocks the audio, holds the
  * player's saves until the session ends, asks for both screen locks, starts the transport with
- * phrase 1's backing queued, builds the session's record, its history holding the Idle result's
+ * phrase 1's backing and guide notes queued, builds the session's record, its history holding the Idle result's
  * session seed and the clef Idle drew phrase 1 in, takes the pre-generated phrases ready, and
  * hands it to the rest of the start (./workspace-session-begin.ts) with the settings phrase 1 was
  * generated under, which a stale phrase 1 used as it is differs in (./workspace-stale-phrase.ts). Once the locks are asked for,
@@ -116,7 +116,7 @@ export function createStartFromPhraseOne(
    * (or the starting note's MIDI callback, once a Connect-controller click has unlocked the audio):
    * unlock the audio, hold the player's saves until the session ends, ask for the wake lock and the
    * landscape lock (a refusal changes nothing, so their outcomes are ignored), start the transport
-   * and queue phrase 1's backing; then lock the current settings (the player's rhythm lock, its
+   * and queue phrase 1's backing and guide notes; then lock the current settings (the player's rhythm lock, its
    * allowed changes and Vary settings' allowed groups with them, my instrument's profile taken
    * from phrase 1's intent, which embeds it, and the restriction in force frozen in them for the
    * session, so Vary settings' key and mode moves stay inside it, built as the Idle
@@ -166,7 +166,12 @@ export function createStartFromPhraseOne(
       void browser.wakeLock.request()
       void browser.orientationLock.lock()
       const timeline = audio.start({ tempo })
-      audio.queueBacking(1, phraseOne.outcome.provenance.harmony.events, tempo)
+      audio.queueBacking(
+        1,
+        phraseOne.outcome.provenance.harmony.events,
+        phraseOne.outcome.result.timeline,
+        tempo,
+      )
       session = {
         timeline,
         startingTempo: tempo,

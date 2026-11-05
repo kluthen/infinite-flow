@@ -11,12 +11,19 @@ import { createAudioTransport, type AudioTransport } from '@/audio/audio-transpo
 import { createFakeAudioRig, type FakeAudioRig } from './fake-audio'
 import { RIG_START, themeDesign } from './transport-rig'
 
-/** A saved mix unlike the design's defaults: click off and quiet, backing on and soft. */
+/**
+ * A saved mix unlike the design's defaults: click off and quiet, backing on and soft, the melody
+ * guide on and soft, the rhythm guide off and quiet.
+ */
 const LOADED_MIX: AudioMix = {
   clickOn: false,
   clickVolume: 0.35,
   backingOn: true,
   backingVolume: 0.25,
+  melodyGuideOn: true,
+  melodyGuideVolume: 0.45,
+  rhythmGuideOn: false,
+  rhythmGuideVolume: 0.3,
 }
 
 /** Intent: a transport on a fresh fake rig, starting from the mix `loadedMix` gives. */
@@ -50,6 +57,7 @@ describe('the audio transport: the loaded mix', () => {
   })
 
   // @test-link [[req_session_audio_mix]]
+  // @test-link [[req_guide_playback]]
   it("applies the loaded mix's gains at unlock", () => {
     const { rig, transport } = transportFrom(() => LOADED_MIX)
     transport.unlock()
@@ -58,6 +66,34 @@ describe('the audio transport: the loaded mix', () => {
       { kind: 'gain', gain: 'click-volume', value: 0.35, at: RIG_START, scheduledAt: RIG_START },
       { kind: 'gain', gain: 'backing-enable', value: 1, at: RIG_START, scheduledAt: RIG_START },
       { kind: 'gain', gain: 'backing-volume', value: 0.25, at: RIG_START, scheduledAt: RIG_START },
+      {
+        kind: 'gain',
+        gain: 'melody-guide-enable',
+        value: 1,
+        at: RIG_START,
+        scheduledAt: RIG_START,
+      },
+      {
+        kind: 'gain',
+        gain: 'melody-guide-volume',
+        value: 0.45,
+        at: RIG_START,
+        scheduledAt: RIG_START,
+      },
+      {
+        kind: 'gain',
+        gain: 'rhythm-guide-enable',
+        value: 0,
+        at: RIG_START,
+        scheduledAt: RIG_START,
+      },
+      {
+        kind: 'gain',
+        gain: 'rhythm-guide-volume',
+        value: 0.3,
+        at: RIG_START,
+        scheduledAt: RIG_START,
+      },
     ])
   })
 
@@ -69,5 +105,17 @@ describe('the audio transport: the loaded mix', () => {
     const loudBacking = transportFrom(() => ({ ...LOADED_MIX, backingVolume: 1.5 }))
     expect(() => loudBacking.transport.unlock()).toThrow(RangeError)
     expect(loudBacking.rig.openOutputCalls()).toBe(0)
+  })
+
+  // @test-link [[req_session_audio_mix]]
+  // @test-link [[req_guide_playback]]
+  it("throws on a loaded guide volume outside the design's range", () => {
+    const loudMelody = transportFrom(() => ({ ...LOADED_MIX, melodyGuideVolume: 1.5 }))
+    expect(() => loudMelody.transport.mix()).toThrow(RangeError)
+    const negativeRhythm = transportFrom(() => ({ ...LOADED_MIX, rhythmGuideVolume: -0.1 }))
+    expect(() => negativeRhythm.transport.unlock()).toThrow(RangeError)
+    expect(negativeRhythm.rig.openOutputCalls()).toBe(0)
+    const nanRhythm = transportFrom(() => ({ ...LOADED_MIX, rhythmGuideVolume: Number.NaN }))
+    expect(() => nanRhythm.transport.mix()).toThrow(RangeError)
   })
 })

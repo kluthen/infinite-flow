@@ -34,11 +34,15 @@ export interface FakeGainNode extends FakeNode, WebAudioGainNodePort {
   readonly gain: FakeParam
 }
 
-/** A fake oscillator: its start and stop times, and a way to fire its `ended` event. */
+/**
+ * A fake oscillator: its start and stop times (the latest stop, and every stop in call order), and
+ * a way to fire its `ended` event.
+ */
 export interface FakeOscillatorNode extends FakeNode, WebAudioOscillatorNodePort {
   readonly frequency: FakeParam
   readonly startedAt: () => number | undefined
   readonly stoppedAt: () => number | undefined
+  readonly stops: () => readonly number[]
   readonly end: () => void
 }
 
@@ -102,7 +106,7 @@ function fakeNode(label: string): FakeNode {
 function fakeOscillator(label: string): FakeOscillatorNode {
   const endedListeners: (() => void)[] = []
   let startedAt: number | undefined
-  let stoppedAt: number | undefined
+  const stops: number[] = []
   return {
     ...fakeNode(label),
     // A real oscillator starts as a sine; a fake one starts as a square, so a test sees the
@@ -110,12 +114,13 @@ function fakeOscillator(label: string): FakeOscillatorNode {
     type: 'square',
     frequency: fakeParam(440),
     startedAt: () => startedAt,
-    stoppedAt: () => stoppedAt,
+    stoppedAt: () => stops.at(-1),
+    stops: () => [...stops],
     start: (when) => {
       startedAt = when
     },
     stop: (when) => {
-      stoppedAt = when
+      stops.push(when)
     },
     addEventListener: (_type, listener) => endedListeners.push(listener),
     end: () => endedListeners.forEach((listener) => listener()),

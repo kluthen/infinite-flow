@@ -7,7 +7,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { renderedAttacks, twoPhraseHarmonies } from './backing-harmony'
+import { renderedAttacks, restTimeline, twoPhraseHarmonies } from './backing-harmony'
 import { transportRig, type TransportRig } from './transport-rig'
 
 /** Beats per four-measure phrase in 4/4. */
@@ -28,7 +28,7 @@ function queuedAt(tempos: readonly number[]): TransportRig & { readonly startAt:
   setup.transport.unlock()
   const { startAt } = setup.transport.start({ tempo: tempos[0]! })
   tempos.forEach((tempo, index) => {
-    setup.transport.queueBacking(index + 1, harmonies[index % 2]!, tempo)
+    setup.transport.queueBacking(index + 1, harmonies[index % 2]!, restTimeline(), tempo)
   })
   return { ...setup, startAt }
 }
@@ -128,10 +128,10 @@ describe('queueing a phrase at its tempo', () => {
     const [first, second] = twoPhraseHarmonies()
     transport.unlock()
     transport.start({ tempo: 90 })
-    transport.queueBacking(1, first, 90)
+    transport.queueBacking(1, first, restTimeline(), 90)
     const phraseTwoAt = transport.phraseStartsAt(2)
     rig.advanceTo(phraseTwoAt - 0.03)
-    expect(() => transport.queueBacking(2, second, 95)).toThrow(/too late/)
+    expect(() => transport.queueBacking(2, second, restTimeline(), 95)).toThrow(/too late/)
     expect(transport.phraseStartsAt(2)).toBe(phraseTwoAt)
     rig.advanceTo(phraseTwoAt + 1)
     const clicks = rig.clicks()
@@ -144,9 +144,9 @@ describe('queueing a phrase at its tempo', () => {
     const [first] = twoPhraseHarmonies()
     transport.unlock()
     transport.start({ tempo: 90 })
-    expect(() => transport.queueBacking(1, first, 95)).toThrow(/starting tempo/)
-    transport.queueBacking(1, first, 90)
-    expect(() => transport.queueBacking(2, first, 90)).not.toThrow()
+    expect(() => transport.queueBacking(1, first, restTimeline(), 95)).toThrow(/starting tempo/)
+    transport.queueBacking(1, first, restTimeline(), 90)
+    expect(() => transport.queueBacking(2, first, restTimeline(), 90)).not.toThrow()
   })
 
   // @test-link [[module_session_transport_tempo_map]]
@@ -155,12 +155,12 @@ describe('queueing a phrase at its tempo', () => {
     const [first, second] = twoPhraseHarmonies()
     transport.unlock()
     transport.start({ tempo: 120 })
-    transport.queueBacking(1, first, 120)
+    transport.queueBacking(1, first, restTimeline(), 120)
     for (const bad of [59, 241, 120.5, Number.NaN]) {
-      expect(() => transport.queueBacking(2, second, bad)).toThrow(/tempo/)
+      expect(() => transport.queueBacking(2, second, restTimeline(), bad)).toThrow(/tempo/)
     }
     expect(() => transport.phraseStartsAt(3)).toThrow(/phrase 3/)
-    transport.queueBacking(2, second, 125)
+    transport.queueBacking(2, second, restTimeline(), 125)
     expect(transport.phraseStartsAt(3)).toBeCloseTo(
       transport.phraseStartsAt(2) + 16 * (60 / 125),
       12,
@@ -175,7 +175,7 @@ describe('queueing a phrase at its tempo', () => {
     transport.start({ tempo: 90 })
     expect(transport.phraseStartsAt(1)).toBeGreaterThan(0)
     expect(() => transport.phraseStartsAt(2)).toThrow(/phrase 2/)
-    transport.queueBacking(1, first, 90)
+    transport.queueBacking(1, first, restTimeline(), 90)
     expect(transport.phraseStartsAt(2)).toBeGreaterThan(transport.phraseStartsAt(1))
     expect(() => transport.phraseStartsAt(3)).toThrow(/phrase 3/)
   })

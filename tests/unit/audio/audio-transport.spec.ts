@@ -7,6 +7,7 @@
 
 import { describe, expect, it } from 'vitest'
 
+import type { MixGain } from '@/audio/audio-ports'
 import { START_DELAY_SECONDS } from '@/audio/audio-transport'
 import { FAKE_PERFORMANCE_OFFSET_MS } from './fake-audio'
 import {
@@ -41,12 +42,20 @@ describe('unlocking the audio', () => {
     const { rig, transport } = transportRig()
     transport.setClickVolume(0.5)
     transport.setBackingOn(false)
+    transport.setGuideOn('melody-guide', true)
+    transport.setGuideVolume('rhythm-guide', 0.3)
     transport.unlock()
+    const gain = (name: MixGain, value: number) =>
+      ({ kind: 'gain', gain: name, value, at: RIG_START, scheduledAt: RIG_START }) as const
     expect(rig.events()).toEqual([
-      { kind: 'gain', gain: 'click-enable', value: 1, at: RIG_START, scheduledAt: RIG_START },
-      { kind: 'gain', gain: 'click-volume', value: 0.5, at: RIG_START, scheduledAt: RIG_START },
-      { kind: 'gain', gain: 'backing-enable', value: 0, at: RIG_START, scheduledAt: RIG_START },
-      { kind: 'gain', gain: 'backing-volume', value: 0.8, at: RIG_START, scheduledAt: RIG_START },
+      gain('click-enable', 1),
+      gain('click-volume', 0.5),
+      gain('backing-enable', 0),
+      gain('backing-volume', 0.8),
+      gain('melody-guide-enable', 1),
+      gain('melody-guide-volume', 0.8),
+      gain('rhythm-guide-enable', 0),
+      gain('rhythm-guide-volume', 0.3),
     ])
   })
 

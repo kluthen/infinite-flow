@@ -1,28 +1,38 @@
 /**
  * The audio transport: it opens the one audio output when the player's click unlocks it, plays a
- * session's count-in, click and queued phrase backing planned ahead on the audio clock, applies the
- * four mix controls as gains at any moment, and fades a session out on stop. It never suspends or
+ * session's count-in, click, and each queued phrase's backing and guide notes planned ahead on the
+ * audio clock, applies the mix controls as gains at any moment, and fades a session out on stop. It never suspends or
  * pauses the clock: the output offers no such operation. Time comes only from the output's clock.
  */
 
 import {
+  channelOn,
   mixGains,
   validateBackingVolume,
+  validateChannelVolume,
   validateClickVolume,
+  withChannelOn,
+  withChannelVolume,
   type AudioMix,
   type AudioMixDesign,
 } from './audio-mix'
 import { renderBacking } from '../domain/backing/backing-renderer'
+import { renderGuide } from '../domain/backing/guide-renderer'
+import type { ConcertEventTimeline } from '../domain/events/timeline'
 import { FOUR_FOUR_METER } from '../domain/generation/generation-request-envelope'
 import type { HarmonyEvent } from '../domain/harmony/harmony-types'
-import type {
-  AudioOutput,
-  AudioTime,
-  ClockAnchor,
-  MixGain,
-  ScheduledBackingNote,
-  SessionBus,
-  WakeTimer,
+import {
+  GUIDE_ROLES,
+  MIX_CHANNELS,
+  type AudioOutput,
+  type AudioTime,
+  type ClockAnchor,
+  type GuideRole,
+  type MixGain,
+  type ScheduledBackingNote,
+  type ScheduledGuideNote,
+  type SessionBus,
+  type WakeTimer,
 } from './audio-ports'
 import {
   backingNotesBetween,
@@ -38,6 +48,7 @@ import {
   withTempoFrom,
   type ClickPlan,
 } from './click-track'
+import { guideNotesBetween, scheduleGuide } from './guide-track'
 import {
   createLookAheadScheduler,
   LOOK_AHEAD_SECONDS,
@@ -135,15 +146,17 @@ export interface AudioTransport {
    */
   readonly startPhraseOneAt: (soundsAt: AudioTime) => void
   /**
-   * Queue the backing of the running session's phrase `phraseNumber` (1, 2, 3… in order) from its
-   * harmony, at `tempo` BPM, the phrase's tempo: the click runs at it from the phrase's first beat.
-   * Throws with no session running, before phrase 1's start is handed over in a session started
-   * without phrase 1, out of order, too late to play all of it, on phrase 1 at a tempo other than
-   * the starting tempo, and on a later tempo that is not a whole 60..240 BPM.
+   * Queue the backing and the guide notes of the running session's phrase `phraseNumber` (1, 2,
+   * 3… in order) from its harmony and its concert timeline, at `tempo` BPM, the phrase's tempo: the
+   * click runs at it from the phrase's first beat. Throws with no session running, before phrase
+   * 1's start is handed over in a session started without phrase 1, out of order, too late to play
+   * all of it, on phrase 1 at a tempo other than the starting tempo, on a later tempo that is not a
+   * whole 60..240 BPM, and on a timeline the guide cannot render.
    */
   readonly queueBacking: (
     phraseNumber: number,
     harmony: readonly HarmonyEvent[],
+    timeline: ConcertEventTimeline,
     tempo: number,
   ) => void
   /**
@@ -156,29 +169,35 @@ export interface AudioTransport {
   /** Fade the running session out and stop planning its sound. */
   readonly stop: () => TransportStop
   readonly isRunning: () => boolean
-  /** The current state of the four mix controls. */
+  /** The current state of the mix controls. */
   readonly mix: () => AudioMix
   readonly setClickOn: (on: boolean) => void
   readonly setClickVolume: (level: number) => void
   readonly setBackingOn: (on: boolean) => void
   readonly setBackingVolume: (level: number) => void
+  /**
+   * Switch one guide on or off. Off: its on/off gain goes to 0 at once, notes still ringing
+   * included, and no more of its notes are sent; on: its notes are sent from the next look-ahead
+   * window on.
+   */
+  readonly setGuideOn: (guide: GuideRole, on: boolean) => void
+  /** Set one guide's volume; throws on a level outside its range. */
+  readonly setGuideVolume: (guide: GuideRole, level: number) => void
   /** Register a listener called when the browser interrupts a running session's audio. */
   readonly onInterrupted: (listener: () => void) => void
 }
 
-/** Every gain stage, in the order `unlock` applies them. */
-const MIX_GAIN_ORDER: readonly MixGain[] = [
-  'click-enable',
-  'click-volume',
-  'backing-enable',
-  'backing-volume',
-]
+/** Every gain stage, in the order `unlock` applies them: channel by channel, enable first. */
+const MIX_GAIN_ORDER: readonly MixGain[] = MIX_CHANNELS.flatMap(
+  (channel) => [`${channel}-enable`, `${channel}-volume`] as const,
+)
 
 /**
  * A running session: its bus, where its phrase 1 starts, its click plan (replaced by a new tempo
  * map as each phrase is queued at its tempo), phrase 1's first beat (null until handed over, in a
- * session whose phrase 1 start is handed over), the backing notes queued but not yet planned (in
- * time order), the phrase the next backing must be for, and how far planning has reached.
+ * session whose phrase 1 start is handed over), the backing and guide notes queued but not yet
+ * planned (each in time order), the phrase the next backing must be for, and how far planning has
+ * reached.
  */
 // @spec-link [[module_session_transport_tempo_map]]
 // @spec-link [[module_session_start_without_phrase_one]]
@@ -188,22 +207,39 @@ interface RunningSession {
   plan: ClickPlan
   phraseOneBeat: number | null
   pendingBacking: readonly ScheduledBackingNote[]
+  pendingGuide: readonly ScheduledGuideNote[]
   nextPhrase: number
   plannedUntil: AudioTime
 }
 
 /**
- * Intent: plan one look-ahead window of a session on its bus: the clicks and the queued backing
- * notes with `from <= at < to`, then forget the backing notes planned and note how far planning
- * has reached.
+ * Intent: plan one look-ahead window of a session on its bus: the clicks, the queued backing
+ * notes and the queued notes of each guide switched on (per `guideOn`), all with
+ * `from <= at < to`, then forget every note of the window, sent or not, and note how far planning
+ * has reached. A guide switched off sends nothing, so with both off no guide note reaches the bus.
  */
 // @spec-link [[req_session_backing_track]]
 // @spec-link [[rule_playhead_follows_audio_clock]]
-function planWindow(session: RunningSession, from: AudioTime, to: AudioTime): void {
+// @spec-link [[rule_guide_switch_takes_effect]]
+function planWindow(
+  session: RunningSession,
+  from: AudioTime,
+  to: AudioTime,
+  guideOn: (guide: GuideRole) => boolean,
+): void {
   clicksBetween(session.plan, from, to).forEach(session.bus.scheduleClick)
   backingNotesBetween(session.pendingBacking, from, to).forEach(session.bus.scheduleBackingNote)
+  for (const note of guideNotesBetween(session.pendingGuide, from, to)) {
+    if (guideOn(note.role)) session.bus.scheduleGuideNote(note)
+  }
   session.pendingBacking = session.pendingBacking.filter((note) => note.at >= to)
+  session.pendingGuide = session.pendingGuide.filter((note) => note.at >= to)
   session.plannedUntil = to
+}
+
+/** Intent: throw unless `guide` names one of the two guides. */
+function assertGuide(guide: GuideRole): void {
+  if (!GUIDE_ROLES.includes(guide)) throw new Error(`audio transport: ${String(guide)} is no guide`)
 }
 
 /**
@@ -264,8 +300,11 @@ export function createAudioTransport(deps: AudioTransportDependencies): AudioTra
   function startingMix(): AudioMix {
     if (deps.loadedMix === undefined) return { ...mixDesign().defaults }
     const loaded = deps.loadedMix()
-    validateClickVolume(loaded.clickVolume, mixDesign().range)
-    validateBackingVolume(loaded.backingVolume, mixDesign().range)
+    const { range } = mixDesign()
+    validateClickVolume(loaded.clickVolume, range)
+    validateBackingVolume(loaded.backingVolume, range)
+    validateChannelVolume('melody-guide', loaded.melodyGuideVolume, range)
+    validateChannelVolume('rhythm-guide', loaded.rhythmGuideVolume, range)
     return { ...loaded }
   }
 
@@ -282,6 +321,7 @@ export function createAudioTransport(deps: AudioTransportDependencies): AudioTra
   }
 
   /** Intent: store a new mix and, once unlocked, set the one gain it changed, at once. */
+  // @spec-link [[rule_guide_switch_takes_effect]]
   function updateMix(next: AudioMix, gain: MixGain): void {
     current = next
     if (output !== null) output.setGain(gain, mixGains(next)[gain], output.now())
@@ -340,11 +380,12 @@ export function createAudioTransport(deps: AudioTransportDependencies): AudioTra
       plan,
       phraseOneBeat: phraseOneStart === 'count-in-end' ? plan.countInBeats : null,
       pendingBacking: [],
+      pendingGuide: [],
       nextPhrase: 1,
       plannedUntil: out.now(),
     }
     if (clickForced) fresh.bus.forceClickUntil(Number.POSITIVE_INFINITY)
-    scheduler.run((from, to) => planWindow(fresh, from, to))
+    scheduler.run((from, to) => planWindow(fresh, from, to, guideOn))
     session = fresh
     return { startAt: plan.startAt, countInEndsAt: countInEndsAt(plan) }
   }
@@ -413,10 +454,19 @@ export function createAudioTransport(deps: AudioTransportDependencies): AudioTra
     )
   }
 
+  /** Intent: whether `guide` is switched on in the current mix, read as each window is planned. */
+  // @spec-link [[rule_guide_switch_takes_effect]]
+  function guideOn(guide: GuideRole): boolean {
+    return channelOn(currentMix(), guide)
+  }
+
   /**
-   * Intent: render phrase `phraseNumber`'s backing from its harmony and queue it at `tempo`, so
-   * the click runs at that tempo from the phrase's first beat and the scheduler plays the backing
-   * on the session's beat grid, from phrase 1's first beat. Phrases must come 1, 2, 3… in order,
+   * Intent: render phrase `phraseNumber`'s backing from its harmony and its guide notes from its
+   * concert timeline and harmony, and queue both at `tempo`, so the click runs at that tempo from
+   * the phrase's first beat and the scheduler plays the backing on the session's beat grid, and
+   * each guide note at its exact position through the tempo map, from phrase 1's first beat. Both
+   * guides' notes are queued whatever the switches say; planning sends only those of a guide
+   * switched on. Phrases must come 1, 2, 3… in order,
    * once phrase 1's start is known, each before planning reaches its start, so no click of the
    * phrase was planned at the old tempo; otherwise, or on a refused tempo, this throws and the
    * queue and the tempo map are left as they were. A phrase never queued simply leaves silence: the
@@ -425,9 +475,12 @@ export function createAudioTransport(deps: AudioTransportDependencies): AudioTra
    */
   // @spec-link [[req_session_backing_track]]
   // @spec-link [[module_session_transport_tempo_map]]
+  // @spec-link [[rule_guide_plays_from_phrase_one]]
+  // @spec-link [[module_guide_playback_layers]]
   function queueBacking(
     phraseNumber: number,
     harmony: readonly HarmonyEvent[],
+    timeline: ConcertEventTimeline,
     tempo: number,
   ): void {
     const running = runningSession()
@@ -446,8 +499,15 @@ export function createAudioTransport(deps: AudioTransportDependencies): AudioTra
     const plan = planWithPhraseTempo(running, phraseNumber, tempo, phraseOneBeat)
     const rendered = renderBacking(harmony, FOUR_FOUR_METER)
     const notes = scheduleBacking(plan, phraseNumber, rendered, phraseOneBeat)
+    const guideNotes = scheduleGuide(
+      plan,
+      phraseNumber,
+      renderGuide(timeline, harmony),
+      phraseOneBeat,
+    )
     running.plan = plan
     running.pendingBacking = [...running.pendingBacking, ...notes]
+    running.pendingGuide = [...running.pendingGuide, ...guideNotes]
     running.nextPhrase += 1
   }
 
@@ -505,6 +565,15 @@ export function createAudioTransport(deps: AudioTransportDependencies): AudioTra
     setBackingVolume: (level) => {
       validateBackingVolume(level, mixDesign().range)
       updateMix({ ...currentMix(), backingVolume: level }, 'backing-volume')
+    },
+    setGuideOn: (guide, on) => {
+      assertGuide(guide)
+      updateMix(withChannelOn(currentMix(), guide, on), `${guide}-enable`)
+    },
+    setGuideVolume: (guide, level) => {
+      assertGuide(guide)
+      validateChannelVolume(guide, level, mixDesign().range)
+      updateMix(withChannelVolume(currentMix(), guide, level), `${guide}-volume`)
     },
     onInterrupted: (listener) => {
       interruptListeners.push(listener)

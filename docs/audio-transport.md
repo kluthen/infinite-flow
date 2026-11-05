@@ -8,8 +8,8 @@ timestamps through, how it is tested, and what later chunks add.
 
 ## What it is
 
-The audio transport is the audio clock and everything scheduled on it: the click, the count-in
-and the backing. The **audio clock** is the one master clock of a session: the click, the backing,
+The audio transport is the audio clock and everything scheduled on it: the click, the count-in,
+the backing and the guide playback. The **audio clock** is the one master clock of a session: the click, the backing,
 the playhead and the session engine's events all read their time from it, as plain seconds.
 
 - **One audio context.** The app has exactly one `AudioContext`, and only `src/audio/` may create
@@ -24,20 +24,21 @@ the playhead and the session engine's events all read their time from it, as pla
 - **Never suspended or closed.** Once unlocked, the context runs until the page closes. An unlock
   from "Connect controller" therefore still holds when a MIDI note later starts a session.
 
-| File                         | Holds                                                                                                |
-| ---------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `audio-ports.ts`             | The contract: the clock, output, session bus and wake timer ports, the click and backing note types. |
-| `audio-mix.ts`               | The four mix controls, their design tokens, the sliders' step, range checks and gain values.         |
-| `click-track.ts`             | The click and count-in as pure arithmetic on audio time, and `beatAt`, the beat grid.                |
-| `backing-track.ts`           | A phrase's rendered backing placed on the beat grid, as pure arithmetic on audio time.               |
-| `look-ahead-scheduler.ts`    | The scheduler that plans sound a fixed window ahead of the clock.                                    |
-| `audio-transport.ts`         | `createAudioTransport(deps)`: unlock, start, the backing queue, stop, the mix and interruptions.     |
-| `web-audio-output.ts`        | The output on Web Audio: the one context, the mix graph, `openWebAudioOutput()`.                     |
-| `web-audio-session-bus.ts`   | One session's fade gains and the synthesized click and backing voices.                               |
-| `wake-timer-protocol.ts`     | The wake-up Worker's messages and its pure handler.                                                  |
-| `wake-timer.worker.ts`       | The wake-up Worker's entry point.                                                                    |
-| `worker-wake-timer.ts`       | The main-thread wake timer backed by that Worker.                                                    |
-| `browser-audio-transport.ts` | `createBrowserAudioTransport()`: the transport wired to the browser.                                 |
+| File                         | Holds                                                                                              |
+| ---------------------------- | -------------------------------------------------------------------------------------------------- |
+| `audio-ports.ts`             | The contract: the ports, the mix channels, the sound roles and their voices, the note types.       |
+| `audio-mix.ts`               | The mix controls by channel, their design tokens, the sliders' step, range checks and gain values. |
+| `click-track.ts`             | The click and count-in as pure arithmetic on audio time, and `beatAt`, the beat grid.              |
+| `backing-track.ts`           | A phrase's rendered backing placed on the beat grid, as pure arithmetic on audio time.             |
+| `guide-track.ts`             | A phrase's guide notes placed at any rational position through the tempo map, pure arithmetic.     |
+| `look-ahead-scheduler.ts`    | The scheduler that plans sound a fixed window ahead of the clock.                                  |
+| `audio-transport.ts`         | `createAudioTransport(deps)`: unlock, start, the backing queue, stop, the mix and interruptions.   |
+| `web-audio-output.ts`        | The output on Web Audio: the one context, the mix graph, `openWebAudioOutput()`.                   |
+| `web-audio-session-bus.ts`   | One session's fade gains and the synthesized click and the notes of every sound role.              |
+| `wake-timer-protocol.ts`     | The wake-up Worker's messages and its pure handler.                                                |
+| `wake-timer.worker.ts`       | The wake-up Worker's entry point.                                                                  |
+| `worker-wake-timer.ts`       | The main-thread wake timer backed by that Worker.                                                  |
+| `browser-audio-transport.ts` | `createBrowserAudioTransport()`: the transport wired to the browser.                               |
 
 `createBrowserAudioTransport()` composes `openWebAudioOutput`, the Worker wake timer and
 `readAudioMixDesign(getComputedStyle(document.documentElement))`. The workspace session exposes it
@@ -55,8 +56,8 @@ The transport talks to the browser only through four ports, declared in `audio-p
   [The clock anchor](#the-clock-anchor)).
 - **Output** (`AudioOutput`): the clock, plus `setGain`, `openSessionBus` and `onInterrupted`. It
   has no suspend or pause operation on purpose.
-- **Session bus** (`SessionBus`): `scheduleClick`, `scheduleBackingNote` and `fadeOut` for one
-  session's sound.
+- **Session bus** (`SessionBus`): `scheduleClick`, `scheduleBackingNote`, `scheduleGuideNote`,
+  `forceClickUntil` and `fadeOut` for one session's sound.
 - **Wake timer** (`WakeTimer`): `start(onWake)` and `stop()`.
 
 Why ports: a fake of each makes every test deterministic. A test advances the fake clock by hand,
@@ -182,9 +183,11 @@ arithmetic on audio time and reads no clock.
 
 ### The transport API
 
-- **`queueBacking(phraseNumber, harmony, tempo)`** renders a phrase's backing from its harmony
-  events, queues it, and puts the phrase at `tempo` on the tempo map: from its first beat on, the
-  clicks and the backing run at that tempo until a later phrase changes it. Phrases must come in
+- **`queueBacking(phraseNumber, harmony, timeline, tempo)`** renders a phrase's backing from its
+  harmony events and its guide notes from its concert timeline and harmony (see
+  [The guide playback](#the-guide-playback)), queues both, and puts the phrase at `tempo` on the
+  tempo map: from its first beat on, the clicks, the backing and the guides run at that tempo until
+  a later phrase changes it. It throws, too, on a timeline the guide renderer refuses. Phrases must come in
   order, 1, 2, 3 …, and each before planning has reached its start; phrase 1 must be at the
   starting tempo. It throws, leaving the queue and the map as they were, when no session is
   running, when the phrase is not the next one due, when phrase 1 is at another tempo, and when
@@ -232,8 +235,11 @@ follows it:
 [`docs/session-engine.md`](session-engine.md#the-session-controller)) queues phrase 1 with the idle
 phrase's harmony at the starting tempo. Then, on each `phrase-tempo` output of the session engine
 (see [`docs/session-engine.md`](session-engine.md)), it queues that phrase's number with the
-harmony of the phrase its `phrase-ready` gave, `phrase.outcome.provenance.harmony.events` (a
-repeat included), at the tempo the engine fixed for it. Phrase 1 gets neither output, which is why
+harmony and the concert timeline of the phrase its `phrase-ready` gave,
+`phrase.outcome.provenance.harmony.events` and `phrase.outcome.result.timeline` (a repeat
+included), at the tempo the engine fixed for it. A fresh Jam's phrase 1 is queued the same way at
+the hand-over (`workspace-session-phrase-one-entry.ts`). The three calls are direct, with no
+helper between. Phrase 1 gets neither output, which is why
 it is queued at start. The engine fixes each later phrase's tempo at its deadline, the start of the
 last measure of the phrase before, so it is queued a measure before it starts, well ahead of the
 200 ms window.
@@ -241,7 +247,9 @@ last measure of the phrase before, so it is queued a measure before it starts, w
 ### The voices
 
 The backing is synthesized from oscillators and gains only: no sample, no audio file and no extra
-download. `BACKING_VOICE` in `web-audio-session-bus.ts` sets its placeholder timbre and levels:
+download. Its two sound roles' entries in `SOUND_ROLE_VOICES` (`audio-ports.ts`, see
+[The guide playback](#the-guide-playback)) set its placeholder timbre and levels, unchanged since
+v2.0:
 
 - the bass is a triangle wave, each chord note a quieter sine wave;
 - each note gets its own oscillator and its own envelope gain: it rises from silence in 5 ms,
@@ -260,13 +268,20 @@ anywhere in `src/`, and any audio or sample file in the build output (see
 The mix graph is built once, at unlock:
 
 ```
-click route:    click-enable -> click-volume -> destination
-count-in route:                 click-volume -> destination
-backing route:  backing-enable -> backing-volume -> destination
+click route:         click-enable -> click-volume -> destination
+count-in route:                      click-volume -> destination
+backing route:       backing-enable -> backing-volume -> destination
+melody-guide route:  melody-guide-enable -> melody-guide-volume -> destination
+rhythm-guide route:  rhythm-guide-enable -> rhythm-guide-volume -> destination
 ```
 
-Each session's sound enters these routes through its own session bus (see [Stop](#stop)): the
-clicks into the click route or the count-in route, the backing voices into the backing route.
+The mix has four **channels**, `click`, `backing`, `melody-guide` and `rhythm-guide`
+(`MIX_CHANNELS`), each with an on/off gain `<channel>-enable` and a volume gain
+`<channel>-volume` (`MixGain`). The graph, `mixGains` and the unlock's gain order are built channel
+by channel, and `audio-mix.ts` names each channel's fields in one table, so a channel added later
+joins without reshaping the mix. Each session's sound enters these routes through its own session
+bus (see [Stop](#stop)): the clicks into the click route or the count-in route, the backing voices
+into the backing route, each guide into its own route.
 
 - **On/off** is an enable gain of 1 or 0. **Volume** is a linear gain equal to the slider level: a
   placeholder mapping until listening tests settle a loudness curve.
@@ -290,12 +305,65 @@ clicks into the click route or the count-in route, the backing voices into the b
   [Saving the player's settings](storage.md#saving-the-players-settings) and
   [The audio mix](phrase-workspace.md#the-audio-mix)).
 
+## The guide playback
+
+Two optional sounds play the phrase on the sheet while it is played, beside an unchanged backing
+(master spec [C19](../specs/versions/v3/master-spec.md#c19-the-guide-playback)): the **melody
+guide** plays the phrase's notes at concert pitch, the **rhythm guide** its rhythm on the chords'
+roots. They are listening aids only: acknowledgement, timing, generation, saving and every export
+ignore them (spec D494). They are built in five layers (`module_guide_playback_layers`), so a v4
+sound library replaces only the last:
+
+1. **The renderer**, `src/domain/backing/guide-renderer.ts`, pure: `renderGuide(timeline, harmony)`
+   gives the melody guide's and the rhythm guide's notes in whole-note rationals. It reads ties and
+   rests as acknowledgement's expected notes do: a fresh attack starts a note, a tie continuation
+   lengthens it (across a barline too), a rest starts none. The rhythm guide takes the same starts
+   and lengths, each on the root of the harmony event holding its start, in MIDI 60 to 71. A start
+   no harmony event holds, or a malformed tie, throws a `GuideRenderError`.
+2. **The placement**, `guide-track.ts`: `scheduleGuide` places each start and end at
+   `beatAt(plan, firstBeat + position in beats)`, so any rational position (an offbeat eighth, a
+   triplet) falls exactly through the tempo map and a note on a beat falls on that beat's click.
+   The backing's placement and its whole-beat check are unchanged.
+3. **The seam**, `audio-ports.ts`: the sound roles `bass`, `chord`, `melody-guide` and
+   `rhythm-guide` (`BackingVoice` is the backing's two), each role's voice a data entry of
+   `SOUND_ROLE_VOICES` (waveform, peak, attack, release, where the release sits, its mix channel).
+   The bass's and chord's entries are the backing's envelopes as they were. The melody guide is a
+   sine with a 600 ms release, the rhythm guide a triangle with a short, plucked 300 ms release;
+   both rise in at most 5 ms and at most half the note. The values are set by ear and heard at the
+   owner's v3.2 HG.
+4. **The mix by channel** (see [The mix](#the-mix)).
+5. **The sounding**, `web-audio-session-bus.ts`, the only layer that knows Web Audio: one
+   `soundNote` turns any role's note into an oscillator and its envelope from the role's entry. A
+   guide note holds to its written end, then its release starts there and its oscillator stops
+   once the release is over, so it rings on into a rest after it (spec D493); no guide note has a
+   shortest length (a sixteenth-note triplet at 240 BPM lasts about 42 ms).
+
+How the transport plays them:
+
+- **From the same call as the backing.** `queueBacking` renders and places both guides' notes for
+  every phrase, whatever the switches say, from phrase 1's first beat; nothing sounds before
+  phrase 1 or outside a running session.
+- **Sent only while switched on.** Each look-ahead window sends the bus only the notes of a guide
+  switched on in the transport's mix; the others are dropped. A guide switched off has its enable
+  gain set to 0 at once (notes still ringing fall silent) and gets no later note; switched on, it
+  gets notes from the next window (within 0.2 s), so no note is caught half way. With both guides
+  off no guide note reaches the bus, and a session's calls on the output are the ones it made
+  before the guide existed, but for the guides' four gains set at unlock.
+- **A same-pitch re-attack stays audible.** The bus remembers each guide's last note per pitch,
+  across phrases. A guide note starting on the pitch of that guide's note still ringing fades the
+  ringing one to silence over 15 ms from the new start, its oscillator stopping there.
+- **The switches and volumes** are `setGuideOn(guide, on)` and `setGuideVolume(guide, level)`;
+  `mix()` holds them as `melodyGuideOn`, `melodyGuideVolume`, `rhythmGuideOn` and
+  `rhythmGuideVolume`. Both guides start off at first load (a default, not a token); their volume
+  range and first-load levels are the `--mix-melody-guide-volume-{min,default}` and
+  `--mix-rhythm-guide-volume-{min,default}` tokens, the maximum and step shared.
+
 ## Stop
 
-Every session opens a fresh **session bus**: three fade gains, one per click route and one for the
-backing. On stop the bus fades all three to silence over `STOP_FADE_SECONDS` (0.1 s, the rule's
+Every session opens a fresh **session bus**: five fade gains, one per click route, one for the
+backing and one per guide. On stop the bus fades all five to silence over `STOP_FADE_SECONDS` (0.1 s, the rule's
 "about 100 ms") and the scheduler halts. Sound already planned past the fade goes through the
-faded bus and stays silent, and the next
+faded bus and stays silent, guide notes still ringing included, and the next
 session gets a fresh bus that the fade never touched. `stop` returns `fadeEndsAt`, when the fade
 reaches silence.
 
@@ -384,6 +452,7 @@ tests play a count-in and a short backing on the real `AudioContext`. See
   built the mapping, see [`docs/midi-input.md`](midi-input.md)) and read by a session, whose MIDI
   timers run on the audio clock (see
   [The session controller's MIDI side](session-engine.md#the-session-controllers-midi-side)).
+- **v3.2 chunk 40 (built):** the guide playback (see [The guide playback](#the-guide-playback)).
 - **Chunk 20 (built):** the MIDI export's backing track, from `renderBacking` for each recorded
   phrase's harmony, so the file and the audio play the same notes (see
   [The file](export.md#the-file)).

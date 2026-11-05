@@ -11,7 +11,7 @@ import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { createWorkspaceSession } from '@/components/workspace/create-workspace-session'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import { createBrowserGenerationWorker } from '@/generation-worker/browser-generation-worker'
-import { themeMixTokens } from '../../audio/transport-rig'
+import { themeDesign, themeMixTokens } from '../../audio/transport-rig'
 import { fakeSavedData } from './fake-workspace-dependencies'
 
 vi.mock('@/generation-worker/browser-generation-worker', () => ({
@@ -108,7 +108,13 @@ describe('createWorkspaceSession', () => {
   it('starts its audio transport from the loaded mix, and Idle from the loaded controls', () => {
     stubMatchMedia(false)
     vi.stubGlobal('getComputedStyle', () => themeMixTokens())
-    const mix = { clickOn: false, clickVolume: 0.4, backingOn: true, backingVolume: 0.3 }
+    const mix = {
+      ...themeDesign().defaults,
+      clickOn: false,
+      clickVolume: 0.4,
+      backingOn: true,
+      backingVolume: 0.3,
+    }
     const controls = { ...DEFAULT_GENERATION_CONTROLS, tempo: 140 }
     const workspace = createWorkspaceSession({
       prewarmPolicy: 'disabled',

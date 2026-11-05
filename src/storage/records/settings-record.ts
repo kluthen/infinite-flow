@@ -28,6 +28,7 @@
 
 import {
   validateBackingVolume,
+  validateChannelVolume,
   validateClickVolume,
   type AudioMix,
   type AudioMixDesign,
@@ -340,12 +341,21 @@ const LEVEL_PARSERS: GroupParsers<FigureLevels> = Object.fromEntries(
   FIGURE_IDS.map((figure) => [figure, oneOf(FIGURE_LEVEL_IDS)]),
 ) as GroupParsers<FigureLevels>
 
-/** Each audio mix control's parser: two switches and two volumes. */
+/**
+ * Each audio mix control's parser, a switch and a volume per channel: the click's and the
+ * backing's, then each guide's, records v3.2 added beside them with no upgrade step: a store
+ * written before v3.2 has none, and each takes its default (the guide off, the design's level).
+ */
+// @spec-link [[rule_saved_settings_load_tolerantly]]
 const MIX_PARSERS: GroupParsers<AudioMix> = {
   clickOn: readBoolean,
   clickVolume: volume(validateClickVolume),
   backingOn: readBoolean,
   backingVolume: volume(validateBackingVolume),
+  melodyGuideOn: readBoolean,
+  melodyGuideVolume: volume((level, range) => validateChannelVolume('melody-guide', level, range)),
+  rhythmGuideOn: readBoolean,
+  rhythmGuideVolume: volume((level, range) => validateChannelVolume('rhythm-guide', level, range)),
 }
 
 /**

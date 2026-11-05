@@ -63,8 +63,12 @@ interface WorkspaceHarnessAudioTimeline {
   readonly countInEndsAt: number
 }
 
+/** One mix channel (src/audio/audio-ports.ts's `MixChannel`). */
+type WorkspaceHarnessMixChannel = 'click' | 'backing' | 'melody-guide' | 'rhythm-guide'
+
 /** One mix gain stage (src/audio/audio-ports.ts's `MixGain`). */
-type WorkspaceHarnessMixGain = 'click-enable' | 'click-volume' | 'backing-enable' | 'backing-volume'
+type WorkspaceHarnessMixGain =
+  `${WorkspaceHarnessMixChannel}-enable` | `${WorkspaceHarnessMixChannel}-volume`
 
 /**
  * One call the transport made on its audio output, as the recorder logged it (the shape of
@@ -84,6 +88,15 @@ type WorkspaceHarnessAudioEvent =
       readonly kind: 'backing'
       readonly bus: number
       readonly voice: 'bass' | 'chord'
+      readonly pitch: number
+      readonly at: number
+      readonly until: number
+      readonly scheduledAt: number
+    }
+  | {
+      readonly kind: 'guide'
+      readonly bus: number
+      readonly role: 'melody-guide' | 'rhythm-guide'
       readonly pitch: number
       readonly at: number
       readonly until: number
@@ -141,10 +154,16 @@ interface WorkspaceHarnessMixDesign {
     readonly clickVolume: number
     readonly backingOn: boolean
     readonly backingVolume: number
+    readonly melodyGuideOn: boolean
+    readonly melodyGuideVolume: number
+    readonly rhythmGuideOn: boolean
+    readonly rhythmGuideVolume: number
   }
   readonly range: {
     readonly clickVolumeMin: number
     readonly backingVolumeMin: number
+    readonly melodyGuideVolumeMin: number
+    readonly rhythmGuideVolumeMin: number
     readonly volumeMax: number
   }
 }
@@ -180,10 +199,10 @@ interface WorkspaceHarnessAudioApi {
   /** The recorded clicks that sound, with the gain they sound at. */
   audibleClicks: () => readonly WorkspaceHarnessAudibleClick[]
   /**
-   * Queue the running session's phrase `phraseNumber` (1, 2, 3… in order) with the harmony of the
-   * phrase the workspace currently shows (`outcome.provenance.harmony.events`), through the
-   * transport's own `queueBacking` at the tempo the last session started at, and return that
-   * harmony. Throws with no phrase shown or no session ever started, and whenever the transport's
+   * Queue the running session's phrase `phraseNumber` (1, 2, 3… in order) with the harmony and
+   * the concert timeline of the phrase the workspace currently shows
+   * (`outcome.provenance.harmony.events`, `outcome.result.timeline`), through the transport's own
+   * `queueBacking` at the tempo the last session started at, and return that harmony. Throws with no phrase shown or no session ever started, and whenever the transport's
    * `queueBacking` throws (no session, out of order, too late).
    */
   queueBacking: (phraseNumber: number) => readonly WorkspaceHarnessQueuedHarmonyEvent[]
@@ -191,7 +210,7 @@ interface WorkspaceHarnessAudioApi {
   backingNotes: () => readonly WorkspaceHarnessBackingNote[]
   /** The recorded backing notes that sound, with the gain they sound at. */
   audibleBacking: () => readonly WorkspaceHarnessAudibleBackingNote[]
-  /** The transport's mix now: the four controls the audio mix in the toolbar sets. */
+  /** The transport's mix now: each channel's switch and volume. */
   mix: () => WorkspaceHarnessMixDesign['defaults']
   setClickOn: (on: boolean) => void
   setClickVolume: (level: number) => void

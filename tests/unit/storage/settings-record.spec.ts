@@ -81,6 +81,10 @@ const EXPECTED_KEYS: readonly SettingKey[] = [
   'mix.clickVolume',
   'mix.backingOn',
   'mix.backingVolume',
+  'mix.melodyGuideOn',
+  'mix.melodyGuideVolume',
+  'mix.rhythmGuideOn',
+  'mix.rhythmGuideVolume',
   'sessionOptions.varySettings',
   'sessionOptions.tensionAcrossPhrases',
   'sessionOptions.risingTempo',
@@ -128,6 +132,8 @@ function isLevelKey(key: SettingKey): boolean {
 const BOOLEAN_KEYS = new Set<SettingKey>([
   'mix.clickOn',
   'mix.backingOn',
+  'mix.melodyGuideOn',
+  'mix.rhythmGuideOn',
   'sessionOptions.varySettings',
   'sessionOptions.tensionAcrossPhrases',
   'sessionOptions.risingTempo',
@@ -177,6 +183,9 @@ function invalidValues(key: SettingKey): readonly unknown[] {
   if (key === 'controls.tempo') return [50, 250, 95, 90.5, -90, Number.NaN, Infinity, '90', null]
   if (key === 'mix.clickVolume') return [0, 0.1, -0.1, 1.01, Number.NaN, Infinity, '0.5', null]
   if (key === 'mix.backingVolume') return [-0.01, 1.5, Number.NaN, -Infinity, '0.5', true]
+  if (key === 'mix.melodyGuideVolume' || key === 'mix.rhythmGuideVolume') {
+    return [-0.01, 1.5, Number.NaN, Infinity, '0.5', null]
+  }
   if (key === 'sessionOptions.allowedRhythmChanges') {
     return [
       'move_rest',
@@ -253,6 +262,9 @@ function randomValue(key: SettingKey, next: () => number): unknown {
   if (BOOLEAN_KEYS.has(key)) return next() < 0.5
   if (key === 'mix.clickVolume') return Math.round((0.2 + next() * 0.8) * 100) / 100
   if (key === 'mix.backingVolume') return Math.round(next() * 100) / 100
+  if (key === 'mix.melodyGuideVolume' || key === 'mix.rhythmGuideVolume') {
+    return Math.round(next() * 100) / 100
+  }
   if (isLevelKey(key)) return pick(FIGURE_LEVEL_IDS)
   if (key === 'sessionOptions.allowedRhythmChanges') {
     return RHYTHM_CHANGE_KINDS.filter(() => next() < 0.5)

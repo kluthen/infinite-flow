@@ -20,6 +20,7 @@ function spyOutput() {
   const bus = {
     scheduleClick: vi.fn(),
     scheduleBackingNote: vi.fn(),
+    scheduleGuideNote: vi.fn(),
     fadeOut: vi.fn(),
     forceClickUntil: vi.fn(),
   } satisfies SessionBus

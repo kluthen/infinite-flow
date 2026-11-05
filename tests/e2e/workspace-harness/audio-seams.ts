@@ -24,6 +24,7 @@ import {
   createBrowserWakeTimerWorker,
   createWorkerWakeTimer,
 } from '../../../src/audio/worker-wake-timer'
+import type { ConcertEventTimeline } from '../../../src/domain/events/timeline'
 import type { HarmonyEvent } from '../../../src/domain/harmony/harmony-types'
 import {
   audibleBackingOf,
@@ -112,6 +113,12 @@ function pageMixDesign(): AudioMixDesign {
   return readAudioMixDesign(getComputedStyle(document.documentElement))
 }
 
+/** The phrase the workspace shows, as `queueBacking` queues it: its harmony and its timeline. */
+export interface HarnessShownPhrase {
+  readonly harmony: readonly HarmonyEvent[]
+  readonly timeline: ConcertEventTimeline
+}
+
 /** Intent: the harness's plain-JSON view of the harmony events `queueBacking` queued. */
 function queuedHarmonyView(harmony: readonly HarmonyEvent[]): WorkspaceHarnessQueuedHarmonyEvent[] {
   return harmony.map(({ barIndex, startBeat, durationBeats, triad }) => ({
@@ -125,9 +132,9 @@ function queuedHarmonyView(harmony: readonly HarmonyEvent[]): WorkspaceHarnessQu
 /**
  * Intent: build the harness's audio in `mode`: a transport on that mode's seams, and the API a
  * spec drives it through. `start` is not on the API: only the harness's Start button starts a
- * session, from a real click, at the tempo `armStart` set beforehand. `shownHarmony` reads the
- * harmony of the phrase the workspace shows, which `queueBacking` hands to the transport at the
- * tempo the last session started at. `loadedMix` reads the mix the saved-data load gave, on the
+ * session, from a real click, at the tempo `armStart` set beforehand. `shownPhrase` reads the
+ * harmony and timeline of the phrase the workspace shows, which `queueBacking` hands to the
+ * transport at the tempo the last session started at. `loadedMix` reads the mix the saved-data load gave, on the
  * transport's first use, as the app's transport does.
  */
 // @test-link [[rule_audio_unlocked_by_player_click]]
@@ -135,7 +142,7 @@ function queuedHarmonyView(harmony: readonly HarmonyEvent[]): WorkspaceHarnessQu
 // @test-link [[req_session_backing_track]]
 export function createHarnessAudio(
   mode: WorkspaceHarnessAudioMode,
-  shownHarmony: () => readonly HarmonyEvent[],
+  shownPhrase: () => HarnessShownPhrase,
   loadedMix: () => AudioMix,
 ): HarnessAudio {
   const parts = mode === 'real' ? realModeParts() : fakeModeParts()
@@ -185,8 +192,8 @@ export function createHarnessAudio(
     events: () => [...parts.events()],
     audibleClicks: () => audibleClicksOf(parts.events()),
     queueBacking: (phraseNumber) => {
-      const harmony = shownHarmony()
-      transport.queueBacking(phraseNumber, harmony, sessionTempo())
+      const { harmony, timeline: phraseTimeline } = shownPhrase()
+      transport.queueBacking(phraseNumber, harmony, phraseTimeline, sessionTempo())
       return queuedHarmonyView(harmony)
     },
     backingNotes: () => parts.events().filter((e): e is FakeBackingEvent => e.kind === 'backing'),
