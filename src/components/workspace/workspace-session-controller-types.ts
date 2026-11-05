@@ -159,13 +159,16 @@ export type SessionDeletion = 'deleted' | 'refused' | 'saving-off'
 
 /**
  * The player's last deletion of kept sessions in the visit, which lets Jam's kept doodle go when
- * it takes the session the doodle comes from: one session (`Delete session`), by its key, or every
- * session (`Delete every session`). Recorded once the deletion is made, a new object each time;
- * a refused one, a session's own save deleting the earlier unpinned sessions and the clean-up of
- * damaged ones record nothing.
+ * it takes the session the doodle comes from: one session (`Delete session`), by its key; every
+ * session (`Delete every session`); or my instrument's sessions, by their keys, erased with its
+ * deletion or a change of its range or transposition (spec D503). Recorded once the deletion is
+ * made, a new object each time; a refused one, one erasing no session, a session's own save
+ * deleting the earlier unpinned sessions and the clean-up of damaged ones record nothing.
  */
 export type PlayerSessionDeletion =
-  { readonly kind: 'session'; readonly key: string } | { readonly kind: 'every-session' }
+  | { readonly kind: 'session'; readonly key: string }
+  | { readonly kind: 'every-session' }
+  | { readonly kind: 'my-instrument-sessions'; readonly keys: readonly string[] }
 
 /**
  * What became of opening a session's Review, from `Review last session` or a list row: shown;

@@ -2,8 +2,9 @@
  * Where the workspace holds Jam's kept doodle (module_kept_doodle): made once Jam's code has
  * loaded in the visit, from Jam's code, for the selected instrument and Jam's key and mode; kept
  * through anything but what lets it go: leaving Jam mode, and the player's deletion of the session
- * it comes from or of every session. A deletion of another session, entering Jam mode or a change
- * of the instrument keep it. Its suggestion declined keeps it too.
+ * it comes from or of every session, and my instrument's erased sessions when they take the one it
+ * comes from. A deletion of another session, entering Jam mode or a change of the instrument keep
+ * it. Its suggestion declined keeps it too.
  */
 import { afterEach, describe, expect, it } from 'vitest'
 import { effectScope, shallowRef, type EffectScope } from 'vue'
@@ -109,6 +110,17 @@ describe("the workspace's kept doodle", () => {
 
     made.lastDeletion.value = { kind: 'every-session' }
 
+    expect(made.host.kept.value).toBeNull()
+  })
+
+  // @test-link [[rule_held_doodle_dropped_on_change]]
+  it("lets it go when my instrument's erased sessions take the one it comes from; others keep it", () => {
+    const made = keeping()
+
+    made.lastDeletion.value = { kind: 'my-instrument-sessions', keys: ['session-0', 'session-2'] }
+    expect(made.host.kept.value?.sessionKey).toBe('session-1')
+
+    made.lastDeletion.value = { kind: 'my-instrument-sessions', keys: ['session-0', 'session-1'] }
     expect(made.host.kept.value).toBeNull()
   })
 

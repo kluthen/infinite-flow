@@ -4,9 +4,10 @@
  * the visit, for the selected instrument and Jam's key and mode, and held for the rest of the
  * visit in memory only. What keeps a doodle reaches it here (the fresh Jam's end, through
  * ./use-fresh-jam.ts, and `Jam again on this doodle`, through ./review-jam-ports.ts); here it is let
- * go on leaving Jam mode, and on the player's deletion of the session it comes from, one session
- * or every session, which the session controller records (`lastDeletion`); `New doodle` calls
- * `letGo`. Nothing else lets it go: a session's own save deleting the earlier unpinned sessions
+ * go on leaving Jam mode, and on the player's deletion of the session it comes from, one session,
+ * every session, or my instrument's sessions erased with its deletion or a change of its range or
+ * transposition (spec D503), which the session controller records (`lastDeletion`); `New doodle`
+ * calls `letGo`. Nothing else lets it go: a session's own save deleting the earlier unpinned sessions
  * records no deletion. Its suggestion is declined here too (`Keep {key} {mode}`, at Jam's Idle or
  * in the review of the session it comes from). Jam's code is reached through its loaded module
  * only.
@@ -51,10 +52,17 @@ export interface WorkspaceKeptDoodle {
   readonly decline: () => void
 }
 
+/** Intent: whether the player's `deletion` takes the session under `sessionKey`. */
+function takesSession(deletion: PlayerSessionDeletion, sessionKey: string): boolean {
+  if (deletion.kind === 'every-session') return true
+  if (deletion.kind === 'session') return deletion.key === sessionKey
+  return deletion.keys.includes(sessionKey)
+}
+
 /**
  * Intent: the workspace's kept doodle over its seams: Jam's holder made once, as Jam's code loads;
  * the doodle let go as Jam mode stops showing, and as the player deletes the session it comes from
- * or every session; every other change keeps it.
+ * or every session, or my instrument's erased sessions take it; every other change keeps it.
  */
 // @spec-link [[module_kept_doodle]]
 // @spec-link [[rule_held_doodle_dropped_on_change]]
@@ -94,7 +102,7 @@ export function useKeptDoodleHost(seams: KeptDoodleHostSeams): WorkspaceKeptDood
     (deletion) => {
       const kept = holder.value?.kept.value ?? null
       if (deletion === null || kept === null) return
-      if (deletion.kind === 'every-session' || deletion.key === kept.sessionKey) letGo()
+      if (takesSession(deletion, kept.sessionKey)) letGo()
     },
     { flush: 'sync' },
   )

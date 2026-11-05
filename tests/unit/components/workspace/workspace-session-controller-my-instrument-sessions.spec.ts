@@ -4,21 +4,40 @@
  * with it and has no row yet. The count names them by their keys (one held in memory only because
  * its save failed adding no delete while nothing of it is stored) and, once the batch is saved,
  * makes them leave memory as `Delete session` does: their rows, a Review of one (the list in its
- * place when it showed) and the most recent session when it is one. Another instrument's sessions
- * stay. On the fake audio clock at 240 BPM from 5 s: phrase 1 sounds from 6.1 s.
+ * place when it showed) and the most recent session when it is one, their keys recorded as the
+ * player's deletion (spec D503). Another instrument's sessions stay. On the fake audio clock at 240
+ * BPM from 5 s: phrase 1 sounds from 6.1 s. In Jam mode, through the workspace's kept doodle over
+ * Jam's real code and the generation session's my-instrument actions, their batches saved:
+ * deleting my instrument, or saving a change to its range, lets go a doodle kept from one of its
+ * sessions, Jam's Idle left with no doodle; a doodle kept from the tenor's session stays through
+ * both, and a change of name or clef, which erases nothing, keeps it.
  */
 import { afterEach, beforeAll, describe, expect, it } from 'vitest'
+import { effectScope, type EffectScope } from 'vue'
 
+import {
+  useKeptDoodleHost,
+  type WorkspaceKeptDoodle,
+} from '@/components/workspace/use-kept-doodle-host'
+import { createGenerationSession } from '@/composables/use-generation-session'
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
+import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { createGenerationIntent } from '@/domain/generation/generation-intent'
 import { makeRequestId } from '@/domain/generation/generation-request'
-import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
+import { BUILT_IN_PRESETS, DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
+import { C_KEYBOARD_PROFILE } from '@/domain/profile/instrument-profiles'
+import { makeMyInstrument } from '@/domain/profile/my-instrument'
 import { makeSeed } from '@/domain/random/seed'
+import * as jamMode from '@/jam/jam-mode'
 import type { SessionHistory } from '@/session/session-history'
 import { encodeKeptSession } from '@/storage/records/kept-session-record'
 import type { KeptRecordsReader, SessionChanges, SessionSaveOutcome } from '@/storage/save-policy'
 import type { StorageChange, StoredEntry } from '@/storage/storage-port'
 
+import { alwaysFitsStaff } from '../../composables/fake-staff-fit'
+import { countingSessionSeeds } from '../../composables/fake-session-seed'
+import { createFakeViewportWidth } from '../../composables/fake-viewport-width'
 import { BASE_CONTROLS, generateSuccess } from '../../domain/generation/carry-in/carry-in-fixture'
 import { lowHorn, recordedMyInstrumentSession } from '../../session/my-instrument-session'
 import {
@@ -34,6 +53,7 @@ import {
   RIG_TEMPO,
   type ControllerRig,
 } from './session-controller-rig'
+import { reviewedJamPart } from './reviewed-jam-part-fixture'
 
 const HORN = lowHorn('treble')
 let mine: SessionHistory
@@ -87,8 +107,13 @@ function deletedKeys(batch: readonly StorageChange[]): string[] {
 /** Whether saving is off for the rigs built next: set by a test, reset after each. */
 let savingOff = false
 
+/** The effect scope of a test's kept doodle, stopped after each. */
+let scope: EffectScope | null = null
+
 afterEach(() => {
   savingOff = false
+  scope?.stop()
+  scope = null
 })
 
 /** Intent: a rig over `summaries` whose sessions' own saves resolve `outcome`. */
@@ -172,6 +197,24 @@ describe("session controller: my instrument's kept sessions", () => {
     expect(rig.controller.state.mostRecent).toBeNull()
   })
 
+  // @test-link [[rule_held_doodle_dropped_on_change]]
+  it("leaving records their keys as the player's deletion; staying, or none counted, records nothing", () => {
+    const rig = rigOver(loaded())
+
+    rig.controller.myInstrumentSessions().stay()
+    expect(rig.controller.state.lastDeletion).toBeNull()
+
+    rig.controller.myInstrumentSessions().leave()
+    expect(rig.controller.state.lastDeletion).toEqual({
+      kind: 'my-instrument-sessions',
+      keys: ['mine-3', 'mine-2', 'mine-1'],
+    })
+
+    const tenorOnly = rigOver([summaryAt(tenor, 'tenor-1', 2_000)])
+    tenorOnly.controller.myInstrumentSessions().leave()
+    expect(tenorOnly.controller.state.lastDeletion).toBeNull()
+  })
+
   // @test-link [[rule_most_recent_session_kept]]
   // @test-link [[req_kept_session_review]]
   it('counts the session that just ended once, by the key its save minted; leaving closes its Review for the list', async () => {
@@ -249,5 +292,126 @@ describe("session controller: my instrument's kept sessions", () => {
       reviewed: false,
       withheld: true,
     })
+  })
+})
+
+const WIDER = makeMyInstrument({ ...HORN, writtenRange: { minMidi: 36, maxMidi: 76 } })
+const RENAMED = makeMyInstrument({ ...HORN, name: 'My other horn' })
+const BASS_CLEF = makeMyInstrument({ ...RENAMED, clef: 'bass' })
+
+/** Intent: a generation session with my instrument selected and a phrase shown, batches saved. */
+async function generationSession() {
+  let counter = 0
+  const created = createGenerationSession({
+    saveSettings: () => undefined,
+    myInstrumentSaves: {
+      saveMyInstrument: () => undefined,
+      saveMyInstrumentErasing: () => Promise.resolve({ status: 'saved' }),
+      deleteMyInstrument: () => Promise.resolve({ status: 'saved' }),
+    },
+    ...alwaysFitsStaff(),
+    viewport: createFakeViewportWidth(),
+    providers: {
+      nextRequestId: () => makeRequestId(`kept-doodle-mine-${++counter}`),
+      nextSeed: () => makeSeed(++counter),
+    },
+    nextSessionSeed: countingSessionSeeds(),
+    withSessionSeed: (phrase) => phrase,
+    generate: async () => `phrase ${counter}`,
+    notate: async () => {},
+    initialSettings: {
+      controls: makeGenerationControls({
+        ...DEFAULT_GENERATION_CONTROLS,
+        instrumentProfileId: 'my-instrument',
+      }),
+      figureLevels: NEUTRAL_FIGURE_LEVELS,
+      selection: DEFAULT_PRESET_SELECTION,
+      playerPresets: [],
+      theme: 'System',
+      myInstrument: HORN,
+    },
+  })
+  await created.actions.generate()
+  return created
+}
+
+/** The workspace in Jam mode: its session controller, kept doodle and generation session. */
+interface JamWorkspace {
+  readonly rig: ControllerRig
+  readonly host: WorkspaceKeptDoodle
+  readonly generation: Awaited<ReturnType<typeof generationSession>>
+}
+
+/**
+ * Intent: Jam mode showing, Jam's code loaded, over the controller holding `mine-1` (my
+ * instrument's) and `tenor-1`, with the doodle kept from the session under `sessionKey`.
+ */
+async function jamWorkspace(sessionKey: string): Promise<JamWorkspace> {
+  const rig = rigOver([summaryAt(mine, 'mine-1', 1_000), summaryAt(tenor, 'tenor-1', 2_000)])
+  scope = effectScope()
+  const host = scope.run(() =>
+    useKeptDoodleHost({
+      jamModule: () => jamMode,
+      jamShowing: () => true,
+      lastDeletion: () => rig.controller.state.lastDeletion,
+      instrument: () => C_KEYBOARD_PROFILE,
+      keyAndMode: () => ({ tonalCenter: 'C', collection: 'Major' }),
+    }),
+  )
+  if (host === undefined) throw new Error('the effect scope ran nothing')
+  host.keep(reviewedJamPart(), sessionKey)
+  return { rig, host, generation: await generationSession() }
+}
+
+// @test-link [[rule_held_doodle_dropped_on_change]]
+describe("Jam's kept doodle and my instrument's erased sessions", () => {
+  // @test-link [[rule_held_doodle_dropped_on_change]]
+  it('deleting my instrument lets go the doodle kept from a session played with it', async () => {
+    const jam = await jamWorkspace('mine-1')
+
+    await jam.generation.actions.deleteMyInstrument(jam.rig.controller.myInstrumentSessions())
+
+    expect(jam.generation.state.myInstrument).toBeNull()
+    expect(rowKeys(jam.rig)).toEqual(['tenor-1'])
+    expect(jam.host.kept.value).toBeNull()
+    jam.generation.dispose()
+  })
+
+  // @test-link [[rule_held_doodle_dropped_on_change]]
+  it('saving a change to its range lets go the doodle kept from a session played with it', async () => {
+    const jam = await jamWorkspace('mine-1')
+
+    await jam.generation.actions.saveMyInstrument(WIDER, jam.rig.controller.myInstrumentSessions())
+
+    expect(jam.generation.state.myInstrument).toBe(WIDER)
+    expect(jam.host.kept.value).toBeNull()
+    jam.generation.dispose()
+  })
+
+  // @test-link [[rule_held_doodle_dropped_on_change]]
+  it('a doodle kept from a session played with a built-in profile stays through both', async () => {
+    const jam = await jamWorkspace('tenor-1')
+
+    await jam.generation.actions.saveMyInstrument(WIDER, jam.rig.controller.myInstrumentSessions())
+    expect(jam.host.kept.value?.sessionKey).toBe('tenor-1')
+
+    await jam.generation.actions.deleteMyInstrument(jam.rig.controller.myInstrumentSessions())
+    expect(jam.generation.state.myInstrument).toBeNull()
+    expect(jam.host.kept.value?.sessionKey).toBe('tenor-1')
+    jam.generation.dispose()
+  })
+
+  // @test-link [[rule_held_doodle_dropped_on_change]]
+  it('a change of its name or clef keeps the doodle kept from a session played with it', async () => {
+    const jam = await jamWorkspace('mine-1')
+    const { controller } = jam.rig
+
+    await jam.generation.actions.saveMyInstrument(RENAMED, controller.myInstrumentSessions())
+    await jam.generation.actions.saveMyInstrument(BASS_CLEF, controller.myInstrumentSessions())
+
+    expect(jam.generation.state.myInstrument).toBe(BASS_CLEF)
+    expect(jam.rig.controller.state.lastDeletion).toBeNull()
+    expect(jam.host.kept.value?.sessionKey).toBe('mine-1')
+    jam.generation.dispose()
   })
 })
