@@ -1719,3 +1719,26 @@ For the next driver, in this order:
   popover's four sliders scroll (ux D459–D463 allow it).
 
 ### Wave gate
+
+On v3.2-w7, reference machine (AMD Ryzen 5 PRO 8640HS, 12 threads, 11 GiB, Node 22.23.4),
+2026-11-05, machine otherwise idle.
+
+- Run 1 (d1de43b4, 11:39): stopped at `lint:health`, 10 errors (atoms per file above 10 in
+  chunk 40's `audio-ports.ts`, `audio-transport.ts`, `web-audio-session-bus.ts` and its spec,
+  chunk 25's `review-export.ts`, `use-review-area.ts`, chunk 32's `workspace-session-midi.ts`;
+  `WorkspaceShell.vue` 621 lines, pushed over by chunk 32; chunk 33's sweep spec with no link;
+  chunk 40's `guide-off-scenarios.ts` without an intent comment).
+- Fixed by a `coding-executor`, one commit per chunk, no behaviour change, no limit raised, no
+  link dropped (files split along their seams, links moved with their functions): 98818977
+  (33, `@lint-ignore-atd` measurement tooling), cab1a1bb (32), 7073dad5 (25), 8ad106ce (40, with
+  `WorkspaceShell.spec.ts`'s mix token list missing the four guide tokens: two unhandled
+  rejections).
+- Run 2 (8ad106ce): **passed**, first try, no flake. format, lint, `lint:links`; `lint:health` 0
+  errors, 936 warnings (923 before); unit 620 files, 9,594 tests; build; `verify:boundaries`;
+  e2e 725 passed, 1 skipped, and the same with `VITE_HARNESS_PREGENERATION=on`; a11y 76;
+  notation 107 (4 skipped); `atd:lint`, `atd:check`.
+- Bundle: entry **311,173 B** (+23,053 B on wave 6's 288,120 B; 16,507 B left of 327,680 B, spec
+  D504); first-load JS **373,299 B** in 21 files (+23,261 B); Jam's chunk `jam-mode` 61,192 B
+  (+7,934 B; no `src/jam/` module in the first load).
+- No dependency changed (package.json's e2e list only): no `security-advisor` check.
+- Wave sync dispatched to `documentalist`.
