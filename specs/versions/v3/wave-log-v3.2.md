@@ -1678,3 +1678,9 @@ For the next driver, in this order:
   the instrument selected when it was kept, may go stale when the instrument changes and the
   doodle stays (`spec-writer`'s aside); the header's phrase action is also disabled while focused
   at its own Loading, with no design call on where focus goes (`ux-writer`'s aside).
+- Chunk 25 MERGED 207b3119 (25a 54916dd9, 25b bea861c6; branch `v3.2-c25-doodle-exports` kept).
+  Done when 1–6 met with evidence; unit 3,367 (related after the rebase 2,234) passed; new e2e
+  `review-export-jam.spec.ts` and the review export e2e specs passed; typecheck, lint, format,
+  `lint:links`, `verify:boundaries` clean. Entry **302,636 B of 327,680 B**; Jam's chunk 57,285 B.
+  No deviation; calls inside the chunk on its Record line. O267 still the owner's (the export
+  builds its proposal).

@@ -2437,7 +2437,8 @@ M4's budget fixes), before the wave gate; it touches none of chunks 25, 32, 33 a
 
 ### Chunk 25 — Exports open with the doodle
 
-Status: in progress
+Status: merged (w7, 207b3119)
+Record: 25a 54916dd9, 25b bea861c6, merge 207b3119; no deviation from the spec or the design. Calls inside the chunk: a Jam's MusicXML numbers the doodle's measures 1..k and every phrase's on by k; phrase 1 carries a tempo event or metronome mark only when its tempo differs from the doodle's capture tempo; a doodle note just before the first barline starts at tick 0 (O267's proposal, still the owner's). Entry 302,636 B, Jam's chunk 57,285 B.
 Wave: 7
 Depends on: 21, 23, 30 (and v3.0 chunks 13 and 25)
 Architecture capture: none
