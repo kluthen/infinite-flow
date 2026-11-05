@@ -802,7 +802,7 @@ Master spec Part C §C19.3 (spec D490-D494), a minor design call under the owner
   Accepted; the row does not collapse in Jam mode. Now in `screens/phrase-workspace/handoff.md`,
   Responsive Behavior, `jam-bar`.
 - **D470 — The review after a Jam offers `Jam again on this doodle` (2026-11-05; confirms the
-  design; spec D147: offered in every kept Jam session's review).** There it does what `Close
+  design; spec D236: offered in every kept Jam session's review).** There it does what `Close
   review` does, focus included, its doodle being the kept one. The atom
   `rule_jam_again_on_this_doodle` is the side to align, by `documentalist`. Stated in
   `flows/review-and-export/handoff.md`, The Doodle and the Suggestion, and `flows/jam/handoff.md`'s

@@ -1664,7 +1664,7 @@ For the next driver, in this order:
     (`Jam in` and `Keep` disabled during Loading), D467 (Jam's room notice: "These notes need more
     room. Make the window larger, or play a new doodle with fewer notes."). Widened: D466 (focus to
     the bar's sentence when the focused element goes; a start by the starting note moves it to
-    `Stop`). D470: the design offers `Jam again on this doodle` after a Jam (spec D147); the atom
+    `Stop`). D470: the design offers `Jam again on this doodle` after a Jam (spec D236); the atom
     aligns at the sync. Fixed d98a00f7 (merge e76e8d45; entry 302,590 B, Jam's chunk 56,336 B).
   - `ux-writer` 3e817ed9: ux D471, a bar button disabled by Loading while focused hands focus to
     the bar's sentence (native `disabled` kept). Fixed 5f1c2e21 (merge 9c81d8e1). D472 reserved
