@@ -814,3 +814,16 @@ Master spec Part C §C19.3 (spec D490-D494), a minor design call under the owner
   second disabled model beside the header's, D350's case being read-only, not Loading). `Jam in`'s
   own press is no case: the set sentence replaces the buttons. Now in
   `screens/phrase-workspace/handoff.md`, The kept doodle's bar, Focus.
+- **D474 — A phrase action disabled by Loading while focused gets focus back when it ends
+  (2026-11-05; minor, D119's standing rule; D471's counterpart in the header).** Native `disabled`
+  stays; nothing moves during the Loading (tens of milliseconds warm); at its end focus returns to
+  the phrase action if it is still there or on the page, else the session action, else
+  `controller-status`. A starting-note start moves it to `Stop`. Rejected: a placeholder target
+  (the header has no sentence; two moves for a blink), `controller-status` at once (a second Enter
+  opens the sheet), `aria-disabled` (D471). Now in `screens/phrase-workspace/handoff.md`,
+  Components and Content, Focus on a phrase action that becomes disabled.
+- **D475 — The `Volume` popover keeps running past a landscape phone's viewport (2026-11-05;
+  minor, D119's standing rule; confirms D461 after chunk 40).** At 844×390 only its first slider
+  shows; the page scrolls to the rest. No cap, inner scroll, second column or upward opening:
+  phones are third-rate (spec D414). Now in `screens/phrase-workspace/handoff.md`, Responsive
+  Behavior, `mix-controls`.
