@@ -7,10 +7,12 @@
  * offered while they are not among the close answers and the doodle's suggestion is not declined,
  * never in its no-fit form. After `Jam in {answer}` the row says it is set until Jam's key or mode
  * changes again, another doodle is kept, or a session started on the doodle has ended. During that
- * session the bar is held still: unchanged, its buttons disabled. `New doodle` is disabled in
- * Loading too. What each button changes is its host's: the bar asks (`new-doodle`, `use`, `keep`);
- * after `Keep {key} {mode}`, focus moves to its sentence (`tabindex="-1"`, never in the tab order)
- * once the row has left. Not a live region; nothing in it is announced. Part of Jam's code
+ * session the bar is held still: unchanged, its buttons disabled. Its buttons are disabled in
+ * Loading too, the row in place. What each button changes is its host's: the bar asks
+ * (`new-doodle`, `use`, `keep`); after `Keep {key} {mode}`, and whenever its focused element goes
+ * otherwise, focus moves to its sentence (`tabindex="-1"`, never in the tab order). A session
+ * started with one of its buttons focused asks for focus on the session action
+ * (`focus-session-action`). Not a live region; nothing in it is announced. Part of Jam's code
  * (src/jam/), loaded on demand.
  */
 import { nextTick, ref, watch } from 'vue'
@@ -44,8 +46,11 @@ const emit = defineEmits<{
   use: [answer: JamKeyAndMode]
   /** `Keep {key} {mode}`: decline the kept doodle's suggestion for good. */
   keep: []
+  /** A session started with one of the bar's buttons focused: focus goes to the session action. */
+  'focus-session-action': []
 }>()
 
+const barEl = ref<HTMLElement | null>(null)
 const sentenceEl = ref<HTMLElement | null>(null)
 
 /**
@@ -54,19 +59,46 @@ const sentenceEl = ref<HTMLElement | null>(null)
  */
 const rowRound = ref(0)
 
-watch(
-  () => props.doodle,
-  () => {
-    rowRound.value += 1
-  },
-)
+/**
+ * Intent: rebuild the suggestion row; if focus was in it, it goes to the bar's sentence once the
+ * row is drawn, unless something else has taken it by then (a session end's focus move).
+ */
+// @spec-link [[module_kept_doodle]]
+function rebuildRow(): void {
+  const focused = document.activeElement
+  rowRound.value += 1
+  if (focused === null || barEl.value?.contains(focused) !== true) return
+  if (focused.closest('.suggestion-row') === null) return
+  void nextTick(() => {
+    if (!focused.isConnected && document.activeElement === document.body) {
+      sentenceEl.value?.focus()
+    }
+  })
+}
+
+watch(() => props.doodle, rebuildRow)
 
 /** Intent: a session on the doodle ended: the set sentence it held still goes. */
 // @spec-link [[rule_suggestion_use_it]]
 watch(
   () => props.held,
   (held, wasHeld) => {
-    if (wasHeld && !held) rowRound.value += 1
+    if (wasHeld && !held) rebuildRow()
+  },
+)
+
+/**
+ * Intent: a session started with one of the bar's buttons focused (by the starting note, with no
+ * click), those buttons now disabled: ask for focus on the session action, once it is drawn.
+ */
+// @spec-link [[module_kept_doodle]]
+watch(
+  () => props.held,
+  (held, wasHeld) => {
+    if (!held || wasHeld) return
+    const focused = document.activeElement
+    if (!(focused instanceof HTMLButtonElement) || barEl.value?.contains(focused) !== true) return
+    void nextTick(() => emit('focus-session-action'))
   },
 )
 
@@ -84,7 +116,7 @@ function keep(): void {
 </script>
 
 <template>
-  <div class="jam-bar">
+  <div ref="barEl" class="jam-bar">
     <p ref="sentenceEl" tabindex="-1">
       Jamming again on your doodle: phrase 1 continues it. Leaving Jam mode lets it go.
     </p>
@@ -97,11 +129,11 @@ function keep(): void {
       :jam="jam"
       :instrument="instrument"
       :declined="declined"
-      :disabled="held"
+      :disabled="loading || held"
       at-idle
       @use="emit('use', $event)"
       @keep="keep"
-      @focus-lost="focusSentence"
+      @focus-lost="sentenceEl?.focus()"
     />
   </div>
 </template>

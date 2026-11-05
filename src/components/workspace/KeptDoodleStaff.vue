@@ -6,8 +6,8 @@
  * puts it in sight in `staff-jam`'s place while a doodle is kept; out of sight it stays laid out,
  * so the Idle rules keep measuring and engraving under the Review. Its frame takes the Idle states
  * as session mode's does (./idle-staff-frame.ts): Loading, Ready, the notation error and Needs
- * more room, with the same sentences; it shows no instruction, phrase 1 being always on its way
- * from the doodle. While phrase 1's first note would start a Jam, the start marker points at it,
+ * more room, with the same sentences but Jam's too-many-notes one, which names a new doodle; it
+ * shows no instruction, phrase 1 being always on its way from the doodle. While phrase 1's first note would start a Jam, the start marker points at it,
  * as on session mode's Ready staff. What its `PhraseScore` reports goes to Jam's phrase 1.
  */
 import { computed, ref } from 'vue'
@@ -18,7 +18,7 @@ import { noteIdentityKey } from '@/notation/note-identity'
 import { NO_SCORE_OVERLAYS, type ScoreOverlays } from '@/notation/score-overlay-state'
 import {
   ROOM_NOTICE_NARROW,
-  ROOM_NOTICE_TOO_MANY_NOTES,
+  ROOM_NOTICE_TOO_MANY_NOTES_JAM,
   ROOM_NOTICE_WIDE,
 } from '@/components/notation/room-notice-copy'
 import { idleStaffFrameClass } from './idle-staff-frame'
@@ -103,7 +103,7 @@ defineExpose({ focusRoomNotice })
           class="room-notice"
           tabindex="-1"
         >
-          {{ ROOM_NOTICE_TOO_MANY_NOTES }}
+          {{ ROOM_NOTICE_TOO_MANY_NOTES_JAM }}
         </p>
         <p v-if="notationErrorMessage !== null" class="inline-alert alert-error">
           Notation error: {{ notationErrorMessage }}

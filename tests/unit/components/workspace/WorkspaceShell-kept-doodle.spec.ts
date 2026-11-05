@@ -445,6 +445,18 @@ describe("WorkspaceShell and the kept doodle's bar", () => {
     ])
     expect(buttons.every((button) => button.attributes('disabled') !== undefined)).toBe(true)
   })
+
+  // @test-link [[module_kept_doodle]]
+  it('moves focus to Stop when a Jam on the doodle starts with one of its buttons focused', async () => {
+    const shell = await connectedWithDoodle()
+    ;(barButton(shell, 'New doodle').element as HTMLButtonElement).focus()
+
+    await sessionAction(shell).trigger('click')
+    await settle()
+
+    expect(sessionAction(shell).text()).toBe('Stop')
+    expect(document.activeElement).toBe(sessionAction(shell).element)
+  })
 })
 
 // @test-link [[req_key_and_mode_suggestion]]

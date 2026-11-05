@@ -156,6 +156,16 @@ describe('the kept doodle’s bar: the suggestion at Idle', () => {
     expect(row(mountBar({ declined: true }))).toBeNull()
   })
 
+  // @test-link [[req_key_and_mode_suggestion]]
+  it('disables Jam in and Keep in Loading, the row in place', () => {
+    const wrapper = mountBar({ loading: true })
+
+    expect(row(wrapper)?.buttons).toEqual(['Jam in D Minor', 'Keep C Major'])
+    expect(rowButtons(wrapper).every((button) => button.attributes('disabled') !== undefined)).toBe(
+      true,
+    )
+  })
+
   // @test-link [[rule_doodle_outside_modes_told]]
   it('shows no row, never the no-fit form, for a doodle that fits no mode', () => {
     expect(row(mountBar({ doodle: CHROMATIC }))).toBeNull()
@@ -235,5 +245,75 @@ describe('the kept doodle’s bar: Keep {key} {mode}', () => {
     expect(wrapper.emitted('use')).toBeUndefined()
     expect(row(wrapper)).toBeNull()
     expect(document.activeElement).toBe(sentence(wrapper).element)
+  })
+})
+
+// @test-link [[module_kept_doodle]]
+describe('the kept doodle’s bar: focus', () => {
+  // @test-link [[rule_suggestion_use_it]]
+  it('moves focus to the bar’s sentence when the set sentence gives way to the offering', async () => {
+    const wrapper = mountBar()
+    await rowButtons(wrapper)[0]!.trigger('click')
+    await wrapper.setProps({ jam: D_MINOR })
+    await nextTick()
+
+    await wrapper.setProps({ jam: A_MAJOR })
+    await nextTick()
+
+    expect(row(wrapper)?.buttons).toEqual(['Jam in D Minor', 'Keep A Major'])
+    expect(document.activeElement).toBe(sentence(wrapper).element)
+  })
+
+  // @test-link [[rule_suggestion_use_it]]
+  it('moves focus to the bar’s sentence when the held set sentence goes at the session’s end', async () => {
+    const wrapper = mountBar()
+    await rowButtons(wrapper)[0]!.trigger('click')
+    await wrapper.setProps({ jam: D_MINOR })
+    await nextTick()
+    await wrapper.setProps({ held: true })
+
+    await wrapper.setProps({ held: false })
+    await nextTick()
+
+    expect(row(wrapper)).toBeNull()
+    expect(document.activeElement).toBe(sentence(wrapper).element)
+  })
+
+  // @test-link [[module_kept_doodle]]
+  it('moves focus to the bar’s sentence when the row is rebuilt for another doodle', async () => {
+    const wrapper = mountBar()
+    ;(rowButtons(wrapper)[1]!.element as HTMLButtonElement).focus()
+
+    await wrapper.setProps({ doodle: beatsDoodle(WORKED_EXAMPLE) })
+    await nextTick()
+
+    expect(row(wrapper)?.buttons).toEqual(['Jam in D Minor', 'Keep C Major'])
+    expect(document.activeElement).toBe(sentence(wrapper).element)
+  })
+
+  // @test-link [[module_kept_doodle]]
+  it('asks for focus on the session action when a session starts with one of its buttons focused', async () => {
+    const wrapper = mountBar()
+    ;(newDoodle(wrapper).element as HTMLButtonElement).focus()
+    await wrapper.setProps({ held: true })
+    await nextTick()
+    expect(wrapper.emitted('focus-session-action')).toEqual([[]])
+
+    await wrapper.setProps({ held: false })
+    ;(rowButtons(wrapper)[0]!.element as HTMLButtonElement).focus()
+    await wrapper.setProps({ held: true })
+    await nextTick()
+    expect(wrapper.emitted('focus-session-action')).toEqual([[], []])
+  })
+
+  // @test-link [[module_kept_doodle]]
+  it('asks for nothing when a session starts with focus outside its buttons', async () => {
+    const wrapper = mountBar()
+    ;(sentence(wrapper).element as HTMLElement).focus()
+
+    await wrapper.setProps({ held: true })
+    await nextTick()
+
+    expect(wrapper.emitted('focus-session-action')).toBeUndefined()
   })
 })
