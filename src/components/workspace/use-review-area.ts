@@ -12,15 +12,18 @@
  * its session tools (./use-review-session-tools.ts) give each phrase's favorite star, `Pin` /
  * `Unpin`, `Delete session` and the comment.
  */
-import { computed, ref, watch, type ComputedRef } from 'vue'
+import { computed, ref, watch, type ComputedRef, type Ref } from 'vue'
 
 import type {
   ExportRequest,
+  GeneratedNotesUnavailable,
   PlayedNotesUnavailable,
   ReviewExportScope,
+  ReviewJamCode,
 } from '@/components/review/review-types'
 import { WHOLE_SESSION, type ExportScope } from '@/export/export-file'
 import type { ReviewedPhrase } from '@/session/session-history'
+import { rawDoodleNotesInSection } from '@/session/session-history-played-notes'
 import { sessionLengthSeconds } from '@/session/session-timing'
 import type { SaveSettings } from '@/storage/settings-saver'
 import {
@@ -30,8 +33,11 @@ import {
   playedNotesFileHoldsNote,
   playedNotesUnavailable,
   type PlayedNotesExportRequest,
+  type PlayedNotesJam,
   type ReviewExportPorts,
 } from './review-export'
+import type { ReviewedJamPart } from './session-jam-part'
+import { settledJamCode } from './use-review-jam-code'
 import type { ReviewHost } from './use-review-host'
 import { useReviewPlayedNotes, type ReviewPlayedNotes } from './use-review-played-notes'
 import { useReviewSessionTools, type ReviewSessionTools } from './use-review-session-tools'
@@ -53,6 +59,11 @@ export interface ReviewAreaDependencies {
   readonly exportPorts: () => ReviewExportPorts
   /** Save the settings a player's change changed. */
   readonly saveSettings: SaveSettings
+  /**
+   * Jam's code for the showing Review (./use-review-jam-code.ts), which builds the doodle's part
+   * of a Jam session's export files; read only for a Jam session.
+   */
+  readonly jamCode: Readonly<Ref<ReviewJamCode>>
 }
 
 /** What the review area binds the Review with, beyond the host's page-lived choices. */
@@ -119,9 +130,31 @@ export interface ReviewArea extends ReviewPlayedNotes, ReviewSessionTools {
    */
   // @spec-link [[rule_played_notes_export_omits_stray_notes]]
   readonly playedNotesFileHoldsNote: ComputedRef<boolean>
-  /** Why that file would hold no note, the first reason that applies; null while it holds one. */
+  /** Why that file can't be made, the first reason that applies; null while it can. */
   // @spec-link [[rule_favorites_only_export]]
   readonly playedNotesUnavailable: ComputedRef<PlayedNotesUnavailable | null>
+  /**
+   * Why the generated-notes file can't be made: a Jam session whose Jam code could not load; null
+   * while it can.
+   */
+  // @spec-link [[rule_jam_code_loaded_on_demand]]
+  readonly generatedNotesUnavailable: ComputedRef<GeneratedNotesUnavailable | null>
+}
+
+/** What a Jam's exports take from Jam's code: the builders of the doodle's part of each file. */
+type JamExportCode = Pick<
+  Extract<ReviewJamCode, { readonly state: 'loaded' }>['module'],
+  'exportDoodleSection' | 'exportPlayedDoodleSection'
+>
+
+/**
+ * Intent: a Jam session's phrase 1, whose key, instrument and clef its doodle is written in; a Jam
+ * session's Review always holds one, so none is a defect.
+ */
+function phraseOneOf(history: ReviewedHistory): ReviewedPhrase {
+  const first = history.phrases()[0]
+  if (first === undefined) throw new Error('review area: a Jam session holds no phrase 1')
+  return first
 }
 
 /**
@@ -162,6 +195,8 @@ export function useReviewArea(deps: ReviewAreaDependencies): ReviewArea {
     const history = shownHistory.value
     return history !== null && recent?.kind === 'held' && recent.session.history === history
   })
+  /** The showing Review's Jam part; null while none shows or for a session that is no Jam. */
+  const shownJam = computed((): ReviewedJamPart | null => host.shownReview.value?.jam ?? null)
   // @spec-link [[req_played_notes_export]]
   // In a Jam, the raw doodle notes count as played notes: a Jam in which only the doodle was
   // played still shows the played-notes tools.
@@ -169,7 +204,7 @@ export function useReviewArea(deps: ReviewAreaDependencies): ReviewArea {
   const holdsPlayedNote = computed(
     () =>
       historyHoldsPlayedNote(records.value) ||
-      (host.shownReview.value?.jam?.doodle.playedNotes.length ?? 0) > 0,
+      (shownJam.value !== null && rawDoodleNotesInSection(shownJam.value.doodle).length > 0),
   )
   /** The showing Review's favorite phrases, by number; none while no Review shows. */
   const favorites = computed(() => host.shownReview.value?.favorites ?? [])
@@ -224,12 +259,49 @@ export function useReviewArea(deps: ReviewAreaDependencies): ReviewArea {
       scope: exportScope(scope.value),
     }
   }
+  /** Intent: a Jam session's Jam code could not load for this Review. */
+  // @spec-link [[rule_jam_code_loaded_on_demand]]
+  const jamCodeFailed = computed(
+    () => shownJam.value !== null && deps.jamCode.value.state === 'failed',
+  )
+  /** Intent: what the played-notes reasons read of a Jam session; null for one that is no Jam. */
+  // @spec-link [[rule_raw_doodle_notes_are_played_notes]]
+  const playedJam = computed((): PlayedNotesJam | null => {
+    const jam = shownJam.value
+    if (jam === null) return null
+    return { doodleNotes: rawDoodleNotesInSection(jam.doodle), codeFailed: jamCodeFailed.value }
+  })
   // @spec-link [[rule_played_notes_export_omits_stray_notes]]
+  // @spec-link [[rule_raw_doodle_notes_are_played_notes]]
   const playedNotesFileHolds = computed(() =>
-    playedNotesFileHoldsNote(records.value, playedRequest()),
+    playedNotesFileHoldsNote(records.value, playedRequest(), playedJam.value?.doodleNotes),
   )
   // @spec-link [[rule_favorites_only_export]]
-  const playedNotesReason = computed(() => playedNotesUnavailable(records.value, playedRequest()))
+  const playedNotesReason = computed(() =>
+    playedNotesUnavailable(records.value, playedRequest(), playedJam.value),
+  )
+  // @spec-link [[rule_jam_code_loaded_on_demand]]
+  const generatedNotesReason = computed((): GeneratedNotesUnavailable | null =>
+    jamCodeFailed.value ? 'doodleNotLoaded' : null,
+  )
+
+  /**
+   * Intent: run `build` with Jam's code for a Jam session's export, once it has settled: an export
+   * asked for while it loads waits inside its own loading state; one whose load failed ends there
+   * with nothing built and no error, its button then disabled with its note. A session that is no
+   * Jam builds at once.
+   */
+  // @spec-link [[rule_jam_code_loaded_on_demand]]
+  // @spec-link [[rule_jam_exports_open_with_doodle]]
+  async function withJamCode(
+    jam: ReviewedJamPart | null,
+    build: (module: JamExportCode | null) => Promise<void>,
+  ): Promise<void> {
+    if (jam === null) return build(null)
+    const code = await settledJamCode(deps.jamCode)
+    if (code.state === 'failed') return
+    return build(code.module)
+  }
 
   /**
    * Intent: run `run` on the showing Review's history; an export asked for with none showing is a
@@ -251,10 +323,17 @@ export function useReviewArea(deps: ReviewAreaDependencies): ReviewArea {
    */
   // @spec-link [[rule_favorites_only_export]]
   function exportFile(request: ExportRequest): Promise<void> {
+    const jam = shownJam.value
     return withShownHistory((history) => {
       const { format, backingTrack } = request
       const asked = { format, backingTrack, scope: exportScope(request.scope) }
-      return exportGeneratedNotes(history, asked, deps.exportPorts())
+      return withJamCode(jam, (code) => {
+        const doodle =
+          code === null || jam === null
+            ? null
+            : code.exportDoodleSection(jam.doodle, phraseOneOf(history))
+        return exportGeneratedNotes(history, asked, deps.exportPorts(), doodle)
+      })
     })
   }
 
@@ -267,7 +346,14 @@ export function useReviewArea(deps: ReviewAreaDependencies): ReviewArea {
   // @spec-link [[rule_played_notes_export_omits_stray_notes]]
   function exportPlayed(): Promise<void> {
     const request = playedRequest()
-    return withShownHistory((history) => exportPlayedNotes(history, request, deps.exportPorts()))
+    const jam = shownJam.value
+    return withShownHistory((history) =>
+      withJamCode(jam, (code) => {
+        const doodle =
+          code === null || jam === null ? null : code.exportPlayedDoodleSection(jam.doodle)
+        return exportPlayedNotes(history, request, deps.exportPorts(), doodle)
+      }),
+    )
   }
 
   const playedNotes = useReviewPlayedNotes({
@@ -298,6 +384,7 @@ export function useReviewArea(deps: ReviewAreaDependencies): ReviewArea {
     exportPlayedNotes: exportPlayed,
     playedNotesFileHoldsNote: playedNotesFileHolds,
     playedNotesUnavailable: playedNotesReason,
+    generatedNotesUnavailable: generatedNotesReason,
     ...playedNotes,
     ...sessionTools,
   }

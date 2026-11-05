@@ -83,6 +83,7 @@ describe('useReviewArea', () => {
       fake.state.review?.history,
       { includeVeryShortNotes: false },
       WHOLE_SESSION,
+      null,
     )
     expect(ports.download).toHaveBeenCalledExactlyOnceWith(file)
 
@@ -286,13 +287,14 @@ describe('useReviewArea: the export scope', () => {
     await area.exportFile({ format: 'musicxml', backingTrack: false, scope: 'wholeSession' })
 
     expect(buildGeneratedNotesFile.mock.calls).toEqual([
-      [history, { format: 'midi', backingTrack: true }, favorites],
-      [history, { format: 'musicxml', backingTrack: false }, WHOLE_SESSION],
+      [history, { format: 'midi', backingTrack: true }, favorites, null],
+      [history, { format: 'musicxml', backingTrack: false }, WHOLE_SESSION, null],
     ])
     expect(buildPlayedNotesFile).toHaveBeenCalledExactlyOnceWith(
       history,
       { includeVeryShortNotes: false },
       favorites,
+      null,
     )
     stop()
   })

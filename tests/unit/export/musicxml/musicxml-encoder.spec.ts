@@ -1,6 +1,9 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
 
+import type { PitchClass } from '@/domain/controls/generation-controls'
+import type { DoodleMeasureCount } from '@/domain/doodle/quantized-doodle'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
+import type { InstrumentProfile } from '@/domain/profile/instrument-profile'
 import {
   BB_TENOR_PROFILE,
   C_KEYBOARD_PROFILE,
@@ -10,6 +13,7 @@ import { encodeGeneratedNotesMusicXml } from '@/export/musicxml/musicxml-encoder
 import {
   MusicXmlExportError,
   type GeneratedNotesMusicXmlInput,
+  type MusicXmlDoodleSection,
   type MusicXmlSessionPhrase,
 } from '@/export/musicxml/musicxml-export-input'
 import {
@@ -20,6 +24,8 @@ import {
   myTenorSession,
   plainPhraseFor,
 } from './musicxml-session-fixtures'
+import { doodleWrittenPhrase } from '@/jam/doodle-engraving'
+import { doodleOf } from '../../jam/doodle-builders'
 
 /** Parse the encoder's output, failing the test when it is not well-formed XML. */
 function parse(xml: string): Document {
@@ -135,6 +141,149 @@ describe('encodeGeneratedNotesMusicXml: whole session, back to back', () => {
       expect(ticks).toBe(16)
     }
     expect(document.querySelectorAll('backup, forward')).toHaveLength(0)
+  })
+})
+
+/**
+ * Intent: a Jam's doodle section of `measureCount` measures at `tempo`, written for `instrument`
+ * in `tonalCenter` Ionian: in each measure m (0 up), concert 48 + 2m (60 + 2m on a C instrument)
+ * for a half note, then a half rest.
+ */
+function doodleSection(
+  measureCount: DoodleMeasureCount,
+  tempo: number,
+  instrument: InstrumentProfile,
+  tonalCenter: PitchClass,
+): MusicXmlDoodleSection {
+  const low = instrument.transposition.chromatic === 0 ? 60 : 48
+  const doodle = doodleOf(
+    measureCount,
+    Array.from({ length: measureCount }, (_, measure) => [16 * measure, 8, low + 2 * measure]),
+  )
+  const writtenPhrase = doodleWrittenPhrase(doodle, {
+    tonalCenter,
+    collection: 'Ionian',
+    transposition: instrument.transposition,
+    concertRange: instrument.concertRange,
+    clef: 'treble',
+  })
+  return { measureCount, writtenPhrase, tempo }
+}
+
+/** Intent: every element matching `selector`, as "measure:text" strings. */
+function marksOf(document: Document, selector: string): string[] {
+  return Array.from(document.querySelectorAll(selector)).map(
+    (mark) => `${measureNumber(mark)}:${mark.textContent}`,
+  )
+}
+
+// @test-link [[rule_jam_exports_open_with_doodle]]
+// @test-link [[rule_jam_exports_line_up]]
+describe("encodeGeneratedNotesMusicXml: a Jam's doodle section", () => {
+  // @test-link [[rule_jam_exports_open_with_doodle]]
+  // @test-link [[rule_jam_exports_line_up]]
+  it.each<DoodleMeasureCount>([1, 2, 4])(
+    'in a Jam, opens with the doodle’s measures numbered from 1, phrase 1 right after them (%i measures)',
+    (measureCount) => {
+      const k = measureCount
+      const document = encodeAndParse({
+        ...bbTenorTempoChangeSession(),
+        doodle: doodleSection(k, 100, BB_TENOR_PROFILE, 'D'),
+      })
+      const all = measures(document)
+      expect(all.map((measure) => measure.getAttribute('number'))).toEqual(
+        Array.from({ length: k + 8 }, (_, index) => String(index + 1)),
+      )
+      for (const measure of all) {
+        const ticks = Array.from(measure.querySelectorAll('note > duration')).reduce(
+          (sum, duration) => sum + Number(duration.textContent),
+          0,
+        )
+        expect(ticks).toBe(16)
+      }
+      expect(marksOf(document, 'rehearsal')).toEqual(['1:Doodle', `${k + 1}:1`, `${k + 5}:2`])
+      const barlines = Array.from(document.querySelectorAll('barline')).map(
+        (barline) =>
+          `${measureNumber(barline)}:${barline.getAttribute('location')}:${text(barline, 'bar-style')}`,
+      )
+      expect(barlines).toEqual([
+        `${k}:right:light-light`,
+        `${k + 4}:right:light-light`,
+        `${k + 8}:right:light-heavy`,
+      ])
+    },
+  )
+
+  // @test-link [[rule_jam_exports_open_with_doodle]]
+  it.each<DoodleMeasureCount>([1, 2, 4])(
+    'opens measure 1 with the doodle’s attributes, the Doodle rehearsal and its capture tempo, once (%i measures)',
+    (measureCount) => {
+      const k = measureCount
+      const document = encodeAndParse({
+        ...bbTenorTempoChangeSession(),
+        doodle: doodleSection(k, 100, BB_TENOR_PROFILE, 'D'),
+      })
+      const attributes = Array.from(document.querySelectorAll('measure > attributes'))
+      expect(attributes.map(measureNumber)).toEqual(['1'])
+      expect(text(attributes[0]!, 'divisions')).toBe('4')
+      expect(text(attributes[0]!, 'key > fifths')).toBe('2')
+      expect(text(attributes[0]!, 'key > mode')).toBe('ionian')
+      expect(text(attributes[0]!, 'clef > sign')).toBe('G')
+      expect(text(attributes[0]!, 'clef > line')).toBe('2')
+      expect(text(attributes[0]!, 'transpose > chromatic')).toBe('-2')
+      expect(text(attributes[0]!, 'transpose > diatonic')).toBe('-1')
+      expect(text(attributes[0]!, 'transpose > octave-change')).toBe('-1')
+      const first = measures(document)[0]!
+      const children = Array.from(first.children).map((child) => child.tagName)
+      expect(children.slice(0, 3)).toEqual(['attributes', 'direction', 'direction'])
+      expect(text(first, 'rehearsal')).toBe('Doodle')
+      const tempos = Array.from(document.querySelectorAll('direction'))
+        .filter((direction) => direction.querySelector('metronome') !== null)
+        .map(
+          (direction) =>
+            `${measureNumber(direction)}:${text(direction, 'per-minute')}:` +
+            `${direction.querySelector('sound')!.getAttribute('tempo')}`,
+        )
+      expect(tempos).toEqual(['1:100:100', `${k + 1}:90:90`, `${k + 5}:120:120`])
+    },
+  )
+
+  // @test-link [[rule_jam_exports_open_with_doodle]]
+  it('writes the doodle in written pitch, with no chord symbol', () => {
+    const document = encodeAndParse({
+      ...bbTenorTempoChangeSession(),
+      doodle: doodleSection(4, 100, BB_TENOR_PROFILE, 'D'),
+    })
+    const doodleMeasures = measures(document).slice(0, 4)
+    // Concert C3, D3, E3, F#3 on the tenor, written a major ninth above.
+    expect(doodleMeasures.map(writtenPitches)).toEqual([['D 4'], ['E 4'], ['F1 4'], ['G1 4']])
+    expect(
+      doodleMeasures.flatMap((measure) => Array.from(measure.querySelectorAll('harmony'))),
+    ).toEqual([])
+    expect(marksOf(document, 'harmony > root > root-step')[0]).toBe('5:D')
+  })
+
+  // @test-link [[rule_jam_exports_open_with_doodle]]
+  it('changes key at phrase 1 only when its key differs from the doodle’s, and its tempo only when new', () => {
+    const keysOf = (document: Document): string[] =>
+      Array.from(document.querySelectorAll('attributes > key')).map(
+        (key) => `${measureNumber(key)}:${text(key, 'fifths')}`,
+      )
+    const sameKey = encodeAndParse({
+      ...cKeyboardPlainSession([90]),
+      doodle: doodleSection(2, 90, C_KEYBOARD_PROFILE, 'C'),
+    })
+    expect(keysOf(sameKey)).toEqual(['1:0'])
+    expect(marksOf(sameKey, 'per-minute')).toEqual(['1:90'])
+
+    const otherKey = encodeAndParse({
+      ...cKeyboardPlainSession([90]),
+      doodle: doodleSection(2, 90, C_KEYBOARD_PROFILE, 'G'),
+    })
+    expect(keysOf(otherKey)).toEqual(['1:1', '3:0'])
+    const keyChange = Array.from(otherKey.querySelectorAll('measure > attributes'))[1]!
+    expect(measureNumber(keyChange)).toBe('3')
+    expect(Array.from(keyChange.children).map((child) => child.tagName)).toEqual(['key'])
   })
 })
 
@@ -366,7 +515,12 @@ describe('encodeGeneratedNotesMusicXml: input contract', () => {
   })
 
   it('has no field that could carry a played note', () => {
-    expectTypeOf<keyof GeneratedNotesMusicXmlInput>().toEqualTypeOf<'instrument' | 'phrases'>()
+    expectTypeOf<keyof GeneratedNotesMusicXmlInput>().toEqualTypeOf<
+      'instrument' | 'phrases' | 'doodle'
+    >()
+    expectTypeOf<keyof MusicXmlDoodleSection>().toEqualTypeOf<
+      'measureCount' | 'writtenPhrase' | 'tempo'
+    >()
     expectTypeOf<keyof MusicXmlSessionPhrase>().toEqualTypeOf<
       'number' | 'writtenPhrase' | 'tempo'
     >()
@@ -426,6 +580,41 @@ describe('encodeGeneratedNotesMusicXml: input contract', () => {
       encodeGeneratedNotesMusicXml({
         instrument: EB_ALTO_PROFILE,
         phrases: [{ number: 1, writtenPhrase: plainPhraseFor(BB_TENOR_PROFILE), tempo: 90 }],
+      }),
+    ).toThrow(MusicXmlExportError)
+  })
+
+  // @test-link [[rule_jam_exports_open_with_doodle]]
+  it('rejects a doodle that is not 1 to 4 whole measures, at a tempo that is not a positive whole number', () => {
+    const doodle = doodleSection(2, 90, C_KEYBOARD_PROFILE, 'C')
+    for (const bad of [
+      { ...doodle, measureCount: 0 },
+      { ...doodle, measureCount: 5 },
+      { ...doodle, measureCount: 1.5 },
+      { ...doodle, tempo: 0 },
+      { ...doodle, tempo: 90.5 },
+    ]) {
+      expect(() =>
+        encodeGeneratedNotesMusicXml({ ...cKeyboardPlainSession([90]), doodle: bad }),
+      ).toThrow(MusicXmlExportError)
+    }
+  })
+
+  // @test-link [[rule_jam_exports_open_with_doodle]]
+  // @test-link [[rule_export_contents_never_merged]]
+  it('rejects a doodle section that carries more', () => {
+    const doodle = { ...doodleSection(2, 90, C_KEYBOARD_PROFILE, 'C'), playedNotes: [] }
+    expect(() => encodeGeneratedNotesMusicXml({ ...cKeyboardPlainSession([90]), doodle })).toThrow(
+      MusicXmlExportError,
+    )
+  })
+
+  // @test-link [[rule_jam_exports_open_with_doodle]]
+  it('rejects a doodle written for another instrument', () => {
+    expect(() =>
+      encodeGeneratedNotesMusicXml({
+        ...bbTenorTempoChangeSession(),
+        doodle: doodleSection(2, 90, C_KEYBOARD_PROFILE, 'C'),
       }),
     ).toThrow(MusicXmlExportError)
   })

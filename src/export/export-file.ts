@@ -6,6 +6,8 @@
  */
 
 import type { ReviewedPhrase } from '../session/session-history'
+import type { MidiDoodleSection } from './midi/midi-export-input'
+import type { MusicXmlDoodleSection } from './musicxml/musicxml-export-input'
 
 /** One file ready to hand to the browser: its name, its MIME type and its bytes. */
 // @spec-link [[req_session_export]]
@@ -20,6 +22,19 @@ export interface ExportFile {
 export interface ExportableHistory {
   phrases(): readonly ReviewedPhrase[]
   readonly startedAt: number
+}
+
+/**
+ * A Jam's doodle as its export files open with it, built by Jam's code
+ * (`src/jam/export/doodle-section.ts`) and handed to the file builders, which never import Jam's
+ * code: the quantized doodle written for the MusicXML file, and at concert pitch for the
+ * generated-notes MIDI file. A session that is no Jam has none, and its files are v3.1's.
+ */
+// @spec-link [[rule_jam_exports_open_with_doodle]]
+// @spec-link [[module_jam_code_boundary]]
+export interface ExportDoodleSection {
+  readonly musicXml: MusicXmlDoodleSection
+  readonly midi: MidiDoodleSection
 }
 
 /** Typed failure for an export request or start time no file can be made from; never repaired. */

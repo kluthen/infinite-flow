@@ -9,7 +9,10 @@
  * lazy export chunk `load-generated-notes-export.ts` loads on demand.
  */
 
-import { recordsWithoutVeryShortNotes } from '../domain/played-notes/stray-notes'
+import {
+  recordsWithoutVeryShortNotes,
+  withoutVeryShortNotes,
+} from '../domain/played-notes/stray-notes'
 import { playedNotesMidiInputFromHistory } from '../session/session-history-export'
 import {
   WHOLE_SESSION,
@@ -21,6 +24,9 @@ import {
 } from './export-file'
 import { phrasesInScope } from './favorites-selection'
 import { encodePlayedNotesMidi } from './midi/played-notes-midi-encoder'
+import type { PlayedNotesDoodleSection } from './midi/played-notes-midi-input'
+
+export type { PlayedNotesDoodleSection }
 
 const MIDI_MIME_TYPE = 'audio/midi'
 
@@ -57,22 +63,43 @@ export function playedNotesFileName(
  * encoder's bytes for their played-notes input, very short notes left out unless
  * `options.includeVeryShortNotes` (then every note as received), copied into an ArrayBuffer-backed
  * view, the kind a Blob is made from. A note is judged very short by its length as played, before
- * the scope stops a held note at a favorite phrase's end. The same history, options and scope
- * always give the same bytes. The selection's, adapter's and encoder's typed errors (an empty
- * history, a scope with no favorite, a file with no played note to hold) propagate unchanged.
+ * the scope stops a held note at a favorite phrase's end. A Jam's file (`doodle` given, by Jam's
+ * code) opens with its doodle section in either scope, holding the raw doodle notes under the same
+ * option; a session that is no Jam passes null and gets v3.1's file. The same history, options,
+ * scope and doodle always give the same bytes. The selection's, adapter's and encoder's typed
+ * errors (an empty history, a scope with no favorite, a file with no played note to hold)
+ * propagate unchanged.
  */
 // @spec-link [[req_played_notes_export]]
 // @spec-link [[module_review_export_pipeline]]
 // @spec-link [[rule_played_notes_export_omits_stray_notes]]
 // @spec-link [[rule_favorites_only_export]]
+// @spec-link [[rule_jam_exports_open_with_doodle]]
 export function buildPlayedNotesFile(
   history: ExportableHistory,
   options: PlayedNotesFileOptions = DEFAULT_OPTIONS,
   scope: ExportScope = WHOLE_SESSION,
+  doodle: PlayedNotesDoodleSection | null = null,
 ): ExportFile {
   const fileName = playedNotesFileName(history.startedAt, scope)
   const phrases = history.phrases()
   const read = options.includeVeryShortNotes ? phrases : recordsWithoutVeryShortNotes(phrases)
-  const bytes = encodePlayedNotesMidi(playedNotesMidiInputFromHistory(phrasesInScope(read, scope)))
+  const input = playedNotesMidiInputFromHistory(phrasesInScope(read, scope))
+  const bytes = encodePlayedNotesMidi(
+    doodle === null ? input : { ...input, doodle: doodleAsAsked(doodle, options) },
+  )
   return { fileName, mimeType: MIDI_MIME_TYPE, bytes: new Uint8Array(bytes) }
+}
+
+/**
+ * Intent: a Jam's doodle section with its very short raw notes left out unless the options
+ * include them, judged by their length as played.
+ */
+// @spec-link [[rule_played_notes_export_omits_stray_notes]]
+function doodleAsAsked(
+  doodle: PlayedNotesDoodleSection,
+  options: PlayedNotesFileOptions,
+): PlayedNotesDoodleSection {
+  if (options.includeVeryShortNotes) return doodle
+  return { ...doodle, playedNotes: withoutVeryShortNotes(doodle.playedNotes) }
 }

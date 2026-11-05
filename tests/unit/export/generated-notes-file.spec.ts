@@ -2,7 +2,9 @@
  * The generated-notes export file built from a session history: the MusicXML and MIDI bytes are
  * exactly the encoders' output for the history's adapters, a second build gives the same bytes,
  * the MIDI backing track goes in only when asked for and holds the backing renderer's notes, no
- * played note ever reaches either file, and the file name carries the session's local start.
+ * played note ever reaches either file, and the file name carries the session's local start. A
+ * Jam's files open with its doodle section in both scopes, and the raw notes played during the
+ * doodle never reach them.
  */
 
 import { beforeAll, describe, expect, it } from 'vitest'
@@ -13,13 +15,17 @@ import { FOUR_FOUR_METER } from '@/domain/generation/generation-request'
 import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import {
   GeneratedNotesFileError,
+  WHOLE_SESSION,
   backingForExport,
   buildGeneratedNotesFile,
   generatedNotesFileName,
+  type ExportDoodleSection,
+  type ExportScope,
   type GeneratedNotesRequest,
 } from '@/export/generated-notes-file'
 import { encodeGeneratedNotesMidi } from '@/export/midi/midi-encoder'
 import { encodeGeneratedNotesMusicXml } from '@/export/musicxml/musicxml-encoder'
+import { exportDoodleSection } from '@/jam/export/doodle-section'
 import {
   createSessionHistory,
   type SessionHistory,
@@ -30,7 +36,9 @@ import {
   midiInputFromHistory,
   musicXmlInputFromHistory,
 } from '@/session/session-history-export'
+import type { SessionDoodle } from '@/session/session-history-played-notes'
 import type { SessionOutput } from '@/session/session-types'
+import { jamHistory, reviewedJamPart } from '../components/workspace/reviewed-jam-part-fixture'
 import { idlePhraseOne, recordRunnerSession } from '../session/history-recording'
 import {
   DEFAULT_SESSION_SEED,
@@ -40,7 +48,7 @@ import {
   phraseOneFor,
   sessionSettings,
 } from '../session/session-harness'
-import { notesOf, readSmf } from './midi/smf-reader'
+import { metaTexts, notesOf, readSmf, tempoMap } from './midi/smf-reader'
 
 /** Every request the player can make: both formats, both backing settings. */
 const EVERY_REQUEST: readonly GeneratedNotesRequest[] = [
@@ -254,6 +262,170 @@ describe('played notes in the generated-notes file', () => {
         buildGeneratedNotesFile(withPlayed, request),
         `${request.format}, backing ${request.backingTrack}`,
       ).toEqual(buildGeneratedNotesFile(without, request))
+    }
+  })
+})
+
+/** The marker meta event type of a Standard MIDI File. */
+const MARKER = 0x06
+
+/** The Jam-style session's favorites-only scope, phrase 2 kept. */
+const FAVORITE_TWO: ExportScope = { kind: 'favoritesOnly', favorites: [2] }
+
+/** Both scopes, the whole session first. */
+const BOTH_SCOPES: readonly ExportScope[] = [WHOLE_SESSION, FAVORITE_TWO]
+
+/** The fixture's two-measure doodle ends, and phrase 1 starts, at its second barline. */
+const DOODLE_END_TICK = 2 * TICKS_PER_WHOLE_NOTE
+
+/**
+ * The fixture doodle's notes as [pitch, start, end] in MIDI ticks, worked by hand: each sixteenth
+ * is 240 ticks.
+ */
+const DOODLE_TICKS: readonly (readonly [number, number, number])[] = [
+  [62, 0, 960],
+  [64, 960, 1440],
+  [67, 1920, 3360],
+  [60, 4320, 6720],
+]
+
+/** Raw notes no generated-notes file may hold: a pitch and velocities nothing else uses. */
+const DISTINCTIVE_RAW_NOTES = [
+  { pitch: makeConcertPitch(97), velocity: 13, onsetAt: 1.5, releaseAt: 1.75 },
+  { pitch: makeConcertPitch(98), velocity: 17, onsetAt: 2.25, releaseAt: 2.5 },
+]
+
+/** Intent: whether `bytes` holds `first` directly followed by `second` anywhere. */
+function holdsBytePair(bytes: Uint8Array, first: number, second: number): boolean {
+  return bytes.some((byte, index) => byte === first && bytes[index + 1] === second)
+}
+
+/** Intent: the doodle section of the Jam-style session, from its Jam part's doodle. */
+function jamDoodleSection(doodle: SessionDoodle = reviewedJamPart().doodle): ExportDoodleSection {
+  return exportDoodleSection(doodle, jamHistory(false).phrases()[0]!)
+}
+
+/** Intent: a scope's name in an assertion message. */
+function scopeName(scope: ExportScope): string {
+  return scope.kind === 'wholeSession' ? 'whole session' : 'favorites only'
+}
+
+// @test-link [[rule_jam_exports_open_with_doodle]]
+// @test-link [[rule_jam_exports_line_up]]
+describe("buildGeneratedNotesFile on a Jam's session", () => {
+  // @test-link [[rule_jam_exports_open_with_doodle]]
+  // @test-link [[rule_jam_exports_line_up]]
+  it.each([
+    ['whole session', WHOLE_SESSION, [1, 2]],
+    ['favorites only', FAVORITE_TWO, [2]],
+  ] as const)(
+    'opens the MIDI file (%s) with the doodle at time zero, the first phrase at its last barline',
+    (_, scope, numbers) => {
+      for (const backingTrack of [false, true]) {
+        const file = buildGeneratedNotesFile(
+          jamHistory(false),
+          { format: 'midi', backingTrack },
+          scope,
+          jamDoodleSection(),
+        )
+
+        const smf = readSmf(file.bytes)
+        expect(smf.tracks).toHaveLength(backingTrack ? 3 : 2)
+        expect(metaTexts(smf.tracks[0]!, MARKER)).toEqual([
+          { tick: 0, text: 'Doodle' },
+          ...numbers.map((number, position) => ({
+            tick: DOODLE_END_TICK + position * TICKS_PER_PHRASE,
+            text: `Phrase ${number}`,
+          })),
+        ])
+        expect(tempoMap(smf.tracks[0]!)[0]).toEqual({ tick: 0, microsecondsPerQuarter: 625000 })
+        const generated = notesOf(smf.tracks[1]!)
+        expect(
+          generated
+            .filter((note) => note.startTick < DOODLE_END_TICK)
+            .map((note) => [note.pitch, note.startTick, note.endTick]),
+        ).toEqual(DOODLE_TICKS)
+        expect(generated.some((note) => note.startTick === DOODLE_END_TICK)).toBe(true)
+        if (backingTrack) {
+          const backing = notesOf(smf.tracks[2]!)
+          expect(backing.length).toBeGreaterThan(0)
+          expect(backing.every((note) => note.startTick >= DOODLE_END_TICK)).toBe(true)
+        }
+      }
+    },
+  )
+
+  // @test-link [[rule_jam_exports_open_with_doodle]]
+  it.each([
+    ['whole session', WHOLE_SESSION, [1, 2]],
+    ['favorites only', FAVORITE_TWO, [2]],
+  ] as const)(
+    'opens the MusicXML file (%s) with the Doodle rehearsal, the first phrase right after the doodle',
+    (_, scope, numbers) => {
+      const file = buildGeneratedNotesFile(
+        jamHistory(false),
+        { format: 'musicxml', backingTrack: false },
+        scope,
+        jamDoodleSection(),
+      )
+
+      const xml = new TextDecoder().decode(file.bytes)
+      const rehearsals = [...xml.matchAll(/<rehearsal>([^<]*)<\/rehearsal>/gu)].map(
+        (match) => match[1],
+      )
+      expect(rehearsals).toEqual(['Doodle', ...numbers.map(String)])
+      const measureOpenings = [...xml.matchAll(/<measure number="(\d+)"/gu)]
+      expect(measureOpenings).toHaveLength(2 + 4 * numbers.length)
+      expect(measureOpenings.slice(0, 2).map((match) => match[1])).toEqual(['1', '2'])
+      const third = measureOpenings[2]!.index
+      expect(xml.indexOf('<rehearsal>Doodle</rehearsal>')).toBeLessThan(measureOpenings[1]!.index)
+      expect(xml.indexOf(`<rehearsal>${numbers[0]}</rehearsal>`)).toBeGreaterThan(third)
+      expect(xml.indexOf('<harmony')).toBeGreaterThan(third)
+      expect(xml.indexOf('<per-minute>96</per-minute>')).toBeLessThan(measureOpenings[1]!.index)
+      expect(xml.match(/<divisions>/gu)).toHaveLength(1)
+    },
+  )
+
+  // @test-link [[rule_jam_exports_open_with_doodle]]
+  // @test-link [[rule_export_contents_never_merged]]
+  it('gives identical bytes whatever raw notes were played during the doodle, and holds none of them', () => {
+    const history = jamHistory(false)
+    const withRaw = jamDoodleSection(reviewedJamPart(DISTINCTIVE_RAW_NOTES).doodle)
+    const withoutRaw = jamDoodleSection(reviewedJamPart([]).doodle)
+
+    for (const scope of BOTH_SCOPES) {
+      for (const request of EVERY_REQUEST) {
+        const file = buildGeneratedNotesFile(history, request, scope, withRaw)
+        const label = `${request.format}, backing ${request.backingTrack}, ${scopeName(scope)}`
+        expect(file, label).toEqual(buildGeneratedNotesFile(history, request, scope, withoutRaw))
+        if (request.format !== 'midi') continue
+        const notes = readSmf(file.bytes).tracks.flatMap(notesOf)
+        for (const raw of DISTINCTIVE_RAW_NOTES) {
+          expect(holdsBytePair(file.bytes, raw.pitch, raw.velocity), label).toBe(false)
+          expect(
+            notes.some((note) => note.pitch === raw.pitch),
+            label,
+          ).toBe(false)
+          expect(
+            notes.some((note) => note.velocity === raw.velocity),
+            label,
+          ).toBe(false)
+        }
+      }
+    }
+  })
+
+  // @test-link [[rule_jam_exports_open_with_doodle]]
+  it('gives exactly the bytes of the call without a doodle when the doodle is null', () => {
+    const history = jamHistory(false)
+
+    for (const request of EVERY_REQUEST) {
+      expect(buildGeneratedNotesFile(history, request, WHOLE_SESSION, null)).toEqual(
+        buildGeneratedNotesFile(history, request),
+      )
+      expect(buildGeneratedNotesFile(history, request, FAVORITE_TWO, null)).toEqual(
+        buildGeneratedNotesFile(history, request, FAVORITE_TWO),
+      )
     }
   })
 })

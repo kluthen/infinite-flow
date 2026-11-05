@@ -4,7 +4,9 @@
  * recorded and the export's ports are mocks.
  */
 import { vi, type Mock } from 'vitest'
-import { effectScope } from 'vue'
+import { effectScope, shallowRef, type ShallowRef } from 'vue'
+
+import type { ReviewJamCode } from '@/components/review/review-types'
 
 import { useReviewArea, type ReviewArea } from '@/components/workspace/use-review-area'
 import { useReviewHost, type ReviewHost } from '@/components/workspace/use-review-host'
@@ -27,6 +29,8 @@ export interface ReviewAreaRig {
   readonly saves: SettingChanges[]
   /** End the effect scope the host and the area were built in. */
   readonly stop: () => void
+  /** Jam's code as the area reads it; the test sets its state. */
+  readonly jamCode: ShallowRef<ReviewJamCode>
 }
 
 /**
@@ -38,6 +42,7 @@ export function reviewAreaRig(
   preferences: ReviewPreferences = DEFAULT_REVIEW_PREFERENCES,
 ): ReviewAreaRig {
   const ports = { load: vi.fn(), download: vi.fn() }
+  const jamCode = shallowRef<ReviewJamCode>({ state: 'loading' })
   const { saveSettings, saves } = recordingSaveSettings()
   const scope = effectScope()
   const built = scope.run(() => {
@@ -51,9 +56,10 @@ export function reviewAreaRig(
       controller: () => fake.controller,
       exportPorts: () => ports,
       saveSettings,
+      jamCode,
     })
     return { host, area }
   })
   if (built === undefined) throw new Error('the effect scope did not run')
-  return { ...built, ports, fake, saves, stop: () => scope.stop() }
+  return { ...built, ports, fake, saves, jamCode, stop: () => scope.stop() }
 }

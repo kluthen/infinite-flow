@@ -11,6 +11,7 @@ import {
   type GeneratedNotesMidiInput,
   type MidiBackingNote,
   type MidiBackingPhrase,
+  type MidiDoodleSection,
   type MidiSessionPhrase,
 } from '@/export/midi/midi-export-input'
 import { midiPhrase, plainBacking, plainTimeline } from './midi-session-fixtures'
@@ -37,7 +38,8 @@ function rawNote(pitch: number, startQuarters: number, quarters: number): MidiBa
 // @test-link [[rule_export_contents_never_merged]]
 describe('encodeGeneratedNotesMidi: input contract, no played notes', () => {
   it('has no field that could carry a played note', () => {
-    expectTypeOf<keyof GeneratedNotesMidiInput>().toEqualTypeOf<'phrases' | 'backing'>()
+    expectTypeOf<keyof GeneratedNotesMidiInput>().toEqualTypeOf<'phrases' | 'backing' | 'doodle'>()
+    expectTypeOf<keyof MidiDoodleSection>().toEqualTypeOf<'measureCount' | 'tempo' | 'notes'>()
     expectTypeOf<keyof MidiSessionPhrase>().toEqualTypeOf<'number' | 'timeline' | 'tempo'>()
     expectTypeOf<keyof MidiBackingPhrase>().toEqualTypeOf<'number' | 'notes'>()
     expectTypeOf<keyof MidiBackingNote>().toEqualTypeOf<'pitch' | 'start' | 'duration'>()
@@ -199,5 +201,92 @@ describe('encodeGeneratedNotesMidi: input contract, the backing', () => {
   it('accepts a backing note that starts where the same pitch ends', () => {
     const notes = [rawNote(48, 0, 2), rawNote(48, 2, 2)]
     expect(() => encodeGeneratedNotesMidi(withBackingNotes(notes))).not.toThrow()
+  })
+})
+
+/** A Jam's doodle section of `measureCount` measures at 100 BPM holding exactly `notes`. */
+function doodleOf(
+  measureCount: number,
+  notes: readonly MidiBackingNote[] = [rawNote(62, 0, 1)],
+): MidiDoodleSection {
+  return { measureCount, tempo: 100, notes }
+}
+
+/** A one-phrase Jam input opening with `doodle`. */
+function withDoodle(doodle: MidiDoodleSection): GeneratedNotesMidiInput {
+  return { phrases: session([90]), backing: null, doodle }
+}
+
+// @test-link [[rule_jam_exports_open_with_doodle]]
+// @test-link [[rule_export_contents_never_merged]]
+describe('encodeGeneratedNotesMidi: input contract, the doodle', () => {
+  // @test-link [[rule_jam_exports_open_with_doodle]]
+  it('accepts a doodle of 1 to 4 measures, a note ending exactly at its last barline', () => {
+    for (const measureCount of [1, 2, 3, 4]) {
+      const notes = [rawNote(62, 0, 1), rawNote(64, 4 * measureCount - 2, 2)]
+      expect(() =>
+        encodeGeneratedNotesMidi(withDoodle(doodleOf(measureCount, notes))),
+      ).not.toThrow()
+    }
+  })
+
+  // @test-link [[rule_jam_exports_open_with_doodle]]
+  it('rejects a doodle that is not 1 to 4 whole measures', () => {
+    for (const measureCount of [0, 5, 1.5, -1]) {
+      expect(() => encodeGeneratedNotesMidi(withDoodle(doodleOf(measureCount)))).toThrow(
+        MidiExportError,
+      )
+    }
+  })
+
+  // @test-link [[rule_jam_exports_open_with_doodle]]
+  it('rejects a doodle tempo that is not a whole number from 60 to 240 BPM', () => {
+    for (const tempo of [59, 241, 90.5]) {
+      expect(() => encodeGeneratedNotesMidi(withDoodle({ ...doodleOf(2), tempo }))).toThrow(
+        MidiExportError,
+      )
+    }
+  })
+
+  // @test-link [[rule_jam_exports_open_with_doodle]]
+  // @test-link [[rule_export_contents_never_merged]]
+  it('rejects a doodle section or a doodle note that carries more', () => {
+    const played = { playedNotes: [] }
+    const cases: unknown[] = [
+      withDoodle({ ...doodleOf(2), ...played } as MidiDoodleSection),
+      withDoodle(doodleOf(2, [{ ...rawNote(62, 0, 1), velocity: 100 } as MidiBackingNote])),
+    ]
+    for (const input of cases) {
+      expect(() => encodeGeneratedNotesMidi(input as GeneratedNotesMidiInput)).toThrow(
+        MidiExportError,
+      )
+    }
+  })
+
+  // @test-link [[rule_jam_exports_open_with_doodle]]
+  it('rejects a doodle note that starts before the doodle or runs past its last barline', () => {
+    for (const note of [rawNote(62, -1, 2), rawNote(62, 3, 2), rawNote(62, 4, 1)]) {
+      expect(() => encodeGeneratedNotesMidi(withDoodle(doodleOf(1, [note])))).toThrow(
+        MidiExportError,
+      )
+    }
+  })
+
+  // @test-link [[rule_jam_exports_open_with_doodle]]
+  it('rejects a doodle pitch outside 0 to 127, a note with no length, or two overlapping notes of one pitch', () => {
+    const silent = { ...rawNote(62, 0, 1), duration: makeRational(0, 1) }
+    for (const notes of [[rawNote(128, 0, 1)], [silent], [rawNote(62, 0, 2), rawNote(62, 1, 2)]]) {
+      expect(() => encodeGeneratedNotesMidi(withDoodle(doodleOf(2, notes)))).toThrow(
+        MidiExportError,
+      )
+    }
+  })
+
+  // @test-link [[rule_generated_notes_midi_export]]
+  it('still rejects an unknown extra field on an input without a doodle', () => {
+    const input = { phrases: session([90]), backing: null, doodleNotes: [] }
+    expect(() => encodeGeneratedNotesMidi(input as GeneratedNotesMidiInput)).toThrow(
+      MidiExportError,
+    )
   })
 })

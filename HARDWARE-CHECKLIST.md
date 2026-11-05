@@ -834,3 +834,27 @@ written pitch. Run it after wave 6.
 - [ ] Say whether Locrian ever surprised you (an answer named "... Locrian"). The weights and cues
       are tuned from it.
 - [ ] Report. Pass on your word.
+
+## v3.2 H8. A Jam's files (chunk 25; about 5 min)
+
+Chrome on the reference machine, the Travel Sax over USB, MuseScore and a DAW installed. A Jam's
+three export files open with a section marked "Doodle": your doodle, as many measures as you played
+it, at the tempo you played it at; then phrase 1 at the next barline, the waiting measures between
+them left out. Run it after wave 7.
+
+- [ ] Switch the header's **Mode** to `Jam`; set Jam's tempo to 100 BPM. Start Jam and play a
+      two-measure doodle, holding its last note past the doodle's end; play along with two
+      phrases, then Stop. In the review, Pin the session (it is kept), then Close review and open
+      it again from the session list.
+- [ ] Export generated notes as `MusicXML`, then as `MIDI` with `Backing track` on, then
+      `Export played notes` (`Include very short notes` off). Three files download.
+- [ ] Open the MusicXML in MuseScore: rehearsal mark "Doodle" over measure 1, a metronome mark of
+      100, two measures of your doodle in the written key you set, no chord symbol; a double
+      barline; then rehearsal mark "1" over measure 3, phrase 1 starting there.
+- [ ] Open both MIDI files in one DAW project: each opens with a "Doodle" marker at bar 1 and
+      "Phrase 1" at bar 3, at the same bar in both; the played-notes file holds your doodle as you
+      played it (not snapped to the grid), its held last note stopping at bar 3; no backing sounds
+      under the doodle.
+- [ ] Back in the app, `Favorites only` with phrase 2 starred: export the generated notes as MIDI
+      and the played notes again. Both open with the doodle, phrase 2 at bar 3.
+- [ ] Report. Pass on your word.

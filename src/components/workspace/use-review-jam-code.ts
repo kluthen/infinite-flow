@@ -5,7 +5,8 @@
  * mode opened or a Jam session's Review loaded it), it is there at once; otherwise the Review opens
  * with it loading, and it shows once loaded. A failed load stays failed for that Review, the rest of
  * it working; the next opening of a Jam session's Review tries again. A Review of a session that
- * is no Jam loads nothing.
+ * is no Jam loads nothing. A Jam's exports need it too, for the doodle's part of each file: an
+ * export asked for while it loads waits for it to settle (ux D339, D345).
  */
 import { shallowRef, watch, type Ref } from 'vue'
 
@@ -61,4 +62,31 @@ export function useReviewJamCode(seams: ReviewJamCodeSeams): Readonly<Ref<Review
     { immediate: true, flush: 'sync' },
   )
   return code
+}
+
+/** Jam's code once its load has settled: loaded, or unable to load. */
+// @spec-link [[rule_jam_code_loaded_on_demand]]
+export type SettledReviewJamCode = Exclude<ReviewJamCode, { readonly state: 'loading' }>
+
+/**
+ * Intent: Jam's code once `code` has settled, at once when it already has: what a Jam's export
+ * asked for while Jam's code loads waits on, inside its own loading state, before it builds the
+ * doodle's part of its file or ends with nothing built when the load failed.
+ */
+// @spec-link [[rule_jam_code_loaded_on_demand]]
+// @spec-link [[rule_jam_exports_open_with_doodle]]
+export function settledJamCode(code: Readonly<Ref<ReviewJamCode>>): Promise<SettledReviewJamCode> {
+  const now = code.value
+  if (now.state !== 'loading') return Promise.resolve(now)
+  return new Promise((resolve) => {
+    const stop = watch(
+      code,
+      (next) => {
+        if (next.state === 'loading') return
+        stop()
+        resolve(next)
+      },
+      { flush: 'sync' },
+    )
+  })
 }

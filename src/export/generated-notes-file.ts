@@ -18,6 +18,7 @@ import {
   WHOLE_SESSION,
   exportFileStem,
   scopeNameSuffix,
+  type ExportDoodleSection,
   type ExportFile,
   type ExportScope,
   type ExportableHistory,
@@ -45,6 +46,7 @@ export {
   GeneratedNotesFileError,
   WHOLE_SESSION,
   exportFileStem,
+  type ExportDoodleSection,
   type ExportFile,
   type ExportScope,
   type ExportableHistory,
@@ -99,50 +101,68 @@ export function backingForExport(records: readonly ReviewedPhrase[]): readonly M
   })
 }
 
-/** Intent: the MusicXML file of the recorded phrases, as UTF-8 bytes. */
+/**
+ * Intent: the MusicXML file of the recorded phrases, as UTF-8 bytes, a Jam's opening with its
+ * doodle.
+ */
 // @spec-link [[rule_generated_notes_musicxml_export]]
-function musicXmlBytes(records: readonly ReviewedPhrase[]): Uint8Array<ArrayBuffer> {
-  return new TextEncoder().encode(encodeGeneratedNotesMusicXml(musicXmlInputFromHistory(records)))
+// @spec-link [[rule_jam_exports_open_with_doodle]]
+function musicXmlBytes(
+  records: readonly ReviewedPhrase[],
+  doodle: ExportDoodleSection | null,
+): Uint8Array<ArrayBuffer> {
+  const input = musicXmlInputFromHistory(records)
+  const withDoodle = doodle === null ? input : { ...input, doodle: doodle.musicXml }
+  return new TextEncoder().encode(encodeGeneratedNotesMusicXml(withDoodle))
 }
 
 /**
- * Intent: the MIDI file of the recorded phrases, with the backing track only when asked for. The
- * encoder's bytes are copied into an ArrayBuffer-backed view, the kind a Blob is made from.
+ * Intent: the MIDI file of the recorded phrases, with the backing track only when asked for, a
+ * Jam's opening with its doodle. The encoder's bytes are copied into an ArrayBuffer-backed view,
+ * the kind a Blob is made from.
  */
 // @spec-link [[rule_generated_notes_midi_export]]
+// @spec-link [[rule_jam_exports_open_with_doodle]]
 function midiBytes(
   records: readonly ReviewedPhrase[],
   backingTrack: boolean,
+  doodle: ExportDoodleSection | null,
 ): Uint8Array<ArrayBuffer> {
   const backing = backingTrack ? backingForExport(records) : null
-  return new Uint8Array(encodeGeneratedNotesMidi(midiInputFromHistory(records, backing)))
+  const input = midiInputFromHistory(records, backing)
+  const withDoodle = doodle === null ? input : { ...input, doodle: doodle.midi }
+  return new Uint8Array(encodeGeneratedNotesMidi(withDoodle))
 }
 
 /**
  * Intent: the one generated-notes file the player asked for, built from the phrases `scope` picks
  * from the session history (the whole session by default; ./favorites-selection.ts): MusicXML in
  * the session profile's written pitch, or MIDI at concert pitch with the backing track only when
- * asked for. Holds no played note, and the same history, request and scope always give the same
- * bytes. The selection's, encoders' and adapters' typed errors propagate unchanged.
+ * asked for. A Jam's file (`doodle` given) opens with its doodle section in either scope, the doodle
+ * never a favorite; a session that is no Jam passes null and gets v3.1's file. Holds no played
+ * note, and the same history, request, scope and doodle always give the same bytes. The
+ * selection's, encoders' and adapters' typed errors propagate unchanged.
  */
 // @spec-link [[req_session_export]]
 // @spec-link [[module_review_export_pipeline]]
 // @spec-link [[rule_favorites_only_export]]
+// @spec-link [[rule_jam_exports_open_with_doodle]]
 export function buildGeneratedNotesFile(
   history: ExportableHistory,
   request: GeneratedNotesRequest,
   scope: ExportScope = WHOLE_SESSION,
+  doodle: ExportDoodleSection | null = null,
 ): ExportFile {
   const records = phrasesInScope(history.phrases(), scope)
   const fileName = generatedNotesFileName(history.startedAt, request.format, scope)
   switch (request.format) {
     case 'musicxml':
-      return { fileName, mimeType: MUSICXML_MIME_TYPE, bytes: musicXmlBytes(records) }
+      return { fileName, mimeType: MUSICXML_MIME_TYPE, bytes: musicXmlBytes(records, doodle) }
     case 'midi':
       return {
         fileName,
         mimeType: MIDI_MIME_TYPE,
-        bytes: midiBytes(records, request.backingTrack),
+        bytes: midiBytes(records, request.backingTrack, doodle),
       }
     default:
       throw new GeneratedNotesFileError(

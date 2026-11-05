@@ -3,7 +3,8 @@
  * "Export" with `Whole session` and `Favorites only`; without a favorite, `Favorites only` is
  * disabled and named by its note; picking it asks the page; the generated-notes export's request
  * carries the scope; and `Export played notes` says, in its note, the reason the page gives for a
- * file that would hold no note, the favorites-only reasons included.
+ * file that would hold no note, the favorites-only reasons included. In a Jam whose code could not
+ * load, both exports are disabled, each named by the failure sentence, the other controls live.
  */
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -11,6 +12,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import ReviewPanel from '@/components/review/ReviewPanel.vue'
 import type {
   ExportRequest,
+  GeneratedNotesUnavailable,
   PlayedNotesUnavailable,
   ReviewExportScope,
 } from '@/components/review/review-types'
@@ -26,6 +28,7 @@ interface PanelOptions {
   readonly favorites?: readonly number[]
   readonly scope?: ReviewExportScope
   readonly playedNotesUnavailable?: PlayedNotesUnavailable | null
+  readonly generatedNotesUnavailable?: GeneratedNotesUnavailable | null
   readonly exportFile?: (request: ExportRequest) => Promise<void>
 }
 
@@ -55,6 +58,7 @@ function mountPanel(options: PanelOptions = {}) {
       favorites: options.favorites ?? [],
       scope: options.scope ?? 'wholeSession',
       playedNotesUnavailable: options.playedNotesUnavailable ?? null,
+      generatedNotesUnavailable: options.generatedNotesUnavailable ?? null,
     },
     attachTo: document.body,
   })
@@ -176,5 +180,76 @@ describe('the played-notes export under the scope', () => {
     expect(button.attributes('disabled')).toBeUndefined()
     expect(button.attributes('aria-describedby')).toBeUndefined()
     expect(note.exists()).toBe(false)
+  })
+})
+
+/** The sentence after each export of a Jam whose code could not load. */
+const DOODLE_NOT_LOADED =
+  "Your doodle can't be shown: part of the app didn't load. Check that you're online, then open " +
+  'this session again.'
+
+// @test-link [[rule_raw_doodle_notes_are_played_notes]]
+// @test-link [[rule_jam_code_loaded_on_demand]]
+describe("the exports in a Jam's Review", () => {
+  // @test-link [[rule_raw_doodle_notes_are_played_notes]]
+  it("names the doodle in the favorites' very-short reason", () => {
+    const wrapper = mountPanel({
+      favorites: [2],
+      scope: 'favoritesOnly',
+      playedNotesUnavailable: 'everyFavoriteAndDoodleNoteVeryShort',
+    })
+    const { button, note } = playedExport(wrapper)
+
+    expect(button.attributes('disabled')).toBeDefined()
+    expect(button.attributes('aria-describedby')).toBe(note.attributes('id'))
+    expect(note.text()).toBe(
+      'Every note you played in your favorites and the doodle is very short. Turn on Include ' +
+        'very short notes to export them.',
+    )
+  })
+
+  // @test-link [[rule_jam_code_loaded_on_demand]]
+  it("disables both exports when Jam's code could not load, each named by the sentence, the other controls live", async () => {
+    const exportFile = vi.fn<(request: ExportRequest) => Promise<void>>(() => Promise.resolve())
+    const wrapper = mountPanel({
+      favorites: [2],
+      playedNotesUnavailable: 'doodleNotLoaded',
+      generatedNotesUnavailable: 'doodleNotLoaded',
+      exportFile,
+    })
+    const group = wrapper.get('.review-export')
+    const generated = group.get<HTMLButtonElement>('button.review-export-action')
+    const generatedNote = group.get('.field-note')
+
+    expect(generated.attributes('disabled')).toBeDefined()
+    expect(generatedNote.element.tagName).toBe('P')
+    expect(generatedNote.text()).toBe(DOODLE_NOT_LOADED)
+    expect(generatedNote.attributes('id')).toBeTruthy()
+    expect(generated.attributes('aria-describedby')).toBe(generatedNote.attributes('id'))
+    expect(generated.element.nextElementSibling).toBe(generatedNote.element)
+    const { button, note } = playedExport(wrapper)
+    expect(button.attributes('disabled')).toBeDefined()
+    expect(note.text()).toBe(DOODLE_NOT_LOADED)
+    expect(button.attributes('aria-describedby')).toBe(note.attributes('id'))
+    expect(note.attributes('id')).not.toBe(generatedNote.attributes('id'))
+
+    // Format, Backing track, the scope and Include very short notes stay live.
+    for (const radio of group.findAll('[role="radio"]')) {
+      expect(radio.attributes('disabled')).toBeUndefined()
+    }
+    expect(group.get('button.toggle-button').attributes('disabled')).toBeUndefined()
+    expect(scopeParts(wrapper).favorites.attributes('disabled')).toBeUndefined()
+    expect(
+      wrapper.get('.review-export-played button.toggle-button').attributes('disabled'),
+    ).toBeUndefined()
+    await generated.trigger('click')
+    await flushPromises()
+    expect(exportFile).not.toHaveBeenCalled()
+    expect(wrapper.find('.review-export-error').exists()).toBe(false)
+
+    await wrapper.setProps({ generatedNotesUnavailable: null })
+    expect(generated.attributes('disabled')).toBeUndefined()
+    expect(generated.attributes('aria-describedby')).toBeUndefined()
+    expect(wrapper.find('.review-export .field-note').exists()).toBe(false)
   })
 })

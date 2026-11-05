@@ -2,8 +2,9 @@
  * The score-level marks the MusicXML export writes around the phrases: the opening attributes
  * (divisions, written key signature, 4/4, the phrase's clef — a G clef on line 2 for treble, an F
  * clef on line 4 for bass — and the instrument's transposition),
- * a key-signature change, the rehearsal mark and metronome mark that open a phrase, the double
- * barline that closes a phrase, and the final barline that closes the session's last phrase.
+ * a key-signature change, the rehearsal mark and metronome mark that open a phrase (or a Jam's
+ * doodle, "Doodle"), the double barline that closes a phrase (and a doodle), and the final barline
+ * that closes the session's last phrase.
  */
 import type { Collection } from '@/domain/controls/generation-controls'
 import type { WrittenKey } from '@/domain/notation/written-phrase-types'
@@ -107,15 +108,23 @@ export function keyChangeAttributes(key: WrittenKey): XmlElement {
   return element('attributes', [], [keyElement(key)])
 }
 
-/** Intent: the rehearsal mark that opens a phrase, holding its session phrase number. */
+/**
+ * Intent: the rehearsal mark that opens a phrase, holding its session phrase number, or, in a
+ * Jam's file, the one that opens the doodle, "Doodle".
+ */
 // @spec-link [[rule_generated_notes_musicxml_export]]
-export function rehearsalMark(phraseNumber: number): XmlElement {
+// @spec-link [[rule_jam_exports_open_with_doodle]]
+export function rehearsalMark(label: number | string): XmlElement {
   return element(
     'direction',
     [['placement', 'above']],
-    [element('direction-type', [], [textElement('rehearsal', phraseNumber)])],
+    [element('direction-type', [], [textElement('rehearsal', label)])],
   )
 }
+
+/** The rehearsal mark's text that opens a Jam's doodle section. */
+// @spec-link [[rule_jam_exports_open_with_doodle]]
+export const DOODLE_REHEARSAL = 'Doodle'
 
 /** Intent: a metronome mark (quarter note = tempo) with the matching playback tempo. */
 // @spec-link [[rule_generated_notes_musicxml_export]]

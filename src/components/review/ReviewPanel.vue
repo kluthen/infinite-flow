@@ -59,14 +59,16 @@ import {
 import { reviewSystemPositionUnits } from './review-system-size'
 import { distanceFromVisibleArea, observeReviewList } from './review-list-observers'
 import { useReviewExportAction } from './use-review-export-action'
-import type {
-  ExportRequest,
-  GeneratedNotesFormat,
-  PlayedNotesUnavailable,
-  ReviewEngraver,
-  ReviewExportScope,
-  ReviewJamCode,
-  ReviewStaffReservation,
+import {
+  DOODLE_NOT_LOADED_SENTENCE,
+  type ExportRequest,
+  type GeneratedNotesFormat,
+  type GeneratedNotesUnavailable,
+  type PlayedNotesUnavailable,
+  type ReviewEngraver,
+  type ReviewExportScope,
+  type ReviewJamCode,
+  type ReviewStaffReservation,
 } from './review-types'
 
 // @spec-link [[req_last_session_review]]
@@ -125,6 +127,11 @@ const props = withDefaults(
      * disabled with it; null while it holds one.
      */
     playedNotesUnavailable: PlayedNotesUnavailable | null
+    /**
+     * Why the generated-notes file can't be made (a Jam session whose Jam code could not load), its
+     * export disabled with it; null while it can.
+     */
+    generatedNotesUnavailable?: GeneratedNotesUnavailable | null
     /** The key the session is held under, which its comment is saved for. */
     sessionKey: string
     /** The session is pinned: the pin button reads `Unpin`. */
@@ -146,6 +153,7 @@ const props = withDefaults(
     isJam: false,
     doodle: null,
     jamCode: () => ({ state: 'loading' }),
+    generatedNotesUnavailable: null,
   },
 )
 
@@ -343,12 +351,21 @@ const FORMAT_OPTIONS: readonly SegmentedControlOption[] = [
 const exportButtonEl = ref<HTMLButtonElement | null>(null)
 const playedExportButtonEl = ref<HTMLButtonElement | null>(null)
 const playedExportNoteId = useId()
+const generatedExportNoteId = useId()
+/** The words of the reason `Export generated notes` is disabled. */
+const GENERATED_NOTES_UNAVAILABLE: Readonly<Record<GeneratedNotesUnavailable, string>> = {
+  doodleNotLoaded: DOODLE_NOT_LOADED_SENTENCE,
+}
 /** The words of each reason `Export played notes` is disabled while its file would hold no note. */
 const PLAYED_NOTES_UNAVAILABLE: Readonly<Record<PlayedNotesUnavailable, string>> = {
+  doodleNotLoaded: DOODLE_NOT_LOADED_SENTENCE,
   noPlayedNoteInFavorites: 'No played notes in your favorites.',
   everyFavoriteNoteVeryShort:
     'Every note you played in your favorites is very short. Turn on Include very short notes to ' +
     'export them.',
+  everyFavoriteAndDoodleNoteVeryShort:
+    'Every note you played in your favorites and the doodle is very short. Turn on Include very ' +
+    'short notes to export them.',
   everyNoteVeryShort:
     'Every note you played is very short. Turn on Include very short notes to export them.',
 }
@@ -655,11 +672,15 @@ onBeforeUnmount(stopEngraving)
           type="button"
           class="btn review-export-action"
           :class="{ 'is-loading': exporting }"
-          :disabled="exporting"
+          :disabled="exporting || generatedNotesUnavailable !== null"
+          :aria-describedby="generatedNotesUnavailable === null ? undefined : generatedExportNoteId"
           @click="startExport"
         >
           Export generated notes
         </button>
+        <p v-if="generatedNotesUnavailable !== null" :id="generatedExportNoteId" class="field-note">
+          {{ GENERATED_NOTES_UNAVAILABLE[generatedNotesUnavailable] }}
+        </p>
       </div>
       <div
         v-if="holdsPlayedNote"
