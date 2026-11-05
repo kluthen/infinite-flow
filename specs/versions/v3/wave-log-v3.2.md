@@ -1692,3 +1692,14 @@ For the next driver, in this order:
   gap). Risks for the gate: a tap press with no click after it swallows the next
   assistive-technology click once; listening may not end while the audio context is suspended.
 - Chunk 33 dispatched, its first half (measurement; merge gate J240; the machine kept idle).
+- Chunk 33's first half BUILT 08001117 (branch `v3.2-c33-240-bpm`, worktree
+  `../infinite_flow-v3.2-c33` kept; not merged, gate J240). The real ladder in the Jam sweep
+  (`JAM_LADDER=real`), its spec 23/23 against the double. Reference machine (Ryzen 5 PRO 8640HS,
+  Node 22.23.4), 2026-11-05, lock off 09:22–09:51 and lock on 09:52–10:53, 7,384 Jams per
+  configuration: at 60/120/180 every count equals chunk 29's double (nothing to `spec-writer`); at
+  240 BPM phrase 1 came in every Jam (rung 1 84.4 %, rung 2 15.6 %, rung 3 0), one extended wait in
+  7,384 (every change, warm), slowest phrase 1 attempt 0.823 s against a 1.925 s cutover, one more
+  standalone phrase 2–8 with the lock off (733 against 732). Figures in
+  `docs/generation-latency.md`. Recommendation: widen. J240 asked of the owner.
+- Chunk 40 dispatched (standard brief; worktree `../infinite_flow-v3.2-c40`, branch
+  `v3.2-c40-guide-playback`, split 40a/40b, no merge gate: GD and CG done), while J240 waits.

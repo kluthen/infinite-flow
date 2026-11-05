@@ -2886,7 +2886,7 @@ Architecture capture: none (chunk 20's capture fixed Jam's Idle note routing)
 
 ### Chunk 33 — 240 BPM in Jam, best effort
 
-Status: in progress (first half)
+Status: built (first half, 08001117 on v3.2-c33-240-bpm; waiting on J240)
 Wave: 7
 Depends on: 18, 29, 31; J240 (its second half)
 Architecture capture: none
@@ -2970,7 +2970,7 @@ Record: baa803dd, merged afca4828. As specified; M2 re-run 2026-11-03 on the ref
 
 ### Chunk 40 — The guide playback
 
-Status: planned
+Status: in progress
 Wave: 7
 Depends on: 21 (the phrase queueing paths as wave 6 leaves them; and v2's backing, v3.0's saved
 settings); GD (40b); CG (its merge)
