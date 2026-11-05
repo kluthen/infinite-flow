@@ -105,6 +105,9 @@ export interface DoodlePhraseOne {
   readonly steering: SteeringBlock
   readonly hasJoin: boolean
   readonly intentAt: (rung: LadderRung, seed: Seed) => GenerationIntent
+  /** The quantized doodle phrase 1 is written from, and the Jam's drift. */
+  readonly quantized: QuantizedDoodle
+  readonly drift: JamDrift
 }
 
 /** What a ladder works from for one Jam. */
@@ -377,6 +380,8 @@ export function doodlePhraseOne(
     settings: jamSettings,
     steering,
     hasJoin: join.kind === 'join',
+    quantized: doodle,
+    drift,
     intentAt(rung, seed) {
       const input: GenerationIntentInput = {
         requestId: makeRequestId(`jam-sweep-phrase-1-${rung}-${seed}`),

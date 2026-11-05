@@ -4,7 +4,8 @@
  * via `npm run measure:jam`. Every supported rhythm setting with seeds 7 and 13, played as a Jam
  * (by default crossed with the doodle set, each Jam steered by its doodle: its controls, block and
  * join, phrase 1 through the double of Jam's three-rung ladder before its three-measure deadline,
- * warm and cold rhythm domains, then phrases 2 to 8 carrying the block; or, with
+ * warm and cold rhythm domains, then phrases 2 to 8 carrying the block; with `JAM_LADDER=real`,
+ * the same with phrase 1 through chunk 18's real ladder, `createJamPhraseOne`; or, with
  * `JAM_LADDER=baseline`, chunk 3's rung-3-only ladder with no block) and as a session (v3.1's six
  * phrases from phrase 1 at Idle), with the rhythm lock off or on, each attempt charged its
  * measured `generatePhrase` time plus the round trip and engraving. Per configuration it reports a
@@ -18,7 +19,7 @@
  *
  * Env: `JAM_OUT` writes the full figures JSON (with the machine, the date and the run duration)
  * to that path; the other choices are read by jam-sweep-population.ts (`JAM_LIMIT`, `JAM_MODE`,
- * `JAM_TEMPOS`, `JAM_DOMAIN`, `JAM_LOCK`, `JAM_DOODLES`).
+ * `JAM_TEMPOS`, `JAM_DOMAIN`, `JAM_LOCK`, `JAM_LADDER`, `JAM_DOODLES`).
  */
 
 import { writeFileSync } from 'node:fs'
@@ -35,9 +36,25 @@ import {
   doodlesOf,
   evenlySpaced,
   jamSweepChoices,
+  phraseOneLadderOf,
   playConfigurations,
+  type JamSweepChoices,
 } from './jam-sweep-population'
 import { JAM_PHRASE_COUNT, SESSION_PHRASE_COUNT } from './jam-sweep'
+
+/**
+ * Intent: the report's note on what was played under a ladder choice: a Jam steered by its doodle
+ * with phrase 1 through the double of Jam's ladder or chunk 18's real one, or the baseline's runs.
+ */
+function populationNote(ladder: JamSweepChoices['ladder']): string {
+  if (ladder === 'baseline')
+    return 'every supported rhythm setting with each seed (or JAM_LIMIT evenly spaced cases); a Jam plays phrase 1 through the baseline ladder (rung 3 only, no steering block) then phrases 2 to 8, a session plays v3.1 six phrases from phrase 1 at Idle; each attempt charged its measured generatePhrase time plus 0.1 s; with the lock on, each phrase is classed from its provenance lock record, its bars cross-checking it; doodles are recorded, not read'
+  const through =
+    ladder === 'real'
+      ? 'phrase 1 through chunk 18 real ladder (createJamPhraseOne, C5.7, C11) driven on the generation measure clock'
+      : 'phrase 1 through the double of Jam three-rung ladder (C5.7, C11)'
+  return `every supported rhythm setting with each seed (or JAM_LIMIT evenly spaced cases), crossed with the doodle set; a Jam is steered by its doodle (the seven controls read from it, its steering block at a drift walking Close, Near, Free, its join), ${through} against the three-measure deadline with the standalone reserve, then the session from phrase 1 handed over at its barline, phrases 2 to 8 carrying the block, no Vary settings, no Tension across phrases; a session plays v3.1 six phrases from phrase 1 at Idle; each attempt charged its measured generatePhrase time plus 0.1 s; with the lock on, each phrase is classed from its provenance lock record, its bars cross-checking it`
+}
 
 describe('Jam sweep runner (M1, M5)', () => {
   it('reports, per configuration, phrase 1 by rung, the attempt times, repeats, the lock census and replays', async () => {
@@ -48,8 +65,12 @@ describe('Jam sweep runner (M1, M5)', () => {
     const cases = evenlySpaced(sweepCases(), choices.limit)
     const doodles = doodlesOf(choices.doodles)
     const keys = configurations(choices)
-    const played = await playConfigurations(keys, cases, doodles, (density, count) =>
-      console.log(`JAM-SWEEP density ${density}: ${count} cases played`),
+    const played = await playConfigurations(
+      keys,
+      cases,
+      doodles,
+      (density, count) => console.log(`JAM-SWEEP density ${density}: ${count} cases played`),
+      phraseOneLadderOf(choices),
     )
     const figures = played.map(({ tally }) => tally.figures())
     const replays = played.map(({ replays }) => replays.replay())
@@ -70,10 +91,7 @@ describe('Jam sweep runner (M1, M5)', () => {
         phraseCount: { jam: JAM_PHRASE_COUNT, session: SESSION_PHRASE_COUNT },
         doodles: doodleNames,
         ladder: choices.ladder,
-        note:
-          choices.ladder === 'double'
-            ? 'every supported rhythm setting with each seed (or JAM_LIMIT evenly spaced cases), crossed with the doodle set; a Jam is steered by its doodle (the seven controls read from it, its steering block at a drift walking Close, Near, Free, its join), phrase 1 through the double of Jam three-rung ladder (C5.7, C11) against the three-measure deadline with the standalone reserve, then the session from phrase 1 handed over at its barline, phrases 2 to 8 carrying the block, no Vary settings, no Tension across phrases; a session plays v3.1 six phrases from phrase 1 at Idle; each attempt charged its measured generatePhrase time plus 0.1 s; with the lock on, each phrase is classed from its provenance lock record, its bars cross-checking it'
-            : 'every supported rhythm setting with each seed (or JAM_LIMIT evenly spaced cases); a Jam plays phrase 1 through the baseline ladder (rung 3 only, no steering block) then phrases 2 to 8, a session plays v3.1 six phrases from phrase 1 at Idle; each attempt charged its measured generatePhrase time plus 0.1 s; with the lock on, each phrase is classed from its provenance lock record, its bars cross-checking it; doodles are recorded, not read',
+        note: populationNote(choices.ladder),
       },
       configurations: figures.map((configuration, index) => ({
         ...configuration,
