@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.128
+Status: draft v2.129
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -1200,3 +1200,12 @@ API later); and D398 (v3.1 released and archived). D289 is unused.
   4.8 kB left, with chunks 25, 32, 33 and 40 to come. O235 (what the budget measures) stays open.
   Now in: [Part C §C10.9](versions/v3/master-spec.md#c109-loading-jams-code-on-demand),
   [build plan v3.2, M4](versions/v3/build-plan-v3.2.md#m4--the-first-load-bundle).
+
+- **D506 (2026-11-05): Jam's tempo stays 60 to 180 BPM in v3.2; 240 BPM is not kept (gate J240).**
+  The owner's ruling, verbatim "Keep 180", on chunk 33's run at 240 BPM, which held (phrase 1 in
+  every one of 7,384 Jams per configuration, one extended wait, slowest phrase 1 attempt 0.823 s
+  against a 1.925 s cutover) and came with a recommendation to widen. Settles D404's best effort:
+  chunk 33 ends after its first half, and no Jam item or check runs at 240. Now in:
+  [Part C §C5.17](versions/v3/master-spec.md#c517-tempo-in-jam-and-tap-in),
+  [§C16](versions/v3/master-spec.md#c16-definition-of-done),
+  [build plan v3.2, gates](versions/v3/build-plan-v3.2.md#gates), [chunk 33](versions/v3/build-plan-v3.2.md#chunk-33--240-bpm-in-jam-best-effort).

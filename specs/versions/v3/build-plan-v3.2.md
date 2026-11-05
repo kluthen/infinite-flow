@@ -1,6 +1,7 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v38 (2026-11-05): v37 with spec D503 and D504 written in (master spec Part C v1.22): a wave 7 fix after chunk 24, the kept doodle going when my instrument's deletion or range or transposition change erases its session; the owner's ruling raising the entry budget from 300 KiB to 320 KiB (Workflow deltas, M4, chunk 27).
+Status: v39 (2026-11-05): v38 with spec D506 written in (master spec Part C v1.23): gate J240's ruling, the owner's "Keep 180"; Jam's tempo stays 60 to 180 BPM, chunk 33 ends after its first half, and DoD item 31's trace runs no Jam check at 240 BPM.
+v38 (2026-11-05): v37 with spec D503 and D504 written in (master spec Part C v1.22): a wave 7 fix after chunk 24, the kept doodle going when my instrument's deletion or range or transposition change erases its session; the owner's ruling raising the entry budget from 300 KiB to 320 KiB (Workflow deltas, M4, chunk 27).
 v37 (2026-11-04): v36 with no decision (Part C unchanged), after gate GD (ux D459–D463): gate GD and chunk 40 name the guides' tokens (`--mix-melody-guide-volume-*`, `--mix-rhythm-guide-volume-*`), chunk 40's design docs and its `readAudioMixDesign` docblock rewording.
 v36 (2026-11-04): v35 with spec D500 written in (master spec Part C v1.21): wave 7's preflight corrections to chunks 24, 25, 32, 33 and 40 and gates J240 and CG.
 v35 (2026-11-04): v34 with spec D490–D494 written in (master spec Part C v1.20), merged
@@ -150,7 +151,7 @@ no release is cut before wave 7 has merged.
 | **L3** | The owner's listening check of the allowed rhythm changes ([v3.2 H2](#v32-h2--allowed-rhythm-changes-l3), item 13); the change shares are tuned from it. Steps 2 and 4 ran on 2026-11-03 and tuned the shares (spec D450, built by [chunk 34](#chunk-34--the-rhythm-change-shares-tuned-l3)); step 3, one kind at a time, is still owed. | The owner | The release gate's final M2 run | open (after wave 3) |
 | **L1** | The owner's listening check of Jam ([v3.2 H4](#v32-h4--jam-listening-settings-drift-and-lock-l1) and [H5](#v32-h5--jam-listening-the-doodle-to-controls-mapping-l1), item 32); it confirms or sends back three of D406's provisional answers ([below](#what-confirms-d406s-provisional-answers)). | The owner; a failed answer becomes a ruling | The release gate | open (after wave 7) |
 | **L2** | The owner's listening check of the suggestion ([v3.2 H6](#v32-h6--the-suggestion-l2), item 45); the weights and cues are tuned from it. | The owner | The release gate's final suggestion tests | open (after wave 6; runnable now) |
-| **J240** | Whether Jam's tempo reaches 240 BPM: from [chunk 33](#chunk-33--240-bpm-in-jam-best-effort)'s run at 240 BPM, the owner widens Jam's tempo control to 240, or keeps it at 180 and the chunk is dropped (C5.17, spec D404). Widening changes two of the design's sentences (Tap tempo's limit note): `ux-writer` rewords them first. It also revises `rule_saved_settings_load_tolerantly` (STABLE, on the contract), with the other atoms chunk 33 names: `documentalist` drafts the wording, the owner signs it off, and the MAJOR contract bump applies it (spec D422). | The owner; `ux-writer` and the contract wording's sign-off if widened | The second half of chunk 33 | done (2026-11-05, the owner: "Keep 180"; chunk 33 measured, not widened) |
+| **J240** | Whether Jam's tempo reaches 240 BPM: from [chunk 33](#chunk-33--240-bpm-in-jam-best-effort)'s run at 240 BPM, the owner widens Jam's tempo control to 240, or keeps it at 180 and the chunk is dropped (C5.17, spec D404). Widening changes two of the design's sentences (Tap tempo's limit note): `ux-writer` rewords them first. It also revises `rule_saved_settings_load_tolerantly` (STABLE, on the contract), with the other atoms chunk 33 names: `documentalist` drafts the wording, the owner signs it off, and the MAJOR contract bump applies it (spec D422). | The owner; `ux-writer` and the contract wording's sign-off if widened | The second half of chunk 33 | done (2026-11-05, the owner: "Keep 180", spec D506; chunk 33 measured, not widened) |
 
 There is no data register (`data-register/README.md` does not exist), so the version's data
 preflight does not run and no chunk carries a **Data** line
@@ -2887,7 +2888,7 @@ Architecture capture: none (chunk 20's capture fixed Jam's Idle note routing)
 ### Chunk 33 — 240 BPM in Jam, best effort
 
 Status: merged (w7, 7d2cd4a1); measured; not widened
-Record: first half 08001117, merge 7d2cd4a1; J240 "keep 180" (2026-11-05), so no second half. No deviation. At 240 BPM (reference machine, 2026-11-05, 7,384 Jams per configuration): phrase 1 in every Jam, one extended wait, slowest phrase 1 attempt 0.823 s against a 1.925 s cutover; 60/120/180 through the real ladder equal chunk 29's double ([docs/generation-latency.md](../../../docs/generation-latency.md)).
+Record: first half 08001117, merge 7d2cd4a1; J240 "keep 180" (2026-11-05, spec D506), so no second half. No deviation. At 240 BPM (reference machine, 2026-11-05, 7,384 Jams per configuration): phrase 1 in every Jam, one extended wait, slowest phrase 1 attempt 0.823 s against a 1.925 s cutover; 60/120/180 through the real ladder equal chunk 29's double ([docs/generation-latency.md](../../../docs/generation-latency.md)).
 Wave: 7
 Depends on: 18, 29, 31; J240 (its second half)
 Architecture capture: none
@@ -3159,7 +3160,7 @@ owner says go.
 | 28 The join | 6, 7 | join and window tests over the doodle set |
 | 29 Drift | 8, 9, 28 | band tests; order properties per position |
 | 30 Jam's lock | 8, 18 | phrase 1 nearest the doodle; held; the two modes' locks apart |
-| 31 The Jam sweep | 3, 29, 33, 27 | M1 tables (240 last) |
+| 31 The Jam sweep | 3, 29, 33, 27 | M1 tables at 60, 120 and 180 BPM (240 measured, not kept, spec D506) |
 | 32 Jam listening | 21 (H4, H5), 27 | the owner's recorded checks |
 | 33 The kept doodle | 24, 30 | e2e keeping, rewriting and letting go; prepared phrases equal; after a reload |
 | 34 Before phrase 1 | 17, 21 | engine tests; e2e each end, nothing kept, mode unchanged |

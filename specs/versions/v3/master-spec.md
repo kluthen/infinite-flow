@@ -106,8 +106,9 @@ Status: this file holds four parts.
   sign-off also revises the saved settings' list and the vision (C13; spec D500). v1.22
   (2026-11-05): the kept doodle goes with its session when my instrument's deletion or range or
   transposition change erases it (C5.1, C5.11; spec D503); the entry budget is 320 KiB (C10.9,
-  C14, C16; spec D504). Its sections are
-  numbered C1 to C19; what v1.1 to v1.22 change is listed at the top of Part C and marked in each section they touch.
+  C14, C16; spec D504). v1.23 (2026-11-05): Jam's tempo stays 60 to 180 BPM; 240 BPM, measured
+  last, is not kept (C2, C3, C5.8, C5.17, C15, C16, C17; spec D506). Its sections are
+  numbered C1 to C19; what v1.1 to v1.23 change is listed at the top of Part C and marked in each section they touch.
 - **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.1
   (2026-10-12), consolidated from the v3.3 direction and the chord research; **awaiting the
   owner's approval**. The contract wording it changes (§D12) needs the owner's confirmation
@@ -2264,7 +2265,10 @@ Delete everything removes them. No preset leaves the device.
 ## Part C — v3.2
 
 Jam, the key and mode suggestion, the rhythm lock and, added after approval, the guide playback.
-**Master spec v1.22 (2026-11-05)**: v1.21 with two rulings (C5.1, C5.11, C10.9, C14, C16 item
+**Master spec v1.23 (2026-11-05)**: v1.22 with the owner's ruling at gate J240 (C2, C3, C5.8,
+C5.17, C15, C16, C17; D506): Jam's tempo stays 60 to 180 BPM in v3.2. 240 BPM was measured last
+and held, and the owner kept 180; no Jam check runs at 240 BPM. It adds no behaviour: the control
+already stops at 180. v1.22 (2026-11-05): v1.21 with two rulings (C5.1, C5.11, C10.9, C14, C16 item
 16; D503, D504): the kept doodle also goes when deleting my instrument, or saving a change to its
 range or transposition, erases the kept session it comes from, as for any deletion of that session;
 and the owner raised the first-load (entry) budget from 300 KiB to 320 KiB (327,680 bytes) in wave
@@ -2532,6 +2536,7 @@ possible about Jam.
 _Changed in v1.1:_ Jam mode replaces the Jam switch; Jam's settings, tap-in and on-demand loading
 are in; the work is split in two halves; Jam's tempo range and the out-of-scope list follow.
 _Changed in v1.2:_ one release, 3.2.0 (D410).
+_Changed in v1.23:_ Jam above 180 BPM is out of v3.2 (D506).
 
 ### In v3.2
 
@@ -2585,8 +2590,8 @@ with its own volume, off by default (C19). Built in wave 7, without changing the
 - **Tempo inferred from a doodle played freely**, without the click: a later candidate. It is a
   research problem, and it fails worst for the beginners Jam is for (C5.17).
 - **Tempo nudged from how the doodle sat against the click**: not planned; it would reward rushing.
-- **Jam above 180 BPM** is best effort, worked on last; if 240 BPM costs more than it is worth,
-  Jam's tempo stops at 180 BPM (C5.17).
+- **Jam above 180 BPM.** 240 BPM was measured last and held; the owner kept Jam's tempo at 60 to
+  180 BPM (D506; C5.17). Session mode keeps 60 to 240 BPM.
 - A drone (a held home note) under the doodle: a later candidate.
 - The suggestion during a Jam, or listing every candidate it weighed.
 - Favoring the embellishment figures (v3.1) found in the doodle.
@@ -2609,6 +2614,7 @@ with its own volume, off by default (C19). Built in wave 7, without changing the
 
 _Changed in v1.1:_ the goals are served as before, now from Jam mode; the tensions add Jam's own
 settings and Jam's tempo range.
+_Changed in v1.23:_ Jam's tempo range is settled at 60 to 180 BPM (D506).
 
 The personas are Part A's (§3) and [personas.md](../../personas.md): **P1 — the Curious
 Improviser** (primary), a player who can already play and is a beginner at improvising; **P2 —
@@ -2643,10 +2649,10 @@ comes after); and Jam needs a controller, since the doodle is played on it.
   the doodle sets the rhythm and shape controls, and the session's steering tools stay in session
   mode (C5.16). Provisional until the owner's listening check (C17).
 - P2 plays at up to 240 BPM; the app needs time to write phrase 1 after the doodle. Resolved by
-  scope: Jam is P3's, and P3 is not a speed player, so Jam targets 60 to 180 BPM and treats 240 as
-  best effort (C5.17); session mode keeps 240 BPM as it is. Two measures stand between the doodle
-  and phrase 1, extended by whole measures when needed, with a steering-free last attempt (C5.6,
-  C5.7).
+  scope: Jam is P3's, and P3 is not a speed player, so Jam's tempo runs 60 to 180 BPM; 240 BPM,
+  measured last, is not kept (C5.17; D506); session mode keeps 240 BPM as it is. Two measures
+  stand between the doodle and phrase 1, extended by whole measures when needed, with a
+  steering-free last attempt (C5.6, C5.7).
 - A strict lock against Tension's variety: some tension steps change which rhythms exist. Resolved
   by the forced bend (C7.5), so the lock never fails a phrase.
 - A beginner wants a steady rhythm; exposure wants variety. Resolved by allowed rhythm changes off
@@ -2937,6 +2943,7 @@ the rhythm domain of a fresh doodle may be cold.
 _Changed in v1.2:_ the cold domain is accepted and measured (D410).
 _Changed in v1.12:_ what Jam's Idle prewarms before any doodle (D442).
 _Changed in v1.18:_ phrase 2 is requested when phrase 1 is handed over, not when it is ready (D457).
+_Changed in v1.23:_ 240 BPM, tried last, is not in Jam (D506); its figures at 240 BPM are context.
 
 - **One measure lasts** 4 s at 60 BPM, 2 s at 120, 1.6 s at 150, about 1.33 s at 180 and 1 s at
   240. The standalone reserve is 1.075 s. Up to 180 BPM the generation measure alone outlasts the
@@ -2971,8 +2978,9 @@ _Changed in v1.18:_ phrase 2 is requested when phrase 1 is handed over, not when
   it is the barline after phrase 1 is ready. Its deadline is the start of phrase 1's last measure,
   which gives it the read-in measure plus three measures from its request, more than v2's phrase 2
   gets.
-- **240 BPM is worked on last.** The Jam sweep and hand checks run at 60, 120 and 180 BPM; 240 is
-  tried after them (C5.17).
+- **240 BPM was tried last and is not kept** (C5.17; D506). The Jam sweep and hand checks run at
+  60, 120 and 180 BPM; the 240 BPM run is recorded in
+  [generation latency](../../../docs/generation-latency.md) and gates nothing.
 
 ### C5.9 What the doodle feeds the generator
 
@@ -3361,6 +3369,7 @@ end.
 _New in v1.1._ Provisional until the owner's checks (C17).
 _Changed in v1.2:_ tap-in takes the design's form: taps count only after the tap button is pressed,
 then controller notes too; unevenness is never judged (D410, ux D335).
+_Changed in v1.23:_ 240 BPM, measured last, is not kept; Jam's control stops at 180 (D506).
 
 **Why tempo matters more in Jam.** The doodle's end rule (a silent measure), its quantizing (a grid
 of sixteenth notes) and the two measures before phrase 1 all need a beat grid. In session mode the
@@ -3372,9 +3381,10 @@ changes the generator**. Tempo changes the time budget and the capture.
   played over the click. Capture, quantizing, the end rule and the budget stay as C5.3 to C5.8 say,
   and the budget is known before Start.
 - **Jam's tempo control runs from 60 to 180 BPM**, in steps of 10, as session mode's control does
-  over its wider range. Jam's sweep and hand checks run at 60, 120 and 180 BPM. **240 BPM is best
-  effort and worked on last**: if it holds at a cost worth paying, the owner may widen Jam's control
-  to 240; if not, it stops at 180. Session mode's 60 to 240 BPM is unchanged.
+  over its wider range. Jam's sweep and hand checks run at 60, 120 and 180 BPM. **240 BPM is not in
+  v3.2's Jam** (the owner's ruling, D506): measured last on the complete Jam, it held (phrase 1 came
+  in every Jam, the slowest phrase 1 attempt 0.823 s against a 1.925 s cutover), and the owner kept
+  Jam's control at 180. Session mode's 60 to 240 BPM is unchanged.
 - **Tap-in** (D410, in the design's form): at Jam's Idle, each press of the tap button is a tap and
   starts **listening**. While it listens, every controller note is a tap too, the starting note
   included, which then starts nothing (a Start click still does). Listening ends two seconds after
@@ -4398,6 +4408,7 @@ _Changed in v1.1:_ Jam mode, its own settings, the seam, on-demand loading and J
 candidates" narrowed to within the controls it sets.
 _Changed in v1.3:_ a fresh Jam's seeds added (D419).
 _Changed in v1.20:_ the guide playback's layers added (D490, D491).
+_Changed in v1.23:_ Jam's tempo range settled at 60 to 180 BPM (D506).
 
 - **Jam is a mode of its own, entered by a button at Idle, not a session option**, because Jam's
   settings differ from a session's (the app follows the doodle and develops it), and keeping Jam
@@ -4419,8 +4430,8 @@ _Changed in v1.20:_ the guide playback's layers added (D490, D491).
   should not pay for it.
 - **Jam's tempo is set before the doodle, with tap-in, and runs 60 to 180 BPM**, because a click to
   follow is how beginners play best and what quantizing, the end rule and the budget need; tap-in
-  finds the speed of the idea they hear; and none of the personas Jam serves plays at 240 BPM, which
-  is best effort.
+  finds the speed of the idea they hear; and none of the personas Jam serves plays at 240 BPM,
+  which, measured last, the owner did not keep (D506).
 - **The doodle is captured inside the session, after a count-in, over the click at Jam's tempo**,
   because the click sets the measure grid quantizing needs, and at Idle a doodle would collide with
   the starting note.
@@ -4497,10 +4508,11 @@ _Changed in v1.3:_ item 39 checks a fresh Jam's seeds (D419).
 _Changed in v1.5:_ item 49 names the later contract bumps (D422).
 _Changed in v1.22:_ item 16's entry budget is 320 KiB (D504); item 33's deletions include my
 instrument's (D503).
+_Changed in v1.23:_ Jam keeps 180 BPM as its top, so no Jam item or check runs at 240 (D506).
 
 v3.2 ships when every item holds, each verified by a named test or a recorded hand check. **Every
 hand check is a numbered script of at most ten minutes**, run in Chrome (Edge is not supported);
-Jam's run at 60, 120 and 180 BPM, and at 240 BPM only if Jam keeps it (C5.17).
+Jam's run at 60, 120 and 180 BPM; Jam does not keep 240 BPM (C5.17; D506), so none runs at 240.
 
 **Session mode (first half)**
 
@@ -4596,8 +4608,8 @@ Jam's run at 60, 120 and 180 BPM, and at 240 BPM only if Jam keeps it (C5.17).
 29. **Drift's three positions** order rhythm and pitch candidates as C5.9 and C8 say.
 30. **Jam's lock.** With Jam's lock on, phrase 1's rhythm is the candidate nearest the doodle, and
     the lock holds it; session mode's lock never reaches a Jam, nor Jam's lock a session.
-31. **The Jam sweep** over doodles × settings at 60, 120 and 180 BPM (240 last, if kept), with
-    Jam's lock on and off, warm and cold rhythm domains, is recorded: the share of phrase 1
+31. **The Jam sweep** over doodles × settings at 60, 120 and 180 BPM (240 BPM measured, not
+    kept, D506), with Jam's lock on and off, warm and cold rhythm domains, is recorded: the share of phrase 1
     generated with the doodle's join and with the steering block, the cost of the new orderings, no
     phrase repeated, and the standalone attempts within their reserve.
 32. **The owner's listening check** of Jam is recorded: phrases at each drift position, lock off and
@@ -4691,6 +4703,7 @@ _Changed in v1.2:_ the seven questions settled (D410), the design's seven answer
 _Changed in v1.4:_ the contract sign-off given (D421).
 _Changed in v1.10:_ two questions opened during the build (D433).
 _Changed in v1.12:_ O268 settled by the owner (D440).
+_Changed in v1.23:_ 240 BPM in Jam measured and not kept (D506).
 
 **Provisional answers, each confirmed by a check.** Four answers of the re-scope were accepted on
 the owner's "will need testing to be sure". A check that fails comes back to the owner as a ruling;
@@ -4738,7 +4751,8 @@ the MIDI export (the owner's ruling, D494): never, into no export; C19.5.
 (C5.8, C16 items 10 and 31); the forced-bend rate; the share of rhythm changes, tuned to 1 in 2
 and 3 in 4 at the listening check's first steps (C7.4, D450), its one-kind-at-a-time step still to
 run; the suggestion's shares and cues, and whether Locrian needs a handicap (C6.2);
-drift's distance scale by ear (C8; held, D449); 240 BPM in Jam, last.
+drift's distance scale by ear (C8; held, D449). 240 BPM in Jam was measured last and not kept
+(D506).
 
 **Code gaps for `coding-leader`, not open design**: the steering module and the block's check on
 arrival; the doodle's own type on Jam's side; the join from no phrase; the bar key; the run-time
