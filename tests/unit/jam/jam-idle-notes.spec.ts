@@ -8,15 +8,19 @@
  * C5 (MIDI 48 to 72, middle C4 = 60) at concert pitch; both saxophones write C4 to C6 (60 to 84,
  * middle C5 = 72), the tenor sounding a major ninth (14 semitones) lower and the alto a major sixth
  * (9 semitones) lower. Octave 4 starts on middle C. With a doodle kept, the starting note is the
- * first note of phrase 1 written from it, read here from that phrase's own timeline.
+ * first note of phrase 1 written from it, read here from that phrase's own timeline. While tap
+ * tempo listens every note is a tap, the starting note included, and the end of a note that began
+ * while it listened, not very short (38 ms or longer), taps at its onset.
  */
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import type { Collection, PitchClass } from '@/domain/controls/generation-controls'
+import { makeConcertPitch } from '@/domain/events/concert-pitch'
 import { makeMyInstrument } from '@/domain/profile/my-instrument'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
+import type { PlayedNoteEvent } from '@/midi/played-note-tracker'
 import {
   createJamIdleNotes,
   jamHomeNote,
@@ -175,6 +179,8 @@ function routing(conditions: { canStart: boolean; pageAwaitsClick: boolean }) {
     pageAwaitsClick: () => conditions.pageAwaitsClick,
     doodleKept: () => false,
     keptPhraseOne: () => null,
+    tapListening: () => false,
+    tap: () => {},
   }
   return createJamIdleNotes(deps)
 }
@@ -253,6 +259,8 @@ function keptRouting(conditions: { canStart: boolean; phrase: JamKeptPhraseOne |
     pageAwaitsClick: () => false,
     doodleKept: () => true,
     keptPhraseOne: () => conditions.phrase,
+    tapListening: () => false,
+    tap: () => {},
   })
 }
 
@@ -292,5 +300,129 @@ describe('createJamIdleNotes with a doodle kept', () => {
     conditions.canStart = false
     expect(notes.startingNote()).toBeNull()
     expect(notes.meaningOf(firstNoteOf(conditions.phrase).pitch)).toBe('ignored')
+  })
+})
+
+/** The conditions a listening routing reads, which the test moves. */
+interface ListeningConditions {
+  listening: boolean
+  doodleKept: boolean
+  phrase: JamKeptPhraseOne | null
+}
+
+/** Intent: Jam's Idle note routing in G major on the keyboard, able to start, its taps kept. */
+function listeningRouting(conditions: ListeningConditions) {
+  const tap = vi.fn<(at: number) => void>()
+  const notes = createJamIdleNotes({
+    writtenKey: () => 'G',
+    collection: () => 'Major',
+    instrument: () => KEYBOARD,
+    canStart: () => true,
+    pageAwaitsClick: () => false,
+    doodleKept: () => conditions.doodleKept,
+    keptPhraseOne: () => conditions.phrase,
+    tapListening: () => conditions.listening,
+    tap,
+  })
+  return { notes, tap }
+}
+
+/** Intent: the tracker's `played` event for `pitch` at `onsetAt`. */
+function played(pitch: number, onsetAt: number): PlayedNoteEvent {
+  return { kind: 'played', note: { pitch: makeConcertPitch(pitch), velocity: 90, onsetAt } }
+}
+
+/** Intent: the tracker's `ended` event for `pitch` from `onsetAt` to `releaseAt`. */
+function ended(pitch: number, onsetAt: number, releaseAt: number): PlayedNoteEvent {
+  return {
+    kind: 'ended',
+    note: { pitch: makeConcertPitch(pitch), velocity: 90, onsetAt, releaseAt },
+  }
+}
+
+/** G3, the home note of G major on the keyboard. */
+const HOME = 55
+
+// @test-link [[rule_jam_tap_in_listening]]
+// @test-link [[module_jam_idle_notes]]
+describe('createJamIdleNotes while tap tempo listens', () => {
+  // @test-link [[rule_jam_tap_in_listening]]
+  it('makes every note a tap, the home note included, and names no starting note', () => {
+    const conditions = { listening: true, doodleKept: false, phrase: null }
+    const { notes } = listeningRouting(conditions)
+
+    expect(notes.meaningOf(HOME)).toBe('tap')
+    expect(notes.meaningOf(60)).toBe('tap')
+    expect(notes.startingNote()).toBeNull()
+    expect(notes.awaitsClick()).toBe(false)
+
+    conditions.listening = false
+    expect(notes.meaningOf(HOME)).toBe('start')
+    expect(notes.meaningOf(60)).toBe('ignored')
+    expect(notes.startingNote()?.label).toBe('G3')
+  })
+
+  // @test-link [[rule_jam_tap_in_listening]]
+  it("makes the kept doodle's first note a tap too, starting nothing", () => {
+    const phrase = keptPhraseOne()
+    const first = firstNoteOf(phrase).pitch
+    const conditions = { listening: true, doodleKept: true, phrase }
+    const { notes } = listeningRouting(conditions)
+
+    expect(notes.meaningOf(first)).toBe('tap')
+    expect(notes.startingNote()).toBeNull()
+
+    conditions.listening = false
+    expect(notes.meaningOf(first)).toBe('start')
+  })
+
+  // @test-link [[rule_jam_tap_in_listening]]
+  it("taps at a note's onset when it ends, unless it is very short", () => {
+    const { notes, tap } = listeningRouting({ listening: true, doodleKept: false, phrase: null })
+
+    notes.hear(played(HOME, 1))
+    expect(tap).not.toHaveBeenCalled()
+    notes.hear(ended(HOME, 1, 1.2))
+    expect(tap.mock.calls).toEqual([[1]])
+
+    // 30 ms: a very short note (under 38 ms) is no tap.
+    notes.hear(played(62, 1.5))
+    notes.hear(ended(62, 1.5, 1.53))
+    // 40 ms is long enough.
+    notes.hear(played(64, 2))
+    notes.hear(ended(64, 2, 2.04))
+    expect(tap.mock.calls).toEqual([[1], [2]])
+  })
+
+  // @test-link [[rule_jam_tap_in_listening]]
+  it('never taps for a note that began before listening, nor for notes without listening', () => {
+    const conditions = { listening: false, doodleKept: false, phrase: null }
+    const { notes, tap } = listeningRouting(conditions)
+
+    notes.hear(played(60, 0))
+    notes.hear(ended(60, 0, 0.5))
+    notes.hear(played(HOME, 1))
+    conditions.listening = true
+    notes.hear(ended(HOME, 1, 1.5))
+    expect(tap).not.toHaveBeenCalled()
+
+    // A note that began while listening and ended after it stopped taps nothing either.
+    notes.hear(played(62, 2))
+    conditions.listening = false
+    notes.hear(ended(62, 2, 2.5))
+    expect(tap).not.toHaveBeenCalled()
+  })
+
+  // @test-link [[rule_jam_tap_in_listening]]
+  it('taps only for the ended note that matches a pending one, pitch and onset alike', () => {
+    const { notes, tap } = listeningRouting({ listening: true, doodleKept: false, phrase: null })
+
+    notes.hear(played(60, 1))
+    notes.hear(ended(60, 0.5, 1.2))
+    notes.hear(ended(61, 1, 1.2))
+    expect(tap).not.toHaveBeenCalled()
+    notes.hear(ended(60, 1, 1.2))
+    notes.hear(ended(60, 1, 1.2))
+    expect(tap.mock.calls).toEqual([[1]])
   })
 })

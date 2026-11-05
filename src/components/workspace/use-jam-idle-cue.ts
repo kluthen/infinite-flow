@@ -6,17 +6,22 @@
  * starting note (the home note, or the kept doodle's phrase 1's first note, which the start
  * marker also shows on Jam's staff), from Jam's Idle note routing (src/jam/jam-idle-notes.ts),
  * reached through Jam's loaded code only; otherwise nothing. The row is given plain data, never
- * Jam's code. It also passes on what a played note means there, for the controller's note route,
- * and whether `Start Jam` may start a Jam now. Nothing here listens to the controller's notes,
- * and a controller arriving or leaving never changes the mode.
+ * Jam's code. While `tap-tempo` listens (./use-tap-tempo-host.ts) the starting-note line hides,
+ * as no note starts a Jam then. It also passes on what a played note means there, for the
+ * controller's note route, hands that route's notes to Jam's Idle note routing (which taps with
+ * them while tap tempo listens), and says whether `Start Jam` may start a Jam now. Nothing here
+ * subscribes to the controller's notes, and a controller arriving or leaving never changes the
+ * mode.
  */
 import { computed, type ComputedRef } from 'vue'
 
 import type { ExpectedNoteIdentity } from '@/domain/acknowledgement/expected-note'
 import type { IdlePhraseStateView } from '@/composables/generation-session-types'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
-import type { JamIdleNotes, JamInstrument } from '@/jam/jam-idle-notes'
+import type { JamIdleNotes, JamInstrument, JamNoteMeaning } from '@/jam/jam-idle-notes'
 import type { Collection, PitchClass } from '@/domain/controls/generation-controls'
+import type { PlayedNoteEvent } from '@/midi/played-note-tracker'
+import type { AudioTime } from '@/session/session-types'
 import type { JamModeModule } from './load-jam-mode'
 import {
   freshJamCanStart,
@@ -71,6 +76,10 @@ export interface JamIdleCueDependencies {
   readonly pageAwaitsClick: () => boolean
   /** Jam's phrase 1 written from the kept doodle; null while no doodle is kept. */
   readonly keptPhrase: () => JamKeptPhraseCue | null
+  /** Whether `tap-tempo` listens at this instant. */
+  readonly tapListening: () => boolean
+  /** A controller tap, at the note's onset on the audio clock. */
+  readonly tap: (at: AudioTime) => void
 }
 
 /** Jam's Idle cue: what the row holds, and whether `Start Jam` names `jam-needs-controller`. */
@@ -80,10 +89,16 @@ export interface JamIdleCue {
   /** `jam-needs-controller` shows, so `Start Jam` names it with `aria-describedby`. */
   readonly needsController: ComputedRef<boolean>
   /**
-   * What a controller note at this exact concert pitch means at Jam mode's Idle now: `start` for
-   * the named home note, else (and before Jam's code has loaded) `ignored`.
+   * What a controller note at this exact concert pitch means at Jam mode's Idle now: `tap` for
+   * every note while tap tempo listens, else `start` for the named starting note, else (and before
+   * Jam's code has loaded) `ignored`.
    */
-  readonly meaningOf: (concertPitch: number) => 'start' | 'ignored'
+  readonly meaningOf: (concertPitch: number) => JamNoteMeaning
+  /**
+   * A controller note's event at Jam mode's Idle, for Jam's Idle note routing: a note played as a
+   * tap taps at its onset when it ends. Before Jam's code has loaded, nothing.
+   */
+  readonly hear: (event: PlayedNoteEvent) => void
   /**
    * A Jam could start now, as `Start Jam` and the starting note start it: a fresh Jam without a
    * doodle kept, or a Jam on the kept doodle with one.
@@ -98,14 +113,16 @@ export interface JamIdleCue {
  * none. Without a connected controller (a selected one away counts as none), the needs-controller
  * line, in every idle state of Jam mode. Otherwise the starting-note line naming the starting note
  * exactly while a Jam could start (whenever `Start Jam` is enabled): the home note with no doodle
- * kept, else the first note of phrase 1 written from it, the start marker on it; from Jam's Idle
- * note routing, built once Jam's code has loaded, which also says what a played note means.
+ * kept, else the first note of phrase 1 written from it, the start marker on it, and none while
+ * tap tempo listens; from Jam's Idle note routing, built once Jam's code has loaded, which also
+ * says what a played note means (every note a tap while tap tempo listens) and hears its taps.
  */
 // @spec-link [[rule_jam_needs_controller]]
 // @spec-link [[rule_jam_start_conditions]]
 // @spec-link [[rule_jam_starting_note_is_home_note]]
 // @spec-link [[rule_jam_on_held_doodle_skips_capture]]
 // @spec-link [[module_jam_idle_notes]]
+// @spec-link [[rule_jam_tap_in_listening]]
 export function useJamIdleCue(deps: JamIdleCueDependencies): JamIdleCue {
   const canStart = computed(() => {
     if (!deps.jamShowing()) return false
@@ -132,6 +149,8 @@ export function useJamIdleCue(deps: JamIdleCueDependencies): JamIdleCue {
         if (kept === null || result === null || kept.written === null) return null
         return { timeline: result.outcome.result.timeline, written: kept.written }
       },
+      tapListening: deps.tapListening,
+      tap: deps.tap,
     })
   })
 
@@ -150,6 +169,7 @@ export function useJamIdleCue(deps: JamIdleCueDependencies): JamIdleCue {
     cue,
     needsController: computed(() => cue.value?.kind === 'needs-controller'),
     meaningOf: (concertPitch) => idleNotes.value?.meaningOf(concertPitch) ?? 'ignored',
+    hear: (event) => idleNotes.value?.hear(event),
     canStart,
     startMarker: computed(() => {
       if (deps.keptPhrase() === null || cue.value?.kind !== 'starting-note') return null

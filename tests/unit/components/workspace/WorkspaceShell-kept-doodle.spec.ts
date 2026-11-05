@@ -34,6 +34,7 @@ import {
 import { climbKeptDoodleLadder } from '@/jam/kept-doodle-phrase-one'
 import { createJamIdleNotes } from '@/jam/jam-idle-notes'
 import { useKeptDoodle } from '@/jam/use-kept-doodle'
+import { createTapTempo } from '@/jam/use-tap-tempo'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import { createTestWorkspace } from './test-workspace'
 import { createControllerRig, KEYS_A } from '../../midi/midi-controller-rig'
@@ -68,8 +69,8 @@ const JamWorkspaceStub = {
 }
 
 /**
- * Jam's code entry: a stand-in view, and Jam's real settings, controls, kept doodle, climb and
- * Idle note routing.
+ * Jam's code entry: a stand-in view, and Jam's real settings, controls, kept doodle, climb, Idle
+ * note routing and tap tempo.
  */
 const FAKE_JAM_MODULE = vi.hoisted(() => ({}) as Record<string, unknown>)
 Object.assign(FAKE_JAM_MODULE, {
@@ -84,6 +85,7 @@ Object.assign(FAKE_JAM_MODULE, {
   climbKeptDoodleLadder,
   useKeptDoodle,
   createJamIdleNotes,
+  createTapTempo,
 })
 
 /** The staff's layout, as a mounted PhraseScore reports it. */

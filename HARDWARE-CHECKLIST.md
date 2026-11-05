@@ -835,6 +835,36 @@ written pitch. Run it after wave 6.
       are tuned from it.
 - [ ] Report. Pass on your word.
 
+## v3.2 H7. A Jam on the Travel Sax, with tap-in (chunk 32; about 10 min)
+
+Chrome on the reference machine, the Travel Sax over USB. Jam's tempo is set before the doodle,
+and **Tap tempo**, after the stepper in Jam's Tempo field, sets it by tapping the beat: each press
+of the button is a tap, and after one press every note you play is a tap too, until two seconds
+pass without one. From the fourth tap the tempo is set, rounded to the stepper's step of 10 BPM and
+kept between 60 and 180 BPM; each further tap sets it again. Tapping starts nothing and sounds
+nothing. Run it after wave 7.
+
+- [ ] Warming up. Switch the header's **Mode** to `Jam`. Without pressing `Tap tempo`, play a few
+      notes other than the one the starting-note line names: the tempo does not move. Press
+      `Tap tempo` once, then play the named note (the home note): it starts nothing, and the
+      starting-note line is hidden while the app listens for taps. Wait two seconds: the line
+      shows again.
+- [ ] Press `Tap tempo`, then tap 120 BPM on the Travel Sax, one short note on each beat (to a
+      metronome if you like): the stepper and the header show 120 BPM, and the note under the
+      stepper reads "Set to 120 BPM. Keep tapping to correct it.".
+- [ ] Set `Click` off beside `Backing`. Wait two seconds, then start the Jam by the home note; play
+      a one-measure doodle and stop playing: phrase 1 continues from your last note, after the
+      writing and read-in measures. The click still sounds until phrase 1, then stops.
+- [ ] Stop, Close review, then press `New doodle`. Tap 60 BPM; start the Jam and play a
+      four-measure doodle, holding its last note on: the doodle ends after four measures.
+- [ ] `New doodle` again. Tap 180 BPM; start the Jam and play a doodle with one note a little early
+      onto beat 1 (just before the first barline), and a breath noise somewhere in it: the early
+      note is the doodle's first, and the noise changes nothing.
+- [ ] Start a fresh Jam and unplug the controller during the count-in: the Jam ends at once. Plug
+      it in; repeat during the doodle, then during the read-in measure.
+- [ ] Say whether setting the tempo first felt natural, and whether tap-in was worth keeping.
+- [ ] Report. Pass on your word.
+
 ## v3.2 H8. A Jam's files (chunk 25; about 5 min)
 
 Chrome on the reference machine, the Travel Sax over USB, MuseScore and a DAW installed. A Jam's

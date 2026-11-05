@@ -2,15 +2,17 @@
 /**
  * Jam's controls, "Shape your Jam", in `control-section`'s place while Jam mode shows (master spec
  * C5.16; the phrase-workspace handoff, Jam's controls): three groups. **Foundation**: Jam's tempo
- * (60 to 180 BPM in steps of 10), written key and collection, the shared instrument (its range
+ * (60 to 180 BPM in steps of 10, with `tap-tempo` after the stepper in the Tempo field and its
+ * note under both, ./TapTempo.vue), written key and collection, the shared instrument (its range
  * summary and `instrument-actions` as in session mode), Jam's harmonic motion and tension, and one
  * Embellishments level given to all seven figures. **Following your doodle**: the drift, and Jam's
  * own rhythm lock with its allowed rhythm changes under it. **From your doodle**: what the app read
  * from the doodle (./DoodleReadings.vue). No preset bar, no key and mode marks, no "During a
  * session" options; arpeggio chaos is not shown, a Jam holding it at Varied. Props-in/events-out
  * only: every change of Jam's own settings is reported as a change of them, the instrument as a
- * selection of session mode's shared one; the parent makes them read-only during Loading and a
- * session. Part of Jam's code (src/jam/), loaded on demand.
+ * selection of session mode's shared one, `tap-tempo`'s press and end of listening as they come;
+ * the parent makes them read-only during Loading and a session, `tap-tempo` then disabled. Part of
+ * Jam's code (src/jam/), loaded on demand.
  */
 import { computed, useId } from 'vue'
 
@@ -41,6 +43,7 @@ import type { RhythmChangeKind } from '@/domain/generation/request-rhythm-lock'
 import { MY_INSTRUMENT_ID, type InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 
 import DoodleReadings from './DoodleReadings.vue'
+import TapTempo from './TapTempo.vue'
 import { JAM_TEMPO_VALUES, type JamSettingsChange } from './jam-settings'
 import type { JamControlsProps } from './jam-view-types'
 import { JAM_DRIFTS } from './steering-block-builder'
@@ -55,6 +58,10 @@ const emit = defineEmits<{
   'select-instrument-profile': [id: InstrumentProfileId]
   /** `instrument-actions` was pressed: open the My instrument sheet. */
   'open-my-instrument': []
+  /** `tap-tempo` was pressed: a tap. */
+  'tap-tempo-press': []
+  /** While tap tempo listens, anything else was used or the page hidden or left: it ends. */
+  'tap-tempo-end': []
 }>()
 
 /** The section's copy, as the phrase-workspace handoff words it. */
@@ -181,6 +188,15 @@ const profileRangeSummary = computed(() =>
             :values="JAM_TEMPO_VALUES"
             :readonly="readonly"
             @update:model-value="handleTempo"
+          />
+          <!-- @spec-link [[rule_jam_tap_in_listening]] -->
+          <TapTempo
+            :listening="tapTempo.listening"
+            :note="tapTempo.note"
+            :controller-connected="tapTempo.controllerConnected"
+            :disabled="readonly"
+            @press="emit('tap-tempo-press')"
+            @end="emit('tap-tempo-end')"
           />
         </div>
         <div class="field-group" :class="{ 'is-readonly': readonly }">

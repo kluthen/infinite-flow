@@ -100,10 +100,13 @@ describe('a Jam on the kept doodle: its start', () => {
         timeline: run.phraseOne.outcome.result.timeline,
         written: run.request.written,
       }),
+      tapListening: () => false,
+      tap: () => undefined,
     })
     run.rig.heldModeNotes.value = {
       meaningOf: notes.meaningOf,
       start: () => run.rig.controller.startOnKeptDoodle(run.request),
+      hear: notes.hear,
     }
     const first = notes.startingNote()!.concertPitch
 
