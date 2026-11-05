@@ -1706,3 +1706,5 @@ For the next driver, in this order:
 - **J240**: the owner, verbatim, to the figures and the recommendation to widen: "Keep 180". Chunk
   33's first half merged 7d2cd4a1 (worktree removed, branch kept), marked "measured; not widened";
   no second half, no atom revised. `spec-writer` records the ruling.
+  Recorded as spec D506 (9909fed5; Part C v1.23, plan v39): no Jam item or check runs at 240; HG
+  step 8 (session mode at 240) unaffected. D505 was reserved unused; next free spec D507.
