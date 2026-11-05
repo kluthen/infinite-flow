@@ -1969,8 +1969,8 @@ To run it on its own (about 6 s):
 **Entry-chunk baseline v3.1.** After `npm run build` on branch `v3.2-w0` at commit `ec221b1`,
 whose TypeScript equals `main` at `cb6e6e6` and the `v3.1.0` tag, the entry chunk
 `dist/assets/index-*.js` was 265,431 bytes, counted as `npm run verify:boundaries` counts it (the
-minified file's size on disk, no compression). Its budget is 300 KiB, 307,200 bytes, which leaves
-41,769 bytes (about 40.8 KiB) of headroom. Measured on 2026-10-21; it is v3.2's baseline.
+minified file's size on disk, no compression). Its budget is 320 KiB, 327,680 bytes (spec D504,
+raised from 300 KiB), which leaves 62,249 bytes (about 60.8 KiB) of headroom over this baseline. Measured on 2026-10-21; it is v3.2's baseline.
 
 ### Vary settings draws corpus
 

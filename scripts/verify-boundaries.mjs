@@ -376,7 +376,7 @@ async function verifyBoundaries() {
    * targeted check. Every other JS chunk is expected to stay small; an unmatched chunk falls back to
    * the tightest budget so unexpected new chunks are still guarded.
    */
-  const entryChunkByteBudget = 300 * 1024 // v3.1 (spec D359): raised from 224 KiB, v3.0 shipped 229,146 B with 230 B left; v3.1's presets and level controls load at first start
+  const entryChunkByteBudget = 320 * 1024 // v3.2 (spec D504): raised from 300 KiB, 302,365 B used after chunk 24; v3.1 (spec D359) had raised it from 224 KiB
   const generationWorkerChunkByteBudget = 170 * 1024
   const vexflowEngraverChunkByteBudget = 800 * 1024
   const defaultChunkByteBudget = 100 * 1024
