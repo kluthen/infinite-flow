@@ -807,3 +807,10 @@ Master spec Part C §C19.3 (spec D490-D494), a minor design call under the owner
   `rule_jam_again_on_this_doodle` is the side to align, by `documentalist`. Stated in
   `flows/review-and-export/handoff.md`, The Doodle and the Suggestion, and `flows/jam/handoff.md`'s
   flowchart (the review of a Jam to the kept doodle's Idle).
+- **D471 — A bar button disabled while focused hands focus to the bar's sentence (2026-11-05;
+  minor, D119's standing rule; widens D466 to D465's Loading).** It counts as its element going,
+  so focus never stays on a dead button nor drops to the page. Native `disabled` stays, as for
+  every button in Loading. Rejected: `aria-disabled` (three dead tab stops in every Loading, a
+  second disabled model beside the header's, D350's case being read-only, not Loading). `Jam in`'s
+  own press is no case: the set sentence replaces the buttons. Now in
+  `screens/phrase-workspace/handoff.md`, The kept doodle's bar, Focus.
