@@ -12,7 +12,7 @@ import { makeMeasure } from '@/domain/events/measure'
 import { makeRestEvent } from '@/domain/events/measure-event'
 import { makeConcertEventTimeline, type ConcertEventTimeline } from '@/domain/events/timeline'
 import { makeRational } from '@/domain/time/rational'
-import type { BackingVoice } from '@/audio/audio-ports'
+import type { BackingVoice } from '@/audio/sound-roles'
 
 /** One backing attack the renderer asks for, in beats from its phrase's start. */
 export interface RenderedAttack {

@@ -12,14 +12,13 @@ import {
   WAKE_INTERVAL_SECONDS,
   type AudioOutput,
   type AudioTime,
-  type BackingVoice,
   type ClickRoute,
-  type GuideRole,
   type MixGain,
   type DisposableWakeTimer,
   type SessionBus,
   type WakeTimer,
 } from '../../../src/audio/audio-ports'
+import type { BackingVoice, GuideRole } from '../../../src/audio/sound-roles'
 
 /** Two times this close are the same step boundary; it absorbs the float error of `k * interval`. */
 const SAME_TIME_EPSILON = 1e-9

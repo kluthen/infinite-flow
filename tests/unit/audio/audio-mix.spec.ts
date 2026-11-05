@@ -16,7 +16,7 @@ import {
   type AudioMix,
   type AudioMixRange,
 } from '@/audio/audio-mix'
-import { GUIDE_ROLES } from '@/audio/audio-ports'
+import { GUIDE_ROLES } from '@/audio/sound-roles'
 
 /** The design tokens as the stylesheet declares them, with CSS's leading space. */
 const TOKENS: Readonly<Record<string, string>> = {

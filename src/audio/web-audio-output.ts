@@ -5,19 +5,14 @@
  * context, so the audio clock never stops while the app runs.
  */
 
-import {
-  MIX_CHANNELS,
-  type AudioOutput,
-  type ClockAnchor,
-  type MixChannel,
-  type MixGain,
-} from './audio-ports'
-import {
-  createWebAudioSessionBus,
-  type WebAudioGainNodePort,
-  type WebAudioNodeFactory,
-  type WebAudioNodePort,
-} from './web-audio-session-bus'
+import type { AudioOutput, ClockAnchor, MixGain } from './audio-ports'
+import { MIX_CHANNELS, type MixChannel } from './sound-roles'
+import { createWebAudioSessionBus } from './web-audio-session-bus'
+import type {
+  WebAudioGainNodePort,
+  WebAudioNodeFactory,
+  WebAudioNodePort,
+} from './web-audio-voices'
 
 /**
  * The part of a Web Audio context the output uses: a minimal structural slice, so the browser's

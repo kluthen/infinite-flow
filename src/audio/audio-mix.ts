@@ -6,7 +6,8 @@
  * ever sets gains; it never touches timing or generated material.
  */
 
-import { MIX_CHANNELS, type MixChannel, type MixGain } from './audio-ports'
+import type { MixGain } from './audio-ports'
+import { MIX_CHANNELS, type MixChannel } from './sound-roles'
 
 /** The mix controls' current state. Volumes are levels between the range's min and max. */
 // @spec-link [[req_session_audio_mix]]

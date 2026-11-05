@@ -6,7 +6,7 @@
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { GUIDE_ROLES, MIX_CHANNELS } from '@/audio/audio-ports'
+import { GUIDE_ROLES, MIX_CHANNELS } from '@/audio/sound-roles'
 import { createWebAudioOutput, openWebAudioOutput } from '@/audio/web-audio-output'
 import {
   createFakeWebAudioContext,

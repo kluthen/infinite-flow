@@ -12,7 +12,8 @@ import {
   PHRASE_MEASURE_COUNT,
 } from '../domain/generation/generation-request-envelope'
 import type { Rational } from '../domain/time/rational'
-import type { AudioTime, BackingVoice, ScheduledBackingNote } from './audio-ports'
+import type { AudioTime } from './audio-ports'
+import type { BackingVoice, ScheduledBackingNote } from './sound-roles'
 import { beatAt, type ClickPlan } from './click-track'
 
 /** Intent: throw unless `phraseNumber` counts a phrase: a whole number from 1. */

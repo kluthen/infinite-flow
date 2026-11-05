@@ -11,7 +11,7 @@ import { readFileSync } from 'node:fs'
 
 import { describe, expect, it } from 'vitest'
 
-import type { GuideRole } from '@/audio/audio-ports'
+import type { GuideRole } from '@/audio/sound-roles'
 import { beatAt, createClickPlan, withTempoFrom, type ClickPlan } from '@/audio/click-track'
 import { LOOK_AHEAD_SECONDS } from '@/audio/look-ahead-scheduler'
 import { renderGuide, type GuideNote } from '@/domain/backing/guide-renderer'

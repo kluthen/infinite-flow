@@ -9,6 +9,7 @@ import type { AudioTransport } from '@/audio/audio-transport'
 import { beatAt, createClickPlan } from '@/audio/click-track'
 import type { HarmonyEvent } from '@/domain/harmony/harmony-types'
 
+/** How a scenario queues one phrase on the transport: before chunk 40's guides, or after it. */
 export type Queue = (
   transport: AudioTransport,
   phraseNumber: number,
@@ -16,11 +17,17 @@ export type Queue = (
   tempo: number,
 ) => void
 
+/** One scripted session's name and the fake-output events it recorded. */
 export interface RecordedScenario {
   readonly name: string
   readonly events: readonly FakeAudioEvent[]
 }
 
+/**
+ * Intent: run both scripted sessions, phrase 1 at the start and phrase 1 handed over at a
+ * barline, each on a fresh transport rig with its phrases queued through `queue`, and return each
+ * one's recorded fake-output events by name.
+ */
 export function recordGuideOffScenarios(queue: Queue): RecordedScenario[] {
   const [first, second] = twoPhraseHarmonies()
   const withPhraseOne = (() => {

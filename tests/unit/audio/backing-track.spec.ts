@@ -6,7 +6,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import type { ScheduledBackingNote } from '@/audio/audio-ports'
+import type { ScheduledBackingNote } from '@/audio/sound-roles'
 import {
   backingNotesBetween,
   phraseFirstBeat,

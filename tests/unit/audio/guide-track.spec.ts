@@ -7,7 +7,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import type { ScheduledGuideNote } from '@/audio/audio-ports'
+import type { ScheduledGuideNote } from '@/audio/sound-roles'
 import { clicksBetween, createClickPlan, withTempoFrom, type ClickPlan } from '@/audio/click-track'
 import { guideNotesBetween, scheduleGuide } from '@/audio/guide-track'
 import type { GuideNote, RenderedGuide } from '@/domain/backing/guide-renderer'

@@ -12,7 +12,7 @@ import type {
   WebAudioNodePort,
   WebAudioOscillatorNodePort,
   WebAudioParamPort,
-} from '@/audio/web-audio-session-bus'
+} from '@/audio/web-audio-voices'
 
 /** One call on a fake audio parameter: the method name and its two numeric arguments, or one. */
 export type ParamCall = readonly [method: string, ...args: number[]]

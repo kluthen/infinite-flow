@@ -12,7 +12,8 @@ import {
   PHRASE_MEASURE_COUNT,
 } from '../domain/generation/generation-request-envelope'
 import { addRational, type Rational } from '../domain/time/rational'
-import type { AudioTime, GuideRole, ScheduledGuideNote } from './audio-ports'
+import type { AudioTime } from './audio-ports'
+import type { GuideRole, ScheduledGuideNote } from './sound-roles'
 import { phraseFirstBeat } from './backing-track'
 import { beatAt, type ClickPlan } from './click-track'
 

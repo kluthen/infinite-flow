@@ -9,7 +9,7 @@
 import { ref } from 'vue'
 
 import { channelOn, type AudioMix, type DesignTokenSource } from '@/audio/audio-mix'
-import type { GuideRole } from '@/audio/audio-ports'
+import type { GuideRole } from '@/audio/sound-roles'
 import type { AudioTransport } from '@/audio/audio-transport'
 import MixVolumeButton from './MixVolumeButton.vue'
 import type { MixVolumePopover } from './mix-volume-popover'
