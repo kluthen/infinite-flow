@@ -1708,3 +1708,14 @@ For the next driver, in this order:
   no second half, no atom revised. `spec-writer` records the ruling.
   Recorded as spec D506 (9909fed5; Part C v1.23, plan v39): no Jam item or check runs at 240; HG
   step 8 (session mode at 240) unaffected. D505 was reserved unused; next free spec D507.
+- Chunk 40 MERGED 36369e23 (40a c5b592c8, 40b 40428012; branch `v3.2-c40-guide-playback` kept).
+  Done when 1–6 met with evidence; related units 2,184 (40a) and 261 (40b), audio/storage/workspace
+  areas 1,029 + 2,146; e2e `audio-guide.spec.ts` (new), `mix-controls`, `audio-backing` 39 passed,
+  saved-settings reload passed, axe on the popover passed; v3.2 HG written. Entry **310,370 B of
+  327,680 B** (+4,752 40a, +1,564 40b); Jam's chunk 61,192 B. For `spec-writer` after the gate:
+  the generator writes no triplet and no tie across a barline, so C19.1's "sixteenth-note triplet at
+  240 BPM" and item 50's seeded triplets/barline ties describe shapes no seeded phrase has (the code
+  handles them; hand-built timelines test them). For `ux-writer`: on a landscape phone the `Volume`
+  popover's four sliders scroll (ux D459–D463 allow it).
+
+### Wave gate

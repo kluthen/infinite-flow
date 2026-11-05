@@ -2972,7 +2972,8 @@ Record: baa803dd, merged afca4828. As specified; M2 re-run 2026-11-03 on the ref
 
 ### Chunk 40 — The guide playback
 
-Status: in progress
+Status: merged (w7, 36369e23)
+Record: 40a c5b592c8, 40b 40428012, merge 36369e23; no deviation from the spec or the design. The split moved: `AudioMix`, `readAudioMixDesign`'s guide fields and tokens and the four parsers went into 40a (the transport's guide state needs them). `queueBacking(phraseNumber, harmony, timeline, tempo)`; setters `setGuideOn`, `setGuideVolume`. Voices (for HG to tune, `SOUND_ROLE_VOICES`): melody guide sine 0.3, attack 5 ms, release 600 ms; rhythm guide triangle 0.25, 3 ms, 300 ms; re-attack fade 15 ms. Guides-off fixture `tests/fixtures/audio/v3.2-c40-guide-off-session-calls.json` (never regenerated). Unchanged from the Files line: `setting-defaults.ts`, `mix-volume-popover.ts`, `browser-audio-transport.ts`. Entry 310,370 B, Jam's chunk 61,192 B.
 Wave: 7
 Depends on: 21 (the phrase queueing paths as wave 6 leaves them; and v2's backing, v3.0's saved
 settings); GD (40b); CG (its merge)
