@@ -83,8 +83,8 @@ describe('the Review host and area: very short notes', () => {
     await building
 
     expect(buildPlayedNotesFile.mock.calls).toEqual([
-      [history, { includeVeryShortNotes: false }, WHOLE_SESSION],
-      [history, { includeVeryShortNotes: true }, WHOLE_SESSION],
+      [history, { includeVeryShortNotes: false }, WHOLE_SESSION, null],
+      [history, { includeVeryShortNotes: true }, WHOLE_SESSION, null],
     ])
     stop()
   })

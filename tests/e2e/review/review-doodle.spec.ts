@@ -21,22 +21,9 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
 import { watchPageErrors } from '../controller/controller-helpers'
-import {
-  PAST_BARLINE,
-  gotoJamIdle,
-  jamGrid,
-  playDoodle,
-  startJamByClick,
-  untilPhraseOneAnswered,
-} from '../session/jam-helpers'
-import { PHONE, sessionAction, sessionState } from '../session/session-helpers'
-import { clockTo } from '../session/session-midi-helpers'
-import {
-  gotoStorageHarness,
-  harnessReady,
-  reloadHarness,
-  seedSettings,
-} from '../storage/storage-helpers'
+import { gotoJamIdle } from '../session/jam-helpers'
+import { PHONE, sessionAction } from '../session/session-helpers'
+import { gotoStorageHarness, harnessReady, reloadHarness } from '../storage/storage-helpers'
 import {
   gotoHeldLoad,
   releaseHeldLoad,
@@ -58,15 +45,20 @@ import {
   reviewPanel,
   reviewTitle,
 } from './review-helpers'
-import { keyedRecords, untilKept } from './review-tools-helpers'
+import {
+  DOODLE_NOT_LOADED,
+  jamReviewed,
+  keptJamAfterReload,
+  watchPageErrorsBut,
+} from './review-jam-helpers'
+import { untilKept } from './review-tools-helpers'
 import { rowOpen, rows, sessionAt, sessionDateOf, showListFromCueRow } from './session-list-helpers'
 
 /** The sentence in the doodle's place while Jam's code loads. */
 const LOADING_NOTE = 'Loading your doodle.'
 
 /** The sentence in the doodle's place when Jam's code could not load. */
-const FAILED_NOTE =
-  "Your doodle can't be shown: part of the app didn't load. Check that you're online, then open this session again."
+const FAILED_NOTE = DOODLE_NOT_LOADED
 
 /** The words a doodle's length is named with, by its measure count. */
 const LENGTH_WORDS: Readonly<Record<number, string>> = {
@@ -108,26 +100,6 @@ function doodleName(measures: number): RegExp {
     `^Your doodle, treble clef, key signature [^,]+ \\([^)]+\\), 4/4 time, ${LENGTH_WORDS[measures]}\\.$`,
     'u',
   )
-}
-
-/**
- * Intent: from Jam mode's Idle, a fresh Jam with a doodle of `measures` measures (one note on each
- * of its barlines), run until phrase 1 sounds, then Stopped: the Review shows. Returns the tempo
- * the doodle was played at, Jam's.
- */
-async function jamReviewed(page: Page, measures: number): Promise<number> {
-  await startJamByClick(page)
-  const grid = await jamGrid(page)
-  const captureTempo = (await sessionState(page)).sessionTempo
-  if (captureTempo === null) throw new Error('no Jam runs')
-  await playDoodle(page, grid, measures)
-  await clockTo(page, grid.barline(measures) + PAST_BARLINE)
-  await untilPhraseOneAnswered(page)
-  await clockTo(page, grid.barline(measures + 2) + 1)
-  expect((await sessionState(page)).phase).toBe('running')
-  await sessionAction(page).click()
-  await expect(reviewTitle(page)).toBeVisible()
-  return captureTempo
 }
 
 /** Intent: assert the doodle section's header: its title and tempo, nothing of a phrase. */
@@ -288,20 +260,6 @@ test.describe('a kept session reopened from the session list', () => {
 
 // @test-link [[rule_jam_code_loaded_on_demand]]
 test.describe("Jam's code for a kept Jam session's Review, after a reload", () => {
-  /**
-   * Intent: a fresh Jam with a two-measure doodle, its raw doodle notes kept, reviewed then kept;
-   * the page reloaded in session mode, Jam's code not loaded in this visit.
-   */
-  async function keptJamAfterReload(page: Page): Promise<number> {
-    await gotoJamIdle(page)
-    await seedSettings(page, { keepPlayedNotes: true })
-    await gotoJamIdle(page)
-    const captureTempo = await jamReviewed(page, 2)
-    await untilKept(page, 1)
-    await expect.poll(async () => (await keyedRecords(page, 'playedNotes')).length).toBe(1)
-    return captureTempo
-  }
-
   // @test-link [[rule_jam_code_loaded_on_demand]]
   test('shows "Loading your doodle." while the code is on its way, then the doodle', async ({
     page,
@@ -501,14 +459,3 @@ test.describe('the doodle on a landscape phone', () => {
     })
   }
 })
-
-/** Intent: like `watchPageErrors`, but letting through console errors matching `allowed`. */
-function watchPageErrorsBut(page: Page, allowed: RegExp): () => void {
-  const errors: string[] = []
-  page.on('pageerror', (error) => errors.push(error.message))
-  page.on('console', (message) => {
-    if (message.type() === 'error' && !allowed.test(message.text()))
-      errors.push(`console: ${message.text()}`)
-  })
-  return () => expect(errors, `Unexpected page errors:\n${errors.join('\n')}`).toEqual([])
-}

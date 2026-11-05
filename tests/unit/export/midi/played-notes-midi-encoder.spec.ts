@@ -2,8 +2,16 @@ import { describe, expect, it } from 'vitest'
 
 import { MidiExportError } from '@/export/midi/midi-export-input'
 import { encodePlayedNotesMidi } from '@/export/midi/played-notes-midi-encoder'
-import type { PlayedNotesMidiInput } from '@/export/midi/played-notes-midi-input'
-import { phraseStarts, playedSession, type PlayedOffsets } from './played-notes-fixtures'
+import type {
+  PlayedNotesDoodleSection,
+  PlayedNotesMidiInput,
+} from '@/export/midi/played-notes-midi-input'
+import {
+  phraseStarts,
+  playedNote,
+  playedSession,
+  type PlayedOffsets,
+} from './played-notes-fixtures'
 import {
   metaTexts,
   notesOf,
@@ -14,6 +22,7 @@ import {
 } from './smf-reader'
 
 const TRACK_NAME = 0x03
+const MARKER = 0x06
 const END_OF_TRACK = 0x2f
 const PHRASE_TICKS = 15360
 
@@ -194,5 +203,83 @@ describe('encodePlayedNotesMidi: channels', () => {
     ])
 
     expect(() => encodePlayedNotesMidi(inPhraseTwo(stackedAttacks(16)))).toThrow(MidiExportError)
+  })
+})
+
+/** Where a Jam's two-measure doodle section ends and its phrase 1 starts: two 4/4 measures. */
+const DOODLE_END_TICK = 2 * 3840
+
+/**
+ * Intent: a Jam's session: a two-measure doodle at 96 BPM from its first barline at 1 s (so it
+ * ends at 6 s, a sixteenth note lasting 0.15625 s) holding `doodleNotes`, then two phrases at
+ * 120 BPM from 6 s, phrase 1 holding one note half a second in.
+ */
+function jamSession(doodleNotes: PlayedNotesDoodleSection['playedNotes']): PlayedNotesMidiInput {
+  const session = playedSession(
+    6,
+    [120, 120],
+    [[{ pitch: 72, velocity: 90, onset: 0.5, release: 1 }], []],
+  )
+  return {
+    ...session,
+    doodle: { measureCount: 2, tempo: 96, startedAt: 1, playedNotes: doodleNotes },
+  }
+}
+
+// @test-link [[rule_jam_exports_open_with_doodle]]
+// @test-link [[rule_played_notes_export_unquantized_timing]]
+describe("encodePlayedNotesMidi: a Jam's doodle section", () => {
+  // @test-link [[rule_jam_exports_open_with_doodle]]
+  // @test-link [[rule_jam_exports_line_up]]
+  it("opens with a Doodle marker at tick 0, phrase 1 at the doodle's last barline", () => {
+    const file = encodeAndRead(jamSession([playedNote(60, 64, 1.5, 2)]))
+
+    expect(metaTexts(file.tracks[0]!, MARKER)).toEqual([
+      { tick: 0, text: 'Doodle' },
+      { tick: DOODLE_END_TICK, text: 'Phrase 1' },
+      { tick: DOODLE_END_TICK + PHRASE_TICKS, text: 'Phrase 2' },
+    ])
+    expect(endTick(file.tracks[0]!)).toBe(DOODLE_END_TICK + 2 * PHRASE_TICKS)
+    // Phrase 1's note, half a second in at 120 BPM: 960 ticks after the doodle's end.
+    expect(playedNotes(file).at(-1)).toEqual([
+      0,
+      72,
+      90,
+      DOODLE_END_TICK + 960,
+      DOODLE_END_TICK + 1920,
+    ])
+  })
+
+  // @test-link [[rule_played_notes_export_unquantized_timing]]
+  // @test-link [[rule_raw_doodle_notes_are_played_notes]]
+  it('places a raw note unquantized, at the tick its seconds give at the capture tempo', () => {
+    // 0.3337 s after the barline at 96 BPM is 512.56 ticks, and 0.6 s is 921.6: off any grid.
+    const file = encodeAndRead(jamSession([playedNote(61, 33, 1.3337, 1.6)]))
+
+    expect(playedNotes(file)[0]).toEqual([0, 61, 33, 513, 922])
+  })
+
+  // @test-link [[rule_jam_exports_line_up]]
+  it("stops a raw note still held at the doodle's end there, at phrase 1's start", () => {
+    const file = encodeAndRead(jamSession([playedNote(62, 80, 5.5, 7)]))
+
+    // 4.5 s after the barline at 96 BPM is 6912 ticks; its release falls in phrase 1.
+    expect(playedNotes(file)[0]).toEqual([0, 62, 80, 6912, DOODLE_END_TICK])
+  })
+
+  // @test-link [[rule_raw_doodle_notes_are_played_notes]]
+  it('starts at tick 0 a note played less than a sixteenth before the first barline, its release unchanged', () => {
+    const file = encodeAndRead(jamSession([playedNote(63, 70, 0.9, 1.25)]))
+
+    // Its release, 0.25 s after the barline at 96 BPM, is 384 ticks.
+    expect(playedNotes(file)[0]).toEqual([0, 63, 70, 0, 384])
+  })
+
+  // @test-link [[rule_jam_exports_open_with_doodle]]
+  it('keeps the section, empty, for a Jam on the kept doodle, which played no raw note', () => {
+    const file = encodeAndRead(jamSession([]))
+
+    expect(metaTexts(file.tracks[0]!, MARKER)[0]).toEqual({ tick: 0, text: 'Doodle' })
+    expect(playedNotes(file)).toEqual([[0, 72, 90, DOODLE_END_TICK + 960, DOODLE_END_TICK + 1920]])
   })
 })

@@ -1,6 +1,7 @@
 /**
  * A minimal Standard MIDI File scan for the Review export specs: every note-on (velocity above 0)
- * of every track, in file order, so a spec can tell which notes a downloaded file holds. It reads
+ * of every track, in file order, so a spec can tell which notes a downloaded file holds, and the
+ * markers of the first track (the conductor track) with their ticks. It reads
  * delta times, running status, meta and SysEx events as the format allows, and throws on a chunk
  * it does not expect or data that runs past the end.
  */
@@ -82,4 +83,52 @@ export function smfNoteOns(bytes: Uint8Array): SmfNoteOn[] {
     position = end
   }
   return noteOns
+}
+
+/** One marker of the conductor track: its tick from the file's start, and its text. */
+export interface SmfMarker {
+  readonly tick: number
+  readonly text: string
+}
+
+/** The meta event type of a marker. */
+const MARKER = 0x06
+
+/** Intent: the position after the channel event whose data starts at `at` under `status`. */
+function afterChannelEvent(status: number, at: number): number {
+  const kind = status & 0xf0
+  return at + (kind === 0xc0 || kind === 0xd0 ? 1 : 2)
+}
+
+/** Intent: every marker of the file's first track, in file order, with its tick. */
+export function smfMarkers(bytes: Uint8Array): SmfMarker[] {
+  if (chunkName(bytes, 0) !== 'MThd') throw new Error('SMF: no header chunk.')
+  const start = 8 + uint(bytes, 4, 4)
+  if (chunkName(bytes, start) !== 'MTrk') throw new Error('SMF: no first track.')
+  const end = start + 8 + uint(bytes, start + 4, 4)
+  const markers: SmfMarker[] = []
+  let position = start + 8
+  let tick = 0
+  let status = 0
+  while (position < end) {
+    const delta = varLength(bytes, position)
+    tick += delta.value
+    position = delta.next
+    const first = uint(bytes, position, 1)
+    if (first === 0xff || first === 0xf0 || first === 0xf7) {
+      const length = varLength(bytes, position + (first === 0xff ? 2 : 1))
+      if (first === 0xff && uint(bytes, position + 1, 1) === MARKER) {
+        const text = bytes.subarray(length.next, length.next + length.value)
+        markers.push({ tick, text: new TextDecoder().decode(text) })
+      }
+      position = length.next + length.value
+      continue
+    }
+    if (first & 0x80) {
+      status = first
+      position += 1
+    }
+    position = afterChannelEvent(status, position)
+  }
+  return markers
 }

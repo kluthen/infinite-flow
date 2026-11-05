@@ -15,7 +15,12 @@ import type { ReviewedPhrase, SessionDoodle } from '@/session/session-history'
 import type { PlayedNotesPitchScale } from './played-notes-lane-geometry'
 import type { ReviewEngravingOutcome } from './review-engraving-window'
 import { doodleStaffReservation, reviewStaffStyle } from './review-staff-style'
-import type { ReviewEngraver, ReviewJamCode, ReviewStaffReservation } from './review-types'
+import {
+  DOODLE_NOT_LOADED_SENTENCE,
+  type ReviewEngraver,
+  type ReviewJamCode,
+  type ReviewStaffReservation,
+} from './review-types'
 
 // @spec-link [[rule_review_opens_with_doodle]]
 // @spec-link [[rule_jam_code_loaded_on_demand]]
@@ -41,9 +46,7 @@ const props = defineProps<{
 /** The sentences standing in for the doodle while Jam's code is not there. */
 const CODE_NOTES = {
   loading: 'Loading your doodle.',
-  failed:
-    "Your doodle can't be shown: part of the app didn't load. Check that you're online, then " +
-    'open this session again.',
+  failed: DOODLE_NOT_LOADED_SENTENCE,
 } as const
 
 const titleId = useId()

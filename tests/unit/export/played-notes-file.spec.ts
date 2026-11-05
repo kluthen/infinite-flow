@@ -3,25 +3,35 @@
  * encoder's output for the history's played-notes input, a second build gives the same bytes, it
  * holds the played notes and no generated note, the adapter's and encoder's typed errors reach the
  * caller, and its name carries the session's local start on the stem the generated-notes file
- * shares, with a suffix of its own. It also rides in the lazy export module the loader yields.
+ * shares, with a suffix of its own. It also rides in the lazy export module the loader yields. A
+ * Jam's file opens with its doodle section in both scopes, holding the raw doodle notes (very short
+ * ones only when asked for), empty for a Jam on the kept doodle; a session that is no Jam gets
+ * v3.1's file.
  */
 
 import { describe, expect, it } from 'vitest'
 
-import { exportFileStem } from '@/export/export-file'
+import { makeConcertPitch } from '@/domain/events/concert-pitch'
+import { WHOLE_SESSION, exportFileStem, type ExportScope } from '@/export/export-file'
 import { GeneratedNotesFileError, generatedNotesFileName } from '@/export/generated-notes-file'
 import { loadGeneratedNotesExport } from '@/export/load-generated-notes-export'
 import { MidiExportError } from '@/export/midi/midi-export-input'
 import { encodePlayedNotesMidi } from '@/export/midi/played-notes-midi-encoder'
 import { buildPlayedNotesFile, playedNotesFileName } from '@/export/played-notes-file'
-import type { SessionHistoryRecord } from '@/session/session-history'
+import { exportPlayedDoodleSection } from '@/jam/export/doodle-section'
+import type { RecordedPlayedNote, SessionHistoryRecord } from '@/session/session-history'
 import {
   SessionHistoryExportError,
   playedNotesMidiInputFromHistory,
 } from '@/session/session-history-export'
 import { recordedRecords } from '../components/review/review-fixtures'
+import {
+  jamHistory,
+  keptDoodleJamPart,
+  reviewedJamPart,
+} from '../components/workspace/reviewed-jam-part-fixture'
 import { SESSION_START_EPOCH_MS } from '../session/session-harness'
-import { notesOf, readSmf } from './midi/smf-reader'
+import { metaTexts, notesOf, readSmf } from './midi/smf-reader'
 
 /** Intent: a history over `records`, started at `startedAt`, as the export reads it. */
 function historyOf(records: readonly SessionHistoryRecord[], startedAt = SESSION_START_EPOCH_MS) {
@@ -118,5 +128,163 @@ describe('the played-notes file', () => {
 
     expect(exportModule.buildPlayedNotesFile).toBe(buildPlayedNotesFile)
     expect(typeof exportModule.buildGeneratedNotesFile).toBe('function')
+  })
+})
+
+/** The marker meta event type of a Standard MIDI File. */
+const MARKER = 0x06
+
+/** The Jam-style session's favorites-only scope, phrase 2 kept. */
+const FAVORITE_TWO: ExportScope = { kind: 'favoritesOnly', favorites: [2] }
+
+/** The fixture's two-measure doodle ends, and the first exported phrase starts, at this tick. */
+const DOODLE_END_TICK = 2 * 3840
+
+/**
+ * The fixture's raw doodle notes the file holds, as [pitch, velocity, start tick, end tick]: the
+ * two played during the doodle, a quarter second each, timed from its first barline at 96 BPM
+ * (1536 ticks a second); the one played on the count-in is no doodle note.
+ */
+const RAW_DOODLE_TICKS: readonly (readonly number[])[] = [
+  [62, 72, 384, 768],
+  [64, 72, 3840, 4224],
+]
+
+/** Intent: the played track's notes of a file as [pitch, velocity, start tick, end tick]. */
+function playedTicks(bytes: Uint8Array): number[][] {
+  return notesOf(readSmf(bytes).tracks[1]!).map((note) => [
+    note.pitch,
+    note.velocity,
+    note.startTick,
+    note.endTick,
+  ])
+}
+
+/** Intent: a raw doodle note of `pitch` from `onsetAt`, lasting `seconds`. */
+function rawNote(pitch: number, onsetAt: number, seconds: number): RecordedPlayedNote {
+  return { pitch: makeConcertPitch(pitch), velocity: 50, onsetAt, releaseAt: onsetAt + seconds }
+}
+
+// @test-link [[rule_jam_exports_open_with_doodle]]
+// @test-link [[rule_raw_doodle_notes_are_played_notes]]
+describe("the played-notes file of a Jam's session", () => {
+  // @test-link [[rule_jam_exports_open_with_doodle]]
+  // @test-link [[rule_raw_doodle_notes_are_played_notes]]
+  it.each([
+    ['whole session', WHOLE_SESSION, 'Phrase 1'],
+    ['favorites only', FAVORITE_TWO, 'Phrase 2'],
+  ] as const)(
+    'holds the raw doodle notes in its Doodle section (%s), with nothing played in a phrase',
+    (_, scope, firstPhrase) => {
+      const doodle = exportPlayedDoodleSection(reviewedJamPart().doodle)
+
+      const file = buildPlayedNotesFile(
+        jamHistory(false),
+        { includeVeryShortNotes: false },
+        scope,
+        doodle,
+      )
+
+      expect(metaTexts(readSmf(file.bytes).tracks[0]!, MARKER).slice(0, 2)).toEqual([
+        { tick: 0, text: 'Doodle' },
+        { tick: DOODLE_END_TICK, text: firstPhrase },
+      ])
+      expect(playedTicks(file.bytes)).toEqual(RAW_DOODLE_TICKS)
+    },
+  )
+
+  // @test-link [[rule_played_notes_export_omits_stray_notes]]
+  // @test-link [[rule_raw_doodle_notes_are_played_notes]]
+  it('holds the very short raw notes only when asked for', () => {
+    const doodle = exportPlayedDoodleSection(
+      reviewedJamPart([rawNote(62, 1.5, 0.25), rawNote(70, 2, 0.012)]).doodle,
+    )
+    /** Intent: the pitches of the file built with the option as given. */
+    const pitches = (includeVeryShortNotes: boolean) =>
+      playedTicks(
+        buildPlayedNotesFile(jamHistory(true), { includeVeryShortNotes }, WHOLE_SESSION, doodle)
+          .bytes,
+      )
+        .filter(([, , start]) => start! < DOODLE_END_TICK)
+        .map(([pitch]) => pitch)
+
+    expect(pitches(false)).toEqual([62])
+    expect(pitches(true)).toEqual([62, 70])
+  })
+
+  // @test-link [[rule_played_notes_export_omits_stray_notes]]
+  it('gives no file when every note, in the phrases and the doodle, is very short, unless asked for', () => {
+    const doodle = exportPlayedDoodleSection(reviewedJamPart([rawNote(70, 2, 0.012)]).doodle)
+
+    expect(() =>
+      buildPlayedNotesFile(
+        jamHistory(false),
+        { includeVeryShortNotes: false },
+        WHOLE_SESSION,
+        doodle,
+      ),
+    ).toThrow(MidiExportError)
+    const file = buildPlayedNotesFile(
+      jamHistory(false),
+      { includeVeryShortNotes: true },
+      WHOLE_SESSION,
+      doodle,
+    )
+    expect(playedTicks(file.bytes).map(([pitch]) => pitch)).toEqual([70])
+  })
+
+  // @test-link [[rule_jam_exports_open_with_doodle]]
+  it('opens a Jam on the kept doodle with its Doodle section, holding no note', () => {
+    const history = jamHistory(true)
+    const phraseOneAt = history.phrases()[0]!.startedAt
+    const doodle = exportPlayedDoodleSection(keptDoodleJamPart(phraseOneAt).doodle)
+    expect(doodle.playedNotes).toEqual([])
+
+    const file = buildPlayedNotesFile(
+      history,
+      { includeVeryShortNotes: false },
+      WHOLE_SESSION,
+      doodle,
+    )
+
+    expect(metaTexts(readSmf(file.bytes).tracks[0]!, MARKER)[0]).toEqual({
+      tick: 0,
+      text: 'Doodle',
+    })
+    const ticks = playedTicks(file.bytes)
+    expect(ticks).toHaveLength(4)
+    expect(ticks.every(([, , start]) => start! >= DOODLE_END_TICK)).toBe(true)
+  })
+
+  // @test-link [[req_played_notes_export]]
+  it("gives v3.1's file for a session that is no Jam: no doodle section", () => {
+    const records = recordedRecords()
+    const scope: ExportScope = { kind: 'favoritesOnly', favorites: [1, 3] }
+
+    for (const [asked, read] of [
+      [WHOLE_SESSION, records],
+      [scope, records.filter((record) => record.phraseNumber !== 2)],
+    ] as const) {
+      const file = buildPlayedNotesFile(
+        historyOf(records),
+        { includeVeryShortNotes: true },
+        asked,
+        null,
+      )
+      expect([...file.bytes]).toEqual([
+        ...buildPlayedNotesFile(historyOf(records), { includeVeryShortNotes: true }, asked).bytes,
+      ])
+      expect(metaTexts(readSmf(file.bytes).tracks[0]!, MARKER).map(({ text }) => text)).toEqual(
+        read.map((record) => `Phrase ${record.phraseNumber}`),
+      )
+    }
+    expect([
+      ...buildPlayedNotesFile(
+        historyOf(records),
+        { includeVeryShortNotes: true },
+        WHOLE_SESSION,
+        null,
+      ).bytes,
+    ]).toEqual([...encodePlayedNotesMidi(playedNotesMidiInputFromHistory(records))])
   })
 })

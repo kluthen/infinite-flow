@@ -62,11 +62,22 @@ const emit = defineEmits<{
 const host = props.host
 /** The page's own export ports: the lazy export code, downloading through this page's document. */
 const pageExportPorts = browserReviewExportPorts(document)
+/** Jam's code for a Jam session's Review, asked for as each one opens. */
+const jamCode = useReviewJamCode({
+  jamSession: () => {
+    const shown = host.shownReview.value
+    return shown?.jam === undefined ? null : shown.history
+  },
+  loaded: loadedJamMode,
+  load: loadJamMode,
+})
+
 const review = useReviewArea({
   host,
   controller: () => props.controller,
   exportPorts: () => props.exportPorts ?? pageExportPorts,
   saveSettings: injectSaveSettings(),
+  jamCode,
 })
 /**
  * Intent: the showing Review's session start, length and keeping, for its panel; null while none
@@ -80,16 +91,6 @@ const reviewSession = computed(() => {
   return startedAt === null || lengthSeconds === null || keeping === null
     ? null
     : { startedAt, lengthSeconds, keeping }
-})
-
-/** Jam's code for a Jam session's Review, asked for as each one opens. */
-const jamCode = useReviewJamCode({
-  jamSession: () => {
-    const shown = host.shownReview.value
-    return shown?.jam === undefined ? null : shown.history
-  },
-  loaded: loadedJamMode,
-  load: loadJamMode,
 })
 
 /** `Jam again on this doodle`, rendered in a Jam session's doodle section. */
@@ -313,6 +314,7 @@ defineExpose({ focusReviewTitle: focus.title })
     :can-delete-played-notes="review.canDeletePlayedNotes.value"
     :include-very-short-notes="host.includeVeryShortNotes.value"
     :played-notes-unavailable="review.playedNotesUnavailable.value"
+    :generated-notes-unavailable="review.generatedNotesUnavailable.value"
     :session-key="review.sessionKey.value ?? ''"
     :pinned="review.pinned.value"
     :favorites="review.favorites.value"

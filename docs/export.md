@@ -415,6 +415,40 @@ scope.
 - **Never the comment.** The session's comment lives beside the history, never in it, so no file
   of either scope holds it.
 
+## A Jam's files
+
+A Jam session's three files open with its doodle
+([master spec C5.15](../specs/versions/v3/master-spec.md#c515-the-review-and-the-exports)): a section
+marked "Doodle" at time zero, as many 4/4 measures as the doodle (1 to 4), at its capture tempo;
+then the first exported phrase at the next barline, the waiting measures between them never
+written. The section is in both scopes and is never a favorite.
+
+- **Built by Jam's code.** `src/jam/export/doodle-section.ts` (exported from `jam-mode.ts`, so it
+  loads with Jam's code) builds the sections from the Jam part's `SessionDoodle` and phrase 1:
+  `exportDoodleSection` for the generated-notes files, `exportPlayedDoodleSection` for the
+  played-notes file, kept apart so no generated-notes file is ever handed a raw note. The file
+  builders take them as data (`ExportDoodleSection`, `PlayedNotesDoodleSection`, an optional
+  `doodle` field on each encoder input) and never import Jam's code. Without one, every file is
+  v3.1's, byte for byte.
+- **Generated notes.** MusicXML writes the doodle as the review engraves it
+  (`doodleWrittenPhrase`: written pitch, the key signature phrase 1 was generated in, its clef, no
+  chord symbol), measures numbered from 1 under rehearsal mark "Doodle" and a metronome mark,
+  closed by a double barline; each phrase's measure numbers move on by the doodle's length. MIDI
+  puts the doodle on the generated track from tick 0 under a "Doodle" marker and a tempo event at
+  its capture tempo; the phrases start at `measureCount × 3840` (`phrasesOrigin`), with a tempo
+  event at phrase 1 only when its tempo differs; no backing note falls under the doodle.
+- **Played notes.** The same conductor track, so both MIDI files line up. The section holds the
+  raw doodle notes, unquantized, timed from the doodle's first barline at its capture tempo; very
+  short ones follow `Include very short notes`; a note held past the section's end stops there; a
+  note played up to a sixteenth before the first barline (one that snapped onto beat 1) starts at
+  the section's start, its release unchanged (O267's proposal, open). Other notes played before
+  phrase 1 are still left out. A Jam on the kept doodle played none: its section is there, empty.
+- **In the Review.** The raw doodle notes count as played notes (`playedNotesFileHoldsNote`,
+  `playedNotesUnavailable` in `review-export.ts`), in both scopes. A Jam's export waits for Jam's
+  code inside its own loading state (`settledJamCode`, `use-review-jam-code.ts`); when it could
+  not load, both export buttons are disabled with the doodle's failure sentence as their
+  `field-note`, and a waiting export ends there, never in `review-export-error`.
+
 ## Verifying the MIDI
 
 The unit specs are in `tests/unit/export/midi/`:

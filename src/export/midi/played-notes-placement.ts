@@ -4,12 +4,20 @@
  * converted to MIDI ticks at that phrase's tempo and rounded to the nearest tick, with no other
  * quantization. Its release is converted the same way in the phrase it falls in, and stops at the
  * file's end. Every note lasts at least one tick, and each note goes on the first channel where no
- * note of its pitch is still sounding, so overlapping attacks of one pitch all survive.
+ * note of its pitch is still sounding, so overlapping attacks of one pitch all survive. A Jam's
+ * raw doodle notes open the file, timed the same way from the doodle's first barline at its
+ * capture tempo: a note played just before that barline starts at the section's start (O267's
+ * proposed answer), and a note running past the section's end stops there; the phrases then follow
+ * from the doodle's last barline.
  */
 import { MidiExportError } from './midi-export-input'
 import { midiTicksOfSeconds, phraseSeconds } from './midi-time'
-import { phraseStartTick, type VoicedNote } from './midi-tracks'
-import type { MidiPlayedNote, PlayedNotesMidiPhrase } from './played-notes-midi-input'
+import { phrasesOrigin, phraseStartTick, type VoicedNote } from './midi-tracks'
+import type {
+  MidiPlayedNote,
+  PlayedNotesDoodleSection,
+  PlayedNotesMidiPhrase,
+} from './played-notes-midi-input'
 
 /** A played note placed in MIDI ticks, before it is given a channel. */
 interface PlacedNote {
@@ -32,9 +40,10 @@ function tickInPhrase(
   phrases: readonly PlayedNotesMidiPhrase[],
   position: number,
   at: number,
+  origin: number,
 ): number {
   const phrase = phrases[position]!
-  return phraseStartTick(position) + midiTicksOfSeconds(at - phrase.startedAt, phrase.tempo)
+  return phraseStartTick(position, origin) + midiTicksOfSeconds(at - phrase.startedAt, phrase.tempo)
 }
 
 /**
@@ -63,11 +72,12 @@ function placedNote(
   phrases: readonly PlayedNotesMidiPhrase[],
   position: number,
   note: MidiPlayedNote,
-  fileEnd: number,
+  span: { readonly origin: number; readonly fileEnd: number },
 ): PlacedNote {
-  const startTick = tickInPhrase(phrases, position, note.onsetAt)
+  const { origin, fileEnd } = span
+  const startTick = tickInPhrase(phrases, position, note.onsetAt, origin)
   const releasePosition = positionHolding(phrases, position, note.releaseAt)
-  const releaseTick = tickInPhrase(phrases, releasePosition, note.releaseAt)
+  const releaseTick = tickInPhrase(phrases, releasePosition, note.releaseAt, origin)
   return {
     pitch: note.pitch,
     velocity: note.velocity,
@@ -85,13 +95,38 @@ function placedNote(
  */
 // @spec-link [[req_played_notes_export]]
 // @spec-link [[rule_played_notes_export_unquantized_timing]]
-function placedNotes(phrases: readonly PlayedNotesMidiPhrase[], fileEnd: number): PlacedNote[] {
+function placedNotes(
+  phrases: readonly PlayedNotesMidiPhrase[],
+  span: { readonly origin: number; readonly fileEnd: number },
+): PlacedNote[] {
   const lastPosition = phrases.length - 1
   return phrases.flatMap((phrase, position) => {
     const endsAt = phrase.startedAt + phraseSeconds(phrase.tempo)
     return phrase.playedNotes
       .filter((note) => position < lastPosition || note.onsetAt < endsAt)
-      .map((note) => placedNote(phrases, position, note, fileEnd))
+      .map((note) => placedNote(phrases, position, note, span))
+  })
+}
+
+/**
+ * Intent: a Jam's raw doodle notes in MIDI ticks from the file's start, timed from the doodle's
+ * first barline at its capture tempo and rounded to the nearest tick: an onset just before that
+ * barline starts at tick 0, its release unchanged; a release past the section's end (`origin`,
+ * where the phrases start) stops there; every note at least one tick long.
+ */
+// @spec-link [[rule_jam_exports_line_up]]
+// @spec-link [[rule_played_notes_export_unquantized_timing]]
+function placedDoodleNotes(doodle: PlayedNotesDoodleSection, origin: number): PlacedNote[] {
+  const tickOf = (at: number): number => midiTicksOfSeconds(at - doodle.startedAt, doodle.tempo)
+  return doodle.playedNotes.map((note) => {
+    const startTick = Math.max(tickOf(Math.max(note.onsetAt, doodle.startedAt)), 0)
+    const releaseTick = note.releaseAt <= doodle.startedAt ? 0 : tickOf(note.releaseAt)
+    return {
+      pitch: note.pitch,
+      velocity: note.velocity,
+      startTick,
+      endTick: Math.max(Math.min(releaseTick, origin), startTick + 1),
+    }
   })
 }
 
@@ -125,13 +160,20 @@ function voiced(notes: readonly PlacedNote[]): VoicedNote[] {
 
 /**
  * Intent: the played notes of a valid session as the played track's notes, each with its tick span,
- * its channel and its original velocity, stopped at `fileEnd` (the end of the last phrase).
+ * its channel and its original velocity, stopped at `fileEnd` (the end of the last phrase); in a
+ * Jam, the raw doodle notes first, in the doodle's section, the phrases' notes after it.
  */
 // @spec-link [[req_played_notes_export]]
 // @spec-link [[rule_played_notes_export_unquantized_timing]]
+// @spec-link [[rule_jam_exports_open_with_doodle]]
 export function playedTrackNotes(
   phrases: readonly PlayedNotesMidiPhrase[],
   fileEnd: number,
+  doodle: PlayedNotesDoodleSection | null = null,
 ): VoicedNote[] {
-  return voiced(placedNotes(phrases, fileEnd))
+  const origin = phrasesOrigin(doodle)
+  return voiced([
+    ...(doodle === null ? [] : placedDoodleNotes(doodle, origin)),
+    ...placedNotes(phrases, { origin, fileEnd }),
+  ])
 }
