@@ -4,13 +4,15 @@
  * of a session that is no Jam loads nothing; Jam's code already loaded in the visit is there at
  * once; otherwise the Review shows it loading until the load settles, loaded or failed; a load
  * settling once another session's Review shows changes nothing; and the next Jam session's Review
- * asks again after a failure.
+ * asks again after a failure. A Jam's export waits for it to settle: at once when it already has,
+ * otherwise once it turns loaded or failed.
  */
 import { describe, expect, it } from 'vitest'
 import { shallowRef } from 'vue'
 
+import type { ReviewJamCode } from '@/components/review/review-types'
 import type { JamModeModule } from '@/components/workspace/load-jam-mode'
-import { useReviewJamCode } from '@/components/workspace/use-review-jam-code'
+import { settledJamCode, useReviewJamCode } from '@/components/workspace/use-review-jam-code'
 import * as jamMode from '@/jam/jam-mode'
 
 /** Jam's code entry, as Jam's loader gives it once loaded. */
@@ -121,5 +123,51 @@ describe('useReviewJamCode', () => {
     loads[1]!.resolve(JAM_MODULE)
     await settle()
     expect(code.value).toEqual({ state: 'loaded', module: JAM_MODULE })
+  })
+})
+
+/** Intent: whether `promise` has settled yet, after letting pending handlers run. */
+async function hasSettled(promise: Promise<unknown>): Promise<boolean> {
+  let settled = false
+  void promise.then(() => (settled = true))
+  await settle()
+  return settled
+}
+
+// @test-link [[rule_jam_code_loaded_on_demand]]
+describe('settledJamCode', () => {
+  // @test-link [[rule_jam_code_loaded_on_demand]]
+  it('gives loaded or failed code at once', async () => {
+    const loaded: ReviewJamCode = { state: 'loaded', module: JAM_MODULE }
+
+    await expect(settledJamCode(shallowRef(loaded))).resolves.toBe(loaded)
+    await expect(settledJamCode(shallowRef<ReviewJamCode>({ state: 'failed' }))).resolves.toEqual({
+      state: 'failed',
+    })
+  })
+
+  // @test-link [[rule_jam_code_loaded_on_demand]]
+  it('waits while the code loads, then gives it once loaded', async () => {
+    const code = shallowRef<ReviewJamCode>({ state: 'loading' })
+    const loaded: ReviewJamCode = { state: 'loaded', module: JAM_MODULE }
+
+    const settling = settledJamCode(code)
+    expect(await hasSettled(settling)).toBe(false)
+    code.value = { state: 'loading' }
+    expect(await hasSettled(settling)).toBe(false)
+    code.value = loaded
+
+    await expect(settling).resolves.toBe(loaded)
+  })
+
+  // @test-link [[rule_jam_code_loaded_on_demand]]
+  it('gives failed code once the load fails, whatever the code turns to after', async () => {
+    const code = shallowRef<ReviewJamCode>({ state: 'loading' })
+
+    const settling = settledJamCode(code)
+    code.value = { state: 'failed' }
+    code.value = { state: 'loaded', module: JAM_MODULE }
+
+    await expect(settling).resolves.toEqual({ state: 'failed' })
   })
 })

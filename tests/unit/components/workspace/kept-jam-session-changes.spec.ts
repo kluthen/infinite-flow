@@ -206,7 +206,7 @@ describe("a Jam session's played notes, kept or deleted after its save", () => {
   it('keeping them after the save writes the raw doodle notes, timed from the count-in', async () => {
     const rig = await savedJam(false, false)
     const history = jamHistory(false)
-    const fresh = keptFreshJam(reviewedJamPart())
+    const fresh = keptFreshJam(reviewedJamPart()) ?? undefined
 
     await rig.saves.changeKept(
       keepPlayedNotesChanges(codec, rig.key, history, APP_VERSION, fresh),

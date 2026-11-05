@@ -25,12 +25,14 @@ import type { StalePhrasePrompt } from './workspace-stale-phrase'
 import type { RhythmChangeKind } from '@/domain/generation/request-rhythm-lock'
 import type { AllowedGroups } from '@/session/settings-mutation-scales'
 import type { ReviewedJamPart } from './session-jam-part'
+import type { StartOnKeptDoodle } from './workspace-session-on-kept-doodle'
 
 export type { KeptSessionsSeam } from './workspace-kept-sessions-seam'
 export type {
   SessionWithoutPhraseOne,
   StartWithoutPhraseOne,
 } from './workspace-session-without-phrase-one'
+export type { StartOnKeptDoodle } from './workspace-session-on-kept-doodle'
 export type {
   FramePort,
   SessionControllerClock,
@@ -50,12 +52,26 @@ export type UntimedEvent<E = SessionTransportEvent> = E extends unknown ? Omit<E
 // @spec-link [[rule_count_in_shown_on_screen]]
 export type RunningCountIn = Extract<CountInDisplay, { over: false }>
 
-/** How the last session ended: why, in which phase, and how many phrases had started sounding. */
+/**
+ * The Jam part an ended Jam hands Jam's code at its end with a review: the very Jam part its
+ * Review shows, and the key its session is kept under.
+ */
+export interface EndedJam {
+  readonly part: ReviewedJamPart
+  readonly sessionKey: string
+}
+
+/**
+ * How the last session ended: why, in which phase, how many phrases had started sounding and, for
+ * a Jam that ended with a review, its Jam part (absent for an end before phrase 1 and for a session
+ * that is no Jam).
+ */
 // @spec-link [[rule_stop_ends_session]]
 export interface SessionEndSummary {
   readonly cause: SessionEndCause
   readonly phase: 'count-in' | 'running'
   readonly soundedPhraseCount: number
+  readonly jam?: EndedJam
 }
 
 /**
@@ -142,6 +158,19 @@ export type PlayedNotesDeletion = 'deleted' | 'refused' | 'saving-off'
 export type SessionDeletion = 'deleted' | 'refused' | 'saving-off'
 
 /**
+ * The player's last deletion of kept sessions in the visit, which lets Jam's kept doodle go when
+ * it takes the session the doodle comes from: one session (`Delete session`), by its key; every
+ * session (`Delete every session`); or my instrument's sessions, by their keys, erased with its
+ * deletion or a change of its range or transposition (spec D503). Recorded once the deletion is
+ * made, a new object each time; a refused one, one erasing no session, a session's own save
+ * deleting the earlier unpinned sessions and the clean-up of damaged ones record nothing.
+ */
+export type PlayerSessionDeletion =
+  | { readonly kind: 'session'; readonly key: string }
+  | { readonly kind: 'every-session' }
+  | { readonly kind: 'my-instrument-sessions'; readonly keys: readonly string[] }
+
+/**
  * What became of opening a session's Review, from `Review last session` or a list row: shown;
  * failed, its read not giving the session (its row says so); damaged, the session found damaged
  * and deleted (or its deletion refused), its row gone and the list showing; or superseded by a
@@ -225,6 +254,8 @@ export interface SessionControllerState {
    */
   // @spec-link [[req_kept_session_review]]
   readonly keptRows: readonly KeptSessionRow[]
+  /** The player's last deletion of kept sessions in the visit; null before any. */
+  readonly lastDeletion: PlayerSessionDeletion | null
   /** The session list shows, in the review mode's place of a Review. */
   readonly listShowing: boolean
   /** The kept sessions could not be read in this visit (it started from the defaults). */
@@ -356,6 +387,13 @@ export interface SessionController {
    * controller is connected; the code that runs it judges its own start conditions first.
    */
   readonly startWithoutPhraseOne: (request: StartWithoutPhraseOne) => SessionWithoutPhraseOne
+  /**
+   * Start a Jam on the kept doodle, synchronously, inside the Start click or the starting note's
+   * MIDI callback: a start from phrase 1 as from Ready, on Jam's phrase 1 written from the kept
+   * doodle, with no capture. Throws while a session runs or no controller is connected; Jam's side
+   * judges its other start conditions first.
+   */
+  readonly startOnKeptDoodle: (request: StartOnKeptDoodle) => void
   /**
    * Start a session; call it synchronously inside the player's Start click. Throws when blocked.
    * With a stale phrase 1 it starts nothing and opens the stale-phrase prompt instead (`asked`).

@@ -3,10 +3,12 @@
  * on, and the wake-up timer that drives the look-ahead scheduler. Production implements them with
  * the one `AudioContext` and a Web Worker timer; tests implement them with a clock advanced by
  * hand and an output that records what was scheduled and when. Time is audio time, plain seconds
- * on the audio clock.
+ * on the audio clock. The mix's channels, the sound roles and the notes scheduled in them are in
+ * ./sound-roles.ts.
  */
 
 import type { AudioTime } from '../session/session-types'
+import type { MixChannel, ScheduledBackingNote, ScheduledGuideNote } from './sound-roles'
 
 export type { AudioTime }
 
@@ -55,43 +57,33 @@ export interface ScheduledClick {
   readonly route: ClickRoute
 }
 
-/** Which backing voice a note belongs to: the bass line or one note of a block chord. */
-// @spec-link [[req_session_backing_track]]
-export type BackingVoice = 'bass' | 'chord'
-
 /**
- * One backing note to sound: its voice, its concert MIDI pitch, and when it starts and ends on
- * the audio clock. It goes through the backing on/off gain and the backing volume.
- */
-// @spec-link [[req_session_backing_track]]
-export interface ScheduledBackingNote {
-  readonly voice: BackingVoice
-  readonly pitch: number
-  readonly at: AudioTime
-  readonly until: AudioTime
-}
-
-/**
- * The mix's gain stages. The `*-enable` gains are the on/off switches (1 or 0); the `*-volume`
- * gains are the volume levels. Muting is always one of these gains set to zero, never a
- * suspended clock.
+ * The mix's gain stages, two per channel. The `*-enable` gains are the on/off switches (1 or 0);
+ * the `*-volume` gains are the volume levels. Muting is always one of these gains set to zero,
+ * never a suspended clock.
  */
 // @spec-link [[req_session_audio_mix]]
-export type MixGain = 'click-enable' | 'click-volume' | 'backing-enable' | 'backing-volume'
+export type MixGain = `${MixChannel}-enable` | `${MixChannel}-volume`
 
 /**
- * The sound of one session, its clicks and its backing. Every voice a session schedules goes
- * through its own bus, so fading
- * the bus out on stop silences everything it scheduled, including sound planned past the fade,
- * without touching a later session.
+ * The sound of one session, its clicks, its backing and its guides. Every voice a session
+ * schedules goes through its own bus, so fading the bus out on stop silences everything it
+ * scheduled, including sound planned past the fade and guide notes still ringing, without
+ * touching a later session.
  */
 // @spec-link [[rule_stop_ends_session]]
 // @spec-link [[req_session_backing_track]]
+// @spec-link [[req_guide_playback]]
 export interface SessionBus {
   /** Schedule one click on this session's bus. */
   readonly scheduleClick: (click: ScheduledClick) => void
   /** Schedule one backing note on this session's bus. */
   readonly scheduleBackingNote: (note: ScheduledBackingNote) => void
+  /**
+   * Schedule one guide note on this session's bus. A note starting on the pitch of that guide's
+   * note still ringing fades the ringing one out quickly from the new start.
+   */
+  readonly scheduleGuideNote: (note: ScheduledGuideNote) => void
   /** Fade this session's bus out, from `at`, to silence over `durationSeconds`. */
   readonly fadeOut: (at: AudioTime, durationSeconds: number) => void
   /**

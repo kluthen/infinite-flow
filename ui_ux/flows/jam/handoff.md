@@ -305,7 +305,7 @@ flowchart TD
   in the review (`flows/review-and-export/handoff.md`): offered while Jam's key and mode are not
   among the close answers and the doodle's suggestion has not been declined: "Your doodle sounds
   like {answer}.", `Jam in {answer}`, `Keep {key} {mode}` ({key} {mode} being Jam's). There is no
-  no-fit form at Idle: a doodle that fits no mode shows no row there. A suggestion left unanswered
+  no-fit form at Idle: a doodle that fits no mode shows no row there. Both buttons are disabled during **Loading**, with `New doodle`. A suggestion left unanswered
   in the review is offered again here.
   - **`Jam in {answer}`** sets Jam's written key and collection only (saved like any of Jam's
     settings; session mode's key and mode untouched), keeps the doodle, and writes phrase 1 again
@@ -313,6 +313,9 @@ flowchart TD
     {answer}." until Jam's key or mode changes again, the doodle is let go, or a session starts
     on it (then held still, and absent once that session has ended). Focus moves to that sentence
     (`tabindex="-1"`, never in the tab order).
+    Once that sentence has gone, the row is judged again by the rule above: offered again while
+    Jam's key and mode are not among the close answers and the suggestion has not been declined
+    (setting it is not declining it).
   - **`Keep {key} {mode}`** changes nothing and declines the suggestion for good, the decline kept
     with the session the doodle came from (in memory only while saving is off) and recorded in any
     session played on it. The row leaves; focus moves to `jam-bar`'s sentence (`tabindex="-1"`).

@@ -155,3 +155,22 @@ export function doodlePlayedNotes(
   const marked = notes.filter((note) => named.has(identityKey(note)))
   return Object.freeze(marked.sort((a, b) => a.onsetAt - b.onsetAt))
 }
+
+/** Sixteenth notes per quarter note: how far before its first barline a doodle note may snap. */
+const DOODLE_SIXTEENTHS_PER_QUARTER = 4
+
+/**
+ * Intent: the doodle's raw notes its export section holds: those whose onset could snap inside
+ * the doodle, from a sixteenth note before its first barline to its end barline. A kept Jam
+ * session read back holds as raw doodle notes every note kept before phrase 1; any other there (a
+ * count-in note) is left out, as every note played before phrase 1 is.
+ */
+// @spec-link [[rule_raw_doodle_notes_are_played_notes]]
+// @spec-link [[rule_jam_exports_line_up]]
+export function rawDoodleNotesInSection(doodle: SessionDoodle): readonly RecordedPlayedNote[] {
+  const sixteenth = 60 / doodle.captureTempo / DOODLE_SIXTEENTHS_PER_QUARTER
+  const earliest = doodle.firstBarlineAt - sixteenth
+  return doodle.playedNotes.filter(
+    (note) => note.onsetAt >= earliest && note.onsetAt < doodle.endBarlineAt,
+  )
+}

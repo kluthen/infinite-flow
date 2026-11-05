@@ -4,13 +4,12 @@
  * boundary, the one file the player asked for is built from the session history, and the browser
  * downloads it. Every failure, a failed load of the export code included, is a rejection the
  * Review shows as its export error. Nothing here is stored or sent: the download is the only way
- * the file leaves the page.
+ * the file leaves the page. Whether the played-notes file would hold a note, and why not, is read
+ * without loading the export code (./played-notes-availability.ts).
  */
-import type { PlayedNotesUnavailable } from '@/components/review/review-types'
-import { recordsWithoutVeryShortNotes } from '@/domain/played-notes/stray-notes'
 import { downloadFile } from '@/export/browser-download'
-import type { ExportScope } from '@/export/export-file'
-import { phrasesInScope } from '@/export/favorites-selection'
+import type { ExportDoodleSection, ExportScope } from '@/export/export-file'
+import type { PlayedNotesDoodleSection } from '@/export/midi/played-notes-midi-input'
 import {
   loadGeneratedNotesExport,
   type ExportFile,
@@ -18,10 +17,6 @@ import {
   type GeneratedNotesExportModule,
   type GeneratedNotesRequest,
 } from '@/export/load-generated-notes-export'
-import type { ReviewedPhrase } from '@/session/session-history'
-
-/** What the played-notes readers read of a phrase: its number, start, tempo and played notes. */
-type PlayedPhrase = Pick<ReviewedPhrase, 'phraseNumber' | 'startedAt' | 'tempo' | 'playedNotes'>
 
 /** What an export uses: the on-demand load of the export code, and the browser's download. */
 // @spec-link [[req_session_export]]
@@ -53,23 +48,26 @@ export interface GeneratedNotesExportRequest extends GeneratedNotesRequest {
 
 /**
  * Intent: build the one file `request` asks for from the phrases its scope picks from `history`
- * and hand it to the browser; the same history and request always give the same bytes. Resolves
- * once the download is handed over; any failure on the way rejects, with nothing downloaded unless
- * the download itself failed.
+ * and hand it to the browser, a Jam's file opening with `doodle` (built by Jam's code; null for a
+ * session that is no Jam); the same history, request and doodle always give the same bytes.
+ * Resolves once the download is handed over; any failure on the way rejects, with nothing
+ * downloaded unless the download itself failed.
  */
 // @spec-link [[req_session_export]]
 // @spec-link [[rule_generated_notes_musicxml_export]]
 // @spec-link [[rule_generated_notes_midi_export]]
 // @spec-link [[module_review_export_pipeline]]
 // @spec-link [[rule_favorites_only_export]]
+// @spec-link [[rule_jam_exports_open_with_doodle]]
 export async function exportGeneratedNotes(
   history: ExportableHistory,
   request: GeneratedNotesExportRequest,
   ports: ReviewExportPorts,
+  doodle: ExportDoodleSection | null = null,
 ): Promise<void> {
   const { buildGeneratedNotesFile } = await ports.load()
   const { format, backingTrack, scope } = request
-  ports.download(buildGeneratedNotesFile(history, { format, backingTrack }, scope))
+  ports.download(buildGeneratedNotesFile(history, { format, backingTrack }, scope, doodle))
 }
 
 /**
@@ -86,7 +84,9 @@ export interface PlayedNotesExportRequest {
 /**
  * Intent: build the session's played-notes MIDI file from the phrases the scope picks from
  * `history`, as `request` asks (very short notes left out unless included), and hand it to the
- * browser, as a file of its own; the same history and request always give the same bytes. Resolves once the download is handed over; any
+ * browser, as a file of its own, a Jam's opening with `doodle` (built by Jam's code; null for a
+ * session that is no Jam); the same history, request and doodle always give the same bytes.
+ * Resolves once the download is handed over; any
  * failure on the way (the export code failing to load, a history with no played note to hold)
  * rejects, with nothing downloaded unless the download itself failed.
  */
@@ -94,64 +94,14 @@ export interface PlayedNotesExportRequest {
 // @spec-link [[rule_session_data_never_sent_or_stored]]
 // @spec-link [[module_review_export_pipeline]]
 // @spec-link [[rule_played_notes_export_omits_stray_notes]]
+// @spec-link [[rule_jam_exports_open_with_doodle]]
 export async function exportPlayedNotes(
   history: ExportableHistory,
   request: PlayedNotesExportRequest,
   ports: ReviewExportPorts,
+  doodle: PlayedNotesDoodleSection | null = null,
 ): Promise<void> {
   const { buildPlayedNotesFile } = await ports.load()
   const { includeVeryShortNotes, scope } = request
-  ports.download(buildPlayedNotesFile(history, { includeVeryShortNotes }, scope))
-}
-
-/**
- * Intent: whether the session holds a played note to export, very short ones included, read
- * without loading the export code, so the Review shows the played-notes action only when it can
- * make a file. History records
- * hold only the notes played within a phrase (session-history-played-notes.ts places a note in the
- * record whose phrase its onset falls in and drops one played before phrase 1 starts, the count-in
- * included), so a note played only before the first phrase never shows the action.
- */
-// @spec-link [[req_played_notes_export]]
-// @spec-link [[module_review_export_pipeline]]
-export function historyHoldsPlayedNote(
-  records: readonly Pick<ReviewedPhrase, 'playedNotes'>[],
-): boolean {
-  return records.some((record) => record.playedNotes.length > 0)
-}
-
-/**
- * Intent: whether the played-notes file `request` asks for would hold a note, read without loading
- * the export code: some played note in a phrase of its scope that is not very short, or any one
- * when very short notes are included, as the file's selection keeps them. `Export played notes`
- * is disabled while it would not.
- */
-// @spec-link [[rule_played_notes_export_omits_stray_notes]]
-// @spec-link [[module_review_export_pipeline]]
-// @spec-link [[rule_favorites_only_export]]
-export function playedNotesFileHoldsNote(
-  records: readonly PlayedPhrase[],
-  request: PlayedNotesExportRequest,
-): boolean {
-  const read = request.includeVeryShortNotes ? records : recordsWithoutVeryShortNotes(records)
-  return historyHoldsPlayedNote(phrasesInScope(read, request.scope))
-}
-
-/**
- * Intent: why the played-notes file `request` asks for would hold no note, the first reason that
- * applies, or null when it holds one: under favorites only, no favorite phrase holding a played
- * note (very short ones counted), then every one of theirs very short; under the whole session,
- * every played note very short.
- */
-// @spec-link [[rule_favorites_only_export]]
-// @spec-link [[rule_played_notes_export_omits_stray_notes]]
-export function playedNotesUnavailable(
-  records: readonly PlayedPhrase[],
-  request: PlayedNotesExportRequest,
-): PlayedNotesUnavailable | null {
-  if (playedNotesFileHoldsNote(records, request)) return null
-  if (request.scope.kind === 'wholeSession') return 'everyNoteVeryShort'
-  return historyHoldsPlayedNote(phrasesInScope(records, request.scope))
-    ? 'everyFavoriteNoteVeryShort'
-    : 'noPlayedNoteInFavorites'
+  ports.download(buildPlayedNotesFile(history, { includeVeryShortNotes }, scope, doodle))
 }

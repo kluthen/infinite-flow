@@ -46,6 +46,7 @@ import {
   CONTEXT,
   corrupt,
   DEFAULTS,
+  MIX_DESIGN,
   NON_DEFAULT,
   rawRecords,
   settingAt,
@@ -81,6 +82,10 @@ const EXPECTED_KEYS: readonly SettingKey[] = [
   'mix.clickVolume',
   'mix.backingOn',
   'mix.backingVolume',
+  'mix.melodyGuideOn',
+  'mix.melodyGuideVolume',
+  'mix.rhythmGuideOn',
+  'mix.rhythmGuideVolume',
   'sessionOptions.varySettings',
   'sessionOptions.tensionAcrossPhrases',
   'sessionOptions.risingTempo',
@@ -128,6 +133,8 @@ function isLevelKey(key: SettingKey): boolean {
 const BOOLEAN_KEYS = new Set<SettingKey>([
   'mix.clickOn',
   'mix.backingOn',
+  'mix.melodyGuideOn',
+  'mix.rhythmGuideOn',
   'sessionOptions.varySettings',
   'sessionOptions.tensionAcrossPhrases',
   'sessionOptions.risingTempo',
@@ -168,6 +175,14 @@ const V3_2_SESSION_OPTION_KEYS: readonly SettingKey[] = [
   'sessionOptions.allowedGroups',
 ]
 
+/** The four guide records v3.2 added; a store written by v3.1 has none of them. */
+const GUIDE_KEYS: readonly SettingKey[] = [
+  'mix.melodyGuideOn',
+  'mix.melodyGuideVolume',
+  'mix.rhythmGuideOn',
+  'mix.rhythmGuideVolume',
+]
+
 /**
  * Intent: the invalid values of one setting: unknown values, wrong types and out-of-range numbers,
  * each of which the codec must read as that setting's default.
@@ -177,6 +192,9 @@ function invalidValues(key: SettingKey): readonly unknown[] {
   if (key === 'controls.tempo') return [50, 250, 95, 90.5, -90, Number.NaN, Infinity, '90', null]
   if (key === 'mix.clickVolume') return [0, 0.1, -0.1, 1.01, Number.NaN, Infinity, '0.5', null]
   if (key === 'mix.backingVolume') return [-0.01, 1.5, Number.NaN, -Infinity, '0.5', true]
+  if (key === 'mix.melodyGuideVolume' || key === 'mix.rhythmGuideVolume') {
+    return [-0.01, 1.5, Number.NaN, Infinity, '0.5', null]
+  }
   if (key === 'sessionOptions.allowedRhythmChanges') {
     return [
       'move_rest',
@@ -253,6 +271,9 @@ function randomValue(key: SettingKey, next: () => number): unknown {
   if (BOOLEAN_KEYS.has(key)) return next() < 0.5
   if (key === 'mix.clickVolume') return Math.round((0.2 + next() * 0.8) * 100) / 100
   if (key === 'mix.backingVolume') return Math.round(next() * 100) / 100
+  if (key === 'mix.melodyGuideVolume' || key === 'mix.rhythmGuideVolume') {
+    return Math.round(next() * 100) / 100
+  }
   if (isLevelKey(key)) return pick(FIGURE_LEVEL_IDS)
   if (key === 'sessionOptions.allowedRhythmChanges') {
     return RHYTHM_CHANGE_KINDS.filter(() => next() < 0.5)
@@ -548,6 +569,33 @@ describe('the rhythm lock, its allowed changes and the allowed groups', () => {
     expect(decoded.sessionOptions.rhythmLockOn).toBe(true)
     expect(decoded.sessionOptions.allowedGroups.rhythm).toBe(true)
     expect(decoded).toEqual(saved)
+  })
+})
+
+describe("the guides' records", () => {
+  // @test-link [[req_guide_playback]]
+  // @test-link [[rule_saved_settings_load_tolerantly]]
+  it("loads a v3.1 store, which has none of their records, as both guides off at the design's first-load levels, every other setting as saved", () => {
+    const v31 = rawRecords(NON_DEFAULT).filter(
+      (record) => !GUIDE_KEYS.includes(record.key as SettingKey),
+    )
+    expect(v31).toHaveLength(EXPECTED_KEYS.length - 4)
+
+    const decoded = decodeSettings(v31, CONTEXT)
+
+    expect(decoded.mix).toEqual({
+      ...NON_DEFAULT.mix,
+      melodyGuideOn: false,
+      melodyGuideVolume: MIX_DESIGN.defaults.melodyGuideVolume,
+      rhythmGuideOn: false,
+      rhythmGuideVolume: MIX_DESIGN.defaults.rhythmGuideVolume,
+    })
+    expect(MIX_DESIGN.defaults.melodyGuideVolume).toBe(0.8)
+    expect(MIX_DESIGN.defaults.rhythmGuideVolume).toBe(0.6)
+    for (const key of EXPECTED_KEYS) {
+      if (GUIDE_KEYS.includes(key)) continue
+      expect(settingAt(decoded, key), key).toEqual(settingAt(NON_DEFAULT, key))
+    }
   })
 })
 

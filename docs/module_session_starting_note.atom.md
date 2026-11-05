@@ -10,7 +10,7 @@ parents:
   - [[rule_starting_note_waits_for_first_gesture]]
   - [[service_workspace_session_flow]]
 layer: ARCHITECTURE
-version: 0.5
+version: 0.6
 priority: 1
 tags: workspace,session,midi
 ---
@@ -27,7 +27,7 @@ After the page loads, the starting note starts nothing until the page's first cl
 
 ## TECHNICAL INTERFACE
 The MIDI side's readonly readings include the starting note or null, which the controller's readonly state publishes; createSessionMidi reads whether the connection sheet is open, whether session mode is held (sessionModeHeld, module_workspace_mode) and whether Start may be clicked, the Idle result and the written phrase the staff shows, and the controller's own start. It also reads the page's activation, a PageActivation (src/session/session-browser-ports.ts) that the browser adapter in src/components/workspace/browser-page-activation.ts sets from real input events only, and publishes whether the starting note waits for the page's first click, tap or key press (startingNoteAwaitsClick) and whether the page has had one (pageActivated, which Jam's Idle note routing reads); it hears the MIDI controller's onUnclockedNoteOn, the note-ons it cannot place on the audio clock. The starting note's readings are createIdleStartingNote in src/components/workspace/workspace-session-starting-note.ts, which createSessionMidi (src/components/workspace/workspace-session-midi.ts) builds; the controller hands it the connection sheet as open while the stale-phrase prompt shows, and its start is the controller's stale-aware start, opened by the note.
-While session mode is held, createSessionMidi also reads the holding code's note route (heldModeNotes, a HeldModeNoteRoute with meaningOf(concertPitch) and start(), src/components/workspace/workspace-session-midi.ts): a note it means start by unlocks the audio and starts what that code starts, arming no silence timer; the workspace registers no route yet.
+While session mode is held, createSessionMidi also reads the holding code's note route (heldModeNotes, a HeldModeNoteRoute with meaningOf(concertPitch), start() and hear(event), src/components/workspace/workspace-session-midi.ts), which the workspace registers for Jam mode (module_jam_idle_notes): every controller note event is handed to hear, which is how a tap reaches tap-in; a note it means start by unlocks the audio and starts what that code starts, arming no silence timer; a note it means tap or ignored starts nothing. A session with the controller (acknowledgement, the history, the silence timeout, the loss countdown, the latency correction) runs in src/components/workspace/workspace-session-midi-run.ts, which createSessionMidi uses.
 
 ## EXPECTATION
 A played note at Idle starts a session, exactly as the Start click does, only when it is the named starting note; any other note at Idle does nothing. After a load, the starting note played before any click, tap or key press on the page starts nothing; after one, it starts the session with sound. On a stale phrase 1 the starting note opens the stale-phrase prompt and starts nothing; while the prompt shows, no note starts anything. While Jam mode opens or shows, session mode names no starting note and no played note starts a session.

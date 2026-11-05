@@ -56,17 +56,32 @@ export interface MidiBackingPhrase {
 }
 
 /**
+ * A Jam's doodle as the generated-notes MIDI file opens with it: its length in 4/4 measures (1 to
+ * 4), the tempo it was captured at, and the quantized doodle's notes at concert pitch, each start
+ * counted from the doodle's first barline, in whole notes. No backing ever sounds under it.
+ */
+// @spec-link [[rule_jam_exports_open_with_doodle]]
+export interface MidiDoodleSection {
+  readonly measureCount: number
+  readonly tempo: number
+  readonly notes: readonly MidiBackingNote[]
+}
+
+/**
  * The whole encoder input: the phrases the file holds (every phrase that sounded, or the
  * favorites only), in session order, and the backing: `null` when the player left it off (the
  * default), or one entry per phrase, in the same order and with the same numbers, when they asked
- * for it. It has no field for played notes, and the run-time check rejects one.
+ * for it; and, in a Jam only, the doodle the file opens with. It has no field for played notes,
+ * and the run-time check rejects one.
  */
 // @spec-link [[rule_generated_notes_midi_export]]
 // @spec-link [[req_session_export]]
 // @spec-link [[rule_export_contents_never_merged]]
+// @spec-link [[rule_jam_exports_open_with_doodle]]
 export interface GeneratedNotesMidiInput {
   readonly phrases: readonly MidiSessionPhrase[]
   readonly backing: readonly MidiBackingPhrase[] | null
+  readonly doodle?: MidiDoodleSection
 }
 
 /**
@@ -81,6 +96,9 @@ const PHRASE_LENGTH_WHOLE_NOTES = makeRational(4, 1)
 const ZERO = makeRational(0, 1)
 
 const INPUT_KEYS: readonly string[] = ['phrases', 'backing']
+const JAM_INPUT_KEYS: readonly string[] = [...INPUT_KEYS, 'doodle']
+const DOODLE_KEYS: readonly string[] = ['measureCount', 'tempo', 'notes']
+const MAX_DOODLE_MEASURES = 4
 const PHRASE_KEYS: readonly string[] = ['number', 'timeline', 'tempo']
 const BACKING_PHRASE_KEYS: readonly string[] = ['number', 'notes']
 const BACKING_NOTE_KEYS: readonly string[] = ['pitch', 'start', 'duration']
@@ -135,42 +153,60 @@ export function assertTempo(phrase: { readonly number: number; readonly tempo: n
 }
 
 /**
- * Intent: crash early unless a backing note has a MIDI pitch, a positive length, and lies wholly
- * inside its four-measure phrase.
+ * Intent: crash early unless a timed note (`what` names it, `owner` its phrase or the doodle) has a
+ * MIDI pitch, a positive length, and lies wholly inside its span of `length` whole notes.
  */
-function assertBackingNote(note: MidiBackingNote, phraseNumber: number): void {
-  assertExactKeys(note, BACKING_NOTE_KEYS, `A backing note of phrase ${phraseNumber}`)
+function assertTimedNote(
+  note: MidiBackingNote,
+  owner: string,
+  what: string,
+  span: { readonly name: string; readonly length: Rational },
+): void {
+  assertExactKeys(note, BACKING_NOTE_KEYS, `A ${what} note of ${owner.toLowerCase()}`)
   const pitch: number = note.pitch
   if (!Number.isInteger(pitch) || pitch < 0 || pitch > MIDI_PITCH_MAX) {
     throw new MidiExportError(
-      `Phrase ${phraseNumber} has a backing pitch ${pitch} outside the MIDI range 0 to 127.`,
+      `${owner} has a ${what} pitch ${pitch} outside the MIDI range 0 to 127.`,
     )
   }
   if (compareRational(note.duration, ZERO) <= 0) {
-    throw new MidiExportError(`Phrase ${phraseNumber} has a backing note with no length.`)
+    throw new MidiExportError(`${owner} has a ${what} note with no length.`)
   }
   const end = addRational(note.start, note.duration)
-  if (
-    compareRational(note.start, ZERO) < 0 ||
-    compareRational(end, PHRASE_LENGTH_WHOLE_NOTES) > 0
-  ) {
-    throw new MidiExportError(`Phrase ${phraseNumber} has a backing note outside the phrase.`)
+  if (compareRational(note.start, ZERO) < 0 || compareRational(end, span.length) > 0) {
+    throw new MidiExportError(`${owner} has a ${what} note outside the ${span.name}.`)
   }
 }
 
 /**
- * Intent: crash early when two backing notes of the same pitch overlap: one MIDI channel cannot
- * sound the same pitch twice at once, so the file could not say which release ends which note.
- * A note may start exactly where the same pitch ends.
+ * Intent: crash early unless a backing note has a MIDI pitch, a positive length, and lies wholly
+ * inside its four-measure phrase.
  */
-function assertNoSamePitchOverlap(notes: readonly MidiBackingNote[], phraseNumber: number): void {
+function assertBackingNote(note: MidiBackingNote, phraseNumber: number): void {
+  assertTimedNote(note, `Phrase ${phraseNumber}`, 'backing', {
+    name: 'phrase',
+    length: PHRASE_LENGTH_WHOLE_NOTES,
+  })
+}
+
+/**
+ * Intent: crash early when two notes of the same pitch overlap (`what` names them, `owner` their
+ * phrase or the doodle): one MIDI channel cannot sound the same pitch twice at once, so the file
+ * could not say which release ends which note. A note may start exactly where the same pitch
+ * ends.
+ */
+function assertNoSamePitchOverlap(
+  notes: readonly MidiBackingNote[],
+  owner: string,
+  what: string,
+): void {
   const ordered = [...notes].sort((a, b) => a.pitch - b.pitch || compareRational(a.start, b.start))
   ordered.forEach((note, index) => {
     const next = ordered[index + 1]
     if (next === undefined || next.pitch !== note.pitch) return
     if (compareRational(addRational(note.start, note.duration), next.start) > 0) {
       throw new MidiExportError(
-        `Phrase ${phraseNumber} has two overlapping backing notes of pitch ${note.pitch}.`,
+        `${owner} has two overlapping ${what} notes of pitch ${note.pitch}.`,
       )
     }
   })
@@ -197,21 +233,56 @@ function assertBacking(
   })
   for (const phrase of backing) {
     phrase.notes.forEach((note) => assertBackingNote(note, phrase.number))
-    assertNoSamePitchOverlap(phrase.notes, phrase.number)
+    assertNoSamePitchOverlap(phrase.notes, `Phrase ${phrase.number}`, 'backing')
   }
+}
+
+/**
+ * Intent: crash early unless a doodle section has a whole number of measures from 1 to 4 and a
+ * whole-number tempo the export accepts, and its notes are ones the file can hold inside it.
+ */
+// @spec-link [[rule_jam_exports_open_with_doodle]]
+export function assertDoodleSpan(doodle: {
+  readonly measureCount: number
+  readonly tempo: number
+}): void {
+  const { measureCount, tempo } = doodle
+  if (!Number.isInteger(measureCount) || measureCount < 1 || measureCount > MAX_DOODLE_MEASURES) {
+    throw new MidiExportError(
+      `The doodle must last 1 to ${MAX_DOODLE_MEASURES} whole measures, got ${measureCount}.`,
+    )
+  }
+  if (!Number.isInteger(tempo) || tempo < SLOWEST_BPM || tempo > FASTEST_BPM) {
+    throw new MidiExportError(
+      `The doodle tempo must be a whole number from ${SLOWEST_BPM} to ${FASTEST_BPM} BPM, ` +
+        `got ${tempo}.`,
+    )
+  }
+}
+
+/** Intent: crash early unless the doodle section is one the generated-notes file can open with. */
+function assertMidiDoodle(doodle: MidiDoodleSection): void {
+  assertExactKeys(doodle, DOODLE_KEYS, 'The doodle section')
+  assertDoodleSpan(doodle)
+  const span = { name: 'doodle', length: makeRational(doodle.measureCount, 1) }
+  doodle.notes.forEach((note) => assertTimedNote(note, 'The doodle', 'doodle', span))
+  assertNoSamePitchOverlap(doodle.notes, 'The doodle', 'doodle')
 }
 
 /**
  * Intent: reject an encoder input that breaks the contract: an extra field anywhere (a
  * played-note list among them), an empty session, phrase numbers that are not whole numbers from 1
- * up, each above the one before, a tempo outside whole numbers from 60 to 240 BPM, or a backing that does not match the
- * phrases or holds a note the file could not represent.
+ * up, each above the one before, a tempo outside whole numbers from 60 to 240 BPM, a backing that
+ * does not match the phrases or holds a note the file could not represent, or a doodle section
+ * (a Jam's only) that is not 1 to 4 measures at such a tempo or holds such a note.
  */
 // @spec-link [[rule_generated_notes_midi_export]]
 // @spec-link [[req_session_export]]
 // @spec-link [[rule_export_contents_never_merged]]
+// @spec-link [[rule_jam_exports_open_with_doodle]]
 export function validateMidiExportInput(input: GeneratedNotesMidiInput): void {
-  assertExactKeys(input, INPUT_KEYS, 'The MIDI export input')
+  const inputKeys = Object.hasOwn(input, 'doodle') ? JAM_INPUT_KEYS : INPUT_KEYS
+  assertExactKeys(input, inputKeys, 'The MIDI export input')
   if (input.phrases.length === 0) {
     throw new MidiExportError('A MIDI export needs at least one phrase.')
   }
@@ -221,4 +292,5 @@ export function validateMidiExportInput(input: GeneratedNotesMidiInput): void {
   assertNumberedInOrder(input.phrases, 'Phrases')
   input.phrases.forEach(assertTempo)
   if (input.backing !== null) assertBacking(input.backing, input.phrases)
+  if (input.doodle !== undefined) assertMidiDoodle(input.doodle)
 }

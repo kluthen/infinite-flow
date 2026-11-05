@@ -9,7 +9,8 @@ parents:
   - [[rule_held_doodle_phrase_one_at_idle]]
 version: 0.1
 tags: [v3, release-v3.2, jam, idle, generation]
-dependents: []
+dependents:
+  - [[module_kept_doodle]]
 ---
 
 # Jam Mode Generates Ahead Only for a Kept Doodle

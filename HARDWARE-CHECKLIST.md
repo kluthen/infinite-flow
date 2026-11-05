@@ -680,8 +680,8 @@ carried over by hand; the upgrade code and its automated tests stay.
 # v3.2 hand checks
 
 Build plan [Hand checks](specs/versions/v3/build-plan-v3.2.md#hand-checks): each check is written
-here by the chunk that needs it. This part holds H1 to H5; H6 to H8 are added by their chunks, and
-H9 is waived (spec D417).
+here by the chunk that needs it. This part holds H1 to H5; H6 to H8 and HG (the guide playback,
+spec D492) are added by their chunks, and H9 is waived (spec D417).
 
 ## v3.2 H1. Drift's scale by ear (chunk 3; gate LD; about 8 min)
 
@@ -765,19 +765,22 @@ Chrome on the reference machine, the Travel Sax over USB. A **Jam** starts from 
 you play first, your **doodle** (one to four measures after a one-measure count-in), and the app
 continues it as a session. **Drift** says how far the phrases may stray from your doodle's rhythm
 (`Close`, `Near`, `Free`); Jam's **Rhythm lock** holds one rhythm for the whole Jam. Run it after
-wave 6. Until wave 7 the doodle is not kept after a Jam, so each step plays the doodle again.
+wave 7.
 
 - [ ] Switch the header's **Mode** to `Jam`. Set Jam's tempo to 100 BPM, **Drift** `Near`,
       **Rhythm lock** `Off`.
 - [ ] Press **Start Jam**. After the count-in, play a two-measure doodle with a clear rhythm, then
       stop playing; the cue row shows "Writing your first phrase", then phrase 1 enters. Listen to
       four phrases and say: "does it sound like my doodle?"
-- [ ] **Stop**, **Close review**. Set **Drift** `Close`; **Start Jam** and play the same doodle
-      again; listen to four phrases. At Drift Close, did any phrase use quicker notes than your
-      doodle ([O271](specs/open-questions.md#v32-build-o267))?
-- [ ] The same with **Drift** `Free`.
-- [ ] **Rhythm lock** `On`; **Start Jam**, the same doodle; listen to four phrases: one rhythm, near
-      the doodle's.
+- [ ] **Stop**, **Close review**: Jam mode keeps your doodle ("Jamming again on your doodle"
+      shows above the staff) and phrase 1 is written from it. Set **Drift** `Close`: phrase 1 is
+      written again. Press **Start Jam** and play no new doodle: the app reuses the same doodle,
+      and phrase 1 follows the count-in at once. Listen to four phrases. At Drift Close, did any
+      phrase use quicker notes than your doodle ([O271](specs/open-questions.md#v32-build-o267))?
+- [ ] The same with **Drift** `Free`: **Stop**, **Close review**, set **Drift** `Free`;
+      **Start Jam**, no new doodle; listen to four phrases.
+- [ ] **Stop**, **Close review**; **Rhythm lock** `On`; **Start Jam**, still the same doodle; listen
+      to four phrases: one rhythm, near the doodle's.
 - [ ] Say whether Jam's small set of settings felt enough, and whether Drift and the lock felt like
       two controls or one. Keep "sounds like my doodle" apart from "I like it": in H1's set 4 two
       candidates further from the doodle sounded better, though clearly different (spec D449).
@@ -788,11 +791,12 @@ wave 6. Until wave 7 the doodle is not kept after a Jam, so each step plays the 
 
 Chrome on the reference machine, the Travel Sax over USB. When phrase 1 enters, **From your
 doodle**, under Jam's controls, shows the rhythm and shape the app read from your doodle (note
-density, rhythmic variety, syncopation, silence, contour, leaps, register). Run it after wave 6,
+density, rhythmic variety, syncopation, silence, contour, leaps, register). Run it after wave 7,
 once your recordings have joined the doodle set (gate DR, spec D443).
 
 - [ ] Mode `Jam`, 90 BPM, **Drift** `Near`, **Rhythm lock** `Off`. Before each step, Stop and
-      Close review if a Jam is running, so each doodle starts a fresh Jam.
+      Close review if a Jam is running, then press **New doodle** if the bar "Jamming again on your
+      doodle" shows, so each doodle starts a fresh Jam.
 - [ ] A sparse doodle: three or four long notes over two measures. Read "From your doodle" once
       phrase 1 enters; listen to two phrases.
 - [ ] A busy doodle: running eighths or sixteenths. Read, listen.
@@ -830,3 +834,86 @@ written pitch. Run it after wave 6.
 - [ ] Say whether Locrian ever surprised you (an answer named "... Locrian"). The weights and cues
       are tuned from it.
 - [ ] Report. Pass on your word.
+
+## v3.2 H7. A Jam on the Travel Sax, with tap-in (chunk 32; about 10 min)
+
+Chrome on the reference machine, the Travel Sax over USB. Jam's tempo is set before the doodle,
+and **Tap tempo**, after the stepper in Jam's Tempo field, sets it by tapping the beat: each press
+of the button is a tap, and after one press every note you play is a tap too, until two seconds
+pass without one. From the fourth tap the tempo is set, rounded to the stepper's step of 10 BPM and
+kept between 60 and 180 BPM; each further tap sets it again. Tapping starts nothing and sounds
+nothing. Run it after wave 7.
+
+- [ ] Warming up. Switch the header's **Mode** to `Jam`. Without pressing `Tap tempo`, play a few
+      notes other than the one the starting-note line names: the tempo does not move. Press
+      `Tap tempo` once, then play the named note (the home note): it starts nothing, and the
+      starting-note line is hidden while the app listens for taps. Wait two seconds: the line
+      shows again.
+- [ ] Press `Tap tempo`, then tap 120 BPM on the Travel Sax, one short note on each beat (to a
+      metronome if you like): the stepper and the header show 120 BPM, and the note under the
+      stepper reads "Set to 120 BPM. Keep tapping to correct it.".
+- [ ] Set `Click` off beside `Backing`. Wait two seconds, then start the Jam by the home note; play
+      a one-measure doodle and stop playing: phrase 1 continues from your last note, after the
+      writing and read-in measures. The click still sounds until phrase 1, then stops.
+- [ ] Stop, Close review, then press `New doodle`. Tap 60 BPM; start the Jam and play a
+      four-measure doodle, holding its last note on: the doodle ends after four measures.
+- [ ] `New doodle` again. Tap 180 BPM; start the Jam and play a doodle with one note a little early
+      onto beat 1 (just before the first barline), and a breath noise somewhere in it: the early
+      note is the doodle's first, and the noise changes nothing.
+- [ ] Start a fresh Jam and unplug the controller during the count-in: the Jam ends at once. Plug
+      it in; repeat during the doodle, then during the read-in measure.
+- [ ] Say whether setting the tempo first felt natural, and whether tap-in was worth keeping.
+- [ ] Report. Pass on your word.
+
+## v3.2 H8. A Jam's files (chunk 25; about 5 min)
+
+Chrome on the reference machine, the Travel Sax over USB, MuseScore and a DAW installed. A Jam's
+three export files open with a section marked "Doodle": your doodle, as many measures as you played
+it, at the tempo you played it at; then phrase 1 at the next barline, the waiting measures between
+them left out. Run it after wave 7.
+
+- [ ] Switch the header's **Mode** to `Jam`; set Jam's tempo to 100 BPM. Start Jam and play a
+      two-measure doodle, holding its last note past the doodle's end; play along with two
+      phrases, then Stop. In the review, Pin the session (it is kept), then Close review and open
+      it again from the session list.
+- [ ] Export generated notes as `MusicXML`, then as `MIDI` with `Backing track` on, then
+      `Export played notes` (`Include very short notes` off). Three files download.
+- [ ] Open the MusicXML in MuseScore: rehearsal mark "Doodle" over measure 1, a metronome mark of
+      100, two measures of your doodle in the written key you set, no chord symbol; a double
+      barline; then rehearsal mark "1" over measure 3, phrase 1 starting there.
+- [ ] Open both MIDI files in one DAW project: each opens with a "Doodle" marker at bar 1 and
+      "Phrase 1" at bar 3, at the same bar in both; the played-notes file holds your doodle as you
+      played it (not snapped to the grid), its held last note stopping at bar 3; no backing sounds
+      under the doodle.
+- [ ] Back in the app, `Favorites only` with phrase 2 starred: export the generated notes as MIDI
+      and the played notes again. Both open with the doodle, phrase 2 at bar 3.
+- [ ] Report. Pass on your word.
+
+## v3.2 HG. The guide playback (chunk 40; about 8 min)
+
+Chrome on the reference machine, the Travel Sax over USB, speakers or headphones. The two guides
+are listening aids: the **melody guide** plays the notes on the sheet, the **rhythm guide** plays
+their rhythm on the chords' roots (the note each chord is named after). Their voices were set by
+ear in chunk 40 (spec D491); this check confirms them or tunes them, a tuning being a constant
+change made before the release gate. Run it after wave 7.
+
+- [ ] Session mode, the Neutral preset, C Major, 90 BPM, `Backing` on; `Melody guide` and
+      `Rhythm guide` both off (their first-load state). Play a session of two phrases: it sounds
+      as before, the backing and the click only.
+- [ ] `Melody guide` on; play two phrases: the guide plays the notes on the sheet, a tied note
+      once, nothing where a rest is. Say whether its voice is soft enough to play along with.
+- [ ] `Melody guide` off, `Rhythm guide` on; two phrases: the sheet's rhythm, on the chords'
+      roots. Say whether a repeated note is heard as repeated.
+- [ ] Both on; two phrases: say whether the two voices are easy to tell apart, and apart from the
+      backing.
+- [ ] `Backing` off, both guides on; two phrases; during them, open `Volume` and take each
+      guide's volume down to silence and back.
+- [ ] Listen to a note followed by a rest: the note rings on into the rest and fades, and no new
+      note starts in it. Settled by the owner (spec D493); a confirmation, not a choice.
+- [ ] `Instrument`: E-flat alto saxophone (a transposing instrument: the sheet is written in
+      another key than it sounds); `Melody guide` on; one phrase: the guide sounds in tune with
+      the backing.
+- [ ] 240 BPM, `Note density` Sixteenth; both guides on; one phrase: the quick notes all sound.
+      Stop mid-phrase: everything fades at once, the guides' ringing notes included.
+- [ ] Reload the page: both guides' switches and volumes come back as you left them.
+- [ ] Report, with any voice to tune. Pass on your word.

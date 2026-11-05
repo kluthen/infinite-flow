@@ -1,7 +1,9 @@
 /**
  * Where focus goes when a session ends, judged once the Idle rules have applied in the layout the
- * window gives afresh, and where `Close review` sends it. Pure; the shell moves focus to the
- * element it names.
+ * window gives afresh, and where `Close review` sends it. Pure, but for the shell's focus moves
+ * (`createWorkspaceFocusMoves`), which move focus to the element a target names on the mounted
+ * header and score panel, or to the workspace's fallback: the first enabled of the session
+ * action, the phrase action and `controller-status`.
  */
 import type { GenerationSessionState } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
@@ -98,4 +100,56 @@ export function reviewCloseFocusTarget(facts: ReviewCloseFocusFacts): SessionEnd
   if (facts.roomNoticeShown) return 'room-notice'
   if (facts.phraseActionEnabled) return 'phrase-action'
   return 'controller-status'
+}
+
+/** What the focus moves reach of the mounted header. */
+export interface FocusMovesHeader {
+  readonly sessionActionEnabled: boolean
+  readonly phraseActionEnabled: boolean
+  readonly focusSessionAction: () => void
+  readonly focusPhraseAction: () => void
+  readonly focusControllerStatus: () => void
+}
+
+/** What the focus moves reach of the mounted score panel. */
+export interface FocusMovesScorePanel {
+  readonly focusRoomNotice: () => void
+}
+
+/** The shell's two focus moves. */
+export interface WorkspaceFocusMoves {
+  /** Move focus to the element a focus target names. */
+  readonly focusTarget: (target: SessionEndFocusTarget) => void
+  /** Move focus to the workspace's fallback. */
+  readonly focusFallback: () => void
+}
+
+/**
+ * Intent: the focus moves over `parts`, which gives the mounted header and score panel (and
+ * throws, a defect, when either is unmounted).
+ */
+export function createWorkspaceFocusMoves(
+  parts: () => { readonly header: FocusMovesHeader; readonly scorePanel: FocusMovesScorePanel },
+): WorkspaceFocusMoves {
+  /** Intent: move focus to the element a focus target names, in the mounted header or score panel. */
+  function focusTarget(target: SessionEndFocusTarget): void {
+    const shown = parts()
+    if (target === 'room-notice') shown.scorePanel.focusRoomNotice()
+    else if (target === 'phrase-action') shown.header.focusPhraseAction()
+    else if (target === 'controller-status') shown.header.focusControllerStatus()
+    else shown.header.focusSessionAction()
+  }
+
+  /**
+   * Intent: move focus to the first enabled of the session action, the phrase action and
+   * `controller-status` (the workspace's fallback order).
+   */
+  function focusFallback(): void {
+    const { header } = parts()
+    if (header.sessionActionEnabled) focusTarget('session-action')
+    else if (header.phraseActionEnabled) focusTarget('phrase-action')
+    else focusTarget('controller-status')
+  }
+
+  return { focusTarget, focusFallback }
 }

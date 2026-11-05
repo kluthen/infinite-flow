@@ -11,9 +11,9 @@
  * back runs again (spec D338). The first pin or favorite of a visit also asks the browser for
  * persistent storage. `Delete session` removes the session from the device, then from memory.
  * Each change also changes the session's row in the session list (./use-kept-sessions.ts) at
- * once, a deletion once the device has made it. A pin, an unpin and `Delete session` also reach a
- * kept session not held in memory, by its row's key, through the same change path, never reading
- * its body.
+ * once, a deletion once the device has made it. A pin, an unpin, `Delete session` and `Keep mine`
+ * also reach a kept session not held in memory, by its row's key, through the same change path,
+ * never reading its body.
  */
 import type { Preset } from '@/domain/presets/preset-selection'
 import type { SessionHistory } from '@/session/session-history'
@@ -318,12 +318,36 @@ export function createKeptSessionEdits(
   }
 
   /**
+   * Intent: `Keep mine` on a kept Jam session not held in memory (the one Jam's kept doodle comes
+   * from, its Review long closed), by its row: the row at once, then saved through the change path,
+   * which reads its session-wide record only; nothing is saved while saving is off, the row holding
+   * it for the visit. Declined already, nothing.
+   */
+  // @spec-link [[module_kept_session_reach]]
+  // @spec-link [[module_kept_session_changes]]
+  const declineRowSuggestion = (key: string): Promise<void> => {
+    const { summary } = currentRow(key, 'Keep mine')
+    if (!summary.isJam)
+      throw new SessionControllerError(
+        'session controller: a session that is no Jam declines nothing',
+      )
+    if (summary.suggestionDeclined === true) return Promise.resolve()
+    rows.edited(key, { suggestionDeclined: true })
+    if (kept.savingOff()) return Promise.resolve()
+    // A refusal is told by the notice row; the decline holds on the row for the visit.
+    return changeKeptDecline(kept.changes, key).then(() => undefined)
+  }
+
+  /**
    * Intent: `Keep mine`: decline the suggestion of the Jam session under `key`, at once in
    * memory, then save it, as a pin is: a refusal holds it in memory for the visit, a retry of a
-   * refused save carries it, and nothing is saved while saving is off. Declined already, nothing.
+   * refused save carries it, and nothing is saved while saving is off; a session not held, by its
+   * row. Declined already, nothing.
    */
   // @spec-link [[module_kept_session_changes]]
   const declineSuggestion = (key: string): Promise<void> => {
+    assertIdle('Keep mine')
+    if (findHeld(key) === null) return declineRowSuggestion(key)
     const session = heldAtIdle(key, 'Keep mine')
     if (session.jam?.suggestionDeclined === true) return Promise.resolve()
     replaceHeld(withSuggestionDeclined(session))
@@ -348,7 +372,8 @@ export function createKeptSessionEdits(
   /**
    * Intent: `Delete session`: from the device (one batch), then from memory and its row; a
    * session held in memory only because its save failed, from memory alone; one not held, by its
-   * row, its body never read. A refusal, or saving turned off meanwhile, leaves it as it was.
+   * row, its body never read; once deleted, the deletion is recorded as the player's last one. A
+   * refusal, or saving turned off meanwhile, leaves it as it was.
    */
   // @spec-link [[req_kept_session_list]]
   // @spec-link [[module_kept_session_reach]]
@@ -367,6 +392,7 @@ export function createKeptSessionEdits(
     }
     rows.removed([key])
     forget(key)
+    state.lastDeletion = Object.freeze({ kind: 'session', key })
     return 'deleted'
   }
 

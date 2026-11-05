@@ -14,7 +14,8 @@
  * sessions leave memory and their retries with them; refused, they stay, a retry held back
  * running again (spec D338). Leaving memory, as `Delete session` does: the rows go, a pending
  * opening of one of them is cancelled, a Review of one gives way to the session list when it
- * showed, and a most recent one goes, leaving none.
+ * showed, a most recent one goes, leaving none, and their keys are recorded as the player's
+ * deletion, which lets Jam's kept doodle go when it comes from one of them (spec D503).
  */
 import { MY_INSTRUMENT_ID } from '@/domain/profile/instrument-profiles'
 import type { KeptRecordsReader } from '@/storage/save-policy'
@@ -74,6 +75,8 @@ export function createMyInstrumentSessions(
     const recent = state.mostRecent
     if (recent !== null && keys.includes(recent.kind === 'held' ? recent.session.key : recent.key))
       state.mostRecent = null
+    if (keys.length > 0)
+      state.lastDeletion = Object.freeze({ kind: 'my-instrument-sessions', keys })
   }
 
   return () => {

@@ -10,7 +10,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { AudioTime } from '@/audio/audio-ports'
 import { beatAt, createClickPlan } from '@/audio/click-track'
-import { twoPhraseHarmonies } from './backing-harmony'
+import { restTimeline, twoPhraseHarmonies } from './backing-harmony'
 import { audibleBackingOf } from './fake-audio'
 import { transportRig, type TransportRig } from './transport-rig'
 
@@ -66,11 +66,11 @@ describe('phrase 1 handed over to the transport', () => {
       const [first, second] = twoPhraseHarmonies()
       transport.startPhraseOneAt(soundsAt)
       expect(transport.phraseStartsAt(1)).toBe(soundsAt)
-      transport.queueBacking(1, first, tempo)
+      transport.queueBacking(1, first, restTimeline(), tempo)
       const phraseTwoAt = barline(session, 2 + wait + 4)
       expect(transport.phraseStartsAt(2)).toBe(phraseTwoAt)
       const risen = tempo + 5
-      transport.queueBacking(2, second, risen)
+      transport.queueBacking(2, second, restTimeline(), risen)
       expect(transport.phraseStartsAt(2)).toBe(phraseTwoAt)
       expect(transport.phraseStartsAt(3)).toBeCloseTo(phraseTwoAt + (PHRASE_BEATS * 60) / risen, 12)
     },
@@ -86,8 +86,8 @@ describe('phrase 1 handed over to the transport', () => {
       const soundsAt = barline(session, 2 + wait)
       const [first, second] = twoPhraseHarmonies()
       transport.startPhraseOneAt(soundsAt)
-      transport.queueBacking(1, first, tempo)
-      transport.queueBacking(2, second, tempo + 5)
+      transport.queueBacking(1, first, restTimeline(), tempo)
+      transport.queueBacking(2, second, restTimeline(), tempo + 5)
       rig.advanceTo(transport.phraseStartsAt(3) + 1)
       const notes = rig.backingNotes()
       expect(Math.min(...notes.map((note) => note.at))).toBe(soundsAt)
@@ -115,12 +115,12 @@ describe('phrase 1 handed over to the transport', () => {
     const [first] = twoPhraseHarmonies()
     expect(() => transport.phraseStartsAt(1)).toThrow(/handed over/)
     expect(() => transport.phraseStartsAt(2)).toThrow(/handed over/)
-    expect(() => transport.queueBacking(1, first, 120)).toThrow(/handed over/)
+    expect(() => transport.queueBacking(1, first, restTimeline(), 120)).toThrow(/handed over/)
     rig.advanceTo(barline(session, 2))
     expect(rig.backingNotes()).toEqual([])
     const soundsAt = barline(session, 3)
     transport.startPhraseOneAt(soundsAt)
-    transport.queueBacking(1, first, 120)
+    transport.queueBacking(1, first, restTimeline(), 120)
     rig.advanceTo(soundsAt + 1)
     expect(Math.min(...rig.backingNotes().map((note) => note.at))).toBe(soundsAt)
   })

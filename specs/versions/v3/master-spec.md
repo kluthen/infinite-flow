@@ -101,8 +101,17 @@ Status: this file holds four parts.
   spec D455). v1.18 (2026-11-03): phrase 1 is handed over at the barline where it is shown, and a
   Jam whose rungs all fail ends at the deadline (C5.6, C5.7, C5.8; spec D457). v1.19 (2026-11-04):
   until phrase 1 is on screen, Jam's empty staff is the staff judged for room (C5.13; spec D495).
-  Its sections are numbered C1 to C18; what v1.1 to v1.19 change is listed at the top of Part C and
-  marked in each section they touch.
+  v1.20 (2026-11-04): the guide playback, added after approval at the owner's request (C19, and
+  C2, C3, C13, C15, C16 items 50–52, C17; spec D490–D494). v1.21 (2026-11-04): the guide's
+  sign-off also revises the saved settings' list and the vision (C13; spec D500). v1.22
+  (2026-11-05): the kept doodle goes with its session when my instrument's deletion or range or
+  transposition change erases it (C5.1, C5.11; spec D503); the entry budget is 320 KiB (C10.9,
+  C14, C16; spec D504). v1.23 (2026-11-05): Jam's tempo stays 60 to 180 BPM; 240 BPM, measured
+  last, is not kept (C2, C3, C5.8, C5.17, C15, C16, C17; spec D506). v1.24 (2026-11-05): "Jam
+  again on this doodle" is offered in the review that follows a Jam too, as built, and the guide's
+  checks name the shapes seeded phrases hold (C5.11, C5.15, C6.5, C12, C16 items 33 and 50, C19.1;
+  spec D508, D509). Its sections are
+  numbered C1 to C19; what v1.1 to v1.24 change is listed at the top of Part C and marked in each section they touch.
 - **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.1
   (2026-10-12), consolidated from the v3.3 direction and the chord research; **awaiting the
   owner's approval**. The contract wording it changes (§D12) needs the owner's confirmation
@@ -2258,7 +2267,29 @@ Delete everything removes them. No preset leaves the device.
 
 ## Part C — v3.2
 
-Jam, the key and mode suggestion, and the rhythm lock. **Master spec v1.19 (2026-11-04)**: v1.18
+Jam, the key and mode suggestion, the rhythm lock and, added after approval, the guide playback.
+**Master spec v1.24 (2026-11-05)**: v1.23 with two wording fixes after wave 7's build (C5.11,
+C5.15, C6.5, C12, C16 items 33 and 50, C19.1; D508, D509), no behaviour changed: "Jam again on
+this doodle" is offered in every Jam session's review, the one that follows a Jam included, where
+it does what `Close review` does, as the design and the build have it; and the generator writes no
+triplet and no tie across a barline, so the guide's exactness on them is checked on hand-built
+phrases, its seeded checks on ties, rests and offbeat eighths. v1.23 (2026-11-05): v1.22 with the owner's ruling at gate J240 (C2, C3, C5.8,
+C5.17, C15, C16, C17; D506): Jam's tempo stays 60 to 180 BPM in v3.2. 240 BPM was measured last
+and held, and the owner kept 180; no Jam check runs at 240 BPM. It adds no behaviour: the control
+already stops at 180. v1.22 (2026-11-05): v1.21 with two rulings (C5.1, C5.11, C10.9, C14, C16 item
+16; D503, D504): the kept doodle also goes when deleting my instrument, or saving a change to its
+range or transposition, erases the kept session it comes from, as for any deletion of that session;
+and the owner raised the first-load (entry) budget from 300 KiB to 320 KiB (327,680 bytes) in wave
+7. v1.21 (2026-11-04): v1.20 with the guide's sign-off widened (C13; D500): besides
+`req_session_audio_mix`, it revises `rule_settings_saved_on_change`, which lists the mix's saved
+settings, and the vision, whose out-of-scope lead-line playback the melody guide is; no behaviour
+changes. v1.20 (2026-11-04): v1.19 with the owner's request of 2026-11-04 (C19, and C2,
+C3, C13, C15, C16, C17 for it; D490–D492): an optional guide playback beside the backing, two
+switches, a melody guide playing the phrase's notes at concert pitch and a rhythm guide playing its
+rhythm on the chords' roots, each with its own volume, off by default; session playback only, not
+exported. The owner's rulings the same day (C19.1, C19.4, C17; D493): a guide note rings on into a
+rest that follows it; and the guide is never exported (C19.5, C2, C17; D494). It is the one
+behaviour v1.20 adds. v1.19 (2026-11-04): v1.18
 with a driver ruling under the owner's delegation of minor design calls, on chunk 21's build
 (C5.13; D495): until phrase 1 is on screen, a fresh Jam's staff is Jam's empty staff, and a window
 that leaves it no room ends the Jam as a count-in end; from the read-in measure on, the session's
@@ -2513,6 +2544,7 @@ possible about Jam.
 _Changed in v1.1:_ Jam mode replaces the Jam switch; Jam's settings, tap-in and on-demand loading
 are in; the work is split in two halves; Jam's tempo range and the out-of-scope list follow.
 _Changed in v1.2:_ one release, 3.2.0 (D410).
+_Changed in v1.23:_ Jam above 180 BPM is out of v3.2 (D506).
 
 ### In v3.2
 
@@ -2544,6 +2576,11 @@ bump.
 - The key and mode suggestion, after a Jam, with Use it and Keep mine (C6).
 - The steering block in the request and its slot in `ifk4.`; the doodle in kept sessions (C11).
 
+**Added after approval: the guide playback** (D490, the owner's request of 2026-11-04). Two
+optional sounds beside the backing, in both modes: a melody guide playing the phrase on the sheet,
+and a rhythm guide playing its rhythm on the chords' roots, each switched on or off on its own and
+with its own volume, off by default (C19). Built in wave 7, without changing the backing.
+
 ### Out of v3.2
 
 - **The doodle's exact rhythm.** v3.2 locks and matches the nearest rhythm the app's rhythm
@@ -2561,8 +2598,8 @@ bump.
 - **Tempo inferred from a doodle played freely**, without the click: a later candidate. It is a
   research problem, and it fails worst for the beginners Jam is for (C5.17).
 - **Tempo nudged from how the doodle sat against the click**: not planned; it would reward rushing.
-- **Jam above 180 BPM** is best effort, worked on last; if 240 BPM costs more than it is worth,
-  Jam's tempo stops at 180 BPM (C5.17).
+- **Jam above 180 BPM.** 240 BPM was measured last and held; the owner kept Jam's tempo at 60 to
+  180 BPM (D506; C5.17). Session mode keeps 60 to 240 BPM.
 - A drone (a held home note) under the doodle: a later candidate.
 - The suggestion during a Jam, or listing every candidate it weighed.
 - Favoring the embellishment figures (v3.1) found in the doodle.
@@ -2575,6 +2612,9 @@ bump.
 - A doodle taken from a file or a past session's played notes (around v5, as a snippet library).
 - A pickup (notes before beat 1) or a tie across the join into phrase 1: Jam's gap makes them
   unnecessary (C5.6).
+- The guide playback outside a running session, or with a sound the player chooses (C19.5).
+- **The guide playback in any export: never** (D494). No guide note is written to the
+  generated-notes MIDI file or to any other export.
 - **Unchanged, permanently out:** any grading, scoring, ranking or wrong-note signal; accounts,
   sharing or any server-side state.
 
@@ -2582,6 +2622,7 @@ bump.
 
 _Changed in v1.1:_ the goals are served as before, now from Jam mode; the tensions add Jam's own
 settings and Jam's tempo range.
+_Changed in v1.23:_ Jam's tempo range is settled at 60 to 180 BPM (D506).
 
 The personas are Part A's (§3) and [personas.md](../../personas.md): **P1 — the Curious
 Improviser** (primary), a player who can already play and is a beginner at improvising; **P2 —
@@ -2596,6 +2637,7 @@ the Speed Builder** (secondary), who wants endless fresh material at steadily hi
 | **P1.G1 — Vocabulary by exposure.** Play whatever gets generated and feel how these ideas sound. | **Partly** | Allowed rhythm changes let a player hear one rhythm varied by one small, named edit. The suggestion names the mode the player's own idea sounds in. Hearing their own idea developed is exposure too. Vary settings' allowed groups let the player choose what drifts. |
 | **P1.G2 — Real-time reading and dexterity.** | **Partly** | The rhythm lock from phrase 1: with the rhythm settled, the eyes go to the pitches. |
 | **P2.S1 — Fresh material at a steadily higher tempo.** | **Partly** | Vary settings' allowed groups: variety the player can steer (for example, keys only). |
+| **P1.G2 — Real-time reading and dexterity** (D490) | **Extended** | The guide playback (C19): a player who cannot yet read a phrase at sight hears it, its notes with the melody guide, its rhythm with the rhythm guide, while reading it. Off by default, so a player who reads without it hears what they heard before. |
 
 **The context of use** (all personas: hands, and the mouth on a wind controller, busy on the
 instrument; no clicking on screen while playing; Chrome the one supported browser) shapes four
@@ -2615,10 +2657,10 @@ comes after); and Jam needs a controller, since the doodle is played on it.
   the doodle sets the rhythm and shape controls, and the session's steering tools stay in session
   mode (C5.16). Provisional until the owner's listening check (C17).
 - P2 plays at up to 240 BPM; the app needs time to write phrase 1 after the doodle. Resolved by
-  scope: Jam is P3's, and P3 is not a speed player, so Jam targets 60 to 180 BPM and treats 240 as
-  best effort (C5.17); session mode keeps 240 BPM as it is. Two measures stand between the doodle
-  and phrase 1, extended by whole measures when needed, with a steering-free last attempt (C5.6,
-  C5.7).
+  scope: Jam is P3's, and P3 is not a speed player, so Jam's tempo runs 60 to 180 BPM; 240 BPM,
+  measured last, is not kept (C5.17; D506); session mode keeps 240 BPM as it is. Two measures
+  stand between the doodle and phrase 1, extended by whole measures when needed, with a
+  steering-free last attempt (C5.6, C5.7).
 - A strict lock against Tension's variety: some tension steps change which rhythms exist. Resolved
   by the forced bend (C7.5), so the lock never fails a phrase.
 - A beginner wants a steady rhythm; exposure wants variety. Resolved by allowed rhythm changes off
@@ -2749,7 +2791,8 @@ _Changed in v1.12:_ what Jam's Idle prewarms before any doodle (D442).
 - **A shared setting changed in Jam mode** (the instrument, the controller, the audio mix, the
   theme) is the one exception. It acts on session mode exactly as the same change made there would,
   and on Jam mode as any Jam setting the generation reads does (phrase 1 written again from a kept
-  doodle, C5.11). An instrument changed in Jam mode (my instrument's range or clef included) acts on
+  doodle, C5.11), unless it erases the kept session the kept doodle comes from, which lets the
+  doodle go (C5.11, D503). An instrument changed in Jam mode (my instrument's range or clef included) acts on
   session mode as an instrument switch made there, **on returning to session mode**: the phrase on
   screen is checked and written again, and session mode's pre-generated phrases are discarded, by
   session mode's Idle rules. Leaving Jam mode lets the kept doodle go (C5.11).
@@ -2908,6 +2951,7 @@ the rhythm domain of a fresh doodle may be cold.
 _Changed in v1.2:_ the cold domain is accepted and measured (D410).
 _Changed in v1.12:_ what Jam's Idle prewarms before any doodle (D442).
 _Changed in v1.18:_ phrase 2 is requested when phrase 1 is handed over, not when it is ready (D457).
+_Changed in v1.23:_ 240 BPM, tried last, is not in Jam (D506); its figures at 240 BPM are context.
 
 - **One measure lasts** 4 s at 60 BPM, 2 s at 120, 1.6 s at 150, about 1.33 s at 180 and 1 s at
   240. The standalone reserve is 1.075 s. Up to 180 BPM the generation measure alone outlasts the
@@ -2942,8 +2986,9 @@ _Changed in v1.18:_ phrase 2 is requested when phrase 1 is handed over, not when
   it is the barline after phrase 1 is ready. Its deadline is the start of phrase 1's last measure,
   which gives it the read-in measure plus three measures from its request, more than v2's phrase 2
   gets.
-- **240 BPM is worked on last.** The Jam sweep and hand checks run at 60, 120 and 180 BPM; 240 is
-  tried after them (C5.17).
+- **240 BPM was tried last and is not kept** (C5.17; D506). The Jam sweep and hand checks run at
+  60, 120 and 180 BPM; the 240 BPM run is recorded in
+  [generation latency](../../../docs/generation-latency.md) and gates nothing.
 
 ### C5.9 What the doodle feeds the generator
 
@@ -3081,6 +3126,10 @@ _Changed in v1.2:_ "kept" for v1.1's "held" (D413); the session it comes from is
 on it; a change of a Jam setting rewrites phrase 1 at once (D411).
 _Changed in v1.3:_ phrase 1 written from the kept doodle draws its seeds as any phrase 1 at Idle
 (D419, C11).
+_Changed in v1.22:_ deleting my instrument, or saving a change to its range or transposition, lets
+the kept doodle go when it erases the session the doodle comes from (D503).
+_Changed in v1.24:_ "Jam again on this doodle" is offered in the review that follows a Jam too,
+where it does what `Close review` does (D508).
 
 - **After a Jam, Jam mode keeps its doodle.** Back at Idle after the review, Jam mode shows a
   phrase 1 newly written from the kept doodle, with a fresh seed, and Start goes round again
@@ -3090,8 +3139,11 @@ _Changed in v1.3:_ phrase 1 written from the kept doodle draws its seeds as any 
     `ux-writer`'s); Idle then shows Jam mode's Idle without a doodle (C5.1), and the next Jam
     captures one;
   - the player **leaves Jam mode**;
-  - the **kept Jam session it comes from is deleted** by the player, one session or by Delete
-    everything (C5.14, C10.7): deleted data is gone, so a later Jam cannot put it back into a kept
+  - the **kept Jam session it comes from is deleted** by the player, one session, by Delete
+    everything (C5.14, C10.7), or with my instrument it was played with: deleting my instrument,
+    or saving a change to its written range or transposition, deletes or erases its kept sessions
+    after a warning (Part A §5.1, §7.1), and the kept doodle goes with its session (D503); deleted
+    data is gone, so a later Jam cannot put it back into a kept
     session. The session a kept doodle comes from is **the latest session played on it**: a Jam on
     the kept doodle keeps the same doodle in its own session, so when the end of that Jam replaces
     an earlier unpinned session (Part A §5.1), the doodle stays. Only the player's deletion of the
@@ -3119,11 +3171,13 @@ _Changed in v1.3:_ phrase 1 written from the kept doodle draws its seeds as any 
   keeps it too, and regenerates phrase 1 from it in the new key and mode (C6.5).
 - **A Jam on the kept doodle that ends before phrase 1 sounds keeps it**, and Idle shows the same
   phrase 1 again (C5.13). A fresh Jam that ends before phrase 1 sounds keeps no doodle.
-- **"Jam again on this doodle"** is offered in the review of a kept Jam session opened from the
-  session list, in either mode. Choosing it leaves the review for Jam mode's Idle, entering Jam mode
-  if needed (loading its code, C10.9), with that doodle kept in place of any other. Without a
-  controller it still opens Jam mode with the doodle kept, and Jam's Start says why it is
-  unavailable (C5.1). After a Jam, its own review needs no such action: the doodle is kept already.
+- **"Jam again on this doodle"** is offered in the review of every Jam session, in either mode:
+  the review that follows a Jam, and the review of a kept Jam session opened from the session list.
+  Choosing it leaves the review for Jam mode's Idle, entering Jam mode if needed (loading its code,
+  C10.9), with that session's doodle kept in place of any other. In the review that follows a Jam,
+  whose doodle Jam mode keeps already, it does what `Close review` does, focus included (D508).
+  Without a controller it still opens Jam mode with the doodle kept, and Jam's Start says why it is
+  unavailable (C5.1).
 - **A kept doodle lives in memory only.** After a reload, the app opens in session mode and keeps
   none; the kept Jam session's review offers it again.
 
@@ -3210,6 +3264,7 @@ _Changed in v1.2:_ the replay key carries the steering block, not the doodle (D4
 
 _Changed in v1.1:_ one review and one session list for both modes, the doodle's parts loaded with
 Jam's code; "Jam again on this doodle" follows C5.11.
+_Changed in v1.24:_ "Jam again on this doodle" is in every Jam session's review (D508).
 
 - **One review, one session list, one pair of exports** for both modes. The review's doodle section
   and the suggestion are Jam's code, loaded when a Jam session's review opens (C10.9).
@@ -3221,7 +3276,7 @@ Jam's code; "Jam again on this doodle" follows C5.11.
 - **The `Played notes` lane**, when shown, covers the raw doodle notes too, under the stray-note
   rule of Part A §9.
 - **The key and mode suggestion**, when there is one, shows in the review (C6.4); **"Jam again on
-  this doodle"** in a kept Jam session's review (C5.11).
+  this doodle"** in every Jam session's review (C5.11).
 - **The session list** marks a Jam session as such.
 - **Exports.** In both scopes (the whole session and its favorites):
   - the **generated-notes export** (MusicXML and MIDI) opens with the quantized doodle as its own
@@ -3327,6 +3382,7 @@ end.
 _New in v1.1._ Provisional until the owner's checks (C17).
 _Changed in v1.2:_ tap-in takes the design's form: taps count only after the tap button is pressed,
 then controller notes too; unevenness is never judged (D410, ux D335).
+_Changed in v1.23:_ 240 BPM, measured last, is not kept; Jam's control stops at 180 (D506).
 
 **Why tempo matters more in Jam.** The doodle's end rule (a silent measure), its quantizing (a grid
 of sixteenth notes) and the two measures before phrase 1 all need a beat grid. In session mode the
@@ -3338,9 +3394,10 @@ changes the generator**. Tempo changes the time budget and the capture.
   played over the click. Capture, quantizing, the end rule and the budget stay as C5.3 to C5.8 say,
   and the budget is known before Start.
 - **Jam's tempo control runs from 60 to 180 BPM**, in steps of 10, as session mode's control does
-  over its wider range. Jam's sweep and hand checks run at 60, 120 and 180 BPM. **240 BPM is best
-  effort and worked on last**: if it holds at a cost worth paying, the owner may widen Jam's control
-  to 240; if not, it stops at 180. Session mode's 60 to 240 BPM is unchanged.
+  over its wider range. Jam's sweep and hand checks run at 60, 120 and 180 BPM. **240 BPM is not in
+  v3.2's Jam** (the owner's ruling, D506): measured last on the complete Jam, it held (phrase 1 came
+  in every Jam, the slowest phrase 1 attempt 0.823 s against a 1.925 s cutover), and the owner kept
+  Jam's control at 180. Session mode's 60 to 240 BPM is unchanged.
 - **Tap-in** (D410, in the design's form): at Jam's Idle, each press of the tap button is a tap and
   starts **listening**. While it listens, every controller note is a tap too, the starting note
   included, which then starts nothing (a Start click still does). Listening ends two seconds after
@@ -3455,6 +3512,8 @@ started. So the suggestion is never offered during a Jam.
 
 ### C6.5 Use it, Keep mine and Jam again on this doodle
 
+_Changed in v1.24:_ "Jam again on this doodle" is in every Jam session's review (D508).
+
 - **Use it** sets Jam's Written key and Collection exactly as a change by hand in Jam mode does:
   saved with Jam's settings; Jam's pre-generated phrases discarded; session mode's key and mode
   untouched, wherever the review was opened from. With a kept doodle, phrase 1 is regenerated from
@@ -3469,7 +3528,7 @@ started. So the suggestion is never offered during a Jam.
 - **Keep mine** changes nothing, and that doodle's suggestion is not offered again: the same doodle
   would give the same answer. The decline is kept with the kept Jam session, so its review, and a
   doodle kept from it, do not offer it again.
-- **Jam again on this doodle**, in a kept Jam session's review: C5.11. Choosing it does not answer
+- **Jam again on this doodle**, in every Jam session's review: C5.11. Choosing it does not answer
   the suggestion.
 - **Session mode is unaffected**: Use it never changes session mode's key and mode, nor what Vary
   settings moves from there.
@@ -3892,6 +3951,7 @@ _Changed in v1.2:_ phones are a third-rate client (D414).
 
 _New in v1.1._
 _Changed in v1.15:_ the generator worker's chunk budget is 170 KiB, up from 150 KiB (D451).
+_Changed in v1.22:_ the first-load (entry) budget is 320 KiB, up from 300 KiB (D504).
 
 - **The first load carries the mode button and nothing else of Jam's.** At the top of the app, the
   mode picks the session workspace or Jam's, which is loaded on demand; both sit over the one shared
@@ -3901,8 +3961,8 @@ _Changed in v1.15:_ the generator worker's chunk budget is 170 KiB, up from 150 
   the path to phrase 1, the suggestion, the review's doodle section and the exports' doodle section.
   A kept Jam session's review opened in session mode loads the same code. What shows while it loads,
   and if it fails (offline before the files were kept), is `ux-writer`'s.
-- **Budgets** (the release's bundle rules): the first-load (entry) budget stays 300 KiB
-  (307,200 bytes; 265,431 used at 3.1.0); a boundary check keeps every Jam module out of the entry
+- **Budgets** (the release's bundle rules): the first-load (entry) budget is 320 KiB
+  (327,680 bytes; 265,431 used at 3.1.0), raised from 300 KiB by the owner in wave 7 (D504); a boundary check keeps every Jam module out of the entry
   chunk; Jam's chunks stay under the existing 100 KiB per-chunk budget; the generator worker's
   chunk under its 170 KiB (174,080 bytes). The service worker keeps Jam's files for offline use
   like every other file.
@@ -3997,6 +4057,7 @@ disagree on v3.2's fields is unreadable (D429, D430).
 
 _Changed in v1.1:_ rewritten for Jam mode, from the re-scope's design brief
 ([Jam mode §8](jam-mode.md#8-for-the-interface-design)).
+_Changed in v1.24:_ "Jam again on this doodle" is in every Jam session's review (D508).
 
 What the interface must support, for `ux-writer`. Behaviour only: layout, placement and wording are
 `ux-writer`'s.
@@ -4030,7 +4091,8 @@ What the interface must support, for `ux-writer`. Behaviour only: layout, placem
   named in the player's family (Major or Minor, or the mode); the one plain sentence, in every
   review of that Jam, when the doodle uses notes the app's modes do not offer, never naming a wrong
   note. Shown in a Jam's review and at Jam's Idle with a kept doodle.
-- **"Jam again on this doodle"** in a kept Jam session's review, opening Jam mode.
+- **"Jam again on this doodle"** in every Jam session's review, opening Jam mode (in the review
+  that follows a Jam, doing what `Close review` does).
 - **Shared, with Jam's parts**: one session list with Jam sessions marked; one review whose doodle
   section (first, labelled, before phrase 1, with no phrase number, no chord symbols and no
   favorite; the `Played notes` lane over it when shown) and suggestion load from Jam's code; both
@@ -4071,6 +4133,8 @@ _Changed in v1.4:_ the owner signed off the wording (D421).
 _Changed in v1.5:_ the three atoms promoted at 8.1.0 take later bumps of their own (D422).
 _Changed in v1.9:_ the wave 2 bump also covers the kept-session stored layout's three contract
 atoms (D429) and a fresh Jam's played-notes clock (D430).
+_Changed in v1.21:_ the guide playback's sign-off also covers the saved settings' list and the
+vision's out-of-scope lead-line playback (D500).
 
 Each change is intended. Where a declared-intent entry is named, `documentalist` prepares the
 change.
@@ -4224,6 +4288,20 @@ promoted at 8.1.0, which take the later bumps above):
   `rule_jam_start_conditions`), follow v1.1: Jam mode, the kept doodle's new rule, the controls
   taken from the doodle, the steering block.
 
+**The guide playback** (C19; D490, D492, D500). `req_session_audio_mix` (STABLE, on the contract)
+says the mix has four controls, the backing's and the click's; the two guides add four more (a
+switch and a volume each), every one as independent, operable at any moment and changing nothing
+that is generated. `rule_settings_saved_on_change` (STABLE, on the contract) lists the mix's saved
+settings by name, so it takes in the guides' four. The vision (`vision_infinite_flow_first_release`,
+STABLE) keeps "playback of the generated lead line" out of scope, and the melody guide is that
+playback during a session: its out-of-scope line narrows to playback outside a running session or
+with a sound the player chooses, and its v3.2 paragraph names the guide. The three are revised
+once, `documentalist` drafting and the owner confirming them with one MAJOR contract bump (the
+build plan's gate CG), as for every later bump above. `req_session_backing_track` is unchanged: the backing sounds as before. The guide itself
+is new intent (a requirement and its rules, drafted from C19). The tests that change: those that
+pin the mix's four controls or its gain list (`src/audio/audio-mix.ts`'s, the transport's, the
+settings records', the mix controls'), each kept and extended with the guides.
+
 **Draft decisions this part replaces** (recorded before the v3.2 drafts): the lock holding "the
 note starts on beats 1 and 3 and the number of notes in each measure" becomes the strict lock; "the
 generation may bend the rhythm a little for tension and release" becomes the player's allowed
@@ -4246,6 +4324,7 @@ stray-note filter and replay keys; Jam mode's facts and risks added. File refere
 [Jam mode §4](jam-mode.md#4-the-generator-seam).
 _Changed in v1.4:_ the contract's risk closed by the sign-off (D421).
 _Changed in v1.15:_ the generator worker's chunk budget, 170 KiB (D451).
+_Changed in v1.22:_ the entry chunk's budget, 320 KiB (D504).
 
 - **The generation request is closed by construction**: the worker checks it against an exact list
   of its ten fields and refuses any other, then rebuilds it and requires the rebuild to equal what
@@ -4306,7 +4385,7 @@ _Changed in v1.15:_ the generator worker's chunk budget, 170 KiB (D451).
   are upgraded only when the database opens, never on read (a lower version read later is
   unreadable, a higher one newer). The settings store keeps one record per setting, so Jam's group
   needs no new store.
-- **Budgets**: the entry chunk's budget is 300 KiB (307,200 bytes), 265,431 used at 3.1.0; every
+- **Budgets**: the entry chunk's budget is 320 KiB (327,680 bytes, D504), 265,431 used at 3.1.0; every
   other chunk 100 KiB; the generator worker's chunk 170 KiB (174,080 bytes, D451); the engraver's
   800 KiB.
 - **The tempo control** runs 60 to 240 BPM in steps of 10, default 90. The standalone reserve is
@@ -4345,6 +4424,8 @@ _Changed in v1.1:_ Jam mode, its own settings, the seam, on-demand loading and J
 "Jam is a mode, not a second Start button" now reads as a mode of the app; "the doodle only orders
 candidates" narrowed to within the controls it sets.
 _Changed in v1.3:_ a fresh Jam's seeds added (D419).
+_Changed in v1.20:_ the guide playback's layers added (D490, D491).
+_Changed in v1.23:_ Jam's tempo range settled at 60 to 180 BPM (D506).
 
 - **Jam is a mode of its own, entered by a button at Idle, not a session option**, because Jam's
   settings differ from a session's (the app follows the doodle and develops it), and keeping Jam
@@ -4366,8 +4447,8 @@ _Changed in v1.3:_ a fresh Jam's seeds added (D419).
   should not pay for it.
 - **Jam's tempo is set before the doodle, with tap-in, and runs 60 to 180 BPM**, because a click to
   follow is how beginners play best and what quantizing, the end rule and the budget need; tap-in
-  finds the speed of the idea they hear; and none of the personas Jam serves plays at 240 BPM, which
-  is best effort.
+  finds the speed of the idea they hear; and none of the personas Jam serves plays at 240 BPM,
+  which, measured last, the owner did not keep (D506).
 - **The doodle is captured inside the session, after a count-in, over the click at Jam's tempo**,
   because the click sets the measure grid quantizing needs, and at Idle a doodle would collide with
   the starting note.
@@ -4425,6 +4506,15 @@ _Changed in v1.3:_ a fresh Jam's seeds added (D419).
 - **Session-mode work first, then Jam mode**, because the rhythm lock's generator work (matching by
   bars, the forced bend, the rhythm changes) is shared and Jam reuses it, and session mode's half
   touches nothing of Jam's.
+- **The guide playback in five layers, plain Web Audio, no library** (C19.6; D490, D491), because
+  the owner wants it now and kept in v4, not rewritten: the notes come from a pure renderer beside
+  the backing's, testable with no audio (never exported, D494); they are placed on the audio clock through the
+  tempo map, at any position; each sound role's voice is a data entry behind the audio seam, and
+  each mix channel's gains are looked up by channel, so v4 adds roles without reshaping either;
+  only the few lines that turn a note into oscillators and gains know Web Audio, and they are what
+  a v4 sound library would replace. Rejected: a sound library now (the owner's choice; the no-sample
+  rule and the entry budget stay as they are), and stretching the backing's note path (whole beats
+  only, a 45 ms minimum note).
 
 ## C16. Definition of done
 
@@ -4433,10 +4523,15 @@ sweep and checks run at 60, 120 and 180 BPM, 240 last; hand checks are short scr
 _Changed in v1.2:_ items 14, 17, 18, 19, 33 and 38 follow the settled answers (D410, D411).
 _Changed in v1.3:_ item 39 checks a fresh Jam's seeds (D419).
 _Changed in v1.5:_ item 49 names the later contract bumps (D422).
+_Changed in v1.22:_ item 16's entry budget is 320 KiB (D504); item 33's deletions include my
+instrument's (D503).
+_Changed in v1.23:_ Jam keeps 180 BPM as its top, so no Jam item or check runs at 240 (D506).
+_Changed in v1.24:_ item 33 checks "Jam again on this doodle" after a Jam (D508); item 50 checks
+triplets and a tie across a barline on hand-built phrases, which seeded ones never hold (D509).
 
 v3.2 ships when every item holds, each verified by a named test or a recorded hand check. **Every
 hand check is a numbered script of at most ten minutes**, run in Chrome (Edge is not supported);
-Jam's run at 60, 120 and 180 BPM, and at 240 BPM only if Jam keeps it (C5.17).
+Jam's run at 60, 120 and 180 BPM; Jam does not keep 240 BPM (C5.17; D506), so none runs at 240.
 
 **Session mode (first half)**
 
@@ -4488,7 +4583,7 @@ Jam's run at 60, 120 and 180 BPM, and at 240 BPM only if Jam keeps it (C5.17).
 15. **A controller needed.** Without one, Jam mode opens and its settings can be set, but Start is
     unavailable and says why; a controller attaching or leaving never switches the mode.
 16. **On demand.** No Jam module is in the entry chunk (a boundary check), which stays within
-    307,200 bytes; each of Jam's chunks stays within 100 KiB; the first press of the mode button
+    327,680 bytes (D504); each of Jam's chunks stays within 100 KiB; the first press of the mode button
     loads Jam's code, and a kept Jam session's review loads its doodle parts; after the service
     worker has kept the files, both work offline.
 17. **Jam's settings** are its own, as C5.16 says: saved as their own group and restored; invalid
@@ -4532,8 +4627,8 @@ Jam's run at 60, 120 and 180 BPM, and at 240 BPM only if Jam keeps it (C5.17).
 29. **Drift's three positions** order rhythm and pitch candidates as C5.9 and C8 say.
 30. **Jam's lock.** With Jam's lock on, phrase 1's rhythm is the candidate nearest the doodle, and
     the lock holds it; session mode's lock never reaches a Jam, nor Jam's lock a session.
-31. **The Jam sweep** over doodles × settings at 60, 120 and 180 BPM (240 last, if kept), with
-    Jam's lock on and off, warm and cold rhythm domains, is recorded: the share of phrase 1
+31. **The Jam sweep** over doodles × settings at 60, 120 and 180 BPM (240 BPM measured, not
+    kept, D506), with Jam's lock on and off, warm and cold rhythm domains, is recorded: the share of phrase 1
     generated with the doodle's join and with the steering block, the cost of the new orderings, no
     phrase repeated, and the standalone attempts within their reserve.
 32. **The owner's listening check** of Jam is recorded: phrases at each drift position, lock off and
@@ -4542,9 +4637,13 @@ Jam's run at 60, 120 and 180 BPM, and at 240 BPM only if Jam keeps it (C5.17).
 33. **The kept doodle.** After a Jam, Jam mode keeps its doodle, with phrase 1 and pre-generated
     phrases written from it, which are the phrases the next Jam plays; a change of a Jam setting
     phrase 1 is written from writes phrase 1 again at once; the "new doodle" action, leaving Jam
-    mode, deleting the latest kept session played on it and Delete everything let it go, and nothing
+    mode, deleting the latest kept session played on it (on its own, or with my instrument it was
+    played with, by deleting my instrument or saving a change to its range or transposition, D503)
+    and Delete everything let it go, and nothing
     else does, the end of a Jam on it replacing an earlier unpinned session included; "Jam again on this doodle" in a kept Jam session's review opens Jam mode with it kept,
-    and, after a reload, gives the same phrase 1 for the same settings and seed.
+    and, after a reload, gives the same phrase 1 for the same settings and seed; in the review
+    that follows a Jam it is offered too and does what `Close review` does, the same doodle kept
+    (D508).
 34. **Before phrase 1 sounds**, no doodle note within 30 s, a controller lost (in a Jam without a
     kept doodle, from its count-in on), Stop, a hidden tab or a staff that cannot be shown end the
     Jam with no review and nothing kept, and never change the mode.
@@ -4592,6 +4691,33 @@ Jam's run at 60, 120 and 180 BPM, and at 240 BPM only if Jam keeps it (C5.17).
     owner's sign-off on their wording recorded, then each later MAJOR bump C13 names, its own
     sign-off recorded.
 
+**The guide playback (both modes; added after approval, D490)**
+
+50. **The guide's notes** (C19.1): for seeded phrases holding ties, rests, offbeat eighths and, on
+    a transposing instrument, written notes that differ from the sounding ones, and for hand-built
+    phrases holding what the generator does not write (a tie across a barline, eighth and
+    sixteenth triplets), the melody guide's notes are exactly the phrase's fresh attacks, each at its
+    concert pitch and lasting its full tied length, and no note starts in a rest; the rhythm
+    guide's notes have the same starts and lengths, each on the root of the harmony event holding
+    its start, in MIDI 60–71; with both on, both lines sound, on the same starts. Each start and
+    end falls at the exact audio time of its position through the tempo map (a note on a beat at
+    that beat's click), phrase by phrase at each phrase's tempo; no length the generator writes is
+    refused, and a hand-built sixteenth-note triplet at 240 BPM (about 42 ms) is scheduled and
+    sounds (D509).
+51. **The guide's sound and settings** (C19.2–C19.4): both guides off by default, and then no guide
+    note is scheduled and the session's sound is the sound it had before C19 (the same recorded
+    calls on a fake output); each guide's switch and volume act on their own, with the backing on
+    and off, so all four combinations of the two guides play; a guide turned off is silent at once,
+    one turned on sounds from the next note planned; each note's release starts at its end and its
+    oscillator stops once the fade is over; a same-pitch re-attack fades the ringing note quickly at
+    the new start; Stop fades every guide note with the session; the four settings are saved and
+    loaded as the mix's are, an unreadable one taking its default; acknowledgement gives the same
+    result with the guides on as off; every export is the same with the guides on as off and holds
+    no guide note (D494); `npm run verify:boundaries` passes with its rules unchanged.
+52. **The owner's listening check of the guide** is recorded: each guide alone, both together (told
+    apart by ear), each with and without the backing, the ringing release, a note followed by a
+    rest ringing on into it (D493), and quick notes at 240 BPM.
+
 ## C17. Deferred and open
 
 _Changed in v1.1:_ the provisional answers and their checks; seven open questions with proposed
@@ -4600,6 +4726,7 @@ _Changed in v1.2:_ the seven questions settled (D410), the design's seven answer
 _Changed in v1.4:_ the contract sign-off given (D421).
 _Changed in v1.10:_ two questions opened during the build (D433).
 _Changed in v1.12:_ O268 settled by the owner (D440).
+_Changed in v1.23:_ 240 BPM in Jam measured and not kept (D506).
 
 **Provisional answers, each confirmed by a check.** Four answers of the re-scope were accepted on
 the owner's "will need testing to be sure". A check that fails comes back to the owner as a ruling;
@@ -4631,6 +4758,9 @@ C5.16, C5.17, C10.5 and, for v3.3's Seventh chords in Jam, Part D §D8.4.
 **Settled during the build**: O268, how a short silence between two doodle notes is read, as
 proposed (the owner's answer, D440): part of the note before it, a silence being a rest only where
 a whole rest of the doodle's note density value fits in it on that grid; C5.9, C5.16.1, C8.
+O291, whether a guide note's release may ring on into the rest after it, as proposed (the owner's
+ruling, D493): it rings, its release unchanged; C19.1, C19.4. O290, whether the guide goes into
+the MIDI export (the owner's ruling, D494): never, into no export; C19.5.
 
 **Open during the build** (D433, D449), with a proposed answer in the register:
 
@@ -4644,7 +4774,8 @@ a whole rest of the doodle's note density value fits in it on that grid; C5.9, C
 (C5.8, C16 items 10 and 31); the forced-bend rate; the share of rhythm changes, tuned to 1 in 2
 and 3 in 4 at the listening check's first steps (C7.4, D450), its one-kind-at-a-time step still to
 run; the suggestion's shares and cues, and whether Locrian needs a handicap (C6.2);
-drift's distance scale by ear (C8; held, D449); 240 BPM in Jam, last.
+drift's distance scale by ear (C8; held, D449). 240 BPM in Jam was measured last and not kept
+(D506).
 
 **Code gaps for `coding-leader`, not open design**: the steering module and the block's check on
 arrival; the doodle's own type on Jam's side; the join from no phrase; the bar key; the run-time
@@ -4674,7 +4805,9 @@ meanings.
 - Jam above 180 BPM, if 240 does not hold;
 - a drone under the doodle: a later candidate;
 - favoring the figures found in the doodle; presets with rhythm cues (the richer presets);
-- a doodle taken from a file or a past session: around v5.
+- a doodle taken from a file or a past session: around v5;
+- the guide playback outside a running session, or with a sound the player chooses (C19.5).
+  (The guide in an export is not deferred: it is never exported, D494.)
 
 ## C18. Access model
 
@@ -4686,6 +4819,132 @@ sessions and their doodles, and Jam's saved settings, join the data kept for "wh
 browser profile on this device"; Delete everything removes them. The quantized doodle leaves the
 device only in the generated-notes export the player triggers, and the raw doodle notes only in the
 played-notes export; the replay key's console line stays on the device.
+
+## C19. The guide playback
+
+_Added in v1.20_ (2026-11-04; D490–D492): the owner's request of that day, after this part's
+approval. It adds nothing to the generator, the request, the replay key, kept sessions or the
+exports.
+
+The guide playback is two optional sounds that play the phrase on the sheet while it is played,
+beside the backing, so a player who cannot yet read a phrase at sight hears what they are reading:
+the **melody guide** plays the phrase's notes, the **rhythm guide** plays its rhythm on the chords'
+roots (the **root** of a chord is the note it is built on and named after: C for a C major chord).
+They are listening aids only: nothing compares the player with them.
+
+### C19.1 What each guide plays
+
+_Changed in v1.24:_ the generator writes no triplet and no tie across a barline; the guides would
+play them exactly (D509).
+
+- **The melody guide** plays every note of the phrase as written on the sheet, at its **concert
+  pitch**: the pitch the instrument actually sounds. On a transposing instrument the sheet is
+  written higher or lower than it sounds (a B♭ tenor saxophone's written D sounds a C, more than an
+  octave lower), and the guide plays the sounding pitch, the one the backing is in. A
+  [tie](../../../docs/music/lexicon.md#tie) joins two written notes into one sound, so a tied note
+  sounds once, held for its whole tied length, across a barline too. A
+  [rest](../../../docs/music/lexicon.md#rest) starts no note; the note before it may ring on into
+  it, through its release (C19.4; D493).
+- **The rhythm guide** plays the same note starts and lengths as the melody guide (a tied note once,
+  no note starting in a rest), but each note sounds the root of the chord in effect when the note starts:
+  the harmony event whose span holds the note's start (a phrase's chords change only on beat 1 or
+  beat 3 of a measure). Every rhythm-guide note is in one fixed
+  [octave](../../../docs/music/lexicon.md#octave), from middle C up, C4 to B4 (MIDI 60–71), well
+  above the bass's C2–B2. A note held across a chord change keeps the root it started on.
+- **Both on**: the two guides sound together, on the same starts, the melody at concert pitch and
+  the rhythm on the root in its octave.
+- Each note starts and ends exactly where its position on the sheet falls, on the audio clock,
+  through the session's tempo map: on a beat or off a beat (an offbeat eighth). No length the
+  generator writes is refused: the shortest, a sixteenth note at 240 BPM, lasts 62.5 ms (Part A
+  §9). The guides take any position and length the sheet can hold, so the shapes the generator
+  does not write, a triplet or a tie across a barline, would play exactly too, the shortest checked
+  a sixteenth-note triplet at 240 BPM, about 42 ms (D509).
+
+### C19.2 When the guides play
+
+- In a running session, in both modes: from phrase 1's first beat, every phrase the session plays,
+  at that phrase's tempo. In a Jam, the Jam's phrases, from phrase 1 on.
+- Never before phrase 1: not during the count-in, nor during a fresh Jam's capture, generation
+  measure, extended wait or read-in measure (no phrase is playing; as for the backing, C5.3).
+- Never outside a running session: the review and Idle play nothing (C19.5).
+- **Stop**: the guides fade out with every other sound of the session, in the stop fade, notes still
+  ringing included; nothing of a stopped session sounds after it.
+- **Sound only.** The guides change nothing in acknowledgement (which reads the player's MIDI
+  input), the session's timing, what is generated, or what is saved with a session, and they are
+  never written to an export (C19.5; D494).
+
+### C19.3 The settings
+
+- Two switches, **Melody guide** and **Rhythm guide**, each on or off, both **off by default**; and a
+  volume for each, beside the backing's volume. They are independent of each other, of the backing
+  and of the click: all four combinations of the two guides are valid, with the backing on or off.
+- They are audio-mix controls (`req_session_audio_mix`): reachable at all times, at Idle, in the
+  review and during a session, in both modes, shared by the two modes as the mix is.
+- During a session, a volume change applies at once; a guide turned off is silent at once, notes
+  still ringing included; a guide turned on sounds from the next of its notes the session plans
+  (within the scheduler's look-ahead, 0.2 s), so a note that started before is never caught half
+  way.
+- Saved as the mix's settings are: each its own setting record, saved when changed (a change made
+  during a session at its end), loaded tolerantly (an unreadable one takes its default: off, or the
+  design's first-load volume); a device with no such record yet loads the defaults, with no data
+  step. Visits that save nothing save neither; Delete everything resets them.
+- Where the controls sit and look, and the volume range and first-load levels (design tokens), are
+  the design's (the build plan's gate GD); a guide's volume may reach silence, as the backing's
+  does.
+
+### C19.4 The guides' voices
+
+- Each guide has **its own fixed voice**, soft and neutral, imitating no instrument, not chosen by
+  the player. Indicatively, the melody guide a sine and the rhythm guide a triangle with a short
+  plucked fade. The two must be easy to tell apart when both play the same starts, and apart from
+  the backing's bass and chords. The exact values are set by ear by the team, under the owner's
+  delegation of minor design calls, and heard at the owner's listening check (C16 item 52).
+- Made only from the browser's own oscillators and gains: no sample, no audio file, no new library.
+  The only sound ban (D260) and `npm run verify:boundaries` hold unchanged.
+- **The ringing release.** A guide note rises from silence in a few milliseconds (at most 5 ms, and
+  at most half the note), holds to its written end, then fades out exponentially over its release
+  (indicatively 300 to 800 ms), which starts at that end; its oscillator stops once the fade is
+  over. Each note has its own oscillator, so the next note starts on its own start while the last
+  one still rings, and no note is cut to make room for another.
+- **A note rings on into a rest that follows it**, its release unchanged, as a plucked string does
+  (the owner's ruling, D493): a rest is a place where no note starts, not a cut to silence. No
+  quick fade comes before a rest.
+- **A same-pitch re-attack stays audible**: when a guide note starts on the pitch of that guide's
+  note still ringing, the ringing note fades out quickly at the new start (indicatively 10 to
+  20 ms), so the new note is heard as a new note and the two never sound on one pitch together.
+- The backing is unchanged: its notes, voices, envelopes and 45 ms shortest note are as before.
+
+### C19.5 Out of v3.2
+
+- **The guides are never exported** (the owner's ruling, D494): no guide note is written to the
+  generated-notes MIDI file, the played-notes MIDI file, the MusicXML file or any other export,
+  with the guides on or off; every export is byte for byte what it is with both guides off. The
+  guide has no role in the exports; the pure renderer serves the guide's layers, not an export.
+- A guide outside a running session: the app has no other playback today (the review plays
+  nothing); a later playback feature decides whether it carries the guides.
+- A sound the player chooses, an instrument imitation, or a guide for the doodle.
+
+### C19.6 How it is built, and v4
+
+Five layers, so that v4 keeps them (D491; the owner does not want it rewritten in v4):
+
+1. **A pure renderer** in `src/domain/backing/`, beside the backing renderer: from a phrase's
+   concert timeline and its harmony events to the melody-guide and rhythm-guide notes, in whole-note
+   rationals, with no audio. It reads ties and rests as acknowledgement's expected notes do.
+2. **Placement on the audio clock**, beside `src/audio/backing-track.ts`: any rational position
+   placed exactly through the tempo map, where the backing's placement takes whole beats only.
+3. **The seam**, `src/audio/audio-ports.ts`: `BackingVoice` (`'bass' | 'chord'`) widens to a list of
+   sound roles (bass, chord, melody guide, rhythm guide), each role's sound a data entry (waveform,
+   peak, attack, release, and whether its release ends at the note's end or starts there), each
+   role in a mix channel. This is the "prepare at no cost" item of v4's sound-library plan
+   ([v4](../v4/README.md)).
+4. **The mix by channel**: the backing, the click and each guide have an on/off gain and a volume
+   gain, looked up by channel, not named one by one, so a role v4 adds joins without reshaping the
+   mix; the settings records follow.
+5. **Sounding**, in `src/audio/web-audio-session-bus.ts`: the only part that knows Web Audio, a
+   few dozen lines turning one note into an oscillator and its envelope. It is the one part a v4
+   sound library (Tone.js is the survey's first pick for the spike) would replace; v4's constraints
+   1 to 6 already hold for everything else.
 
 ## Part D — v3.3
 

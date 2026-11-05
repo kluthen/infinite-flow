@@ -25,7 +25,8 @@ function phrasesRig() {
   const scheduled: { at: number; action: () => void }[] = []
   const phrases = createSessionPhrases({
     audio: {
-      queueBacking: (n, harmony, tempo) => calls.push(['queueBacking', n, harmony, tempo]),
+      queueBacking: (n, harmony, timeline, tempo) =>
+        calls.push(['queueBacking', n, harmony, timeline, tempo]),
       phraseStartsAt: (n) => 10 * n,
     },
     display: {
@@ -54,7 +55,7 @@ describe('session phrase steps', () => {
 
     rig.phrases.phraseTempo(2, 95)
     expect(rig.calls.slice(1)).toEqual([
-      ['queueBacking', 2, two.outcome.provenance.harmony.events, 95],
+      ['queueBacking', 2, two.outcome.provenance.harmony.events, two.outcome.result.timeline, 95],
       ['midi.phraseReady', 2, two.outcome.result.timeline, 95],
       ['display.phraseTempo', 2, 95],
     ])
@@ -75,8 +76,14 @@ describe('session phrase steps', () => {
 
     const queued = rig.calls.filter((call) => call[0] === 'queueBacking')
     expect(queued).toEqual([
-      ['queueBacking', 2, two.outcome.provenance.harmony.events, 90],
-      ['queueBacking', 3, three.outcome.provenance.harmony.events, 95],
+      ['queueBacking', 2, two.outcome.provenance.harmony.events, two.outcome.result.timeline, 90],
+      [
+        'queueBacking',
+        3,
+        three.outcome.provenance.harmony.events,
+        three.outcome.result.timeline,
+        95,
+      ],
     ])
   })
 
@@ -116,8 +123,14 @@ describe('session phrase steps', () => {
       ['display.phraseTempo', 3, 90],
     ])
     expect(rig.calls.filter((call) => call[0] === 'queueBacking')).toEqual([
-      ['queueBacking', 2, two.outcome.provenance.harmony.events, 90],
-      ['queueBacking', 3, threeAgain.outcome.provenance.harmony.events, 90],
+      ['queueBacking', 2, two.outcome.provenance.harmony.events, two.outcome.result.timeline, 90],
+      [
+        'queueBacking',
+        3,
+        threeAgain.outcome.provenance.harmony.events,
+        threeAgain.outcome.result.timeline,
+        90,
+      ],
     ])
   })
 

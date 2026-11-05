@@ -52,9 +52,10 @@ export function keptSessionKey(history: Pick<SessionHistory, 'startedAt' | 'sess
 
 /**
  * What a Jam session's save keeps of its Jam part beside its history, whatever `Keep my played
- * notes` says: its quantized doodle with its capture tempo and its fresh moments (its count-in's
- * first beat, its doodle's first barline and its raw doodle notes, which go to the played-notes
- * record only when those are kept). Whether its suggestion was declined is a held fact.
+ * notes` says: its quantized doodle with its capture tempo and, for a fresh Jam, its fresh moments
+ * (its count-in's first beat, its doodle's first barline and its raw doodle notes, which go to the
+ * played-notes record only when those are kept); a Jam on the kept doodle has none. Whether its
+ * suggestion was declined is a held fact.
  */
 // @spec-link [[module_kept_jam_session]]
 export type KeptJamSave = Omit<KeptJamFacts, 'suggestionDeclined'>
@@ -76,12 +77,16 @@ export interface EndedSessionSave {
 }
 
 /**
- * Intent: a reviewed Jam part's fresh moments as the kept-session codec takes them: its count-in's
- * first beat, its doodle's first barline and its raw doodle notes, on the audio clock.
+ * Intent: a reviewed Jam part's fresh moments as the kept-session codec takes them: a fresh Jam's
+ * count-in's first beat, its doodle's first barline and its raw doodle notes, on the audio clock;
+ * none (null) for a Jam on the kept doodle, which has no count-in its played notes count from and
+ * no raw doodle note, so its played notes are timed from phrase 1 as session mode's.
  */
 // @spec-link [[module_kept_jam_session]]
 // @spec-link [[rule_raw_doodle_notes_are_played_notes]]
-export function keptFreshJam(jam: ReviewedJamPart): KeptFreshJam {
+// @spec-link [[rule_jam_on_held_doodle_skips_capture]]
+export function keptFreshJam(jam: ReviewedJamPart): KeptFreshJam | null {
+  if (jam.countInStartAt === null) return null
   return {
     countInStartsAt: jam.countInStartAt,
     doodleFirstBarlineAt: jam.doodle.firstBarlineAt,
@@ -91,7 +96,8 @@ export function keptFreshJam(jam: ReviewedJamPart): KeptFreshJam {
 
 /**
  * Intent: what a Jam session's save keeps of its Jam part: its quantized doodle with its capture
- * tempo, and its fresh moments; null for a session that is no Jam.
+ * tempo, and its fresh moments (none for a Jam on the kept doodle); null for a session that is no
+ * Jam.
  */
 // @spec-link [[module_kept_jam_session]]
 // @spec-link [[rule_quantized_doodle_is_generation_input]]

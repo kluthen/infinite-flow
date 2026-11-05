@@ -1,11 +1,12 @@
 /**
- * The Web Audio output against a recording fake context: the four mix gains and their wiring, how
+ * The Web Audio output against a recording fake context: the eight mix gains and their wiring, how
  * a gain change is scheduled, the audio clock readings, the interruption notice, that nothing
  * ever suspends or closes the context, and how the one real context is opened.
  */
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { GUIDE_ROLES, MIX_CHANNELS } from '@/audio/sound-roles'
 import { createWebAudioOutput, openWebAudioOutput } from '@/audio/web-audio-output'
 import {
   createFakeWebAudioContext,
@@ -25,7 +26,7 @@ describe('the mix gains', () => {
     const backingEnable = mixNode(output, fake, 'backing-enable')
     const backingVolume = mixNode(output, fake, 'backing-volume')
 
-    expect(fake.gains).toHaveLength(4)
+    expect(fake.gains).toHaveLength(8)
     expect(pathToDestination(clickEnable, fake.destination)).toEqual([
       clickEnable,
       clickVolume,
@@ -39,6 +40,30 @@ describe('the mix gains', () => {
   })
 
   // @test-link [[req_session_audio_mix]]
+  // @test-link [[req_guide_playback]]
+  it.each(GUIDE_ROLES)(
+    'gives the %s its own enable gain, feeding its own volume gain, feeding the speakers',
+    (guide) => {
+      const fake = createFakeWebAudioContext()
+      const output = createWebAudioOutput(fake.port, fake.performanceNow)
+      const gains = MIX_CHANNELS.flatMap((channel) => [
+        mixNode(output, fake, `${channel}-enable`),
+        mixNode(output, fake, `${channel}-volume`),
+      ])
+      const enable = mixNode(output, fake, `${guide}-enable`)
+      const volume = mixNode(output, fake, `${guide}-volume`)
+
+      expect(new Set(gains).size).toBe(8)
+      expect(fake.gains).toHaveLength(8)
+      expect(pathToDestination(enable, fake.destination)).toEqual([
+        enable,
+        volume,
+        fake.destination,
+      ])
+    },
+  )
+
+  // @test-link [[req_session_audio_mix]]
   // @test-link [[req_session_backing_track]]
   it("feeds each session bus's fade gains into the click volume, the click gate and the backing gate", () => {
     const fake = createFakeWebAudioContext()
@@ -48,7 +73,7 @@ describe('the mix gains', () => {
     const backingEnable = mixNode(output, fake, 'backing-enable')
 
     output.openSessionBus()
-    const fades = fake.gains.slice(4)
+    const fades = fake.gains.slice(8, 11)
     expect(fades.map((fade) => fade.outputs)).toEqual([
       [clickVolume],
       [clickEnable],
@@ -57,10 +82,47 @@ describe('the mix gains', () => {
   })
 
   // @test-link [[req_session_audio_mix]]
+  // @test-link [[req_guide_playback]]
+  it("feeds each session bus's guide fade gains into each guide's own enable gain", () => {
+    const fake = createFakeWebAudioContext()
+    const output = createWebAudioOutput(fake.port, fake.performanceNow)
+    const melodyEnable = mixNode(output, fake, 'melody-guide-enable')
+    const rhythmEnable = mixNode(output, fake, 'rhythm-guide-enable')
+
+    const bus = output.openSessionBus()
+    const fades = fake.gains.slice(8)
+    expect(fades).toHaveLength(5)
+    expect(fades.slice(3).map((fade) => fade.outputs)).toEqual([[melodyEnable], [rhythmEnable]])
+
+    bus.scheduleGuideNote({ role: 'melody-guide', pitch: 60, at: 2, until: 2.5 })
+    bus.scheduleGuideNote({ role: 'rhythm-guide', pitch: 60, at: 2, until: 2.5 })
+    const [melody, rhythm] = fake.oscillators
+    expect(pathToDestination(melody!, fake.destination).slice(2, 4)).toEqual([
+      fades[3],
+      melodyEnable,
+    ])
+    expect(pathToDestination(rhythm!, fake.destination).slice(2, 4)).toEqual([
+      fades[4],
+      rhythmEnable,
+    ])
+  })
+
+  // @test-link [[req_session_audio_mix]]
   it('starts all four gains at 1', () => {
     const fake = createFakeWebAudioContext()
+    const output = createWebAudioOutput(fake.port, fake.performanceNow)
+    const gains = (
+      ['click-enable', 'click-volume', 'backing-enable', 'backing-volume'] as const
+    ).map((gain) => mixNode(output, fake, gain))
+    expect(gains.map((node) => node.gain.value)).toEqual([1, 1, 1, 1])
+  })
+
+  // @test-link [[req_session_audio_mix]]
+  // @test-link [[req_guide_playback]]
+  it('starts all eight gains at 1, both guides included', () => {
+    const fake = createFakeWebAudioContext()
     createWebAudioOutput(fake.port, fake.performanceNow)
-    expect(fake.gains.map((node) => node.gain.value)).toEqual([1, 1, 1, 1])
+    expect(fake.gains.map((node) => node.gain.value)).toEqual([1, 1, 1, 1, 1, 1, 1, 1])
   })
 
   // @test-link [[req_session_audio_mix]]
@@ -77,6 +139,30 @@ describe('the mix gains', () => {
     ])
     const others = fake.gains.filter((node) => node !== clickVolume)
     expect(others.flatMap((node) => node.gain.calls)).toEqual([])
+  })
+
+  // @test-link [[req_session_audio_mix]]
+  // @test-link [[rule_guide_switch_takes_effect]]
+  it.each(GUIDE_ROLES)("sets the %s's gains as it sets the others", (guide) => {
+    const fake = createFakeWebAudioContext()
+    const output = createWebAudioOutput(fake.port, fake.performanceNow)
+    const enable = mixNode(output, fake, `${guide}-enable`)
+    const volume = mixNode(output, fake, `${guide}-volume`)
+
+    output.setGain(`${guide}-enable`, 0, 4.25)
+    output.setGain(`${guide}-volume`, 0.45, 4.5)
+
+    expect(enable.gain.calls).toEqual([
+      ['cancelScheduledValues', 4.25],
+      ['setValueAtTime', 0, 4.25],
+    ])
+    expect(volume.gain.calls).toEqual([
+      ['cancelScheduledValues', 4.5],
+      ['setValueAtTime', 0.45, 4.5],
+    ])
+    const others = fake.gains.filter((node) => node !== enable && node !== volume)
+    expect(others.flatMap((node) => node.gain.calls)).toEqual([])
+    expect(() => output.setGain(`${guide}-volume`, Number.NaN, 1)).toThrow(/finite/)
   })
 
   // @test-link [[req_session_audio_mix]]

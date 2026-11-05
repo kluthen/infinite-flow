@@ -1,17 +1,18 @@
 /**
- * The audio output on Web Audio: the one audio context's clock, the four mix gains and the
- * per-session buses. The graph is built once: each on/off gain feeds its volume gain, which feeds
- * the speakers. Muting is always a gain at zero; nothing here suspends, closes or pauses the
+ * The audio output on Web Audio: the one audio context's clock, the mix's gains, two per channel,
+ * and the per-session buses. The graph is built once: each channel's on/off gain feeds its volume
+ * gain, which feeds the speakers. Muting is always a gain at zero; nothing here suspends, closes or pauses the
  * context, so the audio clock never stops while the app runs.
  */
 
 import type { AudioOutput, ClockAnchor, MixGain } from './audio-ports'
-import {
-  createWebAudioSessionBus,
-  type WebAudioGainNodePort,
-  type WebAudioNodeFactory,
-  type WebAudioNodePort,
-} from './web-audio-session-bus'
+import { MIX_CHANNELS, type MixChannel } from './sound-roles'
+import { createWebAudioSessionBus } from './web-audio-session-bus'
+import type {
+  WebAudioGainNodePort,
+  WebAudioNodeFactory,
+  WebAudioNodePort,
+} from './web-audio-voices'
 
 /**
  * The part of a Web Audio context the output uses: a minimal structural slice, so the browser's
@@ -40,19 +41,18 @@ function mixGainInto(
 }
 
 /**
- * Intent: build the four mix gains, each at 1: click on/off into click volume and backing on/off
- * into backing volume, both volumes into the speakers.
+ * Intent: build the mix's gains, each at 1, in `MIX_CHANNELS` order: every channel's volume into
+ * the speakers, then every channel's on/off gain into its volume.
  */
 // @spec-link [[req_session_audio_mix]]
+// @spec-link [[module_guide_playback_layers]]
 function buildMix(context: WebAudioContextPort): Readonly<Record<MixGain, WebAudioGainNodePort>> {
-  const clickVolume = mixGainInto(context, context.destination)
-  const backingVolume = mixGainInto(context, context.destination)
-  return {
-    'click-volume': clickVolume,
-    'click-enable': mixGainInto(context, clickVolume),
-    'backing-volume': backingVolume,
-    'backing-enable': mixGainInto(context, backingVolume),
-  }
+  const volumes = MIX_CHANNELS.map(() => mixGainInto(context, context.destination))
+  const gains = MIX_CHANNELS.flatMap((channel: MixChannel, index) => [
+    [`${channel}-volume`, volumes[index]!] as const,
+    [`${channel}-enable`, mixGainInto(context, volumes[index]!)] as const,
+  ])
+  return Object.fromEntries(gains) as Readonly<Record<MixGain, WebAudioGainNodePort>>
 }
 
 /**
@@ -118,9 +118,9 @@ function readClockAnchor(context: WebAudioContextPort, performanceNow: () => num
 
 /**
  * Intent: the audio output over `context`: its clock readings (the clock anchor reads
- * `performanceNow` for the page's performance.now() timeline), the four mix gains built once, a
+ * `performanceNow` for the page's performance.now() timeline), the mix's gains built once, a
  * fresh bus per session (its click routes into the click gains, its backing into the backing
- * on/off gain) and the interruption notice. Muting is a gain at zero; it never suspends,
+ * on/off gain, each guide into its own on/off gain) and the interruption notice. Muting is a gain at zero; it never suspends,
  * closes or pauses the context.
  */
 // @spec-link [[req_session_audio_mix]]
@@ -151,6 +151,8 @@ export function createWebAudioOutput(
         'count-in': mix['click-volume'],
         click: mix['click-enable'],
         backing: mix['backing-enable'],
+        'melody-guide': mix['melody-guide-enable'],
+        'rhythm-guide': mix['rhythm-guide-enable'],
       }),
     onInterrupted: (listener) => {
       interruptionListeners.push(listener)

@@ -1540,3 +1540,253 @@ DR recordings; O267; `accessibility.spec.ts` at 589 of 600 lines and
   600 lines. Next: wave 7 (24, 25, 32, 33; gate J240 in it), in a fresh session; chunk 24 carries
   the Jam part hand-over (plan v34), the kept-Jam read back with no clock (spec D499) and H4/H5's
   rewording (spec D497); chunk 25 the failed-load exports and the doodle-only export (plan v33).
+
+## Wave 7 (2026-11-04)
+
+Chunks 24 The kept doodle, 25 Exports open with the doodle, 32 Tap tempo, 33 240 BPM in Jam,
+40 The guide playback. Wave branch `v3.2-w7` in `/home/bastien/work/infinite_flow-v3.2-w7`, cut
+from `main` fee0246a. Order 24 → 25 → 32 → 33 → 40; κ 1.
+
+### Start: the guide playback merged in
+
+- The side branch `v3.2-guide-playback` (the guide playback spec, a404880e + a06f7a11, cut from
+  c02d8bd9) merged into the wave branch at the owner's word ("merge it and then we will start
+  working on wave 7"): d4ead6ad. `spec-writer` resolved the conflicts: the guide's plan revision
+  became v35, its Part C revision v1.20; D490–D494 sit before wave 6's D495/D497/D499; C19 and DoD
+  items 50–52 collided with nothing. Chunk 40's **Files** corrected to the three production
+  `queueBacking` call sites (chunk 21 added `workspace-session-phrase-one-entry.ts:81`). The branch
+  `v3.2-guide-playback` and its worktree `../infinite_flow-v3.2-guide` are kept until this wave
+  merges into `main`.
+- `doc-ids lint spec`: 2 known warnings (O290, O291 cited, opened and closed the same day with no
+  register entry); left as they are.
+
+### Preflight
+
+`documentalist` 11467603 (D2 by grep over the chunks' **Files**, not `atd map`):
+
+| Chunk | Verdict |
+| --- | --- |
+| 24 | PROCEED WITH CORRECTIONS |
+| 25 | PROCEED WITH CORRECTIONS |
+| 32 | PROCEED WITH CORRECTIONS |
+| 33 | PROCEED (first half); a "widen" at J240 needs a contract wording sign-off and a MAJOR bump (`rule_saved_settings_load_tolerantly`, STABLE) |
+| 40 | PROCEED WITH CORRECTIONS; CG widened to change set part Y (Y1–Y4, with the vision) |
+
+- Captures (DRAFT 0.1): `module_kept_doodle` (chunk 24), `module_guide_playback_layers` (chunk 40).
+- Gate CG drafted as change set part Y: Y1 `req_session_audio_mix` 0.1→0.2, Y2
+  `rule_settings_saved_on_change` 0.4→0.5, Y3 the vision 0.10→0.11 (its out-of-scope "playback of
+  the generated lead line" never took D490 in), Y4 CONTRACT 12.0.0→13.0.0; Y5 the guide's twelve
+  atoms.
+- The ten plan corrections went to `spec-writer`: plan v36 7e7e93c2 (spec D500, Part C v1.21).
+  D501 was reserved by a `doc-ids next` call and is unused; next free spec D502, O303.
+
+### Gates GD and CG
+
+- GD: `ux-writer` 6d7afb1c (ux D459–D463; `ux-critic` DRIFT with four findings, fixed, then
+  ALIGNED). Switches `Melody guide`, `Rhythm guide` after `Click`, both off by default; four sliders
+  in `Volume`; tokens `--mix-melody-guide-volume-{min,default}` (0, 0.8) and
+  `--mix-rhythm-guide-volume-{min,default}` (0, 0.6). Status done 08c76552; plan v37 4c8f00a6 (the
+  token names, chunk 40's design docs, the `readAudioMixDesign` docblock).
+- CG: the owner, verbatim: "Confirm part Y (Recommended)". `documentalist` 3363597a: recorded in
+  part Y; Y3 applied (vision 0.11) and the twelve Y5 atoms created (DRAFT 0.1, `req_guide_playback`
+  and eleven rules); Y1, Y2, Y4 and the `rule_stop_ends_session` revision wait for this wave's sync
+  (as parts P, R and W). CONTRACT 12.0.0 on the branch.
+
+### Chunks
+
+- Chunk 24 dispatched (brief: the standard brief; worktree `../infinite_flow-v3.2-c24`, branch
+  `v3.2-c24-kept-doodle`, split 24a/24b, no merge gate).
+- Chunk 24 MERGED 8867e7c5 (24a d6daa9fa, 24b bedd1c5c; worktree removed, branch
+  `v3.2-c24-kept-doodle` kept). The owner was cut off once by a usage limit (U3 resumed from a WIP
+  commit by a fresh executor; the owner resumed itself). Done when 1–10 met with evidence; related
+  units 1,392 (24a) and 2,631 (24b) passed; corpus guard 47/47 (extra evidence); typecheck, lint,
+  format, `lint:links`, `verify:boundaries` clean; new e2e 11/11 (`kept-doodle.spec.ts`,
+  `kept-doodle-lets-go.spec.ts`, `jam-bar-accessibility.spec.ts`), every Jam-mode e2e 101 + 86
+  passed; `reviewer` OKAY on session-mode invariance. Entry chunk **302,365 B of 307,200 B** (4.8 kB
+  headroom; 298,846 after 24a); Jam's chunk 55,907 B.
+
+### Paused after chunk 24 (2026-11-04)
+
+The owner, verbatim: "when this chunk is done, that's it for this wave sadly". Read as a pause,
+not a change to the wave: chunks 25, 32, 33 and 40 stay in wave 7 for the next session. Nothing
+pushed; the wave branch is not merged into `main`.
+
+For the next driver, in this order:
+
+1. **Route chunk 24's open items** (none blocks chunk 25):
+   - `documentalist` (or `ux-writer` first): drift `rule_jam_again_on_this_doodle` says the review
+     after a Jam does not offer `Jam again on this doodle`; the design's flowchart (RJ → HR) and
+     wave 6's build offer it. Left as built.
+   - `ux-writer`, calls chunk 24 made, to confirm: the suggestion offered again at Idle after the
+     "Jams now play in" sentence ends when the key or mode changed again; `Jam in` and `Keep` stay
+     enabled during Loading (only `New doodle` disabled); focus goes to the bar's sentence when the
+     suggestion's buttons vanish under focus; Jam's "too many notes" notice still says "or choose a
+     lower note density" though Jam has no density control; on a 740×360 phone the bar pushes the
+     staff below the fold (scrollable); on a laptop an empty band of about 120 px between the bar
+     and the staff during a Jam on the doodle.
+   - `spec-writer`: deleting my instrument erases its kept sessions but does not let the kept
+     doodle go; C5.11 lists only deleting one session and Delete everything.
+   - Gates table: L1/L2 still say "open (after wave 6)"; chunk 24 moved H4/H5 to "after wave 7".
+     The driver sets them.
+2. **Entry budget**: 4.8 kB left of 300 KiB. Chunks 25, 32, 33 and 40 may pass it; raising it
+   needs the owner. Tell the owner before chunk 25 starts; each chunk's owner should keep its
+   additions out of the entry chunk where it can.
+3. **Chunk 25**: brief from the standard brief (worktree `../infinite_flow-v3.2-c25`, branch
+   `v3.2-c25-<slug>` from `v3.2-w7`, no merge gate); its preflight corrections are in plan v36.
+   Then 32 (after 24, done), 33 (J240 after its first half; a widen needs a contract wording
+   sign-off and a MAJOR bump), 40 (GD and CG done; merges itself).
+4. **For the wave sync** (besides each chunk's **Revisions**): change set part Y's Y1, Y2, Y4 and
+   the `rule_stop_ends_session` revision (CONTRACT 12.0.0 → 13.0.0); `module_kept_doodle`'s exported
+   names; `module_kept_jam_session` still says reading back "throws"; `module_jam_idle_notes`'s new
+   `doodleKept` / `keptPhraseOne` deps; the atom text of `rule_session_end_generates_next_phrase_one`
+   and `rule_pregeneration_discarded_on_change`.
+5. **Wave gate**: full `npm run quality` with the `VITE_HARNESS_PREGENERATION=on` rerun. Reviewer's
+   risk (not blocking): a session-mode Idle generation while Jam mode shows could abort Jam's queue
+   attempt until the next layout report. Not hand-seen yet: the cue row during a count-in on the
+   kept doodle and the start's page jump.
+6. Branches left: `v3.2-w7` (worktree `../infinite_flow-v3.2-w7`), `v3.2-c24-kept-doodle`,
+   `v3.2-guide-playback` (worktree `../infinite_flow-v3.2-guide`; remove when wave 7 merges).
+
+### Resumed (2026-11-05)
+
+- Gates: L1 "open (after wave 7)" (chunk 24 moved H4/H5); L2 stays "open (after wave 6; runnable
+  now)" (H6 did not move) (48d7c3f5, ad305aec).
+- **Entry budget**: the owner, verbatim, to the question of 4.8 kB left: "Raise to 320 KiB now".
+  `spec-writer` a448e587: spec D504 (327,680 B), plan v38, Part C v1.22; the constant and
+  `docs/testing.md` changed by a `coding-executor`, 4c709230.
+- **Chunk 24's items routed**:
+  - `spec-writer` a448e587: spec D503, a clarification (no owner question): deleting my instrument,
+    or saving a change to its written range or transposition, lets the kept doodle go when its
+    session is among those erased (C5.1, C5.11). Fixed aecd2f1a (merge 00dfb531 with D504's fix;
+    entry 302,435 B). D502 and O304 reserved unused; next free spec D505, O305.
+  - `ux-writer` 53c764db: ux D464–D470. Confirmed as built: D464 (the suggestion offered again at
+    Idle), D468 (740×360 phone scrolls), D469 (the laptop band is the cue row). Changed: D465
+    (`Jam in` and `Keep` disabled during Loading), D467 (Jam's room notice: "These notes need more
+    room. Make the window larger, or play a new doodle with fewer notes."). Widened: D466 (focus to
+    the bar's sentence when the focused element goes; a start by the starting note moves it to
+    `Stop`). D470: the design offers `Jam again on this doodle` after a Jam (spec D236); the atom
+    aligns at the sync. Fixed d98a00f7 (merge e76e8d45; entry 302,590 B, Jam's chunk 56,336 B).
+  - `ux-writer` 3e817ed9: ux D471, a bar button disabled by Loading while focused hands focus to
+    the bar's sentence (native `disabled` kept). Fixed 5f1c2e21 (merge 9c81d8e1). D472 reserved
+    unused; next free ux D473.
+- Chunk 25 dispatched (the standard brief; worktree `../infinite_flow-v3.2-c25`, branch
+  `v3.2-c25-doodle-exports`, split 25a/25b, no merge gate), in parallel with the fixes above (no
+  shared file; the fixes ran no Playwright).
+- **For the wave sync**, added: `rule_held_doodle_dropped_on_change` names D503's deletions;
+  `rule_jam_again_on_this_doodle` aligns with ux D470.
+- **For the wave gate / later**, unruled: a kept doodle's readings and suggestion, worked out for
+  the instrument selected when it was kept, may go stale when the instrument changes and the
+  doodle stays (`spec-writer`'s aside); the header's phrase action is also disabled while focused
+  at its own Loading, with no design call on where focus goes (`ux-writer`'s aside).
+- Chunk 25 MERGED 207b3119 (25a 54916dd9, 25b bea861c6; branch `v3.2-c25-doodle-exports` kept).
+  Done when 1–6 met with evidence; unit 3,367 (related after the rebase 2,234) passed; new e2e
+  `review-export-jam.spec.ts` and the review export e2e specs passed; typecheck, lint, format,
+  `lint:links`, `verify:boundaries` clean. Entry **302,636 B of 327,680 B**; Jam's chunk 57,285 B.
+  No deviation; calls inside the chunk on its Record line. O267 still the owner's (the export
+  builds its proposal).
+- Chunk 32 MERGED f9dd7b1f (348d434a; branch `v3.2-c32-tap-tempo` kept). Done when 1–3 met with
+  evidence; new e2e `jam-tap-tempo.spec.ts` 12/12 (with the Jam Idle and kept-doodle specs 24/24),
+  axe clean in both themes; related units 931 passed; typecheck, lint, format, `lint:links`,
+  `verify:boundaries` clean; v3.2 H7 written. Entry **304,054 B of 327,680 B**; Jam's chunk
+  61,192 B. Fixed beside it: `tempo-readout` showed session mode's tempo in Jam mode (chunk 31's
+  gap). Risks for the gate: a tap press with no click after it swallows the next
+  assistive-technology click once; listening may not end while the audio context is suspended.
+- Chunk 33 dispatched, its first half (measurement; merge gate J240; the machine kept idle).
+- Chunk 33's first half BUILT 08001117 (branch `v3.2-c33-240-bpm`, worktree
+  `../infinite_flow-v3.2-c33` kept; not merged, gate J240). The real ladder in the Jam sweep
+  (`JAM_LADDER=real`), its spec 23/23 against the double. Reference machine (Ryzen 5 PRO 8640HS,
+  Node 22.23.4), 2026-11-05, lock off 09:22–09:51 and lock on 09:52–10:53, 7,384 Jams per
+  configuration: at 60/120/180 every count equals chunk 29's double (nothing to `spec-writer`); at
+  240 BPM phrase 1 came in every Jam (rung 1 84.4 %, rung 2 15.6 %, rung 3 0), one extended wait in
+  7,384 (every change, warm), slowest phrase 1 attempt 0.823 s against a 1.925 s cutover, one more
+  standalone phrase 2–8 with the lock off (733 against 732). Figures in
+  `docs/generation-latency.md`. Recommendation: widen. J240 asked of the owner.
+- Chunk 40 dispatched (standard brief; worktree `../infinite_flow-v3.2-c40`, branch
+  `v3.2-c40-guide-playback`, split 40a/40b, no merge gate: GD and CG done), while J240 waits.
+- **J240**: the owner, verbatim, to the figures and the recommendation to widen: "Keep 180". Chunk
+  33's first half merged 7d2cd4a1 (worktree removed, branch kept), marked "measured; not widened";
+  no second half, no atom revised. `spec-writer` records the ruling.
+  Recorded as spec D506 (9909fed5; Part C v1.23, plan v39): no Jam item or check runs at 240; HG
+  step 8 (session mode at 240) unaffected. D505 was reserved unused; next free spec D507.
+- Chunk 40 MERGED 36369e23 (40a c5b592c8, 40b 40428012; branch `v3.2-c40-guide-playback` kept).
+  Done when 1–6 met with evidence; related units 2,184 (40a) and 261 (40b), audio/storage/workspace
+  areas 1,029 + 2,146; e2e `audio-guide.spec.ts` (new), `mix-controls`, `audio-backing` 39 passed,
+  saved-settings reload passed, axe on the popover passed; v3.2 HG written. Entry **310,370 B of
+  327,680 B** (+4,752 40a, +1,564 40b); Jam's chunk 61,192 B. For `spec-writer` after the gate:
+  the generator writes no triplet and no tie across a barline, so C19.1's "sixteenth-note triplet at
+  240 BPM" and item 50's seeded triplets/barline ties describe shapes no seeded phrase has (the code
+  handles them; hand-built timelines test them). For `ux-writer`: on a landscape phone the `Volume`
+  popover's four sliders scroll (ux D459–D463 allow it).
+
+### Wave gate
+
+On v3.2-w7, reference machine (AMD Ryzen 5 PRO 8640HS, 12 threads, 11 GiB, Node 22.23.4),
+2026-11-05, machine otherwise idle.
+
+- Run 1 (d1de43b4, 11:39): stopped at `lint:health`, 10 errors (atoms per file above 10 in
+  chunk 40's `audio-ports.ts`, `audio-transport.ts`, `web-audio-session-bus.ts` and its spec,
+  chunk 25's `review-export.ts`, `use-review-area.ts`, chunk 32's `workspace-session-midi.ts`;
+  `WorkspaceShell.vue` 621 lines, pushed over by chunk 32; chunk 33's sweep spec with no link;
+  chunk 40's `guide-off-scenarios.ts` without an intent comment).
+- Fixed by a `coding-executor`, one commit per chunk, no behaviour change, no limit raised, no
+  link dropped (files split along their seams, links moved with their functions): 98818977
+  (33, `@lint-ignore-atd` measurement tooling), cab1a1bb (32), 7073dad5 (25), 8ad106ce (40, with
+  `WorkspaceShell.spec.ts`'s mix token list missing the four guide tokens: two unhandled
+  rejections).
+- Run 2 (8ad106ce): **passed**, first try, no flake. format, lint, `lint:links`; `lint:health` 0
+  errors, 936 warnings (923 before); unit 620 files, 9,594 tests; build; `verify:boundaries`;
+  e2e 725 passed, 1 skipped, and the same with `VITE_HARNESS_PREGENERATION=on`; a11y 76;
+  notation 107 (4 skipped); `atd:lint`, `atd:check`.
+- Bundle: entry **311,173 B** (+23,053 B on wave 6's 288,120 B; 16,507 B left of 327,680 B, spec
+  D504); first-load JS **373,299 B** in 21 files (+23,261 B); Jam's chunk `jam-mode` 61,192 B
+  (+7,934 B; no `src/jam/` module in the first load).
+- No dependency changed (package.json's e2e list only): no `security-advisor` check.
+- Wave sync dispatched to `documentalist`.
+
+### Sync and leftovers
+
+- **Sync**: `documentalist` d524fbc7: every chunk's **Revisions** and the driver's items applied
+  (23 atoms; change set part Z); part Y's Y1, Y2 and Y4 applied, CONTRACT 12.0.0 → 13.0.0.
+  `rule_jam_again_on_this_doodle` aligned with ux D470 (offered after a Jam too);
+  `rule_held_doodle_dropped_on_change` names D503's deletions; no atom leaves 240 open for Jam
+  (D506). `atd audit --atom` timed out (Ollama), so bloat and collision went unchecked on the
+  changed atoms.
+- **Owner rulings on the sync's escalations** (2026-11-05), verbatim:
+  - `rule_favorites_only_export` (STABLE, contract) against the Jam's MusicXML numbering (the
+    doodle's k measures 1..k, phrase n at k+4n−3..k+4n): "Reword the rule (Recommended)". Applied
+    8c8a672a, CONTRACT 13.0.0 → **14.0.0**.
+  - `module_kept_doodle`, `module_kept_jam_session`, `module_jam_session_end`,
+    `module_guide_playback_layers` DRAFT → REVIEW: "Approve all four (Recommended)". Applied
+    8c8a672a.
+  - Driver's call (the spec decides it): `rule_shared_setting_changed_in_jam_mode` reworded, only
+    the instrument writes phrase 1 again from a kept doodle (8c8a672a).
+- **Design leftovers**: `ux-writer` 166ca2e6: ux D474 (the header's phrase action, disabled while
+  focused at its Loading: focus back to it when the Loading ends, else the session action, else
+  `controller-status`; a start by the starting note moves it to `Stop`), fixed 549d8407 (merge
+  8899e8c5; 8 unit tests, a11y 76, 73 e2e over 12 specs); ux D475 (the phone `Volume` popover
+  scrolls, confirmed). Next free ux D476.
+- **Spec leftovers**: `spec-writer` 1dcd6ab7: spec D508 (C5.11: `Jam again on this doodle` in
+  every Jam session's review), D509 (C19.1 and item 50: the generator writes no triplet and no
+  tie across a barline; hand-built timelines test them); Part C v1.24, plan v40. D505 and D507
+  reserved unused; next free spec D510. de71c46f: ux D470 cited "spec D147" (a line number);
+  it is spec D236.
+- **Final gate** (8899e8c5 and the docs after it, same machine, 12:2x–13:31): **passed**.
+  `lint:health` 0 errors, 936 warnings; unit 621 files, 9,602 tests; e2e 725 and 725 with
+  pregeneration; a11y 76; notation 107; `atd:lint`, `atd:check`. Entry **311,455 B** (+23,335 B
+  on wave 6; 16,225 B left of 327,680 B); first-load JS **373,581 B** in 21 files (+23,543 B);
+  Jam's chunk 61,192 B.
+- `doc-ids compare main v3.2-w7`: 0 collisions; 1 warning (main's wave log cites D494, defined
+  here, same meaning).
+
+### Report to the owner (2026-11-05)
+
+Chunks 24, 25, 32, 33 (measured, not widened) and 40 merged; none moved. Gate passed; CONTRACT
+14.0.0. Open for the owner, none blocking the merge: hand checks v3.2 H4, H5 (L1), H6 (L2,
+runnable now), H7, H8, HG, H2 step 3 (L3), H3; the DR recordings; O267 (a doodle note just
+before the first barline: the export builds the proposal). For later: a kept doodle's readings
+and suggestion may go stale after an instrument change that keeps it (`spec-writer`'s aside,
+unruled); the tap button's swallowed assistive click and listening while the audio context is
+suspended (chunk 32's risks). Branches to remove at the merge: `v3.2-w7` (worktree),
+`v3.2-c24-kept-doodle`, `v3.2-c25-doodle-exports`, `v3.2-c32-tap-tempo`, `v3.2-c33-240-bpm`,
+`v3.2-c40-guide-playback`, the `v3.2-w7-fix-*` branches, `v3.2-guide-playback` (worktree
+`../infinite_flow-v3.2-guide`).

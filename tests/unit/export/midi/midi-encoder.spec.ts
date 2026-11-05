@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
+import { makeConcertPitch } from '@/domain/events/concert-pitch'
 import type { ConcertEventTimeline } from '@/domain/events/timeline'
+import { makeRational } from '@/domain/time/rational'
 import { encodeGeneratedNotesMidi } from '@/export/midi/midi-encoder'
-import type { GeneratedNotesMidiInput } from '@/export/midi/midi-export-input'
+import type { GeneratedNotesMidiInput, MidiDoodleSection } from '@/export/midi/midi-export-input'
 import {
   midiPhrase,
   plainTimeline,
@@ -17,6 +19,7 @@ const MARKER = 0x06
 const END_OF_TRACK = 0x2f
 const TIME_SIGNATURE = 0x58
 const PHRASE_TICKS = 15360
+const MEASURE_TICKS = 3840
 
 function encodeAndRead(input: GeneratedNotesMidiInput): SmfFile {
   return readSmf(encodeGeneratedNotesMidi(input))
@@ -68,6 +71,37 @@ function shifted(
   offset: number,
 ): [number, number, number][] {
   return notes.map(([pitch, start, end]) => [pitch, start + offset, end + offset])
+}
+
+/**
+ * Intent: a Jam's doodle section of `measureCount` measures at `tempo`: in each measure m (0 up),
+ * concert 62 + m for a quarter note on beat 1, then concert 70 + m for a half note from beat 3.
+ */
+function doodleSection(measureCount: number, tempo: number): MidiDoodleSection {
+  return {
+    measureCount,
+    tempo,
+    notes: Array.from({ length: measureCount }, (_, measure) => [
+      {
+        pitch: makeConcertPitch(62 + measure),
+        start: makeRational(4 * measure, 4),
+        duration: makeRational(1, 4),
+      },
+      {
+        pitch: makeConcertPitch(70 + measure),
+        start: makeRational(4 * measure + 2, 4),
+        duration: makeRational(2, 4),
+      },
+    ]).flat(),
+  }
+}
+
+/** The notes of `doodleSection(measureCount, …)` as [pitch, start, end] in MIDI ticks, by hand. */
+function doodleTicks(measureCount: number): [number, number, number][] {
+  return Array.from({ length: measureCount }, (_, measure): [number, number, number][] => [
+    [62 + measure, measure * 3840, measure * 3840 + 960],
+    [70 + measure, measure * 3840 + 1920, measure * 3840 + 3840],
+  ]).flat()
 }
 
 /**
@@ -157,6 +191,70 @@ describe('encodeGeneratedNotesMidi: tempo map and phrase markers', () => {
     expect(file.tracks.slice(1).flatMap((track) => metaTexts(track, MARKER))).toEqual([])
   })
 
+  // @test-link [[rule_jam_exports_open_with_doodle]]
+  // @test-link [[rule_jam_exports_line_up]]
+  it.each([1, 2, 4])(
+    "in a Jam, opens with a Doodle marker at time zero and phrase 1 at the doodle's last barline (%i measures)",
+    (measureCount) => {
+      const origin = measureCount * MEASURE_TICKS
+      const file = encodeAndRead({
+        ...referenceSessionWithBacking(),
+        doodle: doodleSection(measureCount, 100),
+      })
+      expect(metaTexts(file.tracks[0]!, MARKER)).toEqual([
+        { tick: 0, text: 'Doodle' },
+        { tick: origin, text: 'Phrase 1' },
+        { tick: origin + PHRASE_TICKS, text: 'Phrase 2' },
+        { tick: origin + 2 * PHRASE_TICKS, text: 'Phrase 3' },
+      ])
+      expect(tempoMap(file.tracks[0]!)).toEqual([
+        { tick: 0, microsecondsPerQuarter: 600000 },
+        { tick: origin, microsecondsPerQuarter: 666667 },
+        { tick: origin + PHRASE_TICKS, microsecondsPerQuarter: 500000 },
+      ])
+      expect(file.tracks.slice(1).flatMap((track) => metaTexts(track, MARKER))).toEqual([])
+      expect(file.tracks.map(endTick)).toEqual([
+        origin + 3 * PHRASE_TICKS,
+        origin + 3 * PHRASE_TICKS,
+        origin + 3 * PHRASE_TICKS,
+      ])
+    },
+  )
+
+  // @test-link [[rule_jam_exports_open_with_doodle]]
+  // @test-link [[rule_jam_exports_line_up]]
+  it("in a Jam, writes no tempo at phrase 1 when it plays at the doodle's capture tempo", () => {
+    const [conductor] = encodeAndRead({
+      ...referenceSessionWithoutBacking(),
+      doodle: doodleSection(2, 90),
+    }).tracks
+    expect(tempoMap(conductor!)).toEqual([
+      { tick: 0, microsecondsPerQuarter: 666667 },
+      { tick: 2 * MEASURE_TICKS + PHRASE_TICKS, microsecondsPerQuarter: 500000 },
+    ])
+  })
+
+  // @test-link [[rule_jam_exports_open_with_doodle]]
+  // @test-link [[rule_jam_exports_line_up]]
+  // @test-link [[rule_favorites_only_export]]
+  it("in a Jam's favorites-only file, starts the first favorite right after the doodle", () => {
+    const [conductor] = encodeAndRead({
+      phrases: [midiPhrase(2, plainTimeline(), 120), midiPhrase(5, tiedTimeline(), 120)],
+      backing: null,
+      doodle: doodleSection(3, 100),
+    }).tracks
+    const origin = 3 * MEASURE_TICKS
+    expect(metaTexts(conductor!, MARKER)).toEqual([
+      { tick: 0, text: 'Doodle' },
+      { tick: origin, text: 'Phrase 2' },
+      { tick: origin + PHRASE_TICKS, text: 'Phrase 5' },
+    ])
+    expect(tempoMap(conductor!)).toEqual([
+      { tick: 0, microsecondsPerQuarter: 600000 },
+      { tick: origin, microsecondsPerQuarter: 500000 },
+    ])
+  })
+
   it('marks a one-phrase session at time zero with its single tempo', () => {
     const [conductor] = encodeAndRead({
       phrases: [midiPhrase(1, plainTimeline(), 60)],
@@ -209,6 +307,56 @@ describe('encodeGeneratedNotesMidi: the generated line', () => {
       [0x90, 60, 96],
     ])
   })
+})
+
+// @test-link [[rule_jam_exports_open_with_doodle]]
+// @test-link [[rule_jam_exports_line_up]]
+describe("encodeGeneratedNotesMidi: a Jam's doodle section", () => {
+  // @test-link [[rule_jam_exports_open_with_doodle]]
+  // @test-link [[rule_jam_exports_line_up]]
+  it.each([1, 2, 4])(
+    "writes the doodle's notes on the generated track from time zero, the phrases after it (%i measures)",
+    (measureCount) => {
+      const origin = measureCount * MEASURE_TICKS
+      const notes = notesOf(
+        encodeAndRead({
+          ...referenceSessionWithoutBacking(),
+          doodle: doodleSection(measureCount, 100),
+        }).tracks[1]!,
+      )
+      expect(notes.map((note) => [note.pitch, note.startTick, note.endTick])).toEqual([
+        ...doodleTicks(measureCount),
+        ...shifted(TIED_NOTES, origin),
+        ...shifted(PLAIN_NOTES, origin + PHRASE_TICKS),
+        ...shifted(TIED_NOTES, origin + 2 * PHRASE_TICKS),
+      ])
+      expect(new Set(notes.map((note) => note.channel))).toEqual(new Set([0]))
+      expect(new Set(notes.map((note) => note.velocity))).toEqual(new Set([96]))
+    },
+  )
+
+  // @test-link [[rule_jam_exports_open_with_doodle]]
+  // @test-link [[rule_jam_exports_line_up]]
+  it.each([1, 2, 4])(
+    'sounds no backing under the doodle, each phrase’s backing from its own start (%i measures)',
+    (measureCount) => {
+      const origin = measureCount * MEASURE_TICKS
+      const input = referenceSessionWithBacking()
+      const withDoodle = notesOf(
+        encodeAndRead({ ...input, doodle: doodleSection(measureCount, 100) }).tracks[2]!,
+      )
+      const without = notesOf(encodeAndRead(input).tracks[2]!)
+      expect(withDoodle.length).toBeGreaterThan(0)
+      expect(withDoodle.every((note) => note.startTick >= origin)).toBe(true)
+      expect(withDoodle).toEqual(
+        without.map((note) => ({
+          ...note,
+          startTick: note.startTick + origin,
+          endTick: note.endTick + origin,
+        })),
+      )
+    },
+  )
 })
 
 // @test-link [[rule_generated_notes_midi_export]]

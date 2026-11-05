@@ -1,7 +1,8 @@
 <script setup lang="ts">
 /**
- * The one volume popover of the audio mix: the `Backing volume` and `Click volume` sliders, which
- * set the audio transport's mix live as they move and save the level once released. Rendered by the
+ * The one volume popover of the audio mix: the `Backing volume`, `Click volume`, `Melody guide
+ * volume` and `Rhythm guide volume` sliders, which set the audio transport's mix live as they move
+ * and save the level once released. Rendered by the
  * `Volume` button that holds it (see `MixVolumeButton`), hidden while closed. It opens and closes
  * instantly, with no animation; opening focuses the first slider, and Escape, a pointer press
  * outside, and Tab out of it close it through the shared `popover` controller.
@@ -14,6 +15,7 @@ import {
   type AudioMix,
   type DesignTokenSource,
 } from '@/audio/audio-mix'
+import type { GuideRole } from '@/audio/sound-roles'
 import type { AudioTransport } from '@/audio/audio-transport'
 import type { MixVolumePopover } from './mix-volume-popover'
 import { injectSaveSettings } from './save-settings-injection'
@@ -42,24 +44,39 @@ const mix = ref<AudioMix>(props.audio.mix())
 const saveSettings = injectSaveSettings()
 const panel = ref<HTMLElement | null>(null)
 const firstSlider = ref<HTMLInputElement | null>(null)
+/** Each slider's range, by the channel it sets. */
+interface SliderRanges {
+  readonly backing: SliderRange
+  readonly click: SliderRange
+  readonly 'melody-guide': SliderRange
+  readonly 'rhythm-guide': SliderRange
+}
+
+/** The guides' sliders, after the backing's and the click's: each guide, its label, its level. */
+const GUIDE_SLIDERS = [
+  { guide: 'melody-guide', label: 'Melody guide volume', volume: 'melodyGuideVolume' },
+  { guide: 'rhythm-guide', label: 'Rhythm guide volume', volume: 'rhythmGuideVolume' },
+] as const satisfies readonly { guide: GuideRole; label: string; volume: keyof AudioMix }[]
+
 /** The sliders' ranges, read from the tokens the first time the popover opens. */
-const sliders = shallowRef<{ readonly backing: SliderRange; readonly click: SliderRange } | null>(
-  null,
-)
+const sliders = shallowRef<SliderRanges | null>(null)
 
 /**
- * Intent: the sliders' ranges from the `--mix-*` tokens: the click slider starts at its audible
- * minimum, never at silence; the backing slider may reach silence.
+ * Intent: the sliders' ranges from each channel's `--mix-*` tokens, the maximum and step shared:
+ * the click slider starts at its audible minimum, never at silence; the backing's and the guides'
+ * sliders may reach silence.
  */
 // @spec-link [[req_session_audio_mix]]
 // @spec-link [[rule_click_volume_never_silent]]
-function readSliders(): { readonly backing: SliderRange; readonly click: SliderRange } {
+function readSliders(): SliderRanges {
   const tokens = props.designTokens()
   const { range } = readAudioMixDesign(tokens)
   const step = readMixVolumeStep(tokens)
   return {
     backing: { min: range.backingVolumeMin, max: range.volumeMax, step },
     click: { min: range.clickVolumeMin, max: range.volumeMax, step },
+    'melody-guide': { min: range.melodyGuideVolumeMin, max: range.volumeMax, step },
+    'rhythm-guide': { min: range.rhythmGuideVolumeMin, max: range.volumeMax, step },
   }
 }
 
@@ -97,6 +114,27 @@ function saveBackingVolume(): void {
 // @spec-link [[rule_settings_saved_on_change]]
 function saveClickVolume(): void {
   saveSettings({ 'mix.clickVolume': props.audio.mix().clickVolume })
+}
+
+/**
+ * Intent: set one guide's volume from its slider; the level applies even while the guide is off,
+ * and is heard once it is turned on.
+ */
+// @spec-link [[req_session_audio_mix]]
+function setGuideVolume(guide: GuideRole, event: Event): void {
+  props.audio.setGuideVolume(guide, sliderLevel(event))
+  mix.value = props.audio.mix()
+}
+
+/** Intent: save one guide's volume the transport holds once its slider is released. */
+// @spec-link [[rule_settings_saved_on_change]]
+function saveGuideVolume(guide: GuideRole): void {
+  const mixNow = props.audio.mix()
+  saveSettings(
+    guide === 'melody-guide'
+      ? { 'mix.melodyGuideVolume': mixNow.melodyGuideVolume }
+      : { 'mix.rhythmGuideVolume': mixNow.rhythmGuideVolume },
+  )
 }
 
 /** Intent: Escape inside the popover closes it and returns focus to its `Volume`. */
@@ -192,6 +230,20 @@ onBeforeUnmount(() => {
           :value="mix.clickVolume"
           @input="setClickVolume"
           @change="saveClickVolume"
+        />
+      </div>
+      <div v-for="slider in GUIDE_SLIDERS" :key="slider.guide" class="field-group">
+        <label class="field-label" :for="`${popover.id}-${slider.guide}`">{{ slider.label }}</label>
+        <input
+          :id="`${popover.id}-${slider.guide}`"
+          class="range-input"
+          type="range"
+          :min="sliders[slider.guide].min"
+          :max="sliders[slider.guide].max"
+          :step="sliders[slider.guide].step"
+          :value="mix[slider.volume]"
+          @input="setGuideVolume(slider.guide, $event)"
+          @change="saveGuideVolume(slider.guide)"
         />
       </div>
     </template>

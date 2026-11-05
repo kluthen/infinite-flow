@@ -10,6 +10,7 @@ version: 0.2
 priority: 1
 tags: [v2, release-v2.0, session, audio]
 dependents:
+  - [[module_guide_playback_layers]]
   - [[module_session_phrase_steps]]
   - [[module_session_transport_tempo_map]]
 ---

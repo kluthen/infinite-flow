@@ -71,3 +71,24 @@ export function jumpForSessionStart(
   })
   if (delta !== 0) view.scrollBy({ top: delta, behavior: 'instant' })
 }
+
+/** Which staff a start's jump brings into place: session mode's, Jam's empty one, or Jam's own. */
+export type StartStaff = 'session' | 'jam-empty' | 'jam-kept-doodle'
+
+/**
+ * Intent: the staff viewport of the mounted workspace `root` a start's jump brings into place:
+ * session mode's, the first in DOM order; Jam's empty staff's, the one showing `staff-jam`; or, with
+ * a doodle kept, the one in sight, Jam's staff showing phrase 1 written from it. It must be there.
+ */
+// @spec-link [[service_session_start]]
+export function startStaffViewport(root: Element, staff: StartStaff): Element {
+  const viewports = [...root.querySelectorAll('.staff-viewport')]
+  const found =
+    staff === 'session'
+      ? viewports[0]
+      : staff === 'jam-empty'
+        ? viewports.find((viewport) => viewport.querySelector('.staff-jam') !== null)
+        : viewports.find((viewport) => !viewport.classList.contains('is-out-of-sight'))
+  if (found === undefined) throw new Error(`session start jump: no ${staff} staff viewport`)
+  return found
+}

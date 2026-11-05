@@ -48,6 +48,7 @@ describe('session controller: phrases', () => {
     expect(queueBacking.mock.calls[1]).toEqual([
       2,
       ready[0]!.outcome.provenance.harmony.events,
+      ready[0]!.outcome.result.timeline,
       RIG_TEMPO,
     ])
     expect(soundingEvents(rig)).toEqual([])
@@ -65,6 +66,7 @@ describe('session controller: phrases', () => {
     expect(queueBacking.mock.calls[2]).toEqual([
       3,
       third.outcome.provenance.harmony.events,
+      third.outcome.result.timeline,
       RIG_TEMPO,
     ])
     expect(soundingEvents(rig)).toEqual([2, 3])
@@ -99,6 +101,7 @@ describe('session controller: phrases', () => {
     expect(queueBacking.mock.calls[1]).toEqual([
       2,
       rig.phraseOne.outcome.provenance.harmony.events,
+      rig.phraseOne.outcome.result.timeline,
       RIG_TEMPO,
     ])
     expect(soundingEvents(rig)).toEqual([2])

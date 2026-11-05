@@ -727,3 +727,103 @@ title word.
   instrument's written pitch, so the answer, `Keep {key} {mode}` and the family labels follow it,
   not the kept session's instrument, even where the doodle's key signature then differs. Now in
   `screens/last-session-review/handoff.md`, Components and Content, `suggestion-row`.
+
+## v3.2 wave 7, gate GD: the guide playback's controls, 2026-11-04
+
+Master spec Part C §C19.3 (spec D490-D494), a minor design call under the owner's delegation
+(spec D491): settled here, heard by the owner at hand check v3.2 HG.
+
+- **D459 — The guide switches follow `Click` in `mix-controls` (2026-11-04; minor, spec D491).**
+  The order is `Backing`, `Click`, `Melody guide`, `Rhythm guide`, then `Volume`: each guide a
+  `btn toggle-button` with `aria-pressed` and its `toggle-button-state` ("on" or "off"), the
+  accessible name the name alone, both off by default. Appended, so the two controls players know
+  keep their place. No separator, group label or new class. Rejected: the switches inside the
+  `Volume` popover (on/off is what a player reaches for mid-session, and the spec puts them beside
+  the backing and click); one `Off / Melody / Rhythm / Both` segmented control (the spec makes them
+  two independent switches, and it would be a new pattern in the toolbar). Stated in
+  `screens/phrase-workspace/handoff.md`, Layout Tree and Components and Content, `mix-controls`.
+- **D460 — Full labels at every breakpoint; the mix's line wraps (2026-11-04; minor, spec
+  D491).** "Melody guide" and "Rhythm guide", no short form: "Melody on" beside "Backing on" would
+  read as muting the tune, and a short form would not keep a narrow phone's mix on one line anyway.
+  From `bp-tablet-landscape` up the mix stays one line, the toolbar's own wrap taking it under the
+  title when the title's line cannot hold it; below, on its own line, `mix-controls` wraps onto a
+  second line in the same order. A phone loses only that line of staff room. Stated in `screens/phrase-workspace/handoff.md`, Responsive Behavior.
+- **D461 — The `Volume` popover holds four sliders in the switches' order (2026-11-04; minor,
+  spec D491).** `Backing volume`, `Click volume`, `Melody guide volume`, `Rhythm guide volume`;
+  every popover rule unchanged (focus to the first slider, live while its switch is off, saved when
+  changed, a session's change saved at its end). The phone's compact `Volume` opens the same
+  popover. On a phone in landscape it may run past the viewport's bottom; the page scrolls to it,
+  with no size cap and no new token. Stated in `screens/phrase-workspace/handoff.md`, Components
+  and Content, `mix-controls` and `session-cue-actions`.
+- **D462 — The guide tokens are named by channel (2026-11-04; minor, spec D491).**
+  `--mix-melody-guide-volume-min: 0`, `--mix-rhythm-guide-volume-min: 0`,
+  `--mix-melody-guide-volume-default: 0.8`, `--mix-rhythm-guide-volume-default: 0.6`; maximum and
+  step shared (`--mix-volume-max`, `--mix-volume-step`). `--mix-{channel}-volume-*` follows the
+  backing's and click's names and the mix looked up by channel (C19.6); the plan's `--mix-guide-*`
+  was a placeholder. Both reach silence, as C19.3 allows. The melody's first level is the
+  backing's; the rhythm's lower, so with both on the melody leads. A channel's full level is its
+  voice's peak, set by ear in chunk 40a; HG's ear may retune these, the tokens being the only edit.
+  Stated in `src/styles/theme.css`, the audio-mix levels.
+- **D463 — Gate GD's validation: four findings fixed (2026-11-04; minor, D119's standing rule).**
+  `ux-critic`: DRIFT. Fixed: the wrap described as the CSS does it (one line from
+  `bp-tablet-landscape` up, moved under the title by the toolbar's wrap; D460 corrected); both
+  intent docs' phone paragraphs name the four toggles and give the phone's low priority as the
+  reason; the edited `session-cue-actions` item tagged; the saved-data mix row holds the guides.
+- **D464 — At Idle the bar's suggestion is offered again once "Jams now play in" has gone
+  (2026-11-05; minor, D119's standing rule; chunk 24's call confirmed).** After Jam's key or mode
+  changes again, the row is judged by the offering rule; a decline still holds for good. Unlike the
+  review (D457), the bar is the one place at Idle that says what the doodle sounds like, and the
+  row moves with the Loading the change starts. Now in `screens/phrase-workspace/handoff.md`, The
+  kept doodle's bar, and `flows/jam/handoff.md`, The suggestion at Idle.
+- **D465 — The suggestion's buttons are disabled during Loading, with `New doodle` (2026-11-05;
+  minor, D119's standing rule; overrides chunk 24's call).** `Jam in` is a key-and-mode change,
+  and those controls are read-only then; as built it bypasses that, and an old-key phrase being
+  drawn can flash before the new one. `Keep` follows so one row has one rule. Code change: disable
+  both while Jam's phrase 1 is written. Now in `screens/phrase-workspace/handoff.md`, The kept
+  doodle's bar, Offering, and `flows/jam/handoff.md`, The suggestion at Idle.
+- **D466 — Focus left without its element in `jam-bar` goes to the bar's sentence (2026-11-05;
+  minor, D119's standing rule; chunk 24's call confirmed and widened).** Any focused element of the
+  bar that goes (a button's row leaving or changing form, the set sentence giving way) hands focus
+  to the bar's sentence. A start by the starting note with a bar button focused moves focus to
+  `Stop`, as for the cue row's links. Now in `screens/phrase-workspace/handoff.md`, The kept
+  doodle's bar, Focus.
+- **D467 — Jam's too-many-notes sentence names Jam's cure (2026-11-05; minor, D119's standing
+  rule).** "These notes need more room. Make the window larger, or play a new doodle with fewer
+  notes." Jam has no density control; its rhythm comes from the doodle, and `New doodle` sits in
+  the bar above. Code change: a Jam string beside `ROOM_NOTICE_TOO_MANY_NOTES`, used by the kept
+  doodle's staff. Now in `screens/phrase-workspace/handoff.md`, Needs more room, the sentence table.
+- **D468 — On a phone, the bar may push the staff below the fold (2026-11-05; minor, spec D414:
+  phones a third-rate client).** Accepted: the page scrolls; no short form, no cap; the session
+  start's jump brings the cue row and both systems into view. Now in
+  `screens/phrase-workspace/handoff.md`, Responsive Behavior, `jam-bar`.
+- **D469 — The band under the bar during a Jam on the kept doodle is the cue row (2026-11-05;
+  minor, D119's standing rule).** From `bp-tablet-landscape` up, `session-cue-row` keeps its fixed
+  block, empty after the read-in, as in any running session, so nothing it shows moves the staff.
+  Accepted; the row does not collapse in Jam mode. Now in `screens/phrase-workspace/handoff.md`,
+  Responsive Behavior, `jam-bar`.
+- **D470 — The review after a Jam offers `Jam again on this doodle` (2026-11-05; confirms the
+  design; spec D236: offered in every kept Jam session's review).** There it does what `Close
+  review` does, focus included, its doodle being the kept one. The atom
+  `rule_jam_again_on_this_doodle` is the side to align, by `documentalist`. Stated in
+  `flows/review-and-export/handoff.md`, The Doodle and the Suggestion, and `flows/jam/handoff.md`'s
+  flowchart (the review of a Jam to the kept doodle's Idle).
+- **D471 — A bar button disabled while focused hands focus to the bar's sentence (2026-11-05;
+  minor, D119's standing rule; widens D466 to D465's Loading).** It counts as its element going,
+  so focus never stays on a dead button nor drops to the page. Native `disabled` stays, as for
+  every button in Loading. Rejected: `aria-disabled` (three dead tab stops in every Loading, a
+  second disabled model beside the header's, D350's case being read-only, not Loading). `Jam in`'s
+  own press is no case: the set sentence replaces the buttons. Now in
+  `screens/phrase-workspace/handoff.md`, The kept doodle's bar, Focus.
+- **D474 — A phrase action disabled by Loading while focused gets focus back when it ends
+  (2026-11-05; minor, D119's standing rule; D471's counterpart in the header).** Native `disabled`
+  stays; nothing moves during the Loading (tens of milliseconds warm); at its end focus returns to
+  the phrase action if it is still there or on the page, else the session action, else
+  `controller-status`. A starting-note start moves it to `Stop`. Rejected: a placeholder target
+  (the header has no sentence; two moves for a blink), `controller-status` at once (a second Enter
+  opens the sheet), `aria-disabled` (D471). Now in `screens/phrase-workspace/handoff.md`,
+  Components and Content, Focus on a phrase action that becomes disabled.
+- **D475 — The `Volume` popover keeps running past a landscape phone's viewport (2026-11-05;
+  minor, D119's standing rule; confirms D461 after chunk 40).** At 844×390 only its first slider
+  shows; the page scrolls to the rest. No cap, inner scroll, second column or upward opening:
+  phones are third-rate (spec D414). Now in `screens/phrase-workspace/handoff.md`, Responsive
+  Behavior, `mix-controls`.

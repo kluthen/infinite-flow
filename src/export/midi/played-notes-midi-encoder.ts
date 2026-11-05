@@ -5,13 +5,15 @@
  * and one marker per phrase, with the file's first phrase at time zero, ending where the last
  * phrase ends, so the two files of one session and one scope line up phrase by phrase. Track 2 holds the notes the player played,
  * unquantized, at their concert pitch and original velocity. The file never holds the backing or
- * a generated note. The output depends only on the input, so the same session always gives the
- * same bytes.
+ * a generated note. A Jam's file opens with its doodle section, as the generated-notes file does,
+ * holding the raw doodle notes. The output depends only on the input, so the same session always
+ * gives the same bytes.
  */
 import { MIDI_TICKS_PER_QUARTER_NOTE } from './midi-time'
 import {
   conductorTrackEvents,
   MIDI_FILE_NAME,
+  phrasesOrigin,
   phraseStartTick,
   voicedNoteTrackEvents,
 } from './midi-tracks'
@@ -31,14 +33,17 @@ const PLAYED_TRACK_NAME = 'Played notes'
 // @spec-link [[req_played_notes_export]]
 // @spec-link [[rule_played_notes_export_aligns_with_generated_midi]]
 // @spec-link [[rule_export_contents_never_merged]]
+// @spec-link [[rule_jam_exports_open_with_doodle]]
+// @spec-link [[rule_jam_exports_line_up]]
 export function encodePlayedNotesMidi(input: PlayedNotesMidiInput): Uint8Array {
   validatePlayedNotesMidiInput(input)
-  const fileEnd = phraseStartTick(input.phrases.length)
-  const notes = playedTrackNotes(input.phrases, fileEnd)
+  const doodle = input.doodle ?? null
+  const fileEnd = phraseStartTick(input.phrases.length, phrasesOrigin(doodle))
+  const notes = playedTrackNotes(input.phrases, fileEnd, doodle)
   const playedEnd = notes.reduce((end, note) => Math.max(end, note.endTick), fileEnd)
   return new Uint8Array([
     ...typeOneHeaderChunk(2, MIDI_TICKS_PER_QUARTER_NOTE),
-    ...trackChunk(conductorTrackEvents(input.phrases, MIDI_FILE_NAME), fileEnd),
+    ...trackChunk(conductorTrackEvents(input.phrases, MIDI_FILE_NAME, doodle), fileEnd),
     ...trackChunk(voicedNoteTrackEvents(PLAYED_TRACK_NAME, notes), playedEnd),
   ])
 }

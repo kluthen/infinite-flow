@@ -2,8 +2,8 @@
  * The session controller's reach into every kept session (module_kept_session_reach): the rows it
  * holds for the visit and keeps current, the session list in the review mode, opening any kept
  * session by its key (the latest opening wins, leaving the mode cancels, a refused read marks its
- * row), and a pin, an unpin and `Delete session` of a kept session not held in memory, by its row,
- * through the change path. On the fake audio clock at 240 BPM from 5 s: phrase 1 sounds from 6.1 s.
+ * row), and a pin, an unpin, `Delete session` and a Jam session's `Keep mine` of a kept session not
+ * held in memory, by its row, through the change path. On the fake audio clock at 240 BPM from 5 s: phrase 1 sounds from 6.1 s.
  */
 import { describe, expect, it, vi } from 'vitest'
 
@@ -23,6 +23,7 @@ import {
   recordedKeptSession,
   storedRecords,
 } from '../../storage/kept-session-fixtures'
+import { KEPT_DOODLE } from '../../storage/kept-session-v32-fixtures'
 import { controllerRig, flush, playTo, type ControllerRig } from './session-controller-rig'
 
 const history = recordedKeptSession('eb-alto', 2)
@@ -537,5 +538,57 @@ describe('session controller: a pin, an unpin and Delete session from a row, not
     await expect(rig.controller.deleteSession('newer')).rejects.toThrow(/no listed kept session/)
     fake.savingOff = true
     await expect(rig.controller.deleteSession('middle')).rejects.toThrow(/saving is off/)
+  })
+})
+
+// @test-link [[rule_suggestion_keep_mine]]
+// @test-link [[module_kept_session_changes]]
+describe("session controller: a Jam session's Keep mine from its row, not held in memory", () => {
+  /** The loaded sessions and a kept Jam session, `jam`, its suggestion not declined. */
+  const WITH_JAM: readonly [string, StoredKeptSession][] = [
+    ...LOADED,
+    [
+      'jam',
+      recordsAt(4_000, { jam: { doodle: KEPT_DOODLE, suggestionDeclined: false, fresh: null } }),
+    ],
+  ]
+
+  /** Intent: the Jam row's suggestion declined, as its summary says. */
+  function rowDeclined(rig: ControllerRig): unknown {
+    const row = rig.controller.state.keptRows.find((candidate) => candidate.key === 'jam')
+    return row?.kind === 'current' ? row.summary.suggestionDeclined : undefined
+  }
+
+  it('declines on the row at once, and is one change; declined already, nothing more', async () => {
+    const fake = fakeKept(WITH_JAM)
+    const rig = reloaded(fake)
+
+    const declining = rig.controller.declineSuggestion('jam')
+    expect(rowDeclined(rig)).toBe(true)
+    await declining
+    await rig.controller.declineSuggestion('jam')
+
+    expect(fake.changes).toEqual(['notice'])
+    expect(fake.reads).toEqual([])
+  })
+
+  it('while saving is off, holds on the row for the visit, saving nothing; its Review opened later is declined', async () => {
+    const fake = fakeKept(WITH_JAM)
+    fake.savingOff = true
+    const rig = reloaded(fake)
+
+    await rig.controller.declineSuggestion('jam')
+    expect(fake.changes).toEqual([])
+    rig.controller.showList()
+    await rig.controller.openSession('jam')
+
+    expect(rig.controller.state.review?.jam?.suggestionDeclined).toBe(true)
+  })
+
+  it('throws for a row that is no Jam, and a key with no row', () => {
+    const rig = reloaded(fakeKept(WITH_JAM))
+
+    expect(() => rig.controller.declineSuggestion('middle')).toThrow(/no Jam declines nothing/)
+    expect(() => rig.controller.declineSuggestion('absent')).toThrow(/no listed kept session/)
   })
 })

@@ -8,14 +8,11 @@
 import { NotationError, isStaffLayoutFailure } from '@/notation/notation-error'
 import { toError } from './generation-session-fit-round'
 import type { RoomNoticeReactions } from './generation-session-room-notice'
-import type {
-  GenerationSessionActions,
-  MutableGenerationSessionState,
-} from './generation-session-types'
+import type { GenerationSessionActions, IdlePhraseState } from './generation-session-types'
 
 /** The dependency surface the notation actions need from the root session composable. */
 export interface NotationActionDependencies<TResult> {
-  readonly state: MutableGenerationSessionState<TResult>
+  readonly state: IdlePhraseState<TResult>
   /** The injected notation seam: draw this result on the staff. */
   readonly notate: (result: TResult) => Promise<void>
   /** Drop whatever the injected notation seam is currently presenting. */

@@ -13,6 +13,7 @@
 
 import { deepFreeze } from '../domain/events/deep-freeze'
 import type { GenerationIntent } from '../domain/generation/generation-intent'
+import type { SteeringBlock } from '../domain/generation/steering-block'
 import { makeSeed, type Seed } from '../domain/random/seed'
 import {
   LADDER,
@@ -59,8 +60,9 @@ export type PregenerationSeams = Pick<SessionEngineDependencies, 'providers' | '
  * Start frozen in them, as the session's, so the plan's mutations stay inside it), phrase 1 (the Idle result's
  * intent and successful outcome) and the settings it was generated under, the session seed
  * published with it, the settings-mutation flag (the workspace builds it from the Vary settings
- * choice and the session seed) and the multi-phrase tension arc flag. Tempo and Rising tempo
- * change no request.
+ * choice and the session seed), the multi-phrase tension arc flag and, for a steered session (a
+ * Jam on the kept doodle), the steering block every one of its requests carries from phrase 2 on.
+ * Tempo and Rising tempo change no request.
  */
 // @spec-link [[module_session_pregeneration_plan]]
 // @spec-link [[req_idle_pregeneration]]
@@ -73,6 +75,8 @@ export interface PregenerationStart {
   readonly sessionSeed: Seed
   readonly mutation: SettingsMutationFlag
   readonly multiPhraseTensionArc: boolean
+  /** As the steered session's: the block every attempt carries; absent for an unsteered one. */
+  readonly steering?: SteeringBlock
 }
 
 /** One attempt to request: its phrase, its ladder rung's index, its step and its intent. */
@@ -109,7 +113,10 @@ export interface PregenerationPlan {
   after(result: PregenerationResult): PregenerationPlan
 }
 
-/** Everything fixed for a whole plan: the seams, the session seed and both session flags. */
+/**
+ * Everything fixed for a whole plan: the seams, the session seed, both session flags and the
+ * steering block of a steered session.
+ */
 type PlanContext = IntentSeams & PhraseOpeningSeams
 
 /**
@@ -132,7 +139,12 @@ interface PlanState {
   readonly stopped: PregenerationStop | undefined
 }
 
-/** Intent: the plan's fixed context from its seams and start, each part checked. */
+/**
+ * Intent: the plan's fixed context from its seams and start, each part checked; a steered start's
+ * block goes on every attempt, as the steered session's engine puts it on each of its requests.
+ */
+// @spec-link [[rule_pregenerated_phrase_matches_session]]
+// @spec-link [[rule_every_jam_phrase_carries_doodle]]
 function planContext(seams: PregenerationSeams, start: PregenerationStart): PlanContext {
   return {
     providers: seams.providers,
@@ -140,6 +152,7 @@ function planContext(seams: PregenerationSeams, start: PregenerationStart): Plan
     sessionSeed: makeSeed(start.sessionSeed),
     mutation: deepFreeze({ ...start.mutation }),
     multiPhraseTensionArc: requireTensionArcFlag(start.multiPhraseTensionArc),
+    ...(start.steering === undefined ? {} : { steering: start.steering }),
   }
 }
 

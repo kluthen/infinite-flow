@@ -1124,6 +1124,106 @@ strict 98.9 % kept, 1.1 % bends; 0 census mismatches. Phrase 2 lost its join in 
 (89 on). Replays: 420, all matched. Chunk 31's change to `readDoodleControls` (no window context)
 moves nothing here, since the double always reads with the wide context.
 
+### M1 through the real ladder, and at 240 BPM (chunk 33, first half)
+
+**Machine and date.** Run by Claude on 2026-11-05 on branch `v3.2-c33-240-bpm` (cut from `v3.2-w7`
+at 451fb271: the complete Jam, chunks 24, 25 and 32 merged), on the reference machine: AMD Ryzen 5
+PRO 8640HS (6 cores, 12 threads), 11 GiB RAM, not a VM, Node 22.23.4. Lock off 09:22–09:51 CET
+(1,735 s), lock on 09:52–10:53 (3,664 s), one process each, nothing else of the project running;
+the desktop stayed open (1-minute load average 0.6 and 0.9 at the starts, 1.4 and 1.3 at the ends).
+
+**What changed in the tools.** `tests/sweep/jam-sweep-real-ladder.ts` puts chunk 18's own ladder
+(`createJamPhraseOne`, `src/jam/jam-phrase-one.ts`) behind the sweep's `PhraseOneLadder`, beside
+chunk 29's double (spec D453), selected by `JAM_LADDER=real`. It drives the real state machine on
+the generation measure's clock over a stub of the capture (the doodle is already quantized; it
+ends by length at 0, phrase 1 shown at the first barline at or after it is ready): each attempt the
+ladder asks for is requested and generated at once on the one generator, charged as the double
+charges it; the ladder's own decision (the cutover, the deadline) is taken first when it falls at
+or before the attempt's end, a rung 3 asked there cutting the running attempt (the worker
+restarting, 0.125 s); otherwise the result reaches the ladder at the attempt's end, a phrase with
+its fit check. Seeds come from the session seed plan, request ids from a counter.
+`tests/sweep/jam-sweep-real-ladder.spec.ts` checks, on a scripted generator at 120 and 240 BPM,
+that the real ladder and the double make the same attempts (rung, index, seed, start, charge, cut,
+failure) and the same phrase 1, from intents equal apart from the request id, in every path the
+sweep never reaches: retries, the skip after `no_legal_pitch_plan`, a cut at the cutover (an
+attempt ending exactly there included), rung 3 failing or late.
+
+**Method.** `JAM_MODE=jam JAM_LOCK=off JAM_LADDER=real JAM_TEMPOS=60,120,180,240 npm run
+measure:jam`, then `JAM_LOCK=on`: the deadline sweep's 568 cases crossed with the 13 doodles (7,384
+Jams per configuration, 8 phrases each), warm and cold domains, the lock off, on with every change
+allowed and on strict; 24 configurations. Each attempt is charged its measured `generatePhrase`
+time plus 100 ms. Times are `generatePhrase` wall times, the 95th percentile by nearest rank. At
+240 BPM a measure lasts 1 s: phrase 1's deadline falls 3 s after the generation measure begins,
+its cutover at 1.925 s; phrase 1 ready after 1 s extends the wait by a measure.
+
+| Configuration              | Attempts: p95 / slowest | Orderings: share, per attempt p95 / slowest | Rung 1: attempts, p95 / slowest, orderings | Rung 2: attempts, p95 / slowest, orderings | Phrases 2–8 standalone: count, slowest charged | Phrase 2 lost its join |
+| -------------------------- | ----------------------- | ------------------------------------------- | ------------------------------------------ | ------------------------------------------ | ---------------------------------------------- | ---------------------- |
+| 60 BPM, lock off, warm     | 0.011 / 2.693 s         | 3.4 %, 0.001 / 0.005 s                      | 6,249: 0.011 / 0.793 s, 7.3 %              | 1,150: 0.013 / 0.574 s, 5.3 %              | 732, 0.118 s                                   | 93                     |
+| 60 BPM, lock off, cold     | 0.026 / 2.693 s         | 3.0 %, 0.001 / 0.008 s                      | 6,249: 0.080 / 0.865 s, 2.7 %              | 1,150: 0.078 / 0.638 s, 1.9 %              | 732, 0.118 s                                   | 93                     |
+| 120 BPM, lock off, warm    | 0.011 / 2.690 s         | 3.7 %, 0.001 / 0.004 s                      | 6,249: 0.011 / 0.712 s, 7.2 %              | 1,150: 0.013 / 0.578 s, 5.3 %              | 732, 0.118 s                                   | 93                     |
+| 120 BPM, lock off, cold    | 0.027 / 2.690 s         | 3.2 %, 0.001 / 0.105 s                      | 6,249: 0.080 / 0.739 s, 2.6 %              | 1,150: 0.077 / 0.640 s, 2.0 %              | 732, 0.118 s                                   | 93                     |
+| 180 BPM, lock off, warm    | 0.011 / 2.690 s         | 3.9 %, 0.001 / 0.004 s                      | 6,249: 0.011 / 0.713 s, 7.2 %              | 1,150: 0.013 / 0.575 s, 5.3 %              | 732, 0.118 s                                   | 93                     |
+| 180 BPM, lock off, cold    | 0.027 / 2.690 s         | 3.3 %, 0.001 / 0.008 s                      | 6,249: 0.081 / 0.737 s, 2.6 %              | 1,150: 0.077 / 0.635 s, 2.0 %              | 732, 0.118 s                                   | 93                     |
+| 240 BPM, lock off, warm    | 0.011 / 2.601 s         | 4.3 %, 0.001 / 0.004 s                      | 6,249: 0.011 / 0.730 s, 7.2 %              | 1,150: 0.013 / 0.571 s, 5.4 %              | 733, 0.118 s                                   | 93                     |
+| 240 BPM, lock off, cold    | 0.026 / 2.601 s         | 3.6 %, 0.001 / 0.027 s                      | 6,249: 0.083 / 0.739 s, 2.6 %              | 1,150: 0.077 / 0.643 s, 1.9 %              | 733, 0.118 s                                   | 93                     |
+| 60 BPM, all changes, warm  | 0.011 / 2.768 s         | 1.1 %, 0.000 / 0.010 s                      | 6,249: 0.012 / 0.723 s, 10.5 %             | 1,150: 0.014 / 0.436 s, 7.3 %              | 742, 0.117 s                                   | 89                     |
+| 60 BPM, all changes, cold  | 0.029 / 2.768 s         | 1.4 %, 0.000 / 0.055 s                      | 6,249: 0.084 / 0.753 s, 3.9 %              | 1,150: 0.081 / 0.510 s, 2.8 %              | 742, 0.117 s                                   | 89                     |
+| 60 BPM, strict, warm       | 0.011 / 2.783 s         | 0.8 %, 0.000 / 0.007 s                      | 6,249: 0.012 / 0.808 s, 10.4 %             | 1,150: 0.014 / 0.439 s, 7.7 %              | 753, 0.112 s                                   | 89                     |
+| 60 BPM, strict, cold       | 0.029 / 2.783 s         | 1.2 %, 0.000 / 0.009 s                      | 6,249: 0.085 / 0.768 s, 4.0 %              | 1,150: 0.080 / 0.507 s, 2.9 %              | 753, 0.112 s                                   | 89                     |
+| 120 BPM, all changes, warm | 0.011 / 2.768 s         | 1.2 %, 0.000 / 0.010 s                      | 6,249: 0.012 / 0.742 s, 10.5 %             | 1,150: 0.014 / 0.434 s, 7.7 %              | 742, 0.117 s                                   | 89                     |
+| 120 BPM, all changes, cold | 0.029 / 2.768 s         | 1.5 %, 0.000 / 0.069 s                      | 6,249: 0.089 / 0.777 s, 3.8 %              | 1,150: 0.080 / 0.504 s, 3.1 %              | 742, 0.117 s                                   | 89                     |
+| 120 BPM, strict, warm      | 0.011 / 2.687 s         | 0.9 %, 0.000 / 0.007 s                      | 6,249: 0.011 / 0.748 s, 10.4 %             | 1,150: 0.014 / 0.435 s, 7.8 %              | 753, 0.112 s                                   | 89                     |
+| 120 BPM, strict, cold      | 0.029 / 2.687 s         | 1.3 %, 0.000 / 0.010 s                      | 6,249: 0.090 / 0.883 s, 3.9 %              | 1,150: 0.080 / 0.516 s, 3.0 %              | 753, 0.112 s                                   | 89                     |
+| 180 BPM, all changes, warm | 0.011 / 2.768 s         | 1.3 %, 0.000 / 0.010 s                      | 6,249: 0.012 / 0.719 s, 10.4 %             | 1,150: 0.014 / 0.434 s, 7.7 %              | 742, 0.117 s                                   | 89                     |
+| 180 BPM, all changes, cold | 0.028 / 2.768 s         | 1.6 %, 0.000 / 0.087 s                      | 6,249: 0.087 / 0.760 s, 3.9 %              | 1,150: 0.080 / 0.508 s, 2.9 %              | 742, 0.117 s                                   | 89                     |
+| 180 BPM, strict, warm      | 0.011 / 2.687 s         | 0.9 %, 0.000 / 0.007 s                      | 6,249: 0.012 / 0.780 s, 10.4 %             | 1,150: 0.014 / 0.440 s, 7.7 %              | 753, 0.112 s                                   | 89                     |
+| 180 BPM, strict, cold      | 0.028 / 2.687 s         | 1.4 %, 0.000 / 0.050 s                      | 6,249: 0.099 / 0.766 s, 3.9 %              | 1,150: 0.080 / 0.502 s, 3.0 %              | 753, 0.112 s                                   | 89                     |
+| 240 BPM, all changes, warm | 0.011 / 2.768 s         | 1.4 %, 0.000 / 0.010 s                      | 6,249: 0.012 / 0.823 s, 10.3 %             | 1,150: 0.014 / 0.434 s, 7.8 %              | 742, 0.117 s                                   | 89                     |
+| 240 BPM, all changes, cold | 0.028 / 2.768 s         | 1.7 %, 0.000 / 0.043 s                      | 6,249: 0.089 / 0.753 s, 3.9 %              | 1,150: 0.080 / 0.532 s, 3.0 %              | 742, 0.117 s                                   | 89                     |
+| 240 BPM, strict, warm      | 0.011 / 2.667 s         | 1.0 %, 0.000 / 0.007 s                      | 6,249: 0.012 / 0.726 s, 10.4 %             | 1,150: 0.014 / 0.441 s, 7.7 %              | 753, 0.112 s                                   | 89                     |
+| 240 BPM, strict, cold      | 0.028 / 2.667 s         | 1.4 %, 0.000 / 0.063 s                      | 6,249: 0.093 / 0.754 s, 3.9 %              | 1,150: 0.080 / 0.503 s, 2.9 %              | 753, 0.112 s                                   | 89                     |
+
+**Through the real ladder at 60, 120 and 180 BPM**, against chunk 29's double (its first run and
+wave 5's re-run, above): every count is the same in all 18 configurations. Phrase 1 came from rung
+1 in 84.4 % of Jams (6,234/7,384) and from rung 2 in 15.6 % (1,150); rung 3 made none; no phrase 1
+failed to come, none needed an extended wait, no attempt was cut at the cutover; rung 1 made 6,249
+attempts (15 retries); 0 repeats, 0 shortfalls; phrases 2 to 8 went standalone 732, 742 and 753
+times (lock off, every change, strict), charged at most 0.118 s, none past the 1.075 s reserve;
+phrase 2 lost its join in 93 Jams lock off, 89 on. The lock: with every change allowed 65.4 % kept,
+33.9 % changed, 389 forced bends; strict 98.9 % kept, 546 bends; 0 census mismatches. Only wall
+times differ, within the noise between the double's two runs: the slowest phrase 1 attempt
+0.883 s (rung 1, 120 BPM, strict, cold), against 0.899 s and 0.820 s; the slowest attempt overall
+2.69–2.78 s, against 2.70–2.98 s and 2.88–3.26 s, attempts of phrases 2 to 8 as before.
+**Nothing goes to `spec-writer`.**
+
+**At 240 BPM** (the last six rows), on the complete Jam:
+
+- **Phrase 1 holds.** The same rung shares as at the slower tempos (84.4 % rung 1, 15.6 % rung 2,
+  none from rung 3), no phrase 1 failed to come, no attempt was cut at the cutover, in every
+  configuration, warm or cold, lock off or on. The slowest phrase 1 attempt took 0.823 s (rung 1,
+  every change, warm; charged 0.923 s), 0.754 s with a cold domain, against 1.925 s to the cutover:
+  about 1.0 s to spare, where 180 BPM leaves about 2.0 s. The generator is tempo-free (C5.17), so the attempt
+  times are those of the slower tempos; only the budget shrinks.
+- **One extended wait** in 7,384 Jams, in one configuration (every change, warm): a phrase 1 ready
+  after the 1 s generation measure, shown one measure (1 s) later. The same Jam with a cold domain
+  had none, so it is a wall-time effect, not a property of the doodle; C5.7 allows it. At 180 BPM
+  the generation measure lasts 1.33 s and no Jam needed one.
+- **Phrases 2 to 8 hold.** 0 repeats, 0 shortfalls; every standalone attempt charged at most
+  0.118 s, none past the reserve. Lock off, one phrase more went standalone (733 against 732), the only count
+  that moves with the tempo: most likely a carry-in the time rule gave up at the tighter deadline,
+  a timing effect v2 accepts (as at 180 BPM in chunk 3's run). The lock's census and phrase 2's lost joins are the same as at the
+  slower tempos.
+- **Replays**: 560 over the 24 configurations (30 per lock-off configuration, 20 per lock-on one),
+  0 mismatches.
+- **Not measured here**: the browser (the reserve's basis, a standalone attempt in Chromium, peaked
+  at 618.6 ms; a slower worker leaves less of the 1.0 s), slower machines and phones (more rung 3
+  phrases and extended waits, never a missing phrase 1 while rung 3 fits its reserve), and the
+  capture itself at 240 BPM: a sixteenth note lasts 62.5 ms there, a quarter note 0.25 s, so the
+  doodle's quantizing and its end rule meet a beat a player hardly holds steady over a click. Those
+  are the hand checks' (item 31), on the owner's ruling.
+
+The owner rules at gate J240 whether Jam's tempo control widens to 240 BPM.
+
 ## My instrument ranges (2026-10-11)
 
 Measurement M3's generator half: whether a player-made instrument whose range is exactly two

@@ -1,8 +1,8 @@
 /**
  * A running session's phrases from 2 on, for the session controller. A phrase goes through two
  * steps: at `phrase-ready` the display shows it as read-ahead and it is kept; at `phrase-tempo`,
- * once the engine has fixed its tempo, the kept phrase is scheduled at that tempo: its backing is
- * queued on the audio transport (whose click plan then runs at that tempo from the phrase's first
+ * once the engine has fixed its tempo, the kept phrase is scheduled at that tempo: its backing and
+ * guide notes are queued on the audio transport (whose click plan then runs at that tempo from the phrase's first
  * beat), its expected notes go to note acknowledgement, the display's playhead takes its tempo, and
  * its starting to sound is scheduled at the transport's start of the phrase. A phrase the engine
  * discards between the two steps, for a settings change, is dropped and taken back from the
@@ -79,7 +79,8 @@ export function createSessionPhrases(deps: SessionPhrasesDependencies): SessionP
   }
 
   /**
-   * Intent: the engine fixed the kept phrase's tempo: queue its backing at that tempo first (from
+   * Intent: the engine fixed the kept phrase's tempo: queue its backing and guide notes (from its
+   * harmony and timeline) at that tempo first (from
    * then on the transport knows when it starts), then add its expected notes at that tempo, give
    * the display's playhead its tempo, and schedule its starting to sound at its transport start.
    */
@@ -95,7 +96,12 @@ export function createSessionPhrases(deps: SessionPhrasesDependencies): SessionP
     if (phrase === undefined) {
       throw new Error(`session controller: phrase ${phraseNumber}'s tempo came before it was ready`)
     }
-    audio.queueBacking(phraseNumber, phrase.outcome.provenance.harmony.events, tempo)
+    audio.queueBacking(
+      phraseNumber,
+      phrase.outcome.provenance.harmony.events,
+      phrase.outcome.result.timeline,
+      tempo,
+    )
     kept.delete(phraseNumber)
     nextTempo += 1
     midi.phraseReady(phraseNumber, phrase.outcome.result.timeline, tempo)

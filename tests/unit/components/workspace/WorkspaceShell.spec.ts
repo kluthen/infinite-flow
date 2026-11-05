@@ -294,6 +294,10 @@ const MIX_TOKENS = [
   '--mix-volume-step',
   '--mix-backing-volume-default',
   '--mix-click-volume-default',
+  '--mix-melody-guide-volume-min',
+  '--mix-rhythm-guide-volume-min',
+  '--mix-melody-guide-volume-default',
+  '--mix-rhythm-guide-volume-default',
 ]
 
 /** Intent: put the stylesheet's mix tokens on the root, where the popover reads them in jsdom. */

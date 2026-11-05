@@ -15,7 +15,13 @@ import type { SessionHistory } from '@/session/session-history'
 import type { SessionEndCause } from '@/session/session-types'
 import { jamPartOf } from './session-jam-part'
 import { endedSession, openedReview, settledKeeping } from './session-review-state'
-import { endedSessionSave, saveEndedSession, tellDamagedDeleted } from './workspace-session-save'
+import {
+  ENDED_SESSION_FACTS,
+  endedSessionSave,
+  keptSessionKey,
+  saveEndedSession,
+  tellDamagedDeleted,
+} from './workspace-session-save'
 import type { KeptSessionRows } from './use-kept-sessions'
 import type { AdaptiveTempoFlag } from './workspace-adaptive-tempo'
 import { findHeldSession } from './workspace-kept-session-opening'
@@ -105,17 +111,19 @@ export function createSessionEnds(
   /**
    * Intent: end the running session for `cause`, the one path every end takes: the notes still
    * held end now and are recorded, the engine gets `end` (its `ended` output closes the history),
-   * then the session is torn down and summed up. Once phrase 1 has sounded, the Review opens over
-   * the closed history and that session becomes the most recent one, not pinned, or not saved at
-   * once while saving is off, under the key minted for its save, a Jam with its Jam part, its
+   * then the session is torn down and summed up, a Jam that sounded phrase 1 with its Jam part and
+   * the key minted for its save, before anything else of its end. Once phrase 1 has sounded, the
+   * Review opens over the closed history and that session becomes the most recent one, not
+   * pinned, or not saved at once while saving is off, under the key minted for its save, a Jam with its Jam part, its
    * played notes kept when `Keep my played notes` is on, saving is on and it holds one (a fresh
    * Jam's raw doodle notes count), its preset label named from the
    * presets the session knew (Idle's, which never change during a session); the session's own
    * save is asked
    * for after the release (never
    * awaited, so the end is not delayed; its outcome settles how the session is kept, and the
-   * damaged kept sessions its batch deleted are told once it is saved) and, the
-   * reports handed back to Idle, Idle is asked for the next phrase; an end during the count-in
+   * damaged kept sessions its batch deleted are told once it is saved; a Jam on the kept doodle's
+   * save keeps the decline its doodle was kept with) and, the reports handed back to Idle, session
+   * mode's Idle is asked for the next phrase, unless the session was a Jam; an end during the count-in
    * opens none, saves nothing, asks for nothing and leaves the most recent session as it was.
    * The session is dropped first, so nothing can end it twice; ending with none running throws.
    */
@@ -136,15 +144,19 @@ export function createSessionEnds(
     }
     const ended = session.ended
     if (ended === null) throw new Error('session controller: the engine did not report the end')
+    // The Jam part is gathered before the summary, which hands it to Jam's code with its key.
+    const jam = ended.soundedPhraseCount === 0 ? null : jamPartOf(session)
     state.lastEnd = Object.freeze({
       cause: ended.cause,
       phase: ended.phase,
       soundedPhraseCount: ended.soundedPhraseCount,
+      ...(jam === null
+        ? {}
+        : { jam: Object.freeze({ part: jam, sessionKey: keptSessionKey(session.history) }) }),
     })
     state.lastHistory = session.history
     if (ended.soundedPhraseCount === 0) return
     const savingOff = core.deps.keptSessions.savingOff()
-    const jam = jamPartOf(session)
     const save = endedSessionSave(
       session.history,
       !savingOff && keepPlayedNotes(),
@@ -160,7 +172,15 @@ export function createSessionEnds(
     state.review = openedReview(reviewed)
     state.mostRecent = Object.freeze({ kind: 'held', session: reviewed })
     const saves = rows.savingThrough(core.deps.saveHold, () => findHeldSession(state, reviewed.key))
-    const saving = saveEndedSession(saves, core.deps.browser.pageLeaving, session.history, save)
+    // A Jam on the kept doodle carries the decline the doodle was kept with.
+    const held = { ...ENDED_SESSION_FACTS, suggestionDeclined: jam?.suggestionDeclined ?? false }
+    const saving = saveEndedSession(
+      saves,
+      core.deps.browser.pageLeaving,
+      session.history,
+      save,
+      held,
+    )
     if (!savingOff) {
       void saving.then((outcome) => {
         settleKeeping(reviewed, outcome)
@@ -168,9 +188,10 @@ export function createSessionEnds(
         tellDamagedDeleted(core.deps.keptSessions.reports, outcome)
       })
     }
-    // A session started without phrase 1 (a fresh Jam's) ran no adaptive tempo and leaves session
-    // mode's Idle as it was: no tempo reached is handed over and no fresh phrase asked for.
-    if (session.phraseOne === null) return
+    // A Jam (a fresh one, started without phrase 1, or one on the kept doodle) ran no adaptive
+    // tempo and leaves session mode's Idle as it was: no tempo reached is handed over and no fresh
+    // phrase asked for; Jam's code writes its own phrase 1 again from the doodle it keeps.
+    if (session.phraseOne === null || session.keptDoodle !== null) return
     adaptiveTempo.sessionEnded(reviewed.tempoReached)
     void idle.actions.startFreshPhrase()
   }

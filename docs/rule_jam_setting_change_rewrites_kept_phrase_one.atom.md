@@ -9,7 +9,8 @@ version: 0.1
 priority: 1
 human_name: A Jam Setting Changed at Idle Rewrites the Kept Doodle's Phrase 1
 tags: [v3, release-v3.2, jam, idle, player-controls]
-dependents: []
+dependents:
+  - [[module_kept_doodle]]
 ---
 
 # A Jam Setting Changed at Idle Rewrites the Kept Doodle's Phrase 1

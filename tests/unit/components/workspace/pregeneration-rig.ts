@@ -238,7 +238,7 @@ export function pregenerationRig(options: PregenerationRigOptions = {}): Pregene
 }
 
 /** Intent: the call in flight: the latest one, which must still be unsettled. */
-export function inFlight(rig: PregenerationRig): GenerateCall {
+export function inFlight(rig: Pick<PregenerationRig, 'calls'>): GenerateCall {
   const call = rig.calls.at(-1)
   expect(call, 'a background attempt is in flight').toBeDefined()
   expect(call!.settled, 'the latest background attempt is still in flight').toBe(false)
@@ -246,7 +246,7 @@ export function inFlight(rig: PregenerationRig): GenerateCall {
 }
 
 /** Intent: answer the call in flight with its intent's real outcome, then let everything settle. */
-export async function answer(rig: PregenerationRig): Promise<void> {
+export async function answer(rig: Pick<PregenerationRig, 'calls'>): Promise<void> {
   const call = inFlight(rig)
   call.resolve(realOutcomeFor(call.intent))
   await flush()
@@ -256,7 +256,7 @@ export async function answer(rig: PregenerationRig): Promise<void> {
  * Intent: answer every call with its real outcome until nothing is in flight; a queue that keeps
  * asking past a generous bound fails the test.
  */
-export async function answerAll(rig: PregenerationRig): Promise<void> {
+export async function answerAll(rig: Pick<PregenerationRig, 'calls'>): Promise<void> {
   await flush()
   for (let answered = 0; rig.calls.some((call) => !call.settled); answered += 1) {
     expect(answered, 'the queue stops within 20 attempts').toBeLessThan(20)
@@ -268,6 +268,6 @@ export async function answerAll(rig: PregenerationRig): Promise<void> {
  * Intent: the phrase numbers Start would take now in the wide one-system layout; a take aborts
  * the attempt in flight, so a test inspects the queue this way once nothing is in flight.
  */
-export function takenNumbers(rig: PregenerationRig): number[] {
+export function takenNumbers(rig: Pick<PregenerationRig, 'queue'>): number[] {
   return rig.queue.take('one-system').map((ready) => ready.phraseNumber)
 }

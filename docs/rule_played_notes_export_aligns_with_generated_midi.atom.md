@@ -3,7 +3,7 @@ id: rule_played_notes_export_aligns_with_generated_midi
 status: REVIEW
 type: RULE
 layer: BUSINESS
-version: 0.5
+version: 0.6
 human_name: Played Notes Export Lines Up With Generated MIDI
 tags: [v2, release-v2.0, part-v2.1, v2.4-check, export, midi, changes-in-v3.2]
 parents:
@@ -19,11 +19,11 @@ priority: 1
 Make the played-notes file line up with the generated-notes MIDI file of the same session.
 
 ## THE RULE / LOGIC
-The played-notes file carries the same tempo map and the same phrase markers as the generated-notes MIDI file of the same session under the same scope (the whole session or, from v3.0, its favorite phrases only), at the same time resolution, with the first exported phrase at time zero in both, whether or not the generated notes are exported too. Imported together into a digital audio workstation (DAW, a music production program), the two files line up phrase by phrase.
+The played-notes file carries the same tempo map and the same phrase markers as the generated-notes MIDI file of the same session under the same scope (the whole session or, from v3.0, its favorite phrases only), at the same time resolution, with the first exported phrase at time zero in both, or, from v3.2 in a Jam, the Doodle section at time zero in both and the first exported phrase at the same tick in both, whether or not the generated notes are exported too. Imported together into a digital audio workstation (DAW, a music production program), the two files line up phrase by phrase.
 
 ## TECHNICAL INTERFACE
-Both MIDI exports of one session under one scope share the tempo map, phrase markers, time resolution and time origin.
+Both MIDI exports of one session under one scope share the tempo map, phrase markers, time resolution and time origin, a Jam's Doodle section included.
 
 ## EXPECTATION
-- The played-notes file and the generated-notes MIDI file of the same session and scope share the same tempo map, phrase markers, time resolution and time origin, the first exported phrase at time zero, as automated tests check.
+- The played-notes file and the generated-notes MIDI file of the same session and scope share the same tempo map, phrase markers, time resolution and time origin, the first exported phrase at time zero, or in a Jam the doodle at time zero and the first exported phrase's marker at the same tick in both, as automated tests check.
 - Imported together into a real DAW, the two files line up phrase by phrase, with the same tempo map and markers. This real-DAW import is a hand check that follows the v2.0 tag, validated later as a v2.0.x hand check; it does not block the tag.

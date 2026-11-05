@@ -2,17 +2,20 @@
  * The workspace session's Idle fit run, split out of use-generation-session.ts: one operation that
  * generates up to four attempts (the first plus up to three fresh-seed retries), checks each one
  * against the staff's current room before anything is drawn, and draws only the first that fits,
- * published as phrase 1 with the one session seed drawn for it. This module owns no session state
- * of its own: it reads and writes the shared session state object the root composable constructs,
- * through the dependency surface below, and keeps only the run token that makes a stopped run's
- * late continuations no-ops.
+ * published as phrase 1 with the one session seed drawn for it. Its intents come from a fresh
+ * intent per attempt (session mode's Idle), or from a ladder of attempts it climbs (Jam mode's
+ * phrase 1 from a kept doodle): a generation failure then moves on to the ladder's next attempt,
+ * and a too-wide attempt is replaced on the same one, within the same four-attempt fit budget.
+ * This module owns no session state of its own: it reads and writes the shared Idle phrase state
+ * its caller constructs, through the dependency surface below, and keeps only the run token that
+ * makes a stopped run's late continuations no-ops.
  */
 
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import type { Seed } from '@/domain/random/seed'
 import { NotationError } from '@/notation/notation-error'
 import type { StaffFitVerdict, StaffRoomVerdict } from '@/notation/staff-fit-types'
-import type { MutableGenerationSessionState } from './use-generation-session'
+import type { IdlePhraseState } from './generation-session-types'
 
 /** Every attempt budget a run has: the first attempt plus up to three fresh-seed retries. */
 export const FIT_RUN_ATTEMPTS = 4
@@ -34,13 +37,52 @@ export type RoomNoticeCause = 'no_room' | 'notes_too_wide'
 export type FitRunStart = 'keep_screen' | 'no_score' | 'fresh'
 
 /**
+ * One run's climb of an attempt ladder: the intent of the attempt it stands on, fresh at each call
+ * (a too-wide attempt is replaced on the same attempt, with a new seed), and the move on after that
+ * attempt's generation failed.
+ */
+// @spec-link [[module_idle_fit_round]]
+export interface FitRunClimb {
+  /** One fresh intent, a new seed and request identity, for the attempt the climb stands on. */
+  readonly intent: () => GenerationIntent
+  /** The attempt's generation failed with `error`: on to the next attempt (true), or none left. */
+  readonly failed: (error: Error) => boolean
+}
+
+/** A ladder of attempts each run climbs from its first, read when the run's attempts begin. */
+// @spec-link [[module_idle_fit_round]]
+export interface FitRunLadder {
+  readonly climb: () => FitRunClimb
+}
+
+/**
+ * Where a run's intents come from: one fresh intent per attempt, a generation failure ending the
+ * run (session mode's Idle); or a ladder each run climbs, a generation failure moving on to its
+ * next attempt and only the last one's ending the run.
+ */
+// @spec-link [[module_idle_fit_round]]
+export type FitRunIntents =
+  | {
+      /** One fresh seed and request identity, with the note density the width gives now. */
+      readonly freshIntent: () => GenerationIntent
+      readonly ladder?: never
+    }
+  | { readonly ladder: FitRunLadder; readonly freshIntent?: never }
+
+/**
  * The dependency surface the fit run needs from the root session composable: an attempt generates
  * a `TGenerated`, and the result it publishes is a `TResult`, joined with its session seed.
  */
 // @spec-link [[module_idle_fit_round]]
 // @spec-link [[module_session_seed_plan]]
-export interface FitRunDependencies<TResult, TGenerated = TResult> {
-  readonly state: MutableGenerationSessionState<TResult>
+export type FitRunDependencies<TResult, TGenerated = TResult> = FitRunSeams<TResult, TGenerated> &
+  FitRunIntents
+
+/** The fit run's seams besides where its intents come from. */
+// @spec-link [[module_idle_fit_round]]
+// @spec-link [[module_session_seed_plan]]
+export interface FitRunSeams<TResult, TGenerated = TResult> {
+  readonly state: IdlePhraseState<TResult>
   readonly generate: (intent: GenerationIntent) => Promise<TGenerated>
   readonly checkFit: (generated: TGenerated) => Promise<StaffFitVerdict>
   /** The session seed of a published phrase 1, drawn once per publishing run. */
@@ -49,8 +91,6 @@ export interface FitRunDependencies<TResult, TGenerated = TResult> {
   readonly withSessionSeed: (generated: TGenerated, sessionSeed: Seed) => TResult
   readonly notate: (result: TResult) => Promise<void>
   readonly clearPresentedPhrase: () => void
-  /** One fresh seed and request identity, with the note density the width gives now. */
-  readonly freshIntent: () => GenerationIntent
   /** Whether the current rhythm combination blocks generation at the width now. */
   readonly isBlocked: () => boolean
   /** Whether the staff has room at all, whatever the notes, with the next phrase's key signature. */
@@ -75,10 +115,18 @@ export interface FitRunner {
   readonly showNotice: (cause: RoomNoticeCause, announceAgain?: boolean) => void
   /** Changes whenever a run starts or stops, so a pending room check can tell it is stale. */
   readonly epoch: () => number
+  /**
+   * Stop the run under way at once, whatever it is doing but drawing: its late continuations do
+   * nothing; the staff and the state are left as they are, the operation idle.
+   */
+  readonly stop: () => void
 }
 
-/** How one attempt ended: drawn or kept retryable, too wide, ended the run, or superseded. */
-type AttemptOutcome = 'published' | 'too_wide' | 'ended' | 'stale'
+/**
+ * How one attempt ended: drawn or kept retryable, too wide, ended the run, superseded, or (on a
+ * ladder) its generation failed, for the ladder to move on.
+ */
+type AttemptOutcome = 'published' | 'too_wide' | 'ended' | 'stale' | 'generation_failed'
 
 /** Intent: normalize an unknown caught value to an Error without losing a non-Error's message. */
 export function toError(error: unknown): Error {
@@ -106,6 +154,8 @@ export function createFitRunner<TResult, TGenerated = TResult>(
   let freshToken = 0
   /** The session seed the latest run drew for the phrase it publishes; none before it needs one. */
   let runSessionSeed: Seed | undefined
+  /** The error of the ladder attempt whose generation failed last; a placeholder before one. */
+  let ladderFailure = new Error('fit run: no ladder attempt has failed')
 
   /**
    * Intent: the result a fitting or retryable attempt is published as: the generated phrase with
@@ -232,8 +282,11 @@ export function createFitRunner<TResult, TGenerated = TResult>(
    * attempt that ends published is accepted, and `onPublished` is told its intent.
    */
   // @spec-link [[module_phrase_replay_key]]
-  async function attempt(runToken: number): Promise<AttemptOutcome> {
-    const intent = deps.freshIntent()
+  async function attempt(
+    runToken: number,
+    freshIntent: () => GenerationIntent,
+  ): Promise<AttemptOutcome> {
+    const intent = freshIntent()
     const outcome = await settleAttempt(runToken, intent)
     if (outcome === 'published') deps.onPublished(intent)
     return outcome
@@ -250,8 +303,7 @@ export function createFitRunner<TResult, TGenerated = TResult>(
       result = await deps.generate(intent)
     } catch (error: unknown) {
       if (runToken !== token) return 'stale'
-      state.generationError = toError(error)
-      return 'ended'
+      return generationFailed(toError(error))
     }
     if (runToken !== token) return 'stale'
     let verdict: StaffFitVerdict
@@ -265,6 +317,19 @@ export function createFitRunner<TResult, TGenerated = TResult>(
     return afterVerdict(runToken, result, verdict)
   }
 
+  /**
+   * Intent: an attempt's generation failed: it ends the run on the generation error, or, on a
+   * ladder, is kept for the ladder to move on, the error shown only if no attempt is left.
+   */
+  function generationFailed(error: Error): AttemptOutcome {
+    if (deps.ladder !== undefined) {
+      ladderFailure = error
+      return 'generation_failed'
+    }
+    state.generationError = error
+    return 'ended'
+  }
+
   /** Intent: end the run on no phrase, as before a first one exists. */
   function endOnEmpty(runToken: number): boolean {
     deps.showEmpty()
@@ -276,16 +341,52 @@ export function createFitRunner<TResult, TGenerated = TResult>(
    * rhythm combination before an attempt, or once the last one fails too wide, ends it on Empty.
    */
   async function runAttempts(runToken: number, underNotice: boolean): Promise<boolean> {
+    if (deps.ladder !== undefined) return climbLadder(runToken, underNotice, deps.ladder.climb())
     for (let index = 0; index < FIT_RUN_ATTEMPTS; index += 1) {
       if (deps.isBlocked()) return endOnEmpty(runToken)
-      const outcome = await attempt(runToken)
+      const outcome = await attempt(runToken, deps.freshIntent)
       if (outcome === 'stale') return false
       if (outcome !== 'too_wide') return finish(runToken, outcome === 'published')
       state.retriesRunning = true
     }
+    return endTooWide(runToken, underNotice)
+  }
+
+  /** Intent: every attempt of the fit budget was too wide: Empty when blocked, else the notice. */
+  function endTooWide(runToken: number, underNotice: boolean): boolean {
     if (deps.isBlocked()) return endOnEmpty(runToken)
     showNotice('notes_too_wide', underNotice)
     return finish(runToken, false)
+  }
+
+  /**
+   * Intent: run a ladder's attempts from its first, with no deadline: a generation failure moves on
+   * to the ladder's next attempt, and the last one's ends the run on its error; a too-wide attempt
+   * is replaced on the same attempt with a fresh intent, until the fit budget is spent, as in a
+   * run of fresh intents; a blocked rhythm combination before an attempt ends it on Empty.
+   */
+  // @spec-link [[rule_held_doodle_phrase_one_at_idle]]
+  // @spec-link [[rule_idle_phrase_too_dense_is_replaced]]
+  async function climbLadder(
+    runToken: number,
+    underNotice: boolean,
+    climb: FitRunClimb,
+  ): Promise<boolean> {
+    let tooWide = 0
+    while (tooWide < FIT_RUN_ATTEMPTS) {
+      if (deps.isBlocked()) return endOnEmpty(runToken)
+      const outcome = await attempt(runToken, climb.intent)
+      if (outcome === 'stale') return false
+      if (outcome === 'generation_failed') {
+        if (climb.failed(ladderFailure)) continue
+        state.generationError = ladderFailure
+        return finish(runToken, false)
+      }
+      if (outcome !== 'too_wide') return finish(runToken, outcome === 'published')
+      tooWide += 1
+      state.retriesRunning = true
+    }
+    return endTooWide(runToken, underNotice)
   }
 
   /**
@@ -357,5 +458,18 @@ export function createFitRunner<TResult, TGenerated = TResult>(
     state.retriesRunning = false
   }
 
-  return { run, stopIfBlocked, showNotice, epoch: () => token }
+  /**
+   * Intent: stop the run under way, if any: its late continuations do nothing. A drawing in
+   * flight cannot be dropped, so stopping a run that draws is a caller defect.
+   */
+  function stop(): void {
+    if (!running) return
+    if (state.operation === 'notating') throw new Error('fit run: a run cannot stop while drawing')
+    token += 1
+    running = false
+    state.operation = 'idle'
+    state.retriesRunning = false
+  }
+
+  return { run, stopIfBlocked, showNotice, epoch: () => token, stop }
 }

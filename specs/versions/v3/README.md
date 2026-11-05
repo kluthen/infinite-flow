@@ -6,7 +6,8 @@ checks after the tag closed (D399; [v3.1.x notes](#v31x-notes-after-the-tag)); v
 master spec Part C v1.0, approved (D239), re-scoped with Jam as its own mode (D400–D408;
 [draft](jam-mode.md), settled) and consolidated from it as Part C v1.1 (D409), approved as v1.2
 (D410), its design approved (D412), its build plan approved (D416, D417) and its contract
-wording signed off (D421); v3.3 in master spec
+wording signed off (D421), the guide playback added to its scope after approval (D490; Part C
+§C19, build plan chunk 40); v3.3 in master spec
 Part D, awaiting owner approval (D264–D275), its build plan not approved (D276–D288, D351); v3.4,
 a structural review before v4, opened as a scoping draft (D389), with a lexicon page added as its
 one player-facing item (D393); v3.x direction only. The Status paragraphs this README kept until

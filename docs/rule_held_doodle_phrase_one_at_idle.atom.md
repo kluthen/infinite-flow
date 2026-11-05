@@ -10,6 +10,7 @@ parents:
   - [[rule_jam_again_on_this_doodle]]
 human_name: A Kept Doodle's Phrase 1 Is Ready at Idle
 dependents:
+  - [[module_kept_doodle]]
   - [[rule_jam_pregeneration_only_for_kept_doodle]]
   - [[rule_jam_setting_change_rewrites_kept_phrase_one]]
 ---

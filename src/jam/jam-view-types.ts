@@ -16,6 +16,7 @@ import type { MyInstrument } from '@/domain/profile/my-instrument'
 
 import type { DoodleReadings } from './doodle-controls'
 import type { JamSettings } from './jam-settings'
+import type { TapTempoNote } from './tap-tempo'
 
 /**
  * What Jam's staff shows at Idle: the empty system (`shown`), the no-room sentence instead
@@ -80,9 +81,21 @@ export interface JamWorkspaceProps extends JamStaffProps, JamViewNotice {
 }
 
 /**
+ * What `tap-tempo` in Jam's Tempo field shows: whether tap tempo listens, what its field-note
+ * says, and whether a controller is connected (the note's rest wording names it only then).
+ */
+// @spec-link [[rule_jam_tap_in_listening]]
+export interface JamTapTempoView {
+  readonly listening: boolean
+  readonly note: TapTempoNote
+  readonly controllerConnected: boolean
+}
+
+/**
  * What the workspace gives Jam's controls (`JamControls.vue`, in `control-section`'s place while
- * Jam mode shows): Jam's own settings, the shared instrument, whether they are read-only, and what
- * the doodle's readings show (null while no doodle is kept) at the window's width.
+ * Jam mode shows): Jam's own settings, the shared instrument, whether they are read-only, what
+ * the doodle's readings show (null while no doodle is kept) at the window's width, and what
+ * `tap-tempo` shows.
  */
 // @spec-link [[req_jam_settings]]
 export interface JamControlsProps {
@@ -99,4 +112,6 @@ export interface JamControlsProps {
   readonly readings: DoodleReadings | null
   /** The window is narrower than `bp-tablet-landscape`. */
   readonly belowTabletLandscape: boolean
+  /** What `tap-tempo` shows; it is disabled whenever the controls are read-only. */
+  readonly tapTempo: JamTapTempoView
 }

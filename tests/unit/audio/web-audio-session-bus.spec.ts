@@ -1,29 +1,18 @@
 /**
- * A session's Web Audio bus against a recording fake context: which path each click route and the
- * backing take to the speakers, the synthesized click's and backing notes' pitch, envelope and
- * lifetime, and the fade-out on stop that silences one session's bus without touching the next one.
+ * A session's Web Audio bus against a recording fake context: which path each click route, the
+ * backing and each guide take to the speakers, the synthesized click's and backing notes' pitch,
+ * envelope and lifetime, and the fade-out on stop that silences one session's bus without
+ * touching the next one. The guides' voices and their same-pitch re-attack are in
+ * ./web-audio-session-bus-guides.spec.ts.
  */
 
 import { describe, expect, it } from 'vitest'
 
-import { createWebAudioOutput } from '@/audio/web-audio-output'
-import {
-  createFakeWebAudioContext,
-  envelopeOf,
-  mixNode,
-  pathToDestination,
-} from './fake-web-audio-context'
+import { envelopeOf, pathToDestination } from './fake-web-audio-context'
+import { MIDDLE_C_HZ, setUp } from './web-audio-bus-rig'
 
-/** Intent: a fresh output on a fake context, with its four mix gains found. */
-function setUp() {
-  const fake = createFakeWebAudioContext()
-  const output = createWebAudioOutput(fake.port, fake.performanceNow)
-  const clickEnable = mixNode(output, fake, 'click-enable')
-  const clickVolume = mixNode(output, fake, 'click-volume')
-  const backingEnable = mixNode(output, fake, 'backing-enable')
-  const backingVolume = mixNode(output, fake, 'backing-volume')
-  return { fake, output, clickEnable, clickVolume, backingEnable, backingVolume }
-}
+/** How many mix gains the output builds before any bus opens: two per channel. */
+const MIX_GAIN_COUNT = 8
 
 // @test-link [[rule_count_in_always_clicks]]
 describe('click routes', () => {
@@ -54,7 +43,9 @@ describe('click routes', () => {
   it('opens each bus with its three fade gains, two click routes and the backing, at 1', () => {
     const { fake, output } = setUp()
     output.openSessionBus()
-    expect(fake.gains.slice(4).map((node) => node.gain.value)).toEqual([1, 1, 1])
+    expect(
+      fake.gains.slice(MIX_GAIN_COUNT, MIX_GAIN_COUNT + 3).map((node) => node.gain.value),
+    ).toEqual([1, 1, 1])
   })
 })
 
@@ -163,7 +154,7 @@ describe('fading a session out', () => {
     const { fake, output } = setUp()
     output.openSessionBus().fadeOut(5, 0.1)
 
-    const fades = fake.gains.slice(4)
+    const fades = fake.gains.slice(MIX_GAIN_COUNT, MIX_GAIN_COUNT + 3)
     expect(fades).toHaveLength(3)
     for (const fade of fades) {
       expect(fade.gain.calls).toEqual([
@@ -181,7 +172,7 @@ describe('fading a session out', () => {
     first.scheduleClick({ at: 1, accent: true, route: 'count-in' })
     first.fadeOut(1.5, 0.1)
 
-    const firstFades = fake.gains.slice(4, 6)
+    const firstFades = fake.gains.slice(MIX_GAIN_COUNT, MIX_GAIN_COUNT + 2)
     const gainsBefore = fake.gains.length
     const second = output.openSessionBus()
     const secondFades = fake.gains.slice(gainsBefore, gainsBefore + 2)
@@ -203,9 +194,6 @@ describe('fading a session out', () => {
   })
 })
 
-/** Intent: middle C's frequency in equal temperament, A4 = 440 Hz. */
-const MIDDLE_C_HZ = 440 * 2 ** ((60 - 69) / 12)
-
 // @test-link [[req_session_backing_track]]
 // @test-link [[req_session_audio_mix]]
 describe('the synthesized backing', () => {
@@ -216,7 +204,7 @@ describe('the synthesized backing', () => {
 
     const path = pathToDestination(fake.oscillators[0]!, fake.destination)
     expect(path).toHaveLength(6)
-    expect(path[2]).toBe(fake.gains[6])
+    expect(path[2]).toBe(fake.gains[MIX_GAIN_COUNT + 2])
     expect(path.slice(3)).toEqual([backingEnable, backingVolume, fake.destination])
   })
 
@@ -230,7 +218,7 @@ describe('the synthesized backing', () => {
 
     expect([...fake.accessedMembers].sort()).toEqual(['createGain', 'createOscillator'])
     expect(fake.oscillators).toHaveLength(2)
-    expect(fake.gains).toHaveLength(9)
+    expect(fake.gains).toHaveLength(MIX_GAIN_COUNT + 5 + 2)
   })
 
   // @test-link [[req_session_backing_track]]
@@ -303,5 +291,64 @@ describe('the synthesized backing', () => {
     expect(() => bus.scheduleBackingNote({ ...note, pitch: -1 })).toThrow(/pitch/)
     expect(() => bus.scheduleBackingNote({ ...note, pitch: 40.5 })).toThrow(/pitch/)
     expect(fake.oscillators).toEqual([])
+  })
+})
+
+// @test-link [[req_guide_playback]]
+// @test-link [[rule_stop_ends_session]]
+describe('the guide routes', () => {
+  // @test-link [[req_guide_playback]]
+  // @test-link [[req_session_audio_mix]]
+  it("sends each guide's notes through its own fade gain, its on/off gain, then its volume", () => {
+    const { fake, output, melodyEnable, melodyVolume, rhythmEnable, rhythmVolume } = setUp()
+    const bus = output.openSessionBus()
+    const fades = fake.gains.slice(MIX_GAIN_COUNT)
+    expect(fades.map((node) => node.gain.value)).toEqual([1, 1, 1, 1, 1])
+    bus.scheduleGuideNote({ role: 'melody-guide', pitch: 60, at: 2, until: 2.5 })
+    bus.scheduleGuideNote({ role: 'rhythm-guide', pitch: 60, at: 2, until: 2.5 })
+
+    const [melody, rhythm] = fake.oscillators
+    expect(pathToDestination(melody!, fake.destination).slice(2)).toEqual([
+      fades[3],
+      melodyEnable,
+      melodyVolume,
+      fake.destination,
+    ])
+    expect(pathToDestination(rhythm!, fake.destination).slice(2)).toEqual([
+      fades[4],
+      rhythmEnable,
+      rhythmVolume,
+      fake.destination,
+    ])
+  })
+
+  // @test-link [[rule_stop_ends_session]]
+  // @test-link [[req_guide_playback]]
+  it("ramps all five of the bus's fade gains, both guides' included, to silence", () => {
+    const { fake, output } = setUp()
+    output.openSessionBus().fadeOut(5, 0.1)
+
+    const fades = fake.gains.slice(MIX_GAIN_COUNT)
+    expect(fades).toHaveLength(5)
+    for (const fade of fades) {
+      expect(fade.gain.calls).toEqual([
+        ['cancelScheduledValues', 5],
+        ['setValueAtTime', 1, 5],
+        ['linearRampToValueAtTime', 0, 5 + 0.1],
+      ])
+    }
+  })
+
+  // @test-link [[rule_guide_sound_from_oscillators]]
+  it('creates only an oscillator and a gain per guide note, with no sample, buffer or fetch', () => {
+    const { fake, output } = setUp()
+    const bus = output.openSessionBus()
+    fake.accessedMembers.clear()
+    bus.scheduleGuideNote({ role: 'melody-guide', pitch: 67, at: 2, until: 2.5 })
+    bus.scheduleGuideNote({ role: 'rhythm-guide', pitch: 60, at: 2, until: 2.5 })
+
+    expect([...fake.accessedMembers].sort()).toEqual(['createGain', 'createOscillator'])
+    expect(fake.oscillators).toHaveLength(2)
+    expect(fake.gains).toHaveLength(MIX_GAIN_COUNT + 5 + 2)
   })
 })

@@ -10,6 +10,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { deriveExpectedNotes } from '@/domain/acknowledgement/expected-note'
+import type { ConcertEventTimeline } from '@/domain/events/timeline'
 import type { HarmonyEvent } from '@/domain/harmony/harmony-types'
 import { measureSeconds } from '@/session/session-timing'
 import type { SessionOutput } from '@/session/session-types'
@@ -47,9 +48,14 @@ function logQueuedBacking(rig: ControllerRig): QueuedBacking[] {
   const queued: QueuedBacking[] = []
   const queue = rig.transport.queueBacking
   Object.assign(rig.transport, {
-    queueBacking: (phraseNumber: number, harmony: readonly HarmonyEvent[], tempo: number) => {
+    queueBacking: (
+      phraseNumber: number,
+      harmony: readonly HarmonyEvent[],
+      timeline: ConcertEventTimeline,
+      tempo: number,
+    ) => {
       queued.push({ phraseNumber, harmony, tempo, onOutput: rig.outputs.at(-1) })
-      queue(phraseNumber, harmony, tempo)
+      queue(phraseNumber, harmony, timeline, tempo)
     },
   })
   return queued

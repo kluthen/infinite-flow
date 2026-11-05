@@ -108,7 +108,6 @@ import {
 } from '../../../src/components/workspace/create-workspace-session'
 import type { WorkspaceSessionResult } from '../../../src/composables/workspace-session-result'
 import type { GenerationIntent } from '../../../src/domain/generation/generation-intent'
-import type { HarmonyEvent } from '../../../src/domain/harmony/harmony-types'
 import { makeRequestId, type RequestId } from '../../../src/domain/generation/generation-request'
 import type {
   GenerationDiagnostics,
@@ -127,7 +126,12 @@ import {
   prewarmPolicyFromSearch,
   type WorkspacePregenerationPolicy,
 } from '../../../src/components/workspace/prewarm-policy'
-import { bindHarnessAudioStart, createHarnessAudio, harnessAudioMode } from './audio-seams'
+import {
+  bindHarnessAudioStart,
+  createHarnessAudio,
+  harnessAudioMode,
+  type HarnessShownPhrase,
+} from './audio-seams'
 import { createHarnessMidi, harnessMidiMode } from './midi-seams'
 import { createHarnessSessionBrowser } from './session-browser-seams'
 import { createHarnessSessionController } from './session-controller-seams'
@@ -318,7 +322,7 @@ function loadedMix(): SavedDataLoad['settings']['mix'] {
 
 const harnessAudio = createHarnessAudio(
   harnessAudioMode(window.location.search),
-  shownHarmony,
+  shownPhrase,
   loadedMix,
 )
 bindHarnessAudioStart(document, harnessAudio.startFromClick)
@@ -540,11 +544,12 @@ function selectPreset(id: string): boolean {
 }
 
 /**
- * Intent: the harmony of the phrase the workspace shows (its outcome's provenance), for the audio
- * seams' `queueBacking`. Throws before the session mounts or while no phrase is shown.
+ * Intent: the harmony (its outcome's provenance) and the concert timeline of the phrase the
+ * workspace shows, for the audio seams' `queueBacking`. Throws before the session mounts or while
+ * no phrase is shown.
  */
 // @test-link [[req_session_backing_track]]
-function shownHarmony(): readonly HarmonyEvent[] {
+function shownPhrase(): HarnessShownPhrase {
   if (workspace === null) {
     throw new Error('Workspace harness: queueBacking() was called before the session mounted.')
   }
@@ -552,7 +557,10 @@ function shownHarmony(): readonly HarmonyEvent[] {
   if (result === null) {
     throw new Error('Workspace harness: queueBacking() needs a shown phrase; generate one first.')
   }
-  return result.outcome.provenance.harmony.events
+  return {
+    harmony: result.outcome.provenance.harmony.events,
+    timeline: result.outcome.result.timeline,
+  }
 }
 
 const harnessApi: WorkspaceHarnessApi = {
