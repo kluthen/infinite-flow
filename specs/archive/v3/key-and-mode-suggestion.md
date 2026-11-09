@@ -1,6 +1,13 @@
 # v3.2 — Key and Mode Suggestion
 
-Status: draft v2 (2026-10-08; terms aligned with D237 and D238 the same day, no behaviour changed). **Re-scope (2026-10-21, spec D400–D405):** Jam becomes its own mode; where [jam-mode.md](jam-mode.md) differs, this draft is to change.
+> **Archived 2026-11-09.** v3.2 is released as version 3.2.0 (tag `v3.2.0`, f93e552d); this
+> approved draft was consolidated into the v3 master spec (D234, D238, D239), then re-scoped with
+> Jam as its own mode (D400–D410). Live summary:
+> [master spec Part C](../../versions/v3/master-spec.md#part-c--v32).
+> Relative links were written from `specs/versions/v3/`; their paths were repaired on 2026-11-09
+> so they resolve from this folder.
+
+Status: draft v2 (2026-10-08; terms aligned with D237 and D238 the same day, no behaviour changed). **Re-scope (2026-10-21, spec D400–D405):** Jam becomes its own mode; where [jam-mode.md](../../versions/v3/jam-mode.md) differs, this draft is to change.
 Approved by the owner as proposed (D234). Every item below is settled and cites its decision; the
 gaps closed while settling the draft cite "draft v2".
 
@@ -111,7 +118,7 @@ Settled by D234, apart from what cites draft v2.
 
 - **Use it** sets Written key and Collection exactly as if the player had changed them by hand,
   and pre-generated phrases are discarded
-  ([v3.0 master spec §8](master-spec.md#8-pre-generating-phrases-at-idle)). The choice is saved
+  ([v3.0 master spec §8](../../versions/v3/master-spec.md#8-pre-generating-phrases-at-idle)). The choice is saved
   like any setting. Under a v3.1 preset whose restriction excludes the answer, the selection then
   reads Custom (D231).
 - **What Use it regenerates** (D237, D238). Without a held doodle, nothing: like any change at
@@ -130,7 +137,7 @@ Settled by D234, apart from what cites draft v2.
 - **Vary settings** is unaffected: the suggestion is a one-time setting change by the player; Vary
   settings, when on, mutates from the confirmed key and mode during the next session (O121).
 - **A visit that saves nothing** (draft v2): in an outdated tab or after a failed read
-  ([v3.0 master spec §4.3, §4.4](master-spec.md#44-loading-saved-settings)), the suggestion, Use it
+  ([v3.0 master spec §4.3, §4.4](../../versions/v3/master-spec.md#44-loading-saved-settings)), the suggestion, Use it
   and Keep mine work in memory for that visit; nothing is saved, the decline included.
 
 ## 5. When nothing is suggested
@@ -153,7 +160,7 @@ Settled by D216 and D234, apart from what cites draft v2.
   suggestion" and "the same doodle always gives the same suggestion, so a phrase replay key still
   reproduces a session" disagreed, and the second reason did not hold (the suggestion changes no
   phrase on its own). Settled (D234): "the same doodle always gives the same suggestion" (§2); the
-  [v3 README](README.md#key-and-mode-suggestion) now says so.
+  [v3 README](../../versions/v3/README.md#key-and-mode-suggestion) now says so.
 - **"A running session never asks"** against "the player confirms": settled by placement (§3,
   D234).
 - **Listening check before the gate**: the owner hears a handful of doodles and their suggestions

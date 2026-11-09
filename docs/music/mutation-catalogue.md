@@ -7,7 +7,7 @@ Status: research v1 (2026-10-07)
 > a **bend** as either a **rhythm change** (a small edit the player allows, lasting one phrase) or
 > a **forced bend** (the search's fallback when the locked rhythm cannot make a phrase); the
 > **allowed list** of Vary settings as its **allowed groups**, whose "Style" group is named
-> **Figures**. What was decided is in the [rhythm lock draft](../../specs/versions/v3/rhythm-lock.md)
+> **Figures**. What was decided is in the [rhythm lock draft](../../specs/archive/v3/rhythm-lock.md)
 > and the [v3 master spec, Part C](../../specs/versions/v3/master-spec.md#part-c--v32).
 
 ## Purpose

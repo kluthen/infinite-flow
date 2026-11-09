@@ -12,7 +12,7 @@ v3.1 and v3.2 design started at the `ui_ux/` root (its links were repointed ther
 what the app does is in the master spec, what the interface looks like is in the design set, and
 where this plan disagrees with either, they win and the plan is corrected. The code facts it
 relies on are in [storage-grounding.md](../../archive/v3/storage-grounding.md); the generation-worker facts that
-pre-generation needs are in [jam-grounding.md](jam-grounding.md#a7-performance-budget).
+pre-generation needs are in [jam-grounding.md](../../archive/v3/jam-grounding.md#a7-performance-budget).
 
 It is read by whoever builds v3.0, and by the owner. Music terms are explained where they first
 appear, with a link to the project [lexicon](../../../docs/music/lexicon.md) when it has an entry.

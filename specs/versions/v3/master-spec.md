@@ -2359,9 +2359,9 @@ written in. v1.1 rebuilds this part from the settled re-scope
 of its own, and refreshes the code facts against version 3.1.0. It adds no behaviour beyond that
 re-scope; where the re-scope left a choice open, this part says so and proposes an answer (C17).
 
-v1.0 (2026-10-08) was consolidated from the approved drafts [jam.md](jam.md),
-[key-and-mode-suggestion.md](key-and-mode-suggestion.md) and [rhythm-lock.md](rhythm-lock.md), with
-the code facts of [jam-grounding.md](jam-grounding.md), and approved by the owner on 2026-10-08,
+v1.0 (2026-10-08) was consolidated from the approved drafts [jam.md](../../archive/v3/jam.md),
+[key-and-mode-suggestion.md](../../archive/v3/key-and-mode-suggestion.md) and [rhythm-lock.md](../../archive/v3/rhythm-lock.md), with
+the code facts of [jam-grounding.md](../../archive/v3/jam-grounding.md), and approved by the owner on 2026-10-08,
 who confirmed the contract wording of C13 the same day. v1.1 changes that wording: it was signed
 off again, once, for the whole re-scope, on 2026-10-22 (C13, D421). Where the drafts and this part differ, this part
 wins. v3.2 is built on v3.0 (Part A) and v3.1 (Part B), both released (3.1.0 on 2026-10-21): their
@@ -3606,7 +3606,7 @@ write as one of its own rhythms. Only adding or removing a rest changes how much
 silent; the other four keep it. The shares are the share of rhythm candidates with at least one
 such change available among the other candidates of their own settings and tension, pooled over
 every supported setting and tension (284 domains, 51,312 candidates); the shares by group are in
-[jam-grounding §D.2](jam-grounding.md#d2-what-the-rhythm-domain-offers-a-locked-rhythm).
+[jam-grounding §D.2](../../archive/v3/jam-grounding.md#d2-what-the-rhythm-domain-offers-a-locked-rhythm).
 
 | Kind | Exactly | Distance | Where the grammar offers it |
 | --- | --- | --- | --- |
@@ -4344,7 +4344,7 @@ eligible and a throw when no move exists.
 
 _Changed in v1.1:_ facts refreshed against version 3.1.0 (5ef47a0, 2026-10-21); the shipped
 stray-note filter and replay keys; Jam mode's facts and risks added. File references are in
-[jam-grounding.md](jam-grounding.md#e-refresh-at-v310-2026-10-21) and
+[jam-grounding.md](../../archive/v3/jam-grounding.md#e-refresh-at-v310-2026-10-21) and
 [Jam mode §4](jam-mode.md#4-the-generator-seam).
 _Changed in v1.4:_ the contract's risk closed by the sign-off (D421).
 _Changed in v1.15:_ the generator worker's chunk budget, 170 KiB (D451).

@@ -471,7 +471,7 @@ one line reference and added the last seven rows (spec D511).
 - **The colour-chord sets change if they are measured on seventh chords** (table above), so a
   modal plan's candidates would change when sevenths are allowed unless colour chords stay
   measured on the triad (inference).
-- **The replay key after v3.2 is `ifk4.`** (`specs/versions/v3/rhythm-lock.md`, D251), so a
+- **The replay key after v3.2 is `ifk4.`** (`specs/archive/v3/rhythm-lock.md`, D251), so a
   richer-chord key is the one after `ifk4.`, not after `ifk3.` as O171's text says.
 - **`module_notation_display_convention` already speaks of extensions**, so the written-pitch
   convention needs no new rule for richer chords.

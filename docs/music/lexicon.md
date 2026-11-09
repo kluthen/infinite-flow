@@ -435,7 +435,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **definition:** A pitch class groups every pitch that shares a note name, whatever its octave: C2, C4 and C6 all belong to pitch class C. Notes that sound the same under different names, such as C-sharp and D-flat, count as one pitch class too, so there are exactly 12. Musicians use the idea whenever the octave does not matter, for example when asking which notes a melody uses, or which scale contains them all.
 - **in_infinite_flow:** The Written key control offers the 12 pitch classes as home notes. The key and mode suggestion (v3.2) works with pitch classes: it suggests nothing for a doodle with fewer than 5 different ones (spec decision D216).
 - **related:** `note-name`, `pitch`, `octave`, `enharmonic`, `key-finding`, `key-profile`, `key-and-mode-suggestion`
-- **sources:** S78, S14, docs/music/key-and-mode-estimation.md, specs/versions/v3/key-and-mode-suggestion.md
+- **sources:** S78, S14, docs/music/key-and-mode-estimation.md, specs/archive/v3/key-and-mode-suggestion.md
 
 ### Plop
 
@@ -615,7 +615,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **definition:** A count-in is a short stretch of counted beats before the music begins, usually one or two measures: "one, two, three, four". It sets the tempo and shows where beat 1 falls, so everyone starts together and in time. A band leader counts off a tune out loud; recording software plays a measure of metronome clicks before it starts recording.
 - **in_infinite_flow:** Every session starts with one measure of count-in, heard as clicks (even with the click switched off) and counted on screen, while phrase 1 is already shown so you can read ahead. A Start click or the starting note begins it. Since v3.0 (spec decision D297), if you changed a setting after the phrase on screen was made, so the phrase is out of date, Start and the starting note first ask whether to make a new phrase or start with this one, and the count-in begins only if you start with this one. In a fresh Jam, built in v3.2, the doodle is played only after the count-in, and the click goes on through the doodle and the two measures before phrase 1 (spec decision D234); a Jam on a kept doodle plays no doodle, so its count-in leads straight into phrase 1.
 - **related:** `tempo`, `beat`, `measure`, `cue`, `starting-note`, `jam`
-- **sources:** specs/versions/v2/master-spec.md, specs/versions/v3/master-spec.md, specs/versions/v3/jam.md
+- **sources:** specs/versions/v2/master-spec.md, specs/versions/v3/master-spec.md, specs/archive/v3/jam.md
 
 ### Diminution
 
@@ -775,7 +775,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **definition:** Nobody plays exactly on the beat: real notes land a little early or late. Quantizing moves each note's start, and often its end, to the nearest point of a chosen grid, such as every sixteenth note, so the timing lines up neatly. Recording software and MIDI sequencers use it to tidy a performance or to turn it into readable notation. A fine grid keeps more of the player's timing; a coarse one tidies more but can move a note onto the wrong beat.
 - **in_infinite_flow:** Built in v3.2 for Jam (spec decision D234). The app quantizes the doodle once, when it ends, to its sixteenth-note grid (the tick) at every tempo, so a note moves at most half a sixteenth (about 42 ms at 180 BPM, Jam's top tempo; spec decision D506). Starts and ends both snap, and every note keeps at least one tick. Overlapping notes become one line: a later start ends the earlier note, and when two notes snap to the same tick the longer stays (on equal length, the higher). The quantized doodle is what the app uses and shows in the review; the raw notes stay private played notes.
 - **related:** `tick`, `sixteenth-note`, `subdivision`, `doodle`, `jam`
-- **sources:** specs/versions/v3/jam.md, specs/decisions.md
+- **sources:** specs/archive/v3/jam.md, specs/decisions.md
 
 ### Quarter note
 
@@ -1194,7 +1194,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **definition:** A motif is the smallest piece of music that sounds like an idea of its own: a handful of notes with a recognizable rhythm and shape. Composers and improvisers build longer music by bringing a motif back, sometimes as it was, often changed: higher or lower, faster or slower, decorated, upside down or cut short. The opening four notes of Beethoven's Fifth Symphony are a famous motif. Both spellings, motif and motive, are correct.
 - **in_infinite_flow:** In Jam, built in v3.2, the player plays a motif for the app to continue; the app calls it a doodle (see Doodle). A played signal would also be a motif, one used to steer the app instead of as music. The app's own word "figure" means something else: one kind of embellishment (see Figure level).
 - **related:** `motivic-development`, `phrase`, `rhythm`, `contour`, `interval`, `riff`, `leitmotif`, `played-signal`, `doodle`
-- **sources:** S40, S82, S14, specs/versions/v3/jam.md
+- **sources:** S40, S82, S14, specs/archive/v3/jam.md
 
 ### Motivic development
 
@@ -1204,7 +1204,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **definition:** Motivic development is the craft of making music from a small idea by changing some of its features while keeping others, so each new version sounds both fresh and related. The usual tools are repetition, sequence (the idea moved higher or lower), inversion (upside down), changes of rhythm, augmentation and diminution (slower or faster), fragmentation (using only a piece of it) and ornamentation (added decorating notes). Change too much and the link to the original is lost.
 - **in_infinite_flow:** Jam, built in v3.2, develops the player's doodle only loosely: its phrases match the doodle's shape (a rhythm close to it, the same ups and downs), never quoting its notes, and Drift sets how close they stay (spec decision D234). Developing it by named tools, such as a sequence or an inversion, is later work. The mutation catalogue (docs/music/mutation-catalogue.md) lists the tools and how far each one drifts from the original.
 - **related:** `motif`, `sequence`, `melodic-inversion`, `fragmentation`, `augmentation`, `doodle`, `control-drift`
-- **sources:** S41, S49, docs/music/mutation-catalogue.md, specs/versions/v3/jam.md
+- **sources:** S41, S49, docs/music/mutation-catalogue.md, specs/archive/v3/jam.md
 
 ### Neighbor tone
 
@@ -2937,7 +2937,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **definition:** Allowed rhythm changes is the app's name for a list of small rhythm edits you can switch on while the rhythm lock holds one rhythm, such as splitting one note into two. Musicians vary a repeated rhythm this way to keep it alive while it stays recognizable. Each kind you allow is one kind of edit the app may make, now and then, to the locked rhythm. One such edit in a phrase is called a rhythm change.
 - **in_infinite_flow:** Built in v3.2 in both modes, each with its own list (spec decisions D232, D234, D236): session mode's under the Rhythm lock in "During a session", Jam mode's under Jam's Rhythm lock in "Following your doodle". Jam mode's list is one of spec decision D406's provisional answers, to be confirmed by the owner's checks after the 3.2.0 tag (spec decision D521). Five kinds, each on or off, all off by default, so the lock is strict unless you allow some: **move a note start** by a sixteenth or an eighth, **move a rest**, **split a note**, **merge two notes**, **add or remove a rest**. A rhythm change is one edit in one measure, or one made in measure 1 or 2 and repeated in measure 3 or 4. At most one per phrase, never in phrase 1, in about 1 phrase in 2 (3 in 4 on the tenser phrase of Tension across phrases). Each is measured from the locked rhythm and lasts one phrase, so changes never add up, and none is ever marked on screen. Which kinds can happen depends on the rhythm settings: under Strict variety with Straight syncopation there is almost nothing to change, and no candidate means no change. Session mode's list is set at Idle or in the review and saved like the session options; Jam mode's is set at Jam's Idle and saved with Jam's settings; presets never hold either. It acts only while its mode's lock is on.
 - **related:** `control-rhythm-lock`, `forced-bend`, `rest`, `syncopation`, `control-rhythmic-variety`, `control-tension-across-phrases`
-- **sources:** S56, specs/versions/v3/rhythm-lock.md, docs/music/mutation-catalogue.md, specs/decisions.md
+- **sources:** S56, specs/archive/v3/rhythm-lock.md, docs/music/mutation-catalogue.md, specs/decisions.md
 
 ### Arpeggio chaos
 
@@ -3137,7 +3137,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **definition:** Rhythm lock is the app's switch for practicing with one rhythm repeated while the melody changes, as musicians do when they keep a rhythm and try new notes over it. With the rhythm settled, your eyes can go to the pitches. The locked rhythm is every note start and length, and so every rest, across the four measures.
 - **in_infinite_flow:** Built in v3.2 in both modes (spec decisions D232, D234, D236, D401, D410): session mode's first in "During a session", Jam mode's in Jam's "Following your doodle". Jam mode's lock is one of spec decision D406's provisional answers, to be confirmed by the owner's checks after the 3.2.0 tag (spec decision D521). Off by default; presets never hold it. Each mode has its own: session mode's is set at Idle or in the review and saved like the session options, Jam mode's is set at Jam's Idle and saved with Jam's settings, and neither reaches the other. In session mode it locks the rhythm of phrase 1, the phrase on screen at Start; in a Jam, phrase 1's rhythm chosen nearest the doodle, whatever the drift (locking the exact played rhythm waits for v4's rhythm editor). The lock is strict: a phrase leaves the locked rhythm only through an allowed rhythm change (none by default; each mode keeps its own list) or, when the locked rhythm cannot make a phrase, a forced bend; either lasts one phrase and is never marked. In session mode, while the lock is on, Vary settings never moves the rhythm settings. If a session steps Sixteenth down to Eighth on a narrow screen, the first Eighth phrase's rhythm becomes the locked one.
 - **related:** `control-allowed-rhythm-changes`, `forced-bend`, `rhythm`, `control-drift`, `control-vary-settings`, `jam`
-- **sources:** specs/versions/v3/master-spec.md, specs/versions/v3/jam-mode.md, specs/decisions.md, specs/versions/v3/rhythm-lock.md
+- **sources:** specs/versions/v3/master-spec.md, specs/versions/v3/jam-mode.md, specs/decisions.md, specs/archive/v3/rhythm-lock.md
 
 ### Rhythmic variety
 
@@ -3227,7 +3227,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **definition:** Vary settings is the app's own name for an option that keeps a long session fresh. Instead of every phrase being built from the same settings, one setting at a time drifts by a small step, up or down, every few phrases, while you keep playing. The project's documents call it the "settings-mutation flag".
 - **in_infinite_flow:** **Off** (default) or **On**, in the "During a session" group. While on, every 2 to 4 phrases (the gap is picked at random) one setting moves one step, in either direction. Any setting can move except Instrument profile and Tempo, which has Rising tempo instead. A step usually means one place along a control's list, never jumping from one end to the other. Some controls step their own way: Contour, whose shapes have no order, can change to any other shape; Register moves only among Low, Middle and High, never to Varying (from Varying it starts from the window the session was using, then keeps a fixed one); Written key moves one place around the circle of fifths (usually one sharp or flat more or fewer in the key signature); Collection moves one place at a time and stays among major and minor, or among the modes; Written key and Collection moves stay inside the key and mode restriction in force at the session's start. The figure levels move by a figure step: one figure moves one figure level, up or down, never past Off or Very often, and the seven levels together take one place in the draw (spec decisions D233, D235). A step never lands on an unsupported rhythm combination: the app picks again instead. During the session the controls show the settings the phrase now sounding was built from, changing quietly when a phrase built with a new value starts. When the session ends, every setting goes back to your own. A move of any preset-held setting (one of the ten controls or a figure level) marks Custom for that session; Written key and Collection moves never do. Changing the option never regenerates the phrase on screen; the choice lasts until you reload the page. **From v3.2** (built; spec decisions D216, D234, D236), **What may vary**, the allowed groups, lets you choose which settings may move, in six groups switched on or off together, all on by default: **Key and mode** (Written key, Collection), **Harmony** (Harmonic motion), **Tension**, **Rhythm** (Note density, Rhythmic variety, Syncopation, Silence density), **Melody shape** (Contour, Register, Leapiness, Arpeggio chaos) and **Figures** (the figure step). They are set at Idle or in the review and saved with the option. While the rhythm lock is on, the Rhythm group never moves. If the allowed groups offer no possible move, Vary settings cannot be turned on, and the app says why; your choice is kept and comes back as soon as a move exists.
 - **related:** `control-rising-tempo`, `control-tension-across-phrases`, `control-musical-profile-preset`, `control-figure-level`, `key-and-mode-restriction`, `custom`, `control-rhythm-lock`, `unsupported-rhythm-combination`
-- **sources:** specs/versions/v2/master-spec.md, ui_ux/screens/phrase-workspace/handoff.md, specs/archive/v3/embellishment-flags.md, specs/versions/v3/rhythm-lock.md, specs/decisions.md
+- **sources:** specs/versions/v2/master-spec.md, ui_ux/screens/phrase-workspace/handoff.md, specs/archive/v3/embellishment-flags.md, specs/archive/v3/rhythm-lock.md, specs/decisions.md
 
 ### Written key
 
@@ -3249,7 +3249,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **definition:** A forced bend is the search's fallback under the rhythm lock. Sometimes the locked rhythm is not among the rhythms a phrase's settings allow (a change of tension can remove it), or no phrase can be built on it. The phrase then takes the nearest rhythm that works, nearest by the same per-measure distance drift uses, and the next phrase tries the locked rhythm again. It is not a player option, and not a rhythm change.
 - **in_infinite_flow:** Built in v3.2 for the rhythm lock of both modes (spec decisions D234, D236). It cannot be turned off, and happens with an empty list of allowed rhythm changes too. It is recorded in the session history only, never shown. Measured in session mode: only a step down from Build to Lift tension can lose the locked rhythm, so forced bends come from Tension across phrases when the chosen tension is Build, from a Vary settings Tension step from Build to Lift, and from the narrow-window step-down to Eighth. Earlier drafts' "bend" is split into "rhythm change" (the player's option) and "forced bend" (D236).
 - **related:** `control-rhythm-lock`, `control-allowed-rhythm-changes`, `control-drift`, `control-tension-across-phrases`
-- **sources:** specs/versions/v3/rhythm-lock.md, specs/decisions.md
+- **sources:** specs/archive/v3/rhythm-lock.md, specs/decisions.md
 
 ### Gesture and answer
 

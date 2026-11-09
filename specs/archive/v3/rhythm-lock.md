@@ -1,6 +1,13 @@
 # v3.2 — Rhythm Lock, Allowed Rhythm Changes, Vary Settings' Allowed Groups and Jam's Drift
 
-Status: draft v2 (2026-10-08; terms aligned with D237 and D238 the same day, no behaviour changed). **Re-scope (2026-10-21, spec D400–D405):** Jam becomes its own mode; where [jam-mode.md](jam-mode.md) differs, this draft is to change.
+> **Archived 2026-11-09.** v3.2 is released as version 3.2.0 (tag `v3.2.0`, f93e552d); this
+> approved draft was consolidated into the v3 master spec (D232, D234, D238, D239), then
+> re-scoped with Jam as its own mode (D400–D410). Live summary:
+> [master spec Part C](../../versions/v3/master-spec.md#part-c--v32).
+> Relative links were written from `specs/versions/v3/`; their paths were repaired on 2026-11-09
+> so they resolve from this folder.
+
+Status: draft v2 (2026-10-08; terms aligned with D237 and D238 the same day, no behaviour changed). **Re-scope (2026-10-21, spec D400–D405):** Jam becomes its own mode; where [jam-mode.md](../../versions/v3/jam-mode.md) differs, this draft is to change.
 Approved by the owner: the lock and its allowed rhythm changes by D232, everything else as proposed
 by D234. Every item below is settled and cites its decision; the gaps closed while settling the
 draft cite "draft v2".
@@ -63,7 +70,7 @@ Plain words used here, one term per concept in all three v3.2 documents:
   superseded the rest of it (D234): §4.
 - **Wider mutation options are v4** (D232): changes that stay, the catalogue's larger mutations,
   and mutations under the rhythm editor's own rhythm
-  ([v4](../v4/README.md#placed-here-proposed)).
+  ([v4](../../versions/v4/README.md#placed-here-proposed)).
 - **A switch of its own**, not reached through the Custom note density (D216). Custom and O100 are
   v4 (D211).
 - **Two kinds of mutation, kept apart** (D216, closing O118): Vary settings gets the player-chosen
@@ -83,7 +90,7 @@ Plain words used here, one term per concept in all three v3.2 documents:
 - **Phrase 1 never takes a rhythm change** (draft v2): it is the locked rhythm. Changes may start
   with phrase 2.
 - **Narrow windows** (D234, O153). When a session steps note density down to `Eighth` under v2's
-  narrow-window rule ([v2 master spec §5](../v2/master-spec.md#5-control-changes-during-a-session))
+  narrow-window rule ([v2 master spec §5](../../versions/v2/master-spec.md#5-control-changes-during-a-session))
   and the locked rhythm uses sixteenth notes, the first phrase generated with `Eighth` takes the
   nearest `Eighth` rhythm (the distance of §6), and that rhythm becomes the locked one for the rest
   of the session.
@@ -94,7 +101,7 @@ Plain words used here, one term per concept in all three v3.2 documents:
 
 - **A list of edit kinds, each on or off**, all off by default (§3.2 lists them). Set at Idle or in
   the review, like every setting, and saved like the three "During a session" options
-  ([v3.0 master spec §4.2](master-spec.md#42-what-is-saved-automatically)) (draft v2).
+  ([v3.0 master spec §4.2](../../versions/v3/master-spec.md#42-what-is-saved-automatically)) (draft v2).
 - **It acts only while the lock is on** (draft v2). With the lock off, the list is kept and does
   nothing; how that shows is `ux-writer`'s.
 - **Presets neither hold nor change it**, nor the lock or the drift (draft v2): v3.1 presets hold
@@ -165,7 +172,7 @@ leaves the lock strict (§3.3). How the list's description says so is `ux-writer
   the phrase keeps the locked rhythm; nothing is shown, and the session history records it.
 - **A change is never shown** (D234): nothing in the live view, the review or the exports marks it.
   The player reads the notes as written; v2 likewise never marks a repeated phrase or an automatic
-  setting change ([v2 master spec §5](../v2/master-spec.md#5-control-changes-during-a-session)).
+  setting change ([v2 master spec §5](../../versions/v2/master-spec.md#5-control-changes-during-a-session)).
 - **The next phrase returns** to the locked rhythm (D232), or draws afresh.
 
 ## 4. The forced bend (D234)
