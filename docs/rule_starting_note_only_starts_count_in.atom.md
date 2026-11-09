@@ -11,7 +11,7 @@ dependents:
 type: RULE
 layer: BUSINESS
 human_name: Starting Note Only Starts the Count-In
-tags: [v2, release-v2.0, session, session-start, midi, changes-in-v3.2]
+tags: [v2, release-v2.0, session, session-start, midi]
 ---
 
 # Starting Note Only Starts the Count-In

@@ -1,6 +1,6 @@
 ---
 id: rule_jam_start_conditions
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 version: 0.2

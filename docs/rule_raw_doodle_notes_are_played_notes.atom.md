@@ -1,6 +1,6 @@
 ---
 id: rule_raw_doodle_notes_are_played_notes
-status: DRAFT
+status: REVIEW
 version: 0.1
 human_name: The Doodle's Raw Notes Stay Played Notes
 tags: [v3, release-v3.2, session, jam, privacy, midi]

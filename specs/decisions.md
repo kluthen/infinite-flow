@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.132
+Status: draft v2.133
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -38,7 +38,8 @@ range; D259–D260 (style packs, planned with no version, and the sound ban; mer
 opened); D392, D396 and D397 (v3.1's release gate, whose hand checks H3–H5 and their waiting
 promotions are still open); D393–D395 (the lexicon page in v3.4, its single source, the lexicon
 API later); D398 (v3.1 released and archived); and D511–D519 (v3.3 refreshed against v3.2 as
-built, proposed with Part D). D289 is unused.
+built, proposed with Part D); D520–D523 (v3.3 approved; v3.2's release, its contract as
+built and its go). D289 is unused.
 
 ## Decision Log
 
@@ -1307,3 +1308,17 @@ built, proposed with Part D). D289 is unused.
   [build plan v3.2, chunk 27](versions/v3/build-plan-v3.2.md#chunk-27--v32-release-gate),
   [Part C §C16](versions/v3/master-spec.md#c16-definition-of-done),
   [build plan v3.3, gate R0](versions/v3/build-plan-v3.3.md#gates).
+
+- **D522 (2026-11-09): v3.2's contract stated as built, seven MAJOR bumps to CONTRACT 14.0.0 (a
+  clarification).** The release-notes writer found C13 counting three bumps and item 49, C17 and
+  chunk 27 naming 8.0.0's one sign-off; the owner signed each of 8.0.0 to 14.0.0 (release notes
+  item 49). No ruling changes. Now in:
+  [Part C §C13](versions/v3/master-spec.md#c13-what-v32-changes-in-v2-v30-and-v31-guarantees-and-atoms),
+  [build plan v3.2, chunk 27](versions/v3/build-plan-v3.2.md#chunk-27--v32-release-gate).
+
+- **D523 (2026-11-09): the owner gives his go; `3.2.0` is tagged on `main` now, its checks after
+  the tag (D521, as D397 for v3.1); gate R0 of v3.3 clears.** After the release sync, the owner:
+  "Accept all (Recommended)", "Keep all 23 at review (Recommended)", "Merge and tag
+  (Recommended)", "Push main + tag". Now in:
+  [build plan v3.2, chunk 27](versions/v3/build-plan-v3.2.md#chunk-27--v32-release-gate),
+  [build plan v3.3, gates](versions/v3/build-plan-v3.3.md#gates).

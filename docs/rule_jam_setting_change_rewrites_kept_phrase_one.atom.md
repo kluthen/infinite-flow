@@ -1,6 +1,6 @@
 ---
 id: rule_jam_setting_change_rewrites_kept_phrase_one
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 parents:

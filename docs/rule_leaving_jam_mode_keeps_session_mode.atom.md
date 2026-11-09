@@ -1,6 +1,6 @@
 ---
 id: rule_leaving_jam_mode_keeps_session_mode
-status: DRAFT
+status: REVIEW
 tags: [v3, release-v3.2, jam, session-mode, idle, generation]
 parents:
   - [[req_jam]]

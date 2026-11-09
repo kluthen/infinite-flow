@@ -17,7 +17,7 @@ dependents:
   - [[service_headless_phrase_replay]]
 version: 0.3
 priority: 1
-tags: [seed, determinism, regeneration, changes-in-v3.2]
+tags: [seed, determinism, regeneration]
 parents:
   - [[req_four_measure_phrase]]
 ---

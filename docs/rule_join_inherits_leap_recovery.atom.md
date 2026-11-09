@@ -5,7 +5,7 @@ layer: BUSINESS
 version: 0.3
 priority: 1
 human_name: Leap Recovery Carries Across a Join
-tags: [v2, release-v2.0, session, phrase-join, leaps, changes-in-v3.2]
+tags: [v2, release-v2.0, session, phrase-join, leaps]
 parents:
   - [[rule_join_carry_in_limited]]
   - [[rule_leap_recovery]]

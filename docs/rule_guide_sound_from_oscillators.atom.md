@@ -1,6 +1,6 @@
 ---
 id: rule_guide_sound_from_oscillators
-status: DRAFT
+status: REVIEW
 dependents: []
 human_name: The Guides Sound From the Browser's Oscillators Only
 type: RULE

@@ -13,7 +13,7 @@ dependents:
   - [[rule_kept_played_notes_deletable]]
 type: RULE
 human_name: Played Notes Kept Only After Opt-In
-tags: [v3, release-v3.0, storage, midi, privacy, changes-in-v3.2]
+tags: [v3, release-v3.0, storage, midi, privacy]
 ---
 
 # Played Notes Kept Only After Opt-In

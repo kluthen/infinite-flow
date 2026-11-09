@@ -48,6 +48,10 @@
  * - **A Jam** (v3.2 chunk 30): the storage half again, after a fresh Jam whose doodle and phrase 1
  *   were played: its quantized doodle is in the body, and no raw doodle note and no played note is
  *   stored while `Keep my played notes` is off.
+ * - **Jams kept** (v3.2 release gate): the network half again, watched from before the first load,
+ *   over two kept Jams: one pinned with `Keep my played notes` off, its raw doodle notes not kept,
+ *   one with it on, its raw doodle notes kept as played notes. A reload reads both back, each is
+ *   reopened from the session list and the second's played notes are exported: nothing is sent.
  */
 import {
   expect,
@@ -90,6 +94,7 @@ import {
 } from '../workspace/preset-management-helpers'
 import {
   HELD_NOTE_SECONDS,
+  REVIEW_TITLE,
   STEM,
   backingTrackToggle,
   collectDownloads,
@@ -109,6 +114,7 @@ import {
 } from './review-helpers'
 import { keyedRecords, pinButton, star, summaryOf } from './review-tools-helpers'
 import {
+  allSessions,
   keyStartedAt,
   rowOpen,
   rows,
@@ -638,6 +644,99 @@ test.describe('a session under a network and storage spy', () => {
     expect(
       (await sessionState(page)).lastHistoryPhrases?.flatMap((p) => p.playedNotes),
     ).toHaveLength(1)
+  })
+
+  // v3.2 release gate: the network half with Jams. Two Jams kept, the first pinned with its raw
+  // doodle notes not kept, the second with them kept, read back and reopened after a reload.
+  // @test-link [[rule_session_data_never_sent_or_stored]]
+  // @test-link [[rule_optional_midi_privacy]]
+  // @test-link [[rule_raw_doodle_notes_are_played_notes]]
+  // @test-link [[module_kept_jam_session]]
+  test('Jams kept with their raw doodle notes kept and not kept, read back after a reload and reopened, send nothing', async ({
+    context,
+    page,
+  }) => {
+    test.setTimeout(180_000)
+    await installPrivacySpy(page)
+    const network = spyOnNetwork(context, page)
+    const downloads: Downloads = collectDownloads(page)
+    /**
+     * Intent: from Jam mode's Idle, a fresh Jam started at `startAt(n)` on the wall clock, its
+     * doodle played, then one note in phrase 1, then Stop: the Review shows. Resolves its key.
+     */
+    const jamAt = async (n: number): Promise<string> => {
+      await page.evaluate((at) => window.__workspaceHarness.setWallClock(at), startAt(n))
+      await startJamByClick(page)
+      const grid = await jamToRunning(page)
+      await doodleNote(page, 62, grid.barline(3) + 1.1)
+      await sessionAction(page).click()
+      await expect(reviewPanel(page)).toBeVisible()
+      return keyStartedAt(page, startAt(n))
+    }
+
+    // The first Jam, Keep my played notes off as at a first visit, pinned so the next keeps it.
+    await gotoJamIdle(page)
+    const first = await jamAt(1)
+    await expect(keepPlayedNotesToggle(page)).toHaveAttribute('aria-pressed', 'false')
+    await pinButton(page).click()
+    await expect
+      .poll(() => summaryOf(page, first))
+      .toMatchObject({ isJam: true, playedNotesKept: false, pinned: true })
+
+    // The second Jam, Keep my played notes on from the next load: its raw doodle note and its
+    // note in phrase 1 are kept, the only played notes stored.
+    await expectNoNetworkCall(page)
+    await seedSettings(page, { keepPlayedNotes: true })
+    await gotoJamIdle(page)
+    const second = await jamAt(2)
+    await expect(keepPlayedNotesToggle(page)).toHaveAttribute('aria-pressed', 'true')
+    await expect
+      .poll(() => summaryOf(page, second))
+      .toMatchObject({ isJam: true, playedNotesKept: true })
+    await expect
+      .poll(async () =>
+        (await keyedRecords(page, 'playedNotes')).map(({ key, value }) => ({
+          key,
+          notes: (value as { readonly notes: readonly unknown[] }).notes.length,
+        })),
+      )
+      .toEqual([{ key: second, notes: 2 }])
+    expect(await summaryOf(page, first)).toMatchObject({ playedNotesKept: false })
+
+    // A reload reads both back; each is reopened from the session list, and the second's played
+    // notes are exported.
+    await expectNoNetworkCall(page)
+    await page.reload()
+    await harnessReady(page)
+    await expect.poll(() => keptKeys(page)).toEqual([first, second].sort())
+    await showListFromCueRow(page)
+    await expect(rows(page)).toHaveCount(2)
+    const firstDate = await sessionDateOf(page, startAt(1))
+    await rowOpen(page, firstDate).click()
+    await expect(reviewTitle(page)).toHaveText(firstDate)
+    await expect(reviewPanel(page).locator('p.review-summary')).toHaveText(/^Jam · /u)
+    await expect(playedNotesToggle(page)).toHaveCount(0)
+    await expect(exportPlayedButton(page)).toHaveCount(0)
+    await allSessions(page).click()
+    const secondDate = await sessionDateOf(page, startAt(2))
+    await rowOpen(page, secondDate).click()
+    // The most recent session's Review is titled "Last session", its date leading its summary.
+    await expect(reviewTitle(page)).toHaveText(REVIEW_TITLE)
+    await expect(reviewPanel(page).locator('p.review-summary')).toContainText(
+      `${secondDate} · Jam · `,
+    )
+    await expect(playedNotesToggle(page)).toBeVisible()
+    const played = await exportOnce(page, downloads, exportPlayedButton(page))
+    expect(played.fileName).toBe(`${stemAt(2)}-played.mid`)
+
+    // Nothing was sent, from before the first load on: only the app's own static files were
+    // fetched (Jam's code among them), no WebSocket was opened, and the page called no network API.
+    await expectNoNetworkCall(page)
+    const origin = new URL(page.url()).origin
+    expect(network.requests.length).toBeGreaterThan(0)
+    expect(offendingRequests(network.requests, origin)).toEqual([])
+    expect(network.webSockets).toEqual([])
+    expect(downloads.all).toHaveLength(1)
   })
 
   // @test-link [[rule_session_data_never_sent_or_stored]]

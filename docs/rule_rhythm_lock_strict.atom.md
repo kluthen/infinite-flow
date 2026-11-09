@@ -1,6 +1,6 @@
 ---
 id: rule_rhythm_lock_strict
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 priority: 1

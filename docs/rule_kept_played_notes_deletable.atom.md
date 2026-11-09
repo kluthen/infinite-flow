@@ -5,7 +5,7 @@ priority: 1
 human_name: Kept Played Notes Can Be Deleted
 type: RULE
 version: 0.2
-tags: [v3, release-v3.0, storage, midi, privacy, changes-in-v3.2]
+tags: [v3, release-v3.0, storage, midi, privacy]
 parents:
   - [[rule_played_notes_kept_only_after_opt_in]]
 dependents:

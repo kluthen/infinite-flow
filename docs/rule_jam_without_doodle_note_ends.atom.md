@@ -1,6 +1,6 @@
 ---
 id: rule_jam_without_doodle_note_ends
-status: DRAFT
+status: REVIEW
 tags: [v3, release-v3.2, session, jam, session-end]
 parents:
   - [[req_jam]]

@@ -1790,3 +1790,41 @@ suspended (chunk 32's risks). Branches to remove at the merge: `v3.2-w7` (worktr
 `v3.2-c24-kept-doodle`, `v3.2-c25-doodle-exports`, `v3.2-c32-tap-tempo`, `v3.2-c33-240-bpm`,
 `v3.2-c40-guide-playback`, the `v3.2-w7-fix-*` branches, `v3.2-guide-playback` (worktree
 `../infinite_flow-v3.2-guide`).
+
+## Release gate (chunk 27, 2026-11-09)
+
+Branch `v3.2-release`, worktree `../infinite_flow-v3.2-release`, cut from `main` 4f4eefec. The
+owner's ruling D521: v3.2 is released before its hand checks, which come after the tag; the
+after-the-tag list is under
+[chunk 27](build-plan-v3.2.md#chunk-27--v32-release-gate).
+
+- `ux-writer` (e440e868, merged 0c4f1241, ux D483): no class is missing; the phone reductions are
+  only those accepted as built (D468, D475); the frozen v3.2 set needed no correction.
+- Automated part, `coding-leader`: ba3b55a6 (`package.json` 3.2.0), d7a6be4d (lexicon: 16 entries
+  no longer say planned), 199076fd and 8b5ed55a (release notes: 52 rows, 342 checked citations;
+  privacy spy extended with kept Jams, raw notes kept and not, sending nothing), and the final
+  commit.
+  - M4 at 13:11: entry 311,455 B of 327,680 B, equal to wave 7's.
+  - Final M1, M5 and M2, before L3's tuning, on the reference machine (AMD Ryzen 5 PRO 8640HS,
+    Node v22.23.4): M1 lock off 13:13–13:38, M1 lock on 13:41–14:31, M5 14:31–14:34, M2
+    14:35–15:22. Every count equals the record (chunks 33 and 29, wave 5's gate, chunk 34) and
+    acceptance is met; ISS-015's lost joins stay at 93 (lock off) and 89 (lock on).
+  - A first M1 lock-on run, started at 13:38:19 by a second runner, was aborted and its partial
+    files discarded; only the clean re-run counts.
+  - Corpora and goldens: 486 tests; fixtures unchanged since 55364e7 except chunk 2's two v3.1
+    corpora (66aea497).
+  - `quality`, one run, 15:32:36–15:42:28 (load 0.26 at the start, 11.0 at the end from its own
+    e2e): **green**, RC 0, no failure, retry or flake, no ISS-016. Format, lint and links clean;
+    `lint:health` 0 errors, 936 warnings over 1,516 files; unit 9,602 tests in 621 files;
+    typecheck and build; boundaries (525 source files, 66 chunks, entry 311,455 B, `jam-mode`
+    61,192 B); e2e 726 + 1 skipped, twice (pre-generation off, on); a11y 76; notation 107 + 4
+    skipped; `atd:lint`; `atd:check` no atom in scope (diff mode, clean tree). The four
+    `review-privacy` tests passed in both e2e runs, the kept-Jam network test included.
+- Next: `documentalist`'s release sync, then the owner's go and the `3.2.0` tag.
+
+### The go (2026-11-09)
+
+Release sync ff6682cd, e4e0a58a, 41f7bdb6 (CONTRACT 14.1.0); the owner's answers: "Accept all
+(Recommended)", "Keep all 23 at review (Recommended)", "Merge and tag (Recommended)", then "Push
+main + tag". Chunk 27 done; `3.2.0` is tagged `v3.2.0` on `main`, its checks after the tag as
+v3.2.x follow-ups (spec D523, D521); gate R0 of v3.3 cleared.

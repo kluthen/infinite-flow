@@ -11,7 +11,7 @@ dependents:
   - [[entity_session_option_records]]
 type: RULE
 version: 0.4
-tags: [v3, release-v3.0, storage, player-controls, changes-in-v3.2]
+tags: [v3, release-v3.0, storage, player-controls]
 ---
 
 # Saved Settings Load One by One

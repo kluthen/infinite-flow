@@ -1,6 +1,6 @@
 ---
 id: rule_jam_code_loaded_on_demand
-status: DRAFT
+status: REVIEW
 priority: 1
 tags: [v3, release-v3.2, jam, session-mode, performance]
 parents:

@@ -1,6 +1,6 @@
 ---
 id: req_jam
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 human_name: Jam: a Mode Whose Sessions Continue the Player's Doodle
 tags: [v3, release-v3.2, session, jam, midi]

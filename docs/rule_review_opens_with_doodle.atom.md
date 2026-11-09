@@ -1,6 +1,6 @@
 ---
 id: rule_review_opens_with_doodle
-status: DRAFT
+status: REVIEW
 dependents:
   - [[module_jam_session_end]]
 layer: BUSINESS

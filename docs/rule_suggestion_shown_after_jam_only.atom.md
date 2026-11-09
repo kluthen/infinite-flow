@@ -1,6 +1,6 @@
 ---
 id: rule_suggestion_shown_after_jam_only
-status: DRAFT
+status: REVIEW
 tags: [v3, release-v3.2, jam, key-and-mode-suggestion]
 parents:
   - [[req_key_and_mode_suggestion]]

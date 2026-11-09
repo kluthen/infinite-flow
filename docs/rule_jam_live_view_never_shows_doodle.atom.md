@@ -1,6 +1,6 @@
 ---
 id: rule_jam_live_view_never_shows_doodle
-status: DRAFT
+status: REVIEW
 priority: 1
 human_name: The Live View Never Shows the Doodle
 tags: [v3, release-v3.2, session, jam]

@@ -1,6 +1,6 @@
 ---
 id: rule_jam_settings_load_tolerantly
-status: DRAFT
+status: REVIEW
 version: 0.1
 priority: 1
 dependents:

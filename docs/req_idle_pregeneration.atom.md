@@ -3,7 +3,7 @@ id: req_idle_pregeneration
 status: REVIEW
 priority: 1
 human_name: Pre-Generating Phrases at Idle
-tags: [v3, release-v3.0, idle, generation, session, changes-in-v3.2]
+tags: [v3, release-v3.0, idle, generation, session]
 parents:
   - [[req_rolling_practice_session]]
 type: REQUIREMENT

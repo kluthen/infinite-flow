@@ -1,6 +1,6 @@
 ---
 id: rule_held_doodle_dropped_on_change
-status: DRAFT
+status: REVIEW
 dependents:
   - [[module_kept_doodle]]
 layer: BUSINESS

@@ -1,6 +1,6 @@
 ---
 id: rule_suggestion_ignores_restriction
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 human_name: The Suggestion Meets No Key and Mode Restriction

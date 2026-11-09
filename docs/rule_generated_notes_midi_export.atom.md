@@ -8,7 +8,7 @@ dependents:
   - [[module_review_export_pipeline]]
 layer: BUSINESS
 priority: 1
-tags: [v2, release-v2.0, v2.4-check, export, changes-in-v3.2]
+tags: [v2, release-v2.0, v2.4-check, export]
 type: RULE
 version: 0.5
 ---

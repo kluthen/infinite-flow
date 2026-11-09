@@ -1,6 +1,6 @@
 ---
 id: rule_doodle_controls_always_supported
-status: DRAFT
+status: REVIEW
 tags: [v3, release-v3.2, jam, rhythm]
 parents:
   - [[rule_doodle_sets_jam_controls]]

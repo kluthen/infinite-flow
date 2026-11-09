@@ -1,6 +1,6 @@
 ---
 id: rule_jam_silence_timer_from_phrase_one
-status: DRAFT
+status: REVIEW
 type: RULE
 version: 0.2
 priority: 1

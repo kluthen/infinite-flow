@@ -1,6 +1,6 @@
 ---
 id: rule_rhythm_changes_never_shown
-status: DRAFT
+status: REVIEW
 human_name: Rhythm Changes and Forced Bends Are Never Shown
 parents:
   - [[req_rhythm_lock]]

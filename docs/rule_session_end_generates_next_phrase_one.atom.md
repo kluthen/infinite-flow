@@ -2,7 +2,7 @@
 id: rule_session_end_generates_next_phrase_one
 status: REVIEW
 priority: 1
-tags: [v2, release-v2.0, session, session-end, review, changes-in-v3.2]
+tags: [v2, release-v2.0, session, session-end, review]
 parents:
   - [[req_rolling_practice_session]]
 type: RULE

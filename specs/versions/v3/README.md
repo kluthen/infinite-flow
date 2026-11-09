@@ -7,10 +7,11 @@ master spec Part C v1.0, approved (D239), re-scoped with Jam as its own mode (D4
 [draft](jam-mode.md), settled) and consolidated from it as Part C v1.1 (D409), approved as v1.2
 (D410), its design approved (D412), its build plan approved (D416, D417) and its contract
 wording signed off (D421), the guide playback added to its scope after approval (D490; Part C
-§C19, build plan chunk 40), its code all merged (wave 7, 2026-11-05), to be released as built, its
-hand and listening checks after the tag (D521; [v3.2.x notes](#v32x-notes-after-the-tag)); v3.3 in
-master spec Part D v1.2, approved with its build plan v5 and its design (D520), waiting on v3.2's
-`3.2.0` tag (gate R0, D521); v3.4,
+§C19, build plan chunk 40), its code all merged (wave 7, 2026-11-05), released as built as version
+3.2.0 on 2026-11-09 (tag `v3.2.0`; D521, D523), its hand and listening checks after the tag
+([v3.2.x notes](#v32x-notes-after-the-tag)); v3.3 in master spec Part D v1.2, approved with its
+build plan and its design (D520), gate R0 cleared at the `v3.2.0` tag (D523), waiting on
+`documentalist`'s ingestion (gate I0); v3.4,
 a structural review before v4, opened as a scoping draft (D389), with a lexicon page added as its
 one player-facing item (D393); v3.x direction only. The Status paragraphs this README kept until
 the v3.0 and v3.1 releases are archived verbatim in
@@ -64,8 +65,8 @@ Also every tester on an instrument v1 doesn't ship. See [personas](../../persona
   (D520; D264–D274, 2026-10-12; v1.2 refreshed against v3.2 as built, D511–D519): one Seventh
   chords level, Off by default, and Jam mode's own; its contract wording changes wait for the
   owner's confirmation (gate C1). O176 (style packs and the level) stays open for later.
-- **v3.3 build plan:** [build-plan-v3.3.md](build-plan-v3.3.md), v5 (2026-11-09), approved with
-  Part D (D520); it starts after v3.2's `3.2.0` tag (gate R0, D521). Planning answers D276–D288,
+- **v3.3 build plan:** [build-plan-v3.3.md](build-plan-v3.3.md), v7 (2026-11-09), approved with
+  Part D (D520); gate R0 cleared at v3.2's `v3.2.0` tag (D521, D523); wave 0 waits on gate I0. Planning answers D276–D288,
   D511–D518.
 - **v3.4 is added after v3.3** (D389), the owner's request of 2026-10-21: an overall structural
   review of the app before v4's endgame work, with no player-facing change. It is the last v3
@@ -392,10 +393,10 @@ seeds, and two atoms and a vision line more for the contract sign-off. v1.4 (202
 that sign-off, the build plan's gate CS: the owner signed off the re-scoped contract wording,
 CONTRACT 7.2.0 to 8.0.0 (D421).
 
-**Build plan:** [build-plan-v3.2.md](build-plan-v3.2.md), **v41 (2026-11-09)**, from v6, **approved
+**Build plan:** [build-plan-v3.2.md](build-plan-v3.2.md), **v43 (2026-11-09)**, from v6, **approved
 by the owner** (D416, D417; hand check H9 waived), with wave 0's corrections (v7), chunk 0's
 findings (v8, D418–D420), chunk 2's report (v9) and gate CS signed off (v10, D421), then the
-build's revisions through v41 (D422–D509, D521; its header lists them), from Part C v1.14 and the
+build's revisions through v43 (D422–D509, D521–D523; its header lists them), from Part C v1.14 and the
 approved design (gate D0, D412). It plans
 v3.2 on top of the [v3.1](build-plan-v3.1.md) build plan on the build-plan model: 33 chunks in eight
 waves, the session-mode half first (waves 0–3), then Jam mode (waves 4–7), one release, then the
@@ -536,7 +537,8 @@ D234; detail in the [rhythm lock draft](rhythm-lock.md).
 ### v3.2.x notes (after the tag)
 
 By the owner's ruling of 2026-11-09 (D521), v3.2 is released as `3.2.0` once its release gate's
-machine half passes, before his hand and listening checks, as v3.1's hand checks followed its tag (D397). The checks are written in the v3.2
+machine half passes, before his hand and listening checks, as v3.1's hand checks followed its tag (D397).
+The machine half passed and the owner gave his go the same day: tag `v3.2.0` (D523). The checks are written in the v3.2
 build plan's [hand checks](build-plan-v3.2.md#hand-checks) and its
 [follow-ups after the tag](build-plan-v3.2.md#after-the-tag-v32x-follow-ups), and in
 `HARDWARE-CHECKLIST.md`, v3.2 part. Still to run, when the owner chooses:
@@ -564,8 +566,8 @@ generation." v3.2 was the last v3 release; v3.3 follows it. Specced on 2026-10-1
 (D520); nothing built. The text below is the direction as recorded before the research; where it and
 Part D differ, Part D wins.
 
-**Build plan:** [build-plan-v3.3.md](build-plan-v3.3.md), v5 (2026-11-09), approved with Part D
-(D520). It plans v3.3 on top of the [v3.0](build-plan.md),
+**Build plan:** [build-plan-v3.3.md](build-plan-v3.3.md), v7 (2026-11-09), approved with Part D
+(D520); gate R0 cleared at the `v3.2.0` tag (D523). It plans v3.3 on top of the [v3.0](build-plan.md),
 [v3.1](build-plan-v3.1.md) and [v3.2](build-plan-v3.2.md) build plans on the build-plan model: 22
 chunks in six waves, then the release gate, under the shared [v3 build workflow](build-workflow.md)
 (D351), with contract sign-offs on the three STABLE changes and the owner's listening check on

@@ -3,7 +3,7 @@ id: rule_session_history_records_played_notes
 status: REVIEW
 priority: 1
 human_name: Session History Records Played Notes
-tags: [v2, release-v2.0, session, history, midi, changes-in-v3.2]
+tags: [v2, release-v2.0, session, history, midi]
 parents:
   - [[rule_session_history_keeps_timeline_and_inputs]]
 dependents:

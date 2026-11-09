@@ -111,8 +111,11 @@ Status: this file holds four parts.
   again on this doodle" is offered in the review that follows a Jam too, as built, and the guide's
   checks name the shapes seeded phrases hold (C5.11, C5.15, C6.5, C12, C16 items 33 and 50, C19.1;
   spec D508, D509). v1.25 (2026-11-09): v3.2 is released as built, before the owner's hand and
-  listening checks, which follow the `3.2.0` tag (C16, C17; spec D521). Its sections are
-  numbered C1 to C19; what v1.1 to v1.25 change is listed at the top of Part C and marked in each section they touch.
+  listening checks, which follow the `3.2.0` tag (C16, C17; spec D521). v1.26 (2026-11-09): the
+  contract as built, seven MAJOR bumps from CONTRACT 7.2.0 to 14.0.0, each signed off by the owner
+  (C13, C14, C16 item 49, C17; spec D522). Built and released as version 3.2.0 on 2026-11-09
+  (spec D523), the contract for the running code with Parts A and B; its hand and listening checks
+  follow the tag (spec D521). Its sections are numbered C1 to C19; what v1.1 to v1.26 change is listed at the top of Part C and marked in each section they touch.
 - **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.2
   (2026-11-09), consolidated from the v3.3 direction and the chord research, refreshed against
   v3.2 as built (spec D511–D519); **approved by the owner on 2026-11-09** (spec D520). The contract
@@ -2269,7 +2272,10 @@ Delete everything removes them. No preset leaves the device.
 ## Part C — v3.2
 
 Jam, the key and mode suggestion, the rhythm lock and, added after approval, the guide playback.
-**Master spec v1.25 (2026-11-09)**: v1.24 with the owner's ruling on v3.2's release (C16, C17;
+**Master spec v1.26 (2026-11-09)**: v1.25 with the contract's history stated as built (C13, C14,
+C16 item 49, C17; D522), no behaviour changed: v3.2 took seven MAJOR contract bumps, CONTRACT
+7.2.0 to 14.0.0, each signed off by the owner (gate CS's 8.0.0, then 9.0.0 to 14.0.0), where
+C13 still counted three and item 49 and C17 named 8.0.0's sign-off alone. v1.25 (2026-11-09): v1.24 with the owner's ruling on v3.2's release (C16, C17;
 D521), no behaviour changed: v3.2 is released as built, as `3.2.0`, before the owner's hand and
 listening checks; they follow the tag, the four provisional answers and the suggestion's weights
 ship provisional, and a finding becomes a later 3.2.x fix. v1.24 (2026-11-05): v1.23 with two wording fixes after wave 7's build (C5.11,
@@ -4139,16 +4145,18 @@ _Changed in v1.9:_ the wave 2 bump also covers the kept-session stored layout's 
 atoms (D429) and a fresh Jam's played-notes clock (D430).
 _Changed in v1.21:_ the guide playback's sign-off also covers the saved settings' list and the
 vision's out-of-scope lead-line playback (D500).
+_Changed in v1.26:_ the bumps as built, seven MAJOR in all, CONTRACT 14.0.0 (D522).
 
 Each change is intended. Where a declared-intent entry is named, `documentalist` prepares the
 change.
 
 **The contract bump.** The declared-intent contract is at **CONTRACT 7.2.0** (after v3.1's hand
-checks). v3.2 takes **one MAJOR bump, to 8.0.0**, with **one sign-off by the owner on the exact
-re-scoped wording** of every guarantee below, before the release gate, as v3.1's contract gate did.
+checks). The guarantees below take **one MAJOR bump, to 8.0.0**, with **one sign-off by the owner on
+the exact re-scoped wording** of every one of them, before the release gate, as v3.1's contract
+gate did.
 The owner confirmed v1.0's wording on 2026-10-08; v1.1 changes it (Jam mode instead of the Jam
 switch, the steering block instead of the doodle in the request, a controller needed in Jam mode),
-so it is confirmed again, once. v3.2 is one release (C2), so the bump is taken once. **The owner
+so it is confirmed again, once. v3.2 is one release (C2), so that bump is taken once. **The owner
 signed it off on 2026-10-22** (D421): the 22 wordings of the
 [change set](../../../docs/release/v3.1-v3.2-intent-change-set.md)'s part M as drafted, the
 vision's lines (0.9 to 0.10) among them.
@@ -4160,7 +4168,19 @@ no longer covered by the one bump: each takes its own wording sign-off by the ow
 at the sync of the wave that builds it, so the released contract never disagrees with the code
 beside it. CONTRACT 9.0.0 (MAJOR) comes at the sync of the wave that builds Vary settings' allowed
 groups (the settings mutation), and one more MAJOR bump at the sync of the wave that builds the
-`ifk4.` replay key (the replay key and seeded reproduction). v3.2 so takes three MAJOR bumps in all.
+`ifk4.` replay key (the replay key and seeded reproduction). Any other STABLE guarantee a wave's
+build changes takes a MAJOR bump of its own the same way.
+
+**The bumps as built** (_changed in v1.26_, D522). v3.2 took seven MAJOR bumps, each on the owner's
+own sign-off, and released at **CONTRACT 14.0.0**: 8.0.0, the re-scoped wording above (gate CS,
+2026-10-22; 8.1.0, the three promotions, is MINOR); 9.0.0, the settings mutation (gate CN,
+2026-10-22); 10.0.0, the replay key, seeded reproduction and the kept-session shape below (gate
+CK, 2026-10-23); 11.0.0, the session's ready phrases taking in the rhythm lock (gate CR,
+2026-10-26); 12.0.0, the saved-data loader naming Jam's one first-values save (wave 5's sync,
+2026-11-04); 13.0.0, the guide playback below (gate CG, 2026-11-04, applied at wave 7's sync);
+14.0.0, a favorites-only export's measure numbers in a Jam (wave 7's sync, 2026-11-05). Each
+sign-off is recorded in the [change set](../../../docs/release/v3.1-v3.2-intent-change-set.md)
+(parts M, N, P, R, V, Y and Z) and in the contract atom's version notes.
 
 **The wave 2 bump also covers the kept-session shape** (_changed in v1.9_, D429, D430). The wave
 that builds the `ifk4.` key also builds v3.2's kept-session shape, which changes the stored layout
@@ -4329,6 +4349,7 @@ stray-note filter and replay keys; Jam mode's facts and risks added. File refere
 _Changed in v1.4:_ the contract's risk closed by the sign-off (D421).
 _Changed in v1.15:_ the generator worker's chunk budget, 170 KiB (D451).
 _Changed in v1.22:_ the entry chunk's budget, 320 KiB (D504).
+_Changed in v1.26:_ the contract's later sign-offs, through CONTRACT 14.0.0 (D522).
 
 - **The generation request is closed by construction**: the worker checks it against an exact list
   of its ten fields and refuses any other, then rebuilds it and requires the rebuild to equal what
@@ -4420,7 +4441,7 @@ _Changed in v1.22:_ the entry chunk's budget, 320 KiB (D504).
 - **The doodle-to-controls mapping** (C5.16.1): a poor threshold makes "does it sound like my
   doodle?" fail even when the steering works; the listening check confirms or corrects it.
 - **The contract**: the guarantees of C13 change; the owner signed off their wording on
-  2026-10-22 (D421).
+  2026-10-22 (D421), and each later MAJOR bump's on its own, through CONTRACT 14.0.0 (C13; D522).
 
 ## C15. Architectural decisions and their reasons
 
@@ -4533,6 +4554,7 @@ _Changed in v1.23:_ Jam keeps 180 BPM as its top, so no Jam item or check runs a
 _Changed in v1.24:_ item 33 checks "Jam again on this doodle" after a Jam (D508); item 50 checks
 triplets and a tie across a barline on hand-built phrases, which seeded ones never hold (D509).
 _Changed in v1.25:_ the hand and listening checks follow the `3.2.0` tag (D521).
+_Changed in v1.26:_ item 49 counts the later contract bumps as built (D522).
 
 v3.2 ships when every item holds, each verified by a named test or a recorded hand check. **By the
 owner's ruling (D521), v3.2 ships as `3.2.0` before its hand and listening checks:** items 13, 32,
@@ -4698,7 +4720,7 @@ Jam's run at 60, 120 and 180 BPM; Jam does not keep 240 BPM (C5.17; D506), so no
     C13 lists as changing, each replaced by its v3.2 counterpart.
 49. **The declared-intent contract** reflects C13's guarantee changes: CONTRACT 8.0.0 with the
     owner's sign-off on their wording recorded, then each later MAJOR bump C13 names, its own
-    sign-off recorded.
+    sign-off recorded: six more, through CONTRACT 14.0.0 (_changed in v1.26_, D522).
 
 **The guide playback (both modes; added after approval, D490)**
 
@@ -4737,6 +4759,7 @@ _Changed in v1.10:_ two questions opened during the build (D433).
 _Changed in v1.12:_ O268 settled by the owner (D440).
 _Changed in v1.23:_ 240 BPM in Jam measured and not kept (D506).
 _Changed in v1.25:_ the checks, and so the provisional answers, follow the `3.2.0` tag (D521).
+_Changed in v1.26:_ the owner's later contract sign-offs listed (D522).
 
 **Provisional answers, each confirmed by a check.** Four answers of the re-scope were accepted on
 the owner's "will need testing to be sure". A check that fails comes back to the owner as a ruling;
@@ -4796,7 +4819,8 @@ Jam's on-demand chunk with its boundary check.
 
 **From the owner**: approval of this part (given, D410, with the seven answers above); one
 sign-off on C13's re-scoped contract wording, before the release gate (the build plan's contract
-gate; given on 2026-10-22, D421); the release as built, before the hand and listening checks,
+gate; given on 2026-10-22, D421), then one per later MAJOR bump, six in all, each given (C13;
+D522); the release as built, before the hand and listening checks,
 which follow the tag (given on 2026-11-09, D521).
 
 **For `documentalist`**: the declared-intent changes of C13, including v3.2's draft atoms written

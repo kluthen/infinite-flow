@@ -3,7 +3,7 @@ id: req_rolling_practice_session
 status: REVIEW
 layer: BUSINESS
 version: 0.7
-tags: [v2, release-v2.0, session, changes-in-v3.2]
+tags: [v2, release-v2.0, session]
 parents:
   - [[req_four_measure_phrase]]
 type: REQUIREMENT

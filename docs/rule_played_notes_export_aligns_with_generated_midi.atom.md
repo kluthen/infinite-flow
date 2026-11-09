@@ -5,7 +5,7 @@ type: RULE
 layer: BUSINESS
 version: 0.6
 human_name: Played Notes Export Lines Up With Generated MIDI
-tags: [v2, release-v2.0, part-v2.1, v2.4-check, export, midi, changes-in-v3.2]
+tags: [v2, release-v2.0, part-v2.1, v2.4-check, export, midi]
 parents:
   - [[req_played_notes_export]]
 dependents:

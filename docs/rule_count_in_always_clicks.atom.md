@@ -9,7 +9,7 @@ dependents:
 type: RULE
 priority: 1
 human_name: One-Measure Count-In Always Clicks
-tags: [v2, release-v2.0, session, audio, session-start, changes-in-v3.2]
+tags: [v2, release-v2.0, session, audio, session-start]
 layer: BUSINESS
 ---
 

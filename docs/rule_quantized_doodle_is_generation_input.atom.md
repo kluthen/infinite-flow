@@ -1,6 +1,6 @@
 ---
 id: rule_quantized_doodle_is_generation_input
-status: DRAFT
+status: REVIEW
 version: 0.2
 priority: 1
 parents:

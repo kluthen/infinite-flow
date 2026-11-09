@@ -1,6 +1,6 @@
 ---
 id: rule_jam_settings_saved_on_change
-status: DRAFT
+status: REVIEW
 version: 0.1
 priority: 1
 tags: [v3, release-v3.2, jam, player-controls, storage]

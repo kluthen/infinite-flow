@@ -3,7 +3,7 @@ id: rule_click_track
 status: REVIEW
 priority: 1
 human_name: Metronome Click
-tags: [v2, release-v2.0, session, audio, changes-in-v3.2]
+tags: [v2, release-v2.0, session, audio]
 parents:
   - [[req_session_audio_mix]]
 dependents:

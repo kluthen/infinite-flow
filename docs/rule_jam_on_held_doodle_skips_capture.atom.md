@@ -1,6 +1,6 @@
 ---
 id: rule_jam_on_held_doodle_skips_capture
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 version: 0.2
 priority: 1

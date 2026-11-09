@@ -1,6 +1,6 @@
 ---
 id: rule_jam_again_on_this_doodle
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 priority: 1
 tags: [v3, release-v3.2, session, jam, review]
