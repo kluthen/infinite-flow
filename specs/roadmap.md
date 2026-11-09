@@ -1,6 +1,6 @@
 # Infinite Flow Roadmap
 
-Status: draft v1.17 (rewritten 2026-09-25 after the persona and vision session; browser scope
+Status: draft v1.18 (rewritten 2026-09-25 after the persona and vision session; browser scope
 added 2026-09-28, D127; review candidates added 2026-09-28, D128; session-keeping candidates and
 export by content added 2026-09-28, D129; favorites moved to v3 2026-09-28, D130; staff-only
 session view placed in v5 2026-09-28, D133; v2 replanned 2026-10-03: real-hardware checks as
@@ -21,7 +21,7 @@ approval, 2026-10-12, D264–D274; v3.0 released as 3.0.0 2026-10-16, D348; v3.4
 review, added as the last v3 milestone 2026-10-21, D389; the lexicon page added to v3.4 and the
 lexicon API planned for v4 or v5, 2026-10-21, D393–D395; v3.1 released as 3.1.0 2026-10-21, D397; Chrome named the one supported browser
 2026-10-21, D399; v3.3 Part D approved 2026-11-09, D520; v3.2 to be released as built before its
-hand checks, D521)
+hand checks, D521; v3.2 released as 3.2.0 2026-11-09, D523)
 
 This is an ordered timeline with no dates. Each version's scope lives in its folder under
 [versions/](versions/README.md). The principles every version follows are in the
@@ -98,10 +98,10 @@ record is archived at [archive/v2/](archive/v2/README.md).
     stray-note filter (D196).
   - **v3.1, released as version 3.1.0 on 2026-10-21 (D397):** embellishment flags, with weights
     as preferences, and presets, built-in and player-made (D210).
-  - **v3.2:** Jam, MIDI-seeded continuation from a played motif (D209), with the key and mode
+  - **v3.2, released as version 3.2.0 on 2026-11-09 (D523):** Jam, MIDI-seeded continuation from a played motif (D209), with the key and mode
     suggestion (a weighted draw when several answers fit, D212), and the rhythm lock with a
-    mutation option (O118). Built; to be released as version 3.2.0 before the owner's hand and
-    listening checks, which follow the tag (D521).
+    mutation option (O118). Released as built, before the owner's hand and listening checks,
+    which follow the tag (D521).
   - **v3.3, richer chords (optional) (D261):** chords richer than triads, seventh chords first,
     only where the player allows them through flags in the app; the default stays root-position
     diatonic triads. Preceded by internal and web research on chord types, their construction

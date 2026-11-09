@@ -113,8 +113,9 @@ Status: this file holds four parts.
   spec D508, D509). v1.25 (2026-11-09): v3.2 is released as built, before the owner's hand and
   listening checks, which follow the `3.2.0` tag (C16, C17; spec D521). v1.26 (2026-11-09): the
   contract as built, seven MAJOR bumps from CONTRACT 7.2.0 to 14.0.0, each signed off by the owner
-  (C13, C14, C16 item 49, C17; spec D522). Its sections are
-  numbered C1 to C19; what v1.1 to v1.26 change is listed at the top of Part C and marked in each section they touch.
+  (C13, C14, C16 item 49, C17; spec D522). Built and released as version 3.2.0 on 2026-11-09
+  (spec D523), the contract for the running code with Parts A and B; its hand and listening checks
+  follow the tag (spec D521). Its sections are numbered C1 to C19; what v1.1 to v1.26 change is listed at the top of Part C and marked in each section they touch.
 - **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.2
   (2026-11-09), consolidated from the v3.3 direction and the chord research, refreshed against
   v3.2 as built (spec D511–D519); **approved by the owner on 2026-11-09** (spec D520). The contract

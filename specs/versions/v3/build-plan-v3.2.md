@@ -1,6 +1,7 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v42 (2026-11-09): v41 with spec D522 written in (master spec Part C v1.26), no plan change: the contract as built, seven MAJOR bumps from CONTRACT 7.2.0 to 14.0.0, each signed off by the owner; chunk 27's contract check, DoD item 49's trace, the Read first table's contract row and "Two halves, one release" name them all.
+Status: v43 (2026-11-09): v42 with spec D523 written in: the owner's go; v3.2 is released as `3.2.0`, tagged on `main` after the release sync's promotions (CONTRACT 14.1.0); chunk 27 done; the follow-ups after the tag stay open.
+v42 (2026-11-09): v41 with spec D522 written in (master spec Part C v1.26), no plan change: the contract as built, seven MAJOR bumps from CONTRACT 7.2.0 to 14.0.0, each signed off by the owner; chunk 27's contract check, DoD item 49's trace, the Read first table's contract row and "Two halves, one release" name them all.
 v41 (2026-11-09): v40 with spec D521 written in (master spec Part C v1.25), the owner's ruling on O306: v3.2 is released as built; the release gate (chunk 27) runs its machine half, M1, M2 and M5 labelled before L3's tuning; L1, L2, L3, DR, the hand checks still owed and O267 follow the `3.2.0` tag; wave 7 shown merged.
 v40 (2026-11-05): v39 with spec D508 and D509 written in (master spec Part C v1.24), two wording fixes after wave 7's build: `Jam again on this doodle` is offered in the review that follows a Jam too (no plan change); chunk 40's Done when and item 50's trace check triplets and a tie across a barline on hand-built phrases, the seeded ones holding ties, rests and offbeat eighths.
 v39 (2026-11-05): v38 with spec D506 written in (master spec Part C v1.23): gate J240's ruling, the owner's "Keep 180"; Jam's tempo stays 60 to 180 BPM, chunk 33 ends after its first half, and DoD item 31's trace runs no Jam check at 240 BPM.
@@ -3108,7 +3109,8 @@ transport: with its backing, from the same queueing call, which then takes the p
 
 ## Chunk 27 — v3.2 release gate
 
-Status: automated part done; release sync pending
+Status: done (2026-11-09, tag `v3.2.0`; spec D523)
+Record: automated part on branch `v3.2-release` (ba3b55a6 `package.json` 3.2.0, d7a6be4d lexicon, 199076fd and 8b5ed55a release notes and privacy spy), `quality` green, final M1, M2 and M5 before L3's tuning equal to the record, M4 entry 311,455 B; ux D483; release sync ff6682cd, e4e0a58a and 41f7bdb6 (change set part AA): 57 atoms DRAFT → REVIEW, `entity_session_option_records` STABLE with CONTRACT 14.1.0, the tag removed from 10 STABLE atoms, the 23 building blocks kept at REVIEW; 51 DRAFT and 10 REVIEW atoms wait on their check after the tag. Evidence: `docs/release/v3.2-release-notes.md`; [wave log](wave-log-v3.2.md#release-gate-chunk-27-2026-11-09).
 Depends on: every chunk but 26 (folded into 19), CS
 
 The release gate, not a wave; it keeps its chunk number because other plans link it. It runs the

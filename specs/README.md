@@ -1,16 +1,19 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.90
+Status: draft v0.91
 
 ## Status Snapshot
 
-- **v3.2 is to be released as built** (D521): its code is all on `main` (wave 7 merged
-  2026-11-05). By the owner's ruling, its release gate, build plan
-  [chunk 27](versions/v3/build-plan-v3.2.md#chunk-27--v32-release-gate), runs its machine half,
-  then `3.2.0` is tagged when the owner asks. His hand and listening checks (L1, L2, L3, H3, H7, H8,
-  HG), the Travel Sax recordings (DR) and O267 follow the tag as
-  [v3.2.x follow-ups](versions/v3/README.md#v32x-notes-after-the-tag); a finding becomes a later
-  3.2.x fix, decided then.
+- **v3.2 is released as version 3.2.0** (2026-11-09, D523): tagged `v3.2.0` on `main`, released
+  as built by the owner's ruling (D521). Its release gate, build plan
+  [chunk 27](versions/v3/build-plan-v3.2.md#chunk-27--v32-release-gate), passed its machine half,
+  with the evidence in the [release notes](../docs/release/v3.2-release-notes.md); the release sync
+  left CONTRACT at 14.1.0. Master spec [Part C](versions/v3/master-spec.md#part-c--v32), Jam, the
+  key and mode suggestion and the rhythm lock, joins Parts A and B as the contract for the running
+  code. His hand and listening checks (L1, L2, L3, H3, H7, H8, HG), the Travel Sax recordings (DR)
+  and O267 follow the tag as
+  [v3.2.x follow-ups](versions/v3/README.md#v32x-notes-after-the-tag), with the atoms waiting on
+  them; a finding becomes a later 3.2.x fix, decided then. The milestone archive comes next.
 - **v3.1 is released as version 3.1.0** (2026-10-21, D397): the tag `v3.1.0` is on `main` at
   55364e7. Its release gate, build plan
   [chunk 21](versions/v3/build-plan-v3.1.md#chunk-21--v31-release-gate), passed its automated part,
@@ -47,7 +50,7 @@ Status: draft v0.90
   desktop in Chrome first (the one supported browser, D399), at music-stand distance, no click
   while playing.
 - **Next: the rest of v3** ([v3](versions/v3/README.md#releases-d211)):
-  - **v3.2:** Jam, the key and mode suggestion, the rhythm lock and its mutation option. Jam is
+  - **v3.2, released as 3.2.0 on 2026-11-09 (D523):** Jam, the key and mode suggestion, the rhythm lock and its mutation option. Jam is
     its own mode, entered by a button at Idle, needing a MIDI controller, with its own settings,
     loaded on demand, its generator steering at the edges, its tempo set before the doodle in
     60–180 BPM (D400–D408; [draft](versions/v3/jam-mode.md)). Master spec
@@ -77,8 +80,8 @@ Status: draft v0.90
     only; Jam mode has its own. Master spec [Part D](versions/v3/master-spec.md#part-d--v33) v1.2,
     refreshed against v3.2 as built (D511–D519), **approved by the owner** on 2026-11-09 with its
     build plan [v3.3](versions/v3/build-plan-v3.3.md), 23 chunks (two conditional) in six waves
-    (D276–D288), and its design (D520). Next: `documentalist`'s ingestion (gate I0); the build
-    starts after v3.2's `3.2.0` tag (gate R0, D521).
+    (D276–D288), and its design (D520). Gate R0 cleared at v3.2's `v3.2.0` tag (D523). Next:
+    `documentalist`'s ingestion (gate I0), then wave 0.
   - **v3.4:** a structural review before v4, with no player-facing change: soundness for
     expansion, the entry budget, refactors worth taking, a split into libraries. The last v3
     milestone, after v3.3 (D389); [scoping draft](versions/v3/structural-review.md), the analysis
@@ -116,9 +119,9 @@ Status: draft v0.90
   [prerequisites](versions/prerequisites.md). v3's build plans: [v3.0](versions/v3/build-plan.md) (complete; chunk 26 is the release gate's
   record), [v3.1](versions/v3/build-plan-v3.1.md) (v23, complete; chunk 21 is the release gate's
   record, and its hand checks H3–H5 follow the tag; on the build-plan model with the shared
-  [v3 build workflow](versions/v3/build-workflow.md), D349; its [wave log](versions/v3/wave-log-v3.1.md)), [v3.2](versions/v3/build-plan-v3.2.md) (v26, rewritten for Jam as its own mode, D416, then corrected against the design; approved, H9 waived, D417; gate CS signed off, D421; wave 1's preflight corrections, D422, D423; chunk 5's change kinds, D424; the steering block's shape, D425; chunk 15's dead-end test, D426; wave 2's preflight corrections, D427–D430; chunk 3's findings, D431–D433; the orderings' time, D434; chunk 11's two points, D435, D436; wave 3's preflight corrections, D437; the first-load total, D438; chunk 16's finding, D439; wave 4's preflight corrections and gate answers, D440–D444; then v22–v41, D445–D521)
-  and [v3.3](versions/v3/build-plan-v3.3.md) (v5, on the build-plan model, D351, refreshed against v3.2 as built, D511–D519; approved
-  with Part D, D520). Every build plan runs wave by
+  [v3 build workflow](versions/v3/build-workflow.md), D349; its [wave log](versions/v3/wave-log-v3.1.md)), [v3.2](versions/v3/build-plan-v3.2.md) (v43, complete; chunk 27 is the release gate's record, its checks after the tag; rewritten for Jam as its own mode, D416, then corrected against the design; approved, H9 waived, D417; gate CS signed off, D421; wave 1's preflight corrections, D422, D423; chunk 5's change kinds, D424; the steering block's shape, D425; chunk 15's dead-end test, D426; wave 2's preflight corrections, D427–D430; chunk 3's findings, D431–D433; the orderings' time, D434; chunk 11's two points, D435, D436; wave 3's preflight corrections, D437; the first-load total, D438; chunk 16's finding, D439; wave 4's preflight corrections and gate answers, D440–D444; then v22–v43, D445–D523)
+  and [v3.3](versions/v3/build-plan-v3.3.md) (v7, on the build-plan model, D351, refreshed against v3.2 as built, D511–D519; approved
+  with Part D, D520; gate R0 cleared, D523). Every build plan runs wave by
   wave (D252): one intent preflight and one full wave gate per wave; a chunk checks only its own
   change.
 - [Personas](personas.md) (draft): who the product serves.

@@ -1821,3 +1821,10 @@ after-the-tag list is under
     skipped; `atd:lint`; `atd:check` no atom in scope (diff mode, clean tree). The four
     `review-privacy` tests passed in both e2e runs, the kept-Jam network test included.
 - Next: `documentalist`'s release sync, then the owner's go and the `3.2.0` tag.
+
+### The go (2026-11-09)
+
+Release sync ff6682cd, e4e0a58a, 41f7bdb6 (CONTRACT 14.1.0); the owner's answers: "Accept all
+(Recommended)", "Keep all 23 at review (Recommended)", "Merge and tag (Recommended)", then "Push
+main + tag". Chunk 27 done; `3.2.0` is tagged `v3.2.0` on `main`, its checks after the tag as
+v3.2.x follow-ups (spec D523, D521); gate R0 of v3.3 cleared.
