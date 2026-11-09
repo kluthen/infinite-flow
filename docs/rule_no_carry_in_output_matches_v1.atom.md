@@ -2,7 +2,7 @@
 id: rule_no_carry_in_output_matches_v1
 status: REVIEW
 version: 0.2
-tags: [v2, release-v2.0, session, determinism, changes-in-v3.2]
+tags: [v2, release-v2.0, session, determinism]
 dependents:
   - [[mechanic_pitch_search_policy]]
 type: RULE

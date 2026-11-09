@@ -8,7 +8,7 @@ human_name: When a Session Can Start
 parents:
   - [[req_rolling_practice_session]]
 version: 0.6
-tags: [v2, release-v2.0, session, session-start, changes-in-v3.2]
+tags: [v2, release-v2.0, session, session-start]
 dependents:
   - [[rule_jam_start_conditions]]
   - [[rule_midi_starting_note]]

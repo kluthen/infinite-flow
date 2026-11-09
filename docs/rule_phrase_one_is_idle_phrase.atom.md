@@ -8,7 +8,7 @@ parents:
 type: RULE
 version: 0.5
 priority: 1
-tags: [v2, release-v2.0, session, session-start, changes-in-v3.2]
+tags: [v2, release-v2.0, session, session-start]
 dependents:
   - [[module_session_rolling_display]]
   - [[module_session_staff_refill]]

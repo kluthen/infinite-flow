@@ -13,7 +13,7 @@ dependents:
   - [[service_workspace_session_flow]]
 layer: BUSINESS
 version: 0.2
-tags: [v2, release-v2.0, session, session-end, changes-in-v3.2]
+tags: [v2, release-v2.0, session, session-end]
 ---
 
 # Hidden Tab Ends the Session

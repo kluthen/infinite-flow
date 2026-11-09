@@ -23,7 +23,7 @@ dependents:
 layer: BUSINESS
 version: 0.4
 human_name: Settings-Mutation Flag
-tags: [v2, release-v2.0, part-v2.1, session, player-controls, changes-in-v3.2]
+tags: [v2, release-v2.0, part-v2.1, session, player-controls]
 parents:
   - [[req_rolling_practice_session]]
 type: REQUIREMENT

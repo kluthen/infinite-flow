@@ -3,7 +3,7 @@ id: rule_stop_ends_session
 status: REVIEW
 version: 0.3
 priority: 1
-tags: [v2, release-v2.0, session, session-end, changes-in-v3.2]
+tags: [v2, release-v2.0, session, session-end]
 type: RULE
 layer: BUSINESS
 human_name: Stop Ends the Session

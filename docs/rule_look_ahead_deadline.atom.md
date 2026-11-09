@@ -4,7 +4,7 @@ status: REVIEW
 type: RULE
 layer: BUSINESS
 priority: 1
-tags: [v2, release-v2.0, session, look-ahead, changes-in-v3.2]
+tags: [v2, release-v2.0, session, look-ahead]
 parents:
   - [[req_rolling_practice_session]]
 dependents:

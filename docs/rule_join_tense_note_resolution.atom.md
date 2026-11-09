@@ -5,7 +5,7 @@ dependents: []
 type: RULE
 version: 0.4
 priority: 1
-tags: [v2, release-v2.0, session, phrase-join, tension, changes-in-v3.2]
+tags: [v2, release-v2.0, session, phrase-join, tension]
 layer: BUSINESS
 human_name: Tense Phrase Ending May Resolve Across a Join
 parents:
