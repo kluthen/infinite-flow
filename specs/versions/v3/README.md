@@ -59,10 +59,12 @@ Also every tester on an instrument v1 doesn't ship. See [personas](../../persona
   opt-in, preceded by research, a separate item running on branch `v3.3-chord-research` (D262),
   whose [chord research](../../../docs/music/chord-research.md) is done.
 - **v3.3 master spec: [Part D](master-spec.md#part-d--v33), awaiting owner approval** (D264–D274,
-  2026-10-12): one Seventh chords level, Off by default; its contract wording changes wait for the
-  owner's confirmation. O176 (style packs and the level) stays open for later.
-- **v3.3 build plan:** [build-plan-v3.3.md](build-plan-v3.3.md), v3 (2026-10-16), not
-  approved; depends on owner approval of Part D. Planning answers D276–D288.
+  2026-10-12; v1.2 refreshed against v3.2 as built on 2026-11-09, D511–D518): one Seventh chords
+  level, Off by default, and Jam mode's own; its contract wording changes wait for the owner's
+  confirmation. O176 (style packs and the level) stays open for later; O306 asks whether v3.3 may
+  start before v3.2's tag.
+- **v3.3 build plan:** [build-plan-v3.3.md](build-plan-v3.3.md), v4 (2026-11-09), not
+  approved; depends on owner approval of Part D. Planning answers D276–D288, D511–D518.
 - **v3.4 is added after v3.3** (D389), the owner's request of 2026-10-21: an overall structural
   review of the app before v4's endgame work, with no player-facing change. It is the last v3
   milestone, after v3.3; the owner sees no need to run it earlier (D389). Scoping draft:

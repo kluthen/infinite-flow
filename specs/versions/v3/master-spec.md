@@ -4948,7 +4948,7 @@ Five layers, so that v4 keeps them (D491; the owner does not want it rewritten i
 
 ## Part D — v3.3
 
-Richer chords (optional): seventh chords. Its sections are numbered D1 to D17; a cross-reference to one carries a section sign (§D5), never to be read as a decisions-log entry. Master spec v1.1 (2026-10-12; v1.1 makes §D5.2 and §D5.3 agree that the triad fallback is per phrase, and sets the top level's share), consolidated from the
+Richer chords (optional): seventh chords. Its sections are numbered D1 to D17; a cross-reference to one carries a section sign (§D5), never to be read as a decisions-log entry. Master spec v1.2 (2026-11-09; v1.1 made §D5.2 and §D5.3 agree that the triad fallback is per phrase, and set the top level's share; v1.2 refreshes Part D against v3.2 as built, Part C v1.24 and CONTRACT 14.0.0: Jam's own level carried through every section, the kept doodle, the guide playback, the rhythm lock's walk, Jam's tempo, the storage and the STABLE atoms v3.2 promoted, spec D511–D517), consolidated from the
 v3.3 direction in the [v3 notes](README.md#v33--richer-chords-optional) and the chord research
 [docs/music/chord-research.md](../../../docs/music/chord-research.md), which keeps the sources, the
 construction tables and the code and atom references line by line. **Awaiting the owner's
@@ -5001,6 +5001,8 @@ The chords stay generated: the level allows seventh chords, it never chooses a
   into MusicXML; the backing plays the seventh (§D7).
 - The level held by every preset (built-ins at Off), saved with the settings, carried by a new
   replay key version, `ifk5.`, older keys still decoding (§D8, §D9).
+- Jam mode's own level, apart from session mode's, Off by default, saved with Jam's settings
+  (§D8.4).
 - A cost guard, measured before the gate (§D10).
 
 ### Out of v3.3
@@ -5039,7 +5041,7 @@ the Speed Builder** (secondary), who wants endless fresh material at steadily hi
 | **P1.G1 — Vocabulary by exposure.** Play whatever gets generated and feel how these ideas sound; get to know the possibilities rather than study theory. | **Partly, a new sound**             | The player hears seventh chords in the backing, sees their symbols, and plays melodies that land on the seventh, without studying theory: raising one level is enough. The jazz-flavoured presets (Jazz, Bebop, Modal (Dorian)) get closer to their styles, though not all the way: no chosen progressions, no chords from outside the key, no swing or style rhythms. |
 | **P1.G2 — Real-time reading and dexterity.** Adjust on the fly to notes as they come.                                                                    | **Partly**                          | Chord symbols with sevenths to read at speed, and melodies whose targets include the seventh.                                                                                                                                                                                                                                                                          |
 | **P2.S1 — Fresh material, never memorized, at a steadily higher tempo.**                                                                                 | **Slightly**                        | More harmonic variety in a long session; the cost guard keeps the fastest tempos working.                                                                                                                                                                                                                                                                              |
-| **P3.C3 — Grow an idea.**                                                                                                                                | **Slightly** (served by v3.2's Jam) | A Jam's phrases follow the level like any session, so a doodle can grow over seventh chords; Modal (Dorian) with sevenths gives the Am7–D7 sound of a Dorian vamp in A.                                                                                                                                                                                                |
+| **P3.C3 — Grow an idea.**                                                                                                                                | **Slightly** (served by v3.2's Jam) | A Jam's phrases follow Jam's own level (§D8.4), so a doodle can grow over seventh chords; Dorian with sevenths gives the Am7–D7 sound of a Dorian vamp in A.                                                                                                                                                                                                             |
 
 **Tensions settled for this scope.** A beginner wants plain, settled chords; the same player, and
 anyone drawn to jazz, wants the richer sound. Resolved by Off as the default and a level raised by
@@ -5131,7 +5133,9 @@ quality therefore comes from the key and mode, and only four qualities can occur
 - **Where the level lives:** it is a generation setting of the Idle screen, like the controls and the
   figure levels: set at Idle (the review included), locked while a session runs, saved and restored
   (§D8.2), held by every preset (§D8.1), and carried in every phrase's generation request (§D9). Its
-  first-load value is Off.
+  first-load value is Off. Jam mode has its own level, with the same four steps, set at Jam's Idle
+  and saved with Jam's settings (§D8.4); "the level" in this part means the one of the mode the
+  phrase is generated in.
 
 ### D5.3 How the planner applies it
 
@@ -5145,7 +5149,12 @@ quality therefore comes from the key and mode, and only four qualities can occur
 - **The search tries, for each candidate plan in today's order, the plan with its drawn seventh
   forms first, then the same plan as triads only** (when at least one seventh was drawn). So a
   plan that works only as triads is still found, and the candidate list grows by at most one
-  variant per plan, which keeps the search cost bounded. Musically, a phrase that cannot carry its
+  variant per plan, which keeps the search cost bounded. **Under the rhythm lock** (Part C §C7),
+  where the search tries every plan for one locked rhythm before that rhythm gives way, each
+  plan's two forms stay side by side in that walk too: a locked rhythm gives way only after every
+  plan has been tried in both forms, so every triad plan that keeps a locked rhythm at Off is
+  still reached before the rhythm gives way. Only the unchanged search allowance can cut that
+  walk short, which the cost guard measures with the lock on (§D10). Musically, a phrase that cannot carry its
   sevenths is heard as a plain-triad phrase, a clean contrast, rather than as one chord oddly
   missing its seventh.
 - **A finer fallback only if the share falls short.** If Strongly favored misses its 3 in 4 share
@@ -5216,7 +5225,10 @@ can sound open, or like a mistake.
   scale note outside the final chord's triad, resolved by the next phrase's first note, as today: so
   the seventh (F over G7) can end such a phrase, and the next phrase resolves it, which is what
   classical practice asks of a seventh. A leap recovery or a tense note owed across the join still
-  settles on a note of the tonic triad. **Net effect: the same final and landing notes as in v3.2,**
+  settles on a note of the tonic triad. The next phrase reads the carried final note against the
+  carried chord's triad too: a final note on the seventh is a tense note the next phrase resolves,
+  and no run is recognized across the join through that seventh. **Net effect: the same final and
+  landing notes as in v3.2,**
   while the chord symbols and the backing show and play the seventh.
 - **The listening check, before the gate.** The build prepares examples of phrases that end on the
   seventh with no next phrase (F over G7 in C major; the home chord's seventh in Dorian and
@@ -5246,7 +5258,9 @@ staff. The app writes letters today ("m", "dim"), so the new suffixes are letter
 - **Transposed like the notes**: shown in the instrument's written pitch, as today; the suffix never
   changes under transposition (G7 sounding is A7 written for a tenor saxophone).
 - **Everywhere a chord symbol shows today**: the Idle staff, the live session view, the review, a
-  kept session's review, and the MusicXML export. Triad symbols are unchanged.
+  kept session's review (a Jam's included), and the MusicXML export. Triad symbols are unchanged.
+  The doodle, Jam's empty system at Idle and the guides carry no chord symbol, so they are
+  unchanged.
 - **The spoken score description** reads each suffix as words, as it reads "m" as "minor" today;
   the exact words are `ux-writer`'s, the meaning fixed here.
 
@@ -5258,7 +5272,8 @@ staff. The app writes letters today ("m", "dim"), so the new suffixes are letter
 - **MIDI**: the generated line is unchanged; when the player includes the backing track in the MIDI
   file, it holds the backing's four-note chords (§D7.3), since the export takes the backing's notes
   from the backing itself.
-- **No export carries the level**, as no export carries a preset.
+- **No export carries the level**, as no export carries a preset. The guides are never exported
+  (Part C §C19, spec D494), and a Jam's files still open with the doodle, which has no chord.
 
 ### D7.3 The backing plays the seventh
 
@@ -5271,12 +5286,18 @@ fifth on beats 3 and 4 of a measure held under one chord.
   today; a seventh chord as the highest close-position arrangement of its four notes whose top note
   is at or below E4. Four arrangements are tried instead of three (each note of the chord at the
   bottom in turn). The bass is unchanged.
-- **Why all four notes, plainly placed.** The backing is the only part that sounds the harmony (the
-  generated line is never played), so if it left the seventh out the player would see "G7" and hear
-  G. A plain close-position chord is the same deterministic rendering as today, one note wider.
+- **Why all four notes, plainly placed.** The backing is the only part that sounds the whole chord:
+  of v3.2's guides (Part C §C19), the Melody guide plays the generated line and the Rhythm guide
+  only the chord's root, so if the backing left the seventh out the player would see "G7" and
+  hear G. A plain close-position chord is the same deterministic rendering as today, one note
+  wider.
 - **What it means for the sound.** A four-note chord packed under E4 reaches a little lower than a
   triad, down to about D3 at the lowest; the bass stays in C2 to B2, below it. The same harmony
-  always renders the same backing.
+  always renders the same backing. Each chord note keeps today's loudness, so a four-note chord
+  sounds a little fuller than a triad; the backing's own volume in the mix is unchanged, and the
+  owner's listening check of the level (L2) judges the balance with the guides on and off.
+- **The guides are unchanged.** The Rhythm guide's note is the chord's root, which a seventh does
+  not move; the Melody guide plays the line as before.
 - **Not in v3.3:** jazz voicings that leave out the root and the fifth (the bass already has the
   root), open position, or a voicing choice for the player.
 - This changes a contract guarantee (§D12).
@@ -5304,9 +5325,14 @@ whatever the chord under it. No grading, scoring or wrong-note signal.
 
 ### D8.2 Saving on the device
 
-- **The settings record and every player preset record gain the level**, stored by value under the
-  capability's name (`seventh-chords`), never through a preset's name. A new stored data version,
-  migrated when the database opens (Part A §4.3).
+- **The saved settings and every player preset record gain the level**, stored by value under the
+  capability's name (`seventh-chords`), never through a preset's name. The saved level is one more
+  record of the settings store, which keeps one record per setting, as v3.2 added Jam's settings
+  and the guides' settings with no database change. The records whose shape changes, the player
+  presets and the kept sessions (§D9), get a new stored data version, 5, and the database's step
+  to 5, run when it opens (Part A §4.3), rewrites those records with the level at Off and changes
+  nothing else in them (spec D515). A v3.2 app open on the same device then leaves a v3.3 record
+  unread as newer rather than misreading it.
 - **Saved and restored** under Part A §4.2's rules: a change is saved at once, never during a
   session.
 - **Tolerant loading:** a record written before v3.3 has no level and loads at Off; an unknown or
@@ -5333,21 +5359,36 @@ whatever the chord under it. No grading, scoring or wrong-note signal.
 
 ### D8.4 Pre-generation, Jam and the key and mode suggestion
 
-- **Pre-generation (Part A §8):** changing the level discards the pre-generated phrases, as a figure
-  level does.
+- **Pre-generation (Part A §8):** changing session mode's level discards session mode's
+  pre-generated phrases, as a figure level does. Since v3.2 session mode holds no doodle, so
+  nothing else goes.
 - **Jam:** Jam mode has **its own Seventh chords level**, apart from session mode's, default Off,
-  saved with Jam's settings (Part C §C5.16; spec D411, from ux Q86). Changing it at Jam's Idle writes
-  phrase 1 again from a kept doodle, as any Jam setting does (§C5.11). A Jam's phrases follow Jam's
-  level like any session's. The doodle still only orders candidates within each rank, chord tones
-  first; with a seventh chord the seventh shares the first rank (§D6.1).
+  saved with Jam's settings (Part C §C5.16; spec D411, from ux Q86). It is Jam's own like Jam's
+  Harmonic motion: the same four steps, first value Off, one more record of Jam's settings group
+  (no database change), loaded tolerantly at Off, reset to Off by Delete everything; changing one
+  mode's level never changes the other's, and neither enters the other mode's pre-generation.
+  - **At Jam's Idle**, changing it with a kept doodle writes phrase 1 again from that doodle and
+    discards Jam's prepared phrases, as every Jam setting but the tempo does (Part C §C5.11); the
+    kept doodle stays (spec D513).
+  - **During a Jam** it is locked and fixed for the whole Jam, like every Jam setting. Every rung
+    of a fresh Jam's phrase 1 carries it (spec D287), and every later phrase.
+  - **"Jam again on this doodle"**, from a kept Jam session's review, generates with Jam's level
+    as it stands then, like Jam's other settings (§C5.11); the kept session's phrases keep the
+    level they were generated with.
+  - Jam has no presets and no Vary settings, so §D8.1's and §D8.3's preset and Vary rules do not
+    apply to it.
+  - The doodle still only orders candidates within each rank, chord tones first; with a seventh
+    chord the seventh shares the first rank (§D6.1).
 - **The key and mode suggestion is unchanged.** It scores the doodle's own notes against the key and
   mode pairs; no generated chord enters it, so the level never changes its answer.
 
 ## D9. The generation request, the replay key and kept sessions
 
-- **The generation request carries the level**, on the player-facing request and the resolved core
-  request, by capability name and value, and the generation worker re-validates it from untrusted
-  input like every field. The carried final chord (the join) may be a seventh chord.
+- **The generation request carries the level** by capability name and value, on the player-facing
+  request (the generation intent), beside the seven figure levels and read from there as they are;
+  the resolved core request, which holds neither the controls nor the figure levels, does not
+  repeat it (spec D514). The generation worker re-validates it from untrusted input like every
+  field. The carried final chord (the join) may be a seventh chord.
 - **A new replay key version, `ifk5.`**, written for every phrase: everything `ifk4.` carries (C11),
   plus the level by capability name, and a carried final chord with its seventh when it has one. A
   new version rather than an extension, so that a v3.2 app meeting a v3.3 key refuses it instead of
@@ -5359,9 +5400,10 @@ whatever the chord under it. No grading, scoring or wrong-note signal.
   replayed without it; a later prefix is refused as an unsupported version, as today.
 - **The replay tool** (`npm run replay:phrase`) decodes all five versions and names the four new
   qualities.
-- **Kept sessions.** Each kept phrase's reproduction inputs (Part A §5.2) hold the level, and the
-  chord symbols are kept exactly as displayed. A new stored data version: sessions kept before v3.3
-  migrate with the level at Off and are otherwise unchanged.
+- **Kept sessions.** Each kept phrase's reproduction inputs (Part A §5.2) hold the level, a Jam's
+  phrases Jam's level, and its kept harmony may hold seventh chords, from which the chord symbols
+  are shown exactly as they were displayed. A new stored data version (§D8.2): sessions kept before
+  v3.3, Jam sessions included, read with the level at Off and are otherwise unchanged.
 
 ## D10. The cost guard: generation time with seventh chords
 
@@ -5372,8 +5414,9 @@ Generation must still keep up at the fastest tempo.
 - **The search allowance is not raised**: 250,000 units of search work for a phrase generated on
   its own, 160,000 for an attempt that joins the previous phrase.
 - **Measured before the gate**, on the deadline sweep of v2's definition of done (its settings and
-  seeds at 60, 120 and 240 BPM, `npm run test:sweep`), in a 240 BPM session, and for a fresh Jam's
-  phrase 1 at 240 BPM, at these settings:
+  seeds at 60, 120 and 240 BPM), in a 240 BPM session, for a fresh Jam's phrase 1 at 180 BPM
+  (Jam's fastest tempo, Part C §C5.17, spec D506), and in a session with locked bars (the rhythm
+  lock's walk, §D5.3), at these settings:
   - the baseline, the level at Off with the Neutral and Jazz defaults (it must equal v3.2's
     figures, since the phrases are the same);
   - Sometimes, Favored and Strongly favored with the Neutral and Jazz defaults;
@@ -5382,11 +5425,12 @@ Generation must still keep up at the fastest tempo.
     different degrees.
 - **Recorded for each:** the share of phrases generated, the slowest and the 95th-percentile
   generation time, the share of harmony events in their seventh form, and at 240 BPM the share of
-  phrases that fall back to being generated without the join and the share of a fresh Jam's phrase
-  1 ready by its deadline.
+  phrases that fall back to being generated without the join; at 180 BPM the share of a fresh
+  Jam's phrase 1 ready by its deadline; with locked bars, the share of locked rhythms kept.
 - **Acceptance**, against the baseline: at most 2 percentage points more fallbacks at 240 BPM; at
   most 2 percentage points fewer phrases generated at any swept setting; at most 2 percentage points
-  fewer Jam phrase 1s ready by their deadline; and no attempt generated on its own slower than the
+  fewer Jam phrase 1s ready by their deadline; at most 2 percentage points fewer locked rhythms
+  kept; and no attempt generated on its own slower than the
   standalone reserve (1.075 s in Chromium), which the failure ladder keeps for it.
 - **If a level costs more**, its share is tuned down, or the fallback made finer (§D5.3), before the
   gate. The allowance is never raised and the triad fallback is never removed.
@@ -5399,7 +5443,8 @@ What the interface must support, for `ux-writer`. Behaviour only: layout, placem
 - **The Seventh chords level control**: four steps, Off by default, with a plain description (a
   seventh chord adds a fourth note on top of the chord; the level says how often the generator
   prefers one; it is a preference, never a guarantee). Set at Idle and in the review, locked during
-  a session.
+  a session. **Jam mode has its own** (§D8.4), with the same four steps and description, set at
+  Jam's Idle and locked during a Jam; ux Q86 placed it after Harmonic motion in Jam's own settings.
 - **Where it sits.** It is a preset-held generation setting, so it lives with the settings every
   preset holds, and changing it makes Custom. It shapes the chords, not the melody's decorations,
   so the spec suggests placing it beside the harmony control (Harmonic motion) rather than among
@@ -5419,7 +5464,12 @@ What the interface must support, for `ux-writer`. Behaviour only: layout, placem
   chords" rather than "triads".
 - **Lexicon popups**: the new terms (seventh chord, the four qualities, chord extension) have popup
   lines in the lexicon, ready for the level's description and the symbols.
-- **Nothing else changes**: Jam's screens, the suggestion, the rhythm lock, the session list.
+- **Jam's screens** gain only Jam's own level (above); changing it at Jam's Idle rewrites phrase 1
+  from the kept doodle like any Jam setting, with no new message. The doodle, Jam's empty system and
+  the key and mode suggestion show no chord and are unchanged.
+- **The audio mix** is unchanged: the backing, the click and the two guides keep their switches
+  and volumes; the backing's chords simply hold four notes where the symbol says seventh.
+- **Nothing else changes**: the suggestion, the rhythm lock, tap tempo, the session list.
 
 ## D12. Contract changes needing owner confirmation
 
@@ -5427,84 +5477,147 @@ Each change is intended. Where a declared-intent entry is named, `documentalist`
 change. **STABLE guarantees change only with the owner's explicit confirmation of their exact
 wording**, given separately from approving this Part D, and a contract version bump
 (`documentalist` proposes which: a major one if a guarantee's meaning changes, as for v3.0 to v3.2).
-Below, each is given in plain words: what it means today, and what it would mean.
+Below, each is given in plain words: what it means today, and what it would mean. Checked against
+the atoms on `main` d10de742 (CONTRACT 14.0.0) on 2026-11-09: since this part was first written,
+v3.2 promoted many of the atoms it touches to STABLE, on the contract surface, so the list below
+is longer than v1.1's three (spec D517).
 
-**STABLE guarantees that change:**
+**How they are confirmed and applied** (spec D517, after spec D422's practice in v3.2): the owner
+confirms every wording below once, in one sitting, after `documentalist`'s ingestion of this part;
+`documentalist` then applies each at the sync of the wave that builds it, with the bump that sync
+needs, so `main` never holds code that disagrees with a STABLE atom. The open ending's second
+option is a separate confirmation, only if the listening check approves it (§D6.3).
 
-1. **The backing's chords** (`req_session_backing_track`).
+**STABLE guarantees whose meaning changes:**
+
+1. **The backing's chords** (`req_session_backing_track`, 0.2).
    - Today: "the chords play the highest close-position triad whose top note is at or below E4".
    - Proposed: the chords play every note of the chord the phrase uses, in the highest close
      position whose top note is at or below E4: three notes for a triad, as today, four for a seventh
      chord. The bass, the rhythm of the attacks, the determinism and the no-download rule are
      unchanged.
-2. **The open phrase ending** (`rule_open_phrase_ending`).
+2. **The open phrase ending** (`rule_open_phrase_ending`, 0.4).
    - Today: when the chords end on the dominant (the degree-5 chord), "the final event is a dominant
-     chord tone"; in modal or static music the final note is a non-home note of the home area, such
-     as scale degree 5; a phrase joined to the next may end on a "tense note (a scale tone outside
-     the final chord)" that the next phrase resolves on its first note.
+     chord tone"; with static or modal material the final event is "a non-final tonic-area
+     continuation such as scale degree 5"; a phrase joined to the next may end on a "tense note (a
+     scale tone outside the final chord)" that the next phrase resolves on its first note.
    - Proposed, first option (what ships unless the listening check approves the seventh, §D6.3):
-     the same, with every chord in this rule read as its triad. The final note is the root, third or
-     fifth of the final chord, never its seventh alone; a tense note is a scale note outside the
+     the same, with every chord this rule names read as its triad: a dominant ending ends on a note
+     of the dominant triad, never on its seventh alone, and a tense note is a scale note outside the
      final chord's triad, so a joined phrase may end on the seventh and the next phrase resolves it.
      The final notes allowed are exactly today's.
    - Proposed, second option (only if the listening check approves it, confirmed by the owner then):
      the final chord's seventh also counts as an ending note, so any phrase may end on it, for
      example F over G7, or B♭ over C7 in C Mixolydian, and the tense notes are the scale notes outside
      the whole four-note chord.
-3. **Leap recovery** (`rule_leap_recovery`).
-   - Today: at Leaping and Angular, "a large leap inside a recognized three-note chord-tone run
-     defers its debt" (its recovery) to the note after the run; the run is three notes of the chord's
-     triad.
-   - Proposed: unchanged, except that the three notes of the run may include the chord's seventh
-     when the chord is a seventh chord. A run is still exactly three notes. A few more large leaps
-     may then recover after the run rather than at once, only with seventh chords on and only at
-     Leaping and Angular.
+
+**STABLE guarantees that grow to name the level** (nothing they promise today is taken away; a
+record or key written before v3.3 reads at Off):
+
+3. **The replay key** (`module_phrase_replay_key`, 0.7): today four versions decode and `ifk4.` is
+   written for every phrase. Proposed: five versions decode and `ifk5.` is written, holding the
+   level by capability name and a carried chord with its seventh; `ifk1.` to `ifk4.` decode at Off;
+   a key naming an unknown capability is refused (§D9).
+4. **Same inputs, same phrase** (`rule_seeded_phrase_reproduction`, 0.3): the complete request it
+   lists gains the level.
+5. **What a kept session holds** (`rule_kept_session_content`, 0.7): each phrase's reproduction
+   inputs gain the level.
+6. **The stored kept session and its reading** (`entity_kept_session_record`, 0.7;
+   `module_kept_session_codec`, 0.7) and **the database** (`module_on_device_database`, 0.7): the
+   kept body's shape gains the level and may hold seventh chords, so it moves to data version 5, and
+   the database is brought to 5 by a step that rewrites the records whose shape changes, as the
+   database's rule already requires (spec D515, amending spec D279).
+7. **Player presets** (`entity_player_preset_record`, 0.2; `rule_player_presets_saved_on_device`,
+   0.1): a player preset's record holds the level beside its ten controls and seven figure levels,
+   at its next data version, written by the same step.
+8. **Presets and Custom** (`rule_choosing_preset_sets_its_settings`, 0.1; `module_preset_model`,
+   0.2; `module_generative_profile_selection`, 1.4; `module_profile_control_customization`, 1.2):
+   choosing a preset sets the level too; changing the level makes Custom.
+9. **Saved settings** (`rule_settings_saved_on_change`, 0.5; `rule_saved_settings_load_tolerantly`,
+   0.4; `rule_presets_load_tolerantly`, 0.2): session mode's level and Jam's own level join the
+   settings saved on change, both with Off as their first value and their fallback; settings and
+   presets saved before v3.3 load at Off.
 
 **STABLE guarantees checked, wording unchanged** (listed so the owner sees them;
 `documentalist` confirms no wording changes):
 
+- **Leap recovery** (`rule_leap_recovery`, 0.3): "a large leap inside a recognized three-note
+  chord-tone run defers its debt". It says "chord-tone run", never "triad", so once the seventh is
+  a chord tone (§D6.1) a run through the seventh is already covered; a run is still exactly three
+  notes. v1.1 listed it as changing; it does not (spec D517).
 - **Unfit harmony drops the carried chord** (`rule_harmony_change_drops_unfit_harmonic_carry_in`):
   "those settings never end a phrase on that chord". Settings that allow seventh chords can end on
   either form of a chord they end on, and the level is fixed for a session (§D8.3), so a seventh never
   makes a carried chord unfit by itself. The comparison by triad implements the same meaning.
 - **The join** (`rule_join_carry_in_limited`): "its final harmony event (the chord and its harmonic
   role)" may now be a seventh chord; still exactly the same four things cross.
-- **The review** (`req_last_session_review`): phrases "engraved exactly as displayed (written pitch,
-  key signature, chord symbols)"; the symbols may now include sevenths.
+- **The review** (`req_last_session_review`, `req_kept_session_review`): phrases "engraved exactly
+  as displayed (written pitch, key signature, chord symbols)"; the symbols may now include sevenths.
 - **The settings mutation guarantees** (`rule_mutation_setting_scales`,
-  `rule_mutation_marks_profile_customized`, `rule_mutation_reverts_at_session_end`): unchanged,
-  since Vary settings never moves the level.
-- `rule_tempo_never_affects_generation`, `rule_setting_change_rechecks_pitch_carry_in`,
-  `rule_key_change_drops_harmonic_carry_in`, `rule_session_generation_failure_ladder`: unchanged.
-- **The vision** (`vision_infinite_flow_first_release`, version 0.9, its wording confirmed by the
-  owner on 2026-10-12): Part D fits it as worded. Its "flags they set in the app for the chord
-  families" covers v3.3's one level for the seventh-chord family; "altered dominants and harmonic
-  substitutions" stay out; the chords stay generated. No change.
+  `rule_mutation_marks_profile_customized`, `rule_mutation_reverts_at_session_end`,
+  `module_settings_mutation`, the Vary settings rules): unchanged, since Vary settings never moves
+  the level.
+- **The mix** (`req_session_audio_mix`): unchanged; the backing keeps its channel, switch and
+  volume.
+- **Storage and the outdated tab** (`rule_outdated_tab_reads_what_it_can`,
+  `rule_earlier_kept_sessions_carried_over`, `module_saved_data_loader`, the earlier upgrade steps):
+  unchanged, since the changed shapes are written at their new version and a v3.2 tab leaves them
+  unread as newer.
+- `rule_delete_everything`, `rule_custom_selection`, `rule_preset_load_values_win`,
+  `rule_tempo_never_affects_generation`, `rule_setting_change_rechecks_pitch_carry_in`,
+  `rule_key_change_drops_harmonic_carry_in`, `rule_session_generation_failure_ladder`,
+  `module_session_seed_plan`: unchanged.
+- No Jam atom is STABLE; Jam's own level reaches the contract only through the saved-settings rules
+  of item 9.
+- **The contract** (`contract_infinite_flow_first_release`, 14.0.0): no atom joins or leaves its
+  surface; its history gains a paragraph for each bump.
+- **The vision** (`vision_infinite_flow_first_release`, version 0.11): Part D fits it as worded.
+  Its "flags they set in the app for the chord families" covers v3.3's one level for the
+  seventh-chord family; "altered dominants and harmonic substitutions" stay out; the chords stay
+  generated. Its v3.3 line still calls v3.3 "direction only and not yet designed"; once this part is
+  approved, `documentalist` refreshes that line, with the owner's confirmation of the new wording.
 
 **Other atoms that change** (REVIEW or DRAFT; `documentalist`'s change set):
 
 - `module_harmony_candidate_domain` ("exact diatonic collection and triad material"): seventh forms
   drawn per event over the same plans; colour chords measured on the triad.
+  `module_ranked_candidate_ordering`, `service_generation_orchestration`,
+  `service_generation_window_search` (both walks, §D5.3), `service_generation_result_validation`,
+  `module_named_stream_pseudorandomness` (the seventh draw), `rule_no_carry_in_output_matches_v1`.
 - `rule_leapiness_arpeggio_run_limits`: the run may include the seventh; still three notes.
 - `rule_figures_resolve_onto_chord_tones`, `rule_embellishment_figures_defined`,
   `rule_figure_level_orders_search`, `rule_levels_govern_free_figures_only`,
   `rule_tension_arc_settled`, `rule_tension_arc_build`, `rule_arpeggio_chaos_respects_constraints`,
-  `rule_jam_melody_follows_doodle_moves`, `module_pitch_search_context`,
-  `module_pitch_search_transition`: what a chord tone is (§D6.1).
-- `entity_phrase_carry_in`, `rule_join_tense_note_resolution`: a carried chord may have four notes;
-  the landing stays a tonic-triad note unless the listening check approves the seventh.
+  `rule_jam_melody_follows_doodle_moves`, `rule_doodle_only_orders_candidates`,
+  `module_pitch_steering`, `module_pitch_search_context`, `module_pitch_search_transition`: what a
+  chord tone is (§D6.1).
+- `entity_phrase_carry_in`, `rule_join_tense_note_resolution`, `module_session_carry_in_after_change`:
+  a carried chord may have four notes; the landing stays a tonic-triad note unless the listening
+  check approves the seventh; the carried note is read against the triad.
 - `rule_generated_notes_musicxml_export`, `rule_generated_notes_midi_export`,
-  `module_notation_layout_preflight` (longer symbols): §D7.
-- `module_phrase_replay_key`, `service_headless_phrase_replay`, `module_generation_request_construction`,
-  `module_generation_worker_protocol`, `rule_kept_session_content`: the level and `ifk5.` (§D9).
-- The preset and settings atoms (`rule_preset_contents`, `rule_built_in_preset_values`,
-  `rule_choosing_preset_sets_its_settings`, `rule_saved_settings_load_tolerantly`,
-  `rule_presets_load_tolerantly`, `rule_settings_saved_on_change`,
-  `rule_pregeneration_discarded_on_change`, `rule_vary_settings_allowed_groups`): the level is held,
-  saved, loaded and never varied (§D8).
+  `module_notation_layout_preflight` (longer symbols), `module_notation_note_identity_overlays`:
+  §D7.
+- `service_headless_phrase_replay`, `module_generation_request_construction`,
+  `service_generation_request_resolution`, `module_generation_worker_protocol`,
+  `rule_session_history_keeps_timeline_and_inputs`, `rule_jam_and_lock_off_reproduce_earlier_phrases`
+  (the same promise at Off), `entity_request_rhythm_lock` and `entity_steering_block` (kept by
+  `ifk5.`): the level and `ifk5.` (§D9).
+- `rule_built_in_preset_values`, `rule_preset_contents`, `rule_pregeneration_discarded_on_change`,
+  `rule_vary_settings_allowed_groups`, `module_musical_profile_capabilities` (the naming): the level
+  is held, saved, loaded and never varied (§D8).
+- **Jam's own level** (§D8.4): `req_jam_settings`, `module_jam_settings`,
+  `rule_jam_settings_saved_on_change`, `rule_jam_settings_first_values`,
+  `rule_jam_settings_load_tolerantly`, `rule_jam_setting_change_rewrites_kept_phrase_one`,
+  `rule_shared_setting_changed_in_jam_mode` (the level is per mode),
+  `rule_jam_phrase_one_failure_ladder`, `module_kept_doodle`, `rule_held_doodle_phrase_one_at_idle`,
+  `rule_jam_pregeneration_only_for_kept_doodle`.
+- A BUSINESS atom for the chord-symbol vocabulary and its spoken words (spec D285).
 - Unchanged and checked: `module_notation_display_convention` (it already keeps a chord's quality and
   extensions when transposing), `rule_neutral_profile_diatonic_harmony` and
-  `rule_jazz_chromatic_resolution` (the harmony stays diatonic).
+  `rule_jazz_chromatic_resolution` (the harmony stays diatonic), `rule_held_doodle_dropped_on_change`
+  (a level change keeps the kept doodle), `rule_rhythm_guide_notes` and
+  `module_guide_playback_layers` (the root does not move), `rule_guide_never_exported`, the rhythm
+  lock's rules, the key and mode suggestion's.
 
 **Project documents that follow at the build:** the
 [harmony planner policy](../../../docs/music/harmony-planner-policy.md#collection-and-chord-vocabulary)
@@ -5514,13 +5627,14 @@ chord, chord symbol, chord tone, run, voicing and the four seventh-chord qualiti
 
 **Part A, B and C text this part extends:** B6.1 and B6.5 (every preset holds the level, built-ins
 at Off), B7 (the records hold it), B9 and C11 (the request and the key, now `ifk5.`), C9 (the level
-in no allowed group), Part A §5.2 and §8 (kept phrases' inputs; the level discards pre-generated
-phrases).
+in no allowed group), C5.16 and C10.2 (Jam's own level and its saving), Part A §5.2 and §8 (kept
+phrases' inputs; the level discards pre-generated phrases).
 
 ## D13. Existing code and risks
 
-From the chord research's reading of the code on 2026-10-12, and a re-check of the harmony planner
-and the join the same day while writing this part. Line references are in the research's
+From the chord research's reading of the code on 2026-10-12, a re-check of the harmony planner
+and the join the same day while writing this part, and a re-check of all of it on `main` d10de742
+(v3.2 through wave 7) on 2026-11-09. Line references are in the research's
 [code table](../../../docs/music/chord-research.md#where-a-fourth-chord-note-meets-the-code).
 
 - **The chord type is a triad everywhere.** The chord's notes are a fixed three-item list with
@@ -5528,20 +5642,34 @@ and the join the same day while writing this part. Line references are in the re
   needed, in the harmony types, the collection, the planner and everything that reads a chord.
 - **The planner** builds candidate plans from the triads, merges a chord held across a barline into
   one event, and returns an ordered list that the orchestrator ranks by seed and searches with the
-  rhythm candidates. The seventh variants fit that list (§D5.3). The result validator rebuilds the
-  same plans to check a phrase, so it needs the level too.
+  rhythm candidates, in one of two walks: every rhythm for each plan, or, with locked bars (v3.2's
+  rhythm lock), every plan for each locked rhythm. The seventh variants fit that list in both walks
+  (§D5.3). The result validator and the join's fit check rebuild the same plans, so they need the
+  level too; nothing v3.2 added (Jam, the lock, the doodle's steering) rebuilds them.
 - **The join** compares chords by degree, three notes and quality, and refuses a carried chord the
   settings never end on; the carry-in refuses any chord that is not a three-note triad, so a carried
-  seventh chord would be refused as malformed today (§D8.3).
+  seventh chord would be refused as malformed today (§D8.3). The carried final note's chord-tone
+  fact serves both "is it tense" and runs across the join, so it keeps reading the triad (§D6.3).
 - **The pitch search** ranks chord tones first and treats the other scale notes as decorating notes;
-  the run check needs three chord tones of one chord; endings and the join's landing read the triad.
-  The figure validator assumes a note one step from a chord tone is never a chord tone.
-- **The backing** knows three qualities and tries three arrangements.
+  the run check needs three chord tones of one chord, and runs are recognized in three places (the
+  search, the validator, and the replay that derives what a phrase owes the next one); endings and
+  the join's landing read the triad. The figure validator assumes a note one step from a chord tone
+  is never a chord tone. A Jam's doodle ranks candidates by their chord-tone role, never by reading
+  the triad, so it follows the seventh with no change of its own.
+- **The backing** knows three qualities and tries three arrangements; it plays each chord note on
+  one voice at a fixed loudness, through the backing's own channel of v3.2's mix. The Rhythm guide,
+  new in v3.2, reads only the chord's root.
 - **Notation and exports** map a suffix per triad quality; the MusicXML export throws on any other
-  suffix; the spoken description reads unknown suffixes letter by letter. VexFlow's chord-symbol
+  suffix; the spoken description passes an unknown suffix through as written. VexFlow's chord-symbol
   support has the ♭ glyph, unused today.
-- **The replay key** is `ifk1.` today; `ifk2.` to `ifk4.` come with v3.0 to v3.2, so v3.3's is
+- **The replay key** is `ifk4.` since v3.2 (`ifk1.` to `ifk3.` still decode), so v3.3's is
   `ifk5.`. The replay tool names each chord's triad quality.
+- **Storage** is at data version 4 (v3.2's kept-session step). Settings are one record per setting:
+  Jam's settings and the guides' settings were added with no database step. A kept phrase stores
+  its generation intent and its harmony, whose reader takes exactly three pitch classes; chord
+  symbols are not stored but drawn again from that harmony.
+- **Jam's settings** are their own group (`JAM_SETTING_FIELDS`), with no chord setting yet; a Jam's
+  phrase 1 is built from them, by its own intent builder.
 
 **At risk:**
 
@@ -5550,9 +5678,14 @@ and the join the same day while writing this part. Line references are in the re
 - **Generation cost** (§D10): a fourth chord tone and the triad fallback can slow searches or make
   some fail; measured before the gate.
 - **Layout**: longer chord symbols, two per measure, at narrow widths.
-- **Migration**: settings, player presets and kept sessions gain a data version.
-- **Contract**: three STABLE guarantees change (§D12), which needs the owner's confirmation before
-  the gate; the open ending's wording depends on the listening check.
+- **Migration**: player presets and kept sessions gain a data version; the two levels are new
+  settings records.
+- **Contract**: STABLE guarantees change (§D12), which needs the owner's confirmation before the
+  gate; the open ending's wording depends on the listening check.
+- **The rhythm lock's walk** (§D5.3): with the plan list growing, a locked rhythm spends more of the
+  same search allowance before it gives way; measured (§D10).
+- **The entry budget**: 320 KiB since spec D504, with about 16 KB left after v3.2's wave 7; the
+  control adds a few lines.
 
 ## D14. Architectural decisions and their reasons
 
@@ -5575,7 +5708,9 @@ and the join the same day while writing this part. Line references are in the re
 - **Runs stay three notes**, because three notes can already sound the seventh and raising the cap
   changes a contract rule.
 - **The backing plays every note of the chord**, because it is the only part that sounds the
-  harmony.
+  whole chord (the guides play the line and the root).
+- **Jam has its own level** (spec D411), because Jam's harmony settings are Jam's own, and session
+  mode never moves under the player.
 - **Letters for the symbols**, because the app already writes "m" and "dim", and one system kept
   consistently is the textbook advice.
 - **The level is preset-held, every built-in at Off**, because a preset must give the same sound
@@ -5586,13 +5721,21 @@ and the join the same day while writing this part. Line references are in the re
   capability as data.
 - **A new key version**, because an older app should refuse a key it cannot honor rather than
   replay a different phrase silently.
+- **The level on the generation intent only**, beside the figure levels, because the resolved
+  request carries neither the controls nor the figure levels, and a kept phrase already stores its
+  intent (spec D514).
+- **Changed records rewritten at the upgrade**, because the database's STABLE rule reads a record
+  below its shape's version as unreadable; a step that rewrote nothing would need that rule changed
+  (spec D515).
 
 ## D15. Definition of done
 
 v3.3 ships when every item holds, each verified by a named test or a recorded hand check.
 
 1. **The level** exists with four values, Off by default; it is set at Idle (the review included),
-   locked during a session, saved and restored after a reload, and held by every preset.
+   locked during a session, saved and restored after a reload, and held by every preset. Jam mode's
+   own level has the same four values, Off by default, is set at Jam's Idle, locked during a Jam,
+   saved and restored with Jam's settings, and never changes session mode's level or the reverse.
 2. **Off reproduces v3.2.** At Off, the generator produces, for the same request and seed, exactly
    the phrase v3.2 produces, on a fixed sweep of seeds and settings in every mode, with Jam and the
    rhythm lock included; every `ifk1.` to `ifk4.` key decodes to the same phrase as in the version
@@ -5632,39 +5775,49 @@ v3.3 ships when every item holds, each verified by a named test or a recorded ha
     four opens in MuseScore with the right symbols (recorded hand check).
 13. **Presets.** Every built-in holds Off; choosing a preset sets the level; changing the level makes
     Custom; a player preset saves and restores it by value.
-14. **Persistence.** The settings and player preset records hold the level by capability name;
-    records from before v3.3 load at Off, an invalid value loads at Off, and a saved level differing
-    from the preset's loads as Custom; the migration to the new data version runs when the database
-    opens.
+14. **Persistence.** The settings and player preset records hold the level by capability name,
+    and Jam's settings hold Jam's own; records from before v3.3 load at Off, an invalid value loads
+    at Off, and a saved level differing from the preset's loads as Custom; the migration to data
+    version 5 runs when the database opens and rewrites only the player presets and kept sessions,
+    with the level at Off.
 15. **Vary settings** never moves the level, and the level is in no allowed group; nothing changes
     it during a session.
-16. **Pre-generation:** changing the level discards the pre-generated phrases and drops a held
-    doodle; a pre-generated phrase equals the session's at every level.
+16. **Pre-generation:** changing session mode's level discards session mode's pre-generated
+    phrases; changing Jam's level at Jam's Idle writes phrase 1 again from the kept doodle and
+    discards Jam's prepared phrases, the kept doodle staying; a pre-generated phrase equals the
+    session's at every level.
 17. **The join across phrases**: a carried seventh chord is accepted and compared by its triad; a key
     or mode change still drops it.
 18. **Replay keys:** v3.3 writes `ifk5.` for every phrase, holding the level by capability name and a
     four-note carried chord when there is one; the same `ifk5.` key gives the same phrase in Chrome;
     a key naming an unknown capability is refused with the reason; the replay tool decodes all five
     versions and names the four qualities.
-19. **Kept sessions:** each kept phrase's inputs hold the level and its symbols as displayed;
-    sessions kept before v3.3 migrate at Off with their timelines untouched.
+19. **Kept sessions:** each kept phrase's inputs hold the level it was generated with (a Jam's,
+    Jam's level), and its symbols show as displayed; sessions kept before v3.3, Jam sessions
+    included, migrate at Off with their timelines, reviews and exports untouched.
 20. **The generation worker** re-validates the level from untrusted input.
 21. **The cost guard** of §D10 is measured on its settings, recorded, and met.
-22. **Jam and the suggestion:** a Jam's phrases follow the level; the suggestion's answer for a
-    doodle is the same at every level.
+22. **Jam and the suggestion:** every phrase of a Jam, each rung of a fresh Jam's phrase 1
+    included, follows Jam's own level; "Jam again on this doodle" uses Jam's level as it stands;
+    the suggestion's answer for a doodle is the same at every level.
 23. **Acknowledgement unchanged**, and nothing is graded, scored or marked wrong.
 24. **v3.2, v3.1, v3.0 and v2 behaviour otherwise unchanged:** their test suites pass, apart from
     the tests §D12's changes replace, each with its v3.3 counterpart.
 25. **The declared-intent contract** reflects §D12's changes, with the owner's explicit confirmation
     of their wording recorded.
+26. **The rhythm lock** (added in v1.2): with locked bars, each plan is tried in both its forms
+    before a locked rhythm gives way; the lock's measurement of §D10 is met.
+27. **The guides** (added in v1.2) play as in v3.2 over seventh chords: the Rhythm guide's notes
+    are the chords' roots, unchanged.
 
 ## D16. Deferred and open
 
 - **Measured before the gate, not open questions:** the Sometimes and Favored shares, starting at
   about 1 in 4 and 1 in 2 (§D5.2); the cost guard's figures (§D10); the listening check on endings and
   landings, which picks the open ending's wording (§D6.3).
-- **From the owner:** approval of this Part D; then the exact wording of §D12's three STABLE changes
-  (the open ending's second option only if the listening check approves it).
+- **From the owner:** approval of this Part D; then, in one sitting, the exact wording of §D12's
+  STABLE changes (the open ending's second option only if the listening check approves it), and the
+  vision's refreshed v3.3 line; and whether v3.3 may start before v3.2's tag (open question O306).
 - **For `documentalist`:** the declared-intent changes of §D12, and the lexicon's "in Infinite Flow"
   lines once v3.3 is built.
 - **Design, for `ux-writer`:** §D11.
@@ -5688,5 +5841,6 @@ v3.3 ships when every item holds, each verified by a named test or a recorded ha
 
 Unchanged from Part A §15: exactly one local user, with no accounts, roles, permissions or
 sharing. Whoever has the page open can do everything the app offers, the Seventh chords level
-included. The level joins the settings kept for "whoever uses this browser profile on this
-device"; Delete everything resets it to Off. Nothing new leaves the device.
+included. Both levels, session mode's and Jam's, join the settings kept for "whoever uses this
+browser profile on this device"; Delete everything resets both to Off. Nothing new leaves the
+device.

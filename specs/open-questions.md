@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.86
+Status: draft v0.87
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -140,6 +140,26 @@ amended is revised, and no question comes back unless the owner reopens it.
   pass that touches it, I0 at the latest; v3.3's
   [chunk 15](versions/v3/build-plan-v3.3.md#chunk-15--replay-key-ifk5) must not repeat it for
   `ifk5.`. It blocks no chunk.
+
+## v3.3 refresh (O306+)
+
+Opened 2026-11-09 by `spec-writer`'s review of Part D and the v3.3 build plan against v3.2 as
+built (D511). Every other gap that review found follows from settled decisions and is proposed
+for approval with Part D (D512–D518).
+
+- **O306 - May v3.3 start before v3.2 is released?** _(D511; [build plan v3.3, gate
+  R0](versions/v3/build-plan-v3.3.md#gates); for the owner, at A0)_: in plain words: the plan lets
+  v3.3's building start only once v3.2 is released as version 3.2.0. All of v3.2's code is
+  finished and merged, but its release waits on your Jam hand checks, which you have set aside for
+  a while. v3.3's first step records exactly what today's app writes for many settings (every
+  phrase, its backing chords and its files), so that each later step can prove that with Seventh
+  chords left Off nothing changes. Option A, wait: v3.3 starts after your Jam checks and the
+  3.2.0 tag; nothing is ever redone. Option B, start after you approve v3.3: that recording is made
+  on today's code; if your Jam checks later lead to a fix that changes what Jam writes, the
+  recording is made again and the v3.3 steps built by then are re-checked against it (machine
+  work, no new design). Either way 3.3.0 is released only after 3.2.0.
+  Proposed: B, since the Jam checks are listening checks whose likely fixes touch Jam only, and
+  v3.3's session-mode work does not wait on them.
 
 ## v3.0 wave 2 (O180+)
 
