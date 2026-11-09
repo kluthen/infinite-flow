@@ -1,6 +1,8 @@
 # Infinite Flow v3.3 — Build Plan
 
-Status: v5 (2026-11-09): v4 approved by the owner with Part D v1.2 (gate A0, spec D520) and the
+Status: v6 (2026-11-09): v5 with no decision: every design link points into the approved design
+frozen in `ui_ux/versions/v3.3/` (gate D0, ux D482).
+v5 (2026-11-09): v4 approved by the owner with Part D v1.2 (gate A0, spec D520) and the
 design approved (gate D0, ux D482); spec D521 written in: gate R0 clears at v3.2's `3.2.0` tag,
 whose release gate runs without the owner's hand checks, and a later 3.2.x fix re-records chunk 1's
 corpus.
@@ -16,8 +18,8 @@ v3 (2026-10-16): migrated to the build-plan model and waves re-formed (spec D351
 
 The Seventh chords level (richer chords, optional), written from
 [master spec Part D](master-spec.md#part-d--v33) (v1.2, 2026-11-09, with spec D263–D275 and
-D511–D519; approved by the owner on 2026-11-09: gate A0, spec D520) and the v3.3 design at the root of
-[`ui_ux/`](../../../ui_ux/README.md) (ux D252–D264, refreshed by ux D477–D481; approved by the owner on
+D511–D519; approved by the owner on 2026-11-09: gate A0, spec D520) and the v3.3 design, frozen at its approval in
+[`ui_ux/versions/v3.3/`](../../../ui_ux/versions/v3.3/README.md) (ux D252–D264, refreshed by ux D477–D481; approved by the owner on
 2026-11-09: gate D0, ux D482):
 everything marked `[v3.3 new]`, `[v3.3 changed]` or with a `_v3.3 …:_` change-block line. Its
 planning decisions, spec D276–D288, are approved with Part D (spec D520). Code facts: the
@@ -99,7 +101,7 @@ lists each pair (item 24).
 | **A0** | The owner approves [Part D](master-spec.md#part-d--v33) (v1.2, D263–D275, D511–D519), the planning decisions D276–D288 and this plan, R0 included: no v3.3 coding chunk before v3.2's release, since chunk 1's corpus must be recorded on the code v3.2 ships (spec D521). D276's "CONTRACT 3.0 to 4.0" predates v3.0's to v3.2's own bumps (the contract atom is at 14.0.0): v3.3's first bump is the next major after v3.2's release, 15.0.0 if that release adds none (D517). | The owner | Everything | done (2026-11-09, the owner: "Approve both"; spec D520) |
 | **I0** | Not an owner step: `documentalist` ingests Part D (skill `atd-spec-ingestion`). It creates the DRAFT atoms tagged `release-v3.3`, tags `changes-in-v3.3` and writes `docs/release/v3.3-intent-change-set.md`, whose part A holds the exact wording of every STABLE change §D12 lists (D517), and which adds any atom §D12 still misses (D285). It confirms as drift checks the STABLE guarantees whose wording does not change (`rule_join_carry_in_limited`, `rule_harmony_change_drops_unfit_harmonic_carry_in`, `req_last_session_review`, the mutation guarantees and the others §D12 lists), and refreshes the vision's v3.3 line ("direction only and not yet designed") with the owner's sign-off. | `documentalist`, after A0 | C1; chunk 0 | open |
 | **C1** | Contract sign-off, in one sitting: the owner confirms the exact wording of every STABLE change [§D12](master-spec.md#d12-contract-changes-needing-owner-confirmation) lists: `req_session_backing_track`, `rule_open_phrase_ending` (first option: the triad reading) and items 3–9 (the replay key, reproduction, kept sessions and the database, player presets, presets and Custom, saved settings). `documentalist` applies each at the sync of the wave whose chunk builds it, with the bump that sync needs, so `main` never holds code a STABLE atom contradicts (D517, after D422). Proposed right after I0, best before wave 1 starts. | The owner; `documentalist`, after I0 | **Merging** chunks [11](#chunk-11--presets-hold-the-level) (wave 1), [5](#chunk-5--the-seventh-as-a-chord-tone-in-the-pitch-search), [6](#chunk-6--the-validator-reads-the-seventh-as-a-chord-tone), [9](#chunk-9--the-backing-plays-the-seventh) (wave 2), [15](#chunk-15--replay-key-ifk5) (wave 3), [17](#chunk-17--the-level-on-the-device-data-version-5) (wave 4) and [23](#chunk-23--jams-own-seventh-chords-level) (wave 5); through 5 and 6, chunk 7's start; through 5–7, chunk 12 | open |
-| **D0** | The owner approves the v3.3 design ([`ui_ux/todo.md`](../../../ui_ux/todo.md)); if `ux-writer` freezes it into `ui_ux/versions/v3.3/`, `spec-writer` repoints this plan's design links there. No token pass: v3.3 adds no token, class or motion (ux D261; D284). | The owner; `ux-writer`; `spec-writer` | Chunks 14 and 19 (the description sentences ship with 19) | done (2026-11-09, the owner: "Approve both"; ux D482, which froze the design into `ui_ux/versions/v3.3/`; the links are repointed there once that freeze is on `main`) |
+| **D0** | The owner approves the v3.3 design ([`ui_ux/versions/v3.3/`](../../../ui_ux/versions/v3.3/README.md)); if `ux-writer` freezes it into `ui_ux/versions/v3.3/`, `spec-writer` repoints this plan's design links there. No token pass: v3.3 adds no token, class or motion (ux D261; D284). | The owner; `ux-writer`; `spec-writer` | Chunks 14 and 19 (the description sentences ship with 19) | done (2026-11-09, the owner: "Approve both"; ux D482, which froze the design into `ui_ux/versions/v3.3/`; the links point there (plan v6)) |
 | **R0** | v3.2 is released: the [v3.2 release gate](build-plan-v3.2.md#chunk-27--v32-release-gate) passed and `3.2.0` is tagged, so chunk 1's corpus is recorded on the code v3.2 ships. The release gate runs its machine half only; v3.2's hand and listening checks follow the tag (spec D521; [v3.2.x follow-ups](build-plan-v3.2.md#after-the-tag-v32x-follow-ups)). **After a 3.2.x fix:** a fix that changes anything chunk 1 recorded (a phrase, its backing or its files) has chunk 1's corpus recorded again on the fix's tag, and every v3.3 chunk merged by then re-checked against it (machine work, no new design); a fix that changes none of them needs nothing. 3.3.0 is released only on code that holds every 3.2.x fix. | The owner, at v3.2's release | Chunk 1, and through wave 0 every later wave | waits on the v3.2 release gate's machine run and the tag (D521) |
 | **DP** | The finer-fallback decision ([M1](#m1--the-seventh-share)): chunk 18's M1 says whether Strongly favored reaches 3 in 4 harmony events in their seventh form. The owner is told the figures and the outcome; `spec-writer` records the decision. Re-checked at the release gate: if L2's tuning breaks 3 in 4, the decision is reopened. | Chunk 18's figures; `spec-writer` | Chunk 20 (built or skipped) | open (after chunk 18, wave 4) |
 | **U1a** | `ux-writer` reads the first shares chunk 18 reports (item 5) and confirms the labels Off, Sometimes, Often, Mostly, or changes them (ux D254; ux Q77, closed by spec D275). | `ux-writer` | Chunk 19's labels | open (after chunk 18) |
@@ -923,9 +925,9 @@ Architecture capture: none
   `score-description.spec.ts` (extended).
 - **Spec sections:** [§D7.1](master-spec.md#d71-chord-symbols); items 11 (the symbol text and the
   words), 18 (the replay tool names the qualities), 2 (guarded).
-- **Design docs:** [`screens/phrase-workspace/handoff.md`](../../../ui_ux/screens/phrase-workspace/handoff.md)
+- **Design docs:** [`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.3/screens/phrase-workspace/handoff.md)
   (Notation Contract: Seventh chord symbols; The score's spoken description),
-  [`screens/last-session-review/handoff.md`](../../../ui_ux/screens/last-session-review/handoff.md)
+  [`screens/last-session-review/handoff.md`](../../../ui_ux/versions/v3.3/screens/last-session-review/handoff.md)
   (Seventh chords).
 - **Atoms:** Part D §D7.1 until I0 (the symbols and their words; a new BUSINESS atom, D285); (v2)
   `module_notation_display_convention`, `rule_notation_display_preserves_phrase`. Drift check:
@@ -961,11 +963,11 @@ Architecture capture: none (it builds on chunk 3's)
   `tests/unit/domain/presets/`.
 - **Spec sections:** [§D8.1](master-spec.md#d81-presets); items 13 (the rules), 1 (held by every
   preset).
-- **Design docs:** [`flows/presets/handoff.md`](../../../ui_ux/flows/presets/handoff.md) (Routing
+- **Design docs:** [`flows/presets/handoff.md`](../../../ui_ux/versions/v3.3/flows/presets/handoff.md) (Routing
   Rules, the `[v3.3 changed]` items),
-  [`screens/phrase-workspace/handoff.md`](../../../ui_ux/screens/phrase-workspace/handoff.md)
+  [`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.3/screens/phrase-workspace/handoff.md)
   (Components and Content: Custom),
-  [`screens/preset-sheet/handoff.md`](../../../ui_ux/screens/preset-sheet/handoff.md) (What the
+  [`screens/preset-sheet/handoff.md`](../../../ui_ux/versions/v3.3/screens/preset-sheet/handoff.md) (What the
   Main Action Does).
 - **Atoms:** Part D §D8.1 until I0; (v3.1) `rule_custom_selection`.
 - **Revisions:** revise (STABLE, C1's wordings) `rule_choosing_preset_sets_its_settings`,
@@ -1091,7 +1093,7 @@ Architecture capture: none
   `tests/unit/export/musicxml/musicxml-encoder.spec.ts`, `musicxml-schema.spec.ts` (extended);
   [`docs/export.md`](../../../docs/export.md).
 - **Spec sections:** [§D7.2](master-spec.md#d72-exports); items 12, 2 (guarded).
-- **Design docs:** [`flows/review-and-export/handoff.md`](../../../ui_ux/flows/review-and-export/handoff.md)
+- **Design docs:** [`flows/review-and-export/handoff.md`](../../../ui_ux/versions/v3.3/flows/review-and-export/handoff.md)
   (Seventh chords in the files).
 - **Atoms:** Part D §D7.2 until I0; (v2) `rule_export_contents_never_merged`. Drift check:
   `module_review_export_pipeline`.
@@ -1139,9 +1141,9 @@ Architecture capture: none
 - **Spec sections:** [§D7.1](master-spec.md#d71-chord-symbols),
   [§D11](master-spec.md#d11-for-the-interface-design); item 11 (the layout holds the longest
   symbol; the review and the live view).
-- **Design docs:** [`screens/phrase-workspace/handoff.md`](../../../ui_ux/screens/phrase-workspace/handoff.md)
+- **Design docs:** [`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.3/screens/phrase-workspace/handoff.md)
   (Notation Contract: Seventh chord symbols, Fit; Layout Tree, `chord-symbol`),
-  [`screens/last-session-review/handoff.md`](../../../ui_ux/screens/last-session-review/handoff.md)
+  [`screens/last-session-review/handoff.md`](../../../ui_ux/versions/v3.3/screens/last-session-review/handoff.md)
   (Seventh chords).
 - **Atoms:** Part D §D7.1 until I0 (the layout half); (v2) `module_notation_engraving_anchors`,
   `rule_session_layout_fixed_at_start`, `req_last_session_review` (STABLE, wording unchanged).
@@ -1246,10 +1248,10 @@ Architecture capture: none (it builds on chunk 12's)
 - **Spec sections:** [§D8.3](master-spec.md#d83-vary-settings-and-the-session),
   [§D8.4](master-spec.md#d84-pre-generation-jam-and-the-key-and-mode-suggestion), Part A §8; items
   15, 16, 22, 1 (locked during a session).
-- **Design docs:** [`flows/play-session/handoff.md`](../../../ui_ux/flows/play-session/handoff.md)
+- **Design docs:** [`flows/play-session/handoff.md`](../../../ui_ux/versions/v3.3/flows/play-session/handoff.md)
   (the Seventh chords level never moves),
-  [`flows/generate-phrase/handoff.md`](../../../ui_ux/flows/generate-phrase/handoff.md) (Prepared
-  phrases), [`flows/presets/handoff.md`](../../../ui_ux/flows/presets/handoff.md) (prepared phrases
+  [`flows/generate-phrase/handoff.md`](../../../ui_ux/versions/v3.3/flows/generate-phrase/handoff.md) (Prepared
+  phrases), [`flows/presets/handoff.md`](../../../ui_ux/versions/v3.3/flows/presets/handoff.md) (prepared phrases
   and presets).
 - **Atoms:** Part D §D8.3 and §D8.4 until I0; (v2, STABLE) `rule_mutation_setting_scales`,
   `rule_mutation_marks_profile_customized`, `rule_mutation_reverts_at_session_end`; (v3.0)
@@ -1315,9 +1317,9 @@ newer. A kept body's harmony without a seventh reads as triads.
   [§D9](master-spec.md#d9-the-generation-request-the-replay-key-and-kept-sessions) (kept sessions),
   [§D17](master-spec.md#d17-access-model); items 14, 19, 1 (saved and restored), 13 (a player
   preset saves it by value).
-- **Design docs:** [`flows/saved-data/handoff.md`](../../../ui_ux/flows/saved-data/handoff.md) (What
+- **Design docs:** [`flows/saved-data/handoff.md`](../../../ui_ux/versions/v3.3/flows/saved-data/handoff.md) (What
   Is Saved; Load),
-  [`flows/review-and-export/handoff.md`](../../../ui_ux/flows/review-and-export/handoff.md) (Saving
+  [`flows/review-and-export/handoff.md`](../../../ui_ux/versions/v3.3/flows/review-and-export/handoff.md) (Saving
   the Session).
 - **Atoms:** Part D §D8.2 and §D9's kept-session atoms until I0; (v3.0)
   `rule_saved_settings_load_tolerantly`, `rule_saved_setting_is_players_choice`,
@@ -1426,10 +1428,10 @@ Architecture capture: none
   [§D11](master-spec.md#d11-for-the-interface-design); items 1, 13 (changing the level makes
   Custom, in the app), 11 (symbols in the live view after raising the level), 23 (nothing marks a
   phrase).
-- **Design docs:** [`screens/phrase-workspace/handoff.md`](../../../ui_ux/screens/phrase-workspace/handoff.md)
+- **Design docs:** [`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.3/screens/phrase-workspace/handoff.md)
   (Layout Tree; Components and Content: Seventh chords, Custom, Vary settings; Responsive
-  Behavior), [`flows/play-session/handoff.md`](../../../ui_ux/flows/play-session/handoff.md),
-  [`flows/generate-phrase/handoff.md`](../../../ui_ux/flows/generate-phrase/handoff.md).
+  Behavior), [`flows/play-session/handoff.md`](../../../ui_ux/versions/v3.3/flows/play-session/handoff.md),
+  [`flows/generate-phrase/handoff.md`](../../../ui_ux/versions/v3.3/flows/generate-phrase/handoff.md).
 - **Atoms:** Part D §D5.2 and §D11 until I0 (the level, set at Idle, locked in a session); (v3.1)
   `rule_custom_selection`; (v3.0) `rule_session_settings_locked`.
 - **Revisions:** revise `module_generation_control_catalog` (if the level gets its first-load value
@@ -1551,12 +1553,12 @@ loaded tolerantly at Off. It is never shared with session mode's level.
 - **Spec sections:** [§D8.4](master-spec.md#d84-pre-generation-jam-and-the-key-and-mode-suggestion),
   [§D11](master-spec.md#d11-for-the-interface-design),
   [§D17](master-spec.md#d17-access-model); items 1, 14, 16, 19, 22 (Jam's halves), 2 (guarded).
-- **Design docs:** [`screens/phrase-workspace/handoff.md`](../../../ui_ux/screens/phrase-workspace/handoff.md)
+- **Design docs:** [`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.3/screens/phrase-workspace/handoff.md)
   (Jam's Foundation: Seventh chords),
-  [`flows/jam/handoff.md`](../../../ui_ux/flows/jam/handoff.md) (A Jam setting changed with a kept
-  doodle), [`flows/saved-data/handoff.md`](../../../ui_ux/flows/saved-data/handoff.md),
-  [`flows/generate-phrase/handoff.md`](../../../ui_ux/flows/generate-phrase/handoff.md),
-  [`flows/review-and-export/handoff.md`](../../../ui_ux/flows/review-and-export/handoff.md) (a
+  [`flows/jam/handoff.md`](../../../ui_ux/versions/v3.3/flows/jam/handoff.md) (A Jam setting changed with a kept
+  doodle), [`flows/saved-data/handoff.md`](../../../ui_ux/versions/v3.3/flows/saved-data/handoff.md),
+  [`flows/generate-phrase/handoff.md`](../../../ui_ux/versions/v3.3/flows/generate-phrase/handoff.md),
+  [`flows/review-and-export/handoff.md`](../../../ui_ux/versions/v3.3/flows/review-and-export/handoff.md) (a
   Jam's kept phrases and "Jam again on this doodle").
 - **Atoms:** Part D §D8.4 until I0 (Jam's own level); (v3.2) `rule_jam_phrase_one_failure_ladder`,
   `rule_held_doodle_dropped_on_change`. Drift check: `module_kept_doodle`,
