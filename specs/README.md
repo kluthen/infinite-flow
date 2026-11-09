@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.88
+Status: draft v0.89
 
 ## Status Snapshot
 
@@ -67,9 +67,10 @@ Status: draft v0.88
     chunk 2's report, v10 the CS sign-off, D421, v11 wave 1's preflight corrections, gates CN and
     CK, D422, D423, v12 chunk 5's change kinds, D424, v13 the steering block's shape, D425, v14 chunk 15's dead-end test, D426, v15 wave 2's preflight corrections, D427–D430, v16 chunk 3's findings, D431–D433, v17 the orderings' time, D434, v18 chunk 11's two points, D435, D436, v19 wave 3's preflight corrections and the first-load total, D437, D438, v20 chunk 16's finding, D439, v21 wave 4's preflight corrections and gate answers, D440–D444, v22 the raised variety's mark and the step at the note density as read, ux D355, D445, D446, v23 ISS-015 deferred, D447, D448, v24 gate LD and L3's step 2, new chunk 34, D449, D450, v25 the worker's budget at 170 KiB, D451, v26 wave 5's preflight corrections, gate CL and chunk 29's double, D452–D454): 33 chunks in eight waves, session mode first, one release, 3.2.0.
   - **v3.3:** richer chords, opt-in: one Seventh chords level, Off by default, diatonic sevenths
-    only. Master spec [Part D](versions/v3/master-spec.md#part-d--v33), awaiting owner approval
-    (D264–D275); build plan [v3.3](versions/v3/build-plan-v3.3.md), v3, not approved, after
-    v3.2's release (D276–D288).
+    only; Jam mode has its own. Master spec [Part D](versions/v3/master-spec.md#part-d--v33) v1.2,
+    refreshed against v3.2 as built (D511–D518), awaiting owner approval (D264–D275); build plan
+    [v3.3](versions/v3/build-plan-v3.3.md), v4, 23 chunks (two conditional) in six waves, not approved, after
+    v3.2's release or as O306 rules (D276–D288).
   - **v3.4:** a structural review before v4, with no player-facing change: soundness for
     expansion, the entry budget, refactors worth taking, a split into libraries. The last v3
     milestone, after v3.3 (D389); [scoping draft](versions/v3/structural-review.md), the analysis
@@ -107,7 +108,7 @@ Status: draft v0.88
   record), [v3.1](versions/v3/build-plan-v3.1.md) (v23, complete; chunk 21 is the release gate's
   record, and its hand checks H3–H5 follow the tag; on the build-plan model with the shared
   [v3 build workflow](versions/v3/build-workflow.md), D349; its [wave log](versions/v3/wave-log-v3.1.md)), [v3.2](versions/v3/build-plan-v3.2.md) (v26, rewritten for Jam as its own mode, D416, then corrected against the design; approved, H9 waived, D417; gate CS signed off, D421; wave 1's preflight corrections, D422, D423; chunk 5's change kinds, D424; the steering block's shape, D425; chunk 15's dead-end test, D426; wave 2's preflight corrections, D427–D430; chunk 3's findings, D431–D433; the orderings' time, D434; chunk 11's two points, D435, D436; wave 3's preflight corrections, D437; the first-load total, D438; chunk 16's finding, D439; wave 4's preflight corrections and gate answers, D440–D444; then v22–v26, D445–D454)
-  and [v3.3](versions/v3/build-plan-v3.3.md) (v3, on the build-plan model, D351; not approved;
+  and [v3.3](versions/v3/build-plan-v3.3.md) (v4, on the build-plan model, D351, refreshed against v3.2 as built, D511–D518; not approved;
   depends on owner approval of Part D). Every build plan runs wave by
   wave (D252): one intent preflight and one full wave gate per wave; a chunk checks only its own
   change.

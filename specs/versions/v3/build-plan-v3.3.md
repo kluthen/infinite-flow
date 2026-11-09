@@ -1,16 +1,24 @@
 # Infinite Flow v3.3 — Build Plan
 
-Status: v3 (2026-10-16): migrated to the build-plan model and waves re-formed (spec D351); not
-approved (gate A0).
+Status: v4 (2026-11-09): v3 refreshed against v3.2 as built (main d10de742, CONTRACT 14.0.0), with
+spec D511–D518 written in (master spec Part D v1.2): stale code references, tools and budgets
+corrected; Jam's own level gets new chunk 23 in wave 5 (D512); a level change keeps the kept doodle
+(D513); the level rides the intent only (D514); data version 5 rewrites the changed records (D515);
+the rhythm lock's walk, the carried note and Jam's measurement at 180 BPM (D516); C1 widened to
+every STABLE atom §D12 now lists, applied wave by wave (D517); the guides (D518). Not approved
+(gate A0). Then: chunk 23's design docs add `flows/review-and-export/` (ux D478); no other link
+changes, since every design link cites a v3.3 item at the root of `ui_ux/`, not v3.2's frozen design.
+v3 (2026-10-16): migrated to the build-plan model and waves re-formed (spec D351).
 
 The Seventh chords level (richer chords, optional), written from
-[master spec Part D](master-spec.md#part-d--v33) (v1.1, 2026-10-12, with spec D263–D275; awaiting
-the owner's approval: gate A0) and the v3.3 design at the root of
+[master spec Part D](master-spec.md#part-d--v33) (v1.2, 2026-11-09, with spec D263–D275 and
+D511–D518; awaiting the owner's approval: gate A0) and the v3.3 design at the root of
 [`ui_ux/`](../../../ui_ux/README.md) (ux D252–D264; awaiting the owner's approval: gate D0):
 everything marked `[v3.3 new]`, `[v3.3 changed]` or with a `_v3.3 …:_` change-block line. Its
 planning decisions, spec D276–D288, are proposed for approval with Part D. Code facts: the
 [chord research's code table](../../../docs/music/chord-research.md#where-a-fourth-chord-note-meets-the-code),
-re-checked on 62a90c7 on 2026-10-12 by `codebase-explorer` and `documentalist`. The plan follows the
+re-checked on 62a90c7 on 2026-10-12 by `codebase-explorer` and `documentalist`, and again on
+`main` d10de742 (v3.2 through wave 7) on 2026-11-09 (D511). The plan follows the
 build-plan model (`~/.local/share/dev_team/references/build-plan-model.md`) through the project's
 [build workflow](build-workflow.md). Music terms: the [lexicon](../../../docs/music/lexicon.md).
 
@@ -22,7 +30,8 @@ hold during a session, outdated-tab and failed-read visits) at **data version 4*
 v3.0's session seed plan and pre-generation at Idle; v3.1's seven figure levels in the request, the
 favored draw and the presets (eight built-ins and player presets, each holding ten controls, the
 figure levels and a key and mode restriction; Custom); v3.2's doodle and rhythm-lock inputs, the
-join from a doodle, Jam, Vary settings' six allowed groups and the `ifk4.` replay key (`ifk1.`–
+join from a doodle, Jam as its own mode with its own settings group and the kept doodle, Vary
+settings' six allowed groups, the guide playback in the mix and the `ifk4.` replay key (`ifk1.`–
 `ifk3.` still decode). Chords are still root-position diatonic triads. This plan names those plans'
 modules as they do ("v3.0 chunk _n_", "v3.1 chunk _n_", "v3.2 chunk _n_"); where one of them landed
 a module elsewhere, the wave preflight follows the code.
@@ -58,20 +67,20 @@ it: a test about a triad stays as it is, and the chunk adds the seventh-chord ca
 
 | What holds today | Changed in | Becomes |
 | --- | --- | --- |
-| Three STABLE guarantees: `req_session_backing_track` ("the highest close-position triad"), `rule_open_phrase_ending` ("a dominant chord tone"; a tense note "outside the final chord"), `rule_leap_recovery` ("a recognized three-note chord-tone run") | **C1**, before chunks 5, 6, 7 and 9 merge | The wordings C1 confirms. Each holds trivially at Off; chunks [9](#chunk-9--the-backing-plays-the-seventh), [5](#chunk-5--the-seventh-as-a-chord-tone-in-the-pitch-search)–[6](#chunk-6--the-validator-reads-the-seventh-as-a-chord-tone) and [7](#chunk-7--runs-may-include-the-seventh) build what each now allows. |
+| §D12's STABLE guarantees: two whose meaning changes, `req_session_backing_track` ("the highest close-position triad") and `rule_open_phrase_ending` ("a dominant chord tone"; a tense note "outside the final chord"), and those that grow to name the level (§D12 items 3–9: the replay key, reproduction, kept sessions and the database, player presets, presets and Custom, saved settings) | **C1** (confirmed once), each applied at the sync of the wave that builds it (D517) | The wordings C1 confirms. The two music rules hold trivially at Off; chunks [9](#chunk-9--the-backing-plays-the-seventh) and [5](#chunk-5--the-seventh-as-a-chord-tone-in-the-pitch-search)–[6](#chunk-6--the-validator-reads-the-seventh-as-a-chord-tone) build what they now allow; chunks [11](#chunk-11--presets-hold-the-level), [15](#chunk-15--replay-key-ifk5), [17](#chunk-17--the-level-on-the-device-data-version-5) and [23](#chunk-23--jams-own-seventh-chords-level) build the rest. `rule_leap_recovery` ("a recognized three-note chord-tone run") keeps its wording (D517). |
 | A chord is a triad: `DiatonicTriad.pitchClasses` is a three-item tuple and `TriadQuality` has three values (`harmony-types.ts`); `deriveTriads` stacks d, d+2, d+4 (`collection.ts`) | [2](#chunk-2--seventh-chords-in-the-harmony-model) | A harmony event may carry a seventh as well as its triad; the triad stays as it is. A triad-form event is written exactly as today. |
-| The harmony domain: the candidate identity `'harmony-domain-v1'` with the plan's fields (`harmony-planner.ts`), ranked by `harmonyTieKey` (`candidate-ranking.ts`); rebuilt by the orchestrator, the result validator and `carriedHarmonyFits` | [12](#chunk-12--the-level-orders-the-plans) | Unchanged at Off. Above Off, each ranked plan with a drawn seventh is followed by its triads-only variant; all three rebuild sites take the level. The atom `module_ranked_candidate_ordering` is revised. |
-| The request is closed in three places: `GenerationIntent`, the resolved `GenerationRequest` and the worker's allowed keys (`tests/unit/generation-worker/generation-worker-protocol.spec.ts`) | [3](#chunk-3--the-level-in-the-generation-request) | It carries `chordFamilies`, the level by capability name, re-validated by the worker; any other field is still refused. |
-| A chord tone is a triad tone: `chordPitchClasses = event.triad.pitchClasses` (`pitch-context.ts`), `chordTone` in `phrase-facts.ts`, the comment "a member adjacent by step to a triad tone can never itself be a triad tone" (`figure-rules.ts`) | [5](#chunk-5--the-seventh-as-a-chord-tone-in-the-pitch-search), [6](#chunk-6--the-validator-reads-the-seventh-as-a-chord-tone) | In a seventh-form event the seventh is a chord tone too; endings, tense notes and the join's landing still read the triad. |
-| A recognized run is three tones of the triad: `recognizable` in `pitch-motion.ts` and its validator twin in `motion-rules.ts`; `tests/unit/domain/pitch/pitch-motion.spec.ts` › 'caps every level at exactly one recognized run per bar' | [7](#chunk-7--runs-may-include-the-seventh) | Still three notes; under a seventh chord they may include the seventh. A four-note one-way arpeggio stays rejected. |
+| The harmony domain: the candidate identity `'harmony-domain-v1'` with the plan's fields (`harmony-planner.ts`), ranked by `harmonyTieKey` (`candidate-ranking.ts`); rebuilt by the orchestrator (`buildHarmonyDomain`), the result validator (`harmonyProvenanceFailures`) and `carriedHarmonyFits` (`carry-in-fit.ts`); walked by `window-search.ts` in two orders, `walkHarmonyMajor` and, with locked bars, `walkRhythmMajor` | [12](#chunk-12--the-level-orders-the-plans) | Unchanged at Off. Above Off, each ranked plan with a drawn seventh is followed by its triads-only variant; all three rebuild sites take the level, and both walks keep each plan's two forms side by side (D516). The atom `module_ranked_candidate_ordering` is revised. |
+| The request is closed in two places: `GenerationIntent` (`generation-intent.ts`) and the worker's `GENERATION_INTENT_ALLOWED_KEYS` (`generation-worker-inbound.ts`; `tests/unit/generation-worker/generation-worker-protocol.spec.ts`); the resolved `GenerationRequest` holds neither the controls nor the figure levels | [3](#chunk-3--the-level-in-the-generation-request) | The intent carries `chordFamilies`, the level by capability name, beside `figureLevels`, re-validated by the worker; the resolved request is unchanged (D514); any other field is still refused. |
+| A chord tone is a triad tone: `chordPitchClasses = event.triad.pitchClasses` (`pitch-context.ts`), `chordTone` in `phrase-facts.ts`, the landing check `leavesCarriedTensionUnresolved` (`pitch-advance.ts`), the carried note's fact `carriedPitchOnCarriedChord` (`carry-in.ts`), the comment "a member adjacent by step to a triad tone can never itself be a triad tone" (`figure-rules.ts`) | [5](#chunk-5--the-seventh-as-a-chord-tone-in-the-pitch-search), [6](#chunk-6--the-validator-reads-the-seventh-as-a-chord-tone), [8](#chunk-8--the-join-carries-a-seventh-chord) | In a seventh-form event the seventh is a chord tone too; endings, tense notes and the join's landing and the carried note still read the triad. |
+| A recognized run is three tones of the triad: `recognizable` in `pitch-motion.ts`, its validator twin in `motion-rules.ts`, and the motion replay `finalMotionState` (`carry-in-derivation.ts`) that derives what a phrase owes the next; `tests/unit/domain/pitch/pitch-motion.spec.ts` › 'caps every level at exactly one recognized run per bar' | [7](#chunk-7--runs-may-include-the-seventh) | Still three notes; under a seventh chord they may include the seventh. A four-note one-way arpeggio stays rejected. |
 | A carried chord must be a triad: `tests/unit/domain/generation/carry-in/carry-in.spec.ts` › 'refuses a carried chord whose pitch classes do not form a diatonic triad shape'; `sameTriad` (`harmony-join.ts`) compares three pitch classes | [8](#chunk-8--the-join-carries-a-seventh-chord) | A carried seventh chord is accepted and compared by its triad; any other shape is still refused. |
 | The backing plays triads: `tests/unit/domain/backing/backing-renderer.spec.ts` › 'plays root then fifth in the bass and one held close-position triad…' | [9](#chunk-9--the-backing-plays-the-seventh) | Unchanged for triads; a seventh chord plays its four notes, highest close position at or below E4 (a new test beside it). |
-| Three chord suffixes (`CHORD_SUFFIX_BY_TRIAD_QUALITY`, `notation-input.ts`); the spoken description reads any other suffix letter by letter (`score-description.ts`) | [10](#chunk-10--seventh-chord-symbols-and-their-spoken-words) | Four more suffixes, read as words. |
+| Three chord suffixes (`CHORD_SUFFIX_BY_TRIAD_QUALITY`, `notation-input.ts`); the spoken description passes any other suffix through as written (`suffixWords`, `score-description.ts`) | [10](#chunk-10--seventh-chord-symbols-and-their-spoken-words) | Four more suffixes, read as words. |
 | MusicXML throws on an unknown suffix: `tests/unit/export/musicxml/musicxml-encoder.spec.ts` › 'rejects a chord suffix it has no MusicXML chord kind for' | [13](#chunk-13--musicxml-writes-the-seventh-chords) | Four more kinds; an unknown suffix is still refused (the test keeps a suffix no quality has). |
-| Replay keys: encoding writes `ifk4.` (v3.2 chunk 12's tests in `phrase-replay-key.spec.ts`) | [15](#chunk-15--replay-key-ifk5) | Encoding writes `ifk5.` for every phrase; every `ifk1.`–`ifk4.` decoding test stays. |
-| A preset holds ten controls and seven figure levels (v3.1 chunk 10's `src/domain/presets/`) | [11](#chunk-11--presets-hold-the-level) | It also holds the level; every built-in at Off. |
-| Pre-generation's discard triggers (v3.0 chunk 24, v3.1 chunk 19, v3.2 chunk 26) | [16](#chunk-16--the-level-in-a-session-and-in-pre-generation) | One more: a level change discards them and drops a held doodle. |
-| Data version 4 (v3.2 chunk 22) | [17](#chunk-17--the-level-on-the-device-data-version-5) | Data version 5: the level in settings, player presets and each kept phrase's inputs; a kept body may hold a seventh chord. |
+| Replay keys: encoding writes `ifk4.` (v3.2 chunk 12's tests in `phrase-replay-key.spec.ts` and `phrase-replay-key-ifk4.spec.ts`) | [15](#chunk-15--replay-key-ifk5) | Encoding writes `ifk5.` for every phrase; every `ifk1.`–`ifk4.` decoding test stays. |
+| A preset holds ten controls and seven figure levels (v3.1 chunk 10's `src/domain/presets/`; v3.2 added nothing to a preset) | [11](#chunk-11--presets-hold-the-level) | It also holds the level; every built-in at Off. |
+| Pre-generation's discard key (`settingsKeyOf`, `src/components/workspace/workspace-pregeneration.ts`, as v3.0 chunk 24, v3.1 chunk 19 and v3.2 chunk 26 leave it); Jam's own queue (`jam-pregeneration.ts`), keyed by phrase 1 and the kept doodle | [16](#chunk-16--the-level-in-a-session-and-in-pre-generation), [23](#chunk-23--jams-own-seventh-chords-level) | Session mode's level joins the key; Jam's level rewrites phrase 1 from the kept doodle, which stays (D513). |
+| Data version 4 (v3.2 chunk 22; `DATABASE_DATA_VERSION`, `PRODUCTION_MIGRATIONS` in `database.ts`); settings are one record per setting, Jam's a `jam.*` group (`JAM_SETTING_FIELDS`), added with no step | [17](#chunk-17--the-level-on-the-device-data-version-5), [23](#chunk-23--jams-own-seventh-chords-level) | Data version 5: the step rewrites the player presets and kept bodies with the level at Off (D515); the two levels are new settings records with no step; a kept body may hold a seventh chord. |
 | Vary settings' moves (`MUTABLE_SETTINGS`, `settings-mutation-scales.ts`, as v3.2 chunk 15 leaves it) | **Never** | The level is not in it and joins no allowed group; chunk 16 proves it. |
 | The cold-generation goldens, `generation-outcome-golden.spec.ts`, the backing, MIDI and MusicXML goldens, and the `ifk1.`–`ifk4.` corpora of v2–v3.2 | **Never** | They stay byte-identical: at Off, v3.3 reproduces v3.2 (item 2). A chunk that needs to touch one is wrong. |
 
@@ -82,38 +91,39 @@ lists each pair (item 24).
 
 | Gate | What | Cleared by | Blocks | Status |
 | --- | --- | --- | --- | --- |
-| **A0** | The owner approves [Part D](master-spec.md#part-d--v33) (v1.1, D263–D275), the planning decisions D276–D288 and this plan, R0 included: no v3.3 coding chunk before v3.2's release, since chunk 1's corpus must be recorded on v3.2's code and chunks 3, 5, 12 and 15–17 change files v3.1 and v3.2 also change (chunks 2, 9, 10 and 13 would fit on v3.0 alone, if the owner wants v3.3 sooner). D276's "CONTRACT 3.0 to 4.0" predates v3.0's own bumps (the contract atom is at 6.1): C1's bump is the next major after v3.2's. | The owner | Everything | open |
-| **I0** | Not an owner step: `documentalist` ingests Part D (skill `atd-spec-ingestion`). It creates the DRAFT atoms tagged `release-v3.3`, tags `changes-in-v3.3` and writes `docs/release/v3.3-intent-change-set.md`, whose part A holds the exact wording of the three STABLE changes, and which adds the atoms §D12 missed (D285). It confirms as drift checks the STABLE guarantees whose wording does not change (`rule_join_carry_in_limited`, `rule_harmony_change_drops_unfit_harmonic_carry_in`, `req_last_session_review`, the mutation guarantees and the others §D12 lists), and refreshes the vision's v3.3 line ("direction only and not yet designed") with the owner's sign-off. | `documentalist`, after A0 | C1; chunk 0 | open |
-| **C1** | Contract sign-off: the owner confirms the exact wording of `req_session_backing_track`, `rule_open_phrase_ending` (first option: the triad reading) and `rule_leap_recovery` ([§D12](master-spec.md#d12-contract-changes-needing-owner-confirmation)); `documentalist` applies them with one MAJOR contract bump. They hold trivially at Off, so they are applied at once, proposed right after A0 (D276). | The owner; `documentalist`, after I0 | **Merging** chunks [5](#chunk-5--the-seventh-as-a-chord-tone-in-the-pitch-search), [6](#chunk-6--the-validator-reads-the-seventh-as-a-chord-tone), [7](#chunk-7--runs-may-include-the-seventh) and [9](#chunk-9--the-backing-plays-the-seventh); through 5 and 6, chunk 7's start; through 5–7, chunk 12 | open |
+| **A0** | The owner approves [Part D](master-spec.md#part-d--v33) (v1.2, D263–D275, D511–D518), the planning decisions D276–D288 and this plan, R0 included (or as O306 rules): no v3.3 coding chunk before v3.2's release, since chunk 1's corpus must be recorded on the code v3.2 ships; v3.2's code is all on `main` since its wave 7, so O306 asks whether that code may stand in for the tag. D276's "CONTRACT 3.0 to 4.0" predates v3.0's to v3.2's own bumps (the contract atom is at 14.0.0): v3.3's first bump is the next major after v3.2's release, 15.0.0 if that release adds none (D517). | The owner | Everything | open |
+| **I0** | Not an owner step: `documentalist` ingests Part D (skill `atd-spec-ingestion`). It creates the DRAFT atoms tagged `release-v3.3`, tags `changes-in-v3.3` and writes `docs/release/v3.3-intent-change-set.md`, whose part A holds the exact wording of every STABLE change §D12 lists (D517), and which adds any atom §D12 still misses (D285). It confirms as drift checks the STABLE guarantees whose wording does not change (`rule_join_carry_in_limited`, `rule_harmony_change_drops_unfit_harmonic_carry_in`, `req_last_session_review`, the mutation guarantees and the others §D12 lists), and refreshes the vision's v3.3 line ("direction only and not yet designed") with the owner's sign-off. | `documentalist`, after A0 | C1; chunk 0 | open |
+| **C1** | Contract sign-off, in one sitting: the owner confirms the exact wording of every STABLE change [§D12](master-spec.md#d12-contract-changes-needing-owner-confirmation) lists: `req_session_backing_track`, `rule_open_phrase_ending` (first option: the triad reading) and items 3–9 (the replay key, reproduction, kept sessions and the database, player presets, presets and Custom, saved settings). `documentalist` applies each at the sync of the wave whose chunk builds it, with the bump that sync needs, so `main` never holds code a STABLE atom contradicts (D517, after D422). Proposed right after I0, best before wave 1 starts. | The owner; `documentalist`, after I0 | **Merging** chunks [11](#chunk-11--presets-hold-the-level) (wave 1), [5](#chunk-5--the-seventh-as-a-chord-tone-in-the-pitch-search), [6](#chunk-6--the-validator-reads-the-seventh-as-a-chord-tone), [9](#chunk-9--the-backing-plays-the-seventh) (wave 2), [15](#chunk-15--replay-key-ifk5) (wave 3), [17](#chunk-17--the-level-on-the-device-data-version-5) (wave 4) and [23](#chunk-23--jams-own-seventh-chords-level) (wave 5); through 5 and 6, chunk 7's start; through 5–7, chunk 12 | open |
 | **D0** | The owner approves the v3.3 design ([`ui_ux/todo.md`](../../../ui_ux/todo.md)); if `ux-writer` freezes it into `ui_ux/versions/v3.3/`, `spec-writer` repoints this plan's design links there. No token pass: v3.3 adds no token, class or motion (ux D261; D284). | The owner; `ux-writer`; `spec-writer` | Chunks 14 and 19 (the description sentences ship with 19) | open |
-| **R0** | v3.2 is released: the [v3.2 release gate](build-plan-v3.2.md#chunk-27--v32-release-gate) passed and `3.2.0` is tagged, so chunk 1's corpus is recorded on the code v3.2 ships. | The owner, at v3.2's release | Chunk 1, and through wave 0 every later wave | open |
+| **R0** | v3.2 is released: the [v3.2 release gate](build-plan-v3.2.md#chunk-27--v32-release-gate) passed and `3.2.0` is tagged, so chunk 1's corpus is recorded on the code v3.2 ships. **Parked** since 2026-11-09: v3.2's code is all merged (wave 7, b5d9ac92), but the owner has set its Jam hand checks, and so its release gate, aside for a while. Whether v3.3 may start before the tag is [O306](../../open-questions.md). | The owner, at v3.2's release (or as O306 rules) | Chunk 1, and through wave 0 every later wave | open (parked) |
 | **DP** | The finer-fallback decision ([M1](#m1--the-seventh-share)): chunk 18's M1 says whether Strongly favored reaches 3 in 4 harmony events in their seventh form. The owner is told the figures and the outcome; `spec-writer` records the decision. Re-checked at the release gate: if L2's tuning breaks 3 in 4, the decision is reopened. | Chunk 18's figures; `spec-writer` | Chunk 20 (built or skipped) | open (after chunk 18, wave 4) |
 | **U1a** | `ux-writer` reads the first shares chunk 18 reports (item 5) and confirms the labels Off, Sometimes, Often, Mostly, or changes them (ux D254; ux Q77, closed by spec D275). | `ux-writer` | Chunk 19's labels | open (after chunk 18) |
 | **U1b** | `ux-writer` confirms the labels again on the final shares: after chunk 20 if it is built, and after L2's tuning and the release gate's final M1 run (ux Q77, closed by spec D275). | `ux-writer` | The release gate | open (after L2) |
 | **L1** | The listening check on endings ([H1](#hand-checks), [§D6.3](master-spec.md#d63-phrase-endings-and-the-join-read-the-triad-until-a-listening-check)): the owner listens to chunk 18's examples of phrases ending on the seventh and landing on the tonic chord's seventh, and says whether they sound open or wrong. `spec-writer` records the result either way. | The owner; `spec-writer` | Chunk 21 (built only if approved); the release gate (item 9) | open (after chunk 18) |
 | **C2** | Only if L1 approves the seventh, a contract sign-off: the owner confirms the second option's wording of `rule_open_phrase_ending`, and `documentalist` applies it with its own bump (MAJOR, unless C1's bump is not yet applied). | The owner; `documentalist`, after L1 | **Merging** chunk [21](#chunk-21--endings-on-the-seventh-second-option-conditional) | open (only if L1 approves) |
-| **L2** | The owner's listening check of the level and the four-note backing ([H2](#hand-checks), [§D5.2](master-spec.md#d52-four-levels); D282); the Sometimes and Favored shares are tuned from it. | The owner | The release gate's final M1 and M2 runs | open (after chunk 19) |
+| **L2** | The owner's listening check of the level and the four-note backing, with the guides on and off ([H2](#hand-checks), [§D5.2](master-spec.md#d52-four-levels), [§D7.3](master-spec.md#d73-the-backing-plays-the-seventh); D282, D518); the Sometimes and Favored shares are tuned from it. | The owner | The release gate's final M1 and M2 runs | open (after chunk 23) |
 
 ## Waves
 
 | Wave | Chunks | Waits for | Status |
 | --- | --- | --- | --- |
 | 0 | 0 Intent re-sync · 1 Baselines | A0 and I0 (0); R0 (1). Two chunks: every other chunk needs both, chunk 0's ids in its own wave preflight and chunk 1's corpus as its guard, so nothing can join. | blocked (on A0, R0) |
-| 1 | 2 Seventh chords in the harmony model · 3 The level in the request · 8 The join · 10 Symbols and spoken words · 11 Presets hold the level | Wave 0. In-wave 2 → 8 and 2 → 10: chunk 2's capture fixes the harmony event's optional seventh, its qualities and `chordTones`; 3 → 11: chunk 3's capture fixes `chordFamilies` and the level ids. | planned |
-| 2 | 4 Measurement tools · 5 The seventh in the pitch search · 6 The validator · 7 Runs · 9 The backing | Wave 1; **C1 to merge 5, 6, 7 and 9**, best cleared before the wave starts. In-wave 5 → 7 and 6 → 7: chunks 5's and 6's captures fix the chord-tone facts 7's run rule reads; 7 starts once 5 and 6 are merged. | planned |
-| 3 | 12 The level orders the plans · 15 Replay key `ifk5.` · 16 The level in a session | Wave 2 (5, 6 and 7 merged, so C1). In-wave 12 → 15 and 12 → 16: chunk 12's capture fixes the draw and the plan variants. | planned |
-| 4 | 14 Symbols on the staff · 17 The level on the device · 18 Measurements, first run | Wave 3; D0 (14). DP, U1a and L1 open at its end. | planned |
-| 5 | 13 MusicXML · 19 The Seventh chords control · 20 The finer fallback (**conditional**) · 21 Endings on the seventh (**conditional**) | Wave 4; D0 and U1a (19); DP (20, built only if DP adopts it); L1 (21, built only if L1 approves) and **C2 to merge 21**. Two sure chunks: 19 waits on U1a, which follows chunk 18's shares, and 13 is the only chunk left with slack to join it; 20 and 21 join only if DP and L1 call for them, otherwise they are recorded as skipped. L2 opens at its end. | planned |
+| 1 | 2 Seventh chords in the harmony model · 3 The level in the request · 8 The join · 10 Symbols and spoken words · 11 Presets hold the level | Wave 0; **C1 to merge 11**. In-wave 2 → 8 and 2 → 10: chunk 2's capture fixes the harmony event's optional seventh, its qualities and `chordTones`; 3 → 11: chunk 3's capture fixes `chordFamilies` and the level ids. | planned |
+| 2 | 4 Measurement tools · 5 The seventh in the pitch search · 6 The validator · 7 Runs · 9 The backing | Wave 1; **C1 to merge 5, 6 and 9**. In-wave 5 → 7 and 6 → 7: chunks 5's and 6's captures fix the chord-tone facts 7's run rule reads; 7 starts once 5 and 6 are merged. | planned |
+| 3 | 12 The level orders the plans · 15 Replay key `ifk5.` · 16 The level in a session | Wave 2 (5, 6 and 7 merged, so C1, which also gates 15's merge). In-wave 12 → 15 and 12 → 16: chunk 12's capture fixes the draw and the plan variants. | planned |
+| 4 | 14 Symbols on the staff · 17 The level on the device · 18 Measurements, first run | Wave 3; D0 (14); C1 to merge 17. DP, U1a and L1 open at its end. | planned |
+| 5 | 13 MusicXML · 19 The Seventh chords control · 23 Jam's own level · 20 The finer fallback (**conditional**) · 21 Endings on the seventh (**conditional**) | Wave 4; D0 and U1a (19, 23); DP (20, built only if DP adopts it); L1 (21, built only if L1 approves) and **C2 to merge 21**; C1 to merge 23. In-wave 19 → 23: chunk 19's capture fixes `seventhChordsOptions`, which Jam's control reuses. Three sure chunks; 20 and 21 join only if DP and L1 call for them, otherwise they are recorded as skipped. L2 opens at its end. | planned |
 
 The [release gate](#chunk-22--v33-release-gate) (chunk 22) follows wave 5, with L1, L2 and U1b. κ
 is 1 ([build workflow](build-workflow.md#concurrency-and-order)); a chunk built and waiting only on
-C1 or C2 does not count against it. The widest chunks are 5 and 12 (each with a split rule) and 17.
+C1 or C2 does not count against it. The widest chunks are 5 and 12 (each with a split rule), 17 and
+23 (each with a split rule too).
 
 ```mermaid
 flowchart LR
   A0{{A0: Part D and plan approved}}
   I0{{I0: ingestion}}
-  C1{{C1: three STABLE wordings}}
+  C1{{C1: the STABLE wordings}}
   R0{{R0: v3.2 released}}
   D0{{D0: design approved}}
   G18{{DP, U1a, L1: after the first measurements}}
@@ -153,6 +163,7 @@ flowchart LR
     C19[19 The control]
     C20[20 Finer fallback, if DP]
     C21[21 Endings on the seventh, if L1]
+    C23[23 Jam's own level]
   end
   C22[22 Release gate]
   A0 --> I0
@@ -173,10 +184,14 @@ flowchart LR
   C3 --> C11
   C1 --> C5
   C1 --> C6
-  C1 --> C7
   C1 --> C9
+  C1 --> C11
+  C1 --> C15
+  C1 --> C17
+  C1 --> C23
   C5 --> C7
   C6 --> C7
+  C8 --> C7
   C3 --> C12
   C5 --> C12
   C6 --> C12
@@ -211,6 +226,13 @@ flowchart LR
   C5 --> C21
   C6 --> C21
   C8 --> C21
+  C16 --> C23
+  C17 --> C23
+  C19 --> C23
+  D0 --> C23
+  G18 --> C23
+  C23 --> L2
+  C23 --> C22
   C19 --> L2
   L2 --> U1b
   C20 --> U1b
@@ -224,8 +246,8 @@ flowchart LR
   U1b --> C22
 ```
 
-The critical path runs 0 → 2 → 5 → 7 → 12 → 15 → 18 → (DP, U1a, L1) → 19 → L2 → 22. The device
-and screen branch (11 → 16 → 17 → 19) runs beside it. The longest owner-dependent detour is L1 → C2
+The critical path runs 0 → 2 → 5 → 7 → 12 → 15 → 18 → (DP, U1a, L1) → 19 → 23 → L2 → 22. The device
+and screen branch (11 → 16 → 17 → 19 → 23) runs beside it. The longest owner-dependent detour is L1 → C2
 → 21, taken only if the owner approves the seventh as an ending.
 
 ## Workflow deltas
@@ -234,7 +256,7 @@ The [build workflow](build-workflow.md) holds for v3.3 with release name `v3.3`:
 `v3.3-w<n>` in `/home/bastien/work/infinite_flow-v3.3-w<n>`, chunk branches `v3.3-c<id>-<slug>` in
 `/home/bastien/work/infinite_flow-v3.3-c<id>`. v3.3's own:
 
-- **Corpus guard** (a chunk check): chunks 2, 3, 5–10, 12, 13, 15, 16, 20 and 21, which touch
+- **Corpus guard** (a chunk check): chunks 2, 3, 5–10, 12, 13, 15, 16, 20, 21 and 23, which touch
   generation, the backing, the notation or the exports, run chunk 1's two corpora (the `ifk4.`
   phrase corpus, `tests/unit/generation-worker/phrase-replay-key-v32-corpus.spec.ts`, and the
   backing and file corpus), the earlier corpora and the goldens unchanged. Red means a request at
@@ -242,17 +264,18 @@ The [build workflow](build-workflow.md) holds for v3.3 with release name `v3.3`:
 - **Hand-built chord plans**: pitch and validation rules are tested on hand-built plans holding
   seventh-form events (chunk 2's fixture builder in `tests/unit/domain/harmony/`), so chunks 5–9
   need no planner change.
-- **Sweep at the wave gate**: chunks 3, 5–8, 12, 16, 20 and 21 place it there, so waves 1, 2 and 3
-  run it, and wave 5 when chunk 20 or 21 is built. At Off the sweep gives v3.2's figures.
+- **Sweep at the wave gate**: chunks 3, 5–8, 12, 16, 20, 21 and 23 place it there, so waves 1, 2,
+  3 and 5 run it. At Off the sweep gives v3.2's figures.
 - **Intent**: the DRAFT atoms are tagged `release-v3.3`, the atoms to revise `changes-in-v3.3`, in
   the v3.3 intent change set I0 writes (`docs/release/v3.3-intent-change-set.md`). The
   **Atoms** lines name Part D sections until I0 and chunk 0 writes the ids in
   ([Read first](#read-first-what-v33-changes-in-v32-v31-v30-and-v2)), so wave 0's preflight cannot
   use them. Chunks 1, 4 and 18 add no atom.
-- **Contract sign-offs**: C1 gates the merge of chunks 5, 6, 7 and 9, C2 that of chunk 21
-  ([build workflow](build-workflow.md#intent-atd)). A gated chunk built before its sign-off stays
-  `built` on its branch, unmerged; still waiting when its wave is otherwise done, it moves to the
-  next wave with the chunks that depend on it (7 on 5 and 6 in wave 2; 12 on 5–7). Each wave
+- **Contract sign-offs**: C1 gates the merge of chunks 5, 6, 9, 11, 15, 17 and 23, C2 that of chunk
+  21 ([build workflow](build-workflow.md#intent-atd)); each wave's sync applies the C1 wordings its
+  chunks build (D517). A gated chunk built before its sign-off stays `built` on its branch,
+  unmerged; still waiting when its wave is otherwise done, it moves to the next wave with the chunks
+  that depend on it (7 on 5 and 6 in wave 2; 12 on 5–7; 16 on 11). Each wave
   preflight reports the record of every gated chunk in its wave.
 - **Chunk 0 is not a coding chunk**: the driver hands it to `documentalist` (spec ingestion,
   milestone refinement).
@@ -262,7 +285,8 @@ The [build workflow](build-workflow.md) holds for v3.3 with release name `v3.3`:
   assigns them: the harmony planner policy (chunks 2 and 12), the pitch planner validation note
   (chunks 5–7), the generator contract (`spec-writer`, from chunk 12's report, at wave 3's gate),
   the lexicon's "in Infinite Flow" lines (`documentalist`, at the release gate).
-- **Entry budget**: 224 kB, or the figure v3.2's release gate leaves ([M4](#m4--the-first-load-bundle)).
+- **Entry budget**: 320 KiB (327,680 B, spec D504), or the figure v3.2's release gate leaves
+  ([M4](#m4--the-first-load-bundle)); v3.2's wave 7 gate left the entry chunk at 311,455 B.
 - **Hand checks** go into a new v3.3 part of [`HARDWARE-CHECKLIST.md`](../../../HARDWARE-CHECKLIST.md),
   written by the chunk the [table](#hand-checks) names; the first of them opens the part.
 
@@ -282,7 +306,7 @@ passes, or the chunk stops.
   winning plan is the triads-only variant of a plan that had at least one seventh drawn (D281).
   Both are recorded per level and per mode: Major, Minor and the seven modes (Ionian to Locrian).
 - **How:** chunk 4's seventh census, over the deadline sweep's 568 rhythm settings (`sweepCases()`,
-  `tests/unit/session/deadline-sweep.ts`) × two seeds × the nine modes, with the Neutral and Jazz
+  `tests/unit/session/deadline-sweep-cases.ts`) × two seeds × the nine modes, with the Neutral and Jazz
   defaults, at each of the four levels (D281). It counts over phrases generated, not attempts.
 - **Run by:** chunk 4 (at Off on v3.2: zero, the baseline); chunk 18 (DP is taken on it); chunk 20
   if built; the release gate, after L2's tuning.
@@ -309,23 +333,27 @@ passes, or the chunk stops.
 - **What:** [§D10](master-spec.md#d10-the-cost-guard-generation-time-with-seventh-chords) and item
   21: whether seventh chords slow the generator or make it fail. **The search allowance is not
   raised.** Recorded for each setting: the share of phrases generated, the slowest and the
-  95th-percentile generation time, the seventh share, and at 240 BPM the share of phrases that fall
-  back to being generated without the join and the share of a fresh Jam's phrase 1 ready by its
-  deadline.
+  95th-percentile generation time, the seventh share, at 240 BPM the share of phrases that fall
+  back to being generated without the join, at 180 BPM (Jam's fastest, D506) the share of a fresh
+  Jam's phrase 1 ready by its deadline, and with locked bars the share of locked rhythms kept
+  (D516).
 - **Settings**, exactly §D10's: the baseline, Off with the Neutral and Jazz defaults (it must equal
   v3.2's figures, since the phrases are the same); Sometimes, Favored and Strongly favored with the
   Neutral and Jazz defaults; Strongly favored with **Speed drill, measured first** (the most
-  expensive setting v3.1 found), and with Bebop; each in every mode.
-- **How:** v3.1 chunk 3's cost runner on the deadline sweep (`npm run test:sweep`: the 568 cases at
-  60, 120 and 240 BPM, each attempt charged its measured time), in a 240 BPM session, and v3.2
-  chunk 3's Jam sweep for a fresh Jam's phrase 1 at 240 BPM. Chunk 4 adds the level as a dimension
-  to both. The owner runs the deciding runs on the reference machine.
+  expensive setting v3.1 found), and with Bebop; each in every mode; and a session with locked bars
+  at Off and at Strongly favored.
+- **How:** v3.1 chunk 3's cost runner (`tests/sweep/cost-guard*.ts`, `npm run measure:cost`) on
+  the deadline sweep's 568 cases at 60, 120 and 240 BPM, each attempt charged its measured time, in
+  a 240 BPM session; v3.2 chunk 3's Jam sweep (`tests/sweep/jam-sweep*.ts`, `npm run measure:jam`)
+  for a fresh Jam's phrase 1 at 180 BPM; and v3.2's lock measurement (`npm run measure:lock`) for
+  locked bars. Chunk 4 adds the level as a dimension to all three. The owner runs the deciding runs on the reference machine.
 - **Run by:** chunk 4 (the Off baseline); chunk 18; chunks 20 and 21 if built; the release gate,
   after L2's tuning.
 - **Acceptance**, against the baseline, as §D10's:
   - at most 2 percentage points more fallbacks without the join at 240 BPM;
   - at most 2 percentage points fewer phrases generated at any swept setting;
   - at most 2 percentage points fewer Jam phrase 1s ready by their deadline;
+  - at most 2 percentage points fewer locked rhythms kept;
   - no attempt generated on its own slower than the standalone reserve (1.075 s in Chromium,
     `STANDALONE_RESERVE_SECONDS`), which the failure ladder keeps for it.
 - **If a level costs more:** its share is tuned down, or the fallback made finer (DP), before the
@@ -335,19 +363,22 @@ passes, or the chunk stops.
 
 ### M3 — The start-up read and the migration
 
-- **What:** whether loading the level with the settings and player presets stays inside v3.0's
+- **What:** whether loading both levels with the settings and player presets stays inside v3.0's
   start-up wait (Part A §4.4), and how long the data version 5 upgrade takes on v3.2's data.
 - **Run by:** chunk 17: the version 5 upgrade on 10, 100 and 500 v3.2 kept sessions (Jam sessions
-  and player presets among them), and the start-up read on the same databases, cold and warm. The
-  owner repeats the deciding runs on the reference machine.
+  and player presets among them), and the start-up read on the same databases, cold and warm, with
+  v3.2's tools (`npm run measure:kept-session-upgrade`, `npm run measure:startup-read`). The owner
+  repeats the deciding runs on the reference machine.
 - **Acceptance:** each, upgrade included, well under the start-up wait constant. The upgrade
-  rewrites no record (D279), so it should cost no more than opening at version 4.
+  rewrites the player presets and kept bodies with the level at Off (D515), as v3.2's step 4
+  rewrote kept sessions, so it should cost about what that step did.
 - **Recorded:** `docs/storage.md`.
 
 ### M4 — The first-load bundle
 
-- **What:** the entry chunk stays within its budget (224 kB today, `entryChunkByteBudget` in
-  `scripts/verify-boundaries.mjs`, or the figure v3.2's gate leaves). The control and its options
+- **What:** the entry chunk stays within its budget (320 KiB today, `entryChunkByteBudget` in
+  `scripts/verify-boundaries.mjs`, spec D504, or the figure v3.2's gate leaves; 311,455 B at v3.2's
+  wave 7 gate). The control and its options
   add a few lines to the entry chunk; the seventh-chord generation code lives in the generation
   worker's bundle and the notation changes in the VexFlow engraver chunk, whose budgets the same
   script checks.
@@ -362,10 +393,10 @@ The owner runs these on the Travel Sax over USB and the reference machine.
 | Check | Written by | Run at | What the owner does |
 | --- | --- | --- | --- |
 | H1 Listening: endings on the seventh (**L1**) | 18 | After wave 4; before chunk 21 and the release gate | Listen to chunk 18's examples, each beside the same phrase as the app writes it. **Ending on the seventh with no next phrase:** F over G7 in C major; the home chord's seventh in Dorian and in Mixolydian (B♭ over C7 in C Mixolydian). **The next phrase landing on the tonic chord's seventh.** Say for each whether ending on the seventh sounds open (the player can keep going) or like a mistake. Item 9. Approved: C2, then chunk 21. Not approved: the triad reading ships, and the result is recorded. |
-| H2 Listening: the level and the backing (**L2**) | 19 | After chunk 19; used by the release gate | With Jazz, Bebop, Modal (Dorian) and Neutral, play short sessions at Sometimes, Often and Mostly. Say whether each step is clearly heard, whether Mostly sounds like "a seventh on nearly every chord", and whether the four-note backing (lowest note about D3) sits well under the bass and the line. The Sometimes and Favored shares are tuned from it, then M1 and M2 run again. |
+| H2 Listening: the level and the backing (**L2**) | 19 | After chunk 23; used by the release gate | With Jazz, Bebop, Modal (Dorian) and Neutral, play short sessions at Sometimes, Often and Mostly, and one Jam at Mostly. Say whether each step is clearly heard, whether Mostly sounds like "a seventh on nearly every chord", and whether the four-note backing (lowest note about D3, each note as loud as a triad's) sits well under the bass and the line, with the Melody and Rhythm guides off and then on (D518). The Sometimes and Favored shares are tuned from it, then M1 and M2 run again. |
 | H3 Same phrase in Edge | 15 | Chunk 15 | Run chunk 15's in-browser replay test once with Playwright's Microsoft Edge channel (`msedge`), and replay one `ifk5.` key of a Mostly phrase copied from a Chrome session in Edge; the phrases match. Item 18's "Chrome and Edge" half. |
 | H4 The files | 13 | Chunk 13 | Open a MusicXML file holding all four seventh-chord kinds in MuseScore: Cmaj7, Dm7, G7 and Bm7♭5 (in written pitch) show as the right symbols (item 12's recorded hand check). Open the MIDI file with the backing included in a DAW: the backing's chords hold four notes where the symbols say seventh. |
-| H5 v3.2 data carried over | 17 | The release gate | In the installed app and a plain Chrome tab that used v3.2 (settings changed, a player preset, a pinned session and a kept Jam session), update to v3.3: the settings come back with the level at Off, the preset loads unchanged, and the sessions open and play back as before, with their triads. |
+| H5 v3.2 data carried over | 17 | The release gate | In the installed app and a plain Chrome tab that used v3.2 (settings changed, a player preset, a pinned session and a kept Jam session), update to v3.3: the settings come back with the level at Off, Jam's settings with Jam's level at Off, the preset loads unchanged, and the sessions open and play back as before, with their triads. |
 | H6 Symbols at the narrowest widths | 14 | After chunk 19 | On the reference machine, at the narrowest width of each named breakpoint, regenerate at Mostly in keys whose half-diminished chord has an accidental on its root (A major, whose degree-7 chord is G♯m7♭5, for each instrument's written key): no symbol touches the next or crosses a barline, and none is shrunk. Phones are low priority but must not break. |
 
 ## Chunks
@@ -393,10 +424,11 @@ Architecture capture: none
     `rule_presets_load_tolerantly`, `rule_preset_load_values_win`, `rule_settings_saved_on_change`,
     `rule_pregeneration_discarded_on_change`, `rule_vary_settings_allowed_groups`,
     `rule_jam_melody_follows_doodle_moves`, `rule_doodle_only_orders_candidates`,
-    `module_phrase_replay_key` (now `ifk4.`): their `changes-in-v3.3` notes still name the right
-    change.
-  - The C1 record: the three wordings applied with C1's bump, the confirmation in each atom's
-    notes.
+    `module_phrase_replay_key` (now `ifk4.`), and v3.2's Jam settings atoms (`req_jam_settings`,
+    `module_jam_settings` and the `rule_jam_settings_*` rules): their `changes-in-v3.3` notes still
+    name the right change.
+  - The C1 record: the owner's confirmation of every §D12 wording, and which wave's sync applies
+    each (D517).
   - In this plan, each chunk's "Part D §Dn until I0" is replaced with the atom ids (a plan commit
     on the wave branch).
 - **Files:** `docs/*.atom.md`; the change set (`docs/release/v3.3-intent-change-set.md`, from I0);
@@ -427,8 +459,8 @@ Architecture capture: none
     built-in instruments and two player-made ones × a spread of the other controls (every harmonic
     motion and Tension value, Eighth and Sixteenth with Heavily varied) × several seeds, with and
     without carry-in (a carried null harmony included). It also holds the Jam and lock cases: a
-    fresh Jam's phrase 1 by each rung, a locked phrase, a changed one, a forced bend and a drifted
-    one. Each case is stored as its `ifk4.` key and the timeline it replays to, beside the earlier
+    fresh Jam's phrase 1 by each rung, a phrase 1 written again from a kept doodle after a Jam
+    setting changed, a locked phrase, a changed one, a forced bend and a drifted one. Each case is stored as its `ifk4.` key and the timeline it replays to, beside the earlier
     corpora, which stay.
   - **The backing and file corpus:** for a sample of the corpus's sessions, the backing's rendered
     notes, the generated-notes MusicXML and both MIDI files (backing included and not), and a unit
@@ -507,15 +539,16 @@ Status: planned
 Wave: 1
 Depends on: 0, 1 (and v3.1 chunk 4, figure levels beside the controls, the pattern this follows)
 Architecture capture: the level by capability name (revisions of
-`module_generation_request_construction`, `service_generation_request_resolution` and
-`module_generation_worker_protocol`). `src/domain/chords/chord-families.ts` (new) holds the one
+`module_generation_request_construction` and `module_generation_worker_protocol`). `src/domain/chords/chord-families.ts` (new) holds the one
 family id `seventh-chords` and the four level ids `off`, `sometimes`, `favored` and
 `stronglyFavored`: Part D's levels in the camelCase of v3.1's figure-level ids, never the
 interface's labels (D277, D288), which the interface maps to its own words (`favored` → Often,
-`stronglyFavored` → Mostly; ux D264). `GenerationIntent` and the resolved `GenerationRequest` gain
-`chordFamilies: { 'seventh-chords': level }` beside `controls`, as v3.1's figure levels sit beside
-them; keeping it out of `GenerationControls` leaves the replay key's control order, the sweep's
-dimensions and the control catalog alone. Inside the app it is always present; an input from
+`stronglyFavored` → Mostly; ux D264). `GenerationIntent` gains
+`chordFamilies: { 'seventh-chords': level }` beside `figureLevels`, read from the intent as the
+figure levels are (`window-search.ts`); the resolved `GenerationRequest`, which holds neither the
+controls nor the figure levels, is unchanged, so `parseGenerationRequest` and every kept body's
+stored request stay as they are (D514). Keeping it out of `GenerationControls` leaves the replay
+key's control order, the sweep's dimensions and the control catalog alone. Inside the app it is always present; an input from
 before v3.3 (a key, a kept body, a saved record) reads Off where it is decoded. The worker
 re-validates it. The capture says whether this is the mechanism
 `module_musical_profile_capabilities` names "capability", or a separate one. Chunk 11 in this wave
@@ -528,19 +561,21 @@ builds on it.
     `OFF_CHORD_FAMILIES`, and `parseChordFamilies` (exactly the known ids, each a known level, no
     extra field).
   - `GenerationIntent` and `GenerationIntentInput` gain `chordFamilies`; `makeGenerationIntent`
-    takes it (the workspace passes Off until chunk 16). `resolveCoreRequests` copies it into the
-    resolved `GenerationRequest`. The session's `buildAttemptIntent` passes it on unchanged, on
-    every rung of v2's ladder and of a Jam's phrase 1 (D287).
-  - The worker: `GENERATION_INTENT_ALLOWED_KEYS` and `GENERATION_REQUEST_ALLOWED_KEYS` gain the
-    field; the inbound parser rebuilds it with `parseChordFamilies` before its deep-equal check;
+    takes it. Every intent builder passes Off until chunks 16 and 23 give it a level: the session's
+    `buildAttemptIntent` (`session-intents.ts`, every rung of v2's ladder and a Jam's later
+    phrases), a fresh Jam's phrase-1 rungs (`jam-phrase-one-attempts.ts`, D287) and the carry-in
+    intent (`carry-in-intent.ts`); each passes it on unchanged.
+  - The worker: `GENERATION_INTENT_ALLOWED_KEYS` gains the field; the inbound parser rebuilds it with `parseChordFamilies` before its deep-equal check;
     prewarm, pre-generation and cancellation carry it. An unknown family or level is refused with
     the typed protocol error.
 - **Files:** `src/domain/chords/chord-families.ts` (new),
-  `src/domain/generation/generation-intent.ts`, `src/domain/generation/generation-request.ts`,
-  `src/domain/generation/orchestration/request-resolution.ts`,
-  `src/generation-worker/generation-worker-inbound.ts`, `src/session/session-intents.ts`; tests
-  under `tests/unit/domain/chords/`, `tests/unit/domain/generation/`,
-  `tests/unit/generation-worker/generation-worker-protocol.spec.ts` (extended).
+  `src/domain/generation/generation-intent.ts`,
+  `src/domain/generation/carry-in/carry-in-intent.ts`,
+  `src/generation-worker/generation-worker-inbound.ts`, `src/session/session-intents.ts`,
+  `src/jam/jam-phrase-one-attempts.ts`; tests under `tests/unit/domain/chords/`,
+  `tests/unit/domain/generation/`,
+  `tests/unit/generation-worker/generation-worker-protocol.spec.ts` (extended, after the pattern of
+  `generation-worker-protocol-figure-levels.spec.ts`).
 - **Spec sections:**
   [§D9](master-spec.md#d9-the-generation-request-the-replay-key-and-kept-sessions),
   [§D14](master-spec.md#d14-architectural-decisions-and-their-reasons) (by capability name); items
@@ -549,17 +584,17 @@ builds on it.
   `rule_seeded_phrase_reproduction`. Drift check: `module_generation_request_envelope`,
   `module_generation_worker_cancellation` (STABLE, unchanged).
 - **Revisions:** revise `module_generation_request_construction`,
-  `service_generation_request_resolution`, `module_generation_worker_protocol`.
+  `module_generation_worker_protocol`.
 - **Done when:**
-  - Every intent the app builds carries `chordFamilies` at Off; the resolved request carries the
-    same.
+  - Every intent the app builds, a Jam's included, carries `chordFamilies` at Off; the resolved
+    request is byte for byte as before.
   - The worker refuses an intent with a missing family, an unknown family, an unknown level or an
     extra field, each with its protocol error; it accepts each of the four levels.
   - The corpus, the goldens and every v2–v3.2 generation and worker test pass unchanged.
 - **Verification:** chunk checks; the sweep at the wave gate.
-- **Split rule:** if the brief passes about five source files, 3a the level and the request
-  (`chord-families.ts`, `generation-intent.ts`, `generation-request.ts`, `request-resolution.ts`,
-  `session-intents.ts`), 3b the worker's allowed keys and inbound parser
+- **Split rule:** if the brief passes about five source files, 3a the level and the intent builders
+  (`chord-families.ts`, `generation-intent.ts`, `carry-in-intent.ts`, `session-intents.ts`,
+  `jam-phrase-one-attempts.ts`), 3b the worker's allowed keys and inbound parser
   (`generation-worker-inbound.ts` and the protocol tests).
 
 ### Chunk 4 — Measurement tools: the seventh census, the cost runs and the ending renders
@@ -576,8 +611,10 @@ Architecture capture: none
     winning plan was a triads-only fallback, the level and the mode. It classifies with chunk 2's
     types, so it reads hand-built and generated plans alike. It writes JSON like `LATENCY_OUT` and
     a table per level and mode.
-  - **The cost runs** (M2): the level added as a dimension to v3.1 chunk 3's cost runner and to
-    v3.2 chunk 3's Jam sweep, with §D10's settings as named profiles (Speed drill first).
+  - **The cost runs** (M2): the level added as a dimension to v3.1 chunk 3's cost runner
+    (`tests/sweep/cost-guard*.ts`), v3.2 chunk 3's Jam sweep (`tests/sweep/jam-sweep*.ts`, at 60,
+    120 and 180 BPM) and v3.2's lock measurement (`measure:lock`), with §D10's settings as named
+    profiles (Speed drill first).
   - **The ending renders** (L1): `scripts/render-seventh-endings.mjs` writes short MIDI files with
     the real backing: a phrase as generated, then the same phrase with its final note moved to the
     final chord's seventh (the nearest one inside the phrase's window); and a pair of phrases as
@@ -585,8 +622,9 @@ Architecture capture: none
     only rewrites notes of phrases it is given; it never generates an ending the spec does not
     allow (D280).
   - Until chunk 12 exists the census and the runs see Off only, the baseline.
-- **Files:** `tests/sweep/seventh-census.ts`, `tests/sweep/seventh-census.spec.ts` (new), the cost
-  runner and Jam sweep modules of v3.1 chunk 3 and v3.2 chunk 3 (a level dimension),
+- **Files:** `tests/sweep/seventh-census.ts`, `tests/sweep/seventh-census.spec.ts` (new, added to
+  `vitest.measure-sweep.config.ts`'s list as `figure-census.spec.ts` is), the cost-guard, Jam
+  sweep and lock measurement modules under `tests/sweep/` (a level dimension),
   `scripts/render-seventh-endings.mjs` (new), `package.json` (`measure:sevenths`,
   `render:seventh-endings`), `docs/testing.md`, `docs/generation-latency.md` (the baseline).
 - **Spec sections:** no item directly; M1 and M2 rest on it (items 5, 21), and L1 (item 9).
@@ -629,11 +667,13 @@ Chunk 7 in this wave builds on it.
     degree-5 triad in tonal plans that move; scale degree 5 in tonal static plans; a non-home note
     of the home triad in modal plans), `tenseEndingCandidates` (a tense note is a scale note
     outside the final triad, so the seventh may end a joined phrase), and the first attack's
-    landing after an owed tense note or recovery (the tonic triad).
+    landing after an owed tense note or recovery (the tonic triad), which the search checks in
+    `leavesCarriedTensionUnresolved` (`pitch-advance.ts`). `freeDomainKey` still determines the
+    triad (the chord tones list root, third, fifth, then the seventh).
   - With triad events the two lists are equal, so the order and every phrase are unchanged.
 - **Files:** `src/domain/pitch/pitch-types.ts`, `src/domain/pitch/pitch-context.ts`,
-  `src/domain/pitch/pitch-candidates.ts`, `src/domain/pitch/pitch-ranking.ts`,
-  `src/domain/pitch/pitch-figures.ts`; tests under `tests/unit/domain/pitch/`
+  `src/domain/pitch/pitch-candidates.ts`, `src/domain/pitch/pitch-advance.ts` (the landing),
+  `src/domain/pitch/pitch-ranking.ts`, `src/domain/pitch/pitch-figures.ts`; tests under `tests/unit/domain/pitch/`
   (`pitch-candidates.spec.ts`, `pitch-ranking.spec.ts`, `pitch-figures.spec.ts` extended);
   [`docs/music/pitch-planner-validation.md`](../../../docs/music/pitch-planner-validation.md).
 - **Spec sections:** [§D6.1](master-spec.md#d61-the-seventh-is-a-chord-tone),
@@ -661,8 +701,8 @@ Chunk 7 in this wave builds on it.
   - Triad events: the corpus and the goldens pass unchanged.
 - **Verification:** chunk checks; the sweep at the wave gate.
 - **Split rule:** if the brief passes about five source files, 5a the two facts and what reads the
-  triad (`pitch-types.ts`, `pitch-context.ts`, the open ending, the tense ending and the landing in
-  `pitch-candidates.ts`), 5b what reads the chord tones (`pitch-ranking.ts`, `pitch-figures.ts`,
+  triad (`pitch-types.ts`, `pitch-context.ts`, the open ending and the tense ending in
+  `pitch-candidates.ts`, the landing in `pitch-advance.ts`), 5b what reads the chord tones (`pitch-ranking.ts`, `pitch-figures.ts`,
   the decorating notes and Tension's scheduled figure in `pitch-candidates.ts`).
 
 ### Chunk 6 — The validator reads the seventh as a chord tone
@@ -715,7 +755,8 @@ landing read the triad-tone fact. Chunk 7 in this wave builds on it.
 
 Status: planned
 Wave: 2
-Depends on: 2, 5, 6 (the chord-tone facts its run rule reads); C1 to merge (`rule_leap_recovery`)
+Depends on: 2, 5, 6 (the chord-tone facts its run rule reads), 8 (wave 1, the derivation it
+extends); `rule_leap_recovery` keeps its wording (D517), so no sign-off of its own
 Architecture capture: none (it builds on chunks 5's and 6's)
 
 - **Goal:** let a recognized three-note [run](../../../docs/music/lexicon.md#run) (three chord
@@ -724,14 +765,21 @@ Architecture capture: none (it builds on chunks 5's and 6's)
 - **Scope:** `recognizable` in `pitch-motion.ts` and its validator twin in
   `validation/motion-rules.ts` read the chord tones (each note's chord-tone fact, as chunks 5 and 6
   set it). So E–G–B over Cmaj7, or B–D–F over G7, is a run. A large leap inside such a run may
-  defer its recovery to the note after the run, at Leaping and Angular only. `WIDE`, the chain cap
+  defer its recovery to the note after the run, at Leaping and Angular only. The third place that
+  recognizes runs, `finalMotionState` in `carry-in-derivation.ts`, which replays a phrase's motion
+  to derive what it owes the next phrase, reads the same chord-tone facts, so a run through the
+  seventh with a deferred recovery derives the right owed recovery instead of throwing
+  `CarryInError`. `WIDE`, the chain cap
   and `wide_chain_too_long` are unchanged: C–E–G–B in one direction is still refused, as C–E–G–C is
   today.
-- **Files:** `src/domain/pitch/pitch-motion.ts`, `src/domain/pitch/validation/motion-rules.ts`;
-  tests `tests/unit/domain/pitch/pitch-motion.spec.ts` (extended), the validator's motion tests.
+- **Files:** `src/domain/pitch/pitch-motion.ts`, `src/domain/pitch/validation/motion-rules.ts`,
+  `src/domain/generation/carry-in/carry-in-derivation.ts` (`finalMotionState`); tests
+  `tests/unit/domain/pitch/pitch-motion.spec.ts` (extended), the validator's run and chain cases in
+  `tests/unit/domain/pitch/validation/pitch-phrase-validator.spec.ts`, a derivation case in
+  `tests/unit/domain/generation/carry-in/`.
 - **Spec sections:** [§D6.2](master-spec.md#d62-runs-stay-three-notes),
-  [§D12](master-spec.md#d12-contract-changes-needing-owner-confirmation) item 3; items 8, 7 (runs),
-  2 (guarded).
+  [§D12](master-spec.md#d12-contract-changes-needing-owner-confirmation) (`rule_leap_recovery`,
+  wording unchanged); items 8, 7 (runs), 2 (guarded).
 - **Atoms:** Part D §D6.2 until I0; (v2, STABLE) `rule_leap_recovery`. Drift check:
   `module_pitch_search_transition`, `module_pitch_domain_validation`.
 - **Revisions:** revise `rule_leapiness_arpeggio_run_limits`, `rule_join_inherits_leap_recovery`.
@@ -741,9 +789,11 @@ Architecture capture: none (it builds on chunks 5's and 6's)
     tests).
   - A large leap inside such a run defers its recovery at Leaping and Angular, never at the other
     levels; a run is never longer than three notes (property test).
+  - A phrase holding such a run with a deferred recovery derives its carry-in without error, owing
+    what the search wrote (a named test).
   - Over triad events, runs and recoveries are unchanged (the existing motion suites, the corpus).
 - **Verification:** chunk checks; the sweep at the wave gate.
-- **Split rule:** none needed (two source files).
+- **Split rule:** none needed (three source files).
 
 ### Chunk 8 — The join carries a seventh chord
 
@@ -768,6 +818,10 @@ landing.
     settings). A key or mode change, or a harmonic motion change the carried chord no longer fits,
     still drops it.
   - `phrase-ending-debt.ts`: the landing stays the tonic triad (no change, a named test).
+  - `carriedPitchOnCarriedChord` (`carry-in.ts`): the carried final note's chord-tone fact keeps
+    reading the carried chord's triad, since it decides both whether the note is tense and its
+    part in runs and chains across the join (`pitch-carry-in.ts`, `join-rules.ts`): a final note on
+    the seventh is a tense note, and no run is recognized across the join through it (§D6.3, D516).
 - **Files:** `src/domain/generation/carry-in/carry-in.ts`, `carry-in-derivation.ts`,
   `src/domain/harmony/harmony-join.ts`; tests
   `tests/unit/domain/generation/carry-in/carry-in.spec.ts`, `carry-in-join-matrix.spec.ts`,
@@ -785,7 +839,8 @@ landing.
     reason.
   - A carried G7 joins a phrase whose plan opens on degree 1, exactly where a carried G would; a key
     change still drops it (the join matrix, extended).
-  - The landing after an owed note is a tonic-triad note with a carried seventh chord.
+  - The landing after an owed note is a tonic-triad note with a carried seventh chord; a carried
+    final note on the seventh is tense (a named test).
   - The corpus and the carry-in goldens (`carry-in-chains.golden.v1.json`,
     `no-carry-in-v1-bytes.spec.ts`) pass unchanged.
 - **Verification:** chunk checks; the sweep at the wave gate.
@@ -804,11 +859,16 @@ Architecture capture: none
   today would be silently ignored. It is voiced in the highest **close position** (the notes packed
   inside one octave, here each of the four at the bottom in turn: four arrangements instead of
   three) whose top note is at or below E4 (MIDI 64), so its lowest note reaches about D3. The bass,
-  the attack rhythm and the registers are unchanged. The MIDI export takes its backing from the
-  renderer (`backingForExport`), so its four-note chords follow with no export change.
+  the attack rhythm and the registers are unchanged. The session plays the renderer's notes
+  (`queuePhrase`, `src/audio/transport-session.ts`), each chord note on the backing channel's
+  `chord` voice at today's loudness, so a fourth note sounds with no audio change (D518). The MIDI
+  export takes its backing from the renderer (`backingForExport`, `src/export/generated-notes-file.ts`),
+  so its four-note chords follow with no export change. The Rhythm guide
+  (`src/domain/backing/guide-renderer.ts`) reads only the root, unchanged.
 - **Files:** `src/domain/backing/backing-renderer.ts`; tests
   `tests/unit/domain/backing/backing-renderer.spec.ts` (a seventh case beside the triad one),
-  `tests/unit/export/midi/` (a backing-included export with a seventh chord);
+  `tests/unit/export/midi/` (a backing-included export with a seventh chord), the guide renderer's
+  tests (a seventh-form event's root unchanged);
   [`docs/audio-transport.md`](../../../docs/audio-transport.md).
 - **Spec sections:** [§D7.3](master-spec.md#d73-the-backing-plays-the-seventh),
   [§D7.2](master-spec.md#d72-exports) (MIDI); items 10, 2 (guarded).
@@ -824,7 +884,8 @@ Architecture capture: none
     `reference-session-backing.v1.mid` is unchanged.
   - A backing-included MIDI export of a seventh-chord phrase holds the same four notes as the
     renderer.
-- **Verification:** chunk checks; H4's DAW half later, at chunk 13.
+  - The Rhythm guide plays the same roots over a seventh-form event as over its triad form.
+- **Verification:** chunk checks; H4's DAW half later, at chunk 13; the balance by ear at H2.
 - **Split rule:** none needed (one source file).
 
 ### Chunk 10 — Seventh chord symbols and their spoken words
@@ -876,7 +937,8 @@ Architecture capture: none
 
 Status: planned
 Wave: 1
-Depends on: 3 (the level type; and v3.1 chunk 10)
+Depends on: 3 (the level type; and v3.1 chunk 10); C1 to merge (the presets and Custom atoms of
+§D12 item 8)
 Architecture capture: none (it builds on chunk 3's)
 
 - **Goal:** make the level a preset-held setting: every preset holds it, every built-in at Off,
@@ -898,8 +960,10 @@ Architecture capture: none (it builds on chunk 3's)
   [`screens/preset-sheet/handoff.md`](../../../ui_ux/screens/preset-sheet/handoff.md) (What the
   Main Action Does).
 - **Atoms:** Part D §D8.1 until I0; (v3.1) `rule_custom_selection`.
-- **Revisions:** revise `rule_preset_contents`, `rule_built_in_preset_values`,
-  `rule_choosing_preset_sets_its_settings`.
+- **Revisions:** revise (STABLE, C1's wordings) `rule_choosing_preset_sets_its_settings`,
+  `module_preset_model`, `module_generative_profile_selection`,
+  `module_profile_control_customization`; revise `rule_preset_contents`,
+  `rule_built_in_preset_values`.
 - **Done when:**
   - Every built-in holds Off; choosing Bebop after raising the level returns it to Off; choosing
     any preset sets it to the preset's value.
@@ -940,8 +1004,11 @@ same list from the level, the seed and the plans. Chunks 15 and 16 in this wave 
     from triads, the modal colour chords still measured on the triads.
   - **The variants.** After `rankHarmonyCandidates`, each plan with at least one drawn seventh
     becomes its seventh variant then its triads-only variant; a plan with none drawn stays as it
-    is. The window search walks the list as today (`searchWindow`); the search allowance is
-    unchanged.
+    is. The window search walks the list as today (`searchWindow`, `window-search.ts`), in either
+    of its two orders: `walkHarmonyMajor`, every rhythm for each plan, and, with locked bars,
+    `walkRhythmMajor`, every plan for each locked rhythm. In both, a plan's two forms stay side by
+    side, so a locked rhythm gives way only after every plan has been tried in both forms (D516).
+    The search allowance is unchanged.
   - **The three rebuild sites take the level, in one change:** `buildHarmonyDomain` (the
     orchestrator), `harmonyProvenanceFailures` (the result validator, which now accepts a phrase
     whose plan is a variant built from the same level and seed, and nothing else) and
@@ -953,6 +1020,8 @@ same list from the level, the seed and the plans. Chunks 15 and 16 in this wave 
 - **Files:** `src/domain/harmony/seventh-draw.ts` (new),
   `src/domain/generation/orchestration/generation-orchestrator.ts`,
   `src/domain/generation/orchestration/harmony-variants.ts` (new),
+  `src/domain/generation/orchestration/window-search.ts` (both walks; tests only if the walks need
+  no change),
   `src/domain/validation/generation-result-validator-checks.ts`,
   `src/domain/generation/carry-in/carry-in-fit.ts`; tests under `tests/unit/domain/harmony/`,
   `tests/unit/domain/generation/orchestration/`, `tests/unit/domain/validation/`.
@@ -965,7 +1034,8 @@ same list from the level, the seed and the plans. Chunks 15 and 16 in this wave 
   phrase; same plans; Off draws nothing; Off reproduces v3.2); (v2)
   `rule_seeded_phrase_reproduction`, `rule_neutral_profile_diatonic_harmony`,
   `rule_jazz_chromatic_resolution`. Drift check: `mechanic_pitch_search_policy` (the allowance
-  unchanged), `service_generation_window_search`.
+  unchanged), `service_generation_window_search`, `module_rhythm_lock_order`,
+  `rule_rhythm_lock_strict`.
 - **Revisions:** revise `module_harmony_candidate_domain`, `module_ranked_candidate_ordering`,
   `module_named_stream_pseudorandomness`, `service_generation_orchestration`,
   `service_generation_result_validation`.
@@ -984,14 +1054,17 @@ same list from the level, the seed and the plans. Chunks 15 and 16 in this wave 
   - No floating-point operation in the draw (a test over the module's source, and golden draws for
     a fixed seed list); the result validator refuses a phrase claiming a variant the level and seed
     do not give.
+  - With locked bars, each plan's seventh and triads-only forms are tried in turn before a locked
+    rhythm gives way, and the lock's outcomes at Off are unchanged (a named test and the corpus's
+    locked cases).
   - At Off the corpus, the cold-generation goldens and `generation-outcome-golden.spec.ts` pass
     unchanged.
 - **Verification:** chunk checks; the sweep at the wave gate; the census at Strongly favored for
   the record.
 - **Split rule:** if the brief passes about five source files, 12a the draw and the variant builder
   as pure modules with their tests (`seventh-draw.ts`, `harmony-variants.ts`), 12b the three
-  rebuild sites taking the level together (`generation-orchestrator.ts`,
-  `generation-result-validator-checks.ts`, `carry-in-fit.ts`).
+  rebuild sites taking the level together and the walks (`generation-orchestrator.ts`,
+  `generation-result-validator-checks.ts`, `carry-in-fit.ts`, `window-search.ts`).
 
 ### Chunk 13 — MusicXML writes the seventh chords
 
@@ -1046,7 +1119,7 @@ Architecture capture: none
   - **Below `bp-tablet-landscape`**, a phrase whose symbols still do not fit at the legibility floor
     takes the too-many-notes path (regenerated unseen), as any phrase that does not fit; it is
     never drawn overlapping.
-  - **The triad guard.** `measureMinWidths` (`vexflow-engraver.ts:182` on 62a90c7) counts only the
+  - **The triad guard.** `measureMinWidths` (`vexflow-engraver.ts:176` on d10de742) counts only the
     voices today, so counting the symbols' widths changes it for triads too. At Off, every triad
     layout and fit verdict of chunk 1's v3.2 corpus stays as v3.2 gives it. If one would move, it
     goes back to `ux-writer` before any snapshot is updated.
@@ -1084,7 +1157,8 @@ Architecture capture: none
 
 Status: planned
 Wave: 3
-Depends on: 3, 8, 10 (the quality names the replay tool prints), 12 (and v3.2 chunk 12, `ifk4.`)
+Depends on: 3, 8, 10 (the quality names the replay tool prints), 12 (and v3.2 chunk 12, `ifk4.`);
+C1 to merge (`module_phrase_replay_key`, `rule_seeded_phrase_reproduction`)
 Architecture capture: the `ifk5.` format (a revision of `module_phrase_replay_key`): `ifk4.`'s
 tuple plus `chordFamilies` and a carried seventh. A key naming an unknown family is refused with the
 reason.
@@ -1107,15 +1181,17 @@ reason.
 - **Files:** `src/generation-worker/phrase-replay-key.ts`, `phrase-replay-key-decode.ts`,
   `phrase-replay.ts`, `phrase-replay-bars.ts`, `scripts/replay-phrase.mjs`; tests under
   `tests/unit/generation-worker/`, `tests/unit/scripts/replay-phrase-script.spec.ts`,
-  `tests/e2e/release/deterministic-replay.spec.ts` (extended).
+  `tests/e2e/release/deterministic-replay.spec.ts` (extended); the `ifk4.` suites
+  (`phrase-replay-key.spec.ts`, `phrase-replay-key-ifk4.spec.ts`) stay.
 - **Spec sections:**
   [§D9](master-spec.md#d9-the-generation-request-the-replay-key-and-kept-sessions); items 18, 2
   (older keys).
 - **Atoms:** Part D §D9 until I0 (`ifk5.`; older keys at Off; an unknown capability refused); (v2)
   `rule_seeded_phrase_reproduction`. Drift check: `module_phrase_replay_key`,
   `module_generation_worker_protocol`.
-- **Revisions:** revise `rule_seeded_phrase_reproduction` (the level),
-  `service_headless_phrase_replay`.
+- **Revisions:** revise (STABLE, C1's wording) `module_phrase_replay_key`,
+  `rule_seeded_phrase_reproduction` (the level); revise `service_headless_phrase_replay`,
+  `rule_jam_and_lock_off_reproduce_earlier_phrases`.
 - **Done when:**
   - Every phrase's key is `ifk5.`; encoding then decoding returns an equal intent, and replaying it
     gives the same timeline at each level, with and without a carried seventh.
@@ -1134,28 +1210,31 @@ Wave: 3
 Depends on: 3, 11, 12 (and v3.0 chunk 24, v3.2 chunks 15 and 26)
 Architecture capture: none (it builds on chunk 12's)
 
-- **Goal:** carry the player's level from the workspace into every phrase of a session, a Jam and
-  pre-generation, fixed for the whole session and never moved by Vary settings.
+- **Goal:** carry session mode's level from the workspace into every phrase of a session and of
+  pre-generation, fixed for the whole session and never moved by Vary settings. Jam's own level is
+  chunk 23's.
 - **Scope:**
   - **The state:** the workspace's generation state gains the level (first-load Off); every intent
     it builds carries it (until chunk 17 it is never saved, until chunk 19 never changed by the
     player).
   - **The session:** the level is frozen at Start with the other generation settings, every attempt
-    of every rung carries it (D287), and the session's settings change path does not touch it.
-  - **Vary settings:** the level is not in `MUTABLE_SETTINGS` and in no allowed group. A property
-    test says no draw ever moves it. v3.2's Vary settings corpus passes at each level, byte for
-    byte.
-  - **Pre-generation:** a level change, at Idle or in the review mode, discards every prepared
-    phrase and lets a held doodle go, announcing nothing (ux D263), as a figure level does; a
-    pre-generated phrase equals the session's at every level.
-  - **Jam and the suggestion:** a Jam's phrases follow the level; the key and mode suggestion's
-    answer for a doodle is the same at every level (a test over v3.2's doodle set).
+    of every rung carries it, and the session's settings change path does not touch it. The same
+    path takes the level a Jam starts with, from chunk 23.
+  - **Vary settings:** the level is not in `MUTABLE_SETTINGS` and in no allowed group
+    (`VARY_SETTINGS_GROUPS`). A property test says no draw ever moves it. The recorded Vary
+    settings draws (`tests/fixtures/vary-settings/v3.1-mutation-draws.json`) and v3.2's group cases
+    (`vary-settings-groups-cases.ts`) pass at each level, byte for byte.
+  - **Pre-generation:** the level joins session mode's discard key (`settingsKeyOf`), so a level
+    change, at Idle or in the review mode, discards every prepared phrase, announcing nothing (ux
+    D263), as a figure level does; a pre-generated phrase equals the session's at every level.
+    Session mode holds no doodle since v3.2, so nothing else goes (D513).
+  - **The suggestion:** the key and mode suggestion's answer for a doodle is the same at every
+    level (a test over v3.2's doodle set).
 - **Files:** `src/composables/use-generation-session.ts`,
-  `src/composables/generation-session-pregeneration.ts` (v3.0),
-  `src/components/workspace/use-held-doodle.ts` (v3.2), `src/session/session-intents.ts`,
-  `src/session/settings-mutation-scales.ts` (a guard comment and its test only); tests under
-  `tests/unit/composables/`, `tests/unit/session/`, `tests/e2e/workspace/pregeneration.spec.ts`
-  (extended).
+  `src/components/workspace/workspace-pregeneration.ts` (`settingsKeyOf`),
+  `src/session/session-intents.ts`, `src/session/settings-mutation-scales.ts` (a guard comment and
+  its test only); tests under `tests/unit/composables/`, `tests/unit/session/`,
+  `tests/unit/components/workspace/`, `tests/e2e/workspace/pregeneration.spec.ts` (extended).
 - **Spec sections:** [§D8.3](master-spec.md#d83-vary-settings-and-the-session),
   [§D8.4](master-spec.md#d84-pre-generation-jam-and-the-key-and-mode-suggestion), Part A §8; items
   15, 16, 22, 1 (locked during a session).
@@ -1169,51 +1248,60 @@ Architecture capture: none (it builds on chunk 12's)
   `rule_pregenerated_phrase_matches_session`. Drift check: `module_settings_mutation`,
   `module_generation_prewarm`.
 - **Revisions:** revise `rule_vary_settings_allowed_groups`,
-  `rule_pregeneration_discarded_on_change`, `rule_held_doodle_dropped_on_change`.
+  `rule_pregeneration_discarded_on_change`. Drift check: `rule_held_doodle_dropped_on_change`
+  (unchanged: a level change keeps the kept doodle).
 - **Done when:**
   - Over many seeded sessions with Vary settings on and every group allowed, the level never moves
-    and never makes Custom; v3.2's Vary settings corpus passes at each level.
-  - Every attempt of a session, of every rung, and of a fresh Jam's phrase 1, carries the level the
-    session started with (engine tests on the fake clock).
-  - A level change at Idle and in the review mode discards the prepared phrases and drops a held
-    doodle (queue spy); prepared phrases equal the session's at each level.
+    and never makes Custom; the recorded draws and the group cases pass at each level.
+  - Every attempt of a session, of every rung, carries the level the session started with (engine
+    tests on the fake clock).
+  - A level change at Idle and in the review mode discards the prepared phrases (queue spy);
+    prepared phrases equal the session's at each level.
   - Choosing a preset that differs from the current settings only in the level discards the
     prepared phrases; choosing one identical in every value, the level included, discards nothing.
   - The suggestion's answer is the same at every level.
 - **Verification:** chunk checks; the sweep at the wave gate.
-- **Split rule:** none needed (one of its five source files takes a guard comment only).
+- **Split rule:** none needed (four source files, one taking a guard comment only).
 
 ### Chunk 17 — The level on the device: data version 5
 
 Status: planned
 Wave: 4
-Depends on: 10, 11, 16 (and v3.0 chunks 4–7 and 9, v3.1 chunk 16, v3.2 chunk 22)
-Architecture capture: data version 5 and its empty upgrade step (D279), inside v3.0's
+Depends on: 10, 11, 16 (and v3.0 chunks 4–7 and 9, v3.1 chunk 16, v3.2 chunk 22); C1 to merge
+(the kept-session, database, player preset and saved-settings atoms of §D12 items 5–9)
+Architecture capture: data version 5 and its upgrade step (D279 as amended by D515), inside v3.0's
 [storage design](build-plan.md#the-storage-design-the-chunks-build-on): one new `settings` record
-keyed `chordFamilies.seventh-chords`; each player preset record and each kept phrase's reproduction
-inputs gain `chordFamilies`, and a kept body's harmony may carry a seventh. The upgrade step
-rewrites no record: an absent level reads Off in every codec, and a kept body's harmony without a
-seventh reads as triads.
+keyed `chordFamilies.seventh-chords`, added with no step as v3.2 added its `jam.*` and guide
+records; each player preset record and each kept phrase's stored intent gain `chordFamilies`, and a
+kept body's harmony may carry a seventh. The two changed shapes, the player preset record and the
+kept body, move to data version 5; the step to 5 rewrites them with the level at Off and changes
+nothing else, as `module_on_device_database` requires, so a v3.2 tab leaves a v3.3 record unread as
+newer. A kept body's harmony without a seventh reads as triads.
 
 - **Goal:** save the level with the settings and in each player preset, keep it in each kept
   phrase's inputs with its seventh chords, and migrate v3.2's data.
 - **Scope:**
-  - **Data version 5** (the migration runner of v3.0 chunk 4, after v3.2's 4): the upgrade step
-    rewrites no record. Every codec reads an absent level as Off.
+  - **Data version 5** (`PRODUCTION_MIGRATIONS`, after v3.2's 4): the upgrade step rewrites the
+    player presets and kept bodies at version 5 with the level at Off; nothing else changes. Every
+    codec reads an absent level as Off.
   - **Settings:** one record, `chordFamilies.seventh-chords`, saved on change under the save
     policy, never during a session. Tolerant: absent, unknown or invalid loads at Off, every other
     setting still loading.
   - **Player presets:** the record gains `chordFamilies` by value; the values win, so a saved level
     differing from the selected preset's loads as Custom based on it.
-  - **Kept sessions:** each phrase's reproduction inputs hold `chordFamilies`; the body's harmony
-    may hold a seventh, and the chord symbols are kept as displayed. A session kept before v3.3
-    opens with its triads and timelines untouched.
+  - **Kept sessions:** each phrase's stored intent (`parseKeptIntent`) holds `chordFamilies`; the
+    stored harmony (`kept-phrase-parsers.ts`, whose `parseTriad` takes three pitch classes today)
+    may hold a seventh, and the chord symbols, which are not stored, are drawn again from it as
+    displayed. A session kept before v3.3, a Jam's included, opens with its triads and timelines
+    untouched.
   - **Delete everything** resets the level to Off. Visits that save nothing save no level.
   - M3's timings.
 - **Files:** `src/storage/records/settings-record.ts`, `src/storage/records/preset-record.ts`
-  (v3.1), `src/storage/records/kept-session-record.ts` (v3.0),
-  `src/storage/migrations/data-v5.ts` (new), `src/storage/database.ts`, and the bootstrap that
-  loads settings into the state (v3.0 chunk 7); tests under `tests/unit/storage/`,
+  (v3.1), the kept phrase's codec (`src/storage/records/kept-session-body.ts`,
+  `kept-session-body-read.ts`, `kept-intent-parsers.ts`, `kept-phrase-parsers.ts`),
+  `src/storage/migrations/presets-and-kept-sessions-v5.ts` (new, named after
+  `kept-sessions-v4.ts`), `src/storage/database.ts`, and the bootstrap that loads settings into the
+  state (`src/storage-bootstrap.ts`); tests under `tests/unit/storage/`,
   `tests/e2e/storage/seventh-chords-level.spec.ts` (new).
 - **Spec sections:** [§D8.2](master-spec.md#d82-saving-on-the-device),
   [§D9](master-spec.md#d9-the-generation-request-the-replay-key-and-kept-sessions) (kept sessions),
@@ -1227,26 +1315,33 @@ seventh reads as triads.
   `rule_saved_settings_load_tolerantly`, `rule_saved_setting_is_players_choice`,
   `rule_no_save_during_session`, `rule_outdated_tab_stops_saving`, `rule_delete_everything`. Drift
   check: `service_session_history`, `req_last_session_review` (STABLE, wording unchanged).
-- **Revisions:** revise `rule_settings_saved_on_change`, `rule_presets_load_tolerantly`,
-  `rule_preset_load_values_win`, `rule_kept_session_content`,
-  `rule_earlier_kept_sessions_carried_over`, `rule_session_history_keeps_timeline_and_inputs`.
+- **Revisions:** revise (STABLE, C1's wordings; the two saved-settings rules are applied at wave
+  5's sync, with chunk 23's half) `rule_settings_saved_on_change`,
+  `rule_saved_settings_load_tolerantly`, `rule_presets_load_tolerantly`,
+  `rule_kept_session_content`, `entity_kept_session_record`, `module_kept_session_codec`,
+  `module_on_device_database`, `entity_player_preset_record`,
+  `rule_player_presets_saved_on_device`; revise `rule_session_history_keeps_timeline_and_inputs`.
+  Drift check: `rule_preset_load_values_win`, `rule_earlier_kept_sessions_carried_over`,
+  `rule_outdated_tab_reads_what_it_can` (STABLE, wording unchanged).
 - **Done when:**
   - The level survives a reload at each value (e2e, seeded through the storage seam); a corrupt or
     unknown value loads Off with every other setting kept (property test).
   - A player preset holding Mostly loads with it; a saved level differing from the selected
     built-in's loads as "Custom, based on {name}".
   - A database seeded with v3.2 data (settings, player presets, pinned and Jam sessions) opens at
-    data version 5; each session opens as before, exports byte-identical; nothing was rewritten.
+    data version 5; each session opens as before, exports byte-identical; the player presets and
+    kept bodies are at version 5 with the level at Off, and nothing else was rewritten; a v3.2
+    reader leaves each version 5 record unread as newer.
   - A session kept at Mostly reopens with its seventh-chord symbols as displayed and replays each
     phrase from its inputs.
   - Delete everything leaves the level at Off; an outdated tab and a failed-read visit write no
     level.
   - M3 recorded. Then **H5** at the release gate.
 - **Verification:** chunk checks; M3; a debug run reloading with seeded v3.2 data.
-- **Split rule:** if the brief passes about five source files, 17a data version 5 and the three
-  records' codecs (`data-v5.ts`, `database.ts`, `settings-record.ts`, `preset-record.ts`,
-  `kept-session-record.ts`), 17b the bootstrap that loads the level into the state, Delete
-  everything, the visits that save nothing, the e2e and M3.
+- **Split rule:** if the brief passes about five source files, 17a data version 5 and the records'
+  codecs (the migration, `database.ts`, `preset-record.ts`, the kept phrase's codec files), 17b
+  the settings record, the bootstrap that loads the level into the state, Delete everything, the
+  visits that save nothing, the e2e and M3.
 
 ### Chunk 18 — Measurements, first run: shares, cost guard and ending examples
 
@@ -1260,8 +1355,8 @@ Architecture capture: none
 - **Scope:** no product code beyond tuning the two share constants.
   - **M1** at each level and mode; the shares and the fallback share to `ux-writer` (U1a) and the
     owner; **DP** taken.
-  - **M2** on §D10's settings, Speed drill first, at 60, 120 and 240 BPM, a 240 BPM session and a
-    fresh Jam's phrase 1 at 240 BPM. A setting outside the acceptance is tuned down (Sometimes and
+  - **M2** on §D10's settings, Speed drill first, at 60, 120 and 240 BPM, a 240 BPM session, a
+    fresh Jam's phrase 1 at 180 BPM (D506) and a session with locked bars. A setting outside the acceptance is tuned down (Sometimes and
     Favored) or reported (Strongly favored, through DP); never by raising the allowance.
   - **Replay** a sample of every kind of phrase (each level, a fallback, a carried seventh, a Jam
     phrase 1) from its `ifk5.` key.
@@ -1302,20 +1397,21 @@ Architecture capture: none
     `seventhChordsOptions` is its own list, never the figure levels' (Off, Rarely, Often, Very
     often), pinned by a unit test.
   - Editable at Idle and in the review mode, read-only (`is-readonly`) in Loading and for a whole
-    session. A change never regenerates the phrase on screen; it makes Custom, discards the
-    prepared phrases and lets a held doodle go (`jam-bar` leaving at once); under the
-    too-many-notes notice it starts a round like any setting.
-  - Vary settings' note reads, from v3.3, "Every 2 to 4 phrases, one setting from the groups below
-    moves one step. Never the instrument, the tempo or Seventh chords. Keys and modes stay within
-    what your preset is meant for. Your settings come back when the session ends." (ux D257).
+    session. A change never regenerates the phrase on screen; it makes Custom and discards the
+    prepared phrases (D513); under the too-many-notes notice it starts a round like any setting.
+  - Vary settings' note (`VarySettingsField.vue`, today "…Never the instrument or the tempo. …")
+    reads, from v3.3, "Every 2 to 4 phrases, one setting from the groups below moves one step.
+    Never the instrument, the tempo or Seventh chords. Keys and modes stay within what your preset
+    is meant for. Your settings come back when the session ends." (ux D257).
   - Nothing announces the level, and nothing ever says a phrase holds fewer sevenths than the level
     suggests.
   - **The three built-in descriptions** gain their sentence here, with the control they point at
     (ux D256): Jazz and Bebop "Also try raising Seventh chords, the usual chords of jazz."; Modal
     (Dorian) "Also try raising Seventh chords, for a richer, jazzier bed."
 - **Files:** `src/components/controls/FoundationControls.vue`,
-  `src/components/controls/control-options.ts` (`seventhChordsOptions`), the Vary settings note's
-  component (v3.2 chunk 19), `src/domain/presets/built-in-presets.ts` (v3.1; the three sentences);
+  `src/components/controls/control-options.ts` (`seventhChordsOptions`),
+  `src/components/controls/VarySettingsField.vue`,
+  `src/components/controls/preset-bar-model.ts` (`BUILT_IN_DESCRIPTIONS`; the three sentences);
   tests `tests/unit/components/controls/control-options.spec.ts` (the mapping),
   `ControlPanel.spec.ts`, `tests/e2e/workspace/seventh-chords-control.spec.ts` (new).
 - **Spec sections:** [§D5.2](master-spec.md#d52-four-levels),
@@ -1335,17 +1431,16 @@ Architecture capture: none
     review mode; first visit and after Delete everything, Off.
   - `seventhChordsOptions` maps `off`, `sometimes`, `favored`, `stronglyFavored` to Off, Sometimes,
     Often, Mostly, and is not the figure levels' list (unit test).
-  - A change makes "Custom, based on {name}", discards the prepared phrases, drops a held doodle
-    with `jam-bar` leaving at once, and leaves the phrase on screen; under the too-many-notes notice
-    it starts a round; no live region announces it.
+  - A change makes "Custom, based on {name}", discards the prepared phrases, and leaves the phrase
+    on screen; under the too-many-notes notice it starts a round; no live region announces it.
   - During a session and in Loading the control is read-only and shows the session's value from
     the count-in to the end.
   - Its segments and its note wrap within the field at every named breakpoint, none cut; keyboard
     and screen reader behave as a figure level's (the accessibility checks of what it adds).
   - The Vary settings note reads as above; the three descriptions end with their sentence and the
     others are unchanged.
-  - Then **H2** (L2) and **H6** with the owner.
-- **Verification:** chunk checks; the accessibility checks of what it adds; H2 and H6.
+  - Then **H6** with the owner (H2 after chunk 23).
+- **Verification:** chunk checks; the accessibility checks of what it adds; H6.
 - **Split rule:** none needed (four source files).
 
 ### Chunk 20 — The finer fallback (conditional)
@@ -1409,6 +1504,80 @@ Architecture capture: none
   writes any), 21b the search and the landing (`pitch-context.ts`, `pitch-candidates.ts`,
   `phrase-ending-debt.ts`).
 
+### Chunk 23 — Jam's own Seventh chords level
+
+Status: planned
+Wave: 5
+Depends on: 3, 12, 16, 17, 19 (in-wave: chunk 19's capture fixes `seventhChordsOptions`), D0, U1a
+(the labels); C1 to merge (the saved-settings atoms of §D12 item 9, whose wording names both
+modes' levels)
+Architecture capture: Jam's level as one more of Jam's own settings (a revision of
+`module_jam_settings`; D512). `JamSettings` (`src/jam/jam-settings.ts`) gains the level by
+capability name, first value Off, saved as one more `jam.*` record of the settings store
+(`JAM_SETTING_FIELDS`, `settings-record.ts`), with no database step, as v3.2 added the group, and
+loaded tolerantly at Off. It is never shared with session mode's level.
+
+- **Goal:** give Jam mode its own Seventh chords level, set at Jam's Idle and carried by every
+  phrase of a Jam ([§D8.4](master-spec.md#d84-pre-generation-jam-and-the-key-and-mode-suggestion)).
+- **Scope:**
+  - **State and saving:** the level in `JamSettings` and `use-jam-settings.ts`, first value Off,
+    saved on change outside a Jam, an absent, unknown or invalid value loading Off with every other
+    Jam setting kept; Delete everything resets it.
+  - **Generation:** every rung of a fresh Jam's phrase 1 (`jam-phrase-one-attempts.ts`, D287), a
+    phrase 1 written again from the kept doodle (`use-kept-doodle-phrase.ts`,
+    `kept-doodle-phrase-one.ts`), and a Jam's later phrases, through the session path chunk 16
+    built, carry Jam's level, fixed for the whole Jam. Wave 5's preflight names any other place
+    Jam's settings feed a request (`fresh-jam-settings.ts`).
+  - **At Jam's Idle**, with a kept doodle, a change writes phrase 1 again from it and discards
+    Jam's prepared phrases (`jam-pregeneration.ts`), as every Jam setting but the tempo does; the
+    kept doodle stays (D513). "Jam again on this doodle" generates with Jam's level as it stands.
+  - **The control:** in Jam's own Foundation group (`src/jam/JamControls.vue`), after Harmonic
+    motion (ux Q86), with chunk 19's segments and note (`seventhChordsOptions`); read-only during a
+    Jam.
+  - Session mode's level and Jam's never move each other, and neither enters the other mode's
+    pre-generation.
+- **Files:** `src/jam/jam-settings.ts`, `src/storage/records/settings-record.ts`,
+  `src/components/workspace/use-jam-settings.ts`, `src/jam/jam-phrase-one-attempts.ts`,
+  `src/components/workspace/use-kept-doodle-phrase.ts`, `src/jam/JamControls.vue`; tests under
+  `tests/unit/jam/`, `tests/unit/storage/`, `tests/e2e/workspace/` (a Jam at Mostly).
+- **Spec sections:** [§D8.4](master-spec.md#d84-pre-generation-jam-and-the-key-and-mode-suggestion),
+  [§D11](master-spec.md#d11-for-the-interface-design),
+  [§D17](master-spec.md#d17-access-model); items 1, 14, 16, 19, 22 (Jam's halves), 2 (guarded).
+- **Design docs:** [`screens/phrase-workspace/handoff.md`](../../../ui_ux/screens/phrase-workspace/handoff.md)
+  (Jam's Foundation: Seventh chords),
+  [`flows/jam/handoff.md`](../../../ui_ux/flows/jam/handoff.md) (A Jam setting changed with a kept
+  doodle), [`flows/saved-data/handoff.md`](../../../ui_ux/flows/saved-data/handoff.md),
+  [`flows/generate-phrase/handoff.md`](../../../ui_ux/flows/generate-phrase/handoff.md),
+  [`flows/review-and-export/handoff.md`](../../../ui_ux/flows/review-and-export/handoff.md) (a
+  Jam's kept phrases and "Jam again on this doodle").
+- **Atoms:** Part D §D8.4 until I0 (Jam's own level); (v3.2) `rule_jam_phrase_one_failure_ladder`,
+  `rule_held_doodle_dropped_on_change`. Drift check: `module_kept_doodle`,
+  `rule_jam_pregeneration_only_for_kept_doodle`, `rule_shared_setting_changed_in_jam_mode`.
+- **Revisions:** revise (STABLE, C1's wordings, applied at wave 5's sync with both modes' halves
+  built) `rule_settings_saved_on_change`, `rule_saved_settings_load_tolerantly`; revise
+  `req_jam_settings`, `module_jam_settings`, `rule_jam_settings_saved_on_change`,
+  `rule_jam_settings_first_values`, `rule_jam_settings_load_tolerantly`,
+  `rule_jam_setting_change_rewrites_kept_phrase_one`, `rule_held_doodle_phrase_one_at_idle`.
+- **Done when:**
+  - Jam's level is Off on a first visit and after Delete everything, survives a reload at each
+    value, and a corrupt or unknown value loads Off with every other Jam setting kept.
+  - Changing it never changes session mode's level, and the reverse (an e2e across both modes).
+  - Every attempt of a fresh Jam's phrase 1, each rung, and every later phrase carries Jam's level
+    (engine tests on the fake clock); a Jam at Mostly writes seventh chords.
+  - At Jam's Idle with a kept doodle, a change writes phrase 1 again and discards Jam's prepared
+    phrases (queue spy), the kept doodle staying; "Jam again on this doodle" uses the current
+    level.
+  - The control sits after Harmonic motion in Jam's settings, read-only during a Jam, with chunk
+    19's segments and note.
+  - The corpus's Jam cases pass at Off.
+  - Then **H2**'s Jam half with the owner.
+- **Verification:** chunk checks; the sweep at the wave gate; the accessibility checks of what it
+  adds.
+- **Split rule:** if the brief passes about five source files, 23a Jam's level in its state, saving
+  and generation (`jam-settings.ts`, `settings-record.ts`, `use-jam-settings.ts`,
+  `jam-phrase-one-attempts.ts`, `use-kept-doodle-phrase.ts`), 23b the control in `JamControls.vue`
+  and its e2e.
+
 ## Chunk 22 — v3.3 release gate
 
 Status: blocked (on L1, L2, U1b)
@@ -1417,18 +1586,19 @@ Depends on: every chunk (20 and 21 built or recorded as skipped), L1, L2, U1b
 The release gate, not a wave; it keeps its chunk number because other plans and documents link it.
 It runs the [build workflow's release gate](build-workflow.md#release-gate), plus:
 
-- `docs/release/v3.3-release-notes.md`: one row per item 1–25 of §D15, then the table of every
+- `docs/release/v3.3-release-notes.md`: one row per item 1–27 of §D15, then the table of every
   replaced or extended test and its v3.3 counterpart (item 24, from
   [Read first](#read-first-what-v33-changes-in-v32-v31-v30-and-v2)), then M1–M4 with their
   figures, DP's outcome and L1's result.
 - **Final M1 and M2** after L2's tuning, on the reference machine; the final shares re-reported to
   `ux-writer` for U1b; DP re-checked (3 in 4 still reached).
-- The v3.2 corpus, every earlier corpus, the Vary settings corpus, the backing and file corpus and
+- The v3.2 corpus, every earlier corpus, the Vary settings draws, the backing and file corpus and
   the goldens re-run at Off.
 - `npm run verify:boundaries` with the entry budget unchanged (M4).
 - Hand checks H1–H6 done.
 - `documentalist`'s post-task sync over every `release-v3.3` atom, promoting those the owner agrees
-  to; every `changes-in-v3.3` atom revised; the contract's record checked (C1, and C2 if any); the
+  to; every `changes-in-v3.3` atom revised; the contract's record checked (C1's wordings each
+  applied, and C2 if any); the
   vision's v3.3 scope checked. The lexicon's "in Infinite Flow" lines for seventh chord, chord
   symbol, chord tone, run, voicing and the four qualities are updated (§D16, D283). Atoms: every
   atom tagged `release-v3.3`; `contract_infinite_flow_first_release`,
@@ -1442,8 +1612,8 @@ owner says go.
 
 | Item | Proved in | Verified by |
 | --- | --- | --- |
-| 1 The level | 3, 11, 16, 17, 19 | four values, Off at first; set at Idle and in the review, read-only in a session (e2e); reload e2e; held by every preset |
-| 2 Off reproduces v3.2 | 1, guarded in 2, 3, 5–10, 12, 13, 15, 16, 20, 21; 22 | the v3.2 corpus (every mode, Jam and the lock included), earlier corpora, the goldens, the backing and file corpus |
+| 1 The level | 3, 11, 16, 17, 19, 23 | four values, Off at first; set at Idle and in the review, read-only in a session (e2e); reload e2e; held by every preset; Jam's own level likewise, apart from session mode's |
+| 2 Off reproduces v3.2 | 1, guarded in 2, 3, 5–10, 12, 13, 15, 16, 20, 21, 23; 22 | the v3.2 corpus (every mode, Jam and the lock included), earlier corpora, the goldens, the backing and file corpus |
 | 3 Only the four diatonic sevenths | 2, 12 | table A per mode; property over the M1 sweep |
 | 4 Same plans | 12 | plans at each level equal Off's, colour chords included (property) |
 | 5 Ordered and audible | 4, 12, 18, 20 (if built), 22 | M1 per level and mode, the fallback share; ≥ 3 in 4 at Strongly favored; reported to `ux-writer` (U1a, U1b) |
@@ -1455,15 +1625,17 @@ owner says go.
 | 11 Chord symbols | 10, 14, 17, 19 | symbol text in written pitch; calibration at every width (H6); review and kept sessions; spoken words |
 | 12 MusicXML | 13 | the four kinds and suffixes; schema test; H4 in MuseScore |
 | 13 Presets | 11, 17, 19 | built-ins at Off; choosing sets it; Custom; a player preset saves it by value |
-| 14 Persistence | 17 | capability-named records; tolerant loading; values win; data version 5 on open; M3 |
-| 15 Vary settings | 16 | never moved, in no group; v3.2's Vary settings corpus at each level |
-| 16 Pre-generation | 16 | discard and held doodle dropped (queue spy); prepared phrases equal the session's at each level |
+| 14 Persistence | 17, 23 | capability-named records, Jam's level in Jam's group; tolerant loading; values win; data version 5 on open, presets and kept bodies rewritten at Off; M3 |
+| 15 Vary settings | 16 | never moved, in no group; the recorded draws and v3.2's group cases at each level |
+| 16 Pre-generation | 16, 23 | session mode's discard (queue spy); Jam's phrase 1 written again from the kept doodle, which stays; prepared phrases equal the session's at each level |
 | 17 The join across phrases | 8 | a carried seventh accepted and compared by its triad; key change drops it |
 | 18 Replay keys | 10, 15, 18 | `ifk5.` round trip; earlier corpora at Off; unknown capability refused; the tool's five versions; H3 (Edge) |
-| 19 Kept sessions | 17 | inputs hold the level; symbols as displayed; v3.2 sessions untouched (H5) |
+| 19 Kept sessions | 17, 23 | inputs hold the level, a Jam's Jam's level; symbols as displayed; v3.2 sessions untouched (H5) |
 | 20 The worker re-validates | 3 | protocol tests per refusal |
 | 21 The cost guard | 4, 18, 20, 22 | M2 on §D10's settings, recorded and met |
-| 22 Jam and the suggestion | 5, 16 | a Jam's phrases and ranks follow the level; the suggestion the same at every level |
+| 22 Jam and the suggestion | 3, 5, 16, 23 | every Jam phrase, each phrase-1 rung included, and a Jam's ranks follow Jam's level; "Jam again on this doodle" uses it; the suggestion the same at every level |
 | 23 Acknowledgement unchanged | every wave gate, 19, 22 | the acknowledgement suites unchanged; nothing marks a phrase for its sevenths |
 | 24 Otherwise unchanged | every wave gate | `npm run quality`; the table of [Read first](#read-first-what-v33-changes-in-v32-v31-v30-and-v2) |
-| 25 The contract | C1, C2 (if any), 22 | the confirmations in the contract atom's notes |
+| 25 The contract | C1, C2 (if any), 22 | the confirmations in the contract atom's notes; each C1 wording applied at its wave's sync |
+| 26 The rhythm lock | 12, 18, 22 | both forms tried before a locked rhythm gives way (named test); M2's locked-bar run |
+| 27 The guides | 9 | the Rhythm guide's roots unchanged over seventh-form events; H2 with the guides on |

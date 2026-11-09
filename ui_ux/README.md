@@ -24,10 +24,11 @@ and the longer chord symbols it brings.
 **Status.** v3.0 is released as version 3.0.0 (tag `v3.0.0` at e288d98, 2026-10-16, deployed);
 its design is frozen in `versions/v3.0/` and its working record is in `archive/v3.0/`. v3.1 is
 released as version 3.1.0 (tag `v3.1.0` at 55364e7, 2026-10-21); its design is frozen in
-`versions/v3.1/` and its working record is in `archive/v3.1/`. The root now works toward v3.2 and
-v3.3, neither built yet; both wait for the owner's review. v3.2 was re-scoped on 2026-10-21 (Jam
-from a session option to a mode of its own), and its design was reworked in place. See `todo.md`
-for where the work stands.
+`versions/v3.1/` and its working record is in `archive/v3.1/`. v3.2 (Jam mode, re-scoped on
+2026-10-21 from a session option to a mode of its own) was approved by the owner on 2026-10-21
+and is built: its last wave was merged on 2026-11-05, and it waits only on its release gate. The
+root works toward v3.3, whose design waits for the owner's approval. See `todo.md` for where the
+work stands.
 
 ## Released versions and work in progress
 
@@ -38,9 +39,11 @@ for where the work stands.
   so that v3.1 and v3.2 could be designed at the root, and corrected since to match what
   shipped. `versions/v3.1/` is v3.1 (presets and embellishment figures), released as version
   3.1.0: frozen when the owner approved it, before it was built, as the root without its v3.2 and
-  v3.3 parts, and corrected since to match what shipped.
-- Everything outside `versions/` and `archive/` is work in progress toward the next releases,
-  v3.2 and v3.3. It covers the whole interface, not only what the next version adds: a screen the
+  v3.3 parts, and corrected since to match what shipped. `versions/v3.2/` is v3.2 (Jam), approved
+  and built: frozen before its release, as the root without its v3.3 parts, so that v3.3 is
+  approved against a fixed v3.2, and corrected at its release gate if that gate changes the design.
+- Everything outside `versions/` and `archive/` is work in progress toward the next release,
+  v3.3. It covers the whole interface, not only what the next version adds: a screen the
   next version extends is specified here in full, old behavior included. When a version's design is approved,
   a copy of it goes into `versions/<version>/`, and the work at the root continues toward the one
   after.
@@ -108,6 +111,8 @@ for where the work stands.
 - `versions/v3.1/` holds the v3.1 design as it shipped in version 3.1.0, frozen, with a summary
   of the decisions worth keeping and `token-source-v3.1.md`, the v3.1 part of the token source
   document.
+- `versions/v3.2/` holds the v3.2 design (Jam), approved and built, frozen before its release, with
+  a summary of the decisions worth keeping.
 - `archive/v1/` holds the closed first-release (v1.0) working record: the complete decision log,
   the closed question that record answers, and the finished work tracker. `archive/v2/` holds the
   v2 working record the same way: its decision log, its closed questions and its finished work

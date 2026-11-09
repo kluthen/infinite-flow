@@ -2,6 +2,12 @@
 
 > **New in v3.2.**
 
+> **Changes since v3.2**
+>
+> - _v3.3 changed:_ Jam's own Seventh chords level is one of the settings phrase 1 is written
+>   from: changing it with a kept doodle rewrites phrase 1 and keeps the doodle
+>   ([Routing Rules](#routing-rules))
+
 Screens: `screens/phrase-workspace/` for every step (the header's `mode-switch`, Jam's controls
 with `tap-tempo` and `doodle-readings`, `staff-jam` with `jam-instruction` and `jam-notice`, the
 cue row's `jam-capture`, `jam-writing` and `jam-needs-controller`, `jam-bar` with `New doodle` and
@@ -280,6 +286,12 @@ flowchart TD
   prepared phrases discarded), so a Jam never meets the out-of-date phrase prompt. The tempo, the
   theme and the audio mix rewrite nothing. A change made while the review mode shows takes effect
   the same way, out of sight.
+  - **[v3.3 changed]** Jam's own Seventh chords level (`screens/phrase-workspace/handoff.md`, Jam's
+    Seventh chords level) is one of those settings: a change of it at Idle rewrites phrase 1 from
+    the kept doodle at once, through **Loading**, a fresh seed, prepared phrases discarded, and
+    the doodle stays kept, with no message. Session mode's level is a separate setting and never
+    touches Jam's phrase 1. `Jam again on this doodle` writes phrase 1 with Jam's level as it
+    stands then, like Jam's other settings.
 - **What lets the kept doodle go,** with its suggestion, and nothing else: `New doodle`; leaving
   Jam mode; the player deleting the kept session it now comes from, or `Delete everything`
   (`flows/kept-sessions/`, `flows/saved-data/`); `Jam again on this doodle` on another doodle, which replaces it; a reload.
