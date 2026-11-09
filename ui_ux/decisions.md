@@ -856,3 +856,11 @@ applies (D119, D135, archived; spec D414).
   and the suggestion row are untouched (§D11); a Jam-level change at Idle is a Loading like any Jam
   setting, so D465, D471 and D474 apply as written; D470 stands. Jam has no Vary note or presets to
   change. Now in: master spec §D7.3, §D11; the handoffs as they stand.
+- **D480 (2026-11-09): v3.2's design is frozen in `versions/v3.2/` before v3.3's gate D0.**
+  Approved on 2026-10-21 (D347), it should have been frozen then; v3.3's change blocks speak of
+  changes since v3.2, so the owner approves v3.3 against a fixed v3.2. Taken as D324 took v3.1's:
+  every tier document as it stands at the root after v3.2's build corrections (D349–D475), marks
+  kept, v3.3's tagged parts, change-block lines and annotations left out, link paths adjusted.
+  The token source is not copied: its `v3.2 new` blocks are in `src/styles/`, their shipped state
+  the `v3.2.0` tag's. Should the release gate change the design, the copy is corrected to match
+  and the correction recorded. Now in: `versions/v3.2/README.md`.

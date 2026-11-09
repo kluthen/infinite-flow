@@ -39,9 +39,11 @@ work stands.
   so that v3.1 and v3.2 could be designed at the root, and corrected since to match what
   shipped. `versions/v3.1/` is v3.1 (presets and embellishment figures), released as version
   3.1.0: frozen when the owner approved it, before it was built, as the root without its v3.2 and
-  v3.3 parts, and corrected since to match what shipped.
-- Everything outside `versions/` and `archive/` is work in progress toward the next releases,
-  v3.2 and v3.3. It covers the whole interface, not only what the next version adds: a screen the
+  v3.3 parts, and corrected since to match what shipped. `versions/v3.2/` is v3.2 (Jam), approved
+  and built: frozen before its release, as the root without its v3.3 parts, so that v3.3 is
+  approved against a fixed v3.2, and corrected at its release gate if that gate changes the design.
+- Everything outside `versions/` and `archive/` is work in progress toward the next release,
+  v3.3. It covers the whole interface, not only what the next version adds: a screen the
   next version extends is specified here in full, old behavior included. When a version's design is approved,
   a copy of it goes into `versions/<version>/`, and the work at the root continues toward the one
   after.
@@ -109,6 +111,8 @@ work stands.
 - `versions/v3.1/` holds the v3.1 design as it shipped in version 3.1.0, frozen, with a summary
   of the decisions worth keeping and `token-source-v3.1.md`, the v3.1 part of the token source
   document.
+- `versions/v3.2/` holds the v3.2 design (Jam), approved and built, frozen before its release, with
+  a summary of the decisions worth keeping.
 - `archive/v1/` holds the closed first-release (v1.0) working record: the complete decision log,
   the closed question that record answers, and the finished work tracker. `archive/v2/` holds the
   v2 working record the same way: its decision log, its closed questions and its finished work

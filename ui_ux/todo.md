@@ -170,8 +170,6 @@ wave 3's chunk 19 (ux D350); wave 4's chunk 20, the empty system's name and open
 score title in Jam mode, and what stays live while Jam's code loads (ux D351-D354); wave 6's chunk 21, the read-in's cross-fade, a portrait end's focus and the note start's jump (ux D450-D452). Wave 7's chunk 24 (the kept doodle): the bar's suggestion offered again at Idle, its buttons disabled during Loading, its focus fallback, Jam's too-many-notes sentence, the phone's scroll and the laptop's cue-row band, and `Jam again on this doodle` in the review after a Jam (ux D464-D470; D465 and D467 need code changes). Then the bar's focus when its buttons are disabled (ux D471), the header phrase action's focus through its own Loading (ux D474, needs a code change) and chunk 40's `Volume` popover on a landscape phone, confirmed as is (ux D475). Gate GD,
 the guide playback's controls (master spec C19.3), is written (ux D459-D462): the two guide switches
 after `Click`, full labels and the mix's wrap, the popover's four sliders and the four guide tokens
-in `src/styles/theme.css`; `ux-critic`: DRIFT, four findings, all fixed (ux D463); recheck ALIGNED. The owner hears it at hand check v3.2 HG. One item remains:
-
-- **`versions/v3.2/`**: take it from the root without the v3.3 parts, as D324 did for v3.1. With
-  no token-source document left, its README points at the token source's `v3.2 new` blocks, whose
-  shipped state is the release tag's (ux D349).
+in `src/styles/theme.css`; `ux-critic`: DRIFT, four findings, all fixed (ux D463); recheck ALIGNED. The owner hears it at hand check v3.2 HG. `versions/v3.2/` was taken on
+2026-11-09 from the root without its v3.3 parts (ux D480). What remains for v3.2 is its release
+gate, with corrections to that copy if the gate changes the design, and then its milestone archive.
