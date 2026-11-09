@@ -871,3 +871,12 @@ applies (D119, D135, archived; spec D414).
   likely answer then. D478 keeps only the height note and the chunk 23 ask. "Never switches" now
   allows phrase 1 after `Start with this phrase` (ask: §D8.3 likewise). Now in: workspace handoff
   (Phone height), `strategy.md` (Engraving Policy), `flows/play-session/` (session rule, intent).
+
+## The owner's approval of the v3.3 design, 2026-11-09
+
+- **D482 (2026-11-09): v3.3's design approved at gate D0; frozen in `versions/v3.3/`.** Asked to
+  approve Part D v1.2, build plan v4 and this design (D477–D481), the owner answered "Approve
+  both". Frozen at approval, as D480 says v3.2 should have been: every tier document as it stands
+  at the root, all marks kept, link paths adjusted; no token source (D261). Corrected only to match
+  what v3.3 ships, or as v3.2's release gate corrects `versions/v3.2/`. The root keeps v3.3's marks
+  until v4's design starts. Now in: `versions/v3.3/README.md`, `README.md` (Status).

@@ -27,8 +27,8 @@ released as version 3.1.0 (tag `v3.1.0` at 55364e7, 2026-10-21); its design is f
 `versions/v3.1/` and its working record is in `archive/v3.1/`. v3.2 (Jam mode, re-scoped on
 2026-10-21 from a session option to a mode of its own) was approved by the owner on 2026-10-21
 and is built: its last wave was merged on 2026-11-05, and it waits only on its release gate. The
-root works toward v3.3, whose design waits for the owner's approval. See `todo.md` for where the
-work stands.
+root works toward v3.3 (richer chords), whose design the owner approved at gate D0 on 2026-11-09;
+it is frozen in `versions/v3.3/` and is now to be built. See `todo.md` for where the work stands.
 
 ## Released versions and work in progress
 
@@ -42,6 +42,8 @@ work stands.
   v3.3 parts, and corrected since to match what shipped. `versions/v3.2/` is v3.2 (Jam), approved
   and built: frozen before its release, as the root without its v3.3 parts, so that v3.3 is
   approved against a fixed v3.2, and corrected at its release gate if that gate changes the design.
+  `versions/v3.3/` is v3.3 (richer chords), approved: frozen when the owner approved it, before it
+  is built, as the whole root, and corrected later only to match what ships.
 - Everything outside `versions/` and `archive/` is work in progress toward the next release,
   v3.3. It covers the whole interface, not only what the next version adds: a screen the
   next version extends is specified here in full, old behavior included. When a version's design is approved,
@@ -113,6 +115,8 @@ work stands.
   document.
 - `versions/v3.2/` holds the v3.2 design (Jam), approved and built, frozen before its release, with
   a summary of the decisions worth keeping.
+- `versions/v3.3/` holds the v3.3 design (richer chords) as approved, frozen before it is built,
+  with a summary of the decisions worth keeping.
 - `archive/v1/` holds the closed first-release (v1.0) working record: the complete decision log,
   the closed question that record answers, and the finished work tracker. `archive/v2/` holds the
   v2 working record the same way: its decision log, its closed questions and its finished work
