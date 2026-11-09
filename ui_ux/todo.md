@@ -56,6 +56,20 @@
   source alone, as the root's does (D327). The entries v3.1 shares with v3.2 (D225, D226, D246,
   D249, D250, units W0 and R) stay live, and so does `token-source-v3.1-v3.2.md` until v3.2's
   part is applied. The root keeps v3.0's and v3.1's change marks until v4's design starts.
+- v3.2 (Jam), released as version 3.2.0 (tag `v3.2.0` at f93e552d, 2026-11-09): the v3.1 and
+  v3.2 design of 2026-10-08 (units W0, R and J), reworked in place by the re-scope of 2026-10-21
+  (Jam as its own mode; units A, B and C), each validated by `ux-critic`, approved by the owner
+  (gate D0, ux D347), then the token-source pass (ux D349), the design questions of the build
+  (waves 3 to 7, gate GD's guide controls) and the release gate's class check (ux D483). Frozen
+  design: [`versions/v3.2/`](versions/v3.2/README.md) (ux D480). Archived record:
+  [`archive/v3.2/todo.md`](archive/v3.2/todo.md); archived decisions:
+  [`archive/v3.2/decisions-D225-D251.md`](archive/v3.2/decisions-D225-D251.md) and
+  [`archive/v3.2/decisions-D327-D475.md`](archive/v3.2/decisions-D327-D475.md); archived
+  questions: Q70, Q72-Q75 and Q81-Q87 (index: [`archive/v3.2/README.md`](archive/v3.2/README.md)).
+- v3.2 milestone archive (2026-11-09, alongside the spec tree's): the v3.2 record moved to
+  `archive/v3.2/`, the entries v3.1 shared with v3.2 with it. D480 and D483 stay live until the
+  owner's hand checks after the tag are done. `versions/v3.2/` is unchanged. The root keeps v3.0's
+  to v3.3's change marks until v4's design starts.
 
 ## In Progress
 
@@ -92,49 +106,6 @@ token (ux D261). Approved by the owner at the build plan's gate D0 on 2026-11-09
 - **Owner's approval** (2026-11-09): gate D0 granted, "Approve both" (Part D v1.2, build plan v4
   and this design); `versions/v3.3/` frozen the same day, the whole root, marks kept (ux D482).
 
-**v3.1 (presets and embellishment figures) and v3.2 (Jam) design**, from master spec Parts B and C
-(approved 2026-10-08). Started 2026-10-08; v3.0's approved design was frozen in `versions/v3.0/`
-first, and the root keeps v3.0's marks with v3.1's and v3.2's layered on them (ux D225). Owner's
-standing delegation: settle and record; one full review at the end. Implementation is paused: no
-`src/` edits; tokens in `token-source-v3.1-v3.2.md` (ux D226). Settled decisions: ux D225-D245;
-spec gaps for `spec-writer`: Q70-Q73, all since closed (ux D249, D341). v3.1 shipped as version
-3.1.0 on 2026-10-21; its own items (unit P, its approval, its token-source pass, its release gate)
-are archived in [`archive/v3.1/todo.md`](archive/v3.1/todo.md). The items below are shared with
-v3.2 or are v3.2's.
-
-- **Unit W0 — Tier 1 and Tier 2, the registers.** `strategy.md`, `motion.md`, `README.md`,
-  `token-source-v3.1-v3.2.md` (new), `versions/v3.0/` (new). Written.
-- **Unit R — the review side, both releases** (delegated, alongside P):
-  `screens/last-session-review/`, `flows/review-and-export/`, `screens/session-list/`,
-  `flows/kept-sessions/`, `flows/saved-data/`, `screens/your-data/`. Governing: ux D231 (the
-  refused-save notice), D233, D234, D239-D241. Written 2026-10-08 (details: ux D246, D247).
-- **Unit J — v3.2 core** (delegated, after P): `flows/jam/` (new); `screens/phrase-workspace/`,
-  `flows/play-session/` and `flows/generate-phrase/` for v3.2. Governing: ux D235-D244, D246, D247. Written 2026-10-08 (details: ux D248).
-- **Validation.** `ux-critic` on v3.1 and on v3.2: DRIFT both, findings fixed (ux D249, D250); recheck: two small slips, fixed (ux D251). Validated for the owner's review.
-
-**v3.2 re-scope: Jam as its own mode** (2026-10-21), from `specs/versions/v3/jam-mode.md` (spec
-D400–D408; §8 is the brief), which wins over master spec Part C until Part C is rebuilt from it.
-The v3.2 design above is reworked in place under its `v3.2` marks (ux D328). Settled decisions:
-ux D328–D346. Q70 moot, Q73–Q75 closed (ux D341); behaviour gaps Q81–Q87, designed on their
-recommended answers, closed by spec D411 as recommended (ux D347). No `src/` edits here.
-
-- **Tier 1, Tier 2 and the registers.** `strategy.md`, `motion.md`, `README.md`,
-  `token-source-v3.1-v3.2.md` part 2, `decisions.md`, `open-questions.md`; spec D399's browser
-  cleanup (ux D343). Written 2026-10-21.
-- **Unit A** (delegated): `flows/jam/`, `screens/phrase-workspace/`. Written 2026-10-21.
-- **Unit B** (delegated, after A): `flows/play-session/`, `flows/generate-phrase/`,
-  `screens/stale-phrase-prompt/`, `flows/presets/`, `flows/controller-connection/`. Written
-  2026-10-21.
-- **Unit C** (delegated, after A): `screens/last-session-review/`, `flows/review-and-export/`,
-  `screens/session-list/`, `flows/kept-sessions/`, `flows/saved-data/`, `screens/your-data/`.
-  Written 2026-10-21. Details settled while writing A, B and C: ux D345.
-- **Validation.** `ux-critic` on the re-scope: DRIFT, five findings, all fixed (ux D346), Q87
-  logged for `spec-writer`; recheck: one stale diagram label, fixed. Validated for the owner's
-  review.
-- **Owner's approval** (2026-10-21): design gate D0 granted and token pass T2 allowed (spec D412,
-  ux D347); master spec Part C is v1.2, approved. "The kept doodle" is the spec's term too (spec
-  D413); phones a third-rate client, now in `strategy.md` (spec D414, ux D348).
-
 ## Remaining
 
 Standing working rules (ux D119, D135, archived; still in force):
@@ -150,6 +121,21 @@ Standing working rules (ux D119, D135, archived; still in force):
   more than it is worth.
 - The Review stays simple: no side tools; per-phrase tools at the end of each phrase's line,
   whole-session tools beside the export.
+
+Carried forward from v3.2:
+
+- **The owner's hand checks after the `v3.2.0` tag** (spec D521): v3.2 H3 (Vary settings' groups),
+  H4 and H5 (listening to Jam: its settings, drift and lock; the doodle-to-controls mapping), H6
+  (the suggestion), H7 (a Jam with tap-in), H8 (a Jam's files) and HG (the guide playback). Their
+  design is at the root and, as v3.2 shipped, in [`versions/v3.2/`](versions/v3.2/README.md):
+  `flows/jam/` (tap-in, the kept doodle, the suggestion at Idle), `screens/phrase-workspace/`
+  (Vary settings, Jam's controls; `mix-controls` with the guide switches and the `Volume`
+  popover), `screens/last-session-review/` and
+  `flows/review-and-export/` (the suggestion row, the played notes). The decisions behind them
+  are archived in [`archive/v3.2/decisions-D327-D475.md`](archive/v3.2/decisions-D327-D475.md)
+  (tap-in ux D335; the guides ux D459-D463, whose four volume tokens HG's ear may retune). A
+  finding that changes the design corrects the root and `versions/v3.2/` alike, recorded in
+  `decisions.md` (ux D480).
 
 Carried forward from v3.0:
 
@@ -170,16 +156,5 @@ the release gate. A symbol calibration failure, or a triad layout that counting 
 would move, also comes back here (ux D258, D264). A build correction to the design is applied at
 the root and to `versions/v3.3/` alike, and recorded.
 
-v3.2: approved (gate D0 granted, T2 allowed; ux D347). The token-source pass is done (build plan
-v3.2's chunk 1, ux D349): D342's classes are in `src/styles/components.css` under `v3.2 new`, and
-`token-source-v3.1-v3.2.md` is deleted. Questions from the build are settled as they come:
-wave 3's chunk 19 (ux D350); wave 4's chunk 20, the empty system's name and opening line, the
-score title in Jam mode, and what stays live while Jam's code loads (ux D351-D354); wave 6's chunk 21, the read-in's cross-fade, a portrait end's focus and the note start's jump (ux D450-D452). Wave 7's chunk 24 (the kept doodle): the bar's suggestion offered again at Idle, its buttons disabled during Loading, its focus fallback, Jam's too-many-notes sentence, the phone's scroll and the laptop's cue-row band, and `Jam again on this doodle` in the review after a Jam (ux D464-D470; D465 and D467 need code changes). Then the bar's focus when its buttons are disabled (ux D471), the header phrase action's focus through its own Loading (ux D474, needs a code change) and chunk 40's `Volume` popover on a landscape phone, confirmed as is (ux D475). Gate GD,
-the guide playback's controls (master spec C19.3), is written (ux D459-D462): the two guide switches
-after `Click`, full labels and the mix's wrap, the popover's four sliders and the four guide tokens
-in `src/styles/theme.css`; `ux-critic`: DRIFT, four findings, all fixed (ux D463); recheck ALIGNED. The owner hears it at hand check v3.2 HG. `versions/v3.2/` was taken on
-2026-11-09 from the root without its v3.3 parts (ux D480). Its release gate's design part is done
-(2026-11-09, ux D483, chunk 27): no handoff names a class missing from `src/styles/`, no chunk
-recorded a phone reduction, and `versions/v3.2/` needed no correction. What remains for v3.2 is
-the tag, the owner's checks after it (spec D521; a finding that changes the design corrects the
-copy and the root alike, recorded), and then its milestone archive.
+v3.2: released as version 3.2.0 and archived (`archive/v3.2/`). Only the owner's hand checks
+after the tag remain (Remaining, Carried forward from v3.2).
