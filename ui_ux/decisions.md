@@ -880,3 +880,13 @@ applies (D119, D135, archived; spec D414).
   at the root, all marks kept, link paths adjusted; no token source (D261). Corrected only to match
   what v3.3 ships, or as v3.2's release gate corrects `versions/v3.2/`. The root keeps v3.3's marks
   until v4's design starts. Now in: `versions/v3.3/README.md`, `README.md` (Status).
+
+## v3.2's release gate, 2026-11-09
+
+- **D483 (2026-11-09): v3.2 release gate: no v3.2 handoff names a class or token missing from
+  `src/styles/`; no phone reduction; `versions/v3.2/` needs no correction (build plan v3.2's
+  chunk 27; spec D521).** Every class, token and layout-tree name in `versions/v3.2/`'s handoffs,
+  and in the root's, is in `theme.css` or `components.css`. No chunk reduced a capability on a
+  phone (20 and 31 record none; 24's scroll and 40's popover were accepted as built, D468, D475).
+  The copy differs from the root only by v3.3's parts and link paths, and matches what ships.
+  Nothing to restate in a tier document; the check is history. Recorded in `todo.md`.
