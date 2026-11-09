@@ -864,3 +864,10 @@ applies (D119, D135, archived; spec D414).
   The token source is not copied: its `v3.2 new` blocks are in `src/styles/`, their shipped state
   the `v3.2.0` tag's. Should the release gate change the design, the copy is corrected to match
   and the correction recorded. Now in: `versions/v3.2/README.md`.
+- **D481 (2026-11-09): `ux-critic`'s refresh pass: DRIFT, four findings resolved; D478's phone
+  acceptance withdrawn.** Accepting a phone failure in advance contradicted §D11, §D15 item 11 and
+  the plan, and left the too-many-notes sentence naming a cure that would not help. So D258 holds
+  at every width, phones included, and a failure comes back here, a phone reduction being the
+  likely answer then. D478 keeps only the height note and the chunk 23 ask. "Never switches" now
+  allows phrase 1 after `Start with this phrase` (ask: §D8.3 likewise). Now in: workspace handoff
+  (Phone height), `strategy.md` (Engraving Policy), `flows/play-session/` (session rule, intent).

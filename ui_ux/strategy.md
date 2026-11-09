@@ -157,7 +157,7 @@ The renderer must engrave a semantic event timeline, not approximate notes with 
 
 Each displayed measure has a visible chord symbol above its first harmonic event. A harmony change within a measure receives its own correctly aligned chord symbol. The system validates that every measure occupies exactly four beats before it becomes visible. A rejected or incomplete result replaces no existing phrase.
 
-**[v3.3 new]** Seventh chords make longer symbols (`Cmaj7`, `Dm7`, `G7`, `Bm7♭5`). They are written in letters, as the triads' `m` and `dim` are, on one line at the one symbol size, transposed like every symbol. The longest must fit twice in a measure, with room between, at every supported width from a tablet up, and the engraving calibration checks the case at every width, phones included; a symbol is never shrunk, shortened or allowed to overlap. On a phone a failed check is accepted rather than redesigned: a phrase whose symbols do not fit is replaced unseen, like any phrase too wide for it. The spoken description names each chord in words.
+**[v3.3 new]** Seventh chords make longer symbols (`Cmaj7`, `Dm7`, `G7`, `Bm7♭5`). They are written in letters, as the triads' `m` and `dim` are, on one line at the one symbol size, transposed like every symbol. The longest must fit twice in a measure at every supported width, with room between; a symbol is never shrunk, shortened or allowed to overlap, and the engraving calibration checks the case. The spoken description names each chord in words.
 
 ## Edge-Case Policy
 

@@ -83,8 +83,12 @@ token (ux D261). Waits for the owner's approval (the build plan's gate D0).
   edits left to its owners.
 - **Refresh against v3.2 as built** (2026-11-09; Part D v1.2, plan v4): Jam's own level through
   `flows/jam/` and the review side, a level change keeping the kept doodle (ux D477); the phone's
-  symbol calibration (ux D478, two asks of the plan for `spec-writer`); the guides, tap tempo, the
+  height and the symbols (ux D478, narrowed by D481); the guides, tap tempo, the
   suggestion row and the focus rules checked, nothing more to change (ux D479).
+  `versions/v3.2/` taken first (ux D480). `ux-critic`: DRIFT, four findings, resolved (ux D481);
+  the phone acceptance withdrawn. Asks for `spec-writer`: chunk 23's design docs add
+  `flows/review-and-export/handoff.md`; §D8.3's "never switches" allows phrase 1 after
+  `Start with this phrase`. Ready for the owner's D0.
 
 **v3.1 (presets and embellishment figures) and v3.2 (Jam) design**, from master spec Parts B and C
 (approved 2026-10-08). Started 2026-10-08; v3.0's approved design was frozen in `versions/v3.0/`
