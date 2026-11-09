@@ -59,25 +59,32 @@
 
 ## In Progress
 
-**v3.3 (richer chords) design**, from master spec Part D (§D1-§D17, proposed for the owner's
-approval with spec D264-D274), on branch `v3.3-chord-research`. Started 2026-10-12; marked on top
-of v3.0's, v3.1's and v3.2's marks, every v3.3 change its own tagged paragraph (ux D252). Owner's
-standing delegation: settled here, no question to the owner. Settled decisions: ux D252-D264;
-Q77 closed by spec D275 as recommended (ux D264). No `src/` edits; no new token (ux D261).
+**v3.3 (richer chords) design**, from master spec Part D (§D1-§D17; v1.2 of 2026-11-09, proposed
+for the owner's approval with spec D264-D274 and D511-D518). Started 2026-10-12 on branch
+`v3.3-chord-research`; refreshed 2026-11-09 on branch `v3.3-refresh` against v3.2 as built. Marked
+on top of v3.0's, v3.1's and v3.2's marks, every v3.3 change its own tagged paragraph (ux D252).
+Owner's standing delegation: settled here, no question to the owner. Settled decisions: ux
+D252-D264, D477-D479; Q77 closed by spec D275 as recommended (ux D264). No `src/` edits; no new
+token (ux D261). Waits for the owner's approval (the build plan's gate D0).
 
 - **Unit S — the whole of v3.3, in one pass** (ux D262): the Seventh chords level (foundation
   group, after Harmonic motion; Off, Sometimes, Often, Mostly; its note), presets holding it and
   three descriptions suggesting it, Vary settings' note, saved settings and loading, the seventh
   chord symbols' look, fit and spoken words, and the review's and files' chords. Files:
   `strategy.md`, `README.md`, `screens/phrase-workspace/`, `flows/presets/`,
-  `screens/preset-sheet/handoff.md`, `flows/play-session/`, `flows/generate-phrase/handoff.md`,
-  `flows/saved-data/handoff.md`, `flows/review-and-export/handoff.md`,
-  `screens/last-session-review/handoff.md`. Written 2026-10-12.
+  `screens/preset-sheet/handoff.md`, `screens/stale-phrase-prompt/handoff.md`,
+  `flows/play-session/`, `flows/generate-phrase/handoff.md`, `flows/saved-data/handoff.md`,
+  `flows/review-and-export/handoff.md`, `screens/last-session-review/handoff.md`, and, for Jam's
+  own level (Q86), `flows/jam/` (list corrected by ux D477). Written 2026-10-12.
 - **Validation.** `ux-critic` on v3.3: DRIFT, four copy and marking findings, all fixed (ux D263).
   Validated for the owner's review.
 - **Build plan review** (`specs/versions/v3/build-plan-v3.3.md`, draft v1), 2026-10-12: the label
   mapping written into the workspace handoff; five asks of the plan recorded (ux D264), the plan's
   edits left to its owners.
+- **Refresh against v3.2 as built** (2026-11-09; Part D v1.2, plan v4): Jam's own level through
+  `flows/jam/` and the review side, a level change keeping the kept doodle (ux D477); the phone's
+  symbol calibration (ux D478, two asks of the plan for `spec-writer`); the guides, tap tempo, the
+  suggestion row and the focus rules checked, nothing more to change (ux D479).
 
 **v3.1 (presets and embellishment figures) and v3.2 (Jam) design**, from master spec Parts B and C
 (approved 2026-10-08). Started 2026-10-08; v3.0's approved design was frozen in `versions/v3.0/`

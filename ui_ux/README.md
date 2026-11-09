@@ -24,10 +24,11 @@ and the longer chord symbols it brings.
 **Status.** v3.0 is released as version 3.0.0 (tag `v3.0.0` at e288d98, 2026-10-16, deployed);
 its design is frozen in `versions/v3.0/` and its working record is in `archive/v3.0/`. v3.1 is
 released as version 3.1.0 (tag `v3.1.0` at 55364e7, 2026-10-21); its design is frozen in
-`versions/v3.1/` and its working record is in `archive/v3.1/`. The root now works toward v3.2 and
-v3.3, neither built yet; both wait for the owner's review. v3.2 was re-scoped on 2026-10-21 (Jam
-from a session option to a mode of its own), and its design was reworked in place. See `todo.md`
-for where the work stands.
+`versions/v3.1/` and its working record is in `archive/v3.1/`. v3.2 (Jam mode, re-scoped on
+2026-10-21 from a session option to a mode of its own) was approved by the owner on 2026-10-21
+and is built: its last wave was merged on 2026-11-05, and it waits only on its release gate. The
+root works toward v3.3, whose design waits for the owner's approval. See `todo.md` for where the
+work stands.
 
 ## Released versions and work in progress
 

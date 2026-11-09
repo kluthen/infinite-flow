@@ -2,6 +2,11 @@
 
 > **New in v3.2.**
 
+> **Changes since v3.2**
+>
+> - _v3.3 new:_ Jam's own Seventh chords level among Jam's harmony settings
+>   ([Jam's Settings](#jams-settings))
+
 Until v3.2 the app only ever continued its own ideas. A Jam lets the player give it one: after the
 count-in they play a short idea of their own, a **doodle** of one to four measures, over the app's
 click, and the phrases then continue it, with a rhythm close to it, the same ups and downs, and a
@@ -128,6 +133,14 @@ and where it sits) is read from it, and the controls show what was read as a sho
 than as controls to set. The screen's reasoning for the settings' layout, the read-only list and
 the single embellishments level is in
 [`screens/phrase-workspace/intent.md`](../../screens/phrase-workspace/intent.md#jams-controls).
+
+**[v3.3 new]** From v3.3 Jam's harmony settings include a Seventh chords level of its own, how
+often a chord takes one more note stacked on top, `Off` until the player raises it. It is Jam's,
+not shared with session mode's, so a player can let a Jam's chords grow richer under a doodle
+without changing what their practice sessions play. Like every harmony setting, changing it with
+a doodle kept rewrites phrase 1 from that doodle at once, and the doodle stays: the player hears
+the same idea over the richer chords at the next Jam. The control's reasoning is in
+[`screens/phrase-workspace/intent.md`](../../screens/phrase-workspace/intent.md#seventh-chords).
 
 ## Setting the Tempo by Tapping
 

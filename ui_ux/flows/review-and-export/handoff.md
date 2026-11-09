@@ -43,7 +43,9 @@
 >   ([Played Notes](#played-notes))
 > - _v3.2 new:_ the doodle's two forms ([Privacy](#privacy))
 > - _v3.2 new:_ the doodle section at every breakpoint ([At Every Breakpoint](#at-every-breakpoint))
-> - _v3.3 new:_ a kept phrase's inputs hold the Seventh chords level ([Saving the Session](#saving-the-session));
+> - _v3.3 new:_ a kept phrase's inputs hold the Seventh chords level, a Jam's Jam's own
+>   ([Saving the Session](#saving-the-session)); `Jam again on this doodle` writes with Jam's level
+>   as it stands then ([The Doodle and the Suggestion](#the-doodle-and-the-suggestion));
 >   seventh chord symbols in the review and the MusicXML file, the backing's chords in the MIDI
 >   file; no new control ([Export](#export))
 
@@ -223,6 +225,9 @@ flowchart TD
   symbols are kept exactly as displayed, seventh chords included. Sessions kept before v3.3 open as
   before, their phrases' level read as `Off`; nothing in the review or the session list shows the
   level.
+- **[v3.3 new]** In a Jam session, each phrase's inputs hold Jam's own Seventh chords level, the
+  one the Jam was played with, never session mode's. Jam sessions kept before v3.3 read it as
+  `Off`.
 - **Keep line.** `review-keep-line` states how the session showing is kept: "Pinned: kept until
   you unpin or delete it.", "Not pinned: deleted when your next session is saved.", or, for a
   session whose save failed, "Not saved on this device: export it to keep it." It changes in place
@@ -303,6 +308,9 @@ flowchart TD
   says where the player now is. From the review of the Jam just played, whose
   doodle Jam mode already keeps, it does exactly what `Close review` does, focus included. The Idle that follows is specified in
   `flows/jam/handoff.md`, The Kept Doodle. It does not answer the suggestion.
+  - **[v3.3 new]** The new phrase 1 is written with Jam's own Seventh chords level as it stands
+    then, like Jam's other settings, not with the level the kept session's phrases were written
+    with; those phrases, and their chord symbols, stay as they were.
 - **A Jam played on the kept doodle.** Its review shows the kept doodle as its doodle, with the
   tempo it was first played at. Its raw notes belong to the session it was first played in, so
   this Review's `Played notes` lane under the doodle is empty and its played-notes export holds no
@@ -346,7 +354,7 @@ flowchart TD
   review draws each phrase's chord symbols as displayed, seventh chords included; the MusicXML
   file writes each seventh chord's symbol with its chord kind and the suffix as printed; with
   `Backing track` on, the MIDI backing holds the chords as the backing played them, four notes for
-  a seventh chord. No file carries the level.
+  a seventh chord. No file carries the level. A Jam's doodle section still has no chord.
 - **[v3 new]** **Scope.** `review-scope`, first in `review-actions`: `Whole session` (checked at
   every Review opening, never saved) or `Favorites only`, which governs both exports: only the
   favorite phrases, in session order, each keeping its session phrase number; a played note held
