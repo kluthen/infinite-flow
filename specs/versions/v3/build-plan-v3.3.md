@@ -1,6 +1,10 @@
 # Infinite Flow v3.3 — Build Plan
 
-Status: v4 (2026-11-09): v3 refreshed against v3.2 as built (main d10de742, CONTRACT 14.0.0), with
+Status: v5 (2026-11-09): v4 approved by the owner with Part D v1.2 (gate A0, spec D520) and the
+design approved (gate D0, ux D482); spec D521 written in: gate R0 clears at v3.2's `3.2.0` tag,
+whose release gate runs without the owner's hand checks, and a later 3.2.x fix re-records chunk 1's
+corpus.
+v4 (2026-11-09): v3 refreshed against v3.2 as built (main d10de742, CONTRACT 14.0.0), with
 spec D511–D518 written in (master spec Part D v1.2): stale code references, tools and budgets
 corrected; Jam's own level gets new chunk 23 in wave 5 (D512); a level change keeps the kept doodle
 (D513); the level rides the intent only (D514); data version 5 rewrites the changed records (D515);
@@ -12,10 +16,11 @@ v3 (2026-10-16): migrated to the build-plan model and waves re-formed (spec D351
 
 The Seventh chords level (richer chords, optional), written from
 [master spec Part D](master-spec.md#part-d--v33) (v1.2, 2026-11-09, with spec D263–D275 and
-D511–D518; awaiting the owner's approval: gate A0) and the v3.3 design at the root of
-[`ui_ux/`](../../../ui_ux/README.md) (ux D252–D264; awaiting the owner's approval: gate D0):
+D511–D519; approved by the owner on 2026-11-09: gate A0, spec D520) and the v3.3 design at the root of
+[`ui_ux/`](../../../ui_ux/README.md) (ux D252–D264, refreshed by ux D477–D481; approved by the owner on
+2026-11-09: gate D0, ux D482):
 everything marked `[v3.3 new]`, `[v3.3 changed]` or with a `_v3.3 …:_` change-block line. Its
-planning decisions, spec D276–D288, are proposed for approval with Part D. Code facts: the
+planning decisions, spec D276–D288, are approved with Part D (spec D520). Code facts: the
 [chord research's code table](../../../docs/music/chord-research.md#where-a-fourth-chord-note-meets-the-code),
 re-checked on 62a90c7 on 2026-10-12 by `codebase-explorer` and `documentalist`, and again on
 `main` d10de742 (v3.2 through wave 7) on 2026-11-09 (D511). The plan follows the
@@ -91,11 +96,11 @@ lists each pair (item 24).
 
 | Gate | What | Cleared by | Blocks | Status |
 | --- | --- | --- | --- | --- |
-| **A0** | The owner approves [Part D](master-spec.md#part-d--v33) (v1.2, D263–D275, D511–D518), the planning decisions D276–D288 and this plan, R0 included (or as O306 rules): no v3.3 coding chunk before v3.2's release, since chunk 1's corpus must be recorded on the code v3.2 ships; v3.2's code is all on `main` since its wave 7, so O306 asks whether that code may stand in for the tag. D276's "CONTRACT 3.0 to 4.0" predates v3.0's to v3.2's own bumps (the contract atom is at 14.0.0): v3.3's first bump is the next major after v3.2's release, 15.0.0 if that release adds none (D517). | The owner | Everything | open |
+| **A0** | The owner approves [Part D](master-spec.md#part-d--v33) (v1.2, D263–D275, D511–D519), the planning decisions D276–D288 and this plan, R0 included: no v3.3 coding chunk before v3.2's release, since chunk 1's corpus must be recorded on the code v3.2 ships (spec D521). D276's "CONTRACT 3.0 to 4.0" predates v3.0's to v3.2's own bumps (the contract atom is at 14.0.0): v3.3's first bump is the next major after v3.2's release, 15.0.0 if that release adds none (D517). | The owner | Everything | done (2026-11-09, the owner: "Approve both"; spec D520) |
 | **I0** | Not an owner step: `documentalist` ingests Part D (skill `atd-spec-ingestion`). It creates the DRAFT atoms tagged `release-v3.3`, tags `changes-in-v3.3` and writes `docs/release/v3.3-intent-change-set.md`, whose part A holds the exact wording of every STABLE change §D12 lists (D517), and which adds any atom §D12 still misses (D285). It confirms as drift checks the STABLE guarantees whose wording does not change (`rule_join_carry_in_limited`, `rule_harmony_change_drops_unfit_harmonic_carry_in`, `req_last_session_review`, the mutation guarantees and the others §D12 lists), and refreshes the vision's v3.3 line ("direction only and not yet designed") with the owner's sign-off. | `documentalist`, after A0 | C1; chunk 0 | open |
 | **C1** | Contract sign-off, in one sitting: the owner confirms the exact wording of every STABLE change [§D12](master-spec.md#d12-contract-changes-needing-owner-confirmation) lists: `req_session_backing_track`, `rule_open_phrase_ending` (first option: the triad reading) and items 3–9 (the replay key, reproduction, kept sessions and the database, player presets, presets and Custom, saved settings). `documentalist` applies each at the sync of the wave whose chunk builds it, with the bump that sync needs, so `main` never holds code a STABLE atom contradicts (D517, after D422). Proposed right after I0, best before wave 1 starts. | The owner; `documentalist`, after I0 | **Merging** chunks [11](#chunk-11--presets-hold-the-level) (wave 1), [5](#chunk-5--the-seventh-as-a-chord-tone-in-the-pitch-search), [6](#chunk-6--the-validator-reads-the-seventh-as-a-chord-tone), [9](#chunk-9--the-backing-plays-the-seventh) (wave 2), [15](#chunk-15--replay-key-ifk5) (wave 3), [17](#chunk-17--the-level-on-the-device-data-version-5) (wave 4) and [23](#chunk-23--jams-own-seventh-chords-level) (wave 5); through 5 and 6, chunk 7's start; through 5–7, chunk 12 | open |
-| **D0** | The owner approves the v3.3 design ([`ui_ux/todo.md`](../../../ui_ux/todo.md)); if `ux-writer` freezes it into `ui_ux/versions/v3.3/`, `spec-writer` repoints this plan's design links there. No token pass: v3.3 adds no token, class or motion (ux D261; D284). | The owner; `ux-writer`; `spec-writer` | Chunks 14 and 19 (the description sentences ship with 19) | open |
-| **R0** | v3.2 is released: the [v3.2 release gate](build-plan-v3.2.md#chunk-27--v32-release-gate) passed and `3.2.0` is tagged, so chunk 1's corpus is recorded on the code v3.2 ships. **Parked** since 2026-11-09: v3.2's code is all merged (wave 7, b5d9ac92), but the owner has set its Jam hand checks, and so its release gate, aside for a while. Whether v3.3 may start before the tag is [O306](../../open-questions.md). | The owner, at v3.2's release (or as O306 rules) | Chunk 1, and through wave 0 every later wave | open (parked) |
+| **D0** | The owner approves the v3.3 design ([`ui_ux/todo.md`](../../../ui_ux/todo.md)); if `ux-writer` freezes it into `ui_ux/versions/v3.3/`, `spec-writer` repoints this plan's design links there. No token pass: v3.3 adds no token, class or motion (ux D261; D284). | The owner; `ux-writer`; `spec-writer` | Chunks 14 and 19 (the description sentences ship with 19) | done (2026-11-09, the owner: "Approve both"; ux D482, which froze the design into `ui_ux/versions/v3.3/`; the links are repointed there once that freeze is on `main`) |
+| **R0** | v3.2 is released: the [v3.2 release gate](build-plan-v3.2.md#chunk-27--v32-release-gate) passed and `3.2.0` is tagged, so chunk 1's corpus is recorded on the code v3.2 ships. The release gate runs its machine half only; v3.2's hand and listening checks follow the tag (spec D521; [v3.2.x follow-ups](build-plan-v3.2.md#after-the-tag-v32x-follow-ups)). **After a 3.2.x fix:** a fix that changes anything chunk 1 recorded (a phrase, its backing or its files) has chunk 1's corpus recorded again on the fix's tag, and every v3.3 chunk merged by then re-checked against it (machine work, no new design); a fix that changes none of them needs nothing. 3.3.0 is released only on code that holds every 3.2.x fix. | The owner, at v3.2's release | Chunk 1, and through wave 0 every later wave | waits on the v3.2 release gate's machine run and the tag (D521) |
 | **DP** | The finer-fallback decision ([M1](#m1--the-seventh-share)): chunk 18's M1 says whether Strongly favored reaches 3 in 4 harmony events in their seventh form. The owner is told the figures and the outcome; `spec-writer` records the decision. Re-checked at the release gate: if L2's tuning breaks 3 in 4, the decision is reopened. | Chunk 18's figures; `spec-writer` | Chunk 20 (built or skipped) | open (after chunk 18, wave 4) |
 | **U1a** | `ux-writer` reads the first shares chunk 18 reports (item 5) and confirms the labels Off, Sometimes, Often, Mostly, or changes them (ux D254; ux Q77, closed by spec D275). | `ux-writer` | Chunk 19's labels | open (after chunk 18) |
 | **U1b** | `ux-writer` confirms the labels again on the final shares: after chunk 20 if it is built, and after L2's tuning and the release gate's final M1 run (ux Q77, closed by spec D275). | `ux-writer` | The release gate | open (after L2) |
@@ -107,7 +112,7 @@ lists each pair (item 24).
 
 | Wave | Chunks | Waits for | Status |
 | --- | --- | --- | --- |
-| 0 | 0 Intent re-sync · 1 Baselines | A0 and I0 (0); R0 (1). Two chunks: every other chunk needs both, chunk 0's ids in its own wave preflight and chunk 1's corpus as its guard, so nothing can join. | blocked (on A0, R0) |
+| 0 | 0 Intent re-sync · 1 Baselines | A0 and I0 (0); R0 (1). Two chunks: every other chunk needs both, chunk 0's ids in its own wave preflight and chunk 1's corpus as its guard, so nothing can join. | blocked (on I0, R0) |
 | 1 | 2 Seventh chords in the harmony model · 3 The level in the request · 8 The join · 10 Symbols and spoken words · 11 Presets hold the level | Wave 0; **C1 to merge 11**. In-wave 2 → 8 and 2 → 10: chunk 2's capture fixes the harmony event's optional seventh, its qualities and `chordTones`; 3 → 11: chunk 3's capture fixes `chordFamilies` and the level ids. | planned |
 | 2 | 4 Measurement tools · 5 The seventh in the pitch search · 6 The validator · 7 Runs · 9 The backing | Wave 1; **C1 to merge 5, 6 and 9**. In-wave 5 → 7 and 6 → 7: chunks 5's and 6's captures fix the chord-tone facts 7's run rule reads; 7 starts once 5 and 6 are merged. | planned |
 | 3 | 12 The level orders the plans · 15 Replay key `ifk5.` · 16 The level in a session | Wave 2 (5, 6 and 7 merged, so C1, which also gates 15's merge). In-wave 12 → 15 and 12 → 16: chunk 12's capture fixes the draw and the plan variants. | planned |
@@ -408,7 +413,7 @@ the id.
 
 ### Chunk 0 — Intent re-sync
 
-Status: blocked (on A0, I0)
+Status: blocked (on I0)
 Wave: 0
 Depends on: A0, I0 (run right after R0, so it checks against the state v3.2's release gate left)
 Architecture capture: none
@@ -467,6 +472,9 @@ Architecture capture: none
     test that renders and encodes each again and compares bytes. Items 2, 10 and 12's "triads as
     before" rest on it.
   - The entry chunk's size after `npm run build` on the tag ([M4](#m4--the-first-load-bundle)).
+  - **After a 3.2.x fix** (spec D521, gate R0): if the fix changes a recorded value, the corpus is
+    recorded again from the fix's tag, the change read as the fix's own, and the v3.3 chunks merged
+    by then re-checked against it.
 - **Files:** `tests/fixtures/replay-keys/v3.2-corpus.json`,
   `tests/unit/generation-worker/phrase-replay-key-v32-corpus.spec.ts`,
   `tests/fixtures/sessions/v3.2-backing-and-files/` and its unit test (all new), a generator script

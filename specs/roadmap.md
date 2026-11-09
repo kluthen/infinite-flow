@@ -1,6 +1,6 @@
 # Infinite Flow Roadmap
 
-Status: draft v1.16 (rewritten 2026-09-25 after the persona and vision session; browser scope
+Status: draft v1.17 (rewritten 2026-09-25 after the persona and vision session; browser scope
 added 2026-09-28, D127; review candidates added 2026-09-28, D128; session-keeping candidates and
 export by content added 2026-09-28, D129; favorites moved to v3 2026-09-28, D130; staff-only
 session view placed in v5 2026-09-28, D133; v2 replanned 2026-10-03: real-hardware checks as
@@ -20,7 +20,8 @@ its chord research started as a separate item, D262; v3.3 master spec Part D, aw
 approval, 2026-10-12, D264–D274; v3.0 released as 3.0.0 2026-10-16, D348; v3.4, a structural
 review, added as the last v3 milestone 2026-10-21, D389; the lexicon page added to v3.4 and the
 lexicon API planned for v4 or v5, 2026-10-21, D393–D395; v3.1 released as 3.1.0 2026-10-21, D397; Chrome named the one supported browser
-2026-10-21, D399)
+2026-10-21, D399; v3.3 Part D approved 2026-11-09, D520; v3.2 to be released as built before its
+hand checks, D521)
 
 This is an ordered timeline with no dates. Each version's scope lives in its folder under
 [versions/](versions/README.md). The principles every version follows are in the
@@ -99,7 +100,8 @@ record is archived at [archive/v2/](archive/v2/README.md).
     as preferences, and presets, built-in and player-made (D210).
   - **v3.2:** Jam, MIDI-seeded continuation from a played motif (D209), with the key and mode
     suggestion (a weighted draw when several answers fit, D212), and the rhythm lock with a
-    mutation option (O118).
+    mutation option (O118). Built; to be released as version 3.2.0 before the owner's hand and
+    listening checks, which follow the tag (D521).
   - **v3.3, richer chords (optional) (D261):** chords richer than triads, seventh chords first,
     only where the player allows them through flags in the app; the default stays root-position
     diatonic triads. Preceded by internal and web research on chord types, their construction
@@ -107,7 +109,7 @@ record is archived at [archive/v2/](archive/v2/README.md).
     research is a separate docs-only item, running on branch `v3.3-chord-research` since
     2026-10-12 while v3.0 is built (D262). v3.3 opens seventh chords as a capability ahead of the
     [style packs](#planned-version-not-yet-assigned--style-packs) D259 plans. **v3.3 master
-    spec: [Part D](versions/v3/master-spec.md#part-d--v33), awaiting owner approval** (D264–D274):
+    spec: [Part D](versions/v3/master-spec.md#part-d--v33), approved by the owner** (D264–D274, D520):
     one Seventh chords level, Off by default, diatonic sevenths only. Open: O176, for style packs.
   - **v3.4, structural review (D389):** the last v3 milestone, after v3.3: a clear view of the code
     before v4 (soundness for expansion, the entry budget, refactors worth taking, a split into

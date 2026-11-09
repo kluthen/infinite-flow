@@ -110,13 +110,14 @@ Status: this file holds four parts.
   last, is not kept (C2, C3, C5.8, C5.17, C15, C16, C17; spec D506). v1.24 (2026-11-05): "Jam
   again on this doodle" is offered in the review that follows a Jam too, as built, and the guide's
   checks name the shapes seeded phrases hold (C5.11, C5.15, C6.5, C12, C16 items 33 and 50, C19.1;
-  spec D508, D509). Its sections are
-  numbered C1 to C19; what v1.1 to v1.24 change is listed at the top of Part C and marked in each section they touch.
-- **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.1
-  (2026-10-12), consolidated from the v3.3 direction and the chord research; **awaiting the
-  owner's approval**. The contract wording it changes (§D12) needs the owner's confirmation
-  separately. v1.2 (2026-10-21): Chrome is the one supported browser (D15, item 18; spec D399).
-  Its sections are numbered D1 to D17.
+  spec D508, D509). v1.25 (2026-11-09): v3.2 is released as built, before the owner's hand and
+  listening checks, which follow the `3.2.0` tag (C16, C17; spec D521). Its sections are
+  numbered C1 to C19; what v1.1 to v1.25 change is listed at the top of Part C and marked in each section they touch.
+- **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.2
+  (2026-11-09), consolidated from the v3.3 direction and the chord research, refreshed against
+  v3.2 as built (spec D511–D519); **approved by the owner on 2026-11-09** (spec D520). The contract
+  wording it changes (§D12) needs the owner's confirmation separately. Chrome is the one supported
+  browser (D15, item 18; spec D399). Its sections are numbered D1 to D17.
 
 Part A's history follows.
 
@@ -2268,7 +2269,10 @@ Delete everything removes them. No preset leaves the device.
 ## Part C — v3.2
 
 Jam, the key and mode suggestion, the rhythm lock and, added after approval, the guide playback.
-**Master spec v1.24 (2026-11-05)**: v1.23 with two wording fixes after wave 7's build (C5.11,
+**Master spec v1.25 (2026-11-09)**: v1.24 with the owner's ruling on v3.2's release (C16, C17;
+D521), no behaviour changed: v3.2 is released as built, as `3.2.0`, before the owner's hand and
+listening checks; they follow the tag, the four provisional answers and the suggestion's weights
+ship provisional, and a finding becomes a later 3.2.x fix. v1.24 (2026-11-05): v1.23 with two wording fixes after wave 7's build (C5.11,
 C5.15, C6.5, C12, C16 items 33 and 50, C19.1; D508, D509), no behaviour changed: "Jam again on
 this doodle" is offered in every Jam session's review, the one that follows a Jam included, where
 it does what `Close review` does, as the design and the build have it; and the generator writes no
@@ -4528,8 +4532,13 @@ instrument's (D503).
 _Changed in v1.23:_ Jam keeps 180 BPM as its top, so no Jam item or check runs at 240 (D506).
 _Changed in v1.24:_ item 33 checks "Jam again on this doodle" after a Jam (D508); item 50 checks
 triplets and a tie across a barline on hand-built phrases, which seeded ones never hold (D509).
+_Changed in v1.25:_ the hand and listening checks follow the `3.2.0` tag (D521).
 
-v3.2 ships when every item holds, each verified by a named test or a recorded hand check. **Every
+v3.2 ships when every item holds, each verified by a named test or a recorded hand check. **By the
+owner's ruling (D521), v3.2 ships as `3.2.0` before its hand and listening checks:** items 13, 32,
+40, 45 and 52, the hand checks of items 7, 18, 19 and 37, and item 25's recorded doodles are
+verified after the tag, as v3.2.x follow-ups; their automated tests are the evidence at the tag.
+A finding there becomes a later 3.2.x fix, decided then. **Every
 hand check is a numbered script of at most ten minutes**, run in Chrome (Edge is not supported);
 Jam's run at 60, 120 and 180 BPM; Jam does not keep 240 BPM (C5.17; D506), so none runs at 240.
 
@@ -4727,10 +4736,12 @@ _Changed in v1.4:_ the contract sign-off given (D421).
 _Changed in v1.10:_ two questions opened during the build (D433).
 _Changed in v1.12:_ O268 settled by the owner (D440).
 _Changed in v1.23:_ 240 BPM in Jam measured and not kept (D506).
+_Changed in v1.25:_ the checks, and so the provisional answers, follow the `3.2.0` tag (D521).
 
 **Provisional answers, each confirmed by a check.** Four answers of the re-scope were accepted on
 the owner's "will need testing to be sure". A check that fails comes back to the owner as a ruling;
-the spec and the plan then change by decision, never silently in the build.
+the spec and the plan then change by decision, never silently in the build. v3.2 ships with all
+four still provisional; their checks follow the `3.2.0` tag (D521).
 
 | Answer | Confirmed by | If it fails |
 | --- | --- | --- |
@@ -4765,15 +4776,16 @@ the MIDI export (the owner's ruling, D494): never, into no export; C19.5.
 **Open during the build** (D433, D449), with a proposed answer in the register:
 
 - **O269**, whether a legato doodle of eighths and quarters should read Heavily varied (C5.16.1):
-  proposed, as written, asked at the Jam listening check (C16 item 32).
+  proposed, as written, asked at the Jam listening check (C16 item 32), after the tag.
 - **O271**, whether a note start on a finer grid than the doodle's should count as a stronger edit
   against the doodle (C8; D449): proposed, the scale as written, asked at the Jam listening check
-  (C16 item 32).
+  (C16 item 32), after the tag.
 
 **Measured before the gate, not open questions**: the cost of the new orderings and the sweeps
 (C5.8, C16 items 10 and 31); the forced-bend rate; the share of rhythm changes, tuned to 1 in 2
-and 3 in 4 at the listening check's first steps (C7.4, D450), its one-kind-at-a-time step still to
-run; the suggestion's shares and cues, and whether Locrian needs a handicap (C6.2);
+and 3 in 4 at the listening check's first steps (C7.4, D450), its one-kind-at-a-time step to run
+after the tag (D521); the suggestion's shares and cues, and whether Locrian needs a handicap (C6.2),
+shipped as built and provisional until the suggestion's listening check after the tag (D521);
 drift's distance scale by ear (C8; held, D449). 240 BPM in Jam was measured last and not kept
 (D506).
 
@@ -4784,7 +4796,8 @@ Jam's on-demand chunk with its boundary check.
 
 **From the owner**: approval of this part (given, D410, with the seven answers above); one
 sign-off on C13's re-scoped contract wording, before the release gate (the build plan's contract
-gate; given on 2026-10-22, D421).
+gate; given on 2026-10-22, D421); the release as built, before the hand and listening checks,
+which follow the tag (given on 2026-11-09, D521).
 
 **For `documentalist`**: the declared-intent changes of C13, including v3.2's draft atoms written
 from v1.0, and the lexicon entries for v3.2's terms (C4), Jam and the kept doodle taking their new
@@ -4951,8 +4964,8 @@ Five layers, so that v4 keeps them (D491; the owner does not want it rewritten i
 Richer chords (optional): seventh chords. Its sections are numbered D1 to D17; a cross-reference to one carries a section sign (§D5), never to be read as a decisions-log entry. Master spec v1.2 (2026-11-09; v1.1 made §D5.2 and §D5.3 agree that the triad fallback is per phrase, and set the top level's share; v1.2 refreshes Part D against v3.2 as built, Part C v1.24 and CONTRACT 14.0.0: Jam's own level carried through every section, the kept doodle, the guide playback, the rhythm lock's walk, Jam's tempo, the storage and the STABLE atoms v3.2 promoted, spec D511–D518; §D8.3's phrase 1 after `Start with this phrase`, D519), consolidated from the
 v3.3 direction in the [v3 notes](README.md#v33--richer-chords-optional) and the chord research
 [docs/music/chord-research.md](../../../docs/music/chord-research.md), which keeps the sources, the
-construction tables and the code and atom references line by line. **Awaiting the owner's
-approval.** Its behaviour adopts the research's recommendations; where the research left a point
+construction tables and the code and atom references line by line. **Approved by the owner on
+2026-11-09** (spec D520), with the planning decisions and the build plan. Its behaviour adopts the research's recommendations; where the research left a point
 open, this part proposes an answer and says so. The contract wording it changes (§D12) needs the
 owner's explicit confirmation, separately from approving this part. v3.3 is built on v3.0, v3.1 and
 v3.2 (Parts A, B and C): their storage, presets, [figure levels](../../../docs/music/lexicon.md#figure-level),
@@ -5818,9 +5831,10 @@ v3.3 ships when every item holds, each verified by a named test or a recorded ha
 - **Measured before the gate, not open questions:** the Sometimes and Favored shares, starting at
   about 1 in 4 and 1 in 2 (§D5.2); the cost guard's figures (§D10); the listening check on endings and
   landings, which picks the open ending's wording (§D6.3).
-- **From the owner:** approval of this Part D; then, in one sitting, the exact wording of §D12's
-  STABLE changes (the open ending's second option only if the listening check approves it), and the
-  vision's refreshed v3.3 line; and whether v3.3 may start before v3.2's tag (open question O306).
+- **From the owner:** approval of this Part D (given on 2026-11-09, spec D520); then, in one
+  sitting, the exact wording of §D12's STABLE changes (the open ending's second option only if the
+  listening check approves it), and the vision's refreshed v3.3 line. v3.3 starts after v3.2's
+  `3.2.0` tag, which comes before v3.2's hand checks (spec D521).
 - **For `documentalist`:** the declared-intent changes of §D12, and the lexicon's "in Infinite Flow"
   lines once v3.3 is built.
 - **Design, for `ux-writer`:** §D11.

@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.87
+Status: draft v0.88
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -39,7 +39,11 @@ and O268 and O269 (how the doodle's short silences and its legato rhythm are rea
 day; O268 was closed on 2026-10-27 by the owner's answer (D440). O271 (a note start off the
 doodle's grid, D449) was opened on 2026-11-03; O270 was never issued. O290 and O291 (the guide
 playback, D491) were opened on 2026-11-04, from the range O290–O299 reserved for that branch;
-both were closed the same day by the owner's rulings (O291 by D493, O290 by D494). New IDs come from `doc-ids
+both were closed the same day by the owner's rulings (O291 by D493, O290 by D494). O306 (whether
+v3.3 may start before v3.2 is released, D511) was opened on 2026-11-09 and closed the same day by
+the owner's ruling (D521): v3.2 is released as built, its hand and listening checks after the tag;
+its note is archived verbatim in [archive/v3/open-questions-O306.md](archive/v3/open-questions-O306.md).
+New IDs come from `doc-ids
 next spec O`; the IDs reserved for v3.0's waves and left unused stay unused, and O177 stays unused.
 
 Opened on 2026-10-12 with v3.3 (D261): O165–O175, richer chords. D262 closed O174 the same day.
@@ -140,26 +144,6 @@ amended is revised, and no question comes back unless the owner reopens it.
   pass that touches it, I0 at the latest; v3.3's
   [chunk 15](versions/v3/build-plan-v3.3.md#chunk-15--replay-key-ifk5) must not repeat it for
   `ifk5.`. It blocks no chunk.
-
-## v3.3 refresh (O306+)
-
-Opened 2026-11-09 by `spec-writer`'s review of Part D and the v3.3 build plan against v3.2 as
-built (D511). Every other gap that review found follows from settled decisions and is proposed
-for approval with Part D (D512–D518).
-
-- **O306 - May v3.3 start before v3.2 is released?** _(D511; [build plan v3.3, gate
-  R0](versions/v3/build-plan-v3.3.md#gates); for the owner, at A0)_: in plain words: the plan lets
-  v3.3's building start only once v3.2 is released as version 3.2.0. All of v3.2's code is
-  finished and merged, but its release waits on your Jam hand checks, which you have set aside for
-  a while. v3.3's first step records exactly what today's app writes for many settings (every
-  phrase, its backing chords and its files), so that each later step can prove that with Seventh
-  chords left Off nothing changes. Option A, wait: v3.3 starts after your Jam checks and the
-  3.2.0 tag; nothing is ever redone. Option B, start after you approve v3.3: that recording is made
-  on today's code; if your Jam checks later lead to a fix that changes what Jam writes, the
-  recording is made again and the v3.3 steps built by then are re-checked against it (machine
-  work, no new design). Either way 3.3.0 is released only after 3.2.0.
-  Proposed: B, since the Jam checks are listening checks whose likely fixes touch Jam only, and
-  v3.3's session-mode work does not wait on them.
 
 ## v3.0 wave 2 (O180+)
 
@@ -309,7 +293,7 @@ structural review.
 ## v3.2 build (O267+)
 
 Opened during the v3.2 build ([build plan](versions/v3/build-plan-v3.2.md)). None blocks the wave
-in progress.
+in progress. All three follow the `3.2.0` tag, with the checks that answer them (D521).
 
 - **O267 - A doodle note played just before the doodle's first barline** _(D430;
   [build plan chunk 25](versions/v3/build-plan-v3.2.md#chunk-25--exports-open-with-the-doodle))_:
@@ -321,7 +305,8 @@ in progress.
   draws it where it was played. Needed before chunk 23 (the lane, wave 6) and chunk 25 (wave 7).
   Built so far, no ruling: chunk 23 (wave 6) draws such a note at the lane's start, the nearest
   the lane's time axis, which starts at the doodle's first barline, allows to the proposal's
-  "where it was played". Still the owner's to decide.
+  "where it was played". Still the owner's to decide, after the `3.2.0` tag (D521); the build stands
+  until then.
 - **O269 - Whether a legato doodle of eighths and quarters should read Heavily varied** _(D433;
   [Part C §C5.16.1](versions/v3/master-spec.md#c5161-the-doodle-to-controls-mapping), [v3.2
   H5](versions/v3/build-plan-v3.2.md#v32-h5--jam-listening-the-doodle-to-controls-mapping-l1))_: a

@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.131
+Status: draft v2.132
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -1289,3 +1289,21 @@ built, proposed with Part D). D289 is unused.
   rule that phrase 1 keeps every setting it was generated with; the design follows that rule (ux
   D481), and the session's level holds from the next phrase. Now in:
   [Part D §D8.3](versions/v3/master-spec.md#d83-vary-settings-and-the-session).
+
+- **D520 (2026-11-09): the owner approves v3.3: Part D v1.2, its build plan and its design (gates
+  A0 and D0).** Asked both at once, the owner: "Approve both". A0: Part D v1.2, D263–D288 and
+  D511–D519, every one proposed with Part D now settled, and build plan v3.3 v4. D0: the design,
+  ux D252–D264 refreshed by ux D477–D481, recorded by `ux-writer` as ux D482. I0, `documentalist`'s
+  ingestion, is next. Now in: [Part D](versions/v3/master-spec.md#part-d--v33),
+  [build plan v3.3, gates](versions/v3/build-plan-v3.3.md#gates).
+
+- **D521 (2026-11-09): v3.2 is released as built, before the owner's hand and listening checks,
+  which follow the `3.2.0` tag; closes O306.** The owner: "for now let's considere this version 3.2
+  worthy of being tagged. the next version doesn't build up "much" on top of current one. if need
+  be, we will have corrective measure decided later." This goes further than option B: the
+  release gate runs its machine half; L1, L2, L3, H3, H7, H8, HG, the DR recordings and O267
+  follow the tag as v3.2.x follow-ups, as v3.1's hand checks did (D397). R0 clears at the tag; a
+  later 3.2.x fix re-records v3.3's chunk 1 corpus. Now in:
+  [build plan v3.2, chunk 27](versions/v3/build-plan-v3.2.md#chunk-27--v32-release-gate),
+  [Part C §C16](versions/v3/master-spec.md#c16-definition-of-done),
+  [build plan v3.3, gate R0](versions/v3/build-plan-v3.3.md#gates).

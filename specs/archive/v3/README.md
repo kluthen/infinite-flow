@@ -1,6 +1,7 @@
 # v3 Archive
 
-Status: archived 2026-10-16 (the v3.0 release); extended 2026-10-21 (the v3.1 release)
+Status: archived 2026-10-16 (the v3.0 release); extended 2026-10-21 (the v3.1 release) and
+2026-11-09 (O306's note)
 
 v3.0, storage, is released as version 3.0.0: the release gate, build plan
 [chunk 26](../../versions/v3/build-plan.md#chunk-26--v30-release-gate), passed on 2026-10-16, the
@@ -255,6 +256,17 @@ O48, O49, O100–O102, O115, O116, O176, O180, O183, O190, O230 and O234–O246 
 
 The two v3.1 drafts, which the v3.0 pass left in place among "v3.1–v3.3 documents", are now archived
 here.
+
+## O306 (archived 2026-11-09)
+
+- [open-questions-O306.md](open-questions-O306.md): the live register's note on O306, whether v3.3
+  may start before v3.2 is released, kept verbatim. The owner's ruling closed it on 2026-11-09
+  (D521), which went further than the note's option B: v3.2 is released as built, before its hand
+  and listening checks. v3.2's and v3.3's records stay live.
+
+| Question | Decision | Now lives in |
+| --- | --- | --- |
+| O306 | D521 | [v3.2 plan, chunk 27](../../versions/v3/build-plan-v3.2.md#chunk-27--v32-release-gate); [v3.3 plan, gate R0](../../versions/v3/build-plan-v3.3.md#gates); [v3.2.x notes](../../versions/v3/README.md#v32x-notes-after-the-tag) |
 
 [partb]: ../../versions/v3/master-spec.md#part-b--v31
 [b2]: ../../versions/v3/master-spec.md#b2-scope

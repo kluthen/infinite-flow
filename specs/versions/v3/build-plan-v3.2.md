@@ -1,6 +1,7 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v40 (2026-11-05): v39 with spec D508 and D509 written in (master spec Part C v1.24), two wording fixes after wave 7's build: `Jam again on this doodle` is offered in the review that follows a Jam too (no plan change); chunk 40's Done when and item 50's trace check triplets and a tie across a barline on hand-built phrases, the seeded ones holding ties, rests and offbeat eighths.
+Status: v41 (2026-11-09): v40 with spec D521 written in (master spec Part C v1.25), the owner's ruling on O306: v3.2 is released as built; the release gate (chunk 27) runs its machine half, M1, M2 and M5 labelled before L3's tuning; L1, L2, L3, DR, the hand checks still owed and O267 follow the `3.2.0` tag; wave 7 shown merged.
+v40 (2026-11-05): v39 with spec D508 and D509 written in (master spec Part C v1.24), two wording fixes after wave 7's build: `Jam again on this doodle` is offered in the review that follows a Jam too (no plan change); chunk 40's Done when and item 50's trace check triplets and a tie across a barline on hand-built phrases, the seeded ones holding ties, rests and offbeat eighths.
 v39 (2026-11-05): v38 with spec D506 written in (master spec Part C v1.23): gate J240's ruling, the owner's "Keep 180"; Jam's tempo stays 60 to 180 BPM, chunk 33 ends after its first half, and DoD item 31's trace runs no Jam check at 240 BPM.
 v38 (2026-11-05): v37 with spec D503 and D504 written in (master spec Part C v1.22): a wave 7 fix after chunk 24, the kept doodle going when my instrument's deletion or range or transposition change erases its session; the owner's ruling raising the entry budget from 300 KiB to 320 KiB (Workflow deltas, M4, chunk 27).
 v37 (2026-11-04): v36 with no decision (Part C unchanged), after gate GD (ux D459–D463): gate GD and chunk 40 name the guides' tokens (`--mix-melody-guide-volume-*`, `--mix-rhythm-guide-volume-*`), chunk 40's design docs and its `readAudioMixDesign` docblock rewording.
@@ -146,12 +147,12 @@ no release is cut before wave 7 has merged.
 | **CJ** | The owner confirms the [change set](../../../docs/release/v3.1-v3.2-intent-change-set.md)'s part W (spec D422, D460): W1–W3 (`module_kept_session_save` 1.1 to 1.2, `module_kept_session_changes` 0.8 to 0.9, `module_kept_session_reach` 0.6 to 0.7; wording only), and W4 (`module_saved_data_loader` 0.8 to 0.9), with its choice: (a) Jam's settings made for a review save no first values, no bump; or (b) the first-values save also from a Jam session's review, CONTRACT 12.0.0 to 13.0.0 (W5). | `documentalist` drafts at wave 6's preflight (part W, done); the owner confirms | W1–W3: chunk 30's merge into the wave branch; W4 (and W5 with (b)): chunk 23's | done (2026-11-04, the owner: "CJ ok, W4 (a) (Recommended)": W1–W3 as drafted, W4 option (a), W5 not taken, CONTRACT stays 12.0.0; recorded in change set part W, 87756fdc) |
 | **GD** | `ux-writer` designs the guide playback's controls ([Part C §C19.3](master-spec.md#c193-the-settings)): the `Melody guide` and `Rhythm guide` switches in `mix-controls` beside `Backing` and `Click`, a volume slider each in the `Volume` popover, the phone's compact `Volume`, and the guides' tokens in `src/styles/theme.css`: `--mix-melody-guide-volume-{min,default}` and `--mix-rhythm-guide-volume-{min,default}`, the max and step shared (`--mix-volume-max`, `--mix-volume-step`), on the `--mix-{channel}-volume-*` pattern so `readAudioMixDesign` looks them up by the channel strings `melody-guide` and `rhythm-guide` (both guides off on first load, not a token), with its own ux decisions; `ux-critic` validates as usual. A minor design call under the owner's delegation (spec D491); the owner hears the result at v3.2 HG. | `ux-writer` | Chunk 40b | done (2026-11-04, ux D459–D463, `ux-critic` ALIGNED, 6d7afb1c) |
 | **CG** | The owner confirms the [change set](../../../docs/release/v3.1-v3.2-intent-change-set.md)'s part Y as one set (spec D422, D492, D500; [Part C §C13](master-spec.md#c13-what-v32-changes-in-v2-v30-and-v31-guarantees-and-atoms)): Y1 `req_session_audio_mix` 0.1 to 0.2 (STABLE, on the contract: the mix's controls become the backing's, the click's and each guide's, all independent, operable at any moment, changing nothing generated); Y2 `rule_settings_saved_on_change` 0.4 to 0.5 (STABLE, on the contract: it lists the mix's saved settings); Y3 the VISION `vision_infinite_flow_first_release` 0.10 to 0.11 (its out-of-scope "playback of the generated lead line", which the melody guide is); Y4 CONTRACT 12.0.0 to 13.0.0 (MAJOR); and Y5, the guide's twelve new DRAFT atoms from C19, written only after Y1–Y4 are confirmed. | `documentalist` drafts at wave 7's preflight (part Y, done); the owner confirms | Chunk 40's merge into the wave branch | done (2026-11-04, the owner: "Confirm part Y (Recommended)": Y1–Y4 as worded, CONTRACT 13.0.0 at wave 7's sync, the Y5 atoms; recorded in change set part Y, 3363597a) |
- **LD** | The owner ranks a handful of rhythm pairs by ear on drift's distance scale ([v3.2 H1](#v32-h1--drifts-scale-by-ear-ld)), before the scale drives the steering block's band ([C8](master-spec.md#c8-jams-drift)). A ranking that disagrees with the scale goes to `spec-writer` before chunk 8. | The owner; `spec-writer` if the ranking disagrees | Chunk 8 (wave 4) | done (2026-11-03, the owner's ranking; the scale kept with a finding, spec D449, carried to v3.2 H4 as O271) |
-| **DR** | The owner's Travel Sax recordings join the doodle set: chunk 3 writes the doodles by hand and documents how to add recorded ones (played-notes exports, kept beside their quantized form); the owner records them that way (spec D427). Chunk 28 builds and tests on the twelve hand-written doodles; each recording, as it joins, runs through the quantizer's and the mapping's tests (spec D443). | The owner | v3.2 H5, so gate L1; the release gate's tests on recorded doodles (item 25). Not chunk 28 (spec D443) | open (the owner records during wave 4) |
+| **LD** | The owner ranks a handful of rhythm pairs by ear on drift's distance scale ([v3.2 H1](#v32-h1--drifts-scale-by-ear-ld)), before the scale drives the steering block's band ([C8](master-spec.md#c8-jams-drift)). A ranking that disagrees with the scale goes to `spec-writer` before chunk 8. | The owner; `spec-writer` if the ranking disagrees | Chunk 8 (wave 4) | done (2026-11-03, the owner's ranking; the scale kept with a finding, spec D449, carried to v3.2 H4 as O271) |
+| **DR** | The owner's Travel Sax recordings join the doodle set: chunk 3 writes the doodles by hand and documents how to add recorded ones (played-notes exports, kept beside their quantized form); the owner records them that way (spec D427). Chunk 28 builds and tests on the twelve hand-written doodles; each recording, as it joins, runs through the quantizer's and the mapping's tests (spec D443). | The owner | v3.2 H5, so gate L1; item 25's tests on recorded doodles. Not chunk 28 (spec D443), nor the release gate (spec D521) | moved after the tag (D521) |
 | **DS** | The owner answers O268 (now closed, [spec D440](../../decisions.md)): how a short silence between two doodle notes (a detached note) is read, for the steering block's starts ([C5.9](master-spec.md#c59-what-the-doodle-feeds-the-generator)) and the silence reading ([C5.16.1](master-spec.md#c5161-the-doodle-to-controls-mapping)); `spec-writer` writes the answer into Part C and chunk 28 (spec D433). | The owner; then `spec-writer` | Chunk 28 (wave 4) | done (2026-10-27, the owner: "part of the notes", as proposed; spec D440, Part C v1.12) |
-| **L3** | The owner's listening check of the allowed rhythm changes ([v3.2 H2](#v32-h2--allowed-rhythm-changes-l3), item 13); the change shares are tuned from it. Steps 2 and 4 ran on 2026-11-03 and tuned the shares (spec D450, built by [chunk 34](#chunk-34--the-rhythm-change-shares-tuned-l3)); step 3, one kind at a time, is still owed. | The owner | The release gate's final M2 run | open (after wave 3) |
-| **L1** | The owner's listening check of Jam ([v3.2 H4](#v32-h4--jam-listening-settings-drift-and-lock-l1) and [H5](#v32-h5--jam-listening-the-doodle-to-controls-mapping-l1), item 32); it confirms or sends back three of D406's provisional answers ([below](#what-confirms-d406s-provisional-answers)). | The owner; a failed answer becomes a ruling | The release gate | open (after wave 7) |
-| **L2** | The owner's listening check of the suggestion ([v3.2 H6](#v32-h6--the-suggestion-l2), item 45); the weights and cues are tuned from it. | The owner | The release gate's final suggestion tests | open (after wave 6; runnable now) |
+| **L3** | The owner's listening check of the allowed rhythm changes ([v3.2 H2](#v32-h2--allowed-rhythm-changes-l3), item 13); the change shares are tuned from it. Steps 2 and 4 ran on 2026-11-03 and tuned the shares (spec D450, built by [chunk 34](#chunk-34--the-rhythm-change-shares-tuned-l3)); step 3, one kind at a time, is still owed. | The owner | Not the release gate (spec D521): M2 runs there on the current shares; a tuning from step 3 re-runs it in its 3.2.x fix | moved after the tag (D521) |
+| **L1** | The owner's listening check of Jam ([v3.2 H4](#v32-h4--jam-listening-settings-drift-and-lock-l1) and [H5](#v32-h5--jam-listening-the-doodle-to-controls-mapping-l1), item 32); it confirms or sends back three of D406's provisional answers ([below](#what-confirms-d406s-provisional-answers)). | The owner; a failed answer becomes a ruling | Not the release gate (spec D521): D406's answers ship provisional | moved after the tag (D521) |
+| **L2** | The owner's listening check of the suggestion ([v3.2 H6](#v32-h6--the-suggestion-l2), item 45); the weights and cues are tuned from it. | The owner | Not the release gate (spec D521): the weights ship provisional; a tuning is a 3.2.x fix | moved after the tag (D521) |
 | **J240** | Whether Jam's tempo reaches 240 BPM: from [chunk 33](#chunk-33--240-bpm-in-jam-best-effort)'s run at 240 BPM, the owner widens Jam's tempo control to 240, or keeps it at 180 and the chunk is dropped (C5.17, spec D404). Widening changes two of the design's sentences (Tap tempo's limit note): `ux-writer` rewords them first. It also revises `rule_saved_settings_load_tolerantly` (STABLE, on the contract), with the other atoms chunk 33 names: `documentalist` drafts the wording, the owner signs it off, and the MAJOR contract bump applies it (spec D422). | The owner; `ux-writer` and the contract wording's sign-off if widened | The second half of chunk 33 | done (2026-11-05, the owner: "Keep 180", spec D506; chunk 33 measured, not widened) |
 
 There is no data register (`data-register/README.md` does not exist), so the version's data
@@ -169,22 +170,22 @@ preflight does not run and no chunk carries a **Data** line
 | 4 | 20 Jam mode: the switch, Jam's code, Jam's Idle · 28 From the doodle: controls and steering block · 7 The join from the doodle · 8 Rhythm ordered by the steering block · 9 Melody follows the moves | Wave 3; DS (28, done); LD (8, done, spec D449). In-wave 28 → 7 and 28 → 8: chunk 28's capture fixes the register window the join reads and the blocks chunk 8 orders by. | merged into `main` |
 | 5 | 34 The rhythm change shares, tuned · 14 The key and mode suggestion · 17 Jam engine, part 1 · 18 Jam engine, part 2 · 29 The Jam sweep, first run · 31 Jam's settings | Wave 4; CL before chunk 31's merge. Chunk 34 has no in-wave edge and goes first, so the wave's measurements run at the tuned shares. In-wave 14 → 18: chunk 14's capture fixes the suggestion's answer type; 17 → 18: chunk 17's capture fixes the engine's way in and the capture's states. Chunk 29 has no in-wave edge: it measures through a double of chunk 18's ladder, since 17 → 18 → 29 would be a chain of three (spec D453). Chunks 34 and 29 both write `docs/generation-latency.md`, a record each adds its own subsection to, resolved at merge as a shared list; 34 merges first. Likewise `docs/session-engine.md`, an area document: 34 changes one line of the tenser flag, 17 and 18 their own parts. | merged (2026-11-04) |
 | 6 | 21 A fresh Jam on screen · 30 Kept Jam sessions · 23 The review's doodle section and the suggestion | Wave 5; CJ before chunk 30's and chunk 23's merges. In-wave 21 → 23 and 30 → 23: chunk 21's capture fixes what the review receives from an ended Jam, chunk 30's what a kept Jam session holds. Three chunks: everything else of Jam's waits on 21 or 23. L1 and L2 open at its end. | merged (2026-11-04) |
-| 7 | 24 The kept doodle · 25 Exports open with the doodle · 32 Tap tempo · 33 240 BPM in Jam · 40 The guide playback | Wave 6; J240 (33's second half); GD (40b); CG before chunk 40's merge. In-wave 24 → 32: both change Jam's Idle note routing, whose interface chunk 20's capture fixed. Chunk 40 has no in-wave edge: it touches neither Jam's Idle notes nor the exports, and only the audio path and the mix, which no other chunk of the wave touches. | gated (2026-11-05), waiting on the owner's merge |
-The [release gate](#chunk-27--v32-release-gate) (chunk 27) follows wave 7, with L1, L2, L3 and the
-hand checks. κ is 1 ([build workflow](build-workflow.md#concurrency-and-order)).
+| 7 | 24 The kept doodle · 25 Exports open with the doodle · 32 Tap tempo · 33 240 BPM in Jam · 40 The guide playback | Wave 6; J240 (33's second half); GD (40b); CG before chunk 40's merge. In-wave 24 → 32: both change Jam's Idle note routing, whose interface chunk 20's capture fixed. Chunk 40 has no in-wave edge: it touches neither Jam's Idle notes nor the exports, and only the audio path and the mix, which no other chunk of the wave touches. | merged (2026-11-05) |
+The [release gate](#chunk-27--v32-release-gate) (chunk 27) follows wave 7; L1, L2, L3, DR and the
+hand checks still owed follow the `3.2.0` tag (spec D521). κ is 1 ([build workflow](build-workflow.md#concurrency-and-order)).
 
 ```mermaid
 flowchart LR
   LD{{LD: drift scale by ear, done}}
   DS{{DS: short silences, done}}
-  DR{{DR: recorded doodles}}
+  DR{{DR: recorded doodles, after the tag}}
   CS{{CS: contract sign-off}}
   CN{{CN: Vary settings sign-off}}
   CK{{CK: replay key sign-off}}
   CR{{CR: ready phrases sign-off}}
   CL{{CL: Jam settings load sign-off}}
   CJ{{CJ: kept Jam sessions and Use it sign-off}}
-  L{{L1, L2, L3: listening}}
+  L{{L1, L2, L3: listening, after the tag}}
   J240{{J240: 240 BPM ruling}}
   GD{{GD: guide design}}
   CG{{CG: guide contract and vision sign-off}}
@@ -336,7 +337,6 @@ flowchart LR
   C11 --> C34
   C13 --> C34
   C34 --> C27
-  L --> C27
   C21 --> C40
   GD --> C40
   CG --> C40
@@ -471,7 +471,8 @@ corpora are a guard, not a measurement.
   census's session seeds, 100 apart, spread (0.2503 and 0.4991 over 20,000 sessions' phrases 2–8).
   The same holds for any test of the shares.
 - **Run by:** chunk 13; [chunk 34](#chunk-34--the-rhythm-change-shares-tuned-l3), at spec D450's
-  shares; the release gate, once L3 has closed.
+  shares; the release gate, on those shares, labelled before L3's tuning (spec D521); again in the
+  3.2.x fix of a tuning from L3's step 3.
 - **Acceptance:** the drawn share within a few points of 1 in 2 and 3 in 4 (spec D450; L3's step 3
   may tune again); the rest is recorded. A forced-bend rate the owner finds too high at L3 goes to `spec-writer`: the
   lock is strict by spec.
@@ -535,7 +536,8 @@ corpora are a guard, not a measurement.
 
 Four answers are provisional until the owner's checks (spec D406;
 [Part C §C17](master-spec.md#c17-deferred-and-open)). A check that fails comes back to the owner as
-a ruling; the spec and this plan then change by decision, never silently in a chunk.
+a ruling; the spec and this plan then change by decision, never silently in a chunk. v3.2 ships
+with all four still provisional: the checks that confirm them follow the `3.2.0` tag (spec D521).
 
 | Answer (spec D406) | Confirmed by | If it fails |
 | --- | --- | --- |
@@ -549,6 +551,8 @@ a ruling; the spec and this plan then change by decision, never silently in a ch
 The owner runs these in Chrome on the reference machine with the Travel Sax over USB, each a
 numbered script of at most ten minutes, written into `HARDWARE-CHECKLIST.md` by the chunk named. A
 check passes on the owner's word; what they report is recorded by the driver in the wave log.
+Since spec D521, every check not yet run (H2 step 3, H3 to H8 and HG) follows the `3.2.0` tag
+([after the tag](#after-the-tag-v32x-follow-ups)).
 
 #### v3.2 H1 — Drift's scale by ear (LD)
 
@@ -667,8 +671,8 @@ Written by chunk 25; run after wave 7. About 5 minutes.
 #### v3.2 HG — The guide playback
 
 Written by chunk 40; run after wave 7. About 8 minutes. The voices' values are set by ear in chunk
-40 (spec D491); this check confirms or tunes them, a tuning being a constant change made before
-the release gate.
+40 (spec D491); this check confirms or tunes them, a tuning being a constant change made in a
+3.2.x fix after the tag (spec D521).
 
 1. Session mode, the Neutral preset, C Major, 90 BPM, Backing on; both guides off: the session sounds
    as before.
@@ -3102,23 +3106,29 @@ transport: with its backing, from the same queueing call, which then takes the p
 ## Chunk 27 — v3.2 release gate
 
 Status: planned
-Depends on: every chunk but 26 (folded into 19), L1, L2, L3, CS
+Depends on: every chunk but 26 (folded into 19), CS
 
 The release gate, not a wave; it keeps its chunk number because other plans link it. It runs the
-[build workflow's release gate](build-workflow.md#release-gate), plus:
+[build workflow's release gate](build-workflow.md#release-gate), plus the items below. **It runs
+without the owner's hand and listening checks** (spec D521): gates L1, L2, L3 and DR, the hand
+checks still owed and O267 follow the `3.2.0` tag
+([after the tag](#after-the-tag-v32x-follow-ups)).
 
 - `docs/release/v3.2-release-notes.md`: one row per item 1–52 of C16, then the table of every
   replaced or extended test and its v3.2 counterpart (item 48, from
   [Read first](#read-first-what-v32-changes-in-v2-v30-and-v31)), then M1–M5 with their figures and
-  chunk 33's outcome, and how D406's four provisional answers were confirmed or ruled.
-- **Final M1, M2 and M5** after L3's tuning, on the reference machine.
+  chunk 33's outcome. An item whose evidence includes a hand check names it as "after the tag"; its
+  tests are its evidence at the tag. D406's four answers
+  ([above](#what-confirms-d406s-provisional-answers)) and the suggestion's weights and cues are
+  listed as "provisional, confirmed after the tag".
+- **M1, M2 and M5** on the current rhythm change shares (spec D450), on the reference machine, each
+  labelled "before L3's tuning".
 - The v3.1 corpus, every earlier corpus, the Vary settings corpus and the goldens re-run; the
   privacy spy (network half) with Jam sessions kept, raw notes kept and not (nothing sent).
 - `npm run verify:boundaries` with the 320 KiB entry budget and the Jam boundary (M4).
-- Hand checks v3.2 H1–H8 and HG done (H9 waived, spec D417), each a numbered script of at most ten
-  minutes, none on Edge or a phone.
 - `documentalist`'s post-task sync over every `release-v3.2` atom, promoting those the owner agrees
-  to; every `changes-in-v3.2` atom revised; part F's drift checks done; the vision's v3.2 scope
+  to; an atom whose promotion waits on a check after the tag keeps its status until that check
+  passes, as v3.1's did (spec D397); every `changes-in-v3.2` atom revised; part F's drift checks done; the vision's v3.2 scope
   checked; CS's record checked (CONTRACT 8.0.0, the owner's one sign-off, item 49). The lexicon
   entries C4 names no longer say "planned". Atoms: every atom tagged `release-v3.2`;
   `contract_infinite_flow_first_release`, `vision_infinite_flow_first_release`,
@@ -3127,8 +3137,25 @@ The release gate, not a wave; it keeps its chunk number because other plans link
   phone reductions chunks recorded.
 - `package.json` version `3.2.0`; the tag only when the owner asks.
 
-**Done when:** every item of C16 has a row with evidence; every measurement has its figure; the
-owner says go.
+**Done when:** every item of C16 has a row with its evidence at the tag, a check after the tag
+named as such; every measurement has its figure; the owner says go.
+
+### After the tag: v3.2.x follow-ups
+
+Spec D521, as v3.1's hand checks were (spec D397). After the `3.2.0` tag, when the owner chooses:
+
+- **L3:** v3.2 H2 step 3, one kind at a time, then step 5.
+- **L1:** v3.2 H4 and H5, H5 once the DR recordings have joined the doodle set and passed the
+  quantizer's and the mapping's tests (item 25); H4 asks O271's question, H5 O269's.
+- **L2:** v3.2 H6.
+- **H3, H7, H8 and HG.**
+- **O267:** where the export and the review's lane put a doodle note played just before the first
+  barline; the build stands until the owner rules.
+
+A check that passes confirms what shipped, and the atoms waiting on it are promoted. A finding
+becomes an issue or a ruling; the owner decides the corrective measure then, built as a `3.2.x`
+fix, with the spec and this plan changed by decision. How such a fix meets v3.3's baseline: the
+[v3.3 plan's gate R0](build-plan-v3.3.md#gates).
 
 ### Definition-of-done coverage
 
@@ -3140,49 +3167,49 @@ owner says go.
 | 4 Search order | 10 | instrumented search on every rung |
 | 5 Narrow windows | 16 | re-lock after a seeded step-down |
 | 6 Pre-generated under the lock; discards | 16, 19 | identity with pre-generation on and off; queue spy |
-| 7 Vary settings' allowed groups | 2, 15, 19 | corpus with all six; subset properties; unavailable-state e2e; v3.2 H3 |
+| 7 Vary settings' allowed groups | 2, 15, 19 | corpus with all six; subset properties; unavailable-state e2e; v3.2 H3 (after the tag) |
 | 8 Session persistence | 19 | reload e2e per setting; corrupt and v3.1 data load defaults |
 | 9 Unchanged without the new inputs | 2, guarded in 6, 8–12, 15, 16, 18; 27 | the corpora and goldens, unchanged |
 | 10 The session sweep | 3, 13, 27 | M5 tables |
 | 11 Replay keys | 2, 12, 13 | `ifk4.` round trip; earlier corpora; replay tool on four versions |
 | 12 Kept sessions, lock data, upgrade | 22 | step-4 upgrade on seeded v3.1 data; M3 |
-| 13 Rhythm-change listening | 19 (H2), 27 | the owner's recorded check |
+| 13 Rhythm-change listening | 19 (H2), after the tag | the owner's recorded check: steps 2 and 4 (spec D450); step 3 after the tag (spec D521) |
 | 14 Jam mode | 20, 31 | e2e switch at Idle only, session mode as left, instrument on return, never saved |
 | 15 A controller needed | 20 | e2e `jam-needs-controller`; no mode change on plug or unplug |
 | 16 On demand | 20, every wave gate, 27 | boundary check; network spy; offline e2e |
 | 17 Jam's settings | 31 | first values, reload, corrupt record, session records untouched |
-| 18 Controls taken from the doodle | 28 | C5.16.1 row tests; the doodle set's four doodles; v3.2 H5 |
-| 19 Tempo and tap-in | 31, 32 | range tests; tap-in unit and e2e; v3.2 H7 |
+| 18 Controls taken from the doodle | 28 | C5.16.1 row tests; the doodle set's four doodles; v3.2 H5 (after the tag) |
+| 19 Tempo and tap-in | 31, 32 | range tests; tap-in unit and e2e; v3.2 H7 (after the tag) |
 | 20 Jam's Idle | 20 | e2e `staff-jam`, no phrase, no Idle rules, no preparation |
 | 21 Starting | 17, 20, 21 | home note octave tests; e2e by click and by note; nothing while a review shows |
 | 22 The click | 17, 21 | engine test with `Click` off; audio spy, no backing before phrase 1 |
 | 23 The end rule | 17 | engine tests of each rule |
 | 24 Very short notes | 4, 14, 17, 32 | quantizer, suggestion, 30-second wait and tap tests |
-| 25 Quantizing | 4 | named tests on written and recorded doodles |
+| 25 Quantizing | 4 | named tests on written doodles; recorded ones after the tag (DR, spec D521) |
 | 26 Phrase 1 timing, ladder and failure | 18, 21 | engine tests with a slow generator; e2e `jam-notice` |
 | 27 The seam | 6, 8, 9, 18, 28 | worker key list; no doodle or drift in any request; validator over the doodle set |
 | 28 The join | 6, 7 | join and window tests over the doodle set |
 | 29 Drift | 8, 9, 28 | band tests; order properties per position |
 | 30 Jam's lock | 8, 18 | phrase 1 nearest the doodle; held; the two modes' locks apart |
 | 31 The Jam sweep | 3, 29, 33, 27 | M1 tables at 60, 120 and 180 BPM (240 measured, not kept, spec D506) |
-| 32 Jam listening | 21 (H4, H5), 27 | the owner's recorded checks |
+| 32 Jam listening | 21 (H4, H5), after the tag (spec D521) | the owner's recorded checks |
 | 33 The kept doodle | 24, 30 | e2e keeping, rewriting and letting go; prepared phrases equal; after a reload |
 | 34 Before phrase 1 | 17, 21 | engine tests; e2e each end, nothing kept, mode unchanged |
 | 35 During the Jam | 18, 21 | nothing offered (e2e); no Vary settings, tension cycle or rising tempo |
 | 36 The review, the lane, the list | 23, 25, 30 | e2e doodle section and lane; a Jam in which only the doodle was played; list mark |
-| 37 The exports | 25 | alignment test in both scopes; byte scan; v3.2 H8 |
+| 37 The exports | 25 | alignment test in both scopes; byte scan; v3.2 H8 (after the tag) |
 | 38 The doodle's two forms | 25, 30, 27 | storage spy with the opt-in off; deletion tests; network spy; key holds no doodle |
 | 39 Jam phrases replay | 12, 17, 18, 29, 30 | `ifk4.` Jam samples replay; kept Jam sessions under step 4; a fresh Jam's seeds drawn once at Start and derived for phrase 1 (17, 18) |
-| 40 Jam on the instrument | 32 (H7) | the owner's recorded check at 60, 120 and 180 BPM |
+| 40 Jam on the instrument | 32 (H7), after the tag (spec D521) | the owner's recorded check at 60, 120 and 180 BPM |
 | 41 Suggestion deterministic | 14 | integer-only test; golden answers in Node and Chrome |
 | 42 Nothing suggested | 14, 23 | threshold and fit tests; the no-fit sentence in every review |
 | 43 Where the suggestion shows | 21, 23, 24 | e2e: never during a Jam; review and Idle with a kept doodle only |
 | 44 Use it and Keep mine | 14, 23, 24 | e2e: Jam's key and mode only; family labels; decline after a reload |
-| 45 Suggestion listening | 23 (H6), 27 | the owner's recorded check |
+| 45 Suggestion listening | 23 (H6), after the tag (spec D521) | the owner's recorded check |
 | 46 Visits that save nothing | 30, 31, 23, 24 | outdated tab and failed read: a Jam runs, reviews, suggests, keeps; nothing written |
 | 47 Delete everything | 30, 31, 24 | e2e: Jam sessions gone, Jam's and session mode's settings reset, the kept doodle let go |
 | 48 Otherwise unchanged | every wave gate | `npm run quality`; the table of [Read first](#read-first-what-v32-changes-in-v2-v30-and-v31) |
 | 49 Contract | CS, 27 | the owner's sign-off in the CONTRACT 8.0.0 notes |
 | 50 The guide's notes | 40 | renderer tests on seeded phrases (ties, rests, offbeat eighths, a transposing instrument) and hand-built ones (a tie across a barline, triplets); exact placement through the tempo map; a 42 ms note |
 | 51 The guide's sound and settings | 40 | fake-output recordings, both off identical to before; switches and volumes in all combinations; release, re-attack and Stop; settings reload e2e; acknowledgement and exports unchanged with the guides on; `verify:boundaries` |
-| 52 Guide listening | 40 (HG), 27 | the owner's recorded check |
+| 52 Guide listening | 40 (HG), after the tag (spec D521) | the owner's recorded check |
