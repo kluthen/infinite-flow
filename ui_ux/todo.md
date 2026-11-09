@@ -178,5 +178,8 @@ score title in Jam mode, and what stays live while Jam's code loads (ux D351-D35
 the guide playback's controls (master spec C19.3), is written (ux D459-D462): the two guide switches
 after `Click`, full labels and the mix's wrap, the popover's four sliders and the four guide tokens
 in `src/styles/theme.css`; `ux-critic`: DRIFT, four findings, all fixed (ux D463); recheck ALIGNED. The owner hears it at hand check v3.2 HG. `versions/v3.2/` was taken on
-2026-11-09 from the root without its v3.3 parts (ux D480). What remains for v3.2 is its release
-gate, with corrections to that copy if the gate changes the design, and then its milestone archive.
+2026-11-09 from the root without its v3.3 parts (ux D480). Its release gate's design part is done
+(2026-11-09, ux D483, chunk 27): no handoff names a class missing from `src/styles/`, no chunk
+recorded a phone reduction, and `versions/v3.2/` needed no correction. What remains for v3.2 is
+the tag, the owner's checks after it (spec D521; a finding that changes the design corrects the
+copy and the root alike, recorded), and then its milestone archive.
