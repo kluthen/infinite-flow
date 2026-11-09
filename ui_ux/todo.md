@@ -65,7 +65,7 @@ for the owner's approval with spec D264-D274 and D511-D518). Started 2026-10-12 
 on top of v3.0's, v3.1's and v3.2's marks, every v3.3 change its own tagged paragraph (ux D252).
 Owner's standing delegation: settled here, no question to the owner. Settled decisions: ux
 D252-D264, D477-D479; Q77 closed by spec D275 as recommended (ux D264). No `src/` edits; no new
-token (ux D261). Waits for the owner's approval (the build plan's gate D0).
+token (ux D261). Approved by the owner at the build plan's gate D0 on 2026-11-09 (ux D482).
 
 - **Unit S — the whole of v3.3, in one pass** (ux D262): the Seventh chords level (foundation
   group, after Harmonic motion; Off, Sometimes, Often, Mostly; its note), presets holding it and
@@ -89,6 +89,8 @@ token (ux D261). Waits for the owner's approval (the build plan's gate D0).
   the phone acceptance withdrawn. Asks for `spec-writer`: chunk 23's design docs add
   `flows/review-and-export/handoff.md`; §D8.3's "never switches" allows phrase 1 after
   `Start with this phrase`. Ready for the owner's D0.
+- **Owner's approval** (2026-11-09): gate D0 granted, "Approve both" (Part D v1.2, build plan v4
+  and this design); `versions/v3.3/` frozen the same day, the whole root, marks kept (ux D482).
 
 **v3.1 (presets and embellishment figures) and v3.2 (Jam) design**, from master spec Parts B and C
 (approved 2026-10-08). Started 2026-10-08; v3.0's approved design was frozen in `versions/v3.0/`
@@ -161,11 +163,12 @@ Not scheduled:
 
 ## Next Unit
 
-v3.3: the owner's approval of Part D and of this design (the build plan's D0). At the build, the
+v3.3: approved at gate D0 (ux D482), frozen in `versions/v3.3/`; next is its build. At the build, the
 recorded seventh-chord shares come back here twice to confirm the labels, "Mostly" above all (ux
 D254, D264): after the first measurement, before the control is built, and on the final shares at
 the release gate. A symbol calibration failure, or a triad layout that counting the symbols' widths
-would move, also comes back here (ux D258, D264).
+would move, also comes back here (ux D258, D264). A build correction to the design is applied at
+the root and to `versions/v3.3/` alike, and recorded.
 
 v3.2: approved (gate D0 granted, T2 allowed; ux D347). The token-source pass is done (build plan
 v3.2's chunk 1, ux D349): D342's classes are in `src/styles/components.css` under `v3.2 new`, and
