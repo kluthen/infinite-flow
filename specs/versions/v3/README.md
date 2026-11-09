@@ -392,10 +392,10 @@ seeds, and two atoms and a vision line more for the contract sign-off. v1.4 (202
 that sign-off, the build plan's gate CS: the owner signed off the re-scoped contract wording,
 CONTRACT 7.2.0 to 8.0.0 (D421).
 
-**Build plan:** [build-plan-v3.2.md](build-plan-v3.2.md), **v41 (2026-11-09)**, from v6, **approved
+**Build plan:** [build-plan-v3.2.md](build-plan-v3.2.md), **v42 (2026-11-09)**, from v6, **approved
 by the owner** (D416, D417; hand check H9 waived), with wave 0's corrections (v7), chunk 0's
 findings (v8, D418–D420), chunk 2's report (v9) and gate CS signed off (v10, D421), then the
-build's revisions through v41 (D422–D509, D521; its header lists them), from Part C v1.14 and the
+build's revisions through v42 (D422–D509, D521, D522; its header lists them), from Part C v1.14 and the
 approved design (gate D0, D412). It plans
 v3.2 on top of the [v3.1](build-plan-v3.1.md) build plan on the build-plan model: 33 chunks in eight
 waves, the session-mode half first (waves 0–3), then Jam mode (waves 4–7), one release, then the

@@ -1307,3 +1307,10 @@ built, proposed with Part D). D289 is unused.
   [build plan v3.2, chunk 27](versions/v3/build-plan-v3.2.md#chunk-27--v32-release-gate),
   [Part C §C16](versions/v3/master-spec.md#c16-definition-of-done),
   [build plan v3.3, gate R0](versions/v3/build-plan-v3.3.md#gates).
+
+- **D522 (2026-11-09): v3.2's contract stated as built, seven MAJOR bumps to CONTRACT 14.0.0 (a
+  clarification).** The release-notes writer found C13 counting three bumps and item 49, C17 and
+  chunk 27 naming 8.0.0's one sign-off; the owner signed each of 8.0.0 to 14.0.0 (release notes
+  item 49). No ruling changes. Now in:
+  [Part C §C13](versions/v3/master-spec.md#c13-what-v32-changes-in-v2-v30-and-v31-guarantees-and-atoms),
+  [build plan v3.2, chunk 27](versions/v3/build-plan-v3.2.md#chunk-27--v32-release-gate).

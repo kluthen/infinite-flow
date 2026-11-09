@@ -1,6 +1,7 @@
 # Infinite Flow v3.2 — Build Plan
 
-Status: v41 (2026-11-09): v40 with spec D521 written in (master spec Part C v1.25), the owner's ruling on O306: v3.2 is released as built; the release gate (chunk 27) runs its machine half, M1, M2 and M5 labelled before L3's tuning; L1, L2, L3, DR, the hand checks still owed and O267 follow the `3.2.0` tag; wave 7 shown merged.
+Status: v42 (2026-11-09): v41 with spec D522 written in (master spec Part C v1.26), no plan change: the contract as built, seven MAJOR bumps from CONTRACT 7.2.0 to 14.0.0, each signed off by the owner; chunk 27's contract check, DoD item 49's trace, the Read first table's contract row and "Two halves, one release" name them all.
+v41 (2026-11-09): v40 with spec D521 written in (master spec Part C v1.25), the owner's ruling on O306: v3.2 is released as built; the release gate (chunk 27) runs its machine half, M1, M2 and M5 labelled before L3's tuning; L1, L2, L3, DR, the hand checks still owed and O267 follow the `3.2.0` tag; wave 7 shown merged.
 v40 (2026-11-05): v39 with spec D508 and D509 written in (master spec Part C v1.24), two wording fixes after wave 7's build: `Jam again on this doodle` is offered in the review that follows a Jam too (no plan change); chunk 40's Done when and item 50's trace check triplets and a tie across a barline on hand-built phrases, the seeded ones holding ties, rests and offbeat eighths.
 v39 (2026-11-05): v38 with spec D506 written in (master spec Part C v1.23): gate J240's ruling, the owner's "Keep 180"; Jam's tempo stays 60 to 180 BPM, chunk 33 ends after its first half, and DoD item 31's trace runs no Jam check at 240 BPM.
 v38 (2026-11-05): v37 with spec D503 and D504 written in (master spec Part C v1.22): a wave 7 fix after chunk 24, the kept doodle going when my instrument's deletion or range or transposition change erases its session; the owner's ruling raising the entry budget from 300 KiB to 320 KiB (Workflow deltas, M4, chunk 27).
@@ -77,8 +78,10 @@ changes, Vary settings' allowed groups, and the whole of v3.2's request, replay 
 shape); waves 4–7 build Jam mode on it. v3.2 ships once, as `3.2.0` (spec D410): one replay key
 version (`ifk4.`), one kept-session data step. Its contract changes are applied at the sync of the
 wave that builds them, each signed off by the owner first (spec D422): CONTRACT 7.2.0 to 8.0.0
-(gate CS), 9.0.0 at wave 1's sync (gate CN), another MAJOR at wave 2's (gate CK, chunk 12's
-replay key and chunk 22's kept-session shape, spec D429). Chunk
+(gate CS), 9.0.0 at wave 1's sync (gate CN), 10.0.0 at wave 2's (gate CK, chunk 12's
+replay key and chunk 22's kept-session shape, spec D429), 11.0.0 at wave 3's (gate CR), 12.0.0
+at wave 5's, 13.0.0 at wave 7's (gate CG) and 14.0.0 on the owner's ruling at that sync: v3.2
+releases at CONTRACT 14.0.0 (spec D522). Chunk
 IDs 0–27 keep the meaning plan v3 gave them where it still holds, since the v3.3 plan cites them;
 chunks 28–34 are new, chunk 40 (the guide playback, added after approval, spec D490) too, and
 chunk 26 is folded into chunk 19.
@@ -102,7 +105,7 @@ and the chunk adds the Jam variant beside it.
 
 | What holds today | Changed in | Becomes |
 | --- | --- | --- |
-| The STABLE contract guarantees C13 names (among them `rule_optional_midi_privacy`, `rule_midi_starting_note`, `rule_midi_never_blocks_session`, `rule_count_in_shown_on_screen`, `rule_silence_timeout_ends_session`, `rule_controller_loss_mid_session`, `rule_session_generation_failure_ladder`, `rule_join_carry_in_limited`, and the eight STABLE `changes-in-v3.2` atoms) at CONTRACT 7.2.0 | Gate [CS](#gates); revised by the chunks whose **Revisions** line says "(contract, CS)" | One MAJOR bump to CONTRACT 8.0.0, the re-scoped wording signed off once by the owner. |
+| The STABLE contract guarantees C13 names (among them `rule_optional_midi_privacy`, `rule_midi_starting_note`, `rule_midi_never_blocks_session`, `rule_count_in_shown_on_screen`, `rule_silence_timeout_ends_session`, `rule_controller_loss_mid_session`, `rule_session_generation_failure_ladder`, `rule_join_carry_in_limited`, and the eight STABLE `changes-in-v3.2` atoms) at CONTRACT 7.2.0 | Gate [CS](#gates); revised by the chunks whose **Revisions** line says "(contract, CS)" | A MAJOR bump to CONTRACT 8.0.0, the re-scoped wording signed off once by the owner; then six more, each signed off by the owner, to CONTRACT 14.0.0 (spec D522). |
 | A session starts with phrase 1 on screen: `tests/e2e/session/session-start.spec.ts` › 'the count-in lights beat by beat with its clicks, and phrase 1 never moves'; `tests/e2e/session/session-midi-start.spec.ts` › '…: the line names phrase 1's first note, which starts the count-in'; the `no_phrase` blocker (`src/session/session-start-conditions.ts`) | [17](#chunk-17--jam-engine-part-1-the-count-in-and-the-capture), [21](#chunk-21--a-fresh-jam-on-screen) | Unchanged in session mode; a fresh Jam starts on the home note with no phrase on screen, its beats still counted (new tests beside them). |
 | The silence timer counts from the starting note: `tests/e2e/session/session-midi-silence.spec.ts` › 'counted from the starting note: running at 29.9 s, ended by 30.1 s' | 17 | Unchanged outside a fresh Jam; in one, neither the home note nor the doodle arms it, and the 30-second wait for a first doodle note is the Jam's own rule. |
 | A lost controller never ends a session at once: `tests/e2e/session/session-midi-controller-loss.spec.ts` › 'the banner shows while the count-in clicks on; a replug before beat 4 brings it back' | 17 | Unchanged outside a fresh Jam; from a fresh Jam's count-in until phrase 1 sounds, a lost controller ends the Jam at once. |
@@ -3129,7 +3132,8 @@ checks still owed and O267 follow the `3.2.0` tag
 - `documentalist`'s post-task sync over every `release-v3.2` atom, promoting those the owner agrees
   to; an atom whose promotion waits on a check after the tag keeps its status until that check
   passes, as v3.1's did (spec D397); every `changes-in-v3.2` atom revised; part F's drift checks done; the vision's v3.2 scope
-  checked; CS's record checked (CONTRACT 8.0.0, the owner's one sign-off, item 49). The lexicon
+  checked; the contract's record checked, CONTRACT 14.0.0 (item 49): the owner's sign-off in each
+  MAJOR note from 8.0 (gate CS) to 14.0, seven in all (spec D522). The lexicon
   entries C4 names no longer say "planned". Atoms: every atom tagged `release-v3.2`;
   `contract_infinite_flow_first_release`, `vision_infinite_flow_first_release`,
   `specification_behavioral_quality_gates`.
@@ -3209,7 +3213,7 @@ fix, with the spec and this plan changed by decision. How such a fix meets v3.3'
 | 46 Visits that save nothing | 30, 31, 23, 24 | outdated tab and failed read: a Jam runs, reviews, suggests, keeps; nothing written |
 | 47 Delete everything | 30, 31, 24 | e2e: Jam sessions gone, Jam's and session mode's settings reset, the kept doodle let go |
 | 48 Otherwise unchanged | every wave gate | `npm run quality`; the table of [Read first](#read-first-what-v32-changes-in-v2-v30-and-v31) |
-| 49 Contract | CS, 27 | the owner's sign-off in the CONTRACT 8.0.0 notes |
+| 49 Contract | CS, CN, CK, CR, CG, the wave syncs, 27 | the owner's sign-off in each MAJOR note, CONTRACT 8.0.0 to 14.0.0 (spec D522) |
 | 50 The guide's notes | 40 | renderer tests on seeded phrases (ties, rests, offbeat eighths, a transposing instrument) and hand-built ones (a tie across a barline, triplets); exact placement through the tempo map; a 42 ms note |
 | 51 The guide's sound and settings | 40 | fake-output recordings, both off identical to before; switches and volumes in all combinations; release, re-attack and Stop; settings reload e2e; acknowledgement and exports unchanged with the guides on; `verify:boundaries` |
 | 52 Guide listening | 40 (HG), after the tag (spec D521) | the owner's recorded check |
