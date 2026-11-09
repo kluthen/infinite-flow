@@ -2,21 +2,18 @@
 
 Status: v3.0 released as version 3.0.0 on 2026-10-16 (tag `v3.0.0` at e288d98, deployed;
 D348); v3.1 released as version 3.1.0 on 2026-10-21 (tag `v3.1.0` at 55364e7; D397), its hand
-checks after the tag closed (D399; [v3.1.x notes](#v31x-notes-after-the-tag)); v3.2 consolidated as
-master spec Part C v1.0, approved (D239), re-scoped with Jam as its own mode (D400–D408;
-[draft](jam-mode.md), settled) and consolidated from it as Part C v1.1 (D409), approved as v1.2
-(D410), its design approved (D412), its build plan approved (D416, D417) and its contract
-wording signed off (D421), the guide playback added to its scope after approval (D490; Part C
-§C19, build plan chunk 40), its code all merged (wave 7, 2026-11-05), released as built as version
-3.2.0 on 2026-11-09 (tag `v3.2.0`; D521, D523), its hand and listening checks after the tag
-([v3.2.x notes](#v32x-notes-after-the-tag)); v3.3 in master spec Part D v1.2, approved with its
-build plan and its design (D520), gate R0 cleared at the `v3.2.0` tag (D523), waiting on
-`documentalist`'s ingestion (gate I0); v3.4,
-a structural review before v4, opened as a scoping draft (D389), with a lexicon page added as its
-one player-facing item (D393); v3.x direction only. The Status paragraphs this README kept until
-the v3.0 and v3.1 releases are archived verbatim in
-[archive/v3/v3-readme-status.md](../../archive/v3/v3-readme-status.md) and
-[archive/v3/v3-readme-status-v3.1.md](../../archive/v3/v3-readme-status-v3.1.md).
+checks after the tag closed (D399; [v3.1.x notes](#v31x-notes-after-the-tag)); v3.2 released as
+built as version 3.2.0 on 2026-11-09 (tag `v3.2.0` at f93e552d; D521, D523), stated in
+[master spec Part C](master-spec.md#part-c--v32), its hand and listening checks after the tag
+([v3.2.x notes](#v32x-notes-after-the-tag)), its working record archived (D524); v3.3 in master
+spec Part D v1.2, approved with its build plan and its design (D520), gate R0 cleared at the
+`v3.2.0` tag (D523), waiting on `documentalist`'s ingestion (gate I0); v3.4, a structural
+review before v4, opened as a scoping draft (D389), with a lexicon page added as its one
+player-facing item (D393); v3.x direction only. The Status paragraphs this README kept until the
+v3.0, v3.1 and v3.2 releases are archived verbatim in
+[archive/v3/v3-readme-status.md](../../archive/v3/v3-readme-status.md),
+[archive/v3/v3-readme-status-v3.1.md](../../archive/v3/v3-readme-status-v3.1.md) and
+[archive/v3/v3-readme-status-v3.2.md](../../archive/v3/v3-readme-status-v3.2.md).
 
 **Serves:** P3, the Fledgling Composer: "I liked that gimmick, I play it, and see where it goes."
 Also every tester on an instrument v1 doesn't ship. See [personas](../../personas.md).
@@ -48,7 +45,16 @@ Also every tester on an instrument v1 doesn't ship. See [personas](../../persona
 - **v3.1 drafts** (2026-10-08, draft v3, approved as proposed, D233), archived at the v3.1
   release: [embellishment flags](../../archive/v3/embellishment-flags.md),
   [presets](../../archive/v3/presets.md).
-- **Research:** [storage grounding](../../archive/v3/storage-grounding.md) (archived), [Jam grounding](jam-grounding.md);
+- **v3.2 master spec:** [Part C](master-spec.md#part-c--v32) (D239, re-scoped D409, D410),
+  consolidated from the approved drafts and the [Jam mode](jam-mode.md) re-scope; built from the
+  [v3.2 build plan](build-plan-v3.2.md) and released as built as version 3.2.0 on 2026-11-09
+  (D521, D523). What follows the tag is in [v3.2.x notes](#v32x-notes-after-the-tag).
+- **v3.2 drafts** (2026-10-08, draft v2, approved by D232 and D234), archived at the v3.2
+  release: [Jam](../../archive/v3/jam.md),
+  [key and mode suggestion](../../archive/v3/key-and-mode-suggestion.md),
+  [rhythm lock](../../archive/v3/rhythm-lock.md). The [Jam mode](jam-mode.md) re-scope draft stays
+  here: it states D406's provisional answers, which the checks after the tag confirm.
+- **Research:** [storage grounding](../../archive/v3/storage-grounding.md) and [Jam grounding](../../archive/v3/jam-grounding.md) (archived);
   music research in `docs/music/`: [embellishment catalogue](../../../docs/music/embellishment-catalogue.md),
   [mutation catalogue](../../../docs/music/mutation-catalogue.md),
   [played-pattern recognition](../../../docs/music/played-pattern-recognition.md),
@@ -403,13 +409,13 @@ waves, the session-mode half first (waves 0–3), then Jam mode (waves 4–7), o
 release gate, under the shared [v3 build workflow](build-workflow.md).
 
 **Drafts** (2026-10-08, draft v2, approved by the owner: D232 for the rhythm lock, D234 for the
-rest): [Jam](jam.md), [key and mode suggestion](key-and-mode-suggestion.md),
-[rhythm lock, allowed rhythm changes, Vary settings' allowed groups and Jam's drift](rhythm-lock.md).
+rest): [Jam](../../archive/v3/jam.md), [key and mode suggestion](../../archive/v3/key-and-mode-suggestion.md),
+[rhythm lock, allowed rhythm changes, Vary settings' allowed groups and Jam's drift](../../archive/v3/rhythm-lock.md).
 D234 closes O10 (for v3.2), O114 and O140–O157; D232 closes O103 and O151. No question stays open
 in them. One wording waits for the owner: the declared-intent contract change O144 brings (the
 quantized doodle travels with the music, in the replay key and kept sessions), confirmed at the
-v3.2 master spec review ([Jam §8.1](jam.md#81-privacy-the-doodles-status-d234-o144)). Code facts:
-[Jam grounding](jam-grounding.md), re-checked 2026-10-08. The sections below are the record the
+v3.2 master spec review ([Jam §8.1](../../archive/v3/jam.md#81-privacy-the-doodles-status-d234-o144)). Code facts:
+[Jam grounding](../../archive/v3/jam-grounding.md), re-checked 2026-10-08. The sections below are the record the
 drafts started from.
 
 ### Jam: growing the player's doodle
@@ -449,7 +455,7 @@ is MIDI-seeded continuation (D53), named and given its purpose: v3's most comple
   sounding, and is dropped if the player plays again inside it); when a phrase is not ready, the
   wait extends measure by measure with the click going on, and v2's standalone fallback applies;
   the doodle is continued, not repeated. It steers the generator's ranking rather than imposing
-  hard constraints ([Jam grounding](jam-grounding.md)).
+  hard constraints ([Jam grounding](../../archive/v3/jam-grounding.md)).
 
 ### Key and mode suggestion
 
@@ -483,7 +489,7 @@ of staying silent.**
     recorded as the key and mode settings it set, so no replay key carries it (D234). The earlier
     reason given here ("so a phrase replay key still reproduces a session") did not hold.
   - It is shown after the Jam, in its review and at Idle with a held doodle, never during the Jam
-    (D234, O148): see the [draft](key-and-mode-suggestion.md#3-where-and-when-it-is-shown).
+    (D234, O148): see the [draft](../../archive/v3/key-and-mode-suggestion.md#3-where-and-when-it-is-shown).
 - **Research done:** [key and mode estimation](../../../docs/music/key-and-mode-estimation.md).
   No published method covers all seven modes on short melodies; the best on short single lines
   (Temperley's probabilistic model) picks among 24 major and minor keys. The method (D216,
@@ -501,7 +507,7 @@ Recorded 2026-10-03 (D175) as candidates reached through a new note-density valu
 splits them: **the rhythm lock and its mutation option are v3.2**, designed with Jam, as the owner
 expected them to "heavily link" (D209); the rhythm ratios and the rhythm editor, the "fine tuning
 of rhythm", [move to v4](#moved-to-v4-rhythm-ratios-and-the-rhythm-editor). Settled by D232 and
-D234; detail in the [rhythm lock draft](rhythm-lock.md).
+D234; detail in the [rhythm lock draft](../../archive/v3/rhythm-lock.md).
 
 - **Rhythm lock** (D232). When set, the rhythm does not change: the lock is strict, fixing every
   note start and length, and so every rest, across the four measures, while the pitches keep
@@ -516,7 +522,7 @@ D234; detail in the [rhythm lock draft](rhythm-lock.md).
   [mutation catalogue](../../../docs/music/mutation-catalogue.md), empty by default so the lock is
   strict by default. Each change lasts one phrase; at most one per phrase, in a seeded share of
   phrases, somewhat more often on a tenser phrase when Tension across phrases is on; never shown.
-  The v3.2 list and its reasons: [rhythm lock §3](rhythm-lock.md#3-allowed-rhythm-changes).
+  The v3.2 list and its reasons: [rhythm lock §3](../../archive/v3/rhythm-lock.md#3-allowed-rhythm-changes).
   **Wider mutation options are v4** ([v4](../v4/README.md#placed-here-proposed)).
 - **Forced bend.** When the locked rhythm cannot make a phrase (Tension across phrases moves the
   phrase into a rhythm domain without it, say), the phrase takes the nearest rhythm that can, and
@@ -890,5 +896,5 @@ built. The [learning candidate](#v3x--learning-from-positive-signals) borrowed i
 - v2's continuation mechanism.
 - **O10 (planner authority)**, before any change that couples planner stages; settled for v2
   only by D83 and reopened for Jam. See the [register](../../open-questions.md#v3-jam-o112).
-- Code grounding for Jam: [jam-grounding.md](jam-grounding.md).
+- Code grounding for Jam: [jam-grounding.md](../../archive/v3/jam-grounding.md).
 - Early building blocks: [prerequisites.md](../prerequisites.md), being drafted.

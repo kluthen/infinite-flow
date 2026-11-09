@@ -7,8 +7,8 @@ Consolidated into [master spec Part C](master-spec.md#part-c--v32) v1.1 on 2026-
 Part C v1.2, approved by the owner the same day (D410), writes in the seven answers v1.1 proposed
 and the design's seven (D411). Part C is the record; where this document differs, Part C wins, and the item numbers this
 document cites from Part C §C16 are v1.0's. The three v3.2 drafts
-([Jam](jam.md), [key and mode suggestion](key-and-mode-suggestion.md),
-[rhythm lock](rhythm-lock.md)) change where this document differs (D405).
+([Jam](../../archive/v3/jam.md), [key and mode suggestion](../../archive/v3/key-and-mode-suggestion.md),
+[rhythm lock](../../archive/v3/rhythm-lock.md)) change where this document differs (D405).
 
 Serves P3, the Fledgling Composer, C3 "grow an idea"
 ([personas](../../personas.md#p3--the-fledgling-composer-secondary-d61)), as Part C's Jam did.

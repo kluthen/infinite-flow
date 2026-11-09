@@ -1,11 +1,11 @@
 # Versions
 
-Status: draft v0.11 (v2 and v3 rows updated 2026-10-03, D173–D175; v2 row 2026-10-05, D183; v2
+Status: draft v0.12 (v2 and v3 rows updated 2026-10-03, D173–D175; v2 row 2026-10-05, D183; v2
 released 2026-10-07, D208; v3 split into releases and v4 row updated 2026-10-07, D211, D212;
 build-plan workflow 2026-10-09, D252; style packs row, planned with no version, 2026-10-11, D259,
 merged from branch `v4-accompaniment-research` 2026-10-19; v3.3 added to the v3 row 2026-10-12,
 D261, D262; v3.0 released 2026-10-16, D348; v3.4, a structural review, added 2026-10-21, D389; the lexicon page added to v3.4 and the lexicon
-API row, planned for v4 or v5, 2026-10-21, D393–D395; v3.1 released 2026-10-21, D397, D398)
+API row, planned for v4 or v5, 2026-10-21, D393–D395; v3.1 released 2026-10-21, D397, D398; v3.2 released 2026-11-09, D523, archived D524)
 
 The scope of each planned version of Infinite Flow is kept in its own folder. The ordered
 timeline is in the [roadmap](../roadmap.md). The product-wide principles are in the

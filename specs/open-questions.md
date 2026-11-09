@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.88
+Status: draft v0.89
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -14,37 +14,32 @@ work are recorded in the archived logs:
 [D252–D258](archive/v3/decisions-D252-D258.md),
 [D290–D343](archive/v3/decisions-D290-D343.md),
 [D228–D231](archive/v3/decisions-D228-D231.md),
-[D353–D388](archive/v3/decisions-D353-D388.md) and
-[D390–D391](archive/v3/decisions-D390-D391.md). The notes this register kept on the questions
+[D353–D388](archive/v3/decisions-D353-D388.md),
+[D390–D391](archive/v3/decisions-D390-D391.md),
+[D232–D251](archive/v3/decisions-D232-D251.md),
+[D392](archive/v3/decisions-D392.md),
+[D396–D405](archive/v3/decisions-D396-D405.md) and
+[D407–D509](archive/v3/decisions-D407-D509.md). The notes this register kept on the questions
 closed during v2 (O24, O50–O99 and O104–O106, apart from O86) are archived verbatim in
 [archive/v2/open-questions-history.md](archive/v2/open-questions-history.md), those on the
 questions closed during v3.0 (O163, O164, O181, O182, O200, O201, O210, O211 and O220) in
 [archive/v3/open-questions-history.md](archive/v3/open-questions-history.md), and those on the
 questions closed during v3.1 (O231–O233) in
-[archive/v3/open-questions-O231-O233.md](archive/v3/open-questions-O231-O233.md); each archive's
-README says where each answer now lives.
+[archive/v3/open-questions-O231-O233.md](archive/v3/open-questions-O231-O233.md), those on the
+questions closed during v3.2 (O247–O266, O268, O290 and O291) in
+[archive/v3/open-questions-history-v3.2.md](archive/v3/open-questions-history-v3.2.md), and the
+note on O306 in [archive/v3/open-questions-O306.md](archive/v3/open-questions-O306.md); each
+archive's README says where each answer now lives.
 
-Open on 2026-10-21: O48 and O49 (later and governance), O100–O102 (v4 rhythm ratios and editor),
+Open on 2026-11-09: O48 and O49 (later and governance), O100–O102 (v4 rhythm ratios and editor),
 O115 and O116 (v3.x learning), O176 (style packs and the chord level), O180 (octave signs, later),
 O183 (the warm worker lost when pre-generation is cancelled), O190 (a newer version's database
 whose read-only reopening fails), O230 (a stale replay-key wording in a STABLE atom, opened with
-D351; numbered O177 on branch `plan-migration`, D352), O234–O238 (v3.4's structural review, D389) and
-O239–O246 (v3.4's lexicon page, D393). v3.1 is released and none of its questions is open. O247–O259, the v3.2 Jam re-scope, were
-opened (D400–D405) and closed (D406–D408) on 2026-10-21; [Jam mode](versions/v3/jam-mode.md) states
-the answers. O260–O266 (v3.2 Part C v1.1, D409) were closed the same day by the owner's
-approval (D410); [Part C §C17](versions/v3/master-spec.md#c17-deferred-and-open) says where each answer
-now stands.
-O267 (a doodle note played before the doodle's first barline, D430) was opened on 2026-10-23,
-and O268 and O269 (how the doodle's short silences and its legato rhythm are read, D433) the same
-day; O268 was closed on 2026-10-27 by the owner's answer (D440). O271 (a note start off the
-doodle's grid, D449) was opened on 2026-11-03; O270 was never issued. O290 and O291 (the guide
-playback, D491) were opened on 2026-11-04, from the range O290–O299 reserved for that branch;
-both were closed the same day by the owner's rulings (O291 by D493, O290 by D494). O306 (whether
-v3.3 may start before v3.2 is released, D511) was opened on 2026-11-09 and closed the same day by
-the owner's ruling (D521): v3.2 is released as built, its hand and listening checks after the tag;
-its note is archived verbatim in [archive/v3/open-questions-O306.md](archive/v3/open-questions-O306.md).
-New IDs come from `doc-ids
-next spec O`; the IDs reserved for v3.0's waves and left unused stay unused, and O177 stays unused.
+D351; numbered O177 on branch `plan-migration`, D352), O234–O238 (v3.4's structural review,
+D389), O239–O246 (v3.4's lexicon page, D393), and O267, O269 and O271 (v3.2's build, answered by
+the checks that follow the `3.2.0` tag, D521). v3.2 is released and none of its other questions
+is open. O270, O272–O289 and O292–O305 were never issued; the IDs reserved for v3.0's waves and
+left unused stay unused, and O177 stays unused. New IDs come from `doc-ids next spec O`.
 
 Opened on 2026-10-12 with v3.3 (D261): O165–O175, richer chords. D262 closed O174 the same day.
 D264–D273 settled the rest the same day in master spec Part D, as proposed for the owner's

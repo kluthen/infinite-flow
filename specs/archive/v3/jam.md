@@ -1,6 +1,13 @@
 # v3.2 — Jam
 
-Status: draft v2 (2026-10-08; terms aligned with D237 and D238 the same day, no behaviour changed; refined by D240, D241, D243 and D244, written into the master spec only). **Re-scope (2026-10-21, spec D400–D405):** Jam becomes its own mode; where [jam-mode.md](jam-mode.md) differs, this draft is to change.
+> **Archived 2026-11-09.** v3.2 is released as version 3.2.0 (tag `v3.2.0`, f93e552d); this
+> approved draft was consolidated into the v3 master spec (D234, D238, D239), then re-scoped with
+> Jam as its own mode (D400–D410). Live summary:
+> [master spec Part C](../../versions/v3/master-spec.md#part-c--v32).
+> Relative links were written from `specs/versions/v3/`; their paths were repaired on 2026-11-09
+> so they resolve from this folder.
+
+Status: draft v2 (2026-10-08; terms aligned with D237 and D238 the same day, no behaviour changed; refined by D240, D241, D243 and D244, written into the master spec only). **Re-scope (2026-10-21, spec D400–D405):** Jam becomes its own mode; where [jam-mode.md](../../versions/v3/jam-mode.md) differs, this draft is to change.
 Approved by the owner as proposed (D234), with the rhythm lock reshaped by D232. Every item below is
 settled and cites its decision; the gaps closed while settling the draft cite "draft v2". One
 wording still waits for the owner: the change to the declared-intent contract that O144 brings
@@ -54,25 +61,25 @@ Plain words used here, one term per concept in all three v3.2 documents:
 - **Ranking, not constraints** (D216): the doodle steers the generator's ranking rather than
   imposing hard constraints.
 - **Stray notes** (D196, D216): very short notes are filtered out of the doodle
-  ([v3.0 master spec §9](master-spec.md#9-stray-notes)).
+  ([v3.0 master spec §9](../../versions/v3/master-spec.md#9-stray-notes)).
 
 ## 2. Entering a Jam (D234, O140)
 
 - **Jam is a session mode, switched on at Idle.** The "Jam" switch is off by default and saved
   like the three "During a session" options
-  ([v3.0 master spec §4.2](master-spec.md#42-what-is-saved-automatically)). While it is on, a
+  ([v3.0 master spec §4.2](../../versions/v3/master-spec.md#42-what-is-saved-automatically)). While it is on, a
   session begins with a doodle instead of the phrase on screen. A mode, not a second Start button,
   because a mode lets a played note start a Jam without the two starts competing for one note.
   Presets neither hold nor change it (draft v2; presets hold generation controls only, D228, D233).
 - **Jam needs a controller attached** (v2 §8's meaning). Without one the switch is unavailable,
-  saying why, as Rising tempo is ([v2 master spec §10](../v2/master-spec.md#10-adaptive-tempo)).
+  saying why, as Rising tempo is ([v2 master spec §10](../../versions/v2/master-spec.md#10-adaptive-tempo)).
   The player's choice is kept (draft v2): while no controller is attached, Idle and Start behave
   as with Jam off. A controller attaching at Idle puts Jam mode in effect, exactly as turning the
   switch on does; one lost at Idle takes it out, exactly as turning the switch off does.
 - **At Idle in Jam mode, no generated phrase is shown**: nothing is read before the doodle. The
   staff shows the key signature of the selected key and mode. The Idle phrase rules of v2 §4 and §6
   (replacing a phrase that does not fit, the dense-notes notice) and pre-generation
-  ([v3.0 §8](master-spec.md#8-pre-generating-phrases-at-idle)) do not run. v2's prewarm still runs:
+  ([v3.0 §8](../../versions/v3/master-spec.md#8-pre-generating-phrases-at-idle)) do not run. v2's prewarm still runs:
   the doodle's phrases use the same rhythm domain as the settings. Turning Jam off generates a phrase
   as at first load. Layout is `ux-writer`'s.
 - **A Jam starts on a Start click, or on its starting note: the selected key, the home note**
@@ -108,7 +115,7 @@ Plain words used here, one term per concept in all three v3.2 documents:
 - **No backing during the capture**: the backing follows a phrase's generated harmony (v2 §6), and
   there is none yet. It starts with phrase 1. A tonic drone under the doodle is a later candidate.
 - The live view never shows the doodle's notes, as v2 never renders a played note there
-  ([v2 master spec §8](../v2/master-spec.md#8-midi-input-and-note-acknowledgement)). The cue row
+  ([v2 master spec §8](../../versions/v2/master-spec.md#8-midi-input-and-note-acknowledgement)). The cue row
   counts the doodle's measures (one to four); its look is `ux-writer`'s.
 
 ### 3.2 Where the doodle starts and ends (D234)
@@ -170,7 +177,7 @@ Plain words used here, one term per concept in all three v3.2 documents:
 - So two measures separate the doodle and phrase 1 (2 s at 240 BPM, 4 s at 120 BPM, 8 s at
   60 BPM). D215 asks for "at least one", and D234 keeps it: the second measure exists because v2
   promises at least one measure of read-ahead on screen at all times
-  ([v2 master spec §4](../v2/master-spec.md#4-look-ahead-and-failure-handling)); with one measure,
+  ([v2 master spec §4](../../versions/v2/master-spec.md#4-look-ahead-and-failure-handling)); with one measure,
   phrase 1 would appear on the barline it starts on, with nothing to read ahead.
 - Phrase 1 starts with a fresh attack on beat 1, as every phrase does. The gap means Jam needs no
   pickup or tie across the join, which v2 §3 had left for v3 "which already has to solve it for
@@ -231,7 +238,7 @@ Plain words used here, one term per concept in all three v3.2 documents:
 ### 5.2 The join into phrase 1
 
 - Phrase 1 continues from the doodle's last note, the way v2 joins two phrases
-  ([v2 master spec §3](../v2/master-spec.md#3-the-generation-unit-and-how-phrases-join)): its first
+  ([v2 master spec §3](../../versions/v2/master-spec.md#3-the-generation-unit-and-how-phrases-join)): its first
   interval follows the same caps as two notes inside a phrase. Carried: the last pitch, no chord
   (the "no harmony" form a key change already uses) and **no owed leap recovery**, since two
   measures of silence come between.
@@ -332,10 +339,10 @@ spec. Pitch ordering already prefers candidates (`pitchRank`) and is not covered
   without the played-notes opt-in (§8.1). Its raw doodle notes follow "Keep my played notes" like
   every played note. Deleting the session deletes its doodle (D234).
 - **Stored shape** (draft v2): these additions are a new data version, migrated on opening as
-  [v3.0 master spec §4.3](master-spec.md#43-where-and-how) requires. Sessions kept before v3.2
+  [v3.0 master spec §4.3](../../versions/v3/master-spec.md#43-where-and-how) requires. Sessions kept before v3.2
   have no doodle and open as before.
 - **A visit that saves nothing** (draft v2): in an outdated tab or after a failed read
-  ([v3.0 master spec §4.3, §4.4](master-spec.md#44-loading-saved-settings)), Jam, its review, the
+  ([v3.0 master spec §4.3, §4.4](../../versions/v3/master-spec.md#44-loading-saved-settings)), Jam, its review, the
   suggestion and "Jam again on this doodle" work in memory; nothing is saved, and the visit's
   deletion rules are unchanged. A kept Jam session written by a newer version is listed as such
   and does not open, as any such session.

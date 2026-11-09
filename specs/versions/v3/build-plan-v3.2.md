@@ -467,7 +467,7 @@ corpora are a guard, not a measurement.
   settings, each kind alone and all five together, Tension across phrases on and off, each phrase
   classed by the lock outcome its provenance records, a re-lock by the history's mark (chunk 13,
   spec D432, D437); per-kind
-  availability compared with [jam-grounding §D.2](jam-grounding.md#d2-what-the-rhythm-domain-offers-a-locked-rhythm)'s
+  availability compared with [jam-grounding §D.2](../../archive/v3/jam-grounding.md#d2-what-the-rhythm-domain-offers-a-locked-rhythm)'s
   census (re-measured, spec D424), and recorded at each built-in preset's rhythm settings, which
   L3's tuning reads. Every draw comes from a phrase seed the session seed plan derives, as in a
   session (spec D436): the draw's hash barely moves its kept bits when only a seed's last hex digit
@@ -954,7 +954,7 @@ their `identity` or index; a domain keyed by bars once, beside the canonical mem
     them the same kind at another tick or shift in _k_ + 2, a note start moved after a rest, a
     rest start moving alone, a note and a rest trading places, a tie added outside the edit).
   - Per-kind availability over every supported domain equals
-    [jam-grounding §D.2](jam-grounding.md#d2-what-the-rhythm-domain-offers-a-locked-rhythm)'s
+    [jam-grounding §D.2](../../archive/v3/jam-grounding.md#d2-what-the-rhythm-domain-offers-a-locked-rhythm)'s
     census count for count, every row of its table, with its grouping: a candidate (twins with
     identical bars counted each) counts once per kind and form when another candidate of its own
     domain is that change from it; counts summed over the row's domains. The census may run once

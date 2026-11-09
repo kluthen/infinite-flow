@@ -1,21 +1,28 @@
 # Jam — grounding research
 
+> **Archived 2026-11-09.** v3.2 is released as version 3.2.0 (tag `v3.2.0`, f93e552d); these
+> code facts grounded the v3.2 drafts and master spec Part C (D238, D239), were refreshed at
+> 3.1.0 in §E (D409), and are superseded by Part C as built, with Jam as its own mode
+> (D400–D410). Live summary: [master spec Part C](../../versions/v3/master-spec.md#part-c--v32).
+> Relative links were written from `specs/versions/v3/`; their paths were repaired on 2026-11-09
+> so they resolve from this folder.
+
 Status: research v3 (2026-10-07, re-checked against the code on 2026-10-08, refreshed against
 version 3.1.0 on 2026-10-21, spec D409; §D.2's shares and costs re-measured with the built
 change kinds on 2026-10-22, spec D424). The facts the Jam re-scope relies on are in
-[jam-mode.md §4](jam-mode.md#4-the-generator-seam); the facts that moved between the 2026-10-08
+[jam-mode.md §4](../../versions/v3/jam-mode.md#4-the-generator-seam); the facts that moved between the 2026-10-08
 re-check and version 3.1.0 are corrected in place, each marked "(refreshed 2026-10-21)", and
 listed in [section E](#e-refresh-at-v310-2026-10-21). Sections B and C, precedent and options,
 are kept as written: they record what the spec session weighed, and
-[master spec Part C](master-spec.md#part-c--v32) records what was decided.
+[master spec Part C](../../versions/v3/master-spec.md#part-c--v32) records what was decided.
 
 The facts that moved between v1 and the re-check are corrected in place, each marked
 "(re-checked 2026-10-08)", and listed in [section D](#d-re-check-2026-10-08). The v3.2 drafts use
 the corrected facts.
 
 Prepared by a grounding researcher for the v3.2 spec session on
-[Jam](README.md#jam-growing-the-players-doodle), the
-[rhythm lock and mutation](README.md#rhythm-lock-and-mutation) and the open questions O112, O114
+[Jam](../../versions/v3/README.md#jam-growing-the-players-doodle), the
+[rhythm lock and mutation](../../versions/v3/README.md#rhythm-lock-and-mutation) and the open questions O112, O114
 and O118 ([register](../../open-questions.md#v3-jam-o112)), plus O10 (planner authority). It
 reports facts and options. **Nothing here is decided.** Section C's shapes are proposals for the
 session to weigh.
@@ -269,7 +276,7 @@ Facts that shape the choice:
      doodle often does not decide it);
   2. the stray-note filter, a minimum duration for a note to count (shipped with v3.0: 38 ms,
      `src/domain/played-notes/stray-notes.ts`, applied on reading; refreshed 2026-10-21;
-     [stray notes](README.md#stray-notes-from-controllers));
+     [stray notes](../../versions/v3/README.md#stray-notes-from-controllers));
   3. a monophonic reduction rule for overlaps and chords;
   4. snapping onsets and releases to ticks (a sixteenth is 62.5 ms at 240 BPM, 250 ms at 60 BPM),
      with a rule for notes that collide on one tick;
@@ -495,7 +502,7 @@ Facts that shape the choice:
 ## C. Options for the spec session (proposed)
 
 Three shapes. They are not exclusive: C2 can be combined with C1 or C3. Costs are rough sizes in
-this codebase (S, M, L, as in [prerequisites](../prerequisites.md)).
+this codebase (S, M, L, as in [prerequisites](../../versions/prerequisites.md)).
 
 ### C1 — The doodle as a profile (rhythm template + contour + interval profile)
 
@@ -581,7 +588,7 @@ This is the closest match to "the generator continues and develops it", and to G
 
 ## Gaps and follow-ups noticed
 
-- **O10 is not in the live register.** The [v3 README](README.md#depends-on) and the
+- **O10 is not in the live register.** The [v3 README](../../versions/v3/README.md#depends-on) and the
   [roadmap](../../roadmap.md) send readers to the register for O10, but O10 was resolved by D83
   ("deferred to v3") and now lives only in the archive. If v3 needs the question again, it needs
   re-opening (as O10 or a new id).

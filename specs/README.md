@@ -1,29 +1,29 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.91
+Status: draft v0.92
 
 ## Status Snapshot
 
-- **v3.2 is released as version 3.2.0** (2026-11-09, D523): tagged `v3.2.0` on `main`, released
-  as built by the owner's ruling (D521). Its release gate, build plan
+- **v3.2 is released as version 3.2.0** (2026-11-09, D523): tagged `v3.2.0` on `main` at
+  f93e552d, released as built by the owner's ruling (D521). Its release gate, build plan
   [chunk 27](versions/v3/build-plan-v3.2.md#chunk-27--v32-release-gate), passed its machine half,
   with the evidence in the [release notes](../docs/release/v3.2-release-notes.md); the release sync
   left CONTRACT at 14.1.0. Master spec [Part C](versions/v3/master-spec.md#part-c--v32), Jam, the
-  key and mode suggestion and the rhythm lock, joins Parts A and B as the contract for the running
-  code. His hand and listening checks (L1, L2, L3, H3, H7, H8, HG), the Travel Sax recordings (DR)
-  and O267 follow the tag as
-  [v3.2.x follow-ups](versions/v3/README.md#v32x-notes-after-the-tag), with the atoms waiting on
-  them; a finding becomes a later 3.2.x fix, decided then. The milestone archive comes next.
+  key and mode suggestion, the rhythm lock and the guide playback, is with Parts A and B the
+  contract for the running code; the milestone's working record is in
+  [archive/v3/](archive/v3/README.md#v32-release-archived-2026-11-09) (D524). Still to come after
+  the tag, as [v3.2.x follow-ups](versions/v3/README.md#v32x-notes-after-the-tag): the owner's hand
+  and listening checks (L1, L2, L3, H3, H7, H8, HG), the Travel Sax recordings (DR) and O267, with
+  the atoms waiting on them. They confirm or send back D406's provisional answers
+  ([what confirms them](versions/v3/build-plan-v3.2.md#what-confirms-d406s-provisional-answers))
+  and tune the suggestion's weights and cues; a finding becomes a later 3.2.x fix, decided then.
 - **v3.1 is released as version 3.1.0** (2026-10-21, D397): the tag `v3.1.0` is on `main` at
-  55364e7. Its release gate, build plan
-  [chunk 21](versions/v3/build-plan-v3.1.md#chunk-21--v31-release-gate), passed its automated part,
-  with the evidence in the [release notes](../docs/release/v3.1-release-notes.md). Master spec
-  [Part B](versions/v3/master-spec.md#part-b--v31), embellishment figures and presets, is with
-  Part A the contract for the running code; the milestone's working record is in
-  [archive/v3/](archive/v3/README.md) (D398). Its hand checks after the tag are closed (D399): H4
-  passed on the owner's word, H3 (Edge) and H5 (v3.0 data carried over) waived, since Chrome is
-  the one supported browser and v3.0 had no live users; the 13 promotions that waited on them
-  are applied (5618971, CONTRACT 7.2.0) ([v3.1.x notes](versions/v3/README.md#v31x-notes-after-the-tag)).
+  55364e7, with the evidence in the [release notes](../docs/release/v3.1-release-notes.md). Master
+  spec [Part B](versions/v3/master-spec.md#part-b--v31), embellishment figures and presets, states
+  it; its working record is in [archive/v3/](archive/v3/README.md) (D398, D524). Its hand checks
+  after the tag are closed (D399): H4 passed, H3 and H5 waived, since Chrome is the one supported
+  browser and v3.0 had no live users
+  ([v3.1.x notes](versions/v3/README.md#v31x-notes-after-the-tag)).
 - **v3.0 is released as version 3.0.0** (2026-10-16, D348), tagged `v3.0.0` at e288d98 and
   deployed. Master spec [Part A](versions/v3/master-spec.md#part-a--v30) states it. Still to come
   as v3.0.x notes: hand check H8, the played-notes-export half of H5 and the later promotion of
@@ -42,6 +42,10 @@ Status: draft v0.91
   and comments, and, only after an opt-in, played notes on the player's device; nothing is sent.
   Since v3.1 the player sets how often each of seven embellishment figures appears, and chooses
   among eight built-in presets or saves their own.
+  Since v3.2 a Jam mode grows phrases from a short motif, the doodle, that the player plays on a
+  MIDI controller, and suggests a key and mode for it; a rhythm lock keeps the rhythm while the
+  pitches change, with optional one-phrase rhythm changes; and a melody guide and a rhythm guide
+  can play beside the backing, off by default.
 - **Guiding principle:** Infinite Flow acknowledges and encourages; it never penalizes, grades,
   ranks or scores the player. Anything that adapts to how you play is opt-in and visible. See the
   [far vision](vision/far-vision.md).
@@ -50,32 +54,6 @@ Status: draft v0.91
   desktop in Chrome first (the one supported browser, D399), at music-stand distance, no click
   while playing.
 - **Next: the rest of v3** ([v3](versions/v3/README.md#releases-d211)):
-  - **v3.2, released as 3.2.0 on 2026-11-09 (D523):** Jam, the key and mode suggestion, the rhythm lock and its mutation option. Jam is
-    its own mode, entered by a button at Idle, needing a MIDI controller, with its own settings,
-    loaded on demand, its generator steering at the edges, its tempo set before the doodle in
-    60–180 BPM (D400–D408; [draft](versions/v3/jam-mode.md)). Master spec
-    [Part C](versions/v3/master-spec.md#part-c--v32) **v1.2, approved** (D410), with the design's
-    behaviour answers (D411), the doodle-to-controls thresholds (D415) and "the kept doodle"
-    (D413); v1.3 settles chunk 0's three findings: a fresh Jam's seeds, and two atoms and a vision
-    line more for the sign-off (D418–D420); v1.4 records the owner's sign-off on its contract
-    wording, CONTRACT 7.2.0 to 8.0.0 (gate CS, D421); v1.5 gives the three atoms promoted at 8.1.0
-    MAJOR bumps of their own, one per wave sync that changes them (D422); v1.6 defines the five
-    rhythm change kinds exactly, as built, and re-measures their shares (D424); v1.7 states the
-    steering block's target as note and rest starts, the doodle compared as heard (D425); v1.8 states
-    that a dead end mid-session is unreachable today, its skip a defensive guarantee (D426); v1.9
-    makes only locked bars walk rhythm-major (D428), closes the kept-record loophole under gate CK
-    (D429) and times a fresh Jam's played notes from its count-in (D430); v1.10 words C4's distance
-    bands as C8 does (D431) and opens two questions on reading the doodle (D433). v1.11 states that a drawn rhythm change
-    whose candidates all fail records "no change available" too (D435). v1.12 reads a short silence
-    between two doodle notes as part of the note before it, the owner's answer to O268 (D440), breaks
-    a window-centre tie to Middle (D441) and prewarms the first-visit rhythm values at Jam's Idle
-    before any doodle (D442). v1.13 judges the supported-combination step on the doodle's note
-    density as read, at every width (D445). v1.14 tunes the rhythm change shares to 1 in 2 and 3 in 4 (D450) and keeps drift's scale after the owner's ranking, with one finding open (D449, O271). v1.15 raises the generation worker's chunk budget from 150 KiB to 170 KiB (D451). v1.16 judges the suggestion's "no fit" before Jam's key and mode (D452). v1.20 adds the guide playback after approval: a melody guide and a rhythm guide beside the backing, two switches, off by default (C19; D490–D492; build plan chunk 40, wave 7); a guide note rings on into a rest after it (D493), and the guide is never exported (D494); v1.21 widens its contract sign-off (gate CG) to the saved settings' list and the vision (D500). v1.22 lets the kept doodle go when my instrument's deletion or range or transposition change erases its session (D503), and raises the entry budget to 320 KiB (D504). v1.23 keeps Jam's tempo at 60 to 180 BPM after the 240 BPM run (D506). v1.24 offers "Jam again on this doodle" in the review that follows a Jam too (D508), and checks the guide on triplets and barline ties with hand-built phrases, which the generator never writes (D509). v1.26 states the contract as built: seven MAJOR bumps, CONTRACT 7.2.0 to 14.0.0, each signed off by the owner (D522). The design is approved (gate D0) and its token pass allowed (T2) (D412). Phones are
-    a third-rate client (D414). Build plan [v3.2](versions/v3/build-plan-v3.2.md) **v26**, from v6,
-    **approved by the owner** (D416, D417; v5 corrected against the design at `ux-writer`'s review,
-    v6 waives hand check H9, v7 takes wave 0's preflight corrections, v8 chunk 0's findings, v9
-    chunk 2's report, v10 the CS sign-off, D421, v11 wave 1's preflight corrections, gates CN and
-    CK, D422, D423, v12 chunk 5's change kinds, D424, v13 the steering block's shape, D425, v14 chunk 15's dead-end test, D426, v15 wave 2's preflight corrections, D427–D430, v16 chunk 3's findings, D431–D433, v17 the orderings' time, D434, v18 chunk 11's two points, D435, D436, v19 wave 3's preflight corrections and the first-load total, D437, D438, v20 chunk 16's finding, D439, v21 wave 4's preflight corrections and gate answers, D440–D444, v22 the raised variety's mark and the step at the note density as read, ux D355, D445, D446, v23 ISS-015 deferred, D447, D448, v24 gate LD and L3's step 2, new chunk 34, D449, D450, v25 the worker's budget at 170 KiB, D451, v26 wave 5's preflight corrections, gate CL and chunk 29's double, D452–D454): 33 chunks in eight waves, session mode first, one release, 3.2.0.
   - **v3.3:** richer chords, opt-in: one Seventh chords level, Off by default, diatonic sevenths
     only; Jam mode has its own. Master spec [Part D](versions/v3/master-spec.md#part-d--v33) v1.2,
     refreshed against v3.2 as built (D511–D519), **approved by the owner** on 2026-11-09 with its
@@ -102,11 +80,12 @@ Status: draft v0.91
   H5) and O271 (a note start off the doodle's grid, at v3.2 H4); the last three after the `3.2.0`
   tag (D521). See the
   [register](open-questions.md).
-- The snapshots this index kept through v2's design and build, through v3.0's and through
-  v3.1's are archived verbatim at
+- The snapshots this index kept through v2's design and build, through v3.0's, through v3.1's
+  and through v3.2's are archived verbatim at
   [archive/v2/readme-status-snapshot.md](archive/v2/readme-status-snapshot.md),
-  [archive/v3/readme-status-snapshot.md](archive/v3/readme-status-snapshot.md) and
-  [archive/v3/readme-status-snapshot-v3.1.md](archive/v3/readme-status-snapshot-v3.1.md).
+  [archive/v3/readme-status-snapshot.md](archive/v3/readme-status-snapshot.md),
+  [archive/v3/readme-status-snapshot-v3.1.md](archive/v3/readme-status-snapshot-v3.1.md) and
+  [archive/v3/readme-status-snapshot-v3.2.md](archive/v3/readme-status-snapshot-v3.2.md).
 
 ## Documents
 
@@ -118,8 +97,11 @@ Status: draft v0.91
   dependencies and version-specific open questions. Also holds the cross-version
   [prerequisites](versions/prerequisites.md). v3's build plans: [v3.0](versions/v3/build-plan.md) (complete; chunk 26 is the release gate's
   record), [v3.1](versions/v3/build-plan-v3.1.md) (v23, complete; chunk 21 is the release gate's
-  record, and its hand checks H3–H5 follow the tag; on the build-plan model with the shared
-  [v3 build workflow](versions/v3/build-workflow.md), D349; its [wave log](versions/v3/wave-log-v3.1.md)), [v3.2](versions/v3/build-plan-v3.2.md) (v43, complete; chunk 27 is the release gate's record, its checks after the tag; rewritten for Jam as its own mode, D416, then corrected against the design; approved, H9 waived, D417; gate CS signed off, D421; wave 1's preflight corrections, D422, D423; chunk 5's change kinds, D424; the steering block's shape, D425; chunk 15's dead-end test, D426; wave 2's preflight corrections, D427–D430; chunk 3's findings, D431–D433; the orderings' time, D434; chunk 11's two points, D435, D436; wave 3's preflight corrections, D437; the first-load total, D438; chunk 16's finding, D439; wave 4's preflight corrections and gate answers, D440–D444; then v22–v43, D445–D523)
+  record, and its hand checks after the tag are closed, D399; on the build-plan model with the shared
+  [v3 build workflow](versions/v3/build-workflow.md), D349; its [wave log](versions/v3/wave-log-v3.1.md)),
+  [v3.2](versions/v3/build-plan-v3.2.md) (v43, complete; chunk 27 is the release gate's record,
+  and its gates L1, L2, L3 and DR, hand checks and follow-ups after the tag are live, D521; approved
+  as v5, D416, D417, its revisions listed in its header; its [wave log](versions/v3/wave-log-v3.2.md))
   and [v3.3](versions/v3/build-plan-v3.3.md) (v7, on the build-plan model, D351, refreshed against v3.2 as built, D511–D519; approved
   with Part D, D520; gate R0 cleared, D523). Every build plan runs wave by
   wave (D252): one intent preflight and one full wave gate per wave; a chunk checks only its own
@@ -173,3 +155,7 @@ Status: draft v0.91
     At the v3.1 release (2026-10-21, D398) it also took decisions D228–D231, D353–D388 and
     D390–D391, the register's notes on O231–O233, the two v3.1 drafts and the former status
     snapshots; the v3.1 build plan and its wave log stay in place.
+    At the v3.2 release (2026-11-09, D524) it also took decisions D232–D251, D392, D396–D405 and
+    D407–D509, the register's notes on the questions closed during v3.2, the three v3.2 drafts,
+    the Jam grounding and the former status snapshots; master spec Part C, the v3.2 build plan,
+    its wave log and the [Jam mode](versions/v3/jam-mode.md) draft stay in place.
