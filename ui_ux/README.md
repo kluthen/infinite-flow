@@ -25,10 +25,11 @@ and the longer chord symbols it brings.
 its design is frozen in `versions/v3.0/` and its working record is in `archive/v3.0/`. v3.1 is
 released as version 3.1.0 (tag `v3.1.0` at 55364e7, 2026-10-21); its design is frozen in
 `versions/v3.1/` and its working record is in `archive/v3.1/`. v3.2 (Jam mode, re-scoped on
-2026-10-21 from a session option to a mode of its own) was approved by the owner on 2026-10-21
-and is built: its last wave was merged on 2026-11-05, and it waits only on its release gate. The
-root works toward v3.3 (richer chords), whose design the owner approved at gate D0 on 2026-11-09;
-it is frozen in `versions/v3.3/` and is now to be built. See `todo.md` for where the work stands.
+2026-10-21 from a session option to a mode of its own) is released as version 3.2.0 (tag
+`v3.2.0` at f93e552d, 2026-11-09); its design is frozen in `versions/v3.2/` and its working record
+is in `archive/v3.2/`, and the owner's hand checks follow the tag. The root works toward v3.3
+(richer chords), whose design the owner approved at gate D0 on 2026-11-09; it is frozen in
+`versions/v3.3/` and is now to be built. See `todo.md` for where the work stands.
 
 ## Released versions and work in progress
 
@@ -39,9 +40,10 @@ it is frozen in `versions/v3.3/` and is now to be built. See `todo.md` for where
   so that v3.1 and v3.2 could be designed at the root, and corrected since to match what
   shipped. `versions/v3.1/` is v3.1 (presets and embellishment figures), released as version
   3.1.0: frozen when the owner approved it, before it was built, as the root without its v3.2 and
-  v3.3 parts, and corrected since to match what shipped. `versions/v3.2/` is v3.2 (Jam), approved
-  and built: frozen before its release, as the root without its v3.3 parts, so that v3.3 is
-  approved against a fixed v3.2, and corrected at its release gate if that gate changes the design.
+  v3.3 parts, and corrected since to match what shipped. `versions/v3.2/` is v3.2 (Jam),
+  released as version 3.2.0: frozen before its release, as the root without its v3.3 parts, so that v3.3 is
+  approved against a fixed v3.2, and corrected later only if the owner's hand checks after the
+  release change the design.
   `versions/v3.3/` is v3.3 (richer chords), approved: frozen when the owner approved it, before it
   is built, as the whole root, and corrected later only to match what ships.
 - Everything outside `versions/` and `archive/` is work in progress toward the next release,
@@ -94,8 +96,8 @@ it is frozen in `versions/v3.3/` and is now to be built. See `todo.md` for where
   instrument, and `screens/my-instrument/` the sheet it is made in. The transposition check's
   way into it is in `flows/controller-connection/`.
 - Every token and component class the handoffs cite by name is in `src/styles/theme.css` and
-  `components.css`: v3.0's shipped in 3.0.0, v3.1's in 3.1.0, and v3.2's, written by its
-  token-source pass, under `v3.2 new` comments (v3.2 adds classes only, no token value).
+  `components.css`: v3.0's shipped in 3.0.0, v3.1's in 3.1.0, and v3.2's in 3.2.0, under
+  `v3.2 new` comments (classes, and the four guide volume tokens among the audio-mix levels).
   v3.3 adds no token, class or motion: its one control and its chord symbols reuse existing ones.
 - `flows/presets/` specifies choosing a preset, the Custom state, the key and mode highlight, and
   saving, renaming and deleting the player's own presets; `screens/preset-sheet/` the sheet those
@@ -113,8 +115,8 @@ it is frozen in `versions/v3.3/` and is now to be built. See `todo.md` for where
 - `versions/v3.1/` holds the v3.1 design as it shipped in version 3.1.0, frozen, with a summary
   of the decisions worth keeping and `token-source-v3.1.md`, the v3.1 part of the token source
   document.
-- `versions/v3.2/` holds the v3.2 design (Jam), approved and built, frozen before its release, with
-  a summary of the decisions worth keeping.
+- `versions/v3.2/` holds the v3.2 design (Jam) as it shipped in version 3.2.0, frozen before its
+  release, with a summary of the decisions worth keeping.
 - `versions/v3.3/` holds the v3.3 design (richer chords) as approved, frozen before it is built,
   with a summary of the decisions worth keeping.
 - `archive/v1/` holds the closed first-release (v1.0) working record: the complete decision log,
@@ -122,8 +124,10 @@ it is frozen in `versions/v3.3/` and is now to be built. See `todo.md` for where
   v2 working record the same way: its decision log, its closed questions and its finished work
   tracker. `archive/v3.0/` holds the v3.0 working record: its decisions, its closed questions and
   its finished work tracker. `archive/v3.1/` holds the v3.1 working record the same way, except
-  the decisions and work items v3.1 shares with v3.2, which stay in the live registers. The live registers above stay current; the archive is kept verbatim and is never
-  edited further.
+  the decisions and work items v3.1 shares with v3.2, which are in `archive/v3.2/` with the rest
+  of the v3.2 working record: its decisions, its closed questions and its finished work tracker.
+  The live registers above stay current; the archive is kept verbatim and is never edited
+  further.
 
 ## How future UI changes flow
 
