@@ -4948,7 +4948,7 @@ Five layers, so that v4 keeps them (D491; the owner does not want it rewritten i
 
 ## Part D — v3.3
 
-Richer chords (optional): seventh chords. Its sections are numbered D1 to D17; a cross-reference to one carries a section sign (§D5), never to be read as a decisions-log entry. Master spec v1.2 (2026-11-09; v1.1 made §D5.2 and §D5.3 agree that the triad fallback is per phrase, and set the top level's share; v1.2 refreshes Part D against v3.2 as built, Part C v1.24 and CONTRACT 14.0.0: Jam's own level carried through every section, the kept doodle, the guide playback, the rhythm lock's walk, Jam's tempo, the storage and the STABLE atoms v3.2 promoted, spec D511–D517), consolidated from the
+Richer chords (optional): seventh chords. Its sections are numbered D1 to D17; a cross-reference to one carries a section sign (§D5), never to be read as a decisions-log entry. Master spec v1.2 (2026-11-09; v1.1 made §D5.2 and §D5.3 agree that the triad fallback is per phrase, and set the top level's share; v1.2 refreshes Part D against v3.2 as built, Part C v1.24 and CONTRACT 14.0.0: Jam's own level carried through every section, the kept doodle, the guide playback, the rhythm lock's walk, Jam's tempo, the storage and the STABLE atoms v3.2 promoted, spec D511–D518; §D8.3's phrase 1 after `Start with this phrase`, D519), consolidated from the
 v3.3 direction in the [v3 notes](README.md#v33--richer-chords-optional) and the chord research
 [docs/music/chord-research.md](../../../docs/music/chord-research.md), which keeps the sources, the
 construction tables and the code and atom references line by line. **Awaiting the owner's
@@ -5348,7 +5348,10 @@ whatever the chord under it. No grading, scoring or wrong-note signal.
   choice of sound, not a practice variation.
 - **The level is fixed for a whole session.** Like every generation setting it is locked during a
   session, and nothing moves it, so a session never switches between allowing and not allowing
-  seventh chords.
+  seventh chords. The one exception is v3.0's: after `Start with this phrase` (an out-of-date phrase
+  on screen played as phrase 1), phrase 1 keeps the level it was generated with, as it keeps every
+  setting, and the session's level holds from the next phrase generated under the session's
+  settings (spec D519, ux D481).
 - **Tension across phrases** and **Rising tempo** are unchanged and do not touch the level.
 - **The join between phrases.** The previous phrase's final chord, carried into the next phrase,
   may be a seventh chord. It is compared with the next phrase's settings by its triad (degree,

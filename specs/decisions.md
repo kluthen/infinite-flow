@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.130
+Status: draft v2.131
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -37,7 +37,7 @@ range; D259–D260 (style packs, planned with no version, and the sound ban; mer
 (the v3.1–v3.3 plan migrations, merged from branch `plan-migration` as D339–D341); D389 (v3.4
 opened); D392, D396 and D397 (v3.1's release gate, whose hand checks H3–H5 and their waiting
 promotions are still open); D393–D395 (the lexicon page in v3.4, its single source, the lexicon
-API later); D398 (v3.1 released and archived); and D511–D518 (v3.3 refreshed against v3.2 as
+API later); D398 (v3.1 released and archived); and D511–D519 (v3.3 refreshed against v3.2 as
 built, proposed with Part D). D289 is unused.
 
 ## Decision Log
@@ -1283,3 +1283,9 @@ built, proposed with Part D). D289 is unused.
   today's loudness, the mix is unchanged, and H2 judges the balance with the guides on and off.
   Now in: [Part D §D7.3](versions/v3/master-spec.md#d73-the-backing-plays-the-seventh),
   [build plan v3.3, hand checks](versions/v3/build-plan-v3.3.md#hand-checks).
+
+- **D519 (2026-11-09): after `Start with this phrase`, phrase 1 keeps its own level (a
+  clarification, proposed with Part D).** §D8.3's "never switches" read as if it overrode v3.0's
+  rule that phrase 1 keeps every setting it was generated with; the design follows that rule (ux
+  D481), and the session's level holds from the next phrase. Now in:
+  [Part D §D8.3](versions/v3/master-spec.md#d83-vary-settings-and-the-session).

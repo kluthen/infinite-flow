@@ -6,7 +6,8 @@ corrected; Jam's own level gets new chunk 23 in wave 5 (D512); a level change ke
 (D513); the level rides the intent only (D514); data version 5 rewrites the changed records (D515);
 the rhythm lock's walk, the carried note and Jam's measurement at 180 BPM (D516); C1 widened to
 every STABLE atom §D12 now lists, applied wave by wave (D517); the guides (D518). Not approved
-(gate A0).
+(gate A0). Then: chunk 23's design docs add `flows/review-and-export/` (ux D478); no other link
+changes, since every design link cites a v3.3 item at the root of `ui_ux/`, not v3.2's frozen design.
 v3 (2026-10-16): migrated to the build-plan model and waves re-formed (spec D351).
 
 The Seventh chords level (richer chords, optional), written from
@@ -1546,7 +1547,9 @@ loaded tolerantly at Off. It is never shared with session mode's level.
   (Jam's Foundation: Seventh chords),
   [`flows/jam/handoff.md`](../../../ui_ux/flows/jam/handoff.md) (A Jam setting changed with a kept
   doodle), [`flows/saved-data/handoff.md`](../../../ui_ux/flows/saved-data/handoff.md),
-  [`flows/generate-phrase/handoff.md`](../../../ui_ux/flows/generate-phrase/handoff.md).
+  [`flows/generate-phrase/handoff.md`](../../../ui_ux/flows/generate-phrase/handoff.md),
+  [`flows/review-and-export/handoff.md`](../../../ui_ux/flows/review-and-export/handoff.md) (a
+  Jam's kept phrases and "Jam again on this doodle").
 - **Atoms:** Part D §D8.4 until I0 (Jam's own level); (v3.2) `rule_jam_phrase_one_failure_ladder`,
   `rule_held_doodle_dropped_on_change`. Drift check: `module_kept_doodle`,
   `rule_jam_pregeneration_only_for_kept_doodle`, `rule_shared_setting_changed_in_jam_mode`.
