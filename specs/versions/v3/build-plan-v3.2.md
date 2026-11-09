@@ -3105,7 +3105,7 @@ transport: with its backing, from the same queueing call, which then takes the p
 
 ## Chunk 27 — v3.2 release gate
 
-Status: planned
+Status: automated part done; release sync pending
 Depends on: every chunk but 26 (folded into 19), CS
 
 The release gate, not a wave; it keeps its chunk number because other plans link it. It runs the
