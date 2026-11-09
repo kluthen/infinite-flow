@@ -7,8 +7,10 @@ master spec Part C v1.0, approved (D239), re-scoped with Jam as its own mode (D4
 [draft](jam-mode.md), settled) and consolidated from it as Part C v1.1 (D409), approved as v1.2
 (D410), its design approved (D412), its build plan approved (D416, D417) and its contract
 wording signed off (D421), the guide playback added to its scope after approval (D490; Part C
-§C19, build plan chunk 40); v3.3 in master spec
-Part D, awaiting owner approval (D264–D275), its build plan not approved (D276–D288, D351); v3.4,
+§C19, build plan chunk 40), its code all merged (wave 7, 2026-11-05), to be released as built, its
+hand and listening checks after the tag (D521; [v3.2.x notes](#v32x-notes-after-the-tag)); v3.3 in
+master spec Part D v1.2, approved with its build plan v5 and its design (D520), waiting on v3.2's
+`3.2.0` tag (gate R0, D521); v3.4,
 a structural review before v4, opened as a scoping draft (D389), with a lexicon page added as its
 one player-facing item (D393); v3.x direction only. The Status paragraphs this README kept until
 the v3.0 and v3.1 releases are archived verbatim in
@@ -58,13 +60,13 @@ Also every tester on an instrument v1 doesn't ship. See [personas](../../persona
 - **v3.3 is added after v3.2** (D261), which was the last v3 release until then: richer chords,
   opt-in, preceded by research, a separate item running on branch `v3.3-chord-research` (D262),
   whose [chord research](../../../docs/music/chord-research.md) is done.
-- **v3.3 master spec: [Part D](master-spec.md#part-d--v33), awaiting owner approval** (D264–D274,
-  2026-10-12; v1.2 refreshed against v3.2 as built on 2026-11-09, D511–D518): one Seventh chords
-  level, Off by default, and Jam mode's own; its contract wording changes wait for the owner's
-  confirmation. O176 (style packs and the level) stays open for later; O306 asks whether v3.3 may
-  start before v3.2's tag.
-- **v3.3 build plan:** [build-plan-v3.3.md](build-plan-v3.3.md), v4 (2026-11-09), not
-  approved; depends on owner approval of Part D. Planning answers D276–D288, D511–D518.
+- **v3.3 master spec: [Part D](master-spec.md#part-d--v33), approved by the owner on 2026-11-09**
+  (D520; D264–D274, 2026-10-12; v1.2 refreshed against v3.2 as built, D511–D519): one Seventh
+  chords level, Off by default, and Jam mode's own; its contract wording changes wait for the
+  owner's confirmation (gate C1). O176 (style packs and the level) stays open for later.
+- **v3.3 build plan:** [build-plan-v3.3.md](build-plan-v3.3.md), v5 (2026-11-09), approved with
+  Part D (D520); it starts after v3.2's `3.2.0` tag (gate R0, D521). Planning answers D276–D288,
+  D511–D518.
 - **v3.4 is added after v3.3** (D389), the owner's request of 2026-10-21: an overall structural
   review of the app before v4's endgame work, with no player-facing change. It is the last v3
   milestone, after v3.3; the owner sees no need to run it earlier (D389). Scoping draft:
@@ -390,10 +392,10 @@ seeds, and two atoms and a vision line more for the contract sign-off. v1.4 (202
 that sign-off, the build plan's gate CS: the owner signed off the re-scoped contract wording,
 CONTRACT 7.2.0 to 8.0.0 (D421).
 
-**Build plan:** [build-plan-v3.2.md](build-plan-v3.2.md), **v24 (2026-11-03)**, from v6, **approved
+**Build plan:** [build-plan-v3.2.md](build-plan-v3.2.md), **v41 (2026-11-09)**, from v6, **approved
 by the owner** (D416, D417; hand check H9 waived), with wave 0's corrections (v7), chunk 0's
 findings (v8, D418–D420), chunk 2's report (v9) and gate CS signed off (v10, D421), then the
-build's revisions through v24 (D422–D450; its header lists them), from Part C v1.14 and the
+build's revisions through v41 (D422–D509, D521; its header lists them), from Part C v1.14 and the
 approved design (gate D0, D412). It plans
 v3.2 on top of the [v3.1](build-plan-v3.1.md) build plan on the build-plan model: 33 chunks in eight
 waves, the session-mode half first (waves 0–3), then Jam mode (waves 4–7), one release, then the
@@ -531,18 +533,39 @@ D234; detail in the [rhythm lock draft](rhythm-lock.md).
   change lasts one phrase.
 - **Open:** nothing; D232 and D234 closed O103 and O114.
 
+### v3.2.x notes (after the tag)
+
+By the owner's ruling of 2026-11-09 (D521), v3.2 is released as `3.2.0` once its release gate's
+machine half passes, before his hand and listening checks, as v3.1's hand checks followed its tag (D397). The checks are written in the v3.2
+build plan's [hand checks](build-plan-v3.2.md#hand-checks) and its
+[follow-ups after the tag](build-plan-v3.2.md#after-the-tag-v32x-follow-ups), and in
+`HARDWARE-CHECKLIST.md`, v3.2 part. Still to run, when the owner chooses:
+
+- **L3:** v3.2 H2 step 3, each rhythm change kind alone.
+- **L1:** v3.2 H4 and H5, Jam listening; H5 after the owner's Travel Sax recordings join the doodle
+  set (DR). They confirm or send back three of D406's provisional answers and answer O269 and O271.
+- **L2:** v3.2 H6, the key and mode suggestion; its weights are tuned from it.
+- **H3, H7, H8 and HG:** Vary settings' groups, a Jam on the Travel Sax with tap-in (D406's fourth
+  answer), a Jam's files, and the guide playback.
+- **O267:** where a doodle note played just before the first barline goes in the export and the
+  review's lane; the build stands until the owner rules.
+
+A finding becomes an issue or a ruling; the owner decides the corrective measure then, built as a
+3.2.x fix. A fix that changes what v3.3's baseline recorded has it recorded again
+([v3.3 gate R0](build-plan-v3.3.md#gates)).
+
 ## v3.3 — Richer chords (optional)
 
 Recorded 2026-10-12 (D261), the owner's request, in their words: "managing higher end chords
 (optionnal, with flags to be set from the front end as to what's allowed and what's not). It will
 be preceeded by an internal doc/web research on chord to ensure we use appropriate data for chord
 generation." v3.2 was the last v3 release; v3.3 follows it. Specced on 2026-10-12 as
-[master spec Part D](master-spec.md#part-d--v33), awaiting the owner's approval (D264–D274);
-nothing built. The text below is the direction as recorded before the research; where it and
+[master spec Part D](master-spec.md#part-d--v33) (D264–D274), approved by the owner on 2026-11-09
+(D520); nothing built. The text below is the direction as recorded before the research; where it and
 Part D differ, Part D wins.
 
-**Build plan:** [build-plan-v3.3.md](build-plan-v3.3.md), v3 (2026-10-16), not approved; depends
-on owner approval of Part D. It plans v3.3 on top of the [v3.0](build-plan.md),
+**Build plan:** [build-plan-v3.3.md](build-plan-v3.3.md), v5 (2026-11-09), approved with Part D
+(D520). It plans v3.3 on top of the [v3.0](build-plan.md),
 [v3.1](build-plan-v3.1.md) and [v3.2](build-plan-v3.2.md) build plans on the build-plan model: 22
 chunks in six waves, then the release gate, under the shared [v3 build workflow](build-workflow.md)
 (D351), with contract sign-offs on the three STABLE changes and the owner's listening check on

@@ -1,9 +1,16 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.89
+Status: draft v0.90
 
 ## Status Snapshot
 
+- **v3.2 is to be released as built** (D521): its code is all on `main` (wave 7 merged
+  2026-11-05). By the owner's ruling, its release gate, build plan
+  [chunk 27](versions/v3/build-plan-v3.2.md#chunk-27--v32-release-gate), runs its machine half,
+  then `3.2.0` is tagged when the owner asks. His hand and listening checks (L1, L2, L3, H3, H7, H8,
+  HG), the Travel Sax recordings (DR) and O267 follow the tag as
+  [v3.2.x follow-ups](versions/v3/README.md#v32x-notes-after-the-tag); a finding becomes a later
+  3.2.x fix, decided then.
 - **v3.1 is released as version 3.1.0** (2026-10-21, D397): the tag `v3.1.0` is on `main` at
   55364e7. Its release gate, build plan
   [chunk 21](versions/v3/build-plan-v3.1.md#chunk-21--v31-release-gate), passed its automated part,
@@ -68,9 +75,10 @@ Status: draft v0.89
     CK, D422, D423, v12 chunk 5's change kinds, D424, v13 the steering block's shape, D425, v14 chunk 15's dead-end test, D426, v15 wave 2's preflight corrections, D427–D430, v16 chunk 3's findings, D431–D433, v17 the orderings' time, D434, v18 chunk 11's two points, D435, D436, v19 wave 3's preflight corrections and the first-load total, D437, D438, v20 chunk 16's finding, D439, v21 wave 4's preflight corrections and gate answers, D440–D444, v22 the raised variety's mark and the step at the note density as read, ux D355, D445, D446, v23 ISS-015 deferred, D447, D448, v24 gate LD and L3's step 2, new chunk 34, D449, D450, v25 the worker's budget at 170 KiB, D451, v26 wave 5's preflight corrections, gate CL and chunk 29's double, D452–D454): 33 chunks in eight waves, session mode first, one release, 3.2.0.
   - **v3.3:** richer chords, opt-in: one Seventh chords level, Off by default, diatonic sevenths
     only; Jam mode has its own. Master spec [Part D](versions/v3/master-spec.md#part-d--v33) v1.2,
-    refreshed against v3.2 as built (D511–D518), awaiting owner approval (D264–D275); build plan
-    [v3.3](versions/v3/build-plan-v3.3.md), v4, 23 chunks (two conditional) in six waves, not approved, after
-    v3.2's release or as O306 rules (D276–D288).
+    refreshed against v3.2 as built (D511–D519), **approved by the owner** on 2026-11-09 with its
+    build plan [v3.3](versions/v3/build-plan-v3.3.md), 23 chunks (two conditional) in six waves
+    (D276–D288), and its design (D520). Next: `documentalist`'s ingestion (gate I0); the build
+    starts after v3.2's `3.2.0` tag (gate R0, D521).
   - **v3.4:** a structural review before v4, with no player-facing change: soundness for
     expansion, the entry budget, refactors worth taking, a split into libraries. The last v3
     milestone, after v3.3 (D389); [scoping draft](versions/v3/structural-review.md), the analysis
@@ -82,13 +90,14 @@ Status: draft v0.89
   - **v3.x:** learning from positive signals, with recognising played signals (D213, D214);
     likely to move or go. Rhythm ratios and the rhythm editor are v4; the chord-fit check, review
     tooling and the two controller-connection ideas are dropped (D211).
-- **Open:** 27 questions: O48 and O49 (later and governance), O100–O102 (v4 rhythm), O115 and
+- **Open:** 28 questions: O48 and O49 (later and governance), O100–O102 (v4 rhythm), O115 and
   O116 (v3.x learning), O176 (style packs and the chord level), O180 (octave signs, later), O183
   (pre-generation's cancellation cost), O190 (a newer version's database whose read-only
   reopening fails), O230 (a stale replay-key wording in a STABLE atom), O234–O238 (v3.4's
   structural review), O239–O246 (v3.4's lexicon page), O267 (a doodle note played before the
-  doodle's first barline, v3.2 wave 6) and O269 (a legato doodle read as Heavily varied, at v3.2
-  H5). See the
+  doodle's first barline, v3.2 wave 6), O269 (a legato doodle read as Heavily varied, at v3.2
+  H5) and O271 (a note start off the doodle's grid, at v3.2 H4); the last three after the `3.2.0`
+  tag (D521). See the
   [register](open-questions.md).
 - The snapshots this index kept through v2's design and build, through v3.0's and through
   v3.1's are archived verbatim at
@@ -107,9 +116,9 @@ Status: draft v0.89
   [prerequisites](versions/prerequisites.md). v3's build plans: [v3.0](versions/v3/build-plan.md) (complete; chunk 26 is the release gate's
   record), [v3.1](versions/v3/build-plan-v3.1.md) (v23, complete; chunk 21 is the release gate's
   record, and its hand checks H3–H5 follow the tag; on the build-plan model with the shared
-  [v3 build workflow](versions/v3/build-workflow.md), D349; its [wave log](versions/v3/wave-log-v3.1.md)), [v3.2](versions/v3/build-plan-v3.2.md) (v26, rewritten for Jam as its own mode, D416, then corrected against the design; approved, H9 waived, D417; gate CS signed off, D421; wave 1's preflight corrections, D422, D423; chunk 5's change kinds, D424; the steering block's shape, D425; chunk 15's dead-end test, D426; wave 2's preflight corrections, D427–D430; chunk 3's findings, D431–D433; the orderings' time, D434; chunk 11's two points, D435, D436; wave 3's preflight corrections, D437; the first-load total, D438; chunk 16's finding, D439; wave 4's preflight corrections and gate answers, D440–D444; then v22–v26, D445–D454)
-  and [v3.3](versions/v3/build-plan-v3.3.md) (v4, on the build-plan model, D351, refreshed against v3.2 as built, D511–D518; not approved;
-  depends on owner approval of Part D). Every build plan runs wave by
+  [v3 build workflow](versions/v3/build-workflow.md), D349; its [wave log](versions/v3/wave-log-v3.1.md)), [v3.2](versions/v3/build-plan-v3.2.md) (v26, rewritten for Jam as its own mode, D416, then corrected against the design; approved, H9 waived, D417; gate CS signed off, D421; wave 1's preflight corrections, D422, D423; chunk 5's change kinds, D424; the steering block's shape, D425; chunk 15's dead-end test, D426; wave 2's preflight corrections, D427–D430; chunk 3's findings, D431–D433; the orderings' time, D434; chunk 11's two points, D435, D436; wave 3's preflight corrections, D437; the first-load total, D438; chunk 16's finding, D439; wave 4's preflight corrections and gate answers, D440–D444; then v22–v41, D445–D521)
+  and [v3.3](versions/v3/build-plan-v3.3.md) (v5, on the build-plan model, D351, refreshed against v3.2 as built, D511–D519; approved
+  with Part D, D520). Every build plan runs wave by
   wave (D252): one intent preflight and one full wave gate per wave; a chunk checks only its own
   change.
 - [Personas](personas.md) (draft): who the product serves.
