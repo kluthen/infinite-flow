@@ -1,6 +1,6 @@
 ---
 id: entity_request_rhythm_lock
-status: DRAFT
+status: REVIEW
 layer: ARCHITECTURE
 version: 0.2
 priority: 1

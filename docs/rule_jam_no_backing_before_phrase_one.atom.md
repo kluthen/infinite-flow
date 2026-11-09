@@ -1,6 +1,6 @@
 ---
 id: rule_jam_no_backing_before_phrase_one
-status: DRAFT
+status: REVIEW
 tags: [v3, release-v3.2, session, jam, audio]
 type: RULE
 layer: BUSINESS

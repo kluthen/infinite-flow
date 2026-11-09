@@ -1,6 +1,6 @@
 ---
 id: rule_jam_pregeneration_only_for_kept_doodle
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 priority: 1

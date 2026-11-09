@@ -1,6 +1,6 @@
 ---
 id: rule_jam_in_visits_that_save_nothing
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 version: 0.2
 priority: 1

@@ -1,6 +1,6 @@
 ---
 id: rule_jam_steering_block
-status: DRAFT
+status: REVIEW
 dependents:
   - [[entity_steering_block]]
   - [[module_steering_block_builder]]

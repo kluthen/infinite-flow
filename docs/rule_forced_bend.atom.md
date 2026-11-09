@@ -1,6 +1,6 @@
 ---
 id: rule_forced_bend
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 priority: 1
 human_name: A Forced Bend Instead of a Failed Phrase

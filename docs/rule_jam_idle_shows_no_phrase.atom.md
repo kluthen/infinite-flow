@@ -1,6 +1,6 @@
 ---
 id: rule_jam_idle_shows_no_phrase
-status: DRAFT
+status: REVIEW
 type: RULE
 version: 0.3
 priority: 1

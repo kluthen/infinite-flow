@@ -1,6 +1,6 @@
 ---
 id: rule_mode_button_at_idle_only
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 version: 0.1

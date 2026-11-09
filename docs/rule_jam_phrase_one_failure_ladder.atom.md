@@ -1,6 +1,6 @@
 ---
 id: rule_jam_phrase_one_failure_ladder
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 human_name: A Jam's Phrase 1 Has Its Own Failure Ladder

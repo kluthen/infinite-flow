@@ -1,6 +1,6 @@
 ---
 id: rule_earlier_sessions_open_without_doodle
-status: DRAFT
+status: REVIEW
 parents:
   - [[rule_quantized_doodle_is_generation_input]]
 dependents:

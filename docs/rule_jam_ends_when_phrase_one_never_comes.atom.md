@@ -1,6 +1,6 @@
 ---
 id: rule_jam_ends_when_phrase_one_never_comes
-status: DRAFT
+status: REVIEW
 version: 0.2
 tags: [v3, release-v3.2, session, jam, error-handling, session-end]
 dependents:

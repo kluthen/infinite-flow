@@ -1,6 +1,6 @@
 ---
 id: req_key_and_mode_suggestion
-status: DRAFT
+status: REVIEW
 type: REQUIREMENT
 layer: BUSINESS
 priority: 1

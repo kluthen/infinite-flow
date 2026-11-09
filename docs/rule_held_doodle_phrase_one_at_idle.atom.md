@@ -1,6 +1,6 @@
 ---
 id: rule_held_doodle_phrase_one_at_idle
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 version: 0.3

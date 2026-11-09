@@ -1,6 +1,6 @@
 ---
 id: entity_quantized_doodle
-status: DRAFT
+status: REVIEW
 type: ENTITY
 version: 0.3
 priority: 1

@@ -7,7 +7,7 @@ dependents:
   - [[rule_click_volume_never_silent]]
 priority: 1
 human_name: Session Audio Mix Controls
-tags: [v2, release-v2.0, session, audio, changes-in-v3.2]
+tags: [v2, release-v2.0, session, audio]
 type: REQUIREMENT
 layer: BUSINESS
 version: 0.2

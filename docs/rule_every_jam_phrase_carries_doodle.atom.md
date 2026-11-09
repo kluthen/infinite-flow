@@ -1,6 +1,6 @@
 ---
 id: rule_every_jam_phrase_carries_doodle
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 version: 0.2
 type: RULE

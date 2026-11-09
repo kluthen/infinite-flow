@@ -3,7 +3,7 @@ id: rule_favorites_only_export
 status: STABLE
 dependents:
   - [[module_review_export_pipeline]]
-tags: [v3, release-v3.0, export, favorites, changes-in-v3.2]
+tags: [v3, release-v3.0, export, favorites]
 parents:
   - [[req_favorite_phrases]]
   - [[req_session_export]]

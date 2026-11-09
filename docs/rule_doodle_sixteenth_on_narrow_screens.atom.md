@@ -1,6 +1,6 @@
 ---
 id: rule_doodle_sixteenth_on_narrow_screens
-status: DRAFT
+status: REVIEW
 version: 0.1
 priority: 1
 human_name: A Doodle's Sixteenth Generates as Eighth on Narrow Screens

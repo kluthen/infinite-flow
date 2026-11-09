@@ -1,6 +1,6 @@
 ---
 id: rule_suggestion_use_it
-status: DRAFT
+status: REVIEW
 priority: 1
 tags: [v3, release-v3.2, jam, key-and-mode-suggestion]
 parents:

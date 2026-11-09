@@ -1,6 +1,6 @@
 ---
 id: rule_shared_setting_changed_in_jam_mode
-status: DRAFT
+status: REVIEW
 tags: [v3, release-v3.2, jam, session-mode, player-controls]
 parents:
   - [[req_jam]]

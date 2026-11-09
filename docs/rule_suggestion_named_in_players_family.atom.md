@@ -1,6 +1,6 @@
 ---
 id: rule_suggestion_named_in_players_family
-status: DRAFT
+status: REVIEW
 dependents:
   - [[module_key_suggestion]]
 type: RULE

@@ -1,6 +1,6 @@
 ---
 id: rule_guide_plays_from_phrase_one
-status: DRAFT
+status: REVIEW
 type: RULE
 version: 0.1
 priority: 1

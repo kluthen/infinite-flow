@@ -1,6 +1,6 @@
 ---
 id: rule_notes_after_doodle_belong_nowhere
-status: DRAFT
+status: REVIEW
 human_name: Notes Between the Doodle and Phrase 1 Belong to Nothing
 layer: BUSINESS
 version: 0.1

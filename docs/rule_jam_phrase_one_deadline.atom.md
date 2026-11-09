@@ -1,6 +1,6 @@
 ---
 id: rule_jam_phrase_one_deadline
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 priority: 1
 tags: [v3, release-v3.2, session, jam, look-ahead]

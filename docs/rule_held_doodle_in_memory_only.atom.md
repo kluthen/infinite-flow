@@ -1,6 +1,6 @@
 ---
 id: rule_held_doodle_in_memory_only
-status: DRAFT
+status: REVIEW
 tags: [v3, release-v3.2, session, jam, storage]
 parents:
   - [[rule_jam_again_on_this_doodle]]

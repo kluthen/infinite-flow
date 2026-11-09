@@ -1,6 +1,6 @@
 ---
 id: rule_rhythm_change_lasts_one_phrase
-status: DRAFT
+status: REVIEW
 type: RULE
 priority: 1
 human_name: A Rhythm Change Lasts One Phrase

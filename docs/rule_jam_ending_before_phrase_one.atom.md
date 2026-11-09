@@ -1,6 +1,6 @@
 ---
 id: rule_jam_ending_before_phrase_one
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 version: 0.3

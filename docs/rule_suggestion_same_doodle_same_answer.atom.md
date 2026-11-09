@@ -1,6 +1,6 @@
 ---
 id: rule_suggestion_same_doodle_same_answer
-status: DRAFT
+status: REVIEW
 tags: [v3, release-v3.2, jam, key-and-mode-suggestion, determinism]
 dependents:
   - [[module_key_suggestion]]

@@ -1,6 +1,6 @@
 ---
 id: rule_app_opens_in_session_mode
-status: DRAFT
+status: REVIEW
 dependents:
   - [[module_workspace_mode]]
 version: 0.1

@@ -1,6 +1,6 @@
 ---
 id: rule_suggestion_keep_mine
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 human_name: Keep Mine Declines the Suggestion for Good

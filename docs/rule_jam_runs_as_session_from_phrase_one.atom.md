@@ -1,6 +1,6 @@
 ---
 id: rule_jam_runs_as_session_from_phrase_one
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 version: 0.2
 priority: 1

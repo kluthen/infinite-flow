@@ -1,6 +1,6 @@
 ---
 id: rule_jam_settings_first_values
-status: DRAFT
+status: REVIEW
 dependents:
   - [[module_jam_settings]]
 type: RULE

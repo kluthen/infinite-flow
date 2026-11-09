@@ -1,6 +1,6 @@
 ---
 id: rule_rhythm_lock_relocks_after_step_down
-status: DRAFT
+status: REVIEW
 parents:
   - [[req_rhythm_lock]]
 dependents:
