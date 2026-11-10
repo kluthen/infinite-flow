@@ -485,6 +485,8 @@ Architecture capture: none
     test that renders and encodes each again and compares bytes. Items 2, 10 and 12's "triads as
     before" rest on it.
   - The entry chunk's size after `npm run build` on the tag ([M4](#m4--the-first-load-bundle)).
+    Recorded: 311,455 B on the `v3.2.0` tag (`f93e552d`) and on the chunk's branch, whose `src/`
+    is the tag's; 16,225 B under the 320 KiB budget (2026-11-10).
   - **After a 3.2.x fix** (spec D521, gate R0): if the fix changes a recorded value, the corpus is
     recorded again from the fix's tag, the change read as the fix's own, and the v3.3 chunks merged
     by then re-checked against it.
