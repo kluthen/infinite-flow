@@ -178,3 +178,24 @@ readCarryIn)` (now a third argument); the known drift stands.
   sentence); the Idle-state sentences wait for chunk 16 (wave 3).
 - For the wave gate: the e2e preset specs (`presets-load`, `presets-saving`) run on the changed
   `seedPresets` seam.
+
+### Wave 1 gate (2026-11-10, on 2020de0f)
+
+Reference machine (AMD Ryzen 5 PRO 8640HS), Node 22.23.4; no `atd audit`.
+
+- Fix 2020de0f (chunk 2): `collection.spec.ts`'s triple loop moved into a helper for
+  `lint:health`'s nesting limit, the assertions unchanged.
+- Run 1, 13:34–13:41 (load 1.8 → 23.8): format, lint, links, `lint:health` (0 errors), unit 9,794
+  tests in 626 files, typecheck and build, boundaries green; e2e 725 + 1 skipped, red on
+  `session-ends.spec.ts:244` (the harness not ready within 30 s). Alone, 13:45 (load 2.0): 9 of 9
+  passed: an ISS-017 load flake.
+- Run 2, the remaining steps, 13:46–13:50 (load 1.9 → 12.5): e2e with pre-generation 726 + 1
+  skipped, a11y 76, notation 107 + 4 skipped, `atd:lint`, `atd:check`: green. The preset specs
+  (`presets-load`, `presets-saving`, 31 tests) green on chunk 11's `seedPresets` seam in both.
+- Sweep, 13:53–13:55 (load 1.8 → 1.4): 114 tests in 10 files (v3.2's 91 plus chunk 33's 23). At
+  Off it gives v3.2's recorded figures: pre-generation at 240 BPM 568 cases, phrase 2 by carry-in
+  100.0 %, 0 refused, 0 shortfalls; 0 repeats and 0 undecided everywhere; carry-in lost to the
+  time rule at 240 BPM in every case (Eighth 216 of 216), none at 60 and 120 BPM. The standalone
+  per-reason counts have no recorded v3.2 figure; they are in the log as a baseline.
+- **Entry chunk 313,113 B** (+1,658 B on wave 0's 311,455 B; budget 327,680 B); Jam's chunk
+  61,211 B (+19 B); no `src/jam/` module in the first load; 526 source files, 66 chunks.
