@@ -83,3 +83,25 @@ jobs. No source change since `v3.2.0`.
 - `doc-ids compare main v3.3-w0`: 0 collisions.
 - Report to the owner: chunks 0 and 1 merged, none moved; the gate green step by step on 78ce77c6
   with ISS-017 filed; entry 311,455 B; nothing to sign. Merge into `main` on the owner's word.
+
+## Wave 1
+
+### Wave 1 start and preflight (2026-11-10)
+
+- Wave 0 merged into `main` 21843b4a (the owner: "merge"). Branch `v3.3-w1` cut from it, worktree
+  `/home/bastien/work/infinite_flow-v3.3-w1`. Chunks 2, 3, 8, 10, 11; κ = 1; order 2, 3, 8, 10, 11.
+- `documentalist`'s wave preflight (8195f107): every chunk **PROCEED** (3, 8 and 11 with notes:
+  missing files on their Files lines). Captures: `module_harmony_candidate_domain` 0.3 (chunk 2:
+  the optional `seventh` beside `triad`, four qualities, `chordTones`), `module_generation_request_construction`
+  0.9 and `module_generation_worker_protocol` 0.11 (chunk 3: `chordFamilies` beside `figureLevels`,
+  family `seventh-chords`, levels `off`, `sometimes`, `favored`, `stronglyFavored`; every builder
+  passes Off), `entity_phrase_carry_in` 0.7 (chunk 8: the carried chord's same-degree seventh,
+  compared by its triad).
+- Wordings wave 1's sync applies: A8 at the preset level, A10, A12 (CONTRACT 15.0.0). Drift for the
+  sync: `module_generation_request_construction`'s "Nothing builds an intent with either group yet"
+  is false since v3.2 (`session-intents.ts`, `jam-phrase-one-attempts.ts`).
+- Plan corrections sent to `spec-writer` before the first chunk: plan v10 (a9d7d707), spec D527.
+  Files lines fixed on chunks 3, 8, 10 and 11; chunk 3 split three ways (3a, 3b, 3c); chunk 8 and
+  11 gain split rules; the v3.2-format writers refuse a level above Off. **A8 timing (D527, option
+  b):** A8's Idle-state sentences apply with chunk 16 at wave 3's sync (17.0.0); the confirmed
+  wording is unchanged, only the wave moves, so the owner is told, not asked.
