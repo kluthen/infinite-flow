@@ -8,6 +8,7 @@ import {
 import { isNoLegalHarmonyPlan, makeHarmonyCandidateDomain } from '@/domain/harmony/harmony-planner'
 import {
   chordTones,
+  type HarmonyCandidate,
   type PitchClassNumber,
   type SeventhQuality,
 } from '@/domain/harmony/harmony-types'
@@ -17,6 +18,7 @@ import {
   PITCH_CLASSES,
   TENSION_ARCS,
   type Collection,
+  type PitchClass,
 } from '@/domain/controls/generation-controls'
 
 import { chordPlan, seventhChordEvent } from './seventh-chord-fixtures'
@@ -66,6 +68,25 @@ function transpose(shape: FourPitchClasses, root: number): FourPitchClasses {
     (fifth + root) % 12,
     (seventh + root) % 12,
   ] as FourPitchClasses
+}
+
+/** Every planner candidate for a tonic, over every collection, motion and arc with a legal plan. */
+function everyPlannerCandidate(tonic: PitchClass): HarmonyCandidate[] {
+  const candidates: HarmonyCandidate[] = []
+  for (const collection of COLLECTIONS) {
+    for (const harmonicMotion of HARMONIC_MOTIONS) {
+      for (const tensionArc of TENSION_ARCS) {
+        const domain = makeHarmonyCandidateDomain({
+          tonalCenter: tonic,
+          collection,
+          harmonicMotion,
+          tensionArc,
+        })
+        if (!isNoLegalHarmonyPlan(domain)) candidates.push(...domain.candidates)
+      }
+    }
+  }
+  return candidates
 }
 
 const C_MAJOR_ACTIVE_SETTLED_FIRST_CANDIDATE =
@@ -235,24 +256,10 @@ describe('harmony event chord tones', () => {
   })
 
   it.each(['C', 'F#'] as const)('keeps every planner candidate in triad form for %s', (tonic) => {
-    let candidateCount = 0
-    for (const collection of COLLECTIONS) {
-      for (const harmonicMotion of HARMONIC_MOTIONS) {
-        for (const tensionArc of TENSION_ARCS) {
-          const domain = makeHarmonyCandidateDomain({
-            tonalCenter: tonic,
-            collection,
-            harmonicMotion,
-            tensionArc,
-          })
-          if (isNoLegalHarmonyPlan(domain)) continue
-          for (const candidate of domain.candidates) {
-            candidateCount += 1
-            for (const event of candidate.events) expect('seventh' in event).toBe(false)
-          }
-        }
-      }
+    const candidates = everyPlannerCandidate(tonic)
+    for (const candidate of candidates) {
+      for (const event of candidate.events) expect('seventh' in event).toBe(false)
     }
-    expect(candidateCount).toBeGreaterThan(0)
+    expect(candidates.length).toBeGreaterThan(0)
   })
 })
