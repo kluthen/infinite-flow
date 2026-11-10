@@ -8,6 +8,7 @@
  * result as a fresh-memo cold call for a different seed against the same rhythm setting.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { describe, expect, it } from 'vitest'
 
 import { makeGenerationControls, PITCH_CLASSES } from '@/domain/controls/generation-controls'
@@ -47,6 +48,7 @@ function buildGoldenIntent(goldenCase: GoldenCase, seed: number = goldenCase.see
     seed: makeSeed(seed),
     controls: makeGenerationControls({ ...goldenCase.controls, tonalCenter: writtenTonalCenter }),
     figureLevels: levelsForProfile(goldenCase.musicalProfile.musicalProfile),
+    chordFamilies: OFF_CHORD_FAMILIES,
   })
 }
 

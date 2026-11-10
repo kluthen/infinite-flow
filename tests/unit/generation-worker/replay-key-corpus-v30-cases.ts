@@ -12,6 +12,7 @@
  * reads only that file.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import {
   ARPEGGIO_CHAOS_VALUES,
   COLLECTIONS,
@@ -145,6 +146,7 @@ function corpusIntent(options: {
       instrumentProfileId: instrument.instrumentProfileId,
     }),
     figureLevels: levelsForProfile(options.profile.musicalProfile),
+    chordFamilies: OFF_CHORD_FAMILIES,
     ...(instrument.instrumentProfile === undefined
       ? {}
       : { instrumentProfile: instrument.instrumentProfile }),

@@ -5,6 +5,7 @@
  * of every other change, the fixed prewarm identity that never draws a seed or request id, and a
  * generated outcome identical with and without prewarm when real prewarm slices run in between.
  */
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { countingSessionSeeds } from '../../composables/fake-session-seed'
 import { countingPresetIds } from './quiet-saved-data'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -189,6 +190,7 @@ describe('workspace prewarm: policy and triggers', () => {
         seed: PREWARM_SEED,
         controls: workspace.session.state.controls,
         figureLevels: NEUTRAL_FIGURE_LEVELS,
+        chordFamilies: OFF_CHORD_FAMILIES,
       }).controls,
     )
   })

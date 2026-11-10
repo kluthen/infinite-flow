@@ -7,6 +7,7 @@
  * error, and a built-in profile whose data was altered is still refused by the rebuild-and-compare.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { describe, expect, it } from 'vitest'
 
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
@@ -58,6 +59,7 @@ function myInstrumentIntent(
       instrumentProfileId: 'my-instrument',
     }),
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     instrumentProfile: profile,
   })
 }
@@ -134,6 +136,7 @@ describe('a generation with my instrument crosses the worker', () => {
       seed: makeSeed(8),
       controls: { ...first.controls, tonalCenter: first.writtenTonalCenter },
       figureLevels: first.figureLevels,
+      chordFamilies: OFF_CHORD_FAMILIES,
       instrumentProfile: first.instrumentProfile,
       carryIn,
     })
@@ -238,6 +241,7 @@ describe('the worker refuses a malformed my-instrument profile with a typed erro
       seed: makeSeed(7),
       controls: makeGenerationControls({ ...BASE_CONTROLS, instrumentProfileId: 'bb-tenor' }),
       figureLevels: NEUTRAL_FIGURE_LEVELS,
+      chordFamilies: OFF_CHORD_FAMILIES,
     }).instrumentProfile
     expect(() =>
       parseGenerationWorkerRequest(withProfile(message, structuredClone(tenor))),
@@ -253,6 +257,7 @@ describe('a built-in profile is still rebuilt from its id and compared', () => {
       seed: makeSeed(7),
       controls: makeGenerationControls({ ...BASE_CONTROLS, instrumentProfileId: 'bb-tenor' }),
       figureLevels: NEUTRAL_FIGURE_LEVELS,
+      chordFamilies: OFF_CHORD_FAMILIES,
     }),
   )
 

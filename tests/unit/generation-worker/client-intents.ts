@@ -3,6 +3,7 @@
  * by their request id and seed.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import {
   makeGenerationControls,
   type GenerationControls,
@@ -48,6 +49,7 @@ export function buildIntent(
     seed: makeSeed(seed),
     controls: CHEAP_CONTROLS,
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     ...groups,
   })
 }

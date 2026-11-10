@@ -47,6 +47,7 @@ function requestFixture() {
       instrumentProfileId: 'bb-tenor',
     }),
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
   })
   return structuredClone({ type: 'generate', id: 1, intent })
 }
@@ -73,6 +74,7 @@ function successOutcome(rhythmLock?: RequestRhythmLock) {
       instrumentProfileId: 'c-keyboard',
     }),
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     ...(rhythmLock === undefined ? {} : { rhythmLock }),
   })
   const outcome = generatePhrase(intent)
@@ -208,6 +210,7 @@ function groupIntent(groups: RequestGroups): Record<string, unknown> {
       tonalCenter: intent.writtenTonalCenter,
     }),
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     ...groups,
   })
   return structuredClone(built) as unknown as Record<string, unknown>

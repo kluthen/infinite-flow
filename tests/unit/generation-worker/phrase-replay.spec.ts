@@ -7,6 +7,7 @@
  * the carry-out matches the session's derivation, and key input is read strictly.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { describe, expect, it } from 'vitest'
 
 import type { GenerationControls, MusicalProfile } from '@/domain/controls/generation-controls'
@@ -320,6 +321,7 @@ describe('the replay report', () => {
         seed: plain.seed,
         controls: plain.controls,
         figureLevels: plain.figureLevels,
+        chordFamilies: OFF_CHORD_FAMILIES,
         rhythmLock: SAMPLE_RHYTHM_LOCK,
         steering: SAMPLE_STEERING,
       })

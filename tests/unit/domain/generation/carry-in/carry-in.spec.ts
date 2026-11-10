@@ -5,6 +5,7 @@
 
 import { describe, expect, it } from 'vitest'
 
+import { CHORD_FAMILY_LEVEL_IDS } from '@/domain/chords/chord-families'
 import {
   CarryInError,
   makeCarryIn,
@@ -12,6 +13,7 @@ import {
   type CarryIn,
   type PhraseCarryIn,
 } from '@/domain/generation/carry-in/carry-in'
+import { makeCarryInGenerationIntent } from '@/domain/generation/carry-in/carry-in-intent'
 import { GenerationIntentError, makeGenerationIntent } from '@/domain/generation/generation-intent'
 import { makeRegisterWindow } from '@/domain/profile/register-window'
 import {
@@ -201,12 +203,37 @@ describe('a carry-in checked against the intent that receives it', () => {
       seed: plain.seed,
       controls: { ...plain.controls, tonalCenter: plain.writtenTonalCenter },
       figureLevels: plain.figureLevels,
+      chordFamilies: plain.chordFamilies,
     }
     expect(makeGenerationIntent(input)).toStrictEqual(plain)
     expect(() => makeGenerationIntent(Object.assign({}, input, { carryIn }))).toThrow(
       GenerationIntentError,
     )
   })
+
+  // @test-link [[rule_seventh_chord_draws_reproducible]]
+  it.each(CHORD_FAMILY_LEVEL_IDS.filter((level) => level !== 'off'))(
+    'keeps the Seventh chords level %s it is given, the rest as at Off',
+    (level) => {
+      const { carryIn } = realCarryIn()
+      const atOff = buildIntent({ seed: 12, carryIn })
+      const intent = makeCarryInGenerationIntent({
+        requestId: atOff.requestId,
+        seed: atOff.seed,
+        controls: { ...atOff.controls, tonalCenter: atOff.writtenTonalCenter },
+        figureLevels: atOff.figureLevels,
+        chordFamilies: { 'seventh-chords': level },
+        carryIn,
+      })
+      const { chordFamilies, ...rest } = intent
+      const { chordFamilies: offLevel, ...restAtOff } = atOff
+
+      expect(chordFamilies).toStrictEqual({ 'seventh-chords': level })
+      expect(offLevel).toStrictEqual({ 'seventh-chords': 'off' })
+      expect(rest).toStrictEqual(restAtOff)
+      expect(Object.keys(intent)).toEqual(Object.keys(atOff))
+    },
+  )
 
   it('refuses a window the register choice does not offer', () => {
     const { carryIn } = realCarryIn()

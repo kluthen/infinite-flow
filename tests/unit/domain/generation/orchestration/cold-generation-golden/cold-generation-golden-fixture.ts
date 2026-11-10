@@ -7,6 +7,7 @@
  * faster generator's output is byte-identical.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
@@ -144,6 +145,7 @@ export function buildVariationIntent(
     seed: makeSeed(seed),
     controls: buildControls(setting, variation.controls),
     figureLevels: levelsForProfile(variation.musicalProfile ?? 'Neutral'),
+    chordFamilies: OFF_CHORD_FAMILIES,
   })
 }
 

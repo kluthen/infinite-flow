@@ -13,6 +13,7 @@
  * strictly before the deadline came; otherwise the Jam ends, and phrase 1 never came.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { performance } from 'node:perf_hooks'
 
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
@@ -214,6 +215,7 @@ export function jamPhraseOneIntent(
     seed: base.seed,
     controls: settings.controls,
     figureLevels: settings.figureLevels,
+    chordFamilies: OFF_CHORD_FAMILIES,
     ...(extras.rhythmLock === undefined ? {} : { rhythmLock: extras.rhythmLock }),
     ...(extras.steering === undefined ? {} : { steering: extras.steering }),
   })
@@ -388,6 +390,7 @@ export function doodlePhraseOne(
         seed,
         controls,
         figureLevels: settings.figureLevels,
+        chordFamilies: OFF_CHORD_FAMILIES,
         ...(rung === 'standalone' || rhythmLock === undefined ? {} : { rhythmLock }),
         ...(rung === 'standalone' ? {} : { steering }),
       }

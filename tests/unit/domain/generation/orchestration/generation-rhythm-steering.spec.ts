@@ -10,6 +10,7 @@
  * that chord plan, whatever the band. A candidate is compared with the doodle as heard (a rest
  * start right after another rest dropped), read here on its own.
  */
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { describe, expect, it } from 'vitest'
 
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
@@ -88,6 +89,7 @@ function intentOf(
     seed: makeSeed(seed),
     controls,
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     ...extras,
   })
 }

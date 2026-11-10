@@ -6,6 +6,7 @@
  * clearing waits for a drawing too; a writing afresh checks the room first; a writing again under
  * the no-room notice checks the room before generating.
  */
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { describe, expect, it } from 'vitest'
 
 import { createLadderIdlePhrase } from '@/composables/ladder-idle-phrase'
@@ -37,6 +38,7 @@ function ladderPhrase() {
             seed: makeSeed(++seed),
             controls: DEFAULT_GENERATION_CONTROLS,
             figureLevels: NEUTRAL_FIGURE_LEVELS,
+            chordFamilies: OFF_CHORD_FAMILIES,
           }),
         failed: () => false,
       }),

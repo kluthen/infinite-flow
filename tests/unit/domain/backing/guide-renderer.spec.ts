@@ -6,6 +6,7 @@
  * harmony that does not hold a start are rejected.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -132,6 +133,7 @@ function generated(
         silenceDensity: 'Conversational',
       }),
       figureLevels: NEUTRAL_FIGURE_LEVELS,
+      chordFamilies: OFF_CHORD_FAMILIES,
     }),
   )
   if (outcome.kind !== 'generation_success') {

@@ -376,6 +376,7 @@ describe('parseKeptIntent', () => {
         instrumentProfileId: 'my-instrument',
       }),
       figureLevels: NEUTRAL_FIGURE_LEVELS,
+      chordFamilies: OFF_CHORD_FAMILIES,
       instrumentProfile: mine.profile,
     })
 

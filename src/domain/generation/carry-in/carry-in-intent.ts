@@ -17,7 +17,7 @@ import { assertCarryInFitsIntent } from './carry-in-fit'
 
 /**
  * The intent input of a phrase that receives what the session phrase before hands forward: a plain
- * intent input plus the carry-in.
+ * intent input, its Seventh chords level required as on every input, plus the carry-in.
  */
 export type CarryInGenerationIntentInput = GenerationIntentInput & {
   readonly carryIn: CarryIn
@@ -26,7 +26,8 @@ export type CarryInGenerationIntentInput = GenerationIntentInput & {
 /**
  * Intent: build the intent exactly as the plain factory does (same validation, same concert-pitch
  * conversion, same register intent), then refuse, as a CarryInError, a carry-in the finished
- * intent cannot honour, and otherwise keep the carry-in unchanged. A carry-in from no phrase (the
+ * intent cannot honour, and otherwise keep the carry-in unchanged. The Seventh chords level is the
+ * one the input gives, kept as the plain factory keeps it. A carry-in from no phrase (the
  * doodle's join) is refused unless the input also holds a steering block. The fields keep the one order
  * every intent has: the v3.1 fields, the carry-in, then the rhythm lock group and the steering
  * block when the input holds them.

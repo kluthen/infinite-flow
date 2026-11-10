@@ -5,6 +5,7 @@
  * (with its rhythm change draw) included when the request holds locked bars.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import {
   makeGenerationControls,
   type GenerationControls,
@@ -66,6 +67,7 @@ export function lockTestIntent(options: {
     seed: makeSeed(options.seed),
     controls,
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     ...(options.rhythmLock === undefined ? {} : { rhythmLock: options.rhythmLock }),
   })
 }

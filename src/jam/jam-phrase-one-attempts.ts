@@ -8,6 +8,7 @@
  * same controls. The note density steps down from phrase 1 on narrow windows, and only down. Each
  * attempt's seed comes from the caller. Pure; part of Jam's code (src/jam/), loaded on demand.
  */
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
 import { resolveGeneratedNoteDensity } from '@/domain/controls/generated-note-density'
 import type { QuantizedDoodle } from '@/domain/doodle/quantized-doodle'
@@ -157,7 +158,8 @@ export interface JamAttempt {
  * Intent: the intent of attempt `index` on what the doodle gives: the controls read from the
  * doodle with the note density as it generates now (a Sixteenth as Eighth below the
  * tablet-landscape width or once stepped down), my instrument's profile as data when selected,
- * and the caller's request id and seed. Rung 1 carries the join and the block (and the pending
+ * the Seventh chords level at Off (no Jam state holds one yet), and the caller's request id and
+ * seed. Rung 1 carries the join and the block (and the pending
  * lock); rung 2 the block (and the pending lock) with the register read from the doodle; rung 3
  * neither. Asking rung 1 of a doodle with no join is a caller defect and throws.
  */
@@ -185,6 +187,7 @@ export function jamAttempt(
     seed: seams.seed,
     controls: { ...chosen, noteDensity },
     figureLevels: settings.figureLevels,
+    chordFamilies: OFF_CHORD_FAMILIES,
     ...(mine ? { instrumentProfile: sessionInstrumentProfile(settings) } : {}),
     ...locked,
     ...steered,

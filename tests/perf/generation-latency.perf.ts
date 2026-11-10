@@ -16,6 +16,7 @@
  * per-transition JSON to `LATENCY_TRANSITIONS_OUT` when those env vars are set.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { writeFileSync } from 'node:fs'
 import { performance } from 'node:perf_hooks'
 import { describe, it } from 'vitest'
@@ -131,6 +132,7 @@ function measureSetting(
     seed: makeSeed(1),
     controls,
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
   })
   const coldStart = performance.now()
   const coldOutcome = generatePhrase(coldIntent, { rhythmDomainMemo: memo })
@@ -141,6 +143,7 @@ function measureSetting(
     seed: makeSeed(2),
     controls,
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
   })
   const warmStart = performance.now()
   const warmOutcome = generatePhrase(warmIntent, { rhythmDomainMemo: memo })
@@ -390,6 +393,7 @@ function timedGeneration(
     seed: makeSeed(seed),
     controls: settings.controls,
     figureLevels: sessionFigureLevels(settings),
+    chordFamilies: OFF_CHORD_FAMILIES,
   })
   const start = performance.now()
   const outcome = generatePhrase(intent, { rhythmDomainMemo: memo })

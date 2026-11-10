@@ -1,8 +1,4 @@
-import {
-  OFF_CHORD_FAMILIES,
-  parseChordFamilies,
-  type ChordFamilies,
-} from '../chords/chord-families'
+import { parseChordFamilies, type ChordFamilies } from '../chords/chord-families'
 import { deepFreeze } from '../events/deep-freeze'
 import {
   PITCH_CLASSES,
@@ -66,8 +62,8 @@ export interface GenerationIntent {
 /**
  * What the intent factory takes. `controls.tonalCenter` here is the player's written-pitch
  * selection, not concert pitch. `figureLevels` are the seven figure levels the intent holds;
- * `chordFamilies` is its Seventh chords level, read as Off when the input gives none. It holds no
- * carry-in: an intent that receives one is built by `makeCarryInGenerationIntent`, which
+ * `chordFamilies` is its Seventh chords level, which every input gives and nothing defaults. It
+ * holds no carry-in: an intent that receives one is built by `makeCarryInGenerationIntent`, which
  * checks the carry-in against the intent. `instrumentProfile` is my instrument's profile, given as
  * data exactly when the controls name `my-instrument`; a built-in is resolved from its id. The
  * rhythm lock group and the steering block, when given, are values their own validating
@@ -84,7 +80,7 @@ export interface GenerationIntentInput {
   readonly seed: Seed
   readonly controls: GenerationControls
   readonly figureLevels: FigureLevels
-  readonly chordFamilies?: ChordFamilies
+  readonly chordFamilies: ChordFamilies
   readonly instrumentProfile?: InstrumentProfile
   readonly rhythmLock?: RequestRhythmLock
   readonly steering?: SteeringBlock
@@ -203,12 +199,12 @@ export function writtenToConcertTonalCenter(
  * silently dropped: such an intent is built by `makeCarryInGenerationIntent`, which checks the
  * carry-in against it. The figure levels are a fresh frozen copy of the input's own, keys in
  * FIGURE_IDS order (an invalid value is refused as a FigureLevelsError). The Seventh chords level
- * follows them, a fresh frozen copy read through `parseChordFamilies` (an invalid value is refused
- * as a ChordFamiliesError), Off when the input gives none. A rhythm lock group and a
- * steering block are kept as given, last and in that order, and are not re-validated here (their
- * constructors validated them; the worker re-validates them at its boundary), which keeps their
- * validators out of the code the app loads at start-up. Without them the intent has neither key
- * and is exactly v3.1's, its Seventh chords level apart.
+ * follows them, a fresh frozen copy read through `parseChordFamilies` (an invalid or missing
+ * value is refused as a ChordFamiliesError; nothing reads a missing level as Off). A rhythm lock
+ * group and a steering block are kept as given, last and in that order, and are not re-validated
+ * here (their constructors validated them; the worker re-validates them at its boundary), which
+ * keeps their validators out of the code the app loads at start-up. Without them the intent has
+ * neither key and is exactly v3.1's, its Seventh chords level apart.
  */
 // @spec-link [[module_generation_request_construction]]
 // @spec-link [[rule_seventh_chord_draws_reproducible]]
@@ -241,7 +237,7 @@ export function makeGenerationIntent(input: GenerationIntentInput): GenerationIn
     controls,
     writtenTonalCenter,
     figureLevels: parseFigureLevels(input.figureLevels),
-    chordFamilies: parseChordFamilies(input.chordFamilies ?? OFF_CHORD_FAMILIES),
+    chordFamilies: parseChordFamilies(input.chordFamilies),
     instrumentProfile,
     registerIntent,
     ...(input.rhythmLock === undefined ? {} : { rhythmLock: input.rhythmLock }),

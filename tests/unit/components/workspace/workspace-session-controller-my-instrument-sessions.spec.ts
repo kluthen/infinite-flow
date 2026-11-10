@@ -12,6 +12,7 @@
  * sessions, Jam's Idle left with no doodle; a doodle kept from the tenor's session stays through
  * both, and a change of name or clef, which erases nothing, keeps it.
  */
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { afterEach, beforeAll, describe, expect, it } from 'vitest'
 import { effectScope, type EffectScope } from 'vue'
 
@@ -145,6 +146,7 @@ async function playedWithMyInstrument(rig: ControllerRig): Promise<void> {
     seed: makeSeed(11),
     controls,
     figureLevels: rig.idle.figureLevels,
+    chordFamilies: OFF_CHORD_FAMILIES,
     instrumentProfile: HORN.profile,
   })
   rig.idle.controls = controls

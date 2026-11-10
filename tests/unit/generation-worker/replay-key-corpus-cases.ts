@@ -6,6 +6,7 @@
  * cases into `tests/fixtures/replay-keys/ifk1-v2.0.json`; the corpus spec reads only that file.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import {
   makeGenerationControls,
   type GenerationControls,
@@ -139,6 +140,7 @@ function corpusIntent(options: {
     seed: makeSeed(options.seed),
     controls: makeGenerationControls(options.controls),
     figureLevels: levelsForProfile(options.profile.musicalProfile),
+    chordFamilies: OFF_CHORD_FAMILIES,
   }
   return options.carryIn === undefined
     ? createGenerationIntent(input)

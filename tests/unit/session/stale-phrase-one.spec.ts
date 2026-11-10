@@ -6,6 +6,7 @@
  * name, the window and a setting changed and changed back never do.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -173,6 +174,7 @@ describe('the stale check', () => {
       seed: makeSeed(5),
       controls: { ...recorded.controls, noteDensity: 'Eighth' },
       figureLevels: NEUTRAL_FIGURE_LEVELS,
+      chordFamilies: OFF_CHORD_FAMILIES,
     })
 
     const phraseOne = phraseOneSettings(recorded, narrowIntent, 90)
@@ -198,6 +200,7 @@ describe("phrase 1's settings", () => {
       seed: makeSeed(6),
       controls,
       figureLevels: NEUTRAL_FIGURE_LEVELS,
+      chordFamilies: OFF_CHORD_FAMILIES,
       instrumentProfile: instrument.profile,
     })
 

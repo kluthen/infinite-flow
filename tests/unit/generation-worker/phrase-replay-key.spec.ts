@@ -535,6 +535,7 @@ function noPhraseIntent(): GenerationIntent {
     seed: plain.seed,
     controls: BASE_CONTROLS,
     figureLevels: plain.figureLevels,
+    chordFamilies: OFF_CHORD_FAMILIES,
     carryIn: NO_PHRASE_CARRY_IN,
     steering: SAMPLE_STEERING,
   })

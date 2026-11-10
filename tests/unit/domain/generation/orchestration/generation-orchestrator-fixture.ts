@@ -8,6 +8,7 @@
  * tests can assert against a known-good expectation without inspecting orchestrator internals.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import {
   makeGenerationControls,
   type GenerationControls,
@@ -75,6 +76,7 @@ export function buildOrchestratorIntent(
     seed,
     controls,
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
   })
 }
 

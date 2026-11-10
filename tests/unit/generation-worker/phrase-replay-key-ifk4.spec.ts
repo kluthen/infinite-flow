@@ -93,6 +93,7 @@ function intentWith(seed: number, groups: Groups, mine = false): GenerationInten
       ...(mine ? { tonalCenter: 'D', instrumentProfileId: 'my-instrument' } : {}),
     }),
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     ...(mine ? { instrumentProfile: HORN_IN_A.profile } : {}),
     ...(groups.rhythmLock === undefined ? {} : { rhythmLock: groups.rhythmLock }),
     ...(groups.steering === undefined ? {} : { steering: groups.steering }),
