@@ -45,7 +45,7 @@ with D351, which shapes the v3.3 plan); D389 and D393–D395 (v3.4 and its lexic
 lexicon API later); D406 (Jam's four answers, provisional until the owner's checks after the
 `3.2.0` tag); D511–D520 (v3.3 refreshed against v3.2 as built, and approved); D521–D523 (v3.2's
 release as built, its contract as built and its go, whose checks after the tag are still open);
-D524 (v3.2 released and archived); and D526 (v3.3's gates I0 and C1). D289 and D525 are unused; so are the IDs within the
+D524 (v3.2 released and archived); and D526–D527 (v3.3's gates I0 and C1, and when A8 applies). D289 and D525 are unused; so are the IDs within the
 archived range D407–D509 that its archive notice lists.
 
 ## Decision Log
@@ -544,3 +544,16 @@ archived range D407–D509 that its archive notice lists.
   C offers as optional and recommends. Chunk 0 applies part C. Now in:
   [Part D §D12](versions/v3/master-spec.md#d12-contract-changes-needing-owner-confirmation),
   [build plan v3.3, gates](versions/v3/build-plan-v3.3.md#gates).
+
+- **D527 (2026-11-10): A8's sentences on the Idle state apply with chunk 16, at wave 3's sync.**
+  Found by wave 1's preflight: `module_generative_profile_selection` 1.5's Idle state holding the
+  level and the request taking it from those settings, the "current settings" half of
+  `rule_choosing_preset_sets_its_settings` and the level's routing in
+  `module_profile_control_customization` describe code chunk 16 builds. They apply at wave 3's sync
+  under 17.0.0 (any needing the level's control, at chunk 19's); the rest of A8 and 15.0's paragraph hold at the preset domain once chunk 11 merges
+  and stay at wave 1. The confirmed wording is unchanged, only its wave moves (D517's rule in
+  spirit), so the owner is told but need not re-confirm. Rejected: widening chunk 11 into the Idle
+  state, which would pull session code into a wave-1 preset chunk. Now in:
+  [build plan v3.3, C1](versions/v3/build-plan-v3.3.md#gates), chunks
+  [11](versions/v3/build-plan-v3.3.md#chunk-11--presets-hold-the-level) and
+  [16](versions/v3/build-plan-v3.3.md#chunk-16--the-level-in-a-session-and-in-pre-generation).
