@@ -983,7 +983,8 @@ Architecture capture: none
 
 ### Chunk 10 — Seventh chord symbols and their spoken words
 
-Status: planned
+Status: merged (w1, c5c10eb1)
+Record: 3bdcc98a: `CHORD_SUFFIX_BY_SEVENTH_QUALITY` (maj7, m7, 7, m7♭5), `chordSuffixOf`; the validator and the description refuse an unknown suffix; `triadSymbolInKey` renamed `chordSymbolInKey`. Beside the Files line: `tests/e2e/notation/notation-my-instrument.spec.ts` (C♯7 now read "chord C sharp dominant seventh"), `written-phrase-types.ts` (comment); the free-form-suffix test in `written-phrase.spec.ts` now lists the four seventh suffixes. No deviation from spec or design.
 Wave: 1
 Depends on: 2
 Architecture capture: none

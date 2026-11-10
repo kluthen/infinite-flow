@@ -149,3 +149,19 @@ readCarryIn)` (now a third argument); the known drift stands.
   fits); new links to `rule_carried_seventh_chord_compared_by_triad`,
   `rule_join_reads_carried_chord_as_triad`, `entity_phrase_carry_in`,
   `module_generation_worker_protocol`.
+
+### Chunk 10 merged (2026-11-10)
+
+- c5c10eb1 (3bdcc98a): the four seventh suffixes in written pitch for each built-in instrument
+  (G7 written A7 for the B-flat tenor); the description reads each suffix as one whole ("chord B
+  half-diminished seventh"); an unknown suffix is refused with its place; the replay tool names a
+  carried G7 and Bm7♭5. Corpus guard green (36 files, 722 tests); `notation-my-instrument` and
+  `notation-visual` 24 passed, no snapshot written. No deviation.
+- For the release gate's list of replaced tests: `written-phrase.spec.ts` › 'preserves the exact
+  suffix string "%s" …' now lists `maj7`, `m7`, `7`, `m7♭5` (the free-form suffixes it used are
+  refused by design).
+- For the sync: revise `module_notation_layout_preflight`; `service_headless_phrase_replay` sees
+  `chordSymbolInKey`. For `documentalist` at the release gate: the lexicon's Chord symbol and four
+  seventh-chord entries. For `spec-writer` (chunk 15 or the replay report): the replay bars' and
+  carried chord's `quality` and `pitchClasses` stay the triad's. Chunk 13 owns MusicXML's
+  `CHORD_KIND_BY_SUFFIX`, which throws on a seventh until then (unreachable before chunk 12).
