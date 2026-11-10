@@ -1,6 +1,9 @@
 # Infinite Flow v3.3 — Build Plan
 
-Status: v8 (2026-11-10): v7 with spec D526 written in: gates I0 (521359be) and C1 cleared; C1
+Status: v9 (2026-11-10): v8 with wave 0's preflight correction and chunk 0's ids, no decision:
+chunk 1 places the two replay test links its corpus spec owes; the prose on Atoms lines naming Part
+D sections until I0 now says they name ids.
+v8 (2026-11-10): v7 with spec D526 written in: gates I0 (521359be) and C1 cleared; C1
 covers I0's two finds (A10 with chunk 8, A11 with chunk 19) and no longer holds back any merge;
 chunk 0 ready, applying the vision's v3.3 line too; I0's found atoms added to chunks 11, 16 and 19;
 wave 0 in progress.
@@ -65,12 +68,10 @@ the level with no effect; chunks 5–8 teach the pitch search, the validator, th
 read a seventh chord from hand-built chord plans; only then does chunk 12 let the planner offer one,
 so a phrase with a seventh is never searched, validated or carried by code that does not know one.
 
-**The Atoms lines name Part D sections until I0.** The v3.3 atoms do not exist until
-`documentalist`'s ingestion of Part D (gate I0) creates them. Until then each chunk's **Atoms** line
-names the Part D section whose `release-v3.3` atom it builds ("Part D §D5.1 until I0"), and chunk 0
-replaces each with I0's ids in a plan commit on wave 0's branch. Wave 0's preflight has no new ids
-to read (chunk 0 covers every `release-v3.3` atom by its tag, chunk 1 adds none); from wave 1 on,
-the preflight works from ids.
+**The Atoms lines name atom ids.** `documentalist`'s ingestion of Part D (gate I0) created the
+v3.3 atoms, and chunk 0 wrote their ids into every chunk's **Atoms** line, in place of the Part D
+section each named before (a plan commit on wave 0's branch). Every wave's preflight works from
+those ids.
 
 [§D12](master-spec.md#d12-contract-changes-needing-owner-confirmation) lists what v3.3 changes on
 purpose. Each enforcement point changes in exactly one chunk, never "along the way". Test titles are
@@ -282,9 +283,9 @@ The [build workflow](build-workflow.md) holds for v3.3 with release name `v3.3`:
   3 and 5 run it. At Off the sweep gives v3.2's figures.
 - **Intent**: the DRAFT atoms are tagged `release-v3.3`, the atoms to revise `changes-in-v3.3`, in
   the v3.3 intent change set I0 writes (`docs/release/v3.3-intent-change-set.md`). The
-  **Atoms** lines name Part D sections until I0 and chunk 0 writes the ids in
-  ([Read first](#read-first-what-v33-changes-in-v32-v31-v30-and-v2)), so wave 0's preflight cannot
-  use them. Chunks 1, 4 and 18 add no atom.
+  **Atoms** lines name the atom ids, written in by chunk 0
+  ([Read first](#read-first-what-v33-changes-in-v32-v31-v30-and-v2)). Chunks 1, 4 and 18 add no
+  atom.
 - **Contract sign-offs**: C1 is done (D526): each wave's sync applies the C1 wordings its chunks
   build, with that sync's MAJOR bump ([C1](#gates); D517), and a chunk that moves to a later wave
   takes its wording with it. Each wave preflight names the wordings its sync applies. C2, only if
@@ -415,9 +416,8 @@ The owner runs these on the Travel Sax over USB and the reference machine.
 ## Chunks
 
 "Item _n_" is item _n_ of the [definition of done](master-spec.md#d15-definition-of-done). The
-**Atoms** and **Revisions** lines follow the [build workflow](build-workflow.md#intent-atd); "Part D
-§Dn until I0" names the section whose `release-v3.3` atom the chunk builds, until chunk 0 writes in
-the id.
+**Atoms** and **Revisions** lines follow the [build workflow](build-workflow.md#intent-atd) and
+name atom ids, which chunk 0 wrote in for the `release-v3.3` atoms.
 
 ### Chunk 0 — Intent re-sync
 
@@ -445,8 +445,8 @@ Architecture capture: none
     applied here; each waits for its wave's sync.
   - The vision's v3.3 line: the change set's part C as the owner approved it (D526), its LOGIC
     paragraph, its TECHNICAL INTERFACE edit and its out-of-scope addition, VISION 0.11 → 0.12.
-  - In this plan, each chunk's "Part D §Dn until I0" is replaced with the atom ids (a plan commit
-    on the wave branch).
+  - In this plan, each chunk's **Atoms** line named the Part D section of the `release-v3.3` atom
+    it builds; chunk 0 replaced each with the atom's id (a plan commit on the wave branch).
 - **Files:** `docs/*.atom.md`; the change set (`docs/release/v3.3-intent-change-set.md`, from I0);
   this plan.
 - **Spec sections:** [Part D](master-spec.md#part-d--v33). No item directly; 25 rests on C1's
@@ -493,11 +493,16 @@ Architecture capture: none
   under `scripts/` (tooling, beside `scripts/record-replay-key-corpus.mjs`), `docs/testing.md`.
 - **Spec sections:** items 2 (as the guard for chunks 2, 3, 5–10, 12, 13, 15, 16, 20 and 21), 18
   (`ifk4.` decoding), 10 and 12 (triads unchanged).
-- **Atoms:** none (test plumbing). The corpus later backs (v3.3) `rule_seventh_chords_off_changes_nothing`
-  and `rule_seeded_phrase_reproduction`, whose test links chunks 12 and 15 add.
+- **Atoms:** (STABLE) `module_phrase_replay_key`, `rule_seeded_phrase_reproduction`, which the
+  `ifk4.` corpus spec tests as the earlier corpus specs do: `@test-link [[module_phrase_replay_key]]`
+  directly above each replay test, and `@test-link [[rule_seeded_phrase_reproduction]]` too above
+  the one that replays each key to its stored phrase, as in `phrase-replay-key-v31-corpus.spec.ts`.
+  No atom changes. The corpus later backs (v3.3) `rule_seventh_chords_off_changes_nothing`, whose
+  test links chunks 12 and 15 add.
 - **Revisions:** none.
 - **Done when:** both corpus tests pass on the tag and on `main`; each is red if a stored value is
-  changed by hand; the baseline size is recorded here and in `docs/testing.md`.
+  changed by hand; the `ifk4.` corpus spec's replay tests carry the two test links above;
+  `npm run atd:check` passes; the baseline size is recorded here and in `docs/testing.md`.
 - **Verification:** chunk checks.
 - **Split rule:** none needed.
 
