@@ -9,6 +9,7 @@
  * they change is the player's choice.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import {
   makeGenerationControls,
   type GenerationControls,
@@ -236,7 +237,13 @@ export function createControlActions<TResult>(
       throw new SessionUsageError(`selectPreset: no known preset has the id ${JSON.stringify(id)}.`)
     }
     if (!canChangeConfiguration()) return false
-    const current = { controls: state.controls, levels: state.figureLevels }
+    // The Idle session holds no Seventh chords level yet (spec D527): the choice starts from Off
+    // and the chosen level is kept nowhere.
+    const current = {
+      controls: state.controls,
+      levels: state.figureLevels,
+      chordFamilies: OFF_CHORD_FAMILIES,
+    }
     const chosen = choosePreset(current, state.selection, preset)
     if (chosen.settings === current) return true
     const before: GeneratedFrom = { controls: state.controls, figureLevels: state.figureLevels }

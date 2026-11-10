@@ -15,6 +15,7 @@
 
 import { createHash } from 'node:crypto'
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import {
@@ -156,7 +157,11 @@ export function mutationSeedOf(sessionSeed: number): Seed {
  */
 export function startSettings(presetId: BuiltInPresetId): SessionSettings {
   const chosen = choosePreset(
-    { controls: DEFAULT_GENERATION_CONTROLS, levels: NEUTRAL_FIGURE_LEVELS },
+    {
+      controls: DEFAULT_GENERATION_CONTROLS,
+      levels: NEUTRAL_FIGURE_LEVELS,
+      chordFamilies: OFF_CHORD_FAMILIES,
+    },
     { kind: 'preset', presetId: 'neutral' },
     builtInPreset(presetId),
   )

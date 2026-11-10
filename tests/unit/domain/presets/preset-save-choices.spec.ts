@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest'
 
+import { OFF_CHORD_FAMILIES, type ChordFamilies } from '@/domain/chords/chord-families'
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
 import { JAZZ_FIGURE_LEVELS, NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { BUILT_IN_PRESETS, builtInPreset } from '@/domain/presets/built-in-presets'
@@ -38,6 +39,7 @@ const MY_REEL: Preset = makePreset({
   name: 'My reel',
   controls: builtInPreset('reel').controls,
   levels: builtInPreset('reel').levels,
+  chordFamilies: OFF_CHORD_FAMILIES,
   restriction: makeKeyAndModeRestriction({ keys: 'any', modes: ['Mixolydian', 'Dorian'] }),
   kind: 'player',
 })
@@ -62,6 +64,7 @@ const SETTINGS: PresetSettings = {
     instrumentProfileId: 'bb-tenor',
   }),
   levels: JAZZ_FIGURE_LEVELS,
+  chordFamilies: OFF_CHORD_FAMILIES,
 }
 
 /** Intent: an id source handing out the given ids in turn. */
@@ -163,6 +166,7 @@ describe('saving changes into a player preset', () => {
       name: 'My reel',
       controls: builtInPreset('bebop').controls,
       levels: JAZZ_FIGURE_LEVELS,
+      chordFamilies: { 'seventh-chords': 'off' },
       restriction: MY_REEL.restriction,
       kind: 'player',
     })
@@ -203,6 +207,7 @@ describe('saving a new player preset', () => {
       name: 'Bebop in A',
       controls: builtInPreset('bebop').controls,
       levels: JAZZ_FIGURE_LEVELS,
+      chordFamilies: { 'seventh-chords': 'off' },
       restriction: { keys: ['A'], modes: ['Dorian'] },
       kind: 'player',
     })
@@ -240,5 +245,29 @@ describe('saving a new player preset', () => {
       PRESETS,
     )
     expect(preset.levels).toStrictEqual(NEUTRAL_FIGURE_LEVELS)
+  })
+})
+
+describe('saving the Seventh chords level', () => {
+  const sometimes: ChordFamilies = { 'seventh-chords': 'sometimes' }
+  const custom: PresetSettings = { ...SETTINGS, chordFamilies: sometimes }
+
+  // @test-link [[req_seventh_chords_level]]
+  // @test-link [[rule_saving_preset_asks_its_restriction]]
+  it('a new player preset made from Custom holds the level by value', () => {
+    const input = { name: 'Sometimes', settings: custom, restriction: ANY_KEY_AND_MODE }
+    const preset = presetForSaveAsNew(input, idsFrom('new-7'), PRESETS)
+    expect(preset.chordFamilies).toStrictEqual({ 'seventh-chords': 'sometimes' })
+    expect(preset.chordFamilies).not.toBe(sometimes)
+    expect(Object.isFrozen(preset.chordFamilies)).toBe(true)
+  })
+
+  // @test-link [[req_seventh_chords_level]]
+  // @test-link [[rule_save_changes_restriction]]
+  it('a player preset with changes saved from Custom holds the level by value', () => {
+    const preset = presetWithSavedChanges(MY_REEL, custom, null)
+    expect(preset.chordFamilies).toStrictEqual({ 'seventh-chords': 'sometimes' })
+    expect(preset.chordFamilies).not.toBe(sometimes)
+    expect(Object.isFrozen(preset.chordFamilies)).toBe(true)
   })
 })

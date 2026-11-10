@@ -8,6 +8,7 @@ import { describe, expect, it } from 'vitest'
 
 import { readAudioMixDesign, type AudioMixDesign } from '@/audio/audio-mix'
 import { usePlayerPresets } from '@/components/workspace/use-player-presets'
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { builtInPreset } from '@/domain/presets/built-in-presets'
 import { makePreset, type Preset } from '@/domain/presets/preset-selection'
 import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
@@ -49,6 +50,7 @@ const LATE_NIGHT: Preset = makePreset({
   name: 'Late night',
   controls: { ...builtInPreset('jazz').controls, tension: 'Build' },
   levels: { ...NEUTRAL_FIGURE_LEVELS, chromaticApproach: 'favored' },
+  chordFamilies: OFF_CHORD_FAMILIES,
   restriction: { keys: 'any', modes: ['Dorian'] },
   kind: 'player',
 })

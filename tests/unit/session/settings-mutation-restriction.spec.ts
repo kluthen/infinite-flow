@@ -11,6 +11,7 @@ import { readFileSync } from 'node:fs'
 
 import { describe, expect, it } from 'vitest'
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import {
   NOTE_DENSITIES,
   RHYTHMIC_VARIETIES,
@@ -96,7 +97,7 @@ function cIonian(
 function startUnder(preset: Preset, controls: Partial<GenerationControls> = {}): SessionSettings {
   const before = cIonian({ kind: 'preset', presetId: 'neutral' }, controls)
   const chosen = choosePreset(
-    { controls: before.controls, levels: before.figureLevels },
+    { controls: before.controls, levels: before.figureLevels, chordFamilies: OFF_CHORD_FAMILIES },
     before.selection,
     preset,
   )

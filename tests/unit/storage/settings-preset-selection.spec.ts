@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { JAZZ_FIGURE_LEVELS, NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { BUILT_IN_PRESETS, builtInPreset } from '@/domain/presets/built-in-presets'
 import { ANY_KEY_AND_MODE } from '@/domain/presets/key-and-mode-restriction'
@@ -156,6 +157,7 @@ describe('the loaded preset selection', () => {
       name: 'Mine',
       controls: JAZZ.controls,
       levels: NEUTRAL_FIGURE_LEVELS,
+      chordFamilies: OFF_CHORD_FAMILIES,
       restriction: ANY_KEY_AND_MODE,
       kind: 'player',
     })

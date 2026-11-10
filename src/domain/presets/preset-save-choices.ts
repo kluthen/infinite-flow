@@ -96,8 +96,9 @@ export function saveChangesQuestion(
 
 /**
  * Intent: a player preset with changes saved into it: same id, name and kind, the ten preset-held
- * controls and seven levels from the settings, and the restriction answered, or its own when none
- * was asked (null). Throws a PresetModelError for a built-in preset.
+ * controls, the seven figure levels and the Seventh chords level from the settings, and the
+ * restriction answered, or its own when none was asked (null). Throws a PresetModelError for a
+ * built-in preset.
  */
 // @spec-link [[rule_save_changes_restriction]]
 export function presetWithSavedChanges(
@@ -111,6 +112,7 @@ export function presetWithSavedChanges(
     name: preset.name,
     controls: settings.controls,
     levels: settings.levels,
+    chordFamilies: settings.chordFamilies,
     restriction: restriction ?? preset.restriction,
     kind: preset.kind,
   })
@@ -121,10 +123,11 @@ export function presetWithSavedChanges(
 export type PresetIdSource = () => string
 
 /**
- * Intent: a new player preset holding the ten preset-held controls, the levels and the restriction
- * chosen, under the name given (already checked by the caller) and an id from `nextId`. Throws a
- * PresetModelError while 50 or more player presets are loaded, or when the id is empty, a built-in
- * id or an existing preset's id.
+ * Intent: a new player preset holding the ten preset-held controls, the seven figure levels and
+ * the Seventh chords level from the settings, and the restriction chosen, under the name given
+ * (already checked by the caller) and an id from `nextId`. Throws a PresetModelError while 50 or
+ * more player presets are loaded, or when the id is empty, a built-in id or an existing preset's
+ * id.
  */
 // @spec-link [[rule_saving_preset_asks_its_restriction]]
 // @spec-link [[rule_player_preset_limit]]
@@ -149,6 +152,7 @@ export function presetForSaveAsNew(
     name: input.name,
     controls: input.settings.controls,
     levels: input.settings.levels,
+    chordFamilies: input.settings.chordFamilies,
     restriction: input.restriction,
     kind: 'player',
   })

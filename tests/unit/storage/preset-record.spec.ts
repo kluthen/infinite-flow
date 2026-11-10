@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest'
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import { FIGURE_IDS, NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { BUILT_IN_PRESETS, builtInPreset } from '@/domain/presets/built-in-presets'
@@ -47,9 +48,21 @@ const PLAYER: Preset = makePreset({
     chromaticApproach: 'stronglyFavored',
     chromaticEnclosure: 'asToday',
   },
+  chordFamilies: OFF_CHORD_FAMILIES,
   restriction: { keys: ['D', 'A'], modes: ['Dorian', 'Mixolydian'] },
   kind: 'player',
 })
+
+/** PLAYER's record exactly as v3.2 writes it: no Seventh chords level. */
+const PLAYER_RECORD_JSON =
+  '{"dataVersion":3,"appVersion":"3.1.0-test","id":"player-1","name":"Late night",' +
+  '"controls":{"harmonicMotion":"Active diatonic","tension":"Build","noteDensity":"Sixteenth",' +
+  '"rhythmicVariety":"Heavily varied","syncopation":"Active displacement",' +
+  '"silenceDensity":"Breath-heavy","contour":"Falling","register":"High","leapiness":"Angular",' +
+  '"arpeggioChaos":"Chaotic"},"levels":{"passingTone":"favored","accentedPassingTone":"off",' +
+  '"neighborTone":"stronglyFavored","appoggiatura":"asToday","diatonicEnclosure":"favored",' +
+  '"chromaticApproach":"stronglyFavored","chromaticEnclosure":"asToday"},' +
+  '"restriction":{"keys":["D","A"],"modes":["Dorian","Mixolydian"]}}'
 
 type Stored = Record<string, unknown>
 
@@ -125,6 +138,42 @@ describe('the player preset record', () => {
       expect(preset.kind).toBe('player')
       expect(Object.isFrozen(preset)).toBe(true)
     }
+  })
+})
+
+describe('the player preset record and the Seventh chords level', () => {
+  // @test-link [[entity_player_preset_record]]
+  // @test-link [[rule_presets_load_tolerantly]]
+  // @test-link [[req_seventh_chords_level]]
+  it("reads every player preset of a record in v3.2's shape with the level at Off", () => {
+    const presets = decodePlayerPresets([{ key: PLAYER.id, value: JSON.parse(PLAYER_RECORD_JSON) }])
+
+    expect(presets).toEqual([PLAYER])
+    for (const preset of presets) {
+      expect(preset.chordFamilies).toEqual(OFF_CHORD_FAMILIES)
+      expect(Object.isFrozen(preset)).toBe(true)
+      expect(Object.isFrozen(preset.chordFamilies)).toBe(true)
+    }
+  })
+
+  // @test-link [[entity_player_preset_record]]
+  // @test-link [[req_seventh_chords_level]]
+  it("writes a preset byte for byte in v3.2's shape, and a read and rewrite gives the same bytes", () => {
+    const written = JSON.stringify(encodePresetRecord(PLAYER, APP_VERSION))
+    expect(written).toBe(PLAYER_RECORD_JSON)
+
+    const reread = decodeOne(JSON.parse(written))!
+    expect(JSON.stringify(encodePresetRecord(reread, APP_VERSION))).toBe(PLAYER_RECORD_JSON)
+  })
+
+  // @test-link [[entity_player_preset_record]]
+  // @test-link [[req_seventh_chords_level]]
+  it('refuses to store a preset whose Seventh chords level is above Off', () => {
+    for (const level of ['sometimes', 'favored', 'stronglyFavored'] as const) {
+      const above = makePreset({ ...PLAYER, chordFamilies: { 'seventh-chords': level } })
+      expect(() => encodePresetRecord(above, APP_VERSION)).toThrow(/above Off/u)
+    }
+    expect(() => encodePresetRecord(PLAYER, APP_VERSION)).not.toThrow()
   })
 })
 

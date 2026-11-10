@@ -11,6 +11,7 @@
  */
 import { describe, expect, it } from 'vitest'
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { SessionControllerError } from '@/components/workspace/workspace-session-controller-types'
 import { builtInPreset } from '@/domain/presets/built-in-presets'
 import { choosePreset } from '@/domain/presets/preset-selection'
@@ -61,7 +62,11 @@ function withLeapiness(rig: ControllerRig): SessionSettings {
  */
 function playerChoseNeutral(rig: ControllerRig): void {
   const chosen = choosePreset(
-    { controls: rig.idle.controls, levels: rig.idle.figureLevels },
+    {
+      controls: rig.idle.controls,
+      levels: rig.idle.figureLevels,
+      chordFamilies: OFF_CHORD_FAMILIES,
+    },
     rig.idle.selection,
     builtInPreset('neutral'),
   )
