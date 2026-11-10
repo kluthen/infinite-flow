@@ -165,3 +165,16 @@ readCarryIn)` (now a third argument); the known drift stands.
   seventh-chord entries. For `spec-writer` (chunk 15 or the replay report): the replay bars' and
   carried chord's `quality` and `pitchClasses` stay the triad's. Chunk 13 owns MusicXML's
   `CHORD_KIND_BY_SUFFIX`, which throws on a seventh until then (unreachable before chunk 12).
+
+### Chunk 11 merged (2026-11-10)
+
+- 70f425b1 (11a 367794ab, 11b 32df286e; C1: spec D526, D527): every preset holds the Seventh
+  chords level, the built-ins at Off; choosing a preset sets it; a change of it makes "Custom, based
+  on {name}"; a player preset holds it by value; a v3.2 player preset loads at Off and a new one is
+  stored in v3.2's bytes, a level above Off refused. `selectPreset` drops the level until chunk 16
+  (D527). No deviation.
+- A8 at the preset level holds against the code (`rule_choosing_preset_sets_its_settings`' LOGIC
+  and first EXPECTATION, `module_preset_model`, `module_profile_control_customization`'s Custom
+  sentence); the Idle-state sentences wait for chunk 16 (wave 3).
+- For the wave gate: the e2e preset specs (`presets-load`, `presets-saving`) run on the changed
+  `seedPresets` seam.

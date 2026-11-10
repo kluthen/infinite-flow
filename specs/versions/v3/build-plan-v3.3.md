@@ -1031,7 +1031,8 @@ Architecture capture: none
 
 ### Chunk 11 — Presets hold the level
 
-Status: planned
+Status: merged (w1, 70f425b1)
+Record: 367794ab (11a), 32df286e (11b): `Preset.chordFamilies`, `PresetSettings.chordFamilies` beside the figure levels; `SettingChange` `chordFamilyLevel` makes Custom; `selectPreset` and `currentSettings` pass Off (D527); `preset-record.ts` decodes Off, writes v3.2's bytes and refuses a level above Off. Beside the Files line: a type-only change to `preset-record.ts` in 11a; the corpus and Vary settings case builders and the e2e `seedPresets` seam pass Off (outputs checked unchanged, nothing re-recorded); about 15 test `makePreset` sites; `docs/storage.md`. No deviation from spec or design. C1: spec D526, D527.
 Wave: 1
 Depends on: 3 (the level type; and v3.1 chunk 10); C1, done (the presets and Custom atoms of
 §D12 item 8, applied at wave 1's sync)
