@@ -25,7 +25,12 @@ import {
 } from './generation-request-envelope'
 import { type ActiveConcertRange, makeActiveConcertRange } from '../profile/active-concert-range'
 import { type RegisterId } from '../profile/register-id'
-import { isPhraseCarryIn, parseCarryIn, type CarryIn } from './carry-in/carry-in'
+import {
+  isPhraseCarryIn,
+  parseCarryIn,
+  type CarriedChordReading,
+  type CarryIn,
+} from './carry-in/carry-in'
 import { parseRequestRhythmLock, type RequestRhythmLock } from './request-rhythm-lock'
 import { parseSteeringBlock, type SteeringBlock } from './steering-block'
 import {
@@ -269,12 +274,37 @@ function parseResolvedRegisterId(input: unknown): RegisterId {
  * — any unknown field (theme, notationDisplay, sessionId, or any other presentation/browser-state
  * field) rather than silently ignoring it, so such state structurally cannot enter a request.
  * The rhythm lock group and the steering block, when their keys are present, are parsed through
- * their own parsers.
+ * their own parsers. A carry-in's carried chord is read as a triad only: a carried seventh is
+ * refused, as every form but the generation worker's own messages refuses it. Takes exactly one
+ * argument, so a reader that passes a second one (the kept-session body's) cannot change the
+ * reading.
  */
 // @spec-link [[module_generation_request_envelope]]
 // @spec-link [[entity_request_rhythm_lock]]
 // @spec-link [[entity_steering_block]]
 export function parseGenerationRequest(input: unknown): GenerationRequest {
+  return parseGenerationRequestReading(input, 'triad')
+}
+
+/**
+ * Intent: parse one untrusted GenerationRequest record exactly as `parseGenerationRequest` does,
+ * except that its carry-in's carried chord may hold its same-degree seventh, kept unchanged. Only
+ * the generation worker's outcome, the one form that can hold a carried seventh, reads with it.
+ */
+// @spec-link [[entity_phrase_carry_in]]
+// @spec-link [[module_generation_request_envelope]]
+export function parseGenerationRequestTakingSeventh(input: unknown): GenerationRequest {
+  return parseGenerationRequestReading(input, 'triad-or-seventh')
+}
+
+/**
+ * Intent: parse one untrusted GenerationRequest record field by field, reading its carry-in's
+ * carried chord under the given reading, and rebuild it through `makeGenerationRequest`.
+ */
+function parseGenerationRequestReading(
+  input: unknown,
+  reading: CarriedChordReading,
+): GenerationRequest {
   if (typeof input !== 'object' || input === null || Array.isArray(input)) {
     throw new GenerationRequestError(
       `GenerationRequest must be a plain object, got ${typeof input}.`,
@@ -305,7 +335,7 @@ export function parseGenerationRequest(input: unknown): GenerationRequest {
   const activeConcertRange = parseActiveConcertRange(record.activeConcertRange)
   const register = parseResolvedRegisterId(record.register)
   const registerWindow = parseRegisterWindow(record.registerWindow)
-  const carryIn = 'carryIn' in record ? parseRequestCarryIn(record.carryIn) : undefined
+  const carryIn = 'carryIn' in record ? parseRequestCarryIn(record.carryIn, reading) : undefined
   const rhythmLock =
     'rhythmLock' in record
       ? parseRequestGroup('rhythmLock', record.rhythmLock, parseRequestRhythmLock)
@@ -329,10 +359,13 @@ export function parseGenerationRequest(input: unknown): GenerationRequest {
   })
 }
 
-/** Intent: parse an untrusted request carry-in, reporting any fault as a GenerationRequestError. */
-function parseRequestCarryIn(input: unknown): CarryIn {
+/**
+ * Intent: parse an untrusted request carry-in under the carried chord's reading, reporting any
+ * fault as a GenerationRequestError.
+ */
+function parseRequestCarryIn(input: unknown, reading: CarriedChordReading): CarryIn {
   try {
-    return parseCarryIn(input)
+    return parseCarryIn(input, reading)
   } catch (error) {
     throw new GenerationRequestError(
       `GenerationRequest.carryIn is invalid: ${(error as Error).message}`,

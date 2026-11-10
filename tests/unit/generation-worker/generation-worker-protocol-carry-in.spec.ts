@@ -1,13 +1,13 @@
 /**
  * The carry-in crosses the generation worker boundary inside the intent posted to the worker and
  * inside the resolved request the worker's outcome retains, and is re-validated on both sides
- * from untrusted structured-clone input.
+ * from untrusted structured-clone input, its carried chord's seventh included.
  */
 
 import { describe, expect, it } from 'vitest'
 
 import { GenerationRequestError } from '@/domain/generation/generation-request'
-import { CarryInError, makeCarryIn } from '@/domain/generation/carry-in/carry-in'
+import { CarryInError, makeCarryIn, type CarryIn } from '@/domain/generation/carry-in/carry-in'
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
 import { makeRegisterWindow } from '@/domain/profile/register-window'
 import {
@@ -16,6 +16,7 @@ import {
 } from '@/generation-worker/generation-worker-inbound'
 import {
   GenerationWorkerProtocolError,
+  parseGenerationOutcome,
   parseGenerationWorkerResponse,
 } from '@/generation-worker/generation-worker-protocol'
 import { handleGenerationWorkerMessage } from '@/generation-worker/generation-worker-handler'
@@ -26,6 +27,7 @@ import {
   keyChangeIntent,
 } from '../domain/generation/carry-in/carry-in-fixture'
 import { SAMPLE_STEERING } from '../domain/generation/request-inputs-fixture'
+import { seventhOf } from '../domain/harmony/seventh-chord-fixtures'
 
 /** Intent: a real intent for phrase 2 of a session, carrying phrase 1's carry-in. */
 function carryInIntent() {
@@ -142,6 +144,68 @@ describe('generation worker protocol with a carry-in whose harmony was dropped',
       throw new Error('Expected a successful outcome.')
     expect(response.outcome.request.carryIn).toStrictEqual(intent.carryIn)
     expect(parseGenerationWorkerResponse(structuredClone(response))).toStrictEqual(response)
+  })
+})
+
+/** Intent: phrase 1's carry-in (seed 11), its carried G (degree 5 of C major) as G7. */
+function carriedG7(): CarryIn {
+  const firstIntent = buildIntent({ seed: 11 })
+  const carryIn = carryInAfter(firstIntent, generateSuccess(firstIntent), 1)
+  return makeCarryIn({
+    ...carryIn,
+    finalHarmony: { ...carryIn.finalHarmony!, seventh: seventhOf(5) },
+  })
+}
+
+/** Intent: a structured-clone copy of a value holding a carry-in, its carried seventh replaced. */
+function withWireSeventh(value: unknown, seventh: unknown) {
+  const copy = structuredClone(value) as { carryIn: { finalHarmony: Record<string, unknown> } }
+  copy.carryIn.finalHarmony.seventh = seventh
+  return copy
+}
+
+/** A fourth note that is not the seventh of the carried G's own degree: A over G, B and D. */
+const WRONG_SEVENTH = { pitchClass: 9, quality: 'dominant-seventh' }
+
+// @test-link [[entity_phrase_carry_in]]
+// @test-link [[module_generation_worker_protocol]]
+describe('generation worker protocol with a carried seventh chord', () => {
+  // @test-link [[entity_phrase_carry_in]]
+  // @test-link [[module_generation_worker_protocol]]
+  it('round-trips a posted intent whose carried chord holds its seventh, unchanged', () => {
+    const intent = buildIntent({ seed: 12, carryIn: carriedG7() })
+    const parsed = parseGenerationWorkerRequest(
+      structuredClone({ type: 'generate', id: 10, intent }),
+    )
+    expect(parsed.intent).toStrictEqual(intent)
+    expect(parsed.intent.carryIn?.finalHarmony?.seventh).toStrictEqual(seventhOf(5))
+  })
+
+  // @test-link [[entity_phrase_carry_in]]
+  // @test-link [[module_generation_worker_protocol]]
+  it("round-trips the worker's outcome whose retained request holds the carried seventh", () => {
+    const outcome = generateSuccess(buildIntent({ seed: 12, carryIn: carriedG7() }))
+    expect(outcome.request.carryIn).toStrictEqual(carriedG7())
+    const parsed = parseGenerationOutcome(structuredClone(outcome))
+    expect(parsed).toStrictEqual(outcome)
+    if (parsed.kind !== 'generation_success') throw new Error('Expected a successful outcome.')
+    expect(parsed.request.carryIn).toStrictEqual(carriedG7())
+  })
+
+  // @test-link [[entity_phrase_carry_in]]
+  // @test-link [[module_generation_worker_protocol]]
+  it('still refuses a seventh not of its own degree on both sides, with the reason', () => {
+    const reason = /is not the seventh of the chord's own degree/u
+    const intent = withWireSeventh(buildIntent({ seed: 12, carryIn: carriedG7() }), WRONG_SEVENTH)
+    const message = { type: 'generate', id: 11, intent }
+    expect(() => parseGenerationWorkerRequest(message)).toThrow(CarryInError)
+    expect(() => parseGenerationWorkerRequest(message)).toThrow(reason)
+    const outcome = structuredClone(
+      generateSuccess(buildIntent({ seed: 12, carryIn: carriedG7() })),
+    )
+    const tampered = { ...outcome, request: withWireSeventh(outcome.request, WRONG_SEVENTH) }
+    expect(() => parseGenerationOutcome(tampered)).toThrow(GenerationRequestError)
+    expect(() => parseGenerationOutcome(tampered)).toThrow(reason)
   })
 })
 
