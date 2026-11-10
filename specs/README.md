@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.92
+Status: draft v0.93
 
 ## Status Snapshot
 
@@ -55,11 +55,12 @@ Status: draft v0.92
   while playing.
 - **Next: the rest of v3** ([v3](versions/v3/README.md#releases-d211)):
   - **v3.3:** richer chords, opt-in: one Seventh chords level, Off by default, diatonic sevenths
-    only; Jam mode has its own. Master spec [Part D](versions/v3/master-spec.md#part-d--v33) v1.2,
+    only; Jam mode has its own. Master spec [Part D](versions/v3/master-spec.md#part-d--v33) v1.3,
     refreshed against v3.2 as built (D511–D519), **approved by the owner** on 2026-11-09 with its
     build plan [v3.3](versions/v3/build-plan-v3.3.md), 23 chunks (two conditional) in six waves
-    (D276–D288), and its design (D520). Gate R0 cleared at v3.2's `v3.2.0` tag (D523). Next:
-    `documentalist`'s ingestion (gate I0), then wave 0.
+    (D276–D288), and its design (D520). Gate R0 cleared at v3.2's `v3.2.0` tag (D523); gate I0
+    (the ingestion) cleared and C1 (the contract wordings, one MAJOR bump per wave sync, 15.0.0 to
+    19.0.0) confirmed by the owner (D526). Wave 0 is in progress.
   - **v3.4:** a structural review before v4, with no player-facing change: soundness for
     expansion, the entry budget, refactors worth taking, a split into libraries. The last v3
     milestone, after v3.3 (D389); [scoping draft](versions/v3/structural-review.md), the analysis
@@ -102,8 +103,8 @@ Status: draft v0.92
   [v3.2](versions/v3/build-plan-v3.2.md) (v43, complete; chunk 27 is the release gate's record,
   and its gates L1, L2, L3 and DR, hand checks and follow-ups after the tag are live, D521; approved
   as v5, D416, D417, its revisions listed in its header; its [wave log](versions/v3/wave-log-v3.2.md))
-  and [v3.3](versions/v3/build-plan-v3.3.md) (v7, on the build-plan model, D351, refreshed against v3.2 as built, D511–D519; approved
-  with Part D, D520; gate R0 cleared, D523). Every build plan runs wave by
+  and [v3.3](versions/v3/build-plan-v3.3.md) (v8, on the build-plan model, D351, refreshed against v3.2 as built, D511–D519; approved
+  with Part D, D520; gates R0, I0 and C1 cleared, D523, D526). Every build plan runs wave by
   wave (D252): one intent preflight and one full wave gate per wave; a chunk checks only its own
   change.
 - [Personas](personas.md) (draft): who the product serves.

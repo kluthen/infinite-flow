@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.134
+Status: draft v2.135
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -45,7 +45,7 @@ with D351, which shapes the v3.3 plan); D389 and D393–D395 (v3.4 and its lexic
 lexicon API later); D406 (Jam's four answers, provisional until the owner's checks after the
 `3.2.0` tag); D511–D520 (v3.3 refreshed against v3.2 as built, and approved); D521–D523 (v3.2's
 release as built, its contract as built and its go, whose checks after the tag are still open);
-and D524 (v3.2 released and archived). D289 and D525 are unused; so are the IDs within the
+D524 (v3.2 released and archived); and D526 (v3.3's gates I0 and C1). D289 and D525 are unused; so are the IDs within the
 archived range D407–D509 that its archive notice lists.
 
 ## Decision Log
@@ -534,3 +534,13 @@ archived range D407–D509 that its archive notice lists.
   the Jam mode draft stay in place. Still live: D406, D521–D523, the checks after the tag and
   O267, O269 and O271 ([v3.2.x notes](versions/v3/README.md#v32x-notes-after-the-tag)). No
   question was decided.
+
+- **D526 (2026-11-10): gate I0 is cleared and the owner confirms C1, the bumps and the vision's
+  v3.3 line.** I0: `documentalist`'s ingestion 521359be (in `main` eb28071d). Shown the change
+  set's parts A, B and C in plain words, the owner answered "approved" to all three: A1–A11 as
+  written (A10 rides 15.0.0 at wave 1; A11 at wave 5, no bump, only if the level sits outside the
+  controls), each applied at its building wave's sync (D517); one MAJOR bump per sync, 15.0.0 to
+  19.0.0 from 14.1.0; part C as shown (VISION 0.12), its out-of-scope addition included, which part
+  C offers as optional and recommends. Chunk 0 applies part C. Now in:
+  [Part D §D12](versions/v3/master-spec.md#d12-contract-changes-needing-owner-confirmation),
+  [build plan v3.3, gates](versions/v3/build-plan-v3.3.md#gates).
