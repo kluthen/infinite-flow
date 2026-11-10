@@ -16,11 +16,13 @@ import { makeConcertPitch, type ConcertPitch } from '../../events/concert-pitch'
 import { deepFreeze } from '../../events/deep-freeze'
 import type { CarriedHarmony } from '../../harmony/harmony-join'
 import type {
+  ChordSeventh,
   CollectionDegree,
   DiatonicTriad,
   HarmonyEndpoint,
   HarmonyRole,
   PitchClassNumber,
+  SeventhQuality,
   TriadQuality,
 } from '../../harmony/harmony-types'
 import {
@@ -93,6 +95,14 @@ export function isPhraseCarryIn(carryIn: CarryIn): carryIn is PhraseCarryIn {
   return !Object.hasOwn(carryIn, 'origin')
 }
 
+/**
+ * How a wire carry-in's carried chord is read: as a triad only, the form every key, kept record
+ * and request had before seventh chords, which refuses a seventh; or as a triad that may hold the
+ * seventh of its own degree.
+ */
+// @spec-link [[entity_phrase_carry_in]]
+export type CarriedChordReading = 'triad' | 'triad-or-seventh'
+
 /** Typed failure for a malformed or inconsistent carry-in. */
 // @spec-link [[entity_phrase_carry_in]]
 export class CarryInError extends Error {
@@ -124,6 +134,14 @@ const ENDPOINT_KINDS: readonly HarmonyEndpoint['kind'][] = [
   'tonal_static_degree_five',
   'modal_non_tonic_chord_tone',
 ]
+/** The four stacked diatonic seventh-chord shapes: semitones of the third, fifth and seventh. */
+const SEVENTH_SHAPES: readonly { readonly above: string; readonly quality: SeventhQuality }[] = [
+  { above: '4/7/11', quality: 'major-seventh' },
+  { above: '3/7/10', quality: 'minor-seventh' },
+  { above: '4/7/10', quality: 'dominant-seventh' },
+  { above: '3/6/10', quality: 'half-diminished-seventh' },
+]
+const SEVENTH_QUALITIES: readonly SeventhQuality[] = SEVENTH_SHAPES.map((shape) => shape.quality)
 
 /** Intent: the pitch class of a MIDI value. */
 function pitchClassOf(midi: number): number {
@@ -131,11 +149,13 @@ function pitchClassOf(midi: number): number {
 }
 
 /**
- * Intent: true when the carried pitch is a tone of the carried chord. With the harmonic part
+ * Intent: true when the carried pitch is a tone of the carried chord's triad. A carried seventh
+ * chord is read as its triad, so a pitch on its seventh is a tone of none. With the harmonic part
  * dropped there is no carried chord, so the pitch is a tone of none.
  */
 // @spec-link [[entity_phrase_carry_in]]
 // @spec-link [[rule_key_change_drops_harmonic_carry_in]]
+// @spec-link [[rule_join_reads_carried_chord_as_triad]]
 export function carriedPitchOnCarriedChord(
   carryIn: Pick<CarryIn, 'lastPitch' | 'finalHarmony'>,
 ): boolean {
@@ -146,10 +166,13 @@ export function carriedPitchOnCarriedChord(
 
 /**
  * Intent: true when the carried pitch is a tense note the next phrase must resolve: a pitch off
- * the carried chord. With the harmonic part dropped nothing is tense, so no resolution is owed.
+ * the carried chord's triad, a pitch on a carried seventh among them, which must therefore have
+ * been reached by a step. With the harmonic part dropped nothing is tense, so no resolution is
+ * owed.
  */
 // @spec-link [[entity_phrase_carry_in]]
 // @spec-link [[rule_key_change_drops_harmonic_carry_in]]
+// @spec-link [[rule_join_reads_carried_chord_as_triad]]
 export function carriedPitchIsTense(carryIn: Pick<CarryIn, 'lastPitch' | 'finalHarmony'>): boolean {
   return carryIn.finalHarmony !== null && !carriedPitchOnCarriedChord(carryIn)
 }
@@ -181,9 +204,49 @@ function assertLeapState(lastPitch: CarriedPitch, tense: boolean): void {
     throw new CarryInError('A tense carried note must have been reached by a step.')
 }
 
-/** Intent: validate the carried chord's shape; its fit to a collection is checked by the intent. */
+/**
+ * Intent: the quality of the seventh chord the triad and `seventh` stack into, root first, or null
+ * when the four pitch classes form none of the four diatonic seventh-chord shapes.
+ */
+function stackedSeventhQuality(triad: readonly number[], seventh: number): SeventhQuality | null {
+  const root = triad[0]!
+  const above = [triad[1]!, triad[2]!, seventh].map((pc) => pitchClassOf(pc - root)).join('/')
+  return SEVENTH_SHAPES.find((shape) => shape.above === above)?.quality ?? null
+}
+
+/**
+ * Intent: validate a carried seventh: a pitch class 0-11 and a known quality, stacking on the
+ * triad into the seventh chord of the triad's own degree, whose quality it must name.
+ */
+function assertCarriedSeventh(triad: readonly number[], seventh: ChordSeventh): void {
+  const { pitchClass, quality } = seventh
+  if (!Number.isInteger(pitchClass) || pitchClass < 0 || pitchClass > 11)
+    throw new CarryInError(
+      `The carried seventh must be a pitch class 0-11, got ${JSON.stringify(pitchClass)}.`,
+    )
+  if (!SEVENTH_QUALITIES.includes(quality))
+    throw new CarryInError(
+      `The carried seventh chord quality ${JSON.stringify(quality)} is unknown.`,
+    )
+  const expected = stackedSeventhQuality(triad, pitchClass)
+  if (expected === null)
+    throw new CarryInError(
+      `The carried fourth note ${pitchClass} is not the seventh of the chord's own degree: the four notes form no seventh chord.`,
+    )
+  if (quality !== expected)
+    throw new CarryInError(
+      `The carried seventh chord quality is ${JSON.stringify(quality)}, but its notes form a ${JSON.stringify(expected)} chord.`,
+    )
+}
+
+/**
+ * Intent: validate the carried chord's shape: a triad, or a triad holding exactly the seventh of
+ * its own degree with that seventh chord's quality. Its fit to a collection is checked by the
+ * intent, by the triad alone.
+ */
+// @spec-link [[rule_carried_seventh_chord_compared_by_triad]]
 function assertCarriedHarmony(harmony: CarriedHarmony): void {
-  const { triad, role, endpoint } = harmony
+  const { triad, seventh, role, endpoint } = harmony
   const pitchClasses = triad.pitchClasses as readonly number[]
   if (!Number.isInteger(triad.degree) || triad.degree < 1 || triad.degree > 7)
     throw new CarryInError(`The carried chord degree must be 1-7, got ${triad.degree}.`)
@@ -195,6 +258,7 @@ function assertCarriedHarmony(harmony: CarriedHarmony): void {
     throw new CarryInError('The carried chord must hold three distinct pitch classes 0-11.')
   if (!TRIAD_QUALITIES.includes(triad.quality))
     throw new CarryInError(`The carried chord quality ${JSON.stringify(triad.quality)} is unknown.`)
+  if (seventh !== undefined) assertCarriedSeventh(pitchClasses, seventh)
   if (!HARMONY_ROLES.includes(role))
     throw new CarryInError(`The carried harmonic role ${JSON.stringify(role)} is unknown.`)
   if (!ENDPOINT_KINDS.includes(endpoint.kind) || endpoint.degree !== 5)
@@ -292,15 +356,21 @@ function buildCarryIn(input: PhraseCarryIn): PhraseCarryIn {
   })
 }
 
-/** Intent: a plain copy of a validated carried harmony, ready to be frozen with its carry-in. */
+/**
+ * Intent: a plain copy of a validated carried harmony, ready to be frozen with its carry-in; a
+ * carried seventh is copied after the triad, and a triad gets no seventh key at all.
+ */
 function copyCarriedHarmony(harmony: CarriedHarmony): CarriedHarmony {
-  const { triad, role, endpoint } = harmony
+  const { triad, seventh, role, endpoint } = harmony
   return {
     triad: {
       degree: triad.degree,
       pitchClasses: [...triad.pitchClasses] as unknown as DiatonicTriad['pitchClasses'],
       quality: triad.quality,
     },
+    ...(seventh === undefined
+      ? {}
+      : { seventh: { pitchClass: seventh.pitchClass, quality: seventh.quality } }),
     role,
     endpoint: { kind: endpoint.kind, degree: endpoint.degree },
   }
@@ -352,9 +422,31 @@ function parseCarriedPitch(input: unknown): CarriedPitch {
   }
 }
 
-/** Intent: parse an untrusted wire carried harmony; the constructor checks its values. */
-function parseCarriedHarmony(input: unknown): CarriedHarmony {
-  const record = exactRecord(input, ['triad', 'role', 'endpoint'], 'CarryIn.finalHarmony')
+/**
+ * Intent: narrow an untrusted wire carried harmony to its keys under the reading: a triad only,
+ * refusing a `seventh` key with its own reason, or a triad that may hold one.
+ */
+function carriedHarmonyRecord(
+  input: unknown,
+  reading: CarriedChordReading,
+): Record<string, unknown> {
+  const keys = ['triad', 'role', 'endpoint']
+  const hasSeventh = typeof input === 'object' && input !== null && Object.hasOwn(input, 'seventh')
+  if (hasSeventh && reading === 'triad')
+    throw new CarryInError('CarryIn.finalHarmony holds a seventh, which this form cannot carry.')
+  return exactRecord(input, hasSeventh ? [...keys, 'seventh'] : keys, 'CarryIn.finalHarmony')
+}
+
+/**
+ * Intent: parse an untrusted wire carried harmony, its seventh only under the reading that takes
+ * one, keeping the seventh's keys exact; the constructor checks its values.
+ */
+function parseCarriedHarmony(input: unknown, reading: CarriedChordReading): CarriedHarmony {
+  const record = carriedHarmonyRecord(input, reading)
+  const seventh =
+    'seventh' in record
+      ? exactRecord(record.seventh, ['pitchClass', 'quality'], 'CarryIn.finalHarmony.seventh')
+      : undefined
   const triad = exactRecord(
     record.triad,
     ['degree', 'pitchClasses', 'quality'],
@@ -373,6 +465,7 @@ function parseCarriedHarmony(input: unknown): CarriedHarmony {
       ],
       quality: triad.quality as TriadQuality,
     },
+    ...(seventh === undefined ? {} : { seventh: seventh as unknown as ChordSeventh }),
     role: record.role as HarmonyRole,
     endpoint: endpoint as unknown as HarmonyEndpoint,
   }
@@ -392,13 +485,17 @@ function parseCarriedWindow(input: unknown): RegisterWindow {
  * Intent: parse an untrusted wire value (a structured clone, which drops freezing) into a carry-in
  * from a phrase exactly as v3.1 parsed every carry-in, rejecting any missing or extra field at
  * every level (an `origin` key among them), then re-validating it through `makeCarryIn`. The
- * harmony is a carried chord or an explicit null; a missing or undefined one is refused. Never
+ * harmony is a carried chord or an explicit null; a missing or undefined one is refused. The
+ * carried chord is read as a triad only, refusing a seventh, unless the reading takes one. Never
  * fills in a default.
  */
 // @spec-link [[entity_phrase_carry_in]]
 // @spec-link [[module_generation_worker_protocol]]
 // @spec-link [[rule_key_change_drops_harmonic_carry_in]]
-export function parsePhraseCarryIn(input: unknown): PhraseCarryIn {
+export function parsePhraseCarryIn(
+  input: unknown,
+  reading: CarriedChordReading = 'triad',
+): PhraseCarryIn {
   const record = exactRecord(
     input,
     ['lastPitch', 'registerWindow', 'finalHarmony', 'phraseNumber'],
@@ -409,7 +506,8 @@ export function parsePhraseCarryIn(input: unknown): PhraseCarryIn {
   return makeCarryIn({
     lastPitch: parseCarriedPitch(record.lastPitch),
     registerWindow: parseCarriedWindow(record.registerWindow),
-    finalHarmony: record.finalHarmony === null ? null : parseCarriedHarmony(record.finalHarmony),
+    finalHarmony:
+      record.finalHarmony === null ? null : parseCarriedHarmony(record.finalHarmony, reading),
     phraseNumber: record.phraseNumber,
   })
 }
@@ -455,13 +553,14 @@ function parseNoPhraseCarryIn(input: unknown): NoPhraseCarryIn {
 
 /**
  * Intent: parse an untrusted wire carry-in of either origin: a record holding its own `origin` key
- * is read as a carry-in from no phrase, any other value exactly as v3.1 read a carry-in.
+ * is read as a carry-in from no phrase, any other value exactly as v3.1 read a carry-in, its
+ * carried chord under the reading (a triad only by default).
  */
 // @spec-link [[entity_phrase_carry_in]]
 // @spec-link [[rule_jam_phrase_one_joins_doodle]]
 // @spec-link [[module_generation_worker_protocol]]
-export function parseCarryIn(input: unknown): CarryIn {
+export function parseCarryIn(input: unknown, reading: CarriedChordReading = 'triad'): CarryIn {
   if (typeof input === 'object' && input !== null && Object.hasOwn(input, 'origin'))
     return parseNoPhraseCarryIn(input)
-  return parsePhraseCarryIn(input)
+  return parsePhraseCarryIn(input, reading)
 }

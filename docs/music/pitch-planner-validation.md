@@ -193,7 +193,9 @@ request and seed, and owes nothing at its end.
 - **The harmony starts from the carried chord.** Every template opens on the collection's tonic
   (degree 1), so the join always moves from the degree-5 open arrival (tonal gentle and active
   motion) or the tonic area (static and modal harmony) to the tonic. The carried chord must be one
-  the same settings end a phrase on.
+  the same settings end a phrase on, judged by its triad: a carried seventh chord fits wherever its
+  triad does, and the carried final note is read against that triad, so a final note on the
+  seventh is a tense note the next phrase resolves (`rule_join_reads_carried_chord_as_triad`).
 - **A phrase generated with carry-in may end owing** (owner's decision): the recovery of a large
   leap into its final note, or a tense final note (a scale tone outside the final chord, reached
   by a collection step). It may end owing only what the next phrase can settle inside the carried

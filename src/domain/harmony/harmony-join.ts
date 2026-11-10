@@ -8,6 +8,7 @@
  */
 
 import type {
+  ChordSeventh,
   DiatonicTriad,
   HarmonyCandidate,
   HarmonyCandidateDomain,
@@ -19,6 +20,8 @@ import type {
 // @spec-link [[entity_phrase_carry_in]]
 export interface CarriedHarmony {
   readonly triad: DiatonicTriad
+  /** The seventh of the triad's degree when the event was in seventh form; absent for a triad. */
+  readonly seventh?: ChordSeventh
   readonly role: HarmonyRole
   readonly endpoint: HarmonyEndpoint
 }
@@ -34,7 +37,12 @@ export class HarmonyJoinError extends Error {
   }
 }
 
-/** Intent: true when two triads are the same chord: same degree, pitch classes and quality. */
+/**
+ * Intent: true when two triads are the same chord: same degree, pitch classes and quality. Only
+ * the triads are compared, so a carried seventh chord fits wherever its triad does: whether a
+ * seventh was added is a draw of the phrase, not a property of the harmony settings.
+ */
+// @spec-link [[rule_carried_seventh_chord_compared_by_triad]]
 function sameTriad(left: DiatonicTriad, right: DiatonicTriad): boolean {
   return (
     left.degree === right.degree &&
@@ -44,10 +52,12 @@ function sameTriad(left: DiatonicTriad, right: DiatonicTriad): boolean {
 }
 
 /**
- * Intent: true when some candidate of the domain ends on exactly the carried chord and role and
- * has the carried endpoint class, i.e. the carried chord is one these harmony settings end on.
+ * Intent: true when some candidate of the domain ends on exactly the carried chord's triad and
+ * role and has the carried endpoint class, i.e. the carried chord is one these harmony settings
+ * end on; a carried seventh is not compared.
  */
 // @spec-link [[entity_phrase_carry_in]]
+// @spec-link [[rule_carried_seventh_chord_compared_by_triad]]
 export function carriedHarmonyEndsDomain(
   domain: HarmonyCandidateDomain,
   carried: CarriedHarmony,

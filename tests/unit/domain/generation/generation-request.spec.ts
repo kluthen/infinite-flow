@@ -12,11 +12,14 @@ import {
   makeGenerationRequest,
   makeRequestId,
   parseGenerationRequest,
+  parseGenerationRequestTakingSeventh,
 } from '@/domain/generation/generation-request'
 import type { GenerationRequest } from '@/domain/generation/generation-request'
 import { makeCarryIn, type CarryIn } from '@/domain/generation/carry-in/carry-in'
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
 import { SAMPLE_RHYTHM_LOCK, SAMPLE_STEERING } from './request-inputs-fixture'
+import { buildIntent, carryInAfter, generateSuccess } from './carry-in/carry-in-fixture'
+import { seventhOf } from '../harmony/seventh-chord-fixtures'
 
 const validSeed = makeSeed(42)
 const validRequestId = makeRequestId('11111111-1111-4111-8111-111111111111')
@@ -459,5 +462,34 @@ describe('GenerationRequest: a carry-in from no phrase', () => {
     delete wire.steering
     expect(() => parseGenerationRequest(wire)).toThrow(GenerationRequestError)
     expect(() => parseGenerationRequest(wire)).toThrow(/steering block/u)
+  })
+})
+
+/** Intent: phrase 2's real retained request over phrase 1's carried G holding G7's seventh. */
+function carriedSeventhRequest(): GenerationRequest {
+  const firstIntent = buildIntent({ seed: 11 })
+  const carryIn = carryInAfter(firstIntent, generateSuccess(firstIntent), 1)
+  const g7 = makeCarryIn({
+    ...carryIn,
+    finalHarmony: { ...carryIn.finalHarmony!, seventh: seventhOf(5) },
+  })
+  return generateSuccess(buildIntent({ seed: 12, carryIn: g7 })).request
+}
+
+// @test-link [[entity_phrase_carry_in]]
+// @test-link [[module_generation_request_envelope]]
+describe('GenerationRequest: a carried seventh chord', () => {
+  // @test-link [[entity_phrase_carry_in]]
+  // @test-link [[module_generation_request_envelope]]
+  it('is refused by the triad-only reader with the reason, kept by the one taking it', () => {
+    const request = carriedSeventhRequest()
+    expect(request.carryIn?.finalHarmony?.seventh).toStrictEqual(seventhOf(5))
+    const wire = structuredClone(request)
+
+    expect(() => parseGenerationRequest(wire)).toThrow(GenerationRequestError)
+    expect(() => parseGenerationRequest(wire)).toThrow(
+      'GenerationRequest.carryIn is invalid: CarryIn.finalHarmony holds a seventh, which this form cannot carry.',
+    )
+    expect(parseGenerationRequestTakingSeventh(wire)).toStrictEqual(request)
   })
 })

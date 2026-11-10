@@ -360,7 +360,8 @@ Its first seven entries keep the order and meaning `ifk3.` gave them (v3.1).
   chord, or an explicit `null` when a settings change dropped the harmonic part: a key or
   collection change, or a chord the new harmony settings never end a phrase on (see
   [The carry-in after a change](session-engine.md#the-carry-in-after-a-change)). A carry-in
-  without the field is refused. From no phrase (the doodle's join into a Jam's phrase 1) it keeps
+  without the field is refused. No replay key can hold a carried seventh chord yet: every key
+  reads the carried chord as a triad only and refuses a `seventh` field (v3.3 chunk 8). From no phrase (the doodle's join into a Jam's phrase 1) it keeps
   its `origin: 'none'` and holds only the doodle's last concert pitch, reached by no interval and
   owing no recovery, and the register window; it is accepted only beside a steering block.
 - `myInstrument` is `null` for a built-in instrument, whose profile the controls name by its id.

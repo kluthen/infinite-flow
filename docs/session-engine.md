@@ -1378,7 +1378,9 @@ the two settings are the same object, and otherwise asks `adaptCarryIn`
   explicit `null`; a missing field is still refused.
 - **A harmonic motion, tension or figure-level change:** the carried chord is dropped when the new
   settings never end a phrase on it with that endpoint class
-  (`rule_harmony_change_drops_unfit_harmonic_carry_in`, accepted by the owner, spec D181).
+  (`rule_harmony_change_drops_unfit_harmonic_carry_in`, accepted by the owner, spec D181). A
+  carried seventh chord is judged by its triad (`rule_carried_seventh_chord_compared_by_triad`):
+  it is kept wherever its triad would be, its seventh with it.
 - **The pitch part is then re-checked:** the carried pitch must lie in the window, and what it owes
   (a leap to recover, a tense note while a chord is carried) must be payable under the new
   settings. If not, the phrase is standalone, pinned to the new fixed register, or to the
