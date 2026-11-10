@@ -5,7 +5,7 @@ layer: BUSINESS
 version: 0.3
 priority: 1
 human_name: Mutation Draws a Setting
-tags: [v2, release-v2.0, part-v2.1, session, player-controls]
+tags: [v2, release-v2.0, part-v2.1, session, player-controls, changes-in-v3.3]
 parents:
   - [[req_settings_mutation_flag]]
 type: RULE

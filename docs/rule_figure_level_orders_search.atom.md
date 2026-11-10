@@ -7,7 +7,7 @@ parents:
   - [[req_embellishment_figure_levels]]
 type: RULE
 human_name: What Each Figure Level Does
-tags: [v3, release-v3.1, generation, figures]
+tags: [v3, release-v3.1, generation, figures, changes-in-v3.3]
 dependents:
   - [[module_favored_figure_draw]]
   - [[module_figure_levels]]

@@ -3,7 +3,7 @@ id: rule_preset_contents
 status: REVIEW
 layer: BUSINESS
 version: 0.1
-tags: [v3, release-v3.1, player-controls, presets]
+tags: [v3, release-v3.1, player-controls, presets, changes-in-v3.3]
 dependents:
   - [[module_generative_profile_selection]]
   - [[module_preset_model]]

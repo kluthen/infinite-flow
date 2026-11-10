@@ -8,7 +8,7 @@ parents:
   - [[req_four_measure_phrase]]
 type: USER_STORY
 priority: 1
-tags: [player-controls, generation]
+tags: [player-controls, generation, changes-in-v3.3]
 dependents:
   - [[api_rhythm_domain_expansion]]
   - [[entity_generation_diagnostics]]
@@ -25,6 +25,7 @@ dependents:
   - [[req_embellishment_figure_levels]]
   - [[req_my_instrument]]
   - [[req_presets]]
+  - [[req_seventh_chords_level]]
   - [[rule_idle_phrase_too_dense_is_replaced]]
   - [[rule_selectable_generative_profiles]]
   - [[rule_session_settings_locked]]

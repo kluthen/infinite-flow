@@ -1,7 +1,7 @@
 ---
 id: rule_embellishment_figures_defined
 status: REVIEW
-tags: [v3, release-v3.1, generation, figures]
+tags: [v3, release-v3.1, generation, figures, changes-in-v3.3]
 layer: BUSINESS
 version: 0.1
 priority: 1

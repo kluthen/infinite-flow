@@ -5,7 +5,7 @@ type: RULE
 layer: BUSINESS
 version: 0.3
 priority: 1
-tags: [v3, release-v3.2, session, jam, idle]
+tags: [v3, release-v3.2, session, jam, idle, changes-in-v3.3]
 parents:
   - [[rule_jam_again_on_this_doodle]]
 human_name: A Kept Doodle's Phrase 1 Is Ready at Idle
