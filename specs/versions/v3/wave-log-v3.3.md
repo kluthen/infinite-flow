@@ -105,3 +105,10 @@ jobs. No source change since `v3.2.0`.
   11 gain split rules; the v3.2-format writers refuse a level above Off. **A8 timing (D527, option
   b):** A8's Idle-state sentences apply with chunk 16 at wave 3's sync (17.0.0); the confirmed
   wording is unchanged, only the wave moves, so the owner is told, not asked.
+
+### Chunk 2 merged (2026-11-10)
+
+- e4e9cbdc (79b174e3): the seventh chord on every degree, its four qualities, any other shape
+  throws; `HarmonyEvent.seventh?` is `{ pitchClass, quality }`, absent in triad form; `chordTones`;
+  every candidate still in triad form. Table A checked on 12 tonics × 9 collections; a triad event's
+  JSON equals the pre-chunk literal; corpus guard green (21 files, 557 tests). No deviation.

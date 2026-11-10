@@ -515,7 +515,8 @@ Architecture capture: none
 
 ### Chunk 2 — Seventh chords in the harmony model
 
-Status: planned
+Status: merged (w1, e4e9cbdc)
+Record: 79b174e3: `SeventhQuality`, `ChordSeventh { pitchClass, quality }`, `HarmonyEvent.seventh?`, `chordTones(event)`, `HarmonyCollection.seventhChords` (by degree − 1), `deriveSeventhQuality` throws on other shapes; fixtures `seventhOf`, `withSeventh`, `seventhChordEvent`, `chordPlan`; corpus guard 21 files, 557 tests. No deviation from spec or design.
 Wave: 1
 Depends on: 0, 1
 Architecture capture: the seventh beside the triad (a revision of
