@@ -8,11 +8,12 @@ parents:
 layer: BUSINESS
 version: 0.1
 human_name: Jam's Own Settings
-tags: [v3, release-v3.2, jam, player-controls]
+tags: [v3, release-v3.2, jam, player-controls, changes-in-v3.3]
 dependents:
   - [[module_jam_settings]]
   - [[rule_doodle_sets_jam_controls]]
   - [[rule_jam_embellishments_one_level]]
+  - [[rule_jam_has_own_seventh_chords_level]]
   - [[rule_jam_settings_first_values]]
   - [[rule_jam_settings_load_tolerantly]]
   - [[rule_jam_settings_saved_on_change]]

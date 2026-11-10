@@ -3,7 +3,7 @@ id: rule_arpeggio_chaos_respects_constraints
 status: REVIEW
 version: 0.1
 priority: 2
-tags: arpeggio,control,constraints
+tags: [arpeggio, control, constraints, changes-in-v3.3]
 parents:
   - [[req_four_measure_phrase]]
 layer: BUSINESS

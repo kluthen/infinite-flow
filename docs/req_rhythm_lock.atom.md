@@ -20,6 +20,7 @@ dependents:
   - [[rule_rhythm_distance]]
   - [[rule_rhythm_lock_relocks_after_step_down]]
   - [[rule_rhythm_lock_strict]]
+  - [[rule_rhythm_lock_tries_both_forms]]
   - [[ui_field_dependent]]
 ---
 

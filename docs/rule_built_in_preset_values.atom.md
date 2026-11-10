@@ -10,7 +10,7 @@ type: RULE
 layer: BUSINESS
 priority: 1
 human_name: The Eight Built-In Presets
-tags: [v3, release-v3.1, player-controls, presets, figures]
+tags: [v3, release-v3.1, player-controls, presets, figures, changes-in-v3.3]
 ---
 
 # The Eight Built-In Presets

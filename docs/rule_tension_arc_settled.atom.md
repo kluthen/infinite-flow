@@ -2,7 +2,7 @@
 id: rule_tension_arc_settled
 status: REVIEW
 layer: BUSINESS
-tags: tension,melody,harmony,controls
+tags: [tension, melody, harmony, controls, changes-in-v3.3]
 human_name: Tension Arc: Settled
 priority: 1
 version: 0.1

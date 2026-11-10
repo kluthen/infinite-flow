@@ -6,7 +6,7 @@ priority: 1
 dependents:
   - [[module_jam_settings]]
 human_name: Jam's Saved Settings Load One by One
-tags: [v3, release-v3.2, jam, player-controls, storage]
+tags: [v3, release-v3.2, jam, player-controls, storage, changes-in-v3.3]
 parents:
   - [[req_jam_settings]]
 type: RULE

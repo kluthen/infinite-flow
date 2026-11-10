@@ -10,7 +10,7 @@ dependents:
   - [[module_rhythm_steering]]
   - [[rule_jam_steering_block]]
 type: RULE
-tags: [v3, release-v3.2, session, jam, generation]
+tags: [v3, release-v3.2, session, jam, generation, changes-in-v3.3]
 parents:
   - [[req_jam]]
 ---

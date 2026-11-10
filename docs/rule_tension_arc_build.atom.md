@@ -4,7 +4,7 @@ status: REVIEW
 version: 0.1
 human_name: Tension Arc: Build
 type: RULE
-tags: tension,melody,harmony,controls
+tags: [tension, melody, harmony, controls, changes-in-v3.3]
 parents:
   - [[req_four_measure_phrase]]
 dependents:

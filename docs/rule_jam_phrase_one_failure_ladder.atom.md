@@ -8,7 +8,7 @@ parents:
   - [[rule_jam_phrase_one_deadline]]
 version: 0.2
 priority: 1
-tags: [v3, release-v3.2, session, jam, error-handling]
+tags: [v3, release-v3.2, session, jam, error-handling, changes-in-v3.3]
 dependents:
   - [[module_session_seed_plan]]
   - [[module_session_start_without_phrase_one]]

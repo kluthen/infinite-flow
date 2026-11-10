@@ -2,7 +2,7 @@
 id: rule_generated_notes_musicxml_export
 status: REVIEW
 human_name: Generated Notes MusicXML Export
-tags: [v2, release-v2.0, v2.4-check, export, notation]
+tags: [v2, release-v2.0, v2.4-check, export, notation, changes-in-v3.3]
 layer: BUSINESS
 priority: 1
 parents:

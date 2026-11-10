@@ -1,7 +1,7 @@
 ---
 id: rule_jam_and_lock_off_reproduce_earlier_phrases
 status: REVIEW
-tags: [v3, release-v3.2, generation, determinism]
+tags: [v3, release-v3.2, generation, determinism, changes-in-v3.3]
 dependents:
   - [[entity_request_rhythm_lock]]
   - [[entity_steering_block]]

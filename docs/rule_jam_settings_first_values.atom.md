@@ -5,7 +5,7 @@ dependents:
   - [[module_jam_settings]]
 type: RULE
 priority: 1
-tags: [v3, release-v3.2, jam, player-controls, storage]
+tags: [v3, release-v3.2, jam, player-controls, storage, changes-in-v3.3]
 parents:
   - [[req_jam_settings]]
 layer: BUSINESS

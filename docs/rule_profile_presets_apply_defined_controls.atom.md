@@ -7,7 +7,7 @@ dependents: []
 human_name: Neutral and Jazz Apply Their Defined Settings
 layer: BUSINESS
 version: 0.3
-tags: [profile, preset, controls]
+tags: [profile, preset, controls, changes-in-v3.3]
 parents:
   - [[rule_selectable_generative_profiles]]
 ---

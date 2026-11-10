@@ -8,7 +8,7 @@ dependents:
   - [[module_steering_block_builder]]
 type: RULE
 human_name: A Jam's Melody Follows the Doodle's Moves
-tags: [v3, release-v3.2, session, jam, melody]
+tags: [v3, release-v3.2, session, jam, melody, changes-in-v3.3]
 parents:
   - [[req_jam]]
 layer: BUSINESS
