@@ -557,3 +557,14 @@ archived range D407–D509 that its archive notice lists.
   [build plan v3.3, C1](versions/v3/build-plan-v3.3.md#gates), chunks
   [11](versions/v3/build-plan-v3.3.md#chunk-11--presets-hold-the-level) and
   [16](versions/v3/build-plan-v3.3.md#chunk-16--the-level-in-a-session-and-in-pre-generation).
+
+- **D528 (2026-11-10): a seventh reaches the app only after every writer and reader knows it; no
+  interim refusal.** Wave 1 left the `ifk4.` encoder and the data-version-4 body writer accepting a
+  carried seventh. Nothing in the app makes a seventh before chunk 19 (D286), so ordering suffices:
+  chunks 15 and 17 retire those writers, and chunk 19 depends on 9, 10, 13, 14, 15 and 17. Chunk 13
+  moves to wave 4 so 19 does not wait on it in-wave (13 → 19 → 23 would chain three). The ordering
+  is load-bearing: after `Start with this phrase` (D519) phrase 2 can carry a seventh at Off. A
+  carry-in's seventh is checked for shape, not key, like its triad; fit is judged by the triad
+  (§D8.3), so no check is added. Rejected: a refusal in each writer, removed again within two
+  waves. Now in: [build plan v3.3](versions/v3/build-plan-v3.3.md#chunk-15--replay-key-ifk5),
+  chunks 13, 15, 17 and 19, and the [waves](versions/v3/build-plan-v3.3.md#waves).

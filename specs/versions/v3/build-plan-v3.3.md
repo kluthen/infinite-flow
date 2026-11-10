@@ -1,6 +1,10 @@
 # Infinite Flow v3.3 — Build Plan
 
-Status: v10 (2026-11-10): v9 with wave 1's preflight corrections and spec D527 written in: chunk 3
+Status: v11 (2026-11-10): v10 with wave 1's chunk reports and spec D528 written in: chunk 13 moves
+to wave 4 and chunk 19 waits on every chunk a seventh passes through; chunks 15 and 17 retire the
+`ifk4.` and data-version-4 writers and read a carried seventh; chunk 15 gains the replay report;
+chunk 16 names the prewarm; Read first lists chunk 10's replaced suffix test.
+v10 (2026-11-10): v9 with wave 1's preflight corrections and spec D527 written in: chunk 3
 splits into 3a–3c (the replay keys and the kept codec read Off), chunk 8's worker-only seventh
 reading, chunk 10's and 11's files and atoms, A8's Idle-state sentences move to chunk 16 at wave 3.
 v9 (2026-11-10): v8 with wave 0's preflight correction and chunk 0's ids, no decision:
@@ -92,7 +96,7 @@ it: a test about a triad stays as it is, and the chunk adds the seventh-chord ca
 | A recognized run is three tones of the triad: `recognizable` in `pitch-motion.ts`, its validator twin in `motion-rules.ts`, and the motion replay `finalMotionState` (`carry-in-derivation.ts`) that derives what a phrase owes the next; `tests/unit/domain/pitch/pitch-motion.spec.ts` › 'caps every level at exactly one recognized run per bar'                                                                              | [7](#chunk-7--runs-may-include-the-seventh)                                                                                                                                     | Still three notes; under a seventh chord they may include the seventh. A four-note one-way arpeggio stays rejected.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | A carried chord must be a triad: `tests/unit/domain/generation/carry-in/carry-in.spec.ts` › 'refuses a carried chord whose pitch classes do not form a diatonic triad shape'; `sameTriad` (`harmony-join.ts`) compares three pitch classes                                                                                                                                                                                       | [8](#chunk-8--the-join-carries-a-seventh-chord)                                                                                                                                 | A carried seventh chord is accepted and compared by its triad; any other shape is still refused.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | The backing plays triads: `tests/unit/domain/backing/backing-renderer.spec.ts` › 'plays root then fifth in the bass and one held close-position triad…'                                                                                                                                                                                                                                                                          | [9](#chunk-9--the-backing-plays-the-seventh)                                                                                                                                    | Unchanged for triads; a seventh chord plays its four notes, highest close position at or below E4 (a new test beside it).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| Three chord suffixes (`CHORD_SUFFIX_BY_TRIAD_QUALITY`, `notation-input.ts`); the spoken description passes any other suffix through as written (`suffixWords`, `score-description.ts`)                                                                                                                                                                                                                                           | [10](#chunk-10--seventh-chord-symbols-and-their-spoken-words)                                                                                                                   | Four more suffixes, read as words.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Three chord suffixes (`CHORD_SUFFIX_BY_TRIAD_QUALITY`, `notation-input.ts`); the spoken description passes any other suffix through as written (`suffixWords`, `score-description.ts`)                                                                                                                                                                                                                                           | [10](#chunk-10--seventh-chord-symbols-and-their-spoken-words)                                                                                                                   | Four more suffixes, read as words; a suffix in neither table is refused. Replaced: `written-phrase.spec.ts` › 'preserves the exact suffix string "%s" at every instrument transposition' now lists `maj7`, `m7`, `7`, `m7♭5` (the free-form suffixes it used are refused by design).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | MusicXML throws on an unknown suffix: `tests/unit/export/musicxml/musicxml-encoder.spec.ts` › 'rejects a chord suffix it has no MusicXML chord kind for'                                                                                                                                                                                                                                                                         | [13](#chunk-13--musicxml-writes-the-seventh-chords)                                                                                                                             | Four more kinds; an unknown suffix is still refused (the test keeps a suffix no quality has).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | Replay keys: encoding writes `ifk4.` (v3.2 chunk 12's tests in `phrase-replay-key.spec.ts` and `phrase-replay-key-ifk4.spec.ts`)                                                                                                                                                                                                                                                                                                 | [15](#chunk-15--replay-key-ifk5)                                                                                                                                                | Encoding writes `ifk5.` for every phrase; every `ifk1.`–`ifk4.` decoding test stays.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | A preset holds ten controls and seven figure levels (v3.1 chunk 10's `src/domain/presets/`; v3.2 added nothing to a preset)                                                                                                                                                                                                                                                                                                      | [11](#chunk-11--presets-hold-the-level)                                                                                                                                         | It also holds the level; every built-in at Off.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
@@ -122,14 +126,14 @@ lists each pair (item 24).
 
 ## Waves
 
-| Wave | Chunks                                                                                                                                                   | Waits for                                                                                                                                                                                                                                                                                                                                                  | Status                        |
-| ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
-| 0    | 0 Intent re-sync · 1 Baselines                                                                                                                           | A0 and I0 (0); R0 (1). Two chunks: every other chunk needs both, chunk 0's ids in its own wave preflight and chunk 1's corpus as its guard, so nothing can join.                                                                                                                                                                                           | merged (2026-11-10, 21843b4a) |
-| 1    | 2 Seventh chords in the harmony model · 3 The level in the request (3a–3c) · 8 The join · 10 Symbols and spoken words · 11 Presets hold the level        | Wave 0. In-wave 2 → 8 and 2 → 10: chunk 2's capture fixes the harmony event's optional seventh, its qualities and `chordTones`; 3 → 11: chunk 3's capture fixes `chordFamilies` and the level ids.                                                                                                                                                         | in progress (2026-11-10)      |
-| 2    | 4 Measurement tools · 5 The seventh in the pitch search · 6 The validator · 7 Runs · 9 The backing                                                       | Wave 1. In-wave 5 → 7 and 6 → 7: chunks 5's and 6's captures fix the chord-tone facts 7's run rule reads; 7 starts once 5 and 6 are merged.                                                                                                                                                                                                                | planned                       |
-| 3    | 12 The level orders the plans · 15 Replay key `ifk5.` · 16 The level in a session                                                                        | Wave 2 (5, 6 and 7 merged). In-wave 12 → 15 and 12 → 16: chunk 12's capture fixes the draw and the plan variants.                                                                                                                                                                                                                                          | planned                       |
-| 4    | 14 Symbols on the staff · 17 The level on the device · 18 Measurements, first run                                                                        | Wave 3; D0 (14). DP, U1a and L1 open at its end.                                                                                                                                                                                                                                                                                                           | planned                       |
-| 5    | 13 MusicXML · 19 The Seventh chords control · 23 Jam's own level · 20 The finer fallback (**conditional**) · 21 Endings on the seventh (**conditional**) | Wave 4; D0 and U1a (19, 23); DP (20, built only if DP adopts it); L1 (21, built only if L1 approves) and **C2 to merge 21**. In-wave 19 → 23: chunk 19's capture fixes `seventhChordsOptions`, which Jam's control reuses. Three sure chunks; 20 and 21 join only if DP and L1 call for them, otherwise they are recorded as skipped. L2 opens at its end. | planned                       |
+| Wave | Chunks                                                                                                                                            | Waits for                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | Status                        |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
+| 0    | 0 Intent re-sync · 1 Baselines                                                                                                                    | A0 and I0 (0); R0 (1). Two chunks: every other chunk needs both, chunk 0's ids in its own wave preflight and chunk 1's corpus as its guard, so nothing can join.                                                                                                                                                                                                                                                                                                                                     | merged (2026-11-10, 21843b4a) |
+| 1    | 2 Seventh chords in the harmony model · 3 The level in the request (3a–3c) · 8 The join · 10 Symbols and spoken words · 11 Presets hold the level | Wave 0. In-wave 2 → 8 and 2 → 10: chunk 2's capture fixes the harmony event's optional seventh, its qualities and `chordTones`; 3 → 11: chunk 3's capture fixes `chordFamilies` and the level ids.                                                                                                                                                                                                                                                                                                   | in progress (2026-11-10)      |
+| 2    | 4 Measurement tools · 5 The seventh in the pitch search · 6 The validator · 7 Runs · 9 The backing                                                | Wave 1. In-wave 5 → 7 and 6 → 7: chunks 5's and 6's captures fix the chord-tone facts 7's run rule reads; 7 starts once 5 and 6 are merged.                                                                                                                                                                                                                                                                                                                                                          | planned                       |
+| 3    | 12 The level orders the plans · 15 Replay key `ifk5.` · 16 The level in a session                                                                 | Wave 2 (5, 6 and 7 merged). In-wave 12 → 15 and 12 → 16: chunk 12's capture fixes the draw and the plan variants.                                                                                                                                                                                                                                                                                                                                                                                    | planned                       |
+| 4    | 13 MusicXML · 14 Symbols on the staff · 17 The level on the device · 18 Measurements, first run                                                   | Wave 3; D0 (14). DP, U1a and L1 open at its end.                                                                                                                                                                                                                                                                                                                                                                                                                                                     | planned                       |
+| 5    | 19 The Seventh chords control · 23 Jam's own level · 20 The finer fallback (**conditional**) · 21 Endings on the seventh (**conditional**)        | Wave 4; D0 and U1a (19, 23); DP (20, built only if DP adopts it); L1 (21, built only if L1 approves) and **C2 to merge 21**. In-wave 19 → 23: chunk 19's capture fixes `seventhChordsOptions`, which Jam's control reuses. Two sure chunks: 19 makes a seventh reachable in the app and 23 builds on it, so both follow every chunk a seventh passes through, chunk 13 included (D528); 20 and 21 join only if DP and L1 call for them, otherwise they are recorded as skipped. L2 opens at its end. | planned                       |
 
 The [release gate](#chunk-22--v33-release-gate) (chunk 22) follows wave 5, with L1, L2 and U1b. κ
 is 1 ([build workflow](build-workflow.md#concurrency-and-order)); a chunk built and waiting only on
@@ -171,12 +175,12 @@ flowchart LR
     C16[16 Level in a session]
   end
   subgraph W4[Wave 4]
+    C13[13 MusicXML]
     C14[14 Symbols on the staff]
     C17[17 On the device]
     C18[18 Measurements]
   end
   subgraph W5[Wave 5]
-    C13[13 MusicXML]
     C19[19 The control]
     C20[20 Finer fallback, if DP]
     C21[21 Endings on the seventh, if L1]
@@ -240,6 +244,11 @@ flowchart LR
   C11 --> C19
   C16 --> C19
   C17 --> C19
+  C9 --> C19
+  C10 --> C19
+  C13 --> C19
+  C14 --> C19
+  C15 --> C19
   D0 --> C19
   C5 --> C21
   C6 --> C21
@@ -1190,12 +1199,14 @@ same list from the level, the seed and the plans. Chunks 15 and 16 in this wave 
 ### Chunk 13 — MusicXML writes the seventh chords
 
 Status: planned
-Wave: 5
+Wave: 4
 Depends on: 10, 12 (its byte scan exports phrases generated at each level)
 Architecture capture: none
 
 - **Goal:** write each seventh chord into the generated-notes MusicXML with its chord kind and
-  printed suffix, so no export fails for a seventh chord.
+  printed suffix, so no export fails for a seventh chord. Until it merges, `CHORD_KIND_BY_SUFFIX`
+  knows only `''`, `m` and `dim` and throws on a seventh, which nothing in the app makes before
+  chunk 19 (D528).
 - **Scope:** `CHORD_KIND_BY_SUFFIX` (`musicxml-measure.ts`) gains `maj7` → `major-seventh`, `m7` →
   `minor-seventh`, `7` → `dominant`, `m7♭5` → `half-diminished`, each written with the suffix as the
   `kind` element's display text. An unknown suffix still throws `MusicXmlExportError`. The schema
@@ -1292,20 +1303,41 @@ reason.
   - **The key.** `encodePhraseReplayKey` writes `ifk5.`: everything `ifk4.` carries, plus
     `chordFamilies` by capability name and a carried final chord with its seventh when it has one.
   - **Decoding** accepts all five versions. `ifk1.`–`ifk4.` decode with the level at Off, to the
-    phrase their version wrote. `ifk5.` re-validates every field (`parseChordFamilies`,
-    `parseCarryIn`). A key naming a family v3.3 does not know is refused with the reason, and an
-    `ifk6.` key as an unsupported version.
+    phrase their version wrote, and keep chunk 8's triad-only reading of a carried chord. `ifk5.`
+    re-validates every field (`parseChordFamilies`, and the carry-in through chunk 8's reading that
+    takes a seventh, as the worker's). That reading checks the seventh's stack and quality, not its
+    fit to the key, as it does the triad's: a hand-made C7 on degree 1 in C major passes, while
+    every carry-in the app derives holds the key's own seventh, since a key or mode change drops
+    the carried chord; fit is judged by the triad (§D8.3), so no key check is added (D528). A key
+    naming a family v3.3 does not know is refused with the reason, and an `ifk6.` key as an
+    unsupported version.
+  - **The `ifk4.` writer goes.** It refuses a level above Off (chunk 3) but not a carried seventh
+    (chunk 8). No interim refusal is added: nothing in the app makes a seventh before chunk 19,
+    which follows this chunk (D528). From here `src/` writes only `ifk5.`; the `ifk4.` suites keep
+    their recorded keys for decoding, and a test helper kept to write `ifk4.` keys refuses a
+    carried seventh as it refuses a level above Off.
   - `npm run replay:phrase` replays all five versions and names the four qualities (chunk 10).
+  - **The replay report shows the chord as it sounds.** `phrase-replay-report.ts` copies the
+    intent's fields by name and gains `chordFamilies`. Each bar's chord (`phrase-replay-bars.ts`)
+    and the named carried chord (`NamedCarriedChord`, `phrase-replay-names.ts`) give the quality,
+    pitch classes and pitch names of the chord the symbol names: for a seventh-form event, the
+    seventh's quality and its four notes (`chordTones`); today they give the triad's beside a
+    seventh symbol. A triad event's report is unchanged.
   - An in-browser replay test (workspace harness) replays a Mostly phrase, a Sometimes phrase, a
     triads fallback and a phrase joined after a carried seventh through the worker, for H3.
   - Any atom wording that names the key version is raised to the owner, not left stale;
     `module_tension_arc_cycle`'s "the unchanged `ifk1.` format" ([O230](../../open-questions.md))
     is not repeated for `ifk5.`.
 - **Files:** `src/generation-worker/phrase-replay-key.ts`, `phrase-replay-key-decode.ts`,
-  `phrase-replay.ts`, `phrase-replay-bars.ts`, `scripts/replay-phrase.mjs`; tests under
+  `phrase-replay.ts`, `phrase-replay-bars.ts`, `phrase-replay-report.ts`,
+  `phrase-replay-names.ts`, `scripts/replay-phrase.mjs`; tests under
   `tests/unit/generation-worker/`, `tests/unit/scripts/replay-phrase-script.spec.ts`,
   `tests/e2e/release/deterministic-replay.spec.ts` (extended); the `ifk4.` suites
-  (`phrase-replay-key.spec.ts`, `phrase-replay-key-ifk4.spec.ts`) stay.
+  (`phrase-replay-key.spec.ts`, `phrase-replay-key-ifk4.spec.ts`,
+  `phrase-replay-key-carried-seventh.spec.ts`) stay as decoding suites;
+  [`docs/phrase-workspace.md`](../../../docs/phrase-workspace.md) (the key's sections, and the
+  worker protocol's "Until the `ifk4.` key exists, `encodePhraseReplayKey` refuses an intent
+  holding either group", stale since v3.2).
 - **Spec sections:**
   [§D9](master-spec.md#d9-the-generation-request-the-replay-key-and-kept-sessions); items 18, 2
   (older keys).
@@ -1324,9 +1356,15 @@ reason.
     phrase, at Off.
   - An `ifk5.` key with an unknown family, an unknown level or a malformed carried seventh is
     refused with the reason; an `ifk6.` key as an unsupported version.
-  - `npm run replay:phrase` replays one key of each version and prints the four quality names.
+  - `npm run replay:phrase` replays one key of each version and prints the four quality names; its
+    report holds the level, and a seventh-form bar and a carried seventh chord show the seventh's
+    quality and four pitch classes beside their symbol; a triad-only phrase's report is unchanged.
+  - Nothing in `src/` writes an `ifk4.` key.
 - **Verification:** chunk checks; `npm run replay:phrase -- <key>` for each version by hand; H3.
-- **Split rule:** none needed (one key module and its tooling).
+- **Split rule:** if the brief passes about five source files (seven named): 15a the key
+  (`phrase-replay-key.ts`, `phrase-replay-key-decode.ts`, `phrase-replay.ts`), 15b the report and
+  the tool (`phrase-replay-bars.ts`, `phrase-replay-report.ts`, `phrase-replay-names.ts`,
+  `scripts/replay-phrase.mjs`).
 
 ### Chunk 16 — The level in a session and in pre-generation
 
@@ -1344,7 +1382,13 @@ Architecture capture: none (it builds on chunk 12's)
     it builds carries it (until chunk 17 it is never saved, until chunk 19 never changed by the
     player). Choosing a preset writes the preset's level into it (`selectPreset`, which chunk 11
     left giving Off), and a player preset saved takes it (`currentSettings`); A8's sentences on
-    the Idle state, the request and the current settings apply at this wave's sync (D527).
+    the Idle state, the request and the current settings apply at this wave's sync (D527). The
+    intent builders that pass Off since chunk 3 take the state's level: the Idle intent
+    (`freshIntentFromControls`, `use-generation-session.ts`), the session's
+    (`buildAttemptIntent`) and `currentSettings`. The rhythm-domain prewarm
+    (`createRhythmPrewarmTrigger`, `generation-session-prewarm.ts`, Jam's doodle prewarm included)
+    keeps Off: it only warms the rhythm-domain memo, keyed by five rhythm controls the level does
+    not shape, so a level change posts no prewarm; its comment says why instead of "for now".
   - **The session:** the level is frozen at Start with the other generation settings, every attempt
     of every rung carries it, and the session's settings change path does not touch it. The same
     path takes the level a Jam starts with, from chunk 23.
@@ -1359,6 +1403,7 @@ Architecture capture: none (it builds on chunk 12's)
   - **The suggestion:** the key and mode suggestion's answer for a doodle is the same at every
     level (a test over v3.2's doodle set).
 - **Files:** `src/composables/use-generation-session.ts`,
+  `src/composables/generation-session-prewarm.ts` (a comment and its test only),
   `src/composables/generation-session-control-actions.ts` (`selectPreset`),
   `src/components/workspace/use-player-presets.ts` (`currentSettings`),
   `src/components/workspace/workspace-pregeneration.ts` (`settingsKeyOf`),
@@ -1396,10 +1441,12 @@ Architecture capture: none (it builds on chunk 12's)
     prepared phrases; choosing one identical in every value, the level included, discards nothing.
   - The suggestion's answer is the same at every level.
   - Choosing a preset sets the state's level to the preset's; the request built next carries it.
+  - A level change posts no rhythm-domain prewarm; the prewarm intent holds Off.
 - **Verification:** chunk checks; the sweep at the wave gate.
-- **Split rule:** if the brief passes about five source files (six named, one taking a guard
-  comment only): 16a the state and the session (`use-generation-session.ts`,
-  `generation-session-control-actions.ts`, `use-player-presets.ts`, `session-intents.ts`); 16b
+- **Split rule:** if the brief passes about five source files (seven named, two taking a comment
+  only): 16a the state and the session (`use-generation-session.ts`,
+  `generation-session-prewarm.ts`, `generation-session-control-actions.ts`,
+  `use-player-presets.ts`, `session-intents.ts`); 16b
   pre-generation and Vary settings (`workspace-pregeneration.ts`, `settings-mutation-scales.ts`).
 
 ### Chunk 17 — The level on the device: data version 5
@@ -1432,8 +1479,15 @@ newer. A kept body's harmony without a seventh reads as triads.
   - **Kept sessions:** each phrase's stored intent (`parseKeptIntent`) holds `chordFamilies`; the
     stored harmony (`kept-phrase-parsers.ts`, whose `parseTriad` takes three pitch classes today)
     may hold a seventh, and the chord symbols, which are not stored, are drawn again from it as
-    displayed. A session kept before v3.3, a Jam's included, opens with its triads and timelines
-    untouched.
+    displayed. The data-version-5 body reads a carried chord, in its stored intent and its stored
+    request, through chunk 8's reading that takes a seventh; data versions 1–4 keep the
+    triad-only reading. A session kept before v3.3, a Jam's included, opens with its triads and
+    timelines untouched.
+  - **The data-version-4 body writer goes.** It refuses a level above Off (chunk 3) but not a
+    carried seventh (chunk 8). No interim refusal is added: nothing in the app makes a seventh
+    before chunk 19, which follows this chunk (D528). From here `src/` writes only data version
+    5's body, with the level and any seventh, in the harmony or the carried chord; a test seeding
+    v3.2 data writes data version 4's bytes and never a seventh.
   - **Delete everything** resets the level to Off. Visits that save nothing save no level.
   - M3's timings.
 - **Files:** `src/storage/records/settings-record.ts`, `src/storage/records/preset-record.ts`
@@ -1474,6 +1528,9 @@ newer. A kept body's harmony without a seventh reads as triads.
     reader leaves each version 5 record unread as newer.
   - A session kept at Mostly reopens with its seventh-chord symbols as displayed and replays each
     phrase from its inputs.
+  - A kept phrase joined after a carried seventh chord, at Mostly and at Off (the phrase after
+    `Start with this phrase`, spec D519), round-trips through the data-version-5 body; a body of
+    data versions 1–4 holding one is still refused.
   - Delete everything leaves the level at Off; an outdated tab and a failed-read visit write no
     level.
   - M3 recorded. Then **H5** at the release gate.
@@ -1522,7 +1579,9 @@ Architecture capture: none
 
 Status: planned
 Wave: 5
-Depends on: 11, 16, 17, D0, U1a (for the labels); C1, done (`module_saved_data_loader`, §D12
+Depends on: 11, 16, 17, D0, U1a (for the labels); and every chunk a seventh passes through once
+the app can make one: 9 (the backing), 10 (the symbols), 13 (MusicXML), 14 (the staff), 15
+(`ifk5.`) and 17 (data version 5) (D528); C1, done (`module_saved_data_loader`, §D12
 item 11, only if the level sits outside the controls, applied at wave 5's sync)
 Architecture capture: none
 
