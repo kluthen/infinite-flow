@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest'
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { BUILT_IN_PRESETS, builtInPreset } from '@/domain/presets/built-in-presets'
 import { ANY_KEY_AND_MODE } from '@/domain/presets/key-and-mode-restriction'
@@ -21,6 +22,7 @@ function playerPreset(id: string, name: string): Preset {
     name,
     controls: builtInPreset('gentle').controls,
     levels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     restriction: ANY_KEY_AND_MODE,
     kind: 'player',
   })

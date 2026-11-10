@@ -65,6 +65,7 @@ import {
 import { readAudioMixDesign } from '../../../src/audio/audio-mix'
 import { decodeJamSettings } from '../../../src/jam/jam-settings'
 import { BUILT_IN_PRESETS } from '../../../src/domain/presets/built-in-presets'
+import { OFF_CHORD_FAMILIES } from '../../../src/domain/chords/chord-families'
 import { makePreset, type Preset } from '../../../src/domain/presets/preset-selection'
 import { decodePlayerPresets, encodePresetRecord } from '../../../src/storage/records/preset-record'
 import {
@@ -408,8 +409,12 @@ export function createHarnessStorage(
    */
   async function seedPresets(presets: readonly WorkspaceHarnessPresetInput[]): Promise<void> {
     const changes = presets.map((input): StorageChange => {
-      // Plain JSON from the spec, checked field by field by the preset model.
-      const preset = makePreset(input as unknown as Preset)
+      // Plain JSON from the spec, checked field by field by the preset model. A stored player
+      // preset record holds no Seventh chords level, so the seam seeds every preset at Off.
+      const preset = makePreset({
+        ...(input as unknown as Preset),
+        chordFamilies: OFF_CHORD_FAMILIES,
+      })
       const record = encodePresetRecord(preset, APP_VERSION)
       return { kind: 'write', store: 'presets', key: preset.id, record }
     })

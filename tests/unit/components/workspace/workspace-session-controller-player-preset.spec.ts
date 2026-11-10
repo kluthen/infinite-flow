@@ -6,6 +6,7 @@
  */
 import { describe, expect, it, vi } from 'vitest'
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import {
   makePreset,
@@ -30,6 +31,7 @@ function rigWithPlayerPreset(): { readonly rig: ControllerRig; readonly preset: 
     name: 'Late night',
     controls,
     levels: rig.idle.figureLevels,
+    chordFamilies: OFF_CHORD_FAMILIES,
     restriction: { keys: 'any', modes: [rig.idle.controls.collection, 'Dorian'] },
     kind: 'player',
   })

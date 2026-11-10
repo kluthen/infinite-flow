@@ -2,8 +2,10 @@
  * The player preset record: one record of the `presets` store per player preset, under the
  * preset's internal id, which the record also holds, in the record envelope: the preset's name,
  * its ten preset-held controls, its seven figure levels by figure id, and its key and mode
- * restriction. A built-in preset is never stored, and neither is the restriction in force. Each
- * save writes the whole record. Pure: no browser API.
+ * restriction. A built-in preset is never stored, and neither is the restriction in force. The
+ * record holds no Seventh chords level: reading gives every player preset the level at Off, and
+ * writing refuses a preset above Off rather than storing it as Off. Each save writes the whole
+ * record. Pure: no browser API.
  *
  * Reading is tolerant, record by record and field by field, like the settings records: an unknown
  * or invalid control, level or name takes that setting's first-load value, a missing name a
@@ -13,6 +15,7 @@
  * stored, and never changes it.
  */
 
+import { isOffChordFamilies, OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import {
   ARPEGGIO_CHAOS_VALUES,
   COLLECTIONS,
@@ -98,15 +101,22 @@ function copiedHalf<T>(half: RestrictionHalf<T>): RestrictionHalf<T> {
 
 /**
  * Intent: the whole record of a player preset, written by the app at `appVersion`: its id and
- * name, the ten controls in preset order, the seven levels in figure order and its restriction.
- * A built-in preset or an empty app version is a caller defect and throws: a built-in is never
- * stored, and no app could read a record without its app version.
+ * name, the ten controls in preset order, the seven levels in figure order and its restriction,
+ * and no Seventh chords level. A built-in preset, an empty app version or a preset whose Seventh
+ * chords level is above Off is a caller defect and throws: a built-in is never stored, no app
+ * could read a record without its app version, and the record cannot hold a level above Off.
  */
 // @spec-link [[entity_player_preset_record]]
 // @spec-link [[rule_player_presets_saved_on_device]]
+// @spec-link [[req_seventh_chords_level]]
 export function encodePresetRecord(preset: Preset, appVersion: string): PresetRecord {
   if (preset.kind !== 'player') throw new Error('preset record: only a player preset is stored')
   if (appVersion === '') throw new Error('preset record: the app version must not be empty')
+  if (!isOffChordFamilies(preset.chordFamilies)) {
+    throw new Error(
+      `preset record: a preset's Seventh chords level ${JSON.stringify(preset.chordFamilies)} is above Off, which this record cannot store`,
+    )
+  }
   return {
     dataVersion: PRESET_RECORD_DATA_VERSION,
     appVersion,
@@ -261,20 +271,25 @@ function readRecord(entry: StoredEntry): ReadRecord | null {
   }
 }
 
-/** Intent: the player preset of a readable record, under the name it loads with. */
+/**
+ * Intent: the player preset of a readable record, under the name it loads with, its Seventh
+ * chords level at Off since the record holds none.
+ */
 function playerPreset(record: ReadRecord, name: string): Preset {
-  return makePreset({ ...record, name, kind: 'player' })
+  return makePreset({ ...record, name, chordFamilies: OFF_CHORD_FAMILIES, kind: 'player' })
 }
 
 /**
  * Intent: the player presets of the `presets` store's entries, in entry order, each read on its
  * own and field by field. An entry that cannot be read at all is not listed, with no notice, and
  * is never changed. A missing name becomes a numbered one: each nameless preset, in entry order,
- * takes the first suggested name no built-in, named or already numbered preset has. Never throws
- * for what was stored.
+ * takes the first suggested name no built-in, named or already numbered preset has. Every player
+ * preset loads with the Seventh chords level at Off, since the record holds none. Never throws for
+ * what was stored.
  */
 // @spec-link [[entity_player_preset_record]]
 // @spec-link [[rule_presets_load_tolerantly]]
+// @spec-link [[req_seventh_chords_level]]
 export function decodePlayerPresets(entries: readonly StoredEntry[]): readonly Preset[] {
   const records = entries.flatMap((entry) => {
     const record = readRecord(entry)

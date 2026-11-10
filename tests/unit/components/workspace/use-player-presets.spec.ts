@@ -6,6 +6,7 @@
  */
 import { describe, expect, it } from 'vitest'
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { BUILT_IN_PRESETS, builtInPreset } from '@/domain/presets/built-in-presets'
 import { ANY_KEY_AND_MODE, onlyKeyAndMode } from '@/domain/presets/key-and-mode-restriction'
 import { makePreset, type Preset, type PresetSelection } from '@/domain/presets/preset-selection'
@@ -97,6 +98,7 @@ describe('save as new', () => {
       name: 'Bebop practice',
       controls: heldControls(controls) as unknown as Preset['controls'],
       levels: LATE_NIGHT.levels,
+      chordFamilies: OFF_CHORD_FAMILIES,
       restriction: onlyKeyAndMode('D', 'Dorian'),
       kind: 'player',
     })

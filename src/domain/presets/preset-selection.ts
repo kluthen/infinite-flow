@@ -23,7 +23,6 @@ import {
 } from '../controls/generation-controls'
 import {
   ChordFamiliesError,
-  OFF_CHORD_FAMILIES,
   parseChordFamilies,
   type ChordFamilies,
   type ChordFamilyId,
@@ -173,17 +172,14 @@ function readText(value: unknown, field: string): string {
 /**
  * Intent: build a preset from its seven fields: every control checked against its catalog, the
  * figure levels, the Seventh chords level and the restriction parsed, id and name non-empty
- * strings, the kind known. A refusal throws a PresetModelError. The Seventh chords level reads Off
- * when the input has none, until the player preset record passes it; nothing else is defaulted.
- * Returns a fresh deep-frozen preset holding exactly those seven fields, the level by value, no
- * other key carried over.
+ * strings, the kind known. A refusal throws a PresetModelError; nothing is defaulted. Returns a
+ * fresh deep-frozen preset holding exactly those seven fields, the level by value, no other key
+ * carried over.
  */
 // @spec-link [[module_preset_model]]
 // @spec-link [[rule_preset_contents]]
 // @spec-link [[req_seventh_chords_level]]
-export function makePreset(
-  input: Omit<Preset, 'chordFamilies'> & { readonly chordFamilies?: ChordFamilies },
-): Preset {
+export function makePreset(input: Preset): Preset {
   if (!isPlainObject(input)) throw new PresetModelError('A preset must be a plain object.')
   const kind = PRESET_KINDS.find((candidate) => candidate === input.kind)
   if (kind === undefined) {
@@ -194,10 +190,7 @@ export function makePreset(
     name: readText(input.name, 'name'),
     controls: readHeldControls(input.controls),
     levels: readField('levels', () => parseFigureLevels(input.levels)),
-    chordFamilies:
-      input.chordFamilies === undefined
-        ? OFF_CHORD_FAMILIES
-        : readField('chordFamilies', () => parseChordFamilies(input.chordFamilies)),
+    chordFamilies: readField('chordFamilies', () => parseChordFamilies(input.chordFamilies)),
     restriction: readField('restriction', () => makeKeyAndModeRestriction(input.restriction)),
     kind,
   })

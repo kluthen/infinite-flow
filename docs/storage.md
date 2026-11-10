@@ -694,9 +694,11 @@ player asks, as before. The workspace harness runs the same loader (see
 in parallel, every record of `settings`, `instrument` and `controller`, and every entry of
 `presets` and of `sessionSummaries` with its key (the keyed read). The player presets go through
 the player preset codec (`decodePlayerPresets`, `records/preset-record.ts`), each record and each
-field on its own: a record it cannot read at all is left in the store and not listed. A refused
-or late read of `presets` is a failed read of the whole visit, like one of the settings: the
-visit starts from the defaults and lists the built-in presets only. The settings go
+field on its own: a record it cannot read at all is left in the store and not listed. The player
+preset record holds no Seventh chords level, so every player preset loads with the level at Off;
+`encodePresetRecord` writes the same shape as v3.2 and refuses a preset above Off rather than
+storing it as Off. A refused or late read of `presets` is a failed read of the whole visit, like
+one of the settings: the visit starts from the defaults and lists the built-in presets only. The settings go
 through the settings codec (`decodeSettings`), each checked on its own: an unknown or no longer
 valid value takes its setting's default, silently, and every other value is kept. My instrument's
 record is decoded by its own codec (see [My instrument](#my-instrument)), and whether it loaded is

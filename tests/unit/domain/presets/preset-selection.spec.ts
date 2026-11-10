@@ -45,6 +45,7 @@ const KEPT_TO_G_DORIAN: Preset = makePreset({
   name: 'Kept to G Dorian',
   controls: builtInPreset('bebop').controls,
   levels: JAZZ_FIGURE_LEVELS,
+  chordFamilies: OFF_CHORD_FAMILIES,
   restriction: onlyKeyAndMode('G', 'Dorian'),
   kind: 'player',
 })
@@ -55,6 +56,7 @@ const KEYS_D_OR_A: Preset = makePreset({
   name: 'D or A',
   controls: builtInPreset('gentle').controls,
   levels: NEUTRAL_FIGURE_LEVELS,
+  chordFamilies: OFF_CHORD_FAMILIES,
   restriction: makeKeyAndModeRestriction({ keys: ['D', 'A'], modes: 'any' }),
   kind: 'player',
 })
@@ -320,16 +322,13 @@ describe('making a preset', () => {
     }
   })
 
-  // Transitional: until the player preset record passes the level, an input with none reads Off.
   // @test-link [[req_seventh_chords_level]]
   // @test-link [[module_preset_model]]
   // @test-link [[rule_preset_contents]]
-  it('reads the Seventh chords level as Off when the input has none (transitional)', () => {
+  it('refuses a preset with no Seventh chords level', () => {
     const { chordFamilies, ...without } = valid
     void chordFamilies
-    const preset = makePreset(without)
-    expect(preset.chordFamilies).toStrictEqual(OFF_CHORD_FAMILIES)
-    expect(Object.isFrozen(preset.chordFamilies)).toBe(true)
+    expect(() => makePreset(without as Preset)).toThrow(PresetModelError)
   })
 
   it('finds a preset by its id', () => {

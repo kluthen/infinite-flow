@@ -39,6 +39,7 @@ const MY_REEL: Preset = makePreset({
   name: 'My reel',
   controls: builtInPreset('reel').controls,
   levels: builtInPreset('reel').levels,
+  chordFamilies: OFF_CHORD_FAMILIES,
   restriction: makeKeyAndModeRestriction({ keys: 'any', modes: ['Mixolydian', 'Dorian'] }),
   kind: 'player',
 })

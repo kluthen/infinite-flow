@@ -7,6 +7,7 @@
 import { describe, expect, it, vi } from 'vitest'
 
 import { SessionUsageError } from '@/composables/use-generation-session'
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import {
@@ -64,6 +65,7 @@ const LATE_NIGHT: Preset = makePreset({
   name: 'Late night',
   controls: { ...builtInPreset('jazz').controls, tension: 'Build' },
   levels: { ...NEUTRAL_FIGURE_LEVELS, chromaticApproach: 'favored' },
+  chordFamilies: OFF_CHORD_FAMILIES,
   restriction: { keys: 'any', modes: ['Dorian'] },
   kind: 'player',
 })
@@ -408,6 +410,7 @@ const WARM_UP: Preset = makePreset({
   name: 'Warm-up',
   controls: builtInPreset('neutral').controls,
   levels: NEUTRAL_FIGURE_LEVELS,
+  chordFamilies: OFF_CHORD_FAMILIES,
   restriction: { keys: 'any', modes: 'any' },
   kind: 'player',
 })
