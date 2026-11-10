@@ -199,3 +199,27 @@ Reference machine (AMD Ryzen 5 PRO 8640HS), Node 22.23.4; no `atd audit`.
   per-reason counts have no recorded v3.2 figure; they are in the log as a baseline.
 - **Entry chunk 313,113 B** (+1,658 B on wave 0's 311,455 B; budget 327,680 B); Jam's chunk
   61,211 B (+19 B); no `src/jam/` module in the first load; 526 source files, 66 chunks.
+
+### Wave 1 sync and report (2026-11-10)
+
+- `spec-writer`, plan v11 (1ea7795f), spec D528: the chunk owners' items settled by order, not by
+  interim refusals (chunk 15 retires the `ifk4.` writer, chunk 17 the data-version-4 body writer;
+  chunk 19 now waits for 9, 10, 13, 14, 15 and 17); chunk 15 gains the replay report and a 15a/15b
+  split; chunk 16 gains the prewarm file; **chunk 13 moves to wave 4** (it had no edge to chunk 19
+  in wave 5, so a blocked 13 could have let the app make a seventh it cannot export). No owner
+  ruling.
+- `documentalist`'s wave sync (6758f1fd): **CONTRACT 15.0.0**; A8 at the preset level
+  (`rule_choosing_preset_sets_its_settings` 0.2 without its TECHNICAL INTERFACE,
+  `module_preset_model` 0.3), A10 (`rule_harmony_change_drops_unfit_harmonic_carry_in` 0.3), A12;
+  `module_generative_profile_selection` and `module_profile_control_customization` wait whole for
+  wave 3 (chunk 16, 17.0.0). Every chunk's Revisions applied; the known drift fixed. Drift found:
+  `module_generation_worker_protocol` said every malformed message throws
+  `GenerationWorkerProtocolError`; the driver ruled the tested code right (typed errors per part),
+  applied in e5917cc0 and 88fd7fc8 (0.14).
+- Promotion candidates put to the owner (DRAFT → REVIEW): `rule_seventh_chords_diatonic_only`,
+  `rule_seventh_chord_symbols_spoken`, `rule_carried_seventh_chord_compared_by_triad`,
+  `rule_join_reads_carried_chord_as_triad`.
+- `doc-ids compare main v3.3-w1`: 0 collisions.
+- Report to the owner: chunks 2, 3, 8, 10 and 11 merged, none moved out of the wave; the gate green
+  on 2020de0f with one ISS-017 flake; sweep at v3.2's figures; entry 313,113 B; A8's split (D527)
+  told. Merge into `main` on the owner's word.
