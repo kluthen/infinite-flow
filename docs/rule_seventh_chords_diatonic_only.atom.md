@@ -5,7 +5,8 @@ type: RULE
 layer: BUSINESS
 version: 0.1
 human_name: Only the Seventh Chords of the Key and Mode
-dependents: []
+dependents:
+  - [[module_harmony_candidate_domain]]
 priority: 1
 tags: [v3, release-v3.3, generation, chords]
 parents:

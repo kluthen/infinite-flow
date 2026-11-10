@@ -2,7 +2,9 @@
 id: rule_seventh_chord_draws_reproducible
 status: DRAFT
 human_name: Seventh Chord Draws Reproduce Everywhere
-dependents: []
+dependents:
+  - [[module_generation_request_construction]]
+  - [[module_generation_worker_protocol]]
 type: RULE
 layer: BUSINESS
 priority: 1

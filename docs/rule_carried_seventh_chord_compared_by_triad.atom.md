@@ -6,7 +6,8 @@ version: 0.1
 priority: 1
 human_name: A Carried Seventh Chord Is Judged by Its Triad
 tags: [v3, release-v3.3, session, phrase-join, chords]
-dependents: []
+dependents:
+  - [[entity_phrase_carry_in]]
 type: RULE
 parents:
   - [[req_seventh_chords_level]]
