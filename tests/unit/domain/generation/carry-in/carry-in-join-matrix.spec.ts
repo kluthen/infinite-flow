@@ -17,9 +17,20 @@
 import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { describe, expect, it } from 'vitest'
 
-import { makeGenerationControls, type Leapiness } from '@/domain/controls/generation-controls'
-import type { CarryIn } from '@/domain/generation/carry-in/carry-in'
+import {
+  makeGenerationControls,
+  type GenerationControls,
+  type Leapiness,
+} from '@/domain/controls/generation-controls'
+import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
+import {
+  makeCarryIn,
+  type CarryIn,
+  type PhraseCarryIn,
+} from '@/domain/generation/carry-in/carry-in'
 import { makeCarryInGenerationIntent } from '@/domain/generation/carry-in/carry-in-intent'
+import { makeHarmonyCollection } from '@/domain/harmony/collection'
+import type { HarmonyCollection } from '@/domain/harmony/harmony-types'
 import {
   createGenerationIntent,
   type GenerationIntent,
@@ -29,7 +40,18 @@ import { generatePhrase } from '@/domain/generation/orchestration/generation-orc
 import { makeSeed } from '@/domain/random/seed'
 import { validateGenerationResult } from '@/domain/validation/generation-result-validator'
 import { levelsForProfile } from '@/domain/figures/figure-levels'
-import { attackMidis, carryInAfter, type SuccessOutcome } from './carry-in-fixture'
+import { adaptCarryIn } from '@/session/carry-in-adaptation'
+import type { SessionSettings } from '@/session/session-types'
+import { ALL_GROUPS_ALLOWED } from '@/session/settings-mutation'
+import { seventhOf } from '../../harmony/seventh-chord-fixtures'
+import {
+  attackMidis,
+  BASE_CONTROLS,
+  buildIntent,
+  carryInAfter,
+  generateSuccess,
+  type SuccessOutcome,
+} from './carry-in-fixture'
 import { buildMatrix, type MatrixCell } from './carry-in-matrix'
 
 /**
@@ -240,5 +262,99 @@ describe('carry-in join matrix', () => {
 
   it('keeps the Varying window of phrase 1 where the phrase-2 seed alone would pick another', () => {
     expect(varyingReuseWitnesses.length).toBeGreaterThan(0)
+  })
+})
+
+const C_MAJOR = makeHarmonyCollection('C', 'Major')
+
+/** Intent: the carry-in with the seventh of its chord's own degree in the given collection. */
+function withCarriedSeventh(carryIn: PhraseCarryIn, collection: HarmonyCollection): PhraseCarryIn {
+  const harmony = carryIn.finalHarmony!
+  const seventh = seventhOf(harmony.triad.degree, collection)
+  return makeCarryIn({ ...carryIn, finalHarmony: { ...harmony, seventh } })
+}
+
+/**
+ * Intent: the outcome a phrase generated after a carried seventh chord must equal: the one
+ * generated after its triad, its request holding the seventh chord's carry-in.
+ */
+function expectSameJoin(overSeventh: SuccessOutcome, overTriad: SuccessOutcome, carried: CarryIn) {
+  expect(overSeventh).toEqual({ ...overTriad, request: { ...overTriad.request, carryIn: carried } })
+}
+
+/** Intent: the matrix cells on the C keyboard in the Middle register, one per set and seed. */
+const SEVENTH_CELLS = MATRIX.filter(
+  (cell) => cell.instrumentProfileId === 'c-keyboard' && cell.register === 'Middle',
+)
+
+/** Intent: a seed-11 phrase 1 of the fixture's C Major settings and the G chord it carries. */
+function carriedG(): PhraseCarryIn {
+  const intent = buildIntent({ seed: 11, label: 'carried-seventh' })
+  const carryIn = carryInAfter(intent, generateSuccess(intent), 1)
+  expect(carryIn.finalHarmony!.triad).toEqual(C_MAJOR.triads[4])
+  return carryIn
+}
+
+/** Intent: session settings from the fixture's base controls with some of them changed. */
+function settings(controls: Partial<GenerationControls> = {}): SessionSettings {
+  return {
+    controls: makeGenerationControls({ ...BASE_CONTROLS, ...controls }),
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
+    selection: { kind: 'custom', baseId: 'neutral' },
+    allowedGroups: ALL_GROUPS_ALLOWED,
+    rhythmLockOn: false,
+    allowedRhythmChanges: [],
+  }
+}
+
+// @test-link [[rule_carried_seventh_chord_compared_by_triad]]
+describe('a carried seventh chord across the join', () => {
+  // @test-link [[rule_carried_seventh_chord_compared_by_triad]]
+  it.each(SEVENTH_CELLS.map((cell) => ({ cell, label: cell.label })))(
+    '$label: a carried seventh chord joins exactly where its triad would',
+    ({ cell }) => {
+      const firstIntent = phraseIntent(cell, 1)
+      const triad = carryInAfter(firstIntent, generateSuccess(firstIntent), 1)
+      const { tonalCenter, collection } = cell.set.controls
+      const seventh = withCarriedSeventh(triad, makeHarmonyCollection(tonalCenter, collection))
+      expect(seventh.finalHarmony!.seventh).toBeDefined()
+      const overTriad = generateSuccess(phraseIntent(cell, 2, triad))
+      expect(overTriad.provenance.harmony.events[0]!.triad.degree).toBe(1)
+      expectSameJoin(generateSuccess(phraseIntent(cell, 2, seventh)), overTriad, seventh)
+    },
+  )
+
+  // @test-link [[rule_carried_seventh_chord_compared_by_triad]]
+  it('joins a carried G7 to a phrase opening on degree 1 exactly where a carried G would', () => {
+    const g = carriedG()
+    const g7 = withCarriedSeventh(g, C_MAJOR)
+    expect(g7.finalHarmony!.seventh).toEqual({ pitchClass: 5, quality: 'dominant-seventh' })
+    const overG = generateSuccess(buildIntent({ seed: 12, label: 'carried-seventh', carryIn: g }))
+    expect(overG.provenance.harmony.events[0]!.triad).toEqual(C_MAJOR.triads[0])
+    const overG7 = generateSuccess(buildIntent({ seed: 12, label: 'carried-seventh', carryIn: g7 }))
+    expectSameJoin(overG7, overG, g7)
+  })
+
+  // @test-link [[rule_carried_seventh_chord_compared_by_triad]]
+  it('is dropped by a key change or a harmony change it no longer fits, as its triad is', () => {
+    const g = carriedG()
+    const g7 = withCarriedSeventh(g, C_MAJOR)
+    expect(g7.finalHarmony!.seventh).toBeDefined()
+    const before = settings()
+    const candidates = buildIntent({ seed: 11, label: 'carried-seventh' }).registerIntent.candidates
+    for (const after of [
+      settings({ tonalCenter: 'F#', collection: 'Dorian' }),
+      settings({ collection: 'Ionian' }),
+      settings({ harmonicMotion: 'Static' }),
+    ]) {
+      const adapted = adaptCarryIn({ carryIn: g7, before, after, candidates })
+      expect(adapted).toStrictEqual(adaptCarryIn({ carryIn: g, before, after, candidates }))
+      expect(adapted.kind === 'carry-in' && adapted.carryIn.finalHarmony).toBeNull()
+    }
+    const still = settings({ harmonicMotion: 'Active diatonic', tension: 'Build' })
+    expect(adaptCarryIn({ carryIn: g7, before, after: still, candidates })).toStrictEqual({
+      kind: 'carry-in',
+      carryIn: g7,
+    })
   })
 })

@@ -10,6 +10,7 @@ import { describe, expect, it } from 'vitest'
 import { makeHarmonyCandidateDomain } from '@/domain/harmony/harmony-planner'
 import {
   candidatesFollowingCarriedHarmony,
+  carriedHarmonyEndsDomain,
   harmonyJoinFollows,
   HarmonyJoinError,
   type CarriedHarmony,
@@ -20,6 +21,7 @@ import type {
   HarmonyPlannerInput,
 } from '@/domain/harmony/harmony-types'
 import { COLLECTIONS, HARMONIC_MOTIONS, TENSION_ARCS } from '@/domain/controls/generation-controls'
+import { seventhOf } from './seventh-chord-fixtures'
 
 /** Intent: the structural domain for one harmony setting, which must not be empty. */
 function domainFor(input: Partial<HarmonyPlannerInput>): HarmonyCandidateDomain {
@@ -87,5 +89,43 @@ describe('harmony starting from the carried chord', () => {
       events: [{ ...candidate.events[0]!, triad: second }, ...candidate.events.slice(1)],
     }
     expect(harmonyJoinFollows(carriedFrom(candidate), awayFromTonic)).toBe(false)
+  })
+})
+
+/** Intent: the carried chord with the seventh of its own degree in the domain's collection. */
+function asSeventhChord(carried: CarriedHarmony, domain: HarmonyCandidateDomain): CarriedHarmony {
+  return { ...carried, seventh: seventhOf(carried.triad.degree, domain.collection) }
+}
+
+// @test-link [[rule_carried_seventh_chord_compared_by_triad]]
+describe('a carried seventh chord, judged by its triad', () => {
+  // @test-link [[rule_carried_seventh_chord_compared_by_triad]]
+  it('ends the domain and keeps the same candidates exactly where its triad does', () => {
+    for (const collection of COLLECTIONS)
+      for (const harmonicMotion of HARMONIC_MOTIONS) {
+        const domain = domainFor({ collection, harmonicMotion })
+        for (const candidate of domain.candidates) {
+          const triad = carriedFrom(candidate)
+          const seventh = asSeventhChord(triad, domain)
+          expect(carriedHarmonyEndsDomain(domain, seventh)).toBe(true)
+          expect(candidatesFollowingCarriedHarmony(domain, seventh)).toEqual(
+            candidatesFollowingCarriedHarmony(domain, triad),
+          )
+        }
+      }
+  })
+
+  // @test-link [[rule_carried_seventh_chord_compared_by_triad]]
+  it('is refused where its triad is: another key, or settings that never end on it', () => {
+    const gentle = domainFor({})
+    const g7 = asSeventhChord(carriedFrom(gentle.candidates[0]!), gentle)
+    expect(g7.seventh).toEqual({ pitchClass: 5, quality: 'dominant-seventh' })
+    for (const other of [
+      domainFor({ tonalCenter: 'D' }),
+      domainFor({ harmonicMotion: 'Static' }),
+    ]) {
+      expect(carriedHarmonyEndsDomain(other, g7)).toBe(false)
+      expect(() => candidatesFollowingCarriedHarmony(other, g7)).toThrow(HarmonyJoinError)
+    }
   })
 })
