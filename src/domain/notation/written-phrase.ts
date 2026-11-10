@@ -133,7 +133,11 @@ function buildWrittenEvents(
   })
 }
 
-/** Intent: respell one concert chord symbol's root and optional bass in the display key. */
+/**
+ * Intent: respell one concert chord symbol's root and optional bass in the display key; its
+ * suffix (a triad's or a seventh chord's) passes through unchanged.
+ */
+// @spec-link [[rule_seventh_chord_symbols]]
 function respellChord(
   chord: ConcertChordSymbol,
   transposition: InstrumentTransposition,
