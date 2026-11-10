@@ -464,7 +464,8 @@ Architecture capture: none
 
 ### Chunk 1 — Baselines: the v3.2 corpus, the goldens at Off and the bundle
 
-Status: in progress
+Status: merged (w0, dd3412d6)
+Record: 07914b9e: 297-key `ifk4.` corpus (1.1 MB, ~7 s), backing and file corpus of 8 sessions × 4 files (~340 KB, ~1 s), identical on the `v3.2.0` tag; entry 311,455 B. Beside the Files line: three tests-side case-builder modules (size limit), `.prettierignore` lists the byte-compared fixtures, the file-corpus spec links `req_session_backing_track` and the two generated-notes export rules (lint:health); the lock chain uses Heavily varied (no rhythm change is available under Strict or Slightly varied). No deviation from spec or design.
 Wave: 0
 Depends on: R0
 Architecture capture: none
