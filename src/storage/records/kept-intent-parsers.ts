@@ -17,10 +17,15 @@
  * both), a stored profile mapped through `profile-to-levels.ts`; a read intent never holds a
  * musical profile.
  *
+ * No stored intent of data versions 1, 2 or 4 holds the Seventh chords level, which came after
+ * them: each reader gives the intent it reads the level at Off, and a stored intent holding a
+ * `chordFamilies` key is refused as an unknown field (the writer never writes one).
+ *
  * Pure: no storage access. The kept-session codec calls these and reports any refusal as an
  * unreadable record.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import {
   makeGenerationControls,
   PITCH_CLASSES,
@@ -330,8 +335,12 @@ function parseRequestInputs(
  * without rebuilding it: each field through the domain's own parser (request id, seed, meter,
  * controls, written tonal center, figure levels, instrument profile from its stored data,
  * carry-in, rhythm lock group, steering block), the rest against the intent's shape, with exactly
- * the shape's keys, then its parts checked against each other.
+ * the shape's keys, then its parts checked against each other. No stored shape holds the Seventh
+ * chords level, so the intent read holds it at Off, after its figure levels as the factory places
+ * it.
  */
+// @spec-link [[module_kept_session_codec]]
+// @spec-link [[module_generation_request_construction]]
 function parseIntentOfShape(input: unknown, shape: IntentShape): GenerationIntent {
   const record = exactRecord(input, shape.keys, 'Kept intent', shape.optional)
   const requestId = parseRequestId(record.requestId)
@@ -357,6 +366,7 @@ function parseIntentOfShape(input: unknown, shape: IntentShape): GenerationInten
     controls,
     writtenTonalCenter,
     figureLevels,
+    chordFamilies: OFF_CHORD_FAMILIES,
     instrumentProfile,
     registerIntent,
     ...parseRequestInputs(record, shape),
@@ -368,8 +378,9 @@ function parseIntentOfShape(input: unknown, shape: IntentShape): GenerationInten
  * data version 2 reads it: every field as `parseKeptIntentV2` reads it, `carryIn` only when one
  * was handed forward, its figure levels from any of data version 1's three shapes (levels only; a
  * v3.0 musical profile only, read as that profile's levels; or both, which must agree), and the
- * intent returned holds no musical profile. Returns a fresh deep-frozen intent; throws a
- * KeptRecordError or the domain parser's own error for anything invalid, never repairing it.
+ * intent returned holds no musical profile and holds the Seventh chords level at Off. Returns a
+ * fresh deep-frozen intent; throws a KeptRecordError or the domain parser's own error for anything
+ * invalid, never repairing it.
  */
 // @spec-link [[module_kept_session_codec]]
 // @spec-link [[module_kept_session_upgrade_step]]
@@ -382,9 +393,9 @@ export function parseKeptIntentV1(input: unknown): GenerationIntent {
  * step to data version 4 reads it: each field through the domain's own parser, with exactly v3.1's
  * keys (its figure levels always, `carryIn` only when one was handed forward, read through
  * `parsePhraseCarryIn` in v3.1's exact form; a musical profile, a rhythm lock group or a steering
- * block refused as an unknown field), then its parts checked against each other. Returns a fresh
- * deep-frozen intent; throws a KeptRecordError or the domain parser's own error for anything
- * invalid, never repairing it.
+ * block refused as an unknown field), then its parts checked against each other; the intent read
+ * holds the Seventh chords level at Off. Returns a fresh deep-frozen intent; throws a
+ * KeptRecordError or the domain parser's own error for anything invalid, never repairing it.
  */
 // @spec-link [[module_kept_session_codec]]
 // @spec-link [[module_kept_session_jam_upgrade_step]]
@@ -401,8 +412,9 @@ export function parseKeptIntentV2(input: unknown): GenerationIntent {
  * lock group and the steering block through the generation request's parsers), the rest against
  * the intent's shape, with exactly its keys (a musical profile refused as an unknown field), then
  * its parts checked against each other. A carry-in from no phrase is read only beside a steering
- * block. Returns a fresh deep-frozen intent; throws a KeptRecordError or the domain parser's own
- * error for anything invalid, never repairing it.
+ * block. Data version 4 holds no Seventh chords level (a `chordFamilies` key is refused as an
+ * unknown field), so the intent read holds it at Off. Returns a fresh deep-frozen intent; throws
+ * a KeptRecordError or the domain parser's own error for anything invalid, never repairing it.
  */
 // @spec-link [[module_kept_session_codec]]
 // @spec-link [[rule_kept_session_content]]

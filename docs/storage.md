@@ -402,7 +402,10 @@ own parser where one exists: `parseGenerationRequest`, `parseConcertEventTimelin
 `parseQuantizedDoodle` and `parseConcertPitch`, with `isInstrumentClef` for the clef.
 `kept-phrase-parsers.ts` adds `parseKeptHarmony`, and `kept-intent-parsers.ts` `parseKeptIntent`,
 for what no domain parser covers. A data version 4 intent holds the seven figure levels
-(`figureLevels`) and no musical profile; one holding a `musicalProfile` is refused. When the
+(`figureLevels`) and no musical profile; one holding a `musicalProfile` is refused. No stored
+intent holds the Seventh chords level (`chordFamilies`): `parseKeptIntent`, `parseKeptIntentV2`
+and `parseKeptIntentV1` give the intent they read at Off, and a stored intent holding the key is
+refused as an unknown field. When the
 phrase had them, it also holds its carry-in, its rhythm lock group and its steering block, each
 read through the generation request's own parsers; a carry-in from no phrase is read only beside a
 steering block. An intent's instrument profile is read from the data it holds, through the

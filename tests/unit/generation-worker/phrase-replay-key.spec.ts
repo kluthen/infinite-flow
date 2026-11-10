@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { OFF_CHORD_FAMILIES, type ChordFamilies } from '@/domain/chords/chord-families'
 import {
   GenerationControlError,
   makeGenerationControls,
@@ -10,7 +11,10 @@ import { CarryInError, makeCarryIn } from '@/domain/generation/carry-in/carry-in
 import { makeCarryInGenerationIntent } from '@/domain/generation/carry-in/carry-in-intent'
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
 import { makeRegisterWindow } from '@/domain/profile/register-window'
-import type { GenerationIntent } from '@/domain/generation/generation-intent'
+import {
+  createGenerationIntent,
+  type GenerationIntent,
+} from '@/domain/generation/generation-intent'
 import { makeSeed, SeedConstructionError } from '@/domain/random/seed'
 import { GenerationWorkerProtocolError } from '@/generation-worker/generation-worker-protocol'
 import {
@@ -557,4 +561,57 @@ describe('phrase replay key and a carry-in from no phrase', () => {
       expect(() => decodePhraseReplayKey(key)).toThrow('CarryIn has unknown field "origin".')
     }
   })
+})
+
+/** Intent: the plain intent `buildIntent` gives for a seed, built again at a Seventh chords level. */
+function intentAtLevel(seed: number, chordFamilies: ChordFamilies): GenerationIntent {
+  const base = buildIntent({ seed, label: 'seventh-chords' })
+  return createGenerationIntent({
+    requestId: base.requestId,
+    seed: base.seed,
+    controls: { ...base.controls, tonalCenter: base.writtenTonalCenter },
+    figureLevels: base.figureLevels,
+    chordFamilies,
+  })
+}
+
+// @test-link [[module_phrase_replay_key]]
+// @test-link [[rule_seventh_chord_draws_reproducible]]
+describe('phrase replay key and the Seventh chords level', () => {
+  it('round-trips an intent at Off through an ifk4 key to an equal intent, the level at Off', () => {
+    const intent = intentAtLevel(31, OFF_CHORD_FAMILIES)
+    const key = encodePhraseReplayKey(intent, 1)
+    const decoded = decodePhraseReplayKey(key)
+
+    expect(key.startsWith('ifk4.')).toBe(true)
+    expect(payloadOf(key)).toHaveLength(9)
+    expect(decoded.intent).toStrictEqual(intent)
+    expect(decoded.intent.chordFamilies).toStrictEqual(OFF_CHORD_FAMILIES)
+    expect(Object.keys(decoded.intent)).toEqual(Object.keys(intent))
+  })
+
+  it('decodes an ifk1, an ifk3 and an ifk4 key with the level at Off', () => {
+    for (const key of [
+      rawKey(validTuple()),
+      rawIfk3Key(validIfk3Tuple()),
+      encodePhraseReplayKey(carryInIntent(), 2),
+    ])
+      expect(decodePhraseReplayKey(key).intent.chordFamilies).toStrictEqual(OFF_CHORD_FAMILIES)
+  })
+
+  it.each(['sometimes', 'favored', 'stronglyFavored'] as const)(
+    'refuses to encode an intent at %s rather than write a key decoding to Off',
+    (level) => {
+      const intent = intentAtLevel(32, { 'seventh-chords': level })
+      expect(() => encodePhraseReplayKey(intent, 1)).toThrow(PhraseReplayKeyError)
+      expect(() => encodePhraseReplayKey(intent, 1)).toThrow(
+        /Seventh chords level .* above Off.*"ifk4"/u,
+      )
+      const log = vi.fn()
+      expect(() => announcePhraseReplayKey(intent, { source: 'workspace' }, log)).toThrow(
+        PhraseReplayKeyError,
+      )
+      expect(log).not.toHaveBeenCalled()
+    },
+  )
 })

@@ -279,9 +279,16 @@ function storedBytes(value: unknown): string {
   )
 }
 
+/** Intent: an intent as v3.2 built it, before the Seventh chords level existed. */
+function withoutChordFamilies(intent: GenerationIntent): Omit<GenerationIntent, 'chordFamilies'> {
+  const { chordFamilies, ...earlier } = intent
+  void chordFamilies
+  return earlier
+}
+
 /**
  * Intent: a body as the writer wrote it before the Seventh chords level existed: each phrase's
- * intent the very intent it was written from, stored whole.
+ * intent the very intent it was written from, without the level it did not have yet, stored whole.
  */
 function writtenWhole(
   body: KeptSessionBodyRecord,
@@ -289,7 +296,10 @@ function writtenWhole(
 ): KeptSessionBodyRecord {
   return {
     ...body,
-    phrases: body.phrases.map((phrase, index) => ({ ...phrase, intent: intents[index]! })),
+    phrases: body.phrases.map((phrase, index) => ({
+      ...phrase,
+      intent: withoutChordFamilies(intents[index]!),
+    })),
   }
 }
 
@@ -369,7 +379,7 @@ describe("a body written with data version 4's intent keys", () => {
       const read = parseKeptSessionBody(structuredClone(body))
       read.phrases.forEach((phrase, index) => {
         expect(phrase.intent).toEqual(records[index]!.intent)
-        expect(Object.hasOwn(phrase.intent, 'chordFamilies')).toBe(false)
+        expect(phrase.intent.chordFamilies).toStrictEqual(OFF_CHORD_FAMILIES)
       })
 
       const readAtOff = read.phrases.map((phrase) =>
@@ -410,5 +420,79 @@ describe("a body written with data version 4's intent keys", () => {
     expect(() => rewrittenKeptBodyRecordV2(readFavored, () => true, APP_VERSION)).toThrow(
       /Seventh chords level .* above Off/u,
     )
+  })
+})
+
+// @test-link [[module_kept_session_codec]]
+// @test-link [[entity_kept_session_record]]
+// @test-link [[rule_seventh_chord_draws_reproducible]]
+describe('a kept session and the Seventh chords level', () => {
+  let sessions: readonly (readonly SessionHistoryRecord[])[]
+
+  beforeAll(() => {
+    sessions = [
+      recordedKeptSession('c-keyboard', 2).phrases(),
+      lockedSessionRecords(),
+      jamSessionRecords(),
+    ]
+  }, 60_000)
+
+  /** Intent: the stored records of a session as v3.2 saved it, each intent without the level. */
+  function savedOnV32(records: readonly SessionHistoryRecord[]): StoredKeptSession {
+    const stored = keptRecords(records)
+    const body = stored.body as KeptSessionBodyRecord
+    return {
+      ...stored,
+      body: structuredClone(
+        writtenWhole(
+          body,
+          records.map((record) => record.intent),
+        ),
+      ),
+    }
+  }
+
+  // @test-link [[module_kept_session_codec]]
+  it('reopens a session saved on v3.2 with every phrase at Off', () => {
+    for (const records of sessions) {
+      const stored = savedOnV32(records)
+      expect(storesChordFamilies(stored.body as KeptSessionBodyRecord)).toBe(false)
+
+      const phrases = decoded(stored).phrases
+      expect(phrases).toHaveLength(records.length)
+      phrases.forEach((phrase, index) => {
+        expect(phrase.intent.chordFamilies).toStrictEqual(OFF_CHORD_FAMILIES)
+        expect(phrase.intent).toStrictEqual(records[index]!.intent)
+      })
+    }
+  })
+
+  // @test-link [[module_kept_session_codec]]
+  // @test-link [[entity_kept_session_record]]
+  it('saves a session played now, its intents at Off, without the level, and reopens it at Off', () => {
+    for (const records of sessions) {
+      for (const record of records)
+        expect(record.intent.chordFamilies).toStrictEqual(OFF_CHORD_FAMILIES)
+      const stored = keptRecords(records)
+
+      expect(storesChordFamilies(stored.body as KeptSessionBodyRecord)).toBe(false)
+      expect(storedBytes(stored.body)).toBe(storedBytes(savedOnV32(records).body))
+      decoded(stored).phrases.forEach((phrase, index) => {
+        expect(phrase.intent.chordFamilies).toStrictEqual(OFF_CHORD_FAMILIES)
+        expect(Object.keys(phrase.intent)).toEqual(Object.keys(records[index]!.intent))
+      })
+    }
+  })
+
+  // @test-link [[module_kept_session_codec]]
+  // @test-link [[entity_kept_session_record]]
+  it('reads a stored intent holding the level as unreadable, at Off or above', () => {
+    const stored = keptRecords(sessions[1]!)
+    for (const chordFamilies of [OFF_CHORD_FAMILIES, FAVORED_SEVENTHS]) {
+      const body = edited(stored.body, ['phrases', 1, 'intent', 'chordFamilies'], chordFamilies)
+
+      expect(() => parseKeptSessionBody(body)).toThrow(/chordFamilies/u)
+      expect(decodeKeptSession({ ...stored, body })).toEqual({ reading: 'unreadable' })
+    }
   })
 })

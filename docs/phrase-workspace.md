@@ -257,7 +257,12 @@ session and one long-lived `Worker`:
   (`rhythmLock`, `src/domain/generation/request-rhythm-lock.ts`) and the steering block
   (`steering`, `src/domain/generation/steering-block.ts`), are rebuilt through their own parsers
   when their key is present, an unknown value refused as a `GenerationWorkerProtocolError`; any
-  other extra field is still refused, and an intent without them is exactly v3.1's. Until the
+  other extra field is still refused, and an intent without them is exactly v3.1's. v3.3's
+  Seventh chords level (`chordFamilies`, `src/domain/chords/chord-families.ts`) is required on
+  every intent and rebuilt through `parseChordFamilies`: a missing level, an unknown family, an
+  unknown level or an extra field is a `GenerationWorkerProtocolError`.
+  `rebuildGenerationWorkerIntent` is told how its caller's form reads the level: the worker
+  requires it, the replay key decoder gives Off. Until the
   `ifk4.` key exists, `encodePhraseReplayKey` refuses an intent holding either group. The response
   side
   stays in `generation-worker-protocol.ts`, the only half the main thread loads at start-up, so the
@@ -392,6 +397,10 @@ phrase the one pitch the generator starts from) and nothing beyond the controls,
 levels, my instrument's owning profile fields and the two request groups; no worker message id (replay always uses id 1, which never affects the outcome), and no
 app version or commit, so a later generator change may replay an older key differently.
 
+No key version holds the Seventh chords level (`chordFamilies`, v3.3): every key decodes with it
+at Off. `encodePhraseReplayKey` therefore refuses an intent above Off with a
+`PhraseReplayKeyError` rather than write an `ifk4.` key that would replay it at Off.
+
 `encodePhraseReplayKey` and `announcePhraseReplayKey`
 (`src/generation-worker/phrase-replay-key.ts`) build the key and its console line; that module also
 owns the four prefixes, the control order and `PhraseReplayKeyError`.
@@ -417,8 +426,9 @@ by its own typed error (`MyInstrumentError`, `TranspositionIntervalError`). The 
 then validated and the full
 `GenerationIntent` rebuilt by `rebuildGenerationWorkerIntent`, the same validation
 `parseGenerationWorkerIntent` runs on a `generate` message (see
-[Generation Worker protocol](#generation-worker-protocol)). There is no parallel schema and no
-default: a missing or invalid field, a carry-in from no phrase without a steering block, or a
+[Generation Worker protocol](#generation-worker-protocol)), the decoder handing it Off as the
+Seventh chords level, which no key holds. There is no parallel schema and no default: a missing
+or invalid field, a carry-in from no phrase without a steering block, or a
 phrase number that does not follow its carry-in, is rejected, never repaired.
 
 ### Replaying a key
