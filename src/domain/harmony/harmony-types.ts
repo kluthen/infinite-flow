@@ -8,6 +8,8 @@ import type {
 export type PitchClassNumber = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11
 export type CollectionDegree = 1 | 2 | 3 | 4 | 5 | 6 | 7
 export type TriadQuality = 'major' | 'minor' | 'diminished'
+export type SeventhQuality =
+  'major-seventh' | 'minor-seventh' | 'dominant-seventh' | 'half-diminished-seventh'
 export type HarmonyRole =
   'tonic' | 'tonic_prolongation' | 'predominant' | 'open_arrival' | 'modal_color'
 export type TensionFigureKind =
@@ -19,11 +21,29 @@ export interface DiatonicTriad {
   readonly quality: TriadQuality
 }
 
+export interface DiatonicSeventhChord {
+  readonly degree: CollectionDegree
+  readonly pitchClasses: readonly [
+    PitchClassNumber,
+    PitchClassNumber,
+    PitchClassNumber,
+    PitchClassNumber,
+  ]
+  readonly quality: SeventhQuality
+}
+
+/** What a seventh-form harmony event adds to its triad: the seventh's pitch class, the quality. */
+export interface ChordSeventh {
+  readonly pitchClass: PitchClassNumber
+  readonly quality: SeventhQuality
+}
+
 export interface HarmonyCollection {
   readonly tonalCenter: PitchClass
   readonly collection: Collection
   readonly pitchClasses: readonly PitchClassNumber[]
   readonly triads: readonly DiatonicTriad[]
+  readonly seventhChords: readonly DiatonicSeventhChord[]
 }
 
 export interface HarmonyPlannerInput {
@@ -45,9 +65,24 @@ export interface HarmonyEvent {
   /** Exact positive even beat count after adjacent identical triads are serialized together. */
   readonly durationBeats: number
   readonly triad: DiatonicTriad
+  /**
+   * The seventh of the triad's degree in seventh form; absent in triad form, never null.
+   * `triad` is unchanged and stays the triad for every reader that needs the triad.
+   */
+  readonly seventh?: ChordSeventh
   readonly role: HarmonyRole
   readonly templateId: string
   readonly barRoles: readonly BarRole[]
+}
+
+/** The event's sounding pitch classes: the triad's three, plus the seventh's when present. */
+// @spec-link [[module_harmony_candidate_domain]]
+export function chordTones(
+  event: Pick<HarmonyEvent, 'triad' | 'seventh'>,
+): readonly PitchClassNumber[] {
+  return event.seventh === undefined
+    ? event.triad.pitchClasses
+    : [...event.triad.pitchClasses, event.seventh.pitchClass]
 }
 
 export type HarmonyEndpoint =
