@@ -112,3 +112,21 @@ jobs. No source change since `v3.2.0`.
   throws; `HarmonyEvent.seventh?` is `{ pitchClass, quality }`, absent in triad form; `chordTones`;
   every candidate still in triad form. Table A checked on 12 tonics × 9 collections; a triad event's
   JSON equals the pre-chunk literal; corpus guard green (21 files, 557 tests). No deviation.
+
+### Chunk 3 merged (2026-11-10)
+
+- 056ea511 (3a 1213728c, 3b 5bab9862, 3c b06b844e): `chordFamilies` on every intent at Off, the
+  resolved request unchanged; the worker refuses a missing, unknown or extra family or level;
+  `ifk1.`–`ifk4.` decode at Off, `ifk4.` round-trips, the encoder refuses a level above Off; kept
+  bodies keep data version 4's keys and reopen at Off. Corpus guard green after each half (18 files,
+  498 tests). No deviation.
+- Files-line gap (for `spec-writer`, no decision): `use-generation-session.ts` and
+  `generation-session-prewarm.ts` also build intents and pass Off.
+- For the wave gate: `npm run lint:health` fails on `tests/unit/domain/harmony/collection.spec.ts:251`
+  (nesting depth 5, from chunk 2); the perf, sweep and e2e-harness files 3c edited are typechecked,
+  not run.
+- For the sync: the two captured atoms still write `rebuildGenerationWorkerIntent(record,
+readCarryIn)` (now a third argument); the known drift stands.
+- For chunk 15 (`spec-writer`): `phrase-replay-report.ts` copies intent fields by name and does not
+  show `chordFamilies`; `docs/phrase-workspace.md`'s "Until the `ifk4.` key exists, …" sentence was
+  already stale.

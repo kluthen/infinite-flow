@@ -569,7 +569,8 @@ in this wave build on it.
 
 ### Chunk 3 — The level in the generation request
 
-Status: planned
+Status: merged (w1, 056ea511)
+Record: 1213728c (3a), 5bab9862 (3b), b06b844e (3c): `chord-families.ts` (`ChordFamilies`, `ChordFamilyLevel`, `OFF_CHORD_FAMILIES`, `parseChordFamilies`); `GenerationIntent.chordFamilies` required after `figureLevels`; `rebuildGenerationWorkerIntent(record, readCarryIn, readChordFamilies)`. Beside the Files line: `use-generation-session.ts` and `generation-session-prewarm.ts` also build intents and pass Off (reported to `spec-writer` via the wave log). No deviation from spec or design.
 Wave: 1
 Depends on: 0, 1 (and v3.1 chunk 4, figure levels beside the controls, the pattern this follows)
 Architecture capture: the level by capability name (revisions of
