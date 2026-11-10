@@ -1,0 +1,83 @@
+[
+  {
+    "phrase": 1,
+    "bass": [
+      "43 at 0/1 for 1/2",
+      "38 at 1/2 for 1/2",
+      "38 at 1/1 for 1/2",
+      "45 at 3/2 for 1/2",
+      "43 at 2/1 for 1/2",
+      "38 at 5/2 for 1/2",
+      "43 at 3/1 for 1/2",
+      "38 at 7/2 for 1/2"
+    ],
+    "chords": [
+      "55 at 0/1 for 1/1",
+      "59 at 0/1 for 1/1",
+      "62 at 0/1 for 1/1",
+      "53 at 1/1 for 1/1",
+      "57 at 1/1 for 1/1",
+      "62 at 1/1 for 1/1",
+      "55 at 2/1 for 1/1",
+      "59 at 2/1 for 1/1",
+      "62 at 2/1 for 1/1",
+      "55 at 3/1 for 1/1",
+      "59 at 3/1 for 1/1",
+      "62 at 3/1 for 1/1"
+    ]
+  },
+  {
+    "phrase": 2,
+    "bass": [
+      "43 at 0/1 for 1/2",
+      "38 at 1/2 for 1/2",
+      "38 at 1/1 for 1/2",
+      "45 at 3/2 for 1/2",
+      "43 at 2/1 for 1/2",
+      "38 at 5/2 for 1/2",
+      "43 at 3/1 for 1/2",
+      "38 at 7/2 for 1/2"
+    ],
+    "chords": [
+      "55 at 0/1 for 1/1",
+      "59 at 0/1 for 1/1",
+      "62 at 0/1 for 1/1",
+      "53 at 1/1 for 1/1",
+      "57 at 1/1 for 1/1",
+      "62 at 1/1 for 1/1",
+      "55 at 2/1 for 1/1",
+      "59 at 2/1 for 1/1",
+      "62 at 2/1 for 1/1",
+      "55 at 3/1 for 1/1",
+      "59 at 3/1 for 1/1",
+      "62 at 3/1 for 1/1"
+    ]
+  },
+  {
+    "phrase": 3,
+    "bass": [
+      "43 at 0/1 for 1/2",
+      "38 at 1/2 for 1/2",
+      "38 at 1/1 for 1/2",
+      "45 at 3/2 for 1/2",
+      "43 at 2/1 for 1/2",
+      "38 at 5/2 for 1/2",
+      "43 at 3/1 for 1/2",
+      "38 at 7/2 for 1/2"
+    ],
+    "chords": [
+      "55 at 0/1 for 1/1",
+      "59 at 0/1 for 1/1",
+      "62 at 0/1 for 1/1",
+      "53 at 1/1 for 1/1",
+      "57 at 1/1 for 1/1",
+      "62 at 1/1 for 1/1",
+      "55 at 2/1 for 1/1",
+      "59 at 2/1 for 1/1",
+      "62 at 2/1 for 1/1",
+      "55 at 3/1 for 1/1",
+      "59 at 3/1 for 1/1",
+      "62 at 3/1 for 1/1"
+    ]
+  }
+]
