@@ -72,3 +72,14 @@ jobs. No source change since `v3.2.0`.
 - So every `quality` step is green on 78ce77c6, each failure a start-up timeout or a real-time count
   under load that passed on its own. Filed **ISS-017** (Low): end-to-end harness waits time out
   under heavy machine load.
+
+### Wave 0 sync and report (2026-11-10)
+
+- `documentalist`'s wave sync over `eb28071d..v3.3-w0`: no drift, no record change, no commit. The
+  five test links chunk 1 placed sit directly above their tests and match their atoms. FYI for the
+  owner: `rule_generated_notes_musicxml_export` and `rule_generated_notes_midi_export` stay at
+  REVIEW; promoting them is best left until their v3.3 revisions (chunks 9 and 13) land.
+  `module_phrase_replay_key`'s LOGIC will name the `ifk4.` corpus at A3 (wave 3's sync).
+- `doc-ids compare main v3.3-w0`: 0 collisions.
+- Report to the owner: chunks 0 and 1 merged, none moved; the gate green step by step on 78ce77c6
+  with ISS-017 filed; entry 311,455 B; nothing to sign. Merge into `main` on the owner's word.
