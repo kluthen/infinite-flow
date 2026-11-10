@@ -223,3 +223,6 @@ Reference machine (AMD Ryzen 5 PRO 8640HS), Node 22.23.4; no `atd audit`.
 - Report to the owner: chunks 2, 3, 8, 10 and 11 merged, none moved out of the wave; the gate green
   on 2020de0f with one ISS-017 flake; sweep at v3.2's figures; entry 313,113 B; A8's split (D527)
   told. Merge into `main` on the owner's word.
+- The owner, 2026-11-10: "Merge and push"; the four promotions "Promote all four": applied in
+  d2519a7d (each REVIEW at 0.1). Next: wave 2 (chunks 4, 5, 6, 7, 9) in a fresh session; wave 1's
+  row in the waves table is set to merged by wave 2's start.
