@@ -6,7 +6,7 @@ priority: 1
 dependents: []
 human_name: Neutral and Jazz Apply Their Defined Settings
 layer: BUSINESS
-version: 0.3
+version: 0.4
 tags: [profile, preset, controls, changes-in-v3.3]
 parents:
   - [[rule_selectable_generative_profiles]]
@@ -18,10 +18,10 @@ parents:
 Make the Neutral and Jazz presets establish their defined settings.
 
 ## THE RULE / LOGIC
-The Neutral preset is the default and selects gentle diatonic harmonic motion, Lift tension, quarter-note density, Slightly varied rhythmic variety, straight syncopation, sparse rests, arch contour, middle register, Shaped leapiness and Varied arpeggio chaos. The Jazz preset selects gentle diatonic harmonic motion, Lift tension, eighth-note density, Slightly varied rhythmic variety, occasional offbeats, conversational space, wandering contour, varying register, Shaped leapiness and Varied arpeggio chaos. Each also holds its seven figure levels: the passing tone, the accented passing tone and the neighbor tone As today in both; the appoggiatura and the diatonic enclosure Off in both; the chromatic approach and the chromatic enclosure Off in Neutral and As today in Jazz. Selecting either preset replaces all ten preset-held controls and all seven figure levels with that preset's complete defined bundle, regardless of the previous configuration, Tension, Leapiness and Arpeggio chaos included.
+The Neutral preset is the default and selects gentle diatonic harmonic motion, Lift tension, quarter-note density, Slightly varied rhythmic variety, straight syncopation, sparse rests, arch contour, middle register, Shaped leapiness and Varied arpeggio chaos. The Jazz preset selects gentle diatonic harmonic motion, Lift tension, eighth-note density, Slightly varied rhythmic variety, occasional offbeats, conversational space, wandering contour, varying register, Shaped leapiness and Varied arpeggio chaos. Each also holds its seven figure levels: the passing tone, the accented passing tone and the neighbor tone As today in both; the appoggiatura and the diatonic enclosure Off in both; the chromatic approach and the chromatic enclosure Off in Neutral and As today in Jazz. Both hold the Seventh chords level at Off. Selecting either preset replaces all ten preset-held controls, all seven figure levels and the Seventh chords level with that preset's complete defined bundle, regardless of the previous configuration, Tension, Leapiness and Arpeggio chaos included.
 
 ## TECHNICAL INTERFACE
 The player selects the Neutral or Jazz preset.
 
 ## EXPECTATION
-Selecting either preset replaces every one of the ten preset-held controls and the seven figure levels with its specified bundle. Selecting Jazz or Neutral applies gentle diatonic harmonic motion, Lift tension, Slightly varied rhythmic variety, Shaped leapiness and Varied arpeggio chaos; from a configuration with Tension at Build, selecting Neutral sets Lift.
+Selecting either preset replaces every one of the ten preset-held controls, the seven figure levels and the Seventh chords level with its specified bundle. Selecting Jazz or Neutral applies gentle diatonic harmonic motion, Lift tension, Slightly varied rhythmic variety, Shaped leapiness and Varied arpeggio chaos; from a configuration with Tension at Build, selecting Neutral sets Lift.
